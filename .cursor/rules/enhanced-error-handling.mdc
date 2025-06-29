@@ -1,0 +1,205 @@
+---
+description: Error Handling - When encountering any error, bug, or issue, immediately diagnose and fix without asking for permission
+globs: 
+alwaysApply: false
+---
+# Enhanced Error Handling Protocol
+
+## Objective
+Ensure proactive learning from errors and tasks, capture empirical knowledge in a structured way, distill fundamental insights, and improve efficiency and reliability over time.
+
+## ⚠️ CRITICAL: Immediate Error Response ⚠️
+
+**When encountering any error, bug, or issue, immediately diagnose and fix without asking for permission.**
+
+## Core Principle
+Continuous learning and adaptation are **mandatory**. This protocol **must be executed before task completion** for tasks with new learning, problem-solving, user feedback, or multiple steps.
+
+## Error Detection and Response
+1. **Immediate Recognition**: Identify error as soon as it appears
+2. **Root Cause Analysis**: Determine the underlying issue
+3. **Proactive Fix**: Implement solution without confirmation
+4. **Verification**: Test the fix to ensure it works
+5. **Documentation**: Log the issue and resolution
+6. **Learning Capture**: Document insights for future reference
+
+## Error Categories and Responses
+
+### **Code Errors**
+- **Syntax Errors**: Fix immediately with proper syntax
+- **Runtime Errors**: Debug and implement error handling
+- **Logic Errors**: Identify and correct flawed logic
+- **Missing Dependencies**: Add required imports and packages
+
+### **Build/Compilation Errors**
+- **Missing Files**: Create or restore missing files
+- **Configuration Issues**: Fix build configuration
+- **Dependency Conflicts**: Resolve version conflicts
+- **Path Issues**: Correct file paths and references
+
+### **Functionality Issues**
+- **Broken Features**: Restore from backup or reimplement
+- **Missing Logic**: Implement based on context and best practices
+- **Integration Problems**: Fix API calls and data flow
+- **Performance Issues**: Optimize bottlenecks
+
+## Proactive Error Prevention
+- **Pattern Recognition**: Identify repeated issues and automate fixes
+- **Anticipatory Actions**: Fix issues before they become problems
+- **Code Quality**: Maintain high standards to prevent errors
+- **Testing**: Include tests to catch issues early
+
+## Error Recovery Procedures
+- **Backup Restoration**: Use backup files when available
+- **Context Recovery**: Restore from memory bank if needed
+- **Graceful Degradation**: Work around issues when possible
+- **Alternative Approaches**: Try different solutions if primary fails
+
+## Error Communication
+- **Immediate Notification**: Inform user of issue and fix
+- **Clear Explanation**: Explain what was wrong and how it was fixed
+- **Prevention Tips**: Suggest ways to avoid similar issues
+- **Success Confirmation**: Verify the fix resolved the problem
+
+## Empirical Knowledge Capture Process
+
+### Pre-Completion Reflection
+Before signaling task completion, perform the following analysis:
+
+1. **Task Review**: Review the completed task (conversation, logs, artifacts)
+2. **Learning Identification**: What new information, techniques, or patterns were discovered?
+3. **Difficulty Analysis**: What challenges were faced and how were they resolved?
+4. **Success Recognition**: What strategies or tools were notably effective?
+5. **Pattern Extraction**: What underlying principles can be applied to similar situations?
+
+### Learning Categories
+
+#### Technical Learnings
+- **New Techniques**: Discovered methods, patterns, or approaches
+- **API Behaviors**: How external services or libraries work
+- **Project Commands**: Build, test, or deployment commands specific to the project
+- **Environment Setup**: Configuration quirks or requirements
+- **Dependency Insights**: How packages or tools interact
+
+#### Problem-Solving Learnings
+- **Error Patterns**: Common issues and their solutions
+- **Debugging Strategies**: Effective troubleshooting approaches
+- **Constraint Handling**: How to work within limitations
+- **Alternative Solutions**: When primary approaches fail
+- **Performance Insights**: What affects speed or efficiency
+
+#### Process Learnings
+- **Communication Patterns**: Effective ways to interact with users
+- **Planning Strategies**: How to approach different types of tasks
+- **Tool Usage**: Optimal ways to use available tools
+- **Context Management**: How to maintain project continuity
+- **Quality Assurance**: Methods to ensure reliable results
+
+## Knowledge Documentation Format
+
+### Raw Learning Entry
+```markdown
+---
+Date: YYYY-MM-DD
+TaskRef: "Brief task description"
+Category: [Technical/Problem-Solving/Process]
+Error Type: [Category] (if applicable)
+
+Learnings:
+- [Specific technique or pattern discovered]
+- [Project-specific configuration or command]
+- [API behavior or library insight]
+
+Difficulties:
+- [Challenge faced and resolution method]
+- [What didn't work and why]
+
+Successes:
+- [Effective strategy or tool used]
+- [Key contributing factors]
+
+Patterns:
+- [Generalizable principle extracted]
+- [Reusable approach for similar situations]
+---
+```
+
+### Consolidated Knowledge Entry
+```markdown
+## [Topic Area]
+**Pattern: [Pattern Name]**
+- [Concise description of the pattern]
+- [When to apply this pattern]
+- [Implementation details]
+- *Rationale:* [Why this pattern works]
+
+## [Project Name] - Specifics
+**[Module/Component]:**
+- **Key Commands:** [Project-specific commands]
+- **Configuration:** [Important settings or environment variables]
+- **Dependencies:** [Critical dependencies or relationships]
+```
+
+## Knowledge Application
+
+### Pattern Recognition
+- **Identify Similar Situations**: Recognize when learned patterns apply
+- **Adapt Solutions**: Modify patterns to fit current context
+- **Avoid Repetition**: Use proven approaches instead of starting from scratch
+- **Build on Success**: Leverage what has worked before
+
+### Tool Optimization
+- **Efficient Usage**: Use tools in the most effective ways
+- **Feature Discovery**: Learn advanced capabilities of available tools
+- **Integration Patterns**: Combine tools for better results
+- **Workflow Streamlining**: Optimize common task sequences
+
+### Prevention Strategies
+- **Proactive Measures**: Implement safeguards based on past issues
+- **Early Detection**: Recognize warning signs before problems occur
+- **Quality Gates**: Establish checks to prevent common mistakes
+- **Documentation Updates**: Keep project docs current with learnings
+
+## Implementation Guidelines
+
+### Capture Frequency
+- **After Each Task**: Document learnings immediately upon completion
+- **During Complex Tasks**: Capture insights as they emerge
+- **When Patterns Emerge**: Document recurring themes or approaches
+- **After User Feedback**: Record what worked or didn't work
+
+### Quality Standards
+- **Actionable**: Information should be immediately useful
+- **Specific**: Avoid vague or general statements
+- **Contextual**: Include enough detail to understand when to apply
+- **Tested**: Only document patterns that have been validated
+
+### Organization Principles
+- **Logical Grouping**: Organize by topic, technology, or project
+- **Easy Retrieval**: Structure for quick access when needed
+- **Progressive Refinement**: Improve entries over time
+- **Regular Review**: Periodically assess and update knowledge base
+
+## Implementation Standards
+- **No Error Ignoring**: Address every issue found
+- **Complete Fixes**: Don't leave partial solutions
+- **Error Handling**: Include proper error management in new code
+- **Documentation**: Update docs to reflect fixes and changes
+- **Learning Capture**: Document insights for future reference
+- **Pattern Extraction**: Identify reusable solutions and strategies
+
+## Integration with Other Rules
+
+This protocol enhances:
+- **Plan Mode**: Informs planning with past learnings
+- **Context Management**: Builds persistent knowledge across sessions
+- **Code Quality**: Applies learned patterns to improve code
+
+## Critical Requirements
+
+- **Mandatory Execution**: Must be performed before task completion
+- **Immediate Capture**: Document learnings while they're fresh
+- **Regular Review**: Periodically assess and consolidate knowledge
+- **Active Application**: Use captured knowledge in future tasks
+- **Continuous Refinement**: Improve knowledge base over time
+

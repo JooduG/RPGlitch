@@ -5,7 +5,7 @@
   "main": "build-perchance.js",
   "scripts": {
     "build": "node build-perchance.js",
-    "build:watch": "node build-perchance.js && echo 'Watching for changes...' && nodemon --watch RPGlitch --ext html,js --exec 'node build-perchance.js'",
+    "build:watch": "node build-perchance.js && echo 'Watching for changes...' && nodemon --watch RPGlitch --ext html,js,css --exec 'node build-perchance.js'",
     "validate": "node -e \"require('./build-perchance.js').validateFiles()\"",
     "clean": "rm -rf build/",
     "deploy": "npm run build && echo '✅ Build complete! Copy build/RPGlitch-perchance.html to Perchance.'"

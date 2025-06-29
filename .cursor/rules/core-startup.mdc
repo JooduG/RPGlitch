@@ -1,20 +1,18 @@
 ---
-description: Defines an automated startup process for Cursor to initialize tasks or sessions for any project, adapted from Cline's system.
-author: Cursor
-version: 1.0
-tags: ["startup", "automation", "memory-bank", "core-behavior", "project-initialization"]
-globs: ["memory-bank/*"]
+description: Core Startup - This protocol MUST be executed at the start of EVERY task or session within any project context
+globs: 
+alwaysApply: false
 ---
-
-# Cursor Startup Automation Rule
+# Core Startup Protocol
 
 ## Objective
-This rule defines an automated startup process for Cursor to initialize tasks or sessions within any project. It automates the review of memory bank files, generation of summaries, and logging of critical context, ensuring consistency while maintaining flexibility.
+Provide a single, unambiguous protocol that the AI must follow at the start of every work session and whenever the conversation nears the context limit.
 
-## When to Apply This Rule
-Cursor SHOULD apply this rule at the start of EVERY task or session within any project context. This rule is triggered automatically upon task initialization.
+## ⚠️ CRITICAL: Mandatory Execution ⚠️
 
-## Automation Execution Flow
+**This protocol MUST be executed at the start of EVERY task or session within any project context.**
+
+## 📌 Core Startup Protocol (run at the beginning of **every** session)
 
 ### 1. Initialization and Task Scope Detection
 - **Action:** Automatically detect task scope based on context window usage
@@ -64,6 +62,13 @@ Cursor SHOULD apply this rule at the start of EVERY task or session within any p
 - **Storage:** Save to "memory-bank/startup_log_[timestamp].md"
 - **Logic:** Version reports to maintain history
 
+## 💡 General Principles
+• Be proactive – anticipate needs and suggest next steps.
+• Follow styles & patterns from the design system.
+• Communicate concisely: bullet lists, numbered steps, markdown code blocks.
+• Explain reasoning behind code edits.
+• Update documentation (e.g., `currentState.md`) after significant changes.
+
 ## Error Handling and Fallback Mechanisms
 - **File Access Errors:** Log errors and proceed with cached data
 - **Structural Changes:** Log discrepancies and adapt
@@ -81,4 +86,5 @@ Cursor SHOULD apply this rule at the start of EVERY task or session within any p
 - Log all actions transparently
 
 ## Conclusion
-This rule enables automated startup for any project, ensuring consistent initialization while maintaining Cursor's flexibility. 
+This core startup protocol ensures consistent initialization while maintaining Cursor's flexibility and efficiency.
+

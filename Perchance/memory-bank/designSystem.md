@@ -138,17 +138,26 @@ _manageAiButtonState(buttonElement, {
   - Automated testing
 
 ## Context Thresholds
+- **Global Context Threshold**: 60% (used by core-startup.mdc and context-management.mdc)
 - Task handoff: 60%
 - Critical alert: 80%
+- Emergency handoff: 90%
 
 ## Rule Set Status
-- Active: 
-  - cursor-context-management.md (60% threshold)
-  - cursor-startup-automation.md (agnostic)
-- Legacy (Cline):
+- **Active Rules**:
+  - plan-act-mode.mdc (mode control system)
+  - core-startup.mdc (mandatory startup protocol)
+  - context-management.mdc (60% threshold management)
+  - enhanced-error-handling.mdc (proactive error handling)
+  - code-quality-standards.mdc (complete implementation)
+  - communication-style.mdc (technical but concise)
+  - perchance-best-practices.mdc (platform-specific patterns)
+  - basic-security.mdc (input sanitization and validation)
+  - frontend-best-practices.mdc (React/JS/CSS standards)
+- **Legacy Rules** (deprecated):
   - cline-new-task-automation.md (deprecated)
   - cline-startup-automation.md (deprecated)
-- Disabled:
+- **Disabled Rules**:
   - cline-sequential-thinking.md
   - cline-self-improvement.md
 

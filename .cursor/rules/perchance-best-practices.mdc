@@ -1,0 +1,51 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Perchance Best Practices
+
+## ⚠️ CRITICAL: Foundational Rule ⚠️
+
+**This rule is ALWAYS ACTIVE for Perchance development.** It provides the foundational patterns and practices specific to the Perchance platform.
+
+## Architecture
+- **Modular Organization**: Follow the Perchance architecture by keeping HTML, CSS, and JS modular and organized
+- **Panel Separation**: Use the left panel for plugin initialization and the right panel for application logic
+- **Component Structure**: Organize components logically within the Perchance framework
+
+## Data Management
+- **IndexedDB Integration**: Ensure all data interactions are handled through IndexedDB for offline capabilities
+- **Data Persistence**: Implement proper data persistence strategies
+- **Data Validation**: Validate data before storing and retrieving
+
+## User Experience
+- **Error Handling**: Implement user-friendly error handling and notifications for better UX
+- **Loading States**: Provide clear loading indicators for async operations
+- **Responsive Design**: Ensure the application works well across different devices
+
+## Performance
+- **Efficient Rendering**: Optimize rendering performance for large datasets
+- **Memory Management**: Implement proper memory management for long-running applications
+- **Caching Strategy**: Use appropriate caching strategies for frequently accessed data
+
+## Development Workflow
+- **Version Control**: Use proper version control for Perchance projects
+- **Testing**: Implement testing strategies for Perchance applications
+- **Documentation**: Maintain clear documentation for complex Perchance logic
+
+## Integration with Other Rules
+
+This foundational rule works with:
+- **Frontend Best Practices**: Enhanced patterns when needed
+- **Code Quality Standards**: Ensures Perchance code meets quality standards
+- **Enhanced Error Handling**: Captures Perchance-specific error patterns
+- **Context Management**: Maintains Perchance project context
+
+
+
+
+
+
+
+

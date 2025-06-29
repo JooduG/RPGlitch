@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "RPGlitch-left-panel.html": "plaintext"
+  },
+  "files.exclude": {
+    "**/.DS_Store": true
+  }
+} 

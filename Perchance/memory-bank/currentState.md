@@ -44,9 +44,16 @@ With the duplicate code issue resolved, we can now focus on the next phase of de
 ## System Settings
 - **Context handoff**: 60%
 - **Active rules**: 
-  - cursor-context-management.md (60% threshold)
-  - cursor-startup-automation.md (agnostic)
-- **Legacy rules** (Cline):
+  - plan-act-mode.mdc (mode control system)
+  - core-startup.mdc (mandatory startup protocol)
+  - context-management.mdc (60% threshold management)
+  - enhanced-error-handling.mdc (proactive error handling)
+  - code-quality-standards.mdc (complete implementation)
+  - communication-style.mdc (technical but concise)
+  - perchance-best-practices.mdc (platform-specific patterns)
+  - basic-security.mdc (input sanitization and validation)
+  - frontend-best-practices.mdc (React/JS/CSS standards)
+- **Legacy rules** (deprecated):
   - cline-new-task-automation.md (deprecated)
   - cline-startup-automation.md (deprecated)
 - **Disabled rules**:
