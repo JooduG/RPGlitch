@@ -812,13 +812,18 @@
         .avatar-overlay { position: absolute; inset: 0; background-color: rgba(30, 30, 46, 0.95); z-index: 1000; display: none; flex-direction: column; padding: 1rem; gap: 0.75rem; backdrop-filter: blur(4px); }
         .avatar-overlay.visible { display: flex; }
         .avatar-overlay-content { flex-grow: 1; display: flex; flex-direction: column; gap: 0.5rem; }
-        #avatarPreviewAreaForm-character, #avatarPreviewAreaForm-world { flex-grow: 1; background-color: var(--background); border-radius: var(--border-radius); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--surface1-color); }
+        #avatarPreviewAreaForm-character, #avatarPreviewAreaForm-world { flex-grow: 1; background-color: var(--background); border-radius: var(--border-radius); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--surface1-color); min-height: 200px; }
         #avatarPreviewAreaForm-character.has-image, #avatarPreviewAreaForm-world.has-image { padding: 0; border: none; }
         #avatarPreviewAreaForm-character canvas, #avatarPreviewAreaForm-world canvas,
         #avatarPreviewAreaForm-character img, #avatarPreviewAreaForm-world img { 
             width: 100%; 
             height: 100%; 
             object-fit: cover; 
+        }
+        #avatarPreviewAreaForm-character canvas, #avatarPreviewAreaForm-world canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
         }
         #avatarPromptInputForm-character, #avatarPromptInputForm-world { resize: vertical; min-height: 60px; max-height: 120px; font-size: 0.9em; background-color: var(--background); }
         .avatar-overlay-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
@@ -878,6 +883,34 @@
         }
         .ai-helper-button#summarizeBtnCharacter, 
         .ai-helper-button#summarizeBtnWorld { background: var(--peach-color); }
+        
+        /* Avatar overlay specific AI helper button styling */
+        .avatar-overlay-content .ai-helper-button {
+            opacity: 1 !important;
+            position: static !important;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.85em;
+            padding: 0.5rem;
+            background: var(--peach-color);
+            color: var(--background);
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .avatar-overlay-content .ai-helper-button:hover {
+            background: var(--mauve-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .avatar-overlay-content .ai-helper-button.ai-active {
+            background: var(--mauve-color) !important;
+            color: var(--background) !important;
+        }
+        
         .full-width { grid-column: 1 / -1; }
         
         .options-section-title { display: none; }

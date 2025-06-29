@@ -9,6 +9,14 @@ const path = require('path');
  * This script combines the separate RPGlitch files into a single file
  * ready for deployment to the Perchance platform.
  * 
+ * Development follows the comprehensive rules system:
+ * - plan-act-mode.mdc: Mode control for development tasks
+ * - core-startup.mdc: Mandatory startup protocol
+ * - context-management.mdc: 60% context threshold management
+ * - enhanced-error-handling.mdc: Proactive error handling
+ * - code-quality-standards.mdc: Complete implementation standards
+ * - perchance-best-practices.mdc: Platform-specific patterns
+ * 
  * Usage: node build-perchance.js
  */
 

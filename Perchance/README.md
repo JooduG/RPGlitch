@@ -69,6 +69,7 @@ Perchance/
 | `npm run validate` | Check if all source files exist |
 | `npm run clean` | Remove the build directory |
 | `npm run deploy` | Build and show deployment instructions |
+| `npm run rules:update` | Show instructions for updating memory bank files |
 
 ## 🔧 Manual Build
 
@@ -90,6 +91,8 @@ The build script performs the following steps:
 3. **Combines** them in the correct order
 4. **Adds** helpful comments and section markers
 5. **Outputs** a single file: `build/RPGlitch-perchance.html`
+
+**Note**: Development follows the comprehensive rules system for consistent quality and context management. See the Rules System & Memory Bank section above for details.
 
 ## 🎯 Development Workflow
 

@@ -39,6 +39,16 @@ This note is placed here in `coreContext.md` because it is a foundational piece 
 ---
 
 ## 1. Project Overview
+
+### Rules System Integration
+This project uses a comprehensive rules system for consistent development and context management:
+- **Mode Control**: Plan Mode vs Act Mode for different task types
+- **Context Management**: 60% threshold monitoring with memory bank persistence
+- **Error Handling**: Proactive error detection and learning capture
+- **Code Quality**: Complete implementation standards with no TODOs
+- **Security**: Input sanitization and validation practices
+- **Platform-Specific**: Perchance integration patterns and best practices
+
 ```mermaid
 graph TB
     subgraph RPGlitch

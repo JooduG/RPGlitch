@@ -209,6 +209,23 @@
 </div>
 
 
-<style></style>
+<style>
+  @import url('RPGlitch.css');
+</style>
 
-<script type="module"></script>
+<script>
+  // Simple DOMPurify-like sanitization for Perchance compatibility
+  window.DOMPurify = {
+    sanitize: function(text) {
+      if (typeof text !== 'string') return '';
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+  };
+</script>
+
+<script src="RPGlitch.js"></script>

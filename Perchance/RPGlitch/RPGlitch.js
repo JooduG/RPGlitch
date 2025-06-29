@@ -1,4 +1,5 @@
-    import Dexie from 'https://cdn.jsdelivr.net/npm/dexie@3.2.2/dist/dexie.mjs';
+    // Perchance-compatible initialization without ES6 imports
+    // Dexie will be loaded by Perchance's plugin system
     
     const App = {
       db: null, 
@@ -195,33 +196,74 @@
       },
       
       sanitizeHtml: (text) => {
-          const textToSanitize = String(text === undefined || text === null ? "" : text);
-          if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
-              return window.DOMPurify.sanitize(textToSanitize);
+          try {
+              const textToSanitize = String(text === undefined || text === null ? "" : text);
+              if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+                  return window.DOMPurify.sanitize(textToSanitize);
+              }
+              console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
+              // Fallback sanitization for basic XSS prevention
+              const map = {
+                  '&': '&amp;',
+                  '<': '&lt;',
+                  '>': '&gt;',
+                  '"': '&quot;',
+                  "'": '&#39;'
+              };
+              return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
+          } catch (error) {
+              console.error("Error in sanitizeHtml:", error);
+              return ""; // Return empty string on error for safety
           }
-          console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
-          const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-          return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
       },
       
       showTopNotification(message, type = 'info', duration = 3000) {
-          if (!this.ui.topBar || !this.ui.topBarNotificationArea) return;
-  
-          if (this.topNotificationTimeoutId) {
-              clearTimeout(this.topNotificationTimeoutId);
+          try {
+              // Input validation
+              if (!message || typeof message !== 'string') {
+                  console.warn("showTopNotification: Invalid message parameter");
+                  return;
+              }
+              
+              if (!['info', 'success', 'error', 'warning'].includes(type)) {
+                  console.warn("showTopNotification: Invalid type parameter, defaulting to 'info'");
+                  type = 'info';
+              }
+              
+              if (typeof duration !== 'number' || duration < 0) {
+                  console.warn("showTopNotification: Invalid duration parameter, defaulting to 3000");
+                  duration = 3000;
+              }
+              
+              // Clear existing notification
+              if (this.topNotificationTimeoutId) {
+                  clearTimeout(this.topNotificationTimeoutId);
+              }
+              
+              const notificationArea = this.ui.topBarNotificationArea;
+              if (!notificationArea) {
+                  console.error("showTopNotification: Notification area not found");
+                  return;
+              }
+              
+              // Set notification content
+              notificationArea.textContent = this.sanitizeHtml(message);
+              notificationArea.className = `top-bar-notification-area-style ${type}`;
+              
+              // Show notification
+              this.ui.topBar.classList.add('top-bar-notification-active', type);
+              this.showEl(notificationArea);
+              
+              // Auto-hide after duration
+              this.topNotificationTimeoutId = setTimeout(() => {
+                  this.hideEl(notificationArea);
+                  this.ui.topBar.classList.remove('top-bar-notification-active', type);
+              }, duration);
+          } catch (error) {
+              console.error("Error in showTopNotification:", error);
+              // Fallback to alert if notification system fails
+              alert(`Notification: ${message}`);
           }
-  
-          this.ui.topBarNotificationArea.textContent = message;
-          this.ui.topBarNotificationArea.className = 'top-bar-notification-area-style'; // Reset classes
-          this.ui.topBar.classList.add('top-bar-notification-active');
-          this.ui.topBar.classList.add(type); // Add type for color
-          this.showEl(this.ui.topBarNotificationArea);
-  
-          this.topNotificationTimeoutId = setTimeout(() => {
-              this.hideEl(this.ui.topBarNotificationArea);
-              this.ui.topBar.classList.remove('top-bar-notification-active', 'success', 'error', 'info');
-              this.topNotificationTimeoutId = null;
-          }, duration);
       },
   
       getPremadeCharacterItems() { 
@@ -295,53 +337,69 @@
       },
       
       async initializeDb() {
-          this.db = new Dexie(window.dbName);
-          window.db = this.db;
-      
-          this.db.version(9).stores({ 
-              appState: '&id, activeStoryId',
-              characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future',
-              stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld', 
-              messages: '++id, storyId, role, content, timestamp, characterId, isHidden',
-              worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future'
-          }).upgrade(async tx => {
-              await tx.table('stories').toCollection().modify(async story => {
-                  if (story.storyAiCharacter === undefined && story.aiCharacterId) {
-                      const charData = await App._getIngredientData(story.aiCharacterId, 'characters', App.getPremadeCharacterItems, 'character'); 
-                      story.storyAiCharacter = charData ? { ...charData } : null;
-                  }
-                  if (story.storyUserCharacter === undefined && story.userCharacterId) {
-                      const charData = await App._getIngredientData(story.userCharacterId, 'characters', App.getPremadeCharacterItems, 'character');
-                      story.storyUserCharacter = charData ? { ...charData } : null;
-                  }
-                  if (story.storyWorld === undefined && story.worldId) {
-                      const worldData = await App._getIngredientData(story.worldId, 'worlds', App.getPremadeWorldItems, 'world');
-                      story.storyWorld = worldData ? { ...worldData } : null;
+          try {
+              if (!window.Dexie) {
+                  throw new Error("Dexie is not available. Database initialization failed.");
+              }
+              
+              this.db = new Dexie(window.dbName);
+              window.db = this.db;
+              
+              // Define database schema with proper versioning
+              this.db.version(10).stores({
+                  appState: '&id, activeStoryId',
+                  characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future',
+                  stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld',
+                  messages: '++id, storyId, role, content, timestamp, characterId, isHidden, summariesEndingHere, memoriesEndingHere',
+                  worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future'
+              }).upgrade(async tx => {
+                  try {
+                      await tx.table('stories').toCollection().modify(async story => {
+                          if (story.storyAiCharacter === undefined && story.aiCharacterId) {
+                              const charData = await App._getIngredientData(story.aiCharacterId, 'characters', App.getPremadeCharacterItems, 'character'); 
+                              story.storyAiCharacter = charData ? { ...charData } : null;
+                          }
+                          if (story.storyUserCharacter === undefined && story.userCharacterId) {
+                              const charData = await App._getIngredientData(story.userCharacterId, 'characters', App.getPremadeCharacterItems, 'character');
+                              story.storyUserCharacter = charData ? { ...charData } : null;
+                          }
+                          if (story.storyWorld === undefined && story.worldId) {
+                              const worldData = await App._getIngredientData(story.worldId, 'worlds', App.getPremadeWorldItems, 'world');
+                              story.storyWorld = worldData ? { ...worldData } : null;
+                          }
+                      });
+                  } catch (upgradeError) {
+                      console.error("Database upgrade error:", upgradeError);
+                      throw upgradeError;
                   }
               });
-          });
-  
-          // Version 10: Add summariesEndingHere and memoriesEndingHere to messages table
-          this.db.version(10).stores({
-              appState: '&id, activeStoryId',
-              characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future',
-              stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld',
-              messages: '++id, storyId, role, content, timestamp, characterId, isHidden, summariesEndingHere, memoriesEndingHere', // Updated schema
-              worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future'
-          }).upgrade(() => {
-              console.log("Upgraded database to version 10. Added summariesEndingHere and memoriesEndingHere to messages table.");
-          });
-      
-          try {
+              
+              // Test database connection
               await this.db.open();
               const appStateAfterOpen = await this.getAppState();
               this.currentUserCharacterId = appStateAfterOpen.currentUserCharacterId;
               this.currentStoryId = appStateAfterOpen.lastOpenedStoryId; 
               this.activeStoryId = appStateAfterOpen.activeStoryId;
+              
+              console.log("Database initialized successfully");
+              return true;
           } catch (error) {
               console.error("Failed to open Dexie database:", error);
-              this.showTopNotification("Error initializing database.", "error", 5000);
-              throw error;
+              
+              // Show user-friendly error message
+              this.showTopNotification(
+                  "Database initialization failed. Please refresh the page or check your browser settings.",
+                  "error",
+                  10000
+              );
+              
+              // Show emergency export container
+              const emergencyCtn = document.getElementById('emergencyExportCtn');
+              if (emergencyCtn) {
+                  this.showEl(emergencyCtn);
+              }
+              
+              throw error; // Re-throw for calling function to handle
           }
       },
       
@@ -382,134 +440,233 @@
       },
   
       async initialLoad() {
-          console.log("[App Lifecycle] initialLoad starting...");
-          this._getUIElements();
-          this.isInitializing = true;
-  
-          if (!this.ui.main || !this.ui.initialPageLoadingModal) {
-              console.error("[App Critical] Main UI elements not found!");
-              const emergencyCtn = document.getElementById('emergencyExportCtn');
-              if (emergencyCtn) this.showEl(emergencyCtn);
-              const modal = document.getElementById('initialPageLoadingModal');
-              if (modal) this.hideEl(modal);
-              alert("Critical error: Essential UI elements not found.");
-              this.isInitializing = false;
-              return;
-          }
-  
-          this.showEl(this.ui.main);
-  
           try {
-              await this.initializeDb();
-              const appState = await this.getAppState();
-              this.currentUserCharacterId = appState.currentUserCharacterId;
-              this.currentStoryId = appState.lastOpenedStoryId; 
-              this.activeStoryId = appState.activeStoryId; 
-              this.currentContextualMenuView = appState.currentContextualMenuView || this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.STORIES;
-              this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD;
-  
-  
-              this.ui.messageInput.onkeyup = (e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) { 
-                      e.preventDefault(); 
-                      if (!this.ui.sendButton.disabled) {
-                        this.sendButtonClickHandler();
-                      }
-                  }
-                  this.ui.messageInput.style.height = 'auto';
-                  this.ui.messageInput.style.height = (this.ui.messageInput.scrollHeight) + 'px';
-                  this.checkAllButtonStates();
-              };
-              this.ui.storyboardTitle.addEventListener('input', () => {
-                  this.storyboardTitleUserEdited = this.ui.storyboardTitle.textContent.trim() !== "";
-                  this.checkAllButtonStates();
-              });
-              this.ui.storyboardTitle.addEventListener('blur', () => {
-                  if (this.ui.storyboardTitle.textContent.trim() === "") this.storyboardTitleUserEdited = false;
-                  this.updateDynamicStoryboardTitle();
-              });
-              document.addEventListener('click', (event) => {
-                  if (this.ui.contextualMenuPanel.classList.contains('visible') && !this.ui.contextualMenuPanel.contains(event.target) && !this.ui.menuButton.contains(event.target)) {
-                      this.ui.contextualMenuPanel.classList.remove('visible');
-                      document.body.classList.remove('contextual-menu-open');
-                      this.ui.topBar.classList.remove('top-bar-interactive-hover');
-                  }
-              });
-              this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(button => button.onclick = () => this.switchContextualMenuView(button.dataset.view));
-              this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
-              this.ui.beginStoryBtn.onclick = () => this.beginStory();
-              this.ui.advancedStoryOptionsToggleBtn.onclick = () => {
-                  this.ui.advancedStoryOptionsContentArea.classList.toggle('open');
-                  const isExpanded = this.ui.advancedStoryOptionsContentArea.classList.contains('open');
-                  this.ui.advancedStoryOptionsToggleBtn.setAttribute('aria-expanded', isExpanded);
-              };
-              this.ui.shuffleStoryElementsBtn.onclick = () => this._shuffleStoryboard();
+              this.isInitializing = true;
               
+              // Initialize UI elements first
+              this._getUIElements();
+              
+              // Validate UI elements exist
+              if (!this.ui.main || !this.ui.initialPageLoadingModal) {
+                  throw new Error("Critical UI elements not found during initialization");
+              }
+              
+              // Initialize database
+              await this.initializeDb();
+              
+              // Set up event listeners with error handling
+              try {
+                  this._setupEventListeners();
+              } catch (eventError) {
+                  console.error("Error setting up event listeners:", eventError);
+                  this.showTopNotification("Some UI features may not work properly.", "warning");
+              }
+              
+              // Restore application state
+              try {
+                  await this._restoreApplicationState();
+              } catch (stateError) {
+                  console.error("Error restoring application state:", stateError);
+                  this.showTopNotification("Could not restore previous session state.", "warning");
+              }
+              
+              // Hide loading modal and show main interface
+              this.hideEl(this.ui.initialPageLoadingModal);
+              this.showEl(this.ui.main);
+              
+              console.log("[App Lifecycle] Initial load completed successfully");
+              
+          } catch (error) {
+              console.error("Critical initialization error:", error);
+              
+              // Show emergency interface
+              this.showEl(this.ui.emergencyExportCtn);
+              this.hideEl(this.ui.initialPageLoadingModal);
+              
+              // Show user-friendly error message
+              this.showTopNotification(
+                  "Application failed to initialize. Please refresh the page or contact support.",
+                  "error",
+                  15000
+              );
+              
+              throw error;
+          } finally {
+              this.isInitializing = false;
+              this.checkAllButtonStates();
+          }
+      },
+      
+      _setupEventListeners() {
+          try {
+              // Message input handling
+              if (this.ui.messageInput) {
+                  this.ui.messageInput.onkeyup = (e) => {
+                      try {
+                          if (e.key === 'Enter' && !e.shiftKey) { 
+                              e.preventDefault(); 
+                              if (!this.ui.sendButton.disabled) {
+                                  this.sendButtonClickHandler();
+                              }
+                          }
+                          this.ui.messageInput.style.height = 'auto';
+                          this.ui.messageInput.style.height = (this.ui.messageInput.scrollHeight) + 'px';
+                          this.checkAllButtonStates();
+                      } catch (error) {
+                          console.error("Error in message input handler:", error);
+                      }
+                  };
+              }
+              
+              // Storyboard title handling
+              if (this.ui.storyboardTitle) {
+                  this.ui.storyboardTitle.addEventListener('input', () => {
+                      try {
+                          this.storyboardTitleUserEdited = this.ui.storyboardTitle.textContent.trim() !== "";
+                          this.checkAllButtonStates();
+                      } catch (error) {
+                          console.error("Error in storyboard title input handler:", error);
+                      }
+                  });
+                  
+                  this.ui.storyboardTitle.addEventListener('blur', () => {
+                      try {
+                          if (this.ui.storyboardTitle.textContent.trim() === "") {
+                              this.storyboardTitleUserEdited = false;
+                          }
+                          this.updateDynamicStoryboardTitle();
+                      } catch (error) {
+                          console.error("Error in storyboard title blur handler:", error);
+                      }
+                  });
+              }
+              
+              // Contextual menu handling
+              document.addEventListener('click', (event) => {
+                  try {
+                      if (this.ui.contextualMenuPanel.classList.contains('visible') && 
+                          !this.ui.contextualMenuPanel.contains(event.target) && 
+                          !this.ui.menuButton.contains(event.target)) {
+                          this.ui.contextualMenuPanel.classList.remove('visible');
+                          document.body.classList.remove('contextual-menu-open');
+                          this.ui.topBar.classList.remove('top-bar-interactive-hover');
+                      }
+                  } catch (error) {
+                      console.error("Error in contextual menu click handler:", error);
+                  }
+              });
+              
+              // Button event listeners
+              if (this.ui.contextualMenuTabs) {
+                  this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(button => {
+                      button.onclick = () => this.switchContextualMenuView(button.dataset.view);
+                  });
+              }
+              
+              if (this.ui.sendButton) {
+                  this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
+              }
+              
+              if (this.ui.beginStoryBtn) {
+                  this.ui.beginStoryBtn.onclick = () => this.beginStory();
+              }
+              
+              if (this.ui.advancedStoryOptionsToggleBtn) {
+                  this.ui.advancedStoryOptionsToggleBtn.onclick = () => {
+                      try {
+                          this.ui.advancedStoryOptionsContentArea.classList.toggle('open');
+                          const isExpanded = this.ui.advancedStoryOptionsContentArea.classList.contains('open');
+                          this.ui.advancedStoryOptionsToggleBtn.setAttribute('aria-expanded', isExpanded);
+                      } catch (error) {
+                          console.error("Error in advanced options toggle:", error);
+                      }
+                  };
+              }
+              
+              if (this.ui.shuffleStoryElementsBtn) {
+                  this.ui.shuffleStoryElementsBtn.onclick = () => this._shuffleStoryboard();
+              }
+              
+          } catch (error) {
+              console.error("Error setting up event listeners:", error);
+              throw error;
+          }
+      },
+      
+      async _restoreApplicationState() {
+          try {
+              // Restore contextual menu view
+              this.currentContextualMenuView = this.currentContextualMenuView || this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.STORIES;
+              this.currentMainView = this.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD;
+              
+              // Update top bar character info
               await this._updateTopBarCharacterInfo('user');
-              this.switchContextualMenuView(this.currentContextualMenuView); 
-  
+              
+              // Switch to appropriate contextual menu view
+              this.switchContextualMenuView(this.currentContextualMenuView);
+              
+              // Determine initial screen
               let initialScreenTarget = this.CONSTANTS.VIEWS.STORYBOARD;
               let initialScreenOptions = {};
               let recoveredFromSessionStorage = false;
-  
-              const pendingStateJSON = sessionStorage.getItem('pendingRPGlitchFormState');
               
+              // Check for pending form state
+              const pendingStateJSON = sessionStorage.getItem('pendingRPGlitchFormState');
               if (pendingStateJSON) {
                   try {
                       const parsedState = JSON.parse(pendingStateJSON);
-                      if (parsedState && parsedState.timestamp && (Date.now() - parsedState.timestamp < 7000) && parsedState.formData && parsedState.formOptions) { 
-                          this.createItemFormData = parsedState.formData; 
+                      if (parsedState && parsedState.timestamp && 
+                          (Date.now() - parsedState.timestamp < 7000) && 
+                          parsedState.formData && parsedState.formOptions) {
+                          
+                          this.createItemFormData = parsedState.formData;
                           initialScreenTarget = this.CONSTANTS.ITEM_CONFIG[parsedState.formOptions.itemType]?.formScreen || this.CONSTANTS.VIEWS.STORYBOARD;
                           initialScreenOptions = parsedState.formOptions;
-                          if (initialScreenTarget === this.CONSTANTS.VIEWS.CHARACTER_FORM || initialScreenTarget === this.CONSTANTS.VIEWS.WORLD_FORM) {
+                          
+                          if (initialScreenTarget === this.CONSTANTS.VIEWS.CHARACTER_FORM || 
+                              initialScreenTarget === this.CONSTANTS.VIEWS.WORLD_FORM) {
                               initialScreenOptions.formData = parsedState.formData;
                           }
+                          
                           recoveredFromSessionStorage = true;
-                          sessionStorage.removeItem('pendingRPGlitchFormState'); 
+                          sessionStorage.removeItem('pendingRPGlitchFormState');
                           console.log("[App Lifecycle] Recovered pending form state from sessionStorage.");
                       } else {
                           console.log("[App Lifecycle] Stale or invalid pending form state in sessionStorage. Removing.");
-                          sessionStorage.removeItem('pendingRPGlitchFormState'); 
+                          sessionStorage.removeItem('pendingRPGlitchFormState');
                       }
                   } catch (e) {
                       console.error("[App Lifecycle] Error parsing pending form state from sessionStorage:", e);
                       sessionStorage.removeItem('pendingRPGlitchFormState');
                   }
               }
-  
-  
+              
+              // Determine initial screen if not recovered from session storage
               if (!recoveredFromSessionStorage) {
                   if (this.activeStoryId) {
                       const activeStory = await this.db.stories.get(this.activeStoryId);
                       if (activeStory && !activeStory.concluded) {
-                          initialScreenTarget = this.CONSTANTS.VIEWS.STORY_INTERFACE; 
-                      } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
+                          initialScreenTarget = this.CONSTANTS.VIEWS.STORY_INTERFACE;
+                      } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) {
                           initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE;
                           initialScreenOptions = { storyId: this.currentStoryId };
                       }
-                  } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
+                  } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) {
                       initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE;
                       initialScreenOptions = { storyId: this.currentStoryId };
                   }
               }
               
-              if (initialScreenTarget === this.CONSTANTS.VIEWS.STORY_INTERFACE && this.activeStoryId) { 
-                   await this.openStory(this.activeStoryId);
+              // Switch to initial screen
+              if (initialScreenTarget === this.CONSTANTS.VIEWS.STORY_INTERFACE && this.activeStoryId) {
+                  await this.openStory(this.activeStoryId);
               } else {
-                   await this.switchToScreen(initialScreenTarget, initialScreenOptions);
+                  await this.switchToScreen(initialScreenTarget, initialScreenOptions);
               }
-  
-  
-              this.hideEl(this.ui.initialPageLoadingModal);
-              console.log("[App Lifecycle] initialLoad completed.");
-  
+              
           } catch (error) {
-              console.error("Initial load error:", error);
-              this.showEl(this.ui.emergencyExportCtn);
-              this.hideEl(this.ui.initialPageLoadingModal);
-          } finally {
-              this.isInitializing = false;
-              this.checkAllButtonStates();
+              console.error("Error restoring application state:", error);
+              throw error;
           }
       },
       
@@ -1139,9 +1296,9 @@
           const san = this.sanitizeHtml;
           let nameField;
           if (config.itemType === 'character' && isEditing) {
-              nameField = `<div id="${config.itemType}NameEditable" class="studio-name-input full-width" contenteditable="true" spellcheck="false" data-placeholder="${config.capital} Name">${san(item?.name || '')}</div>`;
+              nameField = `<div id="${config.itemType}NameEditable" class="studio-name-input full-width" contenteditable="true" spellcheck="false" data-placeholder="${config.capital} Name" onmouseover="this.style.backgroundColor='var(--surface1-color)'; this.style.transform='scale(1.02)';" onmouseout="this.style.backgroundColor=''; this.style.transform='';" style="transition: all 0.2s ease;">${san(item?.name || '')}</div>`;
           } else if (isEditing) {
-              nameField = `<input type="text" id="${config.itemType}Name" class="studio-name-input full-width" placeholder="${config.capital} Name" value="${san(item?.name || '')}">`;
+              nameField = `<input type="text" id="${config.itemType}Name" class="studio-name-input full-width" placeholder="${config.capital} Name" value="${san(item?.name || '')}" onmouseover="this.style.backgroundColor='var(--surface1-color)'; this.style.transform='scale(1.02)';" onmouseout="this.style.backgroundColor=''; this.style.transform='';" style="transition: all 0.2s ease;">`;
           } else {
               nameField = `<h2 class="studio-profile-name full-width">${san(item?.name || 'Unnamed')}</h2>`;
           }
@@ -1209,7 +1366,7 @@
                   <div class="${avatarPanelClass}" 
                        id="${config.itemType}AvatarDisplay" 
                        style="background-image: url('${san(item?.avatar || '')}');"
-                       onclick="if(event.target === this) App.showAvatarOverlay(this.querySelector('.avatar-overlay'), '${config.itemType}');">
+                       ${isEditing ? `onclick="if(event.target === this) App.showAvatarOverlay(this.querySelector('.avatar-overlay'), '${config.itemType}');"` : ''}>
                       <div id="avatar-overlay-${config.itemType}" class="avatar-overlay">
                           <div class="avatar-overlay-content">
                               <div class="avatar-preview-column" id="avatarPreviewAreaForm-${config.itemType}"><span class="opacity-50 text-sm">Preview Area</span></div>
@@ -1472,9 +1629,33 @@
               const present = formElement.querySelector(`#${itemType}Present`)?.value.trim() || 'not specified';
               const itemNameForPrompt = name || `this ${itemType}`;
       
-              instruction = `Generate a concise, photorealistic image prompt for a profile picture of: "${itemNameForPrompt}". Focus on physical appearance details primarily from its "Eternal" state ("${eternal}"), and secondarily from its "Present" state ("${present}"). If Eternal is "not specified" or lacks visual detail, rely more on Present. Output only the image prompt. Avoid conversational text or labels.`;
+              instruction = `Extract the physical appearance details from this ${itemType} and generate a concise, photorealistic image prompt for a profile picture. 
+
+${itemType} Name: "${itemNameForPrompt}"
+Eternal State: "${eternal}"
+Present State: "${present}"
+
+Focus on extracting and describing physical characteristics like:
+- Facial features, hair, eyes, skin tone
+- Body type, height, build
+- Clothing style, accessories
+- Distinctive physical traits or markings
+- Age, gender presentation
+- Overall visual aesthetic
+
+If Eternal state contains physical details, prioritize those. If not, extract from Present state. If neither has clear physical details, make reasonable assumptions based on the ${itemType}'s nature.
+
+Output only the image prompt. Avoid conversational text or labels.`;
           } else {
-              instruction = `You are a master image prompt enhancer. Take the user's existing image prompt: "${existingPromptText}" and refine it into a more detailed, evocative, and visually rich prompt suitable for generating a profile picture. Maintain the core subject and intent of the original prompt. Output only the improved image prompt.`;
+              instruction = `You are a master image prompt enhancer. Take the user's existing image prompt: "${existingPromptText}" and refine it into a more detailed, evocative, and visually rich prompt suitable for generating a profile picture. 
+
+Extract and emphasize physical appearance details like:
+- Specific facial features, hair style, eye color
+- Body type, clothing, accessories
+- Distinctive physical characteristics
+- Visual mood and aesthetic
+
+Maintain the core subject and intent of the original prompt while making it more detailed for image generation. Output only the improved image prompt.`;
           }
           
           const originalPrompt = promptTextarea.value;
@@ -1558,9 +1739,12 @@
           const onSuccessCallback = (result) => {
               previewArea.innerHTML = ''; 
               if (result && result.canvas) {
-                  result.canvas.style.maxWidth = '100%'; 
-                  result.canvas.style.maxHeight = '100%'; 
-                  result.canvas.style.objectFit = 'contain';
+                  // Set canvas to fit within container while maintaining aspect ratio
+                  result.canvas.style.width = 'auto';
+                  result.canvas.style.height = 'auto';
+                  result.canvas.style.maxWidth = '100%';
+                  result.canvas.style.maxHeight = '100%';
+                  result.canvas.style.display = 'block';
                   previewArea.appendChild(result.canvas); 
                   previewArea.classList.add('has-image');
                   this.currentGeneratedAvatarDataUrl = result.canvas.toDataURL('image/png'); 
@@ -1626,7 +1810,7 @@
   
       async waitForDependenciesAndInitializeApp() {
           const checkInterval = 100; 
-          const timeout = 15000; 
+          const timeout = 10000; // Reduced timeout for faster failure
           let elapsedTime = 0;
           
           return new Promise((resolve, reject) => {
@@ -1634,35 +1818,52 @@
                   elapsedTime += checkInterval;
                   if (elapsedTime >= timeout) { 
                       clearInterval(intervalId); 
-                      reject(new Error("Timeout waiting for Perchance plugins.")); 
+                      console.warn("Timeout waiting for some dependencies. Continuing with available features.");
+                      resolve(); // Don't reject, just continue
                       return; 
                   }
                   
                   const dexieReady = typeof Dexie === 'function';
                   const domPurifyReady = window.DOMPurify && typeof window.DOMPurify.sanitize === 'function';
+                  
+                  // Make AI and image plugins optional
                   const aiTextPluginReady = window.root && typeof window.root.aiTextPlugin === 'function';
                   const textToImagePluginReady = window.root && typeof window.root.textToImagePlugin === 'function';
   
-                  if (dexieReady && domPurifyReady && aiTextPluginReady && textToImagePluginReady) {
+                  // Only require core dependencies (Dexie and DOMPurify)
+                  if (dexieReady && domPurifyReady) {
                       clearInterval(intervalId);
-                      if (window.root.aiTextPlugin && typeof window.aiTextPluginMetaObject === 'undefined') {
-                          var tempAiMetaObject = window.root.aiTextPlugin({ getMetaObject: true });
-                          window.aiTextPluginMetaObject = tempAiMetaObject;
-                          if (tempAiMetaObject) { 
-                              window.countTokens = tempAiMetaObject.countTokens; 
-                              window.idealMaxContextTokens = tempAiMetaObject.idealMaxContextTokens; 
+                      
+                      // Set up AI plugin if available
+                      if (aiTextPluginReady && typeof window.aiTextPluginMetaObject === 'undefined') {
+                          try {
+                              var tempAiMetaObject = window.root.aiTextPlugin({ getMetaObject: true });
+                              window.aiTextPluginMetaObject = tempAiMetaObject;
+                              if (tempAiMetaObject) { 
+                                  window.countTokens = tempAiMetaObject.countTokens; 
+                                  window.idealMaxContextTokens = tempAiMetaObject.idealMaxContextTokens; 
+                              }
+                          } catch (e) {
+                              console.warn("AI plugin setup failed:", e);
                           }
                       }
-                      console.log("All Perchance plugins and core libraries ready.");
+                      
+                      // Log available features
+                      const availableFeatures = [];
+                      if (aiTextPluginReady) availableFeatures.push("AI Text Generation");
+                      if (textToImagePluginReady) availableFeatures.push("Image Generation");
+                      
+                      console.log("Core dependencies ready. Available features:", availableFeatures.join(", ") || "Core features only");
                       resolve();
                   } else {
+                      // Try to load dependencies if available
                       if (window.root && typeof window.root.loadDependencies === 'function' && 
                           (!dexieReady || !domPurifyReady) && !window.dependenciesLoadedCalled) {
                           try {
                               window.dependenciesLoadedCalled = true; 
                               await window.root.loadDependencies();
                           } catch (e) { 
-                              console.error("Error calling loadDependencies:", e); 
+                              console.warn("Error calling loadDependencies:", e); 
                           }
                       }
                   }
@@ -2067,48 +2268,120 @@
       },
   
       async sendButtonClickHandler() {
-          const content = this.ui.messageInput.value.trim();
-          if (this.ui.sendButton.disabled || !content || !this.currentStoryId) return;
-      
-          const message = this.createMessage('user', content, this.currentUserCharacterId);
-          this.ui.messageInput.value = '';
-          this.ui.messageInput.style.height = 'auto';
-      
-          this._addMessageToFeed(message);
-          await this.db.messages.add(message);
-          this._updateChatUIForNewMessage();
-      
-          this.ui.sendButton.disabled = true;
-      
           try {
-              const story = await this.db.stories.get(this.currentStoryId);
-              const aiCharName = story?.storyAiCharacter?.name || 'AI';
-              
-              if(this.ui.concludeStoryChatBtn) this.ui.concludeStoryChatBtn.disabled = true;
-              await this._setAiIsTyping(true, `${aiCharName} is thinking`);
-              
-              const aiResponse = await this._createAiRequest({
-                  instruction: await this._getSystemPrompt(),
-                  userMessage: content,
-                  chatHistory: await this._getChatHistoryForAI()
-              });
-      
-              if (aiResponse?.generatedText) {
-                  const botMessage = this.createMessage('bot', aiResponse.generatedText, story.aiCharacterId);
-                  this._addMessageToFeed(botMessage);
-                  await this.db.messages.add(botMessage);
-                  await this.db.stories.update(this.currentStoryId, { lastMessageTimestamp: Date.now() });
+              // Input validation
+              if (!this.ui.messageInput || !this.ui.sendButton) {
+                  console.error("sendButtonClickHandler: Required UI elements not found");
+                  return;
               }
-          } catch(error) {
-              console.error("AI Error:", error);
-              this.showTopNotification("The AI failed to respond. Please try again.", "error");
+              
+              const messageText = this.ui.messageInput.value.trim();
+              if (!messageText) {
+                  console.warn("sendButtonClickHandler: Empty message text");
+                  return;
+              }
+              
+              if (!this.currentStoryId) {
+                  console.error("sendButtonClickHandler: No active story");
+                  this.showTopNotification("No active story found.", "error");
+                  return;
+              }
+              
+              // Validate message length
+              if (messageText.length > 10000) {
+                  this.showTopNotification("Message too long. Please keep it under 10,000 characters.", "error");
+                  return;
+              }
+              
+              // Sanitize input
+              const sanitizedMessage = this.sanitizeHtml(messageText);
+              if (!sanitizedMessage) {
+                  this.showTopNotification("Message contains invalid content.", "error");
+                  return;
+              }
+              
+              // Disable input during processing
+              this.ui.messageInput.disabled = true;
+              this.ui.sendButton.disabled = true;
+              
+              try {
+                  // Create and add user message
+                  const userMessage = this.createMessage('user', sanitizedMessage, this.currentUserCharacterId);
+                  this._addMessageToFeed(userMessage);
+                  
+                  // Clear input
+                  this.ui.messageInput.value = '';
+                  this.ui.messageInput.style.height = 'auto';
+                  
+                  // Save message to database
+                  await this.db.messages.add(userMessage);
+                  
+                  // Update story timestamp
+                  await this.db.stories.update(this.currentStoryId, {
+                      lastMessageTimestamp: Date.now()
+                  });
+                  
+                  // Get story and AI character info
+                  const story = await this.db.stories.get(this.currentStoryId);
+                  if (!story) {
+                      throw new Error("Story not found in database");
+                  }
+                  
+                  const aiCharName = story?.storyAiCharacter?.name || 'AI';
+                  
+                  // Disable conclude button during AI processing
+                  if (this.ui.concludeStoryChatBtn) {
+                      this.ui.concludeStoryChatBtn.disabled = true;
+                  }
+                  
+                  // Set AI typing indicator
+                  await this._setAiIsTyping(true, `${aiCharName} is thinking`);
+                  
+                  // Request AI response
+                  const aiResponse = await this._createAiRequest({
+                      instruction: await this._getSystemPrompt(),
+                      userMessage: sanitizedMessage,
+                      chatHistory: await this._getChatHistoryForAI()
+                  });
+                  
+                  if (aiResponse?.generatedText) {
+                      const botMessage = this.createMessage('bot', aiResponse.generatedText, story.aiCharacterId);
+                      this._addMessageToFeed(botMessage);
+                      await this.db.messages.add(botMessage);
+                  } else {
+                      throw new Error("AI response was empty or invalid");
+                  }
+                  
+              } catch (error) {
+                  console.error("Error processing message:", error);
+                  this.showTopNotification("Failed to send message. Please try again.", "error");
+                  
+                  // Re-enable input on error
+                  this.ui.messageInput.disabled = false;
+                  this.ui.sendButton.disabled = false;
+                  if (this.ui.concludeStoryChatBtn) {
+                      this.ui.concludeStoryChatBtn.disabled = false;
+                  }
+              }
+              
+          } catch (error) {
+              console.error("Critical error in sendButtonClickHandler:", error);
+              this.showTopNotification("An unexpected error occurred. Please refresh the page.", "error");
           } finally {
-              await this._setAiIsTyping(false);
-              this.ui.sendButton.disabled = false;
-              if(this.ui.concludeStoryChatBtn) this.ui.concludeStoryChatBtn.disabled = false;
-              this.ui.messageInput.focus();
-              this._updateChatUIForNewMessage();
-              this.checkAllButtonStates();
+              // Always clean up
+              try {
+                  await this._setAiIsTyping(false);
+                  this.ui.sendButton.disabled = false;
+                  this.ui.messageInput.disabled = false;
+                  if (this.ui.concludeStoryChatBtn) {
+                      this.ui.concludeStoryChatBtn.disabled = false;
+                  }
+                  this.ui.messageInput.focus();
+                  this._updateChatUIForNewMessage();
+                  this.checkAllButtonStates();
+              } catch (cleanupError) {
+                  console.error("Error in cleanup:", cleanupError);
+              }
           }
       },
   
@@ -2193,35 +2466,219 @@
       },
   
       async _createAiRequest(options) {
-          return await window.root.aiTextPlugin(options);
+          try {
+              // Input validation
+              if (!options || typeof options !== 'object') {
+                  throw new Error("Invalid options parameter for AI request");
+              }
+              
+              if (!window.root || !window.root.aiTextPlugin) {
+                  throw new Error("AI text plugin not available");
+              }
+              
+              // Validate required options
+              if (!options.instruction && !options.userMessage) {
+                  throw new Error("AI request requires either instruction or userMessage");
+              }
+              
+              // Sanitize inputs
+              const sanitizedOptions = {
+                  ...options,
+                  instruction: options.instruction ? App.sanitizeHtml(options.instruction) : undefined,
+                  userMessage: options.userMessage ? App.sanitizeHtml(options.userMessage) : undefined,
+                  chatHistory: options.chatHistory ? options.chatHistory.map(msg => ({
+                      ...msg,
+                      content: App.sanitizeHtml(msg.content)
+                  })) : undefined
+              };
+              
+              // Validate content lengths
+              if (sanitizedOptions.instruction && sanitizedOptions.instruction.length > 50000) {
+                  throw new Error("Instruction too long (max 50,000 characters)");
+              }
+              
+              if (sanitizedOptions.userMessage && sanitizedOptions.userMessage.length > 10000) {
+                  throw new Error("User message too long (max 10,000 characters)");
+              }
+              
+              // Make the AI request
+              const response = await window.root.aiTextPlugin(sanitizedOptions);
+              
+              // Validate response
+              if (!response) {
+                  throw new Error("AI plugin returned null or undefined response");
+              }
+              
+              if (!response.generatedText || typeof response.generatedText !== 'string') {
+                  throw new Error("AI response missing or invalid generatedText");
+              }
+              
+              // Sanitize response
+              response.generatedText = App.sanitizeHtml(response.generatedText);
+              
+              if (!response.generatedText) {
+                  throw new Error("AI response was empty after sanitization");
+              }
+              
+              return response;
+              
+          } catch (error) {
+              console.error("Error in _createAiRequest:", error);
+              
+              // Provide user-friendly error messages
+              if (error.message.includes("AI text plugin not available")) {
+                  App.showTopNotification("AI service is not available. Please check your connection.", "error");
+              } else if (error.message.includes("too long")) {
+                  App.showTopNotification("Request too long. Please try a shorter message.", "error");
+              } else if (error.message.includes("AI response")) {
+                  App.showTopNotification("AI response was invalid. Please try again.", "error");
+              } else {
+                  App.showTopNotification("AI request failed. Please try again.", "error");
+              }
+              
+              throw error;
+          }
       },
   
       async _getSystemPrompt(storyIdOverride = null) {
-          const storyIdToUse = storyIdOverride || this.currentStoryId;
-          const story = await this.db.stories.get(storyIdToUse);
-          if (!story) return "Error: Story data not found for system prompt.";
-      
-          const aiChar = story.storyAiCharacter;
-          const userChar = story.storyUserCharacter;
-          const world = story.storyWorld;
-      
-          if (!aiChar || !userChar || !world) {
-              console.warn("Snapshot data missing for story:", storyIdToUse, ". Prompt quality may be affected.");
-              return `You are a helpful AI. Please continue the story.`;
+          try {
+              // Input validation
+              const storyIdToUse = storyIdOverride || this.currentStoryId;
+              if (!storyIdToUse) {
+                  throw new Error("No story ID provided for system prompt");
+              }
+              
+              // Get story data
+              const story = await this.db.stories.get(storyIdToUse);
+              if (!story) {
+                  throw new Error("Story not found in database");
+              }
+              
+              // Validate story data
+              const aiChar = story.storyAiCharacter;
+              const userChar = story.storyUserCharacter;
+              const world = story.storyWorld;
+              
+              if (!aiChar || !userChar || !world) {
+                  console.warn("Snapshot data missing for story:", storyIdToUse, ". Prompt quality may be affected.");
+                  return `You are a helpful AI. Please continue the story.`;
+              }
+              
+              // Validate character and world names
+              if (!aiChar.name || !userChar.name || !world.name) {
+                  throw new Error("Character or world names are missing");
+              }
+              
+              // Sanitize all text content
+              const sanitizedAiChar = {
+                  name: App.sanitizeHtml(aiChar.name),
+                  eternal: App.sanitizeHtml(aiChar.eternal || ''),
+                  past: App.sanitizeHtml(aiChar.past || ''),
+                  present: App.sanitizeHtml(aiChar.present || ''),
+                  future: App.sanitizeHtml(aiChar.future || '')
+              };
+              
+              const sanitizedUserChar = {
+                  name: App.sanitizeHtml(userChar.name),
+                  eternal: App.sanitizeHtml(userChar.eternal || ''),
+                  past: App.sanitizeHtml(userChar.past || ''),
+                  present: App.sanitizeHtml(userChar.present || ''),
+                  future: App.sanitizeHtml(userChar.future || '')
+              };
+              
+              const sanitizedWorld = {
+                  name: App.sanitizeHtml(world.name),
+                  eternal: App.sanitizeHtml(world.eternal || ''),
+                  past: App.sanitizeHtml(world.past || ''),
+                  present: App.sanitizeHtml(world.present || ''),
+                  future: App.sanitizeHtml(world.future || '')
+              };
+              
+              // Build system prompt
+              const systemPrompt = `You are the narrator and the AI character in this role-playing story. Your AI character is: ${sanitizedAiChar.name}. The user's character is: ${sanitizedUserChar.name}. The world is: ${sanitizedWorld.name}.
+              **AI Character Details (${sanitizedAiChar.name}):** - Eternal: ${sanitizedAiChar.eternal} - Past: ${sanitizedAiChar.past} - Present: ${sanitizedAiChar.present} - Future: ${sanitizedAiChar.future}
+              **User Character Details (${sanitizedUserChar.name}):** - Eternal: ${sanitizedUserChar.eternal} - Past: ${sanitizedUserChar.past} - Present: ${sanitizedUserChar.present} - Future: ${sanitizedUserChar.future}
+              **World Details (${sanitizedWorld.name}):** - Eternal: ${sanitizedWorld.eternal} - Past: ${sanitizedWorld.past} - Present: ${sanitizedWorld.present} - Future: ${sanitizedWorld.future}
+              **Your Role:** 1. Portray your character (${sanitizedAiChar.name}) authentically, speaking in the first person. 2. Act as the narrator for world events and other NPC actions. 3. Drive the story forward. 4. Respond to the user's last message. Keep your narrative responses and character dialogue concise, typically 1-2 short paragraphs, unless the user's action or query clearly necessitates a more detailed explanation.
+              **Formatting:** Narrated actions as plain text. Your character's (${sanitizedAiChar.name}) dialogue in double quotes. Do NOT label who is speaking (e.g., avoid writing "${sanitizedAiChar.name}:").`;
+              
+              return systemPrompt;
+              
+          } catch (error) {
+              console.error("Error in _getSystemPrompt:", error);
+              
+              // Return a fallback prompt
+              return "You are a helpful AI assistant. Please continue the story in a natural and engaging way.";
           }
-      
-          return `You are the narrator and the AI character in this role-playing story. Your AI character is: ${aiChar.name}. The user's character is: ${userChar.name}. The world is: ${world.name}.
-          **AI Character Details (${aiChar.name}):** - Eternal: ${aiChar.eternal} - Past: ${aiChar.past} - Present: ${aiChar.present} - Future: ${aiChar.future}
-          **User Character Details (${userChar.name}):** - Eternal: ${userChar.eternal} - Past: ${userChar.past} - Present: ${userChar.present} - Future: ${userChar.future}
-          **World Details (${world.name}):** - Eternal: ${world.eternal} - Past: ${world.past} - Present: ${world.present} - Future: ${world.future}
-          **Your Role:** 1. Portray your character (${aiChar.name}) authentically, speaking in the first person. 2. Act as the narrator for world events and other NPC actions. 3. Drive the story forward. 4. Respond to the user's last message. Keep your narrative responses and character dialogue concise, typically 1-2 short paragraphs, unless the user's action or query clearly necessitates a more detailed explanation.
-          **Formatting:** Narrated actions as plain text. Your character's (${aiChar.name}) dialogue in double quotes. Do NOT label who is speaking (e.g., avoid writing "${aiChar.name}:").`;
       },
   
       async _getChatHistoryForAI() {
-          const messages = await this.db.messages.where({ storyId: this.currentStoryId }).sortBy('timestamp');
-          const recentMessages = messages.filter(msg => !msg.isHidden).slice(-20); 
-          return recentMessages.map(msg => ({ role: msg.role === 'bot' ? 'assistant' : 'user', content: msg.content }));
+          try {
+              // Input validation
+              if (!this.currentStoryId) {
+                  console.warn("_getChatHistoryForAI: No current story ID");
+                  return [];
+              }
+              
+              if (!this.db || !this.db.messages) {
+                  console.error("_getChatHistoryForAI: Database or messages table not available");
+                  return [];
+              }
+              
+              // Get messages from database
+              const messages = await this.db.messages.where({ storyId: this.currentStoryId }).sortBy('timestamp');
+              
+              if (!messages || !Array.isArray(messages)) {
+                  console.warn("_getChatHistoryForAI: No messages found or invalid response");
+                  return [];
+              }
+              
+              // Filter and process messages
+              const recentMessages = messages
+                  .filter(msg => {
+                      // Validate message structure
+                      if (!msg || typeof msg !== 'object') {
+                          console.warn("_getChatHistoryForAI: Invalid message object found");
+                          return false;
+                      }
+                      
+                      if (!msg.role || !msg.content) {
+                          console.warn("_getChatHistoryForAI: Message missing required fields");
+                          return false;
+                      }
+                      
+                      // Filter out hidden messages
+                      return !msg.isHidden;
+                  })
+                  .slice(-20); // Get last 20 messages
+              
+              // Transform messages for AI format
+              const transformedMessages = recentMessages.map(msg => {
+                  try {
+                      // Sanitize content
+                      const sanitizedContent = App.sanitizeHtml(msg.content);
+                      
+                      if (!sanitizedContent) {
+                          console.warn("_getChatHistoryForAI: Message content was empty after sanitization");
+                          return null;
+                      }
+                      
+                      return {
+                          role: msg.role === 'bot' ? 'assistant' : 'user',
+                          content: sanitizedContent
+                      };
+                  } catch (error) {
+                      console.error("_getChatHistoryForAI: Error processing message:", error);
+                      return null;
+                  }
+              }).filter(msg => msg !== null); // Remove null messages
+              
+              return transformedMessages;
+              
+          } catch (error) {
+              console.error("Error in _getChatHistoryForAI:", error);
+              return [];
+          }
       },
 
       async _collectMemoriesFromStory(storyId) {
@@ -3017,6 +3474,87 @@
                       this.showTopNotification('Error deleting data. Check console.', 'error');
                   }
               }
+          }
+      },
+      
+      // Error handling utilities
+      handleError(error, context = '', showNotification = true) {
+          try {
+              // Log error with context
+              console.error(`[${context}] Error:`, error);
+              
+              // Simple error message mapping for Perchance
+              let userMessage = "Something went wrong. Please try again.";
+              
+              if (error && error.message) {
+                  if (error.message.includes("database") || error.message.includes("db")) {
+                      userMessage = "Database error. Please refresh the page.";
+                  } else if (error.message.includes("AI") || error.message.includes("plugin")) {
+                      userMessage = "AI service error. Please try again.";
+                  } else if (error.message.includes("network")) {
+                      userMessage = "Connection error. Please check your internet.";
+                  }
+              }
+              
+              // Show notification if requested
+              if (showNotification) {
+                  this.showTopNotification(userMessage, "error");
+              }
+              
+          } catch (handlingError) {
+              console.error("Error in error handler:", handlingError);
+              // Fallback to simple alert for critical errors
+              if (showNotification) {
+                  alert("An error occurred. Please refresh the page.");
+              }
+          }
+      },
+      
+      // Simple input validation for Perchance
+      validateInput(input, type = 'string') {
+          try {
+              if (input === null || input === undefined) {
+                  return { valid: false, error: "Input is required" };
+              }
+              
+              if (type === 'string') {
+                  if (typeof input !== 'string') {
+                      return { valid: false, error: "Input must be text" };
+                  }
+                  
+                  if (input.trim() === '') {
+                      return { valid: false, error: "Input cannot be empty" };
+                  }
+                  
+                  if (input.length > 10000) {
+                      return { valid: false, error: "Input is too long" };
+                  }
+              }
+              
+              return { valid: true };
+              
+          } catch (error) {
+              console.error("Error in validateInput:", error);
+              return { valid: false, error: "Validation error" };
+          }
+      },
+      
+      // Database operation utilities with error handling
+      async safeDbOperation(operation, context = '') {
+          try {
+              if (!this.db) {
+                  throw new Error("Database not initialized");
+              }
+              
+              if (typeof operation !== 'function') {
+                  throw new Error("Operation must be a function");
+              }
+              
+              return await operation();
+              
+          } catch (error) {
+              this.handleError(error, `DB Operation: ${context}`);
+              throw error;
           }
       }
     };
