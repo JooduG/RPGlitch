@@ -12,6 +12,14 @@
       ],
       "disabled": false,
       "autoApprove": []
+    },
+    "browserbase": {
+      "command": "npx",
+      "args": ["@browserbasehq/mcp"],
+      "env": {
+        "BROWSERBASE_API_KEY": "bb_live_4U80WffNoZcrOX6reUTTjvOcvo8",
+        "BROWSERBASE_PROJECT_ID": "74ace138-7bb9-485e-9ceb-9673a4bb8008"
+      }
     }
   }
 } 

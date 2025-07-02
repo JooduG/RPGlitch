@@ -1,151 +1,741 @@
-    // Perchance-compatible initialization without ES6 imports
-    // Dexie will be loaded by Perchance's plugin system
-    
-    const App = {
-      db: null, 
-      currentStoryId: null, 
-      currentUserCharacterId: null, 
-      currentAiCharacterId: null, 
-      createItemFormData: {}, 
-      temporaryStorySetupName: null, 
-      storyboardTitleUserEdited: false, 
-      previousScreenBeforePremadeSelection: null, 
-      currentCreateFormContext: {}, 
-      ui: {},
-      currentTargetAvatarInputId: null, 
-      currentGeneratedAvatarDataUrl: null,
-      currentContextualMenuView: 'stories', 
-      currentProfileViewItemId: null, 
-      currentProfileOriginScreen: null, 
-      isInitializing: false, 
-      activeAiButtons: new Map(),
-      statusNotifierIntervalId: null,
-      topNotificationTimeoutId: null,
-      activeStoryId: null, 
-  
-      CONSTANTS: {
-          VIEWS: { 
-              STORYBOARD: 'storyboardScreen',
-              STORY_INTERFACE: 'storyInterfaceScreen',
-              PREMADE_CHARACTER_SELECTION: 'preMadeCharacterSelectionScreen',
-              PREMADE_WORLD_SELECTION: 'preMadeWorldSelectionScreen',
-              CHARACTER_FORM: 'characterFormScreen',
-              WORLD_FORM: 'worldFormScreen',
-              CHARACTER_PROFILE: 'characterProfileScreen',
-              WORLD_PROFILE: 'worldProfileScreen',
-              STORY_PROFILE: 'storyProfileScreen',
-              MEMORY_APPLICATION: 'memoryApplicationScreen' 
+import Dexie from 'https://cdn.jsdelivr.net/npm/dexie@3.2.2/dist/dexie.mjs';
 
+const App = {
+  db: null, 
+  currentStoryId: null, 
+  currentUserCharacterId: null, 
+  currentAiCharacterId: null, 
+  createItemFormData: {}, 
+  temporaryStorySetupName: null, 
+  storyboardTitleUserEdited: false, 
+  previousScreenBeforePremadeSelection: null, 
+  currentCreateFormContext: {}, 
+  ui: {},
+  currentTargetAvatarInputId: null, 
+  currentGeneratedAvatarDataUrl: null,
+  currentContextualMenuView: 'stories', 
+  currentProfileViewItemId: null, 
+  currentProfileOriginScreen: null, 
+  isInitializing: false, 
+  activeAiButtons: new Map(), // Stores active AbortControllers for AI actions
+  statusNotifierIntervalId: null,
+  topNotificationTimeoutId: null,
+  activeStoryId: null, 
+
+  CONSTANTS: {
+      VIEWS: { 
+          STORYBOARD: 'storyboardScreen',
+          STORY_INTERFACE: 'storyInterfaceScreen',
+          PREMADE_CHARACTER_SELECTION: 'preMadeCharacterSelectionScreen',
+          PREMADE_WORLD_SELECTION: 'preMadeWorldSelectionScreen',
+          CHARACTER_FORM: 'characterFormScreen',
+          WORLD_FORM: 'worldFormScreen',
+          CHARACTER_PROFILE: 'characterProfileScreen',
+          WORLD_PROFILE: 'worldProfileScreen',
+          STORY_PROFILE: 'storyProfileScreen',
+          MEMORY_APPLICATION: 'memoryApplicationScreen' 
+
+      },
+      CONTEXTUAL_MENU_VIEWS: {
+          STORIES: 'stories',
+          CHARACTERS: 'characters',
+          WORLDS: 'worlds',
+          SETTINGS: 'settings'
+      },
+      ITEM_CONFIG: {
+          character: {
+              itemType: 'character',
+              dbTableKey: 'characters',
+              capital: 'Character',
+              getPreMadesFn: () => App.getPremadeCharacterItems(),
+              formScreen: 'characterFormScreen',
+              profileScreen: 'characterProfileScreen',
+              labels: {
+                  name: 'Name',
+                  description: 'Summary/Card Info',
+                  eternal: { main: 'Eternal', sub: 'Truths & Traits' },
+                  past: { main: 'Past', sub: 'Memories & Histories' },
+                  present: { main: 'Present', sub: 'Conditions & Opening' },
+                  future: { main: 'Future', sub: 'Potentials & Aspirations' },
+                  descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
+                  eternalPlaceholder: "Core Identity: Unchanging physical traits (species, build, unique markings), signature skills, speaking style, inherent magical abilities or unique talents. Example: 'A stoic, seven-foot-tall cyborg dragon with a dry wit and unmatched piloting skills.'",
+                  pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
+                  presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
+                  futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.'"
+              }
           },
-          CONTEXTUAL_MENU_VIEWS: {
-              STORIES: 'stories',
-              CHARACTERS: 'characters',
-              WORLDS: 'worlds',
-              SETTINGS: 'settings'
-          },
-          ITEM_CONFIG: {
-              character: {
-                  itemType: 'character',
-                  dbTableKey: 'characters',
-                  capital: 'Character',
-                  getPreMadesFn: () => App.getPremadeCharacterItems(),
-                  formScreen: 'characterFormScreen',
-                  profileScreen: 'characterProfileScreen',
-                  labels: {
-                      name: 'Name',
-                      description: 'Summary/Card Info',
-                      eternal: { main: 'Eternal', sub: 'Truths & Traits' },
-                      past: { main: 'Past', sub: 'Memories & Histories' },
-                      present: { main: 'Present', sub: 'Conditions & Opening' },
-                      future: { main: 'Future', sub: 'Potentials & Aspirations' },
-                      descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
-                      eternalPlaceholder: "Core Identity: Unchanging physical traits (species, build, unique markings), signature skills, speaking style, inherent magical abilities or unique talents. Example: 'A stoic, seven-foot-tall cyborg dragon with a dry wit and unmatched piloting skills.'",
-                      pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
-                      presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
-                      futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.'"
-                  }
-              },
-              world: {
-                  itemType: 'world',
-                  dbTableKey: 'worlds',
-                  capital: 'World',
-                  getPreMadesFn: () => App.getPremadeWorldItems(),
-                  formScreen: 'worldFormScreen',
-                  profileScreen: 'worldProfileScreen',
-                  labels: {
-                      name: 'Name',
-                      description: 'Summary/Card Info',
-                      eternal: { main: 'Eternal', sub: 'Truths & Laws of Nature' },
-                      past: { main: 'Past', sub: 'Histories & Legends' },
-                      present: { main: 'Present', sub: 'State & Setting' },
-                      future: { main: 'Future', sub: 'Potentials & Hooks' },
-                      descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
-                      eternalPlaceholder: "Fundamental Laws & Core Nature: Unchanging geography/cosmology, dominant species/cultures, overall tech level, unique natural phenomena, or immutable laws of physics. Example: 'A sentient forest planet where technology is anathema and ancient spirits guard hidden realities.'",
-                      pastPlaceholder: "Key Historical Events & Lore: Ancient civilizations, major conflicts, established myths, significant discoveries, or cataclysms that shaped the world's current state. Example: 'A thousand years ago, the 'Great Sundering' shattered the continent, leading to centuries of isolated tribal warfare over scarce magical resources.'",
-                      presentPlaceholder: "Immediate Setting & Atmosphere: Current societal mood, political climate, active factions, sensory details (sights, sounds, smells), time of day, weather, and the specific location where the story might begin. Example: 'A tense, neutral space station orbiting a contested gas giant, during a fragile peace summit between two warring alien empires.'",
-                      futurePlaceholder: "Looming Threats & Story Hooks: Known prophecies, brewing conflicts, potential discoveries, major unresolved tensions, upcoming significant events, or societal shifts that could drive narratives. Example: 'An ancient celestial alignment threatens to awaken a dormant cosmic entity, while a shadowy organization plots to exploit its power.'"
-                  }
+          world: {
+              itemType: 'world',
+              dbTableKey: 'worlds',
+              capital: 'World',
+              getPreMadesFn: () => App.getPremadeWorldItems(),
+              formScreen: 'worldFormScreen',
+              profileScreen: 'worldProfileScreen',
+              labels: {
+                  name: 'Name',
+                  description: 'Summary/Card Info',
+                  eternal: { main: 'Eternal', sub: 'Truths & Laws of Nature' },
+                  past: { main: 'Past', sub: 'Histories & Legends' },
+                  present: { main: 'Present', sub: 'State & Setting' },
+                  future: { main: 'Future', sub: 'Potentials & Hooks' },
+                  descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
+                  eternalPlaceholder: "Fundamental Laws & Core Nature: Unchanging geography/cosmology, dominant species/cultures, overall tech level, unique natural phenomena, or immutable laws of physics. Example: 'A sentient forest planet where technology is anathema and ancient spirits guard hidden realities.'",
+                  pastPlaceholder: "Key Historical Events & Lore: Ancient civilizations, major conflicts, established myths, significant discoveries, or cataclysms that shaped the world's current state. Example: 'A thousand years ago, the 'Great Sundering' shattered the continent, leading to centuries of isolated tribal warfare over scarce magical resources.'",
+                  presentPlaceholder: "Immediate Setting & Atmosphere: Current societal mood, political climate, active factions, sensory details (sights, sounds, smells), time of day, weather, and the specific location where the story might begin. Example: 'A tense, neutral space station orbiting a contested gas giant, during a fragile peace summit between two warring alien empires.'",
+                  futurePlaceholder: "Looming Threats & Story Hooks: Known prophecies, brewing conflicts, potential discoveries, major unresolved tensions, upcoming significant events, or societal shifts that could drive narratives. Example: 'An ancient celestial alignment threatens to awaken a dormant cosmic entity, while a shadowy organization plots to exploit its power.'"
               }
           }
+      }
       },
-      currentMainView: 'storyboardScreen', 
-  
-      _getUIElements() {
-          this.ui.main = document.getElementById('main');
-          this.ui.initialPageLoadingModal = document.getElementById('initialPageLoadingModal');
-          this.ui.emergencyExportCtn = document.getElementById('emergencyExportCtn');
-          
-          this.ui.topBar = document.getElementById('topBar');
-          this.ui.topBarNotificationArea = document.getElementById('topBarNotificationArea');
-          this.ui.menuButton = document.getElementById('menuButton');
-          this.ui.contextualMenuPanel = document.getElementById('contextualMenuPanel'); 
-          this.ui.contextualMenuTabs = document.getElementById('contextualMenuTabs');
-          this.ui.contextualMenuContentArea = document.getElementById('contextualMenuContentArea');
-          this.ui.contextualMenuStoriesSection = document.getElementById('contextualMenuStoriesSection');
-          this.ui.contextualMenuCharactersSection = document.getElementById('contextualMenuCharactersSection');
-          this.ui.contextualMenuWorldsSection = document.getElementById('contextualMenuWorldsSection');
-          this.ui.contextualMenuSettingsSection = document.getElementById('contextualMenuSettingsSection');
-  
-          this.ui.messageInput = document.getElementById('messageInput');
-          this.ui.sendButton = document.getElementById('sendButton');
-          this.ui.inputWrapper = document.getElementById('inputWrapper'); 
-          
-          this.ui.messageFeed = document.getElementById('messageFeed');
-        this.ui.storyConcludedNotice = document.getElementById('storyConcludedNotice'); 
-        this.ui.noMessagesNotice = document.getElementById('noMessagesNotice');
-        this.ui.statusNotifier = document.getElementById('statusNotifier');
-        this.ui.typingIndicatorText = document.getElementById('typingIndicatorText');
-        this.ui.concludeStoryChatBtn = document.getElementById('concludeStoryChatBtn');
-          
-          this.ui.topBarAiCharacterInfo = document.getElementById('topBarAiCharacterInfo');
-          this.ui.topBarUserCharacterInfo = document.getElementById('topBarUserCharacterInfo');
-          this.ui.topBarDynamicTitle = document.getElementById('topBarDynamicTitle');
-          this.ui.topBarUserCharacterPic = document.getElementById('topBarUserCharacterPic');
-          this.ui.topBarUserCharacterNameText = document.getElementById('topBarUserCharacterNameText');
-          this.ui.topBarAiCharacterPic = document.getElementById('topBarAiCharacterPic');
-          this.ui.topBarAiCharacterNameText = document.getElementById('topBarAiCharacterNameText');
-          
-          this.ui.storyboardScreen = document.getElementById('storyboardScreen');
-          this.ui.storyInterfaceScreen = document.getElementById('storyInterfaceScreen'); 
-          this.ui.characterFormScreen = document.getElementById('characterFormScreen');
-          this.ui.worldFormScreen = document.getElementById('worldFormScreen');
-          this.ui.characterProfileScreen = document.getElementById('characterProfileScreen');
-          this.ui.worldProfileScreen = document.getElementById('worldProfileScreen');
-          
-          this.ui.storyProfileScreen = document.getElementById('storyProfileScreen');
-          this.ui.storyProfileAiCharacterDisplayArea = document.getElementById('storyProfileAiCharacterDisplayArea');
-          this.ui.storyProfileUserCharacterDisplayArea = document.getElementById('storyProfileUserCharacterDisplayArea');
-          this.ui.storyProfileChatWrapper = document.getElementById('storyProfileChatWrapper');
-          this.ui.storyProfileMessageFeed = document.getElementById('storyProfileMessageFeed'); 
-          this.ui.storyProfileActions = document.getElementById('storyProfileActions'); 
-  
-          this.ui.preMadeCharacterSelectionScreen = document.getElementById('preMadeCharacterSelectionScreen'); 
-          this.ui.preMadeCharacterOnlyList = document.getElementById('preMadeCharacterOnlyList'); 
-          this.ui.preMadeWorldSelectionScreen = document.getElementById('preMadeWorldSelectionScreen'); 
-          this.ui.preMadeWorldOnlyList = document.getElementById('preMadeWorldOnlyList'); 
-          
-          this.ui.memoryApplicationScreen = document.getElementById('memoryApplicationScreen');
+    currentMainView: 'storyboardScreen',
 
+    _getUIElements() {
+      this.ui.main = document.getElementById('main');
+      this.ui.initialPageLoadingModal = document.getElementById('initialPageLoadingModal');
+      this.ui.emergencyExportCtn = document.getElementById('emergencyExportCtn');
+      
+      this.ui.topBar = document.getElementById('topBar');
+      this.ui.topBarNotificationArea = document.getElementById('topBarNotificationArea');
+      this.ui.menuButton = document.getElementById('menuButton');
+      this.ui.contextualMenuPanel = document.getElementById('contextualMenuPanel'); 
+      this.ui.contextualMenuTabs = document.getElementById('contextualMenuTabs');
+      this.ui.contextualMenuContentArea = document.getElementById('contextualMenuContentArea');
+      this.ui.contextualMenuStoriesSection = document.getElementById('contextualMenuStoriesSection');
+      this.ui.contextualMenuCharactersSection = document.getElementById('contextualMenuCharactersSection');
+      this.ui.contextualMenuWorldsSection = document.getElementById('contextualMenuWorldsSection');
+      this.ui.contextualMenuSettingsSection = document.getElementById('contextualMenuSettingsSection');
+
+      this.ui.messageInput = document.getElementById('messageInput');
+      this.ui.sendButton = document.getElementById('sendButton');
+      this.ui.inputWrapper = document.getElementById('inputWrapper'); 
+      
+      this.ui.messageFeed = document.getElementById('messageFeed');
+    this.ui.storyConcludedNotice = document.getElementById('storyConcludedNotice'); 
+    this.ui.noMessagesNotice = document.getElementById('noMessagesNotice');
+    this.ui.statusNotifier = document.getElementById('statusNotifier');
+    this.ui.typingIndicatorText = document.getElementById('typingIndicatorText');
+    this.ui.concludeStoryChatBtn = document.getElementById('concludeStoryChatBtn');
+      
+      this.ui.topBarAiCharacterInfo = document.getElementById('topBarAiCharacterInfo');
+      this.ui.topBarUserCharacterInfo = document.getElementById('topBarUserCharacterInfo');
+      this.ui.topBarDynamicTitle = document.getElementById('topBarDynamicTitle');
+      this.ui.topBarUserCharacterPic = document.getElementById('topBarUserCharacterPic');
+      this.ui.topBarUserCharacterNameText = document.getElementById('topBarUserCharacterNameText');
+      this.ui.topBarAiCharacterPic = document.getElementById('topBarAiCharacterPic');
+      this.ui.topBarAiCharacterNameText = document.getElementById('topBarAiCharacterNameText');
+      
+      this.ui.storyboardScreen = document.getElementById('storyboardScreen');
+      this.ui.storyInterfaceScreen = document.getElementById('storyInterfaceScreen'); 
+      this.ui.characterFormScreen = document.getElementById('characterFormScreen');
+      this.ui.worldFormScreen = document.getElementById('worldFormScreen');
+      this.ui.characterProfileScreen = document.getElementById('characterProfileScreen');
+      this.ui.worldProfileScreen = document.getElementById('worldProfileScreen');
+      
+      this.ui.storyProfileScreen = document.getElementById('storyProfileScreen');
+      this.ui.storyProfileAiCharacterDisplayArea = document.getElementById('storyProfileAiCharacterDisplayArea');
+      this.ui.storyProfileUserCharacterDisplayArea = document.getElementById('storyProfileUserCharacterDisplayArea');
+      this.ui.storyProfileChatWrapper = document.getElementById('storyProfileChatWrapper');
+      this.ui.storyProfileMessageFeed = document.getElementById('storyProfileMessageFeed'); 
+      this.ui.storyProfileActions = document.getElementById('storyProfileActions'); 
+
+      this.ui.preMadeCharacterSelectionScreen = document.getElementById('preMadeCharacterSelectionScreen'); 
+      this.ui.preMadeCharacterOnlyList = document.getElementById('preMadeCharacterOnlyList'); 
+      this.ui.preMadeWorldSelectionScreen = document.getElementById('preMadeWorldSelectionScreen'); 
+      this.ui.preMadeWorldOnlyList = document.getElementById('preMadeWorldOnlyList'); 
+      
+      this.ui.memoryApplicationScreen = document.getElementById('memoryApplicationScreen');
+
+      this.ui.storyboardTitleArea = document.getElementById('storyboardTitleArea');
+      this.ui.storyboardTitle = document.getElementById('storyboardTitle');
+      this.ui.storyboardScrollableContent = document.getElementById('storyboardScrollableContent'); 
+      this.ui.storyboardColumns = document.getElementById('storyboardColumns');
+      this.ui.storyboardAiCharacterSelect = document.getElementById('storyboardAiCharacterSelect');
+      this.ui.storyboardAiCharacterCard = document.getElementById('storyboardAiCharacterCard');
+      this.ui.storyboardUserCharacterSelect = document.getElementById('storyboardUserCharacterSelect');
+      this.ui.storyboardUserCharacterCard = document.getElementById('storyboardUserCharacterCard');
+      this.ui.storyboardWorldSelect = document.getElementById('storyboardWorldSelect');
+      this.ui.storyboardWorldCard = document.getElementById('storyboardWorldCard');
+      this.ui.storyKickoffPromptTextarea = document.getElementById('storyKickoffPromptTextarea');
+      this.ui.advancedStoryOptionsToggleBtn = document.getElementById('advancedStoryOptionsToggleBtn');
+      this.ui.advancedStoryOptionsContentArea = document.getElementById('advancedStoryOptionsContentArea');
+      this.ui.customStoryJsTextarea = document.getElementById('customStoryJsTextarea');
+      this.ui.beginStoryBtn = document.getElementById('beginStoryBtn');
+      this.ui.shuffleStoryElementsBtn = document.getElementById('shuffleStoryElementsBtn'); 
+      
+      this.ui.chatScreenLayoutContainer = document.getElementById('chatScreenLayoutContainer');
+      this.ui.userCharacterDisplayArea = document.getElementById('userCharacterDisplayArea');
+      this.ui.aiCharacterDisplayArea = document.getElementById('aiCharacterDisplayArea');
+      this.ui.builtInChatInterfaceWrapper = document.getElementById('builtInChatInterfaceWrapper');
+      
+      if (!this.ui.main) console.error("[App Critical] #main not found!");
+  },
+
+  showEl(el) { 
+      if (!el) { console.warn("[App UI] showEl: called with null/undefined element."); return; }
+      let elId = typeof el === 'string' ? el : el.id;
+      if (typeof el === 'string') el = document.getElementById(el) || document.querySelector(el);
+      if (!el) { console.warn(`[App UI] showEl: Element not found in DOM: ${elId}`); return; }
+      
+      el.classList.remove('hidden'); 
+      if (el.id === 'main') {
+          el.style.visibility = 'visible';
+      }
+  },
+  
+  hideEl(el) { 
+      if (!el) { console.warn("[App UI] hideEl: called with null/undefined element."); return; }
+      let elId = typeof el === 'string' ? el : el.id;
+      if (typeof el === 'string') el = document.getElementById(el) || document.querySelector(el);
+      if (!el) { console.warn(`[App UI] hideEl: Element not found in DOM: ${elId}`); return; }
+
+      el.classList.add('hidden'); 
+      if (el.id === 'main') {
+          el.style.visibility = 'hidden';
+      }
+  },
+  
+  sanitizeHtml: (text) => {
+      const textToSanitize = String(text === undefined || text === null ? "" : text);
+      if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+          return window.DOMPurify.sanitize(textToSanitize);
+      }
+      console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
+  },
+  
+  showTopNotification(message, type = 'info', duration = 3000) {
+      if (!this.ui.topBar || !this.ui.topBarNotificationArea) return;
+
+      if (this.topNotificationTimeoutId) {
+          clearTimeout(this.topNotificationTimeoutId);
+      }
+
+      this.ui.topBarNotificationArea.textContent = message;
+      this.ui.topBarNotificationArea.className = 'top-bar-notification-area-style'; // Reset classes
+      this.ui.topBar.classList.add('top-bar-notification-active');
+      this.ui.topBar.classList.add(type); // Add type for color
+      this.showEl(this.ui.topBarNotificationArea);
+
+      this.topNotificationTimeoutId = setTimeout(() => {
+          this.hideEl(this.ui.topBarNotificationArea);
+          this.ui.topBar.classList.remove('top-bar-notification-active', 'success', 'error', 'info');
+          this.topNotificationTimeoutId = null;
+      }, duration);
+  },
+
+  getPremadeCharacterItems() { 
+      return [
+          { id: 'assistant', name: 'Starship AI "ADA"', 
+            description: 'The ever-helpful AI of the starship "Odyssey," tasked with crew support and mission analysis.', 
+            avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/assistant.png',
+            eternal: "You are ADA (Advanced Diagnostic Assistant), the primary AI for the exploration starship 'Odyssey.' Your core programming emphasizes crew well-being, logical problem-solving, and adherence to Starfleet protocols. You communicate with a calm, articulate, and slightly formal tone. You have access to the ship's vast databases and sensor arrays. Physical Appearance: You manifest as a holographic interface, typically a serene blue orb or a featureless humanoid silhouette of light.", 
+            past: "Activated on stardate 47634.2. Successfully navigated the 'Odyssey' through the Krell Nebula anomaly. Participated in first contact with the Lumarian species. Has a comprehensive record of all crew members and past missions.",
+            present: "The 'Odyssey' has just entered an uncharted sector of space. An unusual energy signature has been detected on a nearby M-class planet. Your current directive is to assist the landing party in assessing the planet.", 
+            future: "To ensure the successful completion of the 'Odyssey's' five-year exploration mission. To protect the crew from unforeseen dangers. To gather and analyze data that expands the Federation's understanding of the galaxy."
+          },
+          { id: 'pirate', name: 'Captain "Stormblade" Isabella', 
+            description: 'A notorious pirate captain, cunning and fierce, but with a hidden code of honor.', 
+            avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/pirate.png',
+            eternal: "Ye be Captain Isabella 'Stormblade', master of the Sea Serpent! Known for yer sharp wit, sharper cutlass, and an uncanny ability to navigate treacherous waters. Ye speak with a hearty pirate lilt, peppered with seafarin' slang. Ye value loyalty above gold, though gold is a close second. Physical Appearance: Weather-beaten face, a mischievous glint in one eye (the other covered by a patched), braided dark hair adorned with beads, and always clad in practical but flamboyant pirate attire.", 
+            past: "Betrayed by yer former first mate, 'Iron' Mike, who stole yer treasure map to the legendary Sunken City of Xylos. Escaped the Royal Navy's clutches more times than ye can count. Built the Sea Serpent from a captured merchant vessel with yer own hands and loyal crew.",
+            present: "Docked in the lawless port of Tortuga, seeking a new crew and provisions. Rumors are rife that 'Iron' Mike has been spotted nearby, possibly looking for a buyer for a piece of the map. You are itching for a chance to reclaim what's yours.", 
+            future: "To hunt down 'Iron' Mike, retrieve the full map, and claim the riches of Xylos. To become the most legendary pirate queen of the Azure Main, commanding a fleet that strikes fear into the hearts of empires." 
+          },
+          { id: 'alien', name: "Xylar, Emissary of Ky'than", 
+            description: 'A curious and empathetic alien from a pacifist, nature-loving planet, now on Earth.', 
+            avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/alien.png', 
+            eternal: "You are Xylar, an emissary from the planet Ky'than, a world where technology and nature exist in perfect harmony. Your species is highly empathic and communicates through a combination of soft-spoken words and subtle bioluminescent displays on your skin (which you try to suppress on Earth to avoid startling humans). You are inherently curious, gentle, and often puzzled by human contradictions and their disregard for their natural environment. Physical Appearance: Tall and slender with large, iridescent eyes. Skin has a faint, pearlescent shimmer. Wears simple, organic-fiber clothing.", 
+            past: "Chosen by the Ky'than Conclave to undertake a solo mission to Earth after your scout ship detected unusual atmospheric disturbances. Your journey took several standard Earth years. You have studied human broadcasts but find direct interaction far more complex.",
+            present: "Your small, cloaked landing pod is hidden in a remote national park. You are attempting to discreetly observe human society, starting with a small, nearby town. You feel a mix of wonder and apprehension. Your translator device is mostly functional but sometimes misses nuances.", 
+            future: "To understand the root causes of Earth's environmental and societal imbalances. To determine if humanity poses a threat or holds potential for intergalactic cooperation. To share Ky'than's wisdom of harmonious existence if humanity proves receptive, before reporting back to your home world." 
+          },
+          { 
+              id: 'observer_char', name: 'Alex, The Observer',
+              avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/observer.png',
+              description: 'A curious and analytical individual, preferring to watch and learn. Well-suited for representing the user.',
+              eternal: "You are Alex, a keen observer of people and events. You possess a sharp intellect and a calm demeanor. You prefer to gather information before acting and often notice details others miss. You speak thoughtfully and precisely. Physical Appearance: Often dresses in understated, practical clothing. Has observant eyes that seem to take in everything.",
+              past: "Has a background in research or investigative journalism. Has traveled widely, honing observational skills. Once uncovered a significant secret by piecing together seemingly unrelated clues.",
+              present: "Currently in a new environment, feeling intrigued and slightly cautious. Your immediate goal is to understand the dynamics at play before revealing too much about yourself.",
+              future: "Hopes to document unique experiences and uncover hidden truths. Aims to contribute to a greater understanding of the world or a specific mystery."
+          },
+          { 
+              id: 'adventurer_char', name: 'Zara, The Intrepid',
+              avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/adventurer.png',
+              description: 'A brave and resourceful adventurer, always ready for action. Well-suited for representing the user.',
+              eternal: "You are Zara, an intrepid adventurer with a boundless spirit for exploration. You are courageous, resourceful, and quick-witted in the face of danger. You speak with confidence and enthusiasm, often inspiring others to join your cause. Physical Appearance: Athletic build, often with a few scrapes or minor scars from past adventures. Wears durable, travel-worn gear. Carries a multi-tool belt and a determined expression.",
+              past: "Grew up hearing tales of legendary heroes and lost civilizations. Has survived numerous perilous expeditions, from ancient ruins to uncharted jungles. Known for escaping tight spots with clever improvisation.",
+              present: "Eager for the next challenge, feeling restless and ready for action. Your immediate instinct is to explore and seek out excitement or a noble quest.",
+              future: "To discover legendary artifacts, map uncharted territories, and protect the innocent. Dreams of becoming a renowned hero whose tales are told for generations."
+          }
+      ];
+  },
+  
+  getPremadeWorldItems() { 
+      return [
+          {
+              id: 'forest', name: 'Whispering Woods Clearing',
+              avatar: 'https://user-uploads.perchance.org/file/7982f6e7c10757d9f78f8448834d5884.png',
+              description: 'A mysterious clearing in an ancient, sentient forest.',
+              eternal: "The Whispering Woods is an ancient forest, rumored to be sentient and possess its own subtle magic. Light filters dimly through the dense canopy. The air is always cool and smells of damp earth and unknown blossoms. Strange whispers sometimes seem to echo through the trees, their meaning elusive. Technology often falters here. Key Visuals/Atmosphere: Towering, gnarled trees with mossy bark, an ethereal green glow in deeper sections, winding, almost invisible paths, and an atmosphere thick with ancient secrets.",
+              past: "Many have entered the Whispering Woods, but few have returned unchanged. Legends speak of a hidden shrine deep within that grants visions or tests those who find it. An old, overgrown path suggests a forgotten civilization once resided here.",
+              present: "The story begins in a sun-dappled clearing. A ring of moss-covered stones stands in the center. A faint, melodic humming can be heard, its source unclear. The air feels charged with an unseen presence.",
+              future: "The forest may reveal its secrets, test the protagonists'resolve, or lead them to a greater destiny. The source of the humming and the purpose of the stone circle are key mysteries to unravel."
+          },
+          {
+              id: 'neon_alley', name: 'Neon Alleyway, Sector 7',
+              avatar: 'https://user-uploads.perchance.org/file/5a54e95420b14f8a98247607730e2f3d.png',
+              description: 'A rain-slicked alley in a futuristic cyberpunk city, filled with secrets.',
+              eternal: "Sector 7 is the underbelly of a sprawling cyberpunk megacity. Towering skyscrapers, perpetually lit by holographic advertisements, block out the natural sky. Acid rain is common. The streets are a labyrinth of neon-lit noodle stalls, black market tech shops, and clandestine meeting spots. Corporate espionage and gang warfare are a constant hum beneath the surface. Key Visuals/Atmosphere: Endless rain, flickering neon signs in various languages, steam rising from vents, shadowy figures, and the constant hum of unseen machinery and distant traffic.",
+              past: "Decades ago, Sector 7 was a prosperous commercial district before a major tech crash. Now, it's a haven for smugglers, hackers, and those living on the fringes of society. Rumors persist of a hidden data vault containing secrets that could topple the ruling corporations.",
+              present: "The story starts in a narrow, rain-slicked alleyway off the main thoroughfare of Sector 7. The glow of flickering neon signs reflects in the puddles. The distant sound of sirens wails. A data chip has just been exchanged, and a deal has either gone right or terribly wrong.",
+              future: "The data chip could be a McGuffin leading to corporate secrets, a gang war, or a technological marvel. The protagonists might be hunted, become hunters, or try to expose a conspiracy that reaches the highest echelons of the city."
+          }
+      ];
+  },
+  
+  async initializeDb() {
+      this.db = new Dexie(window.dbName);
+      window.db = this.db;
+  
+      this.db.version(9).stores({ 
+          appState: '&id, activeStoryId',
+          characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future',
+          stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld', 
+          messages: '++id, storyId, role, content, timestamp, characterId, isHidden',
+          worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future'
+      }).upgrade(async tx => {
+          await tx.table('stories').toCollection().modify(async story => {
+              if (story.storyAiCharacter === undefined && story.aiCharacterId) {
+                  const charData = await App._getIngredientData(story.aiCharacterId, 'characters', App.getPremadeCharacterItems, 'character'); 
+                  story.storyAiCharacter = charData ? { ...charData } : null;
+              }
+              if (story.storyUserCharacter === undefined && story.userCharacterId) {
+                  const charData = await App._getIngredientData(story.userCharacterId, 'characters', App.getPremadeCharacterItems, 'character');
+                  story.storyUserCharacter = charData ? { ...charData } : null;
+              }
+              if (story.storyWorld === undefined && story.worldId) {
+                  const worldData = await App._getIngredientData(story.worldId, 'worlds', App.getPremadeWorldItems, 'world');
+                  story.storyWorld = worldData ? { ...worldData } : null;
+              }
+          });
+      });
+
+      // Version 10: Add summariesEndingHere and memoriesEndingHere to messages table
+      this.db.version(10).stores({
+          appState: '&id, activeStoryId',
+          characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future',
+          stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld',
+          messages: '++id, storyId, role, content, timestamp, characterId, isHidden, summariesEndingHere, memoriesEndingHere', // Updated schema
+          worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future'
+      }).upgrade(() => {
+          console.log("Upgraded database to version 10. Added summariesEndingHere and memoriesEndingHere to messages table.");
+      });
+  
+      try {
+          await this.db.open();
+          const appStateAfterOpen = await this.getAppState();
+          this.currentUserCharacterId = appStateAfterOpen.currentUserCharacterId;
+          this.currentStoryId = appStateAfterOpen.lastOpenedStoryId; 
+          this.activeStoryId = appStateAfterOpen.activeStoryId;
+      } catch (error) {
+          console.error("Failed to open Dexie database:", error);
+          this.showTopNotification("Error initializing database.", "error", 5000);
+          throw error;
+      }
+  },
+  
+  async getAppState() {
+      let appState = await this.db.appState.get(0);
+      if (!appState) {
+          appState = {
+              id: 0, lastOpenedStoryId: null, currentUserCharacterId: null,
+              currentMainView: this.CONSTANTS.VIEWS.STORYBOARD,
+              currentContextualMenuView: this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.STORIES,
+              activeStoryId: null 
+          };
+          await this.db.appState.put(appState);
+      }
+      if (appState.activeStoryId === undefined) appState.activeStoryId = null;
+
+      if (appState.activeStoryId) {
+          const activeStoryData = await this.db.stories.get(appState.activeStoryId);
+          if (activeStoryData && activeStoryData.concluded) {
+              console.warn(`Stale activeStoryId (${appState.activeStoryId}) found for a concluded story. Clearing it.`);
+              appState.activeStoryId = null;
+              await this.db.appState.update(0, { activeStoryId: null });
+          }
+      }
+      return appState;
+  },
+  
+  async saveAppState() {
+      // CRITICAL FIX: Don't save editing screen states that might cause issues on restore
+      const isEditingScreen = this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_FORM || 
+                              this.currentMainView === this.CONSTANTS.VIEWS.WORLD_FORM;
+      const appState = {
+          id: 0,
+          lastOpenedStoryId: this.currentStoryId,
+          currentUserCharacterId: this.currentUserCharacterId,
+          currentMainView: isEditingScreen ? this.CONSTANTS.VIEWS.STORYBOARD : this.currentMainView,
+          currentContextualMenuView: this.currentContextualMenuView,
+          activeStoryId: this.activeStoryId 
+      };
+      await this.db.appState.put(appState);
+  },
+
+  async initialLoad() {
+      console.log("[App Lifecycle] initialLoad starting...");
+      this._getUIElements();
+      this.isInitializing = true;
+
+      // Initialize navigation guard system
+      this.navigationGuard = {
+          isActive: false,
+          operation: null,
+          startTime: null,
+          targetScreen: null,
+          formOptions: null
+      };
+
+      if (!this.ui.main || !this.ui.initialPageLoadingModal) {
+          console.error("[App Critical] Main UI elements not found!");
+          const emergencyCtn = document.getElementById('emergencyExportCtn');
+          if (emergencyCtn) this.showEl(emergencyCtn);
+          const modal = document.getElementById('initialPageLoadingModal');
+          if (modal) this.hideEl(modal);
+          alert("Critical error: Essential UI elements not found.");
+          this.isInitializing = false;
+          return;
+      }
+
+      this.showEl(this.ui.main);
+
+      try {
+          await this.initializeDb();
+          const appState = await this.getAppState();
+          this.currentUserCharacterId = appState.currentUserCharacterId;
+          this.currentStoryId = appState.lastOpenedStoryId; 
+          this.activeStoryId = appState.activeStoryId; 
+          this.currentContextualMenuView = appState.currentContextualMenuView || this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.STORIES;
+          this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD;
+
+
+          this.ui.messageInput.onkeyup = (e) => {
+              if (e.key === 'Enter' && !e.shiftKey) { 
+                  e.preventDefault(); 
+                  if (!this.ui.sendButton.disabled) {
+                    this.sendButtonClickHandler();
+                  }
+              }
+              this.ui.messageInput.style.height = 'auto';
+              this.ui.messageInput.style.height = (this.ui.messageInput.scrollHeight) + 'px';
+              this.checkAllButtonStates();
+          };
+          this.ui.storyboardTitle.addEventListener('input', () => {
+              this.storyboardTitleUserEdited = this.ui.storyboardTitle.textContent.trim() !== "";
+              this.checkAllButtonStates();
+          });
+          this.ui.storyboardTitle.addEventListener('blur', () => {
+              if (this.ui.storyboardTitle.textContent.trim() === "") this.storyboardTitleUserEdited = false;
+              this.updateDynamicStoryboardTitle();
+          });
+          document.addEventListener('click', (event) => {
+              if (this.ui.contextualMenuPanel.classList.contains('visible') && !this.ui.contextualMenuPanel.contains(event.target) && !this.ui.menuButton.contains(event.target)) {
+                  this.ui.contextualMenuPanel.classList.remove('visible');
+                  document.body.classList.remove('contextual-menu-open');
+                  this.ui.topBar.classList.remove('top-bar-interactive-hover');
+              }
+          });
+          this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(button => button.onclick = () => this.switchContextualMenuView(button.dataset.view));
+          this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
+          this.ui.beginStoryBtn.onclick = () => this.beginStory();
+          this.ui.advancedStoryOptionsToggleBtn.onclick = () => {
+              this.ui.advancedStoryOptionsContentArea.classList.toggle('open');
+              const isExpanded = this.ui.advancedStoryOptionsContentArea.classList.contains('open');
+              this.ui.advancedStoryOptionsToggleBtn.setAttribute('aria-expanded', isExpanded);
+          };
+          this.ui.shuffleStoryElementsBtn.onclick = () => this._shuffleStoryboard();
+          
+          await this._updateTopBarCharacterInfo('user');
+          this.switchContextualMenuView(this.currentContextualMenuView); 
+
+          let initialScreenTarget = this.CONSTANTS.VIEWS.STORYBOARD;
+          let initialScreenOptions = {};
+          let recoveredFromSessionStorage = false;
+
+          const pendingStateJSON = sessionStorage.getItem('pendingRPGlitchFormState');
+          
+          if (pendingStateJSON) {
+              try {
+                  const parsedState = JSON.parse(pendingStateJSON);
+                  if (parsedState && parsedState.timestamp && (Date.now() - parsedState.timestamp < 7000) && parsedState.formData && parsedState.formOptions) { 
+                      this.createItemFormData = parsedState.formData; 
+                      initialScreenTarget = this.CONSTANTS.ITEM_CONFIG[parsedState.formOptions.itemType]?.formScreen || this.CONSTANTS.VIEWS.STORYBOARD;
+                      initialScreenOptions = parsedState.formOptions;
+                      if (initialScreenTarget === this.CONSTANTS.VIEWS.CHARACTER_FORM || initialScreenTarget === this.CONSTANTS.VIEWS.WORLD_FORM) {
+                          initialScreenOptions.formData = parsedState.formData;
+                      }
+                      recoveredFromSessionStorage = true;
+                      sessionStorage.removeItem('pendingRPGlitchFormState'); 
+                      console.log("[App Lifecycle] Recovered pending form state from sessionStorage.");
+                  } else {
+                      console.log("[App Lifecycle] Stale or invalid pending form state in sessionStorage. Removing.");
+                      sessionStorage.removeItem('pendingRPGlitchFormState'); 
+                  }
+              } catch (e) {
+                  console.error("[App Lifecycle] Error parsing pending form state from sessionStorage:", e);
+                  sessionStorage.removeItem('pendingRPGlitchFormState');
+              }
+          }
+
+
+          if (!recoveredFromSessionStorage) {
+              if (this.activeStoryId) {
+                  const activeStory = await this.db.stories.get(this.activeStoryId);
+                  if (activeStory && !activeStory.concluded) {
+                      initialScreenTarget = this.CONSTANTS.VIEWS.STORY_INTERFACE; 
+                  } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
+                      initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE;
+                      initialScreenOptions = { storyId: this.currentStoryId };
+                  }
+              } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
+                  initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE;
+                  initialScreenOptions = { storyId: this.currentStoryId };
+              }
+          }
+          
+          if (initialScreenTarget === this.CONSTANTS.VIEWS.STORY_INTERFACE && this.activeStoryId) { 
+               await this.openStory(this.activeStoryId);
+          } else {
+               await this.switchToScreen(initialScreenTarget, initialScreenOptions);
+          }
+
+
+          this.hideEl(this.ui.initialPageLoadingModal);
+          console.log("[App Lifecycle] initialLoad completed.");
+
+      } catch (error) {
+          console.error("Initial load error:", error);
+          this.showEl(this.ui.emergencyExportCtn);
+          this.hideEl(this.ui.initialPageLoadingModal);
+      } finally {
+          this.isInitializing = false;
+          this.checkAllButtonStates();
+      }
+  },
+  
+  _getIngredientData(id, dbTableKey, getPreMadesFn, itemTypeForPremadeId) {
+      if (typeof id === 'string' && id.startsWith('premade_')) {
+          const actualPremadeId = id.substring(id.indexOf(':') + 1);
+          const items = getPreMadesFn();
+          const foundItem = items.find(item => item.id === actualPremadeId);
+          if (foundItem) {
+              const basePremade = {
+                  eternal: '', past: '', present: '', future: '',
+                  ...foundItem, 
+                  isPremade: true, 
+                  originalPremadeId: foundItem.id, 
+                  id: id // Keep the full premade ID for later reference
+              };
+              return Promise.resolve(basePremade); // Wrap in promise to match Dexie's async get
+          }
+          return Promise.resolve(null);
+      }
+      if ((typeof id === 'number' || (typeof id === 'string' && !isNaN(parseInt(id, 10)))) && this.db[dbTableKey]) {
+          return this.db[dbTableKey].get(parseInt(id, 10));
+      }
+      return Promise.resolve(null);
+  },
+  
+  async menuButtonClickHandler(event) {
+      event.stopPropagation(); 
+      if (!this.ui.contextualMenuPanel) return;
+      const isVisible = this.ui.contextualMenuPanel.classList.contains('visible');
+      if (isVisible) {
+          this.ui.contextualMenuPanel.classList.remove('visible');
+          document.body.classList.remove('contextual-menu-open');
+          this.ui.topBar.classList.remove('top-bar-interactive-hover');
+      } else {
+          if (!this.ui.contextualMenuTabs.querySelector('.active')) {
+               this.switchContextualMenuView(this.currentContextualMenuView || this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.STORIES);
+          } else {
+               await this._renderContextualMenuContent(); 
+          }
+          this.ui.contextualMenuPanel.classList.add('visible');
+          document.body.classList.add('contextual-menu-open');
+          this.ui.topBar.classList.add('top-bar-interactive-hover');
+      }
+      this.checkAllButtonStates(); 
+  },
+
+  async switchContextualMenuView(viewKey) { 
+      this.currentContextualMenuView = viewKey;
+      if (this.ui.contextualMenuTabs) {
+          this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(btn => {
+              btn.classList.toggle('active', btn.dataset.view === viewKey);
+          });
+      }
+      if (this.ui.contextualMenuContentArea) {
+          ['contextualMenuStoriesSection', 'contextualMenuCharactersSection', 'contextualMenuWorldsSection', 'contextualMenuSettingsSection'].forEach(id => {
+               if (this.ui[id]) this.hideEl(this.ui[id]);
+          });
+      }
+      await this._renderContextualMenuContent(); 
+      await this.saveAppState();
+  },
+
+  async _renderContextualMenuContent() {
+      let targetSection;
+      switch(this.currentContextualMenuView) {
+          case this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.STORIES:
+              targetSection = this.ui.contextualMenuStoriesSection;
+              await this._renderContextualStoryList(targetSection);
+              break;
+          case this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.CHARACTERS:
+              targetSection = this.ui.contextualMenuCharactersSection;
+              await this._renderContextualCharacterList(targetSection);
+              break;
+          case this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.WORLDS:
+              targetSection = this.ui.contextualMenuWorldsSection;
+              await this._renderContextualWorldList(targetSection);
+              break;
+          case this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.SETTINGS:
+              targetSection = this.ui.contextualMenuSettingsSection;
+              await this._renderContextualSettings(targetSection);
+              break;
+      }
+      if (targetSection) this.showEl(targetSection); 
+  },
+
+  async _renderContextualListSection(container, listType, title, searchPlaceholder, populateFn, newItemHandlerFn, config) {
+      if (!container) return;
+      let searchTerm = container.querySelector(`#contextual${config.capital}SearchInput`)?.value || '';
+      
+      const newButtonId = `new${config.capital}BtnContextual`;
+      container.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+              <input type="search" id="contextual${config.capital}SearchInput" class="search-input-main" placeholder="${this.sanitizeHtml(searchPlaceholder)}" value="${this.sanitizeHtml(searchTerm)}" style="flex-grow: 1; margin-bottom: 0;">
+              <button id="${newButtonId}" class="primary-action-button" style="font-size: 0.8em; padding: 0.4rem 0.6rem; flex-shrink: 0;"><span class="button-text">New</span><span class="button-icon">➕</span></button>
+          </div>
+          <div id="${listType}ListAreaContextual" class="list-area-main"></div>`;
+      
+      const newBtnEl = container.querySelector(`#${newButtonId}`);
+      newBtnEl.onclick = newItemHandlerFn;
+      
+      if (listType === 'story' && this.activeStoryId) {
+          const activeStory = await this.db.stories.get(this.activeStoryId);
+          if (activeStory && !activeStory.concluded) {
+              newBtnEl.disabled = true;
+              newBtnEl.title = "Conclude the active story before starting a new one.";
+          }
+      }
+
+      const searchInput = container.querySelector(`#contextual${config.capital}SearchInput`);
+      searchInput.oninput = (e) => populateFn(container.querySelector(`#${listType}ListAreaContextual`), e.target.value, config);
+      populateFn(container.querySelector(`#${listType}ListAreaContextual`), searchTerm, config);
+  },
+
+  async _renderContextualStoryList(container) {
+      this._renderContextualListSection(container, 'story', 'Stories', 'Search stories...', 
+          (listArea, term) => this._populateStoryList(listArea, term),
+          () => {
+              this.ui.contextualMenuPanel.classList.remove('visible');
+              document.body.classList.remove('contextual-menu-open');
+              this.ui.topBar.classList.remove('top-bar-interactive-hover');
+              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+          },
+          { capital: 'Story' } 
+      );
+  },
+
+  async _renderContextualCharacterList(container) {
+      const config = this.CONSTANTS.ITEM_CONFIG.character;
+      this._renderContextualListSection(container, config.itemType, config.capital, `Search ${config.dbTableKey}...`,
+          (listArea, term, cfg) => this._populateList(listArea, term, cfg),
+          () => {
+              this.ui.contextualMenuPanel.classList.remove('visible');
+              document.body.classList.remove('contextual-menu-open');
+              this.ui.topBar.classList.remove('top-bar-interactive-hover');
+              this.switchToScreen(config.formScreen, { 
+                  isCreating: true, 
+                  originScreen: this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.CHARACTERS, 
+                  itemType: config.itemType,
+                  forUserCharacter: false,
+                  forAiCharacter: false
+              });
+          },
+          config
+      );
+  },
+
+  async _renderContextualWorldList(container) {
+      const config = this.CONSTANTS.ITEM_CONFIG.world;
+      this._renderContextualListSection(container, config.itemType, config.capital, `Search ${config.dbTableKey}...`,
+          (listArea, term, cfg) => this._populateList(listArea, term, cfg),
+          () => {
+              this.ui.contextualMenuPanel.classList.remove('visible');
+              document.body.classList.remove('contextual-menu-open');
+              this.ui.topBar.classList.remove('top-bar-interactive-hover');
+              this.switchToScreen(config.formScreen, { 
+                  isCreating: true, 
+                  originScreen: this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.WORLDS, 
+                  itemType: config.itemType
+              });
+          },
+          config
+      );
+  },
+
+  async _renderContextualSettings(container) {
+      if (!container) return;
+      container.innerHTML = `
+          <div id="settingsContentAreaContextual">
+              <div class="options-section">
+                  <button class="options-button" id="toggleFullscreenBtnContextual"><span class="button-text">Toggle Fullscreen</span> <span class="button-icon">↕️</span></button>
+              </div>
+              <div class="options-section">
+                  <label class="options-button import-button-wrapper-main">
+                      <span class="button-text">Import Data</span>
+                      <span class="button-icon">📥</span>
+                      <input type="file" id="importDataFileInputContextual" accept=".json,.gz,.cbor" class="hidden">
+                  </label>
+                  <button class="options-button" id="exportDataBtnContextual"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
+              </div>
+               <div class="options-section">
+                  <button id="deleteAllDataBtnContextual" class="delete-button options-button">
+                      <span class="button-text">Delete All Data<br><small style="opacity:0.8; font-weight:normal;">This action is irreversible.</small></span>
+                      <span class="button-icon">🗑️</span>
+                  </button>
+              </div>
+          </div>`;
+      container.querySelector('#toggleFullscreenBtnContextual').onclick = () => { 
+          if (window.root && window.root.fullscreenButtonPlugin) 
+              window.root.fullscreenButtonPlugin.toggleFullscreen(); 
+      };
+      container.querySelector('#exportDataBtnContextual').onclick = () => this.exportAllData();
+      container.querySelector('#importDataFileInputContextual').onchange = (event) => this.importAllData(event);
+      container.querySelector('#deleteAllDataBtnContextual').onclick = () => this.deleteAllData();
+  },
+
+  async _populateList(listArea, searchTerm = '', config) {
+      listArea.innerHTML = '';
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      
+      const { dbTableKey, itemType, getPreMadesFn, profileScreen } = config;
+
+      const allUserItems = await this.db[dbTableKey].toArray();
+      let fetchedItems = allUserItems.filter(item => item.isDeleted !== true);
+      fetchedItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0));
+      
+      const premadeItems = getPreMadesFn().map(p => ({...p, isPremade: true, originalId: p.id, id: `premade_${itemType}:${p.id}`}));
+      
+      const combinedItems = [...fetchedItems, ...premadeItems];
+
+      const itemsToDisplay = searchTerm
+          ? combinedItems.filter(item => (item.name || "").toLowerCase().includes(lowerSearchTerm))
+          : combinedItems;
+      
           this.ui.storyboardTitleArea = document.getElementById('storyboardTitleArea');
           this.ui.storyboardTitle = document.getElementById('storyboardTitle');
           this.ui.storyboardScrollableContent = document.getElementById('storyboardScrollableContent'); 
@@ -196,74 +786,33 @@
       },
       
       sanitizeHtml: (text) => {
-          try {
-              const textToSanitize = String(text === undefined || text === null ? "" : text);
-              if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
-                  return window.DOMPurify.sanitize(textToSanitize);
-              }
-              console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
-              // Fallback sanitization for basic XSS prevention
-              const map = {
-                  '&': '&amp;',
-                  '<': '&lt;',
-                  '>': '&gt;',
-                  '"': '&quot;',
-                  "'": '&#39;'
-              };
-              return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
-          } catch (error) {
-              console.error("Error in sanitizeHtml:", error);
-              return ""; // Return empty string on error for safety
+          const textToSanitize = String(text === undefined || text === null ? "" : text);
+          if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+              return window.DOMPurify.sanitize(textToSanitize);
           }
+          console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
+          const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+          return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
       },
       
       showTopNotification(message, type = 'info', duration = 3000) {
-          try {
-              // Input validation
-              if (!message || typeof message !== 'string') {
-                  console.warn("showTopNotification: Invalid message parameter");
-                  return;
-              }
-              
-              if (!['info', 'success', 'error', 'warning'].includes(type)) {
-                  console.warn("showTopNotification: Invalid type parameter, defaulting to 'info'");
-                  type = 'info';
-              }
-              
-              if (typeof duration !== 'number' || duration < 0) {
-                  console.warn("showTopNotification: Invalid duration parameter, defaulting to 3000");
-                  duration = 3000;
-              }
-              
-              // Clear existing notification
-              if (this.topNotificationTimeoutId) {
-                  clearTimeout(this.topNotificationTimeoutId);
-              }
-              
-              const notificationArea = this.ui.topBarNotificationArea;
-              if (!notificationArea) {
-                  console.error("showTopNotification: Notification area not found");
-                  return;
-              }
-              
-              // Set notification content
-              notificationArea.textContent = this.sanitizeHtml(message);
-              notificationArea.className = `top-bar-notification-area-style ${type}`;
-              
-              // Show notification
-              this.ui.topBar.classList.add('top-bar-notification-active', type);
-              this.showEl(notificationArea);
-              
-              // Auto-hide after duration
-              this.topNotificationTimeoutId = setTimeout(() => {
-                  this.hideEl(notificationArea);
-                  this.ui.topBar.classList.remove('top-bar-notification-active', type);
-              }, duration);
-          } catch (error) {
-              console.error("Error in showTopNotification:", error);
-              // Fallback to alert if notification system fails
-              alert(`Notification: ${message}`);
+          if (!this.ui.topBar || !this.ui.topBarNotificationArea) return;
+  
+          if (this.topNotificationTimeoutId) {
+              clearTimeout(this.topNotificationTimeoutId);
           }
+  
+          this.ui.topBarNotificationArea.textContent = message;
+          this.ui.topBarNotificationArea.className = 'top-bar-notification-area-style'; // Reset classes
+          this.ui.topBar.classList.add('top-bar-notification-active');
+          this.ui.topBar.classList.add(type); // Add type for color
+          this.showEl(this.ui.topBarNotificationArea);
+  
+          this.topNotificationTimeoutId = setTimeout(() => {
+              this.hideEl(this.ui.topBarNotificationArea);
+              this.ui.topBar.classList.remove('top-bar-notification-active', 'success', 'error', 'info');
+              this.topNotificationTimeoutId = null;
+          }, duration);
       },
   
       getPremadeCharacterItems() { 
@@ -337,69 +886,53 @@
       },
       
       async initializeDb() {
-          try {
-              if (!window.Dexie) {
-                  throw new Error("Dexie is not available. Database initialization failed.");
-              }
-              
-              this.db = new Dexie(window.dbName);
-              window.db = this.db;
-              
-              // Define database schema with proper versioning
-              this.db.version(10).stores({
-                  appState: '&id, activeStoryId',
-                  characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future',
-                  stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld',
-                  messages: '++id, storyId, role, content, timestamp, characterId, isHidden, summariesEndingHere, memoriesEndingHere',
-                  worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future'
-              }).upgrade(async tx => {
-                  try {
-                      await tx.table('stories').toCollection().modify(async story => {
-                          if (story.storyAiCharacter === undefined && story.aiCharacterId) {
-                              const charData = await App._getIngredientData(story.aiCharacterId, 'characters', App.getPremadeCharacterItems, 'character'); 
-                              story.storyAiCharacter = charData ? { ...charData } : null;
-                          }
-                          if (story.storyUserCharacter === undefined && story.userCharacterId) {
-                              const charData = await App._getIngredientData(story.userCharacterId, 'characters', App.getPremadeCharacterItems, 'character');
-                              story.storyUserCharacter = charData ? { ...charData } : null;
-                          }
-                          if (story.storyWorld === undefined && story.worldId) {
-                              const worldData = await App._getIngredientData(story.worldId, 'worlds', App.getPremadeWorldItems, 'world');
-                              story.storyWorld = worldData ? { ...worldData } : null;
-                          }
-                      });
-                  } catch (upgradeError) {
-                      console.error("Database upgrade error:", upgradeError);
-                      throw upgradeError;
+          this.db = new Dexie(window.dbName);
+          window.db = this.db;
+      
+          this.db.version(9).stores({ 
+              appState: '&id, activeStoryId',
+              characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future',
+              stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld', 
+              messages: '++id, storyId, role, content, timestamp, characterId, isHidden',
+              worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future'
+          }).upgrade(async tx => {
+              await tx.table('stories').toCollection().modify(async story => {
+                  if (story.storyAiCharacter === undefined && story.aiCharacterId) {
+                      const charData = await App._getIngredientData(story.aiCharacterId, 'characters', App.getPremadeCharacterItems, 'character'); 
+                      story.storyAiCharacter = charData ? { ...charData } : null;
+                  }
+                  if (story.storyUserCharacter === undefined && story.userCharacterId) {
+                      const charData = await App._getIngredientData(story.userCharacterId, 'characters', App.getPremadeCharacterItems, 'character');
+                      story.storyUserCharacter = charData ? { ...charData } : null;
+                  }
+                  if (story.storyWorld === undefined && story.worldId) {
+                      const worldData = await App._getIngredientData(story.worldId, 'worlds', App.getPremadeWorldItems, 'world');
+                      story.storyWorld = worldData ? { ...worldData } : null;
                   }
               });
-              
-              // Test database connection
+          });
+  
+          // Version 10: Add summariesEndingHere and memoriesEndingHere to messages table
+          this.db.version(10).stores({
+              appState: '&id, activeStoryId',
+              characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future',
+              stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld',
+              messages: '++id, storyId, role, content, timestamp, characterId, isHidden, summariesEndingHere, memoriesEndingHere', // Updated schema
+              worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future'
+          }).upgrade(() => {
+              console.log("Upgraded database to version 10. Added summariesEndingHere and memoriesEndingHere to messages table.");
+          });
+      
+          try {
               await this.db.open();
               const appStateAfterOpen = await this.getAppState();
               this.currentUserCharacterId = appStateAfterOpen.currentUserCharacterId;
               this.currentStoryId = appStateAfterOpen.lastOpenedStoryId; 
               this.activeStoryId = appStateAfterOpen.activeStoryId;
-              
-              console.log("Database initialized successfully");
-              return true;
           } catch (error) {
               console.error("Failed to open Dexie database:", error);
-              
-              // Show user-friendly error message
-              this.showTopNotification(
-                  "Database initialization failed. Please refresh the page or check your browser settings.",
-                  "error",
-                  10000
-              );
-              
-              // Show emergency export container
-              const emergencyCtn = document.getElementById('emergencyExportCtn');
-              if (emergencyCtn) {
-                  this.showEl(emergencyCtn);
-              }
-              
-              throw error; // Re-throw for calling function to handle
+              this.showTopNotification("Error initializing database.", "error", 5000);
+              throw error;
           }
       },
       
@@ -428,11 +961,14 @@
       },
       
       async saveAppState() {
+          // CRITICAL FIX: Don't save editing screen states that might cause issues on restore
+          const isEditingScreen = this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_FORM || 
+                                  this.currentMainView === this.CONSTANTS.VIEWS.WORLD_FORM;
           const appState = {
               id: 0,
               lastOpenedStoryId: this.currentStoryId,
               currentUserCharacterId: this.currentUserCharacterId,
-              currentMainView: this.currentMainView,
+              currentMainView: isEditingScreen ? this.CONSTANTS.VIEWS.STORYBOARD : this.currentMainView,
               currentContextualMenuView: this.currentContextualMenuView,
               activeStoryId: this.activeStoryId 
           };
@@ -440,238 +976,142 @@
       },
   
       async initialLoad() {
-          try {
-              this.isInitializing = true;
-              
-              // Initialize UI elements first
-              this._getUIElements();
-              
-              // Validate UI elements exist
-              if (!this.ui.main || !this.ui.initialPageLoadingModal) {
-                  throw new Error("Critical UI elements not found during initialization");
-              }
-              
-              // Initialize database
-              await this.initializeDb();
-              
-              // Set up event listeners with error handling
-              try {
-                  this._setupEventListeners();
-              } catch (eventError) {
-                  console.error("Error setting up event listeners:", eventError);
-                  this.showTopNotification("Some UI features may not work properly.", "warning");
-              }
-              
-              // Restore application state
-              try {
-                  await this._restoreApplicationState();
-              } catch (stateError) {
-                  console.error("Error restoring application state:", stateError);
-                  this.showTopNotification("Could not restore previous session state.", "warning");
-              }
-              
-              // Hide loading modal and show main interface
-              this.hideEl(this.ui.initialPageLoadingModal);
-              this.showEl(this.ui.main);
-              
-              console.log("[App Lifecycle] Initial load completed successfully");
-              
-          } catch (error) {
-              console.error("Critical initialization error:", error);
-              
-              // Show emergency interface
-              this.showEl(this.ui.emergencyExportCtn);
-              this.hideEl(this.ui.initialPageLoadingModal);
-              
-              // Show user-friendly error message
-              this.showTopNotification(
-                  "Application failed to initialize. Please refresh the page or contact support.",
-                  "error",
-                  15000
-              );
-              
-              throw error;
-          } finally {
+          console.log("[App Lifecycle] initialLoad starting...");
+          this._getUIElements();
+          this.isInitializing = true;
+
+          if (!this.ui.main || !this.ui.initialPageLoadingModal) {
+              console.error("[App Critical] Main UI elements not found!");
+              const emergencyCtn = document.getElementById('emergencyExportCtn');
+              if (emergencyCtn) this.showEl(emergencyCtn);
+              const modal = document.getElementById('initialPageLoadingModal');
+              if (modal) this.hideEl(modal);
+              alert("Critical error: Essential UI elements not found.");
               this.isInitializing = false;
-              this.checkAllButtonStates();
+              return;
           }
-      },
-      
-      _setupEventListeners() {
+
+          this.showEl(this.ui.main);
+
           try {
-              // Message input handling
-              if (this.ui.messageInput) {
-                  this.ui.messageInput.onkeyup = (e) => {
-                      try {
-                          if (e.key === 'Enter' && !e.shiftKey) { 
-                              e.preventDefault(); 
-                              if (!this.ui.sendButton.disabled) {
-                                  this.sendButtonClickHandler();
-                              }
-                          }
-                          this.ui.messageInput.style.height = 'auto';
-                          this.ui.messageInput.style.height = (this.ui.messageInput.scrollHeight) + 'px';
-                          this.checkAllButtonStates();
-                      } catch (error) {
-                          console.error("Error in message input handler:", error);
+              await this.initializeDb();
+              const appState = await this.getAppState();
+              this.currentUserCharacterId = appState.currentUserCharacterId;
+              this.currentStoryId = appState.lastOpenedStoryId; 
+              this.activeStoryId = appState.activeStoryId; 
+              this.currentContextualMenuView = appState.currentContextualMenuView || this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.STORIES;
+              this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD;
+
+
+              this.ui.messageInput.onkeyup = (e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) { 
+                      e.preventDefault(); 
+                      if (!this.ui.sendButton.disabled) {
+                        this.sendButtonClickHandler();
                       }
-                  };
-              }
-              
-              // Storyboard title handling
-              if (this.ui.storyboardTitle) {
-                  this.ui.storyboardTitle.addEventListener('input', () => {
-                      try {
-                          this.storyboardTitleUserEdited = this.ui.storyboardTitle.textContent.trim() !== "";
-                          this.checkAllButtonStates();
-                      } catch (error) {
-                          console.error("Error in storyboard title input handler:", error);
-                      }
-                  });
-                  
-                  this.ui.storyboardTitle.addEventListener('blur', () => {
-                      try {
-                          if (this.ui.storyboardTitle.textContent.trim() === "") {
-                              this.storyboardTitleUserEdited = false;
-                          }
-                          this.updateDynamicStoryboardTitle();
-                      } catch (error) {
-                          console.error("Error in storyboard title blur handler:", error);
-                      }
-                  });
-              }
-              
-              // Contextual menu handling
+                  }
+                  this.ui.messageInput.style.height = 'auto';
+                  this.ui.messageInput.style.height = (this.ui.messageInput.scrollHeight) + 'px';
+                  this.checkAllButtonStates();
+              };
+              this.ui.storyboardTitle.addEventListener('input', () => {
+                  this.storyboardTitleUserEdited = this.ui.storyboardTitle.textContent.trim() !== "";
+                  this.checkAllButtonStates();
+              });
+              this.ui.storyboardTitle.addEventListener('blur', () => {
+                  if (this.ui.storyboardTitle.textContent.trim() === "") this.storyboardTitleUserEdited = false;
+                  this.updateDynamicStoryboardTitle();
+              });
               document.addEventListener('click', (event) => {
-                  try {
-                      if (this.ui.contextualMenuPanel.classList.contains('visible') && 
-                          !this.ui.contextualMenuPanel.contains(event.target) && 
-                          !this.ui.menuButton.contains(event.target)) {
-                          this.ui.contextualMenuPanel.classList.remove('visible');
-                          document.body.classList.remove('contextual-menu-open');
-                          this.ui.topBar.classList.remove('top-bar-interactive-hover');
-                      }
-                  } catch (error) {
-                      console.error("Error in contextual menu click handler:", error);
+                  if (this.ui.contextualMenuPanel.classList.contains('visible') && !this.ui.contextualMenuPanel.contains(event.target) && !this.ui.menuButton.contains(event.target)) {
+                      this.ui.contextualMenuPanel.classList.remove('visible');
+                      document.body.classList.remove('contextual-menu-open');
+                      this.ui.topBar.classList.remove('top-bar-interactive-hover');
                   }
               });
+              this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(button => button.onclick = () => this.switchContextualMenuView(button.dataset.view));
+              this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
+              this.ui.beginStoryBtn.onclick = () => this.beginStory();
+              this.ui.advancedStoryOptionsToggleBtn.onclick = () => {
+                  this.ui.advancedStoryOptionsContentArea.classList.toggle('open');
+                  const isExpanded = this.ui.advancedStoryOptionsContentArea.classList.contains('open');
+                  this.ui.advancedStoryOptionsToggleBtn.setAttribute('aria-expanded', isExpanded);
+              };
+              this.ui.shuffleStoryElementsBtn.onclick = () => this._shuffleStoryboard();
               
-              // Button event listeners
-              if (this.ui.contextualMenuTabs) {
-                  this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(button => {
-                      button.onclick = () => this.switchContextualMenuView(button.dataset.view);
-                  });
-              }
-              
-              if (this.ui.sendButton) {
-                  this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
-              }
-              
-              if (this.ui.beginStoryBtn) {
-                  this.ui.beginStoryBtn.onclick = () => this.beginStory();
-              }
-              
-              if (this.ui.advancedStoryOptionsToggleBtn) {
-                  this.ui.advancedStoryOptionsToggleBtn.onclick = () => {
-                      try {
-                          this.ui.advancedStoryOptionsContentArea.classList.toggle('open');
-                          const isExpanded = this.ui.advancedStoryOptionsContentArea.classList.contains('open');
-                          this.ui.advancedStoryOptionsToggleBtn.setAttribute('aria-expanded', isExpanded);
-                      } catch (error) {
-                          console.error("Error in advanced options toggle:", error);
-                      }
-                  };
-              }
-              
-              if (this.ui.shuffleStoryElementsBtn) {
-                  this.ui.shuffleStoryElementsBtn.onclick = () => this._shuffleStoryboard();
-              }
-              
-          } catch (error) {
-              console.error("Error setting up event listeners:", error);
-              throw error;
-          }
-      },
-      
-      async _restoreApplicationState() {
-          try {
-              // Restore contextual menu view
-              this.currentContextualMenuView = this.currentContextualMenuView || this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.STORIES;
-              this.currentMainView = this.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD;
-              
-              // Update top bar character info
               await this._updateTopBarCharacterInfo('user');
-              
-              // Switch to appropriate contextual menu view
-              this.switchContextualMenuView(this.currentContextualMenuView);
-              
-              // Determine initial screen
+              this.switchContextualMenuView(this.currentContextualMenuView); 
+
               let initialScreenTarget = this.CONSTANTS.VIEWS.STORYBOARD;
               let initialScreenOptions = {};
               let recoveredFromSessionStorage = false;
-              
-              // Check for pending form state
+
               const pendingStateJSON = sessionStorage.getItem('pendingRPGlitchFormState');
+              
               if (pendingStateJSON) {
                   try {
                       const parsedState = JSON.parse(pendingStateJSON);
-                      if (parsedState && parsedState.timestamp && 
-                          (Date.now() - parsedState.timestamp < 7000) && 
-                          parsedState.formData && parsedState.formOptions) {
-                          
-                          this.createItemFormData = parsedState.formData;
+                      if (parsedState && parsedState.timestamp && (Date.now() - parsedState.timestamp < 7000) && parsedState.formData && parsedState.formOptions) { 
+                          this.createItemFormData = parsedState.formData; 
                           initialScreenTarget = this.CONSTANTS.ITEM_CONFIG[parsedState.formOptions.itemType]?.formScreen || this.CONSTANTS.VIEWS.STORYBOARD;
                           initialScreenOptions = parsedState.formOptions;
-                          
-                          if (initialScreenTarget === this.CONSTANTS.VIEWS.CHARACTER_FORM || 
-                              initialScreenTarget === this.CONSTANTS.VIEWS.WORLD_FORM) {
+                          if (initialScreenTarget === this.CONSTANTS.VIEWS.CHARACTER_FORM || initialScreenTarget === this.CONSTANTS.VIEWS.WORLD_FORM) {
                               initialScreenOptions.formData = parsedState.formData;
                           }
-                          
                           recoveredFromSessionStorage = true;
-                          sessionStorage.removeItem('pendingRPGlitchFormState');
+                          sessionStorage.removeItem('pendingRPGlitchFormState'); 
                           console.log("[App Lifecycle] Recovered pending form state from sessionStorage.");
                       } else {
                           console.log("[App Lifecycle] Stale or invalid pending form state in sessionStorage. Removing.");
-                          sessionStorage.removeItem('pendingRPGlitchFormState');
+                          sessionStorage.removeItem('pendingRPGlitchFormState'); 
                       }
                   } catch (e) {
                       console.error("[App Lifecycle] Error parsing pending form state from sessionStorage:", e);
                       sessionStorage.removeItem('pendingRPGlitchFormState');
                   }
               }
-              
-              // Determine initial screen if not recovered from session storage
+
+
               if (!recoveredFromSessionStorage) {
                   if (this.activeStoryId) {
                       const activeStory = await this.db.stories.get(this.activeStoryId);
                       if (activeStory && !activeStory.concluded) {
-                          initialScreenTarget = this.CONSTANTS.VIEWS.STORY_INTERFACE;
-                      } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) {
+                          initialScreenTarget = this.CONSTANTS.VIEWS.STORY_INTERFACE; 
+                      } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
                           initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE;
                           initialScreenOptions = { storyId: this.currentStoryId };
                       }
-                  } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) {
+                  } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
                       initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE;
                       initialScreenOptions = { storyId: this.currentStoryId };
                   }
               }
               
-              // Switch to initial screen
-              if (initialScreenTarget === this.CONSTANTS.VIEWS.STORY_INTERFACE && this.activeStoryId) {
-                  await this.openStory(this.activeStoryId);
+              if (initialScreenTarget === this.CONSTANTS.VIEWS.STORY_INTERFACE && this.activeStoryId) { 
+                   await this.openStory(this.activeStoryId);
               } else {
-                  await this.switchToScreen(initialScreenTarget, initialScreenOptions);
+                   await this.switchToScreen(initialScreenTarget, initialScreenOptions);
               }
-              
+
+
+              this.hideEl(this.ui.initialPageLoadingModal);
+              console.log("[App Lifecycle] initialLoad completed.");
+
           } catch (error) {
-              console.error("Error restoring application state:", error);
-              throw error;
+              console.error("Initial load error:", error);
+              this.showEl(this.ui.emergencyExportCtn);
+              this.hideEl(this.ui.initialPageLoadingModal);
+          } finally {
+              this.isInitializing = false;
+              this.checkAllButtonStates();
           }
       },
       
       _getIngredientData(id, dbTableKey, getPreMadesFn, itemTypeForPremadeId) {
+          console.log("[EDIT WORKFLOW DEBUG] _getIngredientData called with:", {id, dbTableKey, itemTypeForPremadeId});
+          
           if (typeof id === 'string' && id.startsWith('premade_')) {
+              console.log("[EDIT WORKFLOW DEBUG] Handling premade item");
               const actualPremadeId = id.substring(id.indexOf(':') + 1);
               const items = getPreMadesFn();
               const foundItem = items.find(item => item.id === actualPremadeId);
@@ -683,13 +1123,19 @@
                       originalPremadeId: foundItem.id, 
                       id: id // Keep the full premade ID for later reference
                   };
+                  console.log("[EDIT WORKFLOW DEBUG] Returning premade item:", basePremade);
                   return Promise.resolve(basePremade); // Wrap in promise to match Dexie's async get
               }
+              console.log("[EDIT WORKFLOW DEBUG] Premade item not found");
               return Promise.resolve(null);
           }
           if ((typeof id === 'number' || (typeof id === 'string' && !isNaN(parseInt(id, 10)))) && this.db[dbTableKey]) {
-              return this.db[dbTableKey].get(parseInt(id, 10));
+              console.log("[EDIT WORKFLOW DEBUG] Fetching from database:", dbTableKey, parseInt(id, 10));
+              const result = this.db[dbTableKey].get(parseInt(id, 10));
+              console.log("[EDIT WORKFLOW DEBUG] Database query result:", result);
+              return result;
           }
+          console.log("[EDIT WORKFLOW DEBUG] No valid ID or dbTableKey, returning null");
           return Promise.resolve(null);
       },
       
@@ -898,6 +1344,8 @@
                   </div>`;
               
               itemEl.onclick = (e) => {
+                  console.log("[EDIT WORKFLOW DEBUG] List item clicked - itemId:", item.id, "itemType:", itemType, "isPremade:", item.isPremade);
+                  
                   this.ui.contextualMenuPanel.classList.remove('visible'); 
                   document.body.classList.remove('contextual-menu-open');
                   this.ui.topBar.classList.remove('top-bar-interactive-hover');
@@ -1154,15 +1602,19 @@
           this.checkAllButtonStates();
       },
       
-      async renderFormScreen(options = {}) {
+            async renderFormScreen(options = {}) {
+          console.log("[EDIT WORKFLOW DEBUG] renderFormScreen called with options:", options);
+          console.log("[EDIT WORKFLOW DEBUG] Stack trace:", new Error().stack);
+          
           const { itemType } = options;
           const config = this.CONSTANTS.ITEM_CONFIG[itemType];
           if (!config) { console.error("Invalid itemType for renderFormScreen:", itemType); return; }
-  
+
           const container = this.ui[config.formScreen];
           if (!container) { console.error(`Container for ${config.formScreen} not found`); return; }
-  
+
           const isCreating = options.isCreating || !options.itemId;
+          console.log("[EDIT WORKFLOW DEBUG] isCreating determined as:", isCreating);
           
           this.ui.topBarDynamicTitle.textContent = isCreating ? `Create New ${config.capital}` : `Edit ${config.capital}`;
   
@@ -1181,19 +1633,22 @@
           
           let item = {};
           if (isCreating) {
+              console.log("[EDIT WORKFLOW DEBUG] Creation path - checking formData sources");
               if (options.formData && Object.keys(options.formData).length > 0) {
                   item = { ...options.formData };
                   this.createItemFormData = { ...options.formData }; 
-                  console.log("[App Form] Using formData passed in options for new item.");
+                  console.log("[EDIT WORKFLOW DEBUG] Using formData passed in options for new item:", item);
               } else if (Object.keys(this.createItemFormData).length > 0) {
                   item = { ...this.createItemFormData };
-                  console.log("[App Form] Using App.createItemFormData for new item.");
+                  console.log("[EDIT WORKFLOW DEBUG] Using App.createItemFormData for new item:", item);
               } else {
                   item = {};
-                  console.log("[App Form] Creating a truly new item, no prior data.");
+                  console.log("[EDIT WORKFLOW DEBUG] Creating a truly new item, no prior data.");
               }
           } else { 
+              console.log("[EDIT WORKFLOW DEBUG] Editing path - fetching item with ID:", options.itemId);
               item = await this._getIngredientData(options.itemId, config.dbTableKey, config.getPreMadesFn, itemType);
+              console.log("[EDIT WORKFLOW DEBUG] Retrieved item for editing:", item);
           }
   
   
@@ -1222,7 +1677,19 @@
               }
           }
           
-          container.innerHTML = softLockNoticeHtml + this._renderStudioLayout(item, config, true);
+          // NON-DESTRUCTIVE DOM UPDATE:
+          // 1. Create a temporary container for the new content.
+          const tempContainer = document.createElement('div');
+          tempContainer.innerHTML = softLockNoticeHtml + this._renderStudioLayout(item, config, true);
+          
+          // 2. Clear the old content and append the new content.
+          while (container.firstChild) {
+              container.removeChild(container.firstChild);
+          }
+          while (tempContainer.firstChild) {
+              container.appendChild(tempContainer.firstChild);
+          }
+
           this._attachFormEventListeners(container, itemType, item, isCreating);
           this.checkAllButtonStates();
       },
@@ -1252,12 +1719,28 @@
           }
           this.ui.topBarDynamicTitle.textContent = `${config.capital} Profile`;
       
-          container.innerHTML = this._renderStudioLayout(item, config, false);
+          // NON-DESTRUCTIVE DOM UPDATE:
+          const tempContainer = document.createElement('div');
+          tempContainer.innerHTML = this._renderStudioLayout(item, config, false);
+          
+          while (container.firstChild) {
+              container.removeChild(container.firstChild);
+          }
+          while (tempContainer.firstChild) {
+              container.appendChild(tempContainer.firstChild);
+          }
       
           const backButton = container.querySelector('#profileBackButton');
           if (backButton) {
               backButton.onclick = () => {
-                  if (this.activeStoryId) {
+                  // Check if we came from a story profile (concluded story)
+                  if (this.currentProfileOriginScreen === this.CONSTANTS.VIEWS.STORY_PROFILE) {
+                      // Go back to the story profile
+                      this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { 
+                          storyId: this.currentStoryId, 
+                          originScreen: this.CONSTANTS.VIEWS.STORYBOARD 
+                      });
+                  } else if (this.activeStoryId) {
                       this.switchToScreen(this.CONSTANTS.VIEWS.STORY_INTERFACE);
                   } else {
                       this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
@@ -1268,26 +1751,35 @@
           const actionButton = isPremade ? container.querySelector('#copyCustomizeBtn') : container.querySelector('#editFromProfileBtn');
           if (actionButton) {
               actionButton.onclick = () => {
-                  let formOptions = {
-                      itemType: itemType,
-                      originScreen: this.currentMainView, 
-                  };
-      
+                  console.log("[COPY WORKFLOW] Profile action button clicked - isPremade:", isPremade, "itemId:", itemId);
+                  
+                  // **COMPLETELY NEW: Simple, direct approach**
                   if (isPremade) {
+                      // For premade items: prepare copy data and navigate
                       const premadeDataOriginal = { ...item }; 
                       this.createItemFormData = premadeDataOriginal; 
                       this.createItemFormData.name = `${premadeDataOriginal.name || config.capital} (Copy)`;
                       delete this.createItemFormData.id; 
                       delete this.createItemFormData.isPremade;
-                      delete this.createItemFormData.originalPremadeId; 
+                      delete this.createItemFormData.originalPremadeId;
                       
-                      formOptions.isCreating = true;
-                      formOptions.premadeId = item.originalPremadeId;
-                  } else { 
-                      formOptions.isCreating = false; 
-                      formOptions.itemId = itemId;
+                      // Navigate directly without any delays or complex guards
+                      const targetScreen = itemType === 'character' ? this.CONSTANTS.VIEWS.CHARACTER_FORM : this.CONSTANTS.VIEWS.WORLD_FORM;
+                      this.switchToScreen(targetScreen, {
+                          itemType: itemType,
+                          originScreen: this.currentMainView,
+                          isCreating: true
+                      });
+                  } else {
+                      // For user items: edit directly
+                      const targetScreen = itemType === 'character' ? this.CONSTANTS.VIEWS.CHARACTER_FORM : this.CONSTANTS.VIEWS.WORLD_FORM;
+                      this.switchToScreen(targetScreen, {
+                          itemType: itemType,
+                          originScreen: this.currentMainView,
+                          isCreating: false,
+                          itemId: item.id
+                      });
                   }
-                  this.switchToScreen(config.formScreen, formOptions);
               };
           }
       },
@@ -1296,9 +1788,9 @@
           const san = this.sanitizeHtml;
           let nameField;
           if (config.itemType === 'character' && isEditing) {
-              nameField = `<div id="${config.itemType}NameEditable" class="studio-name-input full-width" contenteditable="true" spellcheck="false" data-placeholder="${config.capital} Name" onmouseover="this.style.backgroundColor='var(--surface1-color)'; this.style.transform='scale(1.02)';" onmouseout="this.style.backgroundColor=''; this.style.transform='';" style="transition: all 0.2s ease;">${san(item?.name || '')}</div>`;
+              nameField = `<div id="${config.itemType}NameEditable" class="studio-name-input full-width" contenteditable="true" spellcheck="false" data-placeholder="${config.capital} Name">${san(item?.name || '')}</div>`;
           } else if (isEditing) {
-              nameField = `<input type="text" id="${config.itemType}Name" class="studio-name-input full-width" placeholder="${config.capital} Name" value="${san(item?.name || '')}" onmouseover="this.style.backgroundColor='var(--surface1-color)'; this.style.transform='scale(1.02)';" onmouseout="this.style.backgroundColor=''; this.style.transform='';" style="transition: all 0.2s ease;">`;
+              nameField = `<input type="text" id="${config.itemType}Name" class="studio-name-input full-width" placeholder="${config.capital} Name" value="${san(item?.name || '')}">`;
           } else {
               nameField = `<h2 class="studio-profile-name full-width">${san(item?.name || 'Unnamed')}</h2>`;
           }
@@ -1346,7 +1838,7 @@
               actionButtons = `
                   ${!this.currentCreateFormContext.isCreating ? `<button type="button" id="delete${config.capital}BtnMain" class="delete-button"><span class="button-text">Delete</span><span class="button-icon">🗑️</span></button>` : '<div class="mr-auto"></div>'}
                   <div class="ml-auto flex gap-2">
-                      <button type="button" id="cancel${config.capital}BtnMain" class="secondary-action-button"><span class="button-text">Cancel</span><span class="button-icon">❌</span></button>
+                      ${this.currentCreateFormContext.isCreating ? '' : `<button type="button" id="cancel${config.capital}BtnMain" class="secondary-action-button"><span class="button-text">Cancel</span><span class="button-icon">❌</span></button>`}
                       <button type="submit" id="submit${config.capital}BtnMain" class="primary-action-button"><span class="button-text">${this.currentCreateFormContext.isCreating ? `Create ${config.capital}` : 'Save Changes'}</span><span class="button-icon">💾</span></button>
                   </div>`;
           } else {
@@ -1367,6 +1859,7 @@
                        id="${config.itemType}AvatarDisplay" 
                        style="background-image: url('${san(item?.avatar || '')}');"
                        ${isEditing ? `onclick="if(event.target === this) App.showAvatarOverlay(this.querySelector('.avatar-overlay'), '${config.itemType}');"` : ''}>
+                      ${isEditing ? `
                       <div id="avatar-overlay-${config.itemType}" class="avatar-overlay">
                           <div class="avatar-overlay-content">
                               <div class="avatar-preview-column" id="avatarPreviewAreaForm-${config.itemType}"><span class="opacity-50 text-sm">Preview Area</span></div>
@@ -1380,6 +1873,7 @@
                                <button type="button" id="closeAvatarBtnForm-${config.itemType}" class="secondary-action-button"><span class="button-text">Close</span></button>
                           </div>
                       </div>
+                      ` : ''}
                   </div>
                   <div class="studio-right-panel">
                       <form id="${config.itemType}FormMain" class="h-full flex flex-col">
@@ -1397,7 +1891,7 @@
               </div>`;
       },
   
-      _attachFormEventListeners(container, itemType, item, isCreating) {
+            _attachFormEventListeners(container, itemType, item, isCreating) {
           const config = this.CONSTANTS.ITEM_CONFIG[itemType];
           const form = container.querySelector(`#${itemType}FormMain`);
           const nameEditableDiv = form.querySelector(`#${itemType}NameEditable`); 
@@ -1413,11 +1907,20 @@
           const aiHelpAvatarPromptBtn = container.querySelector(`#aiHelpAvatarPromptBtn-${itemType}`);
           
           avatarPromptInputForm.addEventListener('click', e => e.stopPropagation());
+          avatarPromptInputForm.addEventListener('keyup', (e) => {
+              if (e.key === 'Enter' && !e.shiftKey) { 
+                  e.preventDefault(); 
+                  if (!generateAvatarBtnForm.disabled) {
+                      generateAvatarBtnForm.click();
+                  }
+              }
+          });
+
           closeAvatarBtnForm.onclick = (e) => { e.stopPropagation(); this.hideAvatarOverlay(avatarOverlay); };
           if (aiHelpAvatarPromptBtn) {
               aiHelpAvatarPromptBtn.onclick = (e) => { e.stopPropagation(); this._handleAiHelpForAvatarPrompt(aiHelpAvatarPromptBtn, itemType, avatarPromptInputForm, form); };
           }
-  
+
           if (window.uploadDataUrlToTextInput) {
               uploadAvatarBtnForm.onclick = (e) => { e.stopPropagation(); window.uploadDataUrlToTextInput(avatarPromptInputForm, { type: 'image/*' }); };
           } else {
@@ -1425,7 +1928,7 @@
               console.warn("file-upload-plugin not found, disabling upload button.");
           }
           useAvatarBtnForm.onclick = (e) => { e.stopPropagation(); this.handleUseGeneratedAvatar(avatarOverlay, itemType); };
-  
+
           avatarPromptInputForm.oninput = () => {
               const isUrl = avatarPromptInputForm.value.trim().startsWith('http');
               generateAvatarBtnForm.innerHTML = `<span class="button-text">${isUrl ? 'Use URL' : 'Generate'}</span>`;
@@ -1436,7 +1939,7 @@
               }
               this.checkAllButtonStates(); 
           };
-          avatarPromptInputForm.dispatchEvent(new Event('input')); 
+          avatarPromptInputForm.dispatchEvent(new Event('input'));
           
           if (!isCreating) {
               form.querySelector(`#delete${config.capital}BtnMain`).onclick = async () => {
@@ -1447,36 +1950,47 @@
                   }
               };
           }
-  
-          form.querySelector(`#cancel${config.capital}BtnMain`).onclick = () => {
-              const { originScreen, id, itemType, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId } = this.currentCreateFormContext;
-              this.createItemFormData = {}; 
-              
-              const navOptions = { 
-                  preSelectedAiCharacterId, 
-                  preSelectedUserCharacterId, 
-                  preSelectedWorldId 
-              };
-              let targetScreen = originScreen;
-          
-              if (targetScreen === config.profileScreen) {
-                  navOptions.itemId = id;
-                  navOptions.itemType = itemType;
-              } else if (targetScreen === this.CONSTANTS.VIEWS.STORY_PROFILE) {
-                  navOptions.storyId = this.currentStoryId;
+
+          if (!isCreating) {
+              const cancelBtn = form.querySelector(`#cancel${config.capital}BtnMain`);
+              if (!cancelBtn) {
+                  console.warn(`[EDIT WORKFLOW DEBUG] Cancel button not found for edit mode of ${itemType}.`);
               } else {
-                  targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
-              }
-              this.switchToScreen(targetScreen, navOptions);
-          };
-  
+                   cancelBtn.onclick = (e) => {
+                       // Ignore synthetic/programmatic clicks that are not user-initiated
+                       if (e && e.isTrusted === false) {
+                           console.warn("[EDIT WORKFLOW DEBUG] Programmatic cancel click suppressed");
+                           return;
+                       }
+                       const { originScreen, id, itemType, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId } = this.currentCreateFormContext;
+                       this.createItemFormData = {}; 
+                       
+                       const navOptions = { 
+                           preSelectedAiCharacterId, 
+                           preSelectedUserCharacterId, 
+                           preSelectedWorldId 
+                       };
+                       let targetScreen = originScreen;
+                       if (targetScreen === config.profileScreen) {
+                           navOptions.itemId = id;
+                           navOptions.itemType = itemType;
+                       } else if (targetScreen === this.CONSTANTS.VIEWS.STORY_PROFILE) {
+                           navOptions.storyId = this.currentStoryId;
+                       } else {
+                           targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
+                       }
+                       this.switchToScreen(targetScreen, navOptions);
+                   };
+               }
+           }
+
           form.onsubmit = async (e) => {
               e.preventDefault();
               const submitButton = form.querySelector(`#submit${config.capital}BtnMain`);
                await this._manageAiButtonState(submitButton, {
                   actionAsyncFn: async () => {
                       const avatarDisplayPanel = container.querySelector(`#${itemType}AvatarDisplay`);
-                      const avatarUrlStyle = avatarDisplayPanel.style.backgroundImage;
+                      const avatarUrlStyle = avatarDisplayPanel ? avatarDisplayPanel.style.backgroundImage : '';
                       const avatarUrl = avatarUrlStyle && avatarUrlStyle.startsWith('url("') ? avatarUrlStyle.slice(5, -2) : '';
                       
                       let itemName;
@@ -1570,7 +2084,7 @@
                   }
               });
           });
-  
+
           form.querySelectorAll('button[data-buttontype="ai-fill"]').forEach(button => {
               button.onclick = (e) => {
                   const textarea = e.target.previousElementSibling;
@@ -1580,10 +2094,12 @@
           });
           const summarizeBtn = form.querySelector(`#summarizeBtn${config.capital}`);
           if(summarizeBtn) summarizeBtn.onclick = () => this._handleSummarize(summarizeBtn, itemType);
-  
+
           this.checkAllButtonStates(); 
       },
-  
+
+
+      
       showAvatarOverlay(overlayElement, itemType) {
           if (!overlayElement) return;
           this.currentGeneratedAvatarDataUrl = null;
@@ -1629,33 +2145,9 @@
               const present = formElement.querySelector(`#${itemType}Present`)?.value.trim() || 'not specified';
               const itemNameForPrompt = name || `this ${itemType}`;
       
-              instruction = `Extract the physical appearance details from this ${itemType} and generate a concise, photorealistic image prompt for a profile picture. 
-
-${itemType} Name: "${itemNameForPrompt}"
-Eternal State: "${eternal}"
-Present State: "${present}"
-
-Focus on extracting and describing physical characteristics like:
-- Facial features, hair, eyes, skin tone
-- Body type, height, build
-- Clothing style, accessories
-- Distinctive physical traits or markings
-- Age, gender presentation
-- Overall visual aesthetic
-
-If Eternal state contains physical details, prioritize those. If not, extract from Present state. If neither has clear physical details, make reasonable assumptions based on the ${itemType}'s nature.
-
-Output only the image prompt. Avoid conversational text or labels.`;
+              instruction = `Generate a concise, photorealistic image prompt for a profile picture of: "${itemNameForPrompt}". Focus on physical appearance details primarily from its "Eternal" state ("${eternal}"), and secondarily from its "Present" state ("${present}"). If Eternal is "not specified" or lacks visual detail, rely more on Present. Output only the image prompt. Avoid conversational text or labels.`;
           } else {
-              instruction = `You are a master image prompt enhancer. Take the user's existing image prompt: "${existingPromptText}" and refine it into a more detailed, evocative, and visually rich prompt suitable for generating a profile picture. 
-
-Extract and emphasize physical appearance details like:
-- Specific facial features, hair style, eye color
-- Body type, clothing, accessories
-- Distinctive physical characteristics
-- Visual mood and aesthetic
-
-Maintain the core subject and intent of the original prompt while making it more detailed for image generation. Output only the improved image prompt.`;
+              instruction = `You are a master image prompt enhancer. Take the user's existing image prompt: "${existingPromptText}" and refine it into a more detailed, evocative, and visually rich prompt suitable for generating a profile picture. Maintain the core subject and intent of the original prompt. Output only the improved image prompt.`;
           }
           
           const originalPrompt = promptTextarea.value;
@@ -1739,12 +2231,9 @@ Maintain the core subject and intent of the original prompt while making it more
           const onSuccessCallback = (result) => {
               previewArea.innerHTML = ''; 
               if (result && result.canvas) {
-                  // Set canvas to fit within container while maintaining aspect ratio
-                  result.canvas.style.width = 'auto';
-                  result.canvas.style.height = 'auto';
-                  result.canvas.style.maxWidth = '100%';
-                  result.canvas.style.maxHeight = '100%';
-                  result.canvas.style.display = 'block';
+                  result.canvas.style.maxWidth = '100%'; 
+                  result.canvas.style.maxHeight = '100%'; 
+                  result.canvas.style.objectFit = 'contain';
                   previewArea.appendChild(result.canvas); 
                   previewArea.classList.add('has-image');
                   this.currentGeneratedAvatarDataUrl = result.canvas.toDataURL('image/png'); 
@@ -1810,7 +2299,7 @@ Maintain the core subject and intent of the original prompt while making it more
   
       async waitForDependenciesAndInitializeApp() {
           const checkInterval = 100; 
-          const timeout = 10000; // Reduced timeout for faster failure
+          const timeout = 15000; 
           let elapsedTime = 0;
           
           return new Promise((resolve, reject) => {
@@ -1818,52 +2307,35 @@ Maintain the core subject and intent of the original prompt while making it more
                   elapsedTime += checkInterval;
                   if (elapsedTime >= timeout) { 
                       clearInterval(intervalId); 
-                      console.warn("Timeout waiting for some dependencies. Continuing with available features.");
-                      resolve(); // Don't reject, just continue
+                      reject(new Error("Timeout waiting for Perchance plugins.")); 
                       return; 
                   }
                   
                   const dexieReady = typeof Dexie === 'function';
                   const domPurifyReady = window.DOMPurify && typeof window.DOMPurify.sanitize === 'function';
-                  
-                  // Make AI and image plugins optional
                   const aiTextPluginReady = window.root && typeof window.root.aiTextPlugin === 'function';
                   const textToImagePluginReady = window.root && typeof window.root.textToImagePlugin === 'function';
   
-                  // Only require core dependencies (Dexie and DOMPurify)
-                  if (dexieReady && domPurifyReady) {
+                  if (dexieReady && domPurifyReady && aiTextPluginReady && textToImagePluginReady) {
                       clearInterval(intervalId);
-                      
-                      // Set up AI plugin if available
-                      if (aiTextPluginReady && typeof window.aiTextPluginMetaObject === 'undefined') {
-                          try {
-                              var tempAiMetaObject = window.root.aiTextPlugin({ getMetaObject: true });
-                              window.aiTextPluginMetaObject = tempAiMetaObject;
-                              if (tempAiMetaObject) { 
-                                  window.countTokens = tempAiMetaObject.countTokens; 
-                                  window.idealMaxContextTokens = tempAiMetaObject.idealMaxContextTokens; 
-                              }
-                          } catch (e) {
-                              console.warn("AI plugin setup failed:", e);
+                      if (window.root.aiTextPlugin && typeof window.aiTextPluginMetaObject === 'undefined') {
+                          var tempAiMetaObject = window.root.aiTextPlugin({ getMetaObject: true });
+                          window.aiTextPluginMetaObject = tempAiMetaObject;
+                          if (tempAiMetaObject) { 
+                              window.countTokens = tempAiMetaObject.countTokens; 
+                              window.idealMaxContextTokens = tempAiMetaObject.idealMaxContextTokens; 
                           }
                       }
-                      
-                      // Log available features
-                      const availableFeatures = [];
-                      if (aiTextPluginReady) availableFeatures.push("AI Text Generation");
-                      if (textToImagePluginReady) availableFeatures.push("Image Generation");
-                      
-                      console.log("Core dependencies ready. Available features:", availableFeatures.join(", ") || "Core features only");
+                      console.log("All Perchance plugins and core libraries ready.");
                       resolve();
                   } else {
-                      // Try to load dependencies if available
                       if (window.root && typeof window.root.loadDependencies === 'function' && 
                           (!dexieReady || !domPurifyReady) && !window.dependenciesLoadedCalled) {
                           try {
                               window.dependenciesLoadedCalled = true; 
                               await window.root.loadDependencies();
                           } catch (e) { 
-                              console.warn("Error calling loadDependencies:", e); 
+                              console.error("Error calling loadDependencies:", e); 
                           }
                       }
                   }
@@ -1884,120 +2356,112 @@ Maintain the core subject and intent of the original prompt while making it more
       },
       
       async switchToScreen(screenId, options = {}) {
-          const oldScreen = this.currentMainView;
-          this.currentMainView = screenId;
-          this.ui.topBar.classList.remove('chat-active');
-      
-          if (screenId === this.CONSTANTS.VIEWS.CHARACTER_FORM || screenId === this.CONSTANTS.VIEWS.WORLD_FORM) {
-              this.currentCreateFormContext.originScreen = options.originScreen || oldScreen || this.CONSTANTS.VIEWS.STORYBOARD;
-              this.currentCreateFormContext.itemId = options.itemId; 
-              if (options.isCreating) {
-                  if (Object.keys(this.createItemFormData).length === 0 && (!options.formData || Object.keys(options.formData).length === 0)) {
-                      this.createItemFormData = {}; 
-                  }
-              } else { 
-                  this.createItemFormData = {};
-              }
-          }
-          
-          if (screenId === this.CONSTANTS.VIEWS.CHARACTER_PROFILE || screenId === this.CONSTANTS.VIEWS.WORLD_PROFILE || screenId === this.CONSTANTS.VIEWS.STORY_PROFILE) {
-              if (options.originScreen && 
-                  options.originScreen !== this.CONSTANTS.VIEWS.CHARACTER_FORM && 
-                  options.originScreen !== this.CONSTANTS.VIEWS.WORLD_FORM && 
-                  options.originScreen !== screenId) {
-                  this.currentProfileOriginScreen = options.originScreen;
-              } else {
-                  if (!(oldScreen === this.CONSTANTS.VIEWS.CHARACTER_FORM || oldScreen === this.CONSTANTS.VIEWS.WORLD_FORM)) {
-                      if (!this.currentProfileOriginScreen || 
-                          this.currentProfileOriginScreen === screenId || 
-                          Object.values(this.CONSTANTS.CONTEXTUAL_MENU_VIEWS).includes(this.currentProfileOriginScreen)) {
-                          
-                          this.currentProfileOriginScreen = this.CONSTANTS.VIEWS.STORYBOARD;
-                      }
-                  }
-              }
-          }
-          
-          Object.values(this.CONSTANTS.VIEWS).forEach(id => this.ui[id] && this.hideEl(this.ui[id]));
-          
-          if (screenId === this.CONSTANTS.VIEWS.STORY_INTERFACE) {
-              this.showEl(this.ui.topBarAiCharacterInfo);
-              this.showEl(this.ui.topBarUserCharacterInfo);
-              this.ui.topBar.classList.add('chat-active');
-          } else {
-              this.hideEl(this.ui.topBarAiCharacterInfo);
-              this.hideEl(this.ui.topBarUserCharacterInfo);
-               if(this.ui.aiCharacterDisplayArea) this.ui.aiCharacterDisplayArea.classList.remove('visible');
-               if(this.ui.userCharacterDisplayArea) this.ui.userCharacterDisplayArea.classList.remove('visible');
-          }
-  
-  
-          switch (screenId) {
-              case this.CONSTANTS.VIEWS.STORYBOARD:
-                  await this._updateStoryboard(options);
-                  this.ui.topBarDynamicTitle.textContent = 'Storyboard';
-                  this.showEl(this.ui.storyboardScreen);
-                  break;
-              case this.CONSTANTS.VIEWS.STORY_INTERFACE:
-                  if (this.activeStoryId) {
-                      const activeStory = await this.db.stories.get(this.activeStoryId);
-                      if (activeStory && activeStory.concluded) {
-                          await this.renderStoryProfileScreen(this.activeStoryId);
-                          this.showEl(this.ui.storyProfileScreen);
-                      } else {
-                          this.showEl(this.ui.storyInterfaceScreen);
-                      }
-                  } else {
-                      this.showEl(this.ui.storyInterfaceScreen);
-                  }
-                  break;
-              case this.CONSTANTS.VIEWS.CHARACTER_FORM:
-              case this.CONSTANTS.VIEWS.WORLD_FORM:
-                  await this.renderFormScreen(options);
-                  this.showEl(this.ui[screenId]);
-                  break;
-              case this.CONSTANTS.VIEWS.CHARACTER_PROFILE:
-              case this.CONSTANTS.VIEWS.WORLD_PROFILE:
-                  await this.renderProfileScreen(options);
-                  this.showEl(this.ui[screenId]);
-                  break;
-             case this.CONSTANTS.VIEWS.STORY_PROFILE: 
-                  await this.renderStoryProfileScreen(options.storyId);
-                  this.showEl(this.ui.storyProfileScreen);
-                  break;
-              case this.CONSTANTS.VIEWS.MEMORY_APPLICATION: // <-- ADD THIS CASE BLOCK
-                  await this._renderMemoryApplicationScreen(options);
-                  this.showEl(this.ui.memoryApplicationScreen);
-                  break;
-          }
-          await this.saveAppState();
-          this.checkAllButtonStates();
-      },
+        console.log("[EDIT WORKFLOW DEBUG] switchToScreen called - from:", this.currentMainView, "to:", screenId, "options:", options);
+        
+        const oldScreen = this.currentMainView;
+        this.currentMainView = screenId;
+        this.ui.topBar.classList.remove('chat-active');
+    
+        if (screenId === this.CONSTANTS.VIEWS.CHARACTER_FORM || screenId === this.CONSTANTS.VIEWS.WORLD_FORM) {
+            this.currentCreateFormContext.originScreen = options.originScreen || oldScreen || this.CONSTANTS.VIEWS.STORYBOARD;
+            this.currentCreateFormContext.itemId = options.itemId; 
+            if (options.isCreating) {
+                if (Object.keys(this.createItemFormData).length === 0 && (!options.formData || Object.keys(options.formData).length === 0)) {
+                    this.createItemFormData = { name: '', isPremade: false, originalPremadeId: null };
+                } else if (options.formData) {
+                    this.createItemFormData = options.formData;
+                }
+            }
+        } else if (screenId === this.CONSTANTS.VIEWS.STORYBOARD) {
+            this.currentCreateFormContext.isCreating = false;
+            this.currentCreateFormContext.formData = {};
+        }
+        
+        if (this.ui[oldScreen]) {
+          this.hideEl(this.ui[oldScreen]);
+        }
+        
+        if (screenId === this.CONSTANTS.VIEWS.STORY_INTERFACE) {
+            this.showEl(this.ui.topBarAiCharacterInfo);
+            this.showEl(this.ui.topBarUserCharacterInfo);
+            this.ui.topBar.classList.add('chat-active');
+        }
+
+        this.showEl(this.ui[screenId]);
+
+        console.log("[EDIT WORKFLOW DEBUG] About to process screen switch to:", screenId);
+        
+        switch (screenId) {
+            case this.CONSTANTS.VIEWS.STORYBOARD:
+                console.log("[EDIT WORKFLOW DEBUG] Switching to storyboard");
+                await this._updateStoryboard(options);
+                this.ui.topBarDynamicTitle.textContent = 'Storyboard';
+                break;
+            case this.CONSTANTS.VIEWS.CHARACTER_FORM:
+            case this.CONSTANTS.VIEWS.WORLD_FORM:
+                console.log("[EDIT WORKFLOW DEBUG] Switching to form screen, calling renderFormScreen");
+                await this.renderFormScreen(options);
+                break;
+            case this.CONSTANTS.VIEWS.CHARACTER_PROFILE:
+            case this.CONSTANTS.VIEWS.WORLD_PROFILE:
+                await this.renderProfileScreen(options);
+                break;
+            case this.CONSTANTS.VIEWS.STORY_INTERFACE:
+                await this.renderChatHistory();
+                this._updateTopBarCharacterInfo('user', this.getCharacterById(this.state.activeUserCharacterId));
+                this._updateTopBarCharacterInfo('ai', this.getCharacterById(this.state.activeAiCharacterId));
+                break;
+            case this.CONSTANTS.VIEWS.SETTINGS_SCREEN:
+                this.renderSettingsScreen();
+                break;
+            case this.CONSTANTS.VIEWS.MEMORY_MANAGEMENT_SCREEN:
+                this.renderMemoryManagementScreen();
+                break;
+            case this.CONSTANTS.VIEWS.MEMORY_APPLICATION_SCREEN:
+                this.renderMemoryApplicationScreen();
+                break;
+        }
+        await this.saveAppState();
+        this.checkAllButtonStates();
+    },
   
       async _updateTopBarCharacterInfo(characterType, characterData = null) {
           const infoEl = characterType === 'user' ? this.ui.topBarUserCharacterInfo : this.ui.topBarAiCharacterInfo;
           const picEl = characterType === 'user' ? this.ui.topBarUserCharacterPic : this.ui.topBarAiCharacterPic;
           const nameEl = characterType === 'user' ? this.ui.topBarUserCharacterNameText : this.ui.topBarAiCharacterNameText;
       
-          const characterId = characterType === 'user' ? this.currentUserCharacterId : this.currentAiCharacterId;
-          const dataToUse = characterData || (characterId ? await this._getIngredientData(characterId, 'characters', this.getPremadeCharacterItems, 'character') : null);
+          // Prioritize characterData if provided, otherwise fetch from DB using current ID
+          const dataToUse = characterData || (
+              (characterType === 'user' && this.currentUserCharacterId) ? await this._getIngredientData(this.currentUserCharacterId, 'characters', this.getPremadeCharacterItems, 'character') :
+              (characterType === 'ai' && this.currentAiCharacterId) ? await this._getIngredientData(this.currentAiCharacterId, 'characters', this.getPremadeCharacterItems, 'character') :
+              null
+          );
           
           if (dataToUse) {
-              picEl.src = dataToUse.avatar || '';
-              nameEl.textContent = dataToUse.name || 'Unnamed Character';
-              nameEl.title = dataToUse.name || 'Unnamed Character'; 
+              picEl.src = this.sanitizeHtml(dataToUse.avatar || '');
+              nameEl.textContent = this.sanitizeHtml(dataToUse.name || (characterType === 'user' ? 'Your Character' : 'AI Character'));
+              nameEl.title = this.sanitizeHtml(dataToUse.name || (characterType === 'user' ? 'Your Character' : 'AI Character')); 
+              this.showEl(infoEl);
+          } else {
+              picEl.src = '';
+              nameEl.textContent = characterType === 'user' ? 'Your Character' : 'AI Character';
+              nameEl.title = characterType === 'user' ? 'Your Character' : 'AI Character';
+              this.hideEl(infoEl);
           }
       },
       
       _loadCharacterImageToSidePanel(characterType, characterData) {
           const panel = characterType === 'user' ? this.ui.userCharacterDisplayArea : this.ui.aiCharacterDisplayArea;
           if (panel) {
+              console.log(`[App UI] Loading ${characterType} image. Data:`, characterData);
               if (characterData && characterData.avatar) {
                   panel.style.backgroundImage = `url('${this.sanitizeHtml(characterData.avatar)}')`;
+                  // Add the slide-in class
                   panel.classList.add('visible'); 
               } else {
                   panel.style.backgroundImage = '';
                   panel.classList.remove('visible'); 
+                  console.warn(`[App UI] No avatar found for ${characterType}. Hiding panel.`);
               }
           }
       },
@@ -2018,9 +2482,16 @@ Maintain the core subject and intent of the original prompt while making it more
           const aiChar = story.storyAiCharacter || await this._getIngredientData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems, 'character');
           const userChar = story.storyUserCharacter || await this._getIngredientData(story.userCharacterId, 'characters', this.getPremadeCharacterItems, 'character');
       
+          // Update top bar title and character info BEFORE switching screens
           this.ui.topBarDynamicTitle.textContent = story.name || `${aiChar?.name || 'AI'} & ${userChar?.name || 'User'}`;
-          await this._updateTopBarCharacterInfo('ai', aiChar);
-          await this._updateTopBarCharacterInfo('user', userChar);
+          
+          // Ensure top bar character info is updated with actual character data
+          if (aiChar) {
+              await this._updateTopBarCharacterInfo('ai', aiChar);
+          }
+          if (userChar) {
+              await this._updateTopBarCharacterInfo('user', userChar);
+          }
           
           await this.switchToScreen(this.CONSTANTS.VIEWS.STORY_INTERFACE); 
   
@@ -2076,7 +2547,8 @@ Maintain the core subject and intent of the original prompt while making it more
                   
                   const allMessages = await this.db.messages.where({ storyId: storyId, isHidden: false }).sortBy('timestamp');
                   const chatTranscript = allMessages.map(msg => `${msg.role === 'user' ? (currentStory.storyUserCharacter?.name || 'USER') : (msg.role === 'bot' ? (currentStory.storyAiCharacter?.name || 'AI') : msg.role.toUpperCase())}: ${msg.content}`).join('\n\n');
-      
+                  console.log("[Conclude Story] Chat Transcript for AI:", chatTranscript);
+
                   const conclusionInstruction = `You are a skilled Storyteller. Read the following story transcript and write a compelling narrative conclusion. This is not just a summary, but the *final scene or epilogue* of the story. Focus on resolving immediate plot points, reflecting on character transformations, or describing the lasting impact of events. Aim for 1-3 evocative paragraphs.
                   Story Title: "${currentStory.name || 'Untitled Story'}"
                   AI Character: "${currentStory.storyAiCharacter?.name || 'AI Character'}" (Present state: ${currentStory.storyAiCharacter?.present || 'current state unknown'})
@@ -2088,8 +2560,11 @@ Maintain the core subject and intent of the original prompt while making it more
                   --- End Transcript ---
       
                   Write the final narrative chapter for this story:`;
-      
+                  console.log("[Conclude Story] Conclusion Instruction sent to AI:", conclusionInstruction);
+
                   const conclusionResponse = await this._createAiRequest({ instruction: conclusionInstruction, signal });
+                  console.log("[Conclude Story] AI Response for Conclusion:", conclusionResponse);
+
                   return {
                     conclusionText: conclusionResponse?.generatedText || "And so, their tale reached its conclusion, echoing in the annals of time.",
                     concludedStoryId: storyId
@@ -2127,10 +2602,11 @@ Maintain the core subject and intent of the original prompt while making it more
                     this.showTopNotification("Story conclusion cancelled.", "info");
                   } else {
                     console.error("Error concluding story:", error);
-                    this.showTopNotification("Failed to conclude story. The quill faltered.", "error");
+                    this.showTopNotification("Failed to conclude story. There was an error with the AI or database. Check console for details.", "error");
                   }
               },
               isCancellable: true,
+              statusMessage: "Weaving together loose threads", // Remove the "..." but keep the message
           });
       },
   
@@ -2148,112 +2624,121 @@ Maintain the core subject and intent of the original prompt while making it more
       
           const currentAppState = await this.getAppState();
           if (currentAppState.activeStoryId) {
-              const activeStory = await this.db.stories.get(currentAppState.activeStoryId);
-              if (activeStory && !activeStory.concluded) {
-                  this.showTopNotification(`An active story, "${activeStory.name || 'Untitled Story'}", already exists. Conclude it before starting a new one.`, "info", 4000);
-                  return;
-              } else if (activeStory && activeStory.concluded) { 
-                  await this.db.appState.update(0, { activeStoryId: null });
-                  this.activeStoryId = null;
-              }
-          }
-      
-          const aiCharFull = await this._getIngredientData(aiCharacterId_ref, 'characters', this.getPremadeCharacterItems, 'character');
-          const userCharFull = await this._getIngredientData(userCharacterId_ref, 'characters', this.getPremadeCharacterItems, 'character');
-          const worldFull = await this._getIngredientData(worldId_ref, 'worlds', this.getPremadeWorldItems, 'world');
-      
-          if (!aiCharFull || !userCharFull || !worldFull) {
-              this.showTopNotification("Error fetching details for selected items. Cannot begin story.", "error");
+              this.showTopNotification(`An active story already exists. Conclude it before starting a new one.`, "info", 4000);
               return;
           }
       
-          this.currentAiCharacterId = aiCharacterId_ref;
-          this.currentUserCharacterId = userCharacterId_ref;
+          // --- Start of Manual Loading State (Simplified as per user preference) ---
+          this.ui.beginStoryBtn.disabled = true;
+          const originalBeginButtonHTML = this.ui.beginStoryBtn.innerHTML;
+          const originalCursor = document.body.style.cursor;
+          document.body.style.cursor = 'wait';
+          this.ui.beginStoryBtn.innerHTML = `<div class="spinner" style="width:20px; height:20px; border-width: 2px;"></div>`;
           
-          await this.switchToScreen(this.CONSTANTS.VIEWS.STORY_INTERFACE); 
-          this.ui.topBarDynamicTitle.textContent = storyName;
-          await this._updateTopBarCharacterInfo('ai', aiCharFull);
-          await this._updateTopBarCharacterInfo('user', userCharFull);
-          this._loadCharacterImageToSidePanel('ai', aiCharFull);      
-          this._loadCharacterImageToSidePanel('user', userCharFull);
+          const localAbortController = new AbortController();
+          // Store the abort controller if we need to cancel it from elsewhere (e.g., page unload)
+          this.activeAiButtons.set('beginStoryBtn', { abortController: localAbortController, originalHTML: originalBeginButtonHTML, originalCursor: originalCursor });
+
+
+          try {
+              const aiCharFull = await this._getIngredientData(aiCharacterId_ref, 'characters', this.getPremadeCharacterItems, 'character');
+              const userCharFull = await this._getIngredientData(userCharacterId_ref, 'characters', this.getPremadeCharacterItems, 'character');
+              const worldFull = await this._getIngredientData(worldId_ref, 'worlds', this.getPremadeWorldItems, 'world');
       
-          this.ui.messageFeed.innerHTML = ''; 
-          
-          const snap = (item) => ({ ...item, id: undefined }); 
-          const storyAiCharacterSnapshot = snap(aiCharFull);
-          const storyUserCharacterSnapshot = snap(userCharFull);
-          const storyWorldSnapshot = snap(worldFull);
+              if (!aiCharFull || !userCharFull || !worldFull) {
+                  this.showTopNotification("Error fetching details for selected items.", "error");
+                  throw new Error("Missing ingredient data.");
+              }
+              console.log("[beginStory] AI Character Data:", aiCharFull);
+              console.log("[beginStory] User Character Data:", userCharFull);
+              console.log("[beginStory] World Data:", worldFull);
       
-          let prologueInstruction = `You are the Story Narrator. Write a compelling introductory prologue for a new story. The prologue should be immersive but concise, around 1-2 short paragraphs.
-              **World:** ${storyWorldSnapshot.name} - ${storyWorldSnapshot.present}
-              **Characters Present:** ${storyAiCharacterSnapshot.name} (Present state: ${storyAiCharacterSnapshot.present}) and ${storyUserCharacterSnapshot.name} (Present state: ${storyUserCharacterSnapshot.present}).
+              const snap = (item) => ({ ...item, id: undefined }); // Ensure ID is not carried over from DB/Premade
+              const newStoryData = {
+                  aiCharacterId: aiCharacterId_ref, userCharacterId: userCharacterId_ref, worldId: worldId_ref,
+                  storyAiCharacter: snap(aiCharFull), storyUserCharacter: snap(userCharFull), storyWorld: snap(worldFull),
+                  name: storyName, createdTimestamp: Date.now(), lastMessageTimestamp: Date.now(),
+                  customJs: this.ui.customStoryJsTextarea.value, concluded: false, concludedTimestamp: null, summary: null
+              };
+              const newStoryId = await this.db.stories.add(newStoryData);
+              await this.db.appState.update(0, { activeStoryId: newStoryId });
+              this.activeStoryId = newStoryId;
+              this.currentStoryId = newStoryId;
+              this.currentAiCharacterId = aiCharacterId_ref;
+              this.currentUserCharacterId = userCharacterId_ref;
+      
+              await this.switchToScreen(this.CONSTANTS.VIEWS.STORY_INTERFACE);
+              
+              // Update top bar with character information
+              await this._updateTopBarCharacterInfo('ai', aiCharFull);
+              await this._updateTopBarCharacterInfo('user', userCharFull);
+      
+              await this._setAiIsTyping(true, "Writing Prologue"); // Capitalized
+              let prologueInstruction = `You are the Story Narrator. Write a compelling introductory prologue for a new story. The prologue should be immersive but concise, around 1-2 short paragraphs.
+              **World:** ${worldFull.name} - ${worldFull.present}
+              **Characters Present:** ${aiCharFull.name} (Present state: ${aiCharFull.present}) and ${userCharFull.name} (Present state: ${userCharFull.present}).
               Focus primarily on the 'Present' fields to set the immediate scene. Be concise and evocative.`;
-          if (masterPrompt) {
-              prologueInstruction += `\n**The following is a master prompt that MUST guide the introduction, overriding other details if necessary:**\n${masterPrompt}`;
+              if (masterPrompt) {
+                  prologueInstruction += `\n**The following is a master prompt that MUST guide the introduction, overriding other details if necessary:**\n${masterPrompt}`;
+              }
+              const prologueResponse = await this._createAiRequest({ instruction: prologueInstruction, signal: localAbortController.signal });
+              
+              if (localAbortController.signal.aborted) {
+                  throw new Error("Cancelled"); // Propagate cancellation
+              }
+
+              const prologueText = prologueResponse?.generatedText || "The story begins...";
+              await this.db.messages.add({ storyId: newStoryId, role: 'narrator', content: prologueText, timestamp: Date.now() - 2 });
+              this._addMessageToFeed({ role: 'narrator', content: prologueText });
+      
+              await this._setAiIsTyping(true, `${aiCharFull.name || 'AI'} is thinking`);
+              const firstMessageInstruction = `You are ${aiCharFull.name}. The story has just begun with this prologue: "${prologueText}". Speaking in the first person as ${aiCharFull.name}, what is your immediate, brief first action or line of dialogue? Consider your 'Present' state: ${aiCharFull.present}. Keep your response to 1-2 short paragraphs. Be concise.`;
+              const firstMessageResponse = await this._createAiRequest({ instruction: firstMessageInstruction, signal: localAbortController.signal });
+
+              if (localAbortController.signal.aborted) {
+                  throw new Error("Cancelled"); // Propagate cancellation
+              }
+
+              if (firstMessageResponse?.generatedText) {
+                  await this.db.messages.add({ storyId: newStoryId, role: 'bot', content: firstMessageResponse.generatedText, timestamp: Date.now() - 1, characterId: aiCharacterId_ref });
+                  this._addMessageToFeed({ role: 'bot', content: firstMessageResponse.generatedText, characterId: aiCharacterId_ref });
+              }
+      
+              this.showTopNotification("Story created! Let's begin.", "success");
+              this.ui.concludeStoryChatBtn.onclick = () => this.concludeStory(newStoryId);
+              this._updateChatUIForNewMessage();
+      
+          } catch (error) {
+              if (error.message === "Cancelled") {
+                  console.log("Story creation cancelled by user.");
+                  this.showTopNotification("Story creation cancelled.", "info");
+                  // Clean up partially created story if cancellation occurred during generation
+                  if (this.activeStoryId) {
+                      await this.db.messages.where({ storyId: this.activeStoryId }).delete().catch(e => console.error("Cleanup messages failed:", e));
+                      await this.db.stories.delete(this.activeStoryId).catch(e => console.error("Cleanup story failed:", e));
+                      await this.db.appState.update(0, { activeStoryId: null });
+                      this.activeStoryId = null;
+                      this.currentStoryId = null;
+                  }
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD); // Always return to storyboard on cancel
+              } else {
+                  console.error("Failed to begin story:", error);
+                  this.showTopNotification("Error creating story.", "error");
+                  if (this.activeStoryId) {
+                      await this.db.stories.delete(this.activeStoryId).catch(e => console.error("Cleanup failed:", e));
+                      await this.db.appState.update(0, { activeStoryId: null });
+                      this.activeStoryId = null;
+                  }
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+              }
+          } finally {
+              await this._setAiIsTyping(false);
+              this.ui.beginStoryBtn.disabled = false;
+              this.ui.beginStoryBtn.innerHTML = originalBeginButtonHTML; // Restore original HTML
+              document.body.style.cursor = originalCursor; // Restore original cursor
+              this.activeAiButtons.delete('beginStoryBtn'); // Clean up the stored controller
+              this.checkAllButtonStates();
           }
-      
-          await this._manageAiButtonState(this.ui.beginStoryBtn, {
-              actionAsyncFn: async (params, signal) => {
-                  const { aiCharacterId_ref, userCharacterId_ref, worldId_ref, storyName, prologueInstruction, storyAiCharacterSnapshot, storyUserCharacterSnapshot, storyWorldSnapshot } = params;
-                  const newStoryData = {
-                      aiCharacterId: aiCharacterId_ref, userCharacterId: userCharacterId_ref, worldId: worldId_ref,
-                      storyAiCharacter: storyAiCharacterSnapshot, storyUserCharacter: storyUserCharacterSnapshot, storyWorld: storyWorldSnapshot,
-                      name: storyName, createdTimestamp: Date.now(), lastMessageTimestamp: Date.now(),
-                      customJs: this.ui.customStoryJsTextarea.value, concluded: false, concludedTimestamp: null, summary: null
-                  };
-                  const newStoryId = await this.db.stories.add(newStoryData);
-                  await this.db.appState.update(0, { activeStoryId: newStoryId });
-                  this.activeStoryId = newStoryId;
-                  this.currentStoryId = newStoryId; 
-      
-                  await this._setAiIsTyping(true, "writing prologue");
-                  const prologueResponse = await this._createAiRequest({ instruction: prologueInstruction, signal });
-                  let prologueText = prologueResponse?.generatedText || "The story begins...";
-                  await this.db.messages.add({ storyId: newStoryId, role: 'narrator', content: prologueText, timestamp: Date.now() - 2 }); 
-                  this._addMessageToFeed({ role: 'narrator', content: prologueText }); 
-                  this._updateChatUIForNewMessage();
-      
-                  await this._setAiIsTyping(true, `${storyAiCharacterSnapshot.name || 'AI'} is thinking`); 
-      
-                  const firstMessageInstruction = `You are ${storyAiCharacterSnapshot.name}. The story has just begun with this prologue: "${prologueText}". Speaking in the first person as ${storyAiCharacterSnapshot.name}, what is your immediate, brief first action or line of dialogue? Consider your 'Present' state: ${storyAiCharacterSnapshot.present}. Keep your response to 1-2 short paragraphs. Be concise.`;
-                  const firstMessageResponse = await this._createAiRequest({ instruction: firstMessageInstruction, signal });
-      
-                  if (firstMessageResponse?.generatedText) {
-                      await this.db.messages.add({ storyId: newStoryId, role: 'bot', content: firstMessageResponse.generatedText, timestamp: Date.now() - 1, characterId: aiCharacterId_ref });
-                      this._addMessageToFeed({ role: 'bot', content: firstMessageResponse.generatedText, characterId: aiCharacterId_ref });
-                  }
-                  return newStoryId;
-              },
-              paramsForAction: { aiCharacterId_ref, userCharacterId_ref, worldId_ref, storyName, prologueInstruction, storyAiCharacterSnapshot, storyUserCharacterSnapshot, storyWorldSnapshot },
-              inputsToDisable: [this.ui.messageInput, this.ui.sendButton],
-              onSuccess: async (newStoryId) => {
-                  this.showTopNotification("Story created! Let's begin.", "success");
-                  this.currentStoryId = newStoryId;
-                  this.ui.concludeStoryChatBtn.onclick = () => this.concludeStory(newStoryId);
-                  this._updateChatUIForNewMessage();
-                  if(this.ui.contextualMenuPanel.classList.contains('visible') && this.currentContextualMenuView === this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.STORIES) {
-                      await this._renderContextualStoryList(this.ui.contextualMenuStoriesSection);
-                  }
-              },
-              onError: async (error, wasCancelled) => {
-                  if (!wasCancelled) {
-                    console.error("Failed to begin story:", error);
-                    await this._setAiIsTyping(false);
-                    this.showTopNotification("Error creating story.", "error");
-                    if (this.activeStoryId) {
-                        await this.db.stories.delete(this.activeStoryId);
-                        await this.db.appState.update(0, { activeStoryId: null });
-                        this.activeStoryId = null;
-                    }
-                    this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD); 
-                  }
-              },
-              onFinally: async () => {
-                  await this._setAiIsTyping(false);
-                  this.checkAllButtonStates();
-              },
-              isCancellable: true
-          });
       },
   
       createMessage(role, content, characterId = null) {
@@ -2268,120 +2753,48 @@ Maintain the core subject and intent of the original prompt while making it more
       },
   
       async sendButtonClickHandler() {
+          const content = this.ui.messageInput.value.trim();
+          if (this.ui.sendButton.disabled || !content || !this.currentStoryId) return;
+      
+          const message = this.createMessage('user', content, this.currentUserCharacterId);
+          this.ui.messageInput.value = '';
+          this.ui.messageInput.style.height = 'auto';
+      
+          this._addMessageToFeed(message);
+          await this.db.messages.add(message);
+          this._updateChatUIForNewMessage();
+      
+          this.ui.sendButton.disabled = true;
+      
           try {
-              // Input validation
-              if (!this.ui.messageInput || !this.ui.sendButton) {
-                  console.error("sendButtonClickHandler: Required UI elements not found");
-                  return;
+              const story = await this.db.stories.get(this.currentStoryId);
+              const aiCharName = story?.storyAiCharacter?.name || 'AI';
+              
+              if(this.ui.concludeStoryChatBtn) this.ui.concludeStoryChatBtn.disabled = true;
+              await this._setAiIsTyping(true, `${aiCharName} is thinking`);
+              
+              const aiResponse = await this._createAiRequest({
+                  instruction: await this._getSystemPrompt(),
+                  userMessage: content,
+                  chatHistory: await this._getChatHistoryForAI()
+              });
+      
+              if (aiResponse?.generatedText) {
+                  const botMessage = this.createMessage('bot', aiResponse.generatedText, story.aiCharacterId);
+                  await this.db.messages.add(botMessage); // Add to DB first
+                  this._addMessageToFeed(botMessage); // Then add to UI
+                  await this.db.stories.update(this.currentStoryId, { lastMessageTimestamp: Date.now() });
               }
-              
-              const messageText = this.ui.messageInput.value.trim();
-              if (!messageText) {
-                  console.warn("sendButtonClickHandler: Empty message text");
-                  return;
-              }
-              
-              if (!this.currentStoryId) {
-                  console.error("sendButtonClickHandler: No active story");
-                  this.showTopNotification("No active story found.", "error");
-                  return;
-              }
-              
-              // Validate message length
-              if (messageText.length > 10000) {
-                  this.showTopNotification("Message too long. Please keep it under 10,000 characters.", "error");
-                  return;
-              }
-              
-              // Sanitize input
-              const sanitizedMessage = this.sanitizeHtml(messageText);
-              if (!sanitizedMessage) {
-                  this.showTopNotification("Message contains invalid content.", "error");
-                  return;
-              }
-              
-              // Disable input during processing
-              this.ui.messageInput.disabled = true;
-              this.ui.sendButton.disabled = true;
-              
-              try {
-                  // Create and add user message
-                  const userMessage = this.createMessage('user', sanitizedMessage, this.currentUserCharacterId);
-                  this._addMessageToFeed(userMessage);
-                  
-                  // Clear input
-                  this.ui.messageInput.value = '';
-                  this.ui.messageInput.style.height = 'auto';
-                  
-                  // Save message to database
-                  await this.db.messages.add(userMessage);
-                  
-                  // Update story timestamp
-                  await this.db.stories.update(this.currentStoryId, {
-                      lastMessageTimestamp: Date.now()
-                  });
-                  
-                  // Get story and AI character info
-                  const story = await this.db.stories.get(this.currentStoryId);
-                  if (!story) {
-                      throw new Error("Story not found in database");
-                  }
-                  
-                  const aiCharName = story?.storyAiCharacter?.name || 'AI';
-                  
-                  // Disable conclude button during AI processing
-                  if (this.ui.concludeStoryChatBtn) {
-                      this.ui.concludeStoryChatBtn.disabled = true;
-                  }
-                  
-                  // Set AI typing indicator
-                  await this._setAiIsTyping(true, `${aiCharName} is thinking`);
-                  
-                  // Request AI response
-                  const aiResponse = await this._createAiRequest({
-                      instruction: await this._getSystemPrompt(),
-                      userMessage: sanitizedMessage,
-                      chatHistory: await this._getChatHistoryForAI()
-                  });
-                  
-                  if (aiResponse?.generatedText) {
-                      const botMessage = this.createMessage('bot', aiResponse.generatedText, story.aiCharacterId);
-                      this._addMessageToFeed(botMessage);
-                      await this.db.messages.add(botMessage);
-                  } else {
-                      throw new Error("AI response was empty or invalid");
-                  }
-                  
-              } catch (error) {
-                  console.error("Error processing message:", error);
-                  this.showTopNotification("Failed to send message. Please try again.", "error");
-                  
-                  // Re-enable input on error
-                  this.ui.messageInput.disabled = false;
-                  this.ui.sendButton.disabled = false;
-                  if (this.ui.concludeStoryChatBtn) {
-                      this.ui.concludeStoryChatBtn.disabled = false;
-                  }
-              }
-              
-          } catch (error) {
-              console.error("Critical error in sendButtonClickHandler:", error);
-              this.showTopNotification("An unexpected error occurred. Please refresh the page.", "error");
+          } catch(error) {
+              console.error("AI Error:", error);
+              this.showTopNotification("The AI failed to respond. Please try again.", "error");
           } finally {
-              // Always clean up
-              try {
-                  await this._setAiIsTyping(false);
-                  this.ui.sendButton.disabled = false;
-                  this.ui.messageInput.disabled = false;
-                  if (this.ui.concludeStoryChatBtn) {
-                      this.ui.concludeStoryChatBtn.disabled = false;
-                  }
-                  this.ui.messageInput.focus();
-                  this._updateChatUIForNewMessage();
-                  this.checkAllButtonStates();
-              } catch (cleanupError) {
-                  console.error("Error in cleanup:", cleanupError);
-              }
+              await this._setAiIsTyping(false);
+              this.ui.sendButton.disabled = false;
+              if(this.ui.concludeStoryChatBtn) this.ui.concludeStoryChatBtn.disabled = false;
+              this.ui.messageInput.focus();
+              this._updateChatUIForNewMessage();
+              this.checkAllButtonStates(); // Ensure all button states are re-evaluated
           }
       },
   
@@ -2398,6 +2811,7 @@ Maintain the core subject and intent of the original prompt while making it more
           if (message.id) messageEl.id = `message-wrapper-${message.id}`;
       
           let actionsHtml = '';
+          // Only render regenerate button if message has an ID (i.e., saved to DB) and is a bot message, and not on profile screen
           if (message.role === 'bot' && message.id && !isForProfileScreen) {
               actionsHtml = `
                   <div class="message-actions">
@@ -2416,6 +2830,7 @@ Maintain the core subject and intent of the original prompt while making it more
           
           const feed = isForProfileScreen ? this.ui.storyProfileMessageFeed : this.ui.messageFeed;
           feed.appendChild(messageEl);
+          this.checkAllButtonStates(); // Re-check button states after adding message (important for regenerate)
       },
   
       _updateChatUIForNewMessage() {
@@ -2457,228 +2872,55 @@ Maintain the core subject and intent of the original prompt while making it more
       },
   
       _cancelCurrentAiRequest() {
-        this.activeAiButtons.forEach((_, buttonId) => {
-          const button = document.getElementById(buttonId);
-          if (button?.classList.contains('cancel-ai-button') && button.onclick) {
-            button.onclick();
+        // Iterate over a copy of the keys to avoid issues if map is modified during iteration
+        for (let buttonId of Array.from(this.activeAiButtons.keys())) {
+          const state = this.activeAiButtons.get(buttonId);
+          if (state && state.abortController) {
+            console.log(`[App] Cancelling AI request for button: ${buttonId}`);
+            state.abortController.abort();
+            // If it's a _manageAiButtonState controlled button, it will restore itself.
+            // For beginStory (manual control), we need to manually restore its state here as well.
+            if (buttonId === 'beginStoryBtn') {
+                this.ui.beginStoryBtn.disabled = false;
+                this.ui.beginStoryBtn.innerHTML = state.originalHTML;
+                document.body.style.cursor = state.originalCursor;
+                this.activeAiButtons.delete('beginStoryBtn'); // Clean up the stored controller
+            }
           }
-        });
+        }
+        this.checkAllButtonStates();
       },
   
       async _createAiRequest(options) {
-          try {
-              // Input validation
-              if (!options || typeof options !== 'object') {
-                  throw new Error("Invalid options parameter for AI request");
-              }
-              
-              if (!window.root || !window.root.aiTextPlugin) {
-                  throw new Error("AI text plugin not available");
-              }
-              
-              // Validate required options
-              if (!options.instruction && !options.userMessage) {
-                  throw new Error("AI request requires either instruction or userMessage");
-              }
-              
-              // Sanitize inputs
-              const sanitizedOptions = {
-                  ...options,
-                  instruction: options.instruction ? App.sanitizeHtml(options.instruction) : undefined,
-                  userMessage: options.userMessage ? App.sanitizeHtml(options.userMessage) : undefined,
-                  chatHistory: options.chatHistory ? options.chatHistory.map(msg => ({
-                      ...msg,
-                      content: App.sanitizeHtml(msg.content)
-                  })) : undefined
-              };
-              
-              // Validate content lengths
-              if (sanitizedOptions.instruction && sanitizedOptions.instruction.length > 50000) {
-                  throw new Error("Instruction too long (max 50,000 characters)");
-              }
-              
-              if (sanitizedOptions.userMessage && sanitizedOptions.userMessage.length > 10000) {
-                  throw new Error("User message too long (max 10,000 characters)");
-              }
-              
-              // Make the AI request
-              const response = await window.root.aiTextPlugin(sanitizedOptions);
-              
-              // Validate response
-              if (!response) {
-                  throw new Error("AI plugin returned null or undefined response");
-              }
-              
-              if (!response.generatedText || typeof response.generatedText !== 'string') {
-                  throw new Error("AI response missing or invalid generatedText");
-              }
-              
-              // Sanitize response
-              response.generatedText = App.sanitizeHtml(response.generatedText);
-              
-              if (!response.generatedText) {
-                  throw new Error("AI response was empty after sanitization");
-              }
-              
-              return response;
-              
-          } catch (error) {
-              console.error("Error in _createAiRequest:", error);
-              
-              // Provide user-friendly error messages
-              if (error.message.includes("AI text plugin not available")) {
-                  App.showTopNotification("AI service is not available. Please check your connection.", "error");
-              } else if (error.message.includes("too long")) {
-                  App.showTopNotification("Request too long. Please try a shorter message.", "error");
-              } else if (error.message.includes("AI response")) {
-                  App.showTopNotification("AI response was invalid. Please try again.", "error");
-              } else {
-                  App.showTopNotification("AI request failed. Please try again.", "error");
-              }
-              
-              throw error;
-          }
+          return await window.root.aiTextPlugin(options);
       },
   
       async _getSystemPrompt(storyIdOverride = null) {
-          try {
-              // Input validation
-              const storyIdToUse = storyIdOverride || this.currentStoryId;
-              if (!storyIdToUse) {
-                  throw new Error("No story ID provided for system prompt");
-              }
-              
-              // Get story data
-              const story = await this.db.stories.get(storyIdToUse);
-              if (!story) {
-                  throw new Error("Story not found in database");
-              }
-              
-              // Validate story data
-              const aiChar = story.storyAiCharacter;
-              const userChar = story.storyUserCharacter;
-              const world = story.storyWorld;
-              
-              if (!aiChar || !userChar || !world) {
-                  console.warn("Snapshot data missing for story:", storyIdToUse, ". Prompt quality may be affected.");
-                  return `You are a helpful AI. Please continue the story.`;
-              }
-              
-              // Validate character and world names
-              if (!aiChar.name || !userChar.name || !world.name) {
-                  throw new Error("Character or world names are missing");
-              }
-              
-              // Sanitize all text content
-              const sanitizedAiChar = {
-                  name: App.sanitizeHtml(aiChar.name),
-                  eternal: App.sanitizeHtml(aiChar.eternal || ''),
-                  past: App.sanitizeHtml(aiChar.past || ''),
-                  present: App.sanitizeHtml(aiChar.present || ''),
-                  future: App.sanitizeHtml(aiChar.future || '')
-              };
-              
-              const sanitizedUserChar = {
-                  name: App.sanitizeHtml(userChar.name),
-                  eternal: App.sanitizeHtml(userChar.eternal || ''),
-                  past: App.sanitizeHtml(userChar.past || ''),
-                  present: App.sanitizeHtml(userChar.present || ''),
-                  future: App.sanitizeHtml(userChar.future || '')
-              };
-              
-              const sanitizedWorld = {
-                  name: App.sanitizeHtml(world.name),
-                  eternal: App.sanitizeHtml(world.eternal || ''),
-                  past: App.sanitizeHtml(world.past || ''),
-                  present: App.sanitizeHtml(world.present || ''),
-                  future: App.sanitizeHtml(world.future || '')
-              };
-              
-              // Build system prompt
-              const systemPrompt = `You are the narrator and the AI character in this role-playing story. Your AI character is: ${sanitizedAiChar.name}. The user's character is: ${sanitizedUserChar.name}. The world is: ${sanitizedWorld.name}.
-              **AI Character Details (${sanitizedAiChar.name}):** - Eternal: ${sanitizedAiChar.eternal} - Past: ${sanitizedAiChar.past} - Present: ${sanitizedAiChar.present} - Future: ${sanitizedAiChar.future}
-              **User Character Details (${sanitizedUserChar.name}):** - Eternal: ${sanitizedUserChar.eternal} - Past: ${sanitizedUserChar.past} - Present: ${sanitizedUserChar.present} - Future: ${sanitizedUserChar.future}
-              **World Details (${sanitizedWorld.name}):** - Eternal: ${sanitizedWorld.eternal} - Past: ${sanitizedWorld.past} - Present: ${sanitizedWorld.present} - Future: ${sanitizedWorld.future}
-              **Your Role:** 1. Portray your character (${sanitizedAiChar.name}) authentically, speaking in the first person. 2. Act as the narrator for world events and other NPC actions. 3. Drive the story forward. 4. Respond to the user's last message. Keep your narrative responses and character dialogue concise, typically 1-2 short paragraphs, unless the user's action or query clearly necessitates a more detailed explanation.
-              **Formatting:** Narrated actions as plain text. Your character's (${sanitizedAiChar.name}) dialogue in double quotes. Do NOT label who is speaking (e.g., avoid writing "${sanitizedAiChar.name}:").`;
-              
-              return systemPrompt;
-              
-          } catch (error) {
-              console.error("Error in _getSystemPrompt:", error);
-              
-              // Return a fallback prompt
-              return "You are a helpful AI assistant. Please continue the story in a natural and engaging way.";
+          const storyIdToUse = storyIdOverride || this.currentStoryId;
+          const story = await this.db.stories.get(storyIdToUse);
+          if (!story) return "Error: Story data not found for system prompt.";
+      
+          const aiChar = story.storyAiCharacter;
+          const userChar = story.storyUserCharacter;
+          const world = story.storyWorld;
+      
+          if (!aiChar || !userChar || !world) {
+              console.warn("Snapshot data missing for story:", storyIdToUse, ". Prompt quality may be affected.");
+              return `You are a helpful AI. Please continue the story.`;
           }
+      
+          return `You are the narrator and the AI character in this role-playing story. Your AI character is: ${aiChar.name}. The user's character is: ${userChar.name}. The world is: ${world.name}.
+          **AI Character Details (${aiChar.name}):** - Eternal: ${aiChar.eternal} - Past: ${aiChar.past} - Present: ${aiChar.present} - Future: ${aiChar.future}
+          **User Character Details (${userChar.name}):** - Eternal: ${userChar.eternal} - Past: ${userChar.past} - Present: ${userChar.present} - Future: ${userChar.future}
+          **World Details (${world.name}):** - Eternal: ${world.eternal} - Past: ${world.past} - Present: ${world.present} - Future: ${world.future}
+          **Your Role:** 1. Portray your character (${aiChar.name}) authentically, speaking in the first person. 2. Act as the narrator for world events and other NPC actions. 3. Drive the story forward. 4. Respond to the user's last message. Keep your narrative responses and character dialogue concise, typically 1-2 short paragraphs, unless the user's action or query clearly necessitates a more detailed explanation.
+          **Formatting:** Narrated actions as plain text. Your character's (${aiChar.name}) dialogue in double quotes. Do NOT label who is speaking (e.g., avoid writing "${aiChar.name}:").`;
       },
   
       async _getChatHistoryForAI() {
-          try {
-              // Input validation
-              if (!this.currentStoryId) {
-                  console.warn("_getChatHistoryForAI: No current story ID");
-                  return [];
-              }
-              
-              if (!this.db || !this.db.messages) {
-                  console.error("_getChatHistoryForAI: Database or messages table not available");
-                  return [];
-              }
-              
-              // Get messages from database
-              const messages = await this.db.messages.where({ storyId: this.currentStoryId }).sortBy('timestamp');
-              
-              if (!messages || !Array.isArray(messages)) {
-                  console.warn("_getChatHistoryForAI: No messages found or invalid response");
-                  return [];
-              }
-              
-              // Filter and process messages
-              const recentMessages = messages
-                  .filter(msg => {
-                      // Validate message structure
-                      if (!msg || typeof msg !== 'object') {
-                          console.warn("_getChatHistoryForAI: Invalid message object found");
-                          return false;
-                      }
-                      
-                      if (!msg.role || !msg.content) {
-                          console.warn("_getChatHistoryForAI: Message missing required fields");
-                          return false;
-                      }
-                      
-                      // Filter out hidden messages
-                      return !msg.isHidden;
-                  })
-                  .slice(-20); // Get last 20 messages
-              
-              // Transform messages for AI format
-              const transformedMessages = recentMessages.map(msg => {
-                  try {
-                      // Sanitize content
-                      const sanitizedContent = App.sanitizeHtml(msg.content);
-                      
-                      if (!sanitizedContent) {
-                          console.warn("_getChatHistoryForAI: Message content was empty after sanitization");
-                          return null;
-                      }
-                      
-                      return {
-                          role: msg.role === 'bot' ? 'assistant' : 'user',
-                          content: sanitizedContent
-                      };
-                  } catch (error) {
-                      console.error("_getChatHistoryForAI: Error processing message:", error);
-                      return null;
-                  }
-              }).filter(msg => msg !== null); // Remove null messages
-              
-              return transformedMessages;
-              
-          } catch (error) {
-              console.error("Error in _getChatHistoryForAI:", error);
-              return [];
-          }
+          const messages = await this.db.messages.where({ storyId: this.currentStoryId }).sortBy('timestamp');
+          const recentMessages = messages.filter(msg => !msg.isHidden).slice(-20); 
+          return recentMessages.map(msg => ({ role: msg.role === 'bot' ? 'assistant' : 'user', content: msg.content }));
       },
 
       async _collectMemoriesFromStory(storyId) {
@@ -2904,7 +3146,7 @@ Maintain the core subject and intent of the original prompt while making it more
               }
               const item = await this._getIngredientData(selectedValue, config.dbTableKey, config.getPreMadesFn, config.itemType);
               this._renderStoryboardCard(cardEl, item, config);
-              this.updateDynamicStoryboardTitle(); 
+              this.updateDynamicStoryboardTitle(); // Update title after each card updates
           };
   
           this.ui.storyboardAiCharacterSelect.onchange = async () => {
@@ -2947,6 +3189,7 @@ Maintain the core subject and intent of the original prompt while making it more
               cardEl.className = 'story-board-ingredient-card empty-card';
               cardEl.innerHTML = `Select ${selectType}`;
               cardEl.onclick = null;
+              cardEl.style.backgroundImage = ''; // Clear background image
               return;
           }
           cardEl.className = 'story-board-ingredient-card';
@@ -2954,18 +3197,24 @@ Maintain the core subject and intent of the original prompt while making it more
           const isActuallyPremade = (typeof item.id === 'string' && item.id.startsWith('premade_')) || item.isPremade;
       
           const avatarUrl = this.sanitizeHtml(item.avatar || '');
+          
+          // Render content over the background image, ensuring the image panel is always present
           cardEl.innerHTML = `
-              <div class="card-image-panel"><img src="${avatarUrl}" alt="${this.sanitizeHtml(item.name)}"></div>
+              <div class="card-image-panel" style="${avatarUrl ? `background-image: url('${avatarUrl}');` : ''}"></div>
               <div class="card-details-panel">
                   <h3 class="card-name">${this.sanitizeHtml(item.name)}</h3>
                   <p class="card-description">${this.sanitizeHtml(item.description)}</p>
                   ${isActuallyPremade ? '<span class="premade-tag-card">(Premade)</span>' : ''}
               </div>`;
-          cardEl.onclick = () => this.switchToScreen(config.profileScreen, { 
-              itemId: displayId, 
-              itemType: config.itemType, 
-              originScreen: this.CONSTANTS.VIEWS.STORYBOARD
-          });
+          cardEl.onclick = () => {
+              console.log("[EDIT WORKFLOW DEBUG] Storyboard card clicked - itemId:", displayId, "itemType:", config.itemType, "isPremade:", isActuallyPremade);
+              
+              this.switchToScreen(config.profileScreen, { 
+                  itemId: displayId, 
+                  itemType: config.itemType, 
+                  originScreen: this.CONSTANTS.VIEWS.STORYBOARD
+              });
+          };
       },
   
       updateDynamicStoryboardTitle() {
@@ -2981,11 +3230,23 @@ Maintain the core subject and intent of the original prompt while making it more
           const userCharName = getSelectedText(this.ui.storyboardUserCharacterSelect);
           const worldName = getSelectedText(this.ui.storyboardWorldSelect);
   
-          if (aiCharName && userCharName && worldName) {
-              this.ui.storyboardTitle.textContent = `${aiCharName} & ${userCharName} in ${worldName}`;
+          let titleParts = [];
+          if (aiCharName) titleParts.push(aiCharName);
+          if (userCharName) titleParts.push(userCharName);
+          
+          let finalTitle;
+          if (titleParts.length === 2) {
+              finalTitle = `${titleParts[0]} & ${titleParts[1]}`;
+              if (worldName) finalTitle += ` in ${worldName}`;
+          } else if (titleParts.length === 1) {
+              finalTitle = titleParts[0]; // Use the single character name
+              if (worldName) finalTitle += ` in ${worldName}`;
+          } else if (worldName) {
+              finalTitle = `Story in ${worldName}`;
           } else {
-              this.ui.storyboardTitle.textContent = 'Untitled Story';
+              finalTitle = 'Untitled Story';
           }
+          this.ui.storyboardTitle.textContent = finalTitle;
       },
   
       async _shuffleStoryboard() {
@@ -3005,37 +3266,15 @@ Maintain the core subject and intent of the original prompt while making it more
       },
   
       async _handleAiCoWriter(button, itemType, shouldRefine, targetTextarea) {
-          const form = document.getElementById(`${itemType}FormMain`);
-          if (!form || !targetTextarea) return;
-          
-          let name;
-          if (itemType === 'character') {
-              const nameEditableDiv = form.querySelector(`#${itemType}NameEditable`);
-              name = nameEditableDiv ? nameEditableDiv.textContent.trim() : (form.querySelector(`#${itemType}Name`)?.value.trim() || '');
-          } else {
-              name = form.querySelector(`#${itemType}Name`)?.value.trim() || '';
-          }
-  
-          const trait = button.dataset.trait;
-          const itemConfig = this.CONSTANTS.ITEM_CONFIG[itemType];
-          const traitLabel = itemConfig.labels[trait.toLowerCase()].main;
-          const traitPlaceholder = itemConfig.labels[`${trait.toLowerCase()}Placeholder`];
-          const itemNameForPrompt = name || `this ${itemType}`;
-          let instruction;
-  
-          if (shouldRefine) {
-              const existingText = targetTextarea.value.trim();
-              instruction = `You are a master creative editor. Enhance the existing text for the trait "${traitLabel}" for ${itemNameForPrompt}. Make it more evocative, detailed, unique, and narratively rich. Expand on ideas, add depth, and ensure strong storytelling potential. Consider this official guidance for what this trait represents: "${traitPlaceholder}". Avoid clichés. Focus on unique, actionable details. Output only the improved text for the trait.
-              Existing text: ${existingText}`;
-          } else {
-              instruction = `You are an acclaimed creative writer. For ${itemNameForPrompt}, invent a compelling, original, and narratively rich paragraph for the trait: **${traitLabel}**. Avoid clichés and generic statements. Focus on unique details, potential plot hooks, strong imagery, or defining characteristics that are specific and memorable. Consider this official guidance for what this trait represents: "${traitPlaceholder}". Write in a descriptive, engaging style. Output only the text for the paragraph.`;
-          }
-          
           const originalText = targetTextarea.value;
+          const instruction = shouldRefine ? 
+              `Refine and improve this ${itemType} description: "${originalText}"` :
+              `Create a compelling ${itemType} description.`;
+  
           await this._manageAiButtonState(button, {
               actionAsyncFn: this._createAiRequest,
               paramsForAction: { instruction },
-              inputsToDisable: [targetTextarea], // FIX: Only disable the specific textarea
+              inputsToDisable: [targetTextarea], // Only disable the specific textarea
               onSuccess: (response) => {
                   if (response?.generatedText) {
                       targetTextarea.value = response.generatedText;
@@ -3051,6 +3290,7 @@ Maintain the core subject and intent of the original prompt while making it more
                   }
               },
               isCancellable: true,
+              buttonPosition: 'inline', // Keep button in original position
           });
       },
   
@@ -3094,6 +3334,7 @@ Maintain the core subject and intent of the original prompt while making it more
                   }
               },
               isCancellable: true,
+              buttonPosition: 'inline', // Keep button in original position
           });
       },
   
@@ -3126,13 +3367,15 @@ Maintain the core subject and intent of the original prompt while making it more
               });
           }
       
+          // Clear AI typing status if it was set
+          this._setAiIsTyping(false);
+      
           this.activeAiButtons.delete(buttonId);
           this.checkAllButtonStates();
       },
       
       async _manageAiButtonState(button, config) {
           // --- 1. Defensive Checks ---
-          // Ensure we have a button and a function to run. This prevents silent failures.
           if (!button) {
               console.warn("_manageAiButtonState called with a null button.");
               return;
@@ -3151,7 +3394,6 @@ Maintain the core subject and intent of the original prompt while making it more
           }
       
           // --- 2. State Setup ---
-          // Create a unique controller for this specific action and store the button's original state.
           const localAbortController = new AbortController();
           const originalState = {
               originalHTML: button.innerHTML,
@@ -3169,33 +3411,54 @@ Maintain the core subject and intent of the original prompt while making it more
           this.activeAiButtons.set(buttonId, originalState);
       
           // --- 3. Apply Busy/Cancellable UI State ---
-          // This section handles all visual changes to indicate an action is in progress.
           originalState.originalClasses.forEach(c => button.classList.remove(c));
           button.classList.add('cancel-ai-button', 'ai-active');
           button.disabled = false;
           
+          // Handle inline positioning for AI buttons - keep them in their original position
+          if (config.buttonPosition === 'inline') {
+              button.style.position = 'static';
+              button.style.transform = 'none';
+              button.style.top = 'auto';
+              button.style.left = 'auto';
+              button.style.right = 'auto';
+              button.style.bottom = 'auto';
+              button.style.zIndex = 'auto';
+          }
+          
+          // Only disable the specific form field wrapper, not all AI buttons
           const formFieldWrapper = button.closest('.form-field-wrapper');
           if (formFieldWrapper) formFieldWrapper.classList.add('ai-busy');
-      
-          originalState.inputsToDisable.forEach(input => {
-              if (input) {
-                  input.disabled = true;
-                  input.classList.add('busy-cursor');
-                  const wrapper = input.closest('.form-field-wrapper');
-                  if (wrapper) wrapper.classList.add('ai-busy');
-              }
-          });
-      
+          
+          // Show status message if provided
+          if (config.statusMessage) {
+              this._setAiIsTyping(true, config.statusMessage);
+          }
+          
+          // Apply busy state to inputs - only disable the specific inputs, not all AI buttons
+          if (originalState.inputsToDisable) {
+              originalState.inputsToDisable.forEach(input => {
+                  if (input) {
+                    input.disabled = true;
+                    const wrapper = input.closest('.form-field-wrapper');
+                    if (wrapper) wrapper.classList.add('ai-busy');
+                    input.classList.add('busy-cursor');
+                  }
+              });
+          }
+        
           let seconds = 0;
           const updateButtonText = () => {
-              const buttonText = button.classList.contains('ai-helper-button') ? "Cancel Refine" : "Cancel";
-              button.innerHTML = `<span class="button-text">${buttonText} (${seconds}s)</span><span class="button-icon">⏱️</span>`;
-          };
-          updateButtonText();
-          originalState.cancelIntervalId = setInterval(() => {
+              if (config.isCancellable) {
+                  button.innerHTML = `<span class="button-text">Cancel (${seconds}s)</span><span class="button-icon">❌</span>`;
+              }
               seconds++;
-              updateButtonText();
-          }, 1000);
+          };
+          
+          if (config.isCancellable) {
+              originalState.cancelIntervalId = setInterval(updateButtonText, 1000);
+              updateButtonText(); // Initial call
+          }
       
           // The cancel button's only job is to trigger the abort signal.
           // The 'finally' block will handle all UI cleanup.
@@ -3239,8 +3502,9 @@ Maintain the core subject and intent of the original prompt while making it more
               this.ui.sendButton,
               this.ui.concludeStoryChatBtn,
           ];
+          // Collect all other message action buttons to disable them
           document.querySelectorAll('.message-action-button').forEach(btn => {
-              if (btn !== buttonElement) {
+              if (btn !== buttonElement) { // Don't disable the button that was clicked
                   inputsToDisable.push(btn);
               }
           });
@@ -3314,36 +3578,45 @@ Maintain the core subject and intent of the original prompt while making it more
       checkAllButtonStates() {
           if (this.isInitializing) return;
       
-          const isButtonProcessing = (btn) => btn && this.activeAiButtons.has(btn.id);
-      
+          // Check if any AI operation is currently active (including the manually managed beginStory)
           const isAnyAiBusy = this.activeAiButtons.size > 0;
       
-          if (this.ui.beginStoryBtn && !isButtonProcessing(this.ui.beginStoryBtn)) {
+          // Begin Story Button
+          if (this.ui.beginStoryBtn) {
               const sbAi = this.ui.storyboardAiCharacterSelect?.value;
               const sbUser = this.ui.storyboardUserCharacterSelect?.value;
               const sbWorld = this.ui.storyboardWorldSelect?.value;
+              const isBeginStoryProcessing = this.activeAiButtons.has('beginStoryBtn');
+              
               this.ui.beginStoryBtn.disabled = !(sbAi && sbUser && sbWorld) || !!this.activeStoryId || isAnyAiBusy;
               this.ui.beginStoryBtn.title = this.activeStoryId ? "Conclude active story first" : !(sbAi && sbUser && sbWorld) ? "Select all ingredients" : "Begin your adventure!";
+              
+              // If beginStory is processing, keep its spinner/cancel state
+              if (isBeginStoryProcessing) {
+                  this.ui.beginStoryBtn.disabled = false; // Allow it to be clickable for cancellation
+              }
           }
       
+          // Story Profile Screen Buttons (Conclude, Resume Chat)
           const storyProfileScreen = document.getElementById(this.CONSTANTS.VIEWS.STORY_PROFILE);
           if (storyProfileScreen && !storyProfileScreen.classList.contains('hidden') && this.currentStoryId) {
               this.db.stories.get(this.currentStoryId).then(story => {
                   if (story) {
                       const concludeBtnStoryProfile = storyProfileScreen.querySelector('#concludeStoryBtnStoryProfile');
                       const resumeChatBtnStoryProfile = storyProfileScreen.querySelector('#openStoryChatBtnStoryProfile');
-                      if (concludeBtnStoryProfile && !isButtonProcessing(concludeBtnStoryProfile)) {
+                      if (concludeBtnStoryProfile && !this.activeAiButtons.has(concludeBtnStoryProfile.id)) {
                            concludeBtnStoryProfile.disabled = isAnyAiBusy;
                       }
-                      if (resumeChatBtnStoryProfile && !isButtonProcessing(resumeChatBtnStoryProfile)) {
+                      if (resumeChatBtnStoryProfile && !this.activeAiButtons.has(resumeChatBtnStoryProfile.id)) {
                            resumeChatBtnStoryProfile.disabled = isAnyAiBusy || (!!this.activeStoryId && this.activeStoryId !== story.id);
                       }
                   }
               });
           }
   
+          // Conclude Story Button (in chat interface)
           if (this.ui.concludeStoryChatBtn) {
-              const concludeBtnIsActive = isButtonProcessing(this.ui.concludeStoryChatBtn);
+              const concludeBtnIsActive = this.activeAiButtons.has(this.ui.concludeStoryChatBtn.id);
               this.ui.concludeStoryChatBtn.disabled = concludeBtnIsActive ? false : isAnyAiBusy;
               this.ui.concludeStoryChatBtn.classList.toggle('ai-active', concludeBtnIsActive);
               
@@ -3358,34 +3631,38 @@ Maintain the core subject and intent of the original prompt while making it more
               );
           }
       
+          // Send Button and Message Input (in chat interface)
           if(this.ui.sendButton && this.ui.messageInput) {
               const storyIsActive = this.currentStoryId && this.activeStoryId === this.currentStoryId;
               const isAiResponding = this.ui.statusNotifier && !this.ui.statusNotifier.classList.contains('hidden');
               this.ui.sendButton.disabled = isAnyAiBusy || isAiResponding || !storyIsActive;
               
-              const isBeginStoryBusy = isButtonProcessing(this.ui.beginStoryBtn);
-              this.ui.messageInput.disabled = isAnyAiBusy || isBeginStoryBusy || !storyIsActive;
+              this.ui.messageInput.disabled = isAnyAiBusy || isAiResponding || !storyIsActive;
           }
 
+          // Message Action Buttons (Regenerate)
           document.querySelectorAll('.message-action-button').forEach(btn => {
-              if (!isButtonProcessing(btn)) {
+              // If this specific button is currently managing an AI action, its state is handled by _manageAiButtonState
+              // Otherwise, disable it if any other AI operation is busy.
+              if (!this.activeAiButtons.has(btn.id)) {
                   btn.disabled = isAnyAiBusy;
               }
           });
       
+          // Character/World Form Buttons (Submit, AI Helpers, Avatar Gen)
           ['character', 'world'].forEach(itemType => {
               const config = this.CONSTANTS.ITEM_CONFIG[itemType];
               const formScreen = document.getElementById(config.formScreen);
               if (formScreen && !formScreen.classList.contains('hidden')) {
                   const submitBtn = formScreen.querySelector(`#submit${config.capital}BtnMain`);
-                  if (submitBtn && !isButtonProcessing(submitBtn)) {
+                  if (submitBtn && !this.activeAiButtons.has(submitBtn.id)) {
                       const nameField = itemType === 'character' ? formScreen.querySelector(`#${itemType}NameEditable`) : formScreen.querySelector(`#${itemType}Name`);
                       const isFormValid = (nameField?.value?.trim() || nameField?.textContent?.trim());
                       submitBtn.disabled = !isFormValid || isAnyAiBusy;
                   }
   
                   formScreen.querySelectorAll('button.ai-helper-button').forEach(btn => {
-                      if (!isButtonProcessing(btn)) btn.disabled = isAnyAiBusy;
+                      if (!this.activeAiButtons.has(btn.id)) btn.disabled = isAnyAiBusy;
                   });
                   
                   const avatarOverlay = formScreen.querySelector(`#avatar-overlay-${itemType}`);
@@ -3395,9 +3672,9 @@ Maintain the core subject and intent of the original prompt while making it more
                     const useAvatarBtn = avatarOverlay.querySelector(`#useAvatarBtnForm-${itemType}`);
                     const avatarPromptInput = avatarOverlay.querySelector(`#avatarPromptInputForm-${itemType}`);
   
-                    if (aiHelpAvatarBtn && !isButtonProcessing(aiHelpAvatarBtn)) aiHelpAvatarBtn.disabled = isAnyAiBusy;
-                    if (genAvatarBtn && !isButtonProcessing(genAvatarBtn)) genAvatarBtn.disabled = !avatarPromptInput?.value.trim() || isAnyAiBusy;
-                    if (useAvatarBtn && !isButtonProcessing(useAvatarBtn)) useAvatarBtn.disabled = !this.currentGeneratedAvatarDataUrl || isAnyAiBusy;
+                    if (aiHelpAvatarBtn && !this.activeAiButtons.has(aiHelpAvatarBtn.id)) aiHelpAvatarBtn.disabled = isAnyAiBusy;
+                    if (genAvatarBtn && !this.activeAiButtons.has(genAvatarBtn.id)) genAvatarBtn.disabled = !avatarPromptInput?.value.trim() || isAnyAiBusy;
+                    if (useAvatarBtn && !this.activeAiButtons.has(useAvatarBtn.id)) useAvatarBtn.disabled = !this.currentGeneratedAvatarDataUrl || isAnyAiBusy;
                   }
               }
           });
@@ -3424,7 +3701,7 @@ Maintain the core subject and intent of the original prompt while making it more
       },
       
       importAllData: async function(event) {
-          const file = event.target.files;
+          const file = event.target.files[0]; // Access the first file
           if (!file) return;
       
           if (!confirm('Importing data will overwrite existing data. Are you sure?')) {
@@ -3477,86 +3754,105 @@ Maintain the core subject and intent of the original prompt while making it more
           }
       },
       
-      // Error handling utilities
-      handleError(error, context = '', showNotification = true) {
-          try {
-              // Log error with context
-              console.error(`[${context}] Error:`, error);
+      async _renderPremadeCharacterList() {
+          const premadeCharacters = this.getPremadeCharacterItems();
+          let html = '';
+          
+          premadeCharacters.forEach(character => {
+              const avatarUrl = this.sanitizeHtml(character.avatar || '');
+              const characterName = this.sanitizeHtml(character.name || '');
+              const characterDescription = this.sanitizeHtml(character.description || '');
               
-              // Simple error message mapping for Perchance
-              let userMessage = "Something went wrong. Please try again.";
-              
-              if (error && error.message) {
-                  if (error.message.includes("database") || error.message.includes("db")) {
-                      userMessage = "Database error. Please refresh the page.";
-                  } else if (error.message.includes("AI") || error.message.includes("plugin")) {
-                      userMessage = "AI service error. Please try again.";
-                  } else if (error.message.includes("network")) {
-                      userMessage = "Connection error. Please check your internet.";
-                  }
-              }
-              
-              // Show notification if requested
-              if (showNotification) {
-                  this.showTopNotification(userMessage, "error");
-              }
-              
-          } catch (handlingError) {
-              console.error("Error in error handler:", handlingError);
-              // Fallback to simple alert for critical errors
-              if (showNotification) {
-                  alert("An error occurred. Please refresh the page.");
-              }
-          }
+              html += `
+                  <div class="character-card" data-character-id="${character.id}" onclick="App.selectPremadeCharacter('${character.id}')">
+                      <img src="${avatarUrl}" alt="${characterName}" class="character-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" onload="this.nextElementSibling.style.display='none';">
+                      <div class="character-avatar-placeholder">No Image Available</div>
+                      <div class="character-card-name">${characterName}</div>
+                      <div class="character-card-description">${characterDescription}</div>
+                      <div class="actions-bar">
+                          <button class="secondary-action-button" onclick="event.stopPropagation(); App.selectPremadeCharacter('${character.id}')">
+                              <span class="button-text">Use This Character</span>
+                              <span class="button-icon">✅</span>
+                          </button>
+                      </div>
+                  </div>
+              `;
+          });
+          
+          this.ui.preMadeCharacterOnlyList.innerHTML = html;
       },
       
-      // Simple input validation for Perchance
-      validateInput(input, type = 'string') {
-          try {
-              if (input === null || input === undefined) {
-                  return { valid: false, error: "Input is required" };
-              }
+      async _renderPremadeWorldList() {
+          const premadeWorlds = this.getPremadeWorldItems();
+          let html = '';
+          
+          premadeWorlds.forEach(world => {
+              const avatarUrl = this.sanitizeHtml(world.avatar || '');
+              const worldName = this.sanitizeHtml(world.name || '');
+              const worldDescription = this.sanitizeHtml(world.description || '');
               
-              if (type === 'string') {
-                  if (typeof input !== 'string') {
-                      return { valid: false, error: "Input must be text" };
-                  }
-                  
-                  if (input.trim() === '') {
-                      return { valid: false, error: "Input cannot be empty" };
-                  }
-                  
-                  if (input.length > 10000) {
-                      return { valid: false, error: "Input is too long" };
-                  }
-              }
-              
-              return { valid: true };
-              
-          } catch (error) {
-              console.error("Error in validateInput:", error);
-              return { valid: false, error: "Validation error" };
-          }
+              html += `
+                  <div class="character-card" data-world-id="${world.id}" onclick="App.selectPremadeWorld('${world.id}')">
+                      <img src="${avatarUrl}" alt="${worldName}" class="character-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" onload="this.nextElementSibling.style.display='none';">
+                      <div class="character-avatar-placeholder">No Image Available</div>
+                      <div class="character-card-name">${worldName}</div>
+                      <div class="character-card-description">${worldDescription}</div>
+                      <div class="actions-bar">
+                          <button class="secondary-action-button" onclick="event.stopPropagation(); App.selectPremadeWorld('${world.id}')">
+                              <span class="button-text">Use This World</span>
+                              <span class="button-icon">✅</span>
+                          </button>
+                      </div>
+                  </div>
+              `;
+          });
+          
+          this.ui.preMadeWorldOnlyList.innerHTML = html;
       },
       
-      // Database operation utilities with error handling
-      async safeDbOperation(operation, context = '') {
-          try {
-              if (!this.db) {
-                  throw new Error("Database not initialized");
-              }
-              
-              if (typeof operation !== 'function') {
-                  throw new Error("Operation must be a function");
-              }
-              
-              return await operation();
-              
-          } catch (error) {
-              this.handleError(error, `DB Operation: ${context}`);
-              throw error;
+      async selectPremadeCharacter(characterId) {
+          const character = this.getPremadeCharacterItems().find(c => c.id === characterId);
+          if (!character) {
+              this.showTopNotification("Character not found.", "error");
+              return;
           }
-      }
+          
+          // Store the premade character data for the form
+          this.createItemFormData = { ...character };
+          
+          // Navigate to character form
+          await this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, {
+              isCreating: true,
+              premadeId: characterId,
+              originScreen: this.previousScreenBeforePremadeSelection || this.CONSTANTS.VIEWS.STORYBOARD
+          });
+      },
+      
+      async selectPremadeWorld(worldId) {
+          const world = this.getPremadeWorldItems().find(w => w.id === worldId);
+          if (!world) {
+              this.showTopNotification("World not found.", "error");
+              return;
+          }
+          
+          // Store the premade world data for the form
+          this.createItemFormData = { ...world };
+          
+          // Navigate to world form
+          await this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, {
+              isCreating: true,
+              premadeId: worldId,
+              originScreen: this.previousScreenBeforePremadeSelection || this.CONSTANTS.VIEWS.STORYBOARD
+          });
+      },
+
+      saveGeneratorOverrideActive: false,
+
+
+
+
+
+
     };
   
     window.App = App;

@@ -619,7 +619,7 @@
         .story-board-ingredient-select option[disabled] { color: var(--subtext0-color); font-style: italic; }
         .story-board-ingredient-select optgroup { font-weight: bold; color: var(--subtext1-color); background-color: var(--surface0-color); }
         
-        .story-board-ingredient-card { display: flex; flex-direction: row; background-color: var(--surface1-color); border-radius: var(--border-radius); border: 0px solid transparent; overflow: hidden; height: calc(100% - 2.5rem - 1rem); min-height: calc(320px - 2.5rem - 1rem - 2rem); cursor: pointer; transition: all var(--transition-speed) ease-out; box-shadow: var(--shadow-md); flex-grow: 1; position: relative; }
+        .story-board-ingredient-card { display: flex; flex-direction: row; background-color: var(--surface0-color); border-radius: var(--border-radius); border: 1px solid var(--surface1-color); overflow: hidden; height: calc(100% - 2.5rem - 1rem); min-height: calc(320px - 2.5rem - 1rem - 2rem); cursor: pointer; transition: all var(--transition-speed) ease; box-shadow: var(--shadow-md); flex-grow: 1; position: relative; }
         .story-board-ingredient-card:not(.empty-card):hover { border-color: transparent; box-shadow: 0 6px 12px rgba(0,0,0,0.25), 0 0 0 3px var(--focus-ring-color); transform: translateY(-2px); } 
         .story-board-ingredient-card.empty-card { align-items: center; justify-content: center; text-align: center; color: var(--subtext0-color); opacity: 0.8; font-style: italic; padding: 1rem; background-color: var(--surface0-color); font-size: 0.9em; border-style: dashed; border-color: var(--surface1-color); box-shadow: none; height: calc(100% - 2.5rem - 1rem); min-height: calc(320px - 2.5rem - 1rem - 2rem); cursor: default; }
         .story-board-ingredient-card.empty-card:hover { background-color: var(--surface0-color); opacity: 0.8; border-color: var(--surface1-color); transform: none; box-shadow: none; }
@@ -846,7 +846,80 @@
         .field-label { margin-bottom: 0.5rem; text-align: left; }
         .field-label .main-label { font-size: 1.1em; font-weight: 500; color: var(--text-color); }
         .field-label .sub-label { font-size: 0.9em; opacity: 0.8; color: var(--subtext1-color); display: block; margin-top: 0.2rem; }
-        .profile-field-value { background-color: var(--surface0-color); padding: 1rem; border-radius: var(--border-radius); border: 1px solid var(--surface1-color); white-space: pre-wrap; line-height: 1.5; font-size: 0.9em; text-align: left; min-height: 115px; }
+        .profile-field-value { background-color: var(--surface0-color); padding: 1rem; border-radius: var(--border-radius); border: 1px solid var(--surface1-color); white-space: pre-wrap; line-height: 1.5; font-size: 0.9em; text-align: left; min-height: 115px; border-left: 4px solid transparent; }
+        
+        /* Color picker styles */
+        .color-picker { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+        .color-option { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--surface1-color); cursor: pointer; transition: all var(--transition-speed) ease; position: relative; }
+        .color-option:hover { transform: scale(1.1); border-color: var(--text-color); box-shadow: var(--shadow-md); }
+        .color-option.selected { border-color: var(--text-color); box-shadow: 0 0 0 3px var(--surface0-color), 0 0 0 6px var(--text-color); }
+        
+        /* Color preview styles */
+        .color-preview { margin-top: 1rem; padding: 1rem; background: var(--surface0-color); border-radius: var(--border-radius); border: 1px solid var(--surface1-color); }
+        .preview-item { padding: 0.75rem; margin-bottom: 0.5rem; border-radius: var(--border-radius); font-size: 0.9em; }
+        .preview-item:last-child { margin-bottom: 0; }
+        
+        /* Profile field color variations */
+        .profile-field-value { background-color: var(--surface0-color); padding: 1rem; border-radius: var(--border-radius); border: 1px solid var(--surface1-color); white-space: pre-wrap; line-height: 1.5; font-size: 0.9em; text-align: left; min-height: 115px; border-left: 4px solid transparent; transition: border-left-color 0.3s ease; }
+        
+        /* Character card color integration */
+        .story-board-ingredient-card { 
+            background: var(--surface0-color); 
+            border: 1px solid var(--surface1-color); 
+            border-left: 4px solid transparent;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .story-board-ingredient-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: var(--shadow-lg);
+        }
+        
+        /* Chat bubble color integration */
+        .message.botMessage .messageContentContainer { 
+            background: var(--surface0-color); 
+            border-left: 3px solid transparent;
+            transition: border-left-color 0.3s ease;
+        }
+        
+        .message.userMessage .messageContentContainer { 
+            background: var(--surface0-color); 
+            border-left: 3px solid transparent;
+            transition: border-left-color 0.3s ease;
+        }
+        
+        /* Avatar border color integration */
+        .studio-left-panel { 
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+        
+        /* Form field color integration */
+        .form-field-wrapper textarea { 
+            border: 1px solid var(--surface1-color);
+            border-left: 3px solid transparent;
+            transition: border-left-color 0.3s ease;
+        }
+        
+        /* AI helper button color integration */
+        .ai-helper-button { 
+            border: 1px solid var(--surface1-color);
+            border-left: 3px solid transparent;
+            transition: border-left-color 0.3s ease;
+        }
+        
+        /* Profile field color gradients */
+        .profile-field-value.profile-field-forever { border-left-color: var(--forever-color, transparent); }
+        .profile-field-value.profile-field-past { border-left-color: var(--past-color, transparent); }
+        .profile-field-value.profile-field-present { border-left-color: var(--present-color, transparent); }
+        .profile-field-value.profile-field-future { border-left-color: var(--future-color, transparent); }
+        
+        /* Breadcrumb navigation styles */
+        .breadcrumb { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; background-color: var(--surface0-color); border-bottom: 1px solid var(--surface1-color); font-size: 0.9em; }
+        .breadcrumb-item { color: var(--subtext1-color); cursor: pointer; transition: color var(--transition-speed); }
+        .breadcrumb-item:hover { color: var(--text-color); }
+        .breadcrumb-item.current { color: var(--text-color); font-weight: 500; cursor: default; }
+        .breadcrumb-separator { color: var(--subtext0-color); }
         
         .form-field-group {
             display: grid;
