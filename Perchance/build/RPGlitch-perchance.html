@@ -3,7 +3,7 @@
     RPGLITCH - PERCHANCE VERSION
     ========================================
     
-    Generated: 2025-07-02T20:59:58.054Z
+    Generated: 2025-07-03T00:08:10.587Z
     Build Script: build-perchance.js
     Platform: Perchance (perchance.org)
     
@@ -2082,33 +2082,41 @@ const App = {
 
   async _renderContextualSettings(container) {
       if (!container) return;
+      
+      // Create unique IDs for this specific settings instance to prevent duplicate ID conflicts
+      const uniqueId = `settings_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      const fullscreenBtnId = `toggleFullscreenBtn_${uniqueId}`;
+      const exportBtnId = `exportDataBtn_${uniqueId}`;
+      const importFileId = `importDataFile_${uniqueId}`;
+      const deleteBtnId = `deleteAllDataBtn_${uniqueId}`;
+      
       container.innerHTML = `
           <div id="settingsContentAreaContextual">
               <div class="options-section">
-                  <button class="options-button" id="toggleFullscreenBtnContextual"><span class="button-text">Toggle Fullscreen</span> <span class="button-icon">↕️</span></button>
+                  <button class="options-button" id="${fullscreenBtnId}"><span class="button-text">Toggle Fullscreen</span> <span class="button-icon">↕️</span></button>
               </div>
               <div class="options-section">
                   <label class="options-button import-button-wrapper-main">
                       <span class="button-text">Import Data</span>
                       <span class="button-icon">📥</span>
-                      <input type="file" id="importDataFileInputContextual" accept=".json,.gz,.cbor" class="hidden">
+                      <input type="file" id="${importFileId}" accept=".json,.gz,.cbor" class="hidden">
                   </label>
-                  <button class="options-button" id="exportDataBtnContextual"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
+                  <button class="options-button" id="${exportBtnId}"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
               </div>
                <div class="options-section">
-                  <button id="deleteAllDataBtnContextual" class="delete-button options-button">
+                  <button id="${deleteBtnId}" class="delete-button options-button">
                       <span class="button-text">Delete All Data<br><small style="opacity:0.8; font-weight:normal;">This action is irreversible.</small></span>
                       <span class="button-icon">🗑️</span>
                   </button>
               </div>
           </div>`;
-      container.querySelector('#toggleFullscreenBtnContextual').onclick = () => { 
+      container.querySelector(`#${fullscreenBtnId}`).onclick = () => { 
           if (window.root && window.root.fullscreenButtonPlugin) 
               window.root.fullscreenButtonPlugin.toggleFullscreen(); 
       };
-      container.querySelector('#exportDataBtnContextual').onclick = () => this.exportAllData();
-      container.querySelector('#importDataFileInputContextual').onchange = (event) => this.importAllData(event);
-      container.querySelector('#deleteAllDataBtnContextual').onclick = () => this.deleteAllData();
+      container.querySelector(`#${exportBtnId}`).onclick = () => this.exportAllData();
+      container.querySelector(`#${importFileId}`).onchange = (event) => this.importAllData(event);
+      container.querySelector(`#${deleteBtnId}`).onclick = () => this.deleteAllData();
   },
 
   async _populateList(listArea, searchTerm = '', config) {
@@ -2372,15 +2380,6 @@ const App = {
           console.log("[App Lifecycle] initialLoad starting...");
           this._getUIElements();
           this.isInitializing = true;
-
-          // Initialize navigation guard system
-          this.navigationGuard = {
-              isActive: false,
-              operation: null,
-              startTime: null,
-              targetScreen: null,
-              formOptions: null
-          };
 
           if (!this.ui.main || !this.ui.initialPageLoadingModal) {
               console.error("[App Critical] Main UI elements not found!");
@@ -2682,33 +2681,41 @@ const App = {
   
       async _renderContextualSettings(container) {
           if (!container) return;
+          
+          // Create unique IDs for this specific settings instance to prevent duplicate ID conflicts
+          const uniqueId = `settings_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+          const fullscreenBtnId = `toggleFullscreenBtn_${uniqueId}`;
+          const exportBtnId = `exportDataBtn_${uniqueId}`;
+          const importFileId = `importDataFile_${uniqueId}`;
+          const deleteBtnId = `deleteAllDataBtn_${uniqueId}`;
+          
           container.innerHTML = `
               <div id="settingsContentAreaContextual">
                   <div class="options-section">
-                      <button class="options-button" id="toggleFullscreenBtnContextual"><span class="button-text">Toggle Fullscreen</span> <span class="button-icon">↕️</span></button>
+                      <button class="options-button" id="${fullscreenBtnId}"><span class="button-text">Toggle Fullscreen</span> <span class="button-icon">↕️</span></button>
                   </div>
                   <div class="options-section">
                       <label class="options-button import-button-wrapper-main">
                           <span class="button-text">Import Data</span>
                           <span class="button-icon">📥</span>
-                          <input type="file" id="importDataFileInputContextual" accept=".json,.gz,.cbor" class="hidden">
+                          <input type="file" id="${importFileId}" accept=".json,.gz,.cbor" class="hidden">
                       </label>
-                      <button class="options-button" id="exportDataBtnContextual"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
+                      <button class="options-button" id="${exportBtnId}"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
                   </div>
                    <div class="options-section">
-                      <button id="deleteAllDataBtnContextual" class="delete-button options-button">
+                      <button id="${deleteBtnId}" class="delete-button options-button">
                           <span class="button-text">Delete All Data<br><small style="opacity:0.8; font-weight:normal;">This action is irreversible.</small></span>
                           <span class="button-icon">🗑️</span>
                       </button>
                   </div>
               </div>`;
-          container.querySelector('#toggleFullscreenBtnContextual').onclick = () => { 
+          container.querySelector(`#${fullscreenBtnId}`).onclick = () => { 
               if (window.root && window.root.fullscreenButtonPlugin) 
                   window.root.fullscreenButtonPlugin.toggleFullscreen(); 
           };
-          container.querySelector('#exportDataBtnContextual').onclick = () => this.exportAllData();
-          container.querySelector('#importDataFileInputContextual').onchange = (event) => this.importAllData(event);
-          container.querySelector('#deleteAllDataBtnContextual').onclick = () => this.deleteAllData();
+          container.querySelector(`#${exportBtnId}`).onclick = () => this.exportAllData();
+          container.querySelector(`#${importFileId}`).onchange = (event) => this.importAllData(event);
+          container.querySelector(`#${deleteBtnId}`).onclick = () => this.deleteAllData();
       },
   
       async _populateList(listArea, searchTerm = '', config) {
@@ -3155,8 +3162,33 @@ const App = {
               actionButton.onclick = () => {
                   console.log("[COPY WORKFLOW] Profile action button clicked - isPremade:", isPremade, "itemId:", itemId);
                   
-                  // Use the new simplified copy handler
-                  this.copyAndCustomizeHandler(item, config, itemType, isPremade);
+                  // **COMPLETELY NEW: Simple, direct approach**
+                  if (isPremade) {
+                      // For premade items: prepare copy data and navigate
+                      const premadeDataOriginal = { ...item }; 
+                      this.createItemFormData = premadeDataOriginal; 
+                      this.createItemFormData.name = `${premadeDataOriginal.name || config.capital} (Copy)`;
+                      delete this.createItemFormData.id; 
+                      delete this.createItemFormData.isPremade;
+                      delete this.createItemFormData.originalPremadeId;
+                      
+                      // Navigate directly without any delays or complex guards
+                      const targetScreen = itemType === 'character' ? this.CONSTANTS.VIEWS.CHARACTER_FORM : this.CONSTANTS.VIEWS.WORLD_FORM;
+                      this.switchToScreen(targetScreen, {
+                          itemType: itemType,
+                          originScreen: this.currentMainView,
+                          isCreating: true
+                      });
+                  } else {
+                      // For user items: edit directly
+                      const targetScreen = itemType === 'character' ? this.CONSTANTS.VIEWS.CHARACTER_FORM : this.CONSTANTS.VIEWS.WORLD_FORM;
+                      this.switchToScreen(targetScreen, {
+                          itemType: itemType,
+                          originScreen: this.currentMainView,
+                          isCreating: false,
+                          itemId: item.id
+                      });
+                  }
               };
           }
       },
@@ -3735,34 +3767,7 @@ const App = {
       async switchToScreen(screenId, options = {}) {
         console.log("[EDIT WORKFLOW DEBUG] switchToScreen called - from:", this.currentMainView, "to:", screenId, "options:", options);
         
-        // **NEW: Check navigation guard**
-        const guardCheck = this._checkNavigationGuard(screenId);
-        if (!guardCheck.allowed) {
-            console.log("[NAVIGATION GUARD] Navigation blocked:", guardCheck.reason);
-            console.log("[NAVIGATION GUARD] Redirecting to intended target:", guardCheck.targetScreen);
-            
-            // If this is the intended target, proceed with the navigation
-            if (screenId === guardCheck.targetScreen) {
-                console.log("[NAVIGATION GUARD] Allowing navigation to intended target");
-            } else {
-                // Redirect to the intended target instead
-                setTimeout(() => {
-                    this.switchToScreen(guardCheck.targetScreen, guardCheck.formOptions);
-                }, 10);
-                return;
-            }
-        }
-        
-        const editingScreens = [this.CONSTANTS.VIEWS.CHARACTER_FORM, this.CONSTANTS.VIEWS.WORLD_FORM];
         const oldScreen = this.currentMainView;
-
-        // Toggle global save suppression based on entering/leaving editing screens
-        if (editingScreens.includes(screenId)) {
-            this.setSaveGeneratorSuppression(true);
-        } else if (editingScreens.includes(oldScreen)) {
-            this.setSaveGeneratorSuppression(false);
-        }
-
         this.currentMainView = screenId;
         this.ui.topBar.classList.remove('chat-active');
     
@@ -3779,13 +3784,6 @@ const App = {
         } else if (screenId === this.CONSTANTS.VIEWS.STORYBOARD) {
             this.currentCreateFormContext.isCreating = false;
             this.currentCreateFormContext.formData = {};
-            
-            // **NEW: Clear navigation guard and save suppression when leaving edit screens**
-            if (editingScreens.includes(oldScreen)) {
-                console.log("[NAVIGATION GUARD] Clearing guard due to legitimate screen exit");
-                this._clearNavigationGuard();
-                this.setSaveGeneratorSuppression(false);
-            }
         }
         
         if (this.ui[oldScreen]) {
@@ -3812,20 +3810,6 @@ const App = {
             case this.CONSTANTS.VIEWS.WORLD_FORM:
                 console.log("[EDIT WORKFLOW DEBUG] Switching to form screen, calling renderFormScreen");
                 await this.renderFormScreen(options);
-                
-                // **NEW: Clear navigation guard after successful form render but keep save suppression longer**
-                if (this.navigationGuard.isActive && this.navigationGuard.targetScreen === screenId) {
-                    console.log("[NAVIGATION GUARD] Form successfully rendered, clearing guard");
-                    this._clearNavigationGuard();
-                    
-                    // **EXTENDED: Keep save suppression active for longer to prevent delayed Perchance refresh**
-                    setTimeout(() => {
-                        console.log("[COPY WORKFLOW] Disabling save suppression after extended delay");
-                        this.setSaveGeneratorSuppression(false);
-                    }, 5000); // Keep active for 5 seconds after form render
-                    
-                    console.log("[COPY WORKFLOW] Save suppression will remain active for 5 more seconds");
-                }
                 break;
             case this.CONSTANTS.VIEWS.CHARACTER_PROFILE:
             case this.CONSTANTS.VIEWS.WORLD_PROFILE:
@@ -5273,225 +5257,36 @@ const App = {
 
       saveGeneratorOverrideActive: false,
 
-      // Helper to toggle Perchance auto-save (saveGenerator) suppression
-      setSaveGeneratorSuppression(enable) {
-          if (enable) {
-              console.log("[EDIT WORKFLOW DEBUG] Enabling save generator suppression");
-              
-              // Store original functions
-              this.originalSaveGenerator = window.saveGenerator;
-              
-              // Suppress saveGenerator
-              window.saveGenerator = function() {
-                  console.log('[EDIT WORKFLOW DEBUG] saveGenerator suppressed');
-                  return true;
-              };
-              
-              // **FIXED: Remove problematic setTimeout/setInterval overrides**
-              // These were causing recursive loops - removing them as saveGenerator suppression is sufficient
-              
-              // **NEW: Suppress MutationObserver for DOM changes**
-              this.originalMutationObserver = window.MutationObserver;
-              window.MutationObserver = function() {
-                  console.log('[EDIT WORKFLOW DEBUG] MutationObserver suppressed');
-                  return {
-                      observe: () => {},
-                      disconnect: () => {},
-                      takeRecords: () => []
-                  };
-              };
-              
-              // **NEW: Mark generator as "saved" state**
-              if (window.perchance && window.perchance.markAsSaved) {
-                  window.perchance.markAsSaved();
-              }
-              
-          } else {
-              console.log("[EDIT WORKFLOW DEBUG] Disabling save generator suppression");
-              
-              // Restore original functions
-              if (this.originalSaveGenerator) {
-                  window.saveGenerator = this.originalSaveGenerator;
-                  this.originalSaveGenerator = null;
-              }
-              
-              // Removed setTimeout/setInterval restoration (was causing recursive loops)
-              
-              if (this.originalMutationObserver) {
-                  window.MutationObserver = this.originalMutationObserver;
-                  this.originalMutationObserver = null;
-              }
-          }
+      async _copyItem(itemType, itemId) {
+        const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+        const itemToCopy = await this._getIngredientData(itemId, config.dbTableKey, config.getPreMadesFn, itemType);
+        
+        if (itemToCopy) {
+            // Create a clean, plain data object, removing any complex properties
+            const cleanData = {
+                name: `${itemToCopy.name} (Copy)`,
+                description: itemToCopy.description,
+                eternal: itemToCopy.eternal,
+                past: itemToCopy.past,
+                present: itemToCopy.present,
+                future: itemToCopy.future,
+                avatar: itemToCopy.avatar,
+                color: itemToCopy.color,
+                isPremade: false // Copies are never premade
+            };
+
+            this.switchToScreen(config.formScreen, { 
+                itemType: itemType,
+                premadeData: cleanData, 
+                isCustomizing: true 
+            });
+        }
       },
 
-      // **NEW: Navigation guard system for Copy & Customize workflow**
-      _setNavigationGuard(operation, targetScreen, formOptions) {
-          console.log("[NAVIGATION GUARD] Setting navigation guard:", { operation, targetScreen, formOptions });
-          this.navigationGuard = {
-              isActive: true,
-              operation: operation,
-              startTime: Date.now(),
-              targetScreen: targetScreen,
-              formOptions: formOptions
-          };
+      async applyMemoriesHandler(storyId) {
+        // ... existing code ...
       },
 
-      _clearNavigationGuard() {
-          console.log("[NAVIGATION GUARD] Clearing navigation guard");
-          this.navigationGuard = {
-              isActive: false,
-              operation: null,
-              startTime: null,
-              targetScreen: null,
-              formOptions: null
-          };
-      },
-
-      _checkNavigationGuard(targetScreen) {
-          if (!this.navigationGuard.isActive) {
-              return { allowed: true };
-          }
-
-          const timeSinceStart = Date.now() - this.navigationGuard.startTime;
-          const isExpired = timeSinceStart > 10000; // 10 second timeout
-
-          if (isExpired) {
-              console.log("[NAVIGATION GUARD] Navigation guard expired, clearing");
-              this._clearNavigationGuard();
-              return { allowed: true };
-          }
-
-          // Allow navigation to the intended target screen
-          if (targetScreen === this.navigationGuard.targetScreen) {
-              console.log("[NAVIGATION GUARD] Allowing navigation to intended target:", targetScreen);
-              return { allowed: true };
-          }
-
-          // Block unintended navigation
-          console.log("[NAVIGATION GUARD] Blocking unintended navigation to:", targetScreen, "Expected:", this.navigationGuard.targetScreen);
-          return { 
-              allowed: false, 
-              reason: `Navigation blocked by ${this.navigationGuard.operation} operation`,
-              targetScreen: this.navigationGuard.targetScreen,
-              formOptions: this.navigationGuard.formOptions
-          };
-      },
-
-      copyAndCustomizeHandler(item, config, itemType, isPremade) {
-          console.log("[COPY WORKFLOW] Starting copy workflow for:", item.name);
-          
-          try {
-              // **NEW: Enable comprehensive protection against page refresh**
-              // Note: Temporarily disabled anti-refresh mode due to browser restrictions
-              // this.setAntiRefreshMode(true);
-              this.setSaveGeneratorSuppression(true);
-              
-              // Prepare form options
-              let formOptions = {
-                  itemType: itemType,
-                  originScreen: this.currentMainView,
-                  isCreating: true
-              };
-
-              if (isPremade) {
-                  console.log("[COPY WORKFLOW] Processing premade item data");
-                  
-                  const premadeDataOriginal = { ...item }; 
-                  this.createItemFormData = premadeDataOriginal; 
-                  this.createItemFormData.name = `${premadeDataOriginal.name || config.capital} (Copy)`;
-                  delete this.createItemFormData.id; 
-                  delete this.createItemFormData.isPremade;
-                  delete this.createItemFormData.originalPremadeId;
-                  
-                  console.log("[COPY WORKFLOW] Processed form data:", this.createItemFormData);
-              } else {
-                  formOptions.isCreating = false; 
-                  formOptions.itemId = item.id;
-              }
-              
-              const targetScreen = itemType === 'character' ? this.CONSTANTS.VIEWS.CHARACTER_FORM : this.CONSTANTS.VIEWS.WORLD_FORM;
-              
-              // Set navigation guard
-              this._setNavigationGuard('copy_and_customize', targetScreen, formOptions);
-              
-              // Execute navigation with a small delay to avoid race conditions
-              setTimeout(() => {
-                  console.log("[COPY WORKFLOW] Executing navigation to:", targetScreen);
-                  this.switchToScreen(targetScreen, formOptions);
-              }, 50);
-              
-          } catch (error) {
-              console.error("[COPY WORKFLOW] Error in copy workflow:", error);
-              this._clearNavigationGuard();
-              this.setSaveGeneratorSuppression(false);
-              // this.setAntiRefreshMode(false);
-          }
-      },
-
-      handleCopyCancel() {
-          console.log("[COPY WORKFLOW] Copy operation cancelled by user");
-          this._clearNavigationGuard();
-          this.setSaveGeneratorSuppression(false);
-          // this.setAntiRefreshMode(false);
-          this.createItemFormData = {};
-      },
-
-            // **NEW: Simplified anti-refresh system for copy workflow**
-      setAntiRefreshMode(enable) {
-          if (enable) {
-              console.log("[ANTI-REFRESH] Enabling simplified anti-refresh mode");
-              
-              // Store original event handlers  
-              this.originalBeforeUnload = window.onbeforeunload;
-              
-              // Prevent beforeunload from triggering
-              window.onbeforeunload = null;
-              window.addEventListener('beforeunload', this.blockUnload.bind(this), true);
-              
-              // Override page navigation methods that we can safely override
-              this.originalPushState = history.pushState;
-              this.originalReplaceState = history.replaceState;
-              
-              history.pushState = function() {
-                  console.log("[ANTI-REFRESH] history.pushState blocked");
-                  return true;
-              };
-              
-              history.replaceState = function() {
-                  console.log("[ANTI-REFRESH] history.replaceState blocked");
-                  return true;
-              };
-              
-              // Add a flag to indicate anti-refresh is active
-              this.antiRefreshActive = true;
-              
-          } else {
-              console.log("[ANTI-REFRESH] Disabling anti-refresh mode");
-              
-              // Restore original handlers
-              window.onbeforeunload = this.originalBeforeUnload;
-              window.removeEventListener('beforeunload', this.blockUnload.bind(this), true);
-              
-              if (this.originalPushState) {
-                  history.pushState = this.originalPushState;
-                  this.originalPushState = null;
-              }
-              
-              if (this.originalReplaceState) {
-                  history.replaceState = this.originalReplaceState;
-                  this.originalReplaceState = null;
-              }
-              
-              this.antiRefreshActive = false;
-          }
-      },
-
-      blockUnload(event) {
-          console.log("[ANTI-REFRESH] beforeunload event blocked");
-          event.preventDefault();
-          event.returnValue = '';
-          return '';
-      }
     };
   
     window.App = App;

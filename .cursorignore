@@ -1,0 +1,9 @@
+# Ignore the build output directory
+Perchance/build/
+
+# Ignore node_modules
+node_modules/
+
+# Ignore backup files
+*.backup
+.DS_Store 

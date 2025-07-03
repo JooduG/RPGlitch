@@ -689,33 +689,41 @@ const App = {
 
   async _renderContextualSettings(container) {
       if (!container) return;
+      
+      // Create unique IDs for this specific settings instance to prevent duplicate ID conflicts
+      const uniqueId = `settings_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      const fullscreenBtnId = `toggleFullscreenBtn_${uniqueId}`;
+      const exportBtnId = `exportDataBtn_${uniqueId}`;
+      const importFileId = `importDataFile_${uniqueId}`;
+      const deleteBtnId = `deleteAllDataBtn_${uniqueId}`;
+      
       container.innerHTML = `
           <div id="settingsContentAreaContextual">
               <div class="options-section">
-                  <button class="options-button" id="toggleFullscreenBtnContextual"><span class="button-text">Toggle Fullscreen</span> <span class="button-icon">↕️</span></button>
+                  <button class="options-button" id="${fullscreenBtnId}"><span class="button-text">Toggle Fullscreen</span> <span class="button-icon">↕️</span></button>
               </div>
               <div class="options-section">
                   <label class="options-button import-button-wrapper-main">
                       <span class="button-text">Import Data</span>
                       <span class="button-icon">📥</span>
-                      <input type="file" id="importDataFileInputContextual" accept=".json,.gz,.cbor" class="hidden">
+                      <input type="file" id="${importFileId}" accept=".json,.gz,.cbor" class="hidden">
                   </label>
-                  <button class="options-button" id="exportDataBtnContextual"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
+                  <button class="options-button" id="${exportBtnId}"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
               </div>
                <div class="options-section">
-                  <button id="deleteAllDataBtnContextual" class="delete-button options-button">
+                  <button id="${deleteBtnId}" class="delete-button options-button">
                       <span class="button-text">Delete All Data<br><small style="opacity:0.8; font-weight:normal;">This action is irreversible.</small></span>
                       <span class="button-icon">🗑️</span>
                   </button>
               </div>
           </div>`;
-      container.querySelector('#toggleFullscreenBtnContextual').onclick = () => { 
+      container.querySelector(`#${fullscreenBtnId}`).onclick = () => { 
           if (window.root && window.root.fullscreenButtonPlugin) 
               window.root.fullscreenButtonPlugin.toggleFullscreen(); 
       };
-      container.querySelector('#exportDataBtnContextual').onclick = () => this.exportAllData();
-      container.querySelector('#importDataFileInputContextual').onchange = (event) => this.importAllData(event);
-      container.querySelector('#deleteAllDataBtnContextual').onclick = () => this.deleteAllData();
+      container.querySelector(`#${exportBtnId}`).onclick = () => this.exportAllData();
+      container.querySelector(`#${importFileId}`).onchange = (event) => this.importAllData(event);
+      container.querySelector(`#${deleteBtnId}`).onclick = () => this.deleteAllData();
   },
 
   async _populateList(listArea, searchTerm = '', config) {
@@ -1280,33 +1288,41 @@ const App = {
   
       async _renderContextualSettings(container) {
           if (!container) return;
+          
+          // Create unique IDs for this specific settings instance to prevent duplicate ID conflicts
+          const uniqueId = `settings_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+          const fullscreenBtnId = `toggleFullscreenBtn_${uniqueId}`;
+          const exportBtnId = `exportDataBtn_${uniqueId}`;
+          const importFileId = `importDataFile_${uniqueId}`;
+          const deleteBtnId = `deleteAllDataBtn_${uniqueId}`;
+          
           container.innerHTML = `
               <div id="settingsContentAreaContextual">
                   <div class="options-section">
-                      <button class="options-button" id="toggleFullscreenBtnContextual"><span class="button-text">Toggle Fullscreen</span> <span class="button-icon">↕️</span></button>
+                      <button class="options-button" id="${fullscreenBtnId}"><span class="button-text">Toggle Fullscreen</span> <span class="button-icon">↕️</span></button>
                   </div>
                   <div class="options-section">
                       <label class="options-button import-button-wrapper-main">
                           <span class="button-text">Import Data</span>
                           <span class="button-icon">📥</span>
-                          <input type="file" id="importDataFileInputContextual" accept=".json,.gz,.cbor" class="hidden">
+                          <input type="file" id="${importFileId}" accept=".json,.gz,.cbor" class="hidden">
                       </label>
-                      <button class="options-button" id="exportDataBtnContextual"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
+                      <button class="options-button" id="${exportBtnId}"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
                   </div>
                    <div class="options-section">
-                      <button id="deleteAllDataBtnContextual" class="delete-button options-button">
+                      <button id="${deleteBtnId}" class="delete-button options-button">
                           <span class="button-text">Delete All Data<br><small style="opacity:0.8; font-weight:normal;">This action is irreversible.</small></span>
                           <span class="button-icon">🗑️</span>
                       </button>
                   </div>
               </div>`;
-          container.querySelector('#toggleFullscreenBtnContextual').onclick = () => { 
+          container.querySelector(`#${fullscreenBtnId}`).onclick = () => { 
               if (window.root && window.root.fullscreenButtonPlugin) 
                   window.root.fullscreenButtonPlugin.toggleFullscreen(); 
           };
-          container.querySelector('#exportDataBtnContextual').onclick = () => this.exportAllData();
-          container.querySelector('#importDataFileInputContextual').onchange = (event) => this.importAllData(event);
-          container.querySelector('#deleteAllDataBtnContextual').onclick = () => this.deleteAllData();
+          container.querySelector(`#${exportBtnId}`).onclick = () => this.exportAllData();
+          container.querySelector(`#${importFileId}`).onchange = (event) => this.importAllData(event);
+          container.querySelector(`#${deleteBtnId}`).onclick = () => this.deleteAllData();
       },
   
       async _populateList(listArea, searchTerm = '', config) {
@@ -3848,10 +3864,35 @@ const App = {
 
       saveGeneratorOverrideActive: false,
 
+      async _copyItem(itemType, itemId) {
+        const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+        const itemToCopy = await this._getIngredientData(itemId, config.dbTableKey, config.getPreMadesFn, itemType);
+        
+        if (itemToCopy) {
+            // Create a clean, plain data object, removing any complex properties
+            const cleanData = {
+                name: `${itemToCopy.name} (Copy)`,
+                description: itemToCopy.description,
+                eternal: itemToCopy.eternal,
+                past: itemToCopy.past,
+                present: itemToCopy.present,
+                future: itemToCopy.future,
+                avatar: itemToCopy.avatar,
+                color: itemToCopy.color,
+                isPremade: false // Copies are never premade
+            };
 
+            this.switchToScreen(config.formScreen, { 
+                itemType: itemType,
+                premadeData: cleanData, 
+                isCustomizing: true 
+            });
+        }
+      },
 
-
-
+      async applyMemoriesHandler(storyId) {
+        // ... existing code ...
+      },
 
     };
   
