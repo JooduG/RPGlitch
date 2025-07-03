@@ -34,5 +34,8 @@
   "bugs": {
     "url": "https://github.com/your-username/rpglitch-perchance/issues"
   },
-  "homepage": "https://github.com/your-username/rpglitch-perchance#readme"
+  "homepage": "https://github.com/your-username/rpglitch-perchance#readme",
+  "dependencies": {
+    "@browsermcp/mcp": "^0.1.3"
+  }
 }

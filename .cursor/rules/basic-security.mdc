@@ -1,6 +1,5 @@
 ---
 description: Security - Call when handing senstive data, need protection or security concers arise
-globs: 
 alwaysApply: false
 ---
 # Basic Security Practices

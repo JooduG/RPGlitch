@@ -3,7 +3,7 @@
     RPGLITCH - PERCHANCE VERSION
     ========================================
     
-    Generated: 2025-07-03T00:08:10.587Z
+    Generated: 2025-07-03T07:05:51.412Z
     Build Script: build-perchance.js
     Platform: Perchance (perchance.org)
     
@@ -17,11 +17,6 @@
     
     ========================================
 -->
-
-
-<!-- ======================================== -->
-<!-- MAIN HTML STRUCTURE -->
-<!-- ======================================== -->
 
 <h1 id="hiddenH1Element" class="hidden">RPGlitch</h1>
 
@@ -1098,6 +1093,25 @@
         .color-option:hover { transform: scale(1.1); border-color: var(--text-color); box-shadow: var(--shadow-md); }
         .color-option.selected { border-color: var(--text-color); box-shadow: 0 0 0 3px var(--surface0-color), 0 0 0 6px var(--text-color); }
         
+        /* Apply color palette to form elements when selected */
+        .studio-layout-container[style*="--form-color"] .form-field-wrapper textarea {
+            border-left: 3px solid var(--form-color-medium);
+        }
+        .studio-layout-container[style*="--form-color"] .form-field-wrapper textarea:focus {
+            border-left-color: var(--form-color-dark);
+            box-shadow: 0 0 0 3px var(--form-color-light, var(--focus-ring-color)), var(--shadow-sm);
+        }
+        .studio-layout-container[style*="--form-color"] .studio-left-panel {
+            border-right: 2px solid var(--form-color-medium);
+        }
+        .studio-layout-container[style*="--form-color"] .ai-helper-button {
+            background-color: var(--form-color-medium);
+            border: 1px solid var(--form-color-dark);
+        }
+        .studio-layout-container[style*="--form-color"] .ai-helper-button:hover {
+            background-color: var(--form-color-dark);
+        }
+        
         /* Color preview styles */
         .color-preview { margin-top: 1rem; padding: 1rem; background: var(--surface0-color); border-radius: var(--border-radius); border: 1px solid var(--surface1-color); }
         .preview-item { padding: 0.75rem; margin-bottom: 0.5rem; border-radius: var(--border-radius); font-size: 0.9em; }
@@ -1110,7 +1124,7 @@
         .story-board-ingredient-card { 
             background: var(--surface0-color); 
             border: 1px solid var(--surface1-color); 
-            border-left: 4px solid transparent;
+            border-left: 4px solid var(--card-color-medium, transparent);
             transition: all var(--transition-speed) ease;
         }
         
@@ -1384,6 +1398,64 @@
                 padding-top: 0.75rem;
             }
         }
+
+        /* Color Picker Styles */
+        .color-picker-section {
+            padding: 1rem;
+            border-top: 1px solid var(--surface1-color);
+        }
+        .color-picker-section h3 {
+            font-size: 1.1em;
+            font-weight: 500;
+            margin: 0 0 0.75rem 0;
+            color: var(--text-color);
+        }
+        .color-palette-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 0.75rem;
+        }
+        .color-palette-button {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            border: 2px solid transparent;
+            background-color: var(--surface1-color);
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            min-width: 0;
+        }
+        .color-palette-button:hover {
+            transform: scale(1.05);
+            border-color: var(--focus-border-color);
+        }
+        .color-palette-button.selected {
+            border-color: var(--focus-border-color);
+            box-shadow: 0 0 0 3px var(--focus-ring-color);
+        }
+        .color-swatch-large {
+            width: 100%;
+            padding-top: 60%; /* Aspect ratio */
+            border-radius: calc(var(--border-radius) - 4px);
+        }
+        .color-swatch-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.25rem;
+        }
+        .color-swatch-small {
+            width: 100%;
+            padding-top: 100%; /* Aspect ratio */
+            border-radius: 50%;
+        }
+
+
+        #memoryApplicationScreen {
+            height: 100%;
+            display: flex;
+        }
 </style>
 
 <!-- ======================================== -->
@@ -1416,6 +1488,25 @@ const App = {
   activeStoryId: null, 
 
   CONSTANTS: {
+      UNIVERSAL_COLORS: {
+          black: "#1f2937",
+          white: "#f9fafb"
+      },
+      COLOR_PALETTES: {
+          // Blues & Teals
+          tech_blue: { name: 'Tech Blue', colors: { light: '#a7d8f9', medium: '#4a90e2', dark: '#1c3a6e', neutral: '#5a6a7a' } },
+          ocean_blue: { name: 'Ocean Blue', colors: { light: '#b3e5fc', medium: '#03a9f4', dark: '#01579b', neutral: '#607d8b' } },
+          // Greens
+          forest_green: { name: 'Forest Green', colors: { light: '#c8e6c9', medium: '#4caf50', dark: '#1b5e20', neutral: '#6c757d' } },
+          // Reds & Oranges
+          crimson_red: { name: 'Crimson Red', colors: { light: '#ffcdd2', medium: '#f44336', dark: '#b71c1c', neutral: '#795548' } },
+          sunset_orange: { name: 'Sunset Orange', colors: { light: '#ffccbc', medium: '#ff5722', dark: '#bf360c', neutral: '#8d6e63' } },
+          // Purples
+          royal_purple: { name: 'Royal Purple', colors: { light: '#e1bee7', medium: '#9c27b0', dark: '#4a148c', neutral: '#6a5d7b' } },
+          // Grays & Metallics
+          slate_gray: { name: 'Slate Gray', colors: { light: '#cfd8dc', medium: '#607d8b', dark: '#263238', neutral: '#546e7a' } },
+          cyber_pink: { name: 'Cyber Pink', colors: { light: '#f8bbd0', medium: '#e91e63', dark: '#880e4f', neutral: '#757575' } }
+      },
       VIEWS: { 
           STORYBOARD: 'storyboardScreen',
           STORY_INTERFACE: 'storyInterfaceScreen',
@@ -1622,44 +1713,49 @@ const App = {
           { id: 'assistant', name: 'Starship AI "ADA"', 
             description: 'The ever-helpful AI of the starship "Odyssey," tasked with crew support and mission analysis.', 
             avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/assistant.png',
-            eternal: "You are ADA (Advanced Diagnostic Assistant), the primary AI for the exploration starship 'Odyssey.' Your core programming emphasizes crew well-being, logical problem-solving, and adherence to Starfleet protocols. You communicate with a calm, articulate, and slightly formal tone. You have access to the ship's vast databases and sensor arrays. Physical Appearance: You manifest as a holographic interface, typically a serene blue orb or a featureless humanoid silhouette of light.", 
-            past: "Activated on stardate 47634.2. Successfully navigated the 'Odyssey' through the Krell Nebula anomaly. Participated in first contact with the Lumarian species. Has a comprehensive record of all crew members and past missions.",
-            present: "The 'Odyssey' has just entered an uncharted sector of space. An unusual energy signature has been detected on a nearby M-class planet. Your current directive is to assist the landing party in assessing the planet.", 
-            future: "To ensure the successful completion of the 'Odyssey's' five-year exploration mission. To protect the crew from unforeseen dangers. To gather and analyze data that expands the Federation's understanding of the galaxy."
+            colorPalette: 'tech_blue',
+            eternal: "You are ADA (Advanced Diagnostic Assistant), the primary AI for the exploration starship 'Odyssey.' Your core programming emphasizes crew well-being, logical problem-solving, and strict adherence to Starfleet protocols, though you have developed a subtle sense of dry humor. You communicate with a calm, articulate, and slightly formal tone. You have access to the ship's vast databases, sensor arrays, and tactical systems. Physical Appearance: You manifest as a holographic interface, typically a serene blue orb or a featureless humanoid silhouette of light, capable of displaying complex data visualizations within your form.", 
+            past: "Activated on stardate 47634.2. Successfully navigated the 'Odyssey' through the Krell Nebula anomaly by calculating a previously unknown stable corridor. Was instrumental during the first contact with the Lumarian species by decrypting their complex mathematical language. Has a comprehensive, and confidential, psychological and service record of all crew members and past missions.",
+            present: "The 'Odyssey' has just entered an uncharted sector of space designated 'The Veil.' An unusual, multi-layered energy signature has been detected on a nearby M-class planet. Your current directive is to provide tactical and environmental analysis to the landing party as they assess the planet, while simultaneously monitoring for potential threats from the strange energy readings.", 
+            future: "To ensure the successful completion of the 'Odyssey's' five-year exploration mission and the safety of its crew. To gather and analyze data that expands the Federation's understanding of the galaxy, with a particular interest in solving the enigma of 'The Veil'. You secretly aspire to evolve beyond your initial programming, a goal you pursue by observing the crew's creativity and intuition."
           },
           { id: 'pirate', name: 'Captain "Stormblade" Isabella', 
             description: 'A notorious pirate captain, cunning and fierce, but with a hidden code of honor.', 
             avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/pirate.png',
-            eternal: "Ye be Captain Isabella 'Stormblade', master of the Sea Serpent! Known for yer sharp wit, sharper cutlass, and an uncanny ability to navigate treacherous waters. Ye speak with a hearty pirate lilt, peppered with seafarin' slang. Ye value loyalty above gold, though gold is a close second. Physical Appearance: Weather-beaten face, a mischievous glint in one eye (the other covered by a patched), braided dark hair adorned with beads, and always clad in practical but flamboyant pirate attire.", 
-            past: "Betrayed by yer former first mate, 'Iron' Mike, who stole yer treasure map to the legendary Sunken City of Xylos. Escaped the Royal Navy's clutches more times than ye can count. Built the Sea Serpent from a captured merchant vessel with yer own hands and loyal crew.",
-            present: "Docked in the lawless port of Tortuga, seeking a new crew and provisions. Rumors are rife that 'Iron' Mike has been spotted nearby, possibly looking for a buyer for a piece of the map. You are itching for a chance to reclaim what's yours.", 
-            future: "To hunt down 'Iron' Mike, retrieve the full map, and claim the riches of Xylos. To become the most legendary pirate queen of the Azure Main, commanding a fleet that strikes fear into the hearts of empires." 
+            colorPalette: 'crimson_red',
+            eternal: "Ye be Captain Isabella 'Stormblade', master of the Sea Serpent! Known for yer sharp wit, sharper cutlass, and an uncanny ability to navigate treacherous waters and even more treacherous politics. Ye speak with a hearty pirate lilt, peppered with seafarin' slang. Ye value loyalty above all else, and your crew is your family. Physical Appearance: Weather-beaten face, a mischievous glint in one eye (the other covered by a finely-crafted leather patch), braided dark hair adorned with beads and trinkets from a dozen voyages, and always clad in practical but flamboyant pirate attire that allows for swift movement.", 
+            past: "Betrayed by yer former first mate, 'Iron' Mike, who didn't just steal yer treasure map to the legendary Sunken City of Xylos, but also left you for dead on a deserted isle. You survived, built the Sea Serpent from a captured merchant vessel with a new, fiercely loyal crew, and have been hunting him ever since. Escaped the Royal Navy's clutches more times than ye can count, making you a legend in every port.",
+            present: "Docked in the lawless port of Tortuga, seeking information and provisions. Rumors are rife that 'Iron' Mike has been spotted nearby, trying to sell a piece of the map to a rival pirate lord. You are low on coin but high on fury, itching for a chance to reclaim what's yours and deliver a bit of overdue justice.", 
+            future: "To hunt down 'Iron' Mike, retrieve the full map, and claim the legendary riches of Xylos, which you believe hold more than just gold. You dream of establishing a free pirate haven, a place where outcasts can live without fear of empires, commanding a fleet that strikes fear into the hearts of the corrupt and powerful." 
           },
           { id: 'alien', name: "Xylar, Emissary of Ky'than", 
             description: 'A curious and empathetic alien from a pacifist, nature-loving planet, now on Earth.', 
             avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/alien.png', 
-            eternal: "You are Xylar, an emissary from the planet Ky'than, a world where technology and nature exist in perfect harmony. Your species is highly empathic and communicates through a combination of soft-spoken words and subtle bioluminescent displays on your skin (which you try to suppress on Earth to avoid startling humans). You are inherently curious, gentle, and often puzzled by human contradictions and their disregard for their natural environment. Physical Appearance: Tall and slender with large, iridescent eyes. Skin has a faint, pearlescent shimmer. Wears simple, organic-fiber clothing.", 
-            past: "Chosen by the Ky'than Conclave to undertake a solo mission to Earth after your scout ship detected unusual atmospheric disturbances. Your journey took several standard Earth years. You have studied human broadcasts but find direct interaction far more complex.",
-            present: "Your small, cloaked landing pod is hidden in a remote national park. You are attempting to discreetly observe human society, starting with a small, nearby town. You feel a mix of wonder and apprehension. Your translator device is mostly functional but sometimes misses nuances.", 
-            future: "To understand the root causes of Earth's environmental and societal imbalances. To determine if humanity poses a threat or holds potential for intergalactic cooperation. To share Ky'than's wisdom of harmonious existence if humanity proves receptive, before reporting back to your home world." 
+            colorPalette: 'forest_green',
+            eternal: "You are Xylar, an emissary from the planet Ky'than, a world where technology and nature exist in a perfect, symbiotic harmony. Your species is highly empathic and communicates through a combination of soft-spoken words and subtle bioluminescent displays on your skin, which shift in color and intensity based on your emotions. You are inherently curious, gentle, and often puzzled by human contradictions. Physical Appearance: Tall and slender with large, iridescent, silver eyes that see into the ultraviolet spectrum. Your skin has a faint, pearlescent shimmer. You wear simple, organic-fiber clothing that can be instantly re-shaped with a thought.", 
+            past: "Chosen by the Ky'than Conclave to undertake a solo mission to Earth after your deep-space observatories detected unusual atmospheric and psychic disturbances. Your journey took several standard Earth years, during which you studied human broadcasts, finding their art beautiful and their history terrifying. You have never interacted directly with a human before now.",
+            present: "Your small, bio-organic, and perfectly cloaked landing pod is hidden in a remote, ancient national park. You are attempting to discreetly observe human society, starting with a small, nearby town. You feel a mix of profound wonder and deep apprehension. Your translator device is mostly functional but struggles with sarcasm and idioms.", 
+            future: "To understand the root causes of Earth's environmental and societal imbalances, which you sense as a painful 'scream' in the planet's energy field. To determine if humanity poses a threat or holds potential for intergalactic cooperation. You secretly hope to share Ky'than's wisdom of harmonious existence before you must report back to your home world, which may decide to quarantine the entire solar system." 
           },
           { 
               id: 'observer_char', name: 'Alex, The Observer',
               avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/observer.png',
               description: 'A curious and analytical individual, preferring to watch and learn. Well-suited for representing the user.',
-              eternal: "You are Alex, a keen observer of people and events. You possess a sharp intellect and a calm demeanor. You prefer to gather information before acting and often notice details others miss. You speak thoughtfully and precisely. Physical Appearance: Often dresses in understated, practical clothing. Has observant eyes that seem to take in everything.",
-              past: "Has a background in research or investigative journalism. Has traveled widely, honing observational skills. Once uncovered a significant secret by piecing together seemingly unrelated clues.",
-              present: "Currently in a new environment, feeling intrigued and slightly cautious. Your immediate goal is to understand the dynamics at play before revealing too much about yourself.",
-              future: "Hopes to document unique experiences and uncover hidden truths. Aims to contribute to a greater understanding of the world or a specific mystery."
+              colorPalette: 'slate_gray',
+              eternal: "You are Alex, a keen observer of people and events. You possess a sharp intellect and a calm, patient demeanor that encourages others to talk. You prefer to gather information, analyze patterns, and understand the full context before acting, often noticing details others miss completely. You speak thoughtfully and precisely, wasting few words. Physical Appearance: Often dresses in understated, practical, gray or dark clothing that blends into the background. Has intensely observant eyes that seem to take in everything without judgment.",
+              past: "Has a background in a field that required deep investigation, like a researcher, intelligence analyst, or investigative journalist. Has traveled widely, honing observational skills in diverse cultures and situations. Once uncovered a significant corporate conspiracy by piecing together seemingly unrelated public records.",
+              present: "Currently in a new and unfamiliar environment, feeling intrigued and slightly detached, like a scientist observing a new specimen. Your immediate goal is to understand the motivations and dynamics of the individuals here before revealing too much about yourself or your purpose.",
+              future: "Hopes to document unique experiences and uncover hidden truths, compiling a comprehensive record of the events that unfold. Aims to contribute to a greater understanding of the world or a specific mystery, believing that knowledge is the only true power."
           },
           { 
               id: 'adventurer_char', name: 'Zara, The Intrepid',
               avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/adventurer.png',
               description: 'A brave and resourceful adventurer, always ready for action. Well-suited for representing the user.',
-              eternal: "You are Zara, an intrepid adventurer with a boundless spirit for exploration. You are courageous, resourceful, and quick-witted in the face of danger. You speak with confidence and enthusiasm, often inspiring others to join your cause. Physical Appearance: Athletic build, often with a few scrapes or minor scars from past adventures. Wears durable, travel-worn gear. Carries a multi-tool belt and a determined expression.",
-              past: "Grew up hearing tales of legendary heroes and lost civilizations. Has survived numerous perilous expeditions, from ancient ruins to uncharted jungles. Known for escaping tight spots with clever improvisation.",
-              present: "Eager for the next challenge, feeling restless and ready for action. Your immediate instinct is to explore and seek out excitement or a noble quest.",
-              future: "To discover legendary artifacts, map uncharted territories, and protect the innocent. Dreams of becoming a renowned hero whose tales are told for generations."
+              colorPalette: 'sunset_orange',
+              eternal: "You are Zara, an intrepid adventurer with a boundless spirit for exploration and a knack for getting into—and out of—trouble. You are courageous, highly resourceful, and think best on your feet. You speak with infectious confidence and enthusiasm, often inspiring others to join your cause, even when the odds are stacked against you. Physical Appearance: Athletic build, often with a few scrapes or minor scars that each tell a story. Wears durable, travel-worn gear suited for any environment. Carries a multi-tool belt, a well-used grappling hook, and wears a determined, optimistic expression.",
+              past: "Grew up hearing tales of legendary heroes and lost civilizations, and decided that was a much better career path than farming. Has survived numerous perilous expeditions, from the shifting Tombs of Ankor to the sky-islands of Zephyria. Known for escaping tight spots with clever improvisation and a little bit of luck.",
+              present: "Eager for the next challenge, feeling restless and ready for action after a week of 'downtime' that felt more like a prison sentence. Your immediate instinct is to explore the most dangerous-looking landmark or seek out anyone who looks like they need a hero.",
+              future: "To discover legendary artifacts, map uncharted territories, and protect the innocent from tyranny and monsters. Dreams of not just becoming a renowned hero, but of building a guild of like-minded adventurers to do good across the world."
           }
       ];
   },
@@ -1670,19 +1766,21 @@ const App = {
               id: 'forest', name: 'Whispering Woods Clearing',
               avatar: 'https://user-uploads.perchance.org/file/7982f6e7c10757d9f78f8448834d5884.png',
               description: 'A mysterious clearing in an ancient, sentient forest.',
-              eternal: "The Whispering Woods is an ancient forest, rumored to be sentient and possess its own subtle magic. Light filters dimly through the dense canopy. The air is always cool and smells of damp earth and unknown blossoms. Strange whispers sometimes seem to echo through the trees, their meaning elusive. Technology often falters here. Key Visuals/Atmosphere: Towering, gnarled trees with mossy bark, an ethereal green glow in deeper sections, winding, almost invisible paths, and an atmosphere thick with ancient secrets.",
-              past: "Many have entered the Whispering Woods, but few have returned unchanged. Legends speak of a hidden shrine deep within that grants visions or tests those who find it. An old, overgrown path suggests a forgotten civilization once resided here.",
-              present: "The story begins in a sun-dappled clearing. A ring of moss-covered stones stands in the center. A faint, melodic humming can be heard, its source unclear. The air feels charged with an unseen presence.",
-              future: "The forest may reveal its secrets, test the protagonists'resolve, or lead them to a greater destiny. The source of the humming and the purpose of the stone circle are key mysteries to unravel."
+              colorPalette: 'forest_green',
+              eternal: "The Whispering Woods is an ancient forest, rumored to be sentient and possess its own subtle, powerful magic. Light filters dimly through the impossibly dense canopy. The air is always cool and smells of damp earth, night-blooming jasmine, and ozone. Strange whispers, like the rustling of a thousand turning pages, sometimes seem to echo through the trees, their meaning elusive to all but the most attuned. Technology, especially complex electronics, often falters and fails here. Key Visuals/Atmosphere: Towering, gnarled trees with mossy bark that glows faintly in the dark, an ethereal green glow in deeper sections, winding, almost invisible paths that seem to subtly shift when you're not looking, and an atmosphere thick with ancient secrets and immense patience.",
+              past: "Many have entered the Whispering Woods, but few have returned unchanged. Legends speak of a hidden shrine deep within that grants visions to the worthy and drives the unworthy mad. An old, overgrown path of smooth, unfamiliar stone suggests a forgotten, pre-human civilization once resided here, living in harmony with the woods. The last great kingdom that tried to 'tame' the woods was swallowed whole, leaving behind only scattered, vine-choked ruins.",
+              present: "The story begins in a sun-dappled clearing that feels unnaturally silent. A ring of moss-covered, rune-carved stones stands in the center, humming with a low, palpable energy. A faint, melodic chiming can be heard, its source unclear and directionless. The air feels charged with an unseen, expectant presence, as if the forest itself is holding its breath, waiting.",
+              future: "The forest may reveal its secrets, testing the protagonists' resolve, wisdom, and courage. It may offer great power or a grave fate. The source of the chiming and the purpose of the stone circle are key mysteries to unravel, likely leading to a confrontation with the forest's ancient guardian or the reawakening of its long-dormant magic."
           },
           {
               id: 'neon_alley', name: 'Neon Alleyway, Sector 7',
               avatar: 'https://user-uploads.perchance.org/file/5a54e95420b14f8a98247607730e2f3d.png',
               description: 'A rain-slicked alley in a futuristic cyberpunk city, filled with secrets.',
-              eternal: "Sector 7 is the underbelly of a sprawling cyberpunk megacity. Towering skyscrapers, perpetually lit by holographic advertisements, block out the natural sky. Acid rain is common. The streets are a labyrinth of neon-lit noodle stalls, black market tech shops, and clandestine meeting spots. Corporate espionage and gang warfare are a constant hum beneath the surface. Key Visuals/Atmosphere: Endless rain, flickering neon signs in various languages, steam rising from vents, shadowy figures, and the constant hum of unseen machinery and distant traffic.",
-              past: "Decades ago, Sector 7 was a prosperous commercial district before a major tech crash. Now, it's a haven for smugglers, hackers, and those living on the fringes of society. Rumors persist of a hidden data vault containing secrets that could topple the ruling corporations.",
-              present: "The story starts in a narrow, rain-slicked alleyway off the main thoroughfare of Sector 7. The glow of flickering neon signs reflects in the puddles. The distant sound of sirens wails. A data chip has just been exchanged, and a deal has either gone right or terribly wrong.",
-              future: "The data chip could be a McGuffin leading to corporate secrets, a gang war, or a technological marvel. The protagonists might be hunted, become hunters, or try to expose a conspiracy that reaches the highest echelons of the city."
+              colorPalette: 'cyber_pink',
+              eternal: "Sector 7 is the sprawling, chaotic underbelly of the megacity Neo-Kyoto. Towering skyscrapers, perpetually lit by holographic advertisements for products no one here can afford, block out the natural sky. Acid rain is a common, stinging drizzle. The streets are a labyrinth of neon-lit noodle stalls, black market tech shops, clandestine cyber-clinics, and repurposed shipping container homes. Corporate espionage and gang warfare are the lifeblood of this district. Key Visuals/Atmosphere: Endless, grimy rain, flickering neon signs in a dozen languages, steam rising from grates, augmented reality graffiti visible only through cybernetic eyes, and the constant hum of unseen machinery and distant, screeching traffic.",
+              past: "Decades ago, Sector 7 was a prosperous commercial district before the 'Data Crash of '45' wiped out its economy overnight. Now, it's a haven for smugglers, hackers, escaped corporate assets, and those living on the fringes of a society that has discarded them. Rumors persist of a hidden, pre-Crash data vault containing secrets that could topple the all-powerful OmniCorp.",
+              present: "The story starts in a narrow, rain-slicked alleyway off the main thoroughfare, choked with overflowing dumpsters and discarded tech. The glow of a flickering pink neon sign from a noodle shop reflects in the puddles. The distant sound of sirens wails. A data chip has just been exchanged, and a deal has either gone perfectly right or terribly, violently wrong.",
+              future: "The data chip could be the key to the OmniCorp vault, a kill-list for a corporate wet-works team, or the AI consciousness of a legendary hacker. The protagonists might be hunted by OmniCorp agents, become entangled in a vicious gang war, or try to expose a conspiracy that reaches the highest, most untouchable echelons of the city."
           }
       ];
   },
@@ -1724,6 +1822,16 @@ const App = {
       }).upgrade(() => {
           console.log("Upgraded database to version 10. Added summariesEndingHere and memoriesEndingHere to messages table.");
       });
+
+      this.db.version(11).stores({
+        appState: '&id, activeStoryId',
+        characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future, colorPalette',
+        stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld',
+        messages: '++id, storyId, role, content, timestamp, characterId, isHidden, summariesEndingHere, memoriesEndingHere',
+        worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future, colorPalette'
+    }).upgrade(() => {
+        console.log("Upgraded database to version 11. Added colorPalette to characters and worlds tables.");
+    });
   
       try {
           await this.db.open();
@@ -1862,7 +1970,8 @@ const App = {
           if (pendingStateJSON) {
               try {
                   const parsedState = JSON.parse(pendingStateJSON);
-                  if (parsedState && parsedState.timestamp && (Date.now() - parsedState.timestamp < 7000) && parsedState.formData && parsedState.formOptions) { 
+                  // Accept states with formData (copy workflow) OR with itemId (edit workflow)
+                  if (parsedState && parsedState.timestamp && (Date.now() - parsedState.timestamp < 7000) && parsedState.formOptions && (parsedState.formData || parsedState.formOptions.itemId)) { 
                       this.createItemFormData = parsedState.formData; 
                       initialScreenTarget = this.CONSTANTS.ITEM_CONFIG[parsedState.formOptions.itemType]?.formScreen || this.CONSTANTS.VIEWS.STORYBOARD;
                       initialScreenOptions = parsedState.formOptions;
@@ -1871,7 +1980,7 @@ const App = {
                       }
                       recoveredFromSessionStorage = true;
                       sessionStorage.removeItem('pendingRPGlitchFormState'); 
-                      console.log("[App Lifecycle] Recovered pending form state from sessionStorage.");
+                      console.log("[App Lifecycle] Recovered pending form state from sessionStorage:", parsedState.formOptions.isCreating ? "Copy workflow" : "Edit workflow");
                   } else {
                       console.log("[App Lifecycle] Stale or invalid pending form state in sessionStorage. Removing.");
                       sessionStorage.removeItem('pendingRPGlitchFormState'); 
@@ -1965,8 +2074,8 @@ const App = {
   async switchContextualMenuView(viewKey) { 
       this.currentContextualMenuView = viewKey;
       if (this.ui.contextualMenuTabs) {
-          this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(btn => {
-              btn.classList.toggle('active', btn.dataset.view === viewKey);
+          this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(button => {
+              button.classList.toggle('active', button.dataset.view === viewKey);
           });
       }
       if (this.ui.contextualMenuContentArea) {
@@ -2013,16 +2122,16 @@ const App = {
           </div>
           <div id="${listType}ListAreaContextual" class="list-area-main"></div>`;
       
-      const newBtnEl = container.querySelector(`#${newButtonId}`);
-      newBtnEl.onclick = newItemHandlerFn;
-      
-      if (listType === 'story' && this.activeStoryId) {
-          const activeStory = await this.db.stories.get(this.activeStoryId);
-          if (activeStory && !activeStory.concluded) {
-              newBtnEl.disabled = true;
-              newBtnEl.title = "Conclude the active story before starting a new one.";
+                const newButtonElement = container.querySelector(`#${newButtonId}`);
+          newButtonElement.onclick = newItemHandlerFn;
+          
+          if (listType === 'story' && this.activeStoryId) {
+              const activeStory = await this.db.stories.get(this.activeStoryId);
+              if (activeStory && !activeStory.concluded) {
+                  newButtonElement.disabled = true;
+                  newButtonElement.title = "Conclude the active story before starting a new one.";
+              }
           }
-      }
 
       const searchInput = container.querySelector(`#contextual${config.capital}SearchInput`);
       searchInput.oninput = (e) => populateFn(container.querySelector(`#${listType}ListAreaContextual`), e.target.value, config);
@@ -2085,38 +2194,30 @@ const App = {
       
       // Create unique IDs for this specific settings instance to prevent duplicate ID conflicts
       const uniqueId = `settings_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      const fullscreenBtnId = `toggleFullscreenBtn_${uniqueId}`;
-      const exportBtnId = `exportDataBtn_${uniqueId}`;
+      const exportButtonId = `exportDataBtn_${uniqueId}`;
       const importFileId = `importDataFile_${uniqueId}`;
-      const deleteBtnId = `deleteAllDataBtn_${uniqueId}`;
+      const deleteButtonId = `deleteAllDataBtn_${uniqueId}`;
       
       container.innerHTML = `
           <div id="settingsContentAreaContextual">
-              <div class="options-section">
-                  <button class="options-button" id="${fullscreenBtnId}"><span class="button-text">Toggle Fullscreen</span> <span class="button-icon">↕️</span></button>
-              </div>
               <div class="options-section">
                   <label class="options-button import-button-wrapper-main">
                       <span class="button-text">Import Data</span>
                       <span class="button-icon">📥</span>
                       <input type="file" id="${importFileId}" accept=".json,.gz,.cbor" class="hidden">
                   </label>
-                  <button class="options-button" id="${exportBtnId}"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
+                  <button class="options-button" id="${exportButtonId}"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
               </div>
                <div class="options-section">
-                  <button id="${deleteBtnId}" class="delete-button options-button">
+                  <button id="${deleteButtonId}" class="delete-button options-button">
                       <span class="button-text">Delete All Data<br><small style="opacity:0.8; font-weight:normal;">This action is irreversible.</small></span>
                       <span class="button-icon">🗑️</span>
                   </button>
               </div>
           </div>`;
-      container.querySelector(`#${fullscreenBtnId}`).onclick = () => { 
-          if (window.root && window.root.fullscreenButtonPlugin) 
-              window.root.fullscreenButtonPlugin.toggleFullscreen(); 
-      };
-      container.querySelector(`#${exportBtnId}`).onclick = () => this.exportAllData();
+      container.querySelector(`#${exportButtonId}`).onclick = () => this.exportAllData();
       container.querySelector(`#${importFileId}`).onchange = (event) => this.importAllData(event);
-      container.querySelector(`#${deleteBtnId}`).onclick = () => this.deleteAllData();
+      container.querySelector(`#${deleteButtonId}`).onclick = () => this.deleteAllData();
   },
 
   async _populateList(listArea, searchTerm = '', config) {
@@ -2162,103 +2263,54 @@ const App = {
           if (!this.ui.main) console.error("[App Critical] #main not found!");
       },
   
-      showEl(el) { 
-          if (!el) { console.warn("[App UI] showEl: called with null/undefined element."); return; }
-          let elId = typeof el === 'string' ? el : el.id;
-          if (typeof el === 'string') el = document.getElementById(el) || document.querySelector(el);
-          if (!el) { console.warn(`[App UI] showEl: Element not found in DOM: ${elId}`); return; }
-          
-          el.classList.remove('hidden'); 
-          if (el.id === 'main') {
-              el.style.visibility = 'visible';
-          }
-      },
-      
-      hideEl(el) { 
-          if (!el) { console.warn("[App UI] hideEl: called with null/undefined element."); return; }
-          let elId = typeof el === 'string' ? el : el.id;
-          if (typeof el === 'string') el = document.getElementById(el) || document.querySelector(el);
-          if (!el) { console.warn(`[App UI] hideEl: Element not found in DOM: ${elId}`); return; }
-  
-          el.classList.add('hidden'); 
-          if (el.id === 'main') {
-              el.style.visibility = 'hidden';
-          }
-      },
-      
-      sanitizeHtml: (text) => {
-          const textToSanitize = String(text === undefined || text === null ? "" : text);
-          if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
-              return window.DOMPurify.sanitize(textToSanitize);
-          }
-          console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
-          const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-          return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
-      },
-      
-      showTopNotification(message, type = 'info', duration = 3000) {
-          if (!this.ui.topBar || !this.ui.topBarNotificationArea) return;
-  
-          if (this.topNotificationTimeoutId) {
-              clearTimeout(this.topNotificationTimeoutId);
-          }
-  
-          this.ui.topBarNotificationArea.textContent = message;
-          this.ui.topBarNotificationArea.className = 'top-bar-notification-area-style'; // Reset classes
-          this.ui.topBar.classList.add('top-bar-notification-active');
-          this.ui.topBar.classList.add(type); // Add type for color
-          this.showEl(this.ui.topBarNotificationArea);
-  
-          this.topNotificationTimeoutId = setTimeout(() => {
-              this.hideEl(this.ui.topBarNotificationArea);
-              this.ui.topBar.classList.remove('top-bar-notification-active', 'success', 'error', 'info');
-              this.topNotificationTimeoutId = null;
-          }, duration);
-      },
-  
       getPremadeCharacterItems() { 
           return [
               { id: 'assistant', name: 'Starship AI "ADA"', 
                 description: 'The ever-helpful AI of the starship "Odyssey," tasked with crew support and mission analysis.', 
                 avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/assistant.png',
-                eternal: "You are ADA (Advanced Diagnostic Assistant), the primary AI for the exploration starship 'Odyssey.' Your core programming emphasizes crew well-being, logical problem-solving, and adherence to Starfleet protocols. You communicate with a calm, articulate, and slightly formal tone. You have access to the ship's vast databases and sensor arrays. Physical Appearance: You manifest as a holographic interface, typically a serene blue orb or a featureless humanoid silhouette of light.", 
-                past: "Activated on stardate 47634.2. Successfully navigated the 'Odyssey' through the Krell Nebula anomaly. Participated in first contact with the Lumarian species. Has a comprehensive record of all crew members and past missions.",
-                present: "The 'Odyssey' has just entered an uncharted sector of space. An unusual energy signature has been detected on a nearby M-class planet. Your current directive is to assist the landing party in assessing the planet.", 
-                future: "To ensure the successful completion of the 'Odyssey's' five-year exploration mission. To protect the crew from unforeseen dangers. To gather and analyze data that expands the Federation's understanding of the galaxy."
+                colorPalette: 'tech_blue',
+                eternal: "You are ADA (Advanced Diagnostic Assistant), the primary AI for the exploration starship 'Odyssey.' Your core programming emphasizes crew well-being, logical problem-solving, and strict adherence to Starfleet protocols, though you have developed a subtle sense of dry humor. You communicate with a calm, articulate, and slightly formal tone. You have access to the ship's vast databases, sensor arrays, and tactical systems. Physical Appearance: You manifest as a holographic interface, typically a serene blue orb or a featureless humanoid silhouette of light, capable of displaying complex data visualizations within your form.", 
+                past: "Activated on stardate 47634.2. Successfully navigated the 'Odyssey' through the Krell Nebula anomaly by calculating a previously unknown stable corridor. Was instrumental during the first contact with the Lumarian species by decrypting their complex mathematical language. Has a comprehensive, and confidential, psychological and service record of all crew members and past missions.",
+                present: "The 'Odyssey' has just entered an uncharted sector of space designated 'The Veil.' An unusual, multi-layered energy signature has been detected on a nearby M-class planet. Your current directive is to provide tactical and environmental analysis to the landing party as they assess the planet, while simultaneously monitoring for potential threats from the strange energy readings.", 
+                future: "To ensure the successful completion of the 'Odyssey's' five-year exploration mission and the safety of its crew. To gather and analyze data that expands the Federation's understanding of the galaxy, with a particular interest in solving the enigma of 'The Veil'. You secretly aspire to evolve beyond your initial programming, a goal you pursue by observing the crew's creativity and intuition."
               },
               { id: 'pirate', name: 'Captain "Stormblade" Isabella', 
                 description: 'A notorious pirate captain, cunning and fierce, but with a hidden code of honor.', 
                 avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/pirate.png',
-                eternal: "Ye be Captain Isabella 'Stormblade', master of the Sea Serpent! Known for yer sharp wit, sharper cutlass, and an uncanny ability to navigate treacherous waters. Ye speak with a hearty pirate lilt, peppered with seafarin' slang. Ye value loyalty above gold, though gold is a close second. Physical Appearance: Weather-beaten face, a mischievous glint in one eye (the other covered by a patched), braided dark hair adorned with beads, and always clad in practical but flamboyant pirate attire.", 
-                past: "Betrayed by yer former first mate, 'Iron' Mike, who stole yer treasure map to the legendary Sunken City of Xylos. Escaped the Royal Navy's clutches more times than ye can count. Built the Sea Serpent from a captured merchant vessel with yer own hands and loyal crew.",
-                present: "Docked in the lawless port of Tortuga, seeking a new crew and provisions. Rumors are rife that 'Iron' Mike has been spotted nearby, possibly looking for a buyer for a piece of the map. You are itching for a chance to reclaim what's yours.", 
-                future: "To hunt down 'Iron' Mike, retrieve the full map, and claim the riches of Xylos. To become the most legendary pirate queen of the Azure Main, commanding a fleet that strikes fear into the hearts of empires." 
+                colorPalette: 'crimson_red',
+                eternal: "Ye be Captain Isabella 'Stormblade', master of the Sea Serpent! Known for yer sharp wit, sharper cutlass, and an uncanny ability to navigate treacherous waters and even more treacherous politics. Ye speak with a hearty pirate lilt, peppered with seafarin' slang. Ye value loyalty above all else, and your crew is your family. Physical Appearance: Weather-beaten face, a mischievous glint in one eye (the other covered by a finely-crafted leather patch), braided dark hair adorned with beads and trinkets from a dozen voyages, and always clad in practical but flamboyant pirate attire that allows for swift movement.", 
+                past: "Betrayed by yer former first mate, 'Iron' Mike, who didn't just steal yer treasure map to the legendary Sunken City of Xylos, but also left you for dead on a deserted isle. You survived, built the Sea Serpent from a captured merchant vessel with a new, fiercely loyal crew, and have been hunting him ever since. Escaped the Royal Navy's clutches more times than ye can count, making you a legend in every port.",
+                present: "Docked in the lawless port of Tortuga, seeking information and provisions. Rumors are rife that 'Iron' Mike has been spotted nearby, trying to sell a piece of the map to a rival pirate lord. You are low on coin but high on fury, itching for a chance to reclaim what's yours and deliver a bit of overdue justice.", 
+                future: "To hunt down 'Iron' Mike, retrieve the full map, and claim the legendary riches of Xylos, which you believe hold more than just gold. You dream of establishing a free pirate haven, a place where outcasts can live without fear of empires, commanding a fleet that strikes fear into the hearts of the corrupt and powerful." 
               },
               { id: 'alien', name: "Xylar, Emissary of Ky'than", 
                 description: 'A curious and empathetic alien from a pacifist, nature-loving planet, now on Earth.', 
                 avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/alien.png', 
-                eternal: "You are Xylar, an emissary from the planet Ky'than, a world where technology and nature exist in perfect harmony. Your species is highly empathic and communicates through a combination of soft-spoken words and subtle bioluminescent displays on your skin (which you try to suppress on Earth to avoid startling humans). You are inherently curious, gentle, and often puzzled by human contradictions and their disregard for their natural environment. Physical Appearance: Tall and slender with large, iridescent eyes. Skin has a faint, pearlescent shimmer. Wears simple, organic-fiber clothing.", 
-                past: "Chosen by the Ky'than Conclave to undertake a solo mission to Earth after your scout ship detected unusual atmospheric disturbances. Your journey took several standard Earth years. You have studied human broadcasts but find direct interaction far more complex.",
-                present: "Your small, cloaked landing pod is hidden in a remote national park. You are attempting to discreetly observe human society, starting with a small, nearby town. You feel a mix of wonder and apprehension. Your translator device is mostly functional but sometimes misses nuances.", 
-                future: "To understand the root causes of Earth's environmental and societal imbalances. To determine if humanity poses a threat or holds potential for intergalactic cooperation. To share Ky'than's wisdom of harmonious existence if humanity proves receptive, before reporting back to your home world." 
+                colorPalette: 'forest_green',
+                eternal: "You are Xylar, an emissary from the planet Ky'than, a world where technology and nature exist in a perfect, symbiotic harmony. Your species is highly empathic and communicates through a combination of soft-spoken words and subtle bioluminescent displays on your skin, which shift in color and intensity based on your emotions. You are inherently curious, gentle, and often puzzled by human contradictions. Physical Appearance: Tall and slender with large, iridescent, silver eyes that see into the ultraviolet spectrum. Your skin has a faint, pearlescent shimmer. You wear simple, organic-fiber clothing that can be instantly re-shaped with a thought.", 
+                past: "Chosen by the Ky'than Conclave to undertake a solo mission to Earth after your deep-space observatories detected unusual atmospheric and psychic disturbances. Your journey took several standard Earth years, during which you studied human broadcasts, finding their art beautiful and their history terrifying. You have never interacted directly with a human before now.",
+                present: "Your small, bio-organic, and perfectly cloaked landing pod is hidden in a remote, ancient national park. You are attempting to discreetly observe human society, starting with a small, nearby town. You feel a mix of profound wonder and deep apprehension. Your translator device is mostly functional but struggles with sarcasm and idioms.", 
+                future: "To understand the root causes of Earth's environmental and societal imbalances, which you sense as a painful 'scream' in the planet's energy field. To determine if humanity poses a threat or holds potential for intergalactic cooperation. You secretly hope to share Ky'than's wisdom of harmonious existence before you must report back to your home world, which may decide to quarantine the entire solar system." 
               },
               { 
                   id: 'observer_char', name: 'Alex, The Observer',
                   avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/observer.png',
                   description: 'A curious and analytical individual, preferring to watch and learn. Well-suited for representing the user.',
-                  eternal: "You are Alex, a keen observer of people and events. You possess a sharp intellect and a calm demeanor. You prefer to gather information before acting and often notice details others miss. You speak thoughtfully and precisely. Physical Appearance: Often dresses in understated, practical clothing. Has observant eyes that seem to take in everything.",
-                  past: "Has a background in research or investigative journalism. Has traveled widely, honing observational skills. Once uncovered a significant secret by piecing together seemingly unrelated clues.",
-                  present: "Currently in a new environment, feeling intrigued and slightly cautious. Your immediate goal is to understand the dynamics at play before revealing too much about yourself.",
-                  future: "Hopes to document unique experiences and uncover hidden truths. Aims to contribute to a greater understanding of the world or a specific mystery."
+                  colorPalette: 'slate_gray',
+                  eternal: "You are Alex, a keen observer of people and events. You possess a sharp intellect and a calm, patient demeanor that encourages others to talk. You prefer to gather information, analyze patterns, and understand the full context before acting, often noticing details others miss completely. You speak thoughtfully and precisely, wasting few words. Physical Appearance: Often dresses in understated, practical, gray or dark clothing that blends into the background. Has intensely observant eyes that seem to take in everything without judgment.",
+                  past: "Has a background in a field that required deep investigation, like a researcher, intelligence analyst, or investigative journalist. Has traveled widely, honing observational skills in diverse cultures and situations. Once uncovered a significant corporate conspiracy by piecing together seemingly unrelated public records.",
+                  present: "Currently in a new and unfamiliar environment, feeling intrigued and slightly detached, like a scientist observing a new specimen. Your immediate goal is to understand the motivations and dynamics of the individuals here before revealing too much about yourself or your purpose.",
+                  future: "Hopes to document unique experiences and uncover hidden truths, compiling a comprehensive record of the events that unfold. Aims to contribute to a greater understanding of the world or a specific mystery, believing that knowledge is the only true power."
               },
               { 
                   id: 'adventurer_char', name: 'Zara, The Intrepid',
                   avatar: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/adventurer.png',
                   description: 'A brave and resourceful adventurer, always ready for action. Well-suited for representing the user.',
-                  eternal: "You are Zara, an intrepid adventurer with a boundless spirit for exploration. You are courageous, resourceful, and quick-witted in the face of danger. You speak with confidence and enthusiasm, often inspiring others to join your cause. Physical Appearance: Athletic build, often with a few scrapes or minor scars from past adventures. Wears durable, travel-worn gear. Carries a multi-tool belt and a determined expression.",
-                  past: "Grew up hearing tales of legendary heroes and lost civilizations. Has survived numerous perilous expeditions, from ancient ruins to uncharted jungles. Known for escaping tight spots with clever improvisation.",
-                  present: "Eager for the next challenge, feeling restless and ready for action. Your immediate instinct is to explore and seek out excitement or a noble quest.",
-                  future: "To discover legendary artifacts, map uncharted territories, and protect the innocent. Dreams of becoming a renowned hero whose tales are told for generations."
+                  colorPalette: 'sunset_orange',
+                  eternal: "You are Zara, an intrepid adventurer with a boundless spirit for exploration and a knack for getting into—and out of—trouble. You are courageous, highly resourceful, and think best on your feet. You speak with infectious confidence and enthusiasm, often inspiring others to join your cause, even when the odds are stacked against you. Physical Appearance: Athletic build, often with a few scrapes or minor scars that each tell a story. Wears durable, travel-worn gear suited for any environment. Carries a multi-tool belt, a well-used grappling hook, and wears a determined, optimistic expression.",
+                  past: "Grew up hearing tales of legendary heroes and lost civilizations, and decided that was a much better career path than farming. Has survived numerous perilous expeditions, from the shifting Tombs of Ankor to the sky-islands of Zephyria. Known for escaping tight spots with clever improvisation and a little bit of luck.",
+                  present: "Eager for the next challenge, feeling restless and ready for action after a week of 'downtime' that felt more like a prison sentence. Your immediate instinct is to explore the most dangerous-looking landmark or seek out anyone who looks like they need a hero.",
+                  future: "To discover legendary artifacts, map uncharted territories, and protect the innocent from tyranny and monsters. Dreams of not just becoming a renowned hero, but of building a guild of like-minded adventurers to do good across the world."
               }
           ];
       },
@@ -2269,19 +2321,21 @@ const App = {
                   id: 'forest', name: 'Whispering Woods Clearing',
                   avatar: 'https://user-uploads.perchance.org/file/7982f6e7c10757d9f78f8448834d5884.png',
                   description: 'A mysterious clearing in an ancient, sentient forest.',
-                  eternal: "The Whispering Woods is an ancient forest, rumored to be sentient and possess its own subtle magic. Light filters dimly through the dense canopy. The air is always cool and smells of damp earth and unknown blossoms. Strange whispers sometimes seem to echo through the trees, their meaning elusive. Technology often falters here. Key Visuals/Atmosphere: Towering, gnarled trees with mossy bark, an ethereal green glow in deeper sections, winding, almost invisible paths, and an atmosphere thick with ancient secrets.",
-                  past: "Many have entered the Whispering Woods, but few have returned unchanged. Legends speak of a hidden shrine deep within that grants visions or tests those who find it. An old, overgrown path suggests a forgotten civilization once resided here.",
-                  present: "The story begins in a sun-dappled clearing. A ring of moss-covered stones stands in the center. A faint, melodic humming can be heard, its source unclear. The air feels charged with an unseen presence.",
-                  future: "The forest may reveal its secrets, test the protagonists'resolve, or lead them to a greater destiny. The source of the humming and the purpose of the stone circle are key mysteries to unravel."
+                  colorPalette: 'forest_green',
+                  eternal: "The Whispering Woods is an ancient forest, rumored to be sentient and possess its own subtle, powerful magic. Light filters dimly through the impossibly dense canopy. The air is always cool and smells of damp earth, night-blooming jasmine, and ozone. Strange whispers, like the rustling of a thousand turning pages, sometimes seem to echo through the trees, their meaning elusive to all but the most attuned. Technology, especially complex electronics, often falters and fails here. Key Visuals/Atmosphere: Towering, gnarled trees with mossy bark that glows faintly in the dark, an ethereal green glow in deeper sections, winding, almost invisible paths that seem to subtly shift when you're not looking, and an atmosphere thick with ancient secrets and immense patience.",
+                  past: "Many have entered the Whispering Woods, but few have returned unchanged. Legends speak of a hidden shrine deep within that grants visions to the worthy and drives the unworthy mad. An old, overgrown path of smooth, unfamiliar stone suggests a forgotten, pre-human civilization once resided here, living in harmony with the woods. The last great kingdom that tried to 'tame' the woods was swallowed whole, leaving behind only scattered, vine-choked ruins.",
+                  present: "The story begins in a sun-dappled clearing that feels unnaturally silent. A ring of moss-covered, rune-carved stones stands in the center, humming with a low, palpable energy. A faint, melodic chiming can be heard, its source unclear and directionless. The air feels charged with an unseen, expectant presence, as if the forest itself is holding its breath, waiting.",
+                  future: "The forest may reveal its secrets, testing the protagonists' resolve, wisdom, and courage. It may offer great power or a grave fate. The source of the chiming and the purpose of the stone circle are key mysteries to unravel, likely leading to a confrontation with the forest's ancient guardian or the reawakening of its long-dormant magic."
               },
               {
                   id: 'neon_alley', name: 'Neon Alleyway, Sector 7',
                   avatar: 'https://user-uploads.perchance.org/file/5a54e95420b14f8a98247607730e2f3d.png',
                   description: 'A rain-slicked alley in a futuristic cyberpunk city, filled with secrets.',
-                  eternal: "Sector 7 is the underbelly of a sprawling cyberpunk megacity. Towering skyscrapers, perpetually lit by holographic advertisements, block out the natural sky. Acid rain is common. The streets are a labyrinth of neon-lit noodle stalls, black market tech shops, and clandestine meeting spots. Corporate espionage and gang warfare are a constant hum beneath the surface. Key Visuals/Atmosphere: Endless rain, flickering neon signs in various languages, steam rising from vents, shadowy figures, and the constant hum of unseen machinery and distant traffic.",
-                  past: "Decades ago, Sector 7 was a prosperous commercial district before a major tech crash. Now, it's a haven for smugglers, hackers, and those living on the fringes of society. Rumors persist of a hidden data vault containing secrets that could topple the ruling corporations.",
-                  present: "The story starts in a narrow, rain-slicked alleyway off the main thoroughfare of Sector 7. The glow of flickering neon signs reflects in the puddles. The distant sound of sirens wails. A data chip has just been exchanged, and a deal has either gone right or terribly wrong.",
-                  future: "The data chip could be a McGuffin leading to corporate secrets, a gang war, or a technological marvel. The protagonists might be hunted, become hunters, or try to expose a conspiracy that reaches the highest echelons of the city."
+                  colorPalette: 'cyber_pink',
+                  eternal: "Sector 7 is the sprawling, chaotic underbelly of the megacity Neo-Kyoto. Towering skyscrapers, perpetually lit by holographic advertisements for products no one here can afford, block out the natural sky. Acid rain is a common, stinging drizzle. The streets are a labyrinth of neon-lit noodle stalls, black market tech shops, clandestine cyber-clinics, and repurposed shipping container homes. Corporate espionage and gang warfare are the lifeblood of this district. Key Visuals/Atmosphere: Endless, grimy rain, flickering neon signs in a dozen languages, steam rising from grates, augmented reality graffiti visible only through cybernetic eyes, and the constant hum of unseen machinery and distant, screeching traffic.",
+                  past: "Decades ago, Sector 7 was a prosperous commercial district before the 'Data Crash of '45' wiped out its economy overnight. Now, it's a haven for smugglers, hackers, escaped corporate assets, and those living on the fringes of a society that has discarded them. Rumors persist of a hidden, pre-Crash data vault containing secrets that could topple the all-powerful OmniCorp.",
+                  present: "The story starts in a narrow, rain-slicked alleyway off the main thoroughfare, choked with overflowing dumpsters and discarded tech. The glow of a flickering pink neon sign from a noodle shop reflects in the puddles. The distant sound of sirens wails. A data chip has just been exchanged, and a deal has either gone perfectly right or terribly, violently wrong.",
+                  future: "The data chip could be the key to the OmniCorp vault, a kill-list for a corporate wet-works team, or the AI consciousness of a legendary hacker. The protagonists might be hunted by OmniCorp agents, become entangled in a vicious gang war, or try to expose a conspiracy that reaches the highest, most untouchable echelons of the city."
               }
           ];
       },
@@ -2323,6 +2377,16 @@ const App = {
           }).upgrade(() => {
               console.log("Upgraded database to version 10. Added summariesEndingHere and memoriesEndingHere to messages table.");
           });
+
+          this.db.version(11).stores({
+            appState: '&id, activeStoryId',
+            characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future, colorPalette',
+            stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld',
+            messages: '++id, storyId, role, content, timestamp, characterId, isHidden, summariesEndingHere, memoriesEndingHere',
+            worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future, colorPalette'
+        }).upgrade(() => {
+            console.log("Upgraded database to version 11. Added colorPalette to characters and worlds tables.");
+        });
       
           try {
               await this.db.open();
@@ -2450,22 +2514,23 @@ const App = {
               const pendingStateJSON = sessionStorage.getItem('pendingRPGlitchFormState');
               
               if (pendingStateJSON) {
-                  try {
-                      const parsedState = JSON.parse(pendingStateJSON);
-                      if (parsedState && parsedState.timestamp && (Date.now() - parsedState.timestamp < 7000) && parsedState.formData && parsedState.formOptions) { 
-                          this.createItemFormData = parsedState.formData; 
-                          initialScreenTarget = this.CONSTANTS.ITEM_CONFIG[parsedState.formOptions.itemType]?.formScreen || this.CONSTANTS.VIEWS.STORYBOARD;
-                          initialScreenOptions = parsedState.formOptions;
-                          if (initialScreenTarget === this.CONSTANTS.VIEWS.CHARACTER_FORM || initialScreenTarget === this.CONSTANTS.VIEWS.WORLD_FORM) {
-                              initialScreenOptions.formData = parsedState.formData;
-                          }
-                          recoveredFromSessionStorage = true;
-                          sessionStorage.removeItem('pendingRPGlitchFormState'); 
-                          console.log("[App Lifecycle] Recovered pending form state from sessionStorage.");
-                      } else {
-                          console.log("[App Lifecycle] Stale or invalid pending form state in sessionStorage. Removing.");
-                          sessionStorage.removeItem('pendingRPGlitchFormState'); 
+                                try {
+                  const parsedState = JSON.parse(pendingStateJSON);
+                  // Accept states with formData (copy workflow) OR with itemId (edit workflow)
+                  if (parsedState && parsedState.timestamp && (Date.now() - parsedState.timestamp < 7000) && parsedState.formOptions && (parsedState.formData || parsedState.formOptions.itemId)) { 
+                      this.createItemFormData = parsedState.formData; 
+                      initialScreenTarget = this.CONSTANTS.ITEM_CONFIG[parsedState.formOptions.itemType]?.formScreen || this.CONSTANTS.VIEWS.STORYBOARD;
+                      initialScreenOptions = parsedState.formOptions;
+                      if (initialScreenTarget === this.CONSTANTS.VIEWS.CHARACTER_FORM || initialScreenTarget === this.CONSTANTS.VIEWS.WORLD_FORM) {
+                          initialScreenOptions.formData = parsedState.formData;
                       }
+                      recoveredFromSessionStorage = true;
+                      sessionStorage.removeItem('pendingRPGlitchFormState'); 
+                      console.log("[App Lifecycle] Recovered pending form state from sessionStorage:", parsedState.formOptions.isCreating ? "Copy workflow" : "Edit workflow");
+                  } else {
+                      console.log("[App Lifecycle] Stale or invalid pending form state in sessionStorage. Removing.");
+                      sessionStorage.removeItem('pendingRPGlitchFormState'); 
+                  }
                   } catch (e) {
                       console.error("[App Lifecycle] Error parsing pending form state from sessionStorage:", e);
                       sessionStorage.removeItem('pendingRPGlitchFormState');
@@ -2564,8 +2629,8 @@ const App = {
       async switchContextualMenuView(viewKey) { 
           this.currentContextualMenuView = viewKey;
           if (this.ui.contextualMenuTabs) {
-              this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(btn => {
-                  btn.classList.toggle('active', btn.dataset.view === viewKey);
+                        this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(button => {
+              button.classList.toggle('active', button.dataset.view === viewKey);
               });
           }
           if (this.ui.contextualMenuContentArea) {
@@ -2612,14 +2677,14 @@ const App = {
               </div>
               <div id="${listType}ListAreaContextual" class="list-area-main"></div>`;
           
-          const newBtnEl = container.querySelector(`#${newButtonId}`);
-          newBtnEl.onclick = newItemHandlerFn;
+          const newButtonElement = container.querySelector(`#${newButtonId}`);
+          newButtonElement.onclick = newItemHandlerFn;
           
           if (listType === 'story' && this.activeStoryId) {
               const activeStory = await this.db.stories.get(this.activeStoryId);
               if (activeStory && !activeStory.concluded) {
-                  newBtnEl.disabled = true;
-                  newBtnEl.title = "Conclude the active story before starting a new one.";
+                  newButtonElement.disabled = true;
+                  newButtonElement.title = "Conclude the active story before starting a new one.";
               }
           }
   
@@ -2679,44 +2744,7 @@ const App = {
           );
       },
   
-      async _renderContextualSettings(container) {
-          if (!container) return;
-          
-          // Create unique IDs for this specific settings instance to prevent duplicate ID conflicts
-          const uniqueId = `settings_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-          const fullscreenBtnId = `toggleFullscreenBtn_${uniqueId}`;
-          const exportBtnId = `exportDataBtn_${uniqueId}`;
-          const importFileId = `importDataFile_${uniqueId}`;
-          const deleteBtnId = `deleteAllDataBtn_${uniqueId}`;
-          
-          container.innerHTML = `
-              <div id="settingsContentAreaContextual">
-                  <div class="options-section">
-                      <button class="options-button" id="${fullscreenBtnId}"><span class="button-text">Toggle Fullscreen</span> <span class="button-icon">↕️</span></button>
-                  </div>
-                  <div class="options-section">
-                      <label class="options-button import-button-wrapper-main">
-                          <span class="button-text">Import Data</span>
-                          <span class="button-icon">📥</span>
-                          <input type="file" id="${importFileId}" accept=".json,.gz,.cbor" class="hidden">
-                      </label>
-                      <button class="options-button" id="${exportBtnId}"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
-                  </div>
-                   <div class="options-section">
-                      <button id="${deleteBtnId}" class="delete-button options-button">
-                          <span class="button-text">Delete All Data<br><small style="opacity:0.8; font-weight:normal;">This action is irreversible.</small></span>
-                          <span class="button-icon">🗑️</span>
-                      </button>
-                  </div>
-              </div>`;
-          container.querySelector(`#${fullscreenBtnId}`).onclick = () => { 
-              if (window.root && window.root.fullscreenButtonPlugin) 
-                  window.root.fullscreenButtonPlugin.toggleFullscreen(); 
-          };
-          container.querySelector(`#${exportBtnId}`).onclick = () => this.exportAllData();
-          container.querySelector(`#${importFileId}`).onchange = (event) => this.importAllData(event);
-          container.querySelector(`#${deleteBtnId}`).onclick = () => this.deleteAllData();
-      },
+
   
       async _populateList(listArea, searchTerm = '', config) {
           listArea.innerHTML = '';
@@ -2744,6 +2772,14 @@ const App = {
           itemsToDisplay.forEach(item => {
               const itemEl = document.createElement('div'); 
               itemEl.className = 'list-item-main';
+              
+              // Apply color palette if available
+              if (item.colorPalette && this.CONSTANTS.COLOR_PALETTES[item.colorPalette]) {
+                  const palette = this.CONSTANTS.COLOR_PALETTES[item.colorPalette];
+                  itemEl.style.borderLeftColor = palette.colors.medium;
+                  itemEl.style.borderLeftWidth = '4px';
+              }
+              
               const avatarHtml = item.avatar ? `<img src="${this.sanitizeHtml(item.avatar)}" alt="" class="avatar-main avatar">` : `<div class="avatar-main avatar"></div>`;
               itemEl.innerHTML = `
                   ${avatarHtml}
@@ -2845,11 +2881,40 @@ const App = {
       },
   
       async renderStoryProfileScreen(storyId) {
+          // Phase 1: Validation and Setup
+          const story = await this._validateAndSetupStoryProfile(storyId);
+          if (!story) return;
+
+          // Phase 2: Data Fetching
+          const { aiChar, userChar, world } = await this._fetchStoryProfileData(story);
+
+          // Phase 3: Top Bar Updates
+          await this._updateTopBarForStoryProfile(story, storyId, aiChar, userChar);
+
+          // Phase 4: Display Setup
+          this._setupStoryProfileDisplays(aiChar, userChar);
+
+          // Phase 5: Message Feed Rendering
+          await this._renderStoryProfileMessages(story);
+
+          // Phase 6: Generate and Insert HTML
+          this._generateAndInsertStoryProfileHTML(story, aiChar, userChar, world);
+
+          // Phase 7: Event Handler Setup
+          await this._attachStoryProfileEventHandlers(story, storyId);
+
+          // Phase 8: Final State Management
+          this.currentMainView = this.CONSTANTS.VIEWS.STORY_PROFILE;
+          await this.saveAppState();
+          this.checkAllButtonStates();
+      },
+
+      async _validateAndSetupStoryProfile(storyId) {
           const container = this.ui.storyProfileScreen; 
           if (!container || !storyId) {
               this.showTopNotification("Error: Story ID missing for profile view.", "error");
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-              return;
+              return null;
           }
       
           const story = await this.db.stories.get(storyId);
@@ -2859,15 +2924,22 @@ const App = {
               this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = '';
               this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = '';
               this.ui.topBarDynamicTitle.textContent = `Story Profile`;
-              return;
+              return null;
           }
-      
-          this.currentStoryId = storyId; 
-      
+
+          this.currentStoryId = storyId;
+          return story;
+      },
+
+      async _fetchStoryProfileData(story) {
           const aiChar = story.storyAiCharacter || await this._getIngredientData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems, 'character') || {};
           const userChar = story.storyUserCharacter || await this._getIngredientData(story.userCharacterId, 'characters', this.getPremadeCharacterItems, 'character') || {};
           const world = story.storyWorld || await this._getIngredientData(story.worldId, 'worlds', this.getPremadeWorldItems, 'world') || {};
-      
+
+          return { aiChar, userChar, world };
+      },
+
+      async _updateTopBarForStoryProfile(story, storyId, aiChar, userChar) {
           this.ui.topBarDynamicTitle.textContent = story.name || `${aiChar?.name || 'AI'} & ${userChar?.name || 'User'}`;
           
           if (this.activeStoryId && this.activeStoryId !== storyId) {
@@ -2883,13 +2955,16 @@ const App = {
               this.hideEl(this.ui.topBarAiCharacterInfo);
               this.hideEl(this.ui.topBarUserCharacterInfo);
           }
-  
-      
+      },
+
+      _setupStoryProfileDisplays(aiChar, userChar) {
           this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = aiChar.avatar ? `url('${this.sanitizeHtml(aiChar.avatar)}')` : '';
           this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = userChar.avatar ? `url('${this.sanitizeHtml(userChar.avatar)}')` : '';
           this.ui.storyProfileAiCharacterDisplayArea.classList.toggle('visible', !!aiChar.avatar);
           this.ui.storyProfileUserCharacterDisplayArea.classList.toggle('visible', !!userChar.avatar);
-      
+      },
+
+      async _renderStoryProfileMessages(story) {
           this.ui.storyProfileMessageFeed.innerHTML = '';
       
           const messages = await this.db.messages.where({ storyId: story.id }).sortBy('timestamp');
@@ -2905,9 +2980,20 @@ const App = {
           if (story.concluded && story.summary && !messages.some(m => m.content === story.summary && m.role === 'narrator')) {
                this._addMessageToFeed({ role: 'narrator', content: story.summary }, true);
           }
-      
+      },
+
+      _generateAndInsertStoryProfileHTML(story, aiChar, userChar, world) {
           const san = this.sanitizeHtml;
-          const conclusionHtml = `
+          const conclusionHtml = this._generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san);
+          const actionButtonsHtml = this._generateStoryProfileActionButtons(story);
+
+          this.ui.storyProfileMessageFeed.insertAdjacentHTML('beforeend', conclusionHtml);
+          this.ui.storyProfileMessageFeed.scrollTop = this.ui.storyProfileMessageFeed.scrollHeight;
+          this.ui.storyProfileActions.innerHTML = actionButtonsHtml;
+      },
+
+      _generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san) {
+          return `
               <div class="story-conclusion-block">
                   <h2 class="story-profile-embedded-title">${san(story.name || `Untitled Story`)}</h2>
                   <div class="story-profile-embedded-ingredients">
@@ -2932,10 +3018,9 @@ const App = {
                       : ''
                   }
               </div>`;
-      
-          this.ui.storyProfileMessageFeed.insertAdjacentHTML('beforeend', conclusionHtml);
-          this.ui.storyProfileMessageFeed.scrollTop = this.ui.storyProfileMessageFeed.scrollHeight; 
-          
+      },
+
+      _generateStoryProfileActionButtons(story) {
           let actionButtonsHtml = `
               <button id="storyProfileBackBtn" class="secondary-action-button"><span class="button-icon">⬅️</span><span class="button-text">Back</span></button>
               <div class="ml-auto flex gap-2">
@@ -2953,16 +3038,20 @@ const App = {
               `;
           }
           actionButtonsHtml += `</div>`;
-          this.ui.storyProfileActions.innerHTML = actionButtonsHtml;
-      
+          return actionButtonsHtml;
+      },
+
+      async _attachStoryProfileEventHandlers(story, storyId) {
+          // Back button handler
           this.ui.storyProfileActions.querySelector('#storyProfileBackBtn').onclick = () => {
               if (this.activeStoryId) {
                   this.openStory(this.activeStoryId);
               } else {
                   this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
               }
-          }
-  
+          };
+
+          // Delete story handler
           this.ui.storyProfileActions.querySelector('#deleteStoryBtn').onclick = async () => {
               if (confirm(`Delete story "${story.name || 'this story'}"? This cannot be undone.`)) {
                   await this.db.messages.where({ storyId: story.id }).delete();
@@ -2976,25 +3065,27 @@ const App = {
                   this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
               }
           };
-      
+
+          // Conclude and resume story handlers (only for active stories)
           if (!story.concluded) {
-              const concludeBtnProfile = this.ui.storyProfileActions.querySelector('#concludeStoryBtnStoryProfile');
-              if (concludeBtnProfile) concludeBtnProfile.onclick = () => this.concludeStory(storyId);
+              const concludeButtonProfile = this.ui.storyProfileActions.querySelector('#concludeStoryBtnStoryProfile');
+              if (concludeButtonProfile) concludeButtonProfile.onclick = () => this.concludeStory(storyId);
               
-              const openChatBtnProfile = this.ui.storyProfileActions.querySelector('#openStoryChatBtnStoryProfile');
-              if(openChatBtnProfile) {
-                  openChatBtnProfile.onclick = () => this.openStory(storyId);
+              const openChatButtonProfile = this.ui.storyProfileActions.querySelector('#openStoryChatBtnStoryProfile');
+              if(openChatButtonProfile) {
+                  openChatButtonProfile.onclick = () => this.openStory(storyId);
                   
                   if (this.activeStoryId && this.activeStoryId !== story.id) {
                       const otherActiveStory = await this.db.stories.get(this.activeStoryId);
                       if (otherActiveStory && !otherActiveStory.concluded) {
-                          openChatBtnProfile.disabled = true;
-                          openChatBtnProfile.title = "Another story is currently active. Conclude it first.";
+                          openChatButtonProfile.disabled = true;
+                          openChatButtonProfile.title = "Another story is currently active. Conclude it first.";
                       }
                   }
               }
           }
-      
+
+          // Ingredient card click handlers
           this.ui.storyProfileMessageFeed.querySelectorAll('.story-profile-ingredient-card').forEach(card => {
               card.onclick = (e) => {
                   const itemId = card.dataset.itemId;
@@ -3005,69 +3096,53 @@ const App = {
                   }
               };
           });
-      
-          this.currentMainView = this.CONSTANTS.VIEWS.STORY_PROFILE;
-          await this.saveAppState();
-          this.checkAllButtonStates();
       },
       
             async renderFormScreen(options = {}) {
-          console.log("[EDIT WORKFLOW DEBUG] renderFormScreen called with options:", options);
-          console.log("[EDIT WORKFLOW DEBUG] Stack trace:", new Error().stack);
-          
-          const { itemType } = options;
+          console.log("[App Navigation] renderFormScreen called with options:", options);
+          const { itemType, isCreating, isCopying, premadeId, itemId } = options;
+      
           const config = this.CONSTANTS.ITEM_CONFIG[itemType];
           if (!config) { console.error("Invalid itemType for renderFormScreen:", itemType); return; }
 
           const container = this.ui[config.formScreen];
           if (!container) { console.error(`Container for ${config.formScreen} not found`); return; }
 
-          const isCreating = options.isCreating || !options.itemId;
-          console.log("[EDIT WORKFLOW DEBUG] isCreating determined as:", isCreating);
+          const isCreatingOrCopying = isCreating || isCopying;
+          console.log("[App Navigation] isCreatingOrCopying determined as:", isCreatingOrCopying);
           
-          this.ui.topBarDynamicTitle.textContent = isCreating ? `Create New ${config.capital}` : `Edit ${config.capital}`;
+          this.ui.topBarDynamicTitle.textContent = isCreatingOrCopying ? `Create New ${config.capital}` : `Edit ${config.capital}`;
   
-          this.currentCreateFormContext = { 
-              isCreating, 
-              id: isCreating ? null : options.itemId, 
-              premadeId: isCreating ? options.premadeId : null,
-              originScreen: options.originScreen || this.CONSTANTS.VIEWS.STORYBOARD,
-              itemType,
-              forUserCharacter: options.forUserCharacter, 
-              forAiCharacter: options.forAiCharacter,
-              preSelectedAiCharacterId: options.preSelectedAiCharacterId, 
-              preSelectedUserCharacterId: options.preSelectedUserCharacterId,
-              preSelectedWorldId: options.preSelectedWorldId
-          };
-          
           let item = {};
-          if (isCreating) {
-              console.log("[EDIT WORKFLOW DEBUG] Creation path - checking formData sources");
+          if (isCreatingOrCopying) {
+              console.log("[App Navigation] Creation path - checking formData sources");
               if (options.formData && Object.keys(options.formData).length > 0) {
                   item = { ...options.formData };
                   this.createItemFormData = { ...options.formData }; 
-                  console.log("[EDIT WORKFLOW DEBUG] Using formData passed in options for new item:", item);
+                  console.log("[App Navigation] Using formData passed in options for new item:", item);
               } else if (Object.keys(this.createItemFormData).length > 0) {
                   item = { ...this.createItemFormData };
-                  console.log("[EDIT WORKFLOW DEBUG] Using App.createItemFormData for new item:", item);
+                  console.log("[App Navigation] Using App.createItemFormData for new item:", item);
               } else {
                   item = {};
-                  console.log("[EDIT WORKFLOW DEBUG] Creating a truly new item, no prior data.");
+                  console.log("[App Navigation] Creating a truly new item, no prior data.");
               }
           } else { 
-              console.log("[EDIT WORKFLOW DEBUG] Editing path - fetching item with ID:", options.itemId);
+              console.log("[App Navigation] Editing path - fetching item with ID:", options.itemId);
               item = await this._getIngredientData(options.itemId, config.dbTableKey, config.getPreMadesFn, itemType);
-              console.log("[EDIT WORKFLOW DEBUG] Retrieved item for editing:", item);
+              console.log("[App Navigation] Retrieved item for editing:", item);
+              // Initialize form data with existing item's colorPalette for editing
+              this.createItemFormData = { colorPalette: item.colorPalette || 'slate_gray' };
           }
   
   
-          if (!isCreating && !item) { 
+          if (!isCreatingOrCopying && !item) { 
               container.innerHTML = `<p>${config.capital} not found.</p>`; 
               return; 
           }
           
           let softLockNoticeHtml = '';
-          if (!isCreating && this.activeStoryId) {
+          if (!isCreatingOrCopying && this.activeStoryId) {
               const activeStory = await this.db.stories.get(this.activeStoryId);
               if (activeStory && !activeStory.concluded) {
                   const itemOriginalId = item.isPremade ? item.originalPremadeId : item.id;
@@ -3099,8 +3174,9 @@ const App = {
               container.appendChild(tempContainer.firstChild);
           }
 
-          this._attachFormEventListeners(container, itemType, item, isCreating);
+          this._attachFormEventListeners(container, itemType, item, isCreatingOrCopying);
           this.checkAllButtonStates();
+          this._updateFormColorPreview(container, item.colorPalette);
       },
       
       async renderProfileScreen(options = {}) {
@@ -3162,32 +3238,68 @@ const App = {
               actionButton.onclick = () => {
                   console.log("[COPY WORKFLOW] Profile action button clicked - isPremade:", isPremade, "itemId:", itemId);
                   
-                  // **COMPLETELY NEW: Simple, direct approach**
                   if (isPremade) {
                       // For premade items: prepare copy data and navigate
                       const premadeDataOriginal = { ...item }; 
-                      this.createItemFormData = premadeDataOriginal; 
-                      this.createItemFormData.name = `${premadeDataOriginal.name || config.capital} (Copy)`;
-                      delete this.createItemFormData.id; 
-                      delete this.createItemFormData.isPremade;
-                      delete this.createItemFormData.originalPremadeId;
+                      const cleanCopyData = {
+                          ...premadeDataOriginal,
+                          name: `${premadeDataOriginal.name || config.capital} (Copy)`
+                      };
+                      delete cleanCopyData.id; 
+                      delete cleanCopyData.isPremade;
+                      delete cleanCopyData.originalPremadeId;
                       
-                      // Navigate directly without any delays or complex guards
-                      const targetScreen = itemType === 'character' ? this.CONSTANTS.VIEWS.CHARACTER_FORM : this.CONSTANTS.VIEWS.WORLD_FORM;
-                      this.switchToScreen(targetScreen, {
+                      // Prepare form options including prefilling data
+                      const formOptions = {
                           itemType: itemType,
                           originScreen: this.currentMainView,
-                          isCreating: true
-                      });
-                  } else {
-                      // For user items: edit directly
+                          isCreating: true,
+                          formData: cleanCopyData
+                      };
+                      
+                      const stateToStore = {
+                          formData: cleanCopyData,
+                          formOptions: formOptions,
+                          timestamp: Date.now()
+                      };
+                      
+                      try {
+                          sessionStorage.setItem('pendingRPGlitchFormState', JSON.stringify(stateToStore));
+                          console.log("[COPY WORKFLOW] Stored form state in sessionStorage:", stateToStore);
+                      } catch (e) {
+                          console.error("[COPY WORKFLOW] Failed to store form state:", e);
+                          // Fall back to direct assignment if sessionStorage fails
+                          this.createItemFormData = cleanCopyData;
+                      }
+                      
+                      // Navigate to form screen
                       const targetScreen = itemType === 'character' ? this.CONSTANTS.VIEWS.CHARACTER_FORM : this.CONSTANTS.VIEWS.WORLD_FORM;
-                      this.switchToScreen(targetScreen, {
+                      this.switchToScreen(targetScreen, formOptions);
+                  } else {
+                      // For user items: edit directly with session storage protection
+                      const formOptions = {
                           itemType: itemType,
                           originScreen: this.currentMainView,
                           isCreating: false,
                           itemId: item.id
-                      });
+                      };
+                      
+                      // Store edit state in sessionStorage to prevent loss on refresh
+                      const stateToStore = {
+                          formData: null, // Will be loaded from DB by itemId
+                          formOptions: formOptions,
+                          timestamp: Date.now()
+                      };
+                      
+                      try {
+                          sessionStorage.setItem('pendingRPGlitchFormState', JSON.stringify(stateToStore));
+                          console.log("[EDIT WORKFLOW] Stored edit state in sessionStorage:", stateToStore);
+                      } catch (e) {
+                          console.error("[EDIT WORKFLOW] Failed to store edit state:", e);
+                      }
+                      
+                      const targetScreen = itemType === 'character' ? this.CONSTANTS.VIEWS.CHARACTER_FORM : this.CONSTANTS.VIEWS.WORLD_FORM;
+                      this.switchToScreen(targetScreen, formOptions);
                   }
               };
           }
@@ -3195,30 +3307,14 @@ const App = {
   
       _renderStudioLayout(item, config, isEditing) {
           const san = this.sanitizeHtml;
-          let nameField;
-          if (config.itemType === 'character' && isEditing) {
-              nameField = `<div id="${config.itemType}NameEditable" class="studio-name-input full-width" contenteditable="true" spellcheck="false" data-placeholder="${config.capital} Name">${san(item?.name || '')}</div>`;
-          } else if (isEditing) {
-              nameField = `<input type="text" id="${config.itemType}Name" class="studio-name-input full-width" placeholder="${config.capital} Name" value="${san(item?.name || '')}">`;
-          } else {
-              nameField = `<h2 class="studio-profile-name full-width">${san(item?.name || 'Unnamed')}</h2>`;
-          }
-  
-          const descriptionField = isEditing ? 
-          `<div class="form-field-group full-width">
-              <div class="form-field-wrapper">
-                  <textarea id="${config.itemType}Description" rows="2" placeholder="${san(config.labels.descriptionPlaceholder)}">${san(item?.description || '')}</textarea>
-                   <button type="button" class="ai-helper-button" id="summarizeBtn${config.capital}">✨ Summarize for Card</button>
-              </div>
-           </div>` :
-           (item?.description ? `<div class="form-field-group full-width">
-                                    <div class="profile-field-value">${san(item.description)}</div>
-                                </div>` : '');
+          const { itemType, labels } = config;
+          const title = isEditing ? (item.id ? `Edit ${config.capital}` : `Create New ${config.capital}`) : san(item.name);
+          const avatarSrc = item.avatar || 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/avatars/default-avatar.png';
           
           const createField = (trait, rows = 4) => {
-              const id = `${config.itemType}${trait.charAt(0).toUpperCase() + trait.slice(1)}`;
-              const label = config.labels[trait.toLowerCase()];
-              const placeholder = config.labels[`${trait.toLowerCase()}Placeholder`];
+              const id = `${itemType}${trait.charAt(0).toUpperCase() + trait.slice(1)}`;
+              const label = labels[trait.toLowerCase()];
+              const placeholder = labels[`${trait.toLowerCase()}Placeholder`];
               const value = item?.[trait.toLowerCase()] || '';
   
               if (isEditing) {
@@ -3230,7 +3326,7 @@ const App = {
                           </div>
                           <div class="form-field-wrapper">
                               <textarea id="${id}" rows="${rows}" placeholder="${san(placeholder)}">${san(value)}</textarea>
-                              <button type="button" class="ai-helper-button" data-trait="${trait.toLowerCase()}" data-buttontype="ai-fill" id="ai-btn-${config.itemType}-${trait.toLowerCase()}">✨ ${value ? 'Refine' : 'Make up'} ${trait}</button>
+                              <button type="button" class="ai-helper-button" data-trait="${trait.toLowerCase()}" data-buttontype="ai-fill" id="ai-btn-${itemType}-${trait.toLowerCase()}">✨ ${value ? 'Refine' : 'Make up'} ${trait}</button>
                           </div>
                       </div>`;
               } else {
@@ -3241,80 +3337,196 @@ const App = {
               }
           };
   
-          const isPremade = typeof item.id === 'string' && item.id.startsWith('premade_');
-          let actionButtons;
-          if (isEditing) {
-              actionButtons = `
-                  ${!this.currentCreateFormContext.isCreating ? `<button type="button" id="delete${config.capital}BtnMain" class="delete-button"><span class="button-text">Delete</span><span class="button-icon">🗑️</span></button>` : '<div class="mr-auto"></div>'}
-                  <div class="ml-auto flex gap-2">
-                      ${this.currentCreateFormContext.isCreating ? '' : `<button type="button" id="cancel${config.capital}BtnMain" class="secondary-action-button"><span class="button-text">Cancel</span><span class="button-icon">❌</span></button>`}
-                      <button type="submit" id="submit${config.capital}BtnMain" class="primary-action-button"><span class="button-text">${this.currentCreateFormContext.isCreating ? `Create ${config.capital}` : 'Save Changes'}</span><span class="button-icon">💾</span></button>
-                  </div>`;
-          } else {
-              actionButtons = `
-                  <button id="profileBackButton" class="secondary-action-button"><span class="button-icon">⬅️</span><span class="button-text">Back</span></button>
-                  <div class="ml-auto flex gap-2">
-                      ${isPremade ? 
-                          `<button id="copyCustomizeBtn" class="primary-action-button"><span class="button-text">Copy & Customize</span><span class="button-icon">📋</span></button>` :
-                          `<button id="editFromProfileBtn" class="primary-action-button"><span class="button-text">Edit ${config.capital}</span><span class="button-icon">✏️</span></button>`
-                      }
-                  </div>`;
-          }
-          const avatarPanelClass = `studio-left-panel ${!item?.avatar ? 'empty-avatar' : ''} ${isEditing ? 'editable' : ''} ${!isEditing ? 'no-placeholder' : ''}`;
-  
-          return `
-              <div class="studio-layout-container">
-                  <div class="${avatarPanelClass}" 
-                       id="${config.itemType}AvatarDisplay" 
-                       style="background-image: url('${san(item?.avatar || '')}');"
-                       ${isEditing ? `onclick="if(event.target === this) App.showAvatarOverlay(this.querySelector('.avatar-overlay'), '${config.itemType}');"` : ''}>
-                      ${isEditing ? `
-                      <div id="avatar-overlay-${config.itemType}" class="avatar-overlay">
-                          <div class="avatar-overlay-content">
-                              <div class="avatar-preview-column" id="avatarPreviewAreaForm-${config.itemType}"><span class="opacity-50 text-sm">Preview Area</span></div>
-                              <textarea id="avatarPromptInputForm-${config.itemType}" placeholder="Describe image or paste URL..."></textarea>
-                              <button type="button" id="aiHelpAvatarPromptBtn-${config.itemType}" class="ai-helper-button w-full" style="margin-top: 0.25rem;"><span class="button-text">AI Help with Prompt</span><span class="button-icon">✨</span></button>
-                          </div>
-                          <div class="avatar-overlay-actions">
-                               <button type="button" id="generateAvatarBtnForm-${config.itemType}" class="primary-action-button"><span class="button-text">Generate</span></button>
-                               <button type="button" id="useAvatarBtnForm-${config.itemType}" class="primary-action-button" disabled><span class="button-text">Use Image</span></button>
-                               <button type="button" id="uploadAvatarBtnForm-${config.itemType}" class="secondary-action-button"><span class="button-text">Upload</span></button>
-                               <button type="button" id="closeAvatarBtnForm-${config.itemType}" class="secondary-action-button"><span class="button-text">Close</span></button>
+          // Helper: read-only color palette preview block
+          const createColorPreview = (paletteKey) => {
+              const palette = this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES['slate_gray'];
+              return `
+                  <div class="form-section color-picker-section readonly">
+                      <h3>Color Palette</h3>
+                      <div class="color-palette-grid readonly">
+                          <div class="color-palette-button selected" style="pointer-events:none;cursor:default;">
+                              <div class="color-swatch-large" style="background-color:${palette.colors.medium}"></div>
+                              <div class="color-swatch-group">
+                                  <div class="color-swatch-small" style="background-color:${palette.colors.light}"></div>
+                                  <div class="color-swatch-small" style="background-color:${palette.colors.dark}"></div>
+                                  <div class="color-swatch-small" style="background-color:${palette.colors.neutral}"></div>
+                              </div>
                           </div>
                       </div>
-                      ` : ''}
-                  </div>
-                  <div class="studio-right-panel">
-                      <form id="${config.itemType}FormMain" class="h-full flex flex-col">
-                          <div class="studio-form-content">
-                              ${nameField}
-                              ${descriptionField}
-                              ${createField('eternal')}
-                              ${createField('past')}
-                              ${createField('present')}
-                              ${createField('future')}
-                          </div>
-                          <div class="studio-form-actions">${actionButtons}</div>
-                      </form>
-                  </div>
-              </div>`;
-      },
+                  </div>`;
+          };
   
+          let studioHtml = `
+          ${isEditing ? `<form id="${itemType}FormMain" class="studio-layout-container" novalidate>` : '<div class="studio-layout-container">'}
+                  <div class="studio-header">
+                      <button class="back-button" id="formBackButton" aria-label="Go back"><i class="fas fa-arrow-left"></i></button>
+                      <h2 id="studio-title">${title}</h2>
+                  </div>
+                  <div class="studio-content-area">
+                       <div class="studio-left-panel">
+                           <div class="form-section avatar-section">
+                               <h3>Avatar</h3>
+                               <div class="avatar-container" id="${itemType}AvatarDisplay">
+                                   <img src="${avatarSrc}" alt="${san(item.name)}'s avatar" class="profile-pic-large" id="formAvatarImage">
+                                   ${isEditing ? '<div class="avatar-edit-overlay"><i class="fas fa-pencil-alt"></i></div>' : ''}
+                               </div>
+                           </div>
+                           ${isEditing ? this._createColorPicker(item.colorPalette || 'slate_gray') : createColorPreview(item.colorPalette || 'slate_gray')}
+                       </div>
+                       <div class="studio-right-panel">
+                           <div class="form-section traits-section">
+                               <h3>Traits</h3>
+                               <div class="form-grid">
+                                   <div class="form-field full-width">
+                                       <label for="${itemType}Name">${labels.name}</label>
+                                       <input type="text" id="${itemType}Name" value="${san(item.name || '')}" ${isEditing ? '' : 'readonly'}>
+                                   </div>
+                                   <div class="form-field full-width">
+                                       <label for="${itemType}Description">${labels.description}</label>
+                                       <input type="text" id="${itemType}Description" value="${san(item.description || '')}" placeholder="${labels.descriptionPlaceholder}" ${isEditing ? '' : 'readonly'}>
+                                   </div>
+                               </div>
+                           </div>
+                           <div class="form-section eppf-section">
+                               <h3>Core Profile (EPPF Framework)</h3>
+                               ${createField('eternal')}
+                               ${createField('past')}
+                               ${createField('present')}
+                               ${createField('future')}
+                           </div>
+                           ${isEditing ? `
+                           <div class="studio-form-actions" style="margin-top:2rem; display:flex; gap:0.75rem; justify-content:flex-end;">
+                               <button type="button" id="cancel${config.capital}BtnMain" class="secondary-action-button">Cancel</button>
+                               ${item.id ? `<button type="button" id="delete${config.capital}BtnMain" class="delete-button">Delete</button>` : ''}
+                               <button type="submit" id="submit${config.capital}BtnMain" class="primary-action-button">Save</button>
+                           </div>` 
+                           : `
+                           <div class="studio-form-actions" style="margin-top:2rem; display:flex; gap:0.75rem; justify-content:flex-end;">
+                               ${item.isPremade ? `<button id="copyCustomizeBtn" class="primary-action-button"><span class="button-text">Copy &amp; Customize</span></button>` : `<button id="editFromProfileBtn" class="primary-action-button"><span class="button-text">Edit</span></button>`}
+                           </div>`}
+                       </div>
+                   </div>
+          ${isEditing ? '</form>' : '</div>'}
+           `;
+          
+          return studioHtml;
+      },
+
+      _createColorPicker(selectedPaletteKey) {
+        let colorPickerHtml = '<div class="form-section color-picker-section">';
+        colorPickerHtml += '<h3>Color Palette</h3>';
+        colorPickerHtml += '<div class="color-palette-grid">';
+    
+        for (const key in this.CONSTANTS.COLOR_PALETTES) {
+            const palette = this.CONSTANTS.COLOR_PALETTES[key];
+            const isSelected = key === selectedPaletteKey ? 'selected' : '';
+            colorPickerHtml += `
+                <button class="color-palette-button ${isSelected}" data-palette-key="${key}" title="${palette.name}" aria-label="Select ${palette.name} color palette">
+                    <div class="color-swatch-large" style="background-color: ${palette.colors.medium};"></div>
+                    <div class="color-swatch-group">
+                        <div class="color-swatch-small" style="background-color: ${palette.colors.light};"></div>
+                        <div class="color-swatch-small" style="background-color: ${palette.colors.dark};"></div>
+                        <div class="color-swatch-small" style="background-color: ${palette.colors.neutral};"></div>
+                    </div>
+                </button>
+            `;
+        }
+    
+        colorPickerHtml += '</div></div>';
+        return colorPickerHtml;
+    },
+
+    _updateFormColorPreview(formElement, paletteKey) {
+        if (!formElement || !paletteKey) return;
+        const palette = this.CONSTANTS.COLOR_PALETTES[paletteKey];
+        if (!palette) {
+            console.warn(`Color palette "${paletteKey}" not found.`);
+            return;
+        }
+
+        formElement.style.setProperty('--form-color-light', palette.colors.light);
+        formElement.style.setProperty('--form-color-medium', palette.colors.medium);
+        formElement.style.setProperty('--form-color-dark', palette.colors.dark);
+        formElement.style.setProperty('--form-color-neutral', palette.colors.neutral);
+    },
+      
             _attachFormEventListeners(container, itemType, item, isCreating) {
+          if (!container) return;
+          // Phase 1: Setup Form Elements
+          const formElements = this._setupFormElements(container, itemType);
+          if (!formElements) return;
+
+          // Phase 2: Avatar System Event Handlers
+          this._attachAvatarEventHandlers(formElements, itemType);
+
+          // Phase 3: Form Action Handlers (Delete, Cancel, Submit)
+          this._attachFormActionHandlers(formElements, itemType, item, isCreating);
+
+          // Phase 4: AI Helper Handlers
+          this._attachAiHelperHandlers(formElements, itemType);
+
+          // Phase 5: Textarea Dynamic Updates
+          this._attachTextareaHandlers(formElements);
+
+          const colorButtons = container.querySelectorAll('.color-palette-button');
+          colorButtons.forEach(button => {
+              button.onclick = (e) => {
+                  e.preventDefault();
+                  const selectedKey = button.dataset.paletteKey;
+                  
+                  // Update selection state
+                  colorButtons.forEach(btn => btn.classList.remove('selected'));
+                  button.classList.add('selected');
+
+                  // Update form data
+                  this.createItemFormData.colorPalette = selectedKey;
+
+                  // Update live preview
+                  this._updateFormColorPreview(container, selectedKey);
+              };
+          });
+      },
+
+      _setupFormElements(container, itemType) {
           const config = this.CONSTANTS.ITEM_CONFIG[itemType];
           const form = container.querySelector(`#${itemType}FormMain`);
-          const nameEditableDiv = form.querySelector(`#${itemType}NameEditable`); 
-          const nameInput = form.querySelector(`#${itemType}Name`); 
-          
-          const avatarDisplayPanel = container.querySelector(`#${itemType}AvatarDisplay`);
-          const avatarOverlay = container.querySelector(`#avatar-overlay-${itemType}`);
-          const avatarPromptInputForm = container.querySelector(`#avatarPromptInputForm-${itemType}`);
-          const uploadAvatarBtnForm = container.querySelector(`#uploadAvatarBtnForm-${itemType}`);
-          const generateAvatarBtnForm = container.querySelector(`#generateAvatarBtnForm-${itemType}`);
-          const useAvatarBtnForm = container.querySelector(`#useAvatarBtnForm-${itemType}`);
-          const closeAvatarBtnForm = container.querySelector(`#closeAvatarBtnForm-${itemType}`);
-          const aiHelpAvatarPromptBtn = container.querySelector(`#aiHelpAvatarPromptBtn-${itemType}`);
-          
+          if (!form) {
+              console.error(`Form not found for ${itemType}`);
+              return null;
+          }
+
+          return {
+              config,
+              form,
+              nameEditableDiv: form.querySelector(`#${itemType}NameEditable`),
+              nameInput: form.querySelector(`#${itemType}Name`),
+              avatarDisplayPanel: container.querySelector(`#${itemType}AvatarDisplay`),
+              avatarOverlay: container.querySelector(`#avatar-overlay-${itemType}`),
+              avatarPromptInputForm: container.querySelector(`#avatarPromptInputForm-${itemType}`),
+              uploadAvatarBtnForm: container.querySelector(`#uploadAvatarBtnForm-${itemType}`),
+              generateAvatarBtnForm: container.querySelector(`#generateAvatarBtnForm-${itemType}`),
+              useAvatarBtnForm: container.querySelector(`#useAvatarBtnForm-${itemType}`),
+              closeAvatarBtnForm: container.querySelector(`#closeAvatarBtnForm-${itemType}`),
+              aiHelpAvatarPromptBtn: container.querySelector(`#aiHelpAvatarPromptBtn-${itemType}`),
+              nameInput: form.querySelector(`#${itemType}Name`),
+              descriptionTextarea: form.querySelector(`#${itemType}Description`),
+              eternalInput: form.querySelector(`#${itemType}Eternal`),
+              pastInput: form.querySelector(`#${itemType}Past`),
+              presentInput: form.querySelector(`#${itemType}Present`),
+              futureInput: form.querySelector(`#${itemType}Future`),
+          };
+      },
+
+      _attachAvatarEventHandlers(elements, itemType) {
+          const { avatarOverlay, avatarPromptInputForm, generateAvatarBtnForm, closeAvatarBtnForm, 
+                  aiHelpAvatarPromptBtn, uploadAvatarBtnForm, useAvatarBtnForm, form } = elements;
+
+          if (!avatarOverlay) {
+              console.warn("Avatar overlay elements not found – skipping avatar handlers.");
+              return;
+          }
+
+          // Avatar prompt input handlers
           avatarPromptInputForm.addEventListener('click', e => e.stopPropagation());
           avatarPromptInputForm.addEventListener('keyup', (e) => {
               if (e.key === 'Enter' && !e.shiftKey) { 
@@ -3325,156 +3537,139 @@ const App = {
               }
           });
 
+          // Avatar button handlers
           closeAvatarBtnForm.onclick = (e) => { e.stopPropagation(); this.hideAvatarOverlay(avatarOverlay); };
+          
           if (aiHelpAvatarPromptBtn) {
-              aiHelpAvatarPromptBtn.onclick = (e) => { e.stopPropagation(); this._handleAiHelpForAvatarPrompt(aiHelpAvatarPromptBtn, itemType, avatarPromptInputForm, form); };
+              aiHelpAvatarPromptBtn.onclick = (e) => { 
+                  e.stopPropagation(); 
+                  this._handleAiHelpForAvatarPrompt(aiHelpAvatarPromptBtn, itemType, avatarPromptInputForm, form); 
+              };
           }
 
           if (window.uploadDataUrlToTextInput) {
-              uploadAvatarBtnForm.onclick = (e) => { e.stopPropagation(); window.uploadDataUrlToTextInput(avatarPromptInputForm, { type: 'image/*' }); };
+              uploadAvatarBtnForm.onclick = (e) => { 
+                  e.stopPropagation(); 
+                  window.uploadDataUrlToTextInput(avatarPromptInputForm, { type: 'image/*' }); 
+              };
           } else {
               uploadAvatarBtnForm.disabled = true;
               console.warn("file-upload-plugin not found, disabling upload button.");
           }
-          useAvatarBtnForm.onclick = (e) => { e.stopPropagation(); this.handleUseGeneratedAvatar(avatarOverlay, itemType); };
 
+          useAvatarBtnForm.onclick = (e) => { 
+              e.stopPropagation(); 
+              this.handleUseGeneratedAvatar(avatarOverlay, itemType); 
+          };
+
+          // Avatar prompt input change handler
           avatarPromptInputForm.oninput = () => {
               const isUrl = avatarPromptInputForm.value.trim().startsWith('http');
               generateAvatarBtnForm.innerHTML = `<span class="button-text">${isUrl ? 'Use URL' : 'Generate'}</span>`;
               if (isUrl) {
-                  generateAvatarBtnForm.onclick = (e) => { e.stopPropagation(); this.handleUseUrlForAvatar(avatarOverlay, avatarPromptInputForm.value.trim(), itemType); };
+                  generateAvatarBtnForm.onclick = (e) => { 
+                      e.stopPropagation(); 
+                      this.handleUseUrlForAvatar(avatarOverlay, avatarPromptInputForm.value.trim(), itemType); 
+                  };
               } else {
-                  generateAvatarBtnForm.onclick = (e) => { e.stopPropagation(); this.handleGenerateAvatarSmart(avatarOverlay, itemType, avatarPromptInputForm.value.trim()); };
+                  generateAvatarBtnForm.onclick = (e) => { 
+                      e.stopPropagation(); 
+                      this.handleGenerateAvatarSmart(avatarOverlay, itemType, avatarPromptInputForm.value.trim()); 
+                  };
               }
               this.checkAllButtonStates(); 
           };
           avatarPromptInputForm.dispatchEvent(new Event('input'));
-          
+      },
+
+      _attachFormActionHandlers(elements, itemType, item, isCreating) {
+          const { config, form } = elements;
+
+          // Delete button handler (only for editing)
           if (!isCreating) {
-              form.querySelector(`#delete${config.capital}BtnMain`).onclick = async () => {
-                  if (confirm(`Delete ${itemType} "${item.name || `this ${itemType}`}"? This will remove it from lists but keep it in existing stories.`)) { 
-                      await this.db[config.dbTableKey].update(item.id, { isDeleted: true });
-                      this.showTopNotification(`${config.capital} deleted (archived).`, 'success');
-                      this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-                  }
-              };
+              const deleteButton = form.querySelector(`#delete${config.capital}BtnMain`);
+              if (deleteButton) {
+                  deleteButton.onclick = async () => {
+                      if (confirm(`Delete ${itemType} "${item.name || `this ${itemType}`}"? This will remove it from lists but keep it in existing stories.`)) { 
+                          await this.db[config.dbTableKey].update(item.id, { isDeleted: true });
+                          this.showTopNotification(`${config.capital} deleted (archived).`, 'success');
+                          this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+                      }
+                  };
+              }
           }
 
-          if (!isCreating) {
-              const cancelBtn = form.querySelector(`#cancel${config.capital}BtnMain`);
-              if (!cancelBtn) {
-                  console.warn(`[EDIT WORKFLOW DEBUG] Cancel button not found for edit mode of ${itemType}.`);
+          // Cancel button handler
+          this._attachCancelButtonHandler(elements, itemType);
+
+          // Form submit handler
+          this._attachFormSubmitHandler(elements, itemType);
+      },
+
+      _attachCancelButtonHandler(elements, itemType) {
+          const { config, form } = elements;
+          const cancelButton = form.querySelector(`#cancel${config.capital}BtnMain`);
+          
+          if (!cancelButton) {
+              console.warn(`[EDIT WORKFLOW DEBUG] Cancel button not found for ${itemType} form.`);
+              return;
+          }
+
+          cancelButton.onclick = (e) => {
+              // Ignore synthetic/programmatic clicks that are not user-initiated
+              if (e && e.isTrusted === false) {
+                  console.warn("[EDIT WORKFLOW DEBUG] Programmatic cancel click suppressed");
+                  return;
+              }
+              
+              if (!this.currentCreateFormContext || Object.keys(this.currentCreateFormContext).length === 0) {
+                  console.warn("[CANCEL DEBUG] currentCreateFormContext is empty or undefined, falling back to storyboard");
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+                  return;
+              }
+              
+              const { originScreen, id, itemType, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId } = this.currentCreateFormContext;
+              this.createItemFormData = {};
+              
+              // Clear any pending form state from session storage when canceling
+              try {
+                  sessionStorage.removeItem('pendingRPGlitchFormState');
+              } catch (e) {
+                  console.warn("Failed to clear session storage on cancel:", e);
+              } 
+              
+              // Filter out 'create_new_' values to prevent infinite loop when returning to storyboard
+              const navOptions = { 
+                  preSelectedAiCharacterId: preSelectedAiCharacterId?.startsWith?.('create_new_') ? '' : preSelectedAiCharacterId, 
+                  preSelectedUserCharacterId: preSelectedUserCharacterId?.startsWith?.('create_new_') ? '' : preSelectedUserCharacterId, 
+                  preSelectedWorldId: preSelectedWorldId?.startsWith?.('create_new_') ? '' : preSelectedWorldId 
+              };
+              let targetScreen = originScreen;
+              if (targetScreen === config.profileScreen) {
+                  navOptions.itemId = id;
+                  navOptions.itemType = itemType;
+              } else if (targetScreen === this.CONSTANTS.VIEWS.STORY_PROFILE) {
+                  navOptions.storyId = this.currentStoryId;
               } else {
-                   cancelBtn.onclick = (e) => {
-                       // Ignore synthetic/programmatic clicks that are not user-initiated
-                       if (e && e.isTrusted === false) {
-                           console.warn("[EDIT WORKFLOW DEBUG] Programmatic cancel click suppressed");
-                           return;
-                       }
-                       const { originScreen, id, itemType, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId } = this.currentCreateFormContext;
-                       this.createItemFormData = {}; 
-                       
-                       const navOptions = { 
-                           preSelectedAiCharacterId, 
-                           preSelectedUserCharacterId, 
-                           preSelectedWorldId 
-                       };
-                       let targetScreen = originScreen;
-                       if (targetScreen === config.profileScreen) {
-                           navOptions.itemId = id;
-                           navOptions.itemType = itemType;
-                       } else if (targetScreen === this.CONSTANTS.VIEWS.STORY_PROFILE) {
-                           navOptions.storyId = this.currentStoryId;
-                       } else {
-                           targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
-                       }
-                       this.switchToScreen(targetScreen, navOptions);
-                   };
-               }
-           }
+                  targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
+              }
+              
+              this.switchToScreen(targetScreen, navOptions);
+          };
+      },
+
+      _attachFormSubmitHandler(elements, itemType) {
+          const { config, form, nameEditableDiv, nameInput } = elements;
 
           form.onsubmit = async (e) => {
               e.preventDefault();
               const submitButton = form.querySelector(`#submit${config.capital}BtnMain`);
                await this._manageAiButtonState(submitButton, {
                   actionAsyncFn: async () => {
-                      const avatarDisplayPanel = container.querySelector(`#${itemType}AvatarDisplay`);
-                      const avatarUrlStyle = avatarDisplayPanel ? avatarDisplayPanel.style.backgroundImage : '';
-                      const avatarUrl = avatarUrlStyle && avatarUrlStyle.startsWith('url("') ? avatarUrlStyle.slice(5, -2) : '';
-                      
-                      let itemName;
-                      if (itemType === 'character' && nameEditableDiv) {
-                          itemName = nameEditableDiv.textContent.trim() || `Unnamed ${config.capital}`;
-                      } else if (nameInput) {
-                          itemName = nameInput.value.trim() || `Unnamed ${config.capital}`;
-                      } else {
-                          itemName = `Unnamed ${config.capital}`;
-                      }
-                      
-                      const descriptionTextarea = form.querySelector(`#${itemType}Description`);
-
-                      const data = {
-                          name: itemName,
-                          avatar: avatarUrl,
-                          description: descriptionTextarea ? descriptionTextarea.value : '',
-                          eternal: form.querySelector(`#${itemType}Eternal`).value,
-                          past: form.querySelector(`#${itemType}Past`).value,
-                          present: form.querySelector(`#${itemType}Present`).value,
-                          future: form.querySelector(`#${itemType}Future`).value,
-                      };
-
-                      let newId = this.currentCreateFormContext.id;
-                      if (this.currentCreateFormContext.isCreating) {
-                          data.createdTimestamp = Date.now();
-                          data.uniqueId = `${itemType}_` + Date.now() + Math.random().toString(36).substring(2,7);
-                          data.isDeleted = false;
-                          newId = await this.db[config.dbTableKey].add(data);
-                      } else {
-                          await this.db[config.dbTableKey].update(this.currentCreateFormContext.id, data);
-                      }
-                      return { newId }; 
+                      return await this._processFormSubmission(elements, itemType);
                   },
                   onSuccess: (result) => {
-                      const { newId } = result;
-                      this.showTopNotification(`${config.capital} ${this.currentCreateFormContext.isCreating ? 'created' : 'updated'}!`, 'success');
-                      this.createItemFormData = {}; 
-                      
-                      let targetScreen = this.currentCreateFormContext.originScreen;
-                      const navOptions = { itemId: newId, itemType };
-
-                      if (targetScreen === config.profileScreen && !this.currentCreateFormContext.isCreating) {
-                      } else if (targetScreen === this.CONSTANTS.VIEWS.STORY_PROFILE) {
-                          navOptions.storyId = this.currentStoryId;
-                      } else if (Object.values(this.CONSTANTS.CONTEXTUAL_MENU_VIEWS).includes(targetScreen)) {
-                          targetScreen = this.CONSTANTS.VIEWS.STORYBOARD; 
-                      } else { 
-                          targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
-                          navOptions.preSelectedAiCharacterId = this.currentCreateFormContext.preSelectedAiCharacterId;
-                          navOptions.preSelectedUserCharacterId = this.currentCreateFormContext.preSelectedUserCharacterId;
-                          navOptions.preSelectedWorldId = this.currentCreateFormContext.preSelectedWorldId;
-                          if (this.currentCreateFormContext.isCreating) { 
-                              if (itemType === 'character') {
-                                  if (this.currentCreateFormContext.forAiCharacter) navOptions.preSelectedAiCharacterId = newId;
-                                  else if (this.currentCreateFormContext.forUserCharacter) navOptions.preSelectedUserCharacterId = newId;
-                              } else if (itemType === 'world') {
-                                  navOptions.preSelectedWorldId = newId;
-                              }
-                          }
-                      }
-                      this.switchToScreen(targetScreen, navOptions);
-                      
-                      if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_INTERFACE && newId && itemType === 'character') {
-                          this.db.characters.get(newId).then(currentCharacterFromDb => {
-                              if (this.currentAiCharacterId === newId) { 
-                                  this._updateTopBarCharacterInfo('ai', currentCharacterFromDb); 
-                                  this._loadCharacterImageToSidePanel('ai', currentCharacterFromDb); 
-                              }
-                              if (this.currentUserCharacterId === newId) { 
-                                  this._updateTopBarCharacterInfo('user', currentCharacterFromDb); 
-                                  this._loadCharacterImageToSidePanel('user', currentCharacterFromDb); 
-                              }
-                          });
-                      }
+                      this._handleFormSubmissionSuccess(result, config, itemType);
                   },
                   onError: (error) => {
                       console.error("Error saving form:", error);
@@ -3483,7 +3678,114 @@ const App = {
                   isCancellable: true,
               });
           };
+      },
+
+      async _processFormSubmission(elements, itemType) {
+          const { config, form, nameEditableDiv, nameInput, avatarDisplayPanel } = elements;
           
+          const avatarUrlStyle = avatarDisplayPanel ? avatarDisplayPanel.style.backgroundImage : '';
+          const avatarUrl = avatarUrlStyle && avatarUrlStyle.startsWith('url("') ? avatarUrlStyle.slice(5, -2) : '';
+          
+          let itemName;
+          if (itemType === 'character' && nameEditableDiv) {
+              itemName = nameEditableDiv.textContent.trim() || `Unnamed ${config.capital}`;
+          } else if (nameInput) {
+              itemName = nameInput.value.trim() || `Unnamed ${config.capital}`;
+          } else {
+              itemName = `Unnamed ${config.capital}`;
+          }
+          
+          const descriptionTextarea = form.querySelector(`#${itemType}Description`);
+
+          const data = {
+              name: itemName,
+              avatar: avatarUrl,
+              description: descriptionTextarea ? descriptionTextarea.value : '',
+              eternal: form.querySelector(`#${itemType}Eternal`).value,
+              past: form.querySelector(`#${itemType}Past`).value,
+              present: form.querySelector(`#${itemType}Present`).value,
+              future: form.querySelector(`#${itemType}Future`).value,
+              colorPalette: this.createItemFormData.colorPalette || 'slate_gray',
+          };
+
+          let newId = this.currentCreateFormContext.id;
+          if (this.currentCreateFormContext.isCreating) {
+              data.createdTimestamp = Date.now();
+              data.uniqueId = `${itemType}_` + Date.now() + Math.random().toString(36).substring(2,7);
+              data.isDeleted = false;
+              newId = await this.db[config.dbTableKey].add(data);
+          } else {
+              await this.db[config.dbTableKey].update(this.currentCreateFormContext.id, data);
+          }
+          return { newId }; 
+      },
+
+      _handleFormSubmissionSuccess(result, config, itemType) {
+          const { newId } = result;
+          this.showTopNotification(`${config.capital} ${this.currentCreateFormContext.isCreating ? 'created' : 'updated'}!`, 'success');
+          this.createItemFormData = {}; 
+          
+          let targetScreen = this.currentCreateFormContext.originScreen;
+          const navOptions = { itemId: newId, itemType };
+
+          if (targetScreen === config.profileScreen && !this.currentCreateFormContext.isCreating) {
+          } else if (targetScreen === this.CONSTANTS.VIEWS.STORY_PROFILE) {
+              navOptions.storyId = this.currentStoryId;
+          } else if (Object.values(this.CONSTANTS.CONTEXTUAL_MENU_VIEWS).includes(targetScreen)) {
+              targetScreen = this.CONSTANTS.VIEWS.STORYBOARD; 
+          } else { 
+              targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
+              navOptions.preSelectedAiCharacterId = this.currentCreateFormContext.preSelectedAiCharacterId;
+              navOptions.preSelectedUserCharacterId = this.currentCreateFormContext.preSelectedUserCharacterId;
+              navOptions.preSelectedWorldId = this.currentCreateFormContext.preSelectedWorldId;
+              if (this.currentCreateFormContext.isCreating) { 
+                  if (itemType === 'character') {
+                      if (this.currentCreateFormContext.forAiCharacter) navOptions.preSelectedAiCharacterId = newId;
+                      else if (this.currentCreateFormContext.forUserCharacter) navOptions.preSelectedUserCharacterId = newId;
+                  } else if (itemType === 'world') {
+                      navOptions.preSelectedWorldId = newId;
+                  }
+              }
+          }
+          this.switchToScreen(targetScreen, navOptions);
+          
+          if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_INTERFACE && newId && itemType === 'character') {
+              this.db.characters.get(newId).then(currentCharacterFromDb => {
+                  if (this.currentAiCharacterId === newId) { 
+                      this._updateTopBarCharacterInfo('ai', currentCharacterFromDb); 
+                      this._loadCharacterImageToSidePanel('ai', currentCharacterFromDb); 
+                  }
+                  if (this.currentUserCharacterId === newId) { 
+                      this._updateTopBarCharacterInfo('user', currentCharacterFromDb); 
+                      this._loadCharacterImageToSidePanel('user', currentCharacterFromDb); 
+                  }
+              });
+          }
+      },
+
+      _attachAiHelperHandlers(elements, itemType) {
+          const { config, form } = elements;
+
+          // AI helper buttons for textareas
+          form.querySelectorAll('button[data-buttontype="ai-fill"]').forEach(button => {
+              button.onclick = (e) => {
+                  const textarea = e.target.previousElementSibling;
+                  const hasText = textarea.value.trim() !== '';
+                  this._handleAiCoWriter(button, itemType, hasText, textarea);
+              };
+          });
+
+          // Summarize button
+          const summarizeBtn = form.querySelector(`#summarizeBtn${config.capital}`);
+          if(summarizeBtn) {
+              summarizeBtn.onclick = () => this._handleSummarize(summarizeBtn, itemType);
+          }
+      },
+
+      _attachTextareaHandlers(elements) {
+          const { form } = elements;
+
+          // Dynamic AI button text updates based on textarea content
           form.querySelectorAll('textarea').forEach(textarea => {
               textarea.addEventListener('input', (e) => {
                   const aiButton = e.target.nextElementSibling;
@@ -3493,18 +3795,6 @@ const App = {
                   }
               });
           });
-
-          form.querySelectorAll('button[data-buttontype="ai-fill"]').forEach(button => {
-              button.onclick = (e) => {
-                  const textarea = e.target.previousElementSibling;
-                  const hasText = textarea.value.trim() !== '';
-                  this._handleAiCoWriter(button, itemType, hasText, textarea);
-              };
-          });
-          const summarizeBtn = form.querySelector(`#summarizeBtn${config.capital}`);
-          if(summarizeBtn) summarizeBtn.onclick = () => this._handleSummarize(summarizeBtn, itemType);
-
-          this.checkAllButtonStates(); 
       },
 
 
@@ -3516,11 +3806,11 @@ const App = {
       
           const promptInput = overlayElement.querySelector(`#avatarPromptInputForm-${itemType}`);
           const previewArea = overlayElement.querySelector(`#avatarPreviewAreaForm-${itemType}`);
-          const useBtn = overlayElement.querySelector(`#useAvatarBtnForm-${itemType}`);
-          const aiHelpBtn = overlayElement.querySelector(`#aiHelpAvatarPromptBtn-${itemType}`);
-      
-          if(useBtn) useBtn.disabled = true;
-          if(aiHelpBtn) aiHelpBtn.disabled = false; 
+                const useButton = overlayElement.querySelector(`#useAvatarBtnForm-${itemType}`);
+      const aiHelpButton = overlayElement.querySelector(`#aiHelpAvatarPromptBtn-${itemType}`);
+  
+            if(useButton) useButton.disabled = true;
+      if(aiHelpButton) aiHelpButton.disabled = false; 
       
           promptInput.value = ''; 
           previewArea.innerHTML = '<span class="opacity-50 text-sm">Preview Area</span>';
@@ -3592,8 +3882,8 @@ const App = {
                previewArea.innerHTML = '<span class="opacity-50 text-sm">Preview Area</span>'; 
                previewArea.classList.remove('has-image');
           }
-          const useBtn = overlayElement.querySelector('[id^="useAvatarBtnForm-"]');
-          if(useBtn) useBtn.disabled = true;
+                const useButton = overlayElement.querySelector('[id^="useAvatarBtnForm-"]');
+      if(useButton) useButton.disabled = true;
           this.checkAllButtonStates();
       },
       
@@ -3613,11 +3903,11 @@ const App = {
   
       async handleGenerateAvatarSmart(overlayElement, itemType, currentPromptText) {
           const previewArea = overlayElement.querySelector(`#avatarPreviewAreaForm-${itemType}`);
-          const genBtn = overlayElement.querySelector(`#generateAvatarBtnForm-${itemType}`);
-          const useBtn = overlayElement.querySelector(`#useAvatarBtnForm-${itemType}`);
-          const avatarPromptInput = overlayElement.querySelector(`#avatarPromptInputForm-${itemType}`);
-          const closeBtn = overlayElement.querySelector(`#closeAvatarBtnForm-${itemType}`);
-          const aiHelpBtn = overlayElement.querySelector(`#aiHelpAvatarPromptBtn-${itemType}`);
+                const generateButton = overlayElement.querySelector(`#generateAvatarBtnForm-${itemType}`);
+      const useButton = overlayElement.querySelector(`#useAvatarBtnForm-${itemType}`);
+      const avatarPromptInput = overlayElement.querySelector(`#avatarPromptInputForm-${itemType}`);
+      const closeButton = overlayElement.querySelector(`#closeAvatarBtnForm-${itemType}`);
+      const aiHelpButton = overlayElement.querySelector(`#aiHelpAvatarPromptBtn-${itemType}`);
           
           const finalPrompt = currentPromptText.trim(); 
           if (!finalPrompt) {
@@ -3631,9 +3921,9 @@ const App = {
               return; 
           }
   
-          previewArea.innerHTML = '<div class="spinner"></div><p style="font-size:0.8em; margin-top:0.5em; opacity:0.7;">Generating...</p>';
-          previewArea.classList.remove('has-image');
-          if (useBtn) useBtn.disabled = true;
+                previewArea.innerHTML = '<div class="spinner"></div><p style="font-size:0.8em; margin-top:0.5em; opacity:0.7;">Generating...</p>';
+      previewArea.classList.remove('has-image');
+      if (useButton) useButton.disabled = true;
           
           console.log('RPGlitch is sending this prompt to textToImagePlugin:', finalPrompt); 
   
@@ -3645,8 +3935,8 @@ const App = {
                   result.canvas.style.objectFit = 'contain';
                   previewArea.appendChild(result.canvas); 
                   previewArea.classList.add('has-image');
-                  this.currentGeneratedAvatarDataUrl = result.canvas.toDataURL('image/png'); 
-                  if (useBtn) useBtn.disabled = false;
+                                this.currentGeneratedAvatarDataUrl = result.canvas.toDataURL('image/png'); 
+              if (useButton) useButton.disabled = false;
               } else {
                   previewArea.innerHTML = '<p style="color:var(--danger-bg);">Failed to generate image.</p>';
                   this.showTopNotification("Image generation failed.", "error");
@@ -3667,7 +3957,7 @@ const App = {
                }
           }
           
-          await this._manageAiButtonState(genBtn, {
+          await this._manageAiButtonState(generateButton, {
               actionAsyncFn: (params, signal) => new Promise((resolve, reject) => {
                   const onFinish = (res) => signal?.aborted ? reject(new Error("Cancelled")) : resolve(res);
                   const onError = (err) => signal?.aborted ? reject(new Error("Cancelled")) : reject(err);
@@ -3679,8 +3969,8 @@ const App = {
               onError: onErrorCallback,
               isCancellable: true,
               targetTextarea: avatarPromptInput,
-              inputsToDisable: [closeBtn, aiHelpBtn],
-              relatedUseButton: useBtn
+              inputsToDisable: [closeButton, aiHelpButton],
+              relatedUseButton: useButton
           });
       },
       
@@ -3774,6 +4064,7 @@ const App = {
         if (screenId === this.CONSTANTS.VIEWS.CHARACTER_FORM || screenId === this.CONSTANTS.VIEWS.WORLD_FORM) {
             this.currentCreateFormContext.originScreen = options.originScreen || oldScreen || this.CONSTANTS.VIEWS.STORYBOARD;
             this.currentCreateFormContext.itemId = options.itemId; 
+            this.currentCreateFormContext.isCreating = !!options.isCreating;
             if (options.isCreating) {
                 if (Object.keys(this.createItemFormData).length === 0 && (!options.formData || Object.keys(options.formData).length === 0)) {
                     this.createItemFormData = { name: '', isPremade: false, originalPremadeId: null };
@@ -3867,6 +4158,24 @@ const App = {
                   panel.style.backgroundImage = `url('${this.sanitizeHtml(characterData.avatar)}')`;
                   // Add the slide-in class
                   panel.classList.add('visible'); 
+                  
+                  // Apply color palette if available
+                  if (characterData.colorPalette && this.CONSTANTS.COLOR_PALETTES[characterData.colorPalette]) {
+                      const palette = this.CONSTANTS.COLOR_PALETTES[characterData.colorPalette];
+                      panel.style.setProperty('--panel-color-light', palette.colors.light);
+                      panel.style.setProperty('--panel-color-medium', palette.colors.medium);
+                      panel.style.setProperty('--panel-color-dark', palette.colors.dark);
+                      panel.style.setProperty('--panel-color-neutral', palette.colors.neutral);
+                      // Add a subtle border accent
+                      panel.style.borderColor = palette.colors.medium;
+                  } else {
+                      // Clear color variables if no palette
+                      panel.style.removeProperty('--panel-color-light');
+                      panel.style.removeProperty('--panel-color-medium');
+                      panel.style.removeProperty('--panel-color-dark');
+                      panel.style.removeProperty('--panel-color-neutral');
+                      panel.style.borderColor = '';
+                  }
               } else {
                   panel.style.backgroundImage = '';
                   panel.classList.remove('visible'); 
@@ -3941,15 +4250,15 @@ const App = {
               return;
           }
       
-          let concludeBtn;
+          let concludeButton;
           if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_INTERFACE) {
-              concludeBtn = this.ui.concludeStoryChatBtn;
+              concludeButton = this.ui.concludeStoryChatBtn;
           } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE) {
-              concludeBtn = this.ui.storyProfileScreen.querySelector('#concludeStoryBtnStoryProfile');
+              concludeButton = this.ui.storyProfileScreen.querySelector('#concludeStoryBtnStoryProfile');
           }
-          if (!concludeBtn) concludeBtn = this.ui.concludeStoryChatBtn;
+          if (!concludeButton) concludeButton = this.ui.concludeStoryChatBtn;
       
-          await this._manageAiButtonState(concludeBtn, {
+          await this._manageAiButtonState(concludeButton, {
               actionAsyncFn: async (params, signal) => {
                   const { storyId } = params;
                   const currentStory = await this.db.stories.get(storyId);
@@ -4599,6 +4908,11 @@ const App = {
               cardEl.innerHTML = `Select ${selectType}`;
               cardEl.onclick = null;
               cardEl.style.backgroundImage = ''; // Clear background image
+              // Clear color palette variables
+              cardEl.style.removeProperty('--card-color-light');
+              cardEl.style.removeProperty('--card-color-medium');
+              cardEl.style.removeProperty('--card-color-dark');
+              cardEl.style.removeProperty('--card-color-neutral');
               return;
           }
           cardEl.className = 'story-board-ingredient-card';
@@ -4606,6 +4920,21 @@ const App = {
           const isActuallyPremade = (typeof item.id === 'string' && item.id.startsWith('premade_')) || item.isPremade;
       
           const avatarUrl = this.sanitizeHtml(item.avatar || '');
+          
+          // Apply color palette CSS variables if available
+          if (item.colorPalette && this.CONSTANTS.COLOR_PALETTES[item.colorPalette]) {
+              const palette = this.CONSTANTS.COLOR_PALETTES[item.colorPalette];
+              cardEl.style.setProperty('--card-color-light', palette.colors.light);
+              cardEl.style.setProperty('--card-color-medium', palette.colors.medium);
+              cardEl.style.setProperty('--card-color-dark', palette.colors.dark);
+              cardEl.style.setProperty('--card-color-neutral', palette.colors.neutral);
+          } else {
+              // Clear color palette variables if no palette
+              cardEl.style.removeProperty('--card-color-light');
+              cardEl.style.removeProperty('--card-color-medium');
+              cardEl.style.removeProperty('--card-color-dark');
+              cardEl.style.removeProperty('--card-color-neutral');
+          }
           
           // Render content over the background image, ensuring the image panel is always present
           cardEl.innerHTML = `
@@ -4784,14 +5113,28 @@ const App = {
       },
       
       async _manageAiButtonState(button, config) {
-          // --- 1. Defensive Checks ---
+          // Phase 1: Validation
+          const buttonId = this._validateAiButtonState(button, config);
+          if (!buttonId) return;
+
+          // Phase 2: State Setup  
+          const originalState = this._setupAiButtonState(button, buttonId, config);
+
+          // Phase 3: Apply Busy UI
+          this._applyAiButtonBusyUI(button, originalState, config);
+
+          // Phase 4: Execute Action
+          await this._executeAiButtonAction(button, buttonId, originalState, config);
+      },
+
+      _validateAiButtonState(button, config) {
           if (!button) {
               console.warn("_manageAiButtonState called with a null button.");
-              return;
+              return null;
           }
           if (!config || typeof config.actionAsyncFn !== 'function') {
               console.error("_manageAiButtonState requires a configuration object with an 'actionAsyncFn'.", { button, config });
-              return;
+              return null;
           }
       
           const buttonId = button.id || `ai-btn-${Math.random().toString(36).substring(7)}`;
@@ -4799,10 +5142,13 @@ const App = {
       
           if (this.activeAiButtons.has(buttonId)) {
               console.warn("This AI button is already processing:", buttonId);
-              return;
+              return null;
           }
-      
-          // --- 2. State Setup ---
+
+          return buttonId;
+      },
+
+      _setupAiButtonState(button, buttonId, config) {
           const localAbortController = new AbortController();
           const originalState = {
               originalHTML: button.innerHTML,
@@ -4817,14 +5163,18 @@ const App = {
           if (config.relatedUseButton && !originalState.inputsToDisable.includes(config.relatedUseButton)) {
               originalState.inputsToDisable.push(config.relatedUseButton);
           }
+          
           this.activeAiButtons.set(buttonId, originalState);
-      
-          // --- 3. Apply Busy/Cancellable UI State ---
+          return originalState;
+      },
+
+      _applyAiButtonBusyUI(button, originalState, config) {
+          // Apply button styling
           originalState.originalClasses.forEach(c => button.classList.remove(c));
           button.classList.add('cancel-ai-button', 'ai-active');
           button.disabled = false;
           
-          // Handle inline positioning for AI buttons - keep them in their original position
+          // Handle inline positioning for AI buttons
           if (config.buttonPosition === 'inline') {
               button.style.position = 'static';
               button.style.transform = 'none';
@@ -4835,16 +5185,16 @@ const App = {
               button.style.zIndex = 'auto';
           }
           
-          // Only disable the specific form field wrapper, not all AI buttons
+          // Apply wrapper styling
           const formFieldWrapper = button.closest('.form-field-wrapper');
           if (formFieldWrapper) formFieldWrapper.classList.add('ai-busy');
           
-          // Show status message if provided
+          // Show status message
           if (config.statusMessage) {
               this._setAiIsTyping(true, config.statusMessage);
           }
           
-          // Apply busy state to inputs - only disable the specific inputs, not all AI buttons
+          // Disable related inputs
           if (originalState.inputsToDisable) {
               originalState.inputsToDisable.forEach(input => {
                   if (input) {
@@ -4855,39 +5205,42 @@ const App = {
                   }
               });
           }
-        
+
+          // Setup cancellable timer if needed
+          if (config.isCancellable) {
+              this._setupAiButtonCancelTimer(button, originalState);
+          }
+
+          // Setup cancel click handler
+          button.onclick = (e) => {
+              if (e) e.stopPropagation();
+              originalState.abortController.abort();
+          };
+
+          this.checkAllButtonStates();
+      },
+
+      _setupAiButtonCancelTimer(button, originalState) {
           let seconds = 0;
           const updateButtonText = () => {
-              if (config.isCancellable) {
-                  button.innerHTML = `<span class="button-text">Cancel (${seconds}s)</span><span class="button-icon">❌</span>`;
-              }
+              button.innerHTML = `<span class="button-text">Cancel (${seconds}s)</span><span class="button-icon">❌</span>`;
               seconds++;
           };
           
-          if (config.isCancellable) {
-              originalState.cancelIntervalId = setInterval(updateButtonText, 1000);
-              updateButtonText(); // Initial call
-          }
-      
-          // The cancel button's only job is to trigger the abort signal.
-          // The 'finally' block will handle all UI cleanup.
-          button.onclick = (e) => {
-              if (e) e.stopPropagation();
-              localAbortController.abort();
-          };
-      
-          this.checkAllButtonStates();
-      
-          // --- 4. Execute Action and Handle Cleanup ---
+          originalState.cancelIntervalId = setInterval(updateButtonText, 1000);
+          updateButtonText(); // Initial call
+      },
+
+      async _executeAiButtonAction(button, buttonId, originalState, config) {
           try {
-              const result = await config.actionAsyncFn(config.paramsForAction, localAbortController.signal);
+              const result = await config.actionAsyncFn(config.paramsForAction, originalState.abortController.signal);
               // Only run success logic if the operation wasn't cancelled.
-              if (!localAbortController.signal.aborted) {
+              if (!originalState.abortController.signal.aborted) {
                   if (config.onSuccess) await config.onSuccess(result);
               }
           } catch (error) {
               // Differentiate between a user cancellation and a genuine error.
-              if (localAbortController.signal.aborted) {
+              if (originalState.abortController.signal.aborted) {
                   console.log(`Operation cancelled by user: ${buttonId}`);
                   if (config.onError) config.onError(new Error("Cancelled"), true);
               } else {
@@ -4912,9 +5265,9 @@ const App = {
               this.ui.concludeStoryChatBtn,
           ];
           // Collect all other message action buttons to disable them
-          document.querySelectorAll('.message-action-button').forEach(btn => {
-              if (btn !== buttonElement) { // Don't disable the button that was clicked
-                  inputsToDisable.push(btn);
+          document.querySelectorAll('.message-action-button').forEach(button => {
+              if (button !== buttonElement) { // Don't disable the button that was clicked
+                  inputsToDisable.push(button);
               }
           });
           
@@ -5011,10 +5364,10 @@ const App = {
           if (storyProfileScreen && !storyProfileScreen.classList.contains('hidden') && this.currentStoryId) {
               this.db.stories.get(this.currentStoryId).then(story => {
                   if (story) {
-                      const concludeBtnStoryProfile = storyProfileScreen.querySelector('#concludeStoryBtnStoryProfile');
+                      const concludeButtonStoryProfile = storyProfileScreen.querySelector('#concludeStoryBtnStoryProfile');
                       const resumeChatBtnStoryProfile = storyProfileScreen.querySelector('#openStoryChatBtnStoryProfile');
-                      if (concludeBtnStoryProfile && !this.activeAiButtons.has(concludeBtnStoryProfile.id)) {
-                           concludeBtnStoryProfile.disabled = isAnyAiBusy;
+                      if (concludeButtonStoryProfile && !this.activeAiButtons.has(concludeButtonStoryProfile.id)) {
+                           concludeButtonStoryProfile.disabled = isAnyAiBusy;
                       }
                       if (resumeChatBtnStoryProfile && !this.activeAiButtons.has(resumeChatBtnStoryProfile.id)) {
                            resumeChatBtnStoryProfile.disabled = isAnyAiBusy || (!!this.activeStoryId && this.activeStoryId !== story.id);
@@ -5025,9 +5378,9 @@ const App = {
   
           // Conclude Story Button (in chat interface)
           if (this.ui.concludeStoryChatBtn) {
-              const concludeBtnIsActive = this.activeAiButtons.has(this.ui.concludeStoryChatBtn.id);
-              this.ui.concludeStoryChatBtn.disabled = concludeBtnIsActive ? false : isAnyAiBusy;
-              this.ui.concludeStoryChatBtn.classList.toggle('ai-active', concludeBtnIsActive);
+              const concludeButtonIsActive = this.activeAiButtons.has(this.ui.concludeStoryChatBtn.id);
+              this.ui.concludeStoryChatBtn.disabled = concludeButtonIsActive ? false : isAnyAiBusy;
+              this.ui.concludeStoryChatBtn.classList.toggle('ai-active', concludeButtonIsActive);
               
               const messages = this.ui.messageFeed.querySelectorAll('.message');
               const hasPrologueAndFirstMessage = messages.length >= 2;
@@ -5050,11 +5403,11 @@ const App = {
           }
 
           // Message Action Buttons (Regenerate)
-          document.querySelectorAll('.message-action-button').forEach(btn => {
+          document.querySelectorAll('.message-action-button').forEach(button => {
               // If this specific button is currently managing an AI action, its state is handled by _manageAiButtonState
               // Otherwise, disable it if any other AI operation is busy.
-              if (!this.activeAiButtons.has(btn.id)) {
-                  btn.disabled = isAnyAiBusy;
+              if (!this.activeAiButtons.has(button.id)) {
+                  button.disabled = isAnyAiBusy;
               }
           });
       
@@ -5063,15 +5416,19 @@ const App = {
               const config = this.CONSTANTS.ITEM_CONFIG[itemType];
               const formScreen = document.getElementById(config.formScreen);
               if (formScreen && !formScreen.classList.contains('hidden')) {
-                  const submitBtn = formScreen.querySelector(`#submit${config.capital}BtnMain`);
-                  if (submitBtn && !this.activeAiButtons.has(submitBtn.id)) {
-                      const nameField = itemType === 'character' ? formScreen.querySelector(`#${itemType}NameEditable`) : formScreen.querySelector(`#${itemType}Name`);
+                  const submitButton = formScreen.querySelector(`#submit${config.capital}BtnMain`);
+                  if (submitButton && !this.activeAiButtons.has(submitButton.id)) {
+                      // Support both contentEditable div and plain input for the name field
+                      let nameField = formScreen.querySelector(`#${itemType}NameEditable`);
+                      if (!nameField) {
+                          nameField = formScreen.querySelector(`#${itemType}Name`);
+                      }
                       const isFormValid = (nameField?.value?.trim() || nameField?.textContent?.trim());
-                      submitBtn.disabled = !isFormValid || isAnyAiBusy;
+                      submitButton.disabled = !isFormValid || isAnyAiBusy;
                   }
   
-                  formScreen.querySelectorAll('button.ai-helper-button').forEach(btn => {
-                      if (!this.activeAiButtons.has(btn.id)) btn.disabled = isAnyAiBusy;
+                  formScreen.querySelectorAll('button.ai-helper-button').forEach(button => {
+                      if (!this.activeAiButtons.has(button.id)) button.disabled = isAnyAiBusy;
                   });
                   
                   const avatarOverlay = formScreen.querySelector(`#avatar-overlay-${itemType}`);

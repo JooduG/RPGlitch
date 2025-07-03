@@ -1,0 +1,19 @@
+{
+  "tagName": "BODY",
+  "id": "",
+  "className": "",
+  "textContent": "\n      \n        \n        \n          // document.documentElement.style.height = controlHeightEl.clien",
+  "attributes": [
+    {
+      "name": "style",
+      "value": "overscroll-behavior:none;"
+    }
+  ],
+  "dimensions": {
+    "width": 1650,
+    "height": 893,
+    "top": 0,
+    "left": 0
+  },
+  "innerHTML": "\n      \n        <!-- <div id=\"controlHeightEl\" style=\"height:100vh; width:0px; position: absolute;\"></div> -->\n        <script>\n          // document.documentElement.style.height = controlHeightEl.clientHeight+\"px\";\n          \n          window.advertHeight = window.innerWidth > 700 ? 90 : 50; \n\n          // document.documentElement.style.height = `height:calc(100lvh + var(--menu-bar-height) + 1px)`;\n          // function updateMainElHeight() {\n          //   document.querySelector(\"#editorEl #ma"
+}

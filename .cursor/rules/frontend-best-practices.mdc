@@ -1,11 +1,8 @@
 ---
-description: 
 globs: **/*.js, **/*.jsx, **/*.ts, **/*.tsx, **/*.css, **/*.html
 alwaysApply: false
 ---
 # Frontend Best Practices
-
-globs: ["**/*.js, **/*.jsx, **/*.ts, **/*.tsx, **/*.css, **/*.html"]
 
 ## React Development
 

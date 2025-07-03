@@ -1,18 +1,7 @@
 ---
-description: 
 globs: **/*.mdc
 alwaysApply: false
 ---
-description: Guidelines and best practices for creating effective Cursor rule files (.mdc) to guide Cursor's behavior, knowledge, and workflows.
-author: Your Name/Handle
-version: 1.0
-# Globs can specify file patterns where this rule is particularly relevant.
-# Cursor might use this to prioritize or activate rules.
-globs: ["**/*.mdc"]
-# Tags can help categorize rules.
-tags: ["meta", "guideline", "cursor-rules", "documentation", "best-practices"]
----
-
 # Writing Effective .cursorrules
 
 Effective `.cursorrules` are the cornerstone of Cursor's tailored assistance. They guide Cursor's behavior, provide context, and define workflows. This document outlines best practices for creating powerful and understandable rules, ensuring they effectively direct Cursor.

@@ -1,0 +1,51 @@
+{
+  "tagName": "IFRAME",
+  "id": "outputIframeEl",
+  "className": "",
+  "textContent": "",
+  "attributes": [
+    {
+      "name": "id",
+      "value": "outputIframeEl"
+    },
+    {
+      "name": "src",
+      "value": "https://7d04e4c7fd9f5a4ad15312cfe378cba0.perchance.org/rpglitch?__initWithDataFromParentWindow=1#edit"
+    },
+    {
+      "name": "fetchpriority",
+      "value": "high"
+    },
+    {
+      "name": "style",
+      "value": "user-select:none;"
+    },
+    {
+      "name": "allowfullscreen",
+      "value": ""
+    },
+    {
+      "name": "webkitallowfullscreen",
+      "value": ""
+    },
+    {
+      "name": "mozallowfullscreen",
+      "value": ""
+    },
+    {
+      "name": "allow",
+      "value": "fullscreen; clipboard-write; display-capture; camera; microphone; bluetooth; ambient-light-sensor; accelerometer; encrypted-media; gamepad; geolocation; gyroscope; hid; idle-detection; magnetometer; midi; picture-in-picture; screen-wake-lock; serial; speaker-selection; usb; web-share; window-management; xr-spatial-tracking"
+    },
+    {
+      "name": "sandbox",
+      "value": "allow-popups allow-popups-to-escape-sandbox allow-forms allow-scripts allow-same-origin allow-top-navigation-by-user-activation allow-modals allow-downloads allow-pointer-lock allow-orientation-lock"
+    }
+  ],
+  "dimensions": {
+    "width": 1619.78125,
+    "height": 685.46875,
+    "top": 27,
+    "left": 30.21875
+  },
+  "innerHTML": ""
+}

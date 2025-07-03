@@ -1,16 +1,7 @@
 ---
-description: Memory Context - When usage exceeds 60% of available context, initiate proactive context management
-globs: 
+description: Memory Context - When usage exceeds 60% of available context, initiate proactive context management 
 alwaysApply: false
 ---
----
-description: Workflow for managing context when context window reaches 60%
-author: Cursor
-version: 1.0
-tags: ["context-management", "session-management"]
-globs: ["*"]
----
-
 # Context Management Strategy
 
 ## ⚠️ CRITICAL: Context Window Monitoring ⚠️

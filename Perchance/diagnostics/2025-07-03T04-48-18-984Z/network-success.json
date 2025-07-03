@@ -1,0 +1,308 @@
+[
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/cv?generatorName=rpglitch&isFromEmbed=0&__cacheBust=0.8477443457607563",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "",
+    "timestamp": 1751516138845
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/cv?generatorName=rpglitch&isFromEmbed=0&__cacheBust=0.1261204334018069",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "",
+    "timestamp": 1751516151235
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/api/checkUserVerificationStatus?userKey=66aaf02267b259fe5fab5a0e27c59443b871897af6628787200c0eed8d61c7b7&__cacheBust=0.37560929547145605",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"verified\"}",
+    "timestamp": 1751516151238
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/getCommunityData",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"success\",\"data\":{\"lastPost\":{\"secondsAgo\":36247.105,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},\"posts\":[{\"secondsAgo\":36247.105,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},{\"secondsAgo\":57850.319,\"title\":\"Multiple Characters, Different Attributes\"},{\"secondsAgo\":76337.974,\"title\":\"Why blue username is hard to get?\"},{\"secondsAgo\":169451.923,\"title\":\"How to replicate this specific artstyle from the old image generator?\"},{\"secondsAgo\":265566.043,\"title\":\"[bug] AI chat bot down\"},{\"secondsAgo\":334333.92,\"title\":\"How to import using plain JS?\"},{\"secondsAgo\":359664.92,\"title\":\"Dialogue popups broke the site for me\"},{\"secondsAgo\":361827.064,\"title\":\"New Here - Question About Brackets\"},{\"secondsAgo\":387660.142,\"title\":\"[bug] unstable pfp\"}]}}",
+    "timestamp": 1751516199069
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/api/checkUserVerificationStatus?userKey=66aaf02267b259fe5fab5a0e27c59443b871897af6628787200c0eed8d61c7b7&__cacheBust=0.4131688170437582",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"verified\"}",
+    "timestamp": 1751516272438
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/getCommunityData",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"success\",\"data\":{\"lastPost\":{\"secondsAgo\":36368.077,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},\"posts\":[{\"secondsAgo\":36368.077,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},{\"secondsAgo\":57971.291,\"title\":\"Multiple Characters, Different Attributes\"},{\"secondsAgo\":76458.946,\"title\":\"Why blue username is hard to get?\"},{\"secondsAgo\":169572.895,\"title\":\"How to replicate this specific artstyle from the old image generator?\"},{\"secondsAgo\":265687.015,\"title\":\"[bug] AI chat bot down\"},{\"secondsAgo\":334454.892,\"title\":\"How to import using plain JS?\"},{\"secondsAgo\":359785.892,\"title\":\"Dialogue popups broke the site for me\"},{\"secondsAgo\":361948.036,\"title\":\"New Here - Question About Brackets\"},{\"secondsAgo\":387781.114,\"title\":\"[bug] unstable pfp\"}]}}",
+    "timestamp": 1751516319066
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/api/checkUserVerificationStatus?userKey=66aaf02267b259fe5fab5a0e27c59443b871897af6628787200c0eed8d61c7b7&__cacheBust=0.6927276517746866",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"verified\"}",
+    "timestamp": 1751516393800
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/getCommunityData",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"success\",\"data\":{\"lastPost\":{\"secondsAgo\":36489.129,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},\"posts\":[{\"secondsAgo\":36489.129,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},{\"secondsAgo\":58092.343,\"title\":\"Multiple Characters, Different Attributes\"},{\"secondsAgo\":76579.998,\"title\":\"Why blue username is hard to get?\"},{\"secondsAgo\":169693.947,\"title\":\"How to replicate this specific artstyle from the old image generator?\"},{\"secondsAgo\":265808.067,\"title\":\"[bug] AI chat bot down\"},{\"secondsAgo\":334575.944,\"title\":\"How to import using plain JS?\"},{\"secondsAgo\":359906.944,\"title\":\"Dialogue popups broke the site for me\"},{\"secondsAgo\":362069.088,\"title\":\"New Here - Question About Brackets\"},{\"secondsAgo\":387902.166,\"title\":\"[bug] unstable pfp\"}]}}",
+    "timestamp": 1751516439080
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/api/checkUserVerificationStatus?userKey=66aaf02267b259fe5fab5a0e27c59443b871897af6628787200c0eed8d61c7b7&__cacheBust=0.4017948798420724",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"verified\"}",
+    "timestamp": 1751516514483
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/getCommunityData",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"success\",\"data\":{\"lastPost\":{\"secondsAgo\":36610.088,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},\"posts\":[{\"secondsAgo\":36610.088,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},{\"secondsAgo\":58213.302,\"title\":\"Multiple Characters, Different Attributes\"},{\"secondsAgo\":76700.957,\"title\":\"Why blue username is hard to get?\"},{\"secondsAgo\":169814.906,\"title\":\"How to replicate this specific artstyle from the old image generator?\"},{\"secondsAgo\":265929.026,\"title\":\"[bug] AI chat bot down\"},{\"secondsAgo\":334696.903,\"title\":\"How to import using plain JS?\"},{\"secondsAgo\":360027.903,\"title\":\"Dialogue popups broke the site for me\"},{\"secondsAgo\":362190.047,\"title\":\"New Here - Question About Brackets\"},{\"secondsAgo\":388023.125,\"title\":\"[bug] unstable pfp\"}]}}",
+    "timestamp": 1751516559075
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/count?keys=abpsgp",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "",
+    "timestamp": 1751516599847
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/api/checkUserVerificationStatus?userKey=66aaf02267b259fe5fab5a0e27c59443b871897af6628787200c0eed8d61c7b7&__cacheBust=0.6976128095342709",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"verified\"}",
+    "timestamp": 1751516635137
+  },
+  {
+    "type": "network-request",
+    "url": "https://editor-copilot.perchance.org/api/autocomplete",
+    "method": "POST",
+    "status": 200,
+    "requestBody": "{\"prefix\":\"  \\n                    if (aiHelpAvatarBtn && !this.activeAiButtons.has(aiHelpAvatarBtn.id)) aiHelpAvatarBtn.disabled = isAnyAiBusy;\\n                    if (genAvatarBtn && !this.activeAiButtons.has(genAvatarBtn.id)) genAvatarBtn.disabled = !avatarPromptInput?.value.trim() || isAnyAiBusy;\\n                    if (useAvatarBtn && !this.activeAiButtons.has(useAvatarBtn.id)) useAvatarBtn.disabled = !this.currentGeneratedAvatarDataUrl || isAnyAiBusy;\\n                  }\\n              }\\n          });\\n... (truncated)\",\"suffix\":\"\",\"contentType\":\"outputTemplate\",\"generatorName\":\"rpglitch\"}",
+    "responseBody": "\n</body>\n</html>",
+    "timestamp": 1751516677880
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/getGeneratorsAndDependencies",
+    "method": "POST",
+    "status": 200,
+    "requestBody": "{\"generatorNames\":[\"ai-character-chat-dependencies-v1\",\"ai-text-plugin\",\"remember-plugin\",\"super-fetch-plugin\",\"text-to-image-plugin\"],\"generatorNameToLastKnownEditTime\":{\"ai-character-chat-dependencies-v1\":1740864816496,\"ai-text-plugin\":1741770056107,\"remember-plugin\":1700453573480,\"super-fetch-plugin\":1749986362487,\"text-to-image-plugin\":1750481947701}}",
+    "responseBody": "{\"status\":\"success\",\"dataAlreadyUpToDate\":true}",
+    "timestamp": 1751516678048
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/cdn-cgi/challenge-platform/h/g/jsd/r/0.11309555782248651:1751501597:bNT8D9RZ5BQhBkz1Mw1QLYsZdATAzm3fDQd1KKO6SWk/95939d59b9c5f327",
+    "method": "POST",
+    "status": 200,
+    "requestBody": "AVK-DtqlDMKDn6+q5qLIG-tBICiIw0wSStlqPxI3HBeHOKIv3Rp+HMqUIn5K2sVVIC$SI1ISBSKqIuSqc+F-$MVgdm-3HXViCZUL6AItTqXIGKI6WStpI-Qn5VvI1-t5T-qVCuIkHVnLxI$X53IqJEIqCW6-WqIIex3V3+LNeqDiGpzSR2iTLKHsIhSqOIg+I1S+MtvJmxD-WKHXUhDSIn9RvOXqYTNIhp0+W-2H0YSIXK0j2+Ma9-6pzSn+i75WDKYv0TrCwPs50TPr$+JDlItnTfsJjINAGKTIi1u+XRlUlMQUbBu2kTdEA7ZGKl$Ds0-qBpV-ID+a5YB-30PC30iIqnVnb9c+rZni-kD-tZs$eald-sa7sQCsAasICOwEYFWwvKTSY3Ik-Bwe8M7CNAQ8pCjw+jBXnXIIDngXpuMGOgWI1Nns099hCIj6t6DkcawBLKVHgkS-Ila0l+E77X+tClxCKI3RQUszDRv9RQczEhzYntFi... (truncated)",
+    "responseBody": "",
+    "timestamp": 1751516678552
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/cdn-cgi/rum?",
+    "method": "POST",
+    "status": 204,
+    "requestBody": "{\"memory\":{\"totalJSHeapSize\":19980295,\"usedJSHeapSize\":15547375,\"jsHeapSizeLimit\":4294705152},\"resources\":[],\"referrer\":\"https://perchance.org/rpglitch\",\"eventType\":1,\"firstPaint\":0,\"firstContentfulPaint\":0,\"startTime\":1751516677877.5,\"versions\":{\"fl\":\"2025.6.2\",\"js\":\"2024.6.1\",\"timings\":2},\"pageloadId\":\"8da4d807-bf2a-4a4f-82f8-2c0b58f23795\",\"location\":\"https://7d04e4c7fd9f5a4ad15312cfe378cba0.perchance.org/rpglitch\",\"nt\":\"navigate\",\"serverTimings\":[{\"name\":\"cfCacheStatus\",\"dur\":0,\"desc\":\"HIT\"},{\"name\":\"cfOrigin\",\"dur\":0,\"desc\":\"\"},{\"name\":\"cfEdge\",\"dur\":15,\"desc\":\"\"}],\"timingsV2\":{\"unloadEventStart\":44.30000001192093,\"unloadEventEnd\":44.30000001192093,\"domInteractive\":211.5999999642372,\"domContentLoadedEventStart\":219,\"domContentLoadedEventEnd\":222.80000001192093,\"domComplete\":223.0999999642372,\"loadEventStart\":223.5,\"loadEventEnd\":223.69999998807907,\"type\":\"navigate\",\"redirectCount\":0,\"criticalCHRestart\":0,\"activationStart\":0,\"initiatorType\":\"navigation\",\"nextHopProtocol\":\"h2\",\"deliveryType\":\"\",\"workerStart\":0,\"redirectStart\":0,\"redirectEnd\":0,\"fetchStart\":0.3999999761581421,\"domainLookupStart\":0.3999999761581421,\"domainLookupEnd\":0.3999999761581421,\"connectStart\":0.3999999761581421,\"connectEnd\":0.3999999761581421,\"secureConnectionStart\":0.3999999761581421,\"requestStart\":2.399999976158142,\"responseStart\":36.09999996423721,\"responseEnd\":62.5,\"transferSize\":359894,\"encodedBodySize\":359594,\"decodedBodySize\":1585405,\"responseStatus\":200,\"firstInterimResponseStart\":0,\"renderBlockingStatus\":\"non-blocking\",\"finalResponseHeadersStart\":36.09999996423721,\"name\":\"https://7d04e4c7fd9f5a4ad15312cfe378cba0.perchance.org/rpglitch?__initWithDataFromParentWindow=1#edit\",\"entryType\":\"navigation\",\"startTime\":0,\"duration\":223.69999998807907},\"dt\":\"\",\"siteToken\":\"fc685cb0ca0145b3acbca350b7d29943\",\"st\":2}",
+    "responseBody": "",
+    "timestamp": 1751516678568
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/getCommunityData",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"success\",\"data\":{\"lastPost\":{\"secondsAgo\":36731.068,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},\"posts\":[{\"secondsAgo\":36731.068,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},{\"secondsAgo\":58334.282,\"title\":\"Multiple Characters, Different Attributes\"},{\"secondsAgo\":76821.937,\"title\":\"Why blue username is hard to get?\"},{\"secondsAgo\":169935.886,\"title\":\"How to replicate this specific artstyle from the old image generator?\"},{\"secondsAgo\":266050.006,\"title\":\"[bug] AI chat bot down\"},{\"secondsAgo\":334817.883,\"title\":\"How to import using plain JS?\"},{\"secondsAgo\":360148.883,\"title\":\"Dialogue popups broke the site for me\"},{\"secondsAgo\":362311.027,\"title\":\"New Here - Question About Brackets\"},{\"secondsAgo\":388144.105,\"title\":\"[bug] unstable pfp\"}]}}",
+    "timestamp": 1751516679073
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/cdn-cgi/rum?",
+    "method": "POST",
+    "status": 204,
+    "requestBody": "{\"memory\":{\"totalJSHeapSize\":98682719,\"usedJSHeapSize\":62035607,\"jsHeapSizeLimit\":4294705152},\"resources\":[],\"referrer\":\"\",\"eventType\":1,\"firstPaint\":0,\"firstContentfulPaint\":0,\"startTime\":1751516678591.7,\"versions\":{\"fl\":\"2025.6.2\",\"js\":\"2024.6.1\",\"timings\":2},\"pageloadId\":\"52429df1-90f5-4151-b008-f51ea28e308a\",\"location\":\"https://text-generation.perchance.org/embed\",\"nt\":\"navigate\",\"serverTimings\":[{\"name\":\"cfCacheStatus\",\"dur\":0,\"desc\":\"HIT\"},{\"name\":\"cfOrigin\",\"dur\":0,\"desc\":\"\"},{\"name\":\"cfEdge\",\"dur\":531,\"desc\":\"\"}],\"timingsV2\":{\"unloadEventStart\":0,\"unloadEventEnd\":0,\"domInteractive\":600.8000000119209,\"domContentLoadedEventStart\":604.3000000119209,\"domContentLoadedEventEnd\":605.3999999761581,\"domComplete\":605.6999999880791,\"loadEventStart\":605.6999999880791,\"loadEventEnd\":605.8000000119209,\"type\":\"navigate\",\"redirectCount\":0,\"criticalCHRestart\":0,\"activationStart\":0,\"initiatorType\":\"navigation\",\"nextHopProtocol\":\"h2\",\"deliveryType\":\"\",\"workerStart\":0,\"redirectStart\":0,\"redirectEnd\":0,\"fetchStart\":2.5,\"domainLookupStart\":2.5,\"domainLookupEnd\":2.5,\"connectStart\":2.5,\"connectEnd\":2.5,\"secureConnectionStart\":2.5,\"requestStart\":4.199999988079071,\"responseStart\":540.6000000238419,\"responseEnd\":541.6000000238419,\"transferSize\":16266,\"encodedBodySize\":15966,\"decodedBodySize\":60911,\"responseStatus\":200,\"firstInterimResponseStart\":0,\"renderBlockingStatus\":\"non-blocking\",\"finalResponseHeadersStart\":540.6000000238419,\"name\":\"https://text-generation.perchance.org/embed\",\"entryType\":\"navigation\",\"startTime\":0,\"duration\":605.8000000119209},\"dt\":\"\",\"siteToken\":\"fc685cb0ca0145b3acbca350b7d29943\",\"st\":2}",
+    "responseBody": "",
+    "timestamp": 1751516679279
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/cdn-cgi/challenge-platform/h/g/jsd/r/0.30517102384353584:1751501599:jH3Fl4ehr2okQdmka1Ars4EJ1OVQB_AcDKZwZVdWp2A/95939d5e3efaf327",
+    "method": "POST",
+    "status": 200,
+    "requestBody": "g4p-uSRouHpuqW6RGRiyZ-Sky$Qy7l7TTSoRMUyhdkJd+pyOhzn6dHRXyqGpwB44y$PTyIyTkTpRyETRA6f-PH4N91-hd84Q$bXiWgyS2R8yZpyWCTSny-YqG4OyI-SG2-R4$Eytd4qiUyP8GhyRrFyR$CW-CRyyJUh4h6iLJRuQZnxTzwQ2ipdByeTR+yN6yIT6HSOr1Uu-Cpd8XeuTyqvzO+8Rm2Lyenl6C-wdlmTy8plKw6Hjv-WnxTq6Q0GCupmOl2c$7MBGl2McP6ruoySq2aBrKyLgZp2yQIE68zoXoHYXDkEwt29Fg0bZpoPuBl-Rkn4-yu6jGmk-hlM$hlQyRq4qDvA6cbqQ-tu-SbBPJjo9-Bj0BY$BgjBy$+7FmfC7Op2Tmhyt-k7JsH0$LgYsn$K76Kk8q8yyuqN8nEHZ+NCyILqBlvve$yKWSWutAj7kip4dNtT-yojlo6F0086S$oU$pyhzYXBxuzOvzYAxFexmqSfQ... (truncated)",
+    "responseBody": "",
+    "timestamp": 1751516679463
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/api/checkUserVerificationStatus?userKey=66aaf02267b259fe5fab5a0e27c59443b871897af6628787200c0eed8d61c7b7&__cacheBust=0.38303544800399714",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"verified\"}",
+    "timestamp": 1751516679467
+  },
+  {
+    "type": "network-request",
+    "url": "https://editor-copilot.perchance.org/api/findBugsInCode",
+    "method": "POST",
+    "status": 200,
+    "requestBody": "{\"code\":\"\\ncreateField = (trait, rows = 4) => {\\n              const id = `${itemType}${trait.charAt(0).toUpperCase() + trait.slice(1)}`;\\n              const label = labels[trait.toLowerCase()];\\n              const placeholder = labels[`${trait.toLowerCase()}Placeholder`];\\n              const value = item?.[trait.toLowerCase()] || '';\\n  \\n              if (isEditing) {\\n                  return `\\n                      <div class=\\\"form-field-group\\\">\\n                          <div class=\\\"field-label\\\">\\n        ... (truncated)\",\"contentType\":\"outputTemplate\",\"generatorName\":\"rpglitch\"}",
+    "responseBody": "[]",
+    "timestamp": 1751516680445
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/save",
+    "method": "POST",
+    "status": 200,
+    "requestBody": "{\"email\":\"johnfrejgranlund@gmail.com\",\"sessionToken\":\"23fGvm68ozLqmSFRuWt9fGddTg90YIqsyvPu0v169srfLy5aG5nlJLti0wOt6BP6qPD6zl1hb0Uvpz1INg7jK5U8GRgU6bGKrifk88hhEZTUHbpufXTzQ24GPl4HHDkQzIvECm45KluZyapRCQcJQFXHK5jCyJb9tBv4T0uO6QhxVMhz0wMGV3NIzvhhRdDXECijKZbp\",\"generator\":{\"name\":\"rpglitch\",\"modelText\":\"loadDependencies = {import:ai-character-chat-dependencies-v1} // dexie.js, dompurify, etc.\\naiTextPlugin = {import:ai-text-plugin}\\ntextToImagePlugin = {import:text-to-image-plugin}\\nsuperFetch = {import:super-fetch-plugin} // <-- to bypass CORs issues in character custom code\\nrememberPlugin = {import:remember-plugin}\\n  \\nasync evaluatePerchanceTextInSandbox(text, opts) =>\\n  if(!opts) opts = {};\\n  let iframe = document.querySelector('#perchanceCodeEvaluationSandboxIframe');\\n  if(!iframe) {\\n    ifram... (truncated)\",\"outputTemplate\":\"<!-- \\n    ========================================\\n    RPGLITCH - PERCHANCE VERSION\\n    ========================================\\n    \\n    Generated: 2025-07-03T04:24:26.098Z\\n    Build Script: build-perchance.js\\n    Platform: Perchance (perchance.org)\\n    \\n    This file combines:\\n    - RPGlitch.html (HTML structure)\\n    - RPGlitch.css (CSS styles)\\n    - RPGlitch.js (JavaScript)\\n    \\n    For development, use the separate files.\\n    For Perchance deployment, use this combined file.\\n    \\n    =======... (truncated)\",\"imports\":[\"ai-character-chat-dependencies-v1\",\"ai-text-plugin\",\"remember-plugin\",\"super-fetch-plugin\",\"text-to-image-plugin\"],\"canLink\":false,\"isPrivate\":true,\"collabEditModeIsEnabled\":false},\"generatorMetaData\":{\"title\":\"RPGlitch\",\"image\":\"\",\"description\":\"RPGlitch\",\"header\":{\"mode\":\"minimal\"}},\"lastKnownSaveTime\":1751514050601}",
+    "responseBody": "{\"status\":\"saved\",\"time\":1751516684411}",
+    "timestamp": 1751516681145
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/securityData",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"spamHostnames\":[\"galaxy-link.space\",\"shrinkme.io\",\"shrinkearn.com\",\"linkvertise.com\",\"clicksfly.com\",\"adfoc.us\",\"adfly.be\",\"shrtfly.com\",\"safelinku.com\",\"fc.lc\",\"adtival.network\",\"snacklink.id\",\"hypershort.com\",\"exe.io\",\"lanza.me\",\"shrinkforearn.in\",\"upshrink.com\",\"gplinks.in\",\"cuty.io\",\"clk.sh\",\"linkslice.io\",\"kyshort.xyz\",\"cutwin.com\",\"shrinkearn.com\",\"linksly.co\",\"megafly.in\",\"clik.asia\",\"oii.io\",\"tfly.link\",\"goo.st\",\"tlin.me\",\"bicolink.net\",\"linkjust.com\",\"cpm.link\",\"1bit.space\",\"mgnet.xyz\",\"doshrink.com\",\"short.pe\",\"clks.pro\",\"karyawan.co.id\",\"clickern.com\",\"clickern.com\",\"pkr.pw\",\"clik.pw\",\"adshnk.com\",\"rplink.in\",\"tei.ai\",\"icutlink.com\",\"iir.ai\",\"shrinkforearn.xyz\",\"shrx.in\",\"kyshort.xyz\",\"fc-lc.com\",\"cutw.in\",\"gplinks.co\",\"icutlink.com\",\"shrinke.me\",\"linksly.co\"]}",
+    "timestamp": 1751516682951
+  },
+  {
+    "type": "network-request",
+    "url": "https://editor-copilot.perchance.org/api/findBugsInCode",
+    "method": "POST",
+    "status": 200,
+    "requestBody": "{\"code\":\"\\nthis.db.version(11).stores({\\n            appState: '&id, activeStoryId',\\n            characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future, colorPalette',\\n            stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld',\\n            messages: '++id, storyId, role, content, timestamp, c... (truncated)\",\"contentType\":\"outputTemplate\",\"generatorName\":\"rpglitch\"}",
+    "responseBody": "[]",
+    "timestamp": 1751516684366
+  },
+  {
+    "type": "network-request",
+    "url": "https://editor-copilot.perchance.org/api/findBugsInCode",
+    "method": "POST",
+    "status": 200,
+    "requestBody": "{\"code\":\"\\nthis.db.version(11).stores({\\n        appState: '&id, activeStoryId',\\n        characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, avatar, description, eternal, past, present, future, colorPalette',\\n        stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, customJs, concluded, concludedTimestamp, summary, storyAiCharacter, storyUserCharacter, storyWorld',\\n        messages: '++id, storyId, role, content, timestamp, characterId, isHi... (truncated)\",\"contentType\":\"outputTemplate\",\"generatorName\":\"rpglitch\"}",
+    "responseBody": "[]",
+    "timestamp": 1751516686370
+  },
+  {
+    "type": "network-request",
+    "url": "https://editor-copilot.perchance.org/api/findBugsInCode",
+    "method": "POST",
+    "status": 200,
+    "requestBody": "{\"code\":\"\\ncolorButtons.forEach(button => {\\n              button.onclick = (e) => {\\n                  e.preventDefault();\\n                  const selectedKey = button.dataset.paletteKey;\\n                  \\n                  // Update selection state\\n                  colorButtons.forEach(btn => btn.classList.remove('selected'));\\n                  button.classList.add('selected');\\n\\n                  // Update form data\\n                  this.createItemFormData.colorPalette = selectedKey;\\n\\n                 ... (truncated)\",\"contentType\":\"outputTemplate\",\"generatorName\":\"rpglitch\"}",
+    "responseBody": "[]",
+    "timestamp": 1751516688391
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/cdn-cgi/rum?",
+    "method": "POST",
+    "status": 204,
+    "requestBody": "{\"memory\":{\"totalJSHeapSize\":19816154,\"usedJSHeapSize\":9179970,\"jsHeapSizeLimit\":4294705152},\"resources\":[],\"referrer\":\"\",\"eventType\":1,\"firstPaint\":0,\"firstContentfulPaint\":0,\"startTime\":1751516690595.7,\"versions\":{\"fl\":\"2025.6.2\",\"js\":\"2024.6.1\",\"timings\":2},\"pageloadId\":\"77a79e66-5fa8-4b49-844a-b514edb90b31\",\"location\":\"https://7d04e4c7fd9f5a4ad15312cfe378cba0.perchance.org/rpglitch\",\"nt\":\"reload\",\"serverTimings\":[{\"name\":\"cfCacheStatus\",\"dur\":0,\"desc\":\"MISS\"},{\"name\":\"cfOrigin\",\"dur\":24,\"desc\":\"\"},{\"name\":\"cfEdge\",\"dur\":350,\"desc\":\"\"}],\"timingsV2\":{\"unloadEventStart\":392.30000001192093,\"unloadEventEnd\":392.30000001192093,\"domInteractive\":809.1999999880791,\"domContentLoadedEventStart\":812.3999999761581,\"domContentLoadedEventEnd\":814.8000000119209,\"domComplete\":815,\"loadEventStart\":815.5,\"loadEventEnd\":815.6999999880791,\"type\":\"reload\",\"redirectCount\":0,\"criticalCHRestart\":0,\"activationStart\":0,\"initiatorType\":\"navigation\",\"nextHopProtocol\":\"h2\",\"deliveryType\":\"\",\"workerStart\":0,\"redirectStart\":0,\"redirectEnd\":0,\"fetchStart\":2.899999976158142,\"domainLookupStart\":2.899999976158142,\"domainLookupEnd\":2.899999976158142,\"connectStart\":2.899999976158142,\"connectEnd\":2.899999976158142,\"secureConnectionStart\":2.899999976158142,\"requestStart\":4.600000023841858,\"responseStart\":382.69999998807907,\"responseEnd\":719,\"transferSize\":362050,\"encodedBodySize\":361750,\"decodedBodySize\":1602426,\"responseStatus\":200,\"firstInterimResponseStart\":0,\"renderBlockingStatus\":\"non-blocking\",\"finalResponseHeadersStart\":382.69999998807907,\"name\":\"https://7d04e4c7fd9f5a4ad15312cfe378cba0.perchance.org/rpglitch?__initWithDataFromParentWindow=1#edit\",\"entryType\":\"navigation\",\"startTime\":0,\"duration\":815.6999999880791},\"dt\":\"\",\"siteToken\":\"fc685cb0ca0145b3acbca350b7d29943\",\"st\":2}",
+    "responseBody": "",
+    "timestamp": 1751516691508
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/cdn-cgi/rum?",
+    "method": "POST",
+    "status": 204,
+    "requestBody": "{\"memory\":{\"totalJSHeapSize\":63509713,\"usedJSHeapSize\":61363097,\"jsHeapSizeLimit\":4294705152},\"resources\":[],\"referrer\":\"\",\"eventType\":1,\"firstPaint\":0,\"firstContentfulPaint\":0,\"startTime\":1751516691717.1,\"versions\":{\"fl\":\"2025.6.2\",\"js\":\"2024.6.1\",\"timings\":2},\"pageloadId\":\"fef9dda9-89bd-4984-8786-30068232db2b\",\"location\":\"https://text-generation.perchance.org/embed\",\"nt\":\"navigate\",\"serverTimings\":[{\"name\":\"cfCacheStatus\",\"dur\":0,\"desc\":\"HIT\"},{\"name\":\"cfOrigin\",\"dur\":0,\"desc\":\"\"},{\"name\":\"cfEdge\",\"dur\":531,\"desc\":\"\"}],\"timingsV2\":{\"unloadEventStart\":0,\"unloadEventEnd\":0,\"domInteractive\":53.19999998807907,\"domContentLoadedEventStart\":58.69999998807907,\"domContentLoadedEventEnd\":60.19999998807907,\"domComplete\":60.39999997615814,\"loadEventStart\":60.5,\"loadEventEnd\":60.59999996423721,\"type\":\"navigate\",\"redirectCount\":0,\"criticalCHRestart\":0,\"activationStart\":0,\"initiatorType\":\"navigation\",\"nextHopProtocol\":\"h2\",\"deliveryType\":\"cache\",\"workerStart\":0,\"redirectStart\":0,\"redirectEnd\":0,\"fetchStart\":2.300000011920929,\"domainLookupStart\":2.300000011920929,\"domainLookupEnd\":2.300000011920929,\"connectStart\":2.300000011920929,\"connectEnd\":2.300000011920929,\"secureConnectionStart\":2.300000011920929,\"requestStart\":3.599999964237213,\"responseStart\":3.899999976158142,\"responseEnd\":4.599999964237213,\"transferSize\":0,\"encodedBodySize\":15966,\"decodedBodySize\":60911,\"responseStatus\":200,\"firstInterimResponseStart\":3.899999976158142,\"renderBlockingStatus\":\"non-blocking\",\"finalResponseHeadersStart\":0,\"name\":\"https://text-generation.perchance.org/embed\",\"entryType\":\"navigation\",\"startTime\":0,\"duration\":60.59999996423721},\"dt\":\"cache\",\"siteToken\":\"fc685cb0ca0145b3acbca350b7d29943\",\"st\":2}",
+    "responseBody": "",
+    "timestamp": 1751516691989
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/cdn-cgi/challenge-platform/h/g/jsd/r/0.30517102384353584:1751501599:jH3Fl4ehr2okQdmka1Ars4EJ1OVQB_AcDKZwZVdWp2A/95939d5e3efaf327",
+    "method": "POST",
+    "status": 200,
+    "requestBody": "g4p-uSRouHpuqW6RGRiyZ-Sky$Qy7l7TTSoRMUyhdkJd+pyOhzn6dHRXyqGpwB44y$PTyIyTkTpRyETRA6f-PH4N91-hd84Q$bXiWgyS2R8yZpyWCTSny-YqG4OyI-SG2-R4$Eytd4qiUyP8GhyRrFyR$CW-CRyyJUh4h6iLJRuQZnxTzwQ2ipdByeTR+yN6yIT6HSOr1Uu-Cpd8XeuTyqvzO+8Rm2Lyenl6C-wdlmTy8plKw6Hjv-WnxTq6Q0GCupmOl2c$7MBGl2McP6ruoySq2aBrKyLgZp2yQIE68zoXoHYXDkEwt29Fg0bZpoPuBl-Rkn4-yu6jGmk-hlM$hlQyRq4qDvA6cbqQ-tu-SbBPJjo9-Bj0BY$BgjBy$+7FmfC7Op2Tmhyt-k7JsH0$LgYsn$K76Kk8q8yyuqN8nEHZ+NCyILqBlvve$yKWSWutAj7kip4dNtT-yojlo6F0086S$oU$pyhzYXBxuzOvzYAxFexmqSfQ... (truncated)",
+    "responseBody": "",
+    "timestamp": 1751516691990
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/api/checkUserVerificationStatus?userKey=66aaf02267b259fe5fab5a0e27c59443b871897af6628787200c0eed8d61c7b7&__cacheBust=0.14971877997686034",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"verified\"}",
+    "timestamp": 1751516692049
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/securityData",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"spamHostnames\":[\"galaxy-link.space\",\"shrinkme.io\",\"shrinkearn.com\",\"linkvertise.com\",\"clicksfly.com\",\"adfoc.us\",\"adfly.be\",\"shrtfly.com\",\"safelinku.com\",\"fc.lc\",\"adtival.network\",\"snacklink.id\",\"hypershort.com\",\"exe.io\",\"lanza.me\",\"shrinkforearn.in\",\"upshrink.com\",\"gplinks.in\",\"cuty.io\",\"clk.sh\",\"linkslice.io\",\"kyshort.xyz\",\"cutwin.com\",\"shrinkearn.com\",\"linksly.co\",\"megafly.in\",\"clik.asia\",\"oii.io\",\"tfly.link\",\"goo.st\",\"tlin.me\",\"bicolink.net\",\"linkjust.com\",\"cpm.link\",\"1bit.space\",\"mgnet.xyz\",\"doshrink.com\",\"short.pe\",\"clks.pro\",\"karyawan.co.id\",\"clickern.com\",\"clickern.com\",\"pkr.pw\",\"clik.pw\",\"adshnk.com\",\"rplink.in\",\"tei.ai\",\"icutlink.com\",\"iir.ai\",\"shrinkforearn.xyz\",\"shrx.in\",\"kyshort.xyz\",\"fc-lc.com\",\"cutw.in\",\"gplinks.co\",\"icutlink.com\",\"shrinke.me\",\"linksly.co\"]}",
+    "timestamp": 1751516696087
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/cv?generatorName=rpglitch&isFromEmbed=1&__cacheBust=0.09886763797289522",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "",
+    "timestamp": 1751516792664
+  },
+  {
+    "type": "network-request",
+    "url": "https://perchance.org/api/getCommunityData",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"success\",\"data\":{\"lastPost\":{\"secondsAgo\":36852.147,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},\"posts\":[{\"secondsAgo\":36852.147,\"title\":\"I should change my favicon to the one the ai suggests, right?\"},{\"secondsAgo\":58455.361,\"title\":\"Multiple Characters, Different Attributes\"},{\"secondsAgo\":76943.016,\"title\":\"Why blue username is hard to get?\"},{\"secondsAgo\":170056.965,\"title\":\"How to replicate this specific artstyle from the old image generator?\"},{\"secondsAgo\":266171.085,\"title\":\"[bug] AI chat bot down\"},{\"secondsAgo\":334938.962,\"title\":\"How to import using plain JS?\"},{\"secondsAgo\":360269.962,\"title\":\"Dialogue popups broke the site for me\"},{\"secondsAgo\":362432.106,\"title\":\"New Here - Question About Brackets\"},{\"secondsAgo\":388265.184,\"title\":\"[bug] unstable pfp\"}]}}",
+    "timestamp": 1751516799066
+  },
+  {
+    "type": "network-request",
+    "url": "https://text-generation.perchance.org/api/checkUserVerificationStatus?userKey=66aaf02267b259fe5fab5a0e27c59443b871897af6628787200c0eed8d61c7b7&__cacheBust=0.7127308032263896",
+    "method": "GET",
+    "status": 200,
+    "requestBody": "",
+    "responseBody": "{\"status\":\"verified\"}",
+    "timestamp": 1751516812548
+  }
+]

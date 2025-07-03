@@ -6,8 +6,9 @@ const path = require('path');
 /**
  * RPGlitch Perchance Build Script
  * 
- * This script combines the separate RPGlitch files into a single file
- * ready for deployment to the Perchance platform.
+ * This script combines the separate RPGlitch files into two outputs:
+ * 1. RPGlitch-perchance.html: For deploying to the Perchance platform.
+ * 2. RPGlitch-offline.html: For local testing in a browser.
  * 
  * Development follows the comprehensive rules system:
  * - plan-act-mode.mdc: Mode control for development tasks
@@ -20,44 +21,22 @@ const path = require('path');
  * Usage: node build-perchance.js
  */
 
-function buildPerchanceFile() {
-    console.log('🚀 Building RPGlitch for Perchance...\n');
-    
-    const buildDir = path.join(__dirname, 'build');
-    const outputFile = path.join(buildDir, 'RPGlitch-perchance.html');
-    
-    // Ensure build directory exists
-    if (!fs.existsSync(buildDir)) {
-        fs.mkdirSync(buildDir, { recursive: true });
-        console.log('📁 Created build directory');
-    }
-    
-    // Define the files to combine (in order)
-    const files = [
-        { 
-            name: 'RPGlitch/RPGlitch.html', 
-            type: 'html',
-            description: 'Main HTML structure'
-        },
-        { 
-            name: 'RPGlitch/RPGlitch.css', 
-            type: 'style',
-            description: 'CSS styles'
-        },
-        { 
-            name: 'RPGlitch/RPGlitch.js', 
-            type: 'script',
-            description: 'JavaScript logic'
-        }
-    ];
-    
+const SOURCE_FILES = [
+    { name: 'RPGlitch/RPGlitch.html', type: 'html', description: 'Main HTML structure' },
+    { name: 'RPGlitch/RPGlitch.css', type: 'style', description: 'CSS styles' },
+    { name: 'RPGlitch/RPGlitch.js', type: 'script', description: 'JavaScript logic' }
+];
+
+/**
+ * Combines the HTML, CSS, and JS source files into a single string for the 'right panel'.
+ * @returns {string|null} The combined content, or null if an error occurs.
+ */
+function getCombinedRightPanelContent() {
     let combinedContent = '';
     let hasErrors = false;
-    
-    // Process each file
-    files.forEach((file, index) => {
+
+    SOURCE_FILES.forEach(file => {
         const filePath = path.join(__dirname, file.name);
-        
         try {
             if (!fs.existsSync(filePath)) {
                 throw new Error(`File not found: ${file.name}`);
@@ -66,13 +45,14 @@ function buildPerchanceFile() {
             const content = fs.readFileSync(filePath, 'utf8').trim();
             console.log(`✅ Read ${file.name} (${content.length} characters)`);
 
-            combinedContent += `\n<!-- ======================================== -->\n`;
-            combinedContent += `<!-- ${file.description.toUpperCase()} -->\n`;
-            combinedContent += `<!-- ======================================== -->\n\n`;
+            if(file.type !== 'html') { // Add separators for non-html sections for clarity
+              combinedContent += `\n<!-- ======================================== -->\n`;
+              combinedContent += `<!-- ${file.description.toUpperCase()} -->\n`;
+              combinedContent += `<!-- ======================================== -->\n\n`;
+            }
 
             switch(file.type) {
                 case 'html':
-                    // Remove all <script ...>...</script> and <link ...> tags from HTML
                     let htmlContent = content.replace(/<script[^>]*>[\s\S]*?<\/script>/gim, '').trim();
                     htmlContent = htmlContent.replace(/<link[^>]*>/gim, '').trim();
                     combinedContent += htmlContent;
@@ -89,42 +69,111 @@ function buildPerchanceFile() {
             hasErrors = true;
         }
     });
+
+    return hasErrors ? null : combinedContent;
+}
+
+/**
+ * Builds the single file for Perchance.org deployment.
+ */
+function buildPerchanceFile() {
+    console.log('🚀 Building RPGlitch for Perchance...');
     
-    if (hasErrors) {
-        console.error('\n❌ Build failed due to errors above.');
-        process.exit(1);
+    const buildDir = path.join(__dirname, 'build');
+    const outputFile = path.join(buildDir, 'RPGlitch-perchance.html');
+    
+    if (!fs.existsSync(buildDir)) {
+        fs.mkdirSync(buildDir, { recursive: true });
+        console.log('📁 Created build directory');
     }
     
-    // Add header with build information
+    const combinedContent = getCombinedRightPanelContent();
+    if (combinedContent === null) {
+        console.error('\n❌ Perchance build failed because source files could not be processed.');
+        return false;
+    }
+    
     const header = `<!-- \n    ========================================\n    RPGLITCH - PERCHANCE VERSION\n    ========================================\n    \n    Generated: ${new Date().toISOString()}\n    Build Script: build-perchance.js\n    Platform: Perchance (perchance.org)\n    \n    This file combines:\n    - RPGlitch.html (HTML structure)\n    - RPGlitch.css (CSS styles)\n    - RPGlitch.js (JavaScript)\n    \n    For development, use the separate files.\n    For Perchance deployment, use this combined file.\n    \n    ========================================\n-->\n\n`;
     
     const finalContent = header + combinedContent;
     
-    // Write the combined file
     try {
         fs.writeFileSync(outputFile, finalContent, 'utf8');
-        console.log(`\n✅ Successfully created: ${outputFile}`);
+        console.log(`\n✅ Successfully created for Perchance: ${outputFile}`);
         console.log(`📊 File size: ${(finalContent.length / 1024).toFixed(1)} KB`);
-        console.log(`\n🎯 Next steps:`);
-        console.log(`   1. Copy the contents of ${outputFile}`);
-        console.log(`   2. Paste into the right panel of your Perchance project`);
-        console.log(`   3. Copy RPGlitch-left-panel.html to the left panel`);
-        console.log(`\n🚀 Ready for Perchance deployment!`);
-        
+        return true;
     } catch (error) {
-        console.error('❌ Error writing output file:', error.message);
-        process.exit(1);
+        console.error('❌ Error writing Perchance output file:', error.message);
+        return false;
     }
 }
 
-// Add some helpful utility functions
+/**
+ * Builds the single file for offline testing.
+ */
+function buildOfflineFile() {
+    console.log('\n🔧 Building RPGlitch for Offline Testing...');
+    
+    const templatePath = path.join(__dirname, 'RPGlitch', 'offline-template.html');
+    const outputPath = path.join(__dirname, 'build', 'RPGlitch-offline.html');
+    
+    if (!fs.existsSync(templatePath)) {
+        console.warn('⚠️  Warning: offline-template.html not found. Skipping offline build.');
+        console.warn('   To enable, save the testable HTML file from Perchance as Perchance/RPGlitch/offline-template.html');
+        return false;
+    }
+
+    const rightPanelContent = getCombinedRightPanelContent();
+    if (rightPanelContent === null) {
+         console.error('❌ Cannot build offline file because right panel content failed to build.');
+         return false;
+    }
+
+    const leftPanelPath = path.join(__dirname, 'RPGlitch', 'RPGlitch-left-panel.html');
+    if (!fs.existsSync(leftPanelPath)) {
+        console.error(`❌ Error: File not found: RPGlitch/RPGlitch-left-panel.html`);
+        return false;
+    }
+    const leftPanelContent = fs.readFileSync(leftPanelPath, 'utf8');
+
+    let templateContent = fs.readFileSync(templatePath, 'utf8');
+    const scriptTagRegex = /<script id="preloaded-generator-data" type="notjs">([\s\S]*?)<\/script>/;
+    const match = templateContent.match(scriptTagRegex);
+
+    if (!match || !match[1]) {
+        console.error('❌ Error: Could not find <script id="preloaded-generator-data"> tag in offline-template.html.');
+        return false;
+    }
+
+    try {
+        const decodedData = decodeURIComponent(match[1]);
+        const generatorData = JSON.parse(decodedData);
+        
+        generatorData.modelText = leftPanelContent;
+        generatorData.outputTemplate = rightPanelContent;
+        
+        const newGeneratorDataString = JSON.stringify(generatorData, null, 2);
+        const finalContent = templateContent.replace(scriptTagRegex, `<script id="preloaded-generator-data" type="notjs">${encodeURIComponent(newGeneratorDataString)}</script>`);
+
+        fs.writeFileSync(outputPath, finalContent, 'utf8');
+        console.log(`\n✅ Successfully created for Offline Testing: ${outputPath}`);
+        console.log(`   You can now open this file in your browser for local testing.`);
+        return true;
+    } catch (error) {
+        console.error('❌ Error parsing or modifying generator data in offline template:', error.message);
+        return false;
+    }
+}
+
+/**
+ * Validates that all required source files exist.
+ */
 function validateFiles() {
     console.log('🔍 Validating source files...\n');
     
     const requiredFiles = [
-        'RPGlitch/RPGlitch.html',
-        'RPGlitch/RPGlitch.css', 
-        'RPGlitch/RPGlitch.js'
+        ...SOURCE_FILES.map(f => f.name),
+        'RPGlitch/RPGlitch-left-panel.html'
     ];
     
     let allExist = true;
@@ -151,11 +200,20 @@ function validateFiles() {
 if (require.main === module) {
     console.log('🎭 RPGlitch Perchance Build Script\n');
     
-    // Validate files first
     validateFiles();
     
-    // Build the combined file
-    buildPerchanceFile();
+    const perchanceSuccess = buildPerchanceFile();
+    const offlineSuccess = buildOfflineFile();
+    
+    if (perchanceSuccess && offlineSuccess) {
+        console.log(`\n🎯 Next steps:`);
+        console.log(`   1. For Perchance: Copy contents of build/RPGlitch-perchance.html`);
+        console.log(`   2. For Testing: Open build/RPGlitch-offline.html in your browser`);
+        console.log(`\n🚀 Ready for Perchance deployment and local testing!`);
+    } else {
+        console.error('\n❌ Build failed due to errors above.');
+        process.exit(1);
+    }
 }
 
-module.exports = { buildPerchanceFile, validateFiles }; 
+module.exports = { buildPerchanceFile, buildOfflineFile, validateFiles }; 

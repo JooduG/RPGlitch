@@ -1,0 +1,302 @@
+[
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from cache): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751515386833
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751515386962
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"7.099999964237213\"}],\"type\":\"object\"}",
+    "timestamp": 1751515386970
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from cache): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387024
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751515387100
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"6.900000035762787\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387107
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from cache): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387108
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751515387287
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"6.600000023841858\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387288
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from cache): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387290
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751515387380
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"6.700000047683716\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387387
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from cache): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387388
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751515387527
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"7.100000023841858\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387530
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from cache): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387534
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751515387657
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"6.600000023841858\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387663
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from cache): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387665
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751515387800
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"8.400000035762787\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387807
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from cache): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751515387808
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751515387954
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"7.199999988079071\"}],\"type\":\"object\"}",
+    "timestamp": 1751515388009
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from cache): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751515388011
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751515388095
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"6.5\"}],\"type\":\"object\"}",
+    "timestamp": 1751515388101
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from cache): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751515388103
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751515388259
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Saved local backup. NEW backupsArray: {\"description\":\"Array(25)\",\"overflow\":false,\"properties\":[{\"name\":\"0\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"1\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"2\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"3\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"4\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"5\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"6\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"7\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"8\",\"type\":\"object\",\"value\":... (truncated)",
+    "timestamp": 1751516674666
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "editorWorker.getPrefixAndSuffixForAutocomplete: {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"prefixLength\",\"type\":\"number\",\"value\":\"10262\"},{\"name\":\"suffixLength\",\"type\":\"number\",\"value\":\"0\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"222.9000000357628\"}],\"type\":\"object\"}",
+    "timestamp": 1751516676402
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "getPrediction called...",
+    "timestamp": 1751516676404
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "getPrediction finished.",
+    "timestamp": 1751516677770
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "saveGenerator called. saveState: unsaved",
+    "timestamp": 1751516677881
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Waiting for reload before saving... 0.1345967499512506",
+    "timestamp": 1751516677882
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Dependencies were already up to date.",
+    "timestamp": 1751516678034
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751516678378
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Finished waiting for save reload. 0.1345967499512506",
+    "timestamp": 1751516678393
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"226.0999999642372\"}],\"type\":\"object\"}",
+    "timestamp": 1751516678524
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from server): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751516680338
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751516683100
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"7.800000011920929\"}],\"type\":\"object\"}",
+    "timestamp": 1751516683108
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from server): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751516684267
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751516684854
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"19\"}],\"type\":\"object\"}",
+    "timestamp": 1751516684872
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from server): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751516686319
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751516687030
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Bug Finding (outputTemplate): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"timeTaken\",\"type\":\"number\",\"value\":\"7.699999988079071\"}],\"type\":\"object\"}",
+    "timestamp": 1751516687037
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Added 0 bugs for node (from server): {\"description\":\"Object\",\"overflow\":false,\"properties\":[{\"name\":\"node\",\"type\":\"object\",\"value\":\"Object\"},{\"name\":\"bugs\",\"subtype\":\"array\",\"type\":\"object\",\"value\":\"Array(0)\"}],\"type\":\"object\"}",
+    "timestamp": 1751516688306
+  },
+  {
+    "type": "console-log",
+    "level": "debug",
+    "message": "Getting next output template node for bug finding...",
+    "timestamp": 1751516688898
+  }
+]

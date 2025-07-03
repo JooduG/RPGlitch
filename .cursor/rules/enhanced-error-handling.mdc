@@ -1,6 +1,5 @@
 ---
 description: Error Handling - When encountering any error, bug, or issue, immediately diagnose and fix without asking for permission
-globs: 
 alwaysApply: false
 ---
 # Enhanced Error Handling Protocol

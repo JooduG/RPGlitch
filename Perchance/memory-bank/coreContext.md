@@ -17,6 +17,26 @@ The project contains multiple distinct applications (e.g., RPGlitch, ImageGlitch
 This note is placed here in `coreContext.md` because it is a foundational piece of architectural information.
 
 ---
+
+## 🎉 LATEST UPDATE: Session Storage Bug Fix Completed
+
+### Critical User-Facing Bug Resolved
+**Issue**: Copy & Customize and Edit workflows were losing data and reverting to Storyboard after page refreshes
+**Status**: ✅ **FIXED** - Session storage persistence now protects both workflows
+
+**Technical Solution**:
+- Added session storage protection for Copy & Customize workflows (stores copied character data)
+- Added session storage protection for Edit workflows (stores edit intentions with itemId)
+- Fixed recovery logic to accept both copy and edit workflow types
+- 7-second timeout window prevents stale data recovery
+
+**User Impact**:
+- Users can safely work on character/world editing without losing progress
+- Page refreshes no longer disrupt form workflows
+- Seamless experience when customizing premade characters
+- No more unexpected returns to Storyboard during editing
+
+---
 ---
 ---
 
@@ -142,6 +162,12 @@ graph TB
    - `text-to-image-plugin` for image generation
    - `ai-text-plugin` for AI chat
 
+3. **Testing & Debugging Tools**:
+   - `@agentdeskai/browser-tools-mcp` - Browser automation, debugging, and log capture for advanced browser testing
+   - Successfully used for debugging session storage workflows
+   - Enables automated testing of Copy & Customize and Edit functionality
+   - Invaluable for testing Perchance iframe interactions that can't be tested manually
+
 ### Critical Implementation Paths
 1. `injectHierarchicalSummariesAndComputeNextSummariesInBackgroundIfNeeded`
    - Manages AI context window
@@ -193,6 +219,7 @@ flowchart LR
    - Cache bust reload handling
    - Global library polling
    - Strategic logging
+   - **BrowserTools MCP integration**: Use `@agentdeskai/browser-tools-mcp` for browser automation, debugging, and log capture workflows that manual testing can't cover
 
 2. **Development Setup**:
    - Separate files during development
@@ -248,3 +275,57 @@ journey
 - **Phase 1 Complete**: Duplicate code removal ✅
 - **Phase 2 Active**: Code quality improvements (error handling, logging, state management)
 - **Phase 3 Planned**: Feature development and performance optimization
+
+## Rule: context7-auto-docs
+
+**Trigger:**  
+When the user requests:
+- Code examples
+- Setup or configuration steps
+- Library or API documentation
+
+**Action:**  
+Automatically use the `context7` tool to fetch and provide:
+- Relevant code snippets
+- Setup/configuration instructions
+- Official documentation or API references
+
+**Workflow Integration:**  
+- If the user's request matches any of the above triggers, immediately call `context7` without waiting for further clarification.
+- Present the results in a concise, code-first format, prioritizing actionable examples and direct answers.
+- If multiple relevant results exist, present the most relevant first, but offer to provide more if needed.
+- Always cite the source at the end of the response.
+
+**Rationale:**  
+This ensures users get high-quality, up-to-date code and documentation instantly, streamlining development and reducing back-and-forth.
+
+---
+
+## 🛠️ BrowserTools MCP & Diagnostics Automation
+
+- **Always use BrowserTools MCP and server tools for diagnostics, audits, and debugging.**
+- **Automate collection of:**
+  - Console logs/errors
+  - Network logs
+  - Screenshots
+  - Accessibility, performance, SEO, and best practices audits
+- **Never require manual copy-paste of logs or audit results.**
+- **Reference documentation:**
+  - browser-tools-mcp/browser-tools-mcp/README.md
+  - browser-tools-mcp/README.md
+  - browser-tools-mcp/browser-tools-server/README.md
+  - browser-tools-mcp/docs/mcp-docs.md
+  - browser-tools-mcp/docs/mcp.md
+- **If new tools or endpoints are added, update this section.**
+
+## Automated Log & Audit Collection Script
+
+- When manual testing, run the automation script to collect:
+  - Console logs
+  - Console errors
+  - Network logs
+  - Screenshots
+  - Accessibility, performance, SEO, and best practices audits
+- The script will fetch all diagnostics from the BrowserTools MCP/server and save them to a timestamped folder for review.
+- **Script location:** [PLACEHOLDER: path/to/automation-script.js]
+- **How to use:** Run the script before/after a manual test session to gather a full diagnostic bundle automatically.

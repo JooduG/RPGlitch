@@ -34,15 +34,23 @@ This project uses a sophisticated rules system and memory bank for consistent de
 npm install
 ```
 
-### 2. Build for Perchance
+### 2. Build Files
+Run the build script to generate both the offline testing file and the file for Perchance:
 ```bash
 npm run build
 ```
+This command creates two important files in the `build/` directory:
+- `RPGlitch-offline.html`: Open this file directly in your browser for local testing.
+- `RPGlitch-perchance.html`: Use this file to deploy your generator to Perchance.org.
 
-### 3. Deploy to Perchance
-1. Copy the contents of `build/RPGlitch-perchance.html`
-2. Paste into the **right panel** of your Perchance project
-3. Copy `RPGlitch/RPGlitch-left-panel.html` to the **left panel**
+### 3. Test Locally
+Open `build/RPGlitch-offline.html` in your web browser to test all functionality without needing to upload anything.
+
+### 4. Deploy to Perchance
+When you are ready to deploy:
+1. Copy the entire contents of `build/RPGlitch-perchance.html`.
+2. Paste it into the **right panel** of your Perchance project.
+3. Copy the entire contents of `RPGlitch/RPGlitch-left-panel.html` into the **left panel**.
 
 ## 📁 Project Structure
 
@@ -52,9 +60,11 @@ Perchance/
 │   ├── RPGlitch.html              # Main HTML structure
 │   ├── RPGlitch.css               # CSS styles
 │   ├── RPGlitch.js                # JavaScript logic
-│   └── RPGlitch-left-panel.html   # Left panel (copy manually)
+│   ├── RPGlitch-left-panel.html   # Left panel (injected by build script)
+│   └── offline-template.html      # Template for local testing file
 ├── build/
-│   └── RPGlitch-perchance.html    # Generated combined file
+│   ├── RPGlitch-perchance.html    # Generated file for Perchance.org
+│   └── RPGlitch-offline.html      # Generated file for local testing
 ├── build-perchance.js             # Build script
 ├── package.json                   # Project configuration
 └── README.md                      # This file
@@ -83,36 +93,34 @@ node build-perchance.js
 
 The build script performs the following steps:
 
-1. **Validates** all source files exist
-2. **Reads** the three separate files:
-   - `RPGlitch.html` (HTML structure)
-   - `RPGlitch.css` (CSS styles)
-   - `RPGlitch.js` (JavaScript)
-3. **Combines** them in the correct order
-4. **Adds** helpful comments and section markers
-5. **Outputs** a single file: `build/RPGlitch-perchance.html`
+1. **Validates** all source files exist.
+2. **Combines** the core source files (`.html`, `.css`, `.js`) into a single "right panel" content block.
+3. **Generates two files**:
+   - **`build/RPGlitch-perchance.html`**: A clean HTML file for Perchance.org deployment.
+   - **`build/RPGlitch-offline.html`**: Reads `offline-template.html`, injects both the "left panel" logic and the "right panel" content, and creates a fully runnable file for local testing.
 
 **Note**: Development follows the comprehensive rules system for consistent quality and context management. See the Rules System & Memory Bank section above for details.
 
 ## 🎯 Development Workflow
 
 ### During Development
-- Edit the separate files in `RPGlitch/`
-- Use `npm run build:watch` to auto-rebuild on changes
-- Test your changes locally
+- Edit the separate source files in `RPGlitch/`.
+- Run `npm run build` (or `npm run build:watch`) to update the `build/RPGlitch-offline.html` file.
+- **Test your changes by opening `build/RPGlitch-offline.html` in your browser.** This is the fastest way to iterate.
 
 ### For Perchance Deployment
-- Run `npm run build`
-- Copy the generated file to Perchance
-- Test on the Perchance platform
+- When you are satisfied with your local testing, run `npm run build` one last time.
+- Copy the contents from `build/RPGlitch-perchance.html` and `RPGlitch/RPGlitch-left-panel.html` to the Perchance website.
+- Do a final test on the Perchance platform itself.
 
 ## 🔍 Troubleshooting
 
-### "File not found" Error
-Make sure all these files exist:
+### Build Fails or Offline File Doesn't Work
+- Make sure all source files exist, including `RPGlitch/offline-template.html`.
 - `RPGlitch/RPGlitch.html`
 - `RPGlitch/RPGlitch.css`
 - `RPGlitch/RPGlitch.js`
+- `RPGlitch/offline-template.html` (if offline build fails)
 
 ### Build Fails
 Check the console output for specific error messages. Common issues:
@@ -371,4 +379,72 @@ This section covers the commands you can use to control the AI assistant's behav
 
 ---
 
-**Happy building! 🎭** 
+**Happy building! 🎭**
+
+## 🧩 BrowserTools MCP Integration
+
+BrowserTools MCP enables advanced browser automation, debugging, and log capture directly from Cursor and other MCP clients.
+
+### Setup Steps
+
+1. **Clone the BrowserTools MCP repository:**
+   ```bash
+   git clone https://github.com/AgentDeskAI/browser-tools-mcp.git
+   ```
+2. **Install the Chrome Extension:**
+   - Go to `chrome://extensions` in Chrome
+   - Enable Developer Mode
+   - Click 'Load unpacked' and select the `chrome-extension` folder from the cloned repo
+3. **Add BrowserTools MCP to Cursor:**
+   - Edit your `.cursor/mcp.json` and add:
+     ```json
+     "browser-tools": {
+       "command": "npx @agentdeskai/browser-tools-mcp@1.2.0"
+     }
+     ```
+4. **Run the BrowserTools server:**
+   ```bash
+   npx @agentdeskai/browser-tools-server@1.2.0
+   ```
+   (Keep this running in a terminal while using BrowserTools)
+5. **Open Chrome DevTools** on the target page to enable log capture and screenshots.
+
+### Usage Notes
+- Use BrowserTools MCP for console/network log capture, screenshots, audits, and debugging.
+- See [BrowserTools Installation Guide](https://browsertools.agentdesk.ai/installation) for troubleshooting and advanced features.
+
+---
+
+## ⚠️ Color Palette Feature Status & Development Guidance
+
+### Current Status
+The color palette feature is **partially working** as of the latest updates:
+
+**What Works:**
+- ✅ Color palettes are defined in the codebase (8 palettes: Tech Blue, Ocean Blue, Forest Green, Crimson Red, Sunset Orange, Royal Purple, Slate Gray, Cyber Pink)
+- ✅ Color picker UI is rendered in character/world forms
+- ✅ Color selection is saved to the database when creating/editing items
+- ✅ Color palettes are applied to storyboard cards (left border accent)
+- ✅ Color palettes are applied to character side panels in chat interface
+- ✅ Form preview shows color accents on textareas and UI elements
+
+**What Still Needs Work:**
+- ❌ Color palettes are not applied to chat messages
+- ❌ Color palettes are not shown in character/world list views
+- ❌ Color palette selection doesn't appear in profile view screens
+- ❌ Limited visual impact - only border accents are colored
+
+### Recent Fixes Applied
+1. **Database Storage**: Added `colorPalette` field to the form submission data object
+2. **Form Initialization**: Properly initialize colorPalette when editing existing items
+3. **Storyboard Cards**: Apply CSS variables and border accent based on selected palette
+4. **Character Panels**: Apply color palette to chat interface side panels
+5. **Form Preview**: Added CSS rules to show color accents in form editing mode
+
+### Remaining Tasks
+1. **Chat Messages**: Apply character color palettes to message bubbles
+2. **List Views**: Show color accents in the contextual menu character/world lists
+3. **Profile Screens**: Display selected color palette in read-only profile views
+4. **Enhanced Visuals**: Consider adding gradient backgrounds or more prominent color usage
+
+--- 
