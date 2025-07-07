@@ -1,9 +1,6 @@
 # Ignore the Perchance-specific build artifact
 Perchance/build/RPGlitch-perchance.html
 
-# Ignore the template file to prevent accidental edits
-Perchance/RPGlitch/offline-template.html
-
 # Ignore node_modules
 node_modules/
 

@@ -1,7 +1,3 @@
----
-description: Core Startup - This protocol MUST be executed at the start of EVERY task or session within any project context.
-alwaysApply: false
----
 # Core Startup Protocol
 
 ## Objective
@@ -68,6 +64,13 @@ Provide a single, unambiguous protocol that the AI must follow at the start of e
 • Communicate concisely: bullet lists, numbered steps, markdown code blocks.
 • Explain reasoning behind code edits.
 • Update documentation (e.g., `currentState.md`) after significant changes.
+
+## 🔄 Multi-Agent Assessment & Suggestion
+- **Continuous Assessment:** At any point during a session, if the agent determines that the current or upcoming task would benefit from engaging a 2nd agent (e.g., due to task size, parallelizable work, clear logic/UI split, or need for specialized skills), the agent MUST proactively suggest this to the user.
+- **How to Suggest:** Output a clear, actionable recommendation, e.g.:
+  > "This feature is large and has a clear UI/logic split. I recommend engaging a 2nd agent (e.g., Cline) to handle the UI/UX while I focus on the core logic. Would you like to proceed with a handoff?"
+- **When to Assess:** This assessment is not limited to startup; it should occur whenever the agent encounters a new task, feature, or context change that may benefit from multi-agent collaboration.
+- **User Control:** The user always has the final say on whether to engage a 2nd agent.
 
 ## Error Handling and Fallback Mechanisms
 - **File Access Errors:** Log errors and proceed with cached data
@@ -164,6 +167,13 @@ Provide a single, unambiguous protocol that the AI must follow at the start of e
 • Explain reasoning behind code edits.
 • Update documentation (e.g., `currentState.md`) after significant changes.
 
+## 🔄 Multi-Agent Assessment & Suggestion
+- **Continuous Assessment:** At any point during a session, if the agent determines that the current or upcoming task would benefit from engaging a 2nd agent (e.g., due to task size, parallelizable work, clear logic/UI split, or need for specialized skills), the agent MUST proactively suggest this to the user.
+- **How to Suggest:** Output a clear, actionable recommendation, e.g.:
+  > "This feature is large and has a clear UI/logic split. I recommend engaging a 2nd agent (e.g., Cline) to handle the UI/UX while I focus on the core logic. Would you like to proceed with a handoff?"
+- **When to Assess:** This assessment is not limited to startup; it should occur whenever the agent encounters a new task, feature, or context change that may benefit from multi-agent collaboration.
+- **User Control:** The user always has the final say on whether to engage a 2nd agent.
+
 ## Error Handling and Fallback Mechanisms
 - **File Access Errors:** Log errors and proceed with cached data
 - **Structural Changes:** Log discrepancies and adapt
@@ -187,6 +197,10 @@ This core startup protocol ensures consistent initialization while maintaining C
 
 ## Conclusion
 This core startup protocol ensures consistent initialization while maintaining Cursor's flexibility and efficiency.
+
+
+This core startup protocol ensures consistent initialization while maintaining Cursor's flexibility and efficiency.
+
 
 
 This core startup protocol ensures consistent initialization while maintaining Cursor's flexibility and efficiency.

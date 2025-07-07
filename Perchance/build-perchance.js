@@ -6,9 +6,8 @@ const path = require('path');
 /**
  * RPGlitch Perchance Build Script
  * 
- * This script combines the separate RPGlitch files into two outputs:
+ * This script combines the separate RPGlitch files into a single output:
  * 1. RPGlitch-perchance.html: For deploying to the Perchance platform.
- * 2. RPGlitch-offline.html: For local testing in a browser.
  * 
  * Development follows the comprehensive rules system:
  * - plan-act-mode.mdc: Mode control for development tasks
@@ -109,71 +108,13 @@ function buildPerchanceFile() {
 }
 
 /**
- * Builds the single file for offline testing.
- */
-function buildOfflineFile() {
-    console.log('\n🔧 Building RPGlitch for Offline Testing...');
-    
-    const templatePath = path.join(__dirname, 'RPGlitch', 'offline-template.html');
-    const outputPath = path.join(__dirname, 'build', 'RPGlitch-offline.html');
-    
-    if (!fs.existsSync(templatePath)) {
-        console.warn('⚠️  Warning: offline-template.html not found. Skipping offline build.');
-        console.warn('   To enable, save the testable HTML file from Perchance as Perchance/RPGlitch/offline-template.html');
-        return false;
-    }
-
-    const rightPanelContent = getCombinedRightPanelContent();
-    if (rightPanelContent === null) {
-         console.error('❌ Cannot build offline file because right panel content failed to build.');
-         return false;
-    }
-
-    const leftPanelPath = path.join(__dirname, 'RPGlitch', 'RPGlitch-left-panel.html');
-    if (!fs.existsSync(leftPanelPath)) {
-        console.error(`❌ Error: File not found: RPGlitch/RPGlitch-left-panel.html`);
-        return false;
-    }
-    const leftPanelContent = fs.readFileSync(leftPanelPath, 'utf8');
-
-    let templateContent = fs.readFileSync(templatePath, 'utf8');
-    const scriptTagRegex = /<script id="preloaded-generator-data" type="notjs">([\s\S]*?)<\/script>/;
-    const match = templateContent.match(scriptTagRegex);
-
-    if (!match || !match[1]) {
-        console.error('❌ Error: Could not find <script id="preloaded-generator-data"> tag in offline-template.html.');
-        return false;
-    }
-
-    try {
-        const decodedData = decodeURIComponent(match[1]);
-        const generatorData = JSON.parse(decodedData);
-        
-        generatorData.modelText = leftPanelContent;
-        generatorData.outputTemplate = rightPanelContent;
-        
-        const newGeneratorDataString = JSON.stringify(generatorData, null, 2);
-        const finalContent = templateContent.replace(scriptTagRegex, `<script id="preloaded-generator-data" type="notjs">${encodeURIComponent(newGeneratorDataString)}</script>`);
-
-        fs.writeFileSync(outputPath, finalContent, 'utf8');
-        console.log(`\n✅ Successfully created for Offline Testing: ${outputPath}`);
-        console.log(`   You can now open this file in your browser for local testing.`);
-        return true;
-    } catch (error) {
-        console.error('❌ Error parsing or modifying generator data in offline template:', error.message);
-        return false;
-    }
-}
-
-/**
  * Validates that all required source files exist.
  */
 function validateFiles() {
     console.log('🔍 Validating source files...\n');
     
     const requiredFiles = [
-        ...SOURCE_FILES.map(f => f.name),
-        'RPGlitch/RPGlitch-left-panel.html'
+        ...SOURCE_FILES.map(f => f.name)
     ];
     
     let allExist = true;
@@ -203,17 +144,15 @@ if (require.main === module) {
     validateFiles();
     
     const perchanceSuccess = buildPerchanceFile();
-    const offlineSuccess = buildOfflineFile();
     
-    if (perchanceSuccess && offlineSuccess) {
+    if (perchanceSuccess) {
         console.log(`\n🎯 Next steps:`);
         console.log(`   1. For Perchance: Copy contents of build/RPGlitch-perchance.html`);
-        console.log(`   2. For Testing: Open build/RPGlitch-offline.html in your browser`);
-        console.log(`\n🚀 Ready for Perchance deployment and local testing!`);
+        console.log(`\n🚀 Ready for Perchance deployment!`);
     } else {
         console.error('\n❌ Build failed due to errors above.');
         process.exit(1);
     }
 }
 
-module.exports = { buildPerchanceFile, buildOfflineFile, validateFiles }; 
+module.exports = { buildPerchanceFile, validateFiles }; 

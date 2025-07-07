@@ -1,7 +1,3 @@
----
-description: Security - Call when handing senstive data, need protection or security concers arise
-alwaysApply: false
----
 # Basic Security Practices
 
 ## Objective
@@ -110,6 +106,10 @@ This basic security works with:
 ## Remember
 - **Keep it simple** - Don't over-engineer security for hobby projects
 - **Focus on basics** - Input sanitization and validation go a long way
+- **Test edge cases** - Try breaking your own features
+- **Stay updated** - Keep security libraries current
+
+
 - **Test edge cases** - Try breaking your own features
 - **Stay updated** - Keep security libraries current
 

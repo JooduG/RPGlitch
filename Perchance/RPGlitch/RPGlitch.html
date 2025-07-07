@@ -1,5 +1,7 @@
 <h1 id="hiddenH1Element" class="hidden">RPGlitch</h1>
 
+<a href="#main" class="skip-link">Skip to main content</a>
+
   <div id="initialPageLoadingModal" class="fixed flex items-center justify-center top-0 left-0 right-0 bottom-0 p-4 z-top initial-loading-modal-bg">
     <div class="p-4 rounded shadow-lg text-center initial-loading-modal-content">Loading...</div>
   </div>
@@ -10,7 +12,7 @@
       <button id="emergencyDeleteDataBtn" onclick="App.deleteAllData()" class="block m-auto mt-2 emergency-button">Delete All Data 🚨</button>
     </div>
   </div>
-  <div id="main"> 
+  <div id="main" role="main" tabindex="-1"> 
   <div id="topBar">
     <div id="topBarNotificationArea" class="top-bar-notification-area-style hidden"></div>
     <div id="topBarLeftContainer" class="top-bar-content-item">
@@ -38,12 +40,12 @@
   
     <div id="columnsWrapper" class="flex flex-grow overflow-hidden">
       
-      <div id="contextualMenuPanel"> 
-          <div id="contextualMenuTabs">
-              <button class="contextual-menu-tab-button active" data-view="stories"><span class="button-text">Stories</span><span class="button-icon">📖</span></button>
-              <button class="contextual-menu-tab-button" data-view="characters"><span class="button-text">Characters</span><span class="button-icon">🤖</span></button>
-              <button class="contextual-menu-tab-button" data-view="worlds"><span class="button-text">Worlds</span><span class="button-icon">🌍</span></button>
-              <button class="contextual-menu-tab-button" data-view="settings"><span class="button-text">Options</span><span class="button-icon">⚙️</span></button>
+      <div id="contextualMenuPanel" role="region" aria-labelledby="contextualMenuTabs"> 
+          <div id="contextualMenuTabs" role="tablist">
+              <button class="contextual-menu-tab-button active" data-view="stories" role="tab" aria-selected="true" aria-label="Stories"><span class="button-text">Stories</span><span class="button-icon">📖</span></button>
+              <button class="contextual-menu-tab-button" data-view="characters" role="tab" aria-selected="false" aria-label="Characters"><span class="button-text">Characters</span><span class="button-icon">🤖</span></button>
+              <button class="contextual-menu-tab-button" data-view="worlds" role="tab" aria-selected="false" aria-label="Worlds"><span class="button-text">Worlds</span><span class="button-icon">🌍</span></button>
+              <button class="contextual-menu-tab-button" data-view="settings" role="tab" aria-selected="false" aria-label="Options"><span class="button-text">Options</span><span class="button-icon">⚙️</span></button>
           </div>
           <div id="contextualMenuContentArea">
               <div id="contextualMenuStoriesSection" class="contextual-menu-section">
@@ -163,11 +165,11 @@
           </div>
           
           <div class="storyboard-actions">
-              <button id="advancedStoryOptionsToggleBtn" class="advanced-options-toggle-button" role="button" aria-expanded="false" aria-controls="advancedStoryOptionsContentArea">
+              <button id="advancedStoryOptionsToggleBtn" class="advanced-options-toggle-button" role="button" aria-expanded="false" aria-controls="advancedStoryOptionsContentArea" aria-label="Show advanced story options">
                   <span class="button-text">Advanced Options</span><span class="button-icon">⚙️</span>
               </button>
-              <button id="shuffleStoryElementsBtn"><span class="button-text">Shuffle</span><span class="button-icon">🎲</span></button>
-              <button id="beginStoryBtn" class="primary-action-button"><span class="button-text">Begin Story</span><span class="button-icon">▶️</span></button>
+              <button id="shuffleStoryElementsBtn" aria-label="Shuffle story elements"><span class="button-text">Shuffle</span><span class="button-icon">🎲</span></button>
+              <button id="beginStoryBtn" class="primary-action-button" aria-label="Begin story"><span class="button-text">Begin Story</span><span class="button-icon">▶️</span></button>
           </div>
         </div>
   
@@ -192,7 +194,7 @@
                   <div class="chat-input-flex-container"> 
                       <textarea id="messageInput" placeholder="Type your reply here..." class="flex-grow rounded p-2"></textarea>
                       <div class="chat-send-button-container"> 
-                          <button id="sendButton" class="flex-grow primary-action-button">
+                          <button id="sendButton" class="flex-grow primary-action-button" aria-label="Send message">
                               <span class="button-text">Send</span><span class="button-icon" aria-hidden="true">➤</span>
                           </button>
                       </div>
@@ -207,25 +209,3 @@
       </div>
     </div>
 </div>
-
-
-<style>
-  @import url('RPGlitch.css');
-</style>
-
-<script>
-  // Simple DOMPurify-like sanitization for Perchance compatibility
-  window.DOMPurify = {
-    sanitize: function(text) {
-      if (typeof text !== 'string') return '';
-      return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-  };
-</script>
-
-<script src="RPGlitch.js"></script>
