@@ -13,29 +13,33 @@
     </div>
   </div>
   <div id="main" role="main" tabindex="-1"> 
-  <div id="topBar">
-    <div id="topBarNotificationArea" class="top-bar-notification-area-style hidden"></div>
-    <div id="topBarLeftContainer" class="top-bar-content-item">
-      <button id="menuButton" onclick="App.menuButtonClickHandler(event)" aria-label="Open menu">
+  <div id="topBar" class="flex items-center justify-between relative">
+    <div id="topBarNotificationArea" class="absolute flex items-center justify-center text-center hidden"></div>
+    <div id="topBarLeftContainer" class="flex items-center justify-center">
+      <button 
+        id="menuButton" 
+        onclick="App.menuButtonClickHandler(event)" 
+        aria-label="Open menu" 
+        class="btn btn-md btn-secondary btn-hover-bright"
+      >
         <span class="button-icon" id="menuButtonIconContainer">☰</span>
       </button>
     </div>
   
-    <div id="topBarDynamicTitleContainer" class="top-bar-content-item">
-      <span id="topBarDynamicTitle" class="top-bar-dynamic-title-text"></span>
+    <div id="topBarDynamicTitleContainer" class="absolute w-auto flex items-center justify-center">
+      <span id="topBarDynamicTitle" class="overflow-hidden"></span>
     </div>
   
-  <div id="topBarRightContainer" class="top-bar-content-item">
-     <div id="topBarAiCharacterInfo" class="top-bar-side hidden">
-        <img id="topBarAiCharacterPic" class="top-bar-avatar-img" src="" alt="AI Character">
-        <span id="topBarAiCharacterNameText">AI Character</span>
+    <div id="topBarRightContainer" class="flex items-center justify-end">
+     <div id="topBarAiCharacterInfo" class="flex items-center justify-center hidden">
+        <img id="topBarAiCharacterPic" class="avatar object-cover" src="" alt="AI Character">
+        <span id="topBarAiCharacterNameText" class="text-sm ml-2"></span>
+     </div>
+     <div id="topBarUserCharacterInfo" class="flex items-center justify-end">
+        <img id="topBarUserCharacterPic" class="avatar object-cover" src="" alt="User Character">
+        <span id="topBarUserCharacterNameText" class="text-sm ml-2"></span>
+     </div>
     </div>
-    <button id="concludeStoryChatBtn" class="secondary-action-button hidden conclude-story-btn"><span class="button-text">Conclude Story</span><span class="button-icon">✅</span></button>
-    <div id="topBarUserCharacterInfo" class="top-bar-side hidden">
-        <span id="topBarUserCharacterNameText">Your Character</span>
-        <img id="topBarUserCharacterPic" class="top-bar-avatar-img" src="" alt="User Character">
-    </div>
-  </div>
   </div>
   
     <div id="columnsWrapper" class="flex flex-grow overflow-hidden">

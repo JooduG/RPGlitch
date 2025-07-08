@@ -9,7 +9,7 @@ This project uses a sophisticated rules system and memory bank for consistent de
 ### Memory Bank Files
 - **`memory-bank/coreContext.md`** - Project foundation, goals, and technical stack
 - **`memory-bank/currentState.md`** - Current work focus and recent changes
-- **`memory-bank/designSystem.md`** - Architecture patterns and design system
+- **`memory-bank/designSystem.md`** - Architecture patterns and design system (Updated for CSS architecture)
 
 ### Active Rules
 - **plan-act-mode.mdc** - Mode control system (Plan vs Act)
@@ -23,7 +23,7 @@ This project uses a sophisticated rules system and memory bank for consistent de
 - **frontend-best-practices.mdc** - React/JS/CSS standards
 
 ### Context Management
-- **60% Threshold**: Automatic context management trigger
+- **75% Threshold**: Automatic context management trigger
 - **Memory Bank Updates**: Use "update memory bank" to refresh all files
 - **Context Handoff**: Automatic preparation when approaching limits
 
@@ -40,11 +40,9 @@ Run the build script to generate both the offline testing file and the file for 
 npm run build
 ```
 This command creates two important files in the `build/` directory:
-- `RPGlitch-offline.html`: Open this file directly in your browser for local testing.
 - `RPGlitch-perchance.html`: Use this file to deploy your generator to Perchance.org.
 
 ### 3. Test Locally
-Open `build/RPGlitch-offline.html` in your web browser to test all functionality without needing to upload anything.
 
 ### 4. Deploy to Perchance
 When you are ready to deploy:
@@ -58,13 +56,13 @@ When you are ready to deploy:
 Perchance/
 ├── RPGlitch/
 │   ├── RPGlitch.html              # Main HTML structure
-│   ├── RPGlitch.css               # CSS styles
+│   ├── RPGlitch.css               # CSS styles (All styles, including atomic utilities, are now directly integrated here)
 │   ├── RPGlitch.js                # JavaScript logic
 │   ├── RPGlitch-left-panel.html   # Left panel (injected by build script)
-│   └── offline-template.html      # Template for local testing file
+│   └── 
 ├── build/
 │   ├── RPGlitch-perchance.html    # Generated file for Perchance.org
-│   └── RPGlitch-offline.html      # Generated file for local testing
+│   └── 
 ├── build-perchance.js             # Build script
 ├── package.json                   # Project configuration
 └── README.md                      # This file
@@ -97,16 +95,17 @@ The build script performs the following steps:
 2. **Combines** the core source files (`.html`, `.css`, `.js`) into a single "right panel" content block.
 3. **Generates two files**:
    - **`build/RPGlitch-perchance.html`**: A clean HTML file for Perchance.org deployment.
-   - **`build/RPGlitch-offline.html`**: Reads `offline-template.html`, injects both the "left panel" logic and the "right panel" content, and creates a fully runnable file for local testing.
 
 **Note**: Development follows the comprehensive rules system for consistent quality and context management. See the Rules System & Memory Bank section above for details.
+
+## CSS Architecture
+For a detailed guide on our CSS architecture, including all available utility classes and component styling, refer to the [Design System Documentation](Perchance/memory-bank/designSystem.md).
 
 ## 🎯 Development Workflow
 
 ### During Development
 - Edit the separate source files in `RPGlitch/`.
-- Run `npm run build` (or `npm run build:watch`) to update the `build/RPGlitch-offline.html` file.
-- **Test your changes by opening `build/RPGlitch-offline.html` in your browser.** This is the fastest way to iterate.
+- Run `npm run build` (or `npm run build:watch`)
 
 ### For Perchance Deployment
 - When you are satisfied with your local testing, run `npm run build` one last time.
@@ -116,11 +115,10 @@ The build script performs the following steps:
 ## 🔍 Troubleshooting
 
 ### Build Fails or Offline File Doesn't Work
-- Make sure all source files exist, including `RPGlitch/offline-template.html`.
+- Make sure all source files exist.
 - `RPGlitch/RPGlitch.html`
 - `RPGlitch/RPGlitch.css`
 - `RPGlitch/RPGlitch.js`
-- `RPGlitch/offline-template.html` (if offline build fails)
 
 ### Build Fails
 Check the console output for specific error messages. Common issues:
@@ -364,6 +362,7 @@ This section covers the commands you can use to control the AI assistant's behav
 - **Context Matters**: Commands work differently in different modes
 - **Chain Commands**: Combine commands for complex workflows
 - **Verify Results**: Always check command execution results
+- **Regular Updates**: Keep memory bank current
 
 ### Efficiency Tips
 - **Use Shortcuts**: Learn common command patterns

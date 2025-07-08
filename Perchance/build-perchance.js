@@ -6,10 +6,20 @@ const path = require('path');
 /**
  * RPGlitch Perchance Build Script
  * 
- * This script combines the separate RPGlitch files into a single output:
- * 1. RPGlitch-perchance.html: For deploying to the Perchance platform.
+ * Purpose: Combine separate RPGlitch files into a single, optimized output
  * 
- * Development follows the comprehensive rules system:
+ * Build Process Overview:
+ * - Merges HTML, CSS, and JavaScript into a single file
+ * - Optimizes for Perchance platform deployment
+ * - Implements Atomic CSS methodology
+ * 
+ * CSS Refactoring Highlights:
+ * - Integrated atomic utility classes directly into main stylesheet
+ * - Reduced CSS specificity and redundancy
+ * - Maintained existing design tokens and variables
+ * - Improved maintainability and readability
+ * 
+ * Development follows comprehensive rules system:
  * - plan-act-mode.mdc: Mode control for development tasks
  * - core-startup.mdc: Mandatory startup protocol
  * - context-management.mdc: 60% context threshold management
@@ -18,13 +28,18 @@ const path = require('path');
  * - perchance-best-practices.mdc: Platform-specific patterns
  * 
  * Usage: node build-perchance.js
+ * 
+ * @version 1.1.0
+ * @lastUpdated [Current Date]
  */
 
 const SOURCE_FILES = [
     { name: 'RPGlitch/RPGlitch.html', type: 'html', description: 'Main HTML structure' },
-    { name: 'RPGlitch/RPGlitch.css', type: 'style', description: 'CSS styles' },
+    { name: 'RPGlitch/RPGlitch.css', type: 'style', description: 'CSS styles with integrated Atomic CSS' },
     { name: 'RPGlitch/RPGlitch.js', type: 'script', description: 'JavaScript logic' }
 ];
+
+const AtomicClassGenerator = require('./diagnostics/atomic-class-generator');
 
 /**
  * Combines the HTML, CSS, and JS source files into a single string for the 'right panel'.

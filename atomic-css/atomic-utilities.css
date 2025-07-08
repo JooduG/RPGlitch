@@ -1,0 +1,209 @@
+/* Atomic CSS Utilities */
+
+:root {
+    --flex-display: flex;
+    --flex_col-flex_direction: column;
+    --flex_row-flex_direction: row;
+    --items_center-align_items: center;
+    --items_start-align_items: flex-start;
+    --items_end-align_items: flex-end;
+    --justify_center-justify_content: center;
+    --justify_between-justify_content: space-between;
+    --justify_around-justify_content: space-around;
+    --w_full-width: 100%;
+    --w_half-width: 50%;
+    --h_full-height: 100%;
+    --h_screen-height: 100vh;
+    --m_auto-margin: auto;
+    --mx_auto-margin_left: auto;
+    --mx_auto-margin_right: auto;
+    --my_auto-margin_top: auto;
+    --my_auto-margin_bottom: auto;
+    --p_1-padding: 0.25rem;
+    --p_2-padding: 0.5rem;
+    --p_4-padding: 1rem;
+    --text_center-text_align: center;
+    --text_left-text_align: left;
+    --text_right-text_align: right;
+    --text_sm-font_size: 0.875rem;
+    --text_base-font_size: 1rem;
+    --text_lg-font_size: 1.125rem;
+    --font_bold-font_weight: bold;
+    --font_normal-font_weight: normal;
+    --relative-position: relative;
+    --absolute-position: absolute;
+    --fixed-position: fixed;
+    --top_0-top: 0;
+    --bottom_0-bottom: 0;
+    --left_0-left: 0;
+    --right_0-right: 0;
+    --overflow_hidden-overflow: hidden;
+    --overflow_auto-overflow: auto;
+    --hidden-display: none;
+    --opacity_0-opacity: 0;
+    --opacity_50-opacity: 0.5;
+    --opacity_100-opacity: 1;
+    --rounded-border_radius: 0.25rem;
+    --rounded_md-border_radius: 0.375rem;
+    --rounded_full-border_radius: 9999px;
+    --border-border: 1px solid;
+    --border_none-border: none;
+    --z_0-z_index: 0;
+    --z_10-z_index: 10;
+    --z_20-z_index: 20;
+    --object_cover-object_fit: cover;
+    --object_contain-object_fit: contain;
+}
+
+.flex {
+    display: flex;
+}
+.flex-col {
+    flex-direction: column;
+}
+.flex-row {
+    flex-direction: row;
+}
+.items-center {
+    align-items: center;
+}
+.items-start {
+    align-items: flex-start;
+}
+.items-end {
+    align-items: flex-end;
+}
+.justify-center {
+    justify-content: center;
+}
+.justify-between {
+    justify-content: space-between;
+}
+.justify-around {
+    justify-content: space-around;
+}
+.w-full {
+    width: 100%;
+}
+.w-half {
+    width: 50%;
+}
+.h-full {
+    height: 100%;
+}
+.h-screen {
+    height: 100vh;
+}
+.m-auto {
+    margin: auto;
+}
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+.my-auto {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+.p-1 {
+    padding: 0.25rem;
+}
+.p-2 {
+    padding: 0.5rem;
+}
+.p-4 {
+    padding: 1rem;
+}
+.text-center {
+    text-align: center;
+}
+.text-left {
+    text-align: left;
+}
+.text-right {
+    text-align: right;
+}
+.text-sm {
+    font-size: 0.875rem;
+}
+.text-base {
+    font-size: 1rem;
+}
+.text-lg {
+    font-size: 1.125rem;
+}
+.font-bold {
+    font-weight: bold;
+}
+.font-normal {
+    font-weight: normal;
+}
+.relative {
+    position: relative;
+}
+.absolute {
+    position: absolute;
+}
+.fixed {
+    position: fixed;
+}
+.top-0 {
+    top: 0;
+}
+.bottom-0 {
+    bottom: 0;
+}
+.left-0 {
+    left: 0;
+}
+.right-0 {
+    right: 0;
+}
+.overflow-hidden {
+    overflow: hidden;
+}
+.overflow-auto {
+    overflow: auto;
+}
+.hidden {
+    display: none;
+}
+.opacity-0 {
+    opacity: 0;
+}
+.opacity-50 {
+    opacity: 0.5;
+}
+.opacity-100 {
+    opacity: 1;
+}
+.rounded {
+    border-radius: 0.25rem;
+}
+.rounded-md {
+    border-radius: 0.375rem;
+}
+.rounded-full {
+    border-radius: 9999px;
+}
+.border {
+    border: 1px solid;
+}
+.border-none {
+    border: none;
+}
+.z-0 {
+    z-index: 0;
+}
+.z-10 {
+    z-index: 10;
+}
+.z-20 {
+    z-index: 20;
+}
+.object-cover {
+    object-fit: cover;
+}
+.object-contain {
+    object-fit: contain;
+}

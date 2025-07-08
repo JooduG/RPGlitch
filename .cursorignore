@@ -1,9 +1,14 @@
 # Ignore the Perchance-specific build artifact
 Perchance/build/RPGlitch-perchance.html
 
+/browser-tools-mcp/
+/multi-agent/
+.cursor/rules/multi-agent-coordination.mdc
+
 # Ignore node_modules
-node_modules/
+perchance/node_modules/
 
 # Ignore backup files
 *.backup
 .DS_Store 
+cheatsheet.md 

@@ -1,0 +1,61 @@
+{
+  "totalSelectors": 434,
+  "topSpecificSelectors": [
+    {
+      "selector": "/* Color System - Base */\n    --background: #1e1e2e; /* Base */\n    --text-color: #cdd6f4; /* Text */\n    --subtext0-color: #a6adc8; /* Subtext0 */\n    --subtext1-color: #bac2de; /* Subtext1 */\n    --surface0-color: #313244; /* Surface0 / Box Color */\n    --surface1-color: #313244; /* Surface1 - Reduced border prominence */\n    --surface2-color: #45475a; /* Surface2 - Flattened */\n    --overlay0-color: #585b70;\n    \n    /* Color System - Actions */\n    --green-color: #a6e3a1; /* Green / Primary Action */\n    --red-color: #f38ba8;   /* Red / Danger */\n    --blue-color: #89b4fa;  /* Blue / Info */\n    --mauve-color: #cba6f7; /* Mauve */\n    --peach-color: #fab387; /* Peach */\n    --yellow-color: #f9e2af;/* Yellow */\n    \n    /* Color System - Buttons */\n    --primary-action-button-bg: var(--green-color);\n    --primary-action-button-color: var(--background);\n    --secondary-action-button-bg: var(--surface2-color);\n    --secondary-action-button-color: var(--text-color);\n    --danger-bg: var(--red-color);\n    --danger-color: var(--background);\n    --danger-bg-hover: #e67c9c; /* Slightly darker red for hover */\n    --info-bg: var(--blue-color);\n    --info-color: var(--background);\n    \n    /* Color System - UI Elements */\n    --focus-ring-color: rgba(137, 180, 250, 0.25); /* Blue alpha for focus */\n    --focus-border-color: var(--blue-color);\n    --link-color: var(--blue-color);\n    --selected-item-bg: rgba(137, 180, 250, 0.1); /* Blue alpha for selected items */\n    --selected-item-border-color: var(--blue-color);\n    --menu-panel-bg: var(--surface0-color); \n    --menu-panel-border: var(--surface1-color); \n    --menu-item-hover-bg: var(--surface1-color);\n    \n    /* Typography System */\n    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;\n    --font-weight-normal: 400;\n    --font-weight-medium: 500;\n    --font-weight-bold: 600;\n    --font-size-xs: 0.75rem;   /* 12px */\n    --font-size-sm: 0.875rem;  /* 14px */\n    --font-size-base: 1rem;    /* 16px */\n    --font-size-lg: 1.125rem;  /* 18px */\n    --font-size-xl: 1.25rem;   /* 20px */\n    --font-size-2xl: 1.5rem;   /* 24px */\n    --font-size-3xl: 1.875rem; /* 30px */\n    --font-size-4xl: 2.25rem;  /* 36px */\n    --line-height-tight: 1.25;\n    --line-height-normal: 1.5;\n    --line-height-relaxed: 1.75;\n    \n    /* Spacing & Layout */\n    --top-bar-height: 3.5rem;\n    --border-radius: 8px; \n    --avatar-border-radius: 8px; \n    --chat-avatar-panel-border-radius: 0px; \n    --contextual-menu-width: 320px;\n    \n    /* Shadows */\n    --shadow-sm: 0 1px 1px rgba(0,0,0,0.1);\n    --shadow-md: 0 2px 4px rgba(0,0,0,0.1);\n    --shadow-lg: 0 4px 8px rgba(0,0,0,0.15);\n    \n    /* Transitions */\n    --transition-speed: 0.2s;\n    --transition-easing: ease;\n}\n\nbody, html",
+      "specificity": 1706
+    },
+    {
+      "selector": "/* Migrated to atomic class: .flex-grow */\n    /* Migrated to atomic class: .flex */\n    /* Migrated to atomic class: .flex-col */\n    min-width: 0;\n    /* Remove overflow: hidden/auto for profile screens */\n}\n\n#characterFormScreen, #worldFormScreen, \n#characterProfileScreen, #worldProfileScreen,\n#storyProfileScreen, #memoryApplicationScreen",
+      "specificity": 645
+    },
+    {
+      "selector": "/* Migrated to atomic class: .flex-shrink-0 */\n            margin: 0 0.5rem;\n            font-size: 0.75em;\n            padding: 0.3rem 0.5rem;\n            min-width: 120px; /* For timer text */\n            opacity: 0;\n            visibility: hidden;\n            transition: opacity 0.2s ease-in-out, visibility 0s linear 0.2s;\n        }\n        \n        #topBar.chat-active:hover #concludeStoryChatBtn:not(.hidden),\n        #concludeStoryChatBtn.ai-active",
+      "specificity": 417
+    },
+    {
+      "selector": "display: block;\n    font-size: 0.95em;\n    margin-bottom: 0.4rem;\n    opacity: 0.9;\n    text-align: left;\n    font-weight: 500;\n    color: var(--text-color);\n}\n\n/* Optimize global resets */\nhtml, body, #main, #columnsWrapper, #middleColumn, .middleColumnScreen",
+      "specificity": 354
+    },
+    {
+      "selector": "position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    font-size: 0.9em;\n    font-weight: 500;\n    color: var(--background); \n    padding: 0 1rem;\n    text-align: center;\n    animation: notificationFadeIn 0.3s ease;\n}\n\n#topBarLeftContainer, #topBarRightContainer, #topBarDynamicTitleContainer",
+      "specificity": 342
+    },
+    {
+      "selector": "font-size: 1.8em; /* Migrated to atomic class: .font-bold */ color: var(--text-color); margin: 0; display: inline-block;\n            padding: 0.35rem 0.75rem; border-radius: var(--border-radius); \n            border: 2px solid transparent; \n            background-color: transparent; \n            min-width: 200px; transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;\n            cursor: text; max-width: 100%; /* Migrated to atomic class: .w-full */ line-height: 1.3; \n            white-space: nowrap; /* Migrated to atomic class: .overflow-hidden */ text-overflow: ellipsis; \n        }\n        #storyboardTitle[contenteditable=\"true\"]:hover,\n        #storyboardTitle:focus",
+      "specificity": 336
+    },
+    {
+      "selector": "padding: 0.75rem;\n            font-size: 0.95em;\n          }\n        }\n\n/* CONSOLIDATED PROFILE CSS RULES - START */\n\n/* Global Layout Resets for Profile Screen */\nhtml, body, #main, #columnsWrapper, #middleColumn, .middleColumnScreen",
+      "specificity": 335
+    },
+    {
+      "selector": "flex-basis: 280px; /* Migrated to atomic class: .flex-shrink-0 */ /* Migrated to atomic class: .h-full */ background-color: var(--surface0-color); border-radius: 0px; \n            padding: 0; /* Migrated to atomic class: .overflow-hidden */ /* Migrated to atomic class: .flex */ /* Migrated to atomic class: .items-center */ /* Migrated to atomic class: .justify-center */ \n            background-size: cover; background-position: center; background-repeat: no-repeat;\n            box-shadow: var(--shadow-md); border: 0; /* Migrated to atomic class: .relative */ opacity: 0; \n            transform: translateX(-20px) scale(0.95); \n            transition: opacity 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) 0.1s, transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) 0.1s;\n        }\n        #userCharacterDisplayArea",
+      "specificity": 324
+    },
+    {
+      "selector": "/* Migrated to atomic class: .w-full */ padding: 0.75rem; font-size: 1em; /* Migrated to atomic class: .flex-shrink-0 */\n            appearance: none; -webkit-appearance: none; -moz-appearance: none;\n            background-image: url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23cdd6f4'%3e%3cpath d='M8 10.75a.5.5 0 0 1-.354-.146l-3-3a.5.5 0 0 1 .708-.708L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3A.5.5 0 0 1 8 10.75Z'/%3e%3c/svg%3e\");\n            background-repeat: no-repeat;\n            background-position: right 0.75rem center;\n            background-size: 1.2em;\n            padding-right: 2.5rem; \n        }\n        .story-board-ingredient-select option[disabled]",
+      "specificity": 306
+    },
+    {
+      "selector": "appearance: none;\n    -webkit-appearance: none;\n    -moz-appearance: none;\n    background-image: url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23cdd6f4'%3e%3cpath d='M8 10.75a.5.5 0 0 1-.354-.146l-3-3a.5.5 0 0 1 .708-.708L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3A.5.5 0 0 1 8 10.75Z'/%3e%3c/svg%3e\");\n    background-repeat: no-repeat;\n    background-position: right 0.75rem center;\n    background-size: 1.2em;\n    padding-right: 2.5rem;\n}\n\n/* Remove commented migration notes and clean up */\n.storyboard-label",
+      "specificity": 273
+    }
+  ],
+  "redundantSelectors": [
+    {
+      "selector": "/* Migrated to atomic class: .flex */\n    /* Migrated to atomic class: .justify-center */\n    /* Migrated to atomic class: .items-center */\n    /* Migrated to atomic class: .w-full */\n    height: 300px;\n    /* Migrated to atomic class: .overflow-hidden */\n}\n\n.profile-avatar-container .profile-pic-large",
+      "count": 2
+    },
+    {
+      "selector": "opacity: 1;\n}\n\n.premade-tag",
+      "count": 3
+    }
+  ],
+  "recommendations": [
+    "Consider using more utility classes",
+    "Reduce selector specificity where possible",
+    "Remove unused CSS rules",
+    "Use CSS custom properties for consistent theming"
+  ]
+}

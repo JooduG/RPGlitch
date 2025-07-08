@@ -739,26 +739,22 @@ const App = {
   async _renderContextualListSection(container, listType, title, searchPlaceholder, populateFn, newItemHandlerFn, config) {
       if (!container) return;
       let searchTerm = container.querySelector(`#contextual${config.capital}SearchInput`)?.value || '';
-      
       const newButtonId = `new${config.capital}BtnContextual`;
       container.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-              <input type="search" id="contextual${config.capital}SearchInput" class="search-input-main" placeholder="${this.sanitizeHtml(searchPlaceholder)}" value="${this.sanitizeHtml(searchTerm)}" style="flex-grow: 1; margin-bottom: 0;">
-              <button id="${newButtonId}" class="primary-action-button" style="font-size: 0.8em; padding: 0.4rem 0.6rem; flex-shrink: 0;"><span class="button-text">New</span><span class="button-icon">➕</span></button>
+          <div class="contextual-list-header-row">
+              <input type="search" id="contextual${config.capital}SearchInput" class="search-input-main" placeholder="${this.sanitizeHtml(searchPlaceholder)}" value="${this.sanitizeHtml(searchTerm)}">
+              <button id="${newButtonId}" class="compact-primary-action-button"><span class="button-text">New</span><span class="button-icon">➕</span></button>
           </div>
           <div id="${listType}ListAreaContextual" class="list-area-main"></div>`;
-      
-                const newButtonElement = container.querySelector(`#${newButtonId}`);
-          newButtonElement.onclick = newItemHandlerFn;
-          
-          if (listType === 'story' && this.activeStoryId) {
-              const activeStory = await this.db.stories.get(this.activeStoryId);
-              if (activeStory && !activeStory.concluded) {
-                  newButtonElement.disabled = true;
-                  newButtonElement.title = "Conclude the active story before starting a new one.";
-              }
+      const newButtonElement = container.querySelector(`#${newButtonId}`);
+      newButtonElement.onclick = newItemHandlerFn;
+      if (listType === 'story' && this.activeStoryId) {
+          const activeStory = await this.db.stories.get(this.activeStoryId);
+          if (activeStory && !activeStory.concluded) {
+              newButtonElement.disabled = true;
+              newButtonElement.title = "Conclude the active story before starting a new one.";
           }
-
+      }
       const searchInput = container.querySelector(`#contextual${config.capital}SearchInput`);
       searchInput.oninput = (e) => populateFn(container.querySelector(`#${listType}ListAreaContextual`), e.target.value, config);
       populateFn(container.querySelector(`#${listType}ListAreaContextual`), searchTerm, config);
@@ -827,27 +823,32 @@ const App = {
       container.innerHTML = `
           <div id="settingsContentAreaContextual">
               <div class="options-section">
-                  <label class="options-button import-button-wrapper-main" style="width: 100%;">
+                  <button class="options-button" id="${importFileId}Button">
                       <span class="button-text">Import Data</span>
                       <span class="button-icon">📥</span>
-                      <input type="file" id="${importFileId}" accept=".json,.gz,.cbor" class="hidden">
-                  </label>
+                  </button>
+                  <input type="file" id="${importFileId}" accept=".json,.gz,.cbor" class="hidden">
               </div>
-              <div class="options-section" style="margin-top: 0.5rem;">
-                  <button class="options-button" id="${exportButtonId}" style="width: 100%;"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
+              <div class="options-section">
+                  <button class="options-button" id="${exportButtonId}"><span class="button-text">Export All Data</span><span class="button-icon">💾</span></button>
               </div>
-               <div class="options-section" style="margin-top: 0.5rem;">
-                  <button id="${deleteButtonId}" class="delete-button options-button" style="width: 100%;">
+               <div class="options-section">
+                  <button id="${deleteButtonId}" class="delete-button options-button">
                       <div class="delete-button-container">
                           <span class="delete-button-headline">Delete All Data</span>
-                          <span class="delete-button-subtext">This action is irreversible.</span>
+                          <span class="button-subtext">This action is irreversible.</span>
                       </div>
                       <span class="button-icon">🗑️</span>
                   </button>
               </div>
           </div>`;
       container.querySelector(`#${exportButtonId}`).onclick = () => this.exportAllData();
-      container.querySelector(`#${importFileId}`).onchange = (event) => this.importAllData(event);
+      const importButton = container.querySelector(`#${importFileId}Button`);
+      const importInput = container.querySelector(`#${importFileId}`);
+      if (importButton && importInput) {
+          importButton.onclick = () => importInput.click();
+          importInput.onchange = (event) => this.importAllData(event);
+      }
       container.querySelector(`#${deleteButtonId}`).onclick = () => this.deleteAllData();
   },
 
@@ -879,26 +880,53 @@ const App = {
       // Apply color palette if available
       if (item.colorPalette && this.CONSTANTS.COLOR_PALETTES[item.colorPalette]) {
           const palette = this.CONSTANTS.COLOR_PALETTES[item.colorPalette];
-          listItem.style.borderLeftColor = palette.colors.medium;
-          listItem.style.borderLeftWidth = '4px';
+          listItem.style.setProperty('--item-main-color', palette.colors.medium); /* Set CSS variable */
       }
       
-      const avatarHtml = item.avatar ? `<img src="${this.sanitizeHtml(item.avatar)}" alt="" class="avatar-main avatar">` : `<div class="avatar-main avatar"></div>`;
+      // Tags row (future extensible)
+      let tagsHtml = '';
+      if (item.isPremade) {
+        tagsHtml += `<span class='item-tag-pill'>Premade</span>`;
+      }
+      // Add more tags here in the future as needed
+      const descriptionHtml = item.description ? `<div class="item-description" title="${this.sanitizeHtml(item.description)}">${this.sanitizeHtml(item.description)}</div>` : '';
+      const detailsColHtml = `
+        <div class='item-details-col'>
+          <span class="name-main" title="${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</span>
+          <div class='item-tags-row'>${tagsHtml}</div>
+          ${descriptionHtml}
+        </div>
+      `;
+      // Use SVG placeholder if no avatar, but always set onerror handler
+      console.log("[DEBUG] _createListItem - item.colorPalette:", item.colorPalette, ", item.name:", item.name); // Debug colorPalette
+      const avatarUrl = (item.avatar && item.avatar.trim()) ? item.avatar.trim() : this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
+      const placeholderDataUrl = this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
+      const avatarHtml = this._generateAvatarHtml(item, 'list-item'); // Use the new helper function
       listItem.innerHTML = `
-          ${avatarHtml}
-          <div class="item-details-main">
-              <div style="display: flex; flex-direction: column; align-items: flex-start; flex-grow: 1; overflow: hidden;">
-                  <span class="name-main" title="${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</span>
-                  ${item.description ? `<p class="character-card-description">${this.sanitizeHtml(item.description)}</p>` : ''}
-              </div>
-              <div class="actions-main">
-                  ${item.isPremade ? '<span class="premade-tag">(Premade)</span>' : ''}
-              </div>
-          </div>`;
+        ${detailsColHtml}
+        <div class='avatar-main'>${avatarHtml}</div>
+      `;
+
+      // Measure name height to conditionally apply 2-line description
+      // Append listItem to a temporary, hidden container to get rendered dimensions
+      const tempContainer = document.createElement('div');
+      tempContainer.style.cssText = 'position:absolute; visibility:hidden; height:auto; width:100%;';
+      document.body.appendChild(tempContainer);
+      tempContainer.appendChild(listItem.cloneNode(true)); // Clone to avoid modifying the original prematurely
+
+      const clonedNameElement = tempContainer.querySelector('.name-main');
+      const computedStyle = window.getComputedStyle(clonedNameElement);
+      const singleLineHeight = parseFloat(computedStyle.lineHeight) || (parseFloat(computedStyle.fontSize) * 1.2); // Fallback to 1.2 * font-size if line-height is 'normal'
+
+      // Remove from temp container before re-inserting or returning
+      const originalListItemName = listItem.querySelector('.name-main');
       
+      if (originalListItemName.scrollHeight <= singleLineHeight + 2) { // Add a small tolerance
+          listItem.classList.add('name-single-line');
+      }
+      document.body.removeChild(tempContainer);
+
       listItem.onclick = (e) => {
-          console.log("[EDIT WORKFLOW DEBUG] List item clicked - itemId:", item.id, "itemType:", config.itemType, "isPremade:", item.isPremade);
-          
           this.ui.contextualMenuPanel.classList.remove('visible'); 
           document.body.classList.remove('contextual-menu-open');
           this.ui.topBar.classList.remove('top-bar-interactive-hover');
@@ -953,13 +981,6 @@ const App = {
           const world = story.storyWorld || await this._getIngredientData(story.worldId, 'worlds', this.getPremadeWorldItems, 'world');
           const displayName = story.name || `${aiCharacter?.name || 'AI'} & ${userCharacter?.name || 'User'} in ${world?.name || 'World'}`;
           
-          let metaText;
-          if (story.concluded && story.concludedTimestamp) {
-              metaText = `Concluded: ${new Date(story.concludedTimestamp).toLocaleString()}`;
-          } else {
-              metaText = `Last played: ${new Date(story.lastMessageTimestamp || story.createdTimestamp).toLocaleString()}`;
-          }
-  
           const itemEl = document.createElement('div');
           itemEl.className = 'list-item-main story-item';
           if (this.currentStoryId === story.id && this.currentMainView === this.CONSTANTS.VIEWS.STORY_INTERFACE) {
@@ -970,15 +991,9 @@ const App = {
           }
   
           itemEl.innerHTML = `
-              <div class="item-details-main" style="flex-direction: column; align-items: flex-start; flex-grow: 1; overflow: hidden;">
-                  <span class="name-main" title="${this.sanitizeHtml(displayName)}">
-                      ${this.sanitizeHtml(displayName)}
-                  </span>
-                  <p class="story-meta">${this.sanitizeHtml(metaText)}</p>
-              </div>
-              <div class="actions-main">
-                  ${story.concluded ? '<span class="concluded-story-indicator">🏁</span>' : ''}
-              </div>`;
+              <span class="name-main" title="${this.sanitizeHtml(displayName)}">${this.sanitizeHtml(displayName)}</span>
+              <span class="tag-right-aligned">${story.concluded ? '<span class="concluded-story-indicator">🏁</span>' : ''}</span>
+          `;
   
           itemEl.onclick = (e) => {
               this.ui.contextualMenuPanel.classList.remove('visible');
@@ -1438,18 +1453,40 @@ const App = {
       }
   },
 
+  _renderEppfField(label, subLabel, idSuffix, value, placeholder, isEditing, san) {
+      const id = `${idSuffix}`;
+      console.log(`[DEBUG_EPPF] _renderEppfField for ${idSuffix}: isEditing = ${isEditing}, value = ${value}`); // New debug log
+      if (isEditing) {
+          return `
+              <div class="form-field-group full-width">
+                  <label for="${id}" class="field-label"><span class="main-label">${label}</span><span class="field-sublabel">${subLabel}</span></label>
+                  <textarea id="${id}" placeholder="${san(placeholder)}">${san(value || '')}</textarea>
+              </div>
+          `;
+      } else {
+          return `
+              <div class="profile-field-row profile-field-${idSuffix.toLowerCase()}">
+                  <div class="profile-field-label">
+                      <span class="main-label">${label}</span>
+                      <span class="field-sublabel">${subLabel}</span>
+                  </div>
+                  <div class="profile-field-value">${san(value || '—')}</div>
+              </div>
+          `;
+      }
+  },
+
   _renderStudioLayout(item, config, isEditing) {
       const san = this.sanitizeHtml;
       const { itemType, labels } = config;
       const title = isEditing ? (item.id ? `Edit ${config.capital}` : `Create New ${config.capital}`) : (item.name || `Unnamed ${config.capital}`);
   
       // --- AVATAR/PLACEHOLDER LOGIC ---
-      const avatarSrc = (item.avatar && item.avatar.trim()) ? item.avatar.trim() : '';
-      const palette = (item.colorPalette || 'blue').toLowerCase();
-      const placeholderDiv = `<div class='profile-avatar-container'><svg class='avatar-placeholder-svg' viewBox='0 0 160 160' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='80' cy='80' r='80' fill='#313244'/><text x='50%' y='54%' text-anchor='middle' fill='#a6adc8' font-size='48' font-family="sans-serif" dy='.3em'>?</text></svg></div>`;
-      const avatarHtml = avatarSrc
-          ? `<div class='profile-avatar-container'><img src='${avatarSrc}' alt='Profile avatar' class='profile-pic-large' id='formAvatarImage'></div>`
-          : placeholderDiv;
+      const avatarSrc = (item.avatar && item.avatar.trim()) ? item.avatar.trim() : this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
+      const placeholderDataUrl = this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
+      console.log("[DEBUG] item.avatar:", item.avatar, "avatarSrc:", avatarSrc); // Debug avatar source
+
+      const avatarHtml = this._generateAvatarHtml(item, 'profile'); // Use the new helper function
 
       // --- FORM ACTION BUTTONS ---
       const formActions = isEditing ? `
@@ -1465,77 +1502,54 @@ const App = {
           </div>`;
 
       // --- MAIN PROFILE CONTENT ---
+      console.log("[DEBUG] isEditing for EPPF fields:", isEditing); // Debug isEditing flag
       const formContent = `
-          <div class="form-section traits-section">
-              <div class="form-field-group full-width">
-                  ${isEditing 
-                      ? `<label for="${itemType}Name" class="field-label"><span class="main-label">${labels.name}</span></label>
-                         <input class="studio-name-input-large" id="${itemType}Name" value="${san(item.name || '')}" placeholder="${config.capital} name" autocomplete="off">`
-                      : `<h2 class="studio-profile-name" style="margin-top: 1.25rem; margin-bottom: 1.25rem;">${san(item.name || 'Unnamed')}</h2>`
-                  }
-              </div>
-              <div class="form-field-group full-width">
-                  ${isEditing 
-                      ? `<label for="${itemType}Description" class="field-label"><span class="main-label">${labels.description}</span></label>
-                         <input type="text" id="${itemType}Description" value="${san(item.description || '')}" placeholder="${labels.descriptionPlaceholder}">`
-                      : `<div class="profile-field-value readonly">${san(item.description || 'No description provided.')}</div>`
-                  }
-              </div>
-          </div>
-          <div class="form-section eppf-section">
-              ${isEditing
-                ? `<label for="${itemType}Eternal" class="field-label"><span class="main-label">Eternal</span></label>
-                   <input type="text" id="${itemType}Eternal" value="${san(item.eternal || '')}" placeholder="Eternal" autocomplete="off">
-                   <label for="${itemType}Past" class="field-label"><span class="main-label">Past</span></label>
-                   <input type="text" id="${itemType}Past" value="${san(item.past || '')}" placeholder="Past" autocomplete="off">
-                   <label for="${itemType}Present" class="field-label"><span class="main-label">Present</span></label>
-                   <input type="text" id="${itemType}Present" value="${san(item.present || '')}" placeholder="Present" autocomplete="off">
-                   <label for="${itemType}Future" class="field-label"><span class="main-label">Future</span></label>
-                   <input type="text" id="${itemType}Future" value="${san(item.future || '')}" placeholder="Future" autocomplete="off">`
-                : `
-                  <div class="profile-field-row profile-field-eternal">
-                    <div class="profile-field-label">Eternal</div>
-                    <div class="profile-field-value">${san(item.eternal || '\u2014')}</div>
+          <form id="${itemType}FormMain" class="studio-layout-container">
+              <div class="studio-content-area">
+                  <div class="studio-left-panel">
+                      <div class="avatar-section">
+                          <div class="avatar-container" id="${itemType}AvatarDisplay">
+                              ${avatarHtml} <!-- Insert generated avatar HTML -->
+                              ${isEditing ? `<div class="avatar-edit-overlay"><span class="button-icon">✏️</span></div>` : ''}
+                          </div>
+                          ${isEditing ? `<button type="button" class="options-button mt-3" id="uploadAvatarBtnForm-${itemType}"><span class="button-text">Upload / Generate</span><span class="button-icon">✨</span></button>` : ''}
+                      </div>
                   </div>
-                  <div class="profile-field-row profile-field-past">
-                    <div class="profile-field-label">Past</div>
-                    <div class="profile-field-value">${san(item.past || '\u2014')}</div>
+                  <div class="studio-right-panel">
+                      <div class="form-section traits-section">
+                          <div class="form-field-group full-width">
+                              ${isEditing 
+                                  ? `<label for="${itemType}Name" class="field-label"><span class="main-label">${labels.name}</span></label>
+                                     <input class="studio-name-input-large" id="${itemType}Name" value="${san(item.name || '')}" placeholder="${config.capital} name" autocomplete="off">`
+                                  : `<h2 class="studio-profile-name" style="margin-top: 1.25rem; margin-bottom: 1.25rem;">${san(item.name || 'Unnamed')}</h2>`
+                              }
+                          </div>
+                          <div class="form-field-group full-width">
+                              ${isEditing 
+                                  ? `<label for="${itemType}Description" class="field-label"><span class="main-label">${labels.description}</span></label>
+                                     <textarea id="${itemType}Description" placeholder="${labels.descriptionPlaceholder}">${san(item.description || '')}</textarea>`
+                                  : `<div class="profile-field-value readonly">${san(item.description || 'No description provided.')}</div>`
+                              }
+                          </div>
+                      </div>
+                      <div class="form-section eppf-section">
+                          ${this._renderEppfField("Forever", "Eternal Truths & Permanent Features", `${itemType}Eternal`, item.eternal, labels.eternalPlaceholder, isEditing, san)}
+                          ${this._renderEppfField("Past", "Background & Memories", `${itemType}Past`, item.past, labels.pastPlaceholder, isEditing, san)}
+                          ${this._renderEppfField("Present", "Current Mood & Conditions", `${itemType}Present`, item.present, labels.presentPlaceholder, isEditing, san)}
+                          ${this._renderEppfField("Future", "Goals & Prophecies", `${itemType}Future`, item.future, labels.futurePlaceholder, isEditing, san)}
+                      </div>
+                      <div class="studio-form-actions">
+                          ${formActions}
+                      </div>
                   </div>
-                  <div class="profile-field-row profile-field-present">
-                    <div class="profile-field-label">Present</div>
-                    <div class="profile-field-value">${san(item.present || '\u2014')}</div>
-                  </div>
-                  <div class="profile-field-row profile-field-future">
-                    <div class="profile-field-label">Future</div>
-                    <div class="profile-field-value">${san(item.future || '\u2014')}</div>
-                  </div>`
-              }
-          </div>
-          <div class="form-section"> <!-- NEW: Wrap button row in its own form-section -->
-            <div class="profile-field-row">
-              <div class="profile-field-label"></div>
-              <div class="profile-field-value">
-                <div class="profile-action-buttons">
-                  ${formActions.replace(/<div class=\"profile-action-buttons\">|<\/div>/g, '').trim()}
-                </div>
               </div>
-            </div>
-          </div>
+          </form>
       `;
-  
-      // --- FINAL LAYOUT ---
-      return `
-          <div class="studio-profile-layout-container">
-              <div class="studio-profile-avatar-col">
-                  ${avatarHtml}
-              </div>
-              <div class="studio-profile-main-col">
-                  ${formContent}
-              </div>
-          </div>`;
+
+      return formContent;
   },
 
-  _createColorPicker(selectedPaletteKey) {
+  async _createColorPicker(selectedPaletteKey) {
     let colorPickerHtml = '<div class="form-section color-picker-section">';
     colorPickerHtml += '<h3>Color Palette</h3>';
     colorPickerHtml += '<div class="color-palette-grid">';
@@ -2056,7 +2070,7 @@ _updateFormColorPreview(formElement, paletteKey) {
           result.canvas.style.objectFit = 'contain';
           previewArea.appendChild(result.canvas); 
           previewArea.classList.add('has-image');
-                          this.currentGeneratedAvatarDataUrl = result.canvas.toDataURL('image/png'); 
+                          this.currentGeneratedAvatarDataUrl = result.canvas.toDataURL('image/png');
       if (useButton) useButton.disabled = false;
       } else {
           previewArea.innerHTML = '<p style="color:var(--danger-bg);">Failed to generate image.</p>';
@@ -3087,32 +3101,43 @@ _updateFormColorPreview(formElement, paletteKey) {
 
   _renderStoryboardCard(cardElement, item, config) {
       if (!cardElement) return;
-      
       if (!item) {
-          cardElement.innerHTML = `<div class="placeholder-card">Select a ${config.capital}</div>`;
+          cardElement.innerHTML = `<div class=\"placeholder-card\">Select a ${config.capital}</div>`;
           return;
       }
-      
-      const avatarHtml = item.avatar ? `<img src="${this.sanitizeHtml(item.avatar)}" alt="${this.sanitizeHtml(item.name)}" class="card-avatar">` : '';
-      const premadeIndicator = item.isPremade ? '<span class="premade-indicator">Premade</span>' : '';
-      
-      cardElement.innerHTML = `
-          <div class="character-card" data-item-id="${item.id}" data-item-type="${config.itemType}">
-              ${avatarHtml}
-              <div class="card-content">
-                  <h3 class="card-name">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</h3>
-                  <p class="card-description">${this.sanitizeHtml(item.description || '')}</p>
-                  ${premadeIndicator}
-              </div>
-          </div>
+      // Set CSS custom property for the ingredient color
+      if (item.colorPalette && this.CONSTANTS.COLOR_PALETTES[item.colorPalette]) {
+          const palette = this.CONSTANTS.COLOR_PALETTES[item.colorPalette];
+          cardElement.style.setProperty('--item-main-color', palette.colors.medium);
+      }
+      // Avatar logic: hero, right-aligned, 35% width, no left border/padding, only right corners rounded
+      const avatarUrl = (item.avatar && item.avatar.trim()) ? item.avatar.trim() : this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
+      const placeholderDataUrl = this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
+      const avatarHtml = this._generateAvatarHtml(item, 'storyboard'); // Use the new helper function
+      // Premade tag (hero style)
+      const tagsHtml = item.isPremade ? `<span class='item-tag-pill'>Premade</span>` : '';
+      // Description (up to 3 lines, ellipsis)
+      const descriptionHtml = item.description ? `<div class=\"item-description\" title=\"${this.sanitizeHtml(item.description)}\">${this.sanitizeHtml(item.description)}</div>` : '';
+      // Card content: name, tag, description, hero style
+      const contentHtml = `
+        <div class='storyboard-card-content'>
+          <span class=\"name-main\" title=\"${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}\">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</span>
+          <div class='item-tags-row'>${tagsHtml}</div>
+          ${descriptionHtml}
+        </div>
       `;
-      
-      // Add click handler to view profile
+      cardElement.innerHTML = `
+        <div class='storyboard-card' data-item-id='${item.id}' data-item-type='${config.itemType}'>
+          ${contentHtml}
+          ${avatarHtml}
+        </div>
+      `;
+      // Click handler
       cardElement.onclick = () => {
-          this.switchToScreen(config.profileScreen, { 
-              itemId: item.id, 
-              itemType: config.itemType, 
-              originScreen: this.CONSTANTS.VIEWS.STORYBOARD 
+          this.switchToScreen(config.profileScreen, {
+              itemId: item.id,
+              itemType: config.itemType,
+              originScreen: this.CONSTANTS.VIEWS.STORYBOARD
           });
       };
   },
@@ -3263,25 +3288,80 @@ _updateFormColorPreview(formElement, paletteKey) {
   },
 
   async _shuffleStoryboard() {
-      // Shuffle character and world selections randomly
-      const shuffleSelect = (selectElement, config) => {
-          const options = Array.from(selectElement.options).filter(opt => 
-              opt.value && !opt.value.startsWith('create_new_') && !opt.disabled
-          );
-          if (options.length > 0) {
-              const randomOption = options[Math.floor(Math.random() * options.length)];
-              selectElement.value = randomOption.value;
-              selectElement.dispatchEvent(new Event('change'));
-          }
-      };
+      try {
+          // Shuffle character and world selections randomly
+          const shuffleSelect = (selectElement, config) => {
+              const options = Array.from(selectElement.options).filter(opt => 
+                  opt.value && !opt.value.startsWith('create_new_') && !opt.disabled
+              );
+              if (options.length > 0) {
+                  const randomOption = options[Math.floor(Math.random() * options.length)];
+                  selectElement.value = randomOption.value;
+                  selectElement.dispatchEvent(new Event('change'));
+              }
+          };
 
-      shuffleSelect(this.ui.storyboardAiCharacterSelect, this.CONSTANTS.ITEM_CONFIG.character);
-      shuffleSelect(this.ui.storyboardUserCharacterSelect, this.CONSTANTS.ITEM_CONFIG.character);
-      shuffleSelect(this.ui.storyboardWorldSelect, this.CONSTANTS.ITEM_CONFIG.world);
-      
-      this.showTopNotification("Story elements shuffled!", "success", 2000);
-  }
-};
+          shuffleSelect(this.ui.storyboardAiCharacterSelect, this.CONSTANTS.ITEM_CONFIG.character);
+          shuffleSelect(this.ui.storyboardUserCharacterSelect, this.CONSTANTS.ITEM_CONFIG.character);
+          shuffleSelect(this.ui.storyboardWorldSelect, this.CONSTANTS.ITEM_CONFIG.world);
+          
+          this.showTopNotification("Story elements shuffled!", "success", 2000);
+      } catch (error) {
+          console.error("Error shuffling storyboard:", error);
+          this.showTopNotification("Failed to shuffle storyboard", "error");
+      }
+  },
+
+  // Utility: Get initials from name
+  _getInitials(name) {
+    if (!name) return '?';
+    const words = name.trim().split(/\s+/);
+    if (words.length === 1) return words[0][0]?.toUpperCase() || '?';
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  },
+  // Utility: Get palette color (medium) from palette key
+  _getPaletteColor(paletteKey) {
+    console.log("[DEBUG] _getPaletteColor received paletteKey:", paletteKey); // Debug paletteKey
+    const palettes = this.CONSTANTS.COLOR_PALETTES;
+    console.log("[DEBUG] this.CONSTANTS.COLOR_PALETTES:", palettes); // Debug full palettes object
+    if (paletteKey && palettes[paletteKey] && palettes[paletteKey].colors.medium)
+      return palettes[paletteKey].colors;
+    return { medium: '#4a90e2', light: '#a7d8f9', dark: '#1c3a6e', neutral: '#5a6a7a' }; // fallback blue palette
+  },
+  // Utility: SVG placeholder (768x768, visually balanced for small display)
+  _makeAvatarPlaceholderSVG(name, paletteKey, isPremade = false) {
+      const initials = this._getInitials(name);
+      const palette = this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
+      const bgColor = palette.colors.medium; /* Always use medium for placeholder background to match border */ 
+      const textColor = palette.colors.light;
+  
+      const svg = `
+          <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="${bgColor}"/>
+              <text x="50%" y="50%" font-family="${this.CONSTANTS.FONT_FAMILY}" font-size="40" fill="${textColor}" text-anchor="middle" dominant-baseline="middle">${initials}</text>
+          </svg>
+      `;
+      return `data:image/svg+xml;base64,${btoa(svg)}`;
+  },
+  // Centralized Avatar Generation Method
+  _generateAvatarHtml(item, context = 'profile') {
+      const san = this.sanitizeHtml;
+      const config = this.CONSTANTS.ITEM_CONFIG[item.itemType];
+      const avatarSrc = (item.avatar && item.avatar.trim()) ? item.avatar.trim() : this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
+      const placeholderDataUrl = this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
+
+      let avatarClass = 'avatar';
+      if (context === 'profile') {
+          avatarClass += ' profile-pic-large';
+      } else if (context === 'storyboard') {
+          avatarClass += ' storyboard-card-avatar';
+      } else if (context === 'list-item') {
+          avatarClass += ' list-item-avatar';
+      }
+
+      return `<img src='${avatarSrc}' alt='${san(item.name || 'Profile')} avatar' class='${avatarClass}' onerror="this.onerror=null;this.src='${placeholderDataUrl}'">`;
+  },
+}; // Closing brace for the App object
 
 // Initialize the application when ready
 window.dbName = 'rpglitch-db';
