@@ -3,6 +3,8 @@
     "markdown.validate.referenceLinks.enabled": false,
     "markdownlint.config": {
         "MD051": false,
+        "MD040": false,
+        "MD056": false,
         "list-marker-space": {
             "ul_multi": 3,
             "ul_single": 3

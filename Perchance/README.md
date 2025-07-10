@@ -30,9 +30,7 @@ This project is governed by a set of non-negotiable rules and protocols to ensur
 **For the full, up-to-date list of rules, see:**
 
 -   [atomic-css-principles.mdc](../.cursor/rules/atomic-css-principles.mdc)
--   [incremental-changes-philosophy.mdc](../.cursor/rules/incremental-changes-philosophy.mdc)
 -   [icon-free-design-standard.mdc](../.cursor/rules/icon-free-design-standard.mdc)
--   [protocol-control-system.mdc](../.cursor/rules/protocol-control-system.mdc)
 -   [All rules in .cursor/rules/](../.cursor/rules/)
 
 **Highlights:**
@@ -46,10 +44,11 @@ This project is governed by a set of non-negotiable rules and protocols to ensur
 
 ## Onboarding & Reference Guide
 
--   [coreContext.md](memory-bank/coreContext.md): Project context, philosophy, and persistent knowledge
--   [currentState.md](memory-bank/currentState.md): Current project state, open tasks, and recent changes
 -   [designSystem.md](memory-bank/designSystem.md): Design tokens, UI patterns, and CSS conventions
--   [All rules in .cursor/rules/](../.cursor/rules/)
+-   [tasks.md](memory-bank/tasks.md): Active and in-progress tasks for all projects
+-   [progress.md](memory-bank/progress.md): Step-by-step progress, milestones, and learnings
+
+> **The memory bank is the canonical source for all project knowledge, design decisions, and active work. Always consult and update the memory bank files during development to ensure consistency and persistent context across sessions.**
 
 ---
 

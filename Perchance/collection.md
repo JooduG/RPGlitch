@@ -1,5 +1,4 @@
 
-
 Best Practice: Documentation Structure
 
 1. README.md
