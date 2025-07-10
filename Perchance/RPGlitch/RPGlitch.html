@@ -12,204 +12,181 @@
       <button id="emergencyDeleteDataBtn" onclick="App.deleteAllData()" class="block m-auto mt-2 emergency-button">Delete All Data 🚨</button>
     </div>
   </div>
-  <div id="main" role="main" tabindex="-1"> 
-  <div id="topBar" class="flex items-center justify-between relative">
-    <div id="topBarNotificationArea" class="absolute flex items-center justify-center text-center hidden"></div>
-    <div id="topBarLeftContainer" class="flex items-center justify-center">
-      <button 
-        id="menuButton" 
-        onclick="App.menuButtonClickHandler(event)" 
-        aria-label="Open menu" 
-        class="btn btn-md btn-secondary btn-hover-bright"
-      >
-        <span class="button-icon" id="menuButtonIconContainer">☰</span>
-      </button>
+
+  <!-- Main Content Wrapper for Top Bar and Main Content -->
+  <div id="mainContentWrapper" style="max-width: 1200px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; align-items: stretch;">
+    <!-- EXPERIMENTAL: Focus Bar with Text Tabs and Contextual Actions (Moved outside #main) -->
+    <div class="focus-bar-wrapper">
+      <div class="focus-bar">
+        <!-- Left: Tab Buttons -->
+        <div class="tab-group left-tabs">
+          <button class="tab-btn" id="tabStoryboard" onclick="App.setMode('storyboard')">Storyboard</button>
+          <button class="tab-btn" id="tabCharacters" onclick="App.setMode('characters')">Character Workshop</button>
+          <button class="tab-btn" id="tabWorlds" onclick="App.setMode('worlds')">World Creation</button>
+          <button class="tab-btn" id="tabOptions" onclick="App.setMode('options')">Options</button>
+        </div>
+        <div class="spacer"></div>
+        <!-- Right: Contextual Actions -->
+        <div class="control-group right-controls" id="focusBarActions">
+          <!-- Contextual buttons will be rendered here by JS -->
+        </div>
+      </div>
+      <div id="focusBarChin" class="focus-bar-chin hidden"></div>
     </div>
-  
-    <div id="topBarDynamicTitleContainer" class="absolute w-auto flex items-center justify-center">
-      <span id="topBarDynamicTitle" class="overflow-hidden"></span>
+    <!-- Focus Bar End -->
+
+    <!-- CHIN AREA: Selects and Cards, always aligned with top bar -->
+    <div id="storyboardScreen" style="width: 100%;">
+      <div id="storyboardTitleArea">
+        <h2 id="storyboardTitle" contenteditable="true" spellcheck="false" title="Click to edit story name">Untitled Story</h2>
+      </div>
+      <div id="storyboardScrollableContent"> 
+        <div id="storyboardColumns">
+          <!-- AI Character Column -->
+          <div class="story-board-column">
+            <select id="storyboardAiCharacterSelect" class="story-board-ingredient-select" aria-label="Select AI Character">
+              <option value="" disabled selected>Select AI Character</option>
+            </select>
+            <div id="storyboardAiCharacterCard" class="story-board-ingredient-card empty-card">
+              Select AI Character
+            </div>
+          </div>
+          <!-- User Character Column -->
+          <div class="story-board-column">
+            <select id="storyboardUserCharacterSelect" class="story-board-ingredient-select" aria-label="Select Your Character">
+              <option value="" disabled selected>Select Your Character</option>
+            </select>
+            <div id="storyboardUserCharacterCard" class="story-board-ingredient-card empty-card">
+              Select Your Character
+            </div>
+          </div>
+          <!-- World Column -->
+          <div class="story-board-column">
+            <select id="storyboardWorldSelect" class="story-board-ingredient-select" aria-label="Select World">
+              <option value="" disabled selected>Select World</option>
+            </select>
+            <div id="storyboardWorldCard" class="story-board-ingredient-card empty-card">
+              Select World
+            </div>
+          </div>
+        </div>
+        <div id="advancedStoryOptionsContentArea" class="advanced-options-content" role="region" aria-labelledby="advancedStoryOptionsToggleBtn">
+          <div class="form-section"></div>
+          <div class="form-section"></div>
+        </div>
+      </div>
     </div>
-  
-    <div id="topBarRightContainer" class="flex items-center justify-end">
-     <div id="topBarAiCharacterInfo" class="flex items-center justify-center hidden">
-        <img id="topBarAiCharacterPic" class="avatar object-cover" src="" alt="AI Character">
-        <span id="topBarAiCharacterNameText" class="text-sm ml-2"></span>
-     </div>
-     <div id="topBarUserCharacterInfo" class="flex items-center justify-end">
-        <img id="topBarUserCharacterPic" class="avatar object-cover" src="" alt="User Character">
-        <span id="topBarUserCharacterNameText" class="text-sm ml-2"></span>
-     </div>
-    </div>
-  </div>
-  
-    <div id="columnsWrapper" class="flex flex-grow overflow-hidden">
+
+    <div id="main" role="main" tabindex="-1" style="width: 100%; max-width: none; margin: 0; padding: 0;">
       
-      <div id="contextualMenuPanel" role="region" aria-labelledby="contextualMenuTabs"> 
-          <div id="contextualMenuTabs" role="tablist">
-              <button class="contextual-menu-tab-button active" data-view="stories" role="tab" aria-selected="true" aria-label="Stories"><span class="button-text">Stories</span><span class="button-icon">📖</span></button>
-              <button class="contextual-menu-tab-button" data-view="characters" role="tab" aria-selected="false" aria-label="Characters"><span class="button-text">Characters</span><span class="button-icon">🤖</span></button>
-              <button class="contextual-menu-tab-button" data-view="worlds" role="tab" aria-selected="false" aria-label="Worlds"><span class="button-text">Worlds</span><span class="button-icon">🌍</span></button>
-              <button class="contextual-menu-tab-button" data-view="settings" role="tab" aria-selected="false" aria-label="Options"><span class="button-text">Options</span><span class="button-icon">⚙️</span></button>
+      <div id="columnsWrapper" class="flex flex-grow overflow-hidden" style="max-width: none; margin: 0;">
+        
+        <div id="contextualMenuPanel" role="region" aria-labelledby="contextualMenuTabs"> 
+            <div id="contextualMenuTabs" role="tablist">
+                <button class="contextual-menu-tab-button active" data-view="stories" role="tab" aria-selected="true" aria-label="Stories"><span class="button-text">Stories</span><span class="button-icon">📖</span></button>
+                <button class="contextual-menu-tab-button" data-view="characters" role="tab" aria-selected="false" aria-label="Characters"><span class="button-text">Characters</span><span class="button-icon">🤖</span></button>
+                <button class="contextual-menu-tab-button" data-view="worlds" role="tab" aria-selected="false" aria-label="Worlds"><span class="button-text">Worlds</span><span class="button-icon">🌍</span></button>
+                <button class="contextual-menu-tab-button" data-view="settings" role="tab" aria-selected="false" aria-label="Options"><span class="button-text">Options</span><span class="button-icon">⚙️</span></button>
+            </div>
+            <div id="contextualMenuContentArea">
+                <div id="contextualMenuStoriesSection" class="contextual-menu-section">
+                    <!-- Content rendered by App._renderContextualStoryList -->
+                </div>
+                <div id="contextualMenuCharactersSection" class="contextual-menu-section hidden">
+                    <!-- Content rendered by App._renderContextualCharacterList -->
+                </div>
+                <div id="contextualMenuWorldsSection" class="contextual-menu-section hidden">
+                    <!-- Content rendered by App._renderContextualWorldList -->
+                </div>
+                <div id="contextualMenuSettingsSection" class="contextual-menu-section hidden">
+                    <!-- Content rendered by App._renderContextualSettings -->
+                </div>
+            </div>
+        </div>
+    
+        <div id="middleColumn" class="flex-grow flex flex-col overflow-hidden"> 
+          
+          <div id="characterFormScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
+              <!-- Content rendered by App.renderFormScreen -->
           </div>
-          <div id="contextualMenuContentArea">
-              <div id="contextualMenuStoriesSection" class="contextual-menu-section">
-                  <!-- Content rendered by App._renderContextualStoryList -->
-              </div>
-              <div id="contextualMenuCharactersSection" class="contextual-menu-section hidden">
-                  <!-- Content rendered by App._renderContextualCharacterList -->
-              </div>
-              <div id="contextualMenuWorldsSection" class="contextual-menu-section hidden">
-                  <!-- Content rendered by App._renderContextualWorldList -->
-              </div>
-              <div id="contextualMenuSettingsSection" class="contextual-menu-section hidden">
-                  <!-- Content rendered by App._renderContextualSettings -->
-              </div>
-          </div>
-      </div>
-  
-      <div id="middleColumn" class="flex-grow flex flex-col overflow-hidden"> 
-        
-        <div id="characterFormScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
-            <!-- Content rendered by App.renderFormScreen -->
-        </div>
-        <div id="worldFormScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
-            <!-- Content rendered by App.renderFormScreen -->
-        </div>
-        
-        <div id="characterProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
-            <!-- Content rendered by App.renderProfileScreen -->
-        </div>
-        <div id="worldProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
-            <!-- Content rendered by App.renderProfileScreen -->
-        </div>
-        
-        <div id="storyProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-hidden hidden">
-          <div class="story-profile-layout-container">
-              <div id="storyProfileAiCharacterDisplayArea" class="story-profile-side-panel">
-                  <!-- AI Character's avatar and name loaded here -->
-              </div>
-              <div id="storyProfileChatWrapper" class="story-profile-central-content">
-                  <div id="storyProfileMessageFeed" class="message-feed-profile flex-grow overflow-auto">
-                      <!-- Chat log, conclusion, title, cards will be rendered here -->
-                  </div>
-                  <div id="storyProfileActions" class="story-profile-form-actions">
-                      <!-- Action buttons like Delete, Back will be rendered here -->
-                  </div>
-              </div>
-              <div id="storyProfileUserCharacterDisplayArea" class="story-profile-side-panel">
-                  <!-- User Character's avatar and name loaded here -->
-              </div>
-          </div>
-                  <div id="memoryApplicationScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
-            <!-- Content will be rendered by App._renderMemoryApplicationScreen -->
-        </div>
-        </div>
-        
-        <div id="preMadeCharacterSelectionScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
-              <h2 class="premade-screen-title">Premade Characters</h2>
-              <p class="premade-screen-description">Select a premade character to use its details in the creation form.</p>
-              <div id="preMadeCharacterOnlyList" class="grid-list-container"></div>
-        </div>
-        
-        <div id="preMadeWorldSelectionScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
-              <h2 class="premade-screen-title">Premade Worlds</h2>
-              <p class="premade-screen-description">Select a premade world to use its details in the creation form.</p>
-              <div id="preMadeWorldOnlyList" class="grid-list-container"></div>
-        </div>
-        
-        <div id="storyboardScreen" class="middleColumnScreen hidden">
-          <div id="storyboardTitleArea">
-              <h2 id="storyboardTitle" contenteditable="true" spellcheck="false" title="Click to edit story name">Untitled Story</h2>
+          <div id="worldFormScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
+              <!-- Content rendered by App.renderFormScreen -->
           </div>
           
-          <div id="storyboardScrollableContent"> 
-              <div id="storyboardColumns">
-                  <!-- AI Character Column -->
-                  <div class="story-board-column">
-                      <select id="storyboardAiCharacterSelect" class="story-board-ingredient-select" aria-label="Select AI Character">
-                          <option value="" disabled selected>Select AI Character</option>
-                      </select>
-                      <div id="storyboardAiCharacterCard" class="story-board-ingredient-card empty-card">
-                          Select AI Character
-                      </div>
-                  </div>
-  
-                  <!-- User Character Column -->
-                  <div class="story-board-column">
-                      <select id="storyboardUserCharacterSelect" class="story-board-ingredient-select" aria-label="Select Your Character">
-                           <option value="" disabled selected>Select Your Character</option>
-                      </select>
-                      <div id="storyboardUserCharacterCard" class="story-board-ingredient-card empty-card">
-                          Select Your Character
-                      </div>
-                  </div>
-  
-                  <!-- World Column -->
-                  <div class="story-board-column">
-                      <select id="storyboardWorldSelect" class="story-board-ingredient-select" aria-label="Select World">
-                           <option value="" disabled selected>Select World</option>
-                      </select>
-                      <div id="storyboardWorldCard" class="story-board-ingredient-card empty-card">
-                          Select World
-                      </div>
-                  </div>
-              </div>
-              
-              <div id="advancedStoryOptionsContentArea" class="advanced-options-content" role="region" aria-labelledby="advancedStoryOptionsToggleBtn">
-                  <div class="form-section">
-                      <label for="storyKickoffPromptTextarea" class="storyboard-label">Story Prompt</label>
-                      <textarea id="storyKickoffPromptTextarea" class="kickoff-prompt-textarea" placeholder="Guide the AI's initial narrative. If blank, AI uses 'Present' states of Characters & World. Hints for narrator style or dynamics are welcome. E.g., The old tavern was dimly lit..."></textarea>
-                  </div>
-                  
-                  <div class="form-section">
-                      <label for="customStoryJsTextarea" class="storyboard-label">Custom JavaScript</label>
-                      <textarea id="customStoryJsTextarea" class="custom-story-js-textarea" placeholder="Experimental: Code saved with story. Execution (e.g., sandbox) is a future enhancement. Use with caution."></textarea>
-                  </div>
-              </div>
+          <div id="characterProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
+              <!-- Content rendered by App.renderProfileScreen -->
+          </div>
+          <div id="worldProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
+              <!-- Content rendered by App.renderProfileScreen -->
           </div>
           
-          <div class="storyboard-actions">
-              <button id="advancedStoryOptionsToggleBtn" class="advanced-options-toggle-button" role="button" aria-expanded="false" aria-controls="advancedStoryOptionsContentArea" aria-label="Show advanced story options">
-                  <span class="button-text">Advanced Options</span><span class="button-icon">⚙️</span>
-              </button>
-              <button id="shuffleStoryElementsBtn" aria-label="Shuffle story elements"><span class="button-text">Shuffle</span><span class="button-icon">🎲</span></button>
-              <button id="beginStoryBtn" class="primary-action-button" aria-label="Begin story"><span class="button-text">Begin Story</span><span class="button-icon">▶️</span></button>
-          </div>
-        </div>
-  
-  
-        <div id="storyInterfaceScreen" class="middleColumnScreen flex flex-col h-full flex-grow relative hidden">
-          <div id="chatScreenLayoutContainer">
-              <div id="aiCharacterDisplayArea" class="chat-side-panel">
-                  <!-- AI Character's large image will be loaded here by JS -->
-              </div>
-              <div id="builtInChatInterfaceWrapper"> 
-                <div id="chatBackgroundCtn" class="absolute top-0 left-0 right-0 bottom-0 chat-background-overlay"></div>
-                <div id="storyConcludedNotice" class="message systemMessage hidden"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story has concluded.</div></div></div></div>
-                <div id="messageFeed" class="flex-grow overflow-auto pt-2"></div>
-                <div id="noMessagesNotice" class="hidden p-4 mt-4 opacity-70">Type your reply below to continue the story.</div>
-                <div id="statusNotifier" class="relative flex items-center justify-content-center z-10 hidden" data-original-display-value="flex">
-                  <span class="ticontainer rounded p-1 text-sm" style="background: var(--surface0-color);">
-                    <span id="typingIndicatorText">Bot is thinking</span>
-                    <span class="tidot"></span><span class="tidot"></span><span class="tidot"></span>
-                  </span>
+          <div id="storyProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-hidden hidden">
+            <div class="story-profile-layout-container">
+                <div id="storyProfileAiCharacterDisplayArea" class="story-profile-side-panel">
+                    <!-- AI Character's avatar and name loaded here -->
                 </div>
-                <div id="inputWrapper" class="p-2">
-                  <div class="chat-input-flex-container"> 
-                      <textarea id="messageInput" placeholder="Type your reply here..." class="flex-grow rounded p-2"></textarea>
-                      <div class="chat-send-button-container"> 
-                          <button id="sendButton" class="flex-grow primary-action-button" aria-label="Send message">
-                              <span class="button-text">Send</span><span class="button-icon" aria-hidden="true">➤</span>
-                          </button>
-                      </div>
+                <div id="storyProfileChatWrapper" class="story-profile-central-content">
+                    <div id="storyProfileMessageFeed" class="message-feed-profile flex-grow overflow-auto">
+                        <!-- Chat log, conclusion, title, cards will be rendered here -->
+                    </div>
+                    <div id="storyProfileActions" class="story-profile-form-actions">
+                        <!-- Action buttons like Delete, Back will be rendered here -->
+                    </div>
+                </div>
+                <div id="storyProfileUserCharacterDisplayArea" class="story-profile-side-panel">
+                    <!-- User Character's avatar and name loaded here -->
+                </div>
+            </div>
+                    <div id="memoryApplicationScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
+              <!-- Content will be rendered by App._renderMemoryApplicationScreen -->
+          </div>
+          </div>
+          
+          <div id="preMadeCharacterSelectionScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
+                <h2 class="premade-screen-title">Premade Characters</h2>
+                <p class="premade-screen-description">Select a premade character to use its details in the creation form.</p>
+                <div id="preMadeCharacterOnlyList" class="grid-list-container"></div>
+          </div>
+          
+          <div id="preMadeWorldSelectionScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
+                <h2 class="premade-screen-title">Premade Worlds</h2>
+                <p class="premade-screen-description">Select a premade world to use its details in the creation form.</p>
+                <div id="preMadeWorldOnlyList" class="grid-list-container"></div>
+          </div>
+          
+          <div id="storyInterfaceScreen" class="middleColumnScreen flex flex-col h-full flex-grow relative hidden">
+            <div id="chatScreenLayoutContainer">
+                <div id="aiCharacterDisplayArea" class="chat-side-panel">
+                    <!-- AI Character's large image will be loaded here by JS -->
+                </div>
+                <div id="builtInChatInterfaceWrapper"> 
+                  <div id="chatBackgroundCtn" class="absolute top-0 left-0 right-0 bottom-0 chat-background-overlay"></div>
+                  <div id="storyConcludedNotice" class="message systemMessage hidden"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story has concluded.</div></div></div></div>
+                  <div id="messageFeed" class="flex-grow overflow-auto pt-2"></div>
+                  <div id="noMessagesNotice" class="hidden p-4 mt-4 opacity-70">Type your reply below to continue the story.</div>
+                  <div id="statusNotifier" class="relative flex items-center justify-content-center z-10 hidden" data-original-display-value="flex">
+                    <span class="ticontainer rounded p-1 text-sm" style="background: var(--surface0-color);">
+                      <span id="typingIndicatorText">Bot is thinking</span>
+                      <span class="tidot"></span><span class="tidot"></span><span class="tidot"></span>
+                    </span>
+                  </div>
+                  <div id="inputWrapper" class="p-2">
+                    <div class="chat-input-flex-container"> 
+                        <textarea id="messageInput" placeholder="Type your reply here..." class="flex-grow rounded p-2"></textarea>
+                        <div class="chat-send-button-container"> 
+                            <button id="sendButton" class="flex-grow primary-action-button" aria-label="Send message">
+                                <span class="button-text">Send</span><span class="button-icon" aria-hidden="true">➤</span>
+                            </button>
+                        </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div id="userCharacterDisplayArea" class="chat-side-panel">
-                  <!-- User's Character large image will be loaded here by JS -->
-              </div>
+                <div id="userCharacterDisplayArea" class="chat-side-panel">
+                    <!-- User's Character large image will be loaded here by JS -->
+                </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+  </div>
 </div>

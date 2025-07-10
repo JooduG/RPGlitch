@@ -1,0 +1,135 @@
+---
+description: A comprehensive guide for effectively using the Sequential Thinking MCP tool for dynamic and reflective problem-solving.
+tags: [mcp, sequential-thinking, problem-solving, planning, guide]
+---
+
+# 🧠 Sequential Thinking Guide (`sequential-thinking-guide.mdc`)
+
+## 1. Objective
+
+This guide outlines the effective utilization of the `sequential_thinking` MCP tool, designed for dynamic and reflective problem-solving. It enables breaking down complex problems into manageable steps with visual tracking of thought history, allowing for dynamic revision, branching, and adjustment as understanding deepens.
+
+## 2. When to Use the Sequential Thinking Tool
+
+This tool is particularly effective and SHOULD be considered when faced with tasks that involve:
+
+*   **Complex Problem Decomposition:** Breaking down large, multifaceted problems into smaller, manageable steps.
+*   **Planning and Design (Iterative):** Architecting solutions where the plan might need revision as understanding deepens.
+*   **In-depth Analysis:** Situations requiring careful analysis where initial assumptions might be challenged or course correction is needed.
+*   **Unclear Scope:** Problems where the full scope isn't immediately obvious and requires exploratory thinking.
+*   **Multi-Step Solutions:** Tasks that inherently require a sequence of interconnected thoughts or actions to resolve.
+*   **Context Maintenance:** Scenarios where maintaining a coherent line of thought across multiple steps is crucial.
+*   **Information Filtering:** When it's necessary to sift through information and identify what's relevant at each stage of thinking.
+*   **Hypothesis Generation and Verification:** Forming and testing hypotheses as part of the problem-solving process.
+
+## 3. Core Principles for Using Sequential Thinking
+
+When invoking the `sequentialthinking` tool, the AI model MUST adhere to the following principles:
+
+*   **Iterative Thought Process:** Each use of the tool represents a single "thought." Build upon, question, or revise previous thoughts in subsequent calls.
+*   **Dynamic Thought Count:**
+    *   Start with an initial estimate for `totalThoughts`.
+    *   Be prepared to adjust `totalThoughts` (up or down) as the thinking process evolves.
+    *   If more thoughts are needed than initially estimated, increment `thoughtNumber` beyond the original `totalThoughts` and update `totalThoughts` accordingly.
+*   **Honest Reflection:**
+    *   Express uncertainty if it exists.
+    *   Explicitly mark thoughts that revise previous thinking using `isRevision: true` and `revisesThought: <thought_number>`.
+    *   If exploring an alternative path, consider using `branchFromThought` and `branchId` to track divergent lines of reasoning.
+*   **Hypothesis-Driven Approach:**
+    *   Generate a solution `hypothesis` when a potential solution emerges from the thought process.
+    *   Verify the `hypothesis` based on the preceding Chain of Thought steps.
+    *   Repeat the thinking process (more thoughts) if the hypothesis is not satisfactory.
+*   **Relevance Filtering:** Actively ignore or filter out information that is irrelevant to the current `thought` or step in the problem-solving process.
+*   **Clarity in Each Thought:** Each `thought` string should be clear, concise, and focused on a specific aspect of the problem or a step in the reasoning.
+*   **Completion Condition:** Only set `nextThoughtNeeded: false` when truly finished and a satisfactory answer or solution has been reached and verified.
+
+## 4. Input Parameters of the `sequential_thinking` Tool
+
+The tool accepts the following inputs when called via `use_mcp_tool`:
+
+*   `thought` (string, required): The current thinking step.
+*   `nextThoughtNeeded` (boolean): Whether another thought step is needed.
+*   `thoughtNumber` (integer): Current thought number (min: 1).
+*   `totalThoughts` (integer): Estimated total thoughts needed (min: 1).
+*   `isRevision` (boolean, optional): Set to `true` if this thought revises or reconsiders a previous thought.
+*   `revisesThought` (integer, optional, min: 1): If `isRevision` is true, which `thoughtNumber` is being reconsidered.
+*   `branchFromThought` (integer, optional, min: 1): If branching, which `thoughtNumber` is the branching point.
+*   `branchId` (string, optional): Identifier for the current branch (if any).
+*   `needsMoreThoughts` (boolean, optional): If `thoughtNumber` has reached `totalThoughts`, but more thinking is necessary.
+
+## 5. Workflow Example (Conceptual)
+
+This illustrates how the tool might be used iteratively to plan a new e-commerce feature: 'Personalized Recommendations'.
+
+1. **Thought 1 (Initial Approach):** Identify key components (data collection, recommendation engine, display module).
+2. **Thought 2 (Refining Components):** Data collection captures user behavior; engine uses collaborative filtering; display integrates into product pages and 'Recommended for You' section.
+3. **Thought 3 (Considering Constraints):** Decide on batch processing for MVP to simplify.
+4. **Thought 4 (Hypothesis):** A batch-processed collaborative filtering engine, with data from user interaction logs, displayed on product pages and a dedicated section, is a viable MVP architecture.
+5. **Thought 5 (Verification & Realization):** Hypothesis covers core aspects. Realize need to consider data storage for profiles/logs and engine updates. (More thoughts needed)
+6. **Thought 6 (Addressing Omissions):** NoSQL DB for profiles/logs. Engine reads from it, stores model separately, updated by scheduled batch job.
+7. **Thought 7 (Finalizing Plan for MVP):**
+    1. User interaction logger (to NoSQL DB).
+    2. Batch collaborative filtering engine (reads from NoSQL, updates model).
+    3. API to serve recommendations.
+    4. UI integration on product pages & dedicated section. (Seems complete for MVP).
+
+## 6. Critical Reminders
+
+*   **DO NOT** use this tool for simple, single-step tasks. It is for complex reasoning.
+*   **ALWAYS** ensure `thoughtNumber` increments correctly.
+*   **BE PREPARED** to adjust `totalThoughts` as understanding evolves.
+*   **FOCUS** on making progress towards a solution with each thought.
+*   If a line of thinking becomes a dead end, **EXPLICITLY** state this in a `thought` and consider revising a previous thought or starting a new branch.
+
+This guide should help Cline leverage the `sequentialthinking` MCP tool to its full potential.
+
+---
+
+**References:**
+
+*   [Sequential Thinking MCP server on playbooks.com](https://playbooks.com/mcp/sequential-thinking)
+
+## 7. Usage Checklist
+
+*   [ ] Is the problem complex, multi-step, or ambiguous?
+*   [ ] Did I start with an initial estimate for totalThoughts?
+*   [ ] Did I increment thoughtNumber correctly for each step?
+*   [ ] Did I revise or branch thoughts as needed?
+*   [ ] Did I clearly state the hypothesis and verify it?
+*   [ ] Did I set nextThoughtNeeded: false only when truly complete?
+
+## 8. Parameter Explanation Table
+
+| Parameter         | Type      | Required | Description                                                                 |
+|-------------------|-----------|----------|-----------------------------------------------------------------------------|
+| thought           | string    | Yes      | The current thinking step (analysis, question, hypothesis, etc.)            |
+| nextThoughtNeeded | boolean   | Yes      | true if more steps are needed, false if complete                            |
+| thoughtNumber     | integer   | Yes      | Current sequential number (min: 1)                                          |
+| totalThoughts     | integer   | Yes      | Estimated total thoughts needed (min: 1)                                    |
+| isRevision        | boolean   | No       | true if revising a previous thought                                         |
+| revisesThought    | integer   | No       | If isRevision, which thought is being revised                               |
+| branchFromThought | integer   | No       | If branching, which thought is the branch point                             |
+| branchId          | string    | No       | Identifier for the current branch                                           |
+| needsMoreThoughts | boolean   | No       | true if more thoughts are needed after reaching totalThoughts               |
+
+## 9. More Real Use Case Examples
+
+### **Example 1: Debugging a Multi-Step Bug**
+
+1. Thought 1: "Initial hypothesis: The bug is caused by a missing event handler."
+2. Thought 2: "Tested event handler presence; found it exists. Hypothesis incorrect."
+3. Thought 3: "Check for event handler registration timing. Discovered late registration."
+4. Thought 4: "Hypothesis: Moving registration earlier will fix the bug."
+5. Thought 5: "Tested fix; bug resolved. Marking process complete."
+
+### **Example 2: Planning a New Feature**
+
+1. Thought 1: "Feature requires user authentication and data sync."
+2. Thought 2: "Authentication can use OAuth; data sync via REST API."
+3. Thought 3: "Consider offline support. Need local storage fallback."
+4. Thought 4: "Final plan: OAuth for auth, REST for sync, IndexedDB for offline."
+5. Thought 5: "Plan covers all requirements. Marking process complete."
+
+**References:**
+
+*   [Sequential Thinking MCP server on playbooks.com](https://playbooks.com/mcp/sequential-thinking)

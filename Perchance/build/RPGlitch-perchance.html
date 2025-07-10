@@ -3,7 +3,7 @@
     RPGLITCH - PERCHANCE VERSION
     ========================================
     
-    Generated: 2025-07-08T11:30:25.290Z
+    Generated: 2025-07-10T19:14:15.148Z
     Build Script: build-perchance.js
     Platform: Perchance (perchance.org)
     
@@ -32,206 +32,183 @@
       <button id="emergencyDeleteDataBtn" onclick="App.deleteAllData()" class="block m-auto mt-2 emergency-button">Delete All Data 🚨</button>
     </div>
   </div>
-  <div id="main" role="main" tabindex="-1"> 
-  <div id="topBar" class="flex items-center justify-between relative">
-    <div id="topBarNotificationArea" class="absolute flex items-center justify-center text-center hidden"></div>
-    <div id="topBarLeftContainer" class="flex items-center justify-center">
-      <button 
-        id="menuButton" 
-        onclick="App.menuButtonClickHandler(event)" 
-        aria-label="Open menu" 
-        class="btn btn-md btn-secondary btn-hover-bright"
-      >
-        <span class="button-icon" id="menuButtonIconContainer">☰</span>
-      </button>
+
+  <!-- Main Content Wrapper for Top Bar and Main Content -->
+  <div id="mainContentWrapper" style="max-width: 1200px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; align-items: stretch;">
+    <!-- EXPERIMENTAL: Focus Bar with Text Tabs and Contextual Actions (Moved outside #main) -->
+    <div class="focus-bar-wrapper">
+      <div class="focus-bar">
+        <!-- Left: Tab Buttons -->
+        <div class="tab-group left-tabs">
+          <button class="tab-btn" id="tabStoryboard" onclick="App.setMode('storyboard')">Storyboard</button>
+          <button class="tab-btn" id="tabCharacters" onclick="App.setMode('characters')">Character Workshop</button>
+          <button class="tab-btn" id="tabWorlds" onclick="App.setMode('worlds')">World Creation</button>
+          <button class="tab-btn" id="tabOptions" onclick="App.setMode('options')">Options</button>
+        </div>
+        <div class="spacer"></div>
+        <!-- Right: Contextual Actions -->
+        <div class="control-group right-controls" id="focusBarActions">
+          <!-- Contextual buttons will be rendered here by JS -->
+        </div>
+      </div>
+      <div id="focusBarChin" class="focus-bar-chin hidden"></div>
     </div>
-  
-    <div id="topBarDynamicTitleContainer" class="absolute w-auto flex items-center justify-center">
-      <span id="topBarDynamicTitle" class="overflow-hidden"></span>
+    <!-- Focus Bar End -->
+
+    <!-- CHIN AREA: Selects and Cards, always aligned with top bar -->
+    <div id="storyboardScreen" style="width: 100%;">
+      <div id="storyboardTitleArea">
+        <h2 id="storyboardTitle" contenteditable="true" spellcheck="false" title="Click to edit story name">Untitled Story</h2>
+      </div>
+      <div id="storyboardScrollableContent"> 
+        <div id="storyboardColumns">
+          <!-- AI Character Column -->
+          <div class="story-board-column">
+            <select id="storyboardAiCharacterSelect" class="story-board-ingredient-select" aria-label="Select AI Character">
+              <option value="" disabled selected>Select AI Character</option>
+            </select>
+            <div id="storyboardAiCharacterCard" class="story-board-ingredient-card empty-card">
+              Select AI Character
+            </div>
+          </div>
+          <!-- User Character Column -->
+          <div class="story-board-column">
+            <select id="storyboardUserCharacterSelect" class="story-board-ingredient-select" aria-label="Select Your Character">
+              <option value="" disabled selected>Select Your Character</option>
+            </select>
+            <div id="storyboardUserCharacterCard" class="story-board-ingredient-card empty-card">
+              Select Your Character
+            </div>
+          </div>
+          <!-- World Column -->
+          <div class="story-board-column">
+            <select id="storyboardWorldSelect" class="story-board-ingredient-select" aria-label="Select World">
+              <option value="" disabled selected>Select World</option>
+            </select>
+            <div id="storyboardWorldCard" class="story-board-ingredient-card empty-card">
+              Select World
+            </div>
+          </div>
+        </div>
+        <div id="advancedStoryOptionsContentArea" class="advanced-options-content" role="region" aria-labelledby="advancedStoryOptionsToggleBtn">
+          <div class="form-section"></div>
+          <div class="form-section"></div>
+        </div>
+      </div>
     </div>
-  
-    <div id="topBarRightContainer" class="flex items-center justify-end">
-     <div id="topBarAiCharacterInfo" class="flex items-center justify-center hidden">
-        <img id="topBarAiCharacterPic" class="avatar object-cover" src="" alt="AI Character">
-        <span id="topBarAiCharacterNameText" class="text-sm ml-2"></span>
-     </div>
-     <div id="topBarUserCharacterInfo" class="flex items-center justify-end">
-        <img id="topBarUserCharacterPic" class="avatar object-cover" src="" alt="User Character">
-        <span id="topBarUserCharacterNameText" class="text-sm ml-2"></span>
-     </div>
-    </div>
-  </div>
-  
-    <div id="columnsWrapper" class="flex flex-grow overflow-hidden">
+
+    <div id="main" role="main" tabindex="-1" style="width: 100%; max-width: none; margin: 0; padding: 0;">
       
-      <div id="contextualMenuPanel" role="region" aria-labelledby="contextualMenuTabs"> 
-          <div id="contextualMenuTabs" role="tablist">
-              <button class="contextual-menu-tab-button active" data-view="stories" role="tab" aria-selected="true" aria-label="Stories"><span class="button-text">Stories</span><span class="button-icon">📖</span></button>
-              <button class="contextual-menu-tab-button" data-view="characters" role="tab" aria-selected="false" aria-label="Characters"><span class="button-text">Characters</span><span class="button-icon">🤖</span></button>
-              <button class="contextual-menu-tab-button" data-view="worlds" role="tab" aria-selected="false" aria-label="Worlds"><span class="button-text">Worlds</span><span class="button-icon">🌍</span></button>
-              <button class="contextual-menu-tab-button" data-view="settings" role="tab" aria-selected="false" aria-label="Options"><span class="button-text">Options</span><span class="button-icon">⚙️</span></button>
+      <div id="columnsWrapper" class="flex flex-grow overflow-hidden" style="max-width: none; margin: 0;">
+        
+        <div id="contextualMenuPanel" role="region" aria-labelledby="contextualMenuTabs"> 
+            <div id="contextualMenuTabs" role="tablist">
+                <button class="contextual-menu-tab-button active" data-view="stories" role="tab" aria-selected="true" aria-label="Stories"><span class="button-text">Stories</span><span class="button-icon">📖</span></button>
+                <button class="contextual-menu-tab-button" data-view="characters" role="tab" aria-selected="false" aria-label="Characters"><span class="button-text">Characters</span><span class="button-icon">🤖</span></button>
+                <button class="contextual-menu-tab-button" data-view="worlds" role="tab" aria-selected="false" aria-label="Worlds"><span class="button-text">Worlds</span><span class="button-icon">🌍</span></button>
+                <button class="contextual-menu-tab-button" data-view="settings" role="tab" aria-selected="false" aria-label="Options"><span class="button-text">Options</span><span class="button-icon">⚙️</span></button>
+            </div>
+            <div id="contextualMenuContentArea">
+                <div id="contextualMenuStoriesSection" class="contextual-menu-section">
+                    <!-- Content rendered by App._renderContextualStoryList -->
+                </div>
+                <div id="contextualMenuCharactersSection" class="contextual-menu-section hidden">
+                    <!-- Content rendered by App._renderContextualCharacterList -->
+                </div>
+                <div id="contextualMenuWorldsSection" class="contextual-menu-section hidden">
+                    <!-- Content rendered by App._renderContextualWorldList -->
+                </div>
+                <div id="contextualMenuSettingsSection" class="contextual-menu-section hidden">
+                    <!-- Content rendered by App._renderContextualSettings -->
+                </div>
+            </div>
+        </div>
+    
+        <div id="middleColumn" class="flex-grow flex flex-col overflow-hidden"> 
+          
+          <div id="characterFormScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
+              <!-- Content rendered by App.renderFormScreen -->
           </div>
-          <div id="contextualMenuContentArea">
-              <div id="contextualMenuStoriesSection" class="contextual-menu-section">
-                  <!-- Content rendered by App._renderContextualStoryList -->
-              </div>
-              <div id="contextualMenuCharactersSection" class="contextual-menu-section hidden">
-                  <!-- Content rendered by App._renderContextualCharacterList -->
-              </div>
-              <div id="contextualMenuWorldsSection" class="contextual-menu-section hidden">
-                  <!-- Content rendered by App._renderContextualWorldList -->
-              </div>
-              <div id="contextualMenuSettingsSection" class="contextual-menu-section hidden">
-                  <!-- Content rendered by App._renderContextualSettings -->
-              </div>
-          </div>
-      </div>
-  
-      <div id="middleColumn" class="flex-grow flex flex-col overflow-hidden"> 
-        
-        <div id="characterFormScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
-            <!-- Content rendered by App.renderFormScreen -->
-        </div>
-        <div id="worldFormScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
-            <!-- Content rendered by App.renderFormScreen -->
-        </div>
-        
-        <div id="characterProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
-            <!-- Content rendered by App.renderProfileScreen -->
-        </div>
-        <div id="worldProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
-            <!-- Content rendered by App.renderProfileScreen -->
-        </div>
-        
-        <div id="storyProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-hidden hidden">
-          <div class="story-profile-layout-container">
-              <div id="storyProfileAiCharacterDisplayArea" class="story-profile-side-panel">
-                  <!-- AI Character's avatar and name loaded here -->
-              </div>
-              <div id="storyProfileChatWrapper" class="story-profile-central-content">
-                  <div id="storyProfileMessageFeed" class="message-feed-profile flex-grow overflow-auto">
-                      <!-- Chat log, conclusion, title, cards will be rendered here -->
-                  </div>
-                  <div id="storyProfileActions" class="story-profile-form-actions">
-                      <!-- Action buttons like Delete, Back will be rendered here -->
-                  </div>
-              </div>
-              <div id="storyProfileUserCharacterDisplayArea" class="story-profile-side-panel">
-                  <!-- User Character's avatar and name loaded here -->
-              </div>
-          </div>
-                  <div id="memoryApplicationScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
-            <!-- Content will be rendered by App._renderMemoryApplicationScreen -->
-        </div>
-        </div>
-        
-        <div id="preMadeCharacterSelectionScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
-              <h2 class="premade-screen-title">Premade Characters</h2>
-              <p class="premade-screen-description">Select a premade character to use its details in the creation form.</p>
-              <div id="preMadeCharacterOnlyList" class="grid-list-container"></div>
-        </div>
-        
-        <div id="preMadeWorldSelectionScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
-              <h2 class="premade-screen-title">Premade Worlds</h2>
-              <p class="premade-screen-description">Select a premade world to use its details in the creation form.</p>
-              <div id="preMadeWorldOnlyList" class="grid-list-container"></div>
-        </div>
-        
-        <div id="storyboardScreen" class="middleColumnScreen hidden">
-          <div id="storyboardTitleArea">
-              <h2 id="storyboardTitle" contenteditable="true" spellcheck="false" title="Click to edit story name">Untitled Story</h2>
+          <div id="worldFormScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
+              <!-- Content rendered by App.renderFormScreen -->
           </div>
           
-          <div id="storyboardScrollableContent"> 
-              <div id="storyboardColumns">
-                  <!-- AI Character Column -->
-                  <div class="story-board-column">
-                      <select id="storyboardAiCharacterSelect" class="story-board-ingredient-select" aria-label="Select AI Character">
-                          <option value="" disabled selected>Select AI Character</option>
-                      </select>
-                      <div id="storyboardAiCharacterCard" class="story-board-ingredient-card empty-card">
-                          Select AI Character
-                      </div>
-                  </div>
-  
-                  <!-- User Character Column -->
-                  <div class="story-board-column">
-                      <select id="storyboardUserCharacterSelect" class="story-board-ingredient-select" aria-label="Select Your Character">
-                           <option value="" disabled selected>Select Your Character</option>
-                      </select>
-                      <div id="storyboardUserCharacterCard" class="story-board-ingredient-card empty-card">
-                          Select Your Character
-                      </div>
-                  </div>
-  
-                  <!-- World Column -->
-                  <div class="story-board-column">
-                      <select id="storyboardWorldSelect" class="story-board-ingredient-select" aria-label="Select World">
-                           <option value="" disabled selected>Select World</option>
-                      </select>
-                      <div id="storyboardWorldCard" class="story-board-ingredient-card empty-card">
-                          Select World
-                      </div>
-                  </div>
-              </div>
-              
-              <div id="advancedStoryOptionsContentArea" class="advanced-options-content" role="region" aria-labelledby="advancedStoryOptionsToggleBtn">
-                  <div class="form-section">
-                      <label for="storyKickoffPromptTextarea" class="storyboard-label">Story Prompt</label>
-                      <textarea id="storyKickoffPromptTextarea" class="kickoff-prompt-textarea" placeholder="Guide the AI's initial narrative. If blank, AI uses 'Present' states of Characters & World. Hints for narrator style or dynamics are welcome. E.g., The old tavern was dimly lit..."></textarea>
-                  </div>
-                  
-                  <div class="form-section">
-                      <label for="customStoryJsTextarea" class="storyboard-label">Custom JavaScript</label>
-                      <textarea id="customStoryJsTextarea" class="custom-story-js-textarea" placeholder="Experimental: Code saved with story. Execution (e.g., sandbox) is a future enhancement. Use with caution."></textarea>
-                  </div>
-              </div>
+          <div id="characterProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
+              <!-- Content rendered by App.renderProfileScreen -->
+          </div>
+          <div id="worldProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
+              <!-- Content rendered by App.renderProfileScreen -->
           </div>
           
-          <div class="storyboard-actions">
-              <button id="advancedStoryOptionsToggleBtn" class="advanced-options-toggle-button" role="button" aria-expanded="false" aria-controls="advancedStoryOptionsContentArea" aria-label="Show advanced story options">
-                  <span class="button-text">Advanced Options</span><span class="button-icon">⚙️</span>
-              </button>
-              <button id="shuffleStoryElementsBtn" aria-label="Shuffle story elements"><span class="button-text">Shuffle</span><span class="button-icon">🎲</span></button>
-              <button id="beginStoryBtn" class="primary-action-button" aria-label="Begin story"><span class="button-text">Begin Story</span><span class="button-icon">▶️</span></button>
-          </div>
-        </div>
-  
-  
-        <div id="storyInterfaceScreen" class="middleColumnScreen flex flex-col h-full flex-grow relative hidden">
-          <div id="chatScreenLayoutContainer">
-              <div id="aiCharacterDisplayArea" class="chat-side-panel">
-                  <!-- AI Character's large image will be loaded here by JS -->
-              </div>
-              <div id="builtInChatInterfaceWrapper"> 
-                <div id="chatBackgroundCtn" class="absolute top-0 left-0 right-0 bottom-0 chat-background-overlay"></div>
-                <div id="storyConcludedNotice" class="message systemMessage hidden"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story has concluded.</div></div></div></div>
-                <div id="messageFeed" class="flex-grow overflow-auto pt-2"></div>
-                <div id="noMessagesNotice" class="hidden p-4 mt-4 opacity-70">Type your reply below to continue the story.</div>
-                <div id="statusNotifier" class="relative flex items-center justify-content-center z-10 hidden" data-original-display-value="flex">
-                  <span class="ticontainer rounded p-1 text-sm" style="background: var(--surface0-color);">
-                    <span id="typingIndicatorText">Bot is thinking</span>
-                    <span class="tidot"></span><span class="tidot"></span><span class="tidot"></span>
-                  </span>
+          <div id="storyProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-hidden hidden">
+            <div class="story-profile-layout-container">
+                <div id="storyProfileAiCharacterDisplayArea" class="story-profile-side-panel">
+                    <!-- AI Character's avatar and name loaded here -->
                 </div>
-                <div id="inputWrapper" class="p-2">
-                  <div class="chat-input-flex-container"> 
-                      <textarea id="messageInput" placeholder="Type your reply here..." class="flex-grow rounded p-2"></textarea>
-                      <div class="chat-send-button-container"> 
-                          <button id="sendButton" class="flex-grow primary-action-button" aria-label="Send message">
-                              <span class="button-text">Send</span><span class="button-icon" aria-hidden="true">➤</span>
-                          </button>
-                      </div>
+                <div id="storyProfileChatWrapper" class="story-profile-central-content">
+                    <div id="storyProfileMessageFeed" class="message-feed-profile flex-grow overflow-auto">
+                        <!-- Chat log, conclusion, title, cards will be rendered here -->
+                    </div>
+                    <div id="storyProfileActions" class="story-profile-form-actions">
+                        <!-- Action buttons like Delete, Back will be rendered here -->
+                    </div>
+                </div>
+                <div id="storyProfileUserCharacterDisplayArea" class="story-profile-side-panel">
+                    <!-- User Character's avatar and name loaded here -->
+                </div>
+            </div>
+                    <div id="memoryApplicationScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
+              <!-- Content will be rendered by App._renderMemoryApplicationScreen -->
+          </div>
+          </div>
+          
+          <div id="preMadeCharacterSelectionScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
+                <h2 class="premade-screen-title">Premade Characters</h2>
+                <p class="premade-screen-description">Select a premade character to use its details in the creation form.</p>
+                <div id="preMadeCharacterOnlyList" class="grid-list-container"></div>
+          </div>
+          
+          <div id="preMadeWorldSelectionScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
+                <h2 class="premade-screen-title">Premade Worlds</h2>
+                <p class="premade-screen-description">Select a premade world to use its details in the creation form.</p>
+                <div id="preMadeWorldOnlyList" class="grid-list-container"></div>
+          </div>
+          
+          <div id="storyInterfaceScreen" class="middleColumnScreen flex flex-col h-full flex-grow relative hidden">
+            <div id="chatScreenLayoutContainer">
+                <div id="aiCharacterDisplayArea" class="chat-side-panel">
+                    <!-- AI Character's large image will be loaded here by JS -->
+                </div>
+                <div id="builtInChatInterfaceWrapper"> 
+                  <div id="chatBackgroundCtn" class="absolute top-0 left-0 right-0 bottom-0 chat-background-overlay"></div>
+                  <div id="storyConcludedNotice" class="message systemMessage hidden"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story has concluded.</div></div></div></div>
+                  <div id="messageFeed" class="flex-grow overflow-auto pt-2"></div>
+                  <div id="noMessagesNotice" class="hidden p-4 mt-4 opacity-70">Type your reply below to continue the story.</div>
+                  <div id="statusNotifier" class="relative flex items-center justify-content-center z-10 hidden" data-original-display-value="flex">
+                    <span class="ticontainer rounded p-1 text-sm" style="background: var(--surface0-color);">
+                      <span id="typingIndicatorText">Bot is thinking</span>
+                      <span class="tidot"></span><span class="tidot"></span><span class="tidot"></span>
+                    </span>
+                  </div>
+                  <div id="inputWrapper" class="p-2">
+                    <div class="chat-input-flex-container"> 
+                        <textarea id="messageInput" placeholder="Type your reply here..." class="flex-grow rounded p-2"></textarea>
+                        <div class="chat-send-button-container"> 
+                            <button id="sendButton" class="flex-grow primary-action-button" aria-label="Send message">
+                                <span class="button-text">Send</span><span class="button-icon" aria-hidden="true">➤</span>
+                            </button>
+                        </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div id="userCharacterDisplayArea" class="chat-side-panel">
-                  <!-- User's Character large image will be loaded here by JS -->
-              </div>
+                <div id="userCharacterDisplayArea" class="chat-side-panel">
+                    <!-- User's Character large image will be loaded here by JS -->
+                </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+  </div>
 </div>
 <!-- ======================================== -->
 <!-- CSS STYLES WITH INTEGRATED ATOMIC CSS -->
@@ -320,17 +297,25 @@
         border-color var(--transition-speed);
 }
 html, body {
-    height: 100vh;
-    background: var(--background);
-    color: var(--text-color);
-    font-family: var(--font-family);
-    font-weight: var(--font-weight-normal);
-    font-size: var(--font-size-base);
-    line-height: var(--line-height-normal);
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers direct children horizontally */
+  background: var(--background);
+  color: var(--text-color);
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* --- Utility Classes --- */
@@ -696,6 +681,45 @@ img.avatar, .avatar img { /* Ensures img tags used as avatars fill their contain
     border: 1px solid var(--surface2-color);
 }
 
+/* --- Top Bar Character Info Styles --- */
+.top-bar-character-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1.2rem;
+}
+.top-bar-avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface1-color);
+  border: 1.5px solid var(--surface2-color);
+}
+.top-bar-character-name {
+  font-size: 0.98em;
+  color: var(--subtext1-color);
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 900px) {
+  .top-bar-character-info {
+    margin-left: 0.5rem;
+    gap: 0.3rem;
+  }
+  .top-bar-avatar-img {
+    width: 24px;
+    height: 24px;
+  }
+  .top-bar-character-name {
+    max-width: 60px;
+    font-size: 0.92em;
+  }
+}
+/* --- End Top Bar Character Info Styles --- */
+
 /* Studio/Profile Avatar Sections */
 .avatar-section h3 {
     font-size: 0.8rem;
@@ -795,27 +819,44 @@ img.avatar, .avatar img { /* Ensures img tags used as avatars fill their contain
 }
 
 /* --- Main Layout & Core Wrappers --- */
+.focus-bar-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0 0 0; /* Add top padding for floating effect */
+  box-sizing: border-box;
+}
+
+#mainContentWrapper {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+
 #main {
-    background: var(--background);
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
+
 #columnsWrapper {
-    display: flex;
-    flex-grow: 1;
-    overflow: hidden;
-    background: var(--background);
-    position: relative;
-}
-#middleColumn {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    min-width: 0;
-    z-index: 1;
-    width: 100%;
-}
-.middleColumnScreen {
-    min-width: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 
 /* Global Layout Resets for Profile Screen (consolidated from original section) */
@@ -825,6 +866,11 @@ html, body, #main, #columnsWrapper, #middleColumn, .middleColumnScreen {
   padding: 0 ;
   overflow-x: hidden ;
   box-sizing: border-box ;
+}
+
+#columnsWrapper {
+  max-width: 1200px; /* Match focus bar width */
+  margin: 0 auto; /* Center the columns wrapper */
 }
 
 /* --- Contextual Menu Styles --- */
@@ -845,21 +891,18 @@ html, body, #main, #columnsWrapper, #middleColumn, .middleColumnScreen {
 #topBar.top-bar-notification-active.error { background-color: var(--red-color); }
 #topBar.top-bar-notification-active.info { background-color: var(--blue-color); }
 #topBar.top-bar-notification-active .top-bar-content-item { display: none !important; }
-#topBarNotificationArea {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9em;
-    font-weight: 500;
-    color: var(--background);
-    padding: 0 1rem;
-    text-align: center;
-    animation: notificationFadeIn 0.3s ease;
+#topBarNotificationArea, .notification-area {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+  background: none;
+  color: #fab387;
+  font-weight: 500;
+  font-size: 1em;
+  box-shadow: none;
+  position: static;
+  height: auto;
+  padding: 0;
 }
 
 /* Contextual Menu Panel */
@@ -871,7 +914,14 @@ html, body, #main, #columnsWrapper, #middleColumn, .middleColumnScreen {
     transform: scale(0.95) translateY(-10px); pointer-events: none; visibility: hidden;
     transition: opacity 0.25s ease-out, transform 0.25s ease-out, visibility 0s 0.25s; overflow-x: hidden;
 }
-#contextualMenuPanel.visible { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; visibility: visible; transition-delay: 0s, 0s, 0s; }
+#contextualMenuPanel.visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+  visibility: visible;
+  transition-delay: 0s, 0s, 0s;
+  z-index: 10000;
+}
 #contextualMenuTabs {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; padding: 0.75rem;
     border-bottom: 1px solid var(--menu-panel-border); background-color: var(--background);
@@ -924,9 +974,15 @@ html, body, #main, #columnsWrapper, #middleColumn, .middleColumnScreen {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    width: 100%;
 }
 #storyboardTitleArea {
-    padding: 0.5rem 1.5rem; min-height: 70px; background-color: var(--background); z-index: 6; max-width: 1400px; margin: 0 auto;
+    padding: 0.5rem 1rem; 
+    min-height: 70px; 
+    background-color: var(--background); 
+    z-index: 6; 
+    width: 100%;
+    box-sizing: border-box;
 }
 #storyboardTitle {
     font-size: 1.8em; color: var(--text-color); margin: 0; display: inline-block;
@@ -939,29 +995,49 @@ html, body, #main, #columnsWrapper, #middleColumn, .middleColumnScreen {
 }
 
 #storyboardScrollableContent {
-    overflow-y: auto; padding: 1rem; max-width: 1400px; margin: 0 auto;
+    overflow-y: auto; 
+    padding: 0; /* Add back horizontal padding for content spacing */
     flex-grow: 1; /* Essential for it to take up available space in flex column parent */
     display: flex;
-    flex-direction: row; /* Ensure horizontal layout for columns */
+    flex-direction: column; /* Changed to column to contain the grid properly */
     height: 100%; /* Ensure it fills available vertical space */
+    width: 100%; /* Ensure it fills available horizontal space */
+    box-sizing: border-box; /* Ensure padding doesn't shrink content */
 }
 
 #storyboardColumns {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
-    align-items: flex-start;
+    padding: 0; /* Reduced top padding from 1.5rem to 0.5rem */
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    box-sizing: border-box;
+}
+@media (max-width: 900px) {
+  #storyboardColumns {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
 }
 .story-board-column {
-    flex: 1; background-color: transparent; padding: 0; border: 0; gap: 1rem; height: 330px; min-height: 330px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 .story-board-ingredient-select {
-    padding: 0.75rem; font-size: 1em; appearance: none; -webkit-appearance: none; -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23cdd6f4'%3e%3cpath d='M8 10.75a.5.5 0 0 1-.354-.146l-3-3a.5.5 0 0 1 .708-.708L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3A.5.5 0 0 1 8 10.75Z'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 1.2em;
-    padding-right: 2.5rem;
+    width: 100%;
+    padding: 0.7rem 1.2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--surface1-color);
+    background-color: var(--surface0-color);
+    color: var(--text-color);
+    font-size: 1.05em;
+    font-weight: var(--font-weight-normal);
+    transition: all var(--transition-speed) var(--transition-easing);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 0.7rem;
 }
 .story-board-ingredient-select option[disabled] { color: var(--subtext0-color); font-style: italic; }
 .story-board-ingredient-select optgroup { color: var(--subtext1-color); background-color: var(--surface0-color); }
@@ -986,8 +1062,8 @@ html, body, #main, #columnsWrapper, #middleColumn, .middleColumnScreen {
     transform: translateY(-2px);
 }
 .card-image-panel {
-    flex-basis: 35%;
-    max-width: 35%;
+    flex-basis: 100%;
+    max-width: 100%;
     background-color: var(--item-main-color) ;
     border-right: none;
     border-top-right-radius: var(--border-radius);
@@ -1033,7 +1109,54 @@ html, body, #main, #columnsWrapper, #middleColumn, .middleColumnScreen {
 }
 .story-board-ingredient-card:not(.empty-card):hover .card-image-panel img { transform: scale(1.02); }
 .card-details-panel { padding: 1rem; }
-.card-name { font-size: 1.15em; margin: 0 0 0.2rem 0; color: var(--text-color); line-height: 1.3; white-space: normal; text-overflow: ellipsis; }
+/* --- Card name: white text --- */
+.card-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-align: left;
+  margin-bottom: 0.3rem;
+  font-style: normal;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  color: #fff;
+}
+
+/* --- Premade tag: white text --- */
+.card-premade-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--item-main-color, #444);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.08em 0.7em;
+  margin-bottom: 0.3rem;
+  margin-right: 0.5rem;
+  text-align: left;
+  vertical-align: middle;
+  font-style: normal;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+/* --- Card description: white text --- */
+.card-description {
+  font-size: 1rem;
+  font-weight: 400;
+  text-align: left;
+  font-style: normal;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  color: #fff;
+}
+
+.card-left-col {
+  align-items: flex-start;
+}
+
 .premade-tag-card {
     font-size: 0.7em;
     font-style: italic;
@@ -1055,8 +1178,7 @@ html, body, #main, #columnsWrapper, #middleColumn, .middleColumnScreen {
 }
 .card-description { font-size: 0.85em; opacity: 1; line-height: 1.4; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; margin: 0; color: var(--subtext1-color); }
 #storyboardScrollableContent .storyboard-actions {
-    max-width: 1400px;
-    margin: 1rem auto 0;
+    margin: 1rem 0 0;
     padding: 0;
     gap: 1rem;
 }
@@ -1071,6 +1193,362 @@ html, body, #main, #columnsWrapper, #middleColumn, .middleColumnScreen {
 .storyboard-actions #beginStoryBtn {
     margin-left: auto;
     min-width: 130px;
+}
+
+.container {
+  width: 95%;
+  min-width: auto;
+  max-width: 1200px;
+  box-sizing: border-box;
+  margin: 0 auto 0 auto;
+}
+.focus-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #181825;
+    border: 0px solid var(--surface1-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    box-shadow: var(--shadow-md);
+    width: 100%;
+    max-width: 1200px; /* Set consistent max width */
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+.control-group.right-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.action-btn, .primary-action-button {
+    background: var(--surface1-color); /* Match tab buttons */
+    color: var(--text-color); /* Match tab buttons */
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0.6rem 1rem;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+    box-shadow: var(--shadow-sm);
+    min-width: 80px;
+    line-height: var(--line-height-tight);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+}
+
+.action-btn:hover, .primary-action-button:hover {
+    filter: brightness(1.1); /* Match tab buttons hover */
+}
+.chin-actions-flex-row, .chin-actions-grid {
+  display: flex;
+  gap: 0.75rem;
+  background: var(--surface1-color); /* Match tab button color */
+  border-radius: var(--border-radius);
+  padding: 0.5rem 0.75rem 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+.chin-action-btn, .chin-actions-flex-row input, .chin-actions-grid input {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.7rem 1.25rem;
+  background: #313244;
+  color: #cdd6f4;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.05em;
+  font-weight: 600;
+  text-align: center;
+  transition: background 0.18s, color 0.18s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chin-action-btn:hover, .chin-actions-flex-row input:focus, .chin-actions-grid input:focus {
+  background: #45475a;
+  color: #a6e3a1;
+  outline: 2px solid #a6e3a1;
+}
+.chin-actions-flex-row input, .chin-actions-grid input {
+  background: #23233a;
+  color: #cdd6f4;
+  border: 1.5px solid #313244;
+  font-weight: 500;
+  text-align: left;
+  padding-left: 1rem;
+}
+.chin-actions-grid, .chin-list-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.chin-list-grid {
+  margin-top: 0.5rem;
+}
+.chin-divider {
+  border: none;
+  border-top: 1.5px solid var(--surface1-color);
+  margin: 1rem 0 1.2rem 0;
+}
+/* Hide right-side actions when chin is open for characters, worlds, or options */
+.focus-bar-chin.visible ~ .control-group.right-controls, .focus-bar-chin.visible + .control-group.right-controls {
+  display: none !important;
+}
+/* Remove settings button from right on options chin */
+#focusBarActions:empty { display: none !important; }
+
+/* EXPERIMENTAL: Focus Bar with Text Tabs and Contextual Actions */
+.tab-group.left-tabs {
+    display: flex;
+    gap: 1rem;
+}
+
+.tab-btn {
+    background: var(--surface1-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+    box-shadow: var(--shadow-sm);
+    box-sizing: border-box;
+}
+
+.tab-btn.active, .tab-btn:focus {
+    background: var(--surface2-color);
+    color: var(--text-color);
+}
+
+.tab-btn:hover {
+    filter: brightness(1.1);
+}
+
+.focus-bar-chin {
+    background: var(--surface0-color);
+    border: 1px solid var(--surface1-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-top: 0.5rem;
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 1200px; /* Match focus bar width */
+    margin: 0.5rem auto 0 auto; /* Center the chin */
+    display: none;
+    animation: chinDrop 0.3s ease-out;
+    box-sizing: border-box; /* Ensure padding doesn't affect width calculation */
+}
+
+.focus-bar-chin.visible {
+  display: block;
+}
+@keyframes chinDrop {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* End Experimental Styles */
+
+#emergencyExportCtn, #emergencyExportCtn *, #emergencyExportCtn button {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  opacity: 0 !important;
+}
+
+/* Ensure chin and its grids are truly full width */
+#topBar, .focus-bar-chin {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 1rem;
+  border-radius: 0;
+  box-shadow: none;
+}
+.chin-actions-grid, .chin-list-grid {
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  gap: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.chin-card, .chin-search, select.chin-dropdown, .story-board-ingredient-select {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* --- Chin 4-column grid styles --- */
+.chin-actions-grid, .chin-list-grid {
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.chin-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.chin-list-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2rem;
+  margin-top: 0.5rem;
+}
+.chin-card {
+  background: var(--surface0-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  padding: 1rem;
+  cursor: pointer;
+  text-align: left;
+  font-size: 1em;
+  transition: box-shadow 0.18s, background 0.18s;
+  border: 1.5px solid transparent;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.chin-card:hover {
+  background: var(--surface1-color);
+  box-shadow: 0 4px 16px rgba(137,180,250,0.10);
+  border-color: var(--blue-color);
+}
+.chin-divider {
+  border: none;
+  border-top: 1.5px solid var(--surface1-color);
+  margin: 1rem 0 1.2rem 0;
+}
+@media (max-width: 900px) {
+  .chin-actions-grid, .chin-list-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* --- End Chin 4-column grid styles --- */
+
+.advanced-options-columns {
+  display: flex;
+  gap: 1.5rem;
+}
+@media (max-width: 700px) {
+  .advanced-options-columns {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+.advanced-options-columns .form-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.advanced-options-columns label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #a6adc8;
+}
+.advanced-options-columns textarea {
+  min-height: 5.5rem;
+  border-radius: 8px;
+  border: 1.5px solid #45475a;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  resize: vertical;
+  margin-bottom: 0.5rem;
+}
+
+#chinArea {
+  margin-top: 2rem; /* Match the top bar's vertical offset */
+  border-radius: 16px; /* Match the top bar's pill shape */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10); /* Subtle floating effect */
+  background: var(--surface0-color); /* Match the top bar's background */
+  padding-bottom: 1.5rem; /* Add bottom padding for balance */
+  padding-top: 1.5rem; /* Optional: add top padding for content spacing */
+}
+
+/* --- Card 2-column layout: 35% image, 65% text --- */
+.two-col-card {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+}
+.card-left-col {
+  flex: 0 0 65%;
+  max-width: 65%;
+  padding: 1.2rem 1.2rem 1.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.card-right-col {
+  flex: 0 0 35%;
+  max-width: 35%;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  min-width: 0;
+  padding: 0;
+  height: 100%;
+}
+.portrait-image {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  aspect-ratio: unset;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+}
+.portrait-image img, .portrait-image svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  display: block;
+}
+
+/* --- Dropdown padding --- */
+.story-board-ingredient-select {
+  padding: 0.7rem 1.2rem;
+  font-size: 1.05em;
+  margin-bottom: 0.7rem;
+}
+
+/* --- Storyboard title: white text --- */
+.storyboard-title, .storyboard-title h1, #storyboardTitle, .storyboard-title-text {
+  color: #fff !important;
+}
+
+/* --- Placeholder card: center text vertically and horizontally, no text style changes --- */
+.placeholder-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  text-align: center;
 }
 </style>
 
@@ -1291,6 +1769,11 @@ const App = {
       this.ui.builtInChatInterfaceWrapper = document.getElementById('builtInChatInterfaceWrapper');
       
       if (!this.ui.main) console.error("[App Critical] #main not found!");
+      // Ensure focusBarActions is available in ui elements
+      this.ui.focusBarActions = document.getElementById('focusBarActions');
+      console.log('[DEBUG] storyboardAiCharacterSelect:', this.ui.storyboardAiCharacterSelect);
+      console.log('[DEBUG] storyboardUserCharacterSelect:', this.ui.storyboardUserCharacterSelect);
+      console.log('[DEBUG] storyboardWorldSelect:', this.ui.storyboardWorldSelect);
   },
 
   showEl(el) { 
@@ -1351,7 +1834,9 @@ const App = {
   _premadeCharacterItemsCache: null,
 
   async getPremadeCharacterItems() { 
+      console.log('[DEBUG] getPremadeCharacterItems called');
       if (this._premadeCharacterItemsCache) {
+          console.log('[DEBUG] Returning cached premadeCharacterItems:', this._premadeCharacterItemsCache);
           return this._premadeCharacterItemsCache;
       }
       const db = this.db;
@@ -1431,6 +1916,7 @@ const App = {
         ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
         ...premadeItems
       ];
+      console.log('[DEBUG] Returning merged character items:', merged);
       this._premadeCharacterItemsCache = merged;
       return this._premadeCharacterItemsCache;
   },
@@ -1439,7 +1925,9 @@ const App = {
   _premadeWorldItemsCache: null,
 
   async getPremadeWorldItems() {
+      console.log('[DEBUG] getPremadeWorldItems called');
       if (this._premadeWorldItemsCache) {
+          console.log('[DEBUG] Returning cached premadeWorldItems:', this._premadeWorldItemsCache);
           return this._premadeWorldItemsCache;
       }
       const db = this.db;
@@ -1477,6 +1965,7 @@ const App = {
         ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
         ...premadeItems
       ];
+      console.log('[DEBUG] Returning merged world items:', merged);
       this._premadeWorldItemsCache = merged;
       return this._premadeWorldItemsCache;
   },
@@ -1616,8 +2105,7 @@ const App = {
           this.currentStoryId = appState.lastOpenedStoryId; 
           this.activeStoryId = appState.activeStoryId; 
           this.currentContextualMenuView = appState.currentContextualMenuView || this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.STORIES;
-          this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD;
-
+          this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD; // Ensure currentMainView is set on load
 
           this.ui.messageInput.onkeyup = (e) => {
               if (e.key === 'Enter' && !e.shiftKey) { 
@@ -1651,13 +2139,6 @@ const App = {
           }
           this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(button => button.onclick = () => this.switchContextualMenuView(button.dataset.view));
           this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
-          this.ui.beginStoryBtn.onclick = () => this.beginStory();
-          this.ui.advancedStoryOptionsToggleBtn.onclick = () => {
-              this.ui.advancedStoryOptionsContentArea.classList.toggle('open');
-              const isExpanded = this.ui.advancedStoryOptionsContentArea.classList.contains('open');
-              this.ui.advancedStoryOptionsToggleBtn.setAttribute('aria-expanded', isExpanded);
-          };
-          this.ui.shuffleStoryElementsBtn.onclick = () => this._shuffleStoryboard();
           
           await this._updateTopBarCharacterInfo('user');
           this.switchContextualMenuView(this.currentContextualMenuView); 
@@ -1720,6 +2201,23 @@ const App = {
                await this.switchToScreen(initialScreenTarget, initialScreenOptions);
           }
 
+          // Load all characters and worlds from the database before setting App.data
+          this.data = {
+            characters: await this.db.characters.toArray(),
+            worlds: await this.db.worlds.toArray()
+          };
+
+          // Ensure App.data is set for dropdown population
+          App.data = this.data;
+          console.log('[DEBUG] App.data set:', App.data && Object.keys(App.data));
+          console.log('[DEBUG] App.data.characters:', App.data && App.data.characters);
+          console.log('[DEBUG] App.data.worlds:', App.data && App.data.worlds);
+
+          // Atomic fix: Populate dropdowns immediately after data is set
+          if (typeof this._updateStoryboard === 'function') {
+              console.log('[DEBUG] Calling _updateStoryboard immediately after App.data set');
+              await this._updateStoryboard();
+          }
 
           this.hideEl(this.ui.initialPageLoadingModal);
           console.log("[App Lifecycle] initialLoad completed.");
@@ -1731,6 +2229,13 @@ const App = {
       } finally {
           this.isInitializing = false;
           this.checkAllButtonStates();
+          // Ensure right-side buttons are rendered and functional on initial load for Storyboard
+          this.renderFocusBarActions(); 
+      }
+      // ... existing code ...
+      if (this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD && typeof this._updateStoryboard === 'function') {
+        console.log('[DEBUG] Data loaded and screen switched, calling _updateStoryboard');
+        await this._updateStoryboard();
       }
   },
   
@@ -3259,6 +3764,7 @@ _updateFormColorPreview(formElement, paletteKey) {
   },
 
   async initializeWhenReady() {
+    console.log('[DEBUG] initializeWhenReady called');
     try {
       await this.waitForDependenciesAndInitializeApp();
       await this.initialLoad();
@@ -3268,86 +3774,101 @@ _updateFormColorPreview(formElement, paletteKey) {
       if (this.ui.emergencyExportCtn) this.showEl(this.ui.emergencyExportCtn);
       if (this.ui.initialPageLoadingModal) this.hideEl(this.ui.initialPageLoadingModal);
     }
+    console.log('[DEBUG] initialLoad complete');
+    // ... existing code ...
+    if (this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD && typeof this._updateStoryboard === 'function') {
+      console.log('[DEBUG] Data loaded and screen switched, calling _updateStoryboard (conditional)');
+      await this._updateStoryboard();
+    }
+    // Force population regardless of currentMainView
+    if (typeof this._updateStoryboard === 'function') {
+      console.log('[DEBUG] Forcing _updateStoryboard at end of initializeWhenReady');
+      await this._updateStoryboard();
+      console.log('[DEBUG] Forced _updateStoryboard complete');
+    }
   },
   
   async switchToScreen(screenId, options = {}) {
-    console.log("[EDIT WORKFLOW DEBUG] switchToScreen called - from:", this.currentMainView, "to:", screenId, "options:", options);
-    
-    const oldScreen = this.currentMainView;
-    this.currentMainView = screenId;
-    this.ui.topBar.classList.remove('chat-active');
+    console.log(`[App Navigation] Switching to screen: ${screenId}`);
 
-    if (screenId === this.CONSTANTS.VIEWS.CHARACTER_FORM || screenId === this.CONSTANTS.VIEWS.WORLD_FORM) {
-        this.currentCreateFormContext.originScreen = options.originScreen || oldScreen || this.CONSTANTS.VIEWS.STORYBOARD;
-        this.currentCreateFormContext.itemId = options.itemId; 
-        // FIX: Storing itemType in the context to prevent errors on form cancellation.
-        this.currentCreateFormContext.itemType = options.itemType;
-        this.currentCreateFormContext.isCreating = !!options.isCreating;
-        if (options.isCreating) {
-            if (Object.keys(this.createItemFormData).length === 0 && (!options.formData || Object.keys(options.formData).length === 0)) {
-                this.createItemFormData = { name: '', isPremade: false, originalPremadeId: null };
-            } else if (options.formData) {
-                this.createItemFormData = options.formData;
-            }
-        }
-    } else if (screenId === this.CONSTANTS.VIEWS.STORYBOARD) {
-        this.currentCreateFormContext.isCreating = false;
-        this.currentCreateFormContext.formData = {};
+    if (this.isInitializing && screenId !== this.CONSTANTS.VIEWS.STORYBOARD) {
+        console.log("[App Navigation] Deferring screen switch during initialization.");
+        this.navigationGuard.targetScreen = screenId;
+        this.navigationGuard.formOptions = options;
+        return;
     }
     
-    if (this.ui[oldScreen]) {
-      this.hideEl(this.ui[oldScreen]);
-    }
-    
-    if (screenId === this.CONSTANTS.VIEWS.STORY_INTERFACE) {
-        this.showEl(this.ui.topBarAiCharacterInfo);
-        this.showEl(this.ui.topBarUserCharacterInfo);
-        this.ui.topBar.classList.add('chat-active');
+    if (this.navigationGuard.isActive) {
+        console.warn("[App Navigation] Navigation guard active, preventing immediate switch.");
+        this.navigationGuard.targetScreen = screenId;
+        this.navigationGuard.formOptions = options;
+        return;
     }
 
-    this.showEl(this.ui[screenId]);
+    // Capture the requested screenId as the current main view
+    this.currentMainView = screenId; 
+    await this.saveAppState(); 
 
-    console.log("[EDIT WORKFLOW DEBUG] About to process screen switch to:", screenId);
-    
+    // Hide all screens first
+    Object.values(this.CONSTANTS.VIEWS).forEach(viewId => {
+        const el = this.ui[viewId];
+        if (el) this.hideEl(el);
+    });
+
+    // Show the target screen and render its content
     switch (screenId) {
         case this.CONSTANTS.VIEWS.STORYBOARD:
-            console.log("[EDIT WORKFLOW DEBUG] Switching to storyboard");
-            await this._updateStoryboard(options);
-            this.ui.topBarDynamicTitle.textContent = 'Storyboard';
+            this.showEl(this.ui.storyboardScreen);
+            await this._updateStoryboard();
             break;
         case this.CONSTANTS.VIEWS.CHARACTER_FORM:
         case this.CONSTANTS.VIEWS.WORLD_FORM:
-            console.log("[EDIT WORKFLOW DEBUG] Switching to form screen, calling renderFormScreen");
+            this.showEl(this.ui[screenId]);
             await this.renderFormScreen(options);
             break;
         case this.CONSTANTS.VIEWS.CHARACTER_PROFILE:
         case this.CONSTANTS.VIEWS.WORLD_PROFILE:
+        case this.CONSTANTS.VIEWS.STORY_PROFILE:
+            this.showEl(this.ui[screenId]);
             await this.renderProfileScreen(options);
             break;
         case this.CONSTANTS.VIEWS.STORY_INTERFACE:
-            await this.renderChatHistory();
-            this._updateTopBarCharacterInfo('user', this.getCharacterById(this.state.activeUserCharacterId));
-            this._updateTopBarCharacterInfo('ai', this.getCharacterById(this.state.activeAiCharacterId));
+            this.showEl(this.ui.storyInterfaceScreen);
+            // Story interface handled by openStory
             break;
-        case this.CONSTANTS.VIEWS.SETTINGS_SCREEN:
-            this.renderSettingsScreen();
+        case this.CONSTANTS.VIEWS.PREMADE_CHARACTER_SELECTION:
+        case this.CONSTANTS.VIEWS.PREMADE_WORLD_SELECTION:
+            this.showEl(this.ui[screenId]);
+            // Pre-made selection screens handled by specific logic
             break;
-        case this.CONSTANTS.VIEWS.MEMORY_MANAGEMENT_SCREEN:
-            this.renderMemoryManagementScreen();
+        case this.CONSTANTS.VIEWS.MEMORY_APPLICATION:
+            this.showEl(this.ui.memoryApplicationScreen);
+            await this._renderMemoryApplicationScreen(options);
             break;
-        case this.CONSTANTS.VIEWS.MEMORY_APPLICATION_SCREEN:
-            this.renderMemoryApplicationScreen();
+        default:
+            console.warn("Attempted to switch to unknown screen:", screenId);
+            this.showEl(this.ui.storyboardScreen); // Fallback
+            this.currentMainView = this.CONSTANTS.VIEWS.STORYBOARD; // Update fallback view
+            await this.saveAppState();
             break;
     }
-    await this.saveAppState();
-    this.checkAllButtonStates();
+
+    // After screen switch, update top bar buttons for the new main view
+    this.renderFocusBarActions(); 
+    this.checkAllButtonStates(); // Re-evaluate all button states after screen change
 },
 
-  async _updateTopBarCharacterInfo(characterType, characterData = null) {
-      const infoEl = characterType === 'user' ? this.ui.topBarUserCharacterInfo : this.ui.topBarAiCharacterInfo;
-      const picEl = characterType === 'user' ? this.ui.topBarUserCharacterPic : this.ui.topBarAiCharacterPic;
-      const nameEl = characterType === 'user' ? this.ui.topBarUserCharacterNameText : this.ui.topBarAiCharacterNameText;
-  
+_updateTopBarCharacterInfo: async function(characterType, characterData = null) {
+    const infoEl = characterType === 'user' ? this.ui.topBarUserCharacterInfo : this.ui.topBarAiCharacterInfo;
+    const picEl = characterType === 'user' ? this.ui.topBarUserCharacterPic : this.ui.topBarAiCharacterPic;
+    const nameEl = characterType === 'user' ? this.ui.topBarUserCharacterNameText : this.ui.topBarAiCharacterNameText;
+
+    // Guard: Only proceed if both picEl and nameEl exist
+    if (!picEl || !nameEl) {
+        console.warn(`[DEBUG] _updateTopBarCharacterInfo: Missing picEl or nameEl for characterType: ${characterType}`);
+        return;
+    }
+
       // Prioritize characterData if provided, otherwise fetch from DB using current ID
       const dataToUse = characterData || (
           (characterType === 'user' && this.currentUserCharacterId) ? await this._getIngredientData(this.currentUserCharacterId, 'characters', this.getPremadeCharacterItems, 'character') :
@@ -4035,12 +4556,19 @@ _updateFormColorPreview(formElement, paletteKey) {
   },
   
   async _updateStoryboard(options = {}) {
+      console.log('[DEBUG] _updateStoryboard (top) called');
       const populateSelect = async (selectEl, config, selectedId) => {
+          console.log('[DEBUG] populateSelect called for', selectEl && selectEl.id, 'with config:', config, 'App.data:', App.data);
+          // Guard: skip if data is not loaded
+          if (!App.data || !App.data.characters || !App.data.worlds) {
+            console.warn('[DEBUG] Skipping populateSelect: App.data not ready');
+            return;
+          }
+          console.log('[DEBUG] Populating select:', selectEl && selectEl.id, selectEl);
           const selectType = selectEl === this.ui.storyboardAiCharacterSelect ? 'AI Character' : 
                              selectEl === this.ui.storyboardUserCharacterSelect ? 'Your Character' : 
                              'World';
           selectEl.innerHTML = `<option value="" disabled selected>Select ${selectType}</option>`;
-          
           const newOption = new Option(`+ Create New ${config.capital}...`, `create_new_${config.itemType}`);
           newOption.style.fontStyle = 'italic';
           selectEl.appendChild(newOption); 
@@ -4048,6 +4576,8 @@ _updateFormColorPreview(formElement, paletteKey) {
           const allUserItems = await this.db[config.dbTableKey].toArray();
           const userItems = allUserItems.filter(item => item.isDeleted !== true).sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0));
           const premadeItems = await config.getPreMadesFn();
+          console.log('[DEBUG] userItems:', userItems);
+          console.log('[DEBUG] premadeItems:', premadeItems);
 
           const userGroup = document.createElement('optgroup');
           userGroup.label = `Your ${config.capital}s`;
@@ -4058,7 +4588,6 @@ _updateFormColorPreview(formElement, paletteKey) {
           premadeGroup.label = `Premade ${config.capital}s`;
           premadeItems.forEach(item => premadeGroup.appendChild(new Option(item.name, `premade_${config.itemType}:${item.id}`)));
           selectEl.appendChild(premadeGroup);
-
 
           if (selectedId) selectEl.value = String(selectedId); 
       };
@@ -4191,26 +4720,22 @@ _updateFormColorPreview(formElement, paletteKey) {
           const palette = this.CONSTANTS.COLOR_PALETTES[item.colorPalette];
           cardElement.style.setProperty('--item-main-color', palette.colors.medium);
       }
-      // Avatar logic: hero, right-aligned, 35% width, no left border/padding, only right corners rounded
-      const avatarUrl = (item.avatar && item.avatar.trim()) ? item.avatar.trim() : this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
-      const placeholderDataUrl = this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
-      const avatarHtml = this._generateAvatarHtml(item, 'storyboard'); // Use the new helper function
-      // Premade tag (hero style)
-      const tagsHtml = item.isPremade ? `<span class='item-tag-pill'>Premade</span>` : '';
-      // Description (up to 3 lines, ellipsis)
-      const descriptionHtml = item.description ? `<div class=\"item-description\" title=\"${this.sanitizeHtml(item.description)}\">${this.sanitizeHtml(item.description)}</div>` : '';
-      // Card content: name, tag, description, hero style
+      // Avatar logic: right column, portrait ratio
+      const avatarHtml = `<div class='card-image-panel portrait-image'>${this._generateAvatarHtml(item, 'storyboard')}</div>`;
+      // Premade tag (pill)
+      const tagsHtml = item.isPremade ? `<span class='card-premade-tag' title='Premade'>Premade</span>` : '';
+      // Description (ellipsis)
+      const descriptionHtml = item.description ? `<div class=\"card-description\" title=\"${this.sanitizeHtml(item.description)}\">${this.sanitizeHtml(item.description)}</div>` : '';
+      // Card content: name, tag, description, left column
       const contentHtml = `
-        <div class='storyboard-card-content'>
-          <span class=\"name-main\" title=\"${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}\">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</span>
-          <div class='item-tags-row'>${tagsHtml}</div>
-          ${descriptionHtml}
-        </div>
+        <div class='card-name' title="${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</div>
+        ${tagsHtml}
+        ${descriptionHtml}
       `;
       cardElement.innerHTML = `
-        <div class='storyboard-card' data-item-id='${item.id}' data-item-type='${config.itemType}'>
-          ${contentHtml}
-          ${avatarHtml}
+        <div class='storyboard-card two-col-card' data-item-id='${item.id}' data-item-type='${config.itemType}'>
+          <div class='card-left-col'>${contentHtml}</div>
+          <div class='card-right-col'>${avatarHtml}</div>
         </div>
       `;
       // Click handler
@@ -4393,14 +4918,15 @@ _updateFormColorPreview(formElement, paletteKey) {
       }
   },
 
-  // Utility: Get initials from name
+  // === Avatar Utilities ===
+
   _getInitials(name) {
     if (!name) return '?';
     const words = name.trim().split(/\s+/);
     if (words.length === 1) return words[0][0]?.toUpperCase() || '?';
     return (words[0][0] + words[words.length - 1][0]).toUpperCase();
   },
-  // Utility: Get palette color (medium) from palette key
+
   _getPaletteColor(paletteKey) {
     console.log("[DEBUG] _getPaletteColor received paletteKey:", paletteKey); // Debug paletteKey
     const palettes = this.CONSTANTS.COLOR_PALETTES;
@@ -4409,11 +4935,11 @@ _updateFormColorPreview(formElement, paletteKey) {
       return palettes[paletteKey].colors;
     return { medium: '#4a90e2', light: '#a7d8f9', dark: '#1c3a6e', neutral: '#5a6a7a' }; // fallback blue palette
   },
-  // Utility: SVG placeholder (768x768, visually balanced for small display)
+
   _makeAvatarPlaceholderSVG(name, paletteKey, isPremade = false) {
       const initials = this._getInitials(name);
       const palette = this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
-      const bgColor = palette.colors.medium; /* Always use medium for placeholder background to match border */ 
+    const bgColor = palette.colors.medium;
       const textColor = palette.colors.light;
   
       const svg = `
@@ -4424,7 +4950,7 @@ _updateFormColorPreview(formElement, paletteKey) {
       `;
       return `data:image/svg+xml;base64,${btoa(svg)}`;
   },
-  // Centralized Avatar Generation Method
+
   _generateAvatarHtml(item, context = 'profile') {
       const san = this.sanitizeHtml;
       const config = this.CONSTANTS.ITEM_CONFIG[item.itemType];
@@ -4442,10 +4968,448 @@ _updateFormColorPreview(formElement, paletteKey) {
 
       return `<img src='${avatarSrc}' alt='${san(item.name || 'Profile')} avatar' class='${avatarClass}' onerror="this.onerror=null;this.src='${placeholderDataUrl}'">`;
   },
+
+  async copyAndCustomizeCharacter(characterId) {
+    // Fetch the premade character data
+    let premade = null;
+    if (typeof characterId === 'string' && !characterId.startsWith('premade_')) {
+      // If not already a premade_ id, wrap it
+      characterId = 'premade:' + characterId;
+    }
+    premade = await this._getIngredientData(characterId, 'characters', this.getPremadeCharacterItems, 'character');
+    if (!premade) {
+      this.showTopNotification('Premade character not found.', 'error');
+      return;
+    }
+    const cleanCopyData = {
+      ...premade,
+      name: `${premade.name || 'Character'} (Copy)`
+    };
+    delete cleanCopyData.id;
+    delete cleanCopyData.isPremade;
+    delete cleanCopyData.originalPremadeId;
+    const formOptions = {
+      itemType: 'character',
+      originScreen: this.currentMainView,
+      isCreating: true,
+      formData: cleanCopyData
+    };
+    const stateToStore = {
+      formData: cleanCopyData,
+      formOptions: formOptions,
+      timestamp: Date.now()
+    };
+    try {
+      sessionStorage.setItem('pendingRPGlitchFormState', JSON.stringify(stateToStore));
+    } catch (e) {
+      this.createItemFormData = cleanCopyData;
+    }
+    this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, formOptions);
+  },
+  async editCharacter(characterId) {
+    // Open the form for editing a custom character
+    const formOptions = {
+      itemType: 'character',
+      originScreen: this.currentMainView,
+      isCreating: false,
+      itemId: characterId
+    };
+    const stateToStore = {
+      formData: null,
+      formOptions: formOptions,
+      timestamp: Date.now()
+    };
+    try {
+      sessionStorage.setItem('pendingRPGlitchFormState', JSON.stringify(stateToStore));
+    } catch (e) {
+      // fallback: nothing needed, form will load from DB
+    }
+    this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, formOptions);
+  },
+  async copyAndCustomizeWorld(worldId) {
+    // Fetch the premade world data
+    let premade = null;
+    if (typeof worldId === 'string' && !worldId.startsWith('premade_')) {
+      worldId = 'premade:' + worldId;
+    }
+    premade = await this._getIngredientData(worldId, 'worlds', this.getPremadeWorldItems, 'world');
+    if (!premade) {
+      this.showTopNotification('Premade world not found.', 'error');
+      return;
+    }
+    const cleanCopyData = {
+      ...premade,
+      name: `${premade.name || 'World'} (Copy)`
+    };
+    delete cleanCopyData.id;
+    delete cleanCopyData.isPremade;
+    delete cleanCopyData.originalPremadeId;
+    const formOptions = {
+      itemType: 'world',
+      originScreen: this.currentMainView,
+      isCreating: true,
+      formData: cleanCopyData
+    };
+    const stateToStore = {
+      formData: cleanCopyData,
+      formOptions: formOptions,
+      timestamp: Date.now()
+    };
+    try {
+      sessionStorage.setItem('pendingRPGlitchFormState', JSON.stringify(stateToStore));
+    } catch (e) {
+      this.createItemFormData = cleanCopyData;
+    }
+    this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, formOptions);
+  },
+  async editWorld(worldId) {
+    // Open the form for editing a custom world
+    const formOptions = {
+      itemType: 'world',
+      originScreen: this.currentMainView,
+      isCreating: false,
+      itemId: worldId
+    };
+    const stateToStore = {
+      formData: null,
+      formOptions: formOptions,
+      timestamp: Date.now()
+    };
+    try {
+      sessionStorage.setItem('pendingRPGlitchFormState', JSON.stringify(stateToStore));
+    } catch (e) {
+      // fallback: nothing needed, form will load from DB
+    }
+    this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, formOptions);
+  },
+
+  // 1. Properly define openAdvancedOptionsChin on the App object
+  openAdvancedOptionsChin: function() {
+    const chin = document.getElementById('focusBarChin');
+    if (!chin) return;
+    chin.classList.add('visible');
+    chin.classList.remove('hidden');
+    this.focusBarChinOpen = true;
+    chin.innerHTML = `<div class="advanced-options-columns" style="display: flex; gap: 1.5rem;">
+      <div class="form-section" style="flex:1;">
+        <label for="storyKickoffPromptTextarea" class="storyboard-label">Story Prompt</label>
+        <textarea id="storyKickoffPromptTextarea" class="kickoff-prompt-textarea" placeholder="Guide the AI's initial narrative. If blank, AI uses 'Present' states of Characters & World. Hints for narrator style or dynamics are welcome. E.g., The old tavern was dimly lit..."></textarea>
+      </div>
+      <div class="form-section" style="flex:1;">
+        <label for="customStoryJsTextarea" class="storyboard-label">Custom JavaScript</label>
+        <textarea id="customStoryJsTextarea" class="custom-story-js-textarea" placeholder="Experimental: Code saved with story. Execution (e.g., sandbox) is a future enhancement. Use with caution."></textarea>
+      </div>
+    </div>`;
+  },
+
+  // 2. Only show advanced options fields in chin when Advanced Options is clicked
+  // 3. When switching tabs, always close the chin and only show context-specific content
+  setMode: function(mode) {
+  if (!this.focusBarTabs.includes(mode)) return;
+  this.experimentalMode = mode;
+  // Update tab active state
+  this.focusBarTabs.forEach(tab => {
+    const btn = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    if (btn) btn.classList.toggle('active', tab === mode);
+  });
+  // Update contextual actions
+  this.renderFocusBarActions();
+    // Always close the chin when switching tabs
+  this.closeFocusBarChin();
+    // For all tabs (including Storyboard), open the chin for that mode
+    if (mode === 'storyboard' || mode === 'characters' || mode === 'worlds' || mode === 'options') {
+      this.openFocusBarChin(mode);
+    }
+  },
+
+  openFocusBarChin: async function(type) {
+  const chin = document.getElementById('focusBarChin');
+  if (!chin) return;
+  chin.classList.add('visible');
+  chin.classList.remove('hidden');
+  this.focusBarChinOpen = true;
+  if (type === 'storyboard') {
+    // Get recent stories for the storyboard chin (avoid using lastModified index)
+    const stories = await this.db.stories.toArray();
+    chin.innerHTML = `<div class="chin-actions-grid">
+      <div><button class="action-btn w-full" onclick="App.beginStory()">New Story</button></div>
+      <div><button class="action-btn w-full" onclick="App._shuffleStoryboard()">Shuffle</button></div>
+      <div><input class="chin-search w-full" placeholder="Search stories..." oninput="App.searchChinList(this.value, 'stories')"></div>
+      <div><!-- Placeholder for future action --></div>
+    </div>
+    <hr class="chin-divider" />
+    <div class="chin-list-grid">
+      ${stories.length > 0 ? 
+        stories.map(story => {
+          const title = story.title || 'Untitled Story';
+          const truncatedTitle = title.length > 25 ? title.substring(0, 25) + '...' : title;
+          return `<div class="chin-card" onclick="App.openStory('${story.id}')">${window.DOMPurify.sanitize(truncatedTitle)}</div>`;
+        }).join('') :
+        '<div class="chin-card" style="opacity: 0.7; cursor: default; pointer-events: none;">No stories yet - start your first adventure!</div>'
+      }
+    </div>`;
+  } else if (type === 'characters') {
+    const premades = await this.getPremadeCharacterItems();
+    const customs = await this.db.characters.toArray();
+      chin.innerHTML = `<div class="chin-actions-grid">
+        <div><button class="action-btn w-full" onclick="App.createCharacter()">Create Character</button></div>
+        <div><button class="action-btn w-full" onclick="App.importCharacter()">Import</button></div>
+        <div><input class="chin-search w-full" placeholder="Search characters..." oninput="App.searchChinList(this.value, 'characters')"></div>
+        <div><!-- Placeholder for future action --></div>
+      </div>
+      <hr class="chin-divider" />
+      <div class="chin-list-grid">
+        ${[...customs, ...premades].map(item => `<div class="chin-card" onclick="App.openCharacterProfile('${item.id}', ${!!item.isPremade})">${window.DOMPurify.sanitize(item.name || 'Unnamed')}</div>`).join('')}
+      </div>`;
+  } else if (type === 'worlds') {
+    const premades = await this.getPremadeWorldItems();
+    const customs = await this.db.worlds.toArray();
+      chin.innerHTML = `<div class="chin-actions-grid">
+        <div><button class="action-btn w-full" onclick="App.createWorld()">Create World</button></div>
+        <div><button class="action-btn w-full" onclick="App.importWorld()">Import</button></div>
+        <div><input class="chin-search w-full" placeholder="Search worlds..." oninput="App.searchChinList(this.value, 'worlds')"></div>
+        <div><!-- Placeholder for future action --></div>
+    </div>
+      <hr class="chin-divider" />
+      <div class="chin-list-grid">
+        ${[...customs, ...premades].map(item => `<div class="chin-card" onclick="App.openWorldProfile('${item.id}', ${!!item.isPremade})">${window.DOMPurify.sanitize(item.name || 'Unnamed')}</div>`).join('')}
+      </div>`;
+    } else if (type === 'options') {
+      chin.innerHTML = `<div class="chin-actions-grid">
+        <div><button class="action-btn w-full" onclick="App.exportAllData()">Export All Data</button></div>
+        <div><button class="action-btn w-full" onclick="App.importAllData()">Import All Data</button></div>
+        <div><button class="action-btn w-full" onclick="App.deleteAllData()">Delete All Data</button></div>
+        <div><!-- Placeholder for future action --></div>
+      </div>`;
+    }
+  },
+
+  // 1. Ensure right-side buttons are always functional
+  renderFocusBarActions: function() {
+    const actionsCtn = document.getElementById('focusBarActions');
+    if (!actionsCtn) return; // Ensure container exists
+
+    // Clear previous content and event listener to prevent duplicates
+    actionsCtn.innerHTML = '';
+    // Remove the old event listener to prevent multiple bindings if it exists
+    if (actionsCtn._currentClickListener) {
+      actionsCtn.removeEventListener('click', actionsCtn._currentClickListener);
+      actionsCtn._currentClickListener = null;
+    }
+
+    // Render right-side buttons ONLY if the CURRENT MAIN VIEW is Storyboard
+    if (this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD) {
+      actionsCtn.innerHTML = `
+        <button class="action-btn" data-action="advancedOptions">Advanced Options</button>
+        <button class="action-btn" data-action="shuffle">Shuffle</button>
+        <button class="action-btn" data-action="beginStory">Begin Story</button>
+      `;
+      // Use event delegation for click handlers on the container
+      const listener = (event) => {
+        const targetButton = event.target.closest('.action-btn');
+        if (!targetButton) return;
+
+        const action = targetButton.dataset.action;
+        switch (action) {
+          case 'advancedOptions':
+            App.openAdvancedOptionsChin();
+            break;
+          case 'shuffle':
+            App.shuffleStoryboard();
+            break;
+          case 'beginStory':
+            App.beginStory();
+            break;
+          default:
+            break;
+        }
+      };
+      actionsCtn.addEventListener('click', listener);
+      actionsCtn._currentClickListener = listener; // Store reference to listener for removal
+    }
+  },
+
+  // 2. Remove the horizontal line from Advanced Options chin
+  openAdvancedOptionsChin: function() {
+    const chin = document.getElementById('focusBarChin');
+    if (!chin) return;
+    chin.classList.add('visible');
+    chin.classList.remove('hidden');
+    this.focusBarChinOpen = true;
+    chin.innerHTML = `<div class="advanced-options-columns" style="display: flex; gap: 1.5rem;">
+      <div class="form-section" style="flex:1;">
+        <label for="storyKickoffPromptTextarea" class="storyboard-label">Story Prompt</label>
+        <textarea id="storyKickoffPromptTextarea" class="kickoff-prompt-textarea" placeholder="Guide the AI's initial narrative. If blank, AI uses 'Present' states of Characters & World. Hints for narrator style or dynamics are welcome. E.g., The old tavern was dimly lit..."></textarea>
+      </div>
+      <div class="form-section" style="flex:1;">
+        <label for="customStoryJsTextarea" class="storyboard-label">Custom JavaScript</label>
+        <textarea id="customStoryJsTextarea" class="custom-story-js-textarea" placeholder="Experimental: Code saved with story. Execution (e.g., sandbox) is a future enhancement. Use with caution."></textarea>
+      </div>
+    </div>`;
+  },
+
+  // 3. Remove story prompt and custom JS fields from main area
+  renderStoryboardScreen: function() {
+    // ...existing code...
+    // Remove or comment out any code that renders story prompt and custom JS fields in the main area
+    // ...existing code...
+  },
 }; // Closing brace for the App object
 
 // Initialize the application when ready
 window.dbName = 'rpglitch-db';
 window.App = App; // Make App globally accessible for HTML onclick handlers
 App.initializeWhenReady();
+
+// --- EXPERIMENTAL: Focus Bar Tab/Chin Logic ---
+App.experimentalMode = 'storyboard';
+App.focusBarTabs = ['storyboard', 'characters', 'worlds', 'options'];
+App.focusBarChinOpen = false;
+
+App.toggleFocusBarChin = function(type) {
+  if (this.focusBarChinOpen) {
+    this.closeFocusBarChin();
+    return;
+  }
+  this.openFocusBarChin(type);
+};
+
+App.closeFocusBarChin = function() {
+  const chin = document.getElementById('focusBarChin');
+  if (!chin) return;
+  chin.classList.remove('visible');
+  chin.classList.add('hidden');
+  this.focusBarChinOpen = false;
+};
+
+App.openCharacterProfile = function(id, isPremade) {
+  this.closeFocusBarChin();
+  // Open character profile/workshop
+  this.switchToScreen('characterProfileScreen', { characterId: id, isPremade });
+  // Update right actions for profile
+  this.renderProfileActions('character', id, isPremade);
+};
+
+App.openWorldProfile = function(id, isPremade) {
+  this.closeFocusBarChin();
+  this.switchToScreen('worldProfileScreen', { worldId: id, isPremade });
+  this.renderProfileActions('world', id, isPremade);
+};
+
+App.renderProfileActions = function(type, id, isPremade) {
+  const actionsCtn = document.getElementById('focusBarActions');
+  if (!actionsCtn) return;
+  actionsCtn.innerHTML = '';
+  if (type === 'character') {
+    actionsCtn.innerHTML = `
+      <button class="action-btn" onclick="App.copyAndCustomizeCharacter('${id}')">Copy & Customize</button>
+      <button class="action-btn" onclick="App.editCharacter('${id}')">Edit</button>
+      <button class="action-btn" onclick="App.setMode('characters')">Back</button>
+    `;
+  } else if (type === 'world') {
+    actionsCtn.innerHTML = `
+      <button class="action-btn" onclick="App.copyAndCustomizeWorld('${id}')">Copy & Customize</button>
+      <button class="action-btn" onclick="App.editWorld('${id}')">Edit</button>
+      <button class="action-btn" onclick="App.setMode('worlds')">Back</button>
+    `;
+  }
+};
+
+App.searchChinList = async function(query, type) {
+  const chin = document.getElementById('focusBarChin');
+  if (!chin) return;
+  let items = [];
+  const listContainer = chin.querySelector('.chin-list-grid');
+  if (!listContainer) return;
+  
+  if (type === 'stories') {
+    const stories = await this.db.stories.toArray();
+    items = stories.filter(story => (story.title || 'Untitled Story').toLowerCase().includes(query.toLowerCase()));
+    listContainer.innerHTML = items.length > 0 ? 
+      items.map(story => {
+        const title = story.title || 'Untitled Story';
+        const truncatedTitle = title.length > 25 ? title.substring(0, 25) + '...' : title;
+        return `<div class="chin-card" onclick="App.openStory('${story.id}')">${App.DOMPurify.sanitize(truncatedTitle)}</div>`;
+      }).join('') :
+      '<div class="chin-card" style="opacity: 0.7; cursor: default; pointer-events: none;">No matching stories found</div>';
+  } else if (type === 'characters') {
+    const premades = await this.getPremadeCharacterItems();
+    const customs = await this.db.characters.toArray();
+    items = [...customs, ...premades].filter(item => (item.name || '').toLowerCase().includes(query.toLowerCase()));
+    listContainer.innerHTML = items.map(item => `<div class="chin-card" onclick="App.openCharacterProfile('${item.id}', ${!!item.isPremade})">${App.DOMPurify.sanitize(item.name || 'Unnamed')}</div>`).join('');
+  } else if (type === 'worlds') {
+    const premades = await this.getPremadeWorldItems();
+    const customs = await this.db.worlds.toArray();
+    items = [...customs, ...premades].filter(item => (item.name || '').toLowerCase().includes(query.toLowerCase()));
+    listContainer.innerHTML = items.map(item => `<div class="chin-card" onclick="App.openWorldProfile('${item.id}', ${!!item.isPremade})">${App.DOMPurify.sanitize(item.name || 'Unnamed')}</div>`).join('');
+  }
+};
+
+// --- End Experimental Focus Bar Tab/Chin Logic ---
+
+// --- EXPERIMENTAL: Focus Bar Initialization (Robust) ---
+function hideLegacyExportButtons() {
+  var delBtn = document.querySelector('button#emergencyDeleteDataBtn');
+  var saveBtn = document.querySelector('button#emergencyExportBtn');
+  if (delBtn) delBtn.style.display = 'none';
+  if (saveBtn) saveBtn.style.display = 'none';
+  var exportCtn = document.getElementById('emergencyExportCtn');
+  if (exportCtn) exportCtn.style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+  // Always refresh UI element references after DOM is ready
+  App._getUIElements();
+  App.setMode('storyboard');
+  hideLegacyExportButtons();
+  // MutationObserver to catch late-rendered legacy buttons
+  const observer = new MutationObserver(hideLegacyExportButtons);
+  observer.observe(document.body, { childList: true, subtree: true });
+  setTimeout(() => observer.disconnect(), 5000);
+  // --- Ensure dropdowns are populated ---
+  if (App._updateStoryboard) {
+    await App._updateStoryboard();
+  }
+});
+// --- End Experimental Focus Bar Initialization (Robust) ---
+
+// --- EXPERIMENTAL: Remove legacy emergency export container from DOM ---
+document.addEventListener('DOMContentLoaded', function() {
+  var exportCtn = document.getElementById('emergencyExportCtn');
+  if (exportCtn && exportCtn.parentNode) {
+    exportCtn.parentNode.removeChild(exportCtn);
+  }
+});
+// --- End Remove legacy emergency export container ---
+
+// --- EXPERIMENTAL: Ensure DOMPurify is available on App ---
+App.DOMPurify = window.DOMPurify;
+// --- End DOMPurify assignment ---
+
+// --- EXPERIMENTAL: Add stubs for missing focus bar functions ---
+App.openAdvancedOptions = function() { alert('Advanced Options (stub)'); };
+App.createCharacter = function() { alert('Create Character (stub)'); };
+App.openSettings = function() { alert('Settings (stub)'); };
+App.importCharacter = function() { alert('Import Character (stub)'); };
+App.createWorld = function() { alert('Create World (stub)'); };
+App.importWorld = function() { alert('Import World (stub)'); };
+// --- End stubs ---
+
+// --- EXPERIMENTAL: Add stub for shuffleStoryboard ---
+App.shuffleStoryboard = function() { alert('Shuffle Storyboard (stub)'); };
+// --- End stub ---
+
+// 4. Add document-level click handler to close chin when clicking outside
+if (!window._chinClickHandlerAdded) {
+  document.addEventListener('mousedown', function(e) {
+    const chin = document.getElementById('focusBarChin');
+    const topBar = document.querySelector('.focus-bar');
+    if (!chin || !chin.classList.contains('visible')) return;
+    if (chin.contains(e.target) || topBar.contains(e.target)) return;
+    App.closeFocusBarChin();
+  });
+  window._chinClickHandlerAdded = true;
+}
+
+// 5. Ensure chin and top bar action buttons use .action-btn style (already handled in HTML/CSS edits above)
 </script>

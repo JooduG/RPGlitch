@@ -210,6 +210,11 @@ const App = {
       this.ui.builtInChatInterfaceWrapper = document.getElementById('builtInChatInterfaceWrapper');
       
       if (!this.ui.main) console.error("[App Critical] #main not found!");
+      // Ensure focusBarActions is available in ui elements
+      this.ui.focusBarActions = document.getElementById('focusBarActions');
+      console.log('[DEBUG] storyboardAiCharacterSelect:', this.ui.storyboardAiCharacterSelect);
+      console.log('[DEBUG] storyboardUserCharacterSelect:', this.ui.storyboardUserCharacterSelect);
+      console.log('[DEBUG] storyboardWorldSelect:', this.ui.storyboardWorldSelect);
   },
 
   showEl(el) { 
@@ -270,7 +275,9 @@ const App = {
   _premadeCharacterItemsCache: null,
 
   async getPremadeCharacterItems() { 
+      console.log('[DEBUG] getPremadeCharacterItems called');
       if (this._premadeCharacterItemsCache) {
+          console.log('[DEBUG] Returning cached premadeCharacterItems:', this._premadeCharacterItemsCache);
           return this._premadeCharacterItemsCache;
       }
       const db = this.db;
@@ -350,6 +357,7 @@ const App = {
         ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
         ...premadeItems
       ];
+      console.log('[DEBUG] Returning merged character items:', merged);
       this._premadeCharacterItemsCache = merged;
       return this._premadeCharacterItemsCache;
   },
@@ -358,7 +366,9 @@ const App = {
   _premadeWorldItemsCache: null,
 
   async getPremadeWorldItems() {
+      console.log('[DEBUG] getPremadeWorldItems called');
       if (this._premadeWorldItemsCache) {
+          console.log('[DEBUG] Returning cached premadeWorldItems:', this._premadeWorldItemsCache);
           return this._premadeWorldItemsCache;
       }
       const db = this.db;
@@ -396,6 +406,7 @@ const App = {
         ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
         ...premadeItems
       ];
+      console.log('[DEBUG] Returning merged world items:', merged);
       this._premadeWorldItemsCache = merged;
       return this._premadeWorldItemsCache;
   },
@@ -535,8 +546,7 @@ const App = {
           this.currentStoryId = appState.lastOpenedStoryId; 
           this.activeStoryId = appState.activeStoryId; 
           this.currentContextualMenuView = appState.currentContextualMenuView || this.CONSTANTS.CONTEXTUAL_MENU_VIEWS.STORIES;
-          this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD;
-
+          this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD; // Ensure currentMainView is set on load
 
           this.ui.messageInput.onkeyup = (e) => {
               if (e.key === 'Enter' && !e.shiftKey) { 
@@ -570,13 +580,6 @@ const App = {
           }
           this.ui.contextualMenuTabs.querySelectorAll('.contextual-menu-tab-button').forEach(button => button.onclick = () => this.switchContextualMenuView(button.dataset.view));
           this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
-          this.ui.beginStoryBtn.onclick = () => this.beginStory();
-          this.ui.advancedStoryOptionsToggleBtn.onclick = () => {
-              this.ui.advancedStoryOptionsContentArea.classList.toggle('open');
-              const isExpanded = this.ui.advancedStoryOptionsContentArea.classList.contains('open');
-              this.ui.advancedStoryOptionsToggleBtn.setAttribute('aria-expanded', isExpanded);
-          };
-          this.ui.shuffleStoryElementsBtn.onclick = () => this._shuffleStoryboard();
           
           await this._updateTopBarCharacterInfo('user');
           this.switchContextualMenuView(this.currentContextualMenuView); 
@@ -639,6 +642,23 @@ const App = {
                await this.switchToScreen(initialScreenTarget, initialScreenOptions);
           }
 
+          // Load all characters and worlds from the database before setting App.data
+          this.data = {
+            characters: await this.db.characters.toArray(),
+            worlds: await this.db.worlds.toArray()
+          };
+
+          // Ensure App.data is set for dropdown population
+          App.data = this.data;
+          console.log('[DEBUG] App.data set:', App.data && Object.keys(App.data));
+          console.log('[DEBUG] App.data.characters:', App.data && App.data.characters);
+          console.log('[DEBUG] App.data.worlds:', App.data && App.data.worlds);
+
+          // Atomic fix: Populate dropdowns immediately after data is set
+          if (typeof this._updateStoryboard === 'function') {
+              console.log('[DEBUG] Calling _updateStoryboard immediately after App.data set');
+              await this._updateStoryboard();
+          }
 
           this.hideEl(this.ui.initialPageLoadingModal);
           console.log("[App Lifecycle] initialLoad completed.");
@@ -650,6 +670,13 @@ const App = {
       } finally {
           this.isInitializing = false;
           this.checkAllButtonStates();
+          // Ensure right-side buttons are rendered and functional on initial load for Storyboard
+          this.renderFocusBarActions(); 
+      }
+      // ... existing code ...
+      if (this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD && typeof this._updateStoryboard === 'function') {
+        console.log('[DEBUG] Data loaded and screen switched, calling _updateStoryboard');
+        await this._updateStoryboard();
       }
   },
   
@@ -2178,6 +2205,7 @@ _updateFormColorPreview(formElement, paletteKey) {
   },
 
   async initializeWhenReady() {
+    console.log('[DEBUG] initializeWhenReady called');
     try {
       await this.waitForDependenciesAndInitializeApp();
       await this.initialLoad();
@@ -2187,86 +2215,101 @@ _updateFormColorPreview(formElement, paletteKey) {
       if (this.ui.emergencyExportCtn) this.showEl(this.ui.emergencyExportCtn);
       if (this.ui.initialPageLoadingModal) this.hideEl(this.ui.initialPageLoadingModal);
     }
+    console.log('[DEBUG] initialLoad complete');
+    // ... existing code ...
+    if (this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD && typeof this._updateStoryboard === 'function') {
+      console.log('[DEBUG] Data loaded and screen switched, calling _updateStoryboard (conditional)');
+      await this._updateStoryboard();
+    }
+    // Force population regardless of currentMainView
+    if (typeof this._updateStoryboard === 'function') {
+      console.log('[DEBUG] Forcing _updateStoryboard at end of initializeWhenReady');
+      await this._updateStoryboard();
+      console.log('[DEBUG] Forced _updateStoryboard complete');
+    }
   },
   
   async switchToScreen(screenId, options = {}) {
-    console.log("[EDIT WORKFLOW DEBUG] switchToScreen called - from:", this.currentMainView, "to:", screenId, "options:", options);
-    
-    const oldScreen = this.currentMainView;
-    this.currentMainView = screenId;
-    this.ui.topBar.classList.remove('chat-active');
+    console.log(`[App Navigation] Switching to screen: ${screenId}`);
 
-    if (screenId === this.CONSTANTS.VIEWS.CHARACTER_FORM || screenId === this.CONSTANTS.VIEWS.WORLD_FORM) {
-        this.currentCreateFormContext.originScreen = options.originScreen || oldScreen || this.CONSTANTS.VIEWS.STORYBOARD;
-        this.currentCreateFormContext.itemId = options.itemId; 
-        // FIX: Storing itemType in the context to prevent errors on form cancellation.
-        this.currentCreateFormContext.itemType = options.itemType;
-        this.currentCreateFormContext.isCreating = !!options.isCreating;
-        if (options.isCreating) {
-            if (Object.keys(this.createItemFormData).length === 0 && (!options.formData || Object.keys(options.formData).length === 0)) {
-                this.createItemFormData = { name: '', isPremade: false, originalPremadeId: null };
-            } else if (options.formData) {
-                this.createItemFormData = options.formData;
-            }
-        }
-    } else if (screenId === this.CONSTANTS.VIEWS.STORYBOARD) {
-        this.currentCreateFormContext.isCreating = false;
-        this.currentCreateFormContext.formData = {};
+    if (this.isInitializing && screenId !== this.CONSTANTS.VIEWS.STORYBOARD) {
+        console.log("[App Navigation] Deferring screen switch during initialization.");
+        this.navigationGuard.targetScreen = screenId;
+        this.navigationGuard.formOptions = options;
+        return;
     }
     
-    if (this.ui[oldScreen]) {
-      this.hideEl(this.ui[oldScreen]);
-    }
-    
-    if (screenId === this.CONSTANTS.VIEWS.STORY_INTERFACE) {
-        this.showEl(this.ui.topBarAiCharacterInfo);
-        this.showEl(this.ui.topBarUserCharacterInfo);
-        this.ui.topBar.classList.add('chat-active');
+    if (this.navigationGuard.isActive) {
+        console.warn("[App Navigation] Navigation guard active, preventing immediate switch.");
+        this.navigationGuard.targetScreen = screenId;
+        this.navigationGuard.formOptions = options;
+        return;
     }
 
-    this.showEl(this.ui[screenId]);
+    // Capture the requested screenId as the current main view
+    this.currentMainView = screenId; 
+    await this.saveAppState(); 
 
-    console.log("[EDIT WORKFLOW DEBUG] About to process screen switch to:", screenId);
-    
+    // Hide all screens first
+    Object.values(this.CONSTANTS.VIEWS).forEach(viewId => {
+        const el = this.ui[viewId];
+        if (el) this.hideEl(el);
+    });
+
+    // Show the target screen and render its content
     switch (screenId) {
         case this.CONSTANTS.VIEWS.STORYBOARD:
-            console.log("[EDIT WORKFLOW DEBUG] Switching to storyboard");
-            await this._updateStoryboard(options);
-            this.ui.topBarDynamicTitle.textContent = 'Storyboard';
+            this.showEl(this.ui.storyboardScreen);
+            await this._updateStoryboard();
             break;
         case this.CONSTANTS.VIEWS.CHARACTER_FORM:
         case this.CONSTANTS.VIEWS.WORLD_FORM:
-            console.log("[EDIT WORKFLOW DEBUG] Switching to form screen, calling renderFormScreen");
+            this.showEl(this.ui[screenId]);
             await this.renderFormScreen(options);
             break;
         case this.CONSTANTS.VIEWS.CHARACTER_PROFILE:
         case this.CONSTANTS.VIEWS.WORLD_PROFILE:
+        case this.CONSTANTS.VIEWS.STORY_PROFILE:
+            this.showEl(this.ui[screenId]);
             await this.renderProfileScreen(options);
             break;
         case this.CONSTANTS.VIEWS.STORY_INTERFACE:
-            await this.renderChatHistory();
-            this._updateTopBarCharacterInfo('user', this.getCharacterById(this.state.activeUserCharacterId));
-            this._updateTopBarCharacterInfo('ai', this.getCharacterById(this.state.activeAiCharacterId));
+            this.showEl(this.ui.storyInterfaceScreen);
+            // Story interface handled by openStory
             break;
-        case this.CONSTANTS.VIEWS.SETTINGS_SCREEN:
-            this.renderSettingsScreen();
+        case this.CONSTANTS.VIEWS.PREMADE_CHARACTER_SELECTION:
+        case this.CONSTANTS.VIEWS.PREMADE_WORLD_SELECTION:
+            this.showEl(this.ui[screenId]);
+            // Pre-made selection screens handled by specific logic
             break;
-        case this.CONSTANTS.VIEWS.MEMORY_MANAGEMENT_SCREEN:
-            this.renderMemoryManagementScreen();
+        case this.CONSTANTS.VIEWS.MEMORY_APPLICATION:
+            this.showEl(this.ui.memoryApplicationScreen);
+            await this._renderMemoryApplicationScreen(options);
             break;
-        case this.CONSTANTS.VIEWS.MEMORY_APPLICATION_SCREEN:
-            this.renderMemoryApplicationScreen();
+        default:
+            console.warn("Attempted to switch to unknown screen:", screenId);
+            this.showEl(this.ui.storyboardScreen); // Fallback
+            this.currentMainView = this.CONSTANTS.VIEWS.STORYBOARD; // Update fallback view
+            await this.saveAppState();
             break;
     }
-    await this.saveAppState();
-    this.checkAllButtonStates();
+
+    // After screen switch, update top bar buttons for the new main view
+    this.renderFocusBarActions(); 
+    this.checkAllButtonStates(); // Re-evaluate all button states after screen change
 },
 
-  async _updateTopBarCharacterInfo(characterType, characterData = null) {
-      const infoEl = characterType === 'user' ? this.ui.topBarUserCharacterInfo : this.ui.topBarAiCharacterInfo;
-      const picEl = characterType === 'user' ? this.ui.topBarUserCharacterPic : this.ui.topBarAiCharacterPic;
-      const nameEl = characterType === 'user' ? this.ui.topBarUserCharacterNameText : this.ui.topBarAiCharacterNameText;
-  
+_updateTopBarCharacterInfo: async function(characterType, characterData = null) {
+    const infoEl = characterType === 'user' ? this.ui.topBarUserCharacterInfo : this.ui.topBarAiCharacterInfo;
+    const picEl = characterType === 'user' ? this.ui.topBarUserCharacterPic : this.ui.topBarAiCharacterPic;
+    const nameEl = characterType === 'user' ? this.ui.topBarUserCharacterNameText : this.ui.topBarAiCharacterNameText;
+
+    // Guard: Only proceed if both picEl and nameEl exist
+    if (!picEl || !nameEl) {
+        console.warn(`[DEBUG] _updateTopBarCharacterInfo: Missing picEl or nameEl for characterType: ${characterType}`);
+        return;
+    }
+
       // Prioritize characterData if provided, otherwise fetch from DB using current ID
       const dataToUse = characterData || (
           (characterType === 'user' && this.currentUserCharacterId) ? await this._getIngredientData(this.currentUserCharacterId, 'characters', this.getPremadeCharacterItems, 'character') :
@@ -2954,12 +2997,19 @@ _updateFormColorPreview(formElement, paletteKey) {
   },
   
   async _updateStoryboard(options = {}) {
+      console.log('[DEBUG] _updateStoryboard (top) called');
       const populateSelect = async (selectEl, config, selectedId) => {
+          console.log('[DEBUG] populateSelect called for', selectEl && selectEl.id, 'with config:', config, 'App.data:', App.data);
+          // Guard: skip if data is not loaded
+          if (!App.data || !App.data.characters || !App.data.worlds) {
+            console.warn('[DEBUG] Skipping populateSelect: App.data not ready');
+            return;
+          }
+          console.log('[DEBUG] Populating select:', selectEl && selectEl.id, selectEl);
           const selectType = selectEl === this.ui.storyboardAiCharacterSelect ? 'AI Character' : 
                              selectEl === this.ui.storyboardUserCharacterSelect ? 'Your Character' : 
                              'World';
           selectEl.innerHTML = `<option value="" disabled selected>Select ${selectType}</option>`;
-          
           const newOption = new Option(`+ Create New ${config.capital}...`, `create_new_${config.itemType}`);
           newOption.style.fontStyle = 'italic';
           selectEl.appendChild(newOption); 
@@ -2967,6 +3017,8 @@ _updateFormColorPreview(formElement, paletteKey) {
           const allUserItems = await this.db[config.dbTableKey].toArray();
           const userItems = allUserItems.filter(item => item.isDeleted !== true).sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0));
           const premadeItems = await config.getPreMadesFn();
+          console.log('[DEBUG] userItems:', userItems);
+          console.log('[DEBUG] premadeItems:', premadeItems);
 
           const userGroup = document.createElement('optgroup');
           userGroup.label = `Your ${config.capital}s`;
@@ -2977,7 +3029,6 @@ _updateFormColorPreview(formElement, paletteKey) {
           premadeGroup.label = `Premade ${config.capital}s`;
           premadeItems.forEach(item => premadeGroup.appendChild(new Option(item.name, `premade_${config.itemType}:${item.id}`)));
           selectEl.appendChild(premadeGroup);
-
 
           if (selectedId) selectEl.value = String(selectedId); 
       };
@@ -3110,26 +3161,22 @@ _updateFormColorPreview(formElement, paletteKey) {
           const palette = this.CONSTANTS.COLOR_PALETTES[item.colorPalette];
           cardElement.style.setProperty('--item-main-color', palette.colors.medium);
       }
-      // Avatar logic: hero, right-aligned, 35% width, no left border/padding, only right corners rounded
-      const avatarUrl = (item.avatar && item.avatar.trim()) ? item.avatar.trim() : this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
-      const placeholderDataUrl = this._makeAvatarPlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
-      const avatarHtml = this._generateAvatarHtml(item, 'storyboard'); // Use the new helper function
-      // Premade tag (hero style)
-      const tagsHtml = item.isPremade ? `<span class='item-tag-pill'>Premade</span>` : '';
-      // Description (up to 3 lines, ellipsis)
-      const descriptionHtml = item.description ? `<div class=\"item-description\" title=\"${this.sanitizeHtml(item.description)}\">${this.sanitizeHtml(item.description)}</div>` : '';
-      // Card content: name, tag, description, hero style
+      // Avatar logic: right column, portrait ratio
+      const avatarHtml = `<div class='card-image-panel portrait-image'>${this._generateAvatarHtml(item, 'storyboard')}</div>`;
+      // Premade tag (pill)
+      const tagsHtml = item.isPremade ? `<span class='card-premade-tag' title='Premade'>Premade</span>` : '';
+      // Description (ellipsis)
+      const descriptionHtml = item.description ? `<div class=\"card-description\" title=\"${this.sanitizeHtml(item.description)}\">${this.sanitizeHtml(item.description)}</div>` : '';
+      // Card content: name, tag, description, left column
       const contentHtml = `
-        <div class='storyboard-card-content'>
-          <span class=\"name-main\" title=\"${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}\">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</span>
-          <div class='item-tags-row'>${tagsHtml}</div>
-          ${descriptionHtml}
-        </div>
+        <div class='card-name' title="${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</div>
+        ${tagsHtml}
+        ${descriptionHtml}
       `;
       cardElement.innerHTML = `
-        <div class='storyboard-card' data-item-id='${item.id}' data-item-type='${config.itemType}'>
-          ${contentHtml}
-          ${avatarHtml}
+        <div class='storyboard-card two-col-card' data-item-id='${item.id}' data-item-type='${config.itemType}'>
+          <div class='card-left-col'>${contentHtml}</div>
+          <div class='card-right-col'>${avatarHtml}</div>
         </div>
       `;
       // Click handler
@@ -3312,14 +3359,15 @@ _updateFormColorPreview(formElement, paletteKey) {
       }
   },
 
-  // Utility: Get initials from name
+  // === Avatar Utilities ===
+
   _getInitials(name) {
     if (!name) return '?';
     const words = name.trim().split(/\s+/);
     if (words.length === 1) return words[0][0]?.toUpperCase() || '?';
     return (words[0][0] + words[words.length - 1][0]).toUpperCase();
   },
-  // Utility: Get palette color (medium) from palette key
+
   _getPaletteColor(paletteKey) {
     console.log("[DEBUG] _getPaletteColor received paletteKey:", paletteKey); // Debug paletteKey
     const palettes = this.CONSTANTS.COLOR_PALETTES;
@@ -3328,11 +3376,11 @@ _updateFormColorPreview(formElement, paletteKey) {
       return palettes[paletteKey].colors;
     return { medium: '#4a90e2', light: '#a7d8f9', dark: '#1c3a6e', neutral: '#5a6a7a' }; // fallback blue palette
   },
-  // Utility: SVG placeholder (768x768, visually balanced for small display)
+
   _makeAvatarPlaceholderSVG(name, paletteKey, isPremade = false) {
       const initials = this._getInitials(name);
       const palette = this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
-      const bgColor = palette.colors.medium; /* Always use medium for placeholder background to match border */ 
+    const bgColor = palette.colors.medium;
       const textColor = palette.colors.light;
   
       const svg = `
@@ -3343,7 +3391,7 @@ _updateFormColorPreview(formElement, paletteKey) {
       `;
       return `data:image/svg+xml;base64,${btoa(svg)}`;
   },
-  // Centralized Avatar Generation Method
+
   _generateAvatarHtml(item, context = 'profile') {
       const san = this.sanitizeHtml;
       const config = this.CONSTANTS.ITEM_CONFIG[item.itemType];
@@ -3361,9 +3409,447 @@ _updateFormColorPreview(formElement, paletteKey) {
 
       return `<img src='${avatarSrc}' alt='${san(item.name || 'Profile')} avatar' class='${avatarClass}' onerror="this.onerror=null;this.src='${placeholderDataUrl}'">`;
   },
+
+  async copyAndCustomizeCharacter(characterId) {
+    // Fetch the premade character data
+    let premade = null;
+    if (typeof characterId === 'string' && !characterId.startsWith('premade_')) {
+      // If not already a premade_ id, wrap it
+      characterId = 'premade:' + characterId;
+    }
+    premade = await this._getIngredientData(characterId, 'characters', this.getPremadeCharacterItems, 'character');
+    if (!premade) {
+      this.showTopNotification('Premade character not found.', 'error');
+      return;
+    }
+    const cleanCopyData = {
+      ...premade,
+      name: `${premade.name || 'Character'} (Copy)`
+    };
+    delete cleanCopyData.id;
+    delete cleanCopyData.isPremade;
+    delete cleanCopyData.originalPremadeId;
+    const formOptions = {
+      itemType: 'character',
+      originScreen: this.currentMainView,
+      isCreating: true,
+      formData: cleanCopyData
+    };
+    const stateToStore = {
+      formData: cleanCopyData,
+      formOptions: formOptions,
+      timestamp: Date.now()
+    };
+    try {
+      sessionStorage.setItem('pendingRPGlitchFormState', JSON.stringify(stateToStore));
+    } catch (e) {
+      this.createItemFormData = cleanCopyData;
+    }
+    this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, formOptions);
+  },
+  async editCharacter(characterId) {
+    // Open the form for editing a custom character
+    const formOptions = {
+      itemType: 'character',
+      originScreen: this.currentMainView,
+      isCreating: false,
+      itemId: characterId
+    };
+    const stateToStore = {
+      formData: null,
+      formOptions: formOptions,
+      timestamp: Date.now()
+    };
+    try {
+      sessionStorage.setItem('pendingRPGlitchFormState', JSON.stringify(stateToStore));
+    } catch (e) {
+      // fallback: nothing needed, form will load from DB
+    }
+    this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, formOptions);
+  },
+  async copyAndCustomizeWorld(worldId) {
+    // Fetch the premade world data
+    let premade = null;
+    if (typeof worldId === 'string' && !worldId.startsWith('premade_')) {
+      worldId = 'premade:' + worldId;
+    }
+    premade = await this._getIngredientData(worldId, 'worlds', this.getPremadeWorldItems, 'world');
+    if (!premade) {
+      this.showTopNotification('Premade world not found.', 'error');
+      return;
+    }
+    const cleanCopyData = {
+      ...premade,
+      name: `${premade.name || 'World'} (Copy)`
+    };
+    delete cleanCopyData.id;
+    delete cleanCopyData.isPremade;
+    delete cleanCopyData.originalPremadeId;
+    const formOptions = {
+      itemType: 'world',
+      originScreen: this.currentMainView,
+      isCreating: true,
+      formData: cleanCopyData
+    };
+    const stateToStore = {
+      formData: cleanCopyData,
+      formOptions: formOptions,
+      timestamp: Date.now()
+    };
+    try {
+      sessionStorage.setItem('pendingRPGlitchFormState', JSON.stringify(stateToStore));
+    } catch (e) {
+      this.createItemFormData = cleanCopyData;
+    }
+    this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, formOptions);
+  },
+  async editWorld(worldId) {
+    // Open the form for editing a custom world
+    const formOptions = {
+      itemType: 'world',
+      originScreen: this.currentMainView,
+      isCreating: false,
+      itemId: worldId
+    };
+    const stateToStore = {
+      formData: null,
+      formOptions: formOptions,
+      timestamp: Date.now()
+    };
+    try {
+      sessionStorage.setItem('pendingRPGlitchFormState', JSON.stringify(stateToStore));
+    } catch (e) {
+      // fallback: nothing needed, form will load from DB
+    }
+    this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, formOptions);
+  },
+
+  // 1. Properly define openAdvancedOptionsChin on the App object
+  openAdvancedOptionsChin: function() {
+    const chin = document.getElementById('focusBarChin');
+    if (!chin) return;
+    chin.classList.add('visible');
+    chin.classList.remove('hidden');
+    this.focusBarChinOpen = true;
+    chin.innerHTML = `<div class="advanced-options-columns" style="display: flex; gap: 1.5rem;">
+      <div class="form-section" style="flex:1;">
+        <label for="storyKickoffPromptTextarea" class="storyboard-label">Story Prompt</label>
+        <textarea id="storyKickoffPromptTextarea" class="kickoff-prompt-textarea" placeholder="Guide the AI's initial narrative. If blank, AI uses 'Present' states of Characters & World. Hints for narrator style or dynamics are welcome. E.g., The old tavern was dimly lit..."></textarea>
+      </div>
+      <div class="form-section" style="flex:1;">
+        <label for="customStoryJsTextarea" class="storyboard-label">Custom JavaScript</label>
+        <textarea id="customStoryJsTextarea" class="custom-story-js-textarea" placeholder="Experimental: Code saved with story. Execution (e.g., sandbox) is a future enhancement. Use with caution."></textarea>
+      </div>
+    </div>`;
+  },
+
+  // 2. Only show advanced options fields in chin when Advanced Options is clicked
+  // 3. When switching tabs, always close the chin and only show context-specific content
+  setMode: function(mode) {
+  if (!this.focusBarTabs.includes(mode)) return;
+  this.experimentalMode = mode;
+  // Update tab active state
+  this.focusBarTabs.forEach(tab => {
+    const btn = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    if (btn) btn.classList.toggle('active', tab === mode);
+  });
+  // Update contextual actions
+  this.renderFocusBarActions();
+    // Always close the chin when switching tabs
+  this.closeFocusBarChin();
+    // For all tabs (including Storyboard), open the chin for that mode
+    if (mode === 'storyboard' || mode === 'characters' || mode === 'worlds' || mode === 'options') {
+      this.openFocusBarChin(mode);
+    }
+  },
+
+  openFocusBarChin: async function(type) {
+  const chin = document.getElementById('focusBarChin');
+  if (!chin) return;
+  chin.classList.add('visible');
+  chin.classList.remove('hidden');
+  this.focusBarChinOpen = true;
+  if (type === 'storyboard') {
+    // Get recent stories for the storyboard chin (avoid using lastModified index)
+    const stories = await this.db.stories.toArray();
+    chin.innerHTML = `<div class="chin-actions-grid">
+      <div><button class="action-btn w-full" onclick="App.beginStory()">New Story</button></div>
+      <div><button class="action-btn w-full" onclick="App._shuffleStoryboard()">Shuffle</button></div>
+      <div><input class="chin-search w-full" placeholder="Search stories..." oninput="App.searchChinList(this.value, 'stories')"></div>
+      <div><!-- Placeholder for future action --></div>
+    </div>
+    <hr class="chin-divider" />
+    <div class="chin-list-grid">
+      ${stories.length > 0 ? 
+        stories.map(story => {
+          const title = story.title || 'Untitled Story';
+          const truncatedTitle = title.length > 25 ? title.substring(0, 25) + '...' : title;
+          return `<div class="chin-card" onclick="App.openStory('${story.id}')">${window.DOMPurify.sanitize(truncatedTitle)}</div>`;
+        }).join('') :
+        '<div class="chin-card" style="opacity: 0.7; cursor: default; pointer-events: none;">No stories yet - start your first adventure!</div>'
+      }
+    </div>`;
+  } else if (type === 'characters') {
+    const premades = await this.getPremadeCharacterItems();
+    const customs = await this.db.characters.toArray();
+      chin.innerHTML = `<div class="chin-actions-grid">
+        <div><button class="action-btn w-full" onclick="App.createCharacter()">Create Character</button></div>
+        <div><button class="action-btn w-full" onclick="App.importCharacter()">Import</button></div>
+        <div><input class="chin-search w-full" placeholder="Search characters..." oninput="App.searchChinList(this.value, 'characters')"></div>
+        <div><!-- Placeholder for future action --></div>
+      </div>
+      <hr class="chin-divider" />
+      <div class="chin-list-grid">
+        ${[...customs, ...premades].map(item => `<div class="chin-card" onclick="App.openCharacterProfile('${item.id}', ${!!item.isPremade})">${window.DOMPurify.sanitize(item.name || 'Unnamed')}</div>`).join('')}
+      </div>`;
+  } else if (type === 'worlds') {
+    const premades = await this.getPremadeWorldItems();
+    const customs = await this.db.worlds.toArray();
+      chin.innerHTML = `<div class="chin-actions-grid">
+        <div><button class="action-btn w-full" onclick="App.createWorld()">Create World</button></div>
+        <div><button class="action-btn w-full" onclick="App.importWorld()">Import</button></div>
+        <div><input class="chin-search w-full" placeholder="Search worlds..." oninput="App.searchChinList(this.value, 'worlds')"></div>
+        <div><!-- Placeholder for future action --></div>
+    </div>
+      <hr class="chin-divider" />
+      <div class="chin-list-grid">
+        ${[...customs, ...premades].map(item => `<div class="chin-card" onclick="App.openWorldProfile('${item.id}', ${!!item.isPremade})">${window.DOMPurify.sanitize(item.name || 'Unnamed')}</div>`).join('')}
+      </div>`;
+    } else if (type === 'options') {
+      chin.innerHTML = `<div class="chin-actions-grid">
+        <div><button class="action-btn w-full" onclick="App.exportAllData()">Export All Data</button></div>
+        <div><button class="action-btn w-full" onclick="App.importAllData()">Import All Data</button></div>
+        <div><button class="action-btn w-full" onclick="App.deleteAllData()">Delete All Data</button></div>
+        <div><!-- Placeholder for future action --></div>
+      </div>`;
+    }
+  },
+
+  // 1. Ensure right-side buttons are always functional
+  renderFocusBarActions: function() {
+    const actionsCtn = document.getElementById('focusBarActions');
+    if (!actionsCtn) return; // Ensure container exists
+
+    // Clear previous content and event listener to prevent duplicates
+    actionsCtn.innerHTML = '';
+    // Remove the old event listener to prevent multiple bindings if it exists
+    if (actionsCtn._currentClickListener) {
+      actionsCtn.removeEventListener('click', actionsCtn._currentClickListener);
+      actionsCtn._currentClickListener = null;
+    }
+
+    // Render right-side buttons ONLY if the CURRENT MAIN VIEW is Storyboard
+    if (this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD) {
+      actionsCtn.innerHTML = `
+        <button class="action-btn" data-action="advancedOptions">Advanced Options</button>
+        <button class="action-btn" data-action="shuffle">Shuffle</button>
+        <button class="action-btn" data-action="beginStory">Begin Story</button>
+      `;
+      // Use event delegation for click handlers on the container
+      const listener = (event) => {
+        const targetButton = event.target.closest('.action-btn');
+        if (!targetButton) return;
+
+        const action = targetButton.dataset.action;
+        switch (action) {
+          case 'advancedOptions':
+            App.openAdvancedOptionsChin();
+            break;
+          case 'shuffle':
+            App.shuffleStoryboard();
+            break;
+          case 'beginStory':
+            App.beginStory();
+            break;
+          default:
+            break;
+        }
+      };
+      actionsCtn.addEventListener('click', listener);
+      actionsCtn._currentClickListener = listener; // Store reference to listener for removal
+    }
+  },
+
+  // 2. Remove the horizontal line from Advanced Options chin
+  openAdvancedOptionsChin: function() {
+    const chin = document.getElementById('focusBarChin');
+    if (!chin) return;
+    chin.classList.add('visible');
+    chin.classList.remove('hidden');
+    this.focusBarChinOpen = true;
+    chin.innerHTML = `<div class="advanced-options-columns" style="display: flex; gap: 1.5rem;">
+      <div class="form-section" style="flex:1;">
+        <label for="storyKickoffPromptTextarea" class="storyboard-label">Story Prompt</label>
+        <textarea id="storyKickoffPromptTextarea" class="kickoff-prompt-textarea" placeholder="Guide the AI's initial narrative. If blank, AI uses 'Present' states of Characters & World. Hints for narrator style or dynamics are welcome. E.g., The old tavern was dimly lit..."></textarea>
+      </div>
+      <div class="form-section" style="flex:1;">
+        <label for="customStoryJsTextarea" class="storyboard-label">Custom JavaScript</label>
+        <textarea id="customStoryJsTextarea" class="custom-story-js-textarea" placeholder="Experimental: Code saved with story. Execution (e.g., sandbox) is a future enhancement. Use with caution."></textarea>
+      </div>
+    </div>`;
+  },
+
+  // 3. Remove story prompt and custom JS fields from main area
+  renderStoryboardScreen: function() {
+    // ...existing code...
+    // Remove or comment out any code that renders story prompt and custom JS fields in the main area
+    // ...existing code...
+  },
 }; // Closing brace for the App object
 
 // Initialize the application when ready
 window.dbName = 'rpglitch-db';
 window.App = App; // Make App globally accessible for HTML onclick handlers
 App.initializeWhenReady();
+
+// --- EXPERIMENTAL: Focus Bar Tab/Chin Logic ---
+App.experimentalMode = 'storyboard';
+App.focusBarTabs = ['storyboard', 'characters', 'worlds', 'options'];
+App.focusBarChinOpen = false;
+
+App.toggleFocusBarChin = function(type) {
+  if (this.focusBarChinOpen) {
+    this.closeFocusBarChin();
+    return;
+  }
+  this.openFocusBarChin(type);
+};
+
+App.closeFocusBarChin = function() {
+  const chin = document.getElementById('focusBarChin');
+  if (!chin) return;
+  chin.classList.remove('visible');
+  chin.classList.add('hidden');
+  this.focusBarChinOpen = false;
+};
+
+App.openCharacterProfile = function(id, isPremade) {
+  this.closeFocusBarChin();
+  // Open character profile/workshop
+  this.switchToScreen('characterProfileScreen', { characterId: id, isPremade });
+  // Update right actions for profile
+  this.renderProfileActions('character', id, isPremade);
+};
+
+App.openWorldProfile = function(id, isPremade) {
+  this.closeFocusBarChin();
+  this.switchToScreen('worldProfileScreen', { worldId: id, isPremade });
+  this.renderProfileActions('world', id, isPremade);
+};
+
+App.renderProfileActions = function(type, id, isPremade) {
+  const actionsCtn = document.getElementById('focusBarActions');
+  if (!actionsCtn) return;
+  actionsCtn.innerHTML = '';
+  if (type === 'character') {
+    actionsCtn.innerHTML = `
+      <button class="action-btn" onclick="App.copyAndCustomizeCharacter('${id}')">Copy & Customize</button>
+      <button class="action-btn" onclick="App.editCharacter('${id}')">Edit</button>
+      <button class="action-btn" onclick="App.setMode('characters')">Back</button>
+    `;
+  } else if (type === 'world') {
+    actionsCtn.innerHTML = `
+      <button class="action-btn" onclick="App.copyAndCustomizeWorld('${id}')">Copy & Customize</button>
+      <button class="action-btn" onclick="App.editWorld('${id}')">Edit</button>
+      <button class="action-btn" onclick="App.setMode('worlds')">Back</button>
+    `;
+  }
+};
+
+App.searchChinList = async function(query, type) {
+  const chin = document.getElementById('focusBarChin');
+  if (!chin) return;
+  let items = [];
+  const listContainer = chin.querySelector('.chin-list-grid');
+  if (!listContainer) return;
+  
+  if (type === 'stories') {
+    const stories = await this.db.stories.toArray();
+    items = stories.filter(story => (story.title || 'Untitled Story').toLowerCase().includes(query.toLowerCase()));
+    listContainer.innerHTML = items.length > 0 ? 
+      items.map(story => {
+        const title = story.title || 'Untitled Story';
+        const truncatedTitle = title.length > 25 ? title.substring(0, 25) + '...' : title;
+        return `<div class="chin-card" onclick="App.openStory('${story.id}')">${App.DOMPurify.sanitize(truncatedTitle)}</div>`;
+      }).join('') :
+      '<div class="chin-card" style="opacity: 0.7; cursor: default; pointer-events: none;">No matching stories found</div>';
+  } else if (type === 'characters') {
+    const premades = await this.getPremadeCharacterItems();
+    const customs = await this.db.characters.toArray();
+    items = [...customs, ...premades].filter(item => (item.name || '').toLowerCase().includes(query.toLowerCase()));
+    listContainer.innerHTML = items.map(item => `<div class="chin-card" onclick="App.openCharacterProfile('${item.id}', ${!!item.isPremade})">${App.DOMPurify.sanitize(item.name || 'Unnamed')}</div>`).join('');
+  } else if (type === 'worlds') {
+    const premades = await this.getPremadeWorldItems();
+    const customs = await this.db.worlds.toArray();
+    items = [...customs, ...premades].filter(item => (item.name || '').toLowerCase().includes(query.toLowerCase()));
+    listContainer.innerHTML = items.map(item => `<div class="chin-card" onclick="App.openWorldProfile('${item.id}', ${!!item.isPremade})">${App.DOMPurify.sanitize(item.name || 'Unnamed')}</div>`).join('');
+  }
+};
+
+// --- End Experimental Focus Bar Tab/Chin Logic ---
+
+// --- EXPERIMENTAL: Focus Bar Initialization (Robust) ---
+function hideLegacyExportButtons() {
+  var delBtn = document.querySelector('button#emergencyDeleteDataBtn');
+  var saveBtn = document.querySelector('button#emergencyExportBtn');
+  if (delBtn) delBtn.style.display = 'none';
+  if (saveBtn) saveBtn.style.display = 'none';
+  var exportCtn = document.getElementById('emergencyExportCtn');
+  if (exportCtn) exportCtn.style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+  // Always refresh UI element references after DOM is ready
+  App._getUIElements();
+  App.setMode('storyboard');
+  hideLegacyExportButtons();
+  // MutationObserver to catch late-rendered legacy buttons
+  const observer = new MutationObserver(hideLegacyExportButtons);
+  observer.observe(document.body, { childList: true, subtree: true });
+  setTimeout(() => observer.disconnect(), 5000);
+  // --- Ensure dropdowns are populated ---
+  if (App._updateStoryboard) {
+    await App._updateStoryboard();
+  }
+});
+// --- End Experimental Focus Bar Initialization (Robust) ---
+
+// --- EXPERIMENTAL: Remove legacy emergency export container from DOM ---
+document.addEventListener('DOMContentLoaded', function() {
+  var exportCtn = document.getElementById('emergencyExportCtn');
+  if (exportCtn && exportCtn.parentNode) {
+    exportCtn.parentNode.removeChild(exportCtn);
+  }
+});
+// --- End Remove legacy emergency export container ---
+
+// --- EXPERIMENTAL: Ensure DOMPurify is available on App ---
+App.DOMPurify = window.DOMPurify;
+// --- End DOMPurify assignment ---
+
+// --- EXPERIMENTAL: Add stubs for missing focus bar functions ---
+App.openAdvancedOptions = function() { alert('Advanced Options (stub)'); };
+App.createCharacter = function() { alert('Create Character (stub)'); };
+App.openSettings = function() { alert('Settings (stub)'); };
+App.importCharacter = function() { alert('Import Character (stub)'); };
+App.createWorld = function() { alert('Create World (stub)'); };
+App.importWorld = function() { alert('Import World (stub)'); };
+// --- End stubs ---
+
+// --- EXPERIMENTAL: Add stub for shuffleStoryboard ---
+App.shuffleStoryboard = function() { alert('Shuffle Storyboard (stub)'); };
+// --- End stub ---
+
+// 4. Add document-level click handler to close chin when clicking outside
+if (!window._chinClickHandlerAdded) {
+  document.addEventListener('mousedown', function(e) {
+    const chin = document.getElementById('focusBarChin');
+    const topBar = document.querySelector('.focus-bar');
+    if (!chin || !chin.classList.contains('visible')) return;
+    if (chin.contains(e.target) || topBar.contains(e.target)) return;
+    App.closeFocusBarChin();
+  });
+  window._chinClickHandlerAdded = true;
+}
+
+// 5. Ensure chin and top bar action buttons use .action-btn style (already handled in HTML/CSS edits above)
