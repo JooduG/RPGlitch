@@ -1,192 +1,285 @@
-<h1 id="hiddenH1Element" class="hidden">RPGlitch</h1>
+<!-- Minimal Pico nav test: Pico CDN only, no custom CSS -->
+<link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2.1.1/css/pico.min.css">
 
-<a href="#main" class="skip-link">Skip to main content</a>
+<!-- Hidden H1 for accessibility/SEO -->
+<h1 id="hidden-h1-element" class="hidden">RPGlitch</h1>
 
-  <div id="initialPageLoadingModal" class="fixed flex items-center justify-center top-0 left-0 right-0 bottom-0 p-4 z-top initial-loading-modal-bg">
-    <div class="p-4 rounded shadow-lg text-center initial-loading-modal-content">Loading...</div>
+<!-- Skip Link for Accessibility -->
+<a href="#main" class="visually-hidden">Skip to main content</a>
+
+<!-- Loading Modal - Removed 'open' attribute to fix loading bug -->
+<dialog id="initial-page-loading-modal" class="initial-loading-modal" no-header>
+  <div>Loading...</div>
+</dialog>
+<!-- Emergency Export Modal -->
+<dialog id="emergency-export-ctn" class="emergency-export-container" no-header>
+  <div class="emergency-export-content">
+    <div class="emergency-export-warning-text">Error during load?</div>
+    <button id="emergency-export-button" onclick="App.exportAllData()" class="secondary">Save All Data &#128190;</button>
+    <button id="emergency-delete-data-button" onclick="App.deleteAllData()" class="secondary">Delete All Data &#128680;</button>
   </div>
-  <div id="emergencyExportCtn" class="fixed top-0 left-0 right-0 p-4 z-top hidden emergency-export-container">
-    <div class="m-auto p-4 rounded text-center shadow-lg emergency-export-content">
-      <div class="text-sm font-bold emergency-export-warning-text">Error during load?</div>
-      <button id="emergencyExportBtn" onclick="App.exportAllData()" class="emergency-button">Save All Data 💾</button>
-      <button id="emergencyDeleteDataBtn" onclick="App.deleteAllData()" class="block m-auto mt-2 emergency-button">Delete All Data 🚨</button>
+</dialog>
+
+<div id="main-content-wrapper" class="container">
+  <div class="container">
+    <nav id="top-bar" class="top-bar top-bar-nav" style="display: flex; align-items: center; justify-content: space-between;">
+      <div id="top-bar-left" class="top-bar-section">
+        <ul>
+          <li><button class="secondary" data-tab="storyboard" role="tab" aria-selected="false" tabindex="0" _="on click call App.selectTopBarTab('storyboard') then call App.updateTopBarUI()">Storyboard</button></li>
+          <li><button class="secondary" data-tab="characters" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('characters') then call App.updateTopBarUI()">Character Workshop</button></li>
+          <li><button class="secondary" data-tab="worlds" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('worlds') then call App.updateTopBarUI()">World Creation</button></li>
+          <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
+        </ul>
+      </div>
+      <div id="top-bar-center" class="top-bar-section" style="flex: 1; display: flex; justify-content: center; align-items: center;">
+        <div id="top-bar-notification-area" class="top-bar-notification-area-style"></div>
+      </div>
+      <div id="top-bar-right" class="top-bar-section">
+        <div id="top-bar-user-character-info">
+          <div id="top-bar-user-character-pic" class="profile-picture"></div>
+          <span id="top-bar-user-character-name-text"></span>
+        </div>
+        <div id="top-bar-ai-character-info">
+          <div id="top-bar-ai-character-pic" class="profile-picture"></div>
+          <span id="top-bar-ai-character-name-text"></span>
+        </div>
+        <ul>
+          <li><button class="secondary" id="shuffle-button" _="on click call App._shuffleStoryboard()">Shuffle</button></li>
+          <li><button class="primary" id="begin-story-button" _="on click call App.beginStory()">Begin Story</button></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Chins: Only one visible at a time -->
+    <div id="storyboard-chin" class="top-bar-chin container hidden" data-chin="storyboard">
+      <div class="chin-actions">
+        <form role="search">
+          <fieldset role="group">
+            <input type="search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories">
+            <button type="submit" class="secondary chin-search-submit">Search</button>
+          </fieldset>
+        </form>
+        <div class="chin-actions-right">
+          <label for="upload-story-input" class="button secondary upload-label" style="cursor:pointer;" role="button" tabindex="0">
+            <span class="upload-label-text">Upload Story</span>
+            <input type="file" id="upload-story-input" aria-label="Upload Story" style="display:none;">
+          </label>
+          <button id="new-story-button" class="secondary">New Story</button>
+        </div>
+      </div>
+      <div id="chin-story-list" class="chin-list-grid"></div>
+      <!-- Storyboard Chin Content Placeholder -->
+    </div>
+    <div id="character-workshop-chin" class="top-bar-chin container hidden" data-chin="characters">
+      <div class="chin-actions">
+        <form role="search">
+          <fieldset role="group">
+            <input type="search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters">
+            <button type="submit" class="secondary chin-search-submit">Search</button>
+          </fieldset>
+        </form>
+        <div class="chin-actions-right">
+          <label for="upload-character-input" class="button secondary upload-label" style="cursor:pointer;" role="button" tabindex="0">
+            <span class="upload-label-text">Upload Character</span>
+            <input type="file" id="upload-character-input" aria-label="Upload Character" style="display:none;">
+          </label>
+          <button id="create-character-button" class="secondary">Create Character</button>
+        </div>
+      </div>
+      <div id="chin-character-list" class="chin-list-grid">
+        <article class="character-card-landscape">
+          <div class="card-grid">
+            <div class="card-info">
+              <header>
+                <h4 style="margin: 0;">Starship AI "ADA"</h4>
+              </header>
+              <p style="font-size: 0.95em; margin: 0.5em 0 0 0; line-height: 1.3;">
+                The ever-helpful AI of the starship "Odyssey," tasked with crew support and mission analysis.
+              </p>
+              <small>Premade</small>
+              <footer class="card-footer">
+                <button class="secondary">Copy & Customize</button>
+                <button class="secondary">Edit</button>
+              </footer>
+            </div>
+            <div class="card-picture">
+              <div class="profile-picture"
+                   style="background: #4f8cff; color: #fff; font-size: 2.5rem; display: flex; align-items: center; justify-content: center; width: 90px; height: 90px; border-radius: var(--pico-radius, 0.25rem);">
+                SA
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+      <!-- Character Workshop Chin Content Placeholder -->
+    </div>
+    <div id="world-builder-chin" class="top-bar-chin container hidden" data-chin="worlds">
+      <div class="chin-actions">
+        <form role="search">
+          <fieldset role="group">
+            <input type="search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds">
+            <button type="submit" class="secondary chin-search-submit">Search</button>
+          </fieldset>
+        </form>
+        <div class="chin-actions-right">
+          <label for="upload-world-input" class="button secondary upload-label" style="cursor:pointer;" role="button" tabindex="0">
+            <span class="upload-label-text">Upload World</span>
+            <input type="file" id="upload-world-input" aria-label="Upload World" style="display:none;">
+          </label>
+          <button id="create-world-button" class="secondary">Create World</button>
+        </div>
+      </div>
+      <div id="chin-world-list" class="chin-list-grid"></div>
+      <!-- World Builder Chin Content Placeholder -->
+    </div>
+    <div id="options-chin" class="top-bar-chin container hidden" data-chin="options">
+      <!-- Options Chin Content -->
+      <div class="chin-options-actions" style="display: flex; gap: 1rem; align-items: center; justify-content: space-between;">
+        <button id="download-backup-button" class="button secondary">Download Backup</button>
+        <div class="chin-actions-right" style="display: flex; gap: 1rem; align-items: center;">
+          <label for="upload-backup-input" class="button secondary upload-label" style="cursor:pointer;" role="button" tabindex="0">
+            <span class="upload-label-text">Upload Backup</span>
+            <input type="file" id="upload-backup-input" aria-label="Upload Backup" style="display:none;">
+          </label>
+          <button id="start-fresh-button" class="secondary danger">Start Fresh</button>
+        </div>
+      </div>
+      <div class="chin-options-grid">
+        <div>
+          <textarea id="opening-prompt-textarea" placeholder="Opening Prompt"></textarea>
+        </div>
+        <div>
+          <textarea id="custom-story-js-textarea" placeholder="Custom Story JS"></textarea>
+        </div>
+      </div>
     </div>
   </div>
+  <!-- Top Bar End -->
 
-  <!-- Main Content Wrapper for Top Bar and Main Content -->
-  <div id="mainContentWrapper" style="max-width: 1200px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; align-items: stretch;">
-    <!-- EXPERIMENTAL: Focus Bar with Text Tabs and Contextual Actions (Moved outside #main) -->
-    <div class="focus-bar-wrapper">
-      <div class="focus-bar">
-        <!-- Left: Tab Buttons -->
-        <div class="tab-group left-tabs">
-          <button class="tab-btn" id="tabStoryboard" onclick="App.setMode('storyboard')">Storyboard</button>
-          <button class="tab-btn" id="tabCharacters" onclick="App.setMode('characters')">Character Workshop</button>
-          <button class="tab-btn" id="tabWorlds" onclick="App.setMode('worlds')">World Creation</button>
-          <button class="tab-btn" id="tabOptions" onclick="App.setMode('options')">Options</button>
-        </div>
-        <div class="spacer"></div>
-        <!-- Right: Contextual Actions -->
-        <div class="control-group right-controls" id="focusBarActions">
-          <!-- Contextual buttons will be rendered here by JS -->
-        </div>
-      </div>
-      <div id="focusBarChin" class="focus-bar-chin hidden"></div>
-    </div>
-    <!-- Focus Bar End -->
-
-    <!-- CHIN AREA: Selects and Cards, always aligned with top bar -->
-    <div id="storyboardScreen" style="width: 100%;">
-      <div id="storyboardTitleArea">
-        <h2 id="storyboardTitle" contenteditable="true" spellcheck="false" title="Click to edit story name">Untitled Story</h2>
-      </div>
-      <div id="storyboardScrollableContent"> 
-        <div id="storyboardColumns">
-          <!-- AI Character Column -->
-          <div class="story-board-column">
-            <select id="storyboardAiCharacterSelect" class="story-board-ingredient-select" aria-label="Select AI Character">
-              <option value="" disabled selected>Select AI Character</option>
-            </select>
-            <div id="storyboardAiCharacterCard" class="story-board-ingredient-card empty-card">
-              Select AI Character
-            </div>
-          </div>
-          <!-- User Character Column -->
-          <div class="story-board-column">
-            <select id="storyboardUserCharacterSelect" class="story-board-ingredient-select" aria-label="Select Your Character">
-              <option value="" disabled selected>Select Your Character</option>
-            </select>
-            <div id="storyboardUserCharacterCard" class="story-board-ingredient-card empty-card">
-              Select Your Character
-            </div>
-          </div>
-          <!-- World Column -->
-          <div class="story-board-column">
-            <select id="storyboardWorldSelect" class="story-board-ingredient-select" aria-label="Select World">
-              <option value="" disabled selected>Select World</option>
-            </select>
-            <div id="storyboardWorldCard" class="story-board-ingredient-card empty-card">
-              Select World
+  <div class="container">
+    <div class="main-content-container">
+      <!-- CHIN AREA: Selects and Cards, always aligned with top bar -->
+      <div class="container" id="storyboard-screen">
+        <header id="storyboard-title-area">
+          <h2 id="storyboard-title"></h2>
+        </header>
+        <div id="storyboard-scrollable-content">
+          <div id="storyboard-columns">
+            <div class="storyboard-cards-row">
+              <article id="storyboard-ai-character-card">
+                <div id="storyboard-ai-character-select" class="card-title-dropdown"></div>
+              </article>
+              <article id="storyboard-user-character-card">
+                <div id="storyboard-user-character-select" class="card-title-dropdown"></div>
+              </article>
+              <article id="storyboard-world-card">
+                <div id="storyboard-world-select" class="card-title-dropdown"></div>
+              </article>
             </div>
           </div>
         </div>
-        <div id="advancedStoryOptionsContentArea" class="advanced-options-content" role="region" aria-labelledby="advancedStoryOptionsToggleBtn">
-          <div class="form-section"></div>
-          <div class="form-section"></div>
-        </div>
       </div>
-    </div>
-
-    <div id="main" role="main" tabindex="-1" style="width: 100%; max-width: none; margin: 0; padding: 0;">
-      
-      <div id="columnsWrapper" class="flex flex-grow overflow-hidden" style="max-width: none; margin: 0;">
-        
-        <div id="contextualMenuPanel" role="region" aria-labelledby="contextualMenuTabs"> 
-            <div id="contextualMenuTabs" role="tablist">
-                <button class="contextual-menu-tab-button active" data-view="stories" role="tab" aria-selected="true" aria-label="Stories"><span class="button-text">Stories</span><span class="button-icon">📖</span></button>
-                <button class="contextual-menu-tab-button" data-view="characters" role="tab" aria-selected="false" aria-label="Characters"><span class="button-text">Characters</span><span class="button-icon">🤖</span></button>
-                <button class="contextual-menu-tab-button" data-view="worlds" role="tab" aria-selected="false" aria-label="Worlds"><span class="button-text">Worlds</span><span class="button-icon">🌍</span></button>
-                <button class="contextual-menu-tab-button" data-view="settings" role="tab" aria-selected="false" aria-label="Options"><span class="button-text">Options</span><span class="button-icon">⚙️</span></button>
-            </div>
-            <div id="contextualMenuContentArea">
-                <div id="contextualMenuStoriesSection" class="contextual-menu-section">
-                    <!-- Content rendered by App._renderContextualStoryList -->
-                </div>
-                <div id="contextualMenuCharactersSection" class="contextual-menu-section hidden">
-                    <!-- Content rendered by App._renderContextualCharacterList -->
-                </div>
-                <div id="contextualMenuWorldsSection" class="contextual-menu-section hidden">
-                    <!-- Content rendered by App._renderContextualWorldList -->
-                </div>
-                <div id="contextualMenuSettingsSection" class="contextual-menu-section hidden">
-                    <!-- Content rendered by App._renderContextualSettings -->
-                </div>
-            </div>
-        </div>
-    
-        <div id="middleColumn" class="flex-grow flex flex-col overflow-hidden"> 
-          
-          <div id="characterFormScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
+      <!-- Main Area -->
+      <div id="main" role="main" tabindex="-1">
+        <div id="columns-wrapper" class="flex flex-grow overflow-hidden">
+          <!-- Middle Column: Main Screens -->
+          <div id="middle-column" class="flex-grow flex flex-col overflow-hidden"> 
+            <!-- Character/World Form Screens -->
+            <div id="character-form-screen" class="middle-column-screen flex-grow flex-col overflow-auto hidden">
               <!-- Content rendered by App.renderFormScreen -->
-          </div>
-          <div id="worldFormScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
-              <!-- Content rendered by App.renderFormScreen -->
-          </div>
-          
-          <div id="characterProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
-              <!-- Content rendered by App.renderProfileScreen -->
-          </div>
-          <div id="worldProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-auto hidden">
-              <!-- Content rendered by App.renderProfileScreen -->
-          </div>
-          
-          <div id="storyProfileScreen" class="middleColumnScreen flex-grow flex-col overflow-hidden hidden">
-            <div class="story-profile-layout-container">
-                <div id="storyProfileAiCharacterDisplayArea" class="story-profile-side-panel">
-                    <!-- AI Character's avatar and name loaded here -->
+              <div class="profile-picture-overlay-wrapper">
+                <button id="edit-profile-picture-button" class="secondary">
+                  <span class="button-text">Edit Profile Picture</span>
+                  <span class="button-icon">✏️</span>
+                </button>
+                <div id="profile-picture-overlay" class="profile-picture-overlay hidden">
+                  <textarea id="profile-picture-prompt" placeholder="Describe or paste image URL..."></textarea>
+                  <button id="profile-picture-generate-button" class="primary">
+                    <span class="button-text">Generate</span>
+                  </button>
+                  <img id="profile-picture-preview" class="profile-picture-preview hidden" />
                 </div>
-                <div id="storyProfileChatWrapper" class="story-profile-central-content">
-                    <div id="storyProfileMessageFeed" class="message-feed-profile flex-grow overflow-auto">
-                        <!-- Chat log, conclusion, title, cards will be rendered here -->
-                    </div>
-                    <div id="storyProfileActions" class="story-profile-form-actions">
-                        <!-- Action buttons like Delete, Back will be rendered here -->
-                    </div>
-                </div>
-                <div id="storyProfileUserCharacterDisplayArea" class="story-profile-side-panel">
-                    <!-- User Character's avatar and name loaded here -->
-                </div>
+              </div>
             </div>
-                    <div id="memoryApplicationScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
-              <!-- Content will be rendered by App._renderMemoryApplicationScreen -->
-          </div>
-          </div>
-          
-          <div id="preMadeCharacterSelectionScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
-                <h2 class="premade-screen-title">Premade Characters</h2>
-                <p class="premade-screen-description">Select a premade character to use its details in the creation form.</p>
-                <div id="preMadeCharacterOnlyList" class="grid-list-container"></div>
-          </div>
-          
-          <div id="preMadeWorldSelectionScreen" class="middleColumnScreen flex-grow flex-col overflow-auto p-4 hidden">
-                <h2 class="premade-screen-title">Premade Worlds</h2>
-                <p class="premade-screen-description">Select a premade world to use its details in the creation form.</p>
-                <div id="preMadeWorldOnlyList" class="grid-list-container"></div>
-          </div>
-          
-          <div id="storyInterfaceScreen" class="middleColumnScreen flex flex-col h-full flex-grow relative hidden">
-            <div id="chatScreenLayoutContainer">
-                <div id="aiCharacterDisplayArea" class="chat-side-panel">
-                    <!-- AI Character's large image will be loaded here by JS -->
+            <div id="world-form-screen" class="middle-column-screen flex-grow flex-col overflow-auto hidden">
+              <!-- Content rendered by App.renderFormScreen -->
+            </div>
+            <!-- Profile Screens -->
+            <div id="character-profile-screen" class="middle-column-screen flex-grow flex-col overflow-auto hidden">
+              <!-- Content rendered by App.renderProfileScreen -->
+            </div>
+            <div id="world-profile-screen" class="middle-column-screen flex-grow flex-col overflow-auto hidden">
+              <!-- Content rendered by App.renderProfileScreen -->
+            </div>
+            <div id="story-profile-screen" class="middle-column-screen flex-grow flex-col overflow-hidden hidden">
+              <div class="story-profile-layout-container">
+                <div id="story-profile-ai-character-display-area" class="story-profile-side-panel">
+                  <!-- AI Character's profile picture and name loaded here -->
                 </div>
-                <div id="builtInChatInterfaceWrapper"> 
-                  <div id="chatBackgroundCtn" class="absolute top-0 left-0 right-0 bottom-0 chat-background-overlay"></div>
-                  <div id="storyConcludedNotice" class="message systemMessage hidden"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story has concluded.</div></div></div></div>
-                  <div id="messageFeed" class="flex-grow overflow-auto pt-2"></div>
-                  <div id="noMessagesNotice" class="hidden p-4 mt-4 opacity-70">Type your reply below to continue the story.</div>
-                  <div id="statusNotifier" class="relative flex items-center justify-content-center z-10 hidden" data-original-display-value="flex">
-                    <span class="ticontainer rounded p-1 text-sm" style="background: var(--surface0-color);">
-                      <span id="typingIndicatorText">Bot is thinking</span>
-                      <span class="tidot"></span><span class="tidot"></span><span class="tidot"></span>
-                    </span>
+                <div id="story-profile-chat-wrapper" class="story-profile-central-content">
+                  <div id="story-profile-message-feed" class="message-feed-profile flex-grow overflow-auto">
+                    <!-- Chat log, conclusion, title, cards will be rendered here -->
                   </div>
-                  <div id="inputWrapper" class="p-2">
-                    <div class="chat-input-flex-container"> 
-                        <textarea id="messageInput" placeholder="Type your reply here..." class="flex-grow rounded p-2"></textarea>
+                  <div id="story-profile-actions" class="story-profile-form-actions">
+                    <!-- Action buttons like Delete, Back will be rendered here -->
+                  </div>
+                </div>
+                <div id="story-profile-user-character-display-area" class="story-profile-side-panel">
+                  <!-- User's Character large image will be loaded here by JS -->
+                </div>
+              </div>
+              <div id="memory-application-screen" class="middle-column-screen flex-grow flex-col overflow-auto p-4 hidden">
+                <!-- Content will be rendered by App._renderMemoryApplicationScreen -->
+              </div>
+            </div>
+            <!-- Premade Bank Screens -->
+            <div id="premade-character-bank" class="middle-column-screen flex-grow flex-col overflow-auto p-4 hidden">
+              <h2 class="premade-screen-title">Premade Characters</h2>
+              <p class="premade-screen-description">Select a premade character to use its details in the creation form.</p>
+              <div id="premade-character-only-list" class="grid-bank-container"></div>
+            </div>
+            <div id="premade-world-bank" class="middle-column-screen flex-grow flex-col overflow-auto p-4 hidden">
+              <h2 class="premade-screen-title">Premade Worlds</h2>
+              <p class="premade-screen-description">Select a premade world to use its details in the creation form.</p>
+              <div id="premade-world-only-list" class="grid-bank-container"></div>
+            </div>
+            <!-- Chat Interface Screen -->
+            <div id="chat-interface-screen" class="middle-column-screen flex flex-col h-full flex-grow relative hidden">
+              <div id="chat-screen-layout-container">
+                <div id="ai-character-display-area" class="chat-side-panel">
+                  <!-- AI Character's large image will be loaded here by JS -->
+                </div>
+                <div id="built-in-chat-interface-wrapper"> 
+                  <div id="chat-background-ctn" class="absolute top-0 left-0 right-0 bottom-0 chat-background-overlay"></div>
+                  <div id="story-concluded-notice" class="message systemMessage hidden"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story has concluded.</div></div></div></div>
+                  <div id="chat-feed" class="flex-grow overflow-auto pt-2"></div>
+                  <div id="no-messages-notice" class="hidden p-4 mt-4">Type your reply below to continue the story.</div>
+                  <div id="status-notifier" class="relative flex items-center justify-content-center z-10 hidden" data-original-display-value="flex">
+                    <span id="typing-indicator-text">Bot is thinking</span>
+                    <div id="input-wrapper" class="p-2">
+                      <div class="chat-input-flex-container"> 
+                        <textarea id="message-input" placeholder="Type your reply here..."></textarea>
                         <div class="chat-send-button-container"> 
-                            <button id="sendButton" class="flex-grow primary-action-button" aria-label="Send message">
-                                <span class="button-text">Send</span><span class="button-icon" aria-hidden="true">➤</span>
-                            </button>
+                          <button id="send-button" class="flex-grow primary" aria-label="Send message">
+                            <span class="button-text">Send</span>
+                          </button>
                         </div>
+                      </div>
                     </div>
                   </div>
+                  <button id="conclude-story-chat-button" class="secondary">Conclude Story</button>
                 </div>
-                <div id="userCharacterDisplayArea" class="chat-side-panel">
-                    <!-- User's Character large image will be loaded here by JS -->
+                <div id="user-character-display-area" class="chat-side-panel">
+                  <!-- User's Character large image will be loaded here by JS -->
                 </div>
+              </div>
             </div>
+            <!-- End Chat Interface Screen -->
           </div>
+          <!-- End Middle Column -->
         </div>
       </div>
+      <!-- End Main Area -->
+    </div>
   </div>
 </div>

@@ -1,12 +1,13 @@
 # Ignore the Perchance-specific build artifact
-Perchance/build/RPGlitch-perchance.html
+# Perchance/build/RPGlitch-perchance.html
 
-/browser-tools-mcp/
-/multi-agent/
-.cursor/rules/multi-agent-coordination.mdc
+# browser-tools-mcp/
+# memory-bank/archive/
+
+**/*.gemini-cli-bootstrap.md
 
 # Ignore node_modules
-perchance/node_modules/
+# Perchance/node_modules/
 
 # Ignore backup files
 *.backup

@@ -1,0 +1,43 @@
+---
+title: Pico.css Usage in Perchance Projects
+description: Pico.css provides minimal, modern CSS styling for native HTML elements. Use Pico.css for base styling in Perchance projects.
+tags:
+  - CSS
+  - Styling
+  - UI
+  - Perchance
+globs: **/*.html, **/*.css
+version: 1.0.0
+author: AI Assistant & User Collaboration
+status: live
+lastUpdated: 2025-07-11
+---
+
+## Objective
+
+Pico.css provides minimal, modern CSS styling for native HTML elements. Use Pico.css for base styling in Perchance projects.
+
+---
+
+## Usage Guidelines
+
+-   **How to include:**
+
+    ```html
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.10/css/pico.min.css">
+    ```
+
+-   **When to use:** For consistent, modern styling of forms, buttons, tables, and all native HTML elements.
+-   **Customizing:** Add project-specific CSS for overrides or enhancements.
+-   **Works well with:** Shoelace, Hyperscript, and Cash DOM.
+
+---
+
+## References
+
+-   [Pico.css Docs](https://picocss.com/docs/)
+-   [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
+
+---
+
+---

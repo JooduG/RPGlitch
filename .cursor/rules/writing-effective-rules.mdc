@@ -1,7 +1,7 @@
 ---
 description: A comprehensive guide for creating effective .mdc Rules, ensuring clarity, structure, and adherence to best practices.
 tags: [meta, rules, documentation, best-practices]
-globs: ["**/*.mdc"]
+globs: **/*.mdc
 version: 2.0.0
 updates:
   - "Initial comprehensive version."

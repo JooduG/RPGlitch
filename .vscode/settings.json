@@ -12,5 +12,6 @@
         "ul-indent": {
             "indent": 4
         }
-    }
+    },
+    "dotnet.defaultSolution": "tizen/tools/tizen-core/templates/config/tizen_project.sln"
 }

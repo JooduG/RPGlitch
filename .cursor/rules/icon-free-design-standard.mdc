@@ -2,7 +2,7 @@
 title: Icon-Free Design Standard
 description: Guide for AI: Apply this rule when creating or evaluating user interface elements, especially interactive controls like buttons, links, navigation items, or any component where icons might be considered. This rule enforces a preference for clear text labels over icons.
 tags: [ui-ux, design-system, standards, clarity, minimalism, agent-requested]
-alwaysApply: false # Agent Requested - AI decides when relevant based on description
+alwaysApply: false 
 version: 1.0.0
 ---
 

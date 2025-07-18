@@ -12,7 +12,7 @@ async evaluatePerchanceTextInSandbox(text, opts) =>
     iframe.src = "https://7deabe31ae18ea5ed27c5f71b9633999.perchance.org/ai-character-chat-sandboxed-executor";
     iframe.id = "perchanceCodeEvaluationSandboxIframe";
     iframe.sandbox = "allow-scripts allow-same-origin";
-    iframe.style.cssText = "position:fixed; width:1px; height:1px; opacity:0.01; top:-10px; right:-10px; pointer-events:none; border:0; outline:0; user-select:none;";
+    iframe.style.cssText = "position:fixed; width:1px; height:1px; top:-10px; right:-10px; pointer-events:none; border:0; outline:0; user-select:none;";
     document.body.append(iframe);
     iframe._resolvers = {};
     let iframeLoadResolver;
@@ -351,7 +351,7 @@ async injectHierarchicalSummariesAndComputeNextSummariesInBackgroundIfNeeded(thr
         let data = await root.aiTextPlugin(promptOptions);
         if(data.stopReason === "error") continue; // could retry a few times, but this is no big deal, since every message sent triggers another attempt
 
-        let summary = data.generatedText.trim().replace(/\n+/g, " ").trim().replace(/---$/, "").replace(">>> FULL TEXT", "").replace("FULL TEXT", "").trim();
+        let summary = data.generatedText.trim().replace(/\n+/g, " ").trim().replace(">>> FULL TEXT", "").replace("FULL TEXT", "").trim();
         if(!summary.trim() || (instructionSummaries[instructionSummaries.length-1] || "").trim() === summary.trim()) {
           // AI has copied the previous summary, which sometimes happens.
           console.warn("AI copied previous summary. Skipping this summary level for this 'round'.");

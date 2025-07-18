@@ -1,0 +1,78 @@
+---
+title: CSS Principles
+description: Guidelines for writing maintainable, scalable, and atomic CSS for Perchance apps.
+tags:
+  - CSS
+  - Atomic
+  - Tailwind
+  - Perchance
+globs: **/*.css
+version: 1.0.0
+author: Perchance
+status: draft
+lastUpdated: 2023-10-27
+---
+
+## CSS Principles
+
+### Scope
+
+-   Covers atomic/utility CSS, Tailwind compatibility, and Perchance-specific best practices.
+-   Outlines maintainable, scalable styling for Perchance apps.
+-   References atomic CSS utilities and Tailwind docs.
+
+---
+
+## Core Principles
+
+-   **Shoelace & Pico.css:**
+    Use Shoelace for advanced UI components and Pico.css for base styling. Atomic/utility CSS is still encouraged for custom utilities and rapid prototyping.
+-   **Atomic/Utility CSS:**  
+    Use single-purpose classes for styling (e.g., `.p-2`, `.text-center`).
+-   **No @import:**  
+    Merge all CSS into a single file for deployment.
+-   **Tailwind Compatibility:**  
+    Use Tailwind or similar utility frameworks for rapid prototyping.
+-   **Minimal Bloat:**  
+    Only include styles actually used in the app.
+
+---
+
+## Best Practices
+
+-   Organize CSS by utility and component.
+-   Use variables for colors, spacing, and fonts.
+-   Test styles in the Perchance editor before deployment.
+-   Avoid `!important` unless absolutely necessary.
+
+---
+
+## Example
+
+```css
+/* Atomic utility class */
+.p-2 { padding: 0.5rem; }
+.text-center { text-align: center; }
+.bg-primary { background: #4f46e5; }
+```
+
+---
+
+## Related Rules
+
+-   [Shoelace Usage](./shoelace-usage.mdc)
+-   [Pico.css Usage](./pico-css-usage.mdc)
+-   [Perchance Architecture](./perchance-architecture.mdc)
+-   [Perchance Development Workflow](./perchance-development-workflow.mdc)
+-   [Perchance Build & Deployment](./perchance-build-deployment.mdc)
+-   [HTML Foundations](./html-foundations.mdc)
+-   [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
+
+---
+
+## References & Inspiration
+
+-   [atomic-css/README.md](../../atomic-css/README.md)
+-   [Tailwind CSS Docs](https://tailwindcss.com/docs)
+-   [Perchance Welcome](https://perchance.org/welcome)
+-   [Perchance Examples](https://perchance.org/examples)
