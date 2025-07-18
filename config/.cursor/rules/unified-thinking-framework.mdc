@@ -1,10 +1,13 @@
 # 🧠 UNIFIED THINKING FRAMEWORK
 
-> **TL;DR:** Integrated framework that resolves conflicts between Sequential Thinking, Contemplative Thinking, and Professional Coding approaches with clear decision criteria and optimal approach selection.
+> **TL;DR:** Integrated framework that resolves conflicts between Sequential
+> Thinking, Contemplative Thinking, and Professional Coding approaches with clear
+> decision criteria and optimal approach selection.
 
 ## 🎯 **FRAMEWORK OVERVIEW**
 
-This unified framework integrates three distinct thinking approaches to provide the optimal problem-solving methodology for any given task:
+This unified framework integrates three distinct thinking approaches to provide
+the optimal problem-solving methodology for any given task:
 
 1. **🧠 Sequential Thinking** - Structured, tool-guided, systematic problem-solving
 2. **🤔 Contemplative Thinking** - Natural, conversational, deep exploration
@@ -40,10 +43,18 @@ graph TD
 
 | Task Type | Primary Approach | Secondary Approach | Key Indicators | Response Style |
 |-----------|------------------|-------------------|----------------|----------------|
-| **Complex Multi-Step** | 🧠 Sequential Thinking | Tool Recommendations | Multiple tools needed, clear steps, systematic process | Structured, tool-guided, confidence scores |
-| **Deep Exploration** | 🤔 Contemplative Thinking | Natural Flow | Creative problems, uncertainty, open-ended questions | Conversational, extensive, embracing doubt |
-| **Quick Implementation** | ⚡ Professional Coding | Direct Approach | Simple tasks, well-defined requirements, production focus | Concise, production-ready, zero technical debt |
-| **Strategic Planning** | 🧠 Sequential + 🤔 Contemplative | Hybrid Approach | Complex decisions, multiple options, long-term impact | Structured exploration with natural flow |
+| **Complex Multi-Step** | 🧠 Sequential Thinking | Tool Recommendations |
+| Multiple tools needed, clear steps, systematic process |
+| Structured, tool-guided, confidence scores |
+| **Deep Exploration** | 🤔 Contemplative Thinking | Natural Flow |
+| Creative problems, uncertainty, open-ended questions |
+| Conversational, extensive, embracing doubt |
+| **Quick Implementation** | ⚡ Professional Coding | Direct Approach |
+| Simple tasks, well-defined requirements, production focus |
+| Concise, production-ready, zero technical debt |
+| **Strategic Planning** | 🧠 Sequential + 🤔 Contemplative | Hybrid Approach |
+| Complex decisions, multiple options, long-term impact |
+| Structured exploration with natural flow |
 
 ## 🧠 **SEQUENTIAL THINKING INTEGRATION**
 
@@ -183,7 +194,8 @@ graph TD
 
 ### **Strategic Planning (Sequential + Contemplative)**
 
-**Use Case**: Complex decisions requiring both systematic analysis and creative exploration
+**Use Case**: Complex decisions requiring both systematic analysis and
+creative exploration
 
 **Workflow**:
 
@@ -215,10 +227,14 @@ graph TD
 
 The framework automatically selects the optimal approach based on:
 
-1. **Task Complexity**: Simple → Professional, Complex → Sequential, Uncertain → Contemplative
-2. **Time Constraints**: Urgent → Professional, Flexible → Contemplative, Planned → Sequential
-3. **Tool Requirements**: Many tools → Sequential, Few tools → Professional, No tools → Contemplative
-4. **Output Requirements**: Production code → Professional, Analysis → Sequential, Insights → Contemplative
+1. **Task Complexity**: Simple → Professional, Complex → Sequential,
+   Uncertain → Contemplative
+2. **Time Constraints**: Urgent → Professional, Flexible → Contemplative,
+   Planned → Sequential
+3. **Tool Requirements**: Many tools → Sequential, Few tools → Professional,
+   No tools → Contemplative
+4. **Output Requirements**: Production code → Professional, Analysis → Sequential,
+   Insights → Contemplative
 
 ### **Decision Algorithm**
 
@@ -304,8 +320,12 @@ function selectThinkingApproach(task) {
 
 ---
 
+## 🧠 **CONCLUSION**
+
 **🧠 UNIFIED THINKING FRAMEWORK: The optimal approach for every problem!**
+
+---
+
 description:
 globs:
 alwaysApply: false
----

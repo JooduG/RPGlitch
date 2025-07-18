@@ -588,12 +588,12 @@ This documentation reflects modern JavaScript best practices and features, ensur
 
 ## References & Inspiration
 
--   [Perchance Welcome](https://perchance.org/welcome)
--   [Perchance Tutorial](https://perchance.org/tutorial)
--   [Perchance Advanced Tutorial](https://perchance.org/advanced-tutorial)
--   [Perchance Examples](https://perchance.org/examples)
--   [Perchance Snippets](https://perchance.org/perchance-snippets)
+- [Perchance Welcome](https://perchance.org/welcome)
+- [Perchance Tutorial](https://perchance.org/tutorial)
+- [Perchance Advanced Tutorial](https://perchance.org/advanced-tutorial)
+- [Perchance Examples](https://perchance.org/examples)
+- [Perchance Snippets](https://perchance.org/perchance-snippets)
 
--   [HTML Foundations](./html-foundations.mdc)
--   [CSS Principles](./css-principles.mdc)
--   [IndexedDB Principles](./indexeddb-principles.mdc)
+- [HTML Foundations](./html-foundations.mdc)
+- [CSS Principles](./css-principles.mdc)
+- [IndexedDB Principles](./indexeddb-principles.mdc)

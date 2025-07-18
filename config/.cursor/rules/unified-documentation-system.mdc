@@ -1,10 +1,14 @@
 # 📚 UNIFIED DOCUMENTATION SYSTEM
 
-> **TL;DR:** Integrated documentation system that combines Memory Bank (local, persistent) and Context7 (real-time, external) with clear source hierarchy and intelligent conflict resolution.
+> **TL;DR:** Integrated documentation system that combines Memory Bank (local,
+> persistent) and Context7 (real-time, external) with clear source hierarchy and
+> intelligent conflict resolution.
 
 ## 🎯 **SYSTEM OVERVIEW**
 
-The unified documentation system provides seamless access to both local project memory and external real-time documentation, with intelligent source selection and conflict resolution.
+The unified documentation system provides seamless access to both local project
+memory and external real-time documentation, with intelligent source selection and
+conflict resolution.
 
 ## 🔄 **DOCUMENTATION SOURCE HIERARCHY**
 
@@ -250,7 +254,8 @@ function identifyConflicts(local, external, general) {
   }
   
   // Approach conflicts
-  if (local.approach && external.approach && local.approach !== external.approach) {
+  if (local.approach && external.approach && 
+      local.approach !== external.approach) {
     conflicts.push({
       type: 'approach',
       local: local.approach,
@@ -444,10 +449,12 @@ function getDocumentationForApproach(approach, query) {
 - **Secondary**: Memory Bank (project-specific context)
 - **Tertiary**: General Knowledge (troubleshooting)
 
----
+## 📚 **CONCLUSION**
 
 **📚 UNIFIED DOCUMENTATION SYSTEM: Comprehensive, intelligent, and efficient!**
-description:
-globs:
-alwaysApply: false
+
 ---
+
+**description:** Integrated documentation system with intelligent source selection  
+**globs:**  
+**alwaysApply:** false
