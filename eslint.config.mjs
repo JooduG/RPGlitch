@@ -7,6 +7,14 @@ import { defineConfig } from "eslint/config";
 export default defineConfig([
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
+    ignores: [
+      "tizen/**/*",
+      "browser-tools-mcp/**/*",
+      "diagnostics/**/*",
+      "automation-collect-diagnostics.js",
+      "build-and-copy.js",
+      "build-perchance.js"
+    ],
     plugins: { js },
     extends: ["js/recommended"],
     languageOptions: {

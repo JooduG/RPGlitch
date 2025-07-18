@@ -7,7 +7,7 @@
     "preflight": "npm run build && npm run lint && echo \"Preflight check complete (tests and typecheck not configured).\"",
     "build": "node Perchance/build-perchance.js",
     "build:watch": "nodemon --watch Perchance --ext html,js,css --exec 'node Perchance/build-perchance.js'",
-    "lint": "eslint . && stylelint \"**/*.{css,scss}\"",
+    "lint": "eslint \"Perchance/**/*.js\" && stylelint \"**/*.{css,scss}\" && htmlhint \"Perchance/RPGlitch/RPGlitch.html\"",
     "validate": "node -e \"require('./Perchance/build-perchance.js').validateFiles()\"",
     "clean": "rm -rf Perchance/build/",
     "deploy": "npm run build && echo '✅ Build complete! Copy Perchance/build/RPGlitch-perchance.html to Perchance.'",
@@ -27,6 +27,7 @@
     "node": ">=14.0.0"
   },
   "devDependencies": {
+    "htmlhint": "^1.6.3",
     "nodemon": "^3.0.0",
     "sass": "^1.77.4",
     "stylelint": "^16.21.1",

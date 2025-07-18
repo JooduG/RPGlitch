@@ -1,0 +1,7 @@
+tizen/**/*
+browser-tools-mcp/**/*
+diagnostics/**/*
+automation-collect-diagnostics.js
+build-and-copy.js
+build-perchance.js
+stylelint.config.js 

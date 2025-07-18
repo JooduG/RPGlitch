@@ -77,6 +77,12 @@ const App = {
       tabs: ['storyboard', 'characters', 'worlds', 'options'],
       chinOpen: false
     },
+
+    // Mouseover animation state management
+    mouseoverAnimationState: {
+      enabled: true,
+      disabledElements: new Set()
+    },
   
     CONSTANTS: {
         FONT_FAMILY: "'Segoe UI', system-ui, sans-serif",
@@ -305,13 +311,75 @@ const App = {
       _getStoryboardElements() {
           this.ui.storyboardTitleArea = this._query('storyboard-title-area', false, this.ui.storyboardScreen);
           this.ui.storyboardTitle = this._query('storyboard-title', false, this.ui.storyboardTitleArea);
-          // Remove contenteditable and input handler: title is now always programmatic
+          // Make storyboard title editable on click
           if (this.ui.storyboardTitle) {
-            this.ui.storyboardTitle.removeAttribute('contenteditable');
-            this.ui.storyboardTitle.removeAttribute('spellcheck');
-            this.ui.storyboardTitle.title = '';
-            // Remove any previous event listeners if present
-            // (No-op here since we only ever added one, but safe for future)
+            this.ui.storyboardTitle.setAttribute('contenteditable', 'true');
+            this.ui.storyboardTitle.setAttribute('spellcheck', 'false');
+            this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)');
+            this.ui.storyboardTitle.style.cursor = 'pointer';
+            
+            // Add click handler to make it editable
+            this.ui.storyboardTitle.onclick = (e) => {
+              if (!this.ui.storyboardTitle.getAttribute('contenteditable')) {
+                this.ui.storyboardTitle.setAttribute('contenteditable', 'true');
+                this.ui.storyboardTitle.focus();
+              }
+            };
+            
+            // Save changes when user finishes editing
+            this.ui.storyboardTitle.onblur = async (e) => {
+              const newTitle = this.ui.storyboardTitle.textContent.trim();
+              if (newTitle) {
+                // Temporarily clear custom title to get the auto-generated title
+                const tempCustomTitle = this.storyboardCustomTitle;
+                this.storyboardCustomTitle = null;
+                
+                // Get what the auto-generated title would be
+                const aiCharName = await this._getSelectedCharacterName(this.ui.storyboardAiCharacterSelect);
+                const userCharName = await this._getSelectedCharacterName(this.ui.storyboardUserCharacterSelect);
+                const worldName = await this._getSelectedWorldName(this.ui.storyboardWorldSelect);
+                
+                let autoTitle = "Start a New Story";
+                if (aiCharName && userCharName && worldName) {
+                    autoTitle = `${aiCharName} & ${userCharName} in ${worldName}`;
+                } else if (aiCharName || userCharName || worldName) {
+                    const parts = [];
+                    if (aiCharName) parts.push(aiCharName);
+                    if (userCharName) parts.push(userCharName);
+                    if (worldName) parts.push(worldName);
+                    autoTitle = parts.join(' & ');
+                }
+                
+                // Restore the custom title temporarily
+                this.storyboardCustomTitle = tempCustomTitle;
+                
+                // Only save as custom title if it's different from the auto-generated title
+                if (newTitle !== autoTitle) {
+                  // User has written something different - save as custom title
+                  this.storyboardCustomTitle = newTitle;
+                } else {
+                  // User hasn't actually changed anything - clear custom title to use auto-generated
+                  this.storyboardCustomTitle = null;
+                }
+                this.updateDynamicStoryboardTitle();
+              }
+            };
+            
+            // Handle Enter key to finish editing
+            this.ui.storyboardTitle.onkeydown = (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                this.ui.storyboardTitle.blur();
+              }
+            };
+            
+            // Double-click to reset to auto-generated title
+            this.ui.storyboardTitle.ondblclick = (e) => {
+              e.preventDefault();
+              this.storyboardCustomTitle = null;
+              this.updateDynamicStoryboardTitle();
+              this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)');
+            };
           }
           this.ui.storyboardScrollableContent = this._query('storyboard-scrollable-content', false, this.ui.storyboardScreen);
           this.ui.storyboardColumns = this._query('storyboard-columns', false, this.ui.storyboardScrollableContent);
@@ -360,6 +428,95 @@ const App = {
       el.style.display = '';
       return el;
     },
+
+    // Mouseover animation management methods
+    disableMouseoverAnimation(element) {
+        if (element) {
+            element.setAttribute('disabled', 'true');
+            this.mouseoverAnimationState.disabledElements.add(element);
+        }
+    },
+
+    enableMouseoverAnimation(element) {
+        if (element) {
+            element.removeAttribute('disabled');
+            this.mouseoverAnimationState.disabledElements.delete(element);
+        }
+    },
+
+    disableMouseoverAnimationForSelector(selector) {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => this.disableMouseoverAnimation(el));
+    },
+
+    enableMouseoverAnimationForSelector(selector) {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => this.enableMouseoverAnimation(el));
+    },
+
+    updateMouseoverAnimationState() {
+        // For storyboard cards, add disabled attribute for hover effects when no item is selected
+        // But keep the cards clickable for dropdown functionality
+        if (!this.storyboardSelected.ai) {
+            this.disableMouseoverAnimation(this.ui.storyboardAiCharacterCard);
+            this.ui.storyboardAiCharacterCard?.setAttribute('disabled', 'true');
+        } else {
+            this.enableMouseoverAnimation(this.ui.storyboardAiCharacterCard);
+            this.ui.storyboardAiCharacterCard?.removeAttribute('disabled');
+        }
+
+        if (!this.storyboardSelected.user) {
+            this.disableMouseoverAnimation(this.ui.storyboardUserCharacterCard);
+            this.ui.storyboardUserCharacterCard?.setAttribute('disabled', 'true');
+        } else {
+            this.enableMouseoverAnimation(this.ui.storyboardUserCharacterCard);
+            this.ui.storyboardUserCharacterCard?.removeAttribute('disabled');
+        }
+
+        if (!this.storyboardSelected.world) {
+            this.disableMouseoverAnimation(this.ui.storyboardWorldCard);
+            this.ui.storyboardWorldCard?.setAttribute('disabled', 'true');
+        } else {
+            this.enableMouseoverAnimation(this.ui.storyboardWorldCard);
+            this.ui.storyboardWorldCard?.removeAttribute('disabled');
+        }
+
+        // For buttons, use Pico CSS disabled styling when they're actually disabled
+        // This will show the proper disabled appearance without breaking functionality
+        if (this.ui.newStoryButton && this.ui.newStoryButton.disabled) {
+            this.ui.newStoryButton.classList.add('disabled');
+        } else if (this.ui.newStoryButton) {
+            this.ui.newStoryButton.classList.remove('disabled');
+        }
+
+        if (this.ui.saveStoryButton && this.ui.saveStoryButton.disabled) {
+            this.ui.saveStoryButton.classList.add('disabled');
+        } else if (this.ui.saveStoryButton) {
+            this.ui.saveStoryButton.classList.remove('disabled');
+        }
+
+        if (this.ui.exportStoryButton && this.ui.exportStoryButton.disabled) {
+            this.ui.exportStoryButton.classList.add('disabled');
+        } else if (this.ui.exportStoryButton) {
+            this.ui.exportStoryButton.classList.remove('disabled');
+        }
+
+        if (this.ui.useProfilePictureButton && this.ui.useProfilePictureButton.disabled) {
+            this.ui.useProfilePictureButton.classList.add('disabled');
+        } else if (this.ui.useProfilePictureButton) {
+            this.ui.useProfilePictureButton.classList.remove('disabled');
+        }
+
+        // Disable animations for disabled buttons
+        this.disableMouseoverAnimationForSelector('button[disabled]');
+        this.disableMouseoverAnimationForSelector('input[disabled]');
+        this.disableMouseoverAnimationForSelector('a[disabled]');
+
+        // Enable animations for enabled buttons
+        this.enableMouseoverAnimationForSelector('button:not([disabled])');
+        this.enableMouseoverAnimationForSelector('input:not([disabled])');
+        this.enableMouseoverAnimationForSelector('a:not([disabled])');
+    },
   
     /**
      * Hides a DOM element by adding the 'hidden' class and setting visibility.
@@ -386,7 +543,7 @@ const App = {
         }
         console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
         const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-        return textToSanitize.replace(/[&<>\"']/g, function(m) { return map[m]; });
+        return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
     },
     
     /**
@@ -720,6 +877,7 @@ const App = {
                 });
             // Bind menu button click handler directly to avoid onclick attribute issues
             if (this.ui.menuButton) {
+                // Menu button functionality will be implemented later
             }
             this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
             
@@ -926,7 +1084,7 @@ const App = {
         let footerHtml = '';
         if (item.isPremade) {
           const colorPalette = this.getColorPalette(item.colorPalette || 'slate_gray');
-          footerHtml = `<footer class="card-footer"><small class="premade-tag-styled" style="--premade-bg-color: ${colorPalette.colors.medium}">Premade</small></footer>`;
+          footerHtml = `<footer class="card-footer"><small style="background: ${colorPalette.colors.medium} !important;">Premade</small></footer>`;
         } else {
           footerHtml = `<footer class="card-footer">
             <button class="secondary">Copy & Customize</button>
@@ -1248,7 +1406,7 @@ const App = {
                     const otherActiveStory = await this.db.stories.get(this.activeStoryId);
                     if (otherActiveStory && !otherActiveStory.concluded) {
                         openChatButtonProfile.disabled = true;
-                        openChatButtonProfile.title = "Another story is currently active. Conclude it first.";
+                        openChatButtonProfile.setAttribute('data-tooltip', 'Another story is currently active. Conclude it first.');
                     }
                 }
             }
@@ -1261,7 +1419,7 @@ const App = {
                 const itemType = card.dataset.itemType;
                 const itemConfig = this.CONSTANTS.ITEM_CONFIG[itemType];
                 if (itemId && itemConfig) {
-                    this.switchToScreen(itemConfig.profileScreen, {itemId, itemType: this.CONSTANTS.VIEWS.STORY_PROFILE });
+                    this.switchToScreen(itemConfig.profileScreen, {itemId, itemType});
                 }
             };
         });
@@ -1591,11 +1749,11 @@ const App = {
           const isSelected = key === selectedPaletteKey ? 'selected' : '';
           colorPickerHtml += `
               <button class="color-palette-button ${isSelected}" data-palette-key="${key}" title="${palette.name}" aria-label="Select ${palette.name} color palette">
-                  <div class="color-swatch-large" class="color-swatch-large-styled" style="--swatch-color: ${palette.colors.medium}"></div>
+                  <div class="color-swatch-large-styled" style="--swatch-color: ${palette.colors.medium}"></div>
                   <div class="color-swatch-group">
-                      <div class="color-swatch-small" class="color-swatch-small-styled" style="--swatch-color: ${palette.colors.light}"></div>
-                      <div class="color-swatch-small" class="color-swatch-small-styled" style="--swatch-color: ${palette.colors.dark}"></div>
-                      <div class="color-swatch-small" class="color-swatch-small-styled" style="--swatch-color: ${palette.colors.neutral}"></div>
+                      <div class="color-swatch-small-styled" style="--swatch-color: ${palette.colors.light}"></div>
+                      <div class="color-swatch-small-styled" style="--swatch-color: ${palette.colors.dark}"></div>
+                      <div class="color-swatch-small-styled" style="--swatch-color: ${palette.colors.neutral}"></div>
                   </div>
               </button>
           `;
@@ -2843,11 +3001,11 @@ const App = {
                 // --- Add placeholder at the top ---
                 let placeholderText = 'Select...';
                 if (config.role === 'ai') {
-                    placeholderText = 'Select AI Character';
+                    placeholderText = 'Select AI Character...';
                 } else if (config.role === 'user') {
-                    placeholderText = 'Select User Character';
+                    placeholderText = 'Select User Character...';
                 } else if (config.itemType === 'world') {
-                    placeholderText = 'Select World';
+                    placeholderText = 'Select World...';
                 }
                 
                 const allOptions = [
@@ -3118,10 +3276,20 @@ const App = {
         if (useButton) {
             useButton.disabled = !this.currentGeneratedProfilePictureDataUrl; // Only enabled if an image has been generated
         }
+
+        // Update mouseover animation states based on button states
+        this.updateMouseoverAnimationState();
     },
   
     async updateDynamicStoryboardTitle() {
       if (!this.storyboardSelected) return;
+      
+      // If user has set a custom title, use that instead
+      if (this.storyboardCustomTitle) {
+        this.ui.storyboardTitle.innerHTML = this.storyboardCustomTitle;
+        return;
+      }
+      
       const aiCharName = await this._getSelectedCharacterName(this.ui.storyboardAiCharacterSelect);
       const userCharName = await this._getSelectedCharacterName(this.ui.storyboardUserCharacterSelect);
       const worldName = await this._getSelectedWorldName(this.ui.storyboardWorldSelect);
@@ -3565,11 +3733,7 @@ const App = {
         return instruction;
     },
   
-    _getExistingProfilePictureUrl(itemId, dbTableKey, getPremadesFn, itemType) {
-        // In a full implementation, you'd fetch the item by ID from the DB/premades.
-        // This is a simplified placeholder.
-        return ''; // Placeholder
-    },
+
   
     async renderChatHistory(storyId) {
       if (!this.ui.chatFeed) {
@@ -4004,6 +4168,9 @@ const App = {
         
         // Wire up search functionality with real-time updates
         this._setupSearchHandlers();
+
+        // Initialize mouseover animation states
+        this.updateMouseoverAnimationState();
     },
     _setupTopBarHover() {
         if (this.ui.topBar) {

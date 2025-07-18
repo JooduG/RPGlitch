@@ -1,22 +1,23 @@
 ---
 title: Perchance Build & Deployment
-description: Guidelines for preparing code for Perchance's copy-paste deployment model.
+description: Guidelines for preparing code for Perchance's copy-paste deployment model, including file merging, minification, and platform-specific constraints.
 tags:
   - Perchance
   - Deployment
   - Build
   - CSS
   - JavaScript
-globs: **/*.css, **/*.js
-version: 1.0.0
+  - SCSS
+globs: **/*.css, **/*.js, **/*.scss, **/*.html
+version: 1.1.0
 author: RPGlitch
-status: draft
-lastUpdated: 2024-07-29
+status: live
+lastUpdated: 2025-07-11
 ---
 
 ## Scope
 
--   Covers the process of preparing code for Perchance’s copy-paste deployment model.
+-   Covers the process of preparing code for Perchance's copy-paste deployment model.
 -   Outlines merging, minification, and platform-specific constraints.
 -   References build scripts and deployment checklists.
 
@@ -68,7 +69,6 @@ lastUpdated: 2024-07-29
 
 ## Related Rules
 
--   <!-- [Shoelace Usage](./shoelace-usage.mdc) -->
 -   [Pico.css Usage](./pico-css-usage.mdc)
 -   [big sky Hyperscript Usage](./hyperscript-usage.mdc)
 -   [Cash DOM Usage](./cash-dom-usage.mdc)
@@ -77,7 +77,6 @@ lastUpdated: 2024-07-29
 -   [Perchance Development Workflow](./perchance-development-workflow.mdc)
 -   [CSS Principles](./css-principles.mdc)
 -   [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
--   <!-- [Petite-Vue Usage](./petite-vue-usage.mdc) -->
 
 ---
 

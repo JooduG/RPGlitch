@@ -91,7 +91,7 @@ function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 
 
   if (context === 'card') {
     // Only initials in profile picture, styled to fill 100% height, 40% width, centered, not italic, no border radius
-    return `<div class="profile-picture-initials profile-picture-card-initials" class="profile-picture-initials-styled" style="--palette-medium: ${palette.colors.medium}; --palette-light: ${palette.colors.light}">${ initials }</div>`;
+    return `<div class="profile-picture-initials-styled" style="--palette-medium: ${palette.colors.medium}; --palette-light: ${palette.colors.light}">${ initials }</div>`;
   }
   return profilePictureSvgOrImg;
 } 

@@ -1,38 +1,27 @@
 ---
-title: CSS Principles
-description: Guidelines for writing maintainable, scalable, and atomic CSS for Perchance apps.
-tags:
-  - CSS
-  - Atomic
-  - Tailwind
-  - Perchance
-globs: **/*.css
-version: 1.0.0
-author: Perchance
-status: draft
-lastUpdated: 2023-10-27
+globs: **/*.css, **/*.scss, **/*.sass
+alwaysApply: false
 ---
+# CSS & SCSS Principles
 
-## CSS Principles
+## Scope
 
-### Scope
-
--   Covers atomic/utility CSS, Tailwind compatibility, and Perchance-specific best practices.
+-   Covers SCSS compilation, component-based styling, and Perchance-specific best practices.
 -   Outlines maintainable, scalable styling for Perchance apps.
--   References atomic CSS utilities and Tailwind docs.
+-   References SCSS compilation and modern CSS practices.
 
 ---
 
 ## Core Principles
 
--   **Shoelace & Pico.css:**
-    Use Shoelace for advanced UI components and Pico.css for base styling. Atomic/utility CSS is still encouraged for custom utilities and rapid prototyping.
--   **Atomic/Utility CSS:**  
-    Use single-purpose classes for styling (e.g., `.p-2`, `.text-center`).
+-   **Pico.css Foundation:**
+    Use Pico.css for base styling and semantic HTML elements. Extend with custom SCSS for project-specific needs.
+-   **SCSS for Organization:**
+    Use SCSS for better organization, variables, mixins, and nested selectors during development.
+-   **Component-Based Styling:**
+    Organize styles by component and functionality rather than utility classes.
 -   **No @import:**  
-    Merge all CSS into a single file for deployment.
--   **Tailwind Compatibility:**  
-    Use Tailwind or similar utility frameworks for rapid prototyping.
+    Merge all CSS/SCSS into a single file for deployment.
 -   **Minimal Bloat:**  
     Only include styles actually used in the app.
 
@@ -40,27 +29,84 @@ lastUpdated: 2023-10-27
 
 ## Best Practices
 
--   Organize CSS by utility and component.
--   Use variables for colors, spacing, and fonts.
--   Test styles in the Perchance editor before deployment.
--   Avoid `!important` unless absolutely necessary.
+### **SCSS Organization:**
+
+-   Use SCSS for development, compile to CSS for deployment
+-   Organize SCSS by component and functionality
+-   Use variables for colors, spacing, and fonts
+-   Leverage SCSS mixins for reusable patterns
+-   Use nested selectors judiciously to avoid deep nesting
+
+### **CSS/SCSS Structure:**
+
+-   Group related styles together
+-   Use consistent naming conventions (dash-case recommended)
+-   Avoid `!important` unless absolutely necessary
+-   Test styles in the Perchance editor before deployment
+-   Use CSS custom properties for dynamic theming
+
+### **Perchance-Specific:**
+
+-   Compile SCSS to single CSS file for deployment
+-   Use build scripts to merge CSS and JS files
+-   Test in Perchance editor environment
+-   Consider file size for optimal loading
 
 ---
 
-## Example
+## Examples
 
-```css
-/* Atomic utility class */
-.p-2 { padding: 0.5rem; }
-.text-center { text-align: center; }
-.bg-primary { background: #4f46e5; }
+### **SCSS Variables and Mixins:**
+
+```scss
+// Variables
+$primary-color: #4f46e5;
+$spacing-unit: 0.5rem;
+$border-radius: 0.5rem;
+
+// Mixins
+@mixin card-style {
+  border-radius: $border-radius;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+// Component styles
+.card {
+  @include card-style;
+  padding: $spacing-unit;
+  
+  &--featured {
+    border: 2px solid $primary-color;
+  }
+}
+```
+
+### **Component Organization:**
+
+```scss
+// Component-specific styles
+.storyboard-card {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  
+  .card-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .card-content {
+    flex: 1;
+    padding: 1rem;
+  }
+}
 ```
 
 ---
 
 ## Related Rules
 
--   [Shoelace Usage](./shoelace-usage.mdc)
 -   [Pico.css Usage](./pico-css-usage.mdc)
 -   [Perchance Architecture](./perchance-architecture.mdc)
 -   [Perchance Development Workflow](./perchance-development-workflow.mdc)
@@ -72,7 +118,6 @@ lastUpdated: 2023-10-27
 
 ## References & Inspiration
 
--   [atomic-css/README.md](../../atomic-css/README.md)
--   [Tailwind CSS Docs](https://tailwindcss.com/docs)
+-   [Sass Documentation](https://sass-lang.com/documentation)
 -   [Perchance Welcome](https://perchance.org/welcome)
 -   [Perchance Examples](https://perchance.org/examples)
