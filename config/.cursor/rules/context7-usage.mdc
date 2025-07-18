@@ -1,0 +1,384 @@
+---
+alwaysApply: true
+---
+# Context7 MCP Server Usage Guide
+
+## Overview
+
+Context7 is a powerful MCP server that provides access to up-to-date documentation for thousands of libraries, frameworks, and technologies. It enables real-time access to current documentation without relying on outdated local copies.
+
+## Core Features
+
+- **Real-time Documentation**: Access current documentation for any library
+- **Library Resolution**: Smart matching for library names and aliases
+- **Code Snippets**: Thousands of practical code examples
+- **Trust Scoring**: Quality indicators for documentation sources
+- **Version Support**: Access specific library versions when needed
+
+## Basic Usage
+
+### Library Resolution
+
+```javascript
+// Resolve a library by name
+const libraryId = await context7.resolveLibraryId("react");
+
+// Returns available libraries with metadata:
+// - Context7-compatible library ID
+// - Name and description
+// - Code snippet count
+// - Trust score (0-10)
+// - Available versions
+```
+
+### Documentation Retrieval
+
+```javascript
+// Get documentation for a specific library
+const docs = await context7.getLibraryDocs({
+  context7CompatibleLibraryID: "/reactjs/react.dev",
+  topic: "hooks",
+  tokens: 5000
+});
+
+// Returns structured documentation with:
+// - Title and description
+// - Source URL
+// - Language specification
+// - Code examples
+```
+
+## Library Selection Best Practices
+
+### Choosing the Right Library
+
+When multiple libraries match your search, consider:
+
+1. **Name Similarity**: Exact matches are prioritized
+2. **Description Relevance**: Check if the description matches your intent
+3. **Code Snippet Count**: Higher counts indicate more comprehensive documentation
+4. **Trust Score**: Scores 7-10 indicate authoritative sources
+
+### Example Selection Process
+
+```javascript
+// Search for "react" returns multiple results:
+// 1. React (reactjs/react.dev) - 2651 snippets, Trust: 9
+// 2. React (context7/react_dev) - 2053 snippets, Trust: 10
+// 3. React-XR (pmndrs/xr) - 68 snippets, Trust: 9.6
+// 4. React95 (react95/react95) - 18 snippets, Trust: 7.8
+
+// For general React development, choose reactjs/react.dev
+// For React documentation, choose context7/react_dev
+// For VR/AR development, choose pmndrs/xr
+```
+
+## Advanced Usage Patterns
+
+### Topic-Specific Documentation
+
+```javascript
+// Get documentation focused on specific topics
+const topics = [
+  "hooks",           // React Hooks
+  "routing",         // Navigation and routing
+  "state-management", // State management patterns
+  "performance",     // Optimization techniques
+  "testing",         // Testing strategies
+  "deployment",      // Build and deployment
+  "api",             // API integration
+  "authentication",  // Auth patterns
+  "database",        // Database operations
+  "styling"          // CSS and styling
+];
+
+// Example: Get React Hooks documentation
+const hooksDocs = await context7.getLibraryDocs({
+  context7CompatibleLibraryID: "/reactjs/react.dev",
+  topic: "hooks",
+  tokens: 8000
+});
+```
+
+### Token Management
+
+```javascript
+// Token limits for different use cases
+const tokenLimits = {
+  quickReference: 1000,    // Basic syntax and examples
+  detailedGuide: 5000,     // Comprehensive documentation
+  deepDive: 10000,         // In-depth analysis
+  completeReference: 20000 // Full documentation set
+};
+
+// Example: Get comprehensive React documentation
+const reactDocs = await context7.getLibraryDocs({
+  context7CompatibleLibraryID: "/reactjs/react.dev",
+  topic: "modern javascript features",
+  tokens: 10000
+});
+```
+
+## Popular Library Categories
+
+### Frontend Frameworks
+
+```javascript
+// React ecosystem
+const reactLibraries = [
+  "/reactjs/react.dev",           // Core React
+  "/reduxjs/react-redux",         // State management
+  "/react-router/react-router",   // Routing
+  "/styled-components/styled-components", // Styling
+  "/testing-library/react-testing-library" // Testing
+];
+
+// Vue ecosystem
+const vueLibraries = [
+  "/vuejs/vue",                   // Core Vue
+  "/vuejs/vue-router",            // Routing
+  "/vuejs/vuex",                  // State management
+  "/nuxt/nuxt.js"                 // Full-stack framework
+];
+
+// Angular ecosystem
+const angularLibraries = [
+  "/angular/angular",             // Core Angular
+  "/angular/angular-cli",         // CLI tools
+  "/angular/angularfire"          // Firebase integration
+];
+```
+
+### Backend and APIs
+
+```javascript
+// Node.js and Express
+const backendLibraries = [
+  "/nodejs/node",                 // Core Node.js
+  "/expressjs/express",           // Web framework
+  "/socketio/socket.io",          // Real-time communication
+  "/prisma/prisma",               // Database ORM
+  "/jwt-decode/jwt-decode"        // JWT handling
+];
+
+// Database libraries
+const databaseLibraries = [
+  "/mongodb/node-mongodb-native", // MongoDB driver
+  "/sequelize/sequelize",         // SQL ORM
+  "/knex/knex",                   // Query builder
+  "/redis/node-redis"             // Redis client
+];
+```
+
+### Development Tools
+
+```javascript
+// Build tools and bundlers
+const buildTools = [
+  "/webpack/webpack",             // Module bundler
+  "/vitejs/vite",                 // Build tool
+  "/rollup/rollup",               // Module bundler
+  "/parcel-bundler/parcel"        // Zero-config bundler
+];
+
+// Testing frameworks
+const testingLibraries = [
+  "/jestjs/jest",                 // Testing framework
+  "/cypress-io/cypress",          // E2E testing
+  "/playwright/playwright",       // Browser automation
+  "/testing-library/testing-library" // Testing utilities
+];
+```
+
+## Documentation Structure
+
+### Response Format
+
+```javascript
+// Each documentation snippet includes:
+{
+  title: "Function or feature name",
+  description: "Detailed explanation",
+  source: "https://github.com/org/repo/blob/main/file.js",
+  language: "javascript", // or "typescript", "scss", etc.
+  code: "// Code example here"
+}
+```
+
+### Language Support
+
+Context7 supports documentation in multiple languages:
+
+- **JavaScript/TypeScript**: Core web development
+- **SCSS/Sass**: Styling and CSS preprocessing
+- **HTML**: Markup and structure
+- **CSS**: Styling and layout
+- **Python**: Backend and data science
+- **Go**: Systems programming
+- **Rust**: Performance-critical applications
+- **Java**: Enterprise applications
+- **C#**: .NET ecosystem
+- **PHP**: Web development
+- **Ruby**: Web development and automation
+
+## Integration with Development Workflow
+
+### IDE Integration
+
+```javascript
+// Use Context7 in your development process
+async function getDocumentation(libraryName, topic) {
+  try {
+    // Resolve library
+    const libraries = await context7.resolveLibraryId(libraryName);
+    
+    // Select best match
+    const bestMatch = libraries.find(lib => 
+      lib.trustScore >= 8 && lib.codeSnippets > 100
+    );
+    
+    if (!bestMatch) {
+      throw new Error(`No suitable documentation found for ${libraryName}`);
+    }
+    
+    // Get documentation
+    const docs = await context7.getLibraryDocs({
+      context7CompatibleLibraryID: bestMatch.libraryId,
+      topic: topic,
+      tokens: 5000
+    });
+    
+    return docs;
+  } catch (error) {
+    console.error('Error fetching documentation:', error);
+    throw error;
+  }
+}
+```
+
+### Documentation Caching
+
+```javascript
+// Simple caching for frequently accessed docs
+const docCache = new Map();
+
+async function getCachedDocs(libraryId, topic, tokens) {
+  const cacheKey = `${libraryId}-${topic}-${tokens}`;
+  
+  if (docCache.has(cacheKey)) {
+    return docCache.get(cacheKey);
+  }
+  
+  const docs = await context7.getLibraryDocs({
+    context7CompatibleLibraryID: libraryId,
+    topic: topic,
+    tokens: tokens
+  });
+  
+  docCache.set(cacheKey, docs);
+  return docs;
+}
+```
+
+## Error Handling
+
+### Common Error Scenarios
+
+```javascript
+// Handle various error cases
+async function safeGetDocs(libraryName, topic) {
+  try {
+    const libraries = await context7.resolveLibraryId(libraryName);
+    
+    if (!libraries || libraries.length === 0) {
+      throw new Error(`No libraries found matching "${libraryName}"`);
+    }
+    
+    const bestMatch = libraries[0]; // Take first match
+    
+    const docs = await context7.getLibraryDocs({
+      context7CompatibleLibraryID: bestMatch.libraryId,
+      topic: topic,
+      tokens: 5000
+    });
+    
+    return {
+      success: true,
+      library: bestMatch,
+      documentation: docs
+    };
+    
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      suggestions: [
+        "Check library name spelling",
+        "Try alternative library names",
+        "Verify the library exists in Context7"
+      ]
+    };
+  }
+}
+```
+
+## Best Practices
+
+### Library Resolution 1
+
+1. **Use Specific Names**: "react" instead of "js framework"
+2. **Check Trust Scores**: Prefer scores 7-10 for authoritative sources
+3. **Verify Snippet Count**: Higher counts indicate more comprehensive docs
+4. **Read Descriptions**: Ensure the library matches your needs
+
+### Documentation Retrieval 1
+
+1. **Use Specific Topics**: "hooks" instead of "general"
+2. **Manage Token Limits**: Balance detail with performance
+3. **Cache Results**: Store frequently accessed documentation
+4. **Handle Errors**: Implement proper error handling
+
+### Performance Optimization
+
+1. **Limit Token Usage**: Use appropriate token limits
+2. **Cache Responses**: Store documentation locally when possible
+3. **Batch Requests**: Group related documentation requests
+4. **Use Specific Topics**: Reduce response size with focused topics
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Library Not Found**
+   - Check spelling and try alternative names
+   - Use more specific library names
+   - Verify the library exists in Context7
+
+2. **No Documentation Returned**
+   - Try different topics
+   - Increase token limit
+   - Check if library has documentation
+
+3. **Poor Quality Results**
+   - Check trust scores
+   - Look for libraries with more code snippets
+   - Try alternative library names
+
+### Debug Information
+
+```javascript
+// Enable debug logging
+const debugContext7 = async (libraryName) => {
+  console.log(`Searching for: ${libraryName}`);
+  
+  const libraries = await context7.resolveLibraryId(libraryName);
+  console.log(`Found ${libraries.length} libraries:`, libraries);
+  
+  if (libraries.length > 0) {
+    const best = libraries[0];
+    console.log(`Best match: ${best.name} (Trust: ${best.trustScore}, Snippets: ${best.codeSnippets})`);
+  }
+};
+```
+
+This comprehensive guide ensures effective use of Context7 for accessing up-to-date documentation across the JavaScript ecosystem and beyond.

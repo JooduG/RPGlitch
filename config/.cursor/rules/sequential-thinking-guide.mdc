@@ -1,0 +1,233 @@
+---
+description: Comprehensive guide for using sequential thinking MCP tools for dynamic problem-solving with intelligent tool recommendations.
+tags: ["sequential-thinking", "mcp", "problem-solving", "tools", "workflow"]
+globs: ["**/*.md", "**/*.mdc"]
+alwaysApply: true
+---
+# 🧠 Sequential Thinking Guide (`sequential-thinking-guide.mdc`)
+
+## 1. Objective
+
+This guide outlines the effective utilization of the **enhanced `sequentialthinking_tools` MCP tool**, designed for dynamic and reflective problem-solving with intelligent tool recommendations. It enables breaking down complex problems into manageable steps with visual tracking of thought history, allowing for dynamic revision, branching, and adjustment as understanding deepens, while providing guidance on which tools to use and in what order.
+
+## 2. Two Versions: Basic vs Enhanced
+
+### Basic `sequentialthinking` (Simple Problems)
+
+- **Use for**: Simple reasoning, single-step analysis, basic problem decomposition
+- **Features**: Core sequential thinking without tool recommendations
+- **Best when**: You just need to think through a problem step by step
+
+### Enhanced `sequentialthinking_tools` (Recommended for Complex Tasks)
+
+- **Use for**: Complex multi-step tasks, workflow planning, tool selection guidance
+- **Features**: All basic features PLUS tool recommendations, confidence scores, execution guidance
+- **Best when**: You need to plan and execute complex workflows with multiple tool calls
+
+## 3. When to Use the Enhanced Sequential Thinking Tool
+
+The enhanced `sequentialthinking_tools` version is particularly effective and SHOULD be considered when faced with tasks that involve:
+
+- **Complex Problem Decomposition:** Breaking down large, multifaceted problems into smaller, manageable steps with tool recommendations.
+- **Planning and Design (Iterative):** Architecting solutions where the plan might need revision as understanding deepens, with guidance on which tools to use.
+- **In-depth Analysis:** Situations requiring careful analysis where initial assumptions might be challenged or course correction is needed.
+- **Unclear Scope:** Problems where the full scope isn't immediately obvious and requires exploratory thinking with tool guidance.
+- **Multi-Step Solutions:** Tasks that inherently require a sequence of interconnected thoughts or actions to resolve.
+- **Tool Selection Challenges:** When you need guidance on which tools to use and in what order.
+- **Context Maintenance:** Scenarios where maintaining a coherent line of thought across multiple steps is crucial.
+- **Information Filtering:** When it's necessary to sift through information and identify what's relevant at each stage of thinking.
+- **Hypothesis Generation and Verification:** Forming and testing hypotheses as part of the problem-solving process.
+- **Workflow Planning:** Complex tasks requiring multiple tool calls in a specific sequence.
+
+## 4. Core Principles for Using Enhanced Sequential Thinking
+
+When invoking the `sequentialthinking_tools` tool, the AI model MUST adhere to the following principles:
+
+- **Iterative Thought Process:** Each use of the tool represents a single "thought." Build upon, question, or revise previous thoughts in subsequent calls.
+- **Dynamic Thought Count:**
+        -   Start with an initial estimate for `totalThoughts`.
+        -   Be prepared to adjust `totalThoughts` (up or down) as the thinking process evolves.
+        -   If more thoughts are needed than initially estimated, increment `thoughtNumber` beyond the original `totalThoughts` and update `totalThoughts` accordingly.
+- **Tool Recommendation Integration:**
+        -   Use `current_step` to provide clear guidance on what needs to be done next.
+        -   Include `recommended_tools` with confidence scores and rationale for each recommendation.
+        -   Track `previous_steps` and `remaining_steps` to maintain workflow context.
+        -   Provide `expected_outcome` and `next_step_conditions` for each step.
+- **Honest Reflection:**
+        -   Express uncertainty if it exists.
+        -   Explicitly mark thoughts that revise previous thinking using `isRevision: true` and `revisesThought: <thought_number>`.
+        -   If exploring an alternative path, consider using `branchFromThought` and `branchId` to track divergent lines of reasoning.
+- **Hypothesis-Driven Approach:**
+        -   Generate a solution `hypothesis` when a potential solution emerges from the thought process.
+        -   Verify the `hypothesis` based on the preceding Chain of Thought steps.
+        -   Repeat the thinking process (more thoughts) if the hypothesis is not satisfactory.
+- **Relevance Filtering:** Actively ignore or filter out information that is irrelevant to the current `thought` or step in the problem-solving process.
+- **Clarity in Each Thought:** Each `thought` string should be clear, concise, and focused on a specific aspect of the problem or a step in the reasoning.
+- **Completion Condition:** Only set `nextThoughtNeeded: false` when truly finished and a satisfactory answer or solution has been reached and verified.
+
+## 5. Enhanced Input Parameters
+
+The enhanced `sequentialthinking_tools` tool accepts all basic parameters PLUS additional tool recommendation parameters:
+
+### Basic Parameters (Same as Basic Version)
+
+- `thought` (string, required): The current thinking step.
+- `nextThoughtNeeded` (boolean): Whether another thought step is needed.
+- `thoughtNumber` (integer): Current thought number (min: 1).
+- `totalThoughts` (integer): Estimated total thoughts needed (min: 1).
+- `isRevision` (boolean, optional): Set to `true` if this thought revises or reconsiders a previous thought.
+- `revisesThought` (integer, optional, min: 1): If `isRevision` is true, which `thoughtNumber` is being reconsidered.
+- `branchFromThought` (integer, optional, min: 1): If branching, which `thoughtNumber` is the branch point.
+- `branchId` (string, optional): Identifier for the current branch (if any).
+- `needsMoreThoughts` (boolean, optional): If `thoughtNumber` has reached `totalThoughts`, but more thinking is necessary.
+
+### Enhanced Parameters (Tool Recommendations)
+
+- `current_step` (object, optional): Current step recommendation including:
+        -   `step_description` (string): What needs to be done
+        -   `recommended_tools` (array): Tools recommended for this step with confidence scores
+        -   `expected_outcome` (string): What to expect from this step
+        -   `next_step_conditions` (array): Conditions to consider for the next step
+- `previous_steps` (array, optional): Steps already recommended
+- `remaining_steps` (array, optional): High-level descriptions of upcoming steps
+
+#### Tool Recommendation Structure
+
+Each recommended tool includes:
+
+- `tool_name` (string): Name of the tool being recommended
+- `confidence` (number): 0-1 indicating confidence in recommendation
+- `rationale` (string): Why this tool is recommended
+- `priority` (number): Order in the recommendation sequence
+- `suggested_inputs` (object, optional): Suggested parameters
+- `alternatives` (array, optional): Alternative tools that could be used
+
+## 6. Enhanced Workflow Example
+
+This illustrates how the enhanced tool might be used to plan and execute a complex refactoring task:
+
+### Thought 1: Initial Analysis
+
+**Thinking:** "Need to analyze the current codebase to understand what needs refactoring. Should start by examining the main files and identifying patterns."
+
+**Current Step:**
+
+- **Step Description:** Analyze codebase structure and identify refactoring opportunities
+- **Recommended Tools:**
+        -   `list_dir` (confidence: 0.9, priority: 1) - "Need to see the overall project structure"
+        -   `read_file` (confidence: 0.8, priority: 2) - "Examine key files for patterns"
+- **Expected Outcome:** Understanding of current code organization and refactoring needs
+- **Next Step Conditions:** After identifying main files and patterns
+
+### Thought 2: Pattern Identification
+
+**Thinking:** "Found several files with inline styles. Need to examine the specific patterns to understand what can be extracted."
+
+**Current Step:**
+
+- **Step Description:** Examine specific files for inline style patterns
+- **Recommended Tools:**
+        -   `grep_search` (confidence: 0.95, priority: 1) - "Find all inline style patterns"
+        -   `read_file` (confidence: 0.7, priority: 2) - "Examine specific instances"
+- **Expected Outcome:** List of inline style patterns and their frequency
+- **Next Step Conditions:** After identifying all patterns
+
+### Thought 3: Solution Planning
+
+**Thinking:** "Identified 15 inline style patterns. Need to plan the refactoring approach and create new CSS classes."
+
+**Current Step:**
+
+- **Step Description:** Plan refactoring approach and create new CSS classes
+- **Recommended Tools:**
+        -   `edit_file` (confidence: 0.9, priority: 1) - "Create new SCSS classes"
+        -   `search_replace` (confidence: 0.8, priority: 2) - "Update JavaScript files"
+- **Expected Outcome:** New CSS classes created and JavaScript files updated
+- **Next Step Conditions:** After creating classes and updating files
+
+## 7. Basic Version Usage (Simple Problems)
+
+For simple problems that don't require tool recommendations, use the basic `sequentialthinking` tool:
+
+### When to Use Basic Version
+
+- Simple reasoning problems
+- Single-step analysis
+- Basic problem decomposition
+- When you already know which tools to use
+
+### Basic Workflow Example
+
+- **Thought 1:** "Initial hypothesis: The bug is caused by a missing event handler."
+- **Thought 2:** "Tested event handler presence; found it exists. Hypothesis incorrect."
+- **Thought 3:** "Check for event handler registration timing. Discovered late registration."
+- **Thought 4:** "Hypothesis: Moving registration earlier will fix the bug."
+- **Thought 5:** "Tested fix; bug resolved. Marking process complete."
+
+## 8. Critical Reminders
+
+- **DO NOT** use this tool for simple, single-step tasks. It is for complex reasoning.
+- **ALWAYS** ensure `thoughtNumber` increments correctly.
+- **BE PREPARED** to adjust `totalThoughts` as understanding evolves.
+- **FOCUS** on making progress towards a solution with each thought.
+- **USE ENHANCED VERSION** for complex tasks requiring multiple tool calls.
+- **USE BASIC VERSION** for simple reasoning problems.
+- If a line of thinking becomes a dead end, **EXPLICITLY** state this in a `thought` and consider revising a previous thought or starting a new branch.
+
+## 9. Usage Checklist
+
+- [ ] Is the problem complex, multi-step, or ambiguous?
+- [ ] Did I choose the appropriate version (basic vs enhanced)?
+- [ ] Did I start with an initial estimate for totalThoughts?
+- [ ] Did I increment thoughtNumber correctly for each step?
+- [ ] Did I include tool recommendations (enhanced version)?
+- [ ] Did I revise or branch thoughts as needed?
+- [ ] Did I clearly state the hypothesis and verify it?
+- [ ] Did I set nextThoughtNeeded: false only when truly complete?
+
+## 10. Parameter Explanation Table
+
+| Parameter           | Type      | Required | Description                                                                 |
+|---------------------|-----------|----------|-----------------------------------------------------------------------------|
+| thought             | string    | Yes      | The current thinking step (analysis, question, hypothesis, etc.)            |
+| nextThoughtNeeded   | boolean   | Yes      | true if more steps are needed, false if complete                            |
+| thoughtNumber       | integer   | Yes      | Current sequential number (min: 1)                                          |
+| totalThoughts       | integer   | Yes      | Estimated total thoughts needed (min: 1)                                    |
+| isRevision          | boolean   | No       | true if revising a previous thought                                         |
+| revisesThought      | integer   | No       | If isRevision, which thought is being revised                               |
+| branchFromThought   | integer   | No       | If branching, which thought is the branch point                             |
+| branchId            | string    | No       | Identifier for the current branch                                           |
+| needsMoreThoughts   | boolean   | No       | true if more thoughts are needed after reaching totalThoughts               |
+| current_step        | object    | No       | Current step recommendation with tools and guidance (enhanced only)         |
+| previous_steps      | array     | No       | Steps already recommended (enhanced only)                                   |
+| remaining_steps     | array     | No       | High-level descriptions of upcoming steps (enhanced only)                   |
+
+## 11. Real Use Case Examples
+
+### Enhanced Example: Complex Refactoring Task
+
+1. **Thought 1:** "Need to analyze codebase for inline styles and plan refactoring approach."
+   - **Tools:** `list_dir`, `grep_search`, `read_file`
+   - **Expected:** Understanding of current state
+
+2. **Thought 2:** "Found 15 inline style patterns. Need to create SCSS classes and update JavaScript."
+   - **Tools:** `edit_file`, `search_replace`
+   - **Expected:** New classes created and files updated
+
+3. **Thought 3:** "Refactoring complete. Need to test and validate changes."
+   - **Tools:** `run_terminal_cmd`, `read_file`
+   - **Expected:** Validation of successful refactoring
+
+### Basic Example: Simple Bug Analysis
+
+- **Thought 1:** "Initial hypothesis: The bug is caused by a missing event handler."
+- **Thought 2:** "Tested event handler presence; found it exists. Hypothesis incorrect."
+- **Thought 3:** "Check for event handler registration timing. Discovered late registration."
+- **Thought 4:** "Hypothesis: Moving registration earlier will fix the bug."
+- **Thought 5:** "Tested fix; bug resolved. Marking process complete."
+
+---
+
+**References:**
+
+- [Sequential Thinking MCP server on playbooks.com](https://playbooks.com/mcp/sequential-thinking)

@@ -1,17 +1,9 @@
 {
     "markdown.validate.enabled": true,
     "markdown.validate.referenceLinks.enabled": false,
+    "markdownlint.enable": false,
     "markdownlint.config": {
-        "MD051": false,
-        "MD040": false,
-        "MD056": false,
-        "list-marker-space": {
-            "ul_multi": 3,
-            "ul_single": 3
-        },
-        "ul-indent": {
-            "indent": 4
-        }
+        "default": false
     },
     "dotnet.defaultSolution": "tizen/tools/tizen-core/templates/config/tizen_project.sln"
 }

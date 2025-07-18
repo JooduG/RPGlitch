@@ -1,0 +1,78 @@
+---
+description: Guidelines for preparing code for Perchance's copy-paste deployment model, including file merging, minification, and platform-specific constraints.
+tags: ["perchance", "deployment", "build", "css", "javascript", "scss"]
+globs: ["**/apps/**"]
+---
+
+# Scope
+
+- Covers the process of preparing code for Perchance's copy-paste deployment model.
+- Outlines merging, minification, and platform-specific constraints.
+- References build scripts and deployment checklists.
+
+---
+
+## Core Principles
+
+- **Single-File Output:**  
+    All CSS and JS must be merged into single files for deployment.
+- **No @import:**  
+    Perchance does not support CSS `@import`—merge all styles manually.
+- **No External Dependencies:**  
+    All dependencies must be inlined or included via `<script>` tags.
+- **Progressive Enhancement Libraries:**  
+    Libraries like Petite-Vue are permitted if included via `<script src="...">` and documented in [pico-css-usage.mdc](./pico-css-usage.mdc).
+- **Manual Build:**  
+    Use local scripts or tools to merge/minify files before deployment.
+
+---
+
+## Build & Deployment Steps
+
+1. **Prepare Source Files:**  
+   Organize modular CSS and JS during development.
+2. **Merge Files:**  
+   Use a build script (e.g., `build-perchance.js`) to concatenate all CSS and JS.
+3. **Minify (Optional):**  
+   Minify merged files to reduce size.
+4. **Copy-Paste:**  
+   Paste merged CSS and JS into the Perchance editor fields.
+5. **Test in Perchance:**  
+   Verify all features work after deployment.
+
+> **Note (July 2025):** The build script now outputs the merged CSS and source map to `build/output/archive/`:
+>
+> - `build/output/archive/RPGlitch-perchance.css`
+> - `build/output/archive/RPGlitch-perchance.css.map`
+> The HTML deployment file remains in `build/output/` as `RPGlitch-perchance.html`.
+
+---
+
+## Best Practices
+
+- Keep a backup of your merged files.
+- Test the merged output in a fresh Perchance editor session.
+- Document any manual build steps for future contributors.
+
+---
+
+## Related Rules
+
+- [Pico.css Usage](./pico-css-usage.mdc)
+- [big sky Hyperscript Usage](./hyperscript-usage.mdc)
+- [Cash DOM Usage](./cash-dom-usage.mdc)
+- [Dexie.js Usage](./dexie-usage.mdc)
+- [Perchance Architecture](./perchance-architecture.mdc)
+- [Perchance Development Workflow](./perchance-development-workflow.mdc)
+- [CSS Principles](./css-principles.mdc)
+- [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
+
+---
+
+## References & Inspiration
+
+- [Perchance Welcome](https://perchance.org/welcome)
+- [Perchance Tutorial](https://perchance.org/tutorial)
+- [Perchance Advanced Tutorial](https://perchance.org/advanced-tutorial)
+- [Perchance Plugins](https://perchance.org/plugins)
+- [Perchance Examples](https://perchance.org/examples)

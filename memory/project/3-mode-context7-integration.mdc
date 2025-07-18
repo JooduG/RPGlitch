@@ -1,0 +1,286 @@
+# 🎯 CONTEXT7 INTEGRATION FOR 3-MODE SYSTEM
+
+> **TL;DR:** This module integrates Context7 MCP server into our enhanced 3-mode system, providing each mode with up-to-date documentation access for better decision-making and implementation.
+
+## 🎯 **CONTEXT7 OVERVIEW**
+
+**Context7** is an MCP server that provides **up-to-date documentation for LLMs and AI code editors**. It gives our 3-mode system access to current library documentation, API references, and code examples.
+
+### **Key Features**
+
+- **📚 Documentation Access**: Get current library docs and code examples
+- **🔍 Library Resolution**: Convert library names to Context7-compatible IDs
+- **🎯 Topic Focus**: Filter docs by specific topics (e.g., "routing", "hooks")
+- **⚡ Real-time**: Always up-to-date documentation
+
+## 🎭🎨⚒️ **MODE-SPECIFIC CONTEXT7 USAGE**
+
+### **🎭 STRATEGIC MODE: Context7 for Meta-Thinking**
+
+**Purpose**: Research best practices, architectural patterns, and system-level decisions
+
+**Context7 Usage**:
+
+```bash
+# Research architectural patterns
+resolve-library-id: "microservices"
+get-library-docs: "/microservices/patterns" --topic "architecture" --tokens 15000
+
+# Research workflow optimization tools
+resolve-library-id: "github actions"
+get-library-docs: "/github/actions" --topic "workflows" --tokens 12000
+
+# Research MCP ecosystem
+resolve-library-id: "model context protocol"
+get-library-docs: "/mcp/ecosystem" --topic "servers" --tokens 10000
+```
+
+**Strategic Mode Context7 Commands**:
+
+```
+🎯 "research [topic]" → Research best practices and patterns
+🎯 "architect [system]" → Research architectural approaches
+🎯 "optimize [workflow]" → Research optimization strategies
+🎯 "ecosystem [domain]" → Research ecosystem tools and standards
+```
+
+### **🎨 TACTICAL MODE: Context7 for Planning**
+
+**Purpose**: Get current documentation for specific libraries and frameworks during planning
+
+**Context7 Usage**:
+
+```bash
+# Research UI frameworks for planning
+resolve-library-id: "react"
+get-library-docs: "/facebook/react" --topic "hooks" --tokens 12000
+
+# Research database options
+resolve-library-id: "supabase"
+get-library-docs: "/supabase/supabase" --topic "authentication" --tokens 10000
+
+# Research testing frameworks
+resolve-library-id: "jest"
+get-library-docs: "/facebook/jest" --topic "testing" --tokens 8000
+```
+
+**Tactical Mode Context7 Commands**:
+
+```
+🎨 "plan [library]" → Get docs for planning with specific library
+🎨 "design [feature]" → Research design patterns and approaches
+🎨 "compare [options]" → Compare different library options
+🎨 "spec [requirement]" → Research implementation specifications
+```
+
+### **⚒️ OPERATIONAL MODE: Context7 for Implementation**
+
+**Purpose**: Get current API docs and code examples during implementation
+
+**Context7 Usage**:
+
+```bash
+# Get current API docs during implementation
+resolve-library-id: "next.js"
+get-library-docs: "/vercel/next.js" --topic "api routes" --tokens 8000
+
+# Get code examples for specific features
+resolve-library-id: "typescript"
+get-library-docs: "/microsoft/typescript" --topic "generics" --tokens 6000
+
+# Get deployment documentation
+resolve-library-id: "vercel"
+get-library-docs: "/vercel/vercel" --topic "deployment" --tokens 5000
+```
+
+**Operational Mode Context7 Commands**:
+
+```
+⚒️ "implement [feature]" → Get implementation docs and examples
+⚒️ "debug [issue]" → Research debugging approaches and solutions
+⚒️ "deploy [platform]" → Get deployment documentation
+⚒️ "test [framework]" → Get testing documentation and examples
+```
+
+## 🔧 **CONTEXT7 CONFIGURATION**
+
+### **MCP Client Configuration**
+
+Add this to your MCP client configuration:
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  }
+}
+```
+
+### **Remote Configuration (Alternative)**
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}
+```
+
+## 🎯 **INTEGRATED WORKFLOW EXAMPLES**
+
+### **Example 1: Building a React Authentication System**
+
+#### **🎭 Strategic Mode**
+
+```bash
+# Research authentication patterns
+resolve-library-id: "authentication"
+get-library-docs: "/auth/patterns" --topic "best practices" --tokens 12000
+
+# Research security considerations
+resolve-library-id: "security"
+get-library-docs: "/security/guidelines" --topic "authentication" --tokens 10000
+```
+
+#### **🎨 Tactical Mode**
+
+```bash
+# Research React authentication libraries
+resolve-library-id: "react auth"
+get-library-docs: "/react/auth" --topic "libraries" --tokens 8000
+
+# Research Supabase auth
+resolve-library-id: "supabase"
+get-library-docs: "/supabase/supabase" --topic "authentication" --tokens 10000
+```
+
+#### **⚒️ Operational Mode**
+
+```bash
+# Get implementation docs
+resolve-library-id: "supabase auth"
+get-library-docs: "/supabase/auth" --topic "react integration" --tokens 8000
+
+# Get code examples
+resolve-library-id: "react hooks"
+get-library-docs: "/facebook/react" --topic "custom hooks" --tokens 6000
+```
+
+### **Example 2: Setting Up a Development Workflow**
+
+#### **🎭 Strategic Mode**
+
+```bash
+# Research CI/CD patterns
+resolve-library-id: "ci cd"
+get-library-docs: "/ci-cd/patterns" --topic "best practices" --tokens 10000
+
+# Research development workflows
+resolve-library-id: "git workflow"
+get-library-docs: "/git/workflow" --topic "branching strategies" --tokens 8000
+```
+
+#### **🎨 Tactical Mode**
+
+```bash
+# Research GitHub Actions
+resolve-library-id: "github actions"
+get-library-docs: "/github/actions" --topic "workflows" --tokens 12000
+
+# Research testing strategies
+resolve-library-id: "testing"
+get-library-docs: "/testing/strategies" --topic "automation" --tokens 8000
+```
+
+#### **⚒️ Operational Mode**
+
+```bash
+# Get GitHub Actions implementation
+resolve-library-id: "github actions yaml"
+get-library-docs: "/github/actions" --topic "yaml syntax" --tokens 6000
+
+# Get testing implementation
+resolve-library-id: "jest testing"
+get-library-docs: "/facebook/jest" --topic "configuration" --tokens 5000
+```
+
+## 📊 **CONTEXT7 BENEFITS FOR 3-MODE SYSTEM**
+
+### **✅ Enhanced Decision Making**
+
+- **Current information**: Always up-to-date documentation
+- **Best practices**: Access to latest patterns and approaches
+- **Comparison data**: Evaluate different options effectively
+
+### **✅ Improved Planning**
+
+- **Accurate specifications**: Current API documentation
+- **Realistic estimates**: Understanding of implementation complexity
+- **Risk assessment**: Knowledge of potential issues and solutions
+
+### **✅ Better Implementation**
+
+- **Code examples**: Real, working code examples
+- **API references**: Current method signatures and parameters
+- **Troubleshooting**: Access to common issues and solutions
+
+### **✅ Continuous Learning**
+
+- **Ecosystem awareness**: Stay current with tool evolution
+- **Pattern recognition**: Learn from community best practices
+- **Skill development**: Access to advanced techniques and approaches
+
+## 🚀 **CONTEXT7 COMMANDS FOR 3-MODE SYSTEM**
+
+### **Universal Context7 Commands**
+
+```
+🎯 "docs [library]" → Get documentation for any library
+🎯 "examples [feature]" → Get code examples for specific features
+🎯 "compare [libraries]" → Compare multiple library options
+🎯 "research [topic]" → Research any development topic
+```
+
+### **Mode-Specific Context7 Commands**
+
+```
+🎭 "strategic [topic]" → Research for strategic planning
+🎨 "tactical [library]" → Research for tactical planning
+⚒️ "operational [feature]" → Research for implementation
+```
+
+## 📋 **INTEGRATION CHECKLIST**
+
+### **Setup Requirements**
+
+- [ ] Install Context7 MCP server
+- [ ] Configure MCP client for Context7
+- [ ] Test Context7 connection
+- [ ] Verify documentation access
+
+### **Mode Integration**
+
+- [ ] Strategic mode: Research capabilities
+- [ ] Tactical mode: Planning documentation
+- [ ] Operational mode: Implementation docs
+- [ ] Cross-mode: Shared documentation access
+
+### **Workflow Integration**
+
+- [ ] Complexity assessment with Context7
+- [ ] Mode routing with documentation context
+- [ ] Handoff documentation with research notes
+- [ ] Progress tracking with documentation references
+
+---
+
+**🎯 CONTEXT7 INTEGRATION: Supercharging our 3-mode system with up-to-date documentation!**
+description:
+globs:
+alwaysApply: false
+---

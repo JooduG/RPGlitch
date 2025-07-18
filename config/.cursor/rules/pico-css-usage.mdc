@@ -1,0 +1,104 @@
+---
+description: Pico.css provides minimal, modern CSS styling for native HTML elements. Use Pico.css for base styling in Perchance projects, with SCSS for customization and theming.
+tags: ["pico-css", "css", "styling", "perchance", "scss"]
+globs: ["**/*.css", "**/*.scss", "**/*.sass"]
+---
+
+# Objective
+
+Pico.css provides minimal, modern CSS styling for native HTML elements. Use Pico.css for base styling in Perchance projects, with SCSS for customization and theming.
+
+---
+
+## Usage Guidelines
+
+### **CDN Method (Recommended for Perchance):**
+
+```html
+<link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.10/css/pico.min.css">
+```
+
+### **SCSS Method (For Custom Builds):**
+
+```scss
+// Import Pico with custom settings
+@use "pico" with (
+  $theme-color: "azure",
+  $enable-classes: true,
+  $enable-transitions: true
+);
+
+// Add your custom styles after Pico import
+.your-custom-class {
+  // Your styles here
+}
+```
+
+### **When to Use:**
+
+-   For consistent, modern styling of forms, buttons, tables, and all native HTML elements
+-   As a foundation for custom design systems
+-   When you need a lightweight, semantic CSS framework
+
+### **Customizing with SCSS:**
+
+-   Override Pico variables for theming
+-   Add custom components and utilities
+-   Use Pico's CSS custom properties for dynamic styling
+-   Compile to single CSS file for Perchance deployment
+
+### **Works well with:**
+
+-   Hyperscript and Cash DOM
+-   SCSS compilation tools
+-   Perchance build systems
+
+---
+
+## SCSS Customization Examples
+
+### **Theme Customization:**
+
+```scss
+@use "pico" with (
+  $theme-color: "purple",
+  $enable-semantic-container: true,
+  $enable-responsive-spacings: true
+);
+```
+
+### **Lightweight Version:**
+
+```scss
+@use "pico" with (
+  $enable-classes: false,
+  $modules: (
+    "components/card": false,
+    "components/dropdown": false,
+    "components/modal": false
+  )
+);
+```
+
+### **Custom Theme:**
+
+```scss
+// Exclude default theme
+@use "pico" with (
+  $modules: (
+    "themes/default": false
+  )
+);
+
+// Import your custom theme
+@use "path/custom-theme";
+```
+
+---
+
+## References
+
+-   [Pico.css Docs](https://picocss.com/docs/)
+-   [Pico Sass Documentation](https://picocss.com/docs/sass)
+-   [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
+-   [CSS Principles](./css-principles.mdc)

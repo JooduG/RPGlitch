@@ -1,0 +1,207 @@
+---
+description: Comprehensive guide to MCP ecosystem servers, configuration, and best practices
+tags: ["mcp", "ecosystem", "servers", "configuration", "documentation"]
+globs: ["**/*.md", "**/*.mdc", "**/*.json"]
+---
+
+# MCP Ecosystem Guide
+
+## Overview
+
+The Model Context Protocol (MCP) ecosystem provides a standardized way for AI assistants to interact with external tools, data sources, and services. This guide covers all available MCP servers, their capabilities, configuration, and best practices for integration.
+
+## Available MCP Servers
+
+### Working Servers
+
+#### 1. Context7 MCP Server
+
+- **Purpose**: Real-time documentation access for libraries, frameworks, and technologies
+- **Features**:
+  - Resolves library IDs to Context7-compatible identifiers
+  - Fetches up-to-date documentation with code examples
+  - Supports topic-specific queries and token limits
+  - Comprehensive coverage of modern web technologies
+- **Use Cases**:
+  - Getting current documentation for libraries
+  - Code examples and best practices
+  - API reference lookups
+  - Framework-specific guidance
+- **Status**: ✅ Working (requires API key)
+
+#### 2. Memory Bank MCP Server
+
+- **Purpose**: Persistent memory and context management
+- **Features**:
+  - Long-term memory storage
+  - Context-aware information retrieval
+  - Memory organization and categorization
+  - Project-specific knowledge retention
+  - Decision logging and tracking
+  - Progress monitoring
+- **Use Cases**:
+  - Maintaining conversation context
+  - Project-specific knowledge retention
+  - Learning from past interactions
+  - Decision tracking and documentation
+  - Progress monitoring across sessions
+- **Status**: ✅ Working
+
+### Available Memory Bank MCP Servers
+
+#### 1. @movibe/memory-bank-mcp (Comprehensive)
+
+**Features**:
+
+- **Mode Management**: Switch between different operational modes (code, ask, architect, debug, test)
+- **Progress Tracking**: Track project progress and milestones
+- **Decision Logging**: Log important decisions with context and alternatives
+- **Active Context Management**: Update and maintain active context files
+- **File Operations**: Read, write, and update memory bank files
+- **UMB Integration**: Update Memory Bank (UMB) process integration
+
+**Available Tools**:
+
+- `initialize_memory_bank` - Initialize a new Memory Bank in specified directory
+- `track_progress` - Track progress and update Memory Bank files
+- `log_decision` - Log important decisions with context
+- `update_active_context` - Update the active context file
+- `switch_mode` - Switch between operational modes
+- `get_current_mode` - Get current operational mode
+- `process_umb_command` - Trigger Update Memory Bank process
+- `write_memory_bank_file` - Write content to specific memory bank files
+- `debug_mcp_config` - Debug MCP configuration and status
+
+**Configuration**:
+
+```json
+{
+  "mcpServers": {
+    "memory-bank": {
+      "command": "npx",
+      "args": ["@movibe/memory-bank-mcp"]
+    }
+  }
+}
+```
+
+#### 2. @allpepper/memory-bank-mcp (File-based)
+
+**Features**:
+
+- **Project Management**: List and manage multiple projects
+- **File Operations**: Read, write, and update project files
+- **Structured Storage**: Organized file-based memory system
+- **Docker Support**: Containerized deployment option
+- **Auto-approval**: Configurable auto-approval for common operations
+
+**Available Tools**:
+
+- `list_projects` - List all available projects
+- `list_project_files` - List files within a project
+- `memory_bank_read` - Read content from memory bank files
+- `memory_bank_write` - Write content to memory bank files
+- `memory_bank_update` - Update existing memory bank content
+
+**Configuration**:
+
+```json
+{
+  "mcpServers": {
+    "allpepper-memory-bank": {
+      "command": "npx",
+      "args": ["-y", "@allpepper/memory-bank-mcp"],
+      "env": {
+        "MEMORY_BANK_ROOT": "<path-to-bank>"
+      },
+      "autoApprove": [
+        "memory_bank_read",
+        "memory_bank_write",
+        "memory_bank_update",
+        "list_projects",
+        "list_project_files"
+      ]
+    }
+  }
+}
+```
+
+**Docker Configuration**:
+
+```json
+{
+  "allpepper-memory-bank": {
+    "command": "docker",
+    "args": [
+      "run", "-i", "--rm",
+      "-e", "MEMORY_BANK_ROOT",
+      "-v", "/path/to/memory-bank:/mnt/memory_bank",
+      "memory-bank-mcp:local"
+    ],
+    "env": {
+      "MEMORY_BANK_ROOT": "/mnt/memory_bank"
+    }
+  }
+}
+```
+
+#### 3. Filesystem MCP Server
+
+- **Purpose**: File system operations and management
+- **Features**:
+  - File reading, writing, and manipulation
+  - Directory operations
+  - File search and filtering
+- **Use Cases**:
+  - Code file operations
+  - Project structure management
+  - Configuration file handling
+- **Status**: ✅ Working
+
+#### 4. Fetch MCP Server
+
+- **Purpose**: HTTP requests and web data retrieval
+- **Features**:
+  - GET, POST, PUT, DELETE requests
+  - Headers and authentication support
+  - Response handling and parsing
+- **Use Cases**:
+  - API integrations
+  - Web scraping
+  - Data fetching from external sources
+- **Status**: ✅ Working
+
+#### 5. Sequential Thinking Tools MCP Server
+
+- **Purpose**: Enhanced problem-solving with tool recommendations
+- **Features**:
+  - Dynamic and reflective problem-solving
+  - Tool recommendation system
+  - Confidence scores and execution guidance
+  - Workflow planning and tracking
+- **Use Cases**:
+  - Complex multi-step problem decomposition
+  - Workflow planning with tool selection
+  - Iterative problem-solving with course correction
+- **Status**: ✅ Working
+
+#### 6. Browser Tools MCP Server
+
+- **Purpose**: Browser automation and web interaction
+- **Features**:
+  - Screenshot capture
+  - Console log access
+  - Network monitoring
+  - Element selection and interaction
+- **Use Cases**:
+  - Web testing and debugging
+  - UI automation
+  - Web scraping with JavaScript execution
+- **Status**: ✅ Working
+
+#### 7. Playwright MCP Server ⭐ **NEW**
+
+- **Purpose**: Advanced browser automation and testing
+- **Features**:
+  - Multi-browser support (Chromium, Firefox, WebKit)
+

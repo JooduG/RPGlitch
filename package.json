@@ -2,15 +2,15 @@
   "name": "rpglitch-perchance",
   "version": "1.0.0",
   "description": "RPGlitch - AI-powered storytelling platform for Perchance with comprehensive rules system for development",
-  "main": "Perchance/build-perchance.js",
+  "main": "build/scripts/build-perchance.js",
   "scripts": {
     "preflight": "npm run build && npm run lint && echo \"Preflight check complete (tests and typecheck not configured).\"",
-    "build": "node Perchance/build-perchance.js",
-    "build:watch": "nodemon --watch Perchance --ext html,js,css --exec 'node Perchance/build-perchance.js'",
-    "lint": "eslint \"Perchance/**/*.js\" && stylelint \"**/*.{css,scss}\" && htmlhint \"Perchance/RPGlitch/RPGlitch.html\"",
-    "validate": "node -e \"require('./Perchance/build-perchance.js').validateFiles()\"",
-    "clean": "rm -rf Perchance/build/",
-    "deploy": "npm run build && echo '✅ Build complete! Copy Perchance/build/RPGlitch-perchance.html to Perchance.'",
+    "build": "node build/scripts/build-perchance.js",
+    "build:watch": "nodemon --watch apps --ext html,js,css --exec 'node build/scripts/build-perchance.js'",
+    "lint": "eslint \"apps/**/*.js\" && stylelint \"**/*.{css,scss}\" && htmlhint \"apps/rpglitch/RPGlitch.html\"",
+    "validate": "node -e \"require('./build/scripts/build-perchance.js').validateFiles()\"",
+    "clean": "rm -rf build/output/",
+    "deploy": "npm run build && echo '✅ Build complete! Copy build/output/RPGlitch-perchance.html to Perchance.'",
     "rules:update": "echo 'Use \"update memory bank\" to refresh memory bank files'"
   },
   "keywords": [
@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "htmlhint": "^1.6.3",
+    "markdownlint-cli": "^0.45.0",
     "nodemon": "^3.0.0",
     "sass": "^1.77.4",
     "stylelint": "^16.21.1",
@@ -42,7 +43,9 @@
   },
   "homepage": "https://github.com/your-username/rpglitch-perchance#readme",
   "dependencies": {
+    "@allpepper/memory-bank-mcp": "^0.2.1",
     "@browsermcp/mcp": "^0.1.3",
-    "@picocss/pico": "^2.1.1"
+    "@picocss/pico": "^2.1.1",
+    "playwright": "^1.54.1"
   }
 }

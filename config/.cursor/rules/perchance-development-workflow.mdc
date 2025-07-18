@@ -1,0 +1,93 @@
+---
+description: Guidelines for developing generators on the Perchance platform.
+tags: ["perchance", "development", "workflow"]
+globs: ["**/apps/**"]
+---
+
+# Scope
+
+- Covers the full development lifecycle: planning, building, testing, and deployment.
+- Outlines Perchance-specific constraints and recommended tools.
+- References official tutorials, examples, and community resources.
+
+---
+
+## Core Principles
+
+- **Incremental, Modular Development:**  
+    Use multiple files and clear separation of concerns during development; merge for deployment.
+- **Manual Testing:**  
+    Test all features in the Perchance editor. Use “duplicate” and “download” for safe iteration and backup.
+- **Single-File Output for Deployment:**  
+    Merge all CSS and JS into single files before copy-pasting into Perchance.
+- **No Build System in Platform:**  
+    Any build/merge steps must be done locally.
+- **Reference, Don’t Duplicate:**  
+    Use official examples and snippets for common patterns.
+
+---
+
+## Standard Workflow Steps
+
+1. **Plan:**  
+   Define the generator’s structure, features, and plugin needs.
+2. **Develop:**  
+   Build modular HTML, CSS, and JS files. Use atomic CSS and Perchance plugin APIs as needed.
+3. **Test:**  
+   Test in the Perchance editor. Use “duplicate” to create safe checkpoints.
+4. **Merge:**  
+   Combine all CSS and JS into single files for deployment.
+5. **Deploy:**  
+   Paste merged code into Perchance, set generator to public/private, and share the URL.
+6. **Iterate:**  
+   Use feedback and logs to improve and refine the generator.
+
+> **Note (July 2025):** The build script now outputs the merged CSS and source map to `build/output/archive/` for deployment:
+>
+> - `build/output/archive/RPGlitch-perchance.css`
+> - `build/output/archive/RPGlitch-perchance.css.map`
+> The HTML deployment file remains in `build/output/` as `RPGlitch-perchance.html`.
+
+---
+
+## Best Practices
+
+- **Use Perchance Snippets and Examples:**  
+    Reference [Perchance Snippets](https://perchance.org/perchance-snippets) and [Examples](https://perchance.org/examples) for common patterns.
+- **Inspect Advanced Generators:**  
+    Click “Edit” on public generators to learn from real-world code.
+- **Backup Regularly:**  
+    Use the “download” feature to save your work.
+- **Document Your Workflow:**  
+    Keep notes on your process and decisions for future reference.
+
+---
+
+## Related Rules
+
+- <!-- [Shoelace Usage](./shoelace-usage.mdc) -->
+- [Pico.css Usage](./pico-css-usage.mdc)
+- [big sky Hyperscript Usage](./hyperscript-usage.mdc)
+- [Cash DOM Usage](./cash-dom-usage.mdc)
+- [Dexie.js Usage](./dexie-usage.mdc)
+- [Perchance Architecture](./perchance-architecture.mdc)
+- [Perchance Plugin System](./perchance-plugin-system.mdc)
+- [Perchance Build & Deployment](./perchance-build-deployment.mdc)
+- [HTML Foundations](./html-foundations.mdc)
+- [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
+- [IndexedDB Principles](./indexeddb-principles.mdc)
+- [CSS Principles](./css-principles.mdc)
+- <!-- [Petite-Vue Usage](./petite-vue-usage.mdc) -->
+
+---
+
+## References & Inspiration
+
+- [Perchance Welcome](https://perchance.org/welcome)
+- [Perchance Tutorial](https://perchance.org/tutorial)
+- [Perchance Advanced Tutorial](https://perchance.org/advanced-tutorial)
+- [Perchance Examples](https://perchance.org/examples)
+- [Perchance Snippets](https://perchance.org/perchance-snippets)
+- [Petra’s Perchance Shortbook](https://rentry.org/rkybfefo/edit)
+
+- [Petra’s Perchance Shortbook](https://rentry.org/rkybfefo/edit)

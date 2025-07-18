@@ -1,0 +1,8 @@
+build/output/**/*.html
+apps/**/*-left-panel.html
+apps/**/*-style-block.html
+apps/imageglitch/ImageGlitch.html 
+apps/**/archive/**/*.html
+build/output/archive/**/*.html
+memory/**/archive/**/*.md 
+memory/project/archive/collection.md 
