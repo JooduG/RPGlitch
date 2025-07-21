@@ -73,7 +73,7 @@ window.App.registerPlugin({
 - [Perchance Architecture](./perchance-architecture.mdc)
 - [Perchance Development Workflow](./perchance-development-workflow.mdc)
 - [Perchance Build & Deployment](./perchance-build-deployment.mdc)
-- [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
+- [JavaScript Development](./js-development.mdc)
 
 ---
 

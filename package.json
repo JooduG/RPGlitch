@@ -6,8 +6,9 @@
   "scripts": {
     "preflight": "npm run build && npm run lint && echo \"Preflight check complete (tests and typecheck not configured).\"",
     "build": "node build/scripts/build-perchance.js",
+    "build:copy": "node build/scripts/build-and-copy.js",
     "build:watch": "nodemon --watch apps --ext html,js,css --exec 'node build/scripts/build-perchance.js'",
-    "lint": "eslint \"apps/**/*.js\" && stylelint \"**/*.{css,scss}\" && htmlhint \"apps/rpglitch/RPGlitch.html\"",
+    "lint": "eslint \"apps/**/*.js\" --config config/linting/eslint.config.mjs && stylelint \"**/*.{css,scss}\" --config config/linting/stylelint.config.js && htmlhint \"apps/rpglitch/RPGlitch.html\" --config config/linting/.htmlhintrc",
     "validate": "node -e \"require('./build/scripts/build-perchance.js').validateFiles()\"",
     "clean": "rm -rf build/output/",
     "deploy": "npm run build && echo '✅ Build complete! Copy build/output/RPGlitch-perchance.html to Perchance.'",

@@ -27,7 +27,7 @@ const designSystem = await memoryBank.memory_bank_read({
 });
 
 // Sequential Thinking: Plan testing strategy
-const testingPlan = await sequentialThinking.start({
+const testingPlan = await sequentialThinkingTools.start({
   problem: "Create comprehensive test plan for React app",
   context: { activeContext, designSystem },
   tools: ["playwright", "context7", "memory_bank"]
@@ -117,7 +117,7 @@ for (const platform of platforms) {
 }
 
 // Sequential Thinking: Plan cross-platform implementation
-const crossPlatformPlan = await sequentialThinking.start({
+const crossPlatformPlan = await sequentialThinkingTools.start({
   problem: "Implement authentication feature across web, mobile, and desktop",
   context: { platforms, contexts },
   tools: ["context7", "playwright", "memory_bank"]
@@ -214,7 +214,7 @@ const systemPatterns = await memoryBank.memory_bank_read({
 });
 
 // Sequential Thinking: Plan refactoring strategy
-const refactoringPlan = await sequentialThinking.start({
+const refactoringPlan = await sequentialThinkingTools.start({
   problem: "Refactor legacy JavaScript codebase to modern TypeScript",
   context: { techContext, systemPatterns },
   tools: ["context7", "playwright", "memory_bank", "filesystem"]
@@ -314,7 +314,7 @@ const incidentHistory = await memoryBank.memory_bank_read({
 });
 
 // Sequential Thinking: Plan incident investigation
-const investigationPlan = await sequentialThinking.start({
+const investigationPlan = await sequentialThinkingTools.start({
   problem: "Investigate production performance degradation",
   context: { systemContext, incidentHistory },
   tools: ["playwright", "context7", "memory_bank"]
@@ -397,7 +397,7 @@ for (const project of projects) {
 }
 
 // Sequential Thinking: Plan portfolio optimization
-const portfolioPlan = await sequentialThinking.start({
+const portfolioPlan = await sequentialThinkingTools.start({
   problem: "Optimize resource allocation across multiple client projects",
   context: { projects, projectContexts },
   tools: ["context7", "memory_bank", "playwright"]

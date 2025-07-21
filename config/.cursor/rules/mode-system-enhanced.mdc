@@ -1,3 +1,10 @@
+---
+description: Enhanced 3-mode development framework with automatic complexity-based routing, visual process maps, hierarchical rule loading, and military-grade planning.
+tags: ["mode-system", "enhanced", "complexity-routing", "strategic", "tactical", "operational", "workflow"]
+globs: ["**/*.md", "**/*.mdc"]
+alwaysApply: false
+---
+
 # 🚀 ENHANCED 3-MODE SYSTEM: THE ULTIMATE DEVELOPMENT FRAMEWORK
 
 > **TL;DR:** This is the complete enhanced 3-mode system that steals ALL the best ideas from cursor-memory-bank:

@@ -20,7 +20,7 @@
   </div>
 </dialog>
 
-<div id="main-content-wrapper" class="container">
+<div id="main-content-wrapper" class="container app-scrollable-container">
   <div class="container">
     <nav id="top-bar" class="top-bar top-bar-nav" style="display: flex; align-items: center; justify-content: space-between;">
       <div id="top-bar-left" class="top-bar-section">
@@ -46,6 +46,62 @@
         <ul>
           <li><button class="secondary" id="shuffle-button" _="on click call App._shuffleStoryboard()">Shuffle</button></li>
           <li><button class="primary" id="begin-story-button" _="on click call App.beginStory()">Begin Story</button></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Profile Top Bars: Only one visible at a time on profile screens -->
+    <nav id="profile-top-bar" class="top-bar top-bar-nav hidden">
+      <div id="profile-top-bar-left" class="top-bar-section">
+        <ul>
+          <li><button class="secondary" data-tab="storyboard" role="tab" aria-selected="false" tabindex="0" _="on click call App.selectTopBarTab('storyboard') then call App.updateTopBarUI()">Storyboard</button></li>
+          <li><button class="secondary" data-tab="characters" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('characters') then call App.updateTopBarUI()">Character Workshop</button></li>
+          <li><button class="secondary" data-tab="worlds" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('worlds') then call App.updateTopBarUI()">World Creation</button></li>
+          <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
+        </ul>
+      </div>
+      <div id="profile-top-bar-right" class="top-bar-section">
+        <ul>
+          <li><button class="secondary" id="profile-shuffle-button">Shuffle</button></li>
+          <li><button class="primary" id="profile-begin-story-button">Begin Story</button></li>
+          <li><button class="secondary" id="profile-edit-button">Edit</button></li>
+          <li><button class="primary" id="profile-back-button">Back</button></li>
+        </ul>
+      </div>
+    </nav>
+    <nav id="world-profile-top-bar" class="top-bar top-bar-nav hidden">
+      <div id="world-profile-top-bar-left" class="top-bar-section">
+        <ul>
+          <li><button class="secondary" data-tab="storyboard" role="tab" aria-selected="false" tabindex="0" _="on click call App.selectTopBarTab('storyboard') then call App.updateTopBarUI()">Storyboard</button></li>
+          <li><button class="secondary" data-tab="characters" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('characters') then call App.updateTopBarUI()">Character Workshop</button></li>
+          <li><button class="secondary" data-tab="worlds" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('worlds') then call App.updateTopBarUI()">World Creation</button></li>
+          <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
+        </ul>
+      </div>
+      <div id="world-profile-top-bar-right" class="top-bar-section">
+        <ul>
+          <li><button class="secondary" id="world-profile-shuffle-button">Shuffle</button></li>
+          <li><button class="primary" id="world-profile-begin-story-button">Begin Story</button></li>
+          <li><button class="secondary" id="world-profile-edit-button">Edit</button></li>
+          <li><button class="primary" id="world-profile-back-button">Back</button></li>
+        </ul>
+      </div>
+    </nav>
+    <nav id="story-profile-top-bar" class="top-bar top-bar-nav hidden">
+      <div id="story-profile-top-bar-left" class="top-bar-section">
+        <ul>
+          <li><button class="secondary" data-tab="storyboard" role="tab" aria-selected="false" tabindex="0" _="on click call App.selectTopBarTab('storyboard') then call App.updateTopBarUI()">Storyboard</button></li>
+          <li><button class="secondary" data-tab="characters" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('characters') then call App.updateTopBarUI()">Character Workshop</button></li>
+          <li><button class="secondary" data-tab="worlds" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('worlds') then call App.updateTopBarUI()">World Creation</button></li>
+          <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
+        </ul>
+      </div>
+      <div id="story-profile-top-bar-right" class="top-bar-section">
+        <ul>
+          <li><button class="secondary" id="story-profile-shuffle-button">Shuffle</button></li>
+          <li><button class="primary" id="story-profile-begin-story-button">Begin Story</button></li>
+          <li><button class="secondary" id="story-profile-edit-button">Edit</button></li>
+          <li><button class="primary" id="story-profile-back-button">Back</button></li>
         </ul>
       </div>
     </nav>
@@ -160,10 +216,10 @@
     <div class="main-content-container">
       <!-- CHIN AREA: Selects and Cards, always aligned with top bar -->
       <div class="container" id="storyboard-screen">
-        <header id="storyboard-title-area">
+        <header id="storyboard-title-area" style="padding: 1rem;">
           <h2 id="storyboard-title"></h2>
         </header>
-        <div id="storyboard-scrollable-content">
+        <div id="storyboard-content">
           <div id="storyboard-columns">
             <div class="storyboard-cards-row">
               <article id="storyboard-ai-character-card">
@@ -185,39 +241,34 @@
           <!-- Middle Column: Main Screens -->
           <div id="middle-column" class="flex-grow flex flex-col overflow-hidden"> 
             <!-- Character/World Form Screens -->
-            <div id="character-form-screen" class="middle-column-screen flex-grow flex-col overflow-auto hidden">
+            <div id="character-form-screen" class="middle-column-screen flex-grow flex-col hidden">
               <!-- Content rendered by App.renderFormScreen -->
-              <div class="profile-picture-overlay-wrapper">
-                <button id="edit-profile-picture-button" class="secondary">
-                  <span class="button-text">Edit Profile Picture</span>
-                  <span class="button-icon">✏️</span>
-                </button>
-                <div id="profile-picture-overlay" class="profile-picture-overlay hidden">
-                  <textarea id="profile-picture-prompt" placeholder="Describe or paste image URL..."></textarea>
-                  <button id="profile-picture-generate-button" class="primary">
-                    <span class="button-text">Generate</span>
-                  </button>
-                  <img id="profile-picture-preview" class="profile-picture-preview hidden" />
-                </div>
-              </div>
             </div>
-            <div id="world-form-screen" class="middle-column-screen flex-grow flex-col overflow-auto hidden">
+            <div id="world-form-screen" class="middle-column-screen flex-grow flex-col hidden">
               <!-- Content rendered by App.renderFormScreen -->
             </div>
             <!-- Profile Screens -->
-            <div id="character-profile-screen" class="middle-column-screen flex-grow flex-col overflow-auto hidden">
-              <!-- Content rendered by App.renderProfileScreen -->
+            <div id="character-profile-screen" class="middle-column-screen flex-grow flex-col hidden">
+              <div class="profile-details-content-wrapper flex-grow p-4">
+                <div class="profile-section profile-hero-section p-4 mb-4 text-center">
+                  <!-- Content rendered by App.renderProfileScreen -->
+                </div>
+              </div>
             </div>
-            <div id="world-profile-screen" class="middle-column-screen flex-grow flex-col overflow-auto hidden">
-              <!-- Content rendered by App.renderProfileScreen -->
+            <div id="world-profile-screen" class="middle-column-screen flex-grow flex-col hidden">
+              <div class="profile-details-content-wrapper flex-grow p-4">
+                <div class="profile-section profile-hero-section p-4 mb-4 text-center">
+                  <!-- Content rendered by App.renderProfileScreen -->
+                </div>
+              </div>
             </div>
-            <div id="story-profile-screen" class="middle-column-screen flex-grow flex-col overflow-hidden hidden">
+            <div id="story-profile-screen" class="middle-column-screen flex-grow flex-col hidden">
               <div class="story-profile-layout-container">
                 <div id="story-profile-ai-character-display-area" class="story-profile-side-panel">
                   <!-- AI Character's profile picture and name loaded here -->
                 </div>
                 <div id="story-profile-chat-wrapper" class="story-profile-central-content">
-                  <div id="story-profile-message-feed" class="message-feed-profile flex-grow overflow-auto">
+                  <div id="story-profile-message-feed" class="message-feed-profile flex-grow">
                     <!-- Chat log, conclusion, title, cards will be rendered here -->
                   </div>
                   <div id="story-profile-actions" class="story-profile-form-actions">
@@ -228,17 +279,17 @@
                   <!-- User's Character large image will be loaded here by JS -->
                 </div>
               </div>
-              <div id="memory-application-screen" class="middle-column-screen flex-grow flex-col overflow-auto p-4 hidden">
+              <div id="memory-application-screen" class="middle-column-screen flex-grow flex-col p-4 hidden">
                 <!-- Content will be rendered by App._renderMemoryApplicationScreen -->
               </div>
             </div>
             <!-- Premade Bank Screens -->
-            <div id="premade-character-bank" class="middle-column-screen flex-grow flex-col overflow-auto p-4 hidden">
+            <div id="premade-character-bank" class="middle-column-screen flex-grow flex-col p-4 hidden">
               <h2 class="premade-screen-title">Premade Characters</h2>
               <p class="premade-screen-description">Select a premade character to use its details in the creation form.</p>
               <div id="premade-character-only-list" class="grid-bank-container"></div>
             </div>
-            <div id="premade-world-bank" class="middle-column-screen flex-grow flex-col overflow-auto p-4 hidden">
+            <div id="premade-world-bank" class="middle-column-screen flex-grow flex-col p-4 hidden">
               <h2 class="premade-screen-title">Premade Worlds</h2>
               <p class="premade-screen-description">Select a premade world to use its details in the creation form.</p>
               <div id="premade-world-only-list" class="grid-bank-container"></div>
@@ -252,7 +303,7 @@
                 <div id="built-in-chat-interface-wrapper"> 
                   <div id="chat-background-ctn" class="absolute top-0 left-0 right-0 bottom-0 chat-background-overlay"></div>
                   <div id="story-concluded-notice" class="message systemMessage hidden"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story has concluded.</div></div></div></div>
-                  <div id="chat-feed" class="flex-grow overflow-auto pt-2"></div>
+                  <div id="chat-feed" class="flex-grow pt-2"></div>
                   <div id="no-messages-notice" class="hidden p-4 mt-4">Type your reply below to continue the story.</div>
                   <div id="status-notifier" class="relative flex items-center justify-content-center z-10 hidden" data-original-display-value="flex">
                     <span id="typing-indicator-text">Bot is thinking</span>

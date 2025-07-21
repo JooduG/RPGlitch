@@ -1,3 +1,10 @@
+---
+description: Central orchestrator for the Strategic/Tactical/Operational 3-mode system that manages mode detection, switching, and the unified todo/handoff system.
+tags: ["mode-orchestrator", "mode-system", "strategic", "tactical", "operational", "workflow", "handoff"]
+globs: ["**/*.md", "**/*.mdc"]
+alwaysApply: false
+---
+
 # 🎯 3-MODE SYSTEM ORCHESTRATOR
 
 > **TL;DR:** This is the central binding rule that orchestrates the entire Strategic/Tactical/Operational 3-mode system.

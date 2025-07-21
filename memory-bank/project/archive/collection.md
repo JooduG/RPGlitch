@@ -1429,15 +1429,15 @@ alwaysApply: true
 - **Version Control**: Use proper version control practices
 - **Code Reviews**: Review code for quality and consistency
 
-# Guide to Using the `sequentialthinking` MCP Tool
+# Guide to Using the `sequentialthinking_tools` MCP Tool
 
 ## 1. Objective
 
-This rule guides Cline (the AI) in effectively utilizing the `sequentialthinking` MCP tool. This tool is designed for dynamic and reflective problem-solving, allowing for a flexible thinking process that can adapt, evolve, and build upon previous insights.
+This rule guides Cline (the AI) in effectively utilizing the `sequentialthinking_tools` MCP tool. This tool is designed for dynamic and reflective problem-solving with intelligent tool recommendations, allowing for a flexible thinking process that can adapt, evolve, and build upon previous insights.
 
-## 2. When to Use the `sequentialthinking` Tool
+## 2. When to Use the `sequentialthinking_tools` Tool
 
-Cline SHOULD consider using the `sequentialthinking` tool when faced with tasks that involve:
+Cline SHOULD consider using the `sequentialthinking_tools` tool when faced with tasks that involve:
 
 - **Complex Problem Decomposition:** Breaking down large, multifaceted problems into smaller, manageable steps.
 - **Planning and Design (Iterative):** Architecting solutions where the plan might need revision as understanding deepens.
@@ -1448,9 +1448,9 @@ Cline SHOULD consider using the `sequentialthinking` tool when faced with tasks 
 - **Information Filtering:** When it's necessary to sift through information and identify what's relevant at each stage of thinking.
 - **Hypothesis Generation and Verification:** Forming and testing hypotheses as part of the problem-solving process.
 
-## 3. Core Principles for Using `sequentialthinking`
+## 3. Core Principles for Using `sequentialthinking_tools`
 
-When invoking the `sequentialthinking` tool, Cline MUST adhere to the following principles:
+When invoking the `sequentialthinking_tools` tool, Cline MUST adhere to the following principles:
 
 - **Iterative Thought Process:** Each use of the tool represents a single "thought." Build upon, question, or revise previous thoughts in subsequent calls.
 - **Dynamic Thought Count:**
@@ -1469,9 +1469,9 @@ When invoking the `sequentialthinking` tool, Cline MUST adhere to the following 
 - **Clarity in Each Thought:** Each `thought` string should be clear, concise, and focused on a specific aspect of the problem or a step in the reasoning.
 - **Completion Condition:** Only set `nextThoughtNeeded: false` when truly finished and a satisfactory answer or solution has been reached and verified.
 
-## 4. Parameters of the `sequentialthinking` Tool
+## 4. Parameters of the `sequentialthinking_tools` Tool
 
-Cline MUST correctly use the following parameters when calling the `use_mcp_tool` for `sequentialthinking`:
+Cline MUST correctly use the following parameters when calling the `use_mcp_tool` for `sequentialthinking_tools`:
 
 - **`thought` (string, required):** The current thinking step. This can be an analytical step, a question, a revision, a hypothesis, etc.
 - **`nextThoughtNeeded` (boolean, required):**
@@ -1491,7 +1491,7 @@ This illustrates how Cline might use the tool iteratively.
 
 **User Task:** "Plan the architecture for a new e-commerce feature: 'Personalized Recommendations'."
 
-**Cline's Internal Process using `sequentialthinking`:**
+**Cline's Internal Process using `sequentialthinking_tools`:**
 
 1. **Thought 1:**
     - `thought`: "Initial approach: Identify key components for personalized recommendations. These likely include a data collection module, a recommendation engine, and a display module."
@@ -1538,7 +1538,7 @@ This illustrates how Cline might use the tool iteratively.
 - **FOCUS** on making progress towards a solution with each thought.
 - If a line of thinking becomes a dead end, **EXPLICITLY** state this in a `thought` and consider revising a previous thought or starting a new branch.
 
-This guide should help Cline leverage the `sequentialthinking` MCP tool to its full potential.
+This guide should help Cline leverage the `sequentialthinking_tools` MCP tool to its full potential.
 
 # Self-Improving Cline Reflection
 

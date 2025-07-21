@@ -74,9 +74,9 @@ globs: ["**/apps/**"]
 - [Perchance Plugin System](./perchance-plugin-system.mdc)
 - [Perchance Build & Deployment](./perchance-build-deployment.mdc)
 - [HTML Foundations](./html-foundations.mdc)
-- [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
-- [IndexedDB Principles](./indexeddb-principles.mdc)
-- [CSS Principles](./css-principles.mdc)
+- [JavaScript Development](./js-development.mdc)
+- [IndexedDB Principles](./js-indexeddb-principles.mdc)
+- [SCSS Development](./scss-development.mdc)
 - <!-- [Petite-Vue Usage](./petite-vue-usage.mdc) -->
 
 ---

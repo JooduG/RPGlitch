@@ -100,5 +100,5 @@ Pico.css provides minimal, modern CSS styling for native HTML elements. Use Pico
 
 -   [Pico.css Docs](https://picocss.com/docs/)
 -   [Pico Sass Documentation](https://picocss.com/docs/sass)
--   [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
--   [CSS Principles](./css-principles.mdc)
+-   [JavaScript Development](./js-development.mdc)
+-   [SCSS Development](./scss-development.mdc)

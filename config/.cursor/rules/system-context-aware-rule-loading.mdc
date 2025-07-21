@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # 🎯 CONTEXT-AWARE RULE LOADING
 
 > **TL;DR:** Intelligent rule loading system that selects and loads only relevant
@@ -103,20 +107,20 @@ function assessComplexity(task) {
 
 **Professional Coding Tasks:**
 - `reddit-system-octo.mdc` - Production-ready coding
-- `vanilla-javascript-development.mdc` - Modern JS practices
+- `js-development.mdc` - Modern JS practices
 ```
 
 #### **🎨 Development & Architecture**
 
 ```markdown
 **Frontend Development:**
-- `css-principles.mdc` - Modern CSS practices
+- `scss-development.mdc` - Modern CSS practices
 - `scss-advanced-patterns.mdc` - Advanced SCSS
 - `pico-css-usage.mdc` - Pico CSS framework
 - `html-foundations.mdc` - Semantic HTML
 
 **JavaScript Development:**
-- `vanilla-javascript-development.mdc` - Modern JS
+- `js-development.mdc` - Modern JS
 - `cash-dom-usage.mdc` - DOM manipulation
 - `hyperscript-usage.mdc` - Interactive HTML
 
@@ -137,6 +141,7 @@ function assessComplexity(task) {
 **Context Management:**
 - `context7-usage.mdc` - External documentation
 - `MCP-ECOSYSTEM-GUIDE.mdc` - MCP server management
+- '@docs' - Documentation access
 ```
 
 ### **Complexity-Based Rules**
@@ -147,7 +152,7 @@ function assessComplexity(task) {
 **Minimal Rule Set:**
 - `unified-thinking-framework.mdc` - Core thinking
 - `reddit-system-octo.mdc` - Professional coding
-- Domain-specific rule (e.g., `css-principles.mdc`)
+- Domain-specific rule (e.g., `scss-development.mdc`)
 ```
 
 #### **Level 2 (Medium Tasks)**
@@ -203,8 +208,8 @@ function selectRules(context) {
 
 function getTaskSpecificRules(taskType) {
   const ruleMap = {
-    debugging: ['sequential-thinking-guide.mdc', 'vanilla-javascript-development.mdc'],
-    implementation: ['reddit-system-octo.mdc', 'vanilla-javascript-development.mdc'],
+    debugging: ['sequential-thinking-guide.mdc', 'js-development.mdc'],
+implementation: ['reddit-system-octo.mdc', 'js-development.mdc'],
     planning: ['sequential-thinking-guide.mdc', 'reddit-contemplative-thinking.mdc'],
     analysis: ['sequential-thinking-guide.mdc', 'context7-usage.mdc'],
     optimization: ['sequential-thinking-guide.mdc', 'MEMORY_BANK_OPTIMIZATIONS.md']
@@ -372,7 +377,7 @@ function selectRulesForApproach(approach, context) {
   const approachRules = {
     'sequential': ['sequential-thinking-guide.mdc', 'context7-usage.mdc'],
     'contemplative': ['reddit-contemplative-thinking.mdc'],
-    'professional': ['reddit-system-octo.mdc', 'vanilla-javascript-development.mdc']
+    'professional': ['reddit-system-octo.mdc', 'js-development.mdc']
   };
   
   return [
@@ -382,13 +387,3 @@ function selectRulesForApproach(approach, context) {
   ];
 }
 ```
-
-## 🎯 **CONCLUSION**
-
-**🎯 CONTEXT-AWARE RULE LOADING: Intelligent, efficient, and powerful!**
-
----
-
-**description:** Intelligent rule loading system for optimal token efficiency  
-**globs:**  
-**alwaysApply:** false

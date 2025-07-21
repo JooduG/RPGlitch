@@ -1,3 +1,10 @@
+---
+description: Military-grade development workflow using Strategic (meta-thinking), Tactical (planning), and Operational (execution) modes with unified todo/handoff documents.
+tags: ["mode-system", "strategic", "tactical", "operational", "workflow", "planning"]
+globs: ["**/*.md", "**/*.mdc"]
+alwaysApply: false
+---
+
 # 🎯 STRATEGIC/TACTICAL/OPERATIONAL 3-MODE SYSTEM
 
 > **TL;DR:** A military-grade development workflow using:
@@ -215,7 +222,3 @@ graph TD
 ---
 
 **Ready to implement this military-grade development system!** 🚀
-description:
-globs:
-alwaysApply: false
----

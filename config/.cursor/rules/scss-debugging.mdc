@@ -481,7 +481,7 @@ Document complex SCSS:
 
 ## Related Rules
 
--   [SCSS & CSS Principles](./css-principles.mdc)
+-   [SCSS Development](./scss-development.mdc)
 -   [SCSS Advanced Patterns](./scss-advanced-patterns.mdc)
 -   [Perchance Build & Deployment](./perchance-build-deployment.mdc)
 

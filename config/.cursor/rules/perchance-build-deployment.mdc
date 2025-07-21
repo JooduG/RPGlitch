@@ -64,8 +64,8 @@ globs: ["**/apps/**"]
 - [Dexie.js Usage](./dexie-usage.mdc)
 - [Perchance Architecture](./perchance-architecture.mdc)
 - [Perchance Development Workflow](./perchance-development-workflow.mdc)
-- [CSS Principles](./css-principles.mdc)
-- [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
+- [SCSS Development](./scss-development.mdc)
+- [JavaScript Development](./js-development.mdc)
 
 ---
 

@@ -1,3 +1,10 @@
+---
+description: Unified thinking framework that integrates Sequential Thinking, Contemplative Thinking, and Professional Coding approaches with clear decision criteria and optimal approach selection.
+tags: ["thinking-framework", "sequential-thinking", "contemplative-thinking", "professional-coding", "decision-matrix"]
+globs: ["**/*.md", "**/*.mdc"]
+alwaysApply: false
+---
+
 # 🧠 UNIFIED THINKING FRAMEWORK
 
 > **TL;DR:** Integrated framework that resolves conflicts between Sequential

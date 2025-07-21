@@ -34,4 +34,4 @@ Cash DOM provides a tiny, fast jQuery-like API for DOM selection and manipulatio
 
 - [Cash DOM Docs](https://github.com/fabiospampinato/cash)
 - [Hyperscript Usage](./hyperscript-usage.mdc)
-- [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
+- [JavaScript Development](./js-development.mdc)

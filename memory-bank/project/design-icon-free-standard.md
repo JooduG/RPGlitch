@@ -1,9 +1,3 @@
----
-description: Guide for AI: Apply this rule when creating or evaluating user interface elements, especially interactive controls like buttons, links, navigation items, or any component where icons might be considered. This rule enforces a preference for clear text labels over icons.
-tags: ["ui-ux", "design-system", "standards", "clarity", "minimalism", "agent-requested"]
-globs: ["**/*.html", "**/*.js", "**/*.ts", "**/*.css", "**/*.scss"]
----
-
 # 1. Core Principle
 
 In this project, user interface elements, especially interactive controls like buttons, links, and navigation items, MUST primarily convey their meaning through explicit and concise text labels. The use of standalone icons (without accompanying text) is PROHIBITED. If an icon is used, it MUST be paired with a clear text label.

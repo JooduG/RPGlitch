@@ -595,5 +595,5 @@ This documentation reflects modern JavaScript best practices and features, ensur
 - [Perchance Snippets](https://perchance.org/perchance-snippets)
 
 - [HTML Foundations](./html-foundations.mdc)
-- [CSS Principles](./css-principles.mdc)
-- [IndexedDB Principles](./indexeddb-principles.mdc)
+- [SCSS Development](./scss-development.mdc)
+- [IndexedDB Principles](./js-indexeddb-principles.mdc)

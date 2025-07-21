@@ -1,6 +1,6 @@
 loadDependencies = {import:ai-character-chat-dependencies-v1} // dexie.js, dompurify, etc.
-aiTextPlugin = {import:ai-text-plugin}
-textToImagePlugin = {import:text-to-image-plugin}
+ai = {import:ai-text-plugin}
+image = {import:text-to-image-plugin}
 superFetch = {import:super-fetch-plugin} // <-- to bypass CORs issues in character custom code
 rememberPlugin = {import:remember-plugin}
   
@@ -132,7 +132,7 @@ async injectHierarchicalSummariesAndComputeNextSummariesInBackgroundIfNeeded(thr
     }
   }
   
-  const { countTokens, idealMaxContextTokens } = root.aiTextPlugin({getMetaObject:true});
+  const { countTokens, idealMaxContextTokens } = root.ai({getMetaObject:true});
   let tokenCountToIdeallyStayUnder = idealMaxContextTokens-800; // leave buffer to allow for only intermittent summary injection (to prevent prefix cache invalidation after ~every message)
   
   const numCharsToSummarizeAtATime = 1500; // don't make this bigger without testing - IIRC, the summary calls to the AI could have context too large (causing implicit middle-out ablation) at when the summary hierarchy gets "deep"
@@ -348,7 +348,7 @@ async injectHierarchicalSummariesAndComputeNextSummariesInBackgroundIfNeeded(thr
           startWith,
           stopSequences: ["\n\n", "\n---", "\n>>> FULL TEXT", "FULL TEXT"],
         };
-        let data = await root.aiTextPlugin(promptOptions);
+        let data = await root.ai(promptOptions);
         if(data.stopReason === "error") continue; // could retry a few times, but this is no big deal, since every message sent triggers another attempt
 
         let summary = data.generatedText.trim().replace(/\n+/g, " ").trim().replace(">>> FULL TEXT", "").replace("FULL TEXT", "").trim();
@@ -390,7 +390,7 @@ async injectHierarchicalSummariesAndComputeNextSummariesInBackgroundIfNeeded(thr
           3. <another thing can deduce directly from NEW_TEXT>
           `.trim();
           
-          let data = await root.aiTextPlugin({
+          let data = await root.ai({
             instruction: [ // IMPORTANT: if you change this instruction, make sure you don't affect the shared prefix cache with the summary generation, above
               sharedContextPrefixText,
               (summariesAtThisLevelAndAbove.length > 0 ? summariesAtThisLevelAndAbove : ["(None.)"]).join("\n"),

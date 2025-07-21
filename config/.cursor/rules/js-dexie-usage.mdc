@@ -37,5 +37,5 @@ Dexie.js is the recommended library for IndexedDB management in Perchance projec
 ## References
 
 - [Dexie.js Docs](https://dexie.org/docs/Tutorial/)
-- [IndexedDB Principles](./indexeddb-principles.mdc)
-- [Vanilla JavaScript Development](./vanilla-javascript-development.mdc)
+- [IndexedDB Principles](./js-indexeddb-principles.mdc)
+- [JavaScript Development](./js-development.mdc)

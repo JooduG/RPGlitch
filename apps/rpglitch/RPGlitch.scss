@@ -12,9 +12,9 @@
 html, body {
   min-height: 100vh;
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
   background: linear-gradient(120deg, #181c2f 0%, #23243a 40%, #1a3a4a 70%, #2a1a3a 100%);
-  padding-top: 1rem; /* Add top padding to main wrapper */
+  padding-top: 0; /* Remove top padding since we handle it in app container */
 }
 
 input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
@@ -474,28 +474,6 @@ a {
   box-shadow: none !important;
   padding: inherit !important;
   margin: 0 !important;
-}
-
-/* Only retain truly unique utility classes not in Pico */
-.hidden {
-  display: none !important;
-}
-
-/* Ensure options chin is hidden by default */
-#options-chin {
-  display: none !important;
-}
-
-#options-chin:not(.hidden) {
-  display: flex !important;
-}
-
-.visually-hidden {
-  position: absolute !important;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0,0,0,0);
-  border: 0;
 } 
 
 /* Consolidated Profile Pictures (Base class and common properties) */
@@ -512,7 +490,7 @@ min-height: 200px;
 margin-bottom: 1rem;
 padding: 0.5rem;
 border-radius: var(--pico-radius);
-overflow-y: auto;
+overflow: visible;
 }
 
 #chat-form {
@@ -529,7 +507,39 @@ align-items: flex-end;
 
 .form-section {
 margin-bottom: 0;
-margin-top: 1rem;
+// margin-top: 1rem;
+}
+
+/* App-level scrolling - move scrollbar to full app level */
+.app-scrollable-container {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0 !important;
+  padding: 1rem 0 0 0 !important; /* Add 1rem top padding for top bar spacing */
+  max-width: 100vw !important;
+  width: 100vw !important;
+}
+
+/* Ensure body and html don't add margins/padding */
+body, html {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+/* Remove any internal scrollable areas from profile content */
+.profile-details-content-wrapper,
+.story-profile-layout-container,
+.middle-column-screen {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+/* Ensure profile sections don't create scrollable areas */
+.profile-section,
+.profile-hero-section {
+  overflow: visible !important;
 }
 
 .main-content-container {
@@ -629,12 +639,13 @@ margin-top: 1rem;
   grid-column: 2 / 3;
 }
 
+/* Top bar chin positioning */
 .top-bar-chin {
   position: absolute;
+  top: calc(100% + -0.75rem); /* Position chin directly below the top bar */
   left: 0;
   right: 0;
   z-index: 2000;
-  top: calc(50px + 1.5rem); /* Adjusted for the new margin */
   border-bottom: 2px solid var(--pico-primary);
   color: #fff;
   padding: 0.5em 1em 1em;
@@ -644,14 +655,41 @@ margin-top: 1rem;
   border-top-right-radius: 0 !important;
   border-bottom-left-radius: var(--pico-radius, 0.5rem);
   border-bottom-right-radius: var(--pico-radius, 0.5rem);
-  margin-top: -0.5rem; /* visually extends chin upward by 0.5rem */
-  padding-top: 0.5rem; /* extends chin upward to cover top bar bottom corners */
+  margin-top: 0; /* Remove negative margin */
+  padding-top: 0.5rem; /* Ensure padding is applied correctly */
   min-height: 200px; /* Consistent minimum height for all chins */
   height: auto; /* Allow chin to expand with content */
   display: flex; /* Use flexbox to properly contain children */
   flex-direction: column; /* Stack children vertically */
   align-items: stretch; /* Ensure children stretch to full width */
+  /* Glass effect for chin */
+  background: rgba(35, 36, 58, 0.85) !important;
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
 
+/* Ensure chin buttons are readable on glass background */
+.top-bar-chin button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  backdrop-filter: blur(5px);
+}
+
+.top-bar-chin button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.top-bar-chin button.primary {
+  background: var(--pico-primary, #0172ad) !important;
+  border-color: var(--pico-primary, #0172ad) !important;
+}
+
+.top-bar-chin button.primary:hover {
+  background: var(--pico-primary-hover, #015a8a) !important;
+  border-color: var(--pico-primary-hover, #015a8a) !important;
 }
 
 /* Placeholder styling for "no recent stories" message */
@@ -682,7 +720,7 @@ margin-top: 1rem;
 #search-stories-input,
 #search-characters-input,
 #search-worlds-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: 0.75rem center;
   background-size: 1rem;
@@ -720,13 +758,10 @@ article > header:not(.storyboard-card header) {
   border: none !important;
 }
 
-/* Premade tag alignment: right-aligned on storyboard, left-aligned on list cards */
-.storyboard-card article > footer {
-  justify-content: flex-end !important;
-}
-
+/* Premade tag alignment: right-aligned on both storyboard and chin list cards */
+.storyboard-card article > footer,
 .chin-list-grid article > footer {
-  justify-content: flex-start !important;
+  justify-content: flex-end !important;
 }
 
 /* Storyboard dropdown placeholder styling */
@@ -759,6 +794,12 @@ article > header:not(.storyboard-card header) {
   padding: 1em;
 }
 
+.top-bar-nav.is-active {
+  display: flex !important; /* Force display to flex when active */
+  // margin-bottom: 1rem; /* Restore margin */
+  z-index: 1000; /* Ensure it's above other content */
+}
+
 #start-fresh-button.secondary {
   transition: background 0.2s, color 0.2s;
 }
@@ -773,7 +814,6 @@ article > header:not(.storyboard-card header) {
 nav {
   margin: 0;
   padding: 0;
-  display: flex;
   align-items: center;
 }
 
@@ -1151,6 +1191,16 @@ article {
   line-height: 1;
   box-sizing: border-box;
   margin: 0;
+  /* Glass effect for upload buttons */
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  backdrop-filter: blur(5px);
+}
+
+.upload-label:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 .upload-label-text {
@@ -1554,16 +1604,10 @@ label.button.secondary {
 .storyboard-cards-row {
   overflow: visible !important;
   position: relative;
+  z-index: 1000;
 }
 
-.top-bar-nav,
-.top-bar-section,
-.top-bar-nav ul,
-.top-bar-nav li,
-.top-bar-section ul,
-.top-bar-section li {
-  height: 100%;
-}
+
 
 .top-bar-nav button,
 .top-bar-section button {
@@ -1587,7 +1631,7 @@ label.button.secondary {
   border: none !important;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
   border-radius: var(--pico-radius);
-  overflow: visible; /* Allow content to extend beyond card boundaries for dropdowns */
+  overflow: visible; /* Allow content to extend beyond card for dropdowns */
   transition: box-shadow 0.2s ease;
   position: relative; /* Ensure proper positioning context for dropdowns */
 }
@@ -1674,6 +1718,12 @@ body, body * {
   border-radius: var(--pico-radius);
   letter-spacing: 0.05em;
   line-height: 1.2;
+}
+
+/* Make chin list premade tags match storyboard styling (italic and skinnier) */
+.chin-list-grid .card-info small {
+  font-style: italic;
+  font-weight: 400; /* Skinnier than the default 600 */
 }
 
 /* Ensure all text is white by default, except muted/disabled */
@@ -1840,9 +1890,8 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   align-items: center;
   justify-content: center;
   min-height: 3rem; /* Ensure consistent height */
-  margin-top: 2rem; /* Add breathing space above title */
-  margin-bottom: 2rem; /* Add significant spacing between title and cards */
-  padding: 0; /* Remove padding */
+  margin: 1.5rem 2rem 2rem 2rem; /* 1.5rem top, 2rem for other sides */
+  padding: 2rem; 
 }
 
 
@@ -1925,4 +1974,689 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 .profile-picture-initials-styled {
   --bg-color: var(--palette-medium, var(--pico-primary, #0172ad));
   --text-color-initials: var(--palette-light, #fff);
+}
+
+/* === STUDIO LAYOUT SYSTEM ===
+   Critical CSS classes for profile page layouts
+*/
+
+/* Main studio layout container */
+.studio-layout-container {
+  display: flex;
+  min-height: 100%;
+  background: var(--pico-surface, #23243a);
+  border-radius: var(--pico-radius, 0.5rem);
+  overflow: visible;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Studio content area - flex container for left/right panels */
+.studio-content-area {
+  display: flex;
+  width: 100%;
+  // gap: 2rem;
+  // padding: 2rem;
+  min-height: 100%;
+  overflow: visible;
+}
+
+/* Left panel - profile picture and related content */
+.studio-left-panel {
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  //gap: 1.5rem;
+  padding: 0; /* Remove padding to allow edge-to-edge */
+  overflow: visible; /* Remove internal scrolling */
+  overflow-x: hidden; /* Hide horizontal scrollbar */
+}
+
+/* Right panel - main content area */
+.studio-right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  // gap: 2rem;
+  min-width: 0; /* Allow flex item to shrink below content size */
+  overflow: visible; /* Remove internal scrolling */
+  overflow-x: hidden; /* Hide horizontal scrollbar */
+  // padding-right: 0.5rem; /* Space for scrollbar */
+}
+
+/* Custom scrollbar styling for better UX */
+.studio-left-panel::-webkit-scrollbar,
+.studio-right-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.studio-left-panel::-webkit-scrollbar-track,
+.studio-right-panel::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.studio-left-panel::-webkit-scrollbar-thumb,
+.studio-right-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.studio-left-panel::-webkit-scrollbar-thumb:hover,
+.studio-right-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Firefox scrollbar styling */
+.studio-left-panel,
+.studio-right-panel {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+}
+
+/* Ensure smooth scrolling behavior */
+.studio-left-panel,
+.studio-right-panel {
+  scroll-behavior: smooth;
+}
+
+/* Profile picture section styling */
+.profile-picture-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  // gap: 1rem;
+  width: 100%;
+  height: 100%; /* Fill entire height */
+}
+
+.profile-picture-container {
+  position: relative;
+  width: 100%;
+  height: 100%; /* Fill entire height */
+  border-radius: 0; /* Remove border radius for edge-to-edge */
+  overflow: hidden;
+  box-shadow: none; /* Remove shadow for edge-to-edge */
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.profile-picture-container:hover {
+  transform: none; /* Remove hover effect for edge-to-edge */
+}
+
+/* Profile picture edit overlay */
+.profile-picture-edit-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.profile-picture-container:hover .profile-picture-edit-overlay {
+  opacity: 1;
+}
+
+.profile-picture-edit-overlay .button-icon {
+  font-size: 2rem;
+  color: white;
+}
+
+/* Profile picture sizing variants - adjust for edge-to-edge */
+.profile-picture-large {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+.profile-picture-medium {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+.profile-picture-small {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+/* Form sections within studio layout */
+.form-section {
+  background: var(--pico-card-background-color, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));
+  border-radius: var(--pico-radius, 0.5rem);
+  // padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.form-section:hover {
+  border-color: var(--pico-primary, #0172ad);
+  box-shadow: 0 2px 8px rgba(var(--pico-primary-rgb, 1, 114, 173), 0.1);
+}
+
+/* EPPF section styling */
+.eppf-section {
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* Background Profile Picture Layout */
+.profile-background-layout {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.profile-background-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 35vw;
+  height: 100vh;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none; /* Allow scrolling to pass through to content behind */
+}
+
+.profile-background-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-background-image img,
+.profile-background-image svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.profile-background-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(35, 36, 58, 0.3) 0%,
+    rgba(35, 36, 58, 0.6) 50%,
+    rgba(35, 36, 58, 0.8) 100%
+  );
+  z-index: 2;
+}
+
+.profile-content-overlay {
+  position: relative;
+  z-index: 5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 2rem;
+  padding-top: calc(80px + 2rem); /* Space for top bar */
+  margin-left: 35vw; /* Push content to the right of the background */
+  background: rgba(35, 36, 58, 0.95);
+  backdrop-filter: blur(15px);
+}
+
+.profile-content-container {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.profile-header-section {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.profile-header-section .studio-profile-name {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 1rem 0;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  line-height: 1.2;
+}
+
+.profile-description {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.profile-details-section {
+  background: rgba(35, 36, 58, 0.8);
+  backdrop-filter: blur(15px);
+  border-radius: 1rem;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.profile-details-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* Enhanced Profile Field Styling for Background Layout */
+.profile-field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.profile-field-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.profile-field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-weight: 600;
+  color: var(--pico-h1-color, #fff);
+}
+
+.profile-field-label .main-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--pico-primary, #0172ad);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.profile-field-label .field-sublabel {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.profile-field-value {
+  color: #fff;
+  line-height: 1.7;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.95rem;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.profile-field-value:empty::before {
+  content: "—";
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+/* Top Bar Glass Effect for Profile Pages */
+.top-bar {
+  position: relative;
+  z-index: 10;
+  background: rgba(35, 36, 58, 0.85) !important;
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure top bar buttons are readable on glass background */
+.top-bar button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  backdrop-filter: blur(5px);
+}
+
+.top-bar button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.top-bar button.primary {
+  background: var(--pico-primary, #0172ad) !important;
+  border-color: var(--pico-primary, #0172ad) !important;
+}
+
+.top-bar button.primary:hover {
+  background: var(--pico-primary-hover, #015a8a) !important;
+  border-color: var(--pico-primary-hover, #015a8a) !important;
+}
+
+/* Responsive Design for Background Profile */
+@media (max-width: 768px) {
+  .profile-content-overlay {
+    padding: 1rem;
+    margin-top: 70px;
+  }
+  
+  .profile-header-section .studio-profile-name {
+    font-size: 2rem;
+  }
+  
+  .profile-description {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+  
+  .profile-details-section {
+    padding: 1.5rem;
+  }
+  
+  .profile-field-row {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-header-section .studio-profile-name {
+    font-size: 1.75rem;
+  }
+  
+  .profile-content-overlay {
+    padding: 0.75rem;
+  }
+  
+  .profile-details-section {
+    padding: 1rem;
+  }
+}
+
+/* Legacy Profile Field Styling (for edit mode) */
+.profile-field-row.legacy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));
+}
+
+.profile-field-row:last-child {
+  border-bottom: none;
+}
+
+.profile-field-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--pico-h1-color, #fff);
+}
+
+.profile-field-label .main-label {
+  font-size: 1.1rem;
+}
+
+.profile-field-label .field-sublabel {
+  font-size: 0.875rem;
+  color: var(--pico-muted-color, #aaa);
+  font-weight: normal;
+}
+
+.profile-field-value {
+  color: var(--pico-color, #fff);
+  line-height: 1.6;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--pico-radius, 0.25rem);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-field-value.readonly {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+  color: var(--pico-muted-color, #aaa);
+}
+
+/* Studio name input styling */
+.studio-name-input-large {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 1rem;
+  background: var(--pico-card-background-color, rgba(255, 255, 255, 0.05));
+  border: 2px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));
+  border-radius: var(--pico-radius, 0.5rem);
+  color: var(--pico-color, #fff);
+  transition: all 0.2s ease;
+}
+
+.studio-name-input-large:focus {
+  border-color: var(--pico-primary, #0172ad);
+  box-shadow: 0 0 0 3px rgba(var(--pico-primary-rgb, 1, 114, 173), 0.1);
+}
+
+/* Studio profile name display */
+.studio-profile-name {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: var(--pico-h1-color, #fff);
+  margin: 0;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Profile action buttons */
+.profile-action-buttons {
+  display: flex;
+  // gap: 1rem;
+  justify-content: flex-end;
+  // padding: 1.5rem 0;
+  border-top: 1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));
+  margin: 0 !important;
+}
+
+.action-button-primary {
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.action-button-secondary {
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.delete-button {
+  background: var(--pico-del-color, #dc3545);
+  border-color: var(--pico-del-color, #dc3545);
+  color: white;
+}
+
+.delete-button:hover {
+  background: var(--pico-del-hover, #c82333);
+  border-color: var(--pico-del-hover, #c82333);
+}
+
+/* Studio form actions */
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .studio-content-area {
+    flex-direction: column;
+    // gap: 1rem;
+    //padding: 1rem;
+  }
+  
+  .studio-left-panel {
+    flex: none;
+    max-height: none;
+    overflow: visible;
+    padding: 0; /* Keep edge-to-edge on mobile */
+  }
+  
+  .studio-right-panel {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+  
+  /* On mobile, let the entire container scroll */
+  .studio-layout-container {
+    max-height: none;
+    overflow: visible;
+  }
+  
+  .studio-content-area {
+    max-height: none;
+    overflow: visible;
+  }
+  
+  /* Mobile-specific profile picture adjustments - maintain edge-to-edge */
+  .profile-picture-container {
+    width: 100%;
+    height: 200px; /* Fixed height on mobile for better UX */
+    border-radius: 0;
+  }
+  
+  .profile-action-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0 !important;
+  }
+  
+  .action-button-primary,
+  .action-button-secondary {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  
+  /* Very small mobile - adjust profile picture height */
+  .profile-picture-container {
+    height: 150px;
+  }
+  
+  .studio-name-input-large {
+    font-size: 1.25rem;
+    padding: 0.75rem;
+  }
+  
+  .studio-profile-name {
+    font-size: 1.5rem;
+  }
+  
+  /* Ensure proper spacing on very small screens */
+  .studio-left-panel,
+  .studio-right-panel {
+    padding: 0.5rem;
+  }
+  
+  .profile-picture-section {
+    gap: 0.75rem;
+  }
+}
+
+/* Tablet-specific optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .studio-left-panel {
+    flex: 0 0 250px;
+  }
+  
+
+  
+  /* Tablet profile picture - maintain edge-to-edge */
+  .profile-picture-container {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1025px) {
+
+  
+  .studio-left-panel {
+    flex: 0 0 350px;
+  }
+  
+  /* Ensure scrollbars are visible but not intrusive */
+
+  
+  /* Large screen profile picture - full edge-to-edge */
+  .profile-picture-container {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Top bar nav-specific rules (for all top bars) */
+.top-bar-nav {
+  min-height: 60px; /* Ensure it has a visible height */
+  display: none; /* Hidden by default, activated by .is-active */
+  box-sizing: border-box; /* Include padding in element's total width and height */
+  width: 100%; /* Ensure it spans full width */
+  align-items: center; /* Align content vertically */
+  justify-content: space-between; /* Distribute content horizontally */
+}
+
+.top-bar-nav.is-active {
+  display: flex !important; /* Force display to flex when active */
+  z-index: 1000; /* Ensure it's above other content */
+}
+
+/* Only retain truly unique utility classes not in Pico */
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  border: 0;
+} 
+
+/* Moved to the end for specificity */
+.hidden {
+    display: none !important;
+}
+
+/* Moved to the end for specificity */
+#options-chin {
+  display: none !important;
+}
+
+/* Moved to the end for specificity */
+#options-chin:not(.hidden) {
+  display: flex !important;
 }
