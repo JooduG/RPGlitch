@@ -153,9 +153,9 @@ a:not([disabled]):hover {
               text-shadow 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* Automatic disabled styling for ALL disabled elements */
-/* This ensures any element with disabled attribute looks disabled */
-[disabled] {
+/* Automatic disabled styling for secondary disabled elements ONLY */
+/* This ensures secondary elements with disabled attribute look disabled, lets Pico handle everything else */
+[disabled].secondary {
   opacity: 0.3 !important;
   cursor: not-allowed !important;
   filter: grayscale(100%) !important;
@@ -165,8 +165,8 @@ a:not([disabled]):hover {
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Disabled state - no hover effects */
-[disabled]:hover {
+/* Disabled state - no hover effects for secondary elements ONLY */
+[disabled].secondary:hover {
   transform: none !important;
   box-shadow: none !important;
   transition: none !important;
@@ -191,59 +191,24 @@ a:not([disabled]):hover {
   transition: none !important;
 }
 
-/* Restore Pico's disabled button styling */
-button[disabled],
-input[disabled],
-select[disabled],
-textarea[disabled],
-label[disabled],
-[role="button"][disabled] {
-  opacity: 0.5 !important;
-  cursor: not-allowed !important;
-  filter: grayscale(100%) !important;
-}
+/* Let Pico handle disabled button styling naturally */
 
-/* Ensure disabled buttons don't have hover effects */
-button[disabled]:hover,
+/* Ensure disabled buttons don't have hover effects for secondary elements ONLY */
+button[disabled].secondary:hover,
 input[disabled]:hover,
 select[disabled]:hover,
 textarea[disabled]:hover,
 label[disabled]:hover,
-[role="button"][disabled]:hover {
+[role="button"][disabled].secondary:hover {
   transform: none !important;
   box-shadow: none !important;
   background: inherit !important;
   color: inherit !important;
 }
 
-/* Upload label disabled styling - more specific to override base styles */
-.upload-label[disabled],
-label.button.secondary[disabled],
-button[disabled],
-input[type="button"][disabled],
-input[type="submit"][disabled],
-.top-bar button[disabled],
-#options-chin button[disabled],
-.chin-actions button[disabled],
-.chin-actions-right button[disabled] {
-  opacity: 0.2 !important;
-  cursor: not-allowed !important;
-  filter: grayscale(100%) !important;
-  pointer-events: none !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: rgba(255, 255, 255, 0.3) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
+/* Let Pico handle disabled button styling naturally */
 
-.upload-label[disabled]:hover {
-  transform: none !important;
-  box-shadow: none !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.5) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
+/* Let Pico handle disabled button styling naturally */
 
 /* Special handling for storyboard cards with disabled attribute */
 /* These should still be clickable but show different hover effects */
@@ -505,11 +470,6 @@ align-items: flex-end;
   gap: 0;
 }
 
-.form-section {
-margin-bottom: 0;
-// margin-top: 1rem;
-}
-
 /* App-level scrolling - move scrollbar to full app level */
 .app-scrollable-container {
   height: 100vh;
@@ -519,6 +479,11 @@ margin-bottom: 0;
   padding: 1rem 0 0 0 !important; /* Add 1rem top padding for top bar spacing */
   max-width: 100vw !important;
   width: 100vw !important;
+}
+
+/* Disable main container scrolling when profile content overlay is visible */
+.app-scrollable-container:has(.profile-content-overlay) {
+  overflow: hidden !important;
 }
 
 /* Ensure body and html don't add margins/padding */
@@ -642,7 +607,7 @@ body, html {
 /* Top bar chin positioning */
 .top-bar-chin {
   position: absolute;
-  top: calc(100% + -0.75rem); /* Position chin directly below the top bar */
+  top: calc(100% - 0.5rem); /* Position chin directly below the top bar */
   left: 0;
   right: 0;
   z-index: 2000;
@@ -735,6 +700,8 @@ body, html {
   box-shadow: none;
   border-radius: var(--pico-radius);
   margin-top: 0; /* Remove top margin */
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Container for chin positioning */
@@ -817,27 +784,7 @@ nav {
   align-items: center;
 }
 
-nav > button {
-  color: var(--pico-contrast) !important;
-  font-weight: 600;
-  transition: background 0.15s, color 0.15s;
-  border-radius: var(--pico-radius);
-}
-
-nav > button[aria-selected="true"] {
-  background: var(--pico-primary);
-  color: var(--pico-contrast);
-}
-
-nav > button[aria-selected="false"] {
-  background: var(--pico-surface);
-  color: var(--pico-contrast);
-}
-
-nav > button:focus {
-  outline: none !important;
-}
-
+/* Navigation layout */
 .top-bar-nav ul {
   display: flex;
   gap: 1rem;
@@ -850,19 +797,7 @@ nav > button:focus {
   padding: 0 !important;
 }
 
-.top-bar-nav button {
-  margin: 0 !important;
-  border-radius: var(--pico-radius);
-}
-
-.top-bar-nav button,
-.top-bar-section button {
-  padding: var(--pico-form-element-spacing-vertical, 0.75rem) var(--pico-form-element-spacing-horizontal, 1rem);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: auto;
-}
+/* REMOVED: nav > button, .top-bar-nav button, .top-bar-section button - now uses global button system */
 
 .chin-actions {
   display: flex;
@@ -1212,9 +1147,10 @@ article {
 }
 
 .chin-actions input[type="search"] {
-  height: 2.5em;
-  padding: 0 1.25em 0 2.5em; /* extra left padding for icon */
+  height: auto;
+  padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em; /* extra left padding for icon */
   border-radius: 999px 0 0 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Same border as buttons */
   border-right: none !important; /* Remove right border to connect with button */
   font-size: 1rem;
   box-sizing: border-box;
@@ -1223,11 +1159,12 @@ article {
   flex: none;
   margin: 0;
   width: auto;
+  transition: background 0.2s, border-color 0.2s; /* Same transition as buttons */
 }
 
 .chin-actions button[type="submit"] {
-  height: 2.5em;
-  padding: 0 1.25em;
+  height: auto;
+  padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em;
   border-radius: 0 999px 999px 0 !important;
   border-left: none !important; /* Remove left border to connect with input */
   font-size: 1rem;
@@ -1236,15 +1173,30 @@ article {
   align-items: center;
   flex: none;
   margin: 0;
-  min-width: 9em;
+  min-width: 0;
 }
 
-.chin-search-submit {
-  min-width: unset !important;
-  width: auto !important;
-  padding-left: 1.25em !important;
-  padding-right: 1.25em !important;
+/* Unified hover effects for search input and button */
+.chin-actions input[type="search"]:hover {
+  border-color: rgba(255, 255, 255, 0.3) !important;
 }
+.chin-actions button[type="submit"]:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* When hovering search input, also highlight the button (border only) */
+.chin-actions input[type="search"]:hover + button[type="submit"] {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* When hovering search button, also highlight the input (border only) */
+.chin-actions button[type="submit"]:hover ~ input[type="search"] {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* REMOVED: .chin-search-submit styles - now uses global button system */
 
 /* Ensure search form fieldset doesn't add borders */
 .chin-actions fieldset[role="group"] {
@@ -1266,35 +1218,9 @@ article {
   overflow: hidden !important;
 }
 
-.chin-actions-right .button,
-.chin-actions-right .primary,
-.chin-actions-right .secondary {
-  height: 2.5em;
-  min-width: 9em;
-  font-size: 1rem;
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
-  line-height: 1;
-  box-sizing: border-box;
-  margin: 0;
-  white-space: nowrap;
-}
+/* REMOVED: .chin-actions-right .secondary styles - now uses global button system */
 
-#options-chin .button,
-#options-chin .secondary,
-#options-chin .danger {
-  height: 2.5em;
-  min-width: 9em;
-  font-size: 1rem;
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
-  line-height: 1;
-  box-sizing: border-box;
-  margin: 0;
-  white-space: nowrap;
-}
+/* REMOVED: #options-chin .secondary styles - now uses global button system */
 
 .chin-options-grid {
   display: grid;
@@ -1315,31 +1241,14 @@ article {
 button,
 .button,
 .secondary,
-.danger,
-.chin-search-submit {
+.danger {
   text-align: center;
   justify-content: center;
 }
 
-label.button.secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 2.5em;
-  min-width: 9em;
-  font-size: 1rem;
-  background: var(--pico-secondary-background, #4a5568);
-  color: var(--pico-secondary-color, #fff);
-  border: none;
-  border-radius: var(--pico-radius);
-  cursor: pointer;
-  transition: background 0.2s;
-  vertical-align: middle;
-  line-height: 1;
-  box-sizing: border-box;
-  margin: 0;
-  white-space: nowrap;
-}
+/* REMOVED: label.button.secondary styles - now uses global button system */
+
+/* REMOVED: .options-button styles - now uses global button system */
 
 
 
@@ -1696,8 +1605,8 @@ label.button.secondary {
   overflow: visible !important;
 }
 
-/* Global rule: all text should have opacity 1 */
-body, body * {
+/* Global rule: all text should have opacity 1 (excluding disabled elements) */
+body, body *:not([disabled]) {
   opacity: 1 !important;
   color: #fff !important;
 }
@@ -2129,24 +2038,26 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   border-radius: 0;
 }
 
-/* Form sections within studio layout */
-.form-section {
-  background: var(--pico-card-background-color, rgba(255, 255, 255, 0.05));
-  border: 1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));
-  border-radius: var(--pico-radius, 0.5rem);
-  // padding: 1.5rem;
-  transition: all 0.2s ease;
+/* Profile picture edit section - match form styling */
+.profile-picture-edit-section {
+  margin-bottom: 1rem;
 }
 
-.form-section:hover {
-  border-color: var(--pico-primary, #0172ad);
-  box-shadow: 0 2px 8px rgba(var(--pico-primary-rgb, 1, 114, 173), 0.1);
+/* Add breathing space after the last form section (future field) */
+.form-section:last-child {
+  margin-bottom: 2rem;
 }
+
+/* Add breathing space after the last profile field row */
+.profile-field-row:last-child {
+  margin-bottom: 2rem;
+}
+
+/* Traits section specific styling */
 
 /* EPPF section styling */
 .eppf-section {
   display: grid;
-  gap: 1.5rem;
 }
 
 /* Background Profile Picture Layout */
@@ -2201,89 +2112,117 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 }
 
 .profile-content-overlay {
-  position: relative;
+  position: fixed;
+  left: 0;
+  right: 0;
   z-index: 5;
-  min-height: 100vh;
+  height: calc(100vh - calc(2rem + 2rem + 2.7rem));
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 2rem;
-  padding-top: calc(80px + 2rem); /* Space for top bar */
-  margin-left: 35vw; /* Push content to the right of the background */
-  background: rgba(35, 36, 58, 0.95);
-  backdrop-filter: blur(15px);
+  box-sizing: border-box;
+  padding-left: 35vw;
+  padding-right: calc(5% - 1rem);
+  
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  
+  /* Webkit scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
 }
 
 .profile-content-container {
-  max-width: 800px;
   margin: 0 auto;
   width: 100%;
 }
 
 .profile-header-section {
   text-align: center;
-  margin-bottom: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  margin: 1.5rem 2rem 2rem 2rem;
+  padding: 1rem;
 }
 
 .profile-header-section .studio-profile-name {
-  font-size: 3rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0 0 1rem 0;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  line-height: 1.2;
+  text-wrap: balance;
+  height: 3.5em;
+  line-height: 1.4em;
+  /* Ensure full name is visible without truncation */
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 2em;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: var(--pico-radius);
+  transition: all 0.2s ease;
 }
+
+
 
 .profile-description {
   font-size: 1.2rem;
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
-  max-width: 600px;
-  margin: 0 auto;
+  margin: 0 1rem 1rem 1rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   background: rgba(0, 0, 0, 0.2);
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 0.5rem;
   backdrop-filter: blur(10px);
 }
 
-.profile-details-section {
-  background: rgba(35, 36, 58, 0.8);
-  backdrop-filter: blur(15px);
-  border-radius: 1rem;
-  padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
 .profile-details-grid {
   display: grid;
-  gap: 1.5rem;
 }
 
 /* Enhanced Profile Field Styling for Background Layout */
 .profile-field-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.2s ease;
+  display: grid;
+  grid-template-columns: 20% auto;
+  align-items: center;
+  padding-left: 1rem;
 }
 
-.profile-field-row:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
+
 
 .profile-field-label {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  justify-content: right;
   font-weight: 600;
   color: var(--pico-h1-color, #fff);
 }
@@ -2292,7 +2231,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--pico-primary, #0172ad);
-  text-transform: uppercase;
+  text-align: right;
   letter-spacing: 0.5px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
@@ -2301,7 +2240,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.7);
   font-weight: 400;
-  font-style: italic;
+  text-align: right;
 }
 
 .profile-field-value {
@@ -2310,11 +2249,14 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   padding: 1rem;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
   font-size: 0.95rem;
   min-height: 3rem;
   display: flex;
   align-items: center;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
@@ -2322,6 +2264,113 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   content: "—";
   color: rgba(255, 255, 255, 0.5);
   font-style: italic;
+}
+
+/* Form inputs and textareas within profile-field-value */
+.profile-field-value input,
+.profile-field-value textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  padding: 0;
+  margin: 0;
+  resize: vertical;
+  min-height: 3rem;
+  font-family: inherit;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Name input styling to match profile page name */
+.profile-header-section .studio-profile-name {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 2em;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  text-wrap: balance;
+  height: 3.5em;
+  line-height: 1.4em;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  transition: all 0.2s ease;
+}
+
+/* Override studio-name-input-large styling to match EPPF fields */
+.profile-header-section .studio-name-input-large {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+  /* Ensure full name is visible without truncation */
+  overflow: visible !important;
+  text-overflow: unset !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+}
+
+/* Profile page name (h2) should not show pointer cursor */
+.profile-header-section h2.studio-profile-name {
+  cursor: default;
+}
+
+.profile-header-section .studio-profile-name::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+/* Contenteditable placeholder styling */
+.profile-header-section .studio-profile-name:empty::before,
+.profile-header-section .studio-profile-name:blank::before,
+.studio-profile-name:empty::before,
+.studio-profile-name:blank::before {
+  content: attr(data-placeholder);
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  pointer-events: none;
+}
+
+/* Alternative placeholder for contenteditable elements */
+.studio-profile-name[data-placeholder]:not(:focus):empty::before,
+.studio-profile-name[data-placeholder]:not(:focus):blank::before {
+  content: attr(data-placeholder);
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  pointer-events: none;
+}
+
+.profile-header-section .studio-profile-name:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+}
+
+/* Description field now uses EPPF field structure - styling handled by profile-field-value */
+
+.profile-field-value input::placeholder,
+.profile-field-value textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+.profile-field-value input:focus,
+.profile-field-value textarea:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.25rem;
 }
 
 /* Top Bar Glass Effect for Profile Pages */
@@ -2334,27 +2383,30 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Ensure top bar buttons are readable on glass background */
-.top-bar button {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  backdrop-filter: blur(5px);
+/* REMOVED: .top-bar button styles - now uses global button system */
+
+/* Top Bar Container - 90% width with 5% margins */
+#main-content-wrapper > .container {
+  width: 90%;
+  max-width: 90%;
+  margin-left: 5%;
+  margin-right: 5%;
 }
 
-.top-bar button:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+/* Main content container - 100% width of its parent (which is already 90% of viewport) */
+.main-content-container {
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
-.top-bar button.primary {
-  background: var(--pico-primary, #0172ad) !important;
-  border-color: var(--pico-primary, #0172ad) !important;
-}
-
-.top-bar button.primary:hover {
-  background: var(--pico-primary-hover, #015a8a) !important;
-  border-color: var(--pico-primary-hover, #015a8a) !important;
+/* Override Pico's container behavior for storyboard screen */
+#storyboard-screen.container {
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 /* Responsive Design for Background Profile */
@@ -2364,8 +2416,9 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     margin-top: 70px;
   }
   
-  .profile-header-section .studio-profile-name {
-    font-size: 2rem;
+  .profile-field-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
   
   .profile-description {
@@ -2373,13 +2426,9 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     padding: 1rem;
   }
   
-  .profile-details-section {
-    padding: 1.5rem;
-  }
   
-  .profile-field-row {
-    padding: 1rem;
-  }
+  
+
 }
 
 @media (max-width: 480px) {
@@ -2391,16 +2440,26 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     padding: 0.75rem;
   }
   
-  .profile-details-section {
-    padding: 1rem;
+  .profile-field-row {
+    gap: 0.25rem;
   }
+  
+  /* Top bar container full width on very small screens */
+  #main-content-wrapper > .container {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  
+
 }
 
 /* Legacy Profile Field Styling (for edit mode) */
 .profile-field-row.legacy {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
   padding: 1rem 0;
   border-bottom: 1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));
 }
@@ -2411,14 +2470,14 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 
 .profile-field-label {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: right;
   font-weight: 600;
   color: var(--pico-h1-color, #fff);
 }
 
 .profile-field-label .main-label {
   font-size: 1.1rem;
+  text-align: right;
 }
 
 .profile-field-label .field-sublabel {
@@ -2452,6 +2511,13 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   border-radius: var(--pico-radius, 0.5rem);
   color: var(--pico-color, #fff);
   transition: all 0.2s ease;
+  /* Ensure full name is visible without truncation */
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
+  min-width: 0; /* Allow shrinking if needed */
 }
 
 .studio-name-input-large:focus {
@@ -2467,6 +2533,13 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   margin: 0;
   text-align: center;
   line-height: 1.2;
+  /* Ensure full name is visible without truncation */
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
+  min-width: 0; /* Allow shrinking if needed */
 }
 
 /* Profile action buttons */
@@ -2659,4 +2732,147 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 /* Moved to the end for specificity */
 #options-chin:not(.hidden) {
   display: flex !important;
+}
+
+/* ========================================
+   GLOBAL BUTTON SYSTEM
+   ======================================== */
+
+/* Base button styles - applies ONLY to secondary buttons */
+button.secondary,
+.button.secondary,
+[role="button"].secondary {
+  /* Layout */
+  padding: var(--pico-form-element-spacing-vertical, 0.75rem) var(--pico-form-element-spacing-horizontal, 1rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  
+  /* Visual */
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--pico-radius);
+  color: #fff;
+  
+  /* Interactions */
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  backdrop-filter: blur(5px);
+  
+  /* Typography */
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  
+  /* Reset */
+  margin: 0;
+  outline: none;
+  
+  /* Override Pico's margin-bottom on buttons with type attributes */
+  &[type=button], &[type=reset], &[type=submit] {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Button hover state - applies ONLY to secondary buttons */
+button.secondary:hover,
+.button.secondary:hover,
+[role="button"].secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Button active state - applies ONLY to secondary buttons */
+button.secondary:active,
+.button.secondary:active,
+[role="button"].secondary:active {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(0);
+}
+
+/* Button focus state - applies ONLY to secondary buttons */
+button.secondary:focus,
+.button.secondary:focus,
+[role="button"].secondary:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Primary button variant */
+button.primary,
+.button.primary,
+[role="button"].primary {
+  background: var(--pico-primary, #0172ad);
+  border-color: var(--pico-primary, #0172ad);
+  color: var(--pico-contrast, #fff);
+  font-weight: 600;
+}
+
+button.primary:hover,
+.button.primary:hover,
+[role="button"].primary:hover {
+  background: var(--pico-primary-hover, #015a8a);
+  border-color: var(--pico-primary-hover, #015a8a);
+}
+
+button.primary:active,
+.button.primary:active,
+[role="button"].primary:active {
+  background: var(--pico-primary-active, #014a73);
+  border-color: var(--pico-primary-active, #014a73);
+}
+
+
+
+/* Danger button variant */
+button.danger,
+.button.danger,
+[role="button"].danger {
+  background: var(--pico-del-color, #dc3545);
+  border-color: var(--pico-del-color, #dc3545);
+  color: #fff;
+}
+
+button.danger:hover,
+.button.danger:hover,
+[role="button"].danger:hover {
+  background: var(--pico-del-hover, #c82333);
+  border-color: var(--pico-del-hover, #c82333);
+}
+
+button.danger:active,
+.button.danger:active,
+[role="button"].danger:active {
+  background: var(--pico-del-active, #bd2130);
+  border-color: var(--pico-del-active, #bd2130);
+}
+
+/* Disabled state - let Pico handle it naturally */
+/* Removed custom disabled styling to use Pico defaults */
+
+
+
+/* Special cases - only override when absolutely necessary */
+
+/* Navigation buttons - selected state */
+nav > button[aria-selected="true"] {
+  background: var(--pico-primary);
+  border-color: var(--pico-primary);
+  color: var(--pico-contrast);
+}
+
+/* Search submit button - connected to input */
+.chin-actions button[type="submit"] {
+  border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
+  border-left: none;
+}
+
+/* Card footer buttons - smaller size */
+.card-footer button {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
 }

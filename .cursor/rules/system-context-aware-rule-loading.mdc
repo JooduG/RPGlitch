@@ -1,0 +1,390 @@
+---
+description: Intelligent rule loading system that selects and loads only relevant rules based on task context, complexity, and current mode for optimal token efficiency and performance.
+alwaysApply: true
+---
+
+# 🎯 CONTEXT-AWARE RULE LOADING
+
+> **TL;DR:** Intelligent rule loading system that selects and loads only relevant
+> rules based on task context, complexity, and current mode for optimal token
+> efficiency and performance.
+
+## 🎯 **SYSTEM OVERVIEW**
+
+The context-aware rule loading system analyzes the current task context and
+intelligently selects only the most relevant rules to load, significantly
+improving token efficiency while maintaining full functionality.
+
+## 🔍 **CONTEXT ANALYSIS FRAMEWORK**
+
+### **Context Dimensions**
+
+```mermaid
+graph TD
+    Context["Context Analysis"] --> TaskType["Task Type"]
+    Context --> Complexity["Complexity Level"]
+    Context --> Mode["Current Mode"]
+    Context --> Tools["Required Tools"]
+    Context --> Domain["Domain/Technology"]
+    
+    TaskType --> Decision["Rule Selection"]
+    Complexity --> Decision
+    Mode --> Decision
+    Tools --> Decision
+    Domain --> Decision
+    
+    Decision --> Load["Load Relevant Rules"]
+    Decision --> Cache["Cache Common Rules"]
+    Decision --> Lazy["Lazy Load Specialized"]
+    
+    style Context fill:#4da6ff,stroke:#0066cc,color:white
+    style Decision fill:#ffa64d,stroke:#cc7a30,color:white
+    style Load fill:#4dbb5f,stroke:#36873f,color:white
+```
+
+### **Context Analysis Algorithm**
+
+```javascript
+function analyzeContext(task, currentMode, availableTools) {
+  return {
+    taskType: classifyTaskType(task),
+    complexity: assessComplexity(task),
+    mode: currentMode,
+    requiredTools: identifyRequiredTools(task),
+    domain: identifyDomain(task),
+    urgency: assessUrgency(task),
+    scope: assessScope(task)
+  };
+}
+
+function classifyTaskType(task) {
+  if (task.includes('debug') || task.includes('fix')) return 'debugging';
+  if (task.includes('implement') || task.includes('create')) return 'implementation';
+  if (task.includes('design') || task.includes('plan')) return 'planning';
+  if (task.includes('analyze') || task.includes('review')) return 'analysis';
+  if (task.includes('optimize') || task.includes('improve')) return 'optimization';
+  return 'general';
+}
+
+function assessComplexity(task) {
+  const indicators = {
+    high: ['complex', 'multi-step', 'architecture', 'system', 'integration'],
+    medium: ['feature', 'component', 'enhancement', 'refactor'],
+    low: ['fix', 'simple', 'quick', 'basic', 'update']
+  };
+  
+  for (const [level, keywords] of Object.entries(indicators)) {
+    if (keywords.some(keyword => task.toLowerCase().includes(keyword))) {
+      return level;
+    }
+  }
+  return 'medium';
+}
+```
+
+## 📊 **RULE CATEGORIZATION**
+
+### **Core Rules (Always Loaded)**
+
+```markdown
+**Essential for all tasks:**
+- `unified-thinking-framework.mdc` - Core thinking methodology
+- `writing-effective-rules.mdc` - Rule writing standards
+- `context-aware-rule-loading.mdc` - This system itself
+```
+
+### **Task-Specific Rules**
+
+#### **🧠 Thinking & Problem-Solving**
+
+```markdown
+**Sequential Thinking Tasks:**
+- `mcp-sequential-thinking.mdc` - Tool-guided problem-solving
+- `mcp-context7.mdc` - Documentation access
+
+**Contemplative Thinking Tasks:**
+- `thinking-contemplative.mdc` - Natural exploration
+- `system-effective-rule-writing.mdc` - Rule creation guidance
+
+**Professional Coding Tasks:**
+- `role-assistant.mdc` - Production-ready coding
+- `js-development.mdc` - Modern JS practices
+```
+
+#### **🎨 Development & Architecture**
+
+```markdown
+**Frontend Development:**
+- `scss-development.mdc` - Modern CSS practices
+- `scss-advanced-patterns.mdc` - Advanced SCSS
+- `scss-pico-usage.mdc` - Pico CSS framework
+- `html-development.mdc` - Semantic HTML
+
+**JavaScript Development:**
+- `js-development.mdc` - Modern JS
+- `js-cash-dom-usage.mdc` - DOM manipulation
+- `hyperscript-usage.mdc` - Interactive HTML
+
+**Perchance Development:**
+- `perchance-architecture.mdc` - Platform architecture
+- `perchance-development-workflow.mdc` - Development process
+- `perchance-build-deployment.mdc` - Build and deployment
+- `perchance-plugin-system.mdc` - Plugin development
+```
+
+#### **💾 Memory & Context**
+
+```markdown
+**Memory Management:**
+- `memory-bank-optimization.mdc` - Token efficiency
+- `memory-bank-integration.mdc` - MCP integration
+
+**Context Management:**
+- `mcp-context7.mdc` - External documentation
+- `mcp-ecosystem.mdc` - MCP server management
+- '@docs' - Documentation access
+```
+
+### **Complexity-Based Rules**
+
+#### **Level 1 (Simple Tasks)**
+
+```markdown
+**Minimal Rule Set:**
+- `unified-thinking-framework.mdc` - Core thinking
+- `role-assistant.mdc` - Professional coding
+- Domain-specific rule (e.g., `scss-development.mdc`)
+```
+
+#### **Level 2 (Medium Tasks)**
+
+```markdown
+**Enhanced Rule Set:**
+- All Level 1 rules
+- `mcp-sequential-thinking.mdc` - Structured thinking
+- `mcp-context7.mdc` - Documentation access
+- Additional domain-specific rules
+```
+
+#### **Level 3 (Complex Tasks)**
+
+```markdown
+**Comprehensive Rule Set:**
+- All Level 2 rules
+- `thinking-contemplative.mdc` - Deep exploration
+- `memory-bank-optimization.mdc` - Memory management
+- All relevant domain-specific rules
+```
+
+## 🔄 **INTELLIGENT RULE SELECTION**
+
+### **Rule Selection Algorithm**
+
+```javascript
+function selectRules(context) {
+  const rules = new Set();
+  
+  // Always load core rules
+  rules.add('unified-thinking-framework.mdc');
+  rules.add('context-aware-rule-loading.mdc');
+  
+  // Load task-specific rules
+  const taskRules = getTaskSpecificRules(context.taskType);
+  taskRules.forEach(rule => rules.add(rule));
+  
+  // Load complexity-based rules
+  const complexityRules = getComplexityRules(context.complexity);
+  complexityRules.forEach(rule => rules.add(rule));
+  
+  // Load mode-specific rules
+  const modeRules = getModeRules(context.mode);
+  modeRules.forEach(rule => rules.add(rule));
+  
+  // Load domain-specific rules
+  const domainRules = getDomainRules(context.domain);
+  domainRules.forEach(rule => rules.add(rule));
+  
+  return Array.from(rules);
+}
+
+function getTaskSpecificRules(taskType) {
+  const ruleMap = {
+    debugging: ['mcp-sequential-thinking.mdc', 'js-development.mdc'],
+implementation: ['role-assistant.mdc', 'js-development.mdc'],
+planning: ['mcp-sequential-thinking.mdc', 'thinking-contemplative.mdc'],
+analysis: ['mcp-sequential-thinking.mdc', 'mcp-context7.mdc'],
+optimization: ['mcp-sequential-thinking.mdc', 'memory-bank-optimization.mdc']
+  };
+  
+  return ruleMap[taskType] || [];
+}
+```
+
+### **Rule Loading Strategy**
+
+```mermaid
+graph TD
+    Context["Context Analysis"] --> Strategy{"Loading Strategy?"}
+    
+    Strategy -->|"Immediate"| Immediate["Load All Required Rules"]
+    Strategy -->|"Progressive"| Progressive["Load Core + Essential"]
+    Strategy -->|"Lazy"| Lazy["Load Core Only"]
+    
+    Immediate --> Full["Full Functionality"]
+    Progressive --> Enhanced["Enhanced Functionality"]
+    Lazy --> Basic["Basic Functionality"]
+    
+    Full --> Monitor["Monitor Performance"]
+    Enhanced --> Monitor
+    Basic --> Monitor
+    
+    Monitor --> Adjust["Adjust Strategy"]
+    Adjust --> Context
+    
+    style Immediate fill:#ff6b35,stroke:#e55a2b,color:white
+    style Progressive fill:#ffa64d,stroke:#cc7a30,color:white
+    style Lazy fill:#4da6ff,stroke:#0066cc,color:white
+```
+
+## 🚀 **PERFORMANCE OPTIMIZATION**
+
+### **Token Efficiency Strategies**
+
+#### **1. Rule Caching**
+
+```javascript
+const ruleCache = new Map();
+
+function loadRule(ruleName) {
+  if (ruleCache.has(ruleName)) {
+    return ruleCache.get(ruleName);
+  }
+  
+  const ruleContent = fetchRuleContent(ruleName);
+  ruleCache.set(ruleName, ruleContent);
+  return ruleContent;
+}
+```
+
+#### **2. Progressive Loading**
+
+```javascript
+function progressiveLoad(context) {
+  // Phase 1: Load core rules
+  const coreRules = loadCoreRules();
+  
+  // Phase 2: Load essential rules based on context
+  const essentialRules = loadEssentialRules(context);
+  
+  // Phase 3: Lazy load specialized rules as needed
+  const specializedRules = loadSpecializedRules(context);
+  
+  return [...coreRules, ...essentialRules, ...specializedRules];
+}
+```
+
+#### **3. Rule Compression**
+
+```javascript
+function compressRule(ruleContent) {
+  // Remove unnecessary whitespace and comments
+  // Keep only essential content
+  // Optimize for token efficiency
+  return ruleContent
+    .replace(/\s+/g, ' ')
+    .replace(/<!--.*?-->/g, '')
+    .trim();
+}
+```
+
+### **Performance Metrics**
+
+#### **Token Usage Tracking**
+
+```javascript
+const tokenMetrics = {
+  totalTokens: 0,
+  ruleTokens: {},
+  efficiency: 0,
+  
+  trackRuleUsage(ruleName, tokenCount) {
+    this.totalTokens += tokenCount;
+    this.ruleTokens[ruleName] = tokenCount;
+    this.calculateEfficiency();
+  },
+  
+  calculateEfficiency() {
+    // Calculate efficiency based on loaded rules vs functionality
+    this.efficiency = this.totalTokens / this.getFunctionalityScore();
+  }
+};
+```
+
+## 🔧 **IMPLEMENTATION GUIDELINES**
+
+### **For AI Assistants**
+
+1. **Always analyze context** before loading rules
+2. **Use the selection algorithm** for optimal rule choice
+3. **Monitor token usage** and adjust strategy as needed
+4. **Cache frequently used rules** for efficiency
+5. **Lazy load specialized rules** when required
+
+### **For System Administrators**
+
+1. **Configure rule priorities** based on usage patterns
+2. **Set up monitoring** for rule loading performance
+3. **Optimize rule content** for token efficiency
+4. **Update rule categories** as new rules are added
+5. **Maintain rule dependencies** for proper loading
+
+## 📊 **MONITORING AND ANALYTICS**
+
+### **Key Performance Indicators**
+
+- **Token Efficiency**: Tokens used per functionality unit
+- **Rule Loading Speed**: Time to load required rules
+- **Cache Hit Rate**: Percentage of cached rule usage
+- **User Satisfaction**: Feedback on system responsiveness
+
+### **Optimization Opportunities**
+
+- **Rule Consolidation**: Combine related rules for efficiency
+- **Content Optimization**: Remove redundant content
+- **Loading Strategy**: Adjust based on usage patterns
+- **Cache Management**: Optimize cache size and eviction
+
+## 🎯 **INTEGRATION WITH UNIFIED THINKING FRAMEWORK**
+
+### **Context-Aware Approach Selection**
+
+```javascript
+function selectApproachWithRules(context) {
+  // Analyze context for approach selection
+  const approach = selectThinkingApproach(context);
+  
+  // Load rules based on selected approach
+  const rules = selectRulesForApproach(approach, context);
+  
+  // Return approach and required rules
+  return {
+    approach: approach,
+    rules: rules,
+    strategy: determineLoadingStrategy(context)
+  };
+}
+
+function selectRulesForApproach(approach, context) {
+  const approachRules = {
+    'sequential': ['mcp-sequential-thinking.mdc', 'mcp-context7.mdc'],
+    'contemplative': ['thinking-contemplative.mdc'],
+'professional': ['role-assistant.mdc', 'js-development.mdc']
+  };
+  
+  return [
+    ...approachRules[approach] || [],
+    ...getDomainRules(context.domain),
+    ...getComplexityRules(context.complexity)
+  ];
+}
+```

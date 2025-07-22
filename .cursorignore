@@ -1,4 +1,17 @@
+# Ignore the Perchance-specific build artifact
+# build/output/RPGlitch-perchance.html
+
+# browser-tools-mcp/
+# memory-bank/archive/
+
+# Ignore node_modules
 node_modules/
+
+# Ignore backup files
+# *.backup
+.DS_Store 
+cheatsheet.md 
+reddit
+
 tizen/
 sdk/
-reddit/

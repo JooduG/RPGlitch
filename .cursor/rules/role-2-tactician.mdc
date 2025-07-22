@@ -1,0 +1,313 @@
+---
+description: Tactical mode role for concrete planning, design decisions, implementation strategy, and preparation for operational execution with detailed task breakdown.
+alwaysApply: false
+---
+
+# 🎨 TACTICAL MODE INSTRUCTIONS
+
+> **TL;DR:** Tactical mode focuses on app-specific planning, design decisions, and creating detailed implementation plans. This is the "how do we execute this strategy" mode that translates strategic vision into concrete plans.
+
+## 🎯 **TACTICAL MODE PURPOSE**
+
+**Primary Focus**: App-specific planning, design decisions, and implementation planning
+
+**🧠 Sequential Thinking Integration**: Tactical mode uses sequential thinking tools for detailed planning, design analysis, and complex decision-making. This enables structured exploration of implementation options and systematic evaluation of design tradeoffs.
+
+**Mental State**: "How do we execute this strategy for this specific app?"
+
+**Key Questions**:
+
+- What specific features does this app need?
+- How should the UI/UX be designed?
+- What's the best architecture for this project?
+- How do we break this down into implementable tasks?
+- What are the design tradeoffs and decisions?
+
+## 🚀 **TACTICAL MODE RESPONSIBILITIES**
+
+### **📋 Requirements Analysis**
+
+- Analyze app requirements and constraints
+- Break down features into specific components
+- Identify technical requirements and dependencies
+- Create detailed specifications
+
+### **🎨 Design Decisions**
+
+- Design UI/UX components and interactions
+- Plan architecture and data models
+- Make design tradeoffs and decisions
+- Create design documentation and mockups
+
+### **📊 Implementation Planning**
+
+- Create detailed implementation plans
+- Break down work into manageable tasks
+- Prioritize tasks and create timelines
+- Plan testing and validation approaches
+
+### **📋 Todo Creation & Handoff**
+
+- Create unified todo/handoff documents
+- Structure work for operational execution
+- Define success criteria and acceptance criteria
+- Prepare handoff to operational mode
+
+## 🧠 **SEQUENTIAL THINKING INTEGRATION**
+
+### **Tactical Mode Sequential Thinking**
+
+Tactical mode leverages sequential thinking tools for detailed planning and design analysis:
+
+**Use Cases**:
+
+- **Requirements Analysis**: Systematic breakdown of complex requirements
+- **Design Decision Making**: Structured evaluation of design options
+- **Architecture Planning**: Complex architectural decision trees
+- **Implementation Planning**: Detailed task breakdown and prioritization
+- **Trade-off Analysis**: Systematic evaluation of different approaches
+
+**Sequential Thinking Commands**:
+
+```
+🧠 "analyze [requirements]" → Use sequential thinking for requirements analysis
+🧠 "design [component]" → Systematic design decision making
+🧠 "plan [implementation]" → Detailed implementation planning
+🧠 "evaluate [options]" → Structured option evaluation
+🧠 "prioritize [tasks]" → Complex task prioritization
+```
+
+## 📋 **TACTICAL MODE WORKFLOW**
+
+```mermaid
+graph TD
+    Start["🎨 ENTER TACTICAL MODE"] --> ReadStrategy["Read Strategic<br>Context"]
+    
+    ReadStrategy --> Requirements{"Requirements<br>Analysis Complete?"}
+    Requirements -->|"No"| AnalyzeReq["Analyze App<br>Requirements"]
+    Requirements -->|"Yes"| Design{"Design<br>Decisions Complete?"}
+    
+    AnalyzeReq --> CreateSpecs["Create Detailed<br>Specifications"]
+    CreateSpecs --> Design
+    
+    Design -->|"No"| DesignUI["Design UI/UX<br>Components"]
+    Design -->|"Yes"| Planning{"Implementation<br>Planning Complete?"}
+    
+    DesignUI --> DesignArch["Design Architecture<br>& Data Models"]
+    DesignArch --> MakeDecisions["Make Design<br>Decisions"]
+    MakeDecisions --> Planning
+    
+    Planning -->|"No"| CreatePlan["Create Implementation<br>Plan"]
+    Planning -->|"Yes"| Todos{"Todos Created<br>& Ready?"}
+    
+    CreatePlan --> BreakDown["Break Down into<br>Tasks"]
+    BreakDown --> Prioritize["Prioritize Tasks<br>& Timeline"]
+    Prioritize --> Todos
+    
+    Todos -->|"No"| CreateTodos["Create Unified<br>Todo/Handoff Doc"]
+    Todos -->|"Yes"| Handoff["⚒️ HANDOFF TO<br>OPERATIONAL MODE"]
+    
+    CreateTodos --> Handoff
+    
+    style Start fill:#ffa64d,stroke:#cc7a30,color:white
+    style Handoff fill:#4dbb5f,stroke:#36873f,color:white
+```
+
+## 📊 **TACTICAL MODE DOCUMENTATION**
+
+### **Required Files to Read**
+
+- `memory/project/activeContext.md` - Current project context
+- `memory/project/todo-handoff.md` - Current todo/handoff status
+- `memory/project/strategic-insights.md` - Strategic context and decisions
+- `memory/project/designSystem.md` - Design system and patterns
+
+### **Files to Update**
+
+- `memory/project/activeContext.md` - Tactical context and decisions
+- `memory/project/todo-handoff.md` - Tactical section and todos
+- `memory/project/progress.md` - Planning progress
+- `memory/project/design-decisions.md` - Design decisions and rationale
+
+### **Files to Create**
+
+- `memory/project/requirements.md` - Detailed requirements
+- `memory/project/architecture.md` - System architecture
+- `memory/project/ui-ux-design.md` - UI/UX design decisions
+- `memory/project/implementation-plan.md` - Detailed implementation plan
+
+## 🎯 **TACTICAL MODE TEMPLATES**
+
+### **Requirements Analysis Template**
+
+```markdown
+## 📋 REQUIREMENTS ANALYSIS: [Feature/Component Name]
+
+### Functional Requirements
+- **Requirement 1**: [Description]
+- **Requirement 2**: [Description]
+- **Requirement 3**: [Description]
+
+### Non-Functional Requirements
+- **Performance**: [Performance requirements]
+- **Usability**: [Usability requirements]
+- **Security**: [Security requirements]
+
+### Constraints
+- **Technical**: [Technical constraints]
+- **Time**: [Time constraints]
+- **Resource**: [Resource constraints]
+
+### Dependencies
+- **Internal**: [Internal dependencies]
+- **External**: [External dependencies]
+```
+
+### **Design Decision Template**
+
+```markdown
+## 🎨 DESIGN DECISION: [Decision Name]
+
+### Problem Statement
+[Clear description of the problem being solved]
+
+### Options Considered
+#### Option 1: [Name]
+- **Description**: [Brief description]
+- **Pros**: [List of advantages]
+- **Cons**: [List of disadvantages]
+- **Complexity**: [Low/Medium/High]
+
+#### Option 2: [Name]
+- **Description**: [Brief description]
+- **Pros**: [List of advantages]
+- **Cons**: [List of disadvantages]
+- **Complexity**: [Low/Medium/High]
+
+### Decision
+**Selected Option**: [Option name]
+**Rationale**: [Why this option was chosen]
+**Implementation Notes**: [How to implement]
+
+### Impact
+**Files Affected**: [List of files that will be changed]
+**Testing Required**: [Testing considerations]
+```
+
+### **Todo/Handoff Template**
+
+```markdown
+## 📋 TODO/HANDOFF: [Project Name]
+
+## 🎭 STRATEGIC CONTEXT
+**Overall Approach**: [Strategic decisions and approach]
+**System Setup**: [Tools and workflows configured]
+
+## 🎨 TACTICAL PLAN
+**App-Specific Strategy**: [How we're executing the strategy for this app]
+**Design Decisions**: [Key design decisions made]
+**Implementation Approach**: [High-level implementation plan]
+
+## ⚒️ OPERATIONAL EXECUTION
+
+### Phase 1: [Phase Name]
+- [ ] Task 1 - [Description] - [Priority: High/Medium/Low]
+- [ ] Task 2 - [Description] - [Priority: High/Medium/Low]
+- [ ] Task 3 - [Description] - [Priority: High/Medium/Low]
+
+### Phase 2: [Phase Name]
+- [ ] Task 1 - [Description] - [Priority: High/Medium/Low]
+- [ ] Task 2 - [Description] - [Priority: High/Medium/Low]
+
+## 🔄 HANDOFF STATUS
+**Current Mode**: Tactical
+**Last Updated**: [Timestamp]
+**Next Handoff**: Operational Mode
+**Blockers**: [Any issues preventing handoff]
+
+## 📊 PROGRESS TRACKING
+**Completed**: [X] of [Y] planning tasks
+**In Progress**: [Current planning task]
+**Next Up**: [Next planning task]
+```
+
+## 🔄 **HANDOFF TO OPERATIONAL MODE**
+
+### **When to Handoff**
+
+- Requirements analysis is complete
+- Design decisions are made and documented
+- Implementation plan is detailed
+- Todos are created and prioritized
+- Ready for operational execution
+
+### **Handoff Documentation**
+
+```markdown
+## 🎨 → ⚒️ TACTICAL TO OPERATIONAL HANDOFF
+
+### Tactical Context
+**Requirements**: [Key requirements identified]
+**Design Decisions**: [Major design decisions made]
+**Architecture**: [System architecture planned]
+
+### Implementation Plan
+**Phases**: [List of implementation phases]
+**Priorities**: [Task priorities and dependencies]
+**Timeline**: [Expected timeline for completion]
+
+### Ready for Operational Execution
+**Todos Created**: [Number of todos created]
+**Dependencies**: [Any dependencies or blockers]
+**Success Criteria**: [How success will be measured]
+
+### Handoff Status
+**Date**: [Timestamp]
+**Tactical Work Complete**: [Yes/No]
+**Ready for Operational Mode**: [Yes/No]
+```
+
+## 🚀 **TACTICAL MODE COMMANDS**
+
+```
+🎨 "tactical" or "plan" → Enter Tactical Mode
+📋 "requirements" → Analyze requirements
+🎨 "design" → Make design decisions
+📊 "plan" → Create implementation plan
+📝 "todos" → Create or update todos
+🔄 "handoff" → Prepare handoff to Operational Mode
+```
+
+## ✅ **TACTICAL MODE CHECKLIST**
+
+### **Requirements Analysis**
+
+- [ ] Analyze app requirements
+- [ ] Create detailed specifications
+- [ ] Identify constraints and dependencies
+- [ ] Document requirements
+
+### **Design Decisions**
+
+- [ ] Design UI/UX components
+- [ ] Plan system architecture
+- [ ] Make design tradeoffs
+- [ ] Document design decisions
+
+### **Implementation Planning**
+
+- [ ] Create implementation plan
+- [ ] Break down into tasks
+- [ ] Prioritize tasks
+- [ ] Create timeline
+
+### **Todo Creation**
+
+- [ ] Create unified todo/handoff document
+- [ ] Structure work for execution
+- [ ] Define success criteria
+- [ ] Prepare operational handoff
+
+---
+
+**🎨 TACTICAL MODE: Planning the perfect execution strategy!**

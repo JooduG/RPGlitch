@@ -29,16 +29,16 @@ This project is governed by a set of non-negotiable rules and protocols to ensur
 
 **For the full, up-to-date list of rules, see:**
 
-- [Perchance Architecture](config/cursor/perchance-architecture.mdc): Structure, modularity, and platform constraints for Perchance apps.
-- [Perchance Plugin System](config/cursor/perchance-plugin-system.mdc): Guidelines for plugin development and integration.
-- [Perchance Development Workflow](config/cursor/perchance-development-workflow.mdc): Standard workflow, protocols, and best practices.
-- [Perchance Build & Deployment](config/cursor/perchance-build-deployment.mdc): Build process, merging, and deployment for Perchance.
-- [IndexedDB Principles](config/cursor/indexedDB-principles.mdc): Storage, versioning, and best practices for IndexedDB in Perchance.
-- [HTML Foundations](config/cursor/html-foundations.mdc): Semantic HTML, accessibility, and Perchance-specific markup.
-- [Vanilla JavaScript Development](config/cursor/vanilla-javascript-development.mdc): JS best practices for maintainable, robust Perchance code.
-- [CSS Principles](config/cursor/css-principles.mdc): Atomic/utility CSS, Tailwind compatibility, and general CSS best practices.
-- [icon-free-design-standard.mdc](config/cursor/icon-free-design-standard.mdc): No icons, only text labels for controls.
-- [All rules in config/cursor/](config/cursor/)
+- [Perchance Architecture](.cursor/rules/perchance-architecture.mdc): Structure, modularity, and platform constraints for Perchance apps.
+- [Perchance Plugin System](.cursor/rules/perchance-plugin-system.mdc): Guidelines for plugin development and integration.
+- [Perchance Development Workflow](.cursor/rules/perchance-development-workflow.mdc): Standard workflow, protocols, and best practices.
+- [Perchance Build & Deployment](.cursor/rules/perchance-build-deployment.mdc): Build process, merging, and deployment for Perchance.
+- [IndexedDB Principles](.cursor/rules/js-indexeddb-principles.mdc): Storage, versioning, and best practices for IndexedDB in Perchance.
+- [HTML Development](.cursor/rules/html-development.mdc): Semantic HTML, accessibility, and Perchance-specific markup.
+- [JavaScript Development](.cursor/rules/js-development.mdc): JS best practices for maintainable, robust Perchance code.
+- [SCSS Development](.cursor/rules/scss-development.mdc): Atomic/utility CSS, Tailwind compatibility, and general CSS best practices.
+- [Design System](memory-bank/project/designSystem.md): No icons, only text labels for controls.
+- [All rules in .cursor/rules/](.cursor/rules/)
 
 **Highlights:**
 
@@ -53,7 +53,7 @@ This project is governed by a set of non-negotiable rules and protocols to ensur
 
 ## Onboarding & Reference Guide
 
-- [All rules in config/cursor/](config/cursor/)
+- [All rules in .cursor/rules/](.cursor/rules/)
 
 ---
 
@@ -67,7 +67,6 @@ This project is governed by a set of non-negotiable rules and protocols to ensur
 │   └── tizen/              # Tizen C# applications (future)
 ├── build/                  # Build system
 │   ├── scripts/            # Build scripts
-│   ├── config/             # Build configuration
 │   └── output/             # Build artifacts
 ├── docs/                   # Documentation
 │   ├── guides/             # User and developer guides
@@ -77,10 +76,12 @@ This project is governed by a set of non-negotiable rules and protocols to ensur
 │   ├── diagnostics/        # Diagnostic tools
 │   ├── browser-tools/      # Browser automation tools
 │   └── mcp/                # MCP servers and tools
-├── config/                 # Configuration files
-│   ├── cursor/             # Cursor editor configuration
-│   ├── linting/            # Linting configuration
-│   └── build/              # Build configuration
+├── .cursor/                # Cursor editor configuration
+│   └── rules/              # Project rules and guidelines
+├── linting/                # Linting configuration
+│   ├── eslint.config.mjs   # ESLint configuration
+│   ├── stylelint.config.js # Stylelint configuration
+│   └── .htmlhintrc         # HTMLHint configuration
 ├── memory/                 # Consolidated memory system
 │   ├── project/            # Project-specific memory
 │   ├── cursor/             # Cursor memory bank

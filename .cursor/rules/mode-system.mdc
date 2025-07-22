@@ -1,0 +1,222 @@
+---
+description: Military-grade development workflow using Strategic (meta-thinking), Tactical (planning), and Operational (execution) modes with unified todo/handoff documents.
+alwaysApply: true
+---
+
+# 🎯 STRATEGIC/TACTICAL/OPERATIONAL 3-MODE SYSTEM
+
+> **TL;DR:** A military-grade development workflow using:
+> - Strategic (meta-thinking)
+> - Tactical (planning)
+> - Operational (execution)
+>
+> All modes use unified todo/handoff documents.
+
+## 🎭🎨⚒️ **THE THREE MODES**
+
+### **🎭 STRATEGIC MODE** (Meta-Thinker/Orchestrator)
+
+**Purpose**: System-level thinking, workflow optimization, tool management
+
+**What They Do**:
+
+- Set up MCPs, install tools, configure environments
+- Reflect on workflows and optimize processes
+- Create and modify rules, templates, and systems
+- Orchestrate the overall development process
+- Analyze patterns and improve the meta-workflow
+
+**Mental State**: "What's our overall approach and how can we optimize it?"
+
+**Commands**: `🎭` or `strategic` or `meta`
+
+### **🎨 TACTICAL MODE** (Concrete Planner/Creative)
+
+**Purpose**: App-specific planning, design, and creative decisions
+
+**What They Do**:
+
+- Plan specific app features and requirements
+- Design UI/UX, architecture, data models
+- Create detailed implementation plans
+- Analyze options and make design decisions
+- Create unified todo/handoff documents
+
+**Mental State**: "How do we execute this strategy for this specific app?"
+
+**Commands**: `🎨` or `tactical` or `plan`
+
+### **⚒️ OPERATIONAL MODE** (Doer/Builder/Executor)
+
+**Purpose**: Implementation, testing, and execution
+
+**What They Do**:
+
+- Implement code based on tactical plans
+- Test and validate implementations
+- Update unified todo/handoff documents
+- Build, deploy, and maintain
+- Execute the concrete work
+
+**Mental State**: "Let's get this done!"
+
+**Commands**: `⚒️` or `operational` or `do`
+
+## 📋 **UNIFIED TODO/HANDOFF SYSTEM**
+
+### **Document Structure**: `memory/project/todo-handoff.md`
+
+```markdown
+# 📋 TODO/HANDOFF: [Project Name]
+
+## 🎭 STRATEGIC CONTEXT
+**Overall Approach**: [Strategic thinking and system-level decisions]
+**Workflow Optimization**: [Process improvements and tool setup]
+**Meta-Reflection**: [System-level insights and improvements]
+
+## 🎨 TACTICAL PLAN
+**App-Specific Strategy**: [How we're executing the strategy for this app]
+**Design Decisions**: [UI/UX, architecture, data model decisions]
+**Implementation Approach**: [Detailed plan for execution]
+
+## ⚒️ OPERATIONAL EXECUTION
+
+### Phase 1: [Phase Name]
+- [ ] Task 1 - [Description] - [Priority: High/Medium/Low]
+- [ ] Task 2 - [Description] - [Priority: High/Medium/Low]
+- [ ] Task 3 - [Description] - [Priority: High/Medium/Low]
+
+### Phase 2: [Phase Name]
+- [ ] Task 1 - [Description] - [Priority: High/Medium/Low]
+- [ ] Task 2 - [Description] - [Priority: High/Medium/Low]
+
+## 🔄 HANDOFF STATUS
+**Current Mode**: [Strategic/Tactical/Operational]
+**Last Updated**: [Timestamp]
+**Next Handoff**: [Expected handoff point]
+**Blockers**: [Any issues preventing progress]
+
+## 📊 PROGRESS TRACKING
+**Completed**: [X] of [Y] tasks
+**In Progress**: [Current task]
+**Next Up**: [Next task in queue]
+```
+
+## 🔄 **WORKFLOW PROCESS**
+
+```mermaid
+graph TD
+    Start["🎭 STRATEGIC MODE"] --> Strategic{"System Setup<br>& Optimization<br>Complete?"}
+    
+    Strategic -->|"No"| StrategicWork["Continue Strategic<br>Work"]
+    StrategicWork --> Strategic
+    
+    Strategic -->|"Yes"| Tactical["🎨 TACTICAL MODE"]
+    
+    Tactical --> TacticalPlan{"Tactical Plan<br>& Todos<br>Complete?"}
+    
+    TacticalPlan -->|"No"| TacticalWork["Continue Tactical<br>Planning"]
+    TacticalWork --> TacticalPlan
+    
+    TacticalPlan -->|"Yes"| Operational["⚒️ OPERATIONAL MODE"]
+    
+    Operational --> OperationalExec{"All Tasks<br>Complete?"}
+    
+    OperationalExec -->|"No"| OperationalWork["Continue Operational<br>Execution"]
+    OperationalWork --> OperationalExec
+    
+    OperationalExec -->|"Yes"| StrategicReflect["🎭 STRATEGIC MODE<br>Reflection"]
+    
+    StrategicReflect --> Strategic
+    
+    style Strategic fill:#4da6ff,stroke:#0066cc,color:white
+    style Tactical fill:#ffa64d,stroke:#cc7a30,color:white
+    style Operational fill:#4dbb5f,stroke:#36873f,color:white
+```
+
+## 🎯 **MODE TRANSITIONS**
+
+### **🎭 → 🎨 (Strategic to Tactical)**
+
+**Trigger**: Strategic planning complete, ready for tactical execution
+**Handoff**: Strategic context documented in todo/handoff.md
+**Focus**: Translate strategy into specific app plans
+
+### **🎨 → ⚒️ (Tactical to Operational)**
+
+**Trigger**: Tactical plan complete, todos ready for execution
+**Handoff**: Todos and implementation plan in todo/handoff.md
+**Focus**: Execute the planned work
+
+### **⚒️ → 🎭 (Operational to Strategic)**
+
+**Trigger**: All tasks complete, ready for reflection
+**Handoff**: Results and lessons learned in todo/handoff.md
+**Focus**: Reflect and optimize for next cycle
+
+## 📊 **PROGRESS TRACKING**
+
+### **Todo Status Indicators**
+
+- `[ ]` - Not started
+- `[🔄]` - In progress
+- `[✅]` - Completed
+- `[❌]` - Blocked/Cancelled
+- `[⚠️]` - Needs review
+
+### **Priority Levels**
+
+- **🔥 HIGH**: Critical path, blocking other work
+- **⚡ MEDIUM**: Important but not blocking
+- **💤 LOW**: Nice to have, can be deferred
+
+## 🚀 **CUSTOM COMMANDS**
+
+```
+🎭 "strategic" or "meta" → Strategic Mode
+🎨 "tactical" or "plan" → Tactical Mode
+⚒️ "operational" or "do" → Operational Mode
+📋 "todos" → Show current todo/handoff status
+🔄 "handoff" → Prepare handoff between modes
+📊 "progress" → Show progress summary
+```
+
+## 🎯 **BENEFITS OF THIS SYSTEM**
+
+### **✅ Military-Grade Planning**
+
+- Clear hierarchy: Strategic → Tactical → Operational
+- Systematic approach to complex problems
+- Proven framework for success
+
+### **✅ Unified Documentation**
+
+- Single source of truth for todos and handoffs
+- No lost context between mode transitions
+- Clear progress tracking and accountability
+
+### **✅ Natural Mental States**
+
+- Matches how developers actually think
+- Clear separation of concerns
+- Reduces cognitive overhead
+
+### **✅ Scalable and Flexible**
+
+- Works for simple and complex tasks
+- Adapts to different project types
+- Maintains context across modes
+
+## 📋 **IMPLEMENTATION CHECKLIST**
+
+- [ ] Create mode-specific instruction files
+- [ ] Set up unified todo/handoff document template
+- [ ] Design visual process maps for each mode
+- [ ] Implement custom commands
+- [ ] Create progress tracking system
+- [ ] Test mode transitions and handoffs
+- [ ] Document best practices and workflows
+
+---
+
+**Ready to implement this military-grade development system!** 🚀

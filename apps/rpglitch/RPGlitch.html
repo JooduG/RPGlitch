@@ -31,7 +31,7 @@
           <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
         </ul>
       </div>
-      <div id="top-bar-center" class="top-bar-section" style="flex: 1; display: flex; justify-content: center; align-items: center;">
+      <div id="top-bar-center" class="top-bar-section" style="flex: 0.3; display: flex; justify-content: center; align-items: center;">
         <div id="top-bar-notification-area" class="top-bar-notification-area-style"></div>
       </div>
       <div id="top-bar-right" class="top-bar-section">
@@ -46,6 +46,8 @@
         <ul>
           <li><button class="secondary" id="shuffle-button" _="on click call App._shuffleStoryboard()">Shuffle</button></li>
           <li><button class="primary" id="begin-story-button" _="on click call App.beginStory()">Begin Story</button></li>
+          <li><button class="secondary" id="form-cancel-button" style="display: none;">Cancel</button></li>
+          <li><button class="primary" id="form-save-button" style="display: none;">Save</button></li>
         </ul>
       </div>
     </nav>
@@ -60,11 +62,13 @@
           <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
         </ul>
       </div>
+      <div id="profile-top-bar-center" class="top-bar-section" style="flex: 0.1; display: flex; justify-content: center; align-items: center;">
+        <div id="profile-top-bar-notification-area" class="top-bar-notification-area-style"></div>
+      </div>
       <div id="profile-top-bar-right" class="top-bar-section">
         <ul>
-          <li><button class="secondary" id="profile-shuffle-button">Shuffle</button></li>
-          <li><button class="primary" id="profile-begin-story-button">Begin Story</button></li>
           <li><button class="secondary" id="profile-edit-button">Edit</button></li>
+          <li><button class="secondary danger" id="profile-delete-button" style="display: none;">Delete</button></li>
           <li><button class="primary" id="profile-back-button">Back</button></li>
         </ul>
       </div>
@@ -78,11 +82,13 @@
           <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
         </ul>
       </div>
+      <div id="world-profile-top-bar-center" class="top-bar-section" style="flex: 0.1; display: flex; justify-content: center; align-items: center;">
+        <div id="world-profile-top-bar-notification-area" class="top-bar-notification-area-style"></div>
+      </div>
       <div id="world-profile-top-bar-right" class="top-bar-section">
         <ul>
-          <li><button class="secondary" id="world-profile-shuffle-button">Shuffle</button></li>
-          <li><button class="primary" id="world-profile-begin-story-button">Begin Story</button></li>
           <li><button class="secondary" id="world-profile-edit-button">Edit</button></li>
+          <li><button class="secondary danger" id="world-profile-delete-button" style="display: none;">Delete</button></li>
           <li><button class="primary" id="world-profile-back-button">Back</button></li>
         </ul>
       </div>
@@ -96,11 +102,13 @@
           <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
         </ul>
       </div>
+      <div id="story-profile-top-bar-center" class="top-bar-section" style="flex: 0.1; display: flex; justify-content: center; align-items: center;">
+        <div id="story-profile-top-bar-notification-area" class="top-bar-notification-area-style"></div>
+      </div>
       <div id="story-profile-top-bar-right" class="top-bar-section">
         <ul>
-          <li><button class="secondary" id="story-profile-shuffle-button">Shuffle</button></li>
-          <li><button class="primary" id="story-profile-begin-story-button">Begin Story</button></li>
           <li><button class="secondary" id="story-profile-edit-button">Edit</button></li>
+          <li><button class="secondary danger" id="story-profile-delete-button" style="display: none;">Delete</button></li>
           <li><button class="primary" id="story-profile-back-button">Back</button></li>
         </ul>
       </div>
@@ -112,14 +120,14 @@
         <form role="search">
           <fieldset role="group">
             <input type="search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories">
-            <button type="submit" class="secondary chin-search-submit">Search</button>
+            <button type="submit" class="secondary">Search</button>
           </fieldset>
         </form>
         <div class="chin-actions-right">
-          <label for="upload-story-input" class="button secondary upload-label" style="cursor:pointer;" role="button" tabindex="0">
-            <span class="upload-label-text">Upload Story</span>
-            <input type="file" id="upload-story-input" aria-label="Upload Story" style="display:none;">
-          </label>
+          <button type="button" class="secondary" onclick="document.getElementById('upload-story-input').click();">
+            Upload Story
+          </button>
+          <input type="file" id="upload-story-input" aria-label="Upload Story" style="display:none;">
           <button id="new-story-button" class="secondary">New Story</button>
         </div>
       </div>
@@ -131,14 +139,14 @@
         <form role="search">
           <fieldset role="group">
             <input type="search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters">
-            <button type="submit" class="secondary chin-search-submit">Search</button>
+            <button type="submit" class="secondary">Search</button>
           </fieldset>
         </form>
         <div class="chin-actions-right">
-          <label for="upload-character-input" class="button secondary upload-label" style="cursor:pointer;" role="button" tabindex="0">
-            <span class="upload-label-text">Upload Character</span>
-            <input type="file" id="upload-character-input" aria-label="Upload Character" style="display:none;">
-          </label>
+          <button type="button" class="secondary" onclick="document.getElementById('upload-character-input').click();">
+            Upload Character
+          </button>
+          <input type="file" id="upload-character-input" aria-label="Upload Character" style="display:none;">
           <button id="create-character-button" class="secondary">Create Character</button>
         </div>
       </div>
@@ -174,14 +182,14 @@
         <form role="search">
           <fieldset role="group">
             <input type="search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds">
-            <button type="submit" class="secondary chin-search-submit">Search</button>
+            <button type="submit" class="secondary">Search</button>
           </fieldset>
         </form>
         <div class="chin-actions-right">
-          <label for="upload-world-input" class="button secondary upload-label" style="cursor:pointer;" role="button" tabindex="0">
-            <span class="upload-label-text">Upload World</span>
-            <input type="file" id="upload-world-input" aria-label="Upload World" style="display:none;">
-          </label>
+          <button type="button" class="secondary" onclick="document.getElementById('upload-world-input').click();">
+            Upload World
+          </button>
+          <input type="file" id="upload-world-input" aria-label="Upload World" style="display:none;">
           <button id="create-world-button" class="secondary">Create World</button>
         </div>
       </div>
@@ -191,12 +199,12 @@
     <div id="options-chin" class="top-bar-chin container hidden" data-chin="options">
       <!-- Options Chin Content -->
       <div class="chin-options-actions" style="display: flex; gap: 1rem; align-items: center; justify-content: space-between;">
-        <button id="download-backup-button" class="button secondary">Download Backup</button>
+        <button id="download-backup-button" class="secondary">Download Backup</button>
         <div class="chin-actions-right" style="display: flex; gap: 1rem; align-items: center;">
-          <label for="upload-backup-input" class="button secondary upload-label" style="cursor:pointer;" role="button" tabindex="0">
-            <span class="upload-label-text">Upload Backup</span>
-            <input type="file" id="upload-backup-input" aria-label="Upload Backup" style="display:none;">
-          </label>
+          <button type="button" class="secondary" onclick="document.getElementById('upload-backup-input').click();">
+            Upload Backup
+          </button>
+          <input type="file" id="upload-backup-input" aria-label="Upload Backup" style="display:none;">
           <button id="start-fresh-button" class="secondary danger">Start Fresh</button>
         </div>
       </div>

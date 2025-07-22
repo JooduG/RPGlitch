@@ -788,7 +788,7 @@ function checkDependencies() {
               stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, concluded',
               messages: '++id, storyId, timestamp, [storyId+timestamp]',
               worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, colorPalette'
-          }).upgrade(async () => {
+          }).upgrade(async tx => {
               // Migration logic remains the same
           });
       
@@ -1119,17 +1119,13 @@ function checkDependencies() {
           const nameHtml = `<h4 class="card-title-styled">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</h4>`;
           const descriptionHtml = item.description ? `<p class="card-description-styled">${this.sanitizeHtml(item.description)}</p>` : '';
           
-          // Footer
+          // Footer - only show for premade items, custom items have no buttons
           let footerHtml = '';
           if (item.isPremade) {
             const colorPalette = this.getColorPalette(item.colorPalette || 'slate_gray');
-            footerHtml = `<footer class="card-footer"><small style="background: ${colorPalette.colors.medium} !important;">Premade</small></footer>`;
-          } else {
-            footerHtml = `<footer class="card-footer">
-              <button class="secondary">Copy & Customize</button>
-              <button class="secondary">Edit</button>
-            </footer>`;
+            footerHtml = `<footer class="card-footer" style="display: flex !important; justify-content: flex-start !important;"><small style="background: ${colorPalette.colors.medium} !important;">Premade</small></footer>`;
           }
+          // Custom items have no footer buttons - they're accessed via the profile page
           
           const infoHtml = `
             <article class="card-info">
@@ -1155,7 +1151,7 @@ function checkDependencies() {
   
           article.innerHTML = `<div class="card-grid">${infoHtml}${pictureHtml}</div>`;
   
-          article.onclick = () => {
+          article.onclick = (e) => {
             if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover');
             const finalItemId = item.isPremade ? `premade_${config.itemType}:${item.id}` : item.id;
             this.switchToScreen(config.profileScreen, { itemId: finalItemId, itemType: config.itemType });
@@ -1232,7 +1228,7 @@ function checkDependencies() {
                   <span class="tag-right-aligned">${story.concluded ? '<span class="concluded-story-indicator">&#127937;</span>' : ''}</span>
               `;
       
-              itemEl.onclick = () => {
+              itemEl.onclick = (e) => {
                   this.ui.topBar.classList.remove('top-bar-interactive-hover');
                   this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: story.id });
               };
@@ -1453,7 +1449,7 @@ function checkDependencies() {
     
           // item card click handlers
           this.ui.storyProfilechatFeed.querySelectorAll('.story-profile-item-card').forEach(card => {
-              card.onclick = () => {
+              card.onclick = (e) => {
                   const itemId = card.dataset.itemId;
                   const itemType = card.dataset.itemType;
                   const itemConfig = this.CONSTANTS.ITEM_CONFIG[itemType];
@@ -1480,7 +1476,7 @@ function checkDependencies() {
           // Removed top bar title text
     
           let item = {};
-          if (isCreatingOrCopying) {
+          if (isCreating && !isCopying) {
               console.log("[App Navigation] Creation path - checking formData sources");
               if (options.formData && Object.keys(options.formData).length > 0) {
                   item = { ...options.formData };
@@ -1493,6 +1489,37 @@ function checkDependencies() {
                   item = {};
                   console.log("[App Navigation] Creating a truly new item, no prior data.");
               }
+          } else if (isCopying) {
+              console.log("[App Navigation] Copying path - fetching original item with ID:", options.itemId);
+              const originalItem = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
+              console.log("[App Navigation] Retrieved original item for copying:", originalItem);
+              console.log("[App Navigation] Original item name:", originalItem.name);
+              console.log("[App Navigation] Original item name type:", typeof originalItem.name);
+              console.log("[App Navigation] Original item name length:", originalItem.name.length);
+              
+              // Copy the original item data but remove the ID and timestamps to make it a new item
+              item = { ...originalItem };
+              delete item.id;
+              delete item.createdTimestamp;
+              delete item.lastModifiedTimestamp;
+              delete item.isPremade;
+              delete item.originalPremadeId;
+              
+              // Initialize form data with the copied item's data
+              this.createItemFormData = { 
+                  name: item.name,
+                  description: item.description,
+                  eternal: item.eternal,
+                  past: item.past,
+                  present: item.present,
+                  future: item.future,
+                  profilePicture: item.profilePicture,
+                  colorPalette: item.colorPalette || 'tech_blue'
+              };
+              console.log("[App Navigation] Copied item data for new item:", item);
+              console.log("[App Navigation] Copied item name:", item.name);
+              console.log("[App Navigation] Copied item name type:", typeof item.name);
+              console.log("[App Navigation] Copied item name length:", item.name.length);
           } else { 
               console.log("[App Navigation] Editing path - fetching item with ID:", options.itemId);
               item = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
@@ -1562,7 +1589,7 @@ function checkDependencies() {
           
           this.currentProfileViewItemId = itemId; 
       
-          // const isPremade = typeof itemId === 'string' && itemId.startsWith('premade_');
+          const isPremade = typeof itemId === 'string' && itemId.startsWith('premade_');
           const item = await this._getitemData(itemId, config.dbTableKey, config.getPremadesFn);
       
           if (!item) {
@@ -1598,6 +1625,8 @@ function checkDependencies() {
               };
           }
       
+          // Profile page name field is read-only - no handlers needed
+      
           // Removed event handlers for Back and Copy & Customize buttons - now handled in top bar
       },
     
@@ -1606,9 +1635,14 @@ function checkDependencies() {
           
           if (isEditing) {
               return `
-                  <div class="form-field-group full-width">
-                      <label for="${id}" class="field-label"><span class="main-label">${label}</span><span class="field-sublabel">${subLabel}</span></label>
+                  <div class="profile-field-row profile-field-${idSuffix.toLowerCase()}">
+                      <div class="profile-field-label">
+                          <span class="main-label">${label}</span>
+                          <span class="field-sublabel">${subLabel}</span>
+                      </div>
+                      <div class="profile-field-value">
                       <textarea id="${id}" placeholder="${san(placeholder)}" resize="auto">${san(value || '')}</textarea>
+                      </div>
                   </div>
               `;
           } else {
@@ -1629,21 +1663,14 @@ function checkDependencies() {
           const { itemType, labels } = config;
       
           // --- PROFILE PICTURE/PLACEHOLDER LOGIC ---
-          // const profilePictureSrc = (item.profilePicture && item.profilePicture.trim()) ? item.profilePicture.trim() : this._makeProfilePicturePlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
+          const profilePictureSrc = (item.profilePicture && item.profilePicture.trim()) ? item.profilePicture.trim() : this._makeProfilePicturePlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
                       // console.log("[DEBUG] item.profilePicture:", item.profilePicture, "profilePictureSrc:", profilePictureSrc); // Debug profilePicture source
     
           const profilePictureHtml = this._generateProfilePictureHtml(item, 'profile'); // Use the new helper function
     
           // --- FORM ACTION BUTTONS ---
-          // Form action buttons (save/cancel/delete) are now handled in the top bar for edit/create screens
-          const formActions = isEditing ? `
-              <div class="profile-action-buttons">
-                  <!-- Form action buttons moved to top bar -->
-              </div>` 
-              : `
-              <div class="profile-action-buttons">
-                  <!-- Removed Back and Copy & Customize buttons - now available in top bar -->
-              </div>`;
+          // Buttons moved to top bar - no longer needed in form
+          const formActions = '';
     
           // --- BACKGROUND PROFILE PICTURE LAYOUT ---
                       // console.log("[DEBUG] isEditing for EPPF fields:", isEditing); // Debug isEditing flag
@@ -1665,16 +1692,13 @@ function checkDependencies() {
                           ${isEditing ? `
                               <!-- Edit Mode: Form Fields -->
                               <form class="edit-form-content">
-                                  <div class="form-section profile-picture-edit-section">
-                                      <button type="button" class="options-button" id="uploadProfilePictureButtonForm-${itemType}"><span class="button-text">Upload / Generate Profile Picture</span><span class="button-icon">\u2728</span></button>
-                                  </div>
                                   <div class="form-section traits-section">
-                                      <div class="form-field-group full-width">
-                                          <label for="${itemType}Name" class="field-label"><span class="main-label">${labels.name}</span></label>
-                                          <input class="studio-name-input-large" id="${itemType}Name" value="${san(item.name || '')}" placeholder="${config.capital} name" autocomplete="off">
+                                      <div class="profile-header-section">
+                                          <div class="name-input-container" style="position: relative;">
+                                              <input type="text" class="studio-name-input-large studio-profile-name" id="${itemType}Name" placeholder="${config.capital} Name" value="${item.name && item.name.trim() ? item.name : ''}" style="background: rgba(255, 255, 255, 0.1); min-height: 3rem; cursor: text; width: 100%; box-sizing: border-box;">
                                       </div>
-                                      <div class="form-field-group full-width">
-                                          <label for="${itemType}Description" class="field-label"><span class="main-label">${labels.description}</span></label>
+                                      </div>
+                                      <div class="profile-field-value profile-description-field">
                                           <textarea id="${itemType}Description" placeholder="${labels.descriptionPlaceholder}">${san(item.description || '')}</textarea>
                                       </div>
                                   </div>
@@ -1684,16 +1708,16 @@ function checkDependencies() {
                                       ${this._renderEppfField("Present", "Current Mood & Conditions", `${itemType}Present`, item.present, labels.presentPlaceholder, isEditing, san)}
                                       ${this._renderEppfField("Future", "Goals & Prophecies", `${itemType}Future`, item.future, labels.futurePlaceholder, isEditing, san)}
                                   </div>
-                                  <div class="profile-action-buttons">
-                                      ${formActions}
+                                  <div class="form-section profile-picture-edit-section">
+                                      <button type="button" class="secondary" id="uploadProfilePictureButtonForm-${itemType}"><span class="button-text">Upload / Generate Profile Picture</span></button>
                                   </div>
                               </form>
                           ` : `
                               <!-- Profile View: Display Only -->
                               <div class="profile-header-section">
                                   <h2 class="studio-profile-name">${san(item.name || 'Unnamed')}</h2>
-                                  <div class="profile-description">${san(item.description || 'No description provided.')}</div>
                               </div>
+                              <div class="profile-field-value profile-description-field">${san(item.description || 'No description provided.')}</div>
                               
                               <div class="profile-details-section">
                                   <div class="profile-details-grid">
@@ -1774,6 +1798,9 @@ function checkDependencies() {
         const formElements = this._setupFormElements(container, itemType);
         if (!formElements) return;
     
+        // Phase 1: Contenteditable Name Field Handlers (like storyboard title)
+        this._attachContenteditableNameHandlers(formElements, itemType);
+    
         // Phase 2: Profile PictureSystem Event Handlers
         this._attachProfilePictureEventHandlers(formElements, itemType);
     
@@ -1803,6 +1830,37 @@ function checkDependencies() {
                   this._updateFormColorPreview(container, selectedKey);
               };
           });
+      },
+    
+      _attachContenteditableNameHandlers(elements, itemType) {
+          const { nameInput } = elements;
+          if (!nameInput) return;
+          
+          // Handle input to save changes
+          nameInput.oninput = () => {
+              const newName = nameInput.value.trim();
+              if (newName) {
+                  // Update the form data
+                  this.createItemFormData.name = newName;
+              }
+          };
+          
+          // Handle blur to save changes
+          nameInput.onblur = () => {
+              const newName = nameInput.value.trim();
+              if (newName) {
+                  // Update the form data
+                  this.createItemFormData.name = newName;
+              }
+          };
+          
+          // Handle Enter key to finish editing
+          nameInput.onkeydown = (e) => {
+              if (e.key === 'Enter') {
+                  e.preventDefault();
+                  nameInput.blur();
+              }
+          };
       },
     
       _setupFormElements(container, itemType) {
@@ -1862,20 +1920,7 @@ function checkDependencies() {
       _attachFormActionHandlers(elements, itemType, item, isCreating) {
           const { config, form } = elements;
     
-          // Delete button handler (only for editing)
-          if (!isCreating) {
-              const deleteButton = form.querySelector(`#delete${config.capital}ButtonMain`);
-              if (deleteButton) {
-                  deleteButton.onclick = async () => {
-                      if (confirm(`Delete ${itemType} "${item.name || `this ${itemType}`}"? This will remove it from lists but keep it in existing stories.`)) { 
-                          await this.db.messages.where({ storyId: item.id }).delete(); // Use item.id for messages
-                          await this.db.stories.delete(item.id); // Delete item itself
-                          this.showTopNotification(`${config.capital} deleted (archived).`, 'success');
-                          this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-                      }
-                  };
-              }
-          }
+          // Delete button removed from forms - will be handled in profile top bar for custom items only
     
           // Cancel button handler
           this._attachCancelButtonHandler(elements, itemType);
@@ -1906,7 +1951,7 @@ function checkDependencies() {
                   return;
               }
               
-              const { id, itemType, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId, originalScreen } = this.currentCreateFormContext; // Add originalScreen
+              const { id, itemType, isCreating, isCopying, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId, originalScreen } = this.currentCreateFormContext;
               this.createItemFormData = {};
               
               // Clear any pending form state from session storage when canceling
@@ -1916,20 +1961,46 @@ function checkDependencies() {
                   console.warn("Failed to clear session storage on cancel:", e);
               } 
               
-              // Filter out 'create_new_' values to prevent infinite loop when returning to storyboard
-              const navOptions = { 
-                  preSelectedAiCharacterId: preSelectedAiCharacterId?.startsWith?.('create_new_') ? '' : preSelectedAiCharacterId, 
-                  preSelectedUserCharacterId: preSelectedUserCharacterId?.startsWith?.('create_new_') ? '' : preSelectedUserCharacterId, 
-                  preSelectedWorldId: preSelectedWorldId?.startsWith?.('create_new_') ? '' : preSelectedWorldId 
-              };
-              let targetScreen = originalScreen || this.CONSTANTS.VIEWS.STORYBOARD; // Use original screen, fallback to storyboard
-    
-              if (targetScreen === config.profileScreen) {
-                  navOptions.itemId = id;
-                  navOptions.itemType = itemType;
-              } else if (targetScreen === this.CONSTANTS.VIEWS.STORY_PROFILE) {
-                  navOptions.storyId = this.currentStoryId;
-              } // Else targetScreen remains storyboard and options are only preSelected...
+              // Get config for this item type
+              const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+              
+              console.log("[CANCEL DEBUG] Form context:", { 
+                  id, itemType, isCreating, isCopying, originalScreen, 
+                  currentCreateFormContext: this.currentCreateFormContext 
+              });
+              
+              // Determine where to go based on the context
+              let targetScreen;
+              let navOptions = {};
+              
+              if (isCreating && !isCopying) {
+                  // If creating new (not copying), go back to storyboard
+                  targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
+                  // Filter out 'create_new_' values to prevent infinite loop
+                  navOptions = { 
+                      preSelectedAiCharacterId: preSelectedAiCharacterId?.startsWith?.('create_new_') ? '' : preSelectedAiCharacterId, 
+                      preSelectedUserCharacterId: preSelectedUserCharacterId?.startsWith?.('create_new_') ? '' : preSelectedUserCharacterId, 
+                      preSelectedWorldId: preSelectedWorldId?.startsWith?.('create_new_') ? '' : preSelectedWorldId 
+                  };
+                  console.log("[CANCEL DEBUG] Creating new, going to storyboard");
+              } else if (isCopying) {
+                  // If copying, go back to the original screen we came from
+                  if (originalScreen && originalScreen !== this.CONSTANTS.VIEWS.STORYBOARD) {
+                      targetScreen = originalScreen;
+                      navOptions = { itemId: id, itemType: itemType };
+                      console.log("[CANCEL DEBUG] Copying cancelled, returning to original screen:", { originalScreen, itemId: id, itemType: itemType });
+              } else {
+                      // Fallback to profile screen if no original screen
+                  targetScreen = config.profileScreen;
+                  navOptions = { itemId: id, itemType: itemType };
+                      console.log("[CANCEL DEBUG] Copying cancelled, fallback to profile:", { itemId: id, itemType: itemType });
+                  }
+              } else {
+                  // If editing existing item, go back to its profile page
+                  targetScreen = config.profileScreen;
+                  navOptions = { itemId: id, itemType: itemType };
+                  console.log("[CANCEL DEBUG] Editing, going to profile:", { itemId: id, itemType: itemType });
+              }
     
               this.switchToScreen(targetScreen, navOptions);
           };
@@ -1973,72 +2044,9 @@ function checkDependencies() {
               }
           };
       },
-
-      _attachTopBarFormActionHandlers(itemType) {
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          if (!config) return;
-          
-          // Cancel button handler
-          const cancelButton = document.getElementById(`cancel${config.capital}ButtonTopBar`);
-          if (cancelButton) {
-              cancelButton.onclick = (e) => {
-                  e.preventDefault();
-                  
-                  // Clear any pending form state from session storage when canceling
-                  try {
-                      sessionStorage.removeItem('pendingRPGlitchFormState');
-                  } catch (e) {
-                      console.warn("Failed to clear session storage on cancel:", e);
-                  }
-                  
-                  // Navigate back to the appropriate screen
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-              };
-          }
-          
-          // Delete button handler (only for custom items)
-          const deleteButton = document.getElementById(`delete${config.capital}ButtonTopBar`);
-          if (deleteButton) {
-              deleteButton.onclick = async (e) => {
-                  e.preventDefault();
-                  
-                  // Get the current item data
-                  const item = await this._getitemData(this.currentProfileViewItemId, config.dbTableKey, config.getPremadesFn);
-                  if (!item) {
-                      this.showTopNotification(`Error: ${config.capital} not found for deletion.`, "error");
-                      return;
-                  }
-                  
-                  if (confirm(`Delete ${itemType} "${item.name || `this ${itemType}`}"? This will remove it from lists but keep it in existing stories.`)) {
-                      await this.db.messages.where({ storyId: item.id }).delete();
-                      await this.db.stories.delete(item.id);
-                      this.showTopNotification(`${config.capital} deleted (archived).`, 'success');
-                      this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-                  }
-              };
-          }
-          
-          // Save button handler
-          const saveButton = document.getElementById(`submit${config.capital}ButtonTopBar`);
-          if (saveButton) {
-              saveButton.onclick = async (e) => {
-                  e.preventDefault();
-                  
-                  // Find the form and trigger submission
-                  const form = document.querySelector(`#${itemType}FormMain form`);
-                  if (form) {
-                      // Trigger the form submit event
-                      const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                      form.dispatchEvent(submitEvent);
-                  } else {
-                      this.showTopNotification(`Error: Form not found for ${itemType}.`, "error");
-                  }
-              };
-          }
-      },
     
       async _processFormSubmission(elements, itemType) {
-          const { config, nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
+          const { config, form, nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
           const isCreating = this.currentCreateFormContext.isCreating; // Use this flag from context
     
           const id = this.currentCreateFormContext.itemId; // For editing, keep original ID
@@ -2078,24 +2086,12 @@ function checkDependencies() {
               console.warn("Failed to clear session storage on successful form submission:", e);
           }
           
-          // Navigate based on whether we're in a story setup or a general create/edit flow
-          const { preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId, originalScreen } = this.currentCreateFormContext;
-          if (originalScreen === this.CONSTANTS.VIEWS.STORYBOARD) {
-              // If we came from storyboard, update the select dropdowns and stay on storyboard
-              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD, {
-                  preSelectedAiCharacterId: preSelectedAiCharacterId,
-                  preSelectedUserCharacterId: preSelectedUserCharacterId,
-                  preSelectedWorldId: preSelectedWorldId,
-                  selectAfterCreation: { itemType: itemType, newId: result } // Used to pre-select the newly created item
-              });
-          } else {
-              // Otherwise, go back to the profile screen for the edited/created item
-              this.switchToScreen(config.profileScreen, { itemId: result, itemType: itemType });
-          }
+          // Always navigate to the profile page of the created/edited item
+          this.switchToScreen(config.profileScreen, { itemId: result, itemType: itemType });
       },
     
       _attachAiHelperHandlers(elements, itemType) {
-          const { descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
+          const { form, nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput, aiHelpProfilePicturePromptButton } = elements;
           const config = this.CONSTANTS.ITEM_CONFIG[itemType];
     
           // Array of fields with AI buttons
@@ -2428,15 +2424,19 @@ function checkDependencies() {
               case this.CONSTANTS.VIEWS.WORLD_FORM: {
                   this.focusBarState.mode = 'storyboard'; // Keep storyboard tab active for forms
                   // Determine itemType from screen name
-                  // const itemType = screenName === this.CONSTANTS.VIEWS.CHARACTER_FORM ? 'character' : 'world';
+                  const itemType = screenName === this.CONSTANTS.VIEWS.CHARACTER_FORM ? 'character' : 'world';
                   this.currentCreateFormContext = {
                       originalScreen: options.originalScreen, // Where did we come from?
                       itemId: options.itemId, // For edit workflow
                       itemType: itemType,
+                      isCreating: options.isCreating, // For create workflow
+                      isCopying: options.isCopying, // For copy workflow
+                      isEditing: options.isEditing, // For edit workflow
                       preSelectedAiCharacterId: options.preSelectedAiCharacterId,
                       preSelectedUserCharacterId: options.preSelectedUserCharacterId,
                       preSelectedWorldId: options.preSelectedWorldId
                   };
+
                   await this.renderFormScreen({ ...options, itemType });
                   break;
               }
@@ -3274,12 +3274,10 @@ function checkDependencies() {
     
       checkAllButtonStates() {
           // Only enable begin story button if all selects have a valid (non-empty, non-create_new) selection
-          const aiSelect = this.ui.storyboardAiCharacterSelect;
-          const userSelect = this.ui.storyboardUserCharacterSelect;
-          const worldSelect = this.ui.storyboardWorldSelect;
-          const aiSelected = aiSelect && aiSelect.value && !aiSelect.value.startsWith('create_new_');
-          const userSelected = userSelect && userSelect.value && !userSelect.value.startsWith('create_new_');
-          const worldSelected = worldSelect && worldSelect.value && !worldSelect.value.startsWith('create_new_');
+          // Use storyboardSelected object for consistency
+          const aiSelected = this.storyboardSelected && this.storyboardSelected.ai && !this.storyboardSelected.ai.startsWith('create_new_');
+          const userSelected = this.storyboardSelected && this.storyboardSelected.user && !this.storyboardSelected.user.startsWith('create_new_');
+          const worldSelected = this.storyboardSelected && this.storyboardSelected.world && !this.storyboardSelected.world.startsWith('create_new_');
     
           if (this.ui.beginStoryButton) {
               this.ui.beginStoryButton.disabled = !(aiSelected && userSelected && worldSelected);
@@ -4150,6 +4148,8 @@ function checkDependencies() {
               this.CONSTANTS.VIEWS.CHARACTER_FORM,
               this.CONSTANTS.VIEWS.WORLD_FORM
             ].includes(this.currentMainView);
+
+            const isStoryboardScreen = this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD;
   
                       // console.log('[DEBUG] isProfileScreen:', isProfileScreen);
           // console.log('[DEBUG] currentMainView:', this.currentMainView);
@@ -4161,29 +4161,121 @@ function checkDependencies() {
               this.ui.topBar.classList.toggle('hidden', isProfileScreen);
               // console.log('[DEBUG] Main Top Bar hidden:', this.ui.topBar.classList.contains('hidden'));
               
-                          // For form screens, ensure the main top bar is visible and add form action buttons
-            if (isFormScreen) {
-              this.ui.topBar.classList.remove('hidden');
-              
-              // Add form action buttons to the top bar for edit/create screens
-              const topBarCenter = this.ui.topBar.querySelector('.top-bar-center');
-              if (topBarCenter) {
-                // Determine if this is a custom (non-premade) item for delete button
-                const isCustomItem = this.currentProfileViewItemId && !this.currentProfileViewItemId.startsWith('premade_');
-                const itemType = this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_FORM ? 'Character' : 'World';
-                
-                topBarCenter.innerHTML = `
-                  <div class="form-top-bar-actions">
-                    <button type="button" id="cancel${itemType}ButtonTopBar" class="secondary-action-button">Cancel</button>
-                    ${isCustomItem ? `<button type="button" id="delete${itemType}ButtonTopBar" class="delete-button">Delete</button>` : ''}
-                    <button type="submit" id="submit${itemType}ButtonTopBar" class="primary-action-button">Save</button>
-                  </div>
-                `;
-                
-                // Attach event handlers for the top bar buttons
-                this._attachTopBarFormActionHandlers(itemType.toLowerCase());
+              // For form screens, ensure the main top bar is visible
+              if (isFormScreen) {
+                this.ui.topBar.classList.remove('hidden');
               }
-            }
+
+              // Handle shuffle and begin story buttons - only show on storyboard
+              const shuffleButton = this.ui.topBar.querySelector('#shuffle-button');
+              const beginStoryButton = this.ui.topBar.querySelector('#begin-story-button');
+              
+              if (shuffleButton) {
+                shuffleButton.style.display = isStoryboardScreen ? 'inline-block' : 'none';
+              }
+              if (beginStoryButton) {
+                beginStoryButton.style.display = isStoryboardScreen ? 'inline-block' : 'none';
+              }
+
+              // Handle cancel and save buttons for form screens
+              const cancelButton = this.ui.topBar.querySelector('#form-cancel-button');
+              const saveButton = this.ui.topBar.querySelector('#form-save-button');
+              
+                          if (cancelButton) {
+              cancelButton.style.display = isFormScreen ? 'inline-block' : 'none';
+              // Also hide the parent li element to prevent spacing issues
+              const cancelLi = cancelButton.closest('li');
+              if (cancelLi) {
+                cancelLi.style.display = isFormScreen ? 'inline-block' : 'none';
+              }
+                // Wire up cancel button for form screens
+                if (isFormScreen) {
+                  cancelButton.onclick = (e) => {
+                    // Use the existing cancel handler logic directly
+                    if (!this.currentCreateFormContext || Object.keys(this.currentCreateFormContext).length === 0) {
+                      App.handleError('FORM_CONTEXT_ERROR', new Error('Missing form context during cancel operation'));
+                      this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+                      return;
+                    }
+                    
+                    const { itemId, itemType, isCreating, isCopying, isEditing, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId, originalScreen } = this.currentCreateFormContext;
+                    this.createItemFormData = {};
+                    
+                    // Clear any pending form state from session storage when canceling
+                    try {
+                      sessionStorage.removeItem('pendingRPGlitchFormState');
+                    } catch (e) {
+                      console.warn("Failed to clear session storage on cancel:", e);
+                    } 
+                    
+                    // Determine where to go based on the context
+                    let targetScreen;
+                    let navOptions = {};
+                    
+                    if (isCreating && !isCopying) {
+                      // If creating new (not copying), go back to storyboard
+                      targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
+                      // Filter out 'create_new_' values to prevent infinite loop
+                      navOptions = { 
+                          preSelectedAiCharacterId: preSelectedAiCharacterId?.startsWith?.('create_new_') ? '' : preSelectedAiCharacterId, 
+                          preSelectedUserCharacterId: preSelectedUserCharacterId?.startsWith?.('create_new_') ? '' : preSelectedUserCharacterId, 
+                          preSelectedWorldId: preSelectedWorldId?.startsWith?.('create_new_') ? '' : preSelectedWorldId 
+                      };
+                    } else if (isCopying) {
+                      // If copying, go back to the original screen we came from
+                      if (originalScreen && originalScreen !== this.CONSTANTS.VIEWS.STORYBOARD) {
+                        targetScreen = originalScreen;
+                        navOptions = { itemId: itemId, itemType: itemType };
+                        console.log("[TOP BAR CANCEL DEBUG] Copying cancelled, returning to original screen:", { originalScreen, itemId: itemId, itemType: itemType });
+                      } else {
+                        // Fallback to profile screen if no original screen
+                      const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+                      targetScreen = config.profileScreen;
+                        navOptions = { itemId: itemId, itemType: itemType };
+                        console.log("[TOP BAR CANCEL DEBUG] Copying cancelled, fallback to profile:", { itemId: itemId, itemType: itemType });
+                      }
+                    } else if (isEditing) {
+                      // If editing existing item, go back to the profile page
+                      const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+                      targetScreen = config.profileScreen;
+                      navOptions = { itemId: itemId, itemType: itemType };
+                    } else {
+                      // Fallback - go back to where we came from or profile page
+                      if (originalScreen && originalScreen !== this.CONSTANTS.VIEWS.STORYBOARD) {
+                        targetScreen = originalScreen;
+                        navOptions = { itemId: itemId, itemType: itemType };
+                      } else {
+                        const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+                        targetScreen = config.profileScreen;
+                        navOptions = { itemId: itemId, itemType: itemType };
+                      }
+                    }
+            
+                    this.switchToScreen(targetScreen, navOptions);
+                  };
+                }
+              }
+              if (saveButton) {
+                saveButton.style.display = isFormScreen ? 'inline-block' : 'none';
+                // Also hide the parent li element to prevent spacing issues
+                const saveLi = saveButton.closest('li');
+                if (saveLi) {
+                  saveLi.style.display = isFormScreen ? 'inline-block' : 'none';
+                }
+                // Wire up save button for form screens
+                if (isFormScreen) {
+                  saveButton.onclick = (e) => {
+                    // Trigger the existing form submission
+                    const formScreen = document.getElementById('character-form-screen') || document.getElementById('world-form-screen');
+                    if (formScreen) {
+                      const form = formScreen.querySelector('form');
+                      if (form) {
+                        form.dispatchEvent(new Event('submit', { bubbles: true }));
+                      }
+                    }
+                  };
+                }
+              }
             }
             if (this.ui.profileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE;
@@ -4267,18 +4359,6 @@ function checkDependencies() {
           titleArea.innerHTML = `<h2 class="profile-top-bar-title">${item.name || `${config.capital} Profile`}</h2>`;
           // console.log('[DEBUG] Profile Top Bar Title set to:', item.name || `${config.capital} Profile`);
         }
-
-        // Show/hide shuffle and begin story buttons based on whether item is premade
-        const isPremade = typeof itemId === 'string' && itemId.startsWith('premade_');
-        const shuffleButton = topBarElement.querySelector(`#${itemType}-profile-shuffle-button`);
-        const beginStoryButton = topBarElement.querySelector(`#${itemType}-profile-begin-story-button`);
-        
-        if (shuffleButton) {
-          shuffleButton.style.display = isPremade ? 'inline-block' : 'none';
-        }
-        if (beginStoryButton) {
-          beginStoryButton.style.display = isPremade ? 'inline-block' : 'none';
-        }
   
         // Update user character info (always present if a user character is selected)
         const userCharInfo = topBarElement.querySelector('.top-bar-user-character-info');
@@ -4348,14 +4428,62 @@ function checkDependencies() {
           
           editButton.onclick = () => {
             if (itemType === 'character') {
-              this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, { itemId, isCreating: false });
+              this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, { 
+                itemId, 
+                isCreating: isPremade, 
+                isCopying: isPremade,
+                isEditing: !isPremade, // true for custom items, false for premade
+                originalScreen: this.CONSTANTS.VIEWS.CHARACTER_PROFILE // Track where we came from
+              });
             } else if (itemType === 'world') {
-              this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, { itemId, isCreating: false });
+              this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, { 
+                itemId, 
+                isCreating: isPremade, 
+                isCopying: isPremade,
+                isEditing: !isPremade, // true for custom items, false for premade
+                originalScreen: this.CONSTANTS.VIEWS.WORLD_PROFILE // Track where we came from
+              });
             } else if (itemType === 'story') {
               // For stories, we might want to open the story in edit mode
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
             }
           };
+        }
+
+        // Add delete button for custom items only (not premade)
+        const deleteButton = topBarElement.querySelector('#profile-delete-button') || topBarElement.querySelector('#world-profile-delete-button') || topBarElement.querySelector('#story-profile-delete-button');
+        if (deleteButton) {
+          const isPremade = item.isPremade || false;
+          // Also hide the parent li element to prevent spacing issues
+          const deleteLi = deleteButton.closest('li');
+          
+          if (!isPremade) {
+            // Show delete button for custom items only
+            deleteButton.style.display = 'inline-block';
+            if (deleteLi) {
+              deleteLi.style.display = 'inline-block';
+            }
+            deleteButton.onclick = async () => {
+              if (confirm(`Delete ${itemType} "${item.name || `this ${itemType}`}"? This will remove it from lists but keep it in existing stories.`)) {
+                if (itemType === 'character') {
+                  await this.db.characters.delete(itemId);
+                } else if (itemType === 'world') {
+                  await this.db.worlds.delete(itemId);
+                } else if (itemType === 'story') {
+                  await this.db.messages.where({ storyId: itemId }).delete();
+                  await this.db.stories.delete(itemId);
+                }
+                this.showTopNotification(`${config.capital} deleted.`, 'success');
+                this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+              }
+            };
+          } else {
+            // Hide delete button for premade items
+            deleteButton.style.display = 'none';
+            if (deleteLi) {
+              deleteLi.style.display = 'none';
+            }
+          }
         }
         
         const backButton = topBarElement.querySelector('#profile-back-button') || topBarElement.querySelector('#world-profile-back-button') || topBarElement.querySelector('#story-profile-back-button');
@@ -4444,25 +4572,6 @@ function checkDependencies() {
           };
           const beginStoryBtn = document.getElementById('begin-story-button');
           if (beginStoryBtn) beginStoryBtn.onclick = () => this.beginStory();
-          
-          // Wire up profile shuffle and begin story buttons
-          const profileShuffleBtn = document.getElementById('profile-shuffle-button');
-          if (profileShuffleBtn) profileShuffleBtn.onclick = () => this._shuffleStoryboard();
-          
-          const profileBeginStoryBtn = document.getElementById('profile-begin-story-button');
-          if (profileBeginStoryBtn) profileBeginStoryBtn.onclick = () => this.beginStory();
-          
-          const worldProfileShuffleBtn = document.getElementById('world-profile-shuffle-button');
-          if (worldProfileShuffleBtn) worldProfileShuffleBtn.onclick = () => this._shuffleStoryboard();
-          
-          const worldProfileBeginStoryBtn = document.getElementById('world-profile-begin-story-button');
-          if (worldProfileBeginStoryBtn) worldProfileBeginStoryBtn.onclick = () => this.beginStory();
-          
-          const storyProfileShuffleBtn = document.getElementById('story-profile-shuffle-button');
-          if (storyProfileShuffleBtn) storyProfileShuffleBtn.onclick = () => this._shuffleStoryboard();
-          
-          const storyProfileBeginStoryBtn = document.getElementById('story-profile-begin-story-button');
-          if (storyProfileBeginStoryBtn) storyProfileBeginStoryBtn.onclick = () => this.beginStory();
           
           // Wire up search functionality with real-time updates
           this._setupSearchHandlers();

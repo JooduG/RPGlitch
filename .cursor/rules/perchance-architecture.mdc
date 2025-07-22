@@ -1,0 +1,100 @@
+---
+description: High-level structure and principles for Perchance apps and generators.
+tags: ["perchance", "architecture", "css", "js", "html"]
+globs: **/apps/**
+---
+
+# Perchance Architecture
+
+## Scope
+
+- Covers the high-level structure of Perchance apps and generators.
+- Outlines platform-specific constraints and requirements.
+- References related rules for plugins, CSS, and storage.
+- Serves as a living, evolving reference—update as new patterns or resources emerge.
+
+---
+
+## Core Principles
+
+- **Client-Side Only:** All code (HTML, CSS, JS) runs in the browser. No server-side execution.
+- **Single-File Output:** For deployment, all CSS and JS must be merged into single files for copy-paste into Perchance’s editor fields.
+- **No Package Manager:** All dependencies must be inlined or loaded via `<script>` tags (if allowed).
+- **Sandboxed Execution:** User code is sandboxed for security. No direct access to server-side resources or the file system.
+- **Modular Organization:** Separate logic, UI, and data handling for maintainability and extensibility.
+
+---
+
+## Key Components
+
+- **Panels:**  
+  - *Left Panel*: Plugin initialization, extension points.
+  - *Right Panel*: Core app logic, user interaction.
+- **Global App Object:**  
+    Expose core logic via a global object for plugin access and extensibility.
+- **Plugin System:**  
+    Support for user-created plugins that extend generator functionality (see Plugin System rule).
+- **Persistent Storage:**  
+    Use IndexedDB (via Dexie.js) or the Remember Plugin for client-side persistence.
+- **Atomic CSS:**  
+    Use utility-first CSS for maintainability and minimal bloat (see CSS Principles rule).
+
+---
+
+## Example Structure
+
+```text
+apps/
+├── RPGlitch/
+│   ├── RPGlitch.html
+│   ├── RPGlitch.js
+│   └── RPGlitch.css
+├── memory-bank/
+│   └── designSystem.md
+├── .cursor/rules/
+│   └── perchance-architecture.mdc
+└── atomic-css/
+    └── atomic-utilities.css
+```
+
+- Keep app logic, UI, and styles modular during development; merge for deployment.
+- Use a global `App` object for extensibility and plugin access.
+
+---
+
+## Design Patterns
+
+- **Separation of Concerns:**  
+    Keep UI, logic, and data management in separate modules/files.
+- **Extensibility:**  
+    Design with plugin hooks and global access points.
+- **Minimal Global State:**  
+    Only expose what’s needed for plugins or debugging.
+
+---
+
+## Related Rules
+
+- [Pico.css Usage](./scss-pico-usage.mdc)
+- [big sky Hyperscript Usage](./hyperscript-usage.mdc)
+- [Cash DOM Usage](./cash-dom-usage.mdc)
+- [Dexie.js Usage](./dexie-usage.mdc)
+- [Perchance Plugin System](./perchance-plugin-system.mdc)
+- [Perchance Development Workflow](./perchance-development-workflow.mdc)
+- [Perchance Build & Deployment](./perchance-build-deployment.mdc)
+- [HTML Development](./html-development.mdc)
+- [JavaScript Development](./js-development.mdc)
+- [IndexedDB Principles](./js-indexeddb-principles.mdc)
+- [SCSS Development](./scss-development.mdc)
+
+---
+
+## References & Inspiration
+
+- [Perchance Welcome](https://perchance.org/welcome)
+- [Perchance Tutorial](https://perchance.org/tutorial)
+- [Perchance Advanced Tutorial](https://perchance.org/advanced-tutorial)
+- [Burg’s Dynamic Story Generator](https://perchance.org/burgs-dynamic-story-generator)
+- [Petra’s Perchance Shortbook](https://rentry.org/rkybfefo/edit)
+- [Perchance Examples](https://perchance.org/examples)
+- [Perchance Snippets](https://perchance.org/perchance-snippets)

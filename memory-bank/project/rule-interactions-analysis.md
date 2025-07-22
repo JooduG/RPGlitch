@@ -1,10 +1,10 @@
 # 🔍 RULE INTERACTIONS ANALYSIS
 
-> **TL;DR:** Comprehensive analysis of interactions, conflicts, and synergy opportunities between different rule systems in the config/.cursor/rules directory.
+> **TL;DR:** Comprehensive analysis of interactions, conflicts, and synergy opportunities between different rule systems in the .cursor/rules directory.
 
 ## 🎯 **OVERVIEW**
 
-This analysis examines the rule systems in `config/.cursor/rules/` to identify:
+This analysis examines the rule systems in `.cursor/rules/` to identify:
 
 - **Interactions** between different rule approaches
 - **Conflicts** that need resolution
