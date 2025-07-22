@@ -123,7 +123,7 @@ export class DatabaseManager {
     async getItemData(id, dbTableKey, getPremadesFn) {
         // Check if database is initialized
         if (!this.db) {
-            // Database not initialized yet, skipping getItemData
+            console.warn('[DEBUG] Database not initialized yet, skipping getItemData');
             return null;
         }
         
@@ -164,7 +164,7 @@ export class DatabaseManager {
         
         // Check if database is initialized
         if (!this.db) {
-            // Database not initialized yet, skipping populateList
+            console.warn('[DEBUG] Database not initialized yet, skipping populateList');
             listArea.innerHTML = '<p class="list-item-empty-message">Loading...</p>';
             return;
         }
@@ -250,7 +250,7 @@ export class DatabaseManager {
      */
     async loadAllData() {
         if (!this.db) {
-            // Database not initialized yet, skipping loadAllData
+            console.warn('[DEBUG] Database not initialized yet, skipping loadAllData');
             return;
         }
 
@@ -267,7 +267,7 @@ export class DatabaseManager {
      */
     async exportAllData() {
         if (!this.db) {
-            // Database not initialized yet, skipping exportAllData
+            console.warn('[DEBUG] Database not initialized yet, skipping exportAllData');
             return null;
         }
 
@@ -330,7 +330,7 @@ export class DatabaseManager {
      */
     async deleteAllData() {
         if (!this.db) {
-            // Database not initialized yet, skipping deleteAllData
+            console.warn('[DEBUG] Database not initialized yet, skipping deleteAllData');
             return false;
         }
 

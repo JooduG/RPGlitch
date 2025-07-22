@@ -27,9 +27,9 @@ export class UIManager {
     query(id, required = false) {
         const el = document.getElementById(id);
         if (!el && required) {
-            // Critical UI element not found
+            console.error(`[UI Critical] Element with ID '${id}' not found.`);
         } else if (!el) {
-            // Optional UI element not found
+            console.warn(`[UI] Optional element with ID '${id}' not found.`);
         }
         return el;
     }
@@ -49,7 +49,7 @@ export class UIManager {
         this.getChatInterfaceElements();
 
         if (!this.ui.main) {
-            // Critical: main container not found
+            console.error("[App Critical] #main container not found after UI element query!");
         }
     }
 
@@ -240,7 +240,7 @@ export class UIManager {
         if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
             return window.DOMPurify.sanitize(textToSanitize);
         }
-        // DOMPurify not available - security risk
+        console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
         const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
         return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
     }
@@ -329,7 +329,7 @@ export class UIManager {
         }
 
         if (!notificationArea) {
-            // No notification area found for top notification
+            console.warn('[UI] No notification area found for top notification');
             return;
         }
 

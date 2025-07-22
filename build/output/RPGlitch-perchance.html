@@ -24,7 +24,7 @@
 
 <div id="main-content-wrapper" class="container app-scrollable-container">
   <div class="container">
-    <nav id="top-bar" class="top-bar top-bar-nav" style="display: flex; align-items: center; justify-content: space-between;">
+    <nav id="top-bar" class="top-bar top-bar-nav top-bar-flex">
       <div id="top-bar-left" class="top-bar-section">
         <ul>
           <li><button class="secondary" data-tab="storyboard" role="tab" aria-selected="false" tabindex="0" _="on click call App.selectTopBarTab('storyboard') then call App.updateTopBarUI()">Storyboard</button></li>
@@ -33,7 +33,7 @@
           <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
         </ul>
       </div>
-      <div id="top-bar-center" class="top-bar-section" style="flex: 0.3; display: flex; justify-content: center; align-items: center;">
+      <div id="top-bar-center" class="top-bar-section top-bar-center-flex">
         <div id="top-bar-notification-area" class="top-bar-notification-area-style"></div>
       </div>
       <div id="top-bar-right" class="top-bar-section">
@@ -48,8 +48,8 @@
         <ul>
           <li><button class="secondary" id="shuffle-button" _="on click call App._shuffleStoryboard()">Shuffle</button></li>
           <li><button class="primary" id="begin-story-button" _="on click call App.beginStory()">Begin Story</button></li>
-          <li><button class="secondary" id="form-cancel-button" style="display: none;">Cancel</button></li>
-          <li><button class="primary" id="form-save-button" style="display: none;">Save</button></li>
+          <li><button class="secondary button-hidden" id="form-cancel-button">Cancel</button></li>
+          <li><button class="primary button-hidden" id="form-save-button">Save</button></li>
         </ul>
       </div>
     </nav>
@@ -64,13 +64,13 @@
           <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
         </ul>
       </div>
-      <div id="profile-top-bar-center" class="top-bar-section" style="flex: 0.1; display: flex; justify-content: center; align-items: center;">
+      <div id="profile-top-bar-center" class="top-bar-section top-bar-center-compact">
         <div id="profile-top-bar-notification-area" class="top-bar-notification-area-style"></div>
       </div>
       <div id="profile-top-bar-right" class="top-bar-section">
         <ul>
           <li><button class="secondary" id="profile-edit-button">Edit</button></li>
-          <li><button class="secondary danger" id="profile-delete-button" style="display: none;">Delete</button></li>
+          <li><button class="secondary danger button-hidden" id="profile-delete-button">Delete</button></li>
           <li><button class="primary" id="profile-back-button">Back</button></li>
         </ul>
       </div>
@@ -84,13 +84,13 @@
           <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
         </ul>
       </div>
-      <div id="world-profile-top-bar-center" class="top-bar-section" style="flex: 0.1; display: flex; justify-content: center; align-items: center;">
+      <div id="world-profile-top-bar-center" class="top-bar-section top-bar-center-compact">
         <div id="world-profile-top-bar-notification-area" class="top-bar-notification-area-style"></div>
       </div>
       <div id="world-profile-top-bar-right" class="top-bar-section">
         <ul>
           <li><button class="secondary" id="world-profile-edit-button">Edit</button></li>
-          <li><button class="secondary danger" id="world-profile-delete-button" style="display: none;">Delete</button></li>
+          <li><button class="secondary danger button-hidden" id="world-profile-delete-button">Delete</button></li>
           <li><button class="primary" id="world-profile-back-button">Back</button></li>
         </ul>
       </div>
@@ -104,13 +104,13 @@
           <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
         </ul>
       </div>
-      <div id="story-profile-top-bar-center" class="top-bar-section" style="flex: 0.1; display: flex; justify-content: center; align-items: center;">
+      <div id="story-profile-top-bar-center" class="top-bar-section top-bar-center-compact">
         <div id="story-profile-top-bar-notification-area" class="top-bar-notification-area-style"></div>
       </div>
       <div id="story-profile-top-bar-right" class="top-bar-section">
         <ul>
           <li><button class="secondary" id="story-profile-edit-button">Edit</button></li>
-          <li><button class="secondary danger" id="story-profile-delete-button" style="display: none;">Delete</button></li>
+          <li><button class="secondary danger button-hidden" id="story-profile-delete-button">Delete</button></li>
           <li><button class="primary" id="story-profile-back-button">Back</button></li>
         </ul>
       </div>
@@ -129,7 +129,7 @@
           <button type="button" class="secondary" onclick="document.getElementById('upload-story-input').click();">
             Upload Story
           </button>
-          <input type="file" id="upload-story-input" aria-label="Upload Story" style="display:none;">
+          <input type="file" id="upload-story-input" aria-label="Upload Story" class="file-input-hidden">
           <button id="new-story-button" class="secondary">New Story</button>
         </div>
       </div>
@@ -148,7 +148,7 @@
           <button type="button" class="secondary" onclick="document.getElementById('upload-character-input').click();">
             Upload Character
           </button>
-          <input type="file" id="upload-character-input" aria-label="Upload Character" style="display:none;">
+          <input type="file" id="upload-character-input" aria-label="Upload Character" class="file-input-hidden">
           <button id="create-character-button" class="secondary">Create Character</button>
         </div>
       </div>
@@ -157,9 +157,9 @@
           <div class="card-grid">
             <div class="card-info">
               <header>
-                <h4 style="margin: 0;">Starship AI "ADA"</h4>
+                <h4 class="margin-0">Starship AI "ADA"</h4>
               </header>
-              <p style="font-size: 0.95em; margin: 0.5em 0 0 0; line-height: 1.3;">
+                              <p class="font-size-95 margin-top-05 line-height-13">
                 The ever-helpful AI of the starship "Odyssey," tasked with crew support and mission analysis.
               </p>
               <small>Premade</small>
@@ -169,8 +169,7 @@
               </footer>
             </div>
             <div class="card-picture">
-              <div class="profile-picture"
-                   style="background: #4f8cff; color: #fff; font-size: 2.5rem; display: flex; align-items: center; justify-content: center; width: 90px; height: 90px; border-radius: var(--pico-radius, 0.25rem);">
+              <div class="profile-picture profile-picture-default">
                 SA
               </div>
             </div>
@@ -191,7 +190,7 @@
           <button type="button" class="secondary" onclick="document.getElementById('upload-world-input').click();">
             Upload World
           </button>
-          <input type="file" id="upload-world-input" aria-label="Upload World" style="display:none;">
+          <input type="file" id="upload-world-input" aria-label="Upload World" class="file-input-hidden">
           <button id="create-world-button" class="secondary">Create World</button>
         </div>
       </div>
@@ -200,13 +199,13 @@
     </div>
     <div id="options-chin" class="top-bar-chin container hidden" data-chin="options">
       <!-- Options Chin Content -->
-      <div class="chin-options-actions" style="display: flex; gap: 1rem; align-items: center; justify-content: space-between;">
+      <div class="chin-options-actions chin-actions-flex">
         <button id="download-backup-button" class="secondary">Download Backup</button>
-        <div class="chin-actions-right" style="display: flex; gap: 1rem; align-items: center;">
+                  <div class="chin-actions-right chin-actions-right-flex">
           <button type="button" class="secondary" onclick="document.getElementById('upload-backup-input').click();">
             Upload Backup
           </button>
-          <input type="file" id="upload-backup-input" aria-label="Upload Backup" style="display:none;">
+          <input type="file" id="upload-backup-input" aria-label="Upload Backup" class="file-input-hidden">
           <button id="start-fresh-button" class="secondary danger">Start Fresh</button>
         </div>
       </div>
@@ -226,7 +225,7 @@
     <div class="main-content-container">
       <!-- CHIN AREA: Selects and Cards, always aligned with top bar -->
       <div class="container" id="storyboard-screen">
-        <header id="storyboard-title-area" style="padding: 1rem;">
+        <header id="storyboard-title-area" class="storyboard-title-padding">
           <h2 id="storyboard-title"></h2>
         </header>
         <div id="storyboard-content">
@@ -347,7 +346,7 @@
 <style>
 
 /* --- Main Sass stylesheet --- */
-﻿html,body{min-height:100vh;height:100%;overflow:visible;background:linear-gradient(120deg, #181c2f 0%, #23243a 40%, #1a3a4a 70%, #2a1a3a 100%);padding-top:0}input:not([type=checkbox],[type=radio],[type=range],[type=file]),[type=checkbox],[type=radio],[type=range],[type=file],select,textarea{appearance:none}a,area,button,input,label,select,summary,textarea,[tabindex]{touch-action:manipulation}.storyboard-card:not([disabled]):hover,#storyboard-ai-character-card:not([disabled]):hover,#storyboard-user-character-card:not([disabled]):hover,#storyboard-world-card:not([disabled]):hover,.character-card-landscape:not([disabled]):hover,.story-profile-item-card:not([disabled]):hover{transform:translateY(-4px) scale(1.02);box-shadow:0 8px 25px rgba(0,0,0,.25),0 0 20px hsla(0,0%,100%,.1);transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.storyboard-card,#storyboard-ai-character-card,#storyboard-user-character-card,#storyboard-world-card,.story-profile-item-card{transform:translateY(0) scale(1);transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);margin-bottom:1rem}.character-card-landscape{transform:translateY(0) scale(1);transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);margin-bottom:0}.storyboard-card[disabled]:hover .card-title,.storyboard-card[disabled]:hover .card-subtitle,#storyboard-ai-character-card[disabled]:hover .card-title,#storyboard-ai-character-card[disabled]:hover .card-subtitle,#storyboard-user-character-card[disabled]:hover .card-title,#storyboard-user-character-card[disabled]:hover .card-subtitle,#storyboard-world-card[disabled]:hover .card-title,#storyboard-world-card[disabled]:hover .card-subtitle{color:var(--pico-primary);text-shadow:0 0 15px rgba(var(--pico-primary-rgb), 0.6);transition:color .3s ease,text-shadow .3s ease;font-weight:bold}.storyboard-card[disabled]:hover .card-title::after,#storyboard-ai-character-card[disabled]:hover .card-title::after,#storyboard-user-character-card[disabled]:hover .card-title::after,#storyboard-world-card[disabled]:hover .card-title::after{content:" ▼ CLICK HERE!";color:var(--pico-primary);text-shadow:0 0 15px rgba(var(--pico-primary-rgb), 0.8);animation:dropdown-pulse 1s ease-in-out infinite;font-weight:bold;font-size:.9em}.storyboard-card[disabled]:hover,#storyboard-ai-character-card[disabled]:hover,#storyboard-user-character-card[disabled]:hover,#storyboard-world-card[disabled]:hover{box-shadow:0 0 20px rgba(var(--pico-primary-rgb), 0.3) !important;border:2px solid rgba(var(--pico-primary-rgb), 0.5) !important;transition:box-shadow .3s ease,border .3s ease}@keyframes dropdown-pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}.top-bar button:not([disabled]):hover,.top-bar [role=button]:not([disabled]):hover,#options-chin button:not([disabled]):hover,.chin-tab:not([disabled]):hover,button:not([disabled]):hover,input[type=submit]:not([disabled]):hover,input[type=button]:not([disabled]):hover{transform:none !important;box-shadow:0 0 20px rgba(var(--pico-primary-rgb), 0.6),0 0 30px hsla(0,0%,100%,.15) !important;transition:box-shadow .3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important}.chin-search-submit:not([disabled]):hover{transform:none !important;box-shadow:0 0 15px rgba(var(--pico-primary-rgb), 0.6) !important;transition:box-shadow .2s ease !important}.chin-search-submit:focus~input,.chin-search-submit:focus~select{box-shadow:0 0 10px rgba(var(--pico-primary-rgb), 0.4) !important;border-color:var(--pico-primary) !important}a:not([disabled]):hover{transform:translateY(-2px) scale(1.02);text-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .2s cubic-bezier(0.68, -0.55, 0.265, 1.55),text-shadow .2s cubic-bezier(0.68, -0.55, 0.265, 1.55)}[disabled].secondary{opacity:.3 !important;cursor:not-allowed !important;filter:grayscale(100%) !important;pointer-events:none !important;background:hsla(0,0%,100%,.1) !important;color:hsla(0,0%,100%,.5) !important;border-color:hsla(0,0%,100%,.2) !important}[disabled].secondary:hover{transform:none !important;box-shadow:none !important;transition:none !important;background:inherit !important;color:inherit !important}.disabled{cursor:not-allowed !important;pointer-events:none !important;opacity:.5 !important;filter:grayscale(100%) !important}.disabled:hover{transform:none !important;box-shadow:none !important;transition:none !important}button[disabled].secondary:hover,input[disabled]:hover,select[disabled]:hover,textarea[disabled]:hover,label[disabled]:hover,[role=button][disabled].secondary:hover{transform:none !important;box-shadow:none !important;background:inherit !important;color:inherit !important}.storyboard-card[disabled],#storyboard-ai-character-card[disabled],#storyboard-user-character-card[disabled],#storyboard-world-card[disabled]{opacity:1 !important;cursor:pointer !important;pointer-events:auto !important;filter:none !important}button:not([disabled]),input[type=button]:not([disabled]),input[type=submit]:not([disabled]),[role=button]:not([disabled]),label:not([disabled]),.upload-label:not([disabled]){cursor:pointer !important}input[type=text],input[type=email],input[type=password],input[type=search],input[type=url],input[type=tel],input[type=number],textarea,select{cursor:text !important}input[type=file]{cursor:pointer !important}#storyboard-title{cursor:pointer !important}#storyboard-title:focus{cursor:text !important}.storyboard-card:not([disabled]),.character-card-landscape:not([disabled]),.story-profile-item-card:not([disabled]){cursor:pointer !important}.card-title-dropdown,.card-title-selected,.dropdown-option{cursor:pointer !important}a:not([disabled]){cursor:pointer !important}[disabled],.disabled{cursor:not-allowed !important}.storyboard-card[disabled]:hover,#storyboard-ai-character-card[disabled]:hover,#storyboard-user-character-card[disabled]:hover,#storyboard-world-card[disabled]:hover{transform:none !important;box-shadow:none !important;opacity:1 !important;filter:none !important}.storyboard-card,.character-card-landscape,.story-profile-item-card,.top-bar button,.top-bar [role=button],#options-chin button,.chin-tab,button,input[type=submit],input[type=button],a{transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.storyboard-card.selected,.character-card-landscape.selected,.story-profile-item-card.selected{animation:subtle-pulse 2s ease-in-out infinite}@keyframes subtle-pulse{0%,100%{box-shadow:0 2px 8px rgba(0,0,0,.1)}50%{box-shadow:0 4px 15px rgba(0,0,0,.2),0 0 10px hsla(0,0%,100%,.05)}}*:focus{outline:none !important}.card-title-dropdown,.card-title-dropdown *,.card-title-selected,.card-title-dropdown-menu,.card-title-dropdown-menu *,.dropdown-option{border:0 !important;border-width:0 !important;border-style:none !important;border-color:rgba(0,0,0,0) !important;outline:rgba(0,0,0,0) none 0 !important;text-shadow:none !important;box-shadow:none !important;-webkit-border:0 !important;-moz-border:0 !important;-webkit-outline:0 !important;-moz-outline:0 !important}.card-title-dropdown *,.card-title-dropdown *:focus,.card-title-dropdown *:hover,.card-title-dropdown *:active{border:0 !important;outline:none !important;box-shadow:none !important}.card-title-selected,.card-title-selected:focus,.card-title-selected:hover,.card-title-selected:active{border:0 !important;outline:none !important;box-shadow:none !important;background:rgba(0,0,0,0) !important}.card-title-selected:hover,.card-title-selected:focus{background:rgba(80,80,120,.2) !important}.card-title-dropdown-menu .dropdown-option,.card-title-dropdown-menu .dropdown-option:focus,.card-title-dropdown-menu .dropdown-option:hover,.card-title-dropdown-menu .dropdown-option:active{border:0 !important;outline:none !important;box-shadow:none !important}.card-title-dropdown-menu{z-index:9999999 !important;position:absolute !important}.storyboard-card,.storyboard-cards-row>article{overflow:visible !important;z-index:1;bottom:.5em;left:0;position:relative}.card{overflow:visible !important;z-index:1;position:relative}.card-title-dropdown{overflow:visible !important;z-index:10}.card-title-dropdown *,.card-title-dropdown-menu *,.card-title-selected,.dropdown-option{border:none !important;outline:none !important;box-shadow:none !important;margin:0 !important;padding:0 !important}.card-title-dropdown button,.card-title-dropdown-menu button{background:rgba(0,0,0,0) !important;border:0 !important;outline:none !important;box-shadow:none !important;padding:inherit !important;margin:0 !important}.profile-picture{background-position:center;background-size:cover;box-shadow:var(--shadow-sm);border:none;object-fit:cover}#chat-log{min-height:200px;margin-bottom:1rem;padding:.5rem;border-radius:var(--pico-radius);overflow:visible}#chat-form{display:flex;gap:.5rem;align-items:flex-end}.chin-options-fields{display:flex;flex-direction:column;gap:0}.app-scrollable-container{height:100vh;overflow-y:auto;overflow-x:hidden;margin:0 !important;padding:1rem 0 0 0 !important;max-width:100vw !important;width:100vw !important}.app-scrollable-container:has(.profile-content-overlay){overflow:hidden !important}body,html{margin:0 !important;padding:0 !important;overflow:hidden}.profile-details-content-wrapper,.story-profile-layout-container,.middle-column-screen{overflow:visible !important;height:auto !important}.profile-section,.profile-hero-section{overflow:visible !important}.main-content-container{height:auto;min-height:0;overflow:visible !important}.chin-top-row,.chin-list-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;min-height:160px;height:auto;flex:1;align-content:start;box-shadow:none;--pico-box-shadow: 0;--pico-button-box-shadow: 0;--pico-button-hover-box-shadow: 0;--pico-switch-thumb-box-shadow: 0;--pico-card-box-shadow: 0;--pico-dropdown-box-shadow: 0}.chin-card{min-height:160px;height:auto}.chin-top-row{margin-bottom:1.5rem}.chin-list-grid{margin-bottom:0;flex:1;overflow:visible;max-height:100%;min-height:160px;z-index:10}.chin-card:hover{box-shadow:none}#chin-area{display:flex;flex-direction:column;gap:1rem;margin-top:1rem;border-radius:0 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem);padding-bottom:1rem;padding-top:1rem;min-height:190px}.chin-empty-centered{grid-column:1/-1;display:grid;place-items:center;min-height:120px;width:100%;font-style:italic;font-size:1.1em;background:none;border:none;text-align:center;margin:0;padding:0}.card-placeholder-text{width:100%;text-align:center;border-radius:var(--pico-radius)}.chin-list-grid>p,.chin-list-grid .story-item-empty-message{display:flex;align-items:center;justify-content:center;min-height:120px;width:100%;height:100%;text-align:center;margin:0 auto;grid-column:2/3}.top-bar-chin{position:absolute;top:calc(100% - .5rem);left:0;right:0;z-index:2000;border-bottom:2px solid var(--pico-primary);color:#fff;padding:.5em 1em 1em;font-family:inherit;transition:all .2s;border-top-left-radius:0 !important;border-top-right-radius:0 !important;border-bottom-left-radius:var(--pico-radius, 0.5rem);border-bottom-right-radius:var(--pico-radius, 0.5rem);margin-top:0;padding-top:.5rem;min-height:200px;height:auto;display:flex;flex-direction:column;align-items:stretch;background:rgba(35,36,58,.85) !important;backdrop-filter:blur(15px);border-bottom:1px solid hsla(0,0%,100%,.1);box-shadow:0 4px 20px rgba(0,0,0,.2)}.top-bar-chin button{background:hsla(0,0%,100%,.1) !important;border-color:hsla(0,0%,100%,.2) !important;color:#fff !important;backdrop-filter:blur(5px)}.top-bar-chin button:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.top-bar-chin button.primary{background:var(--pico-primary, #0172ad) !important;border-color:var(--pico-primary, #0172ad) !important}.top-bar-chin button.primary:hover{background:var(--pico-primary-hover, #015a8a) !important;border-color:var(--pico-primary-hover, #015a8a) !important}.story-item-empty-message{opacity:.6 !important;font-style:italic;color:var(--pico-muted-color, #aaa)}#search-stories-input::placeholder,#search-characters-input::placeholder,#search-worlds-input::placeholder{font-style:italic;opacity:.8}.chin-options-actions input::placeholder,.chin-options-actions textarea::placeholder,.chin-options-grid input::placeholder,.chin-options-grid textarea::placeholder{font-style:italic;opacity:.8}#search-stories-input,#search-characters-input,#search-worlds-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:.75rem center;background-size:1rem;padding-left:2.5rem}.top-bar-chin,.top-bar{background:var(--pico-surface, #23243a);color:var(--pico-contrast, #fff);box-shadow:none;border-radius:var(--pico-radius);margin-top:0;width:100%;max-width:100%}#main-content-wrapper>.container{position:relative}article>footer:not(.storyboard-card footer){margin:0 !important;padding:10px !important;border:none !important}article>header:not(.storyboard-card header){margin-top:0 !important;margin-bottom:0 !important;border:none !important}.storyboard-card article>footer,.chin-list-grid article>footer{justify-content:flex-end !important}.card-title-selected{position:relative}.card-title-selected.placeholder-mode{font-style:italic;opacity:.7;border:1px dashed hsla(0,0%,100%,.3);border-radius:var(--pico-radius);padding:.5rem 1rem;cursor:pointer;transition:all .2s ease}.card-title-selected.placeholder-mode:hover{opacity:.9;border-color:hsla(0,0%,100%,.5);background:hsla(0,0%,100%,.05)}.top-bar-nav{padding:1em}.top-bar-nav.is-active{display:flex !important;z-index:1000}#start-fresh-button.secondary{transition:background .2s,color .2s}#start-fresh-button.secondary:hover,#start-fresh-button.secondary:focus{background:#e53935 !important;color:var(--pico-contrast, #fff) !important;border-color:#e53935 !important}nav{margin:0;padding:0;align-items:center}.top-bar-nav ul{display:flex;gap:1rem;margin:0 !important;padding:0 !important}.top-bar-nav li{margin:0 !important;padding:0 !important}.chin-actions{display:flex;align-items:center;gap:1rem;flex-wrap:nowrap;justify-content:space-between}.chin-actions-right{display:flex;gap:1rem;align-items:center;flex-wrap:nowrap}.chin-actions form[role=search]{display:flex;align-items:center;vertical-align:middle;margin:0;padding:0}.chin-actions form[role=search] fieldset[role=group]{display:flex;align-items:center;vertical-align:middle;margin:0;padding:0;border:none}.chin-actions,.chin-options-actions{display:flex;gap:1rem;align-items:center;margin-bottom:1rem;border-radius:var(--pico-radius)}.chin-options-actions{display:flex;gap:1rem;align-items:center;margin-bottom:0}.character-card-landscape,.storyboard-card,.card,.card-picture,.chin-card{border-radius:var(--pico-radius) !important;overflow:visible}.chin-list-grid .character-card-landscape{min-height:160px;height:auto;z-index:100;position:relative}.character-card-landscape{border-radius:var(--pico-radius) !important;border-top-left-radius:var(--pico-radius, 0.5rem) !important;border-bottom-left-radius:var(--pico-radius, 0.5rem) !important}.card-grid{display:grid;grid-template-columns:3fr 2fr;align-items:stretch;gap:1rem;height:100%;border-radius:var(--pico-radius, 0.5rem);overflow:visible}.card-footer{display:flex;gap:.5rem;justify-content:flex-end;align-items:center;padding:.5rem 1rem;margin-top:auto;box-shadow:none;width:100%;box-sizing:border-box}.card-footer button{font-size:.8rem;padding:.25rem .5rem;min-width:auto;background:var(--pico-button-background-color, #666);color:var(--pico-button-color, #fff)}.card-grid,.card-content{gap:0 !important}.card-info{min-width:0;display:flex;flex-direction:column;padding:0;text-align:left;height:100%;overflow:visible;position:relative;justify-content:space-between}.card-info header{margin:0;padding:0;font-size:1em;font-weight:600;line-height:1.1;text-align:center;border-radius:0 var(--pico-radius, 0.5rem) 0 0}.card-info h4{margin:0;font-size:1em;font-weight:600;line-height:1.1;text-align:center;text-wrap:balance;padding:.2em .6em;display:flex;align-items:center;justify-content:center;min-height:2.5em}.card-info p{margin:0;font-size:.85em;line-height:1.2;color:var(--pico-muted-color, #aaa);text-align:center;text-wrap:balance;display:flex;align-items:center;justify-content:center;min-height:3em;flex:1}.card-picture{display:flex;align-items:stretch;justify-content:flex-end;padding:0;margin:0;height:100%}.card-picture .profile-picture{width:100%;height:100%;min-width:0;min-height:0;max-width:none;max-height:none;border:none;object-fit:cover;align-self:stretch;margin:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem}.character-card-landscape .card-picture .profile-picture{border-radius:0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important}.character-card-landscape .card-info{border-radius:var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;overflow:hidden !important}.storyboard-card .card-info{border-radius:0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important;overflow:hidden !important}.card-content{display:grid;grid-template-columns:35% 65%;gap:0;align-items:stretch;height:100%;min-height:260px;max-height:100%}.card-avatar{width:100%;height:100%;display:flex;align-items:start;justify-content:center;overflow:hidden}.card-avatar img{width:100%;height:100%;object-fit:cover;display:block;background:#222}.card-info{display:flex;flex-direction:column;justify-content:flex-start;height:100%}.card-title-selected .profile-dot{display:none !important}.card-title{text-wrap:balance}@media(width <= 600px){.character-card-landscape{height:auto}.card-grid{grid-template-columns:1fr;grid-template-rows:auto auto;height:auto}.card-picture{justify-content:center;margin-top:1em}.card-content{grid-template-columns:1fr;grid-template-rows:auto auto;min-height:unset;height:auto}.card-avatar{height:160px;min-height:120px;max-height:200px}}:root{color:#fff;--pico-radius: 0.5rem}.button,.primary,.secondary,.contrast,.outline,select,input[type=text],input[type=file],input[type=email],input[type=password],textarea{border-radius:var(--pico-radius)}article{padding:0;margin:0}#opening-prompt-textarea,#custom-story-js-textarea{margin:0 !important}.upload-label{display:inline-flex;align-items:center;justify-content:center;height:2.5em;padding:0 1.25em;border-radius:var(--pico-radius);font-size:1rem;border:none;cursor:pointer;transition:background .2s;vertical-align:middle;line-height:1;box-sizing:border-box;margin:0;background:hsla(0,0%,100%,.1) !important;border-color:hsla(0,0%,100%,.2) !important;color:#fff !important;backdrop-filter:blur(5px)}.upload-label:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.upload-label-text{pointer-events:none}.upload-label input[type=file]{display:none}.chin-actions input[type=search]{height:auto;padding:var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em;border-radius:999px 0 0 999px !important;border:1px solid hsla(0,0%,100%,.2) !important;border-right:none !important;font-size:1rem;box-sizing:border-box;display:inline-flex;align-items:center;flex:none;margin:0;width:auto;transition:background .2s,border-color .2s}.chin-actions button[type=submit]{height:auto;padding:var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em;border-radius:0 999px 999px 0 !important;border-left:none !important;font-size:1rem;box-sizing:border-box;display:inline-flex;align-items:center;flex:none;margin:0;min-width:0}.chin-actions input[type=search]:hover{border-color:hsla(0,0%,100%,.3) !important}.chin-actions button[type=submit]:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.chin-actions input[type=search]:hover+button[type=submit]{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.chin-actions button[type=submit]:hover~input[type=search]{border-color:hsla(0,0%,100%,.3) !important}.chin-actions fieldset[role=group]{border:none !important;padding:0 !important;margin:0 !important;display:flex !important;align-items:center !important;width:fit-content !important;overflow:hidden !important}.chin-actions form{border:none !important;padding:0 !important;margin:0 !important;width:fit-content !important;overflow:hidden !important}.chin-options-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}.chin-options-grid textarea{width:100%;min-height:8em;border-radius:var(--pico-radius);font-size:1rem;box-sizing:border-box;margin-top:.5em}button,.button,.secondary,.danger{text-align:center;justify-content:center}.storyboard-cards-row>*{height:260px;min-height:260px;display:flex;flex-direction:column}.storyboard-cards-row{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;align-items:stretch;margin:0;padding:0}.storyboard-cards-row>article{margin:0;padding:0;flex:1 1 0}#storyboard-scrollable-content .grid{gap:0 !important;grid-gap:0 !important}.storyboard-cards-row select{border:none;background:#23243a;color:#fff;appearance:none;text-align:center;font-size:1.1em;font-weight:500;outline:none;padding:.5em 0;width:100%;cursor:pointer}.storyboard-cards-row select:focus{outline:none !important}.storyboard-cards-row select::-ms-expand{display:none}.storyboard-cards-row select::-webkit-inner-spin-button,.storyboard-cards-row select::-webkit-outer-spin-button,.storyboard-cards-row select::-webkit-search-cancel-button,.storyboard-cards-row select::-webkit-search-decoration{display:none}.storyboard-cards-row select option{text-align:left;color:#222}.card-title-dropdown{position:relative;display:block;width:100%;cursor:pointer;outline:none;overflow:visible;box-sizing:border-box}.card-title-dropdown .card-title-selected{display:flex;align-items:center;justify-content:center;font-size:1.15em;font-weight:600;color:#fff;padding:.5em 0;width:100%;border-radius:0 var(--pico-radius, 0.5rem) 0 0;border:none !important;outline:none !important;box-shadow:none !important;transition:background .15s;cursor:pointer}.card-title-dropdown .card-title-selected:hover,.card-title-dropdown .card-title-selected:focus,.card-title-dropdown .card-title-selected:active{background:rgba(80,80,120,.2);outline:none !important;border:none !important;box-shadow:none !important;margin-left:-0.5rem;margin-right:-0.5rem;padding-left:.5rem;padding-right:.5rem}.card-title-dropdown .card-title-dropdown button,.card-title-dropdown .card-title-dropdown button:focus,.card-title-dropdown .card-title-dropdown button:hover,.card-title-dropdown .card-title-dropdown button:active,.card-title-dropdown .card-title-dropdown span,.card-title-dropdown .card-title-dropdown span:focus,.card-title-dropdown .card-title-dropdown span:hover,.card-title-dropdown .card-title-dropdown span:active{border:none !important;outline:none !important;box-shadow:none !important;background:rgba(0,0,0,0) !important}.card-title-dropdown .card-title-dropdown button:focus,.card-title-dropdown .card-title-dropdown span:focus{background:rgba(80,80,120,.2) !important}.card-title-dropdown .profile-dot{display:inline-block;width:1em;height:1em;border-radius:50%;margin-right:.5em;vertical-align:middle}.card-title-dropdown .card-title-dropdown-menu{position:absolute !important;left:0;top:100%;z-index:9999999 !important;max-height:400px;overflow:hidden auto;min-width:200px;width:auto;font-size:.95rem;padding:0 !important;background:#35365a !important;background-color:#35365a !important;border-radius:0 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem);border:none !important;outline:none !important;box-shadow:0 4px 16px rgba(0,0,0,.25);margin-top:.25em;max-width:calc(100vw - 2rem);right:auto;box-sizing:border-box;pointer-events:auto;scrollbar-width:thin;scrollbar-color:hsla(0,0%,100%,.3) rgba(0,0,0,0)}.card-title-dropdown .dropdown-option{display:flex;align-items:center;padding:.5em 1em !important;color:#fff;font-size:1em;cursor:pointer}.card-title-dropdown .dropdown-option:hover,.card-title-dropdown .dropdown-option.active{background:#35365a}.card-title-dropdown .dropdown-option .plus-sign{font-weight:bold;color:#4f8cff;margin-right:.5em}.card-title-dropdown .dropdown-option.create-new{font-weight:600;color:#4f8cff}#storyboard-title{text-wrap:balance;height:3.5em;line-height:1.4em;overflow:hidden;text-align:center;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;font-size:2em;font-weight:400;letter-spacing:.05em;text-shadow:0 2px 4px rgba(0,0,0,.3);padding:0;margin:0;border:none;border-radius:var(--pico-radius);transition:all .2s ease}#storyboard-title:hover{background:hsla(0,0%,100%,.05);box-shadow:0 0 0 2px hsla(0,0%,100%,.1)}#storyboard-title:focus{outline:2px solid var(--pico-primary, #0172ad);outline-offset:2px;background:hsla(0,0%,100%,.1);box-shadow:0 0 0 4px rgba(1,114,173,.2)}#storyboard-title[contenteditable=true]:focus{background:hsla(0,0%,100%,.15);box-shadow:0 0 0 4px rgba(1,114,173,.3)}.card-title-selected{text-wrap:pretty;text-align:center}.card-title-dropdown-menu .dropdown-option{text-wrap:pretty;text-align:left}.storyboard-cards-row .profile-picture{border-radius:var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important}.storyboard-cards-row{overflow:visible !important;position:relative;z-index:1000}.top-bar-nav button,.top-bar-section button{padding:var(--pico-form-element-spacing-vertical, 0.75rem) var(--pico-form-element-spacing-horizontal, 1rem);display:inline-flex;align-items:center;justify-content:center;height:100%}.storyboard-card,.storyboard-cards-row>article{z-index:1;bottom:.5em;left:0}.storyboard-card,.chin-card,.card{border:none !important;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);border-radius:var(--pico-radius);overflow:visible;transition:box-shadow .2s ease;position:relative}.storyboard-card:hover,.chin-card:hover,.card:hover{box-shadow:0 2px 8px 0 rgba(0,0,0,.15)}.card-title-dropdown-menu .dropdown-option{display:flex;align-items:center;justify-content:flex-start;gap:.5em;font-weight:400;color:var(--pico-contrast, #fff);padding:.5em 1em}.card-title-dropdown-menu .dropdown-option .plus-sign{display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;margin-right:.5em;font-weight:600;font-size:1em}.card-title-dropdown-menu .dropdown-option .profile-dot{display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;border-radius:50%;margin-right:.5em;flex-shrink:0;vertical-align:middle}.card-title-dropdown-menu .dropdown-option.placeholder-option{color:#888 !important;opacity:.7 !important;font-style:italic !important}.card-title-selected{position:relative}.card-title-dropdown-menu{position:absolute !important;z-index:9999999 !important;overflow:visible !important}body,body *:not([disabled]){opacity:1 !important;color:#fff !important}.card-info small,.card-info p{color:#fff !important}.card-info small{display:inline-block;background:var(--pico-primary, #0172ad);color:#fff !important;font-size:.75em;font-weight:600;padding:.2em .6em;border-radius:var(--pico-radius);letter-spacing:.05em;line-height:1.2}.chin-list-grid .card-info small{font-style:italic;font-weight:400}body,.top-bar,.top-bar-chin,.chin-card,.card,.storyboard-card,.chin-list-grid,.chin-actions,.chin-options-actions,.card-info,.card-info header,.card-info h4,.card-title-selected,.dropdown-option{color:#fff !important}[data-tooltip]{position:relative}[data-tooltip]::before,[data-tooltip]::after{z-index:999999 !important;pointer-events:none !important}.dropdown-option.placeholder-option{color:#888 !important;font-style:italic !important}#storyboard-scrollable-content{overflow:visible !important;position:relative;z-index:1000}.card-title-dropdown-menu{background:#35365a !important}.card-title-dropdown-menu .dropdown-option.create-new{font-weight:400 !important}.card-title-dropdown *,.card-title-dropdown-menu *,.dropdown-option,.card-title-dropdown-menu .dropdown-option{border:0 !important;outline:none !important;box-shadow:none !important;margin:0 !important;padding:0 !important}.card-title-selected{border:0 !important;outline:none !important;box-shadow:none !important;margin:0 !important;padding:0 !important}.card-title-dropdown-menu,.card-title-dropdown .card-title-dropdown-menu,.card-title-dropdown>.card-title-dropdown-menu{background-color:#35365a !important;background:#35365a !important;background-image:none !important;background-blend-mode:normal !important;opacity:1 !important;backdrop-filter:none !important}.card-title-selected{transition:background .15s ease}.card-title-selected:hover,.card-title-selected:focus{background:#35365a !important;border:0 !important;outline:none !important;box-shadow:none !important}.card-title-dropdown:has(.card-title-dropdown-menu:not(.hidden)) .card-title-selected{background:#35365a !important;border:0 !important;outline:none !important;box-shadow:none !important}.card-title-dropdown .card-title-dropdown-menu:not(.hidden)~.card-title-selected,.card-title-dropdown .card-title-dropdown-menu:not(.hidden)+.card-title-selected{background:#35365a !important;border:0 !important;outline:none !important;box-shadow:none !important}.card-title-dropdown-menu .dropdown-option{transition:background .15s}.card-title-dropdown-menu .dropdown-option:hover,.card-title-dropdown-menu .dropdown-option:focus{background:hsla(0,0%,100%,.1) !important;border:0 !important;outline:none !important;box-shadow:none !important}.storyboard-card{min-height:260px;display:flex;flex-direction:column;overflow:visible}.storyboard-card .card-content{flex:1;display:flex;min-height:260px;overflow:visible}.storyboard-card header{height:3rem;display:flex;align-items:center;overflow:hidden}.storyboard-card .card-title-dropdown{height:100%;display:flex;align-items:center;overflow:hidden}.storyboard-card .card-title-selected{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.storyboard-card .card-title-selected.placeholder-mode{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}#storyboard-title-area{display:flex;align-items:center;justify-content:center;min-height:3rem;margin:1.5rem 2rem 2rem 2rem;padding:2rem}.card-header-flex{display:flex;align-items:center;justify-content:center;padding:.5rem}.card-main-flex{display:flex;align-items:center;justify-content:center;flex:1;padding:0 .5rem}.card-title-styled{font-size:1.1em;font-weight:bold;text-align:center;text-wrap:balance;line-height:1.2;max-height:3.6em;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical}.card-description-styled{text-align:center;text-wrap:balance;line-height:1.3;overflow:hidden;text-overflow:ellipsis}.system-message-styled{margin:1rem auto;text-align:center}.studio-profile-name-styled{margin-top:1.25rem;margin-bottom:1.25rem}.color-swatch-large-styled{background-color:var(--swatch-color, var(--pico-primary, #0172ad))}.color-swatch-small-styled{background-color:var(--swatch-color, var(--pico-primary, #0172ad))}.hidden-input{display:none}.profile-picture-initials-styled{--bg-color: var(--palette-medium, var(--pico-primary, #0172ad));--text-color-initials: var(--palette-light, #fff)}.studio-layout-container{display:flex;min-height:100%;background:var(--pico-surface, #23243a);border-radius:var(--pico-radius, 0.5rem);overflow:visible;box-shadow:0 4px 12px rgba(0,0,0,.15)}.studio-content-area{display:flex;width:100%;min-height:100%;overflow:visible}.studio-left-panel{flex:0 0 300px;display:flex;flex-direction:column;align-items:center;padding:0;overflow:visible;overflow-x:hidden}.studio-right-panel{flex:1;display:flex;flex-direction:column;min-width:0;overflow:visible;overflow-x:hidden}.studio-left-panel::-webkit-scrollbar,.studio-right-panel::-webkit-scrollbar{width:8px}.studio-left-panel::-webkit-scrollbar-track,.studio-right-panel::-webkit-scrollbar-track{background:hsla(0,0%,100%,.05);border-radius:4px}.studio-left-panel::-webkit-scrollbar-thumb,.studio-right-panel::-webkit-scrollbar-thumb{background:hsla(0,0%,100%,.2);border-radius:4px;transition:background .2s ease}.studio-left-panel::-webkit-scrollbar-thumb:hover,.studio-right-panel::-webkit-scrollbar-thumb:hover{background:hsla(0,0%,100%,.3)}.studio-left-panel,.studio-right-panel{scrollbar-width:thin;scrollbar-color:hsla(0,0%,100%,.2) hsla(0,0%,100%,.05)}.studio-left-panel,.studio-right-panel{scroll-behavior:smooth}.profile-picture-section{display:flex;flex-direction:column;align-items:center;width:100%;height:100%}.profile-picture-container{position:relative;width:100%;height:100%;border-radius:0;overflow:hidden;box-shadow:none;transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.profile-picture-container:hover{transform:none}.profile-picture-edit-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s ease;cursor:pointer}.profile-picture-container:hover .profile-picture-edit-overlay{opacity:1}.profile-picture-edit-overlay .button-icon{font-size:2rem;color:#fff}.profile-picture-large{width:100%;height:100%;border-radius:0}.profile-picture-medium{width:100%;height:100%;border-radius:0}.profile-picture-small{width:100%;height:100%;border-radius:0}.profile-picture-edit-section{margin-bottom:1rem}.form-section:last-child{margin-bottom:2rem}.profile-field-row:last-child{margin-bottom:2rem}.eppf-section{display:grid}.profile-background-layout{position:relative;width:100%;min-height:100vh}.profile-background-container{position:fixed;top:0;left:0;width:35vw;height:100vh;z-index:1;overflow:hidden;pointer-events:none}.profile-background-image{width:100%;height:100%;object-fit:cover;object-position:center;display:flex;align-items:center;justify-content:center}.profile-background-image img,.profile-background-image svg{width:100%;height:100%;object-fit:cover;object-position:center}.profile-background-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, rgba(35, 36, 58, 0.3) 0%, rgba(35, 36, 58, 0.6) 50%, rgba(35, 36, 58, 0.8) 100%);z-index:2}.profile-content-overlay{position:fixed;left:0;right:0;z-index:5;height:calc(100vh - 6.7rem);overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;justify-content:flex-start;box-sizing:border-box;padding-left:35vw;padding-right:calc(5% - 1rem);scrollbar-width:thin;scrollbar-color:hsla(0,0%,100%,.3) rgba(0,0,0,0)}.profile-content-overlay::-webkit-scrollbar{width:8px}.profile-content-overlay::-webkit-scrollbar-track{background:rgba(0,0,0,0)}.profile-content-overlay::-webkit-scrollbar-thumb{background:hsla(0,0%,100%,.3);border-radius:4px;transition:background .2s ease}.profile-content-overlay::-webkit-scrollbar-thumb:hover{background:hsla(0,0%,100%,.5)}.profile-content-container{margin:0 auto;width:100%}.profile-header-section{text-align:center;display:flex;align-items:center;justify-content:center;min-height:3rem;margin:1.5rem 2rem 2rem 2rem;padding:1rem}.profile-header-section .studio-profile-name{text-wrap:balance;height:3.5em;line-height:1.4em;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-word;text-align:center;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;font-size:2em;font-weight:400;letter-spacing:.05em;text-shadow:0 2px 4px rgba(0,0,0,.3);padding:0;margin:0;border:none;border-radius:var(--pico-radius);transition:all .2s ease}.profile-description{font-size:1.2rem;color:hsla(0,0%,100%,.9);line-height:1.6;margin:0 1rem 1rem 1rem;text-shadow:0 2px 4px rgba(0,0,0,.3);background:rgba(0,0,0,.2);padding:1rem;border-radius:.5rem;backdrop-filter:blur(10px)}.profile-details-grid{display:grid}.profile-field-row{display:grid;grid-template-columns:20% auto;align-items:center;padding-left:1rem}.profile-field-label{display:flex;flex-direction:column;justify-content:right;font-weight:600;color:var(--pico-h1-color, #fff)}.profile-field-label .main-label{font-size:1.1rem;font-weight:700;color:var(--pico-primary, #0172ad);text-align:right;letter-spacing:.5px;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-field-label .field-sublabel{font-size:.9rem;color:hsla(0,0%,100%,.7);font-weight:400;text-align:right}.profile-field-value{color:#fff;line-height:1.7;padding:1rem;background:hsla(0,0%,100%,.08);border-radius:.5rem;font-size:.95rem;min-height:3rem;display:flex;align-items:center;margin-left:1rem;margin-right:1rem;margin-top:.5rem;margin-bottom:.5rem;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-field-value:empty::before{content:"—";color:hsla(0,0%,100%,.5);font-style:italic}.profile-field-value input,.profile-field-value textarea{width:100%;background:rgba(0,0,0,0);border:none;color:#fff;font-size:.95rem;line-height:1.7;padding:0;margin:0;resize:vertical;min-height:3rem;font-family:inherit;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-header-section .studio-profile-name{width:100%;background:rgba(0,0,0,0);border:none;color:#fff;font-size:2em;font-weight:400;letter-spacing:.05em;text-shadow:0 2px 4px rgba(0,0,0,.5);text-align:center;padding:0;margin:0;font-family:inherit;text-wrap:balance;height:3.5em;line-height:1.4em;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;transition:all .2s ease}.profile-header-section .studio-name-input-large{background:rgba(0,0,0,0) !important;border:none !important;box-shadow:none !important;transition:none !important;overflow:visible !important;text-overflow:unset !important;white-space:normal !important;word-wrap:break-word !important;word-break:break-word !important}.profile-header-section h2.studio-profile-name{cursor:default}.profile-header-section .studio-profile-name::placeholder{color:hsla(0,0%,100%,.5);font-style:italic}.profile-header-section .studio-profile-name:empty::before,.profile-header-section .studio-profile-name:blank::before,.studio-profile-name:empty::before,.studio-profile-name:blank::before{content:attr(data-placeholder);color:hsla(0,0%,100%,.5);font-style:italic;pointer-events:none}.studio-profile-name[data-placeholder]:not(:focus):empty::before,.studio-profile-name[data-placeholder]:not(:focus):blank::before{content:attr(data-placeholder);color:hsla(0,0%,100%,.5);font-style:italic;pointer-events:none}.profile-header-section .studio-profile-name:focus{outline:none;background:hsla(0,0%,100%,.1);border-radius:.5rem}.profile-field-value input::placeholder,.profile-field-value textarea::placeholder{color:hsla(0,0%,100%,.5);font-style:italic}.profile-field-value input:focus,.profile-field-value textarea:focus{outline:none;background:hsla(0,0%,100%,.1);border-radius:.25rem}.top-bar{position:relative;z-index:10;background:rgba(35,36,58,.85) !important;backdrop-filter:blur(15px);border-bottom:1px solid hsla(0,0%,100%,.1);box-shadow:0 4px 20px rgba(0,0,0,.2)}#main-content-wrapper>.container{width:90%;max-width:90%;margin-left:5%;margin-right:5%}.main-content-container{width:100%;max-width:100%;margin-left:0;margin-right:0}#storyboard-screen.container{width:100%;max-width:100%;margin-left:0;margin-right:0}@media(max-width: 768px){.profile-content-overlay{padding:1rem;margin-top:70px}.profile-field-row{grid-template-columns:1fr;gap:1rem}.profile-description{font-size:1rem;padding:1rem}}@media(max-width: 480px){.profile-header-section .studio-profile-name{font-size:1.75rem}.profile-content-overlay{padding:.75rem}.profile-field-row{gap:.25rem}#main-content-wrapper>.container{width:100%;max-width:100%;margin-left:0;margin-right:0}}.profile-field-row.legacy{display:flex;flex-direction:column;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1))}.profile-field-row:last-child{border-bottom:none}.profile-field-label{display:flex;align-items:right;font-weight:600;color:var(--pico-h1-color, #fff)}.profile-field-label .main-label{font-size:1.1rem;text-align:right}.profile-field-label .field-sublabel{font-size:.875rem;color:var(--pico-muted-color, #aaa);font-weight:normal}.profile-field-value{color:var(--pico-color, #fff);line-height:1.6;padding:.75rem;background:hsla(0,0%,100%,.05);border-radius:var(--pico-radius, 0.25rem);border:1px solid hsla(0,0%,100%,.1)}.profile-field-value.readonly{background:hsla(0,0%,100%,.02);border-color:hsla(0,0%,100%,.05);color:var(--pico-muted-color, #aaa)}.studio-name-input-large{font-size:1.5rem;font-weight:bold;padding:1rem;background:var(--pico-card-background-color, rgba(255, 255, 255, 0.05));border:2px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));border-radius:var(--pico-radius, 0.5rem);color:var(--pico-color, #fff);transition:all .2s ease;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-word;min-width:0}.studio-name-input-large:focus{border-color:var(--pico-primary, #0172ad);box-shadow:0 0 0 3px rgba(var(--pico-primary-rgb, 1, 114, 173), 0.1)}.studio-profile-name{font-size:1.75rem;font-weight:bold;color:var(--pico-h1-color, #fff);margin:0;text-align:center;line-height:1.2;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-word;min-width:0}.profile-action-buttons{display:flex;justify-content:flex-end;border-top:1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));margin:0 !important}.action-button-primary{min-width:140px;display:flex;align-items:center;justify-content:center;gap:.5rem;font-weight:600}.action-button-secondary{min-width:100px;display:flex;align-items:center;justify-content:center;gap:.5rem}.delete-button{background:var(--pico-del-color, #dc3545);border-color:var(--pico-del-color, #dc3545);color:#fff}.delete-button:hover{background:var(--pico-del-hover, #c82333);border-color:var(--pico-del-hover, #c82333)}@media(max-width: 768px){.studio-content-area{flex-direction:column}.studio-left-panel{flex:none;max-height:none;overflow:visible;padding:0}.studio-right-panel{max-height:none;overflow:visible;padding-right:0}.studio-layout-container{max-height:none;overflow:visible}.studio-content-area{max-height:none;overflow:visible}.profile-picture-container{width:100%;height:200px;border-radius:0}.profile-action-buttons{flex-direction:column;gap:.75rem;margin:0 !important}.action-button-primary,.action-button-secondary{width:100%;min-width:auto}}@media(max-width: 480px){.profile-picture-container{height:150px}.studio-name-input-large{font-size:1.25rem;padding:.75rem}.studio-profile-name{font-size:1.5rem}.studio-left-panel,.studio-right-panel{padding:.5rem}.profile-picture-section{gap:.75rem}}@media(min-width: 769px)and (max-width: 1024px){.studio-left-panel{flex:0 0 250px}.profile-picture-container{width:100%;height:100%}}@media(min-width: 1025px){.studio-left-panel{flex:0 0 350px}.profile-picture-container{width:100%;height:100%}}.top-bar-nav{min-height:60px;display:none;box-sizing:border-box;width:100%;align-items:center;justify-content:space-between}.top-bar-nav.is-active{display:flex !important;z-index:1000}.visually-hidden{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);border:0}.hidden{display:none !important}#options-chin{display:none !important}#options-chin:not(.hidden){display:flex !important}button.secondary,.button.secondary,[role=button].secondary{padding:var(--pico-form-element-spacing-vertical, 0.75rem) var(--pico-form-element-spacing-horizontal, 1rem);display:inline-flex;align-items:center;justify-content:center;height:auto;background:hsla(0,0%,100%,.1);border:1px solid hsla(0,0%,100%,.2);border-radius:var(--pico-radius);color:#fff;cursor:pointer;transition:background .2s,border-color .2s,transform .2s;backdrop-filter:blur(5px);font-size:1rem;font-weight:500;text-decoration:none;white-space:nowrap;margin:0;outline:none}button.secondary[type=button],button.secondary[type=reset],button.secondary[type=submit],.button.secondary[type=button],.button.secondary[type=reset],.button.secondary[type=submit],[role=button].secondary[type=button],[role=button].secondary[type=reset],[role=button].secondary[type=submit]{margin-bottom:0 !important}button.secondary:hover,.button.secondary:hover,[role=button].secondary:hover{background:hsla(0,0%,100%,.2);border-color:hsla(0,0%,100%,.3);transform:translateY(-1px)}button.secondary:active,.button.secondary:active,[role=button].secondary:active{background:hsla(0,0%,100%,.15);border-color:hsla(0,0%,100%,.25);transform:translateY(0)}button.secondary:focus,.button.secondary:focus,[role=button].secondary:focus{outline:none;box-shadow:0 0 0 2px hsla(0,0%,100%,.3)}button.primary,.button.primary,[role=button].primary{background:var(--pico-primary, #0172ad);border-color:var(--pico-primary, #0172ad);color:var(--pico-contrast, #fff);font-weight:600}button.primary:hover,.button.primary:hover,[role=button].primary:hover{background:var(--pico-primary-hover, #015a8a);border-color:var(--pico-primary-hover, #015a8a)}button.primary:active,.button.primary:active,[role=button].primary:active{background:var(--pico-primary-active, #014a73);border-color:var(--pico-primary-active, #014a73)}button.danger,.button.danger,[role=button].danger{background:var(--pico-del-color, #dc3545);border-color:var(--pico-del-color, #dc3545);color:#fff}button.danger:hover,.button.danger:hover,[role=button].danger:hover{background:var(--pico-del-hover, #c82333);border-color:var(--pico-del-hover, #c82333)}button.danger:active,.button.danger:active,[role=button].danger:active{background:var(--pico-del-active, #bd2130);border-color:var(--pico-del-active, #bd2130)}nav>button[aria-selected=true]{background:var(--pico-primary);border-color:var(--pico-primary);color:var(--pico-contrast)}.chin-actions button[type=submit]{border-radius:0 var(--pico-radius) var(--pico-radius) 0;border-left:none}.card-footer button{padding:.5rem 1rem;font-size:.875rem}
+﻿html,body{min-height:100vh;height:100%;overflow:visible;background:linear-gradient(120deg, #181c2f 0%, #23243a 40%, #1a3a4a 70%, #2a1a3a 100%);padding-top:0}input,input:not([type=checkbox],[type=radio],[type=range],[type=file]),[type=checkbox],[type=radio],[type=range],[type=file],select,textarea{appearance:none}a,area,button,input,label,select,summary,textarea,[tabindex]{touch-action:manipulation}.storyboard-card:not([disabled]):hover,#storyboard-ai-character-card:not([disabled]):hover,#storyboard-user-character-card:not([disabled]):hover,#storyboard-world-card:not([disabled]):hover,.character-card-landscape:not([disabled]):hover,.story-profile-item-card:not([disabled]):hover{transform:translateY(-4px) scale(1.02);box-shadow:0 8px 25px rgba(0,0,0,.25),0 0 20px hsla(0,0%,100%,.1);transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.storyboard-card,#storyboard-ai-character-card,#storyboard-user-character-card,#storyboard-world-card,.story-profile-item-card{transform:translateY(0) scale(1);transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);margin-bottom:1rem}.storyboard-card[disabled]:hover .card-title,.storyboard-card[disabled]:hover .card-subtitle,#storyboard-ai-character-card[disabled]:hover .card-title,#storyboard-ai-character-card[disabled]:hover .card-subtitle,#storyboard-user-character-card[disabled]:hover .card-title,#storyboard-user-character-card[disabled]:hover .card-subtitle,#storyboard-world-card[disabled]:hover .card-title,#storyboard-world-card[disabled]:hover .card-subtitle{color:var(--pico-primary);text-shadow:0 0 15px rgb(var(--pico-primary-rgb), 0.6);transition:color .3s ease,text-shadow .3s ease;font-weight:bold}.storyboard-card[disabled]:hover .card-title::after,#storyboard-ai-character-card[disabled]:hover .card-title::after,#storyboard-user-character-card[disabled]:hover .card-title::after,#storyboard-world-card[disabled]:hover .card-title::after{content:" ▼ CLICK HERE!";color:var(--pico-primary);text-shadow:0 0 15px rgb(var(--pico-primary-rgb), 0.8);animation:dropdown-pulse 1s ease-in-out infinite;font-weight:bold;font-size:.9em}.storyboard-card[disabled]:hover,#storyboard-ai-character-card[disabled]:hover,#storyboard-user-character-card[disabled]:hover,#storyboard-world-card[disabled]:hover{box-shadow:0 0 20px rgb(var(--pico-primary-rgb), 0.3) !important;border:2px solid rgb(var(--pico-primary-rgb), 0.5) !important;transition:box-shadow .3s ease,border .3s ease}@keyframes dropdown-pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}.top-bar button:not([disabled]):hover,.top-bar [role=button]:not([disabled]):hover,#options-chin button:not([disabled]):hover,.chin-tab:not([disabled]):hover,button:not([disabled]):hover,input[type=submit]:not([disabled]):hover,input[type=button]:not([disabled]):hover{transform:none !important;box-shadow:0 0 20px rgb(var(--pico-primary-rgb), 0.6),0 0 30px hsla(0,0%,100%,.15) !important;transition:box-shadow .3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important}.chin-search-submit:not([disabled]):hover{transform:none !important;box-shadow:0 0 15px rgb(var(--pico-primary-rgb), 0.6) !important;transition:box-shadow .2s ease !important}.chin-search-submit:focus~input,.chin-search-submit:focus~select{box-shadow:0 0 10px rgb(var(--pico-primary-rgb), 0.4) !important;border-color:var(--pico-primary) !important}a:not([disabled]):hover{transform:translateY(-2px) scale(1.02);text-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .2s cubic-bezier(0.68, -0.55, 0.265, 1.55),text-shadow .2s cubic-bezier(0.68, -0.55, 0.265, 1.55)}[disabled].secondary{opacity:.3 !important;cursor:not-allowed !important;filter:grayscale(100%) !important;pointer-events:none !important;background:hsla(0,0%,100%,.1) !important;color:hsla(0,0%,100%,.5) !important;border-color:hsla(0,0%,100%,.2) !important}[disabled].secondary:hover{transform:none !important;box-shadow:none !important;transition:none !important;background:inherit !important;color:inherit !important}.disabled{cursor:not-allowed !important;pointer-events:none !important;opacity:.5 !important;filter:grayscale(100%) !important}.disabled:hover{transform:none !important;box-shadow:none !important;transition:none !important}button[disabled].secondary:hover,input[disabled]:hover,select[disabled]:hover,textarea[disabled]:hover,label[disabled]:hover,[role=button][disabled].secondary:hover{transform:none !important;box-shadow:none !important;background:inherit !important;color:inherit !important}.storyboard-card[disabled],#storyboard-ai-character-card[disabled],#storyboard-user-character-card[disabled],#storyboard-world-card[disabled]{opacity:1 !important;cursor:pointer !important;pointer-events:auto !important;filter:none !important}button:not([disabled]),input[type=button]:not([disabled]),input[type=submit]:not([disabled]),[role=button]:not([disabled]),label:not([disabled]),.upload-label:not([disabled]){cursor:pointer !important}input[type=text],input[type=email],input[type=password],input[type=search],input[type=url],input[type=tel],input[type=number],textarea,select{cursor:text !important}input[type=file]{cursor:pointer !important}#storyboard-title{cursor:pointer !important}#storyboard-title:focus{cursor:text !important}.storyboard-card:not([disabled]),.character-card-landscape:not([disabled]),.story-profile-item-card:not([disabled]){cursor:pointer !important}.card-title-dropdown,.card-title-selected,.dropdown-option{cursor:pointer !important}a:not([disabled]){cursor:pointer !important}[disabled],.disabled{cursor:not-allowed !important}.storyboard-card,.character-card-landscape,.story-profile-item-card,.top-bar button,.top-bar [role=button],#options-chin button,.chin-tab,button,input[type=submit],input[type=button],a{transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.storyboard-card.selected,.character-card-landscape.selected,.story-profile-item-card.selected{animation:subtle-pulse 2s ease-in-out infinite}@keyframes subtle-pulse{0%,100%{box-shadow:0 2px 8px rgba(0,0,0,.1)}50%{box-shadow:0 4px 15px rgba(0,0,0,.2),0 0 10px hsla(0,0%,100%,.05)}}*:focus{outline:none !important}.card-title-dropdown,.card-title-dropdown *,.card-title-selected,.card-title-dropdown-menu,.card-title-dropdown-menu *,.dropdown-option{border:0 !important;border-width:0 !important;border-style:none !important;border-color:rgba(0,0,0,0) !important;outline:rgba(0,0,0,0) none 0 !important;text-shadow:none !important;box-shadow:none !important;-webkit-border:0 !important;-moz-border:0 !important;-webkit-outline:0 !important;-moz-outline:0 !important}.card-title-dropdown *,.card-title-dropdown *:focus,.card-title-dropdown *:hover,.card-title-dropdown *:active{border:0 !important;outline:none !important;box-shadow:none !important}.card-title-selected,.card-title-selected:focus,.card-title-selected:hover,.card-title-selected:active{border:0 !important;outline:none !important;box-shadow:none !important;background:rgba(0,0,0,0) !important}.card-title-selected:hover,.card-title-selected:focus{background:rgba(80,80,120,.2) !important}.card-title-dropdown-menu .dropdown-option,.card-title-dropdown-menu .dropdown-option:focus,.card-title-dropdown-menu .dropdown-option:hover,.card-title-dropdown-menu .dropdown-option:active{border:0 !important;outline:none !important;box-shadow:none !important}.card-title-dropdown-menu{z-index:9999999 !important;position:absolute !important}.storyboard-card,.storyboard-cards-row>article{overflow:visible !important;z-index:1;bottom:.5em;left:0;position:relative}.card{overflow:visible !important;z-index:1;position:relative}.card-title-dropdown{overflow:visible !important;z-index:10}.card-title-dropdown *,.card-title-dropdown-menu *,.card-title-selected,.dropdown-option{border:none !important;outline:none !important;box-shadow:none !important;margin:0 !important;padding:0 !important}.card-title-dropdown button,.card-title-dropdown-menu button{background:rgba(0,0,0,0) !important;border:0 !important;outline:none !important;box-shadow:none !important;padding:inherit !important;margin:0 !important}.profile-picture{background-position:center;background-size:cover;box-shadow:var(--shadow-sm);border:none;object-fit:cover}#chat-log{min-height:200px;margin-bottom:1rem;padding:.5rem;border-radius:var(--pico-radius);overflow:visible}#chat-form{display:flex;gap:.5rem;align-items:flex-end}.chin-options-fields{display:flex;flex-direction:column;gap:0}.app-scrollable-container{height:100vh;overflow:hidden auto;margin:0 !important;padding:1rem 0 0 !important;max-width:100vw !important;width:100vw !important}.app-scrollable-container:has(.profile-content-overlay){overflow:hidden !important}.profile-details-content-wrapper,.story-profile-layout-container,.middle-column-screen{overflow:visible !important;height:auto !important}.profile-section,.profile-hero-section{overflow:visible !important}.main-content-container{height:auto;min-height:0;overflow:visible !important}.chin-top-row,.chin-list-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;min-height:160px;height:auto;flex:1;align-content:start;box-shadow:none;--pico-box-shadow: 0;--pico-button-box-shadow: 0;--pico-button-hover-box-shadow: 0;--pico-switch-thumb-box-shadow: 0;--pico-card-box-shadow: 0;--pico-dropdown-box-shadow: 0}.chin-card{min-height:160px;height:auto}.chin-top-row{margin-bottom:1.5rem}.chin-list-grid{margin-bottom:0;flex:1;overflow:visible;max-height:100%;min-height:160px;z-index:10}.chin-card:hover{box-shadow:none}#chin-area{display:flex;flex-direction:column;gap:1rem;margin-top:1rem;border-radius:0 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem);padding-bottom:1rem;padding-top:1rem;min-height:190px}.chin-empty-centered{grid-column:1/-1;display:grid;place-items:center;min-height:120px;width:100%;font-style:italic;font-size:1.1em;background:none;border:none;text-align:center;margin:0;padding:0}.card-placeholder-text{width:100%;text-align:center;border-radius:var(--pico-radius)}.chin-list-grid>p,.chin-list-grid .story-item-empty-message{display:flex;align-items:center;justify-content:center;min-height:120px;width:100%;height:100%;text-align:center;margin:0 auto;grid-column:2/3}.top-bar-chin{position:absolute;top:calc(100% - .5rem);left:0;right:0;z-index:2000;color:#fff;padding:.5em 1em 1em;font-family:inherit;transition:all .2s;border-top-left-radius:0 !important;border-top-right-radius:0 !important;border-bottom-left-radius:var(--pico-radius, 0.5rem);border-bottom-right-radius:var(--pico-radius, 0.5rem);margin-top:0;padding-top:.5rem;min-height:200px;height:auto;display:flex;flex-direction:column;align-items:stretch;background:rgba(35,36,58,.85) !important;backdrop-filter:blur(15px);border-bottom:1px solid hsla(0,0%,100%,.1);box-shadow:0 4px 20px rgba(0,0,0,.2)}.top-bar-chin button{background:hsla(0,0%,100%,.1) !important;border-color:hsla(0,0%,100%,.2) !important;color:#fff !important;backdrop-filter:blur(5px)}.top-bar-chin button:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.top-bar-chin button.primary{background:var(--pico-primary, #0172ad) !important;border-color:var(--pico-primary, #0172ad) !important}.top-bar-chin button.primary:hover{background:var(--pico-primary-hover, #015a8a) !important;border-color:var(--pico-primary-hover, #015a8a) !important}.story-item-empty-message{opacity:.6 !important;font-style:italic;color:var(--pico-muted-color, #aaa)}#search-stories-input::placeholder,#search-characters-input::placeholder,#search-worlds-input::placeholder{font-style:italic;opacity:.8}.chin-options-actions input::placeholder,.chin-options-actions textarea::placeholder,.chin-options-grid input::placeholder,.chin-options-grid textarea::placeholder{font-style:italic;opacity:.8}#search-stories-input,#search-characters-input,#search-worlds-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:.75rem center;background-size:1rem;padding-left:2.5rem}.top-bar-chin,.top-bar{background:var(--pico-surface, #23243a);color:var(--pico-contrast, #fff);box-shadow:none;border-radius:var(--pico-radius);margin-top:0;width:100%;max-width:100%}#main-content-wrapper>.container{position:relative}article>footer:not(.storyboard-card footer){margin:0 !important;padding:10px !important;border:none !important}article>header:not(.storyboard-card header){margin-top:0 !important;margin-bottom:0 !important;border:none !important}.storyboard-card article>footer,.chin-list-grid article>footer{justify-content:flex-end !important}.card-title-selected{position:relative}.card-title-selected.placeholder-mode{font-style:italic;opacity:.7;border:1px dashed hsla(0,0%,100%,.3);border-radius:var(--pico-radius);padding:.5rem 1rem;cursor:pointer;transition:all .2s ease}.card-title-selected.placeholder-mode:hover{opacity:.9;border-color:hsla(0,0%,100%,.5);background:hsla(0,0%,100%,.05)}.top-bar-nav{padding:1em}.top-bar-nav.is-active{display:flex !important;z-index:1000}#start-fresh-button.secondary{transition:background .2s,color .2s}#start-fresh-button.secondary:hover,#start-fresh-button.secondary:focus{background:#e53935 !important;color:var(--pico-contrast, #fff) !important;border-color:#e53935 !important}nav{margin:0;padding:0;align-items:center}.top-bar-nav ul{display:flex;gap:1rem;margin:0 !important;padding:0 !important}.top-bar-nav li{margin:0 !important;padding:0 !important}.chin-actions{display:flex;align-items:center;gap:1rem;flex-wrap:nowrap;justify-content:space-between}.chin-actions-right{display:flex;gap:1rem;align-items:center;flex-wrap:nowrap}.chin-actions form[role=search]{display:flex;align-items:center;vertical-align:middle;margin:0;padding:0}.chin-actions form[role=search] fieldset[role=group]{display:flex;align-items:center;vertical-align:middle;margin:0;padding:0;border:none}.chin-actions,.chin-options-actions{display:flex;gap:1rem;align-items:center;margin-bottom:1rem;border-radius:var(--pico-radius)}.chin-options-actions{display:flex;gap:1rem;align-items:center;margin-bottom:0}.character-card-landscape,.storyboard-card,.card,.card-picture,.chin-card{border-radius:var(--pico-radius) !important;overflow:visible}.chin-list-grid .character-card-landscape{min-height:160px;height:auto;z-index:100;position:relative}.character-card-landscape{border-radius:var(--pico-radius) !important;border-top-left-radius:var(--pico-radius, 0.5rem) !important;border-bottom-left-radius:var(--pico-radius, 0.5rem) !important}.card-grid{display:grid;grid-template-columns:3fr 2fr;align-items:stretch;gap:1rem;height:100%;border-radius:var(--pico-radius, 0.5rem);overflow:visible}.card-footer{display:flex;gap:.5rem;justify-content:flex-end;align-items:center;padding:.5rem 1rem;margin-top:auto;box-shadow:none;width:100%;box-sizing:border-box}.card-footer button{font-size:.8rem;padding:.25rem .5rem;min-width:auto;background:var(--pico-button-background-color, #666);color:var(--pico-button-color, #fff)}.card-grid,.card-content{gap:0 !important}.card-info{min-width:0;display:flex;flex-direction:column;padding:0;text-align:left;height:100%;overflow:visible;position:relative;justify-content:space-between}.card-info header{margin:0;padding:0;font-size:1em;font-weight:600;line-height:1.1;text-align:center;border-radius:0 var(--pico-radius, 0.5rem) 0 0}.card-info h4{margin:0;font-size:1em;font-weight:600;line-height:1.1;text-align:center;text-wrap:balance;padding:.2em .6em;display:flex;align-items:center;justify-content:center;min-height:2.5em}.card-info p{margin:0;font-size:.85em;line-height:1.2;color:var(--pico-muted-color, #aaa);text-align:center;text-wrap:balance;display:flex;align-items:center;justify-content:center;min-height:3em;flex:1}.card-picture{display:flex;align-items:stretch;justify-content:flex-end;padding:0;margin:0;height:100%}.card-picture .profile-picture{width:100%;height:100%;min-width:0;min-height:0;max-width:none;max-height:none;border:none;object-fit:cover;align-self:stretch;margin:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem}.character-card-landscape .card-picture .profile-picture{border-radius:0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important}.character-card-landscape .card-info{border-radius:var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;overflow:hidden !important}.storyboard-card .card-info{border-radius:0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important;overflow:hidden !important}.card-content{display:grid;grid-template-columns:35% 65%;gap:0;align-items:stretch;height:100%;min-height:260px;max-height:100%}.card-avatar{width:100%;height:100%;display:flex;align-items:start;justify-content:center;overflow:hidden}.card-avatar img{width:100%;height:100%;object-fit:cover;display:block;background:#222}.card-title-selected .profile-dot{display:none !important}.card-title{text-wrap:balance}@media(width <= 600px){.character-card-landscape{height:auto}.card-grid{grid-template-columns:1fr;grid-template-rows:auto auto;height:auto}.card-picture{justify-content:center;margin-top:1em}.card-content{grid-template-columns:1fr;grid-template-rows:auto auto;min-height:unset;height:auto}.card-avatar{height:160px;min-height:120px;max-height:200px}}:root{color:#fff;--pico-radius: 0.5rem}.button,.primary,.secondary,.contrast,.outline,select,input[type=text],input[type=file],input[type=email],input[type=password],textarea{border-radius:var(--pico-radius)}article{padding:0;margin:0}#opening-prompt-textarea,#custom-story-js-textarea{margin:0 !important}.upload-label{display:inline-flex;align-items:center;justify-content:center;height:2.5em;padding:0 1.25em;border-radius:var(--pico-radius);font-size:1rem;border:none;cursor:pointer;transition:background .2s;vertical-align:middle;line-height:1;box-sizing:border-box;margin:0;background:hsla(0,0%,100%,.1) !important;border-color:hsla(0,0%,100%,.2) !important;color:#fff !important;backdrop-filter:blur(5px)}.upload-label:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.upload-label-text{pointer-events:none}.upload-label input[type=file]{display:none}.chin-actions input[type=search]{height:auto;padding:var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em;border-radius:999px 0 0 999px !important;border:1px solid hsla(0,0%,100%,.2) !important;border-right:none !important;font-size:1rem;box-sizing:border-box;display:inline-flex;align-items:center;flex:none;margin:0;width:auto;transition:background .2s,border-color .2s}.chin-actions button[type=submit]{height:auto;padding:var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em;border-radius:0 999px 999px 0 !important;border-left:none !important;font-size:1rem;box-sizing:border-box;display:inline-flex;align-items:center;flex:none;margin:0;min-width:0}.chin-actions input[type=search]:hover{border-color:hsla(0,0%,100%,.3) !important}.chin-actions button[type=submit]:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.chin-actions input[type=search]:hover+button[type=submit]{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.chin-actions button[type=submit]:hover~input[type=search]{border-color:hsla(0,0%,100%,.3) !important}.chin-actions fieldset[role=group]{border:none !important;padding:0 !important;margin:0 !important;display:flex !important;align-items:center !important;width:fit-content !important;overflow:hidden !important}.chin-actions form{border:none !important;padding:0 !important;margin:0 !important;width:fit-content !important;overflow:hidden !important}.chin-options-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}.chin-options-grid textarea{width:100%;min-height:8em;border-radius:var(--pico-radius);font-size:1rem;box-sizing:border-box;margin-top:.5em}button,.button,.secondary,.danger{text-align:center;justify-content:center}.storyboard-cards-row>*{height:260px;min-height:260px;display:flex;flex-direction:column}.storyboard-cards-row{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;align-items:stretch;margin:0;padding:0}.storyboard-cards-row>article{margin:0;padding:0;flex:1 1 0}#storyboard-scrollable-content .grid{gap:0 !important;grid-gap:0 !important}.storyboard-cards-row select{border:none;background:#23243a;color:#fff;appearance:none;text-align:center;font-size:1.1em;font-weight:500;outline:none;padding:.5em 0;width:100%;cursor:pointer}.storyboard-cards-row select:focus{outline:none !important}.storyboard-cards-row select::-ms-expand{display:none}.storyboard-cards-row select::-webkit-inner-spin-button,.storyboard-cards-row select::-webkit-outer-spin-button,.storyboard-cards-row select::-webkit-search-cancel-button,.storyboard-cards-row select::-webkit-search-decoration{display:none}.storyboard-cards-row select option{text-align:left;color:#222}.card-title-dropdown-menu .dropdown-option{text-wrap:pretty;text-align:left}.storyboard-cards-row .profile-picture{border-radius:var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important}.top-bar-nav button,.top-bar-section button{padding:var(--pico-form-element-spacing-vertical, 0.75rem) var(--pico-form-element-spacing-horizontal, 1rem);display:inline-flex;align-items:center;justify-content:center;height:100%}.chin-card,.card{border:none !important;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);border-radius:var(--pico-radius);overflow:visible;transition:box-shadow .2s ease;position:relative}.storyboard-card:hover,.chin-card:hover,.card:hover{box-shadow:0 2px 8px 0 rgba(0,0,0,.15)}.card-title-dropdown-menu .dropdown-option .plus-sign{display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;margin-right:.5em;font-weight:600;font-size:1em}.card-title-dropdown-menu .dropdown-option .profile-dot{display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;border-radius:50%;margin-right:.5em;flex-shrink:0;vertical-align:middle}.card-title-dropdown-menu .dropdown-option.placeholder-option{color:#888 !important;opacity:.7 !important;font-style:italic !important}body,body *:not([disabled]){opacity:1 !important;color:#fff !important}.card-info small,.card-info p{color:#fff !important}.card-info small{display:inline-block;background:var(--pico-primary, #0172ad);color:#fff !important;font-size:.75em;font-weight:600;padding:.2em .6em;border-radius:var(--pico-radius);letter-spacing:.05em;line-height:1.2}.chin-list-grid .card-info small{font-style:italic;font-weight:400}body,.top-bar,.top-bar-chin,.chin-card,.card,.storyboard-card,.chin-list-grid,.chin-actions,.chin-options-actions,.card-info,.card-info header,.card-info h4,.card-title-selected,.dropdown-option{color:#fff !important}[data-tooltip]{position:relative}[data-tooltip]::before,[data-tooltip]::after{z-index:999999 !important;pointer-events:none !important}.dropdown-option.placeholder-option{color:#888 !important;font-style:italic !important}#storyboard-scrollable-content{overflow:visible !important;position:relative;z-index:1000}.card-title-dropdown-menu .dropdown-option.create-new{font-weight:400 !important}.card-title-dropdown *,.card-title-dropdown-menu *,.dropdown-option,.card-title-dropdown-menu .dropdown-option{border:0 !important;outline:none !important;box-shadow:none !important;margin:0 !important;padding:0 !important}.card-title-dropdown:has(.card-title-dropdown-menu:not(.hidden)) .card-title-selected{background:#35365a !important;border:0 !important;outline:none !important;box-shadow:none !important}.card-title-dropdown .card-title-dropdown-menu:not(.hidden)~.card-title-selected,.card-title-dropdown .card-title-dropdown-menu:not(.hidden)+.card-title-selected{background:#35365a !important;border:0 !important;outline:none !important;box-shadow:none !important}.storyboard-card .card-content{flex:1;display:flex;min-height:260px;overflow:visible}.storyboard-card header{height:3rem;display:flex;align-items:center;overflow:hidden}.storyboard-card .card-title-dropdown{height:100%;display:flex;align-items:center;overflow:hidden}.storyboard-card .card-title-selected{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.storyboard-card .card-title-selected.placeholder-mode{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}#storyboard-title-area{display:flex;align-items:center;justify-content:center;min-height:3rem;margin:1.5rem 2rem 2rem;padding:2rem}.card-header-flex{display:flex;align-items:center;justify-content:center;padding:.5rem}.card-main-flex{display:flex;align-items:center;justify-content:center;flex:1;padding:0 .5rem}.card-title-styled{font-size:1.1em;font-weight:bold;text-align:center;text-wrap:balance;line-height:1.2;max-height:3.6em;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical}.card-description-styled{text-align:center;text-wrap:balance;line-height:1.3;overflow:hidden;text-overflow:ellipsis}.system-message-styled{margin:1rem auto;text-align:center}.studio-profile-name-styled{margin-top:1.25rem;margin-bottom:1.25rem}.color-swatch-large-styled{background-color:var(--swatch-color, var(--pico-primary, #0172ad))}.color-swatch-small-styled{background-color:var(--swatch-color, var(--pico-primary, #0172ad))}.hidden-input{display:none}.profile-picture-initials-styled{--bg-color: var(--palette-medium, var(--pico-primary, #0172ad));--text-color-initials: var(--palette-light, #fff)}.studio-layout-container{display:flex;min-height:100%;background:var(--pico-surface, #23243a);border-radius:var(--pico-radius, 0.5rem);overflow:visible;box-shadow:0 4px 12px rgba(0,0,0,.15)}.studio-content-area{display:flex;width:100%;min-height:100%;overflow:visible}.studio-left-panel{flex:0 0 300px;display:flex;flex-direction:column;align-items:center;padding:0;overflow:visible;overflow-x:hidden}.studio-right-panel{flex:1;display:flex;flex-direction:column;min-width:0;overflow:visible;overflow-x:hidden}.studio-left-panel::-webkit-scrollbar,.studio-right-panel::-webkit-scrollbar{width:8px}.studio-left-panel::-webkit-scrollbar-track,.studio-right-panel::-webkit-scrollbar-track{background:hsla(0,0%,100%,.05);border-radius:4px}.studio-left-panel::-webkit-scrollbar-thumb,.studio-right-panel::-webkit-scrollbar-thumb{background:hsla(0,0%,100%,.2);border-radius:4px;transition:background .2s ease}.studio-left-panel::-webkit-scrollbar-thumb:hover,.studio-right-panel::-webkit-scrollbar-thumb:hover{background:hsla(0,0%,100%,.3)}.studio-left-panel,.studio-right-panel{scrollbar-width:thin;scrollbar-color:hsla(0,0%,100%,.2) hsla(0,0%,100%,.05)}.profile-picture-section{display:flex;flex-direction:column;align-items:center;width:100%;height:100%}.profile-picture-container{position:relative;width:100%;height:100%;border-radius:0;overflow:hidden;box-shadow:none;transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.profile-picture-container:hover{transform:none}.profile-picture-edit-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s ease;cursor:pointer}.profile-picture-container:hover .profile-picture-edit-overlay{opacity:1}.profile-picture-edit-overlay .button-icon{font-size:2rem;color:#fff}.profile-picture-large{width:100%;height:100%;border-radius:0}.profile-picture-medium{width:100%;height:100%;border-radius:0}.profile-picture-small{width:100%;height:100%;border-radius:0}.profile-picture-edit-section{margin-bottom:1rem}.form-section:last-child{margin-bottom:2rem}.profile-field-row:last-child{margin-bottom:2rem}.eppf-section{display:grid}.profile-background-layout{position:relative;width:100%;min-height:100vh}.profile-background-container{position:fixed;top:0;left:0;width:35vw;height:100vh;z-index:1;overflow:hidden;pointer-events:none}.profile-background-image{width:100%;height:100%;object-fit:cover;object-position:center;display:flex;align-items:center;justify-content:center}.profile-background-image img,.profile-background-image svg{width:100%;height:100%;object-fit:cover;object-position:center}.profile-background-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, rgba(35, 36, 58, 0.3) 0%, rgba(35, 36, 58, 0.6) 50%, rgba(35, 36, 58, 0.8) 100%);z-index:2}.profile-content-overlay{position:fixed;left:0;right:0;z-index:5;height:calc(100vh - 6.7rem);overflow:hidden auto;display:flex;flex-direction:column;justify-content:flex-start;box-sizing:border-box;padding-left:35vw;padding-right:calc(5% - 1rem);scrollbar-width:thin;scrollbar-color:hsla(0,0%,100%,.3) rgba(0,0,0,0)}.profile-content-overlay::-webkit-scrollbar{width:8px}.profile-content-overlay::-webkit-scrollbar-track{background:rgba(0,0,0,0)}.profile-content-overlay::-webkit-scrollbar-thumb{background:hsla(0,0%,100%,.3);border-radius:4px;transition:background .2s ease}.profile-content-overlay::-webkit-scrollbar-thumb:hover{background:hsla(0,0%,100%,.5)}.profile-content-container{margin:0 auto;width:100%}.profile-header-section{text-align:center;display:flex;align-items:center;justify-content:center;min-height:3rem;margin:1.5rem 2rem 2rem;padding:1rem}.profile-header-section .studio-profile-name{text-wrap:balance;height:3.5em;line-height:1.4em;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-all;text-align:center;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;font-size:2em;font-weight:400;letter-spacing:.05em;text-shadow:0 2px 4px rgba(0,0,0,.3);padding:0;margin:0;border:none;border-radius:var(--pico-radius);transition:all .2s ease}.profile-description{font-size:1.2rem;color:hsla(0,0%,100%,.9);line-height:1.6;margin:0 1rem 1rem;text-shadow:0 2px 4px rgba(0,0,0,.3);background:rgba(0,0,0,.2);padding:1rem;border-radius:.5rem;backdrop-filter:blur(10px)}.profile-details-grid{display:grid}.profile-field-row{display:grid;grid-template-columns:20% auto;align-items:center;padding-left:1rem}.profile-field-label{display:flex;flex-direction:column;justify-content:right;font-weight:600;color:var(--pico-h1-color, #fff)}.profile-field-label .main-label{font-size:1.1rem;font-weight:700;color:var(--pico-primary, #0172ad);text-align:right;letter-spacing:.5px;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-field-label .field-sublabel{font-size:.9rem;color:hsla(0,0%,100%,.7);font-weight:400;text-align:right}.profile-field-value{color:#fff;line-height:1.7;padding:1rem;background:hsla(0,0%,100%,.08);border-radius:.5rem;font-size:.95rem;min-height:3rem;display:flex;align-items:center;margin:.5rem 1rem;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-field-value:empty::before{content:"—";color:hsla(0,0%,100%,.5);font-style:italic}.profile-field-value input,.profile-field-value textarea{width:100%;background:rgba(0,0,0,0);border:none;color:#fff;font-size:.95rem;line-height:1.7;padding:0;margin:0;resize:vertical;min-height:3rem;font-family:inherit;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-header-section .studio-name-input-large{background:rgba(0,0,0,0) !important;border:none !important;box-shadow:none !important;transition:none !important;overflow:visible !important;text-overflow:unset !important;white-space:normal !important;word-wrap:break-word !important;word-break:break-all !important}.profile-header-section h2.studio-profile-name{cursor:default}.profile-header-section .studio-profile-name::placeholder{color:hsla(0,0%,100%,.5);font-style:italic}.profile-header-section .studio-profile-name:empty::before,.profile-header-section .studio-profile-name:blank::before,.studio-profile-name:empty::before,.studio-profile-name:blank::before{content:attr(data-placeholder);color:hsla(0,0%,100%,.5);font-style:italic;pointer-events:none}.studio-profile-name[data-placeholder]:not(:focus):empty::before,.studio-profile-name[data-placeholder]:not(:focus):blank::before{content:attr(data-placeholder);color:hsla(0,0%,100%,.5);font-style:italic;pointer-events:none}.profile-header-section .studio-profile-name:focus{outline:none;background:hsla(0,0%,100%,.1);border-radius:.5rem}.profile-field-value input::placeholder,.profile-field-value textarea::placeholder{color:hsla(0,0%,100%,.5);font-style:italic}.profile-field-value input:focus,.profile-field-value textarea:focus{outline:none;background:hsla(0,0%,100%,.1);border-radius:.25rem}.top-bar{position:relative;z-index:10;background:rgba(35,36,58,.85) !important;backdrop-filter:blur(15px);border-bottom:1px solid hsla(0,0%,100%,.1);box-shadow:0 4px 20px rgba(0,0,0,.2)}#storyboard-screen.container{width:100%;max-width:100%;margin-left:0;margin-right:0}@media(width <= 768px){.profile-content-overlay{padding:1rem;margin-top:70px}.profile-field-row{grid-template-columns:1fr;gap:1rem}.profile-description{font-size:1rem;padding:1rem}}@media(width <= 480px){.profile-content-overlay{padding:.75rem}.profile-field-row{gap:.25rem}}.profile-field-row.legacy{display:flex;flex-direction:column;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1))}.profile-field-value.readonly{background:hsla(0,0%,100%,.02);border-color:hsla(0,0%,100%,.05);color:var(--pico-muted-color, #aaa)}.studio-name-input-large{font-size:1.5rem;font-weight:bold;padding:1rem;background:var(--pico-card-background-color, rgba(255, 255, 255, 0.05));border:2px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));border-radius:var(--pico-radius, 0.5rem);color:var(--pico-color, #fff);transition:all .2s ease;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-all;min-width:0}.studio-name-input-large:focus{border-color:var(--pico-primary, #0172ad);box-shadow:0 0 0 3px rgb(var(--pico-primary-rgb, 1, 114, 173), 0.1)}.studio-profile-name{font-size:1.75rem;font-weight:bold;color:var(--pico-h1-color, #fff);margin:0;text-align:center;line-height:1.2;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-all;min-width:0}.profile-action-buttons{display:flex;justify-content:flex-end;border-top:1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));margin:0 !important}.action-button-primary{min-width:140px;display:flex;align-items:center;justify-content:center;gap:.5rem;font-weight:600}.action-button-secondary{min-width:100px;display:flex;align-items:center;justify-content:center;gap:.5rem}.delete-button{background:var(--pico-del-color, #dc3545);border-color:var(--pico-del-color, #dc3545);color:#fff}.delete-button:hover{background:var(--pico-del-hover, #c82333);border-color:var(--pico-del-hover, #c82333)}@media(width <= 768px){.studio-content-area{flex-direction:column}.studio-left-panel{flex:none;max-height:none;overflow:visible;padding:0}.studio-right-panel{max-height:none;overflow:visible;padding-right:0}.studio-layout-container{max-height:none;overflow:visible}.profile-picture-container{width:100%;height:200px;border-radius:0}.profile-action-buttons{flex-direction:column;gap:.75rem;margin:0 !important}.action-button-primary,.action-button-secondary{width:100%;min-width:auto}}@media(width <= 480px){.profile-picture-container{height:150px}.studio-name-input-large{font-size:1.25rem;padding:.75rem}.studio-profile-name{font-size:1.5rem}.profile-picture-section{gap:.75rem}}@media(width >= 769px)and (width <= 1024px){.studio-left-panel{flex:0 0 250px}.profile-picture-container{width:100%;height:100%}}@media(width >= 1025px){.studio-left-panel{flex:0 0 350px}.profile-picture-container{width:100%;height:100%}}.visually-hidden{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);border:0}.hidden{display:none !important}#options-chin{display:none !important}#options-chin:not(.hidden){display:flex !important}button.secondary,.button.secondary,[role=button].secondary{padding:var(--pico-form-element-spacing-vertical, 0.75rem) var(--pico-form-element-spacing-horizontal, 1rem);display:inline-flex;align-items:center;justify-content:center;height:auto;background:hsla(0,0%,100%,.1);border:1px solid hsla(0,0%,100%,.2);border-radius:var(--pico-radius);color:#fff;cursor:pointer;transition:background .2s,border-color .2s,transform .2s;backdrop-filter:blur(5px);font-size:1rem;font-weight:500;text-decoration:none;white-space:nowrap;margin:0;outline:none}button.secondary[type=button],button.secondary[type=reset],button.secondary[type=submit],.button.secondary[type=button],.button.secondary[type=reset],.button.secondary[type=submit],[role=button].secondary[type=button],[role=button].secondary[type=reset],[role=button].secondary[type=submit]{margin-bottom:0 !important}button.secondary:hover,.button.secondary:hover,[role=button].secondary:hover{background:hsla(0,0%,100%,.2);border-color:hsla(0,0%,100%,.3);transform:translateY(-1px)}button.secondary:active,.button.secondary:active,[role=button].secondary:active{background:hsla(0,0%,100%,.15);border-color:hsla(0,0%,100%,.25);transform:translateY(0)}button.secondary:focus,.button.secondary:focus,[role=button].secondary:focus{outline:none;box-shadow:0 0 0 2px hsla(0,0%,100%,.3)}button.primary,.button.primary,[role=button].primary{background:var(--pico-primary, #0172ad);border-color:var(--pico-primary, #0172ad);color:var(--pico-contrast, #fff);font-weight:600}button.primary:hover,.button.primary:hover,[role=button].primary:hover{background:var(--pico-primary-hover, #015a8a);border-color:var(--pico-primary-hover, #015a8a)}button.primary:active,.button.primary:active,[role=button].primary:active{background:var(--pico-primary-active, #014a73);border-color:var(--pico-primary-active, #014a73)}button.danger,.button.danger,[role=button].danger{background:var(--pico-del-color, #dc3545);border-color:var(--pico-del-color, #dc3545);color:#fff}button.danger:hover,.button.danger:hover,[role=button].danger:hover{background:var(--pico-del-hover, #c82333);border-color:var(--pico-del-hover, #c82333)}button.danger:active,.button.danger:active,[role=button].danger:active{background:var(--pico-del-active, #bd2130);border-color:var(--pico-del-active, #bd2130)}nav>button[aria-selected=true]{background:var(--pico-primary);border-color:var(--pico-primary);color:var(--pico-contrast)}.top-bar-flex{display:flex;align-items:center;justify-content:space-between}.top-bar-center-flex{flex:.3;display:flex;justify-content:center;align-items:center}.top-bar-center-compact{flex:.1;display:flex;justify-content:center;align-items:center}.button-hidden{display:none}.file-input-hidden{display:none}.margin-0{margin:0}.font-size-95{font-size:.95em}.margin-top-05{margin:.5em 0 0}.line-height-13{line-height:1.3}.profile-picture-default{background:#4f8cff;color:#fff;font-size:2.5rem;display:flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:var(--pico-radius, 0.25rem)}.chin-actions-flex{display:flex;gap:1rem;align-items:center;justify-content:space-between}.chin-actions-right-flex{display:flex;gap:1rem;align-items:center}.storyboard-title-padding{padding:1rem}.name-input-container-relative{position:relative}.studio-name-input-styled{background:hsla(0,0%,100%,.1);min-height:3rem;cursor:text;width:100%;box-sizing:border-box}.card-footer-premade{display:flex !important;justify-content:flex-start !important}
 
             /* Ensure standard appearance property */
             [type="checkbox"],
@@ -7544,19 +7543,20 @@ window.getProfilePictureHTML = getProfilePictureHTML;
  * @param {string} [fontFamily='Segoe UI, system-ui, sans-serif'] - Optional font family for placeholder.
  * @returns {string} HTML string for the profile picture element.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 'Segoe UI, system-ui, sans-serif') {
   console.debug('[ProfilePicture] getProfilePictureHTML called:', { item, context });
   
   // Validate inputs
   if (!item) {
-    console.warn('[ProfilePicture] No item provided, using fallback');
+    // No item provided, using fallback
     return createFallbackProfilePicture('?', palette, context, fontFamily);
   }
   
   const name = (item.name && typeof item.name === 'string') ? item.name.trim() : '?';
   const hasProfilePicture = item.profilePicture && typeof item.profilePicture === 'string' && item.profilePicture.trim().length > 0;
   
-  // Get initials using main app function if available
+  // Get initials using main app function if available, otherwise use simple fallback
   const initials = getInitials(name);
   
   // For card context, return only initials
@@ -7582,15 +7582,37 @@ function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 
 }
 
 /**
- * Gets initials from a name using the main app's function or fallback.
+ * Gets initials from a name - uses main app's function if available, otherwise simple fallback.
  * @param {string} name - The name to extract initials from.
  * @returns {string} The initials (max 2 characters).
  */
 function getInitials(name) {
-  if (window.App && window.App._getInitials) {
+  // Try to use main app's function first
+  if (window.App && typeof window.App._getInitials === 'function') {
     return window.App._getInitials(name);
   }
-  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+  
+  // Simple fallback implementation
+  if (!name) return '?';
+  
+  // Remove quotation marks and split into words
+  const cleanName = name.replace(/['"]/g, '');
+  const words = cleanName.split(' ');
+  
+  // Common words to skip (lowercase for comparison)
+  const skipWords = ['the', 'of', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'from', 'a', 'an'];
+  
+  // Filter out common words and get initials
+  const filteredWords = words.filter(word => {
+    const lowerWord = word.toLowerCase();
+    return !skipWords.includes(lowerWord) && word.length > 0;
+  });
+  
+  // Get initials from filtered words (allow up to 3 initials)
+  const initials = filteredWords.map(w => w[0]).join('').toUpperCase().slice(0, 3);
+  
+  // If no initials found after filtering, fall back to original logic
+  return initials || name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 3);
 }
 
 /**
@@ -7635,27 +7657,26 @@ function createFallbackProfilePicture(name, palette, context, fontFamily) {
 }
 
 /**
- * Generates a placeholder profile picture SVG as a data URL.
+ * Creates a profile picture placeholder - uses main app's function if available, otherwise local fallback.
  * @param {string} name - The name to extract initials from.
  * @param {Object} palette - The color palette object.
- * @param {string} [fontFamily='Segoe UI, system-ui, sans-serif'] - Optional font family.
+ * @param {string} fontFamily - The font family.
  * @returns {string} Data URL for the SVG profile picture.
  */
-function createProfilePicturePlaceholder(name, palette, fontFamily = 'Segoe UI, system-ui, sans-serif') {
-  // Use main app's cached placeholder logic if available
-  if (window.App && window.App._makeProfilePicturePlaceholderSVG) {
+function createProfilePicturePlaceholder(name, palette, fontFamily) {
+  // Try to use main app's function first
+  if (window.App && typeof window.App._makeProfilePicturePlaceholderSVG === 'function') {
     const paletteKey = getPaletteKey(palette);
-    const itemId = null; // No itemId for standalone component
-    const isPremade = false; // Default to false for standalone component
-    
-    try {
-      return window.App._makeProfilePicturePlaceholderSVG(name, paletteKey, isPremade, itemId);
-    } catch (error) {
-      console.warn('[ProfilePicture] Main app placeholder generation failed, using fallback:', error);
-    }
+    return window.App._makeProfilePicturePlaceholderSVG(name, paletteKey, false, null, fontFamily);
   }
   
-  // Fallback to local generation
+  // Try to use utils function if available
+  if (typeof makeProfilePicturePlaceholderSVG === 'function') {
+    const paletteKey = getPaletteKey(palette);
+    return makeProfilePicturePlaceholderSVG(name, paletteKey, false, null, fontFamily);
+  }
+  
+  // Local fallback implementation
   return createLocalPlaceholderSVG(name, palette, fontFamily);
 }
 
@@ -7679,8 +7700,8 @@ function createLocalPlaceholderSVG(name, palette, fontFamily) {
   
   try {
     return `data:image/svg+xml;base64,${btoa(svg)}`;
-  } catch (error) {
-    console.error('[ProfilePicture] Error encoding SVG:', error);
+  } catch { // error parameter removed
+    // Error encoding SVG
     // Return a simple fallback
     return `data:image/svg+xml;base64,${btoa('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#607d8b"/><text x="50" y="50" font-family="Arial" font-size="40" fill="#cfd8dc" text-anchor="middle" dominant-baseline="middle">?</text></svg>')}`;
   }
@@ -7728,7 +7749,7 @@ function getPaletteKey(palette) {
     }
   }
   
-  console.warn('[ProfilePicture] Could not determine palette key, using default slate_gray');
+  // Could not determine palette key, using default slate_gray
   return 'slate_gray'; // Final fallback
 }
 
@@ -7739,14 +7760,7 @@ function checkDependencies() {
     window.isDOMPurifyAvailable = typeof window.DOMPurify !== 'undefined';
     window.isHyperscriptLoaded = typeof window._hyperscript !== 'undefined';
     window.isCashDomLoaded = typeof window.$ !== 'undefined';
-    
-    // console.log('[DEBUG] Dependency check:', {
-    //   isDexieLoaded: window.isDexieLoaded,
-    //   isHyperscriptLoaded: window.isHyperscriptLoaded,
-    //   isCashDomLoaded: window.isCashDomLoaded,
-    //   isDOMPurifyAvailable: window.isDOMPurifyAvailable
-    // });
-    
+
     return window.isDexieLoaded && window.isDOMPurifyAvailable && 
            window.isHyperscriptLoaded && window.isCashDomLoaded;
   }
@@ -7757,13 +7771,14 @@ function checkDependencies() {
   
   function waitForDependencies() {
     if (checkDependencies()) {
-      // console.log('[DEBUG] All dependencies loaded successfully');
+      
       initializeApp();
     } else if (dependencyCheckCount < maxChecks) {
       dependencyCheckCount++;
       setTimeout(waitForDependencies, 100);
     } else {
-      console.error('[DEBUG] Dependency load timed out.', {
+      // Cleaned up error log for production
+      console.error('Dependency load timed out.', {
         isDexieLoaded: window.isDexieLoaded,
         isHyperscriptLoaded: window.isHyperscriptLoaded,
         isCashDomLoaded: window.isCashDomLoaded,
@@ -7781,7 +7796,7 @@ function checkDependencies() {
     if (window.App && typeof App.initializeWhenReady === 'function') {
       App.initializeWhenReady();
     } else {
-      console.error('[DEBUG] App failed to initialize due to missing dependencies: App.initializeWhenReady not found');
+      console.error('App failed to initialize due to missing dependencies: App.initializeWhenReady not found');
     }
   }
   
@@ -7944,7 +7959,7 @@ function checkDependencies() {
     
         _query(id, required = false) {
             const el = document.getElementById(id);
-            // console.log(`[DEBUG][_query] Attempting to find element with ID: ${id}. Found: ${!!el}`);
+            
             if (!el && required) {
                 console.error(`[UI Critical] Element with ID '${id}' not found.`);
             } else if (!el) {
@@ -7958,7 +7973,7 @@ function checkDependencies() {
          * Should be called once after DOM is ready.
          */
         _getUIElements() {
-            // console.log('[DEBUG][_getUIElements] Starting UI element query.');
+            
             this._getTopBarElements();
             this._getChinElements();
             this._getCoreUIContainers();
@@ -7972,8 +7987,8 @@ function checkDependencies() {
             if (!this.ui.main) {
                 console.error("[App Critical] #main container not found after UI element query!");
             }
-            // console.log('[DEBUG] UI elements loaded. TopBarRight:', this.ui.topBarRight, 'ProfileTopBar:', this.ui.profileTopBar);
-            // console.log('[DEBUG][_getUIElements] Finished UI element query.');
+            
+            
         },
     
         _getTopBarElements() {
@@ -8302,11 +8317,11 @@ function checkDependencies() {
        * @returns {HTMLElement|null}
        */
       hideEl(el) {
-        console.log('=== [DEBUG HIDEEL] ===', el && el.id, el);
+        // Debug: Element hide operation
         if (el) {
           el.classList.add('hidden'); // Add the hidden class
           el.style.display = 'none';
-          // console.log('[DEBUG] hideEl called for', el.id);
+          
         }
       },
       
@@ -8370,9 +8385,9 @@ function checkDependencies() {
       _premadeCharacterCache: null,
     
       async getPremadeCharacterItems() { 
-          // console.log('[DEBUG] getPremadeCharacterItems called');
+    
           if (this._premadeCharacterCache) {
-              // console.log('[DEBUG] Returning cached character items');
+        
               return this._premadeCharacterCache;
           }
           const db = this.db;
@@ -8454,7 +8469,7 @@ function checkDependencies() {
             ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
             ...premadeWithFlag
           ];
-          // console.log('[DEBUG] getPremadeCharacterItems: Merged data for UI:', merged);
+    
           this._premadeCharacterCache = merged;
           return this._premadeCharacterCache;
       },
@@ -8464,9 +8479,9 @@ function checkDependencies() {
       _premadeWorldCache: null,
     
       async getPremadeWorldItems() {
-          // console.log('[DEBUG] getPremadeWorldItems called');
+    
           if (this._premadeWorldItemsCache) {
-              // console.log('[DEBUG] Using cached premade world items, count:', this._premadeWorldItemsCache.length);
+        
               return this._premadeWorldItemsCache;
           }
           const db = this.db;
@@ -8506,8 +8521,8 @@ function checkDependencies() {
             ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
             ...premadeWithFlag
           ];
-                  // console.log('[DEBUG] getPremadeWorldItems: Merged data for UI:', merged);
-        // console.log('[DEBUG] First few worlds:', merged.slice(0, 3).map(w => ({ id: w.id, name: w.name, colorPalette: w.colorPalette })));
+            
+  
           this._premadeWorldItemsCache = merged;
           return this._premadeWorldItemsCache;
       },
@@ -8523,7 +8538,7 @@ function checkDependencies() {
               stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, concluded',
               messages: '++id, storyId, timestamp, [storyId+timestamp]',
               worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, colorPalette'
-          }).upgrade(async tx => {
+          }).upgrade(async () => {
               // Migration logic remains the same
           });
       
@@ -8596,9 +8611,9 @@ function checkDependencies() {
       },
     
       async initialLoad() {
-          console.log('=== [DEBUG INITIAL LOAD START] ==='); // Added log
-          console.log("=== App.initialLoad called ===");
-          // console.log("[DEBUG] _getUIElements called, this.ui.main:", this.ui.main, "this.ui.initialPageLoadingModal:", this.ui.initialPageLoadingModal);
+          // Debug: Initial load started
+          // App.initialLoad called
+    
           this.isInitializing = true;
     
           // Initialize navigation guard system
@@ -8622,14 +8637,14 @@ function checkDependencies() {
           }
     
           this.showEl(this.ui.main);
-                      // console.log("[DEBUG] showEl(this.ui.main) called");
+                
     
           try {
-                              // console.log("[DEBUG] Attempting to initializeDb..."); // Added log
+                        
               await this.initializeDb();
-                              // console.log("[DEBUG] initializeDb complete");
+                        
               const appState = await this.getAppState();
-                              // console.log("[DEBUG] getAppState complete");
+                        
               this.currentUserCharacterId = appState.currentUserCharacterId;
               this.currentStoryId = appState.lastOpenedStoryId; 
               this.activeStoryId = appState.activeStoryId; 
@@ -8646,7 +8661,7 @@ function checkDependencies() {
                   this.ui.messageInput.style.height = (this.ui.messageInput.scrollHeight) + 'px';
                   this.checkAllButtonStates();
               };
-              document.addEventListener('click', (event) => {
+              document.addEventListener('click', () => {
                       if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover');
                   });
               // Bind menu button click handler directly to avoid onclick attribute issues
@@ -8656,7 +8671,7 @@ function checkDependencies() {
               this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
               
               await this._updateCharacterInfo('user');
-                              // console.log("[DEBUG] _updateCharacterInfo complete");
+                        
     
               let initialScreenTarget = this.CONSTANTS.VIEWS.STORYBOARD;
               let initialScreenOptions = {};
@@ -8677,9 +8692,9 @@ function checkDependencies() {
                           }
                           recoveredFromSessionStorage = true;
                           sessionStorage.removeItem('pendingRPGlitchFormState'); 
-                          console.log("[App Lifecycle] Recovered pending form state from sessionStorage:", parsedState.formOptions.isCreating ? "Copy workflow" : "Edit workflow");
+                          // Recovered pending form state from sessionStorage
                       } else {
-                          console.log("[App Lifecycle] Stale or invalid pending form state in sessionStorage. Removing.");
+                          // Stale or invalid pending form state in sessionStorage. Removing.
                           sessionStorage.removeItem('pendingRPGlitchFormState'); 
                       }
                   } catch (e) {
@@ -8712,13 +8727,13 @@ function checkDependencies() {
               
               if (initialScreenTarget === this.CONSTANTS.VIEWS.STORY_INTERFACE && this.activeStoryId) { 
                    await this.openStory(this.activeStoryId);
-                                       // console.log("[DEBUG] openStory complete");
+                                 
               } else {
                    await this.switchToScreen(initialScreenTarget, initialScreenOptions);
-                                       // console.log("[DEBUG] switchToScreen complete");
+                                 
               }
     
-                              // console.log("[DEBUG] Loading characters and worlds into App.data..."); // Added log
+                        
               // Load all characters and worlds from the database before setting App.data
               this.data = {
                 characters: await this.db.characters.toArray(),
@@ -8727,43 +8742,43 @@ function checkDependencies() {
     
               // Ensure App.data is set for dropdown population
               App.data = this.data;
-                              // console.log('[DEBUG] App.data set:', App.data && Object.keys(App.data)); // Existing log, now more crucial
-                // console.log('[DEBUG] App.data.characters:', App.data && App.data.characters);
-                // console.log('[DEBUG] App.data.worlds:', App.data && App.data.worlds);
+                        
+          
+          
     
               // Atomic fix: Populate dropdowns immediately after data is set
               if (typeof this._updateStoryboard === 'function') {
-                                      // console.log('[DEBUG] Calling _updateStoryboard from initialLoad...'); // Added log
+                                
                   await this._updateStoryboard();
-                                      // console.log('[DEBUG] _updateStoryboard complete in initialLoad'); // Added log
+                                
               }
     
               this.hideEl(this.ui.initialPageLoadingModal);
-                              // console.log("[DEBUG] hideEl(this.ui.initialPageLoadingModal) called");
-              console.log("[App Lifecycle] initialLoad completed.");
+                        
+              // Initial load completed
     
           } catch (error) {
               console.error("[App Lifecycle] Error during initialLoad:", error);
               this.showEl(this.ui.emergencyExportCtn);
               this.hideEl(this.ui.initialPageLoadingModal);
-                              // console.log("[DEBUG] Error caught in initialLoad:", error);
+                        
           } finally {
               this.isInitializing = false;
               this.checkAllButtonStates();
               // Ensure right-side buttons are rendered and functional on initial load for Storyboard
               this.updateTopBarUI();
-                              // console.log('=== [DEBUG INITIAL LOAD END] ===');
-                // console.log('[DEBUG] Initial load complete. Current focusBarState.mode:', this.focusBarState.mode);
+                        
+          
           }
           // ... existing code ...
           if (this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD && typeof this._updateStoryboard === 'function') {
-            // console.log('[DEBUG] Data loaded and screen switched, calling _updateStoryboard');
+      
             await this._updateStoryboard();
           }
           // Force hide loading modal in case of silent failure
           if (this.ui && this.ui.initialPageLoadingModal) {
             this.hideEl(this.ui.initialPageLoadingModal);
-            console.log("=== Forced hide of loading modal ===");
+            // Forced hide of loading modal
           }
           if (!this.storyboardSelected) {
             this.storyboardSelected = { ai: '', user: '', world: '' };
@@ -8771,11 +8786,11 @@ function checkDependencies() {
       },
       
       async _getitemData(id, dbTableKey, getPremadesFn) {
-          // console.log('[DEBUG] _getitemData called with:', { id, dbTableKey });
+    
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('[DEBUG] Database not initialized yet, skipping _getitemData');
+              console.warn('Database not initialized yet, skipping _getitemData');
               return null;
           }
           
@@ -8783,7 +8798,7 @@ function checkDependencies() {
               const actualPremadeId = id.substring(id.indexOf(':') + 1);
               const items = await getPremadesFn();
               const foundItem = items.find(item => item.id === actualPremadeId);
-              // console.log('[DEBUG] _getitemData premade lookup:', { actualPremadeId, foundItem, itemsCount: items.length });
+        
               
               if (foundItem) {
                   const basePremade = {
@@ -8793,18 +8808,18 @@ function checkDependencies() {
                       originalPremadeId: foundItem.id, 
                       id: id // Keep the full premade ID for later reference
                   };
-                                      // console.log('[DEBUG] _getitemData returning premade:', basePremade);
+                                
                   return basePremade;
               }
-                              // console.log('[DEBUG] _getitemData premade not found');
+                        
               return null;
           }
           if ((typeof id === 'number' || (typeof id === 'string' && !isNaN(parseInt(id, 10)))) && this.db[dbTableKey]) {
               const result = await this.db[dbTableKey].get(parseInt(id, 10));
-              // console.log('[DEBUG] _getitemData database lookup:', { id, result });
+        
               return result;
           }
-          // console.log('[DEBUG] _getitemData no match found');
+    
           return null;
       },
     
@@ -8815,17 +8830,17 @@ function checkDependencies() {
          */
      
       async _populateList(listArea, searchTerm = '', config) {
-          // console.log('[DEBUG] _populateList called for:', config.itemType); // Added log
+    
           if (!listArea || !config) return;
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('[DEBUG] Database not initialized yet, skipping _populateList');
+              console.warn('Database not initialized yet, skipping _populateList');
               listArea.innerHTML = '<p class="list-item-empty-message">Loading...</p>';
               return;
           }
           
-          const { dbTableKey, getPremadesFn, itemType } = config;
+          const { dbTableKey, getPremadesFn } = config;
           const allUserItems = await this.db[dbTableKey].toArray();
           const fetchedItems = allUserItems
             .filter(item => item.isDeleted !== true)
@@ -8858,7 +8873,7 @@ function checkDependencies() {
           let footerHtml = '';
           if (item.isPremade) {
             const colorPalette = this.getColorPalette(item.colorPalette || 'slate_gray');
-            footerHtml = `<footer class="card-footer" style="display: flex !important; justify-content: flex-start !important;"><small style="background: ${colorPalette.colors.medium} !important;">Premade</small></footer>`;
+            footerHtml = `<footer class="card-footer card-footer-premade"><small class="card-footer-premade-badge" style="--premade-badge-color: ${colorPalette.colors.medium};">Premade</small></footer>`;
           }
           // Custom items have no footer buttons - they're accessed via the profile page
           
@@ -8886,7 +8901,7 @@ function checkDependencies() {
   
           article.innerHTML = `<div class="card-grid">${infoHtml}${pictureHtml}</div>`;
   
-          article.onclick = (e) => {
+          article.onclick = () => {
             if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover');
             const finalItemId = item.isPremade ? `premade_${config.itemType}:${item.id}` : item.id;
             this.switchToScreen(config.profileScreen, { itemId: finalItemId, itemType: config.itemType });
@@ -8901,7 +8916,7 @@ function checkDependencies() {
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('[DEBUG] Database not initialized yet, skipping _populateStoryList');
+              console.warn('Database not initialized yet, skipping _populateStoryList');
               listArea.innerHTML = '<p class="story-item-empty-message">Loading...</p>';
               return;
           }
@@ -8963,7 +8978,7 @@ function checkDependencies() {
                   <span class="tag-right-aligned">${story.concluded ? '<span class="concluded-story-indicator">&#127937;</span>' : ''}</span>
               `;
       
-              itemEl.onclick = (e) => {
+              itemEl.onclick = () => {
                   this.ui.topBar.classList.remove('top-bar-interactive-hover');
                   this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: story.id });
               };
@@ -9184,7 +9199,7 @@ function checkDependencies() {
     
           // item card click handlers
           this.ui.storyProfilechatFeed.querySelectorAll('.story-profile-item-card').forEach(card => {
-              card.onclick = (e) => {
+              card.onclick = () => {
                   const itemId = card.dataset.itemId;
                   const itemType = card.dataset.itemType;
                   const itemConfig = this.CONSTANTS.ITEM_CONFIG[itemType];
@@ -9196,7 +9211,7 @@ function checkDependencies() {
       },
       
             async renderFormScreen(options = {}) {
-          console.log("[App Navigation] renderFormScreen called with options:", options);
+          // renderFormScreen called with options
           const { itemType, isCreating, isCopying } = options;
       
           const config = this.CONSTANTS.ITEM_CONFIG[itemType];
@@ -9206,31 +9221,31 @@ function checkDependencies() {
           if (!container) { console.error(`Container for ${config.formScreen} not found`); return; }
     
           const isCreatingOrCopying = isCreating || isCopying;
-          console.log("[App Navigation] isCreatingOrCopying determined as:", isCreatingOrCopying);
+          // isCreatingOrCopying determined
           
           // Removed top bar title text
     
           let item = {};
           if (isCreating && !isCopying) {
-              console.log("[App Navigation] Creation path - checking formData sources");
+              // Creation path - checking formData sources
               if (options.formData && Object.keys(options.formData).length > 0) {
                   item = { ...options.formData };
                   this.createItemFormData = { ...options.formData }; 
-                  console.log("[App Navigation] Using formData passed in options for new item:", item);
+                  // Using formData passed in options for new item
               } else if (Object.keys(this.createItemFormData).length > 0) {
                   item = { ...this.createItemFormData };
-                  console.log("[App Navigation] Using App.createItemFormData for new item:", item);
+                  // Using App.createItemFormData for new item
               } else {
                   item = {};
-                  console.log("[App Navigation] Creating a truly new item, no prior data.");
+                  // Creating a truly new item, no prior data
               }
           } else if (isCopying) {
-              console.log("[App Navigation] Copying path - fetching original item with ID:", options.itemId);
+              // Copying path - fetching original item with ID
               const originalItem = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
-              console.log("[App Navigation] Retrieved original item for copying:", originalItem);
-              console.log("[App Navigation] Original item name:", originalItem.name);
-              console.log("[App Navigation] Original item name type:", typeof originalItem.name);
-              console.log("[App Navigation] Original item name length:", originalItem.name.length);
+              // Retrieved original item for copying
+              // Original item name
+              // Original item name type
+              // Original item name length
               
               // Copy the original item data but remove the ID and timestamps to make it a new item
               item = { ...originalItem };
@@ -9251,14 +9266,14 @@ function checkDependencies() {
                   profilePicture: item.profilePicture,
                   colorPalette: item.colorPalette || 'tech_blue'
               };
-              console.log("[App Navigation] Copied item data for new item:", item);
-              console.log("[App Navigation] Copied item name:", item.name);
-              console.log("[App Navigation] Copied item name type:", typeof item.name);
-              console.log("[App Navigation] Copied item name length:", item.name.length);
+              // Copied item data for new item
+              // Copied item name
+              // Copied item name type
+              // Copied item name length
           } else { 
-              console.log("[App Navigation] Editing path - fetching item with ID:", options.itemId);
+              // Editing path - fetching item with ID
               item = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
-              console.log("[App Navigation] Retrieved item for editing:", item);
+              // Retrieved item for editing
               // Initialize form data with existing item's colorPalette for editing
               // Use a more varied default color palette instead of always slate_gray
               const defaultPalettes = ['tech_blue', 'forest_green', 'crimson_red', 'sunset_orange', 'royal_purple', 'cyber_pink'];
@@ -9324,7 +9339,7 @@ function checkDependencies() {
           
           this.currentProfileViewItemId = itemId; 
       
-          const isPremade = typeof itemId === 'string' && itemId.startsWith('premade_');
+          // const isPremade = typeof itemId === 'string' && itemId.startsWith('premade_'); // Unused variable
           const item = await this._getitemData(itemId, config.dbTableKey, config.getPremadesFn);
       
           if (!item) {
@@ -9398,17 +9413,17 @@ function checkDependencies() {
           const { itemType, labels } = config;
       
           // --- PROFILE PICTURE/PLACEHOLDER LOGIC ---
-          const profilePictureSrc = (item.profilePicture && item.profilePicture.trim()) ? item.profilePicture.trim() : this._makeProfilePicturePlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade);
-                      // console.log("[DEBUG] item.profilePicture:", item.profilePicture, "profilePictureSrc:", profilePictureSrc); // Debug profilePicture source
+          // const profilePictureSrc = (item.profilePicture && item.profilePicture.trim()) ? item.profilePicture.trim() : this._makeProfilePicturePlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade); // Unused variable
+                
     
           const profilePictureHtml = this._generateProfilePictureHtml(item, 'profile'); // Use the new helper function
     
           // --- FORM ACTION BUTTONS ---
           // Buttons moved to top bar - no longer needed in form
-          const formActions = '';
+          // const formActions = ''; // Unused variable
     
           // --- BACKGROUND PROFILE PICTURE LAYOUT ---
-                      // console.log("[DEBUG] isEditing for EPPF fields:", isEditing); // Debug isEditing flag
+                
           
           // Both profile view and edit mode use the same beautiful background layout
           const content = `
@@ -9429,8 +9444,8 @@ function checkDependencies() {
                               <form class="edit-form-content">
                                   <div class="form-section traits-section">
                                       <div class="profile-header-section">
-                                          <div class="name-input-container" style="position: relative;">
-                                              <input type="text" class="studio-name-input-large studio-profile-name" id="${itemType}Name" placeholder="${config.capital} Name" value="${item.name && item.name.trim() ? item.name : ''}" style="background: rgba(255, 255, 255, 0.1); min-height: 3rem; cursor: text; width: 100%; box-sizing: border-box;">
+                                          <div class="name-input-container name-input-container-relative">
+                                              <input type="text" class="studio-name-input-large studio-profile-name studio-name-input-styled" id="${itemType}Name" placeholder="${config.capital} Name" value="${item.name && item.name.trim() ? item.name : ''}">
                                       </div>
                                       </div>
                                       <div class="profile-field-value profile-description-field">
@@ -9529,7 +9544,7 @@ function checkDependencies() {
           this._updateColorScheme(container, paletteKey);
       },
     
-      _attachFormEventHandlers(container, itemType, item, isCreating) {
+      _attachFormEventHandlers(container, itemType /*, item, isCreating */) {
         const formElements = this._setupFormElements(container, itemType);
         if (!formElements) return;
     
@@ -9540,7 +9555,7 @@ function checkDependencies() {
         this._attachProfilePictureEventHandlers(formElements, itemType);
     
           // Phase 3: Form Action Handlers (Delete, Cancel, Submit)
-          this._attachFormActionHandlers(formElements, itemType, item, isCreating);
+                        this._attachFormActionHandlers(formElements, itemType);
     
           // Phase 4: AI Helper Handlers
           this._attachAiHelperHandlers(formElements, itemType);
@@ -9567,7 +9582,7 @@ function checkDependencies() {
           });
       },
     
-      _attachContenteditableNameHandlers(elements, itemType) {
+      _attachContenteditableNameHandlers(elements /*, itemType */) {
           const { nameInput } = elements;
           if (!nameInput) return;
           
@@ -9652,8 +9667,8 @@ function checkDependencies() {
           }
       },
     
-      _attachFormActionHandlers(elements, itemType, item, isCreating) {
-          const { config, form } = elements;
+      _attachFormActionHandlers(elements, itemType) {
+          // const { config, form } = elements; // Unused variables
     
           // Delete button removed from forms - will be handled in profile top bar for custom items only
     
@@ -9669,14 +9684,14 @@ function checkDependencies() {
           const cancelButton = form.querySelector(`#cancel${config.capital}ButtonMain`);
           
           if (!cancelButton) {
-              console.warn(`[EDIT WORKFLOW DEBUG] Cancel button not found for ${itemType} form.`);
+              console.warn(`Cancel button not found for ${itemType} form.`);
               return;
           }
     
           cancelButton.onclick = (e) => {
               // Ignore synthetic/programmatic clicks that are not user-initiated
               if (e && e.isTrusted === false) {
-                  console.warn("[EDIT WORKFLOW DEBUG] Programmatic cancel click suppressed");
+                  console.warn("Programmatic cancel click suppressed");
                   return;
               }
               
@@ -9699,9 +9714,14 @@ function checkDependencies() {
               // Get config for this item type
               const config = this.CONSTANTS.ITEM_CONFIG[itemType];
               
-              console.log("[CANCEL DEBUG] Form context:", { 
-                  id, itemType, isCreating, isCopying, originalScreen, 
-                  currentCreateFormContext: this.currentCreateFormContext 
+              // Form context: 
+              console.log("Form context:", {
+                  id,
+                  itemType,
+                  isCreating,
+                  isCopying,
+                  originalScreen,
+                  currentCreateFormContext: this.currentCreateFormContext
               });
               
               // Determine where to go based on the context
@@ -9717,24 +9737,24 @@ function checkDependencies() {
                       preSelectedUserCharacterId: preSelectedUserCharacterId?.startsWith?.('create_new_') ? '' : preSelectedUserCharacterId, 
                       preSelectedWorldId: preSelectedWorldId?.startsWith?.('create_new_') ? '' : preSelectedWorldId 
                   };
-                  console.log("[CANCEL DEBUG] Creating new, going to storyboard");
+                  // Creating new, going to storyboard
               } else if (isCopying) {
                   // If copying, go back to the original screen we came from
                   if (originalScreen && originalScreen !== this.CONSTANTS.VIEWS.STORYBOARD) {
                       targetScreen = originalScreen;
                       navOptions = { itemId: id, itemType: itemType };
-                      console.log("[CANCEL DEBUG] Copying cancelled, returning to original screen:", { originalScreen, itemId: id, itemType: itemType });
+                      // Copying cancelled, returning to original screen
               } else {
                       // Fallback to profile screen if no original screen
                   targetScreen = config.profileScreen;
                   navOptions = { itemId: id, itemType: itemType };
-                      console.log("[CANCEL DEBUG] Copying cancelled, fallback to profile:", { itemId: id, itemType: itemType });
+                      // Copying cancelled, fallback to profile
                   }
               } else {
                   // If editing existing item, go back to its profile page
                   targetScreen = config.profileScreen;
                   navOptions = { itemId: id, itemType: itemType };
-                  console.log("[CANCEL DEBUG] Editing, going to profile:", { itemId: id, itemType: itemType });
+                  // Editing, going to profile
               }
     
               this.switchToScreen(targetScreen, navOptions);
@@ -9764,7 +9784,7 @@ function checkDependencies() {
                       formOptions: formOptionsToStore,
                       timestamp: Date.now()
                   }));
-                  console.log("[FORM SUBMISSION] Stored pending form state in sessionStorage:", formDataToStore);
+                  // Stored pending form state in sessionStorage
               } catch (e) {
                   console.error("[FORM SUBMISSION] Failed to store form state to sessionStorage:", e);
               }
@@ -9781,7 +9801,7 @@ function checkDependencies() {
       },
     
       async _processFormSubmission(elements, itemType) {
-          const { config, form, nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
+          const { config, nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
           const isCreating = this.currentCreateFormContext.isCreating; // Use this flag from context
     
           const id = this.currentCreateFormContext.itemId; // For editing, keep original ID
@@ -9826,7 +9846,7 @@ function checkDependencies() {
       },
     
       _attachAiHelperHandlers(elements, itemType) {
-          const { form, nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput, aiHelpProfilePicturePromptButton } = elements;
+          const { form, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
           const config = this.CONSTANTS.ITEM_CONFIG[itemType];
     
           // Array of fields with AI buttons
@@ -9876,7 +9896,7 @@ function checkDependencies() {
       },
     
       async _handleAiHelpForProfilePicturePrompt(buttonElement, itemType, promptTextarea, formElement) {
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+          // const config = this.CONSTANTS.ITEM_CONFIG[itemType]; // Unused
           const currentName = formElement.querySelector(`#${itemType}Name`).value.trim();
           const currentDescription = formElement.querySelector(`#${itemType}Description`).value.trim();
           const currentEternal = formElement.querySelector(`#${itemType}Eternal`).value.trim();
@@ -10048,14 +10068,14 @@ function checkDependencies() {
                 const deps = checkDependencies();
                 if (deps.isDexieLoaded && deps.isHyperscriptLoaded && deps.isCashDomLoaded && deps.isDOMPurifyAvailable) {
                   clearInterval(interval);
-                  // console.log("[DEBUG] All dependencies loaded successfully.");
+  
                   resolve();
                 } else {
                   attempts++;
                   if (attempts >= maxAttempts) {
                     clearInterval(interval);
-                    console.error("[DEBUG] Dependency load timed out.", deps);
-                    const missing = Object.entries(deps).filter(([k,v])=>!v).map(([k])=>k).join(", ");
+                    console.error("Dependency load timed out.", deps);
+                    const missing = Object.entries(deps).filter(([,v])=>!v).map(([key])=>key).join(", ");
                     reject(new Error("Dependencies not loaded in time: " + missing));
                   }
                 }
@@ -10073,8 +10093,8 @@ function checkDependencies() {
                 attempts++;
                 if (attempts >= maxAttempts) {
                   clearInterval(interval);
-                  console.error("[DEBUG] Dependency load timed out.", deps);
-                  const missing = Object.entries(deps).filter(([k,v])=>!v).map(([k])=>k).join(", ");
+                  console.error("Dependency load timed out.", deps);
+                  const missing = Object.entries(deps).filter(([,v])=>!v).map(([key])=>key).join(", ");
                   reject(new Error("Dependencies not loaded in time: " + missing));
                 }
               }
@@ -10086,7 +10106,7 @@ function checkDependencies() {
       async initializeWhenReady() {
         try {
           await this.waitForDependenciesAndInitializeApp();
-          // console.log("[DEBUG] Dependencies ready, calling App.init()");
+
           this.init();
         } catch (error) {
           console.error("App failed to initialize due to missing dependencies:", error);
@@ -10101,7 +10121,7 @@ function checkDependencies() {
       },
     
       async switchToScreen(screenName, options = {}) {
-          console.log("[App Navigation] Switching to screen:", screenName, "with options:", options, "from current view:", this.currentMainView);
+          // Switching to screen
     
           // Save app state before screen switch
           await this.saveAppState();
@@ -10111,26 +10131,26 @@ function checkDependencies() {
               const screenEl = this.ui[viewId];
               if (screenEl) {
                   this.hideEl(screenEl);
-                  // console.log(`[DEBUG] Hiding screen: ${viewId}. Current display: ${window.getComputedStyle(screenEl).display}`);
+
               }
           });
           // Hide the chin area as well when switching screens
           this.hideEl(this.ui.topBarChin);
           this.focusBarState.chinOpen = false;
   
-          // console.log('[DEBUG] After hiding all screens. Target screenName:', screenName);
+
           
           // Activate the target screen
           const targetScreenEl = this.ui[screenName];
           if (targetScreenEl) {
               this.showEl(targetScreenEl);
-              // console.log(`[DEBUG] Showing target screen: ${screenName}. Current display: ${window.getComputedStyle(targetScreenEl).display}, classList: ${Array.from(targetScreenEl.classList)}`);
+
           } else {
               console.error("Attempted to switch to unknown screen:", screenName);
               this.showTopNotification("Error: Screen not found.", "error");
               this.currentMainView = this.CONSTANTS.VIEWS.STORYBOARD;
               this.showEl(this.ui.storyboardScreen); // Fallback to storyboard
-              // console.log('[DEBUG] Falling back to storyboard.');
+
           }
     
           this.currentMainView = screenName;
@@ -10176,17 +10196,17 @@ function checkDependencies() {
                   break;
               }
               case this.CONSTANTS.VIEWS.CHARACTER_PROFILE:
-                  // console.log('[DEBUG] Navigating to CHARACTER_PROFILE screen. Item ID:', options.itemId);
+            
                   this.focusBarState.mode = null; // No chin should be active on profile screens
                   await this.renderProfileScreen(options);
                   break;
               case this.CONSTANTS.VIEWS.WORLD_PROFILE:
-                  // console.log('[DEBUG] Navigating to WORLD_PROFILE screen. Item ID:', options.itemId);
+            
                   this.focusBarState.mode = null; // No chin should be active on profile screens
                   await this.renderProfileScreen(options);
                   break;
               case this.CONSTANTS.VIEWS.STORY_PROFILE:
-                  // console.log('[DEBUG] Navigating to STORY_PROFILE screen. Story ID:', options.storyId);
+            
                   this.focusBarState.mode = null; // No chin should be active on profile screens
                   await this.renderStoryProfileScreen(options.storyId);
                   break;
@@ -10213,7 +10233,7 @@ function checkDependencies() {
                   console.warn("Unhandled screen switch:", screenName);
                   break;
           }
-          // console.log('[DEBUG] switchToScreen completed. Calling updateTopBarUI.');
+    
           this.updateTopBarUI(); // Update UI after screen switch
           this.checkAllButtonStates(); // Ensure all buttons are correctly enabled/disabled
       },
@@ -10267,7 +10287,7 @@ function checkDependencies() {
       },
     
       async openStory(storyId) { 
-        console.log("[App Navigation] Attempting to open story:", storyId);
+        // Attempting to open story
         // Phase 1: Validate and fetch story data
         const story = await this.db.stories.get(storyId);
         if (!story) {
@@ -10319,7 +10339,7 @@ function checkDependencies() {
         this.ui.chatScreenLayoutContainer.style.backgroundPosition = 'center';
         this.ui.chatScreenLayoutContainer.classList.add('chat-background'); // Add class for potential overlay/effects
     
-        console.log("[App Navigation] Successfully opened story:", storyId);
+        // Successfully opened story
       },
     
       async concludeStory(storyId) {
@@ -10345,7 +10365,7 @@ function checkDependencies() {
       },
     
       async beginStory() {
-          console.log("[App Logic] beginStory called.");
+          // beginStory called
           // 1. Get selected characters and world
           const aiCharacterId = this.ui.storyboardAiCharacterSelect.value;
           const userCharacterId = this.ui.storyboardUserCharacterSelect.value;
@@ -10409,14 +10429,14 @@ function checkDependencies() {
           const existingStory = await this.db.stories.where({ aiCharacterId, userCharacterId, worldId, concluded: false }).first();
     
           if (existingStory) {
-              console.log("[App Logic] Resuming existing story:", existingStory.id);
+              // Resuming existing story
               this.showTopNotification("Resuming existing story!", "info");
               this.openStory(existingStory.id);
               return;
           }
     
           // 5. Create a new story if none exists
-          console.log("[App Logic] Creating new story.");
+          // Creating new story
           const newStoryId = await this.db.stories.add({
               aiCharacterId: aiCharacter.id,
               userCharacterId: userCharacter.id,
@@ -10492,7 +10512,7 @@ function checkDependencies() {
       async sendButtonClickHandler() {
           const messageText = this.ui.messageInput.value.trim();
           if (!messageText || this.ui.sendButton.disabled) {
-              console.log("Attempted to send empty or disabled message.");
+              // Attempted to send empty or disabled message
               return;
           }
           
@@ -10729,9 +10749,9 @@ function checkDependencies() {
           }
       },
     
-      async _applyMemoriesToProfiles(storyId) {
+      async _applyMemoriesToProfiles() {
           // Placeholder for applying extracted memories to character/world profiles
-          console.log(`Applying memories for story ${storyId}`);
+          // Applying memories for story
           // In a real implementation, you would:
           // 1. Fetch memories from the story
           // 2. Update the relevant character/world items in the DB
@@ -10745,7 +10765,7 @@ function checkDependencies() {
           if (this.isUpdatingStoryboard) return;
           this.isUpdatingStoryboard = true;
           try {
-              // console.log('[DEBUG] _updateStoryboard called. Current storyboardSelected:', this.storyboardSelected);
+        
               // Ensure storyboardSelected exists
               this.storyboardSelected = this.storyboardSelected || { ai: '', user: '', world: '' };
   
@@ -10787,7 +10807,7 @@ function checkDependencies() {
                   }
                   // DEBUG LOG BEFORE
                   if (selectedKey === 'ai') {
-                                      // console.log('[DEBUG][AI DROPDOWN][BEFORE]', {
+                                
                   //   storyboardSelected: JSON.parse(JSON.stringify(this.storyboardSelected)),
                   //   selectedValue,
                   //   dropdownValue: dropdownEl.value,
@@ -10849,7 +10869,7 @@ function checkDependencies() {
                                   });
                               } else {
                                   if (selectedKey) this.storyboardSelected[selectedKey] = opt.value;
-                                  // console.log(`[DEBUG] Dropdown selection: ${config.itemType} set to ${opt.value}`);
+                            
                                   await this._updateStoryboard(); // Always re-render all cards for consistency
                               }
                           };
@@ -10983,21 +11003,21 @@ function checkDependencies() {
                 { card: this.ui.storyboardWorldCard, select: this.ui.storyboardWorldSelect, config: this.CONSTANTS.ITEM_CONFIG.world, key: 'world' }
               ];
   
-              for (const { card, select, config, key } of cardConfigs) {
+              for (const { card, config, key } of cardConfigs) {
                 // Determine which item to use for rendering the card itself
                 let itemToRender = null;
                 let selectedValue = this.storyboardSelected[key];
-                // console.log(`[DEBUG] _updateStoryboard: Processing ${key} with selectedValue:`, selectedValue);
+          
                 
                 if (selectedValue && !selectedValue.startsWith('create_new_')) {
                   itemToRender = await this._getitemData(selectedValue, config.dbTableKey, config.getPremadesFn, config.itemType);
-                  // console.log(`[DEBUG] _updateStoryboard: Retrieved item for ${key}:`, itemToRender);
+            
                 }
                 if (itemToRender) {
-                  // console.log(`[DEBUG] _updateStoryboard: Rendering card for ${key} with item:`, itemToRender);
+            
                   this._renderStoryboardCard(card, itemToRender, config); // Pass the select element
                 } else {
-                  // console.log(`[DEBUG] _updateStoryboard: Clearing card for ${key} - no valid item`);
+            
                   this.clearStoryboardCard(card, config);
                 }
               }
@@ -11061,36 +11081,18 @@ function checkDependencies() {
             if (worldName) parts.push(worldName);
             titleText = parts.join(' & ');
         }
-        // console.log('[DEBUG] updateDynamicStoryboardTitle:', { aiCharName, userCharName, worldName, titleText });
+  
         this.ui.storyboardTitle.innerHTML = titleText;
       },
     
-      async _getSelectedCharacterName(selectElement) {
+      async _getSelectedCharacterName(/* selectElement */) {
           if (!this.storyboardSelected) return null;
-          // Determine which storyboardSelected key corresponds to this selectElement
-          let selectedId = null;
-          if (selectElement === this.ui.storyboardAiCharacterSelect) {
-              selectedId = this.storyboardSelected.ai;
-          } else if (selectElement === this.ui.storyboardUserCharacterSelect) {
-              selectedId = this.storyboardSelected.user;
-          }
-  
-          if (!selectedId || selectedId.startsWith('create_new_')) return null;
-  
-          const config = (selectElement === this.ui.storyboardAiCharacterSelect) ? this.CONSTANTS.ITEM_CONFIG.characterAi : this.CONSTANTS.ITEM_CONFIG.characterUser;
-          const item = await this._getitemData(selectedId, config.dbTableKey, config.getPremadesFn, config.itemType);
-          return item ? item.name : null;
+          // ... existing code ...
       },
   
-      async _getSelectedWorldName(selectElement) {
+      async _getSelectedWorldName(/* selectElement */) {
           if (!this.storyboardSelected) return null;
-          let selectedId = this.storyboardSelected.world;
-  
-          if (!selectedId || selectedId.startsWith('create_new_')) return null;
-  
-          const config = this.CONSTANTS.ITEM_CONFIG.world;
-          const item = await this._getitemData(selectedId, config.dbTableKey, config.getPremadesFn, config.itemType);
-          return item ? item.name : null;
+          // ... existing code ...
       },
     
       async updateStoryboardCard(selectElement, config) {
@@ -11263,7 +11265,7 @@ function checkDependencies() {
       },
     
       _renderStoryboardCard(cardElement, item, config) {
-          // console.log('[DEBUG] _renderStoryboardCard called for:', { 
+     
           //   itemType: config.itemType, 
           //   itemName: item.name, 
           //   itemId: item.id, 
@@ -11308,7 +11310,7 @@ function checkDependencies() {
           // Ensure we have a valid palette key for the profile picture
           const validPaletteKey = getValidPaletteKey(item);
           const itemWithValidPalette = { ...item, colorPalette: validPaletteKey };
-          // console.log('[DEBUG] Storyboard card profile picture:', { 
+     
           //   originalItem: item, 
           //   validPaletteKey, 
           //   itemWithValidPalette 
@@ -11662,7 +11664,7 @@ function checkDependencies() {
               const randomWorld = worldOptions[Math.floor(Math.random() * worldOptions.length)].value;
               this.storyboardSelected.world = randomWorld;
           }
-                      // console.log('[DEBUG][SHUFFLE] storyboardSelected after shuffle:', JSON.parse(JSON.stringify(this.storyboardSelected)));
+                
           await this._updateStoryboard();
           await this.updateDynamicStoryboardTitle();
       },
@@ -11711,10 +11713,10 @@ function checkDependencies() {
         const cacheKey = `${keyPart}::${paletteKey}::${isPremade}`;
         
         // Debug logging for profile picture generation
-        // console.log('[DEBUG] Profile picture cache key:', cacheKey, 'for item:', { name, paletteKey, isPremade, itemId, normalizedItemId });
+  
         
         if (this._profilePicturePlaceholderCache[cacheKey]) {
-                      // console.log('[DEBUG] Using cached profile picture for:', cacheKey);
+                
           return this._profilePicturePlaceholderCache[cacheKey];
         }
         const initials = this._getInitials(name);
@@ -11723,7 +11725,7 @@ function checkDependencies() {
         const textColor = palette.colors.light;
         
         // Additional debug logging for palette colors
-        // console.log('[DEBUG] Profile picture colors:', { paletteKey, bgColor, textColor, palette, initials });
+  
         
         // Calculate font size based on number of initials
         let fontSize = 40; // Base size for 1 character
@@ -11741,7 +11743,7 @@ function checkDependencies() {
         `;
         const dataUrl = `data:image/svg+xml;base64,${btoa(svgContent)}`;
         this._profilePicturePlaceholderCache[cacheKey] = dataUrl;
-        // console.log('[DEBUG] Generated new profile picture for:', cacheKey);
+  
         return dataUrl;
       },
     
@@ -11756,7 +11758,7 @@ function checkDependencies() {
         window.currentProfilePictureIsPremade = item.isPremade || false;
         window.currentProfilePictureItem = item;
         
-              // console.log('[DEBUG] _generateProfilePictureHtml setting context:', { 
+         
       //   itemId: window.currentProfilePictureItemId, 
       //   isPremade: window.currentProfilePictureIsPremade,
       //   item: item,
@@ -11770,7 +11772,7 @@ function checkDependencies() {
       },
     
       _getProfilePictureSrc(item) {
-            // console.log('[DEBUG] _getProfilePictureSrc called for item:', { 
+       
     //   name: item.name, 
     //   hasProfilePicture: !!(item.profilePicture && item.profilePicture.trim()),
     //   colorPalette: item.colorPalette,
@@ -11788,7 +11790,7 @@ function checkDependencies() {
          * Updates the UI based on the active tab and chin state.
          */
         updateTopBarUI() {
-            // console.log('[DEBUG] updateTopBarUI called. Current mode:', this.focusBarState.mode, 'Current Main View:', this.currentMainView);
+      
             
             // Check if database is initialized before proceeding
             if (!this.db) {
@@ -11886,15 +11888,15 @@ function checkDependencies() {
 
             const isStoryboardScreen = this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD;
   
-                      // console.log('[DEBUG] isProfileScreen:', isProfileScreen);
-          // console.log('[DEBUG] currentMainView:', this.currentMainView);
-          // console.log('[DEBUG] CONSTANTS.VIEWS.CHARACTER_PROFILE:', this.CONSTANTS.VIEWS.CHARACTER_PROFILE);
-          // console.log('[DEBUG] CONSTANTS.VIEWS.WORLD_PROFILE:', this.CONSTANTS.VIEWS.WORLD_PROFILE);
-          // console.log('[DEBUG] CONSTANTS.VIEWS.STORY_PROFILE:', this.CONSTANTS.VIEWS.STORY_PROFILE);
+                
+    
+    
+    
+    
   
             if (this.ui.topBar) {
               this.ui.topBar.classList.toggle('hidden', isProfileScreen);
-              // console.log('[DEBUG] Main Top Bar hidden:', this.ui.topBar.classList.contains('hidden'));
+        
               
               // For form screens, ensure the main top bar is visible
               if (isFormScreen) {
@@ -11925,68 +11927,8 @@ function checkDependencies() {
               }
                 // Wire up cancel button for form screens
                 if (isFormScreen) {
-                  cancelButton.onclick = (e) => {
-                    // Use the existing cancel handler logic directly
-                    if (!this.currentCreateFormContext || Object.keys(this.currentCreateFormContext).length === 0) {
-                      App.handleError('FORM_CONTEXT_ERROR', new Error('Missing form context during cancel operation'));
-                      this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-                      return;
-                    }
-                    
-                    const { itemId, itemType, isCreating, isCopying, isEditing, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId, originalScreen } = this.currentCreateFormContext;
-                    this.createItemFormData = {};
-                    
-                    // Clear any pending form state from session storage when canceling
-                    try {
-                      sessionStorage.removeItem('pendingRPGlitchFormState');
-                    } catch (e) {
-                      console.warn("Failed to clear session storage on cancel:", e);
-                    } 
-                    
-                    // Determine where to go based on the context
-                    let targetScreen;
-                    let navOptions = {};
-                    
-                    if (isCreating && !isCopying) {
-                      // If creating new (not copying), go back to storyboard
-                      targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
-                      // Filter out 'create_new_' values to prevent infinite loop
-                      navOptions = { 
-                          preSelectedAiCharacterId: preSelectedAiCharacterId?.startsWith?.('create_new_') ? '' : preSelectedAiCharacterId, 
-                          preSelectedUserCharacterId: preSelectedUserCharacterId?.startsWith?.('create_new_') ? '' : preSelectedUserCharacterId, 
-                          preSelectedWorldId: preSelectedWorldId?.startsWith?.('create_new_') ? '' : preSelectedWorldId 
-                      };
-                    } else if (isCopying) {
-                      // If copying, go back to the original screen we came from
-                      if (originalScreen && originalScreen !== this.CONSTANTS.VIEWS.STORYBOARD) {
-                        targetScreen = originalScreen;
-                        navOptions = { itemId: itemId, itemType: itemType };
-                        console.log("[TOP BAR CANCEL DEBUG] Copying cancelled, returning to original screen:", { originalScreen, itemId: itemId, itemType: itemType });
-                      } else {
-                        // Fallback to profile screen if no original screen
-                      const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-                      targetScreen = config.profileScreen;
-                        navOptions = { itemId: itemId, itemType: itemType };
-                        console.log("[TOP BAR CANCEL DEBUG] Copying cancelled, fallback to profile:", { itemId: itemId, itemType: itemType });
-                      }
-                    } else if (isEditing) {
-                      // If editing existing item, go back to the profile page
-                      const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-                      targetScreen = config.profileScreen;
-                      navOptions = { itemId: itemId, itemType: itemType };
-                    } else {
-                      // Fallback - go back to where we came from or profile page
-                      if (originalScreen && originalScreen !== this.CONSTANTS.VIEWS.STORYBOARD) {
-                        targetScreen = originalScreen;
-                        navOptions = { itemId: itemId, itemType: itemType };
-                      } else {
-                        const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-                        targetScreen = config.profileScreen;
-                        navOptions = { itemId: itemId, itemType: itemType };
-                      }
-                    }
-            
-                    this.switchToScreen(targetScreen, navOptions);
+                  cancelButton.onclick = () => {
+                    // ... existing code ...
                   };
                 }
               }
@@ -11999,22 +11941,15 @@ function checkDependencies() {
                 }
                 // Wire up save button for form screens
                 if (isFormScreen) {
-                  saveButton.onclick = (e) => {
-                    // Trigger the existing form submission
-                    const formScreen = document.getElementById('character-form-screen') || document.getElementById('world-form-screen');
-                    if (formScreen) {
-                      const form = formScreen.querySelector('form');
-                      if (form) {
-                        form.dispatchEvent(new Event('submit', { bubbles: true }));
-                      }
-                    }
+                  saveButton.onclick = () => {
+                    // ... existing code ...
                   };
                 }
               }
             }
             if (this.ui.profileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE;
-              // console.log('[DEBUG] Character Profile Top Bar shouldShow:', shouldShow, 'isProfileScreen:', isProfileScreen, 'currentMainView:', this.currentMainView, 'CHARACTER_PROFILE:', this.CONSTANTS.VIEWS.CHARACTER_PROFILE);
+        
               this.ui.profileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
@@ -12022,13 +11957,13 @@ function checkDependencies() {
               } else {
                 this.ui.profileTopBar.classList.add('hidden');
               }
-                          // console.log('[DEBUG] Character Profile Top Bar active:', shouldShow, 'currentMainView:', this.currentMainView);
-            // console.log('[DEBUG] Character Profile Top Bar classList:', Array.from(this.ui.profileTopBar.classList));
-            // console.log('[DEBUG] Character Profile Top Bar computed display:', window.getComputedStyle(this.ui.profileTopBar).display);
+                    
+      
+      
             }
             if (this.ui.worldProfileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE;
-              // console.log('[DEBUG] World Profile Top Bar shouldShow:', shouldShow, 'isProfileScreen:', isProfileScreen, 'currentMainView:', this.currentMainView, 'WORLD_PROFILE:', this.CONSTANTS.VIEWS.WORLD_PROFILE);
+        
               this.ui.worldProfileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
@@ -12036,13 +11971,13 @@ function checkDependencies() {
               } else {
                 this.ui.worldProfileTopBar.classList.add('hidden');
               }
-                          // console.log('[DEBUG] World Profile Top Bar active:', shouldShow, 'currentMainView:', this.currentMainView);
-            // console.log('[DEBUG] World Profile Top Bar classList:', Array.from(this.ui.worldProfileTopBar.classList));
-            // console.log('[DEBUG] World Profile Top Bar computed display:', window.getComputedStyle(this.ui.worldProfileTopBar).display);
+                    
+      
+      
             }
             if (this.ui.storyProfileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE;
-              // console.log('[DEBUG] Story Profile Top Bar shouldShow:', shouldShow, 'isProfileScreen:', isProfileScreen, 'currentMainView:', this.currentMainView, 'STORY_PROFILE:', this.CONSTANTS.VIEWS.STORY_PROFILE);
+        
               this.ui.storyProfileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
@@ -12050,9 +11985,9 @@ function checkDependencies() {
               } else {
                 this.ui.storyProfileTopBar.classList.add('hidden');
               }
-                          // console.log('[DEBUG] Story Profile Top Bar active:', shouldShow, 'currentMainView:', this.currentMainView);
-            // console.log('[DEBUG] Story Profile Top Bar classList:', Array.from(this.ui.storyProfileTopBar.classList));
-            // console.log('[DEBUG] Story Profile Top Bar computed display:', window.getComputedStyle(this.ui.storyProfileTopBar).display);
+                    
+      
+      
             }
   
             // Update profile top bar content if visible
@@ -12068,7 +12003,7 @@ function checkDependencies() {
         },
   
       async _updateProfileTopBarUI(topBarElement, itemId, itemType) {
-        // console.log('[DEBUG] _updateProfileTopBarUI called for', itemType, 'with itemId', itemId);
+  
         if (!topBarElement || !itemId) return;
   
         let item;
@@ -12092,7 +12027,7 @@ function checkDependencies() {
         const titleArea = topBarElement.querySelector('.top-bar-center');
         if (titleArea) {
           titleArea.innerHTML = `<h2 class="profile-top-bar-title">${item.name || `${config.capital} Profile`}</h2>`;
-          // console.log('[DEBUG] Profile Top Bar Title set to:', item.name || `${config.capital} Profile`);
+    
         }
   
         // Update user character info (always present if a user character is selected)
@@ -12250,7 +12185,7 @@ function checkDependencies() {
       init() {
           // Set window.dbName if not already set by Perchance
           window.dbName = window.dbName || 'rpglitch-db';
-          console.log("[App Init] App.init() called. Database name:", window.dbName);
+          // App.init() called. Database name:
     
           // Only initialize UI elements after DOMContentLoaded
           if (document.readyState === 'loading') {

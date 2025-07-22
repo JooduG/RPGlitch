@@ -14,14 +14,14 @@ function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 
   
   // Validate inputs
   if (!item) {
-    // No item provided, using fallback
+    console.warn('[ProfilePicture] No item provided, using fallback');
     return createFallbackProfilePicture('?', palette, context, fontFamily);
   }
   
   const name = (item.name && typeof item.name === 'string') ? item.name.trim() : '?';
   const hasProfilePicture = item.profilePicture && typeof item.profilePicture === 'string' && item.profilePicture.trim().length > 0;
   
-  // Get initials using main app function if available, otherwise use simple fallback
+  // Get initials using main app function if available
   const initials = getInitials(name);
   
   // For card context, return only initials
@@ -47,37 +47,15 @@ function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 
 }
 
 /**
- * Gets initials from a name - uses main app's function if available, otherwise simple fallback.
+ * Gets initials from a name using the main app's function or fallback.
  * @param {string} name - The name to extract initials from.
  * @returns {string} The initials (max 2 characters).
  */
 function getInitials(name) {
-  // Try to use main app's function first
-  if (window.App && typeof window.App._getInitials === 'function') {
+  if (window.App && window.App._getInitials) {
     return window.App._getInitials(name);
   }
-  
-  // Simple fallback implementation
-  if (!name) return '?';
-  
-  // Remove quotation marks and split into words
-  const cleanName = name.replace(/['"]/g, '');
-  const words = cleanName.split(' ');
-  
-  // Common words to skip (lowercase for comparison)
-  const skipWords = ['the', 'of', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'from', 'a', 'an'];
-  
-  // Filter out common words and get initials
-  const filteredWords = words.filter(word => {
-    const lowerWord = word.toLowerCase();
-    return !skipWords.includes(lowerWord) && word.length > 0;
-  });
-  
-  // Get initials from filtered words (allow up to 3 initials)
-  const initials = filteredWords.map(w => w[0]).join('').toUpperCase().slice(0, 3);
-  
-  // If no initials found after filtering, fall back to original logic
-  return initials || name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 3);
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
 }
 
 /**
@@ -122,26 +100,27 @@ function createFallbackProfilePicture(name, palette, context, fontFamily) {
 }
 
 /**
- * Creates a profile picture placeholder - uses main app's function if available, otherwise local fallback.
+ * Generates a placeholder profile picture SVG as a data URL.
  * @param {string} name - The name to extract initials from.
  * @param {Object} palette - The color palette object.
- * @param {string} fontFamily - The font family.
+ * @param {string} [fontFamily='Segoe UI, system-ui, sans-serif'] - Optional font family.
  * @returns {string} Data URL for the SVG profile picture.
  */
-function createProfilePicturePlaceholder(name, palette, fontFamily) {
-  // Try to use main app's function first
-  if (window.App && typeof window.App._makeProfilePicturePlaceholderSVG === 'function') {
+function createProfilePicturePlaceholder(name, palette, fontFamily = 'Segoe UI, system-ui, sans-serif') {
+  // Use main app's cached placeholder logic if available
+  if (window.App && window.App._makeProfilePicturePlaceholderSVG) {
     const paletteKey = getPaletteKey(palette);
-    return window.App._makeProfilePicturePlaceholderSVG(name, paletteKey, false, null, fontFamily);
+    const itemId = null; // No itemId for standalone component
+    const isPremade = false; // Default to false for standalone component
+    
+    try {
+      return window.App._makeProfilePicturePlaceholderSVG(name, paletteKey, isPremade, itemId);
+    } catch (error) {
+      console.warn('[ProfilePicture] Main app placeholder generation failed, using fallback:', error);
+    }
   }
   
-  // Try to use utils function if available
-  if (typeof makeProfilePicturePlaceholderSVG === 'function') {
-    const paletteKey = getPaletteKey(palette);
-    return makeProfilePicturePlaceholderSVG(name, paletteKey, false, null, fontFamily);
-  }
-  
-  // Local fallback implementation
+  // Fallback to local generation
   return createLocalPlaceholderSVG(name, palette, fontFamily);
 }
 
@@ -165,8 +144,8 @@ function createLocalPlaceholderSVG(name, palette, fontFamily) {
   
   try {
     return `data:image/svg+xml;base64,${btoa(svg)}`;
-  } catch { // error parameter removed
-    // Error encoding SVG
+  } catch (error) {
+    console.error('[ProfilePicture] Error encoding SVG:', error);
     // Return a simple fallback
     return `data:image/svg+xml;base64,${btoa('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#607d8b"/><text x="50" y="50" font-family="Arial" font-size="40" fill="#cfd8dc" text-anchor="middle" dominant-baseline="middle">?</text></svg>')}`;
   }
@@ -214,6 +193,6 @@ function getPaletteKey(palette) {
     }
   }
   
-  // Could not determine palette key, using default slate_gray
+  console.warn('[ProfilePicture] Could not determine palette key, using default slate_gray');
   return 'slate_gray'; // Final fallback
-}
+} 

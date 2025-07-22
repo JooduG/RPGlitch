@@ -1,9 +1,7 @@
-/**
- * RPGlitch Constants and Configuration
- * Centralized constants and configuration for better maintainability
- */
+// RPGlitch Application Constants
+// This file contains all application constants that were previously in RPGlitch.js
 
-export const CONSTANTS = {
+const CONSTANTS = {
     FONT_FAMILY: "'Segoe UI', system-ui, sans-serif",
     UNIVERSAL_COLORS: {
         black: "#1f2937",
@@ -35,112 +33,96 @@ export const CONSTANTS = {
         WORLD_PROFILE: 'worldProfileScreen',
         STORY_PROFILE: 'storyProfileScreen',
         MEMORY_APPLICATION: 'memoryApplicationScreen' 
+    },
+    ITEM_CONFIG: {
+        character: {
+            itemType: 'character',
+            dbTableKey: 'characters',
+            capital: 'Character',
+            getPremadesFn: () => App.getPremadeCharacterItems(),
+            formScreen: 'characterFormScreen',
+            profileScreen: 'characterProfileScreen',
+            labels: {
+                name: 'Name',
+                description: 'Summary/Card Info',
+                eternal: { main: 'Eternal', sub: 'Truths & Traits' },
+                past: { main: 'Past', sub: 'Memories & Histories' },
+                present: { main: 'Present', sub: 'Conditions & Opening' },
+                future: { main: 'Future', sub: 'Potentials & Aspirations' },
+                descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
+                eternalPlaceholder: "Core Identity: Unchanging physical traits (species, build, unique markings), signature skills, speaking style, inherent magical abilities or unique talents. Example: 'A stoic, seven-foot-tall cyborg dragon with a dry wit and unmatched piloting skills.'",
+                pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
+                presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
+                futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
+            }
+        },
+        characterAi: {
+            itemType: 'character',
+            dbTableKey: 'characters',
+            capital: 'Character',
+            role: 'ai',
+            getPremadesFn: () => App.getPremadeCharacterItems(),
+            formScreen: 'characterFormScreen',
+            profileScreen: 'characterProfileScreen',
+            labels: {
+                name: 'Name',
+                description: 'Summary/Card Info',
+                eternal: { main: 'Eternal', sub: 'Truths & Traits' },
+                past: { main: 'Past', sub: 'Memories & Histories' },
+                present: { main: 'Present', sub: 'Conditions & Opening' },
+                future: { main: 'Future', sub: 'Potentials & Aspirations' },
+                descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
+                eternalPlaceholder: "Core Identity: Unchanging physical traits (species, build, unique markings), signature skills, speaking style, inherent magical abilities or unique talents. Example: 'A stoic, seven-foot-tall cyborg dragon with a dry wit and unmatched piloting skills.'",
+                pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
+                presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
+                futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
+            }
+        },
+        characterUser: {
+            itemType: 'character',
+            dbTableKey: 'characters',
+            capital: 'Character',
+            role: 'user',
+            getPremadesFn: () => App.getPremadeCharacterItems(),
+            formScreen: 'characterFormScreen',
+            profileScreen: 'characterProfileScreen',
+            labels: {
+                name: 'Name',
+                description: 'Summary/Card Info',
+                eternal: { main: 'Eternal', sub: 'Truths & Traits' },
+                past: { main: 'Past', sub: 'Memories & Histories' },
+                present: { main: 'Present', sub: 'Conditions & Opening' },
+                future: { main: 'Future', sub: 'Potentials & Aspirations' },
+                descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
+                eternalPlaceholder: "Core Identity: Unchanging physical traits (species, build, unique markings), signature skills, speaking style, inherent magical abilities or unique talents. Example: 'A stoic, seven-foot-tall cyborg dragon with a dry wit and unmatched piloting skills.'",
+                pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
+                presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
+                futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
+            }
+        },
+        world: {
+            itemType: 'world',
+            dbTableKey: 'worlds',
+            capital: 'World',
+            getPremadesFn: () => App.getPremadeWorldItems(),
+            formScreen: 'worldFormScreen',
+            profileScreen: 'worldProfileScreen',
+            labels: {
+                name: 'Name',
+                description: 'Summary/Card Info',
+                eternal: { main: 'Eternal', sub: 'Truths & Laws of Nature' },
+                past: { main: 'Past', sub: 'Histories & Legends' },
+                present: { main: 'Present', sub: 'State & Setting' },
+                future: { main: 'Future', sub: 'Potentials & Hooks' },
+                descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
+                eternalPlaceholder: "Fundamental Laws & Core Nature: Unchanging geography/cosmology, dominant species/cultures, overall tech level, unique natural phenomena, or immutable laws of physics. Example: 'A sentient forest planet where technology is anathema and ancient spirits guard hidden realities.'",
+                pastPlaceholder: "Key Historical Events & Lore: Ancient civilizations, major conflicts, established myths, significant discoveries, or cataclysms that shaped the world's current state. Example: 'A thousand years ago, the 'Great Sundering' shattered the continent, leading to centuries of isolated tribal warfare over scarce magical resources.'",
+                presentPlaceholder: "Immediate Setting & Atmosphere: Current societal mood, political climate, active factions, sensory details (sights, sounds, smells), time of day, weather, and the specific location where the story might begin. Example: 'A tense, neutral space station orbiting a contested gas giant, during a fragile peace summit between two warring alien empires.'",
+                futurePlaceholder: "Looming Threats & Story Hooks: Known prophecies, brewing conflicts, potential discoveries, major unresolved tensions, upcoming significant events, or societal shifts that could drive narratives. Example: 'An ancient celestial alignment threatens to awaken a dormant cosmic entity, while a shadowy organization plots to exploit its power.''"
+            }
+        }
     }
 };
 
-// Item configuration templates
-export const ITEM_CONFIG_TEMPLATES = {
-    character: {
-        itemType: 'character',
-        dbTableKey: 'characters',
-        capital: 'Character',
-        formScreen: 'characterFormScreen',
-        profileScreen: 'characterProfileScreen',
-        labels: {
-            name: 'Name',
-            description: 'Summary/Card Info',
-            eternal: { main: 'Eternal', sub: 'Truths & Traits' },
-            past: { main: 'Past', sub: 'Memories & Histories' },
-            present: { main: 'Present', sub: 'Conditions & Opening' },
-            future: { main: 'Future', sub: 'Potentials & Aspirations' },
-            descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
-            eternalPlaceholder: "Core Identity: Unchanging physical traits (species, build, unique markings), signature skills, speaking style, inherent magical abilities or unique talents. Example: 'A stoic, seven-foot-tall cyborg dragon with a dry wit and unmatched piloting skills.'",
-            pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
-            presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
-            futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
-        }
-    },
-    characterAi: {
-        itemType: 'character',
-        dbTableKey: 'characters',
-        capital: 'Character',
-        role: 'ai',
-        formScreen: 'characterFormScreen',
-        profileScreen: 'characterProfileScreen',
-        labels: {
-            name: 'Name',
-            description: 'Summary/Card Info',
-            eternal: { main: 'Eternal', sub: 'Truths & Traits' },
-            past: { main: 'Past', sub: 'Memories & Histories' },
-            present: { main: 'Present', sub: 'Conditions & Opening' },
-            future: { main: 'Future', sub: 'Potentials & Aspirations' },
-            descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
-            eternalPlaceholder: "Core Identity: Unchanging physical traits (species, build, unique markings), signature skills, speaking style, inherent magical abilities or unique talents. Example: 'A stoic, seven-foot-tall cyborg dragon with a dry wit and unmatched piloting skills.'",
-            pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
-            presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
-            futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
-        }
-    },
-    characterUser: {
-        itemType: 'character',
-        dbTableKey: 'characters',
-        capital: 'Character',
-        role: 'user',
-        formScreen: 'characterFormScreen',
-        profileScreen: 'characterProfileScreen',
-        labels: {
-            name: 'Name',
-            description: 'Summary/Card Info',
-            eternal: { main: 'Eternal', sub: 'Truths & Traits' },
-            past: { main: 'Past', sub: 'Memories & Histories' },
-            present: { main: 'Present', sub: 'Conditions & Opening' },
-            future: { main: 'Future', sub: 'Potentials & Aspirations' },
-            descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
-            eternalPlaceholder: "Core Identity: Unchanging physical traits (species, build, unique markings), signature skills, speaking style, inherent magical abilities or unique talents. Example: 'A stoic, seven-foot-tall cyborg dragon with a dry wit and unmatched piloting skills.'",
-            pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
-            presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
-            futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
-        }
-    },
-    world: {
-        itemType: 'world',
-        dbTableKey: 'worlds',
-        capital: 'World',
-        formScreen: 'worldFormScreen',
-        profileScreen: 'worldProfileScreen',
-        labels: {
-            name: 'Name',
-            description: 'Summary/Card Info',
-            eternal: { main: 'Eternal', sub: 'Truths & Laws of Nature' },
-            past: { main: 'Past', sub: 'Histories & Legends' },
-            present: { main: 'Present', sub: 'State & Setting' },
-            future: { main: 'Future', sub: 'Potentials & Hooks' },
-            descriptionPlaceholder: 'A brief, one-sentence summary for the selection card. This text is not sent to the AI during story play.',
-            eternalPlaceholder: "Fundamental Laws & Core Nature: Unchanging geography/cosmology, dominant species/cultures, overall tech level, unique natural phenomena, or immutable laws of physics. Example: 'A sentient forest planet where technology is anathema and ancient spirits guard hidden realities.'",
-            pastPlaceholder: "Key Historical Events & Lore: Ancient civilizations, major conflicts, established myths, significant discoveries, or cataclysms that shaped the world's current state. Example: 'A thousand years ago, the 'Great Sundering' shattered the continent, leading to centuries of isolated tribal warfare over scarce magical resources.'",
-            presentPlaceholder: "Immediate Setting & Atmosphere: Current societal mood, political climate, active factions, sensory details (sights, sounds, smells), time of day, weather, and the specific location where the story might begin. Example: 'A tense, neutral space station orbiting a contested gas giant, during a fragile peace summit between two warring alien empires.'",
-            futurePlaceholder: "Looming Threats & Story Hooks: Known prophecies, brewing conflicts, potential discoveries, major unresolved tensions, upcoming significant events, or societal shifts that could drive narratives. Example: 'An ancient celestial alignment threatens to awaken a dormant cosmic entity, while a shadowy organization plots to exploit its power.''"
-        }
-    }
-};
-
-// Default state configurations
-export const DEFAULT_STATE = {
-    focusBarState: {
-        mode: 'storyboard',
-        tabs: ['storyboard', 'characters', 'worlds', 'options'],
-        chinOpen: false
-    },
-    mouseoverAnimationState: {
-        enabled: true,
-        disabledElements: new Set()
-    },
-    storyboardSelected: { ai: '', user: '', world: '' }
-};
-
-// Export all constants
-export default {
-    CONSTANTS,
-    ITEM_CONFIG_TEMPLATES,
-    DEFAULT_STATE
-}; 
+// Make constants available globally for the merged file approach
+window.CONSTANTS = CONSTANTS;

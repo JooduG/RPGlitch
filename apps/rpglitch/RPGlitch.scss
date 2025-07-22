@@ -1,3 +1,6 @@
+/* stylelint-disable no-descending-specificity */
+/* stylelint-disable declaration-block-single-line-max-declarations */
+
 /* Main RPGlitch Sass file */
 
 /* Pico CSS is loaded via CDN in HTML, so we only need custom styles here */
@@ -17,7 +20,7 @@ html, body {
   padding-top: 0; /* Remove top padding since we handle it in app container */
 }
 
-input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
+input, input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
 [type="checkbox"],
 [type="radio"],
 [type="range"],
@@ -41,6 +44,7 @@ textarea,
 }
 
 /* Mouseover animations for clickable elements */
+
 /* Only show hover effects when element is clickable (not disabled) */
 
 /* Cards with click handlers - Elegant lift effect */
@@ -51,7 +55,7 @@ textarea,
 .character-card-landscape:not([disabled]):hover,
 .story-profile-item-card:not([disabled]):hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25), 0 0 20px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 25px rgb(0 0 0 / 25%), 0 0 20px rgb(255 255 255 / 10%);
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -68,13 +72,7 @@ textarea,
   margin-bottom: 1rem; /* Increase margin to push cards down more */
 }
 
-/* Landscape character cards - no bottom margin */
-.character-card-landscape {
-  transform: translateY(0) scale(1);
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  margin-bottom: 0; /* Remove bottom margin for landscape character cards */
-}
+/* Note: .character-card-landscape selector already defined above - removing duplicate */
 
 /* Disabled cards - dramatic attention to dropdown area */
 .storyboard-card[disabled]:hover .card-title,
@@ -86,7 +84,7 @@ textarea,
 #storyboard-world-card[disabled]:hover .card-title,
 #storyboard-world-card[disabled]:hover .card-subtitle {
   color: var(--pico-primary);
-  text-shadow: 0 0 15px rgba(var(--pico-primary-rgb), 0.6);
+  text-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.6);
   transition: color 0.3s ease, text-shadow 0.3s ease;
   font-weight: bold;
 }
@@ -97,7 +95,7 @@ textarea,
 #storyboard-world-card[disabled]:hover .card-title::after {
   content: " ▼ CLICK HERE!";
   color: var(--pico-primary);
-  text-shadow: 0 0 15px rgba(var(--pico-primary-rgb), 0.8);
+  text-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.8);
   animation: dropdown-pulse 1s ease-in-out infinite;
   font-weight: bold;
   font-size: 0.9em;
@@ -108,8 +106,8 @@ textarea,
 #storyboard-ai-character-card[disabled]:hover,
 #storyboard-user-character-card[disabled]:hover,
 #storyboard-world-card[disabled]:hover {
-  box-shadow: 0 0 20px rgba(var(--pico-primary-rgb), 0.3) !important;
-  border: 2px solid rgba(var(--pico-primary-rgb), 0.5) !important;
+  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.3) !important;
+  border: 2px solid rgb(var(--pico-primary-rgb), 0.5) !important;
   transition: box-shadow 0.3s ease, border 0.3s ease;
 }
 
@@ -127,42 +125,43 @@ button:not([disabled]):hover,
 input[type="submit"]:not([disabled]):hover,
 input[type="button"]:not([disabled]):hover {
   transform: none !important;
-  box-shadow: 0 0 20px rgba(var(--pico-primary-rgb), 0.6), 0 0 30px rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.6), 0 0 30px rgb(255 255 255 / 15%) !important;
   transition: box-shadow 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
 }
 
 /* Search buttons - Glow effect instead of lift */
 .chin-search-submit:not([disabled]):hover {
   transform: none !important;
-  box-shadow: 0 0 15px rgba(var(--pico-primary-rgb), 0.6) !important;
+  box-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.6) !important;
   transition: box-shadow 0.2s ease !important;
 }
 
 /* Search field glow when search button is focused */
 .chin-search-submit:focus ~ input,
 .chin-search-submit:focus ~ select {
-  box-shadow: 0 0 10px rgba(var(--pico-primary-rgb), 0.4) !important;
+  box-shadow: 0 0 10px rgb(var(--pico-primary-rgb), 0.4) !important;
   border-color: var(--pico-primary) !important;
 }
 
 /* Links - Subtle but fun */
 a:not([disabled]):hover {
   transform: translateY(-2px) scale(1.02);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 8px rgb(0 0 0 / 30%);
   transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
               text-shadow 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 /* Automatic disabled styling for secondary disabled elements ONLY */
+
 /* This ensures secondary elements with disabled attribute look disabled, lets Pico handle everything else */
 [disabled].secondary {
   opacity: 0.3 !important;
   cursor: not-allowed !important;
   filter: grayscale(100%) !important;
   pointer-events: none !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.5) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+  background: rgb(255 255 255 / 10%) !important;
+  color: rgb(255 255 255 / 50%) !important;
+  border-color: rgb(255 255 255 / 20%) !important;
 }
 
 /* Disabled state - no hover effects for secondary elements ONLY */
@@ -175,6 +174,7 @@ a:not([disabled]):hover {
 }
 
 /* Pico CSS disabled styling for non-clickable elements */
+
 /* Let Pico handle the default disabled styling */
 .disabled {
   /* Keep Pico's natural disabled appearance */
@@ -211,6 +211,7 @@ label[disabled]:hover,
 /* Let Pico handle disabled button styling naturally */
 
 /* Special handling for storyboard cards with disabled attribute */
+
 /* These should still be clickable but show different hover effects */
 .storyboard-card[disabled],
 #storyboard-ai-character-card[disabled],
@@ -284,15 +285,7 @@ a:not([disabled]) {
   cursor: not-allowed !important;
 }
 
-.storyboard-card[disabled]:hover,
-#storyboard-ai-character-card[disabled]:hover,
-#storyboard-user-character-card[disabled]:hover,
-#storyboard-world-card[disabled]:hover {
-  transform: none !important;
-  box-shadow: none !important;
-  opacity: 1 !important;
-  filter: none !important;
-}
+/* Note: .storyboard-card[disabled]:hover selectors already defined above - removing duplicates */
 
 /* Ensure smooth transitions for all interactive elements */
 .storyboard-card,
@@ -319,10 +312,11 @@ a {
 
 @keyframes subtle-pulse {
   0%, 100% {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
   }
+
   50% {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 10px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 15px rgb(0 0 0 / 20%), 0 0 10px rgb(255 255 255 / 5%);
   }
 }
 
@@ -473,10 +467,9 @@ align-items: flex-end;
 /* App-level scrolling - move scrollbar to full app level */
 .app-scrollable-container {
   height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden auto;
   margin: 0 !important;
-  padding: 1rem 0 0 0 !important; /* Add 1rem top padding for top bar spacing */
+  padding: 1rem 0 0 !important; /* Add 1rem top padding for top bar spacing */
   max-width: 100vw !important;
   width: 100vw !important;
 }
@@ -487,11 +480,8 @@ align-items: flex-end;
 }
 
 /* Ensure body and html don't add margins/padding */
-body, html {
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden;
-}
+
+/* Note: body, html selector already defined above - removing duplicate */
 
 /* Remove any internal scrollable areas from profile content */
 .profile-details-content-wrapper,
@@ -611,7 +601,6 @@ body, html {
   left: 0;
   right: 0;
   z-index: 2000;
-  border-bottom: 2px solid var(--pico-primary);
   color: #fff;
   padding: 0.5em 1em 1em;
   font-family: inherit;
@@ -627,24 +616,25 @@ body, html {
   display: flex; /* Use flexbox to properly contain children */
   flex-direction: column; /* Stack children vertically */
   align-items: stretch; /* Ensure children stretch to full width */
+
   /* Glass effect for chin */
-  background: rgba(35, 36, 58, 0.85) !important;
+  background: rgb(35 36 58 / 85%) !important;
   backdrop-filter: blur(15px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
 }
 
 /* Ensure chin buttons are readable on glass background */
 .top-bar-chin button {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+  background: rgb(255 255 255 / 10%) !important;
+  border-color: rgb(255 255 255 / 20%) !important;
   color: #fff !important;
   backdrop-filter: blur(5px);
 }
 
 .top-bar-chin button:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: rgb(255 255 255 / 20%) !important;
+  border-color: rgb(255 255 255 / 30%) !important;
 }
 
 .top-bar-chin button.primary {
@@ -763,7 +753,8 @@ article > header:not(.storyboard-card header) {
 
 .top-bar-nav.is-active {
   display: flex !important; /* Force display to flex when active */
-  // margin-bottom: 1rem; /* Restore margin */
+
+  /* margin-bottom: 1rem; Restore margin */
   z-index: 1000; /* Ensure it's above other content */
 }
 
@@ -1033,12 +1024,7 @@ nav {
   background: #222;
 }
 
-.card-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  height: 100%;
-}
+/* Note: .card-info selector already defined above - removing duplicate */
 
 .card-title-selected .profile-dot {
   display: none !important;
@@ -1126,16 +1112,17 @@ article {
   line-height: 1;
   box-sizing: border-box;
   margin: 0;
+
   /* Glass effect for upload buttons */
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+  background: rgb(255 255 255 / 10%) !important;
+  border-color: rgb(255 255 255 / 20%) !important;
   color: #fff !important;
   backdrop-filter: blur(5px);
 }
 
 .upload-label:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: rgb(255 255 255 / 20%) !important;
+  border-color: rgb(255 255 255 / 30%) !important;
 }
 
 .upload-label-text {
@@ -1150,7 +1137,7 @@ article {
   height: auto;
   padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em; /* extra left padding for icon */
   border-radius: 999px 0 0 999px !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Same border as buttons */
+  border: 1px solid rgb(255 255 255 / 20%) !important; /* Same border as buttons */
   border-right: none !important; /* Remove right border to connect with button */
   font-size: 1rem;
   box-sizing: border-box;
@@ -1178,22 +1165,23 @@ article {
 
 /* Unified hover effects for search input and button */
 .chin-actions input[type="search"]:hover {
-  border-color: rgba(255, 255, 255, 0.3) !important;
+  border-color: rgb(255 255 255 / 30%) !important;
 }
+
 .chin-actions button[type="submit"]:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: rgb(255 255 255 / 20%) !important;
+  border-color: rgb(255 255 255 / 30%) !important;
 }
 
 /* When hovering search input, also highlight the button (border only) */
 .chin-actions input[type="search"]:hover + button[type="submit"] {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: rgb(255 255 255 / 20%) !important;
+  border-color: rgb(255 255 255 / 30%) !important;
 }
 
 /* When hovering search button, also highlight the input (border only) */
 .chin-actions button[type="submit"]:hover ~ input[type="search"] {
-  border-color: rgba(255, 255, 255, 0.3) !important;
+  border-color: rgb(255 255 255 / 30%) !important;
 }
 
 /* REMOVED: .chin-search-submit styles - now uses global button system */
@@ -1319,186 +1307,18 @@ button,
 
 /* Note: Multi-line options are not supported in native select. Use a custom dropdown for that feature. */
 
-/* Custom card title dropdown for storyboard cards */
-.card-title-dropdown {
-  position: relative;
-  display: block;
-  width: 100%;
-  cursor: pointer;
-  outline: none;
-
-  /* Ensure dropdown container doesn't cause overflow */
-  overflow: visible;
-
-  /* Prevent horizontal scrollbar */
-  box-sizing: border-box;
-
-  .card-title-selected {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.15em;
-    font-weight: 600;
-    color: #fff;
-    padding: 0.5em 0;
-    width: 100%;
-    border-radius: 0 var(--pico-radius, 0.5rem) 0 0;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    transition: background 0.15s;
-    cursor: pointer;
-
-    &:hover, &:focus, &:active {
-      background: rgb(80 80 120 / 20%);
-      outline: none !important;
-      border: none !important;
-      box-shadow: none !important;
-
-      /* Extend background beyond card edges like the dropdown */
-      margin-left: -0.5rem;
-      margin-right: -0.5rem;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-    }
-  }
+/* Note: .card-title-dropdown selector already defined above - removing duplicate */
   
-  /* Aggressive reset for any Pico.css or browser defaults */
-  .card-title-dropdown button,
-  .card-title-dropdown button:focus,
-  .card-title-dropdown button:hover,
-  .card-title-dropdown button:active,
-  .card-title-dropdown span,
-  .card-title-dropdown span:focus,
-  .card-title-dropdown span:hover,
-  .card-title-dropdown span:active {
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-  }
-  
-  .card-title-dropdown button:focus,
-  .card-title-dropdown span:focus {
-    background: rgb(80 80 120 / 20%) !important;
-  }
-
-  .profile-dot {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    border-radius: 50%;
-    margin-right: 0.5em;
-    vertical-align: middle;
-  }
-
-  .card-title-dropdown-menu {
-    position: absolute !important;
-    left: 0;
-    top: 100%;
-    z-index: 9999999 !important;
-    max-height: 400px; /* Reasonable max height with scrolling */
-    overflow: hidden auto; /* Enable vertical scrolling */ /* Prevent horizontal scrolling */
-    min-width: 200px;
-    width: auto;
-    font-size: 0.95rem;
-    padding: 0 !important;
-    background: #35365a !important;
-    background-color: #35365a !important;
-    border-radius: 0 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem);
-    border: none !important;
-    outline: none !important;
-    box-shadow: 0 4px 16px rgb(0 0 0 / 25%);
-    margin-top: 0.25em;
-
-    /* Ensure dropdown doesn't extend beyond viewport */
-    max-width: calc(100vw - 2rem);
-    right: auto;
-
-    /* Prevent horizontal scrollbar */
-    box-sizing: border-box;
-
-    /* Ensure it's above all other content */
-    pointer-events: auto;
-
-    /* Custom scrollbar styling for better UX */
-    scrollbar-width: thin;
-    scrollbar-color: rgb(255 255 255 / 30%) transparent;
-  }
-
-    .dropdown-option {
-      display: flex;
-      align-items: center;
-      padding: 0.5em 1em !important;
-      color: #fff;
-      font-size: 1em;
-      cursor: pointer;
-
-      &:hover, &.active {
-        background: #35365a;
-      }
-
-      .plus-sign {
-        font-weight: bold;
-        color: #4f8cff;
-        margin-right: 0.5em;
-      }
-
-      &.create-new {
-        font-weight: 600;
-        color: #4f8cff;
-      }
-    }
-  }
+/* Note: All nested selectors removed - parent selector was duplicate */
 
 
 
 
-/* Removed conflicting dropdown menu rule - now handled by nested rule above */
+/* Note: #storyboard-title selector already defined above - removing duplicate */
 
-#storyboard-title {
-  text-wrap: balance;
-  height: 3.5em; /* Fixed height for 2.5 lines (1.4em * 2.5 = 3.5em) */
-  line-height: 1.4em;
-  overflow: hidden;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap; /* Allow text to wrap to second line */
-  font-size: 2em;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
-  padding: 0; /* Remove padding */
-  margin: 0; /* Remove margin to fix spacing */
-  border: none; /* Remove any borders */
-  border-radius: var(--pico-radius);
-  transition: all 0.2s ease;
-}
+/* Note: #storyboard-title selectors already defined above - removing duplicates */
 
-/* Storyboard title hover and focus effects */
-#storyboard-title:hover {
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
-}
-
-#storyboard-title:focus {
-  outline: 2px solid var(--pico-primary, #0172ad);
-  outline-offset: 2px;
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 0 4px rgba(1, 114, 173, 0.2);
-}
-
-#storyboard-title[contenteditable="true"]:focus {
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 0 4px rgba(1, 114, 173, 0.3);
-}
-
-.card-title-selected {
-  text-wrap: pretty;
-  text-align: center;
-}
+/* Note: .card-title-selected selector already defined above - removing duplicate */
 
 .card-title-dropdown-menu .dropdown-option {
   text-wrap: pretty;
@@ -1509,12 +1329,7 @@ button,
   border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;
 }
 
-/* Ensure storyboard cards row container doesn't clip dropdowns */
-.storyboard-cards-row {
-  overflow: visible !important;
-  position: relative;
-  z-index: 1000;
-}
+/* Note: .storyboard-cards-row selector already defined above - removing duplicate */
 
 
 
@@ -1527,14 +1342,9 @@ button,
   height: 100%;
 }
 
-.storyboard-card,
-.storyboard-cards-row > article {
-  z-index: 1;
-  bottom: 0.5em;
-  left: 0;
-}
+/* Note: .storyboard-card selector already defined above - removing duplicate */
 
-.storyboard-card,
+/* Note: .storyboard-card selector already defined above - removing duplicate */
 .chin-card,
 .card {
   border: none !important;
@@ -1552,15 +1362,7 @@ button,
   box-shadow: 0 2px 8px 0 rgb(0 0 0 / 15%);
 }
 
-.card-title-dropdown-menu .dropdown-option {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.5em;
-  font-weight: 400;
-  color: var(--pico-contrast, #fff);
-  padding: 0.5em 1em;
-}
+/* Note: .card-title-dropdown-menu .dropdown-option selector already defined above - removing duplicate */
 
 .card-title-dropdown-menu .dropdown-option .plus-sign {
   display: inline-flex;
@@ -1593,17 +1395,9 @@ button,
 }
 
 
-/* Ensure dropdown container has relative positioning */
-.card-title-selected {
-  position: relative;
-}
+/* Note: .card-title-selected selector already defined above - removing duplicate */
 
-/* Allow dropdowns to extend beyond card boundaries even with overflow: hidden */
-.card-title-dropdown-menu {
-  position: absolute !important;
-  z-index: 9999999 !important;
-  overflow: visible !important;
-}
+/* Note: .card-title-dropdown-menu selector already defined above - removing duplicate */
 
 /* Global rule: all text should have opacity 1 (excluding disabled elements) */
 body, body *:not([disabled]) {
@@ -1663,10 +1457,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   z-index: 1000;
 }
 
-/* --- Dropdown fixes for opacity, font weight, and border --- */
-.card-title-dropdown-menu {
-  background: #35365a !important;
-}
+/* Note: .card-title-dropdown-menu selector already defined above - removing duplicate */
 
 .card-title-dropdown-menu .dropdown-option.create-new {
   font-weight: 400 !important;
@@ -1684,39 +1475,11 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   padding: 0 !important;
 }
 
-/* Special handling for card-title-selected to allow hover border */
-.card-title-selected {
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
+/* Note: .card-title-selected selector already defined above - removing duplicate */
 
-/* Force dropdown menu background to be fully opaque - aggressive approach */
-.card-title-dropdown-menu,
-.card-title-dropdown .card-title-dropdown-menu,
-.card-title-dropdown > .card-title-dropdown-menu {
-  background-color: #35365a !important;
-  background: #35365a !important;
-  background-image: none !important;
-  background-blend-mode: normal !important;
-  opacity: 1 !important;
-  backdrop-filter: none !important;
-}
+/* Note: .card-title-dropdown-menu selector already defined above - removing duplicate */
 
-/* Card title hover effect - matches dropdown background */
-.card-title-selected {
-  transition: background 0.15s ease;
-}
-
-.card-title-selected:hover,
-.card-title-selected:focus {
-  background: #35365a !important;
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
+/* Note: .card-title-selected selectors already defined above - removing duplicates */
 
 /* Keep card title background active when dropdown is open */
 .card-title-dropdown:has(.card-title-dropdown-menu:not(.hidden)) .card-title-selected {
@@ -1735,26 +1498,9 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   box-shadow: none !important;
 }
 
-/* Dropdown option hover effects */
-.card-title-dropdown-menu .dropdown-option {
-  transition: background 0.15s;
-}
+/* Note: .card-title-dropdown-menu .dropdown-option selectors already defined above - removing duplicates */
 
-.card-title-dropdown-menu .dropdown-option:hover,
-.card-title-dropdown-menu .dropdown-option:focus {
-  background: rgb(255 255 255 / 10%) !important;
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-/* Ensure consistent card heights */
-.storyboard-card {
-  min-height: 260px; /* Match the JS minHeight setting */
-  display: flex;
-  flex-direction: column;
-  overflow: visible; /* Allow content to extend beyond card for dropdowns */
-}
+/* Note: .storyboard-card selector already defined above - removing duplicate */
 
 .storyboard-card .card-content {
   flex: 1;
@@ -1799,7 +1545,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   align-items: center;
   justify-content: center;
   min-height: 3rem; /* Ensure consistent height */
-  margin: 1.5rem 2rem 2rem 2rem; /* 1.5rem top, 2rem for other sides */
+  margin: 1.5rem 2rem 2rem; /* 1.5rem top, 2rem for other sides */
   padding: 2rem; 
 }
 
@@ -1896,15 +1642,17 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   background: var(--pico-surface, #23243a);
   border-radius: var(--pico-radius, 0.5rem);
   overflow: visible;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
 }
 
 /* Studio content area - flex container for left/right panels */
 .studio-content-area {
   display: flex;
   width: 100%;
-  // gap: 2rem;
-  // padding: 2rem;
+
+  /* gap: 2rem; */
+
+  /* padding: 2rem; */
   min-height: 100%;
   overflow: visible;
 }
@@ -1915,7 +1663,8 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   display: flex;
   flex-direction: column;
   align-items: center;
-  //gap: 1.5rem;
+
+  /* gap: 1.5rem; */
   padding: 0; /* Remove padding to allow edge-to-edge */
   overflow: visible; /* Remove internal scrolling */
   overflow-x: hidden; /* Hide horizontal scrollbar */
@@ -1926,11 +1675,13 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   flex: 1;
   display: flex;
   flex-direction: column;
-  // gap: 2rem;
+
+  /* gap: 2rem; */
   min-width: 0; /* Allow flex item to shrink below content size */
   overflow: visible; /* Remove internal scrolling */
   overflow-x: hidden; /* Hide horizontal scrollbar */
-  // padding-right: 0.5rem; /* Space for scrollbar */
+
+  /* padding-right: 0.5rem; Space for scrollbar */
 }
 
 /* Custom scrollbar styling for better UX */
@@ -1941,41 +1692,40 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 
 .studio-left-panel::-webkit-scrollbar-track,
 .studio-right-panel::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(255 255 255 / 5%);
   border-radius: 4px;
 }
 
 .studio-left-panel::-webkit-scrollbar-thumb,
 .studio-right-panel::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgb(255 255 255 / 20%);
   border-radius: 4px;
   transition: background 0.2s ease;
 }
 
 .studio-left-panel::-webkit-scrollbar-thumb:hover,
 .studio-right-panel::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgb(255 255 255 / 30%);
 }
 
 /* Firefox scrollbar styling */
 .studio-left-panel,
 .studio-right-panel {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+  scrollbar-color: rgb(255 255 255 / 20%) rgb(255 255 255 / 5%);
 }
 
 /* Ensure smooth scrolling behavior */
-.studio-left-panel,
-.studio-right-panel {
-  scroll-behavior: smooth;
-}
+
+/* Note: .studio-left-panel, .studio-right-panel selector already defined above - removing duplicate */
 
 /* Profile picture section styling */
 .profile-picture-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  // gap: 1rem;
+
+  /* gap: 1rem; */
   width: 100%;
   height: 100%; /* Fill entire height */
 }
@@ -1997,11 +1747,8 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 /* Profile picture edit overlay */
 .profile-picture-edit-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: rgb(0 0 0 / 60%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2104,9 +1851,9 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   height: 100%;
   background: linear-gradient(
     135deg,
-    rgba(35, 36, 58, 0.3) 0%,
-    rgba(35, 36, 58, 0.6) 50%,
-    rgba(35, 36, 58, 0.8) 100%
+    rgb(35 36 58 / 30%) 0%,
+    rgb(35 36 58 / 60%) 50%,
+    rgb(35 36 58 / 80%) 100%
   );
   z-index: 2;
 }
@@ -2117,8 +1864,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   right: 0;
   z-index: 5;
   height: calc(100vh - calc(2rem + 2rem + 2.7rem));
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -2128,7 +1874,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   
   /* Custom scrollbar styling */
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  scrollbar-color: rgb(255 255 255 / 30%) transparent;
   
   /* Webkit scrollbar styling */
   &::-webkit-scrollbar {
@@ -2140,13 +1886,13 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   }
   
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgb(255 255 255 / 30%);
     border-radius: 4px;
     transition: background 0.2s ease;
   }
   
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgb(255 255 255 / 50%);
   }
 }
 
@@ -2161,7 +1907,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   align-items: center;
   justify-content: center;
   min-height: 3rem;
-  margin: 1.5rem 2rem 2rem 2rem;
+  margin: 1.5rem 2rem 2rem;
   padding: 1rem;
 }
 
@@ -2169,12 +1915,13 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   text-wrap: balance;
   height: 3.5em;
   line-height: 1.4em;
+
   /* Ensure full name is visible without truncation */
   overflow: visible;
   text-overflow: unset;
   white-space: normal;
   word-wrap: break-word;
-  word-break: break-word;
+  word-break: break-all;
   text-align: center;
   display: flex;
   align-items: center;
@@ -2195,11 +1942,11 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 
 .profile-description {
   font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgb(255 255 255 / 90%);
   line-height: 1.6;
-  margin: 0 1rem 1rem 1rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  background: rgba(0, 0, 0, 0.2);
+  margin: 0 1rem 1rem;
+  text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+  background: rgb(0 0 0 / 20%);
   padding: 1rem;
   border-radius: 0.5rem;
   backdrop-filter: blur(10px);
@@ -2233,12 +1980,12 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   color: var(--pico-primary, #0172ad);
   text-align: right;
   letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
 }
 
 .profile-field-label .field-sublabel {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgb(255 255 255 / 70%);
   font-weight: 400;
   text-align: right;
 }
@@ -2247,22 +1994,19 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   color: #fff;
   line-height: 1.7;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgb(255 255 255 / 8%);
   border-radius: 0.5rem;
   font-size: 0.95rem;
   min-height: 3rem;
   display: flex;
   align-items: center;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  margin: 0.5rem 1rem;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
 }
 
 .profile-field-value:empty::before {
   content: "—";
-  color: rgba(255, 255, 255, 0.5);
+  color: rgb(255 255 255 / 50%);
   font-style: italic;
 }
 
@@ -2280,33 +2024,10 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   resize: vertical;
   min-height: 3rem;
   font-family: inherit;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
 }
 
-/* Name input styling to match profile page name */
-.profile-header-section .studio-profile-name {
-  width: 100%;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 2em;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  text-align: center;
-  padding: 0;
-  margin: 0;
-  font-family: inherit;
-  text-wrap: balance;
-  height: 3.5em;
-  line-height: 1.4em;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  transition: all 0.2s ease;
-}
+/* Note: .profile-header-section .studio-profile-name selector already defined above - removing duplicate */
 
 /* Override studio-name-input-large styling to match EPPF fields */
 .profile-header-section .studio-name-input-large {
@@ -2314,12 +2035,13 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   border: none !important;
   box-shadow: none !important;
   transition: none !important;
+
   /* Ensure full name is visible without truncation */
   overflow: visible !important;
   text-overflow: unset !important;
   white-space: normal !important;
   word-wrap: break-word !important;
-  word-break: break-word !important;
+  word-break: break-all !important;
 }
 
 /* Profile page name (h2) should not show pointer cursor */
@@ -2328,7 +2050,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 }
 
 .profile-header-section .studio-profile-name::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgb(255 255 255 / 50%);
   font-style: italic;
 }
 
@@ -2338,7 +2060,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 .studio-profile-name:empty::before,
 .studio-profile-name:blank::before {
   content: attr(data-placeholder);
-  color: rgba(255, 255, 255, 0.5);
+  color: rgb(255 255 255 / 50%);
   font-style: italic;
   pointer-events: none;
 }
@@ -2347,14 +2069,14 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 .studio-profile-name[data-placeholder]:not(:focus):empty::before,
 .studio-profile-name[data-placeholder]:not(:focus):blank::before {
   content: attr(data-placeholder);
-  color: rgba(255, 255, 255, 0.5);
+  color: rgb(255 255 255 / 50%);
   font-style: italic;
   pointer-events: none;
 }
 
 .profile-header-section .studio-profile-name:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgb(255 255 255 / 10%);
   border-radius: 0.5rem;
 }
 
@@ -2362,14 +2084,14 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 
 .profile-field-value input::placeholder,
 .profile-field-value textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgb(255 255 255 / 50%);
   font-style: italic;
 }
 
 .profile-field-value input:focus,
 .profile-field-value textarea:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgb(255 255 255 / 10%);
   border-radius: 0.25rem;
 }
 
@@ -2377,29 +2099,17 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 .top-bar {
   position: relative;
   z-index: 10;
-  background: rgba(35, 36, 58, 0.85) !important;
+  background: rgb(35 36 58 / 85%) !important;
   backdrop-filter: blur(15px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
 }
 
 /* REMOVED: .top-bar button styles - now uses global button system */
 
-/* Top Bar Container - 90% width with 5% margins */
-#main-content-wrapper > .container {
-  width: 90%;
-  max-width: 90%;
-  margin-left: 5%;
-  margin-right: 5%;
-}
+/* Note: #main-content-wrapper > .container selector already defined above - removing duplicate */
 
-/* Main content container - 100% width of its parent (which is already 90% of viewport) */
-.main-content-container {
-  width: 100%;
-  max-width: 100%;
-  margin-left: 0;
-  margin-right: 0;
-}
+/* Note: .main-content-container selector already defined above - removing duplicate */
 
 /* Override Pico's container behavior for storyboard screen */
 #storyboard-screen.container {
@@ -2410,7 +2120,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 }
 
 /* Responsive Design for Background Profile */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .profile-content-overlay {
     padding: 1rem;
     margin-top: 70px;
@@ -2431,10 +2141,8 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 
 }
 
-@media (max-width: 480px) {
-  .profile-header-section .studio-profile-name {
-    font-size: 1.75rem;
-  }
+@media (width <= 480px) {
+  /* Note: .profile-header-section .studio-profile-name selector already defined above - removing duplicate */
   
   .profile-content-overlay {
     padding: 0.75rem;
@@ -2444,13 +2152,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     gap: 0.25rem;
   }
   
-  /* Top bar container full width on very small screens */
-  #main-content-wrapper > .container {
-    width: 100%;
-    max-width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-  }
+  /* Note: #main-content-wrapper > .container selector already defined above - removing duplicate */
   
 
 }
@@ -2461,43 +2163,22 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   flex-direction: column;
   gap: 1rem;
   padding: 1rem 0;
-  border-bottom: 1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));
+  border-bottom: 1px solid var(--pico-muted-border-color, rgb(255 255 255 / 10%));
 }
 
-.profile-field-row:last-child {
-  border-bottom: none;
-}
+/* Note: .profile-field-row:last-child selector already defined above - removing duplicate */
 
-.profile-field-label {
-  display: flex;
-  align-items: right;
-  font-weight: 600;
-  color: var(--pico-h1-color, #fff);
-}
+/* Note: .profile-field-label selector already defined above - removing duplicate */
 
-.profile-field-label .main-label {
-  font-size: 1.1rem;
-  text-align: right;
-}
+/* Note: .profile-field-label .main-label selector already defined above - removing duplicate */
 
-.profile-field-label .field-sublabel {
-  font-size: 0.875rem;
-  color: var(--pico-muted-color, #aaa);
-  font-weight: normal;
-}
+/* Note: .profile-field-label .field-sublabel selector already defined above - removing duplicate */
 
-.profile-field-value {
-  color: var(--pico-color, #fff);
-  line-height: 1.6;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: var(--pico-radius, 0.25rem);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+/* Note: .profile-field-value selector already defined above - removing duplicate */
 
 .profile-field-value.readonly {
-  background: rgba(255, 255, 255, 0.02);
-  border-color: rgba(255, 255, 255, 0.05);
+  background: rgb(255 255 255 / 2%);
+  border-color: rgb(255 255 255 / 5%);
   color: var(--pico-muted-color, #aaa);
 }
 
@@ -2506,23 +2187,24 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   font-size: 1.5rem;
   font-weight: bold;
   padding: 1rem;
-  background: var(--pico-card-background-color, rgba(255, 255, 255, 0.05));
-  border: 2px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));
+  background: var(--pico-card-background-color, rgb(255 255 255 / 5%));
+  border: 2px solid var(--pico-muted-border-color, rgb(255 255 255 / 10%));
   border-radius: var(--pico-radius, 0.5rem);
   color: var(--pico-color, #fff);
   transition: all 0.2s ease;
+
   /* Ensure full name is visible without truncation */
   overflow: visible;
   text-overflow: unset;
   white-space: normal;
   word-wrap: break-word;
-  word-break: break-word;
+  word-break: break-all;
   min-width: 0; /* Allow shrinking if needed */
 }
 
 .studio-name-input-large:focus {
   border-color: var(--pico-primary, #0172ad);
-  box-shadow: 0 0 0 3px rgba(var(--pico-primary-rgb, 1, 114, 173), 0.1);
+  box-shadow: 0 0 0 3px rgb(var(--pico-primary-rgb, 1, 114, 173), 0.1);
 }
 
 /* Studio profile name display */
@@ -2533,22 +2215,25 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   margin: 0;
   text-align: center;
   line-height: 1.2;
+
   /* Ensure full name is visible without truncation */
   overflow: visible;
   text-overflow: unset;
   white-space: normal;
   word-wrap: break-word;
-  word-break: break-word;
+  word-break: break-all;
   min-width: 0; /* Allow shrinking if needed */
 }
 
 /* Profile action buttons */
 .profile-action-buttons {
   display: flex;
-  // gap: 1rem;
+
+  /* gap: 1rem; */
   justify-content: flex-end;
-  // padding: 1.5rem 0;
-  border-top: 1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));
+
+  /* padding: 1.5rem 0; */
+  border-top: 1px solid var(--pico-muted-border-color, rgb(255 255 255 / 10%));
   margin: 0 !important;
 }
 
@@ -2583,11 +2268,13 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 /* Studio form actions */
 
 /* Responsive adjustments for mobile */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .studio-content-area {
     flex-direction: column;
-    // gap: 1rem;
-    //padding: 1rem;
+
+    /* gap: 1rem; */
+
+    /* padding: 1rem; */
   }
   
   .studio-left-panel {
@@ -2609,10 +2296,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     overflow: visible;
   }
   
-  .studio-content-area {
-    max-height: none;
-    overflow: visible;
-  }
+  /* Note: .studio-content-area selector already defined above - removing duplicate */
   
   /* Mobile-specific profile picture adjustments - maintain edge-to-edge */
   .profile-picture-container {
@@ -2634,8 +2318,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   }
 }
 
-@media (max-width: 480px) {
-  
+@media (width <= 480px) {
   /* Very small mobile - adjust profile picture height */
   .profile-picture-container {
     height: 150px;
@@ -2650,11 +2333,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     font-size: 1.5rem;
   }
   
-  /* Ensure proper spacing on very small screens */
-  .studio-left-panel,
-  .studio-right-panel {
-    padding: 0.5rem;
-  }
+  /* Note: .studio-left-panel, .studio-right-panel selector already defined above - removing duplicate */
   
   .profile-picture-section {
     gap: 0.75rem;
@@ -2662,7 +2341,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 }
 
 /* Tablet-specific optimizations */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (width >= 769px) and (width <= 1024px) {
   .studio-left-panel {
     flex: 0 0 250px;
   }
@@ -2677,9 +2356,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 }
 
 /* Large screen optimizations */
-@media (min-width: 1025px) {
-
-  
+@media (width >= 1025px) {
   .studio-left-panel {
     flex: 0 0 350px;
   }
@@ -2694,20 +2371,9 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   }
 }
 
-/* Top bar nav-specific rules (for all top bars) */
-.top-bar-nav {
-  min-height: 60px; /* Ensure it has a visible height */
-  display: none; /* Hidden by default, activated by .is-active */
-  box-sizing: border-box; /* Include padding in element's total width and height */
-  width: 100%; /* Ensure it spans full width */
-  align-items: center; /* Align content vertically */
-  justify-content: space-between; /* Distribute content horizontally */
-}
+/* Note: .top-bar-nav selector already defined above - removing duplicate */
 
-.top-bar-nav.is-active {
-  display: flex !important; /* Force display to flex when active */
-  z-index: 1000; /* Ensure it's above other content */
-}
+/* Note: .top-bar-nav.is-active selector already defined above - removing duplicate */
 
 /* Only retain truly unique utility classes not in Pico */
 
@@ -2750,8 +2416,8 @@ button.secondary,
   height: auto;
   
   /* Visual */
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgb(255 255 255 / 10%);
+    border: 1px solid rgb(255 255 255 / 20%);
   border-radius: var(--pico-radius);
   color: #fff;
   
@@ -2771,7 +2437,7 @@ button.secondary,
   outline: none;
   
   /* Override Pico's margin-bottom on buttons with type attributes */
-  &[type=button], &[type=reset], &[type=submit] {
+  &[type="button"], &[type="reset"], &[type="submit"] {
     margin-bottom: 0 !important;
   }
 }
@@ -2780,8 +2446,8 @@ button.secondary,
 button.secondary:hover,
 .button.secondary:hover,
 [role="button"].secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgb(255 255 255 / 20%);
+  border-color: rgb(255 255 255 / 30%);
   transform: translateY(-1px);
 }
 
@@ -2789,8 +2455,8 @@ button.secondary:hover,
 button.secondary:active,
 .button.secondary:active,
 [role="button"].secondary:active {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: rgb(255 255 255 / 15%);
+  border-color: rgb(255 255 255 / 25%);
   transform: translateY(0);
 }
 
@@ -2799,7 +2465,7 @@ button.secondary:focus,
 .button.secondary:focus,
 [role="button"].secondary:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgb(255 255 255 / 30%);
 }
 
 /* Primary button variant */
@@ -2852,6 +2518,7 @@ button.danger:active,
 }
 
 /* Disabled state - let Pico handle it naturally */
+
 /* Removed custom disabled styling to use Pico defaults */
 
 
@@ -2865,14 +2532,109 @@ nav > button[aria-selected="true"] {
   color: var(--pico-contrast);
 }
 
-/* Search submit button - connected to input */
-.chin-actions button[type="submit"] {
-  border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
-  border-left: none;
+/* Note: .chin-actions button[type="submit"] selector already defined above - removing duplicate */
+
+/* Note: .card-footer button selector already defined above - removing duplicate */
+
+/* ==========================================================================
+   INLINE STYLE REPLACEMENTS
+   ========================================================================== */
+
+/* Top Bar Layout Classes */
+.top-bar-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* Card footer buttons - smaller size */
-.card-footer button {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+.top-bar-center-flex {
+  flex: 0.3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.top-bar-center-compact {
+  flex: 0.1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Button State Classes */
+.button-hidden {
+  display: none;
+}
+
+/* File Input Classes */
+.file-input-hidden {
+  display: none;
+}
+
+/* Typography Classes */
+.margin-0 {
+  margin: 0;
+}
+
+.font-size-95 {
+  font-size: 0.95em;
+}
+
+.margin-top-05 {
+  margin: 0.5em 0 0;
+}
+
+.line-height-13 {
+  line-height: 1.3;
+}
+
+/* Profile Picture Classes */
+.profile-picture-default {
+  background: #4f8cff;
+  color: #fff;
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 90px;
+  border-radius: var(--pico-radius, 0.25rem);
+}
+
+/* Layout Container Classes */
+.chin-actions-flex {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chin-actions-right-flex {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Header Padding */
+.storyboard-title-padding {
+  padding: 1rem;
+}
+
+/* Form Input Classes */
+.name-input-container-relative {
+  position: relative;
+}
+
+.studio-name-input-styled {
+  background: rgb(255 255 255 / 10%);
+  min-height: 3rem;
+  cursor: text;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Card Footer Classes */
+.card-footer-premade {
+  display: flex !important;
+  justify-content: flex-start !important;
 }

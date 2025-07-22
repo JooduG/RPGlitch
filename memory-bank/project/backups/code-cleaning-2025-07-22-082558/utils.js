@@ -3,12 +3,6 @@
  * Extracted utility functions for better modularity and maintainability
  */
 
-// Configuration constants
-const DEPENDENCY_CHECK_CONFIG = {
-    maxChecks: 50, // 5 seconds max wait
-    checkInterval: 100 // milliseconds between checks
-};
-
 // Dependency availability checks with retry mechanism
 export function checkDependencies() {
     window.isDexieLoaded = typeof window.Dexie !== 'undefined';
@@ -22,16 +16,16 @@ export function checkDependencies() {
 
 // Wait for dependencies to load with timeout
 let dependencyCheckCount = 0;
+const maxChecks = 50; // 5 seconds max wait
 
 export function waitForDependencies(initializeAppCallback) {
     if (checkDependencies()) {
         initializeAppCallback();
-    } else if (dependencyCheckCount < DEPENDENCY_CHECK_CONFIG.maxChecks) {
+    } else if (dependencyCheckCount < maxChecks) {
         dependencyCheckCount++;
-        setTimeout(() => waitForDependencies(initializeAppCallback), DEPENDENCY_CHECK_CONFIG.checkInterval);
+        setTimeout(() => waitForDependencies(initializeAppCallback), 100);
     } else {
-        // Log error without debug prefix for production
-        console.error('Dependency load timed out.', {
+        console.error('[DEBUG] Dependency load timed out.', {
             isDexieLoaded: window.isDexieLoaded,
             isHyperscriptLoaded: window.isHyperscriptLoaded,
             isCashDomLoaded: window.isCashDomLoaded,
@@ -143,4 +137,4 @@ export default {
     getValidPaletteKey,
     debouncedSearch,
     makeProfilePicturePlaceholderSVG
-};
+}; 
