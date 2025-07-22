@@ -9361,7 +9361,7 @@ function checkDependencies() {
           }
       
           // Profile page name field is read-only - no handlers needed
-          
+      
           // Removed event handlers for Back and Copy & Customize buttons - now handled in top bar
       },
     
@@ -9376,7 +9376,7 @@ function checkDependencies() {
                           <span class="field-sublabel">${subLabel}</span>
                       </div>
                       <div class="profile-field-value">
-                          <textarea id="${id}" placeholder="${san(placeholder)}" resize="auto">${san(value || '')}</textarea>
+                      <textarea id="${id}" placeholder="${san(placeholder)}" resize="auto">${san(value || '')}</textarea>
                       </div>
                   </div>
               `;
@@ -9431,7 +9431,7 @@ function checkDependencies() {
                                       <div class="profile-header-section">
                                           <div class="name-input-container" style="position: relative;">
                                               <input type="text" class="studio-name-input-large studio-profile-name" id="${itemType}Name" placeholder="${config.capital} Name" value="${item.name && item.name.trim() ? item.name : ''}" style="background: rgba(255, 255, 255, 0.1); min-height: 3rem; cursor: text; width: 100%; box-sizing: border-box;">
-                                          </div>
+                                      </div>
                                       </div>
                                       <div class="profile-field-value profile-description-field">
                                           <textarea id="${itemType}Description" placeholder="${labels.descriptionPlaceholder}">${san(item.description || '')}</textarea>
@@ -9724,10 +9724,10 @@ function checkDependencies() {
                       targetScreen = originalScreen;
                       navOptions = { itemId: id, itemType: itemType };
                       console.log("[CANCEL DEBUG] Copying cancelled, returning to original screen:", { originalScreen, itemId: id, itemType: itemType });
-                  } else {
+              } else {
                       // Fallback to profile screen if no original screen
-                      targetScreen = config.profileScreen;
-                      navOptions = { itemId: id, itemType: itemType };
+                  targetScreen = config.profileScreen;
+                  navOptions = { itemId: id, itemType: itemType };
                       console.log("[CANCEL DEBUG] Copying cancelled, fallback to profile:", { itemId: id, itemType: itemType });
                   }
               } else {
@@ -11964,8 +11964,8 @@ function checkDependencies() {
                         console.log("[TOP BAR CANCEL DEBUG] Copying cancelled, returning to original screen:", { originalScreen, itemId: itemId, itemType: itemType });
                       } else {
                         // Fallback to profile screen if no original screen
-                        const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-                        targetScreen = config.profileScreen;
+                      const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+                      targetScreen = config.profileScreen;
                         navOptions = { itemId: itemId, itemType: itemType };
                         console.log("[TOP BAR CANCEL DEBUG] Copying cancelled, fallback to profile:", { itemId: itemId, itemType: itemType });
                       }
