@@ -978,6 +978,7 @@ nav {
 }
 
 
+/* Card content layout */
 .card-content {
   display: grid;
   grid-template-columns: 35% 65%;
@@ -1005,8 +1006,6 @@ nav {
   background: #222;
 }
 
-/* Note: .card-info selector already defined above - removing duplicate */
-
 .card-title-selected .profile-dot {
   display: none !important;
 }
@@ -1014,6 +1013,10 @@ nav {
 .card-title {
   text-wrap: balance;
 }
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
 
 @media (width <= 600px) {
   .character-card-landscape {
@@ -1029,8 +1032,6 @@ nav {
   .card-picture {
     justify-content: center;
     margin-top: 1em;
-
-    /* height: 60px; */
   }
 
   .card-content {
@@ -1047,12 +1048,16 @@ nav {
   }
 }
 
+/* ========================================
+   ROOT VARIABLES & BASE STYLES
+   ======================================== */
+
 :root {
   color: #fff;
-
   --pico-radius: 0.5rem;
 }
 
+/* Border radius consistency */
 .button,
 .primary,
 .secondary,
@@ -1067,7 +1072,6 @@ textarea {
   border-radius: var(--pico-radius);
 }
 
-
 article {
   padding: 0;
   margin: 0;
@@ -1077,6 +1081,10 @@ article {
 #custom-story-js-textarea {
   margin: 0 !important;
 }
+
+/* ========================================
+   UPLOAD LABEL STYLING
+   ======================================== */
 
 .upload-label {
   display: inline-flex;
@@ -1094,7 +1102,7 @@ article {
   box-sizing: border-box;
   margin: 0;
 
-  /* Glass effect for upload buttons */
+  /* Glass effect */
   background: rgb(255 255 255 / 10%) !important;
   border-color: rgb(255 255 255 / 20%) !important;
   color: #fff !important;
