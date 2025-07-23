@@ -287,6 +287,8 @@ $unique: string.unique-id(); // "u123456"
 
 ## Performance and Best Practices
 
+> **Note**: For comprehensive debugging and troubleshooting, see [SCSS Debugging](./scss-debugging.mdc).
+
 ### Compilation Optimization
 
 ```scss
@@ -313,10 +315,10 @@ $theme: (
 $breakpoints: (xs, sm, md, lg, xl);
 ```
 
-### Debugging and Development
+### Advanced Debugging Techniques
 
 ```scss
-// Modern debugging
+// Advanced debugging with meta functions
 @debug "Variable value: #{$variable}";
 @warn "This is a warning message";
 @error "This is an error message";
@@ -327,14 +329,19 @@ $breakpoints: (xs, sm, md, lg, xl);
 } @else {
   $color: hsl(45deg 50% 50%);
 }
+
+// Advanced inspection
+$inspected: meta.inspect($value);
 ```
 
 ## Modern CSS Integration
 
-### CSS Custom Properties
+> **Note**: For comprehensive modern CSS principles, layout systems, and framework integration, see [SCSS Modern CSS & Frameworks](./scss-modern-css-frameworks.mdc).
+
+### CSS Custom Properties Integration
 
 ```scss
-// Dynamic CSS custom properties
+// Dynamic CSS custom properties with SCSS
 :root {
   --primary-color: #{$primary-color};
   --spacing-unit: #{$spacing-unit};
@@ -346,22 +353,26 @@ $breakpoints: (xs, sm, md, lg, xl);
 }
 ```
 
-### Modern CSS Features
+### SCSS-Specific Modern Features
 
 ```scss
-// CSS Grid with modern syntax
-.grid {
+// SCSS-specific grid generation
+@mixin responsive-grid($columns: 3, $min-width: 200px) {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
   gap: 1rem;
 }
 
-// Modern flexbox
-.flex {
+.grid {
+  @include responsive-grid(3, 200px);
+}
+
+// SCSS-specific flexbox utilities
+@mixin flex-center {
   display: flex;
-  gap: 1rem;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 1rem;
 }
 ```
 
@@ -393,5 +404,13 @@ $list: list.join($list1, $list2);
   $color: hsl(45deg 50% 50%);
 }
 ```
+
+## Related Rules
+
+- [SCSS Modern CSS & Frameworks](./scss-modern-css-frameworks.mdc) - Modern CSS principles and framework integration
+- [SCSS Debugging](./scss-debugging.mdc) - Troubleshooting and debugging SCSS issues
+- [Perchance Build & Deployment](./perchance-build-deployment.mdc) - Build and deployment for Perchance projects
+
+---
 
 This documentation reflects the latest Sass features and best practices, ensuring your SCSS code is modern, maintainable, and performant.

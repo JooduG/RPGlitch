@@ -1,364 +1,122 @@
 ---
 description: Integrated documentation system that combines Memory Bank (local, persistent) and Context7 (real-time, external) with clear source hierarchy and intelligent conflict resolution.
-alwaysApply: true
+alwaysApply: false
 ---
 
-# 📚 UNIFIED DOCUMENTATION SYSTEM
+# Unified Documentation System
 
-> **TL;DR:** Integrated documentation system that combines Memory Bank (local,
-> persistent) and Context7 (real-time, external) with clear source hierarchy and
-> intelligent conflict resolution.
+## Overview
 
-## 🎯 **SYSTEM OVERVIEW**
+This system provides seamless access to documentation across multiple sources with intelligent conflict resolution and performance optimization. It combines local Memory Bank storage with real-time Context7 access for comprehensive documentation coverage.
 
-The unified documentation system provides seamless access to both local project
-memory and external real-time documentation, with intelligent source selection and
-conflict resolution.
+## 🎯 **SYSTEM ARCHITECTURE**
 
-## 🔄 **DOCUMENTATION SOURCE HIERARCHY**
-
-### **Priority-Based Source Selection**
+### **Documentation Sources**
 
 ```mermaid
 graph TD
-    Query["Information Query"] --> Priority{"Source Priority"}
+    User["User Query"] --> Search["Unified Search"]
     
-    Priority -->|"1. Project Memory"| MemoryBank["Memory Bank<br/>Local, Persistent"]
-    Priority -->|"2. External Docs"| Context7["Context7<br/>Real-time, External"]
-    Priority -->|"3. General Knowledge"| General["General Knowledge<br/>Fallback"]
+    Search --> Memory["Memory Bank<br/>Local, Persistent"]
+    Search --> Context7["Context7 MCP<br/>Real-time, External"]
+    Search --> General["General Knowledge<br/>Built-in, Static"]
     
-    MemoryBank --> Local["Project-Specific Context"]
-    Context7 --> External["Up-to-Date Documentation"]
-    General --> Fallback["General Best Practices"]
+    Memory --> Cache["Local Cache<br/>Fast Access"]
+    Context7 --> Cache
+    General --> Cache
     
-    Local --> Integration["Integrated Results"]
-    External --> Integration
-    Fallback --> Integration
+    Cache --> Results["Unified Results<br/>Conflict Resolution"]
+    Results --> User
     
-    Integration --> Delivery["Enhanced Context"]
-    
-    style MemoryBank fill:#d94dbb,stroke:#a3378a,color:white
-    style Context7 fill:#ff6b35,stroke:#e55a2b,color:white
-    style General fill:#4da6ff,stroke:#0066cc,color:white
+    style Memory fill:#4da6ff,stroke:#0066cc,color:white
+    style Context7 fill:#ffa64d,stroke:#cc7a30,color:white
+    style General fill:#4dbb5f,stroke:#36873f,color:white
+    style Cache fill:#d94dbb,stroke:#a3378a,color:white
 ```
 
-### **Source Hierarchy Details**
+### **Source Hierarchy**
 
-#### **1. Project Memory Bank (Highest Priority)**
+1. **Memory Bank** (Local, Persistent)
+   - Project-specific knowledge
+   - Historical decisions and patterns
+   - User preferences and learnings
+   - Fast access, always available
 
-```markdown
-**Characteristics:**
-- Local to project
-- Persistent across sessions
-- Project-specific context and learnings
-- Historical decisions and patterns
+2. **Context7 MCP** (Real-time, External)
+   - Current library documentation
+   - API references and examples
+   - Best practices and guides
+   - Up-to-date information
 
-**Use Cases:**
-- Project-specific implementation details
-- Previous decisions and rationales
-- Local patterns and conventions
-- Historical context and learnings
+3. **General Knowledge** (Built-in, Static)
+   - System documentation
+   - Core concepts and principles
+   - Troubleshooting guides
+   - Fallback information
 
-**Access Pattern:**
-- Direct file access
-- Semantic search within project
-- Pattern matching with current context
-```
+## 🔄 **INTELLIGENT CONFLICT RESOLUTION**
 
-#### **2. Context7 External Documentation (Medium Priority)**
-
-```markdown
-**Characteristics:**
-- Real-time access to external libraries
-- Up-to-date documentation
-- Library-specific information
-- Code examples and best practices
-
-**Use Cases:**
-- Library and framework documentation
-- API references and examples
-- External best practices
-- Current version information
-
-**Access Pattern:**
-- Library resolution and search
-- Topic-specific documentation retrieval
-- Version-aware information access
-```
-
-#### **3. General Knowledge (Lowest Priority)**
-
-```markdown
-**Characteristics:**
-- Fallback for missing information
-- General best practices
-- Common patterns and conventions
-- Last resort option
-
-**Use Cases:**
-- When local and external sources don't have information
-- General programming concepts
-- Common patterns and conventions
-- Basic troubleshooting
-
-**Access Pattern:**
-- General knowledge retrieval
-- Pattern matching with common scenarios
-- Basic guidance and suggestions
-```
-
-## 🔍 **INTELLIGENT SOURCE SELECTION**
-
-### **Query Analysis Algorithm**
+### **Conflict Detection**
 
 ```javascript
-function analyzeQuery(query) {
-  return {
-    type: classifyQueryType(query),
-    scope: determineScope(query),
-    urgency: assessUrgency(query),
-    specificity: assessSpecificity(query)
-  };
-}
-
-function classifyQueryType(query) {
-  if (query.includes('project') || query.includes('local')) return 'project-specific';
-  if (query.includes('library') || query.includes('api')) return 'external-docs';
-  if (query.includes('general') || query.includes('basic')) return 'general';
-  return 'mixed';
-}
-
-function selectSources(queryAnalysis) {
-  const sources = [];
-  
-  // Always include project memory for context
-  sources.push('memory-bank');
-  
-  // Add external docs for library/API queries
-  if (queryAnalysis.type === 'external-docs' || queryAnalysis.type === 'mixed') {
-    sources.push('context7');
-  }
-  
-  // Add general knowledge as fallback
-  if (queryAnalysis.specificity === 'low') {
-    sources.push('general');
-  }
-  
-  return sources;
-}
-```
-
-### **Source Selection Workflow**
-
-```mermaid
-graph TD
-    Query["Information Query"] --> Analysis["Query Analysis"]
+const conflictResolver = {
+  detectConflicts(memoryData, context7Data, generalData) {
+    const conflicts = [];
     
-    Analysis --> Type{"Query Type?"}
-    Analysis --> Scope{"Scope?"}
-    Analysis --> Urgency{"Urgency?"}
-    
-    Type -->|"Project-Specific"| MemoryBank["Memory Bank Only"]
-    Type -->|"External"| Context7["Context7 + Memory Bank"]
-    Type -->|"General"| All["All Sources"]
-    
-    Scope -->|"Local"| MemoryBank
-    Scope -->|"External"| Context7
-    Scope -->|"Mixed"| All
-    
-    Urgency -->|"High"| Fast["Fastest Source"]
-    Urgency -->|"Medium"| Balanced["Balanced Sources"]
-    Urgency -->|"Low"| Comprehensive["All Sources"]
-    
-    style MemoryBank fill:#d94dbb,stroke:#a3378a,color:white
-    style Context7 fill:#ff6b35,stroke:#e55a2b,color:white
-    style All fill:#4dbb5f,stroke:#36873f,color:white
-```
-
-## 🔧 **CONFLICT RESOLUTION**
-
-### **Information Conflict Types**
-
-#### **1. Version Conflicts**
-
-```markdown
-**Scenario:** Local memory has outdated information vs Context7 has current version
-
-**Resolution Strategy:**
-- Context7 takes precedence for version-specific information
-- Local memory provides historical context and decisions
-- Present both with clear version indicators
-- Update local memory with current information
-```
-
-#### **2. Approach Conflicts**
-
-```markdown
-**Scenario:** Local patterns differ from external best practices
-
-**Resolution Strategy:**
-- Local patterns take precedence for project consistency
-- External best practices provide alternative approaches
-- Present both with rationale for local decisions
-- Consider updating local patterns if external is clearly superior
-```
-
-#### **3. Scope Conflicts**
-
-```markdown
-**Scenario:** Local implementation differs from general recommendations
-
-**Resolution Strategy:**
-- Local implementation takes precedence for project-specific needs
-- General recommendations provide context and alternatives
-- Document rationale for local deviations
-- Consider alignment if local approach has issues
-```
-
-### **Conflict Resolution Algorithm**
-
-```javascript
-function resolveConflicts(localInfo, externalInfo, generalInfo) {
-  const resolved = {
-    primary: null,
-    alternatives: [],
-    conflicts: [],
-    recommendations: []
-  };
-  
-  // Determine primary source based on query type
-  if (isProjectSpecific(query)) {
-    resolved.primary = localInfo;
-    resolved.alternatives.push(externalInfo, generalInfo);
-  } else if (isExternalSpecific(query)) {
-    resolved.primary = externalInfo;
-    resolved.alternatives.push(localInfo, generalInfo);
-  } else {
-    resolved.primary = localInfo;
-    resolved.alternatives.push(externalInfo, generalInfo);
-  }
-  
-  // Identify and resolve conflicts
-  resolved.conflicts = identifyConflicts(localInfo, externalInfo, generalInfo);
-  resolved.recommendations = generateRecommendations(resolved.conflicts);
-  
-  return resolved;
-}
-
-function identifyConflicts(local, external, general) {
-  const conflicts = [];
-  
-  // Version conflicts
-  if (local.version && external.version && local.version !== external.version) {
-    conflicts.push({
-      type: 'version',
-      local: local.version,
-      external: external.version,
-      resolution: 'external-takes-precedence'
-    });
-  }
-  
-  // Approach conflicts
-  if (local.approach && external.approach && 
-      local.approach !== external.approach) {
-    conflicts.push({
-      type: 'approach',
-      local: local.approach,
-      external: external.approach,
-      resolution: 'local-takes-precedence'
-    });
-  }
-  
-  return conflicts;
-}
-```
-
-## 🚀 **INTEGRATED ACCESS PATTERNS**
-
-### **Unified Search Interface**
-
-```javascript
-class UnifiedDocumentationSystem {
-  constructor() {
-    this.memoryBank = new MemoryBank();
-    this.context7 = new Context7();
-    this.general = new GeneralKnowledge();
-  }
-  
-  async search(query) {
-    // Analyze query
-    const analysis = analyzeQuery(query);
-    
-    // Select sources
-    const sources = selectSources(analysis);
-    
-    // Search all selected sources
-    const results = await Promise.all(
-      sources.map(source => this.searchSource(source, query))
-    );
-    
-    // Resolve conflicts and integrate results
-    const integrated = this.integrateResults(results, analysis);
-    
-    return integrated;
-  }
-  
-  async searchSource(source, query) {
-    switch (source) {
-      case 'memory-bank':
-        return await this.memoryBank.search(query);
-      case 'context7':
-        return await this.context7.search(query);
-      case 'general':
-        return await this.general.search(query);
-      default:
-        return null;
+    // Check for contradictory information
+    if (memoryData && context7Data && memoryData.version !== context7Data.version) {
+      conflicts.push({
+        type: 'version_mismatch',
+        memory: memoryData,
+        context7: context7Data,
+        priority: 'high'
+      });
     }
-  }
+    
+    // Check for outdated information
+    if (memoryData && this.isOutdated(memoryData.timestamp)) {
+      conflicts.push({
+        type: 'outdated',
+        source: 'memory',
+        data: memoryData,
+        priority: 'medium'
+      });
+    }
+    
+    return conflicts;
+  },
   
-  integrateResults(results, analysis) {
-    // Remove null results
-    const validResults = results.filter(r => r !== null);
-    
-    // Resolve conflicts
-    const resolved = resolveConflicts(...validResults);
-    
-    // Format for presentation
-    return this.formatResults(resolved, analysis);
+  resolveConflicts(conflicts) {
+    return conflicts.map(conflict => {
+      switch (conflict.type) {
+        case 'version_mismatch':
+          return this.resolveVersionMismatch(conflict);
+        case 'outdated':
+          return this.resolveOutdated(conflict);
+        default:
+          return this.resolveGeneric(conflict);
+      }
+    });
   }
-}
+};
 ```
 
-### **Access Commands**
+### **Resolution Strategies**
 
-#### **Unified Search Commands**
+#### **Version Mismatch Resolution**
+- **Priority**: Context7 > Memory Bank > General Knowledge
+- **Action**: Update Memory Bank with current Context7 data
+- **Notification**: Alert user of the update
 
-```bash
-📚 "search [query]" → Search all sources with intelligent integration
-📚 "local [query]" → Search only project memory bank
-📚 "external [query]" → Search only Context7 external docs
-📚 "general [query]" → Search only general knowledge
-📚 "integrated [query]" → Search all sources with conflict resolution
-```
+#### **Outdated Information Resolution**
+- **Priority**: Fetch fresh data from Context7
+- **Action**: Replace outdated information
+- **Notification**: Mark as updated
 
-#### **Source-Specific Commands**
-
-```bash
-# Memory Bank Commands
-🧠 "memory [query]" → Search project memory
-🧠 "store [category] [content]" → Store in memory bank
-🧠 "retrieve [id]" → Retrieve specific memory
-
-# Context7 Commands
-🎯 "docs [library]" → Get library documentation
-🎯 "api [endpoint]" → Get API documentation
-🎯 "examples [topic]" → Get code examples
-
-# General Knowledge Commands
-📖 "guide [topic]" → Get general guidance
-📖 "pattern [name]" → Get common patterns
-📖 "best-practice [area]" → Get best practices
-```
+#### **Generic Conflict Resolution**
+- **Priority**: Source hierarchy (Context7 > Memory > General)
+- **Action**: Use highest priority source
+- **Notification**: Log conflict for review
 
 ## 📊 **PERFORMANCE OPTIMIZATION**
 
@@ -417,22 +175,7 @@ const documentationCache = {
 - **Source Prioritization**: Optimize source selection based on usage patterns
 - **Conflict Prevention**: Reduce conflicts through better information management
 
-## 🔄 **INTEGRATION WITH UNIFIED THINKING FRAMEWORK**
-
-### **Thinking Approach Integration**
-
-```javascript
-function getDocumentationForApproach(approach, query) {
-  const approachSources = {
-    'sequential': ['memory-bank', 'context7'], // Tool-guided needs both
-    'contemplative': ['memory-bank', 'general'], // Deep exploration needs context
-    'professional': ['context7', 'memory-bank'] // Production needs current docs
-  };
-  
-  const sources = approachSources[approach] || ['memory-bank', 'context7'];
-  return searchSources(sources, query);
-}
-```
+## 🔄 **INTEGRATION WITH 3-MODE SYSTEM**
 
 ### **Mode-Specific Documentation**
 
@@ -454,12 +197,24 @@ function getDocumentationForApproach(approach, query) {
 - **Secondary**: Memory Bank (project-specific context)
 - **Tertiary**: General Knowledge (troubleshooting)
 
-## 📚 **CONCLUSION**
+## 📚 **REFERENCES**
 
-**📚 UNIFIED DOCUMENTATION SYSTEM: Comprehensive, intelligent, and efficient!**
+- [MCP Ecosystem Overview](mcp-ecosystem.mdc) - MCP server overview
+- [Memory Bank Overview](memory-bank-overview.mdc) - Memory bank system overview
+- [Context7 MCP Guide](mcp-context7.mdc) - Context7 integration
+- [Basic Memory MCP Guide](mcp-basic-memory.mdc) - Basic Memory integration
+- [System Architecture](system-architecture.mdc) - System architecture and relationships
+
+## 🎯 **NEXT STEPS**
+
+1. **Configure MCP servers** for enhanced documentation access
+2. **Set up memory bank structure** for local knowledge management
+3. **Implement unified search** for seamless information access
+4. **Optimize performance** using caching and conflict resolution
+5. **Integrate with 3-mode system** for mode-specific documentation
 
 ---
 
-**description:** Integrated documentation system with intelligent source selection  
-**globs:**  
-**alwaysApply:** false
+**Last Updated**: 2025-07-23  
+**Version**: 1.0  
+**Status**: Complete unified documentation system

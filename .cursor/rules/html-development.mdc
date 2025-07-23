@@ -53,10 +53,11 @@ alwaysApply: false
 
 ## Related Rules
 
-- [Pico.css Usage](./scss-pico-usage.mdc)
+- [SCSS Modern CSS Frameworks](./scss-modern-css-frameworks.mdc) - Includes Pico.css usage
 - [Perchance Architecture](./perchance-architecture.mdc)
-- [SCSS Development](./scss-development.mdc)
+- [SCSS Advanced Patterns](./scss-advanced-patterns.mdc)
 - [JavaScript Development](./js-development.mdc)
+- [HTML Hyperscript Usage](./html-hyperscript-usage.mdc) - For adding interactivity to semantic HTML
 
 ---
 

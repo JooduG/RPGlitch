@@ -344,11 +344,11 @@ class ContextAnalyzer {
    * @returns {Array} Primary rule recommendations
    */
   selectPrimaryRules(classification, complexity) {
-    const rules = ['unified-thinking-framework.mdc'];
+    const rules = ['thinking-framework.mdc'];
 
     // Add complexity-based rules
     if (complexity.level === 'high') {
-      rules.push('sequential-thinking-guide.mdc');
+      rules.push('thinking-framework.mdc'); // Use thinking-framework.mdc for sequential thinking
     }
 
     // Add task-type specific rules
@@ -357,13 +357,13 @@ class ContextAnalyzer {
         rules.push('scss-debugging.mdc');
         break;
       case 'implementation':
-        rules.push('vanilla-javascript-development.mdc');
+        rules.push('js-development.mdc');
         break;
       case 'design':
-        rules.push('css-principles.mdc');
+        rules.push('scss-modern-css-frameworks.mdc');
         break;
       case 'analysis':
-        rules.push('context7-usage.mdc');
+        rules.push('mcp-context7.mdc');
         break;
     }
 
@@ -382,11 +382,11 @@ class ContextAnalyzer {
     // Add domain-specific rules based on requirements
     if (classification.primary === 'implementation') {
       rules.push('perchance-architecture.mdc');
-      rules.push('perchance-development-workflow.mdc');
+      rules.push('perchance-development-lifecycle.mdc');
     }
 
     if (complexity.level === 'medium' || complexity.level === 'high') {
-      rules.push('context-aware-rule-loading.mdc');
+      rules.push('system-context-aware-rule-loading-enhanced.mdc');
     }
 
     return rules;
@@ -401,7 +401,7 @@ class ContextAnalyzer {
     const rules = [];
 
     if (requirements.tools.includes('mcp')) {
-      rules.push('MCP-ECOSYSTEM-GUIDE.mdc');
+      rules.push('mcp-ecosystem.mdc');
     }
 
     if (requirements.tools.includes('css') || requirements.tools.includes('scss')) {
@@ -653,14 +653,14 @@ class RuleRepository {
   loadRules() {
     // In production, this would load from the actual rule files
     const ruleDefinitions = [
-      { id: 'unified-thinking-framework.mdc', category: 'core', priority: 1 },
-      { id: 'sequential-thinking-guide.mdc', category: 'thinking', priority: 2 },
-      { id: 'context-aware-rule-loading.mdc', category: 'system', priority: 1 },
-      { id: 'vanilla-javascript-development.mdc', category: 'development', priority: 3 },
-      { id: 'css-principles.mdc', category: 'frontend', priority: 3 },
+      { id: 'thinking-framework.mdc', category: 'core', priority: 1 },
+      { id: 'system-context-aware-rule-loading-enhanced.mdc', category: 'system', priority: 1 },
+      { id: 'js-development.mdc', category: 'development', priority: 3 },
+      { id: 'scss-modern-css-frameworks.mdc', category: 'frontend', priority: 3 },
       { id: 'scss-debugging.mdc', category: 'debugging', priority: 4 },
       { id: 'perchance-architecture.mdc', category: 'architecture', priority: 2 },
-      { id: 'MCP-ECOSYSTEM-GUIDE.mdc', category: 'tools', priority: 3 }
+      { id: 'mcp-ecosystem.mdc', category: 'tools', priority: 3 },
+      { id: 'mcp-context7.mdc', category: 'tools', priority: 3 }
     ];
 
     ruleDefinitions.forEach(rule => {

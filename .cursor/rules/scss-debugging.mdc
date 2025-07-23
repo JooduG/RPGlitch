@@ -223,6 +223,8 @@ Use `@error` for critical issues:
 }
 ```
 
+> **Note**: For modern CSS architecture patterns and BEM methodology, see [SCSS Modern CSS & Frameworks](./scss-modern-css-frameworks.mdc).
+
 ### **Large Output Files**
 
 ```scss
@@ -481,9 +483,9 @@ Document complex SCSS:
 
 ## Related Rules
 
--   [SCSS Development](./scss-development.mdc)
--   [SCSS Advanced Patterns](./scss-advanced-patterns.mdc)
--   [Perchance Build & Deployment](./perchance-build-deployment.mdc)
+-   [SCSS Modern CSS & Frameworks](./scss-modern-css-frameworks.mdc) - Modern CSS principles and framework integration
+-   [SCSS Advanced Patterns](./scss-advanced-patterns.mdc) - Advanced SCSS features and meta-programming
+-   [Perchance Build & Deployment](./perchance-build-deployment.mdc) - Build and deployment for Perchance projects
 
 ---
 

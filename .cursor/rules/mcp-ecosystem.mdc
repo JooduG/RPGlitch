@@ -1,17 +1,17 @@
 ---
-alwaysApply: true
+description: MCP ecosystem overview and available servers for the 3-mode development system.
+alwaysApply: false
 ---
-# MCP Ecosystem Guide
+
+# MCP Ecosystem Overview
 
 ## Overview
 
-The Model Context Protocol (MCP) ecosystem provides a standardized way for AI assistants to interact with external tools, data sources, and services. This guide covers all available MCP servers, their capabilities, configuration, and best practices for integration.
+The Model Context Protocol (MCP) ecosystem provides a standardized way for AI assistants to interact with external tools, data sources, and services. This guide provides a high-level overview of available MCP servers and their integration with the 3-mode development system.
 
-## Available MCP Servers
+## 🎯 **CORE MCP SERVERS**
 
-### Working Servers
-
-#### 1. Context7 MCP Server
+### **1. Context7 MCP Server** ⭐ **PRIMARY**
 
 - **Purpose**: Real-time documentation access for libraries, frameworks, and technologies
 - **Features**:
@@ -25,180 +25,121 @@ The Model Context Protocol (MCP) ecosystem provides a standardized way for AI as
   - API reference lookups
   - Framework-specific guidance
 - **Status**: ✅ Working (requires API key)
+- **Integration**: [Detailed Context7 Guide](mcp-context7.mdc)
 
-#### 2. Memory Bank MCP Server
+### **2. Basic Memory MCP Server** ⭐ **PRIMARY**
 
-- **Purpose**: Persistent memory and context management
+- **Purpose**: Knowledge management system with persistent semantic graph and long-term storage
 - **Features**:
-  - Long-term memory storage
-  - Context-aware information retrieval
-  - Memory organization and categorization
-  - Project-specific knowledge retention
-  - Decision logging and tracking
-  - Progress monitoring
+  - Semantic knowledge management with automatic graph building
+  - Obsidian integration for existing workflows
+  - Multi-project support for mode-specific knowledge bases
+  - Real-time synchronization with watch mode
+  - Markdown storage for human-readable knowledge
 - **Use Cases**:
-  - Maintaining conversation context
   - Project-specific knowledge retention
   - Learning from past interactions
   - Decision tracking and documentation
   - Progress monitoring across sessions
 - **Status**: ✅ Working
+- **Integration**: [Detailed Basic Memory Guide](mcp-basic-memory.mdc)
 
-### Available Memory Bank MCP Servers
+### **3. Time MCP Server** ⭐ **CRITICAL**
 
-#### 1. @movibe/memory-bank-mcp (Comprehensive)
+- **Purpose**: Mandatory date standardization and timezone handling
+- **Features**:
+  - Consistent date formatting across all documentation
+  - Timezone-aware timestamp generation
+  - Integration with all system components
+  - Prevents hardcoded dates
+- **Use Cases**:
+  - Document headers and metadata
+  - Progress tracking and timestamps
+  - Handoff documentation
+  - Archive timestamps
+- **Status**: ✅ Working
+- **Integration**: [Detailed Time MCP Guide](mcp-time.mdc)
 
-**Features**:
+## 🔄 **INTEGRATION WITH 3-MODE SYSTEM**
 
-- **Mode Management**: Switch between different operational modes (code, ask, architect, debug, test)
-- **Progress Tracking**: Track project progress and milestones
-- **Decision Logging**: Log important decisions with context and alternatives
-- **Active Context Management**: Update and maintain active context files
-- **File Operations**: Read, write, and update memory bank files
-- **UMB Integration**: Update Memory Bank (UMB) process integration
+### **🎭 Strategic Mode**
+- **Context7**: Access current best practices and documentation
+- **Basic Memory**: Store strategic insights and meta-patterns
+- **Time MCP**: Track planning dates and timelines
 
-**Available Tools**:
+### **🎨 Tactical Mode**
+- **Context7**: Get implementation guidance and API references
+- **Basic Memory**: Store design decisions and planning templates
+- **Time MCP**: Track milestone dates and schedules
 
-- `initialize_memory_bank` - Initialize a new Memory Bank in specified directory
-- `track_progress` - Track progress and update Memory Bank files
-- `log_decision` - Log important decisions with context
-- `update_active_context` - Update the active context file
-- `switch_mode` - Switch between operational modes
-- `get_current_mode` - Get current operational mode
-- `process_umb_command` - Trigger Update Memory Bank process
-- `write_memory_bank_file` - Write content to specific memory bank files
-- `debug_mcp_config` - Debug MCP configuration and status
+### **⚒️ Operational Mode**
+- **Context7**: Access implementation details and code examples
+- **Basic Memory**: Store implementation patterns and solutions
+- **Time MCP**: Track completion dates and durations
 
-**Configuration**:
+## 📋 **MCP SERVER SELECTION GUIDE**
+
+### **For Documentation Access**
+**Primary Choice**: Context7 MCP Server
+- Real-time access to current documentation
+- Comprehensive library coverage
+- Code examples and best practices
+
+### **For Memory Management**
+**Primary Choice**: Basic Memory MCP Server
+- Semantic knowledge management
+- Obsidian integration
+- Multi-project support
+- Markdown storage
+
+### **For Date Standardization**
+**Primary Choice**: Time MCP Server
+- Mandatory for all date formatting
+- Timezone-aware handling
+- Consistent across all components
+
+## 🔧 **QUICK START CONFIGURATION**
+
+### **Essential MCP Servers**
 
 ```json
 {
   "mcpServers": {
-    "memory-bank": {
+    "context7": {
       "command": "npx",
-      "args": ["@movibe/memory-bank-mcp"]
-    }
-  }
-}
-```
-
-#### 2. @allpepper/memory-bank-mcp (File-based)
-
-**Features**:
-
-- **Project Management**: List and manage multiple projects
-- **File Operations**: Read, write, and update project files
-- **Structured Storage**: Organized file-based memory system
-- **Docker Support**: Containerized deployment option
-- **Auto-approval**: Configurable auto-approval for common operations
-
-**Available Tools**:
-
-- `list_projects` - List all available projects
-- `list_project_files` - List files within a project
-- `memory_bank_read` - Read content from memory bank files
-- `memory_bank_write` - Write content to memory bank files
-- `memory_bank_update` - Update existing memory bank content
-
-**Configuration**:
-
-```json
-{
-  "mcpServers": {
-    "allpepper-memory-bank": {
-      "command": "npx",
-      "args": ["-y", "@allpepper/memory-bank-mcp"],
+      "args": ["-y", "@context7/mcp"]
+    },
+    "basic-memory": {
+      "command": "python",
+      "args": ["-m", "basic_memory.mcp"],
       "env": {
-        "MEMORY_BANK_ROOT": "<path-to-bank>"
-      },
-      "autoApprove": [
-        "memory_bank_read",
-        "memory_bank_write",
-        "memory_bank_update",
-        "list_projects",
-        "list_project_files"
-      ]
+        "BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
+      }
+    },
+    "time": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-time"]
     }
   }
 }
 ```
 
-**Docker Configuration**:
+## 📚 **DETAILED GUIDES**
 
-```json
-{
-  "allpepper-memory-bank": {
-    "command": "docker",
-    "args": [
-      "run", "-i", "--rm",
-      "-e", "MEMORY_BANK_ROOT",
-      "-v", "/path/to/memory-bank:/mnt/memory_bank",
-      "memory-bank-mcp:local"
-    ],
-    "env": {
-      "MEMORY_BANK_ROOT": "/mnt/memory_bank"
-    }
-  }
-}
-```
+- [Context7 MCP Server Guide](mcp-context7.mdc) - Complete usage guide
+- [Basic Memory MCP Server Guide](mcp-basic-memory.mdc) - Integration and setup
+- [Time MCP Server Guide](mcp-time.mdc) - Date standardization
+- [System Documentation](system-documentation.mdc) - Unified system integration
 
-#### 3. Filesystem MCP Server
+## 🎯 **NEXT STEPS**
 
-- **Purpose**: File system operations and management
-- **Features**:
-  - File reading, writing, and manipulation
-  - Directory operations
-  - File search and filtering
-- **Use Cases**:
-  - Code file operations
-  - Project structure management
-  - Configuration file handling
-- **Status**: ✅ Working
+1. **Choose your primary MCP servers** based on your needs
+2. **Configure the servers** using the provided configurations
+3. **Read the detailed guides** for each server you plan to use
+4. **Integrate with your 3-mode system** for enhanced capabilities
 
-#### 4. Fetch MCP Server
+---
 
-- **Purpose**: HTTP requests and web data retrieval
-- **Features**:
-  - GET, POST, PUT, DELETE requests
-  - Headers and authentication support
-  - Response handling and parsing
-- **Use Cases**:
-  - API integrations
-  - Web scraping
-  - Data fetching from external sources
-- **Status**: ✅ Working
-
-#### 5. Sequential Thinking Tools MCP Server
-
-- **Purpose**: Enhanced problem-solving with tool recommendations
-- **Features**:
-  - Dynamic and reflective problem-solving
-  - Tool recommendation system
-  - Confidence scores and execution guidance
-  - Workflow planning and tracking
-- **Use Cases**:
-  - Complex multi-step problem decomposition
-  - Workflow planning with tool selection
-  - Iterative problem-solving with course correction
-- **Status**: ✅ Working
-
-#### 6. Browser Tools MCP Server
-
-- **Purpose**: Browser automation and web interaction
-- **Features**:
-  - Screenshot capture
-  - Console log access
-  - Network monitoring
-  - Element selection and interaction
-- **Use Cases**:
-  - Web testing and debugging
-  - UI automation
-  - Web scraping with JavaScript execution
-- **Status**: ✅ Working
-
-#### 7. Playwright MCP Server ⭐ **NEW**
-
-- **Purpose**: Advanced browser automation and testing
-- **Features**:
-  - Multi-browser support (Chromium, Firefox, WebKit)
-
+**Last Updated**: 2025-07-23  
+**Version**: 1.0  
+**Status**: Complete overview with 3-mode system integration

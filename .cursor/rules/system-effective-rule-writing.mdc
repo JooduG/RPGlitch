@@ -91,8 +91,8 @@ alwaysApply: false
 
 **Examples of "Agent Requested" Rules:**
 * Thinking frameworks (`thinking-framework.mdc`, `thinking-contemplative.mdc`)
-* Mode systems (`mode-system.mdc`, `mode-orchestrator.mdc`)
-* Role definitions (`role-1-operator.mdc`, `role-2-tactician.mdc`)
+* Mode systems (`mode-system-unified.mdc`)
+* Role definitions (`mode-system-unified.mdc`)
 * System documentation (`system-documentation.mdc`)
 * Memory management (`memory-bank-integration.mdc`)
 

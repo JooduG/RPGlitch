@@ -3,9 +3,25 @@ description: Modern vanilla JavaScript development best practices including ES20
 globs: **/*.js
 alwaysApply: false
 ---
-# Vanilla JavaScript Development - Modern Best Practices
 
-## Modern JavaScript Features (ES2023+)
+# Modern JavaScript Development
+
+> **📋 Note**: This comprehensive guide has been reorganized into focused, specialized rules for better maintainability and token efficiency. See the references below for specific topics.
+
+## 🎯 **Quick Reference**
+
+For detailed information on specific topics, see these focused rules:
+
+- **[Modern JavaScript Features](./js-modern-features.mdc)** - ES2023+ features, template literals, destructuring, arrow functions
+- **[DOM Manipulation](./js-dom-manipulation.mdc)** - Modern DOM APIs, event handling, performance optimization
+- **[Storage Strategy](./js-storage-strategy.mdc)** - Unified client-side storage with localStorage, IndexedDB, and Dexie.js
+- **[Modern APIs](./js-modern-apis.mdc)** - Fetch API, Intersection Observer, Service Workers, Web Workers
+- **[Patterns & Practices](./js-patterns-practices.mdc)** - Performance optimization, code organization, error handling
+- **[JavaScript Ecosystem Overview](./js-ecosystem-overview.mdc)** - Decision frameworks for choosing approaches
+
+## 🚀 **Essential Modern JavaScript Patterns**
+
+### **Modern JavaScript Features (ES2023+)**
 
 ### **Template Literals and String Manipulation**
 
@@ -585,14 +601,33 @@ This documentation reflects modern JavaScript best practices and features, ensur
 
 ---
 
-## References & Inspiration
+## 📚 **Comprehensive References**
+
+### **🎯 Focused JavaScript Rules**
+
+- **[JavaScript Ecosystem Overview](./js-ecosystem-overview.mdc)** - Decision frameworks for choosing approaches
+- **[Modern JavaScript Features](./js-modern-features.mdc)** - ES2023+ features, template literals, destructuring, arrow functions
+- **[DOM Manipulation](./js-dom-manipulation.mdc)** - Modern DOM APIs, event handling, performance optimization
+- **[Storage Strategy](./js-storage-strategy.mdc)** - Unified client-side storage with localStorage, IndexedDB, and Dexie.js
+- **[Modern APIs](./js-modern-apis.mdc)** - Fetch API, Intersection Observer, Service Workers, Web Workers
+- **[Patterns & Practices](./js-patterns-practices.mdc)** - Performance optimization, code organization, error handling
+
+### **🔧 Library-Specific Rules**
+
+- **[Cash DOM Usage](./js-cash-dom-usage.mdc)** - jQuery-like DOM manipulation for Perchance projects
+- **[Dexie.js Usage](./js-dexie-usage.mdc)** - IndexedDB with Dexie.js for robust client-side storage
+- **[IndexedDB Principles](./js-indexeddb-principles.mdc)** - IndexedDB best practices and patterns
+
+### **🎨 Related Development Rules**
+
+- **[HTML Development](./html-development.mdc)** - Semantic HTML and accessibility
+- **[SCSS Advanced Patterns](./scss-advanced-patterns.mdc)** - Modern CSS with SCSS
+- **[Hyperscript Usage](./html-hyperscript-usage.mdc)** - Interactive HTML with Hyperscript
+
+### **📖 External Resources**
 
 - [Perchance Welcome](https://perchance.org/welcome)
 - [Perchance Tutorial](https://perchance.org/tutorial)
 - [Perchance Advanced Tutorial](https://perchance.org/advanced-tutorial)
 - [Perchance Examples](https://perchance.org/examples)
 - [Perchance Snippets](https://perchance.org/perchance-snippets)
-
-- [HTML Development](./html-development.mdc)
-- [SCSS Development](./scss-development.mdc)
-- [IndexedDB Principles](./js-indexeddb-principles.mdc)

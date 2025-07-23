@@ -1,5 +1,5 @@
 ---
-description: Enforce mandatory use of the Time MCP for all date formatting to ensure consistency, accuracy, and proper timezone handling across all documentation, code, and system outputs.
+description: Mandatory date standardization and timezone handling using Time MCP for all documentation, code, and system outputs.
 alwaysApply: false
 ---
 # 🕐 Time MCP Usage - Mandatory Date Standardization

@@ -2,6 +2,7 @@
 description: High-level structure and principles for Perchance apps and generators.
 tags: ["perchance", "architecture", "css", "js", "html"]
 globs: **/apps/**
+alwaysApply: false
 ---
 
 # Perchance Architecture
@@ -75,17 +76,16 @@ apps/
 
 ## Related Rules
 
-- [Pico.css Usage](./scss-pico-usage.mdc)
-- [big sky Hyperscript Usage](./hyperscript-usage.mdc)
-- [Cash DOM Usage](./cash-dom-usage.mdc)
-- [Dexie.js Usage](./dexie-usage.mdc)
+- [Pico.css Usage](scss-modern-css-frameworks.mdc)
+- [big sky Hyperscript Usage](html-hyperscript-usage.mdc)
+- [Cash DOM Usage](js-cash-dom-usage.mdc)
+- [Dexie.js Usage](./js-dexie-usage.mdc)
 - [Perchance Plugin System](./perchance-plugin-system.mdc)
-- [Perchance Development Workflow](./perchance-development-workflow.mdc)
-- [Perchance Build & Deployment](./perchance-build-deployment.mdc)
+- [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc)
 - [HTML Development](./html-development.mdc)
 - [JavaScript Development](./js-development.mdc)
 - [IndexedDB Principles](./js-indexeddb-principles.mdc)
-- [SCSS Development](./scss-development.mdc)
+- [SCSS Development](scss-advanced-patterns.mdc)
 
 ---
 

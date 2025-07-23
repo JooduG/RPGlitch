@@ -10,6 +10,10 @@ big sky Hyperscript enables easy, readable interactivity directly in HTML using 
 
 ---
 
+## Foundation Requirements
+
+This rule builds upon semantic HTML principles. Ensure your HTML follows the guidelines in [HTML Development](./html-development.mdc) before adding Hyperscript interactivity.
+
 ## Usage Guidelines
 
 - **How to include:**
@@ -32,10 +36,26 @@ big sky Hyperscript enables easy, readable interactivity directly in HTML using 
 
 ---
 
+## Integration Example
+
+```html
+<!-- Semantic HTML structure with Hyperscript interactivity -->
+<main>
+  <section>
+    <h2>Character List</h2>
+    <button id="add-character" _="on click call addCharacter()">Add Character</button>
+    <ul id="character-list"></ul>
+  </section>
+</main>
+```
+
+---
+
 ## References
 
 - [big sky Hyperscript Docs](https://hyperscript.org/docs/)
-- [Cash DOM Usage](./cash-dom-usage.mdc)
+- [Cash DOM Usage](./js-cash-dom-usage.mdc)
 - [JavaScript Development](./js-development.mdc)
+- [HTML Development](./html-development.mdc) - Foundation for semantic HTML structure
 
 ---

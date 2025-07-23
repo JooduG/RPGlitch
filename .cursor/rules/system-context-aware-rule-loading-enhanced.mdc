@@ -1,12 +1,11 @@
 ---
-description: Intelligent rule loading system that selects and loads only relevant rules based on task context, complexity, and current mode for optimal token efficiency and performance.
+description: Intelligent rule loading system that selects and loads only relevant rules based on task context, complexity, current mode, and thinking approach for optimal token efficiency and performance.
 alwaysApply: true
 ---
-
 # 🎯 CONTEXT-AWARE RULE LOADING
 
 > **TL;DR:** Intelligent rule loading system that selects and loads only relevant
-> rules based on task context, complexity, and current mode for optimal token
+> rules based on task context, complexity, current mode, and thinking approach for optimal token
 > efficiency and performance.
 
 ## 🎯 **SYSTEM OVERVIEW**
@@ -24,12 +23,14 @@ graph TD
     Context["Context Analysis"] --> TaskType["Task Type"]
     Context --> Complexity["Complexity Level"]
     Context --> Mode["Current Mode"]
+    Context --> Thinking["Thinking Approach"]
     Context --> Tools["Required Tools"]
     Context --> Domain["Domain/Technology"]
     
     TaskType --> Decision["Rule Selection"]
     Complexity --> Decision
     Mode --> Decision
+    Thinking --> Decision
     Tools --> Decision
     Domain --> Decision
     
@@ -45,11 +46,12 @@ graph TD
 ### **Context Analysis Algorithm**
 
 ```javascript
-function analyzeContext(task, currentMode, availableTools) {
+function analyzeContext(task, currentMode, thinkingApproach, availableTools) {
   return {
     taskType: classifyTaskType(task),
     complexity: assessComplexity(task),
     mode: currentMode,
+    thinkingApproach: thinkingApproach,
     requiredTools: identifyRequiredTools(task),
     domain: identifyDomain(task),
     urgency: assessUrgency(task),
@@ -88,9 +90,43 @@ function assessComplexity(task) {
 
 ```markdown
 **Essential for all tasks:**
-- `unified-thinking-framework.mdc` - Core thinking methodology
-- `writing-effective-rules.mdc` - Rule writing standards
-- `context-aware-rule-loading.mdc` - This system itself
+- `mode-system-unified.mdc` - Core system orchestrator
+- `thinking-framework.mdc` - Thinking approach methodology
+- `system-context-aware-rule-loading-enhanced.mdc` - This system itself
+```
+
+### **Mode-Specific Rules**
+
+#### **🎭 Strategic Mode Rules**
+
+```markdown
+**Contemplative Thinking Focus:**
+- `thinking-framework.mdc` - Contemplative thinking approach
+- `role-project-manager.mdc` - Project management and coordination
+- `system-architecture.mdc` - System-level architecture decisions
+- `memory-bank-optimization.mdc` - Memory and context optimization
+```
+
+#### **🎨 Tactical Mode Rules**
+
+```markdown
+**Sequential Thinking Focus:**
+- `thinking-framework.mdc` - Sequential thinking approach
+- `mcp-context7.mdc` - Documentation access for planning
+- `js-development.mdc` - JavaScript development patterns
+- `scss-advanced-patterns.mdc` - Advanced styling patterns
+- `html-development.mdc` - HTML structure and semantics
+```
+
+#### **⚒️ Operational Mode Rules**
+
+```markdown
+**Professional Coding Focus:**
+- `thinking-framework.mdc` - Professional coding approach
+- `role-assistant.mdc` - Professional coding standards
+- `js-development.mdc` - Modern JavaScript practices
+- `scss-modern-css-frameworks.mdc` - Modern CSS frameworks
+- `js-patterns-practices.mdc` - Code patterns and best practices
 ```
 
 ### **Task-Specific Rules**
@@ -99,11 +135,11 @@ function assessComplexity(task) {
 
 ```markdown
 **Sequential Thinking Tasks:**
-- `mcp-sequential-thinking.mdc` - Tool-guided problem-solving
+- `thinking-framework.mdc` - Tool-guided problem-solving
 - `mcp-context7.mdc` - Documentation access
 
 **Contemplative Thinking Tasks:**
-- `thinking-contemplative.mdc` - Natural exploration
+- `thinking-framework.mdc` - Natural exploration
 - `system-effective-rule-writing.mdc` - Rule creation guidance
 
 **Professional Coding Tasks:**
@@ -115,20 +151,20 @@ function assessComplexity(task) {
 
 ```markdown
 **Frontend Development:**
-- `scss-development.mdc` - Modern CSS practices
+- `scss-modern-css-frameworks.mdc` - Modern CSS practices
 - `scss-advanced-patterns.mdc` - Advanced SCSS
-- `scss-pico-usage.mdc` - Pico CSS framework
 - `html-development.mdc` - Semantic HTML
+- `js-cash-dom-usage.mdc` - DOM manipulation
 
 **JavaScript Development:**
 - `js-development.mdc` - Modern JS
 - `js-cash-dom-usage.mdc` - DOM manipulation
-- `hyperscript-usage.mdc` - Interactive HTML
+- `js-modern-apis.mdc` - Modern APIs
+- `js-patterns-practices.mdc` - Patterns and practices
 
 **Perchance Development:**
 - `perchance-architecture.mdc` - Platform architecture
-- `perchance-development-workflow.mdc` - Development process
-- `perchance-build-deployment.mdc` - Build and deployment
+- `perchance-development-lifecycle.mdc` - Development process
 - `perchance-plugin-system.mdc` - Plugin development
 ```
 
@@ -137,12 +173,12 @@ function assessComplexity(task) {
 ```markdown
 **Memory Management:**
 - `memory-bank-optimization.mdc` - Token efficiency
-- `memory-bank-integration.mdc` - MCP integration
+- `memory-bank-workflow.mdc` - Memory workflow
 
 **Context Management:**
 - `mcp-context7.mdc` - External documentation
 - `mcp-ecosystem.mdc` - MCP server management
-- '@docs' - Documentation access
+- `mcp-time.mdc` - Time management
 ```
 
 ### **Complexity-Based Rules**
@@ -151,9 +187,10 @@ function assessComplexity(task) {
 
 ```markdown
 **Minimal Rule Set:**
-- `unified-thinking-framework.mdc` - Core thinking
-- `role-assistant.mdc` - Professional coding
-- Domain-specific rule (e.g., `scss-development.mdc`)
+- `mode-system-unified.mdc` - Core system
+- `thinking-framework.mdc` - Professional coding approach
+- `role-assistant.mdc` - Professional coding standards
+- Domain-specific rule (e.g., `js-development.mdc`)
 ```
 
 #### **Level 2 (Medium Tasks)**
@@ -161,7 +198,7 @@ function assessComplexity(task) {
 ```markdown
 **Enhanced Rule Set:**
 - All Level 1 rules
-- `mcp-sequential-thinking.mdc` - Structured thinking
+- `thinking-framework.mdc` - Sequential thinking approach
 - `mcp-context7.mdc` - Documentation access
 - Additional domain-specific rules
 ```
@@ -171,7 +208,7 @@ function assessComplexity(task) {
 ```markdown
 **Comprehensive Rule Set:**
 - All Level 2 rules
-- `thinking-contemplative.mdc` - Deep exploration
+- `thinking-framework.mdc` - Contemplative thinking approach
 - `memory-bank-optimization.mdc` - Memory management
 - All relevant domain-specific rules
 ```
@@ -185,8 +222,17 @@ function selectRules(context) {
   const rules = new Set();
   
   // Always load core rules
-  rules.add('unified-thinking-framework.mdc');
-  rules.add('context-aware-rule-loading.mdc');
+  rules.add('mode-system-unified.mdc');
+  rules.add('thinking-framework.mdc');
+  rules.add('system-context-aware-rule-loading-enhanced.mdc');
+  
+  // Load mode-specific rules
+  const modeRules = getModeRules(context.mode);
+  modeRules.forEach(rule => rules.add(rule));
+  
+  // Load thinking approach rules
+  const thinkingRules = getThinkingRules(context.thinkingApproach);
+  thinkingRules.forEach(rule => rules.add(rule));
   
   // Load task-specific rules
   const taskRules = getTaskSpecificRules(context.taskType);
@@ -196,10 +242,6 @@ function selectRules(context) {
   const complexityRules = getComplexityRules(context.complexity);
   complexityRules.forEach(rule => rules.add(rule));
   
-  // Load mode-specific rules
-  const modeRules = getModeRules(context.mode);
-  modeRules.forEach(rule => rules.add(rule));
-  
   // Load domain-specific rules
   const domainRules = getDomainRules(context.domain);
   domainRules.forEach(rule => rules.add(rule));
@@ -207,13 +249,33 @@ function selectRules(context) {
   return Array.from(rules);
 }
 
+function getModeRules(mode) {
+  const ruleMap = {
+    'strategic': ['role-project-manager.mdc', 'system-architecture.mdc', 'memory-bank-optimization.mdc'],
+    'tactical': ['mcp-context7.mdc', 'js-development.mdc', 'scss-advanced-patterns.mdc'],
+    'operational': ['role-assistant.mdc', 'js-development.mdc', 'js-patterns-practices.mdc']
+  };
+  
+  return ruleMap[mode] || [];
+}
+
+function getThinkingRules(thinkingApproach) {
+  const ruleMap = {
+    'contemplative': ['system-effective-rule-writing.mdc'],
+    'sequential': ['mcp-context7.mdc', 'mcp-ecosystem.mdc'],
+    'professional': ['role-assistant.mdc', 'js-development.mdc']
+  };
+  
+  return ruleMap[thinkingApproach] || [];
+}
+
 function getTaskSpecificRules(taskType) {
   const ruleMap = {
-    debugging: ['mcp-sequential-thinking.mdc', 'js-development.mdc'],
-implementation: ['role-assistant.mdc', 'js-development.mdc'],
-planning: ['mcp-sequential-thinking.mdc', 'thinking-contemplative.mdc'],
-analysis: ['mcp-sequential-thinking.mdc', 'mcp-context7.mdc'],
-optimization: ['mcp-sequential-thinking.mdc', 'memory-bank-optimization.mdc']
+    debugging: ['js-development.mdc', 'js-debugging.mdc'],
+    implementation: ['role-assistant.mdc', 'js-development.mdc'],
+    planning: ['mcp-context7.mdc', 'system-architecture.mdc'],
+    analysis: ['mcp-context7.mdc', 'js-patterns-practices.mdc'],
+    optimization: ['memory-bank-optimization.mdc', 'js-patterns-practices.mdc']
   };
   
   return ruleMap[taskType] || [];
@@ -329,6 +391,8 @@ const tokenMetrics = {
 3. **Monitor token usage** and adjust strategy as needed
 4. **Cache frequently used rules** for efficiency
 5. **Lazy load specialized rules** when required
+6. **Consider current mode** when selecting rules
+7. **Match thinking approach** to rule selection
 
 ### **For System Administrators**
 
@@ -337,6 +401,7 @@ const tokenMetrics = {
 3. **Optimize rule content** for token efficiency
 4. **Update rule categories** as new rules are added
 5. **Maintain rule dependencies** for proper loading
+6. **Track mode-specific usage** for optimization
 
 ## 📊 **MONITORING AND ANALYTICS**
 
@@ -346,6 +411,8 @@ const tokenMetrics = {
 - **Rule Loading Speed**: Time to load required rules
 - **Cache Hit Rate**: Percentage of cached rule usage
 - **User Satisfaction**: Feedback on system responsiveness
+- **Mode-Specific Performance**: Efficiency by mode
+- **Thinking Approach Performance**: Efficiency by thinking approach
 
 ### **Optimization Opportunities**
 
@@ -353,8 +420,71 @@ const tokenMetrics = {
 - **Content Optimization**: Remove redundant content
 - **Loading Strategy**: Adjust based on usage patterns
 - **Cache Management**: Optimize cache size and eviction
+- **Mode-Specific Optimization**: Tailor rules to mode requirements
 
-## 🎯 **INTEGRATION WITH UNIFIED THINKING FRAMEWORK**
+## 🎯 **INTEGRATION WITH 3-MODE SYSTEM**
+
+### **Mode-Aware Rule Loading**
+
+```javascript
+function selectRulesForMode(mode, context) {
+  const modeRules = {
+    'strategic': [
+      'thinking-framework.mdc', // Contemplative thinking
+      'role-project-manager.mdc',
+      'system-architecture.mdc',
+      'memory-bank-optimization.mdc'
+    ],
+    'tactical': [
+      'thinking-framework.mdc', // Sequential thinking
+      'mcp-context7.mdc',
+      'js-development.mdc',
+      'scss-advanced-patterns.mdc'
+    ],
+    'operational': [
+      'thinking-framework.mdc', // Professional coding
+      'role-assistant.mdc',
+      'js-development.mdc',
+      'js-patterns-practices.mdc'
+    ]
+  };
+  
+  return [
+    ...modeRules[mode] || [],
+    ...getTaskSpecificRules(context.taskType),
+    ...getComplexityRules(context.complexity)
+  ];
+}
+```
+
+### **Thinking Approach Integration**
+
+```javascript
+function selectRulesForThinkingApproach(thinkingApproach, context) {
+  const thinkingRules = {
+    'contemplative': [
+      'thinking-framework.mdc', // Contemplative approach
+      'system-effective-rule-writing.mdc'
+    ],
+    'sequential': [
+      'thinking-framework.mdc', // Sequential approach
+      'mcp-context7.mdc',
+      'mcp-ecosystem.mdc'
+    ],
+    'professional': [
+      'thinking-framework.mdc', // Professional approach
+      'role-assistant.mdc',
+      'js-development.mdc'
+    ]
+  };
+  
+  return [
+    ...thinkingRules[thinkingApproach] || [],
+    ...getModeRules(context.mode),
+    ...getTaskSpecificRules(context.taskType)
+  ];
+}
+```
 
 ### **Context-Aware Approach Selection**
 
@@ -376,15 +506,32 @@ function selectApproachWithRules(context) {
 
 function selectRulesForApproach(approach, context) {
   const approachRules = {
-    'sequential': ['mcp-sequential-thinking.mdc', 'mcp-context7.mdc'],
-    'contemplative': ['thinking-contemplative.mdc'],
-'professional': ['role-assistant.mdc', 'js-development.mdc']
+    'sequential': ['thinking-framework.mdc', 'mcp-context7.mdc'],
+    'contemplative': ['thinking-framework.mdc'],
+    'professional': ['role-assistant.mdc', 'js-development.mdc']
   };
   
   return [
     ...approachRules[approach] || [],
-    ...getDomainRules(context.domain),
+    ...getModeRules(context.mode),
     ...getComplexityRules(context.complexity)
   ];
 }
 ```
+
+## 🎯 **READY TO OPTIMIZE!**
+
+This enhanced context-aware rule loading system provides:
+
+1. **🎯 Mode-Aware Loading** - Rules selected based on current mode
+2. **🧠 Thinking Approach Integration** - Rules matched to thinking approach
+3. **⚡ Token Efficiency** - Optimal rule selection for performance
+4. **🔄 Dynamic Adaptation** - Rules adjusted based on context changes
+5. **📊 Performance Monitoring** - Continuous optimization tracking
+6. **🎭🎨⚒️ Mode Integration** - Perfect alignment with 3-mode system
+
+**This system ensures maximum efficiency while maintaining full functionality!**
+
+---
+
+**🎯 CONTEXT-AWARE RULE LOADING: Intelligent optimization for the 3-mode system!**
