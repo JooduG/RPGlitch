@@ -1122,12 +1122,16 @@ article {
   display: none;
 }
 
+/* ========================================
+   SEARCH INPUT STYLING
+   ======================================== */
+
 .chin-actions input[type="search"] {
   height: auto;
-  padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em; /* extra left padding for icon */
+  padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em;
   border-radius: 999px 0 0 999px !important;
-  border: 1px solid rgb(255 255 255 / 20%) !important; /* Same border as buttons */
-  border-right: none !important; /* Remove right border to connect with button */
+  border: 1px solid rgb(255 255 255 / 20%) !important;
+  border-right: none !important;
   font-size: 1rem;
   box-sizing: border-box;
   display: inline-flex;
@@ -1135,14 +1139,14 @@ article {
   flex: none;
   margin: 0;
   width: auto;
-  transition: background 0.2s, border-color 0.2s; /* Same transition as buttons */
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .chin-actions button[type="submit"] {
   height: auto;
   padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em;
   border-radius: 0 999px 999px 0 !important;
-  border-left: none !important; /* Remove left border to connect with input */
+  border-left: none !important;
   font-size: 1rem;
   box-sizing: border-box;
   display: inline-flex;
@@ -1152,7 +1156,7 @@ article {
   min-width: 0;
 }
 
-/* Unified hover effects for search input and button */
+/* Search hover effects */
 .chin-actions input[type="search"]:hover {
   border-color: rgb(255 255 255 / 30%) !important;
 }
@@ -1162,20 +1166,16 @@ article {
   border-color: rgb(255 255 255 / 30%) !important;
 }
 
-/* When hovering search input, also highlight the button (border only) */
 .chin-actions input[type="search"]:hover + button[type="submit"] {
   background: rgb(255 255 255 / 20%) !important;
   border-color: rgb(255 255 255 / 30%) !important;
 }
 
-/* When hovering search button, also highlight the input (border only) */
 .chin-actions button[type="submit"]:hover ~ input[type="search"] {
   border-color: rgb(255 255 255 / 30%) !important;
 }
 
-/* REMOVED: .chin-search-submit styles - now uses global button system */
-
-/* Ensure search form fieldset doesn't add borders */
+/* Search form resets */
 .chin-actions fieldset[role="group"] {
   border: none !important;
   padding: 0 !important;
@@ -1186,7 +1186,6 @@ article {
   overflow: hidden !important;
 }
 
-/* Ensure the search form itself doesn't extend beyond the search bar */
 .chin-actions form {
   border: none !important;
   padding: 0 !important;
@@ -1194,10 +1193,6 @@ article {
   width: fit-content !important;
   overflow: hidden !important;
 }
-
-/* REMOVED: .chin-actions-right .secondary styles - now uses global button system */
-
-/* REMOVED: #options-chin .secondary styles - now uses global button system */
 
 .chin-options-grid {
   display: grid;
@@ -1236,7 +1231,11 @@ button,
   flex-direction: column;
 }
 
-/* Remove all gaps between storyboard cards */
+/* ========================================
+   STORYBOARD STYLING
+   ======================================== */
+
+/* Storyboard cards row */
 .storyboard-cards-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1258,7 +1257,7 @@ button,
   grid-gap: 0 !important;
 }
 
-/* Minimal, borderless, centered dropdown for storyboard cards */
+/* Storyboard dropdown styling */
 .storyboard-cards-row select {
   border: none;
   background: #23243a;
@@ -1277,10 +1276,11 @@ button,
   outline: none !important;
 }
 
-/* Hide the dropdown arrow for IE/Edge */
-.storyboard-cards-row select::-ms-expand { display: none; }
+/* Hide dropdown arrows */
+.storyboard-cards-row select::-ms-expand { 
+  display: none; 
+}
 
-/* Hide the dropdown arrow for Chrome, Safari, Edge */
 .storyboard-cards-row select::-webkit-inner-spin-button,
 .storyboard-cards-row select::-webkit-outer-spin-button,
 .storyboard-cards-row select::-webkit-search-cancel-button,
@@ -1288,37 +1288,24 @@ button,
   display: none;
 }
 
-/* Left-align dropdown options */
+/* Dropdown options */
 .storyboard-cards-row select option {
   text-align: left;
   color: #222;
 }
 
-/* Note: Multi-line options are not supported in native select. Use a custom dropdown for that feature. */
-
-/* Note: .card-title-dropdown selector already defined above - removing duplicate */
-  
-/* Note: All nested selectors removed - parent selector was duplicate */
 
 
 
-
-/* Note: #storyboard-title selector already defined above - removing duplicate */
-
-/* Note: #storyboard-title selectors already defined above - removing duplicates */
-
-/* Note: .card-title-selected selector already defined above - removing duplicate */
+/* Storyboard profile picture */
+.storyboard-cards-row .profile-picture {
+  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;
+}
 
 .card-title-dropdown-menu .dropdown-option {
   text-wrap: pretty;
   text-align: left;
 }
-
-.storyboard-cards-row .profile-picture {
-  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;
-}
-
-/* Note: .storyboard-cards-row selector already defined above - removing duplicate */
 
 
 
@@ -1388,9 +1375,17 @@ button,
 
 /* Note: .card-title-dropdown-menu selector already defined above - removing duplicate */
 
-/* Global rule: all text should have opacity 1 (excluding disabled elements) */
+/* ========================================
+   TEXT STYLING
+   ======================================== */
+
+/* Global text color */
 body, body *:not([disabled]) {
   opacity: 1 !important;
+  color: #fff !important;
+}
+
+body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-grid, .chin-actions, .chin-options-actions, .card-info, .card-info header, .card-info h4, .card-title-selected, .dropdown-option {
   color: #fff !important;
 }
 
@@ -1399,7 +1394,7 @@ body, body *:not([disabled]) {
   color: #fff !important;
 }
 
-/* Fix Premade tag positioning and styling */
+/* Premade tag styling */
 .card-info small {
   display: inline-block;
   background: var(--pico-primary, #0172ad);
@@ -1412,15 +1407,10 @@ body, body *:not([disabled]) {
   line-height: 1.2;
 }
 
-/* Make chin list premade tags match storyboard styling (italic and skinnier) */
+/* Chin list premade tags */
 .chin-list-grid .card-info small {
   font-style: italic;
-  font-weight: 400; /* Skinnier than the default 600 */
-}
-
-/* Ensure all text is white by default, except muted/disabled */
-body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-grid, .chin-actions, .chin-options-actions, .card-info, .card-info header, .card-info h4, .card-title-selected, .dropdown-option {
-  color: #fff !important;
+  font-weight: 400;
 }
 
 /* Ensure tooltips are visible and properly styled */
@@ -2364,27 +2354,29 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 
 /* Note: .top-bar-nav.is-active selector already defined above - removing duplicate */
 
-/* Only retain truly unique utility classes not in Pico */
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
 
 .visually-hidden {
   position: absolute !important;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0,0,0,0);
+  width: 1px; 
+  height: 1px;
+  padding: 0; 
+  margin: -1px;
+  overflow: hidden; 
+  clip: rect(0,0,0,0);
   border: 0;
 } 
 
-/* Moved to the end for specificity */
 .hidden {
-    display: none !important;
+  display: none !important;
 }
 
-/* Moved to the end for specificity */
 #options-chin {
   display: none !important;
 }
 
-/* Moved to the end for specificity */
 #options-chin:not(.hidden) {
   display: flex !important;
 }
