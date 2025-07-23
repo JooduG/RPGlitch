@@ -10,7 +10,7 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 'Segoe UI, system-ui, sans-serif') {
-  console.debug('[ProfilePicture] getProfilePictureHTML called:', { item, context });
+  // Removed console.debug('[ProfilePicture] getProfilePictureHTML called:', { item, context });
   
   // Validate inputs
   if (!item) {
@@ -90,7 +90,8 @@ function getProfilePictureClass(context) {
   const contextClasses = {
     'profile': 'profile-picture-large',
     'storyboard': 'storyboard-card-profile-picture',
-    'list-item': 'list-item-profile-picture'
+    'list-item': 'list-item-profile-picture',
+    'profile-top-bar-small': 'profile-top-bar-profile-picture-small' // New context for small profile pics in top bar
   };
   
   return `${baseClass} ${contextClasses[context] || ''}`.trim();

@@ -4,6 +4,12 @@ image = {import:text-to-image-plugin}
 superFetch = {import:super-fetch-plugin} // <-- to bypass CORs issues in character custom code
 rememberPlugin = {import:remember-plugin}
 upload = {import:upload-plugin} // <-- for profile picture uploads
+
+$meta
+  title = RPGlitch
+  description = RPGlitch
+  header
+    mode = minimal
   
 async evaluatePerchanceTextInSandbox(text, opts) =>
   if(!opts) opts = {};
@@ -43,12 +49,6 @@ async evaluatePerchanceTextInSandbox(text, opts) =>
     }
     iframe.contentWindow.postMessage({ text, requestId }, 'https://7deabe31ae18ea5ed27c5f71b9633999.perchance.org');
   });
-
-$meta
-  title = RPGlitch
-  description = RPGlitch
-  header
-    mode = minimal
 
 async injectHierarchicalSummariesAndComputeNextSummariesInBackgroundIfNeeded(threadId, opts) =>
   // HEADS UP: This function is a bit confusing/convoluted, in part because it was "ported" from /ai-chat

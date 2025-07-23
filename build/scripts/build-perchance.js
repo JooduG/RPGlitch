@@ -24,6 +24,8 @@ const http = require('http');
 const SOURCE_FILES = [
     { name: 'apps/rpglitch/RPGlitch.html', type: 'html', description: 'Main HTML structure' },
     { name: 'apps/rpglitch/RPGlitch.scss', type: 'sass', description: 'Main Sass stylesheet' }, // New Sass entry point
+    { name: 'apps/rpglitch/dom-registry.js', type: 'script', description: 'DOM Registry resilience system' },
+    { name: 'apps/rpglitch/error-boundary.js', type: 'script', description: 'Error Boundary resilience system' },
     { name: 'apps/rpglitch/ProfilePictureComponent.js', type: 'component', description: 'Profile Picture rendering logic' },
     { name: 'apps/rpglitch/RPGlitch.js', type: 'script', description: 'JavaScript logic' }
 ];

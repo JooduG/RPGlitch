@@ -5,7 +5,37 @@
 
 /* Pico CSS is loaded via CDN in HTML, so we only need custom styles here */
 
+/* Define global CSS Custom Properties */:root {
+  /* Card Hover Effects */
+  --card-hover-transform: translateY(-4px) scale(1.02);
+  --card-hover-box-shadow: 0 8px 25px rgb(0 0 0 / 25%), 0 0 20px rgb(255 255 255 / 10%);
+  --card-hover-transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                           box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  /* Button/Link Hover Glow */
+  --button-hover-glow: 0 0 20px rgb(from var(--pico-primary-rgb) r g b / 60%), 0 0 30px rgb(255 255 255 / 15%);
+  --button-hover-transition: box-shadow 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
+  /* Glass Effect Colors (for top bar and chins) */
+  --glass-background-dark: rgb(35 36 58 / 85%); /* #23243a with 85% opacity */
+  --glass-border-light: rgb(255 255 255 / 10%);
+  --glass-shadow: 0 4px 20px rgb(0 0 0 / 20%);
+
+  /* Button Background/Border Colors (for glass effect elements) */
+  --glass-button-background: rgb(255 255 255 / 10%);
+  --glass-button-border: rgb(255 255 255 / 20%);
+  --glass-button-hover-background: rgb(255 255 255 / 20%);
+  --glass-button-hover-border: rgb(255 255 255 / 30%);
+
+  /* Search Input/Button Borders */
+  --search-border: rgb(255 255 255 / 20%);
+  --search-border-hover: rgb(255 255 255 / 30%);
+
+  /* Transparent Black for Shadows/Overlays */
+  --black-transparent-25: rgb(0 0 0 / 25%);
+  --black-transparent-30: rgb(0 0 0 / 30%);
+  --black-transparent-15: rgb(0 0 0 / 15%);
+  --black-transparent-20: rgb(0 0 0 / 20%);
 
 /*
   Dash-case for all classes and IDs.
@@ -54,10 +84,9 @@ textarea,
 #storyboard-world-card:not([disabled]):hover,
 .character-card-landscape:not([disabled]):hover,
 .story-profile-item-card:not([disabled]):hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 25px rgb(0 0 0 / 25%), 0 0 20px rgb(255 255 255 / 10%);
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: var(--card-hover-transform);
+  box-shadow: var(--card-hover-box-shadow);
+  transition: var(--card-hover-transition);
 }
 
 /* Ensure cards have proper initial transform state */
@@ -67,12 +96,9 @@ textarea,
 #storyboard-world-card,
 .story-profile-item-card {
   transform: translateY(0) scale(1);
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: var(--card-hover-transition);
   margin-bottom: 1rem; /* Increase margin to push cards down more */
 }
-
-/* Note: .character-card-landscape selector already defined above - removing duplicate */
 
 /* Disabled cards - dramatic attention to dropdown area */
 .storyboard-card[disabled]:hover .card-title,
@@ -84,7 +110,7 @@ textarea,
 #storyboard-world-card[disabled]:hover .card-title,
 #storyboard-world-card[disabled]:hover .card-subtitle {
   color: var(--pico-primary);
-  text-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.6);
+  text-shadow: 0 0 15px rgb(from var(--pico-primary-rgb) r g b / 60%);
   transition: color 0.3s ease, text-shadow 0.3s ease;
   font-weight: bold;
 }
@@ -95,7 +121,7 @@ textarea,
 #storyboard-world-card[disabled]:hover .card-title::after {
   content: " ▼ CLICK HERE!";
   color: var(--pico-primary);
-  text-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.8);
+  text-shadow: 0 0 15px rgb(from var(--pico-primary-rgb) r g b / 80%);
   animation: dropdown-pulse 1s ease-in-out infinite;
   font-weight: bold;
   font-size: 0.9em;
@@ -106,8 +132,8 @@ textarea,
 #storyboard-ai-character-card[disabled]:hover,
 #storyboard-user-character-card[disabled]:hover,
 #storyboard-world-card[disabled]:hover {
-  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.3) !important;
-  border: 2px solid rgb(var(--pico-primary-rgb), 0.5) !important;
+  box-shadow: 0 0 20px rgb(from var(--pico-primary-rgb) r g b / 30%) !important;
+  border: 2px solid rgb(from var(--pico-primary-rgb) r g b / 50%) !important;
   transition: box-shadow 0.3s ease, border 0.3s ease;
 }
 
@@ -117,16 +143,32 @@ textarea,
 }
 
 /* Buttons - Glow effect instead of lift */
+
+/* Updated to target specific IDs in top-bar where applicable, and general buttons */
 .top-bar button:not([disabled]):hover,
-.top-bar [role="button"]:not([disabled]):hover,
-#options-chin button:not([disabled]):hover,
+.top-bar [role="tab"]:not([disabled]):hover, /* Specific to tab buttons in top-bar */
+#shuffle:not([disabled]):hover,
+#begin:not([disabled]):hover,
+#cancel:not([disabled]):hover,
+#save:not([disabled]):hover,
+#edit:not([disabled]):hover,
+#delete:not([disabled]):hover,
+#back:not([disabled]):hover,
+#conclude-story-chat-button:not([disabled]):hover,
+#emergency-export:not([disabled]):hover,
+#emergency-delete:not([disabled]):hover,
+#story-profile-back-button:not([disabled]):hover,
+#delete-story-button:not([disabled]):hover,
+#conclude-story-button-story-profile:not([disabled]):hover,
+#open-story-chat-button-story-profile:not([disabled]):hover,
+.profile-action-buttons button:not([disabled]):hover, /* General profile action buttons */
 .chin-tab:not([disabled]):hover,
 button:not([disabled]):hover,
 input[type="submit"]:not([disabled]):hover,
 input[type="button"]:not([disabled]):hover {
   transform: none !important;
-  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.6), 0 0 30px rgb(255 255 255 / 15%) !important;
-  transition: box-shadow 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+  box-shadow: var(--button-hover-glow) !important;
+  transition: var(--button-hover-transition) !important;
 }
 
 /* Search buttons - Glow effect instead of lift */
@@ -190,23 +232,6 @@ a:not([disabled]):hover {
   box-shadow: none !important;
   transition: none !important;
 }
-
-/* Let Pico handle disabled button styling naturally */
-
-/* Ensure disabled buttons don't have hover effects for secondary elements ONLY */
-button[disabled].secondary:hover,
-input[disabled]:hover,
-select[disabled]:hover,
-textarea[disabled]:hover,
-label[disabled]:hover,
-[role="button"][disabled].secondary:hover {
-  transform: none !important;
-  box-shadow: none !important;
-  background: inherit !important;
-  color: inherit !important;
-}
-
-/* Let Pico handle disabled button styling naturally */
 
 /* Let Pico handle disabled button styling naturally */
 
@@ -285,15 +310,13 @@ a:not([disabled]) {
   cursor: not-allowed !important;
 }
 
-/* Note: .storyboard-card[disabled]:hover selectors already defined above - removing duplicates */
-
 /* Ensure smooth transitions for all interactive elements */
 .storyboard-card,
 .character-card-landscape,
 .story-profile-item-card,
 .top-bar button,
 .top-bar [role="button"],
-#options-chin button,
+#chin-options button,
 .chin-tab,
 button,
 input[type="submit"],
@@ -323,8 +346,6 @@ a {
 /* Global reset for Pico.css focus styles */
 *:focus {
   outline: none !important;
-
-  /* Removed global box-shadow override to allow Pico's natural shadows */
 }
 
 /* Nuclear option: Remove ALL possible visual borders from dropdown elements */
@@ -479,10 +500,6 @@ align-items: flex-end;
   overflow: hidden !important;
 }
 
-/* Ensure body and html don't add margins/padding */
-
-/* Note: body, html selector already defined above - removing duplicate */
-
 /* Remove any internal scrollable areas from profile content */
 .profile-details-content-wrapper,
 .story-profile-layout-container,
@@ -501,6 +518,16 @@ align-items: flex-end;
   height: auto;
   min-height: 0;
   overflow: visible !important;
+
+  /* Removed padding-top and margin-top */
+}
+
+/* Removed main margin as it is no longer needed */
+
+/* Remove any default margin or padding from the main content area for full control */
+main {
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* === LAYOUT CSS ===
@@ -549,92 +576,38 @@ align-items: flex-end;
 
 /* Layout containers */
 #chin-area {
-  display: flex;
-  flex-direction: column;
   gap: 1rem; /* Reduced gap for tighter spacing */
   margin-top: 1rem; /* Reduced top margin */
   border-radius: 0 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem);
   padding-bottom: 1rem; /* Reduced bottom padding */
   padding-top: 1rem; /* Reduced top padding */
   min-height: 190px; /* Single row: 170px grid + 20px padding */
-}
-
-/* Center 'No stories yet' across entire chin */
-.chin-empty-centered {
-  grid-column: 1 / -1;
-  display: grid;
-  place-items: center;
-  min-height: 120px;
-  width: 100%;
-  font-style: italic;
-  font-size: 1.1em;
-  background: none;
-  border: none;
-  text-align: center;
-  margin: 0;
-  padding: 0;
-}
-
-.card-placeholder-text {
-  width: 100%;
-  text-align: center;
-  border-radius: var(--pico-radius);
-}
-
-.chin-list-grid > p,
-.chin-list-grid .story-item-empty-message {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  margin: 0 auto;
-  grid-column: 2 / 3;
-}
-
-/* Top bar chin positioning */
-.top-bar-chin {
-  position: absolute;
-  top: calc(100% - 0.5rem); /* Position chin directly below the top bar */
-  left: 0;
-  right: 0;
-  z-index: 2000;
-  color: #fff;
-  padding: 0.5em 1em 1em;
-  font-family: inherit;
-  transition: all 0.2s;
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-left-radius: var(--pico-radius, 0.5rem);
-  border-bottom-right-radius: var(--pico-radius, 0.5rem);
-  margin-top: 0; /* Remove negative margin */
-  padding-top: 0.5rem; /* Ensure padding is applied correctly */
-  min-height: 200px; /* Consistent minimum height for all chins */
   height: auto; /* Allow chin to expand with content */
   display: flex; /* Use flexbox to properly contain children */
   flex-direction: column; /* Stack children vertically */
   align-items: stretch; /* Ensure children stretch to full width */
 
-  /* Glass effect for chin */
-  background: rgb(35 36 58 / 85%) !important;
-  backdrop-filter: blur(15px);
-  border-bottom: 1px solid rgb(255 255 255 / 10%);
-  box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
+  /* Revert to a solid dark background and remove the glass effect */
+  background: var(--pico-background-color, #23243a) !important;  /* Or a specific dark color like #23243a */
+
+  /* backdrop-filter: blur(10px); */
+
+  /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
+
+  /* box-shadow: var(--glass-shadow); */
 }
 
 /* Ensure chin buttons are readable on glass background */
 .top-bar-chin button {
-  background: rgb(255 255 255 / 10%) !important;
-  border-color: rgb(255 255 255 / 20%) !important;
+  background: var(--glass-button-background) !important;
+  border-color: var(--glass-button-border) !important;
   color: #fff !important;
   backdrop-filter: blur(5px);
 }
 
 .top-bar-chin button:hover {
-  background: rgb(255 255 255 / 20%) !important;
-  border-color: rgb(255 255 255 / 30%) !important;
+  background: var(--glass-button-hover-background) !important;
+  border-color: var(--glass-button-hover-border) !important;
 }
 
 .top-bar-chin button.primary {
@@ -692,6 +665,10 @@ align-items: flex-end;
   margin-top: 0; /* Remove top margin */
   width: 100%;
   max-width: 100%;
+
+  /* Removed backdrop-filter as it was removed from HTML */
+
+  /* Removed border-bottom as it was removed from HTML */
 }
 
 /* Container for chin positioning */
@@ -704,8 +681,6 @@ article > footer:not(.storyboard-card footer) {
   margin: 0 !important;
   padding: 10px !important;
   border: none !important;
-
-  /* Removed all bottom rounding for storyboard footers */
 }
 
 /* Override Pico.css header borders and rounding (excluding storyboard cards) */
@@ -742,32 +717,9 @@ article > header:not(.storyboard-card header) {
   background: rgb(255 255 255 / 5%);
 }
 
-/* Removed ellipsis - looks weird with multi-line text */
 
 
-
-.top-bar-nav {
-  /* Only nav-specific rules here */
-  padding: 1em;
-}
-
-.top-bar-nav.is-active {
-  display: flex !important; /* Force display to flex when active */
-
-  /* margin-bottom: 1rem; Restore margin */
-  z-index: 1000; /* Ensure it's above other content */
-}
-
-#start-fresh-button.secondary {
-  transition: background 0.2s, color 0.2s;
-}
-
-#start-fresh-button.secondary:hover,
-#start-fresh-button.secondary:focus {
-  background: #e53935 !important;
-  color: var(--pico-contrast, #fff) !important;
-  border-color: #e53935 !important;
-}
+/* Removed .top-bar-nav.is-active as .top-bar is the main nav element now */
 
 nav {
   margin: 0;
@@ -776,19 +728,20 @@ nav {
 }
 
 /* Navigation layout */
-.top-bar-nav ul {
+
+/* Removed .top-bar-nav ul as .top-bar is the main nav element now */
+.top-bar ul {
   display: flex;
   gap: 1rem;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-.top-bar-nav li {
+/* Removed .top-bar-nav li as .top-bar is the main nav element now */
+.top-bar li {
   margin: 0 !important;
   padding: 0 !important;
 }
-
-/* REMOVED: nav > button, .top-bar-nav button, .top-bar-section button - now uses global button system */
 
 .chin-actions {
   display: flex;
@@ -857,9 +810,7 @@ nav {
 
 /* Ensure chin cards have proper border radius on all corners */
 .character-card-landscape {
-  border-radius: var(--pico-radius) !important;
-  border-top-left-radius: var(--pico-radius, 0.5rem) !important;
-  border-bottom-left-radius: var(--pico-radius, 0.5rem) !important;
+  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important; /* Top-left and bottom-left corners only */
 }
 
 .card-grid {
@@ -984,7 +935,7 @@ nav {
 
 /* Specific rule for Chin List Info Area (top-left and bottom-left corners only) */
 .character-card-landscape .card-info {
-  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important; /* Top-left and bottom-left corners only */
+  /* Removed border-radius override as it's handled by .character-card-landscape */
   overflow: hidden !important;
 }
 
@@ -993,8 +944,6 @@ nav {
   border-radius: 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important; /* Top-right and bottom-right corners only */
   overflow: hidden !important;
 }
-
-/* Removed conflicting .card-tag rule - using .card-info small instead */
 
 
 .card-content {
@@ -1023,8 +972,6 @@ nav {
   display: block;
   background: #222;
 }
-
-/* Note: .card-info selector already defined above - removing duplicate */
 
 .card-title-selected .profile-dot {
   display: none !important;
@@ -1114,15 +1061,15 @@ article {
   margin: 0;
 
   /* Glass effect for upload buttons */
-  background: rgb(255 255 255 / 10%) !important;
-  border-color: rgb(255 255 255 / 20%) !important;
+  background: var(--glass-button-background) !important;
+  border-color: var(--glass-button-border) !important;
   color: #fff !important;
   backdrop-filter: blur(5px);
 }
 
 .upload-label:hover {
-  background: rgb(255 255 255 / 20%) !important;
-  border-color: rgb(255 255 255 / 30%) !important;
+  background: var(--glass-button-hover-background) !important;
+  border-color: var(--glass-button-hover-border) !important;
 }
 
 .upload-label-text {
@@ -1137,7 +1084,7 @@ article {
   height: auto;
   padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em; /* extra left padding for icon */
   border-radius: 999px 0 0 999px !important;
-  border: 1px solid rgb(255 255 255 / 20%) !important; /* Same border as buttons */
+  border: 1px solid var(--search-border) !important; /* Same border as buttons */
   border-right: none !important; /* Remove right border to connect with button */
   font-size: 1rem;
   box-sizing: border-box;
@@ -1165,26 +1112,24 @@ article {
 
 /* Unified hover effects for search input and button */
 .chin-actions input[type="search"]:hover {
-  border-color: rgb(255 255 255 / 30%) !important;
+  border-color: var(--search-border-hover) !important;
 }
 
 .chin-actions button[type="submit"]:hover {
-  background: rgb(255 255 255 / 20%) !important;
-  border-color: rgb(255 255 255 / 30%) !important;
+  background: var(--glass-button-hover-background) !important;
+  border-color: var(--glass-button-hover-border) !important;
 }
 
 /* When hovering search input, also highlight the button (border only) */
 .chin-actions input[type="search"]:hover + button[type="submit"] {
-  background: rgb(255 255 255 / 20%) !important;
-  border-color: rgb(255 255 255 / 30%) !important;
+  background: var(--glass-button-hover-background) !important;
+  border-color: var(--search-border-hover) !important;
 }
 
 /* When hovering search button, also highlight the input (border only) */
 .chin-actions button[type="submit"]:hover ~ input[type="search"] {
-  border-color: rgb(255 255 255 / 30%) !important;
+  border-color: var(--search-border-hover) !important;
 }
-
-/* REMOVED: .chin-search-submit styles - now uses global button system */
 
 /* Ensure search form fieldset doesn't add borders */
 .chin-actions fieldset[role="group"] {
@@ -1205,10 +1150,6 @@ article {
   width: fit-content !important;
   overflow: hidden !important;
 }
-
-/* REMOVED: .chin-actions-right .secondary styles - now uses global button system */
-
-/* REMOVED: #options-chin .secondary styles - now uses global button system */
 
 .chin-options-grid {
   display: grid;
@@ -1233,12 +1174,6 @@ button,
   text-align: center;
   justify-content: center;
 }
-
-/* REMOVED: label.button.secondary styles - now uses global button system */
-
-/* REMOVED: .options-button styles - now uses global button system */
-
-
 
 .storyboard-cards-row > * {
   height: 260px;
@@ -1305,21 +1240,6 @@ button,
   color: #222;
 }
 
-/* Note: Multi-line options are not supported in native select. Use a custom dropdown for that feature. */
-
-/* Note: .card-title-dropdown selector already defined above - removing duplicate */
-  
-/* Note: All nested selectors removed - parent selector was duplicate */
-
-
-
-
-/* Note: #storyboard-title selector already defined above - removing duplicate */
-
-/* Note: #storyboard-title selectors already defined above - removing duplicates */
-
-/* Note: .card-title-selected selector already defined above - removing duplicate */
-
 .card-title-dropdown-menu .dropdown-option {
   text-wrap: pretty;
   text-align: left;
@@ -1328,10 +1248,6 @@ button,
 .storyboard-cards-row .profile-picture {
   border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;
 }
-
-/* Note: .storyboard-cards-row selector already defined above - removing duplicate */
-
-
 
 .top-bar-nav button,
 .top-bar-section button {
@@ -1342,9 +1258,6 @@ button,
   height: 100%;
 }
 
-/* Note: .storyboard-card selector already defined above - removing duplicate */
-
-/* Note: .storyboard-card selector already defined above - removing duplicate */
 .chin-card,
 .card {
   border: none !important;
@@ -1359,10 +1272,8 @@ button,
 .storyboard-card:hover,
 .chin-card:hover,
 .card:hover {
-  box-shadow: 0 2px 8px 0 rgb(0 0 0 / 15%);
+  box-shadow: 0 2px 8px 0 var(--black-transparent-15);
 }
-
-/* Note: .card-title-dropdown-menu .dropdown-option selector already defined above - removing duplicate */
 
 .card-title-dropdown-menu .dropdown-option .plus-sign {
   display: inline-flex;
@@ -1394,10 +1305,6 @@ button,
   font-style: italic !important;
 }
 
-
-/* Note: .card-title-selected selector already defined above - removing duplicate */
-
-/* Note: .card-title-dropdown-menu selector already defined above - removing duplicate */
 
 /* Global rule: all text should have opacity 1 (excluding disabled elements) */
 body, body *:not([disabled]) {
@@ -1457,8 +1364,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   z-index: 1000;
 }
 
-/* Note: .card-title-dropdown-menu selector already defined above - removing duplicate */
-
 .card-title-dropdown-menu .dropdown-option.create-new {
   font-weight: 400 !important;
 }
@@ -1474,12 +1379,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   margin: 0 !important;
   padding: 0 !important;
 }
-
-/* Note: .card-title-selected selector already defined above - removing duplicate */
-
-/* Note: .card-title-dropdown-menu selector already defined above - removing duplicate */
-
-/* Note: .card-title-selected selectors already defined above - removing duplicates */
 
 /* Keep card title background active when dropdown is open */
 .card-title-dropdown:has(.card-title-dropdown-menu:not(.hidden)) .card-title-selected {
@@ -1497,10 +1396,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   outline: none !important;
   box-shadow: none !important;
 }
-
-/* Note: .card-title-dropdown-menu .dropdown-option selectors already defined above - removing duplicates */
-
-/* Note: .storyboard-card selector already defined above - removing duplicate */
 
 .storyboard-card .card-content {
   flex: 1;
@@ -1655,6 +1550,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   /* padding: 2rem; */
   min-height: 100%;
   overflow: visible;
+  overflow-x: hidden; /* Hide horizontal scrollbar */
 }
 
 /* Left panel - profile picture and related content */
@@ -1717,8 +1613,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 
 /* Ensure smooth scrolling behavior */
 
-/* Note: .studio-left-panel, .studio-right-panel selector already defined above - removing duplicate */
-
 /* Profile picture section styling */
 .profile-picture-section {
   display: flex;
@@ -1733,7 +1627,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 .profile-picture-container {
   position: relative;
   width: 100%;
-  height: 100%; /* Fill entire height */
+  height: 100%;
   border-radius: 0; /* Remove border radius for edge-to-edge */
   overflow: hidden;
   box-shadow: none; /* Remove shadow for edge-to-edge */
@@ -1783,6 +1677,21 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   width: 100%;
   height: 100%;
   border-radius: 0;
+}
+
+/* New: Small profile pictures in profile top bars */
+.profile-top-bar-profile-picture-small {
+  width: 40px; /* Adjust size as needed */
+  height: 40px;
+  border-radius: 50%; /* Make them round */
+  object-fit: cover;
+  flex-shrink: 0; /* Prevent shrinking in flex containers */
+  background-color: var(--pico-muted-color); /* Fallback background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem; /* Adjust font size for initials */
+  color: var(--pico-contrast);
 }
 
 /* Profile picture edit section - match form styling */
@@ -1863,14 +1772,14 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   left: 0;
   right: 0;
   z-index: 5;
-  height: calc(100vh - calc(2rem + 2rem + 2.7rem));
+  height: calc(100vh - clamp(4rem, 8vw, 8rem)); /* Adjusted for top and bottom spacing */
   overflow: hidden auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   box-sizing: border-box;
   padding-left: 35vw;
-  padding-right: calc(5% - 1rem);
+  padding-right: clamp(1rem, 5vw, 2rem); /* Dynamic padding based on viewport width */
   
   /* Custom scrollbar styling */
   scrollbar-width: thin;
@@ -1915,8 +1824,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   text-wrap: balance;
   height: 3.5em;
   line-height: 1.4em;
-
-  /* Ensure full name is visible without truncation */
   overflow: visible;
   text-overflow: unset;
   white-space: normal;
@@ -1937,8 +1844,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   border-radius: var(--pico-radius);
   transition: all 0.2s ease;
 }
-
-
 
 .profile-description {
   font-size: 1.2rem;
@@ -1963,8 +1868,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   align-items: center;
   padding-left: 1rem;
 }
-
-
 
 .profile-field-label {
   display: flex;
@@ -2026,8 +1929,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   font-family: inherit;
   text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
 }
-
-/* Note: .profile-header-section .studio-profile-name selector already defined above - removing duplicate */
 
 /* Override studio-name-input-large styling to match EPPF fields */
 .profile-header-section .studio-name-input-large {
@@ -2099,17 +2000,18 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 .top-bar {
   position: relative;
   z-index: 10;
-  background: rgb(35 36 58 / 85%) !important;
-  backdrop-filter: blur(15px);
-  border-bottom: 1px solid rgb(255 255 255 / 10%);
-  box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
+
+  /* Revert to a solid dark background and remove the glass effect */
+  background: var(--pico-background-color, #23243a) !important;  
+
+  /* Or a specific dark color like #23243a */  
+
+  /* backdrop-filter: blur(10px); */  
+
+  /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
+
+  /* box-shadow: var(--glass-shadow); */
 }
-
-/* REMOVED: .top-bar button styles - now uses global button system */
-
-/* Note: #main-content-wrapper > .container selector already defined above - removing duplicate */
-
-/* Note: .main-content-container selector already defined above - removing duplicate */
 
 /* Override Pico's container behavior for storyboard screen */
 #storyboard-screen.container {
@@ -2123,7 +2025,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 @media (width <= 768px) {
   .profile-content-overlay {
     padding: 1rem;
-    margin-top: 70px;
+    margin-top: clamp(60px, 8vw, 70px); /* Adjust based on new top bar height */
   }
   
   .profile-field-row {
@@ -2136,14 +2038,9 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     padding: 1rem;
   }
   
-  
-  
-
 }
 
 @media (width <= 480px) {
-  /* Note: .profile-header-section .studio-profile-name selector already defined above - removing duplicate */
-  
   .profile-content-overlay {
     padding: 0.75rem;
   }
@@ -2152,9 +2049,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     gap: 0.25rem;
   }
   
-  /* Note: #main-content-wrapper > .container selector already defined above - removing duplicate */
-  
-
 }
 
 /* Legacy Profile Field Styling (for edit mode) */
@@ -2165,16 +2059,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   padding: 1rem 0;
   border-bottom: 1px solid var(--pico-muted-border-color, rgb(255 255 255 / 10%));
 }
-
-/* Note: .profile-field-row:last-child selector already defined above - removing duplicate */
-
-/* Note: .profile-field-label selector already defined above - removing duplicate */
-
-/* Note: .profile-field-label .main-label selector already defined above - removing duplicate */
-
-/* Note: .profile-field-label .field-sublabel selector already defined above - removing duplicate */
-
-/* Note: .profile-field-value selector already defined above - removing duplicate */
 
 .profile-field-value.readonly {
   background: rgb(255 255 255 / 2%);
@@ -2204,7 +2088,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 
 .studio-name-input-large:focus {
   border-color: var(--pico-primary, #0172ad);
-  box-shadow: 0 0 0 3px rgb(var(--pico-primary-rgb, 1, 114, 173), 0.1);
+  box-shadow: 0 0 0 3px rgb(from var(--pico-primary-rgb) r g b / 10%);
 }
 
 /* Studio profile name display */
@@ -2228,11 +2112,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 /* Profile action buttons */
 .profile-action-buttons {
   display: flex;
-
-  /* gap: 1rem; */
   justify-content: flex-end;
-
-  /* padding: 1.5rem 0; */
   border-top: 1px solid var(--pico-muted-border-color, rgb(255 255 255 / 10%));
   margin: 0 !important;
 }
@@ -2271,10 +2151,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 @media (width <= 768px) {
   .studio-content-area {
     flex-direction: column;
-
-    /* gap: 1rem; */
-
-    /* padding: 1rem; */
   }
   
   .studio-left-panel {
@@ -2296,12 +2172,10 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     overflow: visible;
   }
   
-  /* Note: .studio-content-area selector already defined above - removing duplicate */
-  
   /* Mobile-specific profile picture adjustments - maintain edge-to-edge */
   .profile-picture-container {
     width: 100%;
-    height: 200px; /* Fixed height on mobile for better UX */
+    height: clamp(150px, 40vw, 200px); /* Responsive height for mobile */
     border-radius: 0;
   }
   
@@ -2325,55 +2199,40 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   }
   
   .studio-name-input-large {
-    font-size: 1.25rem;
-    padding: 0.75rem;
+    font-size: clamp(1.25rem, 4vw, 1.5rem); /* Responsive font size */
+    padding: clamp(0.75rem, 2vw, 1rem); /* Responsive padding */
   }
   
   .studio-profile-name {
-    font-size: 1.5rem;
-  }
-  
-  /* Note: .studio-left-panel, .studio-right-panel selector already defined above - removing duplicate */
-  
-  .profile-picture-section {
-    gap: 0.75rem;
+    font-size: clamp(1.5rem, 5vw, 1.75rem); /* Responsive font size */
   }
 }
 
 /* Tablet-specific optimizations */
 @media (width >= 769px) and (width <= 1024px) {
   .studio-left-panel {
-    flex: 0 0 250px;
+    flex: 0 0 clamp(250px, 25vw, 300px); /* Responsive flex-basis */
   }
-  
-
   
   /* Tablet profile picture - maintain edge-to-edge */
   .profile-picture-container {
     width: 100%;
-    height: 100%;
+    height: clamp(200px, 30vw, 250px); /* Responsive height for tablet */
   }
 }
 
 /* Large screen optimizations */
 @media (width >= 1025px) {
   .studio-left-panel {
-    flex: 0 0 350px;
+    flex: 0 0 clamp(300px, 20vw, 350px); /* Responsive flex-basis */
   }
-  
-  /* Ensure scrollbars are visible but not intrusive */
-
   
   /* Large screen profile picture - full edge-to-edge */
   .profile-picture-container {
     width: 100%;
-    height: 100%;
+    height: min(100vh, 500px); /* Ensure it doesn't exceed viewport height or a max value */
   }
 }
-
-/* Note: .top-bar-nav selector already defined above - removing duplicate */
-
-/* Note: .top-bar-nav.is-active selector already defined above - removing duplicate */
 
 /* Only retain truly unique utility classes not in Pico */
 
@@ -2391,12 +2250,12 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 }
 
 /* Moved to the end for specificity */
-#options-chin {
+#chin-options {
   display: none !important;
 }
 
 /* Moved to the end for specificity */
-#options-chin:not(.hidden) {
+#chin-options:not(.hidden) {
   display: flex !important;
 }
 
@@ -2416,8 +2275,8 @@ button.secondary,
   height: auto;
   
   /* Visual */
-      background: rgb(255 255 255 / 10%);
-    border: 1px solid rgb(255 255 255 / 20%);
+      background: var(--glass-button-background);
+    border: 1px solid var(--glass-button-border);
   border-radius: var(--pico-radius);
   color: #fff;
   
@@ -2446,8 +2305,8 @@ button.secondary,
 button.secondary:hover,
 .button.secondary:hover,
 [role="button"].secondary:hover {
-  background: rgb(255 255 255 / 20%);
-  border-color: rgb(255 255 255 / 30%);
+  background: var(--glass-button-hover-background);
+  border-color: var(--glass-button-hover-border);
   transform: translateY(-1px);
 }
 
@@ -2467,6 +2326,7 @@ button.secondary:focus,
   outline: none;
   box-shadow: 0 0 0 2px rgb(255 255 255 / 30%);
 }
+
 
 /* Primary button variant */
 button.primary,
@@ -2491,8 +2351,6 @@ button.primary:active,
   background: var(--pico-primary-active, #014a73);
   border-color: var(--pico-primary-active, #014a73);
 }
-
-
 
 /* Danger button variant */
 button.danger,
@@ -2519,8 +2377,6 @@ button.danger:active,
 
 /* Disabled state - let Pico handle it naturally */
 
-/* Removed custom disabled styling to use Pico defaults */
-
 
 
 /* Special cases - only override when absolutely necessary */
@@ -2532,10 +2388,6 @@ nav > button[aria-selected="true"] {
   color: var(--pico-contrast);
 }
 
-/* Note: .chin-actions button[type="submit"] selector already defined above - removing duplicate */
-
-/* Note: .card-footer button selector already defined above - removing duplicate */
-
 /* ==========================================================================
    INLINE STYLE REPLACEMENTS
    ========================================================================== */
@@ -2545,6 +2397,16 @@ nav > button[aria-selected="true"] {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.top-bar-left-flex {
+  display: flex;
+  align-items: center;
+}
+
+.top-bar-right-flex {
+  display: flex;
+  align-items: center;
 }
 
 .top-bar-center-flex {
@@ -2637,4 +2499,5 @@ nav > button[aria-selected="true"] {
 .card-footer-premade {
   display: flex !important;
   justify-content: flex-start !important;
+}
 }
