@@ -1,0 +1,78 @@
+---
+description: Guidelines for interacting with Cursor Background Agents across Strategic, Tactical, and Operational modes, including prompting, handoff protocols, and error handling.
+alwaysApply: false
+---
+# ⚙️ BACKGROUND AGENT INTERACTION GUIDELINES
+
+> **TL;DR:** This rule defines the principles, prompting guidelines, handoff protocols, and error handling for interacting with Cursor Background Agents across Strategic, Tactical, and Operational modes.
+
+## 🎯 **GENERAL PRINCIPLES**
+
+-   **Cost Awareness:** Background Agents consume "Max Mode" tokens, which are expensive. Always strive for clear, concise prompts to minimize iterations and token usage.
+-   **Security:** Be mindful that Background Agents have internet access and auto-run terminal commands. Avoid prompts that could lead to unintended data exfiltration or malicious actions (e.g., don't ask it to upload private code to unknown URLs).
+-   **Context:** Ensure the agent's environment (`.cursor/environment.json`) is correctly configured for the tasks it will perform.
+-   **Review:** All agent-generated code or actions must be reviewed and approved.
+
+## 🧠 **MODE-SPECIFIC PROMPTING GUIDELINES**
+
+### 🎭 **STRATEGIC MODE (System Architect)**
+**Purpose:** Define high-level objectives and system-wide goals for Background Agents.
+**Prompt Characteristics:**
+    -   **Broad & Objective-Driven:** Focus on "what" needs to be achieved at a macro level, not "how."
+    -   **Long-term Impact:** Tasks related to overall system health, architecture, or significant optimizations.
+    -   **Examples:**
+        -   "Optimize the entire test suite for faster execution."
+        -   "Refactor the core data model for improved scalability."
+        -   "Conduct a comprehensive security audit of the application."
+
+### 🎨 **TACTICAL MODE (Project Planner)**
+**Purpose:** Plan and orchestrate intermediate-level tasks, breaking down complex problems into actionable agent steps.
+**Prompt Characteristics:**
+    -   **Detailed & Sequenced:** Specify the steps the agent should take, including file paths and specific actions.
+    -   **Tool-Oriented:** If the task requires specific tools (e.g., a linter, a build script), mention them explicitly.
+    -   **Bounded Scope:** Focus on a specific feature, module, or subsystem.
+    -   **Examples:**
+        -   "Refactor all `camelCase` variables to `snake_case` in the `apps/rpglitch/` directory, specifically in `.js` files. Ensure functionality is preserved."
+        -   "Run all unit tests for the `ProfilePictureComponent.js` and report any failures."
+        -   "Automate the deployment process for the `imageglitch` app to our staging environment."
+
+### ⚒️ **OPERATIONAL MODE (Code Implementer)**
+**Purpose:** Directly invoke Background Agents for immediate, concrete coding, execution, or quick fixes.
+**Prompt Characteristics:**
+    -   **Concise & Direct:** Straightforward instructions for a single, well-defined task.
+    -   **Code-Focused:** Often involves generating, modifying, or fixing specific code snippets.
+    -   **Instant Feedback:** Tasks where quick execution and results are expected.
+    -   **Examples:**
+        -   "Generate a new React component `LoadingSpinner.js` that displays a simple spinner."
+        -   "Fix all ESLint errors in `apps/rpglitch/RPGlitch.js`."
+        -   "Add a new `utility` function `formatDate` to `apps/rpglitch/utils.js` that takes a Date object and returns 'YYYY-MM-DD'."
+
+## 🔄 **AGENT HANDOFF PROTOCOLS**
+
+Background Agents should adhere to the following handoff protocols to ensure transparent progress and easy review:
+
+-   **Major Changes (Features, Refactors):**
+    -   **GitHub Pull Request (PR):** For any significant code modifications (e.g., new features, large refactors, bug fixes affecting multiple files), the agent should:
+        1.  Commit changes to a new, appropriately named branch.
+        2.  Create a clear and concise Pull Request, linking back to the relevant `todo-handoff.md` task.
+        3.  Provide a summary of changes and any relevant test results in the PR description.
+-   **Minor Changes & Status Updates:**
+    -   **`todo-handoff.md` Updates:** For minor tasks (e.g., linting fixes in a single file, boilerplate generation), or for regular status updates on long-running tasks, the agent should:
+        1.  Update the corresponding entry in the "⚙️ BACKGROUND AGENT TASKS" section of `memory-bank/project/todo-handoff.md`.
+        2.  Change the `Status` (e.g., `Running` → `Completed, Awaiting Review`).
+        3.  Update the `Last Update` timestamp.
+        4.  Provide a brief `[Link to Diff/PR for Review]` or `[Link to Agent Log/Session]` as applicable.
+
+## 🚨 **ERROR HANDLING & REPORTING**
+
+Background Agents must have robust error handling and reporting mechanisms:
+
+-   **Immediate Notification:** If an agent encounters a critical error that prevents task completion (e.g., compilation error, test failure, dependency issue), it should:
+    1.  Update its `todo-handoff.md` entry to `Status: Failed` or `Status: Blocked`.
+    2.  Provide a clear and concise `Blockers` field with the error message, relevant logs, and a suggested next step for human intervention.
+-   **Retry Mechanism (Limited):** For transient issues (e.g., temporary network glitches), the agent may attempt a limited number of retries (e.g., 3 times with exponential backoff) before reporting a failure.
+-   **Detailed Logs:** Agents should generate comprehensive logs (accessible via the "Link to Agent Log/Session" in `todo-handoff.md`) for detailed debugging when issues arise.
+
+---
+
+**⚙️ BACKGROUND AGENT INTERACTION GUIDELINES: Optimize your workflow with cloud-powered AI!**

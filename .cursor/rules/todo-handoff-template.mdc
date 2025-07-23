@@ -63,6 +63,15 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 
 ## ⚒️ **OPERATIONAL EXECUTION**
 
+### ⚙️ BACKGROUND AGENT TASKS
+### Active Agents:
+- [ ] **Agent Task Example 1**: [Brief description, e.g., "Refactor authentication module to use new API endpoints"] - Initiated by: `[Mode]` - Status: `[Running / Paused / Awaiting Input]` - Last Update: `[Timestamp]` - [Link to Agent Log/Session (if available)]
+- [ ] **Agent Task Example 2**: [Brief description, e.g., "Generate boilerplate for user profile component"] - Initiated by: `[Mode]` - Status: `[Running / Paused / Awaiting Input]` - Last Update: `[Timestamp]` - [Link to Agent Log/Session (if available)]
+
+### Completed Agents (Awaiting Review):
+- [x] **Agent Task Example 3**: [Brief description, e.g., "Fixed all linter errors in `RPGlitch.js`"] - Initiated by: `[Mode]` - Status: `Completed, Awaiting Review` - Completed At: `[Timestamp]` - [Link to Diff/PR for Review]
+- [x] **Agent Task Example 4**: [Brief description, e.g., "Implemented new feature 'Character Preview'"] - Initiated by: `[Mode]` - Status: `Completed, Awaiting Review` - Completed At: `[Timestamp]` - [Link to Diff/PR for Review]
+
 ### **Current Tasks - [Date]**
 
 #### **Task [X]: [Task Name]** 🔄 IN PROGRESS/✅ COMPLETED
@@ -73,16 +82,16 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 
 **Description**: [Detailed task description]
 
-**Subtasks**:
+**Subtasks**:\
 - [✅/🔄/ ] **Subtask Name**: [Description]
   - [✅/🔄/ ] Specific action 1
   - [✅/🔄/ ] Specific action 2
 
-**Success Criteria**:
+**Success Criteria**:\
 - [✅/🔄/ ] Criterion 1
 - [✅/🔄/ ] Criterion 2
 
-**Metrics & Measurement**:
+**Metrics & Measurement**:\
 - **Metric 1**: [Target] → [Current status]
 - **Metric 2**: [Target] → [Current status]
 
@@ -98,12 +107,12 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 
 **Description**: [Task description]
 
-**Subtasks Completed**:
+**Subtasks Completed**:\
 - [x] **Subtask Name**: [Description]
   - [x] Specific action 1
   - [x] Specific action 2
 
-**Success Criteria Achieved**:
+**Success Criteria Achieved**:\
 - [x] Criterion 1
 - [x] Criterion 2
 
@@ -115,22 +124,22 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 **Status**: [Complete/In Progress]
 **Ready for Next Mode**: [Yes/No]
 
-**Strategic Context**:
+**Strategic Context**:\
 - **Overall Approach**: [Strategic decisions and approach]
 - **System Setup**: [Tools and workflows configured]
 - **Optimizations**: [Process improvements implemented]
 
-**Tactical Context**:
+**Tactical Context**:\
 - **Requirements**: [Key requirements identified]
 - **Design Decisions**: [Major design decisions made]
 - **Architecture**: [System architecture planned]
 
-**Implementation Plan**:
+**Implementation Plan**:\
 - **Phase 1**: [Phase description]
 - **Phase 2**: [Phase description]
 - **Timeline**: [Expected timeline]
 
-**Ready for Operational Execution**:
+**Ready for Operational Execution**:\
 - **First Task**: [First task to implement]
 - **Success Criteria**: [How success will be measured]
 - **Blockers**: [Any potential blockers identified]
@@ -175,28 +184,46 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 
 **Purpose**: Quick overview of current project state
 
-**Required Elements**:
+**Required Elements**:\
 - **Phase**: Current phase name and description
 - **Last Updated**: Timestamp from Time MCP
-- **Current Focus**: Brief description of what's being worked on
+- **Current Focus**: Brief description of what\'s being worked on
 
-**Format**:
+**Format**:\
 ```markdown
 **Phase**: Phase [X] - [Description] ([MODE] EXECUTION IN PROGRESS/COMPLETE)
 **Last Updated**: [YYYY-MM-DDTHH:MM:SS+02:00] (from Time MCP)
 **Current Focus**: [Brief description]
 ```
 
+### **🎯 BACKGROUND AGENT TASKS Section**
+
+**Purpose**: Track active and completed tasks delegated to Background Agents for execution.
+
+**Required Elements**:
+- **Active Agents**: List of tasks currently being processed by agents.
+- **Completed Agents (Awaiting Review)**: List of tasks completed by agents, awaiting human verification and approval.
+
+**Format**:
+```markdown
+### ⚙️ BACKGROUND AGENT TASKS
+### Active Agents:
+- [ ] **Agent Task [X]**: [Brief description] - Initiated by: `[Mode]` - Status: `[Running / Paused / Awaiting Input]` - Last Update: `[Timestamp]` - [Link to Agent Log/Session (if available)]
+
+### Completed Agents (Awaiting Review):
+- [x] **Agent Task [X]**: [Brief description] - Initiated by: `[Mode]` - Status: `Completed, Awaiting Review` - Completed At: `[Timestamp]` - [Link to Diff/PR for Review]
+```
+
 ### **🎭 STRATEGIC CONTEXT Section**
 
 **Purpose**: High-level strategic decisions and approach
 
-**Required Subsections**:
+**Required Subsections**:\
 - **Overall Approach**: Strategic decisions and methodology
 - **System Setup**: Tools, workflows, and configurations
 - **Optimizations**: Process improvements and enhancements
 
-**Format**:
+**Format**:\
 ```markdown
 ### **Overall Approach**
 - [Strategic decision 1]
@@ -215,12 +242,12 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 
 **Purpose**: Detailed planning and design decisions
 
-**Required Elements**:
+**Required Elements**:\
 - **Phase Structure**: Organized by phases with status indicators
 - **Task Breakdown**: Hierarchical task organization
 - **Success Criteria**: Measurable outcomes for each phase
 
-**Format**:
+**Format**:\
 ```markdown
 ### **Phase [X]: [Phase Name] ([STATUS])**
 
@@ -228,7 +255,7 @@ The TODO & Handoff document serves as the **unified contract** between all modes
   - [ ] Subtask 1 - [Description]
   - [ ] Subtask 2 - [Description]
 
-### **Success Criteria**
+### **Success Criteria**\
 - [ ] Criterion 1
 - [ ] Criterion 2
 ```
@@ -237,12 +264,12 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 
 **Purpose**: Specific tasks and execution details
 
-**Required Elements**:
+**Required Elements**:\
 - **Current Tasks**: Tasks currently in progress
 - **Completed Tasks**: Tasks that have been finished
 - **Detailed Task Information**: Priority, complexity, status, description
 
-**Task Format**:
+**Task Format**:\
 ```markdown
 #### **Task [X]: [Task Name]** 🔄 IN PROGRESS/✅ COMPLETED
 
@@ -252,14 +279,14 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 
 **Description**: [Detailed task description]
 
-**Subtasks**:
+**Subtasks**:\
 - [✅/🔄/ ] **Subtask Name**: [Description]
   - [✅/🔄/ ] Specific action 1
 
-**Success Criteria**:
+**Success Criteria**:\
 - [✅/🔄/ ] Criterion 1
 
-**Metrics & Measurement**:
+**Metrics & Measurement**:\
 - **Metric 1**: [Target] → [Current status]
 
 **Estimated Time**: [Time estimate] → [Current progress]
@@ -269,12 +296,12 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 
 **Purpose**: Track transitions between modes
 
-**Required Elements**:
+**Required Elements**:\
 - **Handoff Information**: Date, status, readiness
 - **Context Transfer**: Strategic and tactical context
 - **Implementation Plan**: Next steps and timeline
 
-**Format**:
+**Format**:\
 ```markdown
 ### **[Mode] to [Mode] Handoff** ✅ COMPLETE/🔄 IN PROGRESS
 
@@ -282,19 +309,19 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 **Status**: [Complete/In Progress]
 **Ready for Next Mode**: [Yes/No]
 
-**Strategic Context**:
+**Strategic Context**:\
 - **Overall Approach**: [Strategic decisions and approach]
 - **System Setup**: [Tools and workflows configured]
 
-**Tactical Context**:
+**Tactical Context**:\
 - **Requirements**: [Key requirements identified]
 - **Design Decisions**: [Major design decisions made]
 
-**Implementation Plan**:
+**Implementation Plan**:\
 - **Phase 1**: [Phase description]
 - **Timeline**: [Expected timeline]
 
-**Ready for Operational Execution**:
+**Ready for Operational Execution**:\
 - **First Task**: [First task to implement]
 - **Success Criteria**: [How success will be measured]
 - **Blockers**: [Any potential blockers identified]
@@ -304,12 +331,12 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 
 **Purpose**: Overall project progress and metrics
 
-**Required Elements**:
+**Required Elements**:\
 - **Phase Progress**: Percentage completion for each phase
 - **Key Metrics**: Task completion, conflict resolution, system integration
 - **Next Milestones**: Upcoming important events
 
-**Format**:
+**Format**:\
 ```markdown
 ### **Overall Progress**
 - **Phase 1**: [X]% Complete ✅/🔄
@@ -328,11 +355,11 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 
 **Purpose**: Define measurable success outcomes
 
-**Required Elements**:
+**Required Elements**:\
 - **Phase Success Criteria**: Specific to each phase
 - **Overall Success Criteria**: Project-wide outcomes
 
-**Format**:
+**Format**:\
 ```markdown
 ### **Phase [X] Success Criteria**
 - [ ] Criterion 1
@@ -347,7 +374,7 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 
 ### **Status Indicators**
 
-Use consistent status indicators throughout the document:
+Use consistent status indicators throughout the document:\
 
 - **✅ COMPLETED**: Task or phase is finished
 - **🔄 IN PROGRESS**: Task or phase is currently being worked on
@@ -356,7 +383,7 @@ Use consistent status indicators throughout the document:
 
 ### **Priority Levels**
 
-Use consistent priority indicators:
+Use consistent priority indicators:\
 
 - **High**: Critical tasks that must be completed first
 - **Medium**: Important tasks that should be completed soon
@@ -364,7 +391,7 @@ Use consistent priority indicators:
 
 ### **Complexity Levels**
 
-Use consistent complexity indicators:
+Use consistent complexity indicators:\
 
 - **Level 1**: Simple tasks (Operational only)
 - **Level 2**: Medium complexity (Tactical → Operational)
@@ -372,7 +399,7 @@ Use consistent complexity indicators:
 
 ### **Mode Routes**
 
-Use consistent mode route indicators:
+Use consistent mode route indicators:\
 
 - **Operational Only**: Direct to Operational Mode
 - **Tactical → Operational**: Tactical planning, Operational execution
@@ -382,7 +409,7 @@ Use consistent mode route indicators:
 
 ### **When to Update**
 
-Update the document:
+Update the document:\
 
 1. **At the start of each mode transition**
 2. **When task status changes**
@@ -400,7 +427,7 @@ Update the document:
 
 ### **Integration with Unified Orchestrator Mode**
 
-The document integrates with the Unified Orchestrator Mode:
+The document integrates with the Unified Orchestrator Mode:\
 
 - **🎭 Strategic Mode**: Updates Strategic Context and overall approach
 - **🎨 Tactical Mode**: Updates Tactical Plan and design decisions
@@ -424,18 +451,18 @@ The document integrates with the Unified Orchestrator Mode:
 
 **Description**: Comprehensive code cleanup and refactoring session focusing on JavaScript modularization, CSS specificity optimization, and code organization improvements.
 
-**Subtasks**:
+**Subtasks**:\
 - [✅] **JavaScript Modularization**: Break down 4886-line monolithic file
   - [✅] Extract utility functions and helpers → **utils.js** created
   - [✅] Extract constants and configuration → **constants.js** created
   - [🔄] Create remaining business logic modules
 
-**Success Criteria**:
+**Success Criteria**:\
 - [🔄] JavaScript modularization complete (target: 4-6 files) → **4 core modules created**
 - [ ] CSS specificity optimization achieves 50% reduction
 - [ ] Code organization and readability significantly improved
 
-**Metrics & Measurement**:
+**Metrics & Measurement**:\
 - **File Size Reduction**: Target 15-20% reduction → **4 modules created, ~800 lines extracted**
 - **Complexity Reduction**: Target 30% reduction → **Modular structure reduces complexity**
 
@@ -451,52 +478,52 @@ The document integrates with the Unified Orchestrator Mode:
 **Status**: Complete
 **Ready for Next Mode**: Yes
 
-**Strategic Context**:
-- **Overall Approach**: Unified Orchestrator Mode with automatic role selection
-- **System Setup**: Single intelligent mode with 3 roles (Strategic/Tactical/Operational)
-- **Optimizations**: Token efficiency and intelligent integration
+**Strategic Context**:\
+- **Overall Approach**: [Strategic decisions and approach]
+- **System Setup**: [Tools and workflows configured]
+- **Optimizations**: [Process improvements implemented]
 
-**Tactical Context**:
-- **Requirements**: Code cleanup, refactoring, and optimization for immediate improvement
-- **Design Decisions**: Modular JavaScript architecture, CSS specificity reduction
-- **Architecture**: Maintainable, readable, and performant codebase
+**Tactical Context**:\
+- **Requirements**: [Key requirements identified]
+- **Design Decisions**: [Major design decisions made]
+- **Architecture**: [System architecture planned]
 
-**Implementation Plan**:
-- **Phase 1**: JavaScript Modularization (4886-line file breakdown)
-- **Phase 2**: CSS Specificity Optimization (50% reduction target)
-- **Timeline**: 1-2 days for complete implementation
+**Implementation Plan**:\
+- **Phase 1**: [Phase description]
+- **Phase 2**: [Phase description]
+- **Timeline**: [Expected timeline]
 
-**Ready for Operational Execution**:
-- **First Task**: Continue JavaScript modularization and complete remaining business logic modules
-- **Success Criteria**: Improved code maintainability, reduced complexity, better performance
-- **Blockers**: None identified
+**Ready for Operational Execution**:\
+- **First Task**: [First task to implement]
+- **Success Criteria**: [How success will be measured]
+- **Blockers**: [Any potential blockers identified]
 ```
 
 ## 📋 **BEST PRACTICES**
 
 ### **Documentation Quality**
 
-1. **Be Specific**: Provide detailed descriptions and context
-2. **Use Consistent Formatting**: Follow the template structure exactly
-3. **Update Regularly**: Keep the document current with project status
-4. **Include Metrics**: Add measurable outcomes and progress indicators
-5. **Maintain Hierarchy**: Use proper heading levels and organization
+1.  **Be Specific**: Provide detailed descriptions and context
+2.  **Use Consistent Formatting**: Follow the template structure exactly
+3.  **Update Regularly**: Keep the document current with project status
+4.  **Include Metrics**: Add measurable outcomes and progress indicators
+5.  **Maintain Hierarchy**: Use proper heading levels and organization
 
 ### **Task Management**
 
-1. **Break Down Large Tasks**: Divide complex tasks into manageable subtasks
-2. **Set Clear Success Criteria**: Define measurable outcomes for each task
-3. **Track Progress**: Update status indicators and progress percentages
-4. **Identify Blockers**: Document any issues preventing progress
-5. **Estimate Time**: Provide realistic time estimates and track actual progress
+1.  **Break Down Large Tasks**: Divide complex tasks into manageable subtasks
+2.  **Set Clear Success Criteria**: Define measurable outcomes for each task
+3.  **Track Progress**: Update status indicators and progress percentages
+4.  **Identify Blockers**: Document any issues preventing progress
+5.  **Estimate Time**: Provide realistic time estimates and track actual progress
 
 ### **Handoff Management**
 
-1. **Transfer Context**: Ensure all relevant information is passed between modes
-2. **Define Next Steps**: Clearly specify what needs to be done next
-3. **Set Expectations**: Define success criteria and timeline for next phase
-4. **Document Blockers**: Identify any issues that might prevent progress
-5. **Maintain Continuity**: Ensure smooth transitions between modes
+1.  **Transfer Context**: Ensure all relevant information is passed between modes
+2.  **Define Next Steps**: Clearly specify what needs to be done next
+3.  **Set Expectations**: Define success criteria and timeline for next phase
+4.  **Document Blockers**: Identify any issues that might prevent progress
+5.  **Maintain Continuity**: Ensure smooth transitions between modes
 
 ---
 
