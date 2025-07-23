@@ -42,22 +42,27 @@ export default defineConfig([
       "no-console": "warn" // Change to 'off' if you want to allow console logs
     }
   },
-  // Node.js override for build/automation scripts
+  // JavaScript files override (apps directory)
   {
-            files: ["apps/*.js", "apps/**/*.js"],
+    files: ["apps/**/*.js"],
     languageOptions: {
       globals: {
-        ...globals.node,
+        ...globals.browser,
         ...globals.es2021,
       },
       ecmaVersion: 2021,
       sourceType: "script",
     },
     rules: {
-      "@typescript-eslint/no-require-imports": "off",
-      "no-undef": "off",
-      "no-console": "off",
+      "@typescript-eslint/no-unused-vars": "off", // Disable TypeScript rule for JS files
+      "no-unused-vars": "warn", // Use regular ESLint rule instead
+      "no-undef": "off", // Allow undefined globals in browser context
+      "no-console": "off", // Allow console logs in app code
     }
   },
-  tseslint.configs.recommended
+  // TypeScript files
+  {
+    files: ["**/*.{ts,mts,cts}"],
+    ...tseslint.configs.recommended
+  }
 ]);

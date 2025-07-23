@@ -8,7 +8,6 @@
  * @param {string} [fontFamily='Segoe UI, system-ui, sans-serif'] - Optional font family for placeholder.
  * @returns {string} HTML string for the profile picture element.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 'Segoe UI, system-ui, sans-serif') {
   // Removed console.debug('[ProfilePicture] getProfilePictureHTML called:', { item, context });
   
@@ -218,3 +217,6 @@ function getPaletteKey(palette) {
   // Could not determine palette key, using default slate_gray
   return 'slate_gray'; // Final fallback
 }
+
+// Export for global access
+window.getProfilePictureHTML = getProfilePictureHTML;

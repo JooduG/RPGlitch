@@ -1,54 +1,51 @@
 // Dependency availability checks with retry mechanism
 function checkDependencies() {
-    window.isDexieLoaded = typeof window.Dexie !== 'undefined';
-    window.isDOMPurifyAvailable = typeof window.DOMPurify !== 'undefined';
-    window.isHyperscriptLoaded = typeof window._hyperscript !== 'undefined';
-    window.isCashDomLoaded = typeof window.$ !== 'undefined';
+    const dependencies = {
+        isDexieLoaded: typeof window.Dexie !== 'undefined',
+        isDOMPurifyAvailable: typeof window.DOMPurify !== 'undefined',
+        isHyperscriptLoaded: typeof window._hyperscript !== 'undefined',
+        isCashDomLoaded: typeof window.$ !== 'undefined'
+    };
     
-    // console.log('[DEBUG] Dependency check:', {
-    //   isDexieLoaded: window.isDexieLoaded,
-    //   isHyperscriptLoaded: window.isHyperscriptLoaded,
-    //   isCashDomLoaded: window.isCashDomLoaded,
-    //   isDOMPurifyAvailable: window.isDOMPurifyAvailable
-    // });
+    // Store on window for global access
+    Object.assign(window, dependencies);
     
-    return window.isDexieLoaded && window.isDOMPurifyAvailable && 
-           window.isHyperscriptLoaded && window.isCashDomLoaded;
-  }
-  
-  // Wait for dependencies to load with timeout
-  let dependencyCheckCount = 0;
-  const maxChecks = 50; // 5 seconds max wait
-  
-  function waitForDependencies() {
+    return Object.values(dependencies).every(Boolean);
+}
+
+// Wait for dependencies to load with timeout
+let dependencyCheckCount = 0;
+const maxChecks = 50; // 5 seconds max wait
+
+function waitForDependencies() {
     if (checkDependencies()) {
-      // console.log('[DEBUG] All dependencies loaded successfully');
-      initializeApp();
+        initializeApp();
     } else if (dependencyCheckCount < maxChecks) {
-      dependencyCheckCount++;
-      setTimeout(waitForDependencies, 100);
+        dependencyCheckCount++;
+        setTimeout(waitForDependencies, 100);
     } else {
-      console.error('[DEBUG] Dependency load timed out.', {
-        isDexieLoaded: window.isDexieLoaded,
-        isHyperscriptLoaded: window.isHyperscriptLoaded,
-        isCashDomLoaded: window.isCashDomLoaded,
-        isDOMPurifyAvailable: window.isDOMPurifyAvailable
-      });
-      alert('Application failed to load: essential components missing. Please ensure all scripts loaded correctly.\n\nMissing: ' + 
-            (!window.isDexieLoaded ? 'isDexieLoaded, ' : '') +
-            (!window.isDOMPurifyAvailable ? 'isDOMPurifyAvailable, ' : '') +
-            (!window.isHyperscriptLoaded ? 'isHyperscriptLoaded, ' : '') +
-            (!window.isCashDomLoaded ? 'isCashDomLoaded, ' : '').slice(0, -2));
+        const missing = Object.entries({
+            isDexieLoaded: window.isDexieLoaded,
+            isHyperscriptLoaded: window.isHyperscriptLoaded,
+            isCashDomLoaded: window.isCashDomLoaded,
+            isDOMPurifyAvailable: window.isDOMPurifyAvailable
+        })
+        .filter(([, loaded]) => !loaded)
+        .map(([name]) => name)
+        .join(', ');
+        
+        console.error('[DEBUG] Dependency load timed out. Missing:', missing);
+        alert(`Application failed to load: essential components missing. Please ensure all scripts loaded correctly.\n\nMissing: ${missing}`);
     }
-  }
-  
-  function initializeApp() {
+}
+
+function initializeApp() {
     if (window.App && typeof App.initializeWhenReady === 'function') {
-      App.initializeWhenReady();
+        App.initializeWhenReady();
     } else {
-      console.error('[DEBUG] App failed to initialize due to missing dependencies: App.initializeWhenReady not found');
+        console.error('[DEBUG] App failed to initialize due to missing dependencies: App.initializeWhenReady not found');
     }
-  }
+}
   
   const App = {
     
@@ -598,16 +595,14 @@ function checkDependencies() {
        */
       showTopNotification(message, type = 'info', duration = 3000) {
           // Determine which notification area to use based on the active screen
-          let notificationArea = null;
-          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBarNotificationArea) {
-            notificationArea = this.ui.profileTopBarNotificationArea;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBarNotificationArea) {
-            notificationArea = this.ui.worldProfileTopBarNotificationArea;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBarNotificationArea) {
-            notificationArea = this.ui.storyProfileTopBarNotificationArea;
-          } else {
-            notificationArea = document.getElementById('top-bar-notification-area');
-          }
+          const notificationAreaMap = {
+            [this.CONSTANTS.VIEWS.CHARACTER_PROFILE]: this.ui.profileTopBarNotificationArea,
+            [this.CONSTANTS.VIEWS.WORLD_PROFILE]: this.ui.worldProfileTopBarNotificationArea,
+            [this.CONSTANTS.VIEWS.STORY_PROFILE]: this.ui.storyProfileTopBarNotificationArea
+          };
+          
+          const notificationArea = notificationAreaMap[this.currentMainView] || 
+                                  document.getElementById('top-bar-notification-area');
           
           if (!notificationArea) {
               console.warn('Notification area not found for active screen:', this.currentMainView);
@@ -1044,33 +1039,35 @@ function checkDependencies() {
               return null;
           }
           
-          if (typeof id === 'string' && id.startsWith('premade_')) {
-              const actualPremadeId = id.substring(id.indexOf(':') + 1);
-              const items = await getPremadesFn();
-              const foundItem = items.find(item => item.id === actualPremadeId);
-              // console.log('[DEBUG] _getitemData premade lookup:', { actualPremadeId, foundItem, itemsCount: items.length });
-              
-              if (foundItem) {
-                  const basePremade = {
-                      eternal: '', past: '', present: '', future: '',
-                      ...foundItem, 
-                      isPremade: true, 
-                      originalPremadeId: foundItem.id, 
-                      id: id // Keep the full premade ID for later reference
-                  };
-                                      // console.log('[DEBUG] _getitemData returning premade:', basePremade);
-                  return basePremade;
+          try {
+              // Handle premade items
+              if (typeof id === 'string' && id.startsWith('premade_')) {
+                  const actualPremadeId = id.substring(id.indexOf(':') + 1);
+                  const items = await getPremadesFn();
+                  const foundItem = items.find(item => item.id === actualPremadeId);
+                  
+                  if (foundItem) {
+                      return {
+                          eternal: '', past: '', present: '', future: '',
+                          ...foundItem, 
+                          isPremade: true, 
+                          originalPremadeId: foundItem.id, 
+                          id: id // Keep the full premade ID for later reference
+                      };
+                  }
+                  return null;
               }
-                              // console.log('[DEBUG] _getitemData premade not found');
+              
+              // Handle database items
+              if ((typeof id === 'number' || (typeof id === 'string' && !isNaN(parseInt(id, 10)))) && this.db[dbTableKey]) {
+                  return await this.db[dbTableKey].get(parseInt(id, 10));
+              }
+              
+              return null;
+          } catch (error) {
+              console.error('[DEBUG] Error in _getitemData:', error);
               return null;
           }
-          if ((typeof id === 'number' || (typeof id === 'string' && !isNaN(parseInt(id, 10)))) && this.db[dbTableKey]) {
-              const result = await this.db[dbTableKey].get(parseInt(id, 10));
-              // console.log('[DEBUG] _getitemData database lookup:', { id, result });
-              return result;
-          }
-          // console.log('[DEBUG] _getitemData no match found');
-          return null;
       },
     
         /**
@@ -1090,23 +1087,38 @@ function checkDependencies() {
               return;
           }
           
-          const { dbTableKey, getPremadesFn } = config;
-          const allUserItems = await this.db[dbTableKey].toArray();
-          const fetchedItems = allUserItems
-            .filter(item => item.isDeleted !== true)
-            .sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0));
-          const premadeItemsRaw = await getPremadesFn();
-          const premadeItems = premadeItemsRaw.map(p => ({...p, isPremade: true}));
-          const combinedItems = [...fetchedItems, ...premadeItems];
-          const lowerSearchTerm = searchTerm.toLowerCase();
-          const itemsToDisplay = searchTerm
-              ? combinedItems.filter(item => (item.name || "").toLowerCase().includes(lowerSearchTerm))
-              : combinedItems;
-          listArea.innerHTML = '';
-          itemsToDisplay.forEach(item => {
-              const listItem = this._createListItem(item, config);
-              listArea.appendChild(listItem);
-          });
+          try {
+              const { dbTableKey, getPremadesFn } = config;
+              
+              // Fetch user items and premade items in parallel
+              const [allUserItems, premadeItemsRaw] = await Promise.all([
+                  this.db[dbTableKey].toArray(),
+                  getPremadesFn()
+              ]);
+              
+              // Process items
+              const fetchedItems = allUserItems
+                  .filter(item => item.isDeleted !== true)
+                  .sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0));
+              
+              const premadeItems = premadeItemsRaw.map(p => ({...p, isPremade: true}));
+              const combinedItems = [...fetchedItems, ...premadeItems];
+              
+              // Filter by search term
+              const itemsToDisplay = searchTerm
+                  ? combinedItems.filter(item => (item.name || "").toLowerCase().includes(searchTerm.toLowerCase()))
+                  : combinedItems;
+              
+              // Render items
+              listArea.innerHTML = '';
+              itemsToDisplay.forEach(item => {
+                  const listItem = this._createListItem(item, config);
+                  listArea.appendChild(listItem);
+              });
+          } catch (error) {
+              console.error('[DEBUG] Error in _populateList:', error);
+              listArea.innerHTML = '<p class="list-item-empty-message">Error loading items</p>';
+          }
           
           // Chin height is now handled automatically by flexbox layout
       },
@@ -2289,63 +2301,59 @@ function checkDependencies() {
     
       async waitForDependenciesAndInitializeApp() {
         const checkDependencies = () => {
-          const isDexieLoaded = window.Dexie !== undefined;
-          const isHyperscriptLoaded = window._hyperscript !== undefined;
-          const isCashDomLoaded = window.$ !== undefined;
-          const isDOMPurifyAvailable = window.DOMPurify !== undefined && typeof window.DOMPurify.sanitize === 'function';
-          return {
-            isDexieLoaded,
-            isHyperscriptLoaded,
-            isCashDomLoaded,
-            isDOMPurifyAvailable
+          const dependencies = {
+            isDexieLoaded: window.Dexie !== undefined,
+            isHyperscriptLoaded: window._hyperscript !== undefined,
+            isCashDomLoaded: window.$ !== undefined,
+            isDOMPurifyAvailable: window.DOMPurify !== undefined && typeof window.DOMPurify.sanitize === 'function'
           };
+          return dependencies;
         };
-  
-        const maxAttempts = 50; // Max 10 seconds (50 * 200ms)
-        let attempts = 0;
-  
-        return new Promise((resolve, reject) => {
-          // First, wait for DOM to be ready
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-              // Then start checking for dependencies
-              const interval = setInterval(() => {
-                const deps = checkDependencies();
-                if (deps.isDexieLoaded && deps.isHyperscriptLoaded && deps.isCashDomLoaded && deps.isDOMPurifyAvailable) {
-                  clearInterval(interval);
-                  // console.log("[DEBUG] All dependencies loaded successfully.");
-                  resolve();
-                } else {
-                  attempts++;
-                  if (attempts >= maxAttempts) {
-                    clearInterval(interval);
-                    console.error("[DEBUG] Dependency load timed out.", deps);
-                    const missing = Object.entries(deps).filter(([,v])=>!v).map(([key])=>key).join(", ");
-                    reject(new Error("Dependencies not loaded in time: " + missing));
-                  }
-                }
-              }, 200);
-            });
-          } else {
-            // DOM is already ready, start checking immediately
+
+        const waitForDOM = () => {
+          return new Promise((resolve) => {
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', resolve, { once: true });
+            } else {
+              resolve();
+            }
+          });
+        };
+
+        const waitForDependencies = () => {
+          return new Promise((resolve, reject) => {
+            const maxAttempts = 50; // Max 10 seconds (50 * 200ms)
+            let attempts = 0;
+
             const interval = setInterval(() => {
               const deps = checkDependencies();
-              if (deps.isDexieLoaded && deps.isHyperscriptLoaded && deps.isCashDomLoaded && deps.isDOMPurifyAvailable) {
+              const allLoaded = Object.values(deps).every(Boolean);
+              
+              if (allLoaded) {
                 clearInterval(interval);
-                // console.log("[DEBUG] All dependencies loaded successfully.");
                 resolve();
               } else {
                 attempts++;
                 if (attempts >= maxAttempts) {
                   clearInterval(interval);
-                  console.error("[DEBUG] Dependency load timed out.", deps);
-                  const missing = Object.entries(deps).filter(([,v])=>!v).map(([key])=>key).join(", ");
-                  reject(new Error("Dependencies not loaded in time: " + missing));
+                  const missing = Object.entries(deps)
+                    .filter(([, loaded]) => !loaded)
+                    .map(([name]) => name)
+                    .join(", ");
+                  reject(new Error(`Dependencies not loaded in time: ${missing}`));
                 }
               }
             }, 200);
-          }
-        });
+          });
+        };
+
+        try {
+          await waitForDOM();
+          await waitForDependencies();
+        } catch (error) {
+          console.error("[DEBUG] Dependency load failed:", error.message);
+          throw error;
+        }
       },
     
       async initializeWhenReady() {
@@ -2721,17 +2729,17 @@ function checkDependencies() {
     
       _getFormDataFromForm(elements) {
           const { nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
-          const paletteButton = elements.form.querySelector('.color-palette-button.selected');
-          const colorPalette = paletteButton ? paletteButton.dataset.paletteKey : 'slate_gray';
+          const paletteButton = elements.form?.querySelector('.color-palette-button.selected');
+          const colorPalette = paletteButton?.dataset.paletteKey ?? 'slate_gray';
     
           return {
-              name: nameInput?.value.trim() || '',
-              description: descriptionTextarea?.value.trim() || '',
-              eternal: eternalInput?.value.trim() || '',
-              past: pastInput?.value.trim() || '',
-              present: presentInput?.value.trim() || '',
-              future: futureInput?.value.trim() || '',
-              profilePicture: this.currentGeneratedProfilePictureDataUrl || '', // Use generated or current
+              name: nameInput?.value?.trim() ?? '',
+              description: descriptionTextarea?.value?.trim() ?? '',
+              eternal: eternalInput?.value?.trim() ?? '',
+              past: pastInput?.value?.trim() ?? '',
+              present: presentInput?.value?.trim() ?? '',
+              future: futureInput?.value?.trim() ?? '',
+              profilePicture: this.currentGeneratedProfilePictureDataUrl ?? '', // Use generated or current
               colorPalette: colorPalette
           };
       },
@@ -2739,19 +2747,27 @@ function checkDependencies() {
       async createMessage(role, content, characterId = null) {
           if (!this.activeStoryId) {
               console.error("Cannot create message: no active story.");
-              return;
+              return null;
           }
-          const newMessage = {
-              storyId: this.activeStoryId,
-              role: role,
-              content: content,
-              characterId: characterId, // ID of character who sent it (if role is character)
-              timestamp: Date.now(),
-              isHidden: false // For system messages, etc.
-          };
-          const messageId = await this.db.messages.add(newMessage);
-          await this.db.stories.update(this.activeStoryId, { lastMessageTimestamp: Date.now() });
-          return { ...newMessage, id: messageId };
+          
+          try {
+              const newMessage = {
+                  storyId: this.activeStoryId,
+                  role: role,
+                  content: content,
+                  characterId: characterId, // ID of character who sent it (if role is character)
+                  timestamp: Date.now(),
+                  isHidden: false // For system messages, etc.
+              };
+              
+              const messageId = await this.db.messages.add(newMessage);
+              await this.db.stories.update(this.activeStoryId, { lastMessageTimestamp: Date.now() });
+              
+              return { ...newMessage, id: messageId };
+          } catch (error) {
+              console.error("Error creating message:", error);
+              return null;
+          }
       },
     
       async sendButtonClickHandler() {
@@ -3341,23 +3357,35 @@ function checkDependencies() {
       },
     
       async updateStoryboardCard(selectElement, config) {
-          const selectedValue = selectElement.value;
-          const cardElement = (config.itemType === 'character' && selectElement.id === 'storyboard-ai-character-select') ? this.ui.storyboardAiCharacterCard :
-                              (config.itemType === 'character' && selectElement.id === 'storyboard-user-character-select') ? this.ui.storyboardUserCharacterCard :
-                              this.ui.storyboardWorldCard;
+          const selectedValue = selectElement?.value;
+          
+          // Determine card element based on select element ID
+          const cardElementMap = {
+              'storyboard-ai-character-select': this.ui.storyboardAiCharacterCard,
+              'storyboard-user-character-select': this.ui.storyboardUserCharacterCard,
+              'storyboard-world-select': this.ui.storyboardWorldCard
+          };
+          
+          const cardElement = cardElementMap[selectElement?.id] ?? this.ui.storyboardWorldCard;
     
           if (!selectedValue || selectedValue.startsWith('create_new_')) {
               this.clearStoryboardCard(cardElement, config);
               return;
           }
     
-          const item = await this._getitemData(selectedValue, config.dbTableKey, config.getPremadesFn, config.itemType);
-          if (item) {
-              this._renderStoryboardCard(cardElement, item, config);
-          } else {
+          try {
+              const item = await this._getitemData(selectedValue, config.dbTableKey, config.getPremadesFn, config.itemType);
+              if (item) {
+                  this._renderStoryboardCard(cardElement, item, config);
+              } else {
+                  this.clearStoryboardCard(cardElement, config);
+                  console.warn(`Item not found for ID: ${selectedValue} in ${config.itemType}`);
+              }
+          } catch (error) {
+              console.error('Error updating storyboard card:', error);
               this.clearStoryboardCard(cardElement, config);
-              console.warn(`Item not found for ID: ${selectedValue} in ${config.itemType}`);
           }
+          
           this.updateDynamicStoryboardTitle();
       },
     
@@ -3917,29 +3945,26 @@ function checkDependencies() {
       _getInitials(name) {
           if (!name) return '?';
           
-          // Remove quotation marks and split into words
-          const cleanName = name.replace(/['"]/g, '');
-          const words = cleanName.split(' ');
+          // Common words to skip (using Set for O(1) lookup)
+          const skipWords = new Set(['the', 'of', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'from', 'a', 'an']);
           
-          // Common words to skip (lowercase for comparison)
-          const skipWords = ['the', 'of', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'from', 'a', 'an'];
+          // Remove quotation marks, split into words, filter, and get initials
+          const initials = name
+              .replace(/['"]/g, '')
+              .split(' ')
+              .filter(word => word.length > 0 && !skipWords.has(word.toLowerCase()))
+              .map(word => word[0])
+              .join('')
+              .toUpperCase()
+              .slice(0, 3);
           
-          // Filter out common words and get initials
-          const filteredWords = words.filter(word => {
-              const lowerWord = word.toLowerCase();
-              return !skipWords.includes(lowerWord) && word.length > 0;
-          });
-          
-          // Get initials from filtered words (allow up to 3 initials)
-          const initials = filteredWords.map(w => w[0]).join('').toUpperCase().slice(0, 3);
-          
-          // If no initials found after filtering, fall back to original logic
+          // Fallback to original logic if no meaningful initials found
           return initials || name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 3);
       },
     
       _getPaletteColor(paletteKey, colorType) {
-          const palette = this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
-          return palette.colors[colorType] || '#607d8b'; // Default to slate_gray medium
+          const palette = this.CONSTANTS.COLOR_PALETTES[paletteKey] ?? this.CONSTANTS.COLOR_PALETTES.slate_gray;
+          return palette.colors[colorType] ?? '#607d8b'; // Default to slate_gray medium
       },
     
       _makeProfilePicturePlaceholderSVG(name, paletteKey, isPremade, itemId = null) {
@@ -4242,7 +4267,8 @@ function checkDependencies() {
               this._updateProfileTopBarUI(this.ui.storyProfileTopBar, this.currentStoryId, 'story');
             }
   
-        },
+        }
+      },
   
       async _updateProfileTopBarUI(topBarElement, itemId, itemType) {
         // console.log('[DEBUG] _updateProfileTopBarUI called for', itemType, 'with itemId', itemId);
@@ -4417,9 +4443,10 @@ function checkDependencies() {
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
             }
           };
-        }
-      },
-  
+                }
+      }
+    },
+
       /**
        * Initializes the application, setting up the database and initial UI state.
        * This is the main entry point for the app after dependencies are loaded.
@@ -4555,146 +4582,114 @@ function checkDependencies() {
                   timeoutId = setTimeout(() => func.apply(this, args), delay);
               };
           };
-  
-          // Stories search
-          const searchStoriesInput = document.getElementById('search-stories-input');
-          const searchStoriesForm = searchStoriesInput?.closest('form');
-          
-          if (searchStoriesInput) {
+
+          // Helper function to setup search handlers
+          const setupSearchHandler = (inputId, listId, populateFunction, config = null) => {
+              const searchInput = document.getElementById(inputId);
+              const searchForm = searchInput?.closest('form');
+              
+              if (!searchInput) return;
+              
               // Real-time search as user types
-              const debouncedStorySearch = debouncedSearch((searchTerm) => {
-                  const listEl = document.getElementById('chin-story-list');
-                  if (listEl) this._populateStoryList(listEl, searchTerm);
+              const debouncedSearchHandler = debouncedSearch((searchTerm) => {
+                  const listEl = document.getElementById(listId);
+                  if (listEl) {
+                      if (config) {
+                          this._populateList(listEl, searchTerm, config);
+                      } else {
+                          populateFunction.call(this, listEl, searchTerm);
+                      }
+                  }
               }, 300); // 300ms delay
               
-              searchStoriesInput.addEventListener('input', (e) => {
-                  debouncedStorySearch(e.target.value);
+              searchInput.addEventListener('input', (e) => {
+                  debouncedSearchHandler(e.target.value);
               });
               
               // Form submit handler (for search button or Enter key)
-              if (searchStoriesForm) {
-                  searchStoriesForm.addEventListener('submit', (e) => {
+              if (searchForm) {
+                  searchForm.addEventListener('submit', (e) => {
                       e.preventDefault();
-                      const searchTerm = searchStoriesInput.value;
-                      const listEl = document.getElementById('chin-story-list');
-                      if (listEl) this._populateStoryList(listEl, searchTerm);
+                      const searchTerm = searchInput.value;
+                      const listEl = document.getElementById(listId);
+                      if (listEl) {
+                          if (config) {
+                              this._populateList(listEl, searchTerm, config);
+                          } else {
+                              populateFunction.call(this, listEl, searchTerm);
+                          }
+                      }
                   });
               }
-          }
-  
-          // Characters search
-          const searchCharactersInput = document.getElementById('search-characters-input');
-          const searchCharactersForm = searchCharactersInput?.closest('form');
-          
-          if (searchCharactersInput) {
-              // Real-time search as user types
-              const debouncedCharacterSearch = debouncedSearch((searchTerm) => {
-                  const listEl = document.getElementById('chin-character-list');
-                  if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.character);
-              }, 300); // 300ms delay
-              
-              searchCharactersInput.addEventListener('input', (e) => {
-                  debouncedCharacterSearch(e.target.value);
-              });
-              
-              // Form submit handler (for search button or Enter key)
-              if (searchCharactersForm) {
-                  searchCharactersForm.addEventListener('submit', (e) => {
-                      e.preventDefault();
-                      const searchTerm = searchCharactersInput.value;
-                      const listEl = document.getElementById('chin-character-list');
-                      if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.character);
-                  });
-              }
-          }
-  
-          // Worlds search
-          const searchWorldsInput = document.getElementById('search-worlds-input');
-          const searchWorldsForm = searchWorldsInput?.closest('form');
-          
-          if (searchWorldsInput) {
-              // Real-time search as user types
-              const debouncedWorldSearch = debouncedSearch((searchTerm) => {
-                  const listEl = document.getElementById('chin-world-list');
-                  if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.world);
-              }, 300); // 300ms delay
-              
-              searchWorldsInput.addEventListener('input', (e) => {
-                  debouncedWorldSearch(e.target.value);
-              });
-              
-              // Form submit handler (for search button or Enter key)
-              if (searchWorldsForm) {
-                  searchWorldsForm.addEventListener('submit', (e) => {
-                      e.preventDefault();
-                      const searchTerm = searchWorldsInput.value;
-                      const listEl = document.getElementById('chin-world-list');
-                      if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.world);
-                  });
-    
-    // Global access for debugging/plugins if needed
-    window.App = App;
-    
-    // Auto-initialize when DOM is ready and dependencies are loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      if (!document.getElementById('top-bar-right')) {
-        console.warn('[DEBUG] top-bar-right not found at DOMContentLoaded!');
+          };
+
+          // Setup search handlers for different types
+          setupSearchHandler('search-stories-input', 'chin-story-list', this._populateStoryList);
+          setupSearchHandler('search-characters-input', 'chin-character-list', this._populateList, this.CONSTANTS.ITEM_CONFIG.character);
+          setupSearchHandler('search-worlds-input', 'chin-world-list', this._populateList, this.CONSTANTS.ITEM_CONFIG.world);
       }
-      // Start dependency checking process
-      waitForDependencies();
-    });
-  
-    // Add after updateTopBarUI definition
-  
-    // Helper to handle click outside chin overlays
-    App._handleChinOutsideClick = function(event) {
-      const chins = document.querySelectorAll('.top-bar-chin:not(.hidden)');
-      let clickedInsideChin = false;
-      chins.forEach(chin => {
-        if (chin.contains(event.target)) clickedInsideChin = true;
-      });
-      if (!clickedInsideChin) {
-        // Briefly disable the active tab button for visual feedback
-        const activeTabButton = document.querySelector('.top-bar-nav [data-tab][aria-selected="true"]');
-        if (activeTabButton) {
-          activeTabButton.disabled = true;
-          activeTabButton.style.opacity = '0.5';
-          activeTabButton.style.pointerEvents = 'none';
-          
-          // Re-enable after 100ms
-          setTimeout(() => {
-            activeTabButton.disabled = false;
-            activeTabButton.style.opacity = '';
-            activeTabButton.style.pointerEvents = '';
-          }, 100);
-        }
-        
-        App.focusBarState.chinOpen = false;
-        App.updateTopBarUI();
-        document.removeEventListener('mousedown', App._handleChinOutsideClick);
-      }
-    };
-  
-    // Patch updateTopBarUI to add/remove outside click listener
-    const _origUpdateTopBarUI = App.updateTopBarUI;
-    App.updateTopBarUI = function() {
-      _origUpdateTopBarUI.apply(this, arguments);
-      const anyChinOpen = this.focusBarState.chinOpen && ['storyboard-chin','character-workshop-chin','world-builder-chin','options-chin'].some(id => {
-        const el = document.getElementById(id);
-        return el && !el.classList.contains('hidden');
-      });
-      if (anyChinOpen) {
-        document.addEventListener('mousedown', App._handleChinOutsideClick);
-      } else {
-        document.removeEventListener('mousedown', App._handleChinOutsideClick);
-      }
-    };
-  
-    // Utility to get a valid palette key from an item
-    function getValidPaletteKey(item) {
-      return (item && typeof item.colorPalette === 'string' && item.colorPalette in App.CONSTANTS.COLOR_PALETTES)
-        ? item.colorPalette
-        : 'slate_gray';
-    }
   }
-}}}}}}
+};
+
+  // Global access for debugging/plugins if needed
+  window.App = App;
+  
+  // Auto-initialize when DOM is ready and dependencies are loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!document.getElementById('top-bar-right')) {
+      console.warn('[DEBUG] top-bar-right not found at DOMContentLoaded!');
+    }
+    // Start dependency checking process
+    waitForDependencies();
+  });
+
+  // Helper to handle click outside chin overlays
+  App._handleChinOutsideClick = function(event) {
+    const chins = document.querySelectorAll('.top-bar-chin:not(.hidden)');
+    let clickedInsideChin = false;
+    chins.forEach(chin => {
+      if (chin.contains(event.target)) clickedInsideChin = true;
+    });
+    if (!clickedInsideChin) {
+      // Briefly disable the active tab button for visual feedback
+      const activeTabButton = document.querySelector('.top-bar-nav [data-tab][aria-selected="true"]');
+      if (activeTabButton) {
+        activeTabButton.disabled = true;
+        activeTabButton.style.opacity = '0.5';
+        activeTabButton.style.pointerEvents = 'none';
+        
+        // Re-enable after 100ms
+        setTimeout(() => {
+          activeTabButton.disabled = false;
+          activeTabButton.style.opacity = '';
+          activeTabButton.style.pointerEvents = '';
+        }, 100);
+      }
+      
+      App.focusBarState.chinOpen = false;
+      App.updateTopBarUI();
+      document.removeEventListener('mousedown', App._handleChinOutsideClick);
+    }
+  };
+
+  // Patch updateTopBarUI to add/remove outside click listener
+  const _origUpdateTopBarUI = App.updateTopBarUI;
+  App.updateTopBarUI = function() {
+    _origUpdateTopBarUI.apply(this, arguments);
+    const anyChinOpen = this.focusBarState.chinOpen && ['storyboard-chin','character-workshop-chin','world-builder-chin','options-chin'].some(id => {
+      const el = document.getElementById(id);
+      return el && !el.classList.contains('hidden');
+    });
+    if (anyChinOpen) {
+      document.addEventListener('mousedown', App._handleChinOutsideClick);
+    } else {
+      document.removeEventListener('mousedown', App._handleChinOutsideClick);
+    }
+  };
+
+  // Utility to get a valid palette key from an item
+  function getValidPaletteKey(item) {
+    return (item && typeof item.colorPalette === 'string' && item.colorPalette in App.CONSTANTS.COLOR_PALETTES)
+      ? item.colorPalette
+      : 'slate_gray';
+  }
