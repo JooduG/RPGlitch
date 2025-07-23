@@ -1,11 +1,9 @@
 /* stylelint-disable no-descending-specificity */
 /* stylelint-disable declaration-block-single-line-max-declarations */
 
-/* Main RPGlitch Sass file */
-
-/* Pico CSS is loaded via CDN in HTML, so we only need custom styles here */
-
-
+/* ========================================
+   RPGLITCH MAIN STYLESHEET
+   ======================================== */
 
 /*
   Dash-case for all classes and IDs.
@@ -43,9 +41,9 @@ textarea,
   touch-action: manipulation;
 }
 
-/* Mouseover animations for clickable elements */
-
-/* Only show hover effects when element is clickable (not disabled) */
+/* ========================================
+   INTERACTIVE ELEMENTS & HOVER EFFECTS
+   ======================================== */
 
 /* Cards with click handlers - Elegant lift effect */
 .storyboard-card:not([disabled]):hover,
@@ -71,8 +69,6 @@ textarea,
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   margin-bottom: 1rem; /* Increase margin to push cards down more */
 }
-
-/* Note: .character-card-landscape selector already defined above - removing duplicate */
 
 /* Disabled cards - dramatic attention to dropdown area */
 .storyboard-card[disabled]:hover .card-title,
@@ -151,9 +147,11 @@ a:not([disabled]):hover {
               text-shadow 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* Automatic disabled styling for secondary disabled elements ONLY */
+/* ========================================
+   DISABLED STATE STYLING
+   ======================================== */
 
-/* This ensures secondary elements with disabled attribute look disabled, lets Pico handle everything else */
+/* Secondary disabled elements styling */
 [disabled].secondary {
   opacity: 0.3 !important;
   cursor: not-allowed !important;
@@ -173,27 +171,21 @@ a:not([disabled]):hover {
   color: inherit !important;
 }
 
-/* Pico CSS disabled styling for non-clickable elements */
-
-/* Let Pico handle the default disabled styling */
+/* General disabled styling */
 .disabled {
-  /* Keep Pico's natural disabled appearance */
   cursor: not-allowed !important;
   pointer-events: none !important;
   opacity: 0.5 !important;
   filter: grayscale(100%) !important;
 }
 
-/* Disabled state - no hover effects */
 .disabled:hover {
   transform: none !important;
   box-shadow: none !important;
   transition: none !important;
 }
 
-/* Let Pico handle disabled button styling naturally */
-
-/* Ensure disabled buttons don't have hover effects for secondary elements ONLY */
+/* Disabled button hover effects */
 button[disabled].secondary:hover,
 input[disabled]:hover,
 select[disabled]:hover,
@@ -206,13 +198,7 @@ label[disabled]:hover,
   color: inherit !important;
 }
 
-/* Let Pico handle disabled button styling naturally */
-
-/* Let Pico handle disabled button styling naturally */
-
 /* Special handling for storyboard cards with disabled attribute */
-
-/* These should still be clickable but show different hover effects */
 .storyboard-card[disabled],
 #storyboard-ai-character-card[disabled],
 #storyboard-user-character-card[disabled],
@@ -223,13 +209,24 @@ label[disabled]:hover,
   filter: none !important;
 }
 
-/* Proper cursor styles for different interactive elements */
+/* ========================================
+   CURSOR STYLES
+   ======================================== */
+
+/* Interactive elements - pointer cursor */
 button:not([disabled]),
 input[type="button"]:not([disabled]),
 input[type="submit"]:not([disabled]),
 [role="button"]:not([disabled]),
 label:not([disabled]),
-.upload-label:not([disabled]) {
+.upload-label:not([disabled]),
+.storyboard-card:not([disabled]),
+.character-card-landscape:not([disabled]),
+.story-profile-item-card:not([disabled]),
+.card-title-dropdown,
+.card-title-selected,
+.dropdown-option,
+a:not([disabled]) {
   cursor: pointer !important;
 }
 
@@ -260,32 +257,11 @@ input[type="file"] {
   cursor: text !important;
 }
 
-/* Cards - pointer cursor when clickable */
-.storyboard-card:not([disabled]),
-.character-card-landscape:not([disabled]),
-.story-profile-item-card:not([disabled]) {
-  cursor: pointer !important;
-}
-
-/* Dropdown elements - pointer cursor */
-.card-title-dropdown,
-.card-title-selected,
-.dropdown-option {
-  cursor: pointer !important;
-}
-
-/* Links - pointer cursor */
-a:not([disabled]) {
-  cursor: pointer !important;
-}
-
 /* Disabled elements - not allowed cursor */
 [disabled],
 .disabled {
   cursor: not-allowed !important;
 }
-
-/* Note: .storyboard-card[disabled]:hover selectors already defined above - removing duplicates */
 
 /* Ensure smooth transitions for all interactive elements */
 .storyboard-card,
@@ -320,14 +296,16 @@ a {
   }
 }
 
-/* Global reset for Pico.css focus styles */
+/* ========================================
+   FOCUS & DROPDOWN RESETS
+   ======================================== */
+
+/* Global focus reset */
 *:focus {
   outline: none !important;
-
-  /* Removed global box-shadow override to allow Pico's natural shadows */
 }
 
-/* Nuclear option: Remove ALL possible visual borders from dropdown elements */
+/* Dropdown border resets */
 .card-title-dropdown,
 .card-title-dropdown *,
 .card-title-selected,
@@ -347,7 +325,7 @@ a {
   -moz-outline: 0 !important;
 }
 
-/* Specific reset for card title elements */
+/* Card title dropdown resets */
 .card-title-dropdown *,
 .card-title-dropdown *:focus,
 .card-title-dropdown *:hover,
@@ -357,7 +335,7 @@ a {
   box-shadow: none !important;
 }
 
-/* Additional aggressive reset for the selected element */
+/* Selected element resets */
 .card-title-selected,
 .card-title-selected:focus,
 .card-title-selected:hover,
@@ -373,7 +351,7 @@ a {
   background: rgb(80 80 120 / 20%) !important;
 }
 
-/* Reset for dropdown options */
+/* Dropdown options resets */
 .card-title-dropdown-menu .dropdown-option,
 .card-title-dropdown-menu .dropdown-option:focus,
 .card-title-dropdown-menu .dropdown-option:hover,
@@ -383,36 +361,32 @@ a {
   box-shadow: none !important;
 }
 
-/* Ensure dropdown menu is above all other content */
+/* Dropdown positioning and overflow */
 .card-title-dropdown-menu {
   z-index: 9999999 !important;
   position: absolute !important;
 }
 
-/* Ensure card containers don't clip dropdowns */
-.storyboard-card,
-.storyboard-cards-row > article {
-  overflow: visible !important;
-  z-index: 1;
-  bottom: 0.5em;
-  left: 0;
-  position: relative; /* Ensure proper positioning context for dropdowns */
-}
-
-/* General card overflow for dropdowns */
-.card {
-  overflow: visible !important;
-  z-index: 1;
-  position: relative; /* Ensure proper positioning context for dropdowns */
-}
-
-/* Ensure dropdown container doesn't clip */
 .card-title-dropdown {
   overflow: visible !important;
   z-index: 10;
 }
 
-/* Final aggressive reset for any remaining border issues */
+/* Card overflow for dropdowns */
+.storyboard-card,
+.storyboard-cards-row > article,
+.card {
+  overflow: visible !important;
+  z-index: 1;
+  position: relative;
+}
+
+.storyboard-cards-row > article {
+  bottom: 0.5em;
+  left: 0;
+}
+
+/* Final border resets */
 .card-title-dropdown *,
 .card-title-dropdown-menu *,
 .card-title-selected,
@@ -424,7 +398,7 @@ a {
   padding: 0 !important;
 }
 
-/* Override any Pico.css button styles */
+/* Pico button overrides */
 .card-title-dropdown button,
 .card-title-dropdown-menu button {
   background: transparent !important;
@@ -435,7 +409,11 @@ a {
   margin: 0 !important;
 } 
 
-/* Consolidated Profile Pictures (Base class and common properties) */
+/* ========================================
+   PROFILE PICTURES & CHAT COMPONENTS
+   ======================================== */
+
+/* Profile picture base styles */
 .profile-picture { 
   background-position: center;
   background-size: cover;
@@ -444,18 +422,19 @@ a {
   object-fit: cover; 
 }
 
+/* Chat components */
 #chat-log {
-min-height: 200px;
-margin-bottom: 1rem;
-padding: 0.5rem;
-border-radius: var(--pico-radius);
-overflow: visible;
+  min-height: 200px;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border-radius: var(--pico-radius);
+  overflow: visible;
 }
 
 #chat-form {
-display: flex;
-gap: 0.5rem;
-align-items: flex-end;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
 }
 
 .chin-options-fields {
@@ -464,37 +443,32 @@ align-items: flex-end;
   gap: 0;
 }
 
-/* App-level scrolling - move scrollbar to full app level */
+/* ========================================
+   SCROLLING & CONTAINER MANAGEMENT
+   ======================================== */
+
+/* App-level scrolling */
 .app-scrollable-container {
   height: 100vh;
   overflow: hidden auto;
   margin: 0 !important;
-  padding: 1rem 0 0 !important; /* Add 1rem top padding for top bar spacing */
+  padding: 1rem 0 0 !important;
   max-width: 100vw !important;
   width: 100vw !important;
 }
 
-/* Disable main container scrolling when profile content overlay is visible */
 .app-scrollable-container:has(.profile-content-overlay) {
   overflow: hidden !important;
 }
 
-/* Ensure body and html don't add margins/padding */
-
-/* Note: body, html selector already defined above - removing duplicate */
-
-/* Remove any internal scrollable areas from profile content */
+/* Profile content overflow management */
 .profile-details-content-wrapper,
 .story-profile-layout-container,
-.middle-column-screen {
-  overflow: visible !important;
-  height: auto !important;
-}
-
-/* Ensure profile sections don't create scrollable areas */
+.middle-column-screen,
 .profile-section,
 .profile-hero-section {
   overflow: visible !important;
+  height: auto !important;
 }
 
 .main-content-container {
@@ -503,10 +477,9 @@ align-items: flex-end;
   overflow: visible !important;
 }
 
-/* === LAYOUT CSS ===
-   Only grid/flex/spacing/layout for major app sections.
-   No component-specific or atomic rules.
-*/
+/* ========================================
+   LAYOUT SYSTEM
+   ======================================== */
 
 .chin-top-row, .chin-list-grid {
   display: grid;
@@ -527,39 +500,41 @@ align-items: flex-end;
   --pico-dropdown-box-shadow: 0;
 }
 
-/* Ensure consistent card heights across all chin sections */
+/* Chin grid layouts */
 .chin-card {
-  min-height: 160px; /* 130px content + ~30px footer */
-  height: auto; /* Allow cards to expand naturally */
+  min-height: 160px;
+  height: auto;
 }
-.chin-top-row { margin-bottom: 1.5rem; }
+
+.chin-top-row { 
+  margin-bottom: 1.5rem; 
+}
 
 .chin-list-grid { 
   margin-bottom: 0; 
-  flex: 1; /* Take remaining space in flex container */
-  overflow: visible; /* Allow cards to be visible above other content */
-  max-height: 100%; /* Ensure it doesn't exceed container height */
-
-  /* Only show scrollbar when content exceeds 1 row */
-  min-height: 160px; /* 1 row: 160px cards */
-  z-index: 10; /* Ensure chin list cards appear above other content */
+  flex: 1;
+  overflow: visible;
+  max-height: 100%;
+  min-height: 160px;
+  z-index: 10;
 }
 
-.chin-card:hover { box-shadow: none; }
+.chin-card:hover { 
+  box-shadow: none; 
+}
 
-/* Layout containers */
+/* Chin area container */
 #chin-area {
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* Reduced gap for tighter spacing */
-  margin-top: 1rem; /* Reduced top margin */
+  gap: 1rem;
+  margin-top: 1rem;
   border-radius: 0 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem);
-  padding-bottom: 1rem; /* Reduced bottom padding */
-  padding-top: 1rem; /* Reduced top padding */
-  min-height: 190px; /* Single row: 170px grid + 20px padding */
+  padding: 1rem;
+  min-height: 190px;
 }
 
-/* Center 'No stories yet' across entire chin */
+/* Empty state styling */
 .chin-empty-centered {
   grid-column: 1 / -1;
   display: grid;
@@ -597,7 +572,7 @@ align-items: flex-end;
 /* Top bar chin positioning */
 .top-bar-chin {
   position: absolute;
-  top: calc(100% - 0.5rem); /* Position chin directly below the top bar */
+  top: calc(100% - 0.5rem);
   left: 0;
   right: 0;
   z-index: 2000;
@@ -609,15 +584,15 @@ align-items: flex-end;
   border-top-right-radius: 0 !important;
   border-bottom-left-radius: var(--pico-radius, 0.5rem);
   border-bottom-right-radius: var(--pico-radius, 0.5rem);
-  margin-top: 0; /* Remove negative margin */
-  padding-top: 0.5rem; /* Ensure padding is applied correctly */
-  min-height: 200px; /* Consistent minimum height for all chins */
-  height: auto; /* Allow chin to expand with content */
-  display: flex; /* Use flexbox to properly contain children */
-  flex-direction: column; /* Stack children vertically */
-  align-items: stretch; /* Ensure children stretch to full width */
+  margin-top: 0;
+  padding-top: 0.5rem;
+  min-height: 200px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 
-  /* Glass effect for chin */
+  /* Glass effect */
   background: rgb(35 36 58 / 85%) !important;
   backdrop-filter: blur(15px);
   border-bottom: 1px solid rgb(255 255 255 / 10%);
@@ -654,7 +629,11 @@ align-items: flex-end;
   color: var(--pico-muted-color, #aaa);
 }
 
-/* Search input placeholder styling for all search inputs */
+/* ========================================
+   SEARCH INPUT STYLING
+   ======================================== */
+
+/* Search input placeholders */
 #search-stories-input::placeholder,
 #search-characters-input::placeholder,
 #search-worlds-input::placeholder {
@@ -662,7 +641,7 @@ align-items: flex-end;
   opacity: 0.8;
 }
 
-/* Options chin text field placeholder styling */
+/* Options chin placeholders */
 .chin-options-actions input::placeholder,
 .chin-options-actions textarea::placeholder,
 .chin-options-grid input::placeholder,
@@ -671,7 +650,7 @@ align-items: flex-end;
   opacity: 0.8;
 }
 
-/* Add search icon to search inputs */
+/* Search input icons */
 #search-stories-input,
 #search-characters-input,
 #search-worlds-input {
@@ -746,16 +725,17 @@ article > header:not(.storyboard-card header) {
 
 
 
+/* ========================================
+   NAVIGATION STYLING
+   ======================================== */
+
 .top-bar-nav {
-  /* Only nav-specific rules here */
   padding: 1em;
 }
 
 .top-bar-nav.is-active {
-  display: flex !important; /* Force display to flex when active */
-
-  /* margin-bottom: 1rem; Restore margin */
-  z-index: 1000; /* Ensure it's above other content */
+  display: flex !important;
+  z-index: 1000;
 }
 
 #start-fresh-button.secondary {
@@ -788,7 +768,9 @@ nav {
   padding: 0 !important;
 }
 
-/* REMOVED: nav > button, .top-bar-nav button, .top-bar-section button - now uses global button system */
+/* ========================================
+   CHIN ACTIONS STYLING
+   ======================================== */
 
 .chin-actions {
   display: flex;
@@ -796,6 +778,8 @@ nav {
   gap: 1rem;
   flex-wrap: nowrap;
   justify-content: space-between;
+  margin-bottom: 1rem;
+  border-radius: var(--pico-radius);
 }
 
 .chin-actions-right {
@@ -822,67 +806,82 @@ nav {
   border: none;
 }
 
-.chin-actions,
-.chin-options-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1rem;
-  border-radius: var(--pico-radius);
-}
-
 .chin-options-actions {
   display: flex;
   gap: 1rem;
   align-items: center;
   margin-bottom: 0;
+  border-radius: var(--pico-radius);
 }
 
+/* ========================================
+   CARD STYLING
+   ======================================== */
+
+/* Base card styles */
 .character-card-landscape,
 .storyboard-card,
 .card,
 .card-picture,
 .chin-card {
   border-radius: var(--pico-radius) !important;
-  overflow: visible; /* Allow Premade tags to extend beyond card boundaries */
+  overflow: visible;
 }
 
-/* Ensure character cards in chin list have same height as storyboard cards */
+/* Chin list character cards */
 .chin-list-grid .character-card-landscape {
-  min-height: 160px; /* Match the updated chin-card height */
-  height: auto; /* Allow cards to expand naturally */
-  z-index: 100; /* Ensure chin list cards appear above other content */
-  position: relative; /* Required for z-index to work */
+  min-height: 160px;
+  height: auto;
+  z-index: 100;
+  position: relative;
 }
 
-/* Ensure chin cards have proper border radius on all corners */
+/* Character card border radius */
 .character-card-landscape {
   border-radius: var(--pico-radius) !important;
   border-top-left-radius: var(--pico-radius, 0.5rem) !important;
   border-bottom-left-radius: var(--pico-radius, 0.5rem) !important;
 }
 
+/* Card grid layout */
 .card-grid {
   display: grid;
   grid-template-columns: 3fr 2fr;
   align-items: stretch;
   gap: 1rem;
   height: 100%;
-  border-radius: var(--pico-radius, 0.5rem );
-  overflow: visible; /* Allow premade tags to extend beyond card boundaries */
+  border-radius: var(--pico-radius, 0.5rem);
+  overflow: visible;
 }
 
-/* Footer is now inside card-info, so it's part of the content area */
+.card-grid, .card-content {
+  gap: 0 !important;
+}
+
+/* Card info layout */
+.card-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  text-align: left;
+  height: 100%;
+  overflow: visible;
+  position: relative;
+  justify-content: space-between;
+}
+
+/* Card footer */
 .card-footer {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
   align-items: center;
   padding: 0.5rem 1rem;
-  margin-top: auto; /* Push to bottom of card-info */
-  box-shadow: none; /* Remove shadows */
-  width: 100%; /* Ensure footer doesn't extend beyond card-info */
-  box-sizing: border-box; /* Include padding in width calculation */
+  margin-top: auto;
+  box-shadow: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .card-footer button {
@@ -893,22 +892,7 @@ nav {
   color: var(--pico-button-color, #fff);
 }
 
-.card-grid, .card-content {
-  gap: 0 !important;
-}
-
-.card-info {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  text-align: left;
-  height: 100%;
-  overflow: visible; /* Allow Premade tags to extend beyond container */
-  position: relative; /* Ensure proper positioning context */
-  justify-content: space-between; /* Distribute content and footer */
-}
-
+/* Card header */
 .card-info header {
   margin: 0;
   padding: 0;
@@ -916,7 +900,7 @@ nav {
   font-weight: 600;
   line-height: 1.1;
   text-align: center;
-  border-radius: 0 var(--pico-radius, 0.5rem) 0 0; /* Round top-left and top-right */
+  border-radius: 0 var(--pico-radius, 0.5rem) 0 0;
 }
 
 .card-info h4 {
@@ -926,11 +910,11 @@ nav {
   line-height: 1.1;
   text-align: center;
   text-wrap: balance;
-  padding: 0.2em 0.6em; /* Same padding as premade tag */
+  padding: 0.2em 0.6em;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.5em; /* Ensure consistent height for vertical centering */
+  min-height: 2.5em;
 }
 
 .card-info p {
@@ -943,12 +927,13 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 3em; /* Ensure consistent height for vertical centering */
-  flex: 1; /* Take remaining space in flex container */
+  min-height: 3em;
+  flex: 1;
 }
 
 
 
+/* Card picture */
 .card-picture {
   display: flex;
   align-items: stretch;
@@ -977,26 +962,23 @@ nav {
 
 
 
-/* Specific rule for Chin List Profile Pictures (top-right and bottom-right corners only) */
+/* Card border radius rules */
 .character-card-landscape .card-picture .profile-picture {
-  border-radius: 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important; /* Top-right and bottom-right corners only */
+  border-radius: 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important;
 }
 
-/* Specific rule for Chin List Info Area (top-left and bottom-left corners only) */
 .character-card-landscape .card-info {
-  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important; /* Top-left and bottom-left corners only */
+  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;
   overflow: hidden !important;
 }
 
-/* Specific rule for Storyboard Card Info Area (top-right and bottom-right corners only) */
 .storyboard-card .card-info {
-  border-radius: 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important; /* Top-right and bottom-right corners only */
+  border-radius: 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important;
   overflow: hidden !important;
 }
 
-/* Removed conflicting .card-tag rule - using .card-info small instead */
 
-
+/* Card content layout */
 .card-content {
   display: grid;
   grid-template-columns: 35% 65%;
@@ -1024,8 +1006,6 @@ nav {
   background: #222;
 }
 
-/* Note: .card-info selector already defined above - removing duplicate */
-
 .card-title-selected .profile-dot {
   display: none !important;
 }
@@ -1033,6 +1013,10 @@ nav {
 .card-title {
   text-wrap: balance;
 }
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
 
 @media (width <= 600px) {
   .character-card-landscape {
@@ -1048,8 +1032,6 @@ nav {
   .card-picture {
     justify-content: center;
     margin-top: 1em;
-
-    /* height: 60px; */
   }
 
   .card-content {
@@ -1066,12 +1048,16 @@ nav {
   }
 }
 
+/* ========================================
+   ROOT VARIABLES & BASE STYLES
+   ======================================== */
+
 :root {
   color: #fff;
-
   --pico-radius: 0.5rem;
 }
 
+/* Border radius consistency */
 .button,
 .primary,
 .secondary,
@@ -1086,7 +1072,6 @@ textarea {
   border-radius: var(--pico-radius);
 }
 
-
 article {
   padding: 0;
   margin: 0;
@@ -1096,6 +1081,10 @@ article {
 #custom-story-js-textarea {
   margin: 0 !important;
 }
+
+/* ========================================
+   UPLOAD LABEL STYLING
+   ======================================== */
 
 .upload-label {
   display: inline-flex;
@@ -1113,7 +1102,7 @@ article {
   box-sizing: border-box;
   margin: 0;
 
-  /* Glass effect for upload buttons */
+  /* Glass effect */
   background: rgb(255 255 255 / 10%) !important;
   border-color: rgb(255 255 255 / 20%) !important;
   color: #fff !important;
@@ -1133,12 +1122,16 @@ article {
   display: none;
 }
 
+/* ========================================
+   SEARCH INPUT STYLING
+   ======================================== */
+
 .chin-actions input[type="search"] {
   height: auto;
-  padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em; /* extra left padding for icon */
+  padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em;
   border-radius: 999px 0 0 999px !important;
-  border: 1px solid rgb(255 255 255 / 20%) !important; /* Same border as buttons */
-  border-right: none !important; /* Remove right border to connect with button */
+  border: 1px solid rgb(255 255 255 / 20%) !important;
+  border-right: none !important;
   font-size: 1rem;
   box-sizing: border-box;
   display: inline-flex;
@@ -1146,14 +1139,14 @@ article {
   flex: none;
   margin: 0;
   width: auto;
-  transition: background 0.2s, border-color 0.2s; /* Same transition as buttons */
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .chin-actions button[type="submit"] {
   height: auto;
   padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em;
   border-radius: 0 999px 999px 0 !important;
-  border-left: none !important; /* Remove left border to connect with input */
+  border-left: none !important;
   font-size: 1rem;
   box-sizing: border-box;
   display: inline-flex;
@@ -1163,7 +1156,7 @@ article {
   min-width: 0;
 }
 
-/* Unified hover effects for search input and button */
+/* Search hover effects */
 .chin-actions input[type="search"]:hover {
   border-color: rgb(255 255 255 / 30%) !important;
 }
@@ -1173,20 +1166,16 @@ article {
   border-color: rgb(255 255 255 / 30%) !important;
 }
 
-/* When hovering search input, also highlight the button (border only) */
 .chin-actions input[type="search"]:hover + button[type="submit"] {
   background: rgb(255 255 255 / 20%) !important;
   border-color: rgb(255 255 255 / 30%) !important;
 }
 
-/* When hovering search button, also highlight the input (border only) */
 .chin-actions button[type="submit"]:hover ~ input[type="search"] {
   border-color: rgb(255 255 255 / 30%) !important;
 }
 
-/* REMOVED: .chin-search-submit styles - now uses global button system */
-
-/* Ensure search form fieldset doesn't add borders */
+/* Search form resets */
 .chin-actions fieldset[role="group"] {
   border: none !important;
   padding: 0 !important;
@@ -1197,7 +1186,6 @@ article {
   overflow: hidden !important;
 }
 
-/* Ensure the search form itself doesn't extend beyond the search bar */
 .chin-actions form {
   border: none !important;
   padding: 0 !important;
@@ -1205,10 +1193,6 @@ article {
   width: fit-content !important;
   overflow: hidden !important;
 }
-
-/* REMOVED: .chin-actions-right .secondary styles - now uses global button system */
-
-/* REMOVED: #options-chin .secondary styles - now uses global button system */
 
 .chin-options-grid {
   display: grid;
@@ -1247,7 +1231,11 @@ button,
   flex-direction: column;
 }
 
-/* Remove all gaps between storyboard cards */
+/* ========================================
+   STORYBOARD STYLING
+   ======================================== */
+
+/* Storyboard cards row */
 .storyboard-cards-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1269,7 +1257,7 @@ button,
   grid-gap: 0 !important;
 }
 
-/* Minimal, borderless, centered dropdown for storyboard cards */
+/* Storyboard dropdown styling */
 .storyboard-cards-row select {
   border: none;
   background: #23243a;
@@ -1288,10 +1276,11 @@ button,
   outline: none !important;
 }
 
-/* Hide the dropdown arrow for IE/Edge */
-.storyboard-cards-row select::-ms-expand { display: none; }
+/* Hide dropdown arrows */
+.storyboard-cards-row select::-ms-expand { 
+  display: none; 
+}
 
-/* Hide the dropdown arrow for Chrome, Safari, Edge */
 .storyboard-cards-row select::-webkit-inner-spin-button,
 .storyboard-cards-row select::-webkit-outer-spin-button,
 .storyboard-cards-row select::-webkit-search-cancel-button,
@@ -1299,37 +1288,24 @@ button,
   display: none;
 }
 
-/* Left-align dropdown options */
+/* Dropdown options */
 .storyboard-cards-row select option {
   text-align: left;
   color: #222;
 }
 
-/* Note: Multi-line options are not supported in native select. Use a custom dropdown for that feature. */
-
-/* Note: .card-title-dropdown selector already defined above - removing duplicate */
-  
-/* Note: All nested selectors removed - parent selector was duplicate */
 
 
 
-
-/* Note: #storyboard-title selector already defined above - removing duplicate */
-
-/* Note: #storyboard-title selectors already defined above - removing duplicates */
-
-/* Note: .card-title-selected selector already defined above - removing duplicate */
+/* Storyboard profile picture */
+.storyboard-cards-row .profile-picture {
+  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;
+}
 
 .card-title-dropdown-menu .dropdown-option {
   text-wrap: pretty;
   text-align: left;
 }
-
-.storyboard-cards-row .profile-picture {
-  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;
-}
-
-/* Note: .storyboard-cards-row selector already defined above - removing duplicate */
 
 
 
@@ -1399,9 +1375,17 @@ button,
 
 /* Note: .card-title-dropdown-menu selector already defined above - removing duplicate */
 
-/* Global rule: all text should have opacity 1 (excluding disabled elements) */
+/* ========================================
+   TEXT STYLING
+   ======================================== */
+
+/* Global text color */
 body, body *:not([disabled]) {
   opacity: 1 !important;
+  color: #fff !important;
+}
+
+body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-grid, .chin-actions, .chin-options-actions, .card-info, .card-info header, .card-info h4, .card-title-selected, .dropdown-option {
   color: #fff !important;
 }
 
@@ -1410,7 +1394,7 @@ body, body *:not([disabled]) {
   color: #fff !important;
 }
 
-/* Fix Premade tag positioning and styling */
+/* Premade tag styling */
 .card-info small {
   display: inline-block;
   background: var(--pico-primary, #0172ad);
@@ -1423,15 +1407,10 @@ body, body *:not([disabled]) {
   line-height: 1.2;
 }
 
-/* Make chin list premade tags match storyboard styling (italic and skinnier) */
+/* Chin list premade tags */
 .chin-list-grid .card-info small {
   font-style: italic;
-  font-weight: 400; /* Skinnier than the default 600 */
-}
-
-/* Ensure all text is white by default, except muted/disabled */
-body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-grid, .chin-actions, .chin-options-actions, .card-info, .card-info header, .card-info h4, .card-title-selected, .dropdown-option {
-  color: #fff !important;
+  font-weight: 400;
 }
 
 /* Ensure tooltips are visible and properly styled */
@@ -2375,27 +2354,29 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 
 /* Note: .top-bar-nav.is-active selector already defined above - removing duplicate */
 
-/* Only retain truly unique utility classes not in Pico */
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
 
 .visually-hidden {
   position: absolute !important;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0,0,0,0);
+  width: 1px; 
+  height: 1px;
+  padding: 0; 
+  margin: -1px;
+  overflow: hidden; 
+  clip: rect(0,0,0,0);
   border: 0;
 } 
 
-/* Moved to the end for specificity */
 .hidden {
-    display: none !important;
+  display: none !important;
 }
 
-/* Moved to the end for specificity */
 #options-chin {
   display: none !important;
 }
 
-/* Moved to the end for specificity */
 #options-chin:not(.hidden) {
   display: flex !important;
 }
