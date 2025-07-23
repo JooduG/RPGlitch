@@ -384,6 +384,9 @@ a {
 .storyboard-cards-row > article {
   bottom: 0.5em;
   left: 0;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 0;
 }
 
 /* Final border resets */
@@ -1054,6 +1057,7 @@ nav {
 
 :root {
   color: #fff;
+
   --pico-radius: 0.5rem;
 }
 
@@ -1245,11 +1249,7 @@ button,
   padding: 0;
 }
 
-.storyboard-cards-row > article {
-  margin: 0;
-  padding: 0;
-  flex: 1 1 0;
-}
+
 
 /* Remove grid gap from storyboard area */
 #storyboard-scrollable-content .grid {
@@ -1856,23 +1856,24 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   scrollbar-color: rgb(255 255 255 / 30%) transparent;
   
   /* Webkit scrollbar styling */
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: rgb(255 255 255 / 30%);
-    border-radius: 4px;
-    transition: background 0.2s ease;
-  }
-  
-  &::-webkit-scrollbar-thumb:hover {
-    background: rgb(255 255 255 / 50%);
-  }
+}
+
+.profile-content-overlay::-webkit-scrollbar {
+  width: 8px;
+}
+
+.profile-content-overlay::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.profile-content-overlay::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 30%);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.profile-content-overlay::-webkit-scrollbar-thumb:hover {
+  background: rgb(255 255 255 / 50%);
 }
 
 .profile-content-container {
@@ -2418,9 +2419,18 @@ button.secondary,
   outline: none;
   
   /* Override Pico's margin-bottom on buttons with type attributes */
-  &[type="button"], &[type="reset"], &[type="submit"] {
-    margin-bottom: 0 !important;
-  }
+}
+
+button.secondary[type="button"],
+button.secondary[type="reset"],
+button.secondary[type="submit"],
+.button.secondary[type="button"],
+.button.secondary[type="reset"],
+.button.secondary[type="submit"],
+[role="button"].secondary[type="button"],
+[role="button"].secondary[type="reset"],
+[role="button"].secondary[type="submit"] {
+  margin-bottom: 0 !important;
 }
 
 /* Button hover state - applies ONLY to secondary buttons */
