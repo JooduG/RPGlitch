@@ -127,6 +127,7 @@ These rules are specific to the current project or workspace, stored in the `.cu
   * **Source:** Defined by the user or project maintainers within specific rule files (e.g., `.mdc` files in `.cursor/rules/`).
   * **Importance:** Important for adapting the AI's behavior to project-specific needs without being constantly active. They are activated on demand.
   * **What they should say:** Context-specific guidelines like "context-management" (how to handle context window usage), "context7-auto-docs" (when to use a specific documentation tool), or "enhanced-error-handling" (how to diagnose and fix errors). Requires a `description` field in its frontmatter.
+    *   **Note on `globs` for Agent Requested Rules:** While an Agent Requested rule's primary activation is through its `description` (the AI deciding to include it), it **can also contain `globs`**. If `globs` are present, the rule will *also* be automatically attached when files matching those patterns are referenced. This creates a powerful "hybrid" rule, offering both agent discoverability via `description` and automatic context loading via `globs`. This provides both deterministic application where relevant and broad guidance when sought.
 
 * **Always:**
   * **What they are:** Always included in the AI model's context when the rule's glob pattern matches. They define project-level standards, conventions, and non-negotiables that the AI must *always* follow within that project.

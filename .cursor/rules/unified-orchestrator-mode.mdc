@@ -1,6 +1,5 @@
 ---
-description: Unified Orchestrator Mode - Single Cursor custom mode that automatically invokes Strategic, Tactical, and Operational roles based on task complexity, providing seamless development workflow with unified context and optimal performance.
-alwaysApply: false
+alwaysApply: true
 ---
 # 🎯 UNIFIED ORCHESTRATOR MODE
 
