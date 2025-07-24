@@ -1,51 +1,48 @@
 // Dependency availability checks with retry mechanism
 function checkDependencies() {
-    const dependencies = {
-        isDexieLoaded: typeof window.Dexie !== 'undefined',
-        isDOMPurifyAvailable: typeof window.DOMPurify !== 'undefined',
-        isHyperscriptLoaded: typeof window._hyperscript !== 'undefined',
-        isCashDomLoaded: typeof window.$ !== 'undefined'
-    };
-    
-    // Store on window for global access
-    Object.assign(window, dependencies);
-    
-    return Object.values(dependencies).every(Boolean);
-}
+    window.isDexieLoaded = typeof window.Dexie !== 'undefined';
+    window.isDOMPurifyAvailable = typeof window.DOMPurify !== 'undefined';
+    window.isHyperscriptLoaded = typeof window._hyperscript !== 'undefined';
+    window.isCashDomLoaded = typeof window.$ !== 'undefined';
 
-// Wait for dependencies to load with timeout
-let dependencyCheckCount = 0;
-const maxChecks = 50; // 5 seconds max wait
-
-function waitForDependencies() {
+    return window.isDexieLoaded && window.isDOMPurifyAvailable && 
+           window.isHyperscriptLoaded && window.isCashDomLoaded;
+  }
+  
+  // Wait for dependencies to load with timeout
+  let dependencyCheckCount = 0;
+  const maxChecks = 50; // 5 seconds max wait
+  
+  function waitForDependencies() {
     if (checkDependencies()) {
-        initializeApp();
+      
+      initializeApp();
     } else if (dependencyCheckCount < maxChecks) {
-        dependencyCheckCount++;
-        setTimeout(waitForDependencies, 100);
+      dependencyCheckCount++;
+      setTimeout(waitForDependencies, 100);
     } else {
-        const missing = Object.entries({
-            isDexieLoaded: window.isDexieLoaded,
-            isHyperscriptLoaded: window.isHyperscriptLoaded,
-            isCashDomLoaded: window.isCashDomLoaded,
-            isDOMPurifyAvailable: window.isDOMPurifyAvailable
-        })
-        .filter(([, loaded]) => !loaded)
-        .map(([name]) => name)
-        .join(', ');
-        
-        console.error('[DEBUG] Dependency load timed out. Missing:', missing);
-        alert(`Application failed to load: essential components missing. Please ensure all scripts loaded correctly.\n\nMissing: ${missing}`);
+      // Cleaned up error log for production
+      console.error('Dependency load timed out.', {
+        isDexieLoaded: window.isDexieLoaded,
+        isHyperscriptLoaded: window.isHyperscriptLoaded,
+        isCashDomLoaded: window.isCashDomLoaded,
+        isDOMPurifyAvailable: window.isDOMPurifyAvailable
+      });
+      alert('Application failed to load: essential components missing. Please ensure all scripts loaded correctly.\n\nMissing: ' + 
+            (!window.isDexieLoaded ? 'isDexieLoaded, ' : '') +
+            (!window.isDOMPurifyAvailable ? 'isDOMPurifyAvailable, ' : '') +
+            (!window.isHyperscriptLoaded ? 'isHyperscriptLoaded, ' : '') +
+            (!window.isCashDomLoaded ? 'isCashDomLoaded, ' : '').slice(0, -2));
     }
-}
-
-function initializeApp() {
+  }
+  
+  function initializeApp() {
     if (window.App && typeof App.initializeWhenReady === 'function') {
-        App.initializeWhenReady();
+      App.initializeWhenReady();
     } else {
-        console.error('[DEBUG] App failed to initialize due to missing dependencies: App.initializeWhenReady not found');
+      console.error('App failed to initialize due to missing dependencies: App.initializeWhenReady not found');
     }
-}
+  }
   
   const App = {
     
@@ -133,8 +130,8 @@ function initializeApp() {
                       pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
                       presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
-  
-  ,
+                  }
+              },
               characterAi: {
                   itemType: 'character',
                   dbTableKey: 'characters',
@@ -155,7 +152,7 @@ function initializeApp() {
                       pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
                       presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
-  
+                  }
               },
               characterUser: {
                   itemType: 'character',
@@ -206,7 +203,7 @@ function initializeApp() {
     
         _query(id, required = false) {
             const el = document.getElementById(id);
-            // console.log(`[DEBUG][_query] Attempting to find element with ID: ${id}. Found: ${!!el}`);
+            
             if (!el && required) {
                 console.error(`[UI Critical] Element with ID '${id}' not found.`);
             } else if (!el) {
@@ -220,7 +217,7 @@ function initializeApp() {
          * Should be called once after DOM is ready.
          */
         _getUIElements() {
-            // console.log('[DEBUG][_getUIElements] Starting UI element query.');
+            
             this._getTopBarElements();
             this._getChinElements();
             this._getCoreUIContainers();
@@ -234,8 +231,8 @@ function initializeApp() {
             if (!this.ui.main) {
                 console.error("[App Critical] #main container not found after UI element query!");
             }
-            // console.log('[DEBUG] UI elements loaded. TopBarRight:', this.ui.topBarRight, 'ProfileTopBar:', this.ui.profileTopBar);
-            // console.log('[DEBUG][_getUIElements] Finished UI element query.');
+            
+            
         },
     
         _getTopBarElements() {
@@ -264,10 +261,10 @@ function initializeApp() {
         },
     
         _getChinElements() {
-            this.ui.storyboardChin = this._query('chin-story');
-            this.ui.characterWorkshopChin = this._query('chin-character');
-            this.ui.worldBuilderChin = this._query('chin-world');
-            this.ui.optionsChin = this._query('chin-options');
+            this.ui.storyboardChin = this._query('storyboard-chin');
+            this.ui.characterWorkshopChin = this._query('character-workshop-chin');
+            this.ui.worldBuilderChin = this._query('world-builder-chin');
+            this.ui.optionsChin = this._query('options-chin');
         },
     
         _getCoreUIContainers() {
@@ -564,11 +561,11 @@ function initializeApp() {
        * @returns {HTMLElement|null}
        */
       hideEl(el) {
-        console.log('=== [DEBUG HIDEEL] ===', el && el.id, el);
+        // Debug: Element hide operation
         if (el) {
           el.classList.add('hidden'); // Add the hidden class
           el.style.display = 'none';
-          // console.log('[DEBUG] hideEl called for', el.id);
+          
         }
       },
       
@@ -595,14 +592,16 @@ function initializeApp() {
        */
       showTopNotification(message, type = 'info', duration = 3000) {
           // Determine which notification area to use based on the active screen
-          const notificationAreaMap = {
-            [this.CONSTANTS.VIEWS.CHARACTER_PROFILE]: this.ui.profileTopBarNotificationArea,
-            [this.CONSTANTS.VIEWS.WORLD_PROFILE]: this.ui.worldProfileTopBarNotificationArea,
-            [this.CONSTANTS.VIEWS.STORY_PROFILE]: this.ui.storyProfileTopBarNotificationArea
-          };
-          
-          const notificationArea = notificationAreaMap[this.currentMainView] || 
-                                  document.getElementById('top-bar-notification-area');
+          let notificationArea = null;
+          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBarNotificationArea) {
+            notificationArea = this.ui.profileTopBarNotificationArea;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBarNotificationArea) {
+            notificationArea = this.ui.worldProfileTopBarNotificationArea;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBarNotificationArea) {
+            notificationArea = this.ui.storyProfileTopBarNotificationArea;
+          } else {
+            notificationArea = document.getElementById('top-bar-notification-area');
+          }
           
           if (!notificationArea) {
               console.warn('Notification area not found for active screen:', this.currentMainView);
@@ -630,9 +629,9 @@ function initializeApp() {
       _premadeCharacterCache: null,
     
       async getPremadeCharacterItems() { 
-          // console.log('[DEBUG] getPremadeCharacterItems called');
+    
           if (this._premadeCharacterCache) {
-              // console.log('[DEBUG] Returning cached character items');
+        
               return this._premadeCharacterCache;
           }
           const db = this.db;
@@ -714,7 +713,7 @@ function initializeApp() {
             ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
             ...premadeWithFlag
           ];
-          // console.log('[DEBUG] getPremadeCharacterItems: Merged data for UI:', merged);
+    
           this._premadeCharacterCache = merged;
           return this._premadeCharacterCache;
       },
@@ -724,9 +723,9 @@ function initializeApp() {
       _premadeWorldCache: null,
     
       async getPremadeWorldItems() {
-          // console.log('[DEBUG] getPremadeWorldItems called');
+    
           if (this._premadeWorldItemsCache) {
-              // console.log('[DEBUG] Using cached premade world items, count:', this._premadeWorldItemsCache.length);
+        
               return this._premadeWorldItemsCache;
           }
           const db = this.db;
@@ -766,8 +765,8 @@ function initializeApp() {
             ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
             ...premadeWithFlag
           ];
-                  // console.log('[DEBUG] getPremadeWorldItems: Merged data for UI:', merged);
-        // console.log('[DEBUG] First few worlds:', merged.slice(0, 3).map(w => ({ id: w.id, name: w.name, colorPalette: w.colorPalette })));
+            
+  
           this._premadeWorldItemsCache = merged;
           return this._premadeWorldItemsCache;
       },
@@ -856,9 +855,9 @@ function initializeApp() {
       },
     
       async initialLoad() {
-          console.log('=== [DEBUG INITIAL LOAD START] ==='); // Added log
-          console.log("=== App.initialLoad called ===");
-          // console.log("[DEBUG] _getUIElements called, this.ui.main:", this.ui.main, "this.ui.initialPageLoadingModal:", this.ui.initialPageLoadingModal);
+          // Debug: Initial load started
+          // App.initialLoad called
+    
           this.isInitializing = true;
     
           // Initialize navigation guard system
@@ -882,14 +881,14 @@ function initializeApp() {
           }
     
           this.showEl(this.ui.main);
-                      // console.log("[DEBUG] showEl(this.ui.main) called");
+                
     
           try {
-                              // console.log("[DEBUG] Attempting to initializeDb..."); // Added log
+                        
               await this.initializeDb();
-                              // console.log("[DEBUG] initializeDb complete");
+                        
               const appState = await this.getAppState();
-                              // console.log("[DEBUG] getAppState complete");
+                        
               this.currentUserCharacterId = appState.currentUserCharacterId;
               this.currentStoryId = appState.lastOpenedStoryId; 
               this.activeStoryId = appState.activeStoryId; 
@@ -908,7 +907,7 @@ function initializeApp() {
               };
               document.addEventListener('click', () => {
                       if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover');
-              });
+                  });
               // Bind menu button click handler directly to avoid onclick attribute issues
               if (this.ui.menuButton) {
                   // Menu button functionality will be implemented later
@@ -916,7 +915,7 @@ function initializeApp() {
               this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
               
               await this._updateCharacterInfo('user');
-                              // console.log("[DEBUG] _updateCharacterInfo complete");
+                        
     
               let initialScreenTarget = this.CONSTANTS.VIEWS.STORYBOARD;
               let initialScreenOptions = {};
@@ -937,9 +936,9 @@ function initializeApp() {
                           }
                           recoveredFromSessionStorage = true;
                           sessionStorage.removeItem('pendingRPGlitchFormState'); 
-                          console.log("[App Lifecycle] Recovered pending form state from sessionStorage:", parsedState.formOptions.isCreating ? "Copy workflow" : "Edit workflow");
+                          // Recovered pending form state from sessionStorage
                       } else {
-                          console.log("[App Lifecycle] Stale or invalid pending form state in sessionStorage. Removing.");
+                          // Stale or invalid pending form state in sessionStorage. Removing.
                           sessionStorage.removeItem('pendingRPGlitchFormState'); 
                       }
                   } catch (e) {
@@ -972,13 +971,13 @@ function initializeApp() {
               
               if (initialScreenTarget === this.CONSTANTS.VIEWS.STORY_INTERFACE && this.activeStoryId) { 
                    await this.openStory(this.activeStoryId);
-                                       // console.log("[DEBUG] openStory complete");
+                                 
               } else {
                    await this.switchToScreen(initialScreenTarget, initialScreenOptions);
-                                       // console.log("[DEBUG] switchToScreen complete");
+                                 
               }
     
-                              // console.log("[DEBUG] Loading characters and worlds into App.data..."); // Added log
+                        
               // Load all characters and worlds from the database before setting App.data
               this.data = {
                 characters: await this.db.characters.toArray(),
@@ -987,87 +986,85 @@ function initializeApp() {
     
               // Ensure App.data is set for dropdown population
               App.data = this.data;
-                              // console.log('[DEBUG] App.data set:', App.data && Object.keys(App.data)); // Existing log, now more crucial
-                // console.log('[DEBUG] App.data.characters:', App.data && App.data.characters);
-                // console.log('[DEBUG] App.data.worlds:', App.data && App.data.worlds);
+                        
+          
+          
     
               // Atomic fix: Populate dropdowns immediately after data is set
               if (typeof this._updateStoryboard === 'function') {
-                                      // console.log('[DEBUG] Calling _updateStoryboard from initialLoad...'); // Added log
+                                
                   await this._updateStoryboard();
-                                      // console.log('[DEBUG] _updateStoryboard complete in initialLoad'); // Added log
+                                
               }
     
               this.hideEl(this.ui.initialPageLoadingModal);
-                              // console.log("[DEBUG] hideEl(this.ui.initialPageLoadingModal) called");
-              console.log("[App Lifecycle] initialLoad completed.");
+                        
+              // Initial load completed
     
           } catch (error) {
               console.error("[App Lifecycle] Error during initialLoad:", error);
               this.showEl(this.ui.emergencyExportCtn);
               this.hideEl(this.ui.initialPageLoadingModal);
-                              // console.log("[DEBUG] Error caught in initialLoad:", error);
+                        
           } finally {
               this.isInitializing = false;
               this.checkAllButtonStates();
               // Ensure right-side buttons are rendered and functional on initial load for Storyboard
               this.updateTopBarUI();
-                              // console.log('=== [DEBUG INITIAL LOAD END] ===');
-                // console.log('[DEBUG] Initial load complete. Current focusBarState.mode:', this.focusBarState.mode);
+                        
+          
           }
           // ... existing code ...
           if (this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD && typeof this._updateStoryboard === 'function') {
-            // console.log('[DEBUG] Data loaded and screen switched, calling _updateStoryboard');
+      
             await this._updateStoryboard();
           }
           // Force hide loading modal in case of silent failure
           if (this.ui && this.ui.initialPageLoadingModal) {
             this.hideEl(this.ui.initialPageLoadingModal);
-            console.log("=== Forced hide of loading modal ===");
+            // Forced hide of loading modal
           }
           if (!this.storyboardSelected) {
             this.storyboardSelected = { ai: '', user: '', world: '' };
           }
-        },
+      },
       
       async _getitemData(id, dbTableKey, getPremadesFn) {
-          // console.log('[DEBUG] _getitemData called with:', { id, dbTableKey });
+    
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('[DEBUG] Database not initialized yet, skipping _getitemData');
+              console.warn('Database not initialized yet, skipping _getitemData');
               return null;
           }
           
-          try {
-              // Handle premade items
-              if (typeof id === 'string' && id.startsWith('premade_')) {
-                  const actualPremadeId = id.substring(id.indexOf(':') + 1);
-                  const items = await getPremadesFn();
-                  const foundItem = items.find(item => item.id === actualPremadeId);
-                  
-                  if (foundItem) {
-                      return {
-                          eternal: '', past: '', present: '', future: '',
-                          ...foundItem, 
-                          isPremade: true, 
-                          originalPremadeId: foundItem.id, 
-                          id: id // Keep the full premade ID for later reference
-                      };
-                  }
-                  return null;
-              }
+          if (typeof id === 'string' && id.startsWith('premade_')) {
+              const actualPremadeId = id.substring(id.indexOf(':') + 1);
+              const items = await getPremadesFn();
+              const foundItem = items.find(item => item.id === actualPremadeId);
+        
               
-              // Handle database items
-              if ((typeof id === 'number' || (typeof id === 'string' && !isNaN(parseInt(id, 10)))) && this.db[dbTableKey]) {
-                  return await this.db[dbTableKey].get(parseInt(id, 10));
+              if (foundItem) {
+                  const basePremade = {
+                      eternal: '', past: '', present: '', future: '',
+                      ...foundItem, 
+                      isPremade: true, 
+                      originalPremadeId: foundItem.id, 
+                      id: id // Keep the full premade ID for later reference
+                  };
+                                
+                  return basePremade;
               }
-              
-              return null;
-          } catch (error) {
-              console.error('[DEBUG] Error in _getitemData:', error);
+                        
               return null;
           }
+          if ((typeof id === 'number' || (typeof id === 'string' && !isNaN(parseInt(id, 10)))) && this.db[dbTableKey]) {
+              const result = await this.db[dbTableKey].get(parseInt(id, 10));
+        
+              return result;
+          }
+    
+          return null;
       },
     
         /**
@@ -1077,48 +1074,33 @@ function initializeApp() {
          */
      
       async _populateList(listArea, searchTerm = '', config) {
-          // console.log('[DEBUG] _populateList called for:', config.itemType); // Added log
+    
           if (!listArea || !config) return;
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('[DEBUG] Database not initialized yet, skipping _populateList');
+              console.warn('Database not initialized yet, skipping _populateList');
               listArea.innerHTML = '<p class="list-item-empty-message">Loading...</p>';
               return;
           }
           
-          try {
-              const { dbTableKey, getPremadesFn } = config;
-              
-              // Fetch user items and premade items in parallel
-              const [allUserItems, premadeItemsRaw] = await Promise.all([
-                  this.db[dbTableKey].toArray(),
-                  getPremadesFn()
-              ]);
-              
-              // Process items
-              const fetchedItems = allUserItems
-                  .filter(item => item.isDeleted !== true)
-                  .sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0));
-              
-              const premadeItems = premadeItemsRaw.map(p => ({...p, isPremade: true}));
-              const combinedItems = [...fetchedItems, ...premadeItems];
-              
-              // Filter by search term
-              const itemsToDisplay = searchTerm
-                  ? combinedItems.filter(item => (item.name || "").toLowerCase().includes(searchTerm.toLowerCase()))
-                  : combinedItems;
-              
-              // Render items
-              listArea.innerHTML = '';
-              itemsToDisplay.forEach(item => {
-                  const listItem = this._createListItem(item, config);
-                  listArea.appendChild(listItem);
-              });
-          } catch (error) {
-              console.error('[DEBUG] Error in _populateList:', error);
-              listArea.innerHTML = '<p class="list-item-empty-message">Error loading items</p>';
-          }
+          const { dbTableKey, getPremadesFn } = config;
+          const allUserItems = await this.db[dbTableKey].toArray();
+          const fetchedItems = allUserItems
+            .filter(item => item.isDeleted !== true)
+            .sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0));
+          const premadeItemsRaw = await getPremadesFn();
+          const premadeItems = premadeItemsRaw.map(p => ({...p, isPremade: true}));
+          const combinedItems = [...fetchedItems, ...premadeItems];
+          const lowerSearchTerm = searchTerm.toLowerCase();
+          const itemsToDisplay = searchTerm
+              ? combinedItems.filter(item => (item.name || "").toLowerCase().includes(lowerSearchTerm))
+              : combinedItems;
+          listArea.innerHTML = '';
+          itemsToDisplay.forEach(item => {
+              const listItem = this._createListItem(item, config);
+              listArea.appendChild(listItem);
+          });
           
           // Chin height is now handled automatically by flexbox layout
       },
@@ -1178,7 +1160,7 @@ function initializeApp() {
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('[DEBUG] Database not initialized yet, skipping _populateStoryList');
+              console.warn('Database not initialized yet, skipping _populateStoryList');
               listArea.innerHTML = '<p class="story-item-empty-message">Loading...</p>';
               return;
           }
@@ -1473,7 +1455,7 @@ function initializeApp() {
       },
       
             async renderFormScreen(options = {}) {
-          console.log("[App Navigation] renderFormScreen called with options:", options);
+          // renderFormScreen called with options
           const { itemType, isCreating, isCopying } = options;
       
           const config = this.CONSTANTS.ITEM_CONFIG[itemType];
@@ -1483,31 +1465,31 @@ function initializeApp() {
           if (!container) { console.error(`Container for ${config.formScreen} not found`); return; }
     
           const isCreatingOrCopying = isCreating || isCopying;
-          console.log("[App Navigation] isCreatingOrCopying determined as:", isCreatingOrCopying);
+          // isCreatingOrCopying determined
           
           // Removed top bar title text
     
           let item = {};
           if (isCreating && !isCopying) {
-              console.log("[App Navigation] Creation path - checking formData sources");
+              // Creation path - checking formData sources
               if (options.formData && Object.keys(options.formData).length > 0) {
                   item = { ...options.formData };
                   this.createItemFormData = { ...options.formData }; 
-                  console.log("[App Navigation] Using formData passed in options for new item:", item);
+                  // Using formData passed in options for new item
               } else if (Object.keys(this.createItemFormData).length > 0) {
                   item = { ...this.createItemFormData };
-                  console.log("[App Navigation] Using App.createItemFormData for new item:", item);
+                  // Using App.createItemFormData for new item
               } else {
                   item = {};
-                  console.log("[App Navigation] Creating a truly new item, no prior data.");
+                  // Creating a truly new item, no prior data
               }
           } else if (isCopying) {
-              console.log("[App Navigation] Copying path - fetching original item with ID:", options.itemId);
+              // Copying path - fetching original item with ID
               const originalItem = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
-              console.log("[App Navigation] Retrieved original item for copying:", originalItem);
-              console.log("[App Navigation] Original item name:", originalItem.name);
-              console.log("[App Navigation] Original item name type:", typeof originalItem.name);
-              console.log("[App Navigation] Original item name length:", originalItem.name.length);
+              // Retrieved original item for copying
+              // Original item name
+              // Original item name type
+              // Original item name length
               
               // Copy the original item data but remove the ID and timestamps to make it a new item
               item = { ...originalItem };
@@ -1528,14 +1510,14 @@ function initializeApp() {
                   profilePicture: item.profilePicture,
                   colorPalette: item.colorPalette || 'tech_blue'
               };
-              console.log("[App Navigation] Copied item data for new item:", item);
-              console.log("[App Navigation] Copied item name:", item.name);
-              console.log("[App Navigation] Copied item name type:", typeof item.name);
-              console.log("[App Navigation] Copied item name length:", item.name.length);
+              // Copied item data for new item
+              // Copied item name
+              // Copied item name type
+              // Copied item name length
           } else { 
-              console.log("[App Navigation] Editing path - fetching item with ID:", options.itemId);
+              // Editing path - fetching item with ID
               item = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
-              console.log("[App Navigation] Retrieved item for editing:", item);
+              // Retrieved item for editing
               // Initialize form data with existing item's colorPalette for editing
               // Use a more varied default color palette instead of always slate_gray
               const defaultPalettes = ['tech_blue', 'forest_green', 'crimson_red', 'sunset_orange', 'royal_purple', 'cyber_pink'];
@@ -1676,7 +1658,7 @@ function initializeApp() {
       
           // --- PROFILE PICTURE/PLACEHOLDER LOGIC ---
           // const profilePictureSrc = (item.profilePicture && item.profilePicture.trim()) ? item.profilePicture.trim() : this._makeProfilePicturePlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade); // Unused variable
-                      // console.log("[DEBUG] item.profilePicture:", item.profilePicture, "profilePictureSrc:", profilePictureSrc); // Debug profilePicture source
+                
     
           const profilePictureHtml = this._generateProfilePictureHtml(item, 'profile'); // Use the new helper function
     
@@ -1685,7 +1667,7 @@ function initializeApp() {
           // const formActions = ''; // Unused variable
     
           // --- BACKGROUND PROFILE PICTURE LAYOUT ---
-                      // console.log("[DEBUG] isEditing for EPPF fields:", isEditing); // Debug isEditing flag
+                
           
           // Both profile view and edit mode use the same beautiful background layout
           const content = `
@@ -1946,14 +1928,14 @@ function initializeApp() {
           const cancelButton = form.querySelector(`#cancel${config.capital}ButtonMain`);
           
           if (!cancelButton) {
-              console.warn(`[EDIT WORKFLOW DEBUG] Cancel button not found for ${itemType} form.`);
+              console.warn(`Cancel button not found for ${itemType} form.`);
               return;
           }
     
           cancelButton.onclick = (e) => {
               // Ignore synthetic/programmatic clicks that are not user-initiated
               if (e && e.isTrusted === false) {
-                  console.warn("[EDIT WORKFLOW DEBUG] Programmatic cancel click suppressed");
+                  console.warn("Programmatic cancel click suppressed");
                   return;
               }
               
@@ -1976,9 +1958,14 @@ function initializeApp() {
               // Get config for this item type
               const config = this.CONSTANTS.ITEM_CONFIG[itemType];
               
-              console.log("[CANCEL DEBUG] Form context:", { 
-                  id, itemType, isCreating, isCopying, originalScreen, 
-                  currentCreateFormContext: this.currentCreateFormContext 
+              // Form context: 
+              console.log("Form context:", {
+                  id,
+                  itemType,
+                  isCreating,
+                  isCopying,
+                  originalScreen,
+                  currentCreateFormContext: this.currentCreateFormContext
               });
               
               // Determine where to go based on the context
@@ -1994,24 +1981,24 @@ function initializeApp() {
                       preSelectedUserCharacterId: preSelectedUserCharacterId?.startsWith?.('create_new_') ? '' : preSelectedUserCharacterId, 
                       preSelectedWorldId: preSelectedWorldId?.startsWith?.('create_new_') ? '' : preSelectedWorldId 
                   };
-                  console.log("[CANCEL DEBUG] Creating new, going to storyboard");
+                  // Creating new, going to storyboard
               } else if (isCopying) {
                   // If copying, go back to the original screen we came from
                   if (originalScreen && originalScreen !== this.CONSTANTS.VIEWS.STORYBOARD) {
                       targetScreen = originalScreen;
                       navOptions = { itemId: id, itemType: itemType };
-                      console.log("[CANCEL DEBUG] Copying cancelled, returning to original screen:", { originalScreen, itemId: id, itemType: itemType });
+                      // Copying cancelled, returning to original screen
               } else {
                       // Fallback to profile screen if no original screen
                   targetScreen = config.profileScreen;
                   navOptions = { itemId: id, itemType: itemType };
-                      console.log("[CANCEL DEBUG] Copying cancelled, fallback to profile:", { itemId: id, itemType: itemType });
+                      // Copying cancelled, fallback to profile
                   }
               } else {
                   // If editing existing item, go back to its profile page
                   targetScreen = config.profileScreen;
                   navOptions = { itemId: id, itemType: itemType };
-                  console.log("[CANCEL DEBUG] Editing, going to profile:", { itemId: id, itemType: itemType });
+                  // Editing, going to profile
               }
     
               this.switchToScreen(targetScreen, navOptions);
@@ -2041,7 +2028,7 @@ function initializeApp() {
                       formOptions: formOptionsToStore,
                       timestamp: Date.now()
                   }));
-                  console.log("[FORM SUBMISSION] Stored pending form state in sessionStorage:", formDataToStore);
+                  // Stored pending form state in sessionStorage
               } catch (e) {
                   console.error("[FORM SUBMISSION] Failed to store form state to sessionStorage:", e);
               }
@@ -2301,65 +2288,69 @@ function initializeApp() {
     
       async waitForDependenciesAndInitializeApp() {
         const checkDependencies = () => {
-          const dependencies = {
-            isDexieLoaded: window.Dexie !== undefined,
-            isHyperscriptLoaded: window._hyperscript !== undefined,
-            isCashDomLoaded: window.$ !== undefined,
-            isDOMPurifyAvailable: window.DOMPurify !== undefined && typeof window.DOMPurify.sanitize === 'function'
+          const isDexieLoaded = window.Dexie !== undefined;
+          const isHyperscriptLoaded = window._hyperscript !== undefined;
+          const isCashDomLoaded = window.$ !== undefined;
+          const isDOMPurifyAvailable = window.DOMPurify !== undefined && typeof window.DOMPurify.sanitize === 'function';
+          return {
+            isDexieLoaded,
+            isHyperscriptLoaded,
+            isCashDomLoaded,
+            isDOMPurifyAvailable
           };
-          return dependencies;
         };
-
-        const waitForDOM = () => {
-          return new Promise((resolve) => {
-            if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', resolve, { once: true });
-            } else {
-              resolve();
-            }
-          });
-        };
-
-        const waitForDependencies = () => {
-          return new Promise((resolve, reject) => {
-            const maxAttempts = 50; // Max 10 seconds (50 * 200ms)
-            let attempts = 0;
-
+  
+        const maxAttempts = 50; // Max 10 seconds (50 * 200ms)
+        let attempts = 0;
+  
+        return new Promise((resolve, reject) => {
+          // First, wait for DOM to be ready
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+              // Then start checking for dependencies
+              const interval = setInterval(() => {
+                const deps = checkDependencies();
+                if (deps.isDexieLoaded && deps.isHyperscriptLoaded && deps.isCashDomLoaded && deps.isDOMPurifyAvailable) {
+                  clearInterval(interval);
+  
+                  resolve();
+                } else {
+                  attempts++;
+                  if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                    console.error("Dependency load timed out.", deps);
+                    const missing = Object.entries(deps).filter(([,v])=>!v).map(([key])=>key).join(", ");
+                    reject(new Error("Dependencies not loaded in time: " + missing));
+                  }
+                }
+              }, 200);
+            });
+          } else {
+            // DOM is already ready, start checking immediately
             const interval = setInterval(() => {
               const deps = checkDependencies();
-              const allLoaded = Object.values(deps).every(Boolean);
-              
-              if (allLoaded) {
+              if (deps.isDexieLoaded && deps.isHyperscriptLoaded && deps.isCashDomLoaded && deps.isDOMPurifyAvailable) {
                 clearInterval(interval);
+                // console.log("[DEBUG] All dependencies loaded successfully.");
                 resolve();
               } else {
                 attempts++;
                 if (attempts >= maxAttempts) {
                   clearInterval(interval);
-                  const missing = Object.entries(deps)
-                    .filter(([, loaded]) => !loaded)
-                    .map(([name]) => name)
-                    .join(", ");
-                  reject(new Error(`Dependencies not loaded in time: ${missing}`));
+                  console.error("Dependency load timed out.", deps);
+                  const missing = Object.entries(deps).filter(([,v])=>!v).map(([key])=>key).join(", ");
+                  reject(new Error("Dependencies not loaded in time: " + missing));
                 }
               }
             }, 200);
-          });
-        };
-
-        try {
-          await waitForDOM();
-          await waitForDependencies();
-        } catch (error) {
-          console.error("[DEBUG] Dependency load failed:", error.message);
-          throw error;
-        }
+          }
+        });
       },
     
       async initializeWhenReady() {
         try {
           await this.waitForDependenciesAndInitializeApp();
-          // console.log("[DEBUG] Dependencies ready, calling App.init()");
+
           this.init();
         } catch (error) {
           console.error("App failed to initialize due to missing dependencies:", error);
@@ -2374,7 +2365,7 @@ function initializeApp() {
       },
     
       async switchToScreen(screenName, options = {}) {
-          console.log("[App Navigation] Switching to screen:", screenName, "with options:", options, "from current view:", this.currentMainView);
+          // Switching to screen
     
           // Save app state before screen switch
           await this.saveAppState();
@@ -2384,26 +2375,26 @@ function initializeApp() {
               const screenEl = this.ui[viewId];
               if (screenEl) {
                   this.hideEl(screenEl);
-                  // console.log(`[DEBUG] Hiding screen: ${viewId}. Current display: ${window.getComputedStyle(screenEl).display}`);
+
               }
           });
           // Hide the chin area as well when switching screens
           this.hideEl(this.ui.topBarChin);
           this.focusBarState.chinOpen = false;
   
-          // console.log('[DEBUG] After hiding all screens. Target screenName:', screenName);
+
           
           // Activate the target screen
           const targetScreenEl = this.ui[screenName];
           if (targetScreenEl) {
               this.showEl(targetScreenEl);
-              // console.log(`[DEBUG] Showing target screen: ${screenName}. Current display: ${window.getComputedStyle(targetScreenEl).display}, classList: ${Array.from(targetScreenEl.classList)}`);
+
           } else {
               console.error("Attempted to switch to unknown screen:", screenName);
               this.showTopNotification("Error: Screen not found.", "error");
               this.currentMainView = this.CONSTANTS.VIEWS.STORYBOARD;
               this.showEl(this.ui.storyboardScreen); // Fallback to storyboard
-              // console.log('[DEBUG] Falling back to storyboard.');
+
           }
     
           this.currentMainView = screenName;
@@ -2449,17 +2440,17 @@ function initializeApp() {
                   break;
               }
               case this.CONSTANTS.VIEWS.CHARACTER_PROFILE:
-                  // console.log('[DEBUG] Navigating to CHARACTER_PROFILE screen. Item ID:', options.itemId);
+            
                   this.focusBarState.mode = null; // No chin should be active on profile screens
                   await this.renderProfileScreen(options);
                   break;
               case this.CONSTANTS.VIEWS.WORLD_PROFILE:
-                  // console.log('[DEBUG] Navigating to WORLD_PROFILE screen. Item ID:', options.itemId);
+            
                   this.focusBarState.mode = null; // No chin should be active on profile screens
                   await this.renderProfileScreen(options);
                   break;
               case this.CONSTANTS.VIEWS.STORY_PROFILE:
-                  // console.log('[DEBUG] Navigating to STORY_PROFILE screen. Story ID:', options.storyId);
+            
                   this.focusBarState.mode = null; // No chin should be active on profile screens
                   await this.renderStoryProfileScreen(options.storyId);
                   break;
@@ -2486,7 +2477,7 @@ function initializeApp() {
                   console.warn("Unhandled screen switch:", screenName);
                   break;
           }
-          // console.log('[DEBUG] switchToScreen completed. Calling updateTopBarUI.');
+    
           this.updateTopBarUI(); // Update UI after screen switch
           this.checkAllButtonStates(); // Ensure all buttons are correctly enabled/disabled
       },
@@ -2540,7 +2531,7 @@ function initializeApp() {
       },
     
       async openStory(storyId) { 
-        console.log("[App Navigation] Attempting to open story:", storyId);
+        // Attempting to open story
         // Phase 1: Validate and fetch story data
         const story = await this.db.stories.get(storyId);
         if (!story) {
@@ -2592,7 +2583,7 @@ function initializeApp() {
         this.ui.chatScreenLayoutContainer.style.backgroundPosition = 'center';
         this.ui.chatScreenLayoutContainer.classList.add('chat-background'); // Add class for potential overlay/effects
     
-        console.log("[App Navigation] Successfully opened story:", storyId);
+        // Successfully opened story
       },
     
       async concludeStory(storyId) {
@@ -2618,7 +2609,7 @@ function initializeApp() {
       },
     
       async beginStory() {
-          console.log("[App Logic] beginStory called.");
+          // beginStory called
           // 1. Get selected characters and world
           const aiCharacterId = this.ui.storyboardAiCharacterSelect.value;
           const userCharacterId = this.ui.storyboardUserCharacterSelect.value;
@@ -2682,14 +2673,14 @@ function initializeApp() {
           const existingStory = await this.db.stories.where({ aiCharacterId, userCharacterId, worldId, concluded: false }).first();
     
           if (existingStory) {
-              console.log("[App Logic] Resuming existing story:", existingStory.id);
+              // Resuming existing story
               this.showTopNotification("Resuming existing story!", "info");
               this.openStory(existingStory.id);
               return;
           }
     
           // 5. Create a new story if none exists
-          console.log("[App Logic] Creating new story.");
+          // Creating new story
           const newStoryId = await this.db.stories.add({
               aiCharacterId: aiCharacter.id,
               userCharacterId: userCharacter.id,
@@ -2729,17 +2720,17 @@ function initializeApp() {
     
       _getFormDataFromForm(elements) {
           const { nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
-          const paletteButton = elements.form?.querySelector('.color-palette-button.selected');
-          const colorPalette = paletteButton?.dataset.paletteKey ?? 'slate_gray';
+          const paletteButton = elements.form.querySelector('.color-palette-button.selected');
+          const colorPalette = paletteButton ? paletteButton.dataset.paletteKey : 'slate_gray';
     
           return {
-              name: nameInput?.value?.trim() ?? '',
-              description: descriptionTextarea?.value?.trim() ?? '',
-              eternal: eternalInput?.value?.trim() ?? '',
-              past: pastInput?.value?.trim() ?? '',
-              present: presentInput?.value?.trim() ?? '',
-              future: futureInput?.value?.trim() ?? '',
-              profilePicture: this.currentGeneratedProfilePictureDataUrl ?? '', // Use generated or current
+              name: nameInput?.value.trim() || '',
+              description: descriptionTextarea?.value.trim() || '',
+              eternal: eternalInput?.value.trim() || '',
+              past: pastInput?.value.trim() || '',
+              present: presentInput?.value.trim() || '',
+              future: futureInput?.value.trim() || '',
+              profilePicture: this.currentGeneratedProfilePictureDataUrl || '', // Use generated or current
               colorPalette: colorPalette
           };
       },
@@ -2747,33 +2738,25 @@ function initializeApp() {
       async createMessage(role, content, characterId = null) {
           if (!this.activeStoryId) {
               console.error("Cannot create message: no active story.");
-              return null;
+              return;
           }
-          
-          try {
-              const newMessage = {
-                  storyId: this.activeStoryId,
-                  role: role,
-                  content: content,
-                  characterId: characterId, // ID of character who sent it (if role is character)
-                  timestamp: Date.now(),
-                  isHidden: false // For system messages, etc.
-              };
-              
-              const messageId = await this.db.messages.add(newMessage);
-              await this.db.stories.update(this.activeStoryId, { lastMessageTimestamp: Date.now() });
-              
-              return { ...newMessage, id: messageId };
-          } catch (error) {
-              console.error("Error creating message:", error);
-              return null;
-          }
+          const newMessage = {
+              storyId: this.activeStoryId,
+              role: role,
+              content: content,
+              characterId: characterId, // ID of character who sent it (if role is character)
+              timestamp: Date.now(),
+              isHidden: false // For system messages, etc.
+          };
+          const messageId = await this.db.messages.add(newMessage);
+          await this.db.stories.update(this.activeStoryId, { lastMessageTimestamp: Date.now() });
+          return { ...newMessage, id: messageId };
       },
     
       async sendButtonClickHandler() {
           const messageText = this.ui.messageInput.value.trim();
           if (!messageText || this.ui.sendButton.disabled) {
-              console.log("Attempted to send empty or disabled message.");
+              // Attempted to send empty or disabled message
               return;
           }
           
@@ -3010,9 +2993,9 @@ function initializeApp() {
           }
       },
     
-      async _applyMemoriesToProfiles(storyId) {
+      async _applyMemoriesToProfiles() {
           // Placeholder for applying extracted memories to character/world profiles
-          console.log(`Applying memories for story ${storyId}`);
+          // Applying memories for story
           // In a real implementation, you would:
           // 1. Fetch memories from the story
           // 2. Update the relevant character/world items in the DB
@@ -3026,7 +3009,7 @@ function initializeApp() {
           if (this.isUpdatingStoryboard) return;
           this.isUpdatingStoryboard = true;
           try {
-              // console.log('[DEBUG] _updateStoryboard called. Current storyboardSelected:', this.storyboardSelected);
+        
               // Ensure storyboardSelected exists
               this.storyboardSelected = this.storyboardSelected || { ai: '', user: '', world: '' };
   
@@ -3068,7 +3051,7 @@ function initializeApp() {
                   }
                   // DEBUG LOG BEFORE
                   if (selectedKey === 'ai') {
-                                      // console.log('[DEBUG][AI DROPDOWN][BEFORE]', {
+                                
                   //   storyboardSelected: JSON.parse(JSON.stringify(this.storyboardSelected)),
                   //   selectedValue,
                   //   dropdownValue: dropdownEl.value,
@@ -3130,7 +3113,7 @@ function initializeApp() {
                                   });
                               } else {
                                   if (selectedKey) this.storyboardSelected[selectedKey] = opt.value;
-                                  // console.log(`[DEBUG] Dropdown selection: ${config.itemType} set to ${opt.value}`);
+                            
                                   await this._updateStoryboard(); // Always re-render all cards for consistency
                               }
                           };
@@ -3268,17 +3251,17 @@ function initializeApp() {
                 // Determine which item to use for rendering the card itself
                 let itemToRender = null;
                 let selectedValue = this.storyboardSelected[key];
-                // console.log(`[DEBUG] _updateStoryboard: Processing ${key} with selectedValue:`, selectedValue);
+          
                 
                 if (selectedValue && !selectedValue.startsWith('create_new_')) {
                   itemToRender = await this._getitemData(selectedValue, config.dbTableKey, config.getPremadesFn, config.itemType);
-                  // console.log(`[DEBUG] _updateStoryboard: Retrieved item for ${key}:`, itemToRender);
+            
                 }
                 if (itemToRender) {
-                  // console.log(`[DEBUG] _updateStoryboard: Rendering card for ${key} with item:`, itemToRender);
+            
                   this._renderStoryboardCard(card, itemToRender, config); // Pass the select element
                 } else {
-                  // console.log(`[DEBUG] _updateStoryboard: Clearing card for ${key} - no valid item`);
+            
                   this.clearStoryboardCard(card, config);
                 }
               }
@@ -3342,7 +3325,7 @@ function initializeApp() {
             if (worldName) parts.push(worldName);
             titleText = parts.join(' & ');
         }
-        // console.log('[DEBUG] updateDynamicStoryboardTitle:', { aiCharName, userCharName, worldName, titleText });
+  
         this.ui.storyboardTitle.innerHTML = titleText;
       },
     
@@ -3357,35 +3340,23 @@ function initializeApp() {
       },
     
       async updateStoryboardCard(selectElement, config) {
-          const selectedValue = selectElement?.value;
-          
-          // Determine card element based on select element ID
-          const cardElementMap = {
-              'storyboard-ai-character-select': this.ui.storyboardAiCharacterCard,
-              'storyboard-user-character-select': this.ui.storyboardUserCharacterCard,
-              'storyboard-world-select': this.ui.storyboardWorldCard
-          };
-          
-          const cardElement = cardElementMap[selectElement?.id] ?? this.ui.storyboardWorldCard;
+          const selectedValue = selectElement.value;
+          const cardElement = (config.itemType === 'character' && selectElement.id === 'storyboard-ai-character-select') ? this.ui.storyboardAiCharacterCard :
+                              (config.itemType === 'character' && selectElement.id === 'storyboard-user-character-select') ? this.ui.storyboardUserCharacterCard :
+                              this.ui.storyboardWorldCard;
     
           if (!selectedValue || selectedValue.startsWith('create_new_')) {
               this.clearStoryboardCard(cardElement, config);
               return;
           }
     
-          try {
-              const item = await this._getitemData(selectedValue, config.dbTableKey, config.getPremadesFn, config.itemType);
-              if (item) {
-                  this._renderStoryboardCard(cardElement, item, config);
-              } else {
-                  this.clearStoryboardCard(cardElement, config);
-                  console.warn(`Item not found for ID: ${selectedValue} in ${config.itemType}`);
-              }
-          } catch (error) {
-              console.error('Error updating storyboard card:', error);
+          const item = await this._getitemData(selectedValue, config.dbTableKey, config.getPremadesFn, config.itemType);
+          if (item) {
+              this._renderStoryboardCard(cardElement, item, config);
+          } else {
               this.clearStoryboardCard(cardElement, config);
+              console.warn(`Item not found for ID: ${selectedValue} in ${config.itemType}`);
           }
-          
           this.updateDynamicStoryboardTitle();
       },
     
@@ -3538,7 +3509,7 @@ function initializeApp() {
       },
     
       _renderStoryboardCard(cardElement, item, config) {
-          // console.log('[DEBUG] _renderStoryboardCard called for:', { 
+     
           //   itemType: config.itemType, 
           //   itemName: item.name, 
           //   itemId: item.id, 
@@ -3583,7 +3554,7 @@ function initializeApp() {
           // Ensure we have a valid palette key for the profile picture
           const validPaletteKey = getValidPaletteKey(item);
           const itemWithValidPalette = { ...item, colorPalette: validPaletteKey };
-          // console.log('[DEBUG] Storyboard card profile picture:', { 
+     
           //   originalItem: item, 
           //   validPaletteKey, 
           //   itemWithValidPalette 
@@ -3937,7 +3908,7 @@ function initializeApp() {
               const randomWorld = worldOptions[Math.floor(Math.random() * worldOptions.length)].value;
               this.storyboardSelected.world = randomWorld;
           }
-                      // console.log('[DEBUG][SHUFFLE] storyboardSelected after shuffle:', JSON.parse(JSON.stringify(this.storyboardSelected)));
+                
           await this._updateStoryboard();
           await this.updateDynamicStoryboardTitle();
       },
@@ -3945,26 +3916,29 @@ function initializeApp() {
       _getInitials(name) {
           if (!name) return '?';
           
-          // Common words to skip (using Set for O(1) lookup)
-          const skipWords = new Set(['the', 'of', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'from', 'a', 'an']);
+          // Remove quotation marks and split into words
+          const cleanName = name.replace(/['"]/g, '');
+          const words = cleanName.split(' ');
           
-          // Remove quotation marks, split into words, filter, and get initials
-          const initials = name
-              .replace(/['"]/g, '')
-              .split(' ')
-              .filter(word => word.length > 0 && !skipWords.has(word.toLowerCase()))
-              .map(word => word[0])
-              .join('')
-              .toUpperCase()
-              .slice(0, 3);
+          // Common words to skip (lowercase for comparison)
+          const skipWords = ['the', 'of', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'from', 'a', 'an'];
           
-          // Fallback to original logic if no meaningful initials found
+          // Filter out common words and get initials
+          const filteredWords = words.filter(word => {
+              const lowerWord = word.toLowerCase();
+              return !skipWords.includes(lowerWord) && word.length > 0;
+          });
+          
+          // Get initials from filtered words (allow up to 3 initials)
+          const initials = filteredWords.map(w => w[0]).join('').toUpperCase().slice(0, 3);
+          
+          // If no initials found after filtering, fall back to original logic
           return initials || name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 3);
       },
     
       _getPaletteColor(paletteKey, colorType) {
-          const palette = this.CONSTANTS.COLOR_PALETTES[paletteKey] ?? this.CONSTANTS.COLOR_PALETTES.slate_gray;
-          return palette.colors[colorType] ?? '#607d8b'; // Default to slate_gray medium
+          const palette = this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
+          return palette.colors[colorType] || '#607d8b'; // Default to slate_gray medium
       },
     
       _makeProfilePicturePlaceholderSVG(name, paletteKey, isPremade, itemId = null) {
@@ -3983,10 +3957,10 @@ function initializeApp() {
         const cacheKey = `${keyPart}::${paletteKey}::${isPremade}`;
         
         // Debug logging for profile picture generation
-        // console.log('[DEBUG] Profile picture cache key:', cacheKey, 'for item:', { name, paletteKey, isPremade, itemId, normalizedItemId });
+  
         
         if (this._profilePicturePlaceholderCache[cacheKey]) {
-                      // console.log('[DEBUG] Using cached profile picture for:', cacheKey);
+                
           return this._profilePicturePlaceholderCache[cacheKey];
         }
         const initials = this._getInitials(name);
@@ -3995,7 +3969,7 @@ function initializeApp() {
         const textColor = palette.colors.light;
         
         // Additional debug logging for palette colors
-        // console.log('[DEBUG] Profile picture colors:', { paletteKey, bgColor, textColor, palette, initials });
+  
         
         // Calculate font size based on number of initials
         let fontSize = 40; // Base size for 1 character
@@ -4013,7 +3987,7 @@ function initializeApp() {
         `;
         const dataUrl = `data:image/svg+xml;base64,${btoa(svgContent)}`;
         this._profilePicturePlaceholderCache[cacheKey] = dataUrl;
-        // console.log('[DEBUG] Generated new profile picture for:', cacheKey);
+  
         return dataUrl;
       },
     
@@ -4028,7 +4002,7 @@ function initializeApp() {
         window.currentProfilePictureIsPremade = item.isPremade || false;
         window.currentProfilePictureItem = item;
         
-              // console.log('[DEBUG] _generateProfilePictureHtml setting context:', { 
+         
       //   itemId: window.currentProfilePictureItemId, 
       //   isPremade: window.currentProfilePictureIsPremade,
       //   item: item,
@@ -4042,7 +4016,7 @@ function initializeApp() {
       },
     
       _getProfilePictureSrc(item) {
-            // console.log('[DEBUG] _getProfilePictureSrc called for item:', { 
+       
     //   name: item.name, 
     //   hasProfilePicture: !!(item.profilePicture && item.profilePicture.trim()),
     //   colorPalette: item.colorPalette,
@@ -4060,7 +4034,7 @@ function initializeApp() {
          * Updates the UI based on the active tab and chin state.
          */
         updateTopBarUI() {
-            // console.log('[DEBUG] updateTopBarUI called. Current mode:', this.focusBarState.mode, 'Current Main View:', this.currentMainView);
+      
             
             // Check if database is initialized before proceeding
             if (!this.db) {
@@ -4082,28 +4056,31 @@ function initializeApp() {
                 }
             });
   
-            // Chin visibility managed by chinMap below
-
-
-
-
-            
+            // Hide all chins by default
+            const chinIds = ['storyboard-chin', 'character-workshop-chin', 'world-builder-chin', 'options-chin'];
+            chinIds.forEach(id => {
+                const chin = document.getElementById(id);
+                if (chin) chin.classList.add('hidden');
+            });
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
+            // Show the active chin if chinOpen is true
+            if (this.focusBarState.chinOpen) {
+                let activeChinId = null;
+                switch (this.focusBarState.mode) {
+                    case 'storyboard':
+                        activeChinId = 'storyboard-chin'; break;
+                    case 'characters':
+                        activeChinId = 'character-workshop-chin'; break;
+                    case 'worlds':
+                        activeChinId = 'world-builder-chin'; break;
+                    case 'options':
+                        activeChinId = 'options-chin'; break;
+                }
+                if (activeChinId) {
+                    const activeChin = document.getElementById(activeChinId);
+                    if (activeChin) activeChin.classList.remove('hidden');
+                }
+            }
   
             // Chin toggling logic (remove style.display logic)
             const chinMap = {
@@ -4155,15 +4132,15 @@ function initializeApp() {
 
             const isStoryboardScreen = this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD;
   
-                      // console.log('[DEBUG] isProfileScreen:', isProfileScreen);
-          // console.log('[DEBUG] currentMainView:', this.currentMainView);
-          // console.log('[DEBUG] CONSTANTS.VIEWS.CHARACTER_PROFILE:', this.CONSTANTS.VIEWS.CHARACTER_PROFILE);
-          // console.log('[DEBUG] CONSTANTS.VIEWS.WORLD_PROFILE:', this.CONSTANTS.VIEWS.WORLD_PROFILE);
-          // console.log('[DEBUG] CONSTANTS.VIEWS.STORY_PROFILE:', this.CONSTANTS.VIEWS.STORY_PROFILE);
+                
+    
+    
+    
+    
   
             if (this.ui.topBar) {
               this.ui.topBar.classList.toggle('hidden', isProfileScreen);
-              // console.log('[DEBUG] Main Top Bar hidden:', this.ui.topBar.classList.contains('hidden'));
+        
               
               // For form screens, ensure the main top bar is visible
               if (isFormScreen) {
@@ -4216,7 +4193,7 @@ function initializeApp() {
             }
             if (this.ui.profileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE;
-              // console.log('[DEBUG] Character Profile Top Bar shouldShow:', shouldShow, 'isProfileScreen:', isProfileScreen, 'currentMainView:', this.currentMainView, 'CHARACTER_PROFILE:', this.CONSTANTS.VIEWS.CHARACTER_PROFILE);
+        
               this.ui.profileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
@@ -4224,13 +4201,13 @@ function initializeApp() {
               } else {
                 this.ui.profileTopBar.classList.add('hidden');
               }
-                          // console.log('[DEBUG] Character Profile Top Bar active:', shouldShow, 'currentMainView:', this.currentMainView);
-            // console.log('[DEBUG] Character Profile Top Bar classList:', Array.from(this.ui.profileTopBar.classList));
-            // console.log('[DEBUG] Character Profile Top Bar computed display:', window.getComputedStyle(this.ui.profileTopBar).display);
+                    
+      
+      
             }
             if (this.ui.worldProfileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE;
-              // console.log('[DEBUG] World Profile Top Bar shouldShow:', shouldShow, 'isProfileScreen:', isProfileScreen, 'currentMainView:', this.currentMainView, 'WORLD_PROFILE:', this.CONSTANTS.VIEWS.WORLD_PROFILE);
+        
               this.ui.worldProfileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
@@ -4238,13 +4215,13 @@ function initializeApp() {
               } else {
                 this.ui.worldProfileTopBar.classList.add('hidden');
               }
-                          // console.log('[DEBUG] World Profile Top Bar active:', shouldShow, 'currentMainView:', this.currentMainView);
-            // console.log('[DEBUG] World Profile Top Bar classList:', Array.from(this.ui.worldProfileTopBar.classList));
-            // console.log('[DEBUG] World Profile Top Bar computed display:', window.getComputedStyle(this.ui.worldProfileTopBar).display);
+                    
+      
+      
             }
             if (this.ui.storyProfileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE;
-              // console.log('[DEBUG] Story Profile Top Bar shouldShow:', shouldShow, 'isProfileScreen:', isProfileScreen, 'currentMainView:', this.currentMainView, 'STORY_PROFILE:', this.CONSTANTS.VIEWS.STORY_PROFILE);
+        
               this.ui.storyProfileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
@@ -4252,9 +4229,9 @@ function initializeApp() {
               } else {
                 this.ui.storyProfileTopBar.classList.add('hidden');
               }
-                          // console.log('[DEBUG] Story Profile Top Bar active:', shouldShow, 'currentMainView:', this.currentMainView);
-            // console.log('[DEBUG] Story Profile Top Bar classList:', Array.from(this.ui.storyProfileTopBar.classList));
-            // console.log('[DEBUG] Story Profile Top Bar computed display:', window.getComputedStyle(this.ui.storyProfileTopBar).display);
+                    
+      
+      
             }
   
             // Update profile top bar content if visible
@@ -4267,11 +4244,10 @@ function initializeApp() {
               this._updateProfileTopBarUI(this.ui.storyProfileTopBar, this.currentStoryId, 'story');
             }
   
-        }
-      },
+        },
   
       async _updateProfileTopBarUI(topBarElement, itemId, itemType) {
-        // console.log('[DEBUG] _updateProfileTopBarUI called for', itemType, 'with itemId', itemId);
+  
         if (!topBarElement || !itemId) return;
   
         let item;
@@ -4295,7 +4271,7 @@ function initializeApp() {
         const titleArea = topBarElement.querySelector('.top-bar-center');
         if (titleArea) {
           titleArea.innerHTML = `<h2 class="profile-top-bar-title">${item.name || `${config.capital} Profile`}</h2>`;
-          // console.log('[DEBUG] Profile Top Bar Title set to:', item.name || `${config.capital} Profile`);
+    
         }
   
         // Update user character info (always present if a user character is selected)
@@ -4443,10 +4419,9 @@ function initializeApp() {
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
             }
           };
-                }
-      }
-    },
-
+        }
+      },
+  
       /**
        * Initializes the application, setting up the database and initial UI state.
        * This is the main entry point for the app after dependencies are loaded.
@@ -4454,7 +4429,7 @@ function initializeApp() {
       init() {
           // Set window.dbName if not already set by Perchance
           window.dbName = window.dbName || 'rpglitch-db';
-          console.log("[App Init] App.init() called. Database name:", window.dbName);
+          // App.init() called. Database name:
     
           // Only initialize UI elements after DOMContentLoaded
           if (document.readyState === 'loading') {
@@ -4537,11 +4512,106 @@ function initializeApp() {
       },
       // --- BEGIN: Add missing UI methods for Perchance tab switching ---
       selectTopBarTab(tabName) {
-        if (!this.focusBarState || !this.focusBarState.tabs) return;
-        if (this.focusBarState.tabs.includes(tabName)) {
-          this.focusBarState.mode = tabName;
-          this.updateTopBarUI();
+        // Determine which top bar is active
+        let activeTopBar = null;
+        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+          activeTopBar = this.ui.profileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+          activeTopBar = this.ui.worldProfileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+          activeTopBar = this.ui.storyProfileTopBar;
+        } else if (this.ui.topBar) {
+          activeTopBar = this.ui.topBar;
         }
+  
+        if (!activeTopBar) {
+          console.warn('[DEBUG] No active top bar found in selectTopBarTab, re-initializing UI elements.');
+          this._getUIElements();
+          // Try to re-determine activeTopBar after re-initialization
+          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+            activeTopBar = this.ui.profileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+            activeTopBar = this.ui.worldProfileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+            activeTopBar = this.ui.storyProfileTopBar;
+          } else if (this.ui.topBar) {
+            activeTopBar = this.ui.topBar;
+          }
+          if (!activeTopBar) return; // If still no activeTopBar, something is critically wrong
+        }
+        
+        // Check if we're switching to a different tab while a chin is open
+        const currentMode = this.focusBarState.mode;
+        const isChinOpen = this.focusBarState.chinOpen;
+        const isSwitchingTabs = currentMode !== tabName;
+        
+        if (isSwitchingTabs && isChinOpen) {
+          // Smooth transition: close current chin first, then open new one
+          this.focusBarState.chinOpen = false;
+          this.updateTopBarUI();
+          
+          // Update aria-selected immediately for visual feedback on the active top bar
+          const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+          tabButtons.forEach(btn => {
+            btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tabName ? 'true' : 'false');
+          });
+          
+          // Open new chin after a brief delay for smooth transition
+          setTimeout(() => {
+            this.focusBarState.mode = tabName;
+            this.focusBarState.chinOpen = true;
+            this.updateTopBarUI();
+          }, 150); // 150ms delay for smooth transition
+        } else {
+          // Direct switch (no chin open or same tab)
+          this.focusBarState.mode = tabName;
+          this.focusBarState.chinOpen = true;
+          this.updateTopBarUI();
+          // Update aria-selected for all tab buttons on the active top bar
+          const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+          tabButtons.forEach(btn => {
+            btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tabName ? 'true' : 'false');
+          });
+        }
+      },
+      toggleOptionsChin() {
+        // Determine which top bar is active
+        let activeTopBar = null;
+        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+          activeTopBar = this.ui.profileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+          activeTopBar = this.ui.worldProfileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+          activeTopBar = this.ui.storyProfileTopBar;
+        } else if (this.ui.topBar) {
+          activeTopBar = this.ui.topBar;
+        }
+  
+        if (!activeTopBar) {
+          console.warn('[DEBUG] No active top bar found in toggleOptionsChin, re-initializing UI elements.');
+          this._getUIElements();
+          // Try to re-determine activeTopBar after re-initialization
+          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+            activeTopBar = this.ui.profileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+            activeTopBar = this.ui.worldProfileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+            activeTopBar = this.ui.storyProfileTopBar;
+          } else if (this.ui.topBar) {
+            activeTopBar = this.ui.topBar;
+          }
+          if (!activeTopBar) return; // If still no activeTopBar, something is critically wrong
+        }
+  
+        // Always switch to options and open chin (no toggle since outside click closes it)
+        this.focusBarState.mode = 'options';
+        this.focusBarState.chinOpen = true;
+        this.updateTopBarUI();
+        // Update aria-selected for all tab buttons on the active top bar
+        const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+        tabButtons.forEach(btn => {
+          btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === 'options' ? 'true' : 'false');
+        });
       },
       // --- END: Add missing UI methods ---
       
@@ -4582,114 +4652,150 @@ function initializeApp() {
                   timeoutId = setTimeout(() => func.apply(this, args), delay);
               };
           };
-
-          // Helper function to setup search handlers
-          const setupSearchHandler = (inputId, listId, populateFunction, config = null) => {
-              const searchInput = document.getElementById(inputId);
-              const searchForm = searchInput?.closest('form');
-              
-              if (!searchInput) return;
-              
+  
+          // Stories search
+          const searchStoriesInput = document.getElementById('search-stories-input');
+          const searchStoriesForm = searchStoriesInput?.closest('form');
+          
+          if (searchStoriesInput) {
               // Real-time search as user types
-              const debouncedSearchHandler = debouncedSearch((searchTerm) => {
-                  const listEl = document.getElementById(listId);
-                  if (listEl) {
-                      if (config) {
-                          this._populateList(listEl, searchTerm, config);
-                      } else {
-                          populateFunction.call(this, listEl, searchTerm);
-                      }
-                  }
+              const debouncedStorySearch = debouncedSearch((searchTerm) => {
+                  const listEl = document.getElementById('chin-story-list');
+                  if (listEl) this._populateStoryList(listEl, searchTerm);
               }, 300); // 300ms delay
               
-              searchInput.addEventListener('input', (e) => {
-                  debouncedSearchHandler(e.target.value);
+              searchStoriesInput.addEventListener('input', (e) => {
+                  debouncedStorySearch(e.target.value);
               });
               
               // Form submit handler (for search button or Enter key)
-              if (searchForm) {
-                  searchForm.addEventListener('submit', (e) => {
+              if (searchStoriesForm) {
+                  searchStoriesForm.addEventListener('submit', (e) => {
                       e.preventDefault();
-                      const searchTerm = searchInput.value;
-                      const listEl = document.getElementById(listId);
-                      if (listEl) {
-                          if (config) {
-                              this._populateList(listEl, searchTerm, config);
-                          } else {
-                              populateFunction.call(this, listEl, searchTerm);
-                          }
-                      }
+                      const searchTerm = searchStoriesInput.value;
+                      const listEl = document.getElementById('chin-story-list');
+                      if (listEl) this._populateStoryList(listEl, searchTerm);
                   });
               }
-          };
-
-          // Setup search handlers for different types
-          setupSearchHandler('search-stories-input', 'chin-story-list', this._populateStoryList);
-          setupSearchHandler('search-characters-input', 'chin-character-list', this._populateList, this.CONSTANTS.ITEM_CONFIG.character);
-          setupSearchHandler('search-worlds-input', 'chin-world-list', this._populateList, this.CONSTANTS.ITEM_CONFIG.world);
-      }
-  }
-};
-
-  // Global access for debugging/plugins if needed
-  window.App = App;
+          }
   
-  // Auto-initialize when DOM is ready and dependencies are loaded
-  document.addEventListener('DOMContentLoaded', function() {
-    if (!document.getElementById('top-bar-right')) {
-      console.warn('[DEBUG] top-bar-right not found at DOMContentLoaded!');
-    }
-    // Start dependency checking process
-    waitForDependencies();
-  });
-
-  // Helper to handle click outside chin overlays
-  App._handleChinOutsideClick = function(event) {
-    const chins = document.querySelectorAll('.top-bar-chin:not(.hidden)');
-    let clickedInsideChin = false;
-    chins.forEach(chin => {
-      if (chin.contains(event.target)) clickedInsideChin = true;
-    });
-    if (!clickedInsideChin) {
-      // Briefly disable the active tab button for visual feedback
-      const activeTabButton = document.querySelector('.top-bar-nav [data-tab][aria-selected="true"]');
-      if (activeTabButton) {
-        activeTabButton.disabled = true;
-        activeTabButton.style.opacity = '0.5';
-        activeTabButton.style.pointerEvents = 'none';
-        
-        // Re-enable after 100ms
-        setTimeout(() => {
-          activeTabButton.disabled = false;
-          activeTabButton.style.opacity = '';
-          activeTabButton.style.pointerEvents = '';
-        }, 100);
+          // Characters search
+          const searchCharactersInput = document.getElementById('search-characters-input');
+          const searchCharactersForm = searchCharactersInput?.closest('form');
+          
+          if (searchCharactersInput) {
+              // Real-time search as user types
+              const debouncedCharacterSearch = debouncedSearch((searchTerm) => {
+                  const listEl = document.getElementById('chin-character-list');
+                  if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.character);
+              }, 300); // 300ms delay
+              
+              searchCharactersInput.addEventListener('input', (e) => {
+                  debouncedCharacterSearch(e.target.value);
+              });
+              
+              // Form submit handler (for search button or Enter key)
+              if (searchCharactersForm) {
+                  searchCharactersForm.addEventListener('submit', (e) => {
+                      e.preventDefault();
+                      const searchTerm = searchCharactersInput.value;
+                      const listEl = document.getElementById('chin-character-list');
+                      if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.character);
+                  });
+              }
+          }
+  
+          // Worlds search
+          const searchWorldsInput = document.getElementById('search-worlds-input');
+          const searchWorldsForm = searchWorldsInput?.closest('form');
+          
+          if (searchWorldsInput) {
+              // Real-time search as user types
+              const debouncedWorldSearch = debouncedSearch((searchTerm) => {
+                  const listEl = document.getElementById('chin-world-list');
+                  if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.world);
+              }, 300); // 300ms delay
+              
+              searchWorldsInput.addEventListener('input', (e) => {
+                  debouncedWorldSearch(e.target.value);
+              });
+              
+              // Form submit handler (for search button or Enter key)
+              if (searchWorldsForm) {
+                  searchWorldsForm.addEventListener('submit', (e) => {
+                      e.preventDefault();
+                      const searchTerm = searchWorldsInput.value;
+                      const listEl = document.getElementById('chin-world-list');
+                      if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.world);
+                  });
+              }
+          }
+      },
+    };
+    
+    // Global access for debugging/plugins if needed
+    window.App = App;
+    
+    // Auto-initialize when DOM is ready and dependencies are loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!document.getElementById('top-bar-right')) {
+        console.warn('[DEBUG] top-bar-right not found at DOMContentLoaded!');
       }
-      
-      App.focusBarState.chinOpen = false;
-      App.updateTopBarUI();
-      document.removeEventListener('mousedown', App._handleChinOutsideClick);
-    }
-  };
-
-  // Patch updateTopBarUI to add/remove outside click listener
-  const _origUpdateTopBarUI = App.updateTopBarUI;
-  App.updateTopBarUI = function() {
-    _origUpdateTopBarUI.apply(this, arguments);
-    const anyChinOpen = this.focusBarState.chinOpen && ['storyboard-chin','character-workshop-chin','world-builder-chin','options-chin'].some(id => {
-      const el = document.getElementById(id);
-      return el && !el.classList.contains('hidden');
+      // Start dependency checking process
+      waitForDependencies();
     });
-    if (anyChinOpen) {
-      document.addEventListener('mousedown', App._handleChinOutsideClick);
-    } else {
-      document.removeEventListener('mousedown', App._handleChinOutsideClick);
+  
+    // Add after updateTopBarUI definition
+  
+    // Helper to handle click outside chin overlays
+    App._handleChinOutsideClick = function(event) {
+      const chins = document.querySelectorAll('.top-bar-chin:not(.hidden)');
+      let clickedInsideChin = false;
+      chins.forEach(chin => {
+        if (chin.contains(event.target)) clickedInsideChin = true;
+      });
+      if (!clickedInsideChin) {
+        // Briefly disable the active tab button for visual feedback
+        const activeTabButton = document.querySelector('.top-bar-nav [data-tab][aria-selected="true"]');
+        if (activeTabButton) {
+          activeTabButton.disabled = true;
+          activeTabButton.style.opacity = '0.5';
+          activeTabButton.style.pointerEvents = 'none';
+          
+          // Re-enable after 100ms
+          setTimeout(() => {
+            activeTabButton.disabled = false;
+            activeTabButton.style.opacity = '';
+            activeTabButton.style.pointerEvents = '';
+          }, 100);
+        }
+        
+        App.focusBarState.chinOpen = false;
+        App.updateTopBarUI();
+        document.removeEventListener('mousedown', App._handleChinOutsideClick);
+      }
+    };
+  
+    // Patch updateTopBarUI to add/remove outside click listener
+    const _origUpdateTopBarUI = App.updateTopBarUI;
+    App.updateTopBarUI = function() {
+      _origUpdateTopBarUI.apply(this, arguments);
+      const anyChinOpen = this.focusBarState.chinOpen && ['storyboard-chin','character-workshop-chin','world-builder-chin','options-chin'].some(id => {
+        const el = document.getElementById(id);
+        return el && !el.classList.contains('hidden');
+      });
+      if (anyChinOpen) {
+        document.addEventListener('mousedown', App._handleChinOutsideClick);
+      } else {
+        document.removeEventListener('mousedown', App._handleChinOutsideClick);
+      }
+    };
+  
+    // Utility to get a valid palette key from an item
+    function getValidPaletteKey(item) {
+      return (item && typeof item.colorPalette === 'string' && item.colorPalette in App.CONSTANTS.COLOR_PALETTES)
+        ? item.colorPalette
+        : 'slate_gray';
     }
-  };
-
-  // Utility to get a valid palette key from an item
-  function getValidPaletteKey(item) {
-    return (item && typeof item.colorPalette === 'string' && item.colorPalette in App.CONSTANTS.COLOR_PALETTES)
-      ? item.colorPalette
-      : 'slate_gray';
-  }
+  
+  
