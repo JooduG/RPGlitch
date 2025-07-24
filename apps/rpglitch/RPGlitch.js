@@ -4,14 +4,7 @@ function checkDependencies() {
     window.isDOMPurifyAvailable = typeof window.DOMPurify !== 'undefined';
     window.isHyperscriptLoaded = typeof window._hyperscript !== 'undefined';
     window.isCashDomLoaded = typeof window.$ !== 'undefined';
-    
-    // console.log('[DEBUG] Dependency check:', {
-    //   isDexieLoaded: window.isDexieLoaded,
-    //   isHyperscriptLoaded: window.isHyperscriptLoaded,
-    //   isCashDomLoaded: window.isCashDomLoaded,
-    //   isDOMPurifyAvailable: window.isDOMPurifyAvailable
-    // });
-    
+
     return window.isDexieLoaded && window.isDOMPurifyAvailable && 
            window.isHyperscriptLoaded && window.isCashDomLoaded;
   }
@@ -22,13 +15,14 @@ function checkDependencies() {
   
   function waitForDependencies() {
     if (checkDependencies()) {
-      // console.log('[DEBUG] All dependencies loaded successfully');
+      
       initializeApp();
     } else if (dependencyCheckCount < maxChecks) {
       dependencyCheckCount++;
       setTimeout(waitForDependencies, 100);
     } else {
-      console.error('[DEBUG] Dependency load timed out.', {
+      // Cleaned up error log for production
+      console.error('Dependency load timed out.', {
         isDexieLoaded: window.isDexieLoaded,
         isHyperscriptLoaded: window.isHyperscriptLoaded,
         isCashDomLoaded: window.isCashDomLoaded,
@@ -46,7 +40,7 @@ function checkDependencies() {
     if (window.App && typeof App.initializeWhenReady === 'function') {
       App.initializeWhenReady();
     } else {
-      console.error('[DEBUG] App failed to initialize due to missing dependencies: App.initializeWhenReady not found');
+      console.error('App failed to initialize due to missing dependencies: App.initializeWhenReady not found');
     }
   }
   
@@ -136,8 +130,8 @@ function checkDependencies() {
                       pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
                       presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
-  
-  ,
+                  }
+              },
               characterAi: {
                   itemType: 'character',
                   dbTableKey: 'characters',
@@ -158,7 +152,7 @@ function checkDependencies() {
                       pastPlaceholder: "Significant Life Events: Formative experiences, defining relationships, major turning points, learned history, or traumas that shaped them. Example: 'Orphaned during the Galactic Wars, later mentored by a cryptic space hermit, discovered an ancient artifact that changed their destiny.'",
                       presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
-  
+                  }
               },
               characterUser: {
                   itemType: 'character',
@@ -209,7 +203,7 @@ function checkDependencies() {
     
         _query(id, required = false) {
             const el = document.getElementById(id);
-            // console.log(`[DEBUG][_query] Attempting to find element with ID: ${id}. Found: ${!!el}`);
+            
             if (!el && required) {
                 console.error(`[UI Critical] Element with ID '${id}' not found.`);
             } else if (!el) {
@@ -223,7 +217,7 @@ function checkDependencies() {
          * Should be called once after DOM is ready.
          */
         _getUIElements() {
-            // console.log('[DEBUG][_getUIElements] Starting UI element query.');
+            
             this._getTopBarElements();
             this._getChinElements();
             this._getCoreUIContainers();
@@ -237,8 +231,8 @@ function checkDependencies() {
             if (!this.ui.main) {
                 console.error("[App Critical] #main container not found after UI element query!");
             }
-            // console.log('[DEBUG] UI elements loaded. TopBarRight:', this.ui.topBarRight, 'ProfileTopBar:', this.ui.profileTopBar);
-            // console.log('[DEBUG][_getUIElements] Finished UI element query.');
+            
+            
         },
     
         _getTopBarElements() {
@@ -267,10 +261,10 @@ function checkDependencies() {
         },
     
         _getChinElements() {
-            this.ui.storyboardChin = this._query('chin-story');
-            this.ui.characterWorkshopChin = this._query('chin-character');
-            this.ui.worldBuilderChin = this._query('chin-world');
-            this.ui.optionsChin = this._query('chin-options');
+            this.ui.storyboardChin = this._query('storyboard-chin');
+            this.ui.characterWorkshopChin = this._query('character-workshop-chin');
+            this.ui.worldBuilderChin = this._query('world-builder-chin');
+            this.ui.optionsChin = this._query('options-chin');
         },
     
         _getCoreUIContainers() {
@@ -567,11 +561,11 @@ function checkDependencies() {
        * @returns {HTMLElement|null}
        */
       hideEl(el) {
-        console.log('=== [DEBUG HIDEEL] ===', el && el.id, el);
+        // Debug: Element hide operation
         if (el) {
           el.classList.add('hidden'); // Add the hidden class
           el.style.display = 'none';
-          // console.log('[DEBUG] hideEl called for', el.id);
+          
         }
       },
       
@@ -635,9 +629,9 @@ function checkDependencies() {
       _premadeCharacterCache: null,
     
       async getPremadeCharacterItems() { 
-          // console.log('[DEBUG] getPremadeCharacterItems called');
+    
           if (this._premadeCharacterCache) {
-              // console.log('[DEBUG] Returning cached character items');
+        
               return this._premadeCharacterCache;
           }
           const db = this.db;
@@ -719,7 +713,7 @@ function checkDependencies() {
             ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
             ...premadeWithFlag
           ];
-          // console.log('[DEBUG] getPremadeCharacterItems: Merged data for UI:', merged);
+    
           this._premadeCharacterCache = merged;
           return this._premadeCharacterCache;
       },
@@ -729,9 +723,9 @@ function checkDependencies() {
       _premadeWorldCache: null,
     
       async getPremadeWorldItems() {
-          // console.log('[DEBUG] getPremadeWorldItems called');
+    
           if (this._premadeWorldItemsCache) {
-              // console.log('[DEBUG] Using cached premade world items, count:', this._premadeWorldItemsCache.length);
+        
               return this._premadeWorldItemsCache;
           }
           const db = this.db;
@@ -771,8 +765,8 @@ function checkDependencies() {
             ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
             ...premadeWithFlag
           ];
-                  // console.log('[DEBUG] getPremadeWorldItems: Merged data for UI:', merged);
-        // console.log('[DEBUG] First few worlds:', merged.slice(0, 3).map(w => ({ id: w.id, name: w.name, colorPalette: w.colorPalette })));
+            
+  
           this._premadeWorldItemsCache = merged;
           return this._premadeWorldItemsCache;
       },
@@ -861,9 +855,9 @@ function checkDependencies() {
       },
     
       async initialLoad() {
-          console.log('=== [DEBUG INITIAL LOAD START] ==='); // Added log
-          console.log("=== App.initialLoad called ===");
-          // console.log("[DEBUG] _getUIElements called, this.ui.main:", this.ui.main, "this.ui.initialPageLoadingModal:", this.ui.initialPageLoadingModal);
+          // Debug: Initial load started
+          // App.initialLoad called
+    
           this.isInitializing = true;
     
           // Initialize navigation guard system
@@ -887,14 +881,14 @@ function checkDependencies() {
           }
     
           this.showEl(this.ui.main);
-                      // console.log("[DEBUG] showEl(this.ui.main) called");
+                
     
           try {
-                              // console.log("[DEBUG] Attempting to initializeDb..."); // Added log
+                        
               await this.initializeDb();
-                              // console.log("[DEBUG] initializeDb complete");
+                        
               const appState = await this.getAppState();
-                              // console.log("[DEBUG] getAppState complete");
+                        
               this.currentUserCharacterId = appState.currentUserCharacterId;
               this.currentStoryId = appState.lastOpenedStoryId; 
               this.activeStoryId = appState.activeStoryId; 
@@ -913,7 +907,7 @@ function checkDependencies() {
               };
               document.addEventListener('click', () => {
                       if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover');
-              });
+                  });
               // Bind menu button click handler directly to avoid onclick attribute issues
               if (this.ui.menuButton) {
                   // Menu button functionality will be implemented later
@@ -921,7 +915,7 @@ function checkDependencies() {
               this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
               
               await this._updateCharacterInfo('user');
-                              // console.log("[DEBUG] _updateCharacterInfo complete");
+                        
     
               let initialScreenTarget = this.CONSTANTS.VIEWS.STORYBOARD;
               let initialScreenOptions = {};
@@ -942,9 +936,9 @@ function checkDependencies() {
                           }
                           recoveredFromSessionStorage = true;
                           sessionStorage.removeItem('pendingRPGlitchFormState'); 
-                          console.log("[App Lifecycle] Recovered pending form state from sessionStorage:", parsedState.formOptions.isCreating ? "Copy workflow" : "Edit workflow");
+                          // Recovered pending form state from sessionStorage
                       } else {
-                          console.log("[App Lifecycle] Stale or invalid pending form state in sessionStorage. Removing.");
+                          // Stale or invalid pending form state in sessionStorage. Removing.
                           sessionStorage.removeItem('pendingRPGlitchFormState'); 
                       }
                   } catch (e) {
@@ -977,13 +971,13 @@ function checkDependencies() {
               
               if (initialScreenTarget === this.CONSTANTS.VIEWS.STORY_INTERFACE && this.activeStoryId) { 
                    await this.openStory(this.activeStoryId);
-                                       // console.log("[DEBUG] openStory complete");
+                                 
               } else {
                    await this.switchToScreen(initialScreenTarget, initialScreenOptions);
-                                       // console.log("[DEBUG] switchToScreen complete");
+                                 
               }
     
-                              // console.log("[DEBUG] Loading characters and worlds into App.data..."); // Added log
+                        
               // Load all characters and worlds from the database before setting App.data
               this.data = {
                 characters: await this.db.characters.toArray(),
@@ -992,55 +986,55 @@ function checkDependencies() {
     
               // Ensure App.data is set for dropdown population
               App.data = this.data;
-                              // console.log('[DEBUG] App.data set:', App.data && Object.keys(App.data)); // Existing log, now more crucial
-                // console.log('[DEBUG] App.data.characters:', App.data && App.data.characters);
-                // console.log('[DEBUG] App.data.worlds:', App.data && App.data.worlds);
+                        
+          
+          
     
               // Atomic fix: Populate dropdowns immediately after data is set
               if (typeof this._updateStoryboard === 'function') {
-                                      // console.log('[DEBUG] Calling _updateStoryboard from initialLoad...'); // Added log
+                                
                   await this._updateStoryboard();
-                                      // console.log('[DEBUG] _updateStoryboard complete in initialLoad'); // Added log
+                                
               }
     
               this.hideEl(this.ui.initialPageLoadingModal);
-                              // console.log("[DEBUG] hideEl(this.ui.initialPageLoadingModal) called");
-              console.log("[App Lifecycle] initialLoad completed.");
+                        
+              // Initial load completed
     
           } catch (error) {
               console.error("[App Lifecycle] Error during initialLoad:", error);
               this.showEl(this.ui.emergencyExportCtn);
               this.hideEl(this.ui.initialPageLoadingModal);
-                              // console.log("[DEBUG] Error caught in initialLoad:", error);
+                        
           } finally {
               this.isInitializing = false;
               this.checkAllButtonStates();
               // Ensure right-side buttons are rendered and functional on initial load for Storyboard
               this.updateTopBarUI();
-                              // console.log('=== [DEBUG INITIAL LOAD END] ===');
-                // console.log('[DEBUG] Initial load complete. Current focusBarState.mode:', this.focusBarState.mode);
+                        
+          
           }
           // ... existing code ...
           if (this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD && typeof this._updateStoryboard === 'function') {
-            // console.log('[DEBUG] Data loaded and screen switched, calling _updateStoryboard');
+      
             await this._updateStoryboard();
           }
           // Force hide loading modal in case of silent failure
           if (this.ui && this.ui.initialPageLoadingModal) {
             this.hideEl(this.ui.initialPageLoadingModal);
-            console.log("=== Forced hide of loading modal ===");
+            // Forced hide of loading modal
           }
           if (!this.storyboardSelected) {
             this.storyboardSelected = { ai: '', user: '', world: '' };
           }
-        },
+      },
       
       async _getitemData(id, dbTableKey, getPremadesFn) {
-          // console.log('[DEBUG] _getitemData called with:', { id, dbTableKey });
+    
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('[DEBUG] Database not initialized yet, skipping _getitemData');
+              console.warn('Database not initialized yet, skipping _getitemData');
               return null;
           }
           
@@ -1048,7 +1042,7 @@ function checkDependencies() {
               const actualPremadeId = id.substring(id.indexOf(':') + 1);
               const items = await getPremadesFn();
               const foundItem = items.find(item => item.id === actualPremadeId);
-              // console.log('[DEBUG] _getitemData premade lookup:', { actualPremadeId, foundItem, itemsCount: items.length });
+        
               
               if (foundItem) {
                   const basePremade = {
@@ -1058,18 +1052,18 @@ function checkDependencies() {
                       originalPremadeId: foundItem.id, 
                       id: id // Keep the full premade ID for later reference
                   };
-                                      // console.log('[DEBUG] _getitemData returning premade:', basePremade);
+                                
                   return basePremade;
               }
-                              // console.log('[DEBUG] _getitemData premade not found');
+                        
               return null;
           }
           if ((typeof id === 'number' || (typeof id === 'string' && !isNaN(parseInt(id, 10)))) && this.db[dbTableKey]) {
               const result = await this.db[dbTableKey].get(parseInt(id, 10));
-              // console.log('[DEBUG] _getitemData database lookup:', { id, result });
+        
               return result;
           }
-          // console.log('[DEBUG] _getitemData no match found');
+    
           return null;
       },
     
@@ -1080,12 +1074,12 @@ function checkDependencies() {
          */
      
       async _populateList(listArea, searchTerm = '', config) {
-          // console.log('[DEBUG] _populateList called for:', config.itemType); // Added log
+    
           if (!listArea || !config) return;
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('[DEBUG] Database not initialized yet, skipping _populateList');
+              console.warn('Database not initialized yet, skipping _populateList');
               listArea.innerHTML = '<p class="list-item-empty-message">Loading...</p>';
               return;
           }
@@ -1166,7 +1160,7 @@ function checkDependencies() {
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('[DEBUG] Database not initialized yet, skipping _populateStoryList');
+              console.warn('Database not initialized yet, skipping _populateStoryList');
               listArea.innerHTML = '<p class="story-item-empty-message">Loading...</p>';
               return;
           }
@@ -1461,7 +1455,7 @@ function checkDependencies() {
       },
       
             async renderFormScreen(options = {}) {
-          console.log("[App Navigation] renderFormScreen called with options:", options);
+          // renderFormScreen called with options
           const { itemType, isCreating, isCopying } = options;
       
           const config = this.CONSTANTS.ITEM_CONFIG[itemType];
@@ -1471,31 +1465,31 @@ function checkDependencies() {
           if (!container) { console.error(`Container for ${config.formScreen} not found`); return; }
     
           const isCreatingOrCopying = isCreating || isCopying;
-          console.log("[App Navigation] isCreatingOrCopying determined as:", isCreatingOrCopying);
+          // isCreatingOrCopying determined
           
           // Removed top bar title text
     
           let item = {};
           if (isCreating && !isCopying) {
-              console.log("[App Navigation] Creation path - checking formData sources");
+              // Creation path - checking formData sources
               if (options.formData && Object.keys(options.formData).length > 0) {
                   item = { ...options.formData };
                   this.createItemFormData = { ...options.formData }; 
-                  console.log("[App Navigation] Using formData passed in options for new item:", item);
+                  // Using formData passed in options for new item
               } else if (Object.keys(this.createItemFormData).length > 0) {
                   item = { ...this.createItemFormData };
-                  console.log("[App Navigation] Using App.createItemFormData for new item:", item);
+                  // Using App.createItemFormData for new item
               } else {
                   item = {};
-                  console.log("[App Navigation] Creating a truly new item, no prior data.");
+                  // Creating a truly new item, no prior data
               }
           } else if (isCopying) {
-              console.log("[App Navigation] Copying path - fetching original item with ID:", options.itemId);
+              // Copying path - fetching original item with ID
               const originalItem = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
-              console.log("[App Navigation] Retrieved original item for copying:", originalItem);
-              console.log("[App Navigation] Original item name:", originalItem.name);
-              console.log("[App Navigation] Original item name type:", typeof originalItem.name);
-              console.log("[App Navigation] Original item name length:", originalItem.name.length);
+              // Retrieved original item for copying
+              // Original item name
+              // Original item name type
+              // Original item name length
               
               // Copy the original item data but remove the ID and timestamps to make it a new item
               item = { ...originalItem };
@@ -1516,14 +1510,14 @@ function checkDependencies() {
                   profilePicture: item.profilePicture,
                   colorPalette: item.colorPalette || 'tech_blue'
               };
-              console.log("[App Navigation] Copied item data for new item:", item);
-              console.log("[App Navigation] Copied item name:", item.name);
-              console.log("[App Navigation] Copied item name type:", typeof item.name);
-              console.log("[App Navigation] Copied item name length:", item.name.length);
+              // Copied item data for new item
+              // Copied item name
+              // Copied item name type
+              // Copied item name length
           } else { 
-              console.log("[App Navigation] Editing path - fetching item with ID:", options.itemId);
+              // Editing path - fetching item with ID
               item = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
-              console.log("[App Navigation] Retrieved item for editing:", item);
+              // Retrieved item for editing
               // Initialize form data with existing item's colorPalette for editing
               // Use a more varied default color palette instead of always slate_gray
               const defaultPalettes = ['tech_blue', 'forest_green', 'crimson_red', 'sunset_orange', 'royal_purple', 'cyber_pink'];
@@ -1664,7 +1658,7 @@ function checkDependencies() {
       
           // --- PROFILE PICTURE/PLACEHOLDER LOGIC ---
           // const profilePictureSrc = (item.profilePicture && item.profilePicture.trim()) ? item.profilePicture.trim() : this._makeProfilePicturePlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade); // Unused variable
-                      // console.log("[DEBUG] item.profilePicture:", item.profilePicture, "profilePictureSrc:", profilePictureSrc); // Debug profilePicture source
+                
     
           const profilePictureHtml = this._generateProfilePictureHtml(item, 'profile'); // Use the new helper function
     
@@ -1673,7 +1667,7 @@ function checkDependencies() {
           // const formActions = ''; // Unused variable
     
           // --- BACKGROUND PROFILE PICTURE LAYOUT ---
-                      // console.log("[DEBUG] isEditing for EPPF fields:", isEditing); // Debug isEditing flag
+                
           
           // Both profile view and edit mode use the same beautiful background layout
           const content = `
@@ -1934,14 +1928,14 @@ function checkDependencies() {
           const cancelButton = form.querySelector(`#cancel${config.capital}ButtonMain`);
           
           if (!cancelButton) {
-              console.warn(`[EDIT WORKFLOW DEBUG] Cancel button not found for ${itemType} form.`);
+              console.warn(`Cancel button not found for ${itemType} form.`);
               return;
           }
     
           cancelButton.onclick = (e) => {
               // Ignore synthetic/programmatic clicks that are not user-initiated
               if (e && e.isTrusted === false) {
-                  console.warn("[EDIT WORKFLOW DEBUG] Programmatic cancel click suppressed");
+                  console.warn("Programmatic cancel click suppressed");
                   return;
               }
               
@@ -1964,9 +1958,14 @@ function checkDependencies() {
               // Get config for this item type
               const config = this.CONSTANTS.ITEM_CONFIG[itemType];
               
-              console.log("[CANCEL DEBUG] Form context:", { 
-                  id, itemType, isCreating, isCopying, originalScreen, 
-                  currentCreateFormContext: this.currentCreateFormContext 
+              // Form context: 
+              console.log("Form context:", {
+                  id,
+                  itemType,
+                  isCreating,
+                  isCopying,
+                  originalScreen,
+                  currentCreateFormContext: this.currentCreateFormContext
               });
               
               // Determine where to go based on the context
@@ -1982,24 +1981,24 @@ function checkDependencies() {
                       preSelectedUserCharacterId: preSelectedUserCharacterId?.startsWith?.('create_new_') ? '' : preSelectedUserCharacterId, 
                       preSelectedWorldId: preSelectedWorldId?.startsWith?.('create_new_') ? '' : preSelectedWorldId 
                   };
-                  console.log("[CANCEL DEBUG] Creating new, going to storyboard");
+                  // Creating new, going to storyboard
               } else if (isCopying) {
                   // If copying, go back to the original screen we came from
                   if (originalScreen && originalScreen !== this.CONSTANTS.VIEWS.STORYBOARD) {
                       targetScreen = originalScreen;
                       navOptions = { itemId: id, itemType: itemType };
-                      console.log("[CANCEL DEBUG] Copying cancelled, returning to original screen:", { originalScreen, itemId: id, itemType: itemType });
+                      // Copying cancelled, returning to original screen
               } else {
                       // Fallback to profile screen if no original screen
                   targetScreen = config.profileScreen;
                   navOptions = { itemId: id, itemType: itemType };
-                      console.log("[CANCEL DEBUG] Copying cancelled, fallback to profile:", { itemId: id, itemType: itemType });
+                      // Copying cancelled, fallback to profile
                   }
               } else {
                   // If editing existing item, go back to its profile page
                   targetScreen = config.profileScreen;
                   navOptions = { itemId: id, itemType: itemType };
-                  console.log("[CANCEL DEBUG] Editing, going to profile:", { itemId: id, itemType: itemType });
+                  // Editing, going to profile
               }
     
               this.switchToScreen(targetScreen, navOptions);
@@ -2029,7 +2028,7 @@ function checkDependencies() {
                       formOptions: formOptionsToStore,
                       timestamp: Date.now()
                   }));
-                  console.log("[FORM SUBMISSION] Stored pending form state in sessionStorage:", formDataToStore);
+                  // Stored pending form state in sessionStorage
               } catch (e) {
                   console.error("[FORM SUBMISSION] Failed to store form state to sessionStorage:", e);
               }
@@ -2313,13 +2312,13 @@ function checkDependencies() {
                 const deps = checkDependencies();
                 if (deps.isDexieLoaded && deps.isHyperscriptLoaded && deps.isCashDomLoaded && deps.isDOMPurifyAvailable) {
                   clearInterval(interval);
-                  // console.log("[DEBUG] All dependencies loaded successfully.");
+  
                   resolve();
                 } else {
                   attempts++;
                   if (attempts >= maxAttempts) {
                     clearInterval(interval);
-                    console.error("[DEBUG] Dependency load timed out.", deps);
+                    console.error("Dependency load timed out.", deps);
                     const missing = Object.entries(deps).filter(([,v])=>!v).map(([key])=>key).join(", ");
                     reject(new Error("Dependencies not loaded in time: " + missing));
                   }
@@ -2338,7 +2337,7 @@ function checkDependencies() {
                 attempts++;
                 if (attempts >= maxAttempts) {
                   clearInterval(interval);
-                  console.error("[DEBUG] Dependency load timed out.", deps);
+                  console.error("Dependency load timed out.", deps);
                   const missing = Object.entries(deps).filter(([,v])=>!v).map(([key])=>key).join(", ");
                   reject(new Error("Dependencies not loaded in time: " + missing));
                 }
@@ -2351,7 +2350,7 @@ function checkDependencies() {
       async initializeWhenReady() {
         try {
           await this.waitForDependenciesAndInitializeApp();
-          // console.log("[DEBUG] Dependencies ready, calling App.init()");
+
           this.init();
         } catch (error) {
           console.error("App failed to initialize due to missing dependencies:", error);
@@ -2366,7 +2365,7 @@ function checkDependencies() {
       },
     
       async switchToScreen(screenName, options = {}) {
-          console.log("[App Navigation] Switching to screen:", screenName, "with options:", options, "from current view:", this.currentMainView);
+          // Switching to screen
     
           // Save app state before screen switch
           await this.saveAppState();
@@ -2376,26 +2375,26 @@ function checkDependencies() {
               const screenEl = this.ui[viewId];
               if (screenEl) {
                   this.hideEl(screenEl);
-                  // console.log(`[DEBUG] Hiding screen: ${viewId}. Current display: ${window.getComputedStyle(screenEl).display}`);
+
               }
           });
           // Hide the chin area as well when switching screens
           this.hideEl(this.ui.topBarChin);
           this.focusBarState.chinOpen = false;
   
-          // console.log('[DEBUG] After hiding all screens. Target screenName:', screenName);
+
           
           // Activate the target screen
           const targetScreenEl = this.ui[screenName];
           if (targetScreenEl) {
               this.showEl(targetScreenEl);
-              // console.log(`[DEBUG] Showing target screen: ${screenName}. Current display: ${window.getComputedStyle(targetScreenEl).display}, classList: ${Array.from(targetScreenEl.classList)}`);
+
           } else {
               console.error("Attempted to switch to unknown screen:", screenName);
               this.showTopNotification("Error: Screen not found.", "error");
               this.currentMainView = this.CONSTANTS.VIEWS.STORYBOARD;
               this.showEl(this.ui.storyboardScreen); // Fallback to storyboard
-              // console.log('[DEBUG] Falling back to storyboard.');
+
           }
     
           this.currentMainView = screenName;
@@ -2441,17 +2440,17 @@ function checkDependencies() {
                   break;
               }
               case this.CONSTANTS.VIEWS.CHARACTER_PROFILE:
-                  // console.log('[DEBUG] Navigating to CHARACTER_PROFILE screen. Item ID:', options.itemId);
+            
                   this.focusBarState.mode = null; // No chin should be active on profile screens
                   await this.renderProfileScreen(options);
                   break;
               case this.CONSTANTS.VIEWS.WORLD_PROFILE:
-                  // console.log('[DEBUG] Navigating to WORLD_PROFILE screen. Item ID:', options.itemId);
+            
                   this.focusBarState.mode = null; // No chin should be active on profile screens
                   await this.renderProfileScreen(options);
                   break;
               case this.CONSTANTS.VIEWS.STORY_PROFILE:
-                  // console.log('[DEBUG] Navigating to STORY_PROFILE screen. Story ID:', options.storyId);
+            
                   this.focusBarState.mode = null; // No chin should be active on profile screens
                   await this.renderStoryProfileScreen(options.storyId);
                   break;
@@ -2478,7 +2477,7 @@ function checkDependencies() {
                   console.warn("Unhandled screen switch:", screenName);
                   break;
           }
-          // console.log('[DEBUG] switchToScreen completed. Calling updateTopBarUI.');
+    
           this.updateTopBarUI(); // Update UI after screen switch
           this.checkAllButtonStates(); // Ensure all buttons are correctly enabled/disabled
       },
@@ -2532,7 +2531,7 @@ function checkDependencies() {
       },
     
       async openStory(storyId) { 
-        console.log("[App Navigation] Attempting to open story:", storyId);
+        // Attempting to open story
         // Phase 1: Validate and fetch story data
         const story = await this.db.stories.get(storyId);
         if (!story) {
@@ -2584,7 +2583,7 @@ function checkDependencies() {
         this.ui.chatScreenLayoutContainer.style.backgroundPosition = 'center';
         this.ui.chatScreenLayoutContainer.classList.add('chat-background'); // Add class for potential overlay/effects
     
-        console.log("[App Navigation] Successfully opened story:", storyId);
+        // Successfully opened story
       },
     
       async concludeStory(storyId) {
@@ -2610,7 +2609,7 @@ function checkDependencies() {
       },
     
       async beginStory() {
-          console.log("[App Logic] beginStory called.");
+          // beginStory called
           // 1. Get selected characters and world
           const aiCharacterId = this.ui.storyboardAiCharacterSelect.value;
           const userCharacterId = this.ui.storyboardUserCharacterSelect.value;
@@ -2674,14 +2673,14 @@ function checkDependencies() {
           const existingStory = await this.db.stories.where({ aiCharacterId, userCharacterId, worldId, concluded: false }).first();
     
           if (existingStory) {
-              console.log("[App Logic] Resuming existing story:", existingStory.id);
+              // Resuming existing story
               this.showTopNotification("Resuming existing story!", "info");
               this.openStory(existingStory.id);
               return;
           }
     
           // 5. Create a new story if none exists
-          console.log("[App Logic] Creating new story.");
+          // Creating new story
           const newStoryId = await this.db.stories.add({
               aiCharacterId: aiCharacter.id,
               userCharacterId: userCharacter.id,
@@ -2757,7 +2756,7 @@ function checkDependencies() {
       async sendButtonClickHandler() {
           const messageText = this.ui.messageInput.value.trim();
           if (!messageText || this.ui.sendButton.disabled) {
-              console.log("Attempted to send empty or disabled message.");
+              // Attempted to send empty or disabled message
               return;
           }
           
@@ -2994,9 +2993,9 @@ function checkDependencies() {
           }
       },
     
-      async _applyMemoriesToProfiles(storyId) {
+      async _applyMemoriesToProfiles() {
           // Placeholder for applying extracted memories to character/world profiles
-          console.log(`Applying memories for story ${storyId}`);
+          // Applying memories for story
           // In a real implementation, you would:
           // 1. Fetch memories from the story
           // 2. Update the relevant character/world items in the DB
@@ -3010,7 +3009,7 @@ function checkDependencies() {
           if (this.isUpdatingStoryboard) return;
           this.isUpdatingStoryboard = true;
           try {
-              // console.log('[DEBUG] _updateStoryboard called. Current storyboardSelected:', this.storyboardSelected);
+        
               // Ensure storyboardSelected exists
               this.storyboardSelected = this.storyboardSelected || { ai: '', user: '', world: '' };
   
@@ -3052,7 +3051,7 @@ function checkDependencies() {
                   }
                   // DEBUG LOG BEFORE
                   if (selectedKey === 'ai') {
-                                      // console.log('[DEBUG][AI DROPDOWN][BEFORE]', {
+                                
                   //   storyboardSelected: JSON.parse(JSON.stringify(this.storyboardSelected)),
                   //   selectedValue,
                   //   dropdownValue: dropdownEl.value,
@@ -3114,7 +3113,7 @@ function checkDependencies() {
                                   });
                               } else {
                                   if (selectedKey) this.storyboardSelected[selectedKey] = opt.value;
-                                  // console.log(`[DEBUG] Dropdown selection: ${config.itemType} set to ${opt.value}`);
+                            
                                   await this._updateStoryboard(); // Always re-render all cards for consistency
                               }
                           };
@@ -3252,17 +3251,17 @@ function checkDependencies() {
                 // Determine which item to use for rendering the card itself
                 let itemToRender = null;
                 let selectedValue = this.storyboardSelected[key];
-                // console.log(`[DEBUG] _updateStoryboard: Processing ${key} with selectedValue:`, selectedValue);
+          
                 
                 if (selectedValue && !selectedValue.startsWith('create_new_')) {
                   itemToRender = await this._getitemData(selectedValue, config.dbTableKey, config.getPremadesFn, config.itemType);
-                  // console.log(`[DEBUG] _updateStoryboard: Retrieved item for ${key}:`, itemToRender);
+            
                 }
                 if (itemToRender) {
-                  // console.log(`[DEBUG] _updateStoryboard: Rendering card for ${key} with item:`, itemToRender);
+            
                   this._renderStoryboardCard(card, itemToRender, config); // Pass the select element
                 } else {
-                  // console.log(`[DEBUG] _updateStoryboard: Clearing card for ${key} - no valid item`);
+            
                   this.clearStoryboardCard(card, config);
                 }
               }
@@ -3326,7 +3325,7 @@ function checkDependencies() {
             if (worldName) parts.push(worldName);
             titleText = parts.join(' & ');
         }
-        // console.log('[DEBUG] updateDynamicStoryboardTitle:', { aiCharName, userCharName, worldName, titleText });
+  
         this.ui.storyboardTitle.innerHTML = titleText;
       },
     
@@ -3510,7 +3509,7 @@ function checkDependencies() {
       },
     
       _renderStoryboardCard(cardElement, item, config) {
-          // console.log('[DEBUG] _renderStoryboardCard called for:', { 
+     
           //   itemType: config.itemType, 
           //   itemName: item.name, 
           //   itemId: item.id, 
@@ -3555,7 +3554,7 @@ function checkDependencies() {
           // Ensure we have a valid palette key for the profile picture
           const validPaletteKey = getValidPaletteKey(item);
           const itemWithValidPalette = { ...item, colorPalette: validPaletteKey };
-          // console.log('[DEBUG] Storyboard card profile picture:', { 
+     
           //   originalItem: item, 
           //   validPaletteKey, 
           //   itemWithValidPalette 
@@ -3909,7 +3908,7 @@ function checkDependencies() {
               const randomWorld = worldOptions[Math.floor(Math.random() * worldOptions.length)].value;
               this.storyboardSelected.world = randomWorld;
           }
-                      // console.log('[DEBUG][SHUFFLE] storyboardSelected after shuffle:', JSON.parse(JSON.stringify(this.storyboardSelected)));
+                
           await this._updateStoryboard();
           await this.updateDynamicStoryboardTitle();
       },
@@ -3958,10 +3957,10 @@ function checkDependencies() {
         const cacheKey = `${keyPart}::${paletteKey}::${isPremade}`;
         
         // Debug logging for profile picture generation
-        // console.log('[DEBUG] Profile picture cache key:', cacheKey, 'for item:', { name, paletteKey, isPremade, itemId, normalizedItemId });
+  
         
         if (this._profilePicturePlaceholderCache[cacheKey]) {
-                      // console.log('[DEBUG] Using cached profile picture for:', cacheKey);
+                
           return this._profilePicturePlaceholderCache[cacheKey];
         }
         const initials = this._getInitials(name);
@@ -3970,7 +3969,7 @@ function checkDependencies() {
         const textColor = palette.colors.light;
         
         // Additional debug logging for palette colors
-        // console.log('[DEBUG] Profile picture colors:', { paletteKey, bgColor, textColor, palette, initials });
+  
         
         // Calculate font size based on number of initials
         let fontSize = 40; // Base size for 1 character
@@ -3988,7 +3987,7 @@ function checkDependencies() {
         `;
         const dataUrl = `data:image/svg+xml;base64,${btoa(svgContent)}`;
         this._profilePicturePlaceholderCache[cacheKey] = dataUrl;
-        // console.log('[DEBUG] Generated new profile picture for:', cacheKey);
+  
         return dataUrl;
       },
     
@@ -4003,7 +4002,7 @@ function checkDependencies() {
         window.currentProfilePictureIsPremade = item.isPremade || false;
         window.currentProfilePictureItem = item;
         
-              // console.log('[DEBUG] _generateProfilePictureHtml setting context:', { 
+         
       //   itemId: window.currentProfilePictureItemId, 
       //   isPremade: window.currentProfilePictureIsPremade,
       //   item: item,
@@ -4017,7 +4016,7 @@ function checkDependencies() {
       },
     
       _getProfilePictureSrc(item) {
-            // console.log('[DEBUG] _getProfilePictureSrc called for item:', { 
+       
     //   name: item.name, 
     //   hasProfilePicture: !!(item.profilePicture && item.profilePicture.trim()),
     //   colorPalette: item.colorPalette,
@@ -4035,7 +4034,7 @@ function checkDependencies() {
          * Updates the UI based on the active tab and chin state.
          */
         updateTopBarUI() {
-            // console.log('[DEBUG] updateTopBarUI called. Current mode:', this.focusBarState.mode, 'Current Main View:', this.currentMainView);
+      
             
             // Check if database is initialized before proceeding
             if (!this.db) {
@@ -4057,28 +4056,31 @@ function checkDependencies() {
                 }
             });
   
-            // Chin visibility managed by chinMap below
-
-
-
-
-            
+            // Hide all chins by default
+            const chinIds = ['storyboard-chin', 'character-workshop-chin', 'world-builder-chin', 'options-chin'];
+            chinIds.forEach(id => {
+                const chin = document.getElementById(id);
+                if (chin) chin.classList.add('hidden');
+            });
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
+            // Show the active chin if chinOpen is true
+            if (this.focusBarState.chinOpen) {
+                let activeChinId = null;
+                switch (this.focusBarState.mode) {
+                    case 'storyboard':
+                        activeChinId = 'storyboard-chin'; break;
+                    case 'characters':
+                        activeChinId = 'character-workshop-chin'; break;
+                    case 'worlds':
+                        activeChinId = 'world-builder-chin'; break;
+                    case 'options':
+                        activeChinId = 'options-chin'; break;
+                }
+                if (activeChinId) {
+                    const activeChin = document.getElementById(activeChinId);
+                    if (activeChin) activeChin.classList.remove('hidden');
+                }
+            }
   
             // Chin toggling logic (remove style.display logic)
             const chinMap = {
@@ -4130,15 +4132,15 @@ function checkDependencies() {
 
             const isStoryboardScreen = this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD;
   
-                      // console.log('[DEBUG] isProfileScreen:', isProfileScreen);
-          // console.log('[DEBUG] currentMainView:', this.currentMainView);
-          // console.log('[DEBUG] CONSTANTS.VIEWS.CHARACTER_PROFILE:', this.CONSTANTS.VIEWS.CHARACTER_PROFILE);
-          // console.log('[DEBUG] CONSTANTS.VIEWS.WORLD_PROFILE:', this.CONSTANTS.VIEWS.WORLD_PROFILE);
-          // console.log('[DEBUG] CONSTANTS.VIEWS.STORY_PROFILE:', this.CONSTANTS.VIEWS.STORY_PROFILE);
+                
+    
+    
+    
+    
   
             if (this.ui.topBar) {
               this.ui.topBar.classList.toggle('hidden', isProfileScreen);
-              // console.log('[DEBUG] Main Top Bar hidden:', this.ui.topBar.classList.contains('hidden'));
+        
               
               // For form screens, ensure the main top bar is visible
               if (isFormScreen) {
@@ -4191,7 +4193,7 @@ function checkDependencies() {
             }
             if (this.ui.profileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE;
-              // console.log('[DEBUG] Character Profile Top Bar shouldShow:', shouldShow, 'isProfileScreen:', isProfileScreen, 'currentMainView:', this.currentMainView, 'CHARACTER_PROFILE:', this.CONSTANTS.VIEWS.CHARACTER_PROFILE);
+        
               this.ui.profileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
@@ -4199,13 +4201,13 @@ function checkDependencies() {
               } else {
                 this.ui.profileTopBar.classList.add('hidden');
               }
-                          // console.log('[DEBUG] Character Profile Top Bar active:', shouldShow, 'currentMainView:', this.currentMainView);
-            // console.log('[DEBUG] Character Profile Top Bar classList:', Array.from(this.ui.profileTopBar.classList));
-            // console.log('[DEBUG] Character Profile Top Bar computed display:', window.getComputedStyle(this.ui.profileTopBar).display);
+                    
+      
+      
             }
             if (this.ui.worldProfileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE;
-              // console.log('[DEBUG] World Profile Top Bar shouldShow:', shouldShow, 'isProfileScreen:', isProfileScreen, 'currentMainView:', this.currentMainView, 'WORLD_PROFILE:', this.CONSTANTS.VIEWS.WORLD_PROFILE);
+        
               this.ui.worldProfileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
@@ -4213,13 +4215,13 @@ function checkDependencies() {
               } else {
                 this.ui.worldProfileTopBar.classList.add('hidden');
               }
-                          // console.log('[DEBUG] World Profile Top Bar active:', shouldShow, 'currentMainView:', this.currentMainView);
-            // console.log('[DEBUG] World Profile Top Bar classList:', Array.from(this.ui.worldProfileTopBar.classList));
-            // console.log('[DEBUG] World Profile Top Bar computed display:', window.getComputedStyle(this.ui.worldProfileTopBar).display);
+                    
+      
+      
             }
             if (this.ui.storyProfileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE;
-              // console.log('[DEBUG] Story Profile Top Bar shouldShow:', shouldShow, 'isProfileScreen:', isProfileScreen, 'currentMainView:', this.currentMainView, 'STORY_PROFILE:', this.CONSTANTS.VIEWS.STORY_PROFILE);
+        
               this.ui.storyProfileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
@@ -4227,9 +4229,9 @@ function checkDependencies() {
               } else {
                 this.ui.storyProfileTopBar.classList.add('hidden');
               }
-                          // console.log('[DEBUG] Story Profile Top Bar active:', shouldShow, 'currentMainView:', this.currentMainView);
-            // console.log('[DEBUG] Story Profile Top Bar classList:', Array.from(this.ui.storyProfileTopBar.classList));
-            // console.log('[DEBUG] Story Profile Top Bar computed display:', window.getComputedStyle(this.ui.storyProfileTopBar).display);
+                    
+      
+      
             }
   
             // Update profile top bar content if visible
@@ -4245,7 +4247,7 @@ function checkDependencies() {
         },
   
       async _updateProfileTopBarUI(topBarElement, itemId, itemType) {
-        // console.log('[DEBUG] _updateProfileTopBarUI called for', itemType, 'with itemId', itemId);
+  
         if (!topBarElement || !itemId) return;
   
         let item;
@@ -4269,7 +4271,7 @@ function checkDependencies() {
         const titleArea = topBarElement.querySelector('.top-bar-center');
         if (titleArea) {
           titleArea.innerHTML = `<h2 class="profile-top-bar-title">${item.name || `${config.capital} Profile`}</h2>`;
-          // console.log('[DEBUG] Profile Top Bar Title set to:', item.name || `${config.capital} Profile`);
+    
         }
   
         // Update user character info (always present if a user character is selected)
@@ -4427,7 +4429,7 @@ function checkDependencies() {
       init() {
           // Set window.dbName if not already set by Perchance
           window.dbName = window.dbName || 'rpglitch-db';
-          console.log("[App Init] App.init() called. Database name:", window.dbName);
+          // App.init() called. Database name:
     
           // Only initialize UI elements after DOMContentLoaded
           if (document.readyState === 'loading') {
@@ -4510,11 +4512,106 @@ function checkDependencies() {
       },
       // --- BEGIN: Add missing UI methods for Perchance tab switching ---
       selectTopBarTab(tabName) {
-        if (!this.focusBarState || !this.focusBarState.tabs) return;
-        if (this.focusBarState.tabs.includes(tabName)) {
-          this.focusBarState.mode = tabName;
-          this.updateTopBarUI();
+        // Determine which top bar is active
+        let activeTopBar = null;
+        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+          activeTopBar = this.ui.profileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+          activeTopBar = this.ui.worldProfileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+          activeTopBar = this.ui.storyProfileTopBar;
+        } else if (this.ui.topBar) {
+          activeTopBar = this.ui.topBar;
         }
+  
+        if (!activeTopBar) {
+          console.warn('[DEBUG] No active top bar found in selectTopBarTab, re-initializing UI elements.');
+          this._getUIElements();
+          // Try to re-determine activeTopBar after re-initialization
+          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+            activeTopBar = this.ui.profileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+            activeTopBar = this.ui.worldProfileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+            activeTopBar = this.ui.storyProfileTopBar;
+          } else if (this.ui.topBar) {
+            activeTopBar = this.ui.topBar;
+          }
+          if (!activeTopBar) return; // If still no activeTopBar, something is critically wrong
+        }
+        
+        // Check if we're switching to a different tab while a chin is open
+        const currentMode = this.focusBarState.mode;
+        const isChinOpen = this.focusBarState.chinOpen;
+        const isSwitchingTabs = currentMode !== tabName;
+        
+        if (isSwitchingTabs && isChinOpen) {
+          // Smooth transition: close current chin first, then open new one
+          this.focusBarState.chinOpen = false;
+          this.updateTopBarUI();
+          
+          // Update aria-selected immediately for visual feedback on the active top bar
+          const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+          tabButtons.forEach(btn => {
+            btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tabName ? 'true' : 'false');
+          });
+          
+          // Open new chin after a brief delay for smooth transition
+          setTimeout(() => {
+            this.focusBarState.mode = tabName;
+            this.focusBarState.chinOpen = true;
+            this.updateTopBarUI();
+          }, 150); // 150ms delay for smooth transition
+        } else {
+          // Direct switch (no chin open or same tab)
+          this.focusBarState.mode = tabName;
+          this.focusBarState.chinOpen = true;
+          this.updateTopBarUI();
+          // Update aria-selected for all tab buttons on the active top bar
+          const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+          tabButtons.forEach(btn => {
+            btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tabName ? 'true' : 'false');
+          });
+        }
+      },
+      toggleOptionsChin() {
+        // Determine which top bar is active
+        let activeTopBar = null;
+        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+          activeTopBar = this.ui.profileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+          activeTopBar = this.ui.worldProfileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+          activeTopBar = this.ui.storyProfileTopBar;
+        } else if (this.ui.topBar) {
+          activeTopBar = this.ui.topBar;
+        }
+  
+        if (!activeTopBar) {
+          console.warn('[DEBUG] No active top bar found in toggleOptionsChin, re-initializing UI elements.');
+          this._getUIElements();
+          // Try to re-determine activeTopBar after re-initialization
+          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+            activeTopBar = this.ui.profileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+            activeTopBar = this.ui.worldProfileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+            activeTopBar = this.ui.storyProfileTopBar;
+          } else if (this.ui.topBar) {
+            activeTopBar = this.ui.topBar;
+          }
+          if (!activeTopBar) return; // If still no activeTopBar, something is critically wrong
+        }
+  
+        // Always switch to options and open chin (no toggle since outside click closes it)
+        this.focusBarState.mode = 'options';
+        this.focusBarState.chinOpen = true;
+        this.updateTopBarUI();
+        // Update aria-selected for all tab buttons on the active top bar
+        const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+        tabButtons.forEach(btn => {
+          btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === 'options' ? 'true' : 'false');
+        });
       },
       // --- END: Add missing UI methods ---
       
@@ -4631,6 +4728,10 @@ function checkDependencies() {
                       const listEl = document.getElementById('chin-world-list');
                       if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.world);
                   });
+              }
+          }
+      },
+    };
     
     // Global access for debugging/plugins if needed
     window.App = App;
@@ -4696,5 +4797,5 @@ function checkDependencies() {
         ? item.colorPalette
         : 'slate_gray';
     }
-  }
-}}}}}}
+  
+  
