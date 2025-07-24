@@ -4690,19 +4690,12 @@ function checkDependencies() {
       }
     };
   
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-// Utility to get a valid palette key from an item
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-// Utility to get a valid palette key from an item
-function getValidPaletteKey(item) {
-  return (item && typeof item.colorPalette === 'string' && item.colorPalette in App.CONSTANTS.COLOR_PALETTES)
-    ? item.colorPalette
-    : 'slate_gray';
-}
-}
-}
-}
-}
-}
-}
-}
+    // Utility to get a valid palette key from an item
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function getValidPaletteKey(item) {
+      return (item && typeof item.colorPalette === 'string' && item.colorPalette in App.CONSTANTS.COLOR_PALETTES)
+        ? item.colorPalette
+        : 'slate_gray';
+    }
+  }
+}}}}}}

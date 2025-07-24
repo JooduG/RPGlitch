@@ -1056,6 +1056,7 @@ nav {
 
 :root {
   color: #fff;
+
   --pico-radius: 0.5rem;
 }
 
@@ -1247,11 +1248,7 @@ button,
   padding: 0;
 }
 
-.storyboard-cards-row > article {
-  margin: 0;
-  padding: 0;
-  flex: 1 1 0;
-}
+/* Removed duplicate selector - already defined above */
 
 /* Remove grid gap from storyboard area */
 #storyboard-scrollable-content .grid {

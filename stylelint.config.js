@@ -30,6 +30,12 @@ module.exports = {
     "build/output/archive/**/*.css",
     "memory/**/archive/**/*.css",
     "memory/**/archive/**/*.scss",
+    "memory-bank/project/archive/**/*.css",
+    "memory-bank/project/archive/**/*.scss",
+    "node_modules/**/*.css",
+    "node_modules/**/*.scss",
+    "tools/test-globs/**/*.scss",
+    "tools/test-globs/**/*.css",
   ],
 };
 
