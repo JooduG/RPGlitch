@@ -1,9 +1,0 @@
-{
-  "install": "npm install",
-  "terminals": [
-    {
-      "name": "Start Project Build Watcher",
-      "command": "npm run build:watch"
-    }
-  ]
-}
