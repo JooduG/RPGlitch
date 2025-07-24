@@ -10,8 +10,6 @@
   Only variables, resets, and atomic/utility classes.
 */
 
-@use "sass:color"; /* Add this line for modern color functions */
-
 html, body {
   min-height: 100vh;
   height: 100%;
@@ -44,7 +42,7 @@ textarea,
 }
 
 /* ========================================
-   INTERACTIVE ELEMENvTS & HOVER EFFECTS
+   INTERACTIVE ELEMENTS & HOVER EFFECTS
    ======================================== */
 
 /* Cards with click handlers - Elegant lift effect */
@@ -386,6 +384,9 @@ a {
 .storyboard-cards-row > article {
   bottom: 0.5em;
   left: 0;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 0;
 }
 
 /* Final border resets */
@@ -447,8 +448,8 @@ a {
 
 /* ========================================
    SCROLLING & CONTAINER MANAGEMENT
-   ======================================= */
-   
+   ======================================== */
+
 /* App-level scrolling */
 .app-scrollable-container {
   height: 100vh;
@@ -1248,7 +1249,7 @@ button,
   padding: 0;
 }
 
-/* Removed duplicate selector - already defined above */
+
 
 /* Remove grid gap from storyboard area */
 #storyboard-scrollable-content .grid {
@@ -1293,11 +1294,6 @@ button,
   color: #222;
 }
 
-/* Note: Multi-line options are not supported in native select. Use a custom dropdown for that feature. */
-  
-/* Note: .card-title-dropdown selector already defined above - removing duplicate */
-  
-/* Note: All nested selectors removed - parent selector was duplicate */
 
 
 
@@ -1860,23 +1856,24 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   scrollbar-color: rgb(255 255 255 / 30%) transparent;
   
   /* Webkit scrollbar styling */
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: rgb(255 255 255 / 30%);
-    border-radius: 4px;
-    transition: background 0.2s ease;
-  }
-  
-  &::-webkit-scrollbar-thumb:hover {
-    background: rgb(255 255 255 / 50%);
-  }
+}
+
+.profile-content-overlay::-webkit-scrollbar {
+  width: 8px;
+}
+
+.profile-content-overlay::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.profile-content-overlay::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 30%);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.profile-content-overlay::-webkit-scrollbar-thumb:hover {
+  background: rgb(255 255 255 / 50%);
 }
 
 .profile-content-container {
@@ -2279,6 +2276,8 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     overflow: visible;
   }
   
+  /* Note: .studio-content-area selector already defined above - removing duplicate */
+  
   /* Mobile-specific profile picture adjustments - maintain edge-to-edge */
   .profile-picture-container {
     width: 100%;
@@ -2314,6 +2313,8 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     font-size: 1.5rem;
   }
   
+  /* Note: .studio-left-panel, .studio-right-panel selector already defined above - removing duplicate */
+  
   .profile-picture-section {
     gap: 0.75rem;
   }
@@ -2324,6 +2325,8 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   .studio-left-panel {
     flex: 0 0 250px;
   }
+  
+
   
   /* Tablet profile picture - maintain edge-to-edge */
   .profile-picture-container {
@@ -2339,6 +2342,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   }
   
   /* Ensure scrollbars are visible but not intrusive */
+
   
   /* Large screen profile picture - full edge-to-edge */
   .profile-picture-container {
@@ -2347,7 +2351,13 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   }
 }
 
-/* Only retain truly unique utility classes not in Pico */
+/* Note: .top-bar-nav selector already defined above - removing duplicate */
+
+/* Note: .top-bar-nav.is-active selector already defined above - removing duplicate */
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
 
 .visually-hidden {
   position: absolute !important;
@@ -2409,9 +2419,18 @@ button.secondary,
   outline: none;
   
   /* Override Pico's margin-bottom on buttons with type attributes */
-  &[type="button"], &[type="reset"], &[type="submit"] {
-    margin-bottom: 0 !important;
-  }
+}
+
+button.secondary[type="button"],
+button.secondary[type="reset"],
+button.secondary[type="submit"],
+.button.secondary[type="button"],
+.button.secondary[type="reset"],
+.button.secondary[type="submit"],
+[role="button"].secondary[type="button"],
+[role="button"].secondary[type="reset"],
+[role="button"].secondary[type="submit"] {
+  margin-bottom: 0 !important;
 }
 
 /* Button hover state - applies ONLY to secondary buttons */
