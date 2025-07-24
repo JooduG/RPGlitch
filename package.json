@@ -8,7 +8,7 @@
     "build": "node build/scripts/build-perchance.js",
     "build:copy": "node build/scripts/build-and-copy.js",
     "build:watch": "nodemon --watch apps --ext html,js,css --exec 'node build/scripts/build-perchance.js'",
-    "lint": "eslint \"apps/**/*.js\" --config linting/eslint.config.mjs && stylelint \"**/*.{css,scss}\" --config linting/stylelint.config.js && htmlhint \"apps/rpglitch/RPGlitch.html\" --config linting/.htmlhintrc",
+    "lint": "eslint \"apps/**/*.js\" --config eslint.config.mjs && npx stylelint \"**/*.{css,scss}\" --config stylelint.config.js && npx htmlhint \"apps/rpglitch/RPGlitch.html\" --config .htmlhintrc",
     "validate": "node -e \"require('./build/scripts/build-perchance.js').validateFiles()\"",
     "clean": "rm -rf build/output/",
     "deploy": "npm run build && echo '✅ Build complete! Copy build/output/RPGlitch-perchance.html to Perchance.'",
@@ -28,12 +28,16 @@
     "node": ">=14.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "eslint": "^9.31.0",
+    "globals": "^16.3.0",
     "htmlhint": "^1.6.3",
     "markdownlint-cli": "^0.45.0",
     "nodemon": "^3.0.0",
     "sass": "^1.77.4",
     "stylelint": "^16.21.1",
-    "stylelint-config-standard": "^38.0.0"
+    "stylelint-config-standard": "^38.0.0",
+    "typescript-eslint": "^8.38.0"
   },
   "repository": {
     "type": "git",

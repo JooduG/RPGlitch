@@ -4691,6 +4691,7 @@ function checkDependencies() {
     };
   
     // Utility to get a valid palette key from an item
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function getValidPaletteKey(item) {
       return (item && typeof item.colorPalette === 'string' && item.colorPalette in App.CONSTANTS.COLOR_PALETTES)
         ? item.colorPalette
