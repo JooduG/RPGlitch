@@ -769,6 +769,10 @@ function checkDependencies() {
 
       
       async initializeDb() {
+          // Check if Dexie is available
+          if (typeof Dexie === 'undefined') {
+              throw new Error('Dexie library is not loaded. Please ensure the Dexie CDN script is included.');
+          }
           this.db = new Dexie(window.dbName);
           window.db = this.db;
       
@@ -2878,8 +2882,8 @@ function checkDependencies() {
           try {
               if (type === 'text' || type === 'chat') {
                   // Use the imported ai plugin for text generation
-                  if (typeof ai !== 'undefined') {
-                      const result = await ai({
+                  if (typeof window.ai !== 'undefined') {
+                                              const result = await window.ai({
                           instruction: instruction,
                           context: context,
                           text: userMessage,
@@ -2892,10 +2896,10 @@ function checkDependencies() {
                   } else {
                       throw new Error("ai plugin not available");
                   }
-              } else if (type === 'image') {
-                  // Use the imported image plugin for image generation
-                  if (typeof image !== 'undefined') {
-                      const result = await image({
+                                } else if (type === 'image') {
+                      // Use the imported image plugin for image generation
+                      if (typeof window.image !== 'undefined') {
+                                              const result = await window.image({
                           prompt: prompt
                       });
                       return result;
@@ -4009,8 +4013,14 @@ function checkDependencies() {
         
         // Pass palette with key property for better reliability
         const paletteWithKey = { ...palette, key: paletteKey };
-        return getProfilePictureHTML(item, paletteWithKey, context, this.CONSTANTS.FONT_FAMILY);
-
+        // Check if getProfilePictureHTML is available globally
+        if (typeof window.getProfilePictureHTML === 'function') {
+            return window.getProfilePictureHTML(item, paletteWithKey, context, this.CONSTANTS.FONT_FAMILY);
+        } else {
+            // Fallback to local method
+            return this._generateProfilePictureHtml(item, context);
+        }
+      },
     
       _getProfilePictureSrc(item) {
        
@@ -4794,4 +4804,3 @@ function checkDependencies() {
         ? item.colorPalette
         : 'slate_gray';
     }
-    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}

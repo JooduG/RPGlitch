@@ -6,15 +6,11 @@
  * Test SCSS file to verify glob patterns
  * This file should match **/
 
-/* .scss patterns
+*.scss patterns
  */
 
 /* Test variables */
-<<<<<<< Current (Your changes)
-$test-date: '2025-07-24 (from Time MCP)';
-=======
 $test-date: '2025-07-22 (from Time MCP)';patterns$test-date
->>>>>>> Incoming (Background Agent changes)
 $test-purpose: 'Testing glob patterns and frontmatter functionality';
 $test-file-type: 'SCSS';
 
@@ -23,7 +19,7 @@ $test-file-type: 'SCSS';
     content: 'Testing glob patterns for SCSS files';
     
     /* This file should be matched by rules with these glob patterns:
-     * - ["**/*.css", "**/*.scss", "**/*.sass"]
+     * - [" **/*.css", "**/*.scss", "**/*.sass"]
      * - ["**/*.scss", "**/*.sass", "**/*.css"]
      * - ["**/*.js", "**/*.ts", "**/*.jsx", "**/*.tsx", "**/*.html", "**/*.css", "**/*.scss"]
      */

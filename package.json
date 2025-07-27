@@ -8,14 +8,6 @@
     "build": "node build/scripts/build-perchance.js",
     "build:copy": "node build/scripts/build-and-copy.js",
     "build:watch": "nodemon --watch apps --ext html,js,css --exec 'node build/scripts/build-perchance.js'",
-<<<<<<< Current (Your changes)
-    "lint": "eslint \"apps/**/*.js\" --config linting/eslint.config.mjs && stylelint \"**/*.{css,scss}\" --ignore-path .stylelintignore --config linting/stylelint.config.js && htmlhint \"apps/rpglitch/RPGlitch.html\" --config linting/.htmlhintrc",
-    "validate": "node -e \"require('./build/scripts/validate-perchance.js')\"",
-    "test": "echo \"Tests not configured yet.\"",
-    "typecheck": "echo \"Type checking not configured yet.\"",
-    "clean": "rm -rf build/output/*",
-    "dev": "npm run build:watch"
-=======
     "lint": "eslint \"apps/**/*.js\" --config linting/eslint.config.mjs && stylelint \"**/*.{css,scss}\" --config linting/stylelint.config.js && htmlhint \"apps/rpglitch/RPGlitch.html\" --config linting/.htmlhintrc",
     "validate": "node -e \"require('./build/scripts/build-perchance.js').validateFiles()\"",
     "clean": "rm -rf build/output/",
