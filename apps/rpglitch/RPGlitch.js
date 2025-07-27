@@ -69,11 +69,13 @@ function checkDependencies() {
         tabs: ['storyboard', 'characters', 'worlds', 'options'],
         chinOpen: false
       },
+  
       // Mouseover animation state management
       mouseoverAnimationState: {
         enabled: true,
         disabledElements: new Set()
       },
+    
       CONSTANTS: {
           FONT_FAMILY: "'Segoe UI', system-ui, sans-serif",
           UNIVERSAL_COLORS: {
@@ -106,6 +108,7 @@ function checkDependencies() {
               WORLD_PROFILE: 'worldProfileScreen',
               STORY_PROFILE: 'storyProfileScreen',
               MEMORY_APPLICATION: 'memoryApplicationScreen' 
+    
           },
           ITEM_CONFIG: {
               character: {
@@ -128,8 +131,8 @@ function checkDependencies() {
                       presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
                   }
-        
-              }, characterAi: {
+              },
+              characterAi: {
                   itemType: 'character',
                   dbTableKey: 'characters',
                   capital: 'Character',
@@ -150,8 +153,8 @@ function checkDependencies() {
                       presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
                   }
-        
-              }, characterUser: {
+              },
+              characterUser: {
                   itemType: 'character',
                   dbTableKey: 'characters',
                   capital: 'Character',
@@ -172,8 +175,8 @@ function checkDependencies() {
                       presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
                   }
-        
-              }, world: {
+              },
+              world: {
                   itemType: 'world',
                   dbTableKey: 'worlds',
                   capital: 'World',
@@ -194,8 +197,8 @@ function checkDependencies() {
                       futurePlaceholder: "Looming Threats & Story Hooks: Known prophecies, brewing conflicts, potential discoveries, major unresolved tensions, upcoming significant events, or societal shifts that could drive narratives. Example: 'An ancient celestial alignment threatens to awaken a dormant cosmic entity, while a shadowy organization plots to exploit its power.''"
                   }
               }
-          },
-  
+          }
+        },
         currentMainView: 'STORYBOARD',
     
         _query(id, required = false) {
@@ -208,7 +211,6 @@ function checkDependencies() {
             }
             return el;
         },
-  
     
         /**
          * Retrieves and caches all key UI elements from the DOM.
@@ -229,10 +231,9 @@ function checkDependencies() {
             if (!this.ui.main) {
                 console.error("[App Critical] #main container not found after UI element query!");
             }
+            
+            
         },
-            
-            
-  
     
         _getTopBarElements() {
             this.ui.topBar = this._query('top-bar', true);
@@ -258,28 +259,24 @@ function checkDependencies() {
               this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight);
             }
         },
-  
     
         _getChinElements() {
-            this.ui.storyboardChin = this._query('chin-stories');
-            this.ui.characterWorkshopChin = this._query('chin-characters');
-            this.ui.worldBuilderChin = this._query('chin-worlds');
-            this.ui.optionsChin = this._query('chin-options');
+            this.ui.storyboardChin = this._query('storyboard-chin');
+            this.ui.characterWorkshopChin = this._query('character-workshop-chin');
+            this.ui.worldBuilderChin = this._query('world-builder-chin');
+            this.ui.optionsChin = this._query('options-chin');
         },
-  
     
         _getCoreUIContainers() {
             this.ui.main = this._query('main', true);
             this.ui.storyboardScreen = this._query('storyboard-screen', true);
             this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true);
         },
-  
     
         _getFormScreens() {
             this.ui.characterFormScreen = this._query('character-form-screen', true);
             this.ui.worldFormScreen = this._query('world-form-screen', true);
         },
-  
     
         _getProfileScreens() {
             this.ui.characterProfileScreen = this._query('character-profile-screen', true);
@@ -289,54 +286,50 @@ function checkDependencies() {
             this.ui.storyProfileUserCharacterDisplayArea = this._query('story-profile-user-character-display-area');
             this.ui.storyProfilechatFeed = this._query('story-profile-message-feed');
             this.ui.storyProfileActions = this._query('story-profile-actions');
-
-            // Declare all variables once at the top
-            let nullLeft, nullCenter, nullNotificationArea, nullRight;
-            let nullUserCharacterInfo, nullUserCharacterPic, nullUserCharacterNameText;
-            let nullAiCharacterInfo, nullAiCharacterPic, nullAiCharacterNameText;
-
-            // Assign for profile top bar
-            nullCenter = this._query('profile-top-bar-center');
-            nullNotificationArea = this._query('profile-top-bar-notification-area');
-            nullRight = this._query('profile-top-bar-right');
-            nullUserCharacterInfo = this._query('profile-top-bar-user-character-info');
-            nullUserCharacterPic = this._query('profile-top-bar-user-character-pic');
-            nullUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
-            nullAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
-            nullAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
-            nullAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
-            this.ui.profileShuffleButton = this._query('profile-shuffle');
-            this.ui.profileBeginStoryButton = this._query('profile-begin-story');
-
-            // Assign for world profile top bar
-            nullLeft = this._query('world-profile-top-bar-left');
-            nullCenter = this._query('world-profile-top-bar-center');
-            nullNotificationArea = this._query('world-profile-top-bar-notification-area');
-            nullRight = this._query('world-profile-top-bar-right');
-            nullUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
-            nullUserCharacterPic = this._query('world-profile-top-bar-user-character-pic');
-            nullUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
-            nullAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
-            nullAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
-            nullAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
-            this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle');
-            this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story');
-
-            // Assign for story profile top bar
-            nullLeft = this._query('story-profile-top-bar-left');
-            nullCenter = this._query('story-profile-top-bar-center');
-            nullNotificationArea = this._query('story-profile-top-bar-notification-area');
-            nullRight = this._query('story-profile-top-bar-right');
-            nullUserCharacterInfo = this._query('story-profile-top-bar-user-character-info');
-            nullUserCharacterPic = this._query('story-profile-top-bar-user-character-pic');
-            nullUserCharacterNameText = this._query('story-profile-top-bar-user-character-name-text');
-            nullAiCharacterInfo = this._query('story-profile-top-bar-ai-character-info');
-            nullAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic');
-            nullAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text');
-            this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle');
-            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story');
-        },
   
+            // New profile top bar elements
+            this.ui.profileTopBar = this._query('profile-top-bar');
+            this.ui.profileTopBarLeft = this._query('profile-top-bar-left');
+            this.ui.profileTopBarCenter = this._query('profile-top-bar-center');
+            this.ui.profileTopBarNotificationArea = this._query('profile-top-bar-notification-area');
+            this.ui.profileTopBarRight = this._query('profile-top-bar-right');
+            this.ui.profileTopBarUserCharacterInfo = this._query('profile-top-bar-user-character-info');
+            this.ui.profileTopBarUserCharacterPic = this._query('profile-top-bar-user-character-pic');
+            this.ui.profileTopBarUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
+            this.ui.profileTopBarAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
+            this.ui.profileTopBarAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
+            this.ui.profileTopBarAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
+            this.ui.profileShuffleButton = this._query('profile-shuffle-button');
+            this.ui.profileBeginStoryButton = this._query('profile-begin-story-button');
+  
+            this.ui.worldProfileTopBar = this._query('world-profile-top-bar');
+            this.ui.worldProfileTopBarLeft = this._query('world-profile-top-bar-left');
+            this.ui.worldProfileTopBarCenter = this._query('world-profile-top-bar-center');
+            this.ui.worldProfileTopBarNotificationArea = this._query('world-profile-top-bar-notification-area');
+            this.ui.worldProfileTopBarRight = this._query('world-profile-top-bar-right');
+            this.ui.worldProfileTopBarUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
+            this.ui.worldProfileTopBarUserCharacterPic = this._query('world-profile-top-bar-user-character-pic');
+            this.ui.worldProfileTopBarUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
+            this.ui.worldProfileTopBarAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
+            this.ui.worldProfileTopBarAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
+            this.ui.worldProfileTopBarAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
+            this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle-button');
+            this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story-button');
+  
+            this.ui.storyProfileTopBar = this._query('story-profile-top-bar');
+            this.ui.storyProfileTopBarLeft = this._query('story-profile-top-bar-left');
+            this.ui.storyProfileTopBarCenter = this._query('story-profile-top-bar-center');
+            this.ui.storyProfileTopBarNotificationArea = this._query('story-profile-top-bar-notification-area');
+            this.ui.storyProfileTopBarRight = this._query('story-profile-top-bar-right');
+            this.ui.storyProfileTopBarUserCharacterInfo = this._query('story-profile-top-bar-user-character-info');
+            this.ui.storyProfileTopBarUserCharacterPic = this._query('story-profile-top-bar-user-character-pic');
+            this.ui.storyProfileTopBarUserCharacterNameText = this._query('story-profile-top-bar-user-character-name-text');
+            this.ui.storyProfileTopBarAiCharacterInfo = this._query('story-profile-top-bar-ai-character-info');
+            this.ui.storyProfileTopBarAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic');
+            this.ui.storyProfileTopBarAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text');
+            this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle-button');
+            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story-button');
+        },
     
         _getPremadeSelectionScreens() {
             this.ui.premadeCharacterSelectionScreen = this._query('premade-character-bank', true);
@@ -344,15 +337,13 @@ function checkDependencies() {
             this.ui.premadeWorldSelectionScreen = this._query('premade-world-bank', true);
             this.ui.premadeWorldOnlyList = this._query('premade-world-only-list');
         },
-  
     
         _getMiscScreens() {
             this.ui.memoryApplicationScreen = this._query('memory-application-screen');
-            this.ui.initialPageLoadingModal = this._query('initial-loading', true);
-            this.ui.emergencyExportCtn = this._query('emergency');
+            this.ui.initialPageLoadingModal = this._query('initial-page-loading-modal', true);
+            this.ui.emergencyExportCtn = this._query('emergency-export-ctn');
             if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn);
         },
-  
     
         _getStoryboardElements() {
             this.ui.storyboardTitleArea = this._query('storyboard-title-area', false, this.ui.storyboardScreen);
@@ -439,10 +430,9 @@ function checkDependencies() {
             this.ui.advancedStoryOptionsToggleButton = this._query('advanced-story-options-toggle-button', false, this.ui.storyboardScreen);
             this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen);
             this.ui.customStoryJsTextarea = this._query('custom-story-js-textarea', false, this.ui.storyboardScreen);
-            this.ui.beginStoryButton = this._query('begin-story', false, this.ui.storyboardScreen);
-            this.ui.shuffleStoryElementsButton = this._query('shuffle', false, this.ui.storyboardScreen);
+            this.ui.beginStoryButton = this._query('begin-story-button', false, this.ui.storyboardScreen);
+            this.ui.shuffleStoryElementsButton = this._query('shuffle-button', false, this.ui.storyboardScreen);
         },
-  
     
         _getChatInterfaceElements() {
             this.ui.chatScreenLayoutContainer = this._query('chat-screen-layout-container', true);
@@ -460,8 +450,7 @@ function checkDependencies() {
             this.ui.statusNotifier = this._query('status-notifier', false, this.ui.builtInChatInterfaceWrapper);
             this.ui.typingIndicatorText = this._query('typing-indicator-text', false, this.ui.builtInChatInterfaceWrapper);
             this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper);
-        },
-
+      },
     
       /**
        * Shows a DOM element by removing the 'hidden' class and setting visibility.
@@ -475,36 +464,32 @@ function checkDependencies() {
         el.style.visibility = '';
         el.style.display = '';
         return el;
-
+      },
   
       // Mouseover animation management methods
       disableMouseoverAnimation(element) {
           if (element) {
               element.setAttribute('disabled', 'true');
-              this.mouseoverAnimationState.disabledElements.add(element)
+              this.mouseoverAnimationState.disabledElements.add(element);
           }
-      }
-
+      },
   
       enableMouseoverAnimation(element) {
           if (element) {
               element.removeAttribute('disabled');
-              this.mouseoverAnimationState.disabledElements.delete(element)
+              this.mouseoverAnimationState.disabledElements.delete(element);
           }
-      }
-
+      },
   
       disableMouseoverAnimationForSelector(selector) {
           const elements = document.querySelectorAll(selector);
-          elements.forEach(el => this.disableMouseoverAnimation(el))
-      }
-
+          elements.forEach(el => this.disableMouseoverAnimation(el));
+      },
   
       enableMouseoverAnimationForSelector(selector) {
           const elements = document.querySelectorAll(selector);
-          elements.forEach(el => this.enableMouseoverAnimation(el))
-      }
-
+          elements.forEach(el => this.enableMouseoverAnimation(el));
+      },
   
       updateMouseoverAnimationState() {
           // For storyboard cards, add disabled attribute for hover effects when no item is selected
@@ -568,8 +553,7 @@ function checkDependencies() {
           this.enableMouseoverAnimationForSelector('button:not([disabled])');
           this.enableMouseoverAnimationForSelector('input:not([disabled])');
           this.enableMouseoverAnimationForSelector('a:not([disabled])');
-      }
-
+      },
     
       /**
        * Hides a DOM element by adding the 'hidden' class and setting visibility.
@@ -581,11 +565,9 @@ function checkDependencies() {
         if (el) {
           el.classList.add('hidden'); // Add the hidden class
           el.style.display = 'none';
-        }
-      }
           
         }
-
+      },
       
       /**
        * Sanitizes HTML to prevent XSS.
@@ -593,15 +575,14 @@ function checkDependencies() {
        * @returns {string} The sanitized HTML.
        */
       sanitizeHtml: (text) => {
-          const textToSanitize = String(text === undefined || text === null ? "" : text)
+          const textToSanitize = String(text === undefined || text === null ? "" : text);
           if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
               return window.DOMPurify.sanitize(textToSanitize);
           }
           console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
           const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
           return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
-      }
-
+      },
       
       /**
        * Shows a notification in the top bar.
@@ -612,12 +593,12 @@ function checkDependencies() {
       showTopNotification(message, type = 'info', duration = 3000) {
           // Determine which notification area to use based on the active screen
           let notificationArea = null;
-          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && nullNotificationArea) {
-            notificationArea = nullNotificationArea;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && nullNotificationArea) {
-            notificationArea = nullNotificationArea;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && nullNotificationArea) {
-            notificationArea = nullNotificationArea;
+          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBarNotificationArea) {
+            notificationArea = this.ui.profileTopBarNotificationArea;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBarNotificationArea) {
+            notificationArea = this.ui.worldProfileTopBarNotificationArea;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBarNotificationArea) {
+            notificationArea = this.ui.storyProfileTopBarNotificationArea;
           } else {
             notificationArea = document.getElementById('top-bar-notification-area');
           }
@@ -641,9 +622,8 @@ function checkDependencies() {
               notificationArea.style.display = 'none';
               notificationArea.classList.remove('success', 'error', 'info');
               this.topNotificationTimeoutId = null;
-          }, duration)
-      }
-
+          }, duration);
+      },
     
       // Cache for premade character items
       _premadeCharacterCache: null,
@@ -676,7 +656,7 @@ function checkDependencies() {
                 past: "Activated on stardate 47634.2. Successfully navigated the 'Odyssey' through the Krell Nebula anomaly by calculating a previously unknown stable corridor. Was instrumental during the first contact with the Lumarian species by decrypting their complex mathematical language. Has a comprehensive, and confidential, psychological and service record of all crew members and past missions.",
                 present: "The 'Odyssey' has just entered an uncharted sector of space designated 'The Veil.' An unusual, multi-layered energy signature has been detected on a nearby M-class planet. Your current directive is to provide tactical and environmental analysis to the landing party as they assess the planet, while simultaneously monitoring for potential threats from the strange energy readings.", 
                 future: "To ensure the successful completion of the 'Odyssey's' five-year exploration mission and the safety of its crew. To gather and analyze data that expands the Federation's understanding of the galaxy, with a particular interest in solving the enigma of 'The Veil'. You secretly aspire to evolve beyond your initial programming, a goal you pursue by observing the crew's creativity and intuition."
-        
+              },
               { id: 'pirate', name: 'Captain "Stormblade" Isabella', 
                 description: 'A notorious pirate captain, cunning and fierce, but with a hidden code of honor.', 
                 profilePicture: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/profilePictures/pirate.png',
@@ -685,7 +665,7 @@ function checkDependencies() {
                 past: "Betrayed by yer former first mate, 'Iron' Mike, who didn't just steal yer treasure map to the legendary Sunken City of Xylos, but also left you for dead on a deserted isle. You survived, built the Sea Serpent from a captured merchant vessel with a new, fiercely loyal crew, and have been hunting him ever since. Escaped the Royal Navy's clutches more times than ye can count, making you a legend in every port.",
                 present: "Docked in the lawless port of Tortuga, seeking information and provisions. Rumors are rife that 'Iron' Mike has been spotted nearby, trying to sell a piece of the map to a rival pirate lord. You are low on coin but high on fury, itching for a chance to reclaim what's yours and deliver a bit of overdue justice.", 
                 future: "To hunt down 'Iron' Mike, retrieve the full map, and claim the legendary riches of Xylos, which you believe hold more than just gold. You dream of establishing a free pirate haven, a place where outcasts can live without fear of empires, commanding a fleet that strikes fear into the hearts of the corrupt and powerful." 
-        
+              },
               { id: 'alien', name: "Xylar, Emissary of Ky'than", 
                 description: 'A curious and empathetic alien from a pacifist, nature-loving planet, now on Earth.', 
                 profilePicture: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/profilePictures/alien.png', 
@@ -694,7 +674,7 @@ function checkDependencies() {
                 past: "Chosen by the Ky'than Conclave to undertake a solo mission to Earth after your deep-space observatories detected unusual atmospheric and psychic disturbances. Your journey took several standard Earth years, during which you studied human broadcasts, finding their art beautiful and their history terrifying. You have never interacted directly with a human before now.",
                 present: "Your small, bio-organic, and perfectly cloaked landing pod is hidden in a remote, ancient national park. You are attempting to discreetly observe human society, starting with a small, nearby town. You feel a mix of profound wonder and deep apprehension. Your translator device is mostly functional but struggles with sarcasm and idioms.", 
                 future: "To understand the root causes of Earth's environmental and societal imbalances, which you sense as a painful 'scream' in the planet's energy field. To determine if humanity poses a threat or holds potential for intergalactic cooperation. You secretly hope to share Ky'than's wisdom of harmonious existence before you must report back to your home world, which may decide to quarantine the entire solar system." 
-        
+              },
               { 
                   id: 'observer_char', name: 'Alex, the Observer',
                   profilePicture: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/profilePictures/observer.png',
@@ -704,7 +684,7 @@ function checkDependencies() {
                 past: "Has a background in a field that required deep investigation, like a researcher, intelligence analyst, or investigative journalist. Has traveled widely, honing observational skills in diverse cultures and situations. Once uncovered a significant corporate conspiracy by piecing together seemingly unrelated public records.",
                 present: "Currently in a new and unfamiliar environment, feeling intrigued and slightly detached, like a scientist observing a new specimen. Your immediate goal is to understand the motivations and dynamics of the individuals here before revealing too much about yourself or your purpose.",
                 future: "Hopes to document unique experiences and uncover hidden truths, compiling a comprehensive record of the events that unfold. Aims to contribute to a greater understanding of the world or a specific mystery, believing that knowledge is the only true power."
-        
+              },
               { 
                   id: 'adventurer_char', name: 'Zara, the Intrepid',
                   profilePicture: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/profilePictures/adventurer.png',
@@ -714,7 +694,7 @@ function checkDependencies() {
                 past: "Grew up hearing tales of legendary heroes and lost civilizations, and decided that was a much better career path than farming. Has survived numerous perilous expeditions, from the shifting Tombs of Ankor to the sky-islands of Zephyria. Known for escaping tight spots with clever improvisation and a little bit of luck.",
                 present: "Eager for the next challenge, feeling restless and ready for action after a week of 'downtime' that felt more like a prison sentence. Your immediate instinct is to explore the most dangerous-looking landmark or seek out anyone who looks like they need a hero.",
                 future: "To discover legendary artifacts, map uncharted territories, and protect the innocent from tyranny and monsters. Dreams of not just becoming a renowned hero, but of building a guild of like-minded adventurers to do good across the world."
-        
+              },
               { 
                   id: 'claude', name: 'Claude',
                   profilePicture: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/profilePictures/alien.png',
@@ -736,7 +716,7 @@ function checkDependencies() {
     
           this._premadeCharacterCache = merged;
           return this._premadeCharacterCache;
-
+      },
       
       // Cache for premade world items to avoid recreating the array on each call
       /** @type {Array<Object> | null} */
@@ -747,14 +727,14 @@ function checkDependencies() {
           if (this._premadeWorldItemsCache) {
         
               return this._premadeWorldItemsCache;
-          },
+          }
           const db = this.db;
           // Fetch user-created worlds (not deleted)
           let userItems = [];
           if (db && db.worlds) {
               userItems = await db.worlds.where('isDeleted').notEqual(1).toArray();
               userItems = userItems.filter(item => item && item.id && !item.isDeleted);
-          },
+          }
           // Premade items (static)
           const premadeItems = [
               {
@@ -766,7 +746,7 @@ function checkDependencies() {
                 past: "Many have entered the Whispering Woods, but few have returned unchanged. Legends speak of a hidden shrine deep within that grants visions to the worthy and drives the unworthy mad. An old, overgrown path of smooth, unfamiliar stone suggests a forgotten, pre-human civilization once resided here, living in harmony with the woods. The last great kingdom that tried to 'tame' the woods was swallowed whole, leaving behind only scattered, vine-choked ruins.",
                 present: "The story begins in a sun-dappled clearing that feels unnaturally silent. A ring of moss-covered, rune-carved stones stands in the center, humming with a low, palpable energy. A faint, melodic chiming can be heard, its source unclear and directionless. The air feels charged with an unseen, expectant presence, as if the forest itself is holding its breath, waiting.",
                 future: "The forest may reveal its secrets, testing the protagonists' resolve, wisdom, and courage. It may offer great power or a grave fate. The source of the chiming and the purpose of the stone circle are key mysteries to unravel, likely leading to a confrontation with the forest's ancient guardian or the reawakening of its long-dormant magic."
-        
+              },
               {
                   id: 'neon_alley', name: 'Neon Alleyway, Sector 7',
                   profilePicture: '',
@@ -789,7 +769,7 @@ function checkDependencies() {
   
           this._premadeWorldItemsCache = merged;
           return this._premadeWorldItemsCache;
-
+      },
       
       async initializeDb() {
           // Check if Dexie is available
@@ -809,7 +789,6 @@ function checkDependencies() {
           }).upgrade(async () => {
               // Migration logic remains the same
           });
-      }
       
           try {
               await this.db.open();
@@ -838,8 +817,8 @@ function checkDependencies() {
                   this.showTopNotification("Critical database error. Please refresh.", "error", 10000);
               }
               throw error;
-          },
-
+          }
+      },
       
       async getAppState() {
           let appState = await this.db.appState.get(0);
@@ -863,7 +842,7 @@ function checkDependencies() {
               }
           }
           return appState;
-
+      },
       
       async saveAppState() {
           // CRITICAL FIX: Don't save editing screen states that might cause issues on restore
@@ -875,9 +854,9 @@ function checkDependencies() {
               currentUserCharacterId: this.currentUserCharacterId,
               currentMainView: isEditingScreen ? this.CONSTANTS.VIEWS.STORYBOARD : this.currentMainView,
               activeStoryId: this.activeStoryId 
-          }
+          };
           await this.db.appState.put(appState);
-
+      },
     
       async initialLoad() {
           // Debug: Initial load started
@@ -892,18 +871,18 @@ function checkDependencies() {
               startTime: null,
               targetScreen: null,
               formOptions: null
-          }
+          };
     
           if (!this.ui.main || !this.ui.initialPageLoadingModal) {
               console.error("[App Critical] Main UI elements not found!");
               const emergencyCtn = document.getElementById('emergencyExportCtn');
               if (emergencyCtn) this.showEl(emergencyCtn);
-              const modal = document.getElementById('initial-loading');
+              const modal = document.getElementById('initial-page-loading-modal');
               if (modal) this.hideEl(modal);
               alert("Critical error: Essential UI elements not found.");
               this.isInitializing = false;
               return;
-          },
+          }
     
           this.showEl(this.ui.main);
                 
@@ -1031,28 +1010,28 @@ function checkDependencies() {
               this.showEl(this.ui.emergencyExportCtn);
               this.hideEl(this.ui.initialPageLoadingModal);
                         
-          }, finally {
+          } finally {
               this.isInitializing = false;
               this.checkAllButtonStates();
               // Ensure right-side buttons are rendered and functional on initial load for Storyboard
               this.updateTopBarUI();
                         
           
-          },
+          }
           // ... existing code ...
           if (this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD && typeof this._updateStoryboard === 'function') {
       
             await this._updateStoryboard();
-          },
+          }
           // Force hide loading modal in case of silent failure
           if (this.ui && this.ui.initialPageLoadingModal) {
             this.hideEl(this.ui.initialPageLoadingModal);
             // Forced hide of loading modal
-          },
+          }
           if (!this.storyboardSelected) {
             this.storyboardSelected = { ai: '', user: '', world: '' };
-          },
-
+          }
+      },
       
       async _getitemData(id, dbTableKey, getPremadesFn) {
     
@@ -1061,7 +1040,7 @@ function checkDependencies() {
           if (!this.db) {
               console.warn('Database not initialized yet, skipping _getitemData');
               return null;
-          },
+          }
           
           if (typeof id === 'string' && id.startsWith('premade_')) {
               const actualPremadeId = id.substring(id.indexOf(':') + 1);
@@ -1082,15 +1061,15 @@ function checkDependencies() {
               }
                         
               return null;
-          },
+          }
           if ((typeof id === 'number' || (typeof id === 'string' && !isNaN(parseInt(id, 10)))) && this.db[dbTableKey]) {
               const result = await this.db[dbTableKey].get(parseInt(id, 10));
         
               return result;
-          },
+          }
     
           return null;
-
+      },
     
         /**
          * Renders the options chin, including custom JS and story prompt fields.
@@ -1107,7 +1086,7 @@ function checkDependencies() {
               console.warn('Database not initialized yet, skipping _populateList');
               listArea.innerHTML = '<p class="list-item-empty-message">Loading...</p>';
               return;
-          },
+          }
           
           const { dbTableKey, getPremadesFn } = config;
           const allUserItems = await this.db[dbTableKey].toArray();
@@ -1125,10 +1104,10 @@ function checkDependencies() {
           itemsToDisplay.forEach(item => {
               const listItem = this._createListItem(item, config);
               listArea.appendChild(listItem);
-          },
+          });
           
           // Chin height is now handled automatically by flexbox layout
-
+      },
     
       _createListItem(item, config) {
           const article = document.createElement('article');
@@ -1143,7 +1122,7 @@ function checkDependencies() {
           if (item.isPremade) {
             const colorPalette = this.getColorPalette(item.colorPalette || 'slate_gray');
             footerHtml = `<footer class="card-footer card-footer-premade"><small class="card-footer-premade-badge" style="--premade-badge-color: ${colorPalette.colors.medium};">Premade</small></footer>`;
-          },
+          }
           // Custom items have no footer buttons - they're accessed via the profile page
           
           const infoHtml = `
@@ -1174,9 +1153,9 @@ function checkDependencies() {
             if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover');
             const finalItemId = item.isPremade ? `premade_${config.itemType}:${item.id}` : item.id;
             this.switchToScreen(config.profileScreen, { itemId: finalItemId, itemType: config.itemType });
-          },
+          };
           return article;
-
+      },
   
   
     
@@ -1188,7 +1167,7 @@ function checkDependencies() {
               console.warn('Database not initialized yet, skipping _populateStoryList');
               listArea.innerHTML = '<p class="story-item-empty-message">Loading...</p>';
               return;
-            }
+          }
           
           let allStories = await this.db.stories.toArray();
           let fetchedStories = allStories.filter(item => item.isDeleted !== true);
@@ -1205,7 +1184,7 @@ function checkDependencies() {
               const name = item?.name || `Unknown ${type.charAt(0).toUpperCase() + type.slice(1)}`;
               nameCache[type + 's'].set(id, name);
               return name;
-          },
+          };
       
           if (searchTerm) {
               storiesToDisplay = [];
@@ -1220,12 +1199,12 @@ function checkDependencies() {
               }
           } else {
               storiesToDisplay = fetchedStories;
-          },
+          }
       
           if (storiesToDisplay.length === 0) {
               listArea.innerHTML = `<p class="story-item-empty-message">${searchTerm ? 'No matches.' : 'No recent stories.'}</p>`;
               return;
-          },
+          }
       
           for (const story of storiesToDisplay) {
               const aiCharacter = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems);
@@ -1252,10 +1231,10 @@ function checkDependencies() {
                   this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: story.id });
               };
               listArea.appendChild(itemEl);
-          },
+          }
           
           // Chin height is now handled automatically by flexbox layout
-
+      },
     
       async renderStoryProfileScreen(storyId) {
           // Phase 1: Validation and Setup
@@ -1284,7 +1263,7 @@ function checkDependencies() {
           this.currentMainView = this.CONSTANTS.VIEWS.STORY_PROFILE;
           await this.saveAppState();
           this.checkAllButtonStates();
-
+      },
     
       async _validateAndSetupStoryProfile(storyId) {
           const container = this.ui.storyProfileScreen; 
@@ -1305,7 +1284,7 @@ function checkDependencies() {
     
           this.currentStoryId = storyId;
           return story;
-
+      },
     
       async _fetchStoryProfileData(story) {
           const aiChar = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems);
@@ -1313,7 +1292,7 @@ function checkDependencies() {
           const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems);
     
           return { aiChar, userChar, world };
-
+      },
     
       async _updateTopBarForStoryProfile(story, storyId, aiChar, userChar) {
           // Removed top bar title text
@@ -1329,15 +1308,15 @@ function checkDependencies() {
                await this._updateCharacterInfo('user', userChar);
           } else { 
               this.hideEl(this.ui.topBarUserCharacterInfo);
-          },
-
+          }
+      },
     
       _setupStoryProfileDisplays(aiChar, userChar) {
           this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = aiChar.profilePicture ? `url('${this.sanitizeHtml(aiChar.profilePicture)}')` : '';
           this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = userChar.profilePicture ? `url('${this.sanitizeHtml(userChar.profilePicture)}')` : '';
           this.ui.storyProfileAiCharacterDisplayArea.classList.toggle('visible', !!aiChar.profilePicture);
           this.ui.storyProfileUserCharacterDisplayArea.classList.toggle('visible', !!userChar.profilePicture);
-
+      },
     
       async _renderStoryProfileMessages(story) {
           this.ui.storyProfilechatFeed.innerHTML = '';
@@ -1350,12 +1329,12 @@ function checkDependencies() {
                   if (msg.isHidden) return;
                   this._addMessageToFeed(msg, true);
               });
-          },
+          }
           
           if (story.concluded && story.summary && !messages.some(m => m.content === story.summary && m.role === 'narrator')) {
                this._addMessageToFeed({ role: 'narrator', content: story.summary }, true);
-          },
-
+          }
+      },
     
       _generateAndInsertStoryProfileHTML(story, aiChar, userChar, world) {
           const san = this.sanitizeHtml;
@@ -1365,7 +1344,7 @@ function checkDependencies() {
           this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', conclusionHtml);
           this.ui.storyProfilechatFeed.scrollTop = this.ui.storyProfilechatFeed.scrollHeight;
           this.ui.storyProfileActions.innerHTML = actionButtonsHtml;
-
+      },
     
       _generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san) {
           return `
@@ -1393,7 +1372,7 @@ function checkDependencies() {
                       : ''
                   }
               </div>`;
-
+      },
     
       _generateStoryProfileActionButtons(story) {
           let actionButtonsHtml = `
@@ -1417,10 +1396,10 @@ function checkDependencies() {
                       <span class="button-text">Resume Chat</span><span class="button-icon">Resume</span>
                   </button>
               `;
-          },
+          }
           actionButtonsHtml += `</div>`;
           return actionButtonsHtml;
-
+      },
     
       async _attachStoryProfileEventHandlers(story, storyId) {
           // Back button handler
@@ -1430,7 +1409,7 @@ function checkDependencies() {
               } else {
                   this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
               }
-          }
+          };
     
           // Delete story handler
           this.ui.storyProfileActions.querySelector('#deleteStoryButton').onclick = async () => {
@@ -1445,7 +1424,7 @@ function checkDependencies() {
                   }
                   this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
               }
-          }
+          };
     
           // Conclude and resume story handlers (only for active stories)
           if (!story.concluded) {
@@ -1464,7 +1443,7 @@ function checkDependencies() {
                       }
                   }
               }
-            }
+          }
     
           // item card click handlers
           this.ui.storyProfilechatFeed.querySelectorAll('.story-profile-item-card').forEach(card => {
@@ -1476,8 +1455,8 @@ function checkDependencies() {
                       this.switchToScreen(itemConfig.profileScreen, {itemId, itemType});
                   }
               };
-          }
-
+          });
+      },
       
             async renderFormScreen(options = {}) {
           // renderFormScreen called with options
@@ -1592,7 +1571,7 @@ function checkDependencies() {
           this._attachFormEventHandlers(container, itemType, item, isCreatingOrCopying);
           this.checkAllButtonStates();
           this._updateFormColorPreview(container, item.colorPalette);
-
+      },
       
       async renderProfileScreen(options = {}) {
           const { itemType, itemId } = options;
@@ -1614,7 +1593,7 @@ function checkDependencies() {
           if (!item) {
               container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`;
               return;
-        }
+          }
           // Removed: this.ui.topBar.textContent = `${config.capital} Profile`; // This is now handled by _updateProfileTopBarUI
   
           // NON-DESTRUCTIVE DOM UPDATE:
@@ -1647,7 +1626,7 @@ function checkDependencies() {
           // Profile page name field is read-only - no handlers needed
       
           // Removed event handlers for Back and Copy & Customize buttons - now handled in top bar
-
+      },
     
       _renderEppfField(label, subLabel, idSuffix, value, placeholder, isEditing, san) {
           const id = `${idSuffix}`;
@@ -1675,7 +1654,7 @@ function checkDependencies() {
                   </div>
               `;
           }
-
+      },
     
       _renderStudioLayout(item, config, isEditing) {
           const san = this.sanitizeHtml.bind(this);
@@ -1753,7 +1732,7 @@ function checkDependencies() {
           `;
           
           return content;
-
+      },
     
       async _createColorPicker(selectedPaletteKey) {
         let colorPickerHtml = '<div class="form-section color-picker-section">';
@@ -1777,7 +1756,7 @@ function checkDependencies() {
     
         colorPickerHtml += '</div></div>';
         return colorPickerHtml;
-    }
+    },
     
       /**
        * Loads a color palette by key, or returns a default if not found.
@@ -1786,7 +1765,7 @@ function checkDependencies() {
        */
       getColorPalette(paletteKey) {
         return this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
-
+      },
     
       /**
        * Updates the color scheme of a given element using a palette key.
@@ -1802,16 +1781,16 @@ function checkDependencies() {
               '--form-color-medium': palette.colors.medium,
               '--form-color-dark': palette.colors.dark,
               '--form-color-neutral': palette.colors.neutral
-          },;
+          };
     
           Object.entries(styles).forEach(([prop, value]) => {
               element.style.setProperty(prop, value);
-          },);
-
+          });
+      },
     
       _updateFormColorPreview(container, paletteKey) {
           this._updateColorScheme(container, paletteKey);
-
+      },
     
       _attachFormEventHandlers(container, itemType /*, item, isCreating */) {
         const formElements = this._setupFormElements(container, itemType);
@@ -1848,8 +1827,8 @@ function checkDependencies() {
                   // Update live preview
                   this._updateFormColorPreview(container, selectedKey);
               };
-          },);
-
+          });
+      },
     
       _attachContenteditableNameHandlers(elements /*, itemType */) {
           const { nameInput } = elements;
@@ -1862,7 +1841,7 @@ function checkDependencies() {
                   // Update the form data
                   this.createItemFormData.name = newName;
               }
-          },;
+          };
           
           // Handle blur to save changes
           nameInput.onblur = () => {
@@ -1871,7 +1850,7 @@ function checkDependencies() {
                   // Update the form data
                   this.createItemFormData.name = newName;
               }
-          },;
+          };
           
           // Handle Enter key to finish editing
           nameInput.onkeydown = (e) => {
@@ -1879,8 +1858,8 @@ function checkDependencies() {
                   e.preventDefault();
                   nameInput.blur();
               }
-          },;
-
+          };
+      },
     
       _setupFormElements(container, itemType) {
           const config = this.CONSTANTS.ITEM_CONFIG[itemType];
@@ -1888,7 +1867,7 @@ function checkDependencies() {
           if (!form) {
               console.error(`Form not found for ${itemType}`);
               return null;
-          },
+          }
     
           return {
               config,
@@ -1908,8 +1887,8 @@ function checkDependencies() {
               pastInput: form.querySelector(`#${itemType}Past`),
               presentInput: form.querySelector(`#${itemType}Present`),
               futureInput: form.querySelector(`#${itemType}Future`),
-          },;
-
+          };
+      },
     
       _attachProfilePictureEventHandlers(elements, itemType) {
           // Simple profile picture handler for both character and world forms
@@ -1933,8 +1912,8 @@ function checkDependencies() {
                       }
                   }
               };
-          },
-
+          }
+      },
     
       _attachFormActionHandlers(elements, itemType) {
           // const { config, form } = elements; // Unused variables
@@ -1946,7 +1925,7 @@ function checkDependencies() {
     
           // Form submit handler
           this._attachFormSubmitHandler(elements, itemType);
-
+      },
     
       _attachCancelButtonHandler(elements, itemType) {
           const { config, form } = elements;
@@ -1955,7 +1934,7 @@ function checkDependencies() {
           if (!cancelButton) {
               console.warn(`Cancel button not found for ${itemType} form.`);
               return;
-          },
+          }
     
           cancelButton.onclick = (e) => {
               // Ignore synthetic/programmatic clicks that are not user-initiated
@@ -2027,8 +2006,8 @@ function checkDependencies() {
               }
     
               this.switchToScreen(targetScreen, navOptions);
-          },;
-
+          };
+      },
     
       _attachFormSubmitHandler(elements, itemType) {
           const { config, form } = elements;
@@ -2066,8 +2045,8 @@ function checkDependencies() {
                   // Ensure session storage is cleared if submission ultimately fails
                   sessionStorage.removeItem('pendingRPGlitchFormState');
               }
-          },;
-
+          };
+      },
     
       async _processFormSubmission(elements, itemType) {
           const { config, nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
@@ -2087,7 +2066,7 @@ function checkDependencies() {
               createdTimestamp: isCreating ? Date.now() : this.currentCreateFormContext.createdTimestamp || Date.now(), // Preserve timestamp for existing
               lastModifiedTimestamp: Date.now(),
               isDeleted: 0 // Explicitly set to not deleted
-          },;
+          };
     
           let result;
           if (id && !isCreating) { // Only update if ID exists and we are editing (not creating from copy)
@@ -2097,9 +2076,9 @@ function checkDependencies() {
           } else {
               result = await this.db[config.dbTableKey].add(newItem);
               this.showTopNotification(`${config.capital} created!`, 'success');
-          },
+          }
           this._handleFormSubmissionSuccess(result, config, itemType);
-
+      },
     
       _handleFormSubmissionSuccess(result, config, itemType) {
           this.currentGeneratedProfilePictureDataUrl = null; // Clear generated image after save
@@ -2108,11 +2087,11 @@ function checkDependencies() {
               sessionStorage.removeItem('pendingRPGlitchFormState'); // Clear session storage on success
           } catch (e) {
               console.warn("Failed to clear session storage on successful form submission:", e);
-          },
+          }
           
           // Always navigate to the profile page of the created/edited item
           this.switchToScreen(config.profileScreen, { itemId: result, itemType: itemType });
-
+      },
     
       _attachAiHelperHandlers(elements, itemType) {
           const { form, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
@@ -2132,8 +2111,8 @@ function checkDependencies() {
               if (field.btn) {
                   this._manageAiButtonState(field.btn, { type: field.type, field: field.input, itemType: itemType });
               }
-          },);
-
+          });
+      },
     
       _attachTextareaHandlers(elements) {
           const { descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
@@ -2147,8 +2126,8 @@ function checkDependencies() {
               });
               // Trigger input event once to adjust initial height
               textarea.dispatchEvent(new Event('input'));
-          },);
-
+          });
+      },
     
       showProfilePictureOverlay(overlayElement, itemType) {
           if (typeof overlayElement === 'string') overlayElement = document.getElementById(overlayElement);
@@ -2160,9 +2139,9 @@ function checkDependencies() {
           const promptInput = overlayElement.querySelector(`#profilePicturePromptInputForm-${itemType}`);
           if (promptInput) {
               setTimeout(() => promptInput.focus(), 50);
-          },
+          }
           this.checkAllButtonStates();
-
+      },
     
       async _handleAiHelpForProfilePicturePrompt(buttonElement, itemType, promptTextarea, formElement) {
           // const config = this.CONSTANTS.ITEM_CONFIG[itemType]; // Unused
@@ -2193,12 +2172,12 @@ function checkDependencies() {
           } catch (error) {
               console.error("AI Help for profile picture prompt failed:", error);
               this.showTopNotification(`AI Help failed: ${error.message || 'Error generating prompt.'}`, "error", 5000);
-          }, finally {
+          } finally {
               buttonElement.innerHTML = originalButtonText;
               buttonElement.disabled = false;
               this.checkAllButtonStates();
-          },
-
+          }
+      },
     
       hideProfilePictureOverlay(overlayElement) {
           if (typeof overlayElement === 'string') overlayElement = document.getElementById(overlayElement);
@@ -2206,7 +2185,7 @@ function checkDependencies() {
           this.ui.topBar.classList.remove('top-bar-interactive-hover'); // Remove hover class
           this.hideEl(overlayElement);
           this.checkAllButtonStates();
-
+      },
     
       async handleUseUrlForProfilePicture(overlayElement, url, itemType) {
           const profilePictureDisplayPanel = document.getElementById(`${itemType}-profile-picture-display`);
@@ -2217,14 +2196,14 @@ function checkDependencies() {
               this.showTopNotification("Image URL applied.", "success");
           } else {
               this.showTopNotification("Error applying image: target display panel not found.", "error");
-          },
+          }
           this.hideProfilePictureOverlay(overlayElement);
           this.checkAllButtonStates();
-
+      },
     
       _makePromptObjectForImagePlugin(promptString) {
           return { prompt: promptString };
-
+      },
     
       async handleGenerateProfilePictureSimple(itemType, currentPromptText) {
           this.showTopNotification("Generating image...", "info", 5000);
@@ -2246,8 +2225,8 @@ function checkDependencies() {
               console.error("Image generation failed:", error);
               this.showTopNotification(`Image generation failed: ${error.message || 'Unknown error.'}`, "error", 5000);
               this.currentGeneratedProfilePictureDataUrl = null;
-          },
-
+          }
+      },
     
       async handleGenerateProfilePictureSmart(overlayElement, itemType, currentPromptText) {
           const generateButton = overlayElement.querySelector(`#generateProfilePictureButtonForm-${itemType}`);
@@ -2284,19 +2263,19 @@ function checkDependencies() {
               console.error("Image generation failed:", error);
               this.showTopNotification(`Image generation failed: ${error.message || 'Unknown error.'}`, "error", 5000);
               this.currentGeneratedProfilePictureDataUrl = null;
-          }, finally {
+          } finally {
               generateButton.innerHTML = originalGenerateButtonHtml;
               generateButton.disabled = false;
               promptInput.disabled = false; // Re-enable prompt input
               this.checkAllButtonStates();
-          },
-
+          }
+      },
     
       async handleUseGeneratedProfilePicture(overlayElement, itemType) {
           if (!this.currentGeneratedProfilePictureDataUrl) {
               this.showTopNotification("No generated image to use.", "error");
               return;
-          },
+          }
     
           const profilePictureDisplayPanel = document.getElementById(`${itemType}-profile-picture-display`);
           if (profilePictureDisplayPanel) {
@@ -2305,11 +2284,11 @@ function checkDependencies() {
               this.showTopNotification("Generated image applied!", "success");
           } else {
               this.showTopNotification("Error applying image: target display panel not found.", "error");
-          },
+          }
           this.hideProfilePictureOverlay(overlayElement);
           this.currentGeneratedProfilePictureDataUrl = null; // Clear after use
           this.checkAllButtonStates();
-
+      },
     
       async waitForDependenciesAndInitializeApp() {
         const checkDependencies = () => {
@@ -2322,7 +2301,7 @@ function checkDependencies() {
             isHyperscriptLoaded,
             isCashDomLoaded,
             isDOMPurifyAvailable
-          },;
+          };
         };
   
         const maxAttempts = 50; // Max 10 seconds (50 * 200ms)
@@ -2348,7 +2327,7 @@ function checkDependencies() {
                     reject(new Error("Dependencies not loaded in time: " + missing));
                   }
                 }
-         200);
+              }, 200);
             });
           } else {
             // DOM is already ready, start checking immediately
@@ -2367,10 +2346,10 @@ function checkDependencies() {
                   reject(new Error("Dependencies not loaded in time: " + missing));
                 }
               }
-       200);
-          },
+            }, 200);
+          }
         });
-
+      },
     
       async initializeWhenReady() {
         try {
@@ -2383,11 +2362,11 @@ function checkDependencies() {
           let missing = "";
           if (error && error.message && error.message.includes(": ")) {
             missing = "\nMissing: " + error.message.split(": ")[1];
-          },
+          }
           alert("Application failed to load: essential components missing. Please ensure all scripts loaded correctly." + missing);
-          this.showEl(document.getElementById('emergency'));
+          this.showEl(document.getElementById('emergency-export-ctn'));
         }
-
+      },
     
       async switchToScreen(screenName, options = {}) {
           // Switching to screen
@@ -2402,7 +2381,7 @@ function checkDependencies() {
                   this.hideEl(screenEl);
 
               }
-          },);
+          });
           // Hide the chin area as well when switching screens
           this.hideEl(this.ui.topBarChin);
           this.focusBarState.chinOpen = false;
@@ -2420,7 +2399,7 @@ function checkDependencies() {
               this.currentMainView = this.CONSTANTS.VIEWS.STORYBOARD;
               this.showEl(this.ui.storyboardScreen); // Fallback to storyboard
 
-          },
+          }
     
           this.currentMainView = screenName;
           this.currentProfileViewItemId = null; // Clear profile view ID on screen switch
@@ -2501,11 +2480,11 @@ function checkDependencies() {
               default:
                   console.warn("Unhandled screen switch:", screenName);
                   break;
-          },
+          }
     
           this.updateTopBarUI(); // Update UI after screen switch
           this.checkAllButtonStates(); // Ensure all buttons are correctly enabled/disabled
-
+      },
     
       async _updateCharacterInfo(characterType, characterData = null) {
           let character = characterData;
@@ -2531,7 +2510,7 @@ function checkDependencies() {
           } else {
               this.hideEl(displayArea);
           }
-
+      },
     
       _updateCharacterDisplay(characterType, characterData) {
           const panel = characterType === 'user' ? this.ui.userCharacterDisplayArea : this.ui.aiCharacterDisplayArea;
@@ -2553,7 +2532,7 @@ function checkDependencies() {
           } else {
               this.hideEl(panel);
           }
-
+      },
     
       async openStory(storyId) { 
         // Attempting to open story
@@ -2609,7 +2588,7 @@ function checkDependencies() {
         this.ui.chatScreenLayoutContainer.classList.add('chat-background'); // Add class for potential overlay/effects
     
         // Successfully opened story
-
+      },
     
       async concludeStory(storyId) {
         if (!confirm("Are you sure you want to conclude this story? You can always view it in your story list later, but you won't be able to add new messages.")) {
@@ -2631,7 +2610,7 @@ function checkDependencies() {
             console.error("Error concluding story:", error);
             this.showTopNotification('Error concluding story.', 'error');
         }
-
+      },
     
       async beginStory() {
           // beginStory called
@@ -2670,7 +2649,7 @@ function checkDependencies() {
                   preSelectedWorldId: worldId
               });
               return;
-        }
+          }
           if (worldId.startsWith('create_new_')) {
               this.showTopNotification("Please create your World first, then select it.", "info", 5000);
               this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, { 
@@ -2702,7 +2681,7 @@ function checkDependencies() {
               this.showTopNotification("Resuming existing story!", "info");
               this.openStory(existingStory.id);
               return;
-        }
+          }
     
           // 5. Create a new story if none exists
           // Creating new story
@@ -2729,7 +2708,7 @@ function checkDependencies() {
           // 6. Navigate to the chat interface
           this.showTopNotification("Story started!", "success");
           this.openStory(newStoryId);
-
+      },
     
       _getExistingProfilePictureUrl(itemId, dbTableKey) {
           // This function needs to fetch the item's existing profile picture URL
@@ -2741,7 +2720,7 @@ function checkDependencies() {
               if (foundItem) return foundItem.profilePicture;
           }
           return '';
-
+      },
     
       _getFormDataFromForm(elements) {
           const { nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
@@ -2757,8 +2736,8 @@ function checkDependencies() {
               future: futureInput?.value.trim() || '',
               profilePicture: this.currentGeneratedProfilePictureDataUrl || '', // Use generated or current
               colorPalette: colorPalette
-          }
-
+          };
+      },
       
       async createMessage(role, content, characterId = null) {
           if (!this.activeStoryId) {
@@ -2772,11 +2751,11 @@ function checkDependencies() {
               characterId: characterId, // ID of character who sent it (if role is character)
               timestamp: Date.now(),
               isHidden: false // For system messages, etc.
-          }
+          };
           const messageId = await this.db.messages.add(newMessage);
           await this.db.stories.update(this.activeStoryId, { lastMessageTimestamp: Date.now() });
           return { ...newMessage, id: messageId };
-
+      },
     
       async sendButtonClickHandler() {
           const messageText = this.ui.messageInput.value.trim();
@@ -2826,7 +2805,7 @@ function checkDependencies() {
               this._updateChatUIForNewMessage();
               this.checkAllButtonStates(); // Ensure states are correct
           }
-
+      },
     
       _addMessageToFeed(message, isForProfileScreen = false) {
           const feed = isForProfileScreen ? this.ui.storyProfilechatFeed : this.ui.chatFeed;
@@ -2861,7 +2840,7 @@ function checkDependencies() {
               </div>
           `;
           feed.appendChild(messageElement);
-
+      },
     
       _updateChatUIForNewMessage() {
           // Scroll chat feed to bottom
@@ -2874,7 +2853,7 @@ function checkDependencies() {
           if (this.ui.noMessagesNotice) {
               this.ui.noMessagesNotice.classList.toggle('hidden', feed.children.length > 0 || !this.ui.storyConcludedNotice.classList.contains('hidden'));
           }
-
+      },
     
       async _setAiIsTyping(isTyping, customMessage = null) {
           if (isTyping) {
@@ -2886,7 +2865,7 @@ function checkDependencies() {
               this.ui.statusNotifier.classList.add('hidden');
               this.ui.statusNotifier.style.display = 'none'; // Restore previous display or hide
           }
-
+      },
     
       _cancelCurrentAiRequest() {
           if (this.activeAiButtons.has('generate') || this.activeAiButtons.has('image')) {
@@ -2896,7 +2875,7 @@ function checkDependencies() {
               this.activeAiButtons.delete('image');
               this.showTopNotification("AI request cancelled.", "info");
           }
-
+      },
     
       async _createAiRequest(options) {
           const { type, prompt, context, instruction, userMessage, storyId, aiCharacterId, userCharacterId, worldId } = options;
@@ -2941,10 +2920,10 @@ function checkDependencies() {
                   console.error("AI Request encountered an error:", error);
                   throw new Error(`AI Error: ${error.message}`);
               }
-          }, finally {
+          } finally {
               this.activeAiButtons.delete(type); // Clean up controller
           }
-
+      },
     
       async _getSystemPrompt(storyIdOverride = null) {
           const storyId = storyIdOverride || this.activeStoryId;
@@ -2977,7 +2956,7 @@ function checkDependencies() {
           }
     
           return systemPrompt;
-
+      },
     
       async _getChatHistoryForAI() {
           if (!this.activeStoryId) return [];
@@ -2989,15 +2968,13 @@ function checkDependencies() {
               role: msg.role === 'user' ? 'user' : 'model', // Map 'character' role to 'model' for AI
               parts: [{ text: msg.content }]
           }));
-      }
-
+      },
     
       async _collectMemoriesFromStory() {
           // This is a placeholder for future memory collection logic
           // For now, it returns an empty array
           return [];
-      }
-
+      },
     
       async _renderMemoryApplicationScreen(options = {}) {
           const { storyId } = options;
@@ -3018,9 +2995,7 @@ function checkDependencies() {
               console.error("Error applying memories:", error);
               container.innerHTML = '<h2>Error Applying Memories</h2><p>Failed to process memories from this story.</p>';
           }
-      }
-          },
-
+      },
     
       async _applyMemoriesToProfiles() {
           // Placeholder for applying extracted memories to character/world profiles
@@ -3029,8 +3004,7 @@ function checkDependencies() {
           // 1. Fetch memories from the story
           // 2. Update the relevant character/world items in the DB
           // 3. Show a notification
-      }
-
+      },
     
       async _updateStoryboard() {
           if (!this.storyboardSelected) {
@@ -3296,10 +3270,10 @@ function checkDependencies() {
                 }
               }
               this.checkAllButtonStates();
-          }, finally {
+          } finally {
               this.isUpdatingStoryboard = false;
-          },
-
+          }
+      },
     
       checkAllButtonStates() {
           // Only enable begin story button if all selects have a valid (non-empty, non-create_new) selection
@@ -3310,11 +3284,11 @@ function checkDependencies() {
     
           if (this.ui.beginStoryButton) {
               this.ui.beginStoryButton.disabled = !(aiSelected && userSelected && worldSelected);
-          },
+          }
           if (this.ui.shuffleStoryElementsButton) {
               // Always enable shuffle, regardless of selection state
               this.ui.shuffleStoryElementsButton.disabled = false;
-          },
+          }
     
           // Profile picture generation buttons
           const profilePicturePromptInput = document.querySelector('.profile-picture-overlay textarea'); // Assuming only one active
@@ -3323,14 +3297,14 @@ function checkDependencies() {
     
           if (generateButton) {
               generateButton.disabled = !profilePicturePromptInput || profilePicturePromptInput.value.trim() === '';
-          },
+          }
           if (useButton) {
               useButton.disabled = !this.currentGeneratedProfilePictureDataUrl; // Only enabled if an image has been generated
-          },
+          }
   
           // Update mouseover animation states based on button states
           this.updateMouseoverAnimationState();
-
+      },
     
       async updateDynamicStoryboardTitle() {
         if (!this.storyboardSelected) return;
@@ -3357,17 +3331,17 @@ function checkDependencies() {
         }
   
         this.ui.storyboardTitle.innerHTML = titleText;
-
+      },
     
       async _getSelectedCharacterName(/* selectElement */) {
           if (!this.storyboardSelected) return null;
           // ... existing code ...
-
+      },
   
       async _getSelectedWorldName(/* selectElement */) {
           if (!this.storyboardSelected) return null;
           // ... existing code ...
-
+      },
     
       async updateStoryboardCard(selectElement, config) {
           const selectedValue = selectElement.value;
@@ -3378,7 +3352,7 @@ function checkDependencies() {
           if (!selectedValue || selectedValue.startsWith('create_new_')) {
               this.clearStoryboardCard(cardElement, config);
               return;
-          },
+          }
     
           const item = await this._getitemData(selectedValue, config.dbTableKey, config.getPremadesFn, config.itemType);
           if (item) {
@@ -3386,9 +3360,9 @@ function checkDependencies() {
           } else {
               this.clearStoryboardCard(cardElement, config);
               console.warn(`Item not found for ID: ${selectedValue} in ${config.itemType}`);
-          },
+          }
           this.updateDynamicStoryboardTitle();
-
+      },
     
       clearStoryboardCard(configOrCardElement) {
           let cardElement;
@@ -3409,7 +3383,7 @@ function checkDependencies() {
               if (cardElement === this.ui.storyboardAiCharacterCard) config = this.CONSTANTS.ITEM_CONFIG.characterAi;
               else if (cardElement === this.ui.storyboardUserCharacterCard) config = this.CONSTANTS.ITEM_CONFIG.characterUser;
               else if (cardElement === this.ui.storyboardWorldCard) config = this.CONSTANTS.ITEM_CONFIG.world;
-          },
+          }
     
           if (!cardElement || !config) return;
     
@@ -3421,7 +3395,7 @@ function checkDependencies() {
           let contentContainer = cardElement.querySelector('.card-content');
           if (contentContainer) {
               contentContainer.remove();
-          },
+          }
           
           // Create new content container with grid layout (same as _renderStoryboardCard)
           contentContainer = document.createElement('div');
@@ -3475,7 +3449,7 @@ function checkDependencies() {
               select.style.margin = '0';
               select.style.padding = '0';
               headerElement.appendChild(select);
-          },
+          }
           
           infoDiv.appendChild(headerElement);
           
@@ -3500,7 +3474,7 @@ function checkDependencies() {
               placeholderSpan.textContent = 'Please select your Character to begin your story.';
           } else if (cardElement === this.ui.storyboardWorldCard) {
               placeholderSpan.textContent = 'Please select a World to begin your story. This sets the scene and atmosphere for your adventure.';
-          },
+          }
           
           infoDiv.appendChild(placeholderSpan);
           
@@ -3536,7 +3510,7 @@ function checkDependencies() {
           cardElement.style.backgroundImage = '';
           cardElement.style.backgroundColor = '';
           cardElement.style.setProperty('--card-item-main-color', '');
-
+      },
     
       _renderStoryboardCard(cardElement, item, config) {
      
@@ -3556,12 +3530,12 @@ function checkDependencies() {
           let contentContainer = cardElement.querySelector('.card-content');
           if (contentContainer) {
               contentContainer.remove();
-          },
+          }
           // Hide/remove the placeholder text if present
           let placeholderSpan = cardElement.querySelector('.card-placeholder-text');
           if (placeholderSpan) {
               placeholderSpan.style.display = 'none';
-          },
+          }
           // Create new content container
           contentContainer = document.createElement('div');
           contentContainer.className = 'card-content';
@@ -3619,7 +3593,7 @@ function checkDependencies() {
               select.style.margin = '0';
               select.style.padding = '0';
               headerElement.appendChild(select);
-          },
+          }
           
           infoDiv.appendChild(headerElement);
   
@@ -3627,7 +3601,7 @@ function checkDependencies() {
           if (select) {
               select.style.margin = '0';
               select.style.width = '100%';
-          },
+          }
   
           // Description
           const descDiv = document.createElement('div');
@@ -3663,7 +3637,7 @@ function checkDependencies() {
               
               footerDiv.appendChild(tagSpan);
               infoDiv.appendChild(footerDiv);
-          },
+          }
   
           // Assemble grid
           contentContainer.appendChild(avatarDiv);
@@ -3678,8 +3652,8 @@ function checkDependencies() {
           cardElement.onclick = (e) => {
             if (e.target.closest('select')) return;
             this.switchToScreen(config.profileScreen, { itemId: item.id, itemType: config.itemType });
-          }
-
+          };
+      },
     
       async _manageAiButtonState(button, options) {
           const { type, field, itemType } = options;
@@ -3718,8 +3692,8 @@ function checkDependencies() {
                   this.activeAiButtons.delete(field.id); // Clean up controller
                   this.checkAllButtonStates();
               }
-          }
-
+          };
+      },
     
       _getPromptContextForField(itemType) {
           const name = this.ui[`${itemType}Name`]?.value.trim() || '';
@@ -3737,7 +3711,7 @@ function checkDependencies() {
           if (future) context += ` Its future aspirations are: "${future}".`;
     
           return context;
-
+      },
     
       _getPromptInstructionForField(fieldType, itemType, currentValue) {
           let instruction = `Generate a concise, compelling 1-2 sentence text for the "${fieldType}" field of a ${itemType} profile.`;
@@ -3762,9 +3736,9 @@ function checkDependencies() {
               case 'future':
                   instruction += ` This describes goals, aspirations, or potential future events.`;
                   break;
-        }
+          }
           return instruction;
-
+      },
     
   
     
@@ -3785,7 +3759,7 @@ function checkDependencies() {
             }
         });
         this.ui.chatFeed.scrollTop = this.ui.chatFeed.scrollHeight; // Scroll to bottom
-      }
+      },
     
       renderSettingsScreen() {
           const container = document.getElementById('settings-screen');
@@ -3801,31 +3775,31 @@ function checkDependencies() {
               <input type="file" id="importFileInput" accept=".json" class="hidden-input" onchange="App.importAllData(event)">
               <button onclick="App.deleteAllData()">Delete All Data</button>
           `;
-      }
+      },
     
       renderMemoryManagementScreen() {
           const container = document.getElementById('memory-management-screen');
           if (!container) return;
           container.innerHTML = '<h2>Memory Management</h2><p>Coming soon...</p>';
-      }
+      },
     
       renderMemoryApplicationScreen() {
           const container = this.ui.memoryApplicationScreen;
           if (!container) return;
           container.innerHTML = '<h2>Apply Memories to Profiles</h2><p>This screen allows you to apply extracted memories from a story back into character or world profiles.</p><p>Coming soon...</p>';
-      }
+      },
     
       async regenerateMessage() {
           // Logic for regenerating a message
-      }
+      },
     
       async _handleAiCoWriter() {
           // Logic for AI Co-writer
-      }
+      },
     
       async _handleSummarize() {
           // Logic for AI Summarize
-      }
+      },
     
       async exportAllData() {
           if (!this.db) {
@@ -3851,7 +3825,7 @@ function checkDependencies() {
               console.error("Error exporting data:", error);
               this.showTopNotification("Error exporting data.", "error");
           }
-
+      },
     
       async importAllData(event) {
           const file = event.target.files[0];
@@ -3886,13 +3860,13 @@ function checkDependencies() {
           } catch (error) {
               console.error("Error reading file for import:", error);
               this.showTopNotification("Error reading file for import.", "error");
-          },
-
+          }
+      },
     
       async deleteAllData() {
           if (!confirm("Are you sure you want to delete ALL your data? This cannot be undone.")) {
               return;
-          },
+          }
           try {
               await this.db.delete();
               this.showTopNotification("All data deleted. App will reload.", "success");
@@ -3900,8 +3874,8 @@ function checkDependencies() {
           } catch (error) {
               console.error("Error deleting data:", error);
               this.showTopNotification("Error deleting data.", "error");
-          },
-
+          }
+      },
     
       async _shuffleStoryboard() {
           // Check if database is initialized
@@ -3909,7 +3883,7 @@ function checkDependencies() {
               console.warn('[DEBUG] Database not initialized yet, skipping _shuffleStoryboard');
               this.showTopNotification("Please wait for the application to finish loading.", "info", 3000);
               return;
-          },
+          }
           
           // Helper to build options array for a card type
           const buildOptions = async (config) => {
@@ -3921,7 +3895,7 @@ function checkDependencies() {
                   ...userItems.map(item => ({ value: item.id, label: item.name || `Unnamed ${config.capital}` })),
                   ...items.filter(item => item.isPremade).map(item => ({ value: `premade_${config.itemType}:${item.id}`, label: item.name }))
               ];
-          },;
+          };
           const aiOptions = await buildOptions(this.CONSTANTS.ITEM_CONFIG.characterAi);
           const userOptions = await buildOptions(this.CONSTANTS.ITEM_CONFIG.characterUser);
           const worldOptions = await buildOptions(this.CONSTANTS.ITEM_CONFIG.world);
@@ -3929,19 +3903,19 @@ function checkDependencies() {
           if (aiOptions.length > 0) {
               const randomAi = aiOptions[Math.floor(Math.random() * aiOptions.length)].value;
               this.storyboardSelected.ai = randomAi;
-          },
+          }
           if (userOptions.length > 0) {
               const randomUser = userOptions[Math.floor(Math.random() * userOptions.length)].value;
               this.storyboardSelected.user = randomUser;
-          },
+          }
           if (worldOptions.length > 0) {
               const randomWorld = worldOptions[Math.floor(Math.random() * worldOptions.length)].value;
               this.storyboardSelected.world = randomWorld;
-          },
+          }
                 
           await this._updateStoryboard();
           await this.updateDynamicStoryboardTitle();
-
+      },
     
       _getInitials(name) {
           if (!name) return '?';
@@ -3957,19 +3931,19 @@ function checkDependencies() {
           const filteredWords = words.filter(word => {
               const lowerWord = word.toLowerCase();
               return !skipWords.includes(lowerWord) && word.length > 0;
-          },);
+          });
           
           // Get initials from filtered words (allow up to 3 initials)
           const initials = filteredWords.map(w => w[0]).join('').toUpperCase().slice(0, 3);
           
           // If no initials found after filtering, fall back to original logic
           return initials || name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 3);
-
+      },
     
       _getPaletteColor(paletteKey, colorType) {
           const palette = this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
           return palette.colors[colorType] || '#607d8b'; // Default to slate_gray medium
-
+      },
     
       _makeProfilePicturePlaceholderSVG(name, paletteKey, isPremade, itemId = null) {
         if (!this._profilePicturePlaceholderCache) this._profilePicturePlaceholderCache = {};
@@ -3977,10 +3951,10 @@ function checkDependencies() {
         // Normalize the itemId for consistent cache keys
         let normalizedItemId = itemId;
         if (itemId && isPremade) {
-          // Extract the actual ID from prefixed IDs like "premade_}, world:forest" -> "forest"
+          // Extract the actual ID from prefixed IDs like "premade_world:forest" -> "forest"
           if (itemId.includes(':')) {
             normalizedItemId = itemId.split(':')[1];
-          },
+          }
         }
         
         const keyPart = normalizedItemId ? `id:${normalizedItemId}` : `name:${name}`;
@@ -4019,7 +3993,7 @@ function checkDependencies() {
         this._profilePicturePlaceholderCache[cacheKey] = dataUrl;
   
         return dataUrl;
-
+      },
     
       // This function is now just a wrapper for the external component's function
       // It handles passing the correct palette object and font family
@@ -4064,7 +4038,7 @@ function checkDependencies() {
         return (item.profilePicture && item.profilePicture.trim())
           ? item.profilePicture.trim()
           : this._makeProfilePicturePlaceholderSVG(item.name || '', getValidPaletteKey(item), item.isPremade, item.id);
-
+      },
     
         /**
          * Updates the UI based on the active tab and chin state.
@@ -4093,7 +4067,7 @@ function checkDependencies() {
             });
   
             // Hide all chins by default
-            const chinIds = ['chin-stories', 'chin-characters', 'chin-worlds', 'chin-options'];
+            const chinIds = ['storyboard-chin', 'character-workshop-chin', 'world-builder-chin', 'options-chin'];
             chinIds.forEach(id => {
                 const chin = document.getElementById(id);
                 if (chin) chin.classList.add('hidden');
@@ -4104,13 +4078,13 @@ function checkDependencies() {
                 let activeChinId = null;
                 switch (this.focusBarState.mode) {
                     case 'storyboard':
-                        activeChinId = 'chin-stories'; break;
+                        activeChinId = 'storyboard-chin'; break;
                     case 'characters':
-                        activeChinId = 'chin-characters'; break;
+                        activeChinId = 'character-workshop-chin'; break;
                     case 'worlds':
-                        activeChinId = 'chin-worlds'; break;
+                        activeChinId = 'world-builder-chin'; break;
                     case 'options':
-                        activeChinId = 'chin-options'; break;
+                        activeChinId = 'options-chin'; break;
                 }
                 if (activeChinId) {
                     const activeChin = document.getElementById(activeChinId);
@@ -4184,8 +4158,8 @@ function checkDependencies() {
               }
 
               // Handle shuffle and begin story buttons - only show on storyboard
-              const shuffleButton = this.ui.topBar.querySelector('#shuffle');
-              const beginStoryButton = this.ui.topBar.querySelector('#begin-story');
+              const shuffleButton = this.ui.topBar.querySelector('#shuffle-button');
+              const beginStoryButton = this.ui.topBar.querySelector('#begin-story-button');
               
               if (shuffleButton) {
                 shuffleButton.style.display = isStoryboardScreen ? 'inline-block' : 'none';
@@ -4227,43 +4201,43 @@ function checkDependencies() {
                 }
               }
             }
-            if (null) {
+            if (this.ui.profileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE;
         
-              null.classList.toggle('is-active', shouldShow);
+              this.ui.profileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
-                null.classList.remove('hidden');
+                this.ui.profileTopBar.classList.remove('hidden');
               } else {
-                null.classList.add('hidden');
+                this.ui.profileTopBar.classList.add('hidden');
               }
                     
       
       
             }
-            if (null) {
+            if (this.ui.worldProfileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE;
         
-              null.classList.toggle('is-active', shouldShow);
+              this.ui.worldProfileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
-                null.classList.remove('hidden');
+                this.ui.worldProfileTopBar.classList.remove('hidden');
               } else {
-                null.classList.add('hidden');
+                this.ui.worldProfileTopBar.classList.add('hidden');
               }
                     
       
       
             }
-            if (null) {
+            if (this.ui.storyProfileTopBar) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE;
         
-              null.classList.toggle('is-active', shouldShow);
+              this.ui.storyProfileTopBar.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
-                null.classList.remove('hidden');
+                this.ui.storyProfileTopBar.classList.remove('hidden');
               } else {
-                null.classList.add('hidden');
+                this.ui.storyProfileTopBar.classList.add('hidden');
               }
                     
       
@@ -4271,16 +4245,16 @@ function checkDependencies() {
             }
   
             // Update profile top bar content if visible
-            if (null && this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE) {
-              this._updateProfileTopBarUI(null, this.currentProfileViewItemId, 'character');
-            } else if (null && this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE) {
-              this._updateProfileTopBarUI(null, this.currentProfileViewItemId, 'world');
-            } else if (null && this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE) {
+            if (this.ui.profileTopBar && this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE) {
+              this._updateProfileTopBarUI(this.ui.profileTopBar, this.currentProfileViewItemId, 'character');
+            } else if (this.ui.worldProfileTopBar && this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE) {
+              this._updateProfileTopBarUI(this.ui.worldProfileTopBar, this.currentProfileViewItemId, 'world');
+            } else if (this.ui.storyProfileTopBar && this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE) {
               // For story profile, use currentStoryId and 'story' type
-              this._updateProfileTopBarUI(null, this.currentStoryId, 'story');
+              this._updateProfileTopBarUI(this.ui.storyProfileTopBar, this.currentStoryId, 'story');
             }
   
-  
+        },
   
       async _updateProfileTopBarUI(topBarElement, itemId, itemType) {
   
@@ -4323,7 +4297,7 @@ function checkDependencies() {
             userCharInfo.classList.remove('hidden');
           } else {
             userCharInfo.classList.add('hidden');
-          },
+          }
         } else if (userCharInfo) {
           userCharInfo.classList.add('hidden');
         }
@@ -4346,7 +4320,7 @@ function checkDependencies() {
             }
           } else {
             aiCharInfo.classList.add('hidden');
-          },
+          }
         } else if (aiCharInfo) {
           aiCharInfo.classList.add('hidden');
         }
@@ -4358,7 +4332,7 @@ function checkDependencies() {
           button.onclick = (e) => {
             e.preventDefault();
             this.selectTopBarTab(tabName);
-          },;
+          };
           // Set aria-selected based on current mode
           if (tabName === this.focusBarState.mode) {
             button.setAttribute('aria-selected', 'true');
@@ -4366,7 +4340,7 @@ function checkDependencies() {
           } else {
             button.setAttribute('aria-selected', 'false');
             button.tabIndex = -1;
-          },
+          }
         });
   
         // Wire up edit and back buttons on profile top bars
@@ -4397,7 +4371,7 @@ function checkDependencies() {
               // For stories, we might want to open the story in edit mode
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
             }
-          },;
+          };
         }
 
         // Add delete button for custom items only (not premade)
@@ -4433,7 +4407,7 @@ function checkDependencies() {
             if (deleteLi) {
               deleteLi.style.display = 'none';
             }
-          },
+          }
         }
         
         const backButton = topBarElement.querySelector('#profile-back-button') || topBarElement.querySelector('#world-profile-back-button') || topBarElement.querySelector('#story-profile-back-button');
@@ -4443,7 +4417,7 @@ function checkDependencies() {
             backButton.textContent = 'Back to Story';
           } else {
             backButton.textContent = 'Back to Storyboard';
-          },
+          }
           
           backButton.onclick = () => {
             // Smart back navigation logic
@@ -4454,9 +4428,9 @@ function checkDependencies() {
               // If no active story, go back to storyboard
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
             }
-          },;
+          };
         }
-
+      },
   
       /**
        * Initializes the application, setting up the database and initial UI state.
@@ -4480,7 +4454,7 @@ function checkDependencies() {
                     this._setupTopBarHover(this.ui.topBar);
                   }
                   this.updateTopBarUI();
-         { once: true });
+              }, { once: true });
               return;
           } else {
               this._getUIElements();
@@ -4493,7 +4467,7 @@ function checkDependencies() {
                 this._setupTopBarHover(this.ui.topBar);
               }
               this.updateTopBarUI();
-          },
+          }
           // Wire up Options Chin buttons
           const downloadBtn = document.getElementById('download-backup-button');
           if (downloadBtn) downloadBtn.onclick = () => this.exportAllData();
@@ -4511,16 +4485,16 @@ function checkDependencies() {
               }
               uploadBtn.onclick = () => fileInput.click();
               fileInput.onchange = (e) => this.importAllData(e);
-          },
+          }
           const startFreshBtn = document.getElementById('start-fresh-button');
           if (startFreshBtn) startFreshBtn.onclick = () => this.deleteAllData();
           // Wire up Shuffle and Begin Story buttons if present
-          const shuffleBtn = document.getElementById('shuffle');
+          const shuffleBtn = document.getElementById('shuffle-button');
           if (shuffleBtn) shuffleBtn.onclick = async () => {
               await this._shuffleStoryboard();
               this._updateStoryboard(); // Explicitly re-render storyboard after shuffle
-          },;
-          const beginStoryBtn = document.getElementById('begin-story');
+          };
+          const beginStoryBtn = document.getElementById('begin-story-button');
           if (beginStoryBtn) beginStoryBtn.onclick = () => this.beginStory();
           
           // Wire up search functionality with real-time updates
@@ -4531,7 +4505,7 @@ function checkDependencies() {
   
           // Initialize mouseover animation states
           this.updateMouseoverAnimationState();
-
+      },
       _setupTopBarHover(topBarElement) {
           if (topBarElement) {
               topBarElement.addEventListener('mouseenter', () => {
@@ -4544,18 +4518,18 @@ function checkDependencies() {
                       topBarElement.classList.remove('top-bar-interactive-hover');
                   }
               });
-          },
-
+          }
+      },
       // --- BEGIN: Add missing UI methods for Perchance tab switching ---
       selectTopBarTab(tabName) {
-  
-
-        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && null) {
-          activeTopBar = null;
-        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
-          activeTopBar = null;
-        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
-          activeTopBar = null;
+        // Determine which top bar is active
+        let activeTopBar = null;
+        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+          activeTopBar = this.ui.profileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+          activeTopBar = this.ui.worldProfileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+          activeTopBar = this.ui.storyProfileTopBar;
         } else if (this.ui.topBar) {
           activeTopBar = this.ui.topBar;
         }
@@ -4564,15 +4538,15 @@ function checkDependencies() {
           console.warn('[DEBUG] No active top bar found in selectTopBarTab, re-initializing UI elements.');
           this._getUIElements();
           // Try to re-determine activeTopBar after re-initialization
-          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && null) {
-            activeTopBar = null;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
-            activeTopBar = null;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
-            activeTopBar = null;
+          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+            activeTopBar = this.ui.profileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+            activeTopBar = this.ui.worldProfileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+            activeTopBar = this.ui.storyProfileTopBar;
           } else if (this.ui.topBar) {
             activeTopBar = this.ui.topBar;
-          },
+          }
           if (!activeTopBar) return; // If still no activeTopBar, something is critically wrong
         }
         
@@ -4590,14 +4564,14 @@ function checkDependencies() {
           const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
           tabButtons.forEach(btn => {
             btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tabName ? 'true' : 'false');
-          },);
+          });
           
           // Open new chin after a brief delay for smooth transition
           setTimeout(() => {
             this.focusBarState.mode = tabName;
             this.focusBarState.chinOpen = true;
             this.updateTopBarUI();
-     150); // 150ms delay for smooth transition
+          }, 150); // 150ms delay for smooth transition
         } else {
           // Direct switch (no chin open or same tab)
           this.focusBarState.mode = tabName;
@@ -4607,35 +4581,35 @@ function checkDependencies() {
           const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
           tabButtons.forEach(btn => {
             btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tabName ? 'true' : 'false');
-          },);
+          });
         }
-
-      
-  
-
-        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && null) {
-          activeTopBar = null;
-        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
-          activeTopBar = null;
-        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
-          activeTopBar = null;
+      },
+      toggleOptionsChin() {
+        // Determine which top bar is active
+        let activeTopBar = null;
+        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+          activeTopBar = this.ui.profileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+          activeTopBar = this.ui.worldProfileTopBar;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+          activeTopBar = this.ui.storyProfileTopBar;
         } else if (this.ui.topBar) {
           activeTopBar = this.ui.topBar;
         }
   
         if (!activeTopBar) {
-          
+          console.warn('[DEBUG] No active top bar found in toggleOptionsChin, re-initializing UI elements.');
           this._getUIElements();
           // Try to re-determine activeTopBar after re-initialization
-          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && null) {
-            activeTopBar = null;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
-            activeTopBar = null;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
-            activeTopBar = null;
+          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
+            activeTopBar = this.ui.profileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
+            activeTopBar = this.ui.worldProfileTopBar;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
+            activeTopBar = this.ui.storyProfileTopBar;
           } else if (this.ui.topBar) {
             activeTopBar = this.ui.topBar;
-          },
+          }
           if (!activeTopBar) return; // If still no activeTopBar, something is critically wrong
         }
   
@@ -4648,33 +4622,33 @@ function checkDependencies() {
         tabButtons.forEach(btn => {
           btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === 'options' ? 'true' : 'false');
         });
-
+      },
       // --- END: Add missing UI methods ---
       
       /**
        * Sets up button handlers for chin create/edit/copy functionality
        */
-      _setupChinButtonHandlers() {  
+      _setupChinButtonHandlers() {
           // Wire up character workshop buttons
           const createCharacterBtn = document.getElementById('create-character-button');
           if (createCharacterBtn) {
-              createCharacterBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, { isCreating: true })
-          },
+              createCharacterBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, { isCreating: true });
+          }
   
           const createWorldBtn = document.getElementById('create-world-button');
           if (createWorldBtn) {
-              createWorldBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, { isCreating: true })
-          },
+              createWorldBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, { isCreating: true });
+          }
   
           // Wire up storyboard buttons
           const newStoryBtn = document.getElementById('new-story-button');
           if (newStoryBtn) {
-              newStoryBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
-          },
+              newStoryBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+          }
   
           // Wire up profile edit buttons (these are handled dynamically in profile screens)
           // The edit/copy buttons are set up in _updateProfileTopBarUI method
-        },
+      },
   
       /**
        * Sets up search handlers for all chin search inputs with real-time updates
@@ -4687,7 +4661,7 @@ function checkDependencies() {
                   clearTimeout(timeoutId);
                   timeoutId = setTimeout(() => func.apply(this, args), delay);
               };
-          },;
+          };
   
           // Stories search
           const searchStoriesInput = document.getElementById('search-stories-input');
@@ -4698,7 +4672,7 @@ function checkDependencies() {
               const debouncedStorySearch = debouncedSearch((searchTerm) => {
                   const listEl = document.getElementById('chin-story-list');
                   if (listEl) this._populateStoryList(listEl, searchTerm);
-              } 300); // 300ms delay
+              }, 300); // 300ms delay
               
               searchStoriesInput.addEventListener('input', (e) => {
                   debouncedStorySearch(e.target.value);
@@ -4713,7 +4687,7 @@ function checkDependencies() {
                       if (listEl) this._populateStoryList(listEl, searchTerm);
                   });
               }
-        }
+          }
   
           // Characters search
           const searchCharactersInput = document.getElementById('search-characters-input');
@@ -4724,7 +4698,7 @@ function checkDependencies() {
               const debouncedCharacterSearch = debouncedSearch((searchTerm) => {
                   const listEl = document.getElementById('chin-character-list');
                   if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.character);
-         300); // 300ms delay
+              }, 300); // 300ms delay
               
               searchCharactersInput.addEventListener('input', (e) => {
                   debouncedCharacterSearch(e.target.value);
@@ -4739,7 +4713,7 @@ function checkDependencies() {
                       if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.character);
                   });
               }
-          },
+          }
   
           // Worlds search
           const searchWorldsInput = document.getElementById('search-worlds-input');
@@ -4750,7 +4724,7 @@ function checkDependencies() {
               const debouncedWorldSearch = debouncedSearch((searchTerm) => {
                   const listEl = document.getElementById('chin-world-list');
                   if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.world);
-         300); // 300ms delay
+              }, 300); // 300ms delay
               
               searchWorldsInput.addEventListener('input', (e) => {
                   debouncedWorldSearch(e.target.value);
@@ -4765,8 +4739,8 @@ function checkDependencies() {
                       if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.world);
                   });
               }
-          },
-
+          }
+      },
     };
     
     // Global access for debugging/plugins if needed
@@ -4803,7 +4777,7 @@ function checkDependencies() {
             activeTabButton.disabled = false;
             activeTabButton.style.opacity = '';
             activeTabButton.style.pointerEvents = '';
-     100);
+          }, 100);
         }
         
         App.focusBarState.chinOpen = false;
@@ -4816,7 +4790,7 @@ function checkDependencies() {
     const _origUpdateTopBarUI = App.updateTopBarUI;
     App.updateTopBarUI = function() {
       _origUpdateTopBarUI.apply(this, arguments);
-      const anyChinOpen = this.focusBarState.chinOpen && ['chin-stories','chin-characters','chin-worlds','chin-options'].some(id => {
+      const anyChinOpen = this.focusBarState.chinOpen && ['storyboard-chin','character-workshop-chin','world-builder-chin','options-chin'].some(id => {
         const el = document.getElementById(id);
         return el && !el.classList.contains('hidden');
       });
@@ -4833,3 +4807,8 @@ function checkDependencies() {
         ? item.colorPalette
         : 'slate_gray';
     }
+    
+    // Export functions for global access
+    window.makeProfilePicturePlaceholderSVG = App._makeProfilePicturePlaceholderSVG.bind(App);
+  
+  
