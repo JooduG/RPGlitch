@@ -1,5 +1,5 @@
 <!-- RPGlitch for Perchance -->
-<!-- Build: 1.5.0 | ID: build-1753625961518 | Timestamp: 2025-07-27T14:19:21.517Z -->
+<!-- Build: 1.5.0 | ID: build-1753622897852 | Timestamp: 2025-07-27T13:28:17.852Z -->
 
 <head>
   <!-- Hidden for accessibility/SEO -->
@@ -7671,7 +7671,7 @@ function checkDependencies() {
           UNIVERSAL_COLORS: {
               black: "#1f2937",
               white: "#f9fafb"
-          },
+          }, // <-- FIXED: added closing brace and comma
           COLOR_PALETTES: {
               // Blues & Teals
               tech_blue: { name: 'Tech Blue', colors: { light: '#a7d8f9', medium: '#4a90e2', dark: '#1c3a6e', neutral: '#5a6a7a' } },
@@ -7686,7 +7686,7 @@ function checkDependencies() {
               // Grays & Metallics
               slate_gray: { name: 'Slate Gray', colors: { light: '#cfd8dc', medium: '#607d8b', dark: '#263238', neutral: '#6c757d' } },
               cyber_pink: { name: 'Cyber Pink', colors: { light: '#f8bbd0', medium: '#e91e63', dark: '#880e4f', neutral: '#757575' } }
-          },
+          }, // <-- FIXED: added closing brace and comma
           VIEWS: { 
               STORYBOARD: 'storyboardScreen',
               STORY_INTERFACE: 'chatInterfaceScreen',
@@ -7698,7 +7698,7 @@ function checkDependencies() {
               WORLD_PROFILE: 'worldProfileScreen',
               STORY_PROFILE: 'storyProfileScreen',
               MEMORY_APPLICATION: 'memoryApplicationScreen' 
-          },
+          }, // <-- FIXED: added closing brace and comma
           ITEM_CONFIG: {
               character: {
                   itemType: 'character',
@@ -7786,7 +7786,7 @@ function checkDependencies() {
                       futurePlaceholder: "Looming Threats & Story Hooks: Known prophecies, brewing conflicts, potential discoveries, major unresolved tensions, upcoming significant events, or societal shifts that could drive narratives. Example: 'An ancient celestial alignment threatens to awaken a dormant cosmic entity, while a shadowy organization plots to exploit its power.''"
                   }
               }
-          }
+          },
   
         currentMainView: 'STORYBOARD',
     
@@ -7798,8 +7798,7 @@ function checkDependencies() {
             } else if (!el) {
                 console.warn(`[UI] Optional element with ID '${id}' not found.`);
             }
-            return el;
-        },
+            return el;n      },
   
     
         /**
@@ -7881,36 +7880,33 @@ function checkDependencies() {
             this.ui.storyProfileUserCharacterDisplayArea = this._query('story-profile-user-character-display-area');
             this.ui.storyProfilechatFeed = this._query('story-profile-message-feed');
             this.ui.storyProfileActions = this._query('story-profile-actions');
-
-            // Declare all variables once at the top
-            let nullLeft, nullCenter, nullNotificationArea, nullRight;
-            let nullUserCharacterInfo, nullUserCharacterPic, nullUserCharacterNameText;
-            let nullAiCharacterInfo, nullAiCharacterPic, nullAiCharacterNameText;
-
-            // Assign for profile top bar
-            nullCenter = this._query('profile-top-bar-center');
-            nullNotificationArea = this._query('profile-top-bar-notification-area');
-            nullRight = this._query('profile-top-bar-right');
-            nullUserCharacterInfo = this._query('profile-top-bar-user-character-info');
-            nullUserCharacterPic = this._query('profile-top-bar-user-character-pic');
-            nullUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
-            nullAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
-            nullAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
-            nullAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
+  
+            // New profile top bar elements
+            
+            
+            const nullCenter = this._query('profile-top-bar-center');
+            const nullNotificationArea = this._query('profile-top-bar-notification-area');
+            const nullRight = this._query('profile-top-bar-right');
+            const nullUserCharacterInfo = this._query('profile-top-bar-user-character-info');
+            const nullUserCharacterPic = this._query('profile-top-bar-user-character-pic');
+            const nullUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
+            const nullAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
+            const nullAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
+            const nullAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
             this.ui.profileShuffleButton = this._query('profile-shuffle');
             this.ui.profileBeginStoryButton = this._query('profile-begin-story');
-
-            // Assign for world profile top bar
-            nullLeft = this._query('world-profile-top-bar-left');
-            nullCenter = this._query('world-profile-top-bar-center');
-            nullNotificationArea = this._query('world-profile-top-bar-notification-area');
-            nullRight = this._query('world-profile-top-bar-right');
-            nullUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
-            nullUserCharacterPic = this._query('world-profile-top-bar-user-character-pic');
-            nullUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
-            nullAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
-            nullAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
-            nullAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
+  
+            
+            const nullLeft = this._query('world-profile-top-bar-left');
+            const nullCenter = this._query('world-profile-top-bar-center');
+            const nullNotificationArea = this._query('world-profile-top-bar-notification-area');
+            const nullRight = this._query('world-profile-top-bar-right');
+            const nullUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
+            const nullUserCharacterPic = this._query('world-profile-top-bar-user-character-pic');
+            const nullUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
+            const nullAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
+            const nullAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
+            const nullAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
             this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle');
             this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story');
 
@@ -7926,24 +7922,21 @@ function checkDependencies() {
             nullAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic');
             nullAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text');
             this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle');
-            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story');
-        },
+            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story');n        },
   
     
         _getPremadeSelectionScreens() {
             this.ui.premadeCharacterSelectionScreen = this._query('premade-character-bank', true);
             this.ui.premadeCharacterOnlyList = this._query('premade-character-only-list');
             this.ui.premadeWorldSelectionScreen = this._query('premade-world-bank', true);
-            this.ui.premadeWorldOnlyList = this._query('premade-world-only-list');
-        },
+            this.ui.premadeWorldOnlyList = this._query('premade-world-only-list');n        },
   
     
         _getMiscScreens() {
             this.ui.memoryApplicationScreen = this._query('memory-application-screen');
             this.ui.initialPageLoadingModal = this._query('initial-loading', true);
             this.ui.emergencyExportCtn = this._query('emergency');
-            if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn);
-        },
+            if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn);n        },
   
     
         _getStoryboardElements() {
@@ -8032,8 +8025,7 @@ function checkDependencies() {
             this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen);
             this.ui.customStoryJsTextarea = this._query('custom-story-js-textarea', false, this.ui.storyboardScreen);
             this.ui.beginStoryButton = this._query('begin-story', false, this.ui.storyboardScreen);
-            this.ui.shuffleStoryElementsButton = this._query('shuffle', false, this.ui.storyboardScreen);
-        },
+            this.ui.shuffleStoryElementsButton = this._query('shuffle', false, this.ui.storyboardScreen);n        },
   
     
         _getChatInterfaceElements() {
@@ -8051,8 +8043,7 @@ function checkDependencies() {
             this.ui.noMessagesNotice = this._query('no-messages-notice', false, this.ui.builtInChatInterfaceWrapper);
             this.ui.statusNotifier = this._query('status-notifier', false, this.ui.builtInChatInterfaceWrapper);
             this.ui.typingIndicatorText = this._query('typing-indicator-text', false, this.ui.builtInChatInterfaceWrapper);
-            this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper);
-        },
+            this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper);n        },
 
     
       /**
@@ -8073,29 +8064,25 @@ function checkDependencies() {
       disableMouseoverAnimation(element) {
           if (element) {
               element.setAttribute('disabled', 'true');
-              this.mouseoverAnimationState.disabledElements.add(element);
-          }
-      },
+              this.mouseoverAnimationState.disabledElements.add(element);n          },
+          },
 
   
       enableMouseoverAnimation(element) {
           if (element) {
               element.removeAttribute('disabled');
-              this.mouseoverAnimationState.disabledElements.delete(element);
-          }
-      },
+              this.mouseoverAnimationState.disabledElements.delete(element);n          },
+          },
 
   
       disableMouseoverAnimationForSelector(selector) {
           const elements = document.querySelectorAll(selector);
-          elements.forEach(el => this.disableMouseoverAnimation(el));
-      },
+          elements.forEach(el => this.disableMouseoverAnimation(el));n      },
 
   
       enableMouseoverAnimationForSelector(selector) {
           const elements = document.querySelectorAll(selector);
-          elements.forEach(el => this.enableMouseoverAnimation(el));
-      },
+          elements.forEach(el => this.enableMouseoverAnimation(el));n      },
 
   
       updateMouseoverAnimationState() {
@@ -8159,8 +8146,7 @@ function checkDependencies() {
           // Enable animations for enabled buttons
           this.enableMouseoverAnimationForSelector('button:not([disabled])');
           this.enableMouseoverAnimationForSelector('input:not([disabled])');
-          this.enableMouseoverAnimationForSelector('a:not([disabled])');
-      },
+          this.enableMouseoverAnimationForSelector('a:not([disabled])');n      },
 
     
       /**
@@ -8172,9 +8158,7 @@ function checkDependencies() {
         // Debug: Element hide operation
         if (el) {
           el.classList.add('hidden'); // Add the hidden class
-          el.style.display = 'none';
-        }
-      },
+          el.style.display = 'none';n        }n      },
           
         }
 
@@ -8191,8 +8175,7 @@ function checkDependencies() {
           },
           console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
           const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-          return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
-      },
+          return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });n      },
 
       
       /**
@@ -8233,8 +8216,7 @@ function checkDependencies() {
               notificationArea.style.display = 'none';
               notificationArea.classList.remove('success', 'error', 'info');
               this.topNotificationTimeoutId = null;
-     duration);
-      },
+     duration);n      },
 
     
       // Cache for premade character items
@@ -8398,10 +8380,9 @@ function checkDependencies() {
               stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, concluded',
               messages: '++id, storyId, timestamp, [storyId+timestamp]',
               worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, colorPalette'
-          }).upgrade(async () => {
+          },).upgrade(async () => {
               // Migration logic remains the same
-          });
-      },
+          },);
       
           try {
               await this.db.open();
@@ -10580,8 +10561,7 @@ function checkDependencies() {
           return recentMessages.map(msg => ({
               role: msg.role === 'user' ? 'user' : 'model', // Map 'character' role to 'model' for AI
               parts: [{ text: msg.content }]
-          }));
-      },
+          },));
 
     
       async _collectMemoriesFromStory() {
@@ -10609,8 +10589,6 @@ function checkDependencies() {
           }, catch (error) {
               console.error("Error applying memories:", error);
               container.innerHTML = '<h2>Error Applying Memories</h2><p>Failed to process memories from this story.</p>';
-          }
-      },
           },
 
     
@@ -11672,7 +11650,7 @@ function checkDependencies() {
             
             // Update active tab styling
             this.focusBarState.tabs.forEach(tab => {
-                const tabButton = document.querySelector(`button[data-tab="${tab}"]`);
+                const tabButton = document.querySelector(`button[data-chin="${tab}"]`);
                 if (tabButton) {
                     if (tab === this.focusBarState.mode) {
                         tabButton.setAttribute('aria-selected', 'true');
@@ -11944,9 +11922,9 @@ function checkDependencies() {
         }
   
         // Wire up tab buttons for the profile top bars
-        const profileTabButtons = topBarElement.querySelectorAll('button[data-tab]');
+                    const profileTabButtons = topBarElement.querySelectorAll('button[data-chin]');
         profileTabButtons.forEach(button => {
-          const tabName = button.dataset.tab;
+                      const tabName = button.dataset.chin;
           button.onclick = (e) => {
             e.preventDefault();
             this.selectTopBarTab(tabName);
@@ -12179,9 +12157,9 @@ function checkDependencies() {
           this.updateTopBarUI();
           
           // Update aria-selected immediately for visual feedback on the active top bar
-          const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+          const tabButtons = activeTopBar.querySelectorAll('button[data-chin]');
           tabButtons.forEach(btn => {
-            btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tabName ? 'true' : 'false');
+            btn.setAttribute('aria-selected', btn.getAttribute('data-chin') === tabName ? 'true' : 'false');
           },);
           
           // Open new chin after a brief delay for smooth transition
@@ -12196,9 +12174,9 @@ function checkDependencies() {
           this.focusBarState.chinOpen = true;
           this.updateTopBarUI();
           // Update aria-selected for all tab buttons on the active top bar
-          const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+          const tabButtons = activeTopBar.querySelectorAll('button[data-chin]');
           tabButtons.forEach(btn => {
-            btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tabName ? 'true' : 'false');
+            btn.setAttribute('aria-selected', btn.getAttribute('data-chin') === tabName ? 'true' : 'false');
           },);
         }
 
@@ -12236,9 +12214,9 @@ function checkDependencies() {
         this.focusBarState.chinOpen = true;
         this.updateTopBarUI();
         // Update aria-selected for all tab buttons on the active top bar
-        const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+        const tabButtons = activeTopBar.querySelectorAll('button[data-chin]');
         tabButtons.forEach(btn => {
-          btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === 'options' ? 'true' : 'false');
+          btn.setAttribute('aria-selected', btn.getAttribute('data-chin') === 'options' ? 'true' : 'false');
         });
 
       // --- END: Add missing UI methods ---
@@ -12248,18 +12226,18 @@ function checkDependencies() {
        */
       _setupChinButtonHandlers() {
           // Wire up character workshop buttons
-          const createCharacterBtn = document.getElementById('create-character-button');
+          const createCharacterBtn = document.getElementById('new-character');
           if (createCharacterBtn) {
               createCharacterBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, { isCreating: true });
           },
   
-          const createWorldBtn = document.getElementById('create-world-button');
+          const createWorldBtn = document.getElementById('new-world');
           if (createWorldBtn) {
               createWorldBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, { isCreating: true });
           },
   
           // Wire up storyboard buttons
-          const newStoryBtn = document.getElementById('new-story-button');
+          const newStoryBtn = document.getElementById('new-story');
           if (newStoryBtn) {
               newStoryBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
           },
@@ -12384,7 +12362,7 @@ function checkDependencies() {
       });
       if (!clickedInsideChin) {
         // Briefly disable the active tab button for visual feedback
-        const activeTabButton = document.querySelector('.top-bar-nav [data-tab][aria-selected="true"]');
+        const activeTabButton = document.querySelector('.top-bar-nav [data-chin][aria-selected="true"]');
         if (activeTabButton) {
           activeTabButton.disabled = true;
           activeTabButton.style.opacity = '0.5';
