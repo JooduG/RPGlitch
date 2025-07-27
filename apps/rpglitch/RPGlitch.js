@@ -4051,7 +4051,7 @@ function checkDependencies() {
             
             // Update active tab styling
             this.focusBarState.tabs.forEach(tab => {
-                const tabButton = document.querySelector(`button[data-tab="${tab}"]`);
+                const tabButton = document.querySelector(`button[data-chin="${tab}"]`);
                 if (tabButton) {
                     if (tab === this.focusBarState.mode) {
                         tabButton.setAttribute('aria-selected', 'true');
@@ -4323,9 +4323,9 @@ function checkDependencies() {
         }
   
         // Wire up tab buttons for the profile top bars
-        const profileTabButtons = topBarElement.querySelectorAll('button[data-tab]');
+                    const profileTabButtons = topBarElement.querySelectorAll('button[data-chin]');
         profileTabButtons.forEach(button => {
-          const tabName = button.dataset.tab;
+                      const tabName = button.dataset.chin;
           button.onclick = (e) => {
             e.preventDefault();
             this.selectTopBarTab(tabName);
@@ -4558,9 +4558,9 @@ function checkDependencies() {
           this.updateTopBarUI();
           
           // Update aria-selected immediately for visual feedback on the active top bar
-          const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+          const tabButtons = activeTopBar.querySelectorAll('button[data-chin]');
           tabButtons.forEach(btn => {
-            btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tabName ? 'true' : 'false');
+            btn.setAttribute('aria-selected', btn.getAttribute('data-chin') === tabName ? 'true' : 'false');
           },);
           
           // Open new chin after a brief delay for smooth transition
@@ -4575,9 +4575,9 @@ function checkDependencies() {
           this.focusBarState.chinOpen = true;
           this.updateTopBarUI();
           // Update aria-selected for all tab buttons on the active top bar
-          const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+          const tabButtons = activeTopBar.querySelectorAll('button[data-chin]');
           tabButtons.forEach(btn => {
-            btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tabName ? 'true' : 'false');
+            btn.setAttribute('aria-selected', btn.getAttribute('data-chin') === tabName ? 'true' : 'false');
           },);
         }
 
@@ -4615,9 +4615,9 @@ function checkDependencies() {
         this.focusBarState.chinOpen = true;
         this.updateTopBarUI();
         // Update aria-selected for all tab buttons on the active top bar
-        const tabButtons = activeTopBar.querySelectorAll('button[data-tab]');
+        const tabButtons = activeTopBar.querySelectorAll('button[data-chin]');
         tabButtons.forEach(btn => {
-          btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === 'options' ? 'true' : 'false');
+          btn.setAttribute('aria-selected', btn.getAttribute('data-chin') === 'options' ? 'true' : 'false');
         });
 
       // --- END: Add missing UI methods ---
@@ -4627,18 +4627,18 @@ function checkDependencies() {
        */
       _setupChinButtonHandlers() {
           // Wire up character workshop buttons
-          const createCharacterBtn = document.getElementById('create-character-button');
+          const createCharacterBtn = document.getElementById('new-character');
           if (createCharacterBtn) {
               createCharacterBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, { isCreating: true });
           },
   
-          const createWorldBtn = document.getElementById('create-world-button');
+          const createWorldBtn = document.getElementById('new-world');
           if (createWorldBtn) {
               createWorldBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, { isCreating: true });
           },
   
           // Wire up storyboard buttons
-          const newStoryBtn = document.getElementById('new-story-button');
+          const newStoryBtn = document.getElementById('new-story');
           if (newStoryBtn) {
               newStoryBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
           },
@@ -4763,7 +4763,7 @@ function checkDependencies() {
       });
       if (!clickedInsideChin) {
         // Briefly disable the active tab button for visual feedback
-        const activeTabButton = document.querySelector('.top-bar-nav [data-tab][aria-selected="true"]');
+        const activeTabButton = document.querySelector('.top-bar-nav [data-chin][aria-selected="true"]');
         if (activeTabButton) {
           activeTabButton.disabled = true;
           activeTabButton.style.opacity = '0.5';
