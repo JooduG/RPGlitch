@@ -1,6 +1,6 @@
 ---
 description: High-level structure and principles for Perchance apps and generators.
-tags: ["perchance", "architecture", "css", "js", "html"]
+tags: "perchance", "architecture", "css", "js", "html"
 globs: **/apps/**
 alwaysApply: false
 ---

@@ -203,7 +203,7 @@ const documentationCache = {
 - [Memory Bank Overview](memory-bank-overview.mdc) - Memory bank system overview
 - [Context7 MCP Guide](mcp-context7.mdc) - Context7 integration
 - [Basic Memory MCP Guide](mcp-basic-memory.mdc) - Basic Memory integration
-- [System Architecture](system-architecture.mdc) - System architecture and relationships
+- [System Architecture](technical-architecture.mdc) - System architecture and relationships
 
 ## 🎯 **NEXT STEPS**
 

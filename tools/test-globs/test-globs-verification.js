@@ -24,7 +24,7 @@ const rules = {
     'memory-bank-optimization.mdc': ['**/*.md', '**/*.mdc'],
     'mcp-time.mdc': ['**/*.md', '**/*.mdc'],
     'mcp-sequential-thinking.mdc': ['**/*.md', '**/*.mdc'],
-    'mcp-ecosystem.mdc': ['**/*.md', '**/*.mdc', '**/*.json'],
+    'mcp-comprehensive-guide.mdc': ['**/*.md', '**/*.mdc', '**/*.json'],
     'role-3-strategist.mdc': ['**/*.md', '**/*.mdc'],
     'role-2-tactician.mdc': ['**/*.md', '**/*.mdc'],
     'role-1-operator.mdc': ['**/*.md', '**/*.mdc'],

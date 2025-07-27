@@ -1,0 +1,67 @@
+{
+  "default_project": "memory-bank",
+  "projects": {
+    "memory-bank": {
+      "name": "Memory Bank",
+      "description": "Default project for centralized knowledge management",
+      "path": "projects/memory-bank"
+    },
+    "system-architecture": {
+      "name": "System Architecture",
+      "description": "Strategic system knowledge and architecture decisions",
+      "path": "projects/system-architecture"
+    },
+    "strategic": {
+      "name": "Strategic",
+      "description": "Strategic role knowledge and patterns",
+      "path": "projects/strategic"
+    },
+    "tactical": {
+      "name": "Tactical",
+      "description": "Tactical planning and coordination knowledge",
+      "path": "projects/tactical"
+    },
+    "operational": {
+      "name": "Operational",
+      "description": "Implementation and execution knowledge",
+      "path": "projects/operational"
+    },
+    "rpglitch": {
+      "name": "RPGlitch",
+      "description": "RPGlitch-specific project knowledge",
+      "path": "projects/rpglitch"
+    },
+    "imageglitch": {
+      "name": "ImageGlitch",
+      "description": "ImageGlitch-specific project knowledge",
+      "path": "projects/imageglitch"
+    },
+    "rules": {
+      "name": "Development Rules",
+      "description": "Cursor rules and development guidelines",
+      "path": "../.cursor/rules"
+    }
+  },
+  "settings": {
+    "auto_save": true,
+    "backup_enabled": true,
+    "sync_interval": 300,
+    "indexing": {
+      "include_patterns": [
+        "**/*.md",
+        "**/*.mdc",
+        "**/*.mdx"
+      ],
+      "exclude_patterns": [
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/build/**",
+        "**/dist/**"
+      ],
+      "watch_directories": [
+        "projects",
+        "../.cursor/rules"
+      ]
+    }
+  }
+}

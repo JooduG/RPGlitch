@@ -1,0 +1,324 @@
+<!-- Hidden for accessibility/SEO -->
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2.1.1/css/pico.min.css">
+  <h1 id="hidden-h1" class="hidden">RPGlitch</h1>
+  <a href="#main" class="hidden">Skip to main content</a>
+
+  <!-- Initial Loading Modal -->
+  <dialog id="initial-loading" class="initial-loading" no-header>
+    <div>Loading...</div>
+  </dialog>
+
+  <!-- Emergency Export Modal -->
+  <dialog id="emergency-container" class="emergency-container" no-header>
+    <div class="emergency-content">
+      <div class="emergency-warning-text">Error during load?</div>
+      <button id="emergency-export" onclick="App.exportAllData()" class="danger">Save All Data &#128190;</button>
+      <button id="emergency-delete" onclick="App.deleteAllData()" class="danger">Delete All Data &#128680;</button>
+    </div>
+  </dialog>
+</head>
+
+<body>
+
+  <!-- Main Content Wrapper -->
+  <main class="container-fluid">
+    
+      <!-- Top Bar -->
+      <nav id="top-bar" class="top-bar">
+
+        <!-- Top Bar Left -->
+        <div id="top-bar-left" class="top-bar-left">
+          <ul class="top-bar-left">
+            <li><button class="secondary" data-tab="stories" role="tab" aria-selected="false" tabindex="1" _="on click call App.selectTopBarTab('stories') then call App.updateTopBarUI()">Stories</button></li>
+            <li><button class="secondary" data-tab="characters" role="tab" aria-selected="false" tabindex="2" _="on click call App.selectTopBarTab('characters') then call App.updateTopBarUI()">Characters</button></li>
+            <li><button class="secondary" data-tab="worlds" role="tab" aria-selected="false" tabindex="3" _="on click call App.selectTopBarTab('worlds') then call App.updateTopBarUI()">Worlds</button></li>
+            <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="4" _="on click call App.selectTopBarTab('options') then call App.updateTopBarUI()">Options</button></li>
+          </ul>
+        </div>
+
+        <!-- Top Bar Right: Storyboard -->
+        <div id="top-bar-right-storyboard" class="top-bar-right">
+          <ul class="top-bar-right">
+            <li><button class="secondary" id="shuffle" _="on click call App._shuffleStoryboard()">Shuffle</button></li>
+            <li><button class="primary" id="begin-story" _="on click call App.beginStory()">Begin Story</button></li>
+          </ul>
+        </div>
+        
+      </nav>
+
+        <!-- Top Bar Right: Form -->
+        <div id="top-bar-right-form" class="top-bar-right">
+          <ul class="top-bar-right">
+            <li><button class="secondary" id="form-cancel">Cancel</button></li>
+            <li><button class="primary" id="form-save">Save</button></li>
+          </ul>
+        </div>
+
+        <!-- Top Bar Right: Profile -->
+        <div id="top-bar-right-profile" class="top-bar-right">
+          <ul class="top-bar-right">
+            <li><button class="secondary" id="profile-edit">Edit</button></li>
+            <li><button class="danger" id="profile-delete">Delete</button></li>
+            <li><button class="primary" id="profile-back">Back</button></li>
+          </ul>
+        </div>
+
+        <!-- Top Bar Right: Character Profile -->
+        <div id="top-bar-right-character-profile" class="top-bar-right">
+          <ul class="top-bar-right">
+            <li><button class="secondary" id="character-profile-edit">Edit</button></li>
+            <li><button class="danger" id="character-profile-delete">Delete</button></li>
+            <li><button class="primary" id="character-profile-back">Back</button></li>
+          </ul>
+        </div>
+
+        <!-- Top Bar Right: World Profile -->
+        <div id="top-bar-right-world-profile" class="top-bar-right">
+          <ul class="top-bar-right">
+            <li><button class="secondary" id="world-profile-edit">Edit</button></li>
+            <li><button class="danger" id="world-profile-delete">Delete</button></li>
+            <li><button class="primary" id="world-profile-back">Back</button></li>
+          </ul>
+        </div>
+
+        <!-- Top Bar Right: Story Profile -->
+        <div id="top-bar-right-story-profile" class="top-bar-right">
+          <ul class="top-bar-right">
+            <li><button class="secondary" id="story-profile-edit">Edit</button></li>
+            <li><button class="danger" id="story-profile-delete">Delete</button></li>
+            <li><button class="primary" id="story-profile-back">Back</button></li>
+          </ul>
+        </div>
+
+      <!-- Chin: Story -->
+      <div id="chin-stories" class="container-hidden" data-chin="stories">
+        <div class="chin-top">
+          <div class="chin-top-left">
+            <form role="search">
+              <fieldset role="group">
+                <input type="search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories">
+                <button type="submit" class="secondary">Search</button>
+              </fieldset>
+            </form>
+          </div>
+          <div class="chin-top-right">
+            <button type="button" class="secondary" onclick="document.getElementById('upload-story').click();">
+              Upload Story
+            </button>
+            <input type="file" id="upload-story" aria-label="Upload Story" class="file-input">
+            <button id="new-story" class="secondary">New Story</button>
+          </div>
+        </div>
+        <div id="chin-story-list" class="chin-list"><!-- Story Cards --></div>
+      </div>
+
+      <!-- Chin: Character -->
+      <div id="chin-characters" class="container-hidden" data-chin="characters">
+        <div class="chin-top">
+          <div class="chin-top-left">
+            <form role="search">
+              <fieldset role="group">
+                <input type="search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters">
+                <button type="submit" class="secondary">Search</button>
+              </fieldset>
+            </form>
+          </div>
+          <div class="chin-top-right">
+            <button type="button" class="secondary" onclick="document.getElementById('upload-character').click();">
+              Upload Character
+            </button>
+            <input type="file" id="upload-character" aria-label="Upload Character" class="file-input">
+            <button id="create-character" class="secondary">Create Character</button>
+          </div>
+        </div>
+        <div id="chin-character-list" class="chin-list">
+          <article class="chin-card">
+            <div class="chin-card">
+              <div class="chin-card-left">
+                <header>
+                  <h4>Starship AI "ADA"</h4>
+                </header>
+                <p>
+                  The ever-helpful AI of the starship "Odyssey," tasked with crew support and mission analysis.
+                </p>
+                <small>Premade</small> 
+              </div>
+              <div class="chin-card-right">
+                <div class="chin-card-picture">
+                  SA
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- Chin: World -->
+      <div id="chin-worlds" class="container-hidden" data-chin="worlds">
+        <div class="chin-top">
+          <div class="chin-top-left">
+            <form role="search">
+              <fieldset role="group">
+                <input type="search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds">
+                <button type="submit" class="secondary">Search</button>
+              </fieldset>
+            </form>
+          </div>
+          <div class="chin-top-right">
+            <button type="button" class="secondary" onclick="document.getElementById('upload-world').click();">
+              Upload World
+            </button>
+            <input type="file" id="upload-world" aria-label="Upload World" class="file-input">
+            <button id="create-world" class="secondary">Create World</button>
+          </div>
+        </div>
+        <div id="chin-world-list" class="chin-list"><!-- World Cards --></div>
+      </div>
+
+      <!-- Chin: Options -->
+      <div id="chin-options" class="container-hidden" data-chin="options">
+        <div class="chin-top">
+          <div class="chin-top-left">
+
+          </div>
+          <div class="chin-top-right">
+            <button type="button" class="secondary" onclick="document.getElementById('upload-backup').click();">
+              Upload Backup
+            </button>
+            <input type="file" id="upload-backup" aria-label="Upload Backup" class="file-input">
+            <button id="download-backup" class="secondary">Download Backup</button>
+            <button id="start-fresh" class="danger">Start Fresh</button>
+          </div>
+        </div>
+        <div id="chin-options-grid">
+          <textarea id="opening-prompt" placeholder="Opening Prompt"></textarea>
+          <textarea id="custom-js" placeholder="Custom JS"></textarea>
+        </div>
+      </div>
+    </div>
+    <!-- Top Bar End -->
+
+  <div class="container-fluid">
+    <div class="container-fluid">
+      <div class="container-fluid hidden" id="storyboard-screen">
+        <header id="storyboard-title-area">
+          <h2 id="storyboard-title"></h2>
+        </header>
+        <div id="storyboard-content" class="container-fluid">
+          <div id="storyboard-columns">
+            <div class="storyboard-cards-grid">
+              <div class="storyboard-column"><article id="storyboard-ai-character-card" class="storyboard-card">
+                <div id="storyboard-ai-character-select" class="card-title-dropdown"></div>
+              </article></div>
+              <div class="storyboard-column"><article id="storyboard-user-character-card" class="storyboard-card">
+                <div id="storyboard-user-character-select" class="card-title-dropdown"></div>
+              </article></div>
+              <div class="storyboard-column"><article id="storyboard-world-card" class="storyboard-card">
+                <div id="storyboard-world-select" class="card-title-dropdown"></div>
+              </article></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Main Area -->
+      <main id="main" role="main" tabindex="-1">
+        <div id="columns-wrapper">
+          <!-- Middle Column: Main Screens -->
+          <div id="middle-column"> 
+            <!-- Character/World Form Screens -->
+            <div id="character-form-screen" class="hidden">
+              <!-- Content rendered by App.renderFormScreen -->
+            </div>
+            <div id="world-form-screen" class="hidden">
+              <!-- Content rendered by App.renderFormScreen -->
+            </div>
+            <!-- Profile Screens -->
+            <div id="character-profile-screen" class="hidden">
+              <div class="profile-details-content-wrapper">
+                <div class="profile-section profile-hero-section">
+                  <!-- Content rendered by App.renderProfileScreen -->
+                </div>
+              </div>
+            </div>
+            <div id="world-profile-screen" class="hidden">
+              <div class="profile-details-content-wrapper">
+                <div class="profile-section profile-hero-section">
+                  <!-- Content rendered by App.renderProfileScreen -->
+                </div>
+              </div>
+            </div>
+            <div id="story-profile-screen" class="hidden">
+              <div class="story-profile-layout-container">
+                <div id="story-profile-ai-character-display-area" class="story-profile-side-panel">
+                  <!-- AI Character's profile picture and name loaded here -->
+                </div>
+                <div id="story-profile-chat-wrapper" class="story-profile-central-content">
+                  <div id="story-profile-message-feed" class="message-feed-profile flex-grow">
+                    <!-- Chat log, conclusion, title, cards will be rendered here -->
+                  </div>
+                  <div id="story-profile-actions" class="story-profile-form-actions">
+                    <!-- Action buttons like Delete, Back will be rendered here -->
+                  </div>
+                </div>
+                <div id="story-profile-user-character-display-area" class="story-profile-side-panel">
+                  <!-- User's Character large image will be loaded here by JS -->
+                </div>
+              </div>
+              <div id="memory-application-screen" class="hidden">
+                <!-- Content will be rendered by App._renderMemoryApplicationScreen -->
+              </div>
+            </div>
+            <!-- Premade Bank Screens -->
+            <div id="premade-character-bank" class="hidden">
+              <h2 class="premade-screen-title">Premade Characters</h2>
+              <p class="premade-screen-description">Select a premade character to use its details in the creation form.</p>
+              <div id="premade-character-only-list" class="grid-bank-container"></div>
+            </div>
+            <div id="premade-world-bank" class="hidden">
+              <h2 class="premade-screen-title">Premade Worlds</h2>
+              <p class="premade-screen-description">Select a premade world to use its details in the creation form.</p>
+              <div id="premade-world-only-list" class="grid-bank-container"></div>
+            </div>
+            <!-- Chat Interface Screen -->
+            <div id="chat-interface-screen" class="hidden">
+              <div id="chat-screen-layout-container">
+                <div id="ai-character-display-area" class="chat-side-panel">
+                  <!-- AI Character's large image will be loaded here by JS -->
+                </div>
+                <div id="built-in-chat-interface-wrapper"> 
+                  <div id="chat-background-ctn" class="chat-background-overlay"></div>
+                  <div id="story-concluded-notice" class="message systemMessage hidden"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story has concluded.</div></div></div></div>
+                  <div id="chat-feed" class="flex-grow pt-2"></div>
+                  <div id="no-messages-notice" class="hidden p-4 mt-4">Type your reply below to continue the story.</div>
+                  <div id="status-notifier" class="hidden" data-original-display-value="flex">
+                    <span id="typing-indicator-text">Bot is thinking</span>
+                    <div id="input-wrapper" class="p-2">
+                      <div class="chat-input-flex-container"> 
+                        <textarea id="message-input" placeholder="Type your reply here..."></textarea>
+                        <div class="chat-send-button-container"> 
+                          <button id="send-button" class="primary" aria-label="Send message">
+                            <span class="button-text">Send</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <button id="conclude-story-chat-button" class="secondary tab-button">Conclude Story</button>
+                </div>
+                <div id="user-character-display-area" class="chat-side-panel">
+                  <!-- User's Character large image will be loaded here by JS -->
+                </div>
+              </div>
+            </div>
+            <!-- End Chat Interface Screen -->
+          </div>
+          <!-- End Middle Column -->
+        </div>
+      </main>
+      <!-- End Main Area -->
+    </div>
+  </div>
+</div>
+</main>
+</body>

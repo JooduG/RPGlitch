@@ -18,4 +18,4 @@ Run the verification script to test if glob patterns in `.cursor/rules/` files a
 node tools/test-globs/test-globs-verification.js
 ```
 
-This will test all the glob patterns defined in the rule files against the test files in this directory. 
+This will test all the glob patterns defined in the rule files against the test files in this directory.

@@ -1,13 +1,20 @@
 /* Test SCSS File */
+
 /* This is a test file to verify that glob patterns are working correctly */
 
 /**
  * Test SCSS file to verify glob patterns
- * This file should match **/*.scss patterns
+ * This file should match **/
+
+*.scss patterns
  */
 
 /* Test variables */
-$test-date: '2025-07-22 (from Time MCP)';
+<<<<<<< Current (Your changes)
+$test-date: '2025-07-24 (from Time MCP)';
+=======
+$test-date: '2025-07-22 (from Time MCP)';patterns$test-date
+>>>>>>> Incoming (Background Agent changes)
 $test-purpose: 'Testing glob patterns and frontmatter functionality';
 $test-file-type: 'SCSS';
 
@@ -16,13 +23,13 @@ $test-file-type: 'SCSS';
     content: 'Testing glob patterns for SCSS files';
     
     /* This file should be matched by rules with these glob patterns:
-     * - ["**/*.css", "**/*.scss", "**/*.sass"]
+     * - [" **/*.css", "**/*.scss", "**/*.sass"]
      * - ["**/*.scss", "**/*.sass", "**/*.css"]
      * - ["**/*.js", "**/*.ts", "**/*.jsx", "**/*.tsx", "**/*.html", "**/*.css", "**/*.scss"]
      */
     
     &::before {
-        content: 'Expected rules: scss-development.mdc, scss-debugging.mdc, scss-advanced-patterns.mdc, scss-pico-usage.mdc, role-assistant.mdc';
+        content: 'Expected rules: scss-advanced-patterns.mdc, scss-debugging.mdc, scss-modern-css-frameworks.mdc, role-assistant.mdc';
     }
 }
 

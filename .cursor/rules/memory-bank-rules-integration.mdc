@@ -1,0 +1,73 @@
+---
+description: Basic Memory has been configured to index and understand the Cursor rules system located in `.cursor/rules/` directory.
+alwaysApply: false
+---
+# Rules Integration with Basic Memory
+
+## Context
+Basic Memory has been configured to index and understand the Cursor rules system located in `.cursor/rules/` directory.
+
+## Purpose
+Enable Basic Memory to access, understand, and reference the development rules and guidelines for better context-aware assistance.
+
+## Observations
+- [integration] Basic Memory now indexes `.cursor/rules/` directory #indexing
+- [patterns] Rules are stored as `.mdc` files with structured metadata #file-format
+- [organization] Rules are organized by technology and domain #organization
+- [context] Rules provide development guidelines and best practices #guidelines
+- [accessibility] Rules are now accessible through Basic Memory queries #accessibility
+
+## Configuration Details
+
+### **Indexing Setup**
+- **Rules Path**: `../.cursor/rules` (relative to memory-bank directory)
+- **File Patterns**: `**/*.md`, `**/*.mdc`, `**/*.mdx`
+- **Watch Directories**: `projects`, `../.cursor/rules`
+- **Exclusions**: `node_modules`, `.git`, `build`, `dist`
+
+### **Available Rules Categories**
+- **HTML Development**: Semantic HTML, accessibility, Perchance markup
+- **JavaScript Development**: Modern JS, DOM manipulation, storage strategies
+- **SCSS Development**: Advanced patterns, modern frameworks, debugging
+- **MCP Integration**: Context7, Basic Memory, Time MCP, comprehensive guides
+- **System Architecture**: Mode system, thinking frameworks, documentation
+- **Perchance Development**: Architecture, plugin system, development lifecycle
+
+## Usage Patterns
+
+### **Querying Rules**
+```bash
+# Search for specific rule types
+memory-bank search "javascript development"
+
+# Find rules by technology
+memory-bank search "html semantic"
+
+# Look for specific patterns
+memory-bank search "storage strategy"
+```
+
+### **Cross-Reference Knowledge**
+- Rules can be referenced in project knowledge
+- Development decisions can link to relevant rules
+- Best practices can be documented with rule citations
+
+## Relations
+- indexes [[Cursor Rules System]]
+- supports [[Unified Orchestrator Mode]]
+- enhances [[Development Workflow]]
+- provides [[Context-Aware Assistance]]
+
+## Benefits
+1. **Enhanced Context**: Basic Memory understands development rules
+2. **Better Recommendations**: Context-aware rule suggestions
+3. **Consistent Guidance**: Rules are always accessible
+4. **Knowledge Integration**: Rules become part of the knowledge graph
+5. **Workflow Optimization**: Seamless rule access during development
+
+## Integration Status
+- ✅ **Rules Project**: Created and configured
+- ✅ **Indexing Setup**: Configured to watch rules directory
+- ✅ **File Patterns**: Set to include `.mdc` files
+- ✅ **Path Configuration**: Relative path to `.cursor/rules`
+- ✅ **Documentation**: Integration documented and explained

@@ -1,6 +1,6 @@
 ---
 description: big sky Hyperscript enables easy, readable interactivity directly in HTML using the _ attribute. Use for simple UI actions and event handling.
-tags: ["javascript", "ui", "interactivity", "perchance"]
+tags: "javascript", "ui", "interactivity", "perchance"
 globs: **/*.html
 ---
 

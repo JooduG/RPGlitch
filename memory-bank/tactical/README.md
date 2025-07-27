@@ -1,42 +1,75 @@
-# 🎨 Tactical Mode Knowledge Base
+# 🎨 Tactical Memory Bank
 
-**Purpose**: Project-specific planning, design decisions, and implementation strategies
+## 🎯 **Purpose**
 
-**Created**: 2025-07-23
+The Tactical Memory Bank contains app-specific planning, design decisions, and implementation coordination. This is where we store tactical planning insights and project coordination strategies.
 
-## 📋 Knowledge Categories
+## 📁 **Contents**
 
-### **Project Planning**
-- Feature specifications and requirements
-- Design decisions and rationale
-- Implementation strategies and approaches
+### **App-Specific Planning**
 
-### **Technical Design**
-- Component architecture decisions
-- API design and interface specifications
-- Data structure and flow design
+- **Requirements Analysis**: Detailed application requirements and specifications
+- **Design Decisions**: UI/UX design choices and architectural patterns
+- **Implementation Strategies**: Planning approaches for feature development
+- **Resource Allocation**: Task prioritization and resource management
 
-### **Problem Solving**
-- Solution patterns and approaches
-- Debugging strategies and techniques
-- Performance optimization methods
+### **Project Coordination**
 
-### **Best Practices**
-- Project-specific coding standards
-- Framework and library usage patterns
-- Testing and quality assurance approaches
+- **Task Management**: Project task breakdown and coordination
+- **Progress Tracking**: Real-time progress monitoring and milestone tracking
+- **Risk Assessment**: Identification and mitigation of project risks
+- **Stakeholder Communication**: Planning and coordination strategies
 
-## 🔄 Usage Patterns
+### **Design System Management**
 
-- **Feature Planning**: Document design decisions for new features
-- **Technical Decisions**: Record architectural choices and their rationale
-- **Problem Solutions**: Store effective solutions for future reference
-- **Code Patterns**: Capture reusable patterns and approaches
+- **Component Design**: Reusable component patterns and specifications
+- **Style System**: CSS architecture and design token management
+- **Interaction Patterns**: User interaction design and behavior patterns
+- **Accessibility Planning**: Accessibility strategy and compliance planning
 
-## 📊 Integration
+## 🔄 **Usage Patterns**
 
-This knowledge base integrates with:
-- 3-Mode Development System
-- Basic Memory semantic search
-- Obsidian for visualization and linking
-- Tactical mode commands and workflows 
+### **Planning Workflows**
+
+- **Feature Planning**: Detailed planning for new features and enhancements
+- **Refactoring Strategy**: Planning for code refactoring and optimization
+- **Integration Planning**: Coordination of multiple system components
+- **Testing Strategy**: Planning for comprehensive testing approaches
+
+### **Design Coordination**
+
+- **UI/UX Decisions**: Design choice documentation and rationale
+- **Component Architecture**: Planning for reusable component systems
+- **Style System Evolution**: CSS architecture planning and optimization
+- **Platform Integration**: Planning for Perchance platform integration
+
+## 📊 **Integration with 3-Mode System**
+
+### **Tactical Mode Activation**
+
+- **Complexity Level 2-3**: Medium to complex tasks requiring planning
+- **Feature Planning**: New feature development and enhancement planning
+- **Design Decisions**: UI/UX and architectural design choices
+- **Project Coordination**: Multi-component project coordination
+
+### **Sequential Thinking**
+
+- **Systematic Analysis**: Tool-guided problem decomposition and planning
+- **Step-by-Step Planning**: Structured approach to complex implementation decisions
+- **Tool Recommendations**: Intelligent tool selection for planning tasks
+- **Confidence Scoring**: Systematic evaluation of planning options
+
+## 📚 **Related Documentation**
+
+- **[Project Planner Role](../../.cursor/rules/role-project-planner.mdc)**: Tactical planning role documentation
+- **[Sequential Thinking](../../.cursor/rules/thinking-framework.mdc)**: Systematic planning approach
+- **[Perchance Architecture](../../.cursor/rules/perchance-architecture.mdc)**: Platform-specific planning
+- **[Design System](../../.cursor/rules/scss-advanced-patterns.mdc)**: Design system documentation
+
+---
+
+**Last Updated**: 2025-07-24  
+**Version**: 2.0  
+**Status**: Updated for unified 3-mode system and tactical planning
+
+**🎨 Tactical planning for app-specific coordination and design decisions!**

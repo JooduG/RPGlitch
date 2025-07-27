@@ -11,10 +11,11 @@ This is a test file to verify that glob patterns are working correctly.
 ## Expected Behavior
 
 This file should be matched by rules with these glob patterns:
+
 - `["**/*.md", "**/*.mdc"]`
 - `["**/*.md"]`
 
 ## Test Date
 
 **Date**: 2025-07-22 (from Time MCP)
-**Purpose**: Testing glob patterns and frontmatter functionality 
+**Purpose**: Testing glob patterns and frontmatter functionality

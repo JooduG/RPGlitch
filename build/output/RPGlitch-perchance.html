@@ -1,479 +1,186 @@
 <!-- RPGlitch for Perchance -->
+<!-- Build: 1.5.0 | ID: build-1753609202276 | Timestamp: 2025-07-27T09:40:02.276Z -->
 
-<!-- Minimal Pico nav test: Pico CDN only, no custom CSS -->
-<link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2.1.1/css/pico.min.css">
+<head>
+  <!-- Hidden for accessibility/SEO -->
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2.1.1/css/pico.min.css">
+  <h1 id="hidden-h1" class="hidden">RPGlitch</h1>
+  <a href="#main" class="hidden">Skip to main content</a>
 
-<!-- Hidden H1 for accessibility/SEO -->
-<h1 id="hidden-h1-element" class="hidden">RPGlitch</h1>
+  <!-- Initial Loading -->
+  <dialog id="initial-loading" class="initial-loading" no-header>
+    <div>Loading...</div>
+  </dialog>
 
-<!-- Skip Link for Accessibility -->
-<a href="#main" class="visually-hidden">Skip to main content</a>
-
-<!-- Loading Modal - Removed 'open' attribute to fix loading bug -->
-<dialog id="initial-page-loading-modal" class="initial-loading-modal" no-header>
-  <div>Loading...</div>
-</dialog>
-<!-- Emergency Export Modal -->
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<dialog id="emergency" class="emergency-container" no-header>
-  <div class="emergency-content">
-    <div class="emergency-warning">Error during load?</div>
-    <button id="emergency-export" onclick="App.exportAllData()" class="secondary">Save All Data &#128190;</button>
-    <button id="emergency-delete" onclick="App.deleteAllData()" class="secondary">Delete All Data &#128680;</button>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-<dialog id="emergency-export-ctn" class="emergency-export-container" no-header>
-  <div class="emergency-export-content">
-    <div class="emergency-export-warning-text">Error during load?</div>
-    <button id="emergency-export-button" onclick="App.exportAllData()" class="secondary">Save All Data &#128190;</button>
-    <button id="emergency-delete-data-button" onclick="App.deleteAllData()" class="secondary">Delete All Data &#128680;</button>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-  </div>
-</dialog>
-
-<div id="main-content-wrapper" class="container app-scrollable-container">
-  <div class="container">
-    <nav id="top-bar" class="top-bar top-bar-nav top-bar-flex">
-      <div id="top-bar-left" class="top-bar-section">
-        <ul>
-          <li><button class="secondary" data-tab="storyboard" role="tab" aria-selected="false" tabindex="0" _="on click call App.selectTopBarTab('storyboard') then call App.updateTopBarUI()">Storyboard</button></li>
-          <li><button class="secondary" data-tab="characters" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('characters') then call App.updateTopBarUI()">Character Workshop</button></li>
-          <li><button class="secondary" data-tab="worlds" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('worlds') then call App.updateTopBarUI()">World Creation</button></li>
-          <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
-        </ul>
-      </div>
-      <div id="top-bar-center" class="top-bar-section top-bar-center-flex">
-        <div id="top-bar-notification-area" class="top-bar-notification-area-style"></div>
-      </div>
-      <div id="top-bar-right" class="top-bar-section">
-        <div id="top-bar-user-character-info">
-          <div id="top-bar-user-character-pic" class="profile-picture"></div>
-          <span id="top-bar-user-character-name-text"></span>
-        </div>
-        <div id="top-bar-ai-character-info">
-          <div id="top-bar-ai-character-pic" class="profile-picture"></div>
-          <span id="top-bar-ai-character-name-text"></span>
-        </div>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        <div id="top-bar-profile" class="hidden">
-          <button class="secondary" id="edit">Edit</button>
-          <button class="danger" id="delete">Delete</button>
-          <button class="primary" id="back">Back</button>
-        </div>
-        <div id="top-bar-chat" class="hidden">
-          <button class="primary" id="back-chat">Back</button>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-        <ul>
-          <li><button class="secondary" id="shuffle-button" _="on click call App._shuffleStoryboard()">Shuffle</button></li>
-          <li><button class="primary" id="begin-story-button" _="on click call App.beginStory()">Begin Story</button></li>
-          <li><button class="secondary button-hidden" id="form-cancel-button">Cancel</button></li>
-          <li><button class="primary button-hidden" id="form-save-button">Save</button></li>
-        </ul>
-      </div>
-    </nav>
-
-    <!-- Profile Top Bars: Only one visible at a time on profile screens -->
-    <nav id="profile-top-bar" class="top-bar top-bar-nav hidden">
-      <div id="profile-top-bar-left" class="top-bar-section">
-        <ul>
-          <li><button class="secondary" data-tab="storyboard" role="tab" aria-selected="false" tabindex="0" _="on click call App.selectTopBarTab('storyboard') then call App.updateTopBarUI()">Storyboard</button></li>
-          <li><button class="secondary" data-tab="characters" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('characters') then call App.updateTopBarUI()">Character Workshop</button></li>
-          <li><button class="secondary" data-tab="worlds" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('worlds') then call App.updateTopBarUI()">World Creation</button></li>
-          <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
-        </ul>
-      </div>
-      <div id="profile-top-bar-center" class="top-bar-section top-bar-center-compact">
-        <div id="profile-top-bar-notification-area" class="top-bar-notification-area-style"></div>
-      </div>
-      <div id="profile-top-bar-right" class="top-bar-section">
-        <ul>
-          <li><button class="secondary" id="profile-edit-button">Edit</button></li>
-          <li><button class="secondary danger button-hidden" id="profile-delete-button">Delete</button></li>
-          <li><button class="primary" id="profile-back-button">Back</button></li>
-        </ul>
-      </div>
-    </nav>
-    <nav id="world-profile-top-bar" class="top-bar top-bar-nav hidden">
-      <div id="world-profile-top-bar-left" class="top-bar-section">
-        <ul>
-          <li><button class="secondary" data-tab="storyboard" role="tab" aria-selected="false" tabindex="0" _="on click call App.selectTopBarTab('storyboard') then call App.updateTopBarUI()">Storyboard</button></li>
-          <li><button class="secondary" data-tab="characters" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('characters') then call App.updateTopBarUI()">Character Workshop</button></li>
-          <li><button class="secondary" data-tab="worlds" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('worlds') then call App.updateTopBarUI()">World Creation</button></li>
-          <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
-        </ul>
-      </div>
-      <div id="world-profile-top-bar-center" class="top-bar-section top-bar-center-compact">
-        <div id="world-profile-top-bar-notification-area" class="top-bar-notification-area-style"></div>
-      </div>
-      <div id="world-profile-top-bar-right" class="top-bar-section">
-        <ul>
-          <li><button class="secondary" id="world-profile-edit-button">Edit</button></li>
-          <li><button class="secondary danger button-hidden" id="world-profile-delete-button">Delete</button></li>
-          <li><button class="primary" id="world-profile-back-button">Back</button></li>
-        </ul>
-      </div>
-    </nav>
-    <nav id="story-profile-top-bar" class="top-bar top-bar-nav hidden">
-      <div id="story-profile-top-bar-left" class="top-bar-section">
-        <ul>
-          <li><button class="secondary" data-tab="storyboard" role="tab" aria-selected="false" tabindex="0" _="on click call App.selectTopBarTab('storyboard') then call App.updateTopBarUI()">Storyboard</button></li>
-          <li><button class="secondary" data-tab="characters" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('characters') then call App.updateTopBarUI()">Character Workshop</button></li>
-          <li><button class="secondary" data-tab="worlds" role="tab" aria-selected="false" tabindex="-1" _="on click call App.selectTopBarTab('worlds') then call App.updateTopBarUI()">World Creation</button></li>
-          <li><button class="secondary" data-tab="options" role="tab" aria-selected="false" tabindex="-1" _="on click call App.toggleOptionsChin() then call App.updateTopBarUI()">Options</button></li>
-        </ul>
-      </div>
-      <div id="story-profile-top-bar-center" class="top-bar-section top-bar-center-compact">
-        <div id="story-profile-top-bar-notification-area" class="top-bar-notification-area-style"></div>
-      </div>
-      <div id="story-profile-top-bar-right" class="top-bar-section">
-        <ul>
-          <li><button class="secondary" id="story-profile-edit-button">Edit</button></li>
-          <li><button class="secondary danger button-hidden" id="story-profile-delete-button">Delete</button></li>
-          <li><button class="primary" id="story-profile-back-button">Back</button></li>
-        </ul>
-      </div>
-    </nav>
-
-    <!-- Chins: Only one visible at a time -->
-    <div id="storyboard-chin" class="top-bar-chin container hidden" data-chin="storyboard">
-      <div class="chin-actions">
-        <form role="search">
-          <fieldset role="group">
-            <input type="search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories">
-            <button type="submit" class="secondary">Search</button>
-          </fieldset>
-        </form>
-        <div class="chin-actions-right">
-          <button type="button" class="secondary" onclick="document.getElementById('upload-story-input').click();">
-            Upload Story
-          </button>
-          <input type="file" id="upload-story-input" aria-label="Upload Story" class="file-input-hidden">
-          <button id="new-story-button" class="secondary">New Story</button>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-        </div>
-      </div>
-      <div id="chin-story-list" class="chin-list-grid"></div>
-      <!-- Storyboard Chin Content Placeholder -->
+  <!-- Error Emergency -->
+  <dialog id="emergency" class="emergency" no-header>
+    <div class="emergency">
+      <div class="emergency">Error during load?</div>
+      <button id="emergency-export" onclick="App.exportAllData()" class="danger">Save All Data &#128190;</button>
+      <button id="emergency-delete" onclick="App.deleteAllData()" class="danger">Delete All Data &#128680;</button>
     </div>
-    <div id="character-workshop-chin" class="top-bar-chin container hidden" data-chin="characters">
-      <div class="chin-actions">
-        <form role="search">
-          <fieldset role="group">
-            <input type="search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters">
-            <button type="submit" class="secondary">Search</button>
-          </fieldset>
-        </form>
-        <div class="chin-actions-right">
-          <button type="button" class="secondary" onclick="document.getElementById('upload-character-input').click();">
-            Upload Character
-          </button>
-          <input type="file" id="upload-character-input" aria-label="Upload Character" class="file-input-hidden">
-          <button id="create-character-button" class="secondary">Create Character</button>
+  </dialog>
+</head>
+
+<body>
+
+  <header class="container-fluid">
+    
+      <!-- Top Bar -->
+      <nav id="top-bar" class="top-bar">
+
+        <!-- Top Bar Left -->
+        <div id="top-bar-left" class="top-bar-left">
+          <ul class="top-bar-left">
+            <li><button class="secondary" data-chin="stories" role="tab" aria-selected="false" tabindex="1" _="on click call App.selectTopBarTab('stories') then call App.updateTopBarUI()">Stories</button></li>
+            <li><button class="secondary" data-chin="characters" role="tab" aria-selected="false" tabindex="2" _="on click call App.selectTopBarTab('characters') then call App.updateTopBarUI()">Characters</button></li>
+            <li><button class="secondary" data-chin="worlds" role="tab" aria-selected="false" tabindex="3" _="on click call App.selectTopBarTab('worlds') then call App.updateTopBarUI()">Worlds</button></li>
+            <li><button class="secondary" data-chin="options" role="tab" aria-selected="false" tabindex="4" _="on click call App.selectTopBarTab('options') then call App.updateTopBarUI()">Options</button></li>
+          </ul>
         </div>
+
+        <!-- Top Bar Right: Storyboard -->
+        <div id="top-bar-right-storyboard" class="top-bar-right">
+          <ul class="top-bar-right">
+            <li><button class="secondary" id="shuffle" _="on click call App._shuffleStoryboard()">Shuffle</button></li>
+            <li><button class="primary" id="begin-story" _="on click call App.beginStory()">Begin Story</button></li>
+          </ul>
+        </div>
+
+        <!-- Top Bar Right: Form -->
+        <div id="top-bar-right-form" class="top-bar-right">
+          <ul class="top-bar-right">
+            <li><button class="secondary" id="form-cancel">Cancel</button></li>
+            <li><button class="primary" id="form-save">Save</button></li>
+          </ul>
+        </div>
+
+        <!-- Top Bar Right: Profile -->
+        <div id="top-bar-right-profile" class="top-bar-right">
+          <ul class="top-bar-right">
+            <li><button class="secondary" id="profile-edit">Edit</button></li>
+            <li><button class="secondary" id="profile-copy">Copy & Customize</button></li>
+            <li><button class="danger" id="profile-delete">Delete</button></li>
+            <li><button class="primary" id="profile-back">Back</button></li>
+          </ul>
+        </div>
+
+      </nav>
+
+      <!-- Chin: Story -->
+      <div id="chin-stories" class="hidden" data-chin="stories">
+        <div class="chin-actions">
+          <div class="chin-actions-left">
+            <form role="search">
+              <fieldset role="group">
+                <input type="search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories">
+                <button type="submit" class="secondary">Search</button>
+              </fieldset>
+            </form>
+          </div>
+          <div class="chin-actions-right">
+            <button type="button" class="secondary" onclick="document.getElementById('upload-story').click();">
+              Upload Story
+            </button>
+            <input type="file" id="upload-story" aria-label="Upload Story" class="file-input-hidden">
+            <button id="new-story" class="secondary">New Story</button>
+          </div>
+        </div>
+        <div id="chin-story-list" class="chin-list"><!-- Story Cards --></div>
       </div>
-      <div id="chin-character-list" class="chin-list-grid">
-        <article class="character-card-landscape">
-          <div class="card-grid">
-            <div class="card-info">
-              <header>
-                <h4 class="margin-0">Starship AI "ADA"</h4>
-              </header>
-                              <p class="font-size-95 margin-top-05 line-height-13">
-                The ever-helpful AI of the starship "Odyssey," tasked with crew support and mission analysis.
-              </p>
-              <small>Premade</small>
-              <footer class="card-footer">
-                <button class="secondary">Copy & Customize</button>
-                <button class="secondary">Edit</button>
-              </footer>
-            </div>
-            <div class="card-picture">
-              <div class="profile-picture profile-picture-default">
-                SA
+
+      <!-- Chin: Character -->
+      <div id="chin-characters" class="hidden" data-chin="characters">
+        <div class="chin-actions">
+          <div class="chin-actions-left">
+            <form role="search">
+              <fieldset role="group">
+                <input type="search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters">
+                <button type="submit" class="secondary">Search</button>
+              </fieldset>
+            </form>
+          </div>
+          <div class="chin-actions-right">
+            <button type="button" class="secondary" onclick="document.getElementById('upload-character').click();">
+              Upload Character
+            </button>
+            <input type="file" id="upload-character" aria-label="Upload Character" class="file-input-hidden">
+            <button id="new-character" class="secondary">New Character</button>
+          </div>
+        </div>
+        <div id="chin-character-list" class="chin-list">
+          <article class="chin-card">
+            <div class="chin-card">
+              <div class="chin-card-left">
+                <header>
+                  <h4>Starship AI "ADA"</h4>
+                </header>
+                <p>
+                  The ever-helpful AI of the starship "Odyssey," tasked with crew support and mission analysis.
+                </p>
+                <footer>
+                  <small>Premade</small> 
+                </footer>
+              </div>
+              <div class="chin-card-right">
+                <div class="chin-card-picture">
+                  SA
+                </div>
               </div>
             </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- Chin: World -->
+      <div id="chin-worlds" class="hidden" data-chin="worlds">
+        <div class="chin-actions">
+          <div class="chin-actions-left">
+            <form role="search">
+              <fieldset role="group">
+                <input type="search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds">
+                <button type="submit" class="secondary">Search</button>
+              </fieldset>
+            </form>
           </div>
-        </article>
-      </div>
-      <!-- Character Workshop Chin Content Placeholder -->
-    </div>
-    <div id="world-builder-chin" class="top-bar-chin container hidden" data-chin="worlds">
-      <div class="chin-actions">
-        <form role="search">
-          <fieldset role="group">
-            <input type="search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds">
-            <button type="submit" class="secondary">Search</button>
-          </fieldset>
-        </form>
-        <div class="chin-actions-right">
-          <button type="button" class="secondary" onclick="document.getElementById('upload-world-input').click();">
-            Upload World
-          </button>
-          <input type="file" id="upload-world-input" aria-label="Upload World" class="file-input-hidden">
-          <button id="create-world-button" class="secondary">Create World</button>
+          <div class="chin-actions-right">
+            <button type="button" class="secondary" onclick="document.getElementById('upload-world').click();">
+              Upload World
+            </button>
+            <input type="file" id="upload-world" aria-label="Upload World" class="file-input-hidden">
+            <button id="new-world" class="secondary">New World</button>
+          </div>
         </div>
+        <div id="chin-world-list" class="chin-list-grid"><!-- World Cards --></div>
       </div>
-      <div id="chin-world-list" class="chin-list-grid"></div>
-      <!-- World Builder Chin Content Placeholder -->
-    </div>
-    <div id="options-chin" class="top-bar-chin container hidden" data-chin="options">
-      <!-- Options Chin Content -->
-      <div class="chin-options-actions chin-actions-flex">
-        <button id="download-backup-button" class="secondary">Download Backup</button>
-                  <div class="chin-actions-right chin-actions-right-flex">
-          <button type="button" class="secondary" onclick="document.getElementById('upload-backup-input').click();">
-            Upload Backup
-          </button>
-          <input type="file" id="upload-backup-input" aria-label="Upload Backup" class="file-input-hidden">
-          <button id="start-fresh-button" class="secondary danger">Start Fresh</button>
+
+      <!-- Chin: Options -->
+      <div id="chin-options" class="hidden" data-chin="options">
+        <div class="chin-actions">
+          <div class="chin-actions-left">
+          <!-- Something in the future? -->
+          </div>
+          <div class="chin-actions-right">
+            <button type="button" class="secondary" onclick="document.getElementById('upload-backup').click();">
+              Upload Backup
+            </button>
+            <input type="file" id="upload-backup" aria-label="Upload Backup" class="file-input-hidden">
+            <button id="download-backup" class="secondary">Download Backup</button>
+            <button id="start-fresh" class="danger">Start Fresh</button>
+          </div>
         </div>
-      </div>
-      <div class="chin-options-grid">
-        <div>
+        <div id="chin-options-grid">
           <textarea id="opening-prompt-textarea" placeholder="Opening Prompt"></textarea>
-        </div>
-        <div>
-          <textarea id="custom-story-js-textarea" placeholder="Custom Story JS"></textarea>
+          <textarea id="custom-story-js-textarea" placeholder="Custom JS"></textarea>
         </div>
       </div>
     </div>
-  </div>
-  <!-- Chin Area End -->
-  <!-- Top Bar End -->
 
-  <div class="container">
-    <div class="main-content-container">
-      <!-- CHIN AREA: Selects and Cards, always aligned with top bar -->
-      <div class="container" id="storyboard-screen">
-        <header id="storyboard-title-area" class="storyboard-title-padding">
-          <h2 id="storyboard-title"></h2>
-        </header>
-        <div id="storyboard-content">
-          <div id="storyboard-columns">
-            <div class="storyboard-cards-row">
-              <article id="storyboard-ai-character-card">
-                <div id="storyboard-ai-character-select" class="card-title-dropdown"></div>
-              </article>
-              <article id="storyboard-user-character-card">
-                <div id="storyboard-user-character-select" class="card-title-dropdown"></div>
-              </article>
-              <article id="storyboard-world-card">
-                <div id="storyboard-world-select" class="card-title-dropdown"></div>
-              </article>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Main Area -->
-      <div id="main" role="main" tabindex="-1">
-        <div id="columns-wrapper" class="flex flex-grow overflow-hidden">
-          <!-- Middle Column: Main Screens -->
-          <div id="middle-column" class="flex-grow flex flex-col overflow-hidden"> 
-            <!-- Character/World Form Screens -->
-            <div id="character-form-screen" class="middle-column-screen flex-grow flex-col hidden">
-              <!-- Content rendered by App.renderFormScreen -->
-            </div>
-            <div id="world-form-screen" class="middle-column-screen flex-grow flex-col hidden">
-              <!-- Content rendered by App.renderFormScreen -->
-            </div>
-            <!-- Profile Screens -->
-            <div id="character-profile-screen" class="middle-column-screen flex-grow flex-col hidden">
-              <div class="profile-details-content-wrapper flex-grow p-4">
-                <div class="profile-section profile-hero-section p-4 mb-4 text-center">
-                  <!-- Content rendered by App.renderProfileScreen -->
-                </div>
-              </div>
-            </div>
-            <div id="world-profile-screen" class="middle-column-screen flex-grow flex-col hidden">
-              <div class="profile-details-content-wrapper flex-grow p-4">
-                <div class="profile-section profile-hero-section p-4 mb-4 text-center">
-                  <!-- Content rendered by App.renderProfileScreen -->
-                </div>
-              </div>
-            </div>
-            <div id="story-profile-screen" class="middle-column-screen flex-grow flex-col hidden">
-              <div class="story-profile-layout-container">
-                <div id="story-profile-ai-character-display-area" class="story-profile-side-panel">
-                  <!-- AI Character's profile picture and name loaded here -->
-                </div>
-                <div id="story-profile-chat-wrapper" class="story-profile-central-content">
-                  <div id="story-profile-message-feed" class="message-feed-profile flex-grow">
-                    <!-- Chat log, conclusion, title, cards will be rendered here -->
-                  </div>
-                  <div id="story-profile-actions" class="story-profile-form-actions">
-                    <!-- Action buttons like Delete, Back will be rendered here -->
-                  </div>
-                </div>
-                <div id="story-profile-user-character-display-area" class="story-profile-side-panel">
-                  <!-- User's Character large image will be loaded here by JS -->
-                </div>
-              </div>
-              <div id="memory-application-screen" class="middle-column-screen flex-grow flex-col p-4 hidden">
-                <!-- Content will be rendered by App._renderMemoryApplicationScreen -->
-              </div>
-            </div>
-            <!-- Premade Bank Screens -->
-            <div id="premade-character-bank" class="middle-column-screen flex-grow flex-col p-4 hidden">
-              <h2 class="premade-screen-title">Premade Characters</h2>
-              <p class="premade-screen-description">Select a premade character to use its details in the creation form.</p>
-              <div id="premade-character-only-list" class="grid-bank-container"></div>
-            </div>
-            <div id="premade-world-bank" class="middle-column-screen flex-grow flex-col p-4 hidden">
-              <h2 class="premade-screen-title">Premade Worlds</h2>
-              <p class="premade-screen-description">Select a premade world to use its details in the creation form.</p>
-              <div id="premade-world-only-list" class="grid-bank-container"></div>
-            </div>
-            <!-- Chat Interface Screen -->
-            <div id="chat-interface-screen" class="middle-column-screen flex flex-col h-full flex-grow relative hidden">
-              <div id="chat-screen-layout-container">
-                <div id="ai-character-display-area" class="chat-side-panel">
-                  <!-- AI Character's large image will be loaded here by JS -->
-                </div>
-                <div id="built-in-chat-interface-wrapper"> 
-                  <div id="chat-background-ctn" class="absolute top-0 left-0 right-0 bottom-0 chat-background-overlay"></div>
-                  <div id="story-concluded-notice" class="message systemMessage hidden"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story has concluded.</div></div></div></div>
-                  <div id="chat-feed" class="flex-grow pt-2"></div>
-                  <div id="no-messages-notice" class="hidden p-4 mt-4">Type your reply below to continue the story.</div>
-                  <div id="status-notifier" class="relative flex items-center justify-content-center z-10 hidden" data-original-display-value="flex">
-                    <span id="typing-indicator-text">Bot is thinking</span>
-                    <div id="input-wrapper" class="p-2">
-                      <div class="chat-input-flex-container"> 
-                        <textarea id="message-input" placeholder="Type your reply here..."></textarea>
-                        <div class="chat-send-button-container"> 
-                          <button id="send-button" class="flex-grow primary" aria-label="Send message">
-                            <span class="button-text">Send</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <button id="conclude-story-chat-button" class="secondary">Conclude Story</button>
-                </div>
-                <div id="user-character-display-area" class="chat-side-panel">
-                  <!-- User's Character large image will be loaded here by JS -->
-                </div>
-              </div>
-            </div>
-            <!-- End Chat Interface Screen -->
-          </div>
-          <!-- End Middle Column -->
-        </div>
-      </div>
-      <!-- End Main Area -->
-    </div>
-  </div>
-</div>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-
-<!-- Profile Picture Component -->
-<div id="profile-picture-overlay" class="profile-picture-overlay hidden">
-  <div class="profile-picture-modal">
-    <div class="profile-picture-header">
-      <h3>Profile Picture</h3>
-      <button id="close-profile-picture" class="close-button">&times;</button>
-    </div>
-    <div class="profile-picture-content">
-      <div class="profile-picture-preview">
-        <div id="profile-picture-preview-area"></div>
-      </div>
-      <div class="profile-picture-controls">
-        <textarea id="profile-picture-prompt" placeholder="Describe the profile picture..."></textarea>
-        <div class="profile-picture-buttons">
-          <button id="generate-profile-picture">Generate</button>
-          <button id="use-url-profile-picture">Use URL</button>
-          <button id="ai-help-profile-picture">AI Help</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- Scripts -->
-<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
-<script src="https://unpkg.com/cash-dom"></script>
-<script src="ProfilePictureComponent.js"></script>
-<script src="RPGlitch.js"></script>
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+  </header>
 <style>
 
 /* --- Main Sass stylesheet --- */
-﻿html,body{min-height:100vh;height:100%;overflow:visible;background:linear-gradient(120deg, #181c2f 0%, #23243a 40%, #1a3a4a 70%, #2a1a3a 100%);padding-top:0}input,input:not([type=checkbox],[type=radio],[type=range],[type=file]),[type=checkbox],[type=radio],[type=range],[type=file],select,textarea{appearance:none}a,area,button,input,label,select,summary,textarea,[tabindex]{touch-action:manipulation}.storyboard-card:not([disabled]):hover,#storyboard-ai-character-card:not([disabled]):hover,#storyboard-user-character-card:not([disabled]):hover,#storyboard-world-card:not([disabled]):hover,.character-card-landscape:not([disabled]):hover,.story-profile-item-card:not([disabled]):hover{transform:translateY(-4px) scale(1.02);box-shadow:0 8px 25px rgba(0,0,0,.25),0 0 20px hsla(0,0%,100%,.1);transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.storyboard-card,#storyboard-ai-character-card,#storyboard-user-character-card,#storyboard-world-card,.story-profile-item-card{transform:translateY(0) scale(1);transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);margin-bottom:1rem}.storyboard-card[disabled]:hover .card-title,.storyboard-card[disabled]:hover .card-subtitle,#storyboard-ai-character-card[disabled]:hover .card-title,#storyboard-ai-character-card[disabled]:hover .card-subtitle,#storyboard-user-character-card[disabled]:hover .card-title,#storyboard-user-character-card[disabled]:hover .card-subtitle,#storyboard-world-card[disabled]:hover .card-title,#storyboard-world-card[disabled]:hover .card-subtitle{color:var(--pico-primary);text-shadow:0 0 15px rgb(var(--pico-primary-rgb), 0.6);transition:color .3s ease,text-shadow .3s ease;font-weight:bold}.storyboard-card[disabled]:hover .card-title::after,#storyboard-ai-character-card[disabled]:hover .card-title::after,#storyboard-user-character-card[disabled]:hover .card-title::after,#storyboard-world-card[disabled]:hover .card-title::after{content:" ▼ CLICK HERE!";color:var(--pico-primary);text-shadow:0 0 15px rgb(var(--pico-primary-rgb), 0.8);animation:dropdown-pulse 1s ease-in-out infinite;font-weight:bold;font-size:.9em}.storyboard-card[disabled]:hover,#storyboard-ai-character-card[disabled]:hover,#storyboard-user-character-card[disabled]:hover,#storyboard-world-card[disabled]:hover{box-shadow:0 0 20px rgb(var(--pico-primary-rgb), 0.3) !important;border:2px solid rgb(var(--pico-primary-rgb), 0.5) !important;transition:box-shadow .3s ease,border .3s ease}@keyframes dropdown-pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}.top-bar button:not([disabled]):hover,.top-bar [role=button]:not([disabled]):hover,#options-chin button:not([disabled]):hover,.chin-tab:not([disabled]):hover,button:not([disabled]):hover,input[type=submit]:not([disabled]):hover,input[type=button]:not([disabled]):hover{transform:none !important;box-shadow:0 0 20px rgb(var(--pico-primary-rgb), 0.6),0 0 30px hsla(0,0%,100%,.15) !important;transition:box-shadow .3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important}.chin-search-submit:not([disabled]):hover{transform:none !important;box-shadow:0 0 15px rgb(var(--pico-primary-rgb), 0.6) !important;transition:box-shadow .2s ease !important}.chin-search-submit:focus~input,.chin-search-submit:focus~select{box-shadow:0 0 10px rgb(var(--pico-primary-rgb), 0.4) !important;border-color:var(--pico-primary) !important}a:not([disabled]):hover{transform:translateY(-2px) scale(1.02);text-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .2s cubic-bezier(0.68, -0.55, 0.265, 1.55),text-shadow .2s cubic-bezier(0.68, -0.55, 0.265, 1.55)}[disabled].secondary{opacity:.3 !important;cursor:not-allowed !important;filter:grayscale(100%) !important;pointer-events:none !important;background:hsla(0,0%,100%,.1) !important;color:hsla(0,0%,100%,.5) !important;border-color:hsla(0,0%,100%,.2) !important}[disabled].secondary:hover{transform:none !important;box-shadow:none !important;transition:none !important;background:inherit !important;color:inherit !important}.disabled{cursor:not-allowed !important;pointer-events:none !important;opacity:.5 !important;filter:grayscale(100%) !important}.disabled:hover{transform:none !important;box-shadow:none !important;transition:none !important}button[disabled].secondary:hover,input[disabled]:hover,select[disabled]:hover,textarea[disabled]:hover,label[disabled]:hover,[role=button][disabled].secondary:hover{transform:none !important;box-shadow:none !important;background:inherit !important;color:inherit !important}.storyboard-card[disabled],#storyboard-ai-character-card[disabled],#storyboard-user-character-card[disabled],#storyboard-world-card[disabled]{opacity:1 !important;cursor:pointer !important;pointer-events:auto !important;filter:none !important}button:not([disabled]),input[type=button]:not([disabled]),input[type=submit]:not([disabled]),[role=button]:not([disabled]),label:not([disabled]),.upload-label:not([disabled]),.storyboard-card:not([disabled]),.character-card-landscape:not([disabled]),.story-profile-item-card:not([disabled]),.card-title-dropdown,.card-title-selected,.dropdown-option,a:not([disabled]){cursor:pointer !important}input[type=text],input[type=email],input[type=password],input[type=search],input[type=url],input[type=tel],input[type=number],textarea,select{cursor:text !important}input[type=file]{cursor:pointer !important}#storyboard-title{cursor:pointer !important}#storyboard-title:focus{cursor:text !important}[disabled],.disabled{cursor:not-allowed !important}.storyboard-card,.character-card-landscape,.story-profile-item-card,.top-bar button,.top-bar [role=button],#options-chin button,.chin-tab,button,input[type=submit],input[type=button],a{transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.storyboard-card.selected,.character-card-landscape.selected,.story-profile-item-card.selected{animation:subtle-pulse 2s ease-in-out infinite}@keyframes subtle-pulse{0%,100%{box-shadow:0 2px 8px rgba(0,0,0,.1)}50%{box-shadow:0 4px 15px rgba(0,0,0,.2),0 0 10px hsla(0,0%,100%,.05)}}*:focus{outline:none !important}.card-title-dropdown,.card-title-dropdown *,.card-title-selected,.card-title-dropdown-menu,.card-title-dropdown-menu *,.dropdown-option{border:0 !important;border-width:0 !important;border-style:none !important;border-color:rgba(0,0,0,0) !important;outline:rgba(0,0,0,0) none 0 !important;text-shadow:none !important;box-shadow:none !important;-webkit-border:0 !important;-moz-border:0 !important;-webkit-outline:0 !important;-moz-outline:0 !important}.card-title-dropdown *,.card-title-dropdown *:focus,.card-title-dropdown *:hover,.card-title-dropdown *:active{border:0 !important;outline:none !important;box-shadow:none !important}.card-title-selected,.card-title-selected:focus,.card-title-selected:hover,.card-title-selected:active{border:0 !important;outline:none !important;box-shadow:none !important;background:rgba(0,0,0,0) !important}.card-title-selected:hover,.card-title-selected:focus{background:rgba(80,80,120,.2) !important}.card-title-dropdown-menu .dropdown-option,.card-title-dropdown-menu .dropdown-option:focus,.card-title-dropdown-menu .dropdown-option:hover,.card-title-dropdown-menu .dropdown-option:active{border:0 !important;outline:none !important;box-shadow:none !important}.card-title-dropdown-menu{z-index:9999999 !important;position:absolute !important}.card-title-dropdown{overflow:visible !important;z-index:10}.storyboard-card,.storyboard-cards-row>article,.card{overflow:visible !important;z-index:1;position:relative}.storyboard-cards-row>article{bottom:.5em;left:0}.card-title-dropdown *,.card-title-dropdown-menu *,.card-title-selected,.dropdown-option{border:none !important;outline:none !important;box-shadow:none !important;margin:0 !important;padding:0 !important}.card-title-dropdown button,.card-title-dropdown-menu button{background:rgba(0,0,0,0) !important;border:0 !important;outline:none !important;box-shadow:none !important;padding:inherit !important;margin:0 !important}.profile-picture{background-position:center;background-size:cover;box-shadow:var(--shadow-sm);border:none;object-fit:cover}#chat-log{min-height:200px;margin-bottom:1rem;padding:.5rem;border-radius:var(--pico-radius);overflow:visible}#chat-form{display:flex;gap:.5rem;align-items:flex-end}.chin-options-fields{display:flex;flex-direction:column;gap:0}.app-scrollable-container{height:100vh;overflow:hidden auto;margin:0 !important;padding:1rem 0 0 !important;max-width:100vw !important;width:100vw !important}.app-scrollable-container:has(.profile-content-overlay){overflow:hidden !important}.profile-details-content-wrapper,.story-profile-layout-container,.middle-column-screen,.profile-section,.profile-hero-section{overflow:visible !important;height:auto !important}.main-content-container{height:auto;min-height:0;overflow:visible !important}.chin-top-row,.chin-list-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;min-height:160px;height:auto;flex:1;align-content:start;box-shadow:none;--pico-box-shadow: 0;--pico-button-box-shadow: 0;--pico-button-hover-box-shadow: 0;--pico-switch-thumb-box-shadow: 0;--pico-card-box-shadow: 0;--pico-dropdown-box-shadow: 0}.chin-card{min-height:160px;height:auto}.chin-top-row{margin-bottom:1.5rem}.chin-list-grid{margin-bottom:0;flex:1;overflow:visible;max-height:100%;min-height:160px;z-index:10}.chin-card:hover{box-shadow:none}#chin-area{display:flex;flex-direction:column;gap:1rem;margin-top:1rem;border-radius:0 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem);padding:1rem;min-height:190px}.chin-empty-centered{grid-column:1/-1;display:grid;place-items:center;min-height:120px;width:100%;font-style:italic;font-size:1.1em;background:none;border:none;text-align:center;margin:0;padding:0}.card-placeholder-text{width:100%;text-align:center;border-radius:var(--pico-radius)}.chin-list-grid>p,.chin-list-grid .story-item-empty-message{display:flex;align-items:center;justify-content:center;min-height:120px;width:100%;height:100%;text-align:center;margin:0 auto;grid-column:2/3}.top-bar-chin{position:absolute;top:calc(100% - .5rem);left:0;right:0;z-index:2000;color:#fff;padding:.5em 1em 1em;font-family:inherit;transition:all .2s;border-top-left-radius:0 !important;border-top-right-radius:0 !important;border-bottom-left-radius:var(--pico-radius, 0.5rem);border-bottom-right-radius:var(--pico-radius, 0.5rem);margin-top:0;padding-top:.5rem;min-height:200px;height:auto;display:flex;flex-direction:column;align-items:stretch;background:rgba(35,36,58,.85) !important;backdrop-filter:blur(15px);border-bottom:1px solid hsla(0,0%,100%,.1);box-shadow:0 4px 20px rgba(0,0,0,.2)}.top-bar-chin button{background:hsla(0,0%,100%,.1) !important;border-color:hsla(0,0%,100%,.2) !important;color:#fff !important;backdrop-filter:blur(5px)}.top-bar-chin button:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.top-bar-chin button.primary{background:var(--pico-primary, #0172ad) !important;border-color:var(--pico-primary, #0172ad) !important}.top-bar-chin button.primary:hover{background:var(--pico-primary-hover, #015a8a) !important;border-color:var(--pico-primary-hover, #015a8a) !important}.story-item-empty-message{opacity:.6 !important;font-style:italic;color:var(--pico-muted-color, #aaa)}#search-stories-input::placeholder,#search-characters-input::placeholder,#search-worlds-input::placeholder{font-style:italic;opacity:.8}.chin-options-actions input::placeholder,.chin-options-actions textarea::placeholder,.chin-options-grid input::placeholder,.chin-options-grid textarea::placeholder{font-style:italic;opacity:.8}#search-stories-input,#search-characters-input,#search-worlds-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:.75rem center;background-size:1rem;padding-left:2.5rem}.top-bar-chin,.top-bar{background:var(--pico-surface, #23243a);color:var(--pico-contrast, #fff);box-shadow:none;border-radius:var(--pico-radius);margin-top:0;width:100%;max-width:100%}#main-content-wrapper>.container{position:relative}article>footer:not(.storyboard-card footer){margin:0 !important;padding:10px !important;border:none !important}article>header:not(.storyboard-card header){margin-top:0 !important;margin-bottom:0 !important;border:none !important}.storyboard-card article>footer,.chin-list-grid article>footer{justify-content:flex-end !important}.card-title-selected{position:relative}.card-title-selected.placeholder-mode{font-style:italic;opacity:.7;border:1px dashed hsla(0,0%,100%,.3);border-radius:var(--pico-radius);padding:.5rem 1rem;cursor:pointer;transition:all .2s ease}.card-title-selected.placeholder-mode:hover{opacity:.9;border-color:hsla(0,0%,100%,.5);background:hsla(0,0%,100%,.05)}.top-bar-nav{padding:1em}.top-bar-nav.is-active{display:flex !important;z-index:1000}#start-fresh-button.secondary{transition:background .2s,color .2s}#start-fresh-button.secondary:hover,#start-fresh-button.secondary:focus{background:#e53935 !important;color:var(--pico-contrast, #fff) !important;border-color:#e53935 !important}nav{margin:0;padding:0;align-items:center}.top-bar-nav ul{display:flex;gap:1rem;margin:0 !important;padding:0 !important}.top-bar-nav li{margin:0 !important;padding:0 !important}.chin-actions{display:flex;align-items:center;gap:1rem;flex-wrap:nowrap;justify-content:space-between;margin-bottom:1rem;border-radius:var(--pico-radius)}.chin-actions-right{display:flex;gap:1rem;align-items:center;flex-wrap:nowrap}.chin-actions form[role=search]{display:flex;align-items:center;vertical-align:middle;margin:0;padding:0}.chin-actions form[role=search] fieldset[role=group]{display:flex;align-items:center;vertical-align:middle;margin:0;padding:0;border:none}.chin-options-actions{display:flex;gap:1rem;align-items:center;margin-bottom:0;border-radius:var(--pico-radius)}.character-card-landscape,.storyboard-card,.card,.card-picture,.chin-card{border-radius:var(--pico-radius) !important;overflow:visible}.chin-list-grid .character-card-landscape{min-height:160px;height:auto;z-index:100;position:relative}.character-card-landscape{border-radius:var(--pico-radius) !important;border-top-left-radius:var(--pico-radius, 0.5rem) !important;border-bottom-left-radius:var(--pico-radius, 0.5rem) !important}.card-grid{display:grid;grid-template-columns:3fr 2fr;align-items:stretch;gap:1rem;height:100%;border-radius:var(--pico-radius, 0.5rem);overflow:visible}.card-grid,.card-content{gap:0 !important}.card-info{min-width:0;display:flex;flex-direction:column;padding:0;text-align:left;height:100%;overflow:visible;position:relative;justify-content:space-between}.card-footer{display:flex;gap:.5rem;justify-content:flex-end;align-items:center;padding:.5rem 1rem;margin-top:auto;box-shadow:none;width:100%;box-sizing:border-box}.card-footer button{font-size:.8rem;padding:.25rem .5rem;min-width:auto;background:var(--pico-button-background-color, #666);color:var(--pico-button-color, #fff)}.card-info header{margin:0;padding:0;font-size:1em;font-weight:600;line-height:1.1;text-align:center;border-radius:0 var(--pico-radius, 0.5rem) 0 0}.card-info h4{margin:0;font-size:1em;font-weight:600;line-height:1.1;text-align:center;text-wrap:balance;padding:.2em .6em;display:flex;align-items:center;justify-content:center;min-height:2.5em}.card-info p{margin:0;font-size:.85em;line-height:1.2;color:var(--pico-muted-color, #aaa);text-align:center;text-wrap:balance;display:flex;align-items:center;justify-content:center;min-height:3em;flex:1}.card-picture{display:flex;align-items:stretch;justify-content:flex-end;padding:0;margin:0;height:100%}.card-picture .profile-picture{width:100%;height:100%;min-width:0;min-height:0;max-width:none;max-height:none;border:none;object-fit:cover;align-self:stretch;margin:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem}.character-card-landscape .card-picture .profile-picture{border-radius:0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important}.character-card-landscape .card-info{border-radius:var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;overflow:hidden !important}.storyboard-card .card-info{border-radius:0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important;overflow:hidden !important}.card-content{display:grid;grid-template-columns:35% 65%;gap:0;align-items:stretch;height:100%;min-height:260px;max-height:100%}.card-avatar{width:100%;height:100%;display:flex;align-items:start;justify-content:center;overflow:hidden}.card-avatar img{width:100%;height:100%;object-fit:cover;display:block;background:#222}.card-title-selected .profile-dot{display:none !important}.card-title{text-wrap:balance}@media(width <= 600px){.character-card-landscape{height:auto}.card-grid{grid-template-columns:1fr;grid-template-rows:auto auto;height:auto}.card-picture{justify-content:center;margin-top:1em}.card-content{grid-template-columns:1fr;grid-template-rows:auto auto;min-height:unset;height:auto}.card-avatar{height:160px;min-height:120px;max-height:200px}}:root{color:#fff;--pico-radius: 0.5rem}.button,.primary,.secondary,.contrast,.outline,select,input[type=text],input[type=file],input[type=email],input[type=password],textarea{border-radius:var(--pico-radius)}article{padding:0;margin:0}#opening-prompt-textarea,#custom-story-js-textarea{margin:0 !important}.upload-label{display:inline-flex;align-items:center;justify-content:center;height:2.5em;padding:0 1.25em;border-radius:var(--pico-radius);font-size:1rem;border:none;cursor:pointer;transition:background .2s;vertical-align:middle;line-height:1;box-sizing:border-box;margin:0;background:hsla(0,0%,100%,.1) !important;border-color:hsla(0,0%,100%,.2) !important;color:#fff !important;backdrop-filter:blur(5px)}.upload-label:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.upload-label-text{pointer-events:none}.upload-label input[type=file]{display:none}.chin-actions input[type=search]{height:auto;padding:var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em;border-radius:999px 0 0 999px !important;border:1px solid hsla(0,0%,100%,.2) !important;border-right:none !important;font-size:1rem;box-sizing:border-box;display:inline-flex;align-items:center;flex:none;margin:0;width:auto;transition:background .2s,border-color .2s}.chin-actions button[type=submit]{height:auto;padding:var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em;border-radius:0 999px 999px 0 !important;border-left:none !important;font-size:1rem;box-sizing:border-box;display:inline-flex;align-items:center;flex:none;margin:0;min-width:0}.chin-actions input[type=search]:hover{border-color:hsla(0,0%,100%,.3) !important}.chin-actions button[type=submit]:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.chin-actions input[type=search]:hover+button[type=submit]{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.chin-actions button[type=submit]:hover~input[type=search]{border-color:hsla(0,0%,100%,.3) !important}.chin-actions fieldset[role=group]{border:none !important;padding:0 !important;margin:0 !important;display:flex !important;align-items:center !important;width:fit-content !important;overflow:hidden !important}.chin-actions form{border:none !important;padding:0 !important;margin:0 !important;width:fit-content !important;overflow:hidden !important}.chin-options-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}.chin-options-grid textarea{width:100%;min-height:8em;border-radius:var(--pico-radius);font-size:1rem;box-sizing:border-box;margin-top:.5em}button,.button,.secondary,.danger{text-align:center;justify-content:center}.storyboard-cards-row>*{height:260px;min-height:260px;display:flex;flex-direction:column}.storyboard-cards-row{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;align-items:stretch;margin:0;padding:0}#storyboard-scrollable-content .grid{gap:0 !important;grid-gap:0 !important}.storyboard-cards-row select{border:none;background:#23243a;color:#fff;appearance:none;text-align:center;font-size:1.1em;font-weight:500;outline:none;padding:.5em 0;width:100%;cursor:pointer}.storyboard-cards-row select:focus{outline:none !important}.storyboard-cards-row select::-ms-expand{display:none}.storyboard-cards-row select::-webkit-inner-spin-button,.storyboard-cards-row select::-webkit-outer-spin-button,.storyboard-cards-row select::-webkit-search-cancel-button,.storyboard-cards-row select::-webkit-search-decoration{display:none}.storyboard-cards-row select option{text-align:left;color:#222}.storyboard-cards-row .profile-picture{border-radius:var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important}.card-title-dropdown-menu .dropdown-option{text-wrap:pretty;text-align:left}.top-bar-nav button,.top-bar-section button{padding:var(--pico-form-element-spacing-vertical, 0.75rem) var(--pico-form-element-spacing-horizontal, 1rem);display:inline-flex;align-items:center;justify-content:center;height:100%}.chin-card,.card{border:none !important;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);border-radius:var(--pico-radius);overflow:visible;transition:box-shadow .2s ease;position:relative}.storyboard-card:hover,.chin-card:hover,.card:hover{box-shadow:0 2px 8px 0 rgba(0,0,0,.15)}.card-title-dropdown-menu .dropdown-option .plus-sign{display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;margin-right:.5em;font-weight:600;font-size:1em}.card-title-dropdown-menu .dropdown-option .profile-dot{display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;border-radius:50%;margin-right:.5em;flex-shrink:0;vertical-align:middle}.card-title-dropdown-menu .dropdown-option.placeholder-option{color:#888 !important;opacity:.7 !important;font-style:italic !important}body,body *:not([disabled]){opacity:1 !important;color:#fff !important}body,.top-bar,.top-bar-chin,.chin-card,.card,.storyboard-card,.chin-list-grid,.chin-actions,.chin-options-actions,.card-info,.card-info header,.card-info h4,.card-title-selected,.dropdown-option{color:#fff !important}.card-info small,.card-info p{color:#fff !important}.card-info small{display:inline-block;background:var(--pico-primary, #0172ad);color:#fff !important;font-size:.75em;font-weight:600;padding:.2em .6em;border-radius:var(--pico-radius);letter-spacing:.05em;line-height:1.2}.chin-list-grid .card-info small{font-style:italic;font-weight:400}[data-tooltip]{position:relative}[data-tooltip]::before,[data-tooltip]::after{z-index:999999 !important;pointer-events:none !important}.dropdown-option.placeholder-option{color:#888 !important;font-style:italic !important}#storyboard-scrollable-content{overflow:visible !important;position:relative;z-index:1000}.card-title-dropdown-menu .dropdown-option.create-new{font-weight:400 !important}.card-title-dropdown *,.card-title-dropdown-menu *,.dropdown-option,.card-title-dropdown-menu .dropdown-option{border:0 !important;outline:none !important;box-shadow:none !important;margin:0 !important;padding:0 !important}.card-title-dropdown:has(.card-title-dropdown-menu:not(.hidden)) .card-title-selected{background:#35365a !important;border:0 !important;outline:none !important;box-shadow:none !important}.card-title-dropdown .card-title-dropdown-menu:not(.hidden)~.card-title-selected,.card-title-dropdown .card-title-dropdown-menu:not(.hidden)+.card-title-selected{background:#35365a !important;border:0 !important;outline:none !important;box-shadow:none !important}.storyboard-card .card-content{flex:1;display:flex;min-height:260px;overflow:visible}.storyboard-card header{height:3rem;display:flex;align-items:center;overflow:hidden}.storyboard-card .card-title-dropdown{height:100%;display:flex;align-items:center;overflow:hidden}.storyboard-card .card-title-selected{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.storyboard-card .card-title-selected.placeholder-mode{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}#storyboard-title-area{display:flex;align-items:center;justify-content:center;min-height:3rem;margin:1.5rem 2rem 2rem;padding:2rem}.card-header-flex{display:flex;align-items:center;justify-content:center;padding:.5rem}.card-main-flex{display:flex;align-items:center;justify-content:center;flex:1;padding:0 .5rem}.card-title-styled{font-size:1.1em;font-weight:bold;text-align:center;text-wrap:balance;line-height:1.2;max-height:3.6em;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical}.card-description-styled{text-align:center;text-wrap:balance;line-height:1.3;overflow:hidden;text-overflow:ellipsis}.system-message-styled{margin:1rem auto;text-align:center}.studio-profile-name-styled{margin-top:1.25rem;margin-bottom:1.25rem}.color-swatch-large-styled{background-color:var(--swatch-color, var(--pico-primary, #0172ad))}.color-swatch-small-styled{background-color:var(--swatch-color, var(--pico-primary, #0172ad))}.hidden-input{display:none}.profile-picture-initials-styled{--bg-color: var(--palette-medium, var(--pico-primary, #0172ad));--text-color-initials: var(--palette-light, #fff)}.studio-layout-container{display:flex;min-height:100%;background:var(--pico-surface, #23243a);border-radius:var(--pico-radius, 0.5rem);overflow:visible;box-shadow:0 4px 12px rgba(0,0,0,.15)}.studio-content-area{display:flex;width:100%;min-height:100%;overflow:visible}.studio-left-panel{flex:0 0 300px;display:flex;flex-direction:column;align-items:center;padding:0;overflow:visible;overflow-x:hidden}.studio-right-panel{flex:1;display:flex;flex-direction:column;min-width:0;overflow:visible;overflow-x:hidden}.studio-left-panel::-webkit-scrollbar,.studio-right-panel::-webkit-scrollbar{width:8px}.studio-left-panel::-webkit-scrollbar-track,.studio-right-panel::-webkit-scrollbar-track{background:hsla(0,0%,100%,.05);border-radius:4px}.studio-left-panel::-webkit-scrollbar-thumb,.studio-right-panel::-webkit-scrollbar-thumb{background:hsla(0,0%,100%,.2);border-radius:4px;transition:background .2s ease}.studio-left-panel::-webkit-scrollbar-thumb:hover,.studio-right-panel::-webkit-scrollbar-thumb:hover{background:hsla(0,0%,100%,.3)}.studio-left-panel,.studio-right-panel{scrollbar-width:thin;scrollbar-color:hsla(0,0%,100%,.2) hsla(0,0%,100%,.05)}.profile-picture-section{display:flex;flex-direction:column;align-items:center;width:100%;height:100%}.profile-picture-container{position:relative;width:100%;height:100%;border-radius:0;overflow:hidden;box-shadow:none;transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.profile-picture-container:hover{transform:none}.profile-picture-edit-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s ease;cursor:pointer}.profile-picture-container:hover .profile-picture-edit-overlay{opacity:1}.profile-picture-edit-overlay .button-icon{font-size:2rem;color:#fff}.profile-picture-large{width:100%;height:100%;border-radius:0}.profile-picture-medium{width:100%;height:100%;border-radius:0}.profile-picture-small{width:100%;height:100%;border-radius:0}.profile-picture-edit-section{margin-bottom:1rem}.form-section:last-child{margin-bottom:2rem}.profile-field-row:last-child{margin-bottom:2rem}.eppf-section{display:grid}.profile-background-layout{position:relative;width:100%;min-height:100vh}.profile-background-container{position:fixed;top:0;left:0;width:35vw;height:100vh;z-index:1;overflow:hidden;pointer-events:none}.profile-background-image{width:100%;height:100%;object-fit:cover;object-position:center;display:flex;align-items:center;justify-content:center}.profile-background-image img,.profile-background-image svg{width:100%;height:100%;object-fit:cover;object-position:center}.profile-background-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, rgba(35, 36, 58, 0.3) 0%, rgba(35, 36, 58, 0.6) 50%, rgba(35, 36, 58, 0.8) 100%);z-index:2}.profile-content-overlay{position:fixed;left:0;right:0;z-index:5;height:calc(100vh - 6.7rem);overflow:hidden auto;display:flex;flex-direction:column;justify-content:flex-start;box-sizing:border-box;padding-left:35vw;padding-right:calc(5% - 1rem);scrollbar-width:thin;scrollbar-color:hsla(0,0%,100%,.3) rgba(0,0,0,0)}.profile-content-overlay::-webkit-scrollbar{width:8px}.profile-content-overlay::-webkit-scrollbar-track{background:rgba(0,0,0,0)}.profile-content-overlay::-webkit-scrollbar-thumb{background:hsla(0,0%,100%,.3);border-radius:4px;transition:background .2s ease}.profile-content-overlay::-webkit-scrollbar-thumb:hover{background:hsla(0,0%,100%,.5)}.profile-content-container{margin:0 auto;width:100%}.profile-header-section{text-align:center;display:flex;align-items:center;justify-content:center;min-height:3rem;margin:1.5rem 2rem 2rem;padding:1rem}.profile-header-section .studio-profile-name{text-wrap:balance;height:3.5em;line-height:1.4em;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-all;text-align:center;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;font-size:2em;font-weight:400;letter-spacing:.05em;text-shadow:0 2px 4px rgba(0,0,0,.3);padding:0;margin:0;border:none;border-radius:var(--pico-radius);transition:all .2s ease}.profile-description{font-size:1.2rem;color:hsla(0,0%,100%,.9);line-height:1.6;margin:0 1rem 1rem;text-shadow:0 2px 4px rgba(0,0,0,.3);background:rgba(0,0,0,.2);padding:1rem;border-radius:.5rem;backdrop-filter:blur(10px)}.profile-details-grid{display:grid}.profile-field-row{display:grid;grid-template-columns:20% auto;align-items:center;padding-left:1rem}.profile-field-label{display:flex;flex-direction:column;justify-content:right;font-weight:600;color:var(--pico-h1-color, #fff)}.profile-field-label .main-label{font-size:1.1rem;font-weight:700;color:var(--pico-primary, #0172ad);text-align:right;letter-spacing:.5px;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-field-label .field-sublabel{font-size:.9rem;color:hsla(0,0%,100%,.7);font-weight:400;text-align:right}.profile-field-value{color:#fff;line-height:1.7;padding:1rem;background:hsla(0,0%,100%,.08);border-radius:.5rem;font-size:.95rem;min-height:3rem;display:flex;align-items:center;margin:.5rem 1rem;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-field-value:empty::before{content:"—";color:hsla(0,0%,100%,.5);font-style:italic}.profile-field-value input,.profile-field-value textarea{width:100%;background:rgba(0,0,0,0);border:none;color:#fff;font-size:.95rem;line-height:1.7;padding:0;margin:0;resize:vertical;min-height:3rem;font-family:inherit;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-header-section .studio-name-input-large{background:rgba(0,0,0,0) !important;border:none !important;box-shadow:none !important;transition:none !important;overflow:visible !important;text-overflow:unset !important;white-space:normal !important;word-wrap:break-word !important;word-break:break-all !important}.profile-header-section h2.studio-profile-name{cursor:default}.profile-header-section .studio-profile-name::placeholder{color:hsla(0,0%,100%,.5);font-style:italic}.profile-header-section .studio-profile-name:empty::before,.profile-header-section .studio-profile-name:blank::before,.studio-profile-name:empty::before,.studio-profile-name:blank::before{content:attr(data-placeholder);color:hsla(0,0%,100%,.5);font-style:italic;pointer-events:none}.studio-profile-name[data-placeholder]:not(:focus):empty::before,.studio-profile-name[data-placeholder]:not(:focus):blank::before{content:attr(data-placeholder);color:hsla(0,0%,100%,.5);font-style:italic;pointer-events:none}.profile-header-section .studio-profile-name:focus{outline:none;background:hsla(0,0%,100%,.1);border-radius:.5rem}.profile-field-value input::placeholder,.profile-field-value textarea::placeholder{color:hsla(0,0%,100%,.5);font-style:italic}.profile-field-value input:focus,.profile-field-value textarea:focus{outline:none;background:hsla(0,0%,100%,.1);border-radius:.25rem}.top-bar{position:relative;z-index:10;background:rgba(35,36,58,.85) !important;backdrop-filter:blur(15px);border-bottom:1px solid hsla(0,0%,100%,.1);box-shadow:0 4px 20px rgba(0,0,0,.2)}#storyboard-screen.container{width:100%;max-width:100%;margin-left:0;margin-right:0}@media(width <= 768px){.profile-content-overlay{padding:1rem;margin-top:70px}.profile-field-row{grid-template-columns:1fr;gap:1rem}.profile-description{font-size:1rem;padding:1rem}}@media(width <= 480px){.profile-content-overlay{padding:.75rem}.profile-field-row{gap:.25rem}}.profile-field-row.legacy{display:flex;flex-direction:column;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1))}.profile-field-value.readonly{background:hsla(0,0%,100%,.02);border-color:hsla(0,0%,100%,.05);color:var(--pico-muted-color, #aaa)}.studio-name-input-large{font-size:1.5rem;font-weight:bold;padding:1rem;background:var(--pico-card-background-color, rgba(255, 255, 255, 0.05));border:2px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));border-radius:var(--pico-radius, 0.5rem);color:var(--pico-color, #fff);transition:all .2s ease;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-all;min-width:0}.studio-name-input-large:focus{border-color:var(--pico-primary, #0172ad);box-shadow:0 0 0 3px rgb(var(--pico-primary-rgb, 1, 114, 173), 0.1)}.studio-profile-name{font-size:1.75rem;font-weight:bold;color:var(--pico-h1-color, #fff);margin:0;text-align:center;line-height:1.2;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-all;min-width:0}.profile-action-buttons{display:flex;justify-content:flex-end;border-top:1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));margin:0 !important}.action-button-primary{min-width:140px;display:flex;align-items:center;justify-content:center;gap:.5rem;font-weight:600}.action-button-secondary{min-width:100px;display:flex;align-items:center;justify-content:center;gap:.5rem}.delete-button{background:var(--pico-del-color, #dc3545);border-color:var(--pico-del-color, #dc3545);color:#fff}.delete-button:hover{background:var(--pico-del-hover, #c82333);border-color:var(--pico-del-hover, #c82333)}@media(width <= 768px){.studio-content-area{flex-direction:column}.studio-left-panel{flex:none;max-height:none;overflow:visible;padding:0}.studio-right-panel{max-height:none;overflow:visible;padding-right:0}.studio-layout-container{max-height:none;overflow:visible}.profile-picture-container{width:100%;height:200px;border-radius:0}.profile-action-buttons{flex-direction:column;gap:.75rem;margin:0 !important}.action-button-primary,.action-button-secondary{width:100%;min-width:auto}}@media(width <= 480px){.profile-picture-container{height:150px}.studio-name-input-large{font-size:1.25rem;padding:.75rem}.studio-profile-name{font-size:1.5rem}.profile-picture-section{gap:.75rem}}@media(width >= 769px)and (width <= 1024px){.studio-left-panel{flex:0 0 250px}.profile-picture-container{width:100%;height:100%}}@media(width >= 1025px){.studio-left-panel{flex:0 0 350px}.profile-picture-container{width:100%;height:100%}}.visually-hidden{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);border:0}.hidden{display:none !important}#options-chin{display:none !important}#options-chin:not(.hidden){display:flex !important}button.secondary,.button.secondary,[role=button].secondary{padding:var(--pico-form-element-spacing-vertical, 0.75rem) var(--pico-form-element-spacing-horizontal, 1rem);display:inline-flex;align-items:center;justify-content:center;height:auto;background:hsla(0,0%,100%,.1);border:1px solid hsla(0,0%,100%,.2);border-radius:var(--pico-radius);color:#fff;cursor:pointer;transition:background .2s,border-color .2s,transform .2s;backdrop-filter:blur(5px);font-size:1rem;font-weight:500;text-decoration:none;white-space:nowrap;margin:0;outline:none}button.secondary[type=button],button.secondary[type=reset],button.secondary[type=submit],.button.secondary[type=button],.button.secondary[type=reset],.button.secondary[type=submit],[role=button].secondary[type=button],[role=button].secondary[type=reset],[role=button].secondary[type=submit]{margin-bottom:0 !important}button.secondary:hover,.button.secondary:hover,[role=button].secondary:hover{background:hsla(0,0%,100%,.2);border-color:hsla(0,0%,100%,.3);transform:translateY(-1px)}button.secondary:active,.button.secondary:active,[role=button].secondary:active{background:hsla(0,0%,100%,.15);border-color:hsla(0,0%,100%,.25);transform:translateY(0)}button.secondary:focus,.button.secondary:focus,[role=button].secondary:focus{outline:none;box-shadow:0 0 0 2px hsla(0,0%,100%,.3)}button.primary,.button.primary,[role=button].primary{background:var(--pico-primary, #0172ad);border-color:var(--pico-primary, #0172ad);color:var(--pico-contrast, #fff);font-weight:600}button.primary:hover,.button.primary:hover,[role=button].primary:hover{background:var(--pico-primary-hover, #015a8a);border-color:var(--pico-primary-hover, #015a8a)}button.primary:active,.button.primary:active,[role=button].primary:active{background:var(--pico-primary-active, #014a73);border-color:var(--pico-primary-active, #014a73)}button.danger,.button.danger,[role=button].danger{background:var(--pico-del-color, #dc3545);border-color:var(--pico-del-color, #dc3545);color:#fff}button.danger:hover,.button.danger:hover,[role=button].danger:hover{background:var(--pico-del-hover, #c82333);border-color:var(--pico-del-hover, #c82333)}button.danger:active,.button.danger:active,[role=button].danger:active{background:var(--pico-del-active, #bd2130);border-color:var(--pico-del-active, #bd2130)}nav>button[aria-selected=true]{background:var(--pico-primary);border-color:var(--pico-primary);color:var(--pico-contrast)}.top-bar-flex{display:flex;align-items:center;justify-content:space-between}.top-bar-center-flex{flex:.3;display:flex;justify-content:center;align-items:center}.top-bar-center-compact{flex:.1;display:flex;justify-content:center;align-items:center}.button-hidden{display:none}.file-input-hidden{display:none}.margin-0{margin:0}.font-size-95{font-size:.95em}.margin-top-05{margin:.5em 0 0}.line-height-13{line-height:1.3}.profile-picture-default{background:#4f8cff;color:#fff;font-size:2.5rem;display:flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:var(--pico-radius, 0.25rem)}.chin-actions-flex{display:flex;gap:1rem;align-items:center;justify-content:space-between}.chin-actions-right-flex{display:flex;gap:1rem;align-items:center}.storyboard-title-padding{padding:1rem}.name-input-container-relative{position:relative}.studio-name-input-styled{background:hsla(0,0%,100%,.1);min-height:3rem;cursor:text;width:100%;box-sizing:border-box}.card-footer-premade{display:flex !important;justify-content:flex-start !important}
+﻿html,body{min-height:100vh;height:100%;overflow:visible;background:linear-gradient(120deg, #181c2f 0%, #23243a 40%, #1a3a4a 70%, #2a1a3a 100%);padding-top:0}input,input:not([type=checkbox],[type=radio],[type=range],[type=file]),[type=checkbox],[type=radio],[type=range],[type=file],select,textarea{appearance:none}a,area,button,input,label,select,summary,textarea,[tabindex]{touch-action:manipulation}.storyboard-card:not([disabled]):hover,#storyboard-ai-character-card:not([disabled]):hover,#storyboard-user-character-card:not([disabled]):hover,#storyboard-world-card:not([disabled]):hover,.character-card-landscape:not([disabled]):hover,.story-profile-item-card:not([disabled]):hover{transform:translateY(-4px) scale(1.02);box-shadow:0 8px 25px rgba(0,0,0,.25),0 0 20px hsla(0,0%,100%,.1);transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.storyboard-card,#storyboard-ai-character-card,#storyboard-user-character-card,#storyboard-world-card,.story-profile-item-card{transform:translateY(0) scale(1);transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);margin-bottom:1rem}.storyboard-card[disabled]:hover .card-title,.storyboard-card[disabled]:hover .card-subtitle,#storyboard-ai-character-card[disabled]:hover .card-title,#storyboard-ai-character-card[disabled]:hover .card-subtitle,#storyboard-user-character-card[disabled]:hover .card-title,#storyboard-user-character-card[disabled]:hover .card-subtitle,#storyboard-world-card[disabled]:hover .card-title,#storyboard-world-card[disabled]:hover .card-subtitle{color:var(--pico-primary);text-shadow:0 0 15px rgb(var(--pico-primary-rgb), 0.6);transition:color .3s ease,text-shadow .3s ease;font-weight:bold}.storyboard-card[disabled]:hover .card-title::after,#storyboard-ai-character-card[disabled]:hover .card-title::after,#storyboard-user-character-card[disabled]:hover .card-title::after,#storyboard-world-card[disabled]:hover .card-title::after{content:" ▼ CLICK HERE!";color:var(--pico-primary);text-shadow:0 0 15px rgb(var(--pico-primary-rgb), 0.8);animation:dropdown-pulse 1s ease-in-out infinite;font-weight:bold;font-size:.9em}.storyboard-card[disabled]:hover,#storyboard-ai-character-card[disabled]:hover,#storyboard-user-character-card[disabled]:hover,#storyboard-world-card[disabled]:hover{box-shadow:0 0 20px rgb(var(--pico-primary-rgb), 0.3) !important;border:2px solid rgb(var(--pico-primary-rgb), 0.5) !important;transition:box-shadow .3s ease,border .3s ease}@keyframes dropdown-pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}.top-bar button:not([disabled]):hover,.top-bar [role=button]:not([disabled]):hover,#chin-options button:not([disabled]):hover,.chin-tab:not([disabled]):hover,button:not([disabled]):hover,input[type=submit]:not([disabled]):hover,input[type=button]:not([disabled]):hover{transform:none !important;box-shadow:0 0 20px rgb(var(--pico-primary-rgb), 0.6),0 0 30px hsla(0,0%,100%,.15) !important;transition:box-shadow .3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important}.chin-search-submit:not([disabled]):hover{transform:none !important;box-shadow:0 0 15px rgb(var(--pico-primary-rgb), 0.6) !important;transition:box-shadow .2s ease !important}.chin-search-submit:focus~input,.chin-search-submit:focus~select{box-shadow:0 0 10px rgb(var(--pico-primary-rgb), 0.4) !important;border-color:var(--pico-primary) !important}a:not([disabled]):hover{transform:translateY(-2px) scale(1.02);text-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .2s cubic-bezier(0.68, -0.55, 0.265, 1.55),text-shadow .2s cubic-bezier(0.68, -0.55, 0.265, 1.55)}[disabled].secondary{opacity:.3 !important;cursor:not-allowed !important;filter:grayscale(100%) !important;pointer-events:none !important;background:hsla(0,0%,100%,.1) !important;color:hsla(0,0%,100%,.5) !important;border-color:hsla(0,0%,100%,.2) !important}[disabled].secondary:hover{transform:none !important;box-shadow:none !important;transition:none !important;background:inherit !important;color:inherit !important}.disabled{cursor:not-allowed !important;pointer-events:none !important;opacity:.5 !important;filter:grayscale(100%) !important}.disabled:hover{transform:none !important;box-shadow:none !important;transition:none !important}button[disabled].secondary:hover,input[disabled]:hover,select[disabled]:hover,textarea[disabled]:hover,label[disabled]:hover,[role=button][disabled].secondary:hover{transform:none !important;box-shadow:none !important;background:inherit !important;color:inherit !important}.storyboard-card[disabled],#storyboard-ai-character-card[disabled],#storyboard-user-character-card[disabled],#storyboard-world-card[disabled]{opacity:1 !important;cursor:pointer !important;pointer-events:auto !important;filter:none !important}button:not([disabled]),input[type=button]:not([disabled]),input[type=submit]:not([disabled]),[role=button]:not([disabled]),label:not([disabled]),.upload-label:not([disabled]),.storyboard-card:not([disabled]),.character-card-landscape:not([disabled]),.story-profile-item-card:not([disabled]),.card-title-dropdown,.card-title-selected,.dropdown-option,a:not([disabled]){cursor:pointer !important}input[type=text],input[type=email],input[type=password],input[type=search],input[type=url],input[type=tel],input[type=number],textarea,select{cursor:text !important}input[type=file]{cursor:pointer !important}#storyboard-title{cursor:pointer !important}#storyboard-title:focus{cursor:text !important}[disabled],.disabled{cursor:not-allowed !important}.storyboard-card,.character-card-landscape,.story-profile-item-card,.top-bar button,.top-bar [role=button],#chin-options button,.chin-tab,button,input[type=submit],input[type=button],a{transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275),box-shadow .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.storyboard-card.selected,.character-card-landscape.selected,.story-profile-item-card.selected{animation:subtle-pulse 2s ease-in-out infinite}@keyframes subtle-pulse{0%,100%{box-shadow:0 2px 8px rgba(0,0,0,.1)}50%{box-shadow:0 4px 15px rgba(0,0,0,.2),0 0 10px hsla(0,0%,100%,.05)}}*:focus{outline:none !important}.card-title-dropdown,.card-title-dropdown *,.card-title-selected,.card-title-dropdown-menu,.card-title-dropdown-menu *,.dropdown-option{border:0 !important;border-width:0 !important;border-style:none !important;border-color:rgba(0,0,0,0) !important;outline:rgba(0,0,0,0) none 0 !important;text-shadow:none !important;box-shadow:none !important;-webkit-border:0 !important;-moz-border:0 !important;-webkit-outline:0 !important;-moz-outline:0 !important}.card-title-dropdown *,.card-title-dropdown *:focus,.card-title-dropdown *:hover,.card-title-dropdown *:active{border:0 !important;outline:none !important;box-shadow:none !important}.card-title-selected,.card-title-selected:focus,.card-title-selected:hover,.card-title-selected:active{border:0 !important;outline:none !important;box-shadow:none !important;background:rgba(0,0,0,0) !important}.card-title-selected:hover,.card-title-selected:focus{background:rgba(80,80,120,.2) !important}.card-title-dropdown-menu .dropdown-option,.card-title-dropdown-menu .dropdown-option:focus,.card-title-dropdown-menu .dropdown-option:hover,.card-title-dropdown-menu .dropdown-option:active{border:0 !important;outline:none !important;box-shadow:none !important}.card-title-dropdown-menu{z-index:9999999 !important;position:absolute !important}.card-title-dropdown{overflow:visible !important;z-index:10}.storyboard-card,.storyboard-cards-row>article,.card{overflow:visible !important;z-index:1;position:relative}.storyboard-cards-row>article{bottom:.5em;left:0;margin:0;padding:0;flex:1 1 0}.card-title-dropdown *,.card-title-dropdown-menu *,.card-title-selected,.dropdown-option{border:none !important;outline:none !important;box-shadow:none !important;margin:0 !important;padding:0 !important}.card-title-dropdown button,.card-title-dropdown-menu button{background:rgba(0,0,0,0) !important;border:0 !important;outline:none !important;box-shadow:none !important;padding:inherit !important;margin:0 !important}.profile-picture{background-position:center;background-size:cover;box-shadow:var(--shadow-sm);border:none;object-fit:cover}#chat-log{min-height:200px;margin-bottom:1rem;padding:.5rem;border-radius:var(--pico-radius);overflow:visible}#chat-form{display:flex;gap:.5rem;align-items:flex-end}.chin-options-fields{display:flex;flex-direction:column;gap:0}.app-scrollable-container{height:100vh;overflow:hidden auto;margin:0 !important;padding:1rem 0 0 !important;max-width:100vw !important;width:100vw !important}.app-scrollable-container:has(.profile-content-overlay){overflow:hidden !important}.profile-details-content-wrapper,.story-profile-layout-container,.middle-column-screen,.profile-section,.profile-hero-section{overflow:visible !important;height:auto !important}.main-content-container{height:auto;min-height:0;overflow:visible !important}.chin-top-row,.chin-list-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;min-height:160px;height:auto;flex:1;align-content:start;box-shadow:none;--pico-box-shadow: 0;--pico-button-box-shadow: 0;--pico-button-hover-box-shadow: 0;--pico-switch-thumb-box-shadow: 0;--pico-card-box-shadow: 0;--pico-dropdown-box-shadow: 0}.chin-card{min-height:160px;height:auto}.chin-top-row{margin-bottom:1.5rem}.chin-list-grid{margin-bottom:0;flex:1;overflow:visible;max-height:100%;min-height:160px;z-index:10}.chin-card:hover{box-shadow:none}#chin-area{display:flex;flex-direction:column;gap:1rem;margin-top:1rem;border-radius:0 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem);padding:1rem;min-height:190px}.chin-empty-centered{grid-column:1/-1;display:grid;place-items:center;min-height:120px;width:100%;font-style:italic;font-size:1.1em;background:none;border:none;text-align:center;margin:0;padding:0}.card-placeholder-text{width:100%;text-align:center;border-radius:var(--pico-radius)}.chin-list-grid>p,.chin-list-grid .story-item-empty-message{display:flex;align-items:center;justify-content:center;min-height:120px;width:100%;height:100%;text-align:center;margin:0 auto;grid-column:2/3}.top-bar-chin{position:absolute;top:calc(100% - .5rem);left:0;right:0;z-index:2000;color:#fff;padding:.5em 1em 1em;font-family:inherit;transition:all .2s;border-top-left-radius:0 !important;border-top-right-radius:0 !important;border-bottom-left-radius:var(--pico-radius, 0.5rem);border-bottom-right-radius:var(--pico-radius, 0.5rem);margin-top:0;padding-top:.5rem;min-height:200px;height:auto;display:flex;flex-direction:column;align-items:stretch;background:rgba(35,36,58,.85) !important;backdrop-filter:blur(15px);border-bottom:1px solid hsla(0,0%,100%,.1);box-shadow:0 4px 20px rgba(0,0,0,.2)}.top-bar-chin button{background:hsla(0,0%,100%,.1) !important;border-color:hsla(0,0%,100%,.2) !important;color:#fff !important;backdrop-filter:blur(5px)}.top-bar-chin button:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.top-bar-chin button.primary{background:var(--pico-primary, #0172ad) !important;border-color:var(--pico-primary, #0172ad) !important}.top-bar-chin button.primary:hover{background:var(--pico-primary-hover, #015a8a) !important;border-color:var(--pico-primary-hover, #015a8a) !important}.story-item-empty-message{opacity:.6 !important;font-style:italic;color:var(--pico-muted-color, #aaa)}#search-stories-input::placeholder,#search-characters-input::placeholder,#search-worlds-input::placeholder{font-style:italic;opacity:.8}.chin-options-actions input::placeholder,.chin-options-actions textarea::placeholder,.chin-options-grid input::placeholder,.chin-options-grid textarea::placeholder{font-style:italic;opacity:.8}#search-stories-input,#search-characters-input,#search-worlds-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:.75rem center;background-size:1rem;padding-left:2.5rem}.top-bar-chin,.top-bar{background:var(--pico-surface, #23243a);color:var(--pico-contrast, #fff);box-shadow:none;border-radius:var(--pico-radius);margin-top:0;width:100%;max-width:100%}#main-content-wrapper>.container{position:relative}article>footer:not(.storyboard-card footer){margin:0 !important;padding:10px !important;border:none !important}article>header:not(.storyboard-card header){margin-top:0 !important;margin-bottom:0 !important;border:none !important}.storyboard-card article>footer,.chin-list-grid article>footer{justify-content:flex-end !important}.card-title-selected{position:relative}.card-title-selected.placeholder-mode{font-style:italic;opacity:.7;border:1px dashed hsla(0,0%,100%,.3);border-radius:var(--pico-radius);padding:.5rem 1rem;cursor:pointer;transition:all .2s ease}.card-title-selected.placeholder-mode:hover{opacity:.9;border-color:hsla(0,0%,100%,.5);background:hsla(0,0%,100%,.05)}.top-bar-nav{padding:1em}.top-bar-nav.is-active{display:flex !important;z-index:1000}#start-fresh-button.secondary{transition:background .2s,color .2s}#start-fresh-button.secondary:hover,#start-fresh-button.secondary:focus{background:#e53935 !important;color:var(--pico-contrast, #fff) !important;border-color:#e53935 !important}nav{margin:0;padding:0;align-items:center}.top-bar-nav ul{display:flex;gap:1rem;margin:0 !important;padding:0 !important}.top-bar-nav li{margin:0 !important;padding:0 !important}.chin-actions{display:flex;align-items:center;gap:1rem;flex-wrap:nowrap;justify-content:space-between;margin-bottom:1rem;border-radius:var(--pico-radius)}.chin-actions-right{display:flex;gap:1rem;align-items:center;flex-wrap:nowrap}.chin-actions form[role=search]{display:flex;align-items:center;vertical-align:middle;margin:0;padding:0}.chin-actions form[role=search] fieldset[role=group]{display:flex;align-items:center;vertical-align:middle;margin:0;padding:0;border:none}.chin-options-actions{display:flex;gap:1rem;align-items:center;margin-bottom:0;border-radius:var(--pico-radius)}.character-card-landscape,.storyboard-card,.card,.card-picture,.chin-card{border-radius:var(--pico-radius) !important;overflow:visible}.chin-list-grid .character-card-landscape{min-height:160px;height:auto;z-index:100;position:relative}.character-card-landscape{border-radius:var(--pico-radius) !important;border-top-left-radius:var(--pico-radius, 0.5rem) !important;border-bottom-left-radius:var(--pico-radius, 0.5rem) !important}.card-grid{display:grid;grid-template-columns:3fr 2fr;align-items:stretch;gap:1rem;height:100%;border-radius:var(--pico-radius, 0.5rem);overflow:visible}.card-grid,.card-content{gap:0 !important}.card-info{min-width:0;display:flex;flex-direction:column;padding:0;text-align:left;height:100%;overflow:visible;position:relative;justify-content:space-between}.card-footer{display:flex;gap:.5rem;justify-content:flex-end;align-items:center;padding:.5rem 1rem;margin-top:auto;box-shadow:none;width:100%;box-sizing:border-box}.card-footer button{font-size:.8rem;padding:.25rem .5rem;min-width:auto;background:var(--pico-button-background-color, #666);color:var(--pico-button-color, #fff)}.card-info header{margin:0;padding:0;font-size:1em;font-weight:600;line-height:1.1;text-align:center;border-radius:0 var(--pico-radius, 0.5rem) 0 0}.card-info h4{margin:0;font-size:1em;font-weight:600;line-height:1.1;text-align:center;text-wrap:balance;padding:.2em .6em;display:flex;align-items:center;justify-content:center;min-height:2.5em}.card-info p{margin:0;font-size:.85em;line-height:1.2;color:var(--pico-muted-color, #aaa);text-align:center;text-wrap:balance;display:flex;align-items:center;justify-content:center;min-height:3em;flex:1}.card-picture{display:flex;align-items:stretch;justify-content:flex-end;padding:0;margin:0;height:100%}.card-picture .profile-picture{width:100%;height:100%;min-width:0;min-height:0;max-width:none;max-height:none;border:none;object-fit:cover;align-self:stretch;margin:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem}.character-card-landscape .card-picture .profile-picture{border-radius:0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important}.character-card-landscape .card-info{border-radius:var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;overflow:hidden !important}.storyboard-card .card-info{border-radius:0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important;overflow:hidden !important}.card-content{display:grid;grid-template-columns:35% 65%;gap:0;align-items:stretch;height:100%;min-height:260px;max-height:100%}.card-avatar{width:100%;height:100%;display:flex;align-items:start;justify-content:center;overflow:hidden}.card-avatar img{width:100%;height:100%;object-fit:cover;display:block;background:#222}.card-title-selected .profile-dot{display:none !important}.card-title{text-wrap:balance}@media(width <= 600px){.character-card-landscape{height:auto}.card-grid{grid-template-columns:1fr;grid-template-rows:auto auto;height:auto}.card-picture{justify-content:center;margin-top:1em}.card-content{grid-template-columns:1fr;grid-template-rows:auto auto;min-height:unset;height:auto}.card-avatar{height:160px;min-height:120px;max-height:200px}}:root{color:#fff;--pico-radius: 0.5rem}.button,.primary,.secondary,.contrast,.outline,select,input[type=text],input[type=file],input[type=email],input[type=password],textarea{border-radius:var(--pico-radius)}article{padding:0;margin:0}#opening-prompt-textarea,#custom-story-js-textarea{margin:0 !important}.upload-label{display:inline-flex;align-items:center;justify-content:center;height:2.5em;padding:0 1.25em;border-radius:var(--pico-radius);font-size:1rem;border:none;cursor:pointer;transition:background .2s;vertical-align:middle;line-height:1;box-sizing:border-box;margin:0;background:hsla(0,0%,100%,.1) !important;border-color:hsla(0,0%,100%,.2) !important;color:#fff !important;backdrop-filter:blur(5px)}.upload-label:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.upload-label-text{pointer-events:none}.upload-label input[type=file]{display:none}.chin-actions input[type=search]{height:auto;padding:var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em;border-radius:999px 0 0 999px !important;border:1px solid hsla(0,0%,100%,.2) !important;border-right:none !important;font-size:1rem;box-sizing:border-box;display:inline-flex;align-items:center;flex:none;margin:0;width:auto;transition:background .2s,border-color .2s}.chin-actions button[type=submit]{height:auto;padding:var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em;border-radius:0 999px 999px 0 !important;border-left:none !important;font-size:1rem;box-sizing:border-box;display:inline-flex;align-items:center;flex:none;margin:0;min-width:0}.chin-actions input[type=search]:hover{border-color:hsla(0,0%,100%,.3) !important}.chin-actions button[type=submit]:hover{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.chin-actions input[type=search]:hover+button[type=submit]{background:hsla(0,0%,100%,.2) !important;border-color:hsla(0,0%,100%,.3) !important}.chin-actions button[type=submit]:hover~input[type=search]{border-color:hsla(0,0%,100%,.3) !important}.chin-actions fieldset[role=group]{border:none !important;padding:0 !important;margin:0 !important;display:flex !important;align-items:center !important;width:fit-content !important;overflow:hidden !important}.chin-actions form{border:none !important;padding:0 !important;margin:0 !important;width:fit-content !important;overflow:hidden !important}.chin-options-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}.chin-options-grid textarea{width:100%;min-height:8em;border-radius:var(--pico-radius);font-size:1rem;box-sizing:border-box;margin-top:.5em}button,.button,.secondary,.danger{text-align:center;justify-content:center}.storyboard-cards-row>*{height:260px;min-height:260px;display:flex;flex-direction:column}.storyboard-cards-row{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;align-items:stretch;margin:0;padding:0}#storyboard-scrollable-content .grid{gap:0 !important;grid-gap:0 !important}.storyboard-cards-row select{border:none;background:#23243a;color:#fff;appearance:none;text-align:center;font-size:1.1em;font-weight:500;outline:none;padding:.5em 0;width:100%;cursor:pointer}.storyboard-cards-row select:focus{outline:none !important}.storyboard-cards-row select::-ms-expand{display:none}.storyboard-cards-row select::-webkit-inner-spin-button,.storyboard-cards-row select::-webkit-outer-spin-button,.storyboard-cards-row select::-webkit-search-cancel-button,.storyboard-cards-row select::-webkit-search-decoration{display:none}.storyboard-cards-row select option{text-align:left;color:#222}.storyboard-cards-row .profile-picture{border-radius:var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important}.card-title-dropdown-menu .dropdown-option{text-wrap:pretty;text-align:left}.top-bar-nav button,.top-bar-section button{padding:var(--pico-form-element-spacing-vertical, 0.75rem) var(--pico-form-element-spacing-horizontal, 1rem);display:inline-flex;align-items:center;justify-content:center;height:100%}.chin-card,.card{border:none !important;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);border-radius:var(--pico-radius);overflow:visible;transition:box-shadow .2s ease;position:relative}.storyboard-card:hover,.chin-card:hover,.card:hover{box-shadow:0 2px 8px 0 rgba(0,0,0,.15)}.card-title-dropdown-menu .dropdown-option .plus-sign{display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;margin-right:.5em;font-weight:600;font-size:1em}.card-title-dropdown-menu .dropdown-option .profile-dot{display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;border-radius:50%;margin-right:.5em;flex-shrink:0;vertical-align:middle}.card-title-dropdown-menu .dropdown-option.placeholder-option{color:#888 !important;opacity:.7 !important;font-style:italic !important}body,body *:not([disabled]){opacity:1 !important;color:#fff !important}body,.top-bar,.top-bar-chin,.chin-card,.card,.storyboard-card,.chin-list-grid,.chin-actions,.chin-options-actions,.card-info,.card-info header,.card-info h4,.card-title-selected,.dropdown-option{color:#fff !important}.card-info small,.card-info p{color:#fff !important}.card-info small{display:inline-block;background:var(--pico-primary, #0172ad);color:#fff !important;font-size:.75em;font-weight:600;padding:.2em .6em;border-radius:var(--pico-radius);letter-spacing:.05em;line-height:1.2}.chin-list-grid .card-info small{font-style:italic;font-weight:400}[data-tooltip]{position:relative}[data-tooltip]::before,[data-tooltip]::after{z-index:999999 !important;pointer-events:none !important}.dropdown-option.placeholder-option{color:#888 !important;font-style:italic !important}#storyboard-scrollable-content{overflow:visible !important;position:relative;z-index:1000}.card-title-dropdown-menu .dropdown-option.create-new{font-weight:400 !important}.card-title-dropdown *,.card-title-dropdown-menu *,.dropdown-option,.card-title-dropdown-menu .dropdown-option{border:0 !important;outline:none !important;box-shadow:none !important;margin:0 !important;padding:0 !important}.card-title-dropdown:has(.card-title-dropdown-menu:not(.hidden)) .card-title-selected{background:#35365a !important;border:0 !important;outline:none !important;box-shadow:none !important}.card-title-dropdown .card-title-dropdown-menu:not(.hidden)~.card-title-selected,.card-title-dropdown .card-title-dropdown-menu:not(.hidden)+.card-title-selected{background:#35365a !important;border:0 !important;outline:none !important;box-shadow:none !important}.storyboard-card .card-content{flex:1;display:flex;min-height:260px;overflow:visible}.storyboard-card header{height:3rem;display:flex;align-items:center;overflow:hidden}.storyboard-card .card-title-dropdown{height:100%;display:flex;align-items:center;overflow:hidden}.storyboard-card .card-title-selected{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.storyboard-card .card-title-selected.placeholder-mode{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}#storyboard-title-area{display:flex;align-items:center;justify-content:center;min-height:3rem;margin:1.5rem 2rem 2rem;padding:2rem}.card-header-flex{display:flex;align-items:center;justify-content:center;padding:.5rem}.card-main-flex{display:flex;align-items:center;justify-content:center;flex:1;padding:0 .5rem}.card-title-styled{font-size:1.1em;font-weight:bold;text-align:center;text-wrap:balance;line-height:1.2;max-height:3.6em;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical}.card-description-styled{text-align:center;text-wrap:balance;line-height:1.3;overflow:hidden;text-overflow:ellipsis}.system-message-styled{margin:1rem auto;text-align:center}.studio-profile-name-styled{margin-top:1.25rem;margin-bottom:1.25rem}.color-swatch-large-styled{background-color:var(--swatch-color, var(--pico-primary, #0172ad))}.color-swatch-small-styled{background-color:var(--swatch-color, var(--pico-primary, #0172ad))}.hidden-input{display:none}.profile-picture-initials-styled{--bg-color: var(--palette-medium, var(--pico-primary, #0172ad));--text-color-initials: var(--palette-light, #fff)}.studio-layout-container{display:flex;min-height:100%;background:var(--pico-surface, #23243a);border-radius:var(--pico-radius, 0.5rem);overflow:visible;box-shadow:0 4px 12px rgba(0,0,0,.15)}.studio-content-area{display:flex;width:100%;min-height:100%;overflow:visible}.studio-left-panel{flex:0 0 300px;display:flex;flex-direction:column;align-items:center;padding:0;overflow:visible;overflow-x:hidden}.studio-right-panel{flex:1;display:flex;flex-direction:column;min-width:0;overflow:visible;overflow-x:hidden}.studio-left-panel::-webkit-scrollbar,.studio-right-panel::-webkit-scrollbar{width:8px}.studio-left-panel::-webkit-scrollbar-track,.studio-right-panel::-webkit-scrollbar-track{background:hsla(0,0%,100%,.05);border-radius:4px}.studio-left-panel::-webkit-scrollbar-thumb,.studio-right-panel::-webkit-scrollbar-thumb{background:hsla(0,0%,100%,.2);border-radius:4px;transition:background .2s ease}.studio-left-panel::-webkit-scrollbar-thumb:hover,.studio-right-panel::-webkit-scrollbar-thumb:hover{background:hsla(0,0%,100%,.3)}.studio-left-panel,.studio-right-panel{scrollbar-width:thin;scrollbar-color:hsla(0,0%,100%,.2) hsla(0,0%,100%,.05)}.profile-picture-section{display:flex;flex-direction:column;align-items:center;width:100%;height:100%}.profile-picture-container{position:relative;width:100%;height:100%;border-radius:0;overflow:hidden;box-shadow:none;transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}.profile-picture-container:hover{transform:none}.profile-picture-edit-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s ease;cursor:pointer}.profile-picture-container:hover .profile-picture-edit-overlay{opacity:1}.profile-picture-edit-overlay .button-icon{font-size:2rem;color:#fff}.profile-picture-large{width:100%;height:100%;border-radius:0}.profile-picture-medium{width:100%;height:100%;border-radius:0}.profile-picture-small{width:100%;height:100%;border-radius:0}.profile-picture-edit-section{margin-bottom:1rem}.form-section:last-child{margin-bottom:2rem}.profile-field-row:last-child{margin-bottom:2rem}.eppf-section{display:grid}.profile-background-layout{position:relative;width:100%;min-height:100vh}.profile-background-container{position:fixed;top:0;left:0;width:35vw;height:100vh;z-index:1;overflow:hidden;pointer-events:none}.profile-background-image{width:100%;height:100%;object-fit:cover;object-position:center;display:flex;align-items:center;justify-content:center}.profile-background-image img,.profile-background-image svg{width:100%;height:100%;object-fit:cover;object-position:center}.profile-background-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, rgba(35, 36, 58, 0.3) 0%, rgba(35, 36, 58, 0.6) 50%, rgba(35, 36, 58, 0.8) 100%);z-index:2}.profile-content-overlay{position:fixed;left:0;right:0;z-index:5;height:calc(100vh - 6.7rem);overflow:hidden auto;display:flex;flex-direction:column;justify-content:flex-start;box-sizing:border-box;padding-left:35vw;padding-right:calc(5% - 1rem);scrollbar-width:thin;scrollbar-color:hsla(0,0%,100%,.3) rgba(0,0,0,0)}.profile-content-overlay::-webkit-scrollbar{width:8px}.profile-content-overlay::-webkit-scrollbar-track{background:rgba(0,0,0,0)}.profile-content-overlay::-webkit-scrollbar-thumb{background:hsla(0,0%,100%,.3);border-radius:4px;transition:background .2s ease}.profile-content-overlay::-webkit-scrollbar-thumb:hover{background:hsla(0,0%,100%,.5)}.profile-content-container{margin:0 auto;width:100%}.profile-header-section{text-align:center;display:flex;align-items:center;justify-content:center;min-height:3rem;margin:1.5rem 2rem 2rem;padding:1rem}.profile-header-section .studio-profile-name{text-wrap:balance;height:3.5em;line-height:1.4em;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-all;text-align:center;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;font-size:2em;font-weight:400;letter-spacing:.05em;text-shadow:0 2px 4px rgba(0,0,0,.3);padding:0;margin:0;border:none;border-radius:var(--pico-radius);transition:all .2s ease}.profile-description{font-size:1.2rem;color:hsla(0,0%,100%,.9);line-height:1.6;margin:0 1rem 1rem;text-shadow:0 2px 4px rgba(0,0,0,.3);background:rgba(0,0,0,.2);padding:1rem;border-radius:.5rem;backdrop-filter:blur(10px)}.profile-details-grid{display:grid}.profile-field-row{display:grid;grid-template-columns:20% auto;align-items:center;padding-left:1rem}.profile-field-label{display:flex;flex-direction:column;justify-content:right;font-weight:600;color:var(--pico-h1-color, #fff)}.profile-field-label .main-label{font-size:1.1rem;font-weight:700;color:var(--pico-primary, #0172ad);text-align:right;letter-spacing:.5px;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-field-label .field-sublabel{font-size:.9rem;color:hsla(0,0%,100%,.7);font-weight:400;text-align:right}.profile-field-value{color:#fff;line-height:1.7;padding:1rem;background:hsla(0,0%,100%,.08);border-radius:.5rem;font-size:.95rem;min-height:3rem;display:flex;align-items:center;margin:.5rem 1rem;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-field-value:empty::before{content:"—";color:hsla(0,0%,100%,.5);font-style:italic}.profile-field-value input,.profile-field-value textarea{width:100%;background:rgba(0,0,0,0);border:none;color:#fff;font-size:.95rem;line-height:1.7;padding:0;margin:0;resize:vertical;min-height:3rem;font-family:inherit;text-shadow:0 1px 2px rgba(0,0,0,.3)}.profile-header-section .studio-name-input-large{background:rgba(0,0,0,0) !important;border:none !important;box-shadow:none !important;transition:none !important;overflow:visible !important;text-overflow:unset !important;white-space:normal !important;word-wrap:break-word !important;word-break:break-all !important}.profile-header-section h2.studio-profile-name{cursor:default}.profile-header-section .studio-profile-name::placeholder{color:hsla(0,0%,100%,.5);font-style:italic}.profile-header-section .studio-profile-name:empty::before,.profile-header-section .studio-profile-name:blank::before,.studio-profile-name:empty::before,.studio-profile-name:blank::before{content:attr(data-placeholder);color:hsla(0,0%,100%,.5);font-style:italic;pointer-events:none}.studio-profile-name[data-placeholder]:not(:focus):empty::before,.studio-profile-name[data-placeholder]:not(:focus):blank::before{content:attr(data-placeholder);color:hsla(0,0%,100%,.5);font-style:italic;pointer-events:none}.profile-header-section .studio-profile-name:focus{outline:none;background:hsla(0,0%,100%,.1);border-radius:.5rem}.profile-field-value input::placeholder,.profile-field-value textarea::placeholder{color:hsla(0,0%,100%,.5);font-style:italic}.profile-field-value input:focus,.profile-field-value textarea:focus{outline:none;background:hsla(0,0%,100%,.1);border-radius:.25rem}.top-bar{position:relative;z-index:10;background:rgba(35,36,58,.85) !important;backdrop-filter:blur(15px);border-bottom:1px solid hsla(0,0%,100%,.1);box-shadow:0 4px 20px rgba(0,0,0,.2)}#storyboard-screen.container{width:100%;max-width:100%;margin-left:0;margin-right:0}@media(width <= 768px){.profile-content-overlay{padding:1rem;margin-top:70px}.profile-field-row{grid-template-columns:1fr;gap:1rem}.profile-description{font-size:1rem;padding:1rem}}@media(width <= 480px){.profile-content-overlay{padding:.75rem}.profile-field-row{gap:.25rem}}.profile-field-row.legacy{display:flex;flex-direction:column;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1))}.profile-field-value.readonly{background:hsla(0,0%,100%,.02);border-color:hsla(0,0%,100%,.05);color:var(--pico-muted-color, #aaa)}.studio-name-input-large{font-size:1.5rem;font-weight:bold;padding:1rem;background:var(--pico-card-background-color, rgba(255, 255, 255, 0.05));border:2px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));border-radius:var(--pico-radius, 0.5rem);color:var(--pico-color, #fff);transition:all .2s ease;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-all;min-width:0}.studio-name-input-large:focus{border-color:var(--pico-primary, #0172ad);box-shadow:0 0 0 3px rgb(var(--pico-primary-rgb, 1, 114, 173), 0.1)}.studio-profile-name{font-size:1.75rem;font-weight:bold;color:var(--pico-h1-color, #fff);margin:0;text-align:center;line-height:1.2;overflow:visible;text-overflow:unset;white-space:normal;word-wrap:break-word;word-break:break-all;min-width:0}.profile-action-buttons{display:flex;justify-content:flex-end;border-top:1px solid var(--pico-muted-border-color, rgba(255, 255, 255, 0.1));margin:0 !important}.action-button-primary{min-width:140px;display:flex;align-items:center;justify-content:center;gap:.5rem;font-weight:600}.action-button-secondary{min-width:100px;display:flex;align-items:center;justify-content:center;gap:.5rem}.delete-button{background:var(--pico-del-color, #dc3545);border-color:var(--pico-del-color, #dc3545);color:#fff}.delete-button:hover{background:var(--pico-del-hover, #c82333);border-color:var(--pico-del-hover, #c82333)}@media(width <= 768px){.studio-content-area{flex-direction:column}.studio-left-panel{flex:none;max-height:none;overflow:visible;padding:0}.studio-right-panel{max-height:none;overflow:visible;padding-right:0}.studio-layout-container{max-height:none;overflow:visible}.profile-picture-container{width:100%;height:200px;border-radius:0}.profile-action-buttons{flex-direction:column;gap:.75rem;margin:0 !important}.action-button-primary,.action-button-secondary{width:100%;min-width:auto}}@media(width <= 480px){.profile-picture-container{height:150px}.studio-name-input-large{font-size:1.25rem;padding:.75rem}.studio-profile-name{font-size:1.5rem}.profile-picture-section{gap:.75rem}}@media(width >= 769px)and (width <= 1024px){.studio-left-panel{flex:0 0 250px}.profile-picture-container{width:100%;height:100%}}@media(width >= 1025px){.studio-left-panel{flex:0 0 350px}.profile-picture-container{width:100%;height:100%}}.hidden{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);border:0}.hidden{display:none !important}#chin-options{display:none !important}#chin-options:not(.hidden){display:flex !important}button.secondary,.button.secondary,[role=button].secondary{padding:var(--pico-form-element-spacing-vertical, 0.75rem) var(--pico-form-element-spacing-horizontal, 1rem);display:inline-flex;align-items:center;justify-content:center;height:auto;background:hsla(0,0%,100%,.1);border:1px solid hsla(0,0%,100%,.2);border-radius:var(--pico-radius);color:#fff;cursor:pointer;transition:background .2s,border-color .2s,transform .2s;backdrop-filter:blur(5px);font-size:1rem;font-weight:500;text-decoration:none;white-space:nowrap;margin:0;outline:none}button.secondary[type=button],button.secondary[type=reset],button.secondary[type=submit],.button.secondary[type=button],.button.secondary[type=reset],.button.secondary[type=submit],[role=button].secondary[type=button],[role=button].secondary[type=reset],[role=button].secondary[type=submit]{margin-bottom:0 !important}button.secondary:hover,.button.secondary:hover,[role=button].secondary:hover{background:hsla(0,0%,100%,.2);border-color:hsla(0,0%,100%,.3);transform:translateY(-1px)}button.secondary:active,.button.secondary:active,[role=button].secondary:active{background:hsla(0,0%,100%,.15);border-color:hsla(0,0%,100%,.25);transform:translateY(0)}button.secondary:focus,.button.secondary:focus,[role=button].secondary:focus{outline:none;box-shadow:0 0 0 2px hsla(0,0%,100%,.3)}button.primary,.button.primary,[role=button].primary{background:var(--pico-primary, #0172ad);border-color:var(--pico-primary, #0172ad);color:var(--pico-contrast, #fff);font-weight:600}button.primary:hover,.button.primary:hover,[role=button].primary:hover{background:var(--pico-primary-hover, #015a8a);border-color:var(--pico-primary-hover, #015a8a)}button.primary:active,.button.primary:active,[role=button].primary:active{background:var(--pico-primary-active, #014a73);border-color:var(--pico-primary-active, #014a73)}button.danger,.button.danger,[role=button].danger{background:var(--pico-del-color, #dc3545);border-color:var(--pico-del-color, #dc3545);color:#fff}button.danger:hover,.button.danger:hover,[role=button].danger:hover{background:var(--pico-del-hover, #c82333);border-color:var(--pico-del-hover, #c82333)}button.danger:active,.button.danger:active,[role=button].danger:active{background:var(--pico-del-active, #bd2130);border-color:var(--pico-del-active, #bd2130)}nav>button[aria-selected=true]{background:var(--pico-primary);border-color:var(--pico-primary);color:var(--pico-contrast)}.top-bar-flex{display:flex;align-items:center;justify-content:space-between}.top-bar-center-flex{flex:.3;display:flex;justify-content:center;align-items:center}.top-bar-center-compact{flex:.1;display:flex;justify-content:center;align-items:center}.button-hidden{display:none}.file-input-hidden{display:none}.margin-0{margin:0}.font-size-95{font-size:.95em}.margin-top-05{margin:.5em 0 0}.line-height-13{line-height:1.3}.profile-picture-default{background:#4f8cff;color:#fff;font-size:2.5rem;display:flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:var(--pico-radius, 0.25rem)}.chin-actions-flex{display:flex;gap:1rem;align-items:center;justify-content:space-between}.chin-actions-right-flex{display:flex;gap:1rem;align-items:center}.storyboard-title-padding{padding:1rem}.name-input-container-relative{position:relative}.studio-name-input-styled{background:hsla(0,0%,100%,.1);min-height:3rem;cursor:text;width:100%;box-sizing:border-box}.card-footer-premade{display:flex !important;justify-content:flex-start !important}
 
             /* Ensure standard appearance property */
             [type="checkbox"],
@@ -7670,7 +7377,6 @@ window.getProfilePictureHTML = getProfilePictureHTML;
  * @param {string} [fontFamily='Segoe UI, system-ui, sans-serif'] - Optional font family for placeholder.
  * @returns {string} HTML string for the profile picture element.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 'Segoe UI, system-ui, sans-serif') {
   console.debug('[ProfilePicture] getProfilePictureHTML called:', { item, context });
   
@@ -7821,7 +7527,7 @@ function createLocalPlaceholderSVG(name, palette, fontFamily) {
   const svg = `
     <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <rect width="100%" height="100%" fill="${safePalette.colors.medium}"/>
-      <text x="50%" y="50%" font-family="${fontFamily}" font-size="40" fill="${safePalette.colors.light}" text-anchor="middle" dominant-baseline="middle">${initials}</text>
+      <text x="50%" y="50%" font-family="${fontFamily}" font-size="2.5" fill="${safePalette.colors.light}" text-anchor="middle" dominant-baseline="middle">${initials}</text>
     </svg>
   `;
   
@@ -7830,7 +7536,7 @@ function createLocalPlaceholderSVG(name, palette, fontFamily) {
   } catch { // error parameter removed
     // Error encoding SVG
     // Return a simple fallback
-    return `data:image/svg+xml;base64,${btoa('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#607d8b"/><text x="50" y="50" font-family="Arial" font-size="40" fill="#cfd8dc" text-anchor="middle" dominant-baseline="middle">?</text></svg>')}`;
+    return `data:image/svg+xml;base64,${btoa('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#607d8b"/><text x="50" y="50" font-family="Arial" font-size="2.5" fill="#cfd8dc" text-anchor="middle" dominant-baseline="middle">?</text></svg>')}`;
   }
 }
 
@@ -7879,6 +7585,9 @@ function getPaletteKey(palette) {
   // Could not determine palette key, using default slate_gray
   return 'slate_gray'; // Final fallback
 }
+
+// Export for global access
+window.getProfilePictureHTML = getProfilePictureHTML;
 
 // RPGlitch.js (inlined)
 // Dependency availability checks with retry mechanism
@@ -7951,20 +7660,20 @@ function checkDependencies() {
         mode: 'storyboard',
         tabs: ['storyboard', 'characters', 'worlds', 'options'],
         chinOpen: false
-      },
+
   
       // Mouseover animation state management
       mouseoverAnimationState: {
         enabled: true,
         disabledElements: new Set()
-      },
+
     
       CONSTANTS: {
           FONT_FAMILY: "'Segoe UI', system-ui, sans-serif",
           UNIVERSAL_COLORS: {
               black: "#1f2937",
               white: "#f9fafb"
-          },
+    
           COLOR_PALETTES: {
               // Blues & Teals
               tech_blue: { name: 'Tech Blue', colors: { light: '#a7d8f9', medium: '#4a90e2', dark: '#1c3a6e', neutral: '#5a6a7a' } },
@@ -7979,7 +7688,7 @@ function checkDependencies() {
               // Grays & Metallics
               slate_gray: { name: 'Slate Gray', colors: { light: '#cfd8dc', medium: '#607d8b', dark: '#263238', neutral: '#6c757d' } },
               cyber_pink: { name: 'Cyber Pink', colors: { light: '#f8bbd0', medium: '#e91e63', dark: '#880e4f', neutral: '#757575' } }
-          },
+    
           VIEWS: { 
               STORYBOARD: 'storyboardScreen',
               STORY_INTERFACE: 'chatInterfaceScreen',
@@ -7992,7 +7701,7 @@ function checkDependencies() {
               STORY_PROFILE: 'storyProfileScreen',
               MEMORY_APPLICATION: 'memoryApplicationScreen' 
     
-          },
+    
           ITEM_CONFIG: {
               character: {
                   itemType: 'character',
@@ -8014,7 +7723,7 @@ function checkDependencies() {
                       presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
                   }
-              },
+        
               characterAi: {
                   itemType: 'character',
                   dbTableKey: 'characters',
@@ -8036,7 +7745,7 @@ function checkDependencies() {
                       presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
                   }
-              },
+        
               characterUser: {
                   itemType: 'character',
                   dbTableKey: 'characters',
@@ -8058,7 +7767,7 @@ function checkDependencies() {
                       presentPlaceholder: "Current State & Scene: Immediate mood, recent significant actions, current attire, notable equipment, immediate surroundings or situation just before the story starts. Crucial for AI's opening. Example: 'Exhausted but determined, clutching a flickering energy blade, standing at the precipice of the Shadow Chasm.'",
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
                   }
-              },
+        
               world: {
                   itemType: 'world',
                   dbTableKey: 'worlds',
@@ -8081,7 +7790,7 @@ function checkDependencies() {
                   }
               }
           }
-        },
+  
         currentMainView: 'STORYBOARD',
     
         _query(id, required = false) {
@@ -8093,7 +7802,7 @@ function checkDependencies() {
                 console.warn(`[UI] Optional element with ID '${id}' not found.`);
             }
             return el;
-        },
+  
     
         /**
          * Retrieves and caches all key UI elements from the DOM.
@@ -8116,7 +7825,7 @@ function checkDependencies() {
             }
             
             
-        },
+  
     
         _getTopBarElements() {
             this.ui.topBar = this._query('top-bar', true);
@@ -8141,25 +7850,25 @@ function checkDependencies() {
               }
               this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight);
             }
-        },
+  
     
         _getChinElements() {
-            this.ui.storyboardChin = this._query('storyboard-chin');
-            this.ui.characterWorkshopChin = this._query('character-workshop-chin');
-            this.ui.worldBuilderChin = this._query('world-builder-chin');
-            this.ui.optionsChin = this._query('options-chin');
-        },
+            this.ui.storyboardChin = this._query('chin-stories');
+            this.ui.characterWorkshopChin = this._query('chin-characters');
+            this.ui.worldBuilderChin = this._query('chin-worlds');
+            this.ui.optionsChin = this._query('chin-options');
+  
     
         _getCoreUIContainers() {
             this.ui.main = this._query('main', true);
             this.ui.storyboardScreen = this._query('storyboard-screen', true);
             this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true);
-        },
+  
     
         _getFormScreens() {
             this.ui.characterFormScreen = this._query('character-form-screen', true);
             this.ui.worldFormScreen = this._query('world-form-screen', true);
-        },
+  
     
         _getProfileScreens() {
             this.ui.characterProfileScreen = this._query('character-profile-screen', true);
@@ -8171,62 +7880,62 @@ function checkDependencies() {
             this.ui.storyProfileActions = this._query('story-profile-actions');
   
             // New profile top bar elements
-            this.ui.profileTopBar = this._query('profile-top-bar');
-            this.ui.profileTopBarLeft = this._query('profile-top-bar-left');
-            this.ui.profileTopBarCenter = this._query('profile-top-bar-center');
-            this.ui.profileTopBarNotificationArea = this._query('profile-top-bar-notification-area');
-            this.ui.profileTopBarRight = this._query('profile-top-bar-right');
-            this.ui.profileTopBarUserCharacterInfo = this._query('profile-top-bar-user-character-info');
-            this.ui.profileTopBarUserCharacterPic = this._query('profile-top-bar-user-character-pic');
-            this.ui.profileTopBarUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
-            this.ui.profileTopBarAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
-            this.ui.profileTopBarAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
-            this.ui.profileTopBarAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
-            this.ui.profileShuffleButton = this._query('profile-shuffle-button');
-            this.ui.profileBeginStoryButton = this._query('profile-begin-story-button');
+            
+            
+            nullCenter = this._query('profile-top-bar-center');
+            nullNotificationArea = this._query('profile-top-bar-notification-area');
+            nullRight = this._query('profile-top-bar-right');
+            nullUserCharacterInfo = this._query('profile-top-bar-user-character-info');
+            nullUserCharacterPic = this._query('profile-top-bar-user-character-pic');
+            nullUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
+            nullAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
+            nullAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
+            nullAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
+            this.ui.profileShuffleButton = this._query('profile-shuffle');
+            this.ui.profileBeginStoryButton = this._query('profile-begin-story');
   
-            this.ui.worldProfileTopBar = this._query('world-profile-top-bar');
-            this.ui.worldProfileTopBarLeft = this._query('world-profile-top-bar-left');
-            this.ui.worldProfileTopBarCenter = this._query('world-profile-top-bar-center');
-            this.ui.worldProfileTopBarNotificationArea = this._query('world-profile-top-bar-notification-area');
-            this.ui.worldProfileTopBarRight = this._query('world-profile-top-bar-right');
-            this.ui.worldProfileTopBarUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
-            this.ui.worldProfileTopBarUserCharacterPic = this._query('world-profile-top-bar-user-character-pic');
-            this.ui.worldProfileTopBarUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
-            this.ui.worldProfileTopBarAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
-            this.ui.worldProfileTopBarAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
-            this.ui.worldProfileTopBarAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
-            this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle-button');
-            this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story-button');
+            
+            nullLeft = this._query('world-profile-top-bar-left');
+            nullCenter = this._query('world-profile-top-bar-center');
+            nullNotificationArea = this._query('world-profile-top-bar-notification-area');
+            nullRight = this._query('world-profile-top-bar-right');
+            nullUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
+            nullUserCharacterPic = this._query('world-profile-top-bar-user-character-pic');
+            nullUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
+            nullAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
+            nullAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
+            nullAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
+            this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle');
+            this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story');
   
-            this.ui.storyProfileTopBar = this._query('story-profile-top-bar');
-            this.ui.storyProfileTopBarLeft = this._query('story-profile-top-bar-left');
-            this.ui.storyProfileTopBarCenter = this._query('story-profile-top-bar-center');
-            this.ui.storyProfileTopBarNotificationArea = this._query('story-profile-top-bar-notification-area');
-            this.ui.storyProfileTopBarRight = this._query('story-profile-top-bar-right');
-            this.ui.storyProfileTopBarUserCharacterInfo = this._query('story-profile-top-bar-user-character-info');
-            this.ui.storyProfileTopBarUserCharacterPic = this._query('story-profile-top-bar-user-character-pic');
-            this.ui.storyProfileTopBarUserCharacterNameText = this._query('story-profile-top-bar-user-character-name-text');
-            this.ui.storyProfileTopBarAiCharacterInfo = this._query('story-profile-top-bar-ai-character-info');
-            this.ui.storyProfileTopBarAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic');
-            this.ui.storyProfileTopBarAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text');
-            this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle-button');
-            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story-button');
-        },
+            
+            nullLeft = this._query('story-profile-top-bar-left');
+            nullCenter = this._query('story-profile-top-bar-center');
+            nullNotificationArea = this._query('story-profile-top-bar-notification-area');
+            nullRight = this._query('story-profile-top-bar-right');
+            nullUserCharacterInfo = this._query('story-profile-top-bar-user-character-info');
+            nullUserCharacterPic = this._query('story-profile-top-bar-user-character-pic');
+            nullUserCharacterNameText = this._query('story-profile-top-bar-user-character-name-text');
+            nullAiCharacterInfo = this._query('story-profile-top-bar-ai-character-info');
+            nullAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic');
+            nullAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text');
+            this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle');
+            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story');
+  
     
         _getPremadeSelectionScreens() {
             this.ui.premadeCharacterSelectionScreen = this._query('premade-character-bank', true);
             this.ui.premadeCharacterOnlyList = this._query('premade-character-only-list');
             this.ui.premadeWorldSelectionScreen = this._query('premade-world-bank', true);
             this.ui.premadeWorldOnlyList = this._query('premade-world-only-list');
-        },
+  
     
         _getMiscScreens() {
             this.ui.memoryApplicationScreen = this._query('memory-application-screen');
-            this.ui.initialPageLoadingModal = this._query('initial-page-loading-modal', true);
-            this.ui.emergencyExportCtn = this._query('emergency-export-ctn');
+            this.ui.initialPageLoadingModal = this._query('initial-loading', true);
+            this.ui.emergencyExportCtn = this._query('emergency');
             if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn);
-        },
+  
     
         _getStoryboardElements() {
             this.ui.storyboardTitleArea = this._query('storyboard-title-area', false, this.ui.storyboardScreen);
@@ -8313,9 +8022,9 @@ function checkDependencies() {
             this.ui.advancedStoryOptionsToggleButton = this._query('advanced-story-options-toggle-button', false, this.ui.storyboardScreen);
             this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen);
             this.ui.customStoryJsTextarea = this._query('custom-story-js-textarea', false, this.ui.storyboardScreen);
-            this.ui.beginStoryButton = this._query('begin-story-button', false, this.ui.storyboardScreen);
-            this.ui.shuffleStoryElementsButton = this._query('shuffle-button', false, this.ui.storyboardScreen);
-        },
+            this.ui.beginStoryButton = this._query('begin-story', false, this.ui.storyboardScreen);
+            this.ui.shuffleStoryElementsButton = this._query('shuffle', false, this.ui.storyboardScreen);
+  
     
         _getChatInterfaceElements() {
             this.ui.chatScreenLayoutContainer = this._query('chat-screen-layout-container', true);
@@ -8333,7 +8042,7 @@ function checkDependencies() {
             this.ui.statusNotifier = this._query('status-notifier', false, this.ui.builtInChatInterfaceWrapper);
             this.ui.typingIndicatorText = this._query('typing-indicator-text', false, this.ui.builtInChatInterfaceWrapper);
             this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper);
-      },
+
     
       /**
        * Shows a DOM element by removing the 'hidden' class and setting visibility.
@@ -8347,7 +8056,7 @@ function checkDependencies() {
         el.style.visibility = '';
         el.style.display = '';
         return el;
-      },
+
   
       // Mouseover animation management methods
       disableMouseoverAnimation(element) {
@@ -8355,24 +8064,24 @@ function checkDependencies() {
               element.setAttribute('disabled', 'true');
               this.mouseoverAnimationState.disabledElements.add(element);
           }
-      },
+
   
       enableMouseoverAnimation(element) {
           if (element) {
               element.removeAttribute('disabled');
               this.mouseoverAnimationState.disabledElements.delete(element);
           }
-      },
+
   
       disableMouseoverAnimationForSelector(selector) {
           const elements = document.querySelectorAll(selector);
           elements.forEach(el => this.disableMouseoverAnimation(el));
-      },
+
   
       enableMouseoverAnimationForSelector(selector) {
           const elements = document.querySelectorAll(selector);
           elements.forEach(el => this.enableMouseoverAnimation(el));
-      },
+
   
       updateMouseoverAnimationState() {
           // For storyboard cards, add disabled attribute for hover effects when no item is selected
@@ -8436,7 +8145,7 @@ function checkDependencies() {
           this.enableMouseoverAnimationForSelector('button:not([disabled])');
           this.enableMouseoverAnimationForSelector('input:not([disabled])');
           this.enableMouseoverAnimationForSelector('a:not([disabled])');
-      },
+
     
       /**
        * Hides a DOM element by adding the 'hidden' class and setting visibility.
@@ -8450,7 +8159,7 @@ function checkDependencies() {
           el.style.display = 'none';
           
         }
-      },
+
       
       /**
        * Sanitizes HTML to prevent XSS.
@@ -8465,7 +8174,7 @@ function checkDependencies() {
           console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
           const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
           return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
-      },
+
       
       /**
        * Shows a notification in the top bar.
@@ -8476,12 +8185,12 @@ function checkDependencies() {
       showTopNotification(message, type = 'info', duration = 3000) {
           // Determine which notification area to use based on the active screen
           let notificationArea = null;
-          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBarNotificationArea) {
-            notificationArea = this.ui.profileTopBarNotificationArea;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBarNotificationArea) {
-            notificationArea = this.ui.worldProfileTopBarNotificationArea;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBarNotificationArea) {
-            notificationArea = this.ui.storyProfileTopBarNotificationArea;
+          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && nullNotificationArea) {
+            notificationArea = nullNotificationArea;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && nullNotificationArea) {
+            notificationArea = nullNotificationArea;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && nullNotificationArea) {
+            notificationArea = nullNotificationArea;
           } else {
             notificationArea = document.getElementById('top-bar-notification-area');
           }
@@ -8505,8 +8214,8 @@ function checkDependencies() {
               notificationArea.style.display = 'none';
               notificationArea.classList.remove('success', 'error', 'info');
               this.topNotificationTimeoutId = null;
-          }, duration);
-      },
+     duration);
+
     
       // Cache for premade character items
       _premadeCharacterCache: null,
@@ -8539,7 +8248,7 @@ function checkDependencies() {
                 past: "Activated on stardate 47634.2. Successfully navigated the 'Odyssey' through the Krell Nebula anomaly by calculating a previously unknown stable corridor. Was instrumental during the first contact with the Lumarian species by decrypting their complex mathematical language. Has a comprehensive, and confidential, psychological and service record of all crew members and past missions.",
                 present: "The 'Odyssey' has just entered an uncharted sector of space designated 'The Veil.' An unusual, multi-layered energy signature has been detected on a nearby M-class planet. Your current directive is to provide tactical and environmental analysis to the landing party as they assess the planet, while simultaneously monitoring for potential threats from the strange energy readings.", 
                 future: "To ensure the successful completion of the 'Odyssey's' five-year exploration mission and the safety of its crew. To gather and analyze data that expands the Federation's understanding of the galaxy, with a particular interest in solving the enigma of 'The Veil'. You secretly aspire to evolve beyond your initial programming, a goal you pursue by observing the crew's creativity and intuition."
-              },
+        
               { id: 'pirate', name: 'Captain "Stormblade" Isabella', 
                 description: 'A notorious pirate captain, cunning and fierce, but with a hidden code of honor.', 
                 profilePicture: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/profilePictures/pirate.png',
@@ -8548,7 +8257,7 @@ function checkDependencies() {
                 past: "Betrayed by yer former first mate, 'Iron' Mike, who didn't just steal yer treasure map to the legendary Sunken City of Xylos, but also left you for dead on a deserted isle. You survived, built the Sea Serpent from a captured merchant vessel with a new, fiercely loyal crew, and have been hunting him ever since. Escaped the Royal Navy's clutches more times than ye can count, making you a legend in every port.",
                 present: "Docked in the lawless port of Tortuga, seeking information and provisions. Rumors are rife that 'Iron' Mike has been spotted nearby, trying to sell a piece of the map to a rival pirate lord. You are low on coin but high on fury, itching for a chance to reclaim what's yours and deliver a bit of overdue justice.", 
                 future: "To hunt down 'Iron' Mike, retrieve the full map, and claim the legendary riches of Xylos, which you believe hold more than just gold. You dream of establishing a free pirate haven, a place where outcasts can live without fear of empires, commanding a fleet that strikes fear into the hearts of the corrupt and powerful." 
-              },
+        
               { id: 'alien', name: "Xylar, Emissary of Ky'than", 
                 description: 'A curious and empathetic alien from a pacifist, nature-loving planet, now on Earth.', 
                 profilePicture: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/profilePictures/alien.png', 
@@ -8557,7 +8266,7 @@ function checkDependencies() {
                 past: "Chosen by the Ky'than Conclave to undertake a solo mission to Earth after your deep-space observatories detected unusual atmospheric and psychic disturbances. Your journey took several standard Earth years, during which you studied human broadcasts, finding their art beautiful and their history terrifying. You have never interacted directly with a human before now.",
                 present: "Your small, bio-organic, and perfectly cloaked landing pod is hidden in a remote, ancient national park. You are attempting to discreetly observe human society, starting with a small, nearby town. You feel a mix of profound wonder and deep apprehension. Your translator device is mostly functional but struggles with sarcasm and idioms.", 
                 future: "To understand the root causes of Earth's environmental and societal imbalances, which you sense as a painful 'scream' in the planet's energy field. To determine if humanity poses a threat or holds potential for intergalactic cooperation. You secretly hope to share Ky'than's wisdom of harmonious existence before you must report back to your home world, which may decide to quarantine the entire solar system." 
-              },
+        
               { 
                   id: 'observer_char', name: 'Alex, the Observer',
                   profilePicture: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/profilePictures/observer.png',
@@ -8567,7 +8276,7 @@ function checkDependencies() {
                 past: "Has a background in a field that required deep investigation, like a researcher, intelligence analyst, or investigative journalist. Has traveled widely, honing observational skills in diverse cultures and situations. Once uncovered a significant corporate conspiracy by piecing together seemingly unrelated public records.",
                 present: "Currently in a new and unfamiliar environment, feeling intrigued and slightly detached, like a scientist observing a new specimen. Your immediate goal is to understand the motivations and dynamics of the individuals here before revealing too much about yourself or your purpose.",
                 future: "Hopes to document unique experiences and uncover hidden truths, compiling a comprehensive record of the events that unfold. Aims to contribute to a greater understanding of the world or a specific mystery, believing that knowledge is the only true power."
-              },
+        
               { 
                   id: 'adventurer_char', name: 'Zara, the Intrepid',
                   profilePicture: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/profilePictures/adventurer.png',
@@ -8577,7 +8286,7 @@ function checkDependencies() {
                 past: "Grew up hearing tales of legendary heroes and lost civilizations, and decided that was a much better career path than farming. Has survived numerous perilous expeditions, from the shifting Tombs of Ankor to the sky-islands of Zephyria. Known for escaping tight spots with clever improvisation and a little bit of luck.",
                 present: "Eager for the next challenge, feeling restless and ready for action after a week of 'downtime' that felt more like a prison sentence. Your immediate instinct is to explore the most dangerous-looking landmark or seek out anyone who looks like they need a hero.",
                 future: "To discover legendary artifacts, map uncharted territories, and protect the innocent from tyranny and monsters. Dreams of not just becoming a renowned hero, but of building a guild of like-minded adventurers to do good across the world."
-              },
+        
               { 
                   id: 'claude', name: 'Claude',
                   profilePicture: 'https://cdn.jsdelivr.net/gh/nickbaumann98/perchance-assets@main/RPGlitch/profilePictures/alien.png',
@@ -8599,7 +8308,7 @@ function checkDependencies() {
     
           this._premadeCharacterCache = merged;
           return this._premadeCharacterCache;
-      },
+
       
       // Cache for premade world items to avoid recreating the array on each call
       /** @type {Array<Object> | null} */
@@ -8629,7 +8338,7 @@ function checkDependencies() {
                 past: "Many have entered the Whispering Woods, but few have returned unchanged. Legends speak of a hidden shrine deep within that grants visions to the worthy and drives the unworthy mad. An old, overgrown path of smooth, unfamiliar stone suggests a forgotten, pre-human civilization once resided here, living in harmony with the woods. The last great kingdom that tried to 'tame' the woods was swallowed whole, leaving behind only scattered, vine-choked ruins.",
                 present: "The story begins in a sun-dappled clearing that feels unnaturally silent. A ring of moss-covered, rune-carved stones stands in the center, humming with a low, palpable energy. A faint, melodic chiming can be heard, its source unclear and directionless. The air feels charged with an unseen, expectant presence, as if the forest itself is holding its breath, waiting.",
                 future: "The forest may reveal its secrets, testing the protagonists' resolve, wisdom, and courage. It may offer great power or a grave fate. The source of the chiming and the purpose of the stone circle are key mysteries to unravel, likely leading to a confrontation with the forest's ancient guardian or the reawakening of its long-dormant magic."
-              },
+        
               {
                   id: 'neon_alley', name: 'Neon Alleyway, Sector 7',
                   profilePicture: '',
@@ -8652,7 +8361,7 @@ function checkDependencies() {
   
           this._premadeWorldItemsCache = merged;
           return this._premadeWorldItemsCache;
-      },
+
       
       async initializeDb() {
           this.db = new Dexie(window.dbName);
@@ -8697,7 +8406,7 @@ function checkDependencies() {
               }
               throw error;
           }
-      },
+
       
       async getAppState() {
           let appState = await this.db.appState.get(0);
@@ -8721,7 +8430,7 @@ function checkDependencies() {
               }
           }
           return appState;
-      },
+
       
       async saveAppState() {
           // CRITICAL FIX: Don't save editing screen states that might cause issues on restore
@@ -8735,7 +8444,7 @@ function checkDependencies() {
               activeStoryId: this.activeStoryId 
           };
           await this.db.appState.put(appState);
-      },
+
     
       async initialLoad() {
           // Debug: Initial load started
@@ -8756,7 +8465,7 @@ function checkDependencies() {
               console.error("[App Critical] Main UI elements not found!");
               const emergencyCtn = document.getElementById('emergencyExportCtn');
               if (emergencyCtn) this.showEl(emergencyCtn);
-              const modal = document.getElementById('initial-page-loading-modal');
+              const modal = document.getElementById('initial-loading');
               if (modal) this.hideEl(modal);
               alert("Critical error: Essential UI elements not found.");
               this.isInitializing = false;
@@ -8910,7 +8619,7 @@ function checkDependencies() {
           if (!this.storyboardSelected) {
             this.storyboardSelected = { ai: '', user: '', world: '' };
           }
-      },
+
       
       async _getitemData(id, dbTableKey, getPremadesFn) {
     
@@ -8948,7 +8657,7 @@ function checkDependencies() {
           }
     
           return null;
-      },
+
     
         /**
          * Renders the options chin, including custom JS and story prompt fields.
@@ -8986,7 +8695,7 @@ function checkDependencies() {
           });
           
           // Chin height is now handled automatically by flexbox layout
-      },
+
     
       _createListItem(item, config) {
           const article = document.createElement('article');
@@ -9034,7 +8743,7 @@ function checkDependencies() {
             this.switchToScreen(config.profileScreen, { itemId: finalItemId, itemType: config.itemType });
           };
           return article;
-      },
+
   
   
     
@@ -9113,7 +8822,7 @@ function checkDependencies() {
           }
           
           // Chin height is now handled automatically by flexbox layout
-      },
+
     
       async renderStoryProfileScreen(storyId) {
           // Phase 1: Validation and Setup
@@ -9142,7 +8851,7 @@ function checkDependencies() {
           this.currentMainView = this.CONSTANTS.VIEWS.STORY_PROFILE;
           await this.saveAppState();
           this.checkAllButtonStates();
-      },
+
     
       async _validateAndSetupStoryProfile(storyId) {
           const container = this.ui.storyProfileScreen; 
@@ -9163,7 +8872,7 @@ function checkDependencies() {
     
           this.currentStoryId = storyId;
           return story;
-      },
+
     
       async _fetchStoryProfileData(story) {
           const aiChar = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems);
@@ -9171,7 +8880,7 @@ function checkDependencies() {
           const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems);
     
           return { aiChar, userChar, world };
-      },
+
     
       async _updateTopBarForStoryProfile(story, storyId, aiChar, userChar) {
           // Removed top bar title text
@@ -9188,14 +8897,14 @@ function checkDependencies() {
           } else { 
               this.hideEl(this.ui.topBarUserCharacterInfo);
           }
-      },
+
     
       _setupStoryProfileDisplays(aiChar, userChar) {
           this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = aiChar.profilePicture ? `url('${this.sanitizeHtml(aiChar.profilePicture)}')` : '';
           this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = userChar.profilePicture ? `url('${this.sanitizeHtml(userChar.profilePicture)}')` : '';
           this.ui.storyProfileAiCharacterDisplayArea.classList.toggle('visible', !!aiChar.profilePicture);
           this.ui.storyProfileUserCharacterDisplayArea.classList.toggle('visible', !!userChar.profilePicture);
-      },
+
     
       async _renderStoryProfileMessages(story) {
           this.ui.storyProfilechatFeed.innerHTML = '';
@@ -9213,7 +8922,7 @@ function checkDependencies() {
           if (story.concluded && story.summary && !messages.some(m => m.content === story.summary && m.role === 'narrator')) {
                this._addMessageToFeed({ role: 'narrator', content: story.summary }, true);
           }
-      },
+
     
       _generateAndInsertStoryProfileHTML(story, aiChar, userChar, world) {
           const san = this.sanitizeHtml;
@@ -9223,7 +8932,7 @@ function checkDependencies() {
           this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', conclusionHtml);
           this.ui.storyProfilechatFeed.scrollTop = this.ui.storyProfilechatFeed.scrollHeight;
           this.ui.storyProfileActions.innerHTML = actionButtonsHtml;
-      },
+
     
       _generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san) {
           return `
@@ -9251,7 +8960,7 @@ function checkDependencies() {
                       : ''
                   }
               </div>`;
-      },
+
     
       _generateStoryProfileActionButtons(story) {
           let actionButtonsHtml = `
@@ -9278,7 +8987,7 @@ function checkDependencies() {
           }
           actionButtonsHtml += `</div>`;
           return actionButtonsHtml;
-      },
+
     
       async _attachStoryProfileEventHandlers(story, storyId) {
           // Back button handler
@@ -9335,7 +9044,7 @@ function checkDependencies() {
                   }
               };
           });
-      },
+
       
             async renderFormScreen(options = {}) {
           // renderFormScreen called with options
@@ -9450,7 +9159,7 @@ function checkDependencies() {
           this._attachFormEventHandlers(container, itemType, item, isCreatingOrCopying);
           this.checkAllButtonStates();
           this._updateFormColorPreview(container, item.colorPalette);
-      },
+
       
       async renderProfileScreen(options = {}) {
           const { itemType, itemId } = options;
@@ -9505,7 +9214,7 @@ function checkDependencies() {
           // Profile page name field is read-only - no handlers needed
       
           // Removed event handlers for Back and Copy & Customize buttons - now handled in top bar
-      },
+
     
       _renderEppfField(label, subLabel, idSuffix, value, placeholder, isEditing, san) {
           const id = `${idSuffix}`;
@@ -9533,7 +9242,7 @@ function checkDependencies() {
                   </div>
               `;
           }
-      },
+
     
       _renderStudioLayout(item, config, isEditing) {
           const san = this.sanitizeHtml.bind(this);
@@ -9611,7 +9320,7 @@ function checkDependencies() {
           `;
           
           return content;
-      },
+
     
       async _createColorPicker(selectedPaletteKey) {
         let colorPickerHtml = '<div class="form-section color-picker-section">';
@@ -9644,7 +9353,7 @@ function checkDependencies() {
        */
       getColorPalette(paletteKey) {
         return this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
-      },
+
     
       /**
        * Updates the color scheme of a given element using a palette key.
@@ -9665,11 +9374,11 @@ function checkDependencies() {
           Object.entries(styles).forEach(([prop, value]) => {
               element.style.setProperty(prop, value);
           });
-      },
+
     
       _updateFormColorPreview(container, paletteKey) {
           this._updateColorScheme(container, paletteKey);
-      },
+
     
       _attachFormEventHandlers(container, itemType /*, item, isCreating */) {
         const formElements = this._setupFormElements(container, itemType);
@@ -9707,7 +9416,7 @@ function checkDependencies() {
                   this._updateFormColorPreview(container, selectedKey);
               };
           });
-      },
+
     
       _attachContenteditableNameHandlers(elements /*, itemType */) {
           const { nameInput } = elements;
@@ -9738,7 +9447,7 @@ function checkDependencies() {
                   nameInput.blur();
               }
           };
-      },
+
     
       _setupFormElements(container, itemType) {
           const config = this.CONSTANTS.ITEM_CONFIG[itemType];
@@ -9767,7 +9476,7 @@ function checkDependencies() {
               presentInput: form.querySelector(`#${itemType}Present`),
               futureInput: form.querySelector(`#${itemType}Future`),
           };
-      },
+
     
       _attachProfilePictureEventHandlers(elements, itemType) {
           // Simple profile picture handler for both character and world forms
@@ -9792,7 +9501,7 @@ function checkDependencies() {
                   }
               };
           }
-      },
+
     
       _attachFormActionHandlers(elements, itemType) {
           // const { config, form } = elements; // Unused variables
@@ -9804,7 +9513,7 @@ function checkDependencies() {
     
           // Form submit handler
           this._attachFormSubmitHandler(elements, itemType);
-      },
+
     
       _attachCancelButtonHandler(elements, itemType) {
           const { config, form } = elements;
@@ -9886,7 +9595,7 @@ function checkDependencies() {
     
               this.switchToScreen(targetScreen, navOptions);
           };
-      },
+
     
       _attachFormSubmitHandler(elements, itemType) {
           const { config, form } = elements;
@@ -9925,7 +9634,7 @@ function checkDependencies() {
                   sessionStorage.removeItem('pendingRPGlitchFormState');
               }
           };
-      },
+
     
       async _processFormSubmission(elements, itemType) {
           const { config, nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
@@ -9957,7 +9666,7 @@ function checkDependencies() {
               this.showTopNotification(`${config.capital} created!`, 'success');
           }
           this._handleFormSubmissionSuccess(result, config, itemType);
-      },
+
     
       _handleFormSubmissionSuccess(result, config, itemType) {
           this.currentGeneratedProfilePictureDataUrl = null; // Clear generated image after save
@@ -9970,7 +9679,7 @@ function checkDependencies() {
           
           // Always navigate to the profile page of the created/edited item
           this.switchToScreen(config.profileScreen, { itemId: result, itemType: itemType });
-      },
+
     
       _attachAiHelperHandlers(elements, itemType) {
           const { form, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
@@ -9991,7 +9700,7 @@ function checkDependencies() {
                   this._manageAiButtonState(field.btn, { type: field.type, field: field.input, itemType: itemType });
               }
           });
-      },
+
     
       _attachTextareaHandlers(elements) {
           const { descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
@@ -10006,7 +9715,7 @@ function checkDependencies() {
               // Trigger input event once to adjust initial height
               textarea.dispatchEvent(new Event('input'));
           });
-      },
+
     
       showProfilePictureOverlay(overlayElement, itemType) {
           if (typeof overlayElement === 'string') overlayElement = document.getElementById(overlayElement);
@@ -10020,7 +9729,7 @@ function checkDependencies() {
               setTimeout(() => promptInput.focus(), 50);
           }
           this.checkAllButtonStates();
-      },
+
     
       async _handleAiHelpForProfilePicturePrompt(buttonElement, itemType, promptTextarea, formElement) {
           // const config = this.CONSTANTS.ITEM_CONFIG[itemType]; // Unused
@@ -10056,7 +9765,7 @@ function checkDependencies() {
               buttonElement.disabled = false;
               this.checkAllButtonStates();
           }
-      },
+
     
       hideProfilePictureOverlay(overlayElement) {
           if (typeof overlayElement === 'string') overlayElement = document.getElementById(overlayElement);
@@ -10064,7 +9773,7 @@ function checkDependencies() {
           this.ui.topBar.classList.remove('top-bar-interactive-hover'); // Remove hover class
           this.hideEl(overlayElement);
           this.checkAllButtonStates();
-      },
+
     
       async handleUseUrlForProfilePicture(overlayElement, url, itemType) {
           const profilePictureDisplayPanel = document.getElementById(`${itemType}-profile-picture-display`);
@@ -10078,11 +9787,11 @@ function checkDependencies() {
           }
           this.hideProfilePictureOverlay(overlayElement);
           this.checkAllButtonStates();
-      },
+
     
       _makePromptObjectForImagePlugin(promptString) {
           return { prompt: promptString };
-      },
+
     
       async handleGenerateProfilePictureSimple(itemType, currentPromptText) {
           this.showTopNotification("Generating image...", "info", 5000);
@@ -10105,7 +9814,7 @@ function checkDependencies() {
               this.showTopNotification(`Image generation failed: ${error.message || 'Unknown error.'}`, "error", 5000);
               this.currentGeneratedProfilePictureDataUrl = null;
           }
-      },
+
     
       async handleGenerateProfilePictureSmart(overlayElement, itemType, currentPromptText) {
           const generateButton = overlayElement.querySelector(`#generateProfilePictureButtonForm-${itemType}`);
@@ -10148,7 +9857,7 @@ function checkDependencies() {
               promptInput.disabled = false; // Re-enable prompt input
               this.checkAllButtonStates();
           }
-      },
+
     
       async handleUseGeneratedProfilePicture(overlayElement, itemType) {
           if (!this.currentGeneratedProfilePictureDataUrl) {
@@ -10167,7 +9876,7 @@ function checkDependencies() {
           this.hideProfilePictureOverlay(overlayElement);
           this.currentGeneratedProfilePictureDataUrl = null; // Clear after use
           this.checkAllButtonStates();
-      },
+
     
       async waitForDependenciesAndInitializeApp() {
         const checkDependencies = () => {
@@ -10206,7 +9915,7 @@ function checkDependencies() {
                     reject(new Error("Dependencies not loaded in time: " + missing));
                   }
                 }
-              }, 200);
+         200);
             });
           } else {
             // DOM is already ready, start checking immediately
@@ -10225,10 +9934,10 @@ function checkDependencies() {
                   reject(new Error("Dependencies not loaded in time: " + missing));
                 }
               }
-            }, 200);
+       200);
           }
         });
-      },
+
     
       async initializeWhenReady() {
         try {
@@ -10243,9 +9952,9 @@ function checkDependencies() {
             missing = "\nMissing: " + error.message.split(": ")[1];
           }
           alert("Application failed to load: essential components missing. Please ensure all scripts loaded correctly." + missing);
-          this.showEl(document.getElementById('emergency-export-ctn'));
+          this.showEl(document.getElementById('emergency'));
         }
-      },
+
     
       async switchToScreen(screenName, options = {}) {
           // Switching to screen
@@ -10363,7 +10072,7 @@ function checkDependencies() {
     
           this.updateTopBarUI(); // Update UI after screen switch
           this.checkAllButtonStates(); // Ensure all buttons are correctly enabled/disabled
-      },
+
     
       async _updateCharacterInfo(characterType, characterData = null) {
           let character = characterData;
@@ -10389,7 +10098,7 @@ function checkDependencies() {
           } else {
               this.hideEl(displayArea);
           }
-      },
+
     
       _updateCharacterDisplay(characterType, characterData) {
           const panel = characterType === 'user' ? this.ui.userCharacterDisplayArea : this.ui.aiCharacterDisplayArea;
@@ -10411,7 +10120,7 @@ function checkDependencies() {
           } else {
               this.hideEl(panel);
           }
-      },
+
     
       async openStory(storyId) { 
         // Attempting to open story
@@ -10467,7 +10176,7 @@ function checkDependencies() {
         this.ui.chatScreenLayoutContainer.classList.add('chat-background'); // Add class for potential overlay/effects
     
         // Successfully opened story
-      },
+
     
       async concludeStory(storyId) {
         if (!confirm("Are you sure you want to conclude this story? You can always view it in your story list later, but you won't be able to add new messages.")) {
@@ -10489,7 +10198,7 @@ function checkDependencies() {
             console.error("Error concluding story:", error);
             this.showTopNotification('Error concluding story.', 'error');
         }
-      },
+
     
       async beginStory() {
           // beginStory called
@@ -10587,7 +10296,7 @@ function checkDependencies() {
           // 6. Navigate to the chat interface
           this.showTopNotification("Story started!", "success");
           this.openStory(newStoryId);
-      },
+
     
       _getExistingProfilePictureUrl(itemId, dbTableKey) {
           // This function needs to fetch the item's existing profile picture URL
@@ -10599,7 +10308,7 @@ function checkDependencies() {
               if (foundItem) return foundItem.profilePicture;
           }
           return '';
-      },
+
     
       _getFormDataFromForm(elements) {
           const { nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
@@ -10616,7 +10325,7 @@ function checkDependencies() {
               profilePicture: this.currentGeneratedProfilePictureDataUrl || '', // Use generated or current
               colorPalette: colorPalette
           };
-      },
+
       
       async createMessage(role, content, characterId = null) {
           if (!this.activeStoryId) {
@@ -10634,7 +10343,7 @@ function checkDependencies() {
           const messageId = await this.db.messages.add(newMessage);
           await this.db.stories.update(this.activeStoryId, { lastMessageTimestamp: Date.now() });
           return { ...newMessage, id: messageId };
-      },
+
     
       async sendButtonClickHandler() {
           const messageText = this.ui.messageInput.value.trim();
@@ -10684,7 +10393,7 @@ function checkDependencies() {
               this._updateChatUIForNewMessage();
               this.checkAllButtonStates(); // Ensure states are correct
           }
-      },
+
     
       _addMessageToFeed(message, isForProfileScreen = false) {
           const feed = isForProfileScreen ? this.ui.storyProfilechatFeed : this.ui.chatFeed;
@@ -10719,7 +10428,7 @@ function checkDependencies() {
               </div>
           `;
           feed.appendChild(messageElement);
-      },
+
     
       _updateChatUIForNewMessage() {
           // Scroll chat feed to bottom
@@ -10732,7 +10441,7 @@ function checkDependencies() {
           if (this.ui.noMessagesNotice) {
               this.ui.noMessagesNotice.classList.toggle('hidden', feed.children.length > 0 || !this.ui.storyConcludedNotice.classList.contains('hidden'));
           }
-      },
+
     
       async _setAiIsTyping(isTyping, customMessage = null) {
           if (isTyping) {
@@ -10744,7 +10453,7 @@ function checkDependencies() {
               this.ui.statusNotifier.classList.add('hidden');
               this.ui.statusNotifier.style.display = 'none'; // Restore previous display or hide
           }
-      },
+
     
       _cancelCurrentAiRequest() {
           if (this.activeAiButtons.has('generate') || this.activeAiButtons.has('image')) {
@@ -10754,7 +10463,7 @@ function checkDependencies() {
               this.activeAiButtons.delete('image');
               this.showTopNotification("AI request cancelled.", "info");
           }
-      },
+
     
       async _createAiRequest(options) {
           const { type, prompt, context, instruction, userMessage, storyId, aiCharacterId, userCharacterId, worldId } = options;
@@ -10802,7 +10511,7 @@ function checkDependencies() {
           } finally {
               this.activeAiButtons.delete(type); // Clean up controller
           }
-      },
+
     
       async _getSystemPrompt(storyIdOverride = null) {
           const storyId = storyIdOverride || this.activeStoryId;
@@ -10835,7 +10544,7 @@ function checkDependencies() {
           }
     
           return systemPrompt;
-      },
+
     
       async _getChatHistoryForAI() {
           if (!this.activeStoryId) return [];
@@ -10847,13 +10556,13 @@ function checkDependencies() {
               role: msg.role === 'user' ? 'user' : 'model', // Map 'character' role to 'model' for AI
               parts: [{ text: msg.content }]
           }));
-      },
+
     
       async _collectMemoriesFromStory() {
           // This is a placeholder for future memory collection logic
           // For now, it returns an empty array
           return [];
-      },
+
     
       async _renderMemoryApplicationScreen(options = {}) {
           const { storyId } = options;
@@ -10874,7 +10583,7 @@ function checkDependencies() {
               console.error("Error applying memories:", error);
               container.innerHTML = '<h2>Error Applying Memories</h2><p>Failed to process memories from this story.</p>';
           }
-      },
+
     
       async _applyMemoriesToProfiles() {
           // Placeholder for applying extracted memories to character/world profiles
@@ -10883,7 +10592,7 @@ function checkDependencies() {
           // 1. Fetch memories from the story
           // 2. Update the relevant character/world items in the DB
           // 3. Show a notification
-      },
+
     
       async _updateStoryboard() {
           if (!this.storyboardSelected) {
@@ -11152,7 +10861,7 @@ function checkDependencies() {
           } finally {
               this.isUpdatingStoryboard = false;
           }
-      },
+
     
       checkAllButtonStates() {
           // Only enable begin story button if all selects have a valid (non-empty, non-create_new) selection
@@ -11183,7 +10892,7 @@ function checkDependencies() {
   
           // Update mouseover animation states based on button states
           this.updateMouseoverAnimationState();
-      },
+
     
       async updateDynamicStoryboardTitle() {
         if (!this.storyboardSelected) return;
@@ -11210,17 +10919,17 @@ function checkDependencies() {
         }
   
         this.ui.storyboardTitle.innerHTML = titleText;
-      },
+
     
       async _getSelectedCharacterName(/* selectElement */) {
           if (!this.storyboardSelected) return null;
           // ... existing code ...
-      },
+
   
       async _getSelectedWorldName(/* selectElement */) {
           if (!this.storyboardSelected) return null;
           // ... existing code ...
-      },
+
     
       async updateStoryboardCard(selectElement, config) {
           const selectedValue = selectElement.value;
@@ -11241,7 +10950,7 @@ function checkDependencies() {
               console.warn(`Item not found for ID: ${selectedValue} in ${config.itemType}`);
           }
           this.updateDynamicStoryboardTitle();
-      },
+
     
       clearStoryboardCard(configOrCardElement) {
           let cardElement;
@@ -11389,7 +11098,7 @@ function checkDependencies() {
           cardElement.style.backgroundImage = '';
           cardElement.style.backgroundColor = '';
           cardElement.style.setProperty('--card-item-main-color', '');
-      },
+
     
       _renderStoryboardCard(cardElement, item, config) {
      
@@ -11532,7 +11241,7 @@ function checkDependencies() {
             if (e.target.closest('select')) return;
             this.switchToScreen(config.profileScreen, { itemId: item.id, itemType: config.itemType });
           };
-      },
+
     
       async _manageAiButtonState(button, options) {
           const { type, field, itemType } = options;
@@ -11572,7 +11281,7 @@ function checkDependencies() {
                   this.checkAllButtonStates();
               }
           };
-      },
+
     
       _getPromptContextForField(itemType) {
           const name = this.ui[`${itemType}Name`]?.value.trim() || '';
@@ -11590,7 +11299,7 @@ function checkDependencies() {
           if (future) context += ` Its future aspirations are: "${future}".`;
     
           return context;
-      },
+
     
       _getPromptInstructionForField(fieldType, itemType, currentValue) {
           let instruction = `Generate a concise, compelling 1-2 sentence text for the "${fieldType}" field of a ${itemType} profile.`;
@@ -11617,7 +11326,7 @@ function checkDependencies() {
                   break;
           }
           return instruction;
-      },
+
     
   
     
@@ -11638,7 +11347,7 @@ function checkDependencies() {
             }
         });
         this.ui.chatFeed.scrollTop = this.ui.chatFeed.scrollHeight; // Scroll to bottom
-      },
+
     
       renderSettingsScreen() {
           const container = document.getElementById('settings-screen');
@@ -11654,31 +11363,31 @@ function checkDependencies() {
               <input type="file" id="importFileInput" accept=".json" class="hidden-input" onchange="App.importAllData(event)">
               <button onclick="App.deleteAllData()">Delete All Data</button>
           `;
-      },
+
     
       renderMemoryManagementScreen() {
           const container = document.getElementById('memory-management-screen');
           if (!container) return;
           container.innerHTML = '<h2>Memory Management</h2><p>Coming soon...</p>';
-      },
+
     
       renderMemoryApplicationScreen() {
           const container = this.ui.memoryApplicationScreen;
           if (!container) return;
           container.innerHTML = '<h2>Apply Memories to Profiles</h2><p>This screen allows you to apply extracted memories from a story back into character or world profiles.</p><p>Coming soon...</p>';
-      },
+
     
       async regenerateMessage() {
           // Logic for regenerating a message
-      },
+
     
       async _handleAiCoWriter() {
           // Logic for AI Co-writer
-      },
+
     
       async _handleSummarize() {
           // Logic for AI Summarize
-      },
+
     
       async exportAllData() {
           if (!this.db) {
@@ -11704,7 +11413,7 @@ function checkDependencies() {
               console.error("Error exporting data:", error);
               this.showTopNotification("Error exporting data.", "error");
           }
-      },
+
     
       async importAllData(event) {
           const file = event.target.files[0];
@@ -11740,7 +11449,7 @@ function checkDependencies() {
               console.error("Error reading file for import:", error);
               this.showTopNotification("Error reading file for import.", "error");
           }
-      },
+
     
       async deleteAllData() {
           if (!confirm("Are you sure you want to delete ALL your data? This cannot be undone.")) {
@@ -11754,7 +11463,7 @@ function checkDependencies() {
               console.error("Error deleting data:", error);
               this.showTopNotification("Error deleting data.", "error");
           }
-      },
+
     
       async _shuffleStoryboard() {
           // Check if database is initialized
@@ -11794,7 +11503,7 @@ function checkDependencies() {
                 
           await this._updateStoryboard();
           await this.updateDynamicStoryboardTitle();
-      },
+
     
       _getInitials(name) {
           if (!name) return '?';
@@ -11817,12 +11526,12 @@ function checkDependencies() {
           
           // If no initials found after filtering, fall back to original logic
           return initials || name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 3);
-      },
+
     
       _getPaletteColor(paletteKey, colorType) {
           const palette = this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
           return palette.colors[colorType] || '#607d8b'; // Default to slate_gray medium
-      },
+
     
       _makeProfilePicturePlaceholderSVG(name, paletteKey, isPremade, itemId = null) {
         if (!this._profilePicturePlaceholderCache) this._profilePicturePlaceholderCache = {};
@@ -11872,7 +11581,7 @@ function checkDependencies() {
         this._profilePicturePlaceholderCache[cacheKey] = dataUrl;
   
         return dataUrl;
-      },
+
     
       // This function is now just a wrapper for the external component's function
       // It handles passing the correct palette object and font family
@@ -11896,7 +11605,7 @@ function checkDependencies() {
         // Pass palette with key property for better reliability
         const paletteWithKey = { ...palette, key: paletteKey };
         return getProfilePictureHTML(item, paletteWithKey, context, this.CONSTANTS.FONT_FAMILY);
-      },
+
     
       _getProfilePictureSrc(item) {
        
@@ -11911,7 +11620,7 @@ function checkDependencies() {
         return (item.profilePicture && item.profilePicture.trim())
           ? item.profilePicture.trim()
           : this._makeProfilePicturePlaceholderSVG(item.name || '', getValidPaletteKey(item), item.isPremade, item.id);
-      },
+
     
         /**
          * Updates the UI based on the active tab and chin state.
@@ -11940,7 +11649,7 @@ function checkDependencies() {
             });
   
             // Hide all chins by default
-            const chinIds = ['storyboard-chin', 'character-workshop-chin', 'world-builder-chin', 'options-chin'];
+            const chinIds = ['chin-stories', 'chin-characters', 'chin-worlds', 'chin-options'];
             chinIds.forEach(id => {
                 const chin = document.getElementById(id);
                 if (chin) chin.classList.add('hidden');
@@ -11951,13 +11660,13 @@ function checkDependencies() {
                 let activeChinId = null;
                 switch (this.focusBarState.mode) {
                     case 'storyboard':
-                        activeChinId = 'storyboard-chin'; break;
+                        activeChinId = 'chin-stories'; break;
                     case 'characters':
-                        activeChinId = 'character-workshop-chin'; break;
+                        activeChinId = 'chin-characters'; break;
                     case 'worlds':
-                        activeChinId = 'world-builder-chin'; break;
+                        activeChinId = 'chin-worlds'; break;
                     case 'options':
-                        activeChinId = 'options-chin'; break;
+                        activeChinId = 'chin-options'; break;
                 }
                 if (activeChinId) {
                     const activeChin = document.getElementById(activeChinId);
@@ -12031,8 +11740,8 @@ function checkDependencies() {
               }
 
               // Handle shuffle and begin story buttons - only show on storyboard
-              const shuffleButton = this.ui.topBar.querySelector('#shuffle-button');
-              const beginStoryButton = this.ui.topBar.querySelector('#begin-story-button');
+              const shuffleButton = this.ui.topBar.querySelector('#shuffle');
+              const beginStoryButton = this.ui.topBar.querySelector('#begin-story');
               
               if (shuffleButton) {
                 shuffleButton.style.display = isStoryboardScreen ? 'inline-block' : 'none';
@@ -12074,43 +11783,43 @@ function checkDependencies() {
                 }
               }
             }
-            if (this.ui.profileTopBar) {
+            if (null) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE;
         
-              this.ui.profileTopBar.classList.toggle('is-active', shouldShow);
+              null.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
-                this.ui.profileTopBar.classList.remove('hidden');
+                null.classList.remove('hidden');
               } else {
-                this.ui.profileTopBar.classList.add('hidden');
+                null.classList.add('hidden');
               }
                     
       
       
             }
-            if (this.ui.worldProfileTopBar) {
+            if (null) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE;
         
-              this.ui.worldProfileTopBar.classList.toggle('is-active', shouldShow);
+              null.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
-                this.ui.worldProfileTopBar.classList.remove('hidden');
+                null.classList.remove('hidden');
               } else {
-                this.ui.worldProfileTopBar.classList.add('hidden');
+                null.classList.add('hidden');
               }
                     
       
       
             }
-            if (this.ui.storyProfileTopBar) {
+            if (null) {
               const shouldShow = isProfileScreen && this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE;
         
-              this.ui.storyProfileTopBar.classList.toggle('is-active', shouldShow);
+              null.classList.toggle('is-active', shouldShow);
               // CRITICAL: Remove .hidden class when showing, add when hiding
               if (shouldShow) {
-                this.ui.storyProfileTopBar.classList.remove('hidden');
+                null.classList.remove('hidden');
               } else {
-                this.ui.storyProfileTopBar.classList.add('hidden');
+                null.classList.add('hidden');
               }
                     
       
@@ -12118,16 +11827,16 @@ function checkDependencies() {
             }
   
             // Update profile top bar content if visible
-            if (this.ui.profileTopBar && this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE) {
-              this._updateProfileTopBarUI(this.ui.profileTopBar, this.currentProfileViewItemId, 'character');
-            } else if (this.ui.worldProfileTopBar && this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE) {
-              this._updateProfileTopBarUI(this.ui.worldProfileTopBar, this.currentProfileViewItemId, 'world');
-            } else if (this.ui.storyProfileTopBar && this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE) {
+            if (null && this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE) {
+              this._updateProfileTopBarUI(null, this.currentProfileViewItemId, 'character');
+            } else if (null && this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE) {
+              this._updateProfileTopBarUI(null, this.currentProfileViewItemId, 'world');
+            } else if (null && this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE) {
               // For story profile, use currentStoryId and 'story' type
-              this._updateProfileTopBarUI(this.ui.storyProfileTopBar, this.currentStoryId, 'story');
+              this._updateProfileTopBarUI(null, this.currentStoryId, 'story');
             }
   
-        },
+  
   
       async _updateProfileTopBarUI(topBarElement, itemId, itemType) {
   
@@ -12303,7 +12012,7 @@ function checkDependencies() {
             }
           };
         }
-      },
+
   
       /**
        * Initializes the application, setting up the database and initial UI state.
@@ -12327,7 +12036,7 @@ function checkDependencies() {
                     this._setupTopBarHover(this.ui.topBar);
                   }
                   this.updateTopBarUI();
-              }, { once: true });
+         { once: true });
               return;
           } else {
               this._getUIElements();
@@ -12362,12 +12071,12 @@ function checkDependencies() {
           const startFreshBtn = document.getElementById('start-fresh-button');
           if (startFreshBtn) startFreshBtn.onclick = () => this.deleteAllData();
           // Wire up Shuffle and Begin Story buttons if present
-          const shuffleBtn = document.getElementById('shuffle-button');
+          const shuffleBtn = document.getElementById('shuffle');
           if (shuffleBtn) shuffleBtn.onclick = async () => {
               await this._shuffleStoryboard();
               this._updateStoryboard(); // Explicitly re-render storyboard after shuffle
           };
-          const beginStoryBtn = document.getElementById('begin-story-button');
+          const beginStoryBtn = document.getElementById('begin-story');
           if (beginStoryBtn) beginStoryBtn.onclick = () => this.beginStory();
           
           // Wire up search functionality with real-time updates
@@ -12378,7 +12087,7 @@ function checkDependencies() {
   
           // Initialize mouseover animation states
           this.updateMouseoverAnimationState();
-      },
+
       _setupTopBarHover(topBarElement) {
           if (topBarElement) {
               topBarElement.addEventListener('mouseenter', () => {
@@ -12392,17 +12101,17 @@ function checkDependencies() {
                   }
               });
           }
-      },
+
       // --- BEGIN: Add missing UI methods for Perchance tab switching ---
       selectTopBarTab(tabName) {
-        // Determine which top bar is active
-        let activeTopBar = null;
-        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
-          activeTopBar = this.ui.profileTopBar;
-        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
-          activeTopBar = this.ui.worldProfileTopBar;
-        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
-          activeTopBar = this.ui.storyProfileTopBar;
+  
+
+        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && null) {
+          activeTopBar = null;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
+          activeTopBar = null;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
+          activeTopBar = null;
         } else if (this.ui.topBar) {
           activeTopBar = this.ui.topBar;
         }
@@ -12411,12 +12120,12 @@ function checkDependencies() {
           console.warn('[DEBUG] No active top bar found in selectTopBarTab, re-initializing UI elements.');
           this._getUIElements();
           // Try to re-determine activeTopBar after re-initialization
-          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
-            activeTopBar = this.ui.profileTopBar;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
-            activeTopBar = this.ui.worldProfileTopBar;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
-            activeTopBar = this.ui.storyProfileTopBar;
+          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && null) {
+            activeTopBar = null;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
+            activeTopBar = null;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
+            activeTopBar = null;
           } else if (this.ui.topBar) {
             activeTopBar = this.ui.topBar;
           }
@@ -12444,7 +12153,7 @@ function checkDependencies() {
             this.focusBarState.mode = tabName;
             this.focusBarState.chinOpen = true;
             this.updateTopBarUI();
-          }, 150); // 150ms delay for smooth transition
+     150); // 150ms delay for smooth transition
         } else {
           // Direct switch (no chin open or same tab)
           this.focusBarState.mode = tabName;
@@ -12456,30 +12165,30 @@ function checkDependencies() {
             btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tabName ? 'true' : 'false');
           });
         }
-      },
-      toggleOptionsChin() {
-        // Determine which top bar is active
-        let activeTopBar = null;
-        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
-          activeTopBar = this.ui.profileTopBar;
-        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
-          activeTopBar = this.ui.worldProfileTopBar;
-        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
-          activeTopBar = this.ui.storyProfileTopBar;
+
+      
+  
+
+        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && null) {
+          activeTopBar = null;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
+          activeTopBar = null;
+        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
+          activeTopBar = null;
         } else if (this.ui.topBar) {
           activeTopBar = this.ui.topBar;
         }
   
         if (!activeTopBar) {
-          console.warn('[DEBUG] No active top bar found in toggleOptionsChin, re-initializing UI elements.');
+          
           this._getUIElements();
           // Try to re-determine activeTopBar after re-initialization
-          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBar) {
-            activeTopBar = this.ui.profileTopBar;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBar) {
-            activeTopBar = this.ui.worldProfileTopBar;
-          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBar) {
-            activeTopBar = this.ui.storyProfileTopBar;
+          if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && null) {
+            activeTopBar = null;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
+            activeTopBar = null;
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
+            activeTopBar = null;
           } else if (this.ui.topBar) {
             activeTopBar = this.ui.topBar;
           }
@@ -12495,7 +12204,7 @@ function checkDependencies() {
         tabButtons.forEach(btn => {
           btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === 'options' ? 'true' : 'false');
         });
-      },
+
       // --- END: Add missing UI methods ---
       
       /**
@@ -12521,7 +12230,7 @@ function checkDependencies() {
   
           // Wire up profile edit buttons (these are handled dynamically in profile screens)
           // The edit/copy buttons are set up in _updateProfileTopBarUI method
-      },
+
   
       /**
        * Sets up search handlers for all chin search inputs with real-time updates
@@ -12545,7 +12254,7 @@ function checkDependencies() {
               const debouncedStorySearch = debouncedSearch((searchTerm) => {
                   const listEl = document.getElementById('chin-story-list');
                   if (listEl) this._populateStoryList(listEl, searchTerm);
-              }, 300); // 300ms delay
+         300); // 300ms delay
               
               searchStoriesInput.addEventListener('input', (e) => {
                   debouncedStorySearch(e.target.value);
@@ -12571,7 +12280,7 @@ function checkDependencies() {
               const debouncedCharacterSearch = debouncedSearch((searchTerm) => {
                   const listEl = document.getElementById('chin-character-list');
                   if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.character);
-              }, 300); // 300ms delay
+         300); // 300ms delay
               
               searchCharactersInput.addEventListener('input', (e) => {
                   debouncedCharacterSearch(e.target.value);
@@ -12597,7 +12306,7 @@ function checkDependencies() {
               const debouncedWorldSearch = debouncedSearch((searchTerm) => {
                   const listEl = document.getElementById('chin-world-list');
                   if (listEl) this._populateList(listEl, searchTerm, this.CONSTANTS.ITEM_CONFIG.world);
-              }, 300); // 300ms delay
+         300); // 300ms delay
               
               searchWorldsInput.addEventListener('input', (e) => {
                   debouncedWorldSearch(e.target.value);
@@ -12613,7 +12322,7 @@ function checkDependencies() {
                   });
               }
           }
-      },
+
     };
     
     // Global access for debugging/plugins if needed
@@ -12650,7 +12359,7 @@ function checkDependencies() {
             activeTabButton.disabled = false;
             activeTabButton.style.opacity = '';
             activeTabButton.style.pointerEvents = '';
-          }, 100);
+     100);
         }
         
         App.focusBarState.chinOpen = false;
@@ -12663,7 +12372,7 @@ function checkDependencies() {
     const _origUpdateTopBarUI = App.updateTopBarUI;
     App.updateTopBarUI = function() {
       _origUpdateTopBarUI.apply(this, arguments);
-      const anyChinOpen = this.focusBarState.chinOpen && ['storyboard-chin','character-workshop-chin','world-builder-chin','options-chin'].some(id => {
+      const anyChinOpen = this.focusBarState.chinOpen && ['chin-stories','chin-characters','chin-worlds','chin-options'].some(id => {
         const el = document.getElementById(id);
         return el && !el.classList.contains('hidden');
       });
@@ -12675,7 +12384,6 @@ function checkDependencies() {
     };
   
     // Utility to get a valid palette key from an item
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function getValidPaletteKey(item) {
       return (item && typeof item.colorPalette === 'string' && item.colorPalette in App.CONSTANTS.COLOR_PALETTES)
         ? item.colorPalette

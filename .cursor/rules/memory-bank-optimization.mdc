@@ -17,7 +17,7 @@ This document provides comprehensive optimization strategies for the Memory Bank
 ```javascript
 const ruleHierarchy = {
   level1: {
-    essential: ['system-architecture.mdc', 'memory-bank-overview.mdc'],
+    essential: ['technical-architecture.mdc', 'memory-bank-overview.mdc'],
     optional: ['mcp-ecosystem.mdc', 'system-documentation.mdc']
   },
   level2: {
@@ -26,7 +26,7 @@ const ruleHierarchy = {
   },
   level3: {
     essential: ['mcp-basic-memory.mdc', 'thinking-framework.mdc'],
-    optional: ['unified-orchestrator-mode.mdc', 'mode-system-unified.mdc']
+    optional: ['orchestration-mode.mdc', 'mode-system-unified.mdc']
   }
 };
 
@@ -40,7 +40,7 @@ const loadingStrategy = {
 #### **Rule Categorization**
 ```javascript
 const ruleCategories = {
-  core: ['system-architecture.mdc', 'memory-bank-overview.mdc'],
+  core: ['technical-architecture.mdc', 'memory-bank-overview.mdc'],
   mcp: ['mcp-ecosystem.mdc', 'mcp-context7.mdc', 'mcp-time.mdc', 'mcp-basic-memory.mdc'],
   workflow: ['memory-bank-workflow.mdc', 'memory-bank-optimization.mdc'],
   documentation: ['system-documentation.mdc']
@@ -350,7 +350,7 @@ const cacheMetrics = {
 
 - [Memory Bank Overview](memory-bank-overview.mdc) - Memory bank system overview
 - [Memory Bank Workflow](memory-bank-workflow.mdc) - Workflow integration
-- [System Architecture](system-architecture.mdc) - System architecture and relationships
+- [System Architecture](technical-architecture.mdc) - System architecture and relationships
 - [System Documentation](system-documentation.mdc) - Unified documentation system
 
 ## 🎯 **NEXT STEPS**

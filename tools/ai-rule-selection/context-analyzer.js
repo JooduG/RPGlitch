@@ -401,7 +401,7 @@ class ContextAnalyzer {
     const rules = [];
 
     if (requirements.tools.includes('mcp')) {
-      rules.push('mcp-ecosystem.mdc');
+      rules.push('mcp-comprehensive-guide.mdc');
     }
 
     if (requirements.tools.includes('css') || requirements.tools.includes('scss')) {
@@ -659,7 +659,7 @@ class RuleRepository {
       { id: 'scss-modern-css-frameworks.mdc', category: 'frontend', priority: 3 },
       { id: 'scss-debugging.mdc', category: 'debugging', priority: 4 },
       { id: 'perchance-architecture.mdc', category: 'architecture', priority: 2 },
-      { id: 'mcp-ecosystem.mdc', category: 'tools', priority: 3 },
+      { id: 'mcp-comprehensive-guide.mdc', category: 'tools', priority: 3 },
       { id: 'mcp-context7.mdc', category: 'tools', priority: 3 }
     ];
 

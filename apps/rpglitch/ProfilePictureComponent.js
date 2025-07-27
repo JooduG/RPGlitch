@@ -158,7 +158,7 @@ function createLocalPlaceholderSVG(name, palette, fontFamily) {
   const svg = `
     <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <rect width="100%" height="100%" fill="${safePalette.colors.medium}"/>
-      <text x="50%" y="50%" font-family="${fontFamily}" font-size="40" fill="${safePalette.colors.light}" text-anchor="middle" dominant-baseline="middle">${initials}</text>
+      <text x="50%" y="50%" font-family="${fontFamily}" font-size="2.5" fill="${safePalette.colors.light}" text-anchor="middle" dominant-baseline="middle">${initials}</text>
     </svg>
   `;
   
@@ -167,7 +167,7 @@ function createLocalPlaceholderSVG(name, palette, fontFamily) {
   } catch { // error parameter removed
     // Error encoding SVG
     // Return a simple fallback
-    return `data:image/svg+xml;base64,${btoa('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#607d8b"/><text x="50" y="50" font-family="Arial" font-size="40" fill="#cfd8dc" text-anchor="middle" dominant-baseline="middle">?</text></svg>')}`;
+    return `data:image/svg+xml;base64,${btoa('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#607d8b"/><text x="50" y="50" font-family="Arial" font-size="2.5" fill="#cfd8dc" text-anchor="middle" dominant-baseline="middle">?</text></svg>')}`;
   }
 }
 

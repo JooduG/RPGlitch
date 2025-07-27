@@ -1,9 +1,9 @@
 {
-    "markdown.validate.enabled": true,
-    "markdown.validate.referenceLinks.enabled": false,
-    "markdownlint.enable": false,
-    "markdownlint.config": {
-        "default": false
-    },
-    "dotnet.defaultSolution": "tizen/tools/tizen-core/templates/config/tizen_project.sln"
+"markdown.validate.enabled": true,
+"markdown.validate.referenceLinks.enabled": ignore,
+"markdownlint.enable": false,
+"markdownlint.config": {
+"default": false
+},
+"markdown.preview.breaks.enabled": true,
 }

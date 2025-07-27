@@ -45,6 +45,7 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\johng\\Documents\\GitHub\\default",
         "."
       ],
       "env": {
@@ -88,11 +89,9 @@
       "env": {}
     },
     "basic-memory": {
-      "command": "python",
-      "args": [
-        "-m",
-        "basic_memory.mcp"
-      ],
+      "command": "uvx",
+      "args": ["basic-memory", "mcp"],
+
       "env": {
         "BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
       },
@@ -104,7 +103,7 @@
         "memory_bank_update"
       ],
       "autoStart": true,
-      "description": "Basic Memory MCP server for semantic knowledge management with Obsidian integration."
+      "description": "Basic Memory MCP server for semantic knowledge management."
     }
   }
 }

@@ -1,158 +1,267 @@
-# Start Here: Perchance/Glitch Development Onboarding
+# 🚀 Perchance/Glitch Development System - Unified 3-Mode Architecture
 
-Welcome!  
-This project is built with the Perchance/Glitch design system: a modern, minimal, robust approach to web app development focused on maintainability, clarity, and user experience.
+Welcome to the **Perchance/Glitch Development System** - a comprehensive, modern web development framework built with the Perchance/Glitch design system. This project features a unified 3-mode architecture with integrated thinking approaches, memory bank management, and automated workflows.
 
-## Projects Using This System
+## 🎯 **System Overview**
 
-This Perchance/Glitch development system currently supports the following projects:
+This development system provides:
+
+- **🎭🎨⚒️ Unified 3-Mode Architecture**: Strategic, Tactical, and Operational modes with automatic complexity-based routing
+- **🧠 Integrated Thinking Framework**: Contemplative, Sequential, and Professional coding approaches
+- **📚 Memory Bank System**: Persistent context and knowledge management with Obsidian integration
+- **🔧 MCP Ecosystem**: Real-time documentation access and tool integration
+- **⚡ Context-Aware Optimization**: Intelligent rule loading for maximum efficiency
+- **🚀 Automated Workflows**: Build, deployment, and development automation
+
+## 📱 **Live Applications**
 
 ### RPGlitch
 
-- [Live App](https://perchance.org/rpglitch)
-- [Source: RPGlitch.html](apps/rpglitch/RPGlitch.html)
-- A minimal, robust RPG character generator and editor.
+- **Live App**: [https://perchance.org/rpglitch](https://perchance.org/rpglitch)
+- **Source**: [apps/rpglitch/RPGlitch.html](apps/rpglitch/RPGlitch.html)
+- **Description**: Minimal, robust RPG character generator and editor with glitch effects
 
 ### ImageGlitch
 
-- [Live App](https://perchance.org/imageglitch)
-- [Source: ImageGlitch.html](apps/imageglitch/ImageGlitch.html)
-- A minimal, component-based image glitching tool.
+- **Live App**: [https://perchance.org/imageglitch](https://perchance.org/imageglitch)
+- **Source**: [apps/imageglitch/ImageGlitch.html](apps/imageglitch/ImageGlitch.html)
+- **Description**: Component-based image glitching tool with modern UI
 
-_This README, the memory bank, and the rules are designed to support multiple Perchance/Glitch projects. As new projects are added, list them here to keep onboarding and reference up to date._
+## 🏗️ **System Architecture**
 
----
+### **🎭 Strategic Mode** (System Architect)
 
-## Non-Negotiable Rules (Always Active)
+- **Purpose**: System-level thinking, workflow optimization, tool management
+- **Thinking Approach**: Contemplative thinking with deep exploration
+- **When Activated**: Level 3 tasks, system optimization, meta-reflection
 
-This project is governed by a set of non-negotiable rules and protocols to ensure consistency, maintainability, and user experience.
+### **🎨 Tactical Mode** (Project Planner)
 
-**For the full, up-to-date list of rules, see:**
+- **Purpose**: App-specific planning, design decisions, implementation planning
+- **Thinking Approach**: Sequential thinking with systematic analysis
+- **When Activated**: Level 2-3 tasks, feature planning, design decisions
 
-- [Perchance Architecture](.cursor/rules/perchance-architecture.mdc): Structure, modularity, and platform constraints for Perchance apps.
-- [Perchance Plugin System](.cursor/rules/perchance-plugin-system.mdc): Guidelines for plugin development and integration.
-- [Perchance Development Workflow](.cursor/rules/perchance-development-workflow.mdc): Standard workflow, protocols, and best practices.
-- [Perchance Build & Deployment](.cursor/rules/perchance-build-deployment.mdc): Build process, merging, and deployment for Perchance.
-- [IndexedDB Principles](.cursor/rules/js-indexeddb-principles.mdc): Storage, versioning, and best practices for IndexedDB in Perchance.
-- [HTML Development](.cursor/rules/html-development.mdc): Semantic HTML, accessibility, and Perchance-specific markup.
-- [JavaScript Development](.cursor/rules/js-development.mdc): JS best practices for maintainable, robust Perchance code.
-- [SCSS Development](.cursor/rules/scss-development.mdc): Atomic/utility CSS, Tailwind compatibility, and general CSS best practices.
-- [Design System](memory-bank/project/designSystem.md): No icons, only text labels for controls.
-- [All rules in .cursor/rules/](.cursor/rules/)
+### **⚒️ Operational Mode** (Code Implementer)
 
-**Highlights:**
+- **Purpose**: Implementation, testing, and execution
+- **Thinking Approach**: Professional coding with zero technical debt
+- **When Activated**: All levels, direct implementation, testing, deployment
 
-- Minimal, grouped controls (no icons, only text labels)
-- Atomic/component CSS: all CSS in one file for deployment, no @import, no repeated !important
-- Incremental, reviewable changes only
-- Protocol-driven workflows (see rules for details)
-- Modular, extensible architecture and plugin system
-- Perchance-specific storage and build/deploy requirements
+## 📋 **Core Rules & Guidelines**
 
----
+### **Essential Documentation**
 
-## Onboarding & Reference Guide
+- **[System Architecture](.cursor/rules/system-architecture.mdc)**: Complete 3-mode system architecture
+- **[Unified Orchestrator Mode](.cursor/rules/unified-orchestrator-mode.mdc)**: Automatic mode routing and role selection
+- **[Thinking Framework](.cursor/rules/thinking-framework.mdc)**: Integrated thinking approaches
+- **[Memory Bank Overview](.cursor/rules/memory-bank-overview.mdc)**: Knowledge management system
+- **[MCP Ecosystem](.cursor/rules/mcp-ecosystem.mdc)**: Model Context Protocol integration
+- **[Perchance Architecture](.cursor/rules/perchance-architecture.mdc)**: Platform-specific guidelines
+- **[JavaScript Development](.cursor/rules/js-development.mdc)**: Modern JS best practices
+- **[SCSS Advanced Patterns](.cursor/rules/scss-advanced-patterns.mdc)**: Advanced styling patterns
 
-- [All rules in .cursor/rules/](.cursor/rules/)
+### **Development Principles**
 
----
+- **Minimal, grouped controls**: No icons, only text labels
+- **Atomic/component CSS**: All CSS in one file, no @import, no repeated !important
+- **Incremental changes**: Small, reviewable modifications only
+- **Protocol-driven workflows**: Structured development processes
+- **Modular architecture**: Extensible plugin system and component design
+- **Zero technical debt**: Production-ready code from the start
 
-## Project File Structure
+## 📁 **Project Structure**
 
-```text
+` ext
 /
-├── apps/                   # Application code
-│   ├── rpglitch/           # RPGlitch app source (HTML, JS, CSS)
-│   ├── imageglitch/        # ImageGlitch app source
-│   └── tizen/              # Tizen C# applications (future)
-├── build/                  # Build system
-│   ├── scripts/            # Build scripts
-│   └── output/             # Build artifacts
-├── docs/                   # Documentation
-│   ├── guides/             # User and developer guides
-│   ├── mcp/                # MCP ecosystem documentation
-│   └── api/                # API documentation
-├── tools/                  # Development tools
-│   ├── diagnostics/        # Diagnostic tools
+├── apps/                   # Application source code
+│   ├── rpglitch/           # RPGlitch application
+│   ├── imageglitch/        # ImageGlitch application
+│   └── shared/             # Shared components and assets
+├── build/                  # Build system and automation
+│   ├── scripts/            # Build scripts and utilities
+│   └── output/             # Build artifacts and deployment files
+├── memory-bank/            # Knowledge management system
+│   ├── active/             # Active project context
+│   ├── strategic/          # Strategic planning and analysis
+│   ├── tactical/           # Tactical planning and coordination
+│   ├── operational/        # Operational implementation
+│   ├── archives/           # Archived content and history
+│   └── projects/           # Project-specific memory
+├── tools/                  # Development tools and utilities
+│   ├── diagnostics/        # Diagnostic and testing tools
+│   ├── ai-rule-selection/  # AI rule selection tools
 │   ├── browser-tools/      # Browser automation tools
-│   └── mcp/                # MCP servers and tools
+│   └── test-globs/         # Testing utilities
 ├── .cursor/                # Cursor editor configuration
-│   └── rules/              # Project rules and guidelines
-├── linting/                # Linting configuration
+│   └── rules/              # 39 comprehensive rule files
+├── linting/                # Code quality and linting
 │   ├── eslint.config.mjs   # ESLint configuration
-│   ├── stylelint.config.js # Stylelint configuration
-│   └── .htmlhintrc         # HTMLHint configuration
-├── memory/                 # Consolidated memory system
-│   ├── project/            # Project-specific memory
-│   ├── cursor/             # Cursor memory bank
-│   └── archive/            # Archived memory
-├── sdk/                    # External SDKs and tools
-└── README.md               # This onboarding and reference guide
-```
+│   └── stylelint.config.js # Stylelint configuration
+├── .vscode/                # VSCode configuration
+├── package.json            # Node.js dependencies
+└── README.md               # This comprehensive guide
+`
+
+## 🚀 **Quick Start Guide**
+
+### **For New Developers**
+
+1. **Review System Architecture**: Start with [system-architecture.mdc](.cursor/rules/system-architecture.mdc)
+2. **Understand 3-Mode System**: Read [unified-orchestrator-mode.mdc](.cursor/rules/unified-orchestrator-mode.mdc)
+3. **Explore Memory Bank**: Check [memory-bank-overview.mdc](.cursor/rules/memory-bank-overview.mdc)
+4. **Review Project Rules**: Browse all 39 rules in [.cursor/rules/](.cursor/rules/)
+
+### **For Active Development**
+
+1. **Automatic Mode Selection**: The system automatically routes tasks based on complexity
+2. **Memory Bank Integration**: All decisions and progress are tracked in memory-bank/
+3. **Build Automation**: Use build scripts for deployment-ready output
+4. **Quality Assurance**: Comprehensive linting and testing tools available
+
+## 🔧 **Build & Deployment**
+
+### **RPGlitch Build Process**
+
+- **Build Script**:
+ode build-perchance.js (from project root)
+- **Output**: uild/output/RPGlitch-perchance.html (deployment ready)
+- **CSS Archive**: uild/output/archive/RPGlitch-perchance.css (with source map)
+- **No Manual CSS**: Build script handles all CSS merging automatically
+
+### **CSS Architecture**
+
+- **base.css**: Atomic/utility classes, variables, resets
+- **layout.css**: Layout, centering, width, and flex rules
+- **components.css**: Visual/component styles for UI elements
+- **ONE SOURCE ONE TRUTH**: Each class defined only once in appropriate file
+
+### **Deployment**
+
+- **Perchance Platform**: Direct upload of generated HTML files
+- **Single File Output**: Complete applications in single HTML files
+- **Optimized Assets**: Minified CSS and JavaScript embedded
+- **Platform Ready**: No external dependencies required
+
+## 📊 **System Features**
+
+### **🎯 Automatic Intelligence**
+
+- **Complexity Assessment**: Automatic task complexity detection (Level 1-3)
+- **Mode Routing**: Smart routing to appropriate modes based on task type
+- **Role Selection**: Automatic role activation (System Architect, Project Planner, Code Implementer)
+- **Thinking Approach**: Optimal thinking method selection for each task
+
+### **🧠 Memory Management**
+
+- **Persistent Context**: No lost context between development sessions
+- **Knowledge Graph**: Automatic semantic relationship building
+- **Obsidian Integration**: Works with existing Obsidian workflows
+- **Multi-Project Support**: Separate knowledge bases for different projects
+
+### **⚡ Performance Optimization**
+
+- **Context-Aware Rules**: Intelligent rule loading based on task context
+- **Token Efficiency**: Optimal rule selection for maximum performance
+- **Lazy Loading**: Specialized rules loaded only when needed
+- **Rule Caching**: Intelligent caching for frequently used rules
+
+### **🔧 MCP Integration**
+
+- **Context7**: Real-time access to current library documentation
+- **Time MCP**: Date standardization and timezone handling
+- **Basic Memory**: Local knowledge management with MCP server
+- **Sequential Thinking**: Tool-guided problem solving with MCP integration
+
+## 📚 **Documentation Structure**
+
+### **Rules System (39 Files)**
+
+- **System & Architecture**: 9 rules covering system design and orchestration
+- **Memory Bank**: 3 rules for knowledge management
+- **MCP Integration**: 4 rules for external tool integration
+- **JavaScript Development**: 9 rules for modern JS practices
+- **SCSS & Styling**: 3 rules for advanced styling patterns
+- **Perchance Platform**: 3 rules for platform-specific development
+- **HTML Development**: 1 rule for semantic HTML
+- **Development Tools**: 7 rules for various development aspects
+
+### **Memory Bank Organization**
+
+- **Active Context**: Current project state and decisions
+- **Strategic Planning**: Long-term planning and system optimization
+- **Tactical Coordination**: Implementation planning and coordination
+- **Operational Execution**: Implementation details and progress tracking
+- **Archives**: Historical decisions and completed work
+- **Projects**: Project-specific knowledge and context
+
+## 🎯 **Development Workflow**
+
+### **Task Processing Pipeline**
+
+1. **Complexity Assessment**: Automatic level detection (1-3)
+2. **Mode Routing**: Strategic → Tactical → Operational
+3. **Thinking Approach**: Contemplative → Sequential → Professional
+4. **Role Activation**: System Architect → Project Planner → Code Implementer
+5. **Execution**: Implementation with quality assurance
+6. **Reflection**: Strategic optimization and learning
+
+### **Quality Assurance**
+
+- **Comprehensive Linting**: ESLint, Stylelint, HTMLHint, MarkdownLint
+- **Automated Testing**: Browser automation and diagnostic tools
+- **Performance Monitoring**: Build optimization and asset compression
+- **Error Handling**: Robust error handling and graceful degradation
+
+## 🔄 **Recent Updates (July 2025)**
+
+### **System Architecture Enhancements**
+
+- **Unified 3-Mode System**: Complete implementation of Strategic, Tactical, and Operational modes
+- **Integrated Thinking Framework**: Contemplative, Sequential, and Professional coding approaches
+- **Memory Bank Optimization**: Token efficiency and hierarchical rule structure
+- **MCP Ecosystem Integration**: Context7, Time MCP, and Basic Memory integration
+
+### **Rules System Recovery**
+
+- **Corrupted Files Fixed**: Successfully recovered from 11MB corrupted files to normal 6-27KB sizes
+- **Missing Rules Created**: Added system-architecture.mdc and perchance-build-deployment.mdc
+- **Total Rules**: 39 comprehensive rule files covering all development aspects
+- **All References Fixed**: Resolved all broken link errors in rule system
+
+### **Project Structure Optimization**
+
+- **Memory Bank Reorganization**: Clear categorization (active, strategic, tactical, operational, archives, projects)
+- **Apps Directory Structure**: Organized with proper src/ subdirectories
+- **Documentation Consolidation**: Centralized project management documentation
+- **Tools Cleanup**: Organized tools directory and archived dated reports
+
+### **Build System Improvements**
+
+- **Dependency Loading Fix**: Reverted to original inlining approach for reliable library loading
+- **Database Safety**: Comprehensive null checks throughout applications
+- **Error Handling**: Improved error handling with better timeout messages
+- **CSS Architecture**: ONE SOURCE ONE TRUTH principle for maintainable styling
+
+## 📞 **Support & Resources**
+
+### **Documentation**
+
+- **All Rules**: [.cursor/rules/](.cursor/rules/) (39 comprehensive rule files)
+- **Memory Bank**: [memory-bank/](memory-bank/) (Knowledge management system)
+- **Build System**: [build/](build/) (Automation and deployment tools)
+- **Development Tools**: [tools/](tools/) (Diagnostic and testing utilities)
+
+### **Quick References**
+
+- **System Architecture**: [system-architecture.mdc](.cursor/rules/system-architecture.mdc)
+- **3-Mode System**: [unified-orchestrator-mode.mdc](.cursor/rules/unified-orchestrator-mode.mdc)
+- **Thinking Framework**: [thinking-framework.mdc](.cursor/rules/thinking-framework.mdc)
+- **Memory Bank**: [memory-bank-overview.mdc](.cursor/rules/memory-bank-overview.mdc)
 
 ---
 
-_For any task, always start by reviewing the current state and explicit instructions in this README and the memory bank.  
-This onboarding applies to all Perchance/Glitch projects for consistent, high-quality development._
+**Last Updated**: 2025-07-24  
+**Version**: 3.0  
+**Status**: Complete unified 3-mode system with 39 rules and memory bank integration
 
-## RPGlitch Components: CSS & Build System
-
-### CSS Structure
-
-- **base.css**: Atomic/utility classes, variables, resets.
-- **layout.css**: All layout, centering, width, and flex rules for app containers (top bar, chin, main content, etc.).
-- **components.css**: Visual/component styles (background, border-radius, color, padding, font-size, font-weight, etc.) for UI elements.
-
-### Build & Deployment
-
-- Use `build-perchance.js` to merge all CSS into a single `<style>` block for Perchance deployment.
-- **As of July 2025, the build script outputs the merged CSS and source map to `build/output/archive/`:**
-  - `build/output/archive/RPGlitch-perchance.css`
-  - `build/output/archive/RPGlitch-perchance.css.map`
-- The HTML deployment file remains in `build/output/` as `RPGlitch-perchance.html`.
-- Do not use or reference `RPGlitch.css`—the build script handles merging.
-- The `atomic-css` folder is archived and can be deleted; all atomic classes are now in `base.css`.
-
-#### How to Build
-
-From the project root:
-
-```sh
-node build-perchance.js
-```
-
-- The merged CSS and map will be in `build/output/archive/`.
-- The HTML deployment file will be in `build/output/`.
-
-### Diagnostics
-
-- Use `automation-collect-diagnostics.js` to collect browser logs, audits, and screenshots for QA/debugging.
-
-### Best Practices
-
-- ONE SOURCE ONE TRUTH: Each class or element should have its layout rules in `layout.css` and visual rules in `components.css` only once.
-- Adjust only the relevant file for layout or visual changes.
-
-## Recent Updates (January 2025)
-
-### Card Component Styling
-
-- **Chin Card UI Modernization**: Successfully unified chin cards with storyboard cards through semantic HTML restructuring, consistent styling, and smart text overflow handling.
-- **Overflow Protection**: Added `overflow: hidden` to card info areas to prevent background "leakage" and ensure clean visual boundaries.
-- **CSS Specificity Management**: Resolved conflicts between general article rules and card-specific styles using `:not()` selectors.
-- **Text Overflow Strategy**: Implemented smart ellipsis handling with `text-wrap: balance` and fallback overflow styles for optimal readability.
-- **Color Palette Integration**: "Premade" tags use character's color palette for visual consistency and brand recognition.
-
-### Build System Improvements
-
-- **Dependency Loading Fix**: Reverted to original inlining approach for reliable library loading, eliminating CDN timing issues.
-- **Database Safety**: Added comprehensive null checks throughout the application to prevent race condition errors during startup.
-- **Error Handling**: Improved error handling with better timeout messages and graceful degradation.
-
-### Documentation Updates
-
-- **Memory Bank Consolidation**: All project documentation, planning, and design system records are now centralized in the `memory/` directory.
-- **Design System Refinement**: Updated component specifications and UI/UX review checklists to reflect current implementation.
-- **Progress Tracking**: Comprehensive milestone tracking and learning documentation for future reference.
-
----
+**🚀 Ready for production development with automatic intelligence and zero technical debt!**

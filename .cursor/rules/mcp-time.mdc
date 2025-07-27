@@ -1,6 +1,5 @@
 ---
-description: Mandatory date standardization and timezone handling using Time MCP for all documentation, code, and system outputs.
-alwaysApply: false
+alwaysApply: true
 ---
 # 🕐 Time MCP Usage - Mandatory Date Standardization
 

@@ -11,7 +11,4 @@ node_modules/
 # *.backup
 .DS_Store 
 cheatsheet.md 
-reddit
 
-tizen/
-sdk/
