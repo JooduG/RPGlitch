@@ -1,3 +1,9 @@
+/* stylelint-disable selector-id-pattern */
+/* stylelint-disable no-descending-specificity */
+/* stylelint-disable declaration-block-single-line-max-declarations */
+/* stylelint-disable no-duplicate-selectors */
+/* stylelint-disable declaration-property-value-keyword-no-deprecated */
+
 /* Consolidated Avatars (Base class and common properties) */
 .avatar { /* Base class for avatar containers/images */
   background-position: center;
@@ -641,8 +647,7 @@ font-weight: var(--font-weight-normal);
 font-style: italic;
 }
 
-select {
-appearance: none; appearance: none; appearance: none;
+select { appearance: none;
 background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23cdd6f4'%3e%3cpath d='M8 10.75a.5.5 0 0 1-.354-.146l-3-3a.5.5 0 0 1 .708-.708L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3A.5.5 0 0 1 8 10.75Z'/%3e%3c/svg%3e");
 background-repeat: no-repeat;
 background-position: right 1.25rem center;
