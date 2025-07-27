@@ -135,9 +135,9 @@ function createProfilePicturePlaceholder(name, palette, fontFamily) {
   }
   
   // Try to use utils function if available
-  if (typeof makeProfilePicturePlaceholderSVG === 'function') {
+  if (typeof window.makeProfilePicturePlaceholderSVG === 'function') {
     const paletteKey = getPaletteKey(palette);
-    return makeProfilePicturePlaceholderSVG(name, paletteKey, false, null, fontFamily);
+    return window.makeProfilePicturePlaceholderSVG(name, paletteKey, false, null, fontFamily);
   }
   
   // Local fallback implementation
