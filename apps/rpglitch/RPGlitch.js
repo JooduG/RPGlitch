@@ -4807,8 +4807,3 @@ function checkDependencies() {
         ? item.colorPalette
         : 'slate_gray';
     }
-    
-    // Export functions for global access
-    window.makeProfilePicturePlaceholderSVG = App._makeProfilePicturePlaceholderSVG.bind(App);
-  
-  
