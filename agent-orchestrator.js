@@ -6,7 +6,8 @@ const { execSync } = require('child_process');
 // --- Configuration ---
 const OLD_HTML_FILE = 'RPGlitch.html';
 const EDITED_HTML_FILE = 'RPGlitch-edited.html';
-const INTEGRATED_HTML_FILE = 'RPGlitch.html'; // Overwrite the old one or create a new one? Let's overwrite for simplicity.
+const INTEGRATED_HTML_FILE = 'RPGlitch.html'; // Overwrite the old one or create a new one.
+
 const SCSS_FILE = 'RPGlitch.scss'; // Assuming your main SCSS file
 const JS_FILE_1 = 'RPGlitch.js'; // Assuming your main JS file
 const JS_FILE_2 = 'ProfilePictureComponent.js'; // Assuming your other JS file
@@ -15,101 +16,118 @@ const JS_FILE_2 = 'ProfilePictureComponent.js'; // Assuming your other JS file
 // This list will be used by the script to perform replacements
 const htmlChanges = {
     // 1. Global/Dialog Element Changes
-    "id": {
-        "hidden-h1-element": "hidden-h1",
-        "initial-page-loading-modal": "initial-loading",
-        "emergency-export-ctn": "emergency-container",
-        "emergency-export-button": "emergency-export",
-        "emergency-delete-data-button": "emergency-delete",
-    },
-    "class": {
-        "visually-hidden": "hidden",
-        "initial-loading-modal": "initial-loading",
-        "emergency-export-container": "emergency-container",
-        "emergency-export-content": "emergency-container", // Apply to inner divs
-        "emergency-export-warning-text": "emergency-container", // Apply to inner divs
+    "globalDialogElements": {
+        "id": {
+            "hidden-h1-element": "hidden-h1",
+            "initial-page-loading-modal": "initial-loading",
+            "emergency-export-ctn": "emergency-container",
+            "emergency-export-button": "emergency-export",
+            "emergency-delete-data-button": "emergency-delete"
+        },
+        "class": {
+            "visually-hidden": "hidden",
+            "initial-loading-modal": "initial-loading",
+            "emergency-export-container": "emergency-container",
+            "emergency-export-content": "emergency-container",
+            "emergency-export-warning-text": "emergency-container"
+        }
     },
     // 2. Top Bar (nav id="top-bar") Changes
-    "topBarNav": { // Special handling for nav classes
-        "top-bar top-bar-nav top-bar-flex": "top-bar"
+    "topBarChanges": {
+        "removedOuterDivs": [ // IDs/Classes of outer divs that were removed
+            { "id": "main-content-wrapper", "class": "container app-scrollable-container" },
+            { "class": "container" } // The inner container div
+        ],
+        "navClasses": {
+            "top-bar top-bar-nav top-bar-flex": "top-bar"
+        },
+        "topBarLeftDivClasses": {
+            "top-bar-section": "top-bar-left"
+        },
+        "topBarLeftUlClasses": {
+            "no-class": "top-bar-left" // Represents adding class to <ul> that had none
+        },
+        "buttonAttributes": {
+            "data-tab-to-data-chin": { // Change attribute name
+                "old": "data-tab",
+                "new": "data-chin"
+            },
+            "data-chin-values": { // Specific data-chin value changes
+                "storyboard": "stories" // For the 'Stories' button
+            },
+            "tabindexChanges": {
+                "0": "1",
+                "-1-to-2": "2", // For characters
+                "-1-to-3": "3", // For worlds
+                "-1-to-4": "4"  // For options
+            },
+            "onclickLogicChanges": {
+                "App.selectTopBarTab('storyboard')": "App.selectTopBarTab('stories')", // For 'Stories' button
+                "App.toggleOptionsChin()": "App.selectTopBarTab('options')" // For 'Options' button
+            },
+            "buttonTextChanges": {
+                "Storyboard": "Stories",
+                "Character Workshop": "Characters",
+                "World Creation": "Worlds"
+            }
+        },
+        "topBarCenterRemoved": true, // Indicates removal of top-bar-center div
+        "topBarRightDivClasses": {
+            "top-bar-section": "top-bar-right"
+        },
+        "topBarRightRemovedElements": [ // IDs of elements removed from top-bar-right
+            "top-bar-user-character-info",
+            "top-bar-ai-character-info"
+        ],
+        "topBarRightButtonIds": {
+            "shuffle-button": "shuffle",
+            "begin-story-button": "begin-story",
+            "form-cancel-button": "form-cancel",
+            "form-save-button": "form-save"
+        },
+        "topBarRightButtonClassesRemoved": "button-hidden" // Class to be removed from these buttons
     },
-    "topBarLeftDiv": { // Special handling for top-bar-left div class
-        "top-bar-section": "top-bar-left"
-    },
-    "topBarLeftUl": { // Special handling for top-bar-left ul class
-        "no-class": "top-bar-left" // Indicates <ul> had no class, now has top-bar-left
-    },
-    "topBarButtons": { // Data attributes, tabindex, text, onclick
-        "data-tab": "data-chin",
-        "storyboard-data-tab-value": "stories", // Specific data-tab value change for 'stories'
-        "onclick-storyboard": "App.selectTopBarTab('stories')", // Specific onclick change for 'stories'
-        "onclick-options": "App.selectTopBarTab('options')", // Specific onclick change for 'options'
-        "text-storyboard": "Stories",
-        "text-character-workshop": "Characters",
-        "text-world-creation": "Worlds",
-        "tabindex-0": "1",
-        "tabindex--1-to-2": "2", // For characters
-        "tabindex--1-to-3": "3", // For worlds
-        "tabindex--1-to-4": "4", // For options
-    },
-    "topBarCenterRemoved": true, // Indicates removal of top-bar-center div
-    "topBarRightDiv": {
-        "top-bar-section": "top-bar-right"
-    },
-    "topBarRightRemovedElements": [ // IDs of elements removed from top-bar-right
-        "top-bar-user-character-info",
-        "top-bar-ai-character-info"
-    ],
-    "topBarRightButtonIds": {
-        "shuffle-button": "shuffle",
-        "begin-story-button": "begin-story",
-        "form-cancel-button": "form-cancel",
-        "form-save-button": "form-save",
-    },
-    "topBarRightButtonClasses": {
-        "button-hidden": "" // Remove this class where found on these buttons
-    },
-    // 3. Profile Top Bars (Removed)
+    // 3. Profile Top Bars (Removed in New Code)
     "profileTopBarsRemoved": [
         "profile-top-bar",
         "world-profile-top-bar",
         "story-profile-top-bar"
     ],
     // 4. "Chin" Section Changes
-    "chinIds": {
-        "storyboard-chin": "chin-stories",
-        "character-workshop-chin": "chin-characters",
-        "world-builder-chin": "chin-worlds",
-        "options-chin": "chin-options",
-    },
-    "chinClasses": {
-        "top-bar-chin container hidden": "hidden", // Simplify class for outer chin div
-        "chin-options-actions chin-actions-flex": "chin-actions", // Simplify options chin actions
-        "chin-actions-right chin-actions-right-flex": "chin-actions-right", // Simplify options chin right actions
-    },
-    "chinButtonIds": { // For buttons within chins
-        "new-story-button": "new-story",
-        "create-character-button": "new-character",
-        "create-world-button": "new-world",
-        "download-backup-button": "download-backup",
-        "start-fresh-button": "start-fresh",
-    },
-    "chinFileInputIds": { // For file inputs within chins
-        "upload-story-input": "upload-story",
-        "upload-character-input": "upload-character",
-        "upload-world-input": "upload-world",
-        "upload-backup-input": "upload-backup",
-    },
-    "chinTextareaPlaceholders": { // For options chin textareas
-        "Custom Story JS": "Custom JS"
-    },
-    "chinTextareaDivRemoved": true, // Indicates removal of div wrapping opening-prompt-textarea
-    "characterCardChanges": { // Specific changes for the character card example
-        "character-card-landscape": "chin-card",
-        "card-grid": "chin-card",
-        "card-info": "chin-card-left",
-        "profile-picture-default": "chin-card-picture",
-        "footer-card-footer-removed": true // Indicates removal of the footer
+    "chinChanges": {
+        "chinIds": {
+            "storyboard-chin": "chin-stories",
+            "character-workshop-chin": "chin-characters",
+            "world-builder-chin": "chin-worlds",
+            "options-chin": "chin-options"
+        },
+        "chinClasses": {
+            "top-bar-chin container hidden": "hidden", // Simplify class for outer chin div
+            "chin-options-actions chin-actions-flex": "chin-actions", // Simplify options chin actions
+            "chin-actions-right chin-actions-right-flex": "chin-actions-right" // Simplify options chin right actions
+        },
+        "chinButtonIds": { // For buttons within chins
+            "new-story-button": "new-story",
+            "create-character-button": "new-character",
+            "create-world-button": "new-world",
+            "download-backup-button": "download-backup",
+            "start-fresh-button": "start-fresh"
+        },
+        "chinFileInputIds": { // For file inputs within chins
+            "upload-story-input": "upload-story",
+            "upload-character-input": "upload-character",
+            "upload-world-input": "upload-world",
+            "upload-backup-input": "upload-backup"
+        },
+        "chinTextareaPlaceholders": { // For options chin textareas
+            "Custom Story JS": "Custom JS"
+        },
+        "chinTextareaDivRemoved": true, // Indicates removal of div wrapping opening-prompt-textarea
+        "characterCardChanges": { // Specific changes for the character card example
+            "oldClasses": ["character-card-landscape", "card-grid", "card-info", "profile-picture-default"],
+            "newClasses": ["chin-card", "chin-card", "chin-card-left", "chin-card-picture"],
+            "footerRemoved": true // Indicates removal of the footer
+        }
     }
 };
 
@@ -212,31 +230,105 @@ function phase2Migration() {
     let jsContent1 = readFile(JS_FILE_1);
     let jsContent2 = readFile(JS_FILE_2);
 
-    // Apply ID and Class renames
-    for (const type in htmlChanges) {
-        if (typeof htmlChanges[type] === 'object' && !Array.isArray(htmlChanges[type])) {
-            for (const oldName in htmlChanges[type]) {
-                const newName = htmlChanges[type][oldName];
-                // Simple string replacement - a real agent would use AST parsing for robustness
-                scssContent = scssContent.split(oldName).join(newName);
-                jsContent1 = jsContent1.split(oldName).join(newName);
-                jsContent2 = jsContent2.split(oldName).join(newName);
-            }
+    // Apply ID and Class renames based on the comprehensive list
+    // This part is a simplified string replacement. For a real agent,
+    // a DOM parser for HTML and AST parsers for SCSS/JS would be used
+    // for more robust and accurate transformations.
+
+    // Helper to apply replacements
+    function applyReplacements(content, changesMap) {
+        let updatedContent = content;
+        for (const oldVal in changesMap) {
+            const newVal = changesMap[oldVal];
+            // Escape special characters for regex if needed
+            const escapedOldVal = oldVal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(escapedOldVal, 'g');
+            updatedContent = updatedContent.replace(regex, newVal);
         }
+        return updatedContent;
     }
 
-    // Specific attribute and logic changes (simplified examples)
-    // data-tab to data-chin
-    scssContent = scssContent.split('data-tab').join('data-chin');
-    jsContent1 = jsContent1.split('data-tab').join('data-chin');
-    jsContent2 = jsContent2.split('data-tab').join('data-chin');
+    // Global/Dialog Element Changes
+    scssContent = applyReplacements(scssContent, htmlChanges.globalDialogElements.id);
+    jsContent1 = applyReplacements(jsContent1, htmlChanges.globalDialogElements.id);
+    jsContent2 = applyReplacements(jsContent2, htmlChanges.globalDialogElements.id);
 
-    // Update onclick logic for options button
-    jsContent1 = jsContent1.split("App.toggleOptionsChin()").join("App.selectTopBarTab('options')");
+    scssContent = applyReplacements(scssContent, htmlChanges.globalDialogElements.class);
+    jsContent1 = applyReplacements(jsContent1, htmlChanges.globalDialogElements.class);
+    jsContent2 = applyReplacements(jsContent2, htmlChanges.globalDialogElements.class);
 
-    // Handle removed elements (e.g., remove their styles from SCSS)
-    // This would require more advanced parsing to remove entire CSS blocks
-    // For now, simple replacements for classes/IDs will handle some of it.
+    // Top Bar Changes
+    scssContent = applyReplacements(scssContent, htmlChanges.topBarChanges.navClasses);
+    jsContent1 = applyReplacements(jsContent1, htmlChanges.topBarChanges.navClasses);
+    jsContent2 = applyReplacements(jsContent2, htmlChanges.topBarChanges.navClasses);
+
+    scssContent = applyReplacements(scssContent, htmlChanges.topBarChanges.topBarLeftDivClasses);
+    jsContent1 = applyReplacements(jsContent1, htmlChanges.topBarChanges.topBarLeftDivClasses);
+    jsContent2 = applyReplacements(jsContent2, htmlChanges.topBarChanges.topBarLeftDivClasses);
+
+    scssContent = applyReplacements(scssContent, htmlChanges.topBarChanges.topBarLeftUlClasses);
+    jsContent1 = applyReplacements(jsContent1, htmlChanges.topBarChanges.topBarLeftUlClasses);
+    jsContent2 = applyReplacements(jsContent2, htmlChanges.topBarChanges.topBarLeftUlClasses);
+
+    // Data attribute changes (data-tab to data-chin)
+    scssContent = scssContent.split(htmlChanges.topBarChanges.buttonAttributes["data-tab-to-data-chin"].old).join(htmlChanges.topBarChanges.buttonAttributes["data-tab-to-data-chin"].new);
+    jsContent1 = jsContent1.split(htmlChanges.topBarChanges.buttonAttributes["data-tab-to-data-chin"].old).join(htmlChanges.topBarChanges.buttonAttributes["data-tab-to-data-chin"].new);
+    jsContent2 = jsContent2.split(htmlChanges.topBarChanges.buttonAttributes["data-tab-to-data-chin"].old).join(htmlChanges.topBarChanges.buttonAttributes["data-tab-to-data-chin"].new);
+
+    // Specific data-chin value changes (storyboard to stories)
+    jsContent1 = jsContent1.split(`'${htmlChanges.topBarChanges.buttonAttributes["data-chin-values"].storyboard}'`).join(`'${htmlChanges.topBarChanges.buttonAttributes["data-chin-values"].stories}'`);
+    jsContent2 = jsContent2.split(`'${htmlChanges.topBarChanges.buttonAttributes["data-chin-values"].storyboard}'`).join(`'${htmlChanges.topBarChanges.buttonAttributes["data-chin-values"].stories}'`);
+
+    // Onclick logic changes (Options button)
+    jsContent1 = jsContent1.split(htmlChanges.topBarChanges.buttonAttributes.onclickLogicChanges["App.toggleOptionsChin()"]).join(htmlChanges.topBarChanges.buttonAttributes.onclickLogicChanges["App.selectTopBarTab('options')"]);
+    jsContent2 = jsContent2.split(htmlChanges.topBarChanges.buttonAttributes.onclickLogicChanges["App.toggleOptionsChin()"]).join(htmlChanges.topBarChanges.buttonAttributes.onclickLogicChanges["App.selectTopBarTab('options')"]);
+
+    // Button Text Changes (might be less relevant for JS/SCSS but included for completeness if text is referenced)
+    // This would typically be handled in HTML directly or via templating.
+
+    // Top Bar Right changes
+    scssContent = applyReplacements(scssContent, htmlChanges.topBarChanges.topBarRightDivClasses);
+    jsContent1 = applyReplacements(jsContent1, htmlChanges.topBarChanges.topBarRightDivClasses);
+    jsContent2 = applyReplacements(jsContent2, htmlChanges.topBarChanges.topBarRightDivClasses);
+
+    scssContent = applyReplacements(scssContent, htmlChanges.topBarChanges.topBarRightButtonIds);
+    jsContent1 = applyReplacements(jsContent1, htmlChanges.topBarChanges.topBarRightButtonIds);
+    jsContent2 = applyReplacements(jsContent2, htmlChanges.topBarChanges.topBarRightButtonIds);
+
+    // Remove 'button-hidden' class
+    scssContent = scssContent.split(htmlChanges.topBarChanges.topBarRightButtonClassesRemoved).join('');
+    jsContent1 = jsContent1.split(htmlChanges.topBarChanges.topBarRightButtonClassesRemoved).join('');
+    jsContent2 = jsContent2.split(htmlChanges.topBarChanges.topBarRightButtonClassesRemoved).join('');
+
+    // Chin Section Changes
+    scssContent = applyReplacements(scssContent, htmlChanges.chinChanges.chinIds);
+    jsContent1 = applyReplacements(jsContent1, htmlChanges.chinChanges.chinIds);
+    jsContent2 = applyReplacements(jsContent2, htmlChanges.chinChanges.chinIds);
+
+    scssContent = applyReplacements(scssContent, htmlChanges.chinChanges.chinClasses);
+    jsContent1 = applyReplacements(jsContent1, htmlChanges.chinChanges.chinClasses);
+    jsContent2 = applyReplacements(jsContent2, htmlChanges.chinChanges.chinClasses);
+
+    scssContent = applyReplacements(scssContent, htmlChanges.chinChanges.chinButtonIds);
+    jsContent1 = applyReplacements(jsContent1, htmlChanges.chinChanges.chinButtonIds);
+    jsContent2 = applyReplacements(jsContent2, htmlChanges.chinChanges.chinButtonIds);
+
+    scssContent = applyReplacements(scssContent, htmlChanges.chinChanges.chinFileInputIds);
+    jsContent1 = applyReplacements(jsContent1, htmlChanges.chinChanges.chinFileInputIds);
+    jsContent2 = applyReplacements(jsContent2, htmlChanges.chinChanges.chinFileInputIds);
+
+    // Textarea placeholder
+    jsContent1 = jsContent1.split(htmlChanges.chinChanges.chinTextareaPlaceholders["Custom Story JS"]).join(htmlChanges.chinChanges.chinTextareaPlaceholders["Custom JS"]);
+    jsContent2 = jsContent2.split(htmlChanges.chinChanges.chinTextareaPlaceholders["Custom Story JS"]).join(htmlChanges.chinChanges.chinTextareaPlaceholders["Custom JS"]);
+
+    // Character Card Changes - this is complex and needs specific handling
+    // For classes, apply replacements. For removed footer, it implies removing related JS/SCSS logic.
+    scssContent = applyReplacements(scssContent, htmlChanges.chinChanges.characterCardChanges.oldClasses.reduce((acc, curr, idx) => {
+        acc[curr] = htmlChanges.chinChanges.characterCardChanges.newClasses[idx];
+        return acc;
+    }, {}));
+    // Removing JS/SCSS for removed elements/logic (like character card footer) is highly contextual
+    // and would require deeper AST parsing or specific instructions.
 
     // Write updated files
     writeFile(SCSS_FILE, scssContent);
@@ -260,14 +352,10 @@ function phase3ContinuousLinting() {
         if (hasLinterErrors(eslintOutput1) || hasLinterErrors(eslintOutput2)) {
             hasErrors = true;
             console.log("JavaScript errors found. Attempting to fix...");
-            // In a real agent, this would trigger a fix function
-            // For now, we'll just re-run with --fix if available
             runLinter(`npx eslint ${JS_FILE_1} --fix`);
             runLinter(`npx eslint ${JS_FILE_2} --fix`);
-            // Re-validate after fix
             if (hasLinterErrors(runLinter(`npx eslint ${JS_FILE_1}`)) || hasLinterErrors(runLinter(`npx eslint ${JS_FILE_2}`))) {
                 console.error("JavaScript errors persist after fix attempt.");
-                // A real agent might log, alert, or try a different strategy
             } else {
                 console.log("JavaScript errors fixed.");
             }
@@ -280,14 +368,9 @@ function phase3ContinuousLinting() {
         if (hasLinterErrors(stylelintOutput)) {
             hasErrors = true;
             console.log("SCSS errors found. Attempting to fix...");
-            // For PicoCSS specificity, we might need to add disable comments or ignore rules
-            // This is complex and would require more advanced parsing.
-            // For now, we'll assume `stylelint --fix` handles simple cases.
             runLinter(`npx stylelint ${SCSS_FILE} --fix`);
-            // Re-validate after fix
             if (hasLinterErrors(runLinter(`npx stylelint ${SCSS_FILE}`))) {
                 console.error("SCSS errors persist after fix attempt. May require manual review or rule adjustments (e.g., PicoCSS specificity).");
-                // A real agent might suggest adding disable comments for specific lines/rules
             } else {
                 console.log("SCSS errors fixed.");
             }
@@ -295,18 +378,14 @@ function phase3ContinuousLinting() {
             console.log("SCSS is clean. ✅");
         }
 
-        // HTML linting (assuming a tool like HTMLHint or similar)
-        // For simplicity, we'll assume HTML is clean as per previous reports
-        console.log("HTML is assumed clean. ✅");
-
+        console.log("HTML is assumed clean. ✅"); // HTML linting is done via htmlhint in package.json
 
         if (!hasErrors) {
             console.log("Codebase is clean! Taking a one-hour break.");
-            time.sleep(3600); // Pause for 1 hour (3600 seconds)
+            execSync('sleep 3600'); // Use execSync for sleep in Node.js for shell command
             console.log("Resuming operations after break.");
         } else {
             console.log("Errors persist. Re-running linting cycle immediately to resolve remaining issues.");
-            // Loop continues immediately
         }
     }
 }

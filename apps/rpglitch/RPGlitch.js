@@ -206,7 +206,7 @@ function checkDependencies() {
             } else if (!el) {
                 console.warn(`[UI] Optional element with ID '${id}' not found.`);
             }
-            return el;n      },
+            return el;n        },
   
     
         /**
@@ -226,7 +226,7 @@ function checkDependencies() {
             this._getChatInterfaceElements();
     
             if (!this.ui.main) {
-                console.error("[App Critical] #main container not found after UI element query!");
+                console.error("[App Critical] #main container not found after UI element query!");n            }n        },
             }
             
             
@@ -253,7 +253,7 @@ function checkDependencies() {
                 this.ui.topBarAiCharacterPic = this._query('top-bar-ai-character-pic', false, this.ui.topBarAiCharacterInfo);
                 this.ui.topBarAiCharacterNameText = this._query('top-bar-ai-character-name-text', false, this.ui.topBarAiCharacterInfo);
               }
-              this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight);
+              this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight);n            }n        },
             }
   
     
@@ -261,18 +261,18 @@ function checkDependencies() {
             this.ui.storyboardChin = this._query('chin-stories');
             this.ui.characterWorkshopChin = this._query('chin-characters');
             this.ui.worldBuilderChin = this._query('chin-worlds');
-            this.ui.optionsChin = this._query('chin-options');
+            this.ui.optionsChin = this._query('chin-options');n        },
   
     
         _getCoreUIContainers() {
             this.ui.main = this._query('main', true);
             this.ui.storyboardScreen = this._query('storyboard-screen', true);
-            this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true);
+            this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true);n        },
   
     
         _getFormScreens() {
             this.ui.characterFormScreen = this._query('character-form-screen', true);
-            this.ui.worldFormScreen = this._query('world-form-screen', true);
+            this.ui.worldFormScreen = this._query('world-form-screen', true);n        },
   
     
         _getProfileScreens() {
@@ -785,7 +785,7 @@ function checkDependencies() {
               worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, colorPalette'
           },).upgrade(async () => {
               // Migration logic remains the same
-          },);
+          },);n      },n      },n      },
       
           try {
               await this.db.open();
@@ -2964,13 +2964,13 @@ function checkDependencies() {
           return recentMessages.map(msg => ({
               role: msg.role === 'user' ? 'user' : 'model', // Map 'character' role to 'model' for AI
               parts: [{ text: msg.content }]
-          },));
+          },));n      },
 
     
       async _collectMemoriesFromStory() {
           // This is a placeholder for future memory collection logic
           // For now, it returns an empty array
-          return [];
+          return [];n      },
 
     
       async _renderMemoryApplicationScreen(options = {}) {
@@ -2990,7 +2990,7 @@ function checkDependencies() {
               }
           }, catch (error) {
               console.error("Error applying memories:", error);
-              container.innerHTML = '<h2>Error Applying Memories</h2><p>Failed to process memories from this story.</p>';
+              container.innerHTML = '<h2>Error Applying Memories</h2><p>Failed to process memories from this story.</p>';n          }n      },
           },
 
     
@@ -3000,7 +3000,7 @@ function checkDependencies() {
           // In a real implementation, you would:
           // 1. Fetch memories from the story
           // 2. Update the relevant character/world items in the DB
-          // 3. Show a notification
+          // 3. Show a notificationn      },
 
     
       async _updateStoryboard() {
