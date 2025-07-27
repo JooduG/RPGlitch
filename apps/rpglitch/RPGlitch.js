@@ -79,7 +79,7 @@ function checkDependencies() {
           UNIVERSAL_COLORS: {
               black: "#1f2937",
               white: "#f9fafb"
-          }, // <-- FIXED: added closing brace and comma
+          },
           COLOR_PALETTES: {
               // Blues & Teals
               tech_blue: { name: 'Tech Blue', colors: { light: '#a7d8f9', medium: '#4a90e2', dark: '#1c3a6e', neutral: '#5a6a7a' } },
@@ -94,7 +94,7 @@ function checkDependencies() {
               // Grays & Metallics
               slate_gray: { name: 'Slate Gray', colors: { light: '#cfd8dc', medium: '#607d8b', dark: '#263238', neutral: '#6c757d' } },
               cyber_pink: { name: 'Cyber Pink', colors: { light: '#f8bbd0', medium: '#e91e63', dark: '#880e4f', neutral: '#757575' } }
-          }, // <-- FIXED: added closing brace and comma
+          },
           VIEWS: { 
               STORYBOARD: 'storyboardScreen',
               STORY_INTERFACE: 'chatInterfaceScreen',
@@ -106,7 +106,7 @@ function checkDependencies() {
               WORLD_PROFILE: 'worldProfileScreen',
               STORY_PROFILE: 'storyProfileScreen',
               MEMORY_APPLICATION: 'memoryApplicationScreen' 
-          }, // <-- FIXED: added closing brace and comma
+          },
           ITEM_CONFIG: {
               character: {
                   itemType: 'character',
@@ -206,7 +206,8 @@ function checkDependencies() {
             } else if (!el) {
                 console.warn(`[UI] Optional element with ID '${id}' not found.`);
             }
-            return el;n        },
+            return el;
+        },
   
     
         /**
@@ -226,8 +227,9 @@ function checkDependencies() {
             this._getChatInterfaceElements();
     
             if (!this.ui.main) {
-                console.error("[App Critical] #main container not found after UI element query!");n            }n        },
+                console.error("[App Critical] #main container not found after UI element query!");
             }
+        },
             
             
   
@@ -253,26 +255,30 @@ function checkDependencies() {
                 this.ui.topBarAiCharacterPic = this._query('top-bar-ai-character-pic', false, this.ui.topBarAiCharacterInfo);
                 this.ui.topBarAiCharacterNameText = this._query('top-bar-ai-character-name-text', false, this.ui.topBarAiCharacterInfo);
               }
-              this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight);n            }n        },
+              this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight);
             }
+        },
   
     
         _getChinElements() {
             this.ui.storyboardChin = this._query('chin-stories');
             this.ui.characterWorkshopChin = this._query('chin-characters');
             this.ui.worldBuilderChin = this._query('chin-worlds');
-            this.ui.optionsChin = this._query('chin-options');n        },
+            this.ui.optionsChin = this._query('chin-options');
+        },
   
     
         _getCoreUIContainers() {
             this.ui.main = this._query('main', true);
             this.ui.storyboardScreen = this._query('storyboard-screen', true);
-            this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true);n        },
+            this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true);
+        },
   
     
         _getFormScreens() {
             this.ui.characterFormScreen = this._query('character-form-screen', true);
-            this.ui.worldFormScreen = this._query('world-form-screen', true);n        },
+            this.ui.worldFormScreen = this._query('world-form-screen', true);
+        },
   
     
         _getProfileScreens() {
@@ -283,37 +289,40 @@ function checkDependencies() {
             this.ui.storyProfileUserCharacterDisplayArea = this._query('story-profile-user-character-display-area');
             this.ui.storyProfilechatFeed = this._query('story-profile-message-feed');
             this.ui.storyProfileActions = this._query('story-profile-actions');
-  
-            // New profile top bar elements
-            
-            
-            const nullCenter = this._query('profile-top-bar-center');
-            const nullNotificationArea = this._query('profile-top-bar-notification-area');
-            const nullRight = this._query('profile-top-bar-right');
-            const nullUserCharacterInfo = this._query('profile-top-bar-user-character-info');
-            const nullUserCharacterPic = this._query('profile-top-bar-user-character-pic');
-            const nullUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
-            const nullAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
-            const nullAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
-            const nullAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
+
+            // Declare all variables once at the top
+            let nullLeft, nullCenter, nullNotificationArea, nullRight;
+            let nullUserCharacterInfo, nullUserCharacterPic, nullUserCharacterNameText;
+            let nullAiCharacterInfo, nullAiCharacterPic, nullAiCharacterNameText;
+
+            // Assign for profile top bar
+            nullCenter = this._query('profile-top-bar-center');
+            nullNotificationArea = this._query('profile-top-bar-notification-area');
+            nullRight = this._query('profile-top-bar-right');
+            nullUserCharacterInfo = this._query('profile-top-bar-user-character-info');
+            nullUserCharacterPic = this._query('profile-top-bar-user-character-pic');
+            nullUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
+            nullAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
+            nullAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
+            nullAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
             this.ui.profileShuffleButton = this._query('profile-shuffle');
             this.ui.profileBeginStoryButton = this._query('profile-begin-story');
-  
-            
-            const nullLeft = this._query('world-profile-top-bar-left');
-            const nullCenter = this._query('world-profile-top-bar-center');
-            const nullNotificationArea = this._query('world-profile-top-bar-notification-area');
-            const nullRight = this._query('world-profile-top-bar-right');
-            const nullUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
-            const nullUserCharacterPic = this._query('world-profile-top-bar-user-character-pic');
-            const nullUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
-            const nullAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
-            const nullAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
-            const nullAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
+
+            // Assign for world profile top bar
+            nullLeft = this._query('world-profile-top-bar-left');
+            nullCenter = this._query('world-profile-top-bar-center');
+            nullNotificationArea = this._query('world-profile-top-bar-notification-area');
+            nullRight = this._query('world-profile-top-bar-right');
+            nullUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
+            nullUserCharacterPic = this._query('world-profile-top-bar-user-character-pic');
+            nullUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
+            nullAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
+            nullAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
+            nullAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
             this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle');
             this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story');
-  
-            
+
+            // Assign for story profile top bar
             nullLeft = this._query('story-profile-top-bar-left');
             nullCenter = this._query('story-profile-top-bar-center');
             nullNotificationArea = this._query('story-profile-top-bar-notification-area');
@@ -325,21 +334,24 @@ function checkDependencies() {
             nullAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic');
             nullAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text');
             this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle');
-            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story');n        },
+            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story');
+        },
   
     
         _getPremadeSelectionScreens() {
             this.ui.premadeCharacterSelectionScreen = this._query('premade-character-bank', true);
             this.ui.premadeCharacterOnlyList = this._query('premade-character-only-list');
             this.ui.premadeWorldSelectionScreen = this._query('premade-world-bank', true);
-            this.ui.premadeWorldOnlyList = this._query('premade-world-only-list');n        },
+            this.ui.premadeWorldOnlyList = this._query('premade-world-only-list');
+        },
   
     
         _getMiscScreens() {
             this.ui.memoryApplicationScreen = this._query('memory-application-screen');
             this.ui.initialPageLoadingModal = this._query('initial-loading', true);
             this.ui.emergencyExportCtn = this._query('emergency');
-            if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn);n        },
+            if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn);
+        },
   
     
         _getStoryboardElements() {
@@ -428,7 +440,8 @@ function checkDependencies() {
             this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen);
             this.ui.customStoryJsTextarea = this._query('custom-story-js-textarea', false, this.ui.storyboardScreen);
             this.ui.beginStoryButton = this._query('begin-story', false, this.ui.storyboardScreen);
-            this.ui.shuffleStoryElementsButton = this._query('shuffle', false, this.ui.storyboardScreen);n        },
+            this.ui.shuffleStoryElementsButton = this._query('shuffle', false, this.ui.storyboardScreen);
+        },
   
     
         _getChatInterfaceElements() {
@@ -446,7 +459,8 @@ function checkDependencies() {
             this.ui.noMessagesNotice = this._query('no-messages-notice', false, this.ui.builtInChatInterfaceWrapper);
             this.ui.statusNotifier = this._query('status-notifier', false, this.ui.builtInChatInterfaceWrapper);
             this.ui.typingIndicatorText = this._query('typing-indicator-text', false, this.ui.builtInChatInterfaceWrapper);
-            this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper);n        },
+            this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper);
+        },
 
     
       /**
@@ -467,25 +481,29 @@ function checkDependencies() {
       disableMouseoverAnimation(element) {
           if (element) {
               element.setAttribute('disabled', 'true');
-              this.mouseoverAnimationState.disabledElements.add(element);n          },
-          },
+              this.mouseoverAnimationState.disabledElements.add(element)
+          }
+      }
 
   
       enableMouseoverAnimation(element) {
           if (element) {
               element.removeAttribute('disabled');
-              this.mouseoverAnimationState.disabledElements.delete(element);n          },
-          },
+              this.mouseoverAnimationState.disabledElements.delete(element)
+          }
+      }
 
   
       disableMouseoverAnimationForSelector(selector) {
           const elements = document.querySelectorAll(selector);
-          elements.forEach(el => this.disableMouseoverAnimation(el));n      },
+          elements.forEach(el => this.disableMouseoverAnimation(el))
+      }
 
   
       enableMouseoverAnimationForSelector(selector) {
           const elements = document.querySelectorAll(selector);
-          elements.forEach(el => this.enableMouseoverAnimation(el));n      },
+          elements.forEach(el => this.enableMouseoverAnimation(el))
+      }
 
   
       updateMouseoverAnimationState() {
@@ -497,7 +515,7 @@ function checkDependencies() {
           } else {
               this.enableMouseoverAnimation(this.ui.storyboardAiCharacterCard);
               this.ui.storyboardAiCharacterCard?.removeAttribute('disabled');
-          },
+          }
   
           if (!this.storyboardSelected.user) {
               this.disableMouseoverAnimation(this.ui.storyboardUserCharacterCard);
@@ -505,7 +523,7 @@ function checkDependencies() {
           } else {
               this.enableMouseoverAnimation(this.ui.storyboardUserCharacterCard);
               this.ui.storyboardUserCharacterCard?.removeAttribute('disabled');
-          },
+          }
   
           if (!this.storyboardSelected.world) {
               this.disableMouseoverAnimation(this.ui.storyboardWorldCard);
@@ -513,7 +531,7 @@ function checkDependencies() {
           } else {
               this.enableMouseoverAnimation(this.ui.storyboardWorldCard);
               this.ui.storyboardWorldCard?.removeAttribute('disabled');
-          },
+          }
   
           // For buttons, use Pico CSS disabled styling when they're actually disabled
           // This will show the proper disabled appearance without breaking functionality
@@ -521,25 +539,25 @@ function checkDependencies() {
               this.ui.newStoryButton.classList.add('disabled');
           } else if (this.ui.newStoryButton) {
               this.ui.newStoryButton.classList.remove('disabled');
-          },
+          }
   
           if (this.ui.saveStoryButton && this.ui.saveStoryButton.disabled) {
               this.ui.saveStoryButton.classList.add('disabled');
           } else if (this.ui.saveStoryButton) {
               this.ui.saveStoryButton.classList.remove('disabled');
-          },
+          }
   
           if (this.ui.exportStoryButton && this.ui.exportStoryButton.disabled) {
               this.ui.exportStoryButton.classList.add('disabled');
           } else if (this.ui.exportStoryButton) {
               this.ui.exportStoryButton.classList.remove('disabled');
-          },
+          }
   
           if (this.ui.useProfilePictureButton && this.ui.useProfilePictureButton.disabled) {
               this.ui.useProfilePictureButton.classList.add('disabled');
           } else if (this.ui.useProfilePictureButton) {
               this.ui.useProfilePictureButton.classList.remove('disabled');
-          },
+          }
   
           // Disable animations for disabled buttons
           this.disableMouseoverAnimationForSelector('button[disabled]');
@@ -549,7 +567,8 @@ function checkDependencies() {
           // Enable animations for enabled buttons
           this.enableMouseoverAnimationForSelector('button:not([disabled])');
           this.enableMouseoverAnimationForSelector('input:not([disabled])');
-          this.enableMouseoverAnimationForSelector('a:not([disabled])');n      },
+          this.enableMouseoverAnimationForSelector('a:not([disabled])');
+      }
 
     
       /**
@@ -561,7 +580,9 @@ function checkDependencies() {
         // Debug: Element hide operation
         if (el) {
           el.classList.add('hidden'); // Add the hidden class
-          el.style.display = 'none';n        }n      },
+          el.style.display = 'none';
+        }
+      }
           
         }
 
@@ -572,13 +593,14 @@ function checkDependencies() {
        * @returns {string} The sanitized HTML.
        */
       sanitizeHtml: (text) => {
-          const textToSanitize = String(text === undefined || text === null ? "" : text);
+          const textToSanitize = String(text === undefined || text === null ? "" : text)
           if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
               return window.DOMPurify.sanitize(textToSanitize);
-          },
+          }
           console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
           const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-          return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });n      },
+          return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
+      }
 
       
       /**
@@ -592,18 +614,18 @@ function checkDependencies() {
           let notificationArea = null;
           if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && nullNotificationArea) {
             notificationArea = nullNotificationArea;
-          }, else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && nullNotificationArea) {
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && nullNotificationArea) {
             notificationArea = nullNotificationArea;
-          }, else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && nullNotificationArea) {
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && nullNotificationArea) {
             notificationArea = nullNotificationArea;
-          }, else {
+          } else {
             notificationArea = document.getElementById('top-bar-notification-area');
-          },
+          }
           
           if (!notificationArea) {
               console.warn('Notification area not found for active screen:', this.currentMainView);
               return;
-          },
+          }
           // Set message and style
           notificationArea.textContent = message;
           notificationArea.className = 'top-bar-notification-area-style';
@@ -613,13 +635,14 @@ function checkDependencies() {
           // Remove after duration
           if (this.topNotificationTimeoutId) {
               clearTimeout(this.topNotificationTimeoutId);
-          },
+          }
           this.topNotificationTimeoutId = setTimeout(() => {
               notificationArea.textContent = '';
               notificationArea.style.display = 'none';
               notificationArea.classList.remove('success', 'error', 'info');
               this.topNotificationTimeoutId = null;
-     duration);n      },
+          }, duration)
+      }
 
     
       // Cache for premade character items
@@ -630,7 +653,7 @@ function checkDependencies() {
           if (this._premadeCharacterCache) {
         
               return this._premadeCharacterCache;
-          },
+          }
           const db = this.db;
           // Fetch user-created characters (not deleted)
           let userItems = [];
@@ -642,7 +665,7 @@ function checkDependencies() {
                   console.warn('[App] Error fetching user characters:', error);
                   userItems = [];
               }
-          },
+          }
           // Premade items (static)
           const premadeItems = [
               { id: 'assistant', name: 'Starship AI "ADA"', 
@@ -783,9 +806,10 @@ function checkDependencies() {
               stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, concluded',
               messages: '++id, storyId, timestamp, [storyId+timestamp]',
               worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, colorPalette'
-          },).upgrade(async () => {
+          }).upgrade(async () => {
               // Migration logic remains the same
-          },);n      },n      },n      },
+          });
+      }
       
           try {
               await this.db.open();
@@ -793,7 +817,7 @@ function checkDependencies() {
               this.currentUserCharacterId = appStateAfterOpen.currentUserCharacterId;
               this.currentStoryId = appStateAfterOpen.lastOpenedStoryId;
               this.activeStoryId = appStateAfterOpen.activeStoryId;
-          }, catch (error) {
+          } catch (error) {
               console.error("Failed to open Dexie database:", error);
               this.showTopNotification("Error initializing database. Trying to recover...", "error", 5000);
               
@@ -827,7 +851,7 @@ function checkDependencies() {
                   activeStoryId: null 
               };
               await this.db.appState.put(appState);
-          },
+          }
           if (appState.activeStoryId === undefined) appState.activeStoryId = null;
     
           if (appState.activeStoryId) {
@@ -837,7 +861,7 @@ function checkDependencies() {
                   appState.activeStoryId = null;
                   await this.db.appState.update(0, { activeStoryId: null });
               }
-          },
+          }
           return appState;
 
       
@@ -851,7 +875,7 @@ function checkDependencies() {
               currentUserCharacterId: this.currentUserCharacterId,
               currentMainView: isEditingScreen ? this.CONSTANTS.VIEWS.STORYBOARD : this.currentMainView,
               activeStoryId: this.activeStoryId 
-          },;
+          }
           await this.db.appState.put(appState);
 
     
@@ -868,7 +892,7 @@ function checkDependencies() {
               startTime: null,
               targetScreen: null,
               formOptions: null
-          },;
+          }
     
           if (!this.ui.main || !this.ui.initialPageLoadingModal) {
               console.error("[App Critical] Main UI elements not found!");
@@ -1002,7 +1026,7 @@ function checkDependencies() {
                         
               // Initial load completed
     
-          }, catch (error) {
+          } catch (error) {
               console.error("[App Lifecycle] Error during initialLoad:", error);
               this.showEl(this.ui.emergencyExportCtn);
               this.hideEl(this.ui.initialPageLoadingModal);
@@ -1101,7 +1125,7 @@ function checkDependencies() {
           itemsToDisplay.forEach(item => {
               const listItem = this._createListItem(item, config);
               listArea.appendChild(listItem);
-          },);
+          },
           
           // Chin height is now handled automatically by flexbox layout
 
@@ -1150,7 +1174,7 @@ function checkDependencies() {
             if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover');
             const finalItemId = item.isPremade ? `premade_${config.itemType}:${item.id}` : item.id;
             this.switchToScreen(config.profileScreen, { itemId: finalItemId, itemType: config.itemType });
-          },;
+          },
           return article;
 
   
@@ -1164,7 +1188,7 @@ function checkDependencies() {
               console.warn('Database not initialized yet, skipping _populateStoryList');
               listArea.innerHTML = '<p class="story-item-empty-message">Loading...</p>';
               return;
-          },
+            }
           
           let allStories = await this.db.stories.toArray();
           let fetchedStories = allStories.filter(item => item.isDeleted !== true);
@@ -1181,7 +1205,7 @@ function checkDependencies() {
               const name = item?.name || `Unknown ${type.charAt(0).toUpperCase() + type.slice(1)}`;
               nameCache[type + 's'].set(id, name);
               return name;
-          },;
+          },
       
           if (searchTerm) {
               storiesToDisplay = [];
@@ -1194,7 +1218,7 @@ function checkDependencies() {
                       storiesToDisplay.push(story);
                   }
               }
-          }, else {
+          } else {
               storiesToDisplay = fetchedStories;
           },
       
@@ -1268,7 +1292,7 @@ function checkDependencies() {
               this.showTopNotification("Error: Story ID missing for profile view.", "error");
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
               return null;
-          },
+          }
       
           const story = await this.db.stories.get(storyId);
           if (!story) {
@@ -1277,7 +1301,7 @@ function checkDependencies() {
               this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = '';
               this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = '';
               return null;
-          },
+          }
     
           this.currentStoryId = storyId;
           return story;
@@ -1300,10 +1324,10 @@ function checkDependencies() {
                   await this._updateCharacterInfo('ai', activeStoryData.storyAiCharacter || await this._getitemData(activeStoryData.aiCharacterId, 'characters', this.getPremadeCharacterItems));
                   await this._updateCharacterInfo('user', activeStoryData.storyUserCharacter || await this._getitemData(activeStoryData.userCharacterId, 'characters', this.getPremadeCharacterItems));
               }
-          }, else if (this.activeStoryId === storyId) { 
+          } else if (this.activeStoryId === storyId) { 
                await this._updateCharacterInfo('ai', aiChar);
                await this._updateCharacterInfo('user', userChar);
-          }, else { 
+          } else { 
               this.hideEl(this.ui.topBarUserCharacterInfo);
           },
 
@@ -1321,7 +1345,7 @@ function checkDependencies() {
           const messages = await this.db.messages.where({ storyId: story.id }).sortBy('timestamp');
           if (messages.length === 0 && !story.concluded) { 
               this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', `<div class="noMessagesNotice p-4 text-sm text-center">No messages in this story yet.</div>`);
-          }, else {
+          } else {
               messages.forEach(msg => {
                   if (msg.isHidden) return;
                   this._addMessageToFeed(msg, true);
@@ -1406,7 +1430,7 @@ function checkDependencies() {
               } else {
                   this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
               }
-          },;
+          }
     
           // Delete story handler
           this.ui.storyProfileActions.querySelector('#deleteStoryButton').onclick = async () => {
@@ -1421,7 +1445,7 @@ function checkDependencies() {
                   }
                   this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
               }
-          },;
+          }
     
           // Conclude and resume story handlers (only for active stories)
           if (!story.concluded) {
@@ -1440,7 +1464,7 @@ function checkDependencies() {
                       }
                   }
               }
-          },
+            }
     
           // item card click handlers
           this.ui.storyProfilechatFeed.querySelectorAll('.story-profile-item-card').forEach(card => {
@@ -1452,7 +1476,7 @@ function checkDependencies() {
                       this.switchToScreen(itemConfig.profileScreen, {itemId, itemType});
                   }
               };
-          },);
+          }
 
       
             async renderFormScreen(options = {}) {
@@ -1484,7 +1508,7 @@ function checkDependencies() {
                   item = {};
                   // Creating a truly new item, no prior data
               }
-          }, else if (isCopying) {
+          } else if (isCopying) {
               // Copying path - fetching original item with ID
               const originalItem = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
               // Retrieved original item for copying
@@ -1515,7 +1539,7 @@ function checkDependencies() {
               // Copied item name
               // Copied item name type
               // Copied item name length
-          }, else { 
+          } else { 
               // Editing path - fetching item with ID
               item = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
               // Retrieved item for editing
@@ -1524,13 +1548,13 @@ function checkDependencies() {
               const defaultPalettes = ['tech_blue', 'forest_green', 'crimson_red', 'sunset_orange', 'royal_purple', 'cyber_pink'];
               const randomDefaultPalette = defaultPalettes[Math.floor(Math.random() * defaultPalettes.length)];
               this.createItemFormData = { colorPalette: item.colorPalette || randomDefaultPalette };
-          },
+          }
       
       
           if (!isCreatingOrCopying && !item) { 
               container.innerHTML = `<p>${config.capital} not found.</p>`; 
               return; 
-          },
+          }
           
           let softLockNoticeHtml = '';
           if (!isCreatingOrCopying && this.activeStoryId) {
@@ -1550,7 +1574,7 @@ function checkDependencies() {
                           </div>`;
                   }
               }
-          },
+          }
           
           // NON-DESTRUCTIVE DOM UPDATE:
           // 1. Create a temporary container for the new content.
@@ -1560,10 +1584,10 @@ function checkDependencies() {
           // 2. Clear the old content and append the new content.
           while (container.firstChild) {
               container.removeChild(container.firstChild);
-          },
+          }
           while (tempContainer.firstChild) {
               container.appendChild(tempContainer.firstChild);
-          },
+          }
     
           this._attachFormEventHandlers(container, itemType, item, isCreatingOrCopying);
           this.checkAllButtonStates();
@@ -1580,7 +1604,7 @@ function checkDependencies() {
               this.showTopNotification(`Error: ${config.capital} ID missing for profile view.`, "error");
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD); 
               return;
-          },
+          }
           
           this.currentProfileViewItemId = itemId; 
       
@@ -1590,7 +1614,7 @@ function checkDependencies() {
           if (!item) {
               container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`;
               return;
-          },
+        }
           // Removed: this.ui.topBar.textContent = `${config.capital} Profile`; // This is now handled by _updateProfileTopBarUI
   
           // NON-DESTRUCTIVE DOM UPDATE:
@@ -1599,10 +1623,10 @@ function checkDependencies() {
           
           while (container.firstChild) {
               container.removeChild(container.firstChild);
-          },
+          }
           while (tempContainer.firstChild) {
               container.appendChild(tempContainer.firstChild);
-          },
+          }
           // Attach robust onerror handler for profile picture
           const profilePicture = container.querySelector('#formProfilePicture');
           if (profilePicture) {
@@ -1618,7 +1642,7 @@ function checkDependencies() {
                   placeholderDiv.appendChild(icon);
                   this.replaceWith(placeholderDiv);
               };
-          },
+          }
       
           // Profile page name field is read-only - no handlers needed
       
@@ -1640,7 +1664,7 @@ function checkDependencies() {
                       </div>
                   </div>
               `;
-          }, else {
+          } else {
               return `
                   <div class="profile-field-row profile-field-${idSuffix.toLowerCase()}">
                       <div class="profile-field-label">
@@ -1650,7 +1674,7 @@ function checkDependencies() {
                       <div class="profile-field-value">${san(value || '—')}</div>
                   </div>
               `;
-          },
+          }
 
     
       _renderStudioLayout(item, config, isEditing) {
@@ -1753,7 +1777,7 @@ function checkDependencies() {
     
         colorPickerHtml += '</div></div>';
         return colorPickerHtml;
-    },
+    }
     
       /**
        * Loads a color palette by key, or returns a default if not found.
@@ -2070,7 +2094,7 @@ function checkDependencies() {
               result = await this.db[config.dbTableKey].update(id, newItem);
               this.showTopNotification(`${config.capital} updated.`, 'success');
               result = id; // Update result to be the existing ID for navigation
-          }, else {
+          } else {
               result = await this.db[config.dbTableKey].add(newItem);
               this.showTopNotification(`${config.capital} created!`, 'success');
           },
@@ -2082,7 +2106,7 @@ function checkDependencies() {
           this.createItemFormData = {}; // Clear form data on success
           try {
               sessionStorage.removeItem('pendingRPGlitchFormState'); // Clear session storage on success
-          }, catch (e) {
+          } catch (e) {
               console.warn("Failed to clear session storage on successful form submission:", e);
           },
           
@@ -2166,7 +2190,7 @@ function checkDependencies() {
               } else {
                   this.showTopNotification("Could not generate prompt.", "error");
               }
-          }, catch (error) {
+          } catch (error) {
               console.error("AI Help for profile picture prompt failed:", error);
               this.showTopNotification(`AI Help failed: ${error.message || 'Error generating prompt.'}`, "error", 5000);
           }, finally {
@@ -2191,7 +2215,7 @@ function checkDependencies() {
               profilePictureDisplayPanel.style.backgroundImage = `url('${this.sanitizeHtml(url)}')`;
               profilePictureDisplayPanel.classList.remove('empty-profile-picture');
               this.showTopNotification("Image URL applied.", "success");
-          }, else {
+          } else {
               this.showTopNotification("Error applying image: target display panel not found.", "error");
           },
           this.hideProfilePictureOverlay(overlayElement);
@@ -2218,7 +2242,7 @@ function checkDependencies() {
                   this.showTopNotification("Could not generate image.", "error");
                   this.currentGeneratedProfilePictureDataUrl = null;
               }
-          }, catch (error) {
+          } catch (error) {
               console.error("Image generation failed:", error);
               this.showTopNotification(`Image generation failed: ${error.message || 'Unknown error.'}`, "error", 5000);
               this.currentGeneratedProfilePictureDataUrl = null;
@@ -2256,7 +2280,7 @@ function checkDependencies() {
                   this.showTopNotification("Could not generate image.", "error");
                   this.currentGeneratedProfilePictureDataUrl = null;
               }
-          }, catch (error) {
+          } catch (error) {
               console.error("Image generation failed:", error);
               this.showTopNotification(`Image generation failed: ${error.message || 'Unknown error.'}`, "error", 5000);
               this.currentGeneratedProfilePictureDataUrl = null;
@@ -2279,7 +2303,7 @@ function checkDependencies() {
               profilePictureDisplayPanel.style.backgroundImage = `url('${this.currentGeneratedProfilePictureDataUrl}')`;
               profilePictureDisplayPanel.classList.remove('empty-profile-picture');
               this.showTopNotification("Generated image applied!", "success");
-          }, else {
+          } else {
               this.showTopNotification("Error applying image: target display panel not found.", "error");
           },
           this.hideProfilePictureOverlay(overlayElement);
@@ -2326,7 +2350,7 @@ function checkDependencies() {
                 }
          200);
             });
-          }, else {
+          } else {
             // DOM is already ready, start checking immediately
             const interval = setInterval(() => {
               const deps = checkDependencies();
@@ -2390,7 +2414,7 @@ function checkDependencies() {
           if (targetScreenEl) {
               this.showEl(targetScreenEl);
 
-          }, else {
+          } else {
               console.error("Attempted to switch to unknown screen:", screenName);
               this.showTopNotification("Error: Screen not found.", "error");
               this.currentMainView = this.CONSTANTS.VIEWS.STORYBOARD;
@@ -2487,9 +2511,9 @@ function checkDependencies() {
           let character = characterData;
           if (!character && characterType === 'user' && this.currentUserCharacterId) {
               character = await this._getitemData(this.currentUserCharacterId, 'characters', this.getPremadeCharacterItems);
-          }, else if (!character && characterType === 'ai' && this.currentAiCharacterId) {
+          } else if (!character && characterType === 'ai' && this.currentAiCharacterId) {
               character = await this._getitemData(this.currentAiCharacterId, 'characters', this.getPremadeCharacterItems);
-          },
+          }
     
           const displayArea = characterType === 'user' ? this.ui.topBarUserCharacterInfo : this.ui.topBarAiCharacterInfo;
           const picEl = characterType === 'user' ? this.ui.topBarUserCharacterPic : this.ui.topBarAiCharacterPic;
@@ -2504,9 +2528,9 @@ function checkDependencies() {
               if (nameTextEl) {
                 nameTextEl.textContent = this.sanitizeHtml(character.name);
               }
-          }, else {
+          } else {
               this.hideEl(displayArea);
-          },
+          }
 
     
       _updateCharacterDisplay(characterType, characterData) {
@@ -2526,9 +2550,9 @@ function checkDependencies() {
                   descEl.textContent = this.sanitizeHtml(characterData.description || '');
               }
               this.showEl(panel);
-          }, else {
+          } else {
               this.hideEl(panel);
-          },
+          }
 
     
       async openStory(storyId) { 
@@ -2620,7 +2644,7 @@ function checkDependencies() {
           if (!aiCharacterId || !userCharacterId || !worldId) {
               this.showTopNotification("Please select an AI Character, Your Character, and a World to begin a story.", "error", 5000);
               return;
-          },
+          }
           
           // Check for 'create_new_' values and redirect
           if (aiCharacterId.startsWith('create_new_')) {
@@ -2634,7 +2658,7 @@ function checkDependencies() {
                   preSelectedWorldId: worldId
               });
               return;
-          },
+          }
           if (userCharacterId.startsWith('create_new_')) {
               this.showTopNotification("Please create Your Character first, then select it.", "info", 5000);
               this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, { 
@@ -2646,7 +2670,7 @@ function checkDependencies() {
                   preSelectedWorldId: worldId
               });
               return;
-          },
+        }
           if (worldId.startsWith('create_new_')) {
               this.showTopNotification("Please create your World first, then select it.", "info", 5000);
               this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, { 
@@ -2658,7 +2682,7 @@ function checkDependencies() {
                   preSelectedWorldId: worldId
               });
               return;
-          },
+          }
     
           // 3. Fetch full data for selected items
           const aiCharacter = await this._getitemData(aiCharacterId, 'characters', this.getPremadeCharacterItems);
@@ -2668,7 +2692,7 @@ function checkDependencies() {
           if (!aiCharacter || !userCharacter || !world) {
               this.showTopNotification("Error fetching selected items. Please try again.", "error", 5000);
               return;
-          },
+          }
     
           // 4. Check for an existing story with these exact participants
           const existingStory = await this.db.stories.where({ aiCharacterId, userCharacterId, worldId, concluded: false }).first();
@@ -2678,7 +2702,7 @@ function checkDependencies() {
               this.showTopNotification("Resuming existing story!", "info");
               this.openStory(existingStory.id);
               return;
-          },
+        }
     
           // 5. Create a new story if none exists
           // Creating new story
@@ -2695,8 +2719,8 @@ function checkDependencies() {
               customStoryJs: this.ui.customStoryJsTextarea.value.trim(),
               storyAiCharacter: aiCharacter, // Snapshot of characters/world for easier retrieval later
               storyUserCharacter: userCharacter,
-              story}, world: world
-          },);
+              storyWorld: world
+          });
           
           this.currentStoryId = newStoryId;
           this.activeStoryId = newStoryId; // Set newly created story as active
@@ -2715,7 +2739,7 @@ function checkDependencies() {
           if (itemId && this.data[dbTableKey]) {
               const foundItem = this.data[dbTableKey].find(item => item.id === itemId || item.originalPremadeId === itemId);
               if (foundItem) return foundItem.profilePicture;
-          },
+          }
           return '';
 
     
@@ -2733,14 +2757,14 @@ function checkDependencies() {
               future: futureInput?.value.trim() || '',
               profilePicture: this.currentGeneratedProfilePictureDataUrl || '', // Use generated or current
               colorPalette: colorPalette
-          },;
+          }
 
       
       async createMessage(role, content, characterId = null) {
           if (!this.activeStoryId) {
               console.error("Cannot create message: no active story.");
               return;
-          },
+          }
           const newMessage = {
               storyId: this.activeStoryId,
               role: role,
@@ -2748,7 +2772,7 @@ function checkDependencies() {
               characterId: characterId, // ID of character who sent it (if role is character)
               timestamp: Date.now(),
               isHidden: false // For system messages, etc.
-          },;
+          }
           const messageId = await this.db.messages.add(newMessage);
           await this.db.stories.update(this.activeStoryId, { lastMessageTimestamp: Date.now() });
           return { ...newMessage, id: messageId };
@@ -2759,7 +2783,7 @@ function checkDependencies() {
           if (!messageText || this.ui.sendButton.disabled) {
               // Attempted to send empty or disabled message
               return;
-          },
+          }
           
           this.ui.messageInput.value = ''; // Clear input immediately
           this.ui.messageInput.style.height = 'auto'; // Reset height
@@ -2790,18 +2814,18 @@ function checkDependencies() {
                   this.showTopNotification("AI did not respond.", "error");
                   await this.createMessage('system', 'AI did not respond. Please try again.', null, true); // Log system message
               }
-          }, catch (error) {
+          } catch (error) {
               console.error("Error during AI response:", error);
               this.showTopNotification(`AI response failed: ${error.message || 'Unknown error'}`, "error", 5000);
               await this.createMessage('system', `AI response failed: ${error.message || 'Unknown error'}.`, null, true);
-          }, finally {
+          } finally {
               this.ui.sendButton.disabled = false; // Re-enable send button
               this.ui.messageInput.disabled = false; // Re-enable textarea
               this.ui.messageInput.focus();
               this._setAiIsTyping(false);
               this._updateChatUIForNewMessage();
               this.checkAllButtonStates(); // Ensure states are correct
-          },
+          }
 
     
       _addMessageToFeed(message, isForProfileScreen = false) {
@@ -2815,9 +2839,9 @@ function checkDependencies() {
           let contentHtml = this.sanitizeHtml(message.content);
           if (message.role === 'narrator' && message.content.startsWith('SUMMARY:')) {
               contentHtml = `<strong>Story Summary:</strong> ${this.sanitizeHtml(message.content.substring(8).trim())}`;
-          }, else if (message.role === 'narrator') { // General narrator message
+          } else if (message.role === 'narrator') { // General narrator message
               contentHtml = `<strong>Narrator:</strong> ${contentHtml}`;
-          },
+          }
           
           let profilePictureHtml = '';
           if (message.characterId) {
@@ -2825,7 +2849,7 @@ function checkDependencies() {
               if (character) {
                   profilePictureHtml = `<div class="message-profile-picture">${this._generateProfilePictureHtml(character, 'message-profile-picture')}</div>`;
               }
-          },
+          }
     
           messageElement.innerHTML = `
               <div class="messageWrap">
@@ -2844,12 +2868,12 @@ function checkDependencies() {
           const feed = this.ui.chatFeed;
           if (feed) {
               feed.scrollTop = feed.scrollHeight;
-          },
+          }
     
           // Hide "No messages yet" notice if messages exist
           if (this.ui.noMessagesNotice) {
               this.ui.noMessagesNotice.classList.toggle('hidden', feed.children.length > 0 || !this.ui.storyConcludedNotice.classList.contains('hidden'));
-          },
+          }
 
     
       async _setAiIsTyping(isTyping, customMessage = null) {
@@ -2858,10 +2882,10 @@ function checkDependencies() {
               this.ui.statusNotifier.dataset.originalDisplayValue = this.ui.statusNotifier.style.display;
               this.ui.statusNotifier.style.display = 'flex'; // Ensure flex display while typing
               this.ui.typingIndicatorText.textContent = customMessage || "AI is thinking...";
-          }, else {
+          } else {
               this.ui.statusNotifier.classList.add('hidden');
               this.ui.statusNotifier.style.display = 'none'; // Restore previous display or hide
-          },
+          }
 
     
       _cancelCurrentAiRequest() {
@@ -2871,7 +2895,7 @@ function checkDependencies() {
               this.activeAiButtons.delete('generate');
               this.activeAiButtons.delete('image');
               this.showTopNotification("AI request cancelled.", "info");
-          },
+          }
 
     
       async _createAiRequest(options) {
@@ -2909,7 +2933,7 @@ function checkDependencies() {
               } else {
                   throw new Error(`Unknown AI request type: ${type}`);
               }
-          }, catch (error) {
+          } catch (error) {
               if (error.name === 'AbortError') {
                   console.warn("AI request aborted by user.");
                   throw new Error("AI request cancelled.");
@@ -2919,7 +2943,7 @@ function checkDependencies() {
               }
           }, finally {
               this.activeAiButtons.delete(type); // Clean up controller
-          },
+          }
 
     
       async _getSystemPrompt(storyIdOverride = null) {
@@ -2930,7 +2954,7 @@ function checkDependencies() {
           if (!story) {
               console.warn(`Story with ID ${storyId} not found for system prompt.`);
               return "";
-          },
+          }
     
           const aiCharacter = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems);
           const userCharacter = story.storyUserCharacter || await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems);
@@ -2939,7 +2963,7 @@ function checkDependencies() {
           if (!aiCharacter || !userCharacter || !world) {
               console.warn(`Missing character or world data for story ID ${storyId} during system prompt creation.`);
               return "";
-          },
+          }
     
           let systemPrompt = `You are ${aiCharacter.name}. Your core identity is: ${aiCharacter.eternal}. Your past is: ${aiCharacter.past}. Your current situation is: ${aiCharacter.present}. Your future aspirations are: ${aiCharacter.future}.
     The user is ${userCharacter.name}. Their core identity is: ${userCharacter.eternal}. Their past is: ${userCharacter.past}. Their current situation is: ${userCharacter.present}. Their future aspirations are: ${userCharacter.future}.
@@ -2947,10 +2971,10 @@ function checkDependencies() {
     
           if (story.openingPrompt) {
               systemPrompt += `\n\n[Opening Prompt]: ${story.openingPrompt}`;
-          },
+          }
           if (story.customStoryJs) {
               systemPrompt += `\n\n[Custom Story JS]: ${story.customStoryJs}`;
-          },
+          }
     
           return systemPrompt;
 
@@ -2964,13 +2988,15 @@ function checkDependencies() {
           return recentMessages.map(msg => ({
               role: msg.role === 'user' ? 'user' : 'model', // Map 'character' role to 'model' for AI
               parts: [{ text: msg.content }]
-          },));n      },
+          }));
+      }
 
     
       async _collectMemoriesFromStory() {
           // This is a placeholder for future memory collection logic
           // For now, it returns an empty array
-          return [];n      },
+          return [];
+      }
 
     
       async _renderMemoryApplicationScreen(options = {}) {
@@ -2988,9 +3014,11 @@ function checkDependencies() {
               } else {
                   container.innerHTML = '<h2>No New Memories Found</h2><p>This story did not generate significant new memories for your profiles.</p>';
               }
-          }, catch (error) {
+          } catch (error) {
               console.error("Error applying memories:", error);
-              container.innerHTML = '<h2>Error Applying Memories</h2><p>Failed to process memories from this story.</p>';n          }n      },
+              container.innerHTML = '<h2>Error Applying Memories</h2><p>Failed to process memories from this story.</p>';
+          }
+      }
           },
 
     
@@ -3000,13 +3028,14 @@ function checkDependencies() {
           // In a real implementation, you would:
           // 1. Fetch memories from the story
           // 2. Update the relevant character/world items in the DB
-          // 3. Show a notificationn      },
+          // 3. Show a notification
+      }
 
     
       async _updateStoryboard() {
           if (!this.storyboardSelected) {
             this.storyboardSelected = { ai: '', user: '', world: '' };
-          },
+          }
           if (this.isUpdatingStoryboard) return;
           this.isUpdatingStoryboard = true;
           try {
@@ -3354,7 +3383,7 @@ function checkDependencies() {
           const item = await this._getitemData(selectedValue, config.dbTableKey, config.getPremadesFn, config.itemType);
           if (item) {
               this._renderStoryboardCard(cardElement, item, config);
-          }, else {
+          } else {
               this.clearStoryboardCard(cardElement, config);
               console.warn(`Item not found for ID: ${selectedValue} in ${config.itemType}`);
           },
@@ -3374,7 +3403,7 @@ function checkDependencies() {
               } else if (config.itemType === 'world' && config.dbTableKey === 'worlds') {
                   cardElement = this.ui.storyboardWorldCard;
               }
-          }, else { // It's a card element
+          } else { // It's a card element
               cardElement = configOrCardElement;
               // Determine config from card element's ID if possible, or pass it explicitly
               if (cardElement === this.ui.storyboardAiCharacterCard) config = this.CONSTANTS.ITEM_CONFIG.characterAi;
@@ -3467,9 +3496,9 @@ function checkDependencies() {
           // Set specific text based on card type
           if (cardElement === this.ui.storyboardAiCharacterCard) {
               placeholderSpan.textContent = 'Please select an AI Character to begin your story. The AI will guide the narrative and respond to your character.';
-          }, else if (cardElement === this.ui.storyboardUserCharacterCard) {
+          } else if (cardElement === this.ui.storyboardUserCharacterCard) {
               placeholderSpan.textContent = 'Please select your Character to begin your story.';
-          }, else if (cardElement === this.ui.storyboardWorldCard) {
+          } else if (cardElement === this.ui.storyboardWorldCard) {
               placeholderSpan.textContent = 'Please select a World to begin your story. This sets the scene and atmosphere for your adventure.';
           },
           
@@ -3649,7 +3678,7 @@ function checkDependencies() {
           cardElement.onclick = (e) => {
             if (e.target.closest('select')) return;
             this.switchToScreen(config.profileScreen, { itemId: item.id, itemType: config.itemType });
-          },;
+          }
 
     
       async _manageAiButtonState(button, options) {
@@ -3689,7 +3718,7 @@ function checkDependencies() {
                   this.activeAiButtons.delete(field.id); // Clean up controller
                   this.checkAllButtonStates();
               }
-          },;
+          }
 
     
       _getPromptContextForField(itemType) {
@@ -3714,7 +3743,7 @@ function checkDependencies() {
           let instruction = `Generate a concise, compelling 1-2 sentence text for the "${fieldType}" field of a ${itemType} profile.`;
           if (currentValue) {
               instruction += ` The current text is: "${currentValue}". Improve or expand upon this.`;
-          },
+          }
           instruction += ` Focus on descriptive language relevant to a story RPG.`;
     
           switch (fieldType) {
@@ -3733,7 +3762,7 @@ function checkDependencies() {
               case 'future':
                   instruction += ` This describes goals, aspirations, or potential future events.`;
                   break;
-          },
+        }
           return instruction;
 
     
@@ -3756,7 +3785,7 @@ function checkDependencies() {
             }
         });
         this.ui.chatFeed.scrollTop = this.ui.chatFeed.scrollHeight; // Scroll to bottom
-
+      }
     
       renderSettingsScreen() {
           const container = document.getElementById('settings-screen');
@@ -3772,37 +3801,37 @@ function checkDependencies() {
               <input type="file" id="importFileInput" accept=".json" class="hidden-input" onchange="App.importAllData(event)">
               <button onclick="App.deleteAllData()">Delete All Data</button>
           `;
-
+      }
     
       renderMemoryManagementScreen() {
           const container = document.getElementById('memory-management-screen');
           if (!container) return;
           container.innerHTML = '<h2>Memory Management</h2><p>Coming soon...</p>';
-
+      }
     
       renderMemoryApplicationScreen() {
           const container = this.ui.memoryApplicationScreen;
           if (!container) return;
           container.innerHTML = '<h2>Apply Memories to Profiles</h2><p>This screen allows you to apply extracted memories from a story back into character or world profiles.</p><p>Coming soon...</p>';
-
+      }
     
       async regenerateMessage() {
           // Logic for regenerating a message
-
+      }
     
       async _handleAiCoWriter() {
           // Logic for AI Co-writer
-
+      }
     
       async _handleSummarize() {
           // Logic for AI Summarize
-
+      }
     
       async exportAllData() {
           if (!this.db) {
               this.showTopNotification("Database not initialized.", "error");
               return;
-          },
+          }
           try {
               const allData = {};
               for (const table of this.db.tables) {
@@ -3818,10 +3847,10 @@ function checkDependencies() {
               document.body.removeChild(a);
               URL.revokeObjectURL(url);
               this.showTopNotification("All data exported!", "success");
-          }, catch (error) {
+          } catch (error) {
               console.error("Error exporting data:", error);
               this.showTopNotification("Error exporting data.", "error");
-          },
+          }
 
     
       async importAllData(event) {
@@ -3829,10 +3858,10 @@ function checkDependencies() {
           if (!file) {
               this.showTopNotification("No file selected for import.", "info");
               return;
-          },
+          }
           if (!confirm("Importing data will overwrite your existing data. Are you sure?")) {
               return;
-          },
+          }
           try {
               const reader = new FileReader();
               reader.onload = async (e) => {
@@ -3854,7 +3883,7 @@ function checkDependencies() {
                   }
               };
               reader.readAsText(file);
-          }, catch (error) {
+          } catch (error) {
               console.error("Error reading file for import:", error);
               this.showTopNotification("Error reading file for import.", "error");
           },
@@ -3868,7 +3897,7 @@ function checkDependencies() {
               await this.db.delete();
               this.showTopNotification("All data deleted. App will reload.", "success");
               setTimeout(() => location.reload(), 1500); // Reload page after a short delay
-          }, catch (error) {
+          } catch (error) {
               console.error("Error deleting data:", error);
               this.showTopNotification("Error deleting data.", "error");
           },
@@ -4292,7 +4321,7 @@ function checkDependencies() {
             userCharPic.innerHTML = this._generateProfilePictureHtml(userChar, 'top-bar-user-character-pic');
             userCharNameText.textContent = userChar.name || 'Unnamed Character';
             userCharInfo.classList.remove('hidden');
-          }, else {
+          } else {
             userCharInfo.classList.add('hidden');
           },
         } else if (userCharInfo) {
@@ -4315,7 +4344,7 @@ function checkDependencies() {
             } else {
               aiCharInfo.classList.add('hidden');
             }
-          }, else {
+          } else {
             aiCharInfo.classList.add('hidden');
           },
         } else if (aiCharInfo) {
@@ -4334,7 +4363,7 @@ function checkDependencies() {
           if (tabName === this.focusBarState.mode) {
             button.setAttribute('aria-selected', 'true');
             button.tabIndex = 0;
-          }, else {
+          } else {
             button.setAttribute('aria-selected', 'false');
             button.tabIndex = -1;
           },
@@ -4398,7 +4427,7 @@ function checkDependencies() {
                 this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
               }
             };
-          }, else {
+          } else {
             // Hide delete button for premade items
             deleteButton.style.display = 'none';
             if (deleteLi) {
@@ -4412,7 +4441,7 @@ function checkDependencies() {
           // Set contextual button text based on navigation destination
           if (this.activeStoryId) {
             backButton.textContent = 'Back to Story';
-          }, else {
+          } else {
             backButton.textContent = 'Back to Storyboard';
           },
           
@@ -4453,7 +4482,7 @@ function checkDependencies() {
                   this.updateTopBarUI();
          { once: true });
               return;
-          }, else {
+          } else {
               this._getUIElements();
               if (!this.ui.topBarRight) {
                   console.warn('[DEBUG] topBarRight still not found after DOMContentLoaded!');
@@ -4537,11 +4566,11 @@ function checkDependencies() {
           // Try to re-determine activeTopBar after re-initialization
           if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && null) {
             activeTopBar = null;
-          }, else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
             activeTopBar = null;
-          }, else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
             activeTopBar = null;
-          }, else if (this.ui.topBar) {
+          } else if (this.ui.topBar) {
             activeTopBar = this.ui.topBar;
           },
           if (!activeTopBar) return; // If still no activeTopBar, something is critically wrong
@@ -4600,11 +4629,11 @@ function checkDependencies() {
           // Try to re-determine activeTopBar after re-initialization
           if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && null) {
             activeTopBar = null;
-          }, else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && null) {
             activeTopBar = null;
-          }, else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
+          } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && null) {
             activeTopBar = null;
-          }, else if (this.ui.topBar) {
+          } else if (this.ui.topBar) {
             activeTopBar = this.ui.topBar;
           },
           if (!activeTopBar) return; // If still no activeTopBar, something is critically wrong
@@ -4625,27 +4654,27 @@ function checkDependencies() {
       /**
        * Sets up button handlers for chin create/edit/copy functionality
        */
-      _setupChinButtonHandlers() {
+      _setupChinButtonHandlers() {  
           // Wire up character workshop buttons
           const createCharacterBtn = document.getElementById('create-character-button');
           if (createCharacterBtn) {
-              createCharacterBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, { isCreating: true });
+              createCharacterBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.CHARACTER_FORM, { isCreating: true })
           },
   
           const createWorldBtn = document.getElementById('create-world-button');
           if (createWorldBtn) {
-              createWorldBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, { isCreating: true });
+              createWorldBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.WORLD_FORM, { isCreating: true })
           },
   
           // Wire up storyboard buttons
           const newStoryBtn = document.getElementById('new-story-button');
           if (newStoryBtn) {
-              newStoryBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+              newStoryBtn.onclick = () => this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
           },
   
           // Wire up profile edit buttons (these are handled dynamically in profile screens)
           // The edit/copy buttons are set up in _updateProfileTopBarUI method
-
+        },
   
       /**
        * Sets up search handlers for all chin search inputs with real-time updates
@@ -4669,7 +4698,7 @@ function checkDependencies() {
               const debouncedStorySearch = debouncedSearch((searchTerm) => {
                   const listEl = document.getElementById('chin-story-list');
                   if (listEl) this._populateStoryList(listEl, searchTerm);
-         300); // 300ms delay
+              } 300); // 300ms delay
               
               searchStoriesInput.addEventListener('input', (e) => {
                   debouncedStorySearch(e.target.value);
@@ -4684,7 +4713,7 @@ function checkDependencies() {
                       if (listEl) this._populateStoryList(listEl, searchTerm);
                   });
               }
-          },
+        }
   
           // Characters search
           const searchCharactersInput = document.getElementById('search-characters-input');

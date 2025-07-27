@@ -35,16 +35,11 @@ module.exports = {
     ]
   },
   ignoreFiles: [
-    "memory-bank/archives/code/**/*.css",
-    "memory-bank/archives/code/**/*.scss",
-    "memory-bank/archives/**/*.css",
-    "memory-bank/archives/**/*.scss",
-    "memory-bank/archives/code/**/*.css",
-    "memory-bank/archives/code/**/*.scss",
-    "tools/test-globs/test-globs.scss",
-    "**/archive/**/*.css",
-    "**/archive/**/*.scss",
-    "**/archives/**/*.css",
-    "**/archives/**/*.scss",
+    "memory/project/archive/collection.md",
+    "apps/**/archive/**/*.css",
+    "apps/**/archive/**/*.scss",
+    "build/output/archive/**/*.css",
+    "memory/**/archive/**/*.css",
+    "memory/**/archive/**/*.scss",
   ],
 };
