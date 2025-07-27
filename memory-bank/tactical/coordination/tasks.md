@@ -1,7 +1,7 @@
 ---
 date: 2025-01-02
 status: completed
-permalink: tactical-coordination-tasks
+permalink: project-tasks
 ---
 
 # RPGlitch Inline CSS to SCSS Refactoring (Level 3)

@@ -36,28 +36,36 @@ export default defineConfig([
       "no-dupe-keys": "error",
       "no-redeclare": "error",
       "no-restricted-globals": ["error", "event", "fdescribe"],
-      "no-undef": "error",
+      "no-undef": "error", // ENSURE THIS IS 'error' FOR GENERAL FILES
       "no-duplicate-case": "error",
       "no-empty-function": "warn",
-      "no-console": "warn" // Change to 'off' if you want to allow console logs
+      "no-console": "warn"
     }
   },
-  // JavaScript files override (apps directory)
+  // JavaScript files override (apps directory) - THIS IS THE CRITICAL FIX
   {
     files: ["apps/**/*.js"],
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.es2021,
+        // Explicitly add global variables that are NOT imported
+        // These were identified in the previous linter run as 'not defined'
+        Dexie: "readonly", // 'readonly' indicates it's a global variable that shouldn't be reassigned
+        ai: "readonly",
+        image: "readonly",
+        App: "readonly", // Assuming 'App' is a global object
+        getProfilePictureHTML: "readonly", // If this is a global function
+        _makeProfilePicturePlaceholderSVG: "readonly" // If this is a global function
       },
       ecmaVersion: 2021,
-      sourceType: "script",
+      sourceType: "script", // Use 'script' for non-module files
     },
     rules: {
       "@typescript-eslint/no-unused-vars": "off", // Disable TypeScript rule for JS files
       "no-unused-vars": "warn", // Use regular ESLint rule instead
-      "no-undef": "off", // Allow undefined globals in browser context
-      "no-console": "off", // Allow console logs in app code
+      "no-undef": "error", // *** CRITICAL FIX: ENSURE THIS IS 'error' HERE ***
+      "no-console": "off", // Allow console logs in app code (as per your previous setup)
     }
   },
   // TypeScript files

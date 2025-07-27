@@ -1,0 +1,6 @@
+{
+  "agentCanUpdateSnapshot": true,
+  "snapshot": "snapshot-20250723-1180f135-d19e-4834-ba18-15f80028e892",
+  "install": "npm install",
+  "start": "node agent_orchestrator.js"
+}

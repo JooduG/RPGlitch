@@ -6,7 +6,7 @@
  * Test SCSS file to verify glob patterns
  * This file should match **/
 
-*.scss patterns
+/* .scss patterns
  */
 
 /* Test variables */
@@ -23,7 +23,7 @@ $test-file-type: 'SCSS';
     content: 'Testing glob patterns for SCSS files';
     
     /* This file should be matched by rules with these glob patterns:
-     * - [" **/*.css", "**/*.scss", "**/*.sass"]
+     * - ["**/*.css", "**/*.scss", "**/*.sass"]
      * - ["**/*.scss", "**/*.sass", "**/*.css"]
      * - ["**/*.js", "**/*.ts", "**/*.jsx", "**/*.tsx", "**/*.html", "**/*.css", "**/*.scss"]
      */

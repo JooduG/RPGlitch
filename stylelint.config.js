@@ -9,7 +9,7 @@ module.exports = {
     'block-no-empty': true,
     'color-no-invalid-hex': true,
     'unit-no-unknown': true,
-    'selector-pseudo-class-no-unknown': true, // Removed Vue-specific ignore
+    'selector-pseudo-class-no-unknown': true,
     'at-rule-no-unknown': [
       true,
       {
@@ -22,6 +22,17 @@ module.exports = {
     'no-duplicate-selectors': true,
     'no-empty-source': true,
     'no-invalid-double-slash-comments': true,
+    // Add specific rule overrides or disables for known framework issues if truly unavoidable
+    // For 'no-descending-specificity' with Pico CSS, often best handled with inline comments
+    // Example (if you wanted to disable it globally, which is generally not recommended):
+    // 'no-descending-specificity': null,
+    'at-rule-no-deprecated': true, // Ensured this is explicitly enabled if it was an issue
+    'selector-pseudo-element-no-unknown': [
+      true,
+      {
+        ignorePseudoElements: ['-webkit-scrollbar', '-webkit-scrollbar-thumb'] // Example: if you use these
+      }
+    ]
   },
   ignoreFiles: [
     "memory-bank/archives/code/**/*.css",
@@ -37,5 +48,3 @@ module.exports = {
     "**/archives/**/*.scss",
   ],
 };
-
-// npx stylelint "**/*.css" "**/*.scss" --fix
