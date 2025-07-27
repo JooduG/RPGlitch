@@ -129,7 +129,7 @@ function checkDependencies() {
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
                   }
         
-              } characterAi: {
+              }, characterAi: {
                   itemType: 'character',
                   dbTableKey: 'characters',
                   capital: 'Character',
@@ -151,7 +151,7 @@ function checkDependencies() {
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
                   }
         
-              } characterUser: {
+              }, characterUser: {
                   itemType: 'character',
                   dbTableKey: 'characters',
                   capital: 'Character',
@@ -173,7 +173,7 @@ function checkDependencies() {
                       futurePlaceholder: "Aspirations & Conflicts: Driving motivations, deep-seated fears, potential character arcs, unresolved ambitions, or personal quests. What propels them forward or holds them back? Example: 'Driven to find a cure for the cosmic plague afflicting their home world, while secretly battling a prophecy that foretells their own doom.''"
                   }
         
-              } world: {
+              }, world: {
                   itemType: 'world',
                   dbTableKey: 'worlds',
                   capital: 'World',
@@ -206,7 +206,7 @@ function checkDependencies() {
             } else if (!el) {
                 console.warn(`[UI] Optional element with ID '${id}' not found.`);
             }
-            return el;
+            return el;n      },
   
     
         /**
@@ -287,29 +287,29 @@ function checkDependencies() {
             // New profile top bar elements
             
             
-            nullCenter = this._query('profile-top-bar-center');
-            nullNotificationArea = this._query('profile-top-bar-notification-area');
-            nullRight = this._query('profile-top-bar-right');
-            nullUserCharacterInfo = this._query('profile-top-bar-user-character-info');
-            nullUserCharacterPic = this._query('profile-top-bar-user-character-pic');
-            nullUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
-            nullAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
-            nullAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
-            nullAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
+            const nullCenter = this._query('profile-top-bar-center');
+            const nullNotificationArea = this._query('profile-top-bar-notification-area');
+            const nullRight = this._query('profile-top-bar-right');
+            const nullUserCharacterInfo = this._query('profile-top-bar-user-character-info');
+            const nullUserCharacterPic = this._query('profile-top-bar-user-character-pic');
+            const nullUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
+            const nullAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
+            const nullAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
+            const nullAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
             this.ui.profileShuffleButton = this._query('profile-shuffle');
             this.ui.profileBeginStoryButton = this._query('profile-begin-story');
   
             
-            nullLeft = this._query('world-profile-top-bar-left');
-            nullCenter = this._query('world-profile-top-bar-center');
-            nullNotificationArea = this._query('world-profile-top-bar-notification-area');
-            nullRight = this._query('world-profile-top-bar-right');
-            nullUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
-            nullUserCharacterPic = this._query('world-profile-top-bar-user-character-pic');
-            nullUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
-            nullAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
-            nullAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
-            nullAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
+            const nullLeft = this._query('world-profile-top-bar-left');
+            const nullCenter = this._query('world-profile-top-bar-center');
+            const nullNotificationArea = this._query('world-profile-top-bar-notification-area');
+            const nullRight = this._query('world-profile-top-bar-right');
+            const nullUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
+            const nullUserCharacterPic = this._query('world-profile-top-bar-user-character-pic');
+            const nullUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
+            const nullAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
+            const nullAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
+            const nullAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
             this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle');
             this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story');
   
@@ -325,21 +325,21 @@ function checkDependencies() {
             nullAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic');
             nullAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text');
             this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle');
-            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story');
+            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story');n        },
   
     
         _getPremadeSelectionScreens() {
             this.ui.premadeCharacterSelectionScreen = this._query('premade-character-bank', true);
             this.ui.premadeCharacterOnlyList = this._query('premade-character-only-list');
             this.ui.premadeWorldSelectionScreen = this._query('premade-world-bank', true);
-            this.ui.premadeWorldOnlyList = this._query('premade-world-only-list');
+            this.ui.premadeWorldOnlyList = this._query('premade-world-only-list');n        },
   
     
         _getMiscScreens() {
             this.ui.memoryApplicationScreen = this._query('memory-application-screen');
             this.ui.initialPageLoadingModal = this._query('initial-loading', true);
             this.ui.emergencyExportCtn = this._query('emergency');
-            if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn);
+            if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn);n        },
   
     
         _getStoryboardElements() {
@@ -428,7 +428,7 @@ function checkDependencies() {
             this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen);
             this.ui.customStoryJsTextarea = this._query('custom-story-js-textarea', false, this.ui.storyboardScreen);
             this.ui.beginStoryButton = this._query('begin-story', false, this.ui.storyboardScreen);
-            this.ui.shuffleStoryElementsButton = this._query('shuffle', false, this.ui.storyboardScreen);
+            this.ui.shuffleStoryElementsButton = this._query('shuffle', false, this.ui.storyboardScreen);n        },
   
     
         _getChatInterfaceElements() {
@@ -446,7 +446,7 @@ function checkDependencies() {
             this.ui.noMessagesNotice = this._query('no-messages-notice', false, this.ui.builtInChatInterfaceWrapper);
             this.ui.statusNotifier = this._query('status-notifier', false, this.ui.builtInChatInterfaceWrapper);
             this.ui.typingIndicatorText = this._query('typing-indicator-text', false, this.ui.builtInChatInterfaceWrapper);
-            this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper);
+            this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper);n        },
 
     
       /**
@@ -467,25 +467,25 @@ function checkDependencies() {
       disableMouseoverAnimation(element) {
           if (element) {
               element.setAttribute('disabled', 'true');
-              this.mouseoverAnimationState.disabledElements.add(element);
+              this.mouseoverAnimationState.disabledElements.add(element);n          },
           },
 
   
       enableMouseoverAnimation(element) {
           if (element) {
               element.removeAttribute('disabled');
-              this.mouseoverAnimationState.disabledElements.delete(element);
+              this.mouseoverAnimationState.disabledElements.delete(element);n          },
           },
 
   
       disableMouseoverAnimationForSelector(selector) {
           const elements = document.querySelectorAll(selector);
-          elements.forEach(el => this.disableMouseoverAnimation(el));
+          elements.forEach(el => this.disableMouseoverAnimation(el));n      },
 
   
       enableMouseoverAnimationForSelector(selector) {
           const elements = document.querySelectorAll(selector);
-          elements.forEach(el => this.enableMouseoverAnimation(el));
+          elements.forEach(el => this.enableMouseoverAnimation(el));n      },
 
   
       updateMouseoverAnimationState() {
@@ -494,7 +494,7 @@ function checkDependencies() {
           if (!this.storyboardSelected.ai) {
               this.disableMouseoverAnimation(this.ui.storyboardAiCharacterCard);
               this.ui.storyboardAiCharacterCard?.setAttribute('disabled', 'true');
-          }, else {
+          } else {
               this.enableMouseoverAnimation(this.ui.storyboardAiCharacterCard);
               this.ui.storyboardAiCharacterCard?.removeAttribute('disabled');
           },
@@ -502,7 +502,7 @@ function checkDependencies() {
           if (!this.storyboardSelected.user) {
               this.disableMouseoverAnimation(this.ui.storyboardUserCharacterCard);
               this.ui.storyboardUserCharacterCard?.setAttribute('disabled', 'true');
-          }, else {
+          } else {
               this.enableMouseoverAnimation(this.ui.storyboardUserCharacterCard);
               this.ui.storyboardUserCharacterCard?.removeAttribute('disabled');
           },
@@ -510,7 +510,7 @@ function checkDependencies() {
           if (!this.storyboardSelected.world) {
               this.disableMouseoverAnimation(this.ui.storyboardWorldCard);
               this.ui.storyboardWorldCard?.setAttribute('disabled', 'true');
-          }, else {
+          } else {
               this.enableMouseoverAnimation(this.ui.storyboardWorldCard);
               this.ui.storyboardWorldCard?.removeAttribute('disabled');
           },
@@ -519,25 +519,25 @@ function checkDependencies() {
           // This will show the proper disabled appearance without breaking functionality
           if (this.ui.newStoryButton && this.ui.newStoryButton.disabled) {
               this.ui.newStoryButton.classList.add('disabled');
-          }, else if (this.ui.newStoryButton) {
+          } else if (this.ui.newStoryButton) {
               this.ui.newStoryButton.classList.remove('disabled');
           },
   
           if (this.ui.saveStoryButton && this.ui.saveStoryButton.disabled) {
               this.ui.saveStoryButton.classList.add('disabled');
-          }, else if (this.ui.saveStoryButton) {
+          } else if (this.ui.saveStoryButton) {
               this.ui.saveStoryButton.classList.remove('disabled');
           },
   
           if (this.ui.exportStoryButton && this.ui.exportStoryButton.disabled) {
               this.ui.exportStoryButton.classList.add('disabled');
-          }, else if (this.ui.exportStoryButton) {
+          } else if (this.ui.exportStoryButton) {
               this.ui.exportStoryButton.classList.remove('disabled');
           },
   
           if (this.ui.useProfilePictureButton && this.ui.useProfilePictureButton.disabled) {
               this.ui.useProfilePictureButton.classList.add('disabled');
-          }, else if (this.ui.useProfilePictureButton) {
+          } else if (this.ui.useProfilePictureButton) {
               this.ui.useProfilePictureButton.classList.remove('disabled');
           },
   
@@ -549,7 +549,7 @@ function checkDependencies() {
           // Enable animations for enabled buttons
           this.enableMouseoverAnimationForSelector('button:not([disabled])');
           this.enableMouseoverAnimationForSelector('input:not([disabled])');
-          this.enableMouseoverAnimationForSelector('a:not([disabled])');
+          this.enableMouseoverAnimationForSelector('a:not([disabled])');n      },
 
     
       /**
@@ -561,7 +561,7 @@ function checkDependencies() {
         // Debug: Element hide operation
         if (el) {
           el.classList.add('hidden'); // Add the hidden class
-          el.style.display = 'none';
+          el.style.display = 'none';n        }n      },
           
         }
 
@@ -578,7 +578,7 @@ function checkDependencies() {
           },
           console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
           const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-          return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
+          return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });n      },
 
       
       /**
@@ -619,7 +619,7 @@ function checkDependencies() {
               notificationArea.style.display = 'none';
               notificationArea.classList.remove('success', 'error', 'info');
               this.topNotificationTimeoutId = null;
-     duration);
+     duration);n      },
 
     
       // Cache for premade character items
