@@ -5379,14 +5379,14 @@ window.App = {
        * @param {string} chinName - The name of the chin section to show.
        */
       _toggleChinContent(chinName) {
-          const chinContainer = document.getElementById('chin-container')
-          const allChins = document.querySelectorAll('[data-chin]')
+        const chinContainer = document.getElementById('chin-container')
+        const allChins = chinContainer.querySelectorAll('[data-chin]')
     
           // Hide all chins
           allChins.forEach(chin => this.hideEl(chin))
     
           // Show the selected chin
-          const selectedChin = document.querySelector(`[data-chin="${chinName}"]`)
+        const selectedChin = chinContainer.querySelector(`[data-chin="${chinName}"]`)
           if (selectedChin) {
               this.showEl(chinContainer)
               this.showEl(selectedChin)

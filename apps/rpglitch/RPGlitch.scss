@@ -141,7 +141,7 @@ textarea,
 
 .top-bar button:not([disabled]):hover,
 .top-bar [role="button"]:not([disabled]):hover,
-#options-chin button:not([disabled]):hover,
+#chin-options button:not([disabled]):hover,
 .chin-tab:not([disabled]):hover,
 button:not([disabled]):hover,
 input[type="submit"]:not([disabled]):hover,
@@ -2001,11 +2001,11 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-grid, 
   display: none ;
 }
 
-#options-chin {
+#chin-options {
   display: none ;
 }
 
-#options-chin:not(.hidden) {
+#chin-options:not(.hidden) {
   display: flex ;
 }
 
