@@ -22,7 +22,7 @@ apps/
 
 - **Live App**: [https://perchance.org/rpglitch](https://perchance.org/rpglitch)
 - **Main Entry Point**:
-pglitch/RPGlitch.html`n- **Build Output**: uild/output/RPGlitch-perchance.html (deployment ready)
+pglitch/RPGlitch.html`n- **Build Output**: build/output/RPGlitch-perchance.html (deployment ready)
 - **Features**:
   - Character profile creation and editing
   - Glitch effects and visual customization
@@ -35,7 +35,7 @@ pglitch/RPGlitch.html`n- **Build Output**: uild/output/RPGlitch-perchance.html 
 **A component-based image glitching tool with modern UI.**
 
 - **Live App**: [https://perchance.org/imageglitch](https://perchance.org/imageglitch)
-- **Main Entry Point**: imageglitch/ImageGlitch.html`n- **Build Output**: uild/output/ImageGlitch-perchance.html (deployment ready)
+- **Main Entry Point**: imageglitch/ImageGlitch.html`n- **Build Output**: build/output/ImageGlitch-perchance.html (deployment ready)
 - **Features**:
   - Image upload and processing
   - Multiple glitch effect algorithms
@@ -69,14 +69,14 @@ pglitch/RPGlitch.html`n- **Build Output**: uild/output/RPGlitch-perchance.html 
 
 ### **Automated Build System**
 
-- **Build Scripts**: Located in uild/ directory
+- **Build Scripts**: Located in build/ directory
 - **CSS Processing**: Automatic merging of base.css, layout.css, and components.css
 - **Asset Optimization**: Minification and compression of all assets
 - **Output Generation**: Single HTML file with embedded resources
 
 ### **Build Commands**
 
-`ash
+`bash
 
 # Build RPGlitch
 
@@ -93,8 +93,8 @@ node build-all.js
 
 ### **Output Structure**
 
-- **Deployment Files**: uild/output/[AppName]-perchance.html (ready for Perchance)
-- **CSS Archives**: uild/output/archive/[AppName]-perchance.css (with source maps)
+- **Deployment Files**: build/output/[AppName]-perchance.html (ready for Perchance)
+- **CSS Archives**: build/output/archive/[AppName]-perchance.css (with source maps)
 - **Asset Optimization**: All images, scripts, and styles embedded and optimized
 
 ## 📊 **Quality Assurance**

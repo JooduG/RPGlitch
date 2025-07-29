@@ -6301,6 +6301,46 @@ window.App = {
         this.enableMouseoverAnimationForSelector('input:not([disabled])');
         this.enableMouseoverAnimationForSelector('a:not([disabled])');
     },
+
+    checkAllButtonStates() {
+        if (this.isInitializing) return;
+
+        // Storyboard Screen
+        const isStoryboardReady = this.storyboardSelected.ai && this.storyboardSelected.user && this.storyboardSelected.world;
+        if (this.ui.beginStoryButton) {
+            this.ui.beginStoryButton.disabled = !isStoryboardReady;
+        }
+        if (this.ui.shuffleStoryElementsButton) {
+            this.ui.shuffleStoryElementsButton.disabled = false; // Shuffle should always be enabled
+        }
+
+        // Chat Interface Screen
+        if (this.ui.sendButton && this.ui.messageInput) {
+            this.ui.sendButton.disabled = this.ui.messageInput.value.trim() === '' || this.isAiThinking;
+        }
+        if (this.ui.concludeStoryChatButton) {
+            this.ui.concludeStoryChatButton.disabled = this.isAiThinking;
+        }
+
+        // Profile Screens (Character, World, Story)
+        // The buttons are now in the top bar, handled by updateTopBarUI
+
+        // Form Screens (Character, World)
+        const formScreen = this.ui.characterFormScreen.style.display !== 'none' 
+            ? this.ui.characterFormScreen 
+            : this.ui.worldFormScreen;
+            
+        if (formScreen && formScreen.style.display !== 'none') {
+            const nameInput = formScreen.querySelector('.studio-name-input-large');
+            const submitButton = formScreen.querySelector('button[type="submit"]');
+            if (submitButton && nameInput) {
+                submitButton.disabled = !nameInput.value.trim();
+            }
+        }
+        
+        this.updateMouseoverAnimationState();
+    },
+
   
     /**
      * Hides a DOM element by adding the 'hidden' class and setting visibility.
@@ -7758,39 +7798,6 @@ window.App = {
                       
           };
         }
-      }, 
-        currentMainView: 'STORYBOARD',
-    
-        _query(id, required = false) {
-            const el = document.getElementById(id);
-            
-            if (!el && required) {
-                console.error(`[UI Critical] Element with ID '${id}' not found.`);
-            } else if (!el) {
-                console.warn(`[UI] Optional element with ID '${id}' not found.`);
-            }
-            return el;
-        },
-    
-        /**
-         * Retrieves and caches all key UI elements from the DOM.
-         * Should be called once after DOM is ready.
-         */
-        _getUIElements() {
-            
-            this._getTopBarElements();
-            this._getChinElements();
-            this._getCoreUIContainers();
-            this._getFormScreens();
-            this._getProfileScreens();
-            this._getPremadeSelectionScreens();
-            this._getMiscScreens();
-            this._getStoryboardElements();
-            this._getChatInterfaceElements();
-    
-            if (!this.ui.main) {
-                console.error("[App Critical] #main container not found after UI element query!");
-            }
             
             
         },
@@ -11336,8 +11343,6 @@ window.App = {
       waitForDependencies();
   },
   // Additional functionality or correction if needed
-  // Additional functionality or correction if needed
-
 </script>
 </body>
 </html>

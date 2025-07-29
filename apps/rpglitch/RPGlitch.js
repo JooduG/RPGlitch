@@ -443,7 +443,7 @@ window.App = {
         elements.forEach(el => this.enableMouseoverAnimation(el));
     },
 
-    """    updateMouseoverAnimationState() {
+    updateMouseoverAnimationState() {
         // For storyboard cards, add disabled attribute for hover effects when no item is selected
         // But keep the cards clickable for dropdown functionality
         if (!this.storyboardSelected.ai) {
@@ -545,7 +545,7 @@ window.App = {
         
         this.updateMouseoverAnimationState();
     },
-""
+
   
     /**
      * Hides a DOM element by adding the 'hidden' class and setting visibility.
