@@ -169,8 +169,9 @@ window.App = {
        * Should be called once after DOM is ready.
        */
       _getUIElements() {
-          
+
           this._getTopBarElements()
+          this._attachTopBarEventListeners()
           this._getChinElements()
           this._getCoreUIContainers()
           this._getFormScreens()
@@ -4312,6 +4313,32 @@ window.App = {
               }
           })
       },
+
+      /**
+       * Attaches event listeners to the top bar buttons.
+       */
+      _attachTopBarEventListeners() {
+          if (!this.ui.topBar) return
+
+          const tabButtons = this.ui.topBar.querySelectorAll('#top-bar-left button[data-chin]')
+          tabButtons.forEach(btn => {
+              const chinName = btn.getAttribute('data-chin')
+              btn.addEventListener('click', () => {
+                  this.selectTopBarTab(chinName)
+                  this.updateTopBarUI()
+              })
+          })
+
+          const shuffleBtn = document.getElementById('shuffle')
+          if (shuffleBtn) {
+              shuffleBtn.addEventListener('click', () => this._shuffleStoryboard())
+          }
+
+          const beginBtn = document.getElementById('begin-story')
+          if (beginBtn) {
+              beginBtn.addEventListener('click', () => this.beginStory())
+          }
+      },
     
       /**
        * Selects an item in the storyboard dropdowns and updates the corresponding card.
@@ -4324,28 +4351,18 @@ window.App = {
        * @param {string|number} itemId - The ID of the selected item (can be premade_ prefixed).
        */
       async _selectStoryboardItem(type, itemId) {
-          // Atomic fix: Populate dropdowns immediately after data is set
-              if (typeof this._updateStoryboard === 'function') {
-              if (this.currentStoryId === story.id && this.currentMainView === this.CONSTANTS.VIEWS.STORY_INTERFACE) {
-                  itemEl.classList.add('active')
-              }
-              if (story.concluded) {
-                  itemEl.classList.add('concluded-story-item')
-              }
-      
-              itemEl.innerHTML = `
-                  <span class="name-main" title="${this.sanitizeHtml(displayName)}">${this.sanitizeHtml(displayName)}</span>
-                  <span class="tag-right-aligned">${story.concluded ? '<span class="concluded-story-indicator">&#127937;</span>' : ''}</span>
-              `
-      
-              itemEl.onclick = () => {
-                  this.ui.topBar.classList.remove('top-bar-interactive-hover')
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: story.id })
-              }
-              listArea.appendChild(itemEl)
+          const selectEl = this.ui[`storyboard${type.charAt(0).toUpperCase() + type.slice(1)}Select`]
+          if (!selectEl) return
+
+          if (itemId && selectEl.querySelector(`option[value="${itemId}"]`)) {
+              selectEl.value = itemId
+              this.storyboardSelected[type] = itemId
+          } else {
+              selectEl.value = ''
+              this.storyboardSelected[type] = ''
           }
-          
-          // Chin height is now handled automatically by flexbox layout
+
+          await this._updateStoryboardCard(type)
       },
     
       async renderStoryProfileScreen(storyId) {
