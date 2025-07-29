@@ -5,7 +5,7 @@ tags:
 - role
 - code-implementer
 - implementation
-permalink: operational-operational-role-code-implementer
+permalink: operational-operational-role-code-implementer-1
 ---
 
 # Operational Role - Code Implementer

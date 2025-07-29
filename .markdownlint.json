@@ -2,5 +2,6 @@
   "ignore": [
     "memory/project/archive/collection.md",
     "memory/**/archive/**/*.md"
-  ]
-} 
+  ],
+  "MD013": false
+}

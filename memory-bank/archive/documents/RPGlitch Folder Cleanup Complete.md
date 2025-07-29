@@ -1,7 +1,7 @@
 ---
 title: RPGlitch Folder Cleanup Complete
 type: note
-permalink: memory-bank-project-rpglitch-folder-cleanup-complete
+permalink: memory-bank-project-rpglitch-folder-cleanup-complete-1
 ---
 
 # RPGlitch Folder Cleanup Complete

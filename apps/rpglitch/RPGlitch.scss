@@ -1,22 +1,9 @@
-/* stylelint-disable declaration-block-single-line-max-declarations */
-/* stylelint-disable no-duplicate-selectors */
-/* stylelint-disable no-irregular-whitespace */
-
-/* ========================================
-   RPGLITCH MAIN STYLESHEET
-   ======================================== */
-
-/*
-  Dash-case for all classes and IDs.
-  Only variables, resets, and atomic/utility classes.
-*/
-
 html, body {
   min-height: 100vh;
   height: 100%;
   overflow: visible;
   background: linear-gradient(120deg, #181c2f 0%, #23243a 40%, #1a3a4a 70%, #2a1a3a 100%);
-  padding-top: 0; /* Remove top padding since we handle it in app container */
+  padding-top: 0;
 }
 
 input, input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
@@ -29,7 +16,6 @@ textarea {
   appearance: none;
 }
 
-/* Add standard touch-action property for interactive elements */
 a,
 area,
 button,
@@ -42,44 +28,37 @@ textarea,
   touch-action: manipulation;
 }
 
-/* ========================================
-   INTERACTIVE ELEMENTS & HOVER EFFECTS
-   ======================================== */
-
-/* Cards with click handlers - Elegant lift effect */
 .storyboard-card:not([disabled]):hover,
-#storyboard-ai-character-card:not([disabled]):hover,
-#storyboard-user-character-card:not([disabled]):hover,
-#storyboard-world-card:not([disabled]):hover,
-.character-card-landscape:not([disabled]):hover,
-.story-profile-item-card:not([disabled]):hover {
+#storyboard-card-ai:not([disabled]):hover,
+#storyboard-card-user:not([disabled]):hover,
+#storyboard-card-world:not([disabled]):hover,
+.chin-card:not([disabled]):hover,
+.chin-card:not([disabled]):hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 8px 25px rgb(0 0 0 / 25%), 0 0 20px rgb(255 255 255 / 10%);
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Ensure cards have proper initial transform state */
 .storyboard-card,
-#storyboard-ai-character-card,
-#storyboard-user-character-card,
-#storyboard-world-card,
-.story-profile-item-card {
+#storyboard-card-ai,
+#storyboard-card-user,
+#storyboard-card-world,
+.chin-card {
   transform: translateY(0) scale(1);
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  margin-bottom: 1rem; /* Increase margin to push cards down more */
+  margin-bottom: 1rem;
 }
 
-/* Disabled cards - dramatic attention to dropdown area */
 .storyboard-card[disabled]:hover .card-title,
 .storyboard-card[disabled]:hover .card-subtitle,
-#storyboard-ai-character-card[disabled]:hover .card-title,
-#storyboard-ai-character-card[disabled]:hover .card-subtitle,
-#storyboard-user-character-card[disabled]:hover .card-title,
-#storyboard-user-character-card[disabled]:hover .card-subtitle,
-#storyboard-world-card[disabled]:hover .card-title,
-#storyboard-world-card[disabled]:hover .card-subtitle {
+#storyboard-card-ai[disabled]:hover .card-title,
+#storyboard-card-ai[disabled]:hover .card-subtitle,
+#storyboard-card-user[disabled]:hover .card-title,
+#storyboard-card-user[disabled]:hover .card-subtitle,
+#storyboard-card-world[disabled]:hover .card-title,
+#storyboard-card-world[disabled]:hover .card-subtitle {
   color: var(--pico-primary);
   text-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.6);
   transition: color 0.3s ease, text-shadow 0.3s ease;
@@ -87,9 +66,9 @@ textarea,
 }
 
 .storyboard-card[disabled]:hover .card-title::after,
-#storyboard-ai-character-card[disabled]:hover .card-title::after,
-#storyboard-user-character-card[disabled]:hover .card-title::after,
-#storyboard-world-card[disabled]:hover .card-title::after {
+#storyboard-card-ai[disabled]:hover .card-title::after,
+#storyboard-card-user[disabled]:hover .card-title::after,
+#storyboard-card-world[disabled]:hover .card-title::after {
   content: " ▼ CLICK HERE!";
   color: var(--pico-primary);
   text-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.8);
@@ -98,13 +77,12 @@ textarea,
   font-size: 0.9em;
 }
 
-/* Add a subtle glow to the entire card when disabled and hovered */
 .storyboard-card[disabled]:hover,
-#storyboard-ai-character-card[disabled]:hover,
-#storyboard-user-character-card[disabled]:hover,
-#storyboard-world-card[disabled]:hover {
-  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.3) !important;
-  border: 2px solid rgb(var(--pico-primary-rgb), 0.5) !important;
+#storyboard-card-ai[disabled]:hover,
+#storyboard-card-user[disabled]:hover,
+#storyboard-card-world[disabled]:hover {
+  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.3) ;
+  border: 2px solid rgb(var(--pico-primary-rgb), 0.5) ;
   transition: box-shadow 0.3s ease, border 0.3s ease;
 }
 
@@ -113,34 +91,18 @@ textarea,
   50% { opacity: 1; transform: scale(1.1); }
 }
 
-/* Buttons - Glow effect instead of lift */
 .top-bar button:not([disabled]):hover,
 .top-bar [role="button"]:not([disabled]):hover,
-#chin-options button:not([disabled]):hover,
+#options-chin button:not([disabled]):hover,
 .chin-tab:not([disabled]):hover,
 button:not([disabled]):hover,
 input[type="submit"]:not([disabled]):hover,
 input[type="button"]:not([disabled]):hover {
-  transform: none !important;
-  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.6), 0 0 30px rgb(255 255 255 / 15%) !important;
-  transition: box-shadow 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+  transform: none ;
+  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.6), 0 0 30px rgb(255 255 255 / 15%) ;
+  transition: box-shadow 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) ;
 }
 
-/* Search buttons - Glow effect instead of lift */
-.chin-search-submit:not([disabled]):hover {
-  transform: none !important;
-  box-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.6) !important;
-  transition: box-shadow 0.2s ease !important;
-}
-
-/* Search field glow when search button is focused */
-.chin-search-submit:focus ~ input,
-.chin-search-submit:focus ~ select {
-  box-shadow: 0 0 10px rgb(var(--pico-primary-rgb), 0.4) !important;
-  border-color: var(--pico-primary) !important;
-}
-
-/* Links - Subtle but fun */
 a:not([disabled]):hover {
   transform: translateY(-2px) scale(1.02);
   text-shadow: 0 2px 8px rgb(0 0 0 / 30%);
@@ -148,73 +110,16 @@ a:not([disabled]):hover {
               text-shadow 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* ========================================
-   DISABLED STATE STYLING
-   ======================================== */
-
-/* Secondary disabled elements styling */
-[disabled].secondary {
-  opacity: 0.3 !important;
-  cursor: not-allowed !important;
-  filter: grayscale(100%) !important;
-  pointer-events: none !important;
-  background: rgb(255 255 255 / 10%) !important;
-  color: rgb(255 255 255 / 50%) !important;
-  border-color: rgb(255 255 255 / 20%) !important;
-}
-
-/* Disabled state - no hover effects for secondary elements ONLY */
-[disabled].secondary:hover {
-  transform: none !important;
-  box-shadow: none !important;
-  transition: none !important;
-  background: inherit !important;
-  color: inherit !important;
-}
-
-/* General disabled styling */
-.disabled {
-  cursor: not-allowed !important;
-  pointer-events: none !important;
-  opacity: 0.5 !important;
-  filter: grayscale(100%) !important;
-}
-
-.disabled:hover {
-  transform: none !important;
-  box-shadow: none !important;
-  transition: none !important;
-}
-
-/* Disabled button hover effects */
-button[disabled].secondary:hover,
-input[disabled]:hover,
-select[disabled]:hover,
-textarea[disabled]:hover,
-label[disabled]:hover,
-[role="button"][disabled].secondary:hover {
-  transform: none !important;
-  box-shadow: none !important;
-  background: inherit !important;
-  color: inherit !important;
-}
-
-/* Special handling for storyboard cards with disabled attribute */
 .storyboard-card[disabled],
-#storyboard-ai-character-card[disabled],
-#storyboard-user-character-card[disabled],
-#storyboard-world-card[disabled] {
-  opacity: 1 !important;
-  cursor: pointer !important;
-  pointer-events: auto !important;
-  filter: none !important;
+#storyboard-card-ai[disabled],
+#storyboard-card-user[disabled],
+#storyboard-card-world[disabled] {
+  opacity: 1 ;
+  cursor: pointer ;
+  pointer-events: auto ;
+  filter: none ;
 }
 
-/* ========================================
-   CURSOR STYLES
-   ======================================== */
-
-/* Interactive elements - pointer cursor */
 button:not([disabled]),
 input[type="button"]:not([disabled]),
 input[type="submit"]:not([disabled]),
@@ -222,16 +127,15 @@ input[type="submit"]:not([disabled]),
 label:not([disabled]),
 .upload-label:not([disabled]),
 .storyboard-card:not([disabled]),
-.character-card-landscape:not([disabled]),
-.story-profile-item-card:not([disabled]),
+.chin-card:not([disabled]),
+.chin-card:not([disabled]),
 .card-title-dropdown,
 .card-title-selected,
 .dropdown-option,
 a:not([disabled]) {
-  cursor: pointer !important;
+  cursor: pointer ;
 }
 
-/* Form inputs - text cursor */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -241,36 +145,32 @@ input[type="tel"],
 input[type="number"],
 textarea,
 select {
-  cursor: text !important;
+  cursor: text ;
 }
 
-/* File inputs - pointer cursor */
 input[type="file"] {
-  cursor: pointer !important;
+  cursor: pointer ;
 }
 
-/* Storyboard title cursor */
 #storyboard-title {
-  cursor: pointer !important;
+  cursor: pointer ;
 }
 
 #storyboard-title:focus {
-  cursor: text !important;
+  cursor: text ;
 }
 
-/* Disabled elements - not allowed cursor */
 [disabled],
 .disabled {
-  cursor: not-allowed !important;
+  cursor: not-allowed ;
 }
 
-/* Ensure smooth transitions for all interactive elements */
 .storyboard-card,
-.character-card-landscape,
-.story-profile-item-card,
+.chin-card,
+.chin-card,
 .top-bar button,
 .top-bar [role="button"],
-#chin-options button,
+#chin-options,
 .chin-tab,
 button,
 input[type="submit"],
@@ -280,10 +180,9 @@ a {
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Add a subtle pulse animation for selected/active elements */
 .storyboard-card.selected,
-.character-card-landscape.selected,
-.story-profile-item-card.selected {
+.chin-card.selected,
+.chin-card.selected {
   animation: subtle-pulse 2s ease-in-out infinite;
 }
 
@@ -297,92 +196,104 @@ a {
   }
 }
 
-/* ========================================
-   FOCUS & DROPDOWN RESETS
-   ======================================== */
-
-/* Global focus reset */
 *:focus {
-  outline: none !important;
+  outline: none ;
 }
 
-/* Dropdown border resets */
 .card-title-dropdown,
 .card-title-dropdown *,
 .card-title-selected,
 .card-title-dropdown-menu,
 .card-title-dropdown-menu *,
 .dropdown-option {
-  border: 0 !important;
-  border-width: 0 !important;
-  border-style: none !important;
-  border-color: transparent !important;
-  outline: transparent none 0 !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
-  -webkit-border: 0 !important;
-  -moz-border: 0 !important;
-  -webkit-outline: 0 !important;
-  -moz-outline: 0 !important;
+  border: 0 ;
+  border-width: 0 ;
+  border-style: none ;
+  border-color: transparent ;
+  outline: transparent none 0 ;
+  text-shadow: none ;
+  box-shadow: none ;
+  -webkit-border: 0 ;
+  -moz-border: 0 ;
+  -webkit-outline: 0 ;
+  -moz-outline: 0 ;
 }
 
-/* Card title dropdown resets */
 .card-title-dropdown *,
 .card-title-dropdown *:focus,
 .card-title-dropdown *:hover,
 .card-title-dropdown *:active {
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
+  border: 0 ;
+  outline: none ;
+  box-shadow: none ;
 }
 
-/* Selected element resets */
 .card-title-selected,
 .card-title-selected:focus,
 .card-title-selected:hover,
 .card-title-selected:active {
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
+  border: 0 ;
+  outline: none ;
+  box-shadow: none ;
+  background: transparent ;
 }
 
 .card-title-selected:hover,
 .card-title-selected:focus {
-  background: rgb(80 80 120 / 20%) !important;
+  background: rgb(80 80 120 / 20%) ;
 }
 
-/* Dropdown options resets */
 .card-title-dropdown-menu .dropdown-option,
 .card-title-dropdown-menu .dropdown-option:focus,
 .card-title-dropdown-menu .dropdown-option:hover,
 .card-title-dropdown-menu .dropdown-option:active {
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
+  border: 0 ;
+  outline: none ;
+  box-shadow: none ;
 }
 
-/* Dropdown positioning and overflow */
 .card-title-dropdown-menu {
-  z-index: 9999999 !important;
-  position: absolute !important;
+  z-index: 9999999 ;
+  position: absolute ;
+
+  /* DEBUG: Make dropdown menu more visible */
+  border: 5px solid green !important;
+  background-color: rgb(0 255 0 / 30%) !important;
+  min-height: 50px !important;
+  min-width: 150px !important;
+}
+
+/* DEBUG: Make dropdown menu even more visible when not hidden */
+.card-title-dropdown-menu:not(.hidden) {
+  background-color: rgb(255 0 255 / 80%) !important;
+  border: 5px solid magenta !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .card-title-dropdown {
-  overflow: visible !important;
+  overflow: visible ;
   z-index: 10;
+
+  /* DEBUG: Make dropdowns more visible */
+  border: 5px solid red !important;
+  background-color: rgb(255 0 0 / 30%) !important;
+  cursor: pointer !important;
+  position: relative !important;
+  min-height: 20px !important;
+  min-width: 100px !important;
 }
 
-/* Card overflow for dropdowns */
 .storyboard-card,
-.storyboard-cards-row > article,
+#storyboard-grid > article,
 .card {
-  overflow: visible !important;
+  overflow: visible ;
   z-index: 1;
   position: relative;
 }
 
-.storyboard-cards-row > article {
+#storyboard-grid > article {
   bottom: 0.5em;
   left: 0;
   margin: 0;
@@ -390,34 +301,27 @@ a {
   flex: 1 1 0;
 }
 
-/* Final border resets */
 .card-title-dropdown *,
 .card-title-dropdown-menu *,
 .card-title-selected,
 .dropdown-option {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  border: none ;
+  outline: none ;
+  box-shadow: none ;
+  margin: 0 ;
+  padding: 0 ;
 }
 
-/* Pico button overrides */
 .card-title-dropdown button,
 .card-title-dropdown-menu button {
-  background: transparent !important;
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
-  padding: inherit !important;
-  margin: 0 !important;
+  background: transparent ;
+  border: 0 ;
+  outline: none ;
+  box-shadow: none ;
+  padding: inherit ;
+  margin: 0 ;
 } 
 
-/* ========================================
-   PROFILE PICTURES & CHAT COMPONENTS
-   ======================================== */
-
-/* Profile picture base styles */
 .profile-picture { 
   background-position: center;
   background-size: cover;
@@ -426,7 +330,6 @@ a {
   object-fit: cover; 
 }
 
-/* Chat components */
 #chat-log {
   min-height: 200px;
   margin-bottom: 1rem;
@@ -441,61 +344,50 @@ a {
   align-items: flex-end;
 }
 
-.chin-options-fields {
+.chin-actions {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-/* ========================================
-   SCROLLING & CONTAINER MANAGEMENT
-   ======================================== */
-
-/* App-level scrolling */
 .app-scrollable-container {
   height: 100vh;
   overflow: hidden auto;
-  margin: 0 !important;
-  padding: 1rem 0 0 !important;
-  max-width: 100vw !important;
-  width: 100vw !important;
+  margin: 0 ;
+  padding: 1rem 0 0 ;
+  max-width: 100vw ;
+  width: 100vw ;
 }
 
 .app-scrollable-container:has(.profile-content-overlay) {
-  overflow: hidden !important;
+  overflow: hidden ;
 }
 
-/* Profile content overflow management */
 .profile-details-content-wrapper,
 .story-profile-layout-container,
 .middle-column-screen,
 .profile-section,
 .profile-hero-section {
-  overflow: visible !important;
-  height: auto !important;
+  overflow: visible ;
+  height: auto ;
 }
 
 .main-content-container {
   height: auto;
   min-height: 0;
-  overflow: visible !important;
+  overflow: visible ;
 }
 
-/* ========================================
-   LAYOUT SYSTEM
-   ======================================== */
-
-.chin-top-row, .chin-list-grid {
+.chin-actions, .chin-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Fixed 3-column layout */
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  min-height: 160px; /* Single row: 160px cards */
-  height: auto; /* Allow grid to expand with content */
-  flex: 1; /* Take up remaining space in flex container */
-  align-content: start; /* Align grid items to the top */
-  box-shadow: none; /* Remove shadows */
-  
-  /* Dark mode CSS variables with all shadows set to 0 - applied specifically to chin grids */
+  min-height: 160px;
+  height: auto;
+  flex: 1;
+  align-content: start;
+  box-shadow: none;
+
   --pico-box-shadow: 0;
   --pico-button-box-shadow: 0;
   --pico-button-hover-box-shadow: 0;
@@ -504,17 +396,16 @@ a {
   --pico-dropdown-box-shadow: 0;
 }
 
-/* Chin grid layouts */
 .chin-card {
   min-height: 160px;
   height: auto;
 }
 
-.chin-top-row { 
+.chin-actions { 
   margin-bottom: 1.5rem; 
 }
 
-.chin-list-grid { 
+.chin-grid { 
   margin-bottom: 0; 
   flex: 1;
   overflow: visible;
@@ -527,8 +418,7 @@ a {
   box-shadow: none; 
 }
 
-/* Chin area container */
-#chin-area {
+#chin-container {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -538,8 +428,7 @@ a {
   min-height: 190px;
 }
 
-/* Empty state styling */
-.chin-empty-centered {
+.chin-empty {
   grid-column: 1 / -1;
   display: grid;
   place-items: center;
@@ -554,14 +443,14 @@ a {
   padding: 0;
 }
 
-.card-placeholder-text {
+.chin-card-placeholder {
   width: 100%;
   text-align: center;
   border-radius: var(--pico-radius);
 }
 
-.chin-list-grid > p,
-.chin-list-grid .story-item-empty-message {
+.chin-grid > p,
+.chin-grid .story-item-empty-message {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -573,7 +462,6 @@ a {
   grid-column: 2 / 3;
 }
 
-/* Top bar chin positioning */
 .top-bar-chin {
   position: absolute;
   top: calc(100% - 0.5rem);
@@ -584,10 +472,7 @@ a {
   padding: 0.5em 1em 1em;
   font-family: inherit;
   transition: all 0.2s;
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-left-radius: var(--pico-radius, 0.5rem);
-  border-bottom-right-radius: var(--pico-radius, 0.5rem);
+  border-radius: 0 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem);
   margin-top: 0;
   padding-top: 0.5rem;
   min-height: 200px;
@@ -595,49 +480,30 @@ a {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-
-  /* Glass effect */
-  background: rgb(35 36 58 / 85%) !important;
+  background: rgb(35 36 58 / 85%) ;
   backdrop-filter: blur(15px);
   border-bottom: 1px solid rgb(255 255 255 / 10%);
   box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
 }
 
-/* Ensure chin buttons are readable on glass background */
 .top-bar-chin button {
-  background: rgb(255 255 255 / 10%) !important;
-  border-color: rgb(255 255 255 / 20%) !important;
-  color: #fff !important;
+  background: rgb(255 255 255 / 10%) ;
+  border-color: rgb(255 255 255 / 20%) ;
+  color: #fff ;
   backdrop-filter: blur(5px);
 }
 
 .top-bar-chin button:hover {
-  background: rgb(255 255 255 / 20%) !important;
-  border-color: rgb(255 255 255 / 30%) !important;
+  background: rgb(255 255 255 / 20%) ;
+  border-color: rgb(255 255 255 / 30%) ;
 }
 
-.top-bar-chin button.primary {
-  background: var(--pico-primary, #0172ad) !important;
-  border-color: var(--pico-primary, #0172ad) !important;
-}
-
-.top-bar-chin button.primary:hover {
-  background: var(--pico-primary-hover, #015a8a) !important;
-  border-color: var(--pico-primary-hover, #015a8a) !important;
-}
-
-/* Placeholder styling for "no recent stories" message */
 .story-item-empty-message {
-  opacity: 0.6 !important;
+  opacity: 0.6 ;
   font-style: italic;
   color: var(--pico-muted-color, #aaa);
 }
 
-/* ========================================
-   SEARCH INPUT STYLING
-   ======================================== */
-
-/* Search input placeholders */
 #search-stories-input::placeholder,
 #search-characters-input::placeholder,
 #search-worlds-input::placeholder {
@@ -645,16 +511,14 @@ a {
   opacity: 0.8;
 }
 
-/* Options chin placeholders */
-.chin-options-actions input::placeholder,
-.chin-options-actions textarea::placeholder,
+.chin-actions input::placeholder,
+.chin-actions textarea::placeholder,
 .chin-options-grid input::placeholder,
 .chin-options-grid textarea::placeholder {
   font-style: italic;
   opacity: 0.8;
 }
 
-/* Search input icons */
 #search-stories-input,
 #search-characters-input,
 #search-worlds-input {
@@ -665,46 +529,21 @@ a {
   padding-left: 2.5rem;
 }
 
-/* Move bar-wide styles to .top-bar */
 .top-bar-chin,
 .top-bar {
   background: var(--pico-surface, #23243a);
   color: var(--pico-contrast, #fff);
   box-shadow: none;
   border-radius: var(--pico-radius);
-  margin-top: 0; /* Remove top margin */
+  margin-top: 0;
   width: 100%;
   max-width: 100%;
 }
 
-/* Container for chin positioning */
 #main-content-wrapper > .container {
   position: relative;
 }
 
-/* Override Pico.css footer margins and borders for premade tags (excluding storyboard cards) */
-article > footer:not(.storyboard-card footer) {
-  margin: 0 !important;
-  padding: 10px !important;
-  border: none !important;
-
-  /* Removed all bottom rounding for storyboard footers */
-}
-
-/* Override Pico.css header borders and rounding (excluding storyboard cards) */
-article > header:not(.storyboard-card header) {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  border: none !important;
-}
-
-/* Premade tag alignment: right-aligned on both storyboard and chin list cards */
-.storyboard-card article > footer,
-.chin-list-grid article > footer {
-  justify-content: flex-end !important;
-}
-
-/* Storyboard dropdown placeholder styling */
 .card-title-selected {
   position: relative;
 }
@@ -725,32 +564,13 @@ article > header:not(.storyboard-card header) {
   background: rgb(255 255 255 / 5%);
 }
 
-/* Removed ellipsis - looks weird with multi-line text */
-
-
-
-/* ========================================
-   NAVIGATION STYLING
-   ======================================== */
-
 .top-bar-nav {
   padding: 1em;
 }
 
 .top-bar-nav.is-active {
-  display: flex !important;
+  display: flex ;
   z-index: 1000;
-}
-
-#start-fresh-button.secondary {
-  transition: background 0.2s, color 0.2s;
-}
-
-#start-fresh-button.secondary:hover,
-#start-fresh-button.secondary:focus {
-  background: #e53935 !important;
-  color: var(--pico-contrast, #fff) !important;
-  border-color: #e53935 !important;
 }
 
 nav {
@@ -759,22 +579,17 @@ nav {
   align-items: center;
 }
 
-/* Navigation layout */
 .top-bar-nav ul {
   display: flex;
   gap: 1rem;
-  margin: 0 !important;
-  padding: 0 !important;
+  margin: 0 ;
+  padding: 0 ;
 }
 
 .top-bar-nav li {
-  margin: 0 !important;
-  padding: 0 !important;
+  margin: 0 ;
+  padding: 0 ;
 }
-
-/* ========================================
-   CHIN ACTIONS STYLING
-   ======================================== */
 
 .chin-actions {
   display: flex;
@@ -810,7 +625,7 @@ nav {
   border: none;
 }
 
-.chin-options-actions {
+.chin-actions {
   display: flex;
   gap: 1rem;
   align-items: center;
@@ -818,37 +633,29 @@ nav {
   border-radius: var(--pico-radius);
 }
 
-/* ========================================
-   CARD STYLING
-   ======================================== */
-
-/* Base card styles */
-.character-card-landscape,
+.chin-card,
 .storyboard-card,
 .card,
-.card-picture,
+.chin-card-right,
 .chin-card {
-  border-radius: var(--pico-radius) !important;
+  border-radius: var(--pico-radius) ;
   overflow: visible;
 }
 
-/* Chin list character cards */
-.chin-list-grid .character-card-landscape {
+.chin-grid .chin-card {
   min-height: 160px;
   height: auto;
   z-index: 100;
   position: relative;
 }
 
-/* Character card border radius */
-.character-card-landscape {
-  border-radius: var(--pico-radius) !important;
-  border-top-left-radius: var(--pico-radius, 0.5rem) !important;
-  border-bottom-left-radius: var(--pico-radius, 0.5rem) !important;
+.chin-card {
+  border-radius: var(--pico-radius) ;
+  border-top-left-radius: var(--pico-radius, 0.5rem) ;
+  border-bottom-left-radius: var(--pico-radius, 0.5rem) ;
 }
 
-/* Card grid layout */
-.card-grid {
+.chin-grid {
   display: grid;
   grid-template-columns: 3fr 2fr;
   align-items: stretch;
@@ -858,12 +665,11 @@ nav {
   overflow: visible;
 }
 
-.card-grid, .card-content {
-  gap: 0 !important;
+.chin-grid, .chin-card {
+  gap: 0 ;
 }
 
-/* Card info layout */
-.card-info {
+.chin-card-left {
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -875,7 +681,6 @@ nav {
   justify-content: space-between;
 }
 
-/* Card footer */
 .card-footer {
   display: flex;
   gap: 0.5rem;
@@ -896,8 +701,7 @@ nav {
   color: var(--pico-button-color, #fff);
 }
 
-/* Card header */
-.card-info header {
+.chin-card-left header {
   margin: 0;
   padding: 0;
   font-size: 1em;
@@ -907,7 +711,7 @@ nav {
   border-radius: 0 var(--pico-radius, 0.5rem) 0 0;
 }
 
-.card-info h4 {
+.chin-card-left h4 {
   margin: 0;
   font-size: 1em;
   font-weight: 600;
@@ -921,7 +725,7 @@ nav {
   min-height: 2.5em;
 }
 
-.card-info p {
+.chin-card-left p {
   margin: 0;
   font-size: 0.85em;
   line-height: 1.2;
@@ -935,10 +739,7 @@ nav {
   flex: 1;
 }
 
-
-
-/* Card picture */
-.card-picture {
+.chin-card-right {
   display: flex;
   align-items: stretch;
   justify-content: flex-end;
@@ -947,7 +748,7 @@ nav {
   height: 100%;
 }
 
-.card-picture .profile-picture {
+.chin-card-right .profile-picture {
   width: 100%;
   height: 100%;
   min-width: 0;
@@ -964,26 +765,21 @@ nav {
   font-size: 1.1rem;
 }
 
-
-
-/* Card border radius rules */
-.character-card-landscape .card-picture .profile-picture {
-  border-radius: 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important;
+.chin-card .chin-card-right .profile-picture {
+  border-radius: 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 ;
 }
 
-.character-card-landscape .card-info {
-  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;
-  overflow: hidden !important;
+.chin-card .chin-card-left {
+  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) ;
+  overflow: hidden ;
 }
 
-.storyboard-card .card-info {
-  border-radius: 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 !important;
-  overflow: hidden !important;
+.storyboard-card .chin-card-left {
+  border-radius: 0 var(--pico-radius, 0.5rem) var(--pico-radius, 0.5rem) 0 ;
+  overflow: hidden ;
 }
 
-
-/* Card content layout */
-.card-content {
+.chin-card {
   display: grid;
   grid-template-columns: 35% 65%;
   gap: 0;
@@ -993,7 +789,7 @@ nav {
   max-height: 100%;
 }
 
-.card-avatar {
+.profile-picture {
   width: 100%;
   height: 100%;
   display: flex;
@@ -1002,7 +798,7 @@ nav {
   overflow: hidden;
 }
 
-.card-avatar img {
+.profile-picture img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1011,70 +807,47 @@ nav {
 }
 
 .card-title-selected .profile-dot {
-  display: none !important;
+  display: none ;
 }
 
 .card-title {
   text-wrap: balance;
 }
 
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
-
 @media (width <= 600px) {
-  .character-card-landscape {
+  .chin-card {
     height: auto;
   }
 
-  .card-grid {
+  .chin-grid {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
     height: auto;
   }
 
-  .card-picture {
+  .chin-card-right {
     justify-content: center;
     margin-top: 1em;
   }
 
-  .card-content {
+  .chin-card {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
     min-height: unset;
     height: auto;
   }
 
-  .card-avatar {
+  .profile-picture {
     height: 160px;
     min-height: 120px;
     max-height: 200px;
   }
 }
 
-/* ========================================
-   ROOT VARIABLES & BASE STYLES
-   ======================================== */
-
 :root {
   color: #fff;
 
   --pico-radius: 0.5rem;
-}
-
-/* Border radius consistency */
-.button,
-.primary,
-.secondary,
-.contrast,
-.outline,
-select,
-input[type="text"],
-input[type="file"],
-input[type="email"],
-input[type="password"],
-textarea {
-  border-radius: var(--pico-radius);
 }
 
 article {
@@ -1084,59 +857,15 @@ article {
 
 #opening-prompt-textarea,
 #custom-story-js-textarea {
-  margin: 0 !important;
+  margin: 0 ;
 }
-
-/* ========================================
-   UPLOAD LABEL STYLING
-   ======================================== */
-
-.upload-label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 2.5em;
-  padding: 0 1.25em;
-  border-radius: var(--pico-radius);
-  font-size: 1rem;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s;
-  vertical-align: middle;
-  line-height: 1;
-  box-sizing: border-box;
-  margin: 0;
-
-  /* Glass effect */
-  background: rgb(255 255 255 / 10%) !important;
-  border-color: rgb(255 255 255 / 20%) !important;
-  color: #fff !important;
-  backdrop-filter: blur(5px);
-}
-
-.upload-label:hover {
-  background: rgb(255 255 255 / 20%) !important;
-  border-color: rgb(255 255 255 / 30%) !important;
-}
-
-.upload-label-text {
-  pointer-events: none;
-}
-
-.upload-label input[type="file"] {
-  display: none;
-}
-
-/* ========================================
-   SEARCH INPUT STYLING
-   ======================================== */
 
 .chin-actions input[type="search"] {
   height: auto;
   padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em var(--pico-form-element-spacing-vertical, 0.75rem) 2.5em;
-  border-radius: 999px 0 0 999px !important;
-  border: 1px solid rgb(255 255 255 / 20%) !important;
-  border-right: none !important;
+  border-radius: 999px 0 0 999px ;
+  border: 1px solid rgb(255 255 255 / 20%) ;
+  border-right: none ;
   font-size: 1rem;
   box-sizing: border-box;
   display: inline-flex;
@@ -1150,8 +879,8 @@ article {
 .chin-actions button[type="submit"] {
   height: auto;
   padding: var(--pico-form-element-spacing-vertical, 0.75rem) 1.25em;
-  border-radius: 0 999px 999px 0 !important;
-  border-left: none !important;
+  border-radius: 0 999px 999px 0 ;
+  border-left: none ;
   font-size: 1rem;
   box-sizing: border-box;
   display: inline-flex;
@@ -1161,42 +890,40 @@ article {
   min-width: 0;
 }
 
-/* Search hover effects */
 .chin-actions input[type="search"]:hover {
-  border-color: rgb(255 255 255 / 30%) !important;
+  border-color: rgb(255 255 255 / 30%) ;
 }
 
 .chin-actions button[type="submit"]:hover {
-  background: rgb(255 255 255 / 20%) !important;
-  border-color: rgb(255 255 255 / 30%) !important;
+  background: rgb(255 255 255 / 20%) ;
+  border-color: rgb(255 255 255 / 30%) ;
 }
 
 .chin-actions input[type="search"]:hover + button[type="submit"] {
-  background: rgb(255 255 255 / 20%) !important;
-  border-color: rgb(255 255 255 / 30%) !important;
+  background: rgb(255 255 255 / 20%) ;
+  border-color: rgb(255 255 255 / 30%) ;
 }
 
 .chin-actions button[type="submit"]:hover ~ input[type="search"] {
-  border-color: rgb(255 255 255 / 30%) !important;
+  border-color: rgb(255 255 255 / 30%) ;
 }
 
-/* Search form resets */
 .chin-actions fieldset[role="group"] {
-  border: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  width: fit-content !important;
-  overflow: hidden !important;
+  border: none ;
+  padding: 0 ;
+  margin: 0 ;
+  display: flex ;
+  align-items: center ;
+  width: fit-content ;
+  overflow: hidden ;
 }
 
 .chin-actions form {
-  border: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  width: fit-content !important;
-  overflow: hidden !important;
+  border: none ;
+  padding: 0 ;
+  margin: 0 ;
+  width: fit-content ;
+  overflow: hidden ;
 }
 
 .chin-options-grid {
@@ -1223,25 +950,12 @@ button,
   justify-content: center;
 }
 
-/* REMOVED: label.button.secondary styles - now uses global button system */
-
-/* REMOVED: .options-button styles - now uses global button system */
-
-
-
-.storyboard-cards-row > * {
+#storyboard-grid > * {
   height: 260px;
   min-height: 260px;
-  display: flex;
-  flex-direction: column;
 }
 
-/* ========================================
-   STORYBOARD STYLING
-   ======================================== */
-
-/* Storyboard cards row */
-.storyboard-cards-row {
+#storyboard-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
@@ -1250,16 +964,12 @@ button,
   padding: 0;
 }
 
-
-
-/* Remove grid gap from storyboard area */
 #storyboard-scrollable-content .grid {
-  gap: 0 !important;
-  grid-gap: 0 !important;
+  gap: 0 ;
+  grid-gap: 0 ;
 }
 
-/* Storyboard dropdown styling */
-.storyboard-cards-row select {
+#storyboard-grid select {
   border: none;
   background: #23243a;
   color: #fff;
@@ -1273,42 +983,34 @@ button,
   cursor: pointer;
 }
 
-.storyboard-cards-row select:focus {
-  outline: none !important;
+#storyboard-grid select:focus {
+  outline: none ;
 }
 
-/* Hide dropdown arrows */
-.storyboard-cards-row select::-ms-expand { 
+#storyboard-grid select::-ms-expand { 
   display: none; 
 }
 
-.storyboard-cards-row select::-webkit-inner-spin-button,
-.storyboard-cards-row select::-webkit-outer-spin-button,
-.storyboard-cards-row select::-webkit-search-cancel-button,
-.storyboard-cards-row select::-webkit-search-decoration {
+#storyboard-grid select::-webkit-inner-spin-button,
+#storyboard-grid select::-webkit-outer-spin-button,
+#storyboard-grid select::-webkit-search-cancel-button,
+#storyboard-grid select::-webkit-search-decoration {
   display: none;
 }
 
-/* Dropdown options */
-.storyboard-cards-row select option {
+#storyboard-grid select option {
   text-align: left;
   color: #222;
 }
 
-
-
-
-/* Storyboard profile picture */
-.storyboard-cards-row .profile-picture {
-  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) !important;
+#storyboard-grid .profile-picture {
+  border-radius: var(--pico-radius) 0 0 var(--pico-radius, 0.5rem) ;
 }
 
 .card-title-dropdown-menu .dropdown-option {
   text-wrap: pretty;
   text-align: left;
 }
-
-
 
 .top-bar-nav button,
 .top-bar-section button {
@@ -1319,27 +1021,21 @@ button,
   height: 100%;
 }
 
-/* Note: .storyboard-card selector already defined above - removing duplicate */
-
-/* Note: .storyboard-card selector already defined above - removing duplicate */
 .chin-card,
 .card {
-  border: none !important;
+  border: none ;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
   border-radius: var(--pico-radius);
-  overflow: visible; /* Allow content to extend beyond card for dropdowns */
+  overflow: visible;
   transition: box-shadow 0.2s ease;
-  position: relative; /* Ensure proper positioning context for dropdowns */
+  position: relative;
 }
 
-/* Card hover effect - subtle enhancement */
 .storyboard-card:hover,
 .chin-card:hover,
 .card:hover {
   box-shadow: 0 2px 8px 0 rgb(0 0 0 / 15%);
 }
-
-/* Note: .card-title-dropdown-menu .dropdown-option selector already defined above - removing duplicate */
 
 .card-title-dropdown-menu .dropdown-option .plus-sign {
   display: inline-flex;
@@ -1352,7 +1048,6 @@ button,
   font-size: 1em;
 }
 
-/* Profile dot styling for perfect centering */
 .card-title-dropdown-menu .dropdown-option .profile-dot {
   display: inline-flex;
   align-items: center;
@@ -1366,40 +1061,29 @@ button,
 }
 
 .card-title-dropdown-menu .dropdown-option.placeholder-option {
-  color: #888 !important;
-  opacity: 0.7 !important;
-  font-style: italic !important;
+  color: #888 ;
+  opacity: 0.7 ;
+  font-style: italic ;
 }
 
-
-/* Note: .card-title-selected selector already defined above - removing duplicate */
-
-/* Note: .card-title-dropdown-menu selector already defined above - removing duplicate */
-
-/* ========================================
-   TEXT STYLING
-   ======================================== */
-
-/* Global text color */
 body, body *:not([disabled]) {
-  opacity: 1 !important;
-  color: #fff !important;
+  opacity: 1 ;
+  color: #fff ;
 }
 
-body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-grid, .chin-actions, .chin-options-actions, .card-info, .card-info header, .card-info h4, .card-title-selected, .dropdown-option {
-  color: #fff !important;
+body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-grid, .chin-actions, .chin-actions, .chin-card-left, .chin-card-left header, .chin-card-left h4, .card-title-selected, .dropdown-option {
+  color: #fff ;
 }
 
-.card-info small,
-.card-info p {
-  color: #fff !important;
+.chin-card-left small,
+.chin-card-left p {
+  color: #fff ;
 }
 
-/* Premade tag styling */
-.card-info small {
+.chin-card-left small {
   display: inline-block;
   background: var(--pico-primary, #0172ad);
-  color: #fff !important;
+  color: #fff ;
   font-size: 0.75em;
   font-weight: 600;
   padding: 0.2em 0.6em;
@@ -1408,90 +1092,171 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   line-height: 1.2;
 }
 
-/* Chin list premade tags */
-.chin-list-grid .card-info small {
+.chin-grid .chin-card-left small {
   font-style: italic;
   font-weight: 400;
 }
 
-/* Ensure tooltips are visible and properly styled */
 [data-tooltip] {
   position: relative;
 }
 
-/* Override any conflicting tooltip styles */
 [data-tooltip]::before,
 [data-tooltip]::after {
-  z-index: 999999 !important;
-  pointer-events: none !important;
+  z-index: 999999 ;
+  pointer-events: none ;
 }
 
 .dropdown-option.placeholder-option {
-  color: #888 !important;
-  font-style: italic !important;
+  color: #888 ;
+  font-style: italic ;
 }
 
 #storyboard-scrollable-content {
-  overflow: visible !important;
+  overflow: visible ;
   position: relative;
   z-index: 1000;
 }
 
-/* Note: .card-title-dropdown-menu selector already defined above - removing duplicate */
-
 .card-title-dropdown-menu .dropdown-option.create-new {
-  font-weight: 400 !important;
+  font-weight: 400 ;
 }
 
-/* Aggressive border reset for all dropdown elements */
 .card-title-dropdown *,
 .card-title-dropdown-menu *,
 .dropdown-option,
 .card-title-dropdown-menu .dropdown-option {
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
+  border: 0 ;
+  outline: none ;
+  box-shadow: none ;
+  margin: 0 ;
+  padding: 0 ;
+}
+
+
+.card-title-dropdown:has(.card-title-dropdown-menu:not(.hidden)) .card-title-selected {
+  background: #35365a ;
+  border: 0 ;
+  outline: none ;
+  box-shadow: none ;
+}
+
+.card-title-dropdown .card-title-dropdown-menu:not(.hidden) ~ .card-title-selected,
+.card-title-dropdown .card-title-dropdown-menu:not(.hidden) + .card-title-selected {
+  background: #35365a ;
+  border: 0 ;
+  outline: none ;
+  box-shadow: none ;
+}
+
+.storyboard-card .chin-card {
+  flex: 1;
+  display: flex;
+  min-height: 260px;
+  overflow: visible;
+}
+
+/* Ensure storyboard grid cards display properly in the grid */
+#storyboard-grid .storyboard-card {
+  display: flex !important;
+  flex-direction: row !important;
+  min-height: 200px !important;
+  overflow: visible !important;
+  width: 100% !important;
+
+  /* DEBUG: Make storyboard cards more visible */
+  border: 3px solid blue !important;
+  background-color: rgb(0 0 255 / 10%) !important;
+  position: relative !important;
+}
+
+/* Ensure articles inside storyboard cards don't interfere with grid layout */
+#storyboard-grid .storyboard-card article {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-/* Note: .card-title-selected selector already defined above - removing duplicate */
+/* Force grid layout to work properly */
+#storyboard-grid {
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 1rem !important;
+  align-items: stretch !important;
+  margin: 0 !important;
+  padding: 0 !important;
 
-/* Note: .card-title-dropdown-menu selector already defined above - removing duplicate */
+  /* Cross-browser compatibility */
+  -webkit-display: grid !important;
+  -moz-display: grid !important;
+  -ms-display: grid !important;
 
-/* Note: .card-title-selected selectors already defined above - removing duplicates */
+  /* Force override any inherited display properties */
+  display: grid !important;
 
-/* Keep card title background active when dropdown is open */
-.card-title-dropdown:has(.card-title-dropdown-menu:not(.hidden)) .card-title-selected {
-  background: #35365a !important;
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
+  /* Ensure proper sizing */
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
-/* Alternative selector for browsers that don't support :has() */
-.card-title-dropdown .card-title-dropdown-menu:not(.hidden) ~ .card-title-selected,
-.card-title-dropdown .card-title-dropdown-menu:not(.hidden) + .card-title-selected {
-  background: #35365a !important;
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
+/* Override any chin-card styles that might be affecting storyboard cards */
+#storyboard-grid .storyboard-card {
+  /* Reset any inherited styles from chin cards */
+  display: flex !important;
+  flex-direction: row !important;
+  min-height: 260px !important;
+  height: auto !important;
+  z-index: auto !important;
+  position: relative !important;
+
+  /* Override chin-card grid layout */
+  grid-template-columns: unset !important;
+  grid-template-rows: unset !important;
+  gap: unset !important;
+
+  /* Force grid item behavior */
+  grid-column: auto !important;
+  grid-row: auto !important;
+
+  /* Ensure proper sizing within grid */
+  width: 100% !important;
+  max-width: 100% !important;
+
+  /* Override any flex properties that might interfere */
+  flex: 0 0 auto !important;
 }
 
-/* Note: .card-title-dropdown-menu .dropdown-option selectors already defined above - removing duplicates */
-
-/* Note: .storyboard-card selector already defined above - removing duplicate */
-
-.storyboard-card .card-content {
-  flex: 1;
-  display: flex;
-  min-height: 260px; /* Match the JS minHeight setting */
-  overflow: visible; /* Allow content to extend beyond card for dropdowns */
+/* Ensure storyboard card left and right sections display properly */
+#storyboard-grid .storyboard-card .storyboard-card-left {
+  flex: 0 0 35% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-/* Fix header height for consistent card heights */
+#storyboard-grid .storyboard-card .storyboard-card-right {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* DEBUGGING: Visual indicators for layout troubleshooting */
+#storyboard-grid {
+  /* Temporary debugging - remove after confirmation */
+  border: 2px solid red !important;
+  background-color: rgb(255 0 0 / 10%) !important;
+}
+
+#storyboard-grid .storyboard-card {
+  /* Temporary debugging - remove after confirmation */
+  border: 2px solid blue !important;
+  background-color: rgb(0 0 255 / 10%) !important;
+}
+
 .storyboard-card header {
-  height: 3rem; /* Fixed height for header */
+  height: 3rem;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -1511,7 +1276,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   max-width: 100%;
 }
 
-/* Ensure placeholder text also gets the same treatment */
 .storyboard-card .card-title-selected.placeholder-mode {
   white-space: nowrap;
   overflow: hidden;
@@ -1519,23 +1283,15 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   max-width: 100%;
 }
 
-/* Center storyboard title vertically */
 #storyboard-title-area {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 3rem; /* Ensure consistent height */
-  margin: 1.5rem 2rem 2rem; /* 1.5rem top, 2rem for other sides */
+  min-height: 3rem;
+  margin: 1.5rem 2rem 2rem;
   padding: 2rem; 
 }
 
-
-
-/* === INLINE STYLE REPLACEMENTS ===
-   Classes to replace inline styles from JavaScript
-*/
-
-/* Card header styling */
 .card-header-flex {
   display: flex;
   align-items: center;
@@ -1543,7 +1299,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   padding: 0.5rem;
 }
 
-/* Card main content styling */
 .card-main-flex {
   display: flex;
   align-items: center;
@@ -1552,7 +1307,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   padding: 0 0.5rem;
 }
 
-/* Card title styling */
 .card-title-styled {
   font-size: 1.1em;
   font-weight: bold;
@@ -1568,7 +1322,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   -webkit-box-orient: vertical;
 }
 
-/* Card description styling */
 .card-description-styled {
   text-align: center;
   text-wrap: balance;
@@ -1577,21 +1330,16 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   text-overflow: ellipsis;
 }
 
-
-
-/* System message styling */
 .system-message-styled {
   margin: 1rem auto;
   text-align: center;
 }
 
-/* Profile name styling */
 .studio-profile-name-styled {
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
 }
 
-/* Color swatch styling */
 .color-swatch-large-styled {
   background-color: var(--swatch-color, var(--pico-primary, #0172ad));
 }
@@ -1600,22 +1348,15 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   background-color: var(--swatch-color, var(--pico-primary, #0172ad));
 }
 
-/* Hidden input styling */
 .hidden-input {
   display: none;
 }
 
-/* Profile picture initials styling */
 .profile-picture-initials-styled {
   --bg-color: var(--palette-medium, var(--pico-primary, #0172ad));
   --text-color-initials: var(--palette-light, #fff);
 }
 
-/* === STUDIO LAYOUT SYSTEM ===
-   Critical CSS classes for profile page layouts
-*/
-
-/* Main studio layout container */
 .studio-layout-container {
   display: flex;
   min-height: 100%;
@@ -1625,46 +1366,32 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
 }
 
-/* Studio content area - flex container for left/right panels */
 .studio-content-area {
   display: flex;
   width: 100%;
-
-  /* gap: 2rem; */
-
-  /* padding: 2rem; */
   min-height: 100%;
   overflow: visible;
 }
 
-/* Left panel - profile picture and related content */
 .studio-left-panel {
   flex: 0 0 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  /* gap: 1.5rem; */
-  padding: 0; /* Remove padding to allow edge-to-edge */
-  overflow: visible; /* Remove internal scrolling */
-  overflow-x: hidden; /* Hide horizontal scrollbar */
+  padding: 0;
+  overflow: visible;
+  overflow-x: hidden;
 }
 
-/* Right panel - main content area */
 .studio-right-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
-
-  /* gap: 2rem; */
-  min-width: 0; /* Allow flex item to shrink below content size */
-  overflow: visible; /* Remove internal scrolling */
-  overflow-x: hidden; /* Hide horizontal scrollbar */
-
-  /* padding-right: 0.5rem; Space for scrollbar */
+  min-width: 0;
+  overflow: visible;
+  overflow-x: hidden;
 }
 
-/* Custom scrollbar styling for better UX */
 .studio-left-panel::-webkit-scrollbar,
 .studio-right-panel::-webkit-scrollbar {
   width: 8px;
@@ -1688,43 +1415,34 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   background: rgb(255 255 255 / 30%);
 }
 
-/* Firefox scrollbar styling */
 .studio-left-panel,
 .studio-right-panel {
   scrollbar-width: thin;
   scrollbar-color: rgb(255 255 255 / 20%) rgb(255 255 255 / 5%);
 }
 
-/* Ensure smooth scrolling behavior */
-
-/* Note: .studio-left-panel, .studio-right-panel selector already defined above - removing duplicate */
-
-/* Profile picture section styling */
 .profile-picture-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  /* gap: 1rem; */
   width: 100%;
-  height: 100%; /* Fill entire height */
+  height: 100%;
 }
 
 .profile-picture-container {
   position: relative;
   width: 100%;
-  height: 100%; /* Fill entire height */
-  border-radius: 0; /* Remove border radius for edge-to-edge */
+  height: 100%;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: none; /* Remove shadow for edge-to-edge */
+  box-shadow: none;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .profile-picture-container:hover {
-  transform: none; /* Remove hover effect for edge-to-edge */
+  transform: none;
 }
 
-/* Profile picture edit overlay */
 .profile-picture-edit-overlay {
   position: absolute;
   inset: 0;
@@ -1746,7 +1464,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   color: white;
 }
 
-/* Profile picture sizing variants - adjust for edge-to-edge */
 .profile-picture-large {
   width: 100%;
   height: 100%;
@@ -1765,29 +1482,22 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   border-radius: 0;
 }
 
-/* Profile picture edit section - match form styling */
 .profile-picture-edit-section {
   margin-bottom: 1rem;
 }
 
-/* Add breathing space after the last form section (future field) */
 .form-section:last-child {
   margin-bottom: 2rem;
 }
 
-/* Add breathing space after the last profile field row */
 .profile-field-row:last-child {
   margin-bottom: 2rem;
 }
 
-/* Traits section specific styling */
-
-/* EPPF section styling */
 .eppf-section {
   display: grid;
 }
 
-/* Background Profile Picture Layout */
 .profile-background-layout {
   position: relative;
   width: 100%;
@@ -1802,7 +1512,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   height: 100vh;
   z-index: 1;
   overflow: hidden;
-  pointer-events: none; /* Allow scrolling to pass through to content behind */
+  pointer-events: none;
 }
 
 .profile-background-image {
@@ -1851,12 +1561,8 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   box-sizing: border-box;
   padding-left: 35vw;
   padding-right: calc(5% - 1rem);
-  
-  /* Custom scrollbar styling */
   scrollbar-width: thin;
   scrollbar-color: rgb(255 255 255 / 30%) transparent;
-  
-  /* Webkit scrollbar styling */
 }
 
 .profile-content-overlay::-webkit-scrollbar {
@@ -1896,8 +1602,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   text-wrap: balance;
   height: 3.5em;
   line-height: 1.4em;
-
-  /* Ensure full name is visible without truncation */
   overflow: visible;
   text-overflow: unset;
   white-space: normal;
@@ -1919,8 +1623,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   transition: all 0.2s ease;
 }
 
-
-
 .profile-description {
   font-size: 1.2rem;
   color: rgb(255 255 255 / 90%);
@@ -1937,15 +1639,12 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   display: grid;
 }
 
-/* Enhanced Profile Field Styling for Background Layout */
 .profile-field-row {
   display: grid;
   grid-template-columns: 20% auto;
   align-items: center;
   padding-left: 1rem;
 }
-
-
 
 .profile-field-label {
   display: flex;
@@ -1991,7 +1690,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   font-style: italic;
 }
 
-/* Form inputs and textareas within profile-field-value */
 .profile-field-value input,
 .profile-field-value textarea {
   width: 100%;
@@ -2008,24 +1706,18 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
 }
 
-/* Note: .profile-header-section .studio-profile-name selector already defined above - removing duplicate */
-
-/* Override studio-name-input-large styling to match EPPF fields */
 .profile-header-section .studio-name-input-large {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  transition: none !important;
-
-  /* Ensure full name is visible without truncation */
-  overflow: visible !important;
-  text-overflow: unset !important;
-  white-space: normal !important;
-  word-wrap: break-word !important;
-  word-break: break-all !important;
+  background: transparent ;
+  border: none ;
+  box-shadow: none ;
+  transition: none ;
+  overflow: visible ;
+  text-overflow: unset ;
+  white-space: normal ;
+  word-wrap: break-word ;
+  word-break: break-all ;
 }
 
-/* Profile page name (h2) should not show pointer cursor */
 .profile-header-section h2.studio-profile-name {
   cursor: default;
 }
@@ -2035,7 +1727,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   font-style: italic;
 }
 
-/* Contenteditable placeholder styling */
 .profile-header-section .studio-profile-name:empty::before,
 .profile-header-section .studio-profile-name:blank::before,
 .studio-profile-name:empty::before,
@@ -2046,7 +1737,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   pointer-events: none;
 }
 
-/* Alternative placeholder for contenteditable elements */
 .studio-profile-name[data-placeholder]:not(:focus):empty::before,
 .studio-profile-name[data-placeholder]:not(:focus):blank::before {
   content: attr(data-placeholder);
@@ -2061,8 +1751,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   border-radius: 0.5rem;
 }
 
-/* Description field now uses EPPF field structure - styling handled by profile-field-value */
-
 .profile-field-value input::placeholder,
 .profile-field-value textarea::placeholder {
   color: rgb(255 255 255 / 50%);
@@ -2076,23 +1764,15 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   border-radius: 0.25rem;
 }
 
-/* Top Bar Glass Effect for Profile Pages */
 .top-bar {
   position: relative;
   z-index: 10;
-  background: rgb(35 36 58 / 85%) !important;
+  background: rgb(35 36 58 / 85%) ;
   backdrop-filter: blur(15px);
   border-bottom: 1px solid rgb(255 255 255 / 10%);
   box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
 }
 
-/* REMOVED: .top-bar button styles - now uses global button system */
-
-/* Note: #main-content-wrapper > .container selector already defined above - removing duplicate */
-
-/* Note: .main-content-container selector already defined above - removing duplicate */
-
-/* Override Pico's container behavior for storyboard screen */
 #storyboard-screen.container {
   width: 100%;
   max-width: 100%;
@@ -2100,7 +1780,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   margin-right: 0;
 }
 
-/* Responsive Design for Background Profile */
 @media (width <= 768px) {
   .profile-content-overlay {
     padding: 1rem;
@@ -2116,15 +1795,9 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     font-size: 1rem;
     padding: 1rem;
   }
-  
-  
-  
-
 }
 
 @media (width <= 480px) {
-  /* Note: .profile-header-section .studio-profile-name selector already defined above - removing duplicate */
-  
   .profile-content-overlay {
     padding: 0.75rem;
   }
@@ -2132,13 +1805,8 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   .profile-field-row {
     gap: 0.25rem;
   }
-  
-  /* Note: #main-content-wrapper > .container selector already defined above - removing duplicate */
-  
-
 }
 
-/* Legacy Profile Field Styling (for edit mode) */
 .profile-field-row.legacy {
   display: flex;
   flex-direction: column;
@@ -2147,15 +1815,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   border-bottom: 1px solid var(--pico-muted-border-color, rgb(255 255 255 / 10%));
 }
 
-/* Note: .profile-field-row:last-child selector already defined above - removing duplicate */
-
-/* Note: .profile-field-label selector already defined above - removing duplicate */
-
-/* Note: .profile-field-label .main-label selector already defined above - removing duplicate */
-
-/* Note: .profile-field-label .field-sublabel selector already defined above - removing duplicate */
-
-/* Note: .profile-field-value selector already defined above - removing duplicate */
 
 .profile-field-value.readonly {
   background: rgb(255 255 255 / 2%);
@@ -2163,7 +1822,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   color: var(--pico-muted-color, #aaa);
 }
 
-/* Studio name input styling */
 .studio-name-input-large {
   font-size: 1.5rem;
   font-weight: bold;
@@ -2173,14 +1831,12 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   border-radius: var(--pico-radius, 0.5rem);
   color: var(--pico-color, #fff);
   transition: all 0.2s ease;
-
-  /* Ensure full name is visible without truncation */
   overflow: visible;
   text-overflow: unset;
   white-space: normal;
   word-wrap: break-word;
   word-break: break-all;
-  min-width: 0; /* Allow shrinking if needed */
+  min-width: 0;
 }
 
 .studio-name-input-large:focus {
@@ -2188,7 +1844,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   box-shadow: 0 0 0 3px rgb(var(--pico-primary-rgb, 1, 114, 173), 0.1);
 }
 
-/* Studio profile name display */
 .studio-profile-name {
   font-size: 1.75rem;
   font-weight: bold;
@@ -2196,26 +1851,19 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   margin: 0;
   text-align: center;
   line-height: 1.2;
-
-  /* Ensure full name is visible without truncation */
   overflow: visible;
   text-overflow: unset;
   white-space: normal;
   word-wrap: break-word;
   word-break: break-all;
-  min-width: 0; /* Allow shrinking if needed */
+  min-width: 0;
 }
 
-/* Profile action buttons */
 .profile-action-buttons {
   display: flex;
-
-  /* gap: 1rem; */
   justify-content: flex-end;
-
-  /* padding: 1.5rem 0; */
   border-top: 1px solid var(--pico-muted-border-color, rgb(255 255 255 / 10%));
-  margin: 0 !important;
+  margin: 0 ;
 }
 
 .action-button-primary {
@@ -2246,23 +1894,16 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   border-color: var(--pico-del-hover, #c82333);
 }
 
-/* Studio form actions */
-
-/* Responsive adjustments for mobile */
 @media (width <= 768px) {
   .studio-content-area {
     flex-direction: column;
-
-    /* gap: 1rem; */
-
-    /* padding: 1rem; */
   }
   
   .studio-left-panel {
     flex: none;
     max-height: none;
     overflow: visible;
-    padding: 0; /* Keep edge-to-edge on mobile */
+    padding: 0;
   }
   
   .studio-right-panel {
@@ -2271,25 +1912,21 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     padding-right: 0;
   }
   
-  /* On mobile, let the entire container scroll */
   .studio-layout-container {
     max-height: none;
     overflow: visible;
   }
   
-  /* Note: .studio-content-area selector already defined above - removing duplicate */
-  
-  /* Mobile-specific profile picture adjustments - maintain edge-to-edge */
   .profile-picture-container {
     width: 100%;
-    height: 200px; /* Fixed height on mobile for better UX */
+    height: 200px;
     border-radius: 0;
   }
   
   .profile-action-buttons {
     flex-direction: column;
     gap: 0.75rem;
-    margin: 0 !important;
+    margin: 0 ;
   }
   
   .action-button-primary,
@@ -2300,7 +1937,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 }
 
 @media (width <= 480px) {
-  /* Very small mobile - adjust profile picture height */
   .profile-picture-container {
     height: 150px;
   }
@@ -2314,14 +1950,11 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
     font-size: 1.5rem;
   }
   
-  /* Note: .studio-left-panel, .studio-right-panel selector already defined above - removing duplicate */
-  
   .profile-picture-section {
     gap: 0.75rem;
   }
 }
 
-/* Tablet-specific optimizations */
 @media (width >= 769px) and (width <= 1024px) {
   .studio-left-panel {
     flex: 0 0 250px;
@@ -2329,39 +1962,26 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
   
 
   
-  /* Tablet profile picture - maintain edge-to-edge */
   .profile-picture-container {
     width: 100%;
     height: 100%;
   }
 }
 
-/* Large screen optimizations */
 @media (width >= 1025px) {
   .studio-left-panel {
     flex: 0 0 350px;
   }
-  
-  /* Ensure scrollbars are visible but not intrusive */
 
-  
-  /* Large screen profile picture - full edge-to-edge */
   .profile-picture-container {
     width: 100%;
     height: 100%;
   }
 }
 
-/* Note: .top-bar-nav selector already defined above - removing duplicate */
 
-/* Note: .top-bar-nav.is-active selector already defined above - removing duplicate */
-
-/* ========================================
-   UTILITY CLASSES
-   ======================================== */
-
-.hidden {
-  position: absolute !important;
+.visually-hidden {
+  position: absolute ;
   width: 1px; 
   height: 1px;
   padding: 0; 
@@ -2372,121 +1992,17 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-list-g
 } 
 
 .hidden {
-  display: none !important;
+  display: none ;
 }
 
-#chin-options {
-  display: none !important;
+#options-chin {
+  display: none ;
 }
 
-#chin-options:not(.hidden) {
-  display: flex !important;
+#options-chin:not(.hidden) {
+  display: flex ;
 }
 
-/* ========================================
-   GLOBAL BUTTON SYSTEM
-   ======================================== */
-
-/* Base button styles - applies ONLY to secondary buttons */
-button.secondary,
-.button.secondary,
-[role="button"].secondary {
-  /* Layout */
-  padding: var(--pico-form-element-spacing-vertical, 0.75rem) var(--pico-form-element-spacing-horizontal, 1rem);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: auto;
-  
-  /* Visual */
-      background: rgb(255 255 255 / 10%);
-    border: 1px solid rgb(255 255 255 / 20%);
-  border-radius: var(--pico-radius);
-  color: #fff;
-  
-  /* Interactions */
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
-  backdrop-filter: blur(5px);
-  
-  /* Typography */
-  font-size: 1rem;
-  font-weight: 500;
-  text-decoration: none;
-  white-space: nowrap;
-  
-  /* Reset */
-  margin: 0;
-  outline: none;
-  
-  /* Override Pico's margin-bottom on buttons with type attributes */
-}
-
-button.secondary[type="button"],
-button.secondary[type="reset"],
-button.secondary[type="submit"],
-.button.secondary[type="button"],
-.button.secondary[type="reset"],
-.button.secondary[type="submit"],
-[role="button"].secondary[type="button"],
-[role="button"].secondary[type="reset"],
-[role="button"].secondary[type="submit"] {
-  margin-bottom: 0 !important;
-}
-
-/* Button hover state - applies ONLY to secondary buttons */
-button.secondary:hover,
-.button.secondary:hover,
-[role="button"].secondary:hover {
-  background: rgb(255 255 255 / 20%);
-  border-color: rgb(255 255 255 / 30%);
-  transform: translateY(-1px);
-}
-
-/* Button active state - applies ONLY to secondary buttons */
-button.secondary:active,
-.button.secondary:active,
-[role="button"].secondary:active {
-  background: rgb(255 255 255 / 15%);
-  border-color: rgb(255 255 255 / 25%);
-  transform: translateY(0);
-}
-
-/* Button focus state - applies ONLY to secondary buttons */
-button.secondary:focus,
-.button.secondary:focus,
-[role="button"].secondary:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgb(255 255 255 / 30%);
-}
-
-/* Primary button variant */
-button.primary,
-.button.primary,
-[role="button"].primary {
-  background: var(--pico-primary, #0172ad);
-  border-color: var(--pico-primary, #0172ad);
-  color: var(--pico-contrast, #fff);
-  font-weight: 600;
-}
-
-button.primary:hover,
-.button.primary:hover,
-[role="button"].primary:hover {
-  background: var(--pico-primary-hover, #015a8a);
-  border-color: var(--pico-primary-hover, #015a8a);
-}
-
-button.primary:active,
-.button.primary:active,
-[role="button"].primary:active {
-  background: var(--pico-primary-active, #014a73);
-  border-color: var(--pico-primary-active, #014a73);
-}
-
-
-
-/* Danger button variant */
 button.danger,
 .button.danger,
 [role="button"].danger {
@@ -2509,30 +2025,6 @@ button.danger:active,
   border-color: var(--pico-del-active, #bd2130);
 }
 
-/* Disabled state - let Pico handle it naturally */
-
-/* Removed custom disabled styling to use Pico defaults */
-
-
-
-/* Special cases - only override when absolutely necessary */
-
-/* Navigation buttons - selected state */
-nav > button[aria-selected="true"] {
-  background: var(--pico-primary);
-  border-color: var(--pico-primary);
-  color: var(--pico-contrast);
-}
-
-/* Note: .chin-actions button[type="submit"] selector already defined above - removing duplicate */
-
-/* Note: .card-footer button selector already defined above - removing duplicate */
-
-/* ==========================================================================
-   INLINE STYLE REPLACEMENTS
-   ========================================================================== */
-
-/* Top Bar Layout Classes */
 .top-bar-flex {
   display: flex;
   align-items: center;
@@ -2553,17 +2045,14 @@ nav > button[aria-selected="true"] {
   align-items: center;
 }
 
-/* Button State Classes */
 .button-hidden {
   display: none;
 }
 
-/* File Input Classes */
 .file-input-hidden {
   display: none;
 }
 
-/* Typography Classes */
 .margin-0 {
   margin: 0;
 }
@@ -2580,7 +2069,6 @@ nav > button[aria-selected="true"] {
   line-height: 1.3;
 }
 
-/* Profile Picture Classes */
 .profile-picture-default {
   background: #4f8cff;
   color: #fff;
@@ -2593,7 +2081,6 @@ nav > button[aria-selected="true"] {
   border-radius: var(--pico-radius, 0.25rem);
 }
 
-/* Layout Container Classes */
 .chin-actions-flex {
   display: flex;
   gap: 1rem;
@@ -2607,12 +2094,10 @@ nav > button[aria-selected="true"] {
   align-items: center;
 }
 
-/* Header Padding */
 .storyboard-title-padding {
   padding: 1rem;
 }
 
-/* Form Input Classes */
 .name-input-container-relative {
   position: relative;
 }
@@ -2625,8 +2110,7 @@ nav > button[aria-selected="true"] {
   box-sizing: border-box;
 }
 
-/* Card Footer Classes */
 .card-footer-premade {
-  display: flex !important;
-  justify-content: flex-start !important;
+  display: flex ;
+  justify-content: flex-start ;
 }

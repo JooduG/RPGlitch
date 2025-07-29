@@ -1,7 +1,7 @@
 ---
 title: RPGlitch Refactoring - Final Summary
 type: note
-permalink: refactoring-rpglitch-refactoring-final-summary
+permalink: refactoring-rpglitch-refactoring-final-summary-1
 ---
 
 # RPGlitch Refactoring - Final Summary

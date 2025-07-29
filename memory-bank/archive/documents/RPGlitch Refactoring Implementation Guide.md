@@ -1,7 +1,7 @@
 ---
 title: RPGlitch Refactoring Implementation Guide
 type: note
-permalink: refactoring-rpglitch-refactoring-implementation-guide
+permalink: refactoring-rpglitch-refactoring-implementation-guide-1
 ---
 
 # RPGlitch Refactoring Implementation Guide

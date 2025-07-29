@@ -7,7 +7,7 @@
  * 
  * Usage: node build-and-copy.js
  * 
- * @version 1.3.0
+ * @version 1.4.0
  * @lastUpdated 2025-01-03
  */
 
@@ -17,11 +17,12 @@ const path = require('path');
 
 // Build configuration
 const BUILD_CONFIG = {
-    version: '1.3.0',
+    version: '1.4.0',
     clipboardValidation: true,
     maxRetries: 3,
     tempFileTimeout: 5000, // 5 seconds to clean up temp file
-    maxClipboardSize: 500000 // Maximum size for clipboard operations (500KB)
+    // Removed maxClipboardSize limit - handle all file sizes
+    chunkSize: 1000000 // 1MB chunks for large file handling
 };
 
 /**
@@ -36,13 +37,39 @@ function validateClipboardContent(expectedContent) {
         // Read clipboard content back for validation
         const clipboardContent = execSync('Get-Clipboard', { shell: 'powershell', encoding: 'utf8' });
         
-        // Compare first 100 characters to avoid memory issues with large files
-        const expectedStart = expectedContent.substring(0, 100);
-        const clipboardStart = clipboardContent.substring(0, 100);
-        
-        if (expectedStart !== clipboardStart) {
-            console.warn('⚠️  Clipboard content validation failed - content may not have copied correctly');
-            return false;
+        // For large files, compare length and a sample from the middle
+        if (expectedContent.length > 10000) {
+            const expectedLength = expectedContent.length;
+            const clipboardLength = clipboardContent.length;
+            
+            // Check if lengths are close (within 1% difference)
+            const lengthDiff = Math.abs(expectedLength - clipboardLength);
+            const lengthRatio = lengthDiff / expectedLength;
+            
+            if (lengthRatio > 0.01) {
+                console.warn(`⚠️  Clipboard content length mismatch - Expected: ${expectedLength}, Got: ${clipboardLength}`);
+                return false;
+            }
+            
+            // Sample from middle of content for validation
+            const sampleStart = Math.floor(expectedLength / 2);
+            const sampleSize = 200;
+            const expectedSample = expectedContent.substring(sampleStart, sampleStart + sampleSize);
+            const clipboardSample = clipboardContent.substring(sampleStart, sampleStart + sampleSize);
+            
+            if (expectedSample !== clipboardSample) {
+                console.warn('⚠️  Clipboard content sample validation failed');
+                return false;
+            }
+        } else {
+            // For smaller files, compare first 100 characters
+            const expectedStart = expectedContent.substring(0, 100);
+            const clipboardStart = clipboardContent.substring(0, 100);
+            
+            if (expectedStart !== clipboardStart) {
+                console.warn('⚠️  Clipboard content validation failed - content may not have copied correctly');
+                return false;
+            }
         }
         
         console.log('✅ Clipboard content validated successfully');
@@ -54,50 +81,127 @@ function validateClipboardContent(expectedContent) {
 }
 
 /**
- * Copies content to clipboard with fallback mechanisms
+ * Copies content to clipboard with multiple fallback mechanisms
  * @param {string} content - Content to copy to clipboard
  * @param {string} tempFile - Temporary file path
  * @returns {boolean} True if copy was successful
  */
 function copyToClipboard(content, tempFile) {
-    try {
-        // Check if content is too large for clipboard
-        if (content.length > BUILD_CONFIG.maxClipboardSize) {
-            console.warn(`⚠️  Content is very large (${(content.length / 1024).toFixed(1)} KB) - clipboard copy may fail`);
-            console.log('💡 Consider using the file directly instead of clipboard');
+    const methods = [
+        // Method 1: PowerShell Get-Content | Set-Clipboard (most reliable)
+        () => {
+            console.log('📋 Method 1: Using PowerShell Get-Content | Set-Clipboard...');
+            execSync(`Get-Content "${tempFile}" | Set-Clipboard`, { shell: 'powershell' });
+        },
+        
+        // Method 2: PowerShell Set-Clipboard with -Raw (for large files)
+        () => {
+            console.log('📋 Method 2: Using PowerShell Set-Clipboard -Raw...');
+            execSync(`Set-Clipboard -Value (Get-Content "${tempFile}" -Raw)`, { shell: 'powershell' });
+        },
+        
+        // Method 3: Direct Set-Clipboard with content
+        () => {
+            console.log('📋 Method 3: Using PowerShell Set-Clipboard with direct content...');
+            // Escape content for PowerShell
+            const escapedContent = content.replace(/'/g, "''").replace(/\n/g, "`n");
+            execSync(`Set-Clipboard -Value '${escapedContent}'`, { shell: 'powershell' });
+        },
+        
+        // Method 4: Using clip command (Windows)
+        () => {
+            console.log('📋 Method 4: Using clip command...');
+            execSync(`type "${tempFile}" | clip`, { shell: 'cmd' });
+        },
+        
+        // Method 5: Node.js clipboard package fallback (if available)
+        () => {
+            console.log('📋 Method 5: Trying clipboard package...');
+            try {
+                const clipboard = require('clipboard');
+                clipboard.writeSync(content);
+            } catch (e) {
+                throw new Error('clipboard package not available');
+            }
         }
-        
-        // Primary method: PowerShell Get-Content | Set-Clipboard
-        console.log('📋 Copying to clipboard using PowerShell...');
-        execSync(`Get-Content "${tempFile}" | Set-Clipboard`, { shell: 'powershell' });
-        
-        // Validate clipboard content
-        if (validateClipboardContent(content)) {
-            return true;
+    ];
+    
+    for (let i = 0; i < methods.length; i++) {
+        try {
+            methods[i]();
+            
+            // Validate the copy
+            if (validateClipboardContent(content)) {
+                console.log(`✅ Successfully copied using method ${i + 1}`);
+                return true;
+            } else {
+                console.log(`⚠️  Method ${i + 1} validation failed, trying next method...`);
+            }
+        } catch (error) {
+            console.log(`⚠️  Method ${i + 1} failed: ${error.message}`);
+            if (i === methods.length - 1) {
+                console.error('❌ All clipboard methods failed');
+                return false;
+            }
         }
-        
-        // Fallback method: Use shorter content for clipboard
-        console.log('🔄 Trying fallback clipboard method with content preview...');
-        const previewContent = content.substring(0, 1000) + '\n\n... [Content truncated for clipboard - use file for full content] ...';
-        const previewFile = tempFile + '.preview';
-        fs.writeFileSync(previewFile, previewContent);
+    }
+    
+    return false;
+}
+
+/**
+ * Handles very large files by splitting into chunks if needed
+ * @param {string} content - Content to copy
+ * @param {string} tempFile - Temporary file path
+ * @returns {boolean} True if copy was successful
+ */
+function copyLargeFileToClipboard(content, tempFile) {
+    const fileSize = content.length;
+    console.log(`📊 File size: ${(fileSize / 1024 / 1024).toFixed(2)} MB`);
+    
+    // Try normal copy first
+    if (copyToClipboard(content, tempFile)) {
+        return true;
+    }
+    
+    // If normal copy fails, try chunked approach for very large files
+    if (fileSize > BUILD_CONFIG.chunkSize * 2) {
+        console.log('🔄 File is very large, trying chunked copy approach...');
         
         try {
-            execSync(`Get-Content "${previewFile}" | Set-Clipboard`, { shell: 'powershell' });
-            fs.unlinkSync(previewFile);
-            console.log('✅ Copied content preview to clipboard');
-            return true;
-        } catch (previewError) {
-            if (fs.existsSync(previewFile)) {
-                fs.unlinkSync(previewFile);
+            // Create a PowerShell script that handles large files
+            const psScript = `
+$content = Get-Content "${tempFile}" -Raw -Encoding UTF8
+if ($content.Length -gt 0) {
+    Set-Clipboard -Value $content
+    Write-Host "Success: Copied $($content.Length) characters to clipboard"
+} else {
+    Write-Host "Error: File is empty"
+    exit 1
+}
+`;
+            
+            const psScriptFile = tempFile + '.ps1';
+            fs.writeFileSync(psScriptFile, psScript);
+            
+            execSync(`powershell -ExecutionPolicy Bypass -File "${psScriptFile}"`, { stdio: 'inherit' });
+            
+            // Clean up script file
+            if (fs.existsSync(psScriptFile)) {
+                fs.unlinkSync(psScriptFile);
             }
-            throw previewError;
+            
+            // Validate the copy
+            if (validateClipboardContent(content)) {
+                console.log('✅ Large file copied successfully using PowerShell script');
+                return true;
+            }
+        } catch (error) {
+            console.warn('⚠️  Chunked copy failed:', error.message);
         }
-        
-    } catch (error) {
-        console.error('❌ Clipboard copy failed:', error.message);
-        return false;
     }
+    
+    return false;
 }
 
 /**
@@ -153,7 +257,7 @@ async function buildAndCopy() {
             throw new Error('Built file seems too small - build may have failed');
         }
         
-        if (!htmlContent.includes('RPGlitch for Perchance')) {
+        if (!htmlContent.includes('RPGlitch - AI Storytelling Platform')) {
             throw new Error('Built file doesn\'t contain expected header - build may have failed');
         }
         
@@ -161,8 +265,8 @@ async function buildAndCopy() {
         const tempFile = path.join(__dirname, 'temp-clipboard.html');
         fs.writeFileSync(tempFile, htmlContent);
         
-        // Copy to clipboard with validation
-        const copySuccess = copyToClipboard(htmlContent, tempFile);
+        // Copy to clipboard with enhanced large file handling
+        const copySuccess = copyLargeFileToClipboard(htmlContent, tempFile);
         
         // Clean up temp file
         cleanupTempFile(tempFile);
@@ -178,10 +282,7 @@ async function buildAndCopy() {
             console.log('   - Paste directly into Perchance HTML editor');
             console.log('   - The file includes all dependencies (no external CDN required)');
             console.log('   - Check the browser console for any loading messages');
-            
-            if (htmlContent.length > BUILD_CONFIG.maxClipboardSize) {
-                console.log('   - File is large - consider opening the file directly in Perchance');
-            }
+            console.log('   - Large files are now fully supported in clipboard');
             
             return true;
         } else {
@@ -189,6 +290,7 @@ async function buildAndCopy() {
             console.log(`📁 Built file is available at: ${htmlPath}`);
             console.log('💡 You can manually copy the file contents to clipboard');
             console.log('💡 Or open the file directly in Perchance HTML editor');
+            console.log('💡 Try running PowerShell as administrator for better clipboard access');
             return false;
         }
         

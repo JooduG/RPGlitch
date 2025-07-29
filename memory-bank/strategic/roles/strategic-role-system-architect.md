@@ -5,7 +5,7 @@ tags:
 - role
 - system-architect
 - meta-thinking
-permalink: strategic-strategic-role-system-architect
+permalink: strategic-strategic-role-system-architect-1
 ---
 
 # Strategic Role - System Architect

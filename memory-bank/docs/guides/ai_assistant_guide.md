@@ -1,3 +1,7 @@
+---
+permalink: docs/guides/ai-assistant-guide
+---
+
 # 🤖 AI ASSISTANT DEVELOPMENT GUIDE
 
 **Date**: 2025-07-24  

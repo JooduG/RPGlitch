@@ -54,7 +54,22 @@
 - **Success Criteria**: Improved code maintainability, reduced complexity, better performance
 - **Blockers**: None identified
 
-## 🚀 **BUILD SYSTEM COMPLETION**nn### **Build Process Fixed** ✅ COMPLETEDnn**Issue**: Original `build-perchance.js` was hanging on external file downloadsn**Solution**: Created `build-perchance-fixed.js` using CDN links instead of downloadsnn**Results**:n- ✅ Build script completes successfullyn- ✅ Single HTML file generated (787.98 KB)n- ✅ All external libraries included via CDNn- ✅ Ready for Perchance deploymentnn**Files Created**:n- `build-perchance-fixed.js` - Working build scriptn- `RPGlitch-perchance.html` - Complete deployment filenn## 📊 **PROGRESS TRACKING**
+## 🚀 **BUILD SYSTEM COMPLETION**nn### **Build Process Fixed** ✅ COMPLETEDnn**Issue**: Original `build-perchance.js` was hanging on external file downloadsn**Solution**: Created `build-perchance-fixed.js` using CDN links instead of downloadsnn**Results**:n- ✅ Build script completes successfullyn- ✅ Single HTML file generated (787.98 KB)n- ✅ All external libraries included via CDNn- ✅ Ready for Perchance deploymentnn**Files Created**:n- `build-perchance-fixed.js` - Working build scriptn- `RPGlitch-perchance.html` - Complete deployment filenn
+## 🔧 **INFRASTRUCTURE UPDATES**
+
+### **NPM Global Package Installation Fix**
+
+**Issue**: `npm install -g` commands were failing with EPERM (permission) errors on Windows. This was caused by the default global installation directory requiring administrator privileges (`C:\Program Files\nodejs`).
+
+**Solution**:n1.  Created a new, user-owned directory for global packages: `C:\Users\johng\npm-global`.
+2.  Reconfigured npm to use this new directory as its global prefix: `npm config set prefix C:\Users\johng\npm-global`.
+3.  Updated the system's `PATH` environment variable to include the new directory, allowing globally installed command-line tools to be executed.
+
+**Outcome**:n- ✅ Global npm package installations now work without requiring administrator privileges.
+- ✅ Successfully installed `@google/gemini-cli` as a demonstration of the fix.
+- ✅ This resolves a foundational development environment issue on the Windows machine.
+
+## 📊 **PROGRESS TRACKING**
 
 ### **Overall Progress**
 

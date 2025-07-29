@@ -1,7 +1,7 @@
 ---
 title: RPGlitch Code Improvements - Phase 1 Complete
 type: note
-permalink: memory-bank-project-rpglitch-code-improvements-phase-1-complete
+permalink: memory-bank-project-rpglitch-code-improvements-phase-1-complete-1
 ---
 
 # RPGlitch Code Improvements - Phase 1 Complete

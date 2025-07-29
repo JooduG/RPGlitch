@@ -19,8 +19,8 @@ export default defineConfig([
       "memory/**/archive/**",
       "memory/project/archive/collection.md"
     ],
-    plugins: { js },
-    extends: ["js/recommended"],
+    // plugins: { js }, // Removed as it's already imported
+    extends: [js.configs.recommended],
     languageOptions: {
       globals: globals.browser,
       ecmaVersion: 2021,
@@ -56,18 +56,20 @@ export default defineConfig([
         image: "readonly",
         App: "readonly", // Assuming 'App' is a global object
         getProfilePictureHTML: "readonly", // If this is a global function
-        _makeProfilePicturePlaceholderSVG: "readonly" // If this is a global function
+        _makeProfilePicturePlaceholderSVG: "readonly",
+        textToImage: "readonly"
       },
       ecmaVersion: 2021,
-      sourceType: "script", // Use 'script' for non-module files
+      sourceType: "script", // Reverted to 'script' as files are not modules
     },
     rules: {
-      "@typescript-eslint/no-unused-vars": "off", // Disable TypeScript rule for JS files
       "no-unused-vars": "warn", // Use regular ESLint rule instead
       "no-undef": "error", // *** CRITICAL FIX: ENSURE THIS IS 'error' HERE ***
-      "no-console": "off", // Allow console logs in app code (as per your previous setup)
+      "no-console": "warn", // Allow console logs in app code (as per your previous setup)
+      "no-redeclare": "error" // Changed to 'error' to enforce no redeclaration
     }
   },
+  // Comma added here
   // TypeScript files
   {
     files: ["**/*.{ts,mts,cts}"],

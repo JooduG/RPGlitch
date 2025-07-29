@@ -1,3 +1,7 @@
+---
+permalink: archives/rpglitch-unique-utils
+---
+
 /**
  * RPGlitch Core Utilities
  * Common utility functions used throughout the application

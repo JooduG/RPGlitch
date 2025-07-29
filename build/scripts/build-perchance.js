@@ -3,481 +3,272 @@
 
 const fs = require('fs');
 const path = require('path');
-const sass = require('sass'); // Added for Sass compilation
+const sass = require('sass');
 const https = require('https');
-const http = require('http');
 
 /**
- * RPGlitch Perchance Build Script
+ * RPGlitch Perchance Build Script (Enhanced)
  * 
  * Purpose: Combine separate RPGlitch files into a single, optimized output
+ * Now includes external dependency inlining for better reliability
  * 
  * Build Process Overview:
- * - Merges HTML, CSS, and JavaScript into a single file
- * - Optimizes for Perchance platform deployment
- * - Includes performance metrics and validation
+ * - Downloads and inlines external CSS/JS libraries
+ * - Compiles SCSS to CSS
+ * - Inlines local JavaScript files
+ * - Creates self-contained output file
  * 
  * Usage: node build-perchance.js
  * 
- * @version 1.5.0
+ * @version 2.1.0
  * @lastUpdated 2025-01-03
  */
 
-// Build configuration and metadata
+// Build configuration
 const BUILD_CONFIG = {
-    version: '1.5.0',
+    version: '2.1.0',
     buildTimestamp: new Date().toISOString(),
     buildId: `build-${Date.now()}`,
-    performanceTracking: true,
-    contentValidation: true,
-    maxRetries: 3,
-    downloadTimeout: 30000, // 30 seconds
-    minContentLength: 1000 // Minimum expected content length for validation
+    performanceTracking: true
 };
 
 // Performance tracking
 const buildMetrics = {
     startTime: Date.now(),
-    downloadTimes: {},
     processingTimes: {},
     totalSize: 0,
     errors: []
 };
 
-const SOURCE_FILES = [
-    { name: 'apps/rpglitch/RPGlitch.html', type: 'html', description: 'Main HTML structure' },
-    { name: 'apps/rpglitch/RPGlitch.scss', type: 'sass', description: 'Main Sass stylesheet' },
-    { name: 'apps/rpglitch/ProfilePictureComponent.js', type: 'component', description: 'Profile Picture rendering logic' },
-    { name: 'apps/rpglitch/RPGlitch.js', type: 'script', description: 'JavaScript logic' }
+// External dependencies to inline
+const EXTERNAL_CSS_FILES = [
+    { url: 'https://unpkg.com/@picocss/pico@2.1.1/css/pico.min.css', description: 'Pico CSS framework' }
 ];
 
-// External JS files that should be inlined during build for reliable loading
-// These are downloaded and inlined to avoid CDN timing issues
 const EXTERNAL_JS_FILES = [
-    { url: 'https://unpkg.com/hyperscript.org@0.9.12', description: 'Hyperscript', expectedMinLength: 50000 },
-    { url: 'https://unpkg.com/cash-dom', description: 'Cash DOM', expectedMinLength: 20000 },
-    { url: 'https://unpkg.com/dexie@4.0.8/dist/dexie.js', description: 'Dexie.js', expectedMinLength: 100000 },
-    { url: 'https://unpkg.com/dompurify@3.0.1/dist/purify.min.js', description: 'DOMPurify', expectedMinLength: 15000 }
+    { url: 'https://unpkg.com/hyperscript.org@0.9.12/dist/_hyperscript.min.js', description: 'Hyperscript library' },
+    { url: 'https://unpkg.com/cash-dom@8.1.5/dist/cash.min.js', description: 'Cash DOM library' },
+    { url: 'https://unpkg.com/dexie@3.2.4/dist/dexie.js', description: 'Dexie.js library' },
+    { url: 'https://unpkg.com/dompurify@3.0.1/dist/purify.min.js', description: 'DOMPurify library' },
+    // { url: 'https://perchance.org/api/getPlugin?name=text-to-image-plugin', description: 'Perchance Text-to-Image plugin' }
+];
+
+const SOURCE_FILES = [
+    { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.html'), type: 'html', description: 'Main HTML structure' },
+    { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.scss'), type: 'sass', description: 'Main Sass stylesheet' },
+    { name: path.join(__dirname, '../../apps/rpglitch/ProfilePictureComponent.js'), type: 'component', description: 'Profile Picture rendering logic' },
+    { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.js'), type: 'script', description: 'JavaScript logic' }
 ];
 
 /**
- * Validates downloaded content for basic integrity
- * @param {string} content - The downloaded content
- * @param {Object} fileInfo - Information about the file being validated
- * @returns {boolean} True if content is valid
+ * Downloads content from a URL
+ * @param {string} url - URL to download from
+ * @returns {Promise<string>} Downloaded content
  */
-function validateDownloadedContent(content, fileInfo) {
-    if (!content || typeof content !== 'string') {
-        buildMetrics.errors.push(`Invalid content type for ${fileInfo.description}`);
-        return false;
-    }
-    
-    if (content.length < BUILD_CONFIG.minContentLength) {
-        buildMetrics.errors.push(`Content too short for ${fileInfo.description}: ${content.length} characters`);
-        return false;
-    }
-    
-    if (fileInfo.expectedMinLength && content.length < fileInfo.expectedMinLength) {
-        buildMetrics.errors.push(`Content shorter than expected for ${fileInfo.description}: ${content.length} < ${fileInfo.expectedMinLength}`);
-        return false;
-    }
-    
-    // Basic JavaScript validation for JS files
-    if (fileInfo.description.includes('JS') || fileInfo.description.includes('js')) {
-        if (!content.includes('function') && !content.includes('var') && !content.includes('const') && !content.includes('let')) {
-            buildMetrics.errors.push(`Content doesn't appear to be valid JavaScript for ${fileInfo.description}`);
-            return false;
-        }
-    }
-    
-    return true;
-}
-
-/**
- * Downloads content from a URL with retry logic and validation
- * @param {string} url - The URL to download from
- * @param {Object} fileInfo - Information about the file being downloaded
- * @returns {Promise<string>} The downloaded content
- */
-function downloadFromUrl(url, fileInfo) {
+function downloadFromUrl(url) {
     return new Promise((resolve, reject) => {
-        const protocol = url.startsWith('https:') ? https : http;
-        let retryCount = 0;
-        
-        const makeRequest = (requestUrl) => {
-            const startTime = Date.now();
+        https.get(url, (res) => {
+            let data = '';
             
-            const req = protocol.get(requestUrl, { timeout: BUILD_CONFIG.downloadTimeout }, (res) => {
-                // Handle redirects
-                if (res.statusCode === 301 || res.statusCode === 302) {
-                    const newUrl = res.headers.location;
-                    if (newUrl) {
-                        const resolvedUrl = newUrl.startsWith('http') ? newUrl : new URL(newUrl, requestUrl).href;
-                        console.log(`🔄 Following redirect: ${requestUrl} -> ${resolvedUrl}`);
-                        makeRequest(resolvedUrl);
-                        return;
-                    }
-                }
-                
-                if (res.statusCode !== 200) {
-                    const error = new Error(`Failed to download ${url}: ${res.statusCode}`);
-                    buildMetrics.errors.push(error.message);
-                    reject(error);
-                    return;
-                }
-                
-                let data = '';
-                res.on('data', (chunk) => {
-                    data += chunk;
-                });
-                
-                res.on('end', () => {
-                    const downloadTime = Date.now() - startTime;
-                    buildMetrics.downloadTimes[fileInfo.description] = downloadTime;
-                    
-                    console.log(`✅ Downloaded ${fileInfo.description} (${data.length} characters) in ${downloadTime}ms`);
-                    
-                    // Validate downloaded content
-                    if (BUILD_CONFIG.contentValidation && !validateDownloadedContent(data, fileInfo)) {
-                        const error = new Error(`Content validation failed for ${fileInfo.description}`);
-                        reject(error);
-                        return;
-                    }
-                    
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            
+            res.on('end', () => {
+                if (res.statusCode === 200) {
                     resolve(data);
-                });
-            });
-            
-            req.on('error', (err) => {
-                const error = new Error(`Failed to download ${url}: ${err.message}`);
-                buildMetrics.errors.push(error.message);
-                reject(error);
-            });
-            
-            req.on('timeout', () => {
-                req.destroy();
-                const error = new Error(`Download timeout for ${url}`);
-                buildMetrics.errors.push(error.message);
-                reject(error);
-            });
-        };
-        
-        const attemptDownload = () => {
-            try {
-                makeRequest(url);
-            } catch (error) {
-                retryCount++;
-                if (retryCount < BUILD_CONFIG.maxRetries) {
-                    console.log(`🔄 Retry ${retryCount}/${BUILD_CONFIG.maxRetries} for ${fileInfo.description}...`);
-                    setTimeout(attemptDownload, 1000 * retryCount); // Exponential backoff
                 } else {
-                    const finalError = new Error(`Failed to download ${fileInfo.description} after ${BUILD_CONFIG.maxRetries} attempts`);
-                    buildMetrics.errors.push(finalError.message);
-                    reject(finalError);
+                    reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage}`));
                 }
-            }
-        };
-        
-        attemptDownload();
+            });
+        }).on('error', (err) => {
+            reject(err);
+        });
     });
 }
 
 /**
- * Compiles a Sass file to CSS with enhanced error handling
- * @param {string} inputPath - The path to the input Sass file
- * @returns {string|null} The compiled CSS string, or null if an error occurs
+ * Downloads and inlines external CSS files
+ * @returns {Promise<string>} Combined CSS content
+ */
+async function getExternalCSS() {
+    console.log('📥 Downloading external CSS files...');
+    let combinedCSS = '';
+    
+    for (const file of EXTERNAL_CSS_FILES) {
+        try {
+            console.log(`  📦 Downloading: ${file.description}`);
+            const css = await downloadFromUrl(file.url);
+            combinedCSS += `/* ${file.description} */\n${css}\n\n`;
+            console.log(`  ✅ Downloaded: ${file.description}`);
+        } catch (error) {
+            console.error(`  ❌ Failed to download ${file.description}: ${error.message}`);
+            buildMetrics.errors.push(`CSS download failed: ${file.description} - ${error.message}`);
+        }
+    }
+    
+    return combinedCSS;
+}
+
+/**
+ * Downloads and inlines external JavaScript files
+ * @returns {Promise<string>} Combined JavaScript content
+ */
+async function getExternalJS() {
+    console.log('📥 Downloading external JavaScript files...');
+    let combinedJS = '';
+    
+    for (const file of EXTERNAL_JS_FILES) {
+        try {
+            console.log(`  📦 Downloading: ${file.description}`);
+            const js = await downloadFromUrl(file.url);
+            combinedJS += `/* ${file.description} */\n${js}\n\n`;
+            console.log(`  ✅ Downloaded: ${file.description}`);
+        } catch (error) {
+            console.error(`  ❌ Failed to download ${file.description}: ${error.message}`);
+            buildMetrics.errors.push(`JS download failed: ${file.description} - ${error.message}`);
+        }
+    }
+    
+    return combinedJS;
+}
+
+/**
+ * Compiles Sass to CSS
+ * @param {string} inputPath - Path to the Sass file
+ * @returns {string} Compiled CSS
  */
 function compileSass(inputPath) {
     const startTime = Date.now();
-    console.log(`🎨 Compiling Sass: ${inputPath}`);
     
     try {
+        console.log(`📦 Compiling Sass: ${inputPath}`);
+        
         const result = sass.compile(inputPath, {
-            style: 'compressed', // Minify the output CSS
-            loadPaths: [path.join(__dirname, '..', '..', 'node_modules', '@picocss', 'pico', 'scss')]
+            style: 'compressed',
+            loadPaths: [path.dirname(inputPath)]
         });
         
-        const compileTime = Date.now() - startTime;
-        buildMetrics.processingTimes['sass-compilation'] = compileTime;
+        const processingTime = Date.now() - startTime;
+        buildMetrics.processingTimes.sass = processingTime;
         
-        console.log(`✅ Sass compiled successfully (${result.css.length} characters) in ${compileTime}ms`);
-        
-        // Validate compiled CSS
-        if (BUILD_CONFIG.contentValidation && result.css.length < 1000) {
-            buildMetrics.errors.push('Compiled CSS seems too short');
-            return null;
-        }
-        
+        console.log(`✅ Sass compiled successfully (${processingTime}ms)`);
         return result.css;
-    } catch (error) {
-        const errorMsg = `Sass compilation failed: ${error.message}`;
-        buildMetrics.errors.push(errorMsg);
-        console.error(`❌ ${errorMsg}`);
-        return null;
-    }
-}
-
-/**
- * Combines the HTML, CSS, and JS source files into a single string for the 'right panel'.
- * @returns {Promise<string|null>} The combined content, or null if an error occurs.
- */
-async function getCombinedRightPanelContent() {
-    let combinedContent = '';
-    let hasErrors = false;
-    let jsBundle = '';
-    let cssBundle = '';
-
-    // Download and inline external JS files for reliable loading
-    console.log(`ℹ️ Downloading and inlining external JS files: ${EXTERNAL_JS_FILES.map(f => f.description).join(', ')}`);
-    
-    // Download external libraries first
-    for (const externalFile of EXTERNAL_JS_FILES) {
-        try {
-            const content = await downloadFromUrl(externalFile.url, externalFile);
-            jsBundle += `\n// ${externalFile.description} (inlined)\n${content}\n`;
-        } catch (error) {
-            console.error(`❌ Failed to download ${externalFile.description}:`, error.message);
-            hasErrors = true;
-            break;
-        }
-    }
-
-    for (const file of SOURCE_FILES) {
-        const filePath = path.join(__dirname, '..', '..', file.name);
-        const startTime = Date.now();
         
-        try {
-            if (!fs.existsSync(filePath)) {
-                throw new Error(`File not found: ${file.name}`);
-            }
-
-            let content;
-            if (file.type === 'sass') {
-                content = compileSass(filePath);
-                if (content === null) {
-                    hasErrors = true;
-                    break;
-                }
-            } else {
-                content = fs.readFileSync(filePath, 'utf8');
-                if (content.charCodeAt(0) === 0xFEFF) {
-                    content = content.slice(1);
-                }
-                content = content.trim();
-                
-                const readTime = Date.now() - startTime;
-                buildMetrics.processingTimes[`read-${file.name}`] = readTime;
-                
-                console.log(`✅ Read ${file.name} (${content.length} characters) in ${readTime}ms`);
-            }
-
-            switch(file.type) {
-                case 'html':
-                    let htmlContent = content.replace(/<script(?![^>]*src=)[^>]*>[\s\S]*?<\/script>/gim, '').trim();
-                    htmlContent = htmlContent.replace(/id="chinArea"/g, 'id="chin-area"');
-                    combinedContent += htmlContent;
-                    break;
-                case 'sass':
-                    cssBundle += `\n/* --- ${file.description} --- */\n` + content + '\n';
-                    break;
-                case 'component':
-                    let componentJs = content.replace(/^(export\s+(?:default\s+)?(?:function|const|let|var|class)\s+)/gm, '');
-                    jsBundle += `\n// ProfilePictureComponent.js (inlined)\n`;
-                    if (file.name.includes('ProfilePictureComponent.js')) {
-                        jsBundle += 'window.getProfilePictureHTML = getProfilePictureHTML;\n';
-                    }
-                    jsBundle += `${componentJs}\n`;
-                    break;
-                case 'script':
-                    let jsContent = content
-                        .replace(/import\s*(?:[\w\s,{}]*)from\s*(['"].*?['"]);?/g, '// Removed import: Inlined dependencies above')
-                        .replace(/\bexport\s*(?:default\s*)?(?:function|const|let|var|class)\s+/g, '');
-                    jsBundle += `\n// RPGlitch.js (inlined)\n`;
-                    jsBundle += `${jsContent}\n`;
-                    break;
-            }
-        } catch (error) {
-            const errorMsg = `Error processing ${file.name}: ${error.message}`;
-            buildMetrics.errors.push(errorMsg);
-            console.error(`❌ ${errorMsg}`);
-            hasErrors = true;
-            break;
-        }
+    } catch (error) {
+        buildMetrics.errors.push(`Sass compilation failed: ${error.message}`);
+        console.error(`❌ Sass compilation failed: ${error.message}`);
+        throw error;
     }
-
-    if (hasErrors) return null;
-
-    // Output a single <style> block for all CSS
-    if (cssBundle) {
-        const injectedCss = `
-            /* Ensure standard appearance property */
-            [type="checkbox"],
-            [type="radio"],
-            [type="range"],
-            [type="file"],
-            input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
-            select,
-            textarea {
-                appearance: none;
-            }
-
-            /* Ensure standard touch-action property */
-            a,
-            area,
-            button,
-            input,
-            label,
-            select,
-            summary,
-            textarea,
-            [tabindex] {
-                touch-action: manipulation;
-            }
-        `;
-        cssBundle += injectedCss;
-        combinedContent += `\n<style>\n${cssBundle}\n</style>\n`;
-    }
-
-    // After all JS is collected, wrap in a single <script> block
-    if (jsBundle) {
-        const globalExposures = `\n// --- Ensure all globals are set before app code --- //\n`;
-        jsBundle = globalExposures + jsBundle;
-        jsBundle += '\n// Deployment safeguard: ensure App is global\nwindow.App = App;\nconsole.log("App global:", typeof window.App, window.App);\n';
-        combinedContent += `<script>
-${jsBundle}
-</script>
-`;
-    }
-
-    return combinedContent;
 }
 
 /**
- * Prints build performance metrics
+ * Reads and validates a file
+ * @param {string} filePath - Path to the file
+ * @param {string} description - Description for logging
+ * @returns {string} File content
+ */
+function readFile(filePath, description) {
+    const startTime = Date.now();
+    
+    try {
+        console.log(`📖 Reading ${description}: ${filePath}`);
+        
+        if (!fs.existsSync(filePath)) {
+            throw new Error(`File not found: ${filePath}`);
+        }
+        
+        const content = fs.readFileSync(filePath, 'utf8');
+        
+        if (!content || content.trim().length === 0) {
+            throw new Error(`File is empty: ${filePath}`);
+        }
+        
+        const processingTime = Date.now() - startTime;
+        buildMetrics.processingTimes[description.toLowerCase().replace(/\s+/g, '_')] = processingTime;
+        
+        console.log(`✅ ${description} read successfully (${processingTime}ms)`);
+        return content;
+        
+    } catch (error) {
+        buildMetrics.errors.push(`${description} read failed: ${error.message}`);
+        console.error(`❌ Failed to read ${description}: ${error.message}`);
+        throw error;
+    }
+}
+
+/**
+ * Prints build metrics and performance data
  */
 function printBuildMetrics() {
-    if (!BUILD_CONFIG.performanceTracking) return;
-    
     const totalTime = Date.now() - buildMetrics.startTime;
-    console.log('\n📊 Build Performance Metrics:');
-    console.log(`⏱️  Total build time: ${totalTime}ms`);
-    console.log(`📦 Total output size: ${buildMetrics.totalSize} characters`);
     
-    if (Object.keys(buildMetrics.downloadTimes).length > 0) {
-        console.log('\n📥 Download Times:');
-        Object.entries(buildMetrics.downloadTimes).forEach(([file, time]) => {
-            console.log(`   ${file}: ${time}ms`);
-        });
-    }
+    console.log('\n📊 Build Metrics:');
+    console.log(`  ⏱️  Total build time: ${totalTime}ms`);
+    console.log(`  📦 Total output size: ${buildMetrics.totalSize} bytes`);
     
     if (Object.keys(buildMetrics.processingTimes).length > 0) {
-        console.log('\n⚙️  Processing Times:');
-        Object.entries(buildMetrics.processingTimes).forEach(([operation, time]) => {
-            console.log(`   ${operation}: ${time}ms`);
-        });
+        console.log('  ⚡ Processing times:');
+        for (const [step, time] of Object.entries(buildMetrics.processingTimes)) {
+            console.log(`    ${step}: ${time}ms`);
+        }
     }
     
     if (buildMetrics.errors.length > 0) {
-        console.log('\n⚠️  Build Warnings/Errors:');
-        buildMetrics.errors.forEach(error => {
-            console.log(`   ${error}`);
-        });
+        console.log('  ⚠️  Errors encountered:');
+        buildMetrics.errors.forEach(error => console.log(`    ${error}`));
     }
-    
-    console.log(`\n🏷️  Build Info: Version ${BUILD_CONFIG.version}, ID: ${BUILD_CONFIG.buildId}`);
-    console.log(`📅 Build timestamp: ${BUILD_CONFIG.buildTimestamp}`);
 }
 
 /**
- * Builds the single file for Perchance.org deployment.
- * @returns {Promise<boolean>} True if successful, false otherwise.
+ * Main build function
  */
 async function buildPerchanceFile() {
-    console.log('🚀 Building RPGlitch for Perchance...');
-    console.log(`📋 Build config: Version ${BUILD_CONFIG.version}, Performance tracking: ${BUILD_CONFIG.performanceTracking}`);
-    
-    const buildDir = path.join(__dirname, '..', 'output');
-    const archiveDir = path.join(__dirname, '..', 'output', 'archive');
-    const outputFile = path.join(buildDir, 'RPGlitch-perchance.html');
-    const cssOutputFile = path.join(archiveDir, 'RPGlitch-perchance.css');
-    const cssMapOutputFile = path.join(archiveDir, 'RPGlitch-perchance.css.map');
-    
-    if (!fs.existsSync(buildDir)) {
-        fs.mkdirSync(buildDir, { recursive: true });
-        console.log('📁 Created build directory');
-    }
-    if (!fs.existsSync(archiveDir)) {
-        fs.mkdirSync(archiveDir, { recursive: true });
-        console.log('📁 Created archive directory');
-    }
-    
-    const combinedContent = await getCombinedRightPanelContent();
-    if (combinedContent === null) {
-        console.error('\n❌ Perchance build failed because source files could not be processed.');
-        printBuildMetrics();
-        return false;
-    }
-    
-    const header = `<!-- RPGlitch for Perchance -->
-<!-- Build: ${BUILD_CONFIG.version} | ID: ${BUILD_CONFIG.buildId} | Timestamp: ${BUILD_CONFIG.buildTimestamp} -->
-
-`;
-    
-    const finalContent = header + combinedContent;
-    buildMetrics.totalSize = finalContent.length;
+    console.log('🚀 Starting RPGlitch Perchance build...\n');
     
     try {
-        console.log('[DEBUG] Final content length:', finalContent.length);
-        fs.writeFileSync(outputFile, Buffer.from(finalContent, 'utf8'));
-
-        // Write CSS and map to archive directory if they exist in build
-        const buildCss = path.join(buildDir, 'RPGlitch-perchance.css');
-        const buildCssMap = path.join(buildDir, 'RPGlitch-perchance.css.map');
-        if (fs.existsSync(buildCss)) {
-            fs.copyFileSync(buildCss, cssOutputFile);
-            fs.unlinkSync(buildCss);
-            console.log('✅ Moved CSS to archive:', cssOutputFile);
-        }
-        if (fs.existsSync(buildCssMap)) {
-            fs.copyFileSync(buildCssMap, cssMapOutputFile);
-            fs.unlinkSync(buildCssMap);
-            console.log('✅ Moved CSS map to archive:', cssMapOutputFile);
-        }
-
-        console.log('✅ Build complete. Output written to', outputFile);
+        // Download external dependencies
+        const externalCSS = await getExternalCSS();
+        const externalJS = await getExternalJS();
+        
+        // Read and process source files
+        const htmlContent = readFile(SOURCE_FILES[0].name, SOURCE_FILES[0].description);
+        const scssContent = readFile(SOURCE_FILES[1].name, SOURCE_FILES[1].description);
+        const profileComponentContent = readFile(SOURCE_FILES[2].name, SOURCE_FILES[2].description);
+        const jsContent = readFile(SOURCE_FILES[3].name, SOURCE_FILES[3].description);
+        
+        // Compile SCSS to CSS
+        const compiledCSS = compileSass(SOURCE_FILES[1].name);
+        
+        // Combine all content
+        const combinedCSS = externalCSS + compiledCSS;
+        const combinedJS = externalJS + profileComponentContent + jsContent;
+        
+        // Create final HTML
+        const finalHtml = htmlContent
+            .replace(/<link[^>]*href="[^"]*pico[^"]*"[^>]*>/g, '') // Remove Pico CSS link
+            .replace(/<script[^>]*src="[^"]*(hyperscript|cash|dexie|purify)[^"]*"[^>]*><\/script>/g, '') // Remove external script tags
+            .replace('</head>', `<style>\n${combinedCSS}\n</style>\n</head>`)
+            .replace('</body>', `<script>\n${combinedJS}\n</script>\n</body>`);
+        
+        // Write the final file
+        const outputPath = path.join(__dirname, '../output/RPGlitch-perchance.html');
+        fs.writeFileSync(outputPath, finalHtml, 'utf8');
+        
+        buildMetrics.totalSize = finalHtml.length;
+        
+        console.log(`\n✅ Build completed successfully!`);
+        console.log(`📁 Output: ${outputPath}`);
+        console.log(`📊 File size: ${(finalHtml.length / 1024).toFixed(2)} KB`);
+        
         printBuildMetrics();
+        
     } catch (error) {
-        const errorMsg = `Error writing output file: ${error.message}`;
-        buildMetrics.errors.push(errorMsg);
-        console.error('❌', errorMsg);
-        printBuildMetrics();
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * SASS COMPILATION BEST PRACTICE:
- * - Never modify Pico's core files in node_modules.
- * - All Pico customizations (theme, modules, etc) should be done via the @use ... with clause in RPGlitch.scss.
- * - See https://picocss.com/docs/sass for details.
- */
-// Run the build if this script is executed directly
-if (require.main === module) {
-    buildPerchanceFile().then(success => {
-        if (success) {
-            console.log('🚀 Ready for Perchance deployment!');
-            process.exit(0);
-        } else {
-            console.error('❌ Build failed');
-            process.exit(1);
-        }
-    }).catch(error => {
-        const errorMsg = `Build error: ${error.message}`;
-        buildMetrics.errors.push(errorMsg);
-        console.error('❌', errorMsg);
+        console.error(`\n❌ Build failed: ${error.message}`);
         printBuildMetrics();
         process.exit(1);
-    });
+    }
 }
+
+// Run the build
+buildPerchanceFile();

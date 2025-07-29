@@ -1,7 +1,7 @@
 ---
 title: RPGlitch Optimized SCSS Structure
 type: note
-permalink: refactoring-rpglitch-optimized-scss-structure
+permalink: refactoring-rpglitch-optimized-scss-structure-1
 ---
 
 # RPGlitch Optimized SCSS Structure

@@ -1,5 +1,3 @@
-@ -0,0 +1,85 @@
-
 # Gemini CLI Operational Protocol
 
 This is your foundational bootstrap protocol. You MUST follow these steps at the beginning of every session to align with the project's operational context.

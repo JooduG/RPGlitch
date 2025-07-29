@@ -152,16 +152,32 @@ function createProfilePicturePlaceholder(name, palette, fontFamily) {
  * @returns {string} Data URL for the SVG.
  */
 function createLocalPlaceholderSVG(name, palette, fontFamily) {
-  const initials = getInitials(name || '?');
+  // Use Perchance text-to-image plugin for profile pictures
   const safePalette = getSafePalette(palette);
+  const prompt = `profile picture for ${name || 'Unknown'}, minimalist flat design, ${safePalette.colors.medium} background, ${safePalette.colors.light} text`;
   
+  try {
+    if (typeof textToImage !== 'undefined' && textToImage.generate) {
+      return textToImage.generate(prompt, {
+        size: '768x768',
+        style: 'flat-art',
+        colorPalette: safePalette.colors
+      });
+    }
+  } catch (error) {
+    console.error('Error generating image with Perchance plugin:', error);
+  }
+
+  // Fallback to SVG if plugin isn't available
+  const initials = getInitials(name || '?');
   const svg = `
     <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <rect width="100%" height="100%" fill="${safePalette.colors.medium}"/>
-      <text x="50%" y="50%" font-family="${fontFamily}" font-size="2.5" fill="${safePalette.colors.light}" text-anchor="middle" dominant-baseline="middle">${initials}</text>
+      <text x="50%" y="50%" font-family="${fontFamily}" font-size="2.5" fill="${safePalette.colors.light}" 
+            text-anchor="middle" dominant-baseline="middle">${initials}</text>
     </svg>
   `;
-  
+
   try {
     return `data:image/svg+xml;base64,${btoa(svg)}`;
   } catch { // error parameter removed
@@ -218,4 +234,4 @@ function getPaletteKey(palette) {
 }
 
 // Export for global access
-window.getProfilePictureHTML = getProfilePictureHTML;
+
