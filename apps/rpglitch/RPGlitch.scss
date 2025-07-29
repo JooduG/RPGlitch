@@ -31,6 +31,30 @@ html, body {
   padding-top: 0;
 }
 
+/* ========================================
+   CSS CUSTOM PROPERTIES & THEMING
+   ======================================== */
+
+:root {
+  color: #fff;
+
+  /* Pico CSS overrides */
+  --pico-radius: 0.5rem;
+  --pico-box-shadow: 0;
+  --pico-button-box-shadow: 0;
+  --pico-button-hover-box-shadow: 0;
+  --pico-switch-thumb-box-shadow: 0;
+  --pico-card-box-shadow: 0;
+  --pico-dropdown-box-shadow: 0;
+
+  /* Theming defaults */
+  --swatch-color: var(--pico-primary, #0172ad);
+  --palette-medium: var(--pico-primary, #0172ad);
+  --palette-light: #fff;
+  --bg-color: var(--palette-medium, var(--pico-primary, #0172ad));
+  --text-color-initials: var(--palette-light, #fff);
+}
+
 input, input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
 [type="checkbox"],
 [type="radio"],
@@ -276,34 +300,13 @@ a {
 .card-title-dropdown-menu {
   z-index: 9999999 ;
   position: absolute ;
-
-  /* DEBUG: Make dropdown menu more visible */
-  border: 5px solid green !important;
-  background-color: rgb(0 255 0 / 30%) !important;
-  min-height: 50px !important;
-  min-width: 150px !important;
-}
-
-/* DEBUG: Make dropdown menu even more visible when not hidden */
-.card-title-dropdown-menu:not(.hidden) {
-  background-color: rgb(255 0 255 / 80%) !important;
-  border: 5px solid magenta !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
 }
 
 .card-title-dropdown {
   overflow: visible ;
   z-index: 10;
-
-  /* DEBUG: Make dropdowns more visible */
-  border: 5px solid red !important;
-  background-color: rgb(255 0 0 / 30%) !important;
   cursor: pointer !important;
   position: relative !important;
-  min-height: 20px !important;
-  min-width: 100px !important;
 }
 
 .storyboard-card,
@@ -408,6 +411,9 @@ a {
   flex: 1;
   align-content: start;
   box-shadow: none;
+
+  --pico-card-box-shadow: 0;
+  --pico-dropdown-box-shadow: 0;
 
 }
 
@@ -1174,9 +1180,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-grid, 
   overflow: visible !important;
   width: 100% !important;
 
-  /* DEBUG: Make storyboard cards more visible */
-  border: 3px solid blue !important;
-  background-color: rgb(0 0 255 / 10%) !important;
   position: relative !important;
 }
 
@@ -1254,15 +1257,9 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-grid, 
 
 /* DEBUGGING: Visual indicators for layout troubleshooting */
 #storyboard-grid {
-  /* Temporary debugging - remove after confirmation */
-  border: 2px solid red !important;
-  background-color: rgb(255 0 0 / 10%) !important;
 }
 
 #storyboard-grid .storyboard-card {
-  /* Temporary debugging - remove after confirmation */
-  border: 2px solid blue !important;
-  background-color: rgb(0 0 255 / 10%) !important;
 }
 
 .storyboard-card header {
@@ -1363,8 +1360,7 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-grid, 
 }
 
 .profile-picture-initials-styled {
-  --bg-color: var(--palette-medium, var(--pico-primary, #0172ad));
-  --text-color-initials: var(--palette-light, #fff);
+  /* uses --bg-color and --text-color-initials from :root */
 }
 
 .studio-layout-container {
