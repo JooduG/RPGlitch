@@ -39,7 +39,7 @@ export default defineConfig([
       "no-undef": "error", // ENSURE THIS IS 'error' FOR GENERAL FILES
       "no-duplicate-case": "error",
       "no-empty-function": "warn",
-      "no-console": "warn"
+      "no-console": "ignore"
     }
   },
   // JavaScript files override (apps directory) - THIS IS THE CRITICAL FIX

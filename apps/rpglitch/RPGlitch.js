@@ -444,7 +444,6 @@ window.App = {
     },
 
     updateMouseoverAnimationState() {
-    updateMouseoverAnimationState() {
         // For storyboard cards, add disabled attribute for hover effects when no item is selected
         // But keep the cards clickable for dropdown functionality
         if (!this.storyboardSelected.ai) {
@@ -5146,7 +5145,7 @@ window.App = {
     
           const item = selectedId ? await this._getitemData(selectedId, config.dbTableKey, config.getPremadesFn) : null
           console.log(`_updateStoryboardCard: Fetched item for selectedId ${selectedId}:`, item)
-          console.log(`_updateStoryboardCard: Item object received:`, item)
+          ge(`_updateStoryboardCard: Item object received:`, item)
 
           const cardContent = cardEl.querySelector('.storyboard-card-right article')
           if (!cardContent) {

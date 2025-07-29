@@ -78,23 +78,23 @@ pglitch/RPGlitch.html`n- **Build Output**: build/output/RPGlitch-perchance.html 
 
 `bash
 
-# Build RPGlitch
+## Build RPGlitch
 
 node build-perchance.js
 
-# Build ImageGlitch
+## Build ImageGlitch
 
 node build-imageglitch.js
 
-# Build all applications
+## Build all applications
 
 node build-all.js
 `
 
 ### **Output Structure**
 
-- **Deployment Files**: build/output/[AppName]-perchance.html (ready for Perchance)
-- **CSS Archives**: build/output/archive/[AppName]-perchance.css (with source maps)
+- **Deployment Files**: build/output/`AppName`-perchance.html (ready for Perchance)
+- **CSS Archives**: build/output/archive/`AppName`-perchance.css (with source maps)
 - **Asset Optimization**: All images, scripts, and styles embedded and optimized
 
 ## 📊 **Quality Assurance**
@@ -131,7 +131,7 @@ node build-all.js
 
 ## 📚 **Related Documentation**
 
-- **[System Architecture](../.cursor/rules/system-architecture.mdc)**: Complete 3-mode system overview
+- **[Technical Architecture](../.cursor/rules/technical-architecture.mdc)**: Complete 3-mode system overview
 - **[Perchance Architecture](../.cursor/rules/perchance-architecture.mdc)**: Platform-specific guidelines
 - **[Build & Deployment](../.cursor/rules/perchance-build-deployment.mdc)**: Build process documentation
 - **[Memory Bank](../memory-bank/)**: Project knowledge and decision tracking
