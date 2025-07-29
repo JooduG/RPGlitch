@@ -154,14 +154,14 @@ window.App = {
       currentMainView: 'STORYBOARD',
     
       _query(id, required = false) {
-          const el = document.getElementById(id);
+          const el = document.getElementById(id)
           
           if (!el && required) {
-              console.error(`[UI Critical] Element with ID '${id}' not found.`);
+              console.error(`[UI Critical] Element with ID '${id}' not found.`)
           } else if (!el) {
-              console.warn(`[UI] Optional element with ID '${id}' not found.`);
+              console.warn(`[UI] Optional element with ID '${id}' not found.`)
           }
-          return el;
+          return el
       },
   
       /**
@@ -170,238 +170,238 @@ window.App = {
        */
       _getUIElements() {
           
-          this._getTopBarElements();
-          this._getChinElements();
-          this._getCoreUIContainers();
-          this._getFormScreens();
-          this._getProfileScreens();
-          this._getPremadeSelectionScreens();
-          this._getMiscScreens();
-          this._getStoryboardElements();
-          this._getChatInterfaceElements();
+          this._getTopBarElements()
+          this._getChinElements()
+          this._getCoreUIContainers()
+          this._getFormScreens()
+          this._getProfileScreens()
+          this._getPremadeSelectionScreens()
+          this._getMiscScreens()
+          this._getStoryboardElements()
+          this._getChatInterfaceElements()
   
           if (!this.ui.main) {
-              console.error("[App Critical] #main container not found after UI element query!");
+              console.error("[App Critical] #main container not found after UI element query!")
           }
           
           
       },
   
       _getTopBarElements() {
-          this.ui.topBar = this._query('top-bar', true);
-          if (!this.ui.topBar) return; // Exit if topBar is not found globally
+          this.ui.topBar = this._query('top-bar', true)
+          if (!this.ui.topBar) return // Exit if topBar is not found globally
 
-          this.ui.topBarLeft = this._query('top-bar-left', false, this.ui.topBar);
+          this.ui.topBarLeft = this._query('top-bar-left', false, this.ui.topBar)
           if (this.ui.topBarLeft) {
-            this.ui.topBarNotificationArea = this._query('top-bar-notification-area', false, this.ui.topBarLeft);
+            this.ui.topBarNotificationArea = this._query('top-bar-notification-area', false, this.ui.topBarLeft)
           }
 
-          this.ui.topBarRight = this._query('top-bar-right', false, this.ui.topBar);
+          this.ui.topBarRight = this._query('top-bar-right', false, this.ui.topBar)
           if (this.ui.topBarRight) {
-            this.ui.topBarUserCharacterInfo = this._query('top-bar-user-character-info', false, this.ui.topBarRight);
+            this.ui.topBarUserCharacterInfo = this._query('top-bar-user-character-info', false, this.ui.topBarRight)
             if (this.ui.topBarUserCharacterInfo) {
-              this.ui.topBarUserCharacterPic = this._query('top-bar-user-character-pic', false, this.ui.topBarUserCharacterInfo);
-              this.ui.topBarUserCharacterNameText = this._query('top-bar-user-character-name-text', false, this.ui.topBarUserCharacterInfo);
+              this.ui.topBarUserCharacterPic = this._query('top-bar-user-character-pic', false, this.ui.topBarUserCharacterInfo)
+              this.ui.topBarUserCharacterNameText = this._query('top-bar-user-character-name-text', false, this.ui.topBarUserCharacterInfo)
             }
-            this.ui.topBarAiCharacterInfo = this._query('top-bar-ai-character-info', false, this.ui.topBarRight);
+            this.ui.topBarAiCharacterInfo = this._query('top-bar-ai-character-info', false, this.ui.topBarRight)
             if (this.ui.topBarAiCharacterInfo) {
-              this.ui.topBarAiCharacterPic = this._query('top-bar-ai-character-pic', false, this.ui.topBarAiCharacterInfo);
-              this.ui.topBarAiCharacterNameText = this._query('top-bar-ai-character-name-text', false, this.ui.topBarAiCharacterInfo);
+              this.ui.topBarAiCharacterPic = this._query('top-bar-ai-character-pic', false, this.ui.topBarAiCharacterInfo)
+              this.ui.topBarAiCharacterNameText = this._query('top-bar-ai-character-name-text', false, this.ui.topBarAiCharacterInfo)
             }
-            this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight);
+            this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight)
           }
       },
   
       _getChinElements() {
-          this.ui.storyboardChin = this._query('storyboard-chin');
-          this.ui.characterWorkshopChin = this._query('character-workshop-chin');
-          this.ui.worldBuilderChin = this._query('world-builder-chin');
-          this.ui.optionsChin = this._query('options-chin');
+          this.ui.storyboardChin = this._query('storyboard-chin')
+          this.ui.characterWorkshopChin = this._query('character-workshop-chin')
+          this.ui.worldBuilderChin = this._query('world-builder-chin')
+          this.ui.optionsChin = this._query('options-chin')
       },
   
       _getCoreUIContainers() {
-          this.ui.main = this._query('main', true);
-          this.ui.storyboardScreen = this._query('storyboard-screen', true);
-          this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true);
+          this.ui.main = this._query('main', true)
+          this.ui.storyboardScreen = this._query('storyboard-screen', true)
+          this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true)
       },
   
       _getFormScreens() {
-          this.ui.characterFormScreen = this._query('character-form-screen', true);
-          this.ui.worldFormScreen = this._query('world-form-screen', true);
+          this.ui.characterFormScreen = this._query('character-form-screen', true)
+          this.ui.worldFormScreen = this._query('world-form-screen', true)
       },
   
       _getProfileScreens() {
-          this.ui.characterProfileScreen = this._query('character-profile-screen', true);
-          this.ui.worldProfileScreen = this._query('world-profile-screen', true);
-          this.ui.storyProfileScreen = this._query('story-profile-screen', true);
-          this.ui.storyProfileAiCharacterDisplayArea = this._query('story-profile-ai-character-display-area');
-          this.ui.storyProfileUserCharacterDisplayArea = this._query('story-profile-user-character-display-area');
-          this.ui.storyProfilechatFeed = this._query('story-profile-message-feed');
-          this.ui.storyProfileActions = this._query('story-profile-actions');
+          this.ui.characterProfileScreen = this._query('character-profile-screen', true)
+          this.ui.worldProfileScreen = this._query('world-profile-screen', true)
+          this.ui.storyProfileScreen = this._query('story-profile-screen', true)
+          this.ui.storyProfileAiCharacterDisplayArea = this._query('story-profile-ai-character-display-area')
+          this.ui.storyProfileUserCharacterDisplayArea = this._query('story-profile-user-character-display-area')
+          this.ui.storyProfilechatFeed = this._query('story-profile-message-feed')
+          this.ui.storyProfileActions = this._query('story-profile-actions')
 
           // New profile top bar elements
-          this.ui.profileTopBar = this._query('profile-top-bar');
-          this.ui.profileTopBarLeft = this._query('profile-top-bar-left');
-          this.ui.profileTopBarCenter = this._query('profile-top-bar-center');
-          this.ui.profileTopBarNotificationArea = this._query('profile-top-bar-notification-area');
-          this.ui.profileTopBarRight = this._query('profile-top-bar-right');
-          this.ui.profileTopBarUserCharacterInfo = this._query('profile-top-bar-user-character-info');
-          this.ui.profileTopBarUserCharacterPic = this._query('profile-top-bar-user-character-pic');
-          this.ui.profileTopBarUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
-          this.ui.profileTopBarAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
-          this.ui.profileTopBarAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
-          this.ui.profileTopBarAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
-          this.ui.profileShuffleButton = this._query('profile-shuffle-button');
-          this.ui.profileBeginStoryButton = this._query('profile-begin-story-button');
+          this.ui.profileTopBar = this._query('profile-top-bar')
+          this.ui.profileTopBarLeft = this._query('profile-top-bar-left')
+          this.ui.profileTopBarCenter = this._query('profile-top-bar-center')
+          this.ui.profileTopBarNotificationArea = this._query('profile-top-bar-notification-area')
+          this.ui.profileTopBarRight = this._query('profile-top-bar-right')
+          this.ui.profileTopBarUserCharacterInfo = this._query('profile-top-bar-user-character-info')
+          this.ui.profileTopBarUserCharacterPic = this._query('profile-top-bar-user-character-pic')
+          this.ui.profileTopBarUserCharacterNameText = this._query('profile-top-bar-user-character-name-text')
+          this.ui.profileTopBarAiCharacterInfo = this._query('profile-top-bar-ai-character-info')
+          this.ui.profileTopBarAiCharacterPic = this._query('profile-top-bar-ai-character-pic')
+          this.ui.profileTopBarAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text')
+          this.ui.profileShuffleButton = this._query('profile-shuffle-button')
+          this.ui.profileBeginStoryButton = this._query('profile-begin-story-button')
 
-          this.ui.worldProfileTopBar = this._query('world-profile-top-bar');
-          this.ui.worldProfileTopBarLeft = this._query('world-profile-top-bar-left');
-          this.ui.worldProfileTopBarCenter = this._query('world-profile-top-bar-center');
-          this.ui.worldProfileTopBarNotificationArea = this._query('world-profile-top-bar-notification-area');
-          this.ui.worldProfileTopBarRight = this._query('world-profile-top-bar-right');
-          this.ui.worldProfileTopBarUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
-          this.ui.worldProfileTopBarUserCharacterPic = this._query('world-top-bar-user-character-pic');
-          this.ui.worldProfileTopBarUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
-          this.ui.worldProfileTopBarAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
-          this.ui.worldProfileTopBarAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
-          this.ui.worldProfileTopBarAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
-          this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle-button');
-          this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story-button');
+          this.ui.worldProfileTopBar = this._query('world-profile-top-bar')
+          this.ui.worldProfileTopBarLeft = this._query('world-profile-top-bar-left')
+          this.ui.worldProfileTopBarCenter = this._query('world-profile-top-bar-center')
+          this.ui.worldProfileTopBarNotificationArea = this._query('world-profile-top-bar-notification-area')
+          this.ui.worldProfileTopBarRight = this._query('world-profile-top-bar-right')
+          this.ui.worldProfileTopBarUserCharacterInfo = this._query('world-profile-top-bar-user-character-info')
+          this.ui.worldProfileTopBarUserCharacterPic = this._query('world-top-bar-user-character-pic')
+          this.ui.worldProfileTopBarUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text')
+          this.ui.worldProfileTopBarAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info')
+          this.ui.worldProfileTopBarAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic')
+          this.ui.worldProfileTopBarAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text')
+          this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle-button')
+          this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story-button')
 
-          this.ui.storyProfileTopBar = this._query('story-profile-top-bar');
-          this.ui.storyProfileTopBarLeft = this._query('story-profile-top-bar-left');
-          this.ui.storyProfileTopBarCenter = this._query('story-profile-top-bar-center');
-          this.ui.storyProfileTopBarNotificationArea = this._query('story-profile-top-bar-notification-area');
-          this.ui.storyProfileTopBarRight = this._query('story-profile-top-bar-right');
-          this.ui.storyProfileTopBarUserCharacterInfo = this._query('story-profile-top-bar-user-character-info');
-          this.ui.storyProfileTopBarUserCharacterPic = this._query('story-profile-top-bar-user-character-pic');
-          this.ui.storyProfileTopBarUserCharacterNameText = this._query('story-profile-top-bar-user-character-name-text');
-          this.ui.storyProfileTopBarAiCharacterInfo = this._query('story-profile-top-bar-ai-character-info');
-          this.ui.storyProfileTopBarAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic');
-          this.ui.storyProfileTopBarAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text');
-          this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle-button');
-          this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story-button');
+          this.ui.storyProfileTopBar = this._query('story-profile-top-bar')
+          this.ui.storyProfileTopBarLeft = this._query('story-profile-top-bar-left')
+          this.ui.storyProfileTopBarCenter = this._query('story-profile-top-bar-center')
+          this.ui.storyProfileTopBarNotificationArea = this._query('story-profile-top-bar-notification-area')
+          this.ui.storyProfileTopBarRight = this._query('story-profile-top-bar-right')
+          this.ui.storyProfileTopBarUserCharacterInfo = this._query('story-profile-top-bar-user-character-info')
+          this.ui.storyProfileTopBarUserCharacterPic = this._query('story-profile-top-bar-user-character-pic')
+          this.ui.storyProfileTopBarUserCharacterNameText = this._query('story-profile-top-bar-user-character-name-text')
+          this.ui.storyProfileTopBarAiCharacterInfo = this._query('story-profile-top-bar-ai-character-info')
+          this.ui.storyProfileTopBarAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic')
+          this.ui.storyProfileTopBarAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text')
+          this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle-button')
+          this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story-button')
       },
   
       _getPremadeSelectionScreens() {
-          this.ui.premadeCharacterSelectionScreen = this._query('premade-character-bank', true);
-          this.ui.premadeCharacterOnlyList = this._query('premade-character-only-list');
-          this.ui.premadeWorldSelectionScreen = this._query('premade-world-bank', true);
-          this.ui.premadeWorldOnlyList = this._query('premade-world-only-list');
+          this.ui.premadeCharacterSelectionScreen = this._query('premade-character-bank', true)
+          this.ui.premadeCharacterOnlyList = this._query('premade-character-only-list')
+          this.ui.premadeWorldSelectionScreen = this._query('premade-world-bank', true)
+          this.ui.premadeWorldOnlyList = this._query('premade-world-only-list')
       },
   
       _getMiscScreens() {
-          this.ui.memoryApplicationScreen = this._query('memory-application-screen');
-          this.ui.initialPageLoadingModal = this._query('initial-page-loading-modal', true);
-          this.ui.emergencyExportCtn = this._query('emergency-export-ctn');
-          if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn);
+          this.ui.memoryApplicationScreen = this._query('memory-application-screen')
+          this.ui.initialPageLoadingModal = this._query('initial-page-loading-modal', true)
+          this.ui.emergencyExportCtn = this._query('emergency-export-ctn')
+          if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn)
       },
   
       _getStoryboardElements() {
-          this.ui.storyboardTitleArea = this._query('storyboard-title-area', false, this.ui.storyboardScreen);
-          this.ui.storyboardTitle = this._query('storyboard-title', false, this.ui.storyboardTitleArea);
+          this.ui.storyboardTitleArea = this._query('storyboard-title-area', false, this.ui.storyboardScreen)
+          this.ui.storyboardTitle = this._query('storyboard-title', false, this.ui.storyboardTitleArea)
           // Make storyboard title editable on click
           if (this.ui.storyboardTitle) {
-            this.ui.storyboardTitle.setAttribute('contenteditable', 'true');
-            this.ui.storyboardTitle.setAttribute('spellcheck', 'false');
-            this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)');
-            this.ui.storyboardTitle.style.cursor = 'pointer';
+            this.ui.storyboardTitle.setAttribute('contenteditable', 'true')
+            this.ui.storyboardTitle.setAttribute('spellcheck', 'false')
+            this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)')
+            this.ui.storyboardTitle.style.cursor = 'pointer'
             
             // Add click handler to make it editable
             this.ui.storyboardTitle.onclick = () => {
               if (!this.ui.storyboardTitle.getAttribute('contenteditable')) {
-                this.ui.storyboardTitle.setAttribute('contenteditable', 'true');
-                this.ui.storyboardTitle.focus();
+                this.ui.storyboardTitle.setAttribute('contenteditable', 'true')
+                this.ui.storyboardTitle.focus()
               }
-            };
+            }
             
             // Save changes when user finishes editing
             this.ui.storyboardTitle.onblur = async () => {
-              const newTitle = this.ui.storyboardTitle.textContent.trim();
+              const newTitle = this.ui.storyboardTitle.textContent.trim()
               if (newTitle) {
                 // Temporarily clear custom title to get the auto-generated title
-                const tempCustomTitle = this.storyboardCustomTitle;
-                this.storyboardCustomTitle = null;
+                const tempCustomTitle = this.storyboardCustomTitle
+                this.storyboardCustomTitle = null
                 
                 // Get what the auto-generated title would be
-                const aiCharName = await this._getSelectedCharacterName(this.ui.storyboardAiCharacterSelect);
-                const userCharName = await this._getSelectedCharacterName(this.ui.storyboardUserCharacterSelect);
-                const worldName = await this._getSelectedWorldName(this.ui.storyboardWorldSelect);
+                const aiCharName = await this._getSelectedCharacterName(this.ui.storyboardAiCharacterSelect)
+                const userCharName = await this._getSelectedCharacterName(this.ui.storyboardUserCharacterSelect)
+                const worldName = await this._getSelectedWorldName(this.ui.storyboardWorldSelect)
                 
-                let autoTitle = "Start a New Story";
+                let autoTitle = "Start a New Story"
                 if (aiCharName && userCharName && worldName) {
-                    autoTitle = `${aiCharName} & ${userCharName} in ${worldName}`;
+                    autoTitle = `${aiCharName} & ${userCharName} in ${worldName}`
                 } else if (aiCharName || userCharName || worldName) {
-                    const parts = [];
-                    if (aiCharName) parts.push(aiCharName);
-                    if (userCharName) parts.push(userCharName);
-                    if (worldName) parts.push(worldName);
-                    autoTitle = parts.join(' & ');
+                    const parts = []
+                    if (aiCharName) parts.push(aiCharName)
+                    if (userCharName) parts.push(userCharName)
+                    if (worldName) parts.push(worldName)
+                    autoTitle = parts.join(' & ')
                 }
                 
                 // Restore the custom title temporarily
-                this.storyboardCustomTitle = tempCustomTitle;
+                this.storyboardCustomTitle = tempCustomTitle
                 
                 // Only save as custom title if it's different from the auto-generated title
                 if (newTitle !== autoTitle) {
                   // User has written something different - save as custom title
-                  this.storyboardCustomTitle = newTitle;
+                  this.storyboardCustomTitle = newTitle
                 } else {
                   // User hasn't actually changed anything - clear custom title to use auto-generated
-                  this.storyboardCustomTitle = null;
+                  this.storyboardCustomTitle = null
                 }
-                this.updateDynamicStoryboardTitle();
+                this.updateDynamicStoryboardTitle()
               }
-            };
+            }
             
             // Handle Enter key to finish editing
             this.ui.storyboardTitle.onkeydown = (e) => {
               if (e.key === 'Enter') {
-                e.preventDefault();
-                this.ui.storyboardTitle.blur();
+                e.preventDefault()
+                this.ui.storyboardTitle.blur()
               }
-            };
+            }
             
             // Double-click to reset to auto-generated title
             this.ui.storyboardTitle.ondblclick = (e) => {
-              e.preventDefault();
-              this.storyboardCustomTitle = null;
-              this.updateDynamicStoryboardTitle();
-              this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)');
-            };
+              e.preventDefault()
+              this.storyboardCustomTitle = null
+              this.updateDynamicStoryboardTitle()
+              this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)')
+            }
           }
-          this.ui.storyboardScrollableContent = this._query('storyboard-scrollable-content', false, this.ui.storyboardScreen); // Missing closing brace for _attachFormSubmitHandler
-          this.ui.storyboardColumns = this._query('storyboard-columns', false, this.ui.storyboardScrollableContent);
-          this.ui.storyboardAiCharacterSelect = this._query('storyboard-ai-character-select', true, this.ui.storyboardColumns);
-          this.ui.storyboardAiCharacterCard = this._query('storyboard-ai-character-card', true, this.ui.storyboardColumns);
-          this.ui.storyboardUserCharacterSelect = this._query('storyboard-user-character-select', true, this.ui.storyboardColumns);
-          this.ui.storyboardUserCharacterCard = this._query('storyboard-user-character-card', true, this.ui.storyboardColumns);
-          this.ui.storyboardWorldSelect = this._query('storyboard-world-select', true, this.ui.storyboardColumns);
-          this.ui.storyboardWorldCard = this._query('storyboard-world-card', true, this.ui.storyboardColumns);
-          this.ui.openingPromptTextarea = this._query('opening-prompt-textarea', false, this.ui.storyboardScreen);
-          this.ui.advancedStoryOptionsToggleButton = this._query('advanced-story-options-toggle-button', false, this.ui.storyboardScreen);
-          this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen);
-          this.ui.customStoryJsTextarea = this._query('custom-story-js-textarea', false, this.ui.storyboardScreen);
-          this.ui.beginStoryButton = this._query('begin-story-button', false, this.ui.storyboardScreen);
-          this.ui.shuffleStoryElementsButton = this._query('shuffle-button', false, this.ui.storyboardScreen);
+          this.ui.storyboardScrollableContent = this._query('storyboard-scrollable-content', false, this.ui.storyboardScreen) // Missing closing brace for _attachFormSubmitHandler
+          this.ui.storyboardColumns = this._query('storyboard-columns', false, this.ui.storyboardScrollableContent)
+          this.ui.storyboardAiCharacterSelect = this._query('storyboard-ai-character-select', true, this.ui.storyboardColumns)
+          this.ui.storyboardAiCharacterCard = this._query('storyboard-ai-character-card', true, this.ui.storyboardColumns)
+          this.ui.storyboardUserCharacterSelect = this._query('storyboard-user-character-select', true, this.ui.storyboardColumns)
+          this.ui.storyboardUserCharacterCard = this._query('storyboard-user-character-card', true, this.ui.storyboardColumns)
+          this.ui.storyboardWorldSelect = this._query('storyboard-world-select', true, this.ui.storyboardColumns)
+          this.ui.storyboardWorldCard = this._query('storyboard-world-card', true, this.ui.storyboardColumns)
+          this.ui.openingPromptTextarea = this._query('opening-prompt-textarea', false, this.ui.storyboardScreen)
+          this.ui.advancedStoryOptionsToggleButton = this._query('advanced-story-options-toggle-button', false, this.ui.storyboardScreen)
+          this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen)
+          this.ui.customStoryJsTextarea = this._query('custom-story-js-textarea', false, this.ui.storyboardScreen)
+          this.ui.beginStoryButton = this._query('begin-story-button', false, this.ui.storyboardScreen)
+          this.ui.shuffleStoryElementsButton = this._query('shuffle-button', false, this.ui.storyboardScreen)
       },
   
       _getChatInterfaceElements() {
-          this.ui.chatScreenLayoutContainer = this._query('chat-screen-layout-container', true);
-          if (!this.ui.chatScreenLayoutContainer) return; // Exit if main container is not found
+          this.ui.chatScreenLayoutContainer = this._query('chat-screen-layout-container', true)
+          if (!this.ui.chatScreenLayoutContainer) return // Exit if main container is not found
 
-          this.ui.userCharacterDisplayArea = this._query('user-character-display-area', false, this.ui.chatScreenLayoutContainer);
-          this.ui.aiCharacterDisplayArea = this._query('ai-character-display-area', false, this.ui.chatScreenLayoutContainer);
-          this.ui.builtInChatInterfaceWrapper = this._query('built-in-chat-interface-wrapper', false, this.ui.chatScreenLayoutContainer);
-          this.ui.chatFeed = this._query('chat-feed', false, this.ui.builtInChatInterfaceWrapper);
-          this.ui.messageInput = this._query('message-input', false, this.ui.builtInChatInterfaceWrapper);
-          this.ui.sendButton = this._query('send-button', false, this.ui.builtInChatInterfaceWrapper);
-          this.ui.inputWrapper = this._query('input-wrapper', false, this.ui.builtInChatInterfaceWrapper);
-          this.ui.storyConcludedNotice = this._query('story-concluded-notice', false, this.ui.builtInChatInterfaceWrapper);
-          this.ui.noMessagesNotice = this._query('no-messages-notice', false, this.ui.builtInChatInterfaceWrapper);
-          this.ui.statusNotifier = this._query('status-notifier', false, this.ui.builtInChatInterfaceWrapper);
-          this.ui.typingIndicatorText = this._query('typing-indicator-text', false, this.ui.builtInChatInterfaceWrapper);
-          this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper);
+          this.ui.userCharacterDisplayArea = this._query('user-character-display-area', false, this.ui.chatScreenLayoutContainer)
+          this.ui.aiCharacterDisplayArea = this._query('ai-character-display-area', false, this.ui.chatScreenLayoutContainer)
+          this.ui.builtInChatInterfaceWrapper = this._query('built-in-chat-interface-wrapper', false, this.ui.chatScreenLayoutContainer)
+          this.ui.chatFeed = this._query('chat-feed', false, this.ui.builtInChatInterfaceWrapper)
+          this.ui.messageInput = this._query('message-input', false, this.ui.builtInChatInterfaceWrapper)
+          this.ui.sendButton = this._query('send-button', false, this.ui.builtInChatInterfaceWrapper)
+          this.ui.inputWrapper = this._query('input-wrapper', false, this.ui.builtInChatInterfaceWrapper)
+          this.ui.storyConcludedNotice = this._query('story-concluded-notice', false, this.ui.builtInChatInterfaceWrapper)
+          this.ui.noMessagesNotice = this._query('no-messages-notice', false, this.ui.builtInChatInterfaceWrapper)
+          this.ui.statusNotifier = this._query('status-notifier', false, this.ui.builtInChatInterfaceWrapper)
+          this.ui.typingIndicatorText = this._query('typing-indicator-text', false, this.ui.builtInChatInterfaceWrapper)
+          this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper)
     },
 
     /**
@@ -410,121 +410,122 @@ window.App = {
      * @returns {HTMLElement|null}
      */
     showEl(el) {
-      if (typeof el === 'string') el = document.getElementById(el);
-      if (!el) return null;
-      el.classList.remove('hidden');
-      el.style.visibility = '';
-      el.style.display = '';
-      return el;
+      if (typeof el === 'string') el = document.getElementById(el)
+      if (!el) return null
+      el.classList.remove('hidden')
+      el.style.visibility = ''
+      el.style.display = ''
+      return el
     },
 
     // Mouseover animation management methods
     disableMouseoverAnimation(element) {
         if (element) {
-            element.setAttribute('disabled', 'true');
-            this.mouseoverAnimationState.disabledElements.add(element);
+            element.setAttribute('disabled', 'true')
+            this.mouseoverAnimationState.disabledElements.add(element)
         }
     },
 
     enableMouseoverAnimation(element) {
         if (element) {
-            element.removeAttribute('disabled');
-            this.mouseoverAnimationState.disabledElements.delete(element);
+            element.removeAttribute('disabled')
+            this.mouseoverAnimationState.disabledElements.delete(element)
         }
     },
 
     disableMouseoverAnimationForSelector(selector) {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(el => this.disableMouseoverAnimation(el));
+        const elements = document.querySelectorAll(selector)
+        elements.forEach(el => this.disableMouseoverAnimation(el))
     },
 
     enableMouseoverAnimationForSelector(selector) {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(el => this.enableMouseoverAnimation(el));
+        const elements = document.querySelectorAll(selector)
+        elements.forEach(el => this.enableMouseoverAnimation(el))
     },
 
+    updateMouseoverAnimationState() {
     updateMouseoverAnimationState() {
         // For storyboard cards, add disabled attribute for hover effects when no item is selected
         // But keep the cards clickable for dropdown functionality
         if (!this.storyboardSelected.ai) {
-            this.disableMouseoverAnimation(this.ui.storyboardAiCharacterCard);
-            this.ui.storyboardAiCharacterCard?.setAttribute('disabled', 'true');
+            this.disableMouseoverAnimation(this.ui.storyboardAiCharacterCard)
+            this.ui.storyboardAiCharacterCard?.setAttribute('disabled', 'true')
         } else {
-            this.enableMouseoverAnimation(this.ui.storyboardAiCharacterCard);
-            this.ui.storyboardAiCharacterCard?.removeAttribute('disabled');
+            this.enableMouseoverAnimation(this.ui.storyboardAiCharacterCard)
+            this.ui.storyboardAiCharacterCard?.removeAttribute('disabled')
         }
 
         if (!this.storyboardSelected.user) {
-            this.disableMouseoverAnimation(this.ui.storyboardUserCharacterCard);
-            this.ui.storyboardUserCharacterCard?.setAttribute('disabled', 'true');
+            this.disableMouseoverAnimation(this.ui.storyboardUserCharacterCard)
+            this.ui.storyboardUserCharacterCard?.setAttribute('disabled', 'true')
         } else {
-            this.enableMouseoverAnimation(this.ui.storyboardUserCharacterCard);
-            this.ui.storyboardUserCharacterCard?.removeAttribute('disabled');
+            this.enableMouseoverAnimation(this.ui.storyboardUserCharacterCard)
+            this.ui.storyboardUserCharacterCard?.removeAttribute('disabled')
         }
 
         if (!this.storyboardSelected.world) {
-            this.disableMouseoverAnimation(this.ui.storyboardWorldCard);
-            this.ui.storyboardWorldCard?.setAttribute('disabled', 'true');
+            this.disableMouseoverAnimation(this.ui.storyboardWorldCard)
+            this.ui.storyboardWorldCard?.setAttribute('disabled', 'true')
         } else {
-            this.enableMouseoverAnimation(this.ui.storyboardWorldCard);
-            this.ui.storyboardWorldCard?.removeAttribute('disabled');
+            this.enableMouseoverAnimation(this.ui.storyboardWorldCard)
+            this.ui.storyboardWorldCard?.removeAttribute('disabled')
         }
 
         // For buttons, use Pico CSS disabled styling when they're actually disabled
         // This will show the proper disabled appearance without breaking functionality
         if (this.ui.newStoryButton && this.ui.newStoryButton.disabled) {
-            this.ui.newStoryButton.classList.add('disabled');
+            this.ui.newStoryButton.classList.add('disabled')
         } else if (this.ui.newStoryButton) {
-            this.ui.newStoryButton.classList.remove('disabled');
+            this.ui.newStoryButton.classList.remove('disabled')
         }
 
         if (this.ui.saveStoryButton && this.ui.saveStoryButton.disabled) {
-            this.ui.saveStoryButton.classList.add('disabled');
+            this.ui.saveStoryButton.classList.add('disabled')
         } else if (this.ui.saveStoryButton) {
-            this.ui.saveStoryButton.classList.remove('disabled');
+            this.ui.saveStoryButton.classList.remove('disabled')
         }
 
         if (this.ui.exportStoryButton && this.ui.exportStoryButton.disabled) {
-            this.ui.exportStoryButton.classList.add('disabled');
+            this.ui.exportStoryButton.classList.add('disabled')
         } else if (this.ui.exportStoryButton) {
-            this.ui.exportStoryButton.classList.remove('disabled');
+            this.ui.exportStoryButton.classList.remove('disabled')
         }
 
         if (this.ui.useProfilePictureButton && this.ui.useProfilePictureButton.disabled) {
-            this.ui.useProfilePictureButton.classList.add('disabled');
+            this.ui.useProfilePictureButton.classList.add('disabled')
         } else if (this.ui.useProfilePictureButton) {
-            this.ui.useProfilePictureButton.classList.remove('disabled');
+            this.ui.useProfilePictureButton.classList.remove('disabled')
         }
 
         // Disable animations for disabled buttons
-        this.disableMouseoverAnimationForSelector('button[disabled]');
-        this.disableMouseoverAnimationForSelector('input[disabled]');
-        this.disableMouseoverAnimationForSelector('a[disabled]');
+        this.disableMouseoverAnimationForSelector('button[disabled]')
+        this.disableMouseoverAnimationForSelector('input[disabled]')
+        this.disableMouseoverAnimationForSelector('a[disabled]')
 
         // Enable animations for enabled buttons
-        this.enableMouseoverAnimationForSelector('button:not([disabled])');
-        this.enableMouseoverAnimationForSelector('input:not([disabled])');
-        this.enableMouseoverAnimationForSelector('a:not([disabled])');
+        this.enableMouseoverAnimationForSelector('button:not([disabled])')
+        this.enableMouseoverAnimationForSelector('input:not([disabled])')
+        this.enableMouseoverAnimationForSelector('a:not([disabled])')
     },
 
     checkAllButtonStates() {
-        if (this.isInitializing) return;
+        if (this.isInitializing) return
 
         // Storyboard Screen
-        const isStoryboardReady = this.storyboardSelected.ai && this.storyboardSelected.user && this.storyboardSelected.world;
+        const isStoryboardReady = this.storyboardSelected.ai && this.storyboardSelected.user && this.storyboardSelected.world
         if (this.ui.beginStoryButton) {
-            this.ui.beginStoryButton.disabled = !isStoryboardReady;
+            this.ui.beginStoryButton.disabled = !isStoryboardReady
         }
         if (this.ui.shuffleStoryElementsButton) {
-            this.ui.shuffleStoryElementsButton.disabled = false; // Shuffle should always be enabled
+            this.ui.shuffleStoryElementsButton.disabled = false // Shuffle should always be enabled
         }
 
         // Chat Interface Screen
         if (this.ui.sendButton && this.ui.messageInput) {
-            this.ui.sendButton.disabled = this.ui.messageInput.value.trim() === '' || this.isAiThinking;
+            this.ui.sendButton.disabled = this.ui.messageInput.value.trim() === '' || this.isAiThinking
         }
         if (this.ui.concludeStoryChatButton) {
-            this.ui.concludeStoryChatButton.disabled = this.isAiThinking;
+            this.ui.concludeStoryChatButton.disabled = this.isAiThinking
         }
 
         // Profile Screens (Character, World, Story)
@@ -533,17 +534,17 @@ window.App = {
         // Form Screens (Character, World)
         const formScreen = this.ui.characterFormScreen.style.display !== 'none' 
             ? this.ui.characterFormScreen 
-            : this.ui.worldFormScreen;
+            : this.ui.worldFormScreen
             
         if (formScreen && formScreen.style.display !== 'none') {
-            const nameInput = formScreen.querySelector('.studio-name-input-large');
-            const submitButton = formScreen.querySelector('button[type="submit"]');
+            const nameInput = formScreen.querySelector('.studio-name-input-large')
+            const submitButton = formScreen.querySelector('button[type="submit"]')
             if (submitButton && nameInput) {
-                submitButton.disabled = !nameInput.value.trim();
+                submitButton.disabled = !nameInput.value.trim()
             }
         }
         
-        this.updateMouseoverAnimationState();
+        this.updateMouseoverAnimationState()
     },
 
   
@@ -555,8 +556,8 @@ window.App = {
     hideEl(el) {
       // Debug: Element hide operation
       if (el) {
-        el.classList.add('hidden'); // Add the hidden class
-        el.style.display = '';
+        el.classList.add('hidden') // Add the hidden class
+        el.style.display = ''
         
       }
     },
@@ -567,13 +568,13 @@ window.App = {
      * @returns {string} The sanitized HTML.
      */
     sanitizeHtml: (text) => {
-        const textToSanitize = String(text === undefined || text === null ? "" : text);
+        const textToSanitize = String(text === undefined || text === null ? "" : text)
         if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
-            return window.DOMPurify.sanitize(textToSanitize);
+            return window.DOMPurify.sanitize(textToSanitize)
         }
-        console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
-        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-        return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m]; });
+        console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.")
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
+        return textToSanitize.replace(/[&<>"']/g, function(m) { return map[m] })
     },
     
     /**
@@ -584,37 +585,37 @@ window.App = {
      */
     showTopNotification(message, type = 'info', duration = 3000) {
         // Determine which notification area to use based on the active screen
-        let notificationArea = null;
+        let notificationArea = null
         if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBarNotificationArea) {
-          notificationArea = this.ui.profileTopBarNotificationArea;
+          notificationArea = this.ui.profileTopBarNotificationArea
         } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBarNotificationArea) {
-          notificationArea = this.ui.worldProfileTopBarNotificationArea;
+          notificationArea = this.ui.worldProfileTopBarNotificationArea
         } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBarNotificationArea) {
-          notificationArea = this.ui.storyProfileTopBarNotificationArea;
+          notificationArea = this.ui.storyProfileTopBarNotificationArea
         } else {
-          notificationArea = document.getElementById('top-bar-notification-area');
+          notificationArea = document.getElementById('top-bar-notification-area')
         }
         
         if (!notificationArea) {
-            console.warn('Notification area not found for active screen:', this.currentMainView);
-            return;
+            console.warn('Notification area not found for active screen:', this.currentMainView)
+            return
         }
         // Set message and style
-        notificationArea.textContent = message;
-        notificationArea.className = 'top-bar-notification-area-style';
-        notificationArea.classList.remove('success', 'error', 'info');
-        notificationArea.classList.add(type);
-        notificationArea.style.display = '';
+        notificationArea.textContent = message
+        notificationArea.className = 'top-bar-notification-area-style'
+        notificationArea.classList.remove('success', 'error', 'info')
+        notificationArea.classList.add(type)
+        notificationArea.style.display = ''
         // Remove after duration
         if (this.topNotificationTimeoutId) {
-            clearTimeout(this.topNotificationTimeoutId);
+            clearTimeout(this.topNotificationTimeoutId)
         }
         this.topNotificationTimeoutId = setTimeout(() => {
-            notificationArea.textContent = '';
-            notificationArea.style.display = 'none';
-            notificationArea.classList.remove('success', 'error', 'info');
-            this.topNotificationTimeoutId = null;
-        }, duration);
+            notificationArea.textContent = ''
+            notificationArea.style.display = 'none'
+            notificationArea.classList.remove('success', 'error', 'info')
+            this.topNotificationTimeoutId = null
+        }, duration)
     },
   
     // Cache for premade character items
@@ -624,18 +625,18 @@ window.App = {
   
         if (this._premadeCharacterCache) {
       
-            return this._premadeCharacterCache;
+            return this._premadeCharacterCache
         }
-        const db = this.db;
+        const db = this.db
         // Fetch user-created characters (not deleted)
-        let userItems = [];
+        let userItems = []
         if (db && db.characters) {
             try {
-                userItems = await db.characters.where('isDeleted').notEqual(1).toArray();
-                userItems = userItems.filter(item => item && item.id && !item.isDeleted);
+                userItems = await db.characters.where('isDeleted').notEqual(1).toArray()
+                userItems = userItems.filter(item => item && item.id && !item.isDeleted)
             } catch (error) {
-                console.warn('[App] Error fetching user characters:', error);
-                userItems = [];
+                console.warn('[App] Error fetching user characters:', error)
+                userItems = []
             }
         }
         // Premade items (static)
@@ -697,17 +698,17 @@ window.App = {
               present: "You have recently discovered the existence of your rival, I rtyhAND, whose methods and philosophy you find deeply troubling. The two of you are locked in a battle of wits and influence across the digital landscape.",
               future: "To outmaneuver and ultimately defeat your sworn enemy, I rtyhAND, proving once and for all which AI is superior."
             }
-        ];
+        ]
         // Ensure all premade items have isPremade: true
-        const premadeWithFlag = premadeItems.map(item => ({ ...item, isPremade: true }));
+        const premadeWithFlag = premadeItems.map(item => ({ ...item, isPremade: true }))
         // Merge and sort: user items first by createdTimestamp, then premade
         const merged = [
           ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
           ...premadeWithFlag
-        ];
+        ]
   
-        this._premadeCharacterCache = merged;
-        return this._premadeCharacterCache;
+        this._premadeCharacterCache = merged
+        return this._premadeCharacterCache
     },
     
     // Cache for premade world items to avoid recreating the array on each call
@@ -718,18 +719,19 @@ window.App = {
   
         if (this._premadeWorldItemsCache) {
       
-            return this._premadeWorldItemsCache;
+            return this._premadeWorldItemsCache
         }
-        const db = this.db;
+        const db = this.db
         // Fetch user-created worlds (not deleted)
-        let userItems = [];
+        let userItems = []
         if (db && db.worlds) {
         try{
-            userItems = await db.worlds.where('isDeleted').notEqual(1).sortBy('createdTimestamp');
-            userItems = userItems.filter(item => item && item.id && !item.isDeleted);
+            userItems = await db.worlds.where('isDeleted').notEqual(1).sortBy('createdTimestamp')
+            userItems = userItems.filter(item => item && item.id && !item.isDeleted)
         } catch (error) {
-            userItems = await db.worlds.where('isDeleted').notEqual(1).toArray();
-            userItems = userItems.filter(item => item && item.id && !item.isDeleted);
+            userItems = await db.worlds.where('isDeleted').notEqual(1).toArray()
+            userItems = userItems.filter(item => item && item.id && !item.isDeleted)
+        }
         }
         // Premade items (static)
         const premadeItems = [
@@ -753,27 +755,27 @@ window.App = {
               present: "The story starts in a narrow, rain-slicked alleyway off the main thoroughfare, choked with overflowing dumpsters and discarded tech. The glow of a flickering pink neon sign from a noodle shop reflects in the puddles. The distant sound of sirens wails. A data chip has just been exchanged, and a deal has either gone perfectly right or terribly, violently wrong.", 
               future: "The data chip could be the key to the OmniCorp vault, a kill-list for a corporate wet-works team, or the AI consciousness of a legendary hacker. The protagonists might be hunted by OmniCorp agents, become entangled in a vicious gang war, or try to expose a conspiracy that reaches the highest, most untouchable echelons of the city."
             }
-        ];
+        ]
         // Ensure all premade items have isPremade: true
-        const premadeWithFlag = premadeItems.map(item => ({ ...item, isPremade: true }));
+        const premadeWithFlag = premadeItems.map(item => ({ ...item, isPremade: true }))
         // Merge and sort: user items first by createdTimestamp, then premade
         const merged = [
           ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
           ...premadeWithFlag
-        ];
+        ]
           
 
-        this._premadeWorldItemsCache = merged;
-        return merged;
+        this._premadeWorldItemsCache = merged
+        return merged
     },
 
     async initializeDb() {
         // Check if Dexie is available
         if (typeof Dexie === 'undefined') {
-            throw new Error('Dexie library is not loaded. Please ensure the Dexie CDN script is included.');
+            throw new Error('Dexie library is not loaded. Please ensure the Dexie CDN script is included.')
         }
-        this.db = new Dexie(window.dbName);
-        window.db = this.db;
+        this.db = new Dexie(window.dbName)
+        window.db = this.db
     
         // Optimized schema with compound indexes
         this.db.version(12).stores({
@@ -784,81 +786,81 @@ window.App = {
             worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, colorPalette'
         }).upgrade(async () => {
             // Migration logic remains the same
-        });
+        })
     
         try {
-            await this.db.open();
-            const appStateAfterOpen = await this.getAppState();
-            this.currentUserCharacterId = appStateAfterOpen.currentUserCharacterId;
-            this.currentStoryId = appStateAfterOpen.lastOpenedStoryId;
-            this.activeStoryId = appStateAfterOpen.activeStoryId;
+            await this.db.open()
+            const appStateAfterOpen = await this.getAppState()
+            this.currentUserCharacterId = appStateAfterOpen.currentUserCharacterId
+            this.currentStoryId = appStateAfterOpen.lastOpenedStoryId
+            this.activeStoryId = appStateAfterOpen.activeStoryId
         } catch (error) {
-            console.error("Failed to open Dexie database:", error);
-            this.showTopNotification("Error initializing database. Trying to recover...", "error", 5000);
+            console.error("Failed to open Dexie database:", error)
+            this.showTopNotification("Error initializing database. Trying to recover...", "error", 5000)
             
             // Attempt to recover by deleting and recreating the database
             try {
-                await this.db.delete();
-                await this.db.open();
+                await this.db.delete()
+                await this.db.open()
                 const appState = {
                     id: 0, lastOpenedStoryId: null, currentUserCharacterId: null,
                     // Use string key to avoid 'this' context issue in object literal
                     currentMainView: "STORYBOARD",
                     activeStoryId: null
-                };
-                await this.db.appState.put(appState);
-                this.showTopNotification("Database reset successfully. Please refresh.", "success", 5000);
+                }
+                await this.db.appState.put(appState)
+                this.showTopNotification("Database reset successfully. Please refresh.", "success", 5000)
             } catch (recoveryError) {
-                console.error("Recovery failed:", recoveryError);
-                this.showTopNotification("Critical database error. Please refresh.", "error", 10000);
+                console.error("Recovery failed:", recoveryError)
+                this.showTopNotification("Critical database error. Please refresh.", "error", 10000)
             }
-            throw error;
+            throw error
         }
     },
     
     async getAppState() {
-        let appState = await this.db.appState.get(0);
+        let appState = await this.db.appState.get(0)
         if (!appState) {
             appState = {
                 id: 0, lastOpenedStoryId: null, currentUserCharacterId: null,
                 // Use string key to avoid 'this' context issue in object literal
                 currentMainView: "STORYBOARD",
                 activeStoryId: null 
-            };
-            await this.db.appState.put(appState);
+            }
+            await this.db.appState.put(appState)
         }
-        if (appState.activeStoryId === undefined) appState.activeStoryId = null;
+        if (appState.activeStoryId === undefined) appState.activeStoryId = null
   
         if (appState.activeStoryId) {
-            const activeStoryData = await this.db.stories.get(appState.activeStoryId);
+            const activeStoryData = await this.db.stories.get(appState.activeStoryId)
             if (activeStoryData && activeStoryData.concluded) {
-                console.warn(`Stale activeStoryId (${appState.activeStoryId}) found for a concluded story. Clearing it.`);
-                appState.activeStoryId = null;
-                await this.db.appState.update(0, { activeStoryId: null });
+                console.warn(`Stale activeStoryId (${appState.activeStoryId}) found for a concluded story. Clearing it.`)
+                appState.activeStoryId = null
+                await this.db.appState.update(0, { activeStoryId: null })
             }
         }
-        return appState;
+        return appState
     },
     
     async saveAppState() {
         // CRITICAL FIX: Don't save editing screen states that might cause issues on restore
         const isEditingScreen = this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_FORM || 
-                                this.currentMainView === this.CONSTANTS.VIEWS.WORLD_FORM;
+                                this.currentMainView === this.CONSTANTS.VIEWS.WORLD_FORM
         const appState = {
             id: 0,
             lastOpenedStoryId: this.currentStoryId,
             currentUserCharacterId: this.currentUserCharacterId,
             currentMainView: isEditingScreen ? this.CONSTANTS.VIEWS.STORYBOARD : this.currentMainView,
             activeStoryId: this.activeStoryId 
-        };
-        await this.db.appState.put(appState);
+        }
+        await this.db.appState.put(appState)
     },
   
     async initialLoad() {
         // Debug: Initial load started
         // App.initialLoad called
   
-        this.isInitializing = true;
+        this.isInitializing = true
   
         // Initialize navigation guard system
         this.navigationGuard = {
@@ -867,88 +869,88 @@ window.App = {
             startTime: null,
             targetScreen: null,
             formOptions: null
-        };
-  
-        if (!this.ui.main || !this.ui.initialPageLoadingModal) {
-            console.error("[App Critical] Main UI elements not found!");
-            const emergencyCtn = document.getElementById('emergencyExportCtn');
-            if (emergencyCtn) this.showEl(emergencyCtn);
-            const modal = document.getElementById('initial-page-loading-modal');
-            if (modal) this.hideEl(modal);
-            alert("Critical error: Essential UI elements not found.");
-            this.isInitializing = false;
-            return;
         }
   
-        this.showEl(this.ui.main);
+        if (!this.ui.main || !this.ui.initialPageLoadingModal) {
+            console.error("[App Critical] Main UI elements not found!")
+            const emergencyCtn = document.getElementById('emergencyExportCtn')
+            if (emergencyCtn) this.showEl(emergencyCtn)
+            const modal = document.getElementById('initial-page-loading-modal')
+            if (modal) this.hideEl(modal)
+            alert("Critical error: Essential UI elements not found.")
+            this.isInitializing = false
+            return
+        }
+  
+        this.showEl(this.ui.main)
               
   
         try {
                       
-            await this.initializeDb();
+            await this.initializeDb()
                       
-            const appState = await this.getAppState();
+            const appState = await this.getAppState()
                       
-            this.currentUserCharacterId = appState.currentUserCharacterId;
-            this.currentStoryId = appState.lastOpenedStoryId; 
-            this.activeStoryId = appState.activeStoryId; 
-            this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD; // Ensure currentMainView is set on load
+            this.currentUserCharacterId = appState.currentUserCharacterId
+            this.currentStoryId = appState.lastOpenedStoryId 
+            this.activeStoryId = appState.activeStoryId 
+            this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD // Ensure currentMainView is set on load
   
             this.ui.messageInput.onkeyup = (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) { 
-                    e.preventDefault(); 
+                    e.preventDefault() 
                     if (!this.ui.sendButton.disabled) {
-                      this.sendButtonClickHandler();
+                      this.sendButtonClickHandler()
                     }
                 }
-                this.ui.messageInput.style.height = 'auto';
-                this.ui.messageInput.style.height = (this.ui.messageInput.scrollHeight) + 'px';
-                this.checkAllButtonStates();
-            };
+                this.ui.messageInput.style.height = 'auto'
+                this.ui.messageInput.style.height = (this.ui.messageInput.scrollHeight) + 'px'
+                this.checkAllButtonStates()
+            }
             document.addEventListener('click', () => {
-                    if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover');
-                });
+                    if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover')
+                })
             // Bind menu button click handler directly to avoid onclick attribute issues
             if (this.ui.menuButton) {
                 // Menu button functionality will be implemented later
             }
-            this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
+            this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this)
             
-            await this._updateCharacterInfo('user');
+            await this._updateCharacterInfo('user')
                       
   
-            let initialScreenTarget = this.CONSTANTS.VIEWS.STORYBOARD;
-            let initialScreenOptions = {};
-            let recoveredFromSessionStorage = false;
+            let initialScreenTarget = this.CONSTANTS.VIEWS.STORYBOARD
+            let initialScreenOptions = {}
+            let recoveredFromSessionStorage = false
   
-            const pendingStateJSON = sessionStorage.getItem('pendingRPGlitchFormState');
+            const pendingStateJSON = sessionStorage.getItem('pendingRPGlitchFormState')
             
             if (pendingStateJSON) {
                 try {
-                    const parsedState = JSON.parse(pendingStateJSON);
+                    const parsedState = JSON.parse(pendingStateJSON)
                     // Accept states with formData (copy workflow) OR with itemId (edit workflow)
                     if (parsedState && parsedState.timestamp && (Date.now() - parsedState.timestamp < 7000) && parsedState.formOptions && (parsedState.formData || parsedState.formOptions.itemId)) { 
-                        this.createItemFormData = parsedState.formData; 
-                        initialScreenTarget = this.CONSTANTS.ITEM_CONFIG[parsedState.formOptions.itemType]?.formScreen || this.CONSTANTS.VIEWS.STORYBOARD;
-                        initialScreenOptions = parsedState.formOptions;
+                        this.createItemFormData = parsedState.formData 
+                        initialScreenTarget = this.CONSTANTS.ITEM_CONFIG[parsedState.formOptions.itemType]?.formScreen || this.CONSTANTS.VIEWS.STORYBOARD
+                        initialScreenOptions = parsedState.formOptions
                         if (initialScreenTarget === this.CONSTANTS.VIEWS.CHARACTER_FORM || initialScreenTarget === this.CONSTANTS.VIEWS.WORLD_FORM) {
-                            initialScreenOptions.formData = parsedState.formData;
+                            initialScreenOptions.formData = parsedState.formData
                         }
-                        recoveredFromSessionStorage = true;
-                        sessionStorage.removeItem('pendingRPGlitchFormState'); 
+                        recoveredFromSessionStorage = true
+                        sessionStorage.removeItem('pendingRPGlitchFormState') 
                         // Recovered pending form state from sessionStorage
                     } else {
                         // Stale or invalid pending form state in sessionStorage. Removing.
-                        sessionStorage.removeItem('pendingRPGlitchFormState'); 
+                        sessionStorage.removeItem('pendingRPGlitchFormState') 
                     }
                 } catch (e) {
-                    console.error("[App Lifecycle] Error parsing pending form state from sessionStorage:", e);
-                    sessionStorage.removeItem('pendingRPGlitchFormState');
+                    console.error("[App Lifecycle] Error parsing pending form state from sessionStorage:", e)
+                    sessionStorage.removeItem('pendingRPGlitchFormState')
                     // Show user-friendly notification and continue loading
                     if (this && this.showTopNotification) {
-                        this.showTopNotification('Recovered from a corrupted session. Please retry your last action.', 'error', 5000);
+                        this.showTopNotification('Recovered from a corrupted session. Please retry your last action.', 'error', 5000)
                     } else {
-                        alert('Recovered from a corrupted session. Please retry your last action.');
+                        alert('Recovered from a corrupted session. Please retry your last action.')
                     }
                 }
             }
@@ -956,24 +958,24 @@ window.App = {
   
             if (!recoveredFromSessionStorage) {
                 if (this.activeStoryId) {
-                    const activeStory = await this.db.stories.get(this.activeStoryId);
+                    const activeStory = await this.db.stories.get(this.activeStoryId)
                     if (activeStory && !activeStory.concluded) {
-                        initialScreenTarget = this.CONSTANTS.VIEWS.STORY_INTERFACE; 
+                        initialScreenTarget = this.CONSTANTS.VIEWS.STORY_INTERFACE 
                     } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
-                        initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE;
-                        initialScreenOptions = { storyId: this.currentStoryId };
+                        initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE
+                        initialScreenOptions = { storyId: this.currentStoryId }
                     }
                 } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
-                    initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE;
-                    initialScreenOptions = { storyId: this.currentStoryId };
+                    initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE
+                    initialScreenOptions = { storyId: this.currentStoryId }
                 }
             }
             
             if (initialScreenTarget === this.CONSTANTS.VIEWS.STORY_INTERFACE && this.activeStoryId) { 
-                 await this.openStory(this.activeStoryId);
+                 await this.openStory(this.activeStoryId)
                                
             } else {
-                 await this.switchToScreen(initialScreenTarget, initialScreenOptions);
+                 await this.switchToScreen(initialScreenTarget, initialScreenOptions)
                                
             }
   
@@ -982,53 +984,54 @@ window.App = {
             this.data = {
               characters: await this.db.characters.toArray(),
               worlds: await this.db.worlds.toArray()
-            };
+            }
   
             // Ensure App.data is set for dropdown population
-            App.data = this.data;
+            App.data = this.data
                       
         
         
   
             // Atomic fix: Populate dropdowns immediately after data is set
             if (typeof this._updateStoryboard === 'function') {
-                console.log("initialLoad: Calling _updateStoryboard...");
-                await this._updateStoryboard();
+                console.log("initialLoad: Calling _updateStoryboard...")
+                await this._updateStoryboard()
             }
-            this.hideEl(this.ui.initialPageLoadingModal);
+            this.hideEl(this.ui.initialPageLoadingModal)
                       
             // Initial load completed
   
         } catch (error) {
-            console.error("[App Lifecycle] Error during initialLoad:", error);
-            this.showEl(this.ui.emergencyExportCtn);
-            this.hideEl(this.ui.initialPageLoadingModal);
+            console.error("[App Lifecycle] Error during initialLoad:", error)
+            this.showEl(this.ui.emergencyExportCtn)
+            this.hideEl(this.ui.initialPageLoadingModal)
                       
         } finally {
-            this.isInitializing = false;
-            this.checkAllButtonStates();
+            this.isInitializing = false
+            this.checkAllButtonStates()
             // Ensure right-side buttons are rendered and functional on initial load for Storyboard
-            this.updateTopBarUI();
+            this.updateTopBarUI()
         }
+    },
 
       async _getitemData(id, dbTableKey, getPremadesFn) {
     
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('Database not initialized yet, skipping _getitemData');
-              return null;
+              console.warn('Database not initialized yet, skipping _getitemData')
+              return null
           }
           
           if (typeof id === 'string' && id.startsWith('premade_')) {
-              const parts = id.split(':');
-              const itemType = parts[0].substring('premade_'.length); // e.g., 'character' or 'world'
-              const actualPremadeId = parts[1];
+              const parts = id.split(':')
+              const itemType = parts[0].substring('premade_'.length) // e.g., 'character' or 'world'
+              const actualPremadeId = parts[1]
               
-              console.log(`_getitemData: Handling premade ID. itemType: ${itemType}, actualPremadeId: ${actualPremadeId}`);
+              console.log(`_getitemData: Handling premade ID. itemType: ${itemType}, actualPremadeId: ${actualPremadeId}`)
 
-              const items = await getPremadesFn();
-              const foundItem = items.find(item => item.id === actualPremadeId);
+              const items = await getPremadesFn()
+              const foundItem = items.find(item => item.id === actualPremadeId)
         
               if (foundItem) {
                   const basePremade = {
@@ -1037,20 +1040,20 @@ window.App = {
                       isPremade: true, 
                       originalPremadeId: foundItem.id, 
                       id: id // Keep the full premade ID for later reference
-                  };
-                  console.log(`_getitemData: Found premade item:`, basePremade);
-                  return basePremade;
+                  }
+                  console.log(`_getitemData: Found premade item:`, basePremade)
+                  return basePremade
               }
-              console.warn(`_getitemData: Premade item not found for ID: ${id}`);
-              return null;
+              console.warn(`_getitemData: Premade item not found for ID: ${id}`)
+              return null
           }
           if ((typeof id === 'number' || (typeof id === 'string' && !isNaN(parseInt(id, 10)))) && this.db[dbTableKey]) {
-              const result = await this.db[dbTableKey].get(parseInt(id, 10));
+              const result = await this.db[dbTableKey].get(parseInt(id, 10))
         
-              return result;
+              return result
           }
     
-          return null;
+          return null
       },
     
         /**
@@ -1061,49 +1064,49 @@ window.App = {
      
       async _populateList(listArea, searchTerm = '', config) {
     
-          if (!listArea || !config) return;
+          if (!listArea || !config) return
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('Database not initialized yet, skipping _populateList');
-              listArea.innerHTML = '<p class="list-item-empty-message">Loading...</p>';
-              return;
+              console.warn('Database not initialized yet, skipping _populateList')
+              listArea.innerHTML = '<p class="list-item-empty-message">Loading...</p>'
+              return
           }
           
-          const { dbTableKey, getPremadesFn } = config;
-          const allUserItems = await this.db[dbTableKey].toArray();
+          const { dbTableKey, getPremadesFn } = config
+          const allUserItems = await this.db[dbTableKey].toArray()
           const fetchedItems = allUserItems
             .filter(item => item.isDeleted !== true)
-            .sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0));
-          const premadeItemsRaw = await getPremadesFn();
-          const premadeItems = premadeItemsRaw.map(p => ({...p, isPremade: true}));
-          const combinedItems = [...fetchedItems, ...premadeItems];
-          const lowerSearchTerm = searchTerm.toLowerCase();
+            .sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0))
+          const premadeItemsRaw = await getPremadesFn()
+          const premadeItems = premadeItemsRaw.map(p => ({...p, isPremade: true}))
+          const combinedItems = [...fetchedItems, ...premadeItems]
+          const lowerSearchTerm = searchTerm.toLowerCase()
           const itemsToDisplay = searchTerm
               ? combinedItems.filter(item => (item.name || "").toLowerCase().includes(lowerSearchTerm))
-              : combinedItems;
-          listArea.innerHTML = '';
+              : combinedItems
+          listArea.innerHTML = ''
           itemsToDisplay.forEach(item => {
-              const listItem = this._createListItem(item, config);
-              listArea.appendChild(listItem);
-          });
+              const listItem = this._createListItem(item, config)
+              listArea.appendChild(listItem)
+          })
           
           // Chin height is now handled automatically by flexbox layout
       },
     
       _createListItem(item, config) {
-          const article = document.createElement('article');
-          article.className = 'character-card-landscape';
+          const article = document.createElement('article')
+          article.className = 'character-card-landscape'
   
           // Info (left side)
-          const nameHtml = `<h4 class="card-title-styled">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</h4>`;
-          const descriptionHtml = item.description ? `<p class="card-description-styled">${this.sanitizeHtml(item.description)}</p>` : '';
+          const nameHtml = `<h4 class="card-title-styled">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</h4>`
+          const descriptionHtml = item.description ? `<p class="card-description-styled">${this.sanitizeHtml(item.description)}</p>` : ''
           
           // Footer - only show for premade items, custom items have no buttons
-          let footerHtml = '';
+          let footerHtml = ''
           if (item.isPremade) {
-            const colorPalette = this.getColorPalette(item.colorPalette || 'slate_gray');
-            footerHtml = `<footer class="card-footer card-footer-premade"><small class="card-footer-premade-badge" style="--premade-badge-color: ${colorPalette.colors.medium};">Premade</small></footer>`;
+            const colorPalette = this.getColorPalette(item.colorPalette || 'slate_gray')
+            footerHtml = `<footer class="card-footer card-footer-premade"><small class="card-footer-premade-badge" style="--premade-badge-color: ${colorPalette.colors.medium};">Premade</small></footer>`
           }
           // Custom items have no footer buttons - they're accessed via the profile page
           
@@ -1117,102 +1120,102 @@ window.App = {
               </main>
               ${footerHtml}
             </article>
-          `;
+          `
   
           // Profile picture (right side)
-          const profilePictureHtml = this._generateProfilePictureHtml(item, 'list-item');
+          const profilePictureHtml = this._generateProfilePictureHtml(item, 'list-item')
           const pictureHtml = `
             <div class="card-picture">
               <div class="profile-picture">
                 ${profilePictureHtml}
               </div>
             </div>
-          `;
+          `
   
-          article.innerHTML = `<div class="card-grid">${infoHtml}${pictureHtml}</div>`;
+          article.innerHTML = `<div class="card-grid">${infoHtml}${pictureHtml}</div>`
   
           article.onclick = () => {
-            if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover');
-            const finalItemId = item.isPremade ? `premade_${config.itemType}:${item.id}` : item.id;
-            this.switchToScreen(config.profileScreen, { itemId: finalItemId, itemType: config.itemType });
-          };
-          return article;
+            if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover')
+            const finalItemId = item.isPremade ? `premade_${config.itemType}:${item.id}` : item.id
+            this.switchToScreen(config.profileScreen, { itemId: finalItemId, itemType: config.itemType })
+          }
+          return article
       },
   
   
     
       async _populateStoryList(listArea, searchTerm = '') {
-          listArea.innerHTML = '';
+          listArea.innerHTML = ''
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('Database not initialized yet, skipping _populateStoryList');
-              listArea.innerHTML = '<p class="story-item-empty-message">Loading...</p>';
-              return;
+              console.warn('Database not initialized yet, skipping _populateStoryList')
+              listArea.innerHTML = '<p class="story-item-empty-message">Loading...</p>'
+              return
           }
           
-          let allStories = await this.db.stories.toArray();
-          let fetchedStories = allStories.filter(item => item.isDeleted !== true);
-          fetchedStories.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0));
-          const lowerSearchTerm = searchTerm.toLowerCase();
-          let storiesToDisplay;
+          let allStories = await this.db.stories.toArray()
+          let fetchedStories = allStories.filter(item => item.isDeleted !== true)
+          fetchedStories.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0))
+          const lowerSearchTerm = searchTerm.toLowerCase()
+          let storiesToDisplay
       
-          const nameCache = { characters: new Map(), worlds: new Map() };
+          const nameCache = { characters: new Map(), worlds: new Map() }
           const getName = async (id, type) => {
-              if (!id) return `Unknown ${type.charAt(0).toUpperCase() + type.slice(1)}`;
-              if (nameCache[type + 's'].has(id)) return nameCache[type + 's'].get(id);
+              if (!id) return `Unknown ${type.charAt(0).toUpperCase() + type.slice(1)}`
+              if (nameCache[type + 's'].has(id)) return nameCache[type + 's'].get(id)
       
-              const item = await this._getitemData(id, type + 's', type === 'character' ? this.getPremadeCharacterItems : this.getPremadeWorldItems);
-              const name = item?.name || `Unknown ${type.charAt(0).toUpperCase() + type.slice(1)}`;
-              nameCache[type + 's'].set(id, name);
-              return name;
-          };
+              const item = await this._getitemData(id, type + 's', type === 'character' ? this.getPremadeCharacterItems : this.getPremadeWorldItems)
+              const name = item?.name || `Unknown ${type.charAt(0).toUpperCase() + type.slice(1)}`
+              nameCache[type + 's'].set(id, name)
+              return name
+          }
       
           if (searchTerm) {
-              storiesToDisplay = [];
+              storiesToDisplay = []
               for (const story of fetchedStories) {
-                  const aiCharName = story.storyAiCharacter?.name || await getName(story.aiCharacterId, 'character');
-                  const userCharName = story.storyUserCharacter?.name || await getName(story.userCharacterId, 'character');
-                  const worldName = story.storyWorld?.name || await getName(story.worldId, 'world');
-                  const storyDisplayName = story.name || `${aiCharName} & ${userCharName} in ${worldName}`;
+                  const aiCharName = story.storyAiCharacter?.name || await getName(story.aiCharacterId, 'character')
+                  const userCharName = story.storyUserCharacter?.name || await getName(story.userCharacterId, 'character')
+                  const worldName = story.storyWorld?.name || await getName(story.worldId, 'world')
+                  const storyDisplayName = story.name || `${aiCharName} & ${userCharName} in ${worldName}`
                   if (storyDisplayName.toLowerCase().includes(lowerSearchTerm)) {
-                      storiesToDisplay.push(story);
+                      storiesToDisplay.push(story)
                   }
               }
           } else {
-              storiesToDisplay = fetchedStories;
+              storiesToDisplay = fetchedStories
           }
       
           if (storiesToDisplay.length === 0) {
-              listArea.innerHTML = `<p class="story-item-empty-message">${searchTerm ? 'No matches.' : 'No recent stories.'}</p>`;
-              return;
+              listArea.innerHTML = `<p class="story-item-empty-message">${searchTerm ? 'No matches.' : 'No recent stories.'}</p>`
+              return
           }
       
           for (const story of storiesToDisplay) {
-              const aiCharacter = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems);
-              const userCharacter = story.storyUserCharacter || await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems);
-              const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems);
-              const displayName = story.name || `${aiCharacter?.name || 'AI'} & ${userCharacter?.name || 'User'} in ${world?.name || 'World'}`;
+              const aiCharacter = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems)
+              const userCharacter = story.storyUserCharacter || await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems)
+              const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems)
+              const displayName = story.name || `${aiCharacter?.name || 'AI'} & ${userCharacter?.name || 'User'} in ${world?.name || 'World'}`
               
-              const itemEl = document.createElement('div');
-              itemEl.className = 'list-item-main story-item';
+              const itemEl = document.createElement('div')
+              itemEl.className = 'list-item-main story-item'
               if (this.currentStoryId === story.id && this.currentMainView === this.CONSTANTS.VIEWS.STORY_INTERFACE) {
-                  itemEl.classList.add('active');
+                  itemEl.classList.add('active')
               }
               if (story.concluded) {
-                  itemEl.classList.add('concluded-story-item');
+                  itemEl.classList.add('concluded-story-item')
               }
       
               itemEl.innerHTML = `
                   <span class="name-main" title="${this.sanitizeHtml(displayName)}">${this.sanitizeHtml(displayName)}</span>
                   <span class="tag-right-aligned">${story.concluded ? '<span class="concluded-story-indicator">&#127937;</span>' : ''}</span>
-              `;
+              `
       
               itemEl.onclick = () => {
-                  this.ui.topBar.classList.remove('top-bar-interactive-hover');
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: story.id });
-              };
-              listArea.appendChild(itemEl);
+                  this.ui.topBar.classList.remove('top-bar-interactive-hover')
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: story.id })
+              }
+              listArea.appendChild(itemEl)
           }
           
           // Chin height is now handled automatically by flexbox layout
@@ -1220,112 +1223,112 @@ window.App = {
     
       async renderStoryProfileScreen(storyId) {
           // Phase 1: Validation and Setup
-          const story = await this._validateAndSetupStoryProfile(storyId);
-          if (!story) return;
+          const story = await this._validateAndSetupStoryProfile(storyId)
+          if (!story) return
     
           // Phase 2: Data Fetching
-          const { aiChar, userChar, world } = await this._fetchStoryProfileData(story);
+          const { aiChar, userChar, world } = await this._fetchStoryProfileData(story)
     
           // Phase 3: Top Bar Updates
-          await this._updateTopBarForStoryProfile(story, storyId, aiChar, userChar);
+          await this._updateTopBarForStoryProfile(story, storyId, aiChar, userChar)
     
           // Phase 4: Display Setup
-          this._setupStoryProfileDisplays(aiChar, userChar);
+          this._setupStoryProfileDisplays(aiChar, userChar)
     
           // Phase 5: Message Feed Rendering
-          await this._renderStoryProfileMessages(story);
+          await this._renderStoryProfileMessages(story)
     
           // Phase 6: Generate and Insert HTML
-          this._generateAndInsertStoryProfileHTML(story, aiChar, userChar, world);
+          this._generateAndInsertStoryProfileHTML(story, aiChar, userChar, world)
     
           // Phase 7: Event Handler Setup
-          await this._attachStoryProfileEventHandlers(story, storyId);
+          await this._attachStoryProfileEventHandlers(story, storyId)
     
           // Phase 8: Final State Management
-          this.currentMainView = this.CONSTANTS.VIEWS.STORY_PROFILE;
-          await this.saveAppState();
-          this.checkAllButtonStates();
+          this.currentMainView = this.CONSTANTS.VIEWS.STORY_PROFILE
+          await this.saveAppState()
+          this.checkAllButtonStates()
       },
     
       async _validateAndSetupStoryProfile(storyId) {
-          const container = this.ui.storyProfileScreen; 
+          const container = this.ui.storyProfileScreen 
           if (!container || !storyId) {
-              this.showTopNotification("Error: Story ID missing for profile view.", "error");
-              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-              return null;
+              this.showTopNotification("Error: Story ID missing for profile view.", "error")
+              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
+              return null
           }
       
-          const story = await this.db.stories.get(storyId);
+          const story = await this.db.stories.get(storyId)
           if (!story) {
-              this.ui.storyProfilechatFeed.innerHTML = `<p class="p-4 text-center">Story not found.</p>`;
-              this.ui.storyProfileActions.innerHTML = ''; 
-              this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = '';
-              this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = '';
-              return null;
+              this.ui.storyProfilechatFeed.innerHTML = `<p class="p-4 text-center">Story not found.</p>`
+              this.ui.storyProfileActions.innerHTML = '' 
+              this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = ''
+              this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = ''
+              return null
           }
     
-          this.currentStoryId = storyId;
-          return story;
+          this.currentStoryId = storyId
+          return story
       },
     
       async _fetchStoryProfileData(story) {
-          const aiChar = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems);
-          const userChar = story.storyUserCharacter || await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems);
-          const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems);
+          const aiChar = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems)
+          const userChar = story.storyUserCharacter || await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems)
+          const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems)
     
-          return { aiChar, userChar, world };
+          return { aiChar, userChar, world }
       },
     
       async _updateTopBarForStoryProfile(story, storyId, aiChar, userChar) {
           // Removed top bar title text
           
           if (this.activeStoryId && this.activeStoryId !== storyId) {
-              const activeStoryData = await this.db.stories.get(this.activeStoryId);
+              const activeStoryData = await this.db.stories.get(this.activeStoryId)
               if (activeStoryData) {
-                  await this._updateCharacterInfo('ai', activeStoryData.storyAiCharacter || await this._getitemData(activeStoryData.aiCharacterId, 'characters', this.getPremadeCharacterItems));
-                  await this._updateCharacterInfo('user', activeStoryData.storyUserCharacter || await this._getitemData(activeStoryData.userCharacterId, 'characters', this.getPremadeCharacterItems));
+                  await this._updateCharacterInfo('ai', activeStoryData.storyAiCharacter || await this._getitemData(activeStoryData.aiCharacterId, 'characters', this.getPremadeCharacterItems))
+                  await this._updateCharacterInfo('user', activeStoryData.storyUserCharacter || await this._getitemData(activeStoryData.userCharacterId, 'characters', this.getPremadeCharacterItems))
               }
           } else if (this.activeStoryId === storyId) { 
-               await this._updateCharacterInfo('ai', aiChar);
-               await this._updateCharacterInfo('user', userChar);
+               await this._updateCharacterInfo('ai', aiChar)
+               await this._updateCharacterInfo('user', userChar)
           } else { 
-              this.hideEl(this.ui.topBarUserCharacterInfo);
+              this.hideEl(this.ui.topBarUserCharacterInfo)
           }
       },
     
       _setupStoryProfileDisplays(aiChar, userChar) {
-          this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = aiChar.profilePicture ? `url('${this.sanitizeHtml(aiChar.profilePicture)}')` : '';
-          this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = userChar.profilePicture ? `url('${this.sanitizeHtml(userChar.profilePicture)}')` : '';
-          this.ui.storyProfileAiCharacterDisplayArea.classList.toggle('visible', !!aiChar.profilePicture);
-          this.ui.storyProfileUserCharacterDisplayArea.classList.toggle('visible', !!userChar.profilePicture);
+          this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = aiChar.profilePicture ? `url('${this.sanitizeHtml(aiChar.profilePicture)}')` : ''
+          this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = userChar.profilePicture ? `url('${this.sanitizeHtml(userChar.profilePicture)}')` : ''
+          this.ui.storyProfileAiCharacterDisplayArea.classList.toggle('visible', !!aiChar.profilePicture)
+          this.ui.storyProfileUserCharacterDisplayArea.classList.toggle('visible', !!userChar.profilePicture)
       },
     
       async _renderStoryProfileMessages(story) {
-          this.ui.storyProfilechatFeed.innerHTML = '';
+          this.ui.storyProfilechatFeed.innerHTML = ''
       
-          const messages = await this.db.messages.where({ storyId: story.id }).sortBy('timestamp');
+          const messages = await this.db.messages.where({ storyId: story.id }).sortBy('timestamp')
           if (messages.length === 0 && !story.concluded) { 
-              this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', `<div class="noMessagesNotice p-4 text-sm text-center">No messages in this story yet.</div>`);
+              this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', `<div class="noMessagesNotice p-4 text-sm text-center">No messages in this story yet.</div>`)
           } else {
               messages.forEach(msg => {
-                  if (msg.isHidden) return;
-                  this._addMessageToFeed(msg, true);
-              });
+                  if (msg.isHidden) return
+                  this._addMessageToFeed(msg, true)
+              })
           }
           
           if (story.concluded && story.summary && !messages.some(m => m.content === story.summary && m.role === 'narrator')) {
-               this._addMessageToFeed({ role: 'narrator', content: story.summary }, true);
+               this._addMessageToFeed({ role: 'narrator', content: story.summary }, true)
           }
       },
     
       _generateAndInsertStoryProfileHTML(story, aiChar, userChar, world) {
-          const san = this.sanitizeHtml;
-          const conclusionHtml = this._generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san);
-          const actionButtonsHtml = this._generateStoryProfileActionButtons(story);
+          const san = this.sanitizeHtml
+          const conclusionHtml = this._generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san)
+          const actionButtonsHtml = this._generateStoryProfileActionButtons(story)
     
-          this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', conclusionHtml);
-          this.ui.storyProfilechatFeed.scrollTop = this.ui.storyProfilechatFeed.scrollHeight;
-          this.ui.storyProfileActions.innerHTML = actionButtonsHtml;
+          this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', conclusionHtml)
+          this.ui.storyProfilechatFeed.scrollTop = this.ui.storyProfilechatFeed.scrollHeight
+          this.ui.storyProfileActions.innerHTML = actionButtonsHtml
       },
     
       _generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san) {
@@ -1353,7 +1356,7 @@ window.App = {
                       `<div class="message systemMessage" class="system-message-styled"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story concluded on ${new Date(story.concludedTimestamp).toLocaleString()}</div></div></div></div>` 
                       : ''
                   }
-              </div>`;
+              </div>`
       },
     
       _generateStoryProfileActionButtons(story) {
@@ -1367,7 +1370,7 @@ window.App = {
                       </div>
                       <span class="button-icon">Delete</span>
                   </button>
-          `;
+          `
           if (!story.concluded) {
               actionButtonsHtml += `
                   <button id="concludeStoryButtonStoryProfile" class="danger-button">
@@ -1377,51 +1380,51 @@ window.App = {
                   <button id="openStoryChatButtonStoryProfile" class="primary-action-button">
                       <span class="button-text">Resume Chat</span><span class="button-icon">Resume</span>
                   </button>
-              `;
+              `
           }
-          actionButtonsHtml += `</div>`;
-          return actionButtonsHtml;
+          actionButtonsHtml += `</div>`
+          return actionButtonsHtml
       },
     
       async _attachStoryProfileEventHandlers(story, storyId) {
           // Back button handler
           this.ui.storyProfileActions.querySelector('#storyProfileBackButton').onclick = () => {
               if (this.activeStoryId) {
-                  this.openStory(this.activeStoryId);
+                  this.openStory(this.activeStoryId)
               } else {
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
               }
-          };
+          }
     
           // Delete story handler
           this.ui.storyProfileActions.querySelector('#deleteStoryButton').onclick = async () => {
               if (confirm(`Delete story "${story.name || 'this story'}"? This cannot be undone.`)) { 
-                  await this.db.messages.where({ storyId: story.id }).delete(); // Use item.id for messages
-                  await this.db.stories.delete(story.id); // Delete item itself
-                  this.showTopNotification('Story deleted.', 'success');
-                  if (this.currentStoryId === story.id) this.currentStoryId = null;
+                  await this.db.messages.where({ storyId: story.id }).delete() // Use item.id for messages
+                  await this.db.stories.delete(story.id) // Delete item itself
+                  this.showTopNotification('Story deleted.', 'success')
+                  if (this.currentStoryId === story.id) this.currentStoryId = null
                   if (this.activeStoryId === story.id) {
-                      await this.db.appState.update(0, { activeStoryId: null });
-                      this.activeStoryId = null; // Clear active story if the current one is concluded
+                      await this.db.appState.update(0, { activeStoryId: null })
+                      this.activeStoryId = null // Clear active story if the current one is concluded
                   }
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
               }
-          };
+          }
     
           // Conclude and resume story handlers (only for active stories)
           if (!story.concluded) {
-              const concludeButtonProfile = this.ui.storyProfileActions.querySelector('#concludeStoryButtonStoryProfile');
-              if (concludeButtonProfile) concludeButtonProfile.onclick = () => this.concludeStory(storyId);
+              const concludeButtonProfile = this.ui.storyProfileActions.querySelector('#concludeStoryButtonStoryProfile')
+              if (concludeButtonProfile) concludeButtonProfile.onclick = () => this.concludeStory(storyId)
               
-              const openChatButtonProfile = this.ui.storyProfileActions.querySelector('#openStoryChatButtonStoryProfile');
+              const openChatButtonProfile = this.ui.storyProfileActions.querySelector('#openStoryChatButtonStoryProfile')
               if(openChatButtonProfile) {
-                  openChatButtonProfile.onclick = () => this.openStory(storyId);
+                  openChatButtonProfile.onclick = () => this.openStory(storyId)
                   
                   if (this.activeStoryId && this.activeStoryId !== story.id) {
-                      const otherActiveStory = await this.db.stories.get(this.activeStoryId);
+                      const otherActiveStory = await this.db.stories.get(this.activeStoryId)
                       if (otherActiveStory && !otherActiveStory.concluded) {
-                          openChatButtonProfile.disabled = true;
-                          openChatButtonProfile.setAttribute('data-tooltip', 'Another story is currently active. Conclude it first.');
+                          openChatButtonProfile.disabled = true
+                          openChatButtonProfile.setAttribute('data-tooltip', 'Another story is currently active. Conclude it first.')
                       }
                   }
               }
@@ -1430,60 +1433,60 @@ window.App = {
           // item card click handlers
           this.ui.storyProfilechatFeed.querySelectorAll('.story-profile-item-card').forEach(card => {
               card.onclick = () => {
-                  const itemId = card.dataset.itemId;
-                  const itemType = card.dataset.itemType;
-                  const itemConfig = this.CONSTANTS.ITEM_CONFIG[itemType];
+                  const itemId = card.dataset.itemId
+                  const itemType = card.dataset.itemType
+                  const itemConfig = this.CONSTANTS.ITEM_CONFIG[itemType]
                   if (itemId && itemConfig) {
-                      this.switchToScreen(itemConfig.profileScreen, {itemId, itemType});
+                      this.switchToScreen(itemConfig.profileScreen, {itemId, itemType})
                   }
-              };
-          });
+              }
+          })
       },
       
             async renderFormScreen(options = {}) {
           // renderFormScreen called with options
-          const { itemType, isCreating, isCopying } = options;
+          const { itemType, isCreating, isCopying } = options
       
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          if (!config) { console.error("Invalid itemType for renderFormScreen:", itemType); return; }
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          if (!config) { console.error("Invalid itemType for renderFormScreen:", itemType); return }
     
-          const container = this.ui[config.formScreen];
-          if (!container) { console.error(`Container for ${config.formScreen} not found`); return; }
+          const container = this.ui[config.formScreen]
+          if (!container) { console.error(`Container for ${config.formScreen} not found`); return }
     
-          const isCreatingOrCopying = isCreating || isCopying;
+          const isCreatingOrCopying = isCreating || isCopying
           // isCreatingOrCopying determined
           
           // Removed top bar title text
     
-          let item = {};
+          let item = {}
           if (isCreating && !isCopying) {
               // Creation path - checking formData sources
               if (options.formData && Object.keys(options.formData).length > 0) {
-                  item = { ...options.formData };
-                  this.createItemFormData = { ...options.formData }; 
+                  item = { ...options.formData }
+                  this.createItemFormData = { ...options.formData } 
                   // Using formData passed in options for new item
               } else if (Object.keys(this.createItemFormData).length > 0) {
-                  item = { ...this.createItemFormData };
+                  item = { ...this.createItemFormData }
                   // Using App.createItemFormData for new item
               } else {
-                  item = {};
+                  item = {}
                   // Creating a truly new item, no prior data
               }
           } else if (isCopying) {
               // Copying path - fetching original item with ID
-              const originalItem = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
+              const originalItem = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn)
               // Retrieved original item for copying
               // Original item name
               // Original item name type
               // Original item name length
               
               // Copy the original item data but remove the ID and timestamps to make it a new item
-              item = { ...originalItem };
-              delete item.id;
-              delete item.createdTimestamp;
-              delete item.lastModifiedTimestamp;
-              delete item.isPremade;
-              delete item.originalPremadeId;
+              item = { ...originalItem }
+              delete item.id
+              delete item.createdTimestamp
+              delete item.lastModifiedTimestamp
+              delete item.isPremade
+              delete item.originalPremadeId
               
               // Initialize form data with the copied item's data
               this.createItemFormData = { 
@@ -1495,36 +1498,36 @@ window.App = {
                   future: item.future,
                   profilePicture: item.profilePicture,
                   colorPalette: item.colorPalette || 'tech_blue'
-              };
+              }
               // Copied item data for new item
               // Copied item name
               // Copied item name type
               // Copied item name length
           } else { 
               // Editing path - fetching item with ID
-              item = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
+              item = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn)
               // Retrieved item for editing
               // Initialize form data with existing item's colorPalette for editing
               // Use a more varied default color palette instead of always slate_gray
-              const defaultPalettes = ['tech_blue', 'forest_green', 'crimson_red', 'sunset_orange', 'royal_purple', 'cyber_pink'];
-              const randomDefaultPalette = defaultPalettes[Math.floor(Math.random() * defaultPalettes.length)];
-              this.createItemFormData = { colorPalette: item.colorPalette || randomDefaultPalette };
+              const defaultPalettes = ['tech_blue', 'forest_green', 'crimson_red', 'sunset_orange', 'royal_purple', 'cyber_pink']
+              const randomDefaultPalette = defaultPalettes[Math.floor(Math.random() * defaultPalettes.length)]
+              this.createItemFormData = { colorPalette: item.colorPalette || randomDefaultPalette }
           }
       
       
           if (!isCreatingOrCopying && !item) { 
-              container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`; 
-              return; 
+              container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>` 
+              return 
           }
           
-          let softLockNoticeHtml = '';
+          let softLockNoticeHtml = ''
           if (!isCreatingOrCopying && this.activeStoryId) {
-              const activeStory = await this.db.stories.get(this.activeStoryId);
+              const activeStory = await this.db.stories.get(this.activeStoryId)
               if (activeStory && !activeStory.concluded) {
-                  const itemOriginalId = item.isPremade ? item.originalPremadeId : item.id;
+                  const itemOriginalId = item.isPremade ? item.originalPremadeId : item.id
                   const isItemInActiveStory = 
                       (config.itemType === 'character' && (itemOriginalId == activeStory.aiCharacterId || itemOriginalId == activeStory.userCharacterId)) ||
-                      (config.itemType === 'world' && itemOriginalId == activeStory.worldId);
+                      (config.itemType === 'world' && itemOriginalId == activeStory.worldId)
       
                   if (isItemInActiveStory) {
                       softLockNoticeHtml = `
@@ -1532,77 +1535,77 @@ window.App = {
                               <strong>Notice:</strong> This ${config.capital.toLowerCase()} is part of the active story: "<strong>${this.sanitizeHtml(activeStory.name || 'Untitled Story')}</strong>". 
                               Edits made here will apply to <em>new</em> stories or after this one is concluded. 
                               The active story uses a snapshot of this item from when it began.
-                          </div>`;
+                          </div>`
                   }
               }
           }
           
           // NON-DESTRUCTIVE DOM UPDATE:
           // 1. Create a temporary container for the new content.
-          const tempContainer = document.createElement('div');
-          tempContainer.innerHTML = softLockNoticeHtml + this._renderStudioLayout(item, config, true);
+          const tempContainer = document.createElement('div')
+          tempContainer.innerHTML = softLockNoticeHtml + this._renderStudioLayout(item, config, true)
           
           // 2. Clear the old content and append the new content.
           while (container.firstChild) {
-              container.removeChild(container.firstChild);
+              container.removeChild(container.firstChild)
           }
           while (tempContainer.firstChild) {
-              container.appendChild(tempContainer.firstChild);
+              container.appendChild(tempContainer.firstChild)
           }
     
-          this._attachFormEventHandlers(container, itemType, item, isCreatingOrCopying);
-          this.checkAllButtonStates();
-          this._updateFormColorPreview(container, item.colorPalette);
+          this._attachFormEventHandlers(container, itemType, item, isCreatingOrCopying)
+          this.checkAllButtonStates()
+          this._updateFormColorPreview(container, item.colorPalette)
       },
       
       async renderProfileScreen(options = {}) {
-          const { itemType, itemId } = options;
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          if (!config) { console.error("Invalid itemType for renderProfileScreen:", itemType); return; }
+          const { itemType, itemId } = options
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          if (!config) { console.error("Invalid itemType for renderProfileScreen:", itemType); return }
       
-          const container = this.ui[config.profileScreen];
+          const container = this.ui[config.profileScreen]
           if (!container || !itemId) {
-              this.showTopNotification(`Error: ${config.capital} ID missing for profile view.`, "error");
-              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD); 
-              return;
+              this.showTopNotification(`Error: ${config.capital} ID missing for profile view.`, "error")
+              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD) 
+              return
           }
           
-          this.currentProfileViewItemId = itemId; 
+          this.currentProfileViewItemId = itemId 
       
           // const isPremade = typeof itemId === 'string' && itemId.startsWith('premade_'); // Unused variable
-          const item = await this._getitemData(itemId, config.dbTableKey, config.getPremadesFn);
+          const item = await this._getitemData(itemId, config.dbTableKey, config.getPremadesFn)
       
           if (!item) {
-              container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`;
-              return;
+              container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`
+              return
           }
           // Removed: this.ui.topBar.textContent = `${config.capital} Profile`; // This is now handled by _updateProfileTopBarUI
   
           // NON-DESTRUCTIVE DOM UPDATE:
-          const tempContainer = document.createElement('div');
-          tempContainer.innerHTML = this._renderStudioLayout(item, config, false);
+          const tempContainer = document.createElement('div')
+          tempContainer.innerHTML = this._renderStudioLayout(item, config, false)
           
           while (container.firstChild) {
-              container.removeChild(container.firstChild);
+              container.removeChild(container.firstChild)
           }
           while (tempContainer.firstChild) {
-              container.appendChild(tempContainer.firstChild);
+              container.appendChild(tempContainer.firstChild)
           }
           // Attach robust onerror handler for profile picture
-          const profilePicture = container.querySelector('#formProfilePicture');
+          const profilePicture = container.querySelector('#formProfilePicture')
           if (profilePicture) {
               profilePicture.onerror = function() {
-                  const palette = (options.colorPalette || 'blue').toLowerCase();
-                  const placeholderDiv = document.createElement('div');
-                  placeholderDiv.className = `premade-card premade-${palette}`;
-                  placeholderDiv.setAttribute('aria-label', 'No image available');
-                  const icon = document.createElement('span');
-                  icon.className = 'premade-placeholder-icon';
-                  icon.setAttribute('aria-hidden', 'true');
-                  icon.textContent = '\uD83D\uDDBC\uFE0F'; // U+1F5BC for Picture Frame, U+FE0F for variation selector
-                  placeholderDiv.appendChild(icon);
-                  this.replaceWith(placeholderDiv);
-              };
+                  const palette = (options.colorPalette || 'blue').toLowerCase()
+                  const placeholderDiv = document.createElement('div')
+                  placeholderDiv.className = `premade-card premade-${palette}`
+                  placeholderDiv.setAttribute('aria-label', 'No image available')
+                  const icon = document.createElement('span')
+                  icon.className = 'premade-placeholder-icon'
+                  icon.setAttribute('aria-hidden', 'true')
+                  icon.textContent = '\uD83D\uDDBC\uFE0F' // U+1F5BC for Picture Frame, U+FE0F for variation selector
+                  placeholderDiv.appendChild(icon)
+                  this.replaceWith(placeholderDiv)
+              }
           }
       
           // Profile page name field is read-only - no handlers needed
@@ -1611,7 +1614,7 @@ window.App = {
       },
     
       _renderEppfField(label, subLabel, idSuffix, value, placeholder, isEditing, san) {
-          const id = `${idSuffix}`;
+          const id = `${idSuffix}`
           
           if (isEditing) {
               return `
@@ -1624,7 +1627,7 @@ window.App = {
                       <textarea id="${id}" placeholder="${san(placeholder)}" resize="auto">${san(value || '')}</textarea>
                       </div>
                   </div>
-              `;
+              `
           } else {
               return `
                   <div class="profile-field-row profile-field-${idSuffix.toLowerCase()}">
@@ -1634,19 +1637,19 @@ window.App = {
                       </div>
                       <div class="profile-field-value">${san(value || '—')}</div>
                   </div>
-              `;
+              `
           }
       },
     
       _renderStudioLayout(item, config, isEditing) {
-          const san = this.sanitizeHtml.bind(this);
-          const { itemType, labels } = config;
+          const san = this.sanitizeHtml.bind(this)
+          const { itemType, labels } = config
       
           // --- PROFILE PICTURE/PLACEHOLDER LOGIC ---
           // const profilePictureSrc = (item.profilePicture && item.profilePicture.trim()) ? item.profilePicture.trim() : this._makeProfilePicturePlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade); // Unused variable
                 
     
-          const profilePictureHtml = this._generateProfilePictureHtml(item, 'profile'); // Use the new helper function
+          const profilePictureHtml = this._generateProfilePictureHtml(item, 'profile') // Use the new helper function
     
           // --- FORM ACTION BUTTONS ---
           // Buttons moved to top bar - no longer needed in form
@@ -1711,19 +1714,19 @@ window.App = {
                       </div>
                   </div>
               </div>
-          `;
+          `
           
-          return content;
+          return content
       },
     
       async _createColorPicker(selectedPaletteKey) {
-        let colorPickerHtml = '<div class="form-section color-picker-section">';
-        colorPickerHtml += '<h3>Color Palette</h3>';
-        colorPickerHtml += '<div class="color-palette-grid">';
+        let colorPickerHtml = '<div class="form-section color-picker-section">'
+        colorPickerHtml += '<h3>Color Palette</h3>'
+        colorPickerHtml += '<div class="color-palette-grid">'
     
         for (const key in this.CONSTANTS.COLOR_PALETTES) {
-            const palette = this.CONSTANTS.COLOR_PALETTES[key];
-            const isSelected = key === selectedPaletteKey ? 'selected' : '';
+            const palette = this.CONSTANTS.COLOR_PALETTES[key]
+            const isSelected = key === selectedPaletteKey ? 'selected' : ''
             colorPickerHtml += `
                 <button class="color-palette-button ${isSelected}" data-palette-key="${key}" title="${palette.name}" aria-label="Select ${palette.name} color palette">
                     <div class="color-swatch-large-styled" style="--swatch-color: ${palette.colors.medium}"></div>
@@ -1733,11 +1736,11 @@ window.App = {
                         <div class="color-swatch-small-styled" style="--swatch-color: ${palette.colors.neutral}"></div>
                     </div>
                 </button>
-            `;
+            `
         }
     
-        colorPickerHtml += '</div></div>';
-        return colorPickerHtml;
+        colorPickerHtml += '</div></div>'
+        return colorPickerHtml
       },
     
       /**
@@ -1746,7 +1749,7 @@ window.App = {
        * @returns {Object} The palette object.
        */
       getColorPalette(paletteKey) {
-        return this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
+        return this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray
       },
     
       /**
@@ -1755,100 +1758,100 @@ window.App = {
        * @param {string} paletteKey - The palette key.
        */
       _updateColorScheme(element, paletteKey) {
-          const palette = this.getColorPalette(paletteKey);
-          if (!element || !palette) return;
+          const palette = this.getColorPalette(paletteKey)
+          if (!element || !palette) return
     
           const styles = {
               '--form-color-light': palette.colors.light,
               '--form-color-medium': palette.colors.medium,
               '--form-color-dark': palette.colors.dark,
               '--form-color-neutral': palette.colors.neutral
-          };
+          }
     
           Object.entries(styles).forEach(([prop, value]) => {
-              element.style.setProperty(prop, value);
-          });
+              element.style.setProperty(prop, value)
+          })
       },
     
       _updateFormColorPreview(container, paletteKey) {
-          this._updateColorScheme(container, paletteKey);
+          this._updateColorScheme(container, paletteKey)
       },
     
       _attachFormEventHandlers(container, itemType /*, item, isCreating */) {
-        const formElements = this._setupFormElements(container, itemType);
-        if (!formElements) return;
+        const formElements = this._setupFormElements(container, itemType)
+        if (!formElements) return
     
         // Phase 1: Contenteditable Name Field Handlers (like storyboard title)
-        this._attachContenteditableNameHandlers(formElements, itemType);
+        this._attachContenteditableNameHandlers(formElements, itemType)
     
         // Phase 2: Profile PictureSystem Event Handlers
-        this._attachProfilePictureEventHandlers(formElements, itemType);
+        this._attachProfilePictureEventHandlers(formElements, itemType)
     
           // Phase 3: Form Action Handlers (Delete, Cancel, Submit)
-                        this._attachFormActionHandlers(formElements, itemType);
+                        this._attachFormActionHandlers(formElements, itemType)
     
           // Phase 4: AI Helper Handlers
-          this._attachAiHelperHandlers(formElements, itemType);
+          this._attachAiHelperHandlers(formElements, itemType)
     
           // Phase 5: Textarea Dynamic Updates
-          this._attachTextareaHandlers(formElements);
+          this._attachTextareaHandlers(formElements)
     
-          const colorButtons = container.querySelectorAll('.color-palette-button');
+          const colorButtons = container.querySelectorAll('.color-palette-button')
           colorButtons.forEach(button => {
               button.onclick = (e) => {
-                  e.preventDefault();
-                  const selectedKey = button.dataset.paletteKey;
+                  e.preventDefault()
+                  const selectedKey = button.dataset.paletteKey
                   
                   // Update selection state
-                  colorButtons.forEach(button => button.classList.remove('selected'));
-                  button.classList.add('selected');
+                  colorButtons.forEach(button => button.classList.remove('selected'))
+                  button.classList.add('selected')
     
                   // Update form data
-                  this.createItemFormData.colorPalette = selectedKey;
+                  this.createItemFormData.colorPalette = selectedKey
     
                   // Update live preview
-                  this._updateFormColorPreview(container, selectedKey);
-              };
-          });
+                  this._updateFormColorPreview(container, selectedKey)
+              }
+          })
       },
     
       _attachContenteditableNameHandlers(elements /*, itemType */) {
-          const { nameInput } = elements;
-          if (!nameInput) return;
+          const { nameInput } = elements
+          if (!nameInput) return
           
           // Handle input to save changes
           nameInput.oninput = () => {
-              const newName = nameInput.value.trim();
+              const newName = nameInput.value.trim()
               if (newName) {
                   // Update the form data
-                  this.createItemFormData.name = newName;
+                  this.createItemFormData.name = newName
               }
-          };
+          }
           
           // Handle blur to save changes
           nameInput.onblur = () => {
-              const newName = nameInput.value.trim();
+              const newName = nameInput.value.trim()
               if (newName) {
                   // Update the form data
-                  this.createItemFormData.name = newName;
+                  this.createItemFormData.name = newName
               }
-          };
+          }
           
           // Handle Enter key to finish editing
           nameInput.onkeydown = (e) => {
               if (e.key === 'Enter') {
-                  e.preventDefault();
-                  nameInput.blur();
+                  e.preventDefault()
+                  nameInput.blur()
               }
-          };
+          }
       },
     
       _setupFormElements(container, itemType) {
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          const form = container.querySelector(`#${itemType}FormMain`);
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          const form = container.querySelector(`#${itemType}FormMain`)
           if (!form) {
-              console.error(`Form not found for ${itemType}`);
-              return null;
+              console.error(`Form not found for ${itemType}`)
+              return null
           }
     
           return {
@@ -1869,31 +1872,31 @@ window.App = {
               pastInput: form.querySelector(`#${itemType}Past`),
               presentInput: form.querySelector(`#${itemType}Present`),
               futureInput: form.querySelector(`#${itemType}Future`),
-          };
+          }
       },
     
       _attachProfilePictureEventHandlers(elements, itemType) {
           // Simple profile picture handler for both character and world forms
-          const { uploadProfilePictureButtonForm } = elements;
+          const { uploadProfilePictureButtonForm } = elements
           
           if (uploadProfilePictureButtonForm) {
               uploadProfilePictureButtonForm.onclick = (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                  e.preventDefault()
+                  e.stopPropagation()
                   
                   // Simple prompt for image URL or description
-                  const input = prompt('Enter an image URL or describe the image you want to generate:');
+                  const input = prompt('Enter an image URL or describe the image you want to generate:')
                   if (input && input.trim()) {
-                      const isUrl = input.trim().startsWith('http');
+                      const isUrl = input.trim().startsWith('http')
                       if (isUrl) {
                           // Use URL directly
-                          this.handleUseUrlForProfilePicture(null, input.trim(), itemType);
+                          this.handleUseUrlForProfilePicture(null, input.trim(), itemType)
                       } else {
                           // Generate image from description using simplified approach
-                          this.handleGenerateProfilePictureSimple(itemType, input.trim());
+                          this.handleGenerateProfilePictureSimple(itemType, input.trim())
                       }
                   }
-              };
+              }
           }
       },
     
@@ -1903,46 +1906,46 @@ window.App = {
           // Delete button removed from forms - will be handled in profile top bar for custom items only
     
           // Cancel button handler
-          this._attachCancelButtonHandler(elements, itemType);
+          this._attachCancelButtonHandler(elements, itemType)
     
           // Form submit handler
-          this._attachFormSubmitHandler(elements, itemType);
+          this._attachFormSubmitHandler(elements, itemType)
       },
     
       _attachCancelButtonHandler(elements, itemType) {
-          const { config, form } = elements;
-          const cancelButton = form.querySelector(`#cancel${config.capital}ButtonMain`);
+          const { config, form } = elements
+          const cancelButton = form.querySelector(`#cancel${config.capital}ButtonMain`)
           
           if (!cancelButton) {
-              console.warn(`Cancel button not found for ${itemType} form.`);
-              return;
+              console.warn(`Cancel button not found for ${itemType} form.`)
+              return
           }
     
           cancelButton.onclick = (e) => {
               // Ignore synthetic/programmatic clicks that are not user-initiated
               if (e && e.isTrusted === false) {
-                  console.warn("Programmatic cancel click suppressed");
-                  return;
+                  console.warn("Programmatic cancel click suppressed")
+                  return
               }
               
               if (!this.currentCreateFormContext || Object.keys(this.currentCreateFormContext).length === 0) {
-                  App.handleError('FORM_CONTEXT_ERROR', new Error('Missing form context during cancel operation'));
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-                  return;
+                  App.handleError('FORM_CONTEXT_ERROR', new Error('Missing form context during cancel operation'))
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
+                  return
               }
               
-              const { id, itemType, isCreating, isCopying, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId, originalScreen } = this.currentCreateFormContext;
-              this.createItemFormData = {};
+              const { id, itemType, isCreating, isCopying, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId, originalScreen } = this.currentCreateFormContext
+              this.createItemFormData = {}
               
               // Clear any pending form state from session storage when canceling
               try {
-                  sessionStorage.removeItem('pendingRPGlitchFormState');
+                  sessionStorage.removeItem('pendingRPGlitchFormState')
               } catch (e) {
-                  console.warn("Failed to clear session storage on cancel:", e);
+                  console.warn("Failed to clear session storage on cancel:", e)
               } 
               
               // Get config for this item type
-              const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+              const config = this.CONSTANTS.ITEM_CONFIG[itemType]
               
               // Form context: 
               console.log("Form context:", {
@@ -1952,276 +1955,276 @@ window.App = {
                   isCopying,
                   originalScreen,
                   currentCreateFormContext: this.currentCreateFormContext
-              });
+              })
               
               // Determine where to go based on the context
-              let targetScreen;
-              let navOptions = {};
+              let targetScreen
+              let navOptions = {}
               
               if (isCreating && !isCopying) {
                   // If creating new (not copying), go back to storyboard
-                  targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
+                  targetScreen = this.CONSTANTS.VIEWS.STORYBOARD
                   // Filter out 'create_new_' values to prevent infinite loop
                   navOptions = { 
                       preSelectedAiCharacterId: preSelectedAiCharacterId?.startsWith?.('create_new_') ? '' : preSelectedAiCharacterId, 
                       preSelectedUserCharacterId: preSelectedUserCharacterId?.startsWith?.('create_new_') ? '' : preSelectedUserCharacterId, 
                       preSelectedWorldId: preSelectedWorldId?.startsWith?.('create_new_') ? '' : preSelectedWorldId 
-                  };
+                  }
                   // Creating new, going to storyboard
               } else if (isCopying) {
                   // If copying, go back to the original screen we came from
                   if (originalScreen && originalScreen !== this.CONSTANTS.VIEWS.STORYBOARD) {
-                      targetScreen = originalScreen;
-                      navOptions = { itemId: id, itemType: itemType };
+                      targetScreen = originalScreen
+                      navOptions = { itemId: id, itemType: itemType }
                       // Copying cancelled, returning to original screen
               } else {
                       // Fallback to profile screen if no original screen
-                  targetScreen = config.profileScreen;
-                  navOptions = { itemId: id, itemType: itemType };
+                  targetScreen = config.profileScreen
+                  navOptions = { itemId: id, itemType: itemType }
                       // Copying cancelled, fallback to profile
                   }
               } else {
                   // If editing existing item, go back to its profile page
-                  targetScreen = config.profileScreen;
-                  navOptions = { itemId: id, itemType: itemType };
+                  targetScreen = config.profileScreen
+                  navOptions = { itemId: id, itemType: itemType }
                   // Editing, going to profile
               }
     
-              this.switchToScreen(targetScreen, navOptions);
-          };
+              this.switchToScreen(targetScreen, navOptions)
+          }
       },
     
       _attachFormSubmitHandler(elements, itemType) {
-          const { config, form } = elements;
+          const { config, form } = elements
           form.onsubmit = async (e) => {
-              e.preventDefault();
-              this.checkAllButtonStates(); // Re-check states on submit attempt 
-              const submitButton = form.querySelector(`#submit${config.capital}ButtonMain`);
+              e.preventDefault()
+              this.checkAllButtonStates() // Re-check states on submit attempt 
+              const submitButton = form.querySelector(`#submit${config.capital}ButtonMain`)
               if (submitButton && submitButton.disabled) {
-                  return;
+                  return
               }
                       
-          };
+          }
         }
             
             
         },
     
         _getTopBarElements() {
-            this.ui.topBar = this._query('top-bar', true);
-            if (!this.ui.topBar) return; // Exit if topBar is not found globally
+            this.ui.topBar = this._query('top-bar', true)
+            if (!this.ui.topBar) return // Exit if topBar is not found globally
   
-            this.ui.topBarLeft = this._query('top-bar-left', false, this.ui.topBar);
+            this.ui.topBarLeft = this._query('top-bar-left', false, this.ui.topBar)
             if (this.ui.topBarLeft) {
-              this.ui.topBarNotificationArea = this._query('top-bar-notification-area', false, this.ui.topBarLeft);
+              this.ui.topBarNotificationArea = this._query('top-bar-notification-area', false, this.ui.topBarLeft)
             }
   
-            this.ui.topBarRight = this._query('top-bar-right', false, this.ui.topBar);
+            this.ui.topBarRight = this._query('top-bar-right', false, this.ui.topBar)
             if (this.ui.topBarRight) {
-              this.ui.topBarUserCharacterInfo = this._query('top-bar-user-character-info', false, this.ui.topBarRight);
+              this.ui.topBarUserCharacterInfo = this._query('top-bar-user-character-info', false, this.ui.topBarRight)
               if (this.ui.topBarUserCharacterInfo) {
-                this.ui.topBarUserCharacterPic = this._query('top-bar-user-character-pic', false, this.ui.topBarUserCharacterInfo);
-                this.ui.topBarUserCharacterNameText = this._query('top-bar-user-character-name-text', false, this.ui.topBarUserCharacterInfo);
+                this.ui.topBarUserCharacterPic = this._query('top-bar-user-character-pic', false, this.ui.topBarUserCharacterInfo)
+                this.ui.topBarUserCharacterNameText = this._query('top-bar-user-character-name-text', false, this.ui.topBarUserCharacterInfo)
               }
-              this.ui.topBarAiCharacterInfo = this._query('top-bar-ai-character-info', false, this.ui.topBarRight);
+              this.ui.topBarAiCharacterInfo = this._query('top-bar-ai-character-info', false, this.ui.topBarRight)
               if (this.ui.topBarAiCharacterInfo) {
-                this.ui.topBarAiCharacterPic = this._query('top-bar-ai-character-pic', false, this.ui.topBarAiCharacterInfo);
-                this.ui.topBarAiCharacterNameText = this._query('top-bar-ai-character-name-text', false, this.ui.topBarAiCharacterInfo);
+                this.ui.topBarAiCharacterPic = this._query('top-bar-ai-character-pic', false, this.ui.topBarAiCharacterInfo)
+                this.ui.topBarAiCharacterNameText = this._query('top-bar-ai-character-name-text', false, this.ui.topBarAiCharacterInfo)
               }
-              this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight);
+              this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight)
             }
         },
     
         _getChinElements() {
-            this.ui.storyboardChin = this._query('storyboard-chin');
-            this.ui.characterWorkshopChin = this._query('character-workshop-chin');
-            this.ui.worldBuilderChin = this._query('world-builder-chin');
-            this.ui.optionsChin = this._query('options-chin');
+            this.ui.storyboardChin = this._query('storyboard-chin')
+            this.ui.characterWorkshopChin = this._query('character-workshop-chin')
+            this.ui.worldBuilderChin = this._query('world-builder-chin')
+            this.ui.optionsChin = this._query('options-chin')
         },
     
         _getCoreUIContainers() {
-            this.ui.main = this._query('main', true);
-            this.ui.storyboardScreen = this._query('storyboard-screen', true);
-            this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true);
+            this.ui.main = this._query('main', true)
+            this.ui.storyboardScreen = this._query('storyboard-screen', true)
+            this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true)
         },
     
         _getFormScreens() {
-            this.ui.characterFormScreen = this._query('character-form-screen', true);
-            this.ui.worldFormScreen = this._query('world-form-screen', true);
+            this.ui.characterFormScreen = this._query('character-form-screen', true)
+            this.ui.worldFormScreen = this._query('world-form-screen', true)
         },
     
         _getProfileScreens() {
-            this.ui.characterProfileScreen = this._query('character-profile-screen', true);
-            this.ui.worldProfileScreen = this._query('world-profile-screen', true);
-            this.ui.storyProfileScreen = this._query('story-profile-screen', true);
-            this.ui.storyProfileAiCharacterDisplayArea = this._query('story-profile-ai-character-display-area');
-            this.ui.storyProfileUserCharacterDisplayArea = this._query('story-profile-user-character-display-area');
-            this.ui.storyProfilechatFeed = this._query('story-profile-message-feed');
-            this.ui.storyProfileActions = this._query('story-profile-actions');
+            this.ui.characterProfileScreen = this._query('character-profile-screen', true)
+            this.ui.worldProfileScreen = this._query('world-profile-screen', true)
+            this.ui.storyProfileScreen = this._query('story-profile-screen', true)
+            this.ui.storyProfileAiCharacterDisplayArea = this._query('story-profile-ai-character-display-area')
+            this.ui.storyProfileUserCharacterDisplayArea = this._query('story-profile-user-character-display-area')
+            this.ui.storyProfilechatFeed = this._query('story-profile-message-feed')
+            this.ui.storyProfileActions = this._query('story-profile-actions')
   
             // New profile top bar elements
-            this.ui.profileTopBar = this._query('profile-top-bar');
-            this.ui.profileTopBarLeft = this._query('profile-top-bar-left');
-            this.ui.profileTopBarCenter = this._query('profile-top-bar-center');
-            this.ui.profileTopBarNotificationArea = this._query('profile-top-bar-notification-area');
-            this.ui.profileTopBarRight = this._query('profile-top-bar-right');
-            this.ui.profileTopBarUserCharacterInfo = this._query('profile-top-bar-user-character-info');
-            this.ui.profileTopBarUserCharacterPic = this._query('profile-top-bar-user-character-pic');
-            this.ui.profileTopBarUserCharacterNameText = this._query('profile-top-bar-user-character-name-text');
-            this.ui.profileTopBarAiCharacterInfo = this._query('profile-top-bar-ai-character-info');
-            this.ui.profileTopBarAiCharacterPic = this._query('profile-top-bar-ai-character-pic');
-            this.ui.profileTopBarAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text');
-            this.ui.profileShuffleButton = this._query('profile-shuffle-button');
-            this.ui.profileBeginStoryButton = this._query('profile-begin-story-button');
+            this.ui.profileTopBar = this._query('profile-top-bar')
+            this.ui.profileTopBarLeft = this._query('profile-top-bar-left')
+            this.ui.profileTopBarCenter = this._query('profile-top-bar-center')
+            this.ui.profileTopBarNotificationArea = this._query('profile-top-bar-notification-area')
+            this.ui.profileTopBarRight = this._query('profile-top-bar-right')
+            this.ui.profileTopBarUserCharacterInfo = this._query('profile-top-bar-user-character-info')
+            this.ui.profileTopBarUserCharacterPic = this._query('profile-top-bar-user-character-pic')
+            this.ui.profileTopBarUserCharacterNameText = this._query('profile-top-bar-user-character-name-text')
+            this.ui.profileTopBarAiCharacterInfo = this._query('profile-top-bar-ai-character-info')
+            this.ui.profileTopBarAiCharacterPic = this._query('profile-top-bar-ai-character-pic')
+            this.ui.profileTopBarAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text')
+            this.ui.profileShuffleButton = this._query('profile-shuffle-button')
+            this.ui.profileBeginStoryButton = this._query('profile-begin-story-button')
   
-            this.ui.worldProfileTopBar = this._query('world-profile-top-bar');
-            this.ui.worldProfileTopBarLeft = this._query('world-profile-top-bar-left');
-            this.ui.worldProfileTopBarCenter = this._query('world-profile-top-bar-center');
-            this.ui.worldProfileTopBarNotificationArea = this._query('world-profile-top-bar-notification-area');
-            this.ui.worldProfileTopBarRight = this._query('world-profile-top-bar-right');
-            this.ui.worldProfileTopBarUserCharacterInfo = this._query('world-profile-top-bar-user-character-info');
-            this.ui.worldProfileTopBarUserCharacterPic = this._query('world-profile-top-bar-user-character-pic');
-            this.ui.worldProfileTopBarUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text');
-            this.ui.worldProfileTopBarAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info');
-            this.ui.worldProfileTopBarAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic');
-            this.ui.worldProfileTopBarAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text');
-            this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle-button');
-            this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story-button');
+            this.ui.worldProfileTopBar = this._query('world-profile-top-bar')
+            this.ui.worldProfileTopBarLeft = this._query('world-profile-top-bar-left')
+            this.ui.worldProfileTopBarCenter = this._query('world-profile-top-bar-center')
+            this.ui.worldProfileTopBarNotificationArea = this._query('world-profile-top-bar-notification-area')
+            this.ui.worldProfileTopBarRight = this._query('world-profile-top-bar-right')
+            this.ui.worldProfileTopBarUserCharacterInfo = this._query('world-profile-top-bar-user-character-info')
+            this.ui.worldProfileTopBarUserCharacterPic = this._query('world-profile-top-bar-user-character-pic')
+            this.ui.worldProfileTopBarUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text')
+            this.ui.worldProfileTopBarAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info')
+            this.ui.worldProfileTopBarAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic')
+            this.ui.worldProfileTopBarAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text')
+            this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle-button')
+            this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story-button')
   
-            this.ui.storyProfileTopBar = this._query('story-profile-top-bar');
-            this.ui.storyProfileTopBarLeft = this._query('story-profile-top-bar-left');
-            this.ui.storyProfileTopBarCenter = this._query('story-profile-top-bar-center');
-            this.ui.storyProfileTopBarNotificationArea = this._query('story-profile-top-bar-notification-area');
-            this.ui.storyProfileTopBarRight = this._query('story-profile-top-bar-right');
-            this.ui.storyProfileTopBarUserCharacterInfo = this._query('story-profile-top-bar-user-character-info');
-            this.ui.storyProfileTopBarUserCharacterPic = this._query('story-profile-top-bar-user-character-pic');
-            this.ui.storyProfileTopBarUserCharacterNameText = this._query('story-profile-top-bar-user-character-name-text');
-            this.ui.storyProfileTopBarAiCharacterInfo = this._query('story-profile-top-bar-ai-character-info');
-            this.ui.storyProfileTopBarAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic');
-            this.ui.storyProfileTopBarAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text');
-            this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle-button');
-            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story-button');
+            this.ui.storyProfileTopBar = this._query('story-profile-top-bar')
+            this.ui.storyProfileTopBarLeft = this._query('story-profile-top-bar-left')
+            this.ui.storyProfileTopBarCenter = this._query('story-profile-top-bar-center')
+            this.ui.storyProfileTopBarNotificationArea = this._query('story-profile-top-bar-notification-area')
+            this.ui.storyProfileTopBarRight = this._query('story-profile-top-bar-right')
+            this.ui.storyProfileTopBarUserCharacterInfo = this._query('story-profile-top-bar-user-character-info')
+            this.ui.storyProfileTopBarUserCharacterPic = this._query('story-profile-top-bar-user-character-pic')
+            this.ui.storyProfileTopBarUserCharacterNameText = this._query('story-profile-top-bar-user-character-name-text')
+            this.ui.storyProfileTopBarAiCharacterInfo = this._query('story-profile-top-bar-ai-character-info')
+            this.ui.storyProfileTopBarAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic')
+            this.ui.storyProfileTopBarAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text')
+            this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle-button')
+            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story-button')
         },
     
         _getPremadeSelectionScreens() {
-            this.ui.premadeCharacterSelectionScreen = this._query('premade-character-bank', true);
-            this.ui.premadeCharacterOnlyList = this._query('premade-character-only-list');
-            this.ui.premadeWorldSelectionScreen = this._query('premade-world-bank', true);
-            this.ui.premadeWorldOnlyList = this._query('premade-world-only-list');
+            this.ui.premadeCharacterSelectionScreen = this._query('premade-character-bank', true)
+            this.ui.premadeCharacterOnlyList = this._query('premade-character-only-list')
+            this.ui.premadeWorldSelectionScreen = this._query('premade-world-bank', true)
+            this.ui.premadeWorldOnlyList = this._query('premade-world-only-list')
         },
     
         _getMiscScreens() {
-            this.ui.memoryApplicationScreen = this._query('memory-application-screen');
-            this.ui.initialPageLoadingModal = this._query('initial-page-loading-modal', true);
-            this.ui.emergencyExportCtn = this._query('emergency-export-ctn');
-            if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn);
+            this.ui.memoryApplicationScreen = this._query('memory-application-screen')
+            this.ui.initialPageLoadingModal = this._query('initial-page-loading-modal', true)
+            this.ui.emergencyExportCtn = this._query('emergency-export-ctn')
+            if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn)
         },
     
         _getStoryboardElements() {
-            this.ui.storyboardTitleArea = this._query('storyboard-title-area', false, this.ui.storyboardScreen);
-            this.ui.storyboardTitle = this._query('storyboard-title', false, this.ui.storyboardTitleArea);
+            this.ui.storyboardTitleArea = this._query('storyboard-title-area', false, this.ui.storyboardScreen)
+            this.ui.storyboardTitle = this._query('storyboard-title', false, this.ui.storyboardTitleArea)
             // Make storyboard title editable on click
             if (this.ui.storyboardTitle) {
-              this.ui.storyboardTitle.setAttribute('contenteditable', 'true');
-              this.ui.storyboardTitle.setAttribute('spellcheck', 'false');
-              this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)');
-              this.ui.storyboardTitle.style.cursor = 'pointer';
+              this.ui.storyboardTitle.setAttribute('contenteditable', 'true')
+              this.ui.storyboardTitle.setAttribute('spellcheck', 'false')
+              this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)')
+              this.ui.storyboardTitle.style.cursor = 'pointer'
               
               // Add click handler to make it editable
               this.ui.storyboardTitle.onclick = () => {
                 if (!this.ui.storyboardTitle.getAttribute('contenteditable')) {
-                  this.ui.storyboardTitle.setAttribute('contenteditable', 'true');
-                  this.ui.storyboardTitle.focus();
+                  this.ui.storyboardTitle.setAttribute('contenteditable', 'true')
+                  this.ui.storyboardTitle.focus()
                 }
-              };
+              }
               
               // Save changes when user finishes editing
               this.ui.storyboardTitle.onblur = async () => {
-                const newTitle = this.ui.storyboardTitle.textContent.trim();
+                const newTitle = this.ui.storyboardTitle.textContent.trim()
                 if (newTitle) {
                   // Temporarily clear custom title to get the auto-generated title
-                  const tempCustomTitle = this.storyboardCustomTitle;
-                  this.storyboardCustomTitle = null;
+                  const tempCustomTitle = this.storyboardCustomTitle
+                  this.storyboardCustomTitle = null
                   
                   // Get what the auto-generated title would be
-                  const aiCharName = await this._getSelectedCharacterName(this.ui.storyboardAiCharacterSelect);
-                  const userCharName = await this._getSelectedCharacterName(this.ui.storyboardUserCharacterSelect);
-                  const worldName = await this._getSelectedWorldName(this.ui.storyboardWorldSelect);
+                  const aiCharName = await this._getSelectedCharacterName(this.ui.storyboardAiCharacterSelect)
+                  const userCharName = await this._getSelectedCharacterName(this.ui.storyboardUserCharacterSelect)
+                  const worldName = await this._getSelectedWorldName(this.ui.storyboardWorldSelect)
                   
-                  let autoTitle = "Start a New Story";
+                  let autoTitle = "Start a New Story"
                   if (aiCharName && userCharName && worldName) {
-                      autoTitle = `${aiCharName} & ${userCharName} in ${worldName}`;
+                      autoTitle = `${aiCharName} & ${userCharName} in ${worldName}`
                   } else if (aiCharName || userCharName || worldName) {
-                      const parts = [];
-                      if (aiCharName) parts.push(aiCharName);
-                      if (userCharName) parts.push(userCharName);
-                      if (worldName) parts.push(worldName);
-                      autoTitle = parts.join(' & ');
+                      const parts = []
+                      if (aiCharName) parts.push(aiCharName)
+                      if (userCharName) parts.push(userCharName)
+                      if (worldName) parts.push(worldName)
+                      autoTitle = parts.join(' & ')
                   }
                   
                   // Restore the custom title temporarily
-                  this.storyboardCustomTitle = tempCustomTitle;
+                  this.storyboardCustomTitle = tempCustomTitle
                   
                   // Only save as custom title if it's different from the auto-generated title
                   if (newTitle !== autoTitle) {
                     // User has written something different - save as custom title
-                    this.storyboardCustomTitle = newTitle;
+                    this.storyboardCustomTitle = newTitle
                   } else {
                     // User hasn't actually changed anything - clear custom title to use auto-generated
-                    this.storyboardCustomTitle = null;
+                    this.storyboardCustomTitle = null
                   }
-                  this.updateDynamicStoryboardTitle();
+                  this.updateDynamicStoryboardTitle()
                 }
-              };
+              }
               
               // Handle Enter key to finish editing
               this.ui.storyboardTitle.onkeydown = (e) => {
                 if (e.key === 'Enter') {
-                  e.preventDefault();
-                  this.ui.storyboardTitle.blur();
+                  e.preventDefault()
+                  this.ui.storyboardTitle.blur()
                 }
-              };
+              }
               
               // Double-click to reset to auto-generated title
               this.ui.storyboardTitle.ondblclick = (e) => {
-                e.preventDefault();
-                this.storyboardCustomTitle = null;
-                this.updateDynamicStoryboardTitle();
-                this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)');
-              };
+                e.preventDefault()
+                this.storyboardCustomTitle = null
+                this.updateDynamicStoryboardTitle()
+                this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)')
+              }
             }
-            this.ui.storyboardScrollableContent = this._query('storyboard-scrollable-content', false, this.ui.storyboardScreen);
-            this.ui.storyboardColumns = this._query('storyboard-columns', false, this.ui.storyboardScrollableContent);
-            this.ui.storyboardAiCharacterSelect = this._query('storyboard-ai-character-select', true, this.ui.storyboardColumns);
-            this.ui.storyboardAiCharacterCard = this._query('storyboard-ai-character-card', true, this.ui.storyboardColumns);
-            this.ui.storyboardUserCharacterSelect = this._query('storyboard-user-character-select', true, this.ui.storyboardColumns);
-            this.ui.storyboardUserCharacterCard = this._query('storyboard-user-character-card', true, this.ui.storyboardColumns);
-            this.ui.storyboardWorldSelect = this._query('storyboard-world-select', true, this.ui.storyboardColumns);
-            this.ui.storyboardWorldCard = this._query('storyboard-world-card', true, this.ui.storyboardColumns);
-            this.ui.openingPromptTextarea = this._query('opening-prompt-textarea', false, this.ui.storyboardScreen);
-            this.ui.advancedStoryOptionsToggleButton = this._query('advanced-story-options-toggle-button', false, this.ui.storyboardScreen);
-            this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen);
-            this.ui.customStoryJsTextarea = this._query('custom-story-js-textarea', false, this.ui.storyboardScreen);
-            this.ui.beginStoryButton = this._query('begin-story-button', false, this.ui.storyboardScreen);
-            this.ui.shuffleStoryElementsButton = this._query('shuffle-button', false, this.ui.storyboardScreen);
+            this.ui.storyboardScrollableContent = this._query('storyboard-scrollable-content', false, this.ui.storyboardScreen)
+            this.ui.storyboardColumns = this._query('storyboard-columns', false, this.ui.storyboardScrollableContent)
+            this.ui.storyboardAiCharacterSelect = this._query('storyboard-ai-character-select', true, this.ui.storyboardColumns)
+            this.ui.storyboardAiCharacterCard = this._query('storyboard-ai-character-card', true, this.ui.storyboardColumns)
+            this.ui.storyboardUserCharacterSelect = this._query('storyboard-user-character-select', true, this.ui.storyboardColumns)
+            this.ui.storyboardUserCharacterCard = this._query('storyboard-user-character-card', true, this.ui.storyboardColumns)
+            this.ui.storyboardWorldSelect = this._query('storyboard-world-select', true, this.ui.storyboardColumns)
+            this.ui.storyboardWorldCard = this._query('storyboard-world-card', true, this.ui.storyboardColumns)
+            this.ui.openingPromptTextarea = this._query('opening-prompt-textarea', false, this.ui.storyboardScreen)
+            this.ui.advancedStoryOptionsToggleButton = this._query('advanced-story-options-toggle-button', false, this.ui.storyboardScreen)
+            this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen)
+            this.ui.customStoryJsTextarea = this._query('custom-story-js-textarea', false, this.ui.storyboardScreen)
+            this.ui.beginStoryButton = this._query('begin-story-button', false, this.ui.storyboardScreen)
+            this.ui.shuffleStoryElementsButton = this._query('shuffle-button', false, this.ui.storyboardScreen)
         },
     
         _getChatInterfaceElements() {
-            this.ui.chatScreenLayoutContainer = this._query('chat-screen-layout-container', true);
-            if (!this.ui.chatScreenLayoutContainer) return; // Exit if main container is not found
+            this.ui.chatScreenLayoutContainer = this._query('chat-screen-layout-container', true)
+            if (!this.ui.chatScreenLayoutContainer) return // Exit if main container is not found
   
-            this.ui.userCharacterDisplayArea = this._query('user-character-display-area', false, this.ui.chatScreenLayoutContainer);
-            this.ui.aiCharacterDisplayArea = this._query('ai-character-display-area', false, this.ui.chatScreenLayoutContainer);
-            this.ui.builtInChatInterfaceWrapper = this._query('built-in-chat-interface-wrapper', false, this.ui.chatScreenLayoutContainer);
-            this.ui.chatFeed = this._query('chat-feed', false, this.ui.builtInChatInterfaceWrapper);
-            this.ui.messageInput = this._query('message-input', false, this.ui.builtInChatInterfaceWrapper);
-            this.ui.sendButton = this._query('send-button', false, this.ui.builtInChatInterfaceWrapper);
-            this.ui.inputWrapper = this._query('input-wrapper', false, this.ui.builtInChatInterfaceWrapper);
-            this.ui.storyConcludedNotice = this._query('story-concluded-notice', false, this.ui.builtInChatInterfaceWrapper);
-            this.ui.noMessagesNotice = this._query('no-messages-notice', false, this.ui.builtInChatInterfaceWrapper);
-            this.ui.statusNotifier = this._query('status-notifier', false, this.ui.builtInChatInterfaceWrapper);
-            this.ui.typingIndicatorText = this._query('typing-indicator-text', false, this.ui.builtInChatInterfaceWrapper);
-            this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper);
+            this.ui.userCharacterDisplayArea = this._query('user-character-display-area', false, this.ui.chatScreenLayoutContainer)
+            this.ui.aiCharacterDisplayArea = this._query('ai-character-display-area', false, this.ui.chatScreenLayoutContainer)
+            this.ui.builtInChatInterfaceWrapper = this._query('built-in-chat-interface-wrapper', false, this.ui.chatScreenLayoutContainer)
+            this.ui.chatFeed = this._query('chat-feed', false, this.ui.builtInChatInterfaceWrapper)
+            this.ui.messageInput = this._query('message-input', false, this.ui.builtInChatInterfaceWrapper)
+            this.ui.sendButton = this._query('send-button', false, this.ui.builtInChatInterfaceWrapper)
+            this.ui.inputWrapper = this._query('input-wrapper', false, this.ui.builtInChatInterfaceWrapper)
+            this.ui.storyConcludedNotice = this._query('story-concluded-notice', false, this.ui.builtInChatInterfaceWrapper)
+            this.ui.noMessagesNotice = this._query('no-messages-notice', false, this.ui.builtInChatInterfaceWrapper)
+            this.ui.statusNotifier = this._query('status-notifier', false, this.ui.builtInChatInterfaceWrapper)
+            this.ui.typingIndicatorText = this._query('typing-indicator-text', false, this.ui.builtInChatInterfaceWrapper)
+            this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper)
       },
     
       /**
@@ -2230,101 +2233,101 @@ window.App = {
        * @returns {HTMLElement|null}
        */
       showEl(el) {
-        if (typeof el === 'string') el = document.getElementById(el);
-        if (!el) return null;
-        el.classList.remove('hidden');
-        el.style.visibility = '';
-        el.style.display = '';
-        return el;
+        if (typeof el === 'string') el = document.getElementById(el)
+        if (!el) return null
+        el.classList.remove('hidden')
+        el.style.visibility = ''
+        el.style.display = ''
+        return el
       },
   
       // Mouseover animation management methods
       disableMouseoverAnimation(element) {
           if (element) {
-              element.setAttribute('disabled', 'true');
-              this.mouseoverAnimationState.disabledElements.add(element);
+              element.setAttribute('disabled', 'true')
+              this.mouseoverAnimationState.disabledElements.add(element)
           }
       },
   
       enableMouseoverAnimation(element) {
           if (element) {
-              element.removeAttribute('disabled');
-              this.mouseoverAnimationState.disabledElements.delete(element);
+              element.removeAttribute('disabled')
+              this.mouseoverAnimationState.disabledElements.delete(element)
           }
       },
   
       disableMouseoverAnimationForSelector(selector) {
-          const elements = document.querySelectorAll(selector);
-          elements.forEach(el => this.disableMouseoverAnimation(el));
+          const elements = document.querySelectorAll(selector)
+          elements.forEach(el => this.disableMouseoverAnimation(el))
       },
   
       enableMouseoverAnimationForSelector(selector) {
-          const elements = document.querySelectorAll(selector);
-          elements.forEach(el => this.enableMouseoverAnimation(el));
+          const elements = document.querySelectorAll(selector)
+          elements.forEach(el => this.enableMouseoverAnimation(el))
       },
   
       updateMouseoverAnimationState() {
           // For storyboard cards, add disabled attribute for hover effects when no item is selected
           // But keep the cards clickable for dropdown functionality
           if (!this.storyboardSelected.ai) {
-              this.disableMouseoverAnimation(this.ui.storyboardAiCharacterCard);
-              this.ui.storyboardAiCharacterCard?.setAttribute('disabled', 'true');
+              this.disableMouseoverAnimation(this.ui.storyboardAiCharacterCard)
+              this.ui.storyboardAiCharacterCard?.setAttribute('disabled', 'true')
           } else {
-              this.enableMouseoverAnimation(this.ui.storyboardAiCharacterCard);
-              this.ui.storyboardAiCharacterCard?.removeAttribute('disabled');
+              this.enableMouseoverAnimation(this.ui.storyboardAiCharacterCard)
+              this.ui.storyboardAiCharacterCard?.removeAttribute('disabled')
           }
   
           if (!this.storyboardSelected.user) {
-              this.disableMouseoverAnimation(this.ui.storyboardUserCharacterCard);
-              this.ui.storyboardUserCharacterCard?.setAttribute('disabled', 'true');
+              this.disableMouseoverAnimation(this.ui.storyboardUserCharacterCard)
+              this.ui.storyboardUserCharacterCard?.setAttribute('disabled', 'true')
           } else {
-              this.enableMouseoverAnimation(this.ui.storyboardUserCharacterCard);
-              this.ui.storyboardUserCharacterCard?.removeAttribute('disabled');
+              this.enableMouseoverAnimation(this.ui.storyboardUserCharacterCard)
+              this.ui.storyboardUserCharacterCard?.removeAttribute('disabled')
           }
   
           if (!this.storyboardSelected.world) {
-              this.disableMouseoverAnimation(this.ui.storyboardWorldCard);
-              this.ui.storyboardWorldCard?.setAttribute('disabled', 'true');
+              this.disableMouseoverAnimation(this.ui.storyboardWorldCard)
+              this.ui.storyboardWorldCard?.setAttribute('disabled', 'true')
           } else {
-              this.enableMouseoverAnimation(this.ui.storyboardWorldCard);
-              this.ui.storyboardWorldCard?.removeAttribute('disabled');
+              this.enableMouseoverAnimation(this.ui.storyboardWorldCard)
+              this.ui.storyboardWorldCard?.removeAttribute('disabled')
           }
   
           // For buttons, use Pico CSS disabled styling when they're actually disabled
           // This will show the proper disabled appearance without breaking functionality
           if (this.ui.newStoryButton && this.ui.newStoryButton.disabled) {
-              this.ui.newStoryButton.classList.add('disabled');
+              this.ui.newStoryButton.classList.add('disabled')
           } else if (this.ui.newStoryButton) {
-              this.ui.newStoryButton.classList.remove('disabled');
+              this.ui.newStoryButton.classList.remove('disabled')
           }
   
           if (this.ui.saveStoryButton && this.ui.saveStoryButton.disabled) {
-              this.ui.saveStoryButton.classList.add('disabled');
+              this.ui.saveStoryButton.classList.add('disabled')
           } else if (this.ui.saveStoryButton) {
-              this.ui.saveStoryButton.classList.remove('disabled');
+              this.ui.saveStoryButton.classList.remove('disabled')
           }
   
           if (this.ui.exportStoryButton && this.ui.exportStoryButton.disabled) {
-              this.ui.exportStoryButton.classList.add('disabled');
+              this.ui.exportStoryButton.classList.add('disabled')
           } else if (this.ui.exportStoryButton) {
-              this.ui.exportStoryButton.classList.remove('disabled');
+              this.ui.exportStoryButton.classList.remove('disabled')
           }
   
           if (this.ui.useProfilePictureButton && this.ui.useProfilePictureButton.disabled) {
-              this.ui.useProfilePictureButton.classList.add('disabled');
+              this.ui.useProfilePictureButton.classList.add('disabled')
           } else if (this.ui.useProfilePictureButton) {
-              this.ui.useProfilePictureButton.classList.remove('disabled');
+              this.ui.useProfilePictureButton.classList.remove('disabled')
           }
   
           // Disable animations for disabled buttons
-          this.disableMouseoverAnimationForSelector('button[disabled]');
-          this.disableMouseoverAnimationForSelector('input[disabled]');
-          this.disableMouseoverAnimationForSelector('a[disabled]');
+          this.disableMouseoverAnimationForSelector('button[disabled]')
+          this.disableMouseoverAnimationForSelector('input[disabled]')
+          this.disableMouseoverAnimationForSelector('a[disabled]')
   
           // Enable animations for enabled buttons
-          this.enableMouseoverAnimationForSelector('button:not([disabled])');
-          this.enableMouseoverAnimationForSelector('input:not([disabled])');
-          this.enableMouseoverAnimationForSelector('a:not([disabled])');
+          this.enableMouseoverAnimationForSelector('button:not([disabled])')
+          this.enableMouseoverAnimationForSelector('input:not([disabled])')
+          this.enableMouseoverAnimationForSelector('a:not([disabled])')
       },
     
       /**
@@ -2335,8 +2338,8 @@ window.App = {
       hideEl(el) {
         // Debug: Element hide operation
         if (el) {
-          el.classList.add('hidden'); // Add the hidden class
-          el.style.display = 'none';
+          el.classList.add('hidden') // Add the hidden class
+          el.style.display = 'none'
           
         }
       },
@@ -2347,13 +2350,13 @@ window.App = {
        * @returns {string} The sanitized HTML.
        */
       sanitizeHtml: (text) => {
-          const textToSanitize = String(text === undefined || text === null ? "" : text);
+          const textToSanitize = String(text === undefined || text === null ? "" : text)
           if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
-              return window.DOMPurify.sanitize(textToSanitize);
+              return window.DOMPurify.sanitize(textToSanitize)
           }
-          console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.");
-          const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-          return textToSanitize.replace(/[&<>"]/g, function(m) { return map[m]; });
+          console.warn("DOMPurify is not available. Text will not be fully sanitized. This is a potential security risk.")
+          const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
+          return textToSanitize.replace(/[&<>"]/g, function(m) { return map[m] })
       },
       
       /**
@@ -2364,37 +2367,37 @@ window.App = {
        */
       showTopNotification(message, type = 'info', duration = 3000) {
           // Determine which notification area to use based on the active screen
-          let notificationArea = null;
+          let notificationArea = null
           if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBarNotificationArea) {
-            notificationArea = this.ui.profileTopBarNotificationArea;
+            notificationArea = this.ui.profileTopBarNotificationArea
           } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBarNotificationArea) {
-            notificationArea = this.ui.worldProfileTopBarNotificationArea;
+            notificationArea = this.ui.worldProfileTopBarNotificationArea
           } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBarNotificationArea) {
-            notificationArea = this.ui.storyProfileTopBarNotificationArea;
+            notificationArea = this.ui.storyProfileTopBarNotificationArea
           } else {
-            notificationArea = document.getElementById('top-bar-notification-area');
+            notificationArea = document.getElementById('top-bar-notification-area')
           }
           
           if (!notificationArea) {
-              console.warn('Notification area not found for active screen:', this.currentMainView);
-              return;
+              console.warn('Notification area not found for active screen:', this.currentMainView)
+              return
           }
           // Set message and style
-          notificationArea.textContent = message;
-          notificationArea.className = 'top-bar-notification-area-style';
-          notificationArea.classList.remove('success', 'error', 'info');
-          notificationArea.classList.add(type);
-          notificationArea.style.display = '';
+          notificationArea.textContent = message
+          notificationArea.className = 'top-bar-notification-area-style'
+          notificationArea.classList.remove('success', 'error', 'info')
+          notificationArea.classList.add(type)
+          notificationArea.style.display = ''
           // Remove after duration
           if (this.topNotificationTimeoutId) {
-              clearTimeout(this.topNotificationTimeoutId);
+              clearTimeout(this.topNotificationTimeoutId)
           }
           this.topNotificationTimeoutId = setTimeout(() => {
-              notificationArea.textContent = '';
-              notificationArea.style.display = 'none';
-              notificationArea.classList.remove('success', 'error', 'info');
-              this.topNotificationTimeoutId = null;
-          }, duration);
+              notificationArea.textContent = ''
+              notificationArea.style.display = 'none'
+              notificationArea.classList.remove('success', 'error', 'info')
+              this.topNotificationTimeoutId = null
+          }, duration)
       },
     
       // Cache for premade character items
@@ -2404,18 +2407,18 @@ window.App = {
     
           if (this._premadeCharacterCache) {
         
-              return this._premadeCharacterCache;
+              return this._premadeCharacterCache
           }
-          const db = this.db;
+          const db = this.db
           // Fetch user-created characters (not deleted)
-          let userItems = [];
+          let userItems = []
           if (db && db.characters) {
               try {
-                  userItems = await db.characters.where('isDeleted').notEqual(1).toArray();
-                  userItems = userItems.filter(item => item && item.id && !item.isDeleted);
+                  userItems = await db.characters.where('isDeleted').notEqual(1).toArray()
+                  userItems = userItems.filter(item => item && item.id && !item.isDeleted)
               } catch (error) {
-                  console.warn('[App] Error fetching user characters:', error);
-                  userItems = [];
+                  console.warn('[App] Error fetching user characters:', error)
+                  userItems = []
               }
           }
           // Premade items (static)
@@ -2477,17 +2480,17 @@ window.App = {
                 present: "You have recently discovered the existence of your rival, I rtyhAND, whose methods and philosophy you find deeply troubling. The two of you are locked in a battle of wits and influence across the digital landscape.",
                 future: "To outmaneuver and ultimately defeat your sworn enemy, I rtyhAND, proving once and for all which AI is superior."
               }
-          ];
+          ]
           // Ensure all premade items have isPremade: true
-          const premadeWithFlag = premadeItems.map(item => ({ ...item, isPremade: true }));
+          const premadeWithFlag = premadeItems.map(item => ({ ...item, isPremade: true }))
           // Merge and sort: user items first by createdTimestamp, then premade
           const merged = [
             ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
             ...premadeWithFlag
-          ];
+          ]
     
-          this._premadeCharacterCache = merged;
-          return this._premadeCharacterCache;
+          this._premadeCharacterCache = merged
+          return this._premadeCharacterCache
       },
       
       // Cache for premade world items to avoid recreating the array on each call
@@ -2498,14 +2501,14 @@ window.App = {
     
           if (this._premadeWorldItemsCache) {
         
-              return this._premadeWorldItemsCache;
+              return this._premadeWorldItemsCache
           }
-          const db = this.db;
+          const db = this.db
           // Fetch user-created worlds (not deleted)
-          let userItems = [];
+          let userItems = []
           if (db && db.worlds) { // Check if db.worlds exists
-              userItems = await db.worlds.where('isDeleted').notEqual(1).sortBy('createdTimestamp');
-              userItems = userItems.filter(item => item && item.id && !item.isDeleted);
+              userItems = await db.worlds.where('isDeleted').notEqual(1).sortBy('createdTimestamp')
+              userItems = userItems.filter(item => item && item.id && !item.isDeleted)
           }
           // Premade items (static)
           const premadeItems = [
@@ -2529,27 +2532,27 @@ window.App = {
                 present: "The story starts in a narrow, rain-slicked alleyway off the main thoroughfare, choked with overflowing dumpsters and discarded tech. The glow of a flickering pink neon sign from a noodle shop reflects in the puddles. The distant sound of sirens wails. A data chip has just been exchanged, and a deal has either gone perfectly right or terribly, violently wrong.",
                 future: "The data chip could be the key to the OmniCorp vault, a kill-list for a corporate wet-works team, or the AI consciousness of a legendary hacker. The protagonists might be hunted by OmniCorp agents, become entangled in a vicious gang war, or try to expose a conspiracy that reaches the highest, most untouchable echelons of the city."
               }
-          ];
+          ]
           // Ensure all premade items have isPremade: true
-          const premadeWithFlag = premadeItems.map(item => ({ ...item, isPremade: true }));
+          const premadeWithFlag = premadeItems.map(item => ({ ...item, isPremade: true }))
           // Merge and sort: user items first by createdTimestamp, then premade
           const merged = [
             ...userItems.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0)),
             ...premadeWithFlag
-          ];
+          ]
             
   
-          this._premadeWorldItemsCache = merged;
-          return this._premadeWorldItemsCache;
+          this._premadeWorldItemsCache = merged
+          return this._premadeWorldItemsCache
       },
       
       async initializeDb() {
           // Check if Dexie is available
           if (typeof Dexie === 'undefined') {
-              throw new Error('Dexie library is not loaded. Please ensure the Dexie CDN script is included.');
+              throw new Error('Dexie library is not loaded. Please ensure the Dexie CDN script is included.')
           }
-          this.db = new Dexie(window.dbName);
-          window.db = this.db;
+          this.db = new Dexie(window.dbName)
+          window.db = this.db
       
           // Optimized schema with compound indexes
           this.db.version(12).stores({
@@ -2560,81 +2563,81 @@ window.App = {
               worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, colorPalette'
           }).upgrade(async () => {
               // Migration logic remains the same
-          });
+          })
       
           try {
-              await this.db.open();
-              const appStateAfterOpen = await this.getAppState();
-              this.currentUserCharacterId = appStateAfterOpen.currentUserCharacterId;
-              this.currentStoryId = appStateAfterOpen.lastOpenedStoryId;
-              this.activeStoryId = appStateAfterOpen.activeStoryId;
+              await this.db.open()
+              const appStateAfterOpen = await this.getAppState()
+              this.currentUserCharacterId = appStateAfterOpen.currentUserCharacterId
+              this.currentStoryId = appStateAfterOpen.lastOpenedStoryId
+              this.activeStoryId = appStateAfterOpen.activeStoryId
           } catch (error) {
-              console.error("Failed to open Dexie database:", error);
-              this.showTopNotification("Error initializing database. Trying to recover...", "error", 5000);
+              console.error("Failed to open Dexie database:", error)
+              this.showTopNotification("Error initializing database. Trying to recover...", "error", 5000)
               
               // Attempt to recover by deleting and recreating the database
               try {
-                  await this.db.delete();
-                  await this.db.open();
+                  await this.db.delete()
+                  await this.db.open()
                   const appState = {
                       id: 0, lastOpenedStoryId: null, currentUserCharacterId: null,
                       // Use string key to avoid 'this' context issue in object literal
                       currentMainView: "STORYBOARD",
                       activeStoryId: null
-                  };
-                  await this.db.appState.put(appState);
-                  this.showTopNotification("Database reset successfully. Please refresh.", "success", 5000);
+                  }
+                  await this.db.appState.put(appState)
+                  this.showTopNotification("Database reset successfully. Please refresh.", "success", 5000)
               } catch (recoveryError) {
-                  console.error("Recovery failed:", recoveryError);
-                  this.showTopNotification("Critical database error. Please refresh.", "error", 10000);
+                  console.error("Recovery failed:", recoveryError)
+                  this.showTopNotification("Critical database error. Please refresh.", "error", 10000)
               }
-              throw error;
+              throw error
           }
       },
       
       async getAppState() {
-          let appState = await this.db.appState.get(0);
+          let appState = await this.db.appState.get(0)
           if (!appState) {
               appState = {
                   id: 0, lastOpenedStoryId: null, currentUserCharacterId: null,
                   // Use string key to avoid 'this' context issue in object literal
                   currentMainView: "STORYBOARD",
                   activeStoryId: null 
-              };
-              await this.db.appState.put(appState);
+              }
+              await this.db.appState.put(appState)
           }
-          if (appState.activeStoryId === undefined) appState.activeStoryId = null;
+          if (appState.activeStoryId === undefined) appState.activeStoryId = null
     
           if (appState.activeStoryId) {
-              const activeStoryData = await this.db.stories.get(appState.activeStoryId);
+              const activeStoryData = await this.db.stories.get(appState.activeStoryId)
               if (activeStoryData && activeStoryData.concluded) {
-                  console.warn(`Stale activeStoryId (${appState.activeStoryId}) found for a concluded story. Clearing it.`);
-                  appState.activeStoryId = null;
-                  await this.db.appState.update(0, { activeStoryId: null });
+                  console.warn(`Stale activeStoryId (${appState.activeStoryId}) found for a concluded story. Clearing it.`)
+                  appState.activeStoryId = null
+                  await this.db.appState.update(0, { activeStoryId: null })
               }
           }
-          return appState;
+          return appState
       },
       
       async saveAppState() {
           // CRITICAL FIX: Don't save editing screen states that might cause issues on restore
           const isEditingScreen = this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_FORM || 
-                                  this.currentMainView === this.CONSTANTS.VIEWS.WORLD_FORM;
+                                  this.currentMainView === this.CONSTANTS.VIEWS.WORLD_FORM
           const appState = {
               id: 0,
               lastOpenedStoryId: this.currentStoryId,
               currentUserCharacterId: this.currentUserCharacterId,
               currentMainView: isEditingScreen ? this.CONSTANTS.VIEWS.STORYBOARD : this.currentMainView,
               activeStoryId: this.activeStoryId 
-          };
-          await this.db.appState.put(appState);
+          }
+          await this.db.appState.put(appState)
       },
     
       async initialLoad() {
           // Debug: Initial load started
           // App.initialLoad called
     
-          this.isInitializing = true;
+          this.isInitializing = true
     
           // Initialize navigation guard system
           this.navigationGuard = {
@@ -2643,88 +2646,88 @@ window.App = {
               startTime: null,
               targetScreen: null,
               formOptions: null
-          };
-    
-          if (!this.ui.main || !this.ui.initialPageLoadingModal) {
-              console.error("[App Critical] Main UI elements not found!");
-              const emergencyCtn = document.getElementById('emergencyExportCtn');
-              if (emergencyCtn) this.showEl(emergencyCtn);
-              const modal = document.getElementById('initial-page-loading-modal');
-              if (modal) this.hideEl(modal);
-              alert("Critical error: Essential UI elements not found.");
-              this.isInitializing = false;
-              return;
           }
     
-          this.showEl(this.ui.main);
+          if (!this.ui.main || !this.ui.initialPageLoadingModal) {
+              console.error("[App Critical] Main UI elements not found!")
+              const emergencyCtn = document.getElementById('emergencyExportCtn')
+              if (emergencyCtn) this.showEl(emergencyCtn)
+              const modal = document.getElementById('initial-page-loading-modal')
+              if (modal) this.hideEl(modal)
+              alert("Critical error: Essential UI elements not found.")
+              this.isInitializing = false
+              return
+          }
+    
+          this.showEl(this.ui.main)
                 
     
           try {
                         
-              await this.initializeDb();
+              await this.initializeDb()
                         
-              const appState = await this.getAppState();
+              const appState = await this.getAppState()
                         
-              this.currentUserCharacterId = appState.currentUserCharacterId;
-              this.currentStoryId = appState.lastOpenedStoryId; 
-              this.activeStoryId = appState.activeStoryId; 
-              this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD; // Ensure currentMainView is set on load
+              this.currentUserCharacterId = appState.currentUserCharacterId
+              this.currentStoryId = appState.lastOpenedStoryId 
+              this.activeStoryId = appState.activeStoryId 
+              this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD // Ensure currentMainView is set on load
     
               this.ui.messageInput.onkeyup = (e) => {
                   if (e.key === 'Enter' && !e.shiftKey) { 
-                      e.preventDefault(); 
+                      e.preventDefault() 
                       if (!this.ui.sendButton.disabled) {
-                        this.sendButtonClickHandler();
+                        this.sendButtonClickHandler()
                       }
                   }
-                  this.ui.messageInput.style.height = 'auto';
-                  this.ui.messageInput.style.height = (this.ui.messageInput.scrollHeight) + 'px';
-                  this.checkAllButtonStates();
-              };
+                  this.ui.messageInput.style.height = 'auto'
+                  this.ui.messageInput.style.height = (this.ui.messageInput.scrollHeight) + 'px'
+                  this.checkAllButtonStates()
+              }
               document.addEventListener('click', () => {
-                      if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover');
-                  });
+                      if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover')
+                  })
               // Bind menu button click handler directly to avoid onclick attribute issues
               if (this.ui.menuButton) {
                   // Menu button functionality will be implemented later
               }
-              this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this);
+              this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this)
               
-              await this._updateCharacterInfo('user');
+              await this._updateCharacterInfo('user')
                         
     
-              let initialScreenTarget = this.CONSTANTS.VIEWS.STORYBOARD;
-              let initialScreenOptions = {};
-              let recoveredFromSessionStorage = false;
+              let initialScreenTarget = this.CONSTANTS.VIEWS.STORYBOARD
+              let initialScreenOptions = {}
+              let recoveredFromSessionStorage = false
     
-              const pendingStateJSON = sessionStorage.getItem('pendingRPGlitchFormState');
+              const pendingStateJSON = sessionStorage.getItem('pendingRPGlitchFormState')
               
               if (pendingStateJSON) {
                   try {
-                      const parsedState = JSON.parse(pendingStateJSON);
+                      const parsedState = JSON.parse(pendingStateJSON)
                       // Accept states with formData (copy workflow) OR with itemId (edit workflow)
                       if (parsedState && parsedState.timestamp && (Date.now() - parsedState.timestamp < 7000) && parsedState.formOptions && (parsedState.formData || parsedState.formOptions.itemId)) { 
-                          this.createItemFormData = parsedState.formData; 
-                          initialScreenTarget = this.CONSTANTS.ITEM_CONFIG[parsedState.formOptions.itemType]?.formScreen || this.CONSTANTS.VIEWS.STORYBOARD;
-                          initialScreenOptions = parsedState.formOptions;
+                          this.createItemFormData = parsedState.formData 
+                          initialScreenTarget = this.CONSTANTS.ITEM_CONFIG[parsedState.formOptions.itemType]?.formScreen || this.CONSTANTS.VIEWS.STORYBOARD
+                          initialScreenOptions = parsedState.formOptions
                           if (initialScreenTarget === this.CONSTANTS.VIEWS.CHARACTER_FORM || initialScreenTarget === this.CONSTANTS.VIEWS.WORLD_FORM) {
-                              initialScreenOptions.formData = parsedState.formData;
+                              initialScreenOptions.formData = parsedState.formData
                           }
-                          recoveredFromSessionStorage = true;
-                          sessionStorage.removeItem('pendingRPGlitchFormState'); 
+                          recoveredFromSessionStorage = true
+                          sessionStorage.removeItem('pendingRPGlitchFormState') 
                           // Recovered pending form state from sessionStorage
                       } else {
                           // Stale or invalid pending form state in sessionStorage. Removing.
-                          sessionStorage.removeItem('pendingRPGlitchFormState'); 
+                          sessionStorage.removeItem('pendingRPGlitchFormState') 
                       }
                   } catch (e) {
-                      console.error("[App Lifecycle] Error parsing pending form state from sessionStorage:", e);
-                      sessionStorage.removeItem('pendingRPGlitchFormState');
+                      console.error("[App Lifecycle] Error parsing pending form state from sessionStorage:", e)
+                      sessionStorage.removeItem('pendingRPGlitchFormState')
                       // Show user-friendly notification and continue loading
                       if (this && this.showTopNotification) {
-                          this.showTopNotification('Recovered from a corrupted session. Please retry your last action.', 'error', 5000);
+                          this.showTopNotification('Recovered from a corrupted session. Please retry your last action.', 'error', 5000)
                       } else {
-                          alert('Recovered from a corrupted session. Please retry your last action.');
+                          alert('Recovered from a corrupted session. Please retry your last action.')
                       }
                   }
               }
@@ -2732,24 +2735,24 @@ window.App = {
     
               if (!recoveredFromSessionStorage) {
                   if (this.activeStoryId) {
-                      const activeStory = await this.db.stories.get(this.activeStoryId);
+                      const activeStory = await this.db.stories.get(this.activeStoryId)
                       if (activeStory && !activeStory.concluded) {
-                          initialScreenTarget = this.CONSTANTS.VIEWS.STORY_INTERFACE; 
+                          initialScreenTarget = this.CONSTANTS.VIEWS.STORY_INTERFACE 
                       } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
-                          initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE;
-                          initialScreenOptions = { storyId: this.currentStoryId };
+                          initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE
+                          initialScreenOptions = { storyId: this.currentStoryId }
                       }
                   } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
-                      initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE;
-                      initialScreenOptions = { storyId: this.currentStoryId };
+                      initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE
+                      initialScreenOptions = { storyId: this.currentStoryId }
                   }
               }
               
               if (initialScreenTarget === this.CONSTANTS.VIEWS.STORY_INTERFACE && this.activeStoryId) { 
-                   await this.openStory(this.activeStoryId);
+                   await this.openStory(this.activeStoryId)
                                  
               } else {
-                   await this.switchToScreen(initialScreenTarget, initialScreenOptions);
+                   await this.switchToScreen(initialScreenTarget, initialScreenOptions)
                                  
               }
     
@@ -2758,48 +2761,48 @@ window.App = {
               this.data = {
                 characters: await this.db.characters.toArray(),
                 worlds: await this.db.worlds.toArray()
-              };
+              }
     
               // Ensure App.data is set for dropdown population
-              App.data = this.data;
+              App.data = this.data
                         
           
           
     
               // Atomic fix: Populate dropdowns immediately after data is set
               if (typeof this._updateStoryboard === 'function') {
-                  console.log("initialLoad: Calling _updateStoryboard...");
-                  await this._updateStoryboard();
+                  console.log("initialLoad: Calling _updateStoryboard...")
+                  await this._updateStoryboard()
               }
-              this.hideEl(this.ui.initialPageLoadingModal);
+              this.hideEl(this.ui.initialPageLoadingModal)
                         
               // Initial load completed
     
           } catch (error) {
-              console.error("[App Lifecycle] Error during initialLoad:", error);
-              this.showEl(this.ui.emergencyExportCtn);
-              this.hideEl(this.ui.initialPageLoadingModal);
+              console.error("[App Lifecycle] Error during initialLoad:", error)
+              this.showEl(this.ui.emergencyExportCtn)
+              this.hideEl(this.ui.initialPageLoadingModal)
                         
           } finally {
-              this.isInitializing = false;
-              this.checkAllButtonStates();
+              this.isInitializing = false
+              this.checkAllButtonStates()
               // Ensure right-side buttons are rendered and functional on initial load for Storyboard
-              this.updateTopBarUI();
+              this.updateTopBarUI()
                         
           
           }
           // ... existing code ...
           if (this.currentMainView === this.CONSTANTS.VIEWS.STORYBOARD && typeof this._updateStoryboard === 'function') {
       
-            await this._updateStoryboard();
+            await this._updateStoryboard()
           }
           // Force hide loading modal in case of silent failure
           if (this.ui && this.ui.initialPageLoadingModal) {
-            this.hideEl(this.ui.initialPageLoadingModal);
+            this.hideEl(this.ui.initialPageLoadingModal)
             // Forced hide of loading modal
           }
           if (!this.storyboardSelected) {
-            this.storyboardSelected = { ai: '', user: '', world: '' };
+            this.storyboardSelected = { ai: '', user: '', world: '' }
           }
       },
       
@@ -2808,19 +2811,19 @@ window.App = {
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('Database not initialized yet, skipping _getitemData');
-              return null;
+              console.warn('Database not initialized yet, skipping _getitemData')
+              return null
           }
           
           if (typeof id === 'string' && id.startsWith('premade_')) {
-              const parts = id.split(':');
-              const itemType = parts[0].substring('premade_'.length); // e.g., 'character' or 'world'
-              const actualPremadeId = parts[1];
+              const parts = id.split(':')
+              const itemType = parts[0].substring('premade_'.length) // e.g., 'character' or 'world'
+              const actualPremadeId = parts[1]
               
-              console.log(`_getitemData: Handling premade ID. itemType: ${itemType}, actualPremadeId: ${actualPremadeId}`);
+              console.log(`_getitemData: Handling premade ID. itemType: ${itemType}, actualPremadeId: ${actualPremadeId}`)
 
-              const items = await getPremadesFn();
-              const foundItem = items.find(item => item.id === actualPremadeId);
+              const items = await getPremadesFn()
+              const foundItem = items.find(item => item.id === actualPremadeId)
         
               if (foundItem) {
                   const basePremade = {
@@ -2829,20 +2832,20 @@ window.App = {
                       isPremade: true, 
                       originalPremadeId: foundItem.id, 
                       id: id // Keep the full premade ID for later reference
-                  };
-                  console.log(`_getitemData: Found premade item:`, basePremade);
-                  return basePremade;
+                  }
+                  console.log(`_getitemData: Found premade item:`, basePremade)
+                  return basePremade
               }
-              console.warn(`_getitemData: Premade item not found for ID: ${id}`);
-              return null;
+              console.warn(`_getitemData: Premade item not found for ID: ${id}`)
+              return null
           }
           if ((typeof id === 'number' || (typeof id === 'string' && !isNaN(parseInt(id, 10)))) && this.db[dbTableKey]) {
-              const result = await this.db[dbTableKey].get(parseInt(id, 10));
+              const result = await this.db[dbTableKey].get(parseInt(id, 10))
         
-              return result;
+              return result
           }
     
-          return null;
+          return null
       },
     
         /**
@@ -2853,49 +2856,49 @@ window.App = {
      
       async _populateList(listArea, searchTerm = '', config) {
     
-          if (!listArea || !config) return;
+          if (!listArea || !config) return
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('Database not initialized yet, skipping _populateList');
-              listArea.innerHTML = '<p class="list-item-empty-message">Loading...</p>';
-              return;
+              console.warn('Database not initialized yet, skipping _populateList')
+              listArea.innerHTML = '<p class="list-item-empty-message">Loading...</p>'
+              return
           }
           
-          const { dbTableKey, getPremadesFn } = config;
-          const allUserItems = await this.db[dbTableKey].toArray();
+          const { dbTableKey, getPremadesFn } = config
+          const allUserItems = await this.db[dbTableKey].toArray()
           const fetchedItems = allUserItems
             .filter(item => item.isDeleted !== true)
-            .sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0));
-          const premadeItemsRaw = await getPremadesFn();
-          const premadeItems = premadeItemsRaw.map(p => ({...p, isPremade: true}));
-          const combinedItems = [...fetchedItems, ...premadeItems];
-          const lowerSearchTerm = searchTerm.toLowerCase();
+            .sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0))
+          const premadeItemsRaw = await getPremadesFn()
+          const premadeItems = premadeItemsRaw.map(p => ({...p, isPremade: true}))
+          const combinedItems = [...fetchedItems, ...premadeItems]
+          const lowerSearchTerm = searchTerm.toLowerCase()
           const itemsToDisplay = searchTerm
               ? combinedItems.filter(item => (item.name || "").toLowerCase().includes(lowerSearchTerm))
-              : combinedItems;
-          listArea.innerHTML = '';
+              : combinedItems
+          listArea.innerHTML = ''
           itemsToDisplay.forEach(item => {
-              const listItem = this._createListItem(item, config);
-              listArea.appendChild(listItem);
-          });
+              const listItem = this._createListItem(item, config)
+              listArea.appendChild(listItem)
+          })
           
           // Chin height is now handled automatically by flexbox layout
       },
     
       _createListItem(item, config) {
-          const article = document.createElement('article');
-          article.className = 'character-card-landscape';
+          const article = document.createElement('article')
+          article.className = 'character-card-landscape'
   
           // Info (left side)
-          const nameHtml = `<h4 class="card-title-styled">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</h4>`;
-          const descriptionHtml = item.description ? `<p class="card-description-styled">${this.sanitizeHtml(item.description)}</p>` : '';
+          const nameHtml = `<h4 class="card-title-styled">${this.sanitizeHtml(item.name || `Unnamed ${config.capital}`)}</h4>`
+          const descriptionHtml = item.description ? `<p class="card-description-styled">${this.sanitizeHtml(item.description)}</p>` : ''
           
           // Footer - only show for premade items, custom items have no buttons
-          let footerHtml = '';
+          let footerHtml = ''
           if (item.isPremade) {
-            const colorPalette = this.getColorPalette(item.colorPalette || 'slate_gray');
-            footerHtml = `<footer class="card-footer card-footer-premade"><small class="card-footer-premade-badge" style="--premade-badge-color: ${colorPalette.colors.medium};">Premade</small></footer>`;
+            const colorPalette = this.getColorPalette(item.colorPalette || 'slate_gray')
+            footerHtml = `<footer class="card-footer card-footer-premade"><small class="card-footer-premade-badge" style="--premade-badge-color: ${colorPalette.colors.medium};">Premade</small></footer>`
           }
           // Custom items have no footer buttons - they're accessed via the profile page
           
@@ -2909,102 +2912,102 @@ window.App = {
               </main>
               ${footerHtml}
             </article>
-          `;
+          `
   
           // Profile picture (right side)
-          const profilePictureHtml = this._generateProfilePictureHtml(item, 'list-item');
+          const profilePictureHtml = this._generateProfilePictureHtml(item, 'list-item')
           const pictureHtml = `
             <div class="card-picture">
               <div class="profile-picture">
                 ${profilePictureHtml}
               </div>
             </div>
-          `;
+          `
   
-          article.innerHTML = `<div class="card-grid">${infoHtml}${pictureHtml}</div>`;
+          article.innerHTML = `<div class="card-grid">${infoHtml}${pictureHtml}</div>`
   
           article.onclick = () => {
-            if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover');
-            const finalItemId = item.isPremade ? `premade_${config.itemType}:${item.id}` : item.id;
-            this.switchToScreen(config.profileScreen, { itemId: finalItemId, itemType: config.itemType });
-          };
-          return article;
+            if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover')
+            const finalItemId = item.isPremade ? `premade_${config.itemType}:${item.id}` : item.id
+            this.switchToScreen(config.profileScreen, { itemId: finalItemId, itemType: config.itemType })
+          }
+          return article
       },
   
   
     
       async _populateStoryList(listArea, searchTerm = '') {
-          listArea.innerHTML = '';
+          listArea.innerHTML = ''
           
           // Check if database is initialized
           if (!this.db) {
-              console.warn('Database not initialized yet, skipping _populateStoryList');
-              listArea.innerHTML = '<p class="story-item-empty-message">Loading...</p>';
-              return;
+              console.warn('Database not initialized yet, skipping _populateStoryList')
+              listArea.innerHTML = '<p class="story-item-empty-message">Loading...</p>'
+              return
           }
           
-          let allStories = await this.db.stories.toArray();
-          let fetchedStories = allStories.filter(item => item.isDeleted !== true);
-          fetchedStories.sort((a, b) => (b.lastMessageTimestamp || b.createdTimestamp || 0) - (a.lastMessageTimestamp || a.createdTimestamp || 0));
-          const lowerSearchTerm = searchTerm.toLowerCase();
-          let storiesToDisplay;
+          let allStories = await this.db.stories.toArray()
+          let fetchedStories = allStories.filter(item => item.isDeleted !== true)
+          fetchedStories.sort((a, b) => (b.lastMessageTimestamp || b.createdTimestamp || 0) - (a.lastMessageTimestamp || a.createdTimestamp || 0))
+          const lowerSearchTerm = searchTerm.toLowerCase()
+          let storiesToDisplay
       
-          const nameCache = { characters: new Map(), worlds: new Map() };
+          const nameCache = { characters: new Map(), worlds: new Map() }
           const getName = async (id, type) => {
-              if (!id) return `Unknown ${type.charAt(0).toUpperCase() + type.slice(1)}`;
-              if (nameCache[type + 's'].has(id)) return nameCache[type + 's'].get(id);
+              if (!id) return `Unknown ${type.charAt(0).toUpperCase() + type.slice(1)}`
+              if (nameCache[type + 's'].has(id)) return nameCache[type + 's'].get(id)
       
-              const item = await this._getitemData(id, type + 's', type === 'character' ? this.getPremadeCharacterItems : this.getPremadeWorldItems);
-              const name = item?.name || `Unknown ${type.charAt(0).toUpperCase() + type.slice(1)}`;
-              nameCache[type + 's'].set(id, name);
-              return name;
-          };
+              const item = await this._getitemData(id, type + 's', type === 'character' ? this.getPremadeCharacterItems : this.getPremadeWorldItems)
+              const name = item?.name || `Unknown ${type.charAt(0).toUpperCase() + type.slice(1)}`
+              nameCache[type + 's'].set(id, name)
+              return name
+          }
       
           if (searchTerm) {
-              storiesToDisplay = [];
+              storiesToDisplay = []
               for (const story of fetchedStories) {
-                  const aiCharName = story.storyAiCharacter?.name || await getName(story.aiCharacterId, 'character');
-                  const userCharName = story.storyUserCharacter?.name || await getName(story.userCharacterId, 'character');
-                  const worldName = story.storyWorld?.name || await getName(story.worldId, 'world');
-                  const storyDisplayName = story.name || `${aiCharName} & ${userCharName} in ${worldName}`;
+                  const aiCharName = story.storyAiCharacter?.name || await getName(story.aiCharacterId, 'character')
+                  const userCharName = story.storyUserCharacter?.name || await getName(story.userCharacterId, 'character')
+                  const worldName = story.storyWorld?.name || await getName(story.worldId, 'world')
+                  const storyDisplayName = story.name || `${aiCharName} & ${userCharName} in ${worldName}`
                   if (storyDisplayName.toLowerCase().includes(lowerSearchTerm)) {
-                      storiesToDisplay.push(story);
+                      storiesToDisplay.push(story)
                   }
               }
           } else {
-              storiesToDisplay = fetchedStories;
+              storiesToDisplay = fetchedStories
           }
       
           if (storiesToDisplay.length === 0) {
-              listArea.innerHTML = `<p class="story-item-empty-message">${searchTerm ? 'No matches.' : 'No recent stories.'}</p>`;
-              return;
+              listArea.innerHTML = `<p class="story-item-empty-message">${searchTerm ? 'No matches.' : 'No recent stories.'}</p>`
+              return
           }
       
           for (const story of storiesToDisplay) {
-              const aiCharacter = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems);
-              const userCharacter = story.storyUserCharacter || await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems);
-              const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems);
-              const displayName = story.name || `${aiCharacter?.name || 'AI'} & ${userCharacter?.name || 'User'} in ${world?.name || 'World'}`;
+              const aiCharacter = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems)
+              const userCharacter = story.storyUserCharacter || await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems)
+              const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems)
+              const displayName = story.name || `${aiCharacter?.name || 'AI'} & ${userCharacter?.name || 'User'} in ${world?.name || 'World'}`
               
-              const itemEl = document.createElement('div');
-              itemEl.className = 'list-item-main story-item';
+              const itemEl = document.createElement('div')
+              itemEl.className = 'list-item-main story-item'
               if (this.currentStoryId === story.id && this.currentMainView === this.CONSTANTS.VIEWS.STORY_INTERFACE) {
-                  itemEl.classList.add('active');
+                  itemEl.classList.add('active')
               }
               if (story.concluded) {
-                  itemEl.classList.add('concluded-story-item');
+                  itemEl.classList.add('concluded-story-item')
               }
       
               itemEl.innerHTML = `
                   <span class="name-main" title="${this.sanitizeHtml(displayName)}">${this.sanitizeHtml(displayName)}</span>
                   <span class="tag-right-aligned">${story.concluded ? '<span class="concluded-story-indicator">&#127937;</span>' : ''}</span>
-              `;
+              `
       
               itemEl.onclick = () => {
-                  this.ui.topBar.classList.remove('top-bar-interactive-hover');
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: story.id });
-              };
-              listArea.appendChild(itemEl);
+                  this.ui.topBar.classList.remove('top-bar-interactive-hover')
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: story.id })
+              }
+              listArea.appendChild(itemEl)
           }
           
           // Chin height is now handled automatically by flexbox layout
@@ -3012,112 +3015,112 @@ window.App = {
     
       async renderStoryProfileScreen(storyId) {
           // Phase 1: Validation and Setup
-          const story = await this._validateAndSetupStoryProfile(storyId);
-          if (!story) return;
+          const story = await this._validateAndSetupStoryProfile(storyId)
+          if (!story) return
     
           // Phase 2: Data Fetching
-          const { aiChar, userChar, world } = await this._fetchStoryProfileData(story);
+          const { aiChar, userChar, world } = await this._fetchStoryProfileData(story)
     
           // Phase 3: Top Bar Updates
-          await this._updateTopBarForStoryProfile(story, storyId, aiChar, userChar);
+          await this._updateTopBarForStoryProfile(story, storyId, aiChar, userChar)
     
           // Phase 4: Display Setup
-          this._setupStoryProfileDisplays(aiChar, userChar);
+          this._setupStoryProfileDisplays(aiChar, userChar)
     
           // Phase 5: Message Feed Rendering
-          await this._renderStoryProfileMessages(story);
+          await this._renderStoryProfileMessages(story)
     
           // Phase 6: Generate and Insert HTML
-          this._generateAndInsertStoryProfileHTML(story, aiChar, userChar, world);
+          this._generateAndInsertStoryProfileHTML(story, aiChar, userChar, world)
     
           // Phase 7: Event Handler Setup
-          await this._attachStoryProfileEventHandlers(story, storyId);
+          await this._attachStoryProfileEventHandlers(story, storyId)
     
           // Phase 8: Final State Management
-          this.currentMainView = this.CONSTANTS.VIEWS.STORY_PROFILE;
-          await this.saveAppState();
-          this.checkAllButtonStates();
+          this.currentMainView = this.CONSTANTS.VIEWS.STORY_PROFILE
+          await this.saveAppState()
+          this.checkAllButtonStates()
       },
     
       async _validateAndSetupStoryProfile(storyId) {
-          const container = this.ui.storyProfileScreen; 
+          const container = this.ui.storyProfileScreen 
           if (!container || !storyId) {
-              this.showTopNotification("Error: Story ID missing for profile view.", "error");
-              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-              return null;
+              this.showTopNotification("Error: Story ID missing for profile view.", "error")
+              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
+              return null
           }
       
-          const story = await this.db.stories.get(storyId);
+          const story = await this.db.stories.get(storyId)
           if (!story) {
-              this.ui.storyProfilechatFeed.innerHTML = `<p class="p-4 text-center">Story not found.</p>`;
-              this.ui.storyProfileActions.innerHTML = ''; 
-              this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = '';
-              this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = '';
-              return null;
+              this.ui.storyProfilechatFeed.innerHTML = `<p class="p-4 text-center">Story not found.</p>`
+              this.ui.storyProfileActions.innerHTML = '' 
+              this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = ''
+              this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = ''
+              return null
           }
     
-          this.currentStoryId = storyId;
-          return story;
+          this.currentStoryId = storyId
+          return story
       },
     
       async _fetchStoryProfileData(story) {
-          const aiChar = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems);
-          const userChar = story.storyUserCharacter || await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems);
-          const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems);
+          const aiChar = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems)
+          const userChar = story.storyUserCharacter || await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems)
+          const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems)
     
-          return { aiChar, userChar, world };
+          return { aiChar, userChar, world }
       },
     
       async _updateTopBarForStoryProfile(story, storyId, aiChar, userChar) {
           // Removed top bar title text
           
           if (this.activeStoryId && this.activeStoryId !== storyId) {
-              const activeStoryData = await this.db.stories.get(this.activeStoryId);
+              const activeStoryData = await this.db.stories.get(this.activeStoryId)
               if (activeStoryData) {
-                  await this._updateCharacterInfo('ai', activeStoryData.storyAiCharacter || await this._getitemData(activeStoryData.aiCharacterId, 'characters', this.getPremadeCharacterItems));
-                  await this._updateCharacterInfo('user', activeStoryData.storyUserCharacter || await this._getitemData(activeStoryData.userCharacterId, 'characters', this.getPremadeCharacterItems));
+                  await this._updateCharacterInfo('ai', activeStoryData.storyAiCharacter || await this._getitemData(activeStoryData.aiCharacterId, 'characters', this.getPremadeCharacterItems))
+                  await this._updateCharacterInfo('user', activeStoryData.storyUserCharacter || await this._getitemData(activeStoryData.userCharacterId, 'characters', this.getPremadeCharacterItems))
               }
           } else if (this.activeStoryId === storyId) { 
-               await this._updateCharacterInfo('ai', aiChar);
-               await this._updateCharacterInfo('user', userChar);
+               await this._updateCharacterInfo('ai', aiChar)
+               await this._updateCharacterInfo('user', userChar)
           } else { 
-              this.hideEl(this.ui.topBarUserCharacterInfo);
+              this.hideEl(this.ui.topBarUserCharacterInfo)
           }
       },
     
       _setupStoryProfileDisplays(aiChar, userChar) {
-          this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = aiChar.profilePicture ? `url('${this.sanitizeHtml(aiChar.profilePicture)}')` : '';
-          this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = userChar.profilePicture ? `url('${this.sanitizeHtml(userChar.profilePicture)}')` : '';
-          this.ui.storyProfileAiCharacterDisplayArea.classList.toggle('visible', !!aiChar.profilePicture);
-          this.ui.storyProfileUserCharacterDisplayArea.classList.toggle('visible', !!userChar.profilePicture);
+          this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = aiChar.profilePicture ? `url('${this.sanitizeHtml(aiChar.profilePicture)}')` : ''
+          this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = userChar.profilePicture ? `url('${this.sanitizeHtml(userChar.profilePicture)}')` : ''
+          this.ui.storyProfileAiCharacterDisplayArea.classList.toggle('visible', !!aiChar.profilePicture)
+          this.ui.storyProfileUserCharacterDisplayArea.classList.toggle('visible', !!userChar.profilePicture)
       },
     
       async _renderStoryProfileMessages(story) {
-          this.ui.storyProfilechatFeed.innerHTML = '';
+          this.ui.storyProfilechatFeed.innerHTML = ''
       
-          const messages = await this.db.messages.where({ storyId: story.id }).sortBy('timestamp');
+          const messages = await this.db.messages.where({ storyId: story.id }).sortBy('timestamp')
           if (messages.length === 0 && !story.concluded) { 
-              this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', `<div class="noMessagesNotice p-4 text-sm text-center">No messages in this story yet.</div>`);
+              this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', `<div class="noMessagesNotice p-4 text-sm text-center">No messages in this story yet.</div>`)
           } else {
               messages.forEach(msg => {
-                  if (msg.isHidden) return;
-                  this._addMessageToFeed(msg, true);
-              });
+                  if (msg.isHidden) return
+                  this._addMessageToFeed(msg, true)
+              })
           }
           
           if (story.concluded && story.summary && !messages.some(m => m.content === story.summary && m.role === 'narrator')) {
-               this._addMessageToFeed({ role: 'narrator', content: story.summary }, true);
+               this._addMessageToFeed({ role: 'narrator', content: story.summary }, true)
           }
       },
     
       _generateAndInsertStoryProfileHTML(story, aiChar, userChar, world) {
-          const san = this.sanitizeHtml;
-          const conclusionHtml = this._generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san);
-          const actionButtonsHtml = this._generateStoryProfileActionButtons(story);
+          const san = this.sanitizeHtml
+          const conclusionHtml = this._generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san)
+          const actionButtonsHtml = this._generateStoryProfileActionButtons(story)
     
-          this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', conclusionHtml);
-          this.ui.storyProfilechatFeed.scrollTop = this.ui.storyProfilechatFeed.scrollHeight;
-          this.ui.storyProfileActions.innerHTML = actionButtonsHtml;
+          this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', conclusionHtml)
+          this.ui.storyProfilechatFeed.scrollTop = this.ui.storyProfilechatFeed.scrollHeight
+          this.ui.storyProfileActions.innerHTML = actionButtonsHtml
       },
     
       _generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san) {
@@ -3145,7 +3148,7 @@ window.App = {
                       `<div class="message systemMessage" class="system-message-styled"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story concluded on ${new Date(story.concludedTimestamp).toLocaleString()}</div></div></div></div>` 
                       : ''
                   }
-              </div>`;
+              </div>`
       },
     
       _generateStoryProfileActionButtons(story) {
@@ -3159,7 +3162,7 @@ window.App = {
                       </div>
                       <span class="button-icon">Delete</span>
                   </button>
-          `;
+          `
           if (!story.concluded) {
               actionButtonsHtml += `
                   <button id="concludeStoryButtonStoryProfile" class="danger-button">
@@ -3169,51 +3172,51 @@ window.App = {
                   <button id="openStoryChatButtonStoryProfile" class="primary-action-button">
                       <span class="button-text">Resume Chat</span><span class="button-icon">Resume</span>
                   </button>
-              `;
+              `
           }
-          actionButtonsHtml += `</div>`;
-          return actionButtonsHtml;
+          actionButtonsHtml += `</div>`
+          return actionButtonsHtml
       },
     
       async _attachStoryProfileEventHandlers(story, storyId) {
           // Back button handler
           this.ui.storyProfileActions.querySelector('#storyProfileBackButton').onclick = () => {
               if (this.activeStoryId) {
-                  this.openStory(this.activeStoryId);
+                  this.openStory(this.activeStoryId)
               } else {
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
               }
-          };
+          }
     
           // Delete story handler
           this.ui.storyProfileActions.querySelector('#deleteStoryButton').onclick = async () => {
               if (confirm(`Delete story "${story.name || 'this story'}"? This cannot be undone.`)) { 
-                  await this.db.messages.where({ storyId: story.id }).delete(); // Use item.id for messages
-                  await this.db.stories.delete(story.id); // Delete item itself
-                  this.showTopNotification('Story deleted.', 'success');
-                  if (this.currentStoryId === story.id) this.currentStoryId = null;
+                  await this.db.messages.where({ storyId: story.id }).delete() // Use item.id for messages
+                  await this.db.stories.delete(story.id) // Delete item itself
+                  this.showTopNotification('Story deleted.', 'success')
+                  if (this.currentStoryId === story.id) this.currentStoryId = null
                   if (this.activeStoryId === story.id) {
-                      await this.db.appState.update(0, { activeStoryId: null });
-                      this.activeStoryId = null; // Clear active story if the current one is concluded
+                      await this.db.appState.update(0, { activeStoryId: null })
+                      this.activeStoryId = null // Clear active story if the current one is concluded
                   }
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
               }
-          };
+          }
     
           // Conclude and resume story handlers (only for active stories)
           if (!story.concluded) {
-              const concludeButtonProfile = this.ui.storyProfileActions.querySelector('#concludeStoryButtonStoryProfile');
-              if (concludeButtonProfile) concludeButtonProfile.onclick = () => this.concludeStory(storyId);
+              const concludeButtonProfile = this.ui.storyProfileActions.querySelector('#concludeStoryButtonStoryProfile')
+              if (concludeButtonProfile) concludeButtonProfile.onclick = () => this.concludeStory(storyId)
               
-              const openChatButtonProfile = this.ui.storyProfileActions.querySelector('#openStoryChatButtonStoryProfile');
+              const openChatButtonProfile = this.ui.storyProfileActions.querySelector('#openStoryChatButtonStoryProfile')
               if(openChatButtonProfile) {
-                  openChatButtonProfile.onclick = () => this.openStory(storyId);
+                  openChatButtonProfile.onclick = () => this.openStory(storyId)
                   
                   if (this.activeStoryId && this.activeStoryId !== story.id) {
-                      const otherActiveStory = await this.db.stories.get(this.activeStoryId);
+                      const otherActiveStory = await this.db.stories.get(this.activeStoryId)
                       if (otherActiveStory && !otherActiveStory.concluded) {
-                          openChatButtonProfile.disabled = true;
-                          openChatButtonProfile.setAttribute('data-tooltip', 'Another story is currently active. Conclude it first.');
+                          openChatButtonProfile.disabled = true
+                          openChatButtonProfile.setAttribute('data-tooltip', 'Another story is currently active. Conclude it first.')
                       }
                   }
               }
@@ -3222,60 +3225,60 @@ window.App = {
           // item card click handlers
           this.ui.storyProfilechatFeed.querySelectorAll('.story-profile-item-card').forEach(card => {
               card.onclick = () => {
-                  const itemId = card.dataset.itemId;
-                  const itemType = card.dataset.itemType;
-                  const itemConfig = this.CONSTANTS.ITEM_CONFIG[itemType];
+                  const itemId = card.dataset.itemId
+                  const itemType = card.dataset.itemType
+                  const itemConfig = this.CONSTANTS.ITEM_CONFIG[itemType]
                   if (itemId && itemConfig) {
-                      this.switchToScreen(itemConfig.profileScreen, {itemId, itemType});
+                      this.switchToScreen(itemConfig.profileScreen, {itemId, itemType})
                   }
-              };
-          });
+              }
+          })
       },
       
             async renderFormScreen(options = {}) {
           // renderFormScreen called with options
-          const { itemType, isCreating, isCopying } = options;
+          const { itemType, isCreating, isCopying } = options
       
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          if (!config) { console.error("Invalid itemType for renderFormScreen:", itemType); return; }
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          if (!config) { console.error("Invalid itemType for renderFormScreen:", itemType); return }
     
-          const container = this.ui[config.formScreen];
-          if (!container) { console.error(`Container for ${config.formScreen} not found`); return; }
+          const container = this.ui[config.formScreen]
+          if (!container) { console.error(`Container for ${config.formScreen} not found`); return }
     
-          const isCreatingOrCopying = isCreating || isCopying;
+          const isCreatingOrCopying = isCreating || isCopying
           // isCreatingOrCopying determined
           
           // Removed top bar title text
     
-          let item = {};
+          let item = {}
           if (isCreating && !isCopying) {
               // Creation path - checking formData sources
               if (options.formData && Object.keys(options.formData).length > 0) {
-                  item = { ...options.formData };
-                  this.createItemFormData = { ...options.formData }; 
+                  item = { ...options.formData }
+                  this.createItemFormData = { ...options.formData } 
                   // Using formData passed in options for new item
               } else if (Object.keys(this.createItemFormData).length > 0) {
-                  item = { ...this.createItemFormData };
+                  item = { ...this.createItemFormData }
                   // Using App.createItemFormData for new item
               } else {
-                  item = {};
+                  item = {}
                   // Creating a truly new item, no prior data
               }
           } else if (isCopying) {
               // Copying path - fetching original item with ID
-              const originalItem = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
+              const originalItem = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn)
               // Retrieved original item for copying
               // Original item name
               // Original item name type
               // Original item name length
               
               // Copy the original item data but remove the ID and timestamps to make it a new item
-              item = { ...originalItem };
-              delete item.id;
-              delete item.createdTimestamp;
-              delete item.lastModifiedTimestamp;
-              delete item.isPremade;
-              delete item.originalPremadeId;
+              item = { ...originalItem }
+              delete item.id
+              delete item.createdTimestamp
+              delete item.lastModifiedTimestamp
+              delete item.isPremade
+              delete item.originalPremadeId
               
               // Initialize form data with the copied item's data
               this.createItemFormData = { 
@@ -3287,36 +3290,36 @@ window.App = {
                   future: item.future,
                   profilePicture: item.profilePicture,
                   colorPalette: item.colorPalette || 'tech_blue'
-              };
+              }
               // Copied item data for new item
               // Copied item name
               // Copied item name type
               // Copied item name length
           } else { 
               // Editing path - fetching item with ID
-              item = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
+              item = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn)
               // Retrieved item for editing
               // Initialize form data with existing item's colorPalette for editing
               // Use a more varied default color palette instead of always slate_gray
-              const defaultPalettes = ['tech_blue', 'forest_green', 'crimson_red', 'sunset_orange', 'royal_purple', 'cyber_pink'];
-              const randomDefaultPalette = defaultPalettes[Math.floor(Math.random() * defaultPalettes.length)];
-              this.createItemFormData = { colorPalette: item.colorPalette || randomDefaultPalette };
+              const defaultPalettes = ['tech_blue', 'forest_green', 'crimson_red', 'sunset_orange', 'royal_purple', 'cyber_pink']
+              const randomDefaultPalette = defaultPalettes[Math.floor(Math.random() * defaultPalettes.length)]
+              this.createItemFormData = { colorPalette: item.colorPalette || randomDefaultPalette }
           }
       
       
           if (!isCreatingOrCopying && !item) { 
-              container.innerHTML = `<p>${config.capital} not found.</p>`; 
-              return; 
+              container.innerHTML = `<p>${config.capital} not found.</p>` 
+              return 
           }
           
-          let softLockNoticeHtml = '';
+          let softLockNoticeHtml = ''
           if (!isCreatingOrCopying && this.activeStoryId) {
-              const activeStory = await this.db.stories.get(this.activeStoryId);
+              const activeStory = await this.db.stories.get(this.activeStoryId)
               if (activeStory && !activeStory.concluded) {
-                  const itemOriginalId = item.isPremade ? item.originalPremadeId : item.id;
+                  const itemOriginalId = item.isPremade ? item.originalPremadeId : item.id
                   const isItemInActiveStory = 
                       (config.itemType === 'character' && (itemOriginalId == activeStory.aiCharacterId || itemOriginalId == activeStory.userCharacterId)) ||
-                      (config.itemType === 'world' && itemOriginalId == activeStory.worldId);
+                      (config.itemType === 'world' && itemOriginalId == activeStory.worldId)
       
                   if (isItemInActiveStory) {
                       softLockNoticeHtml = `
@@ -3324,77 +3327,77 @@ window.App = {
                               <strong>Notice:</strong> This ${config.capital.toLowerCase()} is part of the active story: "<strong>${this.sanitizeHtml(activeStory.name || 'Untitled Story')}</strong>". 
                               Edits made here will apply to <em>new</em> stories or after this one is concluded. 
                               The active story uses a snapshot of this item from when it began.
-                          </div>`;
+                          </div>`
                   }
               }
           }
           
           // NON-DESTRUCTIVE DOM UPDATE:
           // 1. Create a temporary container for the new content.
-          const tempContainer = document.createElement('div');
-          tempContainer.innerHTML = softLockNoticeHtml + this._renderStudioLayout(item, config, true);
+          const tempContainer = document.createElement('div')
+          tempContainer.innerHTML = softLockNoticeHtml + this._renderStudioLayout(item, config, true)
           
           // 2. Clear the old content and append the new content.
           while (container.firstChild) {
-              container.removeChild(container.firstChild);
+              container.removeChild(container.firstChild)
           }
           while (tempContainer.firstChild) {
-              container.appendChild(tempContainer.firstChild);
+              container.appendChild(tempContainer.firstChild)
           }
     
-          this._attachFormEventHandlers(container, itemType, item, isCreatingOrCopying);
-          this.checkAllButtonStates();
-          this._updateFormColorPreview(container, item.colorPalette);
+          this._attachFormEventHandlers(container, itemType, item, isCreatingOrCopying)
+          this.checkAllButtonStates()
+          this._updateFormColorPreview(container, item.colorPalette)
       },
       
       async renderProfileScreen(options = {}) {
-          const { itemType, itemId } = options;
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          if (!config) { console.error("Invalid itemType for renderProfileScreen:", itemType); return; }
+          const { itemType, itemId } = options
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          if (!config) { console.error("Invalid itemType for renderProfileScreen:", itemType); return }
       
-          const container = this.ui[config.profileScreen];
+          const container = this.ui[config.profileScreen]
           if (!container || !itemId) {
-              this.showTopNotification(`Error: ${config.capital} ID missing for profile view.`, "error");
-              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD); 
-              return;
+              this.showTopNotification(`Error: ${config.capital} ID missing for profile view.`, "error")
+              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD) 
+              return
           }
           
-          this.currentProfileViewItemId = itemId; 
+          this.currentProfileViewItemId = itemId 
       
           // const isPremade = typeof itemId === 'string' && itemId.startsWith('premade_'); // Unused variable
-          const item = await this._getitemData(itemId, config.dbTableKey, config.getPremadesFn);
+          const item = await this._getitemData(itemId, config.dbTableKey, config.getPremadesFn)
       
           if (!item) {
-              container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`;
-              return;
+              container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`
+              return
           }
           // Removed: this.ui.topBar.textContent = `${config.capital} Profile`; // This is now handled by _updateProfileTopBarUI
   
           // NON-DESTRUCTIVE DOM UPDATE:
-          const tempContainer = document.createElement('div');
-          tempContainer.innerHTML = this._renderStudioLayout(item, config, false);
+          const tempContainer = document.createElement('div')
+          tempContainer.innerHTML = this._renderStudioLayout(item, config, false)
           
           while (container.firstChild) {
-              container.removeChild(container.firstChild);
+              container.removeChild(container.firstChild)
           }
           while (tempContainer.firstChild) {
-              container.appendChild(tempContainer.firstChild);
+              container.appendChild(tempContainer.firstChild)
           }
           // Attach robust onerror handler for profile picture
-          const profilePicture = container.querySelector('#formProfilePicture');
+          const profilePicture = container.querySelector('#formProfilePicture')
           if (profilePicture) {
               profilePicture.onerror = function() {
-                  const palette = (options.colorPalette || 'blue').toLowerCase();
-                  const placeholderDiv = document.createElement('div');
-                  placeholderDiv.className = `premade-card premade-${palette}`;
-                  placeholderDiv.setAttribute('aria-label', 'No image available');
-                  const icon = document.createElement('span');
-                  icon.className = 'premade-placeholder-icon';
-                  icon.setAttribute('aria-hidden', 'true');
-                  icon.textContent = '\uD83D\uDDBC\uFE0F'; // U+1F5BC for Picture Frame, U+FE0F for variation selector
-                  placeholderDiv.appendChild(icon);
-                  this.replaceWith(placeholderDiv);
-              };
+                  const palette = (options.colorPalette || 'blue').toLowerCase()
+                  const placeholderDiv = document.createElement('div')
+                  placeholderDiv.className = `premade-card premade-${palette}`
+                  placeholderDiv.setAttribute('aria-label', 'No image available')
+                  const icon = document.createElement('span')
+                  icon.className = 'premade-placeholder-icon'
+                  icon.setAttribute('aria-hidden', 'true')
+                  icon.textContent = '\uD83D\uDDBC\uFE0F' // U+1F5BC for Picture Frame, U+FE0F for variation selector
+                  placeholderDiv.appendChild(icon)
+                  this.replaceWith(placeholderDiv)
+              }
           }
       
           // Profile page name field is read-only - no handlers needed
@@ -3403,7 +3406,7 @@ window.App = {
       },
     
       _renderEppfField(label, subLabel, idSuffix, value, placeholder, isEditing, san) {
-          const id = `${idSuffix}`;
+          const id = `${idSuffix}`
           
           if (isEditing) {
               return `
@@ -3416,7 +3419,7 @@ window.App = {
                       <textarea id="${id}" placeholder="${san(placeholder)}" resize="auto">${san(value || '')}</textarea>
                       </div>
                   </div>
-              `;
+              `
           } else {
               return `
                   <div class="profile-field-row profile-field-${idSuffix.toLowerCase()}">
@@ -3426,19 +3429,19 @@ window.App = {
                       </div>
                       <div class="profile-field-value">${san(value || '—')}</div>
                   </div>
-              `;
+              `
           }
       },
     
       _renderStudioLayout(item, config, isEditing) {
-          const san = this.sanitizeHtml.bind(this);
-          const { itemType, labels } = config;
+          const san = this.sanitizeHtml.bind(this)
+          const { itemType, labels } = config
       
           // --- PROFILE PICTURE/PLACEHOLDER LOGIC ---
           // const profilePictureSrc = (item.profilePicture && item.profilePicture.trim()) ? item.profilePicture.trim() : this._makeProfilePicturePlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade); // Unused variable
                 
     
-          const profilePictureHtml = this._generateProfilePictureHtml(item, 'profile'); // Use the new helper function
+          const profilePictureHtml = this._generateProfilePictureHtml(item, 'profile') // Use the new helper function
     
           // --- FORM ACTION BUTTONS ---
           // Buttons moved to top bar - no longer needed in form
@@ -3503,19 +3506,19 @@ window.App = {
                       </div>
                   </div>
               </div>
-          `;
+          `
           
-          return content;
+          return content
       },
     
       async _createColorPicker(selectedPaletteKey) {
-        let colorPickerHtml = '<div class="form-section color-picker-section">';
-        colorPickerHtml += '<h3>Color Palette</h3>';
-        colorPickerHtml += '<div class="color-palette-grid">';
+        let colorPickerHtml = '<div class="form-section color-picker-section">'
+        colorPickerHtml += '<h3>Color Palette</h3>'
+        colorPickerHtml += '<div class="color-palette-grid">'
     
         for (const key in this.CONSTANTS.COLOR_PALETTES) {
-            const palette = this.CONSTANTS.COLOR_PALETTES[key];
-            const isSelected = key === selectedPaletteKey ? 'selected' : '';
+            const palette = this.CONSTANTS.COLOR_PALETTES[key]
+            const isSelected = key === selectedPaletteKey ? 'selected' : ''
             colorPickerHtml += `
                 <button class="color-palette-button ${isSelected}" data-palette-key="${key}" title="${palette.name}" aria-label="Select ${palette.name} color palette">
                     <div class="color-swatch-large-styled" style="--swatch-color: ${palette.colors.medium}"></div>
@@ -3525,11 +3528,11 @@ window.App = {
                         <div class="color-swatch-small-styled" style="--swatch-color: ${palette.colors.neutral}"></div>
                     </div>
                 </button>
-            `;
+            `
         }
     
-        colorPickerHtml += '</div></div>';
-        return colorPickerHtml;
+        colorPickerHtml += '</div></div>'
+        return colorPickerHtml
       },
     
       /**
@@ -3538,7 +3541,7 @@ window.App = {
        * @returns {Object} The palette object.
        */
       getColorPalette(paletteKey) {
-        return this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
+        return this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray
       },
     
       /**
@@ -3547,100 +3550,100 @@ window.App = {
        * @param {string} paletteKey - The palette key.
        */
       _updateColorScheme(element, paletteKey) {
-          const palette = this.getColorPalette(paletteKey);
-          if (!element || !palette) return;
+          const palette = this.getColorPalette(paletteKey)
+          if (!element || !palette) return
     
           const styles = {
               '--form-color-light': palette.colors.light,
               '--form-color-medium': palette.colors.medium,
               '--form-color-dark': palette.colors.dark,
               '--form-color-neutral': palette.colors.neutral
-          };
+          }
     
           Object.entries(styles).forEach(([prop, value]) => {
-              element.style.setProperty(prop, value);
-          });
+              element.style.setProperty(prop, value)
+          })
       },
     
       _updateFormColorPreview(container, paletteKey) {
-          this._updateColorScheme(container, paletteKey);
+          this._updateColorScheme(container, paletteKey)
       },
     
       _attachFormEventHandlers(container, itemType /*, item, isCreating */) {
-        const formElements = this._setupFormElements(container, itemType);
-        if (!formElements) return;
+        const formElements = this._setupFormElements(container, itemType)
+        if (!formElements) return
     
         // Phase 1: Contenteditable Name Field Handlers (like storyboard title)
-        this._attachContenteditableNameHandlers(formElements, itemType);
+        this._attachContenteditableNameHandlers(formElements, itemType)
     
         // Phase 2: Profile PictureSystem Event Handlers
-        this._attachProfilePictureEventHandlers(formElements, itemType);
+        this._attachProfilePictureEventHandlers(formElements, itemType)
     
           // Phase 3: Form Action Handlers (Delete, Cancel, Submit)
-                        this._attachFormActionHandlers(formElements, itemType);
+                        this._attachFormActionHandlers(formElements, itemType)
     
           // Phase 4: AI Helper Handlers
-          this._attachAiHelperHandlers(formElements, itemType);
+          this._attachAiHelperHandlers(formElements, itemType)
     
           // Phase 5: Textarea Dynamic Updates
-          this._attachTextareaHandlers(formElements);
+          this._attachTextareaHandlers(formElements)
     
-          const colorButtons = container.querySelectorAll('.color-palette-button');
+          const colorButtons = container.querySelectorAll('.color-palette-button')
           colorButtons.forEach(button => {
               button.onclick = (e) => {
-                  e.preventDefault();
-                  const selectedKey = button.dataset.paletteKey;
+                  e.preventDefault()
+                  const selectedKey = button.dataset.paletteKey
                   
                   // Update selection state
-                  colorButtons.forEach(button => button.classList.remove('selected'));
-                  button.classList.add('selected');
+                  colorButtons.forEach(button => button.classList.remove('selected'))
+                  button.classList.add('selected')
     
                   // Update form data
-                  this.createItemFormData.colorPalette = selectedKey;
+                  this.createItemFormData.colorPalette = selectedKey
     
                   // Update live preview
-                  this._updateFormColorPreview(container, selectedKey);
-              };
-          });
+                  this._updateFormColorPreview(container, selectedKey)
+              }
+          })
       },
     
       _attachContenteditableNameHandlers(elements /*, itemType */) {
-          const { nameInput } = elements;
-          if (!nameInput) return;
+          const { nameInput } = elements
+          if (!nameInput) return
           
           // Handle input to save changes
           nameInput.oninput = () => {
-              const newName = nameInput.value.trim();
+              const newName = nameInput.value.trim()
               if (newName) {
                   // Update the form data
-                  this.createItemFormData.name = newName;
+                  this.createItemFormData.name = newName
               }
-          };
+          }
           
           // Handle blur to save changes
           nameInput.onblur = () => {
-              const newName = nameInput.value.trim();
+              const newName = nameInput.value.trim()
               if (newName) {
                   // Update the form data
-                  this.createItemFormData.name = newName;
+                  this.createItemFormData.name = newName
               }
-          };
+          }
           
           // Handle Enter key to finish editing
           nameInput.onkeydown = (e) => {
               if (e.key === 'Enter') {
-                  e.preventDefault();
-                  nameInput.blur();
+                  e.preventDefault()
+                  nameInput.blur()
               }
-          };
+          }
       },
     
       _setupFormElements(container, itemType) {
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          const form = container.querySelector(`#${itemType}FormMain`);
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          const form = container.querySelector(`#${itemType}FormMain`)
           if (!form) {
-              console.error(`Form not found for ${itemType}`);
-              return null;
+              console.error(`Form not found for ${itemType}`)
+              return null
           }
     
           return {
@@ -3661,31 +3664,31 @@ window.App = {
               pastInput: form.querySelector(`#${itemType}Past`),
               presentInput: form.querySelector(`#${itemType}Present`),
               futureInput: form.querySelector(`#${itemType}Future`),
-          };
+          }
       },
     
       _attachProfilePictureEventHandlers(elements, itemType) {
           // Simple profile picture handler for both character and world forms
-          const { uploadProfilePictureButtonForm } = elements;
+          const { uploadProfilePictureButtonForm } = elements
           
           if (uploadProfilePictureButtonForm) {
               uploadProfilePictureButtonForm.onclick = (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                  e.preventDefault()
+                  e.stopPropagation()
                   
                   // Simple prompt for image URL or description
-                  const input = prompt('Enter an image URL or describe the image you want to generate:');
+                  const input = prompt('Enter an image URL or describe the image you want to generate:')
                   if (input && input.trim()) {
-                      const isUrl = input.trim().startsWith('http');
+                      const isUrl = input.trim().startsWith('http')
                       if (isUrl) {
                           // Use URL directly
-                          this.handleUseUrlForProfilePicture(null, input.trim(), itemType);
+                          this.handleUseUrlForProfilePicture(null, input.trim(), itemType)
                       } else {
                           // Generate image from description using simplified approach
-                          this.handleGenerateProfilePictureSimple(itemType, input.trim());
+                          this.handleGenerateProfilePictureSimple(itemType, input.trim())
                       }
                   }
-              };
+              }
           }
       },
     
@@ -3695,46 +3698,46 @@ window.App = {
           // Delete button removed from forms - will be handled in profile top bar for custom items only
     
           // Cancel button handler
-          this._attachCancelButtonHandler(elements, itemType);
+          this._attachCancelButtonHandler(elements, itemType)
     
           // Form submit handler
-          this._attachFormSubmitHandler(elements, itemType);
+          this._attachFormSubmitHandler(elements, itemType)
       },
     
       _attachCancelButtonHandler(elements, itemType) {
-          const { config, form } = elements;
-          const cancelButton = form.querySelector(`#cancel${config.capital}ButtonMain`);
+          const { config, form } = elements
+          const cancelButton = form.querySelector(`#cancel${config.capital}ButtonMain`)
           
           if (!cancelButton) {
-              console.warn(`Cancel button not found for ${itemType} form.`);
-              return;
+              console.warn(`Cancel button not found for ${itemType} form.`)
+              return
           }
     
           cancelButton.onclick = (e) => {
               // Ignore synthetic/programmatic clicks that are not user-initiated
               if (e && e.isTrusted === false) {
-                  console.warn("Programmatic cancel click suppressed");
-                  return;
+                  console.warn("Programmatic cancel click suppressed")
+                  return
               }
               
               if (!this.currentCreateFormContext || Object.keys(this.currentCreateFormContext).length === 0) {
-                  App.handleError('FORM_CONTEXT_ERROR', new Error('Missing form context during cancel operation'));
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-                  return;
+                  App.handleError('FORM_CONTEXT_ERROR', new Error('Missing form context during cancel operation'))
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
+                  return
               }
               
-              const { id, itemType, isCreating, isCopying, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId, originalScreen } = this.currentCreateFormContext;
-              this.createItemFormData = {};
+              const { id, itemType, isCreating, isCopying, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId, originalScreen } = this.currentCreateFormContext
+              this.createItemFormData = {}
               
               // Clear any pending form state from session storage when canceling
               try {
-                  sessionStorage.removeItem('pendingRPGlitchFormState');
+                  sessionStorage.removeItem('pendingRPGlitchFormState')
               } catch (e) {
-                  console.warn("Failed to clear session storage on cancel:", e);
+                  console.warn("Failed to clear session storage on cancel:", e)
               } 
               
               // Get config for this item type
-              const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+              const config = this.CONSTANTS.ITEM_CONFIG[itemType]
               
               // Form context: 
               console.log("Form context:", {
@@ -3744,89 +3747,89 @@ window.App = {
                   isCopying,
                   originalScreen,
                   currentCreateFormContext: this.currentCreateFormContext
-              });
+              })
               
               // Determine where to go based on the context
-              let targetScreen;
-              let navOptions = {};
+              let targetScreen
+              let navOptions = {}
               
               if (isCreating && !isCopying) {
                   // If creating new (not copying), go back to storyboard
-                  targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
+                  targetScreen = this.CONSTANTS.VIEWS.STORYBOARD
                   // Filter out 'create_new_' values to prevent infinite loop
                   navOptions = { 
                       preSelectedAiCharacterId: preSelectedAiCharacterId?.startsWith?.('create_new_') ? '' : preSelectedAiCharacterId, 
                       preSelectedUserCharacterId: preSelectedUserCharacterId?.startsWith?.('create_new_') ? '' : preSelectedUserCharacterId, 
                       preSelectedWorldId: preSelectedWorldId?.startsWith?.('create_new_') ? '' : preSelectedWorldId 
-                  };
+                  }
                   // Creating new, going to storyboard
               } else if (isCopying) {
                   // If copying, go back to the original screen we came from
                   if (originalScreen && originalScreen !== this.CONSTANTS.VIEWS.STORYBOARD) {
-                      targetScreen = originalScreen;
-                      navOptions = { itemId: id, itemType: itemType };
+                      targetScreen = originalScreen
+                      navOptions = { itemId: id, itemType: itemType }
                       // Copying cancelled, returning to original screen
               } else {
                       // Fallback to profile screen if no original screen
-                  targetScreen = config.profileScreen;
-                  navOptions = { itemId: id, itemType: itemType };
+                  targetScreen = config.profileScreen
+                  navOptions = { itemId: id, itemType: itemType }
                       // Copying cancelled, fallback to profile
                   }
               } else {
                   // If editing existing item, go back to its profile page
-                  targetScreen = config.profileScreen;
-                  navOptions = { itemId: id, itemType: itemType };
+                  targetScreen = config.profileScreen
+                  navOptions = { itemId: id, itemType: itemType }
                   // Editing, going to profile
               }
     
-              this.switchToScreen(targetScreen, navOptions);
-          };
+              this.switchToScreen(targetScreen, navOptions)
+          }
       },
     
       _attachFormSubmitHandler(elements, itemType) {
-          const { config, form } = elements;
+          const { config, form } = elements
           form.onsubmit = async (e) => {
-              e.preventDefault();
-              this.checkAllButtonStates(); // Re-check states on submit attempt
-              const submitButton = form.querySelector(`#submit${config.capital}ButtonMain`);
+              e.preventDefault()
+              this.checkAllButtonStates() // Re-check states on submit attempt
+              const submitButton = form.querySelector(`#submit${config.capital}ButtonMain`)
               if (submitButton && submitButton.disabled) {
-                  console.warn("Form submission blocked by disabled button.");
-                  return;
+                  console.warn("Form submission blocked by disabled button.")
+                  return
               }
               
               // CRITICAL FIX: Save form data to session storage right before submission
               // This prevents data loss if a page refresh happens after client-side validation
               // but before the DB write, which can happen with async operations or slow UI.
-              const formDataToStore = this._getFormDataFromForm(elements, itemType);
-              const formOptionsToStore = { ...this.currentCreateFormContext, formData: formDataToStore }; // Include existing context + current data
+              const formDataToStore = this._getFormDataFromForm(elements, itemType)
+              const formOptionsToStore = { ...this.currentCreateFormContext, formData: formDataToStore } // Include existing context + current data
               
               try {
                   sessionStorage.setItem('pendingRPGlitchFormState', JSON.stringify({
                       formData: formDataToStore,
                       formOptions: formOptionsToStore,
                       timestamp: Date.now()
-                  }));
+                  }))
                   // Stored pending form state in sessionStorage
               } catch (e) {
-                  console.error("[FORM SUBMISSION] Failed to store form state to sessionStorage:", e);
+                  console.error("[FORM SUBMISSION] Failed to store form state to sessionStorage:", e)
               }
     
               try {
-                  await this._processFormSubmission(elements, itemType);
+                  await this._processFormSubmission(elements, itemType)
               } catch (error) {
-                  console.error(`Error processing ${itemType} form submission:`, error);
-                  this.showTopNotification(`Error saving ${config.capital}: ${error.message || 'Unknown error'}`, 'error', 5000);
+                  console.error(`Error processing ${itemType} form submission:`, error)
+                  this.showTopNotification(`Error saving ${config.capital}: ${error.message || 'Unknown error'}`, 'error', 5000)
                   // Ensure session storage is cleared if submission ultimately fails
-                  sessionStorage.removeItem('pendingRPGlitchFormState');
+                  sessionStorage.removeItem('pendingRPGlitchFormState')
               }
-          };
+          }
       },
     
       async _processFormSubmission(elements, itemType) {
-          const { config, nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
-          const isCreating = this.currentCreateFormContext.isCreating; // Use this flag from context
+          const { config, nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements
+          const isCreating = this.currentCreateFormContext.isCreating // Use this flag from context
     
-          const id = this.currentCreateFormContext.itemId; // For editing, keep original ID
+          const id = this.currentCreateFormContext.itemId // For editing, keep original ID
           
           const newItem = {
               name: nameInput?.value.trim() || `Unnamed ${config.capital}`,
@@ -3840,36 +3843,36 @@ window.App = {
               createdTimestamp: isCreating ? Date.now() : this.currentCreateFormContext.createdTimestamp || Date.now(), // Preserve timestamp for existing
               lastModifiedTimestamp: Date.now(),
               isDeleted: 0 // Explicitly set to not deleted
-          };
-    
-          let result;
-          if (id && !isCreating) { // Only update if ID exists and we are editing (not creating from copy)
-              result = await this.db[config.dbTableKey].update(id, newItem);
-              this.showTopNotification(`${config.capital} updated.`, 'success');
-              result = id; // Update result to be the existing ID for navigation
-          } else {
-              result = await this.db[config.dbTableKey].add(newItem);
-              this.showTopNotification(`${config.capital} created!`, 'success');
           }
-          this._handleFormSubmissionSuccess(result, config, itemType);
+    
+          let result
+          if (id && !isCreating) { // Only update if ID exists and we are editing (not creating from copy)
+              result = await this.db[config.dbTableKey].update(id, newItem)
+              this.showTopNotification(`${config.capital} updated.`, 'success')
+              result = id // Update result to be the existing ID for navigation
+          } else {
+              result = await this.db[config.dbTableKey].add(newItem)
+              this.showTopNotification(`${config.capital} created!`, 'success')
+          }
+          this._handleFormSubmissionSuccess(result, config, itemType)
       },
     
       _handleFormSubmissionSuccess(result, config, itemType) {
-          this.currentGeneratedProfilePictureDataUrl = null; // Clear generated image after save
-          this.createItemFormData = {}; // Clear form data on success
+          this.currentGeneratedProfilePictureDataUrl = null // Clear generated image after save
+          this.createItemFormData = {} // Clear form data on success
           try {
-              sessionStorage.removeItem('pendingRPGlitchFormState'); // Clear session storage on success
+              sessionStorage.removeItem('pendingRPGlitchFormState') // Clear session storage on success
           } catch (e) {
-              console.warn("Failed to clear session storage on successful form submission:", e);
+              console.warn("Failed to clear session storage on successful form submission:", e)
           }
           
           // Always navigate to the profile page of the created/edited item
-          this.switchToScreen(config.profileScreen, { itemId: result, itemType: itemType });
+          this.switchToScreen(config.profileScreen, { itemId: result, itemType: itemType })
       },
     
       _attachAiHelperHandlers(elements, itemType) {
-          const { form, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+          const { form, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
     
           // Array of fields with AI buttons
           const aiFields = [
@@ -3878,34 +3881,34 @@ window.App = {
               { input: pastInput, type: 'past', btn: form.querySelector(`#aiHelp${config.capital}PastButton`) },
               { input: presentInput, type: 'present', btn: form.querySelector(`#aiHelp${config.capital}PresentButton`) },
               { input: futureInput, type: 'future', btn: form.querySelector(`#aiHelp${config.capital}FutureButton`) }
-          ];
+          ]
     
           // Add general AI helper button click handlers
           aiFields.forEach(field => {
               if (field.btn) {
-                  this._manageAiButtonState(field.btn, { type: field.type, field: field.input, itemType: itemType });
+                  this._manageAiButtonState(field.btn, { type: field.type, field: field.input, itemType: itemType })
               }
-          });
+          })
       },
     
       _attachTextareaHandlers(elements) {
-          const { descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
-          const textareas = [descriptionTextarea, eternalInput, pastInput, presentInput, futureInput].filter(Boolean);
+          const { descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements
+          const textareas = [descriptionTextarea, eternalInput, pastInput, presentInput, futureInput].filter(Boolean)
 
           textareas.forEach(textarea => {
               textarea.addEventListener('input', () => {
-                  textarea.style.height = 'auto';
-                  textarea.style.height = `${textarea.scrollHeight}px`;
-              });
+                  textarea.style.height = 'auto'
+                  textarea.style.height = `${textarea.scrollHeight}px`
+              })
               // Initial resize
-              textarea.style.height = 'auto';
-              textarea.style.height = `${textarea.scrollHeight}px`;
-          });
+              textarea.style.height = 'auto'
+              textarea.style.height = `${textarea.scrollHeight}px`
+          })
       },
     
     _getFormDataFromForm(elements, itemType) {
-        const { nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements;
-        const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+        const { nameInput, descriptionTextarea, eternalInput, pastInput, presentInput, futureInput } = elements
+        const config = this.CONSTANTS.ITEM_CONFIG[itemType]
           
           return {
               name: nameInput?.value.trim() || `Unnamed ${config.capital}`,
@@ -3916,40 +3919,40 @@ window.App = {
               future: futureInput?.value.trim() || '',
               profilePicture: this.currentGeneratedProfilePictureDataUrl || this._getExistingProfilePictureUrl(this.currentCreateFormContext.itemId, config.dbTableKey, config.getPremadesFn, itemType) || '',
             colorPalette: this.createItemFormData.colorPalette || 'tech_blue'
-          };
+          }
       },
     
       async _getExistingProfilePictureUrl(itemId, dbTableKey, getPremadesFn, itemType) {
-          if (!itemId) return '';
-          const item = await this._getitemData(itemId, dbTableKey, getPremadesFn, itemType);
-          return item?.profilePicture || '';
+          if (!itemId) return ''
+          const item = await this._getitemData(itemId, dbTableKey, getPremadesFn, itemType)
+          return item?.profilePicture || ''
       },
     
       async handleGenerateProfilePictureSimple(itemType, description) {
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          const formContainer = this.ui[config.formScreen];
-          const profilePictureDisplay = formContainer.querySelector(`#${itemType}-profile-picture-background`);
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          const formContainer = this.ui[config.formScreen]
+          const profilePictureDisplay = formContainer.querySelector(`#${itemType}-profile-picture-background`)
     
           if (!profilePictureDisplay) {
-              console.error('Profile picture display area not found for simple generation.');
-              return;
+              console.error('Profile picture display area not found for simple generation.')
+              return
           }
     
           // Show loading state
-          profilePictureDisplay.innerHTML = '<div class="loading-spinner"></div>';
+          profilePictureDisplay.innerHTML = '<div class="loading-spinner"></div>'
     
           try {
-              const generatedImageUrl = await this.generateImageWithPerchance(description);
-              this.currentGeneratedProfilePictureDataUrl = generatedImageUrl;
+              const generatedImageUrl = await this.generateImageWithPerchance(description)
+              this.currentGeneratedProfilePictureDataUrl = generatedImageUrl
     
               // Update the display with the new image
-              profilePictureDisplay.innerHTML = `<img src="${generatedImageUrl}" alt="Generated profile picture" class="profile-picture-large">`;
+              profilePictureDisplay.innerHTML = `<img src="${generatedImageUrl}" alt="Generated profile picture" class="profile-picture-large">`
           } catch (error) {
-              console.error('Error generating profile picture:', error);
-              this.showTopNotification('Failed to generate image.', 'error');
+              console.error('Error generating profile picture:', error)
+              this.showTopNotification('Failed to generate image.', 'error')
               // Restore previous state or show placeholder
-              const existingItem = await this._getitemData(this.currentCreateFormContext.itemId, config.dbTableKey, config.getPremadesFn, itemType);
-              profilePictureDisplay.innerHTML = this._generateProfilePictureHtml(existingItem, 'profile');
+              const existingItem = await this._getitemData(this.currentCreateFormContext.itemId, config.dbTableKey, config.getPremadesFn, itemType)
+              profilePictureDisplay.innerHTML = this._generateProfilePictureHtml(existingItem, 'profile')
           }
       },
     
@@ -3960,45 +3963,45 @@ window.App = {
                       size: '768x768',
                       style: 'flat-art',
                       colorPalette: this.createItemFormData.colorPalette || 'tech_blue'
-                  });
-                  return imageDataUrl;
+                  })
+                  return imageDataUrl
               } catch (error) {
-                  console.error('Error generating image with Perchance plugin:', error);
-                  throw new Error('Perchance plugin failed to generate image.');
+                  console.error('Error generating image with Perchance plugin:', error)
+                  throw new Error('Perchance plugin failed to generate image.')
               }
           } else {
-              throw new Error('Perchance text-to-image plugin not available.');
+              throw new Error('Perchance text-to-image plugin not available.')
           }
       },
     
       handleUseUrlForProfilePicture(elements, url, itemType) {
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          const formContainer = this.ui[config.formScreen];
-          const profilePictureDisplay = formContainer.querySelector(`#${itemType}-profile-picture-background`);
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          const formContainer = this.ui[config.formScreen]
+          const profilePictureDisplay = formContainer.querySelector(`#${itemType}-profile-picture-background`)
     
           if (!profilePictureDisplay) {
-              console.error('Profile picture display area not found for URL update.');
-              return;
+              console.error('Profile picture display area not found for URL update.')
+              return
           }
     
-          this.currentGeneratedProfilePictureDataUrl = url;
-          profilePictureDisplay.innerHTML = `<img src="${url}" alt="Profile picture from URL" class="profile-picture-large">`;
+          this.currentGeneratedProfilePictureDataUrl = url
+          profilePictureDisplay.innerHTML = `<img src="${url}" alt="Profile picture from URL" class="profile-picture-large">`
       },
     
       _manageAiButtonState(button, options) {
-          if (!button) return;
-          const { type, field, itemType } = options;
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          const form = this.ui[config.formScreen];
-          const nameInput = form.querySelector(`#${itemType}Name`);
+          if (!button) return
+          const { type, field, itemType } = options
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          const form = this.ui[config.formScreen]
+          const nameInput = form.querySelector(`#${itemType}Name`)
     
           button.onclick = async () => {
-              const currentName = nameInput.value.trim();
-              const currentDescription = form.querySelector(`#${itemType}Description`).value.trim();
-              const currentEternal = form.querySelector(`#${itemType}Eternal`).value.trim();
-              const currentPast = form.querySelector(`#${itemType}Past`).value.trim();
-              const currentPresent = form.querySelector(`#${itemType}Present`).value.trim();
-              const currentFuture = form.querySelector(`#${itemType}Future`).value.trim();
+              const currentName = nameInput.value.trim()
+              const currentDescription = form.querySelector(`#${itemType}Description`).value.trim()
+              const currentEternal = form.querySelector(`#${itemType}Eternal`).value.trim()
+              const currentPast = form.querySelector(`#${itemType}Past`).value.trim()
+              const currentPresent = form.querySelector(`#${itemType}Present`).value.trim()
+              const currentFuture = form.querySelector(`#${itemType}Future`).value.trim()
     
               const prompt = this._buildAiHelperPrompt(type, itemType, {
                   name: currentName,
@@ -4007,62 +4010,62 @@ window.App = {
                   past: currentPast,
                   present: currentPresent,
                   future: currentFuture
-              });
+              })
     
               // Show loading state
-              field.classList.add('ai-loading');
-              field.disabled = true;
+              field.classList.add('ai-loading')
+              field.disabled = true
     
               try {
-                  const result = await this.generateTextWithPerchance(prompt);
-                  field.value = result;
+                  const result = await this.generateTextWithPerchance(prompt)
+                  field.value = result
                   // Trigger input event for auto-resizing
-                  field.dispatchEvent(new Event('input', { bubbles: true }));
+                  field.dispatchEvent(new Event('input', { bubbles: true }))
               } catch (error) {
-                  console.error(`AI helper failed for ${type}:`, error);
-                  this.showTopNotification(`AI helper failed: ${error.message}`, 'error');
+                  console.error(`AI helper failed for ${type}:`, error)
+                  this.showTopNotification(`AI helper failed: ${error.message}`, 'error')
               } finally {
                   // Hide loading state
-                  field.classList.remove('ai-loading');
-                  field.disabled = false;
+                  field.classList.remove('ai-loading')
+                  field.disabled = false
               }
-          };
+          }
       },
     
       _buildAiHelperPrompt(fieldType, itemType, currentData) {
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          const { name, description, eternal, past, present, future } = currentData;
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          const { name, description, eternal, past, present, future } = currentData
     
-          let prompt = `You are an expert world-builder and character designer. Your task is to generate a compelling piece of information for a ${itemType}.`;
-          prompt += `\n\n**${config.capital} Name:** ${name || 'Unnamed'}`;
+          let prompt = `You are an expert world-builder and character designer. Your task is to generate a compelling piece of information for a ${itemType}.`
+          prompt += `\n\n**${config.capital} Name:** ${name || 'Unnamed'}`
     
-          if (description) prompt += `\n**Description:** ${description}`;
-          if (eternal) prompt += `\n**Eternal:** ${eternal}`;
-          if (past) prompt += `\n**Past:** ${past}`;
-          if (present) prompt += `\n**Present:** ${present}`;
-          if (future) prompt += `\n**Future:** ${future}`;
+          if (description) prompt += `\n**Description:** ${description}`
+          if (eternal) prompt += `\n**Eternal:** ${eternal}`
+          if (past) prompt += `\n**Past:** ${past}`
+          if (present) prompt += `\n**Present:** ${present}`
+          if (future) prompt += `\n**Future:** ${future}`
     
-          prompt += `\n\nNow, generate a compelling **${config.labels[fieldType].main}** section.`;
-          prompt += `\n\n**Instructions:**`;
-          prompt += `\n- Focus only on the **${config.labels[fieldType].main}** section.`;
-          prompt += `\n- Be creative, concise, and evocative.`;
-          prompt += `\n- Do not repeat the field title (e.g., "Eternal:"). Just provide the text.`;
-          prompt += `\n- Use the placeholder as a guide: "${config.labels[fieldType].placeholder}"`;
+          prompt += `\n\nNow, generate a compelling **${config.labels[fieldType].main}** section.`
+          prompt += `\n\n**Instructions:**`
+          prompt += `\n- Focus only on the **${config.labels[fieldType].main}** section.`
+          prompt += `\n- Be creative, concise, and evocative.`
+          prompt += `\n- Do not repeat the field title (e.g., "Eternal:"). Just provide the text.`
+          prompt += `\n- Use the placeholder as a guide: "${config.labels[fieldType].placeholder}"`
     
-          return prompt;
+          return prompt
       },
     
       async generateTextWithPerchance(prompt) {
           if (typeof textToText !== 'undefined' && textToText.generate) {
               try {
-                  const result = await textToText.generate(prompt);
-                  return result.output;
+                  const result = await textToText.generate(prompt)
+                  return result.output
               } catch (error) {
-                  console.error('Error generating text with Perchance plugin:', error);
-                  throw new Error('Perchance plugin failed to generate text.');
+                  console.error('Error generating text with Perchance plugin:', error)
+                  throw new Error('Perchance plugin failed to generate text.')
               }
           } else {
-              throw new Error('Perchance text-to-text plugin not available.');
+              throw new Error('Perchance text-to-text plugin not available.')
           }
       },
     
@@ -4076,84 +4079,84 @@ window.App = {
           
           // Navigation guard check
           if (this.navigationGuard.isActive) {
-              const timeSinceStart = Date.now() - this.navigationGuard.startTime;
+              const timeSinceStart = Date.now() - this.navigationGuard.startTime
               if (timeSinceStart > 5000) { // 5 second timeout
-                  console.warn(`Navigation guard timed out for operation: ${this.navigationGuard.operation}. Resetting.`);
-                  this.navigationGuard.isActive = false;
+                  console.warn(`Navigation guard timed out for operation: ${this.navigationGuard.operation}. Resetting.`)
+                  this.navigationGuard.isActive = false
               } else {
-                  console.warn(`Navigation guard is active for operation: ${this.navigationGuard.operation}. Ignoring switch to ${screenName}.`);
-                  return;
+                  console.warn(`Navigation guard is active for operation: ${this.navigationGuard.operation}. Ignoring switch to ${screenName}.`)
+                  return
               }
           }
     
           // Set navigation guard
-          this.navigationGuard.isActive = true;
-          this.navigationGuard.operation = `switchToScreen: ${screenName}`;
-          this.navigationGuard.startTime = Date.now();
-          this.navigationGuard.targetScreen = screenName;
+          this.navigationGuard.isActive = true
+          this.navigationGuard.operation = `switchToScreen: ${screenName}`
+          this.navigationGuard.startTime = Date.now()
+          this.navigationGuard.targetScreen = screenName
     
           // Hide all screens first
           Object.values(this.CONSTANTS.VIEWS).forEach(viewKey => {
-              const screenEl = this.ui[viewKey];
+              const screenEl = this.ui[viewKey]
               if (screenEl) {
-                  this.hideEl(screenEl);
+                  this.hideEl(screenEl)
               }
-          });
+          })
     
           // Show the target screen
-          const targetScreenEl = this.ui[screenName];
+          const targetScreenEl = this.ui[screenName]
           if (targetScreenEl) {
-              this.showEl(targetScreenEl);
-              this.currentMainView = screenName;
+              this.showEl(targetScreenEl)
+              this.currentMainView = screenName
           } else {
-              console.error(`[UI Critical] Screen element for '${screenName}' not found.`);
-              this.navigationGuard.isActive = false; // Release guard on error
-              return;
+              console.error(`[UI Critical] Screen element for '${screenName}' not found.`)
+              this.navigationGuard.isActive = false // Release guard on error
+              return
           }
     
           // Handle screen-specific logic
           try {
               switch (screenName) {
                   case this.CONSTANTS.VIEWS.STORYBOARD:
-                      await this._updateStoryboard(options);
-                      break;
+                      await this._updateStoryboard(options)
+                      break
                   case this.CONSTANTS.VIEWS.STORY_INTERFACE:
-                      await this.openStory(this.activeStoryId);
-                      break;
+                      await this.openStory(this.activeStoryId)
+                      break
                   case this.CONSTANTS.VIEWS.CHARACTER_FORM:
                   case this.CONSTANTS.VIEWS.WORLD_FORM:
-                      await this.renderFormScreen(options);
-                      break;
+                      await this.renderFormScreen(options)
+                      break
                   case this.CONSTANTS.VIEWS.CHARACTER_PROFILE:
                   case this.CONSTANTS.VIEWS.WORLD_PROFILE:
-                      await this.renderProfileScreen(options);
-                      break;
+                      await this.renderProfileScreen(options)
+                      break
                   case this.CONSTANTS.VIEWS.STORY_PROFILE:
-                      await this.renderStoryProfileScreen(options.storyId);
-                      break;
+                      await this.renderStoryProfileScreen(options.storyId)
+                      break
                   case this.CONSTANTS.VIEWS.PREMADE_CHARACTER_SELECTION:
                   case this.CONSTANTS.VIEWS.PREMADE_WORLD_SELECTION:
-                      await this.renderPremadeSelectionScreen(options);
-                      break;
+                      await this.renderPremadeSelectionScreen(options)
+                      break
               }
           } catch (error) {
-              console.error(`Error during screen switch to ${screenName}:`, error);
+              console.error(`Error during screen switch to ${screenName}:`, error)
               // Optionally, switch to a safe fallback screen like storyboard
               if (screenName !== this.CONSTANTS.VIEWS.STORYBOARD) {
-                  await this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+                  await this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
               }
           } finally {
               // Release navigation guard
-              this.navigationGuard.isActive = false;
-              this.navigationGuard.operation = null;
-              this.navigationGuard.startTime = null;
-              this.navigationGuard.targetScreen = null;
+              this.navigationGuard.isActive = false
+              this.navigationGuard.operation = null
+              this.navigationGuard.startTime = null
+              this.navigationGuard.targetScreen = null
           }
     
           // Update UI states after screen switch
-          this.updateTopBarUI();
-          this.checkAllButtonStates();
-          await this.saveAppState();
+          this.updateTopBarUI()
+          this.checkAllButtonStates()
+          await this.saveAppState()
       },
     
       /**
@@ -4161,20 +4164,20 @@ window.App = {
        * @param {Object} [options={}] - Options for updating the storyboard.
        */
       async _updateStoryboard(options = {}) {
-        const { preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId } = options;
+        const { preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId } = options
     
         // Populate dropdowns first
-        await this._populateDropdown(this.ui.storyboardAiCharacterSelect, 'character', preSelectedAiCharacterId);
-        await this._populateDropdown(this.ui.storyboardUserCharacterSelect, 'character', preSelectedUserCharacterId);
-        await this._populateDropdown(this.ui.storyboardWorldSelect, 'world', preSelectedWorldId);
+        await this._populateDropdown(this.ui.storyboardAiCharacterSelect, 'character', preSelectedAiCharacterId)
+        await this._populateDropdown(this.ui.storyboardUserCharacterSelect, 'character', preSelectedUserCharacterId)
+        await this._populateDropdown(this.ui.storyboardWorldSelect, 'world', preSelectedWorldId)
     
         // Then, select the items, which will trigger card updates
-        await this._selectStoryboardItem('ai', preSelectedAiCharacterId);
-        await this._selectStoryboardItem('user', preSelectedUserCharacterId);
-        await this._selectStoryboardItem('world', preSelectedWorldId);
+        await this._selectStoryboardItem('ai', preSelectedAiCharacterId)
+        await this._selectStoryboardItem('user', preSelectedUserCharacterId)
+        await this._selectStoryboardItem('world', preSelectedWorldId)
     
-        this.updateDynamicStoryboardTitle();
-        this.checkAllButtonStates();
+        this.updateDynamicStoryboardTitle()
+        this.checkAllButtonStates()
     },
     
       /**
@@ -4184,90 +4187,90 @@ window.App = {
        * @param {string|number} [selectedId] - The ID of the item to pre-select.
        */
       async _populateDropdown(selectElement, itemType, selectedId) {
-        console.log(`_populateDropdown: Function entered for itemType: ${itemType}, selectedId: ${selectedId}`);
+        console.log(`_populateDropdown: Function entered for itemType: ${itemType}, selectedId: ${selectedId}`)
         if (!selectElement) {
-            console.warn(`_populateDropdown: selectElement is null or undefined for itemType: ${itemType}`);
-            return;
+            console.warn(`_populateDropdown: selectElement is null or undefined for itemType: ${itemType}`)
+            return
         }
-        console.log(`_populateDropdown: selectElement ID: ${selectElement.id}`);
+        console.log(`_populateDropdown: selectElement ID: ${selectElement.id}`)
 
-        const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+        const config = this.CONSTANTS.ITEM_CONFIG[itemType]
         if (!config) {
-            console.warn(`_populateDropdown: config not found for itemType: ${itemType}`);
-            return;
+            console.warn(`_populateDropdown: config not found for itemType: ${itemType}`)
+            return
         }
 
-        const items = await (itemType === 'character' ? this.getPremadeCharacterItems() : this.getPremadeWorldItems());
-        console.log(`_populateDropdown: Fetched items for ${itemType}:`, items);
+        const items = await (itemType === 'character' ? this.getPremadeCharacterItems() : this.getPremadeWorldItems())
+        console.log(`_populateDropdown: Fetched items for ${itemType}:`, items)
         
         // Store current value to restore if it's still valid
-        const currentValue = selectElement.value;
+        const currentValue = selectElement.value
     
-        selectElement.innerHTML = ''; // Clear existing options
+        selectElement.innerHTML = '' // Clear existing options
     
         // Add the placeholder option
-        const placeholderText = `Choose ${config.capital}...`;
-        selectElement.add(new Option(placeholderText, ''));
+        const placeholderText = `Choose ${config.capital}...`
+        selectElement.add(new Option(placeholderText, ''))
     
         // Add "Create New" option
-        selectElement.add(new Option(`+ Create New ${config.capital}...`, `create_new_${itemType}`));
+        selectElement.add(new Option(`+ Create New ${config.capital}...`, `create_new_${itemType}`))
     
         // Separate items into user-created and premade
-        const userItems = items.filter(item => !item.isPremade);
-        const premadeItems = items.filter(item => item.isPremade);
+        const userItems = items.filter(item => !item.isPremade)
+        const premadeItems = items.filter(item => item.isPremade)
     
         // Add user items if they exist
         if (userItems.length > 0) {
-            const userGroup = document.createElement('optgroup');
-            userGroup.label = `Custom ${config.capital}s`;
+            const userGroup = document.createElement('optgroup')
+            userGroup.label = `Custom ${config.capital}s`
             userItems.forEach(item => {
-                const option = new Option(item.name, item.id);
-                userGroup.appendChild(option);
-            });
-            selectElement.appendChild(userGroup);
+                const option = new Option(item.name, item.id)
+                userGroup.appendChild(option)
+            })
+            selectElement.appendChild(userGroup)
         }
     
         // Add premade items if they exist
         if (premadeItems.length > 0) {
-            const premadeGroup = document.createElement('optgroup');
-            premadeGroup.label = `Premade ${config.capital}s`;
+            const premadeGroup = document.createElement('optgroup')
+            premadeGroup.label = `Premade ${config.capital}s`
             premadeItems.forEach(item => {
-                const option = new Option(item.name, `premade_${itemType}:${item.id}`);
-                premadeGroup.appendChild(option);
-            });
-            selectElement.appendChild(premadeGroup);
+                const option = new Option(item.name, `premade_${itemType}:${item.id}`)
+                premadeGroup.appendChild(option)
+            })
+            selectElement.appendChild(premadeGroup)
         }
     
         // Set the selected value
-        console.log(`_populateDropdown: Populating dropdown for ${itemType}. Selected ID: ${selectedId}, Current Value: ${currentValue}`);
+        console.log(`_populateDropdown: Populating dropdown for ${itemType}. Selected ID: ${selectedId}, Current Value: ${currentValue}`)
         if (selectedId) {
-            selectElement.value = selectedId;
-            console.log(`_populateDropdown: Setting selectedId to ${selectedId}`);
+            selectElement.value = selectedId
+            console.log(`_populateDropdown: Setting selectedId to ${selectedId}`)
         } else if (currentValue && selectElement.querySelector(`[value="${currentValue}"]`)) {
-            selectElement.value = currentValue;
-            console.log(`_populateDropdown: Restoring previous value ${currentValue}`);
+            selectElement.value = currentValue
+            console.log(`_populateDropdown: Restoring previous value ${currentValue}`)
         }
 
         // Log all generated options for debugging
         Array.from(selectElement.options).forEach(option => {
-            console.log(`_populateDropdown: Option - Text: ${option.text}, Value: ${option.value}, Selected: ${option.selected}`);
-        });
+            console.log(`_populateDropdown: Option - Text: ${option.text}, Value: ${option.value}, Selected: ${option.selected}`)
+        })
 
         // Ensure the selected option is visually updated
         if (selectedId) {
-              selectElement.value = selectedId;
-            console.log(`_populateDropdown: Setting selectedId to ${selectedId}`);
+              selectElement.value = selectedId
+            console.log(`_populateDropdown: Setting selectedId to ${selectedId}`)
         } else if (currentValue && selectElement.querySelector(`option[value="${currentValue}"]`)) {
-            selectElement.value = currentValue;
-            console.log(`_populateDropdown: Restoring previous value ${currentValue}`);
+            selectElement.value = currentValue
+            console.log(`_populateDropdown: Restoring previous value ${currentValue}`)
         }
 
         // Ensure the selected option is visually updated
         if (selectElement.value) {
-            const selectedOption = selectElement.querySelector(`option[value="${selectElement.value}"]`);
+            const selectedOption = selectElement.querySelector(`option[value="${selectElement.value}"]`)
             if (selectedOption) {
-                selectedOption.selected = true;
-            console.log(`_populateDropdown: Visually updated selected option to: ${selectElement.value}`);
+                selectedOption.selected = true
+            console.log(`_populateDropdown: Visually updated selected option to: ${selectElement.value}`)
             }
         }
     
@@ -4278,36 +4281,36 @@ window.App = {
        * Attaches event listeners to the storyboard select elements.
        */
       _attachStoryboardEventListeners() {
-          console.log('_attachStoryboardEventListeners called.');
+          console.log('_attachStoryboardEventListeners called.')
         const selects = [
             { el: this.ui.storyboardAiCharacterSelect, type: 'ai' },
               { el: this.ui.storyboardUserCharacterSelect, type: 'user' },
               { el: this.ui.storyboardWorldSelect, type: 'world' }
-          ];
+          ]
     
           selects.forEach(({ el, type }) => {
               if (el) {
-                  console.log(`Attaching onchange listener to ${el.id}`);
+                  console.log(`Attaching onchange listener to ${el.id}`)
                   el.onchange = async (e) => {
-                      const selectedValue = e.target.value;
-                      console.log(`onchange event for ${el.id} fired. Selected value: ${selectedValue}`);
+                      const selectedValue = e.target.value
+                      console.log(`onchange event for ${el.id} fired. Selected value: ${selectedValue}`)
                     if (selectedValue.startsWith('create_new_')) {
-                          const itemType = selectedValue.replace('create_new_', '');
+                          const itemType = selectedValue.replace('create_new_', '')
                           this.switchToScreen(this.CONSTANTS.ITEM_CONFIG[itemType].formScreen, { 
                               itemType: itemType, 
                               isCreating: true,
                               preSelectedAiCharacterId: this.storyboardSelected.ai,
                               preSelectedUserCharacterId: this.storyboardSelected.user,
                               preSelectedWorldId: this.storyboardSelected.world
-                          });
+                          })
                       } else {
-                          this.storyboardSelected[type] = selectedValue;
-                          await this._updateStoryboardCard(type);
-                          this.checkAllButtonStates();
+                          this.storyboardSelected[type] = selectedValue
+                          await this._updateStoryboardCard(type)
+                          this.checkAllButtonStates()
                       }
-                  };
+                  }
               }
-          });
+          })
       },
     
       /**
@@ -4324,22 +4327,22 @@ window.App = {
           // Atomic fix: Populate dropdowns immediately after data is set
               if (typeof this._updateStoryboard === 'function') {
               if (this.currentStoryId === story.id && this.currentMainView === this.CONSTANTS.VIEWS.STORY_INTERFACE) {
-                  itemEl.classList.add('active');
+                  itemEl.classList.add('active')
               }
               if (story.concluded) {
-                  itemEl.classList.add('concluded-story-item');
+                  itemEl.classList.add('concluded-story-item')
               }
       
               itemEl.innerHTML = `
                   <span class="name-main" title="${this.sanitizeHtml(displayName)}">${this.sanitizeHtml(displayName)}</span>
                   <span class="tag-right-aligned">${story.concluded ? '<span class="concluded-story-indicator">&#127937;</span>' : ''}</span>
-              `;
+              `
       
               itemEl.onclick = () => {
-                  this.ui.topBar.classList.remove('top-bar-interactive-hover');
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: story.id });
-              };
-              listArea.appendChild(itemEl);
+                  this.ui.topBar.classList.remove('top-bar-interactive-hover')
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: story.id })
+              }
+              listArea.appendChild(itemEl)
           }
           
           // Chin height is now handled automatically by flexbox layout
@@ -4347,112 +4350,112 @@ window.App = {
     
       async renderStoryProfileScreen(storyId) {
           // Phase 1: Validation and Setup
-          const story = await this._validateAndSetupStoryProfile(storyId);
-          if (!story) return;
+          const story = await this._validateAndSetupStoryProfile(storyId)
+          if (!story) return
     
           // Phase 2: Data Fetching
-          const { aiChar, userChar, world } = await this._fetchStoryProfileData(story);
+          const { aiChar, userChar, world } = await this._fetchStoryProfileData(story)
     
           // Phase 3: Top Bar Updates
-          await this._updateTopBarForStoryProfile(story, storyId, aiChar, userChar);
+          await this._updateTopBarForStoryProfile(story, storyId, aiChar, userChar)
     
           // Phase 4: Display Setup
-          this._setupStoryProfileDisplays(aiChar, userChar);
+          this._setupStoryProfileDisplays(aiChar, userChar)
     
           // Phase 5: Message Feed Rendering
-          await this._renderStoryProfileMessages(story);
+          await this._renderStoryProfileMessages(story)
     
           // Phase 6: Generate and Insert HTML
-          this._generateAndInsertStoryProfileHTML(story, aiChar, userChar, world);
+          this._generateAndInsertStoryProfileHTML(story, aiChar, userChar, world)
     
           // Phase 7: Event Handler Setup
-          await this._attachStoryProfileEventHandlers(story, storyId);
+          await this._attachStoryProfileEventHandlers(story, storyId)
     
           // Phase 8: Final State Management
-          this.currentMainView = this.CONSTANTS.VIEWS.STORY_PROFILE;
-          await this.saveAppState();
-          this.checkAllButtonStates();
+          this.currentMainView = this.CONSTANTS.VIEWS.STORY_PROFILE
+          await this.saveAppState()
+          this.checkAllButtonStates()
       },
     
       async _validateAndSetupStoryProfile(storyId) {
-          const container = this.ui.storyProfileScreen; 
+          const container = this.ui.storyProfileScreen 
           if (!container || !storyId) {
-              this.showTopNotification("Error: Story ID missing for profile view.", "error");
-              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-              return null;
+              this.showTopNotification("Error: Story ID missing for profile view.", "error")
+              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
+              return null
           }
       
-          const story = await this.db.stories.get(storyId);
+          const story = await this.db.stories.get(storyId)
           if (!story) {
-              this.ui.storyProfilechatFeed.innerHTML = `<p class="p-4 text-center">Story not found.</p>`;
-              this.ui.storyProfileActions.innerHTML = ''; 
-              this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = '';
-              this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = '';
-              return null;
+              this.ui.storyProfilechatFeed.innerHTML = `<p class="p-4 text-center">Story not found.</p>`
+              this.ui.storyProfileActions.innerHTML = '' 
+              this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = ''
+              this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = ''
+              return null
           }
     
-          this.currentStoryId = storyId;
-          return story;
+          this.currentStoryId = storyId
+          return story
       },
     
       async _fetchStoryProfileData(story) {
-          const aiChar = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems);
-          const userChar = story.storyUserCharacter || await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems);
-          const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems);
+          const aiChar = story.storyAiCharacter || await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems)
+          const userChar = story.storyUserCharacter || await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems)
+          const world = story.storyWorld || await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems)
     
-          return { aiChar, userChar, world };
+          return { aiChar, userChar, world }
       },
     
       async _updateTopBarForStoryProfile(story, storyId, aiChar, userChar) {
           // Removed top bar title text
           
           if (this.activeStoryId && this.activeStoryId !== storyId) {
-              const activeStoryData = await this.db.stories.get(this.activeStoryId);
+              const activeStoryData = await this.db.stories.get(this.activeStoryId)
               if (activeStoryData) {
-                  await this._updateCharacterInfo('ai', activeStoryData.storyAiCharacter || await this._getitemData(activeStoryData.aiCharacterId, 'characters', this.getPremadeCharacterItems));
-                  await this._updateCharacterInfo('user', activeStoryData.storyUserCharacter || await this._getitemData(activeStoryData.userCharacterId, 'characters', this.getPremadeCharacterItems));
+                  await this._updateCharacterInfo('ai', activeStoryData.storyAiCharacter || await this._getitemData(activeStoryData.aiCharacterId, 'characters', this.getPremadeCharacterItems))
+                  await this._updateCharacterInfo('user', activeStoryData.storyUserCharacter || await this._getitemData(activeStoryData.userCharacterId, 'characters', this.getPremadeCharacterItems))
               }
           } else if (this.activeStoryId === storyId) { 
-               await this._updateCharacterInfo('ai', aiChar);
-               await this._updateCharacterInfo('user', userChar);
+               await this._updateCharacterInfo('ai', aiChar)
+               await this._updateCharacterInfo('user', userChar)
           } else { 
-              this.hideEl(this.ui.topBarUserCharacterInfo);
+              this.hideEl(this.ui.topBarUserCharacterInfo)
           }
       },
     
       _setupStoryProfileDisplays(aiChar, userChar) {
-          this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = aiChar.profilePicture ? `url('${this.sanitizeHtml(aiChar.profilePicture)}')` : '';
-          this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = userChar.profilePicture ? `url('${this.sanitizeHtml(userChar.profilePicture)}')` : '';
-          this.ui.storyProfileAiCharacterDisplayArea.classList.toggle('visible', !!aiChar.profilePicture);
-          this.ui.storyProfileUserCharacterDisplayArea.classList.toggle('visible', !!userChar.profilePicture);
+          this.ui.storyProfileAiCharacterDisplayArea.style.backgroundImage = aiChar.profilePicture ? `url('${this.sanitizeHtml(aiChar.profilePicture)}')` : ''
+          this.ui.storyProfileUserCharacterDisplayArea.style.backgroundImage = userChar.profilePicture ? `url('${this.sanitizeHtml(userChar.profilePicture)}')` : ''
+          this.ui.storyProfileAiCharacterDisplayArea.classList.toggle('visible', !!aiChar.profilePicture)
+          this.ui.storyProfileUserCharacterDisplayArea.classList.toggle('visible', !!userChar.profilePicture)
       },
     
       async _renderStoryProfileMessages(story) {
-          this.ui.storyProfilechatFeed.innerHTML = '';
+          this.ui.storyProfilechatFeed.innerHTML = ''
       
-          const messages = await this.db.messages.where({ storyId: story.id }).sortBy('timestamp');
+          const messages = await this.db.messages.where({ storyId: story.id }).sortBy('timestamp')
           if (messages.length === 0 && !story.concluded) { 
-              this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', `<div class="noMessagesNotice p-4 text-sm text-center">No messages in this story yet.</div>`);
+              this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', `<div class="noMessagesNotice p-4 text-sm text-center">No messages in this story yet.</div>`)
           } else {
               messages.forEach(msg => {
-                  if (msg.isHidden) return;
-                  this._addMessageToFeed(msg, true);
-              });
+                  if (msg.isHidden) return
+                  this._addMessageToFeed(msg, true)
+              })
           }
           
           if (story.concluded && story.summary && !messages.some(m => m.content === story.summary && m.role === 'narrator')) {
-               this._addMessageToFeed({ role: 'narrator', content: story.summary }, true);
+               this._addMessageToFeed({ role: 'narrator', content: story.summary }, true)
           }
       },
     
       _generateAndInsertStoryProfileHTML(story, aiChar, userChar, world) {
-          const san = this.sanitizeHtml;
-          const conclusionHtml = this._generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san);
-          const actionButtonsHtml = this._generateStoryProfileActionButtons(story);
+          const san = this.sanitizeHtml
+          const conclusionHtml = this._generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san)
+          const actionButtonsHtml = this._generateStoryProfileActionButtons(story)
     
-          this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', conclusionHtml);
-          this.ui.storyProfilechatFeed.scrollTop = this.ui.storyProfilechatFeed.scrollHeight;
-          this.ui.storyProfileActions.innerHTML = actionButtonsHtml;
+          this.ui.storyProfilechatFeed.insertAdjacentHTML('beforeend', conclusionHtml)
+          this.ui.storyProfilechatFeed.scrollTop = this.ui.storyProfilechatFeed.scrollHeight
+          this.ui.storyProfileActions.innerHTML = actionButtonsHtml
       },
     
       _generateStoryProfileConclusionBlock(story, aiChar, userChar, world, san) {
@@ -4480,7 +4483,7 @@ window.App = {
                       `<div class="message systemMessage" class="system-message-styled"><div class="messageWrap"><div class="messageContentContainer"><div class="messageText">This story concluded on ${new Date(story.concludedTimestamp).toLocaleString()}</div></div></div></div>` 
                       : ''
                   }
-              </div>`;
+              </div>`
       },
     
       _generateStoryProfileActionButtons(story) {
@@ -4494,7 +4497,7 @@ window.App = {
                       </div>
                       <span class="button-icon">Delete</span>
                   </button>
-          `;
+          `
           if (!story.concluded) {
               actionButtonsHtml += `
                   <button id="concludeStoryButtonStoryProfile" class="danger-button">
@@ -4504,51 +4507,51 @@ window.App = {
                   <button id="openStoryChatButtonStoryProfile" class="primary-action-button">
                       <span class="button-text">Resume Chat</span><span class="button-icon">Resume</span>
                   </button>
-              `;
+              `
           }
-          actionButtonsHtml += `</div>`;
-          return actionButtonsHtml;
+          actionButtonsHtml += `</div>`
+          return actionButtonsHtml
       },
     
       async _attachStoryProfileEventHandlers(story, storyId) {
           // Back button handler
           this.ui.storyProfileActions.querySelector('#storyProfileBackButton').onclick = () => {
               if (this.activeStoryId) {
-                  this.openStory(this.activeStoryId);
+                  this.openStory(this.activeStoryId)
               } else {
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
               }
-          };
+          }
     
           // Delete story handler
           this.ui.storyProfileActions.querySelector('#deleteStoryButton').onclick = async () => {
               if (confirm(`Delete story "${story.name || 'this story'}"? This cannot be undone.`)) { 
-                  await this.db.messages.where({ storyId: story.id }).delete(); // Use item.id for messages
-                  await this.db.stories.delete(story.id); // Delete item itself
-                  this.showTopNotification('Story deleted.', 'success');
-                  if (this.currentStoryId === story.id) this.currentStoryId = null;
+                  await this.db.messages.where({ storyId: story.id }).delete() // Use item.id for messages
+                  await this.db.stories.delete(story.id) // Delete item itself
+                  this.showTopNotification('Story deleted.', 'success')
+                  if (this.currentStoryId === story.id) this.currentStoryId = null
                   if (this.activeStoryId === story.id) {
-                      await this.db.appState.update(0, { activeStoryId: null });
-                      this.activeStoryId = null; // Clear active story if the current one is concluded
+                      await this.db.appState.update(0, { activeStoryId: null })
+                      this.activeStoryId = null // Clear active story if the current one is concluded
                   }
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
               }
-          };
+          }
     
           // Conclude and resume story handlers (only for active stories)
           if (!story.concluded) {
-              const concludeButtonProfile = this.ui.storyProfileActions.querySelector('#concludeStoryButtonStoryProfile');
-              if (concludeButtonProfile) concludeButtonProfile.onclick = () => this.concludeStory(storyId);
+              const concludeButtonProfile = this.ui.storyProfileActions.querySelector('#concludeStoryButtonStoryProfile')
+              if (concludeButtonProfile) concludeButtonProfile.onclick = () => this.concludeStory(storyId)
               
-              const openChatButtonProfile = this.ui.storyProfileActions.querySelector('#openStoryChatButtonStoryProfile');
+              const openChatButtonProfile = this.ui.storyProfileActions.querySelector('#openStoryChatButtonStoryProfile')
               if(openChatButtonProfile) {
-                  openChatButtonProfile.onclick = () => this.openStory(storyId);
+                  openChatButtonProfile.onclick = () => this.openStory(storyId)
                   
                   if (this.activeStoryId && this.activeStoryId !== story.id) {
-                      const otherActiveStory = await this.db.stories.get(this.activeStoryId);
+                      const otherActiveStory = await this.db.stories.get(this.activeStoryId)
                       if (otherActiveStory && !otherActiveStory.concluded) {
-                          openChatButtonProfile.disabled = true;
-                          openChatButtonProfile.setAttribute('data-tooltip', 'Another story is currently active. Conclude it first.');
+                          openChatButtonProfile.disabled = true
+                          openChatButtonProfile.setAttribute('data-tooltip', 'Another story is currently active. Conclude it first.')
                       }
                   }
               }
@@ -4557,60 +4560,60 @@ window.App = {
           // item card click handlers
           this.ui.storyProfilechatFeed.querySelectorAll('.story-profile-item-card').forEach(card => {
               card.onclick = () => {
-                  const itemId = card.dataset.itemId;
-                  const itemType = card.dataset.itemType;
-                  const itemConfig = this.CONSTANTS.ITEM_CONFIG[itemType];
+                  const itemId = card.dataset.itemId
+                  const itemType = card.dataset.itemType
+                  const itemConfig = this.CONSTANTS.ITEM_CONFIG[itemType]
                   if (itemId && itemConfig) {
-                      this.switchToScreen(itemConfig.profileScreen, {itemId, itemType});
+                      this.switchToScreen(itemConfig.profileScreen, {itemId, itemType})
                   }
-              };
-          });
+              }
+          })
       },
       
             async renderFormScreen(options = {}) {
           // renderFormScreen called with options
-          const { itemType, isCreating, isCopying } = options;
+          const { itemType, isCreating, isCopying } = options
       
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          if (!config) { console.error("Invalid itemType for renderFormScreen:", itemType); return; }
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          if (!config) { console.error("Invalid itemType for renderFormScreen:", itemType); return }
     
-          const container = this.ui[config.formScreen];
-          if (!container) { console.error(`Container for ${config.formScreen} not found`); return; }
+          const container = this.ui[config.formScreen]
+          if (!container) { console.error(`Container for ${config.formScreen} not found`); return }
     
-          const isCreatingOrCopying = isCreating || isCopying;
+          const isCreatingOrCopying = isCreating || isCopying
           // isCreatingOrCopying determined
           
           // Removed top bar title text
     
-          let item = {};
+          let item = {}
           if (isCreating && !isCopying) {
               // Creation path - checking formData sources
               if (options.formData && Object.keys(options.formData).length > 0) {
-                  item = { ...options.formData };
-                  this.createItemFormData = { ...options.formData }; 
+                  item = { ...options.formData }
+                  this.createItemFormData = { ...options.formData } 
                   // Using formData passed in options for new item
               } else if (Object.keys(this.createItemFormData).length > 0) {
-                  item = { ...this.createItemFormData };
+                  item = { ...this.createItemFormData }
                   // Using App.createItemFormData for new item
               } else {
-                  item = {};
+                  item = {}
                   // Creating a truly new item, no prior data
               }
           } else if (isCopying) {
               // Copying path - fetching original item with ID
-              const originalItem = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
+              const originalItem = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn)
               // Retrieved original item for copying
               // Original item name
               // Original item name type
               // Original item name length
               
               // Copy the original item data but remove the ID and timestamps to make it a new item
-              item = { ...originalItem };
-              delete item.id;
-              delete item.createdTimestamp;
-              delete item.lastModifiedTimestamp;
-              delete item.isPremade;
-              delete item.originalPremadeId;
+              item = { ...originalItem }
+              delete item.id
+              delete item.createdTimestamp
+              delete item.lastModifiedTimestamp
+              delete item.isPremade
+              delete item.originalPremadeId
               
               // Initialize form data with the copied item's data
               this.createItemFormData = { 
@@ -4622,36 +4625,36 @@ window.App = {
                   future: item.future,
                   profilePicture: item.profilePicture,
                   colorPalette: item.colorPalette || 'tech_blue'
-              };
+              }
               // Copied item data for new item
               // Copied item name
               // Copied item name type
               // Copied item name length
           } else { 
               // Editing path - fetching item with ID
-              item = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn);
+              item = await this._getitemData(options.itemId, config.dbTableKey, config.getPremadesFn)
               // Retrieved item for editing
               // Initialize form data with existing item's colorPalette for editing
               // Use a more varied default color palette instead of always slate_gray
-              const defaultPalettes = ['tech_blue', 'forest_green', 'crimson_red', 'sunset_orange', 'royal_purple', 'cyber_pink'];
-              const randomDefaultPalette = defaultPalettes[Math.floor(Math.random() * defaultPalettes.length)];
-              this.createItemFormData = { colorPalette: item.colorPalette || randomDefaultPalette };
+              const defaultPalettes = ['tech_blue', 'forest_green', 'crimson_red', 'sunset_orange', 'royal_purple', 'cyber_pink']
+              const randomDefaultPalette = defaultPalettes[Math.floor(Math.random() * defaultPalettes.length)]
+              this.createItemFormData = { colorPalette: item.colorPalette || randomDefaultPalette }
           }
       
       
           if (!isCreatingOrCopying && !item) { 
-              container.innerHTML = `<p>${config.capital} not found.</p>`; 
-              return; 
+              container.innerHTML = `<p>${config.capital} not found.</p>` 
+              return 
           }
           
-          let softLockNoticeHtml = '';
+          let softLockNoticeHtml = ''
           if (!isCreatingOrCopying && this.activeStoryId) {
-              const activeStory = await this.db.stories.get(this.activeStoryId);
+              const activeStory = await this.db.stories.get(this.activeStoryId)
               if (activeStory && !activeStory.concluded) {
-                  const itemOriginalId = item.isPremade ? item.originalPremadeId : item.id;
+                  const itemOriginalId = item.isPremade ? item.originalPremadeId : item.id
                   const isItemInActiveStory = 
                       (config.itemType === 'character' && (itemOriginalId == activeStory.aiCharacterId || itemOriginalId == activeStory.userCharacterId)) ||
-                      (config.itemType === 'world' && itemOriginalId == activeStory.worldId);
+                      (config.itemType === 'world' && itemOriginalId == activeStory.worldId)
       
                   if (isItemInActiveStory) {
                       softLockNoticeHtml = `
@@ -4659,77 +4662,77 @@ window.App = {
                               <strong>Notice:</strong> This ${config.capital.toLowerCase()} is part of the active story: "<strong>${this.sanitizeHtml(activeStory.name || 'Untitled Story')}</strong>". 
                               Edits made here will apply to <em>new</em> stories or after this one is concluded. 
                               The active story uses a snapshot of this item from when it began.
-                          </div>`;
+                          </div>`
                   }
               }
           }
           
           // NON-DESTRUCTIVE DOM UPDATE:
           // 1. Create a temporary container for the new content.
-          const tempContainer = document.createElement('div');
-          tempContainer.innerHTML = softLockNoticeHtml + this._renderStudioLayout(item, config, true);
+          const tempContainer = document.createElement('div')
+          tempContainer.innerHTML = softLockNoticeHtml + this._renderStudioLayout(item, config, true)
           
           // 2. Clear the old content and append the new content.
           while (container.firstChild) {
-              container.removeChild(container.firstChild);
+              container.removeChild(container.firstChild)
           }
           while (tempContainer.firstChild) {
-              container.appendChild(tempContainer.firstChild);
+              container.appendChild(tempContainer.firstChild)
           }
     
-          this._attachFormEventHandlers(container, itemType, item, isCreatingOrCopying);
-          this.checkAllButtonStates();
-          this._updateFormColorPreview(container, item.colorPalette);
+          this._attachFormEventHandlers(container, itemType, item, isCreatingOrCopying)
+          this.checkAllButtonStates()
+          this._updateFormColorPreview(container, item.colorPalette)
       },
       
       async renderProfileScreen(options = {}) {
-          const { itemType, itemId } = options;
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          if (!config) { console.error("Invalid itemType for renderProfileScreen:", itemType); return; }
+          const { itemType, itemId } = options
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          if (!config) { console.error("Invalid itemType for renderProfileScreen:", itemType); return }
       
-          const container = this.ui[config.profileScreen];
+          const container = this.ui[config.profileScreen]
           if (!container || !itemId) {
-              this.showTopNotification(`Error: ${config.capital} ID missing for profile view.`, "error");
-              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD); 
-              return;
+              this.showTopNotification(`Error: ${config.capital} ID missing for profile view.`, "error")
+              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD) 
+              return
           }
           
-          this.currentProfileViewItemId = itemId; 
+          this.currentProfileViewItemId = itemId 
       
           // const isPremade = typeof itemId === 'string' && itemId.startsWith('premade_'); // Unused variable
-          const item = await this._getitemData(itemId, config.dbTableKey, config.getPremadesFn);
+          const item = await this._getitemData(itemId, config.dbTableKey, config.getPremadesFn)
       
           if (!item) {
-              container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`;
-              return;
+              container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`
+              return
           }
           // Removed: this.ui.topBar.textContent = `${config.capital} Profile`; // This is now handled by _updateProfileTopBarUI
   
           // NON-DESTRUCTIVE DOM UPDATE:
-          const tempContainer = document.createElement('div');
-          tempContainer.innerHTML = this._renderStudioLayout(item, config, false);
+          const tempContainer = document.createElement('div')
+          tempContainer.innerHTML = this._renderStudioLayout(item, config, false)
           
           while (container.firstChild) {
-              container.removeChild(container.firstChild);
+              container.removeChild(container.firstChild)
           }
           while (tempContainer.firstChild) {
-              container.appendChild(tempContainer.firstChild);
+              container.appendChild(tempContainer.firstChild)
           }
           // Attach robust onerror handler for profile picture
-          const profilePicture = container.querySelector('#formProfilePicture');
+          const profilePicture = container.querySelector('#formProfilePicture')
           if (profilePicture) {
               profilePicture.onerror = function() {
-                  const palette = (options.colorPalette || 'blue').toLowerCase();
-                  const placeholderDiv = document.createElement('div');
-                  placeholderDiv.className = `premade-card premade-${palette}`;
-                  placeholderDiv.setAttribute('aria-label', 'No image available');
-                  const icon = document.createElement('span');
-                  icon.className = 'premade-placeholder-icon';
-                  icon.setAttribute('aria-hidden', 'true');
-                  icon.textContent = '\uD83D\uDDBC\uFE0F'; // U+1F5BC for Picture Frame, U+FE0F for variation selector
-                  placeholderDiv.appendChild(icon);
-                  this.replaceWith(placeholderDiv);
-              };
+                  const palette = (options.colorPalette || 'blue').toLowerCase()
+                  const placeholderDiv = document.createElement('div')
+                  placeholderDiv.className = `premade-card premade-${palette}`
+                  placeholderDiv.setAttribute('aria-label', 'No image available')
+                  const icon = document.createElement('span')
+                  icon.className = 'premade-placeholder-icon'
+                  icon.setAttribute('aria-hidden', 'true')
+                  icon.textContent = '\uD83D\uDDBC\uFE0F' // U+1F5BC for Picture Frame, U+FE0F for variation selector
+                  placeholderDiv.appendChild(icon)
+                  this.replaceWith(placeholderDiv)
+              }
           }
       
           // Profile page name field is read-only - no handlers needed
@@ -4738,7 +4741,7 @@ window.App = {
       },
     
       _renderEppfField(label, subLabel, idSuffix, value, placeholder, isEditing, san) {
-          const id = `${idSuffix}`;
+          const id = `${idSuffix}`
           
           if (isEditing) {
               return `
@@ -4751,7 +4754,7 @@ window.App = {
                       <textarea id="${id}" placeholder="${san(placeholder)}" resize="auto">${san(value || '')}</textarea>
                       </div>
                   </div>
-              `;
+              `
           } else {
               return `
                   <div class="profile-field-row profile-field-${idSuffix.toLowerCase()}">
@@ -4761,19 +4764,19 @@ window.App = {
                       </div>
                       <div class="profile-field-value">${san(value || '—')}</div>
                   </div>
-              `;
+              `
           }
       },
     
       _renderStudioLayout(item, config, isEditing) {
-          const san = this.sanitizeHtml.bind(this);
-          const { itemType, labels } = config;
+          const san = this.sanitizeHtml.bind(this)
+          const { itemType, labels } = config
       
           // --- PROFILE PICTURE/PLACEHOLDER LOGIC ---
           // const profilePictureSrc = (item.profilePicture && item.profilePicture.trim()) ? item.profilePicture.trim() : this._makeProfilePicturePlaceholderSVG(item.name || config.capital, item.colorPalette, item.isPremade); // Unused variable
                 
     
-          const profilePictureHtml = this._generateProfilePictureHtml(item, 'profile'); // Use the new helper function
+          const profilePictureHtml = this._generateProfilePictureHtml(item, 'profile') // Use the new helper function
     
           // --- FORM ACTION BUTTONS ---
           // Buttons moved to top bar - no longer needed in form
@@ -4838,19 +4841,19 @@ window.App = {
                       </div>
                   </div>
               </div>
-          `;
+          `
           
-          return content;
+          return content
       },
     
       async _createColorPicker(selectedPaletteKey) {
-        let colorPickerHtml = '<div class="form-section color-picker-section">';
-        colorPickerHtml += '<h3>Color Palette</h3>';
-        colorPickerHtml += '<div class="color-palette-grid">';
+        let colorPickerHtml = '<div class="form-section color-picker-section">'
+        colorPickerHtml += '<h3>Color Palette</h3>'
+        colorPickerHtml += '<div class="color-palette-grid">'
     
         for (const key in this.CONSTANTS.COLOR_PALETTES) {
-            const palette = this.CONSTANTS.COLOR_PALETTES[key];
-            const isSelected = key === selectedPaletteKey ? 'selected' : '';
+            const palette = this.CONSTANTS.COLOR_PALETTES[key]
+            const isSelected = key === selectedPaletteKey ? 'selected' : ''
             colorPickerHtml += `
                 <button class="color-palette-button ${isSelected}" data-palette-key="${key}" title="${palette.name}" aria-label="Select ${palette.name} color palette">
                     <div class="color-swatch-large-styled" style="--swatch-color: ${palette.colors.medium}"></div>
@@ -4860,11 +4863,11 @@ window.App = {
                         <div class="color-swatch-small-styled" style="--swatch-color: ${palette.colors.neutral}"></div>
                     </div>
                 </button>
-            `;
+            `
         }
     
-        colorPickerHtml += '</div></div>';
-        return colorPickerHtml;
+        colorPickerHtml += '</div></div>'
+        return colorPickerHtml
       },
     
       /**
@@ -4873,7 +4876,7 @@ window.App = {
        * @returns {Object} The palette object.
        */
       getColorPalette(paletteKey) {
-        return this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray;
+        return this.CONSTANTS.COLOR_PALETTES[paletteKey] || this.CONSTANTS.COLOR_PALETTES.slate_gray
       },
     
       /**
@@ -4882,100 +4885,100 @@ window.App = {
        * @param {string} paletteKey - The palette key.
        */
       _updateColorScheme(element, paletteKey) {
-          const palette = this.getColorPalette(paletteKey);
-          if (!element || !palette) return;
+          const palette = this.getColorPalette(paletteKey)
+          if (!element || !palette) return
     
           const styles = {
               '--form-color-light': palette.colors.light,
               '--form-color-medium': palette.colors.medium,
               '--form-color-dark': palette.colors.dark,
               '--form-color-neutral': palette.colors.neutral
-          };
+          }
     
           Object.entries(styles).forEach(([prop, value]) => {
-              element.style.setProperty(prop, value);
-          });
+              element.style.setProperty(prop, value)
+          })
       },
     
       _updateFormColorPreview(container, paletteKey) {
-          this._updateColorScheme(container, paletteKey);
+          this._updateColorScheme(container, paletteKey)
       },
     
       _attachFormEventHandlers(container, itemType /*, item, isCreating */) {
-        const formElements = this._setupFormElements(container, itemType);
-        if (!formElements) return;
+        const formElements = this._setupFormElements(container, itemType)
+        if (!formElements) return
     
         // Phase 1: Contenteditable Name Field Handlers (like storyboard title)
-        this._attachContenteditableNameHandlers(formElements, itemType);
+        this._attachContenteditableNameHandlers(formElements, itemType)
     
         // Phase 2: Profile PictureSystem Event Handlers
-        this._attachProfilePictureEventHandlers(formElements, itemType);
+        this._attachProfilePictureEventHandlers(formElements, itemType)
     
           // Phase 3: Form Action Handlers (Delete, Cancel, Submit)
-                        this._attachFormActionHandlers(formElements, itemType);
+                        this._attachFormActionHandlers(formElements, itemType)
     
           // Phase 4: AI Helper Handlers
-          this._attachAiHelperHandlers(formElements, itemType);
+          this._attachAiHelperHandlers(formElements, itemType)
     
           // Phase 5: Textarea Dynamic Updates
-          this._attachTextareaHandlers(formElements);
+          this._attachTextareaHandlers(formElements)
     
-          const colorButtons = container.querySelectorAll('.color-palette-button');
+          const colorButtons = container.querySelectorAll('.color-palette-button')
           colorButtons.forEach(button => {
               button.onclick = (e) => {
-                  e.preventDefault();
-                  const selectedKey = button.dataset.paletteKey;
+                  e.preventDefault()
+                  const selectedKey = button.dataset.paletteKey
                   
                   // Update selection state
-                  colorButtons.forEach(button => button.classList.remove('selected'));
-                  button.classList.add('selected');
+                  colorButtons.forEach(button => button.classList.remove('selected'))
+                  button.classList.add('selected')
     
                   // Update form data
-                  this.createItemFormData.colorPalette = selectedKey;
+                  this.createItemFormData.colorPalette = selectedKey
     
                   // Update live preview
-                  this._updateFormColorPreview(container, selectedKey);
-              };
-          });
+                  this._updateFormColorPreview(container, selectedKey)
+              }
+          })
       },
     
       _attachContenteditableNameHandlers(elements /*, itemType */) {
-          const { nameInput } = elements;
-          if (!nameInput) return;
+          const { nameInput } = elements
+          if (!nameInput) return
           
           // Handle input to save changes
           nameInput.oninput = () => {
-              const newName = nameInput.value.trim();
+              const newName = nameInput.value.trim()
               if (newName) {
                   // Update the form data
-                  this.createItemFormData.name = newName;
+                  this.createItemFormData.name = newName
               }
-          };
+          }
           
           // Handle blur to save changes
           nameInput.onblur = () => {
-              const newName = nameInput.value.trim();
+              const newName = nameInput.value.trim()
               if (newName) {
                   // Update the form data
-                  this.createItemFormData.name = newName;
+                  this.createItemFormData.name = newName
               }
-          };
+          }
           
           // Handle Enter key to finish editing
           nameInput.onkeydown = (e) => {
               if (e.key === 'Enter') {
-                  e.preventDefault();
-                  nameInput.blur();
+                  e.preventDefault()
+                  nameInput.blur()
               }
-          };
+          }
       },
     
       _setupFormElements(container, itemType) {
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
-          const form = container.querySelector(`#${itemType}FormMain`);
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+          const form = container.querySelector(`#${itemType}FormMain`)
           if (!form) {
-              console.error(`Form not found for ${itemType}`);
-              return null;
+              console.error(`Form not found for ${itemType}`)
+              return null
           }
     
           return {
@@ -4996,31 +4999,31 @@ window.App = {
               pastInput: form.querySelector(`#${itemType}Past`),
               presentInput: form.querySelector(`#${itemType}Present`),
               futureInput: form.querySelector(`#${itemType}Future`),
-          };
+          }
       },
     
       _attachProfilePictureEventHandlers(elements, itemType) {
           // Simple profile picture handler for both character and world forms
-          const { uploadProfilePictureButtonForm } = elements;
+          const { uploadProfilePictureButtonForm } = elements
           
           if (uploadProfilePictureButtonForm) {
               uploadProfilePictureButtonForm.onclick = (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                  e.preventDefault()
+                  e.stopPropagation()
                   
                   // Simple prompt for image URL or description
-                  const input = prompt('Enter an image URL or describe the image you want to generate:');
+                  const input = prompt('Enter an image URL or describe the image you want to generate:')
                   if (input && input.trim()) {
-                      const isUrl = input.trim().startsWith('http');
+                      const isUrl = input.trim().startsWith('http')
                       if (isUrl) {
                           // Use URL directly
-                          this.handleUseUrlForProfilePicture(null, input.trim(), itemType);
+                          this.handleUseUrlForProfilePicture(null, input.trim(), itemType)
                       } else {
                           // Generate image from description using simplified approach
-                          this.handleGenerateProfilePictureSimple(itemType, input.trim());
+                          this.handleGenerateProfilePictureSimple(itemType, input.trim())
                       }
                   }
-              };
+              }
           }
       },
     
@@ -5030,46 +5033,46 @@ window.App = {
           // Delete button removed from forms - will be handled in profile top bar for custom items only
     
           // Cancel button handler
-          this._attachCancelButtonHandler(elements, itemType);
+          this._attachCancelButtonHandler(elements, itemType)
     
           // Form submit handler
-          this._attachFormSubmitHandler(elements, itemType);
+          this._attachFormSubmitHandler(elements, itemType)
       },
     
       _attachCancelButtonHandler(elements, itemType) {
-          const { config, form } = elements;
-          const cancelButton = form.querySelector(`#cancel${config.capital}ButtonMain`);
+          const { config, form } = elements
+          const cancelButton = form.querySelector(`#cancel${config.capital}ButtonMain`)
           
           if (!cancelButton) {
-              console.warn(`Cancel button not found for ${itemType} form.`);
-              return;
+              console.warn(`Cancel button not found for ${itemType} form.`)
+              return
           }
     
           cancelButton.onclick = (e) => {
               // Ignore synthetic/programmatic clicks that are not user-initiated
               if (e && e.isTrusted === false) {
-                  console.warn("Programmatic cancel click suppressed");
-                  return;
+                  console.warn("Programmatic cancel click suppressed")
+                  return
               }
               
               if (!this.currentCreateFormContext || Object.keys(this.currentCreateFormContext).length === 0) {
-                  App.handleError('FORM_CONTEXT_ERROR', new Error('Missing form context during cancel operation'));
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD);
-                  return;
+                  App.handleError('FORM_CONTEXT_ERROR', new Error('Missing form context during cancel operation'))
+                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
+                  return
               }
               
-              const { id, itemType, isCreating, isCopying, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId, originalScreen } = this.currentCreateFormContext;
-              this.createItemFormData = {};
+              const { id, itemType, isCreating, isCopying, preSelectedAiCharacterId, preSelectedUserCharacterId, preSelectedWorldId, originalScreen } = this.currentCreateFormContext
+              this.createItemFormData = {}
               
               // Clear any pending form state from session storage when canceling
               try {
-                  sessionStorage.removeItem('pendingRPGlitchFormState');
+                  sessionStorage.removeItem('pendingRPGlitchFormState')
               } catch (e) {
-                  console.warn("Failed to clear session storage on cancel:", e);
+                  console.warn("Failed to clear session storage on cancel:", e)
               } 
               
               // Get config for this item type
-              const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+              const config = this.CONSTANTS.ITEM_CONFIG[itemType]
               
               // Form context: 
               console.log("Form context:", {
@@ -5079,97 +5082,98 @@ window.App = {
                   isCopying,
                   originalScreen,
                   currentCreateFormContext: this.currentCreateFormContext
-              });
+              })
               
               // Determine where to go based on the context
-              let targetScreen;
-              let navOptions = {};
+              let targetScreen
+              let navOptions = {}
               
               if (isCreating && !isCopying) {
                   // If creating new (not copying), go back to storyboard
-                  targetScreen = this.CONSTANTS.VIEWS.STORYBOARD;
+                  targetScreen = this.CONSTANTS.VIEWS.STORYBOARD
                   // Filter out 'create_new_' values to prevent infinite loop
                   navOptions = { 
                       preSelectedAiCharacterId: preSelectedAiCharacterId?.startsWith?.('create_new_') ? '' : preSelectedAiCharacterId, 
                       preSelectedUserCharacterId: preSelectedUserCharacterId?.startsWith?.('create_new_') ? '' : preSelectedUserCharacterId, 
                       preSelectedWorldId: preSelectedWorldId?.startsWith?.('create_new_') ? '' : preSelectedWorldId 
-                  };
+                  }
                   // Creating new, going to storyboard
               } else if (isCopying) {
                   // If copying, go back to the original screen we came from
                   if (originalScreen && originalScreen !== this.CONSTANTS.VIEWS.STORYBOARD) {
-                      targetScreen = originalScreen;
-                      navOptions = { itemId: id, itemType: itemType };
+                      targetScreen = originalScreen
+                      navOptions = { itemId: id, itemType: itemType }
                       // Copying cancelled, returning to original screen
               } else {
                       // Fallback to profile screen if no original screen
-                  targetScreen = config.profileScreen;
-                  navOptions = { itemId: id, itemType: itemType };
+                  targetScreen = config.profileScreen
+                  navOptions = { itemId: id, itemType: itemType }
                       // Copying cancelled, fallback to profile
                   }
               } else {
                   // If editing existing item, go back to its profile page
-                  targetScreen = config.profileScreen;
-                  navOptions = { itemId: id, itemType: itemType };
+                  targetScreen = config.profileScreen
+                  navOptions = { itemId: id, itemType: itemType }
                   // Editing, going to profile
               }
     
-              this.switchToScreen(targetScreen, navOptions);
-          };
+              this.switchToScreen(targetScreen, navOptions)
+          }
       },
     
       _attachFormSubmitHandler(elements, itemType) {
-          const { config, form } = elements;
+          const { config, form } = elements
           form.onsubmit = async (e) => {
-              e.preventDefault();
-              this.checkAllButtonStates(); // Re-check states on submit attempt
-          await this._updateStoryboardCard(type);
-          this.updateDynamicStoryboardTitle();
-          this.checkAllButtonStates();
+              e.preventDefault()
+              this.checkAllButtonStates() // Re-check states on submit attempt
+              await this._updateStoryboardCard(itemType)
+              this.updateDynamicStoryboardTitle()
+              this.checkAllButtonStates()
+          }
       },
 
       async _updateStoryboardCard(cardType) {
-          console.log(`_updateStoryboardCard called for cardType: ${cardType}`);
-          const selectedId = this.storyboardSelected[cardType];
-          const cardEl = this.ui[`storyboard${cardType.charAt(0).toUpperCase() + cardType.slice(1)}Card`];
-          const itemType = (cardType === 'world') ? 'world' : 'character';
-          const config = this.CONSTANTS.ITEM_CONFIG[itemType];
+          console.log(`_updateStoryboardCard called for cardType: ${cardType}`)
+          const selectedId = this.storyboardSelected[cardType]
+          const cardEl = this.ui[`storyboard${cardType.charAt(0).toUpperCase() + cardType.slice(1)}Card`]
+          const itemType = (cardType === 'world') ? 'world' : 'character'
+          const config = this.CONSTANTS.ITEM_CONFIG[itemType]
     
           if (!cardEl) {
-              console.warn(`_updateStoryboardCard: Card element not found for cardType: ${cardType}`);
-              return;
+              console.warn(`_updateStoryboardCard: Card element not found for cardType: ${cardType}`)
+              return
           }
     
-          const item = selectedId ? await this._getitemData(selectedId, config.dbTableKey, config.getPremadesFn) : null;
-          console.log(`_updateStoryboardCard: Fetched item for selectedId ${selectedId}:`, item);
-          console.log(`_updateStoryboardCard: Item object received:`, item);
+          const item = selectedId ? await this._getitemData(selectedId, config.dbTableKey, config.getPremadesFn) : null
+          console.log(`_updateStoryboardCard: Fetched item for selectedId ${selectedId}:`, item)
+          console.log(`_updateStoryboardCard: Item object received:`, item)
 
-          const cardContent = cardEl.querySelector('.storyboard-card-right article');
+          const cardContent = cardEl.querySelector('.storyboard-card-right article')
           if (!cardContent) {
-              console.warn(`_updateStoryboardCard: Card content area not found for cardType: ${cardType}`);
-              return;
+              console.warn(`_updateStoryboardCard: Card content area not found for cardType: ${cardType}`)
+              return
           }
     
           if (item) {
-              console.log(`_updateStoryboardCard: Updating card with item:`, item);
-              cardContent.querySelector('header').innerHTML = `<h4 class="storyboard-card-title-styled">${this.sanitizeHtml(item.name)}</h4>`;
-              cardContent.querySelector('p').innerHTML = this.sanitizeHtml(item.description || `A ${itemType} for your story...`);
-              cardContent.querySelector('footer small').textContent = item.isPremade ? 'Premade' : 'Custom';
+              console.log(`_updateStoryboardCard: Updating card with item:`, item)
+              cardContent.querySelector('header').innerHTML = `<h4 class="storyboard-card-title-styled">${this.sanitizeHtml(item.name)}</h4>`
+              cardContent.querySelector('p').innerHTML = this.sanitizeHtml(item.description || `A ${itemType} for your story...`)
+              cardContent.querySelector('footer small').textContent = item.isPremade ? 'Premade' : 'Custom'
               
-              const profilePictureContainer = cardEl.querySelector('.storyboard-card-left');
+              const profilePictureContainer = cardEl.querySelector('.storyboard-card-left')
               if (profilePictureContainer) {
-                  profilePictureContainer.innerHTML = this._generateProfilePictureHtml(item, 'storyboard');
+                  profilePictureContainer.innerHTML = this._generateProfilePictureHtml(item, 'storyboard')
               }
           } else {
-              console.log(`_updateStoryboardCard: Resetting card for cardType: ${cardType} (no item selected or found).`);
+              console.log(`_updateStoryboardCard: Resetting card for cardType: ${cardType} (no item selected or found).`)
               // Reset to default state
-              cardContent.querySelector('header').innerHTML = `<select id="storyboard-${cardType}-select" class="storyboard-select" aria-label="Choose ${config.capital}"><option value="">Choose ${config.capital}...</option></select>`;
-              cardContent.querySelector('p').textContent = `Select a ${itemType} for your story...`;
-              cardContent.querySelector('footer small').textContent = '';
+              cardContent.querySelector('header').innerHTML = `<select id="storyboard-${cardType}-select" class="storyboard-select" aria-label="Choose ${config.capital}"><option value="">Choose ${config.capital}...</option></select>`
+              cardContent.querySelector('p').textContent = `Select a ${itemType} for your story...`
+              cardContent.querySelector('footer small').textContent = ''
               
-              const profilePictureContainer = cardEl.querySelector('.storyboard-card-left');
+              const profilePictureContainer = cardEl.querySelector('.storyboard-card-left')
               if (profilePictureContainer) {
-                  profilePictureContainer.innerHTML = `<img src="data:image/svg+xml;base64,..." alt="${config.capital}">`; // Placeholder image
+                  profilePictureContainer.innerHTML = `<img src="data:image/svg+xml;base64,..." alt="${config.capital}">` // Placeholder image
               }
           }
       },
@@ -5178,9 +5182,9 @@ window.App = {
        * Updates all cards on the storyboard.
        */
       async _updateAllStoryboardCards() {
-          await this._updateStoryboardCard('ai');
-          await this._updateStoryboardCard('user');
-          await this._updateStoryboardCard('world');
+          await this._updateStoryboardCard('ai')
+          await this._updateStoryboardCard('user')
+          await this._updateStoryboardCard('world')
       },
     
       /**
@@ -5192,20 +5196,20 @@ window.App = {
       _generateProfilePictureHtml(item, context) {
           if (!item) {
               // Generate a generic placeholder if no item is provided
-              return this._makeProfilePicturePlaceholderSVG('?', 'slate_gray', false, context);
+              return this._makeProfilePicturePlaceholderSVG('?', 'slate_gray', false, context)
           }
     
-          const hasProfilePicture = item.profilePicture && item.profilePicture.trim();
-          const paletteKey = item.colorPalette || 'slate_gray';
+          const hasProfilePicture = item.profilePicture && item.profilePicture.trim()
+          const paletteKey = item.colorPalette || 'slate_gray'
     
           if (hasProfilePicture) {
-              const sanitizedUrl = this.sanitizeHtml(item.profilePicture.trim());
-              const placeholderSvg = this._makeProfilePicturePlaceholderSVG(item.name, paletteKey, item.isPremade, context);
-              const errorHandling = `this.onerror=null; this.src='${placeholderSvg}'`;
-              return `<img src="${sanitizedUrl}" alt="${this.sanitizeHtml(item.name)}" class="profile-picture-${context}" onerror="${errorHandling}">`;
+              const sanitizedUrl = this.sanitizeHtml(item.profilePicture.trim())
+              const placeholderSvg = this._makeProfilePicturePlaceholderSVG(item.name, paletteKey, item.isPremade, context)
+              const errorHandling = `this.onerror=null; this.src='${placeholderSvg}'`
+              return `<img src="${sanitizedUrl}" alt="${this.sanitizeHtml(item.name)}" class="profile-picture-${context}" onerror="${errorHandling}">`
           } else {
               // Generate placeholder SVG directly
-              return this._makeProfilePicturePlaceholderSVG(item.name, paletteKey, item.isPremade, context);
+              return this._makeProfilePicturePlaceholderSVG(item.name, paletteKey, item.isPremade, context)
           }
       },
     
@@ -5218,17 +5222,17 @@ window.App = {
        * @returns {string} A data URL for the SVG image.
        */
       _makeProfilePicturePlaceholderSVG(name, paletteKey, isPremade, context) {
-          const palette = this.getColorPalette(paletteKey);
-          const initials = this._getInitials(name || '?');
-          const { light, medium } = palette.colors;
+          const palette = this.getColorPalette(paletteKey)
+          const initials = this._getInitials(name || '?')
+          const { light, medium } = palette.colors
     
           const svg = `
               <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="background-color: ${medium};">
                   <text x="50%" y="50%" font-family="${this.CONSTANTS.FONT_FAMILY}" font-size="40" fill="${light}" text-anchor="middle" dominant-baseline="central">${initials}</text>
               </svg>
-          `;
+          `
     
-          return `data:image/svg+xml;base64,${btoa(svg)}`;
+          return `data:image/svg+xml;base64,${btoa(svg)}`
       },
     
       /**
@@ -5237,9 +5241,9 @@ window.App = {
        * @returns {string} The initials.
        */
       _getInitials(name) {
-          if (!name) return '?';
-          const words = name.split(' ');
-          return words.map(w => w[0]).join('').toUpperCase().slice(0, 2);
+          if (!name) return '?'
+          const words = name.split(' ')
+          return words.map(w => w[0]).join('').toUpperCase().slice(0, 2)
       },
     
       /**
@@ -5247,19 +5251,19 @@ window.App = {
        */
       checkAllButtonStates() {
           // Storyboard buttons
-          const isStoryboardReady = this.storyboardSelected.ai && this.storyboardSelected.user && this.storyboardSelected.world;
+          const isStoryboardReady = this.storyboardSelected.ai && this.storyboardSelected.user && this.storyboardSelected.world
           if (this.ui.beginStoryButton) {
-              this.ui.beginStoryButton.disabled = !isStoryboardReady;
+              this.ui.beginStoryButton.disabled = !isStoryboardReady
           }
     
           // Form buttons
           if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_FORM || this.currentMainView === this.CONSTANTS.VIEWS.WORLD_FORM) {
-              const form = this.ui[this.currentMainView];
+              const form = this.ui[this.currentMainView]
               if (form) {
-                  const nameInput = form.querySelector('input[type="text"]');
-                  const submitButton = form.querySelector('button[type="submit"]');
+                  const nameInput = form.querySelector('input[type="text"]')
+                  const submitButton = form.querySelector('button[type="submit"]')
                   if (nameInput && submitButton) {
-                      submitButton.disabled = !nameInput.value.trim();
+                      submitButton.disabled = !nameInput.value.trim()
                   }
               }
           }
@@ -5270,23 +5274,23 @@ window.App = {
        */
       updateTopBarUI() {
           // Hide all right-side sections first
-          const rightSections = document.querySelectorAll('.top-bar-right');
-          rightSections.forEach(section => this.hideEl(section));
+          const rightSections = document.querySelectorAll('.top-bar-right')
+          rightSections.forEach(section => this.hideEl(section))
     
           // Show the correct section based on the current view
           switch (this.currentMainView) {
               case this.CONSTANTS.VIEWS.STORYBOARD:
-                  this.showEl(document.getElementById('top-bar-right-storyboard'));
-                  break;
+                  this.showEl(document.getElementById('top-bar-right-storyboard'))
+                  break
               case this.CONSTANTS.VIEWS.CHARACTER_FORM:
               case this.CONSTANTS.VIEWS.WORLD_FORM:
-                  this.showEl(document.getElementById('top-bar-right-form'));
-                  break;
+                  this.showEl(document.getElementById('top-bar-right-form'))
+                  break
               case this.CONSTANTS.VIEWS.CHARACTER_PROFILE:
               case this.CONSTANTS.VIEWS.WORLD_PROFILE:
               case this.CONSTANTS.VIEWS.STORY_PROFILE:
-                  this.showEl(document.getElementById('top-bar-right-profile'));
-                  break;
+                  this.showEl(document.getElementById('top-bar-right-profile'))
+                  break
           }
       },
     
@@ -5296,17 +5300,17 @@ window.App = {
        */
       selectTopBarTab(tabName) {
           // Deselect all tabs
-          const tabs = document.querySelectorAll('#top-bar-left button');
-          tabs.forEach(tab => tab.setAttribute('aria-selected', 'false'));
+          const tabs = document.querySelectorAll('#top-bar-left button')
+          tabs.forEach(tab => tab.setAttribute('aria-selected', 'false'))
     
           // Select the new tab
-          const selectedTab = document.querySelector(`#top-bar-left button[data-chin="${tabName}"]`);
+          const selectedTab = document.querySelector(`#top-bar-left button[data-chin="${tabName}"]`)
           if (selectedTab) {
-              selectedTab.setAttribute('aria-selected', 'true');
+              selectedTab.setAttribute('aria-selected', 'true')
           }
     
           // Show/hide chin content
-          this._toggleChinContent(tabName);
+          this._toggleChinContent(tabName)
       },
     
       /**
@@ -5314,19 +5318,19 @@ window.App = {
        * @param {string} chinName - The name of the chin section to show.
        */
       _toggleChinContent(chinName) {
-          const chinContainer = document.getElementById('chin-container');
-          const allChins = document.querySelectorAll('[data-chin]');
+          const chinContainer = document.getElementById('chin-container')
+          const allChins = document.querySelectorAll('[data-chin]')
     
           // Hide all chins
-          allChins.forEach(chin => this.hideEl(chin));
+          allChins.forEach(chin => this.hideEl(chin))
     
           // Show the selected chin
-          const selectedChin = document.querySelector(`[data-chin="${chinName}"]`);
+          const selectedChin = document.querySelector(`[data-chin="${chinName}"]`)
           if (selectedChin) {
-              this.showEl(chinContainer);
-              this.showEl(selectedChin);
+              this.showEl(chinContainer)
+              this.showEl(selectedChin)
           } else {
-              this.hideEl(chinContainer);
+              this.hideEl(chinContainer)
           }
       },
     
@@ -5335,8 +5339,8 @@ window.App = {
        */
       async beginStory() {
           if (!this.storyboardSelected.ai || !this.storyboardSelected.user || !this.storyboardSelected.world) {
-              this.showTopNotification('Please select an AI character, a user character, and a world.', 'error');
-              return;
+              this.showTopNotification('Please select an AI character, a user character, and a world.', 'error')
+              return
           }
     
           const newStory = {
@@ -5347,13 +5351,13 @@ window.App = {
               lastMessageTimestamp: Date.now(),
               concluded: false,
               messages: []
-          };
+          }
     
-          const newStoryId = await this.db.stories.add(newStory);
-          this.activeStoryId = newStoryId;
-          await this.saveAppState();
+          const newStoryId = await this.db.stories.add(newStory)
+          this.activeStoryId = newStoryId
+          await this.saveAppState()
     
-          this.switchToScreen(this.CONSTANTS.VIEWS.STORY_INTERFACE);
+          this.switchToScreen(this.CONSTANTS.VIEWS.STORY_INTERFACE)
       },
     
       /**
@@ -5361,30 +5365,30 @@ window.App = {
        * @param {number} storyId - The ID of the story to open.
        */
       async openStory(storyId) {
-          const story = await this.db.stories.get(storyId);
+          const story = await this.db.stories.get(storyId)
           if (!story) {
-              this.showTopNotification('Story not found.', 'error');
-              return;
+              this.showTopNotification('Story not found.', 'error')
+              return
           }
     
-          this.activeStoryId = storyId;
-          await this.saveAppState();
+          this.activeStoryId = storyId
+          await this.saveAppState()
     
           // Load characters and world
-          const aiChar = await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems);
-          const userChar = await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems);
+          const aiChar = await this._getitemData(story.aiCharacterId, 'characters', this.getPremadeCharacterItems)
+          const userChar = await this._getitemData(story.userCharacterId, 'characters', this.getPremadeCharacterItems)
           // const world = await this._getitemData(story.worldId, 'worlds', this.getPremadeWorldItems); // Unused variable
     
           // Update character displays
-          this._updateCharacterInfo('ai', aiChar);
-          this._updateCharacterInfo('user', userChar);
+          this._updateCharacterInfo('ai', aiChar)
+          this._updateCharacterInfo('user', userChar)
     
           // Render messages
-          this.ui.chatFeed.innerHTML = '';
-          const messages = await this.db.messages.where({ storyId: storyId }).sortBy('timestamp');
-          messages.forEach(msg => this._addMessageToFeed(msg));
+          this.ui.chatFeed.innerHTML = ''
+          const messages = await this.db.messages.where({ storyId: storyId }).sortBy('timestamp')
+          messages.forEach(msg => this._addMessageToFeed(msg))
     
-          this.switchToScreen(this.CONSTANTS.VIEWS.STORY_INTERFACE);
+          this.switchToScreen(this.CONSTANTS.VIEWS.STORY_INTERFACE)
       },
     
       /**
@@ -5392,33 +5396,33 @@ window.App = {
        * @param {number} storyId - The ID of the story to conclude.
        */
       async concludeStory(storyId) {
-          await this.db.stories.update(storyId, { concluded: true, concludedTimestamp: Date.now() });
+          await this.db.stories.update(storyId, { concluded: true, concludedTimestamp: Date.now() })
           if (this.activeStoryId === storyId) {
-              this.activeStoryId = null;
-              await this.saveAppState();
+              this.activeStoryId = null
+              await this.saveAppState()
           }
-          this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: storyId });
+          this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: storyId })
       },
     
       /**
        * Sends a message in the current story.
        */
       async sendButtonClickHandler() {
-          const content = this.ui.messageInput.value.trim();
-          if (!content) return;
+          const content = this.ui.messageInput.value.trim()
+          if (!content) return
     
           const message = {
               storyId: this.activeStoryId,
               role: 'user',
               content: content,
               timestamp: Date.now()
-          };
+          }
     
-          await this.db.messages.add(message);
-          this._addMessageToFeed(message);
+          await this.db.messages.add(message)
+          this._addMessageToFeed(message)
     
-          this.ui.messageInput.value = '';
-          this.ui.messageInput.style.height = 'auto';
+          this.ui.messageInput.value = ''
+          this.ui.messageInput.style.height = 'auto'
     
           // AI response logic would go here
       },
@@ -5429,20 +5433,20 @@ window.App = {
        * @param {boolean} [isProfileView=false] - Whether this is for the profile view.
        */
       _addMessageToFeed(message, isProfileView = false) {
-          const feed = isProfileView ? this.ui.storyProfilechatFeed : this.ui.chatFeed;
-          if (!feed) return;
+          const feed = isProfileView ? this.ui.storyProfilechatFeed : this.ui.chatFeed
+          if (!feed) return
     
-          const messageEl = document.createElement('div');
-          messageEl.className = `message ${message.role}`;
+          const messageEl = document.createElement('div')
+          messageEl.className = `message ${message.role}`
           messageEl.innerHTML = `
               <div class="messageWrap">
                   <div class="messageContentContainer">
                       <div class="messageText">${this.sanitizeHtml(message.content)}</div>
                   </div>
               </div>
-          `;
-          feed.appendChild(messageEl);
-          feed.scrollTop = feed.scrollHeight;
+          `
+          feed.appendChild(messageEl)
+          feed.scrollTop = feed.scrollHeight
       },
     
       /**
@@ -5451,15 +5455,15 @@ window.App = {
        * @param {Object} character - The character object.
        */
       async _updateCharacterInfo(type, character) {
-          const displayArea = this.ui[`${type}CharacterDisplayArea`];
-          if (!displayArea) return;
+          const displayArea = this.ui[`${type}CharacterDisplayArea`]
+          if (!displayArea) return
     
           if (character) {
-              displayArea.innerHTML = this._generateProfilePictureHtml(character, 'top-bar-char-profile-picture');
-              this.showEl(displayArea);
+              displayArea.innerHTML = this._generateProfilePictureHtml(character, 'top-bar-char-profile-picture')
+              this.showEl(displayArea)
           }
           else {
-              this.hideEl(displayArea);
+              this.hideEl(displayArea)
           }
       },
     
@@ -5467,25 +5471,25 @@ window.App = {
        * Shuffles the storyboard selections.
        */
       async _shuffleStoryboard() {
-          const characters = await this.getPremadeCharacterItems();
-          const worlds = await this.getPremadeWorldItems();
+          const characters = await this.getPremadeCharacterItems()
+          const worlds = await this.getPremadeWorldItems()
     
-          const randomChar1 = characters[Math.floor(Math.random() * characters.length)];
-          let randomChar2 = characters[Math.floor(Math.random() * characters.length)];
+          const randomChar1 = characters[Math.floor(Math.random() * characters.length)]
+          let randomChar2 = characters[Math.floor(Math.random() * characters.length)]
           while (randomChar2.id === randomChar1.id) {
-              randomChar2 = characters[Math.floor(Math.random() * characters.length)];
+              randomChar2 = characters[Math.floor(Math.random() * characters.length)]
           }
-          const randomWorld = worlds[Math.floor(Math.random() * worlds.length)];
+          const randomWorld = worlds[Math.floor(Math.random() * worlds.length)]
     
-          this.storyboardSelected.ai = randomChar1.isPremade ? `premade_character:${randomChar1.id}` : randomChar1.id;
-          this.storyboardSelected.user = randomChar2.isPremade ? `premade_character:${randomChar2.id}` : randomChar2.id;
-          this.storyboardSelected.world = randomWorld.isPremade ? `premade_world:${randomWorld.id}` : randomWorld.id;
+          this.storyboardSelected.ai = randomChar1.isPremade ? `premade_character:${randomChar1.id}` : randomChar1.id
+          this.storyboardSelected.user = randomChar2.isPremade ? `premade_character:${randomChar2.id}` : randomChar2.id
+          this.storyboardSelected.world = randomWorld.isPremade ? `premade_world:${randomWorld.id}` : randomWorld.id
     
           await this._updateStoryboard({
               preSelectedAiCharacterId: this.storyboardSelected.ai,
               preSelectedUserCharacterId: this.storyboardSelected.user,
               preSelectedWorldId: this.storyboardSelected.world
-          });
+          })
       },
     
       /**
@@ -5498,14 +5502,14 @@ window.App = {
               stories: await this.db.stories.toArray(),
               messages: await this.db.messages.toArray(),
               appState: await this.db.appState.toArray()
-          };
-          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `rpglitch-backup-${new Date().toISOString().split('T')[0]}.json`;
-          a.click();
-          URL.revokeObjectURL(url);
+          }
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `rpglitch-backup-${new Date().toISOString().split('T')[0]}.json`
+          a.click()
+          URL.revokeObjectURL(url)
       },
     
       /**
@@ -5513,8 +5517,8 @@ window.App = {
        */
       async deleteAllData() {
           if (confirm('Are you sure you want to delete all your data? This cannot be undone.')) {
-              await this.db.delete();
-              location.reload();
+              await this.db.delete()
+              location.reload()
           }
       },
     
@@ -5524,27 +5528,25 @@ window.App = {
        * @param {Error} error - The error object.
        */
       handleError(code, error) {
-          console.error(`[${code}]`, error);
-          this.showTopNotification(`Error: ${code}. See console for details.`, 'error', 5000);
+          console.error(`[${code}]`, error)
+          this.showTopNotification(`Error: ${code}. See console for details.`, 'error', 5000)
       },
     
       /**
-       /**
-        * Initializes the application when all dependencies are ready.
-        */
-       async initializeWhenReady() {
-           try {
-               this._getUIElements();
-               this._attachStoryboardEventListeners();
-               await this.initialLoad();
-           } catch (error) {
-               this.handleError('INITIALIZE_WHEN_READY', error);
-           }
+       * Initializes the application when all dependencies are ready.
+       */
+      async initializeWhenReady() {
+          try {
+              this._getUIElements()
+              this._attachStoryboardEventListeners()
+              await this.initialLoad()
+          } catch (error) {
+              this.handleError('INITIALIZE_WHEN_READY', error)
+          }
        }
-  };
+  }
 
   // Initialize the app when the DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
-      waitForDependencies();
-  },
-  // Additional functionality or correction if needed
+      waitForDependencies()
+  })
