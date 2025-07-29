@@ -5382,12 +5382,14 @@ window.App = {
       _toggleChinContent(chinName) {
           const chinContainer = document.getElementById('chin-container')
           const allChins = document.querySelectorAll('#chin-container [data-chin]')
+
     
           // Hide all chins
           allChins.forEach(chin => this.hideEl(chin))
     
           // Show the selected chin
           const selectedChin = document.querySelector(`#chin-container [data-chin="${chinName}"]`)
+
           if (selectedChin) {
               this.showEl(chinContainer)
               this.showEl(selectedChin)
