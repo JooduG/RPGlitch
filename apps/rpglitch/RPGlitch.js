@@ -14,7 +14,9 @@ window.App = {
     ui: {},
     currentTargetProfilePictureInputId: null, 
     currentGeneratedProfilePictureDataUrl: null,
-    currentProfileViewItemId: null, 
+    currentProfileViewItemId: null,
+    currentProfileViewItemType: null,
+    currentProfileViewItem: null,
     isInitializing: false, 
     activeAiButtons: new Map(), // Stores active AbortControllers for AI actions
     statusNotifierIntervalId: null,
@@ -169,8 +171,9 @@ window.App = {
        * Should be called once after DOM is ready.
        */
       _getUIElements() {
-          
+
           this._getTopBarElements()
+          this._attachTopBarEventListeners()
           this._getChinElements()
           this._getCoreUIContainers()
           this._getFormScreens()
@@ -1569,10 +1572,11 @@ window.App = {
               return
           }
           
-          this.currentProfileViewItemId = itemId 
-      
-          // const isPremade = typeof itemId === 'string' && itemId.startsWith('premade_'); // Unused variable
+          this.currentProfileViewItemId = itemId
+
           const item = await this._getitemData(itemId, config.dbTableKey, config.getPremadesFn)
+          this.currentProfileViewItemType = itemType
+          this.currentProfileViewItem = item
       
           if (!item) {
               container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`
@@ -3361,10 +3365,11 @@ window.App = {
               return
           }
           
-          this.currentProfileViewItemId = itemId 
-      
-          // const isPremade = typeof itemId === 'string' && itemId.startsWith('premade_'); // Unused variable
+          this.currentProfileViewItemId = itemId
+
           const item = await this._getitemData(itemId, config.dbTableKey, config.getPremadesFn)
+          this.currentProfileViewItemType = itemType
+          this.currentProfileViewItem = item
       
           if (!item) {
               container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`
@@ -4279,13 +4284,13 @@ window.App = {
       /**
        * Attaches event listeners to the storyboard select elements.
        */
-      _attachStoryboardEventListeners() {
-          console.log('_attachStoryboardEventListeners called.')
-        const selects = [
-            { el: this.ui.storyboardAiCharacterSelect, type: 'ai' },
-              { el: this.ui.storyboardUserCharacterSelect, type: 'user' },
-              { el: this.ui.storyboardWorldSelect, type: 'world' }
-          ]
+  _attachStoryboardEventListeners() {
+      console.log('_attachStoryboardEventListeners called.')
+      const selects = [
+          { el: this.ui.storyboardAiCharacterSelect, type: 'ai' },
+            { el: this.ui.storyboardUserCharacterSelect, type: 'user' },
+            { el: this.ui.storyboardWorldSelect, type: 'world' }
+        ]
     
           selects.forEach(({ el, type }) => {
               if (el) {
@@ -4311,6 +4316,75 @@ window.App = {
               }
           })
       },
+
+      /**
+       * Attaches event listeners to top bar buttons.
+       */
+      _attachTopBarEventListeners() {
+          const shuffleBtn = document.getElementById('shuffle')
+          if (shuffleBtn) shuffleBtn.onclick = () => this._shuffleStoryboard()
+
+          const beginBtn = document.getElementById('begin-story')
+          if (beginBtn) beginBtn.onclick = () => this.beginStory()
+
+          const formCancel = document.getElementById('form-cancel')
+          if (formCancel) formCancel.onclick = () => {
+              const form = !this.ui.characterFormScreen?.classList.contains('hidden')
+                  ? this.ui.characterFormScreen.querySelector('form')
+                  : !this.ui.worldFormScreen?.classList.contains('hidden')
+                      ? this.ui.worldFormScreen.querySelector('form')
+                      : null
+              const cancelBtn = form?.querySelector('button[id^="cancel"]')
+              cancelBtn?.click()
+          }
+
+          const formSave = document.getElementById('form-save')
+          if (formSave) formSave.onclick = () => {
+              const form = !this.ui.characterFormScreen?.classList.contains('hidden')
+                  ? this.ui.characterFormScreen.querySelector('form')
+                  : !this.ui.worldFormScreen?.classList.contains('hidden')
+                      ? this.ui.worldFormScreen.querySelector('form')
+                      : null
+              const submitBtn = form?.querySelector('button[type="submit"]')
+              submitBtn?.click()
+          }
+
+          const editBtn = document.getElementById('profile-edit')
+          if (editBtn) editBtn.onclick = () => {
+              const type = this.currentProfileViewItemType
+              const config = this.CONSTANTS.ITEM_CONFIG[type]
+              if (config && this.currentProfileViewItemId) {
+                  this.switchToScreen(config.formScreen, { itemId: this.currentProfileViewItemId, isEditing: true })
+              }
+          }
+
+          const copyBtn = document.getElementById('profile-copy')
+          if (copyBtn) copyBtn.onclick = () => {
+              const type = this.currentProfileViewItemType
+              const config = this.CONSTANTS.ITEM_CONFIG[type]
+              if (config && this.currentProfileViewItemId) {
+                  this.switchToScreen(config.formScreen, { itemId: this.currentProfileViewItemId, isCreating: true, isCopying: true })
+              }
+          }
+
+          const deleteBtn = document.getElementById('profile-delete')
+          if (deleteBtn) deleteBtn.onclick = async () => {
+              const type = this.currentProfileViewItemType
+              const id = this.currentProfileViewItemId
+              if (!type || !id) return
+              const config = this.CONSTANTS.ITEM_CONFIG[type]
+              if (!config) return
+              if (!confirm(`Delete ${config.capital}? This cannot be undone.`)) return
+              await this.db[config.dbTableKey].delete(id)
+              this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
+          }
+
+          const backBtn = document.getElementById('profile-back')
+          if (backBtn) backBtn.onclick = () => {
+              if (this.activeStoryId) this.openStory(this.activeStoryId)
+              else this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
+          }
+      },
     
       /**
        * Selects an item in the storyboard dropdowns and updates the corresponding card.
@@ -4323,28 +4397,15 @@ window.App = {
        * @param {string|number} itemId - The ID of the selected item (can be premade_ prefixed).
        */
       async _selectStoryboardItem(type, itemId) {
-          // Atomic fix: Populate dropdowns immediately after data is set
-              if (typeof this._updateStoryboard === 'function') {
-              if (this.currentStoryId === story.id && this.currentMainView === this.CONSTANTS.VIEWS.STORY_INTERFACE) {
-                  itemEl.classList.add('active')
-              }
-              if (story.concluded) {
-                  itemEl.classList.add('concluded-story-item')
-              }
-      
-              itemEl.innerHTML = `
-                  <span class="name-main" title="${this.sanitizeHtml(displayName)}">${this.sanitizeHtml(displayName)}</span>
-                  <span class="tag-right-aligned">${story.concluded ? '<span class="concluded-story-indicator">&#127937;</span>' : ''}</span>
-              `
-      
-              itemEl.onclick = () => {
-                  this.ui.topBar.classList.remove('top-bar-interactive-hover')
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORY_PROFILE, { storyId: story.id })
-              }
-              listArea.appendChild(itemEl)
-          }
-          
-          // Chin height is now handled automatically by flexbox layout
+          this.storyboardSelected[type] = itemId || ''
+
+          const selectEl = this.ui[`storyboard${type.charAt(0).toUpperCase() + type.slice(1)}Select`]
+          if (selectEl && selectEl.value !== itemId) selectEl.value = itemId || ''
+
+          await this._updateStoryboardCard(type)
+          this.updateDynamicStoryboardTitle()
+          this.checkAllButtonStates()
+
       },
     
       async renderStoryProfileScreen(storyId) {
@@ -4696,10 +4757,11 @@ window.App = {
               return
           }
           
-          this.currentProfileViewItemId = itemId 
-      
-          // const isPremade = typeof itemId === 'string' && itemId.startsWith('premade_'); // Unused variable
+          this.currentProfileViewItemId = itemId
+
           const item = await this._getitemData(itemId, config.dbTableKey, config.getPremadesFn)
+          this.currentProfileViewItemType = itemType
+          this.currentProfileViewItem = item
       
           if (!item) {
               container.innerHTML = `<p class="p-4 text-center">${config.capital} not found.</p>`
@@ -5538,6 +5600,7 @@ window.App = {
           try {
               this._getUIElements()
               this._attachStoryboardEventListeners()
+              this._attachTopBarEventListeners()
               await this.initialLoad()
           } catch (error) {
               this.handleError('INITIALIZE_WHEN_READY', error)
