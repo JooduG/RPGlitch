@@ -2039,10 +2039,11 @@ window.App = {
         },
     
         _getChinElements() {
-            this.ui.storyboardChin = this._query('storyboard-chin')
-            this.ui.characterWorkshopChin = this._query('character-workshop-chin')
-            this.ui.worldBuilderChin = this._query('world-builder-chin')
-            this.ui.optionsChin = this._query('options-chin')
+            // Updated IDs to match current HTML structure
+            this.ui.storyboardChin = this._query('chin-stories')
+            this.ui.characterWorkshopChin = this._query('chin-characters')
+            this.ui.worldBuilderChin = this._query('chin-worlds')
+            this.ui.optionsChin = this._query('chin-options')
         },
     
         _getCoreUIContainers() {
@@ -5380,13 +5381,13 @@ window.App = {
        */
       _toggleChinContent(chinName) {
           const chinContainer = document.getElementById('chin-container')
-          const allChins = document.querySelectorAll('[data-chin]')
+          const allChins = document.querySelectorAll('#chin-container [data-chin]')
     
           // Hide all chins
           allChins.forEach(chin => this.hideEl(chin))
     
           // Show the selected chin
-          const selectedChin = document.querySelector(`[data-chin="${chinName}"]`)
+          const selectedChin = document.querySelector(`#chin-container [data-chin="${chinName}"]`)
           if (selectedChin) {
               this.showEl(chinContainer)
               this.showEl(selectedChin)
