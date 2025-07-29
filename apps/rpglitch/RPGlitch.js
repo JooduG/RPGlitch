@@ -4375,8 +4375,7 @@ window.App = {
               const config = this.CONSTANTS.ITEM_CONFIG[type]
               if (!config) return
               if (!confirm(`Delete ${config.capital}? This cannot be undone.`)) return
-              if (type === 'character') await this.db.characters.delete(id)
-              if (type === 'world') await this.db.worlds.delete(id)
+              await this.db[config.dbTableKey].delete(id)
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
           }
 
