@@ -171,8 +171,9 @@ window.App = {
        * Should be called once after DOM is ready.
        */
       _getUIElements() {
-          
+
           this._getTopBarElements()
+          this._attachTopBarEventListeners()
           this._getChinElements()
           this._getCoreUIContainers()
           this._getFormScreens()
@@ -4405,6 +4406,7 @@ window.App = {
           await this._updateStoryboardCard(type)
           this.updateDynamicStoryboardTitle()
           this.checkAllButtonStates()
+
       },
     
       async renderStoryProfileScreen(storyId) {
