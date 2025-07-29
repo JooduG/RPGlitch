@@ -1,3 +1,28 @@
+/* ========================================
+   CSS CUSTOM PROPERTIES & THEMING
+   ======================================== */
+
+/* Pico CSS Framework Variables */
+:root {
+  --pico-radius: 0.5rem;
+  --pico-box-shadow: 0;
+  --pico-button-box-shadow: 0;
+  --pico-button-hover-box-shadow: 0;
+  --pico-switch-thumb-box-shadow: 0;
+  --pico-card-box-shadow: 0;
+  --pico-dropdown-box-shadow: 0;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  color: #fff;
+}
+
+/* Dynamic Theming Variables */
+/* --swatch-color: Set dynamically for color swatches */
+/* --palette-medium: Set dynamically for medium palette colors */
+/* --palette-light: Set dynamically for light palette colors */
+/* --premade-badge-color: Set dynamically for premade badges */
+/* --bg-color: Set dynamically for background colors */
+/* --text-color-initials: Set dynamically for text colors */
+
 html, body {
   min-height: 100vh;
   height: 100%;
@@ -56,7 +81,6 @@ textarea,
 #storyboard-card-ai:not([disabled]):hover,
 #storyboard-card-user:not([disabled]):hover,
 #storyboard-card-world:not([disabled]):hover,
-.chin-card:not([disabled]):hover,
 .chin-card:not([disabled]):hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 8px 25px rgb(0 0 0 / 25%), 0 0 20px rgb(255 255 255 / 10%);
@@ -152,8 +176,6 @@ label:not([disabled]),
 .upload-label:not([disabled]),
 .storyboard-card:not([disabled]),
 .chin-card:not([disabled]),
-.chin-card:not([disabled]),
-.card-title-dropdown,
 .card-title-selected,
 .dropdown-option,
 a:not([disabled]) {
@@ -205,7 +227,6 @@ a {
 }
 
 .storyboard-card.selected,
-.chin-card.selected,
 .chin-card.selected {
   animation: subtle-pulse 2s ease-in-out infinite;
 }
@@ -393,6 +414,7 @@ a {
 
   --pico-card-box-shadow: 0;
   --pico-dropdown-box-shadow: 0;
+
 }
 
 .chin-card {
