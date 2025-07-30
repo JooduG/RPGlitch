@@ -1,6 +1,6 @@
 # AGENTS.md – GlitchCodex Project Guide
 
-Version 1.3.1  |  Updated 2025‑07‑30
+Version 1.4.0  |  Updated 2025‑07‑30
 
 This document serves as a comprehensive reference for Codex Cloud agents and human contributors working in the Perchance/Glitch monorepo, providing guidelines, standards, and instructions for consistent and effective collaboration.
 
@@ -21,6 +21,24 @@ The repository structure is outlined below to provide clarity on navigation and 
 ```
 
 *Access and modifications outside these directories are restricted by Codex Cloud permissions.*
+
+### Purpose
+
+This monorepo contains the **Perchance/Glitch Development System**, a collection of web apps and utilities
+built around the Perchance platform. The `apps/` directory houses the **RPGlitch** and **ImageGlitch**
+applications. Build scripts live in `build/scripts`, and long-term project knowledge is stored in
+`memory-bank/`. Each app keeps its own `src/` folder rather than a global one.
+
+### Directory Guide
+
+| Directory        | Description                            | When to modify                                         |
+| ---------------- | -------------------------------------- | ------------------------------------------------------ |
+| `apps/`          | RPGlitch and ImageGlitch source        | Feature work and bug fixes                             |
+| `build/`         | Build scripts and generated output     | Update scripts; never modify `build/output`            |
+| `docs/`          | Developer documentation                | Update whenever documentation changes                  |
+| `memory-bank/`   | Persistent context and decisions       | Record reasoning and progress                          |
+| `tools/`         | Diagnostic and automation helpers      | Extend or maintain tooling                             |
+| `.cursor/rules/` | Codex rulesets                         | Only edit when updating rules                          |
 
 ---
 
@@ -96,6 +114,22 @@ To foster consistency and efficiency:
 * Set up new React apps rapidly with `pnpm create vite@latest <project> -- --template react-ts`.
 * Regularly confirm package naming conventions in `package.json`.
 
+### Python + Node Setup
+
+The universal Codex image provides multiple Python versions via **pyenv**
+(3.10–3.13), **uv 0.7**, and **Poetry 2** alongside **Node 22** with **nvm 0.40**.
+Install Python dependencies with:
+
+```bash
+uv pip install -e ".[test]"
+```
+
+Node dependencies install with:
+
+```bash
+pnpm install
+```
+
 ### Codex Cloud Setup
 
 * **Activate services** via **Project → Services**.
@@ -107,6 +141,20 @@ To foster consistency and efficiency:
   uvx basic-memory mcp &
   npx -y mcp-sequentialthinking-tools &
   ```
+
+### Lint, Test, and Type-Check
+
+Run the full suite before submitting any changes:
+
+```bash
+ruff check
+black --check .
+pytest
+mypy
+pyright
+```
+
+CI will reject any PR unless all of the above commands pass.
 
 ---
 
@@ -125,6 +173,13 @@ To foster consistency and efficiency:
 * Provide clear, concise descriptions linked to relevant issues.
 * Ensure all code contributions pass linting, testing, and performance benchmarks.
 * Adhere strictly to [build-deployment](.cursor/rules/perchance-build-deployment.mdc) procedures for consistency and reliability.
+
+### Contribution Rules
+
+* Use `lower_case_with_underscores` for Python files and `camelCase` for JavaScript functions.
+* Start commit messages with a short imperative verb (e.g., "fix:", "add:").
+* Keep PR titles in the format `[<package>] <summary>` and under 72 characters.
+* Split large refactors into smaller, reviewable changes whenever possible.
 
 ---
 
@@ -162,10 +217,23 @@ deny_write:
   - "./.cursor/**"
 ```
 
+### Agent-Specific Guidance
+
+Codex should operate primarily within `apps/`, `build/scripts/`, `memory-bank/`, `tools/`, and
+`docs/`. Avoid touching generated artifacts such as `build/output/` or any content inside
+`node_modules/` and `.cursor/`.
+
+Before presenting a diff, run:
+
+```bash
+ruff check && black --check . && pytest && mypy && pyright
+```
+
 ---
 
 ## 12 Changelog
 
+* **1.4.0 (2025‑07‑30)** – Added repository overview, directory guide, environment setup, lint/test workflow, contribution rules, and agent guidance.
 * **1.3.1 (2025‑07‑30)** – Expanded and detailed guidance, enhanced clarity, and additional instructions.
 * **1.3.0 (2025‑07‑30)** – Restructured rules and improved readability.
 * **1.2.0 (2025‑07‑30)** – Added structured rule references and system overview.
