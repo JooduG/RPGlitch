@@ -94,3 +94,5 @@
 ## 🎯 **SUCCESS CRITERIA**
 \n- [x] Verify top-bar buttons open the correct chins after dependency check fix.
 \n### 2025-07-31\n- Cleaned up duplicate methods and updated Options chin to "Upload Backup" workflow.
+\n### 2025-07-31\n- Updated button labels to "Upload All", "Download All", and "Delete All" and fixed initialization issue.
+
