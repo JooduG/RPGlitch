@@ -1798,12 +1798,6 @@ window.App = {
             this.ui.optionsChin = this._query('chin-options')
         },
     
-        _getCoreUIContainers() {
-            this.ui.main = this._query('main', true)
-            this.ui.storyboardScreen = this._query('storyboard-screen', true)
-            this.ui.chatInterfaceScreen = this._query('chat-screen', true)
-        },
-    
         _getFormScreens() {
             this.ui.characterFormScreen = this._query('character-form-screen', true)
             this.ui.worldFormScreen = this._query('world-form-screen', true)
