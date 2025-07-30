@@ -61,16 +61,19 @@ The Model Context Protocol (MCP) ecosystem provides a standardized way for AI as
 ## 🔄 **INTEGRATION WITH 3-MODE SYSTEM**
 
 ### **🎭 Strategic Mode**
+
 - **Context7**: Access current best practices and documentation
 - **Basic Memory**: Store strategic insights and meta-patterns
 - **Time MCP**: Track planning dates and timelines
 
 ### **🎨 Tactical Mode**
+
 - **Context7**: Get implementation guidance and API references
 - **Basic Memory**: Store design decisions and planning templates
 - **Time MCP**: Track milestone dates and schedules
 
 ### **⚒️ Operational Mode**
+
 - **Context7**: Access implementation details and code examples
 - **Basic Memory**: Store implementation patterns and solutions
 - **Time MCP**: Track completion dates and durations
@@ -78,20 +81,26 @@ The Model Context Protocol (MCP) ecosystem provides a standardized way for AI as
 ## 📋 **MCP SERVER SELECTION GUIDE**
 
 ### **For Documentation Access**
+
 **Primary Choice**: Context7 MCP Server
+
 - Real-time access to current documentation
 - Comprehensive library coverage
 - Code examples and best practices
 
 ### **For Memory Management**
+
 **Primary Choice**: Basic Memory MCP Server
+
 - Semantic knowledge management
 - Obsidian integration
 - Multi-project support
 - Markdown storage
 
 ### **For Date Standardization**
+
 **Primary Choice**: Time MCP Server
+
 - Mandatory for all date formatting
 - Timezone-aware handling
 - Consistent across all components

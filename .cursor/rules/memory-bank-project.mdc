@@ -13,6 +13,7 @@
 ## 🔧 **CONFIGURATION DETAILS**
 
 ### **Project Structure**
+
 ```
 memory-bank/
 ├── basic-memory-config.json          # Configuration file
@@ -28,6 +29,7 @@ memory-bank/
 ```
 
 ### **Configuration File**
+
 - **File**: `memory-bank/basic-memory-config.json`
 - **Default Project**: `memory-bank`
 - **Auto Save**: Enabled
@@ -35,7 +37,9 @@ memory-bank/
 - **Sync Interval**: 300 seconds
 
 ### **Default Project Purpose**
+
 The `memory-bank` project serves as the central knowledge repository for:
+
 - **General Knowledge**: System-wide knowledge and patterns
 - **Default Storage**: Primary location for new knowledge entries
 - **Central Access**: Quick access point for common knowledge
@@ -44,12 +48,14 @@ The `memory-bank` project serves as the central knowledge repository for:
 ## 🎯 **USAGE**
 
 ### **Default Project Benefits**
+
 - **Centralized Access**: All general knowledge stored in one place
 - **Quick Retrieval**: Default project for fast knowledge access
 - **Cross-Project Integration**: Connects knowledge across all projects
 - **Unified Context**: Provides consistent knowledge base for all modes
 
 ### **Project Organization**
+
 - **memory-bank**: Default project for general knowledge
 - **system-architecture**: Strategic system knowledge
 - **strategic**: Strategic role patterns and decisions

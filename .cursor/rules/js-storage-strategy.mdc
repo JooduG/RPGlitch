@@ -11,6 +11,7 @@ alwaysApply: false
 ### **When to Use localStorage**
 
 **✅ Perfect for:**
+
 - Simple key-value data (settings, preferences, user choices)
 - Small amounts of data (< 5MB total)
 - Data that doesn't need complex querying
@@ -19,6 +20,7 @@ alwaysApply: false
 - Cross-tab data sharing
 
 **❌ Avoid for:**
+
 - Large datasets (> 5MB)
 - Complex data structures requiring queries
 - Sensitive data (easily accessible)
@@ -28,6 +30,7 @@ alwaysApply: false
 ### **When to Use IndexedDB**
 
 **✅ Perfect for:**
+
 - Large datasets (> 5MB)
 - Complex data structures requiring queries
 - Binary data (images, files)
@@ -37,6 +40,7 @@ alwaysApply: false
 - Data that needs to persist across sessions
 
 **❌ Avoid for:**
+
 - Simple key-value storage
 - Small amounts of data
 - Quick prototyping
@@ -45,6 +49,7 @@ alwaysApply: false
 ### **When to Use Dexie.js**
 
 **✅ Perfect for:**
+
 - All IndexedDB use cases
 - Complex queries and relationships
 - Schema versioning and migrations
@@ -53,6 +58,7 @@ alwaysApply: false
 - Perchance projects requiring robust storage
 
 **❌ Avoid for:**
+
 - Simple localStorage scenarios
 - When bundle size is critical
 - When you need direct IndexedDB control

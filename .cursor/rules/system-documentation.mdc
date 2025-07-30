@@ -104,16 +104,19 @@ const conflictResolver = {
 ### **Resolution Strategies**
 
 #### **Version Mismatch Resolution**
+
 - **Priority**: Context7 > Memory Bank > General Knowledge
 - **Action**: Update Memory Bank with current Context7 data
 - **Notification**: Alert user of the update
 
 #### **Outdated Information Resolution**
+
 - **Priority**: Fetch fresh data from Context7
 - **Action**: Replace outdated information
 - **Notification**: Mark as updated
 
 #### **Generic Conflict Resolution**
+
 - **Priority**: Source hierarchy (Context7 > Memory > General)
 - **Action**: Use highest priority source
 - **Notification**: Log conflict for review

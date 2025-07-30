@@ -51,8 +51,8 @@ This development system provides:
 
 ### **Essential Documentation**
 
-- **[System Architecture](.cursor/rules/system-architecture.mdc)**: Complete 3-mode system architecture
-- **[Unified Orchestrator Mode](.cursor/rules/unified-orchestrator-mode.mdc)**: Automatic mode routing and role selection
+- **[System Architecture](.cursor/rules/technical-architecture.mdc)**: Complete 3-mode system architecture
+- **[Unified Orchestrator Mode](.cursor/rules/orchestration-mode.mdc)**: Automatic mode routing and role selection
 - **[Thinking Framework](.cursor/rules/thinking-framework.mdc)**: Integrated thinking approaches
 - **[Memory Bank Overview](.cursor/rules/memory-bank-overview.mdc)**: Knowledge management system
 - **[MCP Ecosystem](.cursor/rules/mcp-ecosystem.mdc)**: Model Context Protocol integration
@@ -71,7 +71,7 @@ This development system provides:
 
 ## 📁 **Project Structure**
 
-` ext
+```mermaid
 /
 ├── apps/                   # Application source code
 │   ├── rpglitch/           # RPGlitch application
@@ -100,14 +100,14 @@ This development system provides:
 ├── .vscode/                # VSCode configuration
 ├── package.json            # Node.js dependencies
 └── README.md               # This comprehensive guide
-`
+```
 
 ## 🚀 **Quick Start Guide**
 
 ### **For New Developers**
 
-1. **Review System Architecture**: Start with [system-architecture.mdc](.cursor/rules/system-architecture.mdc)
-2. **Understand 3-Mode System**: Read [unified-orchestrator-mode.mdc](.cursor/rules/unified-orchestrator-mode.mdc)
+1. **Review System Architecture**: Start with [technical-architecture.mdc](.cursor/rules/technical-architecture.mdc)
+2. **Understand 3-Mode System**: Read [orchestration-mode.mdc](.cursor/rules/orchestration-mode.mdc)
 3. **Explore Memory Bank**: Check [memory-bank-overview.mdc](.cursor/rules/memory-bank-overview.mdc)
 4. **Review Project Rules**: Browse all 39 rules in [.cursor/rules/](.cursor/rules/)
 
@@ -122,10 +122,9 @@ This development system provides:
 
 ### **RPGlitch Build Process**
 
-- **Build Script**:
-ode build-perchance.js (from project root)
-- **Output**: uild/output/RPGlitch-perchance.html (deployment ready)
-- **CSS Archive**: uild/output/archive/RPGlitch-perchance.css (with source map)
+- **Build Script**: `node build-perchance.js` (from project root)
+- **Output**: `build/output/RPGlitch-perchance.html` (deployment ready)
+- **CSS Archive**: `build/output/archive/RPGlitch-perchance.css` (with source map)
 - **No Manual CSS**: Build script handles all CSS merging automatically
 
 ### **CSS Architecture**
@@ -221,12 +220,12 @@ ode build-perchance.js (from project root)
 - **Memory Bank Optimization**: Token efficiency and hierarchical rule structure
 - **MCP Ecosystem Integration**: Context7, Time MCP, and Basic Memory integration
 
-### **Rules System Recovery**
+### **Rules System Refinement**
 
-- **Corrupted Files Fixed**: Successfully recovered from 11MB corrupted files to normal 6-27KB sizes
-- **Missing Rules Created**: Added system-architecture.mdc and perchance-build-deployment.mdc
-- **Total Rules**: 39 comprehensive rule files covering all development aspects
-- **All References Fixed**: Resolved all broken link errors in rule system
+- **Rule Validation**: All 39 rules verified and updated
+- **Link Verification**: All documentation links validated
+- **Consistency Checks**: Unified terminology across all rules
+- **Performance Optimization**: Token efficiency improvements
 
 ### **Project Structure Optimization**
 
@@ -253,14 +252,14 @@ ode build-perchance.js (from project root)
 
 ### **Quick References**
 
-- **System Architecture**: [system-architecture.mdc](.cursor/rules/system-architecture.mdc)
-- **3-Mode System**: [unified-orchestrator-mode.mdc](.cursor/rules/unified-orchestrator-mode.mdc)
+- **System Architecture**: [technical-architecture.mdc](.cursor/rules/technical-architecture.mdc)
+- **3-Mode System**: [orchestration-mode.mdc](.cursor/rules/orchestration-mode.mdc)
 - **Thinking Framework**: [thinking-framework.mdc](.cursor/rules/thinking-framework.mdc)
 - **Memory Bank**: [memory-bank-overview.mdc](.cursor/rules/memory-bank-overview.mdc)
 
 ---
 
-**Last Updated**: 2025-07-24  
+**Last Updated**: 2025-07-30  
 **Version**: 3.0  
 **Status**: Complete unified 3-mode system with 39 rules and memory bank integration
 

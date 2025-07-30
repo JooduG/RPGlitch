@@ -14,6 +14,7 @@ alwaysApply: true
 **NEVER hardcode dates** in any format. Instead, **ALWAYS** use the Time MCP to generate current dates and timestamps.
 
 **Forbidden Patterns** (DO NOT USE):
+
 ```markdown
 **Date**: 2025-01-03
 date: 2025-01-02
@@ -21,6 +22,7 @@ Last Updated: 2025-01-03
 ```
 
 **Required Pattern** (ALWAYS USE):
+
 ```markdown
 **Date**: [Use Time MCP to get current date]
 date: [Use Time MCP to get current date]
@@ -30,12 +32,14 @@ Last Updated: [Use Time MCP to get current date]
 ### **2. Time MCP Integration Workflow**
 
 **Step 1: Get Current Time**
+
 ```javascript
 // ALWAYS start by getting current time
 const currentTime = await mcp_time_get_current_time({ timezone: 'Europe/Berlin' });
 ```
 
 **Step 2: Format for Documentation**
+
 ```javascript
 // Use the current time for all date fields
 const formattedDate = currentTime.date; // YYYY-MM-DD format
@@ -43,6 +47,7 @@ const formattedDateTime = currentTime.datetime; // Full datetime
 ```
 
 **Step 3: Apply to All Date Fields**
+
 - Document headers
 - File metadata
 - Progress tracking
@@ -52,6 +57,7 @@ const formattedDateTime = currentTime.datetime; // Full datetime
 ### **3. Standardized Date Formats**
 
 **Document Headers**:
+
 ```markdown
 **Date**: [Time MCP current date]
 **Last Updated**: [Time MCP current date]
@@ -59,6 +65,7 @@ const formattedDateTime = currentTime.datetime; // Full datetime
 ```
 
 **File Metadata**:
+
 ```yaml
 ---
 date: [Time MCP current date]
@@ -68,6 +75,7 @@ timezone: Europe/Berlin
 ```
 
 **Progress Tracking**:
+
 ```markdown
 **Completed**: [Time MCP current date]
 **Started**: [Time MCP current date]
@@ -108,6 +116,7 @@ timezone: Europe/Berlin
 ### **Error Handling**
 
 **If Time MCP fails**:
+
 1. Log the error
 2. Use fallback format: `[Date: Time MCP unavailable]`
 3. Note the issue for later resolution
@@ -148,6 +157,7 @@ timezone: Europe/Berlin
 ### **1. Pre-Write Validation**
 
 **Before writing any content with dates**:
+
 - [ ] Time MCP called and working
 - [ ] Current date retrieved
 - [ ] No hardcoded dates in content
@@ -156,6 +166,7 @@ timezone: Europe/Berlin
 ### **2. Post-Write Verification**
 
 **After writing content**:
+
 - [ ] All dates sourced from Time MCP
 - [ ] No hardcoded date patterns found
 - [ ] Timezone information included
@@ -164,6 +175,7 @@ timezone: Europe/Berlin
 ### **3. Quality Assurance**
 
 **Regular checks**:
+
 - [ ] Scan for hardcoded date patterns
 - [ ] Verify Time MCP integration
 - [ ] Test date accuracy
@@ -174,16 +186,19 @@ timezone: Europe/Berlin
 ### **Mode System Integration**
 
 **Strategic Mode**:
+
 - Use Time MCP for all planning dates
 - Track project timelines with Time MCP
 - Generate strategic timelines
 
 **Tactical Mode**:
+
 - Plan implementation dates with Time MCP
 - Track milestone dates
 - Generate tactical schedules
 
 **Operational Mode**:
+
 - Log completion dates with Time MCP
 - Track task durations
 - Generate operational reports
@@ -191,6 +206,7 @@ timezone: Europe/Berlin
 ### **Memory Bank Integration**
 
 **File Creation**:
+
 ```yaml
 ---
 date: [Time MCP current date]
@@ -201,6 +217,7 @@ timezone: Europe/Berlin
 ```
 
 **Progress Tracking**:
+
 ```markdown
 **Phase**: Phase 3A - Foundation Enhancement
 **Started**: [Time MCP date]
@@ -211,12 +228,14 @@ timezone: Europe/Berlin
 ## ✅ **SUCCESS CRITERIA**
 
 ### **Immediate Goals**
+
 - [ ] 100% of new documentation uses Time MCP
 - [ ] No hardcoded dates in new content
 - [ ] Consistent date format across all files
 - [ ] Timezone information included
 
 ### **Long-term Goals**
+
 - [ ] All existing files updated to use Time MCP
 - [ ] Automated date validation in place
 - [ ] Time MCP integration in all workflows

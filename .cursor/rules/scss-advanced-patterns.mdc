@@ -1,6 +1,6 @@
 ---
 description: Advanced SCSS patterns and modern features including color spaces, module system, selector functions, and performance optimization techniques.
-tags: ["scss", "sass", "css", "styling", "advanced"]
+tags: "scss", "sass", "css", "styling", "advanced"
 globs: **/*.scss,**/*.sass,**/*.css
 ---
 

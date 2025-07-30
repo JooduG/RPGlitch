@@ -43,14 +43,19 @@ The `alwaysApply: true` flag is powerful, but should be reserved **only for the 
   * `tags` (list of strings): A YAML list of keywords that categorize the rule (e.g., `[mode-specific, plan, quality]`).
 * **Globs (Recommended for format-specific rules):**
   * Specify the `globs` field as a plain, comma-separated list of patterns, with **no brackets** and **no quotation marks**. For example:
+
     ```yaml
     globs: **/*.html
     ```
+
   * For multiple file types, separate each pattern with a comma (no spaces):
+
     ```yaml
     globs: **/*.js,**/*.ts,**/*.html
     ```
+
   * **Do NOT use brackets or quotes.** The following are all incorrect:
+
     ```yaml
     globs: ["**/*.html"]
     globs: [**/*.html]
@@ -58,10 +63,11 @@ The `alwaysApply: true` flag is powerful, but should be reserved **only for the 
     globs: ["**/*.html"],**/*.html,.html
     globs: "**/*.html"
     ```
+
     These are invalid and may not be parsed correctly.
   * **Summary:**
-    - Use only the plain, comma-separated format for globs.
-    - No brackets, no quotes, no extra text after the patterns.
+    * Use only the plain, comma-separated format for globs.
+    * No brackets, no quotes, no extra text after the patterns.
 * **Optional Fields for Project Rules:** Project rules can also include `alwaysApply: true/false` and a `description` field for `Agent Requested` rule types.
 
 ⚠️ **CRITICAL: Avoid Duplicate Headers** ⚠️
@@ -84,12 +90,14 @@ alwaysApply: false
 ```
 
 **Key Points:**
+
 * **Remove `globs` field** - This makes the rule "Agent Requested" instead of "Auto Attached"
 * **Remove `tags` field** - Not needed for Agent Requested rules
 * **Keep `alwaysApply: false`** - Ensures the AI can choose when to apply the rule
 * **Use for:** Thinking frameworks, mode systems, role definitions, workflow orchestrators, and other cross-cutting concerns
 
 **Examples of "Agent Requested" Rules:**
+
 * Thinking frameworks (`thinking-framework.mdc`, `thinking-contemplative.mdc`)
 * Mode systems (`mode-system-unified.mdc`)
 * Role definitions (`mode-system-unified.mdc`)

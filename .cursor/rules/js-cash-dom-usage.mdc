@@ -13,6 +13,7 @@ Cash DOM provides a tiny, fast jQuery-like API for DOM selection and manipulatio
 ## When to Use Cash DOM vs Vanilla DOM
 
 ### **Use Cash DOM when:**
+
 - Quick DOM manipulation in Perchance projects
 - jQuery-like syntax preference
 - Cross-browser compatibility needed
@@ -22,6 +23,7 @@ Cash DOM provides a tiny, fast jQuery-like API for DOM selection and manipulatio
 - Rapid prototyping and development
 
 ### **Use Vanilla DOM when:**
+
 - Performance is critical
 - You need modern browser APIs
 - Learning/understanding DOM fundamentals
@@ -38,7 +40,7 @@ Cash DOM provides a tiny, fast jQuery-like API for DOM selection and manipulatio
 <script src="https://unpkg.com/cash-dom"></script>
 ```
 
-### **When to use:** For selecting, updating, or animating DOM elements in JS.
+### **When to use:** For selecting, updating, or animating DOM elements in JS
 
 ### **Example:**
 
@@ -47,7 +49,7 @@ $('#chat-input').val('');
 $('#chat-log').append('<chat-message text="Hello!"></chat-message>');
 ```
 
-### **Works well with:** Hyperscript for event handling, Pico.css for UI.
+### **Works well with:** Hyperscript for event handling, Pico.css for UI
 
 ## Common Patterns
 

@@ -35,6 +35,7 @@ graph TD
 ### **Context Preservation Strategy**
 
 **During Mode Transitions**:
+
 1. **Update Active Context**: Document current state and decisions
 2. **Store Mode Knowledge**: Archive mode-specific insights
 3. **Prepare Handoff**: Create clear handoff documentation
@@ -49,6 +50,7 @@ graph TD
 **Memory Bank Activities**:
 
 #### **Context Management**
+
 ```bash
 # Update active context with strategic decisions
 memory-bank-write strategic/active-context.md --content "
@@ -70,6 +72,7 @@ memory-bank-write strategic/insights/workflow-optimization.md --content "
 ```
 
 #### **Knowledge Storage**
+
 ```bash
 # Store system architecture decisions
 memory-bank-write strategic/architecture/system-architecture.md --content "
@@ -93,6 +96,7 @@ memory-bank-write strategic/tools/tool-configuration.md --content "
 ```
 
 #### **Handoff Preparation**
+
 ```bash
 # Prepare handoff to tactical mode
 memory-bank-write project/todo-handoff.md --content "
@@ -138,6 +142,7 @@ memory-bank-write project/todo-handoff.md --content "
 **Memory Bank Activities**:
 
 #### **Context Loading**
+
 ```bash
 # Load strategic context for tactical planning
 memory-bank-read project/todo-handoff.md
@@ -150,6 +155,7 @@ memory-bank-search strategic/insights/ --query "[project-specific insights]"
 ```
 
 #### **Design Decision Storage**
+
 ```bash
 # Store design decisions
 memory-bank-write tactical/design-decisions/component-design.md --content "
@@ -174,6 +180,7 @@ memory-bank-write tactical/requirements/requirements-pattern.md --content "
 ```
 
 #### **Planning Template Storage**
+
 ```bash
 # Store planning templates
 memory-bank-write tactical/planning/planning-template.md --content "
@@ -187,6 +194,7 @@ memory-bank-write tactical/planning/planning-template.md --content "
 ```
 
 #### **Handoff Preparation**
+
 ```bash
 # Prepare handoff to operational mode
 memory-bank-update project/todo-handoff.md --content "
@@ -232,6 +240,7 @@ memory-bank-update project/todo-handoff.md --content "
 **Memory Bank Activities**:
 
 #### **Context Loading**
+
 ```bash
 # Load tactical context for implementation
 memory-bank-read project/todo-handoff.md
@@ -244,6 +253,7 @@ memory-bank-search tactical/design-decisions/ --query "[component-specific decis
 ```
 
 #### **Implementation Pattern Storage**
+
 ```bash
 # Store implementation patterns
 memory-bank-write operational/implementation-patterns/coding-pattern.md --content "
@@ -267,6 +277,7 @@ memory-bank-write operational/debug-solutions/issue-resolution.md --content "
 ```
 
 #### **Progress Tracking**
+
 ```bash
 # Update progress
 memory-bank-update project/progress.md --content "
@@ -290,6 +301,7 @@ memory-bank-write operational/performance/optimization-technique.md --content "
 ```
 
 #### **Handoff Preparation**
+
 ```bash
 # Prepare handoff back to strategic mode
 memory-bank-update project/todo-handoff.md --content "
@@ -331,16 +343,19 @@ memory-bank-update project/todo-handoff.md --content "
 ### **Knowledge Transfer Patterns**
 
 #### **Strategic → Tactical**
+
 - **System Architecture**: Strategic decisions inform tactical planning
 - **Tool Configurations**: Strategic tool choices guide tactical implementation
 - **Meta-Patterns**: Strategic patterns inform tactical approaches
 
 #### **Tactical → Operational**
+
 - **Design Decisions**: Tactical design decisions guide operational implementation
 - **Requirements Patterns**: Tactical requirements inform operational tasks
 - **Planning Templates**: Tactical planning guides operational execution
 
 #### **Operational → Strategic**
+
 - **Implementation Results**: Operational results inform strategic decisions
 - **Performance Data**: Operational performance guides strategic optimization
 - **Lessons Learned**: Operational learnings inform strategic planning
@@ -365,12 +380,14 @@ memory-bank-search all/ --query "[pattern name]" --cross-mode true
 ### **Context Preservation Optimization**
 
 **Strategy**:
+
 - Update context files at key decision points
 - Preserve critical information during transitions
 - Load relevant context for each mode
 - Maintain context continuity across sessions
 
 **Benefits**:
+
 - Seamless mode transitions
 - Reduced context loss
 - Better decision continuity
@@ -379,12 +396,14 @@ memory-bank-search all/ --query "[pattern name]" --cross-mode true
 ### **Knowledge Management Optimization**
 
 **Strategy**:
+
 - Store knowledge in appropriate mode-specific locations
 - Use consistent naming conventions
 - Implement proper categorization
 - Maintain knowledge relationships
 
 **Benefits**:
+
 - Easy knowledge retrieval
 - Better knowledge organization
 - Improved knowledge reuse
@@ -393,12 +412,14 @@ memory-bank-search all/ --query "[pattern name]" --cross-mode true
 ### **Performance Optimization**
 
 **Strategy**:
+
 - Optimize file operations for speed
 - Implement efficient search patterns
 - Use appropriate storage formats
 - Monitor and optimize performance
 
 **Benefits**:
+
 - Faster workflow execution
 - Better resource utilization
 - Improved user experience
@@ -407,24 +428,28 @@ memory-bank-search all/ --query "[pattern name]" --cross-mode true
 ## 🎯 **BENEFITS**
 
 ### **Seamless Workflow Integration**
+
 - Smooth transitions between modes
 - Context preservation across transitions
 - Knowledge continuity throughout workflow
 - Improved workflow efficiency
 
 ### **Enhanced Decision Making**
+
 - Access to relevant historical context
 - Informed decisions based on past learnings
 - Pattern recognition across modes
 - Better decision outcomes
 
 ### **Improved Knowledge Management**
+
 - Organized knowledge storage
 - Easy knowledge retrieval
 - Knowledge accumulation over time
 - Enhanced learning and improvement
 
 ### **Better Performance**
+
 - Optimized workflow execution
 - Efficient resource utilization
 - Improved user experience

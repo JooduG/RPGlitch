@@ -37,42 +37,54 @@ alwaysApply: false
 ## Development Lifecycle Steps
 
 ### 1. **Plan**
+
 Define the generator's structure, features, and plugin needs.
+
 - Identify core functionality and user requirements
 - Plan modular architecture following Perchance principles
 - Consider plugin integration needs
 - Define data storage requirements (IndexedDB, Remember Plugin)
 
 ### 2. **Develop**
+
 Build modular HTML, CSS, and JS files. Use atomic CSS and Perchance plugin APIs as needed.
+
 - Create separate files for logic, UI, and data handling
 - Use utility-first CSS for maintainability
 - Implement plugin hooks and global API exposure
 - Follow separation of concerns principles
 
 ### 3. **Test**
+
 Test in the Perchance editor. Use "duplicate" to create safe checkpoints.
+
 - Test all features in the Perchance editor environment
 - Use "duplicate" feature for safe iteration and backup
 - Verify plugin functionality and integration
 - Test data persistence and state management
 
 ### 4. **Build**
+
 Combine all CSS and JS into single files for deployment.
+
 - Use a build script (e.g., `build-perchance.js`) to concatenate all CSS and JS
 - Minify merged files to reduce size (optional)
 - Verify all dependencies are properly inlined
 - Test the merged output in a fresh Perchance editor session
 
 ### 5. **Deploy**
+
 Paste merged code into Perchance, set generator to public/private, and share the URL.
+
 - Copy merged CSS and JS into Perchance editor fields
 - Set generator visibility (public/private)
 - Share the generator URL
 - Document any manual build steps for future contributors
 
 ### 6. **Iterate**
+
 Use feedback and logs to improve and refine the generator.
+
 - Gather user feedback and usage analytics
 - Identify areas for improvement
 - Implement enhancements and bug fixes

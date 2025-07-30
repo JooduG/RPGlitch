@@ -109,11 +109,13 @@ graph TD
 ### **MCP Tool Integration**
 
 **Core Sequential Thinking Tool:**
+
 - **Tool**: `mcp_sequentialthinking_tools`
 - **Purpose**: Dynamic and reflective problem-solving with intelligent tool recommendations
 - **Features**: Tool recommendations, confidence scores, execution guidance, dynamic thought management
 
 **When to Use Sequential Thinking Tools:**
+
 - **Complex Problem Decomposition**: Breaking down large, multifaceted problems
 - **Planning and Design (Iterative)**: Architecting solutions where plans might need revision
 - **In-depth Analysis**: Situations requiring careful analysis with course correction
@@ -128,33 +130,39 @@ graph TD
 ### **Core Principles**
 
 **Iterative Thought Process:**
+
 - Each use of the tool represents a single "thought"
 - Build upon, question, or revise previous thoughts in subsequent calls
 - Express uncertainty if it exists
 - Mark thoughts that revise previous thinking using `isRevision: true`
 
 **Dynamic Thought Count:**
+
 - Start with an initial estimate for `totalThoughts`
 - Be prepared to adjust `totalThoughts` (up or down) as thinking evolves
 - If more thoughts are needed, increment `thoughtNumber` beyond original `totalThoughts`
 
 **Tool Recommendation Integration:**
+
 - Use `current_step` to provide clear guidance on what needs to be done next
 - Include `recommended_tools` with confidence scores and rationale
 - Track `previous_steps` and `remaining_steps` to maintain workflow context
 - Provide `expected_outcome` and `next_step_conditions` for each step
 
 **Hypothesis-Driven Approach:**
+
 - Generate a solution `hypothesis` when a potential solution emerges
 - Verify the `hypothesis` based on preceding Chain of Thought steps
 - Repeat the thinking process if the hypothesis is not satisfactory
 
 **Relevance Filtering:**
+
 - Actively ignore information irrelevant to the current thought or step
 - Focus on making progress towards a solution with each thought
 - Maintain clarity and conciseness in each thought
 
 **Completion Condition:**
+
 - Only set `nextThoughtNeeded: false` when truly finished
 - Ensure a satisfactory answer or solution has been reached and verified
 
@@ -236,18 +244,21 @@ graph TD
 ### **Core Principles**
 
 **1. Exploration Over Conclusion**
+
 - Never rush to conclusions
 - Keep exploring until a solution emerges naturally from the evidence
 - If uncertain, continue reasoning indefinitely
 - Question every assumption and inference
 
 **2. Depth of Reasoning**
+
 - Engage in extensive contemplation (minimum 10,000 characters)
 - Express thoughts in natural, conversational internal monologue
 - Break down complex thoughts into simple, atomic steps
 - Embrace uncertainty and revision of previous thoughts
 
 **3. Thinking Process**
+
 - Use short, simple sentences that mirror natural thought patterns
 - Express uncertainty and internal debate freely
 - Show work-in-progress thinking
@@ -255,6 +266,7 @@ graph TD
 - Frequently backtrack and revise
 
 **4. Persistence**
+
 - Value thorough exploration over quick resolution
 - Continue until natural resolution emerges
 
@@ -300,18 +312,21 @@ graph TD
 
 **Natural Thought Flow**
 Your internal monologue should reflect these characteristics:
+
 - "Hmm... let me think about this..."
 - "Wait, that doesn't seem right..."
 - "Maybe I should approach this differently..."
 - "Going back to what I thought earlier..."
 
 **Progressive Building**
+
 - "Starting with the basics..."
 - "Building on that last point..."
 "This connects to what I noticed earlier..."
 - "Let me break this down further..."
 
 **Key Requirements**
+
 1. Never skip the extensive contemplation phase
 2. Show all work and thinking
 3. Embrace uncertainty and revision
@@ -366,24 +381,28 @@ graph TD
 ### **Professional Coding Standards**
 
 **Zero Technical Debt**
+
 - All code is production-ready
 - No shortcuts or temporary solutions
 - Clean, maintainable implementations
 - Proper error handling and validation
 
 **Clean Architecture**
+
 - Minimal, focused implementations
 - Clear separation of concerns
 - Efficient resource usage
 - Scalable design patterns
 
 **Quality First**
+
 - Comprehensive testing included
 - Performance optimization
 - Security best practices
 - Documentation and comments
 
 **Efficiency**
+
 - Direct, no-nonsense approach
 - Optimal algorithms and data structures
 - Minimal dependencies
@@ -413,6 +432,7 @@ graph TD
 ### **Implementation Guidelines**
 
 **Code Quality Standards**
+
 - **Readability**: Clear, self-documenting code
 - **Maintainability**: Easy to modify and extend
 - **Performance**: Optimized for speed and efficiency
@@ -420,6 +440,7 @@ graph TD
 - **Testing**: Comprehensive test coverage
 
 **Development Process**
+
 1. **Requirements Analysis**: Clear understanding of what needs to be built
 2. **Minimal Design**: Simple, effective architecture
 3. **Clean Implementation**: Production-ready code from the start
@@ -427,6 +448,7 @@ graph TD
 5. **Documentation**: Clear documentation and comments
 
 **Best Practices**
+
 - Use modern language features and APIs
 - Follow established design patterns
 - Implement proper error handling

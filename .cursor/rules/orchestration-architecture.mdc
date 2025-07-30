@@ -45,23 +45,27 @@ graph TD
 ### **Component Relationships**
 
 #### **Unified Orchestrator Mode**
+
 - **Purpose**: Central coordination and role selection
 - **Responsibilities**: Task analysis, mode routing, context management
 - **Integration**: All system components
 - **Benefits**: Seamless workflow, automatic optimization
 
 #### **Three Internal Modes**
+
 - **Strategic Mode**: System-level thinking and optimization
 - **Tactical Mode**: Planning and design decisions
 - **Operational Mode**: Implementation and execution
 
 #### **Memory Bank System**
+
 - **Purpose**: Persistent knowledge management
 - **Structure**: Mode-specific knowledge bases
 - **Integration**: All modes for knowledge storage and retrieval
 - **Benefits**: Context preservation, learning accumulation
 
 #### **MCP Server Integration**
+
 - **Purpose**: External tool and service access
 - **Servers**: Context7, Basic Memory, Time MCP
 - **Integration**: All modes for enhanced capabilities
@@ -119,18 +123,21 @@ memory-bank/
 ### **MCP Server Integration**
 
 #### **Context7 Integration**
+
 - **Purpose**: Real-time documentation access
 - **Integration Points**: All modes for documentation access
 - **Configuration**: MCP server configuration in `mcp.json`
 - **Usage Patterns**: Library resolution, documentation retrieval, code examples
 
 #### **Basic Memory Integration**
+
 - **Purpose**: Semantic knowledge management
 - **Integration Points**: All modes for knowledge storage and retrieval
 - **Configuration**: Project-specific configuration with environment variables
 - **Usage Patterns**: Knowledge storage, semantic search, pattern recognition
 
 #### **Time MCP Integration**
+
 - **Purpose**: Date standardization and timezone handling
 - **Integration Points**: All components for date formatting
 - **Configuration**: MCP server configuration in `mcp.json`
@@ -139,18 +146,21 @@ memory-bank/
 ### **Memory Bank Integration**
 
 #### **Strategic Mode Integration**
+
 - **Knowledge Storage**: System-level insights and meta-patterns
 - **Context Management**: Strategic context and decision tracking
 - **Integration Points**: Workflow optimization and tool management
 - **Usage Patterns**: Strategic insight storage, pattern recognition, decision archiving
 
 #### **Tactical Mode Integration**
+
 - **Knowledge Storage**: Design decisions and planning templates
 - **Context Management**: Tactical context and planning status
 - **Integration Points**: Design decisions and implementation planning
 - **Usage Patterns**: Design decision storage, requirement pattern matching, planning template archiving
 
 #### **Operational Mode Integration**
+
 - **Knowledge Storage**: Implementation patterns and solutions
 - **Context Management**: Operational context and progress tracking
 - **Integration Points**: Implementation and execution
@@ -159,18 +169,21 @@ memory-bank/
 ### **Documentation Integration**
 
 #### **Local Documentation**
+
 - **Source**: Memory bank files and project-specific documentation
 - **Priority**: Highest priority for project-specific information
 - **Integration**: Direct file access and semantic search
 - **Usage**: Project context, historical decisions, local patterns
 
 #### **External Documentation**
+
 - **Source**: Context7 real-time documentation
 - **Priority**: Medium priority for current documentation
 - **Integration**: MCP server access with library resolution
 - **Usage**: Current APIs, best practices, code examples
 
 #### **General Documentation**
+
 - **Source**: Built-in system documentation
 - **Priority**: Lowest priority for general information
 - **Integration**: Static documentation access
@@ -181,12 +194,14 @@ memory-bank/
 ### **Context-Aware Rule Loading**
 
 #### **Rule Selection Strategy**
+
 - **Mode-Based**: Load rules based on current mode
 - **Task-Based**: Load rules based on task type
 - **Complexity-Based**: Load rules based on task complexity
 - **Performance-Based**: Optimize rule loading for efficiency
 
 #### **Caching Strategy**
+
 - **Rule Cache**: Cache frequently used rules
 - **Context Cache**: Cache context information
 - **Knowledge Cache**: Cache knowledge base queries
@@ -195,12 +210,14 @@ memory-bank/
 ### **Optimization Techniques**
 
 #### **Token Efficiency**
+
 - **Selective Loading**: Load only relevant rules
 - **Content Optimization**: Optimize rule content for efficiency
 - **Lazy Loading**: Load rules only when needed
 - **Compression**: Compress rule content where possible
 
 #### **Response Optimization**
+
 - **Parallel Processing**: Process multiple operations in parallel
 - **Predictive Loading**: Pre-load likely needed information
 - **Intelligent Caching**: Cache based on usage patterns
@@ -209,12 +226,14 @@ memory-bank/
 ### **Performance Monitoring**
 
 #### **Key Metrics**
+
 - **Response Time**: Time to complete mode transitions
 - **Token Usage**: Token consumption for different operations
 - **Cache Hit Rate**: Percentage of cached content usage
 - **User Satisfaction**: Feedback on system responsiveness
 
 #### **Optimization Opportunities**
+
 - **Rule Consolidation**: Combine related rules for efficiency
 - **Content Optimization**: Remove redundant content
 - **Loading Strategy**: Optimize rule loading based on usage patterns
@@ -225,18 +244,21 @@ memory-bank/
 ### **Mode Transition Architecture**
 
 #### **Context Preservation**
+
 - **Strategy**: Maintain context during mode transitions
 - **Implementation**: Context file updates and handoff preparation
 - **Benefits**: Seamless transitions, reduced context loss
 - **Integration**: All mode transition points
 
 #### **Knowledge Transfer**
+
 - **Strategy**: Transfer relevant knowledge between modes
 - **Implementation**: Cross-mode knowledge sharing and search
 - **Benefits**: Informed decisions, knowledge reuse
 - **Integration**: All knowledge storage components
 
 #### **Handoff Management**
+
 - **Strategy**: Clear handoff documentation and status tracking
 - **Implementation**: Todo/handoff file management
 - **Benefits**: Clear transitions, status tracking
@@ -245,12 +267,14 @@ memory-bank/
 ### **Workflow Optimization**
 
 #### **Efficiency Improvements**
+
 - **Context Loading**: Optimize context loading for each mode
 - **Knowledge Retrieval**: Efficient knowledge search and retrieval
 - **Mode Transitions**: Streamlined transition processes
 - **Progress Tracking**: Automated progress tracking and updates
 
 #### **Quality Improvements**
+
 - **Decision Tracking**: Comprehensive decision tracking and rationale
 - **Pattern Recognition**: Automated pattern recognition and suggestions
 - **Learning Accumulation**: Systematic learning and improvement
@@ -259,24 +283,28 @@ memory-bank/
 ## 🎯 **BENEFITS**
 
 ### **Unified System Architecture**
+
 - **Consistent Integration**: All components work together seamlessly
 - **Clear Relationships**: Well-defined relationships between components
 - **Scalable Design**: Architecture supports future enhancements
 - **Maintainable Structure**: Easy to maintain and extend
 
 ### **Enhanced Performance**
+
 - **Optimized Operations**: Efficient system operations
 - **Reduced Overhead**: Minimal overhead for system operations
 - **Better Resource Utilization**: Optimal use of available resources
 - **Improved User Experience**: Fast and responsive system
 
 ### **Improved Reliability**
+
 - **Robust Integration**: Reliable integration between components
 - **Error Handling**: Comprehensive error handling and recovery
 - **Data Consistency**: Consistent data across all components
 - **System Stability**: Stable and reliable system operation
 
 ### **Future-Proof Design**
+
 - **Extensible Architecture**: Easy to extend with new components
 - **Modular Design**: Modular design for easy maintenance
 - **Standards Compliance**: Compliance with established standards

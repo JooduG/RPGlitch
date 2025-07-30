@@ -1,6 +1,6 @@
 ---
 description: Guidelines and protocols for developing and integrating plugins within Perchance applications, with a focus on API patterns, extensibility, and platform constraints.
-tags: ["perchance", "plugins", "extensibility", "best-practices"]
+tags: "perchance", "plugins", "extensibility", "best-practices"
 globs: **/apps/**
 alwaysApply: false
 ---

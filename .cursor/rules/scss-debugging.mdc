@@ -1,6 +1,6 @@
 ---
 description: Comprehensive guide for debugging SCSS compilation errors, performance issues, and troubleshooting common problems in Sass/SCSS development.
-tags: ["scss", "sass", "debugging", "troubleshooting", "performance"]
+tags: "scss", "sass", "debugging", "troubleshooting", "performance"
 globs: **/*.scss,**/*.sass,**/*.css
 ---
 
@@ -8,10 +8,10 @@ globs: **/*.scss,**/*.sass,**/*.css
 
 ## Scope
 
--   Common SCSS compilation errors and solutions
--   Debugging techniques for SCSS issues
--   Performance optimization and troubleshooting
--   Best practices for avoiding SCSS problems
+- Common SCSS compilation errors and solutions
+- Debugging techniques for SCSS issues
+- Performance optimization and troubleshooting
+- Best practices for avoiding SCSS problems
 
 ---
 
@@ -409,10 +409,10 @@ sass --style=compressed input.scss output.css
 
 Test compiled CSS in browsers:
 
--   Check for CSS validation errors
--   Test responsive breakpoints
--   Verify cross-browser compatibility
--   Check for performance issues
+- Check for CSS validation errors
+- Test responsive breakpoints
+- Verify cross-browser compatibility
+- Check for performance issues
 
 ---
 
@@ -420,7 +420,7 @@ Test compiled CSS in browsers:
 
 ### **File Organization**
 
-```
+```mermaid
 scss/
 ├── abstracts/
 │   ├── _variables.scss
@@ -437,9 +437,9 @@ scss/
 
 ### **Naming Conventions**
 
--   Use descriptive variable names: `$primary-color`, not `$pc`
--   Use consistent naming: `$spacing-unit`, `$border-radius`
--   Use BEM methodology for components: `.card__title--large`
+- Use descriptive variable names: `$primary-color`, not `$pc`
+- Use consistent naming: `$spacing-unit`, `$border-radius`
+- Use BEM methodology for components: `.card__title--large`
 
 ### **Import Order**
 
@@ -483,16 +483,15 @@ Document complex SCSS:
 
 ## Related Rules
 
--   [SCSS Modern CSS & Frameworks](./scss-modern-css-frameworks.mdc) - Modern CSS principles and framework integration
--   [SCSS Advanced Patterns](./scss-advanced-patterns.mdc) - Advanced SCSS features and meta-programming
--   [Perchance Build & Deployment](./perchance-build-deployment.mdc) - Build and deployment for Perchance projects
+- [SCSS Modern CSS & Frameworks](./scss-modern-css-frameworks.mdc) - Modern CSS principles and framework integration
+- [SCSS Advanced Patterns](./scss-advanced-patterns.mdc) - Advanced SCSS features and meta-programming
+- [Perchance Build & Deployment](./perchance-build-deployment.mdc) - Build and deployment for Perchance projects
 
 ---
 
 ## References
 
--   [Sass Documentation](https://sass-lang.com/documentation)
--   [Sass Guidelines](https://sass-guidelin.es/)
--   [Sass Debugging](https://sass-lang.com/documentation/at-rules/debug/)
--   [Stylelint](https://stylelint.io/)
-
+- [Sass Documentation](https://sass-lang.com/documentation)
+- [Sass Guidelines](https://sass-guidelin.es/)
+- [Sass Debugging](https://sass-lang.com/documentation/at-rules/debug/)
+- [Stylelint](https://stylelint.io/)

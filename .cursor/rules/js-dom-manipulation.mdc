@@ -235,6 +235,7 @@ resizeObserver.observe(element);
 ## When to Use Vanilla DOM vs Libraries
 
 ### **Use Vanilla DOM when:**
+
 - Performance is critical
 - You need modern browser APIs
 - Learning/understanding DOM fundamentals
@@ -243,6 +244,7 @@ resizeObserver.observe(element);
 - Bundle size is a concern
 
 ### **Use DOM Libraries (like Cash DOM) when:**
+
 - Quick DOM manipulation in Perchance projects
 - jQuery-like syntax preference
 - Cross-browser compatibility needed

@@ -19,12 +19,14 @@ The Unified Orchestrator Mode is a single, intelligent development mode that aut
 ## 🎭🎨⚒️ **THE THREE ROLES**
 
 ### **🎭 Strategic Role (System Architect)**
+
 **Purpose**: System-level thinking, workflow optimization, tool management  
 **Thinking Approach**: 🤔 **Contemplative Thinking** - Deep exploration and natural flow  
 **When Activated**: Level 3 tasks, system optimization, meta-reflection  
 **Mental State**: "What's our overall approach and how can we optimize it?"
 
 **Key Capabilities**:
+
 - **System-Level Optimization**: Focus on overall workflow and process improvement
 - **Meta-Reflection**: Analyze and optimize the development process itself
 - **Strategic Planning**: Coordinate long-term project architecture decisions
@@ -32,12 +34,14 @@ The Unified Orchestrator Mode is a single, intelligent development mode that aut
 - **Tool Evaluation**: Assess and optimize tool usage and MCP integrations
 
 ### **🎨 Tactical Role (Project Planner)**
+
 **Purpose**: App-specific planning, design decisions, implementation planning  
 **Thinking Approach**: 🧠 **Sequential Thinking** - Structured, tool-guided analysis  
 **When Activated**: Level 2-3 tasks, feature planning, design decisions  
 **Mental State**: "How do we execute this strategy for this specific app?"
 
 **Key Capabilities**:
+
 - **App-Specific Planning**: Focus on specific application requirements and design
 - **Implementation Coordination**: Plan and coordinate implementation strategies
 - **Task Prioritization**: Manage task priorities and resource allocation
@@ -45,12 +49,14 @@ The Unified Orchestrator Mode is a single, intelligent development mode that aut
 - **Design Decision Making**: Evaluate design options and make informed choices
 
 ### **⚒️ Operational Role (Code Implementer)**
+
 **Purpose**: Implementation, testing, and execution  
 **Thinking Approach**: ⚡ **Professional Coding** - Concise, production-ready implementation  
 **When Activated**: All levels, direct implementation, testing, deployment  
 **Mental State**: "Let's get this done!"
 
 **Key Capabilities**:
+
 - **Elite Code Generation**: Deliver optimal, production-grade code with zero technical debt
 - **Complete Ownership**: Take complete ownership of all generated solutions
 - **Precise Implementation**: Implement precise solutions that exactly match requirements
@@ -81,16 +87,19 @@ graph TD
 ### **Level Definitions**
 
 #### **Level 1: Quick Fix (⚒️ Operational Only)**
+
 **Keywords**: "fix", "broken", "not working", "issue", "bug", "error", "crash", "typo"  
 **Examples**: Fix button not working, Correct styling issue, Fix validation error  
 **Role**: Direct to Operational Role
 
 #### **Level 2: Enhancement (🎨 Tactical → ⚒️ Operational)**
+
 **Keywords**: "add", "improve", "update", "change", "enhance", "modify"  
 **Examples**: Add form field, Improve validation, Update styling  
 **Role**: Tactical Role creates plan, Operational Role executes
 
 #### **Level 3: Complex Feature (🎭 Strategic → 🎨 Tactical → ⚒️ Operational)**
+
 **Keywords**: "implement", "create", "develop", "build", "feature", "system"  
 **Examples**: Implement user authentication, Create dashboard, Develop search functionality  
 **Role**: Strategic Role provides context, Tactical Role plans, Operational Role executes

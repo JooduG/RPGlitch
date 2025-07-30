@@ -103,6 +103,7 @@ graph TD
 ### **When to Use ES2023+ Features:**
 
 **✅ Use Modern Features When:**
+
 - Targeting modern browsers (Chrome 90+, Firefox 88+, Safari 14+)
 - Building new applications
 - Performance is important
@@ -110,11 +111,13 @@ graph TD
 - Team is comfortable with modern syntax
 
 **⚠️ Consider Polyfills When:**
+
 - Supporting older browsers
 - Using cutting-edge features
 - Need to maintain compatibility
 
 **❌ Avoid When:**
+
 - Supporting very old browsers (IE11 and below)
 - Team lacks modern JavaScript experience
 - Project requires maximum compatibility
@@ -241,6 +244,7 @@ class ModernApp {
 ## 🎯 **Best Practices Summary**
 
 ### **DO:**
+
 - Choose the right tool for the job
 - Consider performance requirements
 - Factor in team expertise
@@ -249,6 +253,7 @@ class ModernApp {
 - Test across target browsers
 
 ### **DON'T:**
+
 - Use libraries just because they're popular
 - Ignore bundle size impact
 - Over-engineer simple solutions
