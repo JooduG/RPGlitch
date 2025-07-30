@@ -1798,11 +1798,6 @@ window.App = {
             this.ui.optionsChin = this._query('chin-options')
         },
     
-        _getFormScreens() {
-            this.ui.characterFormScreen = this._query('character-form-screen', true)
-            this.ui.worldFormScreen = this._query('world-form-screen', true)
-        },
-    
         _getProfileScreens() {
             this.ui.characterProfileScreen = this._query('character-profile-screen', true)
             this.ui.worldProfileScreen = this._query('world-profile-screen', true)
