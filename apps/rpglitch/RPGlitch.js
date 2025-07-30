@@ -216,10 +216,12 @@ window.App = {
       },
   
       _getChinElements() {
-          this.ui.storyboardChin = this._query('storyboard-chin')
-          this.ui.characterWorkshopChin = this._query('character-workshop-chin')
-          this.ui.worldBuilderChin = this._query('world-builder-chin')
-          this.ui.optionsChin = this._query('options-chin')
+
+          this.ui.chinContainer = this._query('chin-container')
+          this.ui.storyboardChin = this._query('chin-stories')
+          this.ui.characterWorkshopChin = this._query('chin-characters')
+          this.ui.worldBuilderChin = this._query('chin-worlds')
+          this.ui.optionsChin = this._query('chin-options')
       },
   
       _getCoreUIContainers() {
@@ -2040,6 +2042,7 @@ window.App = {
     
         _getChinElements() {
             // Updated IDs to match current HTML structure
+            this.ui.chinContainer = this._query('chin-container')
             this.ui.storyboardChin = this._query('chin-stories')
             this.ui.characterWorkshopChin = this._query('chin-characters')
             this.ui.worldBuilderChin = this._query('chin-worlds')
