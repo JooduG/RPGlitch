@@ -3,24 +3,19 @@
    ======================================== */
 
 /* Pico CSS Framework Variables */
-:root {
-  --pico-radius: 0.5rem;
-  --pico-box-shadow: 0;
-  --pico-button-box-shadow: 0;
-  --pico-button-hover-box-shadow: 0;
-  --pico-switch-thumb-box-shadow: 0;
-  --pico-card-box-shadow: 0;
-  --pico-dropdown-box-shadow: 0;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  color: #fff;
-}
 
 /* Dynamic Theming Variables */
+
 /* --swatch-color: Set dynamically for color swatches */
+
 /* --palette-medium: Set dynamically for medium palette colors */
+
 /* --palette-light: Set dynamically for light palette colors */
+
 /* --premade-badge-color: Set dynamically for premade badges */
+
 /* --bg-color: Set dynamically for background colors */
+
 /* --text-color-initials: Set dynamically for text colors */
 
 html, body {
@@ -1183,7 +1178,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-grid, 
   min-height: 200px !important;
   overflow: visible !important;
   width: 100% !important;
-
   position: relative !important;
 }
 
