@@ -246,20 +246,9 @@ window.App = {
             this.ui.topBarNotificationArea = this._query('top-bar-notification-area', false, this.ui.topBarLeft)
           }
 
-          this.ui.topBarRight = this._query('top-bar-right', false, this.ui.topBar)
-          if (this.ui.topBarRight) {
-            this.ui.topBarUserCharacterInfo = this._query('top-bar-user-character-info', false, this.ui.topBarRight)
-            if (this.ui.topBarUserCharacterInfo) {
-              this.ui.topBarUserCharacterPic = this._query('top-bar-user-character-pic', false, this.ui.topBarUserCharacterInfo)
-              this.ui.topBarUserCharacterNameText = this._query('top-bar-user-character-name-text', false, this.ui.topBarUserCharacterInfo)
-            }
-            this.ui.topBarAiCharacterInfo = this._query('top-bar-ai-character-info', false, this.ui.topBarRight)
-            if (this.ui.topBarAiCharacterInfo) {
-              this.ui.topBarAiCharacterPic = this._query('top-bar-ai-character-pic', false, this.ui.topBarAiCharacterInfo)
-              this.ui.topBarAiCharacterNameText = this._query('top-bar-ai-character-name-text', false, this.ui.topBarAiCharacterInfo)
-            }
-            this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight)
-          }
+          this.ui.topBarRightStoryboard = this._query('top-bar-right-storyboard', false, this.ui.topBar)
+          this.ui.topBarRightForm = this._query('top-bar-right-form', false, this.ui.topBar)
+          this.ui.topBarRightProfile = this._query('top-bar-right-profile', false, this.ui.topBar)
       },
   
       _getChinElements() {
@@ -2033,20 +2022,9 @@ window.App = {
               this.ui.topBarNotificationArea = this._query('top-bar-notification-area', false, this.ui.topBarLeft)
             }
   
-            this.ui.topBarRight = this._query('top-bar-right', false, this.ui.topBar)
-            if (this.ui.topBarRight) {
-              this.ui.topBarUserCharacterInfo = this._query('top-bar-user-character-info', false, this.ui.topBarRight)
-              if (this.ui.topBarUserCharacterInfo) {
-                this.ui.topBarUserCharacterPic = this._query('top-bar-user-character-pic', false, this.ui.topBarUserCharacterInfo)
-                this.ui.topBarUserCharacterNameText = this._query('top-bar-user-character-name-text', false, this.ui.topBarUserCharacterInfo)
-              }
-              this.ui.topBarAiCharacterInfo = this._query('top-bar-ai-character-info', false, this.ui.topBarRight)
-              if (this.ui.topBarAiCharacterInfo) {
-                this.ui.topBarAiCharacterPic = this._query('top-bar-ai-character-pic', false, this.ui.topBarAiCharacterInfo)
-                this.ui.topBarAiCharacterNameText = this._query('top-bar-ai-character-name-text', false, this.ui.topBarAiCharacterInfo)
-              }
-              this.ui.menuButton = this._query('menu-button', false, this.ui.topBarRight)
-            }
+            this.ui.topBarRightStoryboard = this._query('top-bar-right-storyboard', false, this.ui.topBar)
+            this.ui.topBarRightForm = this._query('top-bar-right-form', false, this.ui.topBar)
+            this.ui.topBarRightProfile = this._query('top-bar-right-profile', false, this.ui.topBar)
         },
     
         _getChinElements() {
@@ -4297,22 +4275,22 @@ window.App = {
        */
       updateTopBarUI() {
           // Hide all right-side sections first
-          const rightSections = document.querySelectorAll('.top-bar-right')
+          const rightSections = [this.ui.topBarRightStoryboard,this.ui.topBarRightForm,this.ui.topBarRightProfile].filter(Boolean)
           rightSections.forEach(section => this.hideEl(section))
     
           // Show the correct section based on the current view
           switch (this.currentMainView) {
               case this.CONSTANTS.VIEWS.STORYBOARD:
-                  this.showEl(document.getElementById('top-bar-right-storyboard'))
+                  this.ui.topBarRightStoryboard && this.showEl(this.ui.topBarRightStoryboard)
                   break
               case this.CONSTANTS.VIEWS.CHARACTER_FORM:
               case this.CONSTANTS.VIEWS.WORLD_FORM:
-                  this.showEl(document.getElementById('top-bar-right-form'))
+                  this.ui.topBarRightForm && this.showEl(this.ui.topBarRightForm)
                   break
               case this.CONSTANTS.VIEWS.CHARACTER_PROFILE:
               case this.CONSTANTS.VIEWS.WORLD_PROFILE:
               case this.CONSTANTS.VIEWS.STORY_PROFILE:
-                  this.showEl(document.getElementById('top-bar-right-profile'))
+                  this.ui.topBarRightProfile && this.showEl(this.ui.topBarRightProfile)
                   break
           }
       },

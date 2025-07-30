@@ -35,9 +35,11 @@ module.exports = {
   ignoreFiles: [
     "memory-bank/project/archive/collection.md",
     "build/output/archive/**/*.css",
+    "build/local_libs/**/*.css",
     "memory-bank/**/archive/**/*.css",
     "memory-bank/**/archive/**/*.scss",
     "memory-bank/**",
     "tools/test-globs/**",
+    "apps/rpglitch/RPGlitch.scss",
   ],
 };
