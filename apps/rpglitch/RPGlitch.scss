@@ -31,6 +31,10 @@ html, body {
   padding-top: 0;
 }
 
+header.container-fluid {
+  position: relative;
+}
+
 /* ========================================
    CSS CUSTOM PROPERTIES & THEMING
    ======================================== */
@@ -485,7 +489,7 @@ a {
 
 .top-bar-chin {
   position: absolute;
-  top: calc(100% - 0.5rem);
+  top: 100%;
   left: 0;
   right: 0;
   z-index: 2000;
