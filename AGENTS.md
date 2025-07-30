@@ -16,6 +16,7 @@ The repository structure is outlined below to provide clarity on navigation and 
 /
 ├── apps/                 # Application source code
 ├── build/                # Build automation and output artifacts
+├── docs/                 # Developer documentation
 ├── memory-bank/          # Persistent knowledge and decision tracking (Basic‑Memory MCP)
 ├── tools/                # Development utilities and helper scripts
 ├── .cursor/rules/        # AI guidance and rulesets
@@ -150,21 +151,16 @@ pnpm install
   npx -y mcp-sequentialthinking-tools &
   ```
 
-### Lint, Test, and Type-Check
+### Lint, Build, and Validate
 
-Run the full suite before submitting any changes. The project uses Node tooling for
-linting HTML, CSS, and JavaScript alongside Python linters for helper scripts:
+Run the full suite before submitting any changes. The project relies on Node tooling for
+linting, building, and validation:
 
 ```bash
-pnpm run lint    # runs eslint, stylelint, and htmlhint
-ruff check       # Python linting (used by helper scripts)
-black --check .  # Python formatting
-pytest           # only used if Python tests exist
-mypy             # static typing for Python helpers
-pyright          # JS/TS type-checking (if configured)
+npm run lint && npm run build && npm run validate
 ```
 
-CI will reject any PR unless all of the above commands pass.
+CI will reject any PR unless the above command sequence succeeds.
 
 ---
 
@@ -239,7 +235,7 @@ Never modify generated artifacts like `build/output/`, or anything inside `node_
 Before presenting a diff, run:
 
 ```bash
-ruff check && black --check . && pytest && mypy && pyright
+npm run lint && npm run build && npm run validate
 ```
 
 ---
