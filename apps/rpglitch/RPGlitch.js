@@ -3895,6 +3895,9 @@ window.App = {
                   this.hideEl(screenEl)
               }
           })
+
+          // Always close any open chin when switching screens
+          this.hideAllChins()
     
           // Show the target screen
           const targetScreenEl = this.ui[screenName]
@@ -5219,6 +5222,22 @@ window.App = {
               this.focusBarState.currentChin = null
               this.focusBarState.chinOpen = false
           }
+      },
+
+      /**
+       * Hides all chin sections and resets focusBarState.
+       */
+      hideAllChins() {
+          const chinContainer = document.getElementById('chin-container')
+          if (chinContainer) {
+              const allChins = chinContainer.querySelectorAll('[data-chin]')
+              allChins.forEach(chin => this.hideEl(chin))
+              this.hideEl(chinContainer)
+          }
+          const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
+          tabs.forEach(tab => tab.setAttribute('aria-selected', 'false'))
+          this.focusBarState.currentChin = null
+          this.focusBarState.chinOpen = false
       },
     
       /**
