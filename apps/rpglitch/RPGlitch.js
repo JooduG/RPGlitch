@@ -26,7 +26,8 @@ window.App = {
     focusBarState: {
       mode: 'storyboard',
       tabs: ['storyboard', 'characters', 'worlds', 'options'],
-      chinOpen: false
+      chinOpen: false,
+      currentChin: null
     },
 
     // Mouseover animation state management
@@ -4109,6 +4110,23 @@ window.App = {
        * Attaches event listeners to top bar buttons.
        */
       _attachTopBarEventListeners() {
+          const chinTabs = document.querySelectorAll('#top-bar-left button[data-chin]')
+          chinTabs.forEach(btn => {
+              btn.addEventListener('click', () => this.selectTopBarTab(btn.dataset.chin))
+          })
+
+          document.addEventListener('click', (e) => {
+              const topBarLeft = document.getElementById('top-bar-left')
+              const chinContainer = document.getElementById('chin-container')
+              if (topBarLeft && chinContainer) {
+                  if (!topBarLeft.contains(e.target) && !chinContainer.contains(e.target)) {
+                      if (this.focusBarState.chinOpen) {
+                          this._toggleChinContent(this.focusBarState.currentChin)
+                      }
+                  }
+              }
+          })
+
           const shuffleBtn = document.getElementById('shuffle')
           if (shuffleBtn) shuffleBtn.onclick = () => this._shuffleStoryboard()
 
@@ -5168,19 +5186,38 @@ window.App = {
        */
       _toggleChinContent(chinName) {
           const chinContainer = document.getElementById('chin-container')
-          const allChins = chinContainer.querySelectorAll('[data-chin]');
+          if (!chinContainer) return
 
-          // Hide all chins
-          allChins.forEach(chin => this.hideEl(chin));
-          
-          // Show the selected chin
-          const selectedChin = chinContainer.querySelector(`[data-chin="${chinName}"]`);
+          const allChins = chinContainer.querySelectorAll('[data-chin]')
+
+          // If clicking the currently open chin, close it and deselect tabs
+          if (chinName && chinName === this.focusBarState.currentChin) {
+              allChins.forEach(chin => this.hideEl(chin))
+              this.hideEl(chinContainer)
+              this.focusBarState.currentChin = null
+              this.focusBarState.chinOpen = false
+
+              const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
+              tabs.forEach(tab => tab.setAttribute('aria-selected', 'false'))
+              return
+          }
+
+          // Hide all chins before showing the requested one
+          allChins.forEach(chin => this.hideEl(chin))
+
+          const selectedChin = chinName
+              ? chinContainer.querySelector(`[data-chin="${chinName}"]`)
+              : null
 
           if (selectedChin) {
               this.showEl(chinContainer)
               this.showEl(selectedChin)
+              this.focusBarState.currentChin = chinName
+              this.focusBarState.chinOpen = true
           } else {
               this.hideEl(chinContainer)
+              this.focusBarState.currentChin = null
+              this.focusBarState.chinOpen = false
           }
       },
     
