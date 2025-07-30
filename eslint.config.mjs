@@ -38,7 +38,7 @@ export default defineConfig([
       "no-undef": "error", // ENSURE THIS IS 'error' FOR GENERAL FILES
       "no-duplicate-case": "error",
       "no-empty-function": "warn",
-      "no-console": "ignore",
+      "no-console": "off",
     }
   },
   // JavaScript files override (apps directory) - THIS IS THE CRITICAL FIX
@@ -54,9 +54,9 @@ export default defineConfig([
         ai: "readonly",
         image: "readonly",
         App: "readonly", // Assuming 'App' is a global object
-        getProfilePictureHTML: "readonly", // If this is a global function
         _makeProfilePicturePlaceholderSVG: "readonly",
-        textToImage: "readonly"
+        textToImage: "readonly",
+        textToText: "readonly"
       },
       ecmaVersion: 2021,
       sourceType: "script", // Reverted to 'script' as files are not modules
