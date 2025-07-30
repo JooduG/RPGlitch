@@ -272,3 +272,14 @@ async function buildPerchanceFile() {
 
 // Run the build
 buildPerchanceFile();
+
+// Simple build output validation
+module.exports.validateOutputFile = function validateOutputFile() {
+    const outputPath = path.join(__dirname, '../output/RPGlitch-perchance.html')
+    if (fs.existsSync(outputPath)) {
+        return true
+    } else {
+        console.error('Validation failed: output file missing.')
+        process.exit(1)
+    }
+}
