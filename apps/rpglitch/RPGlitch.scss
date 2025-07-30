@@ -33,10 +33,6 @@ header.container-fluid {
   position: relative;
 }
 
-/* ========================================
-   CSS CUSTOM PROPERTIES & THEMING
-   ======================================== */
-
 input,
 [type="checkbox"],
 [type="radio"],
@@ -523,7 +519,6 @@ input[type="file"] {
   --pico-dropdown-box-shadow: 0;
 
 }
-
 
 .chin-grid { 
   margin-bottom: 0; 
@@ -1102,7 +1097,6 @@ nav {
   box-shadow: none ;
 }
 
-/* Ensure storyboard grid cards display properly in the grid */
 #storyboard-grid .storyboard-card {
   display: flex ;
   flex-direction: row ;
@@ -1120,7 +1114,6 @@ nav {
   flex: 0 0 auto ;
 }
 
-/* Ensure articles inside storyboard cards don't interfere with grid layout */
 #storyboard-grid .storyboard-card article {
   display: flex ;
   flex-direction: column ;
@@ -1129,7 +1122,6 @@ nav {
   padding: 0 ;
 }
 
-/* Ensure storyboard card left and right sections display properly */
 #storyboard-grid .storyboard-card .storyboard-card-left {
   flex: 0 0 35% ;
   display: flex ;
@@ -1820,8 +1812,6 @@ nav {
   .studio-left-panel {
     flex: 0 0 250px;
   }
-  
-
   
   .profile-picture-container {
     width: 100%;
