@@ -258,6 +258,12 @@ window.App = {
           this.ui.characterWorkshopChin = this._query('chin-characters')
           this.ui.worldBuilderChin = this._query('chin-worlds')
           this.ui.optionsChin = this._query('chin-options')
+
+          // Options chin buttons and inputs
+          this.ui.uploadBackupInput = this._query('upload-backup')
+          this.ui.uploadBackupTrigger = document.querySelector('[data-trigger="upload-backup"]')
+          this.ui.downloadBackupButton = this._query('download-backup')
+          this.ui.deleteAllDataButton = this._query('delete-all-data')
       },
   
      _getCoreUIContainers() {
@@ -1753,392 +1759,6 @@ window.App = {
             
         },
     
-        _getTopBarElements() {
-            this.ui.topBar = this._query('top-bar', true)
-            if (!this.ui.topBar) return // Exit if topBar is not found globally
-  
-            this.ui.topBarLeft = this._query('top-bar-left', false, this.ui.topBar)
-            if (this.ui.topBarLeft) {
-              this.ui.topBarNotificationArea = this._query('top-bar-notification-area', false, this.ui.topBarLeft)
-            }
-  
-            this.ui.topBarRightStoryboard = this._query('top-bar-right-storyboard', false, this.ui.topBar)
-            this.ui.topBarRightForm = this._query('top-bar-right-form', false, this.ui.topBar)
-            this.ui.topBarRightProfile = this._query('top-bar-right-profile', false, this.ui.topBar)
-        },
-    
-        _getChinElements() {
-            // Updated IDs to match current HTML structure
-            this.ui.chinContainer = this._query('chin-container')
-            this.ui.storyboardChin = this._query('chin-stories')
-            this.ui.characterWorkshopChin = this._query('chin-characters')
-            this.ui.worldBuilderChin = this._query('chin-worlds')
-            this.ui.optionsChin = this._query('chin-options')
-        },
-    
-        _getProfileScreens() {
-            this.ui.characterProfileScreen = this._query('character-profile-screen', true)
-            this.ui.worldProfileScreen = this._query('world-profile-screen', true)
-            this.ui.storyProfileScreen = this._query('story-profile-screen', true)
-            this.ui.storyProfileAiCharacterDisplayArea = this._query('story-profile-ai-character-display-area')
-            this.ui.storyProfileUserCharacterDisplayArea = this._query('story-profile-user-character-display-area')
-            this.ui.storyProfilechatFeed = this._query('story-profile-message-feed')
-            this.ui.storyProfileActions = this._query('story-profile-actions')
-  
-            // New profile top bar elements
-            this.ui.profileTopBar = this._query('profile-top-bar')
-            this.ui.profileTopBarLeft = this._query('profile-top-bar-left')
-            this.ui.profileTopBarCenter = this._query('profile-top-bar-center')
-            this.ui.profileTopBarNotificationArea = this._query('profile-top-bar-notification-area')
-            this.ui.profileTopBarRight = this._query('profile-top-bar-right')
-            this.ui.profileTopBarUserCharacterInfo = this._query('profile-top-bar-user-character-info')
-            this.ui.profileTopBarUserCharacterPic = this._query('profile-top-bar-user-character-pic')
-            this.ui.profileTopBarUserCharacterNameText = this._query('profile-top-bar-user-character-name-text')
-            this.ui.profileTopBarAiCharacterInfo = this._query('profile-top-bar-ai-character-info')
-            this.ui.profileTopBarAiCharacterPic = this._query('profile-top-bar-ai-character-pic')
-            this.ui.profileTopBarAiCharacterNameText = this._query('profile-top-bar-ai-character-name-text')
-            this.ui.profileShuffleButton = this._query('profile-shuffle-button')
-            this.ui.profileBeginStoryButton = this._query('profile-begin-story-button')
-  
-            this.ui.worldProfileTopBar = this._query('world-profile-top-bar')
-            this.ui.worldProfileTopBarLeft = this._query('world-profile-top-bar-left')
-            this.ui.worldProfileTopBarCenter = this._query('world-profile-top-bar-center')
-            this.ui.worldProfileTopBarNotificationArea = this._query('world-profile-top-bar-notification-area')
-            this.ui.worldProfileTopBarRight = this._query('world-profile-top-bar-right')
-            this.ui.worldProfileTopBarUserCharacterInfo = this._query('world-profile-top-bar-user-character-info')
-            this.ui.worldProfileTopBarUserCharacterPic = this._query('world-profile-top-bar-user-character-pic')
-            this.ui.worldProfileTopBarUserCharacterNameText = this._query('world-profile-top-bar-user-character-name-text')
-            this.ui.worldProfileTopBarAiCharacterInfo = this._query('world-profile-top-bar-ai-character-info')
-            this.ui.worldProfileTopBarAiCharacterPic = this._query('world-profile-top-bar-ai-character-pic')
-            this.ui.worldProfileTopBarAiCharacterNameText = this._query('world-profile-top-bar-ai-character-name-text')
-            this.ui.worldProfileShuffleButton = this._query('world-profile-shuffle-button')
-            this.ui.worldProfileBeginStoryButton = this._query('world-profile-begin-story-button')
-  
-            this.ui.storyProfileTopBar = this._query('story-profile-top-bar')
-            this.ui.storyProfileTopBarLeft = this._query('story-profile-top-bar-left')
-            this.ui.storyProfileTopBarCenter = this._query('story-profile-top-bar-center')
-            this.ui.storyProfileTopBarNotificationArea = this._query('story-profile-top-bar-notification-area')
-            this.ui.storyProfileTopBarRight = this._query('story-profile-top-bar-right')
-            this.ui.storyProfileTopBarUserCharacterInfo = this._query('story-profile-top-bar-user-character-info')
-            this.ui.storyProfileTopBarUserCharacterPic = this._query('story-profile-top-bar-user-character-pic')
-            this.ui.storyProfileTopBarUserCharacterNameText = this._query('story-profile-top-bar-user-character-name-text')
-            this.ui.storyProfileTopBarAiCharacterInfo = this._query('story-profile-top-bar-ai-character-info')
-            this.ui.storyProfileTopBarAiCharacterPic = this._query('story-profile-top-bar-ai-character-pic')
-            this.ui.storyProfileTopBarAiCharacterNameText = this._query('story-profile-top-bar-ai-character-name-text')
-            this.ui.storyProfileShuffleButton = this._query('story-profile-shuffle-button')
-            this.ui.storyProfileBeginStoryButton = this._query('story-profile-begin-story-button')
-        },
-    
-        _getPremadeSelectionScreens() {
-            this.ui.premadeCharacterSelectionScreen = this._query('premade-character-bank', true)
-            this.ui.premadeCharacterOnlyList = this._query('premade-character-only-list')
-            this.ui.premadeWorldSelectionScreen = this._query('premade-world-bank', true)
-            this.ui.premadeWorldOnlyList = this._query('premade-world-only-list')
-        },
-    
-        _getMiscScreens() {
-            this.ui.memoryApplicationScreen = this._query('memory-application-screen')
-            this.ui.initialPageLoadingModal = this._query('initial-page-loading-modal', true)
-            this.ui.emergencyExportCtn = this._query('emergency-export-ctn')
-            if(this.ui.emergencyExportCtn) this.hideEl(this.ui.emergencyExportCtn)
-        },
-    
-        _getStoryboardElements() {
-            this.ui.storyboardTitleArea = this._query('storyboard-title-area', false, this.ui.storyboardScreen)
-            this.ui.storyboardTitle = this._query('storyboard-title', false, this.ui.storyboardTitleArea)
-            // Make storyboard title editable on click
-            if (this.ui.storyboardTitle) {
-              this.ui.storyboardTitle.setAttribute('contenteditable', 'true')
-              this.ui.storyboardTitle.setAttribute('spellcheck', 'false')
-              this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)')
-              this.ui.storyboardTitle.style.cursor = 'pointer'
-              
-              // Add click handler to make it editable
-              this.ui.storyboardTitle.onclick = () => {
-                if (!this.ui.storyboardTitle.getAttribute('contenteditable')) {
-                  this.ui.storyboardTitle.setAttribute('contenteditable', 'true')
-                  this.ui.storyboardTitle.focus()
-                }
-              }
-              
-              // Save changes when user finishes editing
-              this.ui.storyboardTitle.onblur = async () => {
-                const newTitle = this.ui.storyboardTitle.textContent.trim()
-                if (newTitle) {
-                  // Temporarily clear custom title to get the auto-generated title
-                  const tempCustomTitle = this.storyboardCustomTitle
-                  this.storyboardCustomTitle = null
-                  
-                  // Get what the auto-generated title would be
-                  const aiCharName = await this._getSelectedCharacterName(this.ui.storyboardAiCharacterSelect)
-                  const userCharName = await this._getSelectedCharacterName(this.ui.storyboardUserCharacterSelect)
-                  const worldName = await this._getSelectedWorldName(this.ui.storyboardWorldSelect)
-                  
-                  let autoTitle = "Start a New Story"
-                  if (aiCharName && userCharName && worldName) {
-                      autoTitle = `${aiCharName} & ${userCharName} in ${worldName}`
-                  } else if (aiCharName || userCharName || worldName) {
-                      const parts = []
-                      if (aiCharName) parts.push(aiCharName)
-                      if (userCharName) parts.push(userCharName)
-                      if (worldName) parts.push(worldName)
-                      autoTitle = parts.join(' & ')
-                  }
-                  
-                  // Restore the custom title temporarily
-                  this.storyboardCustomTitle = tempCustomTitle
-                  
-                  // Only save as custom title if it's different from the auto-generated title
-                  if (newTitle !== autoTitle) {
-                    // User has written something different - save as custom title
-                    this.storyboardCustomTitle = newTitle
-                  } else {
-                    // User hasn't actually changed anything - clear custom title to use auto-generated
-                    this.storyboardCustomTitle = null
-                  }
-                  this.updateDynamicStoryboardTitle()
-                }
-              }
-              
-              // Handle Enter key to finish editing
-              this.ui.storyboardTitle.onkeydown = (e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  this.ui.storyboardTitle.blur()
-                }
-              }
-              
-              // Double-click to reset to auto-generated title
-              this.ui.storyboardTitle.ondblclick = (e) => {
-                e.preventDefault()
-                this.storyboardCustomTitle = null
-                this.updateDynamicStoryboardTitle()
-                this.ui.storyboardTitle.setAttribute('data-tooltip', 'Click to edit story title (double-click to reset to auto-generated)')
-              }
-            }
-            this.ui.storyboardScrollableContent = this._query('storyboard-scrollable-content', false, this.ui.storyboardScreen)
-            this.ui.storyboardColumns = this._query('storyboard-columns', false, this.ui.storyboardScrollableContent)
-            this.ui.storyboardAiCharacterSelect = this._query('storyboard-ai-character-select', true, this.ui.storyboardColumns)
-            this.ui.storyboardAiCharacterCard = this._query('storyboard-ai-character-card', true, this.ui.storyboardColumns)
-            this.ui.storyboardUserCharacterSelect = this._query('storyboard-user-character-select', true, this.ui.storyboardColumns)
-            this.ui.storyboardUserCharacterCard = this._query('storyboard-user-character-card', true, this.ui.storyboardColumns)
-            this.ui.storyboardWorldSelect = this._query('storyboard-world-select', true, this.ui.storyboardColumns)
-            this.ui.storyboardWorldCard = this._query('storyboard-world-card', true, this.ui.storyboardColumns)
-            this.ui.openingPromptTextarea = this._query('opening-prompt', false, this.ui.storyboardScreen)
-            this.ui.advancedStoryOptionsToggleButton = this._query('advanced-story-options-toggle-button', false, this.ui.storyboardScreen)
-            this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen)
-            this.ui.customStoryJsTextarea = this._query('custom-js', false, this.ui.storyboardScreen)
-            this.ui.beginStoryButton = this._query('begin-story-button', false, this.ui.storyboardScreen)
-            this.ui.shuffleStoryElementsButton = this._query('shuffle-button', false, this.ui.storyboardScreen)
-        },
-    
-        _getChatInterfaceElements() {
-            this.ui.chatScreenLayoutContainer = this._query('chat-screen-layout-container', true)
-            if (!this.ui.chatScreenLayoutContainer) return // Exit if main container is not found
-  
-            this.ui.userCharacterDisplayArea = this._query('user-character-display-area', false, this.ui.chatScreenLayoutContainer)
-            this.ui.aiCharacterDisplayArea = this._query('ai-character-display-area', false, this.ui.chatScreenLayoutContainer)
-            this.ui.builtInChatInterfaceWrapper = this._query('built-in-chat-interface-wrapper', false, this.ui.chatScreenLayoutContainer)
-            this.ui.chatFeed = this._query('chat-feed', false, this.ui.builtInChatInterfaceWrapper)
-            this.ui.messageInput = this._query('message-input', false, this.ui.builtInChatInterfaceWrapper)
-            this.ui.sendButton = this._query('send-button', false, this.ui.builtInChatInterfaceWrapper)
-            this.ui.inputWrapper = this._query('input-wrapper', false, this.ui.builtInChatInterfaceWrapper)
-            this.ui.storyConcludedNotice = this._query('story-concluded-notice', false, this.ui.builtInChatInterfaceWrapper)
-            this.ui.noMessagesNotice = this._query('no-messages-notice', false, this.ui.builtInChatInterfaceWrapper)
-            this.ui.statusNotifier = this._query('status-notifier', false, this.ui.builtInChatInterfaceWrapper)
-            this.ui.typingIndicatorText = this._query('typing-indicator-text', false, this.ui.builtInChatInterfaceWrapper)
-            this.ui.concludeStoryChatButton = this._query('conclude-story-chat-button', false, this.ui.builtInChatInterfaceWrapper)
-      },
-    
-      /**
-       * Shows a DOM element by removing the 'hidden' class and setting visibility.
-       * @param {HTMLElement|string} el - The element or its ID.
-       * @returns {HTMLElement|null}
-       */
-  
-      // Mouseover animation management methods
-      disableMouseoverAnimation(element) {
-          if (element) {
-              element.setAttribute('disabled', 'true')
-              this.mouseoverAnimationState.disabledElements.add(element)
-          }
-      },
-  
-      enableMouseoverAnimation(element) {
-          if (element) {
-              element.removeAttribute('disabled')
-              this.mouseoverAnimationState.disabledElements.delete(element)
-          }
-      },
-  
-      disableMouseoverAnimationForSelector(selector) {
-          const elements = document.querySelectorAll(selector)
-          elements.forEach(el => this.disableMouseoverAnimation(el))
-      },
-  
-      enableMouseoverAnimationForSelector(selector) {
-          const elements = document.querySelectorAll(selector)
-          elements.forEach(el => this.enableMouseoverAnimation(el))
-      },
-  
-      updateMouseoverAnimationState() {
-          // For storyboard cards, add disabled attribute for hover effects when no item is selected
-          // But keep the cards clickable for dropdown functionality
-          if (!this.storyboardSelected.ai) {
-              this.disableMouseoverAnimation(this.ui.storyboardAiCharacterCard)
-              this.ui.storyboardAiCharacterCard?.setAttribute('disabled', 'true')
-          } else {
-              this.enableMouseoverAnimation(this.ui.storyboardAiCharacterCard)
-              this.ui.storyboardAiCharacterCard?.removeAttribute('disabled')
-          }
-  
-          if (!this.storyboardSelected.user) {
-              this.disableMouseoverAnimation(this.ui.storyboardUserCharacterCard)
-              this.ui.storyboardUserCharacterCard?.setAttribute('disabled', 'true')
-          } else {
-              this.enableMouseoverAnimation(this.ui.storyboardUserCharacterCard)
-              this.ui.storyboardUserCharacterCard?.removeAttribute('disabled')
-          }
-  
-          if (!this.storyboardSelected.world) {
-              this.disableMouseoverAnimation(this.ui.storyboardWorldCard)
-              this.ui.storyboardWorldCard?.setAttribute('disabled', 'true')
-          } else {
-              this.enableMouseoverAnimation(this.ui.storyboardWorldCard)
-              this.ui.storyboardWorldCard?.removeAttribute('disabled')
-          }
-  
-          // For buttons, use Pico CSS disabled styling when they're actually disabled
-          // This will show the proper disabled appearance without breaking functionality
-          if (this.ui.newStoryButton && this.ui.newStoryButton.disabled) {
-              this.ui.newStoryButton.classList.add('disabled')
-          } else if (this.ui.newStoryButton) {
-              this.ui.newStoryButton.classList.remove('disabled')
-          }
-  
-          if (this.ui.saveStoryButton && this.ui.saveStoryButton.disabled) {
-              this.ui.saveStoryButton.classList.add('disabled')
-          } else if (this.ui.saveStoryButton) {
-              this.ui.saveStoryButton.classList.remove('disabled')
-          }
-  
-          if (this.ui.exportStoryButton && this.ui.exportStoryButton.disabled) {
-              this.ui.exportStoryButton.classList.add('disabled')
-          } else if (this.ui.exportStoryButton) {
-              this.ui.exportStoryButton.classList.remove('disabled')
-          }
-  
-          if (this.ui.useProfilePictureButton && this.ui.useProfilePictureButton.disabled) {
-              this.ui.useProfilePictureButton.classList.add('disabled')
-          } else if (this.ui.useProfilePictureButton) {
-              this.ui.useProfilePictureButton.classList.remove('disabled')
-          }
-  
-          // Disable animations for disabled buttons
-          this.disableMouseoverAnimationForSelector('button[disabled]')
-          this.disableMouseoverAnimationForSelector('input[disabled]')
-          this.disableMouseoverAnimationForSelector('a[disabled]')
-  
-          // Enable animations for enabled buttons
-          this.enableMouseoverAnimationForSelector('button:not([disabled])')
-          this.enableMouseoverAnimationForSelector('input:not([disabled])')
-          this.enableMouseoverAnimationForSelector('a:not([disabled])')
-      },
-    
-      
-      /**
-       * Shows a notification in the top bar.
-       * @param {string} message - The notification message.
-       * @param {string} [type] - The notification type (success, error, info).
-       * @param {number} [duration] - The duration of the notification in milliseconds.
-       */
-      
-      async initializeDb() {
-          // Check if Dexie is available
-          if (typeof Dexie === 'undefined') {
-              throw new Error('Dexie library is not loaded. Please ensure the Dexie CDN script is included.')
-          }
-          this.db = new Dexie(window.dbName)
-          window.db = this.db
-      
-          // Optimized schema with compound indexes
-          this.db.version(12).stores({
-              appState: '&id, activeStoryId',
-              characters: '++id, name, &uniqueId, createdTimestamp, isDeleted, colorPalette',
-              stories: '++id, aiCharacterId, userCharacterId, worldId, name, lastMessageTimestamp, createdTimestamp, concluded',
-              messages: '++id, storyId, timestamp, [storyId+timestamp]',
-              worlds: '++id, name, &uniqueId, createdTimestamp, isDeleted, colorPalette'
-          }).upgrade(async () => {
-              // Migration logic remains the same
-          })
-      
-          try {
-              await this.db.open()
-              const appStateAfterOpen = await this.getAppState()
-              this.currentUserCharacterId = appStateAfterOpen.currentUserCharacterId
-              this.currentStoryId = appStateAfterOpen.lastOpenedStoryId
-              this.activeStoryId = appStateAfterOpen.activeStoryId
-          } catch (error) {
-              console.error("Failed to open Dexie database:", error)
-              this.showTopNotification("Error initializing database. Trying to recover...", "error", 5000)
-              
-              // Attempt to recover by deleting and recreating the database
-              try {
-                  await this.db.delete()
-                  await this.db.open()
-                  const appState = {
-                      id: 0, lastOpenedStoryId: null, currentUserCharacterId: null,
-                      // Use string key to avoid 'this' context issue in object literal
-                      currentMainView: "STORYBOARD",
-                      activeStoryId: null
-                  }
-                  await this.db.appState.put(appState)
-                  this.showTopNotification("Database reset successfully. Please refresh.", "success", 5000)
-              } catch (recoveryError) {
-                  console.error("Recovery failed:", recoveryError)
-                  this.showTopNotification("Critical database error. Please refresh.", "error", 10000)
-              }
-              throw error
-          }
-      },
-      
-      async getAppState() {
-          let appState = await this.db.appState.get(0)
-          if (!appState) {
-              appState = {
-                  id: 0, lastOpenedStoryId: null, currentUserCharacterId: null,
-                  // Use string key to avoid 'this' context issue in object literal
-                  currentMainView: "STORYBOARD",
-                  activeStoryId: null 
-              }
-              await this.db.appState.put(appState)
-          }
-          if (appState.activeStoryId === undefined) appState.activeStoryId = null
-    
-          if (appState.activeStoryId) {
-              const activeStoryData = await this.db.stories.get(appState.activeStoryId)
-              if (activeStoryData && activeStoryData.concluded) {
-                  console.warn(`Stale activeStoryId (${appState.activeStoryId}) found for a concluded story. Clearing it.`)
-                  appState.activeStoryId = null
-                  await this.db.appState.update(0, { activeStoryId: null })
-              }
-          }
-          return appState
-      },
-      
-      async saveAppState() {
-          // CRITICAL FIX: Don't save editing screen states that might cause issues on restore
-          const isEditingScreen = this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_FORM || 
-                                  this.currentMainView === this.CONSTANTS.VIEWS.WORLD_FORM
-          const appState = {
-              id: 0,
-              lastOpenedStoryId: this.currentStoryId,
-              currentUserCharacterId: this.currentUserCharacterId,
-              currentMainView: isEditingScreen ? this.CONSTANTS.VIEWS.STORYBOARD : this.currentMainView,
-              activeStoryId: this.activeStoryId 
-          }
-          await this.db.appState.put(appState)
-      },
     
       async initialLoad() {
           // Debug: Initial load started
@@ -3833,22 +3453,25 @@ window.App = {
           }
 
           // Options chin buttons
-          const uploadInput = document.getElementById('upload-backup')
-          const uploadBtn = document.querySelector('[data-trigger="upload-backup"]')
-          if (uploadBtn && uploadInput) {
-              uploadBtn.onclick = () => uploadInput.click()
-              uploadInput.addEventListener('change', (e) => {
-                  const file = e.target.files[0]
-                  if (file) this.importAllData(file)
-                  uploadInput.value = ''
-              })
-          }
+        const {
+            uploadBackupInput,
+            uploadBackupTrigger,
+            downloadBackupButton,
+            deleteAllDataButton
+        } = this.ui
+        if (uploadBackupTrigger && uploadBackupInput) {
+            uploadBackupTrigger.onclick = () => uploadBackupInput.click()
+            uploadBackupInput.addEventListener('change', (e) => {
+                const file = e.target.files[0]
+                if (file) this.importAllData(file)
+                uploadBackupInput.value = ''
+            })
+        }
 
-          const downloadBtn = document.getElementById('download-backup')
-          if (downloadBtn) downloadBtn.onclick = () => this.exportAllData()
+        if (downloadBackupButton) downloadBackupButton.onclick = () => this.exportAllData()
 
-          const deleteBtn = document.getElementById('start-fresh')
-          if (deleteBtn) deleteBtn.onclick = () => this.deleteAllData()
+        const startFreshBtn = deleteAllDataButton
+        if (startFreshBtn) startFreshBtn.onclick = () => this.deleteAllData()
       },
     
       /**
@@ -4048,18 +3671,16 @@ window.App = {
        */
       selectTopBarTab(tabName) {
           // Deselect all tabs
-          const tabs = document.querySelectorAll('#top-bar-left button')
-          tabs.forEach(tab => {
-              tab.setAttribute('aria-selected', 'false')
-              tab.setAttribute('aria-expanded', 'false')
-          })
+        const tabs = document.querySelectorAll('#top-bar-left button')
+        tabs.forEach(tab => {
+            tab.setAttribute('aria-selected', 'false')
+        })
     
           // Select the new tab
           const selectedTab = document.querySelector(`#top-bar-left button[data-chin="${tabName}"]`)
-          if (selectedTab) {
-              selectedTab.setAttribute('aria-selected', 'true')
-              selectedTab.setAttribute('aria-expanded', 'true')
-          }
+        if (selectedTab) {
+            selectedTab.setAttribute('aria-selected', 'true')
+        }
     
           // Show/hide chin content
           this._toggleChinContent(tabName)
@@ -4329,11 +3950,13 @@ window.App = {
                           this.db.messages.clear(),
                           this.db.appState.clear()
                       ])
-                      await this.db.characters.bulkAdd(characters)
-                      await this.db.worlds.bulkAdd(worlds)
-                      await this.db.stories.bulkAdd(stories)
-                      await this.db.messages.bulkAdd(messages)
-                      await this.db.appState.bulkAdd(appState)
+                      await Promise.all([
+                          this.db.characters.bulkAdd(characters),
+                          this.db.worlds.bulkAdd(worlds),
+                          this.db.stories.bulkAdd(stories),
+                          this.db.messages.bulkAdd(messages),
+                          this.db.appState.bulkAdd(appState)
+                      ])
                   })
                   location.reload()
               } catch (err) {
