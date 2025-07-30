@@ -419,10 +419,10 @@ window.App = {
           this.ui.storyboardUserCharacterCard = this._query('storyboard-user-character-card', true, this.ui.storyboardColumns)
           this.ui.storyboardWorldSelect = this._query('storyboard-world-select', true, this.ui.storyboardColumns)
           this.ui.storyboardWorldCard = this._query('storyboard-world-card', true, this.ui.storyboardColumns)
-          this.ui.openingPromptTextarea = this._query('opening-prompt-textarea', false, this.ui.storyboardScreen)
+          this.ui.openingPromptTextarea = this._query('opening-prompt', false, this.ui.storyboardScreen)
           this.ui.advancedStoryOptionsToggleButton = this._query('advanced-story-options-toggle-button', false, this.ui.storyboardScreen)
           this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen)
-          this.ui.customStoryJsTextarea = this._query('custom-story-js-textarea', false, this.ui.storyboardScreen)
+          this.ui.customStoryJsTextarea = this._query('custom-js', false, this.ui.storyboardScreen)
           this.ui.beginStoryButton = this._query('begin-story-button', false, this.ui.storyboardScreen)
           this.ui.shuffleStoryElementsButton = this._query('shuffle-button', false, this.ui.storyboardScreen)
       },
@@ -1924,10 +1924,10 @@ window.App = {
             this.ui.storyboardUserCharacterCard = this._query('storyboard-user-character-card', true, this.ui.storyboardColumns)
             this.ui.storyboardWorldSelect = this._query('storyboard-world-select', true, this.ui.storyboardColumns)
             this.ui.storyboardWorldCard = this._query('storyboard-world-card', true, this.ui.storyboardColumns)
-            this.ui.openingPromptTextarea = this._query('opening-prompt-textarea', false, this.ui.storyboardScreen)
+            this.ui.openingPromptTextarea = this._query('opening-prompt', false, this.ui.storyboardScreen)
             this.ui.advancedStoryOptionsToggleButton = this._query('advanced-story-options-toggle-button', false, this.ui.storyboardScreen)
             this.ui.advancedStoryOptionsContentArea = this._query('advanced-story-options-content-area', false, this.ui.storyboardScreen)
-            this.ui.customStoryJsTextarea = this._query('custom-story-js-textarea', false, this.ui.storyboardScreen)
+            this.ui.customStoryJsTextarea = this._query('custom-js', false, this.ui.storyboardScreen)
             this.ui.beginStoryButton = this._query('begin-story-button', false, this.ui.storyboardScreen)
             this.ui.shuffleStoryElementsButton = this._query('shuffle-button', false, this.ui.storyboardScreen)
         },
@@ -3831,6 +3831,24 @@ window.App = {
               if (this.activeStoryId) this.openStory(this.activeStoryId)
               else this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
           }
+
+          // Options chin buttons
+          const uploadInput = document.getElementById('upload-backup')
+          const uploadBtn = document.querySelector('[data-trigger="upload-backup"]')
+          if (uploadBtn && uploadInput) {
+              uploadBtn.onclick = () => uploadInput.click()
+              uploadInput.addEventListener('change', (e) => {
+                  const file = e.target.files[0]
+                  if (file) this.importAllData(file)
+                  uploadInput.value = ''
+              })
+          }
+
+          const downloadBtn = document.getElementById('download-backup')
+          if (downloadBtn) downloadBtn.onclick = () => this.exportAllData()
+
+          const deleteBtn = document.getElementById('start-fresh')
+          if (deleteBtn) deleteBtn.onclick = () => this.deleteAllData()
       },
     
       /**
@@ -4031,12 +4049,16 @@ window.App = {
       selectTopBarTab(tabName) {
           // Deselect all tabs
           const tabs = document.querySelectorAll('#top-bar-left button')
-          tabs.forEach(tab => tab.setAttribute('aria-selected', 'false'))
+          tabs.forEach(tab => {
+              tab.setAttribute('aria-selected', 'false')
+              tab.setAttribute('aria-expanded', 'false')
+          })
     
           // Select the new tab
           const selectedTab = document.querySelector(`#top-bar-left button[data-chin="${tabName}"]`)
           if (selectedTab) {
               selectedTab.setAttribute('aria-selected', 'true')
+              selectedTab.setAttribute('aria-expanded', 'true')
           }
     
           // Show/hide chin content
@@ -4061,12 +4083,17 @@ window.App = {
               this.focusBarState.chinOpen = false
 
               const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
-              tabs.forEach(tab => tab.setAttribute('aria-selected', 'false'))
+              tabs.forEach(tab => {
+                  tab.setAttribute('aria-selected', 'false')
+                  tab.setAttribute('aria-expanded', 'false')
+              })
               return
           }
 
           // Hide all chins before showing the requested one
           allChins.forEach(chin => this.hideEl(chin))
+          const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
+          tabs.forEach(tab => tab.setAttribute('aria-expanded', 'false'))
 
           const selectedChin = chinName
               ? chinContainer.querySelector(`[data-chin="${chinName}"]`)
@@ -4077,6 +4104,8 @@ window.App = {
               this.showEl(selectedChin)
               this.focusBarState.currentChin = chinName
               this.focusBarState.chinOpen = true
+              const activeBtn = document.querySelector(`#top-bar-left button[data-chin="${chinName}"]`)
+              if (activeBtn) activeBtn.setAttribute('aria-expanded', 'true')
           } else {
               this.hideEl(chinContainer)
               this.focusBarState.currentChin = null
@@ -4095,7 +4124,10 @@ window.App = {
               this.hideEl(chinContainer)
           }
           const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
-          tabs.forEach(tab => tab.setAttribute('aria-selected', 'false'))
+          tabs.forEach(tab => {
+              tab.setAttribute('aria-selected', 'false')
+              tab.setAttribute('aria-expanded', 'false')
+          })
           this.focusBarState.currentChin = null
           this.focusBarState.chinOpen = false
       },
@@ -4276,6 +4308,40 @@ window.App = {
           a.download = `rpglitch-backup-${new Date().toISOString().split('T')[0]}.json`
           a.click()
           URL.revokeObjectURL(url)
+      },
+
+      /**
+       * Imports data into the database from a backup file.
+       * @param {File} file - The JSON backup file.
+       */
+      async importAllData(file) {
+          if (!file) return
+          const reader = new FileReader()
+          reader.onload = async () => {
+              try {
+                  const data = JSON.parse(reader.result)
+                  const { characters = [], worlds = [], stories = [], messages = [], appState = [] } = data
+                  await this.db.transaction('rw', this.db.characters, this.db.worlds, this.db.stories, this.db.messages, this.db.appState, async () => {
+                      await Promise.all([
+                          this.db.characters.clear(),
+                          this.db.worlds.clear(),
+                          this.db.stories.clear(),
+                          this.db.messages.clear(),
+                          this.db.appState.clear()
+                      ])
+                      await this.db.characters.bulkAdd(characters)
+                      await this.db.worlds.bulkAdd(worlds)
+                      await this.db.stories.bulkAdd(stories)
+                      await this.db.messages.bulkAdd(messages)
+                      await this.db.appState.bulkAdd(appState)
+                  })
+                  location.reload()
+              } catch (err) {
+                  this.handleError('IMPORT_ERROR', err)
+              }
+          }
+          reader.onerror = () => this.handleError('FILE_READ_ERROR', reader.error)
+          reader.readAsText(file)
       },
     
       /**
