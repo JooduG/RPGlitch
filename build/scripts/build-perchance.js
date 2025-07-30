@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable @typescript-eslint/no-require-imports */
 
 const fs = require('fs');
 const path = require('path');
@@ -129,7 +128,6 @@ async function downloadWithFallback(file) {
         }
     }
 }
-
 
 /**
  * Downloads and inlines external CSS files

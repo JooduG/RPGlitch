@@ -63,7 +63,7 @@ export default defineConfig([
     rules: {
       "no-unused-vars": "warn", // Use regular ESLint rule instead
       "no-undef": "error", // *** CRITICAL FIX: ENSURE THIS IS 'error' HERE ***
-      "no-console": "warn", // Allow console logs in app code (as per your previous setup)
+      "no-console": "ignore", // Allow console logs in app code (as per your previous setup)
       "no-redeclare": "error" // Changed to 'error' to enforce no redeclaration
     }
   },
