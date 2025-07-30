@@ -216,6 +216,7 @@ window.App = {
       },
   
       _getChinElements() {
+
           this.ui.chinContainer = this._query('chin-container')
           this.ui.storyboardChin = this._query('chin-stories')
           this.ui.characterWorkshopChin = this._query('chin-characters')
