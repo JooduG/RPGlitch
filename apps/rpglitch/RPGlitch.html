@@ -27,8 +27,8 @@
       </header>
       <h2>Error during load?</h2>
       <footer>
-        <button id="emergency-export" onclick="App.exportAllData()" class="danger">Save All Data &#128190;</button>
-        <button id="emergency-delete" onclick="App.deleteAllData()" class="danger">Delete All Data &#128680;</button>
+        <button id="emergency-export" class="danger" data-action="export-all">Save All Data &#128190;</button>
+        <button id="emergency-delete" class="danger" data-action="delete-all">Delete All Data &#128680;</button>
       </footer>
     </article>
   </dialog>
@@ -86,17 +86,17 @@
             <div class="chin-actions-left">
               <form role="search">
                 <fieldset role="group">
-                  <input type="search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories">
+                  <input type="search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories" />
                   <button type="submit" class="secondary">Search</button>
                 </fieldset>
               </form>
             </div>
       
             <div class="chin-actions-right">
-              <button type="button" class="secondary" onclick="document.getElementById('upload-story').click();">
+              <button type="button" class="secondary" data-trigger="upload-story">
                 Upload Story
               </button>
-              <input type="file" id="upload-story" aria-label="Upload Story" class="file-input-hidden">
+                <input type="file" id="upload-story" aria-label="Upload Story" class="file-input-hidden" />
               <button id="new-story" class="secondary">New Story</button>
             </div>
           </div>
@@ -109,17 +109,17 @@
             <div class="chin-actions-left">
               <form role="search">
                 <fieldset role="group">
-                  <input type="search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters">
+                  <input type="search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters" />
                   <button type="submit" class="secondary">Search</button>
                 </fieldset>
               </form>
             </div>
 
             <div class="chin-actions-right">
-              <button type="button" class="secondary" onclick="document.getElementById('upload-character').click();">
+              <button type="button" class="secondary" data-trigger="upload-character">
                 Upload Character
               </button>
-              <input type="file" id="upload-character" aria-label="Upload Character" class="hidden">
+                <input type="file" id="upload-character" aria-label="Upload Character" class="hidden" />
               <button id="new-character" class="secondary">New Character</button>
             </div>
           </div>
@@ -151,16 +151,16 @@
             <div class="chin-actions-left">
               <form role="search">
                 <fieldset role="group">
-                  <input type="search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds">
+                  <input type="search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds" />
                   <button type="submit" class="secondary">Search</button>
                 </fieldset>
               </form>
             </div>
             <div class="chin-actions-right">
-              <button type="button" class="secondary" onclick="document.getElementById('upload-world').click();">
+              <button type="button" class="secondary" data-trigger="upload-world">
                 Upload World
               </button>
-              <input type="file" id="upload-world" aria-label="Upload World" class="hidden">
+                <input type="file" id="upload-world" aria-label="Upload World" class="hidden" />
               <button id="new-world" class="secondary">New World</button>
             </div>
           </div>
@@ -174,10 +174,10 @@
             <!-- Something in the future? -->
             </div>
             <div class="chin-actions-right">
-              <button type="button" class="secondary" onclick="document.getElementById('upload-backup').click();">
+              <button type="button" class="secondary" data-trigger="upload-backup">
                 Upload Backup
               </button>
-              <input type="file" id="upload-backup" aria-label="Upload Backup" class="hidden">
+              <input type="file" id="upload-backup" aria-label="Upload Backup" class="hidden" />
               <button id="download-backup" class="secondary">Download Backup</button>
               <button id="start-fresh" class="danger">Start Fresh</button>
             </div>
@@ -187,6 +187,7 @@
             <textarea id="custom-js" placeholder="Custom JS"></textarea>
           </div>
         </div>
+      </div>
       </div>
 
   </header>
@@ -260,7 +261,6 @@
           </div>
 
       </div>
-    </div>
 
     <!-- Chat Screen -->
     <div id="chat-screen" class="hidden">
