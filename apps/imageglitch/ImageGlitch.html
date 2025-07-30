@@ -7,11 +7,11 @@
       <!-- LEFT SIDE CONTROLS -->
       <div class="control-group left-controls">
         <!-- MAIN ACTIONS -->
-        <div class="action-item"><button id="summonBtn" class="summon-button" onclick="handleSummonClick()" title="Generate images from your prompt">Generate Images</button></div>
+        <div class="action-item"><button id="summonBtn" class="summon-button" title="Generate images from your prompt">Generate Images</button></div>
         
         <!-- AI TOOLS DROPDOWN -->
         <div class="action-item">
-          <select id="aiMagicSelect" onchange="handleAiMagicSelection(this)">
+          <select id="aiMagicSelect">
             <option value="placeholder" selected disabled>AI Magic</option>
             <option value="summon">Generate Images</option>
             <option value="scribe">Refine Prompt</option>
@@ -28,7 +28,7 @@
       <div class="control-group right-controls">
         <!-- SETTINGS -->
         <div class="action-item setting-item">
-          <select id="numImagesSelect" onchange="numImagesToGen = Number(this.value); checkAllButtonStates(); rememberSettings();" value="[numImagesToGen]" title="Number of image blocks to generate">
+          <select id="numImagesSelect" value="[numImagesToGen]" title="Number of image blocks to generate">
             <option value="0" selected>No Images</option>
             <option value="1">1 Image Block</option>
             <option value="2">2 Image Blocks</option>
@@ -44,7 +44,7 @@
         </div>
         
         <div class="action-item setting-item">
-          <input type="text" id="imgSeed" placeholder="Seed (Leave Empty for Random)" value="" oninput="handleSeedInput(this.value); rememberSettings();" title="Use the same number to get the same results again">
+          <input type="text" id="imgSeed" placeholder="Seed (Leave Empty for Random)" value="" title="Use the same number to get the same results again">
         </div>
         
         <div class="action-item setting-item fuckery-slider">
@@ -55,11 +55,11 @@
     </div>
     
     <div class="prompt-area">
-        <textarea id="promptInput" rows="2" placeholder="Enter your prompt here... then add some AI Magic if you'd like." oninput="mainPromptContent = this.value; handleManualPromptChange();" onkeydown="handleTextareaKeyDown(event, this)"></textarea>
+        <textarea id="promptInput" rows="2" placeholder="Enter your prompt here... then add some AI Magic if you'd like."></textarea>
     </div>
       
     <div id="instructionsPanel" style="display: none;">
-      <textarea id="instructionInput" rows="2" placeholder="Enter specific instructions for the AI, for example: Change 'landscape' to 'seascape'..." oninput="handleManualPromptChange()" onkeydown="handleTextareaKeyDown(event, this)"></textarea>
+      <textarea id="instructionInput" rows="2" placeholder="Enter specific instructions for the AI, for example: Change 'landscape' to 'seascape'..."></textarea>
     </div>
     
     <div class="secondary-controls">
@@ -688,6 +688,32 @@
     loadSavedSettings();
     updateDerivedSettings();
     checkAllButtonStates();
+
+    const summonBtn = document.getElementById('summonBtn');
+    const aiMagicSelect = document.getElementById('aiMagicSelect');
+    const numImagesSelect = document.getElementById('numImagesSelect');
+    const imgSeedInput = document.getElementById('imgSeed');
+    const promptInput = document.getElementById('promptInput');
+    const instructionInput = document.getElementById('instructionInput');
+
+    summonBtn.addEventListener('click', handleSummonClick);
+    aiMagicSelect.addEventListener('change', () => handleAiMagicSelection(aiMagicSelect));
+    numImagesSelect.addEventListener('change', () => {
+      numImagesToGen = Number(numImagesSelect.value);
+      checkAllButtonStates();
+      rememberSettings();
+    });
+    imgSeedInput.addEventListener('input', () => {
+      handleSeedInput(imgSeedInput.value);
+      rememberSettings();
+    });
+    promptInput.addEventListener('input', () => {
+      mainPromptContent = promptInput.value;
+      handleManualPromptChange();
+    });
+    promptInput.addEventListener('keydown', (e) => handleTextareaKeyDown(e, promptInput));
+    instructionInput.addEventListener('input', handleManualPromptChange);
+    instructionInput.addEventListener('keydown', (e) => handleTextareaKeyDown(e, instructionInput));
 
     const slider = document.getElementById('masterCreativitySlider');
     const label = document.getElementById('masterCreativityLabel');

@@ -42,14 +42,34 @@ const buildMetrics = {
 
 // External dependencies to inline
 const EXTERNAL_CSS_FILES = [
-    { url: 'https://unpkg.com/@picocss/pico@2.1.1/css/pico.min.css', description: 'Pico CSS framework' }
+    {
+        url: 'https://unpkg.com/@picocss/pico@2.1.1/css/pico.min.css',
+        local: 'pico.min.css',
+        description: 'Pico CSS framework'
+    }
 ];
 
 const EXTERNAL_JS_FILES = [
-    { url: 'https://unpkg.com/hyperscript.org@0.9.12/dist/_hyperscript.min.js', description: 'Hyperscript library' },
-    { url: 'https://unpkg.com/cash-dom@8.1.5/dist/cash.min.js', description: 'Cash DOM library' },
-    { url: 'https://unpkg.com/dexie@3.2.4/dist/dexie.js', description: 'Dexie.js library' },
-    { url: 'https://unpkg.com/dompurify@3.0.1/dist/purify.min.js', description: 'DOMPurify library' },
+    {
+        url: 'https://unpkg.com/hyperscript.org@0.9.12/dist/_hyperscript.min.js',
+        local: '_hyperscript.min.js',
+        description: 'Hyperscript library'
+    },
+    {
+        url: 'https://unpkg.com/cash-dom@8.1.5/dist/cash.min.js',
+        local: 'cash.min.js',
+        description: 'Cash DOM library'
+    },
+    {
+        url: 'https://unpkg.com/dexie@3.2.4/dist/dexie.js',
+        local: 'dexie.js',
+        description: 'Dexie.js library'
+    },
+    {
+        url: 'https://unpkg.com/dompurify@3.0.1/dist/purify.min.js',
+        local: 'purify.min.js',
+        description: 'DOMPurify library'
+    },
     // { url: 'https://perchance.org/api/getPlugin?name=text-to-image-plugin', description: 'Perchance Text-to-Image plugin' }
 ];
 
@@ -88,6 +108,24 @@ function downloadFromUrl(url) {
 }
 
 /**
+ * Downloads a file with a local fallback if the network request fails.
+ * @param {{url: string, local: string, description: string}} file
+ * @returns {Promise<string>} file contents
+ */
+async function downloadWithFallback(file) {
+    try {
+        const data = await downloadFromUrl(file.url);
+        console.log(`  ✅ Downloaded: ${file.description}`);
+        return data;
+    } catch (error) {
+        console.warn(`  ⚠️ Failed to download ${file.description}: ${error.message}. Using local copy.`);
+        const localPath = path.join(__dirname, '../local_libs', file.local);
+        buildMetrics.errors.push(`${file.description} downloaded from local fallback`);
+        return fs.readFileSync(localPath, 'utf8');
+    }
+}
+
+/**
  * Downloads and inlines external CSS files
  * @returns {Promise<string>} Combined CSS content
  */
@@ -96,15 +134,9 @@ async function getExternalCSS() {
     let combinedCSS = '';
     
     for (const file of EXTERNAL_CSS_FILES) {
-        try {
-            console.log(`  📦 Downloading: ${file.description}`);
-            const css = await downloadFromUrl(file.url);
-            combinedCSS += `/* ${file.description} */\n${css}\n\n`;
-            console.log(`  ✅ Downloaded: ${file.description}`);
-        } catch (error) {
-            console.error(`  ❌ Failed to download ${file.description}: ${error.message}`);
-            buildMetrics.errors.push(`CSS download failed: ${file.description} - ${error.message}`);
-        }
+        console.log(`  📦 Fetching: ${file.description}`);
+        const css = await downloadWithFallback(file);
+        combinedCSS += `/* ${file.description} */\n${css}\n\n`;
     }
     
     return combinedCSS;
@@ -117,17 +149,11 @@ async function getExternalCSS() {
 async function getExternalJS() {
     console.log('📥 Downloading external JavaScript files...');
     let combinedJS = '';
-    
+
     for (const file of EXTERNAL_JS_FILES) {
-        try {
-            console.log(`  📦 Downloading: ${file.description}`);
-            const js = await downloadFromUrl(file.url);
-            combinedJS += `/* ${file.description} */\n${js}\n\n`;
-            console.log(`  ✅ Downloaded: ${file.description}`);
-        } catch (error) {
-            console.error(`  ❌ Failed to download ${file.description}: ${error.message}`);
-            buildMetrics.errors.push(`JS download failed: ${file.description} - ${error.message}`);
-        }
+        console.log(`  📦 Fetching: ${file.description}`);
+        const js = await downloadWithFallback(file);
+        combinedJS += `/* ${file.description} */\n${js}\n\n`;
     }
     
     return combinedJS;
