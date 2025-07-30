@@ -10,8 +10,7 @@ module.exports = {
     'color-no-invalid-hex': true,
     'unit-no-unknown': true,
     'selector-pseudo-class-no-unknown': true,
-    'at-rule-no-unknown': [
-      true,
+    'at-rule-no-unknown': [ true,
       {
         ignoreAtRules: ['include', 'mixin', 'each', 'if', 'else', 'for', 'function', 'return', 'use', 'forward'] // Allow Sass at-rules
       }
@@ -27,8 +26,7 @@ module.exports = {
     // Example (if you wanted to disable it globally, which is generally not recommended):
     // 'no-descending-specificity': null,
     'at-rule-no-deprecated': true, // Ensured this is explicitly enabled if it was an issue
-    'selector-pseudo-element-no-unknown': [
-      true,
+    'selector-pseudo-element-no-unknown': [ true,
       {
         ignorePseudoElements: ['-webkit-scrollbar', '-webkit-scrollbar-thumb'] // Example: if you use these
       }
@@ -36,8 +34,6 @@ module.exports = {
   },
   ignoreFiles: [
     "memory-bank/project/archive/collection.md",
-    "apps/**/archive/**/*.css",
-    "apps/**/archive/**/*.scss",
     "build/output/archive/**/*.css",
     "memory-bank/**/archive/**/*.css",
     "memory-bank/**/archive/**/*.scss",
