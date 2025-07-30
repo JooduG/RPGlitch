@@ -634,39 +634,8 @@ window.App = {
      * @param {string} [type] - The notification type (success, error, info).
      * @param {number} [duration] - The duration of the notification in milliseconds.
      */
-    showTopNotification(message, type = 'info', duration = 3000) {
-        // Determine which notification area to use based on the active screen
-        let notificationArea = null
-        if (this.currentMainView === this.CONSTANTS.VIEWS.CHARACTER_PROFILE && this.ui.profileTopBarNotificationArea) {
-          notificationArea = this.ui.profileTopBarNotificationArea
-        } else if (this.currentMainView === this.CONSTANTS.VIEWS.WORLD_PROFILE && this.ui.worldProfileTopBarNotificationArea) {
-          notificationArea = this.ui.worldProfileTopBarNotificationArea
-        } else if (this.currentMainView === this.CONSTANTS.VIEWS.STORY_PROFILE && this.ui.storyProfileTopBarNotificationArea) {
-          notificationArea = this.ui.storyProfileTopBarNotificationArea
-        } else {
-          notificationArea = document.getElementById('top-bar-notification-area')
-        }
-        
-        if (!notificationArea) {
-            console.warn('Notification area not found for active screen:', this.currentMainView)
-            return
-        }
-        // Set message and style
-        notificationArea.textContent = message
-        notificationArea.className = 'top-bar-notification-area-style'
-        notificationArea.classList.remove('success', 'error', 'info')
-        notificationArea.classList.add(type)
-        notificationArea.style.display = ''
-        // Remove after duration
-        if (this.topNotificationTimeoutId) {
-            clearTimeout(this.topNotificationTimeoutId)
-        }
-        this.topNotificationTimeoutId = setTimeout(() => {
-            notificationArea.textContent = ''
-            notificationArea.style.display = 'none'
-            notificationArea.classList.remove('success', 'error', 'info')
-            this.topNotificationTimeoutId = null
-        }, duration)
+    showTopNotification() {
+        // Disabled. Notifications are temporarily not in use.
     },
   
     // Cache for premade character items
