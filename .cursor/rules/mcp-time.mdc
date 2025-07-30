@@ -31,14 +31,14 @@ Last Updated: [Use Time MCP to get current date]
 
 ### **2. Time MCP Integration Workflow**
 
-**Step 1: Get Current Time**
+Step 1: Get Current Time
 
 ```javascript
 // ALWAYS start by getting current time
 const currentTime = await mcp_time_get_current_time({ timezone: 'Europe/Berlin' });
 ```
 
-**Step 2: Format for Documentation**
+Step 2: Format for Documentation
 
 ```javascript
 // Use the current time for all date fields
@@ -46,7 +46,7 @@ const formattedDate = currentTime.date; // YYYY-MM-DD format
 const formattedDateTime = currentTime.datetime; // Full datetime
 ```
 
-**Step 3: Apply to All Date Fields**
+Step 3: Apply to All Date Fields
 
 - Document headers
 - File metadata
