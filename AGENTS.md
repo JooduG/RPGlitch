@@ -1,10 +1,12 @@
 <!-- ruff: noqa -->
 # AGENTS.md – GlitchCodex Project Guide
 
-Version 1.3.1  |  Updated 2025‑07‑30
+Version 1.4.0  |  Updated 2025‑07‑30
 
-This guide helps Codex and humans collaborate effectively on the Perchance/Glitch monorepo.
-It documents rules, standards and required tools.
+
+This document serves as a comprehensive reference for Codex Cloud agents and human contributors
+working in the Perchance/Glitch monorepo.
+It provides guidelines, standards, and instructions for consistent and effective collaboration
 
 ---
 
@@ -16,6 +18,7 @@ The repository structure is outlined below to provide clarity on navigation and 
 /
 ├── apps/                 # Application source code
 ├── build/                # Build automation and output artifacts
+├── docs/                 # Developer documentation
 ├── memory-bank/          # Persistent knowledge and decision tracking (Basic‑Memory MCP)
 ├── tools/                # Development utilities and helper scripts
 ├── .cursor/rules/        # AI guidance and rulesets
@@ -28,6 +31,24 @@ The `build/` folder outputs optimized HTML for deployment. `memory-bank/` tracks
 There is currently no top-level `src/`; app code lives inside each application folder.
 
 *Access and modifications outside these directories are restricted by Codex Cloud permissions.*
+
+### Purpose
+
+This monorepo contains the **Perchance/Glitch Development System**, a collection of web apps and utilities
+built around the Perchance platform. The `apps/` directory houses the **RPGlitch** and **ImageGlitch**
+applications. Build scripts live in `build/scripts`, and long-term project knowledge is stored in
+`memory-bank/`. Each app keeps its own `src/` folder rather than a global one.
+
+### Directory Guide
+
+| Directory        | Description                            | When to modify                                         |
+| ---------------- | -------------------------------------- | ------------------------------------------------------ |
+| `apps/`          | RPGlitch and ImageGlitch source        | Feature work and bug fixes                             |
+| `build/`         | Build scripts and generated output     | Update scripts; never modify `build/output`            |
+| `docs/`          | Developer documentation                | Update whenever documentation changes                  |
+| `memory-bank/`   | Persistent context and decisions       | Record reasoning and progress                          |
+| `tools/`         | Diagnostic and automation helpers      | Extend or maintain tooling                             |
+| `.cursor/rules/` | Codex rulesets                         | Only edit when updating rules                          |
 
 ---
 
@@ -54,6 +75,7 @@ Agents must load context from these essential paths **before** initiating any ta
 | `tools/` | Development utilities and automation. | Improve or add helper scripts. |
 | `tests/` | Reserved for automated tests (currently empty). | Add tests when new Python utilities appear. |
 
+
 ---
 
 ## 3 Core Rulesets
@@ -70,8 +92,9 @@ These foundational rules guide system architecture, communication, and project s
 
 ### 3.2 Thinking Framework
 
-* [framework](.cursor/rules/thinking-framework.mdc) – Cognitive models and structured reasoning
-* [context-aware-rule-loading](.cursor/rules/thinking-context-aware-rule-loading.mdc) – Context-aware loading
+
+* [context-aware-rule-loading](.cursor/rules/thinking-context-aware-rule-loading.mdc)
+  – Context-sensitive rule loading strategies
 
 ### 3.3 Orchestration Rules
 
@@ -93,6 +116,7 @@ Relevant for RPGlitch and ImageGlitch:
 
 > **Tip:** Review the most relevant ruleset before coding. When unsure, start with the Core System Rules.
 
+
 ---
 
 ## 5 Mission for Agents
@@ -100,6 +124,7 @@ Relevant for RPGlitch and ImageGlitch:
 1. Accurately translate natural-language requests into precise, production-ready code.
 2. Adhere strictly to the Unified [3‑Mode architecture](.cursor/rules/orchestration-mode.mdc).
 3. Use MCP services from `mcp.json` (Context7, Time, Basic-Memory, Sequential Thinking).
+
 4. Consistently record decisions and important context into the [memory-bank/](memory-bank) for future reference.
 5. Follow Cursor [All-Rules](.cursor/rules) rigorously, covering HTML, CSS, JavaScript, storage, and performance.
 6. Maintain a high-quality codebase—every contribution must pass stringent linting, testing, and performance standards.
@@ -115,6 +140,22 @@ To foster consistency and efficiency:
 * Integrate packages with `pnpm install --filter <project>`.
 * Set up new React apps rapidly with `pnpm create vite@latest <project> -- --template react-ts`.
 * Regularly confirm package naming conventions in `package.json`.
+
+### Python + Node Setup
+
+The universal Codex image provides multiple Python versions via **pyenv**
+(3.10–3.13), **uv 0.7**, and **Poetry 2** alongside **Node 22** with **nvm 0.40**.
+Install Python dependencies with:
+
+```bash
+uv pip install -e ".[test]"
+```
+
+Node dependencies install with:
+
+```bash
+pnpm install
+```
 
 ### Codex Cloud Setup
 
@@ -141,6 +182,7 @@ Install Python dev requirements with:
 uv pip install -e ".[test]"
 ```
 
+
 ---
 
 ## 7 Coding Standards (Cursor All-Rules)
@@ -149,6 +191,7 @@ uv pip install -e ".[test]"
 * Leverage modern JavaScript (e.g., `async/await`) with efficient DOM manipulation.
 * Employ `localStorage` for small datasets; use Dexie.js with `IndexedDB` for complex storage.
 * Prioritize performance: observers, service workers, lazy-loading and optimized assets.
+
 
 ---
 
@@ -177,6 +220,7 @@ All commands must succeed locally and in CI.
 * Commit messages should use the format `<scope>: <summary>` in present tense.
 * PR titles follow `[<package>] <summary>`.
 * Prefer smaller, focused PRs and split large refactors into separate submissions.
+
 
 ---
 
@@ -214,6 +258,18 @@ deny_write:
   - "./.cursor/**"
 ```
 
+### Agent-Specific Guidance
+
+Codex should focus on `apps/` for feature work and `memory-bank/` for documentation.
+Other folders—`build/`, `tools/`, and `.cursor/rules/`—are read‑only unless explicitly requested.
+Never modify generated artifacts like `build/output/`, or anything inside `node_modules/` or `.cursor/`.
+
+Before presenting a diff, run:
+
+```bash
+npm run lint && npm run build && npm run validate
+```
+
 ---
 
 ## 12 Agent Guidance
@@ -224,6 +280,8 @@ Always run the lint and test suite before presenting a diff.
 
 ## 13 Changelog
 
+* **1.4.0 (2025‑07‑30)** – Added repository overview, directory guide,
+  environment setup, lint/test workflow, contribution rules, and agent guidance.
 * **1.3.1 (2025‑07‑30)** – Expanded and detailed guidance, enhanced clarity, and additional instructions.
 * **1.3.0 (2025‑07‑30)** – Restructured rules and improved readability.
 * **1.2.0 (2025‑07‑30)** – Added structured rule references and system overview.
