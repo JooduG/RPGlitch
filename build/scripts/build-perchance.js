@@ -118,12 +118,18 @@ async function downloadWithFallback(file) {
         console.log(`  ✅ Downloaded: ${file.description}`);
         return data;
     } catch (error) {
-        console.warn(`  ⚠️ Failed to download ${file.description}: ${error.message}. Using local copy.`);
+                console.warn(`  ⚠️ Failed to download ${file.description}: ${error.message}. Using local copy.`);
         const localPath = path.join(__dirname, '../local_libs', file.local);
         buildMetrics.errors.push(`${file.description} downloaded from local fallback`);
-        return fs.readFileSync(localPath, 'utf8');
+        try {
+            return fs.readFileSync(localPath, 'utf8');
+        } catch (fallbackError) {
+            console.error(`  ❌ Failed to read local fallback for ${file.description}: ${fallbackError.message}`);
+            throw new Error(`Failed to download ${file.description} and could not read local fallback.`);
+        }
     }
 }
+
 
 /**
  * Downloads and inlines external CSS files
