@@ -1,3 +1,49 @@
+// Dependency availability checks with retry mechanism
+function checkDependencies() {
+    window.isDexieLoaded = typeof window.Dexie !== 'undefined'
+    window.isDOMPurifyAvailable = typeof window.DOMPurify !== 'undefined'
+    window.isHyperscriptLoaded = typeof window._hyperscript !== 'undefined'
+    window.isCashDomLoaded = typeof window.$ !== 'undefined'
+    return (
+        window.isDexieLoaded &&
+        window.isDOMPurifyAvailable &&
+        window.isHyperscriptLoaded &&
+        window.isCashDomLoaded
+    )
+}
+
+let dependencyCheckCount = 0
+const maxChecks = 50
+
+function waitForDependencies() {
+    if (checkDependencies()) {
+        initializeApp()
+    } else if (dependencyCheckCount < maxChecks) {
+        dependencyCheckCount++
+        setTimeout(waitForDependencies, 100)
+    } else {
+        console.error('Dependency load timed out.', {
+            isDexieLoaded: window.isDexieLoaded,
+            isHyperscriptLoaded: window.isHyperscriptLoaded,
+            isCashDomLoaded: window.isCashDomLoaded,
+            isDOMPurifyAvailable: window.isDOMPurifyAvailable
+        })
+        alert(
+            'Application failed to load: essential components missing. Please ensure all scripts loaded correctly.'
+        )
+    }
+}
+
+function initializeApp() {
+    if (window.App && typeof App.initializeWhenReady === 'function') {
+        App.initializeWhenReady()
+    } else {
+        console.error(
+            'App failed to initialize due to missing dependencies: App.initializeWhenReady not found'
+        )
+    }
+}
+
 window.App = {
     // Debug: App object defined
     // console.log('App object defined:', window.App);
@@ -4155,7 +4201,6 @@ window.App = {
     
           const item = selectedId ? await this._getitemData(selectedId, config.dbTableKey, config.getPremadesFn) : null
           console.log(`_updateStoryboardCard: Fetched item for selectedId ${selectedId}:`, item)
-          get(`_updateStoryboardCard: Item object received:`, item)
 
           const cardContent = cardEl.querySelector('.storyboard-card-right article')
           if (!cardContent) {
