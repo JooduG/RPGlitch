@@ -4588,10 +4588,11 @@ window.App = {
        */
       handleError(code, error) {
           console.error(`[${code}]`, error)
-          if (typeof this.showTopNotification === 'function') {
+                   if (typeof this.showTopNotification === 'function') {
               this.showTopNotification(`Error: ${code}. See console for details.`, 'error', 5000)
           } else {
-              console.warn('showTopNotification not available')
+              console.warn('showTopNotification not available, falling back to alert.');
+              alert(`Error: ${code}. See console for details.`);
           }
       },
     
