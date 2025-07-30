@@ -1,7 +1,6 @@
 // eslint.config.mjs
 import js from "@eslint/js";
 import globals from "globals";
-import tseslint from "typescript-eslint";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig([
@@ -70,9 +69,5 @@ export default defineConfig([
     }
   },
   // Comma added here
-  // TypeScript files
-  {
-    files: ["**/*.{ts,mts,cts}"],
-    ...tseslint.configs.recommended
-  }
+  // TypeScript files - none currently used
 ]);
