@@ -8,7 +8,7 @@ Successfully audited and updated all cross-references throughout the project to 
 
 ### **Files Scanned**
 
-- **Root directory**: README.md, gemini.md, package.json, etc.
+- **Root directory**: README.md, docs/protocols/gemini-protocol.md, package.json, etc.
 - **Rules directory**: All `.cursor/rules/` files
 - **Tools directory**: AI rule selection, test globs, diagnostics
 - **Memory bank**: All documentation and progress files
@@ -26,7 +26,7 @@ Successfully audited and updated all cross-references throughout the project to 
 - `tools/test-globs/test-globs-verification.js`
 - `tools/ai-rule-selection/context-analyzer.js`
 - `memory-bank/active/progress.md`
-- `gemini.md`
+- `docs/protocols/gemini-protocol.md`
 - `.cursor/rules/thinking-context-aware-rule-loading.mdc`
 - `.cursor/rules/system-documentation.mdc`
 - `.cursor/rules/mode-architecture.mdc`
@@ -42,7 +42,7 @@ Successfully audited and updated all cross-references throughout the project to 
 
 **Files Updated**:
 
-- `gemini.md`
+- `docs/protocols/gemini-protocol.md`
 - `memory-bank/strategic/assessments/rule-application-settings-audit-complete.md`
 
 #### **3. Documentation Structure References**
