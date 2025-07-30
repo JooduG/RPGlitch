@@ -634,8 +634,8 @@ window.App = {
      * @param {string} [type] - The notification type (success, error, info).
      * @param {number} [duration] - The duration of the notification in milliseconds.
      */
-    showTopNotification() {
-        // Disabled. Notifications are temporarily not in use.
+    showTopNotification(message, type = 'info', duration = 3000) {
+    // Disabled. Notifications are temporarily not in use.
     },
   
     // Cache for premade character items
