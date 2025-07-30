@@ -2,7 +2,9 @@
 
 Version 1.4.0  |  Updated 2025‑07‑30
 
-This document serves as a comprehensive reference for Codex Cloud agents and human contributors working in the Perchance/Glitch monorepo, providing guidelines, standards, and instructions for consistent and effective collaboration.
+This document serves as a comprehensive reference for Codex Cloud agents and human contributors
+working in the Perchance/Glitch monorepo.
+It provides guidelines, standards, and instructions for consistent and effective collaboration.
 
 ---
 
@@ -51,7 +53,8 @@ Agents must load context from these essential paths **before** initiating any ta
 | `.cursor/rules/` | Organizational coding standards, rules, and architectural principles.                  |
 | `memory-bank/`   | Comprehensive knowledge base, decision history, design rationale, and recorded issues. |
 
-> Codex Cloud’s custom `systemPrompt` automatically directs agents to these folders. Always keep this information updated and synchronized.
+> Codex Cloud’s custom `systemPrompt` automatically directs agents to these folders.
+> Always keep this information updated and synchronized.
 
 ---
 
@@ -70,7 +73,8 @@ These foundational rules guide system architecture, communication, and project s
 ### 3.2 Thinking Framework
 
 * [framework](.cursor/rules/thinking-framework.mdc) – Cognitive models and structured reasoning
-* [context-aware-rule-loading](.cursor/rules/thinking-context-aware-rule-loading.mdc) – Context-sensitive rule loading strategies
+* [context-aware-rule-loading](.cursor/rules/thinking-context-aware-rule-loading.mdc)
+  – Context-sensitive rule loading strategies
 
 ### 3.3 Orchestration Rules
 
@@ -82,22 +86,26 @@ These foundational rules guide system architecture, communication, and project s
 
 ## 4 Perchance Rules
 
-These rules provide specialized guidance specifically for the Perchance platform (relevant for RPGlitch and ImageGlitch):
+These rules provide specialized guidance for the Perchance platform (used by RPGlitch and ImageGlitch):
 
 * [perchance-architecture](.cursor/rules/perchance-architecture.mdc) – Structural overview
 * [perchance-plugin-system](.cursor/rules/perchance-plugin-system.mdc) – Plugin architecture and integration
-* [perchance-development-lifecycle](.cursor/rules/perchance-development-lifecycle.mdc) – Workflow and lifecycle management
+* [perchance-development-lifecycle](.cursor/rules/perchance-development-lifecycle.mdc)
+  – Workflow and lifecycle management
 * [perchance-build-deployment](.cursor/rules/perchance-build-deployment.mdc) – Guidelines for building and deploying
 
-> **Tip:** Start by reviewing the most relevant ruleset for your task. When unsure, the **Core System Rules** provide foundational guidance.
+> **Tip:** Start by reviewing the most relevant ruleset for your task.
+> When unsure, the **Core System Rules** provide foundational guidance.
 
 ---
 
 ## 5 Mission for Agents
 
 1. Accurately translate natural-language requests into precise, production-ready code.
-2. Adhere strictly to the Unified [3‑Mode architecture](.cursor/rules/orchestration-mode.mdc) (Strategic → Tactical → Operational), defined clearly in Codex Cloud Custom Instructions.
-3. Utilize relevant [MCP services](mcp.json), including Context7, Time, Basic‑Memory, and Sequential Thinking for enhanced context management.
+2. Adhere strictly to the Unified [3‑Mode architecture](.cursor/rules/orchestration-mode.mdc)
+   (Strategic → Tactical → Operational), defined clearly in Codex Cloud Custom Instructions.
+3. Utilize relevant [MCP services](mcp.json) – Context7, Time, Basic‑Memory and
+   Sequential Thinking – for enhanced context management.
 4. Consistently record decisions and important context into the [memory-bank/](memory-bank) for future reference.
 5. Follow Cursor [All-Rules](.cursor/rules) rigorously, covering HTML, CSS, JavaScript, storage, and performance.
 6. Maintain a high-quality codebase—every contribution must pass stringent linting, testing, and performance standards.
@@ -144,14 +152,16 @@ pnpm install
 
 ### Lint, Test, and Type-Check
 
-Run the full suite before submitting any changes:
+Run the full suite before submitting any changes. The project uses Node tooling for
+linting HTML, CSS, and JavaScript alongside Python linters for helper scripts:
 
 ```bash
-ruff check
-black --check .
-pytest
-mypy
-pyright
+pnpm run lint    # runs eslint, stylelint, and htmlhint
+ruff check       # Python linting (used by helper scripts)
+black --check .  # Python formatting
+pytest           # only used if Python tests exist
+mypy             # static typing for Python helpers
+pyright          # JS/TS type-checking (if configured)
 ```
 
 CI will reject any PR unless all of the above commands pass.
@@ -163,7 +173,8 @@ CI will reject any PR unless all of the above commands pass.
 * Implement semantic HTML, prioritize accessibility, and maintain minimalistic CSS.
 * Leverage modern JavaScript (e.g., `async/await`) with efficient DOM manipulation.
 * Employ `localStorage` for small datasets; use Dexie.js with `IndexedDB` for complex storage.
-* Prioritize performance using Intersection and Resize Observers, Service Workers, lazy-loading, and optimized resource handling.
+* Prioritize performance using Intersection and Resize Observers, Service Workers,
+  lazy-loading, and optimized resource handling.
 
 ---
 
@@ -172,11 +183,13 @@ CI will reject any PR unless all of the above commands pass.
 * Format titles as `[<package>] <summary>`.
 * Provide clear, concise descriptions linked to relevant issues.
 * Ensure all code contributions pass linting, testing, and performance benchmarks.
-* Adhere strictly to [build-deployment](.cursor/rules/perchance-build-deployment.mdc) procedures for consistency and reliability.
+* Adhere strictly to
+  [build-deployment](.cursor/rules/perchance-build-deployment.mdc) procedures for consistency and reliability.
 
 ### Contribution Rules
 
-* Use `lower_case_with_underscores` for Python files and `camelCase` for JavaScript functions.
+* Use `kebab-case` for new HTML, CSS, and JavaScript files. Existing files keep their current names.
+* If Python helpers are added, name them with `snake_case`.
 * Start commit messages with a short imperative verb (e.g., "fix:", "add:").
 * Keep PR titles in the format `[<package>] <summary>` and under 72 characters.
 * Split large refactors into smaller, reviewable changes whenever possible.
@@ -219,9 +232,9 @@ deny_write:
 
 ### Agent-Specific Guidance
 
-Codex should operate primarily within `apps/`, `build/scripts/`, `memory-bank/`, `tools/`, and
-`docs/`. Avoid touching generated artifacts such as `build/output/` or any content inside
-`node_modules/` and `.cursor/`.
+Codex should focus on `apps/` for feature work and `memory-bank/` for documentation.
+Other folders—`build/`, `tools/`, and `.cursor/rules/`—are read‑only unless explicitly requested.
+Never modify generated artifacts like `build/output/`, or anything inside `node_modules/` or `.cursor/`.
 
 Before presenting a diff, run:
 
@@ -233,7 +246,8 @@ ruff check && black --check . && pytest && mypy && pyright
 
 ## 12 Changelog
 
-* **1.4.0 (2025‑07‑30)** – Added repository overview, directory guide, environment setup, lint/test workflow, contribution rules, and agent guidance.
+* **1.4.0 (2025‑07‑30)** – Added repository overview, directory guide,
+  environment setup, lint/test workflow, contribution rules, and agent guidance.
 * **1.3.1 (2025‑07‑30)** – Expanded and detailed guidance, enhanced clarity, and additional instructions.
 * **1.3.0 (2025‑07‑30)** – Restructured rules and improved readability.
 * **1.2.0 (2025‑07‑30)** – Added structured rule references and system overview.
