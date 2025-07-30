@@ -3882,11 +3882,16 @@ window.App = {
               }
           }
     
-          // Set navigation guard
-          this.navigationGuard.isActive = true
-          this.navigationGuard.operation = `switchToScreen: ${screenName}`
-          this.navigationGuard.startTime = Date.now()
-          this.navigationGuard.targetScreen = screenName
+        // Set navigation guard
+        this.navigationGuard.isActive = true
+        this.navigationGuard.operation = `switchToScreen: ${screenName}`
+        this.navigationGuard.startTime = Date.now()
+        this.navigationGuard.targetScreen = screenName
+
+        // Close any open chin when switching screens
+        if (this.focusBarState.chinOpen) {
+            this._toggleChinContent(this.focusBarState.currentChin)
+        }
     
           // Hide all screens first
           Object.values(this.CONSTANTS.VIEWS).forEach(viewKey => {
