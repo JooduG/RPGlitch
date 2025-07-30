@@ -13,31 +13,14 @@
   --pico-card-box-shadow: 0;
   --pico-dropdown-box-shadow: 0;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
-
-  color: #fff;
-
-  /* Theming defaults */
   --swatch-color: var(--pico-primary, #0172ad);
   --palette-medium: var(--pico-primary, #0172ad);
   --palette-light: #fff;
   --bg-color: var(--palette-medium, var(--pico-primary, #0172ad));
   --text-color-initials: var(--palette-light, #fff);
 
+    color: #fff;
 }
-
-/* Dynamic Theming Variables */
-
-/* --swatch-color: Set dynamically for color swatches */
-
-/* --palette-medium: Set dynamically for medium palette colors */
-
-/* --palette-light: Set dynamically for light palette colors */
-
-/* --premade-badge-color: Set dynamically for premade badges */
-
-/* --bg-color: Set dynamically for background colors */
-
-/* --text-color-initials: Set dynamically for text colors */
 
 html, body {
   min-height: 100vh;
@@ -54,7 +37,6 @@ header.container-fluid {
 /* ========================================
    CSS CUSTOM PROPERTIES & THEMING
    ======================================== */
-
 
 input,
 [type="checkbox"],
@@ -120,11 +102,33 @@ button,
   justify-content: center;
 }
 
+.chin-card,
+.storyboard-card,
+button,
+.top-bar button,
+.top-bar [role="button"],
+#chin-options,
+.chin-tab,
+input[type="submit"],
+input[type="button"],
+a {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+              box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 .storyboard-card .chin-card {
   flex: 1;
   display: flex;
   min-height: 260px;
   overflow: visible;
+}
+
+.storyboard-card,
+#storyboard-grid > article,
+.card {
+  overflow: visible ;
+  z-index: 1;
+  position: relative;
 }
 
 button:not([disabled]),
@@ -231,8 +235,8 @@ button:not([disabled]):hover,
 input[type="submit"]:not([disabled]):hover,
 input[type="button"]:not([disabled]):hover,
 .chin-tab:not([disabled]):hover,
-#chin-options button:not([disabled]):hover,
 .top-bar button:not([disabled]):hover,
+#chin-options button:not([disabled]):hover,
 .top-bar [role="button"]:not([disabled]):hover {
   transform: none ;
   box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.6), 0 0 30px rgb(255 255 255 / 15%) ;
@@ -275,20 +279,6 @@ input[type="file"] {
   cursor: not-allowed ;
 }
 
-.storyboard-card,
-.chin-card,
-.top-bar button,
-.top-bar [role="button"],
-#chin-options,
-.chin-tab,
-button,
-input[type="submit"],
-input[type="button"],
-a {
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
 .storyboard-card.selected,
 .chin-card.selected {
   animation: subtle-pulse 2s ease-in-out infinite;
@@ -313,37 +303,24 @@ a {
 .card-title-selected,
 .card-title-dropdown-menu,
 .card-title-dropdown-menu *,
-.dropdown-option {
+.card-title-dropdown *:focus,
+.card-title-dropdown *:hover,
+.card-title-dropdown-menu .dropdown-option:focus,
+.card-title-dropdown-menu .dropdown-option:hover,
+.card-title-dropdown-menu .dropdown-option:active {
+  box-shadow: none ;
   border: 0 ;
   border-width: 0 ;
   border-style: none ;
   border-color: transparent ;
   outline: transparent none 0 ;
   text-shadow: none ;
-  box-shadow: none ;
   -webkit-border: 0 ;
   -moz-border: 0 ;
   -webkit-outline: 0 ;
   -moz-outline: 0 ;
-}
-
-.card-title-dropdown-menu .dropdown-option {
   text-wrap: pretty;
   text-align: left;
-}
-
-body, body *:not([disabled]) {
-  opacity: 1 ;
-  color: #fff ;
-}
-
-.card-title-dropdown *,
-.card-title-dropdown *:focus,
-.card-title-dropdown *:hover,
-.card-title-dropdown *:active {
-  border: 0 ;
-  outline: none ;
-  box-shadow: none ;
 }
 
 .card-title-selected {
@@ -365,15 +342,6 @@ body, body *:not([disabled]) {
   background: rgb(80 80 120 / 20%) ;
 }
 
-.card-title-dropdown-menu .dropdown-option,
-.card-title-dropdown-menu .dropdown-option:focus,
-.card-title-dropdown-menu .dropdown-option:hover,
-.card-title-dropdown-menu .dropdown-option:active {
-  border: 0 ;
-  outline: none ;
-  box-shadow: none ;
-}
-
 .card-title-dropdown-menu {
   z-index: 9999999 ;
   position: absolute ;
@@ -389,14 +357,6 @@ body, body *:not([disabled]) {
 article {
   padding: 0;
   margin: 0;
-}
-
-.storyboard-card,
-#storyboard-grid > article,
-.card {
-  overflow: visible ;
-  z-index: 1;
-  position: relative;
 }
 
 #storyboard-grid > article {

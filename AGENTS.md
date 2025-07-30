@@ -3,18 +3,15 @@
 
 Version 1.4.0  |  Updated 2025‑07‑30
 
-
 This document serves as a comprehensive reference for Codex Cloud agents and human contributors
 working in the Perchance/Glitch monorepo.
 It provides guidelines, standards, and instructions for consistent and effective collaboration
-
----
 
 ## 1 Overview
 
 The repository structure is outlined below to provide clarity on navigation and responsibilities:
 
-```mermaid
+```
 /
 ├── apps/                 # Application source code
 ├── build/                # Build automation and output artifacts
@@ -50,8 +47,6 @@ applications. Build scripts live in `build/scripts`, and long-term project knowl
 | `tools/`         | Diagnostic and automation helpers      | Extend or maintain tooling                             |
 | `.cursor/rules/` | Codex rulesets                         | Only edit when updating rules                          |
 
----
-
 ## 2 Context Sources
 
 Agents must load context from these essential paths **before** initiating any tasks:
@@ -63,20 +58,6 @@ Agents must load context from these essential paths **before** initiating any ta
 
 > Codex Cloud’s custom `systemPrompt` automatically directs agents to these folders.
 > Keep this information updated.
-
-### Directory Guide
-
-| Folder | Purpose | When to modify |
-| ------ | ------- | -------------- |
-| `apps/` | RPGlitch and ImageGlitch application code. | Feature work or bug fixes in those apps. |
-| `build/` | Build scripts and compiled output. | Update scripts; never hand-edit generated files. |
-| `docs/` | Project and protocol documentation. | Add or update docs. |
-| `memory-bank/` | Persistent context and design history. | Record important decisions or progress. |
-| `tools/` | Development utilities and automation. | Improve or add helper scripts. |
-| `tests/` | Reserved for automated tests (currently empty). | Add tests when new Python utilities appear. |
-
-
----
 
 ## 3 Core Rulesets
 
@@ -92,7 +73,6 @@ These foundational rules guide system architecture, communication, and project s
 
 ### 3.2 Thinking Framework
 
-
 * [context-aware-rule-loading](.cursor/rules/thinking-context-aware-rule-loading.mdc)
   – Context-sensitive rule loading strategies
 
@@ -101,8 +81,6 @@ These foundational rules guide system architecture, communication, and project s
 * [architecture](.cursor/rules/orchestration-architecture.mdc) – Framework for task orchestration
 * [mode](.cursor/rules/orchestration-mode.mdc) – Role-based orchestration details
 * [system](.cursor/rules/orchestration-system.mdc) – System-level orchestration mechanisms
-
----
 
 ## 4 Perchance Rules
 
@@ -114,10 +92,7 @@ Relevant for RPGlitch and ImageGlitch:
 * [perchance-development-lifecycle](.cursor/rules/perchance-development-lifecycle.mdc) – Dev lifecycle guidance
 * [perchance-build-deployment](.cursor/rules/perchance-build-deployment.mdc) – Guidelines for building and deploying
 
-> **Tip:** Review the most relevant ruleset before coding. When unsure, start with the Core System Rules.
-
-
----
+> **Tip:** Review the most relevant ruleset before coding. When unsure, start with the Core System Rules.---
 
 ## 5 Mission for Agents
 
@@ -127,9 +102,7 @@ Relevant for RPGlitch and ImageGlitch:
 
 4. Consistently record decisions and important context into the [memory-bank/](memory-bank) for future reference.
 5. Follow Cursor [All-Rules](.cursor/rules) rigorously, covering HTML, CSS, JavaScript, storage, and performance.
-6. Maintain a high-quality codebase—every contribution must pass stringent linting, testing, and performance standards.
-
----
+6. Maintain a high-quality codebase—every contribution must pass stringent linting, testing, and performance standards.---
 
 ## 6 Development Environment Guidelines
 
@@ -182,16 +155,12 @@ Install Python dev requirements with:
 uv pip install -e ".[test]"
 ```
 
-
----
-
 ## 7 Coding Standards (Cursor All-Rules)
 
 * Implement semantic HTML, prioritize accessibility, and maintain minimalistic CSS.
 * Leverage modern JavaScript (e.g., `async/await`) with efficient DOM manipulation.
 * Employ `localStorage` for small datasets; use Dexie.js with `IndexedDB` for complex storage.
 * Prioritize performance: observers, service workers, lazy-loading and optimized assets.
-
 
 ---
 
@@ -221,24 +190,17 @@ All commands must succeed locally and in CI.
 * PR titles follow `[<package>] <summary>`.
 * Prefer smaller, focused PRs and split large refactors into separate submissions.
 
-
----
-
 ## 9 Effective Codex Prompting
 
 * Offer precise file locations, reproduction steps, and references.
 * Segment complex tasks for easier management and clarity.
 * Utilize Codex for streamlined debugging and encourage explorative, open-ended prompts.
 
----
-
 ## 10 Safety & Quality Assurance
 
 * Restrict all external network calls to maintain security.
 * Mandate comprehensive linting, extensive testing, and adherence to performance budgets via Lighthouse.
 * Prioritize robust, graceful error handling across all modules.
-
----
 
 ## 11 Permissions
 
@@ -269,8 +231,6 @@ Before presenting a diff, run:
 ```bash
 npm run lint && npm run build && npm run validate
 ```
-
----
 
 ## 12 Agent Guidance
 

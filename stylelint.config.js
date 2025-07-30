@@ -35,11 +35,11 @@ module.exports = {
     ]
   },
   ignoreFiles: [
-    "memory/project/archive/collection.md",
+    "memory-bank/project/archive/collection.md",
     "apps/**/archive/**/*.css",
     "apps/**/archive/**/*.scss",
     "build/output/archive/**/*.css",
-    "memory/**/archive/**/*.css",
-    "memory/**/archive/**/*.scss",
+    "memory-bank/**/archive/**/*.css",
+    "memory-bank/**/archive/**/*.scss",
   ],
 };

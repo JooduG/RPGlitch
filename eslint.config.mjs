@@ -15,8 +15,8 @@ export default defineConfig([
       "build-perchance.js",
       "apps/**/archive/**",
       "build/output/archive/**",
-      "memory/**/archive/**",
-      "memory/project/archive/collection.md"
+      "memory-bank/**/archive/**",
+      "memory-bank/project/archive/collection.md"
     ],
     // plugins: { js }, // Removed as it's already imported
     extends: [js.configs.recommended],

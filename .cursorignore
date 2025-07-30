@@ -11,4 +11,5 @@ node_modules/
 # *.backup
 .DS_Store 
 cheatsheet.md 
+memory-bank/**/archive/**"
 

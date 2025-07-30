@@ -1,8 +1,8 @@
 {
   "ignore": {
     "files": [
-      "memory/project/archive/collection.md",
-      "memory/**/archive/**/*.md"
+      "memory-bank/project/archive/collection.md",
+      "memory-bank/**/archive/**/*.md"
     ]
   },
   "MD013": false,

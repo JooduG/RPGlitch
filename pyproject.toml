@@ -1,6 +1,0 @@
-[tool.black]
-line-length = 88
-extend-exclude = 'node_modules'
-
-[tool.ruff]
-exclude = ['node_modules']
