@@ -9028,7 +9028,7 @@ Test compiled CSS in browsers:
 
 #### **File Organization**
 
-```
+```mermaid
 scss/
 ├── abstracts/
 │   ├── _variables.scss
