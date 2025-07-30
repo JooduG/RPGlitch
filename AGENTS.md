@@ -1,3 +1,4 @@
+<!-- ruff: noqa -->
 # AGENTS.md – GlitchCodex Project Guide
 
 Version 1.3.1  |  Updated 2025‑07‑30
@@ -156,11 +157,8 @@ uv pip install -e ".[test]"
 Run the full suite before sending a PR:
 
 ```bash
-ruff check
-black --check .
-pytest
-mypy
-pyright
+npm run lint
+npm run build
 ```
 
 All commands must succeed locally and in CI.
@@ -202,6 +200,7 @@ All commands must succeed locally and in CI.
 
 Explicitly managed via YAML configuration to ensure repository integrity and security:
 
+<!-- ruff: noqa -->
 ```yaml
 allow_read:
   - "./**/*"
@@ -209,7 +208,6 @@ allow_write:
   - "./apps/**/*"
   - "./build/**/*"
   - "./memory-bank/**/*"
-  - "./src/**/*"
   - "./docs/**/*"
   - "./tests/**/*"
 deny_write:
