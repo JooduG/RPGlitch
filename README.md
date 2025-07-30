@@ -13,6 +13,17 @@ This development system provides:
 - **⚡ Context-Aware Optimization**: Intelligent rule loading for maximum efficiency
 - **🚀 Automated Workflows**: Build, deployment, and development automation
 
+## 📚 Documentation
+
+Full documentation lives in the [docs/](docs/) directory. Key guides:
+
+- [Protocols](docs/protocols) - operational and agent protocols
+- [Build System](docs/build/README.md)
+- [Applications](docs/apps/README.md)
+- [Development Tools](docs/tools/README.md)
+- Memory bank documentation remains under [memory-bank/](memory-bank/).
+
+
 ## 📱 **Live Applications**
 
 ### RPGlitch

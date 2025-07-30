@@ -51,7 +51,7 @@ build/
 
 Root Level:
 ├── directory-optimization-*.md  # Scattered documentation ❌
-└── gemini.md                   # Unclear purpose ❌
+└── docs/protocols/gemini-protocol.md                   # Unclear purpose ❌
 ```
 
 ### **After: Fully Organized**
@@ -163,7 +163,7 @@ docs/
 
 #### **Documentation Created (3 files)**
 
-- `tools/README.md` - Tools overview
+- `docs/tools/README.md` - Tools overview
 - `tools/diagnostics/README.md` - Diagnostic tools documentation
 - `tools/ai-rule-selection/README.md` - AI rule selection tools documentation
 
@@ -180,7 +180,7 @@ docs/
 
 #### **Documentation Created (1 file)**
 
-- `build/README.md` - Build system documentation
+- `docs/build/README.md` - Build system documentation
 
 ### **4. Documentation Organization (LOW Priority)**
 

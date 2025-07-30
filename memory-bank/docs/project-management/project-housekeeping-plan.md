@@ -50,7 +50,7 @@ This comprehensive housekeeping plan addresses additional optimization opportuni
 **Current State**: Some files could be better organized
 **Issues**:
 
-- `gemini.md` - unclear purpose
+- `docs/protocols/gemini-protocol.md` - unclear purpose
 - Multiple optimization plan files
 
 ---
@@ -200,7 +200,7 @@ mkdir -p tools/archives
 mv tools/diagnostics/2025-07-03T* tools/archives/
 
 # Create README files
-touch tools/README.md
+touch docs/tools/README.md
 touch tools/diagnostics/README.md
 touch tools/ai-rule-selection/README.md
 ```
@@ -212,7 +212,7 @@ touch tools/ai-rule-selection/README.md
 echo "build/output/" >> .gitignore
 
 # Create build documentation
-touch build/README.md
+touch docs/build/README.md
 ```
 
 ### **Step 4: Root Level Cleanup**
