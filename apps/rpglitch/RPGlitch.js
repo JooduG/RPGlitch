@@ -4328,7 +4328,7 @@ window.App = {
       _attachTopBarEventListeners() {
           const chinTabs = document.querySelectorAll('#top-bar-left button[data-chin]')
           chinTabs.forEach(btn => {
-              btn.onclick = () => this.selectTopBarTab(btn.dataset.chin)
+              btn.addEventListener('click', () => this.selectTopBarTab(btn.dataset.chin))
           })
 
           document.addEventListener('click', (e) => {
