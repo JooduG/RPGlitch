@@ -274,7 +274,7 @@ window.App = {
       _getCoreUIContainers() {
           this.ui.main = this._query('main', true)
           this.ui.storyboardScreen = this._query('storyboard-screen', true)
-          this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true)
+          this.ui.chatInterfaceScreen = this._query('chat-screen', true)
       },
   
       _getFormScreens() {
@@ -495,108 +495,6 @@ window.App = {
         elements.forEach(el => this.enableMouseoverAnimation(el))
     },
 
-    updateMouseoverAnimationState() {
-        // For storyboard cards, add disabled attribute for hover effects when no item is selected
-        // But keep the cards clickable for dropdown functionality
-        if (!this.storyboardSelected.ai) {
-            this.disableMouseoverAnimation(this.ui.storyboardAiCharacterCard)
-            this.ui.storyboardAiCharacterCard?.setAttribute('disabled', 'true')
-        } else {
-            this.enableMouseoverAnimation(this.ui.storyboardAiCharacterCard)
-            this.ui.storyboardAiCharacterCard?.removeAttribute('disabled')
-        }
-
-        if (!this.storyboardSelected.user) {
-            this.disableMouseoverAnimation(this.ui.storyboardUserCharacterCard)
-            this.ui.storyboardUserCharacterCard?.setAttribute('disabled', 'true')
-        } else {
-            this.enableMouseoverAnimation(this.ui.storyboardUserCharacterCard)
-            this.ui.storyboardUserCharacterCard?.removeAttribute('disabled')
-        }
-
-        if (!this.storyboardSelected.world) {
-            this.disableMouseoverAnimation(this.ui.storyboardWorldCard)
-            this.ui.storyboardWorldCard?.setAttribute('disabled', 'true')
-        } else {
-            this.enableMouseoverAnimation(this.ui.storyboardWorldCard)
-            this.ui.storyboardWorldCard?.removeAttribute('disabled')
-        }
-
-        // For buttons, use Pico CSS disabled styling when they're actually disabled
-        // This will show the proper disabled appearance without breaking functionality
-        if (this.ui.newStoryButton && this.ui.newStoryButton.disabled) {
-            this.ui.newStoryButton.classList.add('disabled')
-        } else if (this.ui.newStoryButton) {
-            this.ui.newStoryButton.classList.remove('disabled')
-        }
-
-        if (this.ui.saveStoryButton && this.ui.saveStoryButton.disabled) {
-            this.ui.saveStoryButton.classList.add('disabled')
-        } else if (this.ui.saveStoryButton) {
-            this.ui.saveStoryButton.classList.remove('disabled')
-        }
-
-        if (this.ui.exportStoryButton && this.ui.exportStoryButton.disabled) {
-            this.ui.exportStoryButton.classList.add('disabled')
-        } else if (this.ui.exportStoryButton) {
-            this.ui.exportStoryButton.classList.remove('disabled')
-        }
-
-        if (this.ui.useProfilePictureButton && this.ui.useProfilePictureButton.disabled) {
-            this.ui.useProfilePictureButton.classList.add('disabled')
-        } else if (this.ui.useProfilePictureButton) {
-            this.ui.useProfilePictureButton.classList.remove('disabled')
-        }
-
-        // Disable animations for disabled buttons
-        this.disableMouseoverAnimationForSelector('button[disabled]')
-        this.disableMouseoverAnimationForSelector('input[disabled]')
-        this.disableMouseoverAnimationForSelector('a[disabled]')
-
-        // Enable animations for enabled buttons
-        this.enableMouseoverAnimationForSelector('button:not([disabled])')
-        this.enableMouseoverAnimationForSelector('input:not([disabled])')
-        this.enableMouseoverAnimationForSelector('a:not([disabled])')
-    },
-
-    checkAllButtonStates() {
-        if (this.isInitializing) return
-
-        // Storyboard Screen
-        const isStoryboardReady = this.storyboardSelected.ai && this.storyboardSelected.user && this.storyboardSelected.world
-        if (this.ui.beginStoryButton) {
-            this.ui.beginStoryButton.disabled = !isStoryboardReady
-        }
-        if (this.ui.shuffleStoryElementsButton) {
-            this.ui.shuffleStoryElementsButton.disabled = false // Shuffle should always be enabled
-        }
-
-        // Chat Interface Screen
-        if (this.ui.sendButton && this.ui.messageInput) {
-            this.ui.sendButton.disabled = this.ui.messageInput.value.trim() === '' || this.isAiThinking
-        }
-        if (this.ui.concludeStoryChatButton) {
-            this.ui.concludeStoryChatButton.disabled = this.isAiThinking
-        }
-
-        // Profile Screens (Character, World, Story)
-        // The buttons are now in the top bar, handled by updateTopBarUI
-
-        // Form Screens (Character, World)
-        const formScreen = this.ui.characterFormScreen.style.display !== 'none' 
-            ? this.ui.characterFormScreen 
-            : this.ui.worldFormScreen
-            
-        if (formScreen && formScreen.style.display !== 'none') {
-            const nameInput = formScreen.querySelector('.studio-name-input-large')
-            const submitButton = formScreen.querySelector('button[type="submit"]')
-            if (submitButton && nameInput) {
-                submitButton.disabled = !nameInput.value.trim()
-            }
-        }
-        
-        this.updateMouseoverAnimationState()
-    },
 
   
     /**
@@ -874,164 +772,6 @@ window.App = {
             activeStoryId: this.activeStoryId 
         }
         await this.db.appState.put(appState)
-    },
-  
-    async initialLoad() {
-        // Debug: Initial load started
-        // App.initialLoad called
-  
-        this.isInitializing = true
-  
-        // Initialize navigation guard system
-        this.navigationGuard = {
-            isActive: false,
-            operation: null,
-            startTime: null,
-            targetScreen: null,
-            formOptions: null
-        }
-  
-        if (!this.ui.main || !this.ui.initialPageLoadingModal) {
-            console.error("[App Critical] Main UI elements not found!")
-            const emergencyCtn = document.getElementById('emergencyExportCtn')
-            if (emergencyCtn) this.showEl(emergencyCtn)
-            const modal = document.getElementById('initial-page-loading-modal')
-            if (modal) this.hideEl(modal)
-            alert("Critical error: Essential UI elements not found.")
-            this.isInitializing = false
-            return
-        }
-  
-        this.showEl(this.ui.main)
-              
-  
-        try {
-                      
-            await this.initializeDb()
-                      
-            const appState = await this.getAppState()
-                      
-            this.currentUserCharacterId = appState.currentUserCharacterId
-            this.currentStoryId = appState.lastOpenedStoryId 
-            this.activeStoryId = appState.activeStoryId 
-            this.currentMainView = appState.currentMainView || this.CONSTANTS.VIEWS.STORYBOARD // Ensure currentMainView is set on load
-  
-            this.ui.messageInput.onkeyup = (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { 
-                    e.preventDefault() 
-                    if (!this.ui.sendButton.disabled) {
-                      this.sendButtonClickHandler()
-                    }
-                }
-                this.ui.messageInput.style.height = 'auto'
-                this.ui.messageInput.style.height = (this.ui.messageInput.scrollHeight) + 'px'
-                this.checkAllButtonStates()
-            }
-            document.addEventListener('click', () => {
-                    if (this.ui.topBar) this.ui.topBar.classList.remove('top-bar-interactive-hover')
-                })
-            // Bind menu button click handler directly to avoid onclick attribute issues
-            if (this.ui.menuButton) {
-                // Menu button functionality will be implemented later
-            }
-            this.ui.sendButton.onclick = this.sendButtonClickHandler.bind(this)
-            
-            await this._updateCharacterInfo('user')
-                      
-  
-            let initialScreenTarget = this.CONSTANTS.VIEWS.STORYBOARD
-            let initialScreenOptions = {}
-            let recoveredFromSessionStorage = false
-  
-            const pendingStateJSON = sessionStorage.getItem('pendingRPGlitchFormState')
-            
-            if (pendingStateJSON) {
-                try {
-                    const parsedState = JSON.parse(pendingStateJSON)
-                    // Accept states with formData (copy workflow) OR with itemId (edit workflow)
-                    if (parsedState && parsedState.timestamp && (Date.now() - parsedState.timestamp < 7000) && parsedState.formOptions && (parsedState.formData || parsedState.formOptions.itemId)) { 
-                        this.createItemFormData = parsedState.formData 
-                        initialScreenTarget = this.CONSTANTS.ITEM_CONFIG[parsedState.formOptions.itemType]?.formScreen || this.CONSTANTS.VIEWS.STORYBOARD
-                        initialScreenOptions = parsedState.formOptions
-                        if (initialScreenTarget === this.CONSTANTS.VIEWS.CHARACTER_FORM || initialScreenTarget === this.CONSTANTS.VIEWS.WORLD_FORM) {
-                            initialScreenOptions.formData = parsedState.formData
-                        }
-                        recoveredFromSessionStorage = true
-                        sessionStorage.removeItem('pendingRPGlitchFormState') 
-                        // Recovered pending form state from sessionStorage
-                    } else {
-                        // Stale or invalid pending form state in sessionStorage. Removing.
-                        sessionStorage.removeItem('pendingRPGlitchFormState') 
-                    }
-                } catch (e) {
-                    console.error("[App Lifecycle] Error parsing pending form state from sessionStorage:", e)
-                    sessionStorage.removeItem('pendingRPGlitchFormState')
-                    // Show user-friendly notification and continue loading
-                    if (this && this.showTopNotification) {
-                        this.showTopNotification('Recovered from a corrupted session. Please retry your last action.', 'error', 5000)
-                    } else {
-                        alert('Recovered from a corrupted session. Please retry your last action.')
-                    }
-                }
-            }
-  
-  
-            if (!recoveredFromSessionStorage) {
-                if (this.activeStoryId) {
-                    const activeStory = await this.db.stories.get(this.activeStoryId)
-                    if (activeStory && !activeStory.concluded) {
-                        initialScreenTarget = this.CONSTANTS.VIEWS.STORY_INTERFACE 
-                    } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
-                        initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE
-                        initialScreenOptions = { storyId: this.currentStoryId }
-                    }
-                } else if (this.currentStoryId && await this.db.stories.get(this.currentStoryId)) { 
-                    initialScreenTarget = this.CONSTANTS.VIEWS.STORY_PROFILE
-                    initialScreenOptions = { storyId: this.currentStoryId }
-                }
-            }
-            
-            if (initialScreenTarget === this.CONSTANTS.VIEWS.STORY_INTERFACE && this.activeStoryId) { 
-                 await this.openStory(this.activeStoryId)
-                               
-            } else {
-                 await this.switchToScreen(initialScreenTarget, initialScreenOptions)
-                               
-            }
-  
-                      
-            // Load all characters and worlds from the database before setting App.data
-            this.data = {
-              characters: await this.db.characters.toArray(),
-              worlds: await this.db.worlds.toArray()
-            }
-  
-            // Ensure App.data is set for dropdown population
-            App.data = this.data
-                      
-        
-        
-  
-            // Atomic fix: Populate dropdowns immediately after data is set
-            if (typeof this._updateStoryboard === 'function') {
-                console.log("initialLoad: Calling _updateStoryboard...")
-                await this._updateStoryboard()
-            }
-            this.hideEl(this.ui.initialPageLoadingModal)
-                      
-            // Initial load completed
-  
-        } catch (error) {
-            console.error("[App Lifecycle] Error during initialLoad:", error)
-            this.showEl(this.ui.emergencyExportCtn)
-            this.hideEl(this.ui.initialPageLoadingModal)
-                      
-        } finally {
-            this.isInitializing = false
-            this.checkAllButtonStates()
-            // Ensure right-side buttons are rendered and functional on initial load for Storyboard
-            this.updateTopBarUI()
-        }
     },
 
       async _getitemData(id, dbTableKey, getPremadesFn) {
@@ -2056,17 +1796,6 @@ window.App = {
             this.ui.characterWorkshopChin = this._query('chin-characters')
             this.ui.worldBuilderChin = this._query('chin-worlds')
             this.ui.optionsChin = this._query('chin-options')
-        },
-    
-        _getCoreUIContainers() {
-            this.ui.main = this._query('main', true)
-            this.ui.storyboardScreen = this._query('storyboard-screen', true)
-            this.ui.chatInterfaceScreen = this._query('chat-interface-screen', true)
-        },
-    
-        _getFormScreens() {
-            this.ui.characterFormScreen = this._query('character-form-screen', true)
-            this.ui.worldFormScreen = this._query('world-form-screen', true)
         },
     
         _getProfileScreens() {
@@ -4007,13 +3736,13 @@ window.App = {
       /**
        * Attaches event listeners to the storyboard select elements.
        */
-  _attachStoryboardEventListeners() {
-      console.log('_attachStoryboardEventListeners called.')
-      const selects = [
-          { el: this.ui.storyboardAiCharacterSelect, type: 'ai' },
-            { el: this.ui.storyboardUserCharacterSelect, type: 'user' },
-            { el: this.ui.storyboardWorldSelect, type: 'world' }
-        ]
+      _attachStoryboardEventListeners() {
+          console.log('_attachStoryboardEventListeners called.')
+          const selects = [
+              { el: this.ui.storyboardAiCharacterSelect, type: 'ai' },
+              { el: this.ui.storyboardUserCharacterSelect, type: 'user' },
+              { el: this.ui.storyboardWorldSelect, type: 'world' }
+          ]
     
           selects.forEach(({ el, type }) => {
               if (el) {
@@ -4021,7 +3750,7 @@ window.App = {
                   el.onchange = async (e) => {
                       const selectedValue = e.target.value
                       console.log(`onchange event for ${el.id} fired. Selected value: ${selectedValue}`)
-                    if (selectedValue.startsWith('create_new_')) {
+                      if (selectedValue.startsWith('create_new_')) {
                           const itemType = selectedValue.replace('create_new_', '')
                           this.switchToScreen(this.CONSTANTS.ITEM_CONFIG[itemType].formScreen, { 
                               itemType: itemType, 
