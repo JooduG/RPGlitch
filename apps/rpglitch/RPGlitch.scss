@@ -1,3 +1,4 @@
+/* stylelint-disable comment-empty-line-before */
 /* ========================================
    CSS CUSTOM PROPERTIES & THEMING
    ======================================== */
@@ -11,8 +12,17 @@
   --pico-switch-thumb-box-shadow: 0;
   --pico-card-box-shadow: 0;
   --pico-dropdown-box-shadow: 0;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
+
   color: #fff;
+
+  /* Theming defaults */
+  --swatch-color: var(--pico-primary, #0172ad);
+  --palette-medium: var(--pico-primary, #0172ad);
+  --palette-light: #fff;
+  --bg-color: var(--palette-medium, var(--pico-primary, #0172ad));
+  --text-color-initials: var(--palette-light, #fff);
+
 }
 
 /* Dynamic Theming Variables */
@@ -39,25 +49,6 @@ header.container-fluid {
    CSS CUSTOM PROPERTIES & THEMING
    ======================================== */
 
-:root {
-  color: #fff;
-
-  /* Pico CSS overrides */
-  --pico-radius: 0.5rem;
-  --pico-box-shadow: 0;
-  --pico-button-box-shadow: 0;
-  --pico-button-hover-box-shadow: 0;
-  --pico-switch-thumb-box-shadow: 0;
-  --pico-card-box-shadow: 0;
-  --pico-dropdown-box-shadow: 0;
-
-  /* Theming defaults */
-  --swatch-color: var(--pico-primary, #0172ad);
-  --palette-medium: var(--pico-primary, #0172ad);
-  --palette-light: #fff;
-  --bg-color: var(--palette-medium, var(--pico-primary, #0172ad));
-  --text-color-initials: var(--palette-light, #fff);
-}
 
 input, input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
 [type="checkbox"],
@@ -1259,13 +1250,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-grid, 
   flex-direction: column !important;
 }
 
-/* DEBUGGING: Visual indicators for layout troubleshooting */
-#storyboard-grid {
-}
-
-#storyboard-grid .storyboard-card {
-}
-
 .storyboard-card header {
   height: 3rem;
   display: flex;
@@ -1361,10 +1345,6 @@ body, .top-bar, .top-bar-chin, .chin-card, .card, .storyboard-card, .chin-grid, 
 
 .hidden-input {
   display: none;
-}
-
-.profile-picture-initials-styled {
-  /* uses --bg-color and --text-color-initials from :root */
 }
 
 .studio-layout-container {
