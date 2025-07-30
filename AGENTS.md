@@ -1,10 +1,12 @@
+<!-- ruff: noqa -->
 # AGENTS.md – GlitchCodex Project Guide
 
 Version 1.4.0  |  Updated 2025‑07‑30
 
+
 This document serves as a comprehensive reference for Codex Cloud agents and human contributors
 working in the Perchance/Glitch monorepo.
-It provides guidelines, standards, and instructions for consistent and effective collaboration.
+It provides guidelines, standards, and instructions for consistent and effective collaboration
 
 ---
 
@@ -22,6 +24,11 @@ The repository structure is outlined below to provide clarity on navigation and 
 ├── .cursor/rules/        # AI guidance and rulesets
 └── README.md             # Repository documentation and linting configs (e.g., `.eslint.config.mjs`)
 ```
+
+The monorepo powers the Perchance/Glitch ecosystem.
+Under `apps/` you will find the RPGlitch and ImageGlitch apps. Each holds its own source files and build scripts.
+The `build/` folder outputs optimized HTML for deployment. `memory-bank/` tracks decisions, and `tools/` stores helpers.
+There is currently no top-level `src/`; app code lives inside each application folder.
 
 *Access and modifications outside these directories are restricted by Codex Cloud permissions.*
 
@@ -54,8 +61,20 @@ Agents must load context from these essential paths **before** initiating any ta
 | `.cursor/rules/` | Organizational coding standards, rules, and architectural principles.                  |
 | `memory-bank/`   | Comprehensive knowledge base, decision history, design rationale, and recorded issues. |
 
-> Codex Cloud’s custom `systemPrompt` automatically directs agents to these folders.
-> Always keep this information updated and synchronized.
+> Codex Cloud’s custom `systemPrompt` automatically directs agents to these folders.
+> Keep this information updated.
+
+### Directory Guide
+
+| Folder | Purpose | When to modify |
+| ------ | ------- | -------------- |
+| `apps/` | RPGlitch and ImageGlitch application code. | Feature work or bug fixes in those apps. |
+| `build/` | Build scripts and compiled output. | Update scripts; never hand-edit generated files. |
+| `docs/` | Project and protocol documentation. | Add or update docs. |
+| `memory-bank/` | Persistent context and design history. | Record important decisions or progress. |
+| `tools/` | Development utilities and automation. | Improve or add helper scripts. |
+| `tests/` | Reserved for automated tests (currently empty). | Add tests when new Python utilities appear. |
+
 
 ---
 
@@ -73,7 +92,7 @@ These foundational rules guide system architecture, communication, and project s
 
 ### 3.2 Thinking Framework
 
-* [framework](.cursor/rules/thinking-framework.mdc) – Cognitive models and structured reasoning
+
 * [context-aware-rule-loading](.cursor/rules/thinking-context-aware-rule-loading.mdc)
   – Context-sensitive rule loading strategies
 
@@ -87,26 +106,25 @@ These foundational rules guide system architecture, communication, and project s
 
 ## 4 Perchance Rules
 
-These rules provide specialized guidance for the Perchance platform (used by RPGlitch and ImageGlitch):
+These rules provide specialized guidance for the Perchance platform.
+Relevant for RPGlitch and ImageGlitch:
 
 * [perchance-architecture](.cursor/rules/perchance-architecture.mdc) – Structural overview
 * [perchance-plugin-system](.cursor/rules/perchance-plugin-system.mdc) – Plugin architecture and integration
-* [perchance-development-lifecycle](.cursor/rules/perchance-development-lifecycle.mdc)
-  – Workflow and lifecycle management
+* [perchance-development-lifecycle](.cursor/rules/perchance-development-lifecycle.mdc) – Dev lifecycle guidance
 * [perchance-build-deployment](.cursor/rules/perchance-build-deployment.mdc) – Guidelines for building and deploying
 
-> **Tip:** Start by reviewing the most relevant ruleset for your task.
-> When unsure, the **Core System Rules** provide foundational guidance.
+> **Tip:** Review the most relevant ruleset before coding. When unsure, start with the Core System Rules.
+
 
 ---
 
 ## 5 Mission for Agents
 
 1. Accurately translate natural-language requests into precise, production-ready code.
-2. Adhere strictly to the Unified [3‑Mode architecture](.cursor/rules/orchestration-mode.mdc)
-   (Strategic → Tactical → Operational), defined clearly in Codex Cloud Custom Instructions.
-3. Utilize relevant [MCP services](mcp.json) – Context7, Time, Basic‑Memory and
-   Sequential Thinking – for enhanced context management.
+2. Adhere strictly to the Unified [3‑Mode architecture](.cursor/rules/orchestration-mode.mdc).
+3. Use MCP services from `mcp.json` (Context7, Time, Basic-Memory, Sequential Thinking).
+
 4. Consistently record decisions and important context into the [memory-bank/](memory-bank) for future reference.
 5. Follow Cursor [All-Rules](.cursor/rules) rigorously, covering HTML, CSS, JavaScript, storage, and performance.
 6. Maintain a high-quality codebase—every contribution must pass stringent linting, testing, and performance standards.
@@ -151,16 +169,19 @@ pnpm install
   npx -y mcp-sequentialthinking-tools &
   ```
 
-### Lint, Build, and Validate
+### Local Environment
 
-Run the full suite before submitting any changes. The project relies on Node tooling for
-linting, building, and validation:
+The universal Codex image ships with:
+
+* **Python 3.13**, `pyenv` 2.5.5, `uv` 0.7.22 and `poetry` 2.1.3
+* **Node 22.17.1**, `nvm` 0.40.2 and `pnpm` 10.11.0
+
+Install Python dev requirements with:
 
 ```bash
-npm run lint && npm run build && npm run validate
+uv pip install -e ".[test]"
 ```
 
-CI will reject any PR unless the above command sequence succeeds.
 
 ---
 
@@ -169,26 +190,37 @@ CI will reject any PR unless the above command sequence succeeds.
 * Implement semantic HTML, prioritize accessibility, and maintain minimalistic CSS.
 * Leverage modern JavaScript (e.g., `async/await`) with efficient DOM manipulation.
 * Employ `localStorage` for small datasets; use Dexie.js with `IndexedDB` for complex storage.
-* Prioritize performance using Intersection and Resize Observers, Service Workers,
-  lazy-loading, and optimized resource handling.
+* Prioritize performance: observers, service workers, lazy-loading and optimized assets.
+
 
 ---
+
+### Lint / Test Workflow
+
+Run the full suite before sending a PR:
+
+```bash
+npm run lint
+npm run build
+```
+
+All commands must succeed locally and in CI.
 
 ## 8 Pull-Request Workflow
 
 * Format titles as `[<package>] <summary>`.
 * Provide clear, concise descriptions linked to relevant issues.
 * Ensure all code contributions pass linting, testing, and performance benchmarks.
-* Adhere strictly to
-  [build-deployment](.cursor/rules/perchance-build-deployment.mdc) procedures for consistency and reliability.
+* Follow [build-deployment](.cursor/rules/perchance-build-deployment.mdc) for consistent output.
 
 ### Contribution Rules
 
-* Use `kebab-case` for new HTML, CSS, and JavaScript files. Existing files keep their current names.
-* If Python helpers are added, name them with `snake_case`.
-* Start commit messages with a short imperative verb (e.g., "fix:", "add:").
-* Keep PR titles in the format `[<package>] <summary>` and under 72 characters.
-* Split large refactors into smaller, reviewable changes whenever possible.
+* Use `kebab-case` for file names and `camelCase` for JavaScript variables.
+* Keep functions small with clear names.
+* Commit messages should use the format `<scope>: <summary>` in present tense.
+* PR titles follow `[<package>] <summary>`.
+* Prefer smaller, focused PRs and split large refactors into separate submissions.
+
 
 ---
 
@@ -212,6 +244,7 @@ CI will reject any PR unless the above command sequence succeeds.
 
 Explicitly managed via YAML configuration to ensure repository integrity and security:
 
+<!-- ruff: noqa -->
 ```yaml
 allow_read:
   - "./**/*"
@@ -219,7 +252,6 @@ allow_write:
   - "./apps/**/*"
   - "./build/**/*"
   - "./memory-bank/**/*"
-  - "./src/**/*"
   - "./docs/**/*"
   - "./tests/**/*"
 deny_write:
@@ -240,7 +272,13 @@ npm run lint && npm run build && npm run validate
 
 ---
 
-## 12 Changelog
+## 12 Agent Guidance
+
+Codex should focus edits under `apps/`, `build/`, `docs/`, `memory-bank/` and `tools/`.
+Generated artifacts such as `node_modules/` and `build/output/` must not be modified.
+Always run the lint and test suite before presenting a diff.
+
+## 13 Changelog
 
 * **1.4.0 (2025‑07‑30)** – Added repository overview, directory guide,
   environment setup, lint/test workflow, contribution rules, and agent guidance.
