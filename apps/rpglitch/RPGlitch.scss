@@ -78,6 +78,17 @@ textarea,
   touch-action: manipulation;
 }
 
+.storyboard-card,
+#storyboard-card-ai,
+#storyboard-card-user,
+#storyboard-card-world,
+.chin-card {
+  transform: translateY(0) scale(1);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  margin-bottom: 1rem;
+}
+
 .storyboard-card:not([disabled]):hover,
 #storyboard-card-ai:not([disabled]):hover,
 #storyboard-card-user:not([disabled]):hover,
@@ -85,19 +96,8 @@ textarea,
 .chin-card:not([disabled]):hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 8px 25px rgb(0 0 0 / 25%), 0 0 20px rgb(255 255 255 / 10%);
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.storyboard-card,
-#storyboard-card-ai,
-#storyboard-card-user,
-#storyboard-card-world,
-.chin-card {
-  transform: translateY(0) scale(1);
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  margin-bottom: 1rem;
 }
 
 .storyboard-card[disabled]:hover .card-title,
