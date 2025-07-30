@@ -41,5 +41,7 @@ module.exports = {
     "build/output/archive/**/*.css",
     "memory-bank/**/archive/**/*.css",
     "memory-bank/**/archive/**/*.scss",
+    "memory-bank/**",
+    "tools/test-globs/**",
   ],
 };

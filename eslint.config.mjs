@@ -39,32 +39,7 @@ export default defineConfig([
       "no-duplicate-case": "error",
       "no-empty-function": "warn",
     }
-  },
-  // JavaScript files override (apps directory) - THIS IS THE CRITICAL FIX
-  {
-    files: ["apps/**/*.js"],
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.es2021,
-        // Explicitly add global variables that are NOT imported
-        // These were identified in the previous linter run as 'not defined'
-        Dexie: "readonly", // 'readonly' indicates it's a global variable that shouldn't be reassigned
-        ai: "readonly",
-        image: "readonly",
-        App: "readonly", // Assuming 'App' is a global object
-        _makeProfilePicturePlaceholderSVG: "readonly",
-        textToImage: "readonly",
-        textToText: "readonly"
-      },
-      ecmaVersion: 2021,
-      sourceType: "script", // Reverted to 'script' as files are not modules
-    },
-    rules: {
-      "no-unused-vars": "warn", // Use regular ESLint rule instead
-      "no-console": "off", // Explicitly disable console warnings for apps
-    }
-  },
+  },  
   // JavaScript files override (apps directory) - THIS IS THE CRITICAL FIX
   {
     files: ["apps/**/*.js"],
@@ -92,6 +67,4 @@ export default defineConfig([
       "no-redeclare": "error" // Changed to 'error' to enforce no redeclaration
     }
   },
-  // Comma added here
-  // TypeScript files - none currently used
 ]);
