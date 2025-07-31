@@ -71,7 +71,7 @@ pip install basic-memory-mcp
       "command": "python",
       "args": ["-m", "basic_memory.mcp"],
       "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
+        "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
       }
     }
   }
@@ -206,7 +206,7 @@ const nextStep = await sequentialThinkingTools.continue({
       "command": "python",
       "args": ["-m", "basic_memory.mcp"],
       "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
+        "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
       }
     },
     "time": {
@@ -230,7 +230,7 @@ Create a `.env` file in your project root:
 CONTEXT7_API_KEY=your-api-key-here
 
 # Basic Memory Project Root
-BASIC_MEMORY_PROJECT_ROOT=C:/Users/johng/Documents/GitHub/default/memory-bank
+BASIC_MEMORY_PROJECT_ROOT=./memory-bank
 
 # Time Zone (optional, defaults to Europe/Berlin)
 DEFAULT_TIMEZONE=Europe/Berlin

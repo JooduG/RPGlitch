@@ -120,7 +120,7 @@ The Model Context Protocol (MCP) ecosystem provides a standardized way for AI as
       "command": "python",
       "args": ["-m", "basic_memory.mcp"],
       "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
+        "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
       }
     },
     "time": {

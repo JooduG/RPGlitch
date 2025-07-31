@@ -145,7 +145,7 @@ JWT-based authentication with secure token handling
       "basic_memory.mcp"
     ],
     "env": {
-      "BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
+      "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
     },
     "autoApprove": [
       "list_projects",
