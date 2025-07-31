@@ -77,7 +77,7 @@ memory-bank/
 
 ### **1. Directory Consolidation**
 
-- ✅ **Eliminated duplicate directories**: `memory-bank/rpglitch` → `memory-bank/projects/rpglitch`
+- ✅ **Eliminated duplicate directories**: `memory-bank/rpglitch` → `memory-bank/active`
 - ✅ **Consolidated archives**: Multiple archive locations → Single `memory-bank/archives/` structure
 - ✅ **Organized by function**: Strategic, Tactical, Operational, Active, Archives, Projects
 
@@ -151,7 +151,7 @@ memory-bank/
 - **Tactical Files**: 3 files → `memory-bank/tactical/`
 - **Operational Files**: 3 files → `memory-bank/operational/`
 - **Archive Files**: 20+ files → `memory-bank/archives/`
-- **Project Files**: 2 files → `memory-bank/projects/`
+- **Project Files**: 2 files → `memory-bank/active/`
 
 ### **Files Updated (8 files)**
 

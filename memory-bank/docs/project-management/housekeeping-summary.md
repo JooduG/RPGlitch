@@ -94,10 +94,9 @@ memory-bank/
 │   │   └── todo-handoff
 │   └── backups/              # Consolidated backups
 │       └── code-cleaning-2025-07-22-082558/
-└── projects/                 # Project-specific files
-    ├── rpglitch/             # RPGlitch project files
-    │   ├── progress.md
-    │   └── todo-handoff.md
+└── active/                 # Active project files
+    ├── progress.md
+    └── todo-handoff.md
     └── imageglitch/          # ImageGlitch project files
 ```
 
@@ -105,7 +104,7 @@ memory-bank/
 
 ### **1. Directory Consolidation**
 
-- ✅ **Eliminated duplicate directories**: `memory-bank/rpglitch` → `memory-bank/projects/rpglitch`
+- ✅ **Eliminated duplicate directories**: `memory-bank/rpglitch` → `memory-bank/active`
 - ✅ **Consolidated archives**: Multiple archive locations → Single `memory-bank/archives/` structure
 - ✅ **Organized by function**: Strategic, Tactical, Operational, Active, Archives, Projects
 
@@ -164,8 +163,8 @@ memory-bank/
 
 ### **Project Files (2 files)**
 
-- `memory-bank/rpglitch/progress.md` → `memory-bank/projects/rpglitch/progress.md`
-- `memory-bank/rpglitch/todo-handoff.md` → `memory-bank/projects/rpglitch/todo-handoff.md`
+- `memory-bank/rpglitch/progress.md` → `memory-bank/active/progress.md`
+- `memory-bank/rpglitch/todo-handoff.md` → `memory-bank/active/todo-handoff.md`
 
 ## 🎯 **BENEFITS ACHIEVED**
 
@@ -217,8 +216,8 @@ memory-bank/
 ├── archives/code/
 ├── archives/documents/
 ├── archives/backups/
-└── projects/rpglitch/
-    └── projects/imageglitch/
+└── active/
+    └── active/imageglitch/
 ```
 
 ### **Files Updated**
