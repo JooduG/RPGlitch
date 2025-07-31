@@ -104,3 +104,5 @@
 - Updated hideEl and top bar event handling. Added corresponding tests and reordered initialization logic.
 
 
+\n### 2025-07-31
+- Added direct test of `App.hideEl` and simplified test script using `npx jest`.
