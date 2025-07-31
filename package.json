@@ -13,7 +13,7 @@
     "clean": "rm -rf build/output/",
     "deploy": "npm run build && echo '✅ Build complete! Copy build/output/RPGlitch-perchance.html to Perchance.'",
     "rules:update": "echo 'Use \"update memory bank\" to refresh memory bank files'",
-    "test": "jest"
+    "test": "npx jest"
   },
   "keywords": [
     "perchance",

@@ -169,3 +169,6 @@ All objectives have been achieved:
 - Documented installation instructions for minifier dependencies.
 \n### 2025-07-31
 - Updated hideEl to accept element IDs, ensured top bar event listeners bind App context, and reordered initialization logic with tests.
+\n### 2025-07-31
+- Revised hideEl unit test to load `RPGlitch.js` and call `App.hideEl` directly.
+- Updated test script to use `npx jest` for cross-platform compatibility.
