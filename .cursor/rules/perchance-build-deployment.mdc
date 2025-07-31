@@ -4,7 +4,7 @@ alwaysApply: false
 ---
 # 🚀 PERCHANCE BUILD & DEPLOYMENT
 
-> **TL;DR:** Comprehensive guide for building and deploying Perchance applications with automated workflows, optimization strategies, and platform-specific considerations. See the companion [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc) for planning and iteration guidance.
+> **TL;DR:** Comprehensive guide for building and deploying Perchance applications with automated workflows, optimization strategies, and platform-specific considerations. See the companion [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc).
 
 ## 🎯 **BUILD SYSTEM OVERVIEW**
 
@@ -185,4 +185,3 @@ The Perchance build and deployment system provides automated workflows for creat
 ---
 
 **🚀 PERCHANCE BUILD & DEPLOYMENT: Automated workflows for optimized Perchance applications!**
-

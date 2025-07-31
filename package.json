@@ -1,5 +1,5 @@
 {
-  "name": "rpglitch-perchance",
+  "name": "rpglitch",
   "version": "1.0.0",
   "description": "RPGlitch - AI-powered storytelling platform for Perchance with comprehensive rules system for development",
   "main": "build/scripts/build-perchance.js",
@@ -8,7 +8,7 @@
     "build": "node build/scripts/build-perchance.js",
     "build:copy": "node build/scripts/build-and-copy.js",
     "build:watch": "nodemon --watch apps --ext html,js,css --exec 'node build/scripts/build-perchance.js'",
-    "lint": "eslint \"apps/**/*.js\" --config eslint.config.mjs && stylelint \"**/*.{css,scss}\" --config stylelint.config.js && htmlhint \"apps/rpglitch/RPGlitch.html\" --config .htmlhintrc",
+    "lint": "npx eslint \"apps/**/*.js\" --config eslint.config.mjs && stylelint \"**/*.{css,scss}\" --config stylelint.config.js && htmlhint \"apps/rpglitch/RPGlitch.html\" --config .htmlhintrc",
     "validate": "node -e \"require('./build/scripts/build-perchance.js').validateOutputFile()\"",
     "clean": "rm -rf build/output/",
     "deploy": "npm run build && echo '✅ Build complete! Copy build/output/RPGlitch-perchance.html to Perchance.'",
@@ -22,23 +22,24 @@
     "storytelling",
     "generator"
   ],
-  "author": "John G",
+  "author": "Glitch",
   "license": "MIT",
   "devDependencies": {
+    "cssnano": "^6.1.2",
     "eslint": "^9.0.0",
+    "html-minifier-terser": "^7.2.0",
     "htmlhint": "^1.1.4",
     "jest": "^29.7.0",
     "jsdom": "^24.0.0",
     "nodemon": "^3.0.0",
-    "stylelint": "^16.0.0",
-    "stylelint-config-standard": "^36.0.1",
     "postcss": "^8.4.35",
     "postcss-cli": "^10.1.0",
-    "cssnano": "^6.1.2",
-    "terser": "^5.30.3",
-    "html-minifier-terser": "^7.2.0"
+    "stylelint": "^16.0.0",
+    "stylelint-config-standard": "^36.0.1",
+    "terser": "^5.30.3"
   },
   "dependencies": {
+    "jest-environment-jsdom": "^30.0.5",
     "sass": "^1.89.2"
   }
 }

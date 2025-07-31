@@ -215,9 +215,8 @@ memory-bank/
 ├── operational/execution/
 ├── archives/code/
 ├── archives/documents/
-├── archives/backups/
-└── active/
-    └── active/imageglitch/
+├── archives/backups
+└── active/imageglitch/
 ```
 
 ### **Files Updated**

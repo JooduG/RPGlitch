@@ -410,7 +410,7 @@ $list: list.join($list1, $list2);
 - [SCSS Modern CSS & Frameworks](./scss-modern-css-frameworks.mdc) - Modern CSS principles and framework integration
 - [SCSS Debugging](./scss-debugging.mdc) - Troubleshooting and debugging SCSS issues
 - [Perchance Build & Deployment](./perchance-build-deployment.mdc) - Build and deployment for Perchance projects
-- [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc)
+- [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc) - Planning and iteration steps
 
 ---
 

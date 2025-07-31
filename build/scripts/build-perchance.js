@@ -227,11 +227,10 @@ function compileSass(inputPath) {
  */
 async function optimizeCSS(css) {
     const startTime = Date.now();
-    if (!postcss || !cssnano) {
-        console.warn('⚠️ cssnano not available - skipping CSS minification');
-
-        return css;
-    }
+if (!postcss || !cssnano) {
+    console.warn('⚠️ PostCSS or cssnano not available - skipping CSS minification');
+    return css;
+}
     try {
         const result = await postcss([cssnano]).process(css, { from: undefined });
         buildMetrics.processingTimes.postcss = Date.now() - startTime;
