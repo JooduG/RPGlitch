@@ -26,9 +26,9 @@ try {
     console.warn('⚠️ Terser not available - skipping JS minification');
 }
 try {
-    minifyHtml = require('html-minifier-terser').minify;
+    ({ minify: minifyHtml } = require('html-minifier-terser'));
 } catch (err) {
-    console.warn('⚠️ html-minifier-terser not available - skipping HTML minification');
+    console.warn('⚠️ html-minifier not available - skipping HTML minification');
 }
 
 /**
@@ -226,6 +226,8 @@ function compileSass(inputPath) {
 async function optimizeCSS(css) {
     const startTime = Date.now();
     if (!postcss || !cssnano) {
+        console.warn('⚠️ cssnano not available - skipping CSS minification');
+
         return css;
     }
     try {

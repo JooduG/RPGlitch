@@ -31,6 +31,11 @@ Builds the project specifically for Perchance integration. The script downloads
 external libraries, compiles SCSS, and minifies CSS, JavaScript and HTML for a
 single optimized output file.
 
+### Installation
+
+Run `npm install` once to install optional minifier packages.
+
+
 ## Output
 
 Build outputs are stored in the `output/` directory and are excluded from version control.

@@ -16,6 +16,12 @@ The main build script that:
 - Minifies the final HTML output
 - Outputs to `../output/RPGlitch-perchance.html`
 
+Install dev dependencies once before running builds:
+
+```bash
+npm install
+```
+
 **Usage:**
 
 ```bash
