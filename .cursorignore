@@ -1,15 +1,5 @@
-# Ignore the Perchance-specific build artifact
-# build/output/RPGlitch-perchance.html
-
-# browser-tools-mcp/
-# memory-bank/archive/
-
-# Ignore node_modules
+build/output/RPGlitch-perchance.html
 node_modules/
-
-# Ignore backup files
-# *.backup
+*.backup
 .DS_Store 
-cheatsheet.md 
 memory-bank/**/archive/**"
-
