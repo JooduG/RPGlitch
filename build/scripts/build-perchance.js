@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+// eslint-disable-next-line no-undef
 const path = require('path');
 const sass = require('sass');
 const https = require('https');
