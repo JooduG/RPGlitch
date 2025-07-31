@@ -1,11 +1,4 @@
-// Basic hideEl implementation for testing
-function hideEl(el) {
-  if (typeof el === 'string') el = document.getElementById(el);
-  if (!el) return null;
-  el.classList.add('hidden');
-  el.style.display = '';
-  return el;
-}
+const hideEl = require('../apps/rpglitch/utils/hideEl');
 
 test('hideEl hides by element or id', () => {
   document.body.innerHTML = '<div id="test-el"></div>';
