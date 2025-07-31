@@ -486,6 +486,7 @@ Document complex SCSS:
 - [SCSS Modern CSS & Frameworks](./scss-modern-css-frameworks.mdc) - Modern CSS principles and framework integration
 - [SCSS Advanced Patterns](./scss-advanced-patterns.mdc) - Advanced SCSS features and meta-programming
 - [Perchance Build & Deployment](./perchance-build-deployment.mdc) - Build and deployment for Perchance projects
+- [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc)
 
 ---
 
