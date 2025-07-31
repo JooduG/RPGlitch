@@ -58,12 +58,12 @@ tags:
 #### **Duplicate Files Found** (4 sets)
 1. **Progress Files** (3 copies):
    - `archives/progress.md` - Archive version
-   - `rpglitch/progress.md` - Active RPGlitch progress
+   - `active/progress.md` - Active RPGlitch progress
    - `archive/documents/progress.md` - Archive documents version
 
 2. **Todo-Handoff Files** (3 copies):
    - `archives/todo-handoff.md` - Archive version
-   - `rpglitch/todo-handoff.md` - Active RPGlitch todo
+   - `active/todo-handoff.md` - Active RPGlitch todo
    - `archive/documents/todo-handoff.md` - Archive documents version
 
 3. **RPGlitch-edited.html** (2 copies):

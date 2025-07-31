@@ -148,11 +148,11 @@ memory-bank/
 
 ### **Phase 2: Directory Consolidation**
 
-#### **Consolidate memory-bank/rpglitch into memory-bank/projects/rpglitch**
+#### **Consolidate memory-bank/rpglitch into memory-bank/active**
 
 **Files to Move**:
 
-- `progress.md` → `memory-bank/projects/rpglitch/progress.md`
+- `progress.md` → `memory-bank/active/progress.md`
 - `rpglitch-consolidation-complete.md` → `memory-bank/archives/documents/`
 - `todo-handoff.md` → Merge with active todo-handoff
 - `strategic-analysis-2025-01-03` → `memory-bank/strategic/analysis/`
@@ -179,7 +179,7 @@ memory-bank/
    - `archives/documents/strategic-analysis-2025-01-03.md`
 
 4. **Code Files**: Standard naming
-   - `projects/rpglitch/utils.js`
+   - `active/utils.js`
    - `archives/code/constants-backup.js`
 
 ### **Phase 4: Documentation Updates**
@@ -257,7 +257,7 @@ mv memory-bank/project/backups/* memory-bank/archives/backups/
 
 ```bash
 # Move RPGlitch project files
-mv memory-bank/rpglitch/* memory-bank/projects/rpglitch/
+mv memory-bank/rpglitch/* memory-bank/active/
 ```
 
 ### **Step 8: Clean Up**
