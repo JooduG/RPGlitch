@@ -29,11 +29,12 @@ Builds the project and copies files to appropriate locations.
 
 Builds the project specifically for Perchance integration. The script downloads
 external libraries, compiles SCSS, and minifies CSS, JavaScript and HTML for a
- single optimized output file.
+single optimized output file.
 
 ### Installation
 
 Run `npm install` once to install optional minifier packages.
+
 
 ## Output
 

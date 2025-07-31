@@ -226,6 +226,7 @@ async function optimizeCSS(css) {
     const startTime = Date.now();
     if (!postcss || !cssnano) {
         console.warn('⚠️ cssnano not available - skipping CSS minification');
+
         return css;
     }
     try {

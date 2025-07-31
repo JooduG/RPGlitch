@@ -101,3 +101,4 @@
 - Resolved minifier dependency issues and separated optional package checks in build script.
 - Documented install instructions for optional minifier dependencies.
 
+
