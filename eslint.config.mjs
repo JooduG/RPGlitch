@@ -6,16 +6,9 @@ export default [
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
     ignores: [
-      "tizen/**/*",
-      "browser-tools-mcp/**/*",
-      "diagnostics/**/*",
-      "automation-collect-diagnostics.js",
-      "build-and-copy.js",
-      "build-perchance.js",
-      "apps/**/archive/**",
-      "build/output/archive/**",
+      "node_modules/**",
       "memory-bank/**/archive/**",
-      "memory-bank/project/archive/collection.md"
+      "build/output/**"
     ],
     // plugins: { js }, // Removed as it's already imported
     languageOptions: {
