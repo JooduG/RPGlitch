@@ -223,7 +223,6 @@ Object.assign(window.App, {
       _getUIElements() {
 
           this._getTopBarElements()
-          this._attachTopBarEventListeners()
           this._getChinElements()
           this._getCoreUIContainers()
           this._getFormScreens()
@@ -501,12 +500,11 @@ Object.assign(window.App, {
      * @returns {HTMLElement|null}
      */
     hideEl(el) {
-      // Debug: Element hide operation
-      if (el) {
-        el.classList.add('hidden') // Add the hidden class
-        el.style.display = ''
-        
-      }
+      if (typeof el === 'string') el = document.getElementById(el)
+      if (!el) return null
+      el.classList.add('hidden') // Add the hidden class
+      el.style.display = ''
+      return el
     },
     
     /**
@@ -3376,7 +3374,7 @@ Object.assign(window.App, {
       _attachTopBarEventListeners() {
           const chinTabs = document.querySelectorAll('#top-bar-left button[data-chin]')
           chinTabs.forEach(btn => {
-              btn.addEventListener('click', () => this.selectTopBarTab(btn.dataset.chin))
+              btn.addEventListener('click', App.selectTopBarTab.bind(App, btn.dataset.chin))
           })
 
           document.addEventListener('click', (e) => {
@@ -3384,18 +3382,18 @@ Object.assign(window.App, {
               const chinContainer = document.getElementById('chin-container')
               if (topBarLeft && chinContainer) {
                   if (!topBarLeft.contains(e.target) && !chinContainer.contains(e.target)) {
-                      if (this.focusBarState.chinOpen) {
-                          this._toggleChinContent(this.focusBarState.currentChin)
+                      if (App.focusBarState.chinOpen) {
+                          App._toggleChinContent(App.focusBarState.currentChin)
                       }
                   }
               }
           })
 
           const shuffleBtn = document.getElementById('shuffle')
-          if (shuffleBtn) shuffleBtn.onclick = () => this._shuffleStoryboard()
+          if (shuffleBtn) shuffleBtn.onclick = App._shuffleStoryboard.bind(App)
 
           const beginBtn = document.getElementById('begin-story')
-          if (beginBtn) beginBtn.onclick = () => this.beginStory()
+          if (beginBtn) beginBtn.onclick = App.beginStory.bind(App)
 
           const formCancel = document.getElementById('form-cancel')
           if (formCancel) formCancel.onclick = () => {
@@ -4001,6 +3999,7 @@ Object.assign(window.App, {
       async initializeWhenReady() {
           try {
             this._getUIElements()
+            this._attachTopBarEventListeners()
             this._attachStoryboardEventListeners()
             await this.initialLoad()
           } catch (error) {
