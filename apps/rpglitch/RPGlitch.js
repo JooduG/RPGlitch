@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 // Dependency availability checks with retry mechanism
 function checkDependencies() {
     window.isDexieLoaded = typeof window.Dexie !== 'undefined'
