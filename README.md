@@ -23,7 +23,6 @@ Full documentation lives in the [docs/](docs/) directory. Key guides:
 - [Development Tools](docs/tools/README.md)
 - Memory bank documentation remains under [memory-bank/](memory-bank/).
 
-
 ## 📱 **Live Applications**
 
 ### RPGlitch
