@@ -10,16 +10,15 @@ beforeAll(() => {
     path.resolve(__dirname, '../apps/rpglitch/RPGlitch.js'),
     'utf8'
   );
-  window.eval(script);
-  if (typeof window.App.hideEl !== 'function') {
-    window.App.hideEl = function (el) {
-      if (typeof el === 'string') el = document.getElementById(el);
-      if (!el) return null;
-      el.classList.add('hidden');
-      el.style.display = '';
-      return el;
-    };
-  }
+  const scriptEl = document.createElement('script');
+  scriptEl.textContent = script;
+  document.body.appendChild(scriptEl);
+
+  // After loading the script, App.hideEl should be a function.
+  // If it's not, the test setup has failed, and we should know about it.
+  if (typeof window.App?.hideEl !== 'function') {
+    throw new Error('window.App.hideEl is not a function after loading RPGlitch.js. The script might have failed to initialize correctly.');
+  };
 });
 
 test('hideEl hides by element or id', () => {
