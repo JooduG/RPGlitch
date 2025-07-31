@@ -194,3 +194,4 @@
 2. **Start CSS Performance Optimization**: Achieve 50% specificity reduction
 3. **AI Rule Selection Integration**: Connect with Unified Orchestrator Mode
 4. **Performance Monitoring**: Set up comprehensive monitoring system
+5. **Maintain Tests**: Verify unit tests use production code (e.g., `App.hideEl`).
