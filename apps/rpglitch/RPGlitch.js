@@ -4011,6 +4011,9 @@ Object.assign(window.App, {
 
   // Initialize the app when the DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
+      if (window.App && typeof App._attachTopBarEventListeners === 'function') {
+          App._attachTopBarEventListeners()
+      }
       waitForDependencies()
   })
   
