@@ -96,7 +96,7 @@ memory-bank/
 │       └── code-cleaning-2025-07-22-082558/
 └── active/                 # Active project files
     ├── progress.md
-    └── todo-handoff.md
+    ├── todo-handoff.md
     └── imageglitch/          # ImageGlitch project files
 ```
 
