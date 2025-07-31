@@ -1,5 +1,3 @@
-build/output/RPGlitch-perchance.html
-node_modules/
-*.backup
-.DS_Store 
-memory-bank/**/archive/**"
+node_modules/** 
+memory-bank/**/archive/**
+build/output/**

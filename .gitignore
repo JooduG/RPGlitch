@@ -1,2 +1,3 @@
-node_modules
-build/output
+node_modules/** 
+memory-bank/**/archive/**
+build/output/**
