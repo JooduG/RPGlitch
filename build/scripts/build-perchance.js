@@ -25,7 +25,7 @@ try {
     console.warn('⚠️ Terser not available - skipping JS minification');
 }
 try {
-    ({ minify: minifyHtml } = require('html-minifier-terser'));
+    minifyHtml = require('html-minifier-terser').minify;
 } catch (err) {
     console.warn('⚠️ html-minifier not available - skipping HTML minification');
 }
