@@ -4,6 +4,31 @@ const fs = require('fs');
 const path = require('path');
 const sass = require('sass');
 const https = require('https');
+let postcss;
+let cssnano;
+let terser;
+let minifyHtml;
+
+try {
+    postcss = require('postcss');
+} catch (err) {
+    console.warn('⚠️ postcss not available - skipping CSS optimization');
+}
+try {
+    cssnano = require('cssnano');
+} catch (err) {
+    console.warn('⚠️ cssnano not available - skipping CSS minification');
+}
+try {
+    terser = require('terser');
+} catch (err) {
+    console.warn('⚠️ Terser not available - skipping JS minification');
+}
+try {
+    minifyHtml = require('html-minifier-terser').minify;
+} catch (err) {
+    console.warn('⚠️ html-minifier-terser not available - skipping HTML minification');
+}
 
 /**
  * RPGlitch Perchance Build Script (Enhanced)
@@ -193,6 +218,79 @@ function compileSass(inputPath) {
 }
 
 /**
+ * Optimizes CSS using PostCSS and cssnano
+ * @param {string} css
+ * @returns {Promise<string>} Minified CSS
+ */
+async function optimizeCSS(css) {
+    const startTime = Date.now();
+    if (!postcss || !cssnano) {
+        return css;
+    }
+    try {
+        const result = await postcss([cssnano]).process(css, { from: undefined });
+        buildMetrics.processingTimes.postcss = Date.now() - startTime;
+        console.log(`✅ CSS optimized (${buildMetrics.processingTimes.postcss}ms)`);
+        return result.css;
+    } catch (error) {
+        buildMetrics.errors.push(`CSS optimization failed: ${error.message}`);
+        console.error(`❌ CSS optimization failed: ${error.message}`);
+        return css;
+    }
+}
+
+/**
+ * Minifies JavaScript using Terser
+ * @param {string} js
+ * @returns {Promise<string>} Minified JS
+ */
+async function minifyJS(js) {
+    const startTime = Date.now();
+    if (!terser) {
+        console.warn('⚠️ Terser not available - skipping JS minification');
+        return js;
+    }
+    try {
+        const result = await terser.minify(js);
+        buildMetrics.processingTimes.terser = Date.now() - startTime;
+        console.log(`✅ JavaScript minified (${buildMetrics.processingTimes.terser}ms)`);
+        return result.code;
+    } catch (error) {
+        buildMetrics.errors.push(`JS minification failed: ${error.message}`);
+        console.error(`❌ JS minification failed: ${error.message}`);
+        return js;
+    }
+}
+
+/**
+ * Minifies HTML output
+ * @param {string} html
+ * @returns {Promise<string>} Minified HTML
+ */
+async function minifyHTMLContent(html) {
+    const startTime = Date.now();
+    if (!minifyHtml) {
+        console.warn('⚠️ html-minifier not available - skipping HTML minification');
+        return html;
+    }
+    try {
+        const result = await minifyHtml(html, {
+            collapseWhitespace: true,
+            removeComments: true,
+            minifyCSS: false,
+            minifyJS: false
+        });
+        buildMetrics.processingTimes.htmlmin = Date.now() - startTime;
+        console.log(`✅ HTML minified (${buildMetrics.processingTimes.htmlmin}ms)`);
+        return result;
+    } catch (error) {
+        buildMetrics.errors.push(`HTML minification failed: ${error.message}`);
+        console.error(`❌ HTML minification failed: ${error.message}`);
+        return html;
+    }
+}
+
+/**
  * Reads and validates a file
  * @param {string} filePath - Path to the file
  * @param {string} description - Description for logging
@@ -269,27 +367,33 @@ async function buildPerchanceFile() {
         
         // Compile SCSS to CSS
         const compiledCSS = compileSass(SOURCE_FILES[1].name);
-        
+
         // Combine all content
         const combinedCSS = externalCSS + compiledCSS;
         const combinedJS = externalJS + profileComponentContent + jsContent;
-        
+
+        // Optimize CSS and JavaScript
+        const optimizedCSS = await optimizeCSS(combinedCSS);
+        const optimizedJS = await minifyJS(combinedJS);
+
         // Create final HTML
         const finalHtml = htmlContent
             .replace(/<link[^>]*href="[^"]*pico[^"]*"[^>]*>/g, '') // Remove Pico CSS link
             .replace(/<script[^>]*src="[^"]*(hyperscript|cash|dexie|purify)[^"]*"[^>]*><\/script>/g, '') // Remove external script tags
-            .replace('</head>', `<style>\n${combinedCSS}\n</style>\n</head>`)
-            .replace('</body>', `<script>\n${combinedJS}\n</script>\n</body>`);
-        
+            .replace('</head>', `<style>\n${optimizedCSS}\n</style>\n</head>`)
+            .replace('</body>', `<script>\n${optimizedJS}\n</script>\n</body>`);
+
+        const minifiedHtml = await minifyHTMLContent(finalHtml);
+
         // Write the final file
         const outputPath = path.join(__dirname, '../output/RPGlitch-perchance.html');
-        fs.writeFileSync(outputPath, finalHtml, 'utf8');
-        
-        buildMetrics.totalSize = finalHtml.length;
+        fs.writeFileSync(outputPath, minifiedHtml, 'utf8');
+
+        buildMetrics.totalSize = minifiedHtml.length;
         
         console.log(`\n✅ Build completed successfully!`);
         console.log(`📁 Output: ${outputPath}`);
-        console.log(`📊 File size: ${(finalHtml.length / 1024).toFixed(2)} KB`);
+        console.log(`📊 File size: ${(minifiedHtml.length / 1024).toFixed(2)} KB`);
         
         printBuildMetrics();
         

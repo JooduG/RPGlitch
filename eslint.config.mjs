@@ -1,9 +1,8 @@
 // eslint.config.mjs
 import js from "@eslint/js";
 import globals from "globals";
-import { defineConfig } from "eslint/config";
 
-export default defineConfig([
+export default [
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
     ignores: [
@@ -19,13 +18,13 @@ export default defineConfig([
       "memory-bank/project/archive/collection.md"
     ],
     // plugins: { js }, // Removed as it's already imported
-    extends: [js.configs.recommended],
     languageOptions: {
       globals: globals.browser,
       ecmaVersion: 2021,
       sourceType: "module"
     },
     rules: {
+      ...js.configs.recommended.rules,
       // General best practices and error prevention
       "no-unused-vars": "warn",
       "no-unused-labels": "warn",
@@ -67,4 +66,4 @@ export default defineConfig([
       "no-redeclare": "error" // Changed to 'error' to enforce no redeclaration
     }
   },
-]);
+];
