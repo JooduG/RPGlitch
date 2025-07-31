@@ -11,6 +11,9 @@ The main build script that:
 - Downloads and inlines external dependencies (Hyperscript, Cash DOM, Dexie.js, DOMPurify)
 - Compiles SCSS to CSS
 - Combines all source files into a single HTML file
+- Minifies CSS with PostCSS and cssnano
+- Minifies JavaScript with Terser
+- Minifies the final HTML output
 - Outputs to `../output/RPGlitch-perchance.html`
 
 **Usage:**
@@ -37,7 +40,7 @@ npm run build:copy
 
 The build process creates:
 
-- `../output/RPGlitch-perchance.html` - The main output file for Perchance
+- `../output/RPGlitch-perchance.html` - Fully minified HTML for Perchance
 - `../output/archive/RPGlitch-perchance.css` - Compiled CSS (archived)
 - `../output/archive/RPGlitch-perchance.css.map` - CSS source map (archived)
 

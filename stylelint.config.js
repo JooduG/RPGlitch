@@ -39,5 +39,7 @@ module.exports = {
     "memory-bank/**/archive/**/*.scss",
     "memory-bank/**",
     "tools/test-globs/**",
+    "**/node_modules/**",
+    "build/output/**"
   ],
 };
