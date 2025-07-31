@@ -133,6 +133,7 @@ Full documentation lives in the [docs/](docs/) directory. Key guides:
 ### **RPGlitch Build Process**
 
 - **Build Script**: `node build-perchance.js` (from project root)
+- **Setup**: Run `npm install` first to install optional minifier packages
 - **Output**: `build/output/RPGlitch-perchance.html` (deployment ready)
 - **CSS Archive**: `build/output/archive/RPGlitch-perchance.css` (with source map)
 - **No Manual CSS**: Build script handles all CSS merging automatically
@@ -148,7 +149,7 @@ Full documentation lives in the [docs/](docs/) directory. Key guides:
 
 - **Perchance Platform**: Direct upload of generated HTML files
 - **Single File Output**: Complete applications in single HTML files
-- **Optimized Assets**: Minified CSS and JavaScript embedded
+- **Optimized Assets**: Minified CSS, JavaScript, and HTML embedded via PostCSS, Terser, and html-minifier
 - **Platform Ready**: No external dependencies required
 
 ## 📊 **System Features**

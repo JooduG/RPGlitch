@@ -493,7 +493,7 @@ input[type="file"] {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-top: 0rem;
+  margin-top: 0;
   border-radius: 0 0 var(--pico-radius) var(--pico-radius);
   padding: 1rem;
   min-height: 190px;

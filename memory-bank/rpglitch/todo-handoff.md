@@ -95,4 +95,9 @@
 \n- [x] Verify top-bar buttons open the correct chins after dependency check fix.
 \n### 2025-07-31\n- Cleaned up duplicate methods and updated Options chin to "Upload Backup" workflow.
 \n### 2025-07-31\n- Updated button labels to "Upload All", "Download All", and "Delete All" and fixed initialization issue.
+\n### 2025-07-31
+- Added build post-processing with cssnano, Terser, and html-minifier for smaller output.
+\n### 2025-07-31
+- Resolved minifier dependency issues and separated optional package checks in build script.
+- Documented install instructions for optional minifier dependencies.
 
