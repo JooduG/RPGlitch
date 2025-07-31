@@ -236,7 +236,6 @@ Object.assign(window.App, {
               console.error("[App Critical] #main container not found after UI element query!")
           }
           
-          
       },
   
       _getTopBarElements() {
