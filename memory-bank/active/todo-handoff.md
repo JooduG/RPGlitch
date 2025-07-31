@@ -100,5 +100,7 @@
 \n### 2025-07-31
 - Resolved minifier dependency issues and separated optional package checks in build script.
 - Documented install instructions for optional minifier dependencies.
+\n### 2025-07-31
+- Updated hideEl and top bar event handling. Added corresponding tests and reordered initialization logic.
 
 
