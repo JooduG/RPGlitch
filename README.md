@@ -133,6 +133,7 @@ Full documentation lives in the [docs/](docs/) directory. Key guides:
 ### **RPGlitch Build Process**
 
 - **Build Script**: `node build-perchance.js` (from project root)
+- **Setup**: Run `npm install` first to install optional minifier packages
 - **Output**: `build/output/RPGlitch-perchance.html` (deployment ready)
 - **CSS Archive**: `build/output/archive/RPGlitch-perchance.css` (with source map)
 - **No Manual CSS**: Build script handles all CSS merging automatically

@@ -99,4 +99,6 @@
 - Added build post-processing with cssnano, Terser, and html-minifier for smaller output.
 \n### 2025-07-31
 - Resolved minifier dependency issues and separated optional package checks in build script.
+- Documented install instructions for optional minifier dependencies.
+
 

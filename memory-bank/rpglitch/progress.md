@@ -166,3 +166,4 @@ All objectives have been achieved:
 - Integrated PostCSS, Terser, and html-minifier into build process for full CSS, JS, and HTML minification.
 \n### 2025-07-31
 - Fixed cssnano version and improved optional dependency checks for minification steps.
+- Documented installation instructions for minifier dependencies.
