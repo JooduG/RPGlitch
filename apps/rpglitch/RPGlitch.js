@@ -45,7 +45,7 @@ function initializeApp() {
 }
 
 // Ensure global App object exists before initialization
-window.App = window.App || {}
+window.App = (typeof window.App === 'object' && window.App !== null) ? window.App : {};
 
 Object.assign(window.App, {
     // Debug: App object defined
