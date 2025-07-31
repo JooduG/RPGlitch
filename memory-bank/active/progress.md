@@ -167,3 +167,5 @@ All objectives have been achieved:
 \n### 2025-07-31
 - Fixed cssnano version and improved optional dependency checks for minification steps.
 - Documented installation instructions for minifier dependencies.
+\n### 2025-07-31
+- Updated hideEl to accept element IDs, ensured top bar event listeners bind App context, and reordered initialization logic with tests.
