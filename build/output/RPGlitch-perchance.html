@@ -5567,6 +5567,7 @@
  * @param {string} [fontFamily='Segoe UI, system-ui, sans-serif'] - Optional font family for placeholder.
  * @returns {string} HTML string for the profile picture element.
  */
+// eslint-disable-next-line no-unused-vars
 function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 'Segoe UI, system-ui, sans-serif') {
   console.debug('[ProfilePicture] getProfilePictureHTML called:', { item, context });
   
@@ -6319,11 +6320,11 @@ window.App = {
     
     /**
      * Shows a notification in the top bar.
-     * @param {string} message - The notification message.
-     * @param {string} [type] - The notification type (success, error, info).
-     * @param {number} [duration] - The duration of the notification in milliseconds.
+     * @param {string} _message - The notification message.
+     * @param {string} [_type] - The notification type (success, error, info).
+     * @param {number} [_duration] - The duration of the notification in milliseconds.
      */
-    showTopNotification(message, type = 'info', duration = 3000) {
+    showTopNotification(_message, _type = 'info', _duration = 3000) {
     // Disabled. Notifications are temporarily not in use.
     },
   

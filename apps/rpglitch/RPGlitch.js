@@ -523,11 +523,11 @@ window.App = {
     
     /**
      * Shows a notification in the top bar.
-     * @param {string} message - The notification message.
-     * @param {string} [type] - The notification type (success, error, info).
-     * @param {number} [duration] - The duration of the notification in milliseconds.
+     * @param {string} _message - The notification message.
+     * @param {string} [_type] - The notification type (success, error, info).
+     * @param {number} [_duration] - The duration of the notification in milliseconds.
      */
-    showTopNotification(message, type = 'info', duration = 3000) {
+    showTopNotification(_message, _type = 'info', _duration = 3000) {
     // Disabled. Notifications are temporarily not in use.
     },
   
