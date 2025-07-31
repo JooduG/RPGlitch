@@ -45,7 +45,10 @@ function initializeApp() {
     }
 }
 
-window.App = {
+// Ensure global App object exists before initialization
+window.App = (typeof window.App === 'object' && window.App !== null) ? window.App : {};
+
+Object.assign(window.App, {
     // Debug: App object defined
     // console.log('App object defined:', window.App);
 
@@ -4005,7 +4008,7 @@ window.App = {
               this.handleError('INITIALIZE_WHEN_READY', error)
           }
        }
-  }
+  });
 
   // Initialize the app when the DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
