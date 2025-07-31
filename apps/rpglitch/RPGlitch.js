@@ -494,17 +494,10 @@ Object.assign(window.App, {
 
   
     /**
-     * Hides a DOM element by adding the 'hidden' class and setting visibility.
-     * @param {HTMLElement|string} el - The element or its ID.
-     * @returns {HTMLElement|null}
+     * Hides a DOM element by adding the 'hidden' class.
+     * Provided by `utils/hideEl.js`.
      */
-    hideEl(el) {
-      if (typeof el === 'string') el = document.getElementById(el)
-      if (!el) return null
-      el.classList.add('hidden') // Add the hidden class
-      el.style.display = ''
-      return el
-    },
+    hideEl: window.hideEl,
     
     /**
      * Sanitizes HTML to prevent XSS.
