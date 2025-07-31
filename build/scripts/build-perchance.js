@@ -104,6 +104,7 @@ const SOURCE_FILES = [
     { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.html'), type: 'html', description: 'Main HTML structure' },
     { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.scss'), type: 'sass', description: 'Main Sass stylesheet' },
     { name: path.join(__dirname, '../../apps/rpglitch/ProfilePictureComponent.js'), type: 'component', description: 'Profile Picture rendering logic' },
+    { name: path.join(__dirname, '../../apps/rpglitch/utils/hideEl.js'), type: 'script', description: 'Utility functions' },
     { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.js'), type: 'script', description: 'JavaScript logic' }
 ];
 
@@ -367,14 +368,15 @@ async function buildPerchanceFile() {
         const htmlContent = readFile(SOURCE_FILES[0].name, SOURCE_FILES[0].description);
         const scssContent = readFile(SOURCE_FILES[1].name, SOURCE_FILES[1].description);
         const profileComponentContent = readFile(SOURCE_FILES[2].name, SOURCE_FILES[2].description);
-        const jsContent = readFile(SOURCE_FILES[3].name, SOURCE_FILES[3].description);
+        const hideElContent = readFile(SOURCE_FILES[3].name, SOURCE_FILES[3].description);
+        const jsContent = readFile(SOURCE_FILES[4].name, SOURCE_FILES[4].description);
         
         // Compile SCSS to CSS
         const compiledCSS = compileSass(SOURCE_FILES[1].name);
 
         // Combine all content
         const combinedCSS = externalCSS + compiledCSS;
-        const combinedJS = externalJS + profileComponentContent + jsContent;
+        const combinedJS = externalJS + profileComponentContent + hideElContent + jsContent;
 
         // Optimize CSS and JavaScript
         const optimizedCSS = await optimizeCSS(combinedCSS);
