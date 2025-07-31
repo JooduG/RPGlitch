@@ -1,7 +1,9 @@
 #!/usr/bin/env node
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 
 const fs = require('fs');
-// eslint-disable-next-line no-undef
+ 
 const path = require('path');
 const sass = require('sass');
 const https = require('https');

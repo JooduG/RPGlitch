@@ -5,15 +5,11 @@
   --pico-card-box-shadow: 0;
   --pico-dropdown-box-shadow: 0;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
-  --swatch-color: var(--pico-primary, #0172ad);
-  --palette-medium: var(--pico-primary, #0172ad);
-  --palette-light: #fff;
-  --bg-color: var(--palette-medium, var(--pico-primary, #0172ad));
-  --text-color-initials: var(--palette-light, #fff);
   --pico-nav-element-spacing-vertical: 0; 
   --pico-nav-element-spacing-horizontal: 0;
-
-    color: #fff;
+  --pico-typography-spacing-vertical: 0;
+  --pico-typography-spacing-horizontal: 0;
+  --pico-spacing: 0;
 }
 
 html, body {
@@ -48,14 +44,14 @@ textarea,
   transform: translateY(0) scale(1);
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  margin-bottom: 1rem;
+  background: rgb(35 36 58 / 85%) ;
+  backdrop-filter: blur(15px);
 }
 
 .storyboard-card[disabled],
 #storyboard-card-ai[disabled],
 #storyboard-card-user[disabled],
 #storyboard-card-world[disabled] {
-  opacity: 1;
   cursor: pointer;
   pointer-events: auto;
   filter: none;
@@ -65,8 +61,6 @@ textarea,
   min-height: 160px;
   height: auto;
   border-radius: var(--pico-radius) ;
-  border-top-left-radius: var(--pico-radius) ;
-  border-bottom-left-radius: var(--pico-radius) ;
   gap: 0 ;
 }
 
@@ -76,7 +70,6 @@ button,
 .danger {
   text-align: center;
   justify-content: center;
-  padding-inline: 0;
 }
 
 .chin-card,
@@ -94,13 +87,6 @@ a {
 }
 
 .storyboard-card,
-.card,
-.chin-card-right,
-.chin-card {
-  border-radius: var(--pico-radius) ;
-  overflow: visible;
-}
-
 .chin-card,
 .card {
   border: none ;
@@ -109,13 +95,9 @@ a {
   overflow: visible;
   transition: box-shadow 0.2s ease;
   position: relative;
-}
-
-.storyboard-card .chin-card {
   flex: 1;
   display: flex;
   min-height: 260px;
-  overflow: visible;
 }
 
 article {
@@ -294,45 +276,20 @@ input[type="file"] {
   outline: none ;
 }
 
-.card-title-dropdown *,
 .dropdown-option,
-.card-title-dropdown-menu *,
-.card-title-selected
-{
-  border: none ;
-  outline: none ;
-  box-shadow: none ;
-  margin: 0 ;
-  padding: 0 ;
-}
-
+.card-title-selected *,
 .card-title-dropdown *,
-.card-title-dropdown-menu *,
-.dropdown-option,
-.card-title-dropdown-menu .dropdown-option {
-  border: 0 ;
-  outline: none ;
-  box-shadow: none ;
-  margin: 0 ;
-  padding: 0 ;
-}
-
-.card-title-dropdown,
-.card-title-dropdown *,
-.card-title-selected,
-.card-title-dropdown-menu,
 .card-title-dropdown-menu *,
 .card-title-dropdown *:focus,
 .card-title-dropdown *:hover,
+.card-title-dropdown-menu .dropdown-option,
 .card-title-dropdown-menu .dropdown-option:focus,
 .card-title-dropdown-menu .dropdown-option:hover,
 .card-title-dropdown-menu .dropdown-option:active {
-  box-shadow: none ;
   border: 0 ;
   border-width: 0 ;
   border-style: none ;
   border-color: transparent ;
-  outline: transparent none 0 ;
   text-shadow: none ;
   -webkit-border: 0 ;
   -moz-border: 0 ;
@@ -340,10 +297,10 @@ input[type="file"] {
   -moz-outline: 0 ;
   text-wrap: pretty;
   text-align: left;
-}
-
-.card-title-selected {
-  position: relative;
+  outline: none ;
+  box-shadow: none ;
+  margin: 0 ;
+  padding: 0 ;
 }
 
 .card-title-selected,
@@ -354,6 +311,7 @@ input[type="file"] {
   outline: none ;
   box-shadow: none ;
   background: transparent ;
+  position: relative;
 }
 
 .card-title-selected:hover,
@@ -415,7 +373,6 @@ input[type="file"] {
   align-items: center;
   gap: 1rem;
   justify-content: space-between;
-  margin-bottom: 1rem;
   border-radius: var(--pico-radius);
 }
 
@@ -426,6 +383,7 @@ input[type="file"] {
   padding: 1rem 0 0 ;
   max-width: 100vw ;
   width: 100vw ;
+
 }
 
 .app-scrollable-container:has(.profile-content-overlay) {
@@ -467,10 +425,6 @@ input[type="file"] {
   align-content: start;
   box-shadow: none;
   margin-bottom: 1.5rem; 
-
-  --pico-card-box-shadow: 0;
-  --pico-dropdown-box-shadow: 0;
-
 }
 
 .chin-grid { 
@@ -667,42 +621,30 @@ input[type="file"] {
   box-sizing: border-box;
 }
 
-
 .chin-card-left header {
   margin: 0;
   padding: 0;
-  font-size: 1em;
-  font-weight: 600;
-  line-height: 1.1;
   text-align: center;
   border-radius: 0 var(--pico-radius) 0 0;
 }
 
 .chin-card-left h4 {
   margin: 0;
-  font-size: 1em;
-  font-weight: 600;
-  line-height: 1.1;
   text-align: center;
   text-wrap: balance;
   padding: 0.2em 0.6em;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.5em;
 }
 
 .chin-card-left p {
   margin: 0;
-  font-size: 0.85em;
-  line-height: 1.2;
-  color: var(--pico-muted-color, #aaa);
   text-align: center;
   text-wrap: balance;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 3em;
   flex: 1;
 }
 
@@ -732,16 +674,13 @@ input[type="file"] {
   font-size: 1.1rem;
 }
 
-.chin-card .chin-card-right .profile-picture {
+.storyboard-card-right, 
+.chin-card-right {
   border-radius: 0 var(--pico-radius) var(--pico-radius) 0 ;
 }
 
-.chin-card .chin-card-left {
-  border-radius: var(--pico-radius) 0 0 var(--pico-radius) ;
-  overflow: hidden ;
-}
-
-.storyboard-card .chin-card-left {
+.storyboard-card-left,
+.chin-card-left {
   border-radius: 0 var(--pico-radius) var(--pico-radius) 0 ;
   overflow: hidden ;
 }

@@ -35,7 +35,6 @@ single optimized output file.
 
 Run `npm install` once to install optional minifier packages.
 
-
 ## Output
 
 Build outputs are stored in the `output/` directory and are excluded from version control.
