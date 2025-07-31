@@ -1,5 +1,0 @@
-{
-  "install": "npm install",
-  "start": "node agent_orchestrator.js",
-  "agentCanUpdateSnapshot": true
-}
