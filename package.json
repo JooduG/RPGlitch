@@ -36,10 +36,10 @@
     "postcss-cli": "^10.1.0",
     "stylelint": "^16.0.0",
     "stylelint-config-standard": "^36.0.1",
-    "terser": "^5.30.3"
+    "terser": "^5.30.3",
+    "jest-environment-jsdom": "^29.7.0"
   },
   "dependencies": {
-    "jest-environment-jsdom": "^30.0.5",
     "sass": "^1.89.2"
   }
 }
