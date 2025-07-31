@@ -623,6 +623,8 @@ This documentation reflects modern JavaScript best practices and features, ensur
 - **[HTML Development](./html-development.mdc)** - Semantic HTML and accessibility
 - **[SCSS Advanced Patterns](./scss-advanced-patterns.mdc)** - Modern CSS with SCSS
 - **[Hyperscript Usage](./html-hyperscript-usage.mdc)** - Interactive HTML with Hyperscript
+- **[Perchance Build & Deployment](./perchance-build-deployment.mdc)** - Production deployment guidance
+- **[Perchance Development Lifecycle](./perchance-development-lifecycle.mdc)** - Planning and iteration steps
 
 ### **📖 External Resources**
 
