@@ -8,7 +8,7 @@ alwaysApply: false
 
 - Covers the complete development lifecycle: planning, building, testing, and deployment.
 - Outlines Perchance-specific constraints and recommended tools.
-- Provides comprehensive build and deployment guidelines.
+- Summarizes build and deployment at a high level. For automation and optimization details, see [Perchance Build & Deployment](./perchance-build-deployment.mdc).
 - References official tutorials, examples, and community resources.
 
 ---
@@ -151,6 +151,7 @@ Use feedback and logs to improve and refine the generator.
 - [Cash DOM Usage](./js-cash-dom-usage.mdc)
 - [Dexie.js Usage](./js-dexie-usage.mdc)
 - [Perchance Architecture](./perchance-architecture.mdc)
+- [Perchance Build & Deployment](./perchance-build-deployment.mdc)
 - [Perchance Plugin System](./perchance-plugin-system.mdc)
 - [HTML Development](./html-development.mdc)
 - [JavaScript Development](./js-development.mdc)
