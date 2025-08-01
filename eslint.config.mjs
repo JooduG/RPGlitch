@@ -6,9 +6,10 @@ export default [
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
     ignores: [
-      "node_modules/**",
-      "memory-bank/**/archive/**",
-      "build/output/**"
+      "**/*node_modules/**",
+      "**/*archive/**",
+      "**/*output/**",
+      "**/*local_libs/**"
     ],
     // plugins: { js }, // Removed as it's already imported
     languageOptions: {
