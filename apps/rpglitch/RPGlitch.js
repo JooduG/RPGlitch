@@ -1845,7 +1845,7 @@ Object.assign(window.App, {
                       console.error("[App Lifecycle] Error parsing pending form state from sessionStorage:", e)
                       sessionStorage.removeItem('pendingRPGlitchFormState')
                       // Show user-friendly notification and continue loading
-                      if (this && App.showTopNotification) {
+                      if (App && App.showTopNotification) {
                           App.showTopNotification('Recovered from a corrupted session. Please retry your last action.', 'error', 5000)
                       } else {
                           alert('Recovered from a corrupted session. Please retry your last action.')
