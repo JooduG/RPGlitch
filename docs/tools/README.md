@@ -39,6 +39,10 @@ tools/
 
 - Testing utilities and patterns
 
+### Debugging Helpers
+
+- `install-busybox.sh` installs BusyBox which provides the `hexdump` tool for binary inspection. Run from `tools/setup` to install.
+
 ## Usage
 
 Each tool directory contains specific utilities for different aspects of development. Refer to individual tool directories for detailed documentation.

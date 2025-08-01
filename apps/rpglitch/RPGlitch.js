@@ -76,6 +76,11 @@ Object.assign(App, {
     statusNotifierIntervalId: null,
     topNotificationTimeoutId: null,
     listenersAttached: false,
+    initializeWhenReadyRetryCount: 0,
+    maxInitializeWhenReadyRetries: 40,
+    initializeWhenReadyBaseDelay: 50,
+    initializeWhenReadyBackoffFactor: 2,
+    initializeWhenReadyMaxDelay: 1000,
     storyboardSelected: { ai: '', user: '', world: '' },
     // Focus Bar State
     focusBarState: {
@@ -3946,7 +3951,20 @@ Object.assign(App, {
       async initializeWhenReady() {
           try {
             if (typeof this._getUIElements !== 'function') {
-                throw new Error('_getUIElements not available during initialization')
+                if (this.initializeWhenReadyRetryCount < this.maxInitializeWhenReadyRetries) {
+                    this.initializeWhenReadyRetryCount++
+                    const delay = Math.min(
+                        this.initializeWhenReadyBaseDelay *
+                        Math.pow(this.initializeWhenReadyBackoffFactor, this.initializeWhenReadyRetryCount - 1),
+                        this.initializeWhenReadyMaxDelay
+                    )
+                    console.warn(
+                        `initializeWhenReady retry ${this.initializeWhenReadyRetryCount}/${this.maxInitializeWhenReadyRetries}`
+                    )
+                    setTimeout(this.initializeWhenReady.bind(this), delay)
+                    return
+                }
+                throw new Error(`initializeWhenReady failed: missing _getUIElements after ${this.initializeWhenReadyRetryCount} retries`)
             }
             if (typeof this.showEl !== 'function' || typeof this.hideEl !== 'function') {
                 throw new Error('showEl/hideEl not defined during initialization')
@@ -3973,4 +3991,3 @@ Object.assign(App, {
   document.addEventListener('DOMContentLoaded', () => {
       waitForDependencies()
   })
-  

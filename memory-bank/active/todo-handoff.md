@@ -128,3 +128,9 @@
 - Consolidated show/hide utilities in `utils/hideEl.js`.
 - Fixed lint script quotes for Windows compatibility.
 - Added README note on using `npm run lint:fix`.
+### 2025-08-07
+- Implemented retry in `initializeWhenReady` so `_getUIElements` loads before attaching event listeners.
+### 2025-08-08
+- Increased retry limit for `initializeWhenReady` to 40 after failing in Perchance environment.
+### 2025-08-09
+- Add exponential backoff to initialization retries and document BusyBox setup script.
