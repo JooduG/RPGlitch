@@ -1,3 +1,4 @@
 node_modules/** 
 memory-bank/**/archive/**
 build/output/**
+build/local_libs/**
