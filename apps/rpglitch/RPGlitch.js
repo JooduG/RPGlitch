@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+/* global getProfilePictureHTML */
 // Dependency availability checks with retry mechanism
 function checkDependencies() {
     window.isDexieLoaded = typeof window.Dexie !== 'undefined'
@@ -3948,11 +3949,10 @@ Object.assign(App, {
             console.warn('showTopNotification not available, falling back to alert.');
             alert(`Error: ${code}. See console for details.`);
         }
-    }
-},
+    },
     
     // Add chin helpers before initializeWhenReady
-    App._toggleChin = function (chinName) {
+    _toggleChin(chinName) {
         const container = this.ui.chinContainer;
         const allChins = container.querySelectorAll('[data-chin]');
 
@@ -3976,7 +3976,7 @@ Object.assign(App, {
         }
     },
 
-    App._populateChin = async function (chinName) {
+    async _populateChin(chinName) {
         const configMap = {
             stories: { dbKey: 'stories', gridId: 'chin-story-grid' },
             characters: { dbKey: 'characters', gridId: 'chin-character-grid' },
@@ -3988,7 +3988,8 @@ Object.assign(App, {
         const grid = document.getElementById(gridId);
         grid.innerHTML = '';
 
-        const items = await this.db[dbKey].toArray().catch(() => []);
+        const table = this.db ? this.db[dbKey] : null;
+        const items = table ? await table.toArray().catch(() => []) : [];
         items.forEach(item => {
             const card = document.createElement('div');
             card.className = 'chin-card';
@@ -4008,7 +4009,7 @@ Object.assign(App, {
     },
 
     // NOW initializeWhenReady can safely use them
-    App.initializeWhenReady = async function () {
+    async initializeWhenReady() {
         try {
             this._getUIElements();
 
@@ -4081,32 +4082,12 @@ Object.assign(App, {
                 waitForDependencies();
             });
         }
-    
-            if (!window.App.hideEl && typeof window.hideEl === 'function') {
-                window.App.hideEl = window.hideEl;
-            }
+    }
+});
 
-            // Initialize the app when the DOM is ready
-            document.addEventListener('DOMContentLoaded', () => {
-                waitForDependencies();
-            });
-        
-
-        try {
-            this._attachTopBarEventListeners();
-            this._attachStoryboardEventListeners();
-            await this.initialLoad();
-            this.initializeWhenReadyRetryCount = 0;
-        } catch (error) {
-            this.handleError('INITIALIZE_WHEN_READY', error);
-
-            if (!window.App.hideEl && typeof window.hideEl === 'function') {
-                window.App.hideEl = window.hideEl;
-            }
-
-            // Initialize the app when the DOM is ready
-            document.addEventListener('DOMContentLoaded', () => {
-                waitForDependencies();
-            })
-        };
-        })
+if (typeof window.hideEl === 'function' && !App.hideEl) {
+    App.hideEl = window.hideEl;
+}
+if (typeof window.showEl === 'function' && !App.showEl) {
+    App.showEl = window.showEl;
+}
