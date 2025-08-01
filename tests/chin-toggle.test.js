@@ -19,16 +19,6 @@ test('early chin toggle reveals chin container and selected chin', () => {
   const rpgScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.js'), 'utf8');
   dom.window.eval(rpgScript);
 
-  if (typeof dom.window.App.showEl !== 'function') {
-    dom.window.App.showEl = function (el) {
-      if (typeof el === 'string') el = dom.window.document.getElementById(el);
-      if (!el) return null;
-      el.classList.remove('hidden');
-      el.style.visibility = '';
-      el.style.display = '';
-      return el;
-    };
-  }
 
   dom.window.App._toggleChinContent('stories');
   const chinContainer = dom.window.document.getElementById('chin-container');

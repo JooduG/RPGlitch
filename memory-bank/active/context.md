@@ -199,3 +199,4 @@
 - Listener guard now stored on App; removed unused notification area
 - Chin toggle test restored to check class toggling
 
+- `hideEl.js` now loaded before `RPGlitch.js` to ensure `window.hideEl` exists during initialization. Chin toggle test uses real `App.showEl` without fallback.

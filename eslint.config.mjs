@@ -9,7 +9,10 @@ export default [
       "**/*node_modules/**",
       "**/*archive/**",
       "**/*output/**",
-      "**/*local_libs/**"
+      "**/*local_libs/**",
+      "tools/diagnostics/**",
+      "tools/browser-tools/**",
+      "tools/test-globs/**"
     ],
     // plugins: { js }, // Removed as it's already imported
     languageOptions: {
@@ -73,6 +76,23 @@ export default [
     rules: {
       "no-unused-vars": "warn",
       "no-undef": "error"
+    }
+  },
+  // Node and Jest environment for test files
+  {
+    files: ["tests/**/*.js"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest
+      },
+      ecmaVersion: 2021,
+      sourceType: "script"
+    },
+    rules: {
+      "no-unused-vars": "warn",
+      // Disabled for test files due to Jest's scoping behavior with describe/test blocks
+      "no-redeclare": "off"
     }
   },
 ];
