@@ -81,6 +81,7 @@ Object.assign(App, {
     initializeWhenReadyBaseDelay: 50,
     initializeWhenReadyBackoffFactor: 2,
     initializeWhenReadyMaxDelay: 1000,
+
     storyboardSelected: { ai: '', user: '', world: '' },
     // Focus Bar State
     focusBarState: {
@@ -503,7 +504,7 @@ Object.assign(App, {
   
     /**
     * Hides a DOM element by adding the 'hidden' class.
-    * Provided by `utils/hideEl.js`.
+    * Provided by `utils.js`.
      */
     hideEl: window.hideEl,
 

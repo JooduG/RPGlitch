@@ -121,11 +121,11 @@
 - Added Node environment ESLint override for build and tool scripts.
 
 ### 2025-08-05
-- Inserted `utils/hideEl.js` before `RPGlitch.js` in HTML for reliable initialization.
+- Inserted `utils.js` before `RPGlitch.js` in HTML for reliable initialization.
 - Removed test fallback for `App.showEl`; tests now rely on code from `RPGlitch.js`.
 - Defined `const App = window.App` in script and added global cleanup in tests.
 ### 2025-08-06
-- Consolidated show/hide utilities in `utils/hideEl.js`.
+- Consolidated show/hide utilities in `utils.js`.
 - Fixed lint script quotes for Windows compatibility.
 - Added README note on using `npm run lint:fix`.
 ### 2025-08-07
@@ -134,3 +134,4 @@
 - Increased retry limit for `initializeWhenReady` to 40 after failing in Perchance environment.
 ### 2025-08-09
 - Add exponential backoff to initialization retries and document BusyBox setup script.
+
