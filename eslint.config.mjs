@@ -10,7 +10,7 @@ export default [
       "**/*archive/**", 
       "**/*output/**",
       "**/*local_libs/**", // This should cover the minified files
-      "**/*.min.js" // Additional safety net,
+      "**/*.min.js", // Additional safety net,
       "tools/diagnostics/**",
       "tools/browser-tools/**",
       "tools/test-globs/**"
@@ -39,7 +39,7 @@ export default [
   },
   // JavaScript files override (apps directory) - THIS IS THE CRITICAL FIX
   {
-    files: ["apps/**/*.js"],
+    files: ["**/*apps/**/*.js"],
     languageOptions: {
       globals: {
         ...globals.browser,
