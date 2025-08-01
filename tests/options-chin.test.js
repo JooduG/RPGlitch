@@ -16,10 +16,6 @@ function loadApp() {
   dom.window.App = {};
   dom.window.document.addEventListener = jest.fn();
   dom.window.alert = () => {};
-  global.Dexie = function () {};
-  global.DOMPurify = {};
-  global._hyperscript = {};
-  global.$ = function () {};
   dom.window.Dexie = function () {};
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
