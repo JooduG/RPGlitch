@@ -3965,15 +3965,8 @@ Object.assign(App, {
   if (!window.App.hideEl && typeof window.hideEl === 'function') {
       window.App.hideEl = window.hideEl;
   }
-  if (!window.App.showEl) {
-      window.App.showEl = function (el) {
-        if (typeof el === 'string') el = document.getElementById(el);
-        if (!el) return null;
-        el.classList.remove('hidden');
-        el.style.visibility = '';
-        el.style.display = '';
-        return el;
-      };
+  if (!window.App.showEl && typeof window.showEl === 'function') {
+      window.App.showEl = window.showEl;
   }
 
   // Initialize the app when the DOM is ready
