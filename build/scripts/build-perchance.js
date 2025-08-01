@@ -104,7 +104,7 @@ const SOURCE_FILES = [
     { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.html'), type: 'html', description: 'Main HTML structure' },
     { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.scss'), type: 'sass', description: 'Main Sass stylesheet' },
     { name: path.join(__dirname, '../../apps/rpglitch/ProfilePictureComponent.js'), type: 'component', description: 'Profile Picture rendering logic' },
-    { name: path.join(__dirname, '../../apps/rpglitch/utils/hideEl.js'), type: 'script', description: 'Utility functions' },
+    { name: path.join(__dirname, '../../apps/rpglitch/utils.js'), type: 'script', description: 'Utility functions' },
     { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.js'), type: 'script', description: 'JavaScript logic' }
 ];
 

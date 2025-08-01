@@ -20,7 +20,7 @@ function loadApp() {
   dom.window.$ = function () {};
 
   const hideElScript = fs.readFileSync(
-    path.resolve(__dirname, '../apps/rpglitch/utils/hideEl.js'),
+    path.resolve(__dirname, '../apps/rpglitch/utils.js'),
     'utf8'
   );
   dom.window.eval(hideElScript);

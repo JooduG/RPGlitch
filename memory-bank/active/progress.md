@@ -190,12 +190,12 @@ All objectives have been achieved:
 - Updated ESLint config with Node overrides for build and tool scripts.
 
 ### 2025-08-05
-- Loaded `hideEl.js` before `RPGlitch.js` to ensure `window.hideEl` is defined during initialization.
+- Loaded `utils.js` before `RPGlitch.js` to ensure `window.hideEl` is defined during initialization.
 - Removed fallback `App.showEl` implementation from chin toggle test.
 - Declared `const App = window.App` and used `Object.assign(App, {...})` to populate the same object.
 - Added `afterEach` hooks in tests to clear global DOM references.
 ### 2025-08-06
-- Moved `showEl` utility into `utils/hideEl.js` for better organization.
+- Moved `showEl` utility into `utils.js` for better organization.
 - Updated lint scripts with double-quoted globs for Windows compatibility.
 - Documented `npm run lint` vs `npm run lint:fix` in README.
 ### 2025-08-07
