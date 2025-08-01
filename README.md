@@ -219,6 +219,7 @@ Full documentation lives in the [docs/](docs/) directory. Key guides:
 
 - **Comprehensive Linting**: ESLint, Stylelint, HTMLHint, MarkdownLint
 - **Automated Testing**: Browser automation and diagnostic tools
+- **Jest Environment**: `jest-environment-jsdom@^29.7.0` pinned due to incompatibilities with some DOM libraries. Upgrading to v30+ is planned once those dependencies are updated.
 - **Performance Monitoring**: Build optimization and asset compression
 - **Error Handling**: Robust error handling and graceful degradation
 

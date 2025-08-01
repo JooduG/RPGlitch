@@ -494,17 +494,10 @@ Object.assign(window.App, {
 
   
     /**
-     * Hides a DOM element by adding the 'hidden' class and setting visibility.
-     * @param {HTMLElement|string} el - The element or its ID.
-     * @returns {HTMLElement|null}
+     * Hides a DOM element by adding the 'hidden' class.
+     * Provided by `utils/hideEl.js`.
      */
-    hideEl(el) {
-      if (typeof el === 'string') el = document.getElementById(el)
-      if (!el) return null
-      el.classList.add('hidden') // Add the hidden class
-      el.style.display = ''
-      return el
-    },
+    hideEl: window.hideEl,
     
     /**
      * Sanitizes HTML to prevent XSS.
@@ -4005,7 +3998,12 @@ Object.assign(window.App, {
               this.handleError('INITIALIZE_WHEN_READY', error)
           }
        }
+
   });
+
+  if (!window.App.hideEl && typeof window.hideEl === 'function') {
+      window.App.hideEl = window.hideEl;
+  }
 
   // Initialize the app when the DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
