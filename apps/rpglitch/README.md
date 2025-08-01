@@ -9,7 +9,7 @@ RPGlitch is a web application for creating and managing RPG character profiles w
 ```
 rpglitch/
 ├── RPGlitch.html                    # Main HTML template
-├── RPGlitch-left-panel.txt         # Left panel HTML template
+├── RPGlitch-left-panel.txt         # Left panel content
 ├── RPGlitch.js                      # Main JavaScript logic
 ├── RPGlitch.scss                    # Main SCSS styles
 ├── ProfilePictureComponent.js       # React component for profile pictures
