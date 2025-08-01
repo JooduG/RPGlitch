@@ -31,7 +31,7 @@ test('hideEl hides by element or id', () => {
   const App = loadApp();
   document.body.innerHTML = '<div id="test-el"></div>';
   const el = document.getElementById('test-el');
-  expect(typeof window.App.hideEl).toBe('function');
+  expect(typeof App.hideEl).toBe('function');
   App.hideEl(el);
   expect(el.classList.contains('hidden')).toBe(true);
   el.classList.remove('hidden');
