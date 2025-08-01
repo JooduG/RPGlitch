@@ -167,3 +167,5 @@ All objectives have been achieved:
 - Fixed cssnano version and improved optional dependency checks for minification steps. Documented installation instructions for these dependencies.
 - Updated hideEl to accept element IDs, ensured top bar event listeners bind App context, and reordered initialization logic with tests.
 - Revised hideEl unit test to load `RPGlitch.js` via `fs.readFileSync` and `JSDOM`, calling `App.hideEl` directly. Updated test script to use `npx jest` for cross-platform compatibility.
+
+- Fixed hideEl unit test to use its own JSDOM context and returned App object, ensuring reliability.
