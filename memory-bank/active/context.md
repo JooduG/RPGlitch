@@ -204,3 +204,4 @@
 - Moved `showEl` helper into `utils.js` alongside `hideEl` for clarity.
 - Updated lint scripts with double-quoted globs for cross-platform support.
 - Added retry logic in `initializeWhenReady` to wait for `_getUIElements` before attaching listeners.
+- Increased `maxInitializeWhenReadyRetries` to 40 after encountering initialization delays in Perchance.

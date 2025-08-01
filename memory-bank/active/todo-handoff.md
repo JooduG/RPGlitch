@@ -130,3 +130,5 @@
 - Added README note on using `npm run lint:fix`.
 ### 2025-08-07
 - Implemented retry in `initializeWhenReady` so `_getUIElements` loads before attaching event listeners.
+### 2025-08-08
+- Increased retry limit for `initializeWhenReady` to 40 after failing in Perchance environment.

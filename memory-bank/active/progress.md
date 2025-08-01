@@ -200,3 +200,5 @@ All objectives have been achieved:
 - Documented `npm run lint` vs `npm run lint:fix` in README.
 ### 2025-08-07
 - Added retry mechanism in `initializeWhenReady` to ensure UI elements exist before attaching top bar listeners.
+### 2025-08-08
+- Increased `maxInitializeWhenReadyRetries` to 40 to handle slower UI element availability in Perchance tests.
