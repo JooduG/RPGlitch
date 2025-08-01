@@ -106,3 +106,7 @@
 
 \n### 2025-07-31
 - Added direct test of `App.hideEl` and simplified test script using `npx jest`.
+
+### 2025-08-01
+- Fixed hideEl unit test to use returned App instance instead of window object.
+ - Documented Jest executable permission check for consistent test runs.
