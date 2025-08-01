@@ -76,6 +76,8 @@ Object.assign(App, {
     statusNotifierIntervalId: null,
     topNotificationTimeoutId: null,
     listenersAttached: false,
+    initializeWhenReadyRetryCount: 0,
+    maxInitializeWhenReadyRetries: 10,
     storyboardSelected: { ai: '', user: '', world: '' },
     // Focus Bar State
     focusBarState: {
@@ -3946,7 +3948,12 @@ Object.assign(App, {
       async initializeWhenReady() {
           try {
             if (typeof this._getUIElements !== 'function') {
-                throw new Error('_getUIElements not available during initialization')
+                if (this.initializeWhenReadyRetryCount < this.CONSTANTS.MAX_INITIALIZE_WHEN_READY_RETRIES) {
+                    this.initializeWhenReadyRetryCount++;
+                    setTimeout(this.initializeWhenReady.bind(this), this.CONSTANTS.INITIALIZE_RETRY_INTERVAL_MS);
+                    return;
+                }
+                throw new Error('_getUIElements not available during initialization');
             }
             if (typeof this.showEl !== 'function' || typeof this.hideEl !== 'function') {
                 throw new Error('showEl/hideEl not defined during initialization')
