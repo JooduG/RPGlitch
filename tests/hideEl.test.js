@@ -25,6 +25,7 @@ function loadApp() {
   );
   dom.window.eval(script);
 
+  // Return the isolated JSDOM context and the loaded App instance
   return { dom, App: dom.window.App };
 }
 
@@ -37,6 +38,7 @@ test('hideEl hides by element or id', () => {
   App.hideEl(el);
   expect(el.classList.contains('hidden')).toBe(true);
   el.classList.remove('hidden');
+  // Using the string ID should work the same
   App.hideEl('test-el');
   expect(el.classList.contains('hidden')).toBe(true);
 });

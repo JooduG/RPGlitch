@@ -169,3 +169,4 @@ All objectives have been achieved:
 - Revised hideEl unit test to load `RPGlitch.js` via `fs.readFileSync` and `JSDOM`, calling `App.hideEl` directly. Updated test script to use `npx jest` for cross-platform compatibility.
 
 - Fixed hideEl unit test to use its own JSDOM context and returned App object, ensuring reliability.
+- Documented Jest executable permission check to prevent test failures on new setups.
