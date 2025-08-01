@@ -2,6 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 
+afterEach(() => {
+  delete global.window;
+  delete global.document;
+  delete global.App;
+});
+
 // Test the actual _attachTopBarEventListeners method
 
 test('top bar click triggers chin toggle without duplicate handlers', () => {

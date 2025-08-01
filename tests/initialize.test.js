@@ -2,6 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 
+afterEach(() => {
+  delete global.window;
+  delete global.document;
+  delete global.App;
+});
+
 function loadApp(dom) {
   global.window = dom.window;
   global.document = dom.window.document;
