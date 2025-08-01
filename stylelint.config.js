@@ -35,9 +35,10 @@ module.exports = {
     ]
   },
   ignoreFiles: [
-      "**/*node_modules/**",
-      "**/*archive/**",
-      "**/*output/**",
-      "**/*local_libs/**"
+    "**/*node_modules/**",
+    "**/*archive/**", 
+    "**/*output/**",
+    "**/*local_libs/**", // This should cover the minified files
+    "**/*.min.js" // Additional safety net
   ],
 };

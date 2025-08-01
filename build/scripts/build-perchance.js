@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
+ 
 
 const fs = require('fs');
  
