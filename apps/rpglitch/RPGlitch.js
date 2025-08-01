@@ -48,7 +48,12 @@ function initializeApp() {
 // Ensure global App object exists before initialization
 window.App =
   typeof window.App === 'object' && window.App !== null ? window.App : {};
+// eslint-disable-next-line no-redeclare
   const App = window.App;
+
+// Default IndexedDB name if none provided
+const DEFAULT_DB_NAME = 'rpglitch-db';
+window.dbName = window.dbName || DEFAULT_DB_NAME;
 
 Object.assign(App, {
     // Debug: App object defined
@@ -3972,6 +3977,7 @@ Object.assign(App, {
             this._attachTopBarEventListeners()
             this._attachStoryboardEventListeners()
             await this.initialLoad()
+            this.initializeWhenReadyRetryCount = 0
           } catch (error) {
               this.handleError('INITIALIZE_WHEN_READY', error)
           }
