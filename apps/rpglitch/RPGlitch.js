@@ -3948,12 +3948,12 @@ Object.assign(App, {
       async initializeWhenReady() {
           try {
             if (typeof this._getUIElements !== 'function') {
-                if (this.initializeWhenReadyRetryCount < this.maxInitializeWhenReadyRetries) {
-                    this.initializeWhenReadyRetryCount++
-                    setTimeout(this.initializeWhenReady.bind(this), 50)
-                    return
+                if (this.initializeWhenReadyRetryCount < this.CONSTANTS.MAX_INITIALIZE_WHEN_READY_RETRIES) {
+                    this.initializeWhenReadyRetryCount++;
+                    setTimeout(this.initializeWhenReady.bind(this), this.CONSTANTS.INITIALIZE_RETRY_INTERVAL_MS);
+                    return;
                 }
-                throw new Error('_getUIElements not available during initialization')
+                throw new Error('_getUIElements not available during initialization');
             }
             if (typeof this.showEl !== 'function' || typeof this.hideEl !== 'function') {
                 throw new Error('showEl/hideEl not defined during initialization')
