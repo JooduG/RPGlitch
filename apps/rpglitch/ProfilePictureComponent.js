@@ -1,4 +1,5 @@
 // ProfilePictureComponent.js
+/* global module */
 
 /**
  * Returns HTML for a profile picture, using a real picture if available, otherwise a placeholder SVG.
@@ -235,4 +236,10 @@ function getPaletteKey(palette) {
 }
 
 // Export for global access
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { getProfilePictureHTML };
+} else {
+  window.getProfilePictureHTML = getProfilePictureHTML;
+}
 
