@@ -256,7 +256,7 @@ async function minifyJS(js) {
         return js;
     }
     try {
-        const result = await terser.minify(js);
+        const result = await terser.minify(js, { mangle: { properties: false } });
         buildMetrics.processingTimes.terser = Date.now() - startTime;
         console.log(`✅ JavaScript minified (${buildMetrics.processingTimes.terser}ms)`);
         return result.code;

@@ -170,3 +170,8 @@ All objectives have been achieved:
 
 - Fixed hideEl unit test to use its own JSDOM context and returned App object, ensuring reliability.
 - Documented Jest executable permission check to prevent test failures on new setups.
+### 2025-08-02
+- Fixed "is not a function" runtime errors by binding App context for show/hide
+  methods and using `App.getPremadeCharacterItems`.
+- Added initialization guard for `_getUIElements` and disabled Terser property
+  mangling to keep method names intact.
