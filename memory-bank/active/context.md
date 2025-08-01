@@ -203,3 +203,4 @@
 - Declared `const App = window.App` so object assignments populate the same instance; added afterEach cleanup in Jest tests.
 - Moved `showEl` helper into `utils/hideEl.js` alongside `hideEl` for clarity.
 - Updated lint scripts with double-quoted globs for cross-platform support.
+- Added retry logic in `initializeWhenReady` to wait for `_getUIElements` before attaching listeners.
