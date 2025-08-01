@@ -4,7 +4,7 @@ const { JSDOM } = require('jsdom');
 
 // Test the actual _attachTopBarEventListeners method
 
-test('top bar click triggers chin toggle without context errors', () => {
+test('top bar click triggers chin toggle without duplicate handlers', () => {
   const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.html'), 'utf8');
   const dom = new JSDOM(html, { runScripts: 'outside-only' });
   global.window = dom.window;
@@ -20,11 +20,12 @@ test('top bar click triggers chin toggle without context errors', () => {
   
   // Test the actual method
   dom.window.App._attachTopBarEventListeners();
+  dom.window.App._attachTopBarEventListeners();
   
   const btn = dom.window.document.querySelector('#top-bar-left button[data-chin="stories"]');
   if (btn) {
     btn.click();
-    expect(dom.window.App.selectTopBarTab).toHaveBeenCalled();
+    expect(dom.window.App.selectTopBarTab).toHaveBeenCalledTimes(1);
   }
 });
 

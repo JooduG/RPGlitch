@@ -45,6 +45,8 @@ function initializeApp() {
     }
 }
 
+let listenersAttached = false
+
 // Ensure global App object exists before initialization
 window.App = (typeof window.App === 'object' && window.App !== null) ? window.App : {};
 
@@ -495,10 +497,14 @@ Object.assign(window.App, {
 
   
     /**
-     * Hides a DOM element by adding the 'hidden' class.
-     * Provided by `utils/hideEl.js`.
+    * Hides a DOM element by adding the 'hidden' class.
+    * Provided by `utils/hideEl.js`.
      */
     hideEl: window.hideEl,
+
+    
+
+
     
     /**
      * Sanitizes HTML to prevent XSS.
@@ -3308,6 +3314,9 @@ Object.assign(window.App, {
        * Attaches event listeners to top bar buttons.
        */
       _attachTopBarEventListeners() {
+          if (listenersAttached) return
+          listenersAttached = true
+
           const chinTabs = document.querySelectorAll('#top-bar-left button[data-chin]')
           chinTabs.forEach(btn => {
               btn.addEventListener('click', App.selectTopBarTab.bind(App, btn.dataset.chin))
@@ -3645,6 +3654,8 @@ Object.assign(window.App, {
                   tab.setAttribute('aria-selected', 'false')
                   tab.setAttribute('aria-expanded', 'false')
               })
+              const activeBtn = document.querySelector(`#top-bar-left button[data-chin="${chinName}"]`)
+              if (activeBtn) activeBtn.setAttribute('aria-expanded', 'false')
               return
           }
 
@@ -3937,6 +3948,9 @@ Object.assign(window.App, {
             if (typeof this._getUIElements !== 'function') {
                 throw new Error('_getUIElements not available during initialization')
             }
+            if (typeof this.showEl !== 'function' || typeof this.hideEl !== 'function') {
+                throw new Error('showEl/hideEl not defined during initialization')
+            }
             this._getUIElements()
             this._attachTopBarEventListeners()
             this._attachStoryboardEventListeners()
@@ -3954,9 +3968,6 @@ Object.assign(window.App, {
 
   // Initialize the app when the DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
-      if (window.App && typeof App._attachTopBarEventListeners === 'function') {
-          App._attachTopBarEventListeners()
-      }
       waitForDependencies()
   })
   
