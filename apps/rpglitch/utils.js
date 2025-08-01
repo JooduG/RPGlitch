@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 function hideEl(el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
@@ -20,11 +21,9 @@ function showEl(el) {
   return el;
 }
 
-/* eslint-disable no-undef */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { hideEl, showEl };
 } else {
   window.hideEl = hideEl;
   window.showEl = showEl;
 }
-/* eslint-enable no-undef */

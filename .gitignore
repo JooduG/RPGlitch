@@ -1,4 +1,4 @@
 **/*node_modules/** 
 **/*archive/**
-**/*output/**
+**/*build/output/**
 **/*local_libs/**

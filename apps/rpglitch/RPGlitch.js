@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 // Dependency availability checks with retry mechanism
 function checkDependencies() {
     window.isDexieLoaded = typeof window.Dexie !== 'undefined'
@@ -49,8 +48,7 @@ function initializeApp() {
 // Ensure global App object exists before initialization
 window.App =
   typeof window.App === 'object' && window.App !== null ? window.App : {};
-// eslint-disable-next-line no-redeclare
-const App = window.App;
+  const App = window.App;
 
 Object.assign(App, {
     // Debug: App object defined
@@ -3950,8 +3948,10 @@ Object.assign(App, {
           try {
             if (typeof this._getUIElements !== 'function') {
                 if (this.initializeWhenReadyRetryCount < this.maxInitializeWhenReadyRetries) {
-                    this.initializeWhenReadyRetryCount++
-                    setTimeout(this.initializeWhenReady.bind(this), 50)
+                    this.initializeWhenReadyRetryCount++;
+                    const retryDelayMs = 50;
+                    console.warn(`UI not ready, retrying initialization... Attempt ${this.initializeWhenReadyRetryCount}/${this.maxInitializeWhenReadyRetries}`);
+                    setTimeout(this.initializeWhenReady.bind(this), retryDelayMs);
                     return
                 }
                 throw new Error('_getUIElements not available during initialization')
