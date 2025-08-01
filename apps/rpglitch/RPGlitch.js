@@ -47,9 +47,12 @@ function initializeApp() {
 
 
 // Ensure global App object exists before initialization
-window.App = (typeof window.App === 'object' && window.App !== null) ? window.App : {};
+window.App =
+  typeof window.App === 'object' && window.App !== null ? window.App : {};
+// eslint-disable-next-line no-redeclare
+const App = window.App;
 
-Object.assign(window.App, {
+Object.assign(App, {
     // Debug: App object defined
     // console.log('App object defined:', window.App);
 
@@ -3961,6 +3964,16 @@ Object.assign(window.App, {
 
   if (!window.App.hideEl && typeof window.hideEl === 'function') {
       window.App.hideEl = window.hideEl;
+  }
+  if (!window.App.showEl) {
+      window.App.showEl = function (el) {
+        if (typeof el === 'string') el = document.getElementById(el);
+        if (!el) return null;
+        el.classList.remove('hidden');
+        el.style.visibility = '';
+        el.style.display = '';
+        return el;
+      };
   }
 
   // Initialize the app when the DOM is ready

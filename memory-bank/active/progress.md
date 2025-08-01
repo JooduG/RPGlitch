@@ -192,3 +192,5 @@ All objectives have been achieved:
 ### 2025-08-05
 - Loaded `hideEl.js` before `RPGlitch.js` to ensure `window.hideEl` is defined during initialization.
 - Removed fallback `App.showEl` implementation from chin toggle test.
+- Declared `const App = window.App` and used `Object.assign(App, {...})` to populate the same object.
+- Added `afterEach` hooks in tests to clear global DOM references.

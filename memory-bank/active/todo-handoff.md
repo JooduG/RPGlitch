@@ -123,3 +123,4 @@
 ### 2025-08-05
 - Inserted `utils/hideEl.js` before `RPGlitch.js` in HTML for reliable initialization.
 - Removed test fallback for `App.showEl`; tests now rely on code from `RPGlitch.js`.
+- Defined `const App = window.App` in script and added global cleanup in tests.

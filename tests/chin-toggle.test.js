@@ -2,6 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 
+afterEach(() => {
+  delete global.window;
+  delete global.document;
+  delete global.App;
+});
+
 test('early chin toggle reveals chin container and selected chin', () => {
   const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.html'), 'utf8');
   const dom = new JSDOM(html, { runScripts: 'outside-only' });

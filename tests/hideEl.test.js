@@ -2,6 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 
+afterEach(() => {
+  delete global.window;
+  delete global.document;
+  delete global.App;
+});
+
 function loadApp() {
   const dom = new JSDOM('<!doctype html><html><body></body></html>', {
     runScripts: 'outside-only'
