@@ -194,3 +194,7 @@ All objectives have been achieved:
 - Removed fallback `App.showEl` implementation from chin toggle test.
 - Declared `const App = window.App` and used `Object.assign(App, {...})` to populate the same object.
 - Added `afterEach` hooks in tests to clear global DOM references.
+### 2025-08-06
+- Moved `showEl` utility into `utils/hideEl.js` for better organization.
+- Updated lint scripts with double-quoted globs for Windows compatibility.
+- Documented `npm run lint` vs `npm run lint:fix` in README.

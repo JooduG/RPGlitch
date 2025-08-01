@@ -218,6 +218,7 @@ Full documentation lives in the [docs/](docs/) directory. Key guides:
 ### **Quality Assurance**
 
 - **Comprehensive Linting**: ESLint, Stylelint, HTMLHint, MarkdownLint
+- **Lint Commands**: Run `npm run lint` to check and `npm run lint:fix` to automatically fix issues
 - **Automated Testing**: Browser automation and diagnostic tools
 - **Jest Environment**: `jest-environment-jsdom@^29.7.0` pinned due to incompatibilities with some DOM libraries. Upgrading to v30+ is planned once those dependencies are updated.
 - **Jest Permissions**: Ensure `node_modules/.bin/jest` is executable (`chmod +x node_modules/.bin/jest`) before running tests, especially on fresh installs.
