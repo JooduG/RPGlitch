@@ -52,7 +52,8 @@ window.App =
   const App = window.App;
 
 // Default IndexedDB name if none provided
-window.dbName = window.dbName || 'rpglitch-db';
+const DEFAULT_DB_NAME = 'rpglitch-db';
+window.dbName = window.dbName || DEFAULT_DB_NAME;
 
 Object.assign(App, {
     // Debug: App object defined
