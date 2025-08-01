@@ -198,3 +198,7 @@ All objectives have been achieved:
 - Moved `showEl` utility into `utils/hideEl.js` for better organization.
 - Updated lint scripts with double-quoted globs for Windows compatibility.
 - Documented `npm run lint` vs `npm run lint:fix` in README.
+### 2025-08-07
+- Added retry mechanism in `initializeWhenReady` to ensure UI elements exist before attaching top bar listeners.
+### 2025-08-08
+- Increased `maxInitializeWhenReadyRetries` to 40 to handle slower UI element availability in Perchance tests.
