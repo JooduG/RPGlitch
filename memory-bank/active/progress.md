@@ -202,3 +202,6 @@ All objectives have been achieved:
 - Added retry mechanism in `initializeWhenReady` to ensure UI elements exist before attaching top bar listeners.
 ### 2025-08-08
 - Increased `maxInitializeWhenReadyRetries` to 40 to handle slower UI element availability in Perchance tests.
+### 2025-08-09
+- Implemented exponential backoff and clearer retry warnings in `initializeWhenReady`.
+- Added BusyBox installation script for hexdump debugging.
