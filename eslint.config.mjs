@@ -32,7 +32,7 @@ export default [
       "no-duplicate-case": "error",
       "no-empty-function": "warn",
     }
-  },  
+  },
   // JavaScript files override (apps directory) - THIS IS THE CRITICAL FIX
   {
     files: ["apps/**/*.js"],
@@ -58,6 +58,21 @@ export default [
       "no-undef": "error", // *** CRITICAL FIX: ENSURE THIS IS 'error' HERE ***
       "no-console": "off", // Allow console logs in app code (as per your previous setup)
       "no-redeclare": "error" // Changed to 'error' to enforce no redeclaration
+    }
+  },
+  // Node environment for build and tool scripts
+  {
+    files: ["build/**/*.js", "tools/**/*.js"],
+    languageOptions: {
+      globals: {
+        ...globals.node
+      },
+      ecmaVersion: 2021,
+      sourceType: "script"
+    },
+    rules: {
+      "no-unused-vars": "warn",
+      "no-undef": "error"
     }
   },
 ];

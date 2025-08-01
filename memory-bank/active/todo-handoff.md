@@ -115,4 +115,8 @@
   safeguarding initialization.
 ### 2025-08-03
 - Added listener guard and chin accessibility improvements.
+### 2025-08-04
+- Moved listener state into App object and removed unused top bar notification area.
+- Strengthened chin toggle test to assert DOM visibility changes.
+- Added Node environment ESLint override for build and tool scripts.
 

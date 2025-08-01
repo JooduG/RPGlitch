@@ -45,7 +45,6 @@ function initializeApp() {
     }
 }
 
-let listenersAttached = false
 
 // Ensure global App object exists before initialization
 window.App = (typeof window.App === 'object' && window.App !== null) ? window.App : {};
@@ -73,6 +72,7 @@ Object.assign(window.App, {
     activeAiButtons: new Map(), // Stores active AbortControllers for AI actions
     statusNotifierIntervalId: null,
     topNotificationTimeoutId: null,
+    listenersAttached: false,
     storyboardSelected: { ai: '', user: '', world: '' },
     // Focus Bar State
     focusBarState: {
@@ -246,9 +246,6 @@ Object.assign(window.App, {
           if (!this.ui.topBar) return // Exit if topBar is not found globally
 
           this.ui.topBarLeft = this._query('top-bar-left', false, this.ui.topBar)
-          if (this.ui.topBarLeft) {
-            this.ui.topBarNotificationArea = this._query('top-bar-notification-area', false, this.ui.topBarLeft)
-          }
 
           this.ui.topBarRightStoryboard = this._query('top-bar-right-storyboard', false, this.ui.topBar)
           this.ui.topBarRightForm = this._query('top-bar-right-form', false, this.ui.topBar)
@@ -3314,8 +3311,8 @@ Object.assign(window.App, {
        * Attaches event listeners to top bar buttons.
        */
       _attachTopBarEventListeners() {
-          if (listenersAttached) return
-          listenersAttached = true
+          if (this.listenersAttached) return
+          this.listenersAttached = true
 
           const chinTabs = document.querySelectorAll('#top-bar-left button[data-chin]')
           chinTabs.forEach(btn => {
