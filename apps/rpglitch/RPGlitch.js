@@ -1185,7 +1185,7 @@ Object.assign(window.App, {
           })
       },
       
-            async renderFormScreen(options = {}) {
+    async renderFormScreen(options = {}) {
           // renderFormScreen called with options
           const { itemType, isCreating, isCopying } = options
       
@@ -2216,65 +2216,8 @@ Object.assign(window.App, {
           actionButtonsHtml += `</div>`
           return actionButtonsHtml
       },
-    
-      async _attachStoryProfileEventHandlers(story, storyId) {
-          // Back button handler
-          this.ui.storyProfileActions.querySelector('#storyProfileBackButton').onclick = () => {
-              if (this.activeStoryId) {
-                  this.openStory(this.activeStoryId)
-              } else {
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
-              }
-          }
-    
-          // Delete story handler
-          this.ui.storyProfileActions.querySelector('#deleteStoryButton').onclick = async () => {
-              if (confirm(`Delete story "${story.name || 'this story'}"? This cannot be undone.`)) { 
-                  await this.db.messages.where({ storyId: story.id }).delete() // Use item.id for messages
-                  await this.db.stories.delete(story.id) // Delete item itself
-                  App.showTopNotification('Story deleted.', 'success')
-                  if (this.currentStoryId === story.id) this.currentStoryId = null
-                  if (this.activeStoryId === story.id) {
-                      await this.db.appState.update(0, { activeStoryId: null })
-                      this.activeStoryId = null // Clear active story if the current one is concluded
-                  }
-                  this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
-              }
-          }
-    
-          // Conclude and resume story handlers (only for active stories)
-          if (!story.concluded) {
-              const concludeButtonProfile = this.ui.storyProfileActions.querySelector('#concludeStoryButtonStoryProfile')
-              if (concludeButtonProfile) concludeButtonProfile.onclick = () => this.concludeStory(storyId)
-              
-              const openChatButtonProfile = this.ui.storyProfileActions.querySelector('#openStoryChatButtonStoryProfile')
-              if(openChatButtonProfile) {
-                  openChatButtonProfile.onclick = () => this.openStory(storyId)
-                  
-                  if (this.activeStoryId && this.activeStoryId !== story.id) {
-                      const otherActiveStory = await this.db.stories.get(this.activeStoryId)
-                      if (otherActiveStory && !otherActiveStory.concluded) {
-                          openChatButtonProfile.disabled = true
-                          openChatButtonProfile.setAttribute('data-tooltip', 'Another story is currently active. Conclude it first.')
-                      }
-                  }
-              }
-          }
-    
-          // item card click handlers
-          this.ui.storyProfilechatFeed.querySelectorAll('.story-profile-item-card').forEach(card => {
-              card.onclick = () => {
-                  const itemId = card.dataset.itemId
-                  const itemType = card.dataset.itemType
-                  const itemConfig = this.CONSTANTS.ITEM_CONFIG[itemType]
-                  if (itemId && itemConfig) {
-                      this.switchToScreen(itemConfig.profileScreen, {itemId, itemType})
-                  }
-              }
-          })
-      },
       
-            async renderFormScreen(options = {}) {
+    async renderFormScreen(options = {}) {
           // renderFormScreen called with options
           const { itemType, isCreating, isCopying } = options
       
