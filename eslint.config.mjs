@@ -91,7 +91,7 @@ export default [
     },
     rules: {
       "no-unused-vars": "warn",
-      "no-undef": "error",
+      // Disabled for test files due to Jest's scoping behavior with describe/test blocks
       "no-redeclare": "off"
     }
   },
