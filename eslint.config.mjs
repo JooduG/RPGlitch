@@ -7,9 +7,10 @@ export default [
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
     ignores: [
       "**/*node_modules/**",
-      "**/*archive/**",
+      "**/*archive/**", 
       "**/*output/**",
-      "**/*local_libs/**",
+      "**/*local_libs/**", // This should cover the minified files
+      "**/*.min.js", // Additional safety net,
       "tools/diagnostics/**",
       "tools/browser-tools/**",
       "tools/test-globs/**"
@@ -38,7 +39,7 @@ export default [
   },
   // JavaScript files override (apps directory) - THIS IS THE CRITICAL FIX
   {
-    files: ["apps/**/*.js"],
+    files: ["**/*apps/**/*.js"],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -63,6 +64,17 @@ export default [
       "no-redeclare": "error" // Changed to 'error' to enforce no redeclaration
     }
   },
+  
+  {
+    files: ["tools/browser-tools/**/*.js"],
+    languageOptions: {
+      globals: {
+        ...globals.webExtensions,
+        chrome: "readonly"
+      }
+    }
+  },
+
   // Node environment for build and tool scripts
   {
     files: ["build/**/*.js", "tools/**/*.js"],

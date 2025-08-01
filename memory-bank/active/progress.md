@@ -194,4 +194,3 @@ All objectives have been achieved:
 - Removed fallback `App.showEl` implementation from chin toggle test.
 - Declared `const App = window.App` and used `Object.assign(App, {...})` to populate the same object.
 - Added `afterEach` hooks in tests to clear global DOM references.
-
