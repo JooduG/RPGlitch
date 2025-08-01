@@ -48,7 +48,7 @@ tools/
   busybox hexdump -C path/to/file | head
   ```
 
-  If building a Docker image, ensure the script runs in the Dockerfile so BusyBox is available at runtime.
+If building a Docker image, ensure the script runs in the Dockerfile so BusyBox is available at runtime.
 
 ## Usage
 
