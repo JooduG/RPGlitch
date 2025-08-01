@@ -184,4 +184,8 @@ All objectives have been achieved:
 - Prevented duplicate top bar event listeners using a module flag.
 - Ensured `hideEl` fallback loads before event handlers and validated show/hide utilities during initialization.
 - Added `aria-controls` attributes and keyboard interaction docs for chin buttons.
+### 2025-08-04
+- Converted listener guard to App property and removed unused notification area.
+- Restored chin toggle test to check DOM class changes.
+- Updated ESLint config with Node overrides for build and tool scripts.
 
