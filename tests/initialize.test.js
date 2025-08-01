@@ -12,10 +12,14 @@ function loadApp(dom) {
   global.window = dom.window;
   global.document = dom.window.document;
   dom.window.App = {};
+  dom.window.document.addEventListener = jest.fn();
+  dom.window.alert = () => {};
   global.Dexie = function () {};
   global.DOMPurify = {};
   global._hyperscript = {};
   global.$ = function () {};
+  const utilsScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/utils.js'), 'utf8');
+  dom.window.eval(utilsScript);
   const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.js'), 'utf8');
   dom.window.eval(script);
   if (typeof dom.window.App._getUIElements !== 'function') {
@@ -37,4 +41,15 @@ test('_getUIElements is defined before initialization', () => {
   const dom = new JSDOM('<!doctype html><html><body></body></html>', { runScripts: 'outside-only' });
   const App = loadApp(dom);
   expect(typeof App._getUIElements).toBe('function');
+});
+
+test('initializeWhenReady resets retry counter on success', async () => {
+  const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.html'), 'utf8');
+  const dom = new JSDOM(html, { runScripts: 'outside-only' });
+  const App = loadApp(dom);
+  App.initializeWhenReadyRetryCount = 2;
+  App.initialLoad = jest.fn().mockResolvedValue();
+  App._attachStoryboardEventListeners = jest.fn();
+  await App.initializeWhenReady();
+  expect(App.initializeWhenReadyRetryCount).toBe(0);
 });

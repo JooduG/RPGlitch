@@ -35,3 +35,9 @@ This app follows the Perchance architecture principles:
 - Single-file output for deployment
 - Modular organization during development
 - Plugin system support via global App object
+
+### Database
+
+Data is stored in an IndexedDB database via Dexie.js. If `window.dbName` is not
+defined, the app sets it to the default `rpglitch-db` before opening the
+database.

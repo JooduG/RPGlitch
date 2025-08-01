@@ -42,6 +42,13 @@ tools/
 ### Debugging Helpers
 
 - `install-busybox.sh` installs BusyBox which provides the `hexdump` tool for binary inspection. Run from `tools/setup` to install.
+  After installation, you can invoke hexdump via BusyBox, e.g.:
+
+  ```bash
+  busybox hexdump -C path/to/file | head
+  ```
+
+  If building a Docker image, ensure the script runs in the Dockerfile so BusyBox is available at runtime.
 
 ## Usage
 
