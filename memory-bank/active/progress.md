@@ -189,3 +189,6 @@ All objectives have been achieved:
 - Restored chin toggle test to check DOM class changes.
 - Updated ESLint config with Node overrides for build and tool scripts.
 
+### 2025-08-05
+- Loaded `hideEl.js` before `RPGlitch.js` to ensure `window.hideEl` is defined during initialization.
+- Removed fallback `App.showEl` implementation from chin toggle test.

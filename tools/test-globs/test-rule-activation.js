@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Test JavaScript file to check rule activation
 // This file should trigger rules with globs: ["**/*.js", "**/*.ts", "**/*.jsx", "**/*.tsx"]
 

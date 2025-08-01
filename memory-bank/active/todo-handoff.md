@@ -120,3 +120,6 @@
 - Strengthened chin toggle test to assert DOM visibility changes.
 - Added Node environment ESLint override for build and tool scripts.
 
+### 2025-08-05
+- Inserted `utils/hideEl.js` before `RPGlitch.js` in HTML for reliable initialization.
+- Removed test fallback for `App.showEl`; tests now rely on code from `RPGlitch.js`.
