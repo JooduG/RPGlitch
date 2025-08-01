@@ -76,6 +76,9 @@ Object.assign(App, {
     listenersAttached: false,
     initializeWhenReadyRetryCount: 0,
     maxInitializeWhenReadyRetries: 40,
+    initializeWhenReadyBaseDelay: 50,
+    initializeWhenReadyBackoffFactor: 2,
+    initializeWhenReadyMaxDelay: 1000,
 
     storyboardSelected: { ai: '', user: '', world: '' },
     // Focus Bar State
@@ -3948,13 +3951,19 @@ Object.assign(App, {
           try {
             if (typeof this._getUIElements !== 'function') {
                 if (this.initializeWhenReadyRetryCount < this.maxInitializeWhenReadyRetries) {
-                    this.initializeWhenReadyRetryCount++;
-                    const retryDelayMs = 50;
-                    console.warn(`UI not ready, retrying initialization... Attempt ${this.initializeWhenReadyRetryCount}/${this.maxInitializeWhenReadyRetries}`);
-                    setTimeout(this.initializeWhenReady.bind(this), retryDelayMs);
+                    this.initializeWhenReadyRetryCount++
+                    const delay = Math.min(
+                        this.initializeWhenReadyBaseDelay *
+                        Math.pow(this.initializeWhenReadyBackoffFactor, this.initializeWhenReadyRetryCount - 1),
+                        this.initializeWhenReadyMaxDelay
+                    )
+                    console.warn(
+                        `initializeWhenReady retry ${this.initializeWhenReadyRetryCount}/${this.maxInitializeWhenReadyRetries}`
+                    )
+                    setTimeout(this.initializeWhenReady.bind(this), delay)
                     return
                 }
-                throw new Error('_getUIElements not available during initialization')
+                throw new Error(`initializeWhenReady failed: missing _getUIElements after ${this.initializeWhenReadyRetryCount} retries`)
             }
             if (typeof this.showEl !== 'function' || typeof this.hideEl !== 'function') {
                 throw new Error('showEl/hideEl not defined during initialization')
@@ -3981,4 +3990,3 @@ Object.assign(App, {
   document.addEventListener('DOMContentLoaded', () => {
       waitForDependencies()
   })
-  

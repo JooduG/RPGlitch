@@ -132,3 +132,6 @@
 - Implemented retry in `initializeWhenReady` so `_getUIElements` loads before attaching event listeners.
 ### 2025-08-08
 - Increased retry limit for `initializeWhenReady` to 40 after failing in Perchance environment.
+### 2025-08-09
+- Add exponential backoff to initialization retries and document BusyBox setup script.
+

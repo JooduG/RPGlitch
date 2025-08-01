@@ -205,3 +205,4 @@
 - Updated lint scripts with double-quoted globs for cross-platform support.
 - Added retry logic in `initializeWhenReady` to wait for `_getUIElements` before attaching listeners.
 - Increased `maxInitializeWhenReadyRetries` to 40 after encountering initialization delays in Perchance.
+- Exponential backoff added to initialization retries and BusyBox script documented for hexdump debugging.
