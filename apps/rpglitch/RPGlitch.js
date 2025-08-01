@@ -508,18 +508,12 @@ Object.assign(App, {
             elements.forEach(el => this.enableMouseoverAnimation(el))
         },
 
-
-  
         /**
         * Hides a DOM element by adding the 'hidden' class.
         * Provided by `utils.js`.
          */
         hideEl: window.hideEl,
 
-    
-
-
-    
         /**
          * Sanitizes HTML to prevent XSS.
          * @param {string} text - The text to sanitize.
@@ -1379,33 +1373,33 @@ Object.assign(App, {
             // Removed event handlers for Back and Copy & Customize buttons - now handled in top bar
         },
     
-        _renderEppfField(label, subLabel, idSuffix, value, placeholder, isEditing, san) {
-            const id = `${idSuffix}`
-          
-            if (isEditing) {
-                return `
-                  <div class="profile-field-row profile-field-${idSuffix.toLowerCase()}">
-                      <div class="profile-field-label">
-                          <span class="main-label">${label}</span>
-                          <span class="field-sublabel">${subLabel}</span>
-                      </div>
-                      <div class="profile-field-value">
-                      <textarea id="${id}" placeholder="${san(placeholder)}" resize="auto">${san(value || '')}</textarea>
-                      </div>
-                  </div>
-              `
-            } else {
-                return `
-                  <div class="profile-field-row profile-field-${idSuffix.toLowerCase()}">
-                      <div class="profile-field-label">
-                          <span class="main-label">${label}</span>
-                          <span class="field-sublabel">${subLabel}</span>
-                      </div>
-                      <div class="profile-field-value">${san(value || '—')}</div>
-                  </div>
-              `
-            }
-        },
+    _renderEppfField(label, subLabel, idSuffix, value, placeholder, isEditing) {
+        const id = `${idSuffix}`
+    
+        if (isEditing) {
+            return `
+                <div class="profile-field-row profile-field-${idSuffix.toLowerCase()}">
+                    <div class="profile-field-label">
+                        <span class="main-label">${label}</span>
+                        <span class="field-sublabel">${subLabel}</span>
+                    </div>
+                    <div class="profile-field-value">
+                    <textarea id="${id}" placeholder="${this.sanitizeHtml(placeholder)}" resize="auto">${this.sanitizeHtml(value || '')}</textarea>
+                    </div>
+                </div>
+            `
+        } else {
+            return `
+                <div class="profile-field-row profile-field-${idSuffix.toLowerCase()}">
+                    <div class="profile-field-label">
+                        <span class="main-label">${label}</span>
+                        <span class="field-sublabel">${subLabel}</span>
+                    </div>
+                    <div class="profile-field-value">${this.sanitizeHtml(value || '—')}</div>
+                </div>
+            `
+        }
+    },
     
         _renderStudioLayout(item, config, isEditing) {
             const san = this.sanitizeHtml.bind(this)
@@ -1458,7 +1452,7 @@ Object.assign(App, {
                                       ${this._renderEppfField("Future", "Goals & Prophecies", `${itemType}Future`, item.future, labels.futurePlaceholder, isEditing, san)}
                                   </div>
                                   <div class="form-section profile-picture-edit-section">
-                                      <button type="button" class="secondary" id="uploadProfilePictureButtonForm-${itemType}"><span class="button-text">Upload / Generate Profile Picture</span></button>
+                                      <button type="button" class="secondary" id="uploadProfilePictureButtonForm-${itemType}"><span class="button-text">Set Profile Picture</span></button>
                                   </div>
                               </form>
                           ` : `
@@ -1762,13 +1756,14 @@ Object.assign(App, {
     
         _attachFormSubmitHandler(elements, _itemType) {
             const { config, form } = elements
-            form.onsubmit = async (e) => {
-                e.preventDefault()
-                this.checkAllButtonStates() // Re-check states on submit attempt 
-                const submitButton = form.querySelector(`#submit${config.capital}ButtonMain`)
-                if (submitButton && submitButton.disabled) {
-                    return
-                }
+        form.onsubmit = async (e) => {
+            e.preventDefault()
+            this.checkAllButtonStates() // Re-check states on submit attempt
+            const submitButton = form.querySelector(`#submit${config.capital}ButtonMain`)
+            if (submitButton && submitButton.disabled) {
+                console.warn("Form submission blocked by disabled button.")
+                return
+            }
                       
             }
         }
@@ -3260,10 +3255,11 @@ Object.assign(App, {
         }
 
         // Ensure the selected option is visually updated
-        if (selectedId) {
-              selectElement.value = selectedId
-        } else if (currentValue && selectElement.querySelector(`option[value="${currentValue}"]`)) {
-            selectElement.value = currentValue
+        if (selectElement.value) {
+            const selectedOption = selectElement.querySelector(`option[value="${selectElement.value}"]`)
+            if (selectedOption) {
+                selectedOption.selected = true
+            }
         }
 
         if (selectElement.value) {
@@ -3657,9 +3653,10 @@ Object.assign(App, {
                 tab.setAttribute('aria-selected', 'false')
                 tab.setAttribute('aria-expanded', 'false')
             })
-            const activeBtn = document.querySelector(`#top-bar-left button[data-chin="${chinName}"]`)
-            if (activeBtn) activeBtn.setAttribute('aria-expanded', 'false')
-            return
+    const activeBtn = document.querySelector(`#top-bar-left button[data-chin="${chinName}"]`)
+    if (activeBtn) activeBtn.setAttribute('aria-expanded', 'false')
+    // Close chin and return early
+    return
         }
 
           // Hide all chins before showing the requested one
@@ -4012,76 +4009,104 @@ Object.assign(App, {
 
     // NOW initializeWhenReady can safely use them
     App.initializeWhenReady = async function () {
-        this._getUIElements();
+        try {
+            this._getUIElements();
 
-        // Chin setup
-        const chinButtons = document.querySelectorAll('#top-bar-left [data-chin]');
-        chinButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const targetChin = btn.dataset.chin;
-                this._toggleChin(targetChin);
-            });
-        });
-
-        this._populateChin('stories');
-        this._populateChin('characters');
-        this._populateChin('worlds');
-
-        // OPTIONS Chin Wiring
-        if (this.ui.downloadBackupButton) {
-            this.ui.downloadBackupButton.addEventListener('click', () => {
-                App.DatabaseManager.exportAllData();
-            });
-        }
-
-        if (this.ui.uploadBackupTrigger && this.ui.uploadBackupInput) {
-            this.ui.uploadBackupTrigger.addEventListener('click', () => {
-                this.ui.uploadBackupInput.click();
+            // Chin setup
+            const chinButtons = document.querySelectorAll('#top-bar-left [data-chin]');
+            chinButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetChin = btn.dataset.chin;
+                    this._toggleChin(targetChin);
+                });
             });
 
-            this.ui.uploadBackupInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    App.DatabaseManager.importAllData(file);
-                }
-            });
-        }
-
-        if (this.ui.deleteAllDataButton) {
-            this.ui.deleteAllDataButton.addEventListener('click', () => {
-                if (confirm('Are you sure you want to delete ALL data?')) {
-                    App.DatabaseManager.deleteAllData();
-                }
-            })
-        };
+            this._populateChin('stories');
+            this._populateChin('characters');
+            this._populateChin('worlds')
         
-        // Auto-close chin if click outside
-        document.addEventListener('click', (e) => {
-            if (this.focusBarState.chinOpen) {
-                const chinContainer = this.ui.chinContainer;
-                if (chinContainer && !chinContainer.contains(e.target) &&
-                    !this.ui.topBarLeft.contains(e.target)) {
-                    this._toggleChin(this.focusBarState.currentChin);
-                }
+            // OPTIONS Chin Wiring
+            if (this.ui.downloadBackupButton) {
+                this.ui.downloadBackupButton.addEventListener('click', () => {
+                    App.DatabaseManager.exportAllData();
+                });
             }
-        });
-    },
+        
+
+            if (this.ui.uploadBackupTrigger && this.ui.uploadBackupInput) {
+                this.ui.uploadBackupTrigger.addEventListener('click', () => {
+                    this.ui.uploadBackupInput.click();
+                });
+
+                this.ui.uploadBackupInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        App.DatabaseManager.importAllData(file);
+                    }
+                });
+            }
+
+            if (this.ui.deleteAllDataButton) {
+                this.ui.deleteAllDataButton.addEventListener('click', () => {
+                    if (confirm('Are you sure you want to delete ALL data?')) {
+                        App.DatabaseManager.deleteAllData();
+                    }
+                });
+            }
+            
+            // Auto-close chin if click outside
+            document.addEventListener('click', (e) => {
+                if (this.focusBarState.chinOpen) {
+                    const chinContainer = this.ui.chinContainer;
+                    if (chinContainer && !chinContainer.contains(e.target) &&
+                        !this.ui.topBarLeft.contains(e.target)) {
+                        this._toggleChin(this.focusBarState.currentChin);
+                    }
+                }
+            });
+
+            this._attachTopBarEventListeners();
+            this._attachStoryboardEventListeners();
+            await this.initialLoad();
+            this.initializeWhenReadyRetryCount = 0;
+        } catch (error) {
+            this.handleError('INITIALIZE_WHEN_READY', error);
+
+            if (!window.App.hideEl && typeof window.hideEl === 'function') {
+                window.App.hideEl = window.hideEl;
+            }
+
+            // Initialize the app when the DOM is ready
+            document.addEventListener('DOMContentLoaded', () => {
+                waitForDependencies();
+            });
+        }
+    
+            if (!window.App.hideEl && typeof window.hideEl === 'function') {
+                window.App.hideEl = window.hideEl;
+            }
+
+            // Initialize the app when the DOM is ready
+            document.addEventListener('DOMContentLoaded', () => {
+                waitForDependencies();
+            });
+        
 
         try {
-    this._attachTopBarEventListeners();
-    this._attachStoryboardEventListeners();
-    await this.initialLoad();
-    this.initializeWhenReadyRetryCount = 0;
-} catch (error) {
-    this.handleError('INITIALIZE_WHEN_READY', error)
-        
+            this._attachTopBarEventListeners();
+            this._attachStoryboardEventListeners();
+            await this.initialLoad();
+            this.initializeWhenReadyRetryCount = 0;
+        } catch (error) {
+            this.handleError('INITIALIZE_WHEN_READY', error);
 
-    if (!window.App.hideEl && typeof window.hideEl === 'function') {
-        window.App.hideEl = window.hideEl;
-    }
+            if (!window.App.hideEl && typeof window.hideEl === 'function') {
+                window.App.hideEl = window.hideEl;
+            }
 
-    // Initialize the app when the DOM is ready
-    document.addEventListener('DOMContentLoaded', () => {
-        waitForDependencies()
-    })
-}
+            // Initialize the app when the DOM is ready
+            document.addEventListener('DOMContentLoaded', () => {
+                waitForDependencies();
+            })
+        };
+        })
