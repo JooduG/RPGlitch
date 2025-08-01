@@ -703,7 +703,7 @@ Object.assign(window.App, {
             this.activeStoryId = appStateAfterOpen.activeStoryId
         } catch (error) {
             console.error("Failed to open Dexie database:", error)
-            this.showTopNotification("Error initializing database. Trying to recover...", "error", 5000)
+            App.showTopNotification("Error initializing database. Trying to recover...", "error", 5000)
             
             // Attempt to recover by deleting and recreating the database
             try {
@@ -716,10 +716,10 @@ Object.assign(window.App, {
                     activeStoryId: null
                 }
                 await this.db.appState.put(appState)
-                this.showTopNotification("Database reset successfully. Please refresh.", "success", 5000)
+                App.showTopNotification("Database reset successfully. Please refresh.", "success", 5000)
             } catch (recoveryError) {
                 console.error("Recovery failed:", recoveryError)
-                this.showTopNotification("Critical database error. Please refresh.", "error", 10000)
+                App.showTopNotification("Critical database error. Please refresh.", "error", 10000)
             }
             throw error
         }
@@ -1002,7 +1002,7 @@ Object.assign(window.App, {
       async _validateAndSetupStoryProfile(storyId) {
           const container = this.ui.storyProfileScreen 
           if (!container || !storyId) {
-              this.showTopNotification("Error: Story ID missing for profile view.", "error")
+              App.showTopNotification("Error: Story ID missing for profile view.", "error")
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD)
               return null
           }
@@ -1143,7 +1143,7 @@ Object.assign(window.App, {
               if (confirm(`Delete story "${story.name || 'this story'}"? This cannot be undone.`)) { 
                   await this.db.messages.where({ storyId: story.id }).delete() // Use item.id for messages
                   await this.db.stories.delete(story.id) // Delete item itself
-                  this.showTopNotification('Story deleted.', 'success')
+                  App.showTopNotification('Story deleted.', 'success')
                   if (this.currentStoryId === story.id) this.currentStoryId = null
                   if (this.activeStoryId === story.id) {
                       await this.db.appState.update(0, { activeStoryId: null })
@@ -1307,7 +1307,7 @@ Object.assign(window.App, {
       
           const container = this.ui[config.profileScreen]
           if (!container || !itemId) {
-              this.showTopNotification(`Error: ${config.capital} ID missing for profile view.`, "error")
+              App.showTopNotification(`Error: ${config.capital} ID missing for profile view.`, "error")
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD) 
               return
           }
@@ -1845,8 +1845,8 @@ Object.assign(window.App, {
                       console.error("[App Lifecycle] Error parsing pending form state from sessionStorage:", e)
                       sessionStorage.removeItem('pendingRPGlitchFormState')
                       // Show user-friendly notification and continue loading
-                      if (this && this.showTopNotification) {
-                          this.showTopNotification('Recovered from a corrupted session. Please retry your last action.', 'error', 5000)
+                      if (this && App.showTopNotification) {
+                          App.showTopNotification('Recovered from a corrupted session. Please retry your last action.', 'error', 5000)
                       } else {
                           alert('Recovered from a corrupted session. Please retry your last action.')
                       }
@@ -2232,7 +2232,7 @@ Object.assign(window.App, {
               if (confirm(`Delete story "${story.name || 'this story'}"? This cannot be undone.`)) { 
                   await this.db.messages.where({ storyId: story.id }).delete() // Use item.id for messages
                   await this.db.stories.delete(story.id) // Delete item itself
-                  this.showTopNotification('Story deleted.', 'success')
+                  App.showTopNotification('Story deleted.', 'success')
                   if (this.currentStoryId === story.id) this.currentStoryId = null
                   if (this.activeStoryId === story.id) {
                       await this.db.appState.update(0, { activeStoryId: null })
@@ -2396,7 +2396,7 @@ Object.assign(window.App, {
       
           const container = this.ui[config.profileScreen]
           if (!container || !itemId) {
-              this.showTopNotification(`Error: ${config.capital} ID missing for profile view.`, "error")
+              App.showTopNotification(`Error: ${config.capital} ID missing for profile view.`, "error")
               this.switchToScreen(this.CONSTANTS.VIEWS.STORYBOARD) 
               return
           }
@@ -2858,7 +2858,7 @@ Object.assign(window.App, {
                   await this._processFormSubmission(elements, itemType)
               } catch (error) {
                   console.error(`Error processing ${itemType} form submission:`, error)
-                  this.showTopNotification(`Error saving ${config.capital}: ${error.message || 'Unknown error'}`, 'error', 5000)
+                  App.showTopNotification(`Error saving ${config.capital}: ${error.message || 'Unknown error'}`, 'error', 5000)
                   // Ensure session storage is cleared if submission ultimately fails
                   sessionStorage.removeItem('pendingRPGlitchFormState')
               }
@@ -2888,11 +2888,11 @@ Object.assign(window.App, {
           let result
           if (id && !isCreating) { // Only update if ID exists and we are editing (not creating from copy)
               result = await this.db[config.dbTableKey].update(id, newItem)
-              this.showTopNotification(`${config.capital} updated.`, 'success')
+              App.showTopNotification(`${config.capital} updated.`, 'success')
               result = id // Update result to be the existing ID for navigation
           } else {
               result = await this.db[config.dbTableKey].add(newItem)
-              this.showTopNotification(`${config.capital} created!`, 'success')
+              App.showTopNotification(`${config.capital} created!`, 'success')
           }
           this._handleFormSubmissionSuccess(result, config, itemType)
       },
@@ -2989,7 +2989,7 @@ Object.assign(window.App, {
               profilePictureDisplay.innerHTML = `<img src="${generatedImageUrl}" alt="Generated profile picture" class="profile-picture-large">`
           } catch (error) {
               console.error('Error generating profile picture:', error)
-              this.showTopNotification('Failed to generate image.', 'error')
+              App.showTopNotification('Failed to generate image.', 'error')
               // Restore previous state or show placeholder
               const existingItem = await this._getitemData(this.currentCreateFormContext.itemId, config.dbTableKey, config.getPremadesFn, itemType)
               profilePictureDisplay.innerHTML = this._generateProfilePictureHtml(existingItem, 'profile')
@@ -3063,7 +3063,7 @@ Object.assign(window.App, {
                   field.dispatchEvent(new Event('input', { bubbles: true }))
               } catch (error) {
                   console.error(`AI helper failed for ${type}:`, error)
-                  this.showTopNotification(`AI helper failed: ${error.message}`, 'error')
+                  App.showTopNotification(`AI helper failed: ${error.message}`, 'error')
               } finally {
                   // Hide loading state
                   field.classList.remove('ai-loading')
@@ -3692,8 +3692,8 @@ Object.assign(window.App, {
 
           // If clicking the currently open chin, close it and deselect tabs
           if (chinName && chinName === this.focusBarState.currentChin) {
-              allChins.forEach(chin => this.hideEl(chin))
-              this.hideEl(chinContainer)
+              allChins.forEach(chin => App.hideEl(chin))
+              App.hideEl(chinContainer)
               this.focusBarState.currentChin = null
               this.focusBarState.chinOpen = false
 
@@ -3706,7 +3706,7 @@ Object.assign(window.App, {
           }
 
           // Hide all chins before showing the requested one
-          allChins.forEach(chin => this.hideEl(chin))
+          allChins.forEach(chin => App.hideEl(chin))
           const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
           tabs.forEach(tab => tab.setAttribute('aria-expanded', 'false'))
 
@@ -3715,14 +3715,14 @@ Object.assign(window.App, {
               : null
 
           if (selectedChin) {
-              this.showEl(chinContainer)
-              this.showEl(selectedChin)
+              App.showEl(chinContainer)
+              App.showEl(selectedChin)
               this.focusBarState.currentChin = chinName
               this.focusBarState.chinOpen = true
               const activeBtn = document.querySelector(`#top-bar-left button[data-chin="${chinName}"]`)
               if (activeBtn) activeBtn.setAttribute('aria-expanded', 'true')
           } else {
-              this.hideEl(chinContainer)
+              App.hideEl(chinContainer)
               this.focusBarState.currentChin = null
               this.focusBarState.chinOpen = false
           }
@@ -3735,8 +3735,8 @@ Object.assign(window.App, {
           const chinContainer = document.getElementById('chin-container')
           if (chinContainer) {
               const allChins = chinContainer.querySelectorAll('[data-chin]')
-              allChins.forEach(chin => this.hideEl(chin))
-              this.hideEl(chinContainer)
+              allChins.forEach(chin => App.hideEl(chin))
+              App.hideEl(chinContainer)
           }
           const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
           tabs.forEach(tab => {
@@ -3752,7 +3752,7 @@ Object.assign(window.App, {
        */
       async beginStory() {
           if (!this.storyboardSelected.ai || !this.storyboardSelected.user || !this.storyboardSelected.world) {
-              this.showTopNotification('Please select an AI character, a user character, and a world.', 'error')
+              App.showTopNotification('Please select an AI character, a user character, and a world.', 'error')
               return
           }
     
@@ -3780,7 +3780,7 @@ Object.assign(window.App, {
       async openStory(storyId) {
           const story = await this.db.stories.get(storyId)
           if (!story) {
-              this.showTopNotification('Story not found.', 'error')
+              App.showTopNotification('Story not found.', 'error')
               return
           }
     
@@ -3884,8 +3884,8 @@ Object.assign(window.App, {
        * Shuffles the storyboard selections.
        */
       async _shuffleStoryboard() {
-          const characters = await this.getPremadeCharacterItems()
-          const worlds = await this.getPremadeWorldItems()
+          const characters = await App.getPremadeCharacterItems()
+          const worlds = await App.getPremadeWorldItems()
     
           const randomChar1 = characters[Math.floor(Math.random() * characters.length)]
           let randomChar2 = characters[Math.floor(Math.random() * characters.length)]
@@ -3978,8 +3978,8 @@ Object.assign(window.App, {
        */
       handleError(code, error) {
           console.error(`[${code}]`, error)
-                   if (typeof this.showTopNotification === 'function') {
-              this.showTopNotification(`Error: ${code}. See console for details.`, 'error', 5000)
+                   if (typeof App.showTopNotification === 'function') {
+              App.showTopNotification(`Error: ${code}. See console for details.`, 'error', 5000)
           } else {
               console.warn('showTopNotification not available, falling back to alert.');
               alert(`Error: ${code}. See console for details.`);
@@ -3991,6 +3991,9 @@ Object.assign(window.App, {
        */
       async initializeWhenReady() {
           try {
+            if (typeof this._getUIElements !== 'function') {
+                throw new Error('_getUIElements not available during initialization')
+            }
             this._getUIElements()
             this._attachTopBarEventListeners()
             this._attachStoryboardEventListeners()

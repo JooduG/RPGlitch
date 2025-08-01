@@ -110,3 +110,6 @@
 ### 2025-08-01
 - Fixed hideEl unit test to use returned App instance instead of window object.
 - Documented Jest executable permission check for consistent test runs.
+### 2025-08-02
+- Resolved context-related errors by referencing App methods directly and
+  safeguarding initialization.
