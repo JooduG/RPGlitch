@@ -3194,19 +3194,17 @@ Object.assign(App, {
         this.checkAllButtonStates()
     },
     
-    /**
-     * Populates a dropdown select element with items of a given type.
-     * @param {HTMLSelectElement} selectEl - The select element to populate.
-     * @param {string} itemType - The type of item ('character' or 'world').
-     * @param {string|number} [selectedId] - The ID of the item to pre-select.
-     */
-    async _populateDropdown(selectElement, itemType, selectedId) {
-        console.log(`_populateDropdown: Function entered for itemType: ${itemType}, selectedId: ${selectedId}`)
+      /**
+       * Populates a dropdown select element with items of a given type.
+       * @param {HTMLSelectElement} selectEl - The select element to populate.
+       * @param {string} itemType - The type of item ('character' or 'world').
+       * @param {string|number} [selectedId] - The ID of the item to pre-select.
+       */
+      async _populateDropdown(selectElement, itemType, selectedId) {
         if (!selectElement) {
             console.warn(`_populateDropdown: selectElement is null or undefined for itemType: ${itemType}`)
             return
         }
-        console.log(`_populateDropdown: selectElement ID: ${selectElement.id}`)
 
         const config = this.CONSTANTS.ITEM_CONFIG[itemType]
         if (!config) {
@@ -3215,7 +3213,6 @@ Object.assign(App, {
         }
 
         const items = await (itemType === 'character' ? this.getPremadeCharacterItems() : this.getPremadeWorldItems())
-        console.log(`_populateDropdown: Fetched items for ${itemType}:`, items)
         
         // Store current value to restore if it's still valid
         const currentValue = selectElement.value
@@ -3256,76 +3253,61 @@ Object.assign(App, {
         }
     
         // Set the selected value
-        console.log(`_populateDropdown: Populating dropdown for ${itemType}. Selected ID: ${selectedId}, Current Value: ${currentValue}`)
         if (selectedId) {
             selectElement.value = selectedId
-            console.log(`_populateDropdown: Setting selectedId to ${selectedId}`)
         } else if (currentValue && selectElement.querySelector(`[value="${currentValue}"]`)) {
             selectElement.value = currentValue
-            console.log(`_populateDropdown: Restoring previous value ${currentValue}`)
         }
-
-        // Log all generated options for debugging
-        Array.from(selectElement.options).forEach(option => {
-            console.log(`_populateDropdown: Option - Text: ${option.text}, Value: ${option.value}, Selected: ${option.selected}`)
-        })
 
         // Ensure the selected option is visually updated
         if (selectedId) {
-            selectElement.value = selectedId
-            console.log(`_populateDropdown: Setting selectedId to ${selectedId}`)
+              selectElement.value = selectedId
         } else if (currentValue && selectElement.querySelector(`option[value="${currentValue}"]`)) {
             selectElement.value = currentValue
-            console.log(`_populateDropdown: Restoring previous value ${currentValue}`)
         }
 
-        // Ensure the selected option is visually updated
         if (selectElement.value) {
             const selectedOption = selectElement.querySelector(`option[value="${selectElement.value}"]`)
             if (selectedOption) {
                 selectedOption.selected = true
-                console.log(`_populateDropdown: Visually updated selected option to: ${selectElement.value}`)
             }
         }
     
         
     },
     
-    /**
-     * Attaches event listeners to the storyboard select elements.
-     */
-    _attachStoryboardEventListeners() {
-        console.log('_attachStoryboardEventListeners called.')
-        const selects = [
-            { el: this.ui.storyboardAiCharacterSelect, type: 'ai' },
-            { el: this.ui.storyboardUserCharacterSelect, type: 'user' },
-            { el: this.ui.storyboardWorldSelect, type: 'world' }
-        ]
+      /**
+       * Attaches event listeners to the storyboard select elements.
+       */
+      _attachStoryboardEventListeners() {
+          const selects = [
+              { el: this.ui.storyboardAiCharacterSelect, type: 'ai' },
+              { el: this.ui.storyboardUserCharacterSelect, type: 'user' },
+              { el: this.ui.storyboardWorldSelect, type: 'world' }
+          ]
     
-        selects.forEach(({ el, type }) => {
-            if (el) {
-                console.log(`Attaching onchange listener to ${el.id}`)
-                el.onchange = async (e) => {
-                    const selectedValue = e.target.value
-                    console.log(`onchange event for ${el.id} fired. Selected value: ${selectedValue}`)
-                    if (selectedValue.startsWith('create_new_')) {
-                        const itemType = selectedValue.replace('create_new_', '')
-                        this.switchToScreen(this.CONSTANTS.ITEM_CONFIG[itemType].formScreen, {
-                            itemType: itemType,
-                            isCreating: true,
-                            preSelectedAiCharacterId: this.storyboardSelected.ai,
-                            preSelectedUserCharacterId: this.storyboardSelected.user,
-                            preSelectedWorldId: this.storyboardSelected.world
-                        })
-                    } else {
-                        this.storyboardSelected[type] = selectedValue
-                        await this._updateStoryboardCard(type)
-                        this.checkAllButtonStates()
-                    }
-                }
-            }
-        })
-    },
+          selects.forEach(({ el, type }) => {
+              if (el) {
+                  el.onchange = async (e) => {
+                      const selectedValue = e.target.value
+                      if (selectedValue.startsWith('create_new_')) {
+                          const itemType = selectedValue.replace('create_new_', '')
+                          this.switchToScreen(this.CONSTANTS.ITEM_CONFIG[itemType].formScreen, {
+                              itemType: itemType, 
+                              isCreating: true,
+                              preSelectedAiCharacterId: this.storyboardSelected.ai,
+                              preSelectedUserCharacterId: this.storyboardSelected.user,
+                              preSelectedWorldId: this.storyboardSelected.world
+                          })
+                      } else {
+                          this.storyboardSelected[type] = selectedValue
+                          await this._updateStoryboardCard(type)
+                          this.checkAllButtonStates()
+                      }
+                  }
+              }
+          })
+      },
 
     /**
      * Attaches event listeners to top bar buttons.
@@ -3659,12 +3641,16 @@ Object.assign(App, {
 
         const allChins = chinContainer.querySelectorAll('[data-chin]')
 
-        // If clicking the currently open chin, close it and deselect tabs
-        if (chinName && chinName === this.focusBarState.currentChin) {
-            allChins.forEach(chin => App.hideEl(chin))
-            App.hideEl(chinContainer)
-            this.focusBarState.currentChin = null
-            this.focusBarState.chinOpen = false
+          // If clicking the currently open chin, close it and deselect tabs
+          if (chinName && chinName === this.focusBarState.currentChin) {
+          allChins.forEach(chin => {
+              App.hideEl(chin)
+              chin.setAttribute('aria-hidden', 'true')
+          })
+          App.hideEl(chinContainer)
+          chinContainer.setAttribute('aria-hidden', 'true')
+              this.focusBarState.currentChin = null
+              this.focusBarState.chinOpen = false
 
             const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
             tabs.forEach(tab => {
@@ -3676,47 +3662,57 @@ Object.assign(App, {
             return
         }
 
-        // Hide all chins before showing the requested one
-        allChins.forEach(chin => App.hideEl(chin))
-        const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
-        tabs.forEach(tab => tab.setAttribute('aria-expanded', 'false'))
+          // Hide all chins before showing the requested one
+          allChins.forEach(chin => {
+              App.hideEl(chin)
+              chin.setAttribute('aria-hidden', 'true')
+          })
+          const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
+          tabs.forEach(tab => tab.setAttribute('aria-expanded', 'false'))
 
         const selectedChin = chinName
             ? chinContainer.querySelector(`[data-chin="${chinName}"]`)
             : null
 
-        if (selectedChin) {
-            App.showEl(chinContainer)
-            App.showEl(selectedChin)
-            this.focusBarState.currentChin = chinName
-            this.focusBarState.chinOpen = true
-            const activeBtn = document.querySelector(`#top-bar-left button[data-chin="${chinName}"]`)
-            if (activeBtn) activeBtn.setAttribute('aria-expanded', 'true')
-        } else {
-            App.hideEl(chinContainer)
-            this.focusBarState.currentChin = null
-            this.focusBarState.chinOpen = false
-        }
-    },
+          if (selectedChin) {
+              App.showEl(chinContainer)
+              chinContainer.setAttribute('aria-hidden', 'false')
+              App.showEl(selectedChin)
+              selectedChin.setAttribute('aria-hidden', 'false')
+              this.focusBarState.currentChin = chinName
+              this.focusBarState.chinOpen = true
+              const activeBtn = document.querySelector(`#top-bar-left button[data-chin="${chinName}"]`)
+              if (activeBtn) activeBtn.setAttribute('aria-expanded', 'true')
+          } else {
+              App.hideEl(chinContainer)
+              chinContainer.setAttribute('aria-hidden', 'true')
+              this.focusBarState.currentChin = null
+              this.focusBarState.chinOpen = false
+          }
+      },
 
-    /**
-     * Hides all chin sections and resets focusBarState.
-     */
-    hideAllChins() {
-        const chinContainer = document.getElementById('chin-container')
-        if (chinContainer) {
-            const allChins = chinContainer.querySelectorAll('[data-chin]')
-            allChins.forEach(chin => App.hideEl(chin))
-            App.hideEl(chinContainer)
-        }
-        const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
-        tabs.forEach(tab => {
-            tab.setAttribute('aria-selected', 'false')
-            tab.setAttribute('aria-expanded', 'false')
-        })
-        this.focusBarState.currentChin = null
-        this.focusBarState.chinOpen = false
-    },
+      /**
+       * Hides all chin sections and resets focusBarState.
+       */
+      hideAllChins() {
+          const chinContainer = document.getElementById('chin-container')
+          if (chinContainer) {
+              const allChins = chinContainer.querySelectorAll('[data-chin]')
+              allChins.forEach(chin => {
+                  App.hideEl(chin)
+                  chin.setAttribute('aria-hidden', 'true')
+              })
+              App.hideEl(chinContainer)
+              chinContainer.setAttribute('aria-hidden', 'true')
+          }
+          const tabs = document.querySelectorAll('#top-bar-left button[data-chin]')
+          tabs.forEach(tab => {
+              tab.setAttribute('aria-selected', 'false')
+              tab.setAttribute('aria-expanded', 'false')
+          })
+          this.focusBarState.currentChin = null
+          this.focusBarState.chinOpen = false
+      },
     
     /**
      * Begins a new story with the selected characters and world.
