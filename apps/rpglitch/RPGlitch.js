@@ -3998,7 +3998,12 @@ Object.assign(window.App, {
               this.handleError('INITIALIZE_WHEN_READY', error)
           }
        }
+
   });
+
+  if (!window.App.hideEl && typeof window.hideEl === 'function') {
+      window.App.hideEl = window.hideEl;
+  }
 
   // Initialize the app when the DOM is ready
   document.addEventListener('DOMContentLoaded', () => {

@@ -166,4 +166,4 @@ All objectives have been achieved:
 - Integrated PostCSS, Terser, and html-minifier into the build process for full CSS, JS, and HTML minification.
 - Fixed cssnano version and improved optional dependency checks for minification steps. Documented installation instructions for these dependencies.
 - Updated hideEl to accept element IDs, ensured top bar event listeners bind App context, and reordered initialization logic with tests.
-- Revised hideEl unit test to load `RPGlitch.js` and call `App.hideEl` directly. Updated test script to use `npx jest` for cross-platform compatibility.
+- Revised hideEl unit test to load `RPGlitch.js` via `fs.readFileSync` and `JSDOM`, calling `App.hideEl` directly. Updated test script to use `npx jest` for cross-platform compatibility.
