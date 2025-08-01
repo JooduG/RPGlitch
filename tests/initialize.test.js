@@ -19,7 +19,7 @@ function loadApp(dom) {
   const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.js'), 'utf8');
   dom.window.eval(script);
   if (typeof dom.window.App._getUIElements !== 'function') {
-    dom.window.App._getUIElements = function () {};
+dom.window.App._getUIElements = jest.fn();
   }
   return dom.window.App;
 }
