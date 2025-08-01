@@ -19,11 +19,11 @@ function loadApp() {
   dom.window._hyperscript = {};
   dom.window.$ = function () {};
 
-  const hideElScript = fs.readFileSync(
-    path.resolve(__dirname, '../apps/rpglitch/utils/hideEl.js'),
+  const utilsScript = fs.readFileSync(
+    path.resolve(__dirname, '../apps/rpglitch/utils.js'),
     'utf8'
   );
-  dom.window.eval(hideElScript);
+  dom.window.eval(utilsScript);
 
   const script = fs.readFileSync(
     path.resolve(__dirname, '../apps/rpglitch/RPGlitch.js'),

@@ -199,9 +199,9 @@
 - Listener guard now stored on App; removed unused notification area
 - Chin toggle test restored to check class toggling
 
-- `hideEl.js` now loaded before `RPGlitch.js` to ensure `window.hideEl` exists during initialization. Chin toggle test uses real `App.showEl` without fallback.
+- `utils.js` now loaded before `RPGlitch.js` to ensure `window.hideEl` exists during initialization. Chin toggle test uses real `App.showEl` without fallback.
 - Declared `const App = window.App` so object assignments populate the same instance; added afterEach cleanup in Jest tests.
-- Moved `showEl` helper into `utils/hideEl.js` alongside `hideEl` for clarity.
+- Moved `showEl` helper into `utils.js` alongside `hideEl` for clarity.
 - Updated lint scripts with double-quoted globs for cross-platform support.
 - Added retry logic in `initializeWhenReady` to wait for `_getUIElements` before attaching listeners.
 - Increased `maxInitializeWhenReadyRetries` to 40 after encountering initialization delays in Perchance.

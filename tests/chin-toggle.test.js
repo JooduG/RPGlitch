@@ -19,8 +19,8 @@ test('early chin toggle reveals chin container and selected chin', () => {
   dom.window._hyperscript = {};
   dom.window.$ = function () {};
 
-  const hideElScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/utils/hideEl.js'), 'utf8');
-  dom.window.eval(hideElScript);
+  const utilsScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/utils.js'), 'utf8');
+  dom.window.eval(utilsScript);
 
   const rpgScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.js'), 'utf8');
   dom.window.eval(rpgScript);
