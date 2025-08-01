@@ -35,8 +35,9 @@ module.exports = {
     ]
   },
   ignoreFiles: [
-      "node_modules/**",
-      "memory-bank/**/archive/**",
-      "build/output/**"
+      "**/*node_modules/**",
+      "**/*archive/**",
+      "**/*output/**",
+      "**/*local_libs/**"
   ],
 };
