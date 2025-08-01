@@ -10,8 +10,8 @@
 <body>
 
   <!-- Hidden for accessibility/SEO -->
-  <h1 id="hidden-h1" class="hidden">RPGlitch</h1>
-  <a href="#main" class="hidden">Skip to main content</a>
+  <h1 id="hidden-h1" hidden aria-hidden="true">RPGlitch</h1>
+  <a href="#main" hidden aria-hidden="true">Skip to main content</a>
 
   <!-- Initial Loading -->
   <dialog id="loading-modal">
@@ -43,34 +43,34 @@
       <nav id="top-bar" class="top-bar">
 
         <!-- Top Bar Left -->
-        <div id="top-bar-left" class="top-bar-left">
-          <ul class="top-bar-left">
-            <li><button class="secondary" data-chin="stories" role="tab" aria-selected="false" aria-controls="chin-stories" tabindex="1">Stories</button></li>
-            <li><button class="secondary" data-chin="characters" role="tab" aria-selected="false" aria-controls="chin-characters" tabindex="2">Characters</button></li>
-            <li><button class="secondary" data-chin="worlds" role="tab" aria-selected="false" aria-controls="chin-worlds" tabindex="3">Worlds</button></li>
-            <li><button class="secondary" data-chin="options" role="tab" aria-selected="false" aria-controls="chin-options" tabindex="4">Options</button></li>
+        <div id="top-bar-left" class="top-bar-left"">
+          <ul role="tablist">
+            <li><button class="secondary" role="tab" tabindex="0" id="tab-stories" aria-selected="true" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
+            <li><button class="secondary" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
+            <li><button class="secondary" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
+            <li><button class="secondary" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-controls="chin-options" data-chin="options">Options</button></li>
           </ul>
         </div>
 
         <!-- Top Bar Right: Storyboard -->
         <div id="top-bar-right-storyboard" class="top-bar-right">
-          <ul class="top-bar-right">
+          <ul>
             <li><button class="secondary" id="shuffle">Shuffle</button></li>
             <li><button class="primary" id="begin-story">Begin Story</button></li>
           </ul>
         </div>
 
         <!-- Top Bar Right: Form -->
-        <div id="top-bar-right-form" class="hidden">
-          <ul class="top-bar-right">
+        <div id="top-bar-right-form" class="top-bar-right" hidden aria-hidden="true">
+          <ul>
             <li><button class="secondary" id="form-cancel">Cancel</button></li>
             <li><button class="primary" id="form-save">Save</button></li>
           </ul>
         </div>
 
         <!-- Top Bar Right: Profile -->
-        <div id="top-bar-right-profile" class="hidden">
-          <ul class="top-bar-right">
+        <div id="top-bar-right-profile" class="top-bar-right" hidden aria-hidden="true">
+          <ul>
             <li><button class="secondary" id="profile-edit">Edit</button></li>
             <li><button class="secondary" id="profile-copy">Copy & Customize</button></li>
             <li><button class="danger" id="profile-delete">Delete</button></li>
@@ -80,9 +80,9 @@
       </nav>
 
       <!-- Chin: Story -->
-      <div id="chin-container" class="hidden" aria-hidden="true">
+      <div id="chin-container" class="chin-container">
 
-        <div id="chin-stories" data-chin="stories" class="hidden" aria-hidden="true">
+        <div role="tabpanel" tabindex="0" id="chin-stories" aria-labelledby="tab-stories" data-chin="stories" class="chin">
           <div class="chin-actions">
             <div class="chin-actions-left">
               <form role="search">
@@ -105,7 +105,7 @@
         </div>
 
         <!-- Chin: Character -->
-        <div id="chin-characters" data-chin="characters" class="hidden" aria-hidden="true">
+        <div role="tabpanel" tabindex="0" id="chin-characters" aria-labelledby="tab-characters" data-chin="characters" class="chin" hidden>
           <div class="chin-actions">
             <div class="chin-actions-left">
               <form role="search">
@@ -120,7 +120,7 @@
               <button type="button" class="secondary" data-trigger="upload-character">
                 Upload Character
               </button>
-                <input type="file" id="upload-character" aria-label="Upload Character" class="hidden" />
+                <input type="file" id="upload-character" aria-label="Upload Character" />
               <button id="new-character" class="secondary">New Character</button>
             </div>
           </div>
@@ -132,9 +132,7 @@
                   <header>
                     <h4>Character Name</h4>
                   </header>
-                  <p>
                     Description of the character...
-                  </p>
                   <footer>
                     <small>Premade</small> 
                   </footer>
@@ -147,7 +145,7 @@
           </div>
 
         <!-- Chin: World -->
-        <div id="chin-worlds" data-chin="worlds" class="hidden" aria-hidden="true">
+        <div role="tabpanel" tabindex="0" id="chin-worlds" aria-labelledby="tab-worlds" data-chin="worlds" class="chin" hidden>
           <div class="chin-actions">
             <div class="chin-actions-left">
               <form role="search">
@@ -161,7 +159,7 @@
               <button type="button" class="secondary" data-trigger="upload-world">
                 Upload World
               </button>
-                <input type="file" id="upload-world" aria-label="Upload World" class="hidden" />
+                <input type="file" id="upload-world" aria-label="Upload World" />
               <button id="new-world" class="secondary">New World</button>
             </div>
           </div>
@@ -169,7 +167,7 @@
         </div>
 
         <!-- Chin: Options -->
-        <div id="chin-options" data-chin="options" class="hidden" aria-hidden="true">
+        <div role="tabpanel" tabindex="0" id="chin-options" aria-labelledby="tab-options" data-chin="options" class="chin" hidden>
           <div class="chin-actions">
             <div class="chin-actions-left">
             <!-- Something in the future? -->
@@ -178,7 +176,7 @@
               <button type="button" class="secondary" data-trigger="upload-backup">
                 Upload All
               </button>
-              <input type="file" id="upload-backup" aria-label="Upload Backup" class="hidden" />
+              <input type="file" id="upload-backup" aria-label="Upload Backup" />
               <button id="download-backup" class="secondary">Download Backup</button>
               <button id="delete-all-data" class="danger">Delete All Data</button>
             </div>
@@ -211,9 +209,7 @@
                   <header>
                     <select id="storyboard-ai-select" class="storyboard-select" aria-label="Choose AI Character"><option value="">Choose AI Character...</option></select>
                   </header>
-                  <p>
                     Select an AI character for your story...
-                  </p>
                   <footer>
                     <small>Täg</small> 
                   </footer>
@@ -228,9 +224,7 @@
                   <header>
                     <select id="storyboard-user-select" class="storyboard-select" aria-label="Choose User Character"><option value="">Choose User Character...</option></select>
                   </header>
-                  <p>
                     Select your character for the story...
-                  </p>
                   <footer>
                     <small><!-- Premade Tag --></small> 
                   </footer>
@@ -245,37 +239,34 @@
                   <header>
                     <select id="storyboard-world-select" class="storyboard-select" aria-label="Choose World"><option value="">Choose World...</option></select>
                   </header>
-                  <p>
                     Select a world for your story...
-                  </p>
                   <footer>
                     <small><!-- Premade Tag --></small> 
                   </footer>
                 </article>
             </div>
           </div>
-
       </div>
 
     <!-- Chat Screen -->
-    <div id="chat-screen" class="hidden">
-      <div id="chat-screen-container" class="hidden">
+    <div id="chat-screen-container" hidden aria-hidden="true">
+      <div id="chat-screen">
 
         <!-- Character Display Areas -->
-        <div id="user-character-display" class="hidden"></div>
-        <div id="ai-character-display" class="hidden"></div>
+        <div id="user-character-display"></div>
+        <div id="ai-character-display"></div>
         
         <!-- Chat Wrapper -->
-        <div id="chat-wrapper" class="hidden">
+        <div id="chat-wrapper">
           <!-- Chat Feed -->
-          <div id="chat-feed" class="hidden"></div>
+          <div id="chat-feed"></div>
           
           <!-- Status Elements -->
-          <div id="story-concluded" class="hidden">Story concluded</div>
-          <div id="no-messages" class="hidden">No messages yet</div>
-          <div id="status-notifier" class="hidden"></div>
-          <div id="typing-indicator" class="hidden"></div>
-          <button id="conclude-story" class="hidden">Conclude Story</button>
+          <div id="story-concluded">Story concluded</div>
+          <div id="no-messages">No messages yet</div>
+          <div id="status-notifier"></div>
+          <div id="typing-indicator"></div>
+          <button id="conclude-story">Conclude Story</button>
         </div>
       </div>
 
@@ -291,32 +282,32 @@
         </div>
 
     <!-- Profile Screen -->
-    <div id="profile-screen" class="hidden">
+    <div id="profile-screen" hidden aria-hidden="true">
       <!-- Profile content will be dynamically generated -->
     </div>
 
     <!-- Character Form Screen -->
-    <div id="character-form-screen" class="hidden">
+    <div id="character-form-screen" hidden aria-hidden="true">
       <!-- Character form content will be dynamically generated -->
     </div>
 
     <!-- World Form Screen -->
-    <div id="world-form-screen" class="hidden">
+    <div id="world-form-screen" hidden aria-hidden="true">
       <!-- World form content will be dynamically generated -->
     </div>
 
     <!-- Premade Character Bank -->
-    <div id="premade-character-bank" class="hidden">
+    <div id="premade-character-bank" hidden aria-hidden="true">
       <div id="premade-character-list"></div>
     </div>
 
     <!-- Premade World Bank -->
-    <div id="premade-world-bank" class="hidden">
+    <div id="premade-world-bank" hidden aria-hidden="true">
       <div id="premade-world-list"></div>
     </div>
 
     <!-- Memory Application Screen -->
-    <div id="memory-application-screen" class="hidden">
+    <div id="memory-application-screen" hidden aria-hidden="true">
       <!-- Memory application content will be dynamically generated -->
     </div>
 

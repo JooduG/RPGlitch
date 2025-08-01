@@ -3196,82 +3196,70 @@ Object.assign(App, {
        * @param {string} itemType - The type of item ('character' or 'world').
        * @param {string|number} [selectedId] - The ID of the item to pre-select.
        */
-      async _populateDropdown(selectElement, itemType, selectedId) {
-        if (!selectElement) {
-            console.warn(`_populateDropdown: selectElement is null or undefined for itemType: ${itemType}`)
-            return
-        }
+async _populateDropdown(selectElement, itemType, selectedId) {
+    if (!selectElement) {
+        console.warn(`_populateDropdown: selectElement is null or undefined for itemType: ${itemType}`)
+        return
+    }
 
-        const config = this.CONSTANTS.ITEM_CONFIG[itemType]
-        if (!config) {
-            console.warn(`_populateDropdown: config not found for itemType: ${itemType}`)
-            return
-        }
+    const config = this.CONSTANTS.ITEM_CONFIG[itemType]
+    if (!config) {
+        console.error(`_populateDropdown: config not found for itemType: ${itemType}`) // Changed to console.error
+        return
+    }
 
-        const items = await (itemType === 'character' ? this.getPremadeCharacterItems() : this.getPremadeWorldItems())
-        
-        // Store current value to restore if it's still valid
-        const currentValue = selectElement.value
+    // Store current value to restore if still valid
+    const currentValue = selectElement.value
+    const items = await (itemType === 'character' ? this.getPremadeCharacterItems() : this.getPremadeWorldItems())
     
-        selectElement.innerHTML = '' // Clear existing options
-    
-        // Add the placeholder option
-        const placeholderText = `Choose ${config.capital}...`
-        selectElement.add(new Option(placeholderText, ''))
-    
-        // Add "Create New" option
-        selectElement.add(new Option(`+ Create New ${config.capital}...`, `create_new_${itemType}`))
-    
-        // Separate items into user-created and premade
-        const userItems = items.filter(item => !item.isPremade)
-        const premadeItems = items.filter(item => item.isPremade)
-    
-        // Add user items if they exist
-        if (userItems.length > 0) {
-            const userGroup = document.createElement('optgroup')
-            userGroup.label = `Custom ${config.capital}s`
-            userItems.forEach(item => {
-                const option = new Option(item.name, item.id)
-                userGroup.appendChild(option)
-            })
-            selectElement.appendChild(userGroup)
-        }
-    
-        // Add premade items if they exist
-        if (premadeItems.length > 0) {
-            const premadeGroup = document.createElement('optgroup')
-            premadeGroup.label = `Premade ${config.capital}s`
-            premadeItems.forEach(item => {
-                const option = new Option(item.name, `premade_${itemType}:${item.id}`)
-                premadeGroup.appendChild(option)
-            })
-            selectElement.appendChild(premadeGroup)
-        }
-    
-        // Set the selected value
-        if (selectedId) {
-            selectElement.value = selectedId
-        } else if (currentValue && selectElement.querySelector(`[value="${currentValue}"]`)) {
-            selectElement.value = currentValue
-        }
+    selectElement.innerHTML = '' // Clear existing options
 
-        // Ensure the selected option is visually updated
-        if (selectElement.value) {
-            const selectedOption = selectElement.querySelector(`option[value="${selectElement.value}"]`)
-            if (selectedOption) {
-                selectedOption.selected = true
-            }
-        }
+    // Add placeholder option
+    const placeholderText = `Choose ${config.capital}...`
+    selectElement.add(new Option(placeholderText, ''))
 
-        if (selectElement.value) {
-            const selectedOption = selectElement.querySelector(`option[value="${selectElement.value}"]`)
-            if (selectedOption) {
-                selectedOption.selected = true
-            }
-        }
-    
-        
-    },
+    // Add "Create New" option
+    selectElement.add(new Option(`+ Create New ${config.capital}...`, `create_new_${itemType}`))
+
+    // Separate items into user-created and premade
+    const userItems = items.filter(item => !item.isPremade)
+    const premadeItems = items.filter(item => item.isPremade)
+
+    // Add user items if they exist
+    if (userItems.length > 0) {
+        const userGroup = document.createElement('optgroup')
+        userGroup.label = `Custom ${config.capital}s`
+        userItems.forEach(item => {
+            const option = new Option(item.name, item.id)
+            userGroup.appendChild(option)
+        })
+        selectElement.appendChild(userGroup)
+    }
+
+    // Add premade items if they exist
+    if (premadeItems.length > 0) {
+        const premadeGroup = document.createElement('optgroup')
+        premadeGroup.label = `Premade ${config.capital}s`
+        premadeItems.forEach(item => {
+            const option = new Option(item.name, `premade_${itemType}:${item.id}`)
+            premadeGroup.appendChild(option)
+        })
+        selectElement.appendChild(premadeGroup)
+    }
+
+    // Set selected value after repopulating
+    if (selectedId) {
+        selectElement.value = selectedId
+    } else if (currentValue && selectElement.querySelector(`[value="${currentValue}"]`)) {
+        selectElement.value = currentValue
+    }
+
+    // Ensure UI update
+    if (selectElement.value) {
+        const selectedOption = selectElement.querySelector(`option[value="${selectElement.value}"]`)
+        if (selectedOption) selectedOption.selected = true
+    }
+},
     
       /**
        * Attaches event listeners to the storyboard select elements.
@@ -3315,7 +3303,26 @@ Object.assign(App, {
 
         const chinTabs = document.querySelectorAll('#top-bar-left button[data-chin]')
         chinTabs.forEach(btn => {
-            btn.addEventListener('click', App.selectTopBarTab.bind(App, btn.dataset.chin))
+            btn.addEventListener('click', () => {
+                const chinName = btn.dataset.chin
+                const wasActive = btn.classList.contains('active')
+                
+                // Reset all chins and buttons
+                document.querySelectorAll('[data-chin]').forEach(chin => {
+                    chin.classList.remove('active')
+                    App.hideEl(chin)
+                })
+                chinTabs.forEach(t => t.classList.remove('active'))
+
+                // Activate clicked element if wasn't active
+                if (!wasActive) {
+                    const targetChin = document.querySelector(`#${chinName}Chin`)
+                    App.showEl(targetChin)
+                    targetChin.classList.add('active')
+                    btn.classList.add('active')
+                    this._populateChin(chinName)
+                }
+            })
         })
 
         document.addEventListener('click', (e) => {
@@ -3606,6 +3613,8 @@ Object.assign(App, {
                 break
         }
     },
+
+    
     
     /**
      * Selects a tab in the top bar.
@@ -3688,7 +3697,7 @@ Object.assign(App, {
               this.focusBarState.chinOpen = false
           }
       },
-
+    
       /**
        * Hides all chin sections and resets focusBarState.
        */
@@ -4087,7 +4096,67 @@ Object.assign(App, {
 
 if (typeof window.hideEl === 'function' && !App.hideEl) {
     App.hideEl = window.hideEl;
-}
-if (typeof window.showEl === 'function' && !App.showEl) {
-    App.showEl = window.showEl;
+};
+
+window.addEventListener("DOMContentLoaded", () => {
+  // Only handle one particular tablist; if you have multiple tab
+  // lists (might even be nested), you have to apply this code for each one
+  const tabList = document.querySelector('[role="tablist"]');
+  const tabs = tabList.querySelectorAll(':scope > [role="tab"]');
+
+  // Add a click event handler to each tab
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", changeTabs);
+  });
+
+  // Enable arrow navigation between tabs in the tab list
+  let tabFocus = 0;
+
+  tabList.addEventListener("keydown", (e) => {
+    // Move right
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      tabs[tabFocus].setAttribute("tabindex", -1);
+      if (e.key === "ArrowRight") {
+        tabFocus++;
+        // If we're at the end, go to the start
+        if (tabFocus >= tabs.length) {
+          tabFocus = 0;
+        }
+        // Move left
+      } else if (e.key === "ArrowLeft") {
+        tabFocus--;
+        // If we're at the start, move to the end
+        if (tabFocus < 0) {
+          tabFocus = tabs.length - 1;
+        }
+      }
+
+      tabs[tabFocus].setAttribute("tabindex", 0);
+      tabs[tabFocus].focus();
+    }
+  });
+});
+
+function changeTabs(e) {
+  const targetTab = e.target;
+  const tabList = targetTab.parentNode;
+  const tabGroup = tabList.parentNode;
+
+  // Remove all current selected tabs
+  tabList
+    .querySelectorAll(':scope > [aria-selected="true"]')
+    .forEach((t) => t.setAttribute("aria-selected", false));
+
+  // Set this tab as selected
+  targetTab.setAttribute("aria-selected", true);
+
+  // Hide all tab panels
+  tabGroup
+    .querySelectorAll(':scope > [role="tabpanel"]')
+    .forEach((p) => p.setAttribute("hidden", true));
+
+  // Show the selected panel
+  tabGroup
+    .querySelector(`#${targetTab.getAttribute("aria-controls")}`)
+    .removeAttribute("hidden");
 }
