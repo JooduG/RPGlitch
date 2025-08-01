@@ -158,10 +158,14 @@ All objectives have been achieved:
 - ✅ Performance and reliability have been significantly improved
 
 **Next Steps**: The project is ready for production deployment and ongoing maintenance.
-\n### 2025-07-30
+
+### 2025-07-30
 - Implemented dependency checks and event listener improvements for top bar interactions.
-\n### 2025-07-30\n- Added top bar right container fixes and basic UI tests.
-\n### 2025-07-31
+
+### 2025-07-30
+- Added top bar right container fixes and basic UI tests.
+
+### 2025-07-31
 - Revised Options chin labels and event handlers using cached elements. Removed duplicate UI getter methods and improved import routine performance.
 - Integrated PostCSS, Terser, and html-minifier into the build process for full CSS, JS, and HTML minification.
 - Fixed cssnano version and improved optional dependency checks for minification steps. Documented installation instructions for these dependencies.
@@ -175,3 +179,9 @@ All objectives have been achieved:
   methods and using `App.getPremadeCharacterItems`.
 - Added initialization guard for `_getUIElements` and disabled Terser property
   mangling to keep method names intact.
+
+### 2025-08-03
+- Prevented duplicate top bar event listeners using a module flag.
+- Ensured `hideEl` fallback loads before event handlers and validated show/hide utilities during initialization.
+- Added `aria-controls` attributes and keyboard interaction docs for chin buttons.
+

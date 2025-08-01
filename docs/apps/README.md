@@ -129,6 +129,15 @@ node build-all.js
 - **Asset Optimization**: Enhanced compression and minification
 - **Error Recovery**: Graceful handling of build failures
 
+## 🎹 **Keyboard Interactions for Chin Controls**
+
+The top bar chin buttons support basic keyboard navigation:
+
+- **Tab/Shift+Tab** to move focus between chin buttons.
+- **Enter** or **Space** to toggle the associated chin section.
+- When a chin is opened, the active button has `aria-expanded="true"` and focuses on its content region.
+- Press **Escape** or click outside the chin to close it.
+
 ## 📚 **Related Documentation**
 
 - **[Technical Architecture](../.cursor/rules/technical-architecture.mdc)**: Complete 3-mode system overview
