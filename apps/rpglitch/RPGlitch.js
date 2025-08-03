@@ -1,6 +1,4 @@
-/* eslint-disable no-undef */
 // Main RPGlitch application namespace
-// eslint-disable-next-line no-redeclare
 const App = window.App || {};
 window.App = App;
 
@@ -143,22 +141,18 @@ App._attachChinSearchHandlers = function () {
 };
 
 function loadStoredItems(key) {
-  let items = [];
   try {
     const data = window.localStorage.getItem(key);
-    items = data ? JSON.parse(data) : [];
+    return data ? JSON.parse(data) : [];
   } catch (e) {
     console.error(`Failed to parse localStorage item with key "${key}":`, e);
-    items = [];
+    return [];
   }
-  return items;
-}
 
 function getAllItems(key) {
   const stored = loadStoredItems(key);
   const premade = typeof App.getPremadeItems === 'function' ? App.getPremadeItems(key) : [];
   return premade.concat(stored);
-}
 
 App.premade = App.premade || { stories: [], characters: [], worlds: [] };
 
@@ -278,8 +272,8 @@ App._attachContentChinActions = function () {
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput, render }) => {
     if (newButton) {
       newButton.addEventListener('click', () => {
-        const title = window.prompt(`New ${key.slice(0, -1)} title?`);
-        if (!title) return;
+        const singular = key === 'stories' ? 'story' : key.slice(0, -1);
+        const title = window.prompt(`New ${singular} title?`);        if (!title) return;
         const item = { title };
         const current = loadStoredItems(key);
         current.push(item);
@@ -384,9 +378,7 @@ App.importAllData = function (file) {
           window.localStorage.setItem(key, JSON.stringify(data[key]));
         }
       });
-      if (typeof App.renderStoryList === 'function') App.renderStoryList();
-      if (typeof App.renderCharacterList === 'function') App.renderCharacterList();
-      if (typeof App.renderWorldList === 'function') App.renderWorldList();
+      if (typeof App.renderAllLists === 'function') App.renderAllLists();
     } catch (err) {
       console.error('Failed to import backup', err);
     }
@@ -417,9 +409,7 @@ App.deleteAllData = function () {
   ['stories', 'characters', 'worlds'].forEach((key) => {
     window.localStorage.removeItem(key);
   });
-  if (typeof App.renderStoryList === 'function') App.renderStoryList();
-  if (typeof App.renderCharacterList === 'function') App.renderCharacterList();
-  if (typeof App.renderWorldList === 'function') App.renderWorldList();
+  if (typeof App.renderAllLists === 'function') App.renderAllLists();
 };
 
 // Export for Node-based tests

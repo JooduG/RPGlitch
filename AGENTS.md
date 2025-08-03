@@ -166,11 +166,10 @@ uv pip install -e ".[test]"
 
 ### Lint / Test Workflow
 
-Run the full suite before sending a PR:
+Run the full lint/build/test/validate suite before submitting a PR:
 
 ```bash
-npm run lint
-npm run build
+npm run lint && npm run build && npm test && npm run validate
 ```
 
 All commands must succeed locally and in CI.
@@ -229,7 +228,7 @@ Never modify generated artifacts like `build/output/`, or anything inside `node_
 Before presenting a diff, run:
 
 ```bash
-npm run lint && npm run build && npm run validate
+npm run lint && npm run build && npm test && npm run validate
 ```
 
 ## 12 Agent Guidance

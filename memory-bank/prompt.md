@@ -1,13 +1,68 @@
-In an ultra-photorealistic 4K golden-ratio portrait, captured with a Canon EOS R5 or Hasselblad H6D-100c using a 50mm prime lens and three-point softbox lighting, the scene unfolds in a {testosterone-drenched gym {locker room with steam clinging to the walls|shower with water droplets rolling down tiles|free-weights area with scratched barbells and cracked mirrors}|{playful bakery with flour dusting the air and sticky syrup on the counters|naughty lingerie store’s secret changing room with smudged mirrors|cosy {bedroom with masculine industrial decor and a rumpled king-sized bed|living room with scuffed leather couches and a smoky fireplace}}|{flowery field with dew-soaked grass|beautiful garden with wilting roses and a bubbling fountain|mysterious forest with gnarled trees and mossy roots}|{sci-fi {spaceship with dented metallic panels and flickering holograms|laboratory with chipped beakers and sparking Tesla coils|hospital room with creased linens and humming monitors|alien planet with jagged rocks and glowing fungi}|holy sanctuary in a {muslim mosque with worn tilework|christian cathedral with chipped pews and faded stained glass|jewish synagogue with a scuffed bimah|buddhist temple with tarnished golden statues and curling incense smoke}|classroom with scratched desks and a dusty chalkboard|rooftop overlooking a stylized {Tokyo cityscape with flickering neon|New York skyline with smoggy air|Stockholm waterfront with peeling paint|London street with rain-slicked cobblestones|Berlin nightclub district with faded graffiti}|faggot hooters bar with sticky tabletops and shirtless waiters|underground rave with sweat-soaked walls and pulsing strobe lights}}. The space blends sacred grandeur with raw heat, adorned with {kinky sex toys like scuffed dildos and coiled whips|suggestive items like crumpled feathers and spilled massage oils|sexy clothes like torn thongs and stretched harnesses scattered everywhere}, teasing filthy secrets.
+# Tactical Plan: Next Steps Toward Full Chin Integration
 
-A horny {21|24|27|33|38}-year-old {Scandinavian|Swedish|Latino papi|viking descendant|middle eastern prince|mixed-race beauty} gay stud radiates raw fuckability. His {short|short wavy|fresh fade|buzzcut|long flowing|curly and wild|top-knot} {pastel {pink|blue|purple}|dark brown|platinum blonde|ash blonde|light brown} hair, matted with sweat or dusted with flour, frames a face with {piercing|flirty|massive|almond-shaped|hooded} {pastel pink|bright green|ice blue|dark blue|dark brown|hazel|amber} eyes, {a hipster moustache with uneven bristles|a well-kept beard with stray hairs|slight stubble grazing the skin|a goatee with razor bumps|a soul patch|clean-shaven with visible pores}, {botox-injected cock-sucker lips|big natural lips with cracks|secret whispering lips with a faint scar|lips with a piercing|heart-shaped lips with chapped edges}, and {a septum piercing with a tarnished ring|cute freckles over a sunburned nose|a pierced eyebrow with slight redness|subtle make-up smudged by sweat|a scar across the eye with jagged edges|a royal {crown|tiara} dented from wear|a halo flickering faintly|demon horns with chipped tips|genuine cat ears matted with dust}. His expression—a {playful smirk with crooked teeth|predatory stare like a hunter with bloodshot eyes|hypnotized cross-eyed gooner’s gape, tongue out, drooling saliva on his pecs|happy laughter with crow’s feet|maniacal laughter like a crazy witch with a twitching lip}—screams uninhibited masculinity and sexual power. He’s a {dumb himbo|smart nerd|gamer bro|gym bro|stoner dude|dominant top|submissive bottom} owning his filthy essence.
+## Verify and align HTML markup
 
-His {2-meter-tall steroid-pumped, beefy, thick body with undefined muscles, an off-season bulking bodybuilder {strongman|gay muscle-bear|fitness influencer|muscle god}|cute swimmer’s-build twunk with a six-pack|muscle-bear with a dad bod and love handles} boasts {coarse chest hair matted with sweat|smooth skin with stretch marks|a treasure trail with uneven hairs|a happy trail with razor burn|{intricate|a sleeve of|his back covered in} {tattoos with faded edges|magical glowing ancient {runes|hieroglyphs|scriptures} pulsing faintly}}, big pink areolas with tiny blemishes, and perky nipples on chiseled pecs glistening with perspiration.
+Ensure all expected chin buttons, panels, search inputs, list containers, and option buttons exist with correct IDs/data attributes.
 
-He rocks norm-shattering gear, blending {a gay {lycra|lace|mesh|silk|vinyl} thong stretched taut|a {fashion|sporty|fetish} {jockstrap|singlet|slutty revealing {loose-fitting|tight and shiny|too small|gym} shorts} with frayed seams|kinky BDSM {leather|latex|rubber|PVC} clothes with scuff marks|sensual lingerie with fishnet thigh-highs torn at the knees and a tight miniskirt with a ripped hem, dressed like a sissy slut crossdresser|sport-kink {American football pads with scratches and a helmet|wrestling singlet with sweat stains and headgear|baseball uniform with dirt smudges and a cap|boxer briefs with worn elastic and gloves|hockey jersey with ripped sleeves and skates}|{butt-pirate with binoculars and a tattered eyepatch|fireman costume with a dented helmet and suggestive hose|police uniform with a scratched badge and handcuffs|nurse outfit with a stained stethoscope and syringe|doctor coat with a wrinkled clipboard|military fatigues with a faded beret|priest robes with a tarnished cross|school girl uniform with a wrinkled pleated skirt chewing girly bubblegum|iconic cowboy hat with scuffs and chaps|medieval knight armor with dents and a sword|ass-tronaut spacesuit with a cracked helmet|Sailor Moon costume with a bent wand|Superman suit with a frayed cape|Batman costume with a scratched mask|vampire cape with torn edges and fangs|werewolf fur with matted clumps and claws|alien bodysuit with faded antennae} {role-play|cosplay} clothes and accessories}. He flaunts {his small soft cock bulge with a faint outline|his huge soft oblong cock bulge with clear penis veins|a chastity cock cage with rust spots locking his manhood|his tiny penis with visible skin texture|the biggest fucking {flaccid|flopping-around|rock-hard|monster} cock you’ve ever seen, dripping precum with {massive|huge low-hanging|proportional|small low-hanging|5} testicles with coarse hair|a huge fucking bubble butt able to cause a fat ass twerkquake, his enormous muscular spheres for ass cheeks stealing the frame, glistening with sweat and begging for a savage spank}.
+* Open `index.html` (or equivalent main layout file).
+* Confirm `<div id="top-bar-left">` contains four `<button>` elements with `data-chin="stories"`, `"characters"`, `"worlds"`, and `"options"`.
+* Ensure each corresponding `<div class="chin-panel" data-chin="...">` exists inside `#chin-container`.
+* For the stories, characters, and worlds panels:
+  * Verify presence of `.chin-search` inputs with IDs `search-stories-input`, `search-characters-input`, and `search-worlds-input`.
+  * Verify action buttons (upload and new) and list containers (`chin-story-grid`, `chin-character-grid`, `chin-world-grid`).
+* For the options panel:
+  * Ensure buttons with `data-trigger="upload-backup"`, `id="download-backup"`, and `id="delete-all-data"` exist, along with the hidden file input `#upload-backup` and text areas.
 
-He’s caught in a {seductive|proud|flexing|exposing|superhero} pose, {with soft motion blur from a {destructive|seductive} dance leaving sweat trails|floating in zero-gravity space with hair drifting|sexually pleasuring himself by {jerking off his cock with calloused hands|fingering his tight ass with slick lube|fucking himself with a {big|bad dragon|double-ended} dildo leaving faint marks|stimulating his sensitive nipples with red welts}|twerking his bubble butt with rippling flesh|grinding against an imaginary partner with flushed skin|taking a selfie with a smudged smartphone lens} during {mid-day with bright sunlight casting harsh shadows|midnight under a full moon with silvery glow|sunrise with golden hues warming his skin|sunset with orange skies reflecting off his sweat}, shot from a {selfie with a cracked screen|wide-angle with slight distortion|fish-eye with a warped edge|full-body with a dusty lens|close-up macro showing every pore|bird’s-eye with a hazy filter|low "ant" with gritty texture|candid with natural blur} point-of-view.
+## Implement create/upload flows for content
 
-The scene explodes with {him mid-magical transformation shouting “Moon Prism Power, Make Up!” and “Moon Tiara Magic!”, summoning ethereal swirling ribbons and wisps with faint glows, energy particles drifting, outfit elements manifesting with frayed edges|a {toxic alchemy|futuristic magitech} haze with smoky tendrils|a {water|fire|air|earth} bender manipulating the element into sensual shapes with droplets or sparks|a starry galaxy with constellations spelling out erotic words in dim light|hellish fire and fury with demonic wings sprouting from his back, singed at the tips}. Divine lighting with high dynamic range bathes him in soft shadows and subtle lens flares, with cutting-edge camera tech highlighting every sweaty pore, skin blemish, and outfit stitch. The color scheme—a bold {red, white, and blue|pink and teal|pink and white|purple and blue|haunting horror black and red|black and white|hellish red} palette—pops against his natural skin tone with visible freckles and scars. He’s {all alone in this solo portrait|together with his husband, displaying intense romantic love and passion with tangled limbs|surrounded by predatory daddies groping and touching him, taking advantage of his body which he secretly loves, their hands leaving faint marks}.
+Add forms or modals for “New Story/Character/World” plus handlers that save to localStorage and re-render lists.
 
-This isn’t just a portrait—it’s a thirst-trap triumph, a homoerotic fantasy muse, a stud reveling in his cum-drenched glory, built to set social media ablaze and demand worship.
+* Create modal or inline forms for story/character/world creation with fields for name, summary, and image.
+* Wire “New Story/Character/World” buttons to open the corresponding form.
+* On form submission, push new object into `localStorage` under the correct key and call the relevant render function.
+* Add upload handlers to parse JSON files, merge imported items into `localStorage`, and re-render lists.
+* Update JS modules handling chin actions (e.g., `chin.js` or similar files).
+
+## Integrate premade items
+
+Merge built-in libraries (if available) with user-generated lists and provide UI distinctions.
+
+* Implement helper functions (e.g., `App.getPremadeStoryItems`) returning arrays of default items.
+* When rendering lists, combine localStorage data with premade items.
+* Optionally add visual labels or sections (“Custom”, “Premade”) to differentiate.
+
+## Enhance card UI and interactivity
+
+Expand chin cards with thumbnails, summaries, and click-through behavior to open profiles or editing views.
+
+* In list-render functions, include image thumbnails and short descriptions within `.chin-card`.
+* Add click listeners to each card that open corresponding profile/edit screens.
+* Style cards to accommodate new elements without layout breakage.
+
+## Implement profile/edit flows and top-bar-right context
+
+Build screens for viewing/editing items and dynamically show appropriate top-bar-right buttons.
+
+* Create separate views or modals for viewing and editing stories, characters, and worlds.
+* On card click, load selected data into view/edit mode.
+* Implement top-bar-right buttons (Save, Cancel, Edit, Delete, etc.) that appear based on current mode.
+* Ensure state transitions (view ↔ edit) update the button set accordingly.
+
+## Complete data management utilities
+
+Implement backup import/export/delete functions referenced by the options chin.
+
+* Define `App.importAllData`, `App.exportAllData`, and `App.deleteAllData`.
+* Connect these functions to the options chin buttons (`upload-backup`, `download-backup`, `delete-all-data`).
+* Handle JSON parsing, file generation/download, and localStorage reset within these utilities.
+
+## Accessibility refinements
+
+Provide ARIA roles, focus management, and keyboard support for chin navigation.
+
+* Assign `role="tab"` to chin buttons and `role="tabpanel"` to panels.
+* Link buttons and panels using `aria-controls` and matching IDs.
+* On chin open, move focus to its search input; on close, return focus to last active button.
+* Ensure all actions are reachable via keyboard and screen readers.
+
+Next Step: Once these tactical tasks are planned, we can move into the operational phase to implement and test each feature.

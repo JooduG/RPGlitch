@@ -9,7 +9,6 @@
  * @param {string} [fontFamily='Segoe UI, system-ui, sans-serif'] - Optional font family for placeholder.
  * @returns {string} HTML string for the profile picture element.
  */
-// eslint-disable-next-line no-unused-vars
 function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 'Segoe UI, system-ui, sans-serif') {
   if (window.App && window.App.debug) {
     console.debug('[ProfilePicture] getProfilePictureHTML called:', { item, context });
