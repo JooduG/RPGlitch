@@ -18,3 +18,9 @@
 - Orphaned `RPGlitch-left-panel.txt` deleted with documentation updated accordingly.
 - Chin lists load from `localStorage` instead of hardcoded sample entries.
 - Debug logging in `ProfilePictureComponent.js` gated behind `App.debug`.
+- Verified chin HTML markup includes required IDs and triggers.
+- Added creation and upload handlers for stories, characters, and worlds with `localStorage` persistence.
+- Merged premade item stubs via `App.getPremadeItems` into chin lists.
+- Implemented backup utilities `importAllData`, `exportAllData`, and `deleteAllData`.
+- Implemented chin focus management: search input receives focus on open and last tab regains focus on close.
+- Split stored and premade chin items to avoid writing premade entries back to `localStorage`.
