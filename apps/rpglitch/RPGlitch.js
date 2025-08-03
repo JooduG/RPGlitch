@@ -412,9 +412,7 @@ App.deleteAllData = function () {
   ['stories', 'characters', 'worlds'].forEach((key) => {
     window.localStorage.removeItem(key);
   });
-  if (typeof App.renderStoryList === 'function') App.renderStoryList();
-  if (typeof App.renderCharacterList === 'function') App.renderCharacterList();
-  if (typeof App.renderWorldList === 'function') App.renderWorldList();
+  if (typeof App.renderAllLists === 'function') App.renderAllLists();
 };
 
 // Export for Node-based tests
