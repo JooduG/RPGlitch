@@ -20,4 +20,5 @@
 - Prompt-driven creation offers a lightweight interim solution for adding items.
 - FileReader import merges uploaded arrays into existing localStorage data.
 - Backup utilities leverage Blob downloads and localStorage clears for resets.
- - Tracking last active tab lets chin closing restore focus, improving keyboard flow.
+- Tracking last active tab lets chin closing restore focus, improving keyboard flow.
+- Documenting lint/build/test/validate requirements in AGENTS.md clarifies pre-PR expectations.
