@@ -14,3 +14,7 @@
 - Removed legacy prefix handling in `showChin` and pruned unused `top-bar-tab` class.
 - Replaced `.hidden`-based selectors with `[hidden]` and dropped unused `.hidden-input` rule.
 - Deleted obsolete left panel assets and gated profile picture debug logs behind `App.debug`.
+- Added handlers for creating and uploading stories, characters, and worlds.
+- Introduced premade item retrieval via `App.getPremadeItems`.
+- Implemented localStorage backup import/export/delete utilities.
+ - Added chin focus management returning focus to last tab and targeting search inputs on open.
