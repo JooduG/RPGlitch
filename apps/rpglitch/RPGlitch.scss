@@ -420,7 +420,8 @@ input[type="file"] {
   overflow: hidden;
 }
 
-.chin-grid {
+.chin-grid,
+.chin-list {
   align-content: start;
   box-shadow: none;
   margin-bottom: 0; 
@@ -481,7 +482,9 @@ input[type="file"] {
 }
 
 .chin-grid > p,
-.chin-grid .story-item-empty-message {
+.chin-list > p,
+.chin-grid .story-item-empty-message,
+.chin-list .story-item-empty-message {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -493,7 +496,8 @@ input[type="file"] {
   grid-column: 2 / 3;
 }
 
-.chin {
+.chin,
+.chin-panel {
   position: absolute;
   top: 100%;
   left: 1rem;
@@ -522,8 +526,8 @@ input[type="file"] {
 
 .chin-actions input::placeholder,
 .chin-actions textarea::placeholder,
-.chin-options-grid input::placeholder,
-.chin-options-grid textarea::placeholder {
+.chin-options-fields input::placeholder,
+.chin-options-fields textarea::placeholder {
   font-style: italic;
   opacity: 0.8;
 }
@@ -698,7 +702,8 @@ input[type="file"] {
     min-height: unset;
   }
 
-  .chin-grid {
+  .chin-grid,
+  .chin-list {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
     height: auto;
@@ -721,14 +726,14 @@ input[type="file"] {
   margin: 0;
 }
 
-.chin-options-grid {
+.chin-options-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-top: 1rem;
 }
 
-.chin-options-grid textarea {
+.chin-options-fields textarea {
   width: 100%;
   min-height: 8em;
   border-radius: var(--pico-radius);
@@ -844,7 +849,8 @@ input[type="file"] {
   line-height: 1.2;
 }
 
-.chin-grid .chin-card-left small {
+.chin-grid .chin-card-left small,
+.chin-list .chin-card-left small {
   font-style: italic;
   font-weight: 400;
 }
