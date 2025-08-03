@@ -17,3 +17,4 @@
 - Added handlers for creating and uploading stories, characters, and worlds.
 - Introduced premade item retrieval via `App.getPremadeItems`.
 - Implemented localStorage backup import/export/delete utilities.
+ - Added chin focus management returning focus to last tab and targeting search inputs on open.

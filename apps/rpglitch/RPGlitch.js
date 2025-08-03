@@ -29,7 +29,7 @@ App.selectTopBarTab = function (btn) {
     b.setAttribute('aria-selected', active ? 'true' : 'false');
     b.setAttribute('aria-expanded', active ? 'true' : 'false');
     b.setAttribute('tabindex', active ? '0' : '-1');
-
+    if (active) App._lastActiveTab = b;
   });
 };
 
@@ -93,6 +93,9 @@ App._toggleChinContent = function (chin) {
   App.showEl(container);
   App.showEl(target);
 
+  const input = target.querySelector('.chin-search');
+  if (input) input.focus();
+
   if (chin === 'stories' && typeof App.renderStoryList === 'function') App.renderStoryList();
   if (chin === 'characters' && typeof App.renderCharacterList === 'function') App.renderCharacterList();
   if (chin === 'worlds' && typeof App.renderWorldList === 'function') App.renderWorldList();
@@ -105,7 +108,9 @@ App._closeChin = function () {
   const panels = container.querySelectorAll('.chin-panel');
   panels.forEach((p) => App.hideEl(p));
   App.hideEl(container);
+  const last = App._lastActiveTab;
   App.selectTopBarTab(null);
+  if (last) last.focus();
 };
 
 // UI helpers for toggling chin visibility and initializing listeners
@@ -203,6 +208,7 @@ App._attachedTopBarButtons = App._attachedTopBarButtons || new Set();
 App._optionsListenersAttached = App._optionsListenersAttached || false;
 App._contentListenersAttached = App._contentListenersAttached || false;
 App._outsideChinListenerAttached = App._outsideChinListenerAttached || false;
+App._lastActiveTab = App._lastActiveTab || null;
 
 App._attachOptionChinActions = function () {
   if (App._optionsListenersAttached) return;
@@ -373,9 +379,7 @@ App.importAllData = function (file) {
           window.localStorage.setItem(key, JSON.stringify(data[key]));
         }
       });
-      if (typeof App.renderStoryList === 'function') App.renderStoryList();
-      if (typeof App.renderCharacterList === 'function') App.renderCharacterList();
-      if (typeof App.renderWorldList === 'function') App.renderWorldList();
+      if (typeof App.renderAllLists === 'function') App.renderAllLists();
     } catch (err) {
       console.error('Failed to import backup', err);
     }
@@ -406,9 +410,7 @@ App.deleteAllData = function () {
   ['stories', 'characters', 'worlds'].forEach((key) => {
     window.localStorage.removeItem(key);
   });
-  if (typeof App.renderStoryList === 'function') App.renderStoryList();
-  if (typeof App.renderCharacterList === 'function') App.renderCharacterList();
-  if (typeof App.renderWorldList === 'function') App.renderWorldList();
+  if (typeof App.renderAllLists === 'function') App.renderAllLists();
 };
 
 // Export for Node-based tests
