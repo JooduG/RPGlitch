@@ -45,10 +45,10 @@
         <!-- Top Bar Left -->
         <div id="top-bar-left" class="top-bar-left">
           <ul role="tablist">
-            <li><button class="secondary" role="tab" tabindex="0" id="tab-stories" aria-selected="true" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
-            <li><button class="secondary" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
-            <li><button class="secondary" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
-            <li><button class="secondary" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-controls="chin-options" data-chin="options">Options</button></li>
+            <li><button class="secondary top-bar-tab" role="tab" tabindex="0" id="tab-stories" aria-selected="false" aria-expanded="false" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
+            <li><button class="secondary top-bar-tab" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
+            <li><button class="secondary top-bar-tab" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
+            <li><button class="secondary top-bar-tab" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options">Options</button></li>
           </ul>
         </div>
 
@@ -80,15 +80,15 @@
       </nav>
 
         <!-- Chin Container -->
-      <div id="chin-container" class="chin-container">
+      <div id="chin-container" class="chin-container hidden">
 
         <!-- Stories Chin -->
-        <div role="tabpanel" tabindex="0" id="chin-stories" aria-labelledby="tab-stories" data-chin="stories" class="chin">
+        <div role="tabpanel" tabindex="0" id="chin-stories" aria-labelledby="tab-stories" data-chin="stories" class="chin chin-panel" hidden="hidden">
           <div class="chin-actions">
             <div class="chin-actions-left">
               <form role="search">
                 <fieldset role="group">
-                  <input type="search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories" />
+                  <input type="search" class="chin-search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories" />
                   <button type="submit" class="secondary">Search</button>
                 </fieldset>
               </form>
@@ -102,16 +102,16 @@
               <button id="new-story" class="secondary">New Story</button>
             </div>
           </div>
-          <div id="chin-story-grid" class="chin-grid"><!-- Story Cards --></div>
+          <div id="chin-story-grid" class="chin-grid chin-list"><!-- Story Cards --></div>
         </div>
 
         <!-- Chin: Character -->
-        <div role="tabpanel" tabindex="0" id="chin-characters" aria-labelledby="tab-characters" data-chin="characters" class="chin" hidden="hidden">
+        <div role="tabpanel" tabindex="0" id="chin-characters" aria-labelledby="tab-characters" data-chin="characters" class="chin chin-panel" hidden="hidden">
           <div class="chin-actions">
             <div class="chin-actions-left">
               <form role="search">
                 <fieldset role="group">
-                  <input type="search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters" />
+                  <input type="search" class="chin-search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters" />
                   <button type="submit" class="secondary">Search</button>
                 </fieldset>
               </form>
@@ -126,32 +126,16 @@
             </div>
           </div>
 
-          <div id="chin-character-grid" class="chin-grid">
-            <div class="chin-card">
-              <div class="chin-card-left">
-                <article class="chin-card">
-                  <header>
-                    <h4>Character Name</h4>
-                  </header>
-                    Description of the character...
-                  <footer>
-                    <small>Premade</small> 
-                  </footer>
-                </article>
-              </div>
-              <div class="chin-card-right">
-                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y1ZjVmNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkNoYXJhY3RlcjwvdGV4dD48L3N2Zz4=" alt="Character Name" />
-              </div>
-            </div>
-          </div>
+          <div id="chin-character-grid" class="chin-grid chin-list"><!-- Character Cards --></div>
+        </div>
 
         <!-- Chin: World -->
-        <div role="tabpanel" tabindex="0" id="chin-worlds" aria-labelledby="tab-worlds" data-chin="worlds" class="chin" hidden="hidden">
+        <div role="tabpanel" tabindex="0" id="chin-worlds" aria-labelledby="tab-worlds" data-chin="worlds" class="chin chin-panel" hidden="hidden">
           <div class="chin-actions">
             <div class="chin-actions-left">
               <form role="search">
                 <fieldset role="group">
-                  <input type="search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds" />
+                  <input type="search" class="chin-search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds" />
                   <button type="submit" class="secondary">Search</button>
                 </fieldset>
               </form>
@@ -164,11 +148,11 @@
               <button id="new-world" class="secondary">New World</button>
             </div>
           </div>
-          <div id="chin-world-grid" class="chin-grid"><!-- World Cards --></div>
+          <div id="chin-world-grid" class="chin-grid chin-list"><!-- World Cards --></div>
         </div>
 
         <!-- Chin: Options -->
-        <div role="tabpanel" tabindex="0" id="chin-options" aria-labelledby="tab-options" data-chin="options" class="chin" hidden="hidden">
+        <div role="tabpanel" tabindex="0" id="chin-options" aria-labelledby="tab-options" data-chin="options" class="chin chin-panel" hidden="hidden">
           <div class="chin-actions">
             <div class="chin-actions-left">
             <!-- Something in the future? -->
@@ -182,12 +166,13 @@
               <button id="delete-all-data" class="danger">Delete All Data</button>
             </div>
           </div>
-          <div id="chin-options-grid">
-            <textarea id="opening-prompt" placeholder="Opening Prompt"></textarea>
+          <div class="chin-options-fields">
+            <label for="opening-prompt">Story Prompt</label>
+            <textarea id="opening-prompt" placeholder="Story Prompt"></textarea>
+            <label for="custom-js">Custom JS</label>
             <textarea id="custom-js" placeholder="Custom JS"></textarea>
           </div>
         </div>
-      </div>
       </div>
 
   </header>
@@ -316,6 +301,15 @@
 
   <script src="utils.js"></script>
   <script src="RPGlitch.js"></script>
+  <script>
+    document.addEventListener(
+      'DOMContentLoaded',
+      () => {
+        App.initializeWhenReady();
+      },
+      { once: true }
+    );
+  </script>
 
 </body>
 </html>

@@ -9,6 +9,7 @@ App.hideEl = window.hideEl || function (el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
   el.classList.add('hidden');
+  el.setAttribute('hidden', 'hidden');
   return el;
 };
 
@@ -16,13 +17,24 @@ App.showEl = window.showEl || function (el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
   el.classList.remove('hidden');
+  el.removeAttribute('hidden');
   el.style.visibility = '';
   el.style.display = '';
   return el;
 };
 
-// Provide no-op default for selectTopBarTab so tests can mock it
-App.selectTopBarTab = App.selectTopBarTab || function () {};
+// Highlight the active top bar tab and update ARIA attributes
+App.selectTopBarTab = function (btn) {
+  const ui = App.ui || App._getUIElements();
+  if (!ui.topBarButtons) return;
+  ui.topBarButtons.forEach((b) => {
+    const active = b === btn;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', active ? 'true' : 'false');
+    b.setAttribute('aria-expanded', active ? 'true' : 'false');
+    b.setAttribute('tabindex', active ? '0' : '-1');
+  });
+};
 
 /**
  * Collects key DOM elements used by the app and stores them on App.ui.
@@ -55,14 +67,144 @@ App._toggleChinContent = function (chin) {
   const ui = App.ui || App._getUIElements();
   const container = ui.chinContainer;
   if (!container) return;
+
+  const panels = container.querySelectorAll('.chin-panel');
+  let target = null;
+  panels.forEach((panel) => {
+    if (panel.dataset.chin === chin) target = panel;
+    else App.hideEl(panel);
+  });
+  if (!target) return;
+
+  const alreadyVisible = !target.classList.contains('hidden');
+  if (alreadyVisible) {
+    App._closeChin();
+    return;
+  }
+
   App.showEl(container);
-  const panel = container.querySelector(`[data-chin="${chin}"]`);
-  if (panel) App.showEl(panel);
+  App.showEl(target);
+
+  if (chin === 'stories' && typeof App.renderStoryList === 'function') App.renderStoryList();
+  if (chin === 'characters' && typeof App.renderCharacterList === 'function') App.renderCharacterList();
+  if (chin === 'worlds' && typeof App.renderWorldList === 'function') App.renderWorldList();
+};
+
+App._closeChin = function () {
+  const ui = App.ui || App._getUIElements();
+  const container = ui.chinContainer;
+  if (!container) return;
+  const panels = container.querySelectorAll('.chin-panel');
+  panels.forEach((p) => App.hideEl(p));
+  App.hideEl(container);
+  App.selectTopBarTab(null);
+};
+
+App._attachChinSearchHandlers = function () {
+  const inputs = document.querySelectorAll('.chin-search');
+  inputs.forEach((input) => {
+    const panel = input.closest('.chin-panel');
+    const list = panel ? panel.querySelector('.chin-list') : null;
+    if (!list) return;
+    input.addEventListener('input', () => {
+      const term = input.value.toLowerCase();
+      list.querySelectorAll('[data-title]').forEach((el) => {
+        const title = (el.dataset.title || '').toLowerCase();
+        const match = title.includes(term);
+        el.classList.toggle('hidden', !match);
+      });
+    });
+  });
+};
+
+App.renderStoryList = App.renderStoryList || function () {
+  const container = document.getElementById('chin-story-grid');
+  if (!container) return;
+  const items = [{ title: 'Sample Story' }];
+  container.textContent = '';
+  items.forEach((s) => {
+    const card = document.createElement('div');
+    card.className = 'chin-card';
+    card.dataset.title = s.title;
+
+    const left = document.createElement('div');
+    left.className = 'chin-card-left';
+
+    const article = document.createElement('article');
+    article.className = 'chin-card';
+
+    const header = document.createElement('header');
+    const h4 = document.createElement('h4');
+    h4.textContent = s.title;
+
+    header.appendChild(h4);
+    article.appendChild(header);
+    left.appendChild(article);
+    card.appendChild(left);
+    container.appendChild(card);
+  });
+};
+
+App.renderCharacterList = App.renderCharacterList || function () {
+  const container = document.getElementById('chin-character-grid');
+  if (!container) return;
+  const items = [{ title: 'Sample Character' }];
+  container.textContent = '';
+  items.forEach((c) => {
+    const card = document.createElement('div');
+    card.className = 'chin-card';
+    card.dataset.title = c.title;
+
+    const left = document.createElement('div');
+    left.className = 'chin-card-left';
+
+    const article = document.createElement('article');
+    article.className = 'chin-card';
+
+    const header = document.createElement('header');
+    const h4 = document.createElement('h4');
+    h4.textContent = c.title;
+
+    header.appendChild(h4);
+    article.appendChild(header);
+    left.appendChild(article);
+    card.appendChild(left);
+    container.appendChild(card);
+  });
+};
+
+App.renderWorldList = App.renderWorldList || function () {
+  const container = document.getElementById('chin-world-grid');
+  if (!container) return;
+  const items = [{ title: 'Sample World' }];
+  container.textContent = '';
+  items.forEach((w) => {
+    const card = document.createElement('div');
+    card.className = 'chin-card';
+    card.dataset.title = w.title;
+
+    const left = document.createElement('div');
+    left.className = 'chin-card-left';
+
+    const article = document.createElement('article');
+    article.className = 'chin-card';
+
+    const header = document.createElement('header');
+    const h4 = document.createElement('h4');
+    h4.textContent = w.title;
+
+    header.appendChild(h4);
+    article.appendChild(header);
+    left.appendChild(article);
+    card.appendChild(left);
+    container.appendChild(card);
+  });
 };
 
 // Track attached listeners to avoid duplicates
 App._attachedTopBarButtons = App._attachedTopBarButtons || new Set();
 App._optionsListenersAttached = App._optionsListenersAttached || false;
+App._outsideChinListenerAttached = App._outsideChinListenerAttached || false;
 
 /**
  * Attaches event listeners for top bar interactions and option chin actions.
@@ -116,6 +258,17 @@ App._attachTopBarEventListeners = function () {
 
     App._optionsListenersAttached = true;
   }
+
+  if (!App._outsideChinListenerAttached) {
+    document.addEventListener('click', (e) => {
+      const current = App.ui || App._getUIElements();
+      if (!current.chinContainer || current.chinContainer.classList.contains('hidden')) return;
+      if (current.chinContainer.contains(e.target) || current.topBarLeft.contains(e.target)) return;
+      e.preventDefault();
+      App._closeChin();
+    });
+    App._outsideChinListenerAttached = true;
+  }
 };
 
 App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
@@ -131,6 +284,8 @@ App.initializeWhenReady = async function () {
 
   try {
     App._getUIElements();
+    App._attachTopBarEventListeners();
+    App._attachChinSearchHandlers();
     if (typeof App.initialLoad === 'function') {
       await App.initialLoad();
     }
