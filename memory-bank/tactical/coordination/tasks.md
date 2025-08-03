@@ -38,7 +38,6 @@ Move inline CSS styles from JavaScript files to SCSS classes to improve maintain
   - `.studio-profile-name-styled` - Profile name margins
   - `.color-swatch-large-styled` - Large color swatch
   - `.color-swatch-small-styled` - Small color swatch
-  - `.hidden-input` - Hidden input elements
   - `.profile-picture-initials-styled` - Profile picture initials
 
 ### Phase 3: JavaScript Updates ✅

@@ -10,3 +10,7 @@
 - Adjusted chin visibility logic and tests to ensure toggles reveal panels properly.
 - Refactored chin toggling to hide all panels before showing the target and centralized option chin listeners.
 - Simplified show/hide utilities and styles to rely solely on the `hidden` attribute, updating tests accordingly.
+- Reworked chin search filtering to toggle `hidden` attributes and added storage-backed list rendering.
+- Removed legacy prefix handling in `showChin` and pruned unused `top-bar-tab` class.
+- Replaced `.hidden`-based selectors with `[hidden]` and dropped unused `.hidden-input` rule.
+- Deleted obsolete left panel assets and gated profile picture debug logs behind `App.debug`.
