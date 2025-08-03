@@ -9,7 +9,6 @@ RPGlitch is a web application for creating and managing RPG character profiles w
 ```
 rpglitch/
 ├── RPGlitch.html                    # Main HTML template
-├── RPGlitch-left-panel.txt         # Left panel content
 ├── RPGlitch.js                      # Main JavaScript logic
 ├── RPGlitch.scss                    # Main SCSS styles
 ├── ProfilePictureComponent.js       # React component for profile pictures
@@ -22,6 +21,10 @@ rpglitch/
 - **Styles**: `RPGlitch.scss`
 - **Scripts**: `RPGlitch.js`
 - **Components**: `ProfilePictureComponent.js`
+
+## Chin System
+
+Top bar buttons with the `.chin-button` class control content panels via matching `data-chin` attributes. Panels toggle visibility using the `hidden` attribute for consistent, accessible behavior.
 
 ## Build
 

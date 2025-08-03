@@ -98,8 +98,7 @@ App.ui = App.ui || {};
 
 App.ui.showChin = function (chinId) {
   if (!chinId) return;
-  const id = chinId.startsWith('chin-') ? chinId.slice(5) : chinId;
-  App._toggleChinContent(id);
+  App._toggleChinContent(chinId);
 };
 
 App.ui.setupChinListeners = function () {
@@ -117,21 +116,31 @@ App._attachChinSearchHandlers = function () {
       list.querySelectorAll('[data-title]').forEach((el) => {
         const title = (el.dataset.title || '').toLowerCase();
         const match = title.includes(term);
-        el.classList.toggle('hidden', !match);
+        if (match) App.showEl(el); else App.hideEl(el);
       });
     });
   });
 };
 
-App.renderStoryList = App.renderStoryList || function () {
-  const container = document.getElementById('chin-story-grid');
+function loadItems(key) {
+  try {
+    const data = window.localStorage.getItem(key);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error(`Failed to parse localStorage item with key "${key}":`, e);
+    return [];
+  }
+}
+
+function renderList(containerId, key) {
+  const container = document.getElementById(containerId);
   if (!container) return;
-  const items = [{ title: 'Sample Story' }];
+  const items = loadItems(key);
   container.textContent = '';
-  items.forEach((s) => {
+  items.forEach((item) => {
     const card = document.createElement('div');
     card.className = 'chin-card';
-    card.dataset.title = s.title;
+    card.dataset.title = item.title;
 
     const left = document.createElement('div');
     left.className = 'chin-card-left';
@@ -141,7 +150,7 @@ App.renderStoryList = App.renderStoryList || function () {
 
     const header = document.createElement('header');
     const h4 = document.createElement('h4');
-    h4.textContent = s.title;
+    h4.textContent = item.title;
 
     header.appendChild(h4);
     article.appendChild(header);
@@ -149,63 +158,18 @@ App.renderStoryList = App.renderStoryList || function () {
     card.appendChild(left);
     container.appendChild(card);
   });
+}
+
+App.renderStoryList = App.renderStoryList || function () {
+  renderList('chin-story-grid', 'stories');
 };
 
 App.renderCharacterList = App.renderCharacterList || function () {
-  const container = document.getElementById('chin-character-grid');
-  if (!container) return;
-  const items = [{ title: 'Sample Character' }];
-  container.textContent = '';
-  items.forEach((c) => {
-    const card = document.createElement('div');
-    card.className = 'chin-card';
-    card.dataset.title = c.title;
-
-    const left = document.createElement('div');
-    left.className = 'chin-card-left';
-
-    const article = document.createElement('article');
-    article.className = 'chin-card';
-
-    const header = document.createElement('header');
-    const h4 = document.createElement('h4');
-    h4.textContent = c.title;
-
-    header.appendChild(h4);
-    article.appendChild(header);
-    left.appendChild(article);
-    card.appendChild(left);
-    container.appendChild(card);
-  });
-
+  renderList('chin-character-grid', 'characters');
 };
 
 App.renderWorldList = App.renderWorldList || function () {
-  const container = document.getElementById('chin-world-grid');
-  if (!container) return;
-  const items = [{ title: 'Sample World' }];
-  container.textContent = '';
-  items.forEach((w) => {
-    const card = document.createElement('div');
-    card.className = 'chin-card';
-    card.dataset.title = w.title;
-
-    const left = document.createElement('div');
-    left.className = 'chin-card-left';
-
-    const article = document.createElement('article');
-    article.className = 'chin-card';
-
-    const header = document.createElement('header');
-    const h4 = document.createElement('h4');
-    h4.textContent = w.title;
-
-    header.appendChild(h4);
-    article.appendChild(header);
-    left.appendChild(article);
-    card.appendChild(left);
-    container.appendChild(card);
-  });
+  renderList('chin-world-grid', 'worlds');
 };
 
 // Track attached listeners to avoid duplicates
@@ -270,7 +234,7 @@ App._attachTopBarEventListeners = function () {
 
   if (!App._outsideChinListenerAttached) {
     document.addEventListener('click', (e) => {
-      const current = App._getUIElements();
+      const current = App.ui || App._getUIElements();
       if (!current.chinContainer || current.chinContainer.hasAttribute('hidden')) return;
       if (current.chinContainer.contains(e.target) || current.topBarLeft.contains(e.target)) return;
       e.preventDefault();

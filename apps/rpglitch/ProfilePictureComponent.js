@@ -11,7 +11,9 @@
  */
 // eslint-disable-next-line no-unused-vars
 function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 'Segoe UI, system-ui, sans-serif') {
-  console.debug('[ProfilePicture] getProfilePictureHTML called:', { item, context });
+  if (window.App && window.App.debug) {
+    console.debug('[ProfilePicture] getProfilePictureHTML called:', { item, context });
+  }
   
   // Validate inputs
   if (!item) {
@@ -225,7 +227,9 @@ function getPaletteKey(palette) {
   if (palette && palette.colors && window.App && window.App.CONSTANTS && window.App.CONSTANTS.COLOR_PALETTES) {
     for (const [key, definedPalette] of Object.entries(window.App.CONSTANTS.COLOR_PALETTES)) {
       if (definedPalette.colors.medium === palette.colors.medium) {
-        console.debug('[ProfilePicture] Matched palette key:', key, 'for colors:', palette.colors);
+        if (window.App && window.App.debug) {
+          console.debug('[ProfilePicture] Matched palette key:', key, 'for colors:', palette.colors);
+        }
         return key;
       }
     }
