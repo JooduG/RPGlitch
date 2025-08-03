@@ -379,9 +379,7 @@ App.importAllData = function (file) {
           window.localStorage.setItem(key, JSON.stringify(data[key]));
         }
       });
-      if (typeof App.renderStoryList === 'function') App.renderStoryList();
-      if (typeof App.renderCharacterList === 'function') App.renderCharacterList();
-      if (typeof App.renderWorldList === 'function') App.renderWorldList();
+      if (typeof App.renderAllLists === 'function') App.renderAllLists();
     } catch (err) {
       console.error('Failed to import backup', err);
     }
