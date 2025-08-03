@@ -76,6 +76,7 @@ button,
   justify-content: center;
   display: flex;
   align-items: center;
+  flex: nowrap;
 }
 
 .chin-card,
@@ -468,12 +469,6 @@ input[type="file"] {
   flex-direction: column;
   margin-top: 0;
   transition: transform 0.25s ease, opacity 0.25s ease;
-
-  .chin-content {
-    background-color: #2a2d42;
-    padding: 20px;
-    border-radius: var(--pico-radius);
-  }
 }
 
 .chin-empty {

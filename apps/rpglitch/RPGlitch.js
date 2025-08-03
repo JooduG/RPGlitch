@@ -64,10 +64,8 @@ App._toggleChinContent = function (chin) {
   const ui = App._getUIElements();
   const container = ui.chinContainer;
   if (!container) return;
-
   const target = container.querySelector(`[data-chin="${chin}"]`);
   const wasHidden = !target || target.hasAttribute('hidden');
-
   const panels = container.querySelectorAll('.chin-panel');
   panels.forEach((panel) => App.hideEl(panel));
   if (!target) return;
