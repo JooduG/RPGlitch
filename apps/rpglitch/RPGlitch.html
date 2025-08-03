@@ -46,9 +46,9 @@
         <div id="top-bar-left" class="top-bar-left">
           <ul role="tablist">
             <li><button class="secondary top-bar-tab" role="tab" tabindex="0" id="tab-stories" aria-selected="false" aria-expanded="false" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
-            <li><button class="secondary top-bar-tab" role="tab" tabindex="0" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
-            <li><button class="secondary top-bar-tab" role="tab" tabindex="0" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
-            <li><button class="secondary top-bar-tab" role="tab" tabindex="0" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options">Options</button></li>
+            <li><button class="secondary top-bar-tab" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
+            <li><button class="secondary top-bar-tab" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
+            <li><button class="secondary top-bar-tab" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options">Options</button></li>
           </ul>
         </div>
 
@@ -301,6 +301,15 @@
 
   <script src="utils.js"></script>
   <script src="RPGlitch.js"></script>
+  <script>
+    document.addEventListener(
+      'DOMContentLoaded',
+      () => {
+        App.initializeWhenReady();
+      },
+      { once: true }
+    );
+  </script>
 
 </body>
 </html>

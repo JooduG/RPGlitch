@@ -32,6 +32,8 @@ App.selectTopBarTab = function (btn) {
     b.classList.toggle('active', active);
     b.setAttribute('aria-selected', active ? 'true' : 'false');
     b.setAttribute('aria-expanded', active ? 'true' : 'false');
+    b.setAttribute('tabindex', active ? '0' : '-1');
+
   });
 };
 
@@ -120,27 +122,85 @@ App.renderStoryList = App.renderStoryList || function () {
   const container = document.getElementById('chin-story-grid');
   if (!container) return;
   const items = [{ title: 'Sample Story' }];
-  container.innerHTML = items
-    .map((s) => `<div class="chin-card" data-title="${s.title}"><div class="chin-card-left"><article class="chin-card"><header><h4>${s.title}</h4></header></article></div></div>`)
-    .join('');
+  container.textContent = '';
+  items.forEach((s) => {
+    const card = document.createElement('div');
+    card.className = 'chin-card';
+    card.dataset.title = s.title;
+
+    const left = document.createElement('div');
+    left.className = 'chin-card-left';
+
+    const article = document.createElement('article');
+    article.className = 'chin-card';
+
+    const header = document.createElement('header');
+    const h4 = document.createElement('h4');
+    h4.textContent = s.title;
+
+    header.appendChild(h4);
+    article.appendChild(header);
+    left.appendChild(article);
+    card.appendChild(left);
+    container.appendChild(card);
+  });
 };
 
 App.renderCharacterList = App.renderCharacterList || function () {
   const container = document.getElementById('chin-character-grid');
   if (!container) return;
   const items = [{ title: 'Sample Character' }];
-  container.innerHTML = items
-    .map((c) => `<div class="chin-card" data-title="${c.title}"><div class="chin-card-left"><article class="chin-card"><header><h4>${c.title}</h4></header></article></div></div>`)
-    .join('');
+  container.textContent = '';
+  items.forEach((c) => {
+    const card = document.createElement('div');
+    card.className = 'chin-card';
+    card.dataset.title = c.title;
+
+    const left = document.createElement('div');
+    left.className = 'chin-card-left';
+
+    const article = document.createElement('article');
+    article.className = 'chin-card';
+
+    const header = document.createElement('header');
+    const h4 = document.createElement('h4');
+    h4.textContent = c.title;
+
+    header.appendChild(h4);
+    article.appendChild(header);
+    left.appendChild(article);
+    card.appendChild(left);
+    container.appendChild(card);
+  });
+
 };
 
 App.renderWorldList = App.renderWorldList || function () {
   const container = document.getElementById('chin-world-grid');
   if (!container) return;
   const items = [{ title: 'Sample World' }];
-  container.innerHTML = items
-    .map((w) => `<div class="chin-card" data-title="${w.title}"><div class="chin-card-left"><article class="chin-card"><header><h4>${w.title}</h4></header></article></div></div>`)
-    .join('');
+  container.textContent = '';
+  items.forEach((w) => {
+    const card = document.createElement('div');
+    card.className = 'chin-card';
+    card.dataset.title = w.title;
+
+    const left = document.createElement('div');
+    left.className = 'chin-card-left';
+
+    const article = document.createElement('article');
+    article.className = 'chin-card';
+
+    const header = document.createElement('header');
+    const h4 = document.createElement('h4');
+    h4.textContent = w.title;
+
+    header.appendChild(h4);
+    article.appendChild(header);
+    left.appendChild(article);
+    card.appendChild(left);
+    container.appendChild(card);
+  });
 };
 
 // Track attached listeners to avoid duplicates
@@ -206,6 +266,7 @@ App._attachTopBarEventListeners = function () {
       const current = App.ui || App._getUIElements();
       if (!current.chinContainer || current.chinContainer.classList.contains('hidden')) return;
       if (current.chinContainer.contains(e.target) || current.topBarLeft.contains(e.target)) return;
+      e.preventDefault();
       App._closeChin();
     });
     App._outsideChinListenerAttached = true;
