@@ -101,6 +101,19 @@ App._closeChin = function () {
   App.selectTopBarTab(null);
 };
 
+// UI helpers for toggling chin visibility and initializing listeners
+App.ui = App.ui || {};
+
+App.ui.showChin = function (chinId) {
+  if (!chinId) return;
+  const id = chinId.startsWith('chin-') ? chinId.slice(5) : chinId;
+  App._toggleChinContent(id);
+};
+
+App.ui.setupChinListeners = function () {
+  App._attachTopBarEventListeners();
+};
+
 App._attachChinSearchHandlers = function () {
   const inputs = document.querySelectorAll('.chin-search');
   inputs.forEach((input) => {
@@ -286,7 +299,7 @@ App.initializeWhenReady = async function () {
 
   try {
     App._getUIElements();
-    App._attachTopBarEventListeners();
+    App.ui.setupChinListeners();
     App._attachChinSearchHandlers();
     if (typeof App.initialLoad === 'function') {
       await App.initialLoad();

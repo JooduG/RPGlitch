@@ -8,3 +8,4 @@
 - Building chin cards with `createElement` avoids HTML injection.
 - Roving `tabindex` confines focus to the selected tab.
 - Outside click handler prevents navigation when closing the chin.
+- Wrapper `App.ui.showChin` leverages existing toggle logic for external triggers.

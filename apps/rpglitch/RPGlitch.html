@@ -45,10 +45,10 @@
         <!-- Top Bar Left -->
         <div id="top-bar-left" class="top-bar-left">
           <ul role="tablist">
-            <li><button class="secondary top-bar-tab" role="tab" tabindex="0" id="tab-stories" aria-selected="false" aria-expanded="false" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
-            <li><button class="secondary top-bar-tab" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
-            <li><button class="secondary top-bar-tab" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
-            <li><button class="secondary top-bar-tab" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options">Options</button></li>
+            <li><button class="secondary top-bar-tab chin-button" role="tab" tabindex="0" id="tab-stories" aria-selected="false" aria-expanded="false" aria-controls="chin-stories" data-chin="stories" data-chin-id="chin-stories">Stories</button></li>
+            <li><button class="secondary top-bar-tab chin-button" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters" data-chin-id="chin-characters">Characters</button></li>
+            <li><button class="secondary top-bar-tab chin-button" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds" data-chin-id="chin-worlds">Worlds</button></li>
+            <li><button class="secondary top-bar-tab chin-button" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options" data-chin-id="chin-options">Options</button></li>
           </ul>
         </div>
 
@@ -79,104 +79,104 @@
         </div>
       </nav>
 
-        <!-- Chin Container -->
-      <div id="chin-container" class="chin-container hidden">
-
-        <!-- Stories Chin -->
-        <div role="tabpanel" tabindex="0" id="chin-stories" aria-labelledby="tab-stories" data-chin="stories" class="chin chin-panel" hidden="hidden">
-          <div class="chin-actions">
-            <div class="chin-actions-left">
-              <form role="search">
-                <fieldset role="group">
-                  <input type="search" class="chin-search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories" />
-                  <button type="submit" class="secondary">Search</button>
-                </fieldset>
-              </form>
-            </div>
-      
-            <div class="chin-actions-right">
-              <button type="button" class="secondary" data-trigger="upload-story">
-                Upload Story
-              </button>
-                <input type="file" id="upload-story" aria-label="Upload Story" class="file-input" hidden="hidden"/>
-              <button id="new-story" class="secondary">New Story</button>
-            </div>
-          </div>
-          <div id="chin-story-grid" class="chin-grid chin-list"><!-- Story Cards --></div>
+  </header>
+    <!-- Chin Container -->
+  <div id="chin-container" class="chin-container hidden">
+  
+    <!-- Stories Chin -->
+    <div role="tabpanel" tabindex="0" id="chin-stories" aria-labelledby="tab-stories" data-chin="stories" class="chin chin-panel" hidden="hidden">
+      <div class="chin-actions">
+        <div class="chin-actions-left">
+          <form role="search">
+            <fieldset role="group">
+              <input type="search" class="chin-search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories" />
+              <button type="submit" class="secondary">Search</button>
+            </fieldset>
+          </form>
         </div>
-
-        <!-- Chin: Character -->
-        <div role="tabpanel" tabindex="0" id="chin-characters" aria-labelledby="tab-characters" data-chin="characters" class="chin chin-panel" hidden="hidden">
-          <div class="chin-actions">
-            <div class="chin-actions-left">
-              <form role="search">
-                <fieldset role="group">
-                  <input type="search" class="chin-search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters" />
-                  <button type="submit" class="secondary">Search</button>
-                </fieldset>
-              </form>
-            </div>
-
-            <div class="chin-actions-right">
-              <button type="button" class="secondary" data-trigger="upload-character">
-                Upload Character
-              </button>
-                <input type="file" id="upload-character" aria-label="Upload Character" hidden="hidden"/>
-              <button id="new-character" class="secondary">New Character</button>
-            </div>
-          </div>
-
-          <div id="chin-character-grid" class="chin-grid chin-list"><!-- Character Cards --></div>
-        </div>
-
-        <!-- Chin: World -->
-        <div role="tabpanel" tabindex="0" id="chin-worlds" aria-labelledby="tab-worlds" data-chin="worlds" class="chin chin-panel" hidden="hidden">
-          <div class="chin-actions">
-            <div class="chin-actions-left">
-              <form role="search">
-                <fieldset role="group">
-                  <input type="search" class="chin-search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds" />
-                  <button type="submit" class="secondary">Search</button>
-                </fieldset>
-              </form>
-            </div>
-            <div class="chin-actions-right">
-              <button type="button" class="secondary" data-trigger="upload-world">
-                Upload World
-              </button>
-                <input type="file" id="upload-world" aria-label="Upload World" hidden="hidden"/>
-              <button id="new-world" class="secondary">New World</button>
-            </div>
-          </div>
-          <div id="chin-world-grid" class="chin-grid chin-list"><!-- World Cards --></div>
-        </div>
-
-        <!-- Chin: Options -->
-        <div role="tabpanel" tabindex="0" id="chin-options" aria-labelledby="tab-options" data-chin="options" class="chin chin-panel" hidden="hidden">
-          <div class="chin-actions">
-            <div class="chin-actions-left">
-            <!-- Something in the future? -->
-            </div>
-            <div class="chin-actions-right">
-              <button type="button" class="secondary" data-trigger="upload-backup">
-                Upload All
-              </button>
-              <input type="file" id="upload-backup" aria-label="Upload Backup" hidden="hidden"/>
-              <button id="download-backup" class="secondary">Download Backup</button>
-              <button id="delete-all-data" class="danger">Delete All Data</button>
-            </div>
-          </div>
-          <div class="chin-options-fields">
-            <label for="opening-prompt">Story Prompt</label>
-            <textarea id="opening-prompt" placeholder="Story Prompt"></textarea>
-            <label for="custom-js">Custom JS</label>
-            <textarea id="custom-js" placeholder="Custom JS"></textarea>
-          </div>
+  
+        <div class="chin-actions-right">
+          <button type="button" class="secondary" data-trigger="upload-story">
+            Upload Story
+          </button>
+            <input type="file" id="upload-story" aria-label="Upload Story" class="file-input" hidden="hidden"/>
+          <button id="new-story" class="secondary">New Story</button>
         </div>
       </div>
-
-  </header>
-
+      <div id="chin-story-grid" class="chin-grid chin-list"><!-- Story Cards --></div>
+    </div>
+  
+    <!-- Chin: Character -->
+    <div role="tabpanel" tabindex="0" id="chin-characters" aria-labelledby="tab-characters" data-chin="characters" class="chin chin-panel" hidden="hidden">
+      <div class="chin-actions">
+        <div class="chin-actions-left">
+          <form role="search">
+            <fieldset role="group">
+              <input type="search" class="chin-search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters" />
+              <button type="submit" class="secondary">Search</button>
+            </fieldset>
+          </form>
+        </div>
+  
+        <div class="chin-actions-right">
+          <button type="button" class="secondary" data-trigger="upload-character">
+            Upload Character
+          </button>
+            <input type="file" id="upload-character" aria-label="Upload Character" hidden="hidden"/>
+          <button id="new-character" class="secondary">New Character</button>
+        </div>
+      </div>
+  
+      <div id="chin-character-grid" class="chin-grid chin-list"><!-- Character Cards --></div>
+    </div>
+  
+    <!-- Chin: World -->
+    <div role="tabpanel" tabindex="0" id="chin-worlds" aria-labelledby="tab-worlds" data-chin="worlds" class="chin chin-panel" hidden="hidden">
+      <div class="chin-actions">
+        <div class="chin-actions-left">
+          <form role="search">
+            <fieldset role="group">
+              <input type="search" class="chin-search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds" />
+              <button type="submit" class="secondary">Search</button>
+            </fieldset>
+          </form>
+        </div>
+        <div class="chin-actions-right">
+          <button type="button" class="secondary" data-trigger="upload-world">
+            Upload World
+          </button>
+            <input type="file" id="upload-world" aria-label="Upload World" hidden="hidden"/>
+          <button id="new-world" class="secondary">New World</button>
+        </div>
+      </div>
+      <div id="chin-world-grid" class="chin-grid chin-list"><!-- World Cards --></div>
+    </div>
+  
+    <!-- Chin: Options -->
+    <div role="tabpanel" tabindex="0" id="chin-options" aria-labelledby="tab-options" data-chin="options" class="chin chin-panel" hidden="hidden">
+      <div class="chin-actions">
+        <div class="chin-actions-left">
+        <!-- Something in the future? -->
+        </div>
+        <div class="chin-actions-right">
+          <button type="button" class="secondary" data-trigger="upload-backup">
+            Upload All
+          </button>
+          <input type="file" id="upload-backup" aria-label="Upload Backup" hidden="hidden"/>
+          <button id="download-backup" class="secondary">Download Backup</button>
+          <button id="delete-all-data" class="danger">Delete All Data</button>
+        </div>
+      </div>
+      <div class="chin-options-fields">
+        <label for="opening-prompt">Story Prompt</label>
+        <textarea id="opening-prompt" placeholder="Story Prompt"></textarea>
+        <label for="custom-js">Custom JS</label>
+        <textarea id="custom-js" placeholder="Custom JS"></textarea>
+      </div>
+    </div>
+  </div>
+  
+  
   <!-- Main Container -->
   <main id="main" class="container-fluid">
     
