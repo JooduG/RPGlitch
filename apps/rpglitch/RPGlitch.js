@@ -272,7 +272,7 @@ App._attachTopBarEventListeners = function () {
 
   if (!App._outsideChinListenerAttached) {
     document.addEventListener('click', (e) => {
-      const current = App.ui || App._getUIElements();
+      const current = App._getUIElements();
       if (!current.chinContainer || current.chinContainer.hasAttribute('hidden')) return;
       if (current.chinContainer.contains(e.target) || current.topBarLeft.contains(e.target)) return;
       e.preventDefault();
