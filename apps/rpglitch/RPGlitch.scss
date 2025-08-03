@@ -466,7 +466,7 @@ input[type="file"] {
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  margin-top: 0 1rem 1rem;
+  margin: 0 1rem 1rem;
   transition: transform 0.25s ease, opacity 0.25s ease;
 
   &.hidden {

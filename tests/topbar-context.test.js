@@ -23,6 +23,7 @@ test('top bar click triggers chin toggle without duplicate handlers', () => {
   // Mock the methods that _attachTopBarEventListeners depends on
   dom.window.App._toggleChinContent = jest.fn();
   dom.window.App.selectTopBarTab = jest.fn();
+  dom.window.App._attachedTopBarButtons = new Set();
   
   // Test the actual method
   dom.window.App._attachTopBarEventListeners();

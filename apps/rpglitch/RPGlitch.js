@@ -25,7 +25,7 @@ App.showEl = window.showEl || function (el) {
 
 // Highlight the active top bar tab and update ARIA attributes
 App.selectTopBarTab = function (btn) {
-  const ui = App.ui || App._getUIElements();
+  const ui = App._getUIElements();
   if (!ui.topBarButtons) return;
   ui.topBarButtons.forEach((b) => {
     const active = b === btn;
@@ -65,7 +65,7 @@ App._getUIElements = function () {
  */
 App._toggleChinContent = function (chin) {
   if (!chin) return;
-  const ui = App.ui || App._getUIElements();
+  const ui = App._getUIElements();
   const container = ui.chinContainer;
   if (!container) return;
 
@@ -77,8 +77,8 @@ App._toggleChinContent = function (chin) {
   });
   if (!target) return;
 
-  const alreadyVisible = !target.classList.contains('hidden');
-  if (alreadyVisible) {
+  const isHidden = target.classList.contains('hidden') || target.hasAttribute('hidden');
+  if (!isHidden) {
     App._closeChin();
     return;
   }
@@ -92,7 +92,7 @@ App._toggleChinContent = function (chin) {
 };
 
 App._closeChin = function () {
-  const ui = App.ui || App._getUIElements();
+  const ui = App._getUIElements();
   const container = ui.chinContainer;
   if (!container) return;
   const panels = container.querySelectorAll('.chin-panel');
@@ -226,7 +226,7 @@ App._outsideChinListenerAttached = App._outsideChinListenerAttached || false;
  * Guards against attaching duplicate listeners across multiple invocations.
  */
 App._attachTopBarEventListeners = function () {
-  const ui = App.ui || App._getUIElements();
+  const ui = App._getUIElements();
   if (!ui) return;
 
   if (ui.topBarButtons) {
