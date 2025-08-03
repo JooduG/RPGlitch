@@ -460,8 +460,8 @@ input[type="file"] {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: #121526;
-  border-bottom: 1px solid #333;
+  background-color: #121526; /* Consider using a CSS variable for consistency */
+  border-bottom: 1px solid var(--pico-muted-border-color);
   padding: 20px;
   box-shadow: var(--shadow-sm);
   display: flex;
