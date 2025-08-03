@@ -4,7 +4,7 @@
   "description": "RPGlitch - AI-powered storytelling platform for Perchance with comprehensive rules system for development",
   "main": "build/scripts/build-perchance.js",
   "scripts": {
-    "preflight": "npm run build && npm run lint && echo \"Preflight check complete (tests and typecheck not configured).\"",
+    "preflight": "npm run build && npm run lint && npm test && echo \"Preflight check complete (typecheck not configured).\"",
     "build": "node build/scripts/build-perchance.js",
     "build:copy": "node build/scripts/build-and-copy.js",
     "build:watch": "nodemon --watch apps --ext html,js,css --exec 'node build/scripts/build-perchance.js'",
