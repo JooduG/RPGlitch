@@ -439,18 +439,46 @@ input[type="file"] {
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 }
 
+.chin-button {
+  background: transparent;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgb(255 255 255 / 10%);
+  }
+
+  &.active {
+    border-bottom: 2px solid var(--pico-primary);
+  }
+}
+
 #chin-container {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #121526;
+  border-bottom: 1px solid #333;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   margin-top: 0;
-  border-bottom: 1px solid var(--pico-muted-border-color);
-  box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
   transition: transform 0.25s ease, opacity 0.25s ease;
 
   &.hidden {
     transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;
+  }
+
+  .chin-content {
+    background-color: #2a2d42;
+    padding: 20px;
+    border-radius: var(--pico-radius);
   }
 }
 

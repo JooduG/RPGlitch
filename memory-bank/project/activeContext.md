@@ -6,3 +6,4 @@
 - Added DOMContentLoaded bootstrap calling `App.initializeWhenReady()`.
 - Replaced chin list `innerHTML` rendering with safe `createElement` logic.
 - Introduced roving `tabindex` for chin tabs and prevented navigation on outside-click close.
+- Added chin-button styles and relocated chin container outside header, exposing `App.ui.showChin` helpers.
