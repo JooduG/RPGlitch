@@ -21,4 +21,5 @@
 - FileReader import merges uploaded arrays into existing localStorage data.
 - Backup utilities leverage Blob downloads and localStorage clears for resets.
 - Tracking last active tab lets chin closing restore focus, improving keyboard flow.
+- Keep premade and stored items separate so imports and creations do not persist builtin entries.
 - Documenting lint/build/test/validate requirements in AGENTS.md clarifies pre-PR expectations.

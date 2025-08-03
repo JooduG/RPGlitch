@@ -18,4 +18,5 @@
 - Introduced premade item retrieval via `App.getPremadeItems`.
 - Implemented localStorage backup import/export/delete utilities.
 - Added chin focus management returning focus to last tab and targeting search inputs on open.
+- Prevented premade chin items from being duplicated in storage by separating stored data from premade lists.
 - Documented full lint/build/test/validate workflow in AGENTS.md.

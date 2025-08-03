@@ -140,18 +140,19 @@ App._attachChinSearchHandlers = function () {
   });
 };
 
-function loadItems(key) {
-  let items = [];
+function loadStoredItems(key) {
   try {
     const data = window.localStorage.getItem(key);
-    items = data ? JSON.parse(data) : [];
+    return data ? JSON.parse(data) : [];
   } catch (e) {
     console.error(`Failed to parse localStorage item with key "${key}":`, e);
-    items = [];
+    return [];
   }
+
+function getAllItems(key) {
+  const stored = loadStoredItems(key);
   const premade = typeof App.getPremadeItems === 'function' ? App.getPremadeItems(key) : [];
-  return premade.concat(items);
-}
+  return premade.concat(stored);
 
 App.premade = App.premade || { stories: [], characters: [], worlds: [] };
 
@@ -164,7 +165,7 @@ App.getPremadeItems = App.getPremadeItems || function (key) {
 function renderList(containerId, key) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  const items = loadItems(key);
+  const items = getAllItems(key);
   container.textContent = '';
   items.forEach((item) => {
     const card = document.createElement('div');
@@ -271,10 +272,10 @@ App._attachContentChinActions = function () {
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput, render }) => {
     if (newButton) {
       newButton.addEventListener('click', () => {
-        const title = window.prompt(`New ${key.slice(0, -1)} title?`);
-        if (!title) return;
+        const singular = key === 'stories' ? 'story' : key.slice(0, -1);
+        const title = window.prompt(`New ${singular} title?`);        if (!title) return;
         const item = { title };
-        const current = loadItems(key);
+        const current = loadStoredItems(key);
         current.push(item);
         window.localStorage.setItem(key, JSON.stringify(current));
         if (typeof render === 'function') render();
@@ -291,7 +292,7 @@ App._attachContentChinActions = function () {
           try {
             const data = JSON.parse(ev.target.result);
             if (!Array.isArray(data)) return;
-            const current = loadItems(key);
+            const current = loadStoredItems(key);
             window.localStorage.setItem(key, JSON.stringify(current.concat(data)));
             if (typeof render === 'function') render();
           } catch (err) {
