@@ -33,6 +33,7 @@ App.selectTopBarTab = function (btn) {
     b.setAttribute('aria-selected', active ? 'true' : 'false');
     b.setAttribute('aria-expanded', active ? 'true' : 'false');
     b.setAttribute('tabindex', active ? '0' : '-1');
+
   });
 };
 
@@ -171,6 +172,7 @@ App.renderCharacterList = App.renderCharacterList || function () {
     card.appendChild(left);
     container.appendChild(card);
   });
+
 };
 
 App.renderWorldList = App.renderWorldList || function () {
