@@ -16,6 +16,8 @@ App.showEl = window.showEl || function (el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
   el.classList.remove('hidden');
+  el.style.visibility = '';
+  el.style.display = '';
   return el;
 };
 
