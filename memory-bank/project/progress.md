@@ -9,3 +9,4 @@
 - Removed redundant data attribute from top bar buttons and verified full test suite including unit tests.
 - Adjusted chin visibility logic and tests to ensure toggles reveal panels properly.
 - Refactored chin toggling to hide all panels before showing the target and centralized option chin listeners.
+- Simplified show/hide utilities and styles to rely solely on the `hidden` attribute, updating tests accordingly.

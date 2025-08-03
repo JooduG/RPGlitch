@@ -461,15 +461,14 @@ input[type="file"] {
   position: sticky;
   top: 0;
   z-index: 1000;
+  background-color: #121526;
+  border-bottom: 1px solid #333;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
+  margin-top: 0;
   transition: transform 0.25s ease, opacity 0.25s ease;
-
-  &.hidden {
-    transform: translateY(-100%);
-    opacity: 0;
-    pointer-events: none;
-  }
 }
 
 .chin-empty {
@@ -1609,10 +1608,6 @@ input[type="file"] {
 }
 
 #chin-options {
-  display: none;
-}
-
-#chin-options:not(.hidden) {
   display: flex;
 }
 

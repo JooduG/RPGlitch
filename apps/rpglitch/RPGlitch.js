@@ -8,7 +8,6 @@ window.App = App;
 App.hideEl = window.hideEl || function (el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
-  el.classList.add('hidden');
   el.setAttribute('hidden', 'hidden');
   return el;
 };
@@ -16,10 +15,7 @@ App.hideEl = window.hideEl || function (el) {
 App.showEl = window.showEl || function (el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
-  el.classList.remove('hidden');
   el.removeAttribute('hidden');
-  el.style.visibility = '';
-  el.style.display = '';
   return el;
 };
 
@@ -68,10 +64,8 @@ App._toggleChinContent = function (chin) {
   const ui = App._getUIElements();
   const container = ui.chinContainer;
   if (!container) return;
-
   const target = container.querySelector(`[data-chin="${chin}"]`);
-  const wasHidden = !target || target.classList.contains('hidden') || target.hasAttribute('hidden');
-
+  const wasHidden = !target || target.hasAttribute('hidden');
   const panels = container.querySelectorAll('.chin-panel');
   panels.forEach((panel) => App.hideEl(panel));
   if (!target) return;
@@ -276,8 +270,8 @@ App._attachTopBarEventListeners = function () {
 
   if (!App._outsideChinListenerAttached) {
     document.addEventListener('click', (e) => {
-      const current = App.ui || App._getUIElements();
-      if (!current.chinContainer || current.chinContainer.classList.contains('hidden')) return;
+      const current = App._getUIElements();
+      if (!current.chinContainer || current.chinContainer.hasAttribute('hidden')) return;
       if (current.chinContainer.contains(e.target) || current.topBarLeft.contains(e.target)) return;
       e.preventDefault();
       App._closeChin();

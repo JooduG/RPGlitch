@@ -12,3 +12,4 @@
 - Streamlined top bar toggles by dropping extra data attribute and relying on `data-chin`.
 - Visibility check now examines both class and hidden attribute to prevent false toggles.
 - Dedicated option chin action helper keeps top bar listeners lightweight and ensures all buttons route through `showChin`.
+- `hideEl`/`showEl` now manipulate only the `hidden` attribute, simplifying visibility logic across chins.
