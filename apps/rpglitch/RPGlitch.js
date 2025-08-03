@@ -69,16 +69,14 @@ App._toggleChinContent = function (chin) {
   const container = ui.chinContainer;
   if (!container) return;
 
+  const target = container.querySelector(`[data-chin="${chin}"]`);
+  const wasHidden = !target || target.classList.contains('hidden') || target.hasAttribute('hidden');
+
   const panels = container.querySelectorAll('.chin-panel');
-  let target = null;
-  panels.forEach((panel) => {
-    if (panel.dataset.chin === chin) target = panel;
-    else App.hideEl(panel);
-  });
+  panels.forEach((panel) => App.hideEl(panel));
   if (!target) return;
 
-  const isHidden = target.classList.contains('hidden') || target.hasAttribute('hidden');
-  if (!isHidden) {
+  if (!wasHidden) {
     App._closeChin();
     return;
   }
@@ -221,8 +219,41 @@ App._attachedTopBarButtons = App._attachedTopBarButtons || new Set();
 App._optionsListenersAttached = App._optionsListenersAttached || false;
 App._outsideChinListenerAttached = App._outsideChinListenerAttached || false;
 
+App._attachOptionChinActions = function () {
+  if (App._optionsListenersAttached) return;
+  const ui = App._getUIElements();
+  const {
+    uploadBackupTrigger,
+    uploadBackupInput,
+    downloadBackupButton,
+    deleteAllDataButton
+  } = ui;
+
+  if (uploadBackupTrigger && uploadBackupInput) {
+    uploadBackupTrigger.addEventListener('click', () => uploadBackupInput.click());
+    uploadBackupInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file && typeof App.importAllData === 'function') App.importAllData(file);
+    });
+  }
+
+  if (downloadBackupButton) {
+    downloadBackupButton.addEventListener('click', () => {
+      if (typeof App.exportAllData === 'function') App.exportAllData();
+    });
+  }
+
+  if (deleteAllDataButton) {
+    deleteAllDataButton.addEventListener('click', () => {
+      if (typeof App.deleteAllData === 'function') App.deleteAllData();
+    });
+  }
+
+  App._optionsListenersAttached = true;
+};
+
 /**
- * Attaches event listeners for top bar interactions and option chin actions.
+ * Attaches event listeners for top bar interactions.
  * Guards against attaching duplicate listeners across multiple invocations.
  */
 App._attachTopBarEventListeners = function () {
@@ -234,45 +265,14 @@ App._attachTopBarEventListeners = function () {
       if (!App._attachedTopBarButtons.has(btn)) {
         btn.addEventListener('click', () => {
           App.selectTopBarTab(btn);
-          App._toggleChinContent(btn.dataset.chin);
+          App.ui.showChin(btn.dataset.chin);
         });
         App._attachedTopBarButtons.add(btn);
       }
     });
   }
 
-  if (!App._optionsListenersAttached) {
-    const {
-      uploadBackupTrigger,
-      uploadBackupInput,
-      downloadBackupButton,
-      deleteAllDataButton
-    } = ui;
-
-    if (uploadBackupTrigger && uploadBackupInput) {
-      uploadBackupTrigger.addEventListener('click', () => uploadBackupInput.click());
-      uploadBackupInput.addEventListener('change', (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (file && typeof App.importAllData === 'function') {
-          App.importAllData(file);
-        }
-      });
-    }
-
-    if (downloadBackupButton) {
-      downloadBackupButton.addEventListener('click', () => {
-        if (typeof App.exportAllData === 'function') App.exportAllData();
-      });
-    }
-
-    if (deleteAllDataButton) {
-      deleteAllDataButton.addEventListener('click', () => {
-        if (typeof App.deleteAllData === 'function') App.deleteAllData();
-      });
-    }
-
-    App._optionsListenersAttached = true;
-  }
+  App._attachOptionChinActions();
 
   if (!App._outsideChinListenerAttached) {
     document.addEventListener('click', (e) => {

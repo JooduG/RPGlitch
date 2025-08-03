@@ -9,3 +9,4 @@
 - Added chin-button styles and relocated chin container outside header, exposing `App.ui.showChin` helpers.
 - Removed redundant data attributes from top bar buttons, relying solely on `data-chin`.
 - Corrected chin visibility check to respect `hidden` attribute.
+- Ensured chin toggling hides all panels before revealing a target and routed option actions through a dedicated helper.

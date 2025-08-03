@@ -11,3 +11,4 @@
 - Wrapper `App.ui.showChin` leverages existing toggle logic for external triggers.
 - Streamlined top bar toggles by dropping extra data attribute and relying on `data-chin`.
 - Visibility check now examines both class and hidden attribute to prevent false toggles.
+- Dedicated option chin action helper keeps top bar listeners lightweight and ensures all buttons route through `showChin`.

@@ -21,7 +21,7 @@ test('top bar click triggers chin toggle without duplicate handlers', () => {
   dom.window.eval(rpgScript);
   
   // Mock the methods that _attachTopBarEventListeners depends on
-  dom.window.App._toggleChinContent = jest.fn();
+  dom.window.App.ui.showChin = jest.fn();
   dom.window.App.selectTopBarTab = jest.fn();
   dom.window.App._attachedTopBarButtons = new Set();
   
@@ -33,6 +33,8 @@ test('top bar click triggers chin toggle without duplicate handlers', () => {
   if (btn) {
     btn.click();
     expect(dom.window.App.selectTopBarTab).toHaveBeenCalledTimes(1);
+    expect(dom.window.App.ui.showChin).toHaveBeenCalledTimes(1);
+    expect(dom.window.App.ui.showChin).toHaveBeenCalledWith('stories');
   }
 });
 
