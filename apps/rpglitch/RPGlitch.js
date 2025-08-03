@@ -51,6 +51,21 @@ App._getUIElements = function () {
   ui.downloadBackupButton = ui.downloadBackupButton || doc.getElementById('download-backup');
   ui.deleteAllDataButton = ui.deleteAllDataButton || doc.getElementById('delete-all-data');
 
+  // Story chin actions
+  ui.newStoryButton = ui.newStoryButton || doc.getElementById('new-story');
+  ui.uploadStoryTrigger = ui.uploadStoryTrigger || doc.querySelector('[data-trigger="upload-story"]');
+  ui.uploadStoryInput = ui.uploadStoryInput || doc.getElementById('upload-story');
+
+  // Character chin actions
+  ui.newCharacterButton = ui.newCharacterButton || doc.getElementById('new-character');
+  ui.uploadCharacterTrigger = ui.uploadCharacterTrigger || doc.querySelector('[data-trigger="upload-character"]');
+  ui.uploadCharacterInput = ui.uploadCharacterInput || doc.getElementById('upload-character');
+
+  // World chin actions
+  ui.newWorldButton = ui.newWorldButton || doc.getElementById('new-world');
+  ui.uploadWorldTrigger = ui.uploadWorldTrigger || doc.querySelector('[data-trigger="upload-world"]');
+  ui.uploadWorldInput = ui.uploadWorldInput || doc.getElementById('upload-world');
+
   App.ui = ui;
   return ui;
 };
@@ -123,14 +138,25 @@ App._attachChinSearchHandlers = function () {
 };
 
 function loadItems(key) {
+  let items = [];
   try {
     const data = window.localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
+    items = data ? JSON.parse(data) : [];
   } catch (e) {
     console.error(`Failed to parse localStorage item with key "${key}":`, e);
-    return [];
+    items = [];
   }
+  const premade = typeof App.getPremadeItems === 'function' ? App.getPremadeItems(key) : [];
+  return premade.concat(items);
 }
+
+App.premade = App.premade || { stories: [], characters: [], worlds: [] };
+
+App.getPremadeItems = App.getPremadeItems || function (key) {
+  const bank = App.premade || {};
+  const list = bank[key];
+  return Array.isArray(list) ? list : [];
+};
 
 function renderList(containerId, key) {
   const container = document.getElementById(containerId);
@@ -175,6 +201,7 @@ App.renderWorldList = App.renderWorldList || function () {
 // Track attached listeners to avoid duplicates
 App._attachedTopBarButtons = App._attachedTopBarButtons || new Set();
 App._optionsListenersAttached = App._optionsListenersAttached || false;
+App._contentListenersAttached = App._contentListenersAttached || false;
 App._outsideChinListenerAttached = App._outsideChinListenerAttached || false;
 
 App._attachOptionChinActions = function () {
@@ -210,6 +237,71 @@ App._attachOptionChinActions = function () {
   App._optionsListenersAttached = true;
 };
 
+App._attachContentChinActions = function () {
+  if (App._contentListenersAttached) return;
+  const ui = App._getUIElements();
+  const configs = [
+    {
+      key: 'stories',
+      newButton: ui.newStoryButton,
+      uploadTrigger: ui.uploadStoryTrigger,
+      uploadInput: ui.uploadStoryInput,
+      render: App.renderStoryList
+    },
+    {
+      key: 'characters',
+      newButton: ui.newCharacterButton,
+      uploadTrigger: ui.uploadCharacterTrigger,
+      uploadInput: ui.uploadCharacterInput,
+      render: App.renderCharacterList
+    },
+    {
+      key: 'worlds',
+      newButton: ui.newWorldButton,
+      uploadTrigger: ui.uploadWorldTrigger,
+      uploadInput: ui.uploadWorldInput,
+      render: App.renderWorldList
+    }
+  ];
+
+  configs.forEach(({ key, newButton, uploadTrigger, uploadInput, render }) => {
+    if (newButton) {
+      newButton.addEventListener('click', () => {
+        const title = window.prompt(`New ${key.slice(0, -1)} title?`);
+        if (!title) return;
+        const item = { title };
+        const current = loadItems(key);
+        current.push(item);
+        window.localStorage.setItem(key, JSON.stringify(current));
+        if (typeof render === 'function') render();
+      });
+    }
+
+    if (uploadTrigger && uploadInput) {
+      uploadTrigger.addEventListener('click', () => uploadInput.click());
+      uploadInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            if (!Array.isArray(data)) return;
+            const current = loadItems(key);
+            window.localStorage.setItem(key, JSON.stringify(current.concat(data)));
+            if (typeof render === 'function') render();
+          } catch (err) {
+            console.error('Failed to import', err);
+          }
+        };
+        reader.readAsText(file);
+      });
+    }
+  });
+
+  App._contentListenersAttached = true;
+};
+
 /**
  * Attaches event listeners for top bar interactions.
  * Guards against attaching duplicate listeners across multiple invocations.
@@ -231,6 +323,7 @@ App._attachTopBarEventListeners = function () {
   }
 
   App._attachOptionChinActions();
+  App._attachContentChinActions();
 
   if (!App._outsideChinListenerAttached) {
     document.addEventListener('click', (e) => {
@@ -267,6 +360,55 @@ App.initializeWhenReady = async function () {
     App.initializeWhenReadyRetryCount += 1;
     console.error("Failed to initialize App:", error);
   }
+};
+
+App.importAllData = function (file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      ['stories', 'characters', 'worlds'].forEach((key) => {
+        if (Array.isArray(data[key])) {
+          window.localStorage.setItem(key, JSON.stringify(data[key]));
+        }
+      });
+      if (typeof App.renderStoryList === 'function') App.renderStoryList();
+      if (typeof App.renderCharacterList === 'function') App.renderCharacterList();
+      if (typeof App.renderWorldList === 'function') App.renderWorldList();
+    } catch (err) {
+      console.error('Failed to import backup', err);
+    }
+  };
+  reader.readAsText(file);
+};
+
+App.exportAllData = function () {
+  const data = {};
+  ['stories', 'characters', 'worlds'].forEach((key) => {
+    try {
+      const value = window.localStorage.getItem(key);
+      data[key] = value ? JSON.parse(value) : [];
+    } catch (e) {
+      data[key] = [];
+    }
+  });
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'rpglitch-backup.json';
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+App.deleteAllData = function () {
+  ['stories', 'characters', 'worlds'].forEach((key) => {
+    window.localStorage.removeItem(key);
+  });
+  if (typeof App.renderStoryList === 'function') App.renderStoryList();
+  if (typeof App.renderCharacterList === 'function') App.renderCharacterList();
+  if (typeof App.renderWorldList === 'function') App.renderWorldList();
 };
 
 // Export for Node-based tests

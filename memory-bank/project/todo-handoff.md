@@ -8,3 +8,5 @@
 - [ ] Mark touchstart listeners as passive for performance.
 - [ ] Improve persistence beyond `localStorage` for chin lists.
 - [ ] Review chin accessibility and keyboard interactions.
+- [ ] Replace prompt-based creation with full item forms and editing flows.
+- [ ] Distinguish premade items from custom entries in UI.

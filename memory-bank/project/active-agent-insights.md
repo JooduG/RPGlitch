@@ -17,3 +17,6 @@
 - Removing the legacy `chin-` prefix simplified `showChin` calls.
 - Cleaning unused classes and selectors reduced CSS complexity.
 - LocalStorage-backed list rendering provides basic persistence for chin panels.
+- Prompt-driven creation offers a lightweight interim solution for adding items.
+- FileReader import merges uploaded arrays into existing localStorage data.
+- Backup utilities leverage Blob downloads and localStorage clears for resets.
