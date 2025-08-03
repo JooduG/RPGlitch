@@ -445,7 +445,7 @@ input[type="file"] {
   border: none;
   padding: 10px 15px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, border-bottom 0.3s ease;
 
   &:hover {
     background: rgb(255 255 255 / 10%);
