@@ -1,6 +1,4 @@
-/* eslint-disable no-undef */
 // Main RPGlitch application namespace
-// eslint-disable-next-line no-redeclare
 const App = window.App || {};
 window.App = App;
 
