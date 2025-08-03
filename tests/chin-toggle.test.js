@@ -29,6 +29,6 @@ test('early chin toggle reveals chin container and selected chin', () => {
   dom.window.App._toggleChinContent('stories');
   const chinContainer = dom.window.document.getElementById('chin-container');
   const selectedChin = dom.window.document.querySelector('[data-chin="stories"]');
-  expect(chinContainer.classList.contains('hidden')).toBe(false);
-  expect(selectedChin.classList.contains('hidden')).toBe(false);
+  expect(chinContainer.hasAttribute('hidden')).toBe(false);
+  expect(selectedChin.hasAttribute('hidden')).toBe(false);
 });

@@ -42,9 +42,21 @@ test('hideEl hides by element or id', () => {
   const el = document.getElementById('test-el');
   expect(typeof App.hideEl).toBe('function');
   App.hideEl(el);
-  expect(el.classList.contains('hidden')).toBe(true);
-  el.classList.remove('hidden');
+  expect(el.hasAttribute('hidden')).toBe(true);
+  el.removeAttribute('hidden');
   // Using the string ID should work the same
   App.hideEl('test-el');
-  expect(el.classList.contains('hidden')).toBe(true);
+  expect(el.hasAttribute('hidden')).toBe(true);
+});
+
+test('showEl reveals element by removing hidden attribute', () => {
+  const { dom, App } = loadApp();
+  const document = dom.window.document;
+  document.body.innerHTML = '<div id="test-el" hidden="hidden"></div>';
+  const el = document.getElementById('test-el');
+  App.showEl(el);
+  expect(el.hasAttribute('hidden')).toBe(false);
+  el.setAttribute('hidden', 'hidden');
+  App.showEl('test-el');
+  expect(el.hasAttribute('hidden')).toBe(false);
 });

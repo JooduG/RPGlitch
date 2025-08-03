@@ -6,3 +6,16 @@
 - Added DOMContentLoaded bootstrap calling `App.initializeWhenReady()`.
 - Replaced chin list `innerHTML` rendering with safe `createElement` logic.
 - Introduced roving `tabindex` for chin tabs and prevented navigation on outside-click close.
+- Added chin-button styles and relocated chin container outside header, exposing `App.ui.showChin` helpers.
+- Removed redundant data attributes from top bar buttons, relying solely on `data-chin`.
+
+- Corrected chin visibility check to respect `hidden` attribute.
+- Ensured chin toggling hides all panels before revealing a target and routed option actions through a dedicated helper.
+- Standardized visibility helpers to toggle only the `hidden` attribute, removing reliance on the `.hidden` class.
+- Search filtering now toggles the `hidden` attribute instead of a `.hidden` class.
+- `App.ui.showChin` accepts plain chin IDs without stripping prefixes.
+- Dropped unused `top-bar-tab` class from chin buttons.
+- CSS selectors updated to use `[hidden]`, and the unused `.hidden-input` rule was removed.
+- Orphaned `RPGlitch-left-panel.txt` deleted with documentation updated accordingly.
+- Chin lists load from `localStorage` instead of hardcoded sample entries.
+- Debug logging in `ProfilePictureComponent.js` gated behind `App.debug`.

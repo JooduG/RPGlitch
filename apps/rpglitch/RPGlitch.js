@@ -8,7 +8,6 @@ window.App = App;
 App.hideEl = window.hideEl || function (el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
-  el.classList.add('hidden');
   el.setAttribute('hidden', 'hidden');
   return el;
 };
@@ -16,16 +15,13 @@ App.hideEl = window.hideEl || function (el) {
 App.showEl = window.showEl || function (el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
-  el.classList.remove('hidden');
   el.removeAttribute('hidden');
-  el.style.visibility = '';
-  el.style.display = '';
   return el;
 };
 
 // Highlight the active top bar tab and update ARIA attributes
 App.selectTopBarTab = function (btn) {
-  const ui = App.ui || App._getUIElements();
+  const ui = App._getUIElements();
   if (!ui.topBarButtons) return;
   ui.topBarButtons.forEach((b) => {
     const active = b === btn;
@@ -65,20 +61,18 @@ App._getUIElements = function () {
  */
 App._toggleChinContent = function (chin) {
   if (!chin) return;
-  const ui = App.ui || App._getUIElements();
+  const ui = App._getUIElements();
   const container = ui.chinContainer;
   if (!container) return;
 
+  const target = container.querySelector(`[data-chin="${chin}"]`);
+  const wasHidden = !target || target.hasAttribute('hidden');
+
   const panels = container.querySelectorAll('.chin-panel');
-  let target = null;
-  panels.forEach((panel) => {
-    if (panel.dataset.chin === chin) target = panel;
-    else App.hideEl(panel);
-  });
+  panels.forEach((panel) => App.hideEl(panel));
   if (!target) return;
 
-  const alreadyVisible = !target.classList.contains('hidden');
-  if (alreadyVisible) {
+  if (!wasHidden) {
     App._closeChin();
     return;
   }
@@ -92,13 +86,25 @@ App._toggleChinContent = function (chin) {
 };
 
 App._closeChin = function () {
-  const ui = App.ui || App._getUIElements();
+  const ui = App._getUIElements();
   const container = ui.chinContainer;
   if (!container) return;
   const panels = container.querySelectorAll('.chin-panel');
   panels.forEach((p) => App.hideEl(p));
   App.hideEl(container);
   App.selectTopBarTab(null);
+};
+
+// UI helpers for toggling chin visibility and initializing listeners
+App.ui = App.ui || {};
+
+App.ui.showChin = function (chinId) {
+  if (!chinId) return;
+  App._toggleChinContent(chinId);
+};
+
+App.ui.setupChinListeners = function () {
+  App._attachTopBarEventListeners();
 };
 
 App._attachChinSearchHandlers = function () {
@@ -112,21 +118,30 @@ App._attachChinSearchHandlers = function () {
       list.querySelectorAll('[data-title]').forEach((el) => {
         const title = (el.dataset.title || '').toLowerCase();
         const match = title.includes(term);
-        el.classList.toggle('hidden', !match);
+        if (match) App.showEl(el); else App.hideEl(el);
       });
     });
   });
 };
 
-App.renderStoryList = App.renderStoryList || function () {
-  const container = document.getElementById('chin-story-grid');
+function loadItems(key) {
+  try {
+    const data = window.localStorage.getItem(key);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
+
+function renderList(containerId, key) {
+  const container = document.getElementById(containerId);
   if (!container) return;
-  const items = [{ title: 'Sample Story' }];
+  const items = loadItems(key);
   container.textContent = '';
-  items.forEach((s) => {
+  items.forEach((item) => {
     const card = document.createElement('div');
     card.className = 'chin-card';
-    card.dataset.title = s.title;
+    card.dataset.title = item.title;
 
     const left = document.createElement('div');
     left.className = 'chin-card-left';
@@ -136,7 +151,7 @@ App.renderStoryList = App.renderStoryList || function () {
 
     const header = document.createElement('header');
     const h4 = document.createElement('h4');
-    h4.textContent = s.title;
+    h4.textContent = item.title;
 
     header.appendChild(h4);
     article.appendChild(header);
@@ -144,63 +159,18 @@ App.renderStoryList = App.renderStoryList || function () {
     card.appendChild(left);
     container.appendChild(card);
   });
+}
+
+App.renderStoryList = App.renderStoryList || function () {
+  renderList('chin-story-grid', 'stories');
 };
 
 App.renderCharacterList = App.renderCharacterList || function () {
-  const container = document.getElementById('chin-character-grid');
-  if (!container) return;
-  const items = [{ title: 'Sample Character' }];
-  container.textContent = '';
-  items.forEach((c) => {
-    const card = document.createElement('div');
-    card.className = 'chin-card';
-    card.dataset.title = c.title;
-
-    const left = document.createElement('div');
-    left.className = 'chin-card-left';
-
-    const article = document.createElement('article');
-    article.className = 'chin-card';
-
-    const header = document.createElement('header');
-    const h4 = document.createElement('h4');
-    h4.textContent = c.title;
-
-    header.appendChild(h4);
-    article.appendChild(header);
-    left.appendChild(article);
-    card.appendChild(left);
-    container.appendChild(card);
-  });
-
+  renderList('chin-character-grid', 'characters');
 };
 
 App.renderWorldList = App.renderWorldList || function () {
-  const container = document.getElementById('chin-world-grid');
-  if (!container) return;
-  const items = [{ title: 'Sample World' }];
-  container.textContent = '';
-  items.forEach((w) => {
-    const card = document.createElement('div');
-    card.className = 'chin-card';
-    card.dataset.title = w.title;
-
-    const left = document.createElement('div');
-    left.className = 'chin-card-left';
-
-    const article = document.createElement('article');
-    article.className = 'chin-card';
-
-    const header = document.createElement('header');
-    const h4 = document.createElement('h4');
-    h4.textContent = w.title;
-
-    header.appendChild(h4);
-    article.appendChild(header);
-    left.appendChild(article);
-    card.appendChild(left);
-    container.appendChild(card);
-  });
+  renderList('chin-world-grid', 'worlds');
 };
 
 // Track attached listeners to avoid duplicates
@@ -208,12 +178,45 @@ App._attachedTopBarButtons = App._attachedTopBarButtons || new Set();
 App._optionsListenersAttached = App._optionsListenersAttached || false;
 App._outsideChinListenerAttached = App._outsideChinListenerAttached || false;
 
+App._attachOptionChinActions = function () {
+  if (App._optionsListenersAttached) return;
+  const ui = App._getUIElements();
+  const {
+    uploadBackupTrigger,
+    uploadBackupInput,
+    downloadBackupButton,
+    deleteAllDataButton
+  } = ui;
+
+  if (uploadBackupTrigger && uploadBackupInput) {
+    uploadBackupTrigger.addEventListener('click', () => uploadBackupInput.click());
+    uploadBackupInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file && typeof App.importAllData === 'function') App.importAllData(file);
+    });
+  }
+
+  if (downloadBackupButton) {
+    downloadBackupButton.addEventListener('click', () => {
+      if (typeof App.exportAllData === 'function') App.exportAllData();
+    });
+  }
+
+  if (deleteAllDataButton) {
+    deleteAllDataButton.addEventListener('click', () => {
+      if (typeof App.deleteAllData === 'function') App.deleteAllData();
+    });
+  }
+
+  App._optionsListenersAttached = true;
+};
+
 /**
- * Attaches event listeners for top bar interactions and option chin actions.
+ * Attaches event listeners for top bar interactions.
  * Guards against attaching duplicate listeners across multiple invocations.
  */
 App._attachTopBarEventListeners = function () {
-  const ui = App.ui || App._getUIElements();
+  const ui = App._getUIElements();
   if (!ui) return;
 
   if (ui.topBarButtons) {
@@ -221,50 +224,19 @@ App._attachTopBarEventListeners = function () {
       if (!App._attachedTopBarButtons.has(btn)) {
         btn.addEventListener('click', () => {
           App.selectTopBarTab(btn);
-          App._toggleChinContent(btn.dataset.chin);
+          App.ui.showChin(btn.dataset.chin);
         });
         App._attachedTopBarButtons.add(btn);
       }
     });
   }
 
-  if (!App._optionsListenersAttached) {
-    const {
-      uploadBackupTrigger,
-      uploadBackupInput,
-      downloadBackupButton,
-      deleteAllDataButton
-    } = ui;
-
-    if (uploadBackupTrigger && uploadBackupInput) {
-      uploadBackupTrigger.addEventListener('click', () => uploadBackupInput.click());
-      uploadBackupInput.addEventListener('change', (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (file && typeof App.importAllData === 'function') {
-          App.importAllData(file);
-        }
-      });
-    }
-
-    if (downloadBackupButton) {
-      downloadBackupButton.addEventListener('click', () => {
-        if (typeof App.exportAllData === 'function') App.exportAllData();
-      });
-    }
-
-    if (deleteAllDataButton) {
-      deleteAllDataButton.addEventListener('click', () => {
-        if (typeof App.deleteAllData === 'function') App.deleteAllData();
-      });
-    }
-
-    App._optionsListenersAttached = true;
-  }
+  App._attachOptionChinActions();
 
   if (!App._outsideChinListenerAttached) {
     document.addEventListener('click', (e) => {
       const current = App.ui || App._getUIElements();
-      if (!current.chinContainer || current.chinContainer.classList.contains('hidden')) return;
+      if (!current.chinContainer || current.chinContainer.hasAttribute('hidden')) return;
       if (current.chinContainer.contains(e.target) || current.topBarLeft.contains(e.target)) return;
       e.preventDefault();
       App._closeChin();
@@ -286,7 +258,7 @@ App.initializeWhenReady = async function () {
 
   try {
     App._getUIElements();
-    App._attachTopBarEventListeners();
+    App.ui.setupChinListeners();
     App._attachChinSearchHandlers();
     if (typeof App.initialLoad === 'function') {
       await App.initialLoad();
