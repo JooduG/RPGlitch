@@ -6,5 +6,4 @@
 - [ ] Replace sample data in chin lists with dynamic content.
 - [ ] Refine roving tabindex behavior when no chin is open.
 - [ ] Document chin-button styling and sticky chin container.
-
 - [ ] Mark touchstart listeners as passive for performance.
