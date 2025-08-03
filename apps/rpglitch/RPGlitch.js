@@ -133,9 +133,9 @@ App.initializeWhenReady = async function () {
       await App.initialLoad();
     }
     App.initializeWhenReadyRetryCount = 0;
-  } catch {
+  } catch (error) {
     App.initializeWhenReadyRetryCount += 1;
-    // In tests we simply swallow the error to keep promise resolved
+    console.error("Failed to initialize App:", error);
   }
 };
 
