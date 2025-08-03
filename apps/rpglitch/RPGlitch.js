@@ -128,7 +128,8 @@ function loadItems(key) {
   try {
     const data = window.localStorage.getItem(key);
     return data ? JSON.parse(data) : [];
-  } catch {
+  } catch (e) {
+    console.error(`Failed to parse localStorage item with key "${key}":`, e);
     return [];
   }
 }
