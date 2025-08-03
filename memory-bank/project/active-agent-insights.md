@@ -10,5 +10,4 @@
 - Outside click handler prevents navigation when closing the chin.
 - Wrapper `App.ui.showChin` leverages existing toggle logic for external triggers.
 - Streamlined top bar toggles by dropping extra data attribute and relying on `data-chin`.
-
 - Visibility check now examines both class and hidden attribute to prevent false toggles.

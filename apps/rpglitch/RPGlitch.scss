@@ -445,7 +445,7 @@ input[type="file"] {
   border: none;
   padding: 10px 15px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, border-bottom 0.3s ease;
 
   &:hover {
     background: rgb(255 255 255 / 10%);
@@ -460,13 +460,13 @@ input[type="file"] {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: #121526;
-  border-bottom: 1px solid #333;
+  background-color: #121526; /* Consider using a CSS variable for consistency */
+  border-bottom: 1px solid var(--pico-muted-border-color);
   padding: 20px;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  margin-top: 0;
+  margin: 0 1rem 1rem;
   transition: transform 0.25s ease, opacity 0.25s ease;
 
   &.hidden {
