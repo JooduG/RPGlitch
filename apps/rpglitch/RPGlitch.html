@@ -44,10 +44,10 @@
         <!-- Top Bar Left -->
         <div id="top-bar-left" class="top-bar-left">
           <ul role="tablist">
-            <li><button class="secondary top-bar-tab chin-button" role="tab" tabindex="0" id="tab-stories" aria-selected="false" aria-expanded="false" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
-            <li><button class="secondary top-bar-tab chin-button" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
-            <li><button class="secondary top-bar-tab chin-button" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
-            <li><button class="secondary top-bar-tab chin-button" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options">Options</button></li>
+            <li><button class="secondary" role="tab" tabindex="0" id="tab-stories" aria-selected="false" aria-expanded="false" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
+            <li><button class="secondary" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
+            <li><button class="secondary" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
+            <li><button class="secondary" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options">Options</button></li>
           </ul>
         </div>
 
@@ -79,6 +79,7 @@
       </nav>
 
   </header>
+
   <!-- Chin Container -->
   <div id="chin-container" class="chin-container" hidden="hidden">
 
@@ -93,7 +94,6 @@
             </fieldset>
           </form>
         </div>
-  
         <div class="chin-actions-right">
           <button type="button" class="secondary" data-trigger="upload-story">
             Upload Story
@@ -116,7 +116,6 @@
             </fieldset>
           </form>
         </div>
-  
         <div class="chin-actions-right">
           <button type="button" class="secondary" data-trigger="upload-character">
             Upload Character
@@ -125,7 +124,6 @@
           <button id="new-character" class="secondary">New Character</button>
         </div>
       </div>
-  
       <div id="chin-character-grid" class="chin-grid chin-list"><!-- Character Cards --></div>
     </div>
   
@@ -167,9 +165,7 @@
         </div>
       </div>
       <div class="chin-options-fields">
-        <label for="opening-prompt">Story Prompt</label>
         <textarea id="opening-prompt" placeholder="Story Prompt"></textarea>
-        <label for="custom-js">Custom JS</label>
         <textarea id="custom-js" placeholder="Custom JS"></textarea>
       </div>
     </div>
