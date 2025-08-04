@@ -357,6 +357,7 @@ input[type="file"] {
   align-items: center;
   justify-content: space-between;
   margin: 0;
+  grid-row: 1;
 }
 
 
@@ -484,7 +485,7 @@ input[type="file"] {
   height: 100%;
   text-align: center;
   margin: 0 auto;
-  grid-column: 2 / 3;
+  grid-column: 1 / -1;
 }
 
 .chin,
@@ -507,6 +508,7 @@ input[type="file"] {
   border-bottom: 1px solid var(--pico-muted-border-color);
   gap: 1rem;
   display: grid;
+  grid-template-rows: auto 1fr;
 }
 
 #search-stories-input::placeholder,
@@ -568,6 +570,13 @@ input[type="file"] {
   align-items: left;
   flex-wrap: nowrap;
 }
+
+/* stylelint-disable no-descending-specificity */
+.chin-actions-right button,
+.chin-actions-left button {
+  height: 2.5rem;
+}
+/* stylelint-enable no-descending-specificity */
 
 .chin-actions form[role="search"] {
   align-items: center;
@@ -701,6 +710,7 @@ input[type="file"] {
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-top: 1rem;
+  grid-row: 2;
 }
 
 .chin-options-fields textarea {
@@ -1509,7 +1519,7 @@ input[type="file"] {
 }
 
 #chin-options {
-  display: flex;
+  display: grid;
 }
 
 button.danger,

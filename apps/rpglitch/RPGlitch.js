@@ -327,13 +327,10 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const article = card.querySelector('.storyboard-card-right');
   if (!article) return;
   const headerEl = article.querySelector('header');
+  let heading = headerEl ? headerEl.querySelector('.card-title-selected') : null;
   const footer = article.querySelector('footer');
-  let titleEl = article.querySelector('.card-title');
-  if (!titleEl) {
-    titleEl = document.createElement('h4');
-    titleEl.className = 'card-title';
-    article.insertBefore(titleEl, headerEl ? headerEl.nextSibling : article.firstChild);
-  }
+  const oldTitle = article.querySelector('.card-title');
+  if (oldTitle) oldTitle.remove();
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
     const textNode = Array.from(article.childNodes).find((n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
@@ -351,21 +348,36 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const value = select.value;
   const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
   if (item) {
-    titleEl.textContent = item.title || '';
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
     if (img) {
       if (item.image) img.src = item.image;
       img.alt = item.title || '';
     }
+    if (headerEl) {
+      if (!heading) {
+        heading = document.createElement('h4');
+        heading.className = 'card-title-selected';
+        heading.addEventListener('click', () => {
+          select.hidden = false;
+          heading.hidden = true;
+          select.focus();
+        });
+        headerEl.appendChild(heading);
+      }
+      heading.textContent = item.title || '';
+      heading.hidden = false;
+    }
+    select.hidden = true;
   } else {
-    titleEl.textContent = '';
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
     if (img) {
       img.src = img.dataset.placeholderSrc || img.src;
       img.alt = '';
     }
+    select.hidden = false;
+    if (heading) heading.hidden = true;
   }
 };
 
