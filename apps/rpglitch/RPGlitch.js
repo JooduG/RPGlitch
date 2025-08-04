@@ -146,7 +146,9 @@ App._attachChinSearchHandlers = function () {
 
 function loadStoredItems(key) {
   try {
-    const data = window.localStorage.getItem(key);
+    const storage = window.localStorage;
+    if (!storage) return [];
+    const data = storage.getItem(key);
     return data ? JSON.parse(data) : [];
   } catch (e) {
     console.error(`Failed to parse localStorage item with key "${key}":`, e);
@@ -154,7 +156,19 @@ function loadStoredItems(key) {
   }
 }
 
-App.premade = App.premade || { stories: [], characters: [], worlds: [] };
+App.premade = App.premade || {
+  stories: [],
+  characters: [
+    { id: 'char-1', title: 'Aether Blade' },
+    { id: 'char-2', title: 'Mystic Bard' },
+    { id: 'char-3', title: 'Clockwork Rogue' },
+    { id: 'char-4', title: 'Shadow Whisperer' }
+  ],
+  worlds: [
+    { id: 'world-1', title: 'Eldoria' },
+    { id: 'world-2', title: 'Neo Arcadia' }
+  ]
+};
 
 App.getPremadeItems = App.getPremadeItems || function (key) {
   const bank = App.premade || {};
@@ -174,17 +188,27 @@ App.getPremadeWorlds = App.getPremadeWorlds || function () {
   return App.getPremadeItems('worlds');
 };
 
+App._allItemsCache = App._allItemsCache || {};
+
+App.getAllItems = App.getAllItems || function (key, refresh = false) {
+  App._allItemsCache = App._allItemsCache || {};
+  if (!refresh && Array.isArray(App._allItemsCache[key])) return App._allItemsCache[key];
+  const premade = App.getPremadeItems(key).map((item) => ({ ...item, isPremade: true }));
+  const stored = loadStoredItems(key).map((item) => ({ ...item, isPremade: false }));
+  App._allItemsCache[key] = premade.concat(stored);
+  return App._allItemsCache[key];
+};
+
 function renderList(containerId, key) {
   const container = document.getElementById(containerId);
   if (!container) return;
   container.textContent = '';
-  const user = loadStoredItems(key);
-  const premade = App.getPremadeItems(key);
-  const all = premade.concat(user);
+  const all = App.getAllItems(key);
   all.forEach((item) => {
     const card = document.createElement('div');
     card.className = 'chin-card';
     card.dataset.title = item.title;
+    if (item.isPremade) card.dataset.premade = 'true';
 
     const left = document.createElement('div');
     left.className = 'chin-card-left';
@@ -194,7 +218,7 @@ function renderList(containerId, key) {
 
     const header = document.createElement('header');
     const h4 = document.createElement('h4');
-    h4.textContent = item.title;
+    h4.textContent = item.title + (item.isPremade ? ' (Premade)' : '');
 
     header.appendChild(h4);
     article.appendChild(header);
@@ -204,10 +228,37 @@ function renderList(containerId, key) {
   });
 }
 
+function renderDropdown(selectId, key) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  const placeholderOption = select.querySelector('option[value=""]');
+  const placeholder = placeholderOption ? placeholderOption.cloneNode(true) : document.createElement('option');
+  if (!placeholderOption) {
+    placeholder.value = '';
+    placeholder.textContent = '';
+  }
+  select.textContent = '';
+  select.appendChild(placeholder);
+  const items = App.getAllItems(key);
+  items.forEach((item) => {
+    const option = document.createElement('option');
+    option.value = item.id || item.title;
+    option.textContent = item.title + (item.isPremade ? ' (Premade)' : '');
+    if (item.isPremade) option.dataset.premade = 'true';
+    select.appendChild(option);
+  });
+}
+
+App.renderDropdown = App.renderDropdown || renderDropdown;
+
 App.refreshAllLists = App.refreshAllLists || function () {
+  DATA_KEYS.forEach((key) => App.getAllItems(key, true));
   App.renderStoryList?.();
   App.renderCharacterList?.();
   App.renderWorldList?.();
+  App.renderDropdown?.('storyboard-ai-select', 'characters');
+  App.renderDropdown?.('storyboard-user-select', 'characters');
+  App.renderDropdown?.('storyboard-world-select', 'worlds');
 };
 
 App.renderStoryList = App.renderStoryList || function () {
@@ -271,28 +322,25 @@ App._attachContentChinActions = function () {
       singular: 'story',
       newButton: ui.newStoryButton,
       uploadTrigger: ui.uploadStoryTrigger,
-      uploadInput: ui.uploadStoryInput,
-      render: App.renderStoryList
+      uploadInput: ui.uploadStoryInput
     },
     {
       key: 'characters',
       singular: 'character',
       newButton: ui.newCharacterButton,
       uploadTrigger: ui.uploadCharacterTrigger,
-      uploadInput: ui.uploadCharacterInput,
-      render: App.renderCharacterList
+      uploadInput: ui.uploadCharacterInput
     },
     {
       key: 'worlds',
       singular: 'world',
       newButton: ui.newWorldButton,
       uploadTrigger: ui.uploadWorldTrigger,
-      uploadInput: ui.uploadWorldInput,
-      render: App.renderWorldList
+      uploadInput: ui.uploadWorldInput
     }
   ];
 
-  configs.forEach(({ key, singular, newButton, uploadTrigger, uploadInput, render }) => {
+  configs.forEach(({ key, singular, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener('click', () => {
         const title = window.prompt(`New ${singular} title?`);
@@ -301,7 +349,7 @@ App._attachContentChinActions = function () {
         const current = loadStoredItems(key);
         current.push(item);
         window.localStorage.setItem(key, JSON.stringify(current));
-        if (typeof render === 'function') render();
+        App.refreshAllLists();
       });
     }
 
@@ -317,7 +365,7 @@ App._attachContentChinActions = function () {
             if (!Array.isArray(data)) return;
             const current = loadStoredItems(key);
             window.localStorage.setItem(key, JSON.stringify(current.concat(data)));
-            if (typeof render === 'function') render();
+            App.refreshAllLists();
           } catch (err) {
             console.error('Failed to import', err);
           }
@@ -384,6 +432,7 @@ App.initializeWhenReady = async function () {
     if (typeof App.initialLoad === 'function') {
       await App.initialLoad();
     }
+    App.refreshAllLists?.();
     App.initializeWhenReadyRetryCount = 0;
   } catch (error) {
     App.initializeWhenReadyRetryCount += 1;
@@ -432,7 +481,6 @@ App.exportAllData = function () {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  App.refreshAllLists();
 };
 
 App.deleteAllData = function () {

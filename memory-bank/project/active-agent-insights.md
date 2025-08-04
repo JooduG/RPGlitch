@@ -24,3 +24,7 @@
 - Keep premade and stored items separate so imports and creations do not persist builtin entries.
 - Documenting lint/build/test/validate requirements in AGENTS.md clarifies pre-PR expectations.
 - Centralized `DATA_KEYS` constant and `refreshAllLists` ensure backup operations update UI without typos or stale state.
+- `App.getAllItems` caches merged premade and stored items, letting lists and dropdowns share data.
+- `renderDropdown` reuses the same sources as chin grids, keeping storyboard selects in sync.
+- Marking premade titles clarifies origin without persisting them to storage.
+- Skipping UI refresh after exports avoids unnecessary re-renders.

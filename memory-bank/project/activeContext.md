@@ -26,3 +26,8 @@
 - Split stored and premade chin items to avoid writing premade entries back to `localStorage`.
 - Documented requirement to run lint/build/test/validate suite before PR in root `AGENTS.md`.
 - Added `DATA_KEYS` constant and `refreshAllLists` helper; import/export/delete now reset inputs, remove anchors, and refresh UI lists.
+- Seeded four premade characters and two premade worlds while keeping stories empty.
+- Introduced `App.getAllItems` with caching and `isPremade` flags to unify data retrieval.
+- Added `renderDropdown` and extended `refreshAllLists` to update storyboard selects alongside chin grids.
+- Labeled premade entries with `(Premade)` in lists and dropdowns.
+- Removed unnecessary UI refresh after exporting data to avoid flicker.
