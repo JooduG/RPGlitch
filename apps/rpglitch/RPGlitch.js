@@ -285,7 +285,12 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   if (!titleEl) {
     titleEl = document.createElement('h4');
     titleEl.className = 'card-title';
-    if (headerEl) article.insertBefore(titleEl, headerEl.nextSibling);
+    if (headerEl) {
+      article.insertBefore(titleEl, headerEl.nextSibling);
+    } else {
+      // If header doesn't exist, prepend title to the article as a fallback.
+      article.prepend(titleEl);
+    }
   }
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
