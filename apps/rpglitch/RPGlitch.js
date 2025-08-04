@@ -329,12 +329,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const headerEl = article.querySelector('header');
   let heading = headerEl ? headerEl.querySelector('.card-title-selected') : null;
   const footer = article.querySelector('footer');
-  let titleEl = article.querySelector('.card-title');
-  if (!titleEl) {
-    titleEl = document.createElement('h4');
-    titleEl.className = 'card-title';
-    article.insertBefore(titleEl, headerEl ? headerEl.nextSibling : article.firstChild);
-  }
+  const oldTitle = article.querySelector('.card-title');
+  if (oldTitle) oldTitle.remove();
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
     const textNode = Array.from(article.childNodes).find((n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
@@ -352,7 +348,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const value = select.value;
   const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
   if (item) {
-    titleEl.textContent = item.title || '';
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
     if (img) {
@@ -372,10 +367,9 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       }
       heading.textContent = item.title || '';
       heading.hidden = false;
+      select.hidden = true;
     }
-    select.hidden = true;
   } else {
-    titleEl.textContent = '';
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
     if (img) {

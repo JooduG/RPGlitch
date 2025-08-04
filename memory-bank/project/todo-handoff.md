@@ -20,4 +20,4 @@
 - [x] Expand empty story placeholder to span the full chin width.
 - [x] Replace storyboard dropdowns with clickable titles and add toggle for reselection.
 - [x] Standardize option chin button heights and confirm two-column textarea layout.
-
+- [x] Drop extra storyboard card titles and solidify title/select toggle behavior.

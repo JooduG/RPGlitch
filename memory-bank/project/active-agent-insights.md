@@ -37,4 +37,5 @@
 - Widening the empty-story placeholder ensures it reads across the entire chin.
 - Storyboard dropdown selections hide after choice, showing a clickable title for quick reselection.
 - Standardized option chin button height keeps controls aligned.
-
+- Removing article-level card titles leaves the header as the single source of truth and simplifies toggling.
+- Explicit grid rows in option panels keep buttons and text fields neatly separated.
