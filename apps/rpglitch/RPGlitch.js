@@ -327,6 +327,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const article = card.querySelector('.storyboard-card-right');
   if (!article) return;
   const headerEl = article.querySelector('header');
+  let heading = headerEl ? headerEl.querySelector('.card-title-selected') : null;
   const footer = article.querySelector('footer');
   let titleEl = article.querySelector('.card-title');
   if (!titleEl) {
@@ -358,6 +359,21 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       if (item.image) img.src = item.image;
       img.alt = item.title || '';
     }
+    if (headerEl) {
+      if (!heading) {
+        heading = document.createElement('h4');
+        heading.className = 'card-title-selected';
+        heading.addEventListener('click', () => {
+          select.hidden = false;
+          heading.hidden = true;
+          select.focus();
+        });
+        headerEl.appendChild(heading);
+      }
+      heading.textContent = item.title || '';
+      heading.hidden = false;
+    }
+    select.hidden = true;
   } else {
     titleEl.textContent = '';
     descEl.textContent = descEl.dataset.placeholder || '';
@@ -366,6 +382,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       img.src = img.dataset.placeholderSrc || img.src;
       img.alt = '';
     }
+    select.hidden = false;
+    if (heading) heading.hidden = true;
   }
 };
 

@@ -38,3 +38,6 @@
 - Centered chin and storyboard card headers and descriptions for balanced presentation.
 - Anchored chin and storyboard card footers to the bottom-right with flex alignment.
 - Added a friendly placeholder message when the story list is empty.
+- Expanded the empty-story placeholder to span the full chin width and remain centered.
+- Storyboard selections now replace dropdowns with clickable titles that reveal the select for re-choosing.
+- Option chin buttons share a uniform height and fields display in two equal columns.

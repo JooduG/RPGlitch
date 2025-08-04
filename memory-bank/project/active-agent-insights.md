@@ -34,3 +34,7 @@
 - Flex centering ensures chin and storyboard cards present titles and descriptions uniformly.
 - Footers use flex-end alignment with `margin-top: auto` to stay anchored at the bottom-right of cards.
 - `renderList` now emits an inviting message when the story bank is empty, improving user guidance.
+- Widening the empty-story placeholder ensures it reads across the entire chin.
+- Storyboard dropdown selections hide after choice, showing a clickable title for quick reselection.
+- Standardized option chin button height keeps controls aligned.
+
