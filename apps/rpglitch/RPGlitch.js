@@ -227,6 +227,13 @@ function renderList(containerId, key) {
   if (!container) return;
   container.textContent = '';
   const all = App.getAllItems(key);
+  if (key === 'stories' && all.length === 0) {
+    const message = document.createElement('p');
+    message.className = 'story-item-empty-message';
+    message.textContent = 'Empty here—time to write your first story!';
+    container.appendChild(message);
+    return;
+  }
   all.forEach((item) => {
     const card = document.createElement('div');
     card.className = 'chin-card';

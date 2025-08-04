@@ -28,3 +28,5 @@
 - Deduplicated cache setup in `App.getAllItems` and synchronized storyboard cards with dropdown selections via `App.updateStoryboardCard`.
 - Guarded `App.updateStoryboardCard` title insertion by capturing the header element before use, eliminating `ReferenceError` when changing dropdowns.
 - Added descriptions and footer badges to premade chin cards while leaving dropdown labels unchanged.
+- Centered card content and anchored footers across chin and storyboard views.
+- Introduced placeholder message for empty story banks.

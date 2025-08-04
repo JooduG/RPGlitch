@@ -16,3 +16,4 @@
 - [x] Sync storyboard card content with dropdown selections.
 - [x] Capture storyboard card header before inserting title to prevent `ReferenceError`.
 - [ ] Group premade items in dropdowns with optgroups instead of title suffix.
+- [x] Center card text, anchor footers, and add empty story placeholder.

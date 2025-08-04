@@ -31,3 +31,6 @@
 - `App.updateStoryboardCard` keeps storyboard card previews synchronized with dropdown choices.
 - Capturing the storyboard header element before inserting a title prevents `ReferenceError` when dropdowns change.
 - Chin cards display premade badges in footers and show descriptions pulled from premade data.
+- Flex centering ensures chin and storyboard cards present titles and descriptions uniformly.
+- Footers use flex-end alignment with `margin-top: auto` to stay anchored at the bottom-right of cards.
+- `renderList` now emits an inviting message when the story bank is empty, improving user guidance.
