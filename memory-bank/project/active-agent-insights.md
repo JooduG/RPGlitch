@@ -39,4 +39,3 @@
 - Standardized option chin button height keeps controls aligned.
 - Removing article-level card titles leaves the header as the single source of truth and simplifies toggling.
 - Explicit grid rows in option panels keep buttons and text fields neatly separated.
-

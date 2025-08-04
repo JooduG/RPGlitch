@@ -1,32 +1,37 @@
-Center card headers and descriptions
+# Placeholder text on the Stories chin is not centered across the full width
 
-Both chin and storyboard cards use flex containers without alignment rules, leaving header titles and descriptions top-left aligned rather than centered
+## The placeholder message spans only grid column 2 / 3, leaving it offset instead of centered across the entire chin area
 
-1. In `apps/rpglitch/RPGlitch.scss`, update `.chin-card-left article` and `#storyboard-grid .storyboard-card .storyboard-card-right` to:
-   * `justify-content: center;`
-   * `align-items: center;`
-   * `text-align: center;`
-2. Ensure the card containers (`.chin-card-left` and `.storyboard-card-right`) remain `height: 100%` so vertical centering applies.
-3. Run `npm run lint && npm run build && npm test && npm run validate`.
-4. Record the change in `memory-bank/project/activeContext.md`, `progress.md`, `todo-handoff.md`, and `active-agent-insights.md`.
+1. Open `apps/rpglitch/RPGlitch.scss`.
+2. In the `.chin-grid .story-item-empty-message` block, change `grid-column: 2 / 3;` to `grid-column: 1 / -1;` so the placeholder spans the full width.
+3. Verify text remains horizontally and vertically centered.
+4. Run `npm run lint && npm run build && npm test && npm run validate`.
+5. Record the change in:
+   * `memory-bank/project/activeContext.md`
+   * `memory-bank/project/progress.md`
+   * `memory-bank/project/todo-handoff.md`
+   * `memory-bank/project/active-agent-insights.md`
 
-Footer alignment and anchoring
+## Storyboard card dropdown does not become the title after selection
 
-Chin card footers only set margin-top: auto without right-alignment or vertical centering, and storyboard card footers lack any positioning rules, allowing them to drift from the bottom
+## App.updateStoryboardCard sets the card title but leaves the dropdown visible, so the selected item is not displayed as the card’s title
+
+1. Edit `apps/rpglitch/RPGlitch.js` within `App.updateStoryboardCard`.
+2. When a non-empty selection is made:
+   * Hide the `<select>` element or replace it with an `<h4 class="card-title-selected">`.
+   * Display the selected item’s title within this heading.
+   * Add a click handler to the heading to reveal the `<select>` again for re-selection.
+3. Ensure fallback logic restores the placeholder when the selection is cleared.
+4. Run `npm run lint && npm run build && npm test && npm run validate`.
+5. Document the behavior in the four memory-bank files (`activeContext.md`, `progress.md`, `todo-handoff.md`, `active-agent-insights.md`).
+
+## Option chin buttons misaligned and text fields not laid out at 50% width
+
+## Buttons in the Options chin may differ in height from other chins, and the text areas need explicit half-width positioning beneath the action bar
 
 1. In `apps/rpglitch/RPGlitch.scss`:
-   * Amend `.chin-card-left article footer` to `display: flex; justify-content: flex-end; align-items: center;`.
-   * Add similar rules with `margin-top: auto` for `#storyboard-grid .storyboard-card-right footer`.
-2. Confirm footers remain at the bottom of their cards on both chin and storyboard views.
-3. Run `npm run lint && npm run build && npm test && npm run validate`.
-4. Update memory-bank entries (`activeContext.md`, `progress.md`, `todo-handoff.md`, `active-agent-insights.md`) with the new footer behavior.
-
-Missing placeholder for empty story list
-
-renderList populates stories without a fallback message, so an empty story bank renders blank space instead of a friendly prompt
-
-1. Modify `renderList` in `apps/rpglitch/RPGlitch.js`:
-   * After fetching `all`, if `key === 'stories'` and `all.length === 0`, insert a `<p class="story-item-empty-message">` with a message like “Empty here—time to write your first story!”
-2. Ensure existing CSS class `.story-item-empty-message` styles the placeholder.
+   * Add a shared height (e.g., `height: 2.5rem;`) to `.chin-actions-right button` (and `.chin-actions-left button` if needed) to match other chins.
+   * Ensure `.chin-options-fields` uses `grid-template-columns: 1fr 1fr;` and each `<textarea>` fills its column (`width: 100%` already present).
+2. Confirm the textareas appear side-by-side beneath the buttons with roughly equal width.
 3. Execute `npm run lint && npm run build && npm test && npm run validate`.
-4. Document the behavior change in relevant memory-bank files.
+4. Log updates in `activeContext.md`, `progress.md`, `todo-handoff.md`, and `active-agent-insights.md`.
