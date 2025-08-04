@@ -1,4 +1,6 @@
+/* global module */
 // Main RPGlitch application namespace
+// eslint-disable-next-line no-redeclare
 const App = window.App || {};
 window.App = App;
 
@@ -16,6 +18,8 @@ App.showEl = window.showEl || function (el) {
   el.removeAttribute('hidden');
   return el;
 };
+
+const DATA_KEYS = ['stories', 'characters', 'worlds'];
 
 // Highlight the active top bar tab and update ARIA attributes
 App.selectTopBarTab = function (btn) {
@@ -148,11 +152,7 @@ function loadStoredItems(key) {
     console.error(`Failed to parse localStorage item with key "${key}":`, e);
     return [];
   }
-
-function getAllItems(key) {
-  const stored = loadStoredItems(key);
-  const premade = typeof App.getPremadeItems === 'function' ? App.getPremadeItems(key) : [];
-  return premade.concat(stored);
+}
 
 App.premade = App.premade || { stories: [], characters: [], worlds: [] };
 
@@ -162,12 +162,27 @@ App.getPremadeItems = App.getPremadeItems || function (key) {
   return Array.isArray(list) ? list : [];
 };
 
+App.getPremadeStories = App.getPremadeStories || function () {
+  return App.getPremadeItems('stories');
+};
+
+App.getPremadeCharacters = App.getPremadeCharacters || function () {
+  return App.getPremadeItems('characters');
+};
+
+App.getPremadeWorlds = App.getPremadeWorlds || function () {
+  return App.getPremadeItems('worlds');
+};
+
 function renderList(containerId, key) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  const items = getAllItems(key);
   container.textContent = '';
-  items.forEach((item) => {
+  const getter = `getPremade${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+  const premade = typeof App[getter] === 'function' ? App[getter]() : [];
+  const user = loadStoredItems(key);
+  const all = premade.concat(user);
+  all.forEach((item) => {
     const card = document.createElement('div');
     card.className = 'chin-card';
     card.dataset.title = item.title;
@@ -189,6 +204,12 @@ function renderList(containerId, key) {
     container.appendChild(card);
   });
 }
+
+App.refreshAllLists = App.refreshAllLists || function () {
+  App.renderStoryList?.();
+  App.renderCharacterList?.();
+  App.renderWorldList?.();
+};
 
 App.renderStoryList = App.renderStoryList || function () {
   renderList('chin-story-grid', 'stories');
@@ -221,10 +242,10 @@ App._attachOptionChinActions = function () {
 
   if (uploadBackupTrigger && uploadBackupInput) {
     uploadBackupTrigger.addEventListener('click', () => uploadBackupInput.click());
-    uploadBackupInput.addEventListener('change', (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (file && typeof App.importAllData === 'function') App.importAllData(file);
-    });
+      uploadBackupInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file && typeof App.importAllData === 'function') App.importAllData(file);
+      });
   }
 
   if (downloadBackupButton) {
@@ -248,6 +269,7 @@ App._attachContentChinActions = function () {
   const configs = [
     {
       key: 'stories',
+      singular: 'story',
       newButton: ui.newStoryButton,
       uploadTrigger: ui.uploadStoryTrigger,
       uploadInput: ui.uploadStoryInput,
@@ -255,6 +277,7 @@ App._attachContentChinActions = function () {
     },
     {
       key: 'characters',
+      singular: 'character',
       newButton: ui.newCharacterButton,
       uploadTrigger: ui.uploadCharacterTrigger,
       uploadInput: ui.uploadCharacterInput,
@@ -262,6 +285,7 @@ App._attachContentChinActions = function () {
     },
     {
       key: 'worlds',
+      singular: 'world',
       newButton: ui.newWorldButton,
       uploadTrigger: ui.uploadWorldTrigger,
       uploadInput: ui.uploadWorldInput,
@@ -269,11 +293,11 @@ App._attachContentChinActions = function () {
     }
   ];
 
-  configs.forEach(({ key, newButton, uploadTrigger, uploadInput, render }) => {
+  configs.forEach(({ key, singular, newButton, uploadTrigger, uploadInput, render }) => {
     if (newButton) {
       newButton.addEventListener('click', () => {
-        const singular = key === 'stories' ? 'story' : key.slice(0, -1);
-        const title = window.prompt(`New ${singular} title?`);        if (!title) return;
+        const title = window.prompt(`New ${singular} title?`);
+        if (!title) return;
         const item = { title };
         const current = loadStoredItems(key);
         current.push(item);
@@ -298,6 +322,7 @@ App._attachContentChinActions = function () {
           } catch (err) {
             console.error('Failed to import', err);
           }
+          uploadInput.value = null;
         };
         reader.readAsText(file);
       });
@@ -373,14 +398,17 @@ App.importAllData = function (file) {
   reader.onload = (e) => {
     try {
       const data = JSON.parse(e.target.result);
-      ['stories', 'characters', 'worlds'].forEach((key) => {
+      DATA_KEYS.forEach((key) => {
         if (Array.isArray(data[key])) {
           window.localStorage.setItem(key, JSON.stringify(data[key]));
         }
       });
-      if (typeof App.renderAllLists === 'function') App.renderAllLists();
+      App.refreshAllLists();
     } catch (err) {
       console.error('Failed to import backup', err);
+    } finally {
+      const ui = App._getUIElements();
+      if (ui.uploadBackupInput) ui.uploadBackupInput.value = null;
     }
   };
   reader.readAsText(file);
@@ -388,11 +416,11 @@ App.importAllData = function (file) {
 
 App.exportAllData = function () {
   const data = {};
-  ['stories', 'characters', 'worlds'].forEach((key) => {
+  DATA_KEYS.forEach((key) => {
     try {
       const value = window.localStorage.getItem(key);
       data[key] = value ? JSON.parse(value) : [];
-    } catch (e) {
+    } catch {
       data[key] = [];
     }
   });
@@ -401,15 +429,18 @@ App.exportAllData = function () {
   const a = document.createElement('a');
   a.href = url;
   a.download = 'rpglitch-backup.json';
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  App.refreshAllLists();
 };
 
 App.deleteAllData = function () {
-  ['stories', 'characters', 'worlds'].forEach((key) => {
+  DATA_KEYS.forEach((key) => {
     window.localStorage.removeItem(key);
   });
-  if (typeof App.renderAllLists === 'function') App.renderAllLists();
+  App.refreshAllLists();
 };
 
 // Export for Node-based tests

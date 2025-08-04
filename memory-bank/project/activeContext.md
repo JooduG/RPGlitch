@@ -25,3 +25,4 @@
 - Implemented chin focus management: search input receives focus on open and last tab regains focus on close.
 - Split stored and premade chin items to avoid writing premade entries back to `localStorage`.
 - Documented requirement to run lint/build/test/validate suite before PR in root `AGENTS.md`.
+- Added `DATA_KEYS` constant and `refreshAllLists` helper; import/export/delete now reset inputs, remove anchors, and refresh UI lists.

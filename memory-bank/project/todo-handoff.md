@@ -12,3 +12,4 @@
 - [ ] Distinguish premade items from custom entries in UI.
 - [x] Add focus management for chins: focus search inputs on open and return to last tab on close.
 - [x] Document full lint/build/test/validate workflow in AGENTS.md.
+- [x] Refresh lists after backup import/export/delete and reset upload inputs.
