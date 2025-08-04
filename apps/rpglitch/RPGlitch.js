@@ -244,18 +244,23 @@ function renderList(containerId, key) {
     h4.textContent = item.title || '';
     header.appendChild(h4);
 
-    const desc = document.createElement('p');
-    desc.className = 'card-description';
-    desc.textContent = item.description || '';
+    article.appendChild(header);
 
-    const footer = document.createElement('footer');
+    if (item.description) {
+      const desc = document.createElement('p');
+      desc.className = 'card-description';
+      desc.textContent = item.description;
+      article.appendChild(desc);
+    }
+
     if (item.isPremade) {
+      const footer = document.createElement('footer');
       const small = document.createElement('small');
       small.textContent = 'Premade';
       footer.appendChild(small);
+      article.appendChild(footer);
     }
-
-    article.append(header, desc, footer);
+    
     left.appendChild(article);
     card.appendChild(left);
     container.appendChild(card);
@@ -320,7 +325,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   if (!titleEl) {
     titleEl = document.createElement('h4');
     titleEl.className = 'card-title';
-    if (headerEl) article.insertBefore(titleEl, headerEl.nextSibling);
+    article.insertBefore(titleEl, headerEl ? headerEl.nextSibling : article.firstChild);
   }
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
