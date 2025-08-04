@@ -33,3 +33,4 @@
 - Removed unnecessary UI refresh after exporting data to avoid flicker.
 - Deduplicated `App._allItemsCache` initialization inside `App.getAllItems`.
 - Added `App.updateStoryboardCard` with listeners to sync storyboard cards with dropdown selections.
+- Guarded storyboard title insertion by capturing the header element before use to avoid `ReferenceError` on dropdown changes.
