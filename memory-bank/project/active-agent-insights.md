@@ -29,3 +29,5 @@
 - Marking premade titles clarifies origin without persisting them to storage.
 - Skipping UI refresh after exports avoids unnecessary re-renders.
 - `App.updateStoryboardCard` keeps storyboard card previews synchronized with dropdown choices.
+- Capturing the storyboard header element before inserting a title prevents `ReferenceError` when dropdowns change.
+- Chin cards display premade badges in footers and show descriptions pulled from premade data.

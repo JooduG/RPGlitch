@@ -26,3 +26,5 @@
 - Added `renderDropdown` and expanded `refreshAllLists` to populate storyboard selects.
 - Marked premade items in UI and dropped redundant refresh after export operations.
 - Deduplicated cache setup in `App.getAllItems` and synchronized storyboard cards with dropdown selections via `App.updateStoryboardCard`.
+- Guarded `App.updateStoryboardCard` title insertion by capturing the header element before use, eliminating `ReferenceError` when changing dropdowns.
+- Added descriptions and footer badges to premade chin cards while leaving dropdown labels unchanged.

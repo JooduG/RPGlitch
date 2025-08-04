@@ -14,3 +14,5 @@
 - [x] Document full lint/build/test/validate workflow in AGENTS.md.
 - [x] Refresh lists after backup import/export/delete and reset upload inputs.
 - [x] Sync storyboard card content with dropdown selections.
+- [x] Capture storyboard card header before inserting title to prevent `ReferenceError`.
+- [ ] Group premade items in dropdowns with optgroups instead of title suffix.

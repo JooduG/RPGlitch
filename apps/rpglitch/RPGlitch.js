@@ -159,14 +159,38 @@ function loadStoredItems(key) {
 App.premade = App.premade || {
   stories: [],
   characters: [
-    { id: 'char-1', title: 'Aether Blade' },
-    { id: 'char-2', title: 'Mystic Bard' },
-    { id: 'char-3', title: 'Clockwork Rogue' },
-    { id: 'char-4', title: 'Shadow Whisperer' }
+    {
+      id: 'char-1',
+      title: 'Aether Blade',
+      description: 'Cybernetic warrior forging light into weapons.'
+    },
+    {
+      id: 'char-2',
+      title: 'Mystic Bard',
+      description: 'Traveling musician who weaves spells with song.'
+    },
+    {
+      id: 'char-3',
+      title: 'Clockwork Rogue',
+      description: 'Stealthy thief powered by ticking gears.'
+    },
+    {
+      id: 'char-4',
+      title: 'Shadow Whisperer',
+      description: 'Mysterious figure communing with darkness.'
+    }
   ],
   worlds: [
-    { id: 'world-1', title: 'Eldoria' },
-    { id: 'world-2', title: 'Neo Arcadia' }
+    {
+      id: 'world-1',
+      title: 'Eldoria',
+      description: 'Floating isles bound by ancient magic.'
+    },
+    {
+      id: 'world-2',
+      title: 'Neo Arcadia',
+      description: 'Futuristic metropolis built on dream tech.'
+    }
   ]
 };
 
@@ -217,10 +241,21 @@ function renderList(containerId, key) {
 
     const header = document.createElement('header');
     const h4 = document.createElement('h4');
-    h4.textContent = item.title + (item.isPremade ? ' (Premade)' : '');
-
+    h4.textContent = item.title || '';
     header.appendChild(h4);
-    article.appendChild(header);
+
+    const desc = document.createElement('p');
+    desc.className = 'card-description';
+    desc.textContent = item.description || '';
+
+    const footer = document.createElement('footer');
+    if (item.isPremade) {
+      const small = document.createElement('small');
+      small.textContent = 'Premade';
+      footer.appendChild(small);
+    }
+
+    article.append(header, desc, footer);
     left.appendChild(article);
     card.appendChild(left);
     container.appendChild(card);
@@ -278,14 +313,14 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const card = select.closest('.storyboard-card');
   if (!card) return;
   const article = card.querySelector('.storyboard-card-right');
-const article = card.querySelector('.storyboard-card-right');
-if (!article) return;
+  if (!article) return;
+  const headerEl = article.querySelector('header');
   const footer = article.querySelector('footer');
   let titleEl = article.querySelector('.card-title');
   if (!titleEl) {
     titleEl = document.createElement('h4');
     titleEl.className = 'card-title';
-    article.insertBefore(titleEl, header.nextSibling);
+    if (headerEl) article.insertBefore(titleEl, headerEl.nextSibling);
   }
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
@@ -302,7 +337,7 @@ if (!article) return;
   const img = card.querySelector('.storyboard-card-left img');
   if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
   const value = select.value;
-const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
+  const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
   if (item) {
     titleEl.textContent = item.title || '';
     descEl.textContent = item.description || '';
