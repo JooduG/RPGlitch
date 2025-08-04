@@ -178,9 +178,8 @@ function renderList(containerId, key) {
   const container = document.getElementById(containerId);
   if (!container) return;
   container.textContent = '';
-  const getter = `getPremade${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-  const premade = typeof App[getter] === 'function' ? App[getter]() : [];
   const user = loadStoredItems(key);
+  const premade = App.getPremadeItems(key);
   const all = premade.concat(user);
   all.forEach((item) => {
     const card = document.createElement('div');
