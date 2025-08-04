@@ -21,3 +21,7 @@
 - Prevented premade chin items from being duplicated in storage by separating stored data from premade lists.
 - Documented full lint/build/test/validate workflow in AGENTS.md.
 - Added `DATA_KEYS` constant and `refreshAllLists` helper with robust import/export/delete handling.
+- Seeded default characters and worlds for testing.
+- Centralized premade and stored items via `App.getAllItems` with caching and `isPremade` flags.
+- Added `renderDropdown` and expanded `refreshAllLists` to populate storyboard selects.
+- Marked premade items in UI and dropped redundant refresh after export operations.

@@ -73,3 +73,14 @@ test('chin search hides non-matching cards via hidden attribute', () => {
   expect(bar.hasAttribute('hidden')).toBe(true);
 });
 
+test('renderDropdown populates select with premade and stored items', () => {
+  const dom = new JSDOM('<select id="sel"><option value="">Choose...</option></select>', { url: 'http://localhost', runScripts: 'outside-only' });
+  global.window = dom.window;
+  global.document = dom.window.document;
+  dom.window.localStorage.setItem('characters', JSON.stringify([{ title: 'Custom' }]));
+  loadScripts(dom);
+  dom.window.App.renderDropdown('sel', 'characters');
+  const options = Array.from(dom.window.document.querySelectorAll('#sel option')).map((o) => o.textContent);
+  expect(options).toEqual(expect.arrayContaining(['Aether Blade (Premade)', 'Custom']));
+});
+
