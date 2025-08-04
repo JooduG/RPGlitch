@@ -593,6 +593,16 @@ input[type="file"] {
   justify-content: space-between;
 }
 
+.chin-card-left article {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chin-card-left article footer {
+  margin-top: auto;
+}
+
 .chin-card-right {
   display: flex;
   align-items: stretch;

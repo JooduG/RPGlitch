@@ -159,14 +159,38 @@ function loadStoredItems(key) {
 App.premade = App.premade || {
   stories: [],
   characters: [
-    { id: 'char-1', title: 'Aether Blade' },
-    { id: 'char-2', title: 'Mystic Bard' },
-    { id: 'char-3', title: 'Clockwork Rogue' },
-    { id: 'char-4', title: 'Shadow Whisperer' }
+    {
+      id: 'char-1',
+      title: 'Aether Blade',
+      description: 'Cybernetic warrior forging light into weapons.'
+    },
+    {
+      id: 'char-2',
+      title: 'Mystic Bard',
+      description: 'Traveling musician who weaves spells with song.'
+    },
+    {
+      id: 'char-3',
+      title: 'Clockwork Rogue',
+      description: 'Stealthy thief powered by ticking gears.'
+    },
+    {
+      id: 'char-4',
+      title: 'Shadow Whisperer',
+      description: 'Mysterious figure communing with darkness.'
+    }
   ],
   worlds: [
-    { id: 'world-1', title: 'Eldoria' },
-    { id: 'world-2', title: 'Neo Arcadia' }
+    {
+      id: 'world-1',
+      title: 'Eldoria',
+      description: 'Floating isles bound by ancient magic.'
+    },
+    {
+      id: 'world-2',
+      title: 'Neo Arcadia',
+      description: 'Futuristic metropolis built on dream tech.'
+    }
   ]
 };
 
@@ -217,10 +241,26 @@ function renderList(containerId, key) {
 
     const header = document.createElement('header');
     const h4 = document.createElement('h4');
-    h4.textContent = item.title + (item.isPremade ? ' (Premade)' : '');
-
+    h4.textContent = item.title || '';
     header.appendChild(h4);
+
     article.appendChild(header);
+
+    if (item.description) {
+      const desc = document.createElement('p');
+      desc.className = 'card-description';
+      desc.textContent = item.description;
+      article.appendChild(desc);
+    }
+
+    if (item.isPremade) {
+      const footer = document.createElement('footer');
+      const small = document.createElement('small');
+      small.textContent = 'Premade';
+      footer.appendChild(small);
+      article.appendChild(footer);
+    }
+    
     left.appendChild(article);
     card.appendChild(left);
     container.appendChild(card);
@@ -285,12 +325,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   if (!titleEl) {
     titleEl = document.createElement('h4');
     titleEl.className = 'card-title';
-    if (headerEl) {
-      article.insertBefore(titleEl, headerEl.nextSibling);
-    } else {
-      // If header doesn't exist, prepend title to the article as a fallback.
-      article.prepend(titleEl);
-    }
+    article.insertBefore(titleEl, headerEl ? headerEl.nextSibling : article.firstChild);
   }
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
