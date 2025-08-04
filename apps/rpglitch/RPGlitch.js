@@ -362,7 +362,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     if (headerEl) {
       if (!heading) {
         heading = document.createElement('h4');
-        heading.className = 'card-title-selected';
+        heading.className = 'card-title';
         heading.addEventListener('click', () => {
           select.hidden = false;
           heading.hidden = true;
