@@ -31,3 +31,5 @@
 - Added `renderDropdown` and extended `refreshAllLists` to update storyboard selects alongside chin grids.
 - Labeled premade entries with `(Premade)` in lists and dropdowns.
 - Removed unnecessary UI refresh after exporting data to avoid flicker.
+- Deduplicated `App._allItemsCache` initialization inside `App.getAllItems`.
+- Added `App.updateStoryboardCard` with listeners to sync storyboard cards with dropdown selections.

@@ -28,3 +28,4 @@
 - `renderDropdown` reuses the same sources as chin grids, keeping storyboard selects in sync.
 - Marking premade titles clarifies origin without persisting them to storage.
 - Skipping UI refresh after exports avoids unnecessary re-renders.
+- `App.updateStoryboardCard` keeps storyboard card previews synchronized with dropdown choices.

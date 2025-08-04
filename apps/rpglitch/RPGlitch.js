@@ -191,7 +191,6 @@ App.getPremadeWorlds = App.getPremadeWorlds || function () {
 App._allItemsCache = App._allItemsCache || {};
 
 App.getAllItems = App.getAllItems || function (key, refresh = false) {
-  App._allItemsCache = App._allItemsCache || {};
   if (!refresh && Array.isArray(App._allItemsCache[key])) return App._allItemsCache[key];
   const premade = App.getPremadeItems(key).map((item) => ({ ...item, isPremade: true }));
   const stored = loadStoredItems(key).map((item) => ({ ...item, isPremade: false }));
@@ -271,6 +270,67 @@ App.renderCharacterList = App.renderCharacterList || function () {
 
 App.renderWorldList = App.renderWorldList || function () {
   renderList('chin-world-grid', 'worlds');
+};
+
+App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) {
+  const select = typeof selectId === 'string' ? document.getElementById(selectId) : selectId;
+  if (!select) return;
+  const card = select.closest('.storyboard-card');
+  if (!card) return;
+  const article = card.querySelector('.storyboard-card-right');
+  const header = article.querySelector('header');
+  const footer = article.querySelector('footer');
+  let titleEl = article.querySelector('.card-title');
+  if (!titleEl) {
+    titleEl = document.createElement('h4');
+    titleEl.className = 'card-title';
+    article.insertBefore(titleEl, header.nextSibling);
+  }
+  let descEl = article.querySelector('.card-description');
+  if (!descEl) {
+    const textNode = Array.from(article.childNodes).find((n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+    const placeholder = textNode ? textNode.textContent.trim() : '';
+    if (textNode) article.removeChild(textNode);
+    descEl = document.createElement('p');
+    descEl.className = 'card-description';
+    descEl.textContent = placeholder;
+    descEl.dataset.placeholder = placeholder;
+    article.insertBefore(descEl, footer);
+  }
+  const small = footer ? footer.querySelector('small') : null;
+  const img = card.querySelector('.storyboard-card-left img');
+  if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
+  const value = select.value;
+  const item = App.getAllItems(key).find((i) => (i.id || i.title) === value);
+  if (item) {
+    titleEl.textContent = item.title || '';
+    descEl.textContent = item.description || '';
+    if (small) small.textContent = item.isPremade ? 'Premade' : '';
+    if (img) {
+      if (item.image) img.src = item.image;
+      img.alt = item.title || '';
+    }
+  } else {
+    titleEl.textContent = '';
+    descEl.textContent = descEl.dataset.placeholder || '';
+    if (small) small.textContent = '';
+    if (img) {
+      img.src = img.dataset.placeholderSrc || img.src;
+      img.alt = '';
+    }
+  }
+};
+
+App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
+  const configs = [
+    { id: 'storyboard-ai-select', key: 'characters' },
+    { id: 'storyboard-user-select', key: 'characters' },
+    { id: 'storyboard-world-select', key: 'worlds' }
+  ];
+  configs.forEach(({ id, key }) => {
+    const select = document.getElementById(id);
+    if (select) select.addEventListener('change', () => App.updateStoryboardCard(id, key));
+  });
 };
 
 // Track attached listeners to avoid duplicates
@@ -433,6 +493,7 @@ App.initializeWhenReady = async function () {
       await App.initialLoad();
     }
     App.refreshAllLists?.();
+    App._attachStoryboardListeners?.();
     App.initializeWhenReadyRetryCount = 0;
   } catch (error) {
     App.initializeWhenReadyRetryCount += 1;
