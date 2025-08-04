@@ -278,14 +278,19 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const card = select.closest('.storyboard-card');
   if (!card) return;
   const article = card.querySelector('.storyboard-card-right');
-const article = card.querySelector('.storyboard-card-right');
-if (!article) return;
+  if (!article) return;
+  const headerEl = article.querySelector('header');
   const footer = article.querySelector('footer');
   let titleEl = article.querySelector('.card-title');
   if (!titleEl) {
     titleEl = document.createElement('h4');
     titleEl.className = 'card-title';
-    article.insertBefore(titleEl, header.nextSibling);
+    if (headerEl) {
+      article.insertBefore(titleEl, headerEl.nextSibling);
+    } else {
+      // If header doesn't exist, prepend title to the article as a fallback.
+      article.prepend(titleEl);
+    }
   }
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
@@ -302,7 +307,7 @@ if (!article) return;
   const img = card.querySelector('.storyboard-card-left img');
   if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
   const value = select.value;
-const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
+  const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
   if (item) {
     titleEl.textContent = item.title || '';
     descEl.textContent = item.description || '';
