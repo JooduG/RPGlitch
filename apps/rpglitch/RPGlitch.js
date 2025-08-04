@@ -302,7 +302,7 @@ if (!article) return;
   const img = card.querySelector('.storyboard-card-left img');
   if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
   const value = select.value;
-  const item = App.getAllItems(key).find((i) => (i.id || i.title) === value);
+const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
   if (item) {
     titleEl.textContent = item.title || '';
     descEl.textContent = item.description || '';
