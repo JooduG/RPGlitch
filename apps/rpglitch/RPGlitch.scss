@@ -99,8 +99,11 @@ a {
 
 article {
   padding: 0;
-  margin: 0;
-  box-shadow: 0;
+  box-shadow: 0 0 0 0 rgb(0 0 0 / 0%);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-top: auto;
 }
 
 button:not([disabled]),
@@ -593,16 +596,6 @@ input[type="file"] {
   justify-content: space-between;
 }
 
-.chin-card-left article {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.chin-card-left article footer {
-  margin-top: auto;
-}
-
 .chin-card-right {
   display: flex;
   align-items: stretch;
@@ -629,14 +622,19 @@ input[type="file"] {
   font-size: 1.1rem;
 }
 
+.storyboard-card-left {
+  background-color: var(--pico-card-sectioning-background-color);
+}
+
 .storyboard-card-right, 
 .chin-card-right {
   border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
+  overflow: hidden;
 }
 
 .storyboard-card-left,
 .chin-card-left {
-  border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
+  border-radius: var(--pico-radius) 0 0 var(--pico-radius);
   overflow: hidden;
 }
 
@@ -645,7 +643,6 @@ input[type="file"] {
   height: 100%;
   object-fit: cover;
   display: block;
-  background: #222;
 }
 
 .card-title-selected .profile-dot {
@@ -725,12 +722,8 @@ input[type="file"] {
 
 #storyboard-grid select {
   border: none;
-  background: #23243a;
-  color: #fff;
   appearance: none;
   text-align: center;
-  font-size: 1.1em;
-  font-weight: 500;
   outline: none;
   padding: 0.5em 0;
   width: 100%;
@@ -747,7 +740,6 @@ input[type="file"] {
 
 #storyboard-grid select option {
   text-align: left;
-  color: #222;
 }
 
 #storyboard-grid .profile-picture {
