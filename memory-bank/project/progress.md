@@ -25,3 +25,4 @@
 - Centralized premade and stored items via `App.getAllItems` with caching and `isPremade` flags.
 - Added `renderDropdown` and expanded `refreshAllLists` to populate storyboard selects.
 - Marked premade items in UI and dropped redundant refresh after export operations.
+- Deduplicated cache setup in `App.getAllItems` and synchronized storyboard cards with dropdown selections via `App.updateStoryboardCard`.
