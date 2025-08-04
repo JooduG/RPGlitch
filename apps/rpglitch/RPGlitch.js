@@ -367,8 +367,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       }
       heading.textContent = item.title || '';
       heading.hidden = false;
+      select.hidden = true;
     }
-    select.hidden = true;
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
