@@ -596,6 +596,19 @@ input[type="file"] {
   justify-content: space-between;
 }
 
+.chin-card-left article {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.chin-card-left article footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 .chin-card-right {
   display: flex;
   align-items: stretch;
@@ -850,6 +863,17 @@ input[type="file"] {
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+}
+
+#storyboard-grid .storyboard-card-right footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .storyboard-card .card-title-dropdown {

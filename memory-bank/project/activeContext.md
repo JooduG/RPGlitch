@@ -35,3 +35,6 @@
 - Added `App.updateStoryboardCard` with listeners to sync storyboard cards with dropdown selections.
 - Guarded storyboard title insertion by capturing the header element before use to avoid `ReferenceError` on dropdown changes.
 - Added descriptions for premade items, displaying them on chin cards with a footer badge instead of title suffix.
+- Centered chin and storyboard card headers and descriptions for balanced presentation.
+- Anchored chin and storyboard card footers to the bottom-right with flex alignment.
+- Added a friendly placeholder message when the story list is empty.
