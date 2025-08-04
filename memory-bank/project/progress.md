@@ -30,3 +30,7 @@
 - Added descriptions and footer badges to premade chin cards while leaving dropdown labels unchanged.
 - Centered card content and anchored footers across chin and storyboard views.
 - Introduced placeholder message for empty story banks.
+- Expanded empty story placeholder to span the full chin width.
+- Storyboard dropdown selections now display as clickable titles that hide the select until re-chosen.
+- Options chin buttons share a consistent height with textareas aligned in two columns.
+

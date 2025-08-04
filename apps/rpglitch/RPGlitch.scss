@@ -513,7 +513,7 @@ input[type="file"] {
   height: 100%;
   text-align: center;
   margin: 0 auto;
-  grid-column: 2 / 3;
+  grid-column: 1 / -1;
 }
 
 .chin,
@@ -597,6 +597,13 @@ input[type="file"] {
   align-items: left;
   flex-wrap: nowrap;
 }
+
+/* stylelint-disable no-descending-specificity */
+.chin-actions-right button,
+.chin-actions-left button {
+  height: 2.5rem;
+}
+/* stylelint-enable no-descending-specificity */
 
 .chin-actions form[role="search"] {
   align-items: center;
