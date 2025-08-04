@@ -602,7 +602,8 @@ input[type="file"] {
   text-align: center;
 }
 
-.chin-card-left article footer {
+.chin-card-left article footer,
+#storyboard-grid .storyboard-card-right footer {
   margin-top: auto;
   display: flex;
   justify-content: flex-end;
