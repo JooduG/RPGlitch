@@ -41,3 +41,5 @@
 - Expanded the empty-story placeholder to span the full chin width and remain centered.
 - Storyboard selections now replace dropdowns with clickable titles that reveal the select for re-choosing.
 - Option chin buttons share a uniform height and fields display in two equal columns.
+- Removed redundant storyboard card titles and tightened select/heading toggle logic.
+- Structured option chin panels with grid rows so buttons sit above two-column text fields.

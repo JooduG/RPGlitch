@@ -386,6 +386,7 @@ input[type="file"] {
   align-items: center;
   justify-content: space-between;
   margin: 0;
+  grid-row: 1;
 }
 
 
@@ -536,6 +537,7 @@ input[type="file"] {
   border-bottom: 1px solid var(--pico-muted-border-color);
   gap: 1rem;
   display: grid;
+  grid-template-rows: auto 1fr;
 }
 
 #search-stories-input::placeholder,
@@ -722,6 +724,7 @@ input[type="file"] {
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-top: 1rem;
+  grid-row: 2;
 }
 
 .chin-options-fields textarea {
@@ -1522,7 +1525,7 @@ input[type="file"] {
 }
 
 #chin-options {
-  display: flex;
+  display: grid;
 }
 
 button.danger,
