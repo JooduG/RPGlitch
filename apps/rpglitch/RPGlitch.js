@@ -479,10 +479,11 @@ App._attachContentChinActions = function () {
     characters: App.addCharacter,
     worlds: App.addWorld
   };
-  const modalDetails = {
-    stories: { path: './components/entity-form.js', exportName: 'openStoryModal' },
-    characters: { path: './components/entity-form.js', exportName: 'openCharacterModal' },
-    worlds: { path: './components/entity-form.js', exportName: 'openWorldModal' }
+const modalDetails = {
+  stories: 'openStoryModal',
+  characters: 'openCharacterModal',
+  worlds: 'openWorldModal'
+};
   };
   const configs = [
     {
