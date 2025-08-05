@@ -39,4 +39,6 @@
 - Dropdowns now separate premade and custom items using `<optgroup>`.
 - Roving tabindex defaults to first tab and supports arrow key navigation.
 - Chin search filtering no longer depends on panel class, hiding non-matching cards via the `hidden` attribute.
+- HTML head now declares UTF-8 charset and responsive viewport, and blocking prompts were replaced with untitled item placeholders.
+- Standardized workflow references through a new `CONTRIBUTING.md` and added shared terminology in `GLOSSARY.md`.
 - Refactored modal creation into a generic `entity-form` with dynamic import mapping and hoisted `addMap`.

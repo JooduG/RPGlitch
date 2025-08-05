@@ -172,6 +172,8 @@ uv pip install -e ".[test]"
 
 See CONTRIBUTING.md § 2 “Standard Check”.
 
+## 8 Pull-Request Workflow
+
 Refer to CONTRIBUTING.md § 3 “Pull-Request Workflow”.
 
 ### Contribution Rules

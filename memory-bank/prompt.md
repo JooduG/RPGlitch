@@ -11,8 +11,21 @@ Follow the file/line-exact edit plan below **verbatim**.  Treat all paths as rep
 1 · AGENTS.md  (root)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+1. **Generate component** → `{{APP_ROOT}}/components/story-form.js`
+2. **Dialog skeleton** : `<dialog id="story-dialog"><form><input name="title" …>`
+3. **Export helper** `openStoryModal(onSubmit)` → `dialog.showModal()`; wire Save/Cancel/Escape.
+4. **Duplicate** for characters & worlds (`character-form.js`, `world-form.js`).
+5. **Wire in** `_attachContentChinActions` (import modal, remove `prompt`).
+6. **onSubmit** : validate, call `App.addStory()`, then `App.refreshAllLists()`.
 
 1.1  Delete the **entire block** “### Lint / Test Workflow” (≈ lines 73-82).  
+
+1. `pnpm add dexie ajv`
+2. **Create** `{{APP_ROOT}}/db.js` → init tables `stories, characters, worlds`.
+3. **Export** `getAll`, `add`, `bulkPut`, etc. (Promise‑based).
+4. **Bootstrap migration** on `App.initializeWhenReady`: copy old `localStorage` → Dexie.
+5. Swap all direct `localStorage` calls with awaited DB helpers.
+6. **Import validation** → schemas in `{{APP_ROOT}}/schemas/*.json`; validate via AJV during import.
 
 1.2  Insert immediately in its place: > `See CONTRIBUTING.md § 2 “Standard Check”.`
 
@@ -43,6 +56,12 @@ Follow the file/line-exact edit plan below **verbatim**.  Treat all paths as rep
 
 Central location for workflows & conventions referenced by AGENTS.md.
 
+   ```scss
+   :root {
+     --color-accent: #ff7ad5;
+     --z-overlay: 1000;
+   }
+   ```
 ## 2. Standard Check
 
 Run before every commit / PR:
@@ -81,6 +100,10 @@ npm run lint && npm test && npm run build && npm run validate
 
 See CONTRIBUTING.md § 2 Standard Check.
 
+1. In `{{APP_ROOT}}/RPGlitch.html` top‑bar container → `role="tablist"`.
+2. Each tab button → `role="tab"` + `aria-controls="<panel-id>"`.
+3. Each chin panel → `role="tabpanel"` + matching `id`.
+  
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 5 · Backlog Label (Task Brief Canvas)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -100,6 +123,21 @@ git add AGENTS.md CONTRIBUTING.md GLOSSARY.md .cursor/rules
 git commit -m "docs: deduplicate workflows, add glossary & contributing guide"
 ```
 
+## [BACKLOG] ImageGlitch – Future Sprint
+
+Execute tasks sequentially, committing after each block passes tests & lint. Reference `AGENTS.md` for commit message format, PR template, and reviewer assignment.
+
+> _No immediate coding required; keep for backlog._
+
+1. **Viewport meta** → add when sprinting ImageGlitch.
+2. Extract inline JS to `ImageGlitch.js`; export `initImageGlitch()`.
+3. Replace `!important` overrides with state classes `.is-disabled`.
+4. Convert media queries `(width <= …)` → `@media (max-width: …)`.
+5. `build-and-copy.js` → integrate `clipboardy` for macOS/Linux.
+6. Fix `combine-rules.js` link replacement + Jest coverage.
+
+---
+=======
 After commit, run the Standard Check. All stages must pass.
 
 ##############################################
