@@ -528,7 +528,8 @@ App._attachTopBarEventListeners = function () {
   if (!ui) return;
 
   if (ui.topBarButtons) {
-    ui.topBarButtons.forEach((btn, idx) => {
+    const buttons = Array.from(ui.topBarButtons);
+    buttons.forEach((btn, idx) => {
       if (!App._attachedTopBarButtons.has(btn)) {
         btn.addEventListener('click', () => {
           App.selectTopBarTab(btn);
@@ -536,7 +537,6 @@ App._attachTopBarEventListeners = function () {
         });
         btn.addEventListener('keydown', (e) => {
           if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-          const buttons = Array.from(ui.topBarButtons);
           const dir = e.key === 'ArrowRight' ? 1 : -1;
           const next = (idx + dir + buttons.length) % buttons.length;
           buttons[next].focus();
