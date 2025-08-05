@@ -1,12 +1,15 @@
-# RPGlitch — **Operational‑Mode Task Brief**
+# AGENT TASK: RULESET REFACTOR (High-Priority)
 
 ---
 
-## ① JavaScript Tasks (👩‍💻 Core Logic)
+## Context
 
-Execute tasks sequentially, committing after each block passes tests & lint. Reference `AGENTS.md` for commit message format, PR template, and reviewer assignment.
+We want to slim down and de-duplicate our rule documents (AGENTS.md + siblings) so future LLM runs cost fewer tokens and are easier to maintain.  
+Follow the file/line-exact edit plan below **verbatim**.  Treat all paths as repo-root–relative.
 
-### A. Replace `window.prompt` with Modal Forms
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1 · AGENTS.md  (root)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 1. **Generate component** → `{{APP_ROOT}}/components/story-form.js`
 2. **Dialog skeleton** : `<dialog id="story-dialog"><form><input name="title" …>`
@@ -15,7 +18,7 @@ Execute tasks sequentially, committing after each block passes tests & lint. Ref
 5. **Wire in** `_attachContentChinActions` (import modal, remove `prompt`).
 6. **onSubmit** : validate, call `App.addStory()`, then `App.refreshAllLists()`.
 
-### B. Introduce Dexie (IndexedDB) + Schema Validation
+1.1  Delete the **entire block** “### Lint / Test Workflow” (≈ lines 73-82).  
 
 1. `pnpm add dexie ajv`
 2. **Create** `{{APP_ROOT}}/db.js` → init tables `stories, characters, worlds`.
@@ -24,36 +27,34 @@ Execute tasks sequentially, committing after each block passes tests & lint. Ref
 5. Swap all direct `localStorage` calls with awaited DB helpers.
 6. **Import validation** → schemas in `{{APP_ROOT}}/schemas/*.json`; validate via AJV during import.
 
-### C. Accessibility + Search Fixes
+1.2  Insert immediately in its place: > `See CONTRIBUTING.md § 2 “Standard Check”.`
 
-1. In `_attachChinSearchHandlers`: lowercase compare; `card.toggleAttribute('hidden', !match)`.
-2. Add Escape‑to‑close listener & focus trap when chin open.
-3. Passive `{passive:true}` for any `touchstart` listeners.
-4. Jest: ensure `chin-lists.test.js` passes.
+1.3  Relocate “## 8 Pull-Request Workflow” block (≈ lines 83-88) **into** *CONTRIBUTING.md* § 3.  Replace the original lines with: > `Refer to CONTRIBUTING.md § 3 “Pull-Request Workflow”.`
 
-### D. Async Profile Picture Flow
+1.4  Search headings for any emoji (🚀 🎯 ⚡ 🧠 etc.) → **remove** them (keep plain text).
 
-1. `ProfilePictureComponent.js` → `export async function getProfilePictureHTML(..)`.
-2. Await `textToImage.generate`; return loader `<div class="pfp loading" …>` until resolved.
-3. Catch errors → `createInitialsOnlyHTML(name)` fallback.
-4. Propagate `await` in `renderList` & `updateStoryboardCard`.
-5. Unit test `profile-picture.test.js` for success & failure paths.
+1.5  After the “Version 1.4.0” header (≈ line 4-7) **insert**:
 
-### E. Build / Test Hygiene
+```md
+### Constants
+| Token | Value            |
+|-------|------------------|
+| `{{APP_ROOT}}` | `apps/rpglitch` |
+```
 
-1. Shared JSDOM helper → `tests/helpers/setup-dom.js`.
-2. Axe‑core scan → `tests/accessibility.test.js`.
-3. Final gate → `npm run lint && npm test && npm run build && npm run validate`.
+1.6  Find 4 occurrences of literal text apps/rpglitch and replace with {{APP_ROOT}}.
 
----
+1.7  Under “## 3 Core Rulesets” change every ### heading to #### (one level deeper).
 
-## ② CSS Tasks (🎨 Theme & Layout)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2 · Create CONTRIBUTING.md  (root)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Execute tasks sequentially, committing after each block passes tests & lint. Reference `AGENTS.md` for commit message format, PR template, and reviewer assignment.
+# CONTRIBUTING
 
-### A. Tokenise & Clean
+## 1. Overview
 
-1. Add to top of `RPGlitch.scss`:
+Central location for workflows & conventions referenced by AGENTS.md.
 
    ```scss
    :root {
@@ -61,48 +62,66 @@ Execute tasks sequentially, committing after each block passes tests & lint. Ref
      --z-overlay: 1000;
    }
    ```
+## 2. Standard Check
 
-2. Replace any literal duplicates (colour / z‑index) with variables.
+Run before every commit / PR:
 
-### B. Fix Flex & Focus
+```bash
+npm run lint && npm test && npm run build && npm run validate
+```
 
-1. `align-items:right|left` → `flex-end|flex-start`.
-2. `justify-content:right` → `flex-end`.
-3. Remove `*:focus{outline:none}`; add `:focus-visible{outline:2px solid var(--color-accent);}`.
+## 3. Pull-Request Workflow
 
-### C. Remove Bloat & Bugs
+- Title: [<package>] <summary>
+- Description links to issue IDs
+- All code must pass the Standard Check above
 
-1. Delete obsolete `-webkit-display`, `-moz-display`, etc.
-2. Replace `z-index:999999` with `var(--z-overlay)`.
-3. Flatten nested `calc()` expressions.
-4. Delete unused selectors `#profile-field` / `#profile-field-label` if not present in HTML.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3 · Create GLOSSARY.md  (root)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### D. Lint & Verify
+```md
+# Glossary
 
-1. Run `npm run lint:css` (or `stylelint`); fix reported issues.
+| Term            | Meaning                                            |
+|-----------------|----------------------------------------------------|
+| Chin (Panel)    | Slide-out side panel used in RPGlitch UI           |
+| Storyboard Card | Card representing Story + Character + World tuple  |
+| PF-Pic          | Profile-picture placeholder component              |
+```
 
----
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4 · Rule-Folder Clean-up
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## ③ HTML Tasks (🖥️ Structure & ARIA)
+4.1 Inside .cursor/rules/ rename any file whose filename OR H1 heading starts with an emoji; strip the emoji.
 
-Execute tasks sequentially, committing after each block passes tests & lint. Reference `AGENTS.md` for commit message format, PR template, and reviewer assignment.
+4.2 Within every .mdc that repeats npm run lint && npm test && npm run build && npm run validate → replace text with
 
-### A. Top‑Bar & Chin Panels
+See CONTRIBUTING.md § 2 Standard Check.
 
 1. In `{{APP_ROOT}}/RPGlitch.html` top‑bar container → `role="tablist"`.
 2. Each tab button → `role="tab"` + `aria-controls="<panel-id>"`.
 3. Each chin panel → `role="tabpanel"` + matching `id`.
+  
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5 · Backlog Label (Task Brief Canvas)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### B. Focus Management
+Search the canvas document for heading ## ④ ImageGlitch
+→ rename to
 
-1. Ensure first focusable element inside each chin receives `autofocus` or is focused on open (handled by JS focus trap).
+## [BACKLOG] ImageGlitch – Future Sprint
 
-### C. Meta & Misc
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6 · Commit Process
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. (If missing) Ensure `<meta charset="utf-8">` and `<meta name="viewport" content="width=device-width,initial-scale=1">` present.
-2. Remove inline `window.prompt` references now obsolete.
-
----
+```bash
+pnpm prettier --write AGENTS.md CONTRIBUTING.md GLOSSARY.md
+git add AGENTS.md CONTRIBUTING.md GLOSSARY.md .cursor/rules
+git commit -m "docs: deduplicate workflows, add glossary & contributing guide"
+```
 
 ## [BACKLOG] ImageGlitch – Future Sprint
 
@@ -118,3 +137,9 @@ Execute tasks sequentially, committing after each block passes tests & lint. Ref
 6. Fix `combine-rules.js` link replacement + Jest coverage.
 
 ---
+=======
+After commit, run the Standard Check. All stages must pass.
+
+##############################################
+END OF AGENT TASK
+##############################################

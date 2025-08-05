@@ -47,9 +47,8 @@
 - Dropdowns group premade and custom items with `<optgroup>` labels instead of title suffixes.
 - Top bar tabs keep a default focusable button and support Arrow key cycling for roving tabindex.
 - Adjusted chin search handler to locate lists without relying on `.chin` ancestor, ensuring non-matching cards hide properly.
-  - Marked top bar container with `role="tablist"` and set list items to presentational roles so tab buttons associate with matching chin panels.
-  - Added `autofocus` to first controls inside each chin for consistent focus management.
-    - This note about using autofocus could be misleading. The autofocus attribute is ineffective on elements that are hidden when the page loads and are shown dynamically later. The focus management for these controls is, and should be, handled via JavaScript.
 - Meta tags now use lowercase UTF-8 charset and a streamlined viewport declaration.
 - Inline prompts for new items removed in favor of untitled placeholders awaiting full form flows.
 - Centralized workflow instructions in `CONTRIBUTING.md` and added `GLOSSARY.md` for shared terminology.
+- Refactored story/character/world modals into a single `openEntityModal` helper with type-specific wrappers.
+- Dynamic import map loads modal helpers by key and `addMap` is hoisted for reuse.
