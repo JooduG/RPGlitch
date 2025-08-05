@@ -47,3 +47,7 @@
 - Dropdowns group premade and custom items with `<optgroup>` labels instead of title suffixes.
 - Top bar tabs keep a default focusable button and support Arrow key cycling for roving tabindex.
 - Adjusted chin search handler to locate lists without relying on `.chin` ancestor, ensuring non-matching cards hide properly.
+- Marked top bar container with `role="tablist"` and set list items to presentational roles so tab buttons associate with matching chin panels.
+- Added `autofocus` to first controls inside each chin for consistent focus management.
+- Meta tags now use lowercase UTF-8 charset and a streamlined viewport declaration.
+- Inline prompts for new items removed in favor of untitled placeholders awaiting full form flows.

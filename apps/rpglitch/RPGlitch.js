@@ -483,9 +483,7 @@ App._attachContentChinActions = function () {
   configs.forEach(({ key, singular, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener('click', () => {
-        const title = window.prompt(`New ${singular} title?`);
-        if (!title) return;
-        const item = { title };
+        const item = { title: `Untitled ${singular}` };
         const current = loadStoredItems(key);
         current.push(item);
         window.localStorage.setItem(key, JSON.stringify(current));
