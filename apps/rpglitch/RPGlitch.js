@@ -137,7 +137,7 @@ App.ui.setupChinListeners = function () {
 App._attachChinSearchHandlers = function () {
   const inputs = document.querySelectorAll('.chin-search');
   inputs.forEach((input) => {
-  const container = input.closest('.chin-widget');
+  const container = input.closest('.chin, .chin-panel, .chin-widget');
   const list = container?.querySelector('.chin-list');
     if (!list) return;
     input.addEventListener('input', () => {
