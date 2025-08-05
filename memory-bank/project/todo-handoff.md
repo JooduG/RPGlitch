@@ -4,7 +4,7 @@
 - [x] Implement chin panels with search and backup actions.
 - [x] Fix chin toggling to hide all panels and consolidate option actions.
 - [x] Replace sample data in chin lists with dynamic content.
-- [ ] Refine roving tabindex behavior when no chin is open.
+- [x] Refine roving tabindex behavior when no chin is open.
 - [ ] Mark touchstart listeners as passive for performance.
 - [ ] Improve persistence beyond `localStorage` for chin lists.
 - [ ] Review chin accessibility and keyboard interactions.
@@ -15,7 +15,7 @@
 - [x] Refresh lists after backup import/export/delete and reset upload inputs.
 - [x] Sync storyboard card content with dropdown selections.
 - [x] Capture storyboard card header before inserting title to prevent `ReferenceError`.
-- [ ] Group premade items in dropdowns with optgroups instead of title suffix.
+- [x] Group premade items in dropdowns with optgroups instead of title suffix.
 - [x] Center card text, anchor footers, and add empty story placeholder.
 - [x] Expand empty story placeholder to span the full chin width.
 - [x] Replace storyboard dropdowns with clickable titles and add toggle for reselection.

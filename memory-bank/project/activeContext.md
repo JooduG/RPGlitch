@@ -43,3 +43,6 @@
 - Option chin buttons share a uniform height and fields display in two equal columns.
 - Removed redundant storyboard card titles and tightened select/heading toggle logic.
 - Structured option chin panels with grid rows so buttons sit above two-column text fields.
+- Root README now points to `memory-bank/docs/` for documentation.
+- Dropdowns group premade and custom items with `<optgroup>` labels instead of title suffixes.
+- Top bar tabs keep a default focusable button and support Arrow key cycling for roving tabindex.
