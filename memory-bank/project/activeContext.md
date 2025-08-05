@@ -46,3 +46,4 @@
 - Root README now points to `memory-bank/docs/` for documentation.
 - Dropdowns group premade and custom items with `<optgroup>` labels instead of title suffixes.
 - Top bar tabs keep a default focusable button and support Arrow key cycling for roving tabindex.
+- Adjusted chin search handler to locate lists without relying on `.chin` ancestor, ensuring non-matching cards hide properly.

@@ -41,3 +41,4 @@
 - Explicit grid rows in option panels keep buttons and text fields neatly separated.
 - Dropdown rendering now uses `<optgroup>` to differentiate premade and custom entries without title suffixes.
 - Roving tabindex keeps one tab focusable at all times and arrow keys cycle between top bar buttons.
+- Search listeners derive chin lists from the nearest panel or parent, so non-matching cards hide even when markup lacks a `.chin` ancestor.
