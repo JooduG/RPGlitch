@@ -47,3 +47,5 @@
 - Dropdowns group premade and custom items with `<optgroup>` labels instead of title suffixes.
 - Top bar tabs keep a default focusable button and support Arrow key cycling for roving tabindex.
 - Adjusted chin search handler to locate lists without relying on `.chin` ancestor, ensuring non-matching cards hide properly.
+- Refactored story/character/world modals into a single `openEntityModal` helper with type-specific wrappers.
+- Dynamic import map loads modal helpers by key and `addMap` is hoisted for reuse.
