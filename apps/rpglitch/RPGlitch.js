@@ -1,6 +1,5 @@
 /* global module */
 // Main RPGlitch application namespace
-// eslint-disable-next-line no-redeclare
 const App = window.App || {};
 window.App = App;
 
