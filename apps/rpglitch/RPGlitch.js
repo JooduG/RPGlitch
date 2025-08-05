@@ -169,15 +169,15 @@ function addItem(key, item) {
   window.localStorage.setItem(key, JSON.stringify(current));
 }
 
-App.addStory = async function (item) {
+App.addStory = function (item) {
   addItem('stories', item);
 };
 
-App.addCharacter = async function (item) {
+App.addCharacter = function (item) {
   addItem('characters', item);
 };
 
-App.addWorld = async function (item) {
+App.addWorld = function (item) {
   addItem('worlds', item);
 };
 
