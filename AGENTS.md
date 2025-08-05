@@ -15,7 +15,6 @@ The repository structure is outlined below to provide clarity on navigation and 
 /
 ├── apps/                 # Application source code
 ├── build/                # Build automation and output artifacts
-├── docs/                 # Developer documentation
 ├── memory-bank/          # Persistent knowledge and decision tracking (Basic‑Memory MCP)
 ├── tools/                # Development utilities and helper scripts
 ├── .cursor/rules/        # AI guidance and rulesets

@@ -1,8 +1,6 @@
 ---
-description: System architecture and relationships for the unified 3-mode development system with MCP integration and memory bank management.
-alwaysApply: false
+alwaysApply: true
 ---
-
 # System Architecture
 
 ## Overview
@@ -120,7 +118,7 @@ memory-bank/
 
 ## 🔧 **INTEGRATION ARCHITECTURE**
 
-### **MCP Server Integration**
+### **MCP Server Integration** (MCP)
 
 #### **Context7 Integration**
 

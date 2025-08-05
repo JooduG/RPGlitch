@@ -93,7 +93,7 @@
       "args": ["basic-memory", "mcp"],
 
       "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
+        "BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
       },
       "autoApprove": [
         "list_projects",

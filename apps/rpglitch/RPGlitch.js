@@ -90,7 +90,7 @@ App._toggleChinContent = function (chin) {
   if (!container) return;
   const target = container.querySelector(`[data-chin="${chin}"]`);
   const wasHidden = !target || target.hasAttribute('hidden');
-  const panels = container.querySelectorAll('.chin-panel');
+  const panels = container.querySelectorAll('.chin');
   panels.forEach((panel) => App.hideEl(panel));
   if (!target) return;
 
@@ -114,7 +114,7 @@ App._closeChin = function () {
   const ui = App._getUIElements();
   const container = ui.chinContainer;
   if (!container) return;
-  const panels = container.querySelectorAll('.chin-panel');
+  const panels = container.querySelectorAll('.chin');
   panels.forEach((p) => App.hideEl(p));
   App.hideEl(container);
   const last = App._lastActiveTab;
@@ -137,7 +137,7 @@ App.ui.setupChinListeners = function () {
 App._attachChinSearchHandlers = function () {
   const inputs = document.querySelectorAll('.chin-search');
   inputs.forEach((input) => {
-    const panel = input.closest('.chin-panel');
+    const panel = input.closest('.chin');
     const list = panel ? panel.querySelector('.chin-list') : null;
     if (!list) return;
     input.addEventListener('input', () => {
@@ -236,7 +236,7 @@ function renderList(containerId, key) {
   const all = App.getAllItems(key);
   if (key === 'stories' && all.length === 0) {
     const message = document.createElement('p');
-    message.className = 'story-item-empty-message';
+    message.className = 'chin-empty';
     message.textContent = 'Empty here—time to write your first story!';
     container.appendChild(message);
     return;
