@@ -169,6 +169,7 @@ function addItem(key, item) {
   window.localStorage.setItem(key, JSON.stringify(current));
 }
 
+
 App.addStory = function (item) {
   addItem('stories', item);
 };
