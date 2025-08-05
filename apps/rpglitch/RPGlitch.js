@@ -509,10 +509,8 @@ const modalDetails = {
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener('click', async () => {
-        const details = modalDetails[key];
-        if (!details) return;
-        const mod = await import(details.path);
-        const openModal = mod[details.exportName];
+const modalPath = './components/entity-form.js';
+const openModal = (await import(modalPath))[modalDetails[key]];
         if (typeof openModal !== 'function') return;
         openModal(async ({ title }) => {
           if (!title) return;
