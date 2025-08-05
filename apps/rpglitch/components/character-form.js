@@ -7,9 +7,7 @@
     document.body.appendChild(dialog);
 
     const form = dialog.querySelector('form');
-    const close = () => { dialog.close(); dialog.remove(); document.removeEventListener('keydown', onEsc); };
-    const onEsc = (e) => { if (e.key === 'Escape') close(); };
-    document.addEventListener('keydown', onEsc);
+const close = () => { dialog.close(); dialog.remove(); };
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
