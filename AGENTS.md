@@ -219,11 +219,7 @@ Codex should focus on `apps/` for feature work and `memory-bank/` for documentat
 Other folders—`build/`, `tools/`, and `.cursor/rules/`—are read‑only unless explicitly requested.
 Never modify generated artifacts like `build/output/`, or anything inside `node_modules/` or `.cursor/`.
 
-Before presenting a diff, run:
-
-```bash
-npm run lint && npm run build && npm test && npm run validate
-```
+Before presenting a diff, run See CONTRIBUTING.md § 2 “Standard Check”. Refer to CONTRIBUTING.md § 3 “Pull-Request Workflow”.
 
 ## 12 Agent Guidance
 
