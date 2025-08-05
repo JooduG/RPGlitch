@@ -11,9 +11,11 @@ export default [
       "**/*output/**",
       "**/*local_libs/**", // This should cover the minified files
       "**/*.min.js", // Additional safety net,
-      "tools/diagnostics/**",
-      "tools/browser-tools/**",
-      "tools/test-globs/**"
+      "**/*diagnostics/**",
+      "**/*browser-tools/**",
+      "**/*test-globs/**",
+      "**/*node_modules/**",
+      "**/*RPGlitch-left-panel.txt"
     ],
     // plugins: { js }, // Removed as it's already imported
     languageOptions: {

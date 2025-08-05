@@ -2,7 +2,7 @@
 description: Enhanced 3-mode development framework with Unified Orchestrator Mode management, integrated complexity routing, thinking approaches, context-aware rule loading, and mode-specific role behaviors for optimal development workflow.
 alwaysApply: true
 ---
-# 🚀 ENHANCED 3-MODE SYSTEM WITH UNIFIED ORCHESTRATOR
+# ENHANCED 3-MODE SYSTEM WITH UNIFIED ORCHESTRATOR
 
 > **TL;DR:** This is the complete enhanced 3-mode system managed by a Unified Orchestrator Mode that integrates complexity-based routing, thinking frameworks, context-aware optimization, and mode-specific role behaviors:
 >
@@ -387,7 +387,7 @@ graph TD
 The `todo-handoff.md` document serves as the **unified contract** between all modes:
 
 ```markdown
-# 📋 TODO/HANDOFF: [Project Name]
+# TODO/HANDOFF: [Project Name]
 
 ## 🎭 STRATEGIC CONTEXT
 **Overall Approach**: [Strategic decisions and approach]

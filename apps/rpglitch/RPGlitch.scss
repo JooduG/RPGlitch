@@ -1,10 +1,12 @@
 :root {
+  --color-accent:#ff7ad5;
+  --z-overlay:10000;
   --pico-radius: 0.5rem;
   --pico-box-shadow: 0;
   --pico-switch-thumb-box-shadow: 0;
   --pico-card-box-shadow: 0;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
-  --pico-nav-element-spacing-vertical: 0; 
+  --pico-nav-element-spacing-vertical: 0;
   --pico-nav-element-spacing-horizontal: 0;
   --pico-nav-link-spacing-vertical: var(--pico-form-element-spacing-vertical);
   --pico-nav-link-spacing-horizontal: var(--pico-form-element-spacing-horizontal);
@@ -26,8 +28,8 @@ h1, h2, h3, h4, h5, h6, p, ul {
   color: inherit;
 }
 
-*:focus {
-  outline: none;
+:focus-visible {
+  outline: 2px solid var(--color-accent);
 }
 
 *::placeholder {
@@ -82,7 +84,7 @@ article footer {
   align-items: center;
   width: calc(100% + 1rem);
   height: 15%;
-  justify-content: right;
+  justify-content: flex-end;
   padding-right: 1rem;
   background: var(--pico-form-element-background-color);
 }
@@ -117,7 +119,7 @@ input[type="file"] {
 [data-tooltip]::before,
 [data-tooltip]::after {
   position: relative;
-  z-index: 999999;
+  z-index: var(--z-overlay);
   pointer-events: none;
 }
 
@@ -221,14 +223,14 @@ input[type="file"] {
 .chin-actions-right {
   display: flex;
   gap: 1rem;
-  align-items: right;
+  align-items: flex-end;
   flex-wrap: nowrap;
 }
 
 .chin-actions-left {
   display: flex;
   gap: 1rem;
-  align-items: left;
+  align-items: flex-start;
   flex-wrap: nowrap;
 }
 
@@ -440,7 +442,7 @@ input[type="file"] {
   left: 0;
   right: 0;
   z-index: 5;
-  height: calc(100vh - calc(2rem + 2rem + 2.7rem));
+  height: calc(100vh - 6.7rem);
   overflow: hidden auto;
   display: flex;
   flex-direction: column;
@@ -499,55 +501,11 @@ input[type="file"] {
 .profile-field-label {
   display: flex;
   flex-direction: column;
-  justify-content: right;
+  justify-content: flex-end;
   font-weight: 600;
   color: var(--pico-h1-color, #fff);
 }
 
-#profile-field-label .main-label {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--pico-primary, #0172ad);
-  text-align: right;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
-}
-
-#profile-field-label .field-sublabel {
-  font-size: 0.9rem;
-  color: rgb(255 255 255 / 70%);
-  font-weight: 400;
-  text-align: right;
-}
-
-#profile-field input,
-#profile-field textarea {
-  width: 100%;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 0.95rem;
-  line-height: 1.7;
-  padding: 0;
-  margin: 0;
-  resize: vertical;
-  min-height: 3rem;
-  font-family: inherit;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
-}
-
-#profile-field input:focus,
-#profile-field textarea:focus {
-  outline: none;
-  background: rgb(255 255 255 / 10%);
-  border-radius: 0.25rem;
-}
-
-#profile-field #readonly {
-  background: rgb(255 255 255 / 2%);
-  border-color: rgb(255 255 255 / 5%);
-  color: var(--pico-muted-color, #aaa);
-}
 
 .profile header {
   text-align: center;
@@ -725,9 +683,6 @@ input[type="file"] {
   align-items: stretch;
   margin: 1rem;
   padding: 0;
-  -webkit-display: grid;
-  -moz-display: grid;
-  -ms-display: grid;
   display: grid;
   width: auto;
   max-width: 100%;

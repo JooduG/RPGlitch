@@ -13,8 +13,8 @@
       dialog.remove();
     };
 
-
-
+    const onEsc = (e) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onEsc);
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
