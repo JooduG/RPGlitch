@@ -25,14 +25,21 @@ const DATA_KEYS = ['stories', 'characters', 'worlds'];
 App.selectTopBarTab = function (btn) {
   const ui = App._getUIElements();
   if (!ui.topBarButtons) return;
+  let anyActive = false;
   ui.topBarButtons.forEach((b) => {
     const active = b === btn;
     b.classList.toggle('active', active);
     b.setAttribute('aria-selected', active ? 'true' : 'false');
     b.setAttribute('aria-expanded', active ? 'true' : 'false');
     b.setAttribute('tabindex', active ? '0' : '-1');
-    if (active) App._lastActiveTab = b;
+    if (active) {
+      App._lastActiveTab = b;
+      anyActive = true;
+    }
   });
+  if (!anyActive && ui.topBarButtons.length > 0) {
+    ui.topBarButtons[0].setAttribute('tabindex', '0');
+  }
 };
 
 /**
@@ -286,13 +293,26 @@ function renderDropdown(selectId, key) {
   select.textContent = '';
   select.appendChild(placeholder);
   const items = App.getAllItems(key);
+  const premadeGroup = document.createElement('optgroup');
+  premadeGroup.label = 'Premade';
+  const customGroup = document.createElement('optgroup');
+  customGroup.label = 'Custom';
+  let premadeCount = 0;
+  let customCount = 0;
   items.forEach((item) => {
     const option = document.createElement('option');
     option.value = item.id || item.title;
-    option.textContent = item.title + (item.isPremade ? ' (Premade)' : '');
-    if (item.isPremade) option.dataset.premade = 'true';
-    select.appendChild(option);
+    option.textContent = item.title || '';
+    if (item.isPremade) {
+      premadeGroup.appendChild(option);
+      premadeCount += 1;
+    } else {
+      customGroup.appendChild(option);
+      customCount += 1;
+    }
   });
+  if (premadeCount > 0) select.appendChild(premadeGroup);
+  if (customCount > 0) select.appendChild(customGroup);
 }
 
 App.renderDropdown = App.renderDropdown || renderDropdown;
@@ -508,11 +528,18 @@ App._attachTopBarEventListeners = function () {
   if (!ui) return;
 
   if (ui.topBarButtons) {
-    ui.topBarButtons.forEach((btn) => {
+    const buttons = Array.from(ui.topBarButtons);
+    buttons.forEach((btn, idx) => {
       if (!App._attachedTopBarButtons.has(btn)) {
         btn.addEventListener('click', () => {
           App.selectTopBarTab(btn);
           App.ui.showChin(btn.dataset.chin);
+        });
+        btn.addEventListener('keydown', (e) => {
+          if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          const dir = e.key === 'ArrowRight' ? 1 : -1;
+          const next = (idx + dir + buttons.length) % buttons.length;
+          buttons[next].focus();
         });
         App._attachedTopBarButtons.add(btn);
       }

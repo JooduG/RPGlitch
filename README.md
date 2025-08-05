@@ -15,12 +15,12 @@ This development system provides:
 
 ## 📚 Documentation
 
-Full documentation lives in the [docs/](docs/) directory. Key guides:
+Full documentation lives in the [memory-bank/docs/](memory-bank/docs/) directory. Key guides:
 
-- [Protocols](docs/protocols) - operational and agent protocols
-- [Build System](docs/build/README.md)
-- [Applications](docs/apps/README.md)
-- [Development Tools](docs/tools/README.md)
+- [Protocols](memory-bank/docs/protocols) - operational and agent protocols
+- [Build System](memory-bank/docs/build/README.md)
+- [Applications](memory-bank/docs/apps/README.md)
+- [Development Tools](memory-bank/docs/tools/README.md)
 - Memory bank documentation remains under [memory-bank/](memory-bank/).
 
 ## 📱 **Live Applications**
