@@ -12,6 +12,7 @@
       dialog.close();
       dialog.remove();
     };
+
     const onEsc = (e) => { if (e.key === 'Escape') close(); };
     document.addEventListener('keydown', onEsc);
 
