@@ -169,15 +169,16 @@ function addItem(key, item) {
   window.localStorage.setItem(key, JSON.stringify(current));
 }
 
-App.addStory = async function (item) {
+
+App.addStory = function (item) {
   addItem('stories', item);
 };
 
-App.addCharacter = async function (item) {
+App.addCharacter = function (item) {
   addItem('characters', item);
 };
 
-App.addWorld = async function (item) {
+App.addWorld = function (item) {
   addItem('worlds', item);
 };
 
@@ -474,6 +475,17 @@ App._attachOptionChinActions = function () {
 App._attachContentChinActions = function () {
   if (App._contentListenersAttached) return;
   const ui = App._getUIElements();
+  const addMap = {
+    stories: App.addStory,
+    characters: App.addCharacter,
+    worlds: App.addWorld
+  };
+
+  const modalDetails = {
+    stories: { path: './components/entity-form.js', exportName: 'openStoryModal' },
+    characters: { path: './components/entity-form.js', exportName: 'openCharacterModal' },
+    worlds: { path: './components/entity-form.js', exportName: 'openWorldModal' }
+  };
   const configs = [
     {
       key: 'stories',
@@ -498,23 +510,15 @@ App._attachContentChinActions = function () {
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener('click', async () => {
-        let openModal;
-        if (key === 'stories') {
-          ({ openStoryModal: openModal } = await import('./components/story-form.js'));
-        } else if (key === 'characters') {
-          ({ openCharacterModal: openModal } = await import('./components/character-form.js'));
-        } else if (key === 'worlds') {
-          ({ openWorldModal: openModal } = await import('./components/world-form.js'));
-        }
+
+        const details = modalDetails[key];
+        if (!details) return;
+        const mod = await import(details.path);
+        const openModal = mod[details.exportName];
         if (typeof openModal !== 'function') return;
-        const addMap = {
-          stories: App.addStory,
-          characters: App.addCharacter,
-          worlds: App.addWorld
-        };
-        openModal(async ({ title }) => {
+        openModal(({ title }) => {
           if (!title) return;
-          await addMap[key]?.({ title });
+          addMap[key]?.({ title });
           App.refreshAllLists?.();
         });
       });
