@@ -2,7 +2,7 @@
 description: Template and structure guide for the Unified TODO & Handoff document system that serves as the single source of truth for project management across the Unified Orchestrator Mode.
 alwaysApply: false
 ---
-# 📋 TODO & HANDOFF TEMPLATE
+# TODO & HANDOFF TEMPLATE
 
 > **TL;DR:** Template and structure guide for the Unified TODO & Handoff document system that serves as the single source of truth for project management across the Unified Orchestrator Mode.
 
@@ -19,7 +19,7 @@ The TODO & Handoff document serves as the **unified contract** between all modes
 ### **Required Sections**
 
 ```markdown
-# 📋 UNIFIED TODO & HANDOFF DOCUMENT
+# UNIFIED TODO & HANDOFF DOCUMENT
 
 > **TL;DR:** Single source of truth for todos, handoff context, and progress tracking across the Unified Orchestrator Mode.
 

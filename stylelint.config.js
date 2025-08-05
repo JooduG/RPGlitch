@@ -35,10 +35,15 @@ module.exports = {
     ]
   },
   ignoreFiles: [
-    "**/*node_modules/**",
-    "**/*archive/**", 
-    "**/*output/**",
-    "**/*local_libs/**", // This should cover the minified files
-    "**/*.min.js" // Additional safety net
+      "**/*node_modules/**",
+      "**/*archive/**", 
+      "**/*output/**",
+      "**/*local_libs/**", // This should cover the minified files
+      "**/*.min.js", // Additional safety net,
+      "**/*diagnostics/**",
+      "**/*browser-tools/**",
+      "**/*test-globs/**",
+      "**/*node_modules/**",
+      "**/*RPGlitch-left-panel.txt"
   ],
 };

@@ -169,15 +169,15 @@ function addItem(key, item) {
   window.localStorage.setItem(key, JSON.stringify(current));
 }
 
-App.addStory = async function (item) {
+App.addStory = function (item) {
   addItem('stories', item);
 };
 
-App.addCharacter = async function (item) {
+App.addCharacter = function (item) {
   addItem('characters', item);
 };
 
-App.addWorld = async function (item) {
+App.addWorld = function (item) {
   addItem('worlds', item);
 };
 
@@ -479,11 +479,11 @@ App._attachContentChinActions = function () {
     characters: App.addCharacter,
     worlds: App.addWorld
   };
-const modalDetails = {
-  stories: 'openStoryModal',
-  characters: 'openCharacterModal',
-  worlds: 'openWorldModal'
-};
+
+  const modalDetails = {
+    stories: { path: './components/entity-form.js', exportName: 'openStoryModal' },
+    characters: { path: './components/entity-form.js', exportName: 'openCharacterModal' },
+    worlds: { path: './components/entity-form.js', exportName: 'openWorldModal' }
   };
   const configs = [
     {
@@ -509,12 +509,15 @@ const modalDetails = {
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener('click', async () => {
-const modalPath = './components/entity-form.js';
-const openModal = (await import(modalPath))[modalDetails[key]];
+
+        const details = modalDetails[key];
+        if (!details) return;
+        const mod = await import(details.path);
+        const openModal = mod[details.exportName];
         if (typeof openModal !== 'function') return;
-        openModal(async ({ title }) => {
+        openModal(({ title }) => {
           if (!title) return;
-          await addMap[key]?.({ title });
+          addMap[key]?.({ title });
           App.refreshAllLists?.();
         });
       });
