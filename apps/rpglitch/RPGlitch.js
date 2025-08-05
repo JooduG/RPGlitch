@@ -479,6 +479,7 @@ App._attachContentChinActions = function () {
     characters: App.addCharacter,
     worlds: App.addWorld
   };
+
   const modalDetails = {
     stories: { path: './components/entity-form.js', exportName: 'openStoryModal' },
     characters: { path: './components/entity-form.js', exportName: 'openCharacterModal' },
@@ -508,6 +509,7 @@ App._attachContentChinActions = function () {
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener('click', async () => {
+
         const details = modalDetails[key];
         if (!details) return;
         const mod = await import(details.path);
