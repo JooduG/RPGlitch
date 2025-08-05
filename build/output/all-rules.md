@@ -61,6 +61,8 @@ This file aggregates all rules from the `.cursor/rules` directory.
 - SCSS Advanced Patterns})
 - JavaScript Development})
 - HTML Hyperscript Usage}) - For adding interactivity to semantic HTML
+- Perchance Build & Deployment}) - Production deployment guidance
+- Perchance Development Lifecycle}) - Planning and iteration steps
 
 ---
 
@@ -129,6 +131,11 @@ This rule builds upon semantic HTML principles. Ensure your HTML follows the gui
 - JavaScript Development})
 - HTML Development}) - Foundation for semantic HTML structure
 
+
+### Related Rules
+
+- Perchance Build & Deployment})
+- Perchance Development Lifecycle})
 ---
 
 ---
@@ -929,6 +936,8 @@ This documentation reflects modern JavaScript best practices and features, ensur
 - **HTML Development})** - Semantic HTML and accessibility
 - **SCSS Advanced Patterns})** - Modern CSS with SCSS
 - **Hyperscript Usage})** - Interactive HTML with Hyperscript
+- **Perchance Build & Deployment})** - Production deployment guidance
+- **Perchance Development Lifecycle})** - Planning and iteration steps
 
 #### **📖 External Resources**
 
@@ -3485,7 +3494,7 @@ Add to your `mcp.json`:
         "basic_memory.mcp"
       ],
       "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
+        "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
       },
       "autoApprove": [
         "list_projects",
@@ -4216,7 +4225,7 @@ The Model Context Protocol (MCP) ecosystem provides a standardized way for AI as
       "command": "python",
       "args": ["-m", "basic_memory.mcp"],
       "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
+        "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
       }
     },
     "time": {
@@ -6327,7 +6336,7 @@ memory-bank/
 
 ### 🔧 **INTEGRATION ARCHITECTURE**
 
-#### **MCP Server Integration**
+#### **MCP Server Integration** (MCP)
 
 ##### **Context7 Integration**
 
@@ -7547,6 +7556,7 @@ apps/
 - Dexie.js Usage})
 - Perchance Plugin System})
 - Perchance Development Lifecycle})
+- Perchance Build & Deployment})
 - HTML Development})
 - JavaScript Development})
 - IndexedDB Principles})
@@ -7570,191 +7580,7 @@ apps/
 
 ## 🚀 PERCHANCE BUILD & DEPLOYMENT
 
-> **TL;DR:** Comprehensive guide for building and deploying Perchance applications with automated workflows, optimization strategies, and platform-specific considerations.
-
-### 🎯 **BUILD SYSTEM OVERVIEW**
-
-The Perchance build and deployment system provides automated workflows for creating optimized, production-ready applications.
-
-### 🔧 **BUILD PROCESS**
-
-#### **Source Compilation**
-
-- **JavaScript Bundling**: Merge multiple JS files into single optimized bundle
-- **CSS Processing**: Compile SCSS to optimized CSS
-- **HTML Generation**: Create final HTML with embedded resources
-- **Asset Optimization**: Minify and compress all assets
-
-#### **Build Scripts**
-
-- **build-perchance.js**: Main build script for RPGlitch applications
-- **build-imageglitch.js**: Specialized build for ImageGlitch applications
-- **build-common.js**: Shared build utilities and functions
-
-#### **Output Generation**
-
-- **Single HTML File**: Complete application in one file
-- **Optimized Assets**: Minified CSS and JavaScript
-- **Platform Ready**: Direct upload to Perchance platform
-
-### �� **DEPLOYMENT WORKFLOW**
-
-#### **Pre-Deployment Checklist**
-
-- [ ] All source files are up to date
-- [ ] Build process completes without errors
-- [ ] Generated HTML is valid and functional
-- [ ] All assets are properly embedded
-- [ ] Performance optimization applied
-
-#### **Deployment Steps**
-
-1. **Build Generation**: Run build script to create optimized output
-2. **Validation**: Test generated HTML for functionality
-3. **Upload**: Copy generated HTML to Perchance platform
-4. **Testing**: Verify deployment on live platform
-5. **Monitoring**: Check for any post-deployment issues
-
-#### **Platform Integration**
-
-- **Perchance Compatibility**: Ensure platform-specific requirements
-- **Resource Limits**: Optimize for platform constraints
-- **Performance**: Meet platform performance standards
-- **Accessibility**: Maintain accessibility compliance
-
-### 📊 **OPTIMIZATION STRATEGIES**
-
-#### **Code Optimization**
-
-- **Minification**: Reduce file sizes through code compression
-- **Tree Shaking**: Remove unused code and dependencies
-- **Bundling**: Combine multiple files into single optimized bundle
-- **Caching**: Implement effective caching strategies
-
-#### **Asset Optimization**
-
-- **Image Compression**: Optimize images for web delivery
-- **CSS Minification**: Reduce CSS file sizes
-- **JavaScript Optimization**: Minimize JavaScript execution time
-- **Resource Loading**: Optimize resource loading order
-
-#### **Performance Monitoring**
-
-- **Load Time**: Monitor application load times
-- **Resource Usage**: Track memory and CPU usage
-- **User Experience**: Measure user interaction performance
-- **Error Rates**: Monitor for deployment-related errors
-
-### 🔄 **AUTOMATION**
-
-#### **Build Automation**
-
-- **Watch Mode**: Automatic rebuilds on file changes
-- **Incremental Builds**: Only rebuild changed components
-- **Parallel Processing**: Utilize multiple CPU cores for faster builds
-- **Error Recovery**: Graceful handling of build failures
-
-#### **Deployment Automation**
-
-- **CI/CD Integration**: Automated deployment pipelines
-- **Version Control**: Automatic versioning and tagging
-- **Rollback Capability**: Quick rollback to previous versions
-- **Health Checks**: Automated post-deployment validation
-
-### 🛠️ **BUILD TOOLS**
-
-#### **Core Build Scripts**
-
-- **build-perchance.js**: Main build orchestrator
-- **build-utils.js**: Shared build utilities
-- **build-config.js**: Build configuration management
-- **build-validate.js**: Build output validation
-
-#### **Development Tools**
-
-- **Watch Scripts**: File change monitoring
-- **Dev Server**: Local development server
-- **Hot Reload**: Automatic browser refresh
-- **Debug Tools**: Development debugging utilities
-
-### 📋 **CONFIGURATION**
-
-#### **Build Configuration**
-
-- **Source Paths**: Define source file locations
-- **Output Paths**: Specify build output directories
-- **Optimization Settings**: Configure optimization levels
-- **Platform Settings**: Platform-specific configurations
-
-#### **Environment Variables**
-
-- **Build Environment**: Development vs production settings
-- **API Keys**: Secure handling of external service keys
-- **Debug Flags**: Development debugging options
-- **Performance Flags**: Performance optimization settings
-
-### 🔍 **TROUBLESHOOTING**
-
-#### **Common Build Issues**
-
-- **File Not Found**: Missing source files or dependencies
-- **Syntax Errors**: JavaScript or CSS syntax issues
-- **Memory Issues**: Large file processing problems
-- **Platform Compatibility**: Platform-specific issues
-
-#### **Deployment Issues**
-
-- **Upload Failures**: Network or platform upload problems
-- **Validation Errors**: HTML or resource validation issues
-- **Performance Problems**: Slow loading or execution issues
-- **Compatibility Issues**: Browser or platform compatibility problems
-
-### 📚 **BEST PRACTICES**
-
-#### **Build Optimization**
-
-- **Incremental Builds**: Only rebuild what has changed
-- **Parallel Processing**: Use multiple cores for faster builds
-- **Caching**: Cache build artifacts for faster rebuilds
-- **Error Handling**: Graceful error handling and recovery
-
-#### **Deployment Best Practices**
-
-- **Testing**: Thorough testing before deployment
-- **Backup**: Keep backup of previous versions
-- **Monitoring**: Monitor post-deployment performance
-- **Documentation**: Document deployment procedures
-
-### 🎯 **INTEGRATION**
-
-#### **Version Control**
-
-- **Git Integration**: Automated builds from Git repositories
-- **Branch Management**: Build different versions for different branches
-- **Tag Management**: Version tagging and release management
-- **Rollback**: Quick rollback to previous versions
-
-#### **CI/CD Integration**
-
-- **Automated Testing**: Run tests before deployment
-- **Quality Gates**: Ensure quality standards are met
-- **Deployment Automation**: Automated deployment processes
-- **Monitoring**: Post-deployment monitoring and alerting
-
-### 📚 **RELATED DOCUMENTATION**
-
-- Perchance Architecture})
-- Perchance Development Lifecycle})
-- System Architecture})
-- SCSS Advanced Patterns})
-
----
-
-**🚀 PERCHANCE BUILD & DEPLOYMENT: Automated workflows for optimized Perchance applications!**
-
-## 🚀 PERCHANCE BUILD & DEPLOYMENT
-
-> **TL;DR:** Comprehensive guide for building and deploying Perchance applications with automated workflows, optimization strategies, and platform-specific considerations.
+> **TL;DR:** Comprehensive guide for building and deploying Perchance applications with automated workflows, optimization strategies, and platform-specific considerations. See the companion Perchance Development Lifecycle}).
 
 ### 🎯 **BUILD SYSTEM OVERVIEW**
 
@@ -7946,7 +7772,7 @@ The Perchance build and deployment system provides automated workflows for creat
 
 - Covers the complete development lifecycle: planning, building, testing, and deployment.
 - Outlines Perchance-specific constraints and recommended tools.
-- Provides comprehensive build and deployment guidelines.
+- Summarizes build and deployment at a high level. For automation and optimization details, see Perchance Build & Deployment}).
 - References official tutorials, examples, and community resources.
 
 ---
@@ -8089,6 +7915,7 @@ Use feedback and logs to improve and refine the generator.
 - Cash DOM Usage})
 - Dexie.js Usage})
 - Perchance Architecture})
+- Perchance Build & Deployment})
 - Perchance Plugin System})
 - HTML Development})
 - JavaScript Development})
@@ -8179,6 +8006,7 @@ window.App.registerPlugin({
 - Perchance Architecture})
 - Perchance Development Lifecycle})
 - JavaScript Development})
+- Perchance Build & Deployment})
 
 ---
 
@@ -8603,6 +8431,7 @@ $list: list.join($list1, $list2);
 - SCSS Modern CSS & Frameworks}) - Modern CSS principles and framework integration
 - SCSS Debugging}) - Troubleshooting and debugging SCSS issues
 - Perchance Build & Deployment}) - Build and deployment for Perchance projects
+- Perchance Development Lifecycle}) - Planning and iteration steps
 
 ---
 
@@ -9094,6 +8923,7 @@ Document complex SCSS:
 - SCSS Modern CSS & Frameworks}) - Modern CSS principles and framework integration
 - SCSS Advanced Patterns}) - Advanced SCSS features and meta-programming
 - Perchance Build & Deployment}) - Build and deployment for Perchance projects
+- Perchance Development Lifecycle}) - Planning and iteration steps
 
 ---
 
@@ -9767,6 +9597,7 @@ div div div div { }
 - SCSS Advanced Patterns}) - Advanced SCSS features and meta-programming
 - SCSS Debugging}) - Troubleshooting and debugging SCSS issues
 - JavaScript Development}) - Modern JavaScript for frontend development
+- Perchance Development Lifecycle})
 
 ### 📚 **REFERENCES**
 
@@ -9775,16 +9606,6 @@ div div div div { }
 - [CSS Grid Guide](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout)
 - [Flexbox Guide](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout)
 - [CSS Custom Properties](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties)
-
----
-
-**Last Updated**: 2025-07-23  
-**Version**: 1.0  
-**Status**: Comprehensive modern CSS and framework integration guide
-description:
-globs:
-alwaysApply: false
----
 
 ---
 
