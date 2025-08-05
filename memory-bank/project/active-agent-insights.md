@@ -42,4 +42,6 @@
 - Dropdown rendering now uses `<optgroup>` to differentiate premade and custom entries without title suffixes.
 - Roving tabindex keeps one tab focusable at all times and arrow keys cycle between top bar buttons.
 - Search listeners derive chin lists from the nearest panel or parent, so non-matching cards hide even when markup lacks a `.chin` ancestor.
+- Default item creation drops blocking prompts and assigns an untitled placeholder instead.
+- Centralizing workflow instructions in `CONTRIBUTING.md` reduces duplication across docs.
 - A generic `openEntityModal` handles all item forms, imported via a key→module map, and `addMap` is hoisted to avoid repeated allocations.
