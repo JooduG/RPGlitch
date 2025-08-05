@@ -52,3 +52,4 @@
 - Centralized workflow instructions in `CONTRIBUTING.md` and added `GLOSSARY.md` for shared terminology.
 - Refactored story/character/world modals into a single `openEntityModal` helper with type-specific wrappers.
 - Dynamic import map loads modal helpers by key and `addMap` is hoisted for reuse.
+- Rebuilt entity modal with `createElement`, dropping the Escape key listener in favor of the `cancel` event and removing obsolete per-entity form files.

@@ -45,3 +45,5 @@
 - A generic `openEntityModal` handles all item forms, imported via a key→module map, and `addMap` is hoisted to avoid repeated allocations.
 - Default item creation drops blocking prompts and assigns an untitled placeholder instead.
 - Centralizing workflow instructions in `CONTRIBUTING.md` reduces duplication across docs.
+- Building entity modals with `createElement` and relying on the dialog `cancel` event removes redundant keydown listeners and prevents XSS from `innerHTML`.
+- Per-entity modal files were removed in favor of a single reusable component and a simplified export map.
