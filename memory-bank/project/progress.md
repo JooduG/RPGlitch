@@ -43,3 +43,4 @@
   - First focusable elements in each chin now carry `autofocus` to support focus trapping.
     - This note about using autofocus could be misleading. The autofocus attribute is ineffective on elements that are hidden when the page loads and are shown dynamically later. The focus management for these controls is, and should be, handled via JavaScript.
 - HTML head now declares UTF-8 charset and responsive viewport, and blocking prompts were replaced with untitled item placeholders.
+- Standardized workflow references through a new `CONTRIBUTING.md` and added shared terminology in `GLOSSARY.md`.

@@ -8,7 +8,7 @@ Execute tasks sequentially, committing after each block passes tests & lint. Ref
 
 ### A. Replace `window.prompt` with Modal Forms
 
-1. **Generate component** → `apps/rpglitch/components/story-form.js`
+1. **Generate component** → `{{APP_ROOT}}/components/story-form.js`
 2. **Dialog skeleton** : `<dialog id="story-dialog"><form><input name="title" …>`
 3. **Export helper** `openStoryModal(onSubmit)` → `dialog.showModal()`; wire Save/Cancel/Escape.
 4. **Duplicate** for characters & worlds (`character-form.js`, `world-form.js`).
@@ -18,11 +18,11 @@ Execute tasks sequentially, committing after each block passes tests & lint. Ref
 ### B. Introduce Dexie (IndexedDB) + Schema Validation
 
 1. `pnpm add dexie ajv`
-2. **Create** `apps/rpglitch/db.js` → init tables `stories, characters, worlds`.
+2. **Create** `{{APP_ROOT}}/db.js` → init tables `stories, characters, worlds`.
 3. **Export** `getAll`, `add`, `bulkPut`, etc. (Promise‑based).
 4. **Bootstrap migration** on `App.initializeWhenReady`: copy old `localStorage` → Dexie.
 5. Swap all direct `localStorage` calls with awaited DB helpers.
-6. **Import validation** → schemas in `apps/rpglitch/schemas/*.json`; validate via AJV during import.
+6. **Import validation** → schemas in `{{APP_ROOT}}/schemas/*.json`; validate via AJV during import.
 
 ### C. Accessibility + Search Fixes
 
@@ -56,9 +56,9 @@ Execute tasks sequentially, committing after each block passes tests & lint. Ref
 1. Add to top of `RPGlitch.scss`:
 
    ```scss
-   :root{
-     --color-accent:#ff7ad5;
-     --z-overlay:1000;
+   :root {
+     --color-accent: #ff7ad5;
+     --z-overlay: 1000;
    }
    ```
 
@@ -89,7 +89,7 @@ Execute tasks sequentially, committing after each block passes tests & lint. Ref
 
 ### A. Top‑Bar & Chin Panels
 
-1. In `apps/rpglitch/RPGlitch.html` top‑bar container → `role="tablist"`.
+1. In `{{APP_ROOT}}/RPGlitch.html` top‑bar container → `role="tablist"`.
 2. Each tab button → `role="tab"` + `aria-controls="<panel-id>"`.
 3. Each chin panel → `role="tabpanel"` + matching `id`.
 
@@ -104,11 +104,11 @@ Execute tasks sequentially, committing after each block passes tests & lint. Ref
 
 ---
 
-## ④ ImageGlitch (Triage — Future Sprint)
+## [BACKLOG] ImageGlitch – Future Sprint
 
 Execute tasks sequentially, committing after each block passes tests & lint. Reference `AGENTS.md` for commit message format, PR template, and reviewer assignment.
 
-> *No immediate coding required; keep for backlog.*
+> _No immediate coding required; keep for backlog._
 
 1. **Viewport meta** → add when sprinting ImageGlitch.
 2. Extract inline JS to `ImageGlitch.js`; export `initImageGlitch()`.

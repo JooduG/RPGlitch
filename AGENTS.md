@@ -1,7 +1,14 @@
 <!-- ruff: noqa -->
+
 # AGENTS.md – GlitchCodex Project Guide
 
 Version 1.4.0  |  Updated 2025‑07‑30
+
+### Constants
+
+| Token          | Value           |
+| -------------- | --------------- |
+| `{{APP_ROOT}}` | `apps/rpglitch` |
 
 This document serves as a comprehensive reference for Codex Cloud agents and human contributors
 working in the Perchance/Glitch monorepo.
@@ -26,7 +33,7 @@ Under `apps/` you will find the RPGlitch and ImageGlitch apps. Each holds its ow
 The `build/` folder outputs optimized HTML for deployment. `memory-bank/` tracks decisions, and `tools/` stores helpers.
 There is currently no top-level `src/`; app code lives inside each application folder.
 
-*Access and modifications outside these directories are restricted by Codex Cloud permissions.*
+_Access and modifications outside these directories are restricted by Codex Cloud permissions._
 
 ### Purpose
 
@@ -37,14 +44,14 @@ applications. Build scripts live in `build/scripts`, and long-term project knowl
 
 ### Directory Guide
 
-| Directory        | Description                            | When to modify                                         |
-| ---------------- | -------------------------------------- | ------------------------------------------------------ |
-| `apps/`          | RPGlitch and ImageGlitch source        | Feature work and bug fixes                             |
-| `build/`         | Build scripts and generated output     | Update scripts; never modify `build/output`            |
-| `docs/`          | Developer documentation                | Update whenever documentation changes                  |
-| `memory-bank/`   | Persistent context and decisions       | Record reasoning and progress                          |
-| `tools/`         | Diagnostic and automation helpers      | Extend or maintain tooling                             |
-| `.cursor/rules/` | Codex rulesets                         | Only edit when updating rules                          |
+| Directory        | Description                        | When to modify                              |
+| ---------------- | ---------------------------------- | ------------------------------------------- |
+| `apps/`          | RPGlitch and ImageGlitch source    | Feature work and bug fixes                  |
+| `build/`         | Build scripts and generated output | Update scripts; never modify `build/output` |
+| `docs/`          | Developer documentation            | Update whenever documentation changes       |
+| `memory-bank/`   | Persistent context and decisions   | Record reasoning and progress               |
+| `tools/`         | Diagnostic and automation helpers  | Extend or maintain tooling                  |
+| `.cursor/rules/` | Codex rulesets                     | Only edit when updating rules               |
 
 ## 2 Context Sources
 
@@ -62,34 +69,34 @@ Agents must load context from these essential paths **before** initiating any ta
 
 These foundational rules guide system architecture, communication, and project standards:
 
-### 3.1 Core System Rules
+#### 3.1 Core System Rules
 
-* [documentation](.cursor/rules/system-documentation.mdc) – Documentation standards
-* [effective-rule-writing](.cursor/rules/system-effective-rule-writing.mdc) – Writing clear, impactful rules
-* [rule-interactions](.cursor/rules/system-rule-interactions.mdc) – Rule interactions and prioritization
-* [todo-handoff-template](.cursor/rules/system-todo-handoff-template.mdc) – Templates for tasks and handoffs
-* [technical-architecture](.cursor/rules/technical-architecture.mdc) – Overall technical structure and constraints
+- [documentation](.cursor/rules/system-documentation.mdc) – Documentation standards
+- [effective-rule-writing](.cursor/rules/system-effective-rule-writing.mdc) – Writing clear, impactful rules
+- [rule-interactions](.cursor/rules/system-rule-interactions.mdc) – Rule interactions and prioritization
+- [todo-handoff-template](.cursor/rules/system-todo-handoff-template.mdc) – Templates for tasks and handoffs
+- [technical-architecture](.cursor/rules/technical-architecture.mdc) – Overall technical structure and constraints
 
-### 3.2 Thinking Framework
+#### 3.2 Thinking Framework
 
-* [context-aware-rule-loading](.cursor/rules/thinking-context-aware-rule-loading.mdc)
+- [context-aware-rule-loading](.cursor/rules/thinking-context-aware-rule-loading.mdc)
   – Context-sensitive rule loading strategies
 
-### 3.3 Orchestration Rules
+#### 3.3 Orchestration Rules
 
-* [architecture](.cursor/rules/orchestration-architecture.mdc) – Framework for task orchestration
-* [mode](.cursor/rules/orchestration-mode.mdc) – Role-based orchestration details
-* [system](.cursor/rules/orchestration-system.mdc) – System-level orchestration mechanisms
+- [architecture](.cursor/rules/orchestration-architecture.mdc) – Framework for task orchestration
+- [mode](.cursor/rules/orchestration-mode.mdc) – Role-based orchestration details
+- [system](.cursor/rules/orchestration-system.mdc) – System-level orchestration mechanisms
 
 ## 4 Perchance Rules
 
 These rules provide specialized guidance for the Perchance platform.
 Relevant for RPGlitch and ImageGlitch:
 
-* [perchance-architecture](.cursor/rules/perchance-architecture.mdc) – Structural overview
-* [perchance-plugin-system](.cursor/rules/perchance-plugin-system.mdc) – Plugin architecture and integration
-* [perchance-development-lifecycle](.cursor/rules/perchance-development-lifecycle.mdc) – Dev lifecycle guidance
-* [perchance-build-deployment](.cursor/rules/perchance-build-deployment.mdc) – Guidelines for building and deploying
+- [perchance-architecture](.cursor/rules/perchance-architecture.mdc) – Structural overview
+- [perchance-plugin-system](.cursor/rules/perchance-plugin-system.mdc) – Plugin architecture and integration
+- [perchance-development-lifecycle](.cursor/rules/perchance-development-lifecycle.mdc) – Dev lifecycle guidance
+- [perchance-build-deployment](.cursor/rules/perchance-build-deployment.mdc) – Guidelines for building and deploying
 
 > **Tip:** Review the most relevant ruleset before coding. When unsure, start with the Core System Rules.---
 
@@ -107,11 +114,11 @@ Relevant for RPGlitch and ImageGlitch:
 
 To foster consistency and efficiency:
 
-* Adopt **pnpm** exclusively for Node-based operations.
-* Quickly navigate using `pnpm dlx turbo run where <project>`.
-* Integrate packages with `pnpm install --filter <project>`.
-* Set up new React apps rapidly with `pnpm create vite@latest <project> -- --template react-ts`.
-* Regularly confirm package naming conventions in `package.json`.
+- Adopt **pnpm** exclusively for Node-based operations.
+- Quickly navigate using `pnpm dlx turbo run where <project>`.
+- Integrate packages with `pnpm install --filter <project>`.
+- Set up new React apps rapidly with `pnpm create vite@latest <project> -- --template react-ts`.
+- Regularly confirm package naming conventions in `package.json`.
 
 ### Python + Node Setup
 
@@ -131,9 +138,9 @@ pnpm install
 
 ### Codex Cloud Setup
 
-* **Activate services** via **Project → Services**.
-* **Configure environment and secrets** via **Project → Settings → Environment variables / Secrets**.
-* **Setup script guidelines:**
+- **Activate services** via **Project → Services**.
+- **Configure environment and secrets** via **Project → Settings → Environment variables / Secrets**.
+- **Setup script guidelines:**
 
   ```bash
   pnpm install --frozen-lockfile || npm install
@@ -145,8 +152,8 @@ pnpm install
 
 The universal Codex image ships with:
 
-* **Python 3.13**, `pyenv` 2.5.5, `uv` 0.7.22 and `poetry` 2.1.3
-* **Node 22.17.1**, `nvm` 0.40.2 and `pnpm` 10.11.0
+- **Python 3.13**, `pyenv` 2.5.5, `uv` 0.7.22 and `poetry` 2.1.3
+- **Node 22.17.1**, `nvm` 0.40.2 and `pnpm` 10.11.0
 
 Install Python dev requirements with:
 
@@ -156,55 +163,45 @@ uv pip install -e ".[test]"
 
 ## 7 Coding Standards (Cursor All-Rules)
 
-* Implement semantic HTML, prioritize accessibility, and maintain minimalistic CSS.
-* Leverage modern JavaScript (e.g., `async/await`) with efficient DOM manipulation.
-* Employ `localStorage` for small datasets; use Dexie.js with `IndexedDB` for complex storage.
-* Prioritize performance: observers, service workers, lazy-loading and optimized assets.
+- Implement semantic HTML, prioritize accessibility, and maintain minimalistic CSS.
+- Leverage modern JavaScript (e.g., `async/await`) with efficient DOM manipulation.
+- Employ `localStorage` for small datasets; use Dexie.js with `IndexedDB` for complex storage.
+- Prioritize performance: observers, service workers, lazy-loading and optimized assets.
 
 ---
 
-### Lint / Test Workflow
-
-Run the full lint/build/test/validate suite before submitting a PR:
-
-```bash
-npm run lint && npm run build && npm test && npm run validate
-```
-
-All commands must succeed locally and in CI.
+See CONTRIBUTING.md § 2 “Standard Check”.
 
 ## 8 Pull-Request Workflow
 
-* Format titles as `[<package>] <summary>`.
-* Provide clear, concise descriptions linked to relevant issues.
-* Ensure all code contributions pass linting, testing, and performance benchmarks.
-* Follow [build-deployment](.cursor/rules/perchance-build-deployment.mdc) for consistent output.
+Refer to CONTRIBUTING.md § 3 “Pull-Request Workflow”.
 
 ### Contribution Rules
 
-* Use `kebab-case` for file names and `camelCase` for JavaScript variables.
-* Keep functions small with clear names.
-* Commit messages should use the format `<scope>: <summary>` in present tense.
-* PR titles follow `[<package>] <summary>`.
-* Prefer smaller, focused PRs and split large refactors into separate submissions.
+- Use `kebab-case` for file names and `camelCase` for JavaScript variables.
+- Keep functions small with clear names.
+- Commit messages should use the format `<scope>: <summary>` in present tense.
+- PR titles follow `[<package>] <summary>`.
+- Prefer smaller, focused PRs and split large refactors into separate submissions.
 
 ## 9 Effective Codex Prompting
 
-* Offer precise file locations, reproduction steps, and references.
-* Segment complex tasks for easier management and clarity.
-* Utilize Codex for streamlined debugging and encourage explorative, open-ended prompts.
+- Offer precise file locations, reproduction steps, and references.
+- Segment complex tasks for easier management and clarity.
+- Utilize Codex for streamlined debugging and encourage explorative, open-ended prompts.
 
 ## 10 Safety & Quality Assurance
 
-* Restrict all external network calls to maintain security.
-* Mandate comprehensive linting, extensive testing, and adherence to performance budgets via Lighthouse.
-* Prioritize robust, graceful error handling across all modules.
+- Restrict all external network calls to maintain security.
+- Mandate comprehensive linting, extensive testing, and adherence to performance budgets via Lighthouse.
+- Prioritize robust, graceful error handling across all modules.
 
 ## 11 Permissions
 
 Explicitly managed via YAML configuration to ensure repository integrity and security:
 
 <!-- ruff: noqa -->
+
 ```yaml
 allow_read:
   - "./**/*"
@@ -238,9 +235,9 @@ Always run the lint and test suite before presenting a diff.
 
 ## 13 Changelog
 
-* **1.4.0 (2025‑07‑30)** – Added repository overview, directory guide,
+- **1.4.0 (2025‑07‑30)** – Added repository overview, directory guide,
   environment setup, lint/test workflow, contribution rules, and agent guidance.
-* **1.3.1 (2025‑07‑30)** – Expanded and detailed guidance, enhanced clarity, and additional instructions.
-* **1.3.0 (2025‑07‑30)** – Restructured rules and improved readability.
-* **1.2.0 (2025‑07‑30)** – Added structured rule references and system overview.
-* **1.1.0 (2025‑07‑30)** – Initial document creation and basic guidelines.
+- **1.3.1 (2025‑07‑30)** – Expanded and detailed guidance, enhanced clarity, and additional instructions.
+- **1.3.0 (2025‑07‑30)** – Restructured rules and improved readability.
+- **1.2.0 (2025‑07‑30)** – Added structured rule references and system overview.
+- **1.1.0 (2025‑07‑30)** – Initial document creation and basic guidelines.

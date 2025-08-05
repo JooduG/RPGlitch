@@ -2,7 +2,7 @@
 description: Intelligent rule loading system that selects and loads only relevant rules based on task context, complexity, current mode, and thinking approach for optimal token efficiency and performance.
 alwaysApply: true
 ---
-# 🎯 CONTEXT-AWARE RULE LOADING
+# CONTEXT-AWARE RULE LOADING
 
 > **TL;DR:** Intelligent rule loading system that selects and loads only relevant
 > rules based on task context, complexity, current mode, and thinking approach for optimal token

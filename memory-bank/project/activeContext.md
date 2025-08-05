@@ -52,3 +52,4 @@
     - This note about using autofocus could be misleading. The autofocus attribute is ineffective on elements that are hidden when the page loads and are shown dynamically later. The focus management for these controls is, and should be, handled via JavaScript.
 - Meta tags now use lowercase UTF-8 charset and a streamlined viewport declaration.
 - Inline prompts for new items removed in favor of untitled placeholders awaiting full form flows.
+- Centralized workflow instructions in `CONTRIBUTING.md` and added `GLOSSARY.md` for shared terminology.
