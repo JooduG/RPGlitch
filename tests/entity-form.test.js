@@ -4,8 +4,8 @@ const {
 
 describe('entity-form modal', () => {
   test('removes keydown listener after close', () => {
-    HTMLDialogElement.prototype.showModal = jest.fn();
-    HTMLDialogElement.prototype.close = jest.fn();
+    const showModalSpy = jest.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(jest.fn());
+    const closeSpy = jest.spyOn(HTMLDialogElement.prototype, 'close').mockImplementation(jest.fn());
     const addSpy = jest.spyOn(document, 'addEventListener');
     const removeSpy = jest.spyOn(document, 'removeEventListener');
 
