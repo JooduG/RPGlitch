@@ -1,5 +1,6 @@
 /* global module */
 // Main RPGlitch application namespace
+// eslint-disable-next-line no-redeclare
 const App = window.App || {};
 window.App = App;
 
@@ -136,8 +137,9 @@ App.ui.setupChinListeners = function () {
 App._attachChinSearchHandlers = function () {
   const inputs = document.querySelectorAll('.chin-search');
   inputs.forEach((input) => {
-    const panel = input.closest('.chin');
-    const list = panel ? panel.querySelector('.chin-list') : null;
+    const list =
+      input.closest('.chin')?.querySelector('.chin-list') ||
+      input.parentElement?.querySelector('.chin-list');
     if (!list) return;
     input.addEventListener('input', () => {
       const term = input.value.toLowerCase();
