@@ -11,6 +11,7 @@ Follow the file/line-exact edit plan below **verbatim**.  Treat all paths as rep
 1 · AGENTS.md  (root)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+
 1.1  Delete the **entire block** “### Lint / Test Workflow” (≈ lines 73-82).  
 
 1.2  Insert immediately in its place: > `See CONTRIBUTING.md § 2 “Standard Check”.`
