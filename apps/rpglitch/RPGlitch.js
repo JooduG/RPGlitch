@@ -137,15 +137,15 @@ App.ui.setupChinListeners = function () {
 App._attachChinSearchHandlers = function () {
   const inputs = document.querySelectorAll('.chin-search');
   inputs.forEach((input) => {
-  const container = input.closest('.chin-widget');
-  const list = container?.querySelector('.chin-list');
+    const container = input.closest('.chin-panel') || input.closest('.chin-widget');
+    const list = container?.querySelector('.chin-list');
     if (!list) return;
     input.addEventListener('input', () => {
       const term = input.value.toLowerCase();
-      list.querySelectorAll('[data-title]').forEach((el) => {
-        const title = (el.dataset.title || '').toLowerCase();
+      list.querySelectorAll('[data-title]').forEach((card) => {
+        const title = (card.dataset.title || '').toLowerCase();
         const match = title.includes(term);
-        if (match) App.showEl(el); else App.hideEl(el);
+        card.toggleAttribute('hidden', !match);
       });
     });
   });
@@ -162,6 +162,24 @@ function loadStoredItems(key) {
     return [];
   }
 }
+
+function addItem(key, item) {
+  const current = loadStoredItems(key);
+  current.push(item);
+  window.localStorage.setItem(key, JSON.stringify(current));
+}
+
+App.addStory = async function (item) {
+  addItem('stories', item);
+};
+
+App.addCharacter = async function (item) {
+  addItem('characters', item);
+};
+
+App.addWorld = async function (item) {
+  addItem('worlds', item);
+};
 
 App.premade = App.premade || {
   stories: [],
@@ -459,37 +477,46 @@ App._attachContentChinActions = function () {
   const configs = [
     {
       key: 'stories',
-      singular: 'story',
       newButton: ui.newStoryButton,
       uploadTrigger: ui.uploadStoryTrigger,
       uploadInput: ui.uploadStoryInput
     },
     {
       key: 'characters',
-      singular: 'character',
       newButton: ui.newCharacterButton,
       uploadTrigger: ui.uploadCharacterTrigger,
       uploadInput: ui.uploadCharacterInput
     },
     {
       key: 'worlds',
-      singular: 'world',
       newButton: ui.newWorldButton,
       uploadTrigger: ui.uploadWorldTrigger,
       uploadInput: ui.uploadWorldInput
     }
   ];
 
-  configs.forEach(({ key, singular, newButton, uploadTrigger, uploadInput }) => {
+  configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
-      newButton.addEventListener('click', () => {
-        const title = window.prompt(`New ${singular} title?`);
-        if (!title) return;
-        const item = { title };
-        const current = loadStoredItems(key);
-        current.push(item);
-        window.localStorage.setItem(key, JSON.stringify(current));
-        App.refreshAllLists();
+      newButton.addEventListener('click', async () => {
+        let openModal;
+        if (key === 'stories') {
+          ({ openStoryModal: openModal } = await import('./components/story-form.js'));
+        } else if (key === 'characters') {
+          ({ openCharacterModal: openModal } = await import('./components/character-form.js'));
+        } else if (key === 'worlds') {
+          ({ openWorldModal: openModal } = await import('./components/world-form.js'));
+        }
+        if (typeof openModal !== 'function') return;
+        const addMap = {
+          stories: App.addStory,
+          characters: App.addCharacter,
+          worlds: App.addWorld
+        };
+        openModal(async ({ title }) => {
+          if (!title) return;
+          await addMap[key]?.({ title });
+          App.refreshAllLists?.();
+        });
       });
     }
 
