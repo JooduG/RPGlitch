@@ -19,7 +19,7 @@
     const menu = document.createElement('menu');
 
     const cancelButton = document.createElement('button');
-    cancelButton.type = 'reset';
+    cancelButton.type = 'button';
     cancelButton.value = 'cancel';
     cancelButton.textContent = 'Cancel';
 
