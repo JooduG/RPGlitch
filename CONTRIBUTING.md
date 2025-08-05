@@ -14,6 +14,6 @@ npm run lint && npm test && npm run build && npm run validate
 
 ## 3. Pull-Request Workflow
 
-- Title: [<package>] <summary>
+- Title: `[<package>] <summary>`
 - Description links to issue IDs
 - All code must pass the Standard Check above
