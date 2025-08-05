@@ -42,3 +42,6 @@
 - Dropdown rendering now uses `<optgroup>` to differentiate premade and custom entries without title suffixes.
 - Roving tabindex keeps one tab focusable at all times and arrow keys cycle between top bar buttons.
 - Search listeners derive chin lists from the nearest panel or parent, so non-matching cards hide even when markup lacks a `.chin` ancestor.
+- Top bar left container now carries `role="tablist"` with presentational list wrappers so tab buttons map cleanly to panels.
+- Search inputs and option upload button use `autofocus` so focus lands on the first control when a chin opens.
+- Default item creation drops blocking prompts and assigns an untitled placeholder instead.

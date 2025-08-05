@@ -39,3 +39,6 @@
 - Dropdowns now separate premade and custom items using `<optgroup>`.
 - Roving tabindex defaults to first tab and supports arrow key navigation.
 - Chin search filtering no longer depends on panel class, hiding non-matching cards via the `hidden` attribute.
+- Added tablist role to top bar container with presentational wrappers so tabs link to their corresponding chin panels.
+- First focusable elements in each chin now carry `autofocus` to support focus trapping.
+- HTML head now declares UTF-8 charset and responsive viewport, and blocking prompts were replaced with untitled item placeholders.
