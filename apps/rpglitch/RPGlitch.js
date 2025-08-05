@@ -513,9 +513,9 @@ App._attachContentChinActions = function () {
         const mod = await import(details.path);
         const openModal = mod[details.exportName];
         if (typeof openModal !== 'function') return;
-        openModal(async ({ title }) => {
+        openModal(({ title }) => {
           if (!title) return;
-          await addMap[key]?.({ title });
+          addMap[key]?.({ title });
           App.refreshAllLists?.();
         });
       });
