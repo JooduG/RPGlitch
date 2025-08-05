@@ -137,9 +137,8 @@ App.ui.setupChinListeners = function () {
 App._attachChinSearchHandlers = function () {
   const inputs = document.querySelectorAll('.chin-search');
   inputs.forEach((input) => {
-    const list =
-      input.closest('.chin')?.querySelector('.chin-list') ||
-      input.parentElement?.querySelector('.chin-list');
+  const container = input.closest('.chin-widget');
+  const list = container?.querySelector('.chin-list');
     if (!list) return;
     input.addEventListener('input', () => {
       const term = input.value.toLowerCase();
