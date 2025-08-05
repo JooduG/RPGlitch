@@ -42,3 +42,4 @@
 - HTML head now declares UTF-8 charset and responsive viewport, and blocking prompts were replaced with untitled item placeholders.
 - Standardized workflow references through a new `CONTRIBUTING.md` and added shared terminology in `GLOSSARY.md`.
 - Refactored modal creation into a generic `entity-form` with dynamic import mapping and hoisted `addMap`.
+- Hardened entity modal by constructing DOM nodes via `createElement`, relying on the dialog `cancel` event, and deleting redundant per-entity form files while simplifying modal import mapping.

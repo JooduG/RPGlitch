@@ -4,18 +4,39 @@
     const labels = { story: 'Title', character: 'Name', world: 'Title' };
     const dialog = document.createElement('dialog');
     dialog.id = `${type}-dialog`;
-    dialog.innerHTML = `\n      <form method="dialog">\n        <label>${labels[type] || 'Title'} <input name="title" required /></label>\n        <menu>\n          <button type="reset" value="cancel">Cancel</button>\n          <button type="submit" value="default">Save</button>\n        </menu>\n      </form>`;
+
+    const form = document.createElement('form');
+    form.method = 'dialog';
+
+    const label = document.createElement('label');
+    label.textContent = `${labels[type] || 'Title'} `;
+
+    const input = document.createElement('input');
+    input.name = 'title';
+    input.required = true;
+    label.appendChild(input);
+
+    const menu = document.createElement('menu');
+
+    const cancelButton = document.createElement('button');
+    cancelButton.type = 'button';
+    cancelButton.value = 'cancel';
+    cancelButton.textContent = 'Cancel';
+
+    const saveButton = document.createElement('button');
+    saveButton.type = 'submit';
+    saveButton.value = 'default';
+    saveButton.textContent = 'Save';
+
+    menu.append(cancelButton, saveButton);
+    form.append(label, menu);
+    dialog.appendChild(form);
     document.body.appendChild(dialog);
 
-    const form = dialog.querySelector('form');
     const close = () => {
       dialog.close();
       dialog.remove();
-      document.removeEventListener('keydown', onEsc);
     };
-
-    const onEsc = (e) => { if (e.key === 'Escape') close(); };
-    document.addEventListener('keydown', onEsc);
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -25,7 +46,7 @@
       close();
     });
 
-    form.querySelector('button[value="cancel"]').addEventListener('click', (e) => {
+    cancelButton.addEventListener('click', (e) => {
       e.preventDefault();
       close();
     });
