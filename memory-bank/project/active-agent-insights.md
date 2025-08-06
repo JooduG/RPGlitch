@@ -66,3 +66,8 @@
 - Editing card titles leverages contentEditable to avoid dropdown styling bleed.
 - Story titles rely on a simple dataset flag instead of global state, easing reset logic.
 - Shuffle button iterates selects with a random index, then updates the title when not manually set.
+- Guarding `select.hidden` ensures clicking a storyboard heading unveils the dropdown for reselection.
+- The `card-title--editing` class preserves heading aesthetics and blurs on Enter to commit text.
+- Dynamic storyboard titles always prepend playful prompts and use balanced centering to avoid layout shift.
+- `getPictureClass` standardizes avatar sizing with a `profile-picture` base class across contexts.
+- Documentation now explicitly references the **ANALYSE → PLAN → CODE** workflow.

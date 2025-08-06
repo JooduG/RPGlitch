@@ -426,16 +426,12 @@ input[type="file"] {
   border-radius: 0;
 }
 
-.chin-card-left .profile-picture,
-.storyboard-card-left .profile-picture {
+.chin-card .profile-picture,
+.storyboard-card .profile-picture {
   width: 4rem;
   height: 4rem;
   object-fit: cover;
   border-radius: 50%;
-}
-
-.storyboard-card-left .profile-picture {
-  height: 150px;
 }
 
 
@@ -721,11 +717,13 @@ input[type="file"] {
 
 #story-title {
   display: block;
-  max-width: 100%;
+  max-width: 40ch;
   min-height: 3rem;
-  margin: 1.5rem 2rem 2rem;
+  margin: 1.5rem auto 2rem;
   padding: 2rem;
   cursor: pointer;
+  text-align: center;
+  text-wrap: balance;
 }
 
 #story-title[contenteditable] {
@@ -929,6 +927,15 @@ input[type="file"] {
     height: 100%;
   }
 }
+
+/* stylelint-disable selector-class-pattern */
+.card-title--editing {
+  /* stylelint-disable-next-line at-rule-no-unknown */
+  @extend .card-title !optional;
+
+  outline: 1px dashed var(--color-accent);
+}
+/* stylelint-enable selector-class-pattern */
 
 @keyframes card-wiggle {
   0% {

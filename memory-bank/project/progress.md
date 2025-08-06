@@ -62,3 +62,7 @@
 - Story title styling prevents scrollbars and can reset to dynamic text on double-click.
 - Title generator now rotates through whimsical prompts for 0–3 selections with unit tests.
 - Top-bar controls share consistent height and include a shuffle action for random story setup.
+- Storyboard titles now prepend whimsical prompts, center themselves, and balance wrapping for long text.
+- Clicking a storyboard card heading reveals its select and adds a `card-title--editing` class for inline edits.
+- Avatar helper returns `profile-picture` classes, restoring images on chin and storyboard cards.
+- Unified documentation refreshed to reflect the **ANALYSE → PLAN → CODE** cycle.

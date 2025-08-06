@@ -90,14 +90,14 @@ function getInitials(name) {
  */
 
 function getPictureClass(context) {
-  const baseClass = 'picture';
-  const contextClasses = {
-    'profile': 'picture',
-    'storyboard-card': 'storyboard-card-left picture',
-    'chin-card': 'chin-card-right picture'
-  };
-  
-  return `${baseClass} ${contextClasses[context] || ''}`.trim();
+  switch (context) {
+    case 'chin-card':
+      return 'profile-picture chin-card';
+    case 'storyboard-card':
+      return 'profile-picture storyboard-card';
+    default:
+      return 'profile-picture';
+  }
 }
 
 /**
