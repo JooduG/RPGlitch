@@ -53,3 +53,5 @@
 - Refactored story/character/world modals into a single `openEntityModal` helper with type-specific wrappers.
 - Dynamic import map loads modal helpers by key and `addMap` is hoisted for reuse.
 - Rebuilt entity modal with `createElement`, dropping the Escape key listener in favor of the `cancel` event and removing obsolete per-entity form files.
+- Added offline mode with cached dependencies and optional network skipping in the build script.
+- Introduced playful hover transforms for chin and storyboard cards.
