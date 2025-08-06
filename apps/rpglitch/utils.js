@@ -9,7 +9,7 @@
 function hideEl(el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
-  el.setAttribute('hidden', 'hidden');
+  el.hidden = true;
   return el;
 }
 
