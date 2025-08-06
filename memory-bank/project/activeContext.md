@@ -65,4 +65,6 @@
 - Profile pictures display on chin and storyboard cards, using placeholder initials when no image exists.
 - Storyboard title auto-generates from selected cards, converts to an input on click, and resets on double-click.
 - Storyboard selects restore heading styling on blur to avoid list-style regression.
-- 
+- Storyboard title now adapts to partial selections and calls `updateStoryboardCard` for initial headings.
+- Profile pictures render via `getPictureHTML` on chin and storyboard cards.
+- Storyboard card headings persist without removal, and dropdown placeholders retain original labels.

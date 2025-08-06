@@ -282,9 +282,9 @@ function renderList(containerId, key) {
     const left = document.createElement('div');
     left.className = 'chin-card-left';
 
-    if (typeof window.getProfilePictureHTML === 'function') {
+    if (typeof window.getPictureHTML === 'function') {
       const frag = document.createRange().createContextualFragment(
-        window.getProfilePictureHTML(item, item.colorPalette, 'storyboard')
+        window.getPictureHTML(item, item.colorPalette, 'chin-card')
       );
       left.appendChild(frag);
     }
@@ -323,12 +323,16 @@ function renderList(containerId, key) {
 function renderDropdown(selectId, key) {
   const select = document.getElementById(selectId);
   if (!select) return;
-  const placeholderOption = select.querySelector('option[value=""]');
-  const placeholder = placeholderOption ? placeholderOption.cloneNode(true) : document.createElement('option');
-  if (!placeholderOption) {
-    placeholder.value = '';
-    placeholder.textContent = '';
-  }
+  const existingPlaceholder = select.querySelector('option[value=""]');
+  const placeholderText = existingPlaceholder
+    ? existingPlaceholder.textContent
+    : select.dataset.placeholder || '';
+  select.dataset.placeholder = placeholderText;
+  const placeholder = existingPlaceholder
+    ? existingPlaceholder.cloneNode(true)
+    : document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = placeholderText;
   select.textContent = '';
   select.appendChild(placeholder);
   const items = App.getAllItems(key);
@@ -389,8 +393,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const headerEl = article.querySelector('header');
   let heading = headerEl ? headerEl.querySelector('.card-title') : null;
   const footer = article.querySelector('footer');
-  const oldTitle = article.querySelector('.card-title');
-  if (oldTitle) oldTitle.remove();
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
     const textNode = Array.from(article.childNodes).find((n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
@@ -411,10 +413,10 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
     if (img) {
-      if (typeof window.getProfilePictureHTML === 'function') {
+      if (typeof window.getPictureHTML === 'function') {
         const placeholderSrc = img.dataset.placeholderSrc;
         const frag = document.createRange().createContextualFragment(
-          window.getProfilePictureHTML(item, item.colorPalette, 'storyboard')
+          window.getPictureHTML(item, item.colorPalette, 'storyboard-card')
         );
         const newImg = frag.querySelector('img');
         if (newImg && placeholderSrc) newImg.dataset.placeholderSrc = placeholderSrc;
@@ -455,17 +457,24 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
 App._storyboardTitleCustom = App._storyboardTitleCustom || false;
 
 App._defaultStoryboardTitle = function () {
-  const getTitle = (id, key, placeholder) => {
+  const getTitle = (id, key) => {
     const select = document.getElementById(id);
     const value = select ? select.value : '';
-    if (!value) return placeholder;
+    if (!value) return null;
     const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
-    return item ? item.title || placeholder : placeholder;
+    return item ? item.title || null : null;
   };
-  const ai = getTitle('storyboard-ai-select', 'characters', 'AI Character');
-  const user = getTitle('storyboard-user-select', 'characters', 'User Character');
-  const world = getTitle('storyboard-world-select', 'worlds', 'World');
-  return `${ai} and ${user} in ${world}`;
+  const ai = getTitle('storyboard-ai-select', 'characters');
+  const user = getTitle('storyboard-user-select', 'characters');
+  const world = getTitle('storyboard-world-select', 'worlds');
+  const selections = [ai, user, world].filter(Boolean);
+  if (selections.length === 0) return 'Your story begins…';
+  if (selections.length === 1) return selections[0];
+  if (selections.length === 2) {
+    if (!world) return `${ai || user} and ${user || ai}`;
+    return `${ai || user} on ${world}`;
+  }
+  return `${ai} and ${user} on ${world}`;
 };
 
 App.updateStoryboardTitle = function () {
@@ -532,6 +541,7 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
       const handler = () => App.updateStoryboardCard(id, key);
       select.addEventListener('change', handler);
       select.addEventListener('blur', handler);
+      App.updateStoryboardCard(id, key);
     }
   });
   App._setupStoryboardTitle();

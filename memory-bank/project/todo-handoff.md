@@ -27,3 +27,5 @@
 - [x] Enhance chin and storyboard card hover animations.
 - [x] Auto-bundle component modules in build script for dynamic imports.
 - [x] Align chin search field and button heights.
+- [x] Replace profile picture helper with `getPictureHTML` in lists and storyboard cards.
+- [x] Keep storyboard headers persistent and restore dropdown placeholders.
