@@ -433,26 +433,27 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         heading.addEventListener('click', () => {
           select.hidden = !select.hidden;
           if (!select.hidden) {
-          const isHidden = select.hasAttribute('hidden');
-          select.hidden = !isHidden;
-          if (isHidden) {
-            heading.contentEditable = 'true';
-            heading.classList.add('card-title--editing');
-            const sel = window.getSelection();
-            if (sel) {
-              const range = document.createRange();
-              range.selectNodeContents(heading);
-              sel.removeAllRanges();
-              sel.addRange(range);
+            const isHidden = select.hasAttribute('hidden');
+            select.hidden = !isHidden;
+            if (isHidden) {
+              heading.contentEditable = 'true';
+              heading.classList.add('card-title--editing');
+              const sel = window.getSelection();
+              if (sel) {
+                const range = document.createRange();
+                range.selectNodeContents(heading);
+                sel.removeAllRanges();
+                sel.addRange(range);
+              }
+              heading.focus();
+            } else {
+              heading.contentEditable = 'false';
+              heading.classList.remove('card-title--editing');
+              heading.contentEditable = 'false';
+              heading.classList.remove('card-title--editing');
+              if (item) item.title = heading.textContent.trim();
+              App.setDynamicTitle?.();
             }
-            heading.focus();
-          } else {
-            heading.contentEditable = 'false';
-            heading.classList.remove('card-title--editing');
-            heading.contentEditable = 'false';
-            heading.classList.remove('card-title--editing');
-            if (item) item.title = heading.textContent.trim();
-            App.setDynamicTitle?.();
           }
         });
         heading.addEventListener('blur', () => {
