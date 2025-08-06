@@ -444,10 +444,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
             }
             heading.focus();
           } else {
-            heading.contentEditable = 'false';
-            heading.classList.remove('card-title--editing');
-            if (item) item.title = heading.textContent.trim();
-            App.setDynamicTitle?.();
+            heading.blur();
           }
         });
         heading.addEventListener('blur', () => {
