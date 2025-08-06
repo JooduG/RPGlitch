@@ -74,3 +74,8 @@
 - Explicit `padding-block: 0` on the search field keeps its height consistent with buttons.
 - Flex-wrapping the story title with an ellipsis prevents top-bar overflow.
 - Removing forced select hiding ensures storyboard dropdowns can be toggled open via title click without refresh.
+- Truncating default storyboard titles at 80 characters prevents overflow on narrow screens.
+- Card headings now toggle dropdown visibility via a simple hidden attribute flip.
+- Keeping the `.card-title` class during edits avoids layout jumps while the dashed outline signals edit mode.
+- The picture component always prepends a `profile-picture` class so CSS sizing rules apply uniformly.
+- Setting the search input height to 2.5rem keeps top-bar controls aligned.
