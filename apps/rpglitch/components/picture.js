@@ -90,13 +90,14 @@ function getInitials(name) {
  */
 
 function getPictureClass(context) {
+  const base = 'profile-picture';
   switch (context) {
     case 'chin-card':
-      return 'profile-picture chin-card';
+      return `${base} chin-card`;
     case 'storyboard-card':
-      return 'profile-picture storyboard-card';
+      return `${base} storyboard-card`;
     default:
-      return 'profile-picture';
+      return base;
   }
 }
 

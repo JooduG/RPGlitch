@@ -410,7 +410,6 @@ input[type="file"] {
   margin: 0 0 0.5em;
 }
 
-
 .profile-picture {
   border-radius: 50%;
   width: 4rem;
@@ -712,7 +711,6 @@ input[type="file"] {
 
 #story-title[contenteditable] {
   outline: none;
-  white-space: normal;
   cursor: text;
 }
 
@@ -760,6 +758,13 @@ input[type="file"] {
 
 #storyboard-grid select option {
   text-align: left;
+}
+
+.storyboard-picker:not([hidden]) {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 1;
 }
 
 .storyboard-card {

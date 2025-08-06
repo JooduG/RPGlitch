@@ -431,7 +431,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         heading = document.createElement('h4');
         heading.className = 'card-title';
         heading.addEventListener('click', () => {
-
+          select.hidden = !select.hidden;
+          if (!select.hidden) {
           const isHidden = select.hasAttribute('hidden');
           select.hidden = !isHidden;
           if (isHidden) {
@@ -446,7 +447,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
             }
             heading.focus();
           } else {
-
+            heading.contentEditable = 'false';
+            heading.classList.remove('card-title--editing');
             heading.contentEditable = 'false';
             heading.classList.remove('card-title--editing');
             if (item) item.title = heading.textContent.trim();
