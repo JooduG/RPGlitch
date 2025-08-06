@@ -74,6 +74,12 @@
 - Explicit `padding-block: 0` on the search field keeps its height consistent with buttons.
 - Flex-wrapping the story title with an ellipsis prevents top-bar overflow.
 - Removing forced select hiding ensures storyboard dropdowns can be toggled open via title click without refresh.
+- `_defaultStoryboardTitle` trims results to 80 characters to avoid overflow.
+- `#story-title-wrapper` reserves 4.5rem height so title changes don't shift layout.
+- Card headings toggle their selects and enter edit mode with `card-title--editing` for a dashed outline.
+- Unified `profile-picture` class yields 4rem circular avatars across chin and storyboard cards.
+- Search bar inputs explicitly set height and padding to align with topbar buttons.
+- Terminology in troubleshooting docs now favors "Analyse" over "Ask".
 - Truncating default storyboard titles at 80 characters prevents overflow on narrow screens.
 - Card headings now toggle dropdown visibility via a simple hidden attribute flip.
 - Keeping the `.card-title` class during edits avoids layout jumps while the dashed outline signals edit mode.

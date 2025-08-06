@@ -449,8 +449,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
           } else {
             heading.contentEditable = 'false';
             heading.classList.remove('card-title--editing');
-            heading.contentEditable = 'false';
-            heading.classList.remove('card-title--editing');
             if (item) item.title = heading.textContent.trim();
             App.setDynamicTitle?.();
           }

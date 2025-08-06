@@ -164,7 +164,7 @@ input[type="file"] {
 
 .topbar-search input {
   height: 2.5rem;
-  padding-block: 0.5rem;
+  padding-block: .5rem;
 }
 
 .topbar-button {
@@ -762,8 +762,8 @@ input[type="file"] {
 
 .storyboard-picker:not([hidden]) {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: .5rem;
+  right: .5rem;
   opacity: 1;
 }
 
@@ -929,6 +929,7 @@ input[type="file"] {
   outline: 1px dashed var(--pico-primary);
   cursor: text;
 }
+
 
 @keyframes card-wiggle {
   0% {
