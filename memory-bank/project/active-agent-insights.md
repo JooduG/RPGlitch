@@ -73,3 +73,4 @@
 - Documentation now explicitly references the **ANALYSE → PLAN → CODE** workflow.
 - Explicit `padding-block: 0` on the search field keeps its height consistent with buttons.
 - Flex-wrapping the story title with an ellipsis prevents top-bar overflow.
+- Removing forced select hiding ensures storyboard dropdowns can be toggled open via title click without refresh.
