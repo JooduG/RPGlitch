@@ -13,7 +13,6 @@
   --pico-typography-spacing-vertical: 0;
   --pico-typography-spacing-horizontal: 0;
   --pico-spacing: 0;
-  --button-width: 2.5rem;
 }
 
 html, body {
@@ -66,7 +65,6 @@ button {
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
-  width: var(--button-width);
 }
 
 article {
@@ -156,28 +154,26 @@ input[type="file"] {
   gap: 1rem;
 }
 
-.top-bar-search {
-  height: 2.5rem;
+.chin-search {
   line-height: 2.5rem;
   padding-block: 0;
   padding-inline: 0.75rem;
-  border-radius: var(--pico-radius);
-  display:flex;
-  isolation:isolate;   
+  display: flex;
+  isolation: isolate;   
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.75rem center;
+  background-size: 1rem;
+  height: var(--pico-form-element-height);
+  box-sizing: border-box;
 }
 
-.topbar-left 
-.topbar-button,
-.topbar-search {
-  width: calc(var--button-width * 4);
-}   
-
-.topbar-search:focus-within {
+.chin-search:focus-within {
   box-shadow: 0 0 0 0.125rem #ff6ad5; /* pink ring */
 }
 
-.topbar-search input,
-.topbar-search button {
+.chin-search input,
+.chin-search button {
   height: 2.5rem;
   padding-block: .5rem;
 }
@@ -260,15 +256,6 @@ input[type="file"] {
   gap: 1rem;
   align-items: center;
   flex-wrap: nowrap;
-}
-
-.chin-search {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: 0.75rem center;
-  background-size: 1rem;
-  height: var(--pico-form-element-height);
-  box-sizing: border-box;
 }
 
 /* stylelint-disable-next-line selector-attribute-quotes */
@@ -425,14 +412,9 @@ input[type="file"] {
 }
 
 .profile-picture {
-  border-radius: 50%;
-  width: 4rem;
-  height: 4rem;
+  width: auto;
+  height: auto;
   object-fit: cover;
-}
-
-.picture img {
-  display: block;
 }
 
 .picture-edit {
