@@ -25,3 +25,5 @@
 - [x] Deduplicate workflow docs and add glossary & contributing guide.
 - [x] Add offline mode with local caching to the build script.
 - [x] Enhance chin and storyboard card hover animations.
+- [x] Auto-bundle component modules in build script for dynamic imports.
+- [x] Align chin search field and button heights.

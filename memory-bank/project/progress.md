@@ -45,3 +45,5 @@
 - Hardened entity modal by constructing DOM nodes via `createElement`, relying on the dialog `cancel` event, and deleting redundant per-entity form files while simplifying modal import mapping.
 - Build script gained offline mode with cached dependencies and component bundling.
 - Chin and storyboard cards now animate with playful hover effects.
+- Build script now automatically gathers all component modules for offline-friendly dynamic imports.
+- Card hover animation adds a brief wiggle with accent glow, and the chin search field now matches button height.

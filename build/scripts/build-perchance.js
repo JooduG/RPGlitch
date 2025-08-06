@@ -48,6 +48,7 @@ const forceDownload = args.includes('--force');
  * - Downloads and inlines external CSS/JS libraries
  * - Compiles SCSS to CSS
  * - Inlines local JavaScript files
+ * - Copies component modules for dynamic import
  * - Creates self-contained output file
  * 
  * Usage: node build-perchance.js [--offline] [--force]
@@ -113,9 +114,15 @@ const SOURCE_FILES = [
     { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.js'), type: 'script', description: 'JavaScript logic' }
 ];
 
-const COMPONENT_FILES = [
-    { name: path.join(__dirname, '../../apps/rpglitch/components/entity-form.js'), description: 'Entity form component' }
-];
+const COMPONENTS_DIR = path.join(__dirname, '../../apps/rpglitch/components');
+const COMPONENT_FILES = fs.readdirSync(COMPONENTS_DIR)
+    .filter((f) => f.endsWith('.js'))
+    .map((f) => ({
+        name: path.join(COMPONENTS_DIR, f),
+        output: f,
+        description: `${f} component`
+    }));
+
 
 /**
  * Downloads content from a URL
@@ -149,19 +156,21 @@ function downloadFromUrl(url) {
  * @param {{url: string, local: string, description: string}} file
  * @returns {Promise<string>} file contents
  */
+
 async function downloadWithFallback(file) {
     const localPath = path.join(__dirname, '../local_libs', file.local);
-    const localFileExists = fs.existsSync(localPath);
+    if (offline && fs.existsSync(localPath)) {
 
-    if (localFileExists && (offline || !forceDownload)) {
         console.log(`  📚 Using cached: ${file.description}`);
         return fs.readFileSync(localPath, 'utf8');
     }
-
-    if (offline && !localFileExists) {
+    if (offline) {
         throw new Error(`Offline mode enabled and local copy missing for ${file.description}`);
     }
-
+    if (fs.existsSync(localPath) && !forceDownload) {
+        console.log(`  📚 Using cached: ${file.description}`);
+        return fs.readFileSync(localPath, 'utf8');
+    }
     try {
         const data = await downloadFromUrl(file.url);
         console.log(`  ✅ Downloaded: ${file.description}`);
@@ -170,7 +179,7 @@ async function downloadWithFallback(file) {
     } catch (error) {
         console.warn(`  ⚠️ Failed to download ${file.description}: ${error.message}`);
         buildMetrics.errors.push(`${file.description} downloaded from local fallback`);
-        if (localFileExists) {
+        if (fs.existsSync(localPath)) {
             console.log(`  📚 Using cached fallback: ${file.description}`);
             return fs.readFileSync(localPath, 'utf8');
         }
@@ -182,6 +191,7 @@ async function downloadWithFallback(file) {
  * Downloads and inlines external CSS files
  * @returns {Promise<string>} Combined CSS content
  */
+
 async function getExternalCSS() {
     console.log('📥 Downloading external CSS files...');
     let combinedCSS = '';
@@ -390,7 +400,10 @@ async function buildPerchanceFile() {
         const profileComponentContent = readFile(SOURCE_FILES[2].name, SOURCE_FILES[2].description);
         const hideElContent = readFile(SOURCE_FILES[3].name, SOURCE_FILES[3].description);
         const jsContent = readFile(SOURCE_FILES[4].name, SOURCE_FILES[4].description);
-        const entityFormContent = readFile(COMPONENT_FILES[0].name, COMPONENT_FILES[0].description);
+        const componentContents = COMPONENT_FILES.map(file => ({
+            ...file,
+            content: readFile(file.name, file.description)
+        }));
         
         // Compile SCSS to CSS
         const compiledCSS = compileSass(SOURCE_FILES[1].name);
@@ -419,16 +432,17 @@ async function buildPerchanceFile() {
 
         const componentDir = path.join(__dirname, '../output/components');
         fs.mkdirSync(componentDir, { recursive: true });
-        fs.writeFileSync(path.join(componentDir, 'entity-form.js'), optimizedEntityForm, 'utf8');
-
-        buildMetrics.totalSize = minifiedHtml.length + optimizedEntityForm.length;
-        
+        let componentsSize = 0;
+        for (const file of componentContents) {
+            const optimized = await minifyJS(file.content);
+            fs.writeFileSync(path.join(componentDir, file.output), optimized, 'utf8');
+            componentsSize += optimized.length;
+        }
+        buildMetrics.totalSize = minifiedHtml.length + componentsSize;
         console.log(`\n✅ Build completed successfully!`);
         console.log(`📁 Output: ${outputPath}`);
         console.log(`📊 File size: ${(minifiedHtml.length / 1024).toFixed(2)} KB`);
-        
         printBuildMetrics();
-        
     } catch (error) {
         console.error(`\n❌ Build failed: ${error.message}`);
         printBuildMetrics();

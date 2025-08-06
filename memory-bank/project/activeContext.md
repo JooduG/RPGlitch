@@ -55,3 +55,6 @@
 - Rebuilt entity modal with `createElement`, dropping the Escape key listener in favor of the `cancel` event and removing obsolete per-entity form files.
 - Added offline mode with cached dependencies and optional network skipping in the build script.
 - Introduced playful hover transforms for chin and storyboard cards.
+- Build script now auto-discovers component modules under `components/` and copies them to the output for offline dynamic imports.
+- Card hover animation now includes a wiggle and accent glow for extra flair.
+- Search field height aligns with adjacent buttons for consistent layout.
