@@ -66,3 +66,4 @@
 - Clicking a storyboard card heading reveals its select and adds a `card-title--editing` class for inline edits.
 - Avatar helper returns `profile-picture` classes, restoring images on chin and storyboard cards.
 - Unified documentation refreshed to reflect the **ANALYSE → PLAN → CODE** cycle.
+- Dropped unconditional select hiding in storyboard cards, allowing dropdowns to reopen on title click.

@@ -36,3 +36,4 @@
 - [x] Prefix dynamic storyboard titles with fun prompts and center with balanced wrapping.
 - [x] Apply `profile-picture` classes to avatar images so chin and storyboard cards show pictures.
 - [x] Update unified docs to use **ANALYSE → PLAN → CODE** wording.
+- [x] Fix dropdowns so titles can reopen hidden selects (HF-1).
