@@ -54,3 +54,11 @@
 - Profile pictures now render on chin and storyboard cards with placeholder generation.
 - Dynamic storyboard title auto-updates from card selections, becomes editable on click, and resets on double-click.
 - Storyboard dropdowns call `updateStoryboardCard` on blur to maintain heading style.
+- Default storyboard title now handles partial selections and resets via double-click.
+- Picture helper unified under `getPictureHTML` for chin and storyboard cards.
+- Reused storyboard headings prevent disappearing titles and populate on load.
+- Dropdown rendering clones original placeholders to preserve labels.
+- Card titles support in-place editing while preserving styling.
+- Story title styling prevents scrollbars and can reset to dynamic text on double-click.
+- Title generator now rotates through whimsical prompts for 0–3 selections with unit tests.
+- Top-bar controls share consistent height and include a shuffle action for random story setup.

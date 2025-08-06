@@ -59,3 +59,10 @@
 - ProfilePictureComponent injects placeholder initials on cards when images are absent.
 - Storyboard title editing toggles between auto-generated text and custom input without losing dynamic updates.
 - Blur listeners on storyboard selects restore headings, preventing font/style drift after canceling.
+- Default storyboard title now produces contextual phrases based on selected cards.
+- `updateStoryboardCard` reuses existing headings to keep DOM stable.
+- `getPictureHTML` centralizes image rendering with context-specific classes.
+- `renderDropdown` stores placeholder text so labels persist after repopulation.
+- Editing card titles leverages contentEditable to avoid dropdown styling bleed.
+- Story titles rely on a simple dataset flag instead of global state, easing reset logic.
+- Shuffle button iterates selects with a random index, then updates the title when not manually set.
