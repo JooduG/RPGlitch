@@ -36,3 +36,5 @@
 - [x] Prefix dynamic storyboard titles with fun prompts and center with balanced wrapping.
 - [x] Apply `profile-picture` classes to avatar images so chin and storyboard cards show pictures.
 - [x] Update unified docs to use **ANALYSE → PLAN → CODE** wording.
+- [x] Remove vertical padding from `.topbar-search` to match button height.
+- [x] Prevent storyboard title overflow by fixing container height and clipping long text.
