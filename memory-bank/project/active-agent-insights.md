@@ -56,3 +56,6 @@
 - Hovering over cards now triggers a border-glow pulse via a pseudo-element overlay.
 - Root-level scripts are gathered automatically during build so reorganized files require no manual listing.
 - A `::before` radial highlight complements the wiggle animation for a playful yet minimal hover.
+- ProfilePictureComponent injects placeholder initials on cards when images are absent.
+- Storyboard title editing toggles between auto-generated text and custom input without losing dynamic updates.
+- Blur listeners on storyboard selects restore headings, preventing font/style drift after canceling.
