@@ -431,8 +431,9 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         heading = document.createElement('h4');
         heading.className = 'card-title';
         heading.addEventListener('click', () => {
+          select.hidden = false;
           heading.contentEditable = 'true';
-          heading.classList.add('card-title-selected');
+          heading.classList.add('card-title--editing');
           const sel = window.getSelection();
           if (sel) {
             const range = document.createRange();
@@ -444,15 +445,22 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         });
         heading.addEventListener('blur', () => {
           heading.contentEditable = 'false';
-          heading.classList.remove('card-title-selected');
+          heading.classList.remove('card-title--editing');
+          if (document.activeElement !== select) select.hidden = true;
           if (item) item.title = heading.textContent.trim();
           App.setDynamicTitle?.();
+        });
+        heading.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            heading.blur();
+          }
         });
         headerEl.appendChild(heading);
       }
       heading.textContent = item.title || '';
       heading.hidden = false;
-      select.hidden = true;
+      if (!heading.isContentEditable) select.hidden = true;
     }
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
@@ -467,7 +475,13 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   App.setDynamicTitle?.();
 };
 
-const titlePrompts = ['The story of', 'Once upon a time', 'Legend speaks of'];
+const titlePrompts = [
+  'Once upon a time',
+  'The tale of',
+  'Chronicles of',
+  'Legend speaks of',
+  'Adventures of'
+];
 
 function randPrompt() {
   return titlePrompts[Math.floor(Math.random() * titlePrompts.length)];
@@ -486,7 +500,7 @@ App._defaultStoryboardTitle = function () {
   const world = getTitle('storyboard-world-select', 'worlds');
   const selections = [ai, user].filter(Boolean);
   if (!ai && !user && !world) return 'Your story begins…';
-  if (ai && user && world) return `${ai} & ${user} in ${world}`;
+  if (ai && user && world) return `${randPrompt()} ${ai} & ${user} in ${world}`;
   if (selections.length === 1) return `${randPrompt()} ${selections[0]}`;
   if (selections.length === 2) return `${randPrompt()} ${selections[0]} & ${selections[1]}`;
   return 'Your story begins…';

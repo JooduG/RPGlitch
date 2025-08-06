@@ -172,11 +172,9 @@ uv pip install -e ".[test]"
 
 See CONTRIBUTING.md § 2 “Standard Check”.
 
-## 8 Pull-Request Workflow
-
 Refer to CONTRIBUTING.md § 3 “Pull-Request Workflow”.
 
-### Contribution Rules
+## 8 Contribution Rules
 
 - Use `kebab-case` for file names and `camelCase` for JavaScript variables.
 - Keep functions small with clear names.

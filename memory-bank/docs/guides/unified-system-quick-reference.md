@@ -2,6 +2,8 @@
 
 ## Daily Commands and Shortcuts for Maximum Productivity
 
+> Workflow: **ANALYSE → PLAN → CODE**
+
 ---
 
 ## 🧠 THINKING APPROACHES

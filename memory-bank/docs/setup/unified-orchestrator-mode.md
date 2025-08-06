@@ -12,6 +12,8 @@ This guide will help you set up **1 custom mode** in Cursor that implements our 
 - **🎨 Tactical Role** - App-specific planning, design decisions, implementation planning  
 - **⚒️ Operational Role** - Implementation, testing, execution
 
+This mode aligns with the **ANALYSE → PLAN → CODE** workflow.
+
 ## 📋 **PREREQUISITES**
 
 - **Cursor IDE** installed and configured
