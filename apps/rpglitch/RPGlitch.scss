@@ -306,6 +306,14 @@ input[type="file"] {
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .chin-card:hover,
+  .storyboard-card:hover {
+    transform: translateY(-4px) scale(1.03) rotate(0.5deg);
+    box-shadow: 0 8px 20px rgb(0 0 0 / 20%);
+  }
+}
+
 .chin-card-left {
   min-width: 0;
   display: flex;
