@@ -417,12 +417,6 @@ input[type="file"] {
   object-fit: cover;
 }
 
-.storyboard-card-left .profile-picture {
-  width: 4rem;
-  height: 4rem;
-}
-
-
 .picture img {
   display: block;
 }
@@ -710,11 +704,10 @@ input[type="file"] {
   max-width: 40ch;
   text-align: center;
   text-wrap: balance;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: normal;
+  cursor: pointer;
 }
 
 #story-title[contenteditable] {
