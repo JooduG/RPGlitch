@@ -1,4 +1,5 @@
 /* global module */
+
 /**
  * Hides a DOM element by adding the hidden attribute.
  * @param {HTMLElement|string} el - The element or its ID.

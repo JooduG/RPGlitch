@@ -104,7 +104,6 @@ const EXTERNAL_JS_FILES = [
         local: 'purify.min.js',
         description: 'DOMPurify library'
     },
-    // { url: 'https://perchance.org/api/getPlugin?name=text-to-image-plugin', description: 'Perchance Text-to-Image plugin' }
 ];
 
 const SOURCE_FILES = [
