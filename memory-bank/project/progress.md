@@ -49,3 +49,5 @@
 - Card hover animation adds a brief wiggle with accent glow, and the chin search field now matches button height.
 - Component modules are embedded as data URLs, eliminating separate files in the Perchance output.
 - Card hover now pulses a glowing border via a pseudo-element for extra playfulness.
+- Build script now auto-discovers root-level JS files, ensuring reorganized scripts bundle automatically.
+- Card hover gains a radial highlight for an extra playful pop.

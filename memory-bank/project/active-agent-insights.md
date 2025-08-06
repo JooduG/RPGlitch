@@ -54,3 +54,5 @@
 - Centered alignment in `.chin-actions-left` keeps the search field level with action buttons.
 - Component modules are converted to data URLs during build, letting dynamic imports resolve without extra files.
 - Hovering over cards now triggers a border-glow pulse via a pseudo-element overlay.
+- Root-level scripts are gathered automatically during build so reorganized files require no manual listing.
+- A `::before` radial highlight complements the wiggle animation for a playful yet minimal hover.

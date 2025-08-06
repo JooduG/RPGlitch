@@ -60,3 +60,5 @@
 - Search field height aligns with adjacent buttons for consistent layout.
 - Build script replaces component import paths with inlined data URLs, keeping output single-file.
 - Card hover effect gains a border glow pulse for extra fun.
+- Build script now auto-detects root JS modules so reorganized files bundle automatically.
+- Card hover adds a radial highlight via a `::before` pseudo-element for a playful pop.

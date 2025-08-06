@@ -49,7 +49,6 @@ const forceDownload = args.includes('--force');
  * - Compiles SCSS to CSS
  * - Inlines local JavaScript files
  * - Embeds component modules as data URLs for dynamic import
-
  * - Creates self-contained output file
  * 
  * Usage: node build-perchance.js [--offline] [--force]
@@ -106,13 +105,22 @@ const EXTERNAL_JS_FILES = [
     },
 ];
 
+const RPGLITCH_DIR = path.join(__dirname, '../../apps/rpglitch');
+
+const ROOT_JS_FILES = fs
+    .readdirSync(RPGLITCH_DIR)
+    .filter((f) => f.endsWith('.js') && f !== 'RPGlitch.js')
+    .map((f) => ({
+        name: path.join(RPGLITCH_DIR, f),
+        type: 'script',
+        description: `${f} script`
+    }));
+
 const SOURCE_FILES = [
-    { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.html'), type: 'html', description: 'Main HTML structure' },
-    { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.scss'), type: 'sass', description: 'Main Sass stylesheet' },
-    { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.js'), type: 'script', description: 'Main JavaScript logic' },
-    { name: path.join(__dirname, '../../apps/rpglitch/components/utils.js'), type: 'component', description: 'Utility functions' },
-    { name: path.join(__dirname, '../../apps/rpglitch/components/picture.js'), type: 'component', description: 'Profile Picture rendering logic' },
-    { name: path.join(__dirname, '../../apps/rpglitch/components/entity-form.js'), type: 'component', description: 'Entity form logic' }
+    { name: path.join(RPGLITCH_DIR, 'RPGlitch.html'), type: 'html', description: 'Main HTML structure' },
+    { name: path.join(RPGLITCH_DIR, 'RPGlitch.scss'), type: 'sass', description: 'Main Sass stylesheet' },
+    ...ROOT_JS_FILES,
+    { name: path.join(RPGLITCH_DIR, 'RPGlitch.js'), type: 'script', description: 'JavaScript logic' }
 ];
 
 const COMPONENTS_DIR = path.join(__dirname, '../../apps/rpglitch/components');
@@ -122,7 +130,7 @@ const COMPONENT_FILES = fs.readdirSync(COMPONENTS_DIR)
         name: path.join(COMPONENTS_DIR, f),
         output: f,
         placeholder: `__${f.replace(/\.js$/, '').replace(/[-.]/g, '_').toUpperCase()}__`,
-        description: `${f} components`
+        description: `${f} component`
     }));
 
 /**
@@ -169,7 +177,6 @@ async function downloadWithFallback(file) {
     if (offline) {
         throw new Error(`Offline mode enabled and local copy missing for ${file.description}`);
     }
-
 
     if (fs.existsSync(localPath) && !forceDownload) {
         console.log(`  📚 Using cached: ${file.description}`);
@@ -401,10 +408,11 @@ async function buildPerchanceFile() {
         
         // Read and process source files
         const htmlContent = readFile(SOURCE_FILES[0].name, SOURCE_FILES[0].description);
-        const scssContent = readFile(SOURCE_FILES[1].name, SOURCE_FILES[1].description);
-            let jsContent = readFile(SOURCE_FILES[3].name, SOURCE_FILES[3].description);
-        const hideElContent = readFile(SOURCE_FILES[4].name, SOURCE_FILES[4].description);
-        const profileComponentContent = readFile(SOURCE_FILES[5].name, SOURCE_FILES[5].description);
+        readFile(SOURCE_FILES[1].name, SOURCE_FILES[1].description);
+        const helperScripts = SOURCE_FILES.slice(2, -1)
+            .map((file) => readFile(file.name, file.description))
+            .join('\n');
+        let jsContent = readFile(SOURCE_FILES[SOURCE_FILES.length - 1].name, SOURCE_FILES[SOURCE_FILES.length - 1].description);
 
         const componentContents = COMPONENT_FILES.map(file => ({
             ...file,
@@ -416,14 +424,13 @@ async function buildPerchanceFile() {
             const dataUrl = `data:text/javascript;base64,${Buffer.from(optimized).toString('base64')}`;
             jsContent = jsContent.replace(`'${file.placeholder}'`, `'${dataUrl}'`);
         }
-
         
         // Compile SCSS to CSS
         const compiledCSS = compileSass(SOURCE_FILES[1].name);
 
         // Combine all content
         const combinedCSS = externalCSS + compiledCSS;
-        const combinedJS = externalJS + profileComponentContent + hideElContent + jsContent;
+        const combinedJS = externalJS + helperScripts + jsContent;
 
         // Optimize CSS and JavaScript
         const optimizedCSS = await optimizeCSS(combinedCSS);
