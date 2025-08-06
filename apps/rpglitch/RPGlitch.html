@@ -43,38 +43,38 @@
       <nav id="top-bar" class="top-bar">
 
         <!-- Top Bar Left -->
-        <div id="top-bar-left" class="top-bar-left" role="tablist">
+        <div id="top-bar-left" role="tablist">
           <ul role="presentation">
-            <li role="presentation"><button class="topbar-button secondary" role="tab" tabindex="0" id="tab-stories" aria-selected="false" aria-expanded="false" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
-            <li role="presentation"><button class="topbar-button secondary" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
-            <li role="presentation"><button class="topbar-button secondary" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
-            <li role="presentation"><button class="topbar-button secondary" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options">Options</button></li>
+            <li role="presentation"><button class="secondary" role="tab" tabindex="0" id="tab-stories" aria-selected="false" aria-expanded="false" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
+            <li role="presentation"><button class="secondary" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
+            <li role="presentation"><button class="secondary" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
+            <li role="presentation"><button class="secondary" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options">Options</button></li>
           </ul>
         </div>
 
         <!-- Top Bar Right: Storyboard -->
-        <div id="top-bar-right-storyboard" class="top-bar-right">
+        <div id="top-bar-right-storyboard">
           <ul>
-            <li><button class="topbar-button secondary" id="shuffle-btn">Shuffle</button></li>
-            <li><button class="topbar-button primary" id="begin-story">Begin Story</button></li>
+            <li><button class="secondary" id="shuffle-btn">Shuffle</button></li>
+            <li><button class="primary" id="begin-story">Begin Story</button></li>
           </ul>
         </div>
 
         <!-- Top Bar Right: Form -->
-        <div id="top-bar-right-form" class="top-bar-right" hidden="hidden">
+        <div id="top-bar-right-form" hidden="hidden">
           <ul>
-            <li><button class="topbar-button secondary" id="form-cancel">Cancel</button></li>
-            <li><button class="topbar-button primary" id="form-save">Save</button></li>
+            <li><button class="secondary" id="form-cancel">Cancel</button></li>
+            <li><button class="primary" id="form-save">Save</button></li>
           </ul>
         </div>
 
         <!-- Top Bar Right: Profile -->
-        <div id="top-bar-right-profile" class="top-bar-right" hidden="hidden">
+        <div id="top-bar-right-profile" hidden="hidden">
           <ul>
-            <li><button class="topbar-button secondary" id="profile-edit">Edit</button></li>
-            <li><button class="topbar-button secondary" id="profile-copy">Copy & Customize</button></li>
-            <li><button class="topbar-button danger" id="profile-delete">Delete</button></li>
-            <li><button class="topbar-button primary" id="profile-back">Back</button></li>
+            <li><button class="secondary" id="profile-edit">Edit</button></li>
+            <li><button class="secondary" id="profile-copy">Copy & Customize</button></li>
+            <li><button class="danger" id="profile-delete">Delete</button></li>
+            <li><button class="primary" id="profile-back">Back</button></li>
           </ul>
         </div>
       </nav>
@@ -104,7 +104,7 @@
           <button id="new-story" class="secondary">New Story</button>
         </div>
       </div>
-      <div id="chin-story-grid" class="chin-grid chin-list"><!-- Story Cards --></div>
+      <div id="chin-story-grid" class="chin-grid"><!-- Story Cards --></div>
     </div>
   
     <!-- Chin: Character -->
@@ -128,7 +128,7 @@
         </div>
       </div>
 
-      <div id="chin-character-grid" class="chin-grid chin-list"><!-- Character Cards --></div>
+      <div id="chin-character-grid" class="chin-grid"><!-- Character Cards --></div>
     </div>
   
     <!-- Chin: World -->
@@ -150,7 +150,7 @@
           <button id="new-world" class="secondary">New World</button>
         </div>
       </div>
-      <div id="chin-world-grid" class="chin-grid chin-list"><!-- World Cards --></div>
+      <div id="chin-world-grid" class="chin-grid"><!-- World Cards --></div>
     </div>
   
     <!-- Chin: Options -->
@@ -182,8 +182,8 @@
     <!-- Storyboard Screen -->
     <div id="storyboard-screen">
 
-      <div id="story-title-wrapper">
-        <h2 id="story-title">Storyboard</h2>
+      <div id="storyboard-dynamic-title-wrapper">
+        <h2 id="storyboard-dynamic-title">Storyboard</h2>
       </div>
       
         <div id="storyboard-grid">
@@ -193,7 +193,7 @@
               </div>
                 <article class="storyboard-card-right">
                   <header>
-                    <select id="storyboard-ai-select" class="storyboard-picker" aria-label="Choose AI Character"><option value="">Choose AI Character...</option></select>
+                    <select id="storyboard-ai-select" class="storyboard-card-title" aria-label="Choose AI Character"><option value="Choose AI Character...">Choose AI Character...</option></select>
                   </header>
                     Select an AI character for your story...
                   <footer>
@@ -208,7 +208,7 @@
               </div>
                 <article class="storyboard-card-right">
                   <header>
-                    <select id="storyboard-user-select" class="storyboard-picker" aria-label="Choose User Character"><option value="">Choose User Character...</option></select>
+                    <select id="storyboard-user-select" class="storyboard-card-title" aria-label="Choose User Character"><option value="Choose User Character...">Choose User Character...</option></select>
                   </header>
                     Select your character for the story...
                   <footer>
@@ -223,7 +223,7 @@
               </div>
                 <article class="storyboard-card-right">
                   <header>
-                    <select id="storyboard-world-select" class="storyboard-picker" aria-label="Choose World"><option value="">Choose World...</option></select>
+                    <select id="storyboard-world-select" class="storyboard-card-title" aria-label="Choose World"><option value="Choose User Character...">Choose World...</option></select>
                   </header>
                     Select a world for your story...
                   <footer>

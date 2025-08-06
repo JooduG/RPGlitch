@@ -54,7 +54,7 @@ test('chin search hides non-matching cards via hidden attribute', () => {
   const html = `
     <div class="chin-widget">
       <input class="chin-search" />
-      <div class="chin-list">
+      <div class="chin-grid">
         <div data-title="Foo"></div>
         <div data-title="Bar"></div>
       </div>

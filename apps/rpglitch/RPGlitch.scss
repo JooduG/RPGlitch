@@ -154,7 +154,7 @@ input[type="file"] {
   gap: 1rem;
 }
 
-.topbar-search {
+.top-bar-search {
   height: 2.5rem;
   line-height: 2.5rem;
   padding-block: 0;
@@ -162,15 +162,9 @@ input[type="file"] {
   border-radius: var(--pico-radius);
 }
 
-.topbar-search input {
+.top-bar-search input {
   height: 2.5rem;
   padding-block: .5rem;
-}
-
-.topbar-button {
-  height: 2.5rem;
-  line-height: 2.5rem;
-  border-radius: var(--pico-radius);
 }
 
                         a:not([disabled]),
@@ -259,8 +253,13 @@ input[type="file"] {
   background-position: 0.75rem center;
   background-size: 1rem;
   height: var(--pico-form-element-height);
-  padding: 0 0 0 2.5rem;
   box-sizing: border-box;
+}
+
+/* stylelint-disable-next-line selector-attribute-quotes */
+[role=group] input:not([type=checkbox],[type=radio],:last-child), [role=group] select:not(:last-child), [role=group]>:not(:last-child), [role=search] input:not([type=checkbox],[type=radio],:last-child), [role=search] select:not(:last-child), [role=search]>:not(:last-child) {
+  padding: 0 0 0 2.5rem;
+  height: auto;
 }
 
 .chin-grid {
@@ -327,6 +326,7 @@ input[type="file"] {
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.chin-title::before,
 .chin-card::before,
 .storyboard-card::before {
   content: '';
@@ -340,6 +340,7 @@ input[type="file"] {
   pointer-events: none;
 }
 
+.chin-title::after,
 .chin-card::after,
 .storyboard-card::after {
   content: '';
@@ -692,14 +693,14 @@ input[type="file"] {
   position: relative;
 }
 
-#story-title-wrapper {
+#storyboard-dynamic-title-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 4.5rem;
+  min-height: 7rem;
 }
 
-#story-title {
+#storyboard-dynamic-title {
   max-width: 40ch;
   text-align: center;
   text-wrap: balance;
@@ -709,20 +710,44 @@ input[type="file"] {
   cursor: pointer;
 }
 
-#story-title[contenteditable] {
+#storyboard-dynamic-title[contenteditable] {
   outline: none;
   cursor: text;
 }
 
-#story-title:hover {
+#storyboard-dynamic-title:hover {
   text-decoration: underline dotted;
 }
 
-.storyboard-picker:not([hidden]) {
+/* stylelint-disable-next-line selector-class-pattern */
+.card-title--editing {
+  outline: 1px dashed var(--pico-primary);
+  cursor: text;
+}
+
+.card-title {
+  width: 100%;
+  height: 100%;
+  background: var(--pico-form-element-background-color);
+  z-index: 9999999;
+  pointer-events: none;
+  margin: 0;
+  align-content: center;
+}
+
+.storyboard-card-title:not([hidden]) {
+  background: var(--pico-form-element-active-background-color);
+  border: none;
+  cursor: pointer;
+  padding: unset;
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  opacity: 1;
+  width: 65%;
+  height: 20%;
+  box-shadow: unset;
+}
+
+#card option {
+  visibility: hidden;
 }
 
 #storyboard-grid {
@@ -737,15 +762,6 @@ input[type="file"] {
   width: auto;
   max-width: 100%;
   box-sizing: border-box;
-}
-
-#storyboard-grid select {
-  border: none;
-  appearance: none;
-  text-align: center;
-  outline: none;
-  width: 100%;
-  cursor: pointer;
 }
 
 #storyboard-grid select:focus {
@@ -777,6 +793,7 @@ input[type="file"] {
   flex: 0 0 35%;
   display: flex;
   justify-content: center;
+  background: var(--pico-form-element-background-color)
 }
 
 .storyboard-card-right {
@@ -915,12 +932,6 @@ input[type="file"] {
     width: 100%;
     height: 100%;
   }
-}
-
-/* stylelint-disable selector-class-pattern */
-.card-title--editing {
-  outline: 1px dashed var(--pico-primary);
-  cursor: text;
 }
 
 

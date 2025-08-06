@@ -137,8 +137,8 @@ App.ui.setupChinListeners = function () {
 App._attachChinSearchHandlers = function () {
   const inputs = document.querySelectorAll('.chin-search');
   inputs.forEach((input) => {
-    const container = input.closest('.chin-panel') || input.closest('.chin-widget');
-    const list = container?.querySelector('.chin-list');
+    const container = input.closest('.chin');
+    const list = container?.querySelector('.chin-grid');
     if (!list) return;
     input.addEventListener('input', () => {
       const term = input.value.toLowerCase();
@@ -405,7 +405,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     article.insertBefore(descEl, footer);
   }
   const small = footer ? footer.querySelector('small') : null;
-  const img = card.querySelector('.storyboard-card-left img');
+  const img = card.querySelector('.storyboard-card-left');
   if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
   const value = select.value;
   const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
@@ -510,7 +510,6 @@ App._defaultStoryboardTitle = function () {
   const ai = getTitle('storyboard-ai-select', 'characters');
   const user = getTitle('storyboard-user-select', 'characters');
   const world = getTitle('storyboard-world-select', 'worlds');
-  const selections = [ai, user].filter(Boolean);
   const subjects = [ai, user].filter(Boolean).join(' & ');
 
   let title;
@@ -528,14 +527,14 @@ App._defaultStoryboardTitle = function () {
 };
 
 App.setDynamicTitle = function () {
-  const titleEl = document.getElementById('story-title');
+  const titleEl = document.getElementById('storyboard-dynamic-title');
   if (!titleEl || titleEl.dataset.manual === 'true') return;
 
   titleEl.textContent = App._defaultStoryboardTitle();
 };
 
 App._setupStoryboardTitle = function () {
-  const titleEl = document.getElementById('story-title');
+  const titleEl = document.getElementById('storyboard-dynamic-title');
   if (!titleEl) return;
   if (titleEl.dataset.editable) return;
   titleEl.dataset.editable = 'true';
@@ -585,7 +584,7 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
     }
   });
   App._setupStoryboardTitle();
-  const title = document.getElementById('story-title');
+  const title = document.getElementById('storyboard-dynamic-title');
   if (title) {
     title.addEventListener('dblclick', () => {
       if (title.dataset.manual === 'true') {
@@ -597,7 +596,7 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
   const shuffleBtn = document.getElementById('shuffle-btn');
   if (shuffleBtn) {
     shuffleBtn.addEventListener('click', () => {
-      document.querySelectorAll('select.storyboard-picker').forEach((select) => {
+      document.querySelectorAll('select.storyboard-card-title').forEach((select) => {
         const opts = select.querySelectorAll('option:not([value=""])');
         if (opts.length > 0) {
           const idx = Math.floor(Math.random() * opts.length);
@@ -605,7 +604,7 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
           select.dispatchEvent(new Event('change'));
         }
       });
-      const t = document.getElementById('story-title');
+      const t = document.getElementById('storyboard-dynamic-title');
       if (t && !t.dataset.manual) App.setDynamicTitle();
     });
   }
