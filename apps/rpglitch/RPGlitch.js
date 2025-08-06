@@ -495,6 +495,7 @@ App._defaultStoryboardTitle = function () {
 App.setDynamicTitle = function () {
   const titleEl = document.getElementById('story-title');
   if (!titleEl || titleEl.dataset.manual === 'true') return;
+
   titleEl.textContent = App._defaultStoryboardTitle();
 };
 
