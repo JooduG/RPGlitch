@@ -168,19 +168,16 @@ function downloadFromUrl(url) {
 
 async function downloadWithFallback(file) {
     const localPath = path.join(__dirname, '../local_libs', file.local);
+    const useCache = fs.existsSync(localPath) && (offline || !forceDownload);
 
-    if (offline && fs.existsSync(localPath)) {
+    if (useCache) {
         console.log(`  📚 Using cached: ${file.description}`);
         return fs.readFileSync(localPath, 'utf8');
     }
 
     if (offline) {
+        // This block is only reached if offline is true and the file doesn't exist in cache.
         throw new Error(`Offline mode enabled and local copy missing for ${file.description}`);
-    }
-
-    if (fs.existsSync(localPath) && !forceDownload) {
-        console.log(`  📚 Using cached: ${file.description}`);
-        return fs.readFileSync(localPath, 'utf8');
     }
 
     try {
