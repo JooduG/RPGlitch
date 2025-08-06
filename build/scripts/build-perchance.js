@@ -168,15 +168,14 @@ function downloadFromUrl(url) {
 
 async function downloadWithFallback(file) {
     const localPath = path.join(__dirname, '../local_libs', file.local);
-    const useCache = fs.existsSync(localPath) && (offline || !forceDownload);
+    const localFileExists = fs.existsSync(localPath);
 
-    if (useCache) {
+    if (localFileExists && (offline || !forceDownload)) {
         console.log(`  📚 Using cached: ${file.description}`);
         return fs.readFileSync(localPath, 'utf8');
     }
 
-    if (offline) {
-        // This block is only reached if offline is true and the file doesn't exist in cache.
+    if (offline) { // This will only be reached if the local file does not exist
         throw new Error(`Offline mode enabled and local copy missing for ${file.description}`);
     }
 
@@ -187,9 +186,9 @@ async function downloadWithFallback(file) {
         return data;
     } catch (error) {
         console.warn(`  ⚠️ Failed to download ${file.description}: ${error.message}`);
-        buildMetrics.errors.push(`${file.description} downloaded from local fallback`);
-        if (fs.existsSync(localPath)) {
+        if (localFileExists) {
             console.log(`  📚 Using cached fallback: ${file.description}`);
+            buildMetrics.errors.push(`${file.description} downloaded from local fallback`);
             return fs.readFileSync(localPath, 'utf8');
         }
         throw new Error(`Failed to download ${file.description} and no local copy found.`);
@@ -404,12 +403,17 @@ async function buildPerchanceFile() {
         const externalJS = await getExternalJS();
         
         // Read and process source files
-        const htmlContent = readFile(SOURCE_FILES[0].name, SOURCE_FILES[0].description);
-        readFile(SOURCE_FILES[1].name, SOURCE_FILES[1].description);
-        const helperScripts = SOURCE_FILES.slice(2, -1)
+        const htmlFile = SOURCE_FILES.find(f => f.type === 'html');
+        const scssFile = SOURCE_FILES.find(f => f.type === 'sass');
+        const mainJsFile = SOURCE_FILES.find(f => f.name.endsWith('RPGlitch.js'));
+        const helperJsFiles = SOURCE_FILES.filter(f => f.type === 'script' && f !== mainJsFile);
+
+        const htmlContent = readFile(htmlFile.name, htmlFile.description);
+        readFile(scssFile.name, scssFile.description); // Read for validation
+        const helperScripts = helperJsFiles
             .map((file) => readFile(file.name, file.description))
             .join('\n');
-        let jsContent = readFile(SOURCE_FILES[SOURCE_FILES.length - 1].name, SOURCE_FILES[SOURCE_FILES.length - 1].description);
+        let jsContent = readFile(mainJsFile.name, mainJsFile.description);
 
         const componentContents = COMPONENT_FILES.map(file => ({
             ...file,

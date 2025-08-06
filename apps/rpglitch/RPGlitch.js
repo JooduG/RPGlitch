@@ -479,34 +479,44 @@ App._setupStoryboardTitle = function () {
   const container = document.getElementById('storyboard-title-container');
   const titleEl = document.getElementById('storyboard-title');
   if (!container || !titleEl) return;
+
+  // Prevent re-attaching listeners if already done.
+  if (titleEl.dataset.editable) return;
+  titleEl.dataset.editable = 'true';
+
+  const input = document.createElement('input');
+  input.id = 'storyboard-title-input';
+  input.type = 'text';
+  input.hidden = true;
+  container.appendChild(input);
+
+  const finishEditing = () => {
+    const newTitle = input.value.trim();
+    App._storyboardTitleCustom = newTitle.length > 0 && newTitle !== App._defaultStoryboardTitle();
+    titleEl.textContent = App._storyboardTitleCustom ? newTitle : App._defaultStoryboardTitle();
+    input.hidden = true;
+    titleEl.hidden = false;
+    App._editingStoryboardTitle = false;
+  };
+
   titleEl.addEventListener('click', () => {
     if (App._editingStoryboardTitle) return;
-    const input = document.createElement('input');
-    input.id = 'storyboard-title-input';
-    input.type = 'text';
-    input.value = titleEl.textContent.trim();
-    const finish = () => {
-      const newTitle = input.value.trim();
-      App._storyboardTitleCustom = newTitle.length > 0 && newTitle !== App._defaultStoryboardTitle();
-      const h2 = document.createElement('h2');
-      h2.id = 'storyboard-title';
-      h2.textContent = App._storyboardTitleCustom ? newTitle : App._defaultStoryboardTitle();
-      container.replaceChild(h2, input);
-      App._editingStoryboardTitle = false;
-      App._setupStoryboardTitle();
-    };
-    input.addEventListener('blur', finish);
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') input.blur();
-    });
-    container.replaceChild(input, titleEl);
     App._editingStoryboardTitle = true;
+    input.value = titleEl.textContent.trim();
+    titleEl.hidden = true;
+    input.hidden = false;
     input.focus();
     input.select();
   });
+
   titleEl.addEventListener('dblclick', () => {
     App._storyboardTitleCustom = false;
     App.updateStoryboardTitle();
+  });
+
+  input.addEventListener('blur', finishEditing);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') input.blur();
   });
 };
 
