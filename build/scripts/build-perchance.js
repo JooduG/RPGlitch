@@ -33,6 +33,11 @@ try {
     console.warn('⚠️ html-minifier not available - skipping HTML minification');
 }
 
+// CLI flags
+const args = process.argv.slice(2);
+const offline = args.includes('--offline') || process.env.PROCESS_DOWNLOADS === 'false';
+const forceDownload = args.includes('--force');
+
 /**
  * RPGlitch Perchance Build Script (Enhanced)
  * 
@@ -43,17 +48,18 @@ try {
  * - Downloads and inlines external CSS/JS libraries
  * - Compiles SCSS to CSS
  * - Inlines local JavaScript files
+ * - Embeds component modules as data URLs for dynamic import
  * - Creates self-contained output file
  * 
- * Usage: node build-perchance.js
+ * Usage: node build-perchance.js [--offline] [--force]
  * 
- * @version 2.1.0
- * @lastUpdated 2025-01-03
+ * @version 2.2.0
+ * @lastUpdated 2025-02-15
  */
 
 // Build configuration
 const BUILD_CONFIG = {
-    version: '2.1.0',
+    version: '2.2.0',
     buildTimestamp: new Date().toISOString(),
     buildId: `build-${Date.now()}`,
     performanceTracking: true
@@ -100,13 +106,33 @@ const EXTERNAL_JS_FILES = [
     // { url: 'https://perchance.org/api/getPlugin?name=text-to-image-plugin', description: 'Perchance Text-to-Image plugin' }
 ];
 
+const RPGLITCH_DIR = path.join(__dirname, '../../apps/rpglitch');
+
+const ROOT_JS_FILES = fs
+    .readdirSync(RPGLITCH_DIR)
+    .filter((f) => f.endsWith('.js') && f !== 'RPGlitch.js')
+    .map((f) => ({
+        name: path.join(RPGLITCH_DIR, f),
+        type: 'script',
+        description: `${f} script`
+    }));
+
 const SOURCE_FILES = [
-    { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.html'), type: 'html', description: 'Main HTML structure' },
-    { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.scss'), type: 'sass', description: 'Main Sass stylesheet' },
-    { name: path.join(__dirname, '../../apps/rpglitch/ProfilePictureComponent.js'), type: 'component', description: 'Profile Picture rendering logic' },
-    { name: path.join(__dirname, '../../apps/rpglitch/utils.js'), type: 'script', description: 'Utility functions' },
-    { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.js'), type: 'script', description: 'JavaScript logic' }
+    { name: path.join(RPGLITCH_DIR, 'RPGlitch.html'), type: 'html', description: 'Main HTML structure' },
+    { name: path.join(RPGLITCH_DIR, 'RPGlitch.scss'), type: 'sass', description: 'Main Sass stylesheet' },
+    ...ROOT_JS_FILES,
+    { name: path.join(RPGLITCH_DIR, 'RPGlitch.js'), type: 'script', description: 'JavaScript logic' }
 ];
+
+const COMPONENTS_DIR = path.join(__dirname, '../../apps/rpglitch/components');
+const COMPONENT_FILES = fs.readdirSync(COMPONENTS_DIR)
+    .filter((f) => f.endsWith('.js'))
+    .map((f) => ({
+        name: path.join(COMPONENTS_DIR, f),
+        output: f,
+        placeholder: `__${f.replace(/\.js$/, '').replace(/[-.]/g, '_').toUpperCase()}__`,
+        description: `${f} component`
+    }));
 
 /**
  * Downloads content from a URL
@@ -141,20 +167,35 @@ function downloadFromUrl(url) {
  * @returns {Promise<string>} file contents
  */
 async function downloadWithFallback(file) {
+    const localPath = path.join(__dirname, '../local_libs', file.local);
+
+    if (offline && fs.existsSync(localPath)) {
+        console.log(`  📚 Using cached: ${file.description}`);
+        return fs.readFileSync(localPath, 'utf8');
+    }
+
+    if (offline) {
+        throw new Error(`Offline mode enabled and local copy missing for ${file.description}`);
+    }
+
+    if (fs.existsSync(localPath) && !forceDownload) {
+        console.log(`  📚 Using cached: ${file.description}`);
+        return fs.readFileSync(localPath, 'utf8');
+    }
+
     try {
         const data = await downloadFromUrl(file.url);
         console.log(`  ✅ Downloaded: ${file.description}`);
+        fs.writeFileSync(localPath, data, 'utf8');
         return data;
     } catch (error) {
-                console.warn(`  ⚠️ Failed to download ${file.description}: ${error.message}. Using local copy.`);
-        const localPath = path.join(__dirname, '../local_libs', file.local);
+        console.warn(`  ⚠️ Failed to download ${file.description}: ${error.message}`);
         buildMetrics.errors.push(`${file.description} downloaded from local fallback`);
-        try {
+        if (fs.existsSync(localPath)) {
+            console.log(`  📚 Using cached fallback: ${file.description}`);
             return fs.readFileSync(localPath, 'utf8');
-        } catch (fallbackError) {
-            console.error(`  ❌ Failed to read local fallback for ${file.description}: ${fallbackError.message}`);
-            throw new Error(`Failed to download ${file.description} and could not read local fallback.`);
         }
+        throw new Error(`Failed to download ${file.description} and no local copy found.`);
     }
 }
 
@@ -366,17 +407,28 @@ async function buildPerchanceFile() {
         
         // Read and process source files
         const htmlContent = readFile(SOURCE_FILES[0].name, SOURCE_FILES[0].description);
-        const scssContent = readFile(SOURCE_FILES[1].name, SOURCE_FILES[1].description);
-        const profileComponentContent = readFile(SOURCE_FILES[2].name, SOURCE_FILES[2].description);
-        const hideElContent = readFile(SOURCE_FILES[3].name, SOURCE_FILES[3].description);
-        const jsContent = readFile(SOURCE_FILES[4].name, SOURCE_FILES[4].description);
+        readFile(SOURCE_FILES[1].name, SOURCE_FILES[1].description);
+        const helperScripts = SOURCE_FILES.slice(2, -1)
+            .map((file) => readFile(file.name, file.description))
+            .join('\n');
+        let jsContent = readFile(SOURCE_FILES[SOURCE_FILES.length - 1].name, SOURCE_FILES[SOURCE_FILES.length - 1].description);
+        const componentContents = COMPONENT_FILES.map(file => ({
+            ...file,
+            content: readFile(file.name, file.description)
+        }));
+
+        for (const file of componentContents) {
+            const optimized = await minifyJS(file.content);
+            const dataUrl = `data:text/javascript;base64,${Buffer.from(optimized).toString('base64')}`;
+            jsContent = jsContent.replace(`'${file.placeholder}'`, `'${dataUrl}'`);
+        }
         
         // Compile SCSS to CSS
         const compiledCSS = compileSass(SOURCE_FILES[1].name);
 
         // Combine all content
         const combinedCSS = externalCSS + compiledCSS;
-        const combinedJS = externalJS + profileComponentContent + hideElContent + jsContent;
+        const combinedJS = externalJS + helperScripts + jsContent;
 
         // Optimize CSS and JavaScript
         const optimizedCSS = await optimizeCSS(combinedCSS);

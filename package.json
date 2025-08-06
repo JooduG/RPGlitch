@@ -6,6 +6,7 @@
   "scripts": {
     "preflight": "npm run build && npm run lint && npm test && echo \"Preflight check complete (typecheck not configured).\"",
     "build": "node build/scripts/build-perchance.js",
+    "build:offline": "node build/scripts/build-perchance.js --offline",
     "build:copy": "node build/scripts/build-and-copy.js",
     "build:watch": "nodemon --watch apps --ext html,js,css --exec 'node build/scripts/build-perchance.js'",
     "lint": "npx eslint \"apps/**/*.js\" \"tests/**/*.js\" \"build/scripts/**/*.js\" --config eslint.config.mjs && stylelint \"apps/**/*.{css,scss}\" --config stylelint.config.js && htmlhint \"apps/rpglitch/**/*.html\" --config .htmlhintrc",

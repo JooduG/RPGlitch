@@ -188,7 +188,7 @@ const addMap = {
   worlds: App.addWorld
 };
 
-const entityFormPath = './components/entity-form.js';
+const entityFormPath = '__ENTITY_FORM__';
 const modalExportMap = {
   stories: 'openStoryModal',
   characters: 'openCharacterModal',
