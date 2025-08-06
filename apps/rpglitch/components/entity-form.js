@@ -46,8 +46,7 @@
       close();
     });
 
-    cancelButton.addEventListener('click', (e) => {
-      e.preventDefault();
+    cancelButton.addEventListener('click', () => {
       close();
     });
 
@@ -68,4 +67,3 @@
   global.openCharacterModal = openCharacterModal;
   global.openWorldModal = openWorldModal;
 })(typeof window !== 'undefined' ? window : globalThis);
-

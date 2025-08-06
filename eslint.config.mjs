@@ -4,19 +4,25 @@ import globals from "globals";
 
 export default [
   {
+    /* which files this stanza applies to */
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
+
+    /* patterns ESLint should **never** lint */
     ignores: [
-      "**/*node_modules/**",
-      "**/*archive/**", 
-      "**/*output/**",
-      "**/*local_libs/**", // This should cover the minified files
-      "**/*.min.js", // Additional safety net,
-      "**/*diagnostics/**",
-      "**/*browser-tools/**",
-      "**/*test-globs/**",
-      "**/*node_modules/**",
-      "**/*RPGlitch-left-panel.txt"
+      "**/node_modules/**",          // one entry is enough – drop the duplicate
+      "**/archive/**",
+      "**/output/**",
+      "**/local_libs/**",
+      "**/*.min.js",
+      "**/diagnostics/**",
+      "**/browser-tools/**",
+      "**/test-globs/**",
+
+      /* project-specific one-offs */
+      "RPGlitch-left-panel.txt",
+      "build/output/components/utils.js"
     ],
+    
     // plugins: { js }, // Removed as it's already imported
     languageOptions: {
       globals: globals.browser,

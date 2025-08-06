@@ -1,27 +1,27 @@
-// ProfilePictureComponent.js
 /* global module */
 
 /**
- * Returns HTML for a profile picture, using a real picture if available, otherwise a placeholder SVG.
- * @param {Object} item - The item with profile picture, name, colorPalette, and itemType.
+ * Returns HTML for a picture, using a real picture if available, otherwise a placeholder SVG.
+ * @param {Object} item - The item with picture, name, colorPalette, and itemType.
  * @param {Object} palette - The color palette object.
- * @param {string} [context='profile'] - UI context: 'profile', 'storyboard', 'list-item', 'card'.
+ * @param {string} [context='profile'] - UI context: 'profile', 'storyboard.card', 'chin-card', 'card'.
  * @param {string} [fontFamily='Segoe UI, system-ui, sans-serif'] - Optional font family for placeholder.
- * @returns {string} HTML string for the profile picture element.
+ * @returns {string} HTML string for the picture element.
  */
-function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 'Segoe UI, system-ui, sans-serif') {
+
+function getPictureHTML(item, palette, context = 'profile', fontFamily = 'Segoe UI, system-ui, sans-serif') {
   if (window.App && window.App.debug) {
-    console.debug('[ProfilePicture] getProfilePictureHTML called:', { item, context });
+    console.debug('[Picture] getPictureHTML called:', { item, context });
   }
   
   // Validate inputs
   if (!item) {
     // No item provided, using fallback
-    return createFallbackProfilePicture('?', palette, context, fontFamily);
+    return createFallbackPicture('?', palette, context, fontFamily);
   }
   
   const name = (item.name && typeof item.name === 'string') ? item.name.trim() : '?';
-  const hasProfilePicture = item.profilePicture && typeof item.profilePicture === 'string' && item.profilePicture.trim().length > 0;
+  const hasPicture = item.picture && typeof item.picture === 'string' && item.picture.trim().length > 0;
   
   // Get initials using main app function if available, otherwise use simple fallback
   const initials = getInitials(name);
@@ -31,21 +31,21 @@ function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 
     return createInitialsOnlyHTML(initials, palette);
   }
   
-  // Determine profile picture source
-  const profilePictureSrc = hasProfilePicture 
-    ? item.profilePicture.trim() 
-    : createProfilePicturePlaceholder(name, palette, fontFamily);
+  // Determine picture source
+  const pictureSrc = hasPicture 
+    ? item.picture.trim() 
+    : createPicturePlaceholder(name, palette, fontFamily);
   
   // Create fallback placeholder for error handling
-  const placeholderDataUrl = createProfilePicturePlaceholder(name, palette, fontFamily);
+  const placeholderDataUrl = createPicturePlaceholder(name, palette, fontFamily);
   
   // Generate CSS class based on context
-  const profilePictureClass = getProfilePictureClass(context);
+  const pictureClass = getPictureClass(context);
   
   // Create safe name for alt text
   const safeName = (name || 'Profile').replace(/"/g, '&quot;');
   
-  return `<img src='${profilePictureSrc}' alt='${safeName} profile picture' class='${profilePictureClass}' onerror="this.onerror=null;this.src='${placeholderDataUrl}'">`;
+  return `<img src='${pictureSrc}' alt='${safeName} picture' class='${pictureClass}' onerror="this.onerror=null;this.src='${placeholderDataUrl}'">`;
 }
 
 /**
@@ -53,6 +53,7 @@ function getProfilePictureHTML(item, palette, context = 'profile', fontFamily = 
  * @param {string} name - The name to extract initials from.
  * @returns {string} The initials (max 2 characters).
  */
+
 function getInitials(name) {
   // Try to use main app's function first
   if (window.App && typeof window.App._getInitials === 'function') {
@@ -83,16 +84,17 @@ function getInitials(name) {
 }
 
 /**
- * Creates CSS class for profile picture based on context.
+ * Creates CSS class for picture based on context.
  * @param {string} context - The UI context.
  * @returns {string} The CSS class.
  */
-function getProfilePictureClass(context) {
-  const baseClass = 'profile-picture';
+
+function getPictureClass(context) {
+  const baseClass = 'picture';
   const contextClasses = {
-    'profile': 'profile-picture-large',
-    'storyboard': 'storyboard-card-profile-picture',
-    'list-item': 'list-item-profile-picture'
+    'profile': 'picture',
+    'storyboard-card': 'storyboard-card-left picture',
+    'chin-card': 'chin-card-right picture'
   };
   
   return `${baseClass} ${contextClasses[context] || ''}`.trim();
@@ -104,43 +106,46 @@ function getProfilePictureClass(context) {
  * @param {Object} palette - The color palette object.
  * @returns {string} HTML for initials display.
  */
+
 function createInitialsOnlyHTML(initials, palette) {
   const safePalette = getSafePalette(palette);
-  return `<div class="profile-picture-initials-styled" style="--palette-medium: ${safePalette.colors.medium}; --palette-light: ${safePalette.colors.light}">${initials}</div>`;
+  return `<div class="picture-initials" style="--palette-medium: ${safePalette.colors.medium}; --palette-light: ${safePalette.colors.light}">${initials}</div>`;
 }
 
 /**
- * Creates a fallback profile picture when no item is provided.
+ * Creates a fallback picture when no item is provided.
  * @param {string} name - The name to use.
  * @param {Object} palette - The color palette object.
  * @param {string} context - The UI context.
  * @param {string} fontFamily - The font family.
- * @returns {string} HTML for fallback profile picture.
+ * @returns {string} HTML for fallback picture.
  */
-function createFallbackProfilePicture(name, palette, context, fontFamily) {
-  const placeholderDataUrl = createProfilePicturePlaceholder(name, palette, fontFamily);
-  const profilePictureClass = getProfilePictureClass(context);
-  return `<img src='${placeholderDataUrl}' alt='Profile picture' class='${profilePictureClass}'>`;
+
+function createFallbackPicture(name, palette, context, fontFamily) {
+  const placeholderDataUrl = createPicturePlaceholder(name, palette, fontFamily);
+  const pictureClass = getPictureClass(context);
+  return `<img src='${placeholderDataUrl}' alt='picture' class='${pictureClass}'>`;
 }
 
 /**
- * Creates a profile picture placeholder - uses main app's function if available, otherwise local fallback.
+ * Creates a picture placeholder - uses main app's function if available, otherwise local fallback.
  * @param {string} name - The name to extract initials from.
  * @param {Object} palette - The color palette object.
  * @param {string} fontFamily - The font family.
- * @returns {string} Data URL for the SVG profile picture.
+ * @returns {string} Data URL for the SVG picture.
  */
-function createProfilePicturePlaceholder(name, palette, fontFamily) {
+
+function createPicturePlaceholder(name, palette, fontFamily) {
   // Try to use main app's function first
-  if (window.App && typeof window.App._makeProfilePicturePlaceholderSVG === 'function') {
+  if (window.App && typeof window.App._makePicturePlaceholderSVG === 'function') {
     const paletteKey = getPaletteKey(palette);
-    return window.App._makeProfilePicturePlaceholderSVG(name, paletteKey, false, null, fontFamily);
+    return window.App._makePicturePlaceholderSVG(name, paletteKey, false, null, fontFamily);
   }
   
   // Try to use utils function if available
-  if (typeof window.makeProfilePicturePlaceholderSVG === 'function') {
+  if (typeof window.makePicturePlaceholderSVG === 'function') {
     const paletteKey = getPaletteKey(palette);
-    return window.makeProfilePicturePlaceholderSVG(name, paletteKey, false, null, fontFamily);
+    return window.makePicturePlaceholderSVG(name, paletteKey, false, null, fontFamily);
   }
   
   // Local fallback implementation
@@ -154,10 +159,11 @@ function createProfilePicturePlaceholder(name, palette, fontFamily) {
  * @param {string} fontFamily - The font family.
  * @returns {string} Data URL for the SVG.
  */
+
 function createLocalPlaceholderSVG(name, palette, fontFamily) {
-  // Use Perchance text-to-image plugin for profile pictures
+  // Use Perchance text-to-image plugin for pictures
   const safePalette = getSafePalette(palette);
-  const prompt = `profile picture for ${name || 'Unknown'}, minimalist flat design, ${safePalette.colors.medium} background, ${safePalette.colors.light} text`;
+  const prompt = `picture for ${name || 'Unknown'}, minimalist flat design, ${safePalette.colors.medium} background, ${safePalette.colors.light} text`;
   
   try {
     if (typeof textToImage !== 'undefined' && textToImage.generate) {
@@ -195,6 +201,7 @@ function createLocalPlaceholderSVG(name, palette, fontFamily) {
  * @param {Object} palette - The palette object.
  * @returns {Object} Safe palette object.
  */
+
 function getSafePalette(palette) {
   if (palette && palette.colors) {
     return palette;
@@ -216,6 +223,7 @@ function getSafePalette(palette) {
  * @param {Object} palette - The palette object.
  * @returns {string} The palette key.
  */
+
 function getPaletteKey(palette) {
   // If palette has a key property, use it
   if (palette && palette.key) {
@@ -227,7 +235,7 @@ function getPaletteKey(palette) {
     for (const [key, definedPalette] of Object.entries(window.App.CONSTANTS.COLOR_PALETTES)) {
       if (definedPalette.colors.medium === palette.colors.medium) {
         if (window.App && window.App.debug) {
-          console.debug('[ProfilePicture] Matched palette key:', key, 'for colors:', palette.colors);
+          console.debug('[Picture] Matched palette key:', key, 'for colors:', palette.colors);
         }
         return key;
       }
@@ -241,8 +249,7 @@ function getPaletteKey(palette) {
 // Export for global access
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { getProfilePictureHTML };
+  module.exports = { getPictureHTML };
 } else {
-  window.getProfilePictureHTML = getProfilePictureHTML;
+  window.getPictureHTML = getPictureHTML;
 }
-
