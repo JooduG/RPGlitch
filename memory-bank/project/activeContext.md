@@ -77,3 +77,4 @@
 - Storyboard titles always prepend a playful prompt, remain centered, and use balanced text wrapping.
 - `getPictureClass` now returns `profile-picture` classes for chin and storyboard contexts, restoring avatar display.
 - Unified docs explicitly reference the **ANALYSE → PLAN → CODE** terminology.
+- Removed forced hiding of storyboard selects so clicking a card title reveals the dropdown again.
