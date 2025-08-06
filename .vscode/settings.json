@@ -1,9 +1,22 @@
 {
-"markdown.validate.enabled": true,
-"markdown.validate.referenceLinks.enabled": ignore,
-"markdownlint.enable": false,
-"markdownlint.config": {
-"default": false
-},
-"markdown.preview.breaks.enabled": true,
+    "markdown.validate.enabled": true,
+    "markdown.validate.referenceLinks.enabled": "ignore",
+    "markdownlint.enable": false,
+    "markdownlint.config": {
+    "default": false
+    },
+    "markdown.preview.breaks.enabled": true,
+
+    "files.watcherExclude": {
+        "**/build/output/**": true,
+        "**/buil/local_libs/**": true,          
+        "**/node_modules/**": true,
+        "**/memory-bank/archive/**": true,
+    },
+    "search.exclude": {
+        "**/build/output/**": true,
+        "**/buil/local_libs/**": true,         
+        "**/node_modules/**": true,
+        "**/memory-bank/archive/**": true,
+    }
 }

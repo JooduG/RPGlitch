@@ -1,0 +1,1 @@
+function hideEl(e){return"string"==typeof e&&(e=document.getElementById(e)),e?(e.setAttribute("hidden","hidden"),e):null}function showEl(e){return"string"==typeof e&&(e=document.getElementById(e)),e?(e.removeAttribute("hidden"),e):null}"undefined"!=typeof module&&module.exports?module.exports={hideEl:hideEl,showEl:showEl}:(window.hideEl=hideEl,window.showEl=showEl);

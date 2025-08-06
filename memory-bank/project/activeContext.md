@@ -65,3 +65,4 @@
 - Profile pictures display on chin and storyboard cards, using placeholder initials when no image exists.
 - Storyboard title auto-generates from selected cards, converts to an input on click, and resets on double-click.
 - Storyboard selects restore heading styling on blur to avoid list-style regression.
+- 
