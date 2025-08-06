@@ -188,7 +188,7 @@ const addMap = {
   worlds: App.addWorld
 };
 
-const entityFormPath = './components/entity-form.js';
+const entityFormPath = '__ENTITY_FORM__';
 const modalExportMap = {
   stories: 'openStoryModal',
   characters: 'openCharacterModal',
@@ -282,6 +282,13 @@ function renderList(containerId, key) {
     const left = document.createElement('div');
     left.className = 'chin-card-left';
 
+    if (typeof window.getProfilePictureHTML === 'function') {
+      const frag = document.createRange().createContextualFragment(
+        window.getProfilePictureHTML(item, item.colorPalette, 'storyboard')
+      );
+      left.appendChild(frag);
+    }
+
     const article = document.createElement('article');
     article.className = 'chin-card';
 
@@ -306,7 +313,7 @@ function renderList(containerId, key) {
       footer.appendChild(small);
       article.appendChild(footer);
     }
-    
+
     left.appendChild(article);
     card.appendChild(left);
     container.appendChild(card);
@@ -357,6 +364,7 @@ App.refreshAllLists = App.refreshAllLists || function () {
   App.renderDropdown?.('storyboard-ai-select', 'characters');
   App.renderDropdown?.('storyboard-user-select', 'characters');
   App.renderDropdown?.('storyboard-world-select', 'worlds');
+  App.updateStoryboardTitle?.();
 };
 
 App.renderStoryList = App.renderStoryList || function () {
@@ -379,7 +387,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const article = card.querySelector('.storyboard-card-right');
   if (!article) return;
   const headerEl = article.querySelector('header');
-  let heading = headerEl ? headerEl.querySelector('.card-title-selected') : null;
+  let heading = headerEl ? headerEl.querySelector('.card-title') : null;
   const footer = article.querySelector('footer');
   const oldTitle = article.querySelector('.card-title');
   if (oldTitle) oldTitle.remove();
@@ -403,8 +411,18 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
     if (img) {
-      if (item.image) img.src = item.image;
-      img.alt = item.title || '';
+      if (typeof window.getProfilePictureHTML === 'function') {
+        const placeholderSrc = img.dataset.placeholderSrc;
+        const frag = document.createRange().createContextualFragment(
+          window.getProfilePictureHTML(item, item.colorPalette, 'storyboard')
+        );
+        const newImg = frag.querySelector('img');
+        if (newImg && placeholderSrc) newImg.dataset.placeholderSrc = placeholderSrc;
+        img.replaceWith(newImg);
+      } else if (item.image) {
+        img.src = item.image;
+        img.alt = item.title || '';
+      }
     }
     if (headerEl) {
       if (!heading) {
@@ -431,6 +449,65 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     select.hidden = false;
     if (heading) heading.hidden = true;
   }
+  App.updateStoryboardTitle?.();
+};
+
+App._storyboardTitleCustom = App._storyboardTitleCustom || false;
+
+App._defaultStoryboardTitle = function () {
+  const getTitle = (id, key, placeholder) => {
+    const select = document.getElementById(id);
+    const value = select ? select.value : '';
+    if (!value) return placeholder;
+    const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
+    return item ? item.title || placeholder : placeholder;
+  };
+  const ai = getTitle('storyboard-ai-select', 'characters', 'AI Character');
+  const user = getTitle('storyboard-user-select', 'characters', 'User Character');
+  const world = getTitle('storyboard-world-select', 'worlds', 'World');
+  return `${ai} and ${user} in ${world}`;
+};
+
+App.updateStoryboardTitle = function () {
+  if (App._storyboardTitleCustom) return;
+  const titleEl = document.getElementById('storyboard-title');
+  if (!titleEl) return;
+  titleEl.textContent = App._defaultStoryboardTitle();
+};
+
+App._setupStoryboardTitle = function () {
+  const container = document.getElementById('storyboard-title-container');
+  const titleEl = document.getElementById('storyboard-title');
+  if (!container || !titleEl) return;
+  titleEl.addEventListener('click', () => {
+    if (App._editingStoryboardTitle) return;
+    const input = document.createElement('input');
+    input.id = 'storyboard-title-input';
+    input.type = 'text';
+    input.value = titleEl.textContent.trim();
+    const finish = () => {
+      const newTitle = input.value.trim();
+      App._storyboardTitleCustom = newTitle.length > 0 && newTitle !== App._defaultStoryboardTitle();
+      const h2 = document.createElement('h2');
+      h2.id = 'storyboard-title';
+      h2.textContent = App._storyboardTitleCustom ? newTitle : App._defaultStoryboardTitle();
+      container.replaceChild(h2, input);
+      App._editingStoryboardTitle = false;
+      App._setupStoryboardTitle();
+    };
+    input.addEventListener('blur', finish);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') input.blur();
+    });
+    container.replaceChild(input, titleEl);
+    App._editingStoryboardTitle = true;
+    input.focus();
+    input.select();
+  });
+  titleEl.addEventListener('dblclick', () => {
+    App._storyboardTitleCustom = false;
+    App.updateStoryboardTitle();
+  });
 };
 
 App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
@@ -441,8 +518,13 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
   ];
   configs.forEach(({ id, key }) => {
     const select = document.getElementById(id);
-    if (select) select.addEventListener('change', () => App.updateStoryboardCard(id, key));
+    if (select) {
+      const handler = () => App.updateStoryboardCard(id, key);
+      select.addEventListener('change', handler);
+      select.addEventListener('blur', handler);
+    }
   });
+  App._setupStoryboardTitle();
 };
 
 // Track attached listeners to avoid duplicates
@@ -615,6 +697,7 @@ App.initializeWhenReady = async function () {
     }
     App.refreshAllLists?.();
     App._attachStoryboardListeners?.();
+    App.updateStoryboardTitle?.();
     App.initializeWhenReadyRetryCount = 0;
   } catch (error) {
     App.initializeWhenReadyRetryCount += 1;

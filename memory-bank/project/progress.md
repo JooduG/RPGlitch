@@ -43,3 +43,14 @@
 - Standardized workflow references through a new `CONTRIBUTING.md` and added shared terminology in `GLOSSARY.md`.
 - Refactored modal creation into a generic `entity-form` with dynamic import mapping and hoisted `addMap`.
 - Hardened entity modal by constructing DOM nodes via `createElement`, relying on the dialog `cancel` event, and deleting redundant per-entity form files while simplifying modal import mapping.
+- Build script gained offline mode with cached dependencies and component bundling.
+- Chin and storyboard cards now animate with playful hover effects.
+- Build script now automatically gathers all component modules for offline-friendly dynamic imports.
+- Card hover animation adds a brief wiggle with accent glow, and the chin search field now matches button height.
+- Component modules are embedded as data URLs, eliminating separate files in the Perchance output.
+- Card hover now pulses a glowing border via a pseudo-element for extra playfulness.
+- Build script now auto-discovers root-level JS files, ensuring reorganized scripts bundle automatically.
+- Card hover gains a radial highlight for an extra playful pop.
+- Profile pictures now render on chin and storyboard cards with placeholder generation.
+- Dynamic storyboard title auto-updates from card selections, becomes editable on click, and resets on double-click.
+- Storyboard dropdowns call `updateStoryboardCard` on blur to maintain heading style.

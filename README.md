@@ -254,6 +254,7 @@ Full documentation lives in the [memory-bank/docs/](memory-bank/docs/) directory
 - **Database Safety**: Comprehensive null checks throughout applications
 - **Error Handling**: Improved error handling with better timeout messages
 - **CSS Architecture**: ONE SOURCE ONE TRUTH principle for maintainable styling
+- **Offline Mode**: Run `npm run build:offline` to use cached libraries and skip network downloads
 
 ## 📞 **Support & Resources**
 
