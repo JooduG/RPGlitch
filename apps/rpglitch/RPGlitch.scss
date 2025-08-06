@@ -417,13 +417,6 @@ input[type="file"] {
   object-fit: cover;
 }
 
-.storyboard-card-left .profile-picture {
-  width: 4rem;
-  height: 4rem;
-}
-
-
-
 .picture img {
   display: block;
 }
@@ -713,16 +706,23 @@ input[type="file"] {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: normal;
+  cursor: pointer;
 }
 
 #story-title[contenteditable] {
   outline: none;
-  white-space: normal;
   cursor: text;
 }
 
 #story-title:hover {
   text-decoration: underline dotted;
+}
+
+.storyboard-picker:not([hidden]) {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 1;
 }
 
 #storyboard-grid {
@@ -766,7 +766,6 @@ input[type="file"] {
   right: .5rem;
   opacity: 1;
 }
-
 
 .storyboard-card {
   display: flex;
@@ -930,7 +929,6 @@ input[type="file"] {
   outline: 1px dashed var(--pico-primary);
   cursor: text;
 }
-/* stylelint-enable selector-class-pattern */
 
 
 @keyframes card-wiggle {

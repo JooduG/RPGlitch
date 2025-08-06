@@ -430,29 +430,32 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       if (!heading) {
         heading = document.createElement('h4');
         heading.className = 'card-title';
-          heading.addEventListener('click', () => {
-            select.hidden = !select.hidden;
-            if (select.hidden) {
-              heading.contentEditable = 'true';
-              heading.classList.add('card-title--editing');
-              const sel = window.getSelection();
-              if (sel) {
-                const range = document.createRange();
-                range.selectNodeContents(heading);
-                sel.removeAllRanges();
-                sel.addRange(range);
-              }
-              heading.focus();
-            } else {
-              heading.contentEditable = 'false';
-              heading.classList.remove('card-title--editing');
-              select.focus();
+        heading.addEventListener('click', () => {
+          select.hidden = !select.hidden;
+          if (!select.hidden) {
+          const isHidden = select.hasAttribute('hidden');
+          select.hidden = !isHidden;
+          if (isHidden) {
+            heading.contentEditable = 'true';
+            heading.classList.add('card-title--editing');
+            const sel = window.getSelection();
+            if (sel) {
+              const range = document.createRange();
+              range.selectNodeContents(heading);
+              sel.removeAllRanges();
+              sel.addRange(range);
             }
-          });
+            heading.focus();
+          } else {
+            heading.contentEditable = 'false';
+            heading.classList.remove('card-title--editing');
+            if (item) item.title = heading.textContent.trim();
+            App.setDynamicTitle?.();
+          }
+        });
         heading.addEventListener('blur', () => {
           heading.contentEditable = 'false';
           heading.classList.remove('card-title--editing');
-          if (document.activeElement !== select) select.hidden = true;
           if (item) item.title = heading.textContent.trim();
           App.setDynamicTitle?.();
         });
@@ -505,15 +508,20 @@ App._defaultStoryboardTitle = function () {
   const user = getTitle('storyboard-user-select', 'characters');
   const world = getTitle('storyboard-world-select', 'worlds');
   const selections = [ai, user].filter(Boolean);
-  let result = 'Your story begins…';
-  if (ai && user && world) {
-    result = `${randPrompt()} ${ai} & ${user} in ${world}`;
-  } else if (selections.length === 1) {
-    result = `${randPrompt()} ${selections[0]}`;
-  } else if (selections.length === 2) {
-    result = `${randPrompt()} ${selections[0]} & ${selections[1]}`;
+  const subjects = [ai, user].filter(Boolean).join(' & ');
+
+  let title;
+  if (subjects && world) {
+    title = `${randPrompt()} ${subjects} in ${world}`;
+  } else if (subjects) {
+    title = `${randPrompt()} ${subjects}`;
+  } else if (world) {
+    title = `${randPrompt()} a story in ${world}`;
+  } else {
+    title = 'Your story begins…';
   }
-  return result.length > 80 ? `${result.slice(0, 77)}…` : result;
+
+  return title.length > 80 ? `${title.slice(0, 77)}…` : title;
 };
 
 App.setDynamicTitle = function () {

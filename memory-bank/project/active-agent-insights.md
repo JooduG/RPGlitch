@@ -80,3 +80,10 @@
 - Unified `profile-picture` class yields 4rem circular avatars across chin and storyboard cards.
 - Search bar inputs explicitly set height and padding to align with topbar buttons.
 - Terminology in troubleshooting docs now favors "Analyse" over "Ask".
+- Truncating default storyboard titles at 80 characters prevents overflow on narrow screens.
+- Card headings now toggle dropdown visibility via a simple hidden attribute flip.
+- Keeping the `.card-title` class during edits avoids layout jumps while the dashed outline signals edit mode.
+- The picture component always prepends a `profile-picture` class so CSS sizing rules apply uniformly.
+- Setting the search input height to 2.5rem keeps top-bar controls aligned.
+- Toggling dropdowns via card titles keeps re-selection intuitive, and truncating default titles at 80 characters avoids overflow.
+- Clamping auto-generated storyboard titles to 80 characters prevents overflow.
