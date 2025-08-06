@@ -58,3 +58,5 @@
 - Build script now auto-discovers component modules under `components/` and copies them to the output for offline dynamic imports.
 - Card hover animation now includes a wiggle and accent glow for extra flair.
 - Search field height aligns with adjacent buttons for consistent layout.
+- Build script replaces component import paths with inlined data URLs, keeping output single-file.
+- Card hover effect gains a border glow pulse for extra fun.

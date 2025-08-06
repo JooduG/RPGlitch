@@ -47,3 +47,5 @@
 - Chin and storyboard cards now animate with playful hover effects.
 - Build script now automatically gathers all component modules for offline-friendly dynamic imports.
 - Card hover animation adds a brief wiggle with accent glow, and the chin search field now matches button height.
+- Component modules are embedded as data URLs, eliminating separate files in the Perchance output.
+- Card hover now pulses a glowing border via a pseudo-element for extra playfulness.

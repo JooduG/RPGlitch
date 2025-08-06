@@ -48,7 +48,8 @@ const forceDownload = args.includes('--force');
  * - Downloads and inlines external CSS/JS libraries
  * - Compiles SCSS to CSS
  * - Inlines local JavaScript files
- * - Copies component modules for dynamic import
+ * - Embeds component modules as data URLs for dynamic import
+
  * - Creates self-contained output file
  * 
  * Usage: node build-perchance.js [--offline] [--force]
@@ -120,9 +121,9 @@ const COMPONENT_FILES = fs.readdirSync(COMPONENTS_DIR)
     .map((f) => ({
         name: path.join(COMPONENTS_DIR, f),
         output: f,
+        placeholder: `__${f.replace(/\.js$/, '').replace(/[-.]/g, '_').toUpperCase()}__`,
         description: `${f} component`
     }));
-
 
 /**
  * Downloads content from a URL
@@ -159,18 +160,22 @@ function downloadFromUrl(url) {
 
 async function downloadWithFallback(file) {
     const localPath = path.join(__dirname, '../local_libs', file.local);
-    if (offline && fs.existsSync(localPath)) {
 
+    if (offline && fs.existsSync(localPath)) {
         console.log(`  📚 Using cached: ${file.description}`);
         return fs.readFileSync(localPath, 'utf8');
     }
+
     if (offline) {
         throw new Error(`Offline mode enabled and local copy missing for ${file.description}`);
     }
+
+
     if (fs.existsSync(localPath) && !forceDownload) {
         console.log(`  📚 Using cached: ${file.description}`);
         return fs.readFileSync(localPath, 'utf8');
     }
+
     try {
         const data = await downloadFromUrl(file.url);
         console.log(`  ✅ Downloaded: ${file.description}`);
@@ -399,11 +404,19 @@ async function buildPerchanceFile() {
         const scssContent = readFile(SOURCE_FILES[1].name, SOURCE_FILES[1].description);
         const profileComponentContent = readFile(SOURCE_FILES[2].name, SOURCE_FILES[2].description);
         const hideElContent = readFile(SOURCE_FILES[3].name, SOURCE_FILES[3].description);
-        const jsContent = readFile(SOURCE_FILES[4].name, SOURCE_FILES[4].description);
+        let jsContent = readFile(SOURCE_FILES[4].name, SOURCE_FILES[4].description);
+
         const componentContents = COMPONENT_FILES.map(file => ({
             ...file,
             content: readFile(file.name, file.description)
         }));
+
+        for (const file of componentContents) {
+            const optimized = await minifyJS(file.content);
+            const dataUrl = `data:text/javascript;base64,${Buffer.from(optimized).toString('base64')}`;
+            jsContent = jsContent.replace(`'${file.placeholder}'`, `'${dataUrl}'`);
+        }
+
         
         // Compile SCSS to CSS
         const compiledCSS = compileSass(SOURCE_FILES[1].name);

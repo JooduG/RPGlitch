@@ -52,3 +52,5 @@
 - Build script now discovers every component in `components/`, minifies them, and writes them beside the Perchance output so dynamic imports stay offline-friendly.
 - Card hover effect uses a short wiggle animation with accent glow for an extra playful touch.
 - Centered alignment in `.chin-actions-left` keeps the search field level with action buttons.
+- Component modules are converted to data URLs during build, letting dynamic imports resolve without extra files.
+- Hovering over cards now triggers a border-glow pulse via a pseudo-element overlay.
