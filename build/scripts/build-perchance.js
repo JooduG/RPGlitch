@@ -123,6 +123,7 @@ const COMPONENT_FILES = fs.readdirSync(COMPONENTS_DIR)
         description: `${f} component`
     }));
 
+
 /**
  * Downloads content from a URL
  * @param {string} url - URL to download from
@@ -155,23 +156,21 @@ function downloadFromUrl(url) {
  * @param {{url: string, local: string, description: string}} file
  * @returns {Promise<string>} file contents
  */
+
 async function downloadWithFallback(file) {
     const localPath = path.join(__dirname, '../local_libs', file.local);
-
     if (offline && fs.existsSync(localPath)) {
+
         console.log(`  📚 Using cached: ${file.description}`);
         return fs.readFileSync(localPath, 'utf8');
     }
-
     if (offline) {
         throw new Error(`Offline mode enabled and local copy missing for ${file.description}`);
     }
-
     if (fs.existsSync(localPath) && !forceDownload) {
         console.log(`  📚 Using cached: ${file.description}`);
         return fs.readFileSync(localPath, 'utf8');
     }
-
     try {
         const data = await downloadFromUrl(file.url);
         console.log(`  ✅ Downloaded: ${file.description}`);
@@ -192,6 +191,7 @@ async function downloadWithFallback(file) {
  * Downloads and inlines external CSS files
  * @returns {Promise<string>} Combined CSS content
  */
+
 async function getExternalCSS() {
     console.log('📥 Downloading external CSS files...');
     let combinedCSS = '';
@@ -415,6 +415,7 @@ async function buildPerchanceFile() {
         // Optimize CSS and JavaScript
         const optimizedCSS = await optimizeCSS(combinedCSS);
         const optimizedJS = await minifyJS(combinedJS);
+        const optimizedEntityForm = await minifyJS(entityFormContent);
 
         // Create final HTML
         const finalHtml = htmlContent
@@ -431,22 +432,17 @@ async function buildPerchanceFile() {
 
         const componentDir = path.join(__dirname, '../output/components');
         fs.mkdirSync(componentDir, { recursive: true });
-
         let componentsSize = 0;
         for (const file of componentContents) {
             const optimized = await minifyJS(file.content);
             fs.writeFileSync(path.join(componentDir, file.output), optimized, 'utf8');
             componentsSize += optimized.length;
         }
-
         buildMetrics.totalSize = minifiedHtml.length + componentsSize;
-        
         console.log(`\n✅ Build completed successfully!`);
         console.log(`📁 Output: ${outputPath}`);
         console.log(`📊 File size: ${(minifiedHtml.length / 1024).toFixed(2)} KB`);
-        
         printBuildMetrics();
-        
     } catch (error) {
         console.error(`\n❌ Build failed: ${error.message}`);
         printBuildMetrics();
