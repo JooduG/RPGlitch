@@ -726,6 +726,7 @@ input[type="file"] {
 }
 
 
+
 #storyboard-grid {
   height: 260px;
   min-height: 260px;
@@ -759,13 +760,6 @@ input[type="file"] {
 
 #storyboard-grid select option {
   text-align: left;
-}
-
-.storyboard-picker:not([hidden]) {
-  position: absolute;
-  top: .5rem;
-  right: .5rem;
-  opacity: 1;
 }
 
 .storyboard-card {
