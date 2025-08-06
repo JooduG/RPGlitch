@@ -507,12 +507,19 @@ App._defaultStoryboardTitle = function () {
   const user = getTitle('storyboard-user-select', 'characters');
   const world = getTitle('storyboard-world-select', 'worlds');
   const selections = [ai, user].filter(Boolean);
+  const subjects = [ai, user].filter(Boolean).join(' & ');
+
   let title;
-  if (!ai && !user && !world) title = 'Your story begins…';
-  else if (ai && user && world) title = `${randPrompt()} ${ai} & ${user} in ${world}`;
-  else if (selections.length === 1) title = `${randPrompt()} ${selections[0]}`;
-  else if (selections.length === 2) title = `${randPrompt()} ${selections[0]} & ${selections[1]}`;
-  else title = 'Your story begins…';
+  if (subjects && world) {
+    title = `${randPrompt()} ${subjects} in ${world}`;
+  } else if (subjects) {
+    title = `${randPrompt()} ${subjects}`;
+  } else if (world) {
+    title = `${randPrompt()} a story in ${world}`;
+  } else {
+    title = 'Your story begins…';
+  }
+
   return title.length > 80 ? `${title.slice(0, 77)}…` : title;
 };
 
