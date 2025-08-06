@@ -323,16 +323,14 @@ function renderList(containerId, key) {
 function renderDropdown(selectId, key) {
   const select = document.getElementById(selectId);
   if (!select) return;
-  const existingPlaceholder = select.querySelector('option[value=""]');
-  const placeholderText = existingPlaceholder
-    ? existingPlaceholder.textContent
-    : select.dataset.placeholder || '';
-  select.dataset.placeholder = placeholderText;
-  const placeholder = existingPlaceholder
-    ? existingPlaceholder.cloneNode(true)
-    : document.createElement('option');
-  placeholder.value = '';
-  placeholder.textContent = placeholderText;
+  if (!select._placeholderTemplate) {
+    const original = select.querySelector('option[value=""]');
+    const template = original ? original.cloneNode(true) : document.createElement('option');
+    template.value = '';
+    template.textContent = original ? original.textContent : (select.getAttribute('aria-label') || '');
+    select._placeholderTemplate = template;
+  }
+  const placeholder = select._placeholderTemplate.cloneNode(true);
   select.textContent = '';
   select.appendChild(placeholder);
   const items = App.getAllItems(key);
@@ -457,24 +455,26 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
 App._storyboardTitleCustom = App._storyboardTitleCustom || false;
 
 App._defaultStoryboardTitle = function () {
-  const getTitle = (id, key) => {
+  const getItem = (id, key) => {
     const select = document.getElementById(id);
     const value = select ? select.value : '';
     if (!value) return null;
-    const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
-    return item ? item.title || null : null;
+    return App.getAllItems(key).find((i) => (i.id ?? i.title) === value) || null;
   };
-  const ai = getTitle('storyboard-ai-select', 'characters');
-  const user = getTitle('storyboard-user-select', 'characters');
-  const world = getTitle('storyboard-world-select', 'worlds');
+  const ai = getItem('storyboard-ai-select', 'characters');
+  const user = getItem('storyboard-user-select', 'characters');
+  const world = getItem('storyboard-world-select', 'worlds');
   const selections = [ai, user, world].filter(Boolean);
   if (selections.length === 0) return 'Your story begins…';
-  if (selections.length === 1) return selections[0];
+  if (selections.length === 1) return selections[0].title || 'Your story begins…';
   if (selections.length === 2) {
-    if (!world) return `${ai || user} and ${user || ai}`;
-    return `${ai || user} on ${world}`;
+    if (ai && user) return `${ai.title} and ${user.title}`;
+    if (world && (ai || user)) {
+      const character = ai || user;
+      return `${character.title} on ${world.title}`;
+    }
   }
-  return `${ai} and ${user} on ${world}`;
+  return `${ai?.title || 'AI Character'} and ${user?.title || 'User Character'} in ${world?.title || 'World'}`;
 };
 
 App.updateStoryboardTitle = function () {
@@ -541,7 +541,7 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
       const handler = () => App.updateStoryboardCard(id, key);
       select.addEventListener('change', handler);
       select.addEventListener('blur', handler);
-      App.updateStoryboardCard(id, key);
+      App.updateStoryboardCard(select, key);
     }
   });
   App._setupStoryboardTitle();
