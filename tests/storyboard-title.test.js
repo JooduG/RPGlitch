@@ -51,10 +51,10 @@ test('default storyboard title adapts to selections', () => {
   dom.window.Math.random = () => 0;
   expect(App._defaultStoryboardTitle()).toBe('Your story begins…');
   document.getElementById('storyboard-ai-select').value = 'a1';
-  expect(App._defaultStoryboardTitle()).toBe('The story of Alice');
+  expect(App._defaultStoryboardTitle()).toBe('Once upon a time Alice');
   document.getElementById('storyboard-user-select').value = 'u1';
-  expect(App._defaultStoryboardTitle()).toBe('The story of Alice & Bob');
+  expect(App._defaultStoryboardTitle()).toBe('Once upon a time Alice & Bob');
   document.getElementById('storyboard-world-select').value = 'w1';
-  expect(App._defaultStoryboardTitle()).toBe('Alice & Bob in Mars');
+  expect(App._defaultStoryboardTitle()).toBe('Once upon a time Alice & Bob in Mars');
   dom.window.Math.random = originalRandom;
 });

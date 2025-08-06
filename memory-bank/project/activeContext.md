@@ -72,3 +72,8 @@
 - Story title uses a flex wrapper, supports contentEditable editing, and resets on double-click.
 - Default titles draw from playful prompts and handle up to three selections.
 - Top-bar buttons share unified sizing and a shuffle control randomizes storyboard picks.
+- Storyboard card titles reveal the dropdown on click, enabling quick reselection without losing heading styling.
+- Editing a card title applies a `card-title--editing` class that preserves heading styles with a dashed outline.
+- Storyboard titles always prepend a playful prompt, remain centered, and use balanced text wrapping.
+- `getPictureClass` now returns `profile-picture` classes for chin and storyboard contexts, restoring avatar display.
+- Unified docs explicitly reference the **ANALYSE → PLAN → CODE** terminology.

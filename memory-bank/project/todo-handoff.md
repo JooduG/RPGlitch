@@ -31,3 +31,8 @@
 - [x] Keep storyboard headers persistent and restore dropdown placeholders.
 - [x] Allow editing of card headers without style regression.
 - [x] Add shuffle button and unified top-bar control sizing.
+- [x] Restore storyboard dropdown access by revealing selects on title click.
+- [x] Preserve heading style during inline editing via `card-title--editing`.
+- [x] Prefix dynamic storyboard titles with fun prompts and center with balanced wrapping.
+- [x] Apply `profile-picture` classes to avatar images so chin and storyboard cards show pictures.
+- [x] Update unified docs to use **ANALYSE → PLAN → CODE** wording.
