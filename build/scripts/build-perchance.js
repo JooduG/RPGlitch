@@ -49,6 +49,7 @@ const forceDownload = args.includes('--force');
  * - Compiles SCSS to CSS
  * - Inlines local JavaScript files
  * - Embeds component modules as data URLs for dynamic import
+
  * - Creates self-contained output file
  * 
  * Usage: node build-perchance.js [--offline] [--force]
@@ -156,6 +157,7 @@ function downloadFromUrl(url) {
  * @param {{url: string, local: string, description: string}} file
  * @returns {Promise<string>} file contents
  */
+
 async function downloadWithFallback(file) {
     const localPath = path.join(__dirname, '../local_libs', file.local);
 
@@ -167,6 +169,7 @@ async function downloadWithFallback(file) {
     if (offline) {
         throw new Error(`Offline mode enabled and local copy missing for ${file.description}`);
     }
+
 
     if (fs.existsSync(localPath) && !forceDownload) {
         console.log(`  📚 Using cached: ${file.description}`);
@@ -193,6 +196,7 @@ async function downloadWithFallback(file) {
  * Downloads and inlines external CSS files
  * @returns {Promise<string>} Combined CSS content
  */
+
 async function getExternalCSS() {
     console.log('📥 Downloading external CSS files...');
     let combinedCSS = '';
@@ -401,6 +405,7 @@ async function buildPerchanceFile() {
         const profileComponentContent = readFile(SOURCE_FILES[2].name, SOURCE_FILES[2].description);
         const hideElContent = readFile(SOURCE_FILES[3].name, SOURCE_FILES[3].description);
         let jsContent = readFile(SOURCE_FILES[4].name, SOURCE_FILES[4].description);
+
         const componentContents = COMPONENT_FILES.map(file => ({
             ...file,
             content: readFile(file.name, file.description)
@@ -411,6 +416,7 @@ async function buildPerchanceFile() {
             const dataUrl = `data:text/javascript;base64,${Buffer.from(optimized).toString('base64')}`;
             jsContent = jsContent.replace(`'${file.placeholder}'`, `'${dataUrl}'`);
         }
+
         
         // Compile SCSS to CSS
         const compiledCSS = compileSass(SOURCE_FILES[1].name);
@@ -422,6 +428,7 @@ async function buildPerchanceFile() {
         // Optimize CSS and JavaScript
         const optimizedCSS = await optimizeCSS(combinedCSS);
         const optimizedJS = await minifyJS(combinedJS);
+        const optimizedEntityForm = await minifyJS(entityFormContent);
 
         // Create final HTML
         const finalHtml = htmlContent
@@ -436,14 +443,19 @@ async function buildPerchanceFile() {
         const outputPath = path.join(__dirname, '../output/RPGlitch-perchance.html');
         fs.writeFileSync(outputPath, minifiedHtml, 'utf8');
 
-        buildMetrics.totalSize = minifiedHtml.length;
-        
+        const componentDir = path.join(__dirname, '../output/components');
+        fs.mkdirSync(componentDir, { recursive: true });
+        let componentsSize = 0;
+        for (const file of componentContents) {
+            const optimized = await minifyJS(file.content);
+            fs.writeFileSync(path.join(componentDir, file.output), optimized, 'utf8');
+            componentsSize += optimized.length;
+        }
+        buildMetrics.totalSize = minifiedHtml.length + componentsSize;
         console.log(`\n✅ Build completed successfully!`);
         console.log(`📁 Output: ${outputPath}`);
         console.log(`📊 File size: ${(minifiedHtml.length / 1024).toFixed(2)} KB`);
-        
         printBuildMetrics();
-        
     } catch (error) {
         console.error(`\n❌ Build failed: ${error.message}`);
         printBuildMetrics();

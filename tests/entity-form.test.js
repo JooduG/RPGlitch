@@ -1,6 +1,6 @@
 const {
   openEntityModal
-} = require('../apps/rpglitch/components/entity-form.js');
+} = require('../apps/rpglitch/js-imports/entity-form.js');
 
 describe('entity-form modal', () => {
   test('closes when cancel event fires', () => {
