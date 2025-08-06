@@ -47,3 +47,10 @@
 - Centralizing workflow instructions in `CONTRIBUTING.md` reduces duplication across docs.
 - Building entity modals with `createElement` and relying on the dialog `cancel` event removes redundant keydown listeners and prevents XSS from `innerHTML`.
 - Per-entity modal files were removed in favor of a single reusable component and a simplified export map.
+- Offline build mode caches dependencies and skips network requests when flagged.
+- Card hover animations rely on transforms and shadows to provide playful feedback with minimal code.
+- Build script now discovers every component in `components/`, minifies them, and writes them beside the Perchance output so dynamic imports stay offline-friendly.
+- Card hover effect uses a short wiggle animation with accent glow for an extra playful touch.
+- Centered alignment in `.chin-actions-left` keeps the search field level with action buttons.
+- Component modules are converted to data URLs during build, letting dynamic imports resolve without extra files.
+- Hovering over cards now triggers a border-glow pulse via a pseudo-element overlay.
