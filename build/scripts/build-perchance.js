@@ -151,19 +151,15 @@ function downloadFromUrl(url) {
  */
 async function downloadWithFallback(file) {
     const localPath = path.join(__dirname, '../local_libs', file.local);
+    const localFileExists = fs.existsSync(localPath);
 
-    if (offline && fs.existsSync(localPath)) {
+    if (localFileExists && (offline || !forceDownload)) {
         console.log(`  📚 Using cached: ${file.description}`);
         return fs.readFileSync(localPath, 'utf8');
     }
 
-    if (offline) {
+    if (offline && !localFileExists) {
         throw new Error(`Offline mode enabled and local copy missing for ${file.description}`);
-    }
-
-    if (fs.existsSync(localPath) && !forceDownload) {
-        console.log(`  📚 Using cached: ${file.description}`);
-        return fs.readFileSync(localPath, 'utf8');
     }
 
     try {
@@ -174,7 +170,7 @@ async function downloadWithFallback(file) {
     } catch (error) {
         console.warn(`  ⚠️ Failed to download ${file.description}: ${error.message}`);
         buildMetrics.errors.push(`${file.description} downloaded from local fallback`);
-        if (fs.existsSync(localPath)) {
+        if (localFileExists) {
             console.log(`  📚 Using cached fallback: ${file.description}`);
             return fs.readFileSync(localPath, 'utf8');
         }
