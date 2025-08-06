@@ -391,12 +391,12 @@ input[type="file"] {
   margin: 0 0 0.5em;
 }
 
-.picture { 
+.profile-picture {
   background-position: center;
   background-size: cover;
   box-shadow: var(--shadow-sm);
   border: none;
-  object-fit: cover;  
+  object-fit: cover;
   width: 100%;
   height: 100%;
   display: flex;
@@ -411,6 +411,10 @@ input[type="file"] {
   margin: 0;
   font-size: 1.1rem;
   border-radius: 0;
+}
+
+.chin-card-left .profile-picture {
+  height: 150px;
 }
 
 
@@ -695,12 +699,29 @@ input[type="file"] {
   justify-content: center;
   min-height: 3rem;
   margin: 1.5rem 2rem 2rem;
-  padding: 2rem; 
+  padding: 2rem;
   cursor: pointer;
 }
 
 #storyboard-title:focus {
   cursor: text;
+}
+
+#storyboard-title:hover {
+  text-decoration: underline dotted;
+}
+
+#storyboard-title-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  margin: 1.5rem 2rem 2rem;
+  padding: 2rem;
+  text-align: center;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid currentcolor;
 }
 
 #storyboard-grid {

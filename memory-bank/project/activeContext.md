@@ -62,3 +62,7 @@
 - Card hover effect gains a border glow pulse for extra fun.
 - Build script now auto-detects root JS modules so reorganized files bundle automatically.
 - Card hover adds a radial highlight via a `::before` pseudo-element for a playful pop.
+- Profile pictures display on chin and storyboard cards, using placeholder initials when no image exists.
+- Storyboard title auto-generates from selected cards, converts to an input on click, and resets on double-click.
+- Storyboard selects restore heading styling on blur to avoid list-style regression.
+- 

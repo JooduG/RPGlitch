@@ -51,3 +51,6 @@
 - Card hover now pulses a glowing border via a pseudo-element for extra playfulness.
 - Build script now auto-discovers root-level JS files, ensuring reorganized scripts bundle automatically.
 - Card hover gains a radial highlight for an extra playful pop.
+- Profile pictures now render on chin and storyboard cards with placeholder generation.
+- Dynamic storyboard title auto-updates from card selections, becomes editable on click, and resets on double-click.
+- Storyboard dropdowns call `updateStoryboardCard` on blur to maintain heading style.
