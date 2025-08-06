@@ -69,3 +69,4 @@
 - Added zero vertical padding to `.topbar-search` to align search field with buttons.
 - Storyboard title container now uses flex with fixed height and ellipsis to stop layout jumps.
 - Dropped unconditional select hiding in storyboard cards, allowing dropdowns to reopen on title click.
+- Auto-generated storyboard titles are truncated at 80 characters to prevent overflow.
