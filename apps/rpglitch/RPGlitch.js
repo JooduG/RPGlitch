@@ -323,14 +323,16 @@ function renderList(containerId, key) {
 function renderDropdown(selectId, key) {
   const select = document.getElementById(selectId);
   if (!select) return;
-  if (!select._placeholderTemplate) {
-    const original = select.querySelector('option[value=""]');
-    const template = original ? original.cloneNode(true) : document.createElement('option');
-    template.value = '';
-    template.textContent = original ? original.textContent : (select.getAttribute('aria-label') || '');
-    select._placeholderTemplate = template;
-  }
-  const placeholder = select._placeholderTemplate.cloneNode(true);
+  const existingPlaceholder = select.querySelector('option[value=""]');
+  const placeholderText = existingPlaceholder
+    ? existingPlaceholder.textContent
+    : select.dataset.placeholder || '';
+  select.dataset.placeholder = placeholderText;
+  const placeholder = existingPlaceholder
+    ? existingPlaceholder.cloneNode(true)
+    : document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = placeholderText;
   select.textContent = '';
   select.appendChild(placeholder);
   const items = App.getAllItems(key);
@@ -366,7 +368,7 @@ App.refreshAllLists = App.refreshAllLists || function () {
   App.renderDropdown?.('storyboard-ai-select', 'characters');
   App.renderDropdown?.('storyboard-user-select', 'characters');
   App.renderDropdown?.('storyboard-world-select', 'worlds');
-  App.updateStoryboardTitle?.();
+  App.setDynamicTitle?.();
 };
 
 App.renderStoryList = App.renderStoryList || function () {
@@ -429,9 +431,22 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         heading = document.createElement('h4');
         heading.className = 'card-title';
         heading.addEventListener('click', () => {
-          select.hidden = false;
-          heading.hidden = true;
-          select.focus();
+          heading.contentEditable = 'true';
+          heading.classList.add('card-title-selected');
+          const sel = window.getSelection();
+          if (sel) {
+            const range = document.createRange();
+            range.selectNodeContents(heading);
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+          heading.focus();
+        });
+        heading.addEventListener('blur', () => {
+          heading.contentEditable = 'false';
+          heading.classList.remove('card-title-selected');
+          if (item) item.title = heading.textContent.trim();
+          App.setDynamicTitle?.();
         });
         headerEl.appendChild(heading);
       }
@@ -449,83 +464,73 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     select.hidden = false;
     if (heading) heading.hidden = true;
   }
-  App.updateStoryboardTitle?.();
+  App.setDynamicTitle?.();
 };
 
-App._storyboardTitleCustom = App._storyboardTitleCustom || false;
+const titlePrompts = ['The story of', 'Once upon a time', 'Legend speaks of'];
+
+function randPrompt() {
+  return titlePrompts[Math.floor(Math.random() * titlePrompts.length)];
+}
 
 App._defaultStoryboardTitle = function () {
-  const getItem = (id, key) => {
+  const getTitle = (id, key) => {
     const select = document.getElementById(id);
     const value = select ? select.value : '';
     if (!value) return null;
-    return App.getAllItems(key).find((i) => (i.id ?? i.title) === value) || null;
+    const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
+    return item ? item.title || null : null;
   };
-  const ai = getItem('storyboard-ai-select', 'characters');
-  const user = getItem('storyboard-user-select', 'characters');
-  const world = getItem('storyboard-world-select', 'worlds');
-  const selections = [ai, user, world].filter(Boolean);
-  if (selections.length === 0) return 'Your story begins…';
-  if (selections.length === 1) return selections[0].title || 'Your story begins…';
-  if (selections.length === 2) {
-    if (ai && user) return `${ai.title} and ${user.title}`;
-    if (world && (ai || user)) {
-      const character = ai || user;
-      return `${character.title} on ${world.title}`;
-    }
-  }
-  return `${ai?.title || 'AI Character'} and ${user?.title || 'User Character'} in ${world?.title || 'World'}`;
+  const ai = getTitle('storyboard-ai-select', 'characters');
+  const user = getTitle('storyboard-user-select', 'characters');
+  const world = getTitle('storyboard-world-select', 'worlds');
+  const selections = [ai, user].filter(Boolean);
+  if (!ai && !user && !world) return 'Your story begins…';
+  if (ai && user && world) return `${ai} & ${user} in ${world}`;
+  if (selections.length === 1) return `${randPrompt()} ${selections[0]}`;
+  if (selections.length === 2) return `${randPrompt()} ${selections[0]} & ${selections[1]}`;
+  return 'Your story begins…';
 };
 
-App.updateStoryboardTitle = function () {
-  if (App._storyboardTitleCustom) return;
-  const titleEl = document.getElementById('storyboard-title');
-  if (!titleEl) return;
+App.setDynamicTitle = function () {
+  const titleEl = document.getElementById('story-title');
+  if (!titleEl || titleEl.dataset.manual === 'true') return;
+
   titleEl.textContent = App._defaultStoryboardTitle();
 };
 
 App._setupStoryboardTitle = function () {
-  const container = document.getElementById('storyboard-title-container');
-  const titleEl = document.getElementById('storyboard-title');
-  if (!container || !titleEl) return;
-
-  // Prevent re-attaching listeners if already done.
+  const titleEl = document.getElementById('story-title');
+  if (!titleEl) return;
   if (titleEl.dataset.editable) return;
   titleEl.dataset.editable = 'true';
 
-  const input = document.createElement('input');
-  input.id = 'storyboard-title-input';
-  input.type = 'text';
-  input.hidden = true;
-  container.appendChild(input);
-
   const finishEditing = () => {
-    const newTitle = input.value.trim();
-    App._storyboardTitleCustom = newTitle.length > 0 && newTitle !== App._defaultStoryboardTitle();
-    titleEl.textContent = App._storyboardTitleCustom ? newTitle : App._defaultStoryboardTitle();
-    input.hidden = true;
-    titleEl.hidden = false;
+    titleEl.contentEditable = 'false';
     App._editingStoryboardTitle = false;
   };
 
   titleEl.addEventListener('click', () => {
     if (App._editingStoryboardTitle) return;
     App._editingStoryboardTitle = true;
-    input.value = titleEl.textContent.trim();
-    titleEl.hidden = true;
-    input.hidden = false;
-    input.focus();
-    input.select();
+    titleEl.contentEditable = 'true';
+    titleEl.dataset.manual = 'true';
+    const sel = window.getSelection();
+    if (sel) {
+      const range = document.createRange();
+      range.selectNodeContents(titleEl);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+    titleEl.focus();
   });
 
-  titleEl.addEventListener('dblclick', () => {
-    App._storyboardTitleCustom = false;
-    App.updateStoryboardTitle();
-  });
-
-  input.addEventListener('blur', finishEditing);
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') input.blur();
+  titleEl.addEventListener('blur', finishEditing);
+  titleEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      titleEl.blur();
+    }
   });
 };
 
@@ -541,10 +546,35 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
       const handler = () => App.updateStoryboardCard(id, key);
       select.addEventListener('change', handler);
       select.addEventListener('blur', handler);
-      App.updateStoryboardCard(select, key);
+      App.updateStoryboardCard(id, key);
     }
   });
   App._setupStoryboardTitle();
+  const title = document.getElementById('story-title');
+  if (title) {
+    title.addEventListener('dblclick', () => {
+      if (title.dataset.manual === 'true') {
+        title.dataset.manual = '';
+        App.setDynamicTitle();
+      }
+    });
+  }
+  const shuffleBtn = document.getElementById('shuffle-btn');
+  if (shuffleBtn) {
+    shuffleBtn.addEventListener('click', () => {
+      document.querySelectorAll('select.storyboard-picker').forEach((select) => {
+        const opts = select.querySelectorAll('option:not([value=""])');
+        if (opts.length > 0) {
+          const idx = Math.floor(Math.random() * opts.length);
+          select.selectedIndex = idx + 1;
+          select.dispatchEvent(new Event('change'));
+        }
+      });
+      const t = document.getElementById('story-title');
+      if (t && !t.dataset.manual) App.setDynamicTitle();
+    });
+  }
+  App.setDynamicTitle();
 };
 
 // Track attached listeners to avoid duplicates

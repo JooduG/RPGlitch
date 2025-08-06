@@ -9,7 +9,8 @@
 function hideEl(el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
-  el.hidden = true;
+  el.setAttribute('hidden', 'hidden');
+
   return el;
 }
 
@@ -22,7 +23,8 @@ function hideEl(el) {
 function showEl(el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
-  el.hidden = false;
+  el.removeAttribute('hidden');
+
   return el;
 }
 

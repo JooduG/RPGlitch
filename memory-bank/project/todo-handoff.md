@@ -27,7 +27,7 @@
 - [x] Enhance chin and storyboard card hover animations.
 - [x] Auto-bundle component modules in build script for dynamic imports.
 - [x] Align chin search field and button heights.
-- [x] Storyboard titles reflect current selections from initial page load.
-- [x] Profile pictures render correctly on chin and storyboard cards.
-- [x] Storyboard headers remain visible after selection changes.
-- [x] Dropdown placeholder text restores reliably after resets.
+- [x] Replace profile picture helper with `getPictureHTML` in lists and storyboard cards.
+- [x] Keep storyboard headers persistent and restore dropdown placeholders.
+- [x] Allow editing of card headers without style regression.
+- [x] Add shuffle button and unified top-bar control sizing.

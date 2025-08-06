@@ -65,7 +65,10 @@
 - Profile pictures display on chin and storyboard cards, using placeholder initials when no image exists.
 - Storyboard title auto-generates from selected cards, converts to an input on click, and resets on double-click.
 - Storyboard selects restore heading styling on blur to avoid list-style regression.
-- Storyboard title logic handles zero, one, or two selections and updates cards on load.
-- Profile pictures render via `getPictureHTML`, with script loaded before main app.
-- Storyboard card headings reuse existing elements to prevent disappearing titles.
-- Dropdown placeholders clone original labels for consistent resets.
+- Storyboard title now adapts to partial selections and calls `updateStoryboardCard` for initial headings.
+- Profile pictures render via `getPictureHTML` on chin and storyboard cards.
+- Storyboard card headings persist without removal, and dropdown placeholders retain original labels.
+- Card headers now enter content-edit mode without adopting dropdown styles.
+- Story title uses a flex wrapper, supports contentEditable editing, and resets on double-click.
+- Default titles draw from playful prompts and handle up to three selections.
+- Top-bar buttons share unified sizing and a shuffle control randomizes storyboard picks.

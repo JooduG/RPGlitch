@@ -154,6 +154,19 @@ input[type="file"] {
   gap: 1rem;
 }
 
+.topbar-search {
+  height: 2.5rem;
+  line-height: 2.5rem;
+  padding-inline: 0.75rem;
+  border-radius: var(--pico-radius);
+}
+
+.topbar-button {
+  height: 2.5rem;
+  line-height: 2.5rem;
+  border-radius: var(--pico-radius);
+}
+
                         a:not([disabled]),
                     label:not([disabled]),
                    select:not([disabled]),
@@ -413,8 +426,12 @@ input[type="file"] {
   border-radius: 0;
 }
 
-.chin-card-left .profile-picture {
-  height: 150px;
+.chin-card-left .profile-picture,
+.storyboard-card-left .profile-picture {
+  width: 4rem;
+  height: 4rem;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .storyboard-card-left .profile-picture {
@@ -697,35 +714,28 @@ input[type="file"] {
   position: relative;
 }
 
-#storyboard-title {
+#story-title-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
+}
+
+#story-title {
+  display: block;
+  max-width: 100%;
   min-height: 3rem;
   margin: 1.5rem 2rem 2rem;
   padding: 2rem;
   cursor: pointer;
 }
 
-#storyboard-title:focus {
+#story-title[contenteditable] {
+  outline: none;
+  white-space: normal;
   cursor: text;
 }
 
-#storyboard-title:hover {
+#story-title:hover {
   text-decoration: underline dotted;
-}
-
-#storyboard-title-input {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 3rem;
-  margin: 1.5rem 2rem 2rem;
-  padding: 2rem;
-  text-align: center;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid currentcolor;
 }
 
 #storyboard-grid {
