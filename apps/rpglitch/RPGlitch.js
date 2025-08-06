@@ -431,6 +431,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         heading = document.createElement('h4');
         heading.className = 'card-title';
         heading.addEventListener('click', () => {
+
           const isHidden = select.hasAttribute('hidden');
           select.hidden = !isHidden;
           if (isHidden) {
@@ -445,6 +446,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
             }
             heading.focus();
           } else {
+
             heading.contentEditable = 'false';
             heading.classList.remove('card-title--editing');
             if (item) item.title = heading.textContent.trim();
@@ -454,7 +456,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         heading.addEventListener('blur', () => {
           heading.contentEditable = 'false';
           heading.classList.remove('card-title--editing');
-          if (document.activeElement !== select) select.hidden = true;
           if (item) item.title = heading.textContent.trim();
           App.setDynamicTitle?.();
         });
