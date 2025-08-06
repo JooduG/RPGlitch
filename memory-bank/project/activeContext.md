@@ -80,3 +80,4 @@
 - Applied `padding-block: 0` to `.topbar-search` to eliminate extra vertical space.
 - Wrapped `#story-title` in a flex container with fixed height and ellipsis to prevent layout shifts.
 - Removed forced hiding of storyboard selects so clicking a card title reveals the dropdown again.
+- Auto-generated storyboard titles now clamp to 80 characters to prevent overflow.
