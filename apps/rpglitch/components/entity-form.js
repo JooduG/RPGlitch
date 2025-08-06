@@ -67,4 +67,3 @@
   global.openCharacterModal = openCharacterModal;
   global.openWorldModal = openWorldModal;
 })(typeof window !== 'undefined' ? window : globalThis);
-

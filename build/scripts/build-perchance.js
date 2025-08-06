@@ -110,9 +110,10 @@ const EXTERNAL_JS_FILES = [
 const SOURCE_FILES = [
     { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.html'), type: 'html', description: 'Main HTML structure' },
     { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.scss'), type: 'sass', description: 'Main Sass stylesheet' },
-    { name: path.join(__dirname, '../../apps/rpglitch/ProfilePictureComponent.js'), type: 'component', description: 'Profile Picture rendering logic' },
-    { name: path.join(__dirname, '../../apps/rpglitch/utils.js'), type: 'script', description: 'Utility functions' },
-    { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.js'), type: 'script', description: 'JavaScript logic' }
+    { name: path.join(__dirname, '../../apps/rpglitch/RPGlitch.js'), type: 'script', description: 'Main JavaScript logic' },
+    { name: path.join(__dirname, '../../apps/rpglitch/components/utils.js'), type: 'component', description: 'Utility functions' },
+    { name: path.join(__dirname, '../../apps/rpglitch/components/picture.js'), type: 'component', description: 'Profile Picture rendering logic' },
+    { name: path.join(__dirname, '../../apps/rpglitch/components/entity-form.js'), type: 'component', description: 'Entity form logic' }
 ];
 
 const COMPONENTS_DIR = path.join(__dirname, '../../apps/rpglitch/components');
@@ -122,7 +123,7 @@ const COMPONENT_FILES = fs.readdirSync(COMPONENTS_DIR)
         name: path.join(COMPONENTS_DIR, f),
         output: f,
         placeholder: `__${f.replace(/\.js$/, '').replace(/[-.]/g, '_').toUpperCase()}__`,
-        description: `${f} component`
+        description: `${f} components`
     }));
 
 /**
@@ -402,9 +403,9 @@ async function buildPerchanceFile() {
         // Read and process source files
         const htmlContent = readFile(SOURCE_FILES[0].name, SOURCE_FILES[0].description);
         const scssContent = readFile(SOURCE_FILES[1].name, SOURCE_FILES[1].description);
-        const profileComponentContent = readFile(SOURCE_FILES[2].name, SOURCE_FILES[2].description);
-        const hideElContent = readFile(SOURCE_FILES[3].name, SOURCE_FILES[3].description);
-        let jsContent = readFile(SOURCE_FILES[4].name, SOURCE_FILES[4].description);
+            let jsContent = readFile(SOURCE_FILES[3].name, SOURCE_FILES[3].description);
+        const hideElContent = readFile(SOURCE_FILES[4].name, SOURCE_FILES[4].description);
+        const profileComponentContent = readFile(SOURCE_FILES[5].name, SOURCE_FILES[5].description);
 
         const componentContents = COMPONENT_FILES.map(file => ({
             ...file,
@@ -428,7 +429,6 @@ async function buildPerchanceFile() {
         // Optimize CSS and JavaScript
         const optimizedCSS = await optimizeCSS(combinedCSS);
         const optimizedJS = await minifyJS(combinedJS);
-        const optimizedEntityForm = await minifyJS(entityFormContent);
 
         // Create final HTML
         const finalHtml = htmlContent
