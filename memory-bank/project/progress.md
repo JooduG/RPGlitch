@@ -54,3 +54,7 @@
 - Profile pictures now render on chin and storyboard cards with placeholder generation.
 - Dynamic storyboard title auto-updates from card selections, becomes editable on click, and resets on double-click.
 - Storyboard dropdowns call `updateStoryboardCard` on blur to maintain heading style.
+- Default storyboard titles adjust based on selections and cards initialize headings on load.
+- Profile picture helper updated to `getPictureHTML` with matching storyboard styles.
+- Storyboard headers persist by updating existing nodes instead of replacing them.
+- Dropdowns restore original placeholder text by cloning a stored template.

@@ -59,3 +59,7 @@
 - ProfilePictureComponent injects placeholder initials on cards when images are absent.
 - Storyboard title editing toggles between auto-generated text and custom input without losing dynamic updates.
 - Blur listeners on storyboard selects restore headings, preventing font/style drift after canceling.
+- Default storyboard titles derive from current selections and load with cards pre-populated.
+- Picture helper `getPictureHTML` supports context-specific sizes for chin and storyboard cards.
+- Reusing existing storyboard headings avoids DOM churn and keeps selects resettable.
+- Caching and cloning placeholder options preserves original dropdown labels.
