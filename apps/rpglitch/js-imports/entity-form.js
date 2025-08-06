@@ -46,8 +46,7 @@
       close();
     });
 
-    cancelButton.addEventListener('click', (e) => {
-      e.preventDefault();
+    cancelButton.addEventListener('click', () => {
       close();
     });
 
