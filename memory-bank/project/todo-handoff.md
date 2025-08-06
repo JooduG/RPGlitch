@@ -40,3 +40,4 @@
 - [x] Prevent storyboard title overflow by fixing container height and clipping long text.
 - [x] Fix dropdowns so titles can reopen hidden selects (HF-1).
 - [ ] Evaluate dropdown keyboard accessibility after toggle update.
+- [x] Cap auto-generated storyboard titles at 80 characters.

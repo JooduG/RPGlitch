@@ -418,12 +418,6 @@ input[type="file"] {
   object-fit: cover;
 }
 
-.storyboard-card-left .profile-picture {
-  width: 4rem;
-  height: 4rem;
-}
-
-
 .picture img {
   display: block;
 }
@@ -713,6 +707,7 @@ input[type="file"] {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: normal;
+  cursor: pointer;
 }
 
 #story-title[contenteditable] {
@@ -929,7 +924,6 @@ input[type="file"] {
   outline: 1px dashed var(--pico-primary);
   cursor: text;
 }
-/* stylelint-enable selector-class-pattern */
 
 @keyframes card-wiggle {
   0% {
