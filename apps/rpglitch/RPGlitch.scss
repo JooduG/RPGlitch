@@ -417,12 +417,6 @@ input[type="file"] {
   object-fit: cover;
 }
 
-.storyboard-card-left .profile-picture {
-  width: 4rem;
-  height: 4rem;
-}
-
-
 .picture img {
   display: block;
 }
@@ -720,6 +714,17 @@ input[type="file"] {
   cursor: text;
 }
 
+#story-title:hover {
+  text-decoration: underline dotted;
+}
+
+.storyboard-picker:not([hidden]) {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 1;
+}
+
 #storyboard-grid {
   height: 260px;
   min-height: 260px;
@@ -924,7 +929,6 @@ input[type="file"] {
   outline: 1px dashed var(--pico-primary);
   cursor: text;
 }
-/* stylelint-enable selector-class-pattern */
 
 @keyframes card-wiggle {
   0% {

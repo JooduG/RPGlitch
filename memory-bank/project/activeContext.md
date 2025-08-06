@@ -85,3 +85,5 @@
 - Card title editing keeps the base class and uses a dashed outline while active.
 - Picture helper prepends a `profile-picture` class so avatars size consistently.
 - Top bar search input matches button height with balanced padding.
+- Storyboard card titles now toggle dropdown visibility without layout jumps, and default titles truncate beyond 80 characters.
+- Auto-generated storyboard titles now clamp to 80 characters to prevent overflow.

@@ -44,3 +44,5 @@
 - [x] Keep card-title class during edits with dashed outline.
 - [x] Prepend `profile-picture` class for consistent avatar sizing.
 - [x] Set top-bar search input to 2.5rem height with balanced padding.
+- [ ] Evaluate dropdown keyboard accessibility after toggle update.
+- [x] Cap auto-generated storyboard titles at 80 characters.

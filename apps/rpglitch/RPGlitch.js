@@ -433,6 +433,9 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         heading.addEventListener('click', () => {
           select.hidden = !select.hidden;
           if (!select.hidden) {
+          const isHidden = select.hasAttribute('hidden');
+          select.hidden = !isHidden;
+          if (isHidden) {
             heading.contentEditable = 'true';
             heading.classList.add('card-title--editing');
             const sel = window.getSelection();
@@ -446,12 +449,15 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
           } else {
             heading.contentEditable = 'false';
             heading.classList.remove('card-title--editing');
+            heading.contentEditable = 'false';
+            heading.classList.remove('card-title--editing');
+            if (item) item.title = heading.textContent.trim();
+            App.setDynamicTitle?.();
           }
         });
         heading.addEventListener('blur', () => {
           heading.contentEditable = 'false';
           heading.classList.remove('card-title--editing');
-          if (document.activeElement !== select) select.hidden = true;
           if (item) item.title = heading.textContent.trim();
           App.setDynamicTitle?.();
         });
@@ -504,17 +510,20 @@ App._defaultStoryboardTitle = function () {
   const user = getTitle('storyboard-user-select', 'characters');
   const world = getTitle('storyboard-world-select', 'worlds');
   const selections = [ai, user].filter(Boolean);
+  const subjects = [ai, user].filter(Boolean).join(' & ');
+
   let title;
-  if (ai && user && world) {
-    title = `${randPrompt()} ${ai} & ${user} in ${world}`;
-  } else if (selections.length === 2) {
-    title = `${randPrompt()} ${selections[0]} & ${selections[1]}`;
-  } else if (selections.length === 1) {
-    title = `${randPrompt()} ${selections[0]}`;
+  if (subjects && world) {
+    title = `${randPrompt()} ${subjects} in ${world}`;
+  } else if (subjects) {
+    title = `${randPrompt()} ${subjects}`;
+  } else if (world) {
+    title = `${randPrompt()} a story in ${world}`;
   } else {
     title = 'Your story begins…';
   }
-  return title.length > 80 ? title.slice(0, 80) : title;
+
+  return title.length > 80 ? `${title.slice(0, 77)}…` : title;
 };
 
 App.setDynamicTitle = function () {
