@@ -366,7 +366,7 @@ This guide follows the **ANALYSE → PLAN → CODE** cycle.
 
 ## 📞 **GETTING HELP**
 
-### **When to Analyse for Help**
+### **When to Analyse**
 
 - **System completely unresponsive** after trying all solutions
 - **Persistent performance issues** that don't improve
