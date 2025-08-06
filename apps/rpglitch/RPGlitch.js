@@ -460,6 +460,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       }
       heading.textContent = item.title || '';
       heading.hidden = false;
+         if (document.activeElement === select && !heading.isContentEditable) select.hidden = true;
+
     }
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
