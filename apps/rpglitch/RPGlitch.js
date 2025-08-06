@@ -430,19 +430,25 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       if (!heading) {
         heading = document.createElement('h4');
         heading.className = 'card-title';
-        heading.addEventListener('click', () => {
-          select.hidden = false;
-          heading.contentEditable = 'true';
-          heading.classList.add('card-title--editing');
-          const sel = window.getSelection();
-          if (sel) {
-            const range = document.createRange();
-            range.selectNodeContents(heading);
-            sel.removeAllRanges();
-            sel.addRange(range);
-          }
-          heading.focus();
-        });
+          heading.addEventListener('click', () => {
+            select.hidden = !select.hidden;
+            if (select.hidden) {
+              heading.contentEditable = 'true';
+              heading.classList.add('card-title--editing');
+              const sel = window.getSelection();
+              if (sel) {
+                const range = document.createRange();
+                range.selectNodeContents(heading);
+                sel.removeAllRanges();
+                sel.addRange(range);
+              }
+              heading.focus();
+            } else {
+              heading.contentEditable = 'false';
+              heading.classList.remove('card-title--editing');
+              select.focus();
+            }
+          });
         heading.addEventListener('blur', () => {
           heading.contentEditable = 'false';
           heading.classList.remove('card-title--editing');
@@ -460,7 +466,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       }
       heading.textContent = item.title || '';
       heading.hidden = false;
-         if (document.activeElement === select && !heading.isContentEditable) select.hidden = true;
 
     }
   } else {
@@ -500,11 +505,15 @@ App._defaultStoryboardTitle = function () {
   const user = getTitle('storyboard-user-select', 'characters');
   const world = getTitle('storyboard-world-select', 'worlds');
   const selections = [ai, user].filter(Boolean);
-  if (!ai && !user && !world) return 'Your story begins…';
-  if (ai && user && world) return `${randPrompt()} ${ai} & ${user} in ${world}`;
-  if (selections.length === 1) return `${randPrompt()} ${selections[0]}`;
-  if (selections.length === 2) return `${randPrompt()} ${selections[0]} & ${selections[1]}`;
-  return 'Your story begins…';
+  let result = 'Your story begins…';
+  if (ai && user && world) {
+    result = `${randPrompt()} ${ai} & ${user} in ${world}`;
+  } else if (selections.length === 1) {
+    result = `${randPrompt()} ${selections[0]}`;
+  } else if (selections.length === 2) {
+    result = `${randPrompt()} ${selections[0]} & ${selections[1]}`;
+  }
+  return result.length > 80 ? `${result.slice(0, 77)}…` : result;
 };
 
 App.setDynamicTitle = function () {

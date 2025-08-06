@@ -80,3 +80,10 @@
 - Applied `padding-block: 0` to `.topbar-search` to eliminate extra vertical space.
 - Wrapped `#story-title` in a flex container with fixed height and ellipsis to prevent layout shifts.
 - Removed forced hiding of storyboard selects so clicking a card title reveals the dropdown again.
+- Default storyboard titles truncate beyond 80 characters.
+- `#story-title-wrapper` centers titles with a 4.5rem reserve height.
+- Storyboard card headings now toggle dropdown visibility instead of permanently hiding selects.
+- Inline card-title editing retains the base class and adds a dashed `card-title--editing` outline.
+- `getPictureClass` always prefixes `profile-picture`, with SCSS sizing avatars to 4rem circles.
+- Search bar inputs now match button height via explicit `height` and `padding-block` rules.
+- Troubleshooting guide heading switched from "Ask" to "Analyse" for terminology consistency.

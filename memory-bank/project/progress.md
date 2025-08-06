@@ -69,3 +69,9 @@
 - Added zero vertical padding to `.topbar-search` to align search field with buttons.
 - Storyboard title container now uses flex with fixed height and ellipsis to stop layout jumps.
 - Dropped unconditional select hiding in storyboard cards, allowing dropdowns to reopen on title click.
+- Default storyboard titles capped at 80 characters to prevent overflow.
+- Card headings toggle their dropdowns instead of permanently hiding selects.
+- `.card-title--editing` adds a dashed outline and commits text on blur or Enter.
+- Avatars rely on a prefixed `profile-picture` class with 4rem circular sizing.
+- Search bar inputs now explicitly match button height.
+- Troubleshooting doc heading now reads "When to Analyse for Help."

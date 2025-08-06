@@ -162,6 +162,11 @@ input[type="file"] {
   border-radius: var(--pico-radius);
 }
 
+.topbar-search input {
+  height: 2.5rem;
+  padding-block: .5rem;
+}
+
 .topbar-button {
   height: 2.5rem;
   line-height: 2.5rem;
@@ -406,34 +411,17 @@ input[type="file"] {
 }
 
 .profile-picture {
-  background-position: center;
-  background-size: cover;
-  box-shadow: var(--shadow-sm);
-  border: none;
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: start;
-  justify-content: center;
-  overflow: hidden;
-  min-width: 0;
-  min-height: 0;
-  max-width: none;
-  max-height: none;
-  align-self: stretch;
-  margin: 0;
-  font-size: 1.1rem;
-  border-radius: 0;
-}
-
-.chin-card .profile-picture,
-.storyboard-card .profile-picture {
+  border-radius: 50%;
   width: 4rem;
   height: 4rem;
   object-fit: cover;
-  border-radius: 50%;
 }
+
+.storyboard-card-left .profile-picture {
+  width: 4rem;
+  height: 4rem;
+}
+
 
 
 .picture img {
@@ -711,25 +699,20 @@ input[type="file"] {
   position: relative;
 }
 
-#story-title-container {
+#story-title-wrapper {
   display: flex;
-  flex-direction: column;
-  min-height: 2.5em;
-  align-items: center;
   justify-content: center;
-  overflow: hidden;
+  align-items: center;
+  min-height: 4.5rem;
 }
 
 #story-title {
-  display: block;
   max-width: 40ch;
-  margin: 1.5rem auto 2rem;
-  padding: 2rem;
-  cursor: pointer;
   text-align: center;
   text-wrap: balance;
-  text-overflow: ellipsis;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
 }
 
 #story-title[contenteditable] {
@@ -776,6 +759,14 @@ input[type="file"] {
 #storyboard-grid select option {
   text-align: left;
 }
+
+.storyboard-picker:not([hidden]) {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  opacity: 1;
+}
+
 
 .storyboard-card {
   display: flex;
@@ -936,12 +927,11 @@ input[type="file"] {
 
 /* stylelint-disable selector-class-pattern */
 .card-title--editing {
-  /* stylelint-disable-next-line at-rule-no-unknown */
-  @extend .card-title !optional;
-
-  outline: 1px dashed var(--color-accent);
+  outline: 1px dashed var(--pico-primary);
+  cursor: text;
 }
 /* stylelint-enable selector-class-pattern */
+
 
 @keyframes card-wiggle {
   0% {
