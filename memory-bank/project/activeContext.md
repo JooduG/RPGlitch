@@ -69,4 +69,3 @@
 - Profile pictures render via `getPictureHTML`, with script loaded before main app.
 - Storyboard card headings reuse existing elements to prevent disappearing titles.
 - Dropdown placeholders clone original labels for consistent resets.
-- 
