@@ -789,10 +789,10 @@ input[type="file"] {
 }
 
 /* stylelint-disable selector-class-pattern */
+.storyboard-card:hover,
 .storyboard-card h4:hover,
 .storyboard-card .card-title--editing,
-.storyboard-card .card-title[contenteditable='true'],
-.storyboard-card:hover {
+.storyboard-card .card-title[contenteditable='true'] {
   outline: 2px solid var(--pico-primary-hover);
   transition: outline 0.15s ease;
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* global module */
 
 /**
@@ -32,3 +33,6 @@ if (typeof module !== 'undefined' && module.exports) {
   window.hideEl = hideEl;
   window.showEl = showEl;
 }
+=======
+function hideEl(e){return"string"==typeof e&&(e=document.getElementById(e)),e?(e.setAttribute("hidden","hidden"),e):null}function showEl(e){return"string"==typeof e&&(e=document.getElementById(e)),e?(e.removeAttribute("hidden"),e):null}window.hideEl=hideEl,window.showEl=showEl;
+>>>>>>> 58fac1ef9dbb0c3de479d6d9ce84a281a385a066

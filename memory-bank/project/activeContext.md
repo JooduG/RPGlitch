@@ -100,6 +100,8 @@
 - Chin search handlers locate `.chin-grid` without relying on `.chin` ancestors, ensuring proper filtering.
 - Top bar buttons share a fixed width and chin search fields sit in a `.search-group` that shows a pink ring on focus.
 - Card headers on chin and storyboard cards transition color on hover or focus for clearer affordance.
-- Storyboard card titles reuse existing headings, keep placeholder options, and toggle selects with focus/click for native dropdowns.
-- Hover outlines extend to `.card-title--editing` and `[contenteditable=true]` so edited titles match hover feedback.
-- Entity-form modals load via global factories, dropping `import()` and CommonJS shims.
+- Storyboard card headings reuse existing elements and toggle dropdowns with focus and click for native option lists.
+- Hover outlines now apply when editing titles via `.card-title--editing` and `[contenteditable='true']`.
+- `getPictureClass` always prefixes `profile-picture` so avatars respect sizing rules.
+- Dynamic entity-form import replaced by inline factory and residual CommonJS exports removed.
+- Chin search handler falls back to `.chin-widget` containers.
