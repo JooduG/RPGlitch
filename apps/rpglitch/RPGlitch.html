@@ -45,36 +45,36 @@
         <!-- Top Bar Left -->
         <div id="top-bar-left" role="tablist">
           <ul role="presentation">
-            <li role="presentation"><button class="topbar-button secondary" role="tab" tabindex="0" id="tab-stories" aria-selected="false" aria-expanded="false" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
-            <li role="presentation"><button class="topbar-button secondary" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
-            <li role="presentation"><button class="topbar-button secondary" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
-            <li role="presentation"><button class="topbar-button secondary" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options">Options</button></li>
+            <li role="presentation"><button class="secondary" role="tab" tabindex="0" id="tab-stories" aria-selected="false" aria-expanded="false" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
+            <li role="presentation"><button class="secondary" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
+            <li role="presentation"><button class="secondary" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
+            <li role="presentation"><button class="secondary" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options">Options</button></li>
           </ul>
         </div>
 
         <!-- Top Bar Right: Storyboard -->
         <div id="top-bar-right-storyboard">
           <ul>
-            <li><button class="topbar-button secondary" id="shuffle-btn">Shuffle</button></li>
-            <li><button class="topbar-button primary" id="begin-story">Begin Story</button></li>
+            <li><button class="secondary" id="shuffle-btn">Shuffle</button></li>
+            <li><button class="primary" id="begin-story">Begin Story</button></li>
           </ul>
         </div>
 
         <!-- Top Bar Right: Form -->
         <div id="top-bar-right-form" hidden="hidden">
           <ul>
-            <li><button class="topbar-button secondary" id="form-cancel">Cancel</button></li>
-            <li><button class="topbar-button primary" id="form-save">Save</button></li>
+            <li><button class="secondary" id="form-cancel">Cancel</button></li>
+            <li><button class="primary" id="form-save">Save</button></li>
           </ul>
         </div>
 
         <!-- Top Bar Right: Profile -->
         <div id="top-bar-right-profile" hidden="hidden">
           <ul>
-            <li><button class="topbar-button secondary" id="profile-edit">Edit</button></li>
-            <li><button class="topbar-button secondary" id="profile-copy">Copy & Customize</button></li>
-            <li><button class="topbar-button danger" id="profile-delete">Delete</button></li>
-            <li><button class="topbar-button primary" id="profile-back">Back</button></li>
+            <li><button class="secondary" id="profile-edit">Edit</button></li>
+            <li><button class="secondary" id="profile-copy">Copy & Customize</button></li>
+            <li><button class="danger" id="profile-delete">Delete</button></li>
+            <li><button class="primary" id="profile-back">Back</button></li>
           </ul>
         </div>
       </nav>
@@ -90,10 +90,8 @@
         <div class="chin-actions-left">
           <form role="search">
             <fieldset role="group">
-              <div class="search-group">
-                <input type="search" class="chin-search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories" />
-                <button class="secondary">Search</button>
-              </div>
+              <input type="search" class="chin-search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories" />
+              <button class="secondary">Search</button>
             </fieldset>
           </form>
         </div>
@@ -115,10 +113,8 @@
         <div class="chin-actions-left">
           <form role="search">
             <fieldset role="group">
-              <div class="search-group">
-                <input type="search" class="chin-search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters" />
-                <button class="secondary">Search</button>
-              </div>
+              <input type="search" class="chin-search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters" />
+              <button class="secondary">Search</button>
             </fieldset>
           </form>
         </div>
@@ -141,10 +137,8 @@
         <div class="chin-actions-left">
           <form role="search">
             <fieldset role="group">
-              <div class="search-group">
-                <input type="search" class="chin-search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds" />
-                <button class="secondary">Search</button>
-              </div>
+              <input type="search" class="chin-search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds" />
+              <button class="secondary">Search</button>
             </fieldset>
           </form>
         </div>
@@ -188,8 +182,8 @@
     <!-- Storyboard Screen -->
     <div id="storyboard-screen">
 
-      <div id="story-title-wrapper">
-        <h2 id="story-title">Storyboard</h2>
+      <div id="storyboard-dynamic-title-wrapper">
+        <h2 id="storyboard-dynamic-title">Storyboard</h2>
       </div>
       
         <div id="storyboard-grid">

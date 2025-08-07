@@ -137,17 +137,15 @@ App.ui.setupChinListeners = function () {
 App._attachChinSearchHandlers = function () {
   const inputs = document.querySelectorAll('.chin-search');
   inputs.forEach((input) => {
-    let list = input.closest('.chin')?.querySelector('.chin-grid');
-    if (!list) {
-      const widget = input.closest('.chin-widget');
-list = widget?.parentElement?.querySelector('.chin-grid');
-    }
+    const container = input.closest('.chin');
+    const list = container?.querySelector('.chin-grid');
     if (!list) return;
     input.addEventListener('input', () => {
       const term = input.value.toLowerCase();
       list.querySelectorAll('[data-title]').forEach((card) => {
         const title = (card.dataset.title || '').toLowerCase();
-        card.toggleAttribute('hidden', !title.includes(term));
+        const match = title.includes(term);
+        card.toggleAttribute('hidden', !match);
       });
     });
   });
@@ -393,7 +391,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const article = card.querySelector('.storyboard-card-right');
   if (!article) return;
   const headerEl = article.querySelector('header');
-let heading = article.querySelector('.card-title');
+  let heading = headerEl ? headerEl.querySelector('.card-title') : null;
   const footer = article.querySelector('footer');
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
@@ -433,16 +431,49 @@ let heading = article.querySelector('.card-title');
         heading = document.createElement('h4');
         heading.className = 'card-title';
         heading.addEventListener('click', () => {
-          select.classList.remove('visually-hidden');
-          heading.hidden = true;
-          select.focus();
+          select.hidden = !select.hidden;
+          if (!select.hidden) {
+            const isHidden = select.hasAttribute('hidden');
+            select.hidden = !isHidden;
+            if (isHidden) {
+              heading.contentEditable = 'true';
+              heading.classList.add('card-title--editing');
+              const sel = window.getSelection();
+              if (sel) {
+                const range = document.createRange();
+                range.selectNodeContents(heading);
+                sel.removeAllRanges();
+                sel.addRange(range);
+              }
+              heading.focus();
+            } else {
+              heading.contentEditable = 'false';
+              heading.classList.remove('card-title--editing');
+              heading.contentEditable = 'false';
+              heading.classList.remove('card-title--editing');
+              if (item) item.title = heading.textContent.trim();
+              App.setDynamicTitle?.();
+            }
+          }
         });
+        heading.addEventListener('blur', () => {
+          heading.contentEditable = 'false';
+          heading.classList.remove('card-title--editing');
+          if (item) item.title = heading.textContent.trim();
+          App.setDynamicTitle?.();
+        });
+        heading.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            heading.blur();
+          }
+        });
+        headerEl.appendChild(heading);
       }
       heading.textContent = item.title || '';
       heading.hidden = false;
-      if (!heading.parentNode) article.prepend(heading);
+
     }
-    select.classList.add('visually-hidden');
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
@@ -450,7 +481,7 @@ let heading = article.querySelector('.card-title');
       img.src = img.dataset.placeholderSrc || img.src;
       img.alt = '';
     }
-    select.classList.remove('visually-hidden');
+    select.hidden = false;
     if (heading) heading.hidden = true;
   }
   App.setDynamicTitle?.();
@@ -496,21 +527,20 @@ App._defaultStoryboardTitle = function () {
 };
 
 App.setDynamicTitle = function () {
-  const titleEl = document.getElementById('story-title');
+  const titleEl = document.getElementById('storyboard-dynamic-title');
   if (!titleEl || titleEl.dataset.manual === 'true') return;
 
   titleEl.textContent = App._defaultStoryboardTitle();
 };
 
 App._setupStoryboardTitle = function () {
-  const titleEl = document.getElementById('story-title');
+  const titleEl = document.getElementById('storyboard-dynamic-title');
   if (!titleEl) return;
   if (titleEl.dataset.editable) return;
   titleEl.dataset.editable = 'true';
 
   const finishEditing = () => {
     titleEl.contentEditable = 'false';
-    titleEl.classList.remove('editing');
     App._editingStoryboardTitle = false;
   };
 
@@ -519,7 +549,6 @@ App._setupStoryboardTitle = function () {
     App._editingStoryboardTitle = true;
     titleEl.contentEditable = 'true';
     titleEl.dataset.manual = 'true';
-    titleEl.classList.add('editing');
     const sel = window.getSelection();
     if (sel) {
       const range = document.createRange();
@@ -555,12 +584,11 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
     }
   });
   App._setupStoryboardTitle();
-  const title = document.getElementById('story-title');
+  const title = document.getElementById('storyboard-dynamic-title');
   if (title) {
     title.addEventListener('dblclick', () => {
       if (title.dataset.manual === 'true') {
         title.dataset.manual = '';
-        title.classList.remove('editing');
         App.setDynamicTitle();
       }
     });
@@ -576,7 +604,7 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
           select.dispatchEvent(new Event('change'));
         }
       });
-      const t = document.getElementById('story-title');
+      const t = document.getElementById('storyboard-dynamic-title');
       if (t && !t.dataset.manual) App.setDynamicTitle();
     });
   }

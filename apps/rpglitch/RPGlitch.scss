@@ -154,37 +154,6 @@ input[type="file"] {
   gap: 1rem;
 }
 
-.topbar-button {
-  width: 7.5rem;
-}
-
-.search-group {
-  display: flex;
-  width: 15rem;
-}
-
-.search-group:focus-within {
-  box-shadow: 0 0 0 0.125rem #ff4fa1;
-  border-radius: var(--pico-border-radius);
-}
-
-.search-group input {
-  flex: 1 1 auto;
-  border-right: 0;
-}
-
-.search-group button {
-  border-left: 0;
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-}
-
 .chin-search {
   line-height: 2.5rem;
   padding-block: 0;
@@ -443,18 +412,9 @@ input[type="file"] {
 }
 
 .profile-picture {
-  border-radius: 50%;
+  width: auto;
+  height: auto;
   object-fit: cover;
-}
-
-.chin-card-left .profile-picture {
-  width: 4rem;
-  height: 4rem;
-}
-
-.storyboard-card-left .profile-picture {
-  width: 4rem;
-  height: 4rem;
 }
 
 .picture-edit {
@@ -728,34 +688,33 @@ input[type="file"] {
   position: relative;
 }
 
-#story-title-wrapper {
-  min-height: calc(2 * 2.25rem);
+#storyboard-dynamic-title-wrapper {
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  min-height: 7rem;
 }
 
-#story-title {
+#storyboard-dynamic-title {
   max-width: 40ch;
   text-align: center;
   text-wrap: balance;
   overflow: hidden;
-  white-space: nowrap;
   text-overflow: ellipsis;
-  cursor: pointer;
-}
-
-#story-title.editing {
   white-space: normal;
-  overflow: visible;
+  cursor: pointer;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  min-height: 3.5rem; 
 }
 
-#story-title[contenteditable] {
+#storyboard-dynamic-title[contenteditable] {
   outline: none;
   cursor: text;
 }
 
-#story-title:hover {
+#storyboard-dynamic-title:hover {
   text-decoration: underline dotted;
 }
 
@@ -829,22 +788,10 @@ input[type="file"] {
   flex: 0 0 auto;
 }
 
-.storyboard-card h4,
-.chin-card h4 {
-  transition: color 0.15s ease;
-}
-
 .storyboard-card:hover,
 .storyboard-card h4:hover {
   outline: 2px solid var(--pico-primary-hover);
   transition: outline 0.15s ease;
-}
-
-.storyboard-card:hover h4,
-.chin-card:hover h4,
-.storyboard-card:focus-within h4,
-.chin-card:focus-within h4 {
-  color: var(--pico-primary-hover);
 }
 
 .storyboard-card-left {
