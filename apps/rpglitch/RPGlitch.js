@@ -140,7 +140,7 @@ App._attachChinSearchHandlers = function () {
     let list = input.closest('.chin')?.querySelector('.chin-grid');
     if (!list) {
       const widget = input.closest('.chin-widget');
-      list = widget?.querySelector('.chin-grid') || document.querySelector('.chin-grid');
+list = widget?.parentElement?.querySelector('.chin-grid');
     }
     if (!list) return;
     input.addEventListener('input', () => {
