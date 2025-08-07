@@ -393,7 +393,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const article = card.querySelector('.storyboard-card-right');
   if (!article) return;
   const headerEl = article.querySelector('header');
-  let heading = article.querySelector('.card-title');
+let heading = article.querySelector('.card-title');
   const footer = article.querySelector('footer');
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
