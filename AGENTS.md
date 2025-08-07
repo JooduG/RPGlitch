@@ -4,7 +4,7 @@
 
 Version 1.4.0  |  Updated 2025‑07‑30
 
-### Constants
+## Constants
 
 | Token          | Value           |
 | -------------- | --------------- |
@@ -14,7 +14,7 @@ This document serves as a comprehensive reference for Codex Cloud agents and h
 working in the Perchance/Glitch monorepo.
 It provides guidelines, standards, and instructions for consistent and effective collaboration
 
-## 1 Overview
+## Overview
 
 The repository structure is outlined below to provide clarity on navigation and responsibilities:
 
@@ -53,7 +53,7 @@ applications. Build scripts live in `build/scripts`, and long-term project knowl
 | `tools/`         | Diagnostic and automation helpers  | Extend or maintain tooling                  |
 | `.cursor/rules/` | Codex rulesets                     | Only edit when updating rules               |
 
-## 2 Context Sources
+## Context Sources
 
 Agents must load context from these essential paths **before** initiating any tasks:
 
@@ -65,52 +65,51 @@ Agents must load context from these essential paths **before** initiating any ta
 > Codex Cloud’s custom `systemPrompt` automatically directs agents to these folders.
 > Keep this information updated.
 
-## 3 Core Rulesets
+## Core Rulesets
 
 These foundational rules guide system architecture, communication, and project standards:
 
-#### 3.1 Core System Rules
+### Core System Rules
 
-- [documentation](.cursor/rules/system-documentation.mdc) – Documentation standards
-- [effective-rule-writing](.cursor/rules/system-effective-rule-writing.mdc) – Writing clear, impactful rules
-- [rule-interactions](.cursor/rules/system-rule-interactions.mdc) – Rule interactions and prioritization
-- [todo-handoff-template](.cursor/rules/system-todo-handoff-template.mdc) – Templates for tasks and handoffs
-- [technical-architecture](.cursor/rules/technical-architecture.mdc) – Overall technical structure and constraints
+- [Documentation](.cursor/rules/system-documentation.mdc) – Documentation standards
+- [Effective Rule Writing](.cursor/rules/system-effective-rule-writing.mdc) – Writing clear, impactful rules
+- [Rule Interactions](.cursor/rules/system-rule-interactions.mdc) – Rule interactions and prioritization
+- [Todo/Handoff Template](.cursor/rules/system-todo-handoff-template.mdc) – Templates for tasks and handoffs
+- [Technical Architecture](.cursor/rules/technical-architecture.mdc) – Overall technical structure and constraints
 
-#### 3.2 Thinking Framework
+### Thinking Framework
 
-- [context-aware-rule-loading](.cursor/rules/thinking-context-aware-rule-loading.mdc)
-  – Context-sensitive rule loading strategies
+- [Context Aware Rule Loading](.cursor/rules/thinking-context-aware-rule-loading.mdc) – Context-sensitive rule loading strategies
+- [Thinking Framework](.cursor\rules\thinking-framework.mdc) - Framework
 
-#### 3.3 Orchestration Rules
+### Orchestration Rules
 
-- [architecture](.cursor/rules/orchestration-architecture.mdc) – Framework for task orchestration
-- [mode](.cursor/rules/orchestration-mode.mdc) – Role-based orchestration details
-- [system](.cursor/rules/orchestration-system.mdc) – System-level orchestration mechanisms
+- [Orchestration Architecture](.cursor/rules/orchestration-architecture.mdc) – Framework for task orchestration
+- [Orchestration Mode](.cursor/rules/orchestration-mode.mdc) – Role-based orchestration details
+- [Orchestration System](.cursor/rules/orchestration-system.mdc) – System-level orchestration mechanisms
 
-## 4 Perchance Rules
+## Perchance Rules
 
 These rules provide specialized guidance for the Perchance platform.
 Relevant for RPGlitch and ImageGlitch:
 
-- [perchance-architecture](.cursor/rules/perchance-architecture.mdc) – Structural overview
-- [perchance-plugin-system](.cursor/rules/perchance-plugin-system.mdc) – Plugin architecture and integration
-- [perchance-development-lifecycle](.cursor/rules/perchance-development-lifecycle.mdc) – Dev lifecycle guidance
-- [perchance-build-deployment](.cursor/rules/perchance-build-deployment.mdc) – Guidelines for building and deploying
+- [Perchance Architecture](.cursor/rules/perchance-architecture.mdc) – Structural overview
+- [Perchance Plugins](.cursor/rules/perchance-plugin-system.mdc) – Plugin architecture and integration
+- [Perchance Development](.cursor/rules/perchance-development-lifecycle.mdc) – Dev lifecycle guidance
+- [Perchance Deployment](.cursor/rules/perchance-build-deployment.mdc) – Guidelines for building and deploying
 
 > **Tip:** Review the most relevant ruleset before coding. When unsure, start with the Core System Rules.---
 
-## 5 Mission for Agents
+## Mission for Agents
 
 1. Accurately translate natural-language requests into precise, production-ready code.
-2. Adhere strictly to the Unified [3‑Mode architecture](.cursor/rules/orchestration-mode.mdc).
+2. Adhere strictly to the Unified [3‑Mode Mrchitecture](.cursor/rules/orchestration-mode.mdc).
 3. Use MCP services from `mcp.json` (Context7, Time, Basic-Memory, Sequential Thinking).
-
-4. Consistently record decisions and important context into the [memory-bank/](memory-bank) for future reference.
-5. Follow Cursor [All-Rules](.cursor/rules) rigorously, covering HTML, CSS, JavaScript, storage, and performance.
+4. Consistently record decisions and important context into the [Memory Bank/](memory-bank) for future reference.
+5. Follow Cursor [Rules](.cursor/rules) rigorously, covering HTML, CSS, JavaScript, storage, and performance.
 6. Maintain a high-quality codebase—every contribution must pass stringent linting, testing, and performance standards.---
 
-## 6 Development Environment Guidelines
+## Development Environment Guidelines
 
 To foster consistency and efficiency:
 
@@ -161,7 +160,7 @@ Install Python dev requirements with:
 uv pip install -e ".[test]"
 ```
 
-## 7 Coding Standards (Cursor All-Rules)
+## Coding Standards (Cursor All-Rules)
 
 - Implement semantic HTML, prioritize accessibility, and maintain minimalistic CSS.
 - Leverage modern JavaScript (e.g., `async/await`) with efficient DOM manipulation.
@@ -170,11 +169,11 @@ uv pip install -e ".[test]"
 
 ---
 
-See CONTRIBUTING.md § 2 “Standard Check”.
+See [CONTRIBUTING](CONTRIBUTING.md) § 2 “Standard Check”.
 
-Refer to CONTRIBUTING.md § 3 “Pull-Request Workflow”.
+Refer to [CONTRIBUTING](CONTRIBUTING.md) § 3 “Pull-Request Workflow”.
 
-## 8 Contribution Rules
+## Contribution Rules
 
 - Use `kebab-case` for file names and `camelCase` for JavaScript variables.
 - Keep functions small with clear names.
@@ -182,19 +181,19 @@ Refer to CONTRIBUTING.md § 3 “Pull-Request Workflow”.
 - PR titles follow `[<package>] <summary>`.
 - Prefer smaller, focused PRs and split large refactors into separate submissions.
 
-## 9 Effective Codex Prompting
+## Effective Codex Prompting
 
 - Offer precise file locations, reproduction steps, and references.
 - Segment complex tasks for easier management and clarity.
 - Utilize Codex for streamlined debugging and encourage explorative, open-ended prompts.
 
-## 10 Safety & Quality Assurance
+## Safety & Quality Assurance
 
 - Restrict all external network calls to maintain security.
 - Mandate comprehensive linting, extensive testing, and adherence to performance budgets via Lighthouse.
 - Prioritize robust, graceful error handling across all modules.
 
-## 11 Permissions
+## Permissions
 
 Explicitly managed via YAML configuration to ensure repository integrity and security:
 
@@ -213,21 +212,14 @@ deny_write:
   - "./.cursor/**"
 ```
 
-### Agent-Specific Guidance
+## Agent-Specific Guidance
 
-Codex should focus on `apps/` for feature work and `memory-bank/` for documentation.
-Other folders—`build/`, `tools/`, and `.cursor/rules/`—are read‑only unless explicitly requested.
-Never modify generated artifacts like `build/output/`, or anything inside `node_modules/` or `.cursor/`.
+- Codex should focus on `apps/` for feature work and `memory-bank/` for documentation.
+- Other folders—`build/`, `tools/`, and `.cursor/rules/`—are read‑only unless explicitly requested.
+- Never modify generated artifacts like `build/output/`, or anything inside `node_modules/` or `.cursor/`.
+- Before presenting a diff, run See [CONTRIBUTING](CONTRIBUTING.md) § 2 “Standard Check”. Refer to [CONTRIBUTING](CONTRIBUTING.md) § 3 “Pull-Request Workflow”.
 
-Before presenting a diff, run See CONTRIBUTING.md § 2 “Standard Check”. Refer to CONTRIBUTING.md § 3 “Pull-Request Workflow”.
-
-## 12 Agent Guidance
-
-Codex should focus edits under `apps/`, `build/`, `docs/`, `memory-bank/` and `tools/`.
-Generated artifacts such as `node_modules/` and `build/output/` must not be modified.
-Always run the lint and test suite before presenting a diff.
-
-## 13 Changelog
+## Changelog
 
 - **1.4.0 (2025‑07‑30)** – Added repository overview, directory guide,
   environment setup, lint/test workflow, contribution rules, and agent guidance.

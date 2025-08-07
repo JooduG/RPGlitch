@@ -138,6 +138,7 @@ App._attachChinSearchHandlers = function () {
   inputs.forEach((input) => {
     const container = input.closest('.chin') || input.closest('.chin-widget');
     const list = container?.querySelector('.chin-grid');
+
     if (!list) return;
     input.addEventListener('input', () => {
       const term = input.value.toLowerCase();
@@ -461,8 +462,57 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const small = footer ? footer.querySelector('small') : null;
   const img = card.querySelector('.storyboard-card-left');
   if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
-  const value = select.value;
-  const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
+  const option = select.options[select.selectedIndex];
+  const titleText = option ? option.textContent || option.value || '' : '';
+  const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
+
+  if (headerEl && !heading) {
+    heading = document.createElement('h4');
+    heading.className = 'card-title';
+    heading.addEventListener('click', () => {
+      const currentItem = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
+      select.focus();
+      select.click();
+      const hidden = select.classList.toggle('visually-hidden');
+      if (hidden) {
+        heading.contentEditable = 'true';
+        heading.classList.add('card-title--editing');
+        const sel = window.getSelection();
+        if (sel) {
+          const range = document.createRange();
+          range.selectNodeContents(heading);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+        heading.focus();
+      } else {
+        heading.contentEditable = 'false';
+        heading.classList.remove('card-title--editing');
+        if (currentItem) currentItem.title = heading.textContent.trim();
+        App.setDynamicTitle?.();
+      }
+    });
+    heading.addEventListener('blur', () => {
+      heading.contentEditable = 'false';
+      heading.classList.remove('card-title--editing');
+      const currentItem = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
+      if (currentItem) currentItem.title = heading.textContent.trim();
+      App.setDynamicTitle?.();
+    });
+    heading.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        heading.blur();
+      }
+    });
+    headerEl.appendChild(heading);
+  }
+
+  if (heading) {
+    heading.textContent = titleText;
+    heading.hidden = false;
+  }
+
   if (item) {
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
@@ -484,6 +534,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       heading.textContent = item.title || '';
       heading.hidden = false;
     }
+
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
@@ -491,8 +542,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       img.src = img.dataset.placeholderSrc || img.src;
       img.alt = '';
     }
-    select.hidden = false;
-    if (heading) heading.hidden = true;
+    select.classList.remove('visually-hidden');
   }
   App.setDynamicTitle?.();
 };
@@ -692,6 +742,7 @@ App._attachContentChinActions = function () {
         const exportName = modalExportMap[key];
         if (!exportName) return;
         const openModal = getEntityForm()[exportName];
+
         if (typeof openModal !== 'function') return;
         openModal(({ title }) => {
           if (!title) return;
