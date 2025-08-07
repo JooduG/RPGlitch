@@ -87,3 +87,5 @@
 - Chin search handler now falls back to `.chin-widget` containers to hide non-matching cards properly.
 - Top bar buttons receive a fixed width and chin searches wrap input and button in a `.search-group` with a pink focus ring.
 - Chin and storyboard card headings transition color on hover or focus for better affordance, and avatars size via unified `profile-picture <context>` classes.
+- Storyboard card titles reuse existing headings, keep placeholders aligned, and toggle dropdowns via focus/click to open native options.
+- Hover outlines cover editing states, and entity-form factories load globally without `import()` or CommonJS shims.

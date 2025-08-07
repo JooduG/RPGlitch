@@ -91,3 +91,6 @@
 - The story title's `.editing` class expands text for contentEditable and restores ellipsis on blur.
 - `getPictureClass` now simply prefixes `profile-picture` to the given context, reducing branching.
 - Wrapping chin search inputs and buttons in a `.search-group` provides a unified width and a pink focus ring.
+- Focusing and clicking a select before toggling ensures the native dropdown opens reliably.
+- Referencing global entity-form factories avoids CSP blocks and removes the need for dynamic imports.
+- Chin search handlers now locate `.chin-grid` directly, working even without a `.chin` wrapper.

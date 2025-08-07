@@ -1,4 +1,3 @@
-/* global module */
 
 /**
  * Returns HTML for a picture, using a real picture if available, otherwise a placeholder SVG.
@@ -241,8 +240,4 @@ function getPaletteKey(palette) {
 
 // Export for global access
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { getPictureHTML };
-} else {
-  window.getPictureHTML = getPictureHTML;
-}
+window.getPictureHTML = getPictureHTML;

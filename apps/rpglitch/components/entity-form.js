@@ -1,4 +1,3 @@
-/* global module */
 (function (global) {
   function openEntityModal(type, onSubmit) {
     const labels = { story: 'Title', character: 'Name', world: 'Title' };
@@ -59,9 +58,6 @@
   function openCharacterModal(onSubmit) { return openEntityModal('character', onSubmit); }
   function openWorldModal(onSubmit) { return openEntityModal('world', onSubmit); }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { openEntityModal, openStoryModal, openCharacterModal, openWorldModal };
-  }
   global.openEntityModal = openEntityModal;
   global.openStoryModal = openStoryModal;
   global.openCharacterModal = openCharacterModal;
