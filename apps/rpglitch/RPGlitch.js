@@ -1,4 +1,3 @@
-/* global module */
 // Main RPGlitch application namespace
 // eslint-disable-next-line no-redeclare
 const App = window.App || {};
@@ -137,8 +136,9 @@ App.ui.setupChinListeners = function () {
 App._attachChinSearchHandlers = function () {
   const inputs = document.querySelectorAll('.chin-search');
   inputs.forEach((input) => {
-    const container = input.closest('.chin');
-    const list = container?.querySelector('.chin-grid');
+    const list = input.closest('.chin-grid') ||
+      input.closest('.chin')?.querySelector('.chin-grid') ||
+      input.closest('.chin-widget')?.querySelector('.chin-grid');
     if (!list) return;
     input.addEventListener('input', () => {
       const term = input.value.toLowerCase();
@@ -407,8 +407,57 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const small = footer ? footer.querySelector('small') : null;
   const img = card.querySelector('.storyboard-card-left');
   if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
-  const value = select.value;
-  const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === value);
+  const option = select.options[select.selectedIndex];
+  const titleText = option ? option.textContent || option.value || '' : '';
+  const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
+
+  if (headerEl && !heading) {
+    heading = document.createElement('h4');
+    heading.className = 'card-title';
+    heading.addEventListener('click', () => {
+      const currentItem = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
+      select.focus();
+      select.click();
+      const hidden = select.classList.toggle('visually-hidden');
+      if (hidden) {
+        heading.contentEditable = 'true';
+        heading.classList.add('card-title--editing');
+        const sel = window.getSelection();
+        if (sel) {
+          const range = document.createRange();
+          range.selectNodeContents(heading);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+        heading.focus();
+      } else {
+        heading.contentEditable = 'false';
+        heading.classList.remove('card-title--editing');
+        if (currentItem) currentItem.title = heading.textContent.trim();
+        App.setDynamicTitle?.();
+      }
+    });
+    heading.addEventListener('blur', () => {
+      heading.contentEditable = 'false';
+      heading.classList.remove('card-title--editing');
+      const currentItem = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
+      if (currentItem) currentItem.title = heading.textContent.trim();
+      App.setDynamicTitle?.();
+    });
+    heading.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        heading.blur();
+      }
+    });
+    headerEl.appendChild(heading);
+  }
+
+  if (heading) {
+    heading.textContent = titleText;
+    heading.hidden = false;
+  }
+
   if (item) {
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
@@ -426,54 +475,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         img.alt = item.title || '';
       }
     }
-    if (headerEl) {
-      if (!heading) {
-        heading = document.createElement('h4');
-        heading.className = 'card-title';
-        heading.addEventListener('click', () => {
-          select.hidden = !select.hidden;
-          if (!select.hidden) {
-            const isHidden = select.hasAttribute('hidden');
-            select.hidden = !isHidden;
-            if (isHidden) {
-              heading.contentEditable = 'true';
-              heading.classList.add('card-title--editing');
-              const sel = window.getSelection();
-              if (sel) {
-                const range = document.createRange();
-                range.selectNodeContents(heading);
-                sel.removeAllRanges();
-                sel.addRange(range);
-              }
-              heading.focus();
-            } else {
-              heading.contentEditable = 'false';
-              heading.classList.remove('card-title--editing');
-              heading.contentEditable = 'false';
-              heading.classList.remove('card-title--editing');
-              if (item) item.title = heading.textContent.trim();
-              App.setDynamicTitle?.();
-            }
-          }
-        });
-        heading.addEventListener('blur', () => {
-          heading.contentEditable = 'false';
-          heading.classList.remove('card-title--editing');
-          if (item) item.title = heading.textContent.trim();
-          App.setDynamicTitle?.();
-        });
-        heading.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            heading.blur();
-          }
-        });
-        headerEl.appendChild(heading);
-      }
-      heading.textContent = item.title || '';
-      heading.hidden = false;
-
-    }
+    select.classList.add('visually-hidden');
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
@@ -481,8 +483,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       img.src = img.dataset.placeholderSrc || img.src;
       img.alt = '';
     }
-    select.hidden = false;
-    if (heading) heading.hidden = true;
+    select.classList.remove('visually-hidden');
   }
   App.setDynamicTitle?.();
 };
@@ -678,12 +679,10 @@ App._attachContentChinActions = function () {
 
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
-      newButton.addEventListener('click', async () => {
-
+      newButton.addEventListener('click', () => {
         const exportName = modalExportMap[key];
         if (!exportName) return;
-        const mod = await import(entityFormPath);
-        const openModal = mod[exportName];
+        const openModal = window[exportName];
         if (typeof openModal !== 'function') return;
         openModal(({ title }) => {
           if (!title) return;
@@ -839,7 +838,3 @@ App.deleteAllData = function () {
   App.refreshAllLists();
 };
 
-// Export for Node-based tests
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = App;
-}

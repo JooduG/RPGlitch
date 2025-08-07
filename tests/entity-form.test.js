@@ -1,6 +1,5 @@
-const {
-  openEntityModal
-} = require('../apps/rpglitch/components/entity-form.js');
+require('../apps/rpglitch/components/entity-form.js');
+const { openEntityModal } = global;
 
 describe('entity-form modal', () => {
   test('closes when cancel event fires', () => {
