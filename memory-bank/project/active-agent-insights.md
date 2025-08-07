@@ -87,3 +87,7 @@
 - Setting the search input height to 2.5rem keeps top-bar controls aligned.
 - Toggling dropdowns via card titles keeps re-selection intuitive, and truncating default titles at 80 characters avoids overflow.
 - Clamping auto-generated storyboard titles to 80 characters prevents overflow.
+- Using a `.visually-hidden` class maintains accessibility for hidden selects while allowing reselection.
+- The story title's `.editing` class expands text for contentEditable and restores ellipsis on blur.
+- `getPictureClass` now simply prefixes `profile-picture` to the given context, reducing branching.
+- Wrapping chin search inputs and buttons in a `.search-group` provides a unified width and a pink focus ring.

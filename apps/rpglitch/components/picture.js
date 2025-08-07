@@ -89,17 +89,9 @@ function getInitials(name) {
  * @returns {string} The CSS class.
  */
 
-function getPictureClass(context) {
-  const base = 'profile-picture';
-  switch (context) {
-    case 'chin-card':
-      return `${base} chin-card`;
-    case 'storyboard-card':
-      return `${base} storyboard-card`;
-    default:
-      return base;
+  function getPictureClass(context) {
+    return `profile-picture ${context}`;
   }
-}
 
 /**
  * Creates initials-only HTML for card context.

@@ -137,15 +137,17 @@ App.ui.setupChinListeners = function () {
 App._attachChinSearchHandlers = function () {
   const inputs = document.querySelectorAll('.chin-search');
   inputs.forEach((input) => {
-    const container = input.closest('.chin');
-    const list = container?.querySelector('.chin-grid');
+    let list = input.closest('.chin')?.querySelector('.chin-grid');
+    if (!list) {
+      const widget = input.closest('.chin-widget');
+      list = widget?.querySelector('.chin-grid') || document.querySelector('.chin-grid');
+    }
     if (!list) return;
     input.addEventListener('input', () => {
       const term = input.value.toLowerCase();
       list.querySelectorAll('[data-title]').forEach((card) => {
         const title = (card.dataset.title || '').toLowerCase();
-        const match = title.includes(term);
-        card.toggleAttribute('hidden', !match);
+        card.toggleAttribute('hidden', !title.includes(term));
       });
     });
   });
@@ -391,7 +393,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const article = card.querySelector('.storyboard-card-right');
   if (!article) return;
   const headerEl = article.querySelector('header');
-  let heading = headerEl ? headerEl.querySelector('.card-title') : null;
+  let heading = article.querySelector('.card-title');
   const footer = article.querySelector('footer');
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
@@ -431,49 +433,16 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         heading = document.createElement('h4');
         heading.className = 'card-title';
         heading.addEventListener('click', () => {
-          select.hidden = !select.hidden;
-          if (!select.hidden) {
-            const isHidden = select.hasAttribute('hidden');
-            select.hidden = !isHidden;
-            if (isHidden) {
-              heading.contentEditable = 'true';
-              heading.classList.add('card-title--editing');
-              const sel = window.getSelection();
-              if (sel) {
-                const range = document.createRange();
-                range.selectNodeContents(heading);
-                sel.removeAllRanges();
-                sel.addRange(range);
-              }
-              heading.focus();
-            } else {
-              heading.contentEditable = 'false';
-              heading.classList.remove('card-title--editing');
-              heading.contentEditable = 'false';
-              heading.classList.remove('card-title--editing');
-              if (item) item.title = heading.textContent.trim();
-              App.setDynamicTitle?.();
-            }
-          }
+          select.classList.remove('visually-hidden');
+          heading.hidden = true;
+          select.focus();
         });
-        heading.addEventListener('blur', () => {
-          heading.contentEditable = 'false';
-          heading.classList.remove('card-title--editing');
-          if (item) item.title = heading.textContent.trim();
-          App.setDynamicTitle?.();
-        });
-        heading.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            heading.blur();
-          }
-        });
-        headerEl.appendChild(heading);
       }
       heading.textContent = item.title || '';
       heading.hidden = false;
-
+      if (!heading.parentNode) article.prepend(heading);
     }
+    select.classList.add('visually-hidden');
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
@@ -481,7 +450,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       img.src = img.dataset.placeholderSrc || img.src;
       img.alt = '';
     }
-    select.hidden = false;
+    select.classList.remove('visually-hidden');
     if (heading) heading.hidden = true;
   }
   App.setDynamicTitle?.();
@@ -527,20 +496,21 @@ App._defaultStoryboardTitle = function () {
 };
 
 App.setDynamicTitle = function () {
-  const titleEl = document.getElementById('storyboard-dynamic-title');
+  const titleEl = document.getElementById('story-title');
   if (!titleEl || titleEl.dataset.manual === 'true') return;
 
   titleEl.textContent = App._defaultStoryboardTitle();
 };
 
 App._setupStoryboardTitle = function () {
-  const titleEl = document.getElementById('storyboard-dynamic-title');
+  const titleEl = document.getElementById('story-title');
   if (!titleEl) return;
   if (titleEl.dataset.editable) return;
   titleEl.dataset.editable = 'true';
 
   const finishEditing = () => {
     titleEl.contentEditable = 'false';
+    titleEl.classList.remove('editing');
     App._editingStoryboardTitle = false;
   };
 
@@ -549,6 +519,7 @@ App._setupStoryboardTitle = function () {
     App._editingStoryboardTitle = true;
     titleEl.contentEditable = 'true';
     titleEl.dataset.manual = 'true';
+    titleEl.classList.add('editing');
     const sel = window.getSelection();
     if (sel) {
       const range = document.createRange();
@@ -584,11 +555,12 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
     }
   });
   App._setupStoryboardTitle();
-  const title = document.getElementById('storyboard-dynamic-title');
+  const title = document.getElementById('story-title');
   if (title) {
     title.addEventListener('dblclick', () => {
       if (title.dataset.manual === 'true') {
         title.dataset.manual = '';
+        title.classList.remove('editing');
         App.setDynamicTitle();
       }
     });
@@ -604,7 +576,7 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
           select.dispatchEvent(new Event('change'));
         }
       });
-      const t = document.getElementById('storyboard-dynamic-title');
+      const t = document.getElementById('story-title');
       if (t && !t.dataset.manual) App.setDynamicTitle();
     });
   }
