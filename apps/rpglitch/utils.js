@@ -1,4 +1,3 @@
-/* global module */
 /**
  * Hides a DOM element by adding the hidden attribute.
  * @param {HTMLElement|string} el - The element or its ID.
@@ -24,9 +23,6 @@ function showEl(el) {
   el.hidden = false;
   return el;
 }
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { hideEl, showEl };
-} else {
-  window.hideEl = hideEl;
-  window.showEl = showEl;
-}
+
+window.hideEl = hideEl;
+window.showEl = showEl;

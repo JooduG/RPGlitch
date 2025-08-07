@@ -1,4 +1,3 @@
-
 /**
  * Returns HTML for a picture, using a real picture if available, otherwise a placeholder SVG.
  * @param {Object} item - The item with picture, name, colorPalette, and itemType.
@@ -88,9 +87,9 @@ function getInitials(name) {
  * @returns {string} The CSS class.
  */
 
-  function getPictureClass(context) {
-    return ['profile-picture', context].filter(Boolean).join(' ');
-  }
+function getPictureClass(context) {
+  return `profile-picture${context ? ` ${context}` : ''}`;
+}
 
 /**
  * Creates initials-only HTML for card context.

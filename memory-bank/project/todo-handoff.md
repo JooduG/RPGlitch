@@ -49,6 +49,7 @@
 - [ ] Evaluate dropdown keyboard accessibility after toggle update.
 - [x] Cap auto-generated storyboard titles at 80 characters.
 - [ ] QA cross-device layout for search group and title updates.
-- [x] Swap dynamic entity-form import for direct factory and drop CommonJS shims.
-- [x] Reuse card headings and show native selects via focus/click.
-- [ ] Audit native dropdown behavior across browsers.
+- [x] Reuse existing storyboard card headings and reveal selects on title click.
+- [x] Extend hover flash to editing titles.
+- [x] Replace dynamic entity-form import and remove CommonJS shims to satisfy CSP.
+- [x] Ensure picture helper always prefixes `profile-picture`.
