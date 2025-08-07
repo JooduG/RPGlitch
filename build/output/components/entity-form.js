@@ -1,1 +1,65 @@
-!function(e){function t(e,t){const n=document.createElement("dialog");n.id=`${e}-dialog`;const o=document.createElement("form");o.method="dialog";const a=document.createElement("label");a.textContent=`${{story:"Title",character:"Name",world:"Title"}[e]||"Title"} `;const c=document.createElement("input");c.name="title",c.required=!0,a.appendChild(c);const d=document.createElement("menu"),l=document.createElement("button");l.type="button",l.value="cancel",l.textContent="Cancel";const r=document.createElement("button");r.type="submit",r.value="default",r.textContent="Save",d.append(l,r),o.append(a,d),n.appendChild(o),document.body.appendChild(n);const i=()=>{n.close(),n.remove()};o.addEventListener("submit",e=>{e.preventDefault();const n=o.title.value.trim();n&&("function"==typeof t&&t({title:n}),i())}),l.addEventListener("click",()=>{i()}),n.addEventListener("cancel",e=>{e.preventDefault(),i()}),n.showModal()}e.openEntityModal=t,e.openStoryModal=function(e){return t("story",e)},e.openCharacterModal=function(e){return t("character",e)},e.openWorldModal=function(e){return t("world",e)}}("undefined"!=typeof window?window:globalThis);
+(function (global) {
+  function openEntityModal(type, onSubmit) {
+    const labels = { story: 'Title', character: 'Name', world: 'Title' };
+    const dialog = document.createElement('dialog');
+    dialog.id = `${type}-dialog`;
+
+    const form = document.createElement('form');
+    form.method = 'dialog';
+
+    const label = document.createElement('label');
+    label.textContent = `${labels[type] || 'Title'} `;
+
+    const input = document.createElement('input');
+    input.name = 'title';
+    input.required = true;
+    label.appendChild(input);
+
+    const menu = document.createElement('menu');
+
+    const cancelButton = document.createElement('button');
+    cancelButton.type = 'button';
+    cancelButton.value = 'cancel';
+    cancelButton.textContent = 'Cancel';
+
+    const saveButton = document.createElement('button');
+    saveButton.type = 'submit';
+    saveButton.value = 'default';
+    saveButton.textContent = 'Save';
+
+    menu.append(cancelButton, saveButton);
+    form.append(label, menu);
+    dialog.appendChild(form);
+    document.body.appendChild(dialog);
+
+    const close = () => {
+      dialog.close();
+      dialog.remove();
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = form.title.value.trim();
+      if (!title) return;
+      if (typeof onSubmit === 'function') onSubmit({ title });
+      close();
+    });
+
+    cancelButton.addEventListener('click', () => {
+      close();
+    });
+
+    dialog.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
+
+    dialog.showModal();
+  }
+
+  function openStoryModal(onSubmit) { return openEntityModal('story', onSubmit); }
+  function openCharacterModal(onSubmit) { return openEntityModal('character', onSubmit); }
+  function openWorldModal(onSubmit) { return openEntityModal('world', onSubmit); }
+
+  global.openEntityModal = openEntityModal;
+  global.openStoryModal = openStoryModal;
+  global.openCharacterModal = openCharacterModal;
+  global.openWorldModal = openWorldModal;
+})(typeof window !== 'undefined' ? window : globalThis);

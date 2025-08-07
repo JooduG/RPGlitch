@@ -414,8 +414,15 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   if (headerEl && !heading) {
     heading = document.createElement('h4');
     heading.className = 'card-title';
-    heading.addEventListener('click', () => {
+    const finishEditing = () => {
+      heading.contentEditable = 'false';
+      heading.classList.remove('card-title--editing');
       const currentItem = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
+      if (currentItem) currentItem.title = heading.textContent.trim();
+      App.setDynamicTitle?.();
+    };
+
+    heading.addEventListener('click', () => {
       select.focus();
       select.click();
       const hidden = select.classList.toggle('visually-hidden');
@@ -431,18 +438,15 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         }
         heading.focus();
       } else {
-        heading.contentEditable = 'false';
-        heading.classList.remove('card-title--editing');
-        if (currentItem) currentItem.title = heading.textContent.trim();
-        App.setDynamicTitle?.();
+        finishEditing();
       }
     });
-    heading.addEventListener('blur', () => {
-      heading.contentEditable = 'false';
-      heading.classList.remove('card-title--editing');
-      const currentItem = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
-      if (currentItem) currentItem.title = heading.textContent.trim();
-      App.setDynamicTitle?.();
+    heading.addEventListener('blur', finishEditing);
+    heading.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        heading.blur();
+      }
     });
     heading.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
