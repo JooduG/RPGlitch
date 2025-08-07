@@ -94,3 +94,9 @@
 - Top bar search input matches button height with balanced padding.
 - Storyboard card titles now toggle dropdown visibility without layout jumps, and default titles truncate beyond 80 characters.
 - Auto-generated storyboard titles now clamp to 80 characters to prevent overflow.
+- Storyboard title element renamed to `#story-title` with wrapper reserve and `.editing` class removing ellipsis during edits.
+- Storyboard selects hide with a `.visually-hidden` class and headings reveal them for reselection without duplication.
+- Profile pictures use `profile-picture <context>` classes with SCSS-specified circular sizing.
+- Chin search handlers locate `.chin-grid` without relying on `.chin` ancestors, ensuring proper filtering.
+- Top bar buttons share a fixed width and chin search fields sit in a `.search-group` that shows a pink ring on focus.
+- Card headers on chin and storyboard cards transition color on hover or focus for clearer affordance.

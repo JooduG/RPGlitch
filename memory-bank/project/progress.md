@@ -82,3 +82,8 @@
 - Top-bar search input height is explicitly 2.5rem with balanced padding.
 - Storyboard card titles now toggle select visibility, avatars use uniform sizing, search inputs match button height, and default titles cap at 80 characters.
 - Auto-generated storyboard titles are truncated at 80 characters to prevent overflow.
+- Storyboard title renamed to `#story-title` with editing mode removing ellipsis and reserve height via wrapper.
+- Storyboard card selects hide with a `.visually-hidden` class and headings reveal them for reselection without duplication.
+- Chin search handler now falls back to `.chin-widget` containers to hide non-matching cards properly.
+- Top bar buttons receive a fixed width and chin searches wrap input and button in a `.search-group` with a pink focus ring.
+- Chin and storyboard card headings transition color on hover or focus for better affordance, and avatars size via unified `profile-picture <context>` classes.
