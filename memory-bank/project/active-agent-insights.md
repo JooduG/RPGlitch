@@ -91,3 +91,6 @@
 - The story title's `.editing` class expands text for contentEditable and restores ellipsis on blur.
 - `getPictureClass` now simply prefixes `profile-picture` to the given context, reducing branching.
 - Wrapping chin search inputs and buttons in a `.search-group` provides a unified width and a pink focus ring.
+- Reusing existing storyboard headings prevents DOM duplication and keeps dropdown toggling stable.
+- Decoding the entity-form data URI lazily avoids placeholder errors in tests.
+- Extended hover outlines needed selector-pattern suppression for the `--editing` modifier.
