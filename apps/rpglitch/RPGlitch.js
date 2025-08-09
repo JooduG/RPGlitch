@@ -382,7 +382,6 @@ App.refreshAllLists = App.refreshAllLists || function () {
   App.renderDropdown?.('storyboard-ai-select', 'characters');
   App.renderDropdown?.('storyboard-user-select', 'characters');
   App.renderDropdown?.('storyboard-world-select', 'worlds');
-  App.setDynamicTitle?.();
 };
 
 App.renderStoryList = App.renderStoryList || function () {
@@ -420,23 +419,28 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   }
   const small = footer ? footer.querySelector('small') : null;
   const imgWrap = card.querySelector('.storyboard-card-left');
-  const img = imgWrap ? imgWrap.querySelector('img.profile-picture') : null;
+  let img = imgWrap ? imgWrap.querySelector('img.profile-picture') : null;
   if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
   const option = select.options[select.selectedIndex];
-  const titleText = option ? option.textContent || option.value || '' : '';
+  const firstOption = select.options.length > 0 ? select.options[0] : null;
+  const defaultHeading =
+    (option && (option.label || option.textContent)) ||
+    (firstOption && (firstOption.label || firstOption.textContent)) ||
+    select.dataset.placeholder ||
+    'Select…';
   const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
 
   if (headerEl && !heading) {
     heading = document.createElement('h4');
     heading.className = 'card-title';
     heading.addEventListener('click', () => {
-      select.hidden = false;
+      select.showPicker?.() || (select.focus(), select.click());
     });
     headerEl.appendChild(heading);
   }
 
   if (heading) {
-    heading.textContent = titleText;
+    heading.textContent = defaultHeading;
     heading.hidden = false;
   }
 
@@ -453,14 +457,19 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         if (newImg && img) {
           if (placeholderSrc) newImg.dataset.placeholderSrc = placeholderSrc;
           imgWrap.replaceChild(newImg, img);
+          img = newImg;
         }
       } else if (img && item.image) {
         img.src = item.image;
         img.alt = item.title || '';
+      } else if (img) {
+        img.src = img.dataset.placeholderSrc || '';
+        img.alt = '';
+        img.classList.add('empty');
       }
     }
     if (heading) {
-      heading.textContent = item.title || '';
+      heading.textContent = item.title || defaultHeading;
       heading.hidden = false;
     }
 
@@ -468,12 +477,15 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
     if (img) {
-      img.src = img.dataset.placeholderSrc || img.src;
+      img.src = img.dataset.placeholderSrc || '';
       img.alt = '';
+      img.classList.add('empty');
     }
     select.hidden = false;
   }
-  App.setDynamicTitle?.();
+  if (img) {
+    img.classList.toggle('empty', !img.src);
+  }
 };
 
 const titlePrompts = [
@@ -566,7 +578,10 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
   configs.forEach(({ id, key }) => {
     const select = document.getElementById(id);
     if (select) {
-      const handler = () => App.updateStoryboardCard(id, key);
+      const handler = () => {
+        App.updateStoryboardCard(id, key);
+        App.setDynamicTitle();
+      };
       select.addEventListener('change', handler);
       App.updateStoryboardCard(id, key);
     }
@@ -592,8 +607,6 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
           select.dispatchEvent(new Event('change'));
         }
       });
-      const t = document.getElementById('storyboard-dynamic-title');
-      if (t && !t.dataset.manual) App.setDynamicTitle();
     });
   }
   App.setDynamicTitle();
