@@ -419,7 +419,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     article.insertBefore(descEl, footer);
   }
   const small = footer ? footer.querySelector('small') : null;
-  const img = card.querySelector('.storyboard-card-left');
+  const imgWrap = card.querySelector('.storyboard-card-left');
+  const img = imgWrap ? imgWrap.querySelector('img.profile-picture') : null;
   if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
   const option = select.options[select.selectedIndex];
   const titleText = option ? option.textContent || option.value || '' : '';
@@ -433,7 +434,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       heading.classList.remove('card-title--editing');
       const currentItem = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
       if (currentItem) currentItem.title = heading.textContent.trim();
-      App.setDynamicTitle?.();
     };
 
     heading.addEventListener('click', () => {
@@ -473,16 +473,18 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   if (item) {
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
-    if (img) {
+    if (imgWrap) {
       if (typeof window.getPictureHTML === 'function') {
-        const placeholderSrc = img.dataset.placeholderSrc;
+        const placeholderSrc = img ? img.dataset.placeholderSrc : undefined;
         const frag = document.createRange().createContextualFragment(
           window.getPictureHTML(item, item.colorPalette, 'storyboard-card')
         );
         const newImg = frag.querySelector('img');
-        if (newImg && placeholderSrc) newImg.dataset.placeholderSrc = placeholderSrc;
-        img.replaceWith(newImg);
-      } else if (item.image) {
+        if (newImg && img) {
+          if (placeholderSrc) newImg.dataset.placeholderSrc = placeholderSrc;
+          imgWrap.replaceChild(newImg, img);
+        }
+      } else if (img && item.image) {
         img.src = item.image;
         img.alt = item.title || '';
       }
@@ -596,7 +598,6 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
     if (select) {
       const handler = () => App.updateStoryboardCard(id, key);
       select.addEventListener('change', handler);
-      select.addEventListener('blur', handler);
       App.updateStoryboardCard(id, key);
     }
   });
