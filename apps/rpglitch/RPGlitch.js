@@ -429,38 +429,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   if (headerEl && !heading) {
     heading = document.createElement('h4');
     heading.className = 'card-title';
-    const finishEditing = () => {
-      heading.contentEditable = 'false';
-      heading.classList.remove('card-title--editing');
-      const currentItem = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
-      if (currentItem) currentItem.title = heading.textContent.trim();
-    };
-
     heading.addEventListener('click', () => {
-      select.focus();
-      select.click();
-      const hidden = select.classList.toggle('visually-hidden');
-      if (hidden) {
-        heading.contentEditable = 'true';
-        heading.classList.add('card-title--editing');
-        const sel = window.getSelection();
-        if (sel) {
-          const range = document.createRange();
-          range.selectNodeContents(heading);
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }
-        heading.focus();
-      } else {
-        finishEditing();
-      }
-    });
-    heading.addEventListener('blur', finishEditing);
-    heading.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        heading.blur();
-      }
+      select.hidden = false;
     });
     headerEl.appendChild(heading);
   }
@@ -501,7 +471,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       img.src = img.dataset.placeholderSrc || img.src;
       img.alt = '';
     }
-    select.classList.remove('visually-hidden');
+    select.hidden = false;
   }
   App.setDynamicTitle?.();
 };

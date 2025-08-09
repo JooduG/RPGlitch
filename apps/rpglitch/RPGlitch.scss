@@ -412,9 +412,19 @@ input[type="file"] {
 }
 
 .profile-picture {
-  width: auto;
-  height: auto;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
   object-fit: cover;
+
+  &.storyboard-card {
+    height: 150px;
+  }
+}
+
+.topbar-search {
+  height: 2.5rem;
+  padding-block: 0;
 }
 
 .picture-edit {
@@ -716,6 +726,16 @@ input[type="file"] {
 
 #storyboard-dynamic-title:hover {
   text-decoration: underline dotted;
+}
+
+#story-title {
+  min-height: 2.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-wrap: balance;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
