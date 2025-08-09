@@ -369,6 +369,7 @@ function renderDropdown(selectId, key) {
   });
   if (premadeCount > 0) select.appendChild(premadeGroup);
   if (customCount > 0) select.appendChild(customGroup);
+  App.updateStoryboardCard?.(selectId, key);
 }
 
 App.renderDropdown = App.renderDropdown || renderDropdown;
@@ -405,48 +406,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   if (!article) return;
   const headerEl = article.querySelector('header');
   let heading = headerEl ? headerEl.querySelector('.card-title') : null;
-  if (!heading && headerEl) {
-    heading = document.createElement('h4');
-    heading.className = 'card-title';
-    headerEl.appendChild(heading);
-    heading.addEventListener('click', () => {
-      const currentItem = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
-      if (select.hidden) {
-        select.hidden = false;
-        select.focus();
-        select.click();
-        heading.contentEditable = 'false';
-        heading.classList.remove('card-title--editing');
-        if (currentItem) currentItem.title = heading.textContent.trim();
-        App.setDynamicTitle?.();
-      } else {
-        select.hidden = true;
-        heading.contentEditable = 'true';
-        heading.classList.add('card-title--editing');
-        const sel = window.getSelection();
-        if (sel) {
-          const range = document.createRange();
-          range.selectNodeContents(heading);
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }
-        heading.focus();
-      }
-    });
-    heading.addEventListener('blur', () => {
-      heading.contentEditable = 'false';
-      heading.classList.remove('card-title--editing');
-      const currentItem = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
-      if (currentItem) currentItem.title = heading.textContent.trim();
-      App.setDynamicTitle?.();
-    });
-    heading.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        heading.blur();
-      }
-    });
-  }
   const footer = article.querySelector('footer');
   let descEl = article.querySelector('.card-description');
   if (!descEl) {
@@ -497,12 +456,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       }
     });
     heading.addEventListener('blur', finishEditing);
-    heading.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        heading.blur();
-      }
-    });
     heading.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();

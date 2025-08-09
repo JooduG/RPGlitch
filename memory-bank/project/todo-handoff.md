@@ -53,3 +53,6 @@
 - [x] Extend hover flash to editing titles.
 - [x] Replace dynamic entity-form import and remove CommonJS shims to satisfy CSP.
 - [x] Ensure picture helper always prefixes `profile-picture`.
+- [x] Reuse existing storyboard card headings and open selects on title click.
+- [x] Preserve dropdown placeholder text and sync headings on change.
+- [x] Strip remaining `module.exports` shims from bundled libraries.
