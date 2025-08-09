@@ -94,3 +94,4 @@
 - Storyboard card headings are reused, clicking them focuses and clicks the select without duplicating titles or hiding it.
 - Editing titles now show the same hover flash as the rest of the card.
 - Removed remaining CommonJS `module.exports` shims from the bundled output.
+- Dropped redundant storyboard dropdown change listener to avoid duplicate updates.

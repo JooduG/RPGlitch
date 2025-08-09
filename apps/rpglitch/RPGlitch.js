@@ -369,10 +369,7 @@ function renderDropdown(selectId, key) {
   });
   if (premadeCount > 0) select.appendChild(premadeGroup);
   if (customCount > 0) select.appendChild(customGroup);
-  if (!select._storyboardChangeAttached) {
-    select.addEventListener('change', () => App.updateStoryboardCard(selectId, key));
-    select._storyboardChangeAttached = true;
-  }
+  App.updateStoryboardCard?.(selectId, key);
 }
 
 App.renderDropdown = App.renderDropdown || renderDropdown;
