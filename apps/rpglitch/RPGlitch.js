@@ -465,7 +465,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       } else if (img) {
         img.src = img.dataset.placeholderSrc || '';
         img.alt = '';
-        img.classList.add('empty');
       }
     }
     if (heading) {
@@ -484,7 +483,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     select.hidden = false;
   }
   if (img) {
-    img.classList.toggle('empty', !img.src);
+    img.classList.toggle('empty', !img.getAttribute('src'));
   }
 };
 
@@ -538,7 +537,11 @@ App._setupStoryboardTitle = function () {
   const titleEl = document.getElementById('storyboard-dynamic-title');
   if (!titleEl) return;
   if (titleEl.dataset.editable) return;
-  titleEl.dataset.editable = 'true';
+  titleEl.autocomplete = 'off';
+  titleEl.autocapitalize = 'off';
+  titleEl.autocorrect = 'off';
+  titleEl.spellcheck = false;
+  titleEl.setAttribute('spellcheck', 'false');
 
   const finishEditing = () => {
     titleEl.contentEditable = 'false';
