@@ -462,6 +462,10 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       } else if (img && item.image) {
         img.src = item.image;
         img.alt = item.title || '';
+      } else if (img) {
+        img.src = img.dataset.placeholderSrc || '';
+        img.alt = '';
+        img.classList.add('empty');
       }
     }
     if (heading) {
@@ -473,14 +477,14 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
     if (img) {
-      img.src = img.dataset.placeholderSrc || img.src;
+      img.src = img.dataset.placeholderSrc || '';
       img.alt = '';
+      img.classList.add('empty');
     }
     select.hidden = false;
   }
   if (img) {
-    const hasSrc = !!img.getAttribute('src');
-    img.classList.toggle('empty', !hasSrc);
+    img.classList.toggle('empty', !img.src);
   }
 };
 
