@@ -61,6 +61,7 @@ button {
   justify-content: center;
   display: flex;
   align-items: center;
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
   flex: nowrap;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -412,17 +413,12 @@ input[type="file"] {
 }
 
 .profile-picture {
-  width: 4rem;
-  height: 4rem;
-  border-radius: 50%;
+  width: auto;
+  height: auto;
   object-fit: cover;
-
-  &.storyboard-card {
-    height: 150px;
-  }
 }
 
-.topbar-search {
+.top-bar-search {
   height: 2.5rem;
   padding-block: 0;
 }
@@ -728,7 +724,7 @@ input[type="file"] {
   text-decoration: underline dotted;
 }
 
-#story-title {
+#storyboard-title {
   min-height: 2.5em;
   display: flex;
   align-items: center;

@@ -88,7 +88,8 @@ function getInitials(name) {
  */
 
 function getPictureClass(context) {
-  return ['profile-picture', context].filter(Boolean).join(' ');
+  const extra = Array.isArray(context) ? context : [context];
+  return ['profile-picture', ...extra.filter(Boolean)].join(' ');
 }
 
 /**
