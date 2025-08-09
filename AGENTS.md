@@ -204,11 +204,12 @@ allow_read:
   - "./**/*"
 allow_write:
   - "./apps/**/*"
-  - "./build/**/*"
+  - "./build/scripts/**/*"
   - "./memory-bank/**/*"
   - "./docs/**/*"
   - "./tests/**/*"
 deny_write:
+  - "./build/output/**/*"
   - "./.cursor/**"
 ```
 
