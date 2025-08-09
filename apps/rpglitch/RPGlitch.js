@@ -478,6 +478,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     if (img) {
       img.src = img.dataset.placeholderSrc || '';
       img.alt = '';
+      img.classList.add('empty');
     }
     select.hidden = false;
   }
