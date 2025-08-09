@@ -90,3 +90,8 @@
 - Reused existing storyboard headings, title clicks open native dropdowns with matching hover pulse.
 - Picture helper now guarantees a `profile-picture` prefix across contexts.
 - Dynamic entity-form import was replaced by an inline factory and leftover CommonJS shims were dropped.
+- Placeholder options retain their labels when dropdowns rerender and change handlers keep headings in sync.
+- Storyboard card headings are reused, clicking them focuses and clicks the select without duplicating titles or hiding it.
+- Editing titles now show the same hover flash as the rest of the card.
+- Removed remaining CommonJS `module.exports` shims from the bundled output.
+- Dropped redundant storyboard dropdown change listener to avoid duplicate updates.
