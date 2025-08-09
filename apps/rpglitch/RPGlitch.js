@@ -537,13 +537,10 @@ App._setupStoryboardTitle = function () {
   const titleEl = document.getElementById('storyboard-dynamic-title');
   if (!titleEl) return;
   if (titleEl.dataset.editable) return;
-  titleEl.dataset.editable = 'true';
+  titleEl.autocomplete = 'off';
   titleEl.autocapitalize = 'off';
   titleEl.autocorrect = 'off';
   titleEl.spellcheck = false;
-  titleEl.setAttribute('autocomplete', 'off');
-  titleEl.setAttribute('autocapitalize', 'off');
-  titleEl.setAttribute('autocorrect', 'off');
   titleEl.setAttribute('spellcheck', 'false');
 
   const finishEditing = () => {
