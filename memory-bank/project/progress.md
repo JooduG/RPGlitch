@@ -95,3 +95,4 @@
 - Editing titles now show the same hover flash as the rest of the card.
 - Removed remaining CommonJS `module.exports` shims from the bundled output.
 - Dropped redundant storyboard dropdown change listener to avoid duplicate updates.
+- Applied hotfixes for dropdown reopening, profile picture sizing, topbar search height, and storyboard title flex layout.

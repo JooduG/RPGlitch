@@ -88,7 +88,7 @@ function getInitials(name) {
  */
 
 function getPictureClass(context) {
-  return `profile-picture${context ? ` ${context}` : ''}`;
+  return ['profile-picture', context].filter(Boolean).join(' ');
 }
 
 /**
