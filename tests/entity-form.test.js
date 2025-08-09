@@ -1,4 +1,4 @@
-require('../apps/rpglitch/components/entity-form.js');
+require('../apps/rpglitch/js/entity-form.js');
 const { openEntityModal } = global;
 
 describe('entity-form modal', () => {

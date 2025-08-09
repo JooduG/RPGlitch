@@ -123,7 +123,7 @@ const SOURCE_FILES = [
     { name: path.join(RPGLITCH_DIR, 'RPGlitch.js'), type: 'script', description: 'JavaScript logic' }
 ];
 
-const COMPONENTS_DIR = path.join(__dirname, '../../apps/rpglitch/components');
+const COMPONENTS_DIR = path.join(__dirname, '../../apps/rpglitch/js');
 const COMPONENT_FILES = fs.readdirSync(COMPONENTS_DIR)
     .filter((f) => f.endsWith('.js'))
     .map((f) => ({

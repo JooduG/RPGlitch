@@ -795,8 +795,7 @@ input[type="file"] {
   transition: outline 0.15s ease;
 }
 
-.storyboard-card .card-title--editing,
-.storyboard-card .card-title[contenteditable='true']:hover {
+.storyboard-card .card-title--editing {
   outline: 2px solid var(--pico-primary-hover);
   transition: outline 0.15s ease;
 }
