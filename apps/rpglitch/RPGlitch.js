@@ -473,7 +473,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   if (imgWrap && typeof window.getPictureHTML === 'function') {
     const oldUrl =
       img && img.src.startsWith('blob:') && img.dataset.isPlaceholder !== 'true' ? img.src : null;
-    const newImg = window.getPictureHTML(item || { type }, item?.colorPalette, 'storyboard-card');
+    const newImg = window.getPictureHTML(item || { type }, item?.colorPalette);
     imgWrap.replaceChild(newImg, img);
     if (oldUrl) URL.revokeObjectURL(oldUrl);
     img = newImg;
