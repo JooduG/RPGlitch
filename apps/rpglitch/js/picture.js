@@ -42,15 +42,25 @@ function getObjectUrlForBlob(blob) {
 }
 
 // Required by the app: create/return the <img> element
-// context is 'storyboard' | 'chin-card' (ignore for now, but keep signature)
-window.getPictureHTML = function getPictureHTML(item = {}, palette = null, _context = 'storyboard') {
+window.getPictureHTML = function getPictureHTML(item = {}, palette = null) {
   const img = document.createElement('img');
   img.className = 'profile-picture';
   img.loading = 'lazy';
   img.decoding = 'async';
 
+  const setPlaceholder = () => {
+    const name = item.name || item.title || 'Unknown';
+    const initials = getInitials(name);
+    const bg = pickBgColor(item, palette);
+    img.src = makeInitialsPlaceholderDataURI(initials, bg, 256);
+    img.dataset.isPlaceholder = 'true';
+  };
+
   // 1) Uploaded file/blob wins
-  if (item.pictureFile && (item.pictureFile instanceof Blob || (typeof File !== 'undefined' && item.pictureFile instanceof File))) {
+  if (
+    item.pictureFile &&
+    (item.pictureFile instanceof Blob || (typeof File !== 'undefined' && item.pictureFile instanceof File))
+  ) {
     img.src = getObjectUrlForBlob(item.pictureFile);
     img.dataset.isPlaceholder = 'false';
   }
@@ -58,24 +68,23 @@ window.getPictureHTML = function getPictureHTML(item = {}, palette = null, _cont
   else if (typeof item.picture === 'string' && item.picture.trim()) {
     img.src = item.picture.trim();
     img.dataset.isPlaceholder = 'false';
+    img.onerror = () => {
+      img.onerror = null;
+      setPlaceholder();
+      img.classList.add('empty');
+    };
   }
   // 3) Fallback: SVG initials on color
   else {
-    const name = item.name || item.title || 'Unknown';
-    const initials = getInitials(name);
-    const bg = pickBgColor(item, palette);
-    img.src = makeInitialsPlaceholderDataURI(initials, bg, 256);
-    img.dataset.isPlaceholder = 'true';
+    setPlaceholder();
   }
 
-  const type = (item.type || 'Character');
+  const type = item.type || 'Character';
   const name = item.name || item.title || 'Unnamed';
   img.alt = `${type} picture for ${name}`;
 
   return img;
 };
 
-// (If the app needs to clean up object URLs on global teardown)
-// window.addEventListener('beforeunload', () => {
-//   for (const [blob, url] of __objectUrlCache) URL.revokeObjectURL(url);
-// });
+// Note: __objectUrlCache is a WeakMap and cannot be iterated for cleanup.
+// If manual revocation of object URLs is needed, track them separately.
