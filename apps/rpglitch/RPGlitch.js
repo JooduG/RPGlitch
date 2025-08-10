@@ -418,8 +418,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     article.insertBefore(descEl, footer);
   }
   const small = footer ? footer.querySelector('small') : null;
-  const imgWrap = card.querySelector('.storyboard-card-left');
-  let img = imgWrap ? imgWrap.querySelector('img.profile-picture') : null;
+  let img = card.querySelector('img.profile-picture');
+  const imgWrap = img?.parentElement;
   if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
   const option = select.options[select.selectedIndex];
   const firstOption = select.options.length > 0 ? select.options[0] : null;
