@@ -305,6 +305,7 @@ function renderList(containerId, key) {
         img.classList.add('empty');
       } else {
         img.classList.remove('empty');
+
       }
     }
 
@@ -424,6 +425,15 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     article.insertBefore(descEl, footer);
   }
   const small = footer ? footer.querySelector('small') : null;
+
+  let img = card.querySelector('img.profile-picture');
+  const left = card.querySelector('.storyboard-card-left');
+  const type = key === 'worlds' ? 'World' : 'Character';
+  if (!img && left && typeof window.getPictureHTML === 'function') {
+    img = window.getPictureHTML({ type }, null, 'storyboard-card');
+    left.appendChild(img);
+  }
+  const imgWrap = img?.parentElement;
   const option = select.options[select.selectedIndex];
   const firstOption = select.options.length > 0 ? select.options[0] : null;
   const defaultHeading =
@@ -450,6 +460,14 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   if (item) {
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
+
+    if (imgWrap && typeof window.getPictureHTML === 'function') {
+      const oldUrl = img && img.src.startsWith('blob:') && img.dataset.isPlaceholder !== 'true' ? img.src : null;
+      const newImg = window.getPictureHTML(item, item.colorPalette, 'storyboard-card');
+      imgWrap.replaceChild(newImg, img);
+      if (oldUrl) URL.revokeObjectURL(oldUrl);
+      img = newImg;
+    }
     if (heading) {
       heading.textContent = item.title || defaultHeading;
       heading.hidden = false;
@@ -473,6 +491,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       nextImg.classList.add('empty');
     } else {
       nextImg.classList.remove('empty');
+
     }
   }
 };

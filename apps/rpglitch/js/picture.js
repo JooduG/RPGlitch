@@ -79,4 +79,3 @@ window.getPictureHTML = function getPictureHTML(item = {}, palette = null, _cont
 // window.addEventListener('beforeunload', () => {
 //   for (const [blob, url] of __objectUrlCache) URL.revokeObjectURL(url);
 // });
-
