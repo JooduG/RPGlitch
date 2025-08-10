@@ -105,3 +105,6 @@
 - `getPictureClass` always prefixes `profile-picture` so avatars respect sizing rules.
 - Dynamic entity-form import replaced by inline factory and residual CommonJS exports removed.
 - Chin search handler falls back to `.chin-widget` containers.
+- Reintroduced placeholder fallback for broken profile image URLs with `onerror` handling.
+- Consolidated storyboard card image updates, removing duplicated `left` lookups.
+- Clarified WeakMap cache is non-iterable and requires separate tracking for manual URL cleanup.

@@ -97,3 +97,6 @@
 - Dropped redundant storyboard dropdown change listener to avoid duplicate updates.
 - Applied hotfixes for dropdown reopening, profile picture sizing, topbar search height, and storyboard title flex layout.
 - Storyboard cards now insert a default `profile-picture` image if none exists, preserving avatar slots.
+- Restored placeholder fallback for broken image URLs and added `onerror` handling.
+- Refactored storyboard card image updates to eliminate duplicate logic and remove `left` redeclaration.
+- Clarified WeakMap cleanup guidance in picture helper comments.
