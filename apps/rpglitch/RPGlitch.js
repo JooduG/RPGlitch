@@ -455,7 +455,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const updateImage = (itemData, palette) => {
     if (!imgWrap || typeof window.getPictureHTML !== 'function') return;
     const frag = document.createRange().createContextualFragment(
-      window.getPictureHTML(itemData, palette, 'storyboard-card')
+      window.getPictureHTML({ ...itemData, name: itemData.title }, palette, 'storyboard-card')
     );
     const newImg = frag.querySelector('img');
     if (!newImg) return;
