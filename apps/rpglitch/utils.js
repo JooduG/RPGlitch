@@ -20,7 +20,7 @@ function hideEl(el) {
 function showEl(el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
-  el.removeAttribute('hidden');
+  el.hidden = false;
   return el;
 }
 
