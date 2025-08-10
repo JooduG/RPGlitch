@@ -608,7 +608,6 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
     title.addEventListener('dblclick', () => {
       if (title.dataset.manual === 'true') {
         title.dataset.manual = '';
-        App.setDynamicTitle();
       }
     });
   }
@@ -625,7 +624,6 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
       });
     });
   }
-  App.setDynamicTitle();
 };
 
 // Track attached listeners to avoid duplicates
