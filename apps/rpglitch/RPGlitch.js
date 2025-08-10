@@ -459,11 +459,16 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
           imgWrap.replaceChild(newImg, img);
           img = newImg;
         }
-      } else if (img && item.image) {
-        img.src = item.image;
+      } else if (img && item.picture) {
+        img.src = item.picture;
         img.alt = item.title || '';
       } else if (img) {
-        img.src = img.dataset.placeholderSrc || '';
+        const placeholderSrc = img.dataset.placeholderSrc;
+        if (placeholderSrc) {
+          img.src = placeholderSrc;
+        } else {
+          img.removeAttribute('src');
+        }
         img.alt = '';
       }
     }
@@ -476,14 +481,19 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
     if (img) {
-      img.src = img.dataset.placeholderSrc || '';
+      const placeholderSrc = img.dataset.placeholderSrc;
+      if (placeholderSrc) {
+        img.src = placeholderSrc;
+      } else {
+        img.removeAttribute('src');
+      }
       img.alt = '';
       img.classList.add('empty');
     }
     select.hidden = false;
   }
   if (img) {
-    img.classList.toggle('empty', !img.getAttribute('src'));
+    img.classList.toggle('empty', !img.src);
   }
 };
 
@@ -537,10 +547,13 @@ App._setupStoryboardTitle = function () {
   const titleEl = document.getElementById('storyboard-dynamic-title');
   if (!titleEl) return;
   if (titleEl.dataset.editable) return;
-  titleEl.autocomplete = 'off';
+  titleEl.dataset.editable = 'true';
   titleEl.autocapitalize = 'off';
   titleEl.autocorrect = 'off';
   titleEl.spellcheck = false;
+  titleEl.setAttribute('autocomplete', 'off');
+  titleEl.setAttribute('autocapitalize', 'off');
+  titleEl.setAttribute('autocorrect', 'off');
   titleEl.setAttribute('spellcheck', 'false');
 
   const finishEditing = () => {
