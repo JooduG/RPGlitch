@@ -277,7 +277,7 @@ App.getAllItems = App.getAllItems || function (key, refresh = false) {
 function renderList(containerId, key) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  container.querySelectorAll('img[src^="blob:"]').forEach((img) => {
+  container.querySelectorAll('img.profile-picture[src^="blob:"]').forEach((img) => {
     URL.revokeObjectURL(img.src);
   });
   container.textContent = '';
@@ -303,6 +303,9 @@ function renderList(containerId, key) {
       left.appendChild(img);
       if (img.dataset.isPlaceholder === 'true') {
         img.classList.add('empty');
+      } else {
+        img.classList.remove('empty');
+
       }
     }
 
@@ -422,6 +425,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     article.insertBefore(descEl, footer);
   }
   const small = footer ? footer.querySelector('small') : null;
+
   let img = card.querySelector('img.profile-picture');
   const left = card.querySelector('.storyboard-card-left');
   const type = key === 'worlds' ? 'World' : 'Character';
@@ -456,6 +460,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   if (item) {
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
+
     if (imgWrap && typeof window.getPictureHTML === 'function') {
       const oldUrl = img && img.src.startsWith('blob:') && img.dataset.isPlaceholder !== 'true' ? img.src : null;
       const newImg = window.getPictureHTML(item, item.colorPalette, 'storyboard-card');
@@ -470,20 +475,23 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
-    if (imgWrap && typeof window.getPictureHTML === 'function') {
-      const oldUrl = img && img.src.startsWith('blob:') && img.dataset.isPlaceholder !== 'true' ? img.src : null;
-      const newImg = window.getPictureHTML({ type }, null, 'storyboard-card');
-      imgWrap.replaceChild(newImg, img);
-      if (oldUrl) URL.revokeObjectURL(oldUrl);
-      img = newImg;
-    }
     select.hidden = false;
   }
-  if (img) {
-    if (img.dataset.isPlaceholder === 'true') {
-      img.classList.add('empty');
+
+  const left = card.querySelector('.storyboard-card-left');
+  if (left && typeof window.getPictureHTML === 'function') {
+    const prevImg = left.querySelector('img.profile-picture');
+    const prevSrc = prevImg && prevImg.src && prevImg.src.startsWith('blob:') ? prevImg.src : null;
+    const nextImg = window.getPictureHTML(item || {}, item?.colorPalette, 'storyboard-card');
+    left.replaceChildren(nextImg);
+    if (prevSrc && prevSrc !== nextImg.src) {
+      URL.revokeObjectURL(prevSrc);
+    }
+    if (nextImg.dataset.isPlaceholder === 'true') {
+      nextImg.classList.add('empty');
     } else {
-      img.classList.remove('empty');
+      nextImg.classList.remove('empty');
+
     }
   }
 };
