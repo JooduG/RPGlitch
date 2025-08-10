@@ -488,6 +488,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         img.removeAttribute('src');
       }
       img.alt = '';
+      img.classList.add('empty');
     }
     select.hidden = false;
   }
