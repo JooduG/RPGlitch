@@ -300,7 +300,7 @@ function renderList(containerId, key) {
 
     if (typeof window.getPictureHTML === 'function') {
       const frag = document.createRange().createContextualFragment(
-        window.getPictureHTML(item, item.colorPalette, 'chin-card')
+        window.getPictureHTML({ ...item, name: item.title }, item.colorPalette, 'chin-card')
       );
       const img = frag.querySelector('img');
       if (img) {
