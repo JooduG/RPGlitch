@@ -277,6 +277,9 @@ App.getAllItems = App.getAllItems || function (key, refresh = false) {
 function renderList(containerId, key) {
   const container = document.getElementById(containerId);
   if (!container) return;
+  container.querySelectorAll('img.profile-picture[src^="blob:"]').forEach((img) => {
+    URL.revokeObjectURL(img.src);
+  });
   container.textContent = '';
   const all = App.getAllItems(key);
   if (key === 'stories' && all.length === 0) {
@@ -296,10 +299,13 @@ function renderList(containerId, key) {
     left.className = 'chin-card-left';
 
     if (typeof window.getPictureHTML === 'function') {
-      const frag = document.createRange().createContextualFragment(
-        window.getPictureHTML(item, item.colorPalette, 'chin-card')
-      );
-      left.appendChild(frag);
+      const img = window.getPictureHTML(item, item.colorPalette, 'chin-card');
+      left.appendChild(img);
+      if (img.dataset.isPlaceholder === 'true') {
+        img.classList.add('empty');
+      } else {
+        img.classList.remove('empty');
+      }
     }
 
     const article = document.createElement('article');
@@ -418,20 +424,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     article.insertBefore(descEl, footer);
   }
   const small = footer ? footer.querySelector('small') : null;
-  let img = card.querySelector('img.profile-picture');
-  if (!img) {
-    const left = card.querySelector('.storyboard-card-left');
-    if (left) {
-      img = document.createElement('img');
-      img.className = 'profile-picture';
-      const placeholder = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
-      img.dataset.placeholderSrc = placeholder;
-      img.src = placeholder;
-      left.appendChild(img);
-    }
-  }
-  const imgWrap = img?.parentElement;
-  if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
   const option = select.options[select.selectedIndex];
   const firstOption = select.options.length > 0 ? select.options[0] : null;
   const defaultHeading =
@@ -458,53 +450,30 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   if (item) {
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
-    if (imgWrap) {
-      if (typeof window.getPictureHTML === 'function') {
-        const placeholderSrc = img ? img.dataset.placeholderSrc : undefined;
-        const frag = document.createRange().createContextualFragment(
-          window.getPictureHTML(item, item.colorPalette, 'storyboard-card')
-        );
-        const newImg = frag.querySelector('img');
-        if (newImg && img) {
-          if (placeholderSrc) newImg.dataset.placeholderSrc = placeholderSrc;
-          imgWrap.replaceChild(newImg, img);
-          img = newImg;
-        }
-      } else if (img && item.picture) {
-        img.src = item.picture;
-        img.alt = item.title || '';
-      } else if (img) {
-        const placeholderSrc = img.dataset.placeholderSrc;
-        if (placeholderSrc) {
-          img.src = placeholderSrc;
-        } else {
-          img.removeAttribute('src');
-        }
-        img.alt = '';
-      }
-    }
     if (heading) {
       heading.textContent = item.title || defaultHeading;
       heading.hidden = false;
     }
-
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
-    if (img) {
-      const placeholderSrc = img.dataset.placeholderSrc;
-      if (placeholderSrc) {
-        img.src = placeholderSrc;
-      } else {
-        img.removeAttribute('src');
-      }
-      img.alt = '';
-      img.classList.add('empty');
-    }
     select.hidden = false;
   }
-  if (img) {
-    img.classList.toggle('empty', !img.src);
+
+  const left = card.querySelector('.storyboard-card-left');
+  if (left && typeof window.getPictureHTML === 'function') {
+    const prevImg = left.querySelector('img.profile-picture');
+    const prevSrc = prevImg && prevImg.src && prevImg.src.startsWith('blob:') ? prevImg.src : null;
+    const nextImg = window.getPictureHTML(item || {}, item?.colorPalette, 'storyboard-card');
+    left.replaceChildren(nextImg);
+    if (prevSrc && prevSrc !== nextImg.src) {
+      URL.revokeObjectURL(prevSrc);
+    }
+    if (nextImg.dataset.isPlaceholder === 'true') {
+      nextImg.classList.add('empty');
+    } else {
+      nextImg.classList.remove('empty');
+    }
   }
 };
 
