@@ -96,3 +96,4 @@
 - Removed remaining CommonJS `module.exports` shims from the bundled output.
 - Dropped redundant storyboard dropdown change listener to avoid duplicate updates.
 - Applied hotfixes for dropdown reopening, profile picture sizing, topbar search height, and storyboard title flex layout.
+- Storyboard cards now insert a default `profile-picture` image if none exists, preserving avatar slots.

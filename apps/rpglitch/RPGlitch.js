@@ -419,6 +419,17 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   }
   const small = footer ? footer.querySelector('small') : null;
   let img = card.querySelector('img.profile-picture');
+  if (!img) {
+    const left = card.querySelector('.storyboard-card-left');
+    if (left) {
+      img = document.createElement('img');
+      img.className = 'profile-picture';
+      const placeholder = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+      img.dataset.placeholderSrc = placeholder;
+      img.src = placeholder;
+      left.appendChild(img);
+    }
+  }
   const imgWrap = img?.parentElement;
   if (img && !img.dataset.placeholderSrc) img.dataset.placeholderSrc = img.src;
   const option = select.options[select.selectedIndex];
