@@ -100,3 +100,4 @@
 - Restored placeholder fallback for broken image URLs and added `onerror` handling.
 - Refactored storyboard card image updates to eliminate duplicate logic and remove `left` redeclaration.
 - Clarified WeakMap cleanup guidance in picture helper comments.
+- Removed hardcoded storyboard `<img>` placeholders and `placeholderSrc` logic, always rendering pictures via `getPictureHTML` for selected and empty states.

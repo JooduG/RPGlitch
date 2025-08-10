@@ -299,13 +299,13 @@ function renderList(containerId, key) {
     left.className = 'chin-card-left';
 
     if (typeof window.getPictureHTML === 'function') {
-      const img = window.getPictureHTML(item, item.colorPalette, 'chin-card');
-      left.appendChild(img);
-      if (img.dataset.isPlaceholder === 'true') {
-        img.classList.add('empty');
-      } else {
-        img.classList.remove('empty');
-
+      const frag = document.createRange().createContextualFragment(
+        window.getPictureHTML(item, item.colorPalette, 'chin-card')
+      );
+      const img = frag.querySelector('img');
+      if (img) {
+        left.appendChild(img);
+        img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
       }
     }
 
@@ -426,14 +426,9 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   }
   const small = footer ? footer.querySelector('small') : null;
 
-  let img = card.querySelector('img.profile-picture');
-  const left = card.querySelector('.storyboard-card-left');
+  const imgWrap = card.querySelector('.storyboard-card-left');
+  let img = imgWrap ? imgWrap.querySelector('img.profile-picture') : null;
   const type = key === 'worlds' ? 'World' : 'Character';
-  if (!img && left && typeof window.getPictureHTML === 'function') {
-    img = window.getPictureHTML({ type }, null, 'storyboard-card');
-    left.appendChild(img);
-  }
-  const imgWrap = img?.parentElement;
   const option = select.options[select.selectedIndex];
   const firstOption = select.options.length > 0 ? select.options[0] : null;
   const defaultHeading =
@@ -457,6 +452,22 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     heading.hidden = false;
   }
 
+  const updateImage = (itemData, palette) => {
+    if (!imgWrap || typeof window.getPictureHTML !== 'function') return;
+    const frag = document.createRange().createContextualFragment(
+      window.getPictureHTML(itemData, palette, 'storyboard-card')
+    );
+    const newImg = frag.querySelector('img');
+    if (!newImg) return;
+    const oldUrl =
+      img && img.src.startsWith('blob:') && img.dataset.isPlaceholder !== 'true' ? img.src : null;
+    if (img) imgWrap.replaceChild(newImg, img);
+    else imgWrap.appendChild(newImg);
+    if (oldUrl) URL.revokeObjectURL(oldUrl);
+    img = newImg;
+    img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
+  };
+
   if (item) {
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
@@ -464,24 +475,18 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       heading.textContent = item.title || defaultHeading;
       heading.hidden = false;
     }
+    updateImage(item, item.colorPalette);
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
     select.hidden = false;
-  }
-
-  if (imgWrap && typeof window.getPictureHTML === 'function') {
-    const oldUrl =
-      img && img.src.startsWith('blob:') && img.dataset.isPlaceholder !== 'true' ? img.src : null;
-    const newImg = window.getPictureHTML(item || { type }, item?.colorPalette);
-    imgWrap.replaceChild(newImg, img);
-    if (oldUrl) URL.revokeObjectURL(oldUrl);
-    img = newImg;
-    if (img.dataset.isPlaceholder === 'true') {
-      img.classList.add('empty');
-    } else {
-      img.classList.remove('empty');
-    }
+    const cardId = card.id || '';
+    const seedName =
+      cardId.includes('-ai-') ? 'AI Character' :
+      cardId.includes('-user-') ? 'User Character' :
+      cardId.includes('-world-') ? 'World' : 'Unknown';
+    const placeholderItem = { title: seedName, type: seedName };
+    updateImage(placeholderItem, null);
   }
 };
 

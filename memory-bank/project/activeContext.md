@@ -108,3 +108,4 @@
 - Reintroduced placeholder fallback for broken profile image URLs with `onerror` handling.
 - Consolidated storyboard card image updates, removing duplicated `left` lookups.
 - Clarified WeakMap cache is non-iterable and requires separate tracking for manual URL cleanup.
+- Removed inline storyboard image placeholders and `placeholderSrc` plumbing; cards now always render pictures via `getPictureHTML` for both selections and empty states.
