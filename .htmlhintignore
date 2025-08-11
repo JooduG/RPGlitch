@@ -1,6 +1,6 @@
-**/*node_modules/**,
-**/*archive/**, 
-**/*output/**,
-**/*local_libs/**, 
-**/*.min.js, 
-**/*RPGlitch-left-panel.txt
+# Only lint RPGlitch HTML via script; ignore everything else & generated outputs
+node_modules/
+build/output/
+dist/
+coverage/
+.nyc_output/

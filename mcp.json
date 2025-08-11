@@ -10,10 +10,12 @@
       "autoStart": true,
       "description": "Provides tools to get the current time and date. To start, run: python -m mcp_server_time"
     },
+    
     "Context7": {
       "url": "https://mcp.context7.com/mcp",
       "description": "Connects to the remote Context7 service for advanced context-aware capabilities. As a URL-based server, it does not need to be started locally."
     },
+
     "mcp-sequentialthinking-tools": {
       "command": "npx",
       "args": [
@@ -27,6 +29,7 @@
       "autoStart": true,
       "description": "Provides advanced sequential thinking tools with persistent state. To start, run: npx -y mcp-sequentialthinking-tools"
     },
+
     "pollinations": {
       "command": "npx",
       "args": [
@@ -40,61 +43,42 @@
       "autoStart": true,
       "description": "Provides AI image generation and creative tools through Pollinations services. To start, run: npx -y @pollinations/model-context-protocol"
     },
+
     "filesystem": {
       "command": "npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "C:\\Users\\johng\\Documents\\GitHub\\default",
+        "${MCP_FILESYSTEM_ROOT:-/workspace/default}",
         "."
       ],
-      "env": {
-        "MCP_FILESYSTEM_ROOT": "C:\\Users\\johng\\Documents\\GitHub\\default"
-      },
-      "autoApprove": [
-        "read_file",
-        "write_file",
-        "list_dir"
-      ],
+      "env": {},
+      "autoApprove": ["read_file","write_file","list_dir"],
       "autoStart": true,
-      "description": "Provides file system operations for reading, writing, and managing files."
+      "description": "Portable filesystem server"
     },
    
     "playwright": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp"
-      ],
-      "env": {},
-      "autoApprove": [
-        "*"
-      ],
-      "autoStart": true,
-      "description": "Playwright Tools for MCP - browser automation and testing."
+      "args": ["-y","@playwright/mcp"],
+      "autoApprove": ["open_page","screenshot"],  
+      "autoStart": true
     },
+
     "Toolbox": {
       "type": "stdio",
       "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@smithery/toolbox",
-        "--key",
-        "98147837-9d04-42a8-957a-5f42e0345d00",
-        "--profile",
-        "voluntary-hornet-y52X3F"
-      ],
+      "args": ["-y","@smithery/cli@latest","run","@smithery/toolbox","--key","${TOOLBOX_API_KEY}","--profile","${TOOLBOX_PROFILE}"],
       "env": {}
     },
+
     "basic-memory": {
       "command": "uvx",
       "args": ["basic-memory", "mcp"],
-
       "env": {
         "BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
       },
+
       "autoApprove": [
         "list_projects",
         "list_project_files",
@@ -105,5 +89,6 @@
       "autoStart": true,
       "description": "Basic Memory MCP server for semantic knowledge management."
     }
+    
   }
 }

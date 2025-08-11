@@ -225,6 +225,21 @@ Full documentation lives in the [memory-bank/docs/](memory-bank/docs/) directory
 - **Performance Monitoring**: Build optimization and asset compression
 - **Error Handling**: Robust error handling and graceful degradation
 
+## 🧠 Codex / AI Agent Quickstart
+
+1. Open Codex → Environments → set env vars:
+   - `MCP_FILESYSTEM_ROOT=/workspace/default`
+   - (Optional) `TOOLBOX_API_KEY`, `TOOLBOX_PROFILE` if you use Toolbox.
+2. Ensure `.env` exists locally (not committed) with API keys; the repo includes `.env.example`.
+3. In a Codex terminal:
+
+   ```bash
+   node -v && npm -v
+   npm ci
+   npm run check
+   npm run build
+   ´´´
+
 ## 🔄 **Recent Updates (July 2025)**
 
 ### **System Architecture Enhancements**

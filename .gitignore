@@ -1,6 +1,33 @@
-**/*node_modules/**,
-**/*archive/**, 
-**/*output/**,
-**/*local_libs/**, 
-**/*.min.js, 
-**/*RPGlitch-left-panel.txt
+# dependencies
+node_modules/
+
+# builds / generated
+build/output/
+dist/
+out/
+coverage/
+.nyc_output/
+.cache/
+.tmp/
+.temp/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# env (keep example committed)
+.env
+.env.*
+!.env.example
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# misc
+*.swp
+*.swo

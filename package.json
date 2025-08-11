@@ -4,19 +4,29 @@
   "description": "RPGlitch - AI-powered storytelling platform for Perchance with comprehensive rules system for development",
   "main": "build/scripts/build-perchance.js",
   "scripts": {
-    "preflight": "npm run build && npm run lint && npm test && echo \"Preflight check complete (typecheck not configured).\"",
+    "preflight": "npm run check",
+    "check": "npm run lint && npm test && npm run build && npm run validate",
     "build": "node build/scripts/build-perchance.js",
     "build:offline": "node build/scripts/build-perchance.js --offline",
     "build:copy": "node build/scripts/build-and-copy.js",
-    "build:watch": "nodemon --watch apps --ext html,js,css --exec 'node build/scripts/build-perchance.js'",
-    "lint": "npx eslint \"apps/**/*.js\" \"tests/**/*.js\" \"build/scripts/**/*.js\" --config eslint.config.mjs && stylelint \"apps/**/*.{css,scss}\" --config stylelint.config.js && htmlhint \"apps/rpglitch/**/*.html\" --config .htmlhintrc",
-    "lint:fix": "npx eslint \"apps/**/*.js\" \"tests/**/*.js\" \"build/scripts/**/*.js\" --config eslint.config.mjs --fix && stylelint \"apps/**/*.{css,scss}\" --config stylelint.config.js --fix && htmlhint \"apps/rpglitch/**/*.html\" --config .htmlhintrc",
+    "build:watch": "nodemon --watch apps --ext \"html,js,css\" --exec \"node build/scripts/build-perchance.js\"",
+    "lint": "eslint --ext .js,.cjs,.mjs apps tests build/scripts --config eslint.config.mjs && stylelint \"apps/**/*.{css,scss}\" --config stylelint.config.js && htmlhint \"apps/**/*.html\" --config .htmlhintrc",
+    "lint:fix": "eslint --ext .js,.cjs,.mjs apps tests build/scripts --config eslint.config.mjs --fix && stylelint \"apps/**/*.{css,scss}\" --config stylelint.config.js --fix && htmlhint \"apps/**/*.html\" --config .htmlhintrc",
     "validate": "node -e \"require('./build/scripts/build-perchance.js').validateOutputFile()\" && node tools/guard-no-output-edits.js",
     "clean": "rm -rf build/output/",
     "deploy": "npm run build && echo '✅ Build complete! Copy build/output/RPGlitch-perchance.html to Perchance.'",
     "rules:update": "echo 'Use \"update memory bank\" to refresh memory bank files'",
     "test": "npx jest",
-    "postinstall": "chmod +x node_modules/.bin/jest || true"
+    "postinstall": "chmod +x node_modules/.bin/jest || true",
+    "combine:rules": "node build/scripts/combine-views.js rules",
+    "combine:memory": "node build/scripts/combine-views.js memory",
+    "combine:tests": "node build/scripts/combine-views.js tests",
+    "combine:tools": "node build/scripts/combine-views.js tools",
+    "combine:repo": "node build/scripts/combine-views.js repo",
+    "combine:recent": "node build/scripts/combine-views.js recent",
+    "combine:all": "node build/scripts/combine-views.js",
+    "sync:ignores": "node build/scripts/sync-ignores.js",
+    "prelint": "npm run sync:ignores"
   },
   "keywords": [
     "perchance",
@@ -33,16 +43,21 @@
     "html-minifier-terser": "^7.2.0",
     "htmlhint": "^1.1.4",
     "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "jsdom": "^24.0.0",
     "nodemon": "^3.0.0",
+    "picomatch": "^4.0.3",
     "postcss": "^8.4.35",
     "postcss-cli": "^10.1.0",
     "stylelint": "^16.0.0",
     "stylelint-config-standard": "^36.0.1",
-    "terser": "^5.30.3",
-    "jest-environment-jsdom": "^29.7.0"
+    "terser": "^5.30.3"
   },
   "dependencies": {
     "sass": "^1.89.2"
+  },
+  "engines": {
+    "node": ">=22",
+    "npm": ">=10"
   }
 }

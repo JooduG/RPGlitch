@@ -1,6 +1,23 @@
-**/*node_modules/**,
-**/*archive/**, 
-**/*output/**,
-**/*local_libs/**, 
-**/*.min.js, 
-**/*RPGlitch-left-panel.txt,
+# deps & caches
+node_modules/
+coverage/
+.nyc_output/
+.tmp/
+.temp/
+.cache/
+
+# generated artifacts
+build/output/
+dist/
+out/
+*.min.js
+**/*.min.js
+**/*.bundle.js
+
+# env & meta
+.env
+.env.*
+.vscode/
+.idea/
+.git/
+.cursor/

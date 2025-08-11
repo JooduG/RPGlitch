@@ -220,6 +220,22 @@ deny_write:
 - Never modify generated artifacts like `build/output/`, or anything inside `node_modules/` or `.cursor/`.
 - Before presenting a diff, run See [CONTRIBUTING](CONTRIBUTING.md) § 2 “Standard Check”. Refer to [CONTRIBUTING](CONTRIBUTING.md) § 3 “Pull-Request Workflow”.
 
+## Agent Operating Loop (all tasks)
+
+1) Load context:
+   - `.cursor/rules/**`
+   - `memory-bank/**` (active + project-specific)
+2) Plan → Implement → Validate:
+   - Plan: write a short TODO in memory-bank/active/todo.md
+   - Implement: small, reviewable diffs only
+   - Validate: `npm run check` must pass
+3) Record decisions in `memory-bank/projects/rpglitch/` before finishing.
+
+### Non-negotiables
+
+- No secrets in code or commits.
+- Only modify files under `apps/`, `build/scripts/`, `memory-bank/`, `tools/`, `.cursor/rules/`.
+
 ## Changelog
 
 - **1.4.0 (2025‑07‑30)** – Added repository overview, directory guide,

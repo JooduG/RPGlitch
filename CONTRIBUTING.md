@@ -6,10 +6,10 @@ Central location for workflows & conventions referenced by AGENTS.md.
 
 ## 2. Standard Check
 
-Run before every commit / PR:
+Before every commit/PR:
 
 ```bash
-npm run lint && npm test && npm run build && npm run validate
+npm run check
 ```
 
 ## 3. Pull-Request Workflow
