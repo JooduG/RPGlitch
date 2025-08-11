@@ -36,32 +36,28 @@ function getObjectUrlForBlob(blob) {
   return url;
 }
 
-window.getPictureHTML = function getPictureHTML(item = {}, palette = null, _context = 'storyboard') {
+window.getPictureHTML = function getPictureHTML(item = {}, palette = null) {
   const img = document.createElement('img');
   img.className = 'profile-picture';
   img.loading = 'lazy';
   img.decoding = 'async';
 
-  if (
-    item.pictureFile &&
-    (item.pictureFile instanceof Blob || (typeof File !== 'undefined' && item.pictureFile instanceof File))
-  ) {
+  const name = item.name || item.title || 'Unnamed';
+  const type = item.type || 'Character';
+  img.alt = `${type} picture for ${name}`;
+
+  if (item.pictureFile && item.pictureFile instanceof Blob) {
     img.src = getObjectUrlForBlob(item.pictureFile);
     img.dataset.isPlaceholder = 'false';
   } else if (typeof item.picture === 'string' && item.picture.trim()) {
     img.src = item.picture.trim();
     img.dataset.isPlaceholder = 'false';
   } else {
-    const name = item.name || item.title || 'Unknown';
     const initials = getInitials(name);
     const bg = pickBgColor(item, palette);
     img.src = makeInitialsPlaceholderDataURI(initials, bg, 256);
     img.dataset.isPlaceholder = 'true';
   }
-
-  const type = item.type || 'Character';
-  const name = item.name || item.title || 'Unnamed';
-  img.alt = `${type} picture for ${name}`;
 
   return img;
 };
