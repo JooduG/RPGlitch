@@ -31,7 +31,7 @@
     return url;
   }
 
-  window.getPictureHTML = function getPictureHTML(item = {}, palette = null, _context = 'storyboard-card') {
+  window.getPictureHTML = function getPictureHTML(item = {}, palette = null) {
     const img = document.createElement('img');
     img.className = 'profile-picture';
     img.loading = 'lazy';
