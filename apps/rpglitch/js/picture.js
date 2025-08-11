@@ -1,6 +1,14 @@
+
 (function ensurePictureHelper(){
+  const DEFAULT_COLORS = {
+    Character: '#607d8b',
+    Story: '#00897b',
+    World: '#6a1b9a',
+  };
+
   function pickBgColor(item = {}, palette = null) {
-    return (palette && palette.primary) || item.color || '#777';
+    if (palette && palette.primary) return palette.primary;
+    return DEFAULT_COLORS[item.type] || '#777';
   }
 
   function getInitials(name = '') {
@@ -27,35 +35,51 @@
   function blobUrl(blob) {
     if (!blob) return null;
     let url = urlCache.get(blob);
-    if (!url) { url = URL.createObjectURL(blob); urlCache.set(blob, url); }
+    if (!url) {
+      url = URL.createObjectURL(blob);
+      urlCache.set(blob, url);
+    }
     return url;
   }
 
-  window.getPictureHTML = function getPictureHTML(item = {}, palette = null) {
+  window.getPictureHTML = function getPictureHTML(item = {}, palette = null, context = '') {
     const img = document.createElement('img');
-    img.className = 'profile-picture';
+    img.className = `profile-picture ${context}`.trim();
     img.loading = 'lazy';
     img.decoding = 'async';
 
-    if (item.pictureFile instanceof Blob || (typeof File !== 'undefined' && item.pictureFile instanceof File)) {
-      img.src = blobUrl(item.pictureFile);
+    const src = item.image instanceof Blob || (typeof File !== 'undefined' && item.image instanceof File)
+      ? blobUrl(item.image)
+      : typeof item.image === 'string' && item.image.trim()
+        ? item.image.trim()
+        : null;
+
+    if (src) {
+      img.src = src;
       img.dataset.isPlaceholder = 'false';
-    } else if (typeof item?.picture === 'string' && item.picture.trim()) {
-      img.src = item.picture.trim();
-      img.dataset.isPlaceholder = 'false';
+      img.onerror = () => {};
     } else {
-      const name = item?.name || item?.title || 'Unknown';
+      const name = item.title || item.name || '';
       const initials = getInitials(name);
       const bg = pickBgColor(item, palette);
       img.src = svgDataUri(initials, bg, 256);
       img.dataset.isPlaceholder = 'true';
     }
 
-    const type = item?.type || 'Character';
-    const name = item?.name || item?.title || 'Unnamed';
-    img.alt = `${type} picture for ${name}`;
-
+    img.alt = item.title || item.name || '';
     return img;
+  };
+
+  window.attachBrokenImageFallback = function attachBrokenImageFallback(img, seedItem = {}, palette = null, context = '') {
+    if (!(img instanceof HTMLImageElement)) return;
+    if (img.dataset.isPlaceholder === 'false') {
+      img.onerror = () => {
+        const seedName = seedItem.title || seedItem.name || '';
+        const replacement = window.getPictureHTML({ title: seedName, type: seedItem.type || 'Character' }, palette, context);
+        img.replaceWith(replacement);
+        replacement.classList.toggle('empty', replacement.dataset.isPlaceholder === 'true');
+      };
+    }
   };
 })();
 

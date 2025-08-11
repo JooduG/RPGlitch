@@ -116,6 +116,12 @@ const ROOT_JS_FILES = fs
         description: `${f} script`
     }));
 
+ROOT_JS_FILES.push({
+    name: path.join(RPGLITCH_DIR, 'js/picture.js'),
+    type: 'script',
+    description: 'picture.js script'
+});
+
 const SOURCE_FILES = [
     { name: path.join(RPGLITCH_DIR, 'RPGlitch.html'), type: 'html', description: 'Main HTML structure' },
     { name: path.join(RPGLITCH_DIR, 'RPGlitch.scss'), type: 'sass', description: 'Main Sass stylesheet' },
@@ -125,7 +131,7 @@ const SOURCE_FILES = [
 
 const COMPONENTS_DIR = path.join(__dirname, '../../apps/rpglitch/js');
 const COMPONENT_FILES = fs.readdirSync(COMPONENTS_DIR)
-    .filter((f) => f.endsWith('.js'))
+    .filter((f) => f.endsWith('.js') && f !== 'picture.js')
     .map((f) => ({
         name: path.join(COMPONENTS_DIR, f),
         output: f,

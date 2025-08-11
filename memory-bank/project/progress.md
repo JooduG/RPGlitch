@@ -102,3 +102,4 @@
 - Clarified WeakMap cleanup guidance in picture helper comments.
 - Removed hardcoded storyboard `<img>` placeholders and `placeholderSrc` logic, always rendering pictures via `getPictureHTML` for selected and empty states.
 - Simplified picture module: `getPictureHTML` now returns `<img>` elements with object URL caching and SVG initial placeholders; list and storyboard renderers updated accordingly.
+- Standardized avatar handling with context-aware `getPictureHTML`, introduced `attachBrokenImageFallback`, refactored card renderers to use shared fallback, and updated build script to include `js/picture.js` before `RPGlitch.js`.

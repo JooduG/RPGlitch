@@ -110,3 +110,4 @@
 - Clarified WeakMap cache is non-iterable and requires separate tracking for manual URL cleanup.
 - Removed inline storyboard image placeholders and `placeholderSrc` plumbing; cards now always render pictures via `getPictureHTML` for both selections and empty states.
 - Replaced picture helper with DOM-based `getPictureHTML` generating object URLs and SVG-initial placeholders; chin and storyboard renderers now append returned images directly.
+- Standardized picture helper to return `<img>` nodes with context classes and `data-is-placeholder` tracking, added shared `attachBrokenImageFallback`, updated chin and storyboard cards to use it, and ensured build script includes `js/picture.js` before `RPGlitch.js`.
