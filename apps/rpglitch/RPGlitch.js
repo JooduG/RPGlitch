@@ -478,7 +478,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
         );
         img.replaceWith(fallback);
         img = fallback;
-        img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
+        fallback.classList.toggle('empty', fallback.dataset.isPlaceholder === 'true');
       };
     }
   };
