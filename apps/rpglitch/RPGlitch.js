@@ -214,34 +214,46 @@ App.premade = App.premade || {
     {
       id: 'char-1',
       title: 'Aether Blade',
-      description: 'Cybernetic warrior forging light into weapons.'
+      description: 'Cybernetic warrior forging light into weapons.',
+      type: 'Character',
+      palette: 'cyan'
     },
     {
       id: 'char-2',
       title: 'Mystic Bard',
-      description: 'Traveling musician who weaves spells with song.'
+      description: 'Traveling musician who weaves spells with song.',
+      type: 'Character',
+      palette: 'pink'
     },
     {
       id: 'char-3',
       title: 'Clockwork Rogue',
-      description: 'Stealthy thief powered by ticking gears.'
+      description: 'Stealthy thief powered by ticking gears.',
+      type: 'Character',
+      palette: 'emerald'
     },
     {
       id: 'char-4',
       title: 'Shadow Whisperer',
-      description: 'Mysterious figure communing with darkness.'
+      description: 'Mysterious figure communing with darkness.',
+      type: 'Character',
+      palette: 'cyan'
     }
   ],
   worlds: [
     {
       id: 'world-1',
       title: 'Eldoria',
-      description: 'Floating isles bound by ancient magic.'
+      description: 'Floating isles bound by ancient magic.',
+      type: 'World',
+      palette: 'emerald'
     },
     {
       id: 'world-2',
       title: 'Neo Arcadia',
-      description: 'Futuristic metropolis built on dream tech.'
+      description: 'Futuristic metropolis built on dream tech.',
+      type: 'World',
+      palette: 'pink'
     }
   ]
 };
@@ -299,9 +311,9 @@ function renderList(containerId, key) {
     left.className = 'chin-card-left';
 
     if (typeof window.getPictureHTML === 'function') {
-      const img = window.getPictureHTML(item, item.colorPalette, 'chin-card');
+      const img = window.getPictureHTML(item, null, 'chin-card');
       left.appendChild(img);
-      window.attachBrokenImageFallback(img, item, item.colorPalette, 'chin-card');
+      window.attachBrokenImageFallback(img, item, null, 'chin-card');
       img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
     }
 
@@ -448,16 +460,16 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     heading.hidden = false;
   }
 
-  const updateImage = (itemData, palette) => {
+  const updateImage = (itemData) => {
     if (!imgWrap || typeof window.getPictureHTML !== 'function') return;
-    const newImg = window.getPictureHTML(itemData, palette, 'storyboard-card');
+    const newImg = window.getPictureHTML(itemData, null, 'storyboard-card');
     const oldUrl =
       img && img.src.startsWith('blob:') && img.dataset.isPlaceholder !== 'true' ? img.src : null;
     if (img) imgWrap.replaceChild(newImg, img);
     else imgWrap.appendChild(newImg);
     if (oldUrl) URL.revokeObjectURL(oldUrl);
     img = newImg;
-    window.attachBrokenImageFallback(img, itemData, palette, 'storyboard-card');
+    window.attachBrokenImageFallback(img, itemData, null, 'storyboard-card');
     img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
   };
 
@@ -468,7 +480,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       heading.textContent = item.title || defaultHeading;
       heading.hidden = false;
     }
-    updateImage(item, item.colorPalette);
+    updateImage(item);
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
@@ -479,7 +491,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       cardId.includes('-user-') ? 'User Character' :
       cardId.includes('-world-') ? 'World' : 'Unknown';
     const placeholderItem = { title: seedName, type: seedName };
-    updateImage(placeholderItem, null);
+    updateImage(placeholderItem);
   }
 };
 
@@ -677,6 +689,8 @@ App._attachContentChinActions = function () {
     }
   ];
 
+  const typeMap = { stories: 'Story', characters: 'Character', worlds: 'World' };
+
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener('click', () => {
@@ -687,7 +701,7 @@ App._attachContentChinActions = function () {
         if (typeof openModal !== 'function') return;
         openModal(({ title }) => {
           if (!title) return;
-          addMap[key]?.({ title });
+          addMap[key]?.({ title, type: typeMap[key], palette: 'pink' });
           App.refreshAllLists?.();
         });
       });
