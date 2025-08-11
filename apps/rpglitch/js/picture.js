@@ -1,6 +1,14 @@
 (function ensurePictureHelper() {
   const __PAL_CACHE = new Map();
 
+  function __getDefaultBrandColor() {
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--brand-default')
+        .trim() || '#777'
+    );
+  }
+
   function __getProbe() {
     let p = document.getElementById('palette-probe');
     if (!p) {
@@ -20,35 +28,23 @@
     const cs = getComputedStyle(probe);
     const brand = (cs.getPropertyValue('--brand') || '').trim();
     const contrast = (cs.getPropertyValue('--brand-contrast') || '').trim() || '#fff';
-    const out = {
-      brand:
-        brand ||
-        getComputedStyle(document.documentElement)
-          .getPropertyValue('--brand-default')
-          .trim() ||
-        '#777',
-      contrast,
-    };
+    const out = { brand: brand || __getDefaultBrandColor(), contrast };
     __PAL_CACHE.set(name, out);
     return out;
   }
 
-  function resolveBaseColor(subject = {}, paletteObj = null) {
-    if (subject.signatureColor) return subject.signatureColor;
-    if (subject.colorPalette?.primary) return subject.colorPalette.primary;
+  function resolveBrandColors(subject = {}, paletteObj = null) {
+    if (subject.signatureColor) return { brand: subject.signatureColor, contrast: '#fff' };
+    if (subject.colorPalette?.primary) return { brand: subject.colorPalette.primary, contrast: '#fff' };
 
     if (subject.palette) {
       const css = readCssBrand(subject.palette);
-      if (css?.brand) return css.brand;
+      if (css?.brand) return css;
     }
 
-    if (paletteObj?.primary) return paletteObj.primary;
+    if (paletteObj?.primary) return { brand: paletteObj.primary, contrast: '#fff' };
 
-    return (
-      getComputedStyle(document.documentElement)
-        .getPropertyValue('--brand-default')
-        .trim() || '#777'
-    );
+    return { brand: __getDefaultBrandColor(), contrast: '#fff' };
   }
 
   function getInitials(name = '') {
@@ -62,12 +58,12 @@
     return two.toUpperCase();
   }
 
-  function makeInitialsPlaceholderDataURI(initials, bg, size = 256) {
+  function makeInitialsPlaceholderDataURI(initials, bg, fg, size = 256) {
     const fontSize = Math.round(size * 0.42);
     const svg =
       `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${initials} placeholder">` +
       `<rect width="100%" height="100%" fill="${bg}"/>` +
-      `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="Inter, Arial, sans-serif" font-size="${fontSize}" font-weight="700" fill="#fff">${initials}</text>` +
+      `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="Inter, Arial, sans-serif" font-size="${fontSize}" font-weight="700" fill="${fg}">${initials}</text>` +
       `</svg>`;
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
@@ -100,16 +96,18 @@
     if (src) {
       img.src = src;
       img.dataset.isPlaceholder = 'false';
-      img.onerror = () => {};
+      window.attachBrokenImageFallback(img, item, palette, context);
     } else {
-      const name = item?.name || item?.title || 'Unknown';
-      const initials = getInitials(name);
-      const bg = resolveBaseColor(item, palette);
-      img.src = makeInitialsPlaceholderDataURI(initials, bg, 256);
+      const placeholderName = item?.title || item?.name || 'Unnamed';
+      const initials = getInitials(placeholderName);
+      const { brand, contrast } = resolveBrandColors(item, palette);
+      img.src = makeInitialsPlaceholderDataURI(initials, brand, contrast, 256);
       img.dataset.isPlaceholder = 'true';
     }
 
-    img.alt = item.title || item.name || '';
+    const type = item?.type || 'Character';
+    const displayName = item?.title || item?.name || 'Unnamed';
+    img.alt = `${type} picture for ${displayName}`;
     return img;
   };
 
