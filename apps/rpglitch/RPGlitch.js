@@ -307,43 +307,39 @@ function renderList(containerId, key) {
     card.dataset.title = item.title;
     if (item.isPremade) card.dataset.premade = 'true';
 
-    const left = document.createElement('div');
-    left.className = 'chin-card-left';
+    const media = document.createElement('div');
+    media.className = 'media';
 
     if (typeof window.getPictureHTML === 'function') {
       const img = window.getPictureHTML(item, null, 'chin-card');
-      left.appendChild(img);
-      window.attachBrokenImageFallback(img, item, null, 'chin-card');
+      media.appendChild(img);
       img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
     }
 
-    const article = document.createElement('article');
-    article.className = 'chin-card';
+    const title = document.createElement('h4');
+    title.className = 'title';
+    title.textContent = item.title || '';
+    media.appendChild(title);
 
-    const header = document.createElement('header');
-    const h4 = document.createElement('h4');
-    h4.textContent = item.title || '';
-    header.appendChild(h4);
+    if (item.isPremade) {
+      const badge = document.createElement('div');
+      badge.className = 'badge';
+      badge.textContent = 'Premade';
+      media.appendChild(badge);
+    }
 
-    article.appendChild(header);
+    const body = document.createElement('div');
+    body.className = 'body';
 
     if (item.description) {
       const desc = document.createElement('p');
-      desc.className = 'card-description';
+      desc.className = 'description';
       desc.textContent = item.description;
-      article.appendChild(desc);
+      body.appendChild(desc);
     }
 
-    if (item.isPremade) {
-      const footer = document.createElement('footer');
-      const small = document.createElement('small');
-      small.textContent = 'Premade';
-      footer.appendChild(small);
-      article.appendChild(footer);
-    }
-
-    left.appendChild(article);
-    card.appendChild(left);
+    card.appendChild(media);
+    card.appendChild(body);
     container.appendChild(card);
   });
 }
@@ -436,7 +432,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
 
   const imgWrap = card.querySelector('.storyboard-card-left');
   let img = imgWrap ? imgWrap.querySelector('img.profile-picture') : null;
-  const type = key === 'worlds' ? 'World' : 'Character';
   const option = select.options[select.selectedIndex];
   const firstOption = select.options.length > 0 ? select.options[0] : null;
   const defaultHeading =
@@ -469,7 +464,6 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     else imgWrap.appendChild(newImg);
     if (oldUrl) URL.revokeObjectURL(oldUrl);
     img = newImg;
-    window.attachBrokenImageFallback(img, itemData, null, 'storyboard-card');
     img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
   };
 
