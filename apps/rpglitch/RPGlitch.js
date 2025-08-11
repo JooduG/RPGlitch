@@ -302,6 +302,17 @@ function renderList(containerId, key) {
       const img = window.getPictureHTML({ ...item, name: item.title }, item.colorPalette, 'chin-card');
       left.appendChild(img);
       img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
+      if (img.dataset.isPlaceholder === 'false') {
+        img.onerror = () => {
+          const fallback = window.getPictureHTML(
+            { title: item.title, type: item.type || 'Character' },
+            item.colorPalette || null,
+            'chin-card'
+          );
+          img.replaceWith(fallback);
+          fallback.classList.toggle('empty', fallback.dataset.isPlaceholder === 'true');
+        };
+      }
     }
 
     const article = document.createElement('article');
@@ -457,6 +468,19 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     if (oldUrl) URL.revokeObjectURL(oldUrl);
     img = newImg;
     img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
+    if (img.dataset.isPlaceholder === 'false') {
+      img.onerror = () => {
+        const n = itemData?.name || itemData?.title || 'Unknown';
+        const fallback = window.getPictureHTML(
+          { title: n, type: itemData?.type || type },
+          itemData?.colorPalette || palette,
+          'storyboard-card'
+        );
+        img.replaceWith(fallback);
+        img = fallback;
+        fallback.classList.toggle('empty', fallback.dataset.isPlaceholder === 'true');
+      };
+    }
   };
 
   if (item) {
