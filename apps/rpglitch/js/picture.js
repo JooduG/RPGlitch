@@ -37,7 +37,7 @@
     img.loading = 'lazy';
     img.decoding = 'async';
 
-    if (item && (item.pictureFile instanceof Blob || (typeof File !== 'undefined' && item.pictureFile instanceof File))) {
+    if (item.pictureFile instanceof Blob || (typeof File !== 'undefined' && item.pictureFile instanceof File)) {
       img.src = blobUrl(item.pictureFile);
       img.dataset.isPlaceholder = 'false';
     } else if (typeof item?.picture === 'string' && item.picture.trim()) {
