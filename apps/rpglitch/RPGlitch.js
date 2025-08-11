@@ -299,14 +299,9 @@ function renderList(containerId, key) {
     left.className = 'chin-card-left';
 
     if (typeof window.getPictureHTML === 'function') {
-      const frag = document.createRange().createContextualFragment(
-        window.getPictureHTML({ ...item, name: item.title }, item.colorPalette, 'chin-card')
-      );
-      const img = frag.querySelector('img');
-      if (img) {
-        left.appendChild(img);
-        img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
-      }
+      const img = window.getPictureHTML({ ...item, name: item.title }, item.colorPalette, 'chin-card');
+      left.appendChild(img);
+      img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
     }
 
     const article = document.createElement('article');
@@ -454,11 +449,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
 
   const updateImage = (itemData, palette) => {
     if (!imgWrap || typeof window.getPictureHTML !== 'function') return;
-    const frag = document.createRange().createContextualFragment(
-      window.getPictureHTML({ ...itemData, name: itemData.title }, palette, 'storyboard-card')
-    );
-    const newImg = frag.querySelector('img');
-    if (!newImg) return;
+    const newImg = window.getPictureHTML({ ...itemData, name: itemData.title }, palette, 'storyboard-card');
     const oldUrl =
       img && img.src.startsWith('blob:') && img.dataset.isPlaceholder !== 'true' ? img.src : null;
     if (img) imgWrap.replaceChild(newImg, img);

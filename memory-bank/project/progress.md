@@ -101,3 +101,4 @@
 - Refactored storyboard card image updates to eliminate duplicate logic and remove `left` redeclaration.
 - Clarified WeakMap cleanup guidance in picture helper comments.
 - Removed hardcoded storyboard `<img>` placeholders and `placeholderSrc` logic, always rendering pictures via `getPictureHTML` for selected and empty states.
+- Simplified picture module: `getPictureHTML` now returns `<img>` elements with object URL caching and SVG initial placeholders; list and storyboard renderers updated accordingly.
