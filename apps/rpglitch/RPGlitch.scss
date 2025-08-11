@@ -13,7 +13,35 @@
   --pico-typography-spacing-vertical: 0;
   --pico-typography-spacing-horizontal: 0;
   --pico-spacing: 0;
+  --brand-default: #777;
+  --brand-text-on: #fff; /* initials stay white by default */
 }
+
+/* Each palette exposes ONE base color + useful derivatives */
+/* stylelint-disable selector-class-pattern */
+.palette--pink {
+  --brand: #ec4899;
+  --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
+  --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
+  --brand-contrast: var(--brand-text-on);
+}
+
+.palette--emerald {
+  --brand: #10b981;
+  --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
+  --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
+  --brand-contrast: var(--brand-text-on);
+}
+
+.palette--cyan {
+  --brand: #06b6d4;
+  --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
+  --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
+  --brand-contrast: var(--brand-text-on);
+}
+/* stylelint-enable selector-class-pattern */
+
+/* Add more: violet, amber, indigo, slate, etc. */
 
 html, body {
   min-height: 100vh;
