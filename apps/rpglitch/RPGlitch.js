@@ -299,20 +299,10 @@ function renderList(containerId, key) {
     left.className = 'chin-card-left';
 
     if (typeof window.getPictureHTML === 'function') {
-      const img = window.getPictureHTML({ ...item, name: item.title }, item.colorPalette, 'chin-card');
+      const img = window.getPictureHTML(item, item.colorPalette, 'chin-card');
       left.appendChild(img);
+      window.attachBrokenImageFallback(img, item, item.colorPalette, 'chin-card');
       img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
-      if (img.dataset.isPlaceholder === 'false') {
-        img.onerror = () => {
-          const fallback = window.getPictureHTML(
-            { title: item.title, type: item.type || 'Character' },
-            item.colorPalette || null,
-            'chin-card'
-          );
-          img.replaceWith(fallback);
-          fallback.classList.toggle('empty', fallback.dataset.isPlaceholder === 'true');
-        };
-      }
     }
 
     const article = document.createElement('article');
@@ -460,27 +450,15 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
 
   const updateImage = (itemData, palette) => {
     if (!imgWrap || typeof window.getPictureHTML !== 'function') return;
-    const newImg = window.getPictureHTML({ ...itemData, name: itemData.title }, palette, 'storyboard-card');
+    const newImg = window.getPictureHTML(itemData, palette, 'storyboard-card');
     const oldUrl =
       img && img.src.startsWith('blob:') && img.dataset.isPlaceholder !== 'true' ? img.src : null;
     if (img) imgWrap.replaceChild(newImg, img);
     else imgWrap.appendChild(newImg);
     if (oldUrl) URL.revokeObjectURL(oldUrl);
     img = newImg;
+    window.attachBrokenImageFallback(img, itemData, palette, 'storyboard-card');
     img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
-    if (img.dataset.isPlaceholder === 'false') {
-      img.onerror = () => {
-        const n = itemData?.name || itemData?.title || 'Unknown';
-        const fallback = window.getPictureHTML(
-          { title: n, type: itemData?.type || type },
-          itemData?.colorPalette || palette,
-          'storyboard-card'
-        );
-        img.replaceWith(fallback);
-        img = fallback;
-        fallback.classList.toggle('empty', fallback.dataset.isPlaceholder === 'true');
-      };
-    }
   };
 
   if (item) {
