@@ -3,14 +3,14 @@
   // Main RPGlitch application namespace
 
 // Map utility helpers to App namespace with fallbacks
-App.hideEl = window.hideEl || function (el) {
+App.hideEl = global.hideEl || function (el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
   el.setAttribute('hidden', 'hidden');
   return el;
 };
 
-App.showEl = window.showEl || function (el) {
+App.showEl = global.showEl || function (el) {
   if (typeof el === 'string') el = document.getElementById(el);
   if (!el) return null;
   el.removeAttribute('hidden');
@@ -152,7 +152,7 @@ App._attachChinSearchHandlers = function () {
 
 function loadStoredItems(key) {
   try {
-    const storage = window.localStorage;
+    const storage = global.localStorage;
     if (!storage) return [];
     const data = storage.getItem(key);
     return data ? JSON.parse(data) : [];
@@ -165,7 +165,7 @@ function loadStoredItems(key) {
 function addItem(key, item) {
   const current = loadStoredItems(key);
   current.push(item);
-  window.localStorage.setItem(key, JSON.stringify(current));
+  global.localStorage.setItem(key, JSON.stringify(current));
 }
 
 
@@ -187,9 +187,9 @@ const addMap = {
   worlds: App.addWorld
 };
 const modalOpeners = {
-  stories: window.openStoryModal,
-  characters: window.openCharacterModal,
-  worlds: window.openWorldModal
+  stories: global.openStoryModal,
+  characters: global.openCharacterModal,
+  worlds: global.openWorldModal
 };
 
 App.premade = App.premade || {
@@ -294,8 +294,8 @@ function renderList(containerId, key) {
     const media = document.createElement('div');
     media.className = 'media';
 
-    if (typeof window.getPictureHTML === 'function') {
-      const img = window.getPictureHTML(item, null, 'chin-card');
+    if (typeof global.getPictureHTML === 'function') {
+      const img = global.getPictureHTML(item, null, 'chin-card');
       media.appendChild(img);
       img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
     }
@@ -440,8 +440,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   }
 
   const updateImage = (itemData) => {
-    if (!imgWrap || typeof window.getPictureHTML !== 'function') return;
-    const newImg = window.getPictureHTML(itemData, null, 'storyboard-card');
+    if (!imgWrap || typeof global.getPictureHTML !== 'function') return;
+    const newImg = global.getPictureHTML(itemData, null, 'storyboard-card');
     const oldUrl =
       img && img.src.startsWith('blob:') && img.dataset.isPlaceholder !== 'true' ? img.src : null;
     if (img) imgWrap.replaceChild(newImg, img);
@@ -542,7 +542,7 @@ App._setupStoryboardTitle = function () {
     App._editingStoryboardTitle = true;
     titleEl.contentEditable = 'true';
     titleEl.dataset.manual = 'true';
-    const sel = window.getSelection();
+    const sel = global.getSelection();
     if (sel) {
       const range = document.createRange();
       range.selectNodeContents(titleEl);
@@ -693,7 +693,7 @@ App._attachContentChinActions = function () {
             const data = JSON.parse(ev.target.result);
             if (!Array.isArray(data)) return;
             const current = loadStoredItems(key);
-            window.localStorage.setItem(key, JSON.stringify(current.concat(data)));
+            global.localStorage.setItem(key, JSON.stringify(current.concat(data)));
             App.refreshAllLists();
           } catch (err) {
             console.error('Failed to import', err);
@@ -757,8 +757,8 @@ App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
  * Sets default database name, collects UI elements, and runs initial load.
  */
 App.initializeWhenReady = async function () {
-  if (typeof window.dbName === 'undefined') {
-    window.dbName = 'rpglitch-db';
+  if (typeof global.dbName === 'undefined') {
+    global.dbName = 'rpglitch-db';
   }
 
   try {
@@ -786,7 +786,7 @@ App.importAllData = function (file) {
       const data = JSON.parse(e.target.result);
       DATA_KEYS.forEach((key) => {
         if (Array.isArray(data[key])) {
-          window.localStorage.setItem(key, JSON.stringify(data[key]));
+          global.localStorage.setItem(key, JSON.stringify(data[key]));
         }
       });
       App.refreshAllLists();
@@ -804,7 +804,7 @@ App.exportAllData = function () {
   const data = {};
   DATA_KEYS.forEach((key) => {
     try {
-      const value = window.localStorage.getItem(key);
+      const value = global.localStorage.getItem(key);
       data[key] = value ? JSON.parse(value) : [];
     } catch {
       data[key] = [];
@@ -823,7 +823,7 @@ App.exportAllData = function () {
 
 App.deleteAllData = function () {
   DATA_KEYS.forEach((key) => {
-    window.localStorage.removeItem(key);
+    global.localStorage.removeItem(key);
   });
   App.refreshAllLists();
 };
