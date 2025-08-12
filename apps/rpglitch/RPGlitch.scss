@@ -285,11 +285,7 @@ input[type="file"] {
   flex-wrap: nowrap;
 }
 
-[role="group"] input:not([type="checkbox"],[type="radio"],:last-child),
-[role="group"] select:not(:last-child),
 [role="group"] > :not(:last-child),
-[role="search"] input:not([type="checkbox"],[type="radio"],:last-child),
-[role="search"] select:not(:last-child),
 [role="search"] > :not(:last-child) {
   padding: 0 0 0 2.5rem;
   height: auto;
