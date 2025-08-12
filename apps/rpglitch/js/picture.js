@@ -93,20 +93,20 @@
           ? item.image.trim()
           : null;
 
+    const type = item?.type || 'Character';
+    const displayName = item?.title || item?.name || 'Unnamed';
+
     if (src) {
       img.src = src;
       img.dataset.isPlaceholder = 'false';
       window.attachBrokenImageFallback(img, item, palette, context);
     } else {
-      const placeholderName = item?.title || item?.name || 'Unnamed';
-      const initials = getInitials(placeholderName);
+      const initials = getInitials(displayName);
       const { brand, contrast } = resolveBrandColors(item, palette);
       img.src = makeInitialsPlaceholderDataURI(initials, brand, contrast, 256);
       img.dataset.isPlaceholder = 'true';
     }
 
-    const type = item?.type || 'Character';
-    const displayName = item?.title || item?.name || 'Unnamed';
     img.alt = `${type} picture for ${displayName}`;
     return img;
   };

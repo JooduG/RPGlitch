@@ -207,3 +207,7 @@ All objectives have been achieved:
 - Added BusyBox installation script for hexdump debugging.
 
 - Built single-file RPGlitch output with inlined component scripts.
+### 2025-08-09
+- Polished chin and storyboard cards (picture corners, single-layer hover).
+- DRYed picture.js display name and kept brand/contrast placeholders.
+- Added standard line-clamp property to satisfy linter.
