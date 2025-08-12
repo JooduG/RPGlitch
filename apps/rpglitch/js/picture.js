@@ -1,4 +1,4 @@
-(function ensurePictureHelper() {
+(function ensurePictureHelper(global, document) {
   const __PAL_CACHE = new Map();
 
   function __getDefaultBrandColor() {
@@ -79,7 +79,7 @@
     return url;
   }
 
-  window.getPictureHTML = function getPictureHTML(item = {}, palette = null, context = '') {
+  global.getPictureHTML = function getPictureHTML(item = {}, palette = null, context = '') {
     const img = document.createElement('img');
     img.className = `profile-picture ${context}`.trim();
     img.loading = 'lazy';
@@ -99,7 +99,7 @@
     if (src) {
       img.src = src;
       img.dataset.isPlaceholder = 'false';
-      window.attachBrokenImageFallback(img, item, palette, context);
+      global.attachBrokenImageFallback(img, item, palette, context);
     } else {
       const initials = getInitials(displayName);
       const { brand, contrast } = resolveBrandColors(item, palette);
@@ -111,7 +111,7 @@
     return img;
   };
 
-  window.attachBrokenImageFallback = function attachBrokenImageFallback(
+  global.attachBrokenImageFallback = function attachBrokenImageFallback(
     img,
     seedItem = {},
     palette = null,
@@ -120,11 +120,12 @@
     if (!(img instanceof HTMLImageElement)) return;
     if (img.dataset.isPlaceholder === 'false') {
       img.onerror = () => {
-        const replacement = window.getPictureHTML(seedItem, palette, context);
+        const replacement = global.getPictureHTML(seedItem, palette, context);
+
         img.replaceWith(replacement);
         replacement.classList.toggle('empty', replacement.dataset.isPlaceholder === 'true');
       };
     }
   };
-})();
+})(window);
 
