@@ -1,27 +1,41 @@
 {
-    "markdown.validate.enabled": true,
-    "markdown.validate.referenceLinks.enabled": "ignore",
-    "markdownlint.enable": false,
-    "markdownlint.config": {
-    "default": false
-    },
+  "markdown.validate.enabled": true,
+  "markdown.validate.referenceLinks.enabled": "ignore",  // <- was boolean; must be "ignore" | "warning" | "error"
 
-    "markdown.preview.breaks.enabled": true,
-    "stylelint.validate": ["scss","css"],
-    "stylelint.configFile": "stylelint.config.js",
-    "eslint.workingDirectories": [{ "mode": "auto" }],
-    "files.eol": "\n",
+  "markdownlint.enable": true,
+  "markdownlint.config": {
+    "default": true,
+    "MD013": false,
+    "MD033": false
+  },
 
-    "files.watcherExclude": {
-        "**/build/output/**": true,
-        "**/build/local_libs/**": true,
-        "**/node_modules/**": true,
-        "**/memory-bank/archive/**": true,
-    },
-    "search.exclude": {
-        "**/build/output/**": true,
-        "**/build/local_libs/**": true,
-        "**/node_modules/**": true,
-        "**/memory-bank/archive/**": true,
-    }
+  "markdown.preview.breaks.enabled": true,
+
+  "stylelint.validate": ["scss", "css"],
+  "stylelint.configFile": "stylelint.config.js",
+
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",     // <- was true
+    "source.fixAll.stylelint": "explicit"   // <- was true
+  },
+
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+
+  "files.watcherExclude": {
+    "**/build/output/**": true,
+    "**/build/local_libs/**": true,
+    "**/node_modules/**": true,
+    "**/memory-bank/archive/**": true
+  },
+  "search.exclude": {
+    "**/build/output/**": true,
+    "**/build/local_libs/**": true,
+    "**/node_modules/**": true,
+    "**/memory-bank/archive/**": true
+  }
 }

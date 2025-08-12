@@ -1,0 +1,29 @@
+# .github/workflows/validate-pr.yml
+name: Validate PR body
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || "";
+            const mustHave = [
+              "## Strategy", "## Tactics", "## Operations", "## Checklist"
+            ];
+            const requiredChecks = [
+              /- \[x\] Read AGENTS\.md/i,
+              /- \[x\] Wrote only under allowed paths/i,
+              /- \[x\] No empty handlers \/ unused vars/i,
+              /- \[x\] A11y: descriptive `alt` for images/i,
+              /- \[x\] Placeholder colors use `--brand` and `--brand-contrast`/i
+            ];
+            const failures = requiredChecks.filter(rx => !rx.test(body));
+            if (failures.length) core.setFailed("Please complete the checklist.");
+            const missing = mustHave.filter(h => !body.includes(h));
+            if (missing.length) {
+              core.setFailed(`PR is missing sections: ${missing.join(", ")}`);
+            }
