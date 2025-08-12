@@ -1,118 +1,77 @@
-// eslint.config.mjs
-import js from "@eslint/js";
-import globals from "globals";
+// eslint.config.mjs — ESLint v9 flat config
+import js from '@eslint/js';
+import globals from 'globals';
 
 export default [
+  // 1) Global ignores (v9: use config-based ignores, not .eslintignore)
   {
-    /* which files this stanza applies to */
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
-
-    /* patterns ESLint should **never** lint */
     ignores: [
-      "**/node_modules/**",          // one entry is enough – drop the duplicate
-      "**/archive/**",
-      "**/output/**",
-      "**/local_libs/**",
-      "**/*.min.js",
-      "**/diagnostics/**",
-      "**/browser-tools/**",
-      "**/test-globs/**",
-
-      /* project-specific one-offs */
-      "RPGlitch-left-panel.txt",
-      "build/output/components/utils.js"
-    ],
-    
-    // plugins: { js }, // Removed as it's already imported
-    languageOptions: {
-      globals: globals.browser,
-      ecmaVersion: 2021,
-      sourceType: "module"
-    },
-    rules: {
-      ...js.configs.recommended.rules,
-      // General best practices and error prevention
-      "no-unused-vars": "warn",
-      "no-unused-labels": "warn",
-      "no-empty": "warn",
-      "no-duplicate-imports": "error",
-      "no-dupe-else-if": "error",
-      "no-dupe-keys": "error",
-      "no-redeclare": "error",
-      "no-restricted-globals": ["error", "event", "fdescribe"],
-      "no-undef": "error", // ENSURE THIS IS 'error' FOR GENERAL FILES
-      "no-duplicate-case": "error",
-      "no-empty-function": "warn",
-    }
+      'node_modules/**',
+      'build/output/**',
+      'build/local_libs/**',
+      'memory-bank/archive/**',
+      '**/*.min.js'
+    ]
   },
-  // JavaScript files override (apps directory) - THIS IS THE CRITICAL FIX
+
+  // 2) Base recommended rules
+  js.configs.recommended,
+
+  // 3) App/browser code (default)
   {
-    files: ["**/*apps/**/*.js"],
+    files: ['apps/**/*.js'],
     languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'script',
       globals: {
         ...globals.browser,
-        ...globals.es2021,
-        // Explicitly add global variables that are NOT imported
-        // These were identified in the previous linter run as 'not defined'
-        Dexie: "readonly", // 'readonly' indicates it's a global variable that shouldn't be reassigned
-        ai: "readonly",
-        image: "readonly",
-        App: "readonly", // Assuming 'App' is a global object
-        _makeProfilePicturePlaceholderSVG: "readonly",
-        textToImage: "readonly",
-        textToText: "readonly"
-      },
-      ecmaVersion: 2021,
-      sourceType: "script", // Reverted to 'script' as files are not modules
+        App: 'readonly',          // global provided by RPGlitch bootstrap
+        Dexie: 'readonly',        // if present in your app
+        ai: 'readonly',           // if present
+        image: 'readonly',        // if present
+        _makeProfilePicturePlaceholderSVG: 'readonly',
+        textToImage: 'readonly',
+        textToText: 'readonly'
+      }
     },
     rules: {
-      "no-unused-vars": "warn", // Use regular ESLint rule instead
-      "no-undef": "error", // *** CRITICAL FIX: ENSURE THIS IS 'error' HERE ***
-      "no-console": "off", // Allow console logs in app code (as per your previous setup)
-      "no-redeclare": "error" // Changed to 'error' to enforce no redeclaration
-    }
-  },
-  
-  {
-    files: ["tools/browser-tools/**/*.js"],
-    languageOptions: {
-      globals: {
-        ...globals.webExtensions,
-        chrome: "readonly"
-      }
+      'no-redeclare': 'error',
+      'no-empty-function': ['warn', { allow: ['constructors'] }],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-duplicate-imports': 'error',
+      'no-undef': 'error'
     }
   },
 
-  // Node environment for build and tool scripts
+  // 4) Build/tools (Node)
   {
-    files: ["build/**/*.js", "tools/**/*.js"],
+    files: ['build/**/*.js', 'tools/**/*.js'],
     languageOptions: {
-      globals: {
-        ...globals.node
-      },
-      ecmaVersion: 2021,
-      sourceType: "script"
+      ecmaVersion: 'latest',
+      sourceType: 'script',
+      globals: { ...globals.node }
     },
     rules: {
-      "no-unused-vars": "warn",
-      "no-undef": "error"
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-undef': 'error'
     }
   },
-  // Node and Jest environment for test files
+
+  // 5) Tests (Node + Jest)
   {
-    files: ["tests/**/*.js"],
+    files: ['tests/**/*.js'],
     languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'script',
       globals: {
         ...globals.node,
         ...globals.jest
-      },
-      ecmaVersion: 2021,
-      sourceType: "script"
+      }
     },
     rules: {
-      "no-unused-vars": "warn",
-      "no-undef": "error",
-      "no-redeclare": "off"
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-undef': 'error',
+      'no-redeclare': 'off'
     }
-  },
+  }
 ];
