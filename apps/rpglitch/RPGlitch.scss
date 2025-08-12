@@ -348,7 +348,7 @@ input[type="file"] {
   overflow: hidden;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
   border: none;
-  border-radius: var(--pico-radius);
+  border-radius: var(--pico-border-radius);
   transform: translateY(0) scale(1);
 }
 
@@ -450,9 +450,9 @@ input[type="file"] {
 
 
 .chin-card .body {
-  padding: 12px 12px 14px;
   display: grid;
   gap: 8px;
+  padding: 12px;
 }
 
 .chin-card .description {
@@ -466,11 +466,9 @@ input[type="file"] {
 }
 
 .chin-card .title {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  margin: 0;
+  position: static;
+  margin: 0 0 6px;
+  padding: 0;
 }
 
 .chin-card .badge {
@@ -902,7 +900,9 @@ input[type="file"] {
   flex: 0 0 35%;
   display: flex;
   justify-content: center;
-  background: var(--pico-form-element-background-color)
+  background: var(--pico-form-element-background-color);
+  border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
 }
 
 .storyboard-card-right {
@@ -913,6 +913,13 @@ input[type="file"] {
   align-items: center;
   text-align: center;
   height: 100%;
+}
+
+.storyboard-card-right,
+.storyboard-card header,
+.storyboard-card select.storyboard-card-title {
+  border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
 }
 
 .storyboard-card[disabled],
