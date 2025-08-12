@@ -4,7 +4,12 @@ module.exports = {
   extends: ['stylelint-config-standard'],
   rules: {
     // Enforce dash-case for class and ID names (from user memory)
-    'selector-class-pattern': '^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$',
+    // allow kebab-case with optional `--modifier` at the end
+    'selector-class-pattern': [
+      '^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:--[a-z0-9]+)?$',
+      { resolveNestedSelectors: true, message: 'Use kebab-case; BEM modifiers allowed via `--`.' }
+    ],
+    'selector-attribute-quotes': 'always',
     'selector-id-pattern': '^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$',
 
     // Other general rules for consistency and best practices
