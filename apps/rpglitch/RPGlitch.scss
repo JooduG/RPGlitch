@@ -18,7 +18,6 @@
 }
 
 /* Each palette exposes ONE base color + useful derivatives */
-/* stylelint-disable selector-class-pattern */
 .palette--pink {
   --brand: #ec4899;
   --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
@@ -39,7 +38,6 @@
   --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
   --brand-contrast: var(--brand-text-on);
 }
-/* stylelint-enable selector-class-pattern */
 
 /* Add more: violet, amber, indigo, slate, etc. */
 
@@ -89,7 +87,6 @@ button {
   justify-content: center;
   display: flex;
   align-items: center;
-  /* stylelint-disable-next-line declaration-property-value-no-unknown */
   flex: nowrap;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
               box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -287,7 +284,6 @@ input[type="file"] {
   flex-wrap: nowrap;
 }
 
-/* stylelint-disable-next-line selector-attribute-quotes */
 [role=group] input:not([type=checkbox],[type=radio],:last-child), [role=group] select:not(:last-child), [role=group]>:not(:last-child), [role=search] input:not([type=checkbox],[type=radio],:last-child), [role=search] select:not(:last-child), [role=search]>:not(:last-child) {
   padding: 0 0 0 2.5rem;
   height: auto;
@@ -353,6 +349,7 @@ input[type="file"] {
   border: none;
   border-radius: var(--pico-radius);
   transform: translateY(0) scale(1);
+}
 
 .chin-card::before,
 .storyboard-card::before {
@@ -470,7 +467,6 @@ input[type="file"] {
 }
 
 /* Chin Card poster image */
-/* stylelint-disable declaration-block-no-redundant-longhand-properties */
 .chin-card .picture,
 .chin-card img.profile-picture {
   border-top-left-radius: var(--pico-radius);
@@ -480,11 +476,6 @@ input[type="file"] {
   overflow: hidden;
   display: block;
 }
-
-/* Shorthand if used elsewhere */
-/* stylelint-enable declaration-block-no-redundant-longhand-properties */
-.chin-card .picture { border-radius: var(--pico-radius) var(--pico-radius) 0 0; }
-
 
 .chin-card .body {
   padding: 12px 12px 14px;
@@ -837,7 +828,6 @@ input[type="file"] {
   overflow: hidden;
 }
 
-/* stylelint-disable-next-line selector-class-pattern */
 .card-title--editing {
   outline: 1px dashed var(--pico-primary);
   cursor: text;
@@ -915,7 +905,6 @@ input[type="file"] {
   transition: inherit;
 }
 
-/* stylelint-disable selector-class-pattern */
 .storyboard-card:hover {
   outline: 2px solid var(--pico-primary-hover);
 
@@ -925,7 +914,6 @@ input[type="file"] {
 .storyboard-card .card-title--editing {
   outline: 2px solid var(--pico-primary-hover);
 }
-/* stylelint-enable selector-class-pattern */
 
 .storyboard-card-left {
   flex: 0 0 35%;
@@ -1116,5 +1104,4 @@ input[type="file"] {
   50% {
     box-shadow: 0 4px 15px rgb(0 0 0 / 20%), 0 0 10px rgb(255 255 255 / 5%);
   }
-}
 }
