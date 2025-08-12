@@ -1,4 +1,4 @@
-(function ensurePictureHelper(global) {
+(function ensurePictureHelper(global, document) {
   const __PAL_CACHE = new Map();
 
   function __getDefaultBrandColor() {
