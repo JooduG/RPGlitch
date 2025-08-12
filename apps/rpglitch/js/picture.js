@@ -101,7 +101,7 @@
     return url;
   }
 
-  function getPictureHTML(item = {}, palette = null, context = null) {
+  function getPictureHTML(item = {}, palette = null, context = '') {
     const doc = getDoc(context);
     if (!doc) {
       console.warn('getPictureHTML: no document available; returning null');
