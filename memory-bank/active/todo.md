@@ -4,3 +4,4 @@
 - [x] RPGlitch lint cleanup (ESLint no-redeclare, Stylelint BEM fixes)
 - [x] Finish RPGlitch Stylelint cleanup (BEM selectors, palette utilities, editor alignment)
 - [x] RPGlitch: replace window references with global alias for consistency
+- [ ] RPGlitch picture helper hardening and card hover polish
