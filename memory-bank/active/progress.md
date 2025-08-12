@@ -205,3 +205,5 @@ All objectives have been achieved:
 ### 2025-08-09
 - Implemented exponential backoff and clearer retry warnings in `initializeWhenReady`.
 - Added BusyBox installation script for hexdump debugging.
+
+- Built single-file RPGlitch output with inlined component scripts.

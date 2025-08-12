@@ -104,3 +104,5 @@
 - Simplified picture module: `getPictureHTML` now returns `<img>` elements with object URL caching and SVG initial placeholders; list and storyboard renderers updated accordingly.
 - Standardized avatar handling with context-aware `getPictureHTML`, introduced `attachBrokenImageFallback`, refactored card renderers to use shared fallback, and updated build script to include `js/picture.js` before `RPGlitch.js`.
 - Finalized palette-driven placeholders using brand and contrast colors, restored descriptive alt text, centralized default brand color helper, added chin-card poster layout, and cleaned up unused code per lint.
+
+- Switched RPGlitch build to single-file output with inlined components and removed output/components.
