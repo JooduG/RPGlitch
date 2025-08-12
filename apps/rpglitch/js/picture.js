@@ -119,10 +119,11 @@
   ) {
     if (!(img instanceof HTMLImageElement)) return;
     if (img.dataset.isPlaceholder === 'false') {
+      const type = seedItem.type || 'Character';
+      const displayName = seedItem.title || seedItem.name || '';
       img.onerror = () => {
-        const seedName = seedItem.title || seedItem.name || '';
         const replacement = window.getPictureHTML(
-          { title: seedName, type: seedItem.type || 'Character', palette: seedItem.palette },
+          { title: displayName, type, palette: seedItem.palette },
           palette,
           context
         );

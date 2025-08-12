@@ -353,9 +353,6 @@ input[type="file"] {
   border: none;
   border-radius: var(--pico-radius);
   transform: translateY(0) scale(1);
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-              box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
 
 .chin-card::before,
 .storyboard-card::before {
@@ -405,12 +402,12 @@ input[type="file"] {
   }
 }
 
-.picture {
+.picture,
+.profile-picture {
   transition-property: opacity;
 }
 
 .profile-picture {
-  transition-property: opacity;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -459,6 +456,8 @@ input[type="file"] {
   display: grid;
   grid-template-rows: auto 1fr;
   background: var(--card-bg, #111);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .chin-card .media {
@@ -470,13 +469,21 @@ input[type="file"] {
   overflow: hidden;
 }
 
-/* Chin card “poster” image framing */
+/* Chin Card poster image */
+/* stylelint-disable declaration-block-no-redundant-longhand-properties */
 .chin-card .picture,
 .chin-card img.profile-picture {
-  border-radius: var(--pico-radius) var(--pico-radius) 0 0;
+  border-top-left-radius: var(--pico-radius);
+  border-top-right-radius: var(--pico-radius);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
   overflow: hidden;
   display: block;
 }
+
+/* Shorthand if used elsewhere */
+/* stylelint-enable declaration-block-no-redundant-longhand-properties */
+.chin-card .picture { border-radius: var(--pico-radius) var(--pico-radius) 0 0; }
 
 
 .chin-card .body {
@@ -489,8 +496,8 @@ input[type="file"] {
   font-size: 13px;
   color: rgb(255 255 255 / 85%);
   display: -webkit-box;
-  line-clamp: 3;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -900,7 +907,8 @@ input[type="file"] {
   flex: 0 0 auto;
   transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
               box-shadow 0.4s ease,
-              opacity 0.4s ease;
+              opacity 0.4s ease,
+              outline 0.15s ease;
 }
 
 .storyboard-card * {
@@ -910,12 +918,12 @@ input[type="file"] {
 /* stylelint-disable selector-class-pattern */
 .storyboard-card:hover {
   outline: 2px solid var(--pico-primary-hover);
-  transition: outline 0.15s ease;
+
+  /* no transition here */
 }
 
 .storyboard-card .card-title--editing {
   outline: 2px solid var(--pico-primary-hover);
-  transition: outline 0.15s ease;
 }
 /* stylelint-enable selector-class-pattern */
 
@@ -1108,4 +1116,5 @@ input[type="file"] {
   50% {
     box-shadow: 0 4px 15px rgb(0 0 0 / 20%), 0 0 10px rgb(255 255 255 / 5%);
   }
+}
 }
