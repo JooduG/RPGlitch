@@ -1,6 +1,6 @@
 {
   "markdown.validate.enabled": true,
-  "markdown.validate.referenceLinks.enabled": "ignore",  // <- was boolean; must be "ignore" | "warning" | "error"
+  "markdown.validate.referenceLinks.enabled": "ignore",
 
   "markdownlint.enable": true,
   "markdownlint.config": {
@@ -17,8 +17,8 @@
   "eslint.workingDirectories": [{ "mode": "auto" }],
 
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",     // <- was true
-    "source.fixAll.stylelint": "explicit"   // <- was true
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
   },
 
   "files.eol": "\n",

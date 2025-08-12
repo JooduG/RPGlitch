@@ -119,14 +119,8 @@
   ) {
     if (!(img instanceof HTMLImageElement)) return;
     if (img.dataset.isPlaceholder === 'false') {
-      const type = seedItem.type || 'Character';
-      const displayName = seedItem.title || seedItem.name || '';
       img.onerror = () => {
-        const replacement = window.getPictureHTML(
-          { title: displayName, type, palette: seedItem.palette },
-          palette,
-          context
-        );
+        const replacement = window.getPictureHTML(seedItem, palette, context);
         img.replaceWith(replacement);
         replacement.classList.toggle('empty', replacement.dataset.isPlaceholder === 'true');
       };
