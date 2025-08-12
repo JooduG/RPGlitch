@@ -916,8 +916,8 @@ input[type="file"] {
 }
 
 .storyboard-card-right,
-.storyboard-card header,
-.storyboard-card select.storyboard-card-title {
+.storyboard-card-right > header,
+.storyboard-card-right > header > select.storyboard-card-title {
   border-top-right-radius: inherit;
   border-bottom-right-radius: inherit;
 }
