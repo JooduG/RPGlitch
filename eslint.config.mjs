@@ -1,20 +1,22 @@
 // eslint.config.mjs — ESLint v9 flat config
 import js from '@eslint/js';
 import globals from 'globals';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+  // Load ignore patterns generated from config/ignore.master
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const ESLINT_IGNORES = JSON.parse(
+    fs.readFileSync(path.join(__dirname, 'config', 'ignore.eslint.json'), 'utf8')
+);
 
 export default [
   // 1) Global ignores (v9: use config-based ignores, not .eslintignore)
-  {
-    ignores: [
-      'node_modules/**',
-      'build/output/**',
-      'build/local_libs/**',
-      'memory-bank/archive/**',
-      '**/*.min.js'
-    ]
-  },
+  { ignores: ESLINT_IGNORES },
 
-  // 2) Base recommended rules
+  // 2) Base recommended
   js.configs.recommended,
 
   // 3) App/browser code (default)

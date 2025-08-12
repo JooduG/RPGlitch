@@ -121,6 +121,7 @@
     if (img.dataset.isPlaceholder === 'false') {
       img.onerror = () => {
         const replacement = global.getPictureHTML(seedItem, palette, context);
+
         img.replaceWith(replacement);
         replacement.classList.toggle('empty', replacement.dataset.isPlaceholder === 'true');
       };
