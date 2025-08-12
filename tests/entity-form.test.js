@@ -1,3 +1,4 @@
+/* global HTMLDialogElement, document */
 require('../apps/rpglitch/js/entity-form.js');
 const { openEntityModal } = global;
 

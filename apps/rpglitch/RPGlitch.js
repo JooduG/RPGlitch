@@ -1,5 +1,6 @@
-(function (App, window, document) {
-// Main RPGlitch application namespace
+(function (global, document) {
+  const App = global.App || (global.App = {});
+  // Main RPGlitch application namespace
 
 // Map utility helpers to App namespace with fallbacks
 App.hideEl = window.hideEl || function (el) {
@@ -827,4 +828,4 @@ App.deleteAllData = function () {
   App.refreshAllLists();
 };
 
-})(window.App = window.App || {}, window, document);
+})(window, document);
