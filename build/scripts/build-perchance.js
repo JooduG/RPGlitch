@@ -417,7 +417,7 @@ async function buildPerchanceFile() {
             .replace(/<link[^>]*href="[^"]*pico[^"]*"[^>]*>/g, '') // Remove Pico CSS link
             .replace(/<script[^>]*src="[^"]*(hyperscript|cash|dexie|purify)[^"]*"[^>]*><\/script>/g, '') // Remove external script tags
             .replace(/<script[^>]*src="[^"]*(utils\.js|js\/picture\.js|RPGlitch\.js|components\/[^"']*)"[^>]*><\/script>\n?/g, '') // Remove local component scripts
-            .replace(/<script[^>]*>[^]*?<\/script>\s*/g, '') // Remove remaining inline scripts
+            .replace(/<script>[\s\S]*?App\.initializeWhenReady[\s\S]*?<\/script>\s*\n?/g, '') // Remove inlined initialization script
             .replace('</head>', `<style>\n${optimizedCSS}\n</style>\n</head>`)
             .replace('</body>', `<script>\n${optimizedJS}\n</script>\n</body>`);
 
