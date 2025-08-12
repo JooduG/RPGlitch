@@ -6,6 +6,8 @@
     "default": false
     },
     "markdown.preview.breaks.enabled": true,
+    "stylelint.validate": ["scss", "css"],
+    "stylelint.configFile": "stylelint.config.js",
 
     "files.watcherExclude": {
         "**/build/output/**": true,
