@@ -135,3 +135,5 @@
 ### 2025-08-09
 - Add exponential backoff to initialization retries and document BusyBox setup script.
 
+
+- [x] Switch RPGlitch build to single-file output and drop build/output/components.

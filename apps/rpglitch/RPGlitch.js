@@ -187,26 +187,11 @@ const addMap = {
   characters: App.addCharacter,
   worlds: App.addWorld
 };
-
-const entityFormData = '__ENTITY_FORM__';
-const modalExportMap = {
-  stories: 'openStoryModal',
-  characters: 'openCharacterModal',
-  worlds: 'openWorldModal'
+const modalOpeners = {
+  stories: window.openStoryModal,
+  characters: window.openCharacterModal,
+  worlds: window.openWorldModal
 };
-let entityForm;
-function getEntityForm() {
-  if (!entityForm) {
-    const part = entityFormData.split(',')[1];
-    if (part) {
-      const code = atob(part);
-      entityForm = (0, eval)(code);
-    } else {
-      entityForm = {};
-    }
-  }
-  return entityForm;
-}
 
 App.premade = App.premade || {
   stories: [],
@@ -688,10 +673,7 @@ App._attachContentChinActions = function () {
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener('click', () => {
-        const exportName = modalExportMap[key];
-        if (!exportName) return;
-        const openModal = getEntityForm()[exportName];
-
+        const openModal = modalOpeners[key];
         if (typeof openModal !== 'function') return;
         openModal(({ title }) => {
           if (!title) return;

@@ -56,3 +56,5 @@
 - [x] Reuse existing storyboard card headings and open selects on title click.
 - [x] Preserve dropdown placeholder text and sync headings on change.
 - [x] Strip remaining `module.exports` shims from bundled libraries.
+
+- [x] Switch RPGlitch build to single-file output and remove components directory.

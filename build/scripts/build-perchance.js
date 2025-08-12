@@ -107,37 +107,17 @@ const EXTERNAL_JS_FILES = [
 
 const RPGLITCH_DIR = path.join(__dirname, '../../apps/rpglitch');
 
-const ROOT_JS_FILES = fs
-    .readdirSync(RPGLITCH_DIR)
-    .filter((f) => f.endsWith('.js') && f !== 'RPGlitch.js')
-    .map((f) => ({
-        name: path.join(RPGLITCH_DIR, f),
-        type: 'script',
-        description: `${f} script`
-    }));
-
-ROOT_JS_FILES.push({
-    name: path.join(RPGLITCH_DIR, 'js/picture.js'),
-    type: 'script',
-    description: 'picture.js script'
-});
+const COMPONENT_SCRIPTS = [
+    path.join(RPGLITCH_DIR, 'js/utils.js'),
+    path.join(RPGLITCH_DIR, 'js/picture.js'),
+    path.join(RPGLITCH_DIR, 'js/entity-form.js')
+];
 
 const SOURCE_FILES = [
     { name: path.join(RPGLITCH_DIR, 'RPGlitch.html'), type: 'html', description: 'Main HTML structure' },
     { name: path.join(RPGLITCH_DIR, 'RPGlitch.scss'), type: 'sass', description: 'Main Sass stylesheet' },
-    ...ROOT_JS_FILES,
     { name: path.join(RPGLITCH_DIR, 'RPGlitch.js'), type: 'script', description: 'JavaScript logic' }
 ];
-
-const COMPONENTS_DIR = path.join(__dirname, '../../apps/rpglitch/js');
-const COMPONENT_FILES = fs.readdirSync(COMPONENTS_DIR)
-    .filter((f) => f.endsWith('.js') && f !== 'picture.js')
-    .map((f) => ({
-        name: path.join(COMPONENTS_DIR, f),
-        output: f,
-        placeholder: `__${f.replace(/\.js$/, '').replace(/[-.]/g, '_').toUpperCase()}__`,
-        description: `${f} component`
-    }));
 
 /**
  * Downloads content from a URL
@@ -411,33 +391,22 @@ async function buildPerchanceFile() {
         // Read and process source files
         const htmlFile = SOURCE_FILES.find(f => f.type === 'html');
         const scssFile = SOURCE_FILES.find(f => f.type === 'sass');
-        const mainJsFile = SOURCE_FILES.find(f => f.name.endsWith('RPGlitch.js'));
-        const helperJsFiles = SOURCE_FILES.filter(f => f.type === 'script' && f !== mainJsFile);
+        const mainJsFile = SOURCE_FILES.find(f => f.type === 'script');
 
         const htmlContent = readFile(htmlFile.name, htmlFile.description);
         readFile(scssFile.name, scssFile.description); // Read for validation
-        const helperScripts = helperJsFiles
-            .map((file) => readFile(file.name, file.description))
+        const componentScripts = COMPONENT_SCRIPTS
+            .map((file) => readFile(file, path.basename(file)))
             .join('\n');
-        let jsContent = readFile(mainJsFile.name, mainJsFile.description);
-
-        const componentContents = COMPONENT_FILES.map(file => ({
-            ...file,
-            content: readFile(file.name, file.description)
-        }));
-
-        for (const file of componentContents) {
-            const optimized = await minifyJS(file.content);
-            const dataUrl = `data:text/javascript;base64,${Buffer.from(optimized).toString('base64')}`;
-            jsContent = jsContent.replace(`'${file.placeholder}'`, `'${dataUrl}'`);
-        }
+        const jsContent = readFile(mainJsFile.name, mainJsFile.description);
         
         // Compile SCSS to CSS
-        const compiledCSS = compileSass(SOURCE_FILES[1].name);
+        const compiledCSS = compileSass(scssFile.name);
 
         // Combine all content
         const combinedCSS = externalCSS + compiledCSS;
-        const combinedJS = externalJS + helperScripts + jsContent;
+        const initSnippet = "document.addEventListener('DOMContentLoaded',()=>{App.initializeWhenReady();},{once:true});";
+        const combinedJS = externalJS + componentScripts + jsContent + initSnippet;
 
         // Optimize CSS and JavaScript
         const optimizedCSS = await optimizeCSS(combinedCSS);
@@ -447,6 +416,8 @@ async function buildPerchanceFile() {
         const finalHtml = htmlContent
             .replace(/<link[^>]*href="[^"]*pico[^"]*"[^>]*>/g, '') // Remove Pico CSS link
             .replace(/<script[^>]*src="[^"]*(hyperscript|cash|dexie|purify)[^"]*"[^>]*><\/script>/g, '') // Remove external script tags
+            .replace(/<script[^>]*src="[^"]*(utils\.js|js\/picture\.js|RPGlitch\.js|components\/[^"']*)"[^>]*><\/script>\n?/g, '') // Remove local component scripts
+            .replace(/<script[^>]*>[^]*?<\/script>\s*/g, '') // Remove remaining inline scripts
             .replace('</head>', `<style>\n${optimizedCSS}\n</style>\n</head>`)
             .replace('</body>', `<script>\n${optimizedJS}\n</script>\n</body>`);
 
@@ -456,15 +427,7 @@ async function buildPerchanceFile() {
         const outputPath = path.join(__dirname, '../output/RPGlitch-perchance.html');
         fs.writeFileSync(outputPath, minifiedHtml, 'utf8');
 
-        const componentDir = path.join(__dirname, '../output/components');
-        fs.mkdirSync(componentDir, { recursive: true });
-        let componentsSize = 0;
-        for (const file of componentContents) {
-            const optimized = await minifyJS(file.content);
-            fs.writeFileSync(path.join(componentDir, file.output), optimized, 'utf8');
-            componentsSize += optimized.length;
-        }
-        buildMetrics.totalSize = minifiedHtml.length + componentsSize;
+        buildMetrics.totalSize = minifiedHtml.length;
         console.log(`\n✅ Build completed successfully!`);
         console.log(`📁 Output: ${outputPath}`);
         console.log(`📊 File size: ${(minifiedHtml.length / 1024).toFixed(2)} KB`);

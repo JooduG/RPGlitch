@@ -25,7 +25,7 @@ function loadApp() {
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
   dom.window.$ = function(){};
-  const utilsScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/utils.js'), 'utf8');
+  const utilsScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
   dom.window.eval(utilsScript);
   const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.js'), 'utf8');
   dom.window.eval(script);
