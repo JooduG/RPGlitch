@@ -32,6 +32,7 @@
   --brand-contrast: var(--brand-text-on);
 }
 
+
 .palette--cyan {
   --brand: #06b6d4;
   --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
@@ -284,7 +285,12 @@ input[type="file"] {
   flex-wrap: nowrap;
 }
 
-[role=group] input:not([type=checkbox],[type=radio],:last-child), [role=group] select:not(:last-child), [role=group]>:not(:last-child), [role=search] input:not([type=checkbox],[type=radio],:last-child), [role=search] select:not(:last-child), [role=search]>:not(:last-child) {
+[role="group"] input:not([type="checkbox"],[type="radio"],:last-child),
+[role="group"] select:not(:last-child),
+[role="group"] > :not(:last-child),
+[role="search"] input:not([type="checkbox"],[type="radio"],:last-child),
+[role="search"] select:not(:last-child),
+[role="search"] > :not(:last-child) {
   padding: 0 0 0 2.5rem;
   height: auto;
 }
@@ -401,6 +407,7 @@ input[type="file"] {
 
 .picture,
 .profile-picture {
+  transform: none;
   transition-property: opacity;
 }
 
@@ -469,13 +476,11 @@ input[type="file"] {
 /* Chin Card poster image */
 .chin-card .picture,
 .chin-card img.profile-picture {
-  border-top-left-radius: var(--pico-radius);
-  border-top-right-radius: var(--pico-radius);
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  border-radius: var(--pico-radius) var(--pico-radius) 0 0;
   overflow: hidden;
   display: block;
 }
+
 
 .chin-card .body {
   padding: 12px 12px 14px;
@@ -1064,7 +1069,7 @@ input[type="file"] {
 .chin-card:hover .profile-picture,
 .storyboard-card:hover .picture,
 .storyboard-card:hover .profile-picture {
-  transform: none !important;
+  transform: none;
 }
 
 
