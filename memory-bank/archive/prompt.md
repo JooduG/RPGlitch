@@ -1,80 +1,19 @@
-########################################################
-# OPERATIONAL-MODE HANDOFF — RPGlitch UI Polish Sprint
-########################################################
-**Scope** Fix the five UI/UX regressions uncovered in the latest manual test  
-**Time-box** Each numbered task is broken into sub-steps that should take *≤ 5 minutes* apiece.  
-**Branch** `feature/ui-polish-<your-initials>` → PR into `main`  
-**CI Gate** `npm run lint && npm test && npm run build && npm run validate`
+# hej
 
----
+Pornographic Vogue fashion magazine NSFW frontpage inspiring faggot. In an ultra-photorealistic 8K UHD golden-ratio masterpiece of undeniable homoerotic passion, a casual, unplanned, once-in-a-lifetime candid photograph that radiates hyper-realistic details, sharp focus, and photorealistic textures. It captures a horny {21|24|27|30|33|38}-year-old gay stud, {beautiful {Disney Prince Charming|World of Warcraft character|League of Legends champion|Chris HemsworthThor|Henry CavillSuperman|Tom HardyMad Max|Superhero protecting queer civilians|video game character|viking descendant Scandinavian|Swedish|Latino papi}|half Swedish human half {giant|{Barbie|Ken} doll, "life in plastic it's fantastic, you can touch my hair undress me anywhere" baby|sexbot cyborg with one arm 100% mechanical technological|bull|vampire with sharp teeth|elf with long and pointy ears|{orc|orch} with {green|red|purple} skin|demon with {purple|red|pink} skin, horns, a scorpions tail and smoke mysteriously surrounding him} mythological} queer faggot blending raw masculinity and femininity. His photorealistic physique is a {colossal bodybuilder, 195 cm tall, steroid-enhanced with massive pecs, basketball-sized shoulders, veiny arms, thick thighs, beefy bulking build, and muscular {bubble butt glutes|glutes and just unimaginable masculinity with four veiny arms flexing all four biceps|glutes, he's a true muscle-bear with dad bod, love handles, and big bouncing bubble butt}|athletic twunk swimmer’s build with defined abs, muscular pecs, and masculine bubble butt}, boasting coarse chest hair and skin adorned by {intricate tattoos|brightly glowing magical {runes|hieroglyphs|bioluminescent sigils} pulsing with light illuminating the scene|a few subtle scars hinting at a troubled past|doll-like smoothness} and subtle skin blemishes, natural pores, light freckles, big pink areolas, prominent puffy perky nipples, hairy legs, and a body glistening with {baby oil|sweat|sweat and precum stains|drenched see-through clothes and wet hair|torso covered in spit, drooling saliva from mouth|{white|toxic green|pink candy} cum splattered everywhere, post-fuck with wrecked hole, puking cum}. This exudes a nymphomaniac, vulgar, explicit edge in photorealistic detail, with every sweaty pore and skin blemish highlighted. The RAW photo aesthetic with film grain showcases natural skin pores, blemishes, sweat-glistened textures, and intricate fabric details.
 
-## 1 · Dropdowns Re-open for Re-selection (🐛 F-1)
+His strikingly handsome, symmetrical, immaculately detailed photorealistic face features a strong jawline and botox-injected full plump cock-sucker lips, {piercing|flirty|massive|almond-shaped} {pastel pink|bright green|ice blue} eyes with detailed pupils, {short|short wavy|fresh fade|buzzcut|curly and cute|top-knot|combed-down conservative} {pastel {pink|blue|purple}|dark brown|platinum blonde|ash blonde|light brown} hair so photorealistic you can count each strand, rocking {hipster moustache|well-kept beard|slight stubble|clean-shaven|neat moustache} and {septum piercing|cute freckles over sunburned nose|pierced eyebrow|dramatic make-up|scar across eye|divine halo like saint|cat ears|{gag ball|someones underwear|horse bit} in mouth}.
 
-| File | Location | Action |
-|------|----------|--------|
-| `apps/rpglitch/RPGlitch.js` | `App.updateStoryboardCard` | **A-1** Delete or guard `select.hidden = true` so it executes **only** while the heading is *not* editable. |
-| same | same | **A-2** Add click-handler to the heading <br>`heading.addEventListener('click', () => select.hidden = false);` |
-| same | `_attachStoryboardListeners` | **A-3** Call `App.updateStoryboardCard(<selectId>, <key>)` once at start-up so headings appear immediately. |
+The man shows an expression of {empty confusion|genuine smile|{playful|cocky|mischievous|confident} smirk|exhausted post-gangbang satisfied grin|predatory stare|open mouth tongue out cross-eyed gooner-face hypnotized drooling dripping saliva puking {pink candy|white|toxic green} cum, drooling spit and cum vomit on torso|happy laughter|flirtatious smile|puking cum post throat fuck, cum vomit down torso}, projecting {seductive power|submissive longing|dominant ownership|playfulness} with the fun, playfulness, laughter, smiling, smirking, mischievousness, pride, cocky vibe, subtle skin blemishes, natural pores, light freckles, and messy hair adding to the photorealistic raw intimacy.
 
----
+Flaunting norm-shattering gear in photorealistic fabric detail, his visible underwear is a {gay faggot {lycra|lace|latex} thong|{fashion|sporty|fetish} {speedo thong|jockstrap|slutty {loose-fitting|tight shiny} gym shorts}} paired with {kinky {sensual lingerie|BDSM {leather|latex} clothes} and {fishnet thigh-highs|thigh-high socks} plus {tight miniskirt|garter belt snatching waist}|sport-kink {American football outfit with thigh-high socks cup pads protective gear|homoerotic {wrestling|old-timey striped strongman} singlet|cropped baseball jersey with cap baseball {bat|glove}|hockey outfit with protective gear cup ice skates, throwing an ice cold atmosphere over the entire scene|boxer with boxer gloves}|role-play {pirate with eyepatch binoculars|fireman costume helmet firehose|police uniform badge handcuffs|nurse outfit syringe|doctor coat stethoscope|{construction worker|carpenter} holding {jackhammer|hammer}|military sergeant badges camouflage |priest robes magical enchanted cross|masculine sweaty steampunk mechanic|school girl uniform chewing bubblegum|cowboy hat boots chaps|medieval knight armor sword|astronaut spacesuit fishbowl-helmet} kinky fantasy-fulfilling outfit|sexy cosplay {shiny male Sailor Moon cosplay white sailor collar harness oversized pink bow gold brooch short pleated micro-skirt, white thigh-high stockings gloves moon tiara gem|Superman spandex bodysuit and cape|Batman costume and mask|vampire cape torn edges fangs|werewolf fur claws|alien antennae}|{formal wear tie|jeans {fashion bag across pecs|modern harness}} with {baseball cap|cowboy hat|fedora|royal {crown|tiara}|baseball cap|hipster beanie}}, the photorealistic outfit highlighting {clean shaven|a {happy|treasure} trail leading to|slight stubble|smooth skin} {{massive bulge flaccid cock outline|erect penis pitching tent|massive horse-like cock|small cute bulge flaccid penis outline|chastity cock cage {plastic|steel} completing {bimbofication|feminization|sissyfication}|tiny penis|biggest fucking {rock-hard|flaccid soft|semi-hard} cock perfect symmetry proportions veins {cut|uncut} mushroom head} {big|tiny|multiple} sagging balls|huge muscular bubble butt stealing frame begging savage spank}, {matching|contrasting} the environment in {pastel|neon} {pinks blues purples colour|colours of freedom baby red white blue|royal colours {yellow|gold} blue Swedish flag|white pink pretty colour|{blue|black|purple|green} {red|yellow|pink|orange|lime|teal|blood orange} {white|beige|gray|orange|mahogany} colour} palette with {mostly solid colour blocks|mix solid colours fun patterns|fun patterns like {modern fun playful pineapples hotdogs|patterns from grandmas house}|exclusively solid colours|outfit elements materializing with glowing pulsating shimmer whisps in magical photorealistic stitch and texture}.
 
-## 2 · Inline Card-Name Editing Style (🎨 F-2)
+Captured with a {Canon EOS R5|Hasselblad H6D-100c|iPhone|vintage polaroid camera} using {50mm|75mm} prime lens and divine {soft natural|professional softbox|heavenly|cinematic|volumetric} lighting, with vibrant high dynamic range colour grading, and depth of field, deep soft shadows, and subtle lens flares, shot from {selfie|wide-angle slight distortion|fisheye warped edge|full-body|extreme closeup|bird’s-eye|low ant|candid natural|overhead drone|long-distance|3/4 perspective|secret hidden peeping tom} point-of-view—the camera and perspective create a true work of realistic photographic art.
 
-| File | Location | Action |
-|------|----------|--------|
-| `apps/rpglitch/RPGlitch.js` | click-handler that toggles `contentEditable` | **B-1** *Keep* `h4.card-title` class; *add* `card-title--editing` while editing. |
-| `apps/rpglitch/RPGlitch.scss` | end of file | **B-2** ```scss\n.card-title--editing{ @extend .card-title; outline:1px dashed var(--color-accent); }\n``` |
-| same | same | **B-3** Ensure blur or Enter → removes `card-title--editing` and commits text. |
+The photorealistic atmosphere drips with intensely homoerotic, sensual, and kinky vibes laced with BDSM, blending sacred grandeur with raw heat, intimacy, romanticism, masculinity, femininity, macho energy, submissiveness, and dominance. Realism blends with fantasy when {magic erupts {mid-magical transformation shouting “Moon Prism Power, Make Up!” “Moon Tiara Magic!”, summoning muscular energy glowing silhouette swirling ribbons ethereal wisps glowing energy particles drifting|the man impressively showcasing his {water|fire|air|earth} bending|with a cosmic starry galaxy erotic constellations|mystical aura shadowy gothic}|toxic alchemy futuristic magitech haze purple smoky tendrils}, the fantasy, the dream, the magical, the maniacal, the crazy, the sadistic, the masochistic.
 
----
+In photorealistic {construction site steamy big trucks tools|battlefield|surreal Salvador Dali painting|big {ranch|farm}|art studio paint floors walls skin|testosterone-drenched {steampunk workshop|gym {locker room steam walls|shower|free-weights barbells mirrors flexing}}|playful bakery flour air sticky syrup counters skin baking utensils|naughty lingerie store secret changing room|cosy {bedroom masculine industrial decor king-sized bed|living room leather couches cosy fireplace}|{muddy foggy mysterious swamp|flowery field|beautiful garden roses bubbling fountain|private gay garden party Stockholm archipelago|scout camp leaves soil ground|mysterious forest gnarled trees mossy roots}|sci-fi {spaceship metallic panels holograms|cloning laboratory beakers Tesla coils|hospital monitors pills syringes|alien planet floating rocks glowing fungi}|holy sanctuary {muslim mosque tilework|christian cathedral stained glass|jewish synagogue bimah|buddhist temple golden statues incense smoke}|classroom desks chalkboard|rooftop stylized {neon Tokyo|New York skyline|Stockholm waterfront|London rain-slicked cobblestones|Berlin nightclub}|femboy hooters bar slutty waiters|underground rave sweaty high patrons pulsing strobe lights|{luxury private plane cabin window view|back limousine chauffeured private driver}|crowded subway fluorescent urban bustle|medieval city square|high-school hallway lockers}, the backdrop adorned with {antique peculiar items|beautiful ornaments decorations|kinky sex toys scuffed dildos coiled whips spilled massage oils|sexy clothes scattered thongs lingerie jockstraps slutty whore harnesses}, blending sacred grandeur with raw heat, during {mid-day bright sunlight deep shadows|midnight full moon silvery glow|sunrise golden hues warming skin|sunset orange skies reflecting sweat|thunderstorm rain wet surfaces}, the environment, the atmosphere.
 
-## 3 · Dynamic Main Title Polish (📝 F-3)
+Caught in a true-to-life photorealistic {seductive|proud|flexing|exposing|superhero|dynamic|natural|spontaneous|unposed|death drop} pose with {soft motion blur from {destructive|seductive} dance|floating zero-gravity|sexually pleasuring self by {jerking off cock|fingering tight ass|fucking self with {big|bad dragon|brightly glowing {high-tech sci-fi|alien}} dildo}|stimulating {nipples|nipples clamps hooked car battery sparks}|twerking bubble butt|grinding against {imaginary|holographic|ghostly} partner|on all fours arching back|relaxing lounging {sofa|kitchen counter}|partying beach}, the action blending anal, blowjob, sucking, deepthroat, cum, spit, saliva, kinky fucking, and BDSM.
 
-| File | Location | Action |
-|------|----------|--------|
-| `apps/rpglitch/RPGlitch.js` | `_defaultStoryboardTitle` | **C-1** Add prefix list:<br>`const titlePrompts=[ "Once upon a time", "The tale of", "Chronicles of", "Legend speaks of", "Adventures of" ];` |
-| same | `_defaultStoryboardTitle` | **C-2** *Always* prepend `randPrompt()` — even when all three cards selected. |
-| `apps/rpglitch/RPGlitch.scss` | `#story-title` block | **C-3** ```scss\n#story-title{ text-align:center; text-wrap:balance; max-width:40ch; margin-inline:auto; }\n``` |
-| `apps/rpglitch/RPGlitch.html` | story-title container | **C-4** Add `class="flex-center"` or ensure CSS centers on both axes. |
-
----
-
-## 4 · Profile Pictures Render Correctly (🖼️ F-4)
-
-| File | Location | Action |
-|------|----------|--------|
-| `apps/rpglitch/components/picture.js` | `getPictureClass` | **D-1** Return `"profile-picture chin-card"` or `"profile-picture storyboard-card"` accordingly. |
-| `apps/rpglitch/RPGlitch.js` | `renderList` / `updateStoryboardCard` | **D-2** Replace previous context strings with `"chin-card"` and `"storyboard-card"`. |
-| `apps/rpglitch/RPGlitch.scss` | avatar section | **D-3** ```scss\n.chin-card .profile-picture{ width:4rem; height:4rem; }\n.storyboard-card .profile-picture{ width:4rem; height:4rem; }\n``` _(adjust height if design needs 150 px)_ |
-
----
-
-## 5 · Search Bar Height Matches Buttons (🔍 F-5)
-
-| File | Location | Action |
-|------|----------|--------|
-| `apps/rpglitch/RPGlitch.scss` | `.topbar-search` | **E-1** `height:2.5rem; line-height:2.5rem; padding-inline:0.75rem;` |
-| same | `.topbar-button` | **E-2** Confirm identical height/line-height; tweak padding only if mismatch remains. |
-
----
-
-## 6 · Docs Terminology Update (“ASK” → “ANALYSE”) (📚)
-
-| File | Action |
-|------|--------|
-| `memory-bank/docs/setup/unified-orchestrator-mode.md`<br>`memory-bank/docs/guides/unified-system-quick-reference.md`<br>`memory-bank/docs/guides/unified-system-troubleshooting.md` | **F-1** Search & replace **ASK** → **ANALYSE**.<br>**F-2** Ensure any remaining phase diagrams read **ANALYSE → PLAN → CODE**.<br>**F-3** Run markdown-lint if configured. |
-
----
-
-### ✅ Commit-Per-Task Workflow
-
-1. Finish subtasks in a section.  
-2. `git add -p` the touched lines/files.  
-3. `git commit -m "[rpglitch] fix: <concise summary>"`  
-4. `npm run lint && npm test` — fix, amend if needed.  
-5. Push & open PR; link this brief.
-
----
-
-**End of Handoff — happy coding!**  
-*(Ping the Planning team if any 5-minute block unexpectedly balloons.)*
+A {solo portrait proud promiscuous faggot|intimate gay couple {boyfriends|husbands} displaying intense romantic love passion|gangbang with {multiple tops|bullying straight homophobic gym bros|dumb himbo sporty athletic teammates|dominant 40-45 year old daddies|horde demon twinks and twunks|exact replicated copies himself|crowd dorky nerds chess club} groping ass engaging {group sex|double penetration|kinky consensual non-consent CNC}, leaving cum-covered leaking cum gaping asshole crying messy hair exhausted satisfied}, the male power manly man men gay faggot homoerotic homosexual anal blowjob sucking deepthroat cum spit saliva kinky fucking BDSM magical maniacal crazy sadistic macho masochistic submissive dominance pride cocky asshole bubble butt intimacy romantic masculine feminine environment atmosphere lighting colour palette camera perspective everything no matter contrasting together so perfectly in this photorealistic dream, the realistic cohesion testament innovative technologies pure creativity photographer, all parts perfectly executed holistic golden ratio hardcore pornographic composition.

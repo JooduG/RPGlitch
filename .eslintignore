@@ -1,23 +1,20 @@
-# deps & caches
-node_modules/
-coverage/
-.nyc_output/
-.tmp/
-.temp/
-.cache/
+# Generated from config/ignore.master — do not edit directly
 
-# generated artifacts
+node_modules/
 build/output/
 dist/
-out/
+coverage/
+.nyc_output/
+.cache/
+.tmp/
+.temp/
+.git/
+.vscode/
+.idea/
 *.min.js
 **/*.min.js
 **/*.bundle.js
-
-# env & meta
+.DS_Store
+Thumbs.db
 .env
 .env.*
-.vscode/
-.idea/
-.git/
-.cursor/

@@ -1,6 +1,20 @@
-# Only lint RPGlitch HTML via script; ignore everything else & generated outputs
+# Generated from config/ignore.master — do not edit directly
+
 node_modules/
 build/output/
 dist/
 coverage/
 .nyc_output/
+.cache/
+.tmp/
+.temp/
+.git/
+.vscode/
+.idea/
+*.min.js
+**/*.min.js
+**/*.bundle.js
+.DS_Store
+Thumbs.db
+.env
+.env.*

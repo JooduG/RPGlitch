@@ -1,3 +1,5 @@
+# Generated from config/ignore.master — do not edit directly
+
 node_modules/
 build/output/
 dist/
@@ -6,4 +8,13 @@ coverage/
 .cache/
 .tmp/
 .temp/
-**/*.min.css
+.git/
+.vscode/
+.idea/
+*.min.js
+**/*.min.js
+**/*.bundle.js
+.DS_Store
+Thumbs.db
+.env
+.env.*

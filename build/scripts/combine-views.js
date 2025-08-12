@@ -6,18 +6,22 @@
  *   COMBINE_MAX_BYTES         (default: 250000)
  *   COMBINE_RECENT_SINCE_DAYS (default: 7)
  *   COMBINE_RECENT_LIMIT      (default: 100)
+ *   COMBINE_IGNORE_FILE       (default: config/ignore.master)
+ *   COMBINE_DEBUG=1           (print which files were ignored by master ignore)
  */
+
 const fs = require('fs');
 const path = require('path');
 const cp = require('child_process');
+const picomatch = require('picomatch');
 
 // -------- config --------
 const REPO_ROOT  = path.join(__dirname, '..', '..');
 const OUTPUT_DIR = path.join(__dirname, '..', 'output');
 
-const MAX_BYTES  = Number(process.env.COMBINE_MAX_BYTES || 250_000);
-const RECENT_SINCE_DAYS = Number(process.env.COMBINE_RECENT_SINCE_DAYS || 7);
-const RECENT_LIMIT      = Number(process.env.COMBINE_RECENT_LIMIT || 100);
+const MAX_BYTES          = Number(process.env.COMBINE_MAX_BYTES || 250_000);
+const RECENT_SINCE_DAYS  = Number(process.env.COMBINE_RECENT_SINCE_DAYS || 7);
+const RECENT_LIMIT       = Number(process.env.COMBINE_RECENT_LIMIT || 100);
 
 const TEXT_EXTS = new Set([
   '.md', '.mdx', '.mdc',
@@ -27,7 +31,7 @@ const TEXT_EXTS = new Set([
   '.sh'
 ]);
 
-const picomatch = require('picomatch');
+// -------- master ignore (single source of truth) --------
 const IGNORE_FILE = process.env.COMBINE_IGNORE_FILE || path.join(REPO_ROOT, 'config', 'ignore.master');
 
 function loadIgnorePatterns(filePath) {
@@ -42,7 +46,6 @@ function loadIgnorePatterns(filePath) {
   }
 }
 const MASTER_IGNORE = loadIgnorePatterns(IGNORE_FILE);
-
 // Build matchers (POSIX style paths)
 const _toPosix = p => p.split(path.sep).join('/');
 const MATCHERS = MASTER_IGNORE
@@ -52,8 +55,9 @@ function isIgnored(relPath) {
   const posix = _toPosix(relPath);
   return MATCHERS.some(fn => fn(posix));
 }
+const DEBUG_IGNORE = process.env.COMBINE_DEBUG === '1';
 
-// Targets to build
+// -------- targets to build --------
 const TARGETS = [
   {
     name: 'rules',
@@ -71,23 +75,20 @@ const TARGETS = [
   },
   {
     name: 'tests',
-    title: 'Combined Tests (test-basic-memory/tests)',
-    sources: ['test-basic-memory/tests'],
+    title: 'Combined Tests (tests/)',
+    sources: ['tests'],
     excludeDirs: new Set(['node_modules']),
     output: 'combined-tests.md'
   },
   {
     name: 'tools',
-    title: 'Combined Tools (test-basic-memory/tools + diagnostics + browser-tools)',
-    sources: [
-      'test-basic-memory/tools',
-      'test-basic-memory/diagnostics',
-      'test-basic-memory/browser-tools'
-    ],
-    excludeDirs: new Set(['node_modules']),
+    title: 'Combined Tools (tools/ + build/scripts/)',
+    sources: ['tools', 'build/scripts'],
+    excludeDirs: new Set(['node_modules', 'build/output']),
     output: 'combined-tools.md'
   },
   {
+    // curated panoramic map
     name: 'repo',
     title: 'Repo Overview (apps/, build/scripts, docs/, memory (no archive), tests)',
     sources: [
@@ -97,21 +98,40 @@ const TARGETS = [
       'memory-bank/active',
       'memory-bank/project',
       'memory-bank/strategic',
-      'test-basic-memory/tests'
+      'tests'
     ],
     excludeDirs: new Set(['node_modules', 'build/output', '.git', '.cursor']),
     output: 'repo-overview.md'
   },
   {
+    // full sweep (your “everything” map)
+    name: 'everything',
+    title: 'Repo Everything (entire repo except archive/ & generated dirs)',
+    sources: ['.'], // include top-level files too
+    excludeDirs: new Set([
+      'archive',
+      'node_modules',
+      'build/output',
+      '.git',
+      '.cursor/.trash',
+      'dist',
+      'coverage',
+      '.nyc_output',
+      '.cache',
+      '.tmp',
+      '.temp'
+    ]),
+    output: 'repo-everything.md'
+  },
+  {
     name: 'recent',
     title: `Recent Changes (last ${RECENT_SINCE_DAYS} days, up to ${RECENT_LIMIT} files)`,
     sources: [
-      // keep it focused on places you care about
       'apps',
       'build/scripts',
       'docs',
       'memory-bank',
-      'test-basic-memory/tests',
+      'tests',
       '.cursor/rules'
     ],
     excludeDirs: new Set(['node_modules', 'build/output', '.git']),
@@ -122,10 +142,8 @@ const TARGETS = [
 
 // -------- helpers --------
 function ensureDir(p){ fs.mkdirSync(p, { recursive: true }); }
-function isTextFile(file){
-  const ext = path.extname(file).toLowerCase();
-  return TEXT_EXTS.has(ext);
-}
+function isTextFile(file){ return TEXT_EXTS.has(path.extname(file).toLowerCase()); }
+
 function walk(dir, excludeDirs, out = []) {
   if (!fs.existsSync(dir)) return out;
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -133,7 +151,9 @@ function walk(dir, excludeDirs, out = []) {
     const abs = path.join(dir, e.name);
     const rel = path.relative(REPO_ROOT, abs);
 
-    if (isIgnored(rel)) continue;
+    const ignored = isIgnored(rel);
+    if (DEBUG_IGNORE && ignored) console.warn(`↪ ignored by master: ${rel}`);
+    if (ignored) continue;
 
     if (e.isDirectory()) {
       if (excludeDirs.has(e.name)) continue;
@@ -163,16 +183,18 @@ function languageFromExt(rel){
   }
 }
 function humanKB(n){ return (n/1024).toFixed(1) + ' KB'; }
+
+// Robust slugger for headings/TOC fragments
 function safeAnchor(text) {
+  // remove "/" and "\"; drop dots; keep hyphens inside filenames
   let slug = String(text).toLowerCase().trim();
-  slug = slug.replace(/[\\/]+/g, ' ');   // slashes -> space
-  slug = slug.replace(/\./g, '');        // drop dots
-  slug = slug.replace(/[^a-z0-9\s-]/g, ''); // strip punctuation
-  slug = slug.replace(/\s+/g, '-');      // spaces -> hyphen
+  slug = slug.replace(/[\\/]+/g, '');       // remove path separators
+  slug = slug.replace(/\./g, '');           // drop dots
+  slug = slug.replace(/[^a-z0-9\s-]/g, ''); // keep letters/numbers/spaces/hyphens
+  slug = slug.replace(/\s+/g, '-');         // spaces → hyphen
   slug = slug.replace(/-+/g, '-').replace(/^-|-$/g, '');
   return slug;
 }
-
 
 function readPreview(abs, max = MAX_BYTES){
   const stat = fs.statSync(abs);
@@ -215,8 +237,7 @@ function gitRecentFiles({ sinceDays, limit, includeDirs }){
   }
   return files;
 }
-function mtimeRecentFiles({ limit, includeDirs, excludeDirs }){
-  // fallback: walk and sort by mtime desc
+function mtimeRecentFiles({ limit, includeDirs, excludeDirs }) {
   const all = [];
   for (const src of includeDirs){
     const abs = path.join(REPO_ROOT, src);
@@ -229,8 +250,10 @@ function mtimeRecentFiles({ limit, includeDirs, excludeDirs }){
         const r = path.relative(REPO_ROOT, a);
         if (e.isDirectory()){
           if (excludeDirs.has(e.name)) continue;
+          if (isIgnored(r)) continue;
           stack.push(a);
         } else if (e.isFile() && isTextFile(a)){
+          if (isIgnored(r)) continue;
           all.push({ rel: r, mtime: fs.statSync(a).mtimeMs });
         }
       }
@@ -240,7 +263,19 @@ function mtimeRecentFiles({ limit, includeDirs, excludeDirs }){
   return all.slice(0, limit).map(x => x.rel);
 }
 
-// --- builders ---
+// --- sources hygiene ---
+function splitExistingSources(sources) {
+  const existing = [];
+  const missing  = [];
+  for (const src of sources) {
+    const abs = path.join(REPO_ROOT, src);
+    if (fs.existsSync(abs)) existing.push(src);
+    else missing.push(src);
+  }
+  return { existing, missing };
+}
+
+// --- markdown builder ---
 function buildFromList({ title, files }) {
   // Disable noisy rules that come from embedded docs we don't control:
   // - MD032: blanks around lists
@@ -250,12 +285,38 @@ function buildFromList({ title, files }) {
   let out =
     `<!-- markdownlint-disable MD032 MD022 MD036 MD024 -->\n` +
     `# ${title}\n\n` +
-    `> Generated by \`build/scripts/combine-views.js\` — ${files.length} files\n\n` +
-    `## Table of Contents\n\n`;
+    `> Generated by \`build/scripts/combine-views.js\` — ${files.length} files\n\n`;
 
+  // Folder summary (nice quick skim on big sweeps)
+  const folderCounts = {};
   for (const rel of files) {
-    out += `- [${rel}](#${safeAnchor(rel)})\n`;
+    const top = (rel.split(path.sep)[0] || '.');
+    folderCounts[top] = (folderCounts[top] || 0) + 1;
   }
+  if (Object.keys(folderCounts).length > 1) {
+    out += '### Folder summary\n\n';
+    for (const top of Object.keys(folderCounts).sort()) {
+      out += `- \`${top}/\` — ${folderCounts[top]} files\n`;
+    }
+    out += `\n`;
+  }
+
+  // Grouped TOC by top-level folder
+  out += `## Table of Contents\n\n`;
+  const groups = {};
+  for (const rel of files) {
+    const top = (rel.split(path.sep)[0] || '.');
+    (groups[top] ??= []).push(rel);
+  }
+  for (const top of Object.keys(groups).sort()) {
+    out += `- **${top}/**\n`;
+    for (const rel of groups[top]) {
+      const label = rel.replace(/\\/g, '/'); // pretty label for Windows paths
+      const id = safeAnchor(rel);
+      out += `  - [${label}](#${id})\n`;
+    }
+  }
+
   out += `\n---\n`;
 
   for (const rel of files) {
@@ -264,8 +325,9 @@ function buildFromList({ title, files }) {
     const ext = path.extname(rel).toLowerCase();
     const lang = languageFromExt(rel);
 
-    // Section header
-    out += `\n\n## ${rel}\n\n`;
+    const id = safeAnchor(rel);
+    // Explicit anchor + section header to guarantee MD051-safe jumps
+    out += `\n\n<a id="${id}"></a>\n## ${rel}\n\n`;
 
     if (ext === '.md' || ext === '.mdx' || ext === '.mdc') {
       const processed = demoteHeadings(stripFrontmatter(text)).trim();
@@ -286,24 +348,36 @@ function buildFromList({ title, files }) {
   return out.trim() + '\n';
 }
 
-function buildOne(target){
+// --- build one target ---
+function buildOne(target) {
+  // split sources first
+  const { existing, missing } = splitExistingSources(target.sources);
+  if (missing.length) console.warn(`⚠ ${target.name}: missing source dirs -> ${missing.join(', ')}`);
+  const SOURCES = existing.length ? existing : [];
+
   const start = Date.now();
   let files = [];
 
-  if (target.recent){
+  if (target.recent) {
+    // Prefer git history
     files = gitAvailable()
       ? gitRecentFiles({
           sinceDays: RECENT_SINCE_DAYS,
           limit: RECENT_LIMIT,
-          includeDirs: target.sources
+          includeDirs: SOURCES
         })
-      : mtimeRecentFiles({
-          limit: RECENT_LIMIT,
-          includeDirs: target.sources,
-          excludeDirs: target.excludeDirs || new Set()
-        });
+      : [];
+
+    // Fallback if git found nothing: use file mtimes
+    if (!files.length) {
+      files = mtimeRecentFiles({
+        limit: RECENT_LIMIT,
+        includeDirs: SOURCES,
+        excludeDirs: target.excludeDirs || new Set()
+      });
+    }
   } else {
-    for (const src of target.sources){
+    for (const src of SOURCES) {
       const abs = path.join(REPO_ROOT, src);
       files.push(...walk(abs, target.excludeDirs || new Set()));
     }
@@ -329,6 +403,7 @@ function buildOne(target){
   return meta;
 }
 
+// --- write hub index ---
 function writeIndex(built){
   const ts = new Date().toISOString();
   const byName = Object.fromEntries(built.map(b => [b.name, b]));
@@ -338,7 +413,7 @@ function writeIndex(built){
 
   // Title
   lines.push('# Review Hub');
-  lines.push(''); // MD022: blank after heading
+  lines.push('');
 
   // Preamble
   lines.push(`> Generated ${ts} by \`build/scripts/combine-views.js\``);
@@ -346,47 +421,49 @@ function writeIndex(built){
 
   // Quick links
   lines.push('## Quick links');
-  lines.push(''); // MD032: blank before list
+  lines.push('');
   for (const b of built) {
     lines.push(`- **${b.title}** — [${b.output}](./${b.output}) _(files: ${b.filesCount})_`);
   }
-  lines.push(''); // MD032: blank after list
-
-  // Divider
+  lines.push('');
   lines.push('---');
   lines.push('');
 
   // What’s inside
   lines.push('## What’s inside');
-  lines.push(''); // MD032: blank before list
+  lines.push('');
   lines.push('- **Combined Rules** → project rules from `.cursor/rules` and `docs/rules`.');
   lines.push('- **Combined Memory Bank** → all of `memory-bank/**` **except** `archive/**`.');
-  lines.push('- **Combined Tests** → everything in `test-basic-memory/tests/**`.');
-  lines.push('- **Combined Tools** → `test-basic-memory/tools/**`, `diagnostics/**`, `browser-tools/**`.');
+  lines.push('- **Combined Tests** → everything in `tests/**`.');
+  lines.push('- **Combined Tools** → `tools/**` and `build/scripts/**`.');
   lines.push('- **Repo Overview** → high-level sweep across apps, build scripts, docs, active/project/strategic memory, and tests.');
+  if (get('everything')) {
+    lines.push('- **Repo Everything** → entire repo (excluding archive/ and generated dirs).');
+  }
   if (get('recent')) {
     lines.push(`- **Recent Changes** → files changed in the last **${RECENT_SINCE_DAYS}** days (max **${RECENT_LIMIT}** files).`);
   }
-  lines.push(''); // MD032: blank after list
+  lines.push('');
 
   // Settings
   lines.push('### Current settings');
-  lines.push(''); // MD032: blank before list
+  lines.push('');
   lines.push(`- \`COMBINE_MAX_BYTES\` = **${MAX_BYTES}** (inline preview cap per file)`);
   if (get('recent')) {
     lines.push(`- \`COMBINE_RECENT_SINCE_DAYS\` = **${RECENT_SINCE_DAYS}**, \`COMBINE_RECENT_LIMIT\` = **${RECENT_LIMIT}**`);
   }
-  lines.push(''); // MD032: blank after list
+  lines.push('');
 
   // Run commands
   lines.push('### Run these');
-  lines.push(''); // MD031: blank before fenced code block
+  lines.push('');
   lines.push('```bash');
-  lines.push('npm run combine:all     # build everything in one go');
-  lines.push('npm run combine:recent  # only the recent changes hub');
-  lines.push('npm run combine:repo    # just the repo overview');
+  lines.push('npm run combine:all       # build everything in one go');
+  lines.push('npm run combine:recent    # only the recent changes hub');
+  lines.push('npm run combine:repo      # curated repo overview');
+  lines.push('npm run combine:everything# full sweep of the repo');
   lines.push('```');
-  lines.push(''); // MD031: blank after fence
+  lines.push('');
 
   fs.writeFileSync(path.join(OUTPUT_DIR, 'INDEX.md'), lines.join('\n'), 'utf8');
 }

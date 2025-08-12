@@ -25,6 +25,7 @@
     "combine:repo": "node build/scripts/combine-views.js repo",
     "combine:recent": "node build/scripts/combine-views.js recent",
     "combine:all": "node build/scripts/combine-views.js",
+    "combine:everything": "node build/scripts/combine-views.js everything",
     "sync:ignores": "node build/scripts/sync-ignores.js",
     "prelint": "npm run sync:ignores"
   },
