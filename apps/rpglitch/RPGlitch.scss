@@ -18,7 +18,6 @@
 }
 
 /* Each palette exposes ONE base color + useful derivatives */
-/* stylelint-disable selector-class-pattern */
 .palette--pink {
   --brand: #ec4899;
   --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
@@ -33,13 +32,13 @@
   --brand-contrast: var(--brand-text-on);
 }
 
+
 .palette--cyan {
   --brand: #06b6d4;
   --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
   --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
   --brand-contrast: var(--brand-text-on);
 }
-/* stylelint-enable selector-class-pattern */
 
 /* Add more: violet, amber, indigo, slate, etc. */
 
@@ -287,8 +286,12 @@ input[type="file"] {
   flex-wrap: nowrap;
 }
 
-/* stylelint-disable-next-line selector-attribute-quotes */
-[role=group] input:not([type=checkbox],[type=radio],:last-child), [role=group] select:not(:last-child), [role=group]>:not(:last-child), [role=search] input:not([type=checkbox],[type=radio],:last-child), [role=search] select:not(:last-child), [role=search]>:not(:last-child) {
+[role="group"] input:not([type="checkbox"],[type="radio"],:last-child),
+[role="group"] select:not(:last-child),
+[role="group"] > :not(:last-child),
+[role="search"] input:not([type="checkbox"],[type="radio"],:last-child),
+[role="search"] select:not(:last-child),
+[role="search"] > :not(:last-child) {
   padding: 0 0 0 2.5rem;
   height: auto;
 }
@@ -404,6 +407,7 @@ input[type="file"] {
 
 .picture,
 .profile-picture {
+  transform: none;
   transition-property: opacity;
 }
 
@@ -470,20 +474,12 @@ input[type="file"] {
 }
 
 /* Chin Card poster image */
-/* stylelint-disable declaration-block-no-redundant-longhand-properties */
 .chin-card .picture,
 .chin-card img.profile-picture {
-  border-top-left-radius: var(--pico-radius);
-  border-top-right-radius: var(--pico-radius);
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  border-radius: var(--pico-radius) var(--pico-radius) 0 0;
   overflow: hidden;
   display: block;
 }
-
-/* Shorthand if used elsewhere */
-/* stylelint-enable declaration-block-no-redundant-longhand-properties */
-.chin-card .picture { border-radius: var(--pico-radius) var(--pico-radius) 0 0; }
 
 
 .chin-card .body {
@@ -837,7 +833,6 @@ input[type="file"] {
   overflow: hidden;
 }
 
-/* stylelint-disable-next-line selector-class-pattern */
 .card-title--editing {
   outline: 1px dashed var(--pico-primary);
   cursor: text;
@@ -915,7 +910,6 @@ input[type="file"] {
   transition: inherit;
 }
 
-/* stylelint-disable selector-class-pattern */
 .storyboard-card:hover {
   outline: 2px solid var(--pico-primary-hover);
 
@@ -925,7 +919,6 @@ input[type="file"] {
 .storyboard-card .card-title--editing {
   outline: 2px solid var(--pico-primary-hover);
 }
-/* stylelint-enable selector-class-pattern */
 
 .storyboard-card-left {
   flex: 0 0 35%;
@@ -1076,7 +1069,7 @@ input[type="file"] {
 .chin-card:hover .profile-picture,
 .storyboard-card:hover .picture,
 .storyboard-card:hover .profile-picture {
-  transform: none !important;
+  transform: none;
 }
 
 
