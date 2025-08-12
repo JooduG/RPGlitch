@@ -10,7 +10,7 @@
     "build:offline": "node build/scripts/build-perchance.js --offline",
     "build:copy": "node build/scripts/build-and-copy.js",
     "build:watch": "nodemon --watch apps --ext \"html,js,css\" --exec \"node build/scripts/build-perchance.js\"",
- "lint:js": "eslint apps tests build/scripts",
+    "lint:js": "eslint apps tests build/scripts",
     "lint:css": "stylelint \"apps/**/*.{css,scss}\" --config stylelint.config.js",
     "lint:html": "htmlhint \"apps/**/*.html\" --config .htmlhintrc",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:html",

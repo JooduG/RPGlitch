@@ -9,15 +9,15 @@ const MASTER = path.join(REPO_ROOT, 'config', 'ignore.master');
 
 function readMaster() {
   const raw = fs.readFileSync(MASTER, 'utf8');
-  return raw.split(/\r?\n/).filter(Boolean);
+  return raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
 }
 function stripComments(lines) {
-  return lines.filter(line => !line.trim().startsWith('#'));
+  return lines.filter(line => !line.startsWith('#'));
 }
 function dropNegations(lines) {
-  return lines.filter(line => !line.trim().startsWith('!'));
+  return lines.filter(line => !line.startsWith('!'));
 }
-function writeFile(p, lines, header) {
+function writeTextFile(p, lines, header) {
   const body = [
     `# Generated from config/ignore.master — do not edit directly`,
     ...(header ? [header] : []),
@@ -27,22 +27,30 @@ function writeFile(p, lines, header) {
   fs.writeFileSync(p, body, 'utf8');
   console.log('✔ wrote', path.relative(REPO_ROOT, p));
 }
+function writeJsonFile(p, data) {
+  const body = JSON.stringify(data, null, 2) + '\n';
+  fs.writeFileSync(p, body, 'utf8');
+  console.log('✔ wrote', path.relative(REPO_ROOT, p));
+}
 
 (function main() {
-  const lines = stripComments(readMaster());
+  const master = stripComments(readMaster());
 
   // .gitignore keeps everything (including negations)
-  writeFile(
+  writeTextFile(
     path.join(REPO_ROOT, '.gitignore'),
-    lines,
+    master,
     '# You may append project-specific entries below'
   );
 
   // Tools don’t reliably support negations — drop them
-  const toolLines = dropNegations(lines);
+  const toolLines = dropNegations(master);
 
-  writeFile(path.join(REPO_ROOT, '.eslintignore'), toolLines);
-  writeFile(path.join(REPO_ROOT, '.stylelintignore'), toolLines);
-  writeFile(path.join(REPO_ROOT, '.htmlhintignore'), toolLines);
-  writeFile(path.join(REPO_ROOT, '.cursorignore'), toolLines);
+  // Style/CSS/HTML/cursor ignores
+  writeTextFile(path.join(REPO_ROOT, '.stylelintignore'), toolLines);
+  writeTextFile(path.join(REPO_ROOT, '.htmlhintignore'), toolLines);
+  writeTextFile(path.join(REPO_ROOT, '.cursorignore'), toolLines);
+
+  // ESLint v9 flat-config: no .eslintignore. Generate a JSON list ESLint can import.
+  writeJsonFile(path.join(REPO_ROOT, 'config', 'ignore.eslint.json'), toolLines);
 })();
