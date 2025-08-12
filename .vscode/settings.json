@@ -5,19 +5,22 @@
     "markdownlint.config": {
     "default": false
     },
+
     "markdown.preview.breaks.enabled": true,
-    "stylelint.validate": ["scss", "css"],
+    "stylelint.validate": ["scss","css"],
     "stylelint.configFile": "stylelint.config.js",
+    "eslint.workingDirectories": [{ "mode": "auto" }],
+    "files.eol": "\n",
 
     "files.watcherExclude": {
         "**/build/output/**": true,
-        "**/buil/local_libs/**": true,          
+        "**/build/local_libs/**": true,
         "**/node_modules/**": true,
         "**/memory-bank/archive/**": true,
     },
     "search.exclude": {
         "**/build/output/**": true,
-        "**/buil/local_libs/**": true,         
+        "**/build/local_libs/**": true,
         "**/node_modules/**": true,
         "**/memory-bank/archive/**": true,
     }
