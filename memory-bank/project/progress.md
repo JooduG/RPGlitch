@@ -106,3 +106,4 @@
 - Finalized palette-driven placeholders using brand and contrast colors, restored descriptive alt text, centralized default brand color helper, added chin-card poster layout, and cleaned up unused code per lint.
 
 - Switched RPGlitch build to single-file output with inlined components and removed output/components.
+- Polished RPGlitch cards: chin posters get top-rounded corners with single-layer hover, storyboard headlines inherit base transitions, picture helper DRYs display name with brand/contrast placeholders, and standard line-clamp properties silence lint.
