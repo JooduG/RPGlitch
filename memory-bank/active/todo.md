@@ -4,4 +4,5 @@
 - [x] RPGlitch lint cleanup (ESLint no-redeclare, Stylelint BEM fixes)
 - [x] Finish RPGlitch Stylelint cleanup (BEM selectors, palette utilities, editor alignment)
 - [x] RPGlitch: replace window references with global alias for consistency
+- [x] RPGlitch: fix chin-card title overlay and storyboard corner rounding
 - [ ] RPGlitch picture helper hardening and card hover polish
