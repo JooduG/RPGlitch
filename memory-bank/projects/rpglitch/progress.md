@@ -13,3 +13,5 @@
 - 2025-08-14 Refactored profile/form routes to dedicated #profile and #form paths, delegated chin card clicks via container, added storyboard reset hook, and ensured entity list caching populates App._allItemsCache.
 - 2025-08-14 Hardened build script, introduced hash router, unified profile/form page layout with sticky hero and tag chips, and added entity storage caching.
 - 2025-08-15 Finalised profile/form view toggling, storyboard card navigation, deferred copy flow until save, normalized entity storage, and documented build script regex.
+
+- 2025-08-16 Fixed storyboard dropdown navigation, unified image field, reliable back/cancel, deferred copy save, and cleaned build regex.
