@@ -354,14 +354,7 @@ input[type="file"] {
 }
 
 /* stylelint-disable no-descending-specificity */
-.chin-card button,
-.chin-card select,
-.chin-card input,
-.chin-card textarea,
-.storyboard-card button,
-.storyboard-card select,
-.storyboard-card input,
-.storyboard-card textarea {
+:is(.chin-card, .storyboard-card) :is(button, select, input, textarea) {
   cursor: default;
 }
 /* stylelint-enable no-descending-specificity */
