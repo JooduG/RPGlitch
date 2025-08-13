@@ -193,10 +193,10 @@
         imageUrl: imageInput.value.trim(),
         tags: tagsInput.value.split(',').map((t) => t.trim()).filter(Boolean),
         sections: {
-          forever: form.forever.value.trim(),
-          past: form.past.value.trim(),
-          present: form.present.value.trim(),
-          future: form.future.value.trim()
+          forever: form.elements.forever.value.trim(),
+          past: form.elements.past.value.trim(),
+          present: form.elements.present.value.trim(),
+          future: form.elements.future.value.trim()
         }
       };
       if (!data.title) return;
