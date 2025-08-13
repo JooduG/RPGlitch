@@ -69,8 +69,8 @@
     const copyBtn = doc.getElementById('profile-copy');
     if (editBtn) editBtn.hidden = true;
     if (copyBtn) copyBtn.hidden = true;
-    if (entity.isPremade) { if (copyBtn) copyBtn.hidden = false; }
-    else { if (editBtn) editBtn.hidden = false; }
+    if (copyBtn) copyBtn.hidden = !entity.isPremade;
+    if (editBtn) editBtn.hidden = entity.isPremade;
     if (backBtn) backBtn.onclick = () => { if (history.length > 1) history.back(); else App.router.navigate('#storyboard'); };
     if (editBtn) editBtn.onclick = () => App.router.navigate(`#form/${type}/${entity.id}`);
     if (copyBtn) copyBtn.onclick = () => {
