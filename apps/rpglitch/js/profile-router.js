@@ -84,9 +84,7 @@
     const copyBtn = document.getElementById('profile-copy');
     const delBtn = document.getElementById('profile-delete');
     const backBtn = document.getElementById('profile-back');
-    App.hideEl(editBtn);
-    App.hideEl(copyBtn);
-    App.hideEl(delBtn);
+    [editBtn, copyBtn, delBtn].forEach(App.hideEl);
     if (entity.kind === 'premade') {
       App.showEl(copyBtn);
     } else {
