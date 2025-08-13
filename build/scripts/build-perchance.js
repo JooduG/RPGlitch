@@ -420,7 +420,8 @@ async function buildPerchanceFile() {
         let finalHtml = htmlContent
             .replace(/<link[^>]*href="[^"]*pico[^"]*"[^>]*>/g, '')
             // Remove any local script tags (relative src) before inlining bundle.
-            // Negative lookahead skips http(s)://, protocol-relative //, and cached local_libs/ assets.
+            // Negative lookahead removes only relative paths,
+            // keeping http(s)://, protocol-relative //, and local_libs/ scripts.
             .replace(/<script[^>]*\bsrc=(['"])(?!https?:|\/\/|local_libs\/)[^'"]+\.js\1[^>]*><\/script>/g, '')
             .replace(/<script>[\s\S]*?App\.initializeWhenReady[\s\S]*?<\/script>\s*\n?/g, '')
             .replace('</head>', `<style>\n${optimizedCSS}\n</style>\n</head>`)
