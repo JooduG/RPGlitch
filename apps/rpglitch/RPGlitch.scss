@@ -577,6 +577,31 @@ input[type="file"] {
   backdrop-filter: blur(10px);
 }
 
+.profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 1rem 1rem;
+  list-style: none;
+  padding: 0;
+}
+
+.profile-tags li {
+  background: rgb(0 0 0 / 40%);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+}
+
+@media (width >= 768px) {
+  .profile-tags {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 4;
+  }
+}
+
 .profile-field {
   display: grid;
   grid-template-columns: 20% auto;

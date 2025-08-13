@@ -6,3 +6,4 @@
 - [x] RPGlitch: replace window references with global alias for consistency
 - [x] RPGlitch: fix chin-card title overlay and storyboard corner rounding
 - [ ] RPGlitch picture helper hardening and card hover polish
+- [ ] RPGlitch character/world profile & form views

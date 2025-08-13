@@ -51,6 +51,9 @@ App._getUIElements = function () {
   ui.topBarLeft = ui.topBarLeft || doc.getElementById('top-bar-left');
   ui.chinContainer = ui.chinContainer || doc.getElementById('chin-container');
   ui.topBarButtons = ui.topBarButtons || (ui.topBarLeft ? ui.topBarLeft.querySelectorAll('button[data-chin]') : []);
+  ui.topBarRightStoryboard = ui.topBarRightStoryboard || doc.getElementById('top-bar-right-storyboard');
+  ui.topBarRightForm = ui.topBarRightForm || doc.getElementById('top-bar-right-form');
+  ui.topBarRightProfile = ui.topBarRightProfile || doc.getElementById('top-bar-right-profile');
 
   // Option chin actions
   ui.uploadBackupInput = ui.uploadBackupInput || doc.getElementById('upload-backup');
@@ -75,6 +78,15 @@ App._getUIElements = function () {
 
   App.ui = ui;
   return ui;
+};
+
+App.setTopBarRight = function (mode) {
+  const ui = App._getUIElements();
+  const sections = [ui.topBarRightStoryboard, ui.topBarRightForm, ui.topBarRightProfile];
+  sections.forEach((sec) => sec && App.hideEl(sec));
+  if (mode === 'storyboard' && ui.topBarRightStoryboard) App.showEl(ui.topBarRightStoryboard);
+  if (mode === 'form' && ui.topBarRightForm) App.showEl(ui.topBarRightForm);
+  if (mode === 'profile' && ui.topBarRightProfile) App.showEl(ui.topBarRightProfile);
 };
 
 /**
