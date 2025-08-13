@@ -8,3 +8,4 @@
 - 2025-08-12 Fixed chin-card title overlay and ensured storyboard cards have rounded corners.
 - 2025-08-13 Added routing, entities API, and basic profile/form views for characters and worlds.
 - 2025-08-13 Wired chin lists and new buttons to profile/form pages; premade items now marked in entity store.
+- 2025-08-13 Added hash routing for character/world profiles and forms, event-delegated card clicks, top-bar action mapping, and entity cache backed by localStorage.

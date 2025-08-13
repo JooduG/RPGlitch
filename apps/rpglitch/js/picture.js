@@ -1,24 +1,15 @@
-(function ensurePictureHelper() {
-  // Resolve a safe global + document in Perchance and browsers
-  const ROOT = typeof globalThis !== 'undefined'
-    ? globalThis
-    : typeof window !== 'undefined'
-      ? window
-      : this;
-
-  function getDoc(context) {
-    const fromCtx = context && (context.ownerDocument || context.document);
-    if (fromCtx) return fromCtx;
-    if (typeof document !== 'undefined' && document) return document;
-    if (ROOT && ROOT.document) return ROOT.document;
-    return null;
+(function ensurePictureHelper(global) {
+  const doc = global && global.document ? global.document : null;
+  if (!doc) {
+    console.warn('No document; skipping picture render');
+    return;
   }
+  const ROOT = global;
 
   const __PAL_CACHE = new Map();
 
-  function __getDefaultBrandColor(context) {
-    const doc = getDoc(context);
-    if (doc && doc.documentElement && ROOT.getComputedStyle) {
+  function __getDefaultBrandColor() {
+    if (doc.documentElement && ROOT.getComputedStyle) {
       return (
         ROOT.getComputedStyle(doc.documentElement)
           .getPropertyValue('--brand-default')
@@ -28,9 +19,7 @@
     return '#777';
   }
 
-  function __getProbe(context) {
-    const doc = getDoc(context);
-    if (!doc) return null;
+  function __getProbe() {
     let p = doc.getElementById('palette-probe');
     if (!p) {
       p = doc.createElement('div');
@@ -41,32 +30,32 @@
     return p;
   }
 
-  function readCssBrand(name, context) {
+  function readCssBrand(name) {
     if (!name) return null;
     if (__PAL_CACHE.has(name)) return __PAL_CACHE.get(name);
-    const probe = __getProbe(context);
+    const probe = __getProbe();
     if (!probe) return null;
     probe.className = `palette--${name}`;
     const cs = ROOT.getComputedStyle ? ROOT.getComputedStyle(probe) : null;
     const brand = (cs?.getPropertyValue('--brand') || '').trim();
     const contrast = (cs?.getPropertyValue('--brand-contrast') || '').trim() || '#fff';
-    const out = { brand: brand || __getDefaultBrandColor(context), contrast };
+    const out = { brand: brand || __getDefaultBrandColor(), contrast };
     __PAL_CACHE.set(name, out);
     return out;
   }
 
-  function resolveBrandColors(subject = {}, paletteObj = null, context) {
+  function resolveBrandColors(subject = {}, paletteObj = null) {
     if (subject.signatureColor) return { brand: subject.signatureColor, contrast: '#fff' };
     if (subject.colorPalette?.primary) return { brand: subject.colorPalette.primary, contrast: '#fff' };
 
     if (subject.palette) {
-      const css = readCssBrand(subject.palette, context);
+      const css = readCssBrand(subject.palette);
       if (css?.brand) return css;
     }
 
     if (paletteObj?.primary) return { brand: paletteObj.primary, contrast: '#fff' };
 
-    return { brand: __getDefaultBrandColor(context), contrast: '#fff' };
+    return { brand: __getDefaultBrandColor(), contrast: '#fff' };
   }
 
   function getInitials(name = '') {
@@ -102,11 +91,6 @@
   }
 
   function getPictureHTML(item = {}, palette = null, context = '') {
-    const doc = getDoc(context);
-    if (!doc) {
-      console.warn('getPictureHTML: no document available; returning null');
-      return null;
-    }
     const img = doc.createElement('img');
     img.className = `profile-picture ${context}`.trim();
     img.loading = 'lazy';
@@ -126,10 +110,10 @@
     if (src) {
       img.src = src;
       img.dataset.isPlaceholder = 'false';
-      ROOT.attachBrokenImageFallback?.(img, item, palette, context);
+      ROOT.attachBrokenImageFallback?.(img, item, palette);
     } else {
       const initials = getInitials(displayName);
-      const { brand, contrast } = resolveBrandColors(item, palette, context);
+      const { brand, contrast } = resolveBrandColors(item, palette);
       img.src = makeInitialsPlaceholderDataURI(initials, brand, contrast, 256);
       img.dataset.isPlaceholder = 'true';
     }
@@ -138,17 +122,11 @@
     return img;
   }
 
-  function attachBrokenImageFallback(
-    img,
-    seedItem = {},
-    palette = null,
-    context = ''
-  ) {
+  function attachBrokenImageFallback(img, seedItem = {}, palette = null) {
     if (!(img instanceof HTMLImageElement)) return;
     if (img.dataset.isPlaceholder === 'false') {
       img.onerror = () => {
-        const replacement = getPictureHTML(seedItem, palette, context);
-
+        const replacement = getPictureHTML(seedItem, palette);
         img.replaceWith(replacement);
         replacement.classList.toggle('empty', replacement.dataset.isPlaceholder === 'true');
       };
@@ -158,5 +136,5 @@
   ROOT.getPictureHTML = getPictureHTML;
   ROOT.attachBrokenImageFallback = attachBrokenImageFallback;
   ROOT.resolveBrandColors = resolveBrandColors;
-})();
+})(typeof window !== 'undefined' ? window : globalThis);
 

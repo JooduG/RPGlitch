@@ -7,3 +7,8 @@
 - [x] RPGlitch: fix chin-card title overlay and storyboard corner rounding
 - [ ] RPGlitch picture helper hardening and card hover polish
 - [x] RPGlitch character/world profile & form views
+- [ ] RPGlitch card click routing & hash-based profile/form routes
+- [ ] RPGlitch entities API cache & getAllItems write-through
+- [ ] RPGlitch top-bar-right map actions with back/return
+- [ ] RPGlitch create buttons route to form pages
+- [ ] RPGlitch picture helper DOM guard

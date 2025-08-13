@@ -62,7 +62,7 @@
     const content = document.createElement('div');
     content.className = 'profile-content-overlay';
     const h1 = document.createElement('h1');
-    h1.textContent = entity.title || '';
+    h1.textContent = entity.name || entity.title || '';
     content.appendChild(h1);
     if (entity.summary) {
       const p = document.createElement('p');
@@ -82,25 +82,30 @@
 
     const editBtn = document.getElementById('profile-edit');
     const copyBtn = document.getElementById('profile-copy');
-    const delBtn = document.getElementById('profile-delete');
     const backBtn = document.getElementById('profile-back');
-    [editBtn, copyBtn, delBtn].forEach(App.hideEl);
-    if (entity.kind === 'premade') {
-      App.showEl(copyBtn);
-    } else {
-      App.showEl(editBtn);
-      App.showEl(delBtn);
-    }
-    backBtn.onclick = () => { history.back(); };
-    editBtn.onclick = () => { App.router.navigate(`#edit/${type}/${entity.id}`); };
-    copyBtn.onclick = () => {
-      const copy = App.entities.copyFromPremade(entity);
-      if (copy) App.router.navigate(`#edit/${copy.type}/${copy.id}`);
+    [editBtn, copyBtn].forEach(App.hideEl);
+    if (entity.isPremade) App.showEl(copyBtn);
+    else App.showEl(editBtn);
+    const goBack = () => {
+      if (history.length > 1) history.back();
+      else App.router.navigate('#/');
     };
-    delBtn.onclick = () => {
-      App.entities.remove(type, entity.id);
+    backBtn.onclick = goBack;
+    editBtn.onclick = () => { App.router.navigate(`#/${type}/${entity.id}/edit`); };
+    copyBtn.onclick = () => {
+      const copy = {
+        ...entity,
+        id: undefined,
+        isCustom: true,
+        isPremade: false,
+        baseId: entity.id,
+        name: `${entity.name || entity.title} (Copy)`,
+        title: `${entity.name || entity.title} (Copy)`
+      };
+      const saved = App.entities.create(type, copy);
+      try { global.sessionStorage?.setItem('rpglitch-no-delete', saved.id); } catch { /* no sessionStorage */ }
       App.refreshAllLists?.();
-      history.back();
+      App.router.navigate(`#/${type}/${saved.id}/edit`);
     };
   }
 
@@ -135,11 +140,23 @@
 
     const form = document.createElement('form');
 
+    const h1 = document.createElement('h1');
+    h1.textContent = entity.name || entity.title || '';
+    const status = document.createElement('small');
+    status.className = 'card-title--editing';
+    const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+    status.textContent = isEdit ? `Editing ${typeLabel}` : `New ${typeLabel}`;
+    h1.append(' ', status);
+    content.appendChild(h1);
+
     const titleInput = document.createElement('input');
-    titleInput.name = 'title';
+    titleInput.name = 'name';
     titleInput.required = true;
-    titleInput.value = entity.title || '';
-    form.appendChild(createField('title', 'Title', titleInput));
+    titleInput.value = entity.name || entity.title || '';
+    form.appendChild(createField('name', 'Title', titleInput));
+    titleInput.addEventListener('input', () => {
+      h1.childNodes[0].textContent = titleInput.value || '';
+    });
 
     const summaryInput = document.createElement('input');
     summaryInput.name = 'summary';
@@ -180,13 +197,18 @@
     const saveBtn = document.getElementById('form-save');
     const cancelBtn = document.getElementById('form-cancel');
     const deleteBtn = document.getElementById('form-delete');
-    if (deleteBtn) deleteBtn.hidden = !isEdit;
+    const suppressDelete = id && global.sessionStorage?.getItem('rpglitch-no-delete') === id;
+    if (suppressDelete) global.sessionStorage.removeItem('rpglitch-no-delete');
+    if (deleteBtn) deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
 
-    cancelBtn.onclick = () => { history.back(); };
+    const goBack = () => {
+      if (history.length > 1) history.back();
+      else App.router.navigate('#/');
+    };
+    cancelBtn.onclick = goBack;
     saveBtn.onclick = () => {
       const data = {
-        type,
-        title: titleInput.value.trim(),
+        name: titleInput.value.trim(),
         summary: summaryInput.value.trim(),
         imageUrl: imageInput.value.trim(),
         tags: tagsInput.value.split(',').map((t) => t.trim()).filter(Boolean),
@@ -197,23 +219,19 @@
           future: form.elements.future.value.trim()
         }
       };
-      if (!data.title) return;
+      if (!data.name) return;
       let saved;
-      if (isEdit) {
-        data.id = entity.id;
-        saved = App.entities.update(data);
-      } else {
-        saved = App.entities.create(data);
-      }
+      if (isEdit) saved = App.entities.update(type, entity.id, data);
+      else saved = App.entities.create(type, data);
       App.refreshAllLists?.();
-      if (saved) App.router.navigate(`#profile/${type}/${saved.id}`);
+      if (saved) App.router.navigate(`#/${type}/${saved.id}`);
     };
     if (deleteBtn) {
       deleteBtn.onclick = () => {
-        if (isEdit) {
+        if (isEdit && confirm('Delete this item?')) {
           App.entities.remove(type, entity.id);
           App.refreshAllLists?.();
-          history.back();
+          App.router.navigate('#/');
         }
       };
     }
@@ -221,16 +239,22 @@
 
   function handleRoute() {
     const hash = global.location.hash.slice(1);
-    const parts = hash.split('/');
-    const [mode, type, id] = parts;
-    const isValidType = (t) => t === 'character' || t === 'world';
-    if (mode === 'profile' && isValidType(type) && id) {
-      renderProfile(type, id);
-      return;
-    }
-    if ((mode === 'edit' || mode === 'create') && isValidType(type)) {
-      renderForm(type, id);
-      return;
+    const parts = hash.split('/').filter(Boolean);
+    const [type, id, action] = parts;
+    const isType = (t) => t === 'character' || t === 'world';
+    if (isType(type)) {
+      if (id === 'new') {
+        renderForm(type);
+        return;
+      }
+      if (action === 'edit' && id) {
+        renderForm(type, id);
+        return;
+      }
+      if (id) {
+        renderProfile(type, id);
+        return;
+      }
     }
     showMain();
   }
