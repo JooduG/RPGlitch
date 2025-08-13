@@ -1,3 +1,4 @@
+/* eslint-disable */
 /*
  * Dexie.js - a minimalistic wrapper for IndexedDB
  * ===============================================

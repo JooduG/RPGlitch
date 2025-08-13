@@ -12,4 +12,4 @@
 - [x] RPGlitch top-bar-right map actions with back/return
 - [x] RPGlitch create buttons route to form pages
 - [x] RPGlitch picture helper DOM guard
-- [ ] RPGlitch profile/form router hotfix – finalize hash routes and sticky hero UI
+- [x] RPGlitch profile/form router hotfix – finalize hash routes and sticky hero UI

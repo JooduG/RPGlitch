@@ -419,6 +419,7 @@ async function buildPerchanceFile() {
         // Create final HTML
         let finalHtml = htmlContent
             .replace(/<link[^>]*href="[^"]*pico[^"]*"[^>]*>/g, '')
+            // Remove any local script tags (not http(s)://, not protocol-relative, not local_libs/)
             .replace(/<script[^>]*\bsrc=(['"])(?!https?:|\/\/|local_libs\/)[^'"']+\.js\1[^>]*><\/script>/g, '')
             .replace(/<script>[\s\S]*?App\.initializeWhenReady[\s\S]*?<\/script>\s*\n?/g, '')
             .replace('</head>', `<style>\n${optimizedCSS}\n</style>\n</head>`)

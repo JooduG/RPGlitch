@@ -1,6 +1,12 @@
 (function (global) {
   const App = global.App || (global.App = {});
   const doc = global.document;
+  const SECTIONS_CONFIG = [
+    ['Forever', 'forever'],
+    ['Past', 'past'],
+    ['Present', 'present'],
+    ['Future', 'future']
+  ];
 
   function renderTags(container, tags) {
     if (!tags || !tags.length) return;
@@ -28,6 +34,8 @@
   }
 
   function renderProfile(type, id) {
+    const sb = doc.getElementById('storyboard-screen');
+    if (sb) App.hideEl(sb);
     const entity = App.entities.get(type, id);
     if (!entity) {
       App.router?.navigate('#');
@@ -47,7 +55,7 @@
       content.appendChild(p);
     }
     const sections = entity.sections || {};
-    [['Forever', 'forever'], ['Past', 'past'], ['Present', 'present'], ['Future', 'future']].forEach(([label, key]) => {
+    SECTIONS_CONFIG.forEach(([label, key]) => {
       if (!sections[key]) return;
       const field = doc.createElement('div');
       field.className = 'profile-field';
@@ -74,11 +82,8 @@
     if (backBtn) backBtn.onclick = () => { if (history.length > 1) history.back(); else App.router.navigate('#storyboard'); };
     if (editBtn) editBtn.onclick = () => App.router.navigate(`#form/${type}/${entity.id}`);
     if (copyBtn) copyBtn.onclick = () => {
-      const copy = { ...entity, id: undefined, isCustom: true, isPremade: false, baseId: entity.id, name: `${entity.name || entity.title} (Copy)` };
-      const saved = App.entities.upsert(type, copy);
-        try { global.sessionStorage?.setItem('rpglitch-no-delete', saved.id); } catch { /* no sessionStorage */ }
-      App.refreshAllLists?.();
-      App.router.navigate(`#form/${type}/${saved.id}`);
+      const from = entity.id;
+      App.router.navigate(`#form/${entity.kind}/new?from=${from}`);
     };
   }
 
@@ -95,8 +100,13 @@
   }
 
   function renderForm(type, id) {
+    const sb = doc.getElementById('storyboard-screen');
+    if (sb) App.hideEl(sb);
     const isEdit = id && id !== 'new';
-    const existing = isEdit ? App.entities.get(type, id) : {};
+    const params = new URLSearchParams(global.location.hash.split('?')[1] || '');
+    const from = params.get('from');
+    const template = !isEdit && from ? App.entities.get(type, from) : null;
+    const existing = isEdit ? App.entities.get(type, id) : template;
     const screenId = type === 'character' ? 'character-form-screen' : 'world-form-screen';
     const screen = doc.getElementById(screenId);
     if (!screen) return;
@@ -130,11 +140,11 @@
     tagsInput.name = 'tags';
     tagsInput.value = (entity.tags || []).join(', ');
     form.appendChild(createField('tags', 'Tags', tagsInput));
-    ['forever', 'past', 'present', 'future'].forEach((key) => {
+    SECTIONS_CONFIG.forEach(([label, key]) => {
       const textarea = doc.createElement('textarea');
       textarea.name = key;
       textarea.value = entity.sections?.[key] || '';
-      form.appendChild(createField(key, key.charAt(0).toUpperCase() + key.slice(1), textarea));
+      form.appendChild(createField(key, label, textarea));
     });
     content.appendChild(form);
     screen.appendChild(content);
@@ -154,8 +164,9 @@
         else App.router.navigate('#storyboard');
       };
     }
-      if (saveBtn) saveBtn.onclick = () => {
+    if (saveBtn) saveBtn.onclick = () => {
       const data = {
+        kind: type,
         name: titleInput.value.trim(),
         summary: summaryInput.value.trim(),
         imageUrl: imageInput.value.trim(),
@@ -165,10 +176,14 @@
           past: form.elements.past.value.trim(),
           present: form.elements.present.value.trim(),
           future: form.elements.future.value.trim()
-        }
+        },
+        isCustom: true,
+        isPremade: false
       };
       if (!data.name) return;
-      const saved = App.entities.upsert(type, isEdit ? { ...data, id: entity.id } : data);
+      const saved = isEdit
+        ? App.entities.update(type, entity.id, data)
+        : App.entities.upsert(type, data);
       App.refreshAllLists?.();
       if (saved) App.router.navigate(`#profile/${type}/${saved.id}`);
     };

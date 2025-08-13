@@ -18,6 +18,20 @@
     global.localStorage.setItem(key, JSON.stringify(items));
   }
 
+  function normalize(core, base = {}) {
+    const nameOrTitle = core.name || core.title || base.name || base.title || '';
+    const summaryOrDesc = core.summary || core.description || base.summary || base.description || '';
+    return {
+      name: nameOrTitle,
+      title: nameOrTitle,
+      summary: summaryOrDesc,
+      description: summaryOrDesc,
+      tags: core.tags || base.tags || [],
+      sections: core.sections || base.sections || {},
+      imageUrl: core.imageUrl || core.image || base.imageUrl || ''
+    };
+  }
+
   function merge(type, custom) {
     const key = storeMap[type];
     const premade = (App.getPremadeItems ? App.getPremadeItems(key) : []).map((e) => ({
@@ -26,10 +40,7 @@
       isPremade: true,
       isCustom: false,
       version: STORAGE_VERSION,
-      name: e.name || e.title || '',
-      title: e.name || e.title || '',
-      summary: e.summary || e.description || '',
-      description: e.summary || e.description || ''
+      ...normalize(e)
     }));
     const normal = custom.map((e) => ({
       ...e,
@@ -37,8 +48,7 @@
       isPremade: false,
       isCustom: true,
       version: STORAGE_VERSION,
-      name: e.name || e.title || '',
-      title: e.name || e.title || ''
+      ...normalize(e)
     }));
     return premade.concat(normal);
   }
@@ -57,8 +67,8 @@
     },
     upsert(type, entity) {
       const items = read(type);
-      const idx = entity.id ? items.findIndex((e) => e.id === entity.id) : -1;
       const id = entity.id || (global.crypto?.randomUUID?.() || `${type}-${Date.now()}`);
+      const idx = items.findIndex((e) => e.id === id);
       const base = idx >= 0 ? items[idx] : {};
       const saved = {
         id,
@@ -67,17 +77,26 @@
         isPremade: false,
         version: STORAGE_VERSION,
         ...base,
-        ...entity,
-        name: entity.name || entity.title || base.name || '',
-        title: entity.name || entity.title || base.title || '',
-        summary: entity.summary || entity.description || base.summary || '',
-        description: entity.summary || entity.description || base.description || '',
-        tags: entity.tags || base.tags || [],
-        sections: entity.sections || base.sections || {},
-        imageUrl: entity.imageUrl || entity.image || base.imageUrl || ''
+        ...normalize(entity, base)
       };
       if (idx >= 0) items[idx] = saved;
       else items.push(saved);
+      write(type, items);
+      const key = storeMap[type];
+      App._allItemsCache = App._allItemsCache || Object.create(null);
+      App._allItemsCache[key] = merge(type, items);
+      return saved;
+    },
+    update(type, id, entity) {
+      const items = read(type);
+      const idx = items.findIndex((e) => e.id === id);
+      if (idx < 0) return null;
+      const base = items[idx];
+      const saved = {
+        ...base,
+        ...normalize(entity, base)
+      };
+      items[idx] = saved;
       write(type, items);
       const key = storeMap[type];
       App._allItemsCache = App._allItemsCache || Object.create(null);
