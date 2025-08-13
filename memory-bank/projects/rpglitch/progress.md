@@ -10,3 +10,4 @@
 - 2025-08-13 Wired chin lists and new buttons to profile/form pages; premade items now marked in entity store.
 - 2025-08-13 Added hash routing for character/world profiles and forms, event-delegated card clicks, top-bar action mapping, and entity cache backed by localStorage.
 - 2025-08-13 Finalised card click routing, map-based top-bar actions, create-button form navigation, picture helper DOM guard, and entity cache write-through.
+- 2025-08-14 Refactored profile/form routes to dedicated #profile and #form paths, delegated chin card clicks via container, added storyboard reset hook, and ensured entity list caching populates App._allItemsCache.

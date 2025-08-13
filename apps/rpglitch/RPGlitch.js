@@ -195,16 +195,10 @@ App.addWorld = function (item) {
   addItem('worlds', item);
 };
 
-const addMap = {
-  stories: App.addStory,
-  characters: App.addCharacter,
-  worlds: App.addWorld
+App.resetStoryboard = App.resetStoryboard || function () {
+  // placeholder for future storyboard reset logic
 };
-const modalOpeners = {
-  stories: global.openStoryModal,
-  characters: global.openCharacterModal,
-  worlds: global.openWorldModal
-};
+
 
 App.premade = App.premade || {
   stories: [],
@@ -285,8 +279,9 @@ App.getAllItems = App.getAllItems || function (key, refresh = false) {
       // The cache is shared, so we need to clear the specific key to force a refresh.
       delete App._allItemsCache[key];
     }
-    // App.entities.list handles its own caching (populating it if empty).
-    return App.entities.list(key.slice(0, -1));
+    const data = App.entities.list(key.slice(0, -1));
+    App._allItemsCache[key] = data;
+    return data;
   }
 
   const premade = App.getPremadeItems(key).map((item) => ({ ...item, isPremade: true }));
@@ -317,6 +312,7 @@ function renderList(containerId, key) {
     card.dataset.title = item.title;
     if (item.id) {
       card.dataset.id = item.id;
+      card.dataset.type = key.slice(0, -1);
       card.dataset.entityId = item.id;
       card.dataset.entityType = key.slice(0, -1);
     }
@@ -410,14 +406,19 @@ App.refreshAllLists = App.refreshAllLists || function () {
   App.renderDropdown?.('storyboard-world-select', 'worlds');
 };
 
-document.addEventListener('click', (e) => {
-  if (e.target.closest('button, a, input, select, textarea')) return;
-  const card = e.target.closest('[data-entity-type][data-entity-id]');
-  if (!card) return;
-  const type = card.getAttribute('data-entity-type');
-  const id = card.getAttribute('data-entity-id');
-  if (type && id) App.router?.navigate(`#/${type}/${id}`);
-});
+App._attachCardNavigation = function () {
+  if (App._cardNavAttached) return;
+  const container = document.getElementById('chin-container');
+  if (!container) return;
+  container.addEventListener('click', (e) => {
+    if (e.target.closest('button, a, input, select, textarea')) return;
+    const card = e.target.closest('.chin-card[data-type][data-id]');
+    if (!card) return;
+    const { type, id } = card.dataset;
+    if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
+  });
+  App._cardNavAttached = true;
+};
 
 App.renderStoryList = App.renderStoryList || function () {
   renderList('chin-story-grid', 'stories');
@@ -711,22 +712,17 @@ App._attachContentChinActions = function () {
     }
   ];
 
-  const typeMap = { stories: 'Story', characters: 'Character', worlds: 'World' };
-
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener('click', () => {
-        if (key === 'characters' || key === 'worlds') {
-          App.router?.navigate(`#/${key.slice(0, -1)}/new`);
+        if (key === 'stories') {
+          App.resetStoryboard?.();
+          App.router?.navigate('#storyboard');
           return;
         }
-        const openModal = modalOpeners[key];
-        if (typeof openModal !== 'function') return;
-        openModal(({ title }) => {
-          if (!title) return;
-          addMap[key]?.({ title, type: typeMap[key], palette: 'pink' });
-          App.refreshAllLists?.();
-        });
+        if (key === 'characters' || key === 'worlds') {
+          App.router?.navigate(`#form/${key.slice(0, -1)}/new`);
+        }
       });
     }
 
@@ -785,6 +781,7 @@ App._attachTopBarEventListeners = function () {
 
   App._attachOptionChinActions();
   App._attachContentChinActions();
+  App._attachCardNavigation();
 
   if (!App._outsideChinListenerAttached) {
     document.addEventListener('click', (e) => {

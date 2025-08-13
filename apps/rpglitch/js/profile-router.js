@@ -1,7 +1,7 @@
 (function (global) {
   const App = global.App || (global.App = {});
 
-  function showMain() {
+  function showStoryboard() {
     App.setTopBarRight('storyboard');
     App.showEl('chin-container');
     App.hideEl('profile-screen');
@@ -46,7 +46,7 @@
   function renderProfile(type, id) {
     const entity = App.entities.get(type, id);
     if (!entity) {
-      showMain();
+      showStoryboard();
       return;
     }
     const screen = document.getElementById('profile-screen');
@@ -64,13 +64,13 @@
     const h1 = document.createElement('h1');
     h1.textContent = entity.name || entity.title || '';
     content.appendChild(h1);
+    renderTags(content, entity.tags);
     if (entity.summary) {
       const p = document.createElement('p');
       p.className = 'profile-description';
       p.textContent = entity.summary;
       content.appendChild(p);
     }
-    renderTags(content, entity.tags);
     renderSections(content, entity.sections || {});
     screen.appendChild(content);
 
@@ -88,10 +88,10 @@
     else App.showEl(editBtn);
     const goBack = () => {
       if (history.length > 1) history.back();
-      else App.router.navigate('#/');
+      else App.router.navigate('#storyboard');
     };
     backBtn.onclick = goBack;
-    editBtn.onclick = () => { App.router.navigate(`#/${type}/${entity.id}/edit`); };
+    editBtn.onclick = () => { App.router.navigate(`#form/${type}/${entity.id}`); };
     copyBtn.onclick = () => {
       const copy = {
         ...entity,
@@ -105,7 +105,7 @@
       const saved = App.entities.create(type, copy);
       try { global.sessionStorage?.setItem('rpglitch-no-delete', saved.id); } catch { /* no sessionStorage */ }
       App.refreshAllLists?.();
-      App.router.navigate(`#/${type}/${saved.id}/edit`);
+      App.router.navigate(`#form/${type}/${saved.id}`);
     };
   }
 
@@ -203,7 +203,7 @@
 
     const goBack = () => {
       if (history.length > 1) history.back();
-      else App.router.navigate('#/');
+      else App.router.navigate('#storyboard');
     };
     cancelBtn.onclick = goBack;
     saveBtn.onclick = () => {
@@ -224,14 +224,14 @@
       if (isEdit) saved = App.entities.update(type, entity.id, data);
       else saved = App.entities.create(type, data);
       App.refreshAllLists?.();
-      if (saved) App.router.navigate(`#/${type}/${saved.id}`);
+      if (saved) App.router.navigate(`#profile/${type}/${saved.id}`);
     };
     if (deleteBtn) {
       deleteBtn.onclick = () => {
         if (isEdit && confirm('Delete this item?')) {
           App.entities.remove(type, entity.id);
           App.refreshAllLists?.();
-          App.router.navigate('#/');
+          App.router.navigate('#storyboard');
         }
       };
     }
@@ -240,23 +240,27 @@
   function handleRoute() {
     const hash = global.location.hash.slice(1);
     const parts = hash.split('/').filter(Boolean);
-    const [type, id, action] = parts;
+    const [section, type, id] = parts;
     const isType = (t) => t === 'character' || t === 'world';
-    if (isType(type)) {
+    if (section === 'profile' && isType(type) && id) {
+      renderProfile(type, id);
+      return;
+    }
+    if (section === 'form' && isType(type)) {
       if (id === 'new') {
         renderForm(type);
         return;
       }
-      if (action === 'edit' && id) {
+      if (id) {
         renderForm(type, id);
         return;
       }
-      if (id) {
-        renderProfile(type, id);
-        return;
-      }
     }
-    showMain();
+    if (section === 'storyboard') {
+      showStoryboard();
+      return;
+    }
+    showStoryboard();
   }
 
   global.addEventListener('hashchange', handleRoute);
