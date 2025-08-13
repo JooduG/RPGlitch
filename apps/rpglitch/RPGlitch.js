@@ -408,7 +408,7 @@ App.refreshAllLists = App.refreshAllLists || function () {
 };
 
 document.addEventListener('click', (e) => {
-  if (e.target.closest('button')) return;
+  if (e.target.closest('button, a, input, select, textarea')) return;
   const card = e.target.closest('[data-entity-type][data-entity-id]');
   if (!card) return;
   const type = card.getAttribute('data-entity-type');
