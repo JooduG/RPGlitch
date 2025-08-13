@@ -1,3 +1,4 @@
+/* global document */
 require('../apps/rpglitch/js/entity-form.js');
 
 describe('entity form page', () => {
