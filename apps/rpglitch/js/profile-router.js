@@ -223,11 +223,12 @@
     const hash = global.location.hash.slice(1);
     const parts = hash.split('/');
     const [mode, type, id] = parts;
-    if (mode === 'profile' && (type === 'character' || type === 'world') && id) {
+    const isValidType = (t) => t === 'character' || t === 'world';
+    if (mode === 'profile' && isValidType(type) && id) {
       renderProfile(type, id);
       return;
     }
-    if ((mode === 'edit' || mode === 'create') && (type === 'character' || type === 'world')) {
+    if ((mode === 'edit' || mode === 'create') && isValidType(type)) {
       renderForm(type, id);
       return;
     }
