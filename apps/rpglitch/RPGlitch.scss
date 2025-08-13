@@ -353,6 +353,19 @@ input[type="file"] {
   object-fit: cover;
 }
 
+/* stylelint-disable no-descending-specificity */
+.chin-card button,
+.chin-card select,
+.chin-card input,
+.chin-card textarea,
+.storyboard-card button,
+.storyboard-card select,
+.storyboard-card input,
+.storyboard-card textarea {
+  cursor: default;
+}
+/* stylelint-enable no-descending-specificity */
+
 .chin-card::before,
 .storyboard-card::before {
   content: '';
