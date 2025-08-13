@@ -147,13 +147,13 @@
     const deleteBtn = doc.getElementById('form-delete');
     const suppressDelete = id && global.sessionStorage?.getItem('rpglitch-no-delete') === id;
     if (suppressDelete) global.sessionStorage.removeItem('rpglitch-no-delete');
-      if (deleteBtn) deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
-      if (cancelBtn) {
-        cancelBtn.onclick = () => {
-          if (history.length > 1) history.back();
-          else App.router.navigate('#storyboard');
-        };
-      }
+    if (deleteBtn) deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
+    if (cancelBtn) {
+      cancelBtn.onclick = () => {
+        if (history.length > 1) history.back();
+        else App.router.navigate('#storyboard');
+      };
+    }
       if (saveBtn) saveBtn.onclick = () => {
       const data = {
         name: titleInput.value.trim(),
