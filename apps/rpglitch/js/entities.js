@@ -66,20 +66,22 @@
     save(type, next);
   }
 
-  function copyFromPremade(id) {
-    const types = Object.keys(storeMap);
-    for (const t of types) {
-      const premade = App.getPremadeItems ? App.getPremadeItems(storeMap[t]) : [];
-      const base = premade.find((p) => p.id === id);
-      if (base) {
-        const copy = { ...base, baseId: base.id, kind: 'custom', source: 'user', id: generateId(t), type: t };
-        const items = load(t);
-        items.push(copy);
-        save(t, items);
-        return copy;
-      }
+  function copyFromPremade(baseEntity) {
+    if (!baseEntity || !baseEntity.type) {
+      return null;
     }
-    return null;
+    // Normalize type to lowercase to match storeMap keys, e.g., 'Character' -> 'character'
+    const type = baseEntity.type.toLowerCase();
+    if (!storeMap[type]) {
+      return null;
+    }
+
+    // Create a copy, ensuring the type remains consistent with how new entities are created.
+    const copy = { ...baseEntity, baseId: baseEntity.id, kind: 'custom', source: 'user', id: generateId(type), type: type };
+    const items = load(type);
+    items.push(copy);
+    save(type, items);
+    return copy;
   }
 
   App.entities = { get, list, create, update, remove, copyFromPremade };
