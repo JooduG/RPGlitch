@@ -11,3 +11,4 @@
 - 2025-08-13 Added hash routing for character/world profiles and forms, event-delegated card clicks, top-bar action mapping, and entity cache backed by localStorage.
 - 2025-08-13 Finalised card click routing, map-based top-bar actions, create-button form navigation, picture helper DOM guard, and entity cache write-through.
 - 2025-08-14 Refactored profile/form routes to dedicated #profile and #form paths, delegated chin card clicks via container, added storyboard reset hook, and ensured entity list caching populates App._allItemsCache.
+- 2025-08-14 Hardened build script, introduced hash router, unified profile/form page layout with sticky hero and tag chips, and added entity storage caching.

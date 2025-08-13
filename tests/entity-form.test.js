@@ -1,23 +1,17 @@
-/* global HTMLDialogElement, document */
 require('../apps/rpglitch/js/entity-form.js');
-const { openEntityModal } = global;
 
-describe('entity-form modal', () => {
-  test('closes when cancel event fires', () => {
-    const originalShowModal = HTMLDialogElement.prototype.showModal;
-    const originalClose = HTMLDialogElement.prototype.close;
-    HTMLDialogElement.prototype.showModal = jest.fn();
-    HTMLDialogElement.prototype.close = jest.fn();
-
-    openEntityModal('story', () => {});
-    const dialog = document.getElementById('story-dialog');
-    dialog.dispatchEvent(new Event('cancel'));
-
-    expect(HTMLDialogElement.prototype.close).toHaveBeenCalledTimes(1);
-    expect(document.getElementById('story-dialog')).toBeNull();
-
-    HTMLDialogElement.prototype.showModal = originalShowModal;
-    HTMLDialogElement.prototype.close = originalClose;
+describe('entity form page', () => {
+  test('cancel navigates to storyboard', () => {
+    global.App.entities = { upsert: jest.fn() };
+    global.App.router = { navigate: jest.fn() };
+    global.App.refreshAllLists = jest.fn();
+    global.App.hideEl = jest.fn();
+    global.App.showEl = jest.fn();
+    const App = global.App;
+    document.body.innerHTML = '<div id="character-form-screen"></div><button id="form-save"></button><button id="form-cancel"></button><button id="form-delete"></button>';
+    App.renderForm('character', 'new');
+    const cancel = document.getElementById('form-cancel');
+    if (cancel && cancel.onclick) cancel.onclick();
+    expect(App.router.navigate).toHaveBeenCalledWith('#storyboard');
   });
 });
-

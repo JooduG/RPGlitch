@@ -1,6 +1,7 @@
 (function (global) {
   const App = global.App || (global.App = {});
   const storeMap = { character: 'characters', world: 'worlds' };
+  const STORAGE_VERSION = 1;
 
   function read(type) {
     const key = storeMap[type];
@@ -24,8 +25,9 @@
       kind: type,
       isPremade: true,
       isCustom: false,
-      name: e.name || e.title,
-      title: e.name || e.title,
+      version: STORAGE_VERSION,
+      name: e.name || e.title || '',
+      title: e.name || e.title || '',
       summary: e.summary || e.description || '',
       description: e.summary || e.description || ''
     }));
@@ -34,8 +36,9 @@
       kind: type,
       isPremade: false,
       isCustom: true,
-      name: e.name || e.title,
-      title: e.name || e.title
+      version: STORAGE_VERSION,
+      name: e.name || e.title || '',
+      title: e.name || e.title || ''
     }));
     return premade.concat(normal);
   }
@@ -44,68 +47,49 @@
     list(type) {
       App._allItemsCache = App._allItemsCache || Object.create(null);
       const key = storeMap[type];
-      const cached = App._allItemsCache[key];
-      if (cached) return cached;
-      const custom = read(type);
-      const data = merge(type, custom);
+      if (Array.isArray(App._allItemsCache[key])) return App._allItemsCache[key];
+      const data = merge(type, read(type));
       App._allItemsCache[key] = data;
       return data;
     },
     get(type, id) {
       return this.list(type).find((e) => e.id === id) || null;
     },
-    create(type, data) {
+    upsert(type, entity) {
       const items = read(type);
-      const id = data.id || (global.crypto?.randomUUID?.() || `${type}-${Date.now()}`);
-      const entity = {
+      const idx = entity.id ? items.findIndex((e) => e.id === entity.id) : -1;
+      const id = entity.id || (global.crypto?.randomUUID?.() || `${type}-${Date.now()}`);
+      const base = idx >= 0 ? items[idx] : {};
+      const saved = {
         id,
         kind: type,
-        name: data.name || data.title || '',
-        title: data.name || data.title || '',
-        summary: data.summary || data.description || '',
-        description: data.summary || data.description || '',
-        tags: data.tags || [],
-        imageUrl: data.imageUrl || data.image || '',
         isCustom: true,
         isPremade: false,
-        ...data
+        version: STORAGE_VERSION,
+        ...base,
+        ...entity,
+        name: entity.name || entity.title || base.name || '',
+        title: entity.name || entity.title || base.title || '',
+        summary: entity.summary || entity.description || base.summary || '',
+        description: entity.summary || entity.description || base.description || '',
+        tags: entity.tags || base.tags || [],
+        sections: entity.sections || base.sections || {},
+        imageUrl: entity.imageUrl || entity.image || base.imageUrl || ''
       };
-      items.push(entity);
+      if (idx >= 0) items[idx] = saved;
+      else items.push(saved);
       write(type, items);
+      const key = storeMap[type];
       App._allItemsCache = App._allItemsCache || Object.create(null);
-      const key = storeMap[type];
-      const cache = App._allItemsCache[key] || [];
-      cache.push(entity);
-      App._allItemsCache[key] = cache;
-      return entity;
-    },
-    update(type, id, patch) {
-      const items = read(type);
-      const idx = items.findIndex((e) => e.id === id);
-      if (idx === -1) return null;
-      items[idx] = {
-        ...items[idx],
-        ...patch,
-        name: patch.name || patch.title || items[idx].name,
-        title: patch.name || patch.title || items[idx].title,
-        summary: patch.summary || patch.description || items[idx].summary,
-        description: patch.summary || patch.description || items[idx].description
-      };
-      write(type, items);
-      const key = storeMap[type];
-      const cache = App._allItemsCache[key] || [];
-      const cidx = cache.findIndex((e) => e.id === id);
-      if (cidx >= 0) cache[cidx] = items[idx];
-      else cache.push(items[idx]);
-      App._allItemsCache[key] = cache;
-      return items[idx];
+      App._allItemsCache[key] = merge(type, items);
+      return saved;
     },
     remove(type, id) {
-      const next = read(type).filter((e) => e.id !== id);
-      write(type, next);
+      const remaining = read(type).filter((e) => e.id !== id);
+      write(type, remaining);
       const key = storeMap[type];
-      const cache = (App._allItemsCache && App._allItemsCache[key]) || [];
-      App._allItemsCache[key] = cache.filter((e) => e.id !== id);
+      App._allItemsCache = App._allItemsCache || Object.create(null);
+      App._allItemsCache[key] = merge(type, remaining);
     }
   };
 })(typeof window !== 'undefined' ? window : globalThis);
