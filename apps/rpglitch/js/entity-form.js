@@ -21,14 +21,14 @@
     container.appendChild(wrap);
   }
 
-  function buildHero(entity) {
+  function buildHero(entity, context) {
     const wrap = doc.createElement('div');
     wrap.className = 'hero-wrap';
-    const img = doc.createElement('img');
-    img.className = 'hero-bleed';
-    img.alt = entity.name || '';
-    img.src = entity.imageUrl || '';
-    wrap.appendChild(img);
+    const pic = global.getPictureHTML ? global.getPictureHTML(entity, null, context) : null;
+    if (pic) {
+      pic.classList?.add('hero-bleed');
+      wrap.appendChild(pic);
+    }
     renderTags(wrap, entity.tags || []);
     return wrap;
   }
@@ -44,7 +44,7 @@
     const screen = doc.getElementById('profile-screen');
     if (!screen) return;
     screen.textContent = '';
-    screen.appendChild(buildHero(entity));
+    screen.appendChild(buildHero(entity, 'profile-background'));
     const content = doc.createElement('div');
     const h1 = doc.createElement('h1');
     h1.textContent = entity.name || '';
@@ -79,12 +79,16 @@
     if (copyBtn) copyBtn.hidden = true;
     if (copyBtn) copyBtn.hidden = !entity.isPremade;
     if (editBtn) editBtn.hidden = entity.isPremade;
-    if (backBtn) backBtn.onclick = () => { if (history.length > 1) history.back(); else App.router.navigate('#storyboard'); };
-    if (editBtn) editBtn.onclick = () => App.router.navigate(`#form/${type}/${entity.id}`);
-    if (copyBtn) copyBtn.onclick = () => {
+    if (backBtn) {
+      const goBack = () => App.router.navigate('#storyboard');
+      backBtn.addEventListener('click', goBack);
+      backBtn.onclick = goBack;
+    }
+    editBtn?.addEventListener('click', () => App.router.navigate(`#form/${type}/${entity.id}`));
+    copyBtn?.addEventListener('click', () => {
       const from = entity.id;
       App.router.navigate(`#form/${entity.kind}/new?from=${from}`);
-    };
+    });
   }
 
   function createField(id, labelText, inputEl) {
@@ -112,7 +116,8 @@
     if (!screen) return;
     const entity = existing || {};
     screen.textContent = '';
-    screen.appendChild(buildHero(entity));
+    const heroWrap = buildHero(entity, 'form-hero');
+    screen.appendChild(heroWrap);
     const content = doc.createElement('div');
     const h1 = doc.createElement('h1');
     h1.textContent = isEdit ? `Editing ${type.charAt(0).toUpperCase() + type.slice(1)}` : `New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
@@ -132,8 +137,14 @@
     imageInput.type = 'url';
     imageInput.value = entity.imageUrl || '';
     imageInput.addEventListener('change', () => {
-      const img = screen.querySelector('.hero-bleed');
-      if (img) img.src = imageInput.value;
+      const imgEntity = { ...entity, image: imageInput.value, imageUrl: imageInput.value };
+      const pic = global.getPictureHTML
+        ? global.getPictureHTML(imgEntity, null, 'form-hero')
+        : null;
+      pic.classList?.add('hero-bleed');
+      heroWrap.innerHTML = '';
+      heroWrap.appendChild(pic);
+      renderTags(heroWrap, imgEntity.tags || []);
     });
     form.appendChild(createField('imageUrl', 'Image URL', imageInput));
     const tagsInput = doc.createElement('input');
@@ -159,17 +170,17 @@
     if (suppressDelete) global.sessionStorage.removeItem('rpglitch-no-delete');
     if (deleteBtn) deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
     if (cancelBtn) {
-      cancelBtn.onclick = () => {
-        if (history.length > 1) history.back();
-        else App.router.navigate('#storyboard');
-      };
+      const goStory = () => App.router.navigate('#storyboard');
+      cancelBtn.addEventListener('click', goStory);
+      cancelBtn.onclick = goStory;
     }
-    if (saveBtn) saveBtn.onclick = () => {
+    saveBtn?.addEventListener('click', () => {
       const data = {
         kind: type,
         name: titleInput.value.trim(),
         summary: summaryInput.value.trim(),
         imageUrl: imageInput.value.trim(),
+        image: imageInput.value.trim(),
         tags: tagsInput.value.split(',').map((t) => t.trim()).filter(Boolean),
         sections: {
           forever: form.elements.forever.value.trim(),
@@ -186,7 +197,7 @@
         : App.entities.upsert(type, data);
       App.refreshAllLists?.();
       if (saved) App.router.navigate(`#profile/${type}/${saved.id}`);
-    };
+    });
     if (deleteBtn) deleteBtn.onclick = () => {
       if (isEdit && confirm('Delete this item?')) {
         App.entities.remove(type, entity.id);

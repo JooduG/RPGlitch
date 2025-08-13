@@ -21,6 +21,7 @@
   function normalize(core, base = {}) {
     const nameOrTitle = core.name || core.title || base.name || base.title || '';
     const summaryOrDesc = core.summary || core.description || base.summary || base.description || '';
+    const img = core.imageUrl || core.image || base.imageUrl || base.image || '';
     return {
       name: nameOrTitle,
       title: nameOrTitle,
@@ -28,7 +29,8 @@
       description: summaryOrDesc,
       tags: core.tags || base.tags || [],
       sections: core.sections || base.sections || {},
-      imageUrl: core.imageUrl || core.image || base.imageUrl || ''
+      image: img,
+      imageUrl: img
     };
   }
 
@@ -51,6 +53,13 @@
       ...normalize(e)
     }));
     return premade.concat(normal);
+  }
+
+  function _writeAndCache(type, items) {
+    write(type, items);
+    const key = storeMap[type];
+    App._allItemsCache = App._allItemsCache || Object.create(null);
+    App._allItemsCache[key] = merge(type, items);
   }
 
   App.entities = {
@@ -81,10 +90,7 @@
       };
       if (idx >= 0) items[idx] = saved;
       else items.push(saved);
-      write(type, items);
-      const key = storeMap[type];
-      App._allItemsCache = App._allItemsCache || Object.create(null);
-      App._allItemsCache[key] = merge(type, items);
+      _writeAndCache(type, items);
       return saved;
     },
     update(type, id, entity) {
@@ -97,18 +103,12 @@
         ...normalize(entity, base)
       };
       items[idx] = saved;
-      write(type, items);
-      const key = storeMap[type];
-      App._allItemsCache = App._allItemsCache || Object.create(null);
-      App._allItemsCache[key] = merge(type, items);
+      _writeAndCache(type, items);
       return saved;
     },
     remove(type, id) {
       const remaining = read(type).filter((e) => e.id !== id);
-      write(type, remaining);
-      const key = storeMap[type];
-      App._allItemsCache = App._allItemsCache || Object.create(null);
-      App._allItemsCache[key] = merge(type, remaining);
+      _writeAndCache(type, remaining);
     }
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -13,3 +13,5 @@
 - [x] RPGlitch create buttons route to form pages
 - [x] RPGlitch picture helper DOM guard
 - [x] RPGlitch profile/form router hotfix – finalize hash routes and sticky hero UI
+
+- [x] RPGlitch storyboard dropdown fix, image reuse, navigation controls, copy flow, build regex

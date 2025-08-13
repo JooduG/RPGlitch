@@ -107,7 +107,7 @@ const EXTERNAL_JS_FILES = [
 
 const RPGLITCH_DIR = path.join(__dirname, '../../apps/rpglitch');
 const localLibs = path.join(__dirname, 'local_libs');
-fs.mkdirSync(localLibs, { recursive: true });
+fs.mkdirSync(localLibs, { recursive: true }); // ensure cache dir exists
 
 const COMPONENT_SCRIPTS = [
     path.join(RPGLITCH_DIR, 'js/utils.js'),
@@ -419,8 +419,9 @@ async function buildPerchanceFile() {
         // Create final HTML
         let finalHtml = htmlContent
             .replace(/<link[^>]*href="[^"]*pico[^"]*"[^>]*>/g, '')
-            // Remove any local script tags (not http(s)://, not protocol-relative, not local_libs/)
-            .replace(/<script[^>]*\bsrc=(['"])(?!https?:|\/\/|local_libs\/)[^'"']+\.js\1[^>]*><\/script>/g, '')
+            // Remove any local script tags (relative src) before inlining bundle.
+            // Negative lookahead skips http(s)://, protocol-relative //, and cached local_libs/ assets.
+            .replace(/<script[^>]*\bsrc=(['"])(?!https?:|\/\/|local_libs\/)[^'"]+\.js\1[^>]*><\/script>/g, '')
             .replace(/<script>[\s\S]*?App\.initializeWhenReady[\s\S]*?<\/script>\s*\n?/g, '')
             .replace('</head>', `<style>\n${optimizedCSS}\n</style>\n</head>`)
             .replace('</body>', `<script>\n${optimizedJS}\n</script>\n</body>`);
