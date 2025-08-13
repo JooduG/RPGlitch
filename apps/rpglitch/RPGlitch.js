@@ -279,9 +279,7 @@ App.getAllItems = App.getAllItems || function (key, refresh = false) {
       // The cache is shared, so we need to clear the specific key to force a refresh.
       delete App._allItemsCache[key];
     }
-    const data = App.entities.list(key.slice(0, -1));
-    App._allItemsCache[key] = data;
-    return data;
+    return App.entities.list(key.slice(0, -1));
   }
 
   const premade = App.getPremadeItems(key).map((item) => ({ ...item, isPremade: true }));
