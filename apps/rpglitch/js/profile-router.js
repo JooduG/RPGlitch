@@ -65,7 +65,7 @@
           if (!select) return;
           e.preventDefault();
           e.stopPropagation();
-          const key = select.id.includes('world') ? 'worlds' : 'characters';
+          const key = `${select.closest('.storyboard-card').dataset.type}s`;
           App.updateStoryboardCard?.(select.id, key);
           App.setDynamicTitle?.();
         });
