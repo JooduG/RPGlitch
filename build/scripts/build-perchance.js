@@ -106,6 +106,8 @@ const EXTERNAL_JS_FILES = [
 ];
 
 const RPGLITCH_DIR = path.join(__dirname, '../../apps/rpglitch');
+const localLibs = path.join(__dirname, 'local_libs');
+fs.mkdirSync(localLibs, { recursive: true });
 
 const COMPONENT_SCRIPTS = [
     path.join(RPGLITCH_DIR, 'js/utils.js'),
@@ -155,7 +157,7 @@ function downloadFromUrl(url) {
  */
 
 async function downloadWithFallback(file) {
-    const localPath = path.join(__dirname, '../local_libs', file.local);
+    const localPath = path.join(localLibs, file.local);
     const localFileExists = fs.existsSync(localPath);
 
     if (localFileExists && (offline || !forceDownload)) {
@@ -415,11 +417,10 @@ async function buildPerchanceFile() {
         const optimizedJS = await minifyJS(combinedJS);
 
         // Create final HTML
-        const finalHtml = htmlContent
-            .replace(/<link[^>]*href="[^"]*pico[^"]*"[^>]*>/g, '') // Remove Pico CSS link
-            .replace(/<script[^>]*src="[^"]*(hyperscript|cash|dexie|purify)[^"]*"[^>]*><\/script>/g, '') // Remove external script tags
-            .replace(/<script[^>]*src="[^"]*(utils\.js|js\/picture\.js|RPGlitch\.js|components\/[^"']*)"[^>]*><\/script>\n?/g, '') // Remove local component scripts
-            .replace(/<script>[\s\S]*?App\.initializeWhenReady[\s\S]*?<\/script>\s*\n?/g, '') // Remove inlined initialization script
+        let finalHtml = htmlContent
+            .replace(/<link[^>]*href="[^"]*pico[^"]*"[^>]*>/g, '')
+            .replace(/<script[^>]*\bsrc=(['"])(?!https?:|\/\/|local_libs\/)[^'"']+\.js\1[^>]*><\/script>/g, '')
+            .replace(/<script>[\s\S]*?App\.initializeWhenReady[\s\S]*?<\/script>\s*\n?/g, '')
             .replace('</head>', `<style>\n${optimizedCSS}\n</style>\n</head>`)
             .replace('</body>', `<script>\n${optimizedJS}\n</script>\n</body>`);
 
@@ -441,8 +442,10 @@ async function buildPerchanceFile() {
     }
 }
 
-// Run the build
-buildPerchanceFile();
+// Run the build when executed directly
+if (require.main === module) {
+    buildPerchanceFile();
+}
 
 // Simple build output validation
 module.exports.validateOutputFile = function validateOutputFile() {
