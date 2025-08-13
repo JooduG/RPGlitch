@@ -8,6 +8,18 @@
     ['Future', 'future']
   ];
 
+  function goBackWithFallback() {
+    const before = global.location.hash;
+    if (global.history.length > 1) {
+      global.history.back();
+      global.setTimeout(() => {
+        if (global.location.hash === before) App.router.navigate('#storyboard');
+      }, 100);
+    } else {
+      App.router.navigate('#storyboard');
+    }
+  }
+
   function renderTags(container, tags) {
     if (!tags || !tags.length) return;
     const wrap = doc.createElement('div');
@@ -80,19 +92,8 @@
     if (copyBtn) copyBtn.hidden = !entity.isPremade;
     if (editBtn) editBtn.hidden = entity.isPremade;
     if (backBtn) {
-      const goBack = () => {
-        const before = global.location.hash;
-        if (global.history.length > 1) {
-          global.history.back();
-          global.setTimeout(() => {
-            if (global.location.hash === before) App.router.navigate('#storyboard');
-          }, 100);
-        } else {
-          App.router.navigate('#storyboard');
-        }
-      };
-      backBtn.addEventListener('click', goBack);
-      backBtn.onclick = goBack;
+      backBtn.addEventListener('click', goBackWithFallback);
+      backBtn.onclick = goBackWithFallback;
     }
     editBtn?.addEventListener('click', () => App.router.navigate(`#form/${type}/${entity.id}`));
     copyBtn?.addEventListener('click', () => {
@@ -180,19 +181,8 @@
     if (suppressDelete) global.sessionStorage.removeItem('rpglitch-no-delete');
     if (deleteBtn) deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
     if (cancelBtn) {
-      const goStory = () => {
-        const before = global.location.hash;
-        if (global.history.length > 1) {
-          global.history.back();
-          global.setTimeout(() => {
-            if (global.location.hash === before) App.router.navigate('#storyboard');
-          }, 100);
-        } else {
-          App.router.navigate('#storyboard');
-        }
-      };
-      cancelBtn.addEventListener('click', goStory);
-      cancelBtn.onclick = goStory;
+      cancelBtn.addEventListener('click', goBackWithFallback);
+      cancelBtn.onclick = goBackWithFallback;
     }
     saveBtn?.addEventListener('click', () => {
       const data = {
@@ -212,9 +202,8 @@
         isPremade: false
       };
       if (!data.name) return;
-      const saved = isEdit
-        ? App.entities.update(type, entity.id, data)
-        : App.entities.upsert(type, data);
+      if (isEdit) data.id = entity.id;
+      const saved = App.entities.upsert(type, data);
       App.refreshAllLists?.();
       if (saved) App.router.navigate(`#profile/${type}/${saved.id}`);
     });

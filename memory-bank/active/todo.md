@@ -16,3 +16,4 @@
 
 - [x] RPGlitch storyboard dropdown fix, image reuse, navigation controls, copy flow, build regex
 - [x] RPGlitch dropdown stays on storyboard, dataset card clicks, history back fallback, build regex noted
+- [x] Finalize storyboard/profile/form loop: DRY router, goBack helper, deferred copy, picture reuse, regex comment

@@ -2,7 +2,6 @@
   const App = global.App || (global.App = {});
 
   function showStoryboard() {
-    App.setTopBarRight('storyboard');
     App.showEl('storyboard-screen');
     App.showEl('chin-container');
     App.hideEl('profile-screen');
@@ -29,48 +28,63 @@
       App.hideEl('profile-screen');
       App.renderForm?.(type, id || 'new');
     } else {
+      App.setTopBarRight('storyboard');
       showStoryboard();
     }
   }
 
+  App.updateStoryboardCard = function (cardEl, type, id) {
+    const doc = global.document;
+    const card = typeof cardEl === 'string' ? doc.getElementById(cardEl) : cardEl;
+    if (!card) return;
+    card.dataset.type = type;
+    card.dataset.id = id || '';
+    const entity = id ? App.entities.get(type, id) : null;
+    const left = card.querySelector('.storyboard-card-left');
+    if (left) {
+      left.textContent = '';
+      if (entity) {
+        const pic = global.getPictureHTML ? global.getPictureHTML(entity, null, 'storyboard-card-left') : null;
+        if (pic) left.appendChild(pic);
+      }
+    }
+    const titleSel = card.querySelector('select.storyboard-card-title');
+    if (titleSel && titleSel.value !== id) titleSel.value = id || '';
+    const small = card.querySelector('footer small');
+    if (small) {
+      const premadeText = entity?.isPremade ? 'Premade' : '';
+      const tagsText = entity?.tags?.join(', ') || '';
+      small.textContent = [premadeText, tagsText].filter(Boolean).join(' | ');
+    }
+  };
+
   global.addEventListener('hashchange', handleRoute);
   document.addEventListener('DOMContentLoaded', () => {
-      const origUpdate = App.updateStoryboardCard;
-      App.updateStoryboardCard = function (selectId, key) {
-        origUpdate?.(selectId, key);
-        const select = typeof selectId === 'string' ? document.getElementById(selectId) : selectId;
+    handleRoute();
+    const sb = document.getElementById('storyboard-screen');
+    if (sb && !sb._cardsBound) {
+      sb._cardsBound = true;
+      sb.addEventListener('click', (e) => {
+        if (e.target.closest('select')) return;
+        const card = e.target.closest('.storyboard-card');
+        if (!card) return;
+        const { type, id } = card.dataset;
+        if (type && id) App.router.navigate(`#profile/${type}/${id}`);
+      });
+      sb.addEventListener('change', (e) => {
+        const select = e.target.closest('select.storyboard-card-title');
         if (!select) return;
+        e.preventDefault();
+        e.stopPropagation();
         const card = select.closest('.storyboard-card');
-        const small = card?.querySelector('footer small');
-        const item = App.getAllItems?.(key).find((i) => (i.id ?? i.title) === select.value);
-        if (small) {
-          const premadeText = item?.isPremade ? 'Premade' : '';
-          const tagsText = item?.tags?.join(', ') || '';
-          small.textContent = [premadeText, tagsText].filter(Boolean).join(' | ');
-        }
-      };
-      handleRoute();
-      const sb = document.getElementById('storyboard-screen');
-      if (sb && !sb._cardsBound) {
-        sb._cardsBound = true;
-        sb.addEventListener('click', (e) => {
-          if (e.target.closest('select')) return;
-          const card = e.target.closest('.storyboard-card');
-          if (!card) return;
-          const { entityType, entityId } = card.dataset;
-          if (entityType && entityId) App.router.navigate(`#profile/${entityType}/${entityId}`);
-        });
-        sb.addEventListener('change', (e) => {
-          const select = e.target.closest('select.storyboard-card-title');
-          if (!select) return;
-          e.preventDefault();
-          e.stopPropagation();
-          const key = `${select.closest('.storyboard-card').dataset.type}s`;
-          App.updateStoryboardCard?.(select.id, key);
-          App.setDynamicTitle?.();
-        });
-      }
-    });
+        if (!card) return;
+        const type = card.dataset.type;
+        const id = select.value;
+        App.updateStoryboardCard?.(card, type, id);
+        App.setDynamicTitle?.();
+      });
+    }
+  });
 
   App.router = {
     navigate(hash) { global.location.hash = hash; },
