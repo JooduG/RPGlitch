@@ -82,11 +82,13 @@ App._getUIElements = function () {
 
 App.setTopBarRight = function (mode) {
   const ui = App._getUIElements();
-  const sections = [ui.topBarRightStoryboard, ui.topBarRightForm, ui.topBarRightProfile];
-  sections.forEach((sec) => sec && App.hideEl(sec));
-  if (mode === 'storyboard' && ui.topBarRightStoryboard) App.showEl(ui.topBarRightStoryboard);
-  if (mode === 'form' && ui.topBarRightForm) App.showEl(ui.topBarRightForm);
-  if (mode === 'profile' && ui.topBarRightProfile) App.showEl(ui.topBarRightProfile);
+  const sectionMap = {
+    storyboard: ui.topBarRightStoryboard,
+    form: ui.topBarRightForm,
+    profile: ui.topBarRightProfile
+  };
+  Object.values(sectionMap).forEach((sec) => sec && App.hideEl(sec));
+  if (sectionMap[mode]) App.showEl(sectionMap[mode]);
 };
 
 /**
@@ -275,14 +277,20 @@ App.getPremadeWorlds = App.getPremadeWorlds || function () {
 App._allItemsCache = App._allItemsCache || {};
 
 App.getAllItems = App.getAllItems || function (key, refresh = false) {
-  if ((key === 'characters' || key === 'worlds') && App.entities && typeof App.entities.list === 'function') {
-    return App.entities.list(key.slice(0, -1));
-  }
+  App._allItemsCache = App._allItemsCache || Object.create(null);
   if (!refresh && Array.isArray(App._allItemsCache[key])) return App._allItemsCache[key];
+
+  if ((key === 'characters' || key === 'worlds') && App.entities && typeof App.entities.list === 'function') {
+    const data = App.entities.list(key.slice(0, -1));
+    App._allItemsCache[key] = data;
+    return data;
+  }
+
   const premade = App.getPremadeItems(key).map((item) => ({ ...item, isPremade: true }));
   const stored = loadStoredItems(key).map((item) => ({ ...item, isPremade: false }));
-  App._allItemsCache[key] = premade.concat(stored);
-  return App._allItemsCache[key];
+  const data = premade.concat(stored);
+  App._allItemsCache[key] = data;
+  return data;
 };
 
 function renderList(containerId, key) {
@@ -304,14 +312,12 @@ function renderList(containerId, key) {
     const card = document.createElement('div');
     card.className = 'chin-card';
     card.dataset.title = item.title;
-    if (item.id) card.dataset.id = item.id;
-    if (item.isPremade) card.dataset.premade = 'true';
-
-    if (key === 'characters' || key === 'worlds') {
-      card.addEventListener('click', () => {
-        App.router?.navigate(`#profile/${key.slice(0, -1)}/${item.id}`);
-      });
+    if (item.id) {
+      card.dataset.id = item.id;
+      card.dataset.entityId = item.id;
+      card.dataset.entityType = key.slice(0, -1);
     }
+    if (item.isPremade) card.dataset.premade = 'true';
 
     const media = document.createElement('div');
     media.className = 'media';
@@ -401,6 +407,15 @@ App.refreshAllLists = App.refreshAllLists || function () {
   App.renderDropdown?.('storyboard-world-select', 'worlds');
 };
 
+document.addEventListener('click', (e) => {
+  if (e.target.closest('button, a, input, select, textarea')) return;
+  const card = e.target.closest('[data-entity-type][data-entity-id]');
+  if (!card) return;
+  const type = card.getAttribute('data-entity-type');
+  const id = card.getAttribute('data-entity-id');
+  if (type && id) App.router?.navigate(`#/${type}/${id}`);
+});
+
 App.renderStoryList = App.renderStoryList || function () {
   renderList('chin-story-grid', 'stories');
 };
@@ -481,6 +496,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       heading.hidden = false;
     }
     updateImage(item);
+    card.dataset.entityType = key.slice(0, -1);
+    card.dataset.entityId = item.id;
   } else {
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
@@ -492,6 +509,8 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
       cardId.includes('-world-') ? 'World' : 'Unknown';
     const placeholderItem = { title: seedName, type: seedName };
     updateImage(placeholderItem);
+    delete card.dataset.entityType;
+    delete card.dataset.entityId;
   }
 };
 
@@ -695,7 +714,7 @@ App._attachContentChinActions = function () {
     if (newButton) {
       newButton.addEventListener('click', () => {
         if (key === 'characters' || key === 'worlds') {
-          App.router?.navigate(`#create/${key.slice(0, -1)}`);
+          App.router?.navigate(`#/${key.slice(0, -1)}/new`);
           return;
         }
         const openModal = modalOpeners[key];

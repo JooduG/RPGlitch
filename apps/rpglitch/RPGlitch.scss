@@ -426,6 +426,7 @@ input[type="file"] {
     box-shadow 0.4s ease,
     opacity 0.4s ease,
     outline 0.15s ease;
+  cursor: pointer;
 }
 
 .chin-card:hover {
@@ -897,7 +898,8 @@ input[type="file"] {
               opacity 0.4s ease,
               outline 0.15s ease,
               color 0.2s ease;
-  border-radius: var(--pico-border-radius) 0 0 var(--pico-border-radius);
+  border-radius: var(--pico-border-radius);
+  cursor: pointer;
 }
 
 .storyboard-card h4 {
