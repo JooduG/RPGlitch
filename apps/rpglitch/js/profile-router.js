@@ -2,6 +2,7 @@
   const App = global.App || (global.App = {});
 
   function showStoryboard() {
+    App.setTopBarRight('storyboard');
     App.showEl('storyboard-screen');
     App.showEl('chin-container');
     App.hideEl('profile-screen');
@@ -22,49 +23,50 @@
       App.hideEl('character-form-screen');
       App.hideEl('world-form-screen');
       App.renderProfile?.(type, id);
-      return;
-    }
-    if (section === 'form' && isType(type)) {
+    } else if (section === 'form' && isType(type)) {
       App.setTopBarRight('form');
       App.hideEl('storyboard-screen');
       App.hideEl('profile-screen');
       App.renderForm?.(type, id || 'new');
-      return;
-    }
-    if (section === 'storyboard') {
-      App.setTopBarRight('storyboard');
+    } else {
       showStoryboard();
-      return;
     }
-    App.setTopBarRight('storyboard');
-    showStoryboard();
   }
 
   global.addEventListener('hashchange', handleRoute);
   document.addEventListener('DOMContentLoaded', () => {
-    handleRoute();
-    const sb = document.getElementById('storyboard-screen');
-    if (sb && !sb._cardsBound) {
-      sb._cardsBound = true;
-      sb.addEventListener('click', (e) => {
-        if (e.target.closest('select, option, button, a, input, textarea')) return;
-        const card = e.target.closest('.storyboard-card');
-        if (!card) return;
-        const select = card.querySelector('select.storyboard-card-title');
-        const type = card.dataset.type;
-        const id = select && select.value;
-        if (type && id) App.router.navigate(`#profile/${type}/${id}`);
-      });
-      sb.addEventListener('change', (e) => {
-        const select = e.target.closest('select.storyboard-card-title');
+      const origUpdate = App.updateStoryboardCard;
+      App.updateStoryboardCard = function (selectId, key) {
+        origUpdate?.(selectId, key);
+        const select = typeof selectId === 'string' ? document.getElementById(selectId) : selectId;
         if (!select) return;
-        e.preventDefault();
-        e.stopPropagation();
-        App.updateStoryboardCard?.(select.id, select.value);
-        App.setDynamicTitle?.();
-      });
-    }
-  });
+        const card = select.closest('.storyboard-card');
+        const small = card?.querySelector('footer small');
+        const item = App.getAllItems?.(key).find((i) => (i.id ?? i.title) === select.value);
+        if (small) small.textContent = item?.tags?.join(', ') || '';
+      };
+      handleRoute();
+      const sb = document.getElementById('storyboard-screen');
+      if (sb && !sb._cardsBound) {
+        sb._cardsBound = true;
+        sb.addEventListener('click', (e) => {
+          if (e.target.closest('select')) return;
+          const card = e.target.closest('.storyboard-card');
+          if (!card) return;
+          const { entityType, entityId } = card.dataset;
+          if (entityType && entityId) App.router.navigate(`#profile/${entityType}/${entityId}`);
+        });
+        sb.addEventListener('change', (e) => {
+          const select = e.target.closest('select.storyboard-card-title');
+          if (!select) return;
+          e.preventDefault();
+          e.stopPropagation();
+          const key = select.id.includes('world') ? 'worlds' : 'characters';
+          App.updateStoryboardCard?.(select.id, key);
+          App.setDynamicTitle?.();
+        });
+      }
+    });
 
   App.router = {
     navigate(hash) { global.location.hash = hash; },

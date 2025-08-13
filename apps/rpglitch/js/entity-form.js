@@ -80,7 +80,17 @@
     if (copyBtn) copyBtn.hidden = !entity.isPremade;
     if (editBtn) editBtn.hidden = entity.isPremade;
     if (backBtn) {
-      const goBack = () => App.router.navigate('#storyboard');
+      const goBack = () => {
+        const before = global.location.hash;
+        if (global.history.length > 1) {
+          global.history.back();
+          global.setTimeout(() => {
+            if (global.location.hash === before) App.router.navigate('#storyboard');
+          }, 100);
+        } else {
+          App.router.navigate('#storyboard');
+        }
+      };
       backBtn.addEventListener('click', goBack);
       backBtn.onclick = goBack;
     }
@@ -170,7 +180,17 @@
     if (suppressDelete) global.sessionStorage.removeItem('rpglitch-no-delete');
     if (deleteBtn) deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
     if (cancelBtn) {
-      const goStory = () => App.router.navigate('#storyboard');
+      const goStory = () => {
+        const before = global.location.hash;
+        if (global.history.length > 1) {
+          global.history.back();
+          global.setTimeout(() => {
+            if (global.location.hash === before) App.router.navigate('#storyboard');
+          }, 100);
+        } else {
+          App.router.navigate('#storyboard');
+        }
+      };
       cancelBtn.addEventListener('click', goStory);
       cancelBtn.onclick = goStory;
     }

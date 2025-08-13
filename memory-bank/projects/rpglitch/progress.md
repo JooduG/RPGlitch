@@ -15,3 +15,4 @@
 - 2025-08-15 Finalised profile/form view toggling, storyboard card navigation, deferred copy flow until save, normalized entity storage, and documented build script regex.
 
 - 2025-08-16 Fixed storyboard dropdown navigation, unified image field, reliable back/cancel, deferred copy save, and cleaned build regex.
+- 2025-08-13 Kept storyboard on dropdown change, routed via card dataset, added history back fallbacks, and clarified build regex.
