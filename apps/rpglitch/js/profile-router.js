@@ -42,7 +42,7 @@
     const entity = id ? App.entities.get(type, id) : null;
     const left = card.querySelector('.storyboard-card-left');
     if (left) {
-      left.innerHTML = '';
+      left.textContent = '';
       if (entity) {
         const pic = global.getPictureHTML ? global.getPictureHTML(entity, null, 'storyboard-card-left') : null;
         if (pic) left.appendChild(pic);
