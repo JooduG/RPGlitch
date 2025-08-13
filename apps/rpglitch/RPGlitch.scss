@@ -353,6 +353,12 @@ input[type="file"] {
   object-fit: cover;
 }
 
+/* stylelint-disable no-descending-specificity */
+:is(.chin-card, .storyboard-card) :is(button, select, input, textarea) {
+  cursor: default;
+}
+/* stylelint-enable no-descending-specificity */
+
 .chin-card::before,
 .storyboard-card::before {
   content: '';

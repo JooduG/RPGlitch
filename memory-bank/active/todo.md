@@ -5,10 +5,10 @@
 - [x] Finish RPGlitch Stylelint cleanup (BEM selectors, palette utilities, editor alignment)
 - [x] RPGlitch: replace window references with global alias for consistency
 - [x] RPGlitch: fix chin-card title overlay and storyboard corner rounding
-- [ ] RPGlitch picture helper hardening and card hover polish
+- [x] RPGlitch picture helper hardening and card hover polish
 - [x] RPGlitch character/world profile & form views
-- [ ] RPGlitch card click routing & hash-based profile/form routes
-- [ ] RPGlitch entities API cache & getAllItems write-through
-- [ ] RPGlitch top-bar-right map actions with back/return
-- [ ] RPGlitch create buttons route to form pages
-- [ ] RPGlitch picture helper DOM guard
+- [x] RPGlitch card click routing & hash-based profile/form routes
+- [x] RPGlitch entities API cache & getAllItems write-through
+- [x] RPGlitch top-bar-right map actions with back/return
+- [x] RPGlitch create buttons route to form pages
+- [x] RPGlitch picture helper DOM guard
