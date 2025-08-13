@@ -694,12 +694,8 @@ App._attachContentChinActions = function () {
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener('click', () => {
-        if (key === 'characters') {
-          App.router?.navigate('#create/character');
-          return;
-        }
-        if (key === 'worlds') {
-          App.router?.navigate('#create/world');
+        if (key === 'characters' || key === 'worlds') {
+          App.router?.navigate(`#create/${key.slice(0, -1)}`);
           return;
         }
         const openModal = modalOpeners[key];
