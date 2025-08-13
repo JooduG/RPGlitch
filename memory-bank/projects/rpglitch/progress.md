@@ -6,3 +6,4 @@
 - 2025-08-13 Applied global alias pattern in picture.js to remove remaining window references.
 - 2025-08-12 Hardened picture helper and refined card hover interactions.
 - 2025-08-12 Fixed chin-card title overlay and ensured storyboard cards have rounded corners.
+- 2025-08-13 Added routing, entities API, and basic profile/form views for characters and worlds.
