@@ -94,7 +94,7 @@
     backBtn.onclick = () => { history.back(); };
     editBtn.onclick = () => { App.router.navigate(`#edit/${type}/${entity.id}`); };
     copyBtn.onclick = () => {
-      const copy = App.entities.copyFromPremade(entity.id);
+      const copy = App.entities.copyFromPremade(entity);
       if (copy) App.router.navigate(`#edit/${copy.type}/${copy.id}`);
     };
     delBtn.onclick = () => {
