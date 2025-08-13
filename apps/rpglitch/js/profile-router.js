@@ -43,7 +43,11 @@
         const card = select.closest('.storyboard-card');
         const small = card?.querySelector('footer small');
         const item = App.getAllItems?.(key).find((i) => (i.id ?? i.title) === select.value);
-        if (small) small.textContent = item?.tags?.join(', ') || '';
+        if (small) {
+          const premadeText = item?.isPremade ? 'Premade' : '';
+          const tagsText = item?.tags?.join(', ') || '';
+          small.textContent = [premadeText, tagsText].filter(Boolean).join(' | ');
+        }
       };
       handleRoute();
       const sb = document.getElementById('storyboard-screen');
