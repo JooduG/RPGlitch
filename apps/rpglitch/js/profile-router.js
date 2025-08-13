@@ -180,7 +180,7 @@
     const saveBtn = document.getElementById('form-save');
     const cancelBtn = document.getElementById('form-cancel');
     const deleteBtn = document.getElementById('form-delete');
-    if (isEdit && deleteBtn) App.showEl(deleteBtn); else if (deleteBtn) App.hideEl(deleteBtn);
+    if (deleteBtn) deleteBtn.hidden = !isEdit;
 
     cancelBtn.onclick = () => { history.back(); };
     saveBtn.onclick = () => {
