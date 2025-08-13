@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /* eslint-disable no-unused-vars */
- 
+
 
 const fs = require('fs');
- 
+
 const path = require('path');
 const sass = require('sass');
 const https = require('https');
@@ -40,19 +40,19 @@ const forceDownload = args.includes('--force');
 
 /**
  * RPGlitch Perchance Build Script (Enhanced)
- * 
+ *
  * Purpose: Combine separate RPGlitch files into a single, optimized output
  * Now includes external dependency inlining for better reliability
- * 
+ *
  * Build Process Overview:
  * - Downloads and inlines external CSS/JS libraries
  * - Compiles SCSS to CSS
  * - Inlines local JavaScript files
  * - Embeds component modules as data URLs for dynamic import
  * - Creates self-contained output file
- * 
+ *
  * Usage: node build-perchance.js [--offline] [--force]
- * 
+ *
  * @version 2.2.0
  * @lastUpdated 2025-02-15
  */
@@ -110,7 +110,9 @@ const RPGLITCH_DIR = path.join(__dirname, '../../apps/rpglitch');
 const COMPONENT_SCRIPTS = [
     path.join(RPGLITCH_DIR, 'js/utils.js'),
     path.join(RPGLITCH_DIR, 'js/picture.js'),
-    path.join(RPGLITCH_DIR, 'js/entity-form.js')
+    path.join(RPGLITCH_DIR, 'js/entities.js'),
+    path.join(RPGLITCH_DIR, 'js/entity-form.js'),
+    path.join(RPGLITCH_DIR, 'js/profile-router.js')
 ];
 
 const SOURCE_FILES = [
@@ -128,11 +130,11 @@ function downloadFromUrl(url) {
     return new Promise((resolve, reject) => {
         https.get(url, (res) => {
             let data = '';
-            
+
             res.on('data', (chunk) => {
                 data += chunk;
             });
-            
+
             res.on('end', () => {
                 if (res.statusCode === 200) {
                     resolve(data);
@@ -189,13 +191,13 @@ async function downloadWithFallback(file) {
 async function getExternalCSS() {
     console.log('📥 Downloading external CSS files...');
     let combinedCSS = '';
-    
+
     for (const file of EXTERNAL_CSS_FILES) {
         console.log(`  📦 Fetching: ${file.description}`);
         const css = await downloadWithFallback(file);
         combinedCSS += `/* ${file.description} */\n${css}\n\n`;
     }
-    
+
     return combinedCSS;
 }
 
@@ -212,7 +214,7 @@ async function getExternalJS() {
         const js = await downloadWithFallback(file);
         combinedJS += `/* ${file.description} */\n${js}\n\n`;
     }
-    
+
     return combinedJS;
 }
 
@@ -223,21 +225,21 @@ async function getExternalJS() {
  */
 function compileSass(inputPath) {
     const startTime = Date.now();
-    
+
     try {
         console.log(`📦 Compiling Sass: ${inputPath}`);
-        
+
         const result = sass.compile(inputPath, {
             style: 'compressed',
             loadPaths: [path.dirname(inputPath)]
         });
-        
+
         const processingTime = Date.now() - startTime;
         buildMetrics.processingTimes.sass = processingTime;
-        
+
         console.log(`✅ Sass compiled successfully (${processingTime}ms)`);
         return result.css;
-        
+
     } catch (error) {
         buildMetrics.errors.push(`Sass compilation failed: ${error.message}`);
         console.error(`❌ Sass compilation failed: ${error.message}`);
@@ -327,26 +329,26 @@ async function minifyHTMLContent(html) {
  */
 function readFile(filePath, description) {
     const startTime = Date.now();
-    
+
     try {
         console.log(`📖 Reading ${description}: ${filePath}`);
-        
+
         if (!fs.existsSync(filePath)) {
             throw new Error(`File not found: ${filePath}`);
         }
-        
+
         const content = fs.readFileSync(filePath, 'utf8');
-        
+
         if (!content || content.trim().length === 0) {
             throw new Error(`File is empty: ${filePath}`);
         }
-        
+
         const processingTime = Date.now() - startTime;
         buildMetrics.processingTimes[description.toLowerCase().replace(/\s+/g, '_')] = processingTime;
-        
+
         console.log(`✅ ${description} read successfully (${processingTime}ms)`);
         return content;
-        
+
     } catch (error) {
         buildMetrics.errors.push(`${description} read failed: ${error.message}`);
         console.error(`❌ Failed to read ${description}: ${error.message}`);
@@ -359,18 +361,18 @@ function readFile(filePath, description) {
  */
 function printBuildMetrics() {
     const totalTime = Date.now() - buildMetrics.startTime;
-    
+
     console.log('\n📊 Build Metrics:');
     console.log(`  ⏱️  Total build time: ${totalTime}ms`);
     console.log(`  📦 Total output size: ${buildMetrics.totalSize} bytes`);
-    
+
     if (Object.keys(buildMetrics.processingTimes).length > 0) {
         console.log('  ⚡ Processing times:');
         for (const [step, time] of Object.entries(buildMetrics.processingTimes)) {
             console.log(`    ${step}: ${time}ms`);
         }
     }
-    
+
     if (buildMetrics.errors.length > 0) {
         console.log('  ⚠️  Errors encountered:');
         buildMetrics.errors.forEach(error => console.log(`    ${error}`));
@@ -382,12 +384,12 @@ function printBuildMetrics() {
  */
 async function buildPerchanceFile() {
     console.log('🚀 Starting RPGlitch Perchance build...\n');
-    
+
     try {
         // Download external dependencies
         const externalCSS = await getExternalCSS();
         const externalJS = await getExternalJS();
-        
+
         // Read and process source files
         const htmlFile = SOURCE_FILES.find(f => f.type === 'html');
         const scssFile = SOURCE_FILES.find(f => f.type === 'sass');
@@ -399,7 +401,7 @@ async function buildPerchanceFile() {
             .map((file) => readFile(file, path.basename(file)))
             .join('\n');
         const jsContent = readFile(mainJsFile.name, mainJsFile.description);
-        
+
         // Compile SCSS to CSS
         const compiledCSS = compileSass(scssFile.name);
 
