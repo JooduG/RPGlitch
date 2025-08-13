@@ -19,8 +19,9 @@
 
   function list(type) {
     const key = storeMap[type];
-    const premade = App.getPremadeItems ? App.getPremadeItems(key) : [];
-    const custom = load(type);
+    const premadeRaw = App.getPremadeItems ? App.getPremadeItems(key) : [];
+    const premade = premadeRaw.map((e) => ({ ...e, kind: e.kind || 'premade', isPremade: true }));
+    const custom = load(type).map((e) => ({ ...e, kind: e.kind || 'custom', isPremade: false }));
     return premade.concat(custom);
   }
 

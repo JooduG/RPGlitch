@@ -275,6 +275,9 @@ App.getPremadeWorlds = App.getPremadeWorlds || function () {
 App._allItemsCache = App._allItemsCache || {};
 
 App.getAllItems = App.getAllItems || function (key, refresh = false) {
+  if ((key === 'characters' || key === 'worlds') && App.entities && typeof App.entities.list === 'function') {
+    return App.entities.list(key.slice(0, -1));
+  }
   if (!refresh && Array.isArray(App._allItemsCache[key])) return App._allItemsCache[key];
   const premade = App.getPremadeItems(key).map((item) => ({ ...item, isPremade: true }));
   const stored = loadStoredItems(key).map((item) => ({ ...item, isPremade: false }));
@@ -301,7 +304,14 @@ function renderList(containerId, key) {
     const card = document.createElement('div');
     card.className = 'chin-card';
     card.dataset.title = item.title;
+    if (item.id) card.dataset.id = item.id;
     if (item.isPremade) card.dataset.premade = 'true';
+
+    if (key === 'characters' || key === 'worlds') {
+      card.addEventListener('click', () => {
+        App.router?.navigate(`#profile/${key.slice(0, -1)}/${item.id}`);
+      });
+    }
 
     const media = document.createElement('div');
     media.className = 'media';
@@ -684,6 +694,10 @@ App._attachContentChinActions = function () {
   configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener('click', () => {
+        if (key === 'characters' || key === 'worlds') {
+          App.router?.navigate(`#create/${key.slice(0, -1)}`);
+          return;
+        }
         const openModal = modalOpeners[key];
         if (typeof openModal !== 'function') return;
         openModal(({ title }) => {
