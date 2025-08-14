@@ -1,461 +1,184 @@
 #!/usr/bin/env node
-/* eslint-disable no-unused-vars */
-
+/**
+ * RPGlitch single‑file builder (Perchance-ready)
+ * - Compiles SCSS from apps/rpglitch/scss (+ Pico CSS from build/local_libs)
+ * - Bundles & minifies JS from apps/rpglitch/js
+ * - Removes local <script src> & Pico <link> tags
+ * - Injects inlined <style>/<script> and writes build/output/RPGlitch-perchance.html
+ *
+ * Dev deps:  npm i -D sass terser clean-css html-minifier-terser
+ */
 
 const fs = require('fs');
-
 const path = require('path');
+const { minify: minifyJS } = require('terser');
+const CleanCSS = require('clean-css');
 const sass = require('sass');
-const https = require('https');
-let postcss;
-let cssnano;
-let terser;
-let minifyHtml;
+const { minify: minifyHTML } = require('html-minifier-terser');
 
-try {
-    postcss = require('postcss');
-} catch (err) {
-    console.warn('⚠️ postcss not available - skipping CSS optimization');
-}
-try {
-    cssnano = require('cssnano');
-} catch (err) {
-    console.warn('⚠️ cssnano not available - skipping CSS minification');
-}
-try {
-    terser = require('terser');
-} catch (err) {
-    console.warn('⚠️ Terser not available - skipping JS minification');
-}
-try {
-    ({ minify: minifyHtml } = require('html-minifier-terser'));
-} catch (err) {
-    console.warn('⚠️ html-minifier not available - skipping HTML minification');
-}
+// ---- paths (point at apps/rpglitch) ----
+const REPO_ROOT   = path.join(__dirname, '..', '..');
+const BUILD_DIR   = path.join(__dirname, '..');                // build/
+const OUT_DIR     = path.join(BUILD_DIR, 'output');            // build/output
+const APP_DIR     = path.join(REPO_ROOT, 'apps', 'rpglitch');  // apps/rpglitch
 
-// CLI flags
-const args = process.argv.slice(2);
-const offline = args.includes('--offline') || process.env.PROCESS_DOWNLOADS === 'false';
-const forceDownload = args.includes('--force');
+const SRC_HTML    = path.join(APP_DIR, 'RPGlitch.html');
+const OUT_HTML    = path.join(OUT_DIR, 'RPGlitch-perchance.html');
 
-/**
- * RPGlitch Perchance Build Script (Enhanced)
- *
- * Purpose: Combine separate RPGlitch files into a single, optimized output
- * Now includes external dependency inlining for better reliability
- *
- * Build Process Overview:
- * - Downloads and inlines external CSS/JS libraries
- * - Compiles SCSS to CSS
- * - Inlines local JavaScript files
- * - Embeds component modules as data URLs for dynamic import
- * - Creates self-contained output file
- *
- * Usage: node build-perchance.js [--offline] [--force]
- *
- * @version 2.2.0
- * @lastUpdated 2025-02-15
- */
+// Accept Pico CSS from either location; prefer build/local_libs
+const LIB_DIRS    = [
+  path.join(BUILD_DIR, 'local_libs'),
+  path.join(__dirname, 'local_libs')
+];
 
-// Build configuration
-const BUILD_CONFIG = {
-    version: '2.2.0',
-    buildTimestamp: new Date().toISOString(),
-    buildId: `build-${Date.now()}`,
-    performanceTracking: true
+// Where SCSS may live
+const SCSS_DIRS   = [
+  path.join(APP_DIR, 'scss'),
+  path.join(APP_DIR, 'SCSS')
+];
+
+// JS sources (order matters)
+const JS_FILES = [
+  path.join(APP_DIR, 'js', 'utils.js'),
+  path.join(APP_DIR, 'js', 'entities.js'),
+  path.join(APP_DIR, 'js', 'profile-router.js'),
+  path.join(APP_DIR, 'js', 'entity-form.js'),
+  path.join(APP_DIR, 'RPGlitch.js'),
+].filter(fs.existsSync);
+
+// ---------- helpers ----------
+const exists = (p) => { try { fs.accessSync(p); return true; } catch { return false; } };
+const read   = (p) => fs.readFileSync(p, 'utf8');
+const write  = (p, s) => { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+
+const findFirst = (candidates) => candidates.find(exists) || null;
+
+const listScssFiles = (dir) => {
+  if (!exists(dir)) return [];
+  const all = fs.readdirSync(dir).filter(f => f.endsWith('.scss'));
+  if (all.includes('RPGlitch.scss')) return [path.join(dir, 'RPGlitch.scss')];
+  const partials = all.filter(f => f.startsWith('_')).map(f => path.join(dir, f));
+  const nonParts = all.filter(f => !f.startsWith('_')).map(f => path.join(dir, f));
+  return [...nonParts, ...partials];
 };
 
-// Performance tracking
-const buildMetrics = {
-    startTime: Date.now(),
-    processingTimes: {},
-    totalSize: 0,
-    errors: []
-};
-
-// External dependencies to inline
-const EXTERNAL_CSS_FILES = [
-    {
-        url: 'https://unpkg.com/@picocss/pico@2.1.1/css/pico.min.css',
-        local: 'pico.min.css',
-        description: 'Pico CSS framework'
-    }
-];
-
-const EXTERNAL_JS_FILES = [
-    {
-        url: 'https://unpkg.com/hyperscript.org@0.9.12/dist/_hyperscript.min.js',
-        local: '_hyperscript.min.js',
-        description: 'Hyperscript library'
-    },
-    {
-        url: 'https://unpkg.com/cash-dom@8.1.5/dist/cash.min.js',
-        local: 'cash.min.js',
-        description: 'Cash DOM library'
-    },
-    {
-        url: 'https://unpkg.com/dexie@3.2.4/dist/dexie.js',
-        local: 'dexie.js',
-        description: 'Dexie.js library'
-    },
-    {
-        url: 'https://unpkg.com/dompurify@3.0.1/dist/purify.min.js',
-        local: 'purify.min.js',
-        description: 'DOMPurify library'
-    },
-];
-
-const RPGLITCH_DIR = path.join(__dirname, '../../apps/rpglitch');
-const localLibs = path.join(__dirname, 'local_libs');
-// Ensure cache dir exists before writing downloaded CDN files
-fs.mkdirSync(localLibs, { recursive: true });
-
-const COMPONENT_SCRIPTS = [
-    path.join(RPGLITCH_DIR, 'js/utils.js'),
-    path.join(RPGLITCH_DIR, 'js/entities.js'),
-    path.join(RPGLITCH_DIR, 'js/entity-form.js'),
-    path.join(RPGLITCH_DIR, 'js/profile-router.js')
-];
-
-const SOURCE_FILES = [
-    { name: path.join(RPGLITCH_DIR, 'RPGlitch.html'), type: 'html', description: 'Main HTML structure' },
-    { name: path.join(RPGLITCH_DIR, 'RPGlitch.scss'), type: 'sass', description: 'Main Sass stylesheet' },
-    { name: path.join(RPGLITCH_DIR, 'RPGlitch.js'), type: 'script', description: 'JavaScript logic' }
-];
-
-/**
- * Downloads content from a URL
- * @param {string} url - URL to download from
- * @returns {Promise<string>} Downloaded content
- */
-function downloadFromUrl(url) {
-    return new Promise((resolve, reject) => {
-        https.get(url, (res) => {
-            let data = '';
-
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
-
-            res.on('end', () => {
-                if (res.statusCode === 200) {
-                    resolve(data);
-                } else {
-                    reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage}`));
-                }
-            });
-        }).on('error', (err) => {
-            reject(err);
-        });
-    });
+// ---------- CSS (Pico + SCSS) ----------
+function loadPicoCss() {
+  const picoPath = findFirst(LIB_DIRS.map(d => path.join(d, 'pico.min.css')));
+  if (!picoPath) {
+    console.warn('⚠️  pico.min.css not found under build/local_libs or build/scripts/local_libs (continuing without Pico)');
+    return '';
+  }
+  return read(picoPath);
 }
 
-/**
- * Downloads a file with a local fallback if the network request fails.
- * @param {{url: string, local: string, description: string}} file
- * @returns {Promise<string>} file contents
- */
+function buildCSS() {
+  const scssDirs = SCSS_DIRS.filter(exists);
+  let combinedCss = '';
 
-async function downloadWithFallback(file) {
-    const localPath = path.join(localLibs, file.local);
-    const localFileExists = fs.existsSync(localPath);
+  // 1) Pico first, so our app styles can override
+  combinedCss += loadPicoCss() || '';
 
-    if (localFileExists && (offline || !forceDownload)) {
-        console.log(`  📚 Using cached: ${file.description}`);
-        return fs.readFileSync(localPath, 'utf8');
-    }
-
-    if (offline) { // This will only be reached if the local file does not exist
-        throw new Error(`Offline mode enabled and local copy missing for ${file.description}`);
-    }
-
-    try {
-        const data = await downloadFromUrl(file.url);
-        console.log(`  ✅ Downloaded: ${file.description}`);
-        fs.writeFileSync(localPath, data, 'utf8');
-        return data;
-    } catch (error) {
-        console.warn(`  ⚠️ Failed to download ${file.description}: ${error.message}`);
-        if (localFileExists) {
-            console.log(`  📚 Using cached fallback: ${file.description}`);
-            buildMetrics.errors.push(`${file.description} downloaded from local fallback`);
-            return fs.readFileSync(localPath, 'utf8');
-        }
-        throw new Error(`Failed to download ${file.description} and no local copy found.`);
-    }
-}
-
-/**
- * Downloads and inlines external CSS files
- * @returns {Promise<string>} Combined CSS content
- */
-
-async function getExternalCSS() {
-    console.log('📥 Downloading external CSS files...');
-    let combinedCSS = '';
-
-    for (const file of EXTERNAL_CSS_FILES) {
-        console.log(`  📦 Fetching: ${file.description}`);
-        const css = await downloadWithFallback(file);
-        combinedCSS += `/* ${file.description} */\n${css}\n\n`;
-    }
-
-    return combinedCSS;
-}
-
-/**
- * Downloads and inlines external JavaScript files
- * @returns {Promise<string>} Combined JavaScript content
- */
-async function getExternalJS() {
-    console.log('📥 Downloading external JavaScript files...');
-    let combinedJS = '';
-
-    for (const file of EXTERNAL_JS_FILES) {
-        console.log(`  📦 Fetching: ${file.description}`);
-        const js = await downloadWithFallback(file);
-        combinedJS += `/* ${file.description} */\n${js}\n\n`;
-    }
-
-    return combinedJS;
-}
-
-/**
- * Compiles Sass to CSS
- * @param {string} inputPath - Path to the Sass file
- * @returns {string} Compiled CSS
- */
-function compileSass(inputPath) {
-    const startTime = Date.now();
-
-    try {
-        console.log(`📦 Compiling Sass: ${inputPath}`);
-
-        const result = sass.compile(inputPath, {
-            style: 'compressed',
-            loadPaths: [path.dirname(inputPath)]
-        });
-
-        const processingTime = Date.now() - startTime;
-        buildMetrics.processingTimes.sass = processingTime;
-
-        console.log(`✅ Sass compiled successfully (${processingTime}ms)`);
-        return result.css;
-
-    } catch (error) {
-        buildMetrics.errors.push(`Sass compilation failed: ${error.message}`);
-        console.error(`❌ Sass compilation failed: ${error.message}`);
-        throw error;
-    }
-}
-
-/**
- * Optimizes CSS using PostCSS and cssnano
- * @param {string} css
- * @returns {Promise<string>} Minified CSS
- */
-async function optimizeCSS(css) {
-    const startTime = Date.now();
-if (!postcss || !cssnano) {
-    console.warn('⚠️ PostCSS or cssnano not available - skipping CSS minification');
-    return css;
-}
-    try {
-        const result = await postcss([cssnano]).process(css, { from: undefined });
-        buildMetrics.processingTimes.postcss = Date.now() - startTime;
-        console.log(`✅ CSS optimized (${buildMetrics.processingTimes.postcss}ms)`);
-        return result.css;
-    } catch (error) {
-        buildMetrics.errors.push(`CSS optimization failed: ${error.message}`);
-        console.error(`❌ CSS optimization failed: ${error.message}`);
-        return css;
-    }
-}
-
-/**
- * Minifies JavaScript using Terser
- * @param {string} js
- * @returns {Promise<string>} Minified JS
- */
-async function minifyJS(js) {
-    const startTime = Date.now();
-    if (!terser) {
-        console.warn('⚠️ Terser not available - skipping JS minification');
-        return js;
-    }
-    try {
-        const result = await terser.minify(js, { mangle: { properties: false } });
-        buildMetrics.processingTimes.terser = Date.now() - startTime;
-        console.log(`✅ JavaScript minified (${buildMetrics.processingTimes.terser}ms)`);
-        return result.code;
-    } catch (error) {
-        buildMetrics.errors.push(`JS minification failed: ${error.message}`);
-        console.error(`❌ JS minification failed: ${error.message}`);
-        return js;
-    }
-}
-
-/**
- * Minifies HTML output
- * @param {string} html
- * @returns {Promise<string>} Minified HTML
- */
-async function minifyHTMLContent(html) {
-    const startTime = Date.now();
-    if (!minifyHtml) {
-        console.warn('⚠️ html-minifier not available - skipping HTML minification');
-        return html;
-    }
-    try {
-        const result = await minifyHtml(html, {
-            collapseWhitespace: true,
-            removeComments: true,
-            minifyCSS: false,
-            minifyJS: false
-        });
-        buildMetrics.processingTimes.htmlmin = Date.now() - startTime;
-        console.log(`✅ HTML minified (${buildMetrics.processingTimes.htmlmin}ms)`);
-        return result;
-    } catch (error) {
-        buildMetrics.errors.push(`HTML minification failed: ${error.message}`);
-        console.error(`❌ HTML minification failed: ${error.message}`);
-        return html;
-    }
-}
-
-/**
- * Reads and validates a file
- * @param {string} filePath - Path to the file
- * @param {string} description - Description for logging
- * @returns {string} File content
- */
-function readFile(filePath, description) {
-    const startTime = Date.now();
-
-    try {
-        console.log(`📖 Reading ${description}: ${filePath}`);
-
-        if (!fs.existsSync(filePath)) {
-            throw new Error(`File not found: ${filePath}`);
-        }
-
-        const content = fs.readFileSync(filePath, 'utf8');
-
-        if (!content || content.trim().length === 0) {
-            throw new Error(`File is empty: ${filePath}`);
-        }
-
-        const processingTime = Date.now() - startTime;
-        buildMetrics.processingTimes[description.toLowerCase().replace(/\s+/g, '_')] = processingTime;
-
-        console.log(`✅ ${description} read successfully (${processingTime}ms)`);
-        return content;
-
-    } catch (error) {
-        buildMetrics.errors.push(`${description} read failed: ${error.message}`);
-        console.error(`❌ Failed to read ${description}: ${error.message}`);
-        throw error;
-    }
-}
-
-/**
- * Prints build metrics and performance data
- */
-function printBuildMetrics() {
-    const totalTime = Date.now() - buildMetrics.startTime;
-
-    console.log('\n📊 Build Metrics:');
-    console.log(`  ⏱️  Total build time: ${totalTime}ms`);
-    console.log(`  📦 Total output size: ${buildMetrics.totalSize} bytes`);
-
-    if (Object.keys(buildMetrics.processingTimes).length > 0) {
-        console.log('  ⚡ Processing times:');
-        for (const [step, time] of Object.entries(buildMetrics.processingTimes)) {
-            console.log(`    ${step}: ${time}ms`);
-        }
-    }
-
-    if (buildMetrics.errors.length > 0) {
-        console.log('  ⚠️  Errors encountered:');
-        buildMetrics.errors.forEach(error => console.log(`    ${error}`));
-    }
-}
-
-/**
- * Main build function
- */
-async function buildPerchanceFile() {
-    console.log('🚀 Starting RPGlitch Perchance build...\n');
-
-    try {
-        // Download external dependencies
-        const externalCSS = await getExternalCSS();
-        const externalJS = await getExternalJS();
-
-        // Read and process source files
-        const htmlFile = SOURCE_FILES.find(f => f.type === 'html');
-        const scssFile = SOURCE_FILES.find(f => f.type === 'sass');
-        const mainJsFile = SOURCE_FILES.find(f => f.type === 'script');
-
-        const htmlContent = readFile(htmlFile.name, htmlFile.description);
-        readFile(scssFile.name, scssFile.description); // Read for validation
-        const componentScripts = COMPONENT_SCRIPTS
-            .map((file) => readFile(file, path.basename(file)))
-            .join('\n');
-        const jsContent = readFile(mainJsFile.name, mainJsFile.description);
-
-        // Compile SCSS to CSS
-        const compiledCSS = compileSass(scssFile.name);
-
-        // Combine all content
-        const combinedCSS = externalCSS + compiledCSS;
-        const initSnippet = "document.addEventListener('DOMContentLoaded',()=>{App.initializeWhenReady();},{once:true});";
-        const combinedJS = externalJS + componentScripts + jsContent + initSnippet;
-
-        // Optimize CSS and JavaScript
-        const optimizedCSS = await optimizeCSS(combinedCSS);
-        const optimizedJS = await minifyJS(combinedJS);
-
-        // Create final HTML
-        let finalHtml = htmlContent
-            .replace(/<link[^>]*href="[^"]*pico[^"]*"[^>]*>/g, '')
-            // Remove any local script tags (relative src) before inlining bundle.
-            // Negative lookahead: drop only relative paths, preserving http(s), protocol-relative, and local_libs/ scripts.
-            .replace(/<script[^>]*\bsrc=(['"])(?!https?:|\/\/|local_libs\/)[^'"]+\.js\1[^>]*><\/script>/g, '')
-            .replace(/<script>[\s\S]*?App\.initializeWhenReady[\s\S]*?<\/script>\s*\n?/g, '')
-            .replace('</head>', `<style>\n${optimizedCSS}\n</style>\n</head>`)
-            .replace('</body>', `<script>\n${optimizedJS}\n</script>\n</body>`);
-
-        const minifiedHtml = await minifyHTMLContent(finalHtml);
-
-        // Write the final file
-        const outputPath = path.join(__dirname, '../output/RPGlitch-perchance.html');
-        fs.writeFileSync(outputPath, minifiedHtml, 'utf8');
-
-        buildMetrics.totalSize = minifiedHtml.length;
-        console.log(`\n✅ Build completed successfully!`);
-        console.log(`📁 Output: ${outputPath}`);
-        console.log(`📊 File size: ${(minifiedHtml.length / 1024).toFixed(2)} KB`);
-        printBuildMetrics();
-    } catch (error) {
-        console.error(`\n❌ Build failed: ${error.message}`);
-        printBuildMetrics();
-        process.exit(1);
-    }
-}
-
-// Run the build when executed directly
-if (require.main === module) {
-    buildPerchanceFile();
-}
-
-// Simple build output validation
-module.exports.validateOutputFile = function validateOutputFile() {
-    const outputPath = path.join(__dirname, '../output/RPGlitch-perchance.html')
-    if (fs.existsSync(outputPath)) {
-        return true
+  // 2) App SCSS
+  if (scssDirs.length) {
+    const files = scssDirs.flatMap(listScssFiles);
+    if (files.length) {
+      console.log(`> Compiling SCSS (${files.length} file${files.length > 1 ? 's' : ''})…`);
+      for (const file of files) {
+        const out = sass.compile(file, { style: 'expanded' });
+        combinedCss += `\n/* --- ${path.basename(file)} --- */\n` + out.css + '\n';
+      }
     } else {
-        console.error('Validation failed: output file missing.')
-        process.exit(1)
+      console.log('> No .scss files found under apps/rpglitch/scss — continuing with Pico only');
     }
+  } else {
+    console.log('> No SCSS folder present — using Pico only (if found)');
+  }
+
+  if (!combinedCss.trim()) return '';
+
+  const min = new CleanCSS({ level: 2 }).minify(combinedCss);
+  if (min.errors?.length) throw new Error('clean-css errors:\n' + min.errors.join('\n'));
+  if (min.warnings?.length) console.warn('clean-css warnings:\n' + min.warnings.join('\n'));
+  console.log(`> CSS size: ${(min.styles.length / 1024).toFixed(1)} KB`);
+  return min.styles;
 }
+
+// ---------- JS bundle ----------
+async function buildJS() {
+  if (!JS_FILES.length) throw new Error('No JS sources found in apps/rpglitch/js');
+  console.log('> Bundling JS:\n   - ' + JS_FILES.map(f => path.relative(REPO_ROOT, f)).join('\n   - '));
+  const source = JS_FILES.map(read).join('\n;\n');
+  const res = await minifyJS(source, { ecma: 2020, compress: true, mangle: true });
+  if (res.error) throw res.error;
+  console.log(`> JS size: ${(res.code.length / 1024).toFixed(1)} KB`);
+  return res.code;
+}
+
+// ---------- HTML stitch ----------
+async function buildHTML() {
+  if (!exists(SRC_HTML)) throw new Error(`Source HTML not found: ${SRC_HTML}`);
+  let html = read(SRC_HTML);
+
+  // Remove Pico LINKs (we inline Pico)
+  html = html.replace(/<link[^>]*href="[^"]*pico[^"]*"[^>]*>\s*/gi, '');
+
+  // Remove any inlined init that would double‑init the app
+  html = html.replace(/<script>[\s\S]*?App\.initializeWhenReady[\s\S]*?<\/script>\s*\n?/g, '');
+
+  // Remove local script tags:
+  //   - keep http(s)://, //, and local_libs/
+  //   - drop everything else (relative/local .js)
+  html = html.replace(
+    /<script[^>]*\bsrc=(['"])(?!https?:|\/\/|local_libs\/)[^'"]+\.js\1[^>]*><\/script>/gi,
+    ''
+  );
+
+  const css = buildCSS();
+  const js  = await buildJS();
+
+  // Inject CSS
+  const styleTag = css ? `<style id="bundle-css">${css}</style>\n` : '';
+  html = html.replace(/<\/head>/i, `${styleTag}</head>`);
+
+  // Inject JS (+ safe init wrapper)
+  const runtime = `
+<script id="bundle-js">
+(function () {
+  var started = false;
+  function start() {
+    if (started) return; started = true;
+    try {
+      if (window.App && typeof App.initializeWhenReady === 'function') App.initializeWhenReady();
+      else if (window.App && typeof App.init === 'function') App.init();
+    } catch (e) { console.error('App init failed:', e); }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
+  else start();
+})();
+</script>`.trim();
+
+  html = html.replace(/<\/body>/i, `<script id="bundle-js-src">${js}</script>\n${runtime}\n</body>`);
+
+  // Minify HTML (CSS/JS already minified)
+  const min = await minifyHTML(html, {
+    collapseWhitespace: true,
+    removeComments: true,
+    minifyCSS: false,
+    minifyJS: false
+  });
+
+  write(OUT_HTML, min);
+  console.log(`\n✅ Build complete → ${OUT_HTML}\n`);
+}
+
+// ---------- run ----------
+(async () => {
+  try {
+    fs.mkdirSync(OUT_DIR, { recursive: true });
+    await buildHTML();
+  } catch (err) {
+    console.error('❌ Build failed:', err.message);
+    process.exit(1);
+  }
+})();
