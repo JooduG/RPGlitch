@@ -112,7 +112,6 @@ fs.mkdirSync(localLibs, { recursive: true });
 
 const COMPONENT_SCRIPTS = [
     path.join(RPGLITCH_DIR, 'js/utils.js'),
-    path.join(RPGLITCH_DIR, 'js/picture.js'),
     path.join(RPGLITCH_DIR, 'js/entities.js'),
     path.join(RPGLITCH_DIR, 'js/entity-form.js'),
     path.join(RPGLITCH_DIR, 'js/profile-router.js')

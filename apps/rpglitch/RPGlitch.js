@@ -294,7 +294,7 @@ App.getAllItems = App.getAllItems || function (key, refresh = false) {
 function renderList(containerId, key) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  container.querySelectorAll('img.profile-picture[src^="blob:"]').forEach((img) => {
+  container.querySelectorAll('img.entity-image[src^="blob:"]').forEach((img) => {
     URL.revokeObjectURL(img.src);
   });
   container.textContent = '';
@@ -309,7 +309,7 @@ function renderList(containerId, key) {
   all.forEach((item) => {
     const card = document.createElement('div');
     card.className = 'chin-card';
-    card.dataset.title = item.title;
+    card.dataset.title = item.title || item.name || 'Empty';
     if (item.id) {
       card.dataset.id = item.id;
       card.dataset.type = key.slice(0, -1);
@@ -322,14 +322,14 @@ function renderList(containerId, key) {
     media.className = 'media';
 
     if (typeof global.getPictureHTML === 'function') {
-      const img = global.getPictureHTML(item, null, 'chin-card');
-      media.appendChild(img);
-      img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
+      const pic = global.getPictureHTML(item, { cover: true });
+      media.appendChild(pic);
+      pic.classList.toggle('empty', pic.classList.contains('placeholder-image'));
     }
 
     const title = document.createElement('h4');
     title.className = 'title';
-    title.textContent = item.title || '';
+    title.textContent = item.title || item.name || 'Empty';
     media.appendChild(title);
 
     if (item.isPremade) {
@@ -456,14 +456,7 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
   const small = footer ? footer.querySelector('small') : null;
 
   const imgWrap = card.querySelector('.storyboard-card-left');
-  let img = imgWrap ? imgWrap.querySelector('img.profile-picture') : null;
-  const option = select.options[select.selectedIndex];
-  const firstOption = select.options.length > 0 ? select.options[0] : null;
-  const defaultHeading =
-    (option && (option.label || option.textContent)) ||
-    (firstOption && (firstOption.label || firstOption.textContent)) ||
-    select.dataset.placeholder ||
-    'Select…';
+  let img = imgWrap ? imgWrap.querySelector('.entity-image, .placeholder-image') : null;
   const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
 
   if (headerEl && !heading) {
@@ -475,28 +468,22 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     headerEl.appendChild(heading);
   }
 
-  if (heading) {
-    heading.textContent = defaultHeading;
-    heading.hidden = false;
-  }
-
   const updateImage = (itemData) => {
     if (!imgWrap || typeof global.getPictureHTML !== 'function') return;
-    const newImg = global.getPictureHTML(itemData, null, 'storyboard-card');
-    const oldUrl =
-      img && img.src.startsWith('blob:') && img.dataset.isPlaceholder !== 'true' ? img.src : null;
+    const newImg = global.getPictureHTML(itemData, { cover: true });
+    const oldUrl = img instanceof HTMLImageElement && img.src.startsWith('blob:') ? img.src : null;
     if (img) imgWrap.replaceChild(newImg, img);
     else imgWrap.appendChild(newImg);
     if (oldUrl) URL.revokeObjectURL(oldUrl);
     img = newImg;
-    img.classList.toggle('empty', img.dataset.isPlaceholder === 'true');
+    img.classList.toggle('empty', img.classList.contains('placeholder-image'));
   };
 
   if (item) {
     descEl.textContent = item.description || '';
     if (small) small.textContent = item.isPremade ? 'Premade' : '';
     if (heading) {
-      heading.textContent = item.title || defaultHeading;
+      heading.textContent = item.title || item.name || 'Empty';
       heading.hidden = false;
     }
     updateImage(item);
@@ -506,13 +493,12 @@ App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) 
     descEl.textContent = descEl.dataset.placeholder || '';
     if (small) small.textContent = '';
     select.hidden = false;
-    const cardId = card.id || '';
-    const seedName =
-      cardId.includes('-ai-') ? 'AI Character' :
-      cardId.includes('-user-') ? 'User Character' :
-      cardId.includes('-world-') ? 'World' : 'Unknown';
-    const placeholderItem = { title: seedName, type: seedName };
+    const placeholderItem = { id: card.dataset.type || '', kind: card.dataset.type };
     updateImage(placeholderItem);
+    if (heading) {
+      heading.textContent = 'Empty';
+      heading.hidden = false;
+    }
     delete card.dataset.entityType;
     delete card.dataset.entityId;
   }
