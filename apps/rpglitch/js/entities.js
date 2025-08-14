@@ -39,7 +39,7 @@
 
     const div = doc.createElement('div');
     div.className = 'placeholder-image';
-    div.style.backgroundColor = getDeterministicColor((entity.id || kind || '').toString());
+    div.style.backgroundColor = getDeterministicColor((entity.id || kind).toString());
     div.innerHTML = PLACEHOLDER_ICONS[kind] || PLACEHOLDER_ICONS.default;
     div.setAttribute('role', 'img');
     div.setAttribute('aria-label', `${kind} placeholder for ${title}`);
