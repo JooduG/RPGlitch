@@ -1,0 +1,14 @@
+.selected {
+  border-color: currentcolor;
+  filter: none;
+}
+
+.empty-card {
+  background: #f8f8f8;
+  border: 2px dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-style: italic;
+}

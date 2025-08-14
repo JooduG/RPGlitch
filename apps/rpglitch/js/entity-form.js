@@ -83,6 +83,7 @@
     App.hideEl('chin-container');
     App.hideEl('character-form-screen');
     App.hideEl('world-form-screen');
+    screen.dataset.entityId = entity.id || '';
     App.showEl(screen);
     const backBtn = doc.getElementById('profile-back');
     const editBtn = doc.getElementById('profile-edit');
@@ -91,10 +92,7 @@
     if (copyBtn) copyBtn.hidden = true;
     if (copyBtn) copyBtn.hidden = !entity.isPremade;
     if (editBtn) editBtn.hidden = entity.isPremade;
-    if (backBtn) {
-      backBtn.addEventListener('click', goBackWithFallback);
-      backBtn.onclick = goBackWithFallback;
-    }
+    if (backBtn) backBtn.onclick = goBackWithFallback;
     editBtn?.addEventListener('click', () => App.router.navigate(`#form/${type}/${entity.id}`));
     copyBtn?.addEventListener('click', () => {
       const from = entity.id;
@@ -120,7 +118,7 @@
     const isEdit = id && id !== 'new';
     const params = new URLSearchParams(global.location.hash.split('?')[1] || '');
     const from = params.get('from');
-    const template = !isEdit && from ? App.entities.get(type, from) : null;
+    const template = !isEdit && from ? App.entities.copy(type, from) : null;
     const existing = isEdit ? App.entities.get(type, id) : template;
     const screenId = type === 'character' ? 'character-form-screen' : 'world-form-screen';
     const screen = doc.getElementById(screenId);
@@ -187,10 +185,7 @@
     const suppressDelete = id && global.sessionStorage?.getItem('rpglitch-no-delete') === id;
     if (suppressDelete) global.sessionStorage.removeItem('rpglitch-no-delete');
     if (deleteBtn) deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
-    if (cancelBtn) {
-      cancelBtn.addEventListener('click', goBackWithFallback);
-      cancelBtn.onclick = goBackWithFallback;
-    }
+    if (cancelBtn) cancelBtn.onclick = goBackWithFallback;
     saveBtn?.addEventListener('click', () => {
       const data = {
         kind: type,

@@ -21,8 +21,10 @@
   function normalize(core, base = {}) {
     const nameOrTitle = core.name || core.title || base.name || base.title || '';
     const summaryOrDesc = core.summary || core.description || base.summary || base.description || '';
-    const img = core.imageUrl || core.image || base.imageUrl || base.image || '';
     const sections = core.sections || base.sections || {};
+    const placeholderUrl = global.getPictureHTML?.({ title: nameOrTitle })?.src || '';
+    const imageUrl = core.imageUrl || core.image || base.imageUrl || base.image || placeholderUrl;
+    const image = imageUrl;
     return {
       name: nameOrTitle,
       title: nameOrTitle,
@@ -35,8 +37,8 @@
         present: sections.present || '',
         future: sections.future || ''
       },
-      image: img,
-      imageUrl: img
+      image,
+      imageUrl
     };
   }
 
@@ -115,6 +117,11 @@
     remove(type, id) {
       const remaining = read(type).filter((e) => e.id !== id);
       _writeAndCache(type, remaining);
+    },
+    copy(type, id) {
+      const item = this.get(type, id);
+      if (!item) return null;
+      return { ...item, sections: { ...item.sections } };
     }
   };
 })(typeof window !== 'undefined' ? window : globalThis);
