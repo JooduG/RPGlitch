@@ -8,15 +8,15 @@
     ['Future', 'future']
   ];
 
-  function goBackWithFallback() {
+  function goBackWithFallback(target = '#storyboard', timeoutMs = 250) {
     const before = global.location.hash;
     if (global.history.length > 1) {
       global.history.back();
       global.setTimeout(() => {
-        if (global.location.hash === before) App.router.navigate('#storyboard');
-      }, 100);
+        if (global.location.hash === before) App.router.navigate(target);
+      }, timeoutMs);
     } else {
-      App.router.navigate('#storyboard');
+      App.router.navigate(target);
     }
   }
 
@@ -33,10 +33,10 @@
     container.appendChild(wrap);
   }
 
-  function buildHero(entity, context) {
+  function buildHero(entity) {
     const wrap = doc.createElement('div');
     wrap.className = 'hero-wrap';
-    const pic = global.getPictureHTML ? global.getPictureHTML(entity, null, context) : null;
+    const pic = global.getPictureHTML ? global.getPictureHTML(entity, 'profile-background') : null;
     if (pic) {
       pic.classList?.add('hero-bleed');
       wrap.appendChild(pic);
@@ -56,7 +56,7 @@
     const screen = doc.getElementById('profile-screen');
     if (!screen) return;
     screen.textContent = '';
-    screen.appendChild(buildHero(entity, 'profile-background'));
+    screen.appendChild(buildHero(entity));
     const content = doc.createElement('div');
     const h1 = doc.createElement('h1');
     h1.textContent = entity.name || '';
@@ -127,7 +127,8 @@
     if (!screen) return;
     const entity = existing || {};
     screen.textContent = '';
-    const heroWrap = buildHero(entity, 'form-hero');
+    const heroWrap = buildHero(entity);
+    const heroImg = heroWrap.querySelector('img');
     screen.appendChild(heroWrap);
     const content = doc.createElement('div');
     const h1 = doc.createElement('h1');
@@ -148,14 +149,20 @@
     imageInput.type = 'url';
     imageInput.value = entity.imageUrl || '';
     imageInput.addEventListener('change', () => {
-      const imgEntity = { ...entity, image: imageInput.value, imageUrl: imageInput.value };
-      const pic = global.getPictureHTML
-        ? global.getPictureHTML(imgEntity, null, 'form-hero')
-        : null;
-      pic.classList?.add('hero-bleed');
-      heroWrap.innerHTML = '';
-      heroWrap.appendChild(pic);
-      renderTags(heroWrap, imgEntity.tags || []);
+      if (!heroImg) return;
+      const val = imageInput.value.trim();
+      if (val) {
+        heroImg.src = val;
+        heroImg.dataset.isPlaceholder = 'false';
+      } else {
+        const placeholder = global.getPictureHTML
+          ? global.getPictureHTML({ ...entity, image: '', imageUrl: '' }, 'profile-background')
+          : null;
+        if (placeholder) {
+          heroImg.src = placeholder.src;
+          heroImg.dataset.isPlaceholder = placeholder.dataset.isPlaceholder || 'true';
+        }
+      }
     });
     form.appendChild(createField('imageUrl', 'Image URL', imageInput));
     const tagsInput = doc.createElement('input');
