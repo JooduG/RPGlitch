@@ -17,3 +17,5 @@
 - 2025-08-16 Fixed storyboard dropdown navigation, unified image field, reliable back/cancel, deferred copy save, and cleaned build regex.
 - 2025-08-13 Kept storyboard on dropdown change, routed via card dataset, added history back fallbacks, and clarified build regex.
 - 2025-08-16 Finalized storyboard→profile→form loop with image helper reuse, centralized back/cancel logic, deferred copy, and router cleanup.
+
+- 2025-08-17 Streamlined storyboard empty state and button styles, synced images across views, ensured Copy & Customise copies all sections, and unified back navigation.
