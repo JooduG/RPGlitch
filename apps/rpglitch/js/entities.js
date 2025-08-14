@@ -23,8 +23,8 @@
     const summaryOrDesc = core.summary || core.description || base.summary || base.description || '';
     const sections = core.sections || base.sections || {};
     const placeholderUrl = global.getPictureHTML?.({ title: nameOrTitle })?.src || '';
-    const image = core.image || core.imageUrl || base.image || base.imageUrl || placeholderUrl;
     const imageUrl = core.imageUrl || core.image || base.imageUrl || base.image || placeholderUrl;
+    const image = imageUrl;
     return {
       name: nameOrTitle,
       title: nameOrTitle,
