@@ -90,7 +90,8 @@
     return url;
   }
 
-  function getPictureHTML(item = {}, palette = null, context = '') {
+  function getPictureHTML(item = {}, paletteOrContext = null, maybeContext = '') {
+    const context = typeof paletteOrContext === 'string' ? paletteOrContext : maybeContext;
     const img = doc.createElement('img');
     img.className = `profile-picture ${context}`.trim();
     img.loading = 'lazy';
@@ -110,10 +111,10 @@
     if (src) {
       img.src = src;
       img.dataset.isPlaceholder = 'false';
-      ROOT.attachBrokenImageFallback?.(img, item, palette);
+      ROOT.attachBrokenImageFallback?.(img, item);
     } else {
       const initials = getInitials(displayName);
-      const { brand, contrast } = resolveBrandColors(item, palette);
+      const { brand, contrast } = resolveBrandColors(item);
       img.src = makeInitialsPlaceholderDataURI(initials, brand, contrast, 256);
       img.dataset.isPlaceholder = 'true';
     }
@@ -122,11 +123,11 @@
     return img;
   }
 
-  function attachBrokenImageFallback(img, seedItem = {}, palette = null) {
+  function attachBrokenImageFallback(img, seedItem = {}) {
     if (!(img instanceof HTMLImageElement)) return;
     if (img.dataset.isPlaceholder === 'false') {
       img.onerror = () => {
-        const replacement = getPictureHTML(seedItem, palette);
+        const replacement = getPictureHTML(seedItem, '');
         img.replaceWith(replacement);
         replacement.classList.toggle('empty', replacement.dataset.isPlaceholder === 'true');
       };

@@ -22,13 +22,19 @@
     const nameOrTitle = core.name || core.title || base.name || base.title || '';
     const summaryOrDesc = core.summary || core.description || base.summary || base.description || '';
     const img = core.imageUrl || core.image || base.imageUrl || base.image || '';
+    const sections = core.sections || base.sections || {};
     return {
       name: nameOrTitle,
       title: nameOrTitle,
       summary: summaryOrDesc,
       description: summaryOrDesc,
       tags: core.tags || base.tags || [],
-      sections: core.sections || base.sections || {},
+      sections: {
+        forever: sections.forever || '',
+        past: sections.past || '',
+        present: sections.present || '',
+        future: sections.future || ''
+      },
       image: img,
       imageUrl: img
     };

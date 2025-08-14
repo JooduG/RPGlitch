@@ -33,23 +33,26 @@
     }
   }
 
-  App.updateStoryboardCard = function (cardEl, type, id) {
+  App.updateStoryboardCard = function (selectEl, collection) {
     const doc = global.document;
-    const card = typeof cardEl === 'string' ? doc.getElementById(cardEl) : cardEl;
+    const select = typeof selectEl === 'string' ? doc.getElementById(selectEl) : selectEl;
+    if (!select) return;
+    const card = select.closest('.storyboard-card');
     if (!card) return;
-    card.dataset.type = type;
-    card.dataset.id = id || '';
+    const type = collection.slice(0, -1);
+    const id = select.value;
     const entity = id ? App.entities.get(type, id) : null;
     const left = card.querySelector('.storyboard-card-left');
     if (left) {
       left.textContent = '';
       if (entity) {
-        const pic = global.getPictureHTML ? global.getPictureHTML(entity, null, 'storyboard-card-left') : null;
+        const pic = global.getPictureHTML?.(entity, 'storyboard-card-picture');
         if (pic) left.appendChild(pic);
       }
     }
-    const titleSel = card.querySelector('select.storyboard-card-title');
-    if (titleSel && titleSel.value !== id) titleSel.value = id || '';
+    const titleEl = card.querySelector('h4.card-title');
+    if (titleEl) titleEl.textContent = entity?.title || entity?.name || '';
+    card.dataset.entityId = id || '';
     const small = card.querySelector('footer small');
     if (small) {
       const premadeText = entity?.isPremade ? 'Premade' : '';
@@ -65,7 +68,7 @@
     if (sb && !sb._cardsBound) {
       sb._cardsBound = true;
       sb.addEventListener('click', (e) => {
-        if (e.target.closest('select')) return;
+        if (e.target.closest('select, option, button, a, input, textarea')) return;
         const card = e.target.closest('.storyboard-card');
         if (!card) return;
         const { type, id } = card.dataset;
@@ -78,9 +81,8 @@
         e.stopPropagation();
         const card = select.closest('.storyboard-card');
         if (!card) return;
-        const type = card.dataset.type;
-        const id = select.value;
-        App.updateStoryboardCard?.(card, type, id);
+        const collection = `${card.dataset.type}s`;
+        App.updateStoryboardCard?.(select, collection);
         App.setDynamicTitle?.();
       });
     }
