@@ -91,8 +91,7 @@
     if (sb && !sb._cardsBound) {
       sb._cardsBound = true;
         sb.addEventListener('click', (e) => {
-          if (e.target.closest('select')) return;
-          if (e.target.closest('option, button, a, input, textarea')) return;
+          if (e.target.closest('select, button, a, input, textarea')) return;
           const card = e.target.closest('.storyboard-card');
           if (!card) return;
           const { type, id } = card.dataset;
