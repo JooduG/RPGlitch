@@ -50,7 +50,13 @@
         if (pic) left.appendChild(pic);
       }
     }
-    const titleEl = card.querySelector('h4.card-title');
+    const headerEl = card.querySelector('header');
+    let titleEl = card.querySelector('h4.card-title');
+    if (!titleEl && headerEl) {
+      titleEl = doc.createElement('h4');
+      titleEl.className = 'card-title';
+      headerEl.appendChild(titleEl);
+    }
     if (titleEl) titleEl.textContent = entity?.title || entity?.name || '';
     card.dataset.entityId = id || '';
     const small = card.querySelector('footer small');
