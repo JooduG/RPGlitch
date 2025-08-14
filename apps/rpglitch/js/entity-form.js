@@ -36,7 +36,7 @@
   function buildHero(entity) {
     const wrap = doc.createElement('div');
     wrap.className = 'hero-wrap';
-    const pic = global.getPictureHTML ? global.getPictureHTML(entity, 'profile-background') : null;
+    const pic = global.getPictureHTML ? global.getPictureHTML(entity, { cover: true }) : null;
     if (pic) {
       pic.classList?.add('hero-bleed');
       wrap.appendChild(pic);
@@ -59,7 +59,7 @@
     screen.appendChild(buildHero(entity));
     const content = doc.createElement('div');
     const h1 = doc.createElement('h1');
-    h1.textContent = entity.name || '';
+    h1.textContent = entity.name || entity.title || 'Empty';
     content.appendChild(h1);
     if (entity.summary) {
       const p = doc.createElement('p');
@@ -123,10 +123,10 @@
     const screenId = type === 'character' ? 'character-form-screen' : 'world-form-screen';
     const screen = doc.getElementById(screenId);
     if (!screen) return;
-    const entity = existing || {};
+    const entity = { ...(existing || {}), kind: type };
     screen.textContent = '';
     const heroWrap = buildHero(entity);
-    const heroImg = heroWrap.querySelector('img');
+    let heroEl = heroWrap.querySelector('.entity-image, .placeholder-image');
     screen.appendChild(heroWrap);
     const content = doc.createElement('div');
     const h1 = doc.createElement('h1');
@@ -147,19 +147,15 @@
     imageInput.type = 'url';
     imageInput.value = entity.imageUrl || '';
     imageInput.addEventListener('change', () => {
-      if (!heroImg) return;
       const val = imageInput.value.trim();
-      if (val) {
-        heroImg.src = val;
-        heroImg.dataset.isPlaceholder = 'false';
-      } else {
-        const placeholder = global.getPictureHTML
-          ? global.getPictureHTML({ ...entity, image: '', imageUrl: '' }, 'profile-background')
-          : null;
-        if (placeholder) {
-          heroImg.src = placeholder.src;
-          heroImg.dataset.isPlaceholder = placeholder.dataset.isPlaceholder || 'true';
-        }
+      const newEl = global.getPictureHTML
+        ? global.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
+        : null;
+      if (newEl) {
+        const currentHeroEl = heroWrap.querySelector('.entity-image, .placeholder-image');
+        if (currentHeroEl) currentHeroEl.replaceWith(newEl);
+        else heroWrap.appendChild(newEl);
+        heroEl = newEl;
       }
     });
     form.appendChild(createField('imageUrl', 'Image URL', imageInput));

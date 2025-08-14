@@ -56,10 +56,10 @@
     const left = card.querySelector('.storyboard-card-left');
     if (left) {
       left.textContent = '';
-      if (entity) {
-        const pic = global.getPictureHTML?.(entity, 'storyboard-card-picture');
-        if (pic) left.appendChild(pic);
-      }
+      const pic = global.getPictureHTML
+        ? global.getPictureHTML(entity || { id: card.dataset.type || '', kind: card.dataset.type }, { cover: true })
+        : null;
+      if (pic) left.appendChild(pic);
     }
     const headerEl = card.querySelector('header');
     let titleEl = card.querySelector('h4.card-title');
@@ -68,7 +68,7 @@
       titleEl.className = 'card-title';
       headerEl.appendChild(titleEl);
     }
-    if (titleEl) titleEl.textContent = entity?.title || entity?.name || '';
+    if (titleEl) titleEl.textContent = entity?.title || entity?.name || 'Empty';
     card.dataset.entityId = id || '';
     const small = card.querySelector('footer small');
     if (small) {
@@ -78,8 +78,10 @@
     }
     const profile = doc.getElementById('profile-screen');
     if (profile && !profile.hidden && profile.dataset.entityId === id) {
-      const heroImg = profile.querySelector('.hero-wrap img');
-      const pic = entity ? global.getPictureHTML?.(entity, 'profile-background') : null;
+      const heroImg = profile.querySelector('.hero-wrap .entity-image, .hero-wrap .placeholder-image');
+      const pic = global.getPictureHTML
+        ? global.getPictureHTML(entity || { id: card.dataset.type || '', kind: card.dataset.type }, { cover: true })
+        : null;
       if (pic && heroImg) heroImg.replaceWith(pic);
     }
   };

@@ -19,3 +19,5 @@
 - 2025-08-16 Finalized storyboard→profile→form loop with image helper reuse, centralized back/cancel logic, deferred copy, and router cleanup.
 
 - 2025-08-17 Streamlined storyboard empty state and button styles, synced images across views, ensured Copy & Customise copies all sections, and unified back navigation.
+
+- 2025-08-17 Added deterministic placeholders with entity icons and "Empty" titles across storyboard, chin lists, and profiles.

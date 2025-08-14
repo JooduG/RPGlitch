@@ -19,3 +19,4 @@
 - [x] Finalize storyboard/profile/form loop: DRY router, goBack helper, deferred copy, picture reuse, regex comment
 
 - [ ] RPGlitch storyboard empty card, button states, image sync, copy sections
+- [ ] RPGlitch deterministic placeholders and "Empty" titles
