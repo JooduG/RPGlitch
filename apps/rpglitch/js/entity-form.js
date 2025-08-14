@@ -152,8 +152,8 @@
         ? global.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
         : null;
       if (newEl) {
-        heroEl = heroWrap.querySelector('.entity-image, .placeholder-image');
-        if (heroEl) heroEl.replaceWith(newEl);
+        const currentHeroEl = heroWrap.querySelector('.entity-image, .placeholder-image');
+        if (currentHeroEl) currentHeroEl.replaceWith(newEl);
         else heroWrap.appendChild(newEl);
         heroEl = newEl;
       }
