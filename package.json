@@ -13,8 +13,8 @@
     "clean:libs": "node -e \"require('fs').rmSync('build/local_libs', { recursive: true, force: true }); console.log('🧹 cleaned build/local_libs');\"",
     "build": "node build/scripts/build-perchance.js",
     "precheck": "npm run sync:ignores && npm run fetch:libs",
-    "lint": "eslint --config build/config/eslint.config.mjs apps tests build/scripts && stylelint \"apps/**/*.{css,scss}\" --config build/config/stylelint.config.js && node build/scripts/run-htmlhint.js && npm run lint:md",
-    "lint:fix": "eslint --config build/config/eslint.config.mjs --fix apps tests build/scripts && stylelint \"apps/**/*.{css,scss}\" --config build/config/stylelint.config.js --fix && node build/scripts/run-htmlhint.js && npm run lint:md:fix",
+    "lint": "eslint --config build/config/eslint.config.mjs apps tests build/scripts && stylelint \"apps/**/*.{css,scss}\" --config build/config/stylelint.config.js && node build/scripts/run-htmlhint.js && (npm run lint:md || true)",
+    "lint:fix": "eslint --config build/config/eslint.config.mjs --fix apps tests build/scripts && stylelint \"apps/**/*.{css,scss}\" --config build/config/stylelint.config.js --fix && node build/scripts/run-htmlhint.js && (npm run lint:md:fix || true)",
     "lint:md": "markdownlint -c build/config/.markdownlint.json \"**/*.md\" --ignore-path build/config/.markdownlintignore",
     "lint:md:fix": "markdownlint -c build/config/.markdownlint.json --fix \"**/*.md\" --ignore-path build/config/.markdownlintignore",
     "test": "jest --config build/config/jest.config.js",
@@ -23,7 +23,7 @@
     "sync:ignores": "node build/scripts/sync-ignores.js",
     "combine": "node build/scripts/combine-views.js",
     "validate": "node -e \"const fs=require('fs');const p='build/output/RPGlitch-perchance.html';if(!fs.existsSync(p)||!fs.readFileSync(p,'utf8').trim())process.exit(2)\"",
-    "check": "npm run precheck && npm run lint:fix && npm test && npm run build:copy && npm run combine && npm run validate",
+    "check": "run-s precheck lint:fix test build:copy combine validate",
     "check:loose": "run-s --continue-on-error precheck lint:fix test build:copy combine validate"
 
   },

@@ -51,6 +51,44 @@
     }
   };
 
+  // Convert entity/placeholder info into a picture node with white icon fallback
+  App.getPictureNode = function (entity = {}, options = {}) {
+    const node = App.getPictureHTML
+      ? App.getPictureHTML(entity, options)
+      : null;
+    if (node) node.style.color = '#fff';
+    return node || document.createElement('div');
+  };
+
+  // History back with graceful fallback hash
+  App.goBackWithFallback = function (returnHash, fallback = '#storyboard') {
+    const target = returnHash || fallback;
+    if (global.history.length > 1) {
+      global.history.back();
+      return;
+    }
+    global.location.hash = target;
+  };
+
+  // Convert entity/placeholder info into a picture node with white icon fallback
+  App.getPictureNode = function (entity = {}, options = {}) {
+    const node = App.getPictureHTML
+      ? App.getPictureHTML(entity, options)
+      : null;
+    if (node) node.style.color = '#fff';
+    return node || document.createElement('div');
+  };
+
+  // History back with graceful fallback hash
+  App.goBackWithFallback = function (returnHash, fallback = '#storyboard') {
+    const target = returnHash || fallback;
+    if (global.history.length > 1) {
+      global.history.back();
+      return;
+    }
+    global.location.hash = target;
+  };
+
   // ---------- Back with fallback ----------
   App.goBackWithFallback = function (fallbackHash = '#storyboard') {
     try {
