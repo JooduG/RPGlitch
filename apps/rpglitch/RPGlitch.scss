@@ -927,10 +927,14 @@ input[type="file"] {
   height: 20%;
   box-shadow: unset;
   text-align: left;
+  font-style: italic;
+  opacity: 0.7;
 }
 
 .storyboard-card-title-placeholder {
   text-align: center;
+  font-style: italic;
+  opacity: 0.8;
 }
 
 #card option {
