@@ -926,6 +926,11 @@ input[type="file"] {
   width: 65%;
   height: 20%;
   box-shadow: unset;
+  text-align: left;
+}
+
+.storyboard-card-title-placeholder {
+  text-align: center;
 }
 
 #card option {
@@ -952,10 +957,6 @@ input[type="file"] {
 
 #storyboard-grid select::-ms-expand {
   display: none;
-}
-
-#storyboard-grid select option {
-  text-align: left;
 }
 
 .storyboard-card h4 {
