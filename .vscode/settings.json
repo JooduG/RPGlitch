@@ -1,41 +1,9 @@
 {
-  "markdown.validate.enabled": true,
-  "markdown.validate.referenceLinks.enabled": "ignore",
-
-  "markdownlint.enable": true,
-  "markdownlint.config": {
-    "default": true,
-    "MD013": false,
-    "MD033": false
-  },
-
-  "markdown.preview.breaks.enabled": true,
-
-  "stylelint.validate": ["scss", "css"],
-  "stylelint.configFile": "stylelint.config.js",
-
-  "eslint.workingDirectories": [{ "mode": "auto" }],
-
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.fixAll.stylelint": "explicit"
-  },
-
-  "files.eol": "\n",
-  "files.trimTrailingWhitespace": true,
-  "editor.insertSpaces": true,
-  "editor.tabSize": 2,
-
-  "files.watcherExclude": {
-    "**/build/output/**": true,
-    "**/build/local_libs/**": true,
-    "**/node_modules/**": true,
-    "**/memory-bank/archive/**": true
-  },
-  "search.exclude": {
-    "**/build/output/**": true,
-    "**/build/local_libs/**": true,
-    "**/node_modules/**": true,
-    "**/memory-bank/archive/**": true
-  }
+  "markdownlint.ignore": [
+    "memory-bank/**",
+    "build/output/**",
+    "node_modules/**",
+    "memory-bank/scribbles.md"
+  ],
+  "files.exclude": {}
 }

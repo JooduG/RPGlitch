@@ -1,0 +1,31 @@
+{
+  "gitignore": [
+    "node_modules/",
+    "build/output/",
+    "build/local_libs/",
+    ".cache/",
+    "dist/",
+    ".DS_Store",
+    "Thumbs.db",
+    "memory-bank/archive",
+    "memory-bank/scribbles.md"
+  ],
+  "cursorignore": [
+    "node_modules/",
+    "build/output/",
+    "build/local_libs/",
+    ".cache/",
+    "dist/",
+    "memory-bank/archive",
+    "memory-bank/scribbles.md"
+  ],
+  "markdownlint": [
+    "memory-bank/**",
+    "build/output/**",
+    "node_modules/**",
+    "memory-bank/scribbles.md"
+  ],
+  "vscodeFilesExclude": [
+
+  ]
+}

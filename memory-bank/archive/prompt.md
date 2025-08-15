@@ -1,1 +1,0 @@
-yes I know but inside that folder are ONLY the confic files, not a single ignore file... how can I show you the folder structure, a tree thingy? 
