@@ -1,33 +1,13 @@
-# ImageGlitch App
+# ImageGlitch
 
-## Overview
+Small sample app, same Perchance build flow.
 
-ImageGlitch is a web application for applying glitch effects to images.
+## Entry / Output
 
-## Structure
-
-```
-imageglitch/
-├── ImageGlitch.html                 # Main HTML template
-├── ImageGlitch-left-panel.html      # Left panel HTML template
-├── ImageGlitch-style-block.html     # CSS styles
-└── README.md                        # This documentation
-```
-
-## Development
-
-- **Main Entry Point**: `ImageGlitch.html`
-- **Styles**: `ImageGlitch-style-block.html`
+- Entry HTML: `apps/imageglitch/index.html`
+- Output: `build/output/ImageGlitch-perchance.html` (if added to build later)
 
 ## Build
 
-The app can be built using the build scripts in the `build/` directory.
-
-## Perchance Integration
-
-This app follows the Perchance architecture principles:
-
-- Client-side only execution
-- Single-file output for deployment
-- Modular organization during development
-- Plugin system support via global App object
+This app is not wired into the default build yet. Mirror the RPGlitch setup
+when needed.
