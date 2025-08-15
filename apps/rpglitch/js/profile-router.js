@@ -1,3 +1,4 @@
+/* eslint-env browser */
 (function (global) {
   const App = global.App || (global.App = {});
 
@@ -16,51 +17,62 @@
   function handleRoute() {
     const [section, type, id] = parseHash();
     const isType = (t) => t === 'character' || t === 'world';
+
     if (section === 'profile' && isType(type) && id) {
-      App.setTopBarRight('profile');
+      App.setTopBarRight?.('profile');
       App.hideEl('storyboard-screen');
       App.hideEl('character-form-screen');
       App.hideEl('world-form-screen');
       App.renderProfile?.(type, id);
     } else if (section === 'form' && isType(type)) {
-      App.setTopBarRight('form');
+      App.setTopBarRight?.('form');
       App.hideEl('storyboard-screen');
       App.hideEl('profile-screen');
       App.renderForm?.(type, id || 'new');
     } else {
-      App.setTopBarRight('storyboard');
+      // Default to storyboard for '#', '#storyboard', or unknown routes
+      App.setTopBarRight?.('storyboard');
       showStoryboard();
     }
   }
 
-  App.updateStoryboardCard = function (selectEl, collection) {
+  /**
+   * Update a single storyboard card preview when its <select> changes.
+   * Stays on storyboard (no navigation).
+   */
+  App.handleStoryboardSelect = function handleStoryboardSelect(selectEl) {
     const doc = global.document;
     const select = typeof selectEl === 'string' ? doc.getElementById(selectEl) : selectEl;
     if (!select) return;
+
     const card = select.closest('.storyboard-card');
     if (!card) return;
-    const type = collection.slice(0, -1);
+
+    const type = card.dataset.type; // 'character' | 'world' | 'ai' (map AI to character if desired)
     const id = select.value;
-    const entity = id ? App.entities.get(type, id) : null;
+
+    // Persist selection on the card itself
+    card.dataset.entityId = id || '';
+    card.classList.toggle('is-selected', !!id);
+    card.classList.toggle('empty-card', !id);
+
+    // Render preview using the shared helper so image/title stay consistent
+    const entity = id ? App.entities.get(type === 'ai' ? 'character' : type, id) : null;
     if (entity) {
       const unified = entity.imageUrl || entity.image || '';
       entity.image = unified;
       entity.imageUrl = unified;
     }
-    card.classList.toggle('empty-card', !entity);
-    const group = card.querySelector('.storyboard-card-buttons');
-    if (group) {
-      group.querySelectorAll('button').forEach((btn) => btn.classList.remove('selected'));
-      if (id) group.querySelector(`[data-id="${id}"]`)?.classList.add('selected');
-    }
+
     const left = card.querySelector('.storyboard-card-left');
     if (left) {
       left.textContent = '';
       const pic = global.getPictureHTML
-        ? global.getPictureHTML(entity || { id: card.dataset.type || '', kind: card.dataset.type }, { cover: true })
+        ? global.getPictureHTML(entity || { id: '', kind: type }, { cover: true })
         : null;
       if (pic) left.appendChild(pic);
     }
+
     const headerEl = card.querySelector('header');
     let titleEl = card.querySelector('h4.card-title');
     if (!titleEl && headerEl) {
@@ -69,50 +81,62 @@
       headerEl.appendChild(titleEl);
     }
     if (titleEl) titleEl.textContent = entity?.title || entity?.name || 'Empty';
-    card.dataset.entityId = id || '';
+
     const small = card.querySelector('footer small');
     if (small) {
-      const premadeText = entity?.isPremade ? 'Premade' : '';
-      const tagsText = entity?.tags?.join(', ') || '';
-      small.textContent = [premadeText, tagsText].filter(Boolean).join(' | ');
+      const premade = entity?.isPremade ? 'Premade' : '';
+      const tags = entity?.tags?.join(', ') || '';
+      small.textContent = [premade, tags].filter(Boolean).join(' | ');
     }
+
+    // If the profile is currently open for this entity, update its hero image too
     const profile = doc.getElementById('profile-screen');
     if (profile && !profile.hidden && profile.dataset.entityId === id) {
       const heroImg = profile.querySelector('.hero-wrap .entity-image, .hero-wrap .placeholder-image');
       const pic = global.getPictureHTML
-        ? global.getPictureHTML(entity || { id: card.dataset.type || '', kind: card.dataset.type }, { cover: true })
+        ? global.getPictureHTML(entity || { id: '', kind: type }, { cover: true })
         : null;
       if (pic && heroImg) heroImg.replaceWith(pic);
     }
+
+    App.setDynamicTitle?.();
   };
 
+  // A lower-level helper used elsewhere (kept public)
+  App.updateStoryboardCard = App.handleStoryboardSelect;
+
+  // Wiring
   global.addEventListener('hashchange', handleRoute);
+
   document.addEventListener('DOMContentLoaded', () => {
     handleRoute();
+
     const sb = document.getElementById('storyboard-screen');
     if (sb && !sb._cardsBound) {
       sb._cardsBound = true;
-        sb.addEventListener('click', (e) => {
-          if (e.target.closest('select, button, a, input, textarea')) return;
-          const card = e.target.closest('.storyboard-card');
-          if (!card) return;
-          const { type, id } = card.dataset;
-          if (type && id) App.router.navigate(`#profile/${type}/${id}`);
-        });
+
+      // Click a **card** → navigate to its profile (ignore clicks on controls)
+      sb.addEventListener('click', (e) => {
+        if (e.target.closest('select, button, a, input, textarea')) return;
+        const card = e.target.closest('.storyboard-card');
+        if (!card) return;
+        const type = card.dataset.type;
+        const id = card.dataset.entityId;
+        if (type && id) App.router.navigate(`#profile/${type}/${id}`);
+      });
+
+      // Change a card’s dropdown → update preview only
       sb.addEventListener('change', (e) => {
         const select = e.target.closest('select.storyboard-card-title');
         if (!select) return;
         e.preventDefault();
         e.stopPropagation();
-        const card = select.closest('.storyboard-card');
-        if (!card) return;
-        const collection = `${card.dataset.type}s`;
-        App.updateStoryboardCard?.(select, collection);
-        App.setDynamicTitle?.();
+        App.handleStoryboardSelect(select);
       });
     }
   });
 
+  // Router surface
   App.router = {
     navigate(hash) { global.location.hash = hash; },
     parseHash,

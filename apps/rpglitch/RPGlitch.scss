@@ -356,6 +356,27 @@ input[type="file"] {
   object-fit: cover;
 }
 
+.storyboard-card {
+  display: flex;
+  flex-direction: row;
+  z-index: auto;
+  grid-template-columns: unset;
+  grid-template-rows: unset;
+  grid-column: auto;
+  grid-row: auto;
+  width: 100%;
+  max-width: 100%;
+  flex: 0 0 auto;
+  outline: 2px solid transparent;
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              box-shadow 0.4s ease,
+              opacity 0.4s ease,
+              outline 0.15s ease,
+              color 0.2s ease;
+  border-radius: var(--pico-border-radius);
+  cursor: pointer;
+}
+
 /* stylelint-disable no-descending-specificity */
 :is(.chin-card, .storyboard-card) :is(button, select, input, textarea) {
   cursor: default;
@@ -456,6 +477,26 @@ input[type="file"] {
   border-radius: var(--pico-radius) var(--pico-radius) 0 0;
 }
 
+.storyboard-card img {
+  border-radius: 0;
+  display: block;
+  transition: opacity 0.25s ease;
+  transform: none;
+}
+
+/* Make pictures cover their container everywhere */
+.storyboard-card img,
+.profile-hero img,
+.storyboard-card .picture,
+.profile-hero .picture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-hero img,
+.storyboard-card img,
 .chin-card .card-poster .picture,
 .chin-card .card-poster img {
   border-radius: 0;
@@ -464,6 +505,12 @@ input[type="file"] {
   transform: none;
 }
 
+.chin-card .card-poster img {
+  border-radius: 0;
+  display: block;
+  transition: opacity 0.25s ease;
+  transform: none;
+}
 
 .chin-card .body {
   display: grid;
@@ -531,6 +578,44 @@ input[type="file"] {
   object-fit: cover;
   display: block;
 }
+
+/* Selected visuals: crisp, hue-matched border; remove blur */
+.storyboard-card.is-selected {
+  filter: none;
+  backdrop-filter: none;
+  outline: 2px solid currentcolor; /* same hue as text */
+  outline-offset: 0;
+  border-radius: 12px;
+}
+
+/* Keyboard focus is visible even if not selected */
+.storyboard-card:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+.card-title {
+  width: 100%;
+  height: 100%;
+  background: var(--pico-form-element-background-color);
+  z-index: 9999999;
+  pointer-events: none;
+  margin: 0;
+  align-content: center;
+}
+
+/* “Empty” card visual */
+.storyboard-card[data-id="empty"] .card-title { opacity: 0.9; }
+
+.storyboard-card[data-id="empty"] .card-title::before { content: "Empty"; }
+
+.storyboard-card[data-id="empty"] .card-thumb {
+  background: var(--muted-bg, #1f2733);
+  color: var(--muted-fg, #8aa0b4);
+  display: grid; place-items: center;
+}
+
 
 .profile-titlebar {
   margin-block-start: 0.5rem;
@@ -823,16 +908,6 @@ input[type="file"] {
   cursor: text;
 }
 
-.card-title {
-  width: 100%;
-  height: 100%;
-  background: var(--pico-form-element-background-color);
-  z-index: 9999999;
-  pointer-events: none;
-  margin: 0;
-  align-content: center;
-}
-
 .storyboard-card-title:not([hidden]) {
   background: var(--pico-form-element-active-background-color);
   border: none;
@@ -874,27 +949,6 @@ input[type="file"] {
   text-align: left;
 }
 
-.storyboard-card {
-  display: flex;
-  flex-direction: row;
-  z-index: auto;
-  grid-template-columns: unset;
-  grid-template-rows: unset;
-  grid-column: auto;
-  grid-row: auto;
-  width: 100%;
-  max-width: 100%;
-  flex: 0 0 auto;
-  outline: 2px solid transparent;
-  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-              box-shadow 0.4s ease,
-              opacity 0.4s ease,
-              outline 0.15s ease,
-              color 0.2s ease;
-  border-radius: var(--pico-border-radius);
-  cursor: pointer;
-}
-
 .storyboard-card h4 {
   transition: inherit;
 }
@@ -905,14 +959,6 @@ input[type="file"] {
   outline: 2px solid var(--pico-primary-hover);
 }
 
-.card-title,
-.storyboard-card h4 {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-}
 
 .storyboard-card .card-title--editing {
   outline: 2px solid var(--pico-primary-hover);

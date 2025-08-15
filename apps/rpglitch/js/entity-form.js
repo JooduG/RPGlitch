@@ -2,11 +2,133 @@
   const App = global.App || (global.App = {});
   const doc = global.document;
   const SECTIONS_CONFIG = [
-    ['Forever', 'forever'],
-    ['Past', 'past'],
-    ['Present', 'present'],
-    ['Future', 'future']
-  ];
+  ['Forever', 'forever'],
+  ['Past', 'past'],
+  ['Present', 'present'],
+  ['Future', 'future']
+];
+
+// Small helper to deep-clone sections
+function cloneSections(sections) {
+  try { return JSON.parse(JSON.stringify(sections || {})); }
+  catch { return { ...sections }; }
+}
+
+App.renderForm = function renderForm(type, idOrNew) {
+  const isNew = idOrNew === 'new';
+  const params = App.getHashQuery();
+  const fromId = isNew ? params.get('from') : null;
+
+  // Base entity → existing or a blank shell
+  const baseExisting = !isNew ? App.entities.get(type, idOrNew) : null;
+  const baseCopy = (isNew && fromId) ? App.entities.get(type, fromId) : null;
+
+  // Prefill model for the form (do NOT persist yet)
+  const model = baseExisting || baseCopy || {
+    id: '',
+    kind: type,
+    title: '',
+    summary: '',
+    imageUrl: '',
+    tags: [],
+    sections: {}
+  };
+
+  // --- Build hero + fields (use your existing DOM code; below shows the important parts) ---
+  const screen = document.getElementById(`${type}-form-screen`) || document.getElementById('character-form-screen');
+  if (!screen) return;
+
+  screen.hidden = false;
+  const hero = document.createElement('div');
+  hero.className = 'profile-hero';
+  hero.innerHTML = App.getPictureHTML ? App.getPictureHTML(model) : `<img class="hero-img" src="${model.imageUrl || ''}" alt="">`;
+  screen.innerHTML = '';
+  screen.appendChild(hero);
+
+  // Build the form
+  const form = document.createElement('form');
+  form.className = 'entity-form';
+
+  // Title / Summary / Image / Tags
+  const titleInput = document.createElement('input');
+  titleInput.value = model.title || model.name || '';
+  titleInput.placeholder = 'Title';
+  titleInput.id = 'ef-title';
+
+  const summaryInput = document.createElement('input');
+  summaryInput.value = model.summary || model.description || '';
+  summaryInput.placeholder = 'Summary';
+  summaryInput.id = 'ef-summary';
+
+  const imageInput = document.createElement('input');
+  imageInput.value = model.imageUrl || model.image || '';
+  imageInput.placeholder = 'Image URL';
+  imageInput.id = 'ef-image';
+
+  const tagsInput = document.createElement('input');
+  tagsInput.value = Array.isArray(model.tags) ? model.tags.join(', ') : (model.tags || '');
+  tagsInput.placeholder = 'Tags (comma separated)';
+  tagsInput.id = 'ef-tags';
+
+  form.append(titleInput, summaryInput, imageInput, tagsInput);
+
+  // Sections (Forever/Past/Present/Future)
+  const sections = cloneSections(model.sections);
+  const sectionInputs = {};
+  SECTIONS_CONFIG.forEach(([label, key]) => {
+    const ta = document.createElement('textarea');
+    ta.placeholder = label;
+    ta.value = sections[key] || '';
+    ta.id = `ef-sec-${key}`;
+    sectionInputs[key] = ta;
+    form.appendChild(ta);
+  });
+
+  screen.appendChild(form);
+
+  // --- Actions: Save / Cancel / Delete
+  const saveBtn   = document.getElementById('form-save');
+  const cancelBtn = document.getElementById('form-cancel');
+  const delBtn    = document.getElementById('form-delete');
+
+  if (delBtn) delBtn.hidden = !(!isNew && (baseExisting?.isCustom || baseExisting?.isPremade === false));
+
+  if (cancelBtn) {
+    cancelBtn.onclick = () => {
+      // If we’re copying, go back to the source profile. Otherwise fallback to storyboard.
+      if (fromId) App.navigate(`#profile/${type}/${fromId}`);
+      else App.goBackWithFallback('#storyboard');
+    };
+  }
+
+  if (saveBtn) {
+    saveBtn.onclick = () => {
+      const payload = {
+        kind: type,
+        title: titleInput.value.trim(),
+        summary: summaryInput.value.trim(),
+        imageUrl: imageInput.value.trim(),
+        tags: tagsInput.value.split(',').map(s => s.trim()).filter(Boolean),
+        sections: SECTIONS_CONFIG.reduce((acc, [, key]) => (acc[key] = sectionInputs[key].value, acc), {})
+      };
+
+      const saved = isNew
+        ? App.entities.upsert(type, null, payload) // create
+        : App.entities.upsert(type, baseExisting.id, payload); // update
+
+      App.refreshAllLists?.();
+      App.navigate(`#profile/${type}/${saved.id}`);
+    };
+  }
+
+  if (delBtn && baseExisting) {
+    delBtn.onclick = () => {
+      App.entities.remove?.(type, baseExisting.id);
+      App.refreshAllLists?.();
+      App.navigate('#storyboard');
+    };
+  }
+}
 
   function goBackWithFallback(target = '#storyboard', timeoutMs = 250) {
     const before = global.location.hash;
