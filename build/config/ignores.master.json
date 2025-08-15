@@ -30,7 +30,9 @@
     ".DS_Store",
     "Thumbs.db",
     "memory-bank/archive",
-    "memory-bank/scribbles.md"
+    "memory-bank/scribbles.md",
+    "docs/",
+    "memory-bank/"
   ],
   "eslintIgnore": [
     "node_modules/",
