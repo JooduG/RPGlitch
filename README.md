@@ -19,7 +19,7 @@ npm run build:copy
 
 ## Common tasks
 
-- **Build RPGlitch only:** `npm run build:perchance`
+- **Build RPGlitch only:** `npm run build`
 - **Lint everything:** `npm run lint` (use `npm run lint:fix` to auto-fix)
 - **Combine docs (generated):** `npm run combine`
 

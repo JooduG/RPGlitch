@@ -13,7 +13,7 @@ Single-file Perchance deliverable with storyboard + profiles.
 
 ```bash
 npm run fetch:libs      # downloads pico/cash/dexie/purify/_hyperscript → build/local_libs
-npm run build:perchance # builds only
+npm run build           # builds only
 npm run build:copy      # builds and copies final HTML to clipboard
 ```
 
