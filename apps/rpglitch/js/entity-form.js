@@ -37,7 +37,7 @@
   function buildHero(entity) {
     const wrap = doc.createElement('div');
     wrap.className = 'hero-wrap';
-    const pic = global.getPictureHTML ? global.getPictureHTML(entity, { cover: true }) : null;
+    const pic = App.getPictureHTML ? App.getPictureHTML(entity, { cover: true }) : null;
     if (pic) {
       pic.classList?.add('hero-bleed');
       wrap.appendChild(pic);
@@ -91,7 +91,7 @@
     const copyBtn = doc.getElementById('profile-copy');
     if (copyBtn) copyBtn.hidden = !entity.isPremade;
     if (editBtn) editBtn.hidden = entity.isPremade;
-    if (backBtn) backBtn.onclick = () => App.goBackWithFallback();
+    if (backBtn) backBtn.onclick = App.navigateBackOrReturnDefault;
     editBtn?.addEventListener('click', () => {
       App.router.navigate(`#form/${type}/${entity.id}?return=#profile/${type}/${entity.id}`);
     });
@@ -150,8 +150,8 @@
     imageInput.value = entity.imageUrl || '';
     imageInput.addEventListener('change', () => {
       const val = imageInput.value.trim();
-      const newEl = global.getPictureHTML
-        ? global.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
+      const newEl = App.getPictureHTML
+        ? App.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
         : null;
       if (newEl) {
         const current = heroWrap.querySelector('.entity-image, .placeholder-image');
@@ -220,5 +220,6 @@
 
   App.renderProfile = renderProfile;
   App.renderForm = renderForm;
+  App.navigateBackOrReturnDefault = navigateBackOrReturnDefault;
 })(typeof window !== 'undefined' ? window : globalThis);
 
