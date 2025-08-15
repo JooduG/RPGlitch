@@ -4,7 +4,7 @@
 }
 
 .empty-card {
-  background: #f8f8f8;
+  background: var(--pico-form-element-background-color);
   border: 2px dashed #ccc;
   display: flex;
   align-items: center;

@@ -195,6 +195,7 @@
 3. **AI Rule Selection Integration**: Connect with Unified Orchestrator Mode
 4. **Performance Monitoring**: Set up comprehensive monitoring system
 5. **Maintain Tests**: Verify unit tests use production code. The `hideEl` test now loads `RPGlitch.js` so `App.hideEl` is exercised directly.
+
 - Added guard for top bar listeners and improved chin controls
 - Listener guard now stored on App; removed unused notification area
 - Chin toggle test restored to check class toggling

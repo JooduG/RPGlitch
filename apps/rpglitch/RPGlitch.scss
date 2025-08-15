@@ -106,6 +106,7 @@ article {
   text-align: center;
   text-wrap: balance;
   padding: 0 0.5rem;
+  border-radius: 0;
 }
 
 article footer {
@@ -116,6 +117,8 @@ article footer {
   justify-content: flex-end;
   padding-right: 1rem;
   background: var(--pico-form-element-background-color);
+  border-bottom-left-radius: 0;
+  border: 0;
 }
 
 article header {
@@ -177,10 +180,6 @@ input[type="file"] {
   width: auto;
   max-width: 100%;
   border: 0;
-}
-
-.top-bar ul {
-  gap: 1rem;
 }
 
 .chin-search {
@@ -550,6 +549,16 @@ input[type="file"] {
   padding-block: 0;
 }
 
+.top-bar-right {
+  display: flex;
+  gap: 1rem;
+}
+
+.top-bar-left {
+  display: flex;
+  gap: 1rem;
+}
+
 .picture-edit {
   position: absolute;
   inset: 0;
@@ -583,7 +592,8 @@ input[type="file"] {
 .storyboard-card.is-selected {
   filter: none;
   backdrop-filter: none;
-  outline: 2px solid currentcolor; /* same hue as text */
+
+  /* outline: 2px solid currentcolor; same hue as text */
   outline-offset: 0;
   border-radius: 12px;
 }

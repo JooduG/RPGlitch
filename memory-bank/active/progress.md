@@ -160,12 +160,15 @@ All objectives have been achieved:
 **Next Steps**: The project is ready for production deployment and ongoing maintenance.
 
 ### 2025-07-30
+
 - Implemented dependency checks and event listener improvements for top bar interactions.
 
 ### 2025-07-30
+
 - Added top bar right container fixes and basic UI tests.
 
 ### 2025-07-31
+
 - Revised Options chin labels and event handlers using cached elements. Removed duplicate UI getter methods and improved import routine performance.
 - Integrated PostCSS, Terser, and html-minifier into the build process for full CSS, JS, and HTML minification.
 - Fixed cssnano version and improved optional dependency checks for minification steps. Documented installation instructions for these dependencies.
@@ -174,40 +177,56 @@ All objectives have been achieved:
 
 - Fixed hideEl unit test to use its own JSDOM context and returned App object, ensuring reliability.
 - Documented Jest executable permission check to prevent test failures on new setups.
+
 ### 2025-08-02
+
 - Fixed "is not a function" runtime errors by binding App context for show/hide
   methods and using `App.getPremadeCharacterItems`.
 - Added initialization guard for `_getUIElements` and disabled Terser property
   mangling to keep method names intact.
 
 ### 2025-08-03
+
 - Prevented duplicate top bar event listeners using a module flag.
 - Ensured `hideEl` fallback loads before event handlers and validated show/hide utilities during initialization.
 - Added `aria-controls` attributes and keyboard interaction docs for chin buttons.
+
 ### 2025-08-04
+
 - Converted listener guard to App property and removed unused notification area.
 - Restored chin toggle test to check DOM class changes.
 - Updated ESLint config with Node overrides for build and tool scripts.
 
 ### 2025-08-05
+
 - Loaded `utils.js` before `RPGlitch.js` to ensure `window.hideEl` is defined during initialization.
 - Removed fallback `App.showEl` implementation from chin toggle test.
 - Declared `const App = window.App` and used `Object.assign(App, {...})` to populate the same object.
 - Added `afterEach` hooks in tests to clear global DOM references.
+
 ### 2025-08-06
+
 - Moved `showEl` utility into `utils.js` for better organization.
 - Updated lint scripts with double-quoted globs for Windows compatibility.
 - Documented `npm run lint` vs `npm run lint:fix` in README.
+
 ### 2025-08-07
+
 - Added retry mechanism in `initializeWhenReady` to ensure UI elements exist before attaching top bar listeners.
+
 ### 2025-08-08
+
 - Increased `maxInitializeWhenReadyRetries` to 40 to handle slower UI element availability in Perchance tests.
+
 ### 2025-08-09
+
 - Implemented exponential backoff and clearer retry warnings in `initializeWhenReady`.
 - Added BusyBox installation script for hexdump debugging.
 
 - Built single-file RPGlitch output with inlined component scripts.
+
 ### 2025-08-09
+
 - Polished chin and storyboard cards (picture corners, single-layer hover).
 - DRYed picture.js display name and kept brand/contrast placeholders.
 - Added standard line-clamp property to satisfy linter.

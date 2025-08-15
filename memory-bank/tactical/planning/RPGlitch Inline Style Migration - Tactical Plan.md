@@ -18,6 +18,7 @@ This plan addresses the migration of 100+ inline style assignments from JavaScri
 ## 🎯 **PHASE 1: STORYBOARD CARD STYLES (HIGH IMPACT)**
 
 ### **Current State Analysis**
+
 - **Location**: `RPGlitch.js` lines 3398-3463
 - **Issue**: 50+ inline style assignments in `_renderStoryboardCard` function
 - **Impact**: High - affects core UI rendering performance
@@ -25,6 +26,7 @@ This plan addresses the migration of 100+ inline style assignments from JavaScri
 ### **Implementation Plan**
 
 #### **Step 1.1: Create SCSS Classes**
+
 ```scss
 // Add to RPGlitch.scss
 .storyboard-card-content {
@@ -87,6 +89,7 @@ This plan addresses the migration of 100+ inline style assignments from JavaScri
 ```
 
 #### **Step 1.2: Update JavaScript Function**
+
 ```javascript
 // Replace inline styles with class assignments
 _renderStoryboardCard(cardElement, item, config) {
@@ -108,6 +111,7 @@ _renderStoryboardCard(cardElement, item, config) {
 ```
 
 ### **Testing Strategy**
+
 - Verify storyboard cards render correctly
 - Test responsive behavior
 - Confirm hover effects still work
@@ -116,6 +120,7 @@ _renderStoryboardCard(cardElement, item, config) {
 ## 🎯 **PHASE 2: DROPDOWN MENU POSITIONING (COMPLEX LOGIC)**
 
 ### **Current State Analysis**
+
 - **Location**: `RPGlitch.js` lines 3139-3219
 - **Issue**: 20+ inline positioning styles with complex logic
 - **Impact**: Medium - affects dropdown functionality
@@ -123,6 +128,7 @@ _renderStoryboardCard(cardElement, item, config) {
 ### **Implementation Plan**
 
 #### **Step 2.1: Create SCSS Classes**
+
 ```scss
 .dropdown-menu {
   position: absolute;
@@ -158,6 +164,7 @@ _renderStoryboardCard(cardElement, item, config) {
 ```
 
 #### **Step 2.2: Update JavaScript Logic**
+
 ```javascript
 // Replace complex positioning logic with class-based approach
 function positionDropdownMenu(menu, triggerElement) {
@@ -188,6 +195,7 @@ function positionDropdownMenu(menu, triggerElement) {
 ```
 
 ### **Testing Strategy**
+
 - Test all dropdown positioning scenarios
 - Verify menu visibility in different viewport sizes
 - Confirm menu doesn't go off-screen
@@ -196,6 +204,7 @@ function positionDropdownMenu(menu, triggerElement) {
 ## 🎯 **PHASE 3: PROFILE PICTURE SYSTEM (FREQUENT USAGE)**
 
 ### **Current State Analysis**
+
 - **Location**: Multiple locations in `RPGlitch.js`
 - **Issue**: Background image URLs set via JavaScript
 - **Impact**: Medium - affects profile picture display
@@ -203,6 +212,7 @@ function positionDropdownMenu(menu, triggerElement) {
 ### **Implementation Plan**
 
 #### **Step 3.1: Create SCSS Classes**
+
 ```scss
 .profile-picture {
   &.has-image {
@@ -233,6 +243,7 @@ function positionDropdownMenu(menu, triggerElement) {
 ```
 
 #### **Step 3.2: Update JavaScript Functions**
+
 ```javascript
 // Replace direct style assignment with class-based approach
 function updateProfilePicture(element, imageUrl) {
@@ -255,6 +266,7 @@ const profilePictureStyles = `
 ```
 
 ### **Testing Strategy**
+
 - Test profile picture loading/unloading
 - Verify fallback to initials when no image
 - Test different image formats
@@ -263,6 +275,7 @@ const profilePictureStyles = `
 ## 🎯 **PHASE 4: TEXTAREA AUTO-RESIZE (SIMPLE FIX)**
 
 ### **Current State Analysis**
+
 - **Location**: `RPGlitch.js` lines 903-904, 2118-2119, 2763
 - **Issue**: Height calculations done in JavaScript
 - **Impact**: Low - simple functionality
@@ -270,6 +283,7 @@ const profilePictureStyles = `
 ### **Implementation Plan**
 
 #### **Step 4.1: Create SCSS Classes**
+
 ```scss
 .auto-resize-textarea {
   resize: none;
@@ -281,6 +295,7 @@ const profilePictureStyles = `
 ```
 
 #### **Step 4.2: Update JavaScript Functions**
+
 ```javascript
 // Simplified auto-resize with CSS support
 function setupAutoResizeTextarea(textarea) {
@@ -297,6 +312,7 @@ function setupAutoResizeTextarea(textarea) {
 ```
 
 ### **Testing Strategy**
+
 - Test textarea resizing behavior
 - Verify max/min height constraints
 - Test with different content lengths
@@ -305,6 +321,7 @@ function setupAutoResizeTextarea(textarea) {
 ## 🎯 **PHASE 5: NOTIFICATION SYSTEM (MEDIUM IMPACT)**
 
 ### **Current State Analysis**
+
 - **Location**: `RPGlitch.js` lines 614, 621, 2856-2861
 - **Issue**: Display state managed via inline styles
 - **Impact**: Medium - affects user feedback
@@ -312,6 +329,7 @@ function setupAutoResizeTextarea(textarea) {
 ### **Implementation Plan**
 
 #### **Step 5.1: Create SCSS Classes**
+
 ```scss
 .notification-area {
   &.visible {
@@ -339,6 +357,7 @@ function setupAutoResizeTextarea(textarea) {
 ```
 
 #### **Step 5.2: Update JavaScript Functions**
+
 ```javascript
 // Replace display style manipulation with classes
 function showNotification(notificationArea) {
@@ -359,6 +378,7 @@ function setTypingStatus(isTyping) {
 ```
 
 ### **Testing Strategy**
+
 - Test notification show/hide behavior
 - Verify typing indicator functionality
 - Test notification positioning
@@ -367,16 +387,19 @@ function setTypingStatus(isTyping) {
 ## 📊 **IMPLEMENTATION TIMELINE**
 
 ### **Week 1: Foundation**
+
 - **Days 1-2**: Phase 1 (Storyboard Card Styles)
 - **Days 3-4**: Phase 2 (Dropdown Menu Positioning)
 - **Day 5**: Testing and bug fixes
 
 ### **Week 2: Completion**
+
 - **Days 1-2**: Phase 3 (Profile Picture System)
 - **Days 3-4**: Phase 4 (Textarea Auto-Resize)
 - **Day 5**: Phase 5 (Notification System)
 
 ### **Week 3: Polish**
+
 - **Days 1-2**: Comprehensive testing
 - **Days 3-4**: Performance optimization
 - **Day 5**: Documentation and cleanup
@@ -384,16 +407,19 @@ function setTypingStatus(isTyping) {
 ## 🔧 **TECHNICAL CONSIDERATIONS**
 
 ### **CSS Custom Properties**
+
 - Use CSS custom properties for dynamic values
 - Maintain JavaScript control where needed
 - Ensure fallback values for older browsers
 
 ### **Performance Optimization**
+
 - Minimize DOM queries by caching selectors
 - Use CSS classes for state changes
 - Avoid layout thrashing with batched updates
 
 ### **Browser Compatibility**
+
 - Test in target browsers (Chrome, Firefox, Safari)
 - Ensure graceful degradation
 - Maintain accessibility standards
@@ -401,17 +427,20 @@ function setTypingStatus(isTyping) {
 ## 🧪 **TESTING STRATEGY**
 
 ### **Automated Testing**
+
 - Unit tests for utility functions
 - Integration tests for UI components
 - Performance benchmarks
 
 ### **Manual Testing**
+
 - Cross-browser compatibility
 - Responsive design validation
 - Accessibility testing
 - User interaction flows
 
 ### **Performance Testing**
+
 - Measure before/after performance
 - Monitor memory usage
 - Test with large datasets
@@ -419,16 +448,19 @@ function setTypingStatus(isTyping) {
 ## 📈 **SUCCESS METRICS**
 
 ### **Performance Improvements**
+
 - Reduced JavaScript execution time
 - Improved rendering performance
 - Better memory usage
 
 ### **Code Quality**
+
 - Reduced JavaScript file size
 - Improved maintainability
 - Better separation of concerns
 
 ### **User Experience**
+
 - Faster UI responsiveness
 - Smoother animations
 - Better accessibility
@@ -436,11 +468,13 @@ function setTypingStatus(isTyping) {
 ## 🚨 **RISK MITIGATION**
 
 ### **High Risk Areas**
+
 - **Storyboard Card Rendering**: Complex layout changes
 - **Dropdown Positioning**: Critical functionality
 - **Profile Picture System**: User-facing feature
 
 ### **Mitigation Strategies**
+
 - Incremental implementation
 - Comprehensive testing at each phase
 - Rollback plan for each phase
@@ -449,11 +483,13 @@ function setTypingStatus(isTyping) {
 ## 📚 **DOCUMENTATION REQUIREMENTS**
 
 ### **Code Documentation**
+
 - Update inline comments
 - Document new CSS classes
 - Explain migration rationale
 
 ### **User Documentation**
+
 - Update user guides if needed
 - Document any UI changes
 - Provide migration notes
