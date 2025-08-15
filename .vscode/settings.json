@@ -1,8 +1,13 @@
 {
   "markdownlint.ignore": [
-    "memory-bank/**",
-    "build/output/**",
-    "node_modules/**",
+    "node_modules/",
+    "build/output/",
+    "build/local_libs/",
+    ".cache/",
+    "dist/",
+    ".DS_Store",
+    "Thumbs.db",
+    "memory-bank/archive",
     "memory-bank/scribbles.md"
   ],
   "files.exclude": {}
