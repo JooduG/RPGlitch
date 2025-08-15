@@ -6,11 +6,29 @@
 
   function getDeterministicColor(seed) {
     let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-    }
+    for (let i = 0; i < seed.length; i++) hash = seed.charCodeAt(i) + ((hash << 5) - hash);
     const hue = Math.abs(hash) % 360;
     return `hsl(${hue}, 40%, 60%)`;
+  }
+
+  function getContrast(color) {
+    const hex = color.startsWith('#') ? color.slice(1) : null;
+    if (hex && (hex.length === 3 || hex.length === 6)) {
+      const full = hex.length === 3 ? hex.split('').map((c) => c + c).join('') : hex;
+      const num = parseInt(full, 16);
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+      const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+      return yiq >= 128 ? '#000' : '#fff';
+    }
+    return '#000';
+  }
+
+  function getBrand(entity = {}) {
+    if (entity.palette?.brand) return entity.palette.brand;
+    const seed = [entity.name || entity.title || '', ...(entity.tags || [])].join(',');
+    return getDeterministicColor(seed || (entity.id || entity.kind || ''));
   }
 
   const PLACEHOLDER_ICONS = {
@@ -26,26 +44,35 @@
     const { cover } = options;
     const title = entity.title || entity.name || 'Empty';
     const kind = entity.kind || 'default';
-    const src = typeof entity.imageUrl === 'string' && entity.imageUrl.trim() ? entity.imageUrl.trim() : null;
+    const src = typeof entity.imageUrl === 'string' && entity.imageUrl.trim() ? entity.imageUrl.trim() : '';
+    const brand = getBrand(entity);
+    const contrast = getContrast(brand);
+
+    const wrap = doc.createElement('div');
+    wrap.className = `picture${cover ? ' picture--cover' : ''}`;
+    wrap.style.setProperty('--brand', brand);
+    wrap.style.setProperty('--brand-contrast', contrast);
 
     if (src) {
       const img = doc.createElement('img');
-      img.className = 'entity-image';
-      if (cover) img.style.objectFit = 'cover';
-      img.src = src;
       img.alt = `${kind} image for ${title}`;
-      return img;
+      img.src = src;
+      wrap.appendChild(img);
+      return wrap;
     }
 
-    const div = doc.createElement('div');
-    div.className = 'placeholder-image';
-    div.style.backgroundColor = getDeterministicColor((entity.id || kind).toString());
-    div.innerHTML = PLACEHOLDER_ICONS[kind] || PLACEHOLDER_ICONS.default;
-    div.setAttribute('role', 'img');
-    div.setAttribute('aria-label', `${kind} placeholder for ${title}`);
-    return div;
+    const ph = doc.createElement('div');
+    ph.className = 'placeholder-image';
+    ph.style.backgroundColor = 'var(--brand)';
+    ph.style.color = 'var(--brand-contrast)';
+    ph.innerHTML = PLACEHOLDER_ICONS[kind] || PLACEHOLDER_ICONS.default;
+    ph.setAttribute('role', 'img');
+    ph.setAttribute('aria-label', `${kind} placeholder for ${title}`);
+    wrap.appendChild(ph);
+    return wrap;
   }
 
+  App.getPictureHTML = getPictureHTML;
   global.getPictureHTML = getPictureHTML;
 
   function read(type) {

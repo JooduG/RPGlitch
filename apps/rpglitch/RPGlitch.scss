@@ -499,6 +499,12 @@ input[type="file"] {
 }
 
 .profile-hero img,
+.picture--cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .storyboard-card img,
 .chin-card .card-poster .picture,
 .chin-card .card-poster img {
@@ -521,20 +527,21 @@ input[type="file"] {
   padding: 12px;
 }
 
+.chin-card .title {
+  display: block;
+  margin: 0 0 0.25rem;
+  padding: 0;
+}
+
+.chin-card .card-description,
 .chin-card .description {
   font-size: 13px;
   color: rgb(255 255 255 / 85%);
+  margin: 0.125rem 0 0;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.chin-card .title {
-  position: static;
-  margin: 0 0 6px;
-  padding: 0;
 }
 
 .chin-card .badge {
@@ -548,6 +555,12 @@ input[type="file"] {
   font-size: 12px;
 }
 
+.chin-button.selected,
+.chin-button:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 2px;
+}
+
 .top-bar-search {
   height: 2.5rem;
   padding-block: 0;
@@ -556,6 +569,10 @@ input[type="file"] {
 .top-bar-right {
   display: flex;
   gap: 1rem;
+}
+
+.storyboard-card.empty-card .placeholder-image {
+  opacity: 0.6;
 }
 
 .top-bar-left {
@@ -616,6 +633,16 @@ input[type="file"] {
   pointer-events: none;
   margin: 0;
   align-content: center;
+}
+
+.chin-card .card-title {
+  display: block;
+  margin: 0 0 0.25rem;
+  padding: 0;
+}
+
+.storyboard-card.empty-card .card-title {
+  opacity: 0.6;
 }
 
 /* “Empty” card visual */

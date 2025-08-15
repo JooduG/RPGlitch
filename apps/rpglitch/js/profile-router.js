@@ -60,6 +60,12 @@
       card.dataset.entityId = '';
       card.classList.remove('is-selected');
       card.classList.add('empty-card');
+      const ph = card.querySelector('[data-picture-host], .storyboard-card-left');
+      if (ph) {
+        ph.textContent = '';
+        const pic = App.getPictureHTML ? App.getPictureHTML(null, { context: 'storyboard-card', cover: true }) : null;
+        if (pic) ph.appendChild(pic);
+      }
       App.setDynamicTitle?.();
       return;
     }
@@ -68,21 +74,15 @@
     card.classList.add('is-selected');
     card.classList.remove('empty-card');
 
-    // Render preview using the shared helper so image/title stay consistent
     const entity = App.entities.get(type === 'ai' ? 'character' : type, id);
-    const unified = entity?.imageUrl || entity?.image || '';
-    if (entity) {
-      entity.image = unified;
-      entity.imageUrl = unified;
-    }
+    const img = entity?.imageUrl || entity?.image || '';
+    const normalized = entity ? { ...entity, image: img, imageUrl: img } : { id, kind: type };
 
-    const left = card.querySelector('.storyboard-card-left');
-    if (left) {
-      left.textContent = '';
-      const pic = global.getPictureHTML
-        ? global.getPictureHTML(entity || { id: '', kind: type }, { cover: true })
-        : null;
-      if (pic) left.appendChild(pic);
+    const host = card.querySelector('[data-picture-host], .storyboard-card-left');
+    if (host) {
+      host.textContent = '';
+      const pic = App.getPictureHTML ? App.getPictureHTML(normalized, { context: 'storyboard-card', cover: true }) : null;
+      if (pic) host.appendChild(pic);
     }
 
     const headerEl = card.querySelector('header');
@@ -92,21 +92,31 @@
       titleEl.className = 'card-title';
       headerEl.appendChild(titleEl);
     }
-    if (titleEl) titleEl.textContent = entity?.title || entity?.name || 'Empty';
+    if (titleEl) titleEl.textContent = normalized.title || normalized.name || 'Empty';
+
+    const right = card.querySelector('.storyboard-card-right');
+    if (right) {
+      let bodyEl = right.querySelector('.card-description');
+      if (!bodyEl) {
+        bodyEl = doc.createElement('p');
+        bodyEl.className = 'card-description';
+        const footer = right.querySelector('footer');
+        right.insertBefore(bodyEl, footer);
+      }
+      bodyEl.textContent = normalized.summary || normalized.description || '';
+    }
 
     const small = card.querySelector('footer small');
     if (small) {
-      const premade = entity?.isPremade ? 'Premade' : '';
-      const tags = entity?.tags?.join(', ') || '';
+      const premade = normalized.isPremade ? 'Premade' : '';
+      const tags = normalized.tags?.join(', ') || '';
       small.textContent = [premade, tags].filter(Boolean).join(' | ');
     }
 
     const profile = doc.getElementById('profile-screen');
     if (profile && !profile.hidden && profile.dataset.entityId === id) {
       const heroImg = profile.querySelector('.hero-wrap .entity-image, .hero-wrap .placeholder-image');
-      const pic = global.getPictureHTML
-        ? global.getPictureHTML(entity || { id: '', kind: type }, { cover: true })
-        : null;
+      const pic = App.getPictureHTML ? App.getPictureHTML(normalized, { cover: true }) : null;
       if (pic && heroImg) heroImg.replaceWith(pic);
     }
 
@@ -122,16 +132,19 @@
   document.addEventListener('DOMContentLoaded', () => {
     handleRoute();
 
-    const sb = document.getElementById('storyboard-screen');
+    const doc = global.document;
+    const sb = doc.getElementById('storyboard-screen');
     if (sb && !sb._cardsBound) {
       sb.querySelectorAll('.storyboard-card').forEach((card) => {
         emptyCardHTML.set(card, card.innerHTML);
       });
       sb._cardsBound = true;
 
+      const isInteractive = (el) => el.closest('select,button,a,[role="button"],input,textarea');
+
       // Click a **card** → navigate to its profile (ignore clicks on controls)
       sb.addEventListener('click', (e) => {
-        if (e.target.closest('select, button, a, input, textarea')) return;
+        if (isInteractive(e.target)) return;
         const card = e.target.closest('.storyboard-card');
         if (!card) return;
         const type = card.dataset.type;
@@ -148,6 +161,25 @@
         App.handleStoryboardSelect(select);
       });
     }
+
+    // Chin tab buttons: selected/focus handling
+    doc.querySelectorAll('button[data-chin]').forEach((btn) => {
+      btn.classList.add('chin-button');
+      btn.addEventListener('click', () => App.activateChin(btn));
+    });
+
+    // Prevent search form reload; convert button to clear
+    doc.querySelectorAll('form[role="search"]').forEach((form) => {
+      form.addEventListener('submit', (e) => e.preventDefault());
+      const btn = form.querySelector('button');
+      if (btn) {
+        btn.type = 'button';
+        btn.addEventListener('click', () => {
+          form.querySelectorAll('input[type="search"]').forEach((i) => { i.value = ''; });
+          App.refreshAllLists?.();
+        });
+      }
+    });
   });
 
   // Router surface
@@ -155,5 +187,13 @@
     navigate(hash) { global.location.hash = hash; },
     parseHash,
     handleRoute
+  };
+
+  App.activateChin = (btn) => {
+    if (!btn) return;
+    const group = btn.closest('[data-chin-group]');
+    group?.querySelectorAll('.chin-button.selected').forEach((b) => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    btn.focus();
   };
 })(typeof window !== 'undefined' ? window : globalThis);
