@@ -1,4 +1,4 @@
-/* global document */
+/* eslint-env jest */
 require('../apps/rpglitch/js/entity-form.js');
 
 describe('entity form page', () => {

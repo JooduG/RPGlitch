@@ -20,3 +20,5 @@
 
 - [ ] RPGlitch storyboard empty card, button states, image sync, copy sections
 - [ ] RPGlitch deterministic placeholders and "Empty" titles
+
+- [x] Docs cleanup: condensed root README, per-app READMEs, combine-views banner
