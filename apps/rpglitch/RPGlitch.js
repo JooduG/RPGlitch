@@ -600,8 +600,17 @@ App.onStoryboardChange = function (e) {
   const select = e.target;
   const card = select.closest('.storyboard-card');
   if (!card) return;
-  const type = card.dataset.type;
-  const entity = (App.entities?.list(type) || []).find((i) => i.id === select.value);
+  const selectedOption = select.options[select.selectedIndex];
+  const entity = !select.value ? null : {
+    id: select.value,
+    title: selectedOption.textContent,
+    description: selectedOption.dataset.desc || '',
+    palette: selectedOption.dataset.brand || '',
+    imageUrl: selectedOption.dataset.image || '',
+    image: selectedOption.dataset.image || '',
+    isPremade: !!selectedOption.dataset.premade,
+    kind: card.dataset.type,
+  };
   App.updateStoryboardCard(card, entity);
   App.setDynamicTitle?.();
 };
