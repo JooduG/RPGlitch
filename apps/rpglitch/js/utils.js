@@ -54,6 +54,25 @@
     }
   };
 
+  // Convert entity/placeholder info into a picture node with white icon fallback
+  App.getPictureNode = function (entity = {}, options = {}) {
+    const node = App.getPictureHTML
+      ? App.getPictureHTML(entity, options)
+      : null;
+    if (node) node.style.color = '#fff';
+    return node || document.createElement('div');
+  };
+
+  // History back with graceful fallback hash
+  App.goBackWithFallback = function (returnHash, fallback = '#storyboard') {
+    const target = returnHash || fallback;
+    if (global.history.length > 1) {
+      global.history.back();
+      return;
+    }
+    global.location.hash = target;
+  };
+
   // Chin open/close visuals: ensure the body class reflects visibility
   App._closeChin = function () {
     const container = document.getElementById('chin-container');
