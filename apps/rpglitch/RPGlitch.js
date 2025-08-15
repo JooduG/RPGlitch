@@ -23,6 +23,7 @@ const DATA_KEYS = ['stories', 'characters', 'worlds'];
 App.selectTopBarTab = function (btn) {
   const ui = App._getUIElements();
   if (!ui.topBarButtons) return;
+  const prev = App._lastActiveTab;
   let anyActive = false;
   ui.topBarButtons.forEach((b) => {
     const active = b === btn || (btn && b.dataset.chin === btn.dataset.chin);
@@ -38,6 +39,7 @@ App.selectTopBarTab = function (btn) {
   if (!anyActive && ui.topBarButtons.length > 0) {
     ui.topBarButtons[0].setAttribute('tabindex', '0');
   }
+  if (prev && prev !== App._lastActiveTab) prev.blur();
 };
 
 /**
@@ -391,7 +393,6 @@ function renderDropdown(selectId, key) {
   });
   if (premadeCount > 0) select.appendChild(premadeGroup);
   if (customCount > 0) select.appendChild(customGroup);
-  App.updateStoryboardCard?.(selectId, key);
 }
 
 App.renderDropdown = App.renderDropdown || renderDropdown;
@@ -401,23 +402,31 @@ App.refreshAllLists = App.refreshAllLists || function () {
   App.renderStoryList?.();
   App.renderCharacterList?.();
   App.renderWorldList?.();
-  App.renderDropdown?.('storyboard-ai-select', 'characters');
-  App.renderDropdown?.('storyboard-user-select', 'characters');
-  App.renderDropdown?.('storyboard-world-select', 'worlds');
 };
 
 App._attachCardNavigation = function () {
   if (App._cardNavAttached) return;
   const container = document.getElementById('chin-container');
-  if (!container) return;
-  container.addEventListener('click', (e) => {
-    if (e.target.closest('button, a, input, select, textarea')) return;
-    const card = e.target.closest('.chin-card[data-type][data-id]');
-    if (!card) return;
-    App.setSelected?.(card, container.querySelectorAll('.chin-card[data-type][data-id]'));
-    const { type, id } = card.dataset;
-    if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
-  });
+  if (container) {
+    container.addEventListener('click', (e) => {
+      if (e.target.closest('button, a, input, select, textarea')) return;
+      const card = e.target.closest('.chin-card[data-type][data-id]');
+      if (!card) return;
+      App.setSelected?.(card, container.querySelectorAll('.chin-card[data-type][data-id]'));
+      const { type, id } = card.dataset;
+      if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
+    });
+  }
+  const storyboard = document.getElementById('storyboard-grid');
+  if (storyboard) {
+    storyboard.addEventListener('click', (e) => {
+      if (e.target.closest('select')) return;
+      const card = e.target.closest('.storyboard-card[data-entity-type][data-entity-id]');
+      if (!card) return;
+      const { entityType: type, entityId: id } = card.dataset;
+      if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
+    });
+  }
   App._cardNavAttached = true;
 };
 
@@ -433,75 +442,38 @@ App.renderWorldList = App.renderWorldList || function () {
   renderList('chin-world-grid', 'worlds');
 };
 
-App.updateStoryboardCard = App.updateStoryboardCard || function (selectId, key) {
-  const select = typeof selectId === 'string' ? document.getElementById(selectId) : selectId;
-  if (!select) return;
-  const card = select.closest('.storyboard-card');
+App.updateStoryboardCard = function (card, entity) {
+  card = typeof card === 'string' ? document.getElementById(card) : card;
   if (!card) return;
-  const article = card.querySelector('.storyboard-card-right');
-  if (!article) return;
-  const headerEl = article.querySelector('header');
-  let heading = headerEl ? headerEl.querySelector('.card-title') : null;
-  const footer = article.querySelector('footer');
-  let descEl = article.querySelector('.card-description');
-  if (!descEl) {
-    const textNode = Array.from(article.childNodes).find((n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
-    const placeholder = textNode ? textNode.textContent.trim() : '';
-    if (textNode) article.removeChild(textNode);
-    descEl = document.createElement('p');
-    descEl.className = 'card-description';
-    descEl.textContent = placeholder;
-    descEl.dataset.placeholder = placeholder;
-    article.insertBefore(descEl, footer);
-  }
-  const small = footer ? footer.querySelector('small') : null;
-
-  const imgWrap = card.querySelector('.storyboard-card-left');
-  let img = imgWrap ? imgWrap.querySelector('.entity-image, .placeholder-image') : null;
-  const item = App.getAllItems(key).find((i) => (i.id ?? i.title) === select.value);
-
-  if (headerEl && !heading) {
-    heading = document.createElement('h4');
-    heading.className = 'card-title';
-    heading.addEventListener('click', () => {
-      select.showPicker?.() || (select.focus(), select.click());
-    });
-    headerEl.appendChild(heading);
+  const left = card.querySelector('.storyboard-card-left');
+  const descEl = card.querySelector('.storyboard-card-right .desc');
+  const tag = card.querySelector('footer small');
+  const select = card.querySelector('select');
+  if (descEl && !descEl.dataset.placeholder) {
+    descEl.dataset.placeholder = descEl.textContent;
   }
 
-  const updateImage = (itemData) => {
-    if (!imgWrap || typeof global.getPictureHTML !== 'function') return;
-    const newImg = global.getPictureHTML(itemData, { cover: true });
-    const oldUrl = img instanceof HTMLImageElement && img.src.startsWith('blob:') ? img.src : null;
-    if (img) imgWrap.replaceChild(newImg, img);
-    else imgWrap.appendChild(newImg);
-    if (oldUrl) URL.revokeObjectURL(oldUrl);
-    img = newImg;
-    img.classList.toggle('empty', img.classList.contains('placeholder-image'));
-  };
-
-  if (item) {
-    descEl.textContent = item.description || '';
-    if (small) small.textContent = item.isPremade ? 'Premade' : '';
-    if (heading) {
-      heading.textContent = item.title || item.name || 'Empty';
-      heading.hidden = false;
+  if (entity) {
+    if (descEl) descEl.textContent = entity.description || '';
+    if (tag) tag.textContent = entity.isPremade ? 'Premade' : '';
+    if (left) {
+      left.textContent = '';
+      left.appendChild(App.getPictureNode(entity, { context: 'storyboard' }));
+      App.applyBrand(left, entity);
     }
-    updateImage(item);
-    card.dataset.entityType = key.slice(0, -1);
-    card.dataset.entityId = item.id;
+    card.dataset.entityType = card.dataset.type;
+    card.dataset.entityId = entity.id;
   } else {
-    descEl.textContent = descEl.dataset.placeholder || '';
-    if (small) small.textContent = '';
-    select.hidden = false;
-    const placeholderItem = { id: card.dataset.type || '', kind: card.dataset.type };
-    updateImage(placeholderItem);
-    if (heading) {
-      heading.textContent = 'Empty';
-      heading.hidden = false;
+    if (descEl) descEl.textContent = descEl.dataset.placeholder || '';
+    if (tag) tag.textContent = '';
+    if (left) {
+      left.textContent = '';
+      left.appendChild(App.getPictureNode({ kind: card.dataset.type }, { context: 'storyboard' }));
+      App.applyBrand(left, {});
     }
     delete card.dataset.entityType;
     delete card.dataset.entityId;
+    if (select) select.value = '';
   }
 };
 
@@ -593,30 +565,54 @@ App._setupStoryboardTitle = function () {
   });
 };
 
-App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
+App.populateStoryboardSelects = function () {
   const configs = [
-    { id: 'storyboard-ai-select', key: 'characters' },
-    { id: 'storyboard-user-select', key: 'characters' },
-    { id: 'storyboard-world-select', key: 'worlds' }
+    { id: 'storyboard-ai-select', type: 'character' },
+    { id: 'storyboard-user-select', type: 'character' },
+    { id: 'storyboard-world-select', type: 'world' }
   ];
-  configs.forEach(({ id, key }) => {
+  configs.forEach(({ id, type }) => {
     const select = document.getElementById(id);
-    if (select) {
-      const handler = () => {
-        App.updateStoryboardCard(id, key);
-        App.setDynamicTitle();
-      };
-      select.addEventListener('change', handler);
-      App.updateStoryboardCard(id, key);
-    }
+    if (!select) return;
+    const placeholder = select.dataset.placeholder || '';
+    select.textContent = '';
+    const ph = document.createElement('option');
+    ph.value = '';
+    ph.textContent = placeholder;
+    select.appendChild(ph);
+    const list = App.entities?.list(type) || [];
+    list.forEach((entity) => {
+      const opt = document.createElement('option');
+      opt.value = entity.id;
+      opt.textContent = entity.title || '';
+      opt.dataset.desc = entity.description || '';
+      opt.dataset.brand = entity.palette || '';
+      opt.dataset.image = entity.imageUrl || entity.image || '';
+      if (entity.isPremade) opt.dataset.premade = '1';
+      select.appendChild(opt);
+    });
+    select.addEventListener('change', App.onStoryboardChange);
+    App.onStoryboardChange({ target: select });
   });
+};
+
+App.onStoryboardChange = function (e) {
+  const select = e.target;
+  const card = select.closest('.storyboard-card');
+  if (!card) return;
+  const type = card.dataset.type;
+  const entity = (App.entities?.list(type) || []).find((i) => i.id === select.value);
+  App.updateStoryboardCard(card, entity);
+  App.setDynamicTitle?.();
+};
+
+App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
+  App.populateStoryboardSelects();
   App._setupStoryboardTitle();
   const title = document.getElementById('storyboard-dynamic-title');
   if (title) {
     title.addEventListener('dblclick', () => {
-      if (title.dataset.manual === 'true') {
-        title.dataset.manual = '';
-      }
+      if (title.dataset.manual === 'true') title.dataset.manual = '';
     });
   }
   const shuffleBtn = document.getElementById('shuffle-btn');
