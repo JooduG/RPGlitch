@@ -71,42 +71,42 @@ These foundational rules guide system architecture, communication, and project s
 
 ### Core System Rules
 
-- [Documentation](.cursor/rules/system-documentation.mdc) – Documentation standards
-- [Effective Rule Writing](.cursor/rules/system-effective-rule-writing.mdc) – Writing clear, impactful rules
-- [Rule Interactions](.cursor/rules/system-rule-interactions.mdc) – Rule interactions and prioritization
-- [Todo/Handoff Template](.cursor/rules/system-todo-handoff-template.mdc) – Templates for tasks and handoffs
-- [Technical Architecture](.cursor/rules/technical-architecture.mdc) – Overall technical structure and constraints
+- [Documentation](../memory-bank/docs/.cursor/rules/system-documentation.mdc) – Documentation standards
+- [Effective Rule Writing](../memory-bank/docs/.cursor/rules/system-effective-rule-writing.mdc) – Writing clear, impactful rules
+- [Rule Interactions](../memory-bank/docs/.cursor/rules/system-rule-interactions.mdc) – Rule interactions and prioritization
+- [Todo/Handoff Template](../memory-bank/docs/.cursor/rules/system-todo-handoff-template.mdc) – Templates for tasks and handoffs
+- [Technical Architecture](../memory-bank/docs/.cursor/rules/technical-architecture.mdc) – Overall technical structure and constraints
 
 ### Thinking Framework
 
-- [Context Aware Rule Loading](.cursor/rules/thinking-context-aware-rule-loading.mdc) – Context-sensitive rule loading strategies
-- [Thinking Framework](.cursor\rules\thinking-framework.mdc) - Framework
+- [Context Aware Rule Loading](../memory-bank/docs/.cursor/rules/thinking-context-aware-rule-loading.mdc) – Context-sensitive rule loading strategies
+- [Thinking Framework](../memory-bank/docs/.cursor/rules/thinking-framework.mdc) - Framework
 
 ### Orchestration Rules
 
-- [Orchestration Architecture](.cursor/rules/orchestration-architecture.mdc) – Framework for task orchestration
-- [Orchestration Mode](.cursor/rules/orchestration-mode.mdc) – Role-based orchestration details
-- [Orchestration System](.cursor/rules/orchestration-system.mdc) – System-level orchestration mechanisms
+- [Orchestration Architecture](../memory-bank/docs/.cursor/rules/orchestration-architecture.mdc) – Framework for task orchestration
+- [Orchestration Mode](../memory-bank/docs/.cursor/rules/orchestration-mode.mdc) – Role-based orchestration details
+- [Orchestration System](../memory-bank/docs/.cursor/rules/orchestration-system.mdc) – System-level orchestration mechanisms
 
 ## Perchance Rules
 
 These rules provide specialized guidance for the Perchance platform.
 Relevant for RPGlitch and ImageGlitch:
 
-- [Perchance Architecture](.cursor/rules/perchance-architecture.mdc) – Structural overview
-- [Perchance Plugins](.cursor/rules/perchance-plugin-system.mdc) – Plugin architecture and integration
-- [Perchance Development](.cursor/rules/perchance-development-lifecycle.mdc) – Dev lifecycle guidance
-- [Perchance Deployment](.cursor/rules/perchance-build-deployment.mdc) – Guidelines for building and deploying
+- [Perchance Architecture](../memory-bank/docs/.cursor/rules/perchance-architecture.mdc) – Structural overview
+- [Perchance Plugins](../memory-bank/docs/.cursor/rules/perchance-plugin-system.mdc) – Plugin architecture and integration
+- [Perchance Development](../memory-bank/docs/.cursor/rules/perchance-development-lifecycle.mdc) – Dev lifecycle guidance
+- [Perchance Deployment](../memory-bank/docs/.cursor/rules/perchance-build-deployment.mdc) – Guidelines for building and deploying
 
 > **Tip:** Review the most relevant ruleset before coding. When unsure, start with the Core System Rules.---
 
 ## Mission for Agents
 
 1. Accurately translate natural-language requests into precise, production-ready code.
-2. Adhere strictly to the Unified [3‑Mode Mrchitecture](.cursor/rules/orchestration-mode.mdc).
+2. Adhere strictly to the Unified [3‑Mode Mrchitecture](../memory-bank/docs/.cursor/rules/orchestration-mode.mdc).
 3. Use MCP services from `mcp.json` (Context7, Time, Basic-Memory, Sequential Thinking).
-4. Consistently record decisions and important context into the [Memory Bank/](memory-bank) for future reference.
-5. Follow Cursor [Rules](.cursor/rules) rigorously, covering HTML, CSS, JavaScript, storage, and performance.
+4. Consistently record decisions and important context into the [Memory Bank/](../memory-bank/docs/memory-bank) for future reference.
+5. Follow Cursor [Rules](../memory-bank/docs/.cursor/rules) rigorously, covering HTML, CSS, JavaScript, storage, and performance.
 6. Maintain a high-quality codebase—every contribution must pass stringent linting, testing, and performance standards.---
 
 ## Development Environment Guidelines
@@ -169,9 +169,9 @@ uv pip install -e ".[test]"
 
 ---
 
-See [CONTRIBUTING](CONTRIBUTING.md) § 2 “Standard Check”.
+See [CONTRIBUTING](../memory-bank/docs/CONTRIBUTING.md) § 2 “Standard Check”.
 
-Refer to [CONTRIBUTING](CONTRIBUTING.md) § 3 “Pull-Request Workflow”.
+Refer to [CONTRIBUTING](../memory-bank/docs/CONTRIBUTING.md) § 3 “Pull-Request Workflow”.
 
 ## Contribution Rules
 
@@ -218,7 +218,7 @@ deny_write:
 - Codex should focus on `apps/` for feature work and `memory-bank/` for documentation.
 - Other folders—`build/`, `tools/`, and `.cursor/rules/`—are read‑only unless explicitly requested.
 - Never modify generated artifacts like `build/output/`, or anything inside `node_modules/` or `.cursor/`.
-- Before presenting a diff, run See [CONTRIBUTING](CONTRIBUTING.md) § 2 “Standard Check”. Refer to [CONTRIBUTING](CONTRIBUTING.md) § 3 “Pull-Request Workflow”.
+- Before presenting a diff, run See [CONTRIBUTING](../memory-bank/docs/CONTRIBUTING.md) § 2 “Standard Check”. Refer to [CONTRIBUTING](../memory-bank/docs/CONTRIBUTING.md) § 3 “Pull-Request Workflow”.
 
 ## Agent Operating Loop (all tasks)
 

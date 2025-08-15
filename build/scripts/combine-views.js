@@ -88,6 +88,22 @@ const TARGETS = [
     output: 'combined-tools.md'
   },
   {
+    name: 'docs',
+    title: 'Combined Docs (docs/)',
+    sources: ['docs'],
+    output: 'combined-docs.md',
+    excludeDirs: new Set(['node_modules', '.git', 'build/output'])
+  },
+  {
+    name: 'readmes',
+    title: 'All READMEs across repo',
+    sources: ['.'],
+    output: 'combined-readmes.md',
+    excludeDirs: new Set(['node_modules', '.git', 'build/output']),
+    // keep only README variants
+    filter: (relPath) => /(^|[\\/])README(\.(md|mdx|mdc))?$/i.test(relPath)
+  },
+  {
     // curated panoramic map
     name: 'repo',
     title: 'Repo Overview (apps/, build/scripts, docs/, memory (no archive), tests)',
@@ -382,6 +398,9 @@ function buildOne(target) {
       files.push(...walk(abs, target.excludeDirs || new Set()));
     }
     files = Array.from(new Set(files)).sort();
+    if (typeof target.filter === 'function') {
+      files = files.filter(target.filter);
+    }
   }
 
   const markdown = buildFromList({ title: target.title, files });
