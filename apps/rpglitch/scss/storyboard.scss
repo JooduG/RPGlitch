@@ -12,3 +12,22 @@
   color: #999;
   font-style: italic;
 }
+
+.storyboard-card-left {
+  background: var(--brand);
+  color: var(--brand-contrast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.storyboard-card-right header {
+  margin-bottom: 0.25rem;
+}
+
+.storyboard-card-right .desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

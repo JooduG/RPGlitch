@@ -61,9 +61,17 @@ h1, h2, h3, h4, h5, h6, p, ul {
   outline: 2px solid var(--color-accent);
 }
 
+button[data-chin]:focus-visible {
+  outline: 2px solid var(--color-accent);
+}
+
 *::placeholder {
   font-style: italic;
   opacity: 0.8;
+}
+
+.profile-picture[data-is-placeholder="1"] {
+  filter: none;
 }
 
 .container {
@@ -465,6 +473,12 @@ input[type="file"] {
 
 .chin-card * {
   pointer-events: auto;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.chin[hidden] * {
+  outline: 0 !important;
+  box-shadow: none !important;
 }
 
 .chin-card:hover {
