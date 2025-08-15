@@ -9,12 +9,14 @@
     "build:copy": "node build/scripts/build-and-copy.js",
     "fetch:libs": "node build/scripts/fetch-local-libs.js",
     "check": "npm run lint && npm test && npm run build && npm run validate",
+    "lint": "eslint --config build/config/eslint.config.mjs apps tests build/scripts && stylelint \"apps/**/*.{css,scss}\" --config build/config/stylelint.config.js && node build/scripts/run-htmlhint.js && npm run lint:md",
+    "lint:fix": "eslint --config build/config/eslint.config.mjs --fix apps tests build/scripts && stylelint \"apps/**/*.{css,scss}\" --config build/config/stylelint.config.js --fix && node build/scripts/run-htmlhint.js && npm run lint:md:fix",
+    "lint:md": "markdownlint \"**/*.md\" --ignore-path build/config/.markdownlintignore",
+    "lint:md:fix": "markdownlint --fix \"**/*.md\" --ignore-path build/config/.markdownlintignore",
+    "test": "jest --config build/config/jest.config.js",
     "sync:ignores": "node build/scripts/sync-ignores.js",
-    "lint": "npm run sync:ignores && eslint . && stylelint \"apps/**/*.{css,scss}\" --config build/config/stylelint.config.js && htmlhint \"apps/**/*.html\" --config build/config/.htmlhintrc && markdownlint \"**/*.md\" -c build/config/.markdownlint.json -i build/config/.markdownlintignore",
-    "lint:fix": "npm run sync:ignores && eslint . --fix && stylelint \"apps/**/*.{css,scss}\" --config build/config/stylelint.config.js --fix && htmlhint \"apps/**/*.html\" --config build/config/.htmlhintrc && markdownlint \"**/*.md\" -c build/config/.markdownlint.json -i build/config/.markdownlintignore",
     "validate": "node -e \"require('./build/scripts/build-perchance.js').validateOutputFile()\" && node tools/guard-no-output-edits.js",
     "rules:update": "echo 'Use \"update memory bank\" to refresh memory bank files'",
-    "test": "jest --config build/config/jest.config.js",
     "postinstall": "chmod +x node_modules/.bin/jest || true",
     "combine": "node build/scripts/combine-views.js",
     "housekeeping": "node build/scripts/combine-views.js repo recent && npm run lint",
@@ -52,5 +54,11 @@
   "engines": {
     "node": ">=22",
     "npm": ">=10"
+  },
+  "dependencies": {
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.21.3",
+    "eslint-plugin-promise": "^7.2.1",
+    "package_name": "^1.0.0"
   }
 }

@@ -1,0 +1,12 @@
+{
+  "ignorePatterns": [
+    "node_modules/",
+    "build/output/",
+    "build/local_libs/",
+    ".cache/",
+    "dist/",
+    ".DS_Store",
+    "Thumbs.db",
+    "memory-bank/archive"
+  ]
+}

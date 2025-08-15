@@ -21,7 +21,7 @@
     "memory-bank/archive",
     "memory-bank/scribbles.md"
   ],
-  "markdownlint": [
+  "markdownlintignore": [
     "node_modules/",
     "build/output/",
     "build/local_libs/",
@@ -31,6 +31,37 @@
     "Thumbs.db",
     "memory-bank/archive",
     "memory-bank/scribbles.md"
+  ],
+  "eslintIgnore": [
+    "node_modules/",
+    "build/output/",
+    "build/local_libs/",
+    ".cache/",
+    "dist/",
+    ".DS_Store",
+    "Thumbs.db",
+    "memory-bank/archive"
+  ],
+  "stylelintIgnore": [
+    "node_modules/",
+    "build/output/",
+    "build/local_libs/",
+    ".cache/",
+    "dist/",
+    ".DS_Store",
+    "Thumbs.db",
+    "memory-bank/archive"
+  ],
+  "htmlhintIgnore": [
+    "node_modules/",
+    "build/output/",
+    "build/local_libs/",
+    ".cache/",
+    "dist/",
+    ".DS_Store",
+    "Thumbs.db",
+    "memory-bank/archive",
+    "build/output/RPGlitch-perchance.html"
   ],
   "vscodeFilesExclude": [
 
