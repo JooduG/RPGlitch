@@ -83,7 +83,17 @@ export default [
     },
   },
 
-  // 4) Node-only overrides for build scripts
+  // 4) Jest test files
+  {
+    files: ['tests/**/*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+  },
+
+  // 5) Node-only overrides for build scripts
   {
     files: ['build/scripts/**/*.js'],
     languageOptions: {
