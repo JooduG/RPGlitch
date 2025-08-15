@@ -59,6 +59,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-n": "^17.21.3",
     "eslint-plugin-promise": "^7.2.1",
-    "package_name": "^1.0.0"
+    "package_name": "^1.0.0",
+    "stylelint-config-standard-scss": "^15.0.1"
   }
 }
