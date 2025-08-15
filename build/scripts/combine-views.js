@@ -362,8 +362,8 @@ function buildOne(target) {
   const { existing, missing } = splitExistingSources(target.sources);
   const SOURCES = existing.length ? existing : [];
 
-  // Only warn about missing sources if explicitly enabled (default true)
-  const shouldWarn = (target.warnOnMissing !== false);
+  // Only warn about missing sources if explicitly enabled
+  const shouldWarn = target.warnOnMissing === true;
   if (shouldWarn && missing.length) {
     console.warn(`⚠ ${target.name}: missing source dirs -> ${missing.join(', ')}`);
   }

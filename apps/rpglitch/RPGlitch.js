@@ -414,6 +414,7 @@ App._attachCardNavigation = function () {
     if (e.target.closest('button, a, input, select, textarea')) return;
     const card = e.target.closest('.chin-card[data-type][data-id]');
     if (!card) return;
+    App.setSelected?.(card, container.querySelectorAll('.chin-card[data-type][data-id]'));
     const { type, id } = card.dataset;
     if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
   });
