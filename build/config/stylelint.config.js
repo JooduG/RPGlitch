@@ -1,8 +1,8 @@
 // Stylelint config (CJS)
-const path = require('node:path');
 const master = require('./ignores.master.json');
 
 module.exports = {
+  // one source of truth for ignore globs
   ignoreFiles: master.stylelintIgnore || [],
   extends: [
     'stylelint-config-standard',
@@ -12,6 +12,13 @@ module.exports = {
     { files: ['**/*.scss'], customSyntax: 'postcss-scss' }
   ],
   rules: {
-    // your css/scss rules
+    // Accept kebab-case and optional BEM modifier: e.g. .card-title, .card-title--editing
+    'selector-class-pattern': [
+      '^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:--[a-z0-9]+(?:-[a-z0-9]+)*)?$',
+      {
+        resolveNestedSelectors: true,
+        message: 'Expected class selector to be kebab-case, optionally with a BEM modifier (--modifier).'
+      }
+    ]
   }
 };

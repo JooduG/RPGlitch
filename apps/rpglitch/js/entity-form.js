@@ -126,7 +126,7 @@
     const entity = { ...(existing || {}), kind: type };
     screen.textContent = '';
     const heroWrap = buildHero(entity);
-    let heroEl = heroWrap.querySelector('.entity-image, .placeholder-image');
+    // (no heroEl variable)
     screen.appendChild(heroWrap);
     const content = doc.createElement('div');
     const h1 = doc.createElement('h1');
@@ -148,15 +148,17 @@
     imageInput.value = entity.imageUrl || '';
     imageInput.addEventListener('change', () => {
       const val = imageInput.value.trim();
-      const newEl = global.getPictureHTML
-        ? global.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
-        : null;
-      if (newEl) {
-        const currentHeroEl = heroWrap.querySelector('.entity-image, .placeholder-image');
-        if (currentHeroEl) currentHeroEl.replaceWith(newEl);
-        else heroWrap.appendChild(newEl);
-        heroEl = newEl;
-      }
+    const newEl = global.getPictureHTML
+    ? global.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
+    : null;
+  if (newEl) {
+    const currentHeroEl = heroWrap.querySelector('.entity-image, .placeholder-image');
+  if (currentHeroEl) {
+      currentHeroEl.replaceWith(newEl);
+    } else {
+      heroWrap.appendChild(newEl);
+    }
+    }
     });
     form.appendChild(createField('imageUrl', 'Image URL', imageInput));
     const tagsInput = doc.createElement('input');
