@@ -283,8 +283,8 @@ function splitExistingSources(sources) {
 function buildFromList({ title, files }) {
   let out =
     `<!-- markdownlint-disable MD032 MD022 MD036 MD024 -->\n` +
-    `> **Generated file** — built by \`build/scripts/combine-views.js\` at build time.  \n` +
-    `> Edit the source docs under \`docs/\` and \`memory-bank/docs/\`, not this file.\n\n` +
+    '> **Generated file** — built by `build/scripts/combine-views.js` at build time.  \n' +
+    '> Edit the source docs under `docs/` and `memory-bank/docs/`, not this file.\n\n' +
     `# ${title}\n\n`;
 
   const folderCounts = {};
