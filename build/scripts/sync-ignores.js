@@ -1,91 +1,178 @@
 #!/usr/bin/env node
-/**
- * Synchronize ignore lists & config helper files into build/config/.
- * Single source of truth for all ignore patterns lives *in this script*.
- *
- * Files generated/overwritten:
- * - build/config/ignore.eslint.json
- * - build/config/.stylelintignore
- * - build/config/.htmlhintignore
- * - build/config/.markdownlintignore
- *
- * You keep .gitignore in repo root (untouched by this script).
- */
+/* eslint-env node */
+"use strict";
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const ROOT = path.resolve(__dirname, '../../..');
-const CONFIG_DIR = path.join(ROOT, 'build', 'config');
+// ---------- Helpers ----------
+function ensureDir(dir) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+function readIfExists(file) {
+  try { return fs.readFileSync(file, "utf8"); } catch { return null; }
+}
+function writeIfChanged(file, next) {
+  const prev = readIfExists(file);
+  if (prev === next) return false;
+  ensureDir(path.dirname(file));
+  fs.writeFileSync(file, next, "utf8");
+  return true;
+}
+function banner(title) {
+  return `# --- ${title} ---\n`;
+}
+function joinLines(lines) {
+  // normalize, trim trailing spaces, ensure trailing newline
+  const body = lines.join("\n").replace(/\s+$/gm, "");
+  return body.endsWith("\n") ? body : body + "\n";
+}
 
-fs.mkdirSync(CONFIG_DIR, { recursive: true });
-
-/** ---------- MASTER LISTS (edit here) ---------- */
+// ---------- Master patterns (single source of truth) ----------
+// Things essentially every tool & Git should ignore.
 const SHARED_IGNORES = [
-  'node_modules/',
-  '.git/',
-  '.vscode/',
-  '.idea/',
-  '.DS_Store',
-  'dist/',
-  'coverage/',
-  'tmp/',
-  'temp/',
-  '.cache/',
-  '**/*.min.*',
-  '**/*.map',
+  // Node/build
+  "node_modules/",
+  ".pnpm-store/",
+  "package-lock.json",
+  "pnpm-lock.yaml",
+  "yarn.lock",
+  "dist/",
+  "coverage/",
+  "build/output/",
+  "build/.cache/",
+  "build/temp/",
+  "build/local_libs/",
+  "local_libs/",
+  ".parcel-cache/",
+  ".cache/",
+  ".tmp/",
+  "tmp/",
+
+  // OS/IDE
+  ".DS_Store",
+  "Thumbs.db",
+  "*.log",
+  "npm-debug.log*",
+  "yarn-error.log*",
+  ".idea/",
+  ".vscode/*",
+  "!.vscode/extensions.json", // allow curated workspace files if you want
+  ".history/",
+
+  // Generated CSS / HTML outputs
+  "apps/**/RPGlitch.css",
+  "output/",
 ];
 
-const ESLINT_EXTRA_IGNORES = [
-  'build/output/**',
-  'build/local_libs/**',
-  'build/scripts/fetch-local-libs.ps1',
-  'build/scripts/*.ps1',
-  'apps/**/RPGlitch.css',              // built CSS
+// Tool-specific adds (will be merged with shared)
+const ESLINT_ONLY = [
+  // Ignore built JS artifacts and minified vendor libs
+  "**/*.min.js",
+  "build/scripts/*.min.js",
+  "build/output/**",
 ];
 
-const STYLELINT_EXTRA_IGNORES = [
-  'apps/**/RPGlitch.css',              // built CSS
+const STYLELINT_ONLY = [
+  // Generated CSS targets
+  "**/*.min.css",
+  "build/output/**",
 ];
 
-const HTMLHINT_EXTRA_IGNORES = [
-  'build/output/**',
+const HTMLHINT_ONLY = [
+  // Built HTML artifacts
+  "build/output/**",
 ];
 
-const MARKDOWNLINT_EXTRA_IGNORES = [
-  'CHANGELOG.md', // example
+const MDL_ONLY = [
+  // Ignore markdown in vendored deps or generated docs
+  "node_modules/**",
+  "build/output/**",
 ];
 
-/** Build each tool’s list */
-const ESLINT_IGNORES = [...SHARED_IGNORES, ...ESLINT_EXTRA_IGNORES];
-const STYLELINT_IGNORES = [...SHARED_IGNORES, ...STYLELINT_EXTRA_IGNORES];
-const HTMLHINT_IGNORES = [...SHARED_IGNORES, ...HTMLHINT_EXTRA_IGNORES];
-const MARKDOWNLINT_IGNORES = [...SHARED_IGNORES, ...MARKDOWNLINT_EXTRA_IGNORES];
+// ---------- Targets ----------
+const ROOT = path.resolve(__dirname, "..", "..");
+const CONFIG_DIR = path.join(ROOT, "build", "config");
 
-/** ---------- WRITE HELPERS ---------- */
-function writeText(file, content) {
-  fs.writeFileSync(file, content.endsWith('\n') ? content : `${content}\n`, 'utf8');
-  console.log(`📝 wrote ${path.relative(ROOT, file)}`);
+// Where we will write ignores/configs:
+const FILES = {
+  eslintIgnoreJson: path.join(CONFIG_DIR, "ignore.eslint.json"),
+  stylelintIgnore: path.join(CONFIG_DIR, ".stylelintignore"),
+  htmlhintIgnore: path.join(CONFIG_DIR, ".htmlhintignore"),
+  markdownlintIgnore: path.join(CONFIG_DIR, ".markdownlintignore"),
+  rootGitignore: path.join(ROOT, ".gitignore"),
+  rootCursorignore: path.join(ROOT, ".cursorignore"),
+};
+
+// ---------- Compose contents ----------
+const eslintIgnoreJsonContent = JSON.stringify(
+  {
+    // ESLint flat config “ignores” file we import from eslint.config.mjs
+    ignores: Array.from(new Set([...SHARED_IGNORES, ...ESLINT_ONLY])),
+  },
+  null,
+  2
+) + "\n";
+
+const stylelintIgnoreContent = joinLines([
+  banner("Stylelint ignore (generated)"),
+  ...new Set([...SHARED_IGNORES, ...STYLELINT_ONLY]),
+]);
+
+const htmlhintIgnoreContent = joinLines([
+  banner("HTMLHint ignore (generated)"),
+  ...new Set([...SHARED_IGNORES, ...HTMLHINT_ONLY]),
+]);
+
+const markdownlintIgnoreContent = joinLines([
+  banner("markdownlint ignore (generated)"),
+  ...new Set([...SHARED_IGNORES, ...MDL_ONLY]),
+]);
+
+// .gitignore gets *all* shared patterns plus a small header
+const gitignoreContent = joinLines([
+  "# Auto-generated by build/scripts/sync-ignores.js",
+  "# Edit the script, not this file.",
+  "",
+  ...new Set([...SHARED_IGNORES]),
+]);
+
+// .cursorignore: we want Cursor to ignore essentially the same stuff,
+// but allow key config folders/files for agent context if you prefer.
+// You can pare this down later.
+const cursorignoreContent = joinLines([
+  "# Auto-generated by build/scripts/sync-ignores.js",
+  "# Edit the script, not this file.",
+  "",
+  ...new Set([
+    ...SHARED_IGNORES,
+    // Also ignore build scripts if you don't want the agent to consider them:
+    // "build/scripts/**",
+  ]),
+]);
+
+// ---------- Write files ----------
+const writes = [
+  [FILES.eslintIgnoreJson, eslintIgnoreJsonContent, "ignore.eslint.json"],
+  [FILES.stylelintIgnore, stylelintIgnoreContent, ".stylelintignore"],
+  [FILES.htmlhintIgnore, htmlhintIgnoreContent, ".htmlhintignore"],
+  [FILES.markdownlintIgnore, markdownlintIgnoreContent, ".markdownlintignore"],
+  [FILES.rootGitignore, gitignoreContent, ".gitignore (root)"],
+  [FILES.rootCursorignore, cursorignoreContent, ".cursorignore (root)"],
+];
+
+let changed = 0;
+for (const [abs, content, label] of writes) {
+  if (writeIfChanged(abs, content)) {
+    console.log(`📝 wrote ${path.relative(ROOT, abs)} (${label})`);
+    changed++;
+  } else {
+    console.log(`✔ unchanged ${path.relative(ROOT, abs)} (${label})`);
+  }
 }
 
-function writeLines(file, lines) {
-  writeText(file, lines.filter(Boolean).join('\n'));
-}
-
-/** ---------- GENERATE FILES ---------- */
-// ESLint: a JSON file consumed by eslint.config.mjs
-writeText(
-  path.join(CONFIG_DIR, 'ignore.eslint.json'),
-  JSON.stringify({ ignorePatterns: ESLINT_IGNORES }, null, 2)
+console.log(
+  changed
+    ? `✅ Ignore files synchronized to ${path.relative(ROOT, CONFIG_DIR)}/ and repo root`
+    : "✅ All ignore files already up to date"
 );
-
-// Stylelint ignore
-writeLines(path.join(CONFIG_DIR, '.stylelintignore'), STYLELINT_IGNORES);
-
-// HTMLHint ignore (we’ll run htmlhint with cwd=build/config so this file is picked up)
-writeLines(path.join(CONFIG_DIR, '.htmlhintignore'), HTMLHINT_IGNORES);
-
-// markdownlint ignore (CLI will be pointed at this path)
-writeLines(path.join(CONFIG_DIR, '.markdownlintignore'), MARKDOWNLINT_IGNORES);
-
-console.log('✅ Ignore files synchronized to build/config/');
