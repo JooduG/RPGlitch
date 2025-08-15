@@ -1,6 +1,7 @@
 # Test Globs Tools
 
-This folder contains testing utilities for verifying glob pattern matching in Cursor rules.
+This folder contains testing utilities for verifying glob pattern matching
+in Cursor rules.
 
 ## Files
 
@@ -12,10 +13,12 @@ This folder contains testing utilities for verifying glob pattern matching in Cu
 
 ## Usage
 
-Run the verification script to test if glob patterns in `.cursor/rules/` files are working correctly:
+Run the verification script to test if glob patterns in `.cursor/rules/`
+files are working correctly:
 
 ```bash
 node tools/test-globs/test-globs-verification.js
 ```
 
-This will test all the glob patterns defined in the rule files against the test files in this directory.
+This tests all glob patterns from the rule files against the test files in
+this directory.
