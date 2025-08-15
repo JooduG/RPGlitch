@@ -53,16 +53,18 @@
   };
 
   // Single back helper used by profile + form
-  App.goBackWithFallback = function goBackWithFallback(fallbackHash = '#storyboard') {
-    const before = global.location.hash;
-    if (global.history.length > 1) {
-      global.history.back();
-      // Slightly generous delay to avoid races on slower machines
-      global.setTimeout(() => {
-        if (global.location.hash === before) App.navigate(fallbackHash);
-      }, 250);
-    } else {
-      App.navigate(fallbackHash);
-    }
+  App.goBackWithFallback = function goBackWithFallback(returnTo, fallbackHash = '#storyboard') {
+    if (returnTo) return App.router?.navigate?.(returnTo);
+    if (global.history.length > 1) return global.history.back();
+    App.router?.navigate?.(fallbackHash);
+  };
+
+  App.setSelected = function setSelected(target, group) {
+    const items = typeof group === 'string' ? global.document.querySelectorAll(group) : group;
+    if (!items) return;
+    items.forEach((el) => {
+      if (el === target) el.classList.add('is-selected');
+      else el.classList.remove('is-selected');
+    });
   };
 })(typeof window !== 'undefined' ? window : globalThis);

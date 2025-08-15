@@ -1,145 +1,24 @@
+/* eslint-env browser */
 (function (global) {
   const App = global.App || (global.App = {});
   const doc = global.document;
-  const SECTIONS_CONFIG = [
-  ['Forever', 'forever'],
-  ['Past', 'past'],
-  ['Present', 'present'],
-  ['Future', 'future']
-];
+  const SECTIONS = [
+    ['Forever', 'forever'],
+    ['Past', 'past'],
+    ['Present', 'present'],
+    ['Future', 'future']
+  ];
 
-// Small helper to deep-clone sections
-function cloneSections(sections) {
-  try { return JSON.parse(JSON.stringify(sections || {})); }
-  catch { return { ...sections }; }
-}
-
-App.renderForm = function renderForm(type, idOrNew) {
-  const isNew = idOrNew === 'new';
-  const params = App.getHashQuery();
-  const fromId = isNew ? params.get('from') : null;
-
-  // Base entity → existing or a blank shell
-  const baseExisting = !isNew ? App.entities.get(type, idOrNew) : null;
-  const baseCopy = (isNew && fromId) ? App.entities.get(type, fromId) : null;
-
-  // Prefill model for the form (do NOT persist yet)
-  const model = baseExisting || baseCopy || {
-    id: '',
-    kind: type,
-    title: '',
-    summary: '',
-    imageUrl: '',
-    tags: [],
-    sections: {}
+  const getHashQuery = App.getHashQuery || function getHashQuery() {
+    const [, q = ''] = (global.location.hash || '').split('?');
+    return new URLSearchParams(q);
   };
 
-  // --- Build hero + fields (use your existing DOM code; below shows the important parts) ---
-  const screen = document.getElementById(`${type}-form-screen`) || document.getElementById('character-form-screen');
-  if (!screen) return;
-
-  screen.hidden = false;
-  const hero = document.createElement('div');
-  hero.className = 'profile-hero';
-  hero.innerHTML = App.getPictureHTML ? App.getPictureHTML(model) : `<img class="hero-img" src="${model.imageUrl || ''}" alt="">`;
-  screen.innerHTML = '';
-  screen.appendChild(hero);
-
-  // Build the form
-  const form = document.createElement('form');
-  form.className = 'entity-form';
-
-  // Title / Summary / Image / Tags
-  const titleInput = document.createElement('input');
-  titleInput.value = model.title || model.name || '';
-  titleInput.placeholder = 'Title';
-  titleInput.id = 'ef-title';
-
-  const summaryInput = document.createElement('input');
-  summaryInput.value = model.summary || model.description || '';
-  summaryInput.placeholder = 'Summary';
-  summaryInput.id = 'ef-summary';
-
-  const imageInput = document.createElement('input');
-  imageInput.value = model.imageUrl || model.image || '';
-  imageInput.placeholder = 'Image URL';
-  imageInput.id = 'ef-image';
-
-  const tagsInput = document.createElement('input');
-  tagsInput.value = Array.isArray(model.tags) ? model.tags.join(', ') : (model.tags || '');
-  tagsInput.placeholder = 'Tags (comma separated)';
-  tagsInput.id = 'ef-tags';
-
-  form.append(titleInput, summaryInput, imageInput, tagsInput);
-
-  // Sections (Forever/Past/Present/Future)
-  const sections = cloneSections(model.sections);
-  const sectionInputs = {};
-  SECTIONS_CONFIG.forEach(([label, key]) => {
-    const ta = document.createElement('textarea');
-    ta.placeholder = label;
-    ta.value = sections[key] || '';
-    ta.id = `ef-sec-${key}`;
-    sectionInputs[key] = ta;
-    form.appendChild(ta);
-  });
-
-  screen.appendChild(form);
-
-  // --- Actions: Save / Cancel / Delete
-  const saveBtn   = document.getElementById('form-save');
-  const cancelBtn = document.getElementById('form-cancel');
-  const delBtn    = document.getElementById('form-delete');
-
-  if (delBtn) delBtn.hidden = !(!isNew && (baseExisting?.isCustom || baseExisting?.isPremade === false));
-
-  if (cancelBtn) {
-    cancelBtn.onclick = () => {
-      // If we’re copying, go back to the source profile. Otherwise fallback to storyboard.
-      if (fromId) App.navigate(`#profile/${type}/${fromId}`);
-      else App.goBackWithFallback('#storyboard');
-    };
-  }
-
-  if (saveBtn) {
-    saveBtn.onclick = () => {
-      const payload = {
-        kind: type,
-        title: titleInput.value.trim(),
-        summary: summaryInput.value.trim(),
-        imageUrl: imageInput.value.trim(),
-        tags: tagsInput.value.split(',').map(s => s.trim()).filter(Boolean),
-        sections: SECTIONS_CONFIG.reduce((acc, [, key]) => (acc[key] = sectionInputs[key].value, acc), {})
-      };
-
-      const saved = isNew
-        ? App.entities.upsert(type, null, payload) // create
-        : App.entities.upsert(type, baseExisting.id, payload); // update
-
-      App.refreshAllLists?.();
-      App.navigate(`#profile/${type}/${saved.id}`);
-    };
-  }
-
-  if (delBtn && baseExisting) {
-    delBtn.onclick = () => {
-      App.entities.remove?.(type, baseExisting.id);
-      App.refreshAllLists?.();
-      App.navigate('#storyboard');
-    };
-  }
-}
-
-  function goBackWithFallback(target = '#storyboard', timeoutMs = 250) {
-    const before = global.location.hash;
-    if (global.history.length > 1) {
-      global.history.back();
-      global.setTimeout(() => {
-        if (global.location.hash === before) App.router.navigate(target);
-      }, timeoutMs);
-    } else {
-      App.router.navigate(target);
-    }
+  function navigateBackOrReturnDefault() {
+    const ret = getHashQuery().get('return');
+    if (ret) return App.router.navigate(ret);
+    if (global.history.length > 1) return global.history.back();
+    return App.router.navigate('#storyboard');
   }
 
   function renderTags(container, tags) {
@@ -189,7 +68,7 @@ App.renderForm = function renderForm(type, idOrNew) {
       content.appendChild(p);
     }
     const sections = entity.sections || {};
-    SECTIONS_CONFIG.forEach(([label, key]) => {
+    SECTIONS.forEach(([label, key]) => {
       if (!sections[key]) return;
       const field = doc.createElement('div');
       field.className = 'profile-field';
@@ -210,15 +89,14 @@ App.renderForm = function renderForm(type, idOrNew) {
     const backBtn = doc.getElementById('profile-back');
     const editBtn = doc.getElementById('profile-edit');
     const copyBtn = doc.getElementById('profile-copy');
-    if (editBtn) editBtn.hidden = true;
-    if (copyBtn) copyBtn.hidden = true;
     if (copyBtn) copyBtn.hidden = !entity.isPremade;
     if (editBtn) editBtn.hidden = entity.isPremade;
-    if (backBtn) backBtn.onclick = goBackWithFallback;
-    editBtn?.addEventListener('click', () => App.router.navigate(`#form/${type}/${entity.id}`));
+    if (backBtn) backBtn.onclick = () => App.goBackWithFallback();
+    editBtn?.addEventListener('click', () => {
+      App.router.navigate(`#form/${type}/${entity.id}?return=#profile/${type}/${entity.id}`);
+    });
     copyBtn?.addEventListener('click', () => {
-      const from = entity.id;
-      App.router.navigate(`#form/${entity.kind}/new?from=${from}`);
+      App.router.navigate(`#form/${entity.kind}/new?from=${entity.id}&return=#profile/${type}/${entity.id}`);
     });
   }
 
@@ -238,7 +116,7 @@ App.renderForm = function renderForm(type, idOrNew) {
     const sb = doc.getElementById('storyboard-screen');
     if (sb) App.hideEl(sb);
     const isEdit = id && id !== 'new';
-    const params = new URLSearchParams(global.location.hash.split('?')[1] || '');
+    const params = getHashQuery();
     const from = params.get('from');
     const template = !isEdit && from ? App.entities.copy(type, from) : null;
     const existing = isEdit ? App.entities.get(type, id) : template;
@@ -248,51 +126,53 @@ App.renderForm = function renderForm(type, idOrNew) {
     const entity = { ...(existing || {}), kind: type };
     screen.textContent = '';
     const heroWrap = buildHero(entity);
-    // (no heroEl variable)
     screen.appendChild(heroWrap);
     const content = doc.createElement('div');
     const h1 = doc.createElement('h1');
     h1.textContent = isEdit ? `Editing ${type.charAt(0).toUpperCase() + type.slice(1)}` : `New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
     content.appendChild(h1);
     const form = doc.createElement('form');
+
     const titleInput = doc.createElement('input');
     titleInput.name = 'name';
     titleInput.required = true;
     titleInput.value = entity.name || '';
     form.appendChild(createField('name', 'Title', titleInput));
+
     const summaryInput = doc.createElement('input');
     summaryInput.name = 'summary';
     summaryInput.value = entity.summary || '';
     form.appendChild(createField('summary', 'Summary', summaryInput));
+
     const imageInput = doc.createElement('input');
     imageInput.name = 'imageUrl';
     imageInput.type = 'url';
     imageInput.value = entity.imageUrl || '';
     imageInput.addEventListener('change', () => {
       const val = imageInput.value.trim();
-    const newEl = global.getPictureHTML
-    ? global.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
-    : null;
-  if (newEl) {
-    const currentHeroEl = heroWrap.querySelector('.entity-image, .placeholder-image');
-  if (currentHeroEl) {
-      currentHeroEl.replaceWith(newEl);
-    } else {
-      heroWrap.appendChild(newEl);
-    }
-    }
+      const newEl = global.getPictureHTML
+        ? global.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
+        : null;
+      if (newEl) {
+        const current = heroWrap.querySelector('.entity-image, .placeholder-image');
+        if (current) current.replaceWith(newEl);
+        else heroWrap.appendChild(newEl);
+      }
     });
     form.appendChild(createField('imageUrl', 'Image URL', imageInput));
+
     const tagsInput = doc.createElement('input');
     tagsInput.name = 'tags';
     tagsInput.value = (entity.tags || []).join(', ');
     form.appendChild(createField('tags', 'Tags', tagsInput));
-    SECTIONS_CONFIG.forEach(([label, key]) => {
+
+    SECTIONS.forEach(([label, key]) => {
       const textarea = doc.createElement('textarea');
       textarea.name = key;
       textarea.value = entity.sections?.[key] || '';
       form.appendChild(createField(key, label, textarea));
     });
+
     content.appendChild(form);
     screen.appendChild(content);
     App.hideEl('chin-container');
@@ -305,7 +185,7 @@ App.renderForm = function renderForm(type, idOrNew) {
     const suppressDelete = id && global.sessionStorage?.getItem('rpglitch-no-delete') === id;
     if (suppressDelete) global.sessionStorage.removeItem('rpglitch-no-delete');
     if (deleteBtn) deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
-    if (cancelBtn) cancelBtn.onclick = goBackWithFallback;
+    if (cancelBtn) cancelBtn.onclick = navigateBackOrReturnDefault;
     saveBtn?.addEventListener('click', () => {
       const data = {
         kind: type,
@@ -330,7 +210,7 @@ App.renderForm = function renderForm(type, idOrNew) {
       if (saved) App.router.navigate(`#profile/${type}/${saved.id}`);
     });
     if (deleteBtn) deleteBtn.onclick = () => {
-      if (isEdit && confirm('Delete this item?')) {
+      if (isEdit && global.confirm('Delete this item?')) {
         App.entities.remove(type, entity.id);
         App.refreshAllLists?.();
         App.router.navigate('#storyboard');
@@ -341,3 +221,4 @@ App.renderForm = function renderForm(type, idOrNew) {
   App.renderProfile = renderProfile;
   App.renderForm = renderForm;
 })(typeof window !== 'undefined' ? window : globalThis);
+

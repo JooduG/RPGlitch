@@ -589,16 +589,15 @@ input[type="file"] {
 }
 
 /* Selected visuals: crisp, hue-matched border; remove blur */
-.storyboard-card.is-selected {
+.is-selected {
+  border: 2px solid currentcolor;
   filter: none;
   backdrop-filter: none;
-
-  /* outline: 2px solid currentcolor; same hue as text */
-  outline-offset: 0;
   border-radius: 12px;
 }
 
 /* Keyboard focus is visible even if not selected */
+.chin-card:focus-visible,
 .storyboard-card:focus-visible {
   outline: 2px solid currentcolor;
   outline-offset: 2px;

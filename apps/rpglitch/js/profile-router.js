@@ -1,6 +1,8 @@
 /* eslint-env browser */
+
 (function (global) {
   const App = global.App || (global.App = {});
+  const emptyCardHTML = new Map();
 
   function showStoryboard() {
     App.showEl('storyboard-screen');
@@ -11,7 +13,8 @@
   }
 
   function parseHash() {
-    return global.location.hash.slice(1).split('/').filter(Boolean);
+    const [path] = global.location.hash.slice(1).split('?');
+    return path.split('/').filter(Boolean);
   }
 
   function handleRoute() {
@@ -48,18 +51,27 @@
     const card = select.closest('.storyboard-card');
     if (!card) return;
 
-    const type = card.dataset.type; // 'character' | 'world' | 'ai' (map AI to character if desired)
+    const type = card.dataset.type; // 'character' | 'world' | 'ai'
     const id = select.value;
 
-    // Persist selection on the card itself
-    card.dataset.entityId = id || '';
-    card.classList.toggle('is-selected', !!id);
-    card.classList.toggle('empty-card', !id);
+    if (!id) {
+      const html = emptyCardHTML.get(card);
+      if (html) card.innerHTML = html;
+      card.dataset.entityId = '';
+      card.classList.remove('is-selected');
+      card.classList.add('empty-card');
+      App.setDynamicTitle?.();
+      return;
+    }
+
+    card.dataset.entityId = id;
+    card.classList.add('is-selected');
+    card.classList.remove('empty-card');
 
     // Render preview using the shared helper so image/title stay consistent
-    const entity = id ? App.entities.get(type === 'ai' ? 'character' : type, id) : null;
+    const entity = App.entities.get(type === 'ai' ? 'character' : type, id);
+    const unified = entity?.imageUrl || entity?.image || '';
     if (entity) {
-      const unified = entity.imageUrl || entity.image || '';
       entity.image = unified;
       entity.imageUrl = unified;
     }
@@ -89,7 +101,6 @@
       small.textContent = [premade, tags].filter(Boolean).join(' | ');
     }
 
-    // If the profile is currently open for this entity, update its hero image too
     const profile = doc.getElementById('profile-screen');
     if (profile && !profile.hidden && profile.dataset.entityId === id) {
       const heroImg = profile.querySelector('.hero-wrap .entity-image, .hero-wrap .placeholder-image');
@@ -113,6 +124,9 @@
 
     const sb = document.getElementById('storyboard-screen');
     if (sb && !sb._cardsBound) {
+      sb.querySelectorAll('.storyboard-card').forEach((card) => {
+        emptyCardHTML.set(card, card.innerHTML);
+      });
       sb._cardsBound = true;
 
       // Click a **card** → navigate to its profile (ignore clicks on controls)

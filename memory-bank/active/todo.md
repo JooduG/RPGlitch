@@ -18,7 +18,8 @@
 - [x] RPGlitch dropdown stays on storyboard, dataset card clicks, history back fallback, build regex noted
 - [x] Finalize storyboard/profile/form loop: DRY router, goBack helper, deferred copy, picture reuse, regex comment
 
-- [ ] RPGlitch storyboard empty card, button states, image sync, copy sections
+- [x] RPGlitch storyboard empty card, button states, image sync, copy sections
 - [ ] RPGlitch deterministic placeholders and "Empty" titles
 
 - [x] Docs cleanup: condensed root README, per-app READMEs, combine-views banner
+- [x] Consolidated READMEs, generated banner, optional docs, Jest setup, lint/test green
