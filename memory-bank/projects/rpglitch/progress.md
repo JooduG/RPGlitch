@@ -24,3 +24,4 @@
 
 - 2025-08-15 Simplified docs: condensed root README, per-app READMEs, and generated-file banner in combine-views.
 - 2025-08-15 Consolidated READMEs, added generated banner, optionalized missing docs, added Jest setup, lint/test now green.
+- 
