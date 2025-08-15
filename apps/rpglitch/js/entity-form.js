@@ -150,9 +150,9 @@
     imageInput.value = entity.imageUrl || '';
     imageInput.addEventListener('change', () => {
       const val = imageInput.value.trim();
-        const newEl = App.getPictureHTML
-          ? App.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
-          : null;
+      const newEl = App.getPictureHTML
+        ? App.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
+        : null;
       if (newEl) {
         const current = heroWrap.querySelector('.entity-image, .placeholder-image');
         if (current) current.replaceWith(newEl);
