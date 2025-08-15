@@ -419,16 +419,34 @@ App._attachCardNavigation = function () {
       if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
     });
   }
-  const storyboard = document.getElementById('storyboard-grid');
-  if (storyboard) {
-    storyboard.addEventListener('click', (e) => {
-      if (e.target.closest('select')) return;
-      const card = e.target.closest('.storyboard-card[data-entity-type][data-entity-id]');
-      if (!card) return;
-      const { entityType: type, entityId: id } = card.dataset;
-      if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
-    });
-  }
+    // once, after DOM is ready
+    const storyboard = document.getElementById('storyboard-grid');
+    if (storyboard && !storyboard._bound) {
+      storyboard._bound = true;
+      storyboard.addEventListener('click', (e) => {
+        // ignore UI controls
+        if (e.target.closest('select, button, a, input, textarea')) return;
+
+        const card = e.target.closest('.storyboard-card');
+        if (!card) return;
+
+        // allow switching selection even if another is selected
+        const all = storyboard.querySelectorAll('.storyboard-card');
+        App.setSelected(card, all);
+
+        // navigate if we have an entity
+        const type = card.dataset.entityType || card.dataset.type;
+        const id =
+          card.dataset.entityId ||
+          card.querySelector('select')?.value ||
+          '';
+        if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
+      });
+    }
+
+    // make sure chin visuals clean up on route changes / outside clicks
+    App._ensureGlobalChinEvents?.();
+
   App._cardNavAttached = true;
 };
 

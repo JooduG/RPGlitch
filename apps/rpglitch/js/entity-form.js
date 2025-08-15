@@ -113,6 +113,9 @@
   }
 
   function renderForm(type, id) {
+    const form = doc.getElementById('entity-form');
+    const cancelBtn = form?.querySelector('[data-action="cancel"]');
+    const backBtn   = form?.querySelector('[data-action="back"]');
     const q = App.getHashQuery();
     const fromId = q.get('from');
     const returnTo = fromId ? `#profile/${type}/${fromId}` : '#storyboard';
@@ -139,7 +142,6 @@
       const h1 = doc.createElement('h1');
         h1.textContent = isEdit ? `Editing ${type.charAt(0).toUpperCase() + type.slice(1)}` : `New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
         content.appendChild(h1);
-      const form = doc.createElement('form');
 
     const titleInput = doc.createElement('input');
       titleInput.name = 'name';
@@ -188,12 +190,31 @@
     App.hideEl(type === 'character' ? 'world-form-screen' : 'character-form-screen');
     App.showEl(screen);
     const saveBtn = doc.getElementById('form-save');
-    const cancelBtn = doc.getElementById('form-cancel');
     const deleteBtn = doc.getElementById('form-delete');
     const suppressDelete = id && global.sessionStorage?.getItem('rpglitch-no-delete') === id;
     if (suppressDelete) global.sessionStorage.removeItem('rpglitch-no-delete');
     if (deleteBtn) deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
-    if (cancelBtn) cancelBtn.onclick = () => App.goBackWithFallback(returnTo, '#storyboard');
+    if (cancelBtn) {
+      cancelBtn.onclick = (e) => {
+        e.preventDefault();
+        const q = App.getHashQuery();
+        const ret = q.get('return');
+        const fromId = q.get('from');
+
+        if (ret) App.router?.navigate(ret);
+        else if (fromId) App.router?.navigate(`#profile/${type}/${fromId}`);
+        else App.goBackWithFallback('#storyboard');
+      };
+    }
+        if (backBtn) {
+        backBtn.onclick = (e) => {
+        e.preventDefault();
+        const q = App.getHashQuery();
+        const ret = q.get('return');
+        if (ret) App.router?.navigate(ret);
+        else App.goBackWithFallback('#storyboard');
+      };
+    }
     saveBtn?.addEventListener('click', () => {
       const data = {
         kind: type,
