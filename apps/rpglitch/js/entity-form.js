@@ -91,7 +91,7 @@
     const copyBtn = doc.getElementById('profile-copy');
     if (copyBtn) copyBtn.hidden = !entity.isPremade;
     if (editBtn) editBtn.hidden = entity.isPremade;
-    if (backBtn) backBtn.onclick = App.navigateBackOrReturnDefault;
+    if (backBtn) backBtn.onclick = () => App.goBackWithFallback('#storyboard');
     editBtn?.addEventListener('click', () => {
       App.router.navigate(`#form/${type}/${entity.id}?return=#profile/${type}/${entity.id}`);
     });
@@ -113,53 +113,61 @@
   }
 
   function renderForm(type, id) {
+    const q = App.getHashQuery();
+    const fromId = q.get('from');
+    const returnTo = fromId ? `#profile/${type}/${fromId}` : '#storyboard';
+    cancelBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      App.router?.navigate(returnTo);
+    });
+
     const sb = doc.getElementById('storyboard-screen');
     if (sb) App.hideEl(sb);
-    const isEdit = id && id !== 'new';
-    const params = getHashQuery();
-    const from = params.get('from');
-    const template = !isEdit && from ? App.entities.copy(type, from) : null;
-    const existing = isEdit ? App.entities.get(type, id) : template;
-    const screenId = type === 'character' ? 'character-form-screen' : 'world-form-screen';
-    const screen = doc.getElementById(screenId);
+      const isEdit = id && id !== 'new';
+      const params = getHashQuery();
+      const from = params.get('from');
+      const template = !isEdit && from ? App.entities.copy(type, from) : null;
+      const existing = isEdit ? App.entities.get(type, id) : template;
+      const screenId = type === 'character' ? 'character-form-screen' : 'world-form-screen';
+      const screen = doc.getElementById(screenId);
     if (!screen) return;
-    const entity = { ...(existing || {}), kind: type };
-    screen.textContent = '';
-    const heroWrap = buildHero(entity);
-    screen.appendChild(heroWrap);
-    const content = doc.createElement('div');
-    const h1 = doc.createElement('h1');
-    h1.textContent = isEdit ? `Editing ${type.charAt(0).toUpperCase() + type.slice(1)}` : `New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
-    content.appendChild(h1);
-    const form = doc.createElement('form');
+      const entity = { ...(existing || {}), kind: type };
+        screen.textContent = '';
+      const heroWrap = buildHero(entity);
+        screen.appendChild(heroWrap);
+      const content = doc.createElement('div');
+      const h1 = doc.createElement('h1');
+        h1.textContent = isEdit ? `Editing ${type.charAt(0).toUpperCase() + type.slice(1)}` : `New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+        content.appendChild(h1);
+      const form = doc.createElement('form');
 
     const titleInput = doc.createElement('input');
-    titleInput.name = 'name';
-    titleInput.required = true;
-    titleInput.value = entity.name || '';
-    form.appendChild(createField('name', 'Title', titleInput));
+      titleInput.name = 'name';
+      titleInput.required = true;
+      titleInput.value = entity.name || '';
+      form.appendChild(createField('name', 'Title', titleInput));
 
     const summaryInput = doc.createElement('input');
-    summaryInput.name = 'summary';
-    summaryInput.value = entity.summary || '';
-    form.appendChild(createField('summary', 'Summary', summaryInput));
+      summaryInput.name = 'summary';
+      summaryInput.value = entity.summary || '';
+      form.appendChild(createField('summary', 'Summary', summaryInput));
 
     const imageInput = doc.createElement('input');
-    imageInput.name = 'imageUrl';
-    imageInput.type = 'url';
-    imageInput.value = entity.imageUrl || '';
-    imageInput.addEventListener('change', () => {
-      const val = imageInput.value.trim();
-      const newEl = App.getPictureHTML
-        ? App.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
-        : null;
-      if (newEl) {
-        const current = heroWrap.querySelector('.entity-image, .placeholder-image');
-        if (current) current.replaceWith(newEl);
-        else heroWrap.appendChild(newEl);
-      }
-    });
-    form.appendChild(createField('imageUrl', 'Image URL', imageInput));
+      imageInput.name = 'imageUrl';
+      imageInput.type = 'url';
+      imageInput.value = entity.imageUrl || '';
+      imageInput.addEventListener('change', () => {
+    const val = imageInput.value.trim();
+    const newEl = App.getPictureHTML
+      ? App.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
+      : null;
+    if (newEl) {
+      const current = heroWrap.querySelector('.entity-image, .placeholder-image');
+      if (current) current.replaceWith(newEl);
+      else heroWrap.appendChild(newEl);
+    }
+  });
+  form.appendChild(createField('imageUrl', 'Image URL', imageInput));
 
     const tagsInput = doc.createElement('input');
     tagsInput.name = 'tags';
@@ -185,7 +193,7 @@
     const suppressDelete = id && global.sessionStorage?.getItem('rpglitch-no-delete') === id;
     if (suppressDelete) global.sessionStorage.removeItem('rpglitch-no-delete');
     if (deleteBtn) deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
-    if (cancelBtn) cancelBtn.onclick = navigateBackOrReturnDefault;
+    if (cancelBtn) cancelBtn.onclick = () => App.goBackWithFallback(returnTo, '#storyboard');
     saveBtn?.addEventListener('click', () => {
       const data = {
         kind: type,

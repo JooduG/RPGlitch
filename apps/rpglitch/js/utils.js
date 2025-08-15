@@ -1,112 +1,113 @@
-/* eslint-env browser */
-(function (global) {
-  // Create/attach the app namespace safely
-  const App = global.App || (global.App = {});
+// apps/rpglitch/js/utils.js
+;(function (global) {
+  const App = (global.App = global.App || {});
 
-  function byId(el) {
-    return typeof el === 'string' ? global.document.getElementById(el) : el;
-  }
-
-  /**
-   * Hides a DOM element by adding the hidden attribute.
-   * @param {HTMLElement|string} el - The element or its ID.
-   * @returns {HTMLElement|null}
-   */
-  function hideEl(el) {
-    el = byId(el);
-    if (!el) return null;
-    el.setAttribute('hidden', 'hidden');
-    return el;
-  }
-
-  /**
-   * Reveals a DOM element by removing the hidden attribute.
-   * @param {HTMLElement|string} el - The element or its ID.
-   * @returns {HTMLElement|null}
-   */
-  function showEl(el) {
-    el = byId(el);
-    if (!el) return null;
-    el.removeAttribute('hidden');
-    return el;
-  }
-
-  // Expose helpers on both window and App
-  global.hideEl = hideEl;
-  global.showEl = showEl;
-  App.hideEl = hideEl;
-  App.showEl = showEl;
-
-  // ---- Routing/query tiny helpers ----
-
-  App.getHashQuery = function getHashQuery() {
-    const [, q = ''] = (global.location.hash || '').split('?');
-    return new URLSearchParams(q);
-  };
-
-  App.navigate = function navigate(hash) {
-    if (!hash || hash === '#') {
-      App.router?.navigate?.('#storyboard');
-      return;
-    }
-    App.router?.navigate?.(hash);
-  };
-
-  // Single back helper used by profile + form
-  App.goBackWithFallback = function goBackWithFallback(returnTo, fallbackHash = '#storyboard') {
-    if (returnTo) return App.router?.navigate?.(returnTo);
-    if (global.history.length > 1) return global.history.back();
-    App.router?.navigate?.(fallbackHash);
-  };
-
-  App.setSelected = function setSelected(target, group) {
-    const items = typeof group === 'string' ? global.document.querySelectorAll(group) : group;
-    if (!items) return;
-    items.forEach((el) => {
-      if (el === target) el.classList.add('is-selected');
-      else el.classList.remove('is-selected');
-    });
-  };
-
-  App.applyBrand = function applyBrand(el, entity = {}) {
-    el = byId(el);
+  // Show/Hide helpers
+  App.hideEl = function (el) {
     if (!el) return;
-    const palette = entity.palette || '';
-    el.classList.forEach((c) => {
-      if (c.startsWith('palette--')) el.classList.remove(c);
-    });
-    if (palette) el.classList.add(`palette--${palette}`);
+    el.setAttribute('hidden', '');
+    el.classList.remove('is-open');
   };
 
-  const PLACEHOLDER_PATHS = {
-    character: 'M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.33 0-8 1.67-8 5v3h16v-3c0-3.33-4.67-5-8-5z',
-    world: 'M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 010-16 8 8 0 010 16zm0-14a6 6 0 00-5.29 3h10.58A6 6 0 0012 6zm-5.29 5a6 6 0 000 2h10.58a6 6 0 000-2H6.71zm.42 3a6 6 0 005.29 3 6 6 0 005.29-3H7.13z',
-    default: 'M4 4h16v16H4z'
+  App.showEl = function (el) {
+    if (!el) return;
+    el.removeAttribute('hidden');
+    el.classList.add('is-open');
   };
 
-  App.getPictureNode = function getPictureNode(entity = {}, { context } = {}) {
-    const kind = entity.kind || context || 'default';
-    const src = entity.imageUrl || entity.image || '';
-    const title = entity.title || entity.name || 'Placeholder';
-    if (src) {
-      const img = global.document.createElement('img');
-      img.className = 'profile-picture';
-      img.alt = `${kind} image for ${title}`;
-      img.src = src;
-      img.onerror = () => {
-        const ph = App.getPictureNode({ kind }, { context });
-        img.replaceWith(ph);
-      };
-      return img;
+  // Branding helper; accepts entity with palette/brandColor/color, else neutral
+  App.applyBrand = function (container, entity) {
+    if (!container) return;
+    const color =
+      (entity && (entity.palette || entity.brandColor || entity.color)) || '';
+    if (color) {
+      container.style.setProperty('--brand-color', String(color));
+      container.classList.add('has-brand');
+    } else {
+      container.style.removeProperty('--brand-color');
+      container.classList.remove('has-brand');
     }
-    const svg = global.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('fill', 'currentColor');
-    svg.classList.add('profile-picture');
-    svg.dataset.isPlaceholder = '1';
-    const path = global.document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', PLACEHOLDER_PATHS[kind] || PLACEHOLDER_PATHS.default);
-    svg.appendChild(path);
-    return svg;
   };
-})(typeof window !== 'undefined' ? window : globalThis);
+
+  // Selection helper for card lists/grids
+  App.setSelected = function (el, all) {
+    if (!el || !all) return;
+    Array.from(all).forEach((node) => node.classList.toggle('selected', node === el));
+  };
+
+  // Parse #hash query into URLSearchParams
+  // e.g. #profile/character/abc123?from=premade1  ->  get('from') === 'premade1'
+  App.getHashQuery = function () {
+    const h = global.location?.hash || '';
+    const qIndex = h.indexOf('?');
+    const q = qIndex >= 0 ? h.slice(qIndex + 1) : '';
+    try {
+      return new URLSearchParams(q);
+    } catch {
+      // very old browsers or weird input: gracefully degrade
+      const params = new URLSearchParams();
+      q.split('&').forEach((pair) => {
+        const [k, v] = pair.split('=');
+        if (k) params.set(decodeURIComponent(k), decodeURIComponent(v || ''));
+      });
+      return params;
+    }
+  };
+
+  // Chin open/close visuals: ensure the body class reflects visibility
+  App._closeChin = function () {
+    const container = document.getElementById('chin-container');
+    if (!container) return;
+    container.querySelectorAll('.chin').forEach((p) => App.hideEl(p));
+    App.hideEl(container);
+    document.body.classList.remove('chin-open');
+    App.selectTopBarTab?.(null);
+  };
+
+  App._toggleChinContent = function (chin) {
+    const container = document.getElementById('chin-container');
+    if (!container) return;
+    const panels = container.querySelectorAll('.chin');
+    const target = chin ? container.querySelector(`[data-chin="${chin}"]`) : null;
+
+    // Hide everything first
+    panels.forEach((panel) => App.hideEl(panel));
+    App.hideEl(container);
+    document.body.classList.remove('chin-open');
+
+    // If no chin requested or clicking the already-open one => fully close
+    if (!target || target.classList.contains('is-open')) return;
+
+    // Open requested panel
+    App.showEl(container);
+    App.showEl(target);
+    document.body.classList.add('chin-open');
+
+    // Autofocus the search field if present
+    const input = target.querySelector('.chin-search');
+    if (input) input.focus();
+
+    // Lazy render content by chin type
+    const c = target.dataset.chin;
+    if (c === 'stories'    && typeof App.renderStoryList     === 'function') App.renderStoryList();
+    if (c === 'characters' && typeof App.renderCharacterList === 'function') App.renderCharacterList();
+    if (c === 'worlds'     && typeof App.renderWorldList     === 'function') App.renderWorldList();
+  };
+
+  // Simple live-filter for chin grids
+  App._attachChinSearchHandlers = function () {
+    document.querySelectorAll('.chin-search').forEach((input) => {
+      const container = input.closest('.chin') || input.closest('.chin-widget');
+      const list = container?.querySelector('.chin-grid');
+      if (!list) return;
+      input.addEventListener('input', () => {
+        const term = input.value.toLowerCase();
+        list.querySelectorAll('[data-title]').forEach((card) => {
+          const title = (card.dataset.title || '').toLowerCase();
+          const match = title.includes(term);
+          card.toggleAttribute('hidden', !match);
+        });
+      });
+    });
+  };
+})(this);

@@ -8,10 +8,21 @@
   font-weight: bold;
   font-size: 1.2rem;
   overflow: hidden;
+  fill: #fff;
+  stroke: #fff;
 }
 
 .entity-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Force placeholder SVGs to render white */
+.placeholder-image svg,
+.placeholder-image svg *,
+.profile-placeholder svg,
+.profile-placeholder svg * {
+  fill: #fff;
+  stroke: #fff;
 }

@@ -98,6 +98,8 @@ App.setTopBarRight = function (mode) {
  * @param {string} chin - The value of the data-chin attribute to reveal.
  */
 App._toggleChinContent = function (chin) {
+  const anyOpen = !!document.querySelector('.chin-card.is-open');
+  document.body.classList.toggle('chin-open', anyOpen);
   if (!chin) return;
   const ui = App._getUIElements();
   const container = ui.chinContainer;
@@ -442,40 +444,82 @@ App.renderWorldList = App.renderWorldList || function () {
   renderList('chin-world-grid', 'worlds');
 };
 
-App.updateStoryboardCard = function (card, entity) {
-  card = typeof card === 'string' ? document.getElementById(card) : card;
+// Unified: works with either (cardElOrId, entityObj, opts) OR (selectEl, collectionKey)
+App.updateStoryboardCard = function updateStoryboardCard(target, entityOrKey, opts = {}) {
+  // Determine mode (select-driven vs card+entity)
+  let card, entity;
+
+  if (target && target.tagName === 'SELECT') {
+    // Called like: App.updateStoryboardCard(selectEl, 'characters'|'worlds'|'stories')
+    const select = target;
+    card = select.closest('.storyboard-card');
+    const type = card?.dataset?.type || select.dataset.entityType || select.dataset.type || '';
+    const id = select.value || '';
+    const key = entityOrKey; // e.g. 'characters'
+
+    if (id) {
+      const list =
+        typeof App.entities?.list === 'function'
+          ? App.entities.list(type || (key ? key.replace(/s$/, '') : ''))
+          : [];
+      entity = list.find((e) => String(e.id) === String(id)) || null;
+    } else {
+      entity = null;
+    }
+  } else {
+    // Called like: App.updateStoryboardCard(cardElOrId, entityObj, opts)
+    card = typeof target === 'string' ? document.getElementById(target) : target;
+    entity = entityOrKey || null;
+  }
+
   if (!card) return;
-  const left = card.querySelector('.storyboard-card-left');
+
+  const left   = card.querySelector('.storyboard-card-left');
   const descEl = card.querySelector('.storyboard-card-right .desc');
-  const tag = card.querySelector('footer small');
+  const tag    = card.querySelector('footer small');
   const select = card.querySelector('select');
+
+  // Cache placeholder description the first time we see it
   if (descEl && !descEl.dataset.placeholder) {
-    descEl.dataset.placeholder = descEl.textContent;
+    descEl.dataset.placeholder = descEl.textContent || '';
   }
 
   if (entity) {
+    // ——— POPULATE SELECTED STATE ———
     if (descEl) descEl.textContent = entity.description || '';
-    if (tag) tag.textContent = entity.isPremade ? 'Premade' : '';
+    if (tag)    tag.textContent    = entity.isPremade ? 'Premade' : '';
     if (left) {
       left.textContent = '';
       left.appendChild(App.getPictureNode(entity, { context: 'storyboard' }));
       App.applyBrand(left, entity);
     }
-    card.dataset.entityType = card.dataset.type;
-    card.dataset.entityId = entity.id;
+    card.dataset.entityType = card.dataset.type || entity.kind || '';
+    card.dataset.entityId   = entity.id;
+    if (select && select.value !== String(entity.id)) {
+      select.value = String(entity.id);
+    }
   } else {
+    // ——— RESTORE “EMPTY CARD” / PLACEHOLDER ———
     if (descEl) descEl.textContent = descEl.dataset.placeholder || '';
-    if (tag) tag.textContent = '';
+    if (tag)    tag.textContent    = '';
     if (left) {
       left.textContent = '';
-      left.appendChild(App.getPictureNode({ kind: card.dataset.type }, { context: 'storyboard' }));
-      App.applyBrand(left, {});
+      left.appendChild(
+        App.getPictureNode({ kind: card.dataset.type }, { context: 'storyboard' })
+      );
+      App.applyBrand(left, {}); // neutral brand for placeholder
     }
     delete card.dataset.entityType;
     delete card.dataset.entityId;
-    if (select) select.value = '';
+
+    // If there is a select, normalize it to empty and notify listeners—no recursion.
+    if (select && select.value !== '') {
+      select.value = '';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   }
 };
+
 
 const titlePrompts = [
   'Once upon a time',
@@ -637,6 +681,12 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
       });
     });
   }
+  document.querySelectorAll('.storyboard-card').forEach(card => {
+  const type = card.dataset.entityType;
+  const id = card.dataset.entityId || '';
+  const entity = App.getEntity?.(type, id);
+  App.updateStoryboardCard(card, entity);
+});
 };
 
 // Track attached listeners to avoid duplicates
@@ -793,7 +843,7 @@ App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
  * Initializes the application once dependencies and DOM are ready.
  * Sets default database name, collects UI elements, and runs initial load.
  */
-App.initializeWhenReady = async function () {
+App.initializeWhenReady = async function initializeWhenReady() {
   if (typeof global.dbName === 'undefined') {
     global.dbName = 'rpglitch-db';
   }
@@ -808,9 +858,9 @@ App.initializeWhenReady = async function () {
     App.refreshAllLists?.();
     App._attachStoryboardListeners?.();
     App.updateStoryboardTitle?.();
-    App.initializeWhenReadyRetryCount = 0;
+    App.initializeWhenReadyRetryCount = 0; // ✅ reset here on success
   } catch (error) {
-    App.initializeWhenReadyRetryCount += 1;
+    App.initializeWhenReadyRetryCount = (App.initializeWhenReadyRetryCount || 0) + 1;
     console.error("Failed to initialize App:", error);
   }
 };
@@ -866,3 +916,54 @@ App.deleteAllData = function () {
 };
 
 })(window, document);
+
+(function (global) {
+  const App = global.App || (global.App = {});
+
+  function _removeLegacyPlaceholder(articleEl) {
+    // Remove <p class="tagline"> or any lone placeholder <p> we used before
+    const legacy = articleEl.querySelector('.tagline, p[data-placeholder="1"]');
+    if (legacy) legacy.remove();
+  }
+
+  // Patch/override the existing updater in-place
+  const prev = App.updateStoryboardCard;
+  App.updateStoryboardCard = function updateStoryboardCard(selectId, key) {
+    if (typeof prev === 'function') prev(selectId, key);
+
+    const select = typeof selectId === 'string' ? document.getElementById(selectId) : selectId;
+    if (!select) return;
+    const card    = select.closest('.storyboard-card');
+    const right   = card?.querySelector('.storyboard-card-right');
+    const left    = card?.querySelector('.storyboard-card-left');
+    if (!right || !left) return;
+
+    // Ensure we don’t show legacy placeholder text alongside the description
+    _removeLegacyPlaceholder(right);
+
+    // Centering when empty; left align when chosen
+    const hasValue = !!select.value;
+    card.classList.toggle('empty-card', !hasValue);
+
+    // Force image refresh even if we think we already drew something
+    if (typeof global.getPictureHTML === 'function') {
+      const chosen = (global.App?.getAllItems?.(key) || []).find(i => (i.id ?? i.title) === select.value);
+      const imgNow = left.querySelector('.entity-image, .placeholder-image');
+      const imgNew = global.getPictureHTML(chosen || { id: card.dataset.type || '', kind: card.dataset.type }, { cover: true });
+      if (imgNow) left.replaceChild(imgNew, imgNow); else left.appendChild(imgNew);
+      imgNew.classList.toggle('empty', imgNew.classList.contains('placeholder-image'));
+    }
+
+    // Make the entire card a “go to profile” target only when a real entity is selected
+    if (hasValue) {
+      const { entityType, entityId } = card.dataset;
+      if (!entityType || !entityId) {
+        card.dataset.entityType = key.slice(0, -1);
+        card.dataset.entityId   = select.value;
+      }
+    } else {
+      delete card.dataset.entityType;
+      delete card.dataset.entityId;
+    }
+  };
+})(typeof window !== 'undefined' ? window : globalThis);

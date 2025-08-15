@@ -96,6 +96,8 @@
 
     const right = card.querySelector('.storyboard-card-right');
     if (right) {
+      // Remove any placeholder-only description variants:
+      right.querySelectorAll('[data-placeholder], .placeholder-text')?.forEach((n) => n.remove());
       let bodyEl = right.querySelector('.card-description');
       if (!bodyEl) {
         bodyEl = doc.createElement('p');
@@ -196,4 +198,37 @@
     btn.classList.add('selected');
     btn.focus();
   };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+(function (global) {
+  const root = global.document;
+  root.querySelectorAll('details[id^="chin-"], .chin').forEach((el) => {
+    el.addEventListener('toggle', () => {
+      if (!el.open) {
+        el.querySelectorAll('.button--focused').forEach((b) => b.classList.remove('button--focused'));
+      }
+    }, { capture: true });
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+(function (global) {
+  const App = global.App || (global.App = {});
+  const sb = document.getElementById('storyboard-grid');
+  if (!sb) return;
+
+  sb.addEventListener('click', (e) => {
+    const select = e.target.closest('select.storyboard-card-title');
+    if (select) return; // native behavior
+
+    const card = e.target.closest('.storyboard-card');
+    if (!card) return;
+
+    // If empty, open the select instead of routing
+    const picker = card.querySelector('select.storyboard-card-title');
+    if (!card.dataset.entityType || !card.dataset.entityId) {
+      picker?.showPicker?.() || (picker?.focus(), picker?.click());
+      return;
+    }
+    App.router?.navigate?.(`#profile/${card.dataset.entityType}/${card.dataset.entityId}`);
+  });
 })(typeof window !== 'undefined' ? window : globalThis);
