@@ -115,9 +115,9 @@
 
     const profile = doc.getElementById('profile-screen');
     if (profile && !profile.hidden && profile.dataset.entityId === id) {
-      const heroImg = profile.querySelector('.hero-wrap .entity-image, .hero-wrap .placeholder-image');
+      const heroPic = profile.querySelector('.hero-wrap > .picture');
       const pic = App.getPictureHTML ? App.getPictureHTML(normalized, { cover: true }) : null;
-      if (pic && heroImg) heroImg.replaceWith(pic);
+      if (pic && heroPic) heroPic.replaceWith(pic);
     }
 
     App.setDynamicTitle?.();
