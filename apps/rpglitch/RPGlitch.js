@@ -25,7 +25,7 @@ App.selectTopBarTab = function (btn) {
   if (!ui.topBarButtons) return;
   let anyActive = false;
   ui.topBarButtons.forEach((b) => {
-    const active = b === btn;
+    const active = b === btn || (btn && b.dataset.chin === btn.dataset.chin);
     b.classList.toggle('active', active);
     b.setAttribute('aria-selected', active ? 'true' : 'false');
     b.setAttribute('aria-expanded', active ? 'true' : 'false');

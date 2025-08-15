@@ -96,6 +96,10 @@ button {
   padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
 }
 
+:is(button,[type="submit"],[type="button"],[role="button"]).secondary:focus, :is(button,[type="submit"],[type="button"],[role="button"]).secondary:is([aria-current]:not([aria-current="false"])):focus, [type="file"]::file-selector-button:focus, [type="file"]::file-selector-button:is([aria-current]:not([aria-current="false"])):focus, [type="reset"]:focus, [type="reset"]:is([aria-current]:not([aria-current="false"])):focus {
+    --pico-box-shadow: var(--pico-button-hover-box-shadow, 0 0 0 rgb(0% 0% 0% / 0%)),0 0 0 var(--pico-outline-width) var(--brand-text-on);
+}
+
 article {
   box-shadow: 0 0 0 0 rgb(0 0 0 / 0%);
   display: flex;
