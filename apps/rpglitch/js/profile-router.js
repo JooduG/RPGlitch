@@ -191,7 +191,7 @@
 
   App.activateChin = (btn) => {
     if (!btn) return;
-    const group = btn.closest('[data-chin-group]');
+    const group = btn.closest('[role="tablist"]');
     group?.querySelectorAll('.chin-button.selected').forEach((b) => b.classList.remove('selected'));
     btn.classList.add('selected');
     btn.focus();
