@@ -457,10 +457,10 @@ memory-bank-search all/ --query "[pattern name]" --cross-mode true
 
 ## 📚 **REFERENCES**
 
-- [Memory Bank Overview](memory-bank-overview.mdc) - System overview and architecture
-- [Memory Bank Optimization](memory-bank-optimization.mdc) - Performance optimization
-- [Basic Memory MCP Guide](mcp-basic-memory.mdc) - MCP server integration
-- [System Documentation](system-documentation.mdc) - Unified system integration
+- [Memory Bank Overview](../.cursor/rules/memory-bank-overview.mdc) - System overview and architecture
+- [Memory Bank Optimization](../.cursor/rules/memory-bank-optimization.mdc) - Performance optimization
+- [Basic Memory MCP Guide](../.cursor/rules/mcp-basic-memory.mdc) - MCP server integration
+- [System Documentation](../.cursor/rules/system-documentation.mdc) - Unified system integration
 
 ## 🎯 **NEXT STEPS**
 

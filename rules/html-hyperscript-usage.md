@@ -12,7 +12,7 @@ big sky Hyperscript enables easy, readable interactivity directly in HTML using 
 
 ## Foundation Requirements
 
-This rule builds upon semantic HTML principles. Ensure your HTML follows the guidelines in [HTML Development](./html-development.mdc) before adding Hyperscript interactivity.
+This rule builds upon semantic HTML principles. Ensure your HTML follows the guidelines in [HTML Development](../.cursor/rules/html-development.mdc) before adding Hyperscript interactivity.
 
 ## Usage Guidelines
 
@@ -54,13 +54,13 @@ This rule builds upon semantic HTML principles. Ensure your HTML follows the gui
 ## References
 
 - [big sky Hyperscript Docs](https://hyperscript.org/docs/)
-- [Cash DOM Usage](./js-cash-dom-usage.mdc)
-- [JavaScript Development](./js-development.mdc)
-- [HTML Development](./html-development.mdc) - Foundation for semantic HTML structure
+- [Cash DOM Usage](../.cursor/rules/js-cash-dom-usage.mdc)
+- [JavaScript Development](../.cursor/rules/js-development.mdc)
+- [HTML Development](../.cursor/rules/html-development.mdc) - Foundation for semantic HTML structure
 
 
 ## Related Rules
 
-- [Perchance Build & Deployment](./perchance-build-deployment.mdc)
-- [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc)
+- [Perchance Build & Deployment](../.cursor/rules/perchance-build-deployment.mdc)
+- [Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.mdc)
 ---

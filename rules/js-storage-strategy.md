@@ -395,6 +395,6 @@ const perchanceStorage = {
 
 ## References
 
-- [Dexie.js Usage](./js-dexie-usage.mdc) - IndexedDB with Dexie.js
-- [IndexedDB Principles](./js-indexeddb-principles.mdc) - IndexedDB best practices
-- [Modern JavaScript Features](./js-modern-features.mdc) - ES2023+ features
+- [Dexie.js Usage](../.cursor/rules/js-dexie-usage.mdc) - IndexedDB with Dexie.js
+- [IndexedDB Principles](../.cursor/rules/js-indexeddb-principles.mdc) - IndexedDB best practices
+- [Modern JavaScript Features](../.cursor/rules/js-modern-features.mdc) - ES2023+ features

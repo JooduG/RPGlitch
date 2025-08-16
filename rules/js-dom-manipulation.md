@@ -256,6 +256,6 @@ resizeObserver.observe(element);
 
 ## References
 
-- [Cash DOM Usage](./js-cash-dom-usage.mdc) - jQuery-like DOM manipulation
-- [Modern JavaScript Features](./js-modern-features.mdc) - ES2023+ features
-- [JavaScript Development](./js-development.mdc) - Comprehensive JavaScript guide
+- [Cash DOM Usage](../.cursor/rules/js-cash-dom-usage.mdc) - jQuery-like DOM manipulation
+- [Modern JavaScript Features](../.cursor/rules/js-modern-features.mdc) - ES2023+ features
+- [JavaScript Development](../.cursor/rules/js-development.mdc) - Comprehensive JavaScript guide

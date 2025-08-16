@@ -171,6 +171,6 @@ $('#button').on('click', async () => {
 ## References
 
 - [Cash DOM Docs](https://github.com/fabiospampinato/cash)
-- [DOM Manipulation](./js-dom-manipulation.mdc) - Vanilla DOM APIs
-- [Modern JavaScript Features](./js-modern-features.mdc) - ES2023+ features
-- [JavaScript Development](./js-development.mdc) - Comprehensive JavaScript guide
+- [DOM Manipulation](../.cursor/rules/js-dom-manipulation.mdc) - Vanilla DOM APIs
+- [Modern JavaScript Features](../.cursor/rules/js-modern-features.mdc) - ES2023+ features
+- [JavaScript Development](../.cursor/rules/js-development.mdc) - Comprehensive JavaScript guide

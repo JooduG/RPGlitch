@@ -38,8 +38,6 @@
     }
   }
 
-  // legacy helper removed in favor of App.updateStoryboardCard
-
   // Wiring
   global.addEventListener('hashchange', handleRoute);
 
@@ -66,7 +64,7 @@
         });
       }
     });
-  });
+  }, { once: true });
 
   // Router surface
   App.router = {

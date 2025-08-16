@@ -47,8 +47,8 @@ db.version(1).stores({
 
 ## Related Rules
 
-- [Perchance Architecture](./perchance-architecture.mdc)
-- [JavaScript Development](./js-development.mdc)
+- [Perchance Architecture](../.cursor/rules/perchance-architecture.mdc)
+- [JavaScript Development](../.cursor/rules/js-development.mdc)
 
 ---
 

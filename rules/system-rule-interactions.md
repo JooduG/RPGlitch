@@ -388,11 +388,11 @@ This analysis examines the 39 rule systems in .cursor/rules/ to identify:
 
 ## 📚 **RELATED DOCUMENTATION**
 
-- [Technical Architecture](./technical-architecture.mdc) - Complete system architecture
-- [Unified Orchestrator Mode](./orchestration-mode.mdc) - 3-mode system management
-- [Thinking Framework](./thinking-framework.mdc) - Integrated thinking approaches
-- [Memory Bank Overview](./memory-bank-overview.mdc) - Knowledge management system
-- [MCP Ecosystem](./mcp-ecosystem.mdc) - External tool integration
+- [Technical Architecture](../.cursor/rules/technical-architecture.mdc) - Complete system architecture
+- [Unified Orchestrator Mode](../.cursor/rules/orchestration-mode.mdc) - 3-mode system management
+- [Thinking Framework](../.cursor/rules/thinking-framework.mdc) - Integrated thinking approaches
+- [Memory Bank Overview](../.cursor/rules/memory-bank-overview.mdc) - Knowledge management system
+- [MCP Ecosystem](../.cursor/rules/mcp-ecosystem.mdc) - External tool integration
 
 ---
 

@@ -4,7 +4,7 @@ alwaysApply: false
 ---
 # PERCHANCE BUILD & DEPLOYMENT
 
-> **TL;DR:** Comprehensive guide for building and deploying Perchance applications with automated workflows, optimization strategies, and platform-specific considerations. See the companion [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc).
+> **TL;DR:** Comprehensive guide for building and deploying Perchance applications with automated workflows, optimization strategies, and platform-specific considerations. See the companion [Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.mdc).
 
 ## 🎯 **BUILD SYSTEM OVERVIEW**
 
@@ -177,10 +177,10 @@ The Perchance build and deployment system provides automated workflows for creat
 
 ## 📚 **RELATED DOCUMENTATION**
 
-- [Perchance Architecture](./perchance-architecture.mdc)
-- [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc)
-- [System Architecture](./technical-architecture.mdc)
-- [SCSS Advanced Patterns](./scss-advanced-patterns.mdc)
+- [Perchance Architecture](../.cursor/rules/perchance-architecture.mdc)
+- [Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.mdc)
+- [System Architecture](../.cursor/rules/technical-architecture.mdc)
+- [SCSS Advanced Patterns](../.cursor/rules/scss-advanced-patterns.mdc)
 
 ---
 

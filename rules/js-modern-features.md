@@ -318,6 +318,6 @@ window.addEventListener('unhandledrejection', (event) => {
 
 ## References
 
-- [JavaScript Development](./js-development.mdc) - Comprehensive JavaScript guide
-- [DOM Manipulation](./js-dom-manipulation.mdc) - Modern DOM APIs
-- [Storage Strategy](./js-storage-strategy.mdc) - Client-side storage approaches
+- [JavaScript Development](../.cursor/rules/js-development.mdc) - Comprehensive JavaScript guide
+- [DOM Manipulation](../.cursor/rules/js-dom-manipulation.mdc) - Modern DOM APIs
+- [Storage Strategy](../.cursor/rules/js-storage-strategy.mdc) - Client-side storage approaches

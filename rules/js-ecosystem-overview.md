@@ -281,11 +281,11 @@ class ModernApp {
 
 ## References
 
-- [Modern JavaScript Features](./js-modern-features.mdc) - ES2023+ features
-- [DOM Manipulation](./js-dom-manipulation.mdc) - Vanilla DOM APIs
-- [Cash DOM Usage](./js-cash-dom-usage.mdc) - jQuery-like DOM manipulation
-- [Storage Strategy](./js-storage-strategy.mdc) - Client-side storage approaches
-- [Dexie.js Usage](./js-dexie-usage.mdc) - IndexedDB with Dexie.js
-- [IndexedDB Principles](./js-indexeddb-principles.mdc) - IndexedDB best practices
-- [Modern APIs](./js-modern-apis.mdc) - Modern browser APIs
-- [Patterns & Practices](./js-patterns-practices.mdc) - JavaScript best practices
+- [Modern JavaScript Features](../.cursor/rules/js-modern-features.mdc) - ES2023+ features
+- [DOM Manipulation](../.cursor/rules/js-dom-manipulation.mdc) - Vanilla DOM APIs
+- [Cash DOM Usage](../.cursor/rules/js-cash-dom-usage.mdc) - jQuery-like DOM manipulation
+- [Storage Strategy](../.cursor/rules/js-storage-strategy.mdc) - Client-side storage approaches
+- [Dexie.js Usage](../.cursor/rules/js-dexie-usage.mdc) - IndexedDB with Dexie.js
+- [IndexedDB Principles](../.cursor/rules/js-indexeddb-principles.mdc) - IndexedDB best practices
+- [Modern APIs](../.cursor/rules/js-modern-apis.mdc) - Modern browser APIs
+- [Patterns & Practices](../.cursor/rules/js-patterns-practices.mdc) - JavaScript best practices

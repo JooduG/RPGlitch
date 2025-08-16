@@ -12,12 +12,12 @@ alwaysApply: false
 
 For detailed information on specific topics, see these focused rules:
 
-- **[Modern JavaScript Features](./js-modern-features.mdc)** - ES2023+ features, template literals, destructuring, arrow functions
-- **[DOM Manipulation](./js-dom-manipulation.mdc)** - Modern DOM APIs, event handling, performance optimization
-- **[Storage Strategy](./js-storage-strategy.mdc)** - Unified client-side storage with localStorage, IndexedDB, and Dexie.js
-- **[Modern APIs](./js-modern-apis.mdc)** - Fetch API, Intersection Observer, Service Workers, Web Workers
-- **[Patterns & Practices](./js-patterns-practices.mdc)** - Performance optimization, code organization, error handling
-- **[JavaScript Ecosystem Overview](./js-ecosystem-overview.mdc)** - Decision frameworks for choosing approaches
+- **[Modern JavaScript Features](../.cursor/rules/js-modern-features.mdc)** - ES2023+ features, template literals, destructuring, arrow functions
+- **[DOM Manipulation](../.cursor/rules/js-dom-manipulation.mdc)** - Modern DOM APIs, event handling, performance optimization
+- **[Storage Strategy](../.cursor/rules/js-storage-strategy.mdc)** - Unified client-side storage with localStorage, IndexedDB, and Dexie.js
+- **[Modern APIs](../.cursor/rules/js-modern-apis.mdc)** - Fetch API, Intersection Observer, Service Workers, Web Workers
+- **[Patterns & Practices](../.cursor/rules/js-patterns-practices.mdc)** - Performance optimization, code organization, error handling
+- **[JavaScript Ecosystem Overview](../.cursor/rules/js-ecosystem-overview.mdc)** - Decision frameworks for choosing approaches
 
 ## 🚀 **Essential Modern JavaScript Patterns**
 
@@ -605,26 +605,26 @@ This documentation reflects modern JavaScript best practices and features, ensur
 
 ### **🎯 Focused JavaScript Rules**
 
-- **[JavaScript Ecosystem Overview](./js-ecosystem-overview.mdc)** - Decision frameworks for choosing approaches
-- **[Modern JavaScript Features](./js-modern-features.mdc)** - ES2023+ features, template literals, destructuring, arrow functions
-- **[DOM Manipulation](./js-dom-manipulation.mdc)** - Modern DOM APIs, event handling, performance optimization
-- **[Storage Strategy](./js-storage-strategy.mdc)** - Unified client-side storage with localStorage, IndexedDB, and Dexie.js
-- **[Modern APIs](./js-modern-apis.mdc)** - Fetch API, Intersection Observer, Service Workers, Web Workers
-- **[Patterns & Practices](./js-patterns-practices.mdc)** - Performance optimization, code organization, error handling
+- **[JavaScript Ecosystem Overview](../.cursor/rules/js-ecosystem-overview.mdc)** - Decision frameworks for choosing approaches
+- **[Modern JavaScript Features](../.cursor/rules/js-modern-features.mdc)** - ES2023+ features, template literals, destructuring, arrow functions
+- **[DOM Manipulation](../.cursor/rules/js-dom-manipulation.mdc)** - Modern DOM APIs, event handling, performance optimization
+- **[Storage Strategy](../.cursor/rules/js-storage-strategy.mdc)** - Unified client-side storage with localStorage, IndexedDB, and Dexie.js
+- **[Modern APIs](../.cursor/rules/js-modern-apis.mdc)** - Fetch API, Intersection Observer, Service Workers, Web Workers
+- **[Patterns & Practices](../.cursor/rules/js-patterns-practices.mdc)** - Performance optimization, code organization, error handling
 
 ### **🔧 Library-Specific Rules**
 
-- **[Cash DOM Usage](./js-cash-dom-usage.mdc)** - jQuery-like DOM manipulation for Perchance projects
-- **[Dexie.js Usage](./js-dexie-usage.mdc)** - IndexedDB with Dexie.js for robust client-side storage
-- **[IndexedDB Principles](./js-indexeddb-principles.mdc)** - IndexedDB best practices and patterns
+- **[Cash DOM Usage](../.cursor/rules/js-cash-dom-usage.mdc)** - jQuery-like DOM manipulation for Perchance projects
+- **[Dexie.js Usage](../.cursor/rules/js-dexie-usage.mdc)** - IndexedDB with Dexie.js for robust client-side storage
+- **[IndexedDB Principles](../.cursor/rules/js-indexeddb-principles.mdc)** - IndexedDB best practices and patterns
 
 ### **🎨 Related Development Rules**
 
-- **[HTML Development](./html-development.mdc)** - Semantic HTML and accessibility
-- **[SCSS Advanced Patterns](./scss-advanced-patterns.mdc)** - Modern CSS with SCSS
-- **[Hyperscript Usage](./html-hyperscript-usage.mdc)** - Interactive HTML with Hyperscript
-- **[Perchance Build & Deployment](./perchance-build-deployment.mdc)** - Production deployment guidance
-- **[Perchance Development Lifecycle](./perchance-development-lifecycle.mdc)** - Planning and iteration steps
+- **[HTML Development](../.cursor/rules/html-development.mdc)** - Semantic HTML and accessibility
+- **[SCSS Advanced Patterns](../.cursor/rules/scss-advanced-patterns.mdc)** - Modern CSS with SCSS
+- **[Hyperscript Usage](../.cursor/rules/html-hyperscript-usage.mdc)** - Interactive HTML with Hyperscript
+- **[Perchance Build & Deployment](../.cursor/rules/perchance-build-deployment.mdc)** - Production deployment guidance
+- **[Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.mdc)** - Planning and iteration steps
 
 ### **📖 External Resources**
 

@@ -71,10 +71,10 @@ window.App.registerPlugin({
 
 ## Related Rules
 
-- [Perchance Architecture](./perchance-architecture.mdc)
-- [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc)
-- [JavaScript Development](./js-development.mdc)
-- [Perchance Build & Deployment](./perchance-build-deployment.mdc)
+- [Perchance Architecture](../.cursor/rules/perchance-architecture.mdc)
+- [Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.mdc)
+- [JavaScript Development](../.cursor/rules/js-development.mdc)
+- [Perchance Build & Deployment](../.cursor/rules/perchance-build-deployment.mdc)
 
 ---
 

@@ -9,6 +9,13 @@
     ['Future', 'future'],
   ];
 
+  // NEW: safe sanitize helper (no-op if DOMPurify missing)
+  function sanitizeStr(s) {
+    const v = typeof s === 'string' ? s : String(s ?? '');
+    try { return global.DOMPurify ? global.DOMPurify.sanitize(v) : v; }
+    catch { return v; }
+  }
+
   function getHashQuery() {
     const [, q = ''] = (global.location.hash || '').split('?');
     return new URLSearchParams(q);
@@ -51,6 +58,8 @@
     if (!screen) return;
 
     screen.textContent = '';
+    // a11y: announce updates
+    screen.setAttribute('aria-live', 'polite');
     screen.appendChild(buildHero(entity));
 
     const content = doc.createElement('div');
@@ -166,13 +175,14 @@
     imageInput.value = entity.imageUrl || '';
     imageInput.addEventListener('change', () => {
       const val = imageInput.value.trim();
-      const newEl = App.getPictureHTML
+      const newPic = App.getPictureHTML
         ? App.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
         : null;
-      if (newEl) {
-        const current = heroWrap.querySelector('.entity-image, .placeholder-image');
-        if (current) current.replaceWith(newEl);
-        else heroWrap.appendChild(newEl);
+      if (newPic) {
+        // UPDATED: replace entire .picture wrapper if present
+        const currentWrap = heroWrap.querySelector('.picture');
+        if (currentWrap) currentWrap.replaceWith(newPic);
+        else heroWrap.appendChild(newPic);
       }
     });
     form.appendChild(createField('imageUrl', 'Image URL', imageInput));
@@ -218,22 +228,30 @@
     saveBtn?.addEventListener('click', () => {
       const data = {
         kind: type,
-        name: titleInput.value.trim(),
-        summary: summaryInput.value.trim(),
-        imageUrl: imageInput.value.trim(),
-        image: imageInput.value.trim(),
-        tags: tagsInput.value.split(',').map((t) => t.trim()).filter(Boolean),
+        name: sanitizeStr(titleInput.value.trim()),
+        summary: sanitizeStr(summaryInput.value.trim()),
+        imageUrl: sanitizeStr(imageInput.value.trim()),
+        image: sanitizeStr(imageInput.value.trim()),
+        tags: tagsInput.value
+          .split(',')
+          .map((t) => sanitizeStr(t.trim()))
+          .filter(Boolean),
         sections: {
-          forever: form.elements.forever.value.trim(),
-          past: form.elements.past.value.trim(),
-          present: form.elements.present.value.trim(),
-          future: form.elements.future.value.trim(),
+          forever: sanitizeStr(form.elements.forever.value.trim()),
+          past: sanitizeStr(form.elements.past.value.trim()),
+          present: sanitizeStr(form.elements.present.value.trim()),
+          future: sanitizeStr(form.elements.future.value.trim()),
         },
       };
       if (!data.name) return;
       const saved = App.entities.upsert(type, id === 'new' ? data : { ...data, id });
       App.router.navigate(`#profile/${type}/${saved.id}`);
     });
+
+    // UX: focus title when creating a new entity
+    if (!isEdit) {
+      setTimeout(() => titleInput.focus(), 0);
+    }
   }
 
   // Public API

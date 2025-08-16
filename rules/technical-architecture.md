@@ -186,10 +186,10 @@ The system architecture provides a unified framework for development with integr
 
 ## 📚 **RELATED DOCUMENTATION**
 
-- [Unified Orchestrator Mode](./orchestration-mode.mdc)
-- [Thinking Framework](./thinking-framework.mdc)
-- [Memory Bank Overview](./memory-bank-overview.mdc)
-- [MCP Ecosystem](./mcp-ecosystem.mdc)
-- [System Documentation](./system-documentation.mdc)
+- [Unified Orchestrator Mode](../.cursor/rules/orchestration-mode.mdc)
+- [Thinking Framework](../.cursor/rules/thinking-framework.mdc)
+- [Memory Bank Overview](../.cursor/rules/memory-bank-overview.mdc)
+- [MCP Ecosystem](../.cursor/rules/mcp-ecosystem.mdc)
+- [System Documentation](../.cursor/rules/system-documentation.mdc)
 
 ---

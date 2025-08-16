@@ -250,9 +250,9 @@ basic-memory search "test" --limit 1
 
 - [Basic Memory Documentation](https://docs.basicmemory.com/)
 - [Basic Memory GitHub Repository](https://github.com/basicmachines-co/basic-memory)
-- [MCP Ecosystem Overview](mcp-ecosystem.mdc)
-- [System Documentation](system-documentation.mdc)
-- [Memory Bank Workflow](memory-bank-workflow.mdc)
+- [MCP Ecosystem Overview](../.cursor/rules/mcp-ecosystem.mdc)
+- [System Documentation](../.cursor/rules/system-documentation.mdc)
+- [Memory Bank Workflow](../.cursor/rules/memory-bank-workflow.mdc)
 
 ## 🎯 **NEXT STEPS**
 

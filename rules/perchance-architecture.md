@@ -76,17 +76,17 @@ apps/
 
 ## Related Rules
 
-- [Pico.css Usage](scss-modern-css-frameworks.mdc)
-- [big sky Hyperscript Usage](html-hyperscript-usage.mdc)
-- [Cash DOM Usage](js-cash-dom-usage.mdc)
-- [Dexie.js Usage](./js-dexie-usage.mdc)
-- [Perchance Plugin System](./perchance-plugin-system.mdc)
-- [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc)
-- [Perchance Build & Deployment](./perchance-build-deployment.mdc)
-- [HTML Development](./html-development.mdc)
-- [JavaScript Development](./js-development.mdc)
-- [IndexedDB Principles](./js-indexeddb-principles.mdc)
-- [SCSS Development](scss-advanced-patterns.mdc)
+- [Pico.css Usage](../.cursor/rules/scss-modern-css-frameworks.mdc)
+- [big sky Hyperscript Usage](../.cursor/rules/html-hyperscript-usage.mdc)
+- [Cash DOM Usage](../.cursor/rules/js-cash-dom-usage.mdc)
+- [Dexie.js Usage](../.cursor/rules/js-dexie-usage.mdc)
+- [Perchance Plugin System](../.cursor/rules/perchance-plugin-system.mdc)
+- [Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.mdc)
+- [Perchance Build & Deployment](../.cursor/rules/perchance-build-deployment.mdc)
+- [HTML Development](../.cursor/rules/html-development.mdc)
+- [JavaScript Development](../.cursor/rules/js-development.mdc)
+- [IndexedDB Principles](../.cursor/rules/js-indexeddb-principles.mdc)
+- [SCSS Development](../.cursor/rules/scss-advanced-patterns.mdc)
 
 ---
 

@@ -287,7 +287,7 @@ $unique: string.unique-id(); // "u123456"
 
 ## Performance and Best Practices
 
-> **Note**: For comprehensive debugging and troubleshooting, see [SCSS Debugging](./scss-debugging.mdc).
+> **Note**: For comprehensive debugging and troubleshooting, see [SCSS Debugging](../.cursor/rules/scss-debugging.mdc).
 
 ### Compilation Optimization
 
@@ -336,7 +336,7 @@ $inspected: meta.inspect($value);
 
 ## Modern CSS Integration
 
-> **Note**: For comprehensive modern CSS principles, layout systems, and framework integration, see [SCSS Modern CSS & Frameworks](./scss-modern-css-frameworks.mdc).
+> **Note**: For comprehensive modern CSS principles, layout systems, and framework integration, see [SCSS Modern CSS & Frameworks](../.cursor/rules/scss-modern-css-frameworks.mdc).
 
 ### CSS Custom Properties Integration
 
@@ -407,10 +407,10 @@ $list: list.join($list1, $list2);
 
 ## Related Rules
 
-- [SCSS Modern CSS & Frameworks](./scss-modern-css-frameworks.mdc) - Modern CSS principles and framework integration
-- [SCSS Debugging](./scss-debugging.mdc) - Troubleshooting and debugging SCSS issues
-- [Perchance Build & Deployment](./perchance-build-deployment.mdc) - Build and deployment for Perchance projects
-- [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc) - Planning and iteration steps
+- [SCSS Modern CSS & Frameworks](../.cursor/rules/scss-modern-css-frameworks.mdc) - Modern CSS principles and framework integration
+- [SCSS Debugging](../.cursor/rules/scss-debugging.mdc) - Troubleshooting and debugging SCSS issues
+- [Perchance Build & Deployment](../.cursor/rules/perchance-build-deployment.mdc) - Build and deployment for Perchance projects
+- [Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.mdc) - Planning and iteration steps
 
 ---
 

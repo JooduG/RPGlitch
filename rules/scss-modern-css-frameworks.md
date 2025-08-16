@@ -657,10 +657,10 @@ div div div div { }
 
 ## 🔗 **RELATED RULES**
 
-- [SCSS Advanced Patterns](./scss-advanced-patterns.mdc) - Advanced SCSS features and meta-programming
-- [SCSS Debugging](./scss-debugging.mdc) - Troubleshooting and debugging SCSS issues
-- [JavaScript Development](./js-development.mdc) - Modern JavaScript for frontend development
-- [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc)
+- [SCSS Advanced Patterns](../.cursor/rules/scss-advanced-patterns.mdc) - Advanced SCSS features and meta-programming
+- [SCSS Debugging](../.cursor/rules/scss-debugging.mdc) - Troubleshooting and debugging SCSS issues
+- [JavaScript Development](../.cursor/rules/js-development.mdc) - Modern JavaScript for frontend development
+- [Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.mdc)
 
 ## 📚 **REFERENCES**
 

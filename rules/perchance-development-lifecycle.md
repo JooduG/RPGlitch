@@ -8,7 +8,7 @@ alwaysApply: false
 
 - Covers the complete development lifecycle: planning, building, testing, and deployment.
 - Outlines Perchance-specific constraints and recommended tools.
-- Summarizes build and deployment at a high level. For automation and optimization details, see [Perchance Build & Deployment](./perchance-build-deployment.mdc).
+- Summarizes build and deployment at a high level. For automation and optimization details, see [Perchance Build & Deployment](../.cursor/rules/perchance-build-deployment.mdc).
 - References official tutorials, examples, and community resources.
 
 ---
@@ -146,16 +146,16 @@ Use feedback and logs to improve and refine the generator.
 
 ## Related Rules
 
-- [SCSS Advanced Patterns](./scss-advanced-patterns.mdc)
-- [HTML Hyperscript Usage](./html-hyperscript-usage.mdc)
-- [Cash DOM Usage](./js-cash-dom-usage.mdc)
-- [Dexie.js Usage](./js-dexie-usage.mdc)
-- [Perchance Architecture](./perchance-architecture.mdc)
-- [Perchance Build & Deployment](./perchance-build-deployment.mdc)
-- [Perchance Plugin System](./perchance-plugin-system.mdc)
-- [HTML Development](./html-development.mdc)
-- [JavaScript Development](./js-development.mdc)
-- [IndexedDB Principles](./js-indexeddb-principles.mdc)
+- [SCSS Advanced Patterns](../.cursor/rules/scss-advanced-patterns.mdc)
+- [HTML Hyperscript Usage](../.cursor/rules/html-hyperscript-usage.mdc)
+- [Cash DOM Usage](../.cursor/rules/js-cash-dom-usage.mdc)
+- [Dexie.js Usage](../.cursor/rules/js-dexie-usage.mdc)
+- [Perchance Architecture](../.cursor/rules/perchance-architecture.mdc)
+- [Perchance Build & Deployment](../.cursor/rules/perchance-build-deployment.mdc)
+- [Perchance Plugin System](../.cursor/rules/perchance-plugin-system.mdc)
+- [HTML Development](../.cursor/rules/html-development.mdc)
+- [JavaScript Development](../.cursor/rules/js-development.mdc)
+- [IndexedDB Principles](../.cursor/rules/js-indexeddb-principles.mdc)
 
 ---
 

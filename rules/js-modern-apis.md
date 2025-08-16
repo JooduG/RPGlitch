@@ -620,6 +620,6 @@ self.onconnect = (event) => {
 
 ## References
 
-- [Modern JavaScript Features](./js-modern-features.mdc) - ES2023+ features
-- [DOM Manipulation](./js-dom-manipulation.mdc) - Modern DOM APIs
-- [Storage Strategy](./js-storage-strategy.mdc) - Client-side storage approaches
+- [Modern JavaScript Features](../.cursor/rules/js-modern-features.mdc) - ES2023+ features
+- [DOM Manipulation](../.cursor/rules/js-dom-manipulation.mdc) - Modern DOM APIs
+- [Storage Strategy](../.cursor/rules/js-storage-strategy.mdc) - Client-side storage approaches

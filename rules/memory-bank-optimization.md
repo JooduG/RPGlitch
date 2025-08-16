@@ -375,10 +375,10 @@ const cacheMetrics = {
 
 ## 📚 **REFERENCES**
 
-- [Memory Bank Overview](memory-bank-overview.mdc) - Memory bank system overview
-- [Memory Bank Workflow](memory-bank-workflow.mdc) - Workflow integration
-- [System Architecture](technical-architecture.mdc) - System architecture and relationships
-- [System Documentation](system-documentation.mdc) - Unified documentation system
+- [Memory Bank Overview](../.cursor/rules/memory-bank-overview.mdc) - Memory bank system overview
+- [Memory Bank Workflow](../.cursor/rules/memory-bank-workflow.mdc) - Workflow integration
+- [System Architecture](../.cursor/rules/technical-architecture.mdc) - System architecture and relationships
+- [System Documentation](../.cursor/rules/system-documentation.mdc) - Unified documentation system
 
 ## 🎯 **NEXT STEPS**
 

@@ -53,13 +53,13 @@ alwaysApply: false
 
 ## Related Rules
 
-- [SCSS Modern CSS Frameworks](./scss-modern-css-frameworks.mdc) - Includes Pico.css usage
-- [Perchance Architecture](./perchance-architecture.mdc)
-- [SCSS Advanced Patterns](./scss-advanced-patterns.mdc)
-- [JavaScript Development](./js-development.mdc)
-- [HTML Hyperscript Usage](./html-hyperscript-usage.mdc) - For adding interactivity to semantic HTML
-- [Perchance Build & Deployment](./perchance-build-deployment.mdc) - Production deployment guidance
-- [Perchance Development Lifecycle](./perchance-development-lifecycle.mdc) - Planning and iteration steps
+- [SCSS Modern CSS Frameworks](../.cursor/rules/scss-modern-css-frameworks.mdc) - Includes Pico.css usage
+- [Perchance Architecture](../.cursor/rules/perchance-architecture.mdc)
+- [SCSS Advanced Patterns](../.cursor/rules/scss-advanced-patterns.mdc)
+- [JavaScript Development](../.cursor/rules/js-development.mdc)
+- [HTML Hyperscript Usage](../.cursor/rules/html-hyperscript-usage.mdc) - For adding interactivity to semantic HTML
+- [Perchance Build & Deployment](../.cursor/rules/perchance-build-deployment.mdc) - Production deployment guidance
+- [Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.mdc) - Planning and iteration steps
 
 ---
 

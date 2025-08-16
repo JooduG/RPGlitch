@@ -202,11 +202,11 @@ const documentationCache = {
 
 ## 📚 **REFERENCES**
 
-- [MCP Ecosystem Overview](mcp-ecosystem.mdc) - MCP server overview
-- [Memory Bank Overview](memory-bank-overview.mdc) - Memory bank system overview
-- [Context7 MCP Guide](mcp-context7.mdc) - Context7 integration
-- [Basic Memory MCP Guide](mcp-basic-memory.mdc) - Basic Memory integration
-- [System Architecture](technical-architecture.mdc) - System architecture and relationships
+- [MCP Ecosystem Overview](../.cursor/rules/mcp-ecosystem.mdc) - MCP server overview
+- [Memory Bank Overview](../.cursor/rules/memory-bank-overview.mdc) - Memory bank system overview
+- [Context7 MCP Guide](../.cursor/rules/mcp-context7.mdc) - Context7 integration
+- [Basic Memory MCP Guide](../.cursor/rules/mcp-basic-memory.mdc) - Basic Memory integration
+- [System Architecture](../.cursor/rules/technical-architecture.mdc) - System architecture and relationships
 
 ## 🎯 **NEXT STEPS**
 
