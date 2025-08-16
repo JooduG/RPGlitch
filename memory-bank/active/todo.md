@@ -23,3 +23,4 @@
 
 - [x] Docs cleanup: condensed root README, per-app READMEs, combine-views banner
 - [x] Consolidated READMEs, generated banner, optional docs, Jest setup, lint/test green
+- [ ] RPGlitch storyboard flow hardening (toolbar, cancel, showPicker, dynamic title)

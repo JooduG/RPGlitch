@@ -75,8 +75,13 @@
     });
     screen.appendChild(content);
     App.showEl(screen);
-    const backBtn = doc.getElementById('profile-back');
-    if (backBtn) backBtn.onclick = () => App.goBackWithFallback('#storyboard');
+
+    const back  = doc.getElementById('profile-back');
+    const edit  = doc.getElementById('profile-edit');
+    const copy  = doc.getElementById('profile-copy');
+    if (back) back.onclick = () => App.navigateBackOrReturnDefault('#storyboard');
+    if (edit) edit.onclick = () => App.router?.navigate?.(`#form/${type}/${id}`);
+    if (copy) copy.onclick = async () => App.copyEntity?.(type, id);
   }
 
   App.renderProfile = App.renderProfile || renderProfile;
@@ -95,14 +100,14 @@
 
   function renderForm(type, id) {
     const cancelBtn = doc.getElementById('form-cancel');
-    const q = App.getHashQuery ? App.getHashQuery() : getHashQuery();
-    const fromId = q.get('from');
-    const returnTo = fromId ? `#profile/${type}/${fromId}` : '#storyboard';
     if (cancelBtn)
       cancelBtn.onclick = (e) => {
         e?.preventDefault();
-        if (App.goBackWithFallback) App.goBackWithFallback(returnTo, '#storyboard');
-        else App.router?.navigate(returnTo);
+        if (typeof App.navigateBackOrReturnDefault === 'function') {
+          App.navigateBackOrReturnDefault('#storyboard');
+        } else {
+          App.router?.navigate?.('#storyboard');
+        }
       };
 
     const sb = doc.getElementById('storyboard-screen');
