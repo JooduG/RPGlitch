@@ -441,12 +441,12 @@ App._attachCardNavigation = function () {
 
         if (!id && select) {
           try {
-            if (typeof select.showPicker === 'function') select.showPicker();
-            else {
-              select.focus();
-              select.click();
+            if (typeof select.showPicker !== 'function') {
+              throw new Error('showPicker not available, using fallback.');
             }
-          } catch {
+            select.showPicker();
+          } catch (e) {
+            // Fallback for browsers that don't support showPicker() or if it fails.
             select.focus();
             select.click();
           }
