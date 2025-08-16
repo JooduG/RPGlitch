@@ -445,6 +445,7 @@ App._attachCardNavigation = function () {
               throw new Error('showPicker not available, using fallback.');
             }
             select.showPicker();
+          // eslint-disable-next-line no-unused-vars
           } catch (e) {
             // Fallback for browsers that don't support showPicker() or if it fails.
             select.focus();
