@@ -26,3 +26,4 @@
 - 2025-08-15 Consolidated READMEs, added generated banner, optionalized missing docs, added Jest setup, lint/test now green.
 - 2025-08-15 Implemented return-aware entity forms, restored empty storyboard card HTML, polished selection borders, defaulted combine-views warnings off, and merged todo notes.
 - 2025-08-17 Tightened storyboard/profile flows with in-place card updates, return-aware forms, unified placeholders, and chin/search UI polish.
+- 2025-08-18 Hardened storyboard flow: unified image helper, guarded picker, wired profile toolbar and cancel, refreshed dynamic title and shuffle, cleared chin focus ring.

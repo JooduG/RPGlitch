@@ -430,16 +430,29 @@ App._attachCardNavigation = function () {
         const card = e.target.closest('.storyboard-card');
         if (!card) return;
 
+        const select = card.querySelector('select');
+
         // allow switching selection even if another is selected
         const all = storyboard.querySelectorAll('.storyboard-card');
         App.setSelected(card, all);
 
-        // navigate if we have an entity
         const type = card.dataset.entityType || card.dataset.type;
-        const id =
-          card.dataset.entityId ||
-          card.querySelector('select')?.value ||
-          '';
+        const id = card.dataset.entityId || select?.value || '';
+
+        if (!id && select) {
+          try {
+            if (typeof select.showPicker !== 'function') {
+              throw new Error('showPicker not available, using fallback.');
+            }
+            select.showPicker();
+          } catch (e) {
+            // Fallback for browsers that don't support showPicker() or if it fails.
+            select.focus();
+            select.click();
+          }
+          return;
+        }
+
         if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
       });
     }
@@ -578,11 +591,13 @@ App._defaultStoryboardTitle = function () {
   return title.length > 80 ? `${title.slice(0, 77)}…` : title;
 };
 
-App.setDynamicTitle = function () {
-  const titleEl = document.getElementById('storyboard-dynamic-title');
-  if (!titleEl || titleEl.dataset.manual === 'true') return;
-
-  titleEl.textContent = App._defaultStoryboardTitle();
+App.setDynamicTitle = function (title, { manual = false } = {}) {
+  const el = document.getElementById('storyboard-dynamic-title');
+  if (!el) return;
+  if (!el.dataset.manual || el.dataset.manual === 'false' || manual) {
+    el.textContent = title || App._defaultStoryboardTitle?.() || '';
+    el.dataset.manual = manual ? 'true' : 'false';
+  }
 };
 
 App._setupStoryboardTitle = function () {
@@ -660,20 +675,7 @@ App.populateStoryboardSelects = function () {
 
 App.onStoryboardChange = function (e) {
   const select = e.target;
-  const card = select.closest('.storyboard-card');
-  if (!card) return;
-  const selectedOption = select.options[select.selectedIndex];
-  const entity = !select.value ? null : {
-    id: select.value,
-    title: selectedOption.textContent,
-    description: selectedOption.dataset.desc || '',
-    palette: selectedOption.dataset.brand || '',
-    imageUrl: selectedOption.dataset.image || '',
-    image: selectedOption.dataset.image || '',
-    isPremade: !!selectedOption.dataset.premade,
-    kind: card.dataset.type,
-  };
-  App.updateStoryboardCard(card, entity);
+  App.updateStoryboardCard(select);
   App.setDynamicTitle?.();
 };
 
@@ -682,21 +684,25 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
   App._setupStoryboardTitle();
   const title = document.getElementById('storyboard-dynamic-title');
   if (title) {
+    title.addEventListener('input', () => {
+      title.dataset.manual = 'true';
+    });
     title.addEventListener('dblclick', () => {
-      if (title.dataset.manual === 'true') title.dataset.manual = '';
+      title.dataset.manual = 'false';
+      App.setDynamicTitle();
     });
   }
   const shuffleBtn = document.getElementById('shuffle-btn');
   if (shuffleBtn) {
     shuffleBtn.addEventListener('click', () => {
-      document.querySelectorAll('select.storyboard-card-title').forEach((select) => {
-        const opts = select.querySelectorAll('option:not([value=""])');
-        if (opts.length > 0) {
-          const idx = Math.floor(Math.random() * opts.length);
-          select.selectedIndex = idx + 1;
-          select.dispatchEvent(new Event('change'));
-        }
+      ['storyboard-ai-select', 'storyboard-user-select', 'storyboard-world-select'].forEach((id) => {
+        const s = document.getElementById(id);
+        if (!s) return;
+        const opts = [...s.options].filter((o) => o.value);
+        if (opts.length) s.value = opts[Math.floor(Math.random() * opts.length)].value;
+        s.dispatchEvent(new Event('change', { bubbles: true }));
       });
+      App.setDynamicTitle?.();
     });
   }
   document.querySelectorAll('.storyboard-card').forEach(card => {

@@ -51,64 +51,59 @@
     }
   };
 
-  // Convert entity/placeholder info into a picture node with white icon fallback
-  App.getPictureNode = function (entity = {}, options = {}) {
-    const node = App.getPictureHTML
-      ? App.getPictureHTML(entity, options)
-      : null;
-    if (node) node.style.color = '#fff';
-    return node || document.createElement('div');
-  };
+    // ---------- Image helper ----------
+    App.getPictureNode =
+      App.getPictureNode ||
+      function getPictureNode(entity, opts = {}) {
+        const html = (global.getPictureHTML || globalThis.getPictureHTML)?.(
+          entity || {},
+          opts
+        ) || '';
+        const frag = global.document
+          .createRange()
+          .createContextualFragment(html);
+        return frag.firstElementChild || global.document.createElement('div');
+      };
 
-  // History back with graceful fallback hash
-  App.goBackWithFallback = function (returnHash, fallback = '#storyboard') {
-    const target = returnHash || fallback;
-    if (global.history.length > 1) {
-      global.history.back();
-      return;
-    }
-    global.location.hash = target;
-  };
+    // ---------- Navigation shims ----------
+    App.navigateBackOrReturnDefault =
+      App.navigateBackOrReturnDefault ||
+      function (returnTo = '#storyboard') {
+        const q = App.getHashQuery?.() || new URLSearchParams('');
+        const fallback = q.get('return') || returnTo;
+        App.router?.navigate?.(fallback);
+      };
 
-  // Convert entity/placeholder info into a picture node with white icon fallback
-  App.getPictureNode = function (entity = {}, options = {}) {
-    const node = App.getPictureHTML
-      ? App.getPictureHTML(entity, options)
-      : null;
-    if (node) node.style.color = '#fff';
-    return node || document.createElement('div');
-  };
-
-  // History back with graceful fallback hash
-  App.goBackWithFallback = function (returnHash, fallback = '#storyboard') {
-    const target = returnHash || fallback;
-    if (global.history.length > 1) {
-      global.history.back();
-      return;
-    }
-    global.location.hash = target;
-  };
-
-  // ---------- Back with fallback ----------
-  App.goBackWithFallback = function (fallbackHash = '#storyboard') {
-    try {
-      // If we have history, go back; otherwise navigate to fallback.
-      if (history.length > 2) history.back();
-      else global.location.hash = fallbackHash;
-    } catch {
-      global.location.hash = fallbackHash;
-    }
-  };
+    App.goBackWithFallback =
+      App.goBackWithFallback ||
+      function (returnTo = '#storyboard', fallback = '#storyboard') {
+        try {
+          App.navigateBackOrReturnDefault?.(returnTo) ??
+            App.router?.navigate(fallback);
+        } catch {
+          App.router?.navigate?.(fallback);
+        }
+      };
 
   // ---------- Chin open/close & focus visuals ----------
-  App._closeChin = function () {
-    const container = document.getElementById('chin-container');
-    if (!container) return;
-    container.querySelectorAll('.chin').forEach((p) => App.hideEl(p));
-    App.hideEl(container);
-    document.body.classList.remove('chin-open'); // ensure focus ring is off
-    App.selectTopBarTab?.(null);
-  };
+    App._closeChin = function () {
+      const container = document.getElementById('chin-container');
+      if (!container) return;
+      container.querySelectorAll('.chin').forEach((p) => App.hideEl(p));
+      App.hideEl(container);
+      document.body.classList.remove('chin-open');
+      App.selectTopBarTab?.(null);
+    };
+
+    App._closeChin = (function (prev) {
+      return function (...args) {
+        prev?.apply(this, args);
+        requestAnimationFrame(() => {
+          global.document.activeElement?.blur();
+          global.document.body.classList.remove('chin-open');
+        });
+      };
+    })(App._closeChin);
 
   App._toggleChinContent = function (chin) {
     const container = document.getElementById('chin-container');
@@ -157,43 +152,4 @@
     });
   };
 
-  // ---------- Picture node (image or placeholder SVG) ----------
-  App.getPictureNode = function (entity = {}, { context } = {}) {
-    const url = entity.imageUrl || entity.image;
-    const title = entity.title || entity.name || '';
-    const kind = (entity.kind || entity.type || '').toLowerCase();
-
-    if (url) {
-      const img = new Image();
-      img.decoding = 'async';
-      img.loading = 'lazy';
-      img.alt = title || 'picture';
-      img.src = url;
-      img.className = 'picture';
-      return img;
-    }
-
-    const wrap = document.createElement('div');
-    wrap.className = 'picture-placeholder';
-    wrap.setAttribute('aria-hidden', 'true');
-
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('width', '48');
-    svg.setAttribute('height', '48');
-    svg.setAttribute('fill', 'currentColor');
-
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    // Simple icons: character (user), world (planet), story (book)
-    const d =
-      kind === 'world'
-        ? 'M12 2a10 10 0 100 20 10 10 0 000-20zm6.9 6h-3.1a15 15 0 010 8h3.1a8 8 0 000-8zM5.2 8a8 8 0 000 8h3.1a15 15 0 010-8H5.2z'
-        : kind === 'story'
-        ? 'M6 4h9a3 3 0 013 3v11H8a2 2 0 00-2 2H5V6a2 2 0 011-2zm1 4h10V7a1 1 0 00-1-1H7v2z'
-        : 'M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-5 0-8 3-8 5v1h16v-1c0-2-3-5-8-5z';
-    path.setAttribute('d', d);
-    svg.appendChild(path);
-    wrap.appendChild(svg);
-    return wrap;
-  };
-})(this);
+  })(this);

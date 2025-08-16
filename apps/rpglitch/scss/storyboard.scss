@@ -43,9 +43,25 @@
   fill: currentcolor;
 }
 
-/* Empty-card title centered; dropdown title still left-aligned */
-.storyboard-card.empty-card .card-title { text-align: center; }
-.storyboard-card select.storyboard-card-title { text-align: left; }
+/* Center only storyboard card titles; keep dropdowns/options left-aligned */
+.storyboard-card .card-title,
+.storyboard-card select.storyboard-card-title {
+  text-align: center;
+}
+
+select,
+.storyboard-card select {
+  text-align: left;
+  text-align-last: left;
+}
+
+.storyboard-card option {
+  text-align: left;
+}
+
+.storyboard-card.empty-card .card-title {
+  opacity: 0.9;
+}
 
 /* Optional: ensure overlays don’t block clicks */
 .storyboard-card .overlay { pointer-events: none; }
