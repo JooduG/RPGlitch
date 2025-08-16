@@ -1,9 +1,9 @@
-@use 'scss/storyboard';
-@use 'scss/placeholders';
+@use "scss/storyboard";
+@use "scss/placeholders";
 
 :root {
-  --color-accent:#ff7ad5;
-  --z-overlay:10000;
+  --color-accent: #ff7ad5;
+  --z-overlay: 10000;
   --pico-radius: 0.5rem;
   --pico-box-shadow: 0;
   --pico-switch-thumb-box-shadow: 0;
@@ -44,7 +44,8 @@
 
 /* Add more: violet, amber, indigo, slate, etc. */
 
-html, body {
+html,
+body {
   min-height: 100vh;
   height: 100%;
   overflow: visible;
@@ -53,7 +54,14 @@ html, body {
   box-sizing: border-box;
 }
 
-h1, h2, h3, h4, h5, h6, p, ul {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul {
   color: inherit;
 }
 
@@ -99,8 +107,9 @@ button {
   display: flex;
   align-items: center;
   flex: nowrap;
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-              box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition:
+    transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
 }
 
@@ -127,17 +136,17 @@ button {
 
 .chin-card header h4,
 .storyboard-card-right header .card-title {
-  margin: 0 0 .25rem;
+  margin: 0 0 0.25rem;
   line-height: 1.2;
 }
 
 .chin-card header .card-title {
-   margin-bottom: .25rem; 
-  }
+  margin-bottom: 0.25rem;
+}
 
 .storyboard-card.empty-card .card-title {
   opacity: 0.6;
-  text-align: center; 
+  text-align: center;
 }
 
 .clamp-2 {
@@ -164,35 +173,34 @@ button {
 }
 
 /* “Empty” card visual */
-.storyboard-card[data-id="empty"] .card-title { opacity: 0.9; }
-
-.storyboard-card:not(.empty-card) .card-title {
-   text-align: left; 
-  }
-
-.storyboard-card.empty-card header .card-title { 
-  text-align: center; 
-  justify-content: center; 
+.storyboard-card[data-id="empty"] .card-title {
+  opacity: 0.9;
 }
 
-.storyboard-card header select.storyboard-card-title { 
+.storyboard-card:not(.empty-card) .card-title {
+  text-align: left;
+}
+
+.storyboard-card.empty-card header .card-title {
+  text-align: center;
+  justify-content: center;
+}
+
+.storyboard-card header select.storyboard-card-title {
   text-align: left; /* unchanged for dropdown */
 }
 
-:is(button,
-[type="submit"],
-[type="button"],
-[role="button"]).secondary:focus,
+:is(button, [type="submit"], [type="button"], [role="button"]).secondary:focus,
 .button--focused,
-:is(button,
-[type="submit"],
-[type="button"],
-[role="button"]).secondary:is([aria-current]:not([aria-current="false"])):focus, 
-[type="file"]::file-selector-button:focus, 
-[type="file"]::file-selector-button:is([aria-current]:not([aria-current="false"])):focus, 
-[type="reset"]:focus, 
+:is(button, [type="submit"], [type="button"], [role="button"]).secondary:is(
+    [aria-current]:not([aria-current="false"])
+  ):focus,
+[type="file"]::file-selector-button:focus,
+[type="file"]::file-selector-button:is([aria-current]:not([aria-current="false"])):focus,
+[type="reset"]:focus,
 [type="reset"]:is([aria-current]:not([aria-current="false"])):focus {
-  --pico-box-shadow: var(--pico-button-hover-box-shadow, 0 0 0 rgb(0% 0% 0% / 0%)),0 0 0 var(--pico-outline-width) var(--brand-text-on);
+  --pico-box-shadow: var(--pico-button-hover-box-shadow, 0 0 0 rgb(0% 0% 0% / 0%)),
+    0 0 0 var(--pico-outline-width) var(--brand-text-on);
 }
 
 article {
@@ -302,29 +310,31 @@ input[type="file"] {
 .chin-search input,
 .chin-search button {
   height: 2.5rem;
-  padding-block: .5rem;
+  padding-block: 0.5rem;
 }
 
-                        a:not([disabled]),
-                    label:not([disabled]),
-                   select:not([disabled]),
-                   button:not([disabled]),
-     input[type="submit"]:not([disabled]) {
-                                  cursor: pointer;
-                                   color: initial;
-                            }
+a:not([disabled]),
+label:not([disabled]),
+select:not([disabled]),
+button:not([disabled]),
+input[type="submit"]:not([disabled]) {
+  cursor: pointer;
+  color: initial;
+}
 
-                        a:not([disabled]):hover,
-                    label:not([disabled]):hover,
-                   select:not([disabled]):hover,
-                   button:not([disabled]):hover,
-     input[type="submit"]:not([disabled]):hover {
-                                  cursor: pointer;
-                               transform: none;
-                              transition: box-shadow 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-                              box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.6), 0 0 30px rgb(255 255 255 / 15%);
-                             text-shadow: 0 2px 8px rgb(0 0 0 / 30%);
-                             }
+a:not([disabled]):hover,
+label:not([disabled]):hover,
+select:not([disabled]):hover,
+button:not([disabled]):hover,
+input[type="submit"]:not([disabled]):hover {
+  cursor: pointer;
+  transform: none;
+  transition: box-shadow 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow:
+    0 0 20px rgb(var(--pico-primary-rgb), 0.6),
+    0 0 30px rgb(255 255 255 / 15%);
+  text-shadow: 0 2px 8px rgb(0 0 0 / 30%);
+}
 
 .danger,
 .danger:active,
@@ -359,7 +369,9 @@ input[type="file"] {
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  transition: transform 0.25s ease, opacity 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
 }
 
 .chin-actions {
@@ -466,11 +478,12 @@ input[type="file"] {
   max-width: 100%;
   flex: 0 0 auto;
   outline: 2px solid transparent;
-  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-              box-shadow 0.4s ease,
-              opacity 0.4s ease,
-              outline 0.15s ease,
-              color 0.2s ease;
+  transition:
+    transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow 0.4s ease,
+    opacity 0.4s ease,
+    outline 0.15s ease,
+    color 0.2s ease;
   border-radius: var(--pico-border-radius);
   cursor: pointer;
 }
@@ -483,30 +496,33 @@ input[type="file"] {
 
 .chin-card::before,
 .storyboard-card::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   background: radial-gradient(circle at top left, var(--pico-primary) 0%, transparent 70%);
   opacity: 0;
   transform: scale(0.8);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
   pointer-events: none;
 }
 
 .chin-card::after,
 .storyboard-card::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   border: 2px solid var(--pico-primary);
   opacity: 0;
   transform: scale(0.96);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
   pointer-events: none;
 }
-
 
 .chin-card-left {
   min-width: 0;
@@ -637,7 +653,7 @@ input[type="file"] {
 
 .chin-card .card-description,
 .storyboard-card-right .card-description {
-  margin: .25rem 0 0;
+  margin: 0.25rem 0 0;
   line-height: 1.35;
 }
 
@@ -651,7 +667,7 @@ input[type="file"] {
 /* Empty-storyboard headline centered, but real choice stays left */
 .storyboard-card.empty-card select.storyboard-card-title {
   text-align: center;
-  text-align-last: center;  /* Windows/Edge */
+  text-align-last: center; /* Windows/Edge */
 }
 
 /* Hide focus ring if a chin is closed */
@@ -662,22 +678,23 @@ details:not([open]) .button--focused,
 }
 
 .chin-card header h4 {
-   margin-bottom: .25rem; 
-  }
+  margin-bottom: 0.25rem;
+}
 
-  /* Only show the nice focus effect while any chin is open */
+/* Only show the nice focus effect while any chin is open */
 .chin-focus-ring {
-   opacity: 0; transition: opacity .15s ease; 
-  }
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
 
 body.chin-open .chin-focus-ring {
-   opacity: 1; 
-  }
+  opacity: 1;
+}
 
 .chin-card .subtitle {
-   margin-top: .125rem; 
-   display: block; 
-  }
+  margin-top: 0.125rem;
+  display: block;
+}
 
 .chin-card .card-description,
 .chin-card .description {
@@ -772,14 +789,16 @@ body.chin-open .chin-focus-ring {
   border-radius: 12px;
 }
 
-.storyboard-card[data-id="empty"] .card-title::before { content: "Empty"; }
+.storyboard-card[data-id="empty"] .card-title::before {
+  content: "Empty";
+}
 
 .storyboard-card[data-id="empty"] .card-thumb {
   background: var(--muted-bg, #1f2733);
   color: var(--muted-fg, #8aa0b4);
-  display: grid; place-items: center;
+  display: grid;
+  place-items: center;
 }
-
 
 .profile-titlebar {
   margin-block-start: 0.5rem;
@@ -844,7 +863,6 @@ body.chin-open .chin-focus-ring {
   backdrop-filter: blur(10px);
 }
 
-
 .profile-field {
   display: grid;
   grid-template-columns: 20% auto;
@@ -871,7 +889,6 @@ body.chin-open .chin-focus-ring {
   font-weight: 600;
   color: var(--pico-h1-color, #fff);
 }
-
 
 .profile header {
   text-align: center;
@@ -925,10 +942,10 @@ body.chin-open .chin-focus-ring {
 
 .profile-name:empty::before,
 .profile-name:blank::before {
- content: attr(data-placeholder);
- color: rgb(255 255 255 / 50%);
- font-style: italic;
- pointer-events: none;
+  content: attr(data-placeholder);
+  color: rgb(255 255 255 / 50%);
+  font-style: italic;
+  pointer-events: none;
 }
 
 .profile-name[data-placeholder]:not(:focus):empty::before,
@@ -1023,21 +1040,20 @@ body.chin-open .chin-focus-ring {
   overflow: visible;
 }
 
-.main-content-wrapper{
+.main-content-wrapper {
   position: relative;
 }
 
 .picture.profile-picture[data-is-placeholder],
 .storyboard-card-left .profile-picture[data-is-placeholder],
 .chin-card .profile-picture[data-is-placeholder] {
-   color: #fff; 
-  }
+  color: #fff;
+}
 
 .chin-card .card-description {
-   margin-top: .125rem; line-height: 1.25; 
-  }
-
-
+  margin-top: 0.125rem;
+  line-height: 1.25;
+}
 
 #storyboard-dynamic-title-wrapper {
   display: flex;
@@ -1136,7 +1152,6 @@ body.chin-open .chin-focus-ring {
   outline: 2px solid var(--pico-primary-hover);
 }
 
-
 .storyboard-card .card-title--editing {
   outline: 2px solid var(--pico-primary-hover);
 }
@@ -1192,12 +1207,14 @@ body.chin-open .chin-focus-ring {
 .storyboard-card[disabled]:hover {
   color: var(--pico-primary);
   text-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.6);
-  transition: color 0.3s ease, text-shadow 0.3s ease;
+  transition:
+    color 0.3s ease,
+    text-shadow 0.3s ease;
   font-weight: bold;
   font-size: 0.9em;
   box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.3);
   border: 2px solid rgb(var(--pico-primary-rgb), 0.5);
-    cursor: pointer;
+  cursor: pointer;
   pointer-events: auto;
   filter: none;
 }
@@ -1214,7 +1231,6 @@ body.chin-open .chin-focus-ring {
   .picture {
     height: 150px;
     gap: 0.75rem;
-
   }
 
   .profile-name {
@@ -1316,8 +1332,6 @@ body.chin-open .chin-focus-ring {
   }
 }
 
-
-
 @keyframes card-wiggle {
   0% {
     transform: translateY(0) scale(1) rotate(0);
@@ -1347,11 +1361,14 @@ body.chin-open .chin-focus-ring {
 }
 
 @keyframes subtle-pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
   }
 
   50% {
-    box-shadow: 0 4px 15px rgb(0 0 0 / 20%), 0 0 10px rgb(255 255 255 / 5%);
+    box-shadow:
+      0 4px 15px rgb(0 0 0 / 20%),
+      0 0 10px rgb(255 255 255 / 5%);
   }
 }
