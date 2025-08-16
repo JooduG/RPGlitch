@@ -192,7 +192,7 @@
     <div id="storyboard-screen">
 
       <div id="storyboard-dynamic-title-wrapper">
-        <h2 id="storyboard-dynamic-title">Storyboard</h2>
+        <h2 id="storyboard-dynamic-title" role="textbox" aria-multiline="false" aria-label="Storyboard title">Storyboard</h2>
       </div>
       
         <div id="storyboard-grid">
@@ -252,13 +252,13 @@
         <!-- Chat Wrapper -->
         <div id="chat-wrapper">
           <!-- Chat Feed -->
-          <div id="chat-feed"></div>
+          <div id="chat-feed" role="log" aria-live="polite" aria-relevant="additions text"></div>
           
           <!-- Status Elements -->
           <div id="story-concluded">Story concluded</div>
           <div id="no-messages">No messages yet</div>
-          <div id="status-notifier"></div>
-          <div id="typing-indicator"></div>
+          <div id="status-notifier" role="status" aria-live="polite" aria-atomic="true"></div>
+          <div id="typing-indicator" role="status" aria-live="polite" aria-atomic="true"></div>
           <button id="conclude-story">Conclude Story</button>
         </div>
       </div>
@@ -5529,137 +5529,181 @@
 
 /* utils.js */
 // apps/rpglitch/js/utils.js
+/* Utility helpers for RPGlitch
+ * Safe storage, DOM helpers, chin management
+ */
+
 ;(function (global) {
   const App = (global.App = global.App || {});
+
+  // ---------- Debug Logger ----------
+  App.debug = App.debug ?? true;
+  App.log = function (...args) {
+    if (App.debug) console.log("[RPGlitch]", ...args);
+  };
+
+  // ---------- Safe JSON & Storage ----------
+  App.safeJSONParse = function (str, fallback = null) {
+    try {
+      return JSON.parse(str);
+    } catch (e) {
+      console.warn("⚠️ Failed to parse JSON:", e.message);
+      return fallback;
+    }
+  };
+
+  App.safeLocalStorageGet = function (key, fallback = []) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? App.safeJSONParse(raw, fallback) : fallback;
+    } catch (e) {
+      console.warn(`⚠️ Storage error for key "${key}"`, e.message);
+      return fallback;
+    }
+  };
+
+  // ---------- Debounce ----------
+  App.debounce = function (fn, wait = 300) {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => fn.apply(this, args), wait);
+    };
+  };
 
   // ---------- Show / Hide ----------
   App.hideEl = function (el) {
     if (!el) return;
-    el.setAttribute('hidden', '');
-    el.classList.remove('is-open');
+    el.setAttribute("hidden", "");
+    el.classList.remove("is-open");
   };
   App.showEl = function (el) {
     if (!el) return;
-    el.removeAttribute('hidden');
-    el.classList.add('is-open');
+    el.removeAttribute("hidden");
+    el.classList.add("is-open");
   };
 
   // ---------- Branding ----------
   App.applyBrand = function (container, entity) {
     if (!container) return;
     const color =
-      (entity && (entity.palette || entity.brandColor || entity.color)) || '';
+      (entity && (entity.palette || entity.brandColor || entity.color)) || "";
     if (color) {
-      container.style.setProperty('--brand-color', String(color));
-      container.classList.add('has-brand');
+      container.style.setProperty("--brand-color", String(color));
+      container.classList.add("has-brand");
     } else {
-      container.style.removeProperty('--brand-color');
-      container.classList.remove('has-brand');
+      container.style.removeProperty("--brand-color");
+      container.classList.remove("has-brand");
     }
   };
 
   // ---------- Selection helper ----------
   App.setSelected = function (el, all) {
     if (!el || !all) return;
-    Array.from(all).forEach((node) => node.classList.toggle('selected', node === el));
+    Array.from(all).forEach((node) =>
+      node.classList.toggle("selected", node === el)
+    );
   };
 
   // ---------- Hash query (used by forms/navigation) ----------
   App.getHashQuery = function () {
-    const h = global.location?.hash || '';
-    const qIndex = h.indexOf('?');
-    const q = qIndex >= 0 ? h.slice(qIndex + 1) : '';
+    const h = global.location?.hash || "";
+    const qIndex = h.indexOf("?");
+    const q = qIndex >= 0 ? h.slice(qIndex + 1) : "";
     try {
       return new URLSearchParams(q);
     } catch {
       const params = new URLSearchParams();
-      q.split('&').forEach((pair) => {
-        const [k, v] = pair.split('=');
-        if (k) params.set(decodeURIComponent(k), decodeURIComponent(v || ''));
+      q.split("&").forEach((pair) => {
+        const [k, v] = pair.split("=");
+        if (k) params.set(decodeURIComponent(k), decodeURIComponent(v || ""));
       });
       return params;
     }
   };
 
-    // ---------- Image helper ----------
-    App.getPictureNode =
-      App.getPictureNode ||
-      function getPictureNode(entity, opts = {}) {
-        const html = (global.getPictureHTML || globalThis.getPictureHTML)?.(
-          entity || {},
-          opts
-        ) || '';
-        const frag = global.document
-          .createRange()
-          .createContextualFragment(html);
-        return frag.firstElementChild || global.document.createElement('div');
-      };
-
-    // ---------- Navigation shims ----------
-    App.navigateBackOrReturnDefault =
-      App.navigateBackOrReturnDefault ||
-      function (returnTo = '#storyboard') {
-        const q = App.getHashQuery?.() || new URLSearchParams('');
-        const fallback = q.get('return') || returnTo;
-        App.router?.navigate?.(fallback);
-      };
-
-    App.goBackWithFallback =
-      App.goBackWithFallback ||
-      function (returnTo = '#storyboard', fallback = '#storyboard') {
-        try {
-          App.navigateBackOrReturnDefault?.(returnTo) ??
-            App.router?.navigate(fallback);
-        } catch {
-          App.router?.navigate?.(fallback);
-        }
-      };
-
-  // ---------- Chin open/close & focus visuals ----------
-    App._closeChin = function () {
-      const container = document.getElementById('chin-container');
-      if (!container) return;
-      container.querySelectorAll('.chin').forEach((p) => App.hideEl(p));
-      App.hideEl(container);
-      App.selectTopBarTab?.(null);
+  // ---------- Image helper ----------
+  App.getPictureNode =
+    App.getPictureNode ||
+    function getPictureNode(entity, opts = {}) {
+      const html =
+        (global.getPictureHTML || globalThis.getPictureHTML)?.(entity || {}, opts) || "";
+      const frag = global.document
+        .createRange()
+        .createContextualFragment(html);
+      return frag.firstElementChild || global.document.createElement("div");
     };
 
-    App._closeChin = (function (prev) {
-      return function (...args) {
-        prev?.apply(this, args);
-        requestAnimationFrame(() => {
-          global.document.activeElement?.blur();
-          global.document.body.classList.remove('chin-open');
-        });
-      };
-    })(App._closeChin);
+  // ---------- Navigation shims ----------
+  App.navigateBackOrReturnDefault =
+    App.navigateBackOrReturnDefault ||
+    function (returnTo = "#storyboard") {
+      const q = App.getHashQuery?.() || new URLSearchParams("");
+      const fallback = q.get("return") || returnTo;
+      App.router?.navigate?.(fallback);
+    };
+
+  App.goBackWithFallback =
+    App.goBackWithFallback ||
+    function (returnTo = "#storyboard", fallback = "#storyboard") {
+      try {
+        App.navigateBackOrReturnDefault?.(returnTo) ??
+          App.router?.navigate(fallback);
+      } catch {
+        App.router?.navigate?.(fallback);
+      }
+    };
+
+  // ---------- Chin open/close & focus visuals ----------
+  App._closeChin = function () {
+    const container = document.getElementById("chin-container");
+    if (!container) return;
+    container.querySelectorAll(".chin").forEach((p) => App.hideEl(p));
+    App.hideEl(container);
+    App.selectTopBarTab?.(null);
+  };
+
+  App._closeChin = (function (prev) {
+    return function (...args) {
+      prev?.apply(this, args);
+      requestAnimationFrame(() => {
+        global.document.activeElement?.blur();
+        global.document.body.classList.remove("chin-open");
+      });
+    };
+  })(App._closeChin);
 
   App._toggleChinContent = function (chin) {
-    const container = document.getElementById('chin-container');
+    const container = document.getElementById("chin-container");
     if (!container) return;
 
-    const panels = container.querySelectorAll('.chin');
-    const target = chin ? container.querySelector(`[data-chin="${chin}"]`) : null;
+    const panels = container.querySelectorAll(".chin");
+    const target = chin
+      ? container.querySelector(`[data-chin="${chin}"]`)
+      : null;
 
     // Hide everything first
     panels.forEach((panel) => App.hideEl(panel));
     App.hideEl(container);
-    document.body.classList.remove('chin-open');
+    document.body.classList.remove("chin-open");
 
-    if (!target || target.classList.contains('is-open')) return;
+    if (!target || target.classList.contains("is-open")) return;
 
     // Open requested panel
     App.showEl(container);
     App.showEl(target);
-    document.body.classList.add('chin-open');
+    document.body.classList.add("chin-open");
 
-    const input = target.querySelector('.chin-search');
+    const input = target.querySelector(".chin-search");
     if (input) input.focus();
 
     const c = target.dataset.chin;
-    if (c === 'stories'    && typeof App.renderStoryList     === 'function') App.renderStoryList();
-    if (c === 'characters' && typeof App.renderCharacterList === 'function') App.renderCharacterList();
-    if (c === 'worlds'     && typeof App.renderWorldList     === 'function') App.renderWorldList();
+    if (c === "stories" && typeof App.renderStoryList === "function")
+      App.renderStoryList();
+    if (c === "characters" && typeof App.renderCharacterList === "function")
+      App.renderCharacterList();
+    if (c === "worlds" && typeof App.renderWorldList === "function")
+      App.renderWorldList();
   };
 
   // Ensure we close chin on ESC / outside click / route change
@@ -5667,21 +5711,20 @@
     if (App._chinEventsBound) return;
     App._chinEventsBound = true;
 
-    window.addEventListener('hashchange', App._closeChin, { passive: true });
+    window.addEventListener("hashchange", App._closeChin, { passive: true });
     document.addEventListener(
-      'click',
+      "click",
       (e) => {
-        const inside = e.target.closest?.('#chin-container, [data-open-chin]');
+        const inside = e.target.closest?.("#chin-container, [data-open-chin]");
         if (!inside) App._closeChin();
       },
       { capture: true }
     );
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') App._closeChin();
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") App._closeChin();
     });
   };
-
-  })(this);
+})(this);
 
 
 /* entities.js */
@@ -5690,6 +5733,13 @@
   const doc = global.document;
   const storeMap = { character: 'characters', world: 'worlds' };
   const STORAGE_VERSION = 1;
+
+  // --- NEW: safe string sanitize (no-op if DOMPurify missing) ---
+  function sanitizeStr(s) {
+    const v = typeof s === 'string' ? s : String(s ?? '');
+    try { return global.DOMPurify ? global.DOMPurify.sanitize(v) : v; }
+    catch { return v; }
+  }
 
   function getDeterministicColor(seed) {
     let hash = 0;
@@ -5744,6 +5794,9 @@
       const img = doc.createElement('img');
       img.alt = `${kind} image for ${title}`;
       img.src = src;
+      // --- NEW: non-intrusive perf hints ---
+      img.loading = 'lazy';
+      img.decoding = 'async';
       wrap.appendChild(img);
       return wrap;
     }
@@ -5777,10 +5830,24 @@
     global.localStorage.setItem(key, JSON.stringify(items));
   }
 
+  // --- UPDATED: normalize now sanitizes strings and trims ---
   function normalize(base = {}) {
-    const nameOrTitle = base.name || base.title || '';
-    const summaryOrDesc = base.summary || base.description || '';
-    const image = base.imageUrl || base.image || '';
+    const nameOrTitle = sanitizeStr(base.name || base.title || '').trim();
+    const summaryOrDesc = sanitizeStr(base.summary || base.description || '').trim();
+    const image = sanitizeStr(base.imageUrl || base.image || '').trim();
+
+    const sections = base.sections || {};
+    const safeSections = {
+      forever: sanitizeStr(sections.forever || '').trim(),
+      past: sanitizeStr(sections.past || '').trim(),
+      present: sanitizeStr(sections.present || '').trim(),
+      future: sanitizeStr(sections.future || '').trim()
+    };
+
+    const rawTags = Array.isArray(base.tags)
+      ? base.tags
+      : (base.tags ? String(base.tags).split(',') : []);
+    const safeTags = rawTags.map((s) => sanitizeStr(String(s).trim())).filter(Boolean);
 
     return {
       name: nameOrTitle,
@@ -5789,99 +5856,95 @@
       description: summaryOrDesc,
       imageUrl: image,
       image,
-      tags: Array.isArray(base.tags) ? base.tags : (base.tags ? String(base.tags).split(',').map(s => s.trim()) : []),
-      sections: {
-        forever: base.sections?.forever || '',
-        past: base.sections?.past || '',
-        present: base.sections?.present || '',
-        future: base.sections?.future || ''
-      }
+      tags: safeTags,
+      sections: safeSections
     };
   }
 
-    function merge(type, custom) {
-      const key = storeMap[type];
-      const premade = (App.getPremadeItems ? App.getPremadeItems(key) : []).map((e) => ({
-        ...e,
-        kind: type,
-        isPremade: true,
-        isCustom: false,
-        version: STORAGE_VERSION,
-        ...normalize(e)
-      }));
-      const normal = custom.map((e) => ({
-        ...e,
-        kind: type,
-        isPremade: false,
-        isCustom: true,
-        version: STORAGE_VERSION,
-        ...normalize(e)
-      }));
-      return premade.concat(normal);
-    }
+  function merge(type, custom) {
+    const key = storeMap[type];
+    const premade = (App.getPremadeItems ? App.getPremadeItems(key) : []).map((e) => ({
+      ...e,
+      kind: type,
+      isPremade: true,
+      isCustom: false,
+      version: STORAGE_VERSION,
+      ...normalize(e)
+    }));
+    const normal = custom.map((e) => ({
+      ...e,
+      kind: type,
+      isPremade: false,
+      isCustom: true,
+      version: STORAGE_VERSION,
+      ...normalize(e)
+    }));
+    return premade.concat(normal);
+  }
 
-    function _writeAndCache(type, items) {
-      write(type, items);
-      const key = storeMap[type];
+  function _writeAndCache(type, items) {
+    write(type, items);
+    const key = storeMap[type];
+    App._allItemsCache = App._allItemsCache || Object.create(null);
+    App._allItemsCache[key] = merge(type, items);
+  }
+
+  App.entities = {
+    list(type) {
       App._allItemsCache = App._allItemsCache || Object.create(null);
-      App._allItemsCache[key] = merge(type, items);
+      const key = storeMap[type];
+      if (Array.isArray(App._allItemsCache[key])) return App._allItemsCache[key];
+      const data = merge(type, read(type));
+      App._allItemsCache[key] = data;
+      return data;
+    },
+    get(type, id) {
+      return this.list(type).find((e) => e.id === id) || null;
+    },
+    upsert(type, entity) {
+      const items = read(type);
+      const id = entity.id || (global.crypto?.randomUUID?.() || `${type}-${Date.now()}`);
+      const idx = items.findIndex((e) => e.id === id);
+      const base = idx >= 0 ? items[idx] : {};
+      const saved = {
+        id,
+        kind: type,
+        isCustom: true,
+        isPremade: false,
+        version: STORAGE_VERSION,
+        ...base,
+        ...normalize(entity, base)
+      };
+      if (idx >= 0) items[idx] = saved;
+      else items.push(saved);
+      _writeAndCache(type, items);
+      return saved;
+    },
+    update(type, id, entity) {
+      const items = read(type);
+      const idx = items.findIndex((e) => e.id === id);
+      if (idx < 0) return null;
+      const base = items[idx];
+      const saved = {
+        ...base,
+        ...normalize(entity, base)
+      };
+      items[idx] = saved;
+      _writeAndCache(type, items);
+      return saved;
+    },
+    remove(type, id) {
+      const remaining = read(type).filter((e) => e.id !== id);
+      _writeAndCache(type, remaining);
+    },
+    copy(type, id) {
+      const item = this.get(type, id);
+      if (!item) return null;
+      return { ...item, sections: { ...item.sections } };
     }
+  };
+}(typeof window !== 'undefined' ? window : globalThis));
 
-    App.entities = {
-      list(type) {
-        App._allItemsCache = App._allItemsCache || Object.create(null);
-        const key = storeMap[type];
-        if (Array.isArray(App._allItemsCache[key])) return App._allItemsCache[key];
-        const data = merge(type, read(type));
-        App._allItemsCache[key] = data;
-        return data;
-      },
-      get(type, id) {
-        return this.list(type).find((e) => e.id === id) || null;
-      },
-      upsert(type, entity) {
-        const items = read(type);
-        const id = entity.id || (global.crypto?.randomUUID?.() || `${type}-${Date.now()}`);
-        const idx = items.findIndex((e) => e.id === id);
-        const base = idx >= 0 ? items[idx] : {};
-        const saved = {
-          id,
-          kind: type,
-          isCustom: true,
-          isPremade: false,
-          version: STORAGE_VERSION,
-          ...base,
-          ...normalize(entity, base)
-        };
-        if (idx >= 0) items[idx] = saved;
-        else items.push(saved);
-        _writeAndCache(type, items);
-        return saved;
-      },
-      update(type, id, entity) {
-        const items = read(type);
-        const idx = items.findIndex((e) => e.id === id);
-        if (idx < 0) return null;
-        const base = items[idx];
-        const saved = {
-          ...base,
-          ...normalize(entity, base)
-        };
-        items[idx] = saved;
-        _writeAndCache(type, items);
-        return saved;
-      },
-      remove(type, id) {
-        const remaining = read(type).filter((e) => e.id !== id);
-        _writeAndCache(type, remaining);
-      },
-      copy(type, id) {
-        const item = this.get(type, id);
-        if (!item) return null;
-        return { ...item, sections: { ...item.sections } };
-      }
-    };
-  }(typeof window !== 'undefined' ? window : globalThis));
 
 /* entity-form.js */
 /* eslint-env browser */
@@ -5894,6 +5957,13 @@
     ['Present', 'present'],
     ['Future', 'future'],
   ];
+
+  // NEW: safe sanitize helper (no-op if DOMPurify missing)
+  function sanitizeStr(s) {
+    const v = typeof s === 'string' ? s : String(s ?? '');
+    try { return global.DOMPurify ? global.DOMPurify.sanitize(v) : v; }
+    catch { return v; }
+  }
 
   function getHashQuery() {
     const [, q = ''] = (global.location.hash || '').split('?');
@@ -5937,6 +6007,8 @@
     if (!screen) return;
 
     screen.textContent = '';
+    // a11y: announce updates
+    screen.setAttribute('aria-live', 'polite');
     screen.appendChild(buildHero(entity));
 
     const content = doc.createElement('div');
@@ -6052,13 +6124,14 @@
     imageInput.value = entity.imageUrl || '';
     imageInput.addEventListener('change', () => {
       const val = imageInput.value.trim();
-      const newEl = App.getPictureHTML
+      const newPic = App.getPictureHTML
         ? App.getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
         : null;
-      if (newEl) {
-        const current = heroWrap.querySelector('.entity-image, .placeholder-image');
-        if (current) current.replaceWith(newEl);
-        else heroWrap.appendChild(newEl);
+      if (newPic) {
+        // UPDATED: replace entire .picture wrapper if present
+        const currentWrap = heroWrap.querySelector('.picture');
+        if (currentWrap) currentWrap.replaceWith(newPic);
+        else heroWrap.appendChild(newPic);
       }
     });
     form.appendChild(createField('imageUrl', 'Image URL', imageInput));
@@ -6104,22 +6177,30 @@
     saveBtn?.addEventListener('click', () => {
       const data = {
         kind: type,
-        name: titleInput.value.trim(),
-        summary: summaryInput.value.trim(),
-        imageUrl: imageInput.value.trim(),
-        image: imageInput.value.trim(),
-        tags: tagsInput.value.split(',').map((t) => t.trim()).filter(Boolean),
+        name: sanitizeStr(titleInput.value.trim()),
+        summary: sanitizeStr(summaryInput.value.trim()),
+        imageUrl: sanitizeStr(imageInput.value.trim()),
+        image: sanitizeStr(imageInput.value.trim()),
+        tags: tagsInput.value
+          .split(',')
+          .map((t) => sanitizeStr(t.trim()))
+          .filter(Boolean),
         sections: {
-          forever: form.elements.forever.value.trim(),
-          past: form.elements.past.value.trim(),
-          present: form.elements.present.value.trim(),
-          future: form.elements.future.value.trim(),
+          forever: sanitizeStr(form.elements.forever.value.trim()),
+          past: sanitizeStr(form.elements.past.value.trim()),
+          present: sanitizeStr(form.elements.present.value.trim()),
+          future: sanitizeStr(form.elements.future.value.trim()),
         },
       };
       if (!data.name) return;
       const saved = App.entities.upsert(type, id === 'new' ? data : { ...data, id });
       App.router.navigate(`#profile/${type}/${saved.id}`);
     });
+
+    // UX: focus title when creating a new entity
+    if (!isEdit) {
+      setTimeout(() => titleInput.focus(), 0);
+    }
   }
 
   // Public API
@@ -6169,8 +6250,6 @@
     }
   }
 
-  // legacy helper removed in favor of App.updateStoryboardCard
-
   // Wiring
   global.addEventListener('hashchange', handleRoute);
 
@@ -6197,7 +6276,7 @@
         });
       }
     });
-  });
+  }, { once: true });
 
   // Router surface
   App.router = {
@@ -6249,7 +6328,17 @@ App.showEl = global.showEl || function (el) {
   if (!el) return null;
   el.removeAttribute('hidden');
   return el;
+  };
+  
+// NEW: tiny debounce fallback (keeps this file self-contained)
+App.debounce = App.debounce || function (fn, wait = 250) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(null, args), wait);
+  };
 };
+
 
 const DATA_KEYS = ['stories', 'characters', 'worlds'];
 
@@ -6389,18 +6478,23 @@ App._attachChinSearchHandlers = function () {
   inputs.forEach((input) => {
     const container = input.closest('.chin') || input.closest('.chin-widget');
     const list = container?.querySelector('.chin-grid');
-
     if (!list) return;
-    input.addEventListener('input', () => {
+
+    const doFilter = () => {
       const term = input.value.toLowerCase();
       list.querySelectorAll('[data-title]').forEach((card) => {
         const title = (card.dataset.title || '').toLowerCase();
         const match = title.includes(term);
         card.toggleAttribute('hidden', !match);
       });
-    });
+    };
+
+    // NEW: debounce without adding new deps
+    const debounced = (App.debounce ? App.debounce(doFilter, 250) : doFilter);
+    input.addEventListener('input', debounced);
   });
 };
+
 
 function loadStoredItems(key) {
   try {
@@ -6532,18 +6626,32 @@ App.getAllItems = App.getAllItems || function (key, refresh = false) {
 function renderList(containerId, key) {
   const container = document.getElementById(containerId);
   if (!container) return;
+
+  // Revoke any previous blob: URLs
   container.querySelectorAll('img.entity-image[src^="blob:"]').forEach((img) => {
     URL.revokeObjectURL(img.src);
   });
+
   container.textContent = '';
   const all = App.getAllItems(key);
-  if (key === 'stories' && all.length === 0) {
+
+  // Keep original story empty message; add gentle empties for others
+  if (all.length === 0) {
     const message = document.createElement('p');
     message.className = 'chin-empty';
-    message.textContent = 'Empty here—time to write your first story!';
+    if (key === 'stories') {
+      message.textContent = 'Empty here—time to write your first story!';
+    } else if (key === 'characters') {
+      message.textContent = 'No characters found yet';
+    } else if (key === 'worlds') {
+      message.textContent = 'No worlds found yet';
+    } else {
+      message.textContent = 'No items found';
+    }
     container.appendChild(message);
     return;
   }
+
   all.forEach((item) => {
     const card = document.createElement('div');
     card.className = 'chin-card';
@@ -6555,6 +6663,11 @@ function renderList(containerId, key) {
       card.dataset.entityType = key.slice(0, -1);
     }
     if (item.isPremade) card.dataset.premade = 'true';
+
+    // NEW: keyboard discoverability
+    card.setAttribute('role', 'button');
+    card.tabIndex = 0;
+    card.setAttribute('aria-label', (item.title || 'Open'));
 
     const media = document.createElement('div');
     media.className = 'media';
@@ -6592,6 +6705,7 @@ function renderList(containerId, key) {
     container.appendChild(card);
   });
 }
+
 
 function renderDropdown(selectId, key) {
   const select = document.getElementById(selectId);
@@ -6642,8 +6756,10 @@ App.refreshAllLists = App.refreshAllLists || function () {
 
 App._attachCardNavigation = function () {
   if (App._cardNavAttached) return;
+
   const container = document.getElementById('chin-container');
   if (container) {
+    // Click
     container.addEventListener('click', (e) => {
       if (e.target.closest('button, a, input, select, textarea')) return;
       const card = e.target.closest('.chin-card[data-type][data-id]');
@@ -6652,51 +6768,86 @@ App._attachCardNavigation = function () {
       const { type, id } = card.dataset;
       if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
     });
+
+    // NEW: keyboard
+    container.addEventListener('keydown', (e) => {
+      const card = e.target.closest('.chin-card[data-type][data-id]');
+      if (!card) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const { type, id } = card.dataset;
+        if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
+      }
+    });
   }
-    // once, after DOM is ready
-    const storyboard = document.getElementById('storyboard-grid');
-    if (storyboard && !storyboard._bound) {
-      storyboard._bound = true;
-      storyboard.addEventListener('click', (e) => {
-        // ignore UI controls
-        if (e.target.closest('select, button, a, input, textarea')) return;
 
-        const card = e.target.closest('.storyboard-card');
-        if (!card) return;
+  // Storyboard grid (existing click + NEW keyboard)
+  const storyboard = document.getElementById('storyboard-grid');
+  if (storyboard && !storyboard._bound) {
+    storyboard._bound = true;
 
+    storyboard.addEventListener('click', (e) => {
+      if (e.target.closest('select, button, a, input, textarea')) return;
+      const card = e.target.closest('.storyboard-card');
+      if (!card) return;
+
+      const select = card.querySelector('select');
+
+      const all = storyboard.querySelectorAll('.storyboard-card');
+      App.setSelected(card, all);
+
+      const type = card.dataset.entityType || card.dataset.type;
+      const id = card.dataset.entityId || select?.value || '';
+
+      if (!id && select) {
+        try {
+          if (typeof select.showPicker !== 'function') throw new Error('no showPicker');
+          select.showPicker();
+        } catch {
+          select.focus();
+          select.click();
+        }
+        return;
+      }
+
+      if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
+    });
+
+    // NEW: keyboard
+    storyboard.addEventListener('keydown', (e) => {
+      const card = e.target.closest('.storyboard-card');
+      if (!card) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
         const select = card.querySelector('select');
-
-        // allow switching selection even if another is selected
-        const all = storyboard.querySelectorAll('.storyboard-card');
-        App.setSelected(card, all);
-
         const type = card.dataset.entityType || card.dataset.type;
         const id = card.dataset.entityId || select?.value || '';
-
         if (!id && select) {
-          try {
-            if (typeof select.showPicker !== 'function') {
-              throw new Error('showPicker not available, using fallback.');
-            }
-            select.showPicker();
-          // eslint-disable-next-line no-unused-vars
-          } catch (e) {
-            // Fallback for browsers that don't support showPicker() or if it fails.
-            select.focus();
-            select.click();
-          }
+          select.focus();
+          select.click();
           return;
         }
-
         if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
-      });
-    }
+      }
+    });
 
-    // make sure chin visuals clean up on route changes / outside clicks
-    App._ensureGlobalChinEvents?.();
+    // Make storyboard cards keyboard focusable
+    storyboard.querySelectorAll('.storyboard-card').forEach((c) => {
+      if (!c.hasAttribute('tabindex')) c.tabIndex = 0;
+      c.setAttribute('role', 'group');
+      const select = c.querySelector('select');
+      if (select && !select.hasAttribute('aria-label')) {
+        select.setAttribute('aria-label', 'Select entity');
+      }
+    });
+  }
+
+  // make sure chin visuals clean up on route changes / outside clicks
+  App._ensureGlobalChinEvents?.();
 
   App._cardNavAttached = true;
 };
+
 
 App.renderStoryList = App.renderStoryList || function () {
   renderList('chin-story-grid', 'stories');
@@ -6840,6 +6991,14 @@ App._setupStoryboardTitle = function () {
   if (!titleEl) return;
   if (titleEl.dataset.editable) return;
   titleEl.dataset.editable = 'true';
+
+  // NEW: explicit a11y attrs (also set in HTML for robustness)
+  titleEl.setAttribute('role', 'textbox');
+  titleEl.setAttribute('aria-multiline', 'false');
+  if (!titleEl.hasAttribute('aria-label')) {
+    titleEl.setAttribute('aria-label', 'Storyboard title');
+  }
+
   titleEl.autocapitalize = 'off';
   titleEl.autocorrect = 'off';
   titleEl.spellcheck = false;

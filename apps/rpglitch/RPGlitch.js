@@ -15,7 +15,17 @@ App.showEl = global.showEl || function (el) {
   if (!el) return null;
   el.removeAttribute('hidden');
   return el;
+  };
+  
+// NEW: tiny debounce fallback (keeps this file self-contained)
+App.debounce = App.debounce || function (fn, wait = 250) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(null, args), wait);
+  };
 };
+
 
 const DATA_KEYS = ['stories', 'characters', 'worlds'];
 
@@ -155,18 +165,23 @@ App._attachChinSearchHandlers = function () {
   inputs.forEach((input) => {
     const container = input.closest('.chin') || input.closest('.chin-widget');
     const list = container?.querySelector('.chin-grid');
-
     if (!list) return;
-    input.addEventListener('input', () => {
+
+    const doFilter = () => {
       const term = input.value.toLowerCase();
       list.querySelectorAll('[data-title]').forEach((card) => {
         const title = (card.dataset.title || '').toLowerCase();
         const match = title.includes(term);
         card.toggleAttribute('hidden', !match);
       });
-    });
+    };
+
+    // NEW: debounce without adding new deps
+    const debounced = (App.debounce ? App.debounce(doFilter, 250) : doFilter);
+    input.addEventListener('input', debounced);
   });
 };
+
 
 function loadStoredItems(key) {
   try {
@@ -298,18 +313,32 @@ App.getAllItems = App.getAllItems || function (key, refresh = false) {
 function renderList(containerId, key) {
   const container = document.getElementById(containerId);
   if (!container) return;
+
+  // Revoke any previous blob: URLs
   container.querySelectorAll('img.entity-image[src^="blob:"]').forEach((img) => {
     URL.revokeObjectURL(img.src);
   });
+
   container.textContent = '';
   const all = App.getAllItems(key);
-  if (key === 'stories' && all.length === 0) {
+
+  // Keep original story empty message; add gentle empties for others
+  if (all.length === 0) {
     const message = document.createElement('p');
     message.className = 'chin-empty';
-    message.textContent = 'Empty here—time to write your first story!';
+    if (key === 'stories') {
+      message.textContent = 'Empty here—time to write your first story!';
+    } else if (key === 'characters') {
+      message.textContent = 'No characters found yet';
+    } else if (key === 'worlds') {
+      message.textContent = 'No worlds found yet';
+    } else {
+      message.textContent = 'No items found';
+    }
     container.appendChild(message);
     return;
   }
+
   all.forEach((item) => {
     const card = document.createElement('div');
     card.className = 'chin-card';
@@ -321,6 +350,11 @@ function renderList(containerId, key) {
       card.dataset.entityType = key.slice(0, -1);
     }
     if (item.isPremade) card.dataset.premade = 'true';
+
+    // NEW: keyboard discoverability
+    card.setAttribute('role', 'button');
+    card.tabIndex = 0;
+    card.setAttribute('aria-label', (item.title || 'Open'));
 
     const media = document.createElement('div');
     media.className = 'media';
@@ -358,6 +392,7 @@ function renderList(containerId, key) {
     container.appendChild(card);
   });
 }
+
 
 function renderDropdown(selectId, key) {
   const select = document.getElementById(selectId);
@@ -408,8 +443,10 @@ App.refreshAllLists = App.refreshAllLists || function () {
 
 App._attachCardNavigation = function () {
   if (App._cardNavAttached) return;
+
   const container = document.getElementById('chin-container');
   if (container) {
+    // Click
     container.addEventListener('click', (e) => {
       if (e.target.closest('button, a, input, select, textarea')) return;
       const card = e.target.closest('.chin-card[data-type][data-id]');
@@ -418,51 +455,86 @@ App._attachCardNavigation = function () {
       const { type, id } = card.dataset;
       if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
     });
+
+    // NEW: keyboard
+    container.addEventListener('keydown', (e) => {
+      const card = e.target.closest('.chin-card[data-type][data-id]');
+      if (!card) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const { type, id } = card.dataset;
+        if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
+      }
+    });
   }
-    // once, after DOM is ready
-    const storyboard = document.getElementById('storyboard-grid');
-    if (storyboard && !storyboard._bound) {
-      storyboard._bound = true;
-      storyboard.addEventListener('click', (e) => {
-        // ignore UI controls
-        if (e.target.closest('select, button, a, input, textarea')) return;
 
-        const card = e.target.closest('.storyboard-card');
-        if (!card) return;
+  // Storyboard grid (existing click + NEW keyboard)
+  const storyboard = document.getElementById('storyboard-grid');
+  if (storyboard && !storyboard._bound) {
+    storyboard._bound = true;
 
+    storyboard.addEventListener('click', (e) => {
+      if (e.target.closest('select, button, a, input, textarea')) return;
+      const card = e.target.closest('.storyboard-card');
+      if (!card) return;
+
+      const select = card.querySelector('select');
+
+      const all = storyboard.querySelectorAll('.storyboard-card');
+      App.setSelected(card, all);
+
+      const type = card.dataset.entityType || card.dataset.type;
+      const id = card.dataset.entityId || select?.value || '';
+
+      if (!id && select) {
+        try {
+          if (typeof select.showPicker !== 'function') throw new Error('no showPicker');
+          select.showPicker();
+        } catch {
+          select.focus();
+          select.click();
+        }
+        return;
+      }
+
+      if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
+    });
+
+    // NEW: keyboard
+    storyboard.addEventListener('keydown', (e) => {
+      const card = e.target.closest('.storyboard-card');
+      if (!card) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
         const select = card.querySelector('select');
-
-        // allow switching selection even if another is selected
-        const all = storyboard.querySelectorAll('.storyboard-card');
-        App.setSelected(card, all);
-
         const type = card.dataset.entityType || card.dataset.type;
         const id = card.dataset.entityId || select?.value || '';
-
         if (!id && select) {
-          try {
-            if (typeof select.showPicker !== 'function') {
-              throw new Error('showPicker not available, using fallback.');
-            }
-            select.showPicker();
-          // eslint-disable-next-line no-unused-vars
-          } catch (e) {
-            // Fallback for browsers that don't support showPicker() or if it fails.
-            select.focus();
-            select.click();
-          }
+          select.focus();
+          select.click();
           return;
         }
-
         if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
-      });
-    }
+      }
+    });
 
-    // make sure chin visuals clean up on route changes / outside clicks
-    App._ensureGlobalChinEvents?.();
+    // Make storyboard cards keyboard focusable
+    storyboard.querySelectorAll('.storyboard-card').forEach((c) => {
+      if (!c.hasAttribute('tabindex')) c.tabIndex = 0;
+      c.setAttribute('role', 'group');
+      const select = c.querySelector('select');
+      if (select && !select.hasAttribute('aria-label')) {
+        select.setAttribute('aria-label', 'Select entity');
+      }
+    });
+  }
+
+  // make sure chin visuals clean up on route changes / outside clicks
+  App._ensureGlobalChinEvents?.();
 
   App._cardNavAttached = true;
 };
+
 
 App.renderStoryList = App.renderStoryList || function () {
   renderList('chin-story-grid', 'stories');
@@ -606,6 +678,14 @@ App._setupStoryboardTitle = function () {
   if (!titleEl) return;
   if (titleEl.dataset.editable) return;
   titleEl.dataset.editable = 'true';
+
+  // NEW: explicit a11y attrs (also set in HTML for robustness)
+  titleEl.setAttribute('role', 'textbox');
+  titleEl.setAttribute('aria-multiline', 'false');
+  if (!titleEl.hasAttribute('aria-label')) {
+    titleEl.setAttribute('aria-label', 'Storyboard title');
+  }
+
   titleEl.autocapitalize = 'off';
   titleEl.autocorrect = 'off';
   titleEl.spellcheck = false;

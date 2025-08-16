@@ -184,7 +184,7 @@
     <div id="storyboard-screen">
 
       <div id="storyboard-dynamic-title-wrapper">
-        <h2 id="storyboard-dynamic-title">Storyboard</h2>
+        <h2 id="storyboard-dynamic-title" role="textbox" aria-multiline="false" aria-label="Storyboard title">Storyboard</h2>
       </div>
       
         <div id="storyboard-grid">
@@ -244,13 +244,13 @@
         <!-- Chat Wrapper -->
         <div id="chat-wrapper">
           <!-- Chat Feed -->
-          <div id="chat-feed"></div>
+          <div id="chat-feed" role="log" aria-live="polite" aria-relevant="additions text"></div>
           
           <!-- Status Elements -->
           <div id="story-concluded">Story concluded</div>
           <div id="no-messages">No messages yet</div>
-          <div id="status-notifier"></div>
-          <div id="typing-indicator"></div>
+          <div id="status-notifier" role="status" aria-live="polite" aria-atomic="true"></div>
+          <div id="typing-indicator" role="status" aria-live="polite" aria-atomic="true"></div>
           <button id="conclude-story">Conclude Story</button>
         </div>
       </div>

@@ -58,9 +58,9 @@ This rule builds upon semantic HTML principles. Ensure your HTML follows the gui
 - [JavaScript Development](../.cursor/rules/js-development.mdc)
 - [HTML Development](../.cursor/rules/html-development.mdc) - Foundation for semantic HTML structure
 
-
 ## Related Rules
 
 - [Perchance Build & Deployment](../.cursor/rules/perchance-build-deployment.mdc)
 - [Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.mdc)
+
 ---
