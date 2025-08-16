@@ -698,7 +698,7 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
       ['storyboard-ai-select', 'storyboard-user-select', 'storyboard-world-select'].forEach((id) => {
         const s = document.getElementById(id);
         if (!s) return;
-        const opts = [...s.options].filter((o) => o.value);
+        const opts = Array.from(s.options).filter(o => o.value);
         if (opts.length) s.value = opts[Math.floor(Math.random() * opts.length)].value;
         s.dispatchEvent(new Event('change', { bubbles: true }));
       });

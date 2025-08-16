@@ -1,0 +1,25 @@
+diff --git a/RPGlitch.js b/RPGlitch.js
+index 2222222..3333333 100644
+--- a/RPGlitch.js
++++ b/RPGlitch.js
+@@ -81,13 +81,18 @@ App._attachStoryboardListeners = App._attachStoryboardListeners || function () {
+   const shuffleBtn = document.getElementById('shuffle-btn');
+   if (shuffleBtn) {
+     shuffleBtn.addEventListener('click', () => {
+       ['storyboard-ai-select', 'storyboard-user-select', 'storyboard-world-select'].forEach((id) => {
+         const s = document.getElementById(id);
+         if (!s) return;
+-        const opts = Array.from(s.options).filter(o => o.value);
+-        if (opts.length) s.
++        const opts = Array.from(s.options).filter((o) => o.value);
++        if (opts.length) {
++          s.value = opts[Math.floor(Math.random() * opts.length)].value;
++        }
++        // Always fire change so cards + title refresh
++        s.dispatchEvent(new Event('change', { bubbles: true }));
+       });
+-      App.setDynamicTitle?.();
++      // Respect manual title; App.setDynamicTitle accounts for it
++      App.setDynamicTitle?.();
+     });
+   }

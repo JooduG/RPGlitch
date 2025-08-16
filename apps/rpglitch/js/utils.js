@@ -91,7 +91,6 @@
       if (!container) return;
       container.querySelectorAll('.chin').forEach((p) => App.hideEl(p));
       App.hideEl(container);
-      document.body.classList.remove('chin-open');
       App.selectTopBarTab?.(null);
     };
 

@@ -1,0 +1,110 @@
+diff --git a/apps/rpglitch/js/entities.js b/apps/rpglitch/js/entities.js
+index 0000000..1111111 100644
+--- a/apps/rpglitch/js/entities.js
++++ b/apps/rpglitch/js/entities.js
+@@ -26,9 +26,9 @@
+   function getBrand(entity = {}) {
+     if (entity.palette?.brand) return entity.palette.brand;
+-    const seed = [entity.name || entity.title || '', .(entity.tags || [])].join(',');
++    const seed = [entity.name || entity.title || '', ...(entity.tags || [])].join(',');
+     return getDeterministicColor(seed || (entity.id || entity.kind || ''));
+   }
+ 
+@@ -98,26 +98,28 @@
+-    function merge(type, custom) {
++    function merge(type, custom) {
+       const key = storeMap[type];
+-      const premade = (App.getPremadeItems ? App.getPremadeItems(key) : []).map((e) => ({
+-        .e,
+-        kind: type,
+-        isPremade: true,
+-        isCustom: false,
+-        version: STORAGE_VERSION,
+-        .normalize(e)
+-      }));
+-      const normal = custom.map((e) => ({
+-        .e,
+-        kind: type,
+-        isPremade: false,
+-        isCustom: true,
+-        version: STORAGE_VERSION,
+-        .normalize(e)
+-      }));
++      const premade = (App.getPremadeItems ? App.getPremadeItems(key) : []).map((e) => ({
++        ...e,
++        kind: type,
++        isPremade: true,
++        isCustom: false,
++        version: STORAGE_VERSION,
++        ...normalize(e)
++      }));
++      const normal = custom.map((e) => ({
++        ...e,
++        kind: type,
++        isPremade: false,
++        isCustom: true,
++        version: STORAGE_VERSION,
++        ...normalize(e)
++      }));
+       return premade.concat(normal);
+     }
+ 
+@@ -132,17 +134,20 @@
+       upsert(type, entity) {
+         const items = read(type);
+         const id = entity.id || (global.crypto?.randomUUID?.() || `${type}-${Date.now()}`);
+         const idx = items.findIndex((e) => e.id === id);
+         const base = idx >= 0 ? items[idx] : {};
+-        const saved = {
+-          id,
+-          kind: type,
+-          isCustom: true,
+-          isPremade: false,
+-          version: STORAGE_VERSION,
+-          .base,
+-          .normalize(entity, base)
+-        };
++        const saved = {
++          id,
++          kind: type,
++          isCustom: true,
++          isPremade: false,
++          version: STORAGE_VERSION,
++          ...base,
++          // Normalize merged fields so we keep consistent shape
++          ...normalize({ ...base, ...entity })
++        };
+         if (idx >= 0) items[idx] = saved;
+         else items.push(saved);
+         _writeAndCache(type, items);
+         return saved;
+       },
+@@ -151,15 +156,18 @@
+         const items = read(type);
+         const idx = items.findIndex((e) => e.id === id);
+         if (idx < 0) return null;
+         const base = items[idx];
+-        const saved = {
+-          .base,
+-          .normalize(entity, base)
+-        };
++        const saved = {
++          ...base,
++          ...normalize({ ...base, ...entity })
++        };
+         items[idx] = saved;
+         _writeAndCache(type, items);
+         return saved;
+       },
+       remove(type, id) {
+         const remaining = read(type).filter((e) => e.id !== id);
+         _writeAndCache(type, remaining);
+       },
+       copy(type, id) {
+         const item = this.get(type, id);
+         if (!item) return null;
+-        return { .item, sections: { .item.sections } };
++        return { ...item, sections: { ...(item.sections || {}) } };
+       }
+     };
+ }(typeof window !== 'undefined' ? window : globalThis));
