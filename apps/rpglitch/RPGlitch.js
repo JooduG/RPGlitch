@@ -146,6 +146,20 @@ App._closeChin = function () {
   const last = App._lastActiveTab;
   App.selectTopBarTab(null);
   if (last) last.focus();
+  };
+  
+// NEW: Copy & Customise — opens the form prefilled from a premade (or any source) via ?from=
+App.copyEntity = function (type, id) {
+  try {
+    // If the entity exists, navigate to a new form with ?from=<id>
+    const item = App.entities?.get?.(type, id);
+    if (!item) return;
+    // Use return param so Back brings the user to the original profile
+    const ret = `#profile/${type}/${id}`;
+    App.router?.navigate?.(`#form/${type}/new?from=${encodeURIComponent(id)}&return=${encodeURIComponent(ret)}`);
+  } catch (err) {
+    console.error('copyEntity failed', err);
+  }
 };
 
 // UI helpers for toggling chin visibility and initializing listeners
@@ -554,7 +568,6 @@ App.updateStoryboardCard = function updateStoryboardCard(target, entityOrKey, op
   let card, entity;
 
   if (target && target.tagName === 'SELECT') {
-    // Called like: App.updateStoryboardCard(selectEl, 'characters'|'worlds'|'stories')
     const select = target;
     card = select.closest('.storyboard-card');
     const type = card?.dataset?.type || select.dataset.entityType || select.dataset.type || '';
@@ -571,7 +584,6 @@ App.updateStoryboardCard = function updateStoryboardCard(target, entityOrKey, op
       entity = null;
     }
   } else {
-    // Called like: App.updateStoryboardCard(cardElOrId, entityObj, opts)
     card = typeof target === 'string' ? document.getElementById(target) : target;
     entity = entityOrKey || null;
   }
@@ -588,14 +600,46 @@ App.updateStoryboardCard = function updateStoryboardCard(target, entityOrKey, op
     descEl.dataset.placeholder = descEl.textContent || '';
   }
 
+  // Helper: safely build a picture node whether getPictureHTML returns a Node or a String
+  function buildPictureNode(ent) {
+    let out = null;
+    try {
+      if (typeof window.getPictureHTML === 'function') {
+        const maybe = window.getPictureHTML(ent, { context: 'storyboard', cover: true });
+        if (maybe instanceof Node) {
+          out = maybe;
+        } else if (typeof maybe === 'string') {
+          const tpl = document.createElement('template');
+          tpl.innerHTML = maybe.trim();
+          out = tpl.content.firstElementChild;
+        }
+      }
+    } catch (_) { /* ignore */ }
+    if (!out) {
+      const div = document.createElement('div');
+      div.className = 'picture picture--cover';
+      out = div;
+    }
+
+    // Harden images a bit
+    const img = out.querySelector?.('img');
+    if (img) {
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.referrerPolicy = 'no-referrer';
+      img.alt = img.alt || (ent?.kind ? `${ent.kind} image` : 'image');
+    }
+    return out;
+  }
+
   if (entity) {
     // ——— POPULATE SELECTED STATE ———
     if (descEl) descEl.textContent = entity.description || '';
     if (tag)    tag.textContent    = entity.isPremade ? 'Premade' : '';
     if (left) {
       left.textContent = '';
-      left.appendChild(App.getPictureNode(entity, { context: 'storyboard' }));
-      App.applyBrand(left, entity);
+      left.appendChild(buildPictureNode(entity));        // ← always render the picture
+      App.applyBrand?.(left, entity);
     }
     card.dataset.entityType = card.dataset.type || entity.kind || '';
     card.dataset.entityId   = entity.id;
@@ -608,10 +652,8 @@ App.updateStoryboardCard = function updateStoryboardCard(target, entityOrKey, op
     if (tag)    tag.textContent    = '';
     if (left) {
       left.textContent = '';
-      left.appendChild(
-        App.getPictureNode({ kind: card.dataset.type }, { context: 'storyboard' })
-      );
-      App.applyBrand(left, {}); // neutral brand for placeholder
+      left.appendChild(buildPictureNode({ kind: card.dataset.type })); // neutral placeholder
+      App.applyBrand?.(left, {}); // neutral brand for placeholder
     }
     delete card.dataset.entityType;
     delete card.dataset.entityId;
@@ -623,7 +665,6 @@ App.updateStoryboardCard = function updateStoryboardCard(target, entityOrKey, op
     }
   }
 };
-
 
 const titlePrompts = [
   'Once upon a time',

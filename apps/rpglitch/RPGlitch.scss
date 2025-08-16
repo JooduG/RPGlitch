@@ -73,15 +73,6 @@ button[data-chin]:focus-visible {
   outline: 2px solid var(--color-accent);
 }
 
-*::placeholder {
-  font-style: italic;
-  opacity: 0.8;
-}
-
-.profile-picture[data-is-placeholder="1"] {
-  filter: none;
-}
-
 .container {
   position: relative;
   margin-right: auto;
@@ -130,23 +121,13 @@ button {
   padding: 0;
 }
 
-.storyboard-card h4 {
-  transition: inherit;
-}
-
-.chin-card header h4,
-.storyboard-card-right header .card-title {
+.chin-card header h4 {
   margin: 0 0 0.25rem;
   line-height: 1.2;
 }
 
 .chin-card header .card-title {
   margin-bottom: 0.25rem;
-}
-
-.storyboard-card.empty-card .card-title {
-  opacity: 0.6;
-  text-align: center;
 }
 
 .clamp-2 {
@@ -157,37 +138,45 @@ button {
   overflow: hidden;
 }
 
-.storyboard-card-left {
-  flex: 0 0 35%;
-  display: flex;
-  justify-content: center;
-  background: var(--pico-form-element-background-color);
-  border-top-left-radius: inherit;
-  border-bottom-left-radius: inherit;
+.picture {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--pico-muted-border-color, #e7eaf0); /* stylelint-disable-next-line alpha-value-notation */
+  box-shadow: var(--pico-box-shadow, 0 0 0 1px rgb(0 0 0 / 5%));
 }
 
-/* RPGlitch.scss or storyboard.scss */
-.storyboard-card .storyboard-card-left,
-.chin-card .picture-placeholder {
-  color: #fff; // makes currentColor white for the placeholder icons
+.picture img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* “Empty” card visual */
-.storyboard-card[data-id="empty"] .card-title {
-  opacity: 0.9;
+.picture--cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.storyboard-card:not(.empty-card) .card-title {
-  text-align: left;
+/* stylelint-disable-next-line no-descending-specificity */
+.profile-hero .picture,
+.chin-card .card-poster .picture,
+.profile-hero img,
+.chin-card .card-poster img {
+  border-radius: 0;
+  display: block;
+  transition: opacity 0.25s ease;
+  transform: none;
 }
 
-.storyboard-card.empty-card header .card-title {
-  text-align: center;
-  justify-content: center;
-}
-
-.storyboard-card header select.storyboard-card-title {
-  text-align: left; /* unchanged for dropdown */
+.chin-card .card-poster img {
+  border-radius: 0;
+  display: block;
+  transition: opacity 0.25s ease;
+  transform: none;
 }
 
 :is(button, [type="submit"], [type="button"], [role="button"]).secondary:focus,
@@ -199,8 +188,8 @@ button {
 [type="file"]::file-selector-button:is([aria-current]:not([aria-current="false"])):focus,
 [type="reset"]:focus,
 [type="reset"]:is([aria-current]:not([aria-current="false"])):focus {
-  --pico-box-shadow: var(--pico-button-hover-box-shadow, 0 0 0 rgb(0% 0% 0% / 0%)),
-    0 0 0 var(--pico-outline-width) var(--brand-text-on);
+  --pico-box-shadow:
+    var(--pico-button-hover-box-shadow, 0 0 0 rgb(0% 0% 0% / 0%)), 0 0 0 var(--pico-outline-width) var(--brand-text-on);
 }
 
 article {
@@ -399,7 +388,7 @@ input[type="submit"]:not([disabled]):hover {
 
 [role="group"] > :not(:last-child),
 [role="search"] > :not(:last-child) {
-  padding: 0 0 0 2.5rem;
+  padding: 0;
   height: auto;
 }
 
@@ -417,7 +406,6 @@ input[type="submit"]:not([disabled]):hover {
   display: grid;
   align-items: stretch;
   gap: 1rem;
-  border-radius: var(--pico-radius);
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 }
 
@@ -441,65 +429,112 @@ input[type="submit"]:not([disabled]):hover {
   grid-column: 1 / -1;
 }
 
-.chin-card,
-.storyboard-card {
+.chin-card {
   min-height: 260px;
   height: auto;
   width: 100%;
   max-width: 100%;
   backdrop-filter: blur(15px);
   z-index: auto;
-  position: relative;
-  display: flex;
-  flex-direction: column;
   flex: 0 0 auto;
   grid-template-columns: unset;
-  grid-template-rows: unset;
   grid-column: auto;
   grid-row: auto;
   gap: 0;
-  overflow: hidden;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
-  border: none;
-  border-radius: var(--pico-border-radius);
   transform: translateY(0) scale(1);
   object-fit: cover;
-}
-
-.storyboard-card {
-  display: flex;
-  flex-direction: row;
-  z-index: auto;
-  grid-template-columns: unset;
-  grid-template-rows: unset;
-  grid-column: auto;
-  grid-row: auto;
-  width: 100%;
-  max-width: 100%;
-  flex: 0 0 auto;
-  outline: 2px solid transparent;
+  position: relative;
+  grid-template-rows: auto 1fr;
   transition:
     transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
     box-shadow 0.4s ease,
     opacity 0.4s ease,
-    outline 0.15s ease,
-    color 0.2s ease;
-  border-radius: var(--pico-border-radius);
+    outline 0.15s ease;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--pico-muted-border-color, #e7eaf0);
+  border-radius: var(--pico-radius);
+  overflow: hidden;
+  background: var(--pico-background-color, #fff);
+  outline: none;
+  padding: 0;
+
+  &:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--elevated-shadow, 0 10px 24px rgb(0 0 0 / 15%));
+    outline: 2px solid var(--pico-primary-hover);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px rgb(2 154 232 / 35%);
+    transform: translateY(-1px);
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .media {
+    position: relative;
+
+    .picture {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: var(--pico-muted-border-color, #e7eaf0);
+    }
+
+    .picture img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .badge {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--pico-radius);
+      background: rgb(0 0 0 / 65%);
+      color: #fff;
+    }
+  }
+
+  .chin-card .badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: var(--brand);
+    color: var(--brand-contrast, #fff);
+    padding: 2px 6px;
+    border-radius: var(--pico-radius);
+    font-size: 12px;
+  }
+
+  .title {
+    margin: 0;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .description {
+    margin: 0;
+    opacity: 0.88;
+  }
 }
 
 /* stylelint-disable no-descending-specificity */
-:is(.chin-card, .storyboard-card) :is(button, select, input, textarea) {
+:is(.chin-card) :is(button, select, input, textarea) {
   cursor: default;
 }
 /* stylelint-enable no-descending-specificity */
 
-.chin-card::before,
-.storyboard-card::before {
+.chin-card::before {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: inherit;
   background: radial-gradient(circle at top left, var(--pico-primary) 0%, transparent 70%);
   opacity: 0;
   transform: scale(0.8);
@@ -509,12 +544,10 @@ input[type="submit"]:not([disabled]):hover {
   pointer-events: none;
 }
 
-.chin-card::after,
-.storyboard-card::after {
+.chin-card::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: inherit;
   border: 2px solid var(--pico-primary);
   opacity: 0;
   transform: scale(0.96);
@@ -559,21 +592,6 @@ input[type="submit"]:not([disabled]):hover {
   margin: 0 0 0.5em;
 }
 
-.chin-card {
-  position: relative;
-  border-radius: var(--pico-radius, var(--pico-border-radius, 16px));
-  overflow: hidden;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  background: var(--card-bg, #111);
-  transition:
-    transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    box-shadow 0.4s ease,
-    opacity 0.4s ease,
-    outline 0.15s ease;
-  cursor: pointer;
-}
-
 .chin-card * {
   pointer-events: auto;
 }
@@ -584,12 +602,6 @@ input[type="submit"]:not([disabled]):hover {
   box-shadow: none;
 }
 
-.chin-card:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: var(--elevated-shadow, 0 10px 24px rgb(0 0 0 / 15%));
-  outline: 2px solid var(--pico-primary-hover);
-}
-
 .chin-card .card-poster {
   position: relative;
   aspect-ratio: 4 / 5;
@@ -597,44 +609,8 @@ input[type="submit"]:not([disabled]):hover {
   border-radius: var(--pico-radius) var(--pico-radius) 0 0;
 }
 
-.storyboard-card img {
-  border-radius: 0;
-  display: block;
-  transition: opacity 0.25s ease;
-  transform: none;
-}
-
-/* Make pictures cover their container everywhere */
-.storyboard-card img,
-.profile-hero img,
-.storyboard-card .picture,
-.profile-hero .picture {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.picture--cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.storyboard-card img,
-.chin-card .card-poster .picture,
-.chin-card .card-poster img {
-  border-radius: 0;
-  display: block;
-  transition: opacity 0.25s ease;
-  transform: none;
-}
-
-.chin-card .card-poster img {
-  border-radius: 0;
-  display: block;
-  transition: opacity 0.25s ease;
-  transform: none;
+.body {
+  padding: 0 1rem 1rem;
 }
 
 .chin-card .body {
@@ -643,31 +619,9 @@ input[type="submit"]:not([disabled]):hover {
   padding: 12px;
 }
 
-/* White placeholders everywhere */
-.storyboard-card-left .placeholder-image,
-.chin-card-left .placeholder-image,
-.profile-picture svg[data-is-placeholder="1"],
-.profile-picture[data-is-placeholder="1"] {
-  color: #fff; /* makes fill=currentColor white */
-}
-
-.chin-card .card-description,
-.storyboard-card-right .card-description {
-  margin: 0.25rem 0 0;
+.chin-card .card-description {
+  margin: 0;
   line-height: 1.35;
-}
-
-.storyboard-card-right,
-.storyboard-card-right > header,
-.storyboard-card-right > header > select.storyboard-card-title {
-  border-top-right-radius: inherit;
-  border-bottom-right-radius: inherit;
-}
-
-/* Empty-storyboard headline centered, but real choice stays left */
-.storyboard-card.empty-card select.storyboard-card-title {
-  text-align: center;
-  text-align-last: center; /* Windows/Edge */
 }
 
 /* Hide focus ring if a chin is closed */
@@ -675,10 +629,6 @@ details:not([open]) .button--focused,
 .chin[hidden] .button--focused {
   outline: none;
   box-shadow: none;
-}
-
-.chin-card header h4 {
-  margin-bottom: 0.25rem;
 }
 
 /* Only show the nice focus effect while any chin is open */
@@ -700,23 +650,12 @@ body.chin-open .chin-focus-ring {
 .chin-card .description {
   font-size: 13px;
   color: rgb(255 255 255 / 85%);
-  margin: 0.125rem 0 0;
+  margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.chin-card .badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: var(--brand);
-  color: var(--brand-contrast, #fff);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 12px;
 }
 
 .chin-button.selected,
@@ -733,10 +672,6 @@ body.chin-open .chin-focus-ring {
 .top-bar-right {
   display: flex;
   gap: 1rem;
-}
-
-.storyboard-card.empty-card .placeholder-image {
-  opacity: 0.6;
 }
 
 .top-bar-left {
@@ -762,7 +697,7 @@ body.chin-open .chin-focus-ring {
   block-size: min(40vh, 360px);
   inline-size: 100%;
   overflow: clip;
-  border-radius: var(--pico-border-radius);
+  border-radius: 0;
 }
 
 /* stylelint-disable-next-line no-descending-specificity */
@@ -778,26 +713,7 @@ body.chin-open .chin-focus-ring {
   border: 2px solid currentcolor;
   filter: none;
   backdrop-filter: none;
-  border-radius: 12px;
-}
-
-/* Keyboard focus is visible even if not selected */
-.chin-card:focus-visible,
-.storyboard-card:focus-visible {
-  outline: 2px solid currentcolor;
-  outline-offset: 2px;
-  border-radius: 12px;
-}
-
-.storyboard-card[data-id="empty"] .card-title::before {
-  content: "Empty";
-}
-
-.storyboard-card[data-id="empty"] .card-thumb {
-  background: var(--muted-bg, #1f2733);
-  color: var(--muted-fg, #8aa0b4);
-  display: grid;
-  place-items: center;
+  border-radius: var(--pico-radius);
 }
 
 .profile-titlebar {
@@ -859,7 +775,7 @@ body.chin-open .chin-focus-ring {
   text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
   background: rgb(0 0 0 / 20%);
   padding: 1rem;
-  border-radius: 0.5rem;
+  border-radius: var(--pico-radius);
   backdrop-filter: blur(10px);
 }
 
@@ -871,7 +787,7 @@ body.chin-open .chin-focus-ring {
   line-height: 1.7;
   padding: 1rem;
   background: rgb(255 255 255 / 8%);
-  border-radius: 0.5rem;
+  border-radius: var(--pico-radius);
   font-size: 0.95rem;
   min-height: 3rem;
   margin: 0.5rem 1rem;
@@ -935,21 +851,12 @@ body.chin-open .chin-focus-ring {
 .profile-name:focus {
   outline: none;
   background: rgb(255 255 255 / 10%);
-  border-radius: 0.5rem;
   border-color: var(--pico-primary, #0172ad);
   box-shadow: 0 0 0 3px rgb(var(--pico-primary-rgb, 1, 114, 173), 0.1);
 }
 
 .profile-name:empty::before,
 .profile-name:blank::before {
-  content: attr(data-placeholder);
-  color: rgb(255 255 255 / 50%);
-  font-style: italic;
-  pointer-events: none;
-}
-
-.profile-name[data-placeholder]:not(:focus):empty::before,
-.profile-name[data-placeholder]:not(:focus):blank::before {
   content: attr(data-placeholder);
   color: rgb(255 255 255 / 50%);
   font-style: italic;
@@ -1044,126 +951,13 @@ body.chin-open .chin-focus-ring {
   position: relative;
 }
 
-.picture.profile-picture[data-is-placeholder],
-.storyboard-card-left .profile-picture[data-is-placeholder],
-.chin-card .profile-picture[data-is-placeholder] {
-  color: #fff;
-}
-
-.chin-card .card-description {
-  margin-top: 0.125rem;
-  line-height: 1.25;
-}
-
-#storyboard-dynamic-title-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 7rem;
-}
-
-#storyboard-dynamic-title {
-  max-width: 40ch;
-  text-align: center;
-  text-wrap: balance;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 3.5rem;
-}
-
-#storyboard-dynamic-title[contenteditable] {
-  outline: none;
-  cursor: text;
-}
-
-#storyboard-dynamic-title:hover {
-  text-decoration: underline dotted;
-}
-
-#storyboard-title {
-  min-height: 2.5em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-wrap: balance;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
 .card-title--editing {
   outline: 1px dashed var(--pico-primary);
   cursor: text;
 }
 
-.storyboard-card-title:not([hidden]) {
-  background: var(--pico-form-element-active-background-color);
-  border: none;
-  cursor: pointer;
-  padding: unset;
-  position: absolute;
-  width: 65%;
-  height: 20%;
-  box-shadow: unset;
-  text-align: left;
-  font-style: italic;
-  opacity: 0.7;
-}
-
-.storyboard-card-title-placeholder {
-  text-align: center;
-  font-style: italic;
-  opacity: 0.8;
-}
-
 #card option {
   visibility: hidden;
-}
-
-#storyboard-grid {
-  height: 260px;
-  min-height: 260px;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  align-items: stretch;
-  margin: 1rem;
-  padding: 0;
-  display: grid;
-  width: auto;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-#storyboard-grid select:focus {
-  outline: none;
-}
-
-#storyboard-grid select::-ms-expand {
-  display: none;
-}
-
-.storyboard-card:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: var(--elevated-shadow, 0 10px 24px rgb(0 0 0 / 15%));
-  outline: 2px solid var(--pico-primary-hover);
-}
-
-.storyboard-card .card-title--editing {
-  outline: 2px solid var(--pico-primary-hover);
-}
-
-.storyboard-card-right {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  text-align: center;
-  height: 100%;
 }
 
 .hero-wrap {
@@ -1201,22 +995,6 @@ body.chin-open .chin-focus-ring {
     position: static;
     margin: 0.5rem 0;
   }
-}
-
-.storyboard-card[disabled],
-.storyboard-card[disabled]:hover {
-  color: var(--pico-primary);
-  text-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.6);
-  transition:
-    color 0.3s ease,
-    text-shadow 0.3s ease;
-  font-weight: bold;
-  font-size: 0.9em;
-  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.3);
-  border: 2px solid rgb(var(--pico-primary-rgb), 0.5);
-  cursor: pointer;
-  pointer-events: auto;
-  filter: none;
 }
 
 @media (width <= 480px) {

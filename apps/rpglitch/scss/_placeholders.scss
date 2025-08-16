@@ -1,7 +1,6 @@
 .placeholder-image {
   display: flex;
   align-items: center;
-  justify-content: center;
   width: 100%;
   height: 100%;
   color: rgb(255 255 255 / 85%);
@@ -18,11 +17,63 @@
   object-fit: cover;
 }
 
-/* Force placeholder SVGs to render white */
 .placeholder-image svg,
 .placeholder-image svg *,
 .profile-placeholder svg,
 .profile-placeholder svg * {
   fill: #fff;
   stroke: #fff;
+}
+
+*::placeholder {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.profile-picture[data-is-placeholder="1"] {
+  filter: none;
+}
+
+.storyboard-card-left .placeholder-image {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 1.6rem;
+  opacity: 1;
+  color: #fff;
+}
+
+.chin-card .picture-placeholder {
+  color: #fff;
+}
+
+.chin-card-left .placeholder-image,
+.profile-picture svg[data-is-placeholder="1"],
+.profile-picture[data-is-placeholder="1"] {
+  color: #fff;
+}
+
+.storyboard-card.empty-card .placeholder-image {
+  opacity: 0.6;
+}
+
+.picture.profile-picture[data-is-placeholder],
+.storyboard-card-left .profile-picture[data-is-placeholder],
+.chin-card .profile-picture[data-is-placeholder] {
+  color: #fff;
+}
+
+.storyboard-card-title-placeholder {
+  text-align: center;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.profile-name[data-placeholder]:not(:focus):empty::before,
+.profile-name[data-placeholder]:not(:focus):blank::before {
+  content: attr(data-placeholder);
+  color: rgb(255 255 255 / 50%);
+  font-style: italic;
+  pointer-events: none;
 }
