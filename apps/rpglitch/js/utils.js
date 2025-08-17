@@ -3,7 +3,7 @@
  * Safe storage, DOM helpers, chin management
  */
 
-;(function (global) {
+(function (global) {
   const App = (global.App = global.App || {});
 
   // ---------- Debug Logger ----------
@@ -97,10 +97,11 @@
     App.getPictureNode ||
     function getPictureNode(entity, opts = {}) {
       const html =
-        (global.getPictureHTML || globalThis.getPictureHTML)?.(entity || {}, opts) || "";
-      const frag = global.document
-        .createRange()
-        .createContextualFragment(html);
+        (global.getPictureHTML || globalThis.getPictureHTML)?.(
+          entity || {},
+          opts
+        ) || "";
+      const frag = global.document.createRange().createContextualFragment(html);
       return frag.firstElementChild || global.document.createElement("div");
     };
 

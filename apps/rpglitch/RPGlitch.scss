@@ -114,20 +114,22 @@ button {
   align-content: center;
 }
 
-.chin-card .title,
-.chin-card .card-title {
-  display: block;
-  margin: 0 0 0.25rem;
-  padding: 0;
-}
-
-.chin-card header h4 {
-  margin: 0 0 0.25rem;
+.title {
+  margin: 0;
+  font-weight: 700;
   line-height: 1.2;
 }
 
-.chin-card header .card-title {
-  margin-bottom: 0.25rem;
+.chin-card .title,
+.chin-card .card-title {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.chin-card header {
+  margin: 0 0 0.25rem;
+  line-height: 1.2;
 }
 
 .clamp-2 {
@@ -139,11 +141,12 @@ button {
 }
 
 .picture {
-  display: block;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: block;
   aspect-ratio: 1 / 1;
   border-radius: 0;
-  overflow: hidden;
   background: var(--pico-muted-border-color, #e7eaf0); /* stylelint-disable-next-line alpha-value-notation */
   box-shadow: var(--pico-box-shadow, 0 0 0 1px rgb(0 0 0 / 5%));
 }
@@ -415,7 +418,7 @@ input[type="submit"]:not([disabled]):hover {
   background: none;
   border: none;
   padding: 0;
-  opacity: 0.6;
+  opacity: 0.8;
   font-style: italic;
   color: var(--pico-muted-color, #aaa);
   display: flex;
@@ -430,16 +433,16 @@ input[type="submit"]:not([disabled]):hover {
 }
 
 .chin-card {
+  display: inline-flex;
+  flex-direction: column;
+  border: 0;
+  overflow: hidden;
   min-height: 260px;
   height: auto;
   width: 100%;
   max-width: 100%;
   backdrop-filter: blur(15px);
   z-index: auto;
-  flex: 0 0 auto;
-  grid-template-columns: unset;
-  grid-column: auto;
-  grid-row: auto;
   gap: 0;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
   transform: translateY(0) scale(1);
@@ -452,14 +455,10 @@ input[type="submit"]:not([disabled]):hover {
     opacity 0.4s ease,
     outline 0.15s ease;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--pico-muted-border-color, #e7eaf0);
   border-radius: var(--pico-radius);
-  overflow: hidden;
-  background: var(--pico-background-color, #fff);
   outline: none;
   padding: 0;
+  justify-content: space-between;
 
   &:hover {
     transform: translateY(-2px) scale(1.01);
@@ -474,55 +473,44 @@ input[type="submit"]:not([disabled]):hover {
     outline-offset: 2px;
   }
 
-  .media {
-    position: relative;
-
-    .picture {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background: var(--pico-muted-border-color, #e7eaf0);
-    }
-
-    .picture img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .badge {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      font-size: 0.75rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: var(--pico-radius);
-      background: rgb(0 0 0 / 65%);
-      color: #fff;
-    }
+  .picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    place-items: center;
   }
+}
 
-  .chin-card .badge {
+.media {
+  position: relative;
+
+  .badge {
     position: absolute;
-    top: 8px;
-    left: 8px;
-    background: var(--brand);
-    color: var(--brand-contrast, #fff);
-    padding: 2px 6px;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
     border-radius: var(--pico-radius);
-    font-size: 12px;
+    background: rgb(0 0 0 / 65%);
+    color: #fff;
   }
+}
 
-  .title {
-    margin: 0;
-    font-weight: 700;
-    line-height: 1.2;
-  }
+.chin-card .badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--brand);
+  color: var(--brand-contrast, #fff);
+  padding: 2px 6px;
+  border-radius: var(--pico-radius);
+  font-size: 12px;
+}
 
-  .description {
-    margin: 0;
-    opacity: 0.88;
-  }
+.description {
+  margin: 0;
+  opacity: 1;
 }
 
 /* stylelint-disable no-descending-specificity */
@@ -557,25 +545,6 @@ input[type="submit"]:not([disabled]):hover {
   pointer-events: none;
 }
 
-.chin-card-left {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  height: 100%;
-  position: relative;
-  justify-content: space-between;
-}
-
-.chin-card-right {
-  display: flex;
-  align-items: stretch;
-  justify-content: flex-end;
-  padding: 0;
-  margin: 0;
-  height: 100%;
-}
-
 .chin-options-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -592,10 +561,6 @@ input[type="submit"]:not([disabled]):hover {
   margin: 0 0 0.5em;
 }
 
-.chin-card * {
-  pointer-events: auto;
-}
-
 /* stylelint-disable-next-line no-descending-specificity */
 .chin[hidden] * {
   outline: 0;
@@ -607,16 +572,6 @@ input[type="submit"]:not([disabled]):hover {
   aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: var(--pico-radius) var(--pico-radius) 0 0;
-}
-
-.body {
-  padding: 0 1rem 1rem;
-}
-
-.chin-card .body {
-  display: grid;
-  gap: 8px;
-  padding: 12px;
 }
 
 .chin-card .card-description {

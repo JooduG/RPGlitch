@@ -47,6 +47,8 @@
   color: var(--brand-contrast);
   align-items: center;
   padding: 0;
+  height: 100%;
+  margin: 0;
 
   .picture {
     display: block;
@@ -97,7 +99,7 @@ select,
 }
 
 .storyboard-card.empty-card .card-title {
-  opacity: 0.6;
+  opacity: 0.8;
   text-align: center;
 }
 
@@ -137,6 +139,7 @@ select,
   transform: translateY(0) scale(1);
   object-fit: cover;
   pointer-events: auto;
+  align-items: stretch;
 }
 
 #storyboard-dynamic-title-wrapper {
@@ -190,7 +193,7 @@ select,
   box-shadow: unset;
   text-align: left;
   font-style: italic;
-  opacity: 0.7;
+  opacity: 1;
 }
 
 #storyboard-grid {
@@ -261,7 +264,7 @@ select,
 
 /* “Empty” card visual */
 .storyboard-card[data-id="empty"] .card-title {
-  opacity: 0.9;
+  opacity: 1;
 }
 
 .storyboard-card:not(.empty-card) .card-title {
@@ -318,7 +321,7 @@ select,
   inset: 0;
   border-radius: inherit;
   background: radial-gradient(circle at top left, var(--pico-primary) 0%, transparent 70%);
-  opacity: 0;
+  opacity: 1;
   transform: scale(0.8);
   transition:
     opacity 0.4s ease,
