@@ -49,6 +49,7 @@
   padding: 0;
   height: 100%;
   margin: 0;
+  aspect-ratio: auto; /* was 1/1; let height fill */
 
   .picture {
     display: block;
@@ -222,6 +223,7 @@ select,
   transform: translateY(-2px) scale(1.01);
   box-shadow: var(--elevated-shadow, 0 10px 24px rgb(0 0 0 / 15%));
   outline: 2px solid var(--pico-primary-hover);
+  align-items: stretch;
 }
 
 .storyboard-card .card-title--editing {
@@ -345,4 +347,12 @@ select,
 
 :is(.storyboard-card) :is(button, select, input, textarea) {
   cursor: default;
+}
+
+.storyboard-card-left .picture img,
+.storyboard-card-left .placeholder-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }

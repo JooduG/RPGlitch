@@ -608,47 +608,53 @@
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           const select = card.querySelector("select");
+          // eslint-disable-next-line no-unused-vars
           const type = card.dataset.entityType || card.dataset.type;
           const id = card.dataset.entityId || select?.value || "";
+          // Inside the storyboard card click handler, when no id and we need to open the select:
           if (!id && select) {
-            select.focus();
-            select.click();
+            e.preventDefault();
+            e.stopPropagation();
+            requestAnimationFrame(() => {
+              try {
+                if (typeof select.showPicker === 'function') {
+                  select.showPicker();
+                } else {
+                  select.focus();
+                  setTimeout(() => select.click(), 0);
+                }
+              } catch {
+                select.focus();
+                setTimeout(() => select.click(), 0);
+              }
+            });
             return;
           }
-          if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
-        }
-      });
+          
+          // Add once during init (capture phase so it runs before card handler)
+          ['mousedown', 'pointerdown', 'click'].forEach(evt => {
+            document.getElementById('storyboard-grid')?.addEventListener(evt, (ev) => {
+              if (ev.target.closest('select')) ev.stopPropagation();
+            }, true);
+          });
 
-      // still inside App._attachCardNavigation(), after we bind the storyboard click:
-      ["mousedown", "pointerdown", "click"].forEach((evt) => {
-        document.getElementById("storyboard-grid")?.addEventListener(
-          evt,
-          (e) => {
-            if (e.target.closest("select")) {
-              e.stopPropagation();
+          // Make storyboard cards keyboard focusable
+          storyboard.querySelectorAll(".storyboard-card").forEach((c) => {
+            if (!c.hasAttribute("tabindex")) c.tabIndex = 0;
+            c.setAttribute("role", "group");
+            const select = c.querySelector("select");
+            if (select && !select.hasAttribute("aria-label")) {
+              select.setAttribute("aria-label", "Select entity");
             }
-          },
-          true
-        ); // capture so we intercept before the card handler
-      });
-
-      // Make storyboard cards keyboard focusable
-      storyboard.querySelectorAll(".storyboard-card").forEach((c) => {
-        if (!c.hasAttribute("tabindex")) c.tabIndex = 0;
-        c.setAttribute("role", "group");
-        const select = c.querySelector("select");
-        if (select && !select.hasAttribute("aria-label")) {
-          select.setAttribute("aria-label", "Select entity");
+          });
         }
+
+        // make sure chin visuals clean up on route changes / outside clicks
+        App._ensureGlobalChinEvents?.(); // This function is defined in utils.js
+
+        App._cardNavAttached = true;
       });
-    }
-
-    // make sure chin visuals clean up on route changes / outside clicks
-    App._ensureGlobalChinEvents?.();
-
-    App._cardNavAttached = true;
-  };
-
+    };
   App.renderStoryList =
     App.renderStoryList ||
     function () {
@@ -1223,4 +1229,5 @@
     });
     App.refreshAllLists();
   };
+};
 })(window, document);

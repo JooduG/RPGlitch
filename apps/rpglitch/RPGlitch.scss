@@ -220,6 +220,7 @@ article footer {
   border: 0;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 article header {
   width: calc(100% + 1rem);
   display: flex;

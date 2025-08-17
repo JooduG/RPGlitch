@@ -263,20 +263,18 @@
         <div id="chin-world-grid" class="chin-grid">
 
           <!-- Chin Card Template -->
-          <template id="chin-card-template" role="button" tabindex="0" aria-label="">
-            <div class="chin-card">
-              <div class="media"><!-- picture gets injected here --></div>
-                <article>
-                  <header>
-                    <h4 class="title"></h4>
-                  </header>
-                  <div class="body"><p class="description"></p></div>
-                  <footer>
-                <small>Premade</div>
-              </footer>
+          <template id="chin-card-template">
+            <div class="chin-card" role="button" tabindex="0" aria-label="">
+              <div class="media">
+                <!-- picture gets injected here -->
+                <div class="badge" hidden>Premade</div>
+              </div>
+              <article>
+                <header><h4 class="title"></h4></header>
+                <div class="body"><p class="description"></p></div>
+              </article>
             </div>
-
-          </template>
+          </template>          
 
           <!-- Optional: Storyboard Empty Picture Templates -->
           <template id="tpl-storyboard-picture-character">
