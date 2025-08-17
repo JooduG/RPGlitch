@@ -527,94 +527,115 @@
       App.renderWorldList?.();
     };
 
-  App._attachCardNavigation = function () {
-    if (App._cardNavAttached) return;
-
-    const container = document.getElementById("chin-container");
-    if (container) {
-      // Click
-      container.addEventListener("click", (e) => {
-        if (e.target.closest("button, a, input, select, textarea")) return;
-        const card = e.target.closest(".chin-card[data-type][data-id]");
-        if (!card) return;
-        App.setSelected?.(
-          card,
-          container.querySelectorAll(".chin-card[data-type][data-id]")
-        );
-        const { type, id } = card.dataset;
-        if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
-      });
-
-      // NEW: keyboard
-      container.addEventListener("keydown", (e) => {
-        const card = e.target.closest(".chin-card[data-type][data-id]");
-        if (!card) return;
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
+    App._attachCardNavigation = function () {
+      if (App._cardNavAttached) return;
+    
+      // Make sure the suppression flag exists (used to prevent a blur that closes native pickers)
+      if (typeof App._suppressNextBlur === 'undefined') {
+        App._suppressNextBlur = false;
+      }
+    
+      // --- CHIN CONTAINER: click + keyboard to open profiles ---
+      const container = document.getElementById('chin-container');
+      if (container) {
+        // Click to open profile
+        container.addEventListener('click', (e) => {
+          if (e.target.closest('button, a, input, select, textarea')) return;
+          const card = e.target.closest('.chin-card[data-type][data-id]');
+          if (!card) return;
+          App.setSelected?.(card, container.querySelectorAll('.chin-card[data-type][data-id]'));
           const { type, id } = card.dataset;
           if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
-        }
-      });
-    }
-
-    // Storyboard grid (existing click + NEW keyboard)
-    const storyboard = document.getElementById("storyboard-grid");
-    if (storyboard && !storyboard._bound) {
-      storyboard._bound = true;
-
-      storyboard.addEventListener("click", (e) => {
-        if (e.target.closest("select, button, a, input, textarea")) return;
-        const card = e.target.closest(".storyboard-card");
-        if (!card) return;
-
-        const select = card.querySelector("select");
-
-        const all = storyboard.querySelectorAll(".storyboard-card");
-        App.setSelected(card, all);
-
-        const type = card.dataset.entityType || card.dataset.type;
-        const id = card.dataset.entityId || select?.value || "";
-
-        if (!id && select) {
-          // prevent the card-click from immediately closing the native picker
-          e.preventDefault();
-          e.stopPropagation();
-
-          requestAnimationFrame(() => {
-            try {
-              if (typeof select.showPicker === "function") {
-                select.showPicker();
-              } else {
-                // fallback
-                select.focus();
-                // Delay the synthetic click by a tick so we don't fight the original click.
-                setTimeout(() => select.click(), 0);
-              }
-            } catch {
-              select.focus();
-              setTimeout(() => select.click(), 0);
-            }
-          });
-          return;
-        }
-
-        if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
-      });
-
-      // NEW: keyboard
-      storyboard.addEventListener("keydown", (e) => {
-        const card = e.target.closest(".storyboard-card");
-        if (!card) return;
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          const select = card.querySelector("select");
-          // eslint-disable-next-line no-unused-vars
+        });
+    
+        // Keyboard (Enter/Space) to open profile
+        container.addEventListener('keydown', (e) => {
+          const card = e.target.closest('.chin-card[data-type][data-id]');
+          if (!card) return;
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const { type, id } = card.dataset;
+            if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
+          }
+        });
+      }
+    
+      // --- STORYBOARD GRID: click/keyboard navigation + robust native <select> picker opening ---
+      const storyboard = document.getElementById('storyboard-grid');
+      if (storyboard && !storyboard._bound) {
+        storyboard._bound = true;
+    
+        // Guard: if user starts interacting with a storyboard card, arm "no-blur this frame"
+        // so the doc-level chin closer won't blur and instantly dismiss the native picker.
+        storyboard.addEventListener('pointerdown', (e) => {
+          if (e.target.closest('.storyboard-card')) {
+            App._suppressNextBlur = true;
+            // Fail-safe: if we never open a picker, clear after a short delay
+            setTimeout(() => { App._suppressNextBlur = false; }, 350);
+          }
+        }, true); // capture
+    
+        // Click handler
+        storyboard.addEventListener('click', (e) => {
+          // Ignore UI controls
+          if (e.target.closest('select, button, a, input, textarea')) return;
+    
+          const card = e.target.closest('.storyboard-card');
+          if (!card) return;
+    
+          const select = card.querySelector('select');
+    
+          // Visual selection amongst cards
+          const all = storyboard.querySelectorAll('.storyboard-card');
+          App.setSelected(card, all);
+    
           const type = card.dataset.entityType || card.dataset.type;
-          const id = card.dataset.entityId || select?.value || "";
-          // Inside the storyboard card click handler, when no id and we need to open the select:
+          const id = card.dataset.entityId || select?.value || '';
+    
+          // If no entity selected yet, open the native picker in a safe way
           if (!id && select) {
             e.preventDefault();
             e.stopPropagation();
+    
+            // Keep the blur guard up while we open the picker
+            App._suppressNextBlur = true;
+    
+            requestAnimationFrame(() => {
+              try {
+                if (typeof select.showPicker === 'function') {
+                  select.showPicker();
+                } else {
+                  // Fallback path for browsers without showPicker()
+                  select.focus();
+                  setTimeout(() => select.click(), 0);
+                }
+              } finally {
+                // Give the UI a moment to fully open before allowing blur again
+                setTimeout(() => { App._suppressNextBlur = false; }, 350);
+              }
+            });
+            return;
+          }
+    
+          // Navigate straight to profile when we have both type and id
+          if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
+        });
+    
+        // Keyboard handler (Enter/Space behaves like click)
+        storyboard.addEventListener('keydown', (e) => {
+          const card = e.target.closest('.storyboard-card');
+          if (!card) return;
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+    
+          e.preventDefault();
+    
+          const select = card.querySelector('select');
+          const type = card.dataset.entityType || card.dataset.type;
+          const id = card.dataset.entityId || select?.value || '';
+    
+          if (!id && select) {
+            // Open picker safely on keyboard activation too
+            App._suppressNextBlur = true;
             requestAnimationFrame(() => {
               try {
                 if (typeof select.showPicker === 'function') {
@@ -623,38 +644,42 @@
                   select.focus();
                   setTimeout(() => select.click(), 0);
                 }
-              } catch {
-                select.focus();
-                setTimeout(() => select.click(), 0);
+              } finally {
+                setTimeout(() => { App._suppressNextBlur = false; }, 350);
               }
             });
             return;
           }
-          
-          // Add once during init (capture phase so it runs before card handler)
-          ['mousedown', 'pointerdown', 'click'].forEach(evt => {
-            document.getElementById('storyboard-grid')?.addEventListener(evt, (ev) => {
-              if (ev.target.closest('select')) ev.stopPropagation();
-            }, true);
-          });
-
-          // Make storyboard cards keyboard focusable
-          storyboard.querySelectorAll(".storyboard-card").forEach((c) => {
-            if (!c.hasAttribute("tabindex")) c.tabIndex = 0;
-            c.setAttribute("role", "group");
-            const select = c.querySelector("select");
-            if (select && !select.hasAttribute("aria-label")) {
-              select.setAttribute("aria-label", "Select entity");
+    
+          if (type && id) App.router?.navigate(`#profile/${type}/${id}`);
+        });
+    
+        // Make storyboard cards keyboard focusable and a11y-friendly
+        storyboard.querySelectorAll('.storyboard-card').forEach((c) => {
+          if (!c.hasAttribute('tabindex')) c.tabIndex = 0;
+          c.setAttribute('role', 'group');
+          const select = c.querySelector('select');
+          if (select && !select.hasAttribute('aria-label')) {
+            select.setAttribute('aria-label', 'Select entity');
+          }
+        });
+    
+        // Capture-phase guards: stop events from <select> from bubbling to card/document handlers
+        ['mousedown', 'pointerdown', 'click'].forEach((evt) => {
+          storyboard.addEventListener(evt, (ev) => {
+            if (ev.target.closest('select')) {
+              ev.stopPropagation();
             }
-          });
-        }
-
-        // make sure chin visuals clean up on route changes / outside clicks
-        App._ensureGlobalChinEvents?.(); // This function is defined in utils.js
-
-        App._cardNavAttached = true;
-      });
+          }, true); // capture
+        });
+      }
+    
+      // Clean up chin visuals on route changes / outside clicks (existing behavior)
+      App._ensureGlobalChinEvents?.();
+    
+      App._cardNavAttached = true;
     };
+    
   App.renderStoryList =
     App.renderStoryList ||
     function () {
@@ -1229,5 +1254,4 @@
     });
     App.refreshAllLists();
   };
-};
 })(window, document);
