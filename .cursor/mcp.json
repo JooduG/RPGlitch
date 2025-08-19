@@ -1,0 +1,102 @@
+{
+	"servers": {
+		"github": {
+			"url": "https://api.githubcopilot.com/mcp/",
+			"type": "http"
+		},
+		"markitdown": {
+			"command": "uvx",
+			"args": [
+				"markitdown-mcp"
+			],
+			"type": "stdio"
+		},
+		"time": {
+		"command": "python",
+		"args": [
+			"-m",
+			"mcp_server_time"
+		],
+		"autoStart": true,
+		"description": "Provides tools to get the current time and date. To start, run: python -m mcp_server_time"
+		},
+		
+		"Context7": {
+		"url": "https://mcp.context7.com/mcp",
+		"description": "Connects to the remote Context7 service for advanced context-aware capabilities. As a URL-based server, it does not need to be started locally."
+		},
+
+		"mcp-sequentialthinking-tools": {
+		"command": "npx",
+		"args": [
+			"-y",
+			"mcp-sequentialthinking-tools"
+		],
+		"type": "stdio",
+		"pollingInterval": 30000,
+		"startupTimeout": 30000,
+		"restartOnFailure": true,
+		"autoStart": true,
+		"description": "Provides advanced sequential thinking tools with persistent state. To start, run: npx -y mcp-sequentialthinking-tools"
+		},
+
+		"pollinations": {
+		"command": "npx",
+		"args": [
+			"-y",
+			"@pollinations/model-context-protocol"
+		],
+		"type": "stdio",
+		"pollingInterval": 30000,
+		"startupTimeout": 30000,
+		"restartOnFailure": true,
+		"autoStart": true,
+		"description": "Provides AI image generation and creative tools through Pollinations services. To start, run: npx -y @pollinations/model-context-protocol"
+		},
+
+		"filesystem": {
+		"command": "npx",
+		"args": [
+			"-y",
+			"@modelcontextprotocol/server-filesystem",
+			"${input}",
+			"."
+		],
+		"env": {},
+		"autoApprove": ["read_file","write_file","list_dir"],
+		"autoStart": true,
+		"description": "Portable filesystem server"
+		},
+	
+		"playwright": {
+		"command": "npx",
+		"args": ["-y","@playwright/mcp"],
+		"autoApprove": ["open_page","screenshot"],  
+		"autoStart": true
+		},
+
+		"Toolbox": {
+		"type": "stdio",
+		"command": "npx",
+		"args": ["-y","@smithery/cli@latest","run","@smithery/toolbox","--key","${d7ad75eb-9a3e-4a3a-90ee-83012ed280e6}","--profile","${voluntary-hornet-y52X3F}"],
+		"env": {}
+		},
+
+		"basic-memory": {
+		"command": "uvx",
+		"args": ["basic-memory", "mcp"],
+		"env": {
+			"BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
+		},
+
+		"autoApprove": [
+			"list_projects",
+			"list_project_files",
+			"memory_bank_read",
+			"memory_bank_write",
+			"memory_bank_update"
+		],
+		"autoStart": true,
+		"description": "Basic Memory MCP server for semantic knowledge management."
+		}	
+	}}
