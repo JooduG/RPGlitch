@@ -143,7 +143,6 @@ button {
   -webkit-line-clamp: 2;
   line-clamp: 2; // <-- add this for compatibility warning
   overflow: hidden;
-  addthisforcompatibilitywarningoverflow
 };
 
 .picture {
@@ -320,7 +319,6 @@ input[type="file"] {
 
 .chin-search:focus-within {
   box-shadow: 0 0 0 0.125rem #ff6ad5;
-  /* pink ring */
 }
 
 .chin-search input,
@@ -1099,7 +1097,6 @@ body.chin-open .chin-focus-ring {
 }
 
 @keyframes subtle-pulse {
-
   0%,
   100% {
     box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
