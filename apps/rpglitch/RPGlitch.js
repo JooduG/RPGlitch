@@ -673,7 +673,7 @@
           }, true); // capture
         });
       }
-    
+     
       // Clean up chin visuals on route changes / outside clicks (existing behavior)
       App._ensureGlobalChinEvents?.();
     

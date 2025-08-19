@@ -99,3 +99,4 @@ apps/
 - [Petra’s Perchance Shortbook](https://rentry.org/rkybfefo/edit)
 - [Perchance Examples](https://perchance.org/examples)
 - [Perchance Snippets](https://perchance.org/perchance-snippets)
+- [Learn Perchance Development](https://perchance.org/learn-web)
