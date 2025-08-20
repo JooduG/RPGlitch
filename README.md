@@ -4,29 +4,31 @@ A unified, Perchance-friendly workspace with:
 
 - **Apps:** `apps/rpglitch`, `apps/imageglitch`
 - **One-source configs:** `build/config/*`
-- **Generators:** `build/scripts/combine-views.js` (docs),
-  `sync-ignores.js` (ignore sets)
+- **Generators:** `build/scripts/sync-combine.js` (docs),
+  `sync-configs.js` (ignores + IDE configs)
 - **Output:** built HTML to `build/output/`
 
 ## Quick start
 
 ```bash
-# fetch local libs for Perchance build
-npm run fetch:libs
-# build and copy the RPGlitch output to clipboard
+# One command to rule them all - ready for Perchance
+npm run deploy
+# Or just build and copy
 npm run build:copy
 ```
 
 ## Common tasks
 
+- **Deploy to Perchance:** `npm run deploy` (sync all, test, lint, build & copy)
 - **Build RPGlitch only:** `npm run build`
 - **Lint everything:** `npm run lint` (use `npm run lint:fix` to auto-fix)
-- **Combine docs (generated):** `npm run combine`
+- **Sync everything:** `npm run sync` (libs, configs, combine docs)
+- **Combine docs (generated):** `npm run sync:combine`
 
 ## Where things live
 
 - **Configs:** `build/config/` (eslint, stylelint, htmlhint, md, jest)
-- **Ignore master:** `build/config/ignores.master.json` → `npm run sync:ignores`
+- **Config sync:** `build/config/ignores.master.json` + `.rules/` → `npm run sync` (or individual sync:xxx commands)
 - **Scripts:** `build/scripts/*`
 - **Generated docs:** `build/output/*.md` (⚠️ do not edit)
 

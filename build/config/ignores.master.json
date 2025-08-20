@@ -8,7 +8,18 @@
     ".DS_Store",
     "Thumbs.db",
     "memory-bank/archive",
-    "memory-bank/scribbles.md"
+    "memory-bank/scribbles.md",
+    "test-basic-memory/",
+    ".cursor/rules/",
+    ".cursor/mcp.json",
+    ".windsurf/rules/",
+    ".windsurf/mcp.json",
+    ".amazonq/rules/",
+    ".vscode/settings.json",
+    "build/config/.stylelintignore",
+    "build/config/.htmlhintignore",
+    "build/config/.markdownlintignore",
+    "build/config/ignore.eslint.json"
   ],
   "cursorignore": [
     "node_modules/",
@@ -19,7 +30,16 @@
     ".DS_Store",
     "Thumbs.db",
     "memory-bank/archive",
-    "memory-bank/scribbles.md"
+    "memory-bank/scribbles.md",
+    "test-basic-memory/",
+    ".windsurf/rules/",
+    ".windsurf/mcp.json",
+    ".amazonq/rules/",
+    ".vscode/settings.json",
+    "build/config/.stylelintignore",
+    "build/config/.htmlhintignore",
+    "build/config/.markdownlintignore",
+    "build/config/ignore.eslint.json"
   ],
   "markdownlintignore": [
     "node_modules/",
@@ -64,6 +84,21 @@
     "build/output/RPGlitch-perchance.html"
   ],
   "vscodeFilesExclude": [
-
+    "test-basic-memory/",
+    ".cursor/rules/",
+    ".cursor/mcp.json",
+    ".windsurf/rules/",
+    ".windsurf/mcp.json",
+    ".amazonq/rules/",
+    "build/config/.stylelintignore",
+    "build/config/.htmlhintignore",
+    "build/config/.markdownlintignore",
+    "build/config/ignore.eslint.json",
+    ".cursorignore",
+    ".gitignore",
+    "node_modules/",
+    "build/local_libs",
+    "mcp.json",
+    "mcp/"
   ]
 }

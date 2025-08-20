@@ -19,5 +19,22 @@
     "memory-bank/scribbles.md",
     "**/memory-bank/scribbles.md"
   ],
-  "files.exclude": {}
+  "files.exclude": {
+    "test-basic-memory/": true,
+    ".cursor/rules/": true,
+    ".cursor/mcp.json": true,
+    ".windsurf/rules/": true,
+    ".windsurf/mcp.json": true,
+    ".amazonq/rules/": true,
+    "build/config/.stylelintignore": true,
+    "build/config/.htmlhintignore": true,
+    "build/config/.markdownlintignore": true,
+    "build/config/ignore.eslint.json": true,
+    ".cursorignore": true,
+    ".gitignore": true,
+    "node_modules/": true,
+    "build/local_libs": true,
+    "mcp.json": true,
+    "mcp/": true
+  }
 }

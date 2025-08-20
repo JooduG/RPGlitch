@@ -7,3 +7,14 @@ dist/
 Thumbs.db
 memory-bank/archive
 memory-bank/scribbles.md
+test-basic-memory/
+.cursor/rules/
+.cursor/mcp.json
+.windsurf/rules/
+.windsurf/mcp.json
+.amazonq/rules/
+.vscode/settings.json
+build/config/.stylelintignore
+build/config/.htmlhintignore
+build/config/.markdownlintignore
+build/config/ignore.eslint.json

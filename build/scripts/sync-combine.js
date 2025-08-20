@@ -4,7 +4,7 @@
  *
  * This version:
  *  - **does not** create INDEX.md (delete yours once; it won’t come back)
- *  - keeps a merged hub at build/output/repo-overview.md:
+ *  - keeps a merged hub at build/output/hub.md:
  *      quick links + Mermaid repo tree + curated overview body
  *  - treats docs/rules as OPTIONAL (no warning if missing)
  *  - prepends a generated-file banner to each output
@@ -73,7 +73,7 @@ const TARGETS = [
     name: 'rules',
     title: 'Combined Rules',
     // .cursor/rules is primary; docs/rules is OPTIONAL
-    sources: ['.cursor/rules', 'docs/rules'],
+    sources: ['/.rules', 'docs/rules'],
     excludeDirs: new Set(['node_modules']),
     output: 'combined-rules.md',
     warnOnMissing: false // <— silence missing-source warnings for this target
@@ -115,23 +115,42 @@ const TARGETS = [
     filter: (relPath) => /(^|[\\/])README(\.(md|mdx|mdc))?$/i.test(relPath)
   },
   {
-    name: 'repo',
-    title: 'Repo Overview (apps/, build/scripts, docs/, memory (no archive), tests)',
-    sources: [
-      'apps',
-      'build/scripts',
-      'docs',
-      'memory-bank/active',
-      'memory-bank/project',
-      'memory-bank/strategic',
-      'tests'
-    ],
-    excludeDirs: new Set(['node_modules', 'build/output', '.git', '.cursor']),
-    output: 'repo-overview.md'
+    name: 'combined-other',
+    title: 'Combined Other (config files, root files, and miscellaneous)',
+    sources: ['.'],
+    excludeDirs: new Set([
+      'node_modules', 'build/output', '.git', '.cursor',
+      'apps', 'build/scripts', 'docs', 'memory-bank', 'tests', 'tools',
+      'archive', 'dist', 'coverage', '.nyc_output', '.cache', '.tmp', '.temp'
+    ]),
+    output: 'combined-other.md',
+    filter: (relPath) => {
+      // Only include files not covered by other combined files
+      const name = relPath.toLowerCase();
+      return !relPath.startsWith('apps/') &&
+             !relPath.startsWith('build/scripts/') &&
+             !relPath.startsWith('docs/') &&
+             !relPath.startsWith('memory-bank/') &&
+             !relPath.startsWith('tests/') &&
+             !relPath.startsWith('tools/') &&
+             !relPath.startsWith('.cursor/rules/') &&
+             !name.includes('test') && 
+             !name.includes('spec') &&
+             !relPath.includes('combined-') &&
+             !relPath.includes('hub.md');
+    }
   },
   {
-    name: 'everything',
-    title: 'Repo Everything (entire repo except archive/ & generated dirs)',
+    name: 'hub',
+    title: 'Repository Hub',
+    sources: [],
+    excludeDirs: new Set(),
+    output: 'hub.md',
+    hubOnly: true
+  },
+  {
+    name: 'combined-everything',
+    title: 'Combined Everything (entire repo except archive/ & generated dirs)',
     sources: ['.'],
     excludeDirs: new Set([
       'archive',
@@ -146,11 +165,11 @@ const TARGETS = [
       '.tmp',
       '.temp'
     ]),
-    output: 'repo-everything.md'
+    output: 'combined-everything.md'
   },
   {
-    name: 'recent',
-    title: `Recent Changes (last ${RECENT_SINCE_DAYS} days, up to ${RECENT_LIMIT} files)`,
+    name: 'combined-recent-changes',
+    title: `Combined Recent Changes (last ${RECENT_SINCE_DAYS} days, up to ${RECENT_LIMIT} files)`,
     sources: [
       'apps',
       'build/scripts',
@@ -160,7 +179,7 @@ const TARGETS = [
       '.cursor/rules'
     ],
     excludeDirs: new Set(['node_modules', 'build/output', '.git']),
-    output: 'recent-changes.md',
+    output: 'combined-recent-changes.md',
     recent: true
   }
 ];
@@ -283,7 +302,7 @@ function splitExistingSources(sources) {
 function buildFromList({ title, files }) {
   let out =
     `<!-- markdownlint-disable MD032 MD022 MD036 MD024 -->\n` +
-    `> **Generated file** — built by \`build/scripts/combine-views.js\` at build time.  \n` +
+    `> **Generated file** — built by \`build/scripts/sync-combine.js\` at build time.  \n` +
     `> Edit the source docs under \`docs/\` and \`memory-bank/docs/\`, not this file.\n\n` +
     `# ${title}\n\n`;
 
@@ -359,6 +378,20 @@ function readPreview(abs, max = MAX_BYTES){
 
 // build one target
 function buildOne(target) {
+  if (target.hubOnly) {
+    // Hub is handled separately by writeCombinedRepoHub
+    return {
+      name: target.name,
+      title: target.title,
+      output: target.output,
+      path: path.join(OUTPUT_DIR, target.output),
+      filesCount: 0,
+      sources: [],
+      excludeDirs: [],
+      recent: false
+    };
+  }
+
   const { existing, missing } = splitExistingSources(target.sources);
   const SOURCES = existing.length ? existing : [];
 
@@ -417,116 +450,12 @@ function buildOne(target) {
   return meta;
 }
 
-// mermaid repo tree
-function buildRepoTree({ sources, excludeDirs }) {
-  const seenNodes = new Set();
-  const edges = [];
-  let nodes = 0;
 
-  function addNode(id) {
-    if (!seenNodes.has(id)) { seenNodes.add(id); nodes++; }
-  }
-  function addEdge(a, b) { edges.push([a, b]); }
 
-  const ex = new Set(excludeDirs || []);
-  const maxNodes = TREE_MAX_NODES;
+const { writeHub } = require('./sync-hub');
 
-  function scan(rootRel) {
-    const rootAbs = path.join(REPO_ROOT, rootRel);
-    if (!fs.existsSync(rootAbs)) return;
-
-    function walkDir(baseRel, level) {
-      if (nodes >= maxNodes) return;
-      if (level > TREE_DEPTH) return;
-
-      const abs = path.join(REPO_ROOT, baseRel);
-      if (!fs.existsSync(abs) || !fs.statSync(abs).isDirectory()) return;
-      const baseName = path.basename(baseRel);
-
-      if (ex.has(baseName) || isIgnored(baseRel)) return;
-
-      addNode(baseRel || '.');
-
-      const entries = fs.readdirSync(abs, { withFileTypes: true })
-        .filter(e => e.isDirectory())
-        .map(e => e.name)
-        .sort();
-
-      for (const name of entries) {
-        const childRel = path.join(baseRel, name);
-        if (ex.has(name) || isIgnored(childRel)) continue;
-
-        addNode(childRel);
-        addEdge(baseRel || '.', childRel);
-
-        if (nodes >= maxNodes) break;
-        walkDir(childRel, level + 1);
-      }
-    }
-
-    walkDir(rootRel, 0);
-  }
-
-  if (!sources || !sources.length) {
-    scan('.');
-  } else {
-    for (const src of sources) scan(src);
-  }
-
-  const idOf = (rel) => ('n_' + (rel || '.').replace(/[^\w]/g, '_'));
-  const labelOf = (rel) => (rel === '.' || rel === '' ? 'repo-root' : rel.replace(/\\/g, '/'));
-
-  let out = '```mermaid\nflowchart TD\n';
-  out += `  classDef folder font-weight:600;\n`;
-  for (const rel of seenNodes) out += `  ${idOf(rel)}["${labelOf(rel)}"]:::folder\n`;
-  for (const [a, b] of edges) out += `  ${idOf(a)} --> ${idOf(b)}\n`;
-  out += '```\n';
-
-  return out;
-}
-
-// merged hub writer (ONLY repo-overview.md; no INDEX.md)
 function writeCombinedRepoHub(built) {
-  const ts = new Date().toISOString();
-  const byName = Object.fromEntries(built.map(b => [b.name, b]));
-  const repo = byName['repo'];
-  if (!repo) return;
-
-  const repoMd = fs.readFileSync(repo.path, 'utf8');
-
-  const quickLines = [];
-  quickLines.push('## Quick links', '');
-  for (const b of built) {
-    quickLines.push(`- **${b.title}** — [${b.output}](./${b.output}) _(files: ${b.filesCount})_`);
-  }
-  quickLines.push('');
-
-  const mermaid = buildRepoTree({
-    sources: repo.sources,
-    excludeDirs: repo.excludeDirs
-  });
-
-  const header = [
-    '<!-- markdownlint-disable MD032 MD022 MD036 MD024 -->',
-    '# Repo Hub (Overview + Index)',
-    '',
-    `> Generated ${ts} by \`build/scripts/combine-views.js\``,
-    ''
-  ].join('\n');
-
-  const merged = [
-    header,
-    quickLines.join('\n'),
-    '## Repository Tree (Mermaid)',
-    '',
-    mermaid,
-    '---',
-    '',
-    repoMd.replace(/^#\s+[^\n]+\n/, '## Repo Overview\n')
-  ].join('\n');
-
-  fs.writeFileSync(repo.path, merged, 'utf8');
-  console.log(`✔ merged hub → ${path.relative(REPO_ROOT, repo.path)}`);
+  writeHub(built);
 }
 
 // -------- main --------
@@ -538,5 +467,5 @@ function writeCombinedRepoHub(built) {
     process.exit(1);
   }
   const built = selected.map(buildOne);
-  if (built.some(b => b.name === 'repo')) writeCombinedRepoHub(built);
+  if (built.some(b => b.name === 'hub')) writeCombinedRepoHub(built);
 })();
