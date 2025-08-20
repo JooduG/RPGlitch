@@ -1,5 +1,4 @@
 ---
-alwaysApply: true
 ---
 # UNIFIED ORCHESTRATOR MODE
 

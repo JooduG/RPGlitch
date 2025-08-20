@@ -1,6 +1,5 @@
 ---
 description: Unified thinking framework integrating Sequential, Contemplative, and Professional Coding approaches with clear mode system integration and decision matrices.
-alwaysApply: true
 ---
 # UNIFIED THINKING FRAMEWORK
 

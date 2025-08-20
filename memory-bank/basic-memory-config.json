@@ -43,7 +43,7 @@
     }
   },
   "settings": {
-    "auto_save": true,
+    "auto_save": false,
     "backup_enabled": true,
     "sync_interval": 300,
     "indexing": {

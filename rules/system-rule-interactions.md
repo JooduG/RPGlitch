@@ -1,5 +1,4 @@
 ---
-alwaysApply: true
 ---
 # RULE INTERACTIONS ANALYSIS
 
