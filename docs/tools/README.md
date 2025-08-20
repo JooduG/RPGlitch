@@ -6,7 +6,7 @@ This directory contains various development tools and utilities for the project.
 
 ## Structure
 
-```
+```md
 tools/
 ├── diagnostics/         # Diagnostic and analysis tools
 ├── ai-rule-selection/   # AI-powered rule selection tools

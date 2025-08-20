@@ -80,7 +80,7 @@ pip install basic-memory-mcp
 
 **Project Structure**:
 
-```
+```md
 memory-bank/
 ├── active/             # Active project context
 ├── strategic/          # Strategic planning and analysis

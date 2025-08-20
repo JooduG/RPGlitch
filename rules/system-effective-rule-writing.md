@@ -2,6 +2,9 @@
 globs: **/*.mdc
 alwaysApply: false
 ---
+
+# System Effective Rule Writing
+
 ## 1. Getting Started: The Basics
 
 To begin creating `.mdc` rule files that Cursor can use, follow these essential steps:

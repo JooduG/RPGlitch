@@ -2,7 +2,7 @@
 
 Documentation puts useful information inside other people’s heads. Follow these tips to write better documentation.
 
-### Make docs easy to skim
+## Make docs easy to skim
 
 Few readers read linearly from top to bottom. They’ll jump around, trying to assess which bit solves their problem, if any. To reduce their search time and increase their odds of success, make docs easy to skim.
 

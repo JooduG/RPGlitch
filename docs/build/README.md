@@ -6,7 +6,7 @@ This directory contains build scripts and output for the project.
 
 ## Structure
 
-```
+```md
 build/
 ├── scripts/             # Build scripts
 │   ├── build-and-copy.js

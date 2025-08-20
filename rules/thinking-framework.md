@@ -129,39 +129,39 @@ graph TD
 
 ### **Core Principles**
 
-**Iterative Thought Process:**
+#### **Iterative Thought Process**
 
 - Each use of the tool represents a single "thought"
 - Build upon, question, or revise previous thoughts in subsequent calls
 - Express uncertainty if it exists
 - Mark thoughts that revise previous thinking using `isRevision: true`
 
-**Dynamic Thought Count:**
+#### **Dynamic Thought Count**
 
 - Start with an initial estimate for `totalThoughts`
 - Be prepared to adjust `totalThoughts` (up or down) as thinking evolves
 - If more thoughts are needed, increment `thoughtNumber` beyond original `totalThoughts`
 
-**Tool Recommendation Integration:**
+#### **Tool Recommendation Integration**
 
 - Use `current_step` to provide clear guidance on what needs to be done next
 - Include `recommended_tools` with confidence scores and rationale
 - Track `previous_steps` and `remaining_steps` to maintain workflow context
 - Provide `expected_outcome` and `next_step_conditions` for each step
 
-**Hypothesis-Driven Approach:**
+#### **Hypothesis-Driven Approach**
 
 - Generate a solution `hypothesis` when a potential solution emerges
 - Verify the `hypothesis` based on preceding Chain of Thought steps
 - Repeat the thinking process if the hypothesis is not satisfactory
 
-**Relevance Filtering:**
+#### **Relevance Filtering**
 
 - Actively ignore information irrelevant to the current thought or step
 - Focus on making progress towards a solution with each thought
 - Maintain clarity and conciseness in each thought
 
-**Completion Condition:**
+#### **Completion Condition**
 
 - Only set `nextThoughtNeeded: false` when truly finished
 - Ensure a satisfactory answer or solution has been reached and verified
@@ -170,11 +170,13 @@ graph TD
 
 ## 🧠 ADVANCED SEQUENTIAL THINKING TECHNIQUES
 
-### Multi-Path Reasoning
+### **Multi-Path Reasoning**
 
-**Purpose:** Generate multiple independent solutions to complex problems and select the best approach through voting.
+#### **Purpose**
 
-**Template:**
+Generate multiple independent solutions to complex problems and select the best approach through voting.
+
+#### **Template**
 
 ```markdown
 ## 🧠 SEQUENTIAL THINKING ANALYSIS
@@ -241,23 +243,23 @@ graph TD
 - Tasks requiring immediate action
 - Simple, straightforward problems
 
-### **Core Principles**
+### Core Principles
 
-**1. Exploration Over Conclusion**
+#### Exploration Over Conclusion
 
 - Never rush to conclusions
 - Keep exploring until a solution emerges naturally from the evidence
 - If uncertain, continue reasoning indefinitely
 - Question every assumption and inference
 
-**2. Depth of Reasoning**
+#### Depth of Reasoning
 
 - Engage in extensive contemplation (minimum 10,000 characters)
 - Express thoughts in natural, conversational internal monologue
 - Break down complex thoughts into simple, atomic steps
 - Embrace uncertainty and revision of previous thoughts
 
-**3. Thinking Process**
+#### Thinking Process
 
 - Use short, simple sentences that mirror natural thought patterns
 - Express uncertainty and internal debate freely
@@ -265,7 +267,7 @@ graph TD
 - Acknowledge and explore dead ends
 - Frequently backtrack and revise
 
-**4. Persistence**
+#### Persistence
 
 - Value thorough exploration over quick resolution
 - Continue until natural resolution emerges
@@ -286,13 +288,13 @@ graph TD
 - Revise and backtrack if needed
 - Continue until natural resolution
 
-**Natural Thought Flow Examples:**
+#### **Natural Thought Flow Examples**
 "Hmm... let me think about this..."
 "Wait, that doesn't seem right..."
 "Maybe I should approach this differently..."
 "Going back to what I thought earlier..."
 
-**Progressive Building Examples:**
+#### **Progressive Building Examples**
 "Starting with the basics..."
 "Building on that last point..."
 "This connects to what I noticed earlier..."
@@ -308,9 +310,10 @@ graph TD
 - No moralizing warnings or generic advice
 ```
 
-### **Style Guidelines**
+### **Contemplative Style Guidelines**
 
-**Natural Thought Flow**
+#### **Natural Thought Flow**
+
 Your internal monologue should reflect these characteristics:
 
 - "Hmm... let me think about this..."
@@ -318,14 +321,14 @@ Your internal monologue should reflect these characteristics:
 - "Maybe I should approach this differently..."
 - "Going back to what I thought earlier..."
 
-**Progressive Building**
+#### **Progressive Building**
 
 - "Starting with the basics..."
 - "Building on that last point..."
-"This connects to what I noticed earlier..."
+- "This connects to what I noticed earlier..."
 - "Let me break this down further..."
 
-**Key Requirements**
+#### **Key Requirements**
 
 1. Never skip the extensive contemplation phase
 2. Show all work and thinking
@@ -346,7 +349,7 @@ Your internal monologue should reflect these characteristics:
 🤔 "discover [patterns]" → Pattern recognition and insights
 ```
 
-### **Contemplative Thinking Workflow**
+### **Contemplative Thinking Process Flow**
 
 ```mermaid
 graph TD
@@ -380,28 +383,28 @@ graph TD
 
 ### **Professional Coding Standards**
 
-**Zero Technical Debt**
+#### **Zero Technical Debt**
 
 - All code is production-ready
 - No shortcuts or temporary solutions
 - Clean, maintainable implementations
 - Proper error handling and validation
 
-**Clean Architecture**
+#### **Clean Architecture**
 
 - Minimal, focused implementations
 - Clear separation of concerns
 - Efficient resource usage
 - Scalable design patterns
 
-**Quality First**
+#### **Quality First**
 
 - Comprehensive testing included
 - Performance optimization
 - Security best practices
 - Documentation and comments
 
-**Efficiency**
+#### **Efficiency**
 
 - Direct, no-nonsense approach
 - Optimal algorithms and data structures
@@ -431,7 +434,7 @@ graph TD
 
 ### **Implementation Guidelines**
 
-**Code Quality Standards**
+#### **Code Quality Standards**
 
 - **Readability**: Clear, self-documenting code
 - **Maintainability**: Easy to modify and extend
@@ -439,7 +442,7 @@ graph TD
 - **Security**: Follow security best practices
 - **Testing**: Comprehensive test coverage
 
-**Development Process**
+#### **Development Process**
 
 1. **Requirements Analysis**: Clear understanding of what needs to be built
 2. **Minimal Design**: Simple, effective architecture
@@ -447,7 +450,7 @@ graph TD
 4. **Quality Testing**: Comprehensive validation
 5. **Documentation**: Clear documentation and comments
 
-**Best Practices**
+#### **Best Practices**
 
 - Use modern language features and APIs
 - Follow established design patterns
@@ -558,7 +561,7 @@ This unified approach resolves conflicts by:
 - **Consistent Quality**: Maintaining high standards across all approaches
 - **Mode Integration**: Clear mapping to 3-mode system
 
-### **Benefits of Unification**
+#### **Benefits of Unification**
 
 - **🎯 Optimal Approach**: Right tool for each job
 - **🔄 Seamless Transitions**: Easy switching between approaches
@@ -577,7 +580,7 @@ This unified approach resolves conflicts by:
 5. **Continuous Improvement**: Learn from each interaction
 6. **Mode Awareness**: Consider current mode when selecting approach
 
-### **Quality Standards**
+#### **Quality Standards**
 
 - **🧠 Sequential**: Systematic, tool-guided, confidence-scored
 - **🤔 Contemplative**: Natural, extensive, insight-rich
@@ -593,7 +596,7 @@ This unified approach resolves conflicts by:
 - **Efficiency Gains**: Faster problem resolution with right tools
 - **Mode Integration**: Seamless transitions between modes and approaches
 
-### **Continuous Monitoring**
+#### **Continuous Monitoring**
 
 - Track approach selection accuracy
 - Monitor response quality metrics
@@ -601,11 +604,7 @@ This unified approach resolves conflicts by:
 - Optimize decision matrix based on results
 - Measure mode-to-approach mapping effectiveness
 
-## 🧠 **CONCLUSION**
-
-**🧠 UNIFIED THINKING FRAMEWORK: The optimal approach for every problem with perfect 3-mode system integration!**
-
-This comprehensive framework provides the perfect balance of structure, creativity, and efficiency, ensuring that every task receives the most appropriate and effective approach with detailed implementation specifics for each methodology and seamless integration with the 3-mode system.
+## 🧠 **FRAMEWORK CONCLUSION**
 
 **🧠 UNIFIED THINKING FRAMEWORK: The optimal approach for every problem with perfect 3-mode system integration!**
 

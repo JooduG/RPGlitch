@@ -2,9 +2,9 @@
   "default_project": "memory-bank",
   "projects": {
     "memory-bank": {
-      "name": "Memory Bank",
+      "name": "Active Memory",
       "description": "Default project for centralized knowledge management",
-      "path": "projects/memory-bank"
+      "path": "Active"
     },
     "system-architecture": {
       "name": "System Architecture",
@@ -14,32 +14,32 @@
     "strategic": {
       "name": "Strategic",
       "description": "Strategic role knowledge and patterns",
-      "path": "projects/strategic"
+      "path": "orchestration/strategic"
     },
     "tactical": {
       "name": "Tactical",
       "description": "Tactical planning and coordination knowledge",
-      "path": "projects/tactical"
+      "path": "orchestration/tactical"
     },
     "operational": {
       "name": "Operational",
       "description": "Implementation and execution knowledge",
-      "path": "projects/operational"
+      "path": "orchestration/operational"
     },
     "rpglitch": {
       "name": "RPGlitch",
       "description": "RPGlitch-specific project knowledge",
-      "path": "projects/rpglitch"
+      "path": "apps/rpglitch"
     },
     "imageglitch": {
       "name": "ImageGlitch",
       "description": "ImageGlitch-specific project knowledge",
-      "path": "projects/imageglitch"
+      "path": "apps/imageglitch"
     },
     "rules": {
       "name": "Development Rules",
-      "description": "Cursor rules and development guidelines",
-      "path": "../.cursor/rules"
+      "description": "Rules and development guidelines",
+      "path": "../rules"
     }
   },
   "settings": {
@@ -60,7 +60,7 @@
       ],
       "watch_directories": [
         "projects",
-        "../.cursor/rules"
+        "../rules"
       ]
     }
   }

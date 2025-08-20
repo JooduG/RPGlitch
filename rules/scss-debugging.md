@@ -2,6 +2,9 @@
 description: Comprehensive guide for debugging SCSS compilation errors, performance issues, and troubleshooting common problems in Sass/SCSS development.
 tags: "scss", "sass", "debugging", "troubleshooting", "performance"
 globs: **/*.scss,**/*.sass,**/*.css
+taskTypes: [debugging, troubleshooting]
+keywords: [error, bug, broken, fix, debug, compile, sass, scss]
+excludeKeywords: [simple, basic]
 ---
 
 # SCSS Debugging & Troubleshooting

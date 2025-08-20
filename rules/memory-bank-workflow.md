@@ -135,7 +135,7 @@ memory-bank-write project/todo-handoff.md --content "
 
 ## 🎨 **TACTICAL MODE INTEGRATION**
 
-### **Tactical Mode Workflow**
+### **Tactical Mode Memory Bank Workflow**
 
 **Purpose**: App-specific planning, design decisions, implementation planning
 
@@ -233,13 +233,13 @@ memory-bank-update project/todo-handoff.md --content "
 
 ## ⚒️ **OPERATIONAL MODE INTEGRATION**
 
-### **Operational Mode Workflow**
+### **Operational Mode Memory Bank Workflow**
 
 **Purpose**: Implementation, testing, and execution
 
 **Memory Bank Activities**:
 
-#### **Context Loading**
+#### **Operational Context Loading**
 
 ```bash
 # Load tactical context for implementation

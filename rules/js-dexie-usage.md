@@ -2,6 +2,9 @@
 description: Dexie.js is the recommended library for IndexedDB management in Perchance projects. Use Dexie for all persistent client-side storage needs.
 tags: "indexeddb", "storage", "database", "javascript", "perchance"
 globs: **/*.js
+keywords: [database, db, indexeddb, dexie, storage, persist]
+complexity: [medium, high]
+dependencies: [js-development.md, js-indexeddb-principles.md]
 ---
 
 # Objective

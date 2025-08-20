@@ -14,7 +14,7 @@ This document serves as a comprehensive reference for AI agents and human contri
 
 The repository structure is outlined below to provide clarity on navigation and responsibilities:
 
-```
+```md
 /
 ├── apps/                 # Application source code (RPGlitch)
 ├── build/                # Build automation, scripts, and output artifacts

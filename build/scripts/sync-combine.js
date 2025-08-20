@@ -31,8 +31,8 @@ const OUTPUT_DIR = path.join(__dirname, '..', 'output');
 const MAX_BYTES          = Number(process.env.COMBINE_MAX_BYTES || 250_000);
 const RECENT_SINCE_DAYS  = Number(process.env.COMBINE_RECENT_SINCE_DAYS || 7);
 const RECENT_LIMIT       = Number(process.env.COMBINE_RECENT_LIMIT || 100);
-const TREE_DEPTH         = Number(process.env.COMBINE_TREE_DEPTH || 2);
-const TREE_MAX_NODES     = Number(process.env.COMBINE_TREE_MAX_NODES || 200);
+// const TREE_DEPTH         = Number(process.env.COMBINE_TREE_DEPTH || 2);
+// const TREE_MAX_NODES     = Number(process.env.COMBINE_TREE_MAX_NODES || 200);
 
 const TEXT_EXTS = new Set([
   '.md', '.mdx', '.mdc',

@@ -39,7 +39,7 @@ graph TD
 
 ### **File Structure**
 
-```
+```md
 memory-bank/
 ├── project/                      # Main project context
 │   ├── activeContext.md         # Current active context
@@ -82,7 +82,7 @@ memory-bank/
 
 **Storage Structure**:
 
-```
+```md
 strategic/
 ├── system-architecture/
 │   ├── workflow-optimizations.md
@@ -115,7 +115,7 @@ strategic/
 
 **Storage Structure**:
 
-```
+```md
 tactical/
 ├── design-decisions/
 │   ├── ui-patterns.md
@@ -148,7 +148,7 @@ tactical/
 
 **Storage Structure**:
 
-```
+```md
 operational/
 ├── implementation-patterns/
 │   ├── code-patterns.md

@@ -222,7 +222,7 @@ async function uploadFiles(files, url, onProgress) {
 
 ## Intersection Observer
 
-### **Basic Usage**
+### **Intersection Observer Basic Usage**
 
 ```javascript
 // Simple intersection observer
@@ -245,7 +245,7 @@ document.querySelectorAll('.observe').forEach(el => {
 });
 ```
 
-### **Advanced Patterns**
+### **Intersection Observer Patterns**
 
 ```javascript
 // Lazy loading images
@@ -306,7 +306,7 @@ document.querySelectorAll('.animate-on-scroll').forEach(el => {
 
 ## Resize Observer
 
-### **Basic Usage**
+### **Resize Observer Basic Usage**
 
 ```javascript
 // Monitor element size changes
@@ -325,7 +325,7 @@ const element = document.querySelector('.resizable');
 resizeObserver.observe(element);
 ```
 
-### **Advanced Patterns**
+### **Resize Observer Patterns**
 
 ```javascript
 // Responsive layout updates
@@ -400,7 +400,7 @@ self.addEventListener('fetch', (event) => {
 });
 ```
 
-### **Advanced Caching Strategies**
+### **Service Worker Caching Strategies**
 
 ```javascript
 // Cache-first strategy
@@ -538,7 +538,7 @@ const sessionStorage = {
 
 ## Web Workers
 
-### **Basic Web Worker**
+### **Web Worker Basic Usage**
 
 ```javascript
 // Main thread
