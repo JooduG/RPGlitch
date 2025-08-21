@@ -36,8 +36,8 @@ npm run build:copy
 
 - All scripts are **inlined**; no CDN tags in the final HTML.
 - Local libs pulled into `build/local_libs` only.
-- Output for RPGlitch: `build/output/RPGlitch-perchance.html`.
+- Output for RPGlitch: `build/output/RPGlitch.html`.
 
 **More docs:** see
 [`build/output/combined-docs.md`](build/output/combined-docs.md) and
-[`build/output/repo-overview.md`](build/output/repo-overview.md).
+[`build/output/repo-overview.md`](build/output/hub.md).

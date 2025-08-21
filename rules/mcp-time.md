@@ -1,7 +1,8 @@
 ---
 alwaysApply: true
 ---
-# Time MCP Usage - Mandatory Date Standardization
+
+# **🕐 TIME MCP USAGE: Ensuring accurate, consistent, and timezone-aware date handling across the entire system!**
 
 ## 🎯 **OBJECTIVE**
 
@@ -255,7 +256,3 @@ timezone: Europe/Berlin
 - **Timezone Reference**: Europe/Berlin (UTC+1/UTC+2)
 - **Date Format**: YYYY-MM-DD for dates, ISO 8601 for datetimes
 - **Integration Examples**: See implementation guidelines above
-
----
-
-**🕐 TIME MCP USAGE: Ensuring accurate, consistent, and timezone-aware date handling across the entire system!**

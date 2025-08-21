@@ -1,45 +1,70 @@
+---
+description: "RPGlitch single-file Perchance deliverable with storyboard + profiles functionality"
+tags:
+  - rpglitch
+  - perchance
+  - storyboard
+  - profiles
+globs:
+  - "**/*.html"
+  - "**/*.js"
+  - "**/*.scss"
+---
+
 # RPGlitch
 
-Single-file Perchance deliverable with storyboard + profiles.
+Single-file Perchance deliverable with storyboard + profiles functionality.
 
-## Entry / Output
+## For Developers (Human Documentation)
 
-- **Entry HTML:** `apps/rpglitch/RPGlitch.html`
-- **Scripts:** `apps/rpglitch/js/*.js`
-- **Styles (SCSS):** `apps/rpglitch/RPGlitch.scss`
-- **Build output:** `build/output/RPGlitch-perchance.html` (inlined)
+### Project Structure
 
-## Build
+- **HTML:** `html/` - Semantic structure and accessibility
+- **JavaScript:** `js/` - ES2023+ with Cash DOM and Dexie.js
+- **SCSS:** `scss/` - Modern CSS with Pico.css framework
+- **Build Output:** `build/output/RPGlitch.html` (single inlined file)
+
+### Build Commands
 
 ```bash
-npm run fetch:libs      # downloads pico/cash/dexie/purify/_hyperscript → build/local_libs
-npm run build           # builds only
-npm run build:copy      # builds and copies final HTML to clipboard
+# Development build
+node build/scripts/build-rpglitch.js
+
+# Watch mode (if available)
+npm run watch:rpglitch
 ```
 
-## Perchance constraints we honor
+## Development Rules (AI Instructions)
 
-- Strip all external `<script src>` and `<link>`; inline bundle only.
-- Use **one** image source across storyboard/chin/profile (normalized `image`/`imageUrl`).
-- Routes: `#storyboard`, `#profile/:type/:id`, `#form/:type/:id|new`.
-- Storyboard `<select>` updates card **without navigating**; card click navigates.
+### RPGlitch-Specific Requirements
 
-## Folder map
+- Storyboard functionality with dynamic title management
+- Character and profile management with persistent storage
+- Deterministic placeholder system for consistent UX
+- Item management with full-featured forms and card interactions
 
-```text
-apps/rpglitch/
-  RPGlitch.html
-  RPGlitch.scss
-  js/
-    utils.js
-    entities.js
-    profile-router.js
-    entity-form.js
-```
+## Current Tasks (RPGlitch-Specific)
 
-## Gotchas / Troubleshooting
+### High Priority
 
-- If UI looks unstyled, re-run `npm run fetch:libs` (pico in
-  `build/local_libs/pico.min.css`).
-- If clipboard copy fails, PowerShell may need `Set-Clipboard`;
-  re-open terminal or use `npm run build:perchance` and copy manually.
+- [ ] **Deterministic Placeholders**: Implement consistent placeholder system with "Empty" titles
+- [ ] **Storyboard Flow Hardening**: Complete toolbar, cancel, showPicker, and dynamic title functionality
+- [ ] **JavaScript Modularization**: Continue breaking down remaining business logic modules
+
+### Medium Priority
+
+- [ ] **UI Module Implementation**: Complete remaining RPGlitch-specific UI components
+- [ ] **Chin List Enhancement**: Improve persistence and accessibility for chin list functionality
+- [ ] **Item Form Development**: Build full-featured item forms with validation
+
+### Low Priority
+
+- [ ] **Card Interaction System**: Implement interactive card system for items/characters
+- [ ] **Performance Optimization**: Optimize for Perchance single-file constraints
+- [ ] **Accessibility Audit**: Comprehensive accessibility review and improvements
+
+## Recently Completed (Max 10)
+
+- [x] **Folder Reorganization**: Restructured into html/, js/, scss/ technology-specific folders
+- [x] **Build Script Update**: Updated build process for new folder structure
+- [x] **README Migration**: Moved shared standards to parent apps/ folder

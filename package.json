@@ -2,9 +2,9 @@
   "name": "rpglitch",
   "version": "1.0.0",
   "description": "RPGlitch - AI-powered storytelling platform for Perchance with comprehensive rules system for development",
-  "main": "build/scripts/build-perchance.js",
+  "main": "build/scripts/build-rpglitch.js",
   "scripts": {
-    "build": "node build/scripts/build-perchance.js",
+    "build": "node build/scripts/build-rpglitch.js",
     "build:copy": "node build/scripts/build-and-copy.js",
     "clean": "rm -rf build/output/",
     "clean:libs": "node -e \"require('fs').rmSync('build/local_libs', { recursive: true, force: true }); console.log('🧹 cleaned build/local_libs');\"",
@@ -22,7 +22,7 @@
     "sync:hub": "node build/scripts/sync-hub.js",
     "sync:libs": "node build/scripts/sync-libs.js",
     "test": "jest --config build/config/jest.config.js",
-    "validate": "node -e \"const fs=require('fs');const p='build/output/RPGlitch-perchance.html';if(!fs.existsSync(p)||!fs.readFileSync(p,'utf8').trim())process.exit(2)\""
+    "validate": "node -e \"const fs=require('fs');const p='build/output/RPGlitch.html';if(!fs.existsSync(p)||!fs.readFileSync(p,'utf8').trim())process.exit(2)\""
   },
   "keywords": [
     "perchance",

@@ -17,7 +17,7 @@ const { spawnSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const BUILD_DIR = path.join(ROOT, 'build');
-const OUTPUT_FILE = path.join(BUILD_DIR, 'output', 'RPGlitch-perchance.html');
+const OUTPUT_FILE = path.join(BUILD_DIR, 'output', 'RPGlitch.html');
 
 function runNode(scriptRelPath, args = []) {
   const scriptAbs = path.join(__dirname, scriptRelPath);
@@ -142,9 +142,9 @@ function copyFileToClipboard(filePath) {
   try {
     console.log('🔨 Building RPGlitch (wrapper)…');
 
-    // 1) Build perchance bundle (writes build/output/RPGlitch-perchance.html)
-    console.log('🔨 Building RPGlitch (perchance)…');
-    runNode('build-perchance.js');
+    // 1) Build RPGlitch bundle (writes build/output/RPGlitch.html)
+    console.log('🔨 Building RPGlitch…');
+    runNode('build-rpglitch.js');
 
     // 2) Verify and copy to clipboard
     if (fs.existsSync(OUTPUT_FILE)) {

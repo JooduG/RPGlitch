@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Build RPGlitch for Perchance: inlines CSS/JS, respects Perchance constraints, writes build/output/RPGlitch-perchance.html */
+/* Build RPGlitch: inlines CSS/JS, respects Perchance constraints, writes build/output/RPGlitch.html */
 
 const fs = require('fs');
 const path = require('path');
@@ -11,7 +11,7 @@ const BUILD_DIR = path.join(ROOT, 'build');
 const LOCAL_LIBS_DIR = path.join(BUILD_DIR, 'local_libs');
 const OUTPUT_DIR = path.join(BUILD_DIR, 'output');
 
-const OUTPUT_HTML = path.join(OUTPUT_DIR, 'RPGlitch-perchance.html');
+const OUTPUT_HTML = path.join(OUTPUT_DIR, 'RPGlitch.html');
 
 const LOCAL_LIBS = {
   pico: { file: 'pico.min.css' },
@@ -25,9 +25,7 @@ const LOCAL_LIBS = {
 function resolveAppFile(basename) {
   const candidateA = path.join(APP_JS_DIR, basename);
   if (fs.existsSync(candidateA)) return candidateA;
-  const candidateB = path.join(APP_DIR, basename);
-  if (fs.existsSync(candidateB)) return candidateB;
-  // Return js/ path by default so missing files still print a useful warning
+  // All JS files should now be in js/ folder
   return candidateA;
 }
 
@@ -37,11 +35,11 @@ const APP_JS_FILES = [
   resolveAppFile('entities.js'),
   resolveAppFile('entity-form.js'),
   resolveAppFile('profile-router.js'),
-  resolveAppFile('RPGlitch.js'),   // ← this now works whether it’s in js/ or app root
+  resolveAppFile('index.js'),   // ← this now works whether it's in js/ or app root
 ];
 
-const SRC_HTML = path.join(APP_DIR, 'RPGlitch.html');
-const ENTRY_SCSS = path.join(APP_DIR, 'RPGlitch.scss');
+const SRC_HTML = path.join(APP_DIR, 'html', 'index.html');
+const ENTRY_SCSS = path.join(APP_DIR, 'scss', 'index.scss');
 
 function ensureDir(p) {
   fs.mkdirSync(p, { recursive: true });
@@ -87,7 +85,7 @@ function buildScss() {
   try {
     const result = sass.compile(ENTRY_SCSS, {
       style: 'compressed',
-      loadPaths: [path.join(APP_DIR, 'SCSS'), APP_DIR],
+      loadPaths: [path.join(APP_DIR, 'scss'), APP_DIR],
     });
     return result.css || '';
   } catch (err) {
@@ -99,7 +97,7 @@ function buildScss() {
 function stripTagsForInlining(html) {
   let out = html.replace(/<link[^>]*href=["'][^"']*pico[^"']*["'][^>]*>\s*/gi, '');
   out = out.replace(
-    /<script[^>]*\bsrc=(['"])(?!https?:|\/\/)[^'"]+\.js\1[^>]*>\s*<\/script>\s*/gi,
+    /<script[^>]*\bsrc=(['"])(?!https?:\/\/)[^'"]+\.js\1[^>]*>\s*<\/script>\s*/gi,
     ''
   );
   out = out.replace(/<script>[\s\S]*?App\.initializeWhenReady[\s\S]*?<\/script>\s*/gi, '');
@@ -108,14 +106,14 @@ function stripTagsForInlining(html) {
 
 function injectCss(html, css) {
   if (!css) return html;
-  const styleTag = `<style id="perchance-inline-css">\n${css}\n</style>`;
+  const styleTag = `<style id="rpglitch-inline-css">\n${css}\n</style>`;
   return html.includes('</head>') ? html.replace('</head>', `${styleTag}\n</head>`) : `${styleTag}\n${html}`;
 }
 
 function injectJs(html, js) {
   if (!js) return html;
   const wrapped = [
-    '<script id="perchance-inline-js">',
+    '<script id="rpglitch-inline-js">',
     '(function(){',
     '  try {',
     js,
@@ -155,7 +153,7 @@ function bundleJs() {
 }
 
 (function main() {
-  console.log('🔨 Building RPGlitch (perchance)…');
+  console.log('🔨 Building RPGlitch…');
   ensureDir(LOCAL_LIBS_DIR);
   ensureDir(OUTPUT_DIR);
 

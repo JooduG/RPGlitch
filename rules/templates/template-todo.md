@@ -2,7 +2,8 @@
 description: Template for TODO tracking and task management in the forward-looking planning system.
 alwaysApply: false
 ---
-# TODO TEMPLATE
+
+# **📋 TODO TEMPLATE: Forward-looking task organization!**
 
 > **TL;DR:** Template for organizing and tracking TODO items in the forward-looking planning system.
 
@@ -88,7 +89,3 @@ alwaysApply: false
 5. **Break Down**: Large tasks into smaller subtasks
 6. **Time Estimates**: Add rough time estimates when helpful
 7. **Dependencies**: Note what blocks or enables tasks
-
----
-
-**📋 TODO TEMPLATE: Forward-looking task organization!**

@@ -20,7 +20,7 @@ function loadApp(dom) {
   global.$ = function () {};
   const utilsScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
   dom.window.eval(utilsScript);
-  const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.js'), 'utf8');
+  const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/index.js'), 'utf8');
   dom.window.eval(script);
   if (typeof dom.window.App._getUIElements !== 'function') {
 dom.window.App._getUIElements = jest.fn();
@@ -29,7 +29,7 @@ dom.window.App._getUIElements = jest.fn();
 }
 
 test('initializeWhenReady runs without errors', async () => {
-  const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.html'), 'utf8');
+  const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/html/index.html'), 'utf8');
   const dom = new JSDOM(html, { runScripts: 'outside-only' });
   const App = loadApp(dom);
   App.initialLoad = jest.fn().mockResolvedValue();
@@ -44,7 +44,7 @@ test('_getUIElements is defined before initialization', () => {
 });
 
 test('initializeWhenReady resets retry counter on success', async () => {
-  const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.html'), 'utf8');
+  const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/html/index.html'), 'utf8');
   const dom = new JSDOM(html, { runScripts: 'outside-only' });
   const App = loadApp(dom);
   App.initializeWhenReadyRetryCount = 2;

@@ -5,8 +5,8 @@
  * Tests which rules should apply to which files based on glob patterns
  */
 
-const fs = require('fs');
-const path = require('path');
+// const fs = require('fs');
+// const path = require('path');
 
 // Test files to verify
 const testFiles = [

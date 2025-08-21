@@ -1,0 +1,138 @@
+---
+description: "Template for unified README.md files with frontmatter containing human docs + AI rules + progress tracking"
+tags: 
+  - template
+  - readme
+  - rules
+  - documentation
+---
+
+# Template README.md
+
+## Purpose
+
+This is the template for creating unified README.md files across the workspace. Each README.md should contain human documentation, AI rules, current tasks, and context information.
+
+## Template Structure
+
+**Copy this template and customize for each folder:**
+
+```markdown
+---
+description: "[Brief description of folder purpose and rules]"
+tags:
+  - "[folder-type]"
+  - "[technology]"
+  - "[domain]"
+globs:
+  - "**/*.[ext]" # Only if folder-specific file types
+# No alwaysApply needed for auto-attach globs
+---
+
+# [Folder Name]
+
+[Brief description of folder purpose]
+
+## For Developers (Human Documentation)
+
+### [Section relevant to humans - e.g., Build Commands, Project Structure]
+
+- Quick start instructions
+- Setup requirements  
+- Architecture overview
+- Common workflows
+
+### [Additional human sections as needed]
+
+## Development Rules (AI Instructions)
+
+### Referenced Rules from `/rules/`
+
+- **[rule-file.md](../../rules/rule-file.md)** - Brief description of what this rule covers
+- **[another-rule.md](../../rules/another-rule.md)** - Brief description
+
+### Referenced Rules (Folder-Specific)
+
+- **[local-rule.md](local-rule.md)** - Rules exclusive to this folder hierarchy
+
+### [Folder Name]-Specific Requirements
+
+- [Project-specific rule 1 - only content unique to this folder]
+- [Project-specific rule 2 - only content unique to this folder]
+
+## Current Tasks ([Folder Name]-Specific)
+
+### High Priority
+
+- [ ] **[Task Name]**: [Task description]
+
+### Medium Priority
+
+- [ ] **[Task Name]**: [Task description]
+
+### Low Priority
+
+- [ ] **[Task Name]**: [Task description]
+
+## Recently Completed (Max 10)
+
+- [x] **[Completed Task]**: [Brief description]
+
+**Note**: When this reaches 10 items, move oldest to `memory-bank/completed.md`
+```
+
+## Usage Instructions
+
+1. **Verify last-child-folder** - Only use in deepest/final folders
+2. **Copy template** to target folder as README.md
+3. **Replace placeholders** with actual content
+4. **Merge existing README** content if it exists
+5. **Reference ALL relevant rules** comprehensively:
+   - Link to shared rules from `/rules/` that apply to this folder
+   - Link to folder-specific rules if they exist in current folder
+   - Use proper relative paths (../../rules/ for /rules/, ./ for local)
+6. **Add project-specific content only** - move shared standards to `/rules/`
+7. **Organize tasks by priority** - High/Medium/Low with descriptive names
+8. **Manage completed tasks** - max 10, overflow to memory-bank/completed.md
+9. **Use proper frontmatter** - array format for tags/globs, no alwaysApply for auto-attach
+
+## Key Principles
+
+- **Last-child-folders only** - Only deepest/final folders get README.md with rules
+- **Human docs first** - Make it useful for developers
+- **AI rules second** - Clear instructions for AI assistants
+- **Reference, don't duplicate** - Link to shared rules from `/rules/`
+- **Comprehensive references** - ALL relevant rules should be referenced
+- **Project-specific only** - Only unique content here, shared standards in `/rules/`
+- **Context included** - Quick onboarding information
+- **Task management** - Unlimited current, max 10 recently completed
+- **Cross-IDE compatible** - Works with Amazon Q, Cursor, Windsurf
+
+## Frontmatter Guidelines
+
+- **description**: Brief summary of folder purpose and rules
+- **tags**: Relevant categorization tags (use array format to avoid markdown link interpretation)
+- **globs**: Only if folder has specific file types (use array format)
+- **alwaysApply**: Not needed for globs (auto-attach), only use for special cases
+
+## Rule Reference Guidelines
+
+- **Comprehensive referencing**: Reference ALL rules from `/rules/` that apply to this folder
+- **Proper categorization**: Separate `/rules/` references from folder-specific rules
+- **Relative paths**: Use `../../rules/` for global rules, `./` for local rules
+- **Brief descriptions**: Include what each rule covers for quick reference
+- **No duplication**: Don't repeat rule content, just reference with description
+
+## Task Management Guidelines
+
+- **Priority organization**: High/Medium/Low priority sections
+- **Descriptive naming**: Use **Bold Task Names** with clear descriptions
+- **Folder-specific scope**: Tasks should be specific to this folder's concerns
+- **Unlimited current**: No limit on current tasks
+- **Max 10 completed**: Move overflow to memory-bank/completed.md
+
+---
+
+**Created**: 2025-01-03
+**Purpose**: Template for unified README.md migration project
+**Usage**: Copy and customize for each target folder

@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 test('early chin toggle reveals chin container and selected chin', () => {
-  const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.html'), 'utf8');
+  const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/html/index.html'), 'utf8');
   const dom = new JSDOM(html, { runScripts: 'outside-only' });
   global.window = dom.window;
   global.document = dom.window.document;
@@ -22,7 +22,7 @@ test('early chin toggle reveals chin container and selected chin', () => {
   const utilsScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
   dom.window.eval(utilsScript);
 
-  const rpgScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.js'), 'utf8');
+  const rpgScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/index.js'), 'utf8');
   dom.window.eval(rpgScript);
 
 

@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 function loadApp() {
-  const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.html'), 'utf8');
+  const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/html/index.html'), 'utf8');
   const dom = new JSDOM(html, { runScripts: 'outside-only' });
   global.window = dom.window;
   global.document = dom.window.document;
@@ -23,7 +23,7 @@ function loadApp() {
 
   const utils = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
   dom.window.eval(utils);
-  const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/RPGlitch.js'), 'utf8');
+  const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/index.js'), 'utf8');
   dom.window.eval(script);
   const App = dom.window.App;
   App.ui = {

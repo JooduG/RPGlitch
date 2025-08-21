@@ -17,13 +17,13 @@ This plan addresses the migration of 100+ inline style assignments from JavaScri
 
 ## 🎯 **PHASE 1: STORYBOARD CARD STYLES (HIGH IMPACT)**
 
-### **Current State Analysis**
+### **Phase 1 Current State Analysis**
 
 - **Location**: `RPGlitch.js` lines 3398-3463
 - **Issue**: 50+ inline style assignments in `_renderStoryboardCard` function
 - **Impact**: High - affects core UI rendering performance
 
-### **Implementation Plan**
+### **Phase 1 Implementation Plan**
 
 #### **Step 1.1: Create SCSS Classes**
 
@@ -110,7 +110,7 @@ _renderStoryboardCard(cardElement, item, config) {
 }
 ```
 
-### **Testing Strategy**
+### **Phase 1 Testing Strategy**
 
 - Verify storyboard cards render correctly
 - Test responsive behavior
@@ -119,13 +119,13 @@ _renderStoryboardCard(cardElement, item, config) {
 
 ## 🎯 **PHASE 2: DROPDOWN MENU POSITIONING (COMPLEX LOGIC)**
 
-### **Current State Analysis**
+### **Phase 2 Current State Analysis**
 
 - **Location**: `RPGlitch.js` lines 3139-3219
 - **Issue**: 20+ inline positioning styles with complex logic
 - **Impact**: Medium - affects dropdown functionality
 
-### **Implementation Plan**
+### **Phase 2 Implementation Plan**
 
 #### **Step 2.1: Create SCSS Classes**
 
@@ -194,7 +194,7 @@ function positionDropdownMenu(menu, triggerElement) {
 }
 ```
 
-### **Testing Strategy**
+### **Phase 2 Testing Strategy**
 
 - Test all dropdown positioning scenarios
 - Verify menu visibility in different viewport sizes
@@ -203,13 +203,13 @@ function positionDropdownMenu(menu, triggerElement) {
 
 ## 🎯 **PHASE 3: PROFILE PICTURE SYSTEM (FREQUENT USAGE)**
 
-### **Current State Analysis**
+### **Phase 3 Current State Analysis**
 
 - **Location**: Multiple locations in `RPGlitch.js`
 - **Issue**: Background image URLs set via JavaScript
 - **Impact**: Medium - affects profile picture display
 
-### **Implementation Plan**
+### **Phase 3 Implementation Plan**
 
 #### **Step 3.1: Create SCSS Classes**
 
@@ -265,7 +265,7 @@ const profilePictureStyles = `
 `;
 ```
 
-### **Testing Strategy**
+### **Phase 3 Testing Strategy**
 
 - Test profile picture loading/unloading
 - Verify fallback to initials when no image
@@ -274,13 +274,13 @@ const profilePictureStyles = `
 
 ## 🎯 **PHASE 4: TEXTAREA AUTO-RESIZE (SIMPLE FIX)**
 
-### **Current State Analysis**
+### **Phase 4 Current State Analysis**
 
 - **Location**: `RPGlitch.js` lines 903-904, 2118-2119, 2763
 - **Issue**: Height calculations done in JavaScript
 - **Impact**: Low - simple functionality
 
-### **Implementation Plan**
+### **Phase 4 Implementation Plan**
 
 #### **Step 4.1: Create SCSS Classes**
 
@@ -311,7 +311,7 @@ function setupAutoResizeTextarea(textarea) {
 }
 ```
 
-### **Testing Strategy**
+### **Phase 4 Testing Strategy**
 
 - Test textarea resizing behavior
 - Verify max/min height constraints
@@ -320,13 +320,13 @@ function setupAutoResizeTextarea(textarea) {
 
 ## 🎯 **PHASE 5: NOTIFICATION SYSTEM (MEDIUM IMPACT)**
 
-### **Current State Analysis**
+### **Phase 5 Current State Analysis**
 
 - **Location**: `RPGlitch.js` lines 614, 621, 2856-2861
 - **Issue**: Display state managed via inline styles
 - **Impact**: Medium - affects user feedback
 
-### **Implementation Plan**
+### **Phase 5 Implementation Plan**
 
 #### **Step 5.1: Create SCSS Classes**
 
@@ -377,7 +377,7 @@ function setTypingStatus(isTyping) {
 }
 ```
 
-### **Testing Strategy**
+### **Phase 5 Testing Strategy**
 
 - Test notification show/hide behavior
 - Verify typing indicator functionality

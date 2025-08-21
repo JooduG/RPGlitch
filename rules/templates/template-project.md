@@ -2,7 +2,8 @@
 description: Template for project setup and configuration in the memory bank system.
 alwaysApply: false
 ---
-# PROJECT TEMPLATE
+
+# **📁 PROJECT TEMPLATE: Structured project organization!**
 
 > **TL;DR:** Template for setting up new projects in the memory bank system with proper structure and metadata.
 
@@ -294,7 +295,3 @@ Comprehensive documentation for the Unified Orchestrator Mode system.
 - part_of [[System Documentation]]
 - uses [[Markdown]]
 ```
-
----
-
-**📁 PROJECT TEMPLATE: Structured project organization!**

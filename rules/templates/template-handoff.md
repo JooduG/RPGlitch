@@ -2,7 +2,8 @@
 description: Template for handoff documentation and mode transitions in the Unified Orchestrator Mode system.
 alwaysApply: false
 ---
-# HANDOFF TEMPLATE
+
+# **🔄 HANDOFF TEMPLATE: Seamless mode transitions!**
 
 > **TL;DR:** Template for documenting handoffs and transitions between Strategic, Tactical, and Operational modes.
 
@@ -159,7 +160,3 @@ alwaysApply: false
 5. **Maintain Continuity**: Ensure smooth transitions between modes
 6. **Update Status**: Keep handoff status current
 7. **Review Quality**: Ensure handoff meets quality standards
-
----
-
-**🔄 HANDOFF TEMPLATE: Seamless mode transitions!**

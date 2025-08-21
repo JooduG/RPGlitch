@@ -2,7 +2,8 @@
 description: Intelligent rule loading system that selects and loads only relevant rules based on task context, complexity, current mode, and thinking approach for optimal token efficiency and performance.
 alwaysApply: true
 ---
-# CONTEXT-AWARE RULE LOADING
+
+# **🎯 CONTEXT-AWARE RULE LOADING: Intelligent optimization for the 3-mode system!**
 
 > **TL;DR:** Intelligent rule loading system that selects and loads only relevant
 > rules based on task context, complexity, current mode, and thinking approach for optimal token
@@ -531,7 +532,3 @@ This enhanced context-aware rule loading system provides:
 6. **🎭🎨⚒️ Mode Integration** - Perfect alignment with 3-mode system
 
 **This system ensures maximum efficiency while maintaining full functionality!**
-
----
-
-**🎯 CONTEXT-AWARE RULE LOADING: Intelligent optimization for the 3-mode system!**
