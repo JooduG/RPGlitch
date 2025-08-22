@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains build scripts and output for the project.
+This directory contains build scripts and output for RPGlitch.
 
 ## Structure
 
@@ -21,29 +21,73 @@ build/
 
 ## Scripts
 
-### build-and-copy.js
+### `build-perchance.js`
 
-Builds the project and copies files to appropriate locations.
+The main build script that:
 
-### build-perchance.js
+- Downloads and inlines external dependencies (Hyperscript, Cash DOM, Dexie.js, DOMPurify)
+- Compiles SCSS to CSS
+- Combines all source files into a single HTML file
+- Minifies CSS with PostCSS and cssnano
+- Minifies JavaScript with Terser
+- Minifies the final HTML output
+- Outputs to `../output/RPGlitch-perchance.html`
 
-Builds the project specifically for Perchance integration. The script downloads
-external libraries, compiles SCSS, and minifies CSS, JavaScript and HTML for a
-single optimized output file.
+Install dev dependencies once before running builds:
 
-### Installation
+```bash
+npm install
+```
 
-Run `npm install` once to install optional minifier packages.
+**Usage:**
+
+```bash
+node build-perchance.js
+```
+
+### `build-and-copy.js`
+
+Builds RPGlitch and automatically copies the result to the clipboard for easy pasting into Perchance.
+
+**Usage:**
+
+```bash
+# From build/scripts directory
+node build-and-copy.js
+
+# From project root
+npm run build:copy
+```
 
 ## Output
 
-Build outputs are stored in the `output/` directory and are excluded from version control.
+The build process creates:
 
-## Usage
+- `../output/RPGlitch-perchance.html` - Fully minified HTML for Perchance
+- `../output/archive/RPGlitch-perchance.css` - Compiled CSS (archived)
+- `../output/archive/RPGlitch-perchance.css.map` - CSS source map (archived)
 
-Run build scripts from the project root:
+## Dependencies
 
-```bash
-node build/scripts/build-and-copy.js
-node build/scripts/build-perchance.js
-```
+The build process automatically downloads and inlines:
+
+- **Hyperscript** (0.9.12) - For HTML interactivity
+- **Cash DOM** (8.1.5) - jQuery-like DOM manipulation
+- **Dexie.js** (4.0.8) - IndexedDB wrapper
+- **DOMPurify** (3.0.1) - XSS protection
+
+## Source Files
+
+The build combines:
+
+- `apps/rpglitch/RPGlitch.html` - Main HTML structure
+- `apps/rpglitch/RPGlitch.scss` - Main stylesheet (compiled to CSS)
+- `apps/rpglitch/ProfilePictureComponent.js` - Profile picture logic
+- `apps/rpglitch/RPGlitch.js` - Main JavaScript logic
+
+## Notes
+
+- The build process runs from the `build/scripts` directory
+- All paths are relative to the project root
+- The output file is optimized for Perchance deployment
+- External dependencies are inlined for reliability

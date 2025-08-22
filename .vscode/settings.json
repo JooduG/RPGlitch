@@ -35,7 +35,8 @@
     "node_modules/": true,
     "build/local_libs": true,
     "mcp.json": true,
-    "mcp/": true
+    "mcp/": true,
+    ".basicmemoryignore": true
   },
   "files.associations": {
     "*.md": "markdown"

@@ -23,7 +23,7 @@ The Model Context Protocol (MCP) ecosystem provides a standardized way for AI as
   - API reference lookups
   - Framework-specific guidance
 - **Status**: ✅ Working (requires API key)
-- **Integration**: [Detailed Context7 Guide](../.cursor/rules/mcp-context7.mdc)
+- **Integration**: Detailed Context7 Guide
 
 ### **2. Basic Memory MCP Server** ⭐ **PRIMARY**
 
@@ -40,7 +40,7 @@ The Model Context Protocol (MCP) ecosystem provides a standardized way for AI as
   - Decision tracking and documentation
   - Progress monitoring across sessions
 - **Status**: ✅ Working
-- **Integration**: [Detailed Basic Memory Guide](../.cursor/rules/mcp-basic-memory.mdc)
+- **Integration**: Detailed Basic Memory Guide
 
 ### **3. Time MCP Server** ⭐ **CRITICAL**
 
@@ -56,7 +56,7 @@ The Model Context Protocol (MCP) ecosystem provides a standardized way for AI as
   - Handoff documentation
   - Archive timestamps
 - **Status**: ✅ Working
-- **Integration**: [Detailed Time MCP Guide](../.cursor/rules/mcp-time.mdc)
+- **Integration**: Detailed Time MCP Guide
 
 ## 🔄 **INTEGRATION WITH 3-MODE SYSTEM**
 
@@ -133,10 +133,10 @@ The Model Context Protocol (MCP) ecosystem provides a standardized way for AI as
 
 ## 📚 **DETAILED GUIDES**
 
-- [Context7 MCP Server Guide](../.cursor/rules/mcp-context7.mdc) - Complete usage guide
-- [Basic Memory MCP Server Guide](../.cursor/rules/mcp-basic-memory.mdc) - Integration and setup
-- [Time MCP Server Guide](../.cursor/rules/mcp-time.mdc) - Date standardization
-- [System Documentation](../.cursor/rules/system-documentation.mdc) - Unified system integration
+- Context7 MCP Server Guide - Complete usage guide
+- Basic Memory MCP Server Guide - Integration and setup
+- Time MCP Server Guide - Date standardization
+- System Documentation - Unified system integration
 
 ## 🎯 **NEXT STEPS**
 

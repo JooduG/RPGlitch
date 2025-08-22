@@ -83,6 +83,30 @@
     "memory-bank/archive",
     "build/output/RPGlitch-perchance.html"
   ],
+  "basicmemoryignore": [
+    "node_modules/",
+    "build/output/",
+    "build/archive/",
+    "output/",
+    "archive/",
+    "archives/",
+    ".npm/",
+    ".yarn/",
+    ".vscode/",
+    ".cursor/",
+    "*.swp",
+    "*.swo",
+    ".DS_Store",
+    "Thumbs.db",
+    "*.tmp",
+    "*.temp",
+    ".cache/",
+    "*.log",
+    "logs/",
+    "*.min.js",
+    "*.min.css",
+    "dist/"
+  ],
   "vscodeFilesExclude": [
     "test-basic-memory/",
     ".cursor/rules/",
@@ -99,6 +123,7 @@
     "node_modules/",
     "build/local_libs",
     "mcp.json",
-    "mcp/"
+    "mcp/",
+    ".basicmemoryignore"
   ]
 }

@@ -183,7 +183,7 @@ operational/
 - Real-time synchronization
 - Markdown storage
 
-**Integration**: [Basic Memory MCP Guide](../.cursor/rules/mcp-basic-memory.mdc)
+**Integration**: Basic Memory MCP Guide
 
 ### **Context7 Integration**
 
@@ -196,7 +196,7 @@ operational/
 - Code examples
 - Trust scoring
 
-**Integration**: [Context7 MCP Guide](../.cursor/rules/mcp-context7.mdc)
+**Integration**: Context7 MCP Guide
 
 ### **Time MCP Integration**
 
@@ -208,7 +208,7 @@ operational/
 - Timezone handling
 - Integration with all components
 
-**Integration**: [Time MCP Guide](../.cursor/rules/mcp-time.mdc)
+**Integration**: Time MCP Guide
 
 ## 📋 **WORKFLOW INTEGRATION**
 
@@ -276,11 +276,11 @@ operational/
 
 ## 📚 **REFERENCES**
 
-- [Memory Bank Workflow](../.cursor/rules/memory-bank-workflow.mdc) - Detailed workflow integration
-- [Memory Bank Optimization](../.cursor/rules/memory-bank-optimization.mdc) - Performance optimization
-- [Basic Memory MCP Guide](../.cursor/rules/mcp-basic-memory.mdc) - MCP server integration
-- [System Documentation](../.cursor/rules/system-documentation.mdc) - Unified system integration
-- [MCP Ecosystem Overview](../.cursor/rules/mcp-ecosystem.mdc) - MCP server overview
+- Memory Bank Workflow - Detailed workflow integration
+- Memory Bank Optimization - Performance optimization
+- Basic Memory MCP Guide - MCP server integration
+- System Documentation - Unified system integration
+- MCP Ecosystem Overview - MCP server overview
 
 ## 🎯 **NEXT STEPS**
 

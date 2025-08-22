@@ -7,6 +7,7 @@ Move shared Perchance app standards from `apps/rpglitch/README.md` to `apps/READ
 ## Content to Move from RPGlitch README to Apps README
 
 ### 1. Build Commands Section
+
 ```markdown
 ### Build Commands
 
@@ -17,6 +18,7 @@ node build/scripts/build-rpglitch.js
 # Watch mode (if available)
 npm run watch:rpglitch
 ```
+
 ```
 
 **Action**: Move to apps/README.md and generalize for all apps

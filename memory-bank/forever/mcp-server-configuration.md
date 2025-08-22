@@ -360,7 +360,7 @@ const tools = [
 
 ## 📚 **ADDITIONAL RESOURCES**
 
-- [MCP Comprehensive Guide](../../docs/rules/mcp-comprehensive-guide.mdc) - Complete MCP reference
+- [MCP Ecosystem](../../rules/mcp-ecosystem.md) - Complete MCP reference
 - [Unified Orchestrator Mode Setup](./unified-orchestrator-mode.md) - Mode configuration
 - [Context7 Documentation](https://context7.com/docs) - Official Context7 docs
 - [Basic Memory Documentation](https://github.com/basic-memory/mcp) - Basic Memory docs

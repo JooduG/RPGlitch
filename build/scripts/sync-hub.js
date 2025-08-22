@@ -46,7 +46,7 @@ function getActivityDashboard() {
 
 function buildSimpleRepoTree() {
   return `
-\`\`\`
+\`\`\`text
 rpglitch/
 ├── apps/
 │   ├── rpglitch/          # Main Perchance app

@@ -17,6 +17,7 @@ const HTMLHINT_IGNORE_FILE = path.join(CONFIG_DIR, '.htmlhintignore');
 const MARKDOWNLINT_IGNORE_FILE = path.join(CONFIG_DIR, '.markdownlintignore');
 const GITIGNORE_FILE = path.join(ROOT, '.gitignore');
 const CURSORIGNORE_FILE = path.join(ROOT, '.cursorignore');
+const BASICMEMORYIGNORE_FILE = path.join(ROOT, '.basicmemoryignore');
 const SETTINGS_PATH = path.join(VSCODE_DIR, 'settings.json');
 
 // IDE config targets
@@ -56,6 +57,9 @@ function copyRules(sourceDir, targetDir) {
   const files = fs.readdirSync(sourceDir, { withFileTypes: true });
   
   for (const file of files) {
+    // Skip templates folder
+    if (file.name === 'templates') continue;
+    
     const sourcePath = path.join(sourceDir, file.name);
     const targetPath = path.join(targetDir, file.name);
     
@@ -76,6 +80,7 @@ function syncIgnores() {
     stylelintIgnore: [],
     htmlhintIgnore: [],
     markdownlintIgnore: [],
+    basicmemoryignore: [],
   });
 
   const mdIgnoreSrc = master.markdownlintignore ?? master.markdownlintIgnore ?? [];
@@ -104,6 +109,7 @@ function syncIgnores() {
 
   if (master.gitignore?.length) writeText(GITIGNORE_FILE, master.gitignore.join('\n') + '\n');
   if (master.cursorignore?.length) writeText(CURSORIGNORE_FILE, master.cursorignore.join('\n') + '\n');
+  if (master.basicmemoryignore?.length) writeText(BASICMEMORYIGNORE_FILE, master.basicmemoryignore.join('\n') + '\n');
 }
 
 function syncConfigs() {
@@ -125,26 +131,13 @@ function syncConfigs() {
     console.log('⚠️  No master MCP configuration found at', path.relative(ROOT, MASTER_MCP_PATH));
   }
 
-  // Create README files for IDE directories to show hidden content
-  createIDEReadmes();
+
 }
 
-function createIDEReadmes() {
-  const readmeContent = {
-    '.cursor': '# Cursor IDE Configuration\n\nThis directory contains auto-generated configuration files:\n\n- `rules/` - Auto-synced from `/rules/` directory\n- `mcp.json` - Auto-synced from `/build/config/mcp.master.json`\n\n**Note**: These files are hidden in VS Code but present in the directory.\n',
-    '.windsurf': '# Windsurf IDE Configuration\n\nThis directory contains auto-generated configuration files:\n\n- `rules/` - Auto-synced from `/rules/` directory\n- `mcp.json` - Auto-synced from `/build/config/mcp.master.json`\n\n**Note**: These files are hidden in VS Code but present in the directory.\n',
-    '.amazonq': '# Amazon Q IDE Configuration\n\nThis directory contains auto-generated configuration files:\n\n- `rules/` - Auto-synced from `/rules/` directory\n\n**Note**: These files are hidden in VS Code but present in the directory.\n'
-  };
 
-  for (const [dir, content] of Object.entries(readmeContent)) {
-    const readmePath = path.join(ROOT, dir, 'README.md');
-    writeText(readmePath, content);
-  }
-  console.log('📄 README files created for IDE directories');
-}
 
 (function main() {
   syncIgnores();
   syncConfigs();
-  console.log('✅ All configurations synchronized (ignores + rules + MCP + IDE settings + READMEs)');
+  console.log('✅ All configurations synchronized (ignores + rules + MCP + IDE settings)');
 })();

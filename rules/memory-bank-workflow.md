@@ -95,7 +95,7 @@ memory-bank-write strategic/tools/tool-configuration.md --content "
 "
 ```
 
-#### **Handoff Preparation**
+#### **Strategic Handoff Preparation**
 
 ```bash
 # Prepare handoff to tactical mode
@@ -135,7 +135,7 @@ memory-bank-write project/todo-handoff.md --content "
 
 ## 🎨 **TACTICAL MODE INTEGRATION**
 
-### **Tactical Mode Memory Bank Workflow**
+### **Tactical Mode Workflow**
 
 **Purpose**: App-specific planning, design decisions, implementation planning
 
@@ -193,7 +193,7 @@ memory-bank-write tactical/planning/planning-template.md --content "
 "
 ```
 
-#### **Handoff Preparation**
+#### **Tactical Handoff Preparation**
 
 ```bash
 # Prepare handoff to operational mode
@@ -233,7 +233,7 @@ memory-bank-update project/todo-handoff.md --content "
 
 ## ⚒️ **OPERATIONAL MODE INTEGRATION**
 
-### **Operational Mode Memory Bank Workflow**
+### **Operational Mode Workflow**
 
 **Purpose**: Implementation, testing, and execution
 
@@ -300,7 +300,7 @@ memory-bank-write operational/performance/optimization-technique.md --content "
 "
 ```
 
-#### **Handoff Preparation**
+#### **Operational Handoff Preparation**
 
 ```bash
 # Prepare handoff back to strategic mode
@@ -457,10 +457,10 @@ memory-bank-search all/ --query "[pattern name]" --cross-mode true
 
 ## 📚 **REFERENCES**
 
-- [Memory Bank Overview](../.cursor/rules/memory-bank-overview.mdc) - System overview and architecture
-- [Memory Bank Optimization](../.cursor/rules/memory-bank-optimization.mdc) - Performance optimization
-- [Basic Memory MCP Guide](../.cursor/rules/mcp-basic-memory.mdc) - MCP server integration
-- [System Documentation](../.cursor/rules/system-documentation.mdc) - Unified system integration
+- Memory Bank Overview - System overview and architecture
+- Memory Bank Optimization - Performance optimization
+- Basic Memory MCP Guide - MCP server integration
+- System Documentation - Unified system integration
 
 ## 🎯 **NEXT STEPS**
 

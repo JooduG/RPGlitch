@@ -64,29 +64,29 @@ These foundational rules guide system architecture, communication, and project s
 
 ### Core System Rules
 
-- [Documentation](../rules/system-documentation-overview.md) – Documentation standards
-- [Effective Rule Writing](../rules/system-effective-rule-writing.md) – Writing clear, impactful rules
-- [Rule Interactions](../rules/system-rule-interactions.md) – Rule interactions and prioritization
-- [Todo/Handoff Template](../rules/templates/todo.md) – Templates for tasks and handoffs
-- [Technical Architecture](../rules/system-architecture.md) – Overall technical structure and constraints
+- [Documentation](./rules/system-documentation-overview.md) – Documentation standards
+- [Effective Rule Writing](./rules/system-effective-rule-writing.md) – Writing clear, impactful rules
+- [Rule Interactions](./rules/system-rule-interactions.md) – Rule interactions and prioritization
+- [Todo/Handoff Template](./rules/templates/todo.md) – Templates for tasks and handoffs
+- [Technical Architecture](./rules/system-architecture.md) – Overall technical structure and constraints
 
 ### Thinking Framework
 
-- [Context Aware Rule Loading](../rules/thinking-context-aware-rule-loading.md) – Context-sensitive rule loading strategies
-- [Thinking Framework](../rules/thinking-framework.md) - Framework
+- [Context Aware Rule Loading](./rules/thinking-context-aware-rule-loading.md) – Context-sensitive rule loading strategies
+- [Thinking Framework](./rules/thinking-framework.md) - Framework
 
 ### Orchestration Rules
 
-- [Orchestration Mode](../rules/system-orchestration-mode.md) – Framework for task orchestration
+- [Orchestration Mode](./rules/system-orchestration-mode.md) – Framework for task orchestration
 
 ## Perchance Rules
 
 These rules provide specialized guidance for the Perchance platform:
 
-- [Perchance Architecture](../apps/perchance-architecture.md) – Structural overview
-- [Perchance Plugins](../apps/perchance-plugins.md) – Plugin architecture and integration
-- [Perchance Development](../apps/perchance-lifecycle.md) – Dev lifecycle guidance
-- [Perchance Deployment](../apps/perchance-build.md) – Guidelines for building and deploying
+- [Perchance Architecture](./apps/perchance-architecture.md) – Structural overview
+- [Perchance Plugins](./apps/perchance-plugins.md) – Plugin architecture and integration
+- [Perchance Development](./apps/perchance-lifecycle.md) – Dev lifecycle guidance
+- [Perchance Deployment](./apps/perchance-build.md) – Guidelines for building and deploying
 
 > **Tip:** Review the most relevant ruleset before coding. When unsure, start with the Core System Rules.
 
