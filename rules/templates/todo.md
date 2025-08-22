@@ -65,7 +65,7 @@ description: Template for TODO tracking and task management
 ### Status Indicators
 
 - [ ] Not Started
-- [🔄] In Progress
+- 🔄 In Progress
 - [x] Completed (move to completed.md)
 
 ### Categories
