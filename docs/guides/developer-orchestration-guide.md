@@ -61,7 +61,7 @@ The orchestrator automatically routes tasks based on complexity:
 - **Level 2**: 🎨 **Tactical → ⚒️ Operational** (Enhancements, features)
 - **Level 3**: 🎭 **Strategic → 🎨 Tactical → ⚒️ Operational** (Complex features, systems)
 
-### **How to Use It**
+### **How to Use Automatic Role Selection**
 
 #### **Automatic Mode (Recommended)**
 
@@ -92,7 +92,7 @@ You can also specify the role directly:
 
 ## 🧠 **UNIFIED THINKING FRAMEWORK**
 
-### **What It Does**
+### **What UNIFIED THINKING FRAMEWORK Does**
 
 Automatically selects the optimal thinking approach for each task:
 
@@ -100,7 +100,7 @@ Automatically selects the optimal thinking approach for each task:
 - **🤔 Contemplative Thinking** - For deep exploration and creativity
 - **⚡ Professional Coding** - For quick, production-ready implementation
 
-### **How to Use It**
+### **How to Use UNIFIED THINKING FRAMEWORK**
 
 #### **Automatic Selection (Recommended)**
 
@@ -139,7 +139,7 @@ You can also specify the approach directly:
 
 ## 📚 **UNIFIED DOCUMENTATION SYSTEM**
 
-### **What It Does**
+### **What UNIFIED DOCUMENTATION SYSTEM Does**
 
 Provides seamless access to all your documentation sources:
 
@@ -210,7 +210,7 @@ The system automatically prioritizes documentation sources:
 "Brainstorm new feature ideas"
 ```
 
-### **Manual Role Selection**
+### **Manual Selection of role**
 
 ```bash
 🎭 "strategic" → Force Strategic Role

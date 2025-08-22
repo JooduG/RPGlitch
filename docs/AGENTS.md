@@ -64,31 +64,29 @@ These foundational rules guide system architecture, communication, and project s
 
 ### Core System Rules
 
-- [Documentation](../memory-bank/docs/.cursor/rules/system-documentation.mdc) – Documentation standards
-- [Effective Rule Writing](../memory-bank/docs/.cursor/rules/system-effective-rule-writing.mdc) – Writing clear, impactful rules
-- [Rule Interactions](../memory-bank/docs/.cursor/rules/system-rule-interactions.mdc) – Rule interactions and prioritization
-- [Todo/Handoff Template](../memory-bank/docs/.cursor/rules/system-todo-handoff-template.mdc) – Templates for tasks and handoffs
-- [Technical Architecture](../memory-bank/docs/.cursor/rules/technical-architecture.mdc) – Overall technical structure and constraints
+- [Documentation](../rules/system-documentation-overview.md) – Documentation standards
+- [Effective Rule Writing](../rules/system-effective-rule-writing.md) – Writing clear, impactful rules
+- [Rule Interactions](../rules/system-rule-interactions.md) – Rule interactions and prioritization
+- [Todo/Handoff Template](../rules/templates/todo.md) – Templates for tasks and handoffs
+- [Technical Architecture](../rules/system-architecture.md) – Overall technical structure and constraints
 
 ### Thinking Framework
 
-- [Context Aware Rule Loading](../memory-bank/docs/.cursor/rules/thinking-context-aware-rule-loading.mdc) – Context-sensitive rule loading strategies
-- [Thinking Framework](../memory-bank/docs/.cursor/rules/thinking-framework.mdc) - Framework
+- [Context Aware Rule Loading](../rules/thinking-context-aware-rule-loading.md) – Context-sensitive rule loading strategies
+- [Thinking Framework](../rules/thinking-framework.md) - Framework
 
 ### Orchestration Rules
 
-- [Orchestration Architecture](../memory-bank/docs/.cursor/rules/orchestration-architecture.mdc) – Framework for task orchestration
-- [Orchestration Mode](../memory-bank/docs/.cursor/rules/orchestration-mode.mdc) – Role-based orchestration details
-- [Orchestration System](../memory-bank/docs/.cursor/rules/orchestration-system.mdc) – System-level orchestration mechanisms
+- [Orchestration Mode](../rules/system-orchestration-mode.md) – Framework for task orchestration
 
 ## Perchance Rules
 
 These rules provide specialized guidance for the Perchance platform:
 
-- [Perchance Architecture](../memory-bank/docs/.cursor/rules/perchance-architecture.mdc) – Structural overview
-- [Perchance Plugins](../memory-bank/docs/.cursor/rules/perchance-plugin-system.mdc) – Plugin architecture and integration
-- [Perchance Development](../memory-bank/docs/.cursor/rules/perchance-development-lifecycle.mdc) – Dev lifecycle guidance
-- [Perchance Deployment](../memory-bank/docs/.cursor/rules/perchance-build-deployment.mdc) – Guidelines for building and deploying
+- [Perchance Architecture](../apps/perchance-architecture.md) – Structural overview
+- [Perchance Plugins](../apps/perchance-plugins.md) – Plugin architecture and integration
+- [Perchance Development](../apps/perchance-lifecycle.md) – Dev lifecycle guidance
+- [Perchance Deployment](../apps/perchance-build.md) – Guidelines for building and deploying
 
 > **Tip:** Review the most relevant ruleset before coding. When unsure, start with the Core System Rules.
 

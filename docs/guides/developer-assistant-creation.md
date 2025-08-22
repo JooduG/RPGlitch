@@ -676,7 +676,6 @@ const deploymentConfig = {
 - [Basic Memory Documentation](https://docs.basicmemory.com/)
 - [Context7 API Reference](https://context7.com/docs)
 - [MCP Protocol Specification](https://modelcontextprotocol.io/)
-- [Unified Orchestrator Mode Guide](unified-orchestrator-mode.md)
 
 ### **Tools & Libraries**
 
@@ -703,7 +702,3 @@ This AI Assistant Development Guide provides a comprehensive framework for build
 - **📊 Scalable**: Production-ready and enterprise-grade
 
 **Start building your intelligent AI assistant today!** 🚀
-
----
-
-**🤖 AI ASSISTANT DEVELOPMENT GUIDE: The complete framework for intelligent AI assistant development!**

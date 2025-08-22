@@ -15,7 +15,7 @@ This page explains **how to run Codex against the RPGlitch mono-repo** and the r
 
 ### B. Environment variables (add exactly)
 
-```
+```md
 MCP_FILESYSTEM_ROOT=/defaults/
 BASIC_MEMORY_PROJECT_ROOT=/defaults/memory-bank
 AGENTS_MD_PATH=/defaults/AGENTS.md
@@ -112,7 +112,7 @@ Paste this into **Settings → General → Custom instructions**:
 
 ## 4 Task template (paste as your first message for each job)
 
-```
+```md
 ROLE: Orchestrator
 
 STRATEGY

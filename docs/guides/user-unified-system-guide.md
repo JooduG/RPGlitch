@@ -16,7 +16,7 @@ Welcome to your **Unified Development Framework**! This system combines three po
 
 ## 🧠 UNIFIED THINKING FRAMEWORK
 
-### What It Does
+### What UNIFIED THINKING FRAMEWORK Does
 
 Automatically selects the optimal thinking approach for each task:
 
@@ -63,7 +63,7 @@ You can also specify the approach directly:
 
 ## 🎯 CONTEXT-AWARE RULE LOADING
 
-### What It Does
+### What CONTEXT-AWARE RULE LOADING Does
 
 Intelligently loads only the rules you need, saving tokens and improving performance.
 
@@ -89,7 +89,7 @@ This works automatically! Just continue working normally.
 
 ## 📚 UNIFIED DOCUMENTATION SYSTEM
 
-### What It Does
+### What UNIFIED DOCUMENTATION SYSTEM Does
 
 Provides seamless access to all your documentation sources:
 

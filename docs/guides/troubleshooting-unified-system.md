@@ -1,6 +1,6 @@
 # 🔧 UNIFIED SYSTEM TROUBLESHOOTING
 
-**Common Issues and Solutions for the Unified Development Framework**
+Common Issues and Solutions for the Unified Development Framework
 
 This guide follows the **ANALYSE → PLAN → CODE** cycle.
 
@@ -49,19 +49,19 @@ This guide follows the **ANALYSE → PLAN → CODE** cycle.
 
 ### **Issue 2: Slow Response Times**
 
-#### **Symptoms**
+#### **2 Symptoms**
 
 - Responses take longer than expected
 - System seems to be "thinking" for too long
 - Token usage appears high
 
-#### **Causes**
+#### **2 Causes**
 
 - Too many rules loaded unnecessarily
 - Complex task requiring multiple approaches
 - Documentation search taking too long
 
-#### **Solutions**
+#### **2 Solutions**
 
 ```bash
 # Optimize rule loading
@@ -77,7 +77,7 @@ This guide follows the **ANALYSE → PLAN → CODE** cycle.
 "Are there any bottlenecks in the workflow?"
 ```
 
-#### **Prevention**
+#### **2 Prevention**
 
 - Use specific, focused tasks rather than broad requests
 - Let the system automatically optimize rule loading
@@ -87,19 +87,19 @@ This guide follows the **ANALYSE → PLAN → CODE** cycle.
 
 ### **Issue 3: Documentation Not Found**
 
-#### **Symptoms**
+#### **3 Symptoms**
 
 - "Documentation not found" errors
 - Memory Bank not accessible
 - Context7 library docs not loading
 
-#### **Causes**
+#### **3 Causes**
 
 - MCP servers not properly configured
 - Documentation sources offline or unavailable
 - Incorrect search terms or file paths
 
-#### **Solutions**
+#### **3 Solutions**
 
 ```bash
 # Check MCP server status
@@ -118,7 +118,7 @@ This guide follows the **ANALYSE → PLAN → CODE** cycle.
 "Search all documentation sources"
 ```
 
-#### **Prevention**
+#### **3 Prevention**
 
 - Ensure MCP servers are properly configured
 - Use specific, descriptive search terms
@@ -128,19 +128,19 @@ This guide follows the **ANALYSE → PLAN → CODE** cycle.
 
 ### **Issue 4: Wrong Thinking Approach Selected**
 
-#### **Symptoms**
+#### **4 Symptoms**
 
 - Sequential thinking for simple tasks
 - Professional coding for complex problems
 - Contemplative thinking when you need quick action
 
-#### **Causes**
+#### **4 Causes**
 
 - Task complexity not properly detected
 - Insufficient context for automatic selection
 - System misunderstanding the task requirements
 
-#### **Solutions**
+#### **4 Solutions**
 
 ```bash
 # Force correct approach
@@ -158,7 +158,7 @@ This guide follows the **ANALYSE → PLAN → CODE** cycle.
 "Clear current context and restart"
 ```
 
-#### **Prevention**
+#### **4 Prevention**
 
 - Provide clear context about task complexity
 - Use specific language that indicates task type
@@ -168,19 +168,19 @@ This guide follows the **ANALYSE → PLAN → CODE** cycle.
 
 ### **Issue 5: Rule Conflicts or Confusion**
 
-#### **Symptoms**
+#### **5 Symptoms**
 
 - Contradictory suggestions
 - Rules not applying correctly
 - Inconsistent behavior
 
-#### **Causes**
+#### **5 Causes**
 
 - Multiple rules with conflicting instructions
 - Rule hierarchy not properly configured
 - Context-aware loading not working correctly
 
-#### **Solutions**
+#### **5 Solutions**
 
 ```bash
 # Check rule configuration
@@ -198,7 +198,7 @@ This guide follows the **ANALYSE → PLAN → CODE** cycle.
 "Clear all loaded rules and start fresh"
 ```
 
-#### **Prevention**
+#### **5 Prevention**
 
 - Keep rules focused and specific
 - Avoid overlapping rule definitions

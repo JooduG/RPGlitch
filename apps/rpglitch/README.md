@@ -17,13 +17,6 @@ Single-file Perchance deliverable with storyboard + profiles functionality.
 
 ## For Developers (Human Documentation)
 
-### Project Structure
-
-- **HTML:** `html/` - Semantic structure and accessibility
-- **JavaScript:** `js/` - ES2023+ with Cash DOM and Dexie.js
-- **SCSS:** `scss/` - Modern CSS with Pico.css framework
-- **Build Output:** `build/output/RPGlitch.html` (single inlined file)
-
 ### Build Commands
 
 ```bash

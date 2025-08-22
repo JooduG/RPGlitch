@@ -21,12 +21,22 @@
     const isType = (t) => t === "character" || t === "world";
 
     if (section === "profile" && isType(type) && id) {
+      // Check authorization before accessing profile
+      if (!App.canAccessProfile?.(type, id)) {
+        showStoryboard();
+        return;
+      }
       App.setTopBarRight?.("profile");
       App.hideEl("storyboard-screen");
       App.hideEl("character-form-screen");
       App.hideEl("world-form-screen");
       App.renderProfile?.(type, id);
     } else if (section === "form" && isType(type)) {
+      // Check authorization before accessing form
+      if (!App.canAccessForm?.(type, id)) {
+        showStoryboard();
+        return;
+      }
       App.setTopBarRight?.("form");
       App.hideEl("storyboard-screen");
       App.hideEl("profile-screen");

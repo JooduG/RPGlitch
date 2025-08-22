@@ -45,7 +45,11 @@ test('default storyboard title adapts to selections', () => {
       ],
       worlds: [{ id: 'w1', title: 'Mars' }]
     };
-    return map[key] || [];
+    const items = map[key] || [];
+    return items.map(item => ({
+      ...item,
+      title: item.title ? String(item.title).replace(/[<>&"']/g, '') : ''
+    }));
   };
   const originalRandom = dom.window.Math.random;
   dom.window.Math.random = () => 0;

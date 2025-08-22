@@ -1,6 +1,54 @@
-# Complete MCP Commands Reference
+# MCP Reference Guide
 
-## File System Operations
+## Quick Commands for Daily Use
+
+### Orchestrator Commands
+
+**Automatic Mode (Recommended)**:
+
+- Just describe your task - the orchestrator selects optimal role and approach
+- "Fix the typo in login button" → Operational + Professional Coding
+- "Add character preview feature" → Tactical + Sequential Thinking  
+- "Optimize development workflow" → Strategic + Contemplative Thinking
+
+**Manual Role Selection**:
+
+- `strategic` → Strategic Role (System Architect)
+- `tactical` → Tactical Role (Project Planner)  
+- `operational` → Operational Role (Code Implementer)
+
+### Daily Workflow
+
+**Morning Setup**:
+
+- "Show me the current todo list"
+- "What's the next priority task?"
+- "Show me what we worked on yesterday"
+
+**Development Tasks**:
+
+- "Create a new [component]"
+- "Debug the [issue]"
+- "Optimize [code] for performance"
+- "Fix [validation] errors"
+
+**Documentation**:
+
+- "Update user guide with this feature"
+- "Add this pattern to design system"
+- "Create troubleshooting guide"
+
+### Memory & Documentation Access
+
+- "Show me what we learned about [topic]"
+- "Read the [guide] documentation"
+- "Save this solution to troubleshooting"
+- "Find React hooks documentation"
+- "Search for JavaScript error handling"
+
+## Complete MCP Commands Reference
+
+### File System Operations
 
 - `fsRead` - Read file contents
 - `fsWrite` - Create/append files
@@ -8,7 +56,7 @@
 - `listDirectory` - List directory contents
 - `fileSearch` - Fuzzy search for files
 
-## Command Execution
+### Command Execution
 
 - `executeBash` - Execute Windows cmd.exe commands
 - `execute_command` - Execute shell commands
@@ -21,7 +69,7 @@
 - `approve_command` - Approve pending command
 - `deny_command` - Deny pending command
 
-## Code Review & Analysis
+### Code Review & Analysis
 
 - `codeReview` - Comprehensive code analysis (SAST, secrets, quality)
 - `displayFindings` - Display code issues in panel
@@ -30,7 +78,7 @@
 - `get_file_source` - Get source code for files
 - `dump_codebase_context` - Read entire codebase with chunking
 
-## Browser Automation
+### Browser Automation
 
 - `browser_navigate` - Navigate to URL
 - `browser_click` - Click elements
@@ -43,19 +91,19 @@
 - `browser_tab_select` - Switch tabs
 - `browser_close` - Close browser
 
-## Documentation & Search
+### Documentation & Search
 
 - `microsoft_docs_search` - Search Microsoft documentation
 - `microsoft_docs_fetch` - Fetch complete documentation pages
 - `resolve-library-id` - Resolve library names to IDs
 - `get-library-docs` - Get library documentation
 
-## Time & Conversion
+### Time & Conversion
 
 - `get_current_time` - Get current time in timezone
 - `convert_time` - Convert between timezones
 
-## Reasoning & Analysis
+### Reasoning & Analysis
 
 - `multiagentdebate` - Multi-persona debate tool
 - `sequentialthinking` - Dynamic problem-solving
@@ -65,7 +113,7 @@
 - `metacognitiveMonitoring` - Self-monitoring of reasoning
 - `clear_thought` - Unified reasoning operations
 
-## NPM Package Analysis
+### NPM Package Analysis
 
 - `npmVersions` - Get package versions
 - `npmLatest` - Get latest version and changelog
@@ -87,7 +135,7 @@
 - `npmQuality` - Analyze quality metrics
 - `npmMaintenance` - Analyze maintenance metrics
 
-## Task Management
+### Task Management
 
 - `request_planning` - Create task requests
 - `get_next_task` - Get next pending task
@@ -100,7 +148,7 @@
 - `update_task` - Update task details
 - `delete_task` - Delete task
 
-## PowerShell Operations
+### PowerShell Operations
 
 - `run_powershell` - Execute PowerShell code
 - `run_powershell_with_progress` - Execute with progress reporting
@@ -117,7 +165,7 @@
 - `generate_bigfix_action_script` - Create BigFix action
 - `generate_bigfix_script_pair` - Create BigFix relevance/action
 
-## Knowledge Management
+### Knowledge Management
 
 - `create_entities` - Create knowledge entities
 - `create_relations` - Create entity relationships
@@ -129,7 +177,7 @@
 - `search_nodes` - Search knowledge nodes
 - `open_nodes` - Open specific nodes
 
-## Memory & Notes
+### Memory & Notes
 
 - `delete_note` - Delete notes
 - `read_content` - Read file content
@@ -150,7 +198,7 @@
 - `create_memory_project` - Create new project
 - `delete_project` - Delete project
 
-## Research & Papers
+### Research & Papers
 
 - `search_research_areas` - Search research areas
 - `get_research_area` - Get area details
@@ -173,7 +221,7 @@
 - `list_paper_tasks` - List paper tasks
 - `read_paper_from_url` - Read paper from URL
 
-## Hugging Face
+### Hugging Face
 
 - `search-models` - Search HF models
 - `get-model-info` - Get model details
@@ -186,7 +234,7 @@
 - `search-collections` - Search collections
 - `get-collection-info` - Get collection details
 
-## UI Components (Magic UI)
+### UI Components (Magic UI)
 
 - `getUIComponents` - List all UI components
 - `getLayout` - Get layout components
@@ -200,23 +248,18 @@
 - `getBackgrounds` - Get background components
 - `getDevices` - Get device components
 
-## MCP Server Discovery
-
-- `search_servers` - Search MCP servers in registry
-- `use_tool` - Execute tools on MCP servers
-
-## GitHub Documentation
+### GitHub Documentation
 
 - `read_wiki_structure` - Get documentation topics
 - `read_wiki_contents` - View repository documentation
 - `ask_question` - Ask questions about repositories
 
-## Documentation Tools
+### Documentation Tools
 
 - `reindex_docs` - Reindex documentation
 - `list_indexed_docs` - List indexed documents
 
-## Utility Tools
+### Utility Tools
 
 - `echo` - Echo messages
 - `add` - Add two numbers
@@ -230,22 +273,27 @@
 - `getResourceLinks` - Get resource links
 - `structuredContent` - Return structured content
 
-## Total Commands: 200+
+## Troubleshooting
 
-### Key Categories
+### Common Issues
 
-- **File Operations**: 5 commands
-- **Command Execution**: 10 commands  
-- **Code Analysis**: 6 commands
-- **Browser Automation**: 11 commands
-- **Documentation**: 4 commands
-- **Reasoning Tools**: 7 commands
-- **NPM Analysis**: 18 commands
-- **Task Management**: 10 commands
-- **PowerShell**: 15 commands
-- **Knowledge Management**: 9 commands
-- **Memory/Notes**: 17 commands
-- **Research/Papers**: 20 commands
-- **Hugging Face**: 10 commands
-- **UI Components**: 10 commands
-- **Utilities**: 13 commands
+- "Analyze why the app is slow"
+- "Debug the build process"
+- "Fix the CSS compilation errors"
+- "Debug the Perchance integration"
+
+### System Health
+
+- "Show me the current rule configuration"
+- "What MCP servers are available?"
+- "Check if all MCP servers are properly configured"
+
+## Success Indicators
+
+✅ **Responses are faster** and more relevant  
+✅ **Documentation is always available** when needed  
+✅ **Thinking approach matches** task complexity  
+✅ **Rules are contextually appropriate**  
+✅ **Workflow feels seamless** and intuitive
+
+**Total Commands: 200+**

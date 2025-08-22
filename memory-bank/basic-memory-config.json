@@ -4,37 +4,37 @@
     "memory-bank": {
       "name": "Active Memory",
       "description": "Default project for centralized knowledge management",
-      "path": "Active"
+      "path": "."
     },
-    "system-architecture": {
-      "name": "System Architecture",
-      "description": "Strategic system knowledge and architecture decisions",
-      "path": "projects/system-architecture"
+    "archive": {
+      "name": "Archive",
+      "description": "Historical documents, code, and completed work",
+      "path": "archive"
     },
-    "strategic": {
-      "name": "Strategic",
-      "description": "Strategic role knowledge and patterns",
-      "path": "orchestration/strategic"
+    "conversation-summaries": {
+      "name": "Conversation Summaries",
+      "description": "Daily conversation summaries and context",
+      "path": "conversation-summaries"
     },
-    "tactical": {
-      "name": "Tactical",
-      "description": "Tactical planning and coordination knowledge",
-      "path": "orchestration/tactical"
+    "future": {
+      "name": "Future Planning",
+      "description": "Plans, ideas, and potential initiatives",
+      "path": "future"
     },
-    "operational": {
-      "name": "Operational",
-      "description": "Implementation and execution knowledge",
-      "path": "orchestration/operational"
+    "past": {
+      "name": "Recent Memory",
+      "description": "Short-term memory of recent completions and lessons",
+      "path": "past"
     },
-    "rpglitch": {
-      "name": "RPGlitch",
-      "description": "RPGlitch-specific project knowledge",
-      "path": "apps/rpglitch"
+    "present": {
+      "name": "Active Context",
+      "description": "Current instructions, design systems, and today's relevance",
+      "path": "present"
     },
-    "imageglitch": {
-      "name": "ImageGlitch",
-      "description": "ImageGlitch-specific project knowledge",
-      "path": "apps/imageglitch"
+    "docs": {
+      "name": "Documentation",
+      "description": "Active documentation and guides",
+      "path": "../docs"
     },
     "rules": {
       "name": "Development Rules",
@@ -59,7 +59,12 @@
         "**/dist/**"
       ],
       "watch_directories": [
-        "projects",
+        "archive",
+        "conversation-summaries",
+        "future",
+        "past",
+        "present",
+        "../docs",
         "../rules"
       ]
     }
