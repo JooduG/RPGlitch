@@ -59,7 +59,7 @@ rpglitch/
 ├── tests/                 # Jest test suites
 ├── tools/                 # Development utilities
 ├── memory-bank/           # AI context & knowledge
-├── .rules/                # Master IDE rules
+├── rules/                 # Canonical rules (synced to IDE configs)
 ├── .cursor/               # Cursor IDE config
 ├── .windsurf/             # Windsurf IDE config
 └── .github/               # GitHub workflows

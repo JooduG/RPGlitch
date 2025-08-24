@@ -1,6 +1,9 @@
 ---
 description: Build and deployment automation for Perchance applications.
-globs: **/*.html,**/*.js,**/*.scss
+globs:
+  - "**/*.html"
+  - "**/*.js"
+  - "**/*.scss"
 alwaysApply: false
 ---
 
@@ -17,15 +20,16 @@ alwaysApply: false
 
 ### Build Scripts
 
-- **build-perchance.js:** Main build script for RPGlitch applications
-- **build-imageglitch.js:** Specialized build for ImageGlitch applications
-- **build-common.js:** Shared build utilities and functions
+- **build-rpglitch.js:** Main build script for RPGlitch application
+- **build-and-copy.js:** Builds RPGlitch and copies the HTML to clipboard
+- **sync-*.js:** Helper scripts for combining docs, syncing configs, and hub generation
 
 ### Output Generation
 
 - **Single HTML File:** Complete application in one file
 - **Optimized Assets:** Minified CSS and JavaScript
-- **Platform Ready:** Direct upload to Perchance platform
+- **Output Path (RPGlitch):** `build/output/RPGlitch.html`
+- **Platform Ready:** Direct upload (copy/paste) to Perchance platform
 
 ## Deployment Workflow
 

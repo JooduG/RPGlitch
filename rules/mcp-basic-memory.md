@@ -34,33 +34,7 @@ python -c "import basic_memory; print(basic_memory.__version__)"
 
 ### **Step 2: Configure MCP Server**
 
-Add to your `mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "basic-memory": {
-      "command": "python",
-      "args": [
-        "-m",
-        "basic_memory.mcp"
-      ],
-      "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
-      },
-      "autoApprove": [
-        "list_projects",
-        "list_project_files",
-        "memory_bank_read",
-        "memory_bank_write",
-        "memory_bank_update"
-      ],
-      "autoStart": true,
-      "description": "Basic Memory MCP server for semantic knowledge management with Obsidian integration."
-    }
-  }
-}
-```
+Configuration is centralized in `build/config/mcp.master.json` (authoritative). Ensure the `basic-memory` entry exists and that `BASIC_MEMORY_PROJECT_ROOT` points to `./memory-bank` (or your absolute path), and set `autoStart: true` if desired.
 
 ### **Step 3: Set Up Projects**
 
@@ -81,6 +55,8 @@ echo "# Operational Knowledge Base" > memory-bank/operational/README.md
 ```
 
 ## 🔄 **3-MODE SYSTEM INTEGRATION**
+
+For end‑to‑end mode transitions and patterns, see `rules/memory-bank-workflow.md` (canonical). This section highlights Basic Memory specifics only.
 
 ### **🎭 STRATEGIC MODE + Basic Memory**
 

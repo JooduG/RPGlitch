@@ -72,11 +72,12 @@ const TARGETS = [
   {
     name: 'rules',
     title: 'Combined Rules',
-    // .cursor/rules is primary; docs/rules is OPTIONAL
-    sources: ['/.rules', 'docs/rules'],
+    // Canonical rules live in `rules/`; additionally include any *.md with YAML front matter anywhere.
+    sources: ['rules'],
     excludeDirs: new Set(['node_modules']),
     output: 'combined-rules.md',
-    warnOnMissing: false // <— silence missing-source warnings for this target
+    warnOnMissing: false, // <— silence missing-source warnings for this target
+    discoverRules: true
   },
   {
     name: 'memory',
@@ -133,7 +134,7 @@ const TARGETS = [
              !relPath.startsWith('memory-bank/') &&
              !relPath.startsWith('tests/') &&
              !relPath.startsWith('tools/') &&
-             !relPath.startsWith('.cursor/rules/') &&
+             !relPath.startsWith('rules/') &&
              !name.includes('test') && 
              !name.includes('spec') &&
              !relPath.includes('combined-') &&
@@ -176,7 +177,7 @@ const TARGETS = [
       'docs',
       'memory-bank',
       'tests',
-      '.cursor/rules'
+      'rules'
     ],
     excludeDirs: new Set(['node_modules', 'build/output', '.git']),
     output: 'combined-recent-changes.md',
@@ -376,6 +377,45 @@ function readPreview(abs, max = MAX_BYTES){
   return { text: buf, size: stat.size, truncated };
 }
 
+function hasFrontmatterStart(s) {
+  return /^---\s*[\r\n]/.test(s);
+}
+
+function readFileFrontmatterFlag(abs) {
+  try {
+    const chunk = fs.readFileSync(abs, 'utf8').slice(0, 4096);
+    return hasFrontmatterStart(chunk);
+  } catch {
+    return false;
+  }
+}
+
+function discoverRuleFiles() {
+  const exclude = new Set(['node_modules', '.git', 'build', '.cursor', '.amazonq', '.windsurf', 'archive']);
+  const all = walk(REPO_ROOT, exclude, []);
+  // Filter to markdown only
+  const md = all.filter(rel => rel.toLowerCase().endsWith('.md'));
+  const candidates = [];
+  for (const rel of md) {
+    const abs = path.join(REPO_ROOT, rel);
+    if (readFileFrontmatterFlag(abs)) candidates.push(rel);
+  }
+  // Prefer rules/ over others for duplicate basenames
+  const pick = new Map();
+  for (const rel of candidates.sort()) {
+    const base = path.basename(rel).toLowerCase();
+    const prev = pick.get(base);
+    if (!prev) {
+      pick.set(base, rel);
+    } else {
+      const aIsRules = rel.startsWith('rules/');
+      const bIsRules = prev.startsWith('rules/');
+      if (aIsRules && !bIsRules) pick.set(base, rel);
+    }
+  }
+  return Array.from(pick.values()).sort();
+}
+
 // build one target
 function buildOne(target) {
   if (target.hubOnly) {
@@ -420,13 +460,17 @@ function buildOne(target) {
       });
     }
   } else {
-    for (const src of SOURCES) {
-      const abs = path.join(REPO_ROOT, src);
-      files.push(...walk(abs, target.excludeDirs || new Set()));
-    }
-    files = Array.from(new Set(files)).sort();
-    if (typeof target.filter === 'function') {
-      files = files.filter(target.filter);
+    if (target.discoverRules) {
+      files = discoverRuleFiles();
+    } else {
+      for (const src of SOURCES) {
+        const abs = path.join(REPO_ROOT, src);
+        files.push(...walk(abs, target.excludeDirs || new Set()));
+      }
+      files = Array.from(new Set(files)).sort();
+      if (typeof target.filter === 'function') {
+        files = files.filter(target.filter);
+      }
     }
   }
 

@@ -20,7 +20,6 @@ npm run fetch:libs      # downloads pico/cash/dexie/purify/_hyperscript → buil
 
 # Project-specific builds
 node build/scripts/build-rpglitch.js
-node build/scripts/build-imageglitch.js
 ```
 
 ### Perchance Constraints
@@ -66,6 +65,7 @@ node build/scripts/build-imageglitch.js
 
 - [ ] **Performance Monitoring**: Set up build-time performance tracking
 - [ ] **Cross-App Standards**: Establish consistent patterns across RPGlitch/ImageGlitch
+- [ ] **ImageGlitch Build Script**: Add `build-imageglitch.js` to `build/scripts/` and document usage here
 
 ### Low Priority
 

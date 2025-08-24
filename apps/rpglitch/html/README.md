@@ -13,7 +13,7 @@ globs:
 
 ## Development Rules (AI Instructions)
 
-### Referenced Rules from `/rules/`
+### Referenced Rules from `rules/`
 
 - **[html-development.md](../../../rules/html-development.md)** - Semantic HTML, accessibility, and Perchance-specific markup
 - **[html-hyperscript-usage.md](../../../rules/html-hyperscript-usage.md)** - Hyperscript for easy, readable interactivity using _ attribute

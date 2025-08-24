@@ -281,6 +281,7 @@ operational/
 - Basic Memory MCP Guide - MCP server integration
 - System Documentation - Unified system integration
 - MCP Ecosystem Overview - MCP server overview
+- Where to configure MCP: `build/config/mcp.master.json` (authoritative)
 
 ## 🎯 **NEXT STEPS**
 

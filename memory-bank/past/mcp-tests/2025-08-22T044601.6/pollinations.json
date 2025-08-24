@@ -1,0 +1,18 @@
+{
+  "name": "pollinations",
+  "cmd": "npx",
+  "args": [
+    "-y",
+    "@pollinations/model-context-protocol"
+  ],
+  "initializeOk": false,
+  "toolsListOk": false,
+  "toolsCount": null,
+  "toolCallOk": false,
+  "exitInfo": {
+    "code": null,
+    "signal": null
+  },
+  "stdoutBytes": 0,
+  "stderrBytes": 16
+}

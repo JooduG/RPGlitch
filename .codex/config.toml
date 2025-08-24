@@ -1,0 +1,78 @@
+# RPGlitch Codex CLI configuration (repo-local)
+
+# This file encodes the guardrails and standard commands described in AGENTS.md
+# and keeps secrets out of source control by loading them from `.env`.
+
+[dotenv]
+# Load environment variables from the repo root .env
+path = ".env"
+required = false
+export = true
+
+[paths]
+repo_root = "."
+agents_md = "AGENTS.md"
+memory_bank = "memory-bank"
+rules = "rules"
+
+[guardrails]
+allow_write = [
+  "apps/**",
+  "build/scripts/**",
+  "docs/**",
+  "tests/**",
+  "memory-bank/**",
+  "tools/**",
+]
+deny_write = [
+  "build/output/**",
+  ".cursor/**",
+  "node_modules/**",
+]
+
+[commands]
+lint = "npm run lint"
+lint_fix = "npm run lint:fix"
+lint_md = "npm run lint:md"
+lint_md_fix = "npm run lint:md:fix"
+test = "npm test"
+build = "npm run build"
+build_copy = "npm run build:copy"
+deploy = "npm run deploy"
+deploy_loose = "npm run deploy:loose"
+sync = "npm run sync"
+sync_combine = "npm run sync:combine"
+sync_configs = "npm run sync:configs"
+sync_hub = "npm run sync:hub"
+
+[workflow]
+# Unified 3-Mode Architecture: Strategic → Tactical → Operational
+require_plan = true
+validate_before_handoff = true
+validate_commands = ["npm run lint", "npm run build", "npm test"]
+
+[rules]
+# Rule discovery and prioritization (see AGENTS.md)
+markdown_with_front_matter_as_rule = true
+readme_with_front_matter_as_rule = true
+prefer_rules_directory = true
+exclude_globs = ["**/archive/**"]
+
+[context]
+# Paths to load before any task
+load_first = ["rules/**", "memory-bank/**"]
+local_readme_rule = true
+
+[mcp]
+config = "build/config/mcp.master.json"
+# Enable the actual server keys defined in tools/mcp.json
+enable = ["basic-memory", "mcp-sequentialthinking-tools", "time", "Context7", "filesystem", "playwright", "Toolbox", "markitdown", "pollinations", "github"]
+
+[safety]
+block_external_network = true
+enforce_guardrails = true
+
+[memory]
+record_decisions = true
+present_dir = "memory-bank/present"
+archive_dir = "memory-bank/past"

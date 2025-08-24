@@ -29,6 +29,11 @@ globs:
 
 ## Current Tasks (RPGlitch JavaScript-Specific)
 
+### Module Boundaries
+
+- Keep UI rendering and event binding in HTML/Component layers; keep domain logic and data ops in JS modules
+- Use small, focused modules (single responsibility); export clear, documented functions
+
 ### High Priority
 
 - [ ] **Code Modularization**: Break down monolithic JavaScript into focused modules

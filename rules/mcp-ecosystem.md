@@ -7,9 +7,23 @@ alwaysApply: true
 
 The Model Context Protocol (MCP) ecosystem provides a standardized way for AI assistants to interact with external tools, data sources, and services. This guide provides a high-level overview of available MCP servers and their integration with the 3-mode development system.
 
+## Where To Configure MCP
+
+- Authoritative config: `build/config/mcp.master.json` (single source of truth).
+- Avoid editing ad-hoc `mcp.json` files; examples refer to the master config.
+
+## Setup
+
+- context7: `npx -y @context7/mcp` (requires `CONTEXT7_API_KEY` in `.env`).
+- basic-memory: `uvx basic-memory mcp` or `python -m basic_memory.mcp` with `BASIC_MEMORY_PROJECT_ROOT=./memory-bank`.
+- time (recommended): `npx -y @modelcontextprotocol/server-time`.
+- sequential thinking tools: `npx -y mcp-sequentialthinking-tools`.
+
+Note: A Python time server (`mcp_server_time`) exists, but we standardize on the Node server in examples for consistency.
+
 ## 🎯 **CORE MCP SERVERS**
 
-### **1. Context7 MCP Server** ⭐ **PRIMARY**
+### **1. context7 MCP Server** ⭐ **PRIMARY**
 
 - **Purpose**: Real-time documentation access for libraries, frameworks, and technologies
 - **Features**:
@@ -82,7 +96,7 @@ The Model Context Protocol (MCP) ecosystem provides a standardized way for AI as
 
 ### **For Documentation Access**
 
-**Primary Choice**: Context7 MCP Server
+**Primary Choice**: context7 MCP Server
 
 - Real-time access to current documentation
 - Comprehensive library coverage
@@ -109,31 +123,11 @@ The Model Context Protocol (MCP) ecosystem provides a standardized way for AI as
 
 ### **Essential MCP Servers**
 
-```json
-{
-  "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@context7/mcp"]
-    },
-    "basic-memory": {
-      "command": "python",
-      "args": ["-m", "basic_memory.mcp"],
-      "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
-      }
-    },
-    "time": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-time"]
-    }
-  }
-}
-```
+Configuration is centrally managed in `build/config/mcp.master.json`. Enable/disable servers, set `autoStart`, and configure env there.
 
 ## 📚 **DETAILED GUIDES**
 
-- Context7 MCP Server Guide - Complete usage guide
+- context7 MCP Server Guide - Complete usage guide
 - Basic Memory MCP Server Guide - Integration and setup
 - Time MCP Server Guide - Date standardization
 - System Documentation - Unified system integration

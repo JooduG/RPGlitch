@@ -22,7 +22,10 @@
     "sync:hub": "node build/scripts/sync-hub.js",
     "sync:libs": "node build/scripts/sync-libs.js",
     "test": "jest --config build/config/jest.config.js",
-    "validate": "node -e \"const fs=require('fs');const p='build/output/RPGlitch.html';if(!fs.existsSync(p)||!fs.readFileSync(p,'utf8').trim())process.exit(2)\""
+    "validate": "node -e \"const fs=require('fs');const p='build/output/RPGlitch.html';if(!fs.existsSync(p)||!fs.readFileSync(p,'utf8').trim())process.exit(2)\"",
+    "mcp:test": "node tests/mcp/run-all-mcp-tests.js",
+    "mcp:preflight": "node tests/mcp/preflight.js",
+    "mcp:basic": "node tests/mcp/run-all-mcp-tests.js --only time,basic-memory,Context7,markitdown --maxMs 12000"
   },
   "keywords": [
     "perchance",

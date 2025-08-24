@@ -75,12 +75,12 @@
 		"autoStart": true
 		},
 
-		"Toolbox": {
-		"type": "stdio",
-		"command": "npx",
-		"args": ["-y","@smithery/cli@latest","run","@smithery/toolbox","--key","${d7ad75eb-9a3e-4a3a-90ee-83012ed280e6}","--profile","${voluntary-hornet-y52X3F}"],
-		"env": {}
-		},
+        "Toolbox": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y","@smithery/cli@latest","run","@smithery/toolbox","--key","${SMITHERY_API_KEY}","--profile","${SMITHERY_PROFILE}"],
+        "env": {}
+        },
 
 		"basic-memory": {
 		"command": "uvx",

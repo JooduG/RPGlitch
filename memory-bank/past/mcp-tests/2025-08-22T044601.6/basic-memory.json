@@ -1,0 +1,18 @@
+{
+  "name": "basic-memory",
+  "cmd": "uvx",
+  "args": [
+    "basic-memory",
+    "mcp"
+  ],
+  "initializeOk": false,
+  "toolsListOk": false,
+  "toolsCount": null,
+  "toolCallOk": false,
+  "exitInfo": {
+    "code": null,
+    "signal": "SIGTERM"
+  },
+  "stdoutBytes": 100,
+  "stderrBytes": 4984
+}

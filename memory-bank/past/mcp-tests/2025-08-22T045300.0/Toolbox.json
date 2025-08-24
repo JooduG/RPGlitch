@@ -1,0 +1,24 @@
+{
+  "name": "Toolbox",
+  "cmd": "npx",
+  "args": [
+    "-y",
+    "@smithery/cli@latest",
+    "run",
+    "@smithery/toolbox",
+    "--key",
+    "${SMITHERY_API_KEY}",
+    "--profile",
+    "${SMITHERY_PROFILE}"
+  ],
+  "initializeOk": false,
+  "toolsListOk": false,
+  "toolsCount": null,
+  "toolCallOk": false,
+  "exitInfo": {
+    "code": null,
+    "signal": null
+  },
+  "stdoutBytes": 0,
+  "stderrBytes": 16
+}

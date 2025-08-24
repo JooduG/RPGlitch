@@ -1,4 +1,11 @@
-# MCP Server Configuration Guide
+---
+description: Legacy MCP server configuration details. Refer to rules/mcp-ecosystem.md for canonical setup.
+tags: [legacy, mcp]
+---
+
+# MCP Server Configuration Guide (Legacy)
+
+Note: This document is retained for historical context. For current setup and the authoritative configuration, see `rules/mcp-ecosystem.md` and `build/config/mcp.master.json`.
 
 ## Overview
 

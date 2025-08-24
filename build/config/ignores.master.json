@@ -5,6 +5,7 @@
     "build/local_libs/",
     ".cache/",
     "dist/",
+    ".env",
     ".DS_Store",
     "Thumbs.db",
     "memory-bank/archive",

@@ -1,0 +1,17 @@
+{
+  "name": "markitdown",
+  "cmd": "uvx",
+  "args": [
+    "markitdown-mcp"
+  ],
+  "initializeOk": false,
+  "toolsListOk": false,
+  "toolsCount": null,
+  "toolCallOk": false,
+  "exitInfo": {
+    "code": null,
+    "signal": "SIGTERM"
+  },
+  "stdoutBytes": 0,
+  "stderrBytes": 10295
+}

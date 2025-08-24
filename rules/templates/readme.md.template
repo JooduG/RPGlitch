@@ -83,7 +83,7 @@ globs:
 
 ## Usage Instructions
 
-1. **Verify last-child-folder** - Only use in deepest/final folders
+1. **Choose folder** - Use this template for folders at any level (parent or child)
 2. **Copy template** to target folder as README.md
 3. **Replace placeholders** with actual content
 4. **Merge existing README** content if it exists
@@ -93,12 +93,13 @@ globs:
    - Use proper relative paths (../../rules/ for /rules/, ./ for local)
 6. **Add project-specific content only** - move shared standards to `/rules/`
 7. **Organize tasks by priority** - High/Medium/Low with descriptive names
-8. **Manage completed tasks** - max 10, overflow to memory-bank/completed.md
-9. **Use proper frontmatter** - array format for tags/globs, no alwaysApply for auto-attach
+8. **Task placement** - Keep local tasks here; cross-cutting tasks go to `memory-bank/present/`
+9. **Manage completed tasks** - max 10, overflow to memory-bank/completed.md
+10. **Use proper frontmatter** - use arrays for `tags` and `globs`
 
 ## Key Principles
 
-- **Last-child-folders only** - Only deepest/final folders get README.md with rules
+- **Parent + child READMEs** - Parent provides context + links, child adds specifics
 - **Human docs first** - Make it useful for developers
 - **AI rules second** - Clear instructions for AI assistants
 - **Reference, don't duplicate** - Link to shared rules from `/rules/`
@@ -111,9 +112,14 @@ globs:
 ## Frontmatter Guidelines
 
 - **description**: Brief summary of folder purpose and rules
-- **tags**: Relevant categorization tags (use array format to avoid markdown link interpretation)
+- **tags**: Relevant categorization tags (use array format)
 - **globs**: Only if folder has specific file types (use array format)
-- **alwaysApply**: Not needed for globs (auto-attach), only use for special cases
+- **alwaysApply**: Not needed for globs
+
+## Optional Sections
+
+- **Scope & Ownership**: Owner/contact and decision scope for this folder
+- **Paths**: Entry/Output paths (for app folders)
 
 ## Rule Reference Guidelines
 

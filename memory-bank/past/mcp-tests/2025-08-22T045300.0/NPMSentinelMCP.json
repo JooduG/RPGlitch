@@ -1,0 +1,24 @@
+{
+  "name": "NPMSentinelMCP",
+  "cmd": "npx",
+  "args": [
+    "-y",
+    "@smithery/cli@latest",
+    "run",
+    "@Nekzus/npm-sentinel-mcp",
+    "--key",
+    "${SMITHERY_API_KEY}",
+    "--profile",
+    "${SMITHERY_PROFILE}"
+  ],
+  "initializeOk": false,
+  "toolsListOk": false,
+  "toolsCount": null,
+  "toolCallOk": false,
+  "exitInfo": {
+    "code": null,
+    "signal": null
+  },
+  "stdoutBytes": 0,
+  "stderrBytes": 16
+}

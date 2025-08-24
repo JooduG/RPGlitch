@@ -1,6 +1,9 @@
 ---
 description: Complete development lifecycle for Perchance applications.
-globs: **/*.html,**/*.js,**/*.scss
+globs:
+  - "**/*.html"
+  - "**/*.js"
+  - "**/*.scss"
 alwaysApply: false
 ---
 
@@ -20,9 +23,10 @@ alwaysApply: false
 1. **Plan:** Define the generator's structure, features, and plugin needs.
 2. **Develop:** Build modular HTML, CSS, and JS files. Use atomic CSS and Perchance plugin APIs as needed.
 3. **Test:** Test in the Perchance editor. Use "duplicate" to create safe checkpoints.
-4. **Build:** Combine all CSS and JS into single files for deployment.
-5. **Deploy:** Paste merged code into Perchance, set generator to public/private, and share the URL.
-6. **Iterate:** Use feedback and logs to improve and refine the generator.
+4. **Validate:** Run lint and tests locally (e.g., `npm run lint && npm test`).
+5. **Build:** Combine all CSS and JS into single files for deployment.
+6. **Deploy:** Paste merged code into Perchance, set generator to public/private, and share the URL.
+7. **Iterate:** Use feedback and logs to improve and refine the generator.
 
 ## Best Practices
 

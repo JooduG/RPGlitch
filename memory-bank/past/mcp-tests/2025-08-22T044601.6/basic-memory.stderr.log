@@ -1,0 +1,68 @@
+[08/22/25 06:49:53] INFO     Starting MCP server 'Basic Memory'  server.py:1307
+                             with transport 'stdio'                            
+C:\Users\johng\AppData\Roaming\uv\tools\basic-memory\Lib\site-packages\aiosqlite\core.py:105: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+  result = function()
+WARNING:root:Failed to validate request: 21 validation errors for ClientRequest
+PingRequest.method
+  Input should be 'ping' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+InitializeRequest.method
+  Input should be 'initialize' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+InitializeRequest.params
+  Field required [type=missing, input_value={'method': 'tools.list', ...onrpc': '2.0', 'id': 13}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+CompleteRequest.method
+  Input should be 'completion/complete' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+CompleteRequest.params
+  Field required [type=missing, input_value={'method': 'tools.list', ...onrpc': '2.0', 'id': 13}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+SetLevelRequest.method
+  Input should be 'logging/setLevel' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+SetLevelRequest.params
+  Field required [type=missing, input_value={'method': 'tools.list', ...onrpc': '2.0', 'id': 13}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+GetPromptRequest.method
+  Input should be 'prompts/get' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+GetPromptRequest.params
+  Field required [type=missing, input_value={'method': 'tools.list', ...onrpc': '2.0', 'id': 13}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+ListPromptsRequest.method
+  Input should be 'prompts/list' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+ListResourcesRequest.method
+  Input should be 'resources/list' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+ListResourceTemplatesRequest.method
+  Input should be 'resources/templates/list' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+ReadResourceRequest.method
+  Input should be 'resources/read' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+ReadResourceRequest.params
+  Field required [type=missing, input_value={'method': 'tools.list', ...onrpc': '2.0', 'id': 13}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+SubscribeRequest.method
+  Input should be 'resources/subscribe' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+SubscribeRequest.params
+  Field required [type=missing, input_value={'method': 'tools.list', ...onrpc': '2.0', 'id': 13}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+UnsubscribeRequest.method
+  Input should be 'resources/unsubscribe' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+UnsubscribeRequest.params
+  Field required [type=missing, input_value={'method': 'tools.list', ...onrpc': '2.0', 'id': 13}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+CallToolRequest.method
+  Input should be 'tools/call' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error
+CallToolRequest.params
+  Field required [type=missing, input_value={'method': 'tools.list', ...onrpc': '2.0', 'id': 13}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+ListToolsRequest.method
+  Input should be 'tools/list' [type=literal_error, input_value='tools.list', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/literal_error

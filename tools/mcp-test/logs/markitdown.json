@@ -1,0 +1,15 @@
+{
+  "name": "markitdown",
+  "command": "uvx",
+  "args": [
+    "markitdown-mcp"
+  ],
+  "durationMs": 3173,
+  "exit": {
+    "code": null,
+    "signal": "SIGTERM"
+  },
+  "stdoutBytes": 0,
+  "stderrBytes": 29,
+  "status": "started"
+}

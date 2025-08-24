@@ -1,7 +1,12 @@
 ---
 description: Plugin development and integration guidelines for Perchance applications.
-tags: "perchance", "plugins", "extensibility", "best-practices"
-globs: **/*.js
+tags:
+  - perchance
+  - plugins
+  - extensibility
+  - best-practices
+globs:
+  - "**/*.js"
 alwaysApply: false
 ---
 
@@ -48,6 +53,13 @@ window.App.registerPlugin({
 - Document the plugin API and expected lifecycle events.
 - Avoid naming collisions by using unique plugin names.
 - Test plugins in isolation and with other plugins enabled.
+
+### Plugin API Surface Checklist
+
+- Named plugin (unique id)
+- Registration method and lifecycle hooks (`onInit`, `onReady`, `onDispose`)
+- Error boundaries and graceful failure behavior
+- Strict interaction via app’s public API (no direct global state mutation)
 
 ## References
 

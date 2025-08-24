@@ -1,7 +1,15 @@
 ---
 description: High-level structure and principles for Perchance apps and generators.
-tags: "perchance", "architecture", "css", "js", "html"
-globs: **/*.html,**/*.js,**/*.scss
+tags:
+  - perchance
+  - architecture
+  - css
+  - js
+  - html
+globs:
+  - "**/*.html"
+  - "**/*.js"
+  - "**/*.scss"
 alwaysApply: false
 ---
 
@@ -11,7 +19,7 @@ alwaysApply: false
 
 - **Client-Side Only:** All code (HTML, CSS, JS) runs in the browser. No server-side execution.
 - **Single-File Output:** For deployment, all CSS and JS must be merged into single files for copy-paste into Perchance's editor fields.
-- **No Package Manager:** All dependencies must be inlined or loaded via `<script>` tags (if allowed).
+- **No Package Manager on Platform:** The Perchance runtime has no package manager; for local development we use npm and a build step to inline/minify assets.
 - **Sandboxed Execution:** User code is sandboxed for security. No direct access to server-side resources or the file system.
 - **Modular Organization:** Separate logic, UI, and data handling for maintainability and extensibility.
 

@@ -6,6 +6,8 @@ This page explains **how to run Codex against the RPGlitch mono-repo** and the r
 
 ## 1 Environment (one-time)
 
+For quick CLI usage, see: `docs/CODEX-help.md`.
+
 ### A. Create / edit an Environment
 
 * **Repository:** `default` (your mono-repo)

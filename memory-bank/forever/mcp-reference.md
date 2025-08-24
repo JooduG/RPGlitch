@@ -1,4 +1,11 @@
-# MCP Reference Guide
+---
+description: Legacy MCP tool catalog. Canonical rule lives in rules/mcp-reference.md
+tags: [legacy, mcp]
+---
+
+# MCP Reference Guide (Legacy)
+
+Note: See `rules/mcp-reference.md` for the canonical reference index. This document keeps the exhaustive listing for historical completeness.
 
 ## Quick Commands for Daily Use
 

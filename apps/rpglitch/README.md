@@ -22,10 +22,12 @@ Single-file Perchance deliverable with storyboard + profiles functionality.
 ```bash
 # Development build
 node build/scripts/build-rpglitch.js
-
-# Watch mode (if available)
-npm run watch:rpglitch
 ```
+
+### Entry / Output
+
+- Entry HTML: `apps/rpglitch/html/index.html`
+- Output HTML: `build/output/RPGlitch.html`
 
 ## Development Rules (AI Instructions)
 
@@ -49,6 +51,7 @@ npm run watch:rpglitch
 - [ ] **UI Module Implementation**: Complete remaining RPGlitch-specific UI components
 - [ ] **Chin List Enhancement**: Improve persistence and accessibility for chin list functionality
 - [ ] **Item Form Development**: Build full-featured item forms with validation
+- [ ] **Watch Script**: Add a `watch:rpglitch` npm script if watch mode is desired
 
 ### Low Priority
 
