@@ -37,6 +37,7 @@
   flex: 0 0 auto;
   display: flex;
   justify-content: center;
+  position: relative;
   border-top-left-radius: inherit;
   border-bottom-left-radius: inherit;
   background: var(--brand);
@@ -46,6 +47,7 @@
   height: 100%;
   margin: 0;
   aspect-ratio: auto; /* was 1/1; let height fill */
+  transition: background-color 0.2s ease;
 
   .picture {
     display: block;
@@ -138,6 +140,8 @@ select,
   pointer-events: auto;
   align-items: stretch;
 }
+
+/* Pills now use generic .chip-row/.chip overlay; footer small is unused */
 
 #storyboard-dynamic-title-wrapper {
   display: flex;

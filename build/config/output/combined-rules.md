@@ -9004,24 +9004,24 @@ const documentationCache = {
 
 To begin creating `.mdc` rule files that Cursor can use, follow these essential steps:
 
-* Create new Markdown files (`.mdc`) directly within your workspace's `.cursor/rules/` directory.
-* Name your files using `kebab-case` (e.g., `my-new-rule.mdc`).
-* Ensure each rule file includes the [Mandatory Frontmatter Structure](#3-frontmatter-for-metadata) at its very beginning.
+- Create new Markdown files (`.mdc`) directly within your workspace's `.cursor/rules/` directory.
+- Name your files using `kebab-case` (e.g., `my-new-rule.mdc`).
+- Ensure each rule file includes the [Mandatory Frontmatter Structure](#3-frontmatter-for-metadata) at its very beginning.
 
 For managing your rule files in a version-controlled environment (e.g., Git/GitHub), common practices include forking the repository and submitting Pull Requests for changes. These practices are for repository management and collaboration, not for Cursor's local rule recognition.
 
 ### 2. Core Principles for All .mdc Rules
 
-* **Clear Objective:** Every rule should have a well-defined purpose. State this objective clearly at the beginning of the rule, ideally in the frontmatter `description` and reinforced in the introductory text.
-  * *Example:* This document's objective is stated in its frontmatter `description` and introduction.
-* **Structured Content:** Use Markdown effectively to structure your rule.
-  * **Headings and Subheadings:** Organize content logically using `#`, `##`, `###`, etc.
-  * **Lists:** Use bulleted (`*`, `-`) or numbered (`1.`, `2.`) lists for steps, criteria, or key points.
-  * **Code Blocks:** Use fenced code blocks (``` for code examples, commands, or structured data). Specify the language for syntax highlighting (e.g., ```typescript ... ```).
-  * **Emphasis:** Use **bold** and *italics* to highlight important terms or instructions.
-* **Clarity and Precision:** Write in a clear, unambiguous manner. Avoid jargon where possible, or explain it if necessary. If the rule is meant to guide AI behavior, precision is paramount.
-* **Modularity (The "Surgically Specific" Principle):** This is a critical principle. Each rule should focus on a single, specific topic, tool, or workflow. Avoid creating large, monolithic rules that cover many different concepts. This makes rules easier to manage, understand, update, and for the AI to apply precisely when relevant.
-* **Time MCP Integration:** **MANDATORY** - All rules that contain dates MUST use the Time MCP for date formatting. Never hardcode dates in any format. Always call `mcp_time_get_current_time({ timezone: 'Europe/Berlin' })` and use the returned date for all date fields.
+- **Clear Objective:** Every rule should have a well-defined purpose. State this objective clearly at the beginning of the rule, ideally in the frontmatter `description` and reinforced in the introductory text.
+  - *Example:* This document's objective is stated in its frontmatter `description` and introduction.
+- **Structured Content:** Use Markdown effectively to structure your rule.
+  - **Headings and Subheadings:** Organize content logically using `#`, `##`, `###`, etc.
+  - **Lists:** Use bulleted (`*`, `-`) or numbered (`1.`, `2.`) lists for steps, criteria, or key points.
+  - **Code Blocks:** Use fenced code blocks (``` for code examples, commands, or structured data). Specify the language for syntax highlighting (e.g., ```typescript ... ```).
+  - **Emphasis:** Use **bold** and *italics* to highlight important terms or instructions.
+- **Clarity and Precision:** Write in a clear, unambiguous manner. Avoid jargon where possible, or explain it if necessary. If the rule is meant to guide AI behavior, precision is paramount.
+- **Modularity (The "Surgically Specific" Principle):** This is a critical principle. Each rule should focus on a single, specific topic, tool, or workflow. Avoid creating large, monolithic rules that cover many different concepts. This makes rules easier to manage, understand, update, and for the AI to apply precisely when relevant.
+- **Time MCP Integration:** **MANDATORY** - All rules that contain dates MUST use the Time MCP for date formatting. Never hardcode dates in any format. Always call `mcp_time_get_current_time({ timezone: 'Europe/Berlin' })` and use the returned date for all date fields.
 
 ### 3. Frontmatter for Metadata
 
@@ -9035,24 +9035,24 @@ The `alwaysApply: true` flag is powerful, but should be reserved **only for the 
 
 **Every `.mdc` rule file MUST include a complete YAML frontmatter block at its very beginning.** This block provides essential metadata for Cursor's internal processing and human readability.
 
-* **Delimiters:** The frontmatter block MUST start and end with `---` on its own line.
-* **Required Fields:** At minimum, the `description` and `tags` fields are mandatory.
-  * `description` (string): A concise summary of the rule's purpose.
-  * `tags` (list of strings): A YAML list of keywords that categorize the rule (e.g., `[mode-specific, plan, quality]`).
-* **Globs (Recommended for format-specific rules):**
-  * Specify the `globs` field as a plain, comma-separated list of patterns, with **no brackets** and **no quotation marks**. For example:
+- **Delimiters:** The frontmatter block MUST start and end with `---` on its own line.
+- **Required Fields:** At minimum, the `description` and `tags` fields are mandatory.
+  - `description` (string): A concise summary of the rule's purpose.
+  - `tags` (list of strings): A YAML list of keywords that categorize the rule (e.g., `[mode-specific, plan, quality]`).
+- **Globs (Recommended for format-specific rules):**
+  - Specify the `globs` field as a plain, comma-separated list of patterns, with **no brackets** and **no quotation marks**. For example:
 
     ```yaml
     globs: **/*.html
     ```
 
-  * For multiple file types, separate each pattern with a comma (no spaces):
+  - For multiple file types, separate each pattern with a comma (no spaces):
 
     ```yaml
     globs: **/*.js,**/*.ts,**/*.html
     ```
 
-  * **Do NOT use brackets or quotes.** The following are all incorrect:
+  - **Do NOT use brackets or quotes.** The following are all incorrect:
 
     ```yaml
     globs: ["**/*.html"]
@@ -9063,18 +9063,18 @@ The `alwaysApply: true` flag is powerful, but should be reserved **only for the 
     ```
 
     These are invalid and may not be parsed correctly.
-  * **Summary:**
-    * Use only the plain, comma-separated format for globs.
-    * No brackets, no quotes, no extra text after the patterns.
-* **Optional Fields for Project Rules:** Project rules can also include `alwaysApply: true/false` and a `description` field for `Agent Requested` rule types.
+  - **Summary:**
+    - Use only the plain, comma-separated format for globs.
+    - No brackets, no quotes, no extra text after the patterns.
+- **Optional Fields for Project Rules:** Project rules can also include `alwaysApply: true/false` and a `description` field for `Agent Requested` rule types.
 
 ⚠️ **CRITICAL: Avoid Duplicate Headers** ⚠️
 
 **NEVER include multiple YAML frontmatter blocks in a single rule file.** Each `.mdc` file should have exactly ONE frontmatter block at the very beginning. Duplicate headers can cause confusion and inconsistent rule activation.
 
-* **Common Mistake:** Having headers at both the beginning and end of the file
-* **Correct Structure:** Single header block at the very top of the file
-* **Validation:** Always verify your rule has only one `---` block
+- **Common Mistake:** Having headers at both the beginning and end of the file
+- **Correct Structure:** Single header block at the very top of the file
+- **Validation:** Always verify your rule has only one `---` block
 
 ⚠️ **CRITICAL: "Agent Requested" Rule Structure** ⚠️
 
@@ -9089,18 +9089,18 @@ alwaysApply: false
 
 **Key Points:**
 
-* **Remove `globs` field** - This makes the rule "Agent Requested" instead of "Auto Attached"
-* **Remove `tags` field** - Not needed for Agent Requested rules
-* **Keep `alwaysApply: false`** - Ensures the AI can choose when to apply the rule
-* **Use for:** Thinking frameworks, mode systems, role definitions, workflow orchestrators, and other cross-cutting concerns
+- **Remove `globs` field** - This makes the rule "Agent Requested" instead of "Auto Attached"
+- **Remove `tags` field** - Not needed for Agent Requested rules
+- **Keep `alwaysApply: false`** - Ensures the AI can choose when to apply the rule
+- **Use for:** Thinking frameworks, mode systems, role definitions, workflow orchestrators, and other cross-cutting concerns
 
 **Examples of "Agent Requested" Rules:**
 
-* Thinking frameworks (`thinking-framework.mdc`, `thinking-contemplative.mdc`)
-* Mode systems (`mode-system-unified.mdc`)
-* Role definitions (`mode-system-unified.mdc`)
-* System documentation (`system-documentation.mdc`)
-* Memory management (`memory-bank-integration.mdc`)
+- Thinking frameworks (`thinking-framework.mdc`, `thinking-contemplative.mdc`)
+- Mode systems (`mode-system-unified.mdc`)
+- Role definitions (`mode-system-unified.mdc`)
+- System documentation (`system-documentation.mdc`)
+- Memory management (`memory-bank-integration.mdc`)
 
 Example of Mandatory Frontmatter:
 
@@ -9118,91 +9118,91 @@ Here's a breakdown of the different types of rules, instructions, and memories, 
 
 #### 1. User Rules (Global Preferences)
 
-* **What they are:** These are global preferences defined in Cursor Settings → Rules that apply across all projects. They define fundamental behavioral principles for the AI that are always applied.
-* **Source:** Configured in `Cursor Settings` > `General` > `Rules for AI`.
-* **Importance:** Most important, as they form the foundational behavioral constraints and guidelines. They are usually non-negotiable and apply regardless of project specifics.
-* **What they should say:** Broad principles like communication style (e.g., "Technical but Concise"), core capabilities, and overarching operational guidelines (e.g., "Always verify information").
-* **Why maintain separation (even with one workspace):** This separation keeps your fundamental AI model directives clean and focused on universal applicability. If you were ever to interact with the AI model in a completely different context (even if not a formal "workspace"), these rules would still apply, ensuring consistent AI behavior across all projects.
+- **What they are:** These are global preferences defined in Cursor Settings → Rules that apply across all projects. They define fundamental behavioral principles for the AI that are always applied.
+- **Source:** Configured in `Cursor Settings` > `General` > `Rules for AI`.
+- **Importance:** Most important, as they form the foundational behavioral constraints and guidelines. They are usually non-negotiable and apply regardless of project specifics.
+- **What they should say:** Broad principles like communication style (e.g., "Technical but Concise"), core capabilities, and overarching operational guidelines (e.g., "Always verify information").
+- **Why maintain separation (even with one workspace):** This separation keeps your fundamental AI model directives clean and focused on universal applicability. If you were ever to interact with the AI model in a completely different context (even if not a formal "workspace"), these rules would still apply, ensuring consistent AI behavior across all projects.
 
 #### 2. Project Rules
 
 These rules are specific to the current project or workspace, stored in the `.cursor/rules` directory, and are version-controlled. They can be further categorized by how they are applied:
 
-* **Agent Requested:**
-  * **What they are:** Available to the AI, which decides whether to include it based on its relevance to the task. They provide specialized context or modify behavior for particular scenarios.
-  * **Source:** Defined by the user or project maintainers within specific rule files (e.g., `.mdc` files in `.cursor/rules/`).
-  * **Importance:** Important for adapting the AI's behavior to project-specific needs without being constantly active. They are activated on demand.
-  * **What they should say:** Context-specific guidelines like "context-management" (how to handle context window usage), "context7-auto-docs" (when to use a specific documentation tool), or "enhanced-error-handling" (how to diagnose and fix errors). Requires a `description` field in its frontmatter.
+- **Agent Requested:**
+  - **What they are:** Available to the AI, which decides whether to include it based on its relevance to the task. They provide specialized context or modify behavior for particular scenarios.
+  - **Source:** Defined by the user or project maintainers within specific rule files (e.g., `.mdc` files in `.cursor/rules/`).
+  - **Importance:** Important for adapting the AI's behavior to project-specific needs without being constantly active. They are activated on demand.
+  - **What they should say:** Context-specific guidelines like "context-management" (how to handle context window usage), "context7-auto-docs" (when to use a specific documentation tool), or "enhanced-error-handling" (how to diagnose and fix errors). Requires a `description` field in its frontmatter.
 
-* **Always:**
-  * **What they are:** Always included in the AI model's context when the rule's glob pattern matches. They define project-level standards, conventions, and non-negotiables that the AI must *always* follow within that project.
-  * **Source:** Defined by the user or project maintainers within specific rule files (`.mdc` files in `.cursor/rules/`) with `alwaysApply: true` in their frontmatter.
-  * **Importance:** Highly important for ensuring consistency and adherence to project-specific quality, architectural, and workflow standards. They directly shape how the AI operates within that project.
-  * **What they should say:** Detailed standards for "Code Quality Standards" (no TODOs, readability, error handling), "Perchance Best Practices" (modular organization, IndexedDB, responsiveness), "Communication Style Guide" (output formats, problem-solving approach), and "Protocol Control System" (how Planning Protocol and Execution Protocol work).
-* **Why maintain separation (even with one workspace):** This clearly signals that these rules are *for this project*. This enhances organizational clarity, makes it easier for new contributors (human or AI model) to understand project specifics, and prevents accidental application of project-specific rules if a second, unrelated workspace were ever introduced in the future.
+- **Always:**
+  - **What they are:** Always included in the AI model's context when the rule's glob pattern matches. They define project-level standards, conventions, and non-negotiables that the AI must *always* follow within that project.
+  - **Source:** Defined by the user or project maintainers within specific rule files (`.mdc` files in `.cursor/rules/`) with `alwaysApply: true` in their frontmatter.
+  - **Importance:** Highly important for ensuring consistency and adherence to project-specific quality, architectural, and workflow standards. They directly shape how the AI operates within that project.
+  - **What they should say:** Detailed standards for "Code Quality Standards" (no TODOs, readability, error handling), "Perchance Best Practices" (modular organization, IndexedDB, responsiveness), "Communication Style Guide" (output formats, problem-solving approach), and "Protocol Control System" (how Planning Protocol and Execution Protocol work).
+- **Why maintain separation (even with one workspace):** This clearly signals that these rules are *for this project*. This enhances organizational clarity, makes it easier for new contributors (human or AI model) to understand project specifics, and prevents accidental application of project-specific rules if a second, unrelated workspace were ever introduced in the future.
 
-* **Auto Attached:**
-  * **What they are:** Included when files matching a specified glob pattern are referenced in the AI's context. These rules provide context-aware guidance without needing to be manually invoked.
-  * **Source:** Defined within `.mdc` files in `.cursor/rules/` with a `globs` pattern specified in their frontmatter, and `alwaysApply: false` (or omitted).
-  * **Importance:** Useful for providing specialized guidance relevant to specific file types or directory structures, ensuring the AI has relevant context when working on particular parts of the codebase.
-  * **What they should say:** Framework-specific rules (e.g., SolidJS preferences for `.tsx` files), special handling for auto-generated files, custom UI development patterns, or code style for specific folders.
+- **Auto Attached:**
+  - **What they are:** Included when files matching a specified glob pattern are referenced in the AI's context. These rules provide context-aware guidance without needing to be manually invoked.
+  - **Source:** Defined within `.mdc` files in `.cursor/rules/` with a `globs` pattern specified in their frontmatter, and `alwaysApply: false` (or omitted).
+  - **Importance:** Useful for providing specialized guidance relevant to specific file types or directory structures, ensuring the AI has relevant context when working on particular parts of the codebase.
+  - **What they should say:** Framework-specific rules (e.g., SolidJS preferences for `.tsx` files), special handling for auto-generated files, custom UI development patterns, or code style for specific folders.
 
-* **Manual:**
-  * **What they are:** Only included when explicitly mentioned by the user using `@ruleName` in the chat or prompt.
-  * **Source:** Any `.mdc` file in `.cursor/rules/` that does not have an `alwaysApply: true` or `globs` pattern that causes it to be `Auto Attached`.
-  * **Importance:** Allows for on-demand application of specific rules that are not always needed but can be invoked when required for particular tasks or scenarios.
-  * **What they should say:** Guidelines for specialized scenarios that are not triggered by file patterns or always active.
+- **Manual:**
+  - **What they are:** Only included when explicitly mentioned by the user using `@ruleName` in the chat or prompt.
+  - **Source:** Any `.mdc` file in `.cursor/rules/` that does not have an `alwaysApply: true` or `globs` pattern that causes it to be `Auto Attached`.
+  - **Importance:** Allows for on-demand application of specific rules that are not always needed but can be invoked when required for particular tasks or scenarios.
+  - **What they should say:** Guidelines for specialized scenarios that are not triggered by file patterns or always active.
 
 #### 3. .cursorrules (Legacy)
 
-* **What they are:** A legacy file format for project-specific rules, located in your project's root directory. It is still supported for backward compatibility but is deprecated.
-* **Source:** A `.cursorrules` file in the project root.
-* **Importance:** Low, as it is deprecated. Migration to Project Rules (`.cursor/rules` directory) is recommended for better control, flexibility, and visibility.
-* **What they should say:** Any project-specific rules, but ideally, this content should be migrated to `Project Rules`.
+- **What they are:** A legacy file format for project-specific rules, located in your project's root directory. It is still supported for backward compatibility but is deprecated.
+- **Source:** A `.cursorrules` file in the project root.
+- **Importance:** Low, as it is deprecated. Migration to Project Rules (`.cursor/rules` directory) is recommended for better control, flexibility, and visibility.
+- **What they should say:** Any project-specific rules, but ideally, this content should be migrated to `Project Rules`.
 
 #### 4. Mode-Specific Rules
 
-* **What they are:** Rules that become active only when the AI is in a particular "mode" (e.g., Planning Protocol or Execution Protocol). They define the specific behaviors and tool access for that mode.
-* **Source:** Defined within the system that manages the AI's operational modes (often as part of the overall prompt or by Cursor's internal mechanisms).
-* **Importance:** Crucial for dictating the AI's immediate behavior and available tools in different phases of a task (planning vs. execution).
-* **What they should say:** Instructions like "Never ask for permission before making a change—just do it" (for Execution Protocol) or outlining available/restricted tools within a specific mode.
+- **What they are:** Rules that become active only when the AI is in a particular "mode" (e.g., Planning Protocol or Execution Protocol). They define the specific behaviors and tool access for that mode.
+- **Source:** Defined within the system that manages the AI's operational modes (often as part of the overall prompt or by Cursor's internal mechanisms).
+- **Importance:** Crucial for dictating the AI's immediate behavior and available tools in different phases of a task (planning vs. execution).
+- **What they should say:** Instructions like "Never ask for permission before making a change—just do it" (for Execution Protocol) or outlining available/restricted tools within a specific mode.
 
 #### 5. Instructions
 
-* **What they are:** Direct directives from the user that guide the AI's actions for the current task or overall session. These can be explicit requests or general preferences.
-* **Source:** Directly provided by the user in natural language or embedded within files like `AI-Handoff.md` as "User's Explicit Instructions."
-* **Importance:** Extremely important for fulfilling the user's immediate and long-term goals. The AI must prioritize these.
-* **What they should say:** Specific requirements for a task (e.g., "Minimal, modern, robust UI/UX," "All CSS is consolidated into a single file"), preferences (e.g., "No icons in UI, only text labels"), and behavioral expectations (e.g., "Incremental, non-dramatic changes only").
+- **What they are:** Direct directives from the user that guide the AI's actions for the current task or overall session. These can be explicit requests or general preferences.
+- **Source:** Directly provided by the user in natural language or embedded within files like `AI-Handoff.md` as "User's Explicit Instructions."
+- **Importance:** Extremely important for fulfilling the user's immediate and long-term goals. The AI must prioritize these.
+- **What they should say:** Specific requirements for a task (e.g., "Minimal, modern, robust UI/UX," "All CSS is consolidated into a single file"), preferences (e.g., "No icons in UI, only text labels"), and behavioral expectations (e.g., "Incremental, non-dramatic changes only").
 
 #### 6. Memories
 
-* **What they are:** Factual information or past learnings generated by the AI based on previous interactions, observations, or successful problem-solving. They serve as persistent context.
-* **Source:** Generated by the AI and stored, often in a "memory-bank" directory (e.g., `coreContext.md`, `currentState.md`, `designSystem.md`).
-* **Importance:** Important for maintaining continuity and avoiding repetitive actions or mistakes. They inform the AI's understanding of the project's history and current state.
-* **What they should say:** Summaries of past tasks, identified preferences (e.g., "User prefers icon-less buttons"), successful bug fixes, or preferred working styles ("User prefers not to ask clarifying questions too frequently").
+- **What they are:** Factual information or past learnings generated by the AI based on previous interactions, observations, or successful problem-solving. They serve as persistent context.
+- **Source:** Generated by the AI and stored, often in a "memory-bank" directory (e.g., `coreContext.md`, `currentState.md`, `designSystem.md`).
+- **Importance:** Important for maintaining continuity and avoiding repetitive actions or mistakes. They inform the AI's understanding of the project's history and current state.
+- **What they should say:** Summaries of past tasks, identified preferences (e.g., "User prefers icon-less buttons"), successful bug fixes, or preferred working styles ("User prefers not to ask clarifying questions too frequently").
 
 ##### How Rules Interact (Hierarchy of Influence)
 
 Rules provide persistent, reusable context at the prompt level. When applied, rule contents are included at the start of the model context, giving the AI consistent guidance. The interaction generally follows a hierarchy from broadest to most specific, with more specific elements potentially refining or overriding broader ones:
 
-* **User Rules:** Form the absolute foundation. All other rules, instructions, and memories operate within the boundaries set by User Rules.
-* **Project Rules (Always):** Apply constantly within a specific project, building upon User Rules and defining project-specific standards.
-* **Instructions:** Direct user instructions take precedence over general project rules and memories for the current task, but must still operate within the bounds of User and Project Rules.
-* **Mode-Specific Rules:** These are dynamic, temporarily altering the AI's behavior and tool access based on its current operational mode (e.g., Planning Protocol or Execution Protocol). They are a layer of behavior refinement on top of User, Project, and instruction sets.
-* **Project Rules (Agent Requested/Auto Attached/Manual):** Activated dynamically by the AI or by reference to retrieve specific context or modify behavior for particular situations, adhering to all higher-level rules.
-* **Memories:** Inform the AI's decision-making process by providing historical context and learned preferences. They influence how rules and instructions are interpreted and applied, but don't typically override explicit rules or instructions.
+- **User Rules:** Form the absolute foundation. All other rules, instructions, and memories operate within the boundaries set by User Rules.
+- **Project Rules (Always):** Apply constantly within a specific project, building upon User Rules and defining project-specific standards.
+- **Instructions:** Direct user instructions take precedence over general project rules and memories for the current task, but must still operate within the bounds of User and Project Rules.
+- **Mode-Specific Rules:** These are dynamic, temporarily altering the AI's behavior and tool access based on its current operational mode (e.g., Planning Protocol or Execution Protocol). They are a layer of behavior refinement on top of User, Project, and instruction sets.
+- **Project Rules (Agent Requested/Auto Attached/Manual):** Activated dynamically by the AI or by reference to retrieve specific context or modify behavior for particular situations, adhering to all higher-level rules.
+- **Memories:** Inform the AI's decision-making process by providing historical context and learned preferences. They influence how rules and instructions are interpreted and applied, but don't typically override explicit rules or instructions.
 
 ##### Most Important
 
-* **User Rules** and **Project Rules (Always)** are foundational as they dictate the fundamental operating principles and project standards.
-* **User's Explicit Instructions** are paramount for task fulfillment, as they represent your direct intent.
-* **Mode-Specific Rules:** These are critical for the immediate operational behavior.
+- **User Rules** and **Project Rules (Always)** are foundational as they dictate the fundamental operating principles and project standards.
+- **User's Explicit Instructions** are paramount for task fulfillment, as they represent your direct intent.
+- **Mode-Specific Rules:** These are critical for the immediate operational behavior.
 
 ##### What should say what
 
-* **User Rules / Project Rules (Always):** Should contain principles, standards, architectural patterns, non-negotiables, and broad behavioral guidelines. They are prescriptive and define how the AI should generally operate and what constitutes good practice.
-* **Instructions:** Should contain specific requirements for tasks, direct preferences, and explicit prohibitions. They are declarative and tell the AI what to do or what to avoid.
-* **Memories:** Should contain factual summaries, past learnings, identified user preferences, and project state information. They are descriptive and provide historical and ongoing context.
+- **User Rules / Project Rules (Always):** Should contain principles, standards, architectural patterns, non-negotiables, and broad behavioral guidelines. They are prescriptive and define how the AI should generally operate and what constitutes good practice.
+- **Instructions:** Should contain specific requirements for tasks, direct preferences, and explicit prohibitions. They are declarative and tell the AI what to do or what to avoid.
+- **Memories:** Should contain factual summaries, past learnings, identified user preferences, and project state information. They are descriptive and provide historical and ongoing context.
 
 By having a clear separation, you make the system more robust, easier to manage, and more predictable in its behavior. You can update a small rule without fearing widespread unintended consequences, and the AI can more easily reason about its actions by referring to specific, well-defined guidelines.
 
@@ -9214,49 +9214,49 @@ Cursor Rules can serve various purposes. Tailor the structure and content to the
 
 Provide comprehensive information about a system, architecture, or technology. This document is an example of an informational rule.
 
-* **Key Elements:**
-  * **Establish Context:** Provide a clear overview and state the project goals to set the stage for understanding.
-  * **Explain Components:** Offer detailed explanations of system components, core concepts, or critical processes.
-  * **Visualize Systems:** Include diagrams (e.g., Mermaid.js) to visually represent systems and their interactions.
-  * **Illustrate Usage:** Provide concrete code snippets or configuration examples to show practical application.
-  * **Define Terms:** Ensure clarity by defining key terms and acronyms used within the documentation.
-* **Example:** This `writing-effective-rules.mdc` document.
+- **Key Elements:**
+  - **Establish Context:** Provide a clear overview and state the project goals to set the stage for understanding.
+  - **Explain Components:** Offer detailed explanations of system components, core concepts, or critical processes.
+  - **Visualize Systems:** Include diagrams (e.g., Mermaid.js) to visually represent systems and their interactions.
+  - **Illustrate Usage:** Provide concrete code snippets or configuration examples to show practical application.
+  - **Define Terms:** Ensure clarity by defining key terms and acronyms used within the documentation.
+- **Example:** This `writing-effective-rules.mdc` document.
 
 #### b. Process / Workflow Rules
 
 Define a sequence of steps for the AI model or the user to follow to achieve a specific outcome.
 
-* **Key Elements:**
-  * **Define Scope:** Clearly state a precise start and end point for the workflow.
-  * **Sequence Actions:** Use numbered steps to outline sequential actions that must be performed.
-  * **Handle Decisions:** Include decision points with clear options (e.g., "If X, then Y, else Z") to guide conditional paths.
-  * **Specify Tools:** Explicitly state which tools (e.g., `use_mcp_tool`, `write_to_file`) are to be used at each step.
-  * **Outline Inputs/Outputs:** Define the expected inputs required and outputs generated for each step.
-  * **Note Prerequisites:** Include notes on any dependencies or prerequisites that must be met before starting or during the process.
-* **Example:** `planning-protocol.mdc`, `execution-protocol.mdc`
+- **Key Elements:**
+  - **Define Scope:** Clearly state a precise start and end point for the workflow.
+  - **Sequence Actions:** Use numbered steps to outline sequential actions that must be performed.
+  - **Handle Decisions:** Include decision points with clear options (e.g., "If X, then Y, else Z") to guide conditional paths.
+  - **Specify Tools:** Explicitly state which tools (e.g., `use_mcp_tool`, `write_to_file`) are to be used at each step.
+  - **Outline Inputs/Outputs:** Define the expected inputs required and outputs generated for each step.
+  - **Note Prerequisites:** Include notes on any dependencies or prerequisites that must be met before starting or during the process.
+- **Example:** `planning-protocol.mdc`, `execution-protocol.mdc`
 
 #### c. Behavioral / Instructional Rules (for Guiding AI)
 
 These rules directly instruct the AI model on how it should behave, process information, or generate responses, especially in specific contexts.
 
-* **Key Elements:**
-  * **Provide Directives:** Use imperative verbs (MUST, SHOULD, DO NOT, NEVER, ALWAYS) for absolute requirements or strong recommendations.
-  * **Highlight Criticality:** Use formatting (bold, ALL CAPS, emojis like 🚨, ⚠️, ✅, ❌) to draw immediate attention to critical instructions or prohibitions.
-  * **Show Examples:** Provide clear positive and negative examples (e.g., code patterns to use vs. avoid) to illustrate correct behavior.
-  * **Define Triggers:** Specify conditions or triggers that activate the rule or particular instructions within it.
-  * **Include Verification:** Integrate "thinking" blocks or checklists for the AI to verify its actions against the rule's constraints.
-  * **Manage Context:** Define how the AI model should manage context, memory, or state if relevant (e.g., `coreContext.md`, `currentState.md`, `designSystem.md`).
-* **Example:** `planning-protocol.mdc`, `execution-protocol.mdc`
+- **Key Elements:**
+  - **Provide Directives:** Use imperative verbs (MUST, SHOULD, DO NOT, NEVER, ALWAYS) for absolute requirements or strong recommendations.
+  - **Highlight Criticality:** Use formatting (bold, ALL CAPS, emojis like 🚨, ⚠️, ✅, ❌) to draw immediate attention to critical instructions or prohibitions.
+  - **Show Examples:** Provide clear positive and negative examples (e.g., code patterns to use vs. avoid) to illustrate correct behavior.
+  - **Define Triggers:** Specify conditions or triggers that activate the rule or particular instructions within it.
+  - **Include Verification:** Integrate "thinking" blocks or checklists for the AI to verify its actions against the rule's constraints.
+  - **Manage Context:** Define how the AI model should manage context, memory, or state if relevant (e.g., `coreContext.md`, `currentState.md`, `designSystem.md`).
+- **Example:** `planning-protocol.mdc`, `execution-protocol.mdc`
 
 #### d. Meta-Rules
 
 Rules that define how other rules are managed or how the AI's own processes are governed. They provide structure and control over the entire rule ecosystem.
 
-* **Key Elements:**
-  * **Define Scope:** Clearly state the purpose of the meta-rule (e.g., managing protocol transitions, defining activation triggers).
-  * **Centralize Logic:** Consolidate distributed logic into a single, authoritative source.
-  * **Reference Other Rules:** Explicitly reference the other rules they govern or interact with by filename.
-* **Example:** `protocol-control-system.mdc` (governs protocol state) or `rule-activation-triggers.mdc` (a central registry for what events activate which rules).
+- **Key Elements:**
+  - **Define Scope:** Clearly state the purpose of the meta-rule (e.g., managing protocol transitions, defining activation triggers).
+  - **Centralize Logic:** Consolidate distributed logic into a single, authoritative source.
+  - **Reference Other Rules:** Explicitly reference the other rules they govern or interact with by filename.
+- **Example:** `protocol-control-system.mdc` (governs protocol state) or `rule-activation-triggers.mdc` (a central registry for what events activate which rules).
 
 #### f. Nested Rules
 
@@ -9276,44 +9276,44 @@ project/
 
 Rules act as the primary filter and guide for the AI model's understanding and actions across all other information sources. They effectively serve as the "system prompt" or "AI brain" for Agent and Inline Edit features, influencing how the AI leverages various types of context.
 
-* **Codebase Indexing & PR History Indexing:** Rules influence *how* the AI model interprets and uses the information derived from your indexed codebase and PR history. They can instruct the AI on *what to look for* in the indexed data, *how to interpret* code patterns, and *what standards to apply* when modifying or generating code within that codebase.
+- **Codebase Indexing & PR History Indexing:** Rules influence *how* the AI model interprets and uses the information derived from your indexed codebase and PR history. They can instruct the AI on *what to look for* in the indexed data, *how to interpret* code patterns, and *what standards to apply* when modifying or generating code within that codebase.
 
-* **Model Context Protocol (MCP):** Rules *dictate when and how* the AI model uses MCP tools and accesses MCP resources. For instance, a rule could mandate the use of a specific MCP tool for certain security checks, for accessing real-time data from an external API, or specify when to use `sequential_thinking` for complex problem-solving.
+- **Model Context Protocol (MCP):** Rules *dictate when and how* the AI model uses MCP tools and accesses MCP resources. For instance, a rule could mandate the use of a specific MCP tool for certain security checks, for accessing real-time data from an external API, or specify when to use `sequential_thinking` for complex problem-solving.
 
-* **APIs (External Services):** While Cursor doesn't directly manage external APIs, rules can define how the AI model should *interact* with APIs when generating code or making recommendations. This includes specifying authentication methods, error handling strategies, or data formatting for API calls.
+- **APIs (External Services):** While Cursor doesn't directly manage external APIs, rules can define how the AI model should *interact* with APIs when generating code or making recommendations. This includes specifying authentication methods, error handling strategies, or data formatting for API calls.
 
-* **Documentation (`@Docs` & Custom Resources):** Rules can guide the AI model to consult specific documentation sources (e.g., via `@Add Doc` in settings or `@Docs` references) for particular tasks, ensuring it prioritizes and uses the correct contextual information over general knowledge. This includes custom developer documentation and externally indexed resources.
+- **Documentation (`@Docs` & Custom Resources):** Rules can guide the AI model to consult specific documentation sources (e.g., via `@Add Doc` in settings or `@Docs` references) for particular tasks, ensuring it prioritizes and uses the correct contextual information over general knowledge. This includes custom developer documentation and externally indexed resources.
 
 ### 5. Language and Formatting for AI Guidance
 
 When writing rules intended to directly steer the AI model's behavior, certain conventions are highly effective:
 
-* **Be Directive:**
-  * Use **MUST** for absolute requirements.
-  * Use **SHOULD** for strong recommendations.
-  * Use **MAY** for optional actions.
-  * Use **MUST NOT** or **NEVER** for absolute prohibitions.
-  * Use **SHOULD NOT** for strong discouragement.
-* **Highlight Critical Information:** Use formatting (bold, ALL CAPS, emojis like 🚨, ⚠️, ✅, ❌) to draw immediate attention to critical instructions or prohibitions.
-* **Provide Concrete Examples:**
-  * Show exact code snippets, commands, or output formats.
-  * For code generation, clearly distinguish between desired and undesired patterns.
-* **Define AI model's "Thought Process":** The `<thinking> ... </thinking>` block is a good way to make the AI model "pause and check" its understanding or state before proceeding.
-* **Specify Tool Usage:** If the AI model needs to use a specific tool (e.g., `attempt_completion`, `replace_in_file`, `use_mcp_tool`), explicitly state it and provide any necessary parameters or context for that tool.
+- **Be Directive:**
+  - Use **MUST** for absolute requirements.
+  - Use **SHOULD** for strong recommendations.
+  - Use **MAY** for optional actions.
+  - Use **MUST NOT** or **NEVER** for absolute prohibitions.
+  - Use **SHOULD NOT** for strong discouragement.
+- **Highlight Critical Information:** Use formatting (bold, ALL CAPS, emojis like 🚨, ⚠️, ✅, ❌) to draw immediate attention to critical instructions or prohibitions.
+- **Provide Concrete Examples:**
+  - Show exact code snippets, commands, or output formats.
+  - For code generation, clearly distinguish between desired and undesired patterns.
+- **Define AI model's "Thought Process":** The `<thinking> ... </thinking>` block is a good way to make the AI model "pause and check" its understanding or state before proceeding.
+- **Specify Tool Usage:** If the AI model needs to use a specific tool (e.g., `attempt_completion`, `replace_in_file`, `use_mcp_tool`), explicitly state it and provide any necessary parameters or context for that tool.
 
 ### 6. Content Best Practices
 
 Good rules are focused, actionable, and scoped.
 
-* **Start Broad, Then Narrow:** Begin with a general overview or objective, then delve into specifics.
-* **Use Analogies or Scenarios:** If explaining a complex concept, an analogy or a use-case scenario can be helpful.
-* **Define Terminology:** If your rule introduces specific terms or acronyms, define them.
-* **Anticipate Questions:** Try to think about what questions a user (or the AI model itself) might have and address them proactively.
-* **Keep it Updated:** As systems or processes change, ensure the relevant `.cursor/rules/` collection is updated to reflect those changes. This `writing-effective-rules.mdc` rule encourages this.
-* **Keep rules under 500 lines:** Split large rules into multiple, composable rules.
-* **Provide concrete examples or referenced files.**
-* **Avoid vague guidance:** Write rules like clear internal docs.
-* **Reuse rules:** When repeating prompts in chat.
+- **Start Broad, Then Narrow:** Begin with a general overview or objective, then delve into specifics.
+- **Use Analogies or Scenarios:** If explaining a complex concept, an analogy or a use-case scenario can be helpful.
+- **Define Terminology:** If your rule introduces specific terms or acronyms, define them.
+- **Anticipate Questions:** Try to think about what questions a user (or the AI model itself) might have and address them proactively.
+- **Keep it Updated:** As systems or processes change, ensure the relevant `.cursor/rules/` collection is updated to reflect those changes. This `writing-effective-rules.mdc` rule encourages this.
+- **Keep rules under 500 lines:** Split large rules into multiple, composable rules.
+- **Provide concrete examples or referenced files.**
+- **Avoid vague guidance:** Write rules like clear internal docs.
+- **Reuse rules:** When repeating prompts in chat.
 
 ### 7. Referencing Other Rules
 
@@ -9323,19 +9323,19 @@ If your rule builds upon or relates to another rule, feel free to reference it b
 
 While not always formally testable, consider how your rule will be interpreted:
 
-* **Human Readability:** Is it clear to another person? If so, it's more likely to be clear to the AI model.
-* **AI model Interpretation (for behavioral rules):** Does it provide enough specific guidance? Are there ambiguities? Try "role-playing" as the AI model and see if you can follow the instructions.
-* **Practical Application:** If it's a workflow, manually step through it. If it's a coding guideline, try applying it to a piece of code.
-* **Self-Review Against These Guidelines:** Does your new rule adhere to the principles and best practices outlined in *this very document* (`writing-effective-rules.mdc`)?
+- **Human Readability:** Is it clear to another person? If so, it's more likely to be clear to the AI model.
+- **AI model Interpretation (for behavioral rules):** Does it provide enough specific guidance? Are there ambiguities? Try "role-playing" as the AI model and see if you can follow the instructions.
+- **Practical Application:** If it's a workflow, manually step through it. If it's a coding guideline, try applying it to a piece of code.
+- **Self-Review Against These Guidelines:** Does your new rule adhere to the principles and best practices outlined in *this very document* (`writing-effective-rules.mdc`)?
 
-* **Human Readability:** Is it clear to another person? If so, it's more likely to be clear to the AI model.
-* **AI model Interpretation (for behavioral rules):** Does it provide enough specific guidance? Are there ambiguities? Try "role-playing" as the AI model and see if you can follow the instructions.
-* **Practical Application:** If it's a workflow, manually step through it. If it's a coding guideline, try applying it to a piece of code.
-* **Self-Review Against These Guidelines:** Does your new rule adhere to the principles and best practices outlined in *this very document* (`writing-effective-rules.mdc`)?
+- **Human Readability:** Is it clear to another person? If so, it's more likely to be clear to the AI model.
+- **AI model Interpretation (for behavioral rules):** Does it provide enough specific guidance? Are there ambiguities? Try "role-playing" as the AI model and see if you can follow the instructions.
+- **Practical Application:** If it's a workflow, manually step through it. If it's a coding guideline, try applying it to a piece of code.
+- **Self-Review Against These Guidelines:** Does your new rule adhere to the principles and best practices outlined in *this very document* (`writing-effective-rules.mdc`)?
 
-* **AI model Interpretation (for behavioral rules):** Does it provide enough specific guidance? Are there ambiguities? Try "role-playing" as the AI model and see if you can follow the instructions.
-* **Practical Application:** If it's a workflow, manually step through it. If it's a coding guideline, try applying it to a piece of code.
-* **Self-Review Against These Guidelines:** Does your new rule adhere to the principles and best practices outlined in *this very document* (`writing-effective-rules.mdc`)?
+- **AI model Interpretation (for behavioral rules):** Does it provide enough specific guidance? Are there ambiguities? Try "role-playing" as the AI model and see if you can follow the instructions.
+- **Practical Application:** If it's a workflow, manually step through it. If it's a coding guideline, try applying it to a piece of code.
+- **Self-Review Against These Guidelines:** Does your new rule adhere to the principles and best practices outlined in *this very document* (`writing-effective-rules.mdc`)?
 
 ---
 

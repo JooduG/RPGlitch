@@ -10,4 +10,3 @@ tags: [mcp, reference]
   - See `memory-bank/forever/mcp-reference.md` for the complete, detailed list.
 
 This rule intentionally stays concise and defers exhaustive listings to the memory bank to avoid duplication and drift.
-

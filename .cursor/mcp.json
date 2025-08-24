@@ -106,13 +106,13 @@
       "autoStart": true
     },
     "basic-memory": {
-      "command": "uvx",
+      "command": "python",
       "args": [
-        "basic-memory",
-        "mcp"
+        "-m",
+        "basic_memory.mcp"
       ],
       "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "C:\\Users\\johng\\Documents\\GitHub\\default"
+        "BASIC_MEMORY_PROJECT_ROOT": "C:\\Users\\johng\\Documents\\GitHub\\default\\memory-bank"
       },
       "autoApprove": [
         "list_projects",

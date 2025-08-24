@@ -32,6 +32,30 @@
       };
     };
 
+  // Deterministic brand color for entities (matches entities.js behavior)
+  function _hashHue(seed) {
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    return Math.abs(hash) % 360;
+  }
+  function entityBrand(entity = {}) {
+    if (entity.palette || entity.brandColor || entity.color)
+      return entity.palette || entity.brandColor || entity.color;
+    const seed = [entity.name || entity.title || "", ...(entity.tags || [])].join(",");
+    return `hsl(${_hashHue(seed)}, 40%, 60%)`;
+  }
+  function applyCardBrand(card, entity) {
+    try {
+      const brand = entityBrand(entity || {});
+      if (brand) {
+        card?.style?.setProperty("--brand", brand);
+        card?.classList?.add("has-brand");
+      }
+    } catch (_) {
+      /* noop */
+    }
+  }
+
   const DATA_KEYS = ["stories", "characters", "worlds"];
 
   // Highlight the active top bar tab and update ARIA attributes
@@ -276,6 +300,12 @@
         description: "Cybernetic warrior forging light into weapons.",
         type: "Character",
         palette: "cyan",
+        sections: {
+          forever: "Bound to the Aether Core, their blade hums with starlight.",
+          past: "Once a street tinkerer who reverse‑engineered a fallen drone.",
+          present: "Hired to protect caravans across the skybridges of Neo Arcadia.",
+          future: "Fated to sever the Source that powers the city itself.",
+        },
       },
       {
         id: "char-2",
@@ -283,6 +313,12 @@
         description: "Traveling musician who weaves spells with song.",
         type: "Character",
         palette: "pink",
+        sections: {
+          forever: "Every note carries a memory; every chorus, a charm.",
+          past: "Exiled from a royal conservatory for forbidden harmonics.",
+          present: "Busks in markets, mending hearts and stirring rebellions.",
+          future: "Composes the Anthem that ends a century‑long war.",
+        },
       },
       {
         id: "char-3",
@@ -290,6 +326,12 @@
         description: "Stealthy thief powered by ticking gears.",
         type: "Character",
         palette: "emerald",
+        sections: {
+          forever: "Precision over passion; gears never lie.",
+          past: "Built in a hidden workshop as a prototype companion.",
+          present: "Steals artifacts to buy freedom for their maker.",
+          future: "Breaks their mainspring to stop a time heist.",
+        },
       },
       {
         id: "char-4",
@@ -297,6 +339,12 @@
         description: "Mysterious figure communing with darkness.",
         type: "Character",
         palette: "cyan",
+        sections: {
+          forever: "The dark is not empty; it listens back.",
+          past: "Swallowed by a rift and returned with a voice not their own.",
+          present: "Brokers secrets between guilds through living silhouettes.",
+          future: "Merges with the Night to blind an invading fleet.",
+        },
       },
     ],
     worlds: [
@@ -306,6 +354,12 @@
         description: "Floating isles bound by ancient magic.",
         type: "World",
         palette: "emerald",
+        sections: {
+          forever: "Isles drift on leylines braided like song.",
+          past: "Sky anchors forged by archmages after the Great Sundering.",
+          present: "Airships trade between isles while storms hide ruins.",
+          future: "The leylines unravel unless the lost keystone is found.",
+        },
       },
       {
         id: "world-2",
@@ -313,6 +367,12 @@
         description: "Futuristic metropolis built on dream tech.",
         type: "World",
         palette: "pink",
+        sections: {
+          forever: "Dreams scaffold towers; intent becomes steel.",
+          past: "Founded by lucid engineers who stabilized shared dreaming.",
+          present: "Neon districts vie for control of the Somnus Grid.",
+          future: "A city‑wide insomnia threatens to collapse reality seams.",
+        },
       },
     ],
   };
@@ -458,21 +518,53 @@
         }
       }
 
+      // Apply brand to the card so the Premade badge and accents can pick it up
+      applyCardBrand(card, item);
+
+      // Overlay chips: Premade + tags (pills over the media)
+      if (media) {
+        const row = document.createElement("div");
+        row.className = "chip-row";
+        const chips = [];
+        if (item.isPremade) chips.push("Premade");
+        if (Array.isArray(item.tags)) chips.push(...item.tags.slice(0, 3));
+        chips.forEach((txt) => {
+          const span = document.createElement("span");
+          span.className = "chip";
+          span.textContent = txt;
+          row.appendChild(span);
+        });
+        media.appendChild(row);
+      }
+
       // Title / badge / desc
       const titleEl = card.querySelector(".title");
       if (titleEl) titleEl.textContent = item.title || item.name || "Empty";
 
+      // Deprecated badge: rely on chip pills overlay instead
       const badge = card.querySelector(".badge");
-      if (badge) badge.hidden = !item.isPremade;
+      if (badge) badge.hidden = true;
 
       const descEl = card.querySelector(".description");
       if (descEl) {
-        if (item.description) {
-          descEl.textContent = item.description;
-        } else {
-          descEl.remove();
-        }
+        // Keep the element to preserve consistent card heights
+        descEl.textContent = item.description ? item.description : "";
       }
+
+      // Card-level navigation listeners (robust in Perchance embed)
+      card.addEventListener("click", (ev) => {
+        if (ev.target.closest("button, a, input, select, textarea")) return;
+        const type = card.dataset.entityType || card.dataset.type;
+        const id = card.dataset.entityId || card.dataset.id;
+        if (type && id) App.router?.navigate?.(`#profile/${type}/${id}`);
+      });
+      card.addEventListener("keydown", (ev) => {
+        if (ev.key !== "Enter" && ev.key !== " ") return;
+        ev.preventDefault();
+        const type = card.dataset.entityType || card.dataset.type;
+        const id = card.dataset.entityId || card.dataset.id;
+        if (type && id) App.router?.navigate?.(`#profile/${type}/${id}`);
+      });
 
       container.appendChild(card);
     });
@@ -527,7 +619,7 @@
       App.renderWorldList?.();
     };
 
-    App._attachCardNavigation = function () {
+  App._attachCardNavigation = function () {
       if (App._cardNavAttached) return;
     
       // Make sure the suppression flag exists (used to prevent a blur that closes native pickers)
@@ -571,18 +663,40 @@
           if (e.target.closest('.storyboard-card')) {
             App._suppressNextBlur = true;
             // Fail-safe: if we never open a picker, clear after a short delay
-            setTimeout(() => { App._suppressNextBlur = false; }, 350);
+            setTimeout(() => { App._suppressNextBlur = false; }, 1200);
           }
         }, true); // capture
     
+        function openSelectSafely(select) {
+          if (!select) return;
+          try {
+            // Avoid showPicker in iframes (Perchance runs cross-origin)
+            const inIframe = (() => {
+              try { return window.top !== window; } catch (_) { return true; }
+            })();
+            if (!inIframe && typeof select.showPicker === 'function') {
+              try {
+                select.showPicker();
+                return;
+              } catch (_) {
+                // SecurityError or unsupported context – fall back
+              }
+            }
+          } catch (_) { /* ignore */ }
+          // Fallback: focus so user can open manually
+          try { select.focus(); } catch (_) { /* noop */ }
+          // best-effort synthetic click while still in user gesture
+          try { select.click(); } catch (_) { /* noop */ }
+        }
+
         // Click handler
         storyboard.addEventListener('click', (e) => {
           // Ignore UI controls
           if (e.target.closest('select, button, a, input, textarea')) return;
-    
+
           const card = e.target.closest('.storyboard-card');
           if (!card) return;
-    
+
           const select = card.querySelector('select');
     
           // Visual selection amongst cards
@@ -596,23 +710,14 @@
           if (!id && select) {
             e.preventDefault();
             e.stopPropagation();
-    
+
             // Keep the blur guard up while we open the picker
             App._suppressNextBlur = true;
-    
+
             requestAnimationFrame(() => {
-              try {
-                if (typeof select.showPicker === 'function') {
-                  select.showPicker();
-                } else {
-                  // Fallback path for browsers without showPicker()
-                  select.focus();
-                  setTimeout(() => select.click(), 0);
-                }
-              } finally {
-                // Give the UI a moment to fully open before allowing blur again
-                setTimeout(() => { App._suppressNextBlur = false; }, 350);
-              }
+              openSelectSafely(select);
+              // Give the UI time to fully open before allowing blur again
+              setTimeout(() => { App._suppressNextBlur = false; }, 1200);
             });
             return;
           }
@@ -637,16 +742,8 @@
             // Open picker safely on keyboard activation too
             App._suppressNextBlur = true;
             requestAnimationFrame(() => {
-              try {
-                if (typeof select.showPicker === 'function') {
-                  select.showPicker();
-                } else {
-                  select.focus();
-                  setTimeout(() => select.click(), 0);
-                }
-              } finally {
-                setTimeout(() => { App._suppressNextBlur = false; }, 350);
-              }
+              openSelectSafely(select);
+              setTimeout(() => { App._suppressNextBlur = false; }, 1200);
             });
             return;
           }
@@ -661,6 +758,24 @@
           const select = c.querySelector('select');
           if (select && !select.hasAttribute('aria-label')) {
             select.setAttribute('aria-label', 'Select entity');
+          }
+
+          // Direct card navigation as a fallback (Perchance robustness)
+          if (!c._navBound) {
+            c.addEventListener('click', (ev) => {
+              if (ev.target.closest('select, button, a, input, textarea')) return;
+              const type = c.dataset.entityType || c.dataset.type;
+              const id = c.dataset.entityId || c.querySelector('select')?.value || '';
+              if (type && id) App.router?.navigate?.(`#profile/${type}/${id}`);
+            });
+            c.addEventListener('keydown', (ev) => {
+              if (ev.key !== 'Enter' && ev.key !== ' ') return;
+              ev.preventDefault();
+              const type = c.dataset.entityType || c.dataset.type;
+              const id = c.dataset.entityId || c.querySelector('select')?.value || '';
+              if (type && id) App.router?.navigate?.(`#profile/${type}/${id}`);
+            });
+            c._navBound = true;
           }
         });
     
@@ -745,40 +860,43 @@
       descEl.dataset.placeholder = descEl.textContent || "";
     }
 
-    // Helper: safely build a picture node whether getPictureHTML returns a Node or a String
-    function buildPictureNode(ent, { preferTemplateForEmpty = true } = {}) {
-      const kind = (ent && ent.kind) || "";
-      const isEmpty = !ent || !ent.imageUrl;
+      // Helper: safely build a picture node whether getPictureHTML returns a Node or a String
+      function buildPictureNode(ent, { preferTemplateForEmpty = true } = {}) {
+        const kind = (ent && ent.kind) || "";
+        const isEmpty = !ent || !ent.imageUrl;
 
-      // If empty and template exists, use template
-      if (preferTemplateForEmpty && isEmpty) {
-        const id = kind
-          ? `tpl-storyboard-picture-${kind}`
-          : "tpl-storyboard-picture-default";
-        const tpl =
-          document.getElementById(id) ||
-          document.getElementById("tpl-storyboard-picture-default");
-        if (tpl && tpl.content && tpl.content.firstElementChild) {
-          return tpl.content.firstElementChild.cloneNode(true);
-        }
-      }
-
-      // Otherwise, fall back to getPictureHTML (works for entity or neutral placeholder)
-      let out = null;
-      try {
-        if (typeof window.getPictureHTML === "function") {
-          const maybe = window.getPictureHTML(ent || { kind }, {
-            context: "storyboard",
-            cover: true,
-          });
-          if (maybe instanceof Node) {
-            out = maybe;
-          } else if (typeof maybe === "string") {
-            const tpl = document.createElement("template");
-            tpl.innerHTML = maybe.trim();
-            out = tpl.content.firstElementChild;
+        // If truly empty (no entity selected) and template exists, use template (neutral)
+        const hasEntity = !!(ent && (ent.id || ent.title || ent.name));
+        if (preferTemplateForEmpty && isEmpty && !hasEntity) {
+          const id = kind
+            ? `tpl-storyboard-picture-${kind}`
+            : "tpl-storyboard-picture-default";
+          const tpl =
+            document.getElementById(id) ||
+            document.getElementById("tpl-storyboard-picture-default");
+          if (tpl && tpl.content && tpl.content.firstElementChild) {
+            return tpl.content.firstElementChild.cloneNode(true);
           }
         }
+
+        // Otherwise, fall back to getPictureHTML (works for entity or neutral placeholder)
+        let out = null;
+        try {
+          if (typeof window.getPictureHTML === "function") {
+            const maybe = window.getPictureHTML(ent || { kind }, {
+            context: "storyboard",
+            cover: true,
+            // If entity exists but no image, keep its brand color; only neutralize when no entity
+            neutralPlaceholder: !hasEntity,
+          });
+            if (maybe instanceof Node) {
+              out = maybe;
+            } else if (typeof maybe === "string") {
+              const tpl = document.createElement("template");
+              tpl.innerHTML = maybe.trim();
+              out = tpl.content.firstElementChild;
+            }
+          }
         // eslint-disable-next-line no-unused-vars
       } catch (_) {
         /* empty */
@@ -805,12 +923,28 @@
     if (entity) {
       // ——— POPULATE SELECTED STATE ———
       if (descEl) descEl.textContent = entity.description || "";
-      if (tag) tag.textContent = entity.isPremade ? "Premade" : "";
+      // Deprecated footer small tag; use chip pills instead
+      if (tag) { tag.textContent = ""; tag.style.display = "none"; }
       if (left) {
         left.textContent = "";
         left.appendChild(buildPictureNode(entity)); // ← always render the picture
         App.applyBrand?.(left, entity);
+        // Add chips overlay
+        const row = document.createElement("div");
+        row.className = "chip-row";
+        const chips = [];
+        if (entity.isPremade) chips.push("Premade");
+        if (Array.isArray(entity.tags)) chips.push(...entity.tags.slice(0, 3));
+        chips.forEach((txt) => {
+          const span = document.createElement("span");
+          span.className = "chip";
+          span.textContent = txt;
+          row.appendChild(span);
+        });
+        left.appendChild(row);
       }
+      // Also brand the card itself so external accents (badges, borders) inherit
+      applyCardBrand(card, entity);
       card.dataset.entityType = card.dataset.type || entity.kind || "";
       card.dataset.entityId = entity.id;
       if (select && select.value !== String(entity.id)) {
@@ -823,7 +957,9 @@
       if (left) {
         left.textContent = "";
         left.appendChild(buildPictureNode({ kind: card.dataset.type })); // neutral placeholder
-        App.applyBrand?.(left, {}); // neutral brand for placeholder
+        // Remove brand on the card for empty state
+        card?.style?.removeProperty("--brand");
+        left?.style?.removeProperty("--brand");
       }
       delete card.dataset.entityType;
       delete card.dataset.entityId;
@@ -971,6 +1107,28 @@
     const select = e.target;
     App.updateStoryboardCard(select);
     App.setDynamicTitle?.();
+    // Once a selection is made, allow normal blurs again
+    if (typeof App._suppressNextBlur !== 'undefined') {
+      App._suppressNextBlur = false;
+    }
+
+    // Force-brand the card and left pane for consistent visuals in embedded contexts
+    try {
+      const card = select.closest('.storyboard-card');
+      const left = card?.querySelector('.storyboard-card-left');
+      const type = card?.dataset?.type || '';
+      const id = select.value || '';
+      if (type && id && typeof App.entities?.list === 'function') {
+        const entity = App.entities.list(type).find((e) => String(e.id) === String(id));
+        if (entity) {
+          App.applyBrand?.(left, entity);
+          (function applyCardBrandShim() {
+            const brand = App.deriveBrand ? App.deriveBrand(entity) : null;
+            if (brand && card && card.style) card.style.setProperty('--brand', brand);
+          })();
+        }
+      }
+    } catch (_) { /* noop */ }
   };
 
   App._attachStoryboardListeners =

@@ -47,7 +47,9 @@
       pic.classList?.add("hero-bleed");
       wrap.appendChild(pic);
     }
-    renderTags(wrap, entity.tags || []);
+    const chips = Array.isArray(entity.tags) ? [...entity.tags] : [];
+    if (entity.isPremade) chips.unshift("Premade");
+    renderTags(wrap, chips);
     return wrap;
   }
 
@@ -68,10 +70,25 @@
     screen.textContent = "";
     // a11y: announce updates
     screen.setAttribute("aria-live", "polite");
-    screen.appendChild(buildHero(entity));
+
+    // --- New: two-column profile layout (left image column, right content) ---
+    const layout = doc.createElement("div");
+    layout.className = "profile-layout";
+
+    const leftCol = doc.createElement("div");
+    leftCol.className = "profile-left";
+    const hero = buildHero(entity);
+    leftCol.appendChild(hero);
+    App.applyBrand?.(leftCol, entity);
+
+    const rightCol = doc.createElement("div");
+    rightCol.className = "profile-right";
 
     const content = doc.createElement("div");
+    content.className = "profile-right-content";
+
     const h1 = doc.createElement("h1");
+    h1.className = "profile-name";
     h1.textContent = entity.name || entity.title || "Empty";
     content.appendChild(h1);
 
@@ -82,19 +99,55 @@
     }
 
     const sections = entity.sections || {};
+    const secWrap = doc.createElement("div");
+    secWrap.className = "profile-sections";
+    const SUB = {
+      forever: "Timeless truth",
+      past: "Backstory",
+      present: "Current state",
+      future: "Foreshadowing",
+    };
     ["forever", "past", "present", "future"].forEach((key) => {
-      if (sections[key]) {
-        const h2 = doc.createElement("h2");
-        h2.textContent = key.charAt(0).toUpperCase() + key.slice(1);
-        content.appendChild(h2);
-        const p = doc.createElement("p");
-        p.textContent = sections[key];
-        content.appendChild(p);
+      const value = sections[key];
+      if (value) {
+        const row = doc.createElement("div");
+        row.className = "section-row";
+        const label = doc.createElement("div");
+        label.className = "section-label";
+        const main = doc.createElement("div");
+        main.className = "section-label-main";
+        main.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+        const sub = doc.createElement("div");
+        sub.className = "section-sublabel";
+        sub.textContent = SUB[key] || "";
+        label.append(main, sub);
+        const body = doc.createElement("div");
+        body.className = "section-content";
+        body.textContent = value;
+        row.append(label, body);
+        secWrap.appendChild(row);
       }
     });
+    content.appendChild(secWrap);
 
-    screen.appendChild(content);
+    rightCol.appendChild(content);
+    layout.append(leftCol, rightCol);
+    screen.appendChild(layout);
     App.showEl(screen);
+
+    // Sizing: match left column to ~35% of top bar container width when possible
+    try {
+      App.setProfileLayoutSizing?.(0.35);
+      if (!App._profileResizeBound) {
+        App._profileResizeBound = true;
+        global.addEventListener(
+          "resize",
+          App.debounce?.(() => App.setProfileLayoutSizing?.(0.35), 150)
+        );
+      }
+    } catch (_) {
+      /* noop */
+    }
 
     // Toolbar buttons
     const backBtn = doc.getElementById("profile-back");

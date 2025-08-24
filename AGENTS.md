@@ -65,7 +65,7 @@ In addition to files directly under `rules/`, treat the following as rules:
 - Markdown with YAML: any `*.md` file that begins with YAML front matter (a leading `---` block) is a rule.
 - README with YAML: a folder’s `README.md` counts as that folder’s rule only if it begins with YAML front matter.
 - Priority: if duplicates exist, prefer the file in `rules/` over other locations.
- - Exclusions: ignore any files in `archive/` directories.
+- Exclusions: ignore any files in `archive/` directories.
 
 ### Task Placement
 
@@ -273,3 +273,59 @@ deny_write:
 - **1.3.0 (2025-07-30)** – Restructured rules and improved readability
 - **1.2.0 (2025-07-30)** – Added structured rule references and system overview
 - **1.1.0 (2025-07-30)** – Initial document creation and basic guidelines
+
+# Repository Guidelines
+
+This monorepo powers the RPGlitch ecosystem for Perchance. Use this guide to navigate the codebase, build locally, and contribute consistently.
+
+## Project Structure & Module Organization
+
+- `apps/` – Application sources (e.g., `apps/rpglitch/{html,js,scss}`; `apps/imageglitch`).
+- `build/` – Build automation and outputs (`build/scripts`, `build/output/`). Don’t edit generated files.
+- `docs/` – Developer docs and guides.  
+- `memory-bank/` – Persistent context, decisions, and TODOs.
+- `tests/` – All tests and test utilities.
+- `tools/` – Dev helpers and scripts.
+- `rules/` – AI rulesets and standards.
+
+## Build, Test, and Development Commands
+
+- `npm install` – Install dependencies (Node 22).
+- `npm run build` – Build RPGlitch single‑file output (`build/output/RPGlitch.html`).
+- `npm run deploy` – Sync, lint, test, build, and copy (strict checks).
+- `npm run deploy:loose` – Same as deploy but continues on non‑critical failures.
+- `npm run lint` / `npm run lint:fix` – Lint all code / auto‑fix where possible.
+- `npm test` – Run tests (Jest config in `build/config/jest.config.js`).
+
+## Coding Style & Naming Conventions
+
+- Files: kebab-case (e.g., `storyboard-card.js`); JS vars/functions: camelCase.
+- Indentation: 2 spaces; keep functions small and focused.
+- HTML: semantic, accessible (labels/roles/ARIA); CSS minimal, Pico.css baseline.
+- JS: ES2023 modules, modern DOM APIs, `async/await`; prefer vanilla DOM (Cash DOM for complex flows).
+- Storage: `localStorage` for small/simple; Dexie/IndexedDB for complex data.
+- Linting: ESLint, Stylelint, HTMLHint, Markdownlint.
+
+## Testing Guidelines
+
+- Framework: Jest. Place tests under `tests/` with `*.test.js` naming.
+- Aim for unit tests around changed modules; add integration tests where flows cross modules.
+- Run locally with `npm test`; ensure new tests are deterministic and isolated.
+
+## Commit & Pull Request Guidelines
+
+- Commits: `<scope>: <summary>` in present tense (e.g., `rpglitch: add storyboard title sync`).
+- PR titles: `[<package>] <summary>`; keep PRs small and focused.
+- PR description: what/why, reproduction/validation steps, screenshots for UI, and linked issues.
+
+## Security & Configuration Tips
+
+- Do not commit secrets; prefer local `.env` for dev‑only values.
+- Avoid external network calls in app code; use `build/local_libs/` for vendored libs.
+- Never modify `build/output/` or `node_modules/` directly.
+
+## Agent‑Specific Instructions
+
+- Load `rules/` and relevant `memory-bank/` context before changes.
+- Record TODOs in `memory-bank/present/`; keep diffs small and focused.
+- For RPGlitch builds, use `build/scripts/build-rpglitch.js` (outputs `build/output/RPGlitch.html`).

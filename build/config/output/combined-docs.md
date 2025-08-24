@@ -44,10 +44,10 @@ This page explains **how to run Codex against the RPGlitch mono-repo** and the r
 
 #### A. Create / edit an Environment
 
-* **Repository:** `default` (your mono-repo)
-* **Name:** `default`
-* **Container image:** **Universal**
-* **Preinstalled packages:** **ON**
+- **Repository:** `default` (your mono-repo)
+- **Name:** `default`
+- **Container image:** **Universal**
+- **Preinstalled packages:** **ON**
 
 #### B. Environment variables (add exactly)
 
@@ -104,22 +104,22 @@ test -d "$BASIC_MEMORY_PROJECT_ROOT" && echo "memory-bank OK" || echo "memory-ba
 
 > If your env supports **Allowed paths**, set:
 >
-> * **Writable:** `apps/**, build/scripts/**, docs/**, tests/**, memory-bank/**`
-> * **Blocked:** `build/output/**, .cursor/**, node_modules/**`
+> - **Writable:** `apps/**, build/scripts/**, docs/**, tests/**, memory-bank/**`
+> - **Blocked:** `build/output/**, .cursor/**, node_modules/**`
 
 ---
 
 ### 2 Global guardrails (non-negotiable)
 
-* **Read first:** `AGENTS.md` + latest entries in `memory-bank/**`. If either is missing, **stop and ask**.
-* **Write only under:** `apps/**`, `build/scripts/**`, `docs/**`, `tests/**`, `memory-bank/**`.
+- **Read first:** `AGENTS.md` + latest entries in `memory-bank/**`. If either is missing, **stop and ask**.
+- **Write only under:** `apps/**`, `build/scripts/**`, `docs/**`, `tests/**`, `memory-bank/**`.
   Never touch `build/output/**` or `.cursor/**`.
-* **Workflow:** every task runs **Strategy → Tactics → Operations** (see below). No code changes before Strategy & Tactics are visible.
-* **Standard check before PR:**
+- **Workflow:** every task runs **Strategy → Tactics → Operations** (see below). No code changes before Strategy & Tactics are visible.
+- **Standard check before PR:**
   `pnpm run lint && pnpm run build && pnpm test`
   If anything fails, fix and re-run.
-* **Code style:** keep ESLint clean (no empty handlers, no unused vars). Extract helpers instead of duplicating logic.
-* **Accessibility:** when editing UI, provide descriptive alt/labels/titles and keep color-contrast sensible.
+- **Code style:** keep ESLint clean (no empty handlers, no unused vars). Extract helpers instead of duplicating logic.
+- **Accessibility:** when editing UI, provide descriptive alt/labels/titles and keep color-contrast sensible.
 
 ---
 
@@ -141,8 +141,8 @@ Paste this into **Settings → General → Custom instructions**:
 
 #### UI prefs
 
-* Diff display: **Split**
-* Branch format: `codex/{feature}-{yyyyMMdd}` (e.g., `codex/chin-poster-2025-08-11`)
+- Diff display: **Split**
+- Branch format: `codex/{feature}-{yyyyMMdd}` (e.g., `codex/chin-poster-2025-08-11`)
 
 ---
 
@@ -173,9 +173,9 @@ OPERATIONS
 
 Make sure your repo has these (or equivalents):
 
-* **lint:** runs ESLint across `apps/**`
-* **build:** builds RPGlitch targets
-* **test:** unit/integration tests
+- **lint:** runs ESLint across `apps/**`
+- **build:** builds RPGlitch targets
+- **test:** unit/integration tests
 
 Codex will call all three before proposing a PR.
 
@@ -210,16 +210,16 @@ Create `.github/pull_request_template.md`:
 
 ### 7 Common pitfalls & fixes
 
-* **pnpm error: `ERR_PNPM_NO_LOCKFILE`**
+- **pnpm error: `ERR_PNPM_NO_LOCKFILE`**
   Use `pnpm install --no-frozen-lockfile` when `pnpm-lock.yaml` is absent (the setup script already does this). If you prefer `npm`, ensure `package-lock.json` exists and the script will run `npm ci`.
 
-* **MCPs not running**
+- **MCPs not running**
   Check `/tmp/mcp-*.log`. If a tool isn’t installed, remove that line or add it to `devDependencies`.
 
-* **Agent tries to change blocked paths**
+- **Agent tries to change blocked paths**
   Reject the diff and remind it of the guardrails; ensure Allowed paths are configured if your environment supports it.
 
-* **Long diffs / scope creep**
+- **Long diffs / scope creep**
   Ask the agent to “minimize the diff” and split work into small PRs.
 
 ---
@@ -236,8 +236,8 @@ Create `.github/pull_request_template.md`:
 
 #### Notes on your terminal log
 
-* The setup ran, but pnpm complained about the frozen lockfile—that’s expected without `pnpm-lock.yaml`. The script here detects that and uses `--no-frozen-lockfile`.
-* Version prints (`node -v`, `pnpm -v`) + “AGENTS.md OK / memory-bank OK” confirm the env is healthy.
+- The setup ran, but pnpm complained about the frozen lockfile—that’s expected without `pnpm-lock.yaml`. The script here detects that and uses `--no-frozen-lockfile`.
+- Version prints (`node -v`, `pnpm -v`) + “AGENTS.md OK / memory-bank OK” confirm the env is healthy.
 
 ---
 

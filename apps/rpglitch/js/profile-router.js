@@ -21,8 +21,8 @@
     const isType = (t) => t === "character" || t === "world";
 
     if (section === "profile" && isType(type) && id) {
-      // Check authorization before accessing profile
-      if (!App.canAccessProfile?.(type, id)) {
+      // Check authorization before accessing profile (allow if no guard provided)
+      if (typeof App.canAccessProfile === 'function' && !App.canAccessProfile(type, id)) {
         showStoryboard();
         return;
       }
@@ -32,8 +32,8 @@
       App.hideEl("world-form-screen");
       App.renderProfile?.(type, id);
     } else if (section === "form" && isType(type)) {
-      // Check authorization before accessing form
-      if (!App.canAccessForm?.(type, id)) {
+      // Check authorization before accessing form (allow if no guard provided)
+      if (typeof App.canAccessForm === 'function' && !App.canAccessForm(type, id)) {
         showStoryboard();
         return;
       }

@@ -12,5 +12,6 @@ tags: [mcp, tooling, config]
 - Validation: JSON parsed successfully after update.
 
 ## Follow-ups
+
 - Set environment variables `SMITHERY_API_KEY` and `SMITHERY_PROFILE` for runtime.
 - Confirm which servers should auto-start vs. remain URL-only.

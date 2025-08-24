@@ -61,7 +61,7 @@
   };
 
   function getPictureHTML(entity = {}, options = {}) {
-    const { cover } = options;
+    const { cover, neutralPlaceholder = false } = options;
     const title = entity.title || entity.name || "Empty";
     const kind = entity.kind || "default";
     const src =
@@ -89,8 +89,12 @@
 
     const ph = doc.createElement("div");
     ph.className = "placeholder-image";
-    ph.style.backgroundColor = "var(--brand)";
-    ph.style.color = "var(--brand-contrast)";
+    // Neutralize placeholder tinting only when explicitly requested (e.g., truly empty slots)
+    const useNeutral = !!neutralPlaceholder;
+    if (!useNeutral) {
+      ph.style.backgroundColor = "var(--brand)";
+      ph.style.color = "var(--brand-contrast)";
+    }
     ph.innerHTML = PLACEHOLDER_ICONS[kind] || PLACEHOLDER_ICONS.default;
     ph.setAttribute("role", "img");
     ph.setAttribute("aria-label", `${kind} placeholder for ${title}`);
