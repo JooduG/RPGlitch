@@ -147,8 +147,6 @@
         } else {
           App._closeChin?.();
         }
-        syncButton(panel);
-        syncBodyFlag();
       });
     });
   }
