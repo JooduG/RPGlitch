@@ -37,9 +37,9 @@
     App.debounce ||
     function (fn, wait = 250) {
       let t;
-      return function(...args) {
+      return (...args) => {
         clearTimeout(t);
-        t = setTimeout(() => fn.apply(this, args), wait);
+        t = setTimeout(() => fn.apply(null, args), wait);
       };
     };
 

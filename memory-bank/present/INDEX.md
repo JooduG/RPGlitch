@@ -8,7 +8,7 @@
 
 ## Live Plans & Blueprints
 
-- `present/rpglitch-core-execution-plan.md`  
+- `present/rpglitch-core-execution-plan.md`
   Consolidated 30-day plan and orchestration blueprint. Merges the former `execution-plan.md` and `RPGlitch-big-plans.md`.
 
 - `present/mcp-config-single-source-and-docs-consolidation.md`  
@@ -17,8 +17,10 @@
 - `present/readme-unified-rule-system-implementation.md`  
   Tactical rollout plan for README-frontmatter rule system. Incorporates the “Apps README shared-content migration”.
 
-- `present/integration-upload-plugin-profile-pictures.md`  
+- `present/integration-upload-plugin-profile-pictures.md`
   Perchance Upload-plugin integration plan for profile pictures (phased).
+- `present/chin-focus-gradient-alignment.md`
+  Chin focus and background/profile alignment fix notes.
 
 ## Context Snapshot
 
