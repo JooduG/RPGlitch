@@ -229,8 +229,42 @@
     App._toggleChinContent(chinId);
   };
 
+  function getButtonForChin(chinEl) {
+    const name = chinEl?.dataset?.chin;
+    if (!name) return null;
+    const esc =
+      typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(name) : name;
+    return document.querySelector(`button[data-chin="${esc}"]`);
+  }
+
+  App.ui.syncChinButtons = function () {
+    document.querySelectorAll('.chin').forEach((chin) => {
+      const btn = getButtonForChin(chin);
+      if (!btn) return;
+      const open = !chin.hasAttribute('hidden');
+      btn.classList.toggle('selected', open);
+      btn.setAttribute('aria-expanded', String(open));
+      btn.setAttribute('aria-selected', String(open));
+    });
+    const anyOpen = !!document.querySelector('.chin:not([hidden])');
+    document.body.classList.toggle('chin-open', anyOpen);
+  };
+
+  App.ui.observeChins = function () {
+    if (App._chinObserver) return;
+    const observer = new MutationObserver(() => {
+      App.ui.syncChinButtons();
+    });
+    document.querySelectorAll('.chin').forEach((chin) => {
+      observer.observe(chin, { attributes: true, attributeFilter: ['hidden'] });
+    });
+    App._chinObserver = observer;
+    App.ui.syncChinButtons();
+  };
+
   App.ui.setupChinListeners = function () {
     App._attachTopBarEventListeners();
+    App.ui.observeChins();
   };
 
   App._attachChinSearchHandlers = function () {
@@ -1320,8 +1354,16 @@
       buttons.forEach((btn, idx) => {
         if (!App._attachedTopBarButtons.has(btn)) {
           btn.addEventListener("click", () => {
-            App.selectTopBarTab(btn);
-            App.ui.showChin(btn.dataset.chin);
+            const chinId = btn.dataset.chin;
+            const panel = document.querySelector(`.chin[data-chin="${chinId}"]`);
+            if (!panel) return;
+            const open = !panel.hasAttribute('hidden');
+            if (open) {
+              App._closeChin();
+            } else {
+              App.selectTopBarTab(btn);
+              App.ui.showChin(chinId);
+            }
           });
           btn.addEventListener("keydown", (e) => {
             if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;

@@ -58,11 +58,11 @@
 
       const doc = global.document;
 
-      // Chin tab buttons: selected/focus handling
+      // Chin tab buttons: ensure base class
       doc.querySelectorAll("button[data-chin]").forEach((btn) => {
         btn.classList.add("chin-button");
-        btn.addEventListener("click", () => App.activateChin(btn));
       });
+
 
       // Prevent search form reload; convert button to clear
       doc.querySelectorAll('form[role="search"]').forEach((form) => {
@@ -91,32 +91,75 @@
     handleRoute,
   };
 
-  App.activateChin = (btn) => {
-    if (!btn) return;
-    const group = btn.closest('[role="tablist"]');
-    group
-      ?.querySelectorAll(".chin-button.selected")
-      .forEach((b) => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    btn.focus();
-  };
+
 })(typeof window !== "undefined" ? window : globalThis);
 
 (function (global) {
-  const root = global.document;
-  root.querySelectorAll('details[id^="chin-"], .chin').forEach((el) => {
-    el.addEventListener(
-      "toggle",
-      () => {
-        if (!el.open) {
-          el.querySelectorAll(".button--focused").forEach((b) =>
-            b.classList.remove("button--focused")
-          );
+  const doc = global.document;
+  const App = global.App || (global.App = {});
+
+  function getButtonForChin(chinEl) {
+    const name = chinEl?.dataset?.chin || (chinEl.id || "").replace(/^chin-/, "");
+    if (!name) return null;
+    return doc.querySelector(`button[data-chin="${CSS.escape(name)}"]`);
+  }
+
+  function syncButton(chinEl) {
+    const btn = getButtonForChin(chinEl);
+    if (!btn) return;
+    const open = chinEl && !chinEl.hasAttribute("hidden");
+    btn.classList.toggle("selected", open);
+    btn.setAttribute("aria-expanded", String(open));
+    btn.setAttribute("aria-selected", String(open));
+  }
+
+  function syncBodyFlag() {
+    const anyOpen = !!doc.querySelector('.chin:not([hidden])');
+    doc.body.classList.toggle('chin-open', anyOpen);
+  }
+
+  function observeChins() {
+    const mo = new MutationObserver((muts) => {
+      for (const m of muts) {
+        if (m.type === 'attributes' && m.attributeName === 'hidden') {
+          syncButton(m.target);
         }
-      },
-      { capture: true }
-    );
-  });
+      }
+      syncBodyFlag();
+    });
+    doc.querySelectorAll('.chin').forEach((chin) => {
+      mo.observe(chin, { attributes: true, attributeFilter: ['hidden'] });
+      syncButton(chin);
+    });
+    syncBodyFlag();
+  }
+
+  function bindTopBarButtons() {
+    doc.querySelectorAll('button[data-chin]').forEach((btn) => {
+      btn.classList.add('chin-button');
+      btn.addEventListener('click', () => {
+        const name = btn.getAttribute('data-chin');
+        const panel = doc.querySelector(`.chin[data-chin="${CSS.escape(name)}"], #chin-${CSS.escape(name)}`);
+        if (!panel) return;
+        const willOpen = panel.hasAttribute('hidden');
+        if (willOpen) {
+          App._toggleChinContent?.(name);
+        } else {
+          App._closeChin?.();
+        }
+      });
+    });
+  }
+
+  if (doc.readyState === 'loading') {
+    doc.addEventListener('DOMContentLoaded', () => {
+      bindTopBarButtons();
+      observeChins();
+    }, { once: true });
+  } else {
+    bindTopBarButtons();
+    observeChins();
+  }
 })(typeof window !== "undefined" ? window : globalThis);
 
 (function (global) {

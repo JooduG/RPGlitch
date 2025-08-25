@@ -21,6 +21,8 @@
   --profile-left-width: min(40vw, 520px);
   --container-margin: 0px; /* computed from top bar at runtime */
   --rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+  --app-container-max: 1200px;
+  --app-container-pad: 1rem;
 
   /* initials stay white by default */
 }
@@ -59,6 +61,9 @@ body {
       #23243a 40%,
       #1a3a4a 70%,
       #2a1a3a 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
   padding-top: 0;
   box-sizing: border-box;
 }
