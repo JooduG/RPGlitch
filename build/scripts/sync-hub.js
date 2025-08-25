@@ -13,33 +13,46 @@ function getActivityDashboard() {
     lastSync: 'Never'
   };
 
-  try {
-    // Check if Jest output exists
-    const testOutput = execSync('npm test 2>&1', { cwd: REPO_ROOT, encoding: 'utf8' });
-    const testMatch = testOutput.match(/(\d+) passed.*?(\d+) total/);
-    if (testMatch) stats.tests = `${testMatch[1]}/${testMatch[2]}`;
-  } catch { /* empty */ }
+  // ⚠️ Important:
+  // We intentionally SKIP running the test suite here by default, because this script
+  // is called inside `npm run sync`, and `deploy(:loose)` runs `npm test` right after sync.
+  // To *optionally* run tests from the hub, set HUB_RUN_TESTS=1.
+  if (process.env.HUB_RUN_TESTS === '1') {
+    try {
+      // Keep it deterministic and fast; also guard against hangs.
+      const cmd = process.platform === 'win32' ? 'npm.cmd test --silent' : 'npm test --silent';
+      const testOutput = execSync(cmd, {
+        cwd: REPO_ROOT,
+        encoding: 'utf8',
+        stdio: 'pipe',
+        timeout: 30000,           // 30s safety cap so hub generation can’t hang forever
+        env: { ...process.env, CI: 'true' }
+      });
+      const testMatch = testOutput.match(/(\d+)\s+passed.*?(\d+)\s+total/);
+      if (testMatch) stats.tests = `${testMatch[1]}/${testMatch[2]}`;
+    } catch {
+      // If tests fail or timeout, show a warning glyph instead of blocking the pipeline.
+      stats.tests = '⚠︎';
+    }
+  }
 
   try {
-    // Check build output exists
     const buildFile = path.join(REPO_ROOT, 'build/output/RPGlitch-perchance.html');
     stats.build = fs.existsSync(buildFile) ? '✅' : '❌';
-  } catch { /* empty */ }
+  } catch { /* noop */ }
 
   try {
-    // Check last sync time
     const hubFile = path.join(OUTPUT_DIR, 'hub.md');
     if (fs.existsSync(hubFile)) {
       const content = fs.readFileSync(hubFile, 'utf8');
-      const timeMatch = content.match(/Generated (\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/); 
+      const timeMatch = content.match(/Generated (\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/);
       if (timeMatch) {
         const syncTime = new Date(timeMatch[1]);
-        const now = new Date();
-        const diffHours = Math.floor((now - syncTime) / (1000 * 60 * 60));
+        const diffHours = Math.floor((Date.now() - syncTime.getTime()) / 36e5);
         stats.lastSync = diffHours < 1 ? 'Just now' : `${diffHours}h ago`;
       }
     }
-  } catch { /* empty */ }
+  } catch { /* noop */ }
 
   return `🧪 Tests: ${stats.tests}  🏗️ Build: ${stats.build}  🔄 Last sync: ${stats.lastSync}`;
 }
@@ -96,7 +109,7 @@ function buildHub(built) {
     '```bash',
     'npm run sync          # Update all (libs + configs + docs)',
     'npm run deploy        # Full deploy pipeline',
-    'npm run test          # Run test suite', 
+    'npm run test          # Run test suite',
     'npm run lint:fix      # Fix linting issues',
     'npm run build:copy    # Build & copy to clipboard',
     'npm run sync:hub      # Update this hub',
@@ -129,7 +142,7 @@ function buildHub(built) {
 function writeHub(built) {
   const hubPath = path.join(OUTPUT_DIR, 'hub.md');
   const content = buildHub(built);
-  
+
   fs.mkdirSync(path.dirname(hubPath), { recursive: true });
   fs.writeFileSync(hubPath, content, 'utf8');
   console.log(`✔ hub created → ${path.relative(REPO_ROOT, hubPath)}`);
@@ -137,15 +150,14 @@ function writeHub(built) {
 
 // CLI support
 if (require.main === module) {
-  // When run directly, generate hub from existing combined files
   const outputFiles = fs.readdirSync(OUTPUT_DIR)
     .filter(f => f.startsWith('combined-') && f.endsWith('.md'))
-    .map(f => ({ 
-      name: f.replace('combined-', '').replace('.md', ''), 
+    .map(f => ({
+      name: f.replace('combined-', '').replace('.md', ''),
       title: f.replace('combined-', '').replace('.md', '').replace(/-/g, ' '),
-      output: f 
+      output: f
     }));
-  
+
   writeHub(outputFiles);
 }
 
