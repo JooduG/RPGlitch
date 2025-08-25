@@ -526,7 +526,7 @@
           media.prepend(maybe);
         } else if (typeof maybe === "string") {
           const t = document.createElement("template");
-          t.innerHTML = maybe.trim();
+          t.innerHTML = global.DOMPurify ? global.DOMPurify.sanitize(maybe.trim()) : maybe.trim();
           const node = t.content.firstElementChild;
           if (node) media.prepend(node);
         }
@@ -689,7 +689,8 @@
           try {
             // Avoid showPicker in iframes (Perchance runs cross-origin)
             const inIframe = (() => {
-            try { return window.top !== window; } catch { return true; }
+              try { return window.top !== window; } catch { return true; }
+
             })();
             if (!inIframe && typeof select.showPicker === 'function') {
               try {
@@ -910,7 +911,7 @@
               out = maybe;
             } else if (typeof maybe === "string") {
               const tpl = document.createElement("template");
-              tpl.innerHTML = maybe.trim();
+              tpl.innerHTML = global.DOMPurify ? global.DOMPurify.sanitize(maybe.trim()) : maybe.trim();
               out = tpl.content.firstElementChild;
             }
           }
