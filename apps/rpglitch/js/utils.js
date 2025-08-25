@@ -37,9 +37,10 @@
     App.debounce ||
     function (fn, wait = 250) {
       let t;
-      return (...args) => {
+      return function (...args) {
+        const context = this;
         clearTimeout(t);
-        t = setTimeout(() => fn.apply(null, args), wait);
+        t = setTimeout(() => fn.apply(context, args), wait);
       };
     };
 
@@ -59,20 +60,33 @@
   // Deterministic brand color (mirrors entities.js logic)
   function getDeterministicColor(seed) {
     let hash = 0;
-    for (let i = 0; i < seed.length; i++) hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    for (let i = 0; i < seed.length; i++)
+      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
     const hue = Math.abs(hash) % 360;
     return `hsl(${hue}, 40%, 60%)`;
   }
-  App.deriveBrand = App.deriveBrand || function (entity = {}) {
-    if (entity && typeof entity === "object") {
-      if (entity.palette && typeof entity.palette === "object" && entity.palette.brand)
-        return entity.palette.brand;
-      if (entity.brandColor) return entity.brandColor;
-      if (entity.color) return entity.color;
-    }
-    const seed = [entity?.name || entity?.title || "", ...(entity?.tags || [])].join(",") || entity?.id || entity?.kind || "";
-    return getDeterministicColor(String(seed));
-  };
+  App.deriveBrand =
+    App.deriveBrand ||
+    function (entity = {}) {
+      if (entity && typeof entity === "object") {
+        if (
+          entity.palette &&
+          typeof entity.palette === "object" &&
+          entity.palette.brand
+        )
+          return entity.palette.brand;
+        if (entity.brandColor) return entity.brandColor;
+        if (entity.color) return entity.color;
+      }
+      const seed =
+        [entity?.name || entity?.title || "", ...(entity?.tags || [])].join(
+          ","
+        ) ||
+        entity?.id ||
+        entity?.kind ||
+        "";
+      return getDeterministicColor(String(seed));
+    };
 
   App.applyBrand = function (container, entity) {
     if (!container) return;

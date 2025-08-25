@@ -95,7 +95,9 @@
       ph.style.backgroundColor = "var(--brand)";
       ph.style.color = "var(--brand-contrast)";
     }
-    ph.innerHTML = sanitizeStr(PLACEHOLDER_ICONS[kind] || PLACEHOLDER_ICONS.default);
+    ph.innerHTML = sanitizeStr(
+      PLACEHOLDER_ICONS[kind] || PLACEHOLDER_ICONS.default
+    );
     ph.setAttribute("role", "img");
     ph.setAttribute("aria-label", `${kind} placeholder for ${title}`);
     wrap.appendChild(ph);

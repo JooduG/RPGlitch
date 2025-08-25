@@ -16,7 +16,7 @@ globs:
 ### Referenced Rules from `rules/`
 
 - **[html-development.md](../../../rules/html-development.md)** - Semantic HTML, accessibility, and Perchance-specific markup
-- **[html-hyperscript-usage.md](../../../rules/html-hyperscript-usage.md)** - Hyperscript for easy, readable interactivity using _ attribute
+- **[html-hyperscript-usage.md](../../../rules/html-hyperscript-usage.md)** - Hyperscript for easy, readable interactivity using \_ attribute
 
 ## Current Tasks (RPGlitch HTML-Specific)
 
@@ -28,7 +28,7 @@ globs:
 
 ### Medium Priority
 
-- [ ] **Hyperscript Integration**: Add interactive elements using Hyperscript _ attribute
+- [ ] **Hyperscript Integration**: Add interactive elements using Hyperscript \_ attribute
 - [ ] **ARIA Labels Audit**: Review and enhance ARIA labels for screen readers
 - [ ] **Tab Order Optimization**: Ensure logical tab order throughout the application
 

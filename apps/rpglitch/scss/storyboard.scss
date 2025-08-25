@@ -1,4 +1,4 @@
- .selected {
+.selected {
   border-color: currentcolor;
   filter: none;
 }
@@ -56,7 +56,12 @@
     aspect-ratio: 1 / 1;
     border-radius: 0;
     overflow: hidden;
-    background: var(--pico-muted-border-color, #e7eaf0); /* stylelint-disable-next-line alpha-value-notation */
+    background: var(
+      --pico-muted-border-color,
+      #e7eaf0
+    );
+    
+    /* stylelint-disable-next-line alpha-value-notation */
     box-shadow: var(--pico-box-shadow, 0 0 0 1px rgb(0 0 0 / 5%));
   }
 
@@ -120,12 +125,8 @@ select,
   max-width: 100%;
   flex: 0 0 auto;
   outline: 2px solid transparent;
-  transition:
-    transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    box-shadow 0.4s ease,
-    opacity 0.4s ease,
-    outline 0.15s ease,
-    color 0.2s ease;
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow 0.4s ease, opacity 0.4s ease, outline 0.15s ease, color 0.2s ease;
   border-radius: var(--pico-border-radius);
   cursor: pointer;
   min-height: 260px;
@@ -245,9 +246,7 @@ select,
 .storyboard-card[disabled]:hover {
   color: var(--pico-primary);
   text-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.6);
-  transition:
-    color 0.3s ease,
-    text-shadow 0.3s ease;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
   font-weight: bold;
   font-size: 0.9em;
   box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.3);
@@ -323,12 +322,14 @@ select,
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(circle at top left, var(--pico-primary) 0%, transparent 70%);
+  background: radial-gradient(
+    circle at top left,
+    var(--pico-primary) 0%,
+    transparent 70%
+  );
   opacity: 1;
   transform: scale(0.8);
-  transition:
-    opacity 0.4s ease,
-    transform 0.4s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease;
   pointer-events: none;
 }
 
@@ -340,9 +341,7 @@ select,
   border: 2px solid var(--pico-primary);
   opacity: 0;
   transform: scale(0.96);
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
   pointer-events: none;
 }
 

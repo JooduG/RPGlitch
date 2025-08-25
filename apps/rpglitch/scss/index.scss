@@ -56,11 +56,7 @@ body {
   min-height: 100vh;
   height: 100%;
   overflow: visible;
-  background: linear-gradient(120deg,
-      #181c2f 0%,
-      #23243a 40%,
-      #1a3a4a 70%,
-      #2a1a3a 100%);
+  background: linear-gradient(120deg, #181c2f 0%, #23243a 40%, #1a3a4a 70%, #2a1a3a 100%);
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: cover;
@@ -119,7 +115,8 @@ button {
   display: flex;
   align-items: center;
   flex: nowrap;
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+  transition:
+    transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
     box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
 }
@@ -157,7 +154,7 @@ button {
   -webkit-line-clamp: 2;
   line-clamp: 2; // <-- add this for compatibility warning
   overflow: hidden;
-};
+}
 
 .picture {
   width: 100%;
@@ -192,7 +189,7 @@ button {
   height: 100%;
   aspect-ratio: auto;
   border-radius: 0;
-  background: transparent !important;
+  background: transparent;
 }
 
 .profile-left .picture img {
@@ -236,22 +233,17 @@ button {
   transform: none;
 }
 
-:is(button,
-  [type="submit"],
-  [type="button"],
-  [role="button"]).secondary:focus,
+:is(button, [type="submit"], [type="button"], [role="button"]).secondary:focus,
 .button--focused,
-:is(button,
-  [type="submit"],
-  [type="button"],
-  [role="button"]).secondary:is([aria-current]:not([aria-current="false"])):focus,
+:is(button, [type="submit"], [type="button"], [role="button"]).secondary:is(
+    [aria-current]:not([aria-current="false"])
+  ):focus,
 [type="file"]::file-selector-button:focus,
 [type="file"]::file-selector-button:is([aria-current]:not([aria-current="false"])):focus,
 [type="reset"]:focus,
 [type="reset"]:is([aria-current]:not([aria-current="false"])):focus {
-  --pico-box-shadow: var(--pico-button-hover-box-shadow,
-      0 0 0 rgb(0% 0% 0% / 0%)),
-    0 0 0 var(--pico-outline-width) var(--brand-text-on);
+  --pico-box-shadow:
+    var(--pico-button-hover-box-shadow, 0 0 0 rgb(0% 0% 0% / 0%)), 0 0 0 var(--pico-outline-width) var(--brand-text-on);
 }
 
 .profile header {
@@ -392,7 +384,8 @@ input[type="submit"]:not([disabled]):hover {
   cursor: pointer;
   transform: none;
   transition: box-shadow 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.6),
+  box-shadow:
+    0 0 20px rgb(var(--pico-primary-rgb), 0.6),
     0 0 30px rgb(255 255 255 / 15%);
   text-shadow: 0 2px 8px rgb(0 0 0 / 30%);
 }
@@ -430,7 +423,9 @@ input[type="submit"]:not([disabled]):hover {
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  transition: transform 0.25s ease, opacity 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
 }
 
 .chin-actions {
@@ -456,8 +451,8 @@ input[type="submit"]:not([disabled]):hover {
   flex-wrap: nowrap;
 }
 
-[role="group"]> :not(:last-child),
-[role="search"]> :not(:last-child) {
+[role="group"] > :not(:last-child),
+[role="search"] > :not(:last-child) {
   padding: 0;
   height: auto;
 }
@@ -513,8 +508,11 @@ input[type="submit"]:not([disabled]):hover {
   transform: translateY(0) scale(1);
   object-fit: cover;
   position: relative;
-  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    box-shadow 0.4s ease, opacity 0.4s ease, outline 0.15s ease;
+  transition:
+    transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow 0.4s ease,
+    opacity 0.4s ease,
+    outline 0.15s ease;
   cursor: pointer;
   border-radius: var(--pico-radius);
   outline: none;
@@ -548,7 +546,7 @@ input[type="submit"]:not([disabled]):hover {
 }
 
 .chin-card .badge {
-  display: none !important; /* use .chip pills overlay instead */
+  display: none; /* use .chip pills overlay instead */
 }
 
 .description {
@@ -556,7 +554,10 @@ input[type="submit"]:not([disabled]):hover {
   opacity: 1;
   text-wrap: balance;
 }
-.description.muted { color: var(--pico-muted-color); }
+
+.description.muted {
+  color: var(--pico-muted-color);
+}
 
 /* stylelint-disable no-descending-specificity */
 :is(.chin-card) :is(button, select, input, textarea) {
@@ -569,12 +570,12 @@ input[type="submit"]:not([disabled]):hover {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top left,
-      var(--pico-primary) 0%,
-      transparent 70%);
+  background: radial-gradient(circle at top left, var(--pico-primary) 0%, transparent 70%);
   opacity: 0;
   transform: scale(0.8);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
   pointer-events: none;
 }
 
@@ -585,7 +586,9 @@ input[type="submit"]:not([disabled]):hover {
   border: 2px solid var(--pico-primary);
   opacity: 0;
   transform: scale(0.96);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
   pointer-events: none;
 }
 
@@ -1053,18 +1056,18 @@ body.chin-open .chin-focus-ring {
     gap: 0.25rem;
   }
 
-  .profile-left { 
-    position: relative; 
-    top: auto; 
-    height: 40vh; 
-    width: 100vw; 
-    pointer-events: none; 
+  .profile-left {
+    position: relative;
+    top: auto;
+    height: 40vh;
+    width: 100vw;
+    pointer-events: none;
   }
-  
-  .profile-right { 
-    padding-left: 1rem; 
-    width: 100vw; 
-    padding-right: 1rem; 
+
+  .profile-right {
+    padding-left: 1rem;
+    width: 100vw;
+    padding-right: 1rem;
   }
 
   .profile-name {
@@ -1201,7 +1204,9 @@ body.chin-open .chin-focus-ring {
   }
 
   50% {
-    box-shadow: 0 4px 15px rgb(0 0 0 / 20%), 0 0 10px rgb(255 255 255 / 5%);
+    box-shadow:
+      0 4px 15px rgb(0 0 0 / 20%),
+      0 0 10px rgb(255 255 255 / 5%);
   }
 }
 
@@ -1255,13 +1260,15 @@ body.chin-open .chin-focus-ring {
 @media (width <= 640px) {
   .profile-sections .section-row {
     grid-template-columns: 1fr;
-}
+  }
 
-.profile-sections .section-label {
+  .profile-sections .section-label {
     justify-self: start;
     text-align: left;
     opacity: 0.85;
   }
 }
 
-.muted { color: var(--pico-muted-color) !important; }
+.muted {
+  color: var(--pico-muted-color);
+}

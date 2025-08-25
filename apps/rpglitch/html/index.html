@@ -1,375 +1,573 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>RPGlitch - AI Storytelling Platform</title>
+    <style>
+      :root {
+        --app-container-max: 1200px;
+        --app-container-pad: 1rem;
+      }
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RPGlitch - AI Storytelling Platform</title>
-  <style>
-    :root {
-      --app-container-max: 1200px;
-      --app-container-pad: 1rem;
-    }
+      html,
+      body {
+        background: linear-gradient(
+          120deg,
+          #181c2f 0%,
+          #23243a 40%,
+          #1a3a4a 70%,
+          #2a1a3a 100%
+        );
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
 
-    html,
-    body {
-      background: linear-gradient(
-        120deg,
-        #181c2f 0%,
-        #23243a 40%,
-        #1a3a4a 70%,
-        #2a1a3a 100%
-      );
-      background-attachment: fixed;
-      background-repeat: no-repeat;
-      background-size: cover;
-    }
+      header.container,
+      #profile-screen {
+        box-sizing: border-box;
+        max-width: var(--app-container-max);
+        margin-inline: auto;
+        padding-inline: var(--app-container-pad);
+      }
+    </style>
+  </head>
 
-    header.container,
-    #profile-screen {
-      box-sizing: border-box;
-      max-width: var(--app-container-max);
-      margin-inline: auto;
-      padding-inline: var(--app-container-pad);
-    }
-  </style>
-</head>
+  <body>
+    <!-- Hidden for accessibility/SEO -->
+    <a href="#main" hidden="hidden">Skip to main content</a>
 
-<body>
+    <!-- Initial Loading -->
+    <dialog id="loading-modal">
+      <article>
+        <header>
+          <button aria-label="Close" rel="prev"></button>
+        </header>
+        <span aria-busy="true">
+          <h2>Loading...</h2>
+        </span>
+      </article>
+    </dialog>
 
-  <!-- Hidden for accessibility/SEO -->
-  <a href="#main" hidden="hidden">Skip to main content</a>
+    <!-- Error Emergency -->
+    <dialog id="emergency-modal">
+      <article>
+        <header>
+          <button aria-label="Close" rel="prev"></button>
+        </header>
+        <h2>Error during load?</h2>
+        <footer>
+          <button id="emergency-export" class="danger" data-action="export-all">
+            Save All Data &#128190;
+          </button>
+          <button id="emergency-delete" class="danger" data-action="delete-all">
+            Delete All Data &#128680;
+          </button>
+        </footer>
+      </article>
+    </dialog>
 
-  <!-- Initial Loading -->
-  <dialog id="loading-modal">
-    <article>
-      <header>
-        <button aria-label="Close" rel="prev"></button>
-      </header>
-      <span aria-busy="true">
-        <h2>Loading...</h2>
-      </span>
-    </article>
-  </dialog>
+    <header class="container">
+      <!-- Top Bar -->
+      <nav id="top-bar" class="top-bar">
+        <!-- Top Bar Left -->
+        <ul role="presentation" id="top-bar-left">
+          <div role="tablist" class="top-bar-left">
+            <li role="presentation">
+              <button
+                class="secondary"
+                role="tab"
+                tabindex="0"
+                id="tab-stories"
+                aria-selected="false"
+                aria-expanded="false"
+                aria-controls="chin-stories"
+                data-chin="stories">
+                Stories
+              </button>
+            </li>
+            <li role="presentation">
+              <button
+                class="secondary"
+                role="tab"
+                tabindex="-1"
+                id="tab-characters"
+                aria-selected="false"
+                aria-expanded="false"
+                aria-controls="chin-characters"
+                data-chin="characters">
+                Characters
+              </button>
+            </li>
+            <li role="presentation">
+              <button
+                class="secondary"
+                role="tab"
+                tabindex="-1"
+                id="tab-worlds"
+                aria-selected="false"
+                aria-expanded="false"
+                aria-controls="chin-worlds"
+                data-chin="worlds">
+                Worlds
+              </button>
+            </li>
+            <li role="presentation">
+              <button
+                class="secondary"
+                role="tab"
+                tabindex="-1"
+                id="tab-options"
+                aria-selected="false"
+                aria-expanded="false"
+                aria-controls="chin-options"
+                data-chin="options">
+                Options
+              </button>
+            </li>
+          </div>
+        </ul>
 
-  <!-- Error Emergency -->
-  <dialog id="emergency-modal">
-    <article>
-      <header>
-        <button aria-label="Close" rel="prev"></button>
-      </header>
-      <h2>Error during load?</h2>
-      <footer>
-        <button id="emergency-export" class="danger" data-action="export-all">
-          Save All Data &#128190;
-        </button>
-        <button id="emergency-delete" class="danger" data-action="delete-all">
-          Delete All Data &#128680;
-        </button>
-      </footer>
-    </article>
-  </dialog>
+        <!-- Top Bar Right: Storyboard -->
+        <ul id="top-bar-right-storyboard">
+          <div class="top-bar-right">
+            <li><button class="secondary" id="shuffle-btn">Shuffle</button></li>
+            <li>
+              <button class="primary" id="begin-story">Begin Story</button>
+            </li>
+          </div>
+        </ul>
 
-  <header class="container">
+        <!-- Top Bar Right: Form -->
+        <ul id="top-bar-right-form" hidden="hidden">
+          <div class="top-bar-right">
+            <li><button class="secondary" id="form-cancel">Cancel</button></li>
+            <li><button class="danger" id="form-delete">Delete</button></li>
+            <li><button class="primary" id="form-save">Save</button></li>
+          </div>
+        </ul>
 
-    <!-- Top Bar -->
-    <nav id="top-bar" class="top-bar">
+        <!-- Top Bar Right: Profile -->
+        <ul id="top-bar-right-profile" hidden="hidden">
+          <div class="top-bar-right">
+            <li><button class="secondary" id="profile-edit">Edit</button></li>
+            <li>
+              <button class="secondary" id="profile-copy">
+                Copy & Customise
+              </button>
+            </li>
+            <li><button class="primary" id="profile-back">Back</button></li>
+          </div>
+        </ul>
+      </nav>
+    </header>
 
-      <!-- Top Bar Left -->
-      <ul role="presentation" id="top-bar-left">
-        <div role="tablist" class="top-bar-left">
-          <li role="presentation"><button class="secondary" role="tab" tabindex="0" id="tab-stories" aria-selected="false" aria-expanded="false" aria-controls="chin-stories" data-chin="stories">Stories</button></li>
-          <li role="presentation"><button class="secondary" role="tab" tabindex="-1" id="tab-characters" aria-selected="false" aria-expanded="false" aria-controls="chin-characters" data-chin="characters">Characters</button></li>
-          <li role="presentation"><button class="secondary" role="tab" tabindex="-1" id="tab-worlds" aria-selected="false" aria-expanded="false" aria-controls="chin-worlds" data-chin="worlds">Worlds</button></li>
-          <li role="presentation"><button class="secondary" role="tab" tabindex="-1" id="tab-options" aria-selected="false" aria-expanded="false" aria-controls="chin-options" data-chin="options">Options</button></li>
+    <!-- Chin Container -->
+    <div id="chin-container" class="container" hidden="hidden">
+      <!-- Stories Chin -->
+      <div
+        role="tabpanel"
+        tabindex="0"
+        id="chin-stories"
+        aria-labelledby="tab-stories"
+        data-chin="stories"
+        class="chin"
+        hidden="hidden">
+        <div class="chin-actions">
+          <div class="chin-actions-left">
+            <form role="search">
+              <fieldset role="group">
+                <input
+                  type="search"
+                  class="chin-search"
+                  id="search-stories-input"
+                  name="search"
+                  placeholder="Search Stories"
+                  aria-label="Search Stories" /><button
+                  type="button"
+                  class="secondary">
+                  Search
+                </button>
+              </fieldset>
+            </form>
+          </div>
+
+          <div class="chin-actions-right">
+            <button type="button" class="secondary" data-trigger="upload-story">
+              Upload Story
+            </button>
+            <input
+              type="file"
+              id="upload-story"
+              aria-label="Upload Story"
+              class="file-input"
+              hidden="hidden" />
+            <button id="new-story" class="secondary">New Story</button>
+          </div>
         </div>
-      </ul>
-
-      <!-- Top Bar Right: Storyboard -->
-      <ul id="top-bar-right-storyboard">
-        <div class="top-bar-right"><li><button class="secondary" id="shuffle-btn">Shuffle</button></li><li><button class="primary" id="begin-story">Begin Story</button></li></div></ul>
-
-      <!-- Top Bar Right: Form -->
-      <ul id="top-bar-right-form" hidden="hidden">
-        <div class="top-bar-right">
-          <li><button class="secondary" id="form-cancel">Cancel</button></li>
-          <li><button class="danger" id="form-delete">Delete</button></li>
-          <li><button class="primary" id="form-save">Save</button></li>
-        </div>
-      </ul>
-
-      <!-- Top Bar Right: Profile -->
-      <ul id="top-bar-right-profile" hidden="hidden">
-        <div class="top-bar-right">
-          <li><button class="secondary" id="profile-edit">Edit</button></li>
-          <li><button class="secondary" id="profile-copy">Copy & Customise</button></li>
-          <li><button class="primary" id="profile-back">Back</button></li>
-        </div>
-      </ul>
-
-    </nav>
-  </header>
-
-  <!-- Chin Container -->
-  <div id="chin-container" class="container" hidden="hidden">
-
-    <!-- Stories Chin -->
-    <div role="tabpanel" tabindex="0" id="chin-stories" aria-labelledby="tab-stories" data-chin="stories" class="chin" hidden="hidden">
-      <div class="chin-actions">
-        <div class="chin-actions-left">
-          <form role="search">
-            <fieldset role="group">
-              <input type="search" class="chin-search" id="search-stories-input" name="search" placeholder="Search Stories" aria-label="Search Stories" /><button type="button" class="secondary">Search</button>
-            </fieldset>
-          </form>
-        </div>
-
-        <div class="chin-actions-right">
-          <button type="button" class="secondary" data-trigger="upload-story">Upload Story</button>
-          <input type="file" id="upload-story" aria-label="Upload Story" class="file-input" hidden="hidden" />
-          <button id="new-story" class="secondary">New Story</button></div>
+        <div id="chin-story-grid" class="chin-grid"><!-- Story Cards --></div>
       </div>
-      <div id="chin-story-grid" class="chin-grid"><!-- Story Cards --></div>
-    </div>
 
-    <!-- Chin: Character -->
-    <div role="tabpanel" tabindex="0" id="chin-characters" aria-labelledby="tab-characters" data-chin="characters" class="chin" hidden="hidden">
-      <div class="chin-actions">
-        <div class="chin-actions-left">
-          <form role="search">
-            <fieldset role="group">
-              <input type="search" class="chin-search" id="search-characters-input" name="search" placeholder="Search Characters" aria-label="Search Characters" />
-              <button type="button" class="secondary">Search</button>
-            </fieldset>
-          </form>
+      <!-- Chin: Character -->
+      <div
+        role="tabpanel"
+        tabindex="0"
+        id="chin-characters"
+        aria-labelledby="tab-characters"
+        data-chin="characters"
+        class="chin"
+        hidden="hidden">
+        <div class="chin-actions">
+          <div class="chin-actions-left">
+            <form role="search">
+              <fieldset role="group">
+                <input
+                  type="search"
+                  class="chin-search"
+                  id="search-characters-input"
+                  name="search"
+                  placeholder="Search Characters"
+                  aria-label="Search Characters" />
+                <button type="button" class="secondary">Search</button>
+              </fieldset>
+            </form>
+          </div>
+
+          <div class="chin-actions-right">
+            <button
+              type="button"
+              class="secondary"
+              data-trigger="upload-character">
+              Upload Character
+            </button>
+            <input
+              type="file"
+              id="upload-character"
+              aria-label="Upload Character"
+              hidden="hidden" />
+            <button id="new-character" class="secondary">New Character</button>
+          </div>
         </div>
-
-        <div class="chin-actions-right">
-          <button type="button" class="secondary" data-trigger="upload-character">Upload Character</button>
-          <input type="file" id="upload-character" aria-label="Upload Character" hidden="hidden" />
-          <button id="new-character" class="secondary">New Character</button>
+        <div id="chin-character-grid" class="chin-grid">
+          <!-- Character Cards -->
         </div>
       </div>
-      <div id="chin-character-grid" class="chin-grid"><!-- Character Cards --></div>
-    </div>
 
-    <!-- Chin: World -->
-    <div role="tabpanel" tabindex="0" id="chin-worlds" aria-labelledby="tab-worlds" data-chin="worlds" class="chin"
-      hidden="hidden">
-      <div class="chin-actions">
-        <div class="chin-actions-left">
-          <form role="search">
-            <fieldset role="group">
-              <input type="search" class="chin-search" id="search-worlds-input" name="search" placeholder="Search Worlds" aria-label="Search Worlds" />
-              <button type="button" class="secondary">Search</button>
-            </fieldset>
-          </form>
+      <!-- Chin: World -->
+      <div
+        role="tabpanel"
+        tabindex="0"
+        id="chin-worlds"
+        aria-labelledby="tab-worlds"
+        data-chin="worlds"
+        class="chin"
+        hidden="hidden">
+        <div class="chin-actions">
+          <div class="chin-actions-left">
+            <form role="search">
+              <fieldset role="group">
+                <input
+                  type="search"
+                  class="chin-search"
+                  id="search-worlds-input"
+                  name="search"
+                  placeholder="Search Worlds"
+                  aria-label="Search Worlds" />
+                <button type="button" class="secondary">Search</button>
+              </fieldset>
+            </form>
+          </div>
+          <div class="chin-actions-right">
+            <button type="button" class="secondary" data-trigger="upload-world">
+              Upload World
+            </button>
+            <input
+              type="file"
+              id="upload-world"
+              aria-label="Upload World"
+              hidden="hidden" />
+            <button id="new-world" class="secondary">New World</button>
+          </div>
         </div>
-        <div class="chin-actions-right">
-          <button type="button" class="secondary" data-trigger="upload-world">Upload World</button>
-          <input type="file" id="upload-world" aria-label="Upload World" hidden="hidden" />
-          <button id="new-world" class="secondary">New World</button>
-        </div>
-      </div>
-      <div id="chin-world-grid" class="chin-grid">
-
-        <!-- Chin Card Template -->
-        <template id="chin-card-template">
-          <div class="chin-card" role="button" tabindex="0" aria-label="">
-            <div class="media">
-              <!-- picture gets injected here -->
-              <div class="badge" hidden>Premade</div>
-            </div>
-            <article>
-              <header>
-                <h4 class="title"></h4>
-              </header>
-              <div class="body">
-                <p class="description"></p>
+        <div id="chin-world-grid" class="chin-grid">
+          <!-- Chin Card Template -->
+          <template id="chin-card-template">
+            <div class="chin-card" role="button" tabindex="0" aria-label="">
+              <div class="media">
+                <!-- picture gets injected here -->
+                <div class="badge" hidden>Premade</div>
               </div>
-              <footer></footer>
+              <article>
+                <header>
+                  <h4 class="title"></h4>
+                </header>
+                <div class="body">
+                  <p class="description"></p>
+                </div>
+                <footer></footer>
+              </article>
+            </div>
+          </template>
+
+          <!-- Optional: Storyboard Empty Picture Templates -->
+          <template id="tpl-storyboard-picture-character">
+            <div class="picture picture--cover">
+              <div class="placeholder-image" role="img" aria-label="character">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="48"
+                  height="48"
+                  aria-hidden="true">
+                  <path
+                    d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.33 0-8 1.67-8 5v3h16v-3c0-3.33-4.67-5-8-5z" />
+                </svg>
+              </div>
+            </div>
+          </template>
+
+          <template id="tpl-storyboard-picture-world">
+            <div class="picture picture--cover">
+              <div class="placeholder-image" role="img" aria-label="world">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="48"
+                  height="48"
+                  aria-hidden="true">
+                  <path d="M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                </svg>
+              </div>
+            </div>
+          </template>
+
+          <template id="tpl-storyboard-picture-default">
+            <div class="picture picture--cover">
+              <div
+                class="placeholder-image"
+                role="img"
+                aria-label="placeholder"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Chin: Options -->
+      <div
+        role="tabpanel"
+        tabindex="0"
+        id="chin-options"
+        aria-labelledby="tab-options"
+        data-chin="options"
+        class="chin"
+        hidden="hidden">
+        <div class="chin-actions">
+          <div class="chin-actions-left"><!-- Something in the future? --></div>
+          <div class="chin-actions-right">
+            <button
+              type="button"
+              class="secondary"
+              data-trigger="upload-backup">
+              Upload All
+            </button>
+            <input
+              type="file"
+              id="upload-backup"
+              aria-label="Upload Backup"
+              hidden="hidden" />
+            <button id="download-backup" class="secondary">
+              Download Backup
+            </button>
+            <button id="delete-all-data" class="danger">Delete All Data</button>
+          </div>
+        </div>
+        <div class="chin-options-fields">
+          <textarea id="opening-prompt" placeholder="Story Prompt"></textarea>
+          <textarea id="custom-js" placeholder="Custom JS"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Container -->
+    <main id="main" class="container-fluid">
+      <!-- Storyboard Screen -->
+      <div id="storyboard-screen">
+        <div id="storyboard-dynamic-title-wrapper">
+          <h2
+            id="storyboard-dynamic-title"
+            role="textbox"
+            aria-multiline="false"
+            aria-label="Storyboard title">
+            Storyboard
+          </h2>
+        </div>
+
+        <div id="storyboard-grid">
+          <div
+            class="storyboard-card empty-card"
+            id="storyboard-card-ai"
+            data-type="character">
+            <div class="storyboard-card-left"></div>
+
+            <article class="storyboard-card-right">
+              <header>
+                <select
+                  id="storyboard-ai-select"
+                  class="storyboard-card-title"
+                  aria-label="Choose AI Character"
+                  data-placeholder="Select AI Character…">
+                  <option value="" class="storyboard-card-title-placeholder">
+                    Select AI Character…
+                  </option>
+                </select>
+              </header>
+              <p class="desc">Select an AI character for your story...</p>
+              <footer><small>Bajskorv</small></footer>
             </article>
           </div>
-        </template>
 
-        <!-- Optional: Storyboard Empty Picture Templates -->
-        <template id="tpl-storyboard-picture-character">
-          <div class="picture picture--cover">
-            <div class="placeholder-image" role="img" aria-label="character">
-              <svg viewBox="0 0 24 24" width="48" height="48" aria-hidden="true">
-                <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.33 0-8 1.67-8 5v3h16v-3c0-3.33-4.67-5-8-5z" />
-              </svg>
-            </div>
+          <div
+            class="storyboard-card empty-card"
+            id="storyboard-card-user"
+            data-type="character">
+            <div class="storyboard-card-left"></div>
+            <article class="storyboard-card-right">
+              <header>
+                <select
+                  id="storyboard-user-select"
+                  class="storyboard-card-title"
+                  aria-label="Choose User Character"
+                  data-placeholder="Select Your Character…">
+                  <option value="" class="storyboard-card-title-placeholder">
+                    Select Your Character…
+                  </option>
+                </select>
+              </header>
+              <p class="desc">Select your character for the story...</p>
+              <footer>
+                <small><!-- Premade Tag --></small>
+              </footer>
+            </article>
           </div>
-        </template>
 
-        <template id="tpl-storyboard-picture-world">
-          <div class="picture picture--cover">
-            <div class="placeholder-image" role="img" aria-label="world">
-              <svg viewBox="0 0 24 24" width="48" height="48" aria-hidden="true">
-                <path d="M12 2a10 10 0 100 20 10 10 0 000-20z" />
-              </svg>
-            </div>
+          <div
+            class="storyboard-card empty-card"
+            id="storyboard-card-world"
+            data-type="world">
+            <div class="storyboard-card-left"></div>
+            <article class="storyboard-card-right">
+              <header>
+                <select
+                  id="storyboard-world-select"
+                  class="storyboard-card-title"
+                  aria-label="Choose World"
+                  data-placeholder="Select World…">
+                  <option value="" class="storyboard-card-title-placeholder">
+                    Select World…
+                  </option>
+                </select>
+              </header>
+              <p class="desc">Select a world for your story...</p>
+              <footer>
+                <small><!-- Premade Tag --></small>
+              </footer>
+            </article>
           </div>
-        </template>
+        </div>
+      </div>
 
-        <template id="tpl-storyboard-picture-default">
-          <div class="picture picture--cover">
-            <div class="placeholder-image" role="img" aria-label="placeholder"></div>
+      <!-- Chat Screen -->
+      <div id="chat-screen-container" hidden="hidden">
+        <div id="chat-screen">
+          <!-- Character Display Areas -->
+          <div id="user-character-display"></div>
+          <div id="ai-character-display"></div>
+
+          <!-- Chat Wrapper -->
+          <div id="chat-wrapper">
+            <!-- Chat Feed -->
+            <div
+              id="chat-feed"
+              role="log"
+              aria-live="polite"
+              aria-relevant="additions text"></div>
+
+            <!-- Status Elements -->
+            <div id="story-concluded">Story concluded</div>
+            <div id="no-messages">No messages yet</div>
+            <div
+              id="status-notifier"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"></div>
+            <div
+              id="typing-indicator"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"></div>
+            <button id="conclude-story">Conclude Story</button>
           </div>
-        </template>
-
-      </div>
-    </div>
-
-    <!-- Chin: Options -->
-    <div role="tabpanel" tabindex="0" id="chin-options" aria-labelledby="tab-options" data-chin="options" class="chin" hidden="hidden">
-      <div class="chin-actions">
-        <div class="chin-actions-left"><!-- Something in the future? --></div>
-        <div class="chin-actions-right">
-          <button type="button" class="secondary" data-trigger="upload-backup">Upload All</button>
-          <input type="file" id="upload-backup" aria-label="Upload Backup" hidden="hidden" />
-          <button id="download-backup" class="secondary">Download Backup</button>
-          <button id="delete-all-data" class="danger">Delete All Data</button>
-        </div>
-      </div>
-      <div class="chin-options-fields">
-        <textarea id="opening-prompt" placeholder="Story Prompt"></textarea>
-        <textarea id="custom-js" placeholder="Custom JS"></textarea>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Container -->
-  <main id="main" class="container-fluid">
-
-    <!-- Storyboard Screen -->
-    <div id="storyboard-screen">
-      <div id="storyboard-dynamic-title-wrapper">
-        <h2 id="storyboard-dynamic-title" role="textbox" aria-multiline="false" aria-label="Storyboard title">Storyboard</h2></div>
-
-      <div id="storyboard-grid">
-        <div class="storyboard-card empty-card" id="storyboard-card-ai" data-type="character">
-          <div class="storyboard-card-left"></div>
-
-          <article class="storyboard-card-right">
-            <header>
-              <select id="storyboard-ai-select" class="storyboard-card-title" aria-label="Choose AI Character" data-placeholder="Select AI Character…">
-                <option value="" class="storyboard-card-title-placeholder">Select AI Character…</option>
-              </select>
-            </header>
-            <p class="desc">Select an AI character for your story...</p>
-            <footer><small>Bajskorv</small></footer>
-          </article>
         </div>
 
-        <div class="storyboard-card empty-card" id="storyboard-card-user" data-type="character">
-          <div class="storyboard-card-left"></div>
-          <article class="storyboard-card-right">
-            <header>
-              <select id="storyboard-user-select" class="storyboard-card-title" aria-label="Choose User Character" data-placeholder="Select Your Character…">
-                <option value="" class="storyboard-card-title-placeholder">
-                  Select Your Character…
-                </option>
-              </select>
-            </header>
-            <p class="desc">Select your character for the story...</p>
-            <footer>
-              <small><!-- Premade Tag --></small>
-            </footer>
-          </article>
-        </div>
-
-        <div class="storyboard-card empty-card" id="storyboard-card-world" data-type="world">
-          <div class="storyboard-card-left"></div>
-          <article class="storyboard-card-right">
-            <header>
-              <select id="storyboard-world-select" class="storyboard-card-title" aria-label="Choose World" data-placeholder="Select World…">
-                <option value="" class="storyboard-card-title-placeholder">Select World…</option>
-              </select>
-            </header>
-            <p class="desc">Select a world for your story...</p>
-            <footer><small><!-- Premade Tag --></small></footer>
-          </article>
-        </div>
-      </div>
-    </div>
-
-    <!-- Chat Screen -->
-    <div id="chat-screen-container" hidden="hidden">
-      <div id="chat-screen">
-
-        <!-- Character Display Areas -->
-        <div id="user-character-display"></div>
-        <div id="ai-character-display"></div>
-
-        <!-- Chat Wrapper -->
-        <div id="chat-wrapper">
-
-          <!-- Chat Feed -->
-          <div id="chat-feed" role="log" aria-live="polite" aria-relevant="additions text"></div>
-
-          <!-- Status Elements -->
-          <div id="story-concluded">Story concluded</div>
-          <div id="no-messages">No messages yet</div>
-          <div id="status-notifier" role="status" aria-live="polite" aria-atomic="true"></div>
-          <div id="typing-indicator" role="status" aria-live="polite" aria-atomic="true"></div>
-          <button id="conclude-story">Conclude Story</button>
-        </div>
+        <!-- Input Area -->
+        <footer>
+          <form>
+            <fieldset role="group">
+              <input
+                type="text"
+                name="message"
+                placeholder="Type your message..."
+                aria-label="Message" />
+              <input type="submit" value="Send" />
+            </fieldset>
+          </form>
+        </footer>
       </div>
 
-      <!-- Input Area -->
-      <footer>
-        <form>
-          <fieldset role="group">
-            <input type="text" name="message" placeholder="Type your message..." aria-label="Message" />
-            <input type="submit" value="Send" />
-          </fieldset>
-        </form>
-      </footer>
-    </div>
+      <!-- Profile Screen -->
+      <div id="profile-screen" hidden="hidden">
+        <!-- Profile content will be dynamically generated -->
+      </div>
 
-    <!-- Profile Screen -->
-    <div id="profile-screen" hidden="hidden"><!-- Profile content will be dynamically generated --></div>
+      <!-- Character Form Screen -->
+      <div id="character-form-screen" hidden="hidden">
+        <!-- Character form content will be dynamically generated -->
+      </div>
 
-    <!-- Character Form Screen -->
-    <div id="character-form-screen" hidden="hidden"><!-- Character form content will be dynamically generated --></div>
+      <!-- World Form Screen -->
+      <div id="world-form-screen" hidden="hidden">
+        <!-- World form content will be dynamically generated -->
+      </div>
 
-    <!-- World Form Screen -->
-    <div id="world-form-screen" hidden="hidden"><!-- World form content will be dynamically generated --></div>
+      <!-- Premade Character Bank -->
+      <div id="premade-character-bank" hidden="hidden">
+        <div id="premade-character-list"></div>
+      </div>
 
-    <!-- Premade Character Bank -->
-    <div id="premade-character-bank" hidden="hidden">
-      <div id="premade-character-list"></div>
-    </div>
+      <!-- Premade World Bank -->
+      <div id="premade-world-bank" hidden="hidden">
+        <div id="premade-world-list"></div>
+      </div>
 
-    <!-- Premade World Bank -->
-    <div id="premade-world-bank" hidden="hidden">
-      <div id="premade-world-list"></div>
-    </div>
+      <!-- Memory Application Screen -->
+      <div id="memory-application-screen" hidden="hidden">
+        <!-- Memory application content will be dynamically generated -->
+      </div>
+    </main>
 
-    <!-- Memory Application Screen -->
-    <div id="memory-application-screen" hidden="hidden">
-      <!-- Memory application content will be dynamically generated --></div>
+    <script src="js/utils.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/entity-form.js"></script>
+    <script src="js/profile-router.js"></script>
+    <script src="js/index.js"></script>
 
-  </main>
-
-  <script src="js/utils.js"></script>
-  <script src="js/entities.js"></script>
-  <script src="js/entity-form.js"></script>
-  <script src="js/profile-router.js"></script>
-  <script src="js/index.js"></script>
-
-  <script>
-    document.addEventListener(
-      "DOMContentLoaded",
-      () => {
-        App.initializeWhenReady();
-      },
-      { once: true }
-    );
-  </script>
-
-</body>
-
+    <script>
+      document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+          App.initializeWhenReady();
+        },
+        { once: true }
+      );
+    </script>
+  </body>
 </html>
