@@ -1364,7 +1364,6 @@
               App.selectTopBarTab(btn);
               App.ui.showChin(chinId);
             }
-            App.ui.syncChinButtons();
           });
           btn.addEventListener("keydown", (e) => {
             if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
