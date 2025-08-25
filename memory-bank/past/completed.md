@@ -30,7 +30,7 @@ This file contains completed tasks moved from README.md files when their Current
 
 ## Archive Entries
 
-*No completed tasks archived yet - this file will be populated as README.md task lists reach capacity*
+No completed tasks archived yet - this file will be populated as README.md task lists reach capacity
 
 ---
 
