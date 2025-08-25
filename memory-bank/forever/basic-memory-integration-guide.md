@@ -162,7 +162,7 @@ JWT-based authentication with secure token handling
 
 ### **Project Structure**
 
-```
+```md
 memory-bank/
 ├── projects/
 │   ├── system-architecture/     # 🎭 Strategic knowledge
@@ -177,13 +177,13 @@ memory-bank/
 
 ### **Knowledge Capture Workflow**
 
-**1. Automatic Context Building**
+#### **1. Automatic Context Building**
 
 - Each mode transition automatically captures relevant knowledge
 - Build semantic connections between strategic, tactical, and operational decisions
 - Maintain comprehensive project context across all interactions
 
-**2. Mode-Aware Knowledge Capture**
+#### **2. Mode-Aware Knowledge Capture**
 
 ```javascript
 // Strategic Mode Knowledge Pattern
@@ -195,7 +195,7 @@ write_note(
 )
 ```
 
-**3. Context Preservation Across Modes**
+#### **3. Context Preservation Across Modes**
 
 ```javascript
 // Tactical Mode Knowledge Pattern
@@ -211,19 +211,19 @@ write_note(
 
 ### **Unified Orchestrator Mode Integration**
 
-**1. Automatic Knowledge Capture**
+#### **1. Automatic Knowledge Capture**
 
 - **Strategic Role**: Captures system-level decisions and workflow optimizations
 - **Tactical Role**: Records app-specific planning and design decisions
 - **Operational Role**: Logs implementation patterns and solutions
 
-**2. Context-Aware Knowledge Loading**
+#### **2. Context-Aware Knowledge Loading**
 
 - Load relevant knowledge based on current task and mode
 - Build context from related knowledge across projects
 - Maintain semantic connections for better understanding
 
-**3. Knowledge Graph Enhancement**
+#### **3. Knowledge Graph Enhancement**
 
 - Create bidirectional links between related concepts
 - Use forward references for planned but not yet implemented features
@@ -259,14 +259,14 @@ graph TD
 
 ### **Knowledge Capture Best Practices**
 
-**1. Proactive Context Recording**
+#### **1. Proactive Context Recording**
 
 - Record decisions, rationales, and conclusions
 - Link to related topics and concepts
 - Ask for permission: "Would you like me to save our discussion about [topic]?"
 - Confirm completion: "I've saved our discussion to Basic Memory"
 
-**2. Rich Semantic Graph Building**
+#### **2. Rich Semantic Graph Building**
 
 - Add meaningful observations (3-5 categorized observations per note)
 - Create deliberate relations (connect to 2-3 related entities)
@@ -274,7 +274,7 @@ graph TD
 - Verify wikilinks with exact titles
 - Use precise relation types (e.g., "implements" instead of "relates_to")
 
-**3. Structured Content Organization**
+#### **3. Structured Content Organization**
 
 - Use clear, descriptive titles
 - Organize with logical sections (Context, Decision, Implementation, etc.)

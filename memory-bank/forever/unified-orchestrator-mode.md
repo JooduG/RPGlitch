@@ -71,7 +71,7 @@ This mode aligns with the **ANALYSE → PLAN → CODE** workflow.
 
 1. **Level 1 Task (Operational)**:
 
-   ```
+   ```md
    "Fix the typo in the login button"
    ```
 
@@ -79,7 +79,7 @@ This mode aligns with the **ANALYSE → PLAN → CODE** workflow.
 
 2. **Level 2 Task (Tactical → Operational)**:
 
-   ```
+   ```md
    "Add a new character preview feature to RPGlitch"
    ```
 
@@ -87,7 +87,7 @@ This mode aligns with the **ANALYSE → PLAN → CODE** workflow.
 
 3. **Level 3 Task (Strategic → Tactical → Operational)**:
 
-   ```
+   ```md
    "Optimize our development workflow and tool usage"
    ```
 
@@ -97,7 +97,7 @@ This mode aligns with the **ANALYSE → PLAN → CODE** workflow.
 
 1. **Force Strategic Role**:
 
-   ```
+   ```md
    🎭 "strategic"
    ```
 
@@ -105,7 +105,7 @@ This mode aligns with the **ANALYSE → PLAN → CODE** workflow.
 
 2. **Force Tactical Role**:
 
-   ```
+   ```md
    🎨 "tactical"
    ```
 
@@ -113,7 +113,7 @@ This mode aligns with the **ANALYSE → PLAN → CODE** workflow.
 
 3. **Force Operational Role**:
 
-   ```
+   ```md
    ⚒️ "operational"
    ```
 
@@ -123,7 +123,7 @@ This mode aligns with the **ANALYSE → PLAN → CODE** workflow.
 
 1. **Sequential Thinking**:
 
-   ```
+   ```md
    🧠 "Analyze the performance bottlenecks in our app"
    ```
 
@@ -131,7 +131,7 @@ This mode aligns with the **ANALYSE → PLAN → CODE** workflow.
 
 2. **Contemplative Thinking**:
 
-   ```
+   ```md
    🤔 "Explore different approaches to user onboarding"
    ```
 
@@ -139,7 +139,7 @@ This mode aligns with the **ANALYSE → PLAN → CODE** workflow.
 
 3. **Professional Coding**:
 
-   ```
+   ```md
    ⚡ "Implement the user profile update functionality"
    ```
 
