@@ -213,7 +213,7 @@
         isPremade: false,
         version: STORAGE_VERSION,
         ...base,
-        ...normalize(entity, base),
+        ...normalize({ ...base, ...entity }),
       };
       if (idx >= 0) items[idx] = saved;
       else items.push(saved);
@@ -227,7 +227,7 @@
       const base = items[idx];
       const saved = {
         ...base,
-        ...normalize(entity, base),
+        ...normalize({ ...base, ...entity }),
       };
       items[idx] = saved;
       _writeAndCache(type, items);

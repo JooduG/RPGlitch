@@ -33,13 +33,15 @@
   };
 
   // ---------- Debounce ----------
-  App.debounce = function (fn, wait = 300) {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => fn.apply(this, args), wait);
+  App.debounce =
+    App.debounce ||
+    function (fn, wait = 250) {
+      let t;
+      return function(...args) {
+        clearTimeout(t);
+        t = setTimeout(() => fn.apply(this, args), wait);
+      };
     };
-  };
 
   // ---------- Show / Hide ----------
   App.hideEl = function (el) {
