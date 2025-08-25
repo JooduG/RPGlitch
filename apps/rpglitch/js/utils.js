@@ -247,7 +247,7 @@
         "--container-margin",
         `${containerMargin}px`
       );
-    } catch (_) {
+    } catch {
       /* ignore */
     }
   };

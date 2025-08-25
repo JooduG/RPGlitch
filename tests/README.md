@@ -4,7 +4,7 @@ tags: [tests, jest, mcp]
 globs: [tests/**/*]
 ---
 
-## Tests Overview
+# Tests Overview
 
 - Test runner: Jest for unit/integration tests in `tests/**/*.test.js`.
 - MCP tests: Node-based harness under `tests/mcp/` for stdio MCP servers.
