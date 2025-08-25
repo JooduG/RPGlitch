@@ -58,6 +58,12 @@
 
       const doc = global.document;
 
+      // Chin tab buttons: ensure base class
+      doc.querySelectorAll("button[data-chin]").forEach((btn) => {
+        btn.classList.add("chin-button");
+      });
+
+
       // Prevent search form reload; convert button to clear
       doc.querySelectorAll('form[role="search"]').forEach((form) => {
         form.addEventListener("submit", (e) => e.preventDefault());
@@ -84,6 +90,7 @@
     parseHash,
     handleRoute,
   };
+
 
 })(typeof window !== "undefined" ? window : globalThis);
 
