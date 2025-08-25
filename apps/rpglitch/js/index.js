@@ -21,17 +21,6 @@
       return el;
     };
 
-  // NEW: tiny debounce fallback (keeps this file self-contained)
-  App.debounce =
-    App.debounce ||
-    function (fn, wait = 250) {
-      let t;
-      return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn.apply(null, args), wait);
-      };
-    };
-
   // Deterministic brand color for entities (matches entities.js behavior)
   function _hashHue(seed) {
     let hash = 0;
