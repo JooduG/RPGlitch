@@ -7,4 +7,5 @@ dist/
 .DS_Store
 Thumbs.db
 memory-bank/archive
+apps/character-ai-instructions/
 build/output/RPGlitch-perchance.html

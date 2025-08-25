@@ -6,4 +6,5 @@ build/local_libs/
 dist/
 .DS_Store
 Thumbs.db
+apps/character-ai-instructions/
 memory-bank/archive

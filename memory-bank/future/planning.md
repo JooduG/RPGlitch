@@ -1,101 +1,77 @@
-# Planning (Forward-Looking)
+# Future — Ideas & Distant Plans (Backlog, Not Yet Committed)
 
-## 🎯 **CURRENT TASKS (In Progress)**
+> Purpose: a *parking lot* for ideas, moonshots, and speculative directions. Nothing here is scheduled. When an item is approved, it moves to **present/** with a delivery target.
 
-### **RPGlitch Development**
+---
 
-- [ ] RPGlitch deterministic placeholders and "Empty" titles
-- [ ] RPGlitch storyboard flow hardening (toolbar, cancel, showPicker, dynamic title)
+## How we use this file
 
-## 📋 **PLANNED TASKS (Ready to Start)**
+* **Status values**: `idea` (default), `researching`, `spiking`, `approved` (then move).
+* **Impact/Effort** are rough gut-checks (S/M/L) to aid prioritization.
+* **Signals to commit** list concrete evidence we’ll watch for before promoting.
 
-### **Phase 3A: Foundation Enhancement**
+---
 
-- [ ] AI Rule Selection Integration (workflow connection)
-- [ ] Build System Enhancement (incremental builds)
-- [ ] Performance Monitoring Setup
+## Idea Backlog (RPGlitch & Tooling)
 
-### **RPGlitch Enhancements**
+| Idea                                     | Rationale                                                                | Impact | Effort | Dependencies                                  | Status      | Signals to Commit                                                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------ | ------ | ------ | --------------------------------------------- | ----------- | ------------------------------------------------------------------------------------- |
+| Offline profile/mode                     | Fully inlined app = offline-friendly; offer resilience and speed.        | M      | M      | Core chat loop stable; asset caching strategy | idea        | Consistent user need for offline; repeated network issues; success on small PWA spike |
+| Seeded image-gen per message             | Cohesive aesthetic, deterministic re-renders; aligns with hover actions. | M      | M      | Chat FSM, thread/message seeds                | idea        | Users request visual consistency; hover actions stable for ≥2 sprints                 |
+| Character Library: tags/search/duplicate | Scale beyond a handful of personas; shareable packs.                     | M      | M      | Dexie schema; import/export                   | idea        | >20 personas in use; repeated search friction                                         |
+| Summarizer hook for long threads         | Keep token budget tidy; speed up prompt build.                           | M      | M      | Prompt composer; model access                 | idea        | Frequent trims; latency spikes on long chats                                          |
+| Prompt Snippets/Templates                | Reusable system/style macros to accelerate persona creation.             | M      | S      | Prompt composer                               | idea        | Repetition detected in persona fields; user time-on-creation high                     |
+| Dev HUD: advanced (diffs, event log)     | Faster debugging; fewer “UI lies” moments.                               | S      | S      | Current Dev HUD                               | idea        | Debug sessions prolonged due to missing visibility                                    |
+| Rule System Consolidation                | Reduce cognitive load; unify naming across docs/rules                    | M      | M      | MCP docs consolidation                        | idea        | Confusion in PR reviews about rule source of truth                                    |
+| Performance analytics dashboard          | Visibility into latency, token spend, errors                             | M      | M      | Telemetry layer                               | idea        | “Slow”/“expensive” complaints without data                                            |
+| Template marketplace (personas/worlds)   | Shareable packs; community growth                                        | L      | L      | Import/export hardening; content review       | idea        | Pilot pack usage; external requests                                                   |
+| TTS output for assistant                 | Accessibility + immersion                                                | S      | M      | Audio plugin / browser APIs                   | idea        | Repeated asks for listen-on-the-go                                                    |
+| Voice input (ASR)                        | Hands-free; role-play immersion                                          | M      | M      | Browser ASR / plugin                          | idea        | Positive TTS adoption; ASR API reliability                                            |
+| Cross-project learning (rules)           | Port patterns/heuristics between apps                                    | M      | L      | Docs consolidation                            | idea        | Evidence of repeated solves across apps                                               |
+| Build system: parallel/incremental v2    | Faster local dev cycles                                                  | M      | M      | Current build scripts                         | researching | Profiling shows build hot spots; prototype proves 2× speed                            |
+| “Continue automatically” policy          | Reduce manual continue clicks                                            | S      | S      | FSM hook                                      | idea        | >10% of turns are manual continues                                                    |
 
-- Implement remaining RPGlitch UI modules
-- Enhance chin list persistence and accessibility
-- Build full-featured item forms and card interactions
+---
 
-## 💡 **IDEAS & FUTURE ENHANCEMENTS**
+## Moonshots (Speculative)
 
-### **Phase 3B: Core Implementation (Weeks 3-6)**
+* **Agentic Scene Director**: model proposes next storyboard beat, drafts prompts, and assembles assets.
+* **Co-op Sessions**: two users role-play with synchronized state and per-user UI affordances.
+* **Heuristics-augmented Decider**: lightweight rules layer that nudges sampling params based on scene type.
 
-- AI-Driven Rule Selection (50% efficiency improvement)
-- Dynamic Rule Generation (25% automation)
-- Cross-Project Learning (pattern transfer)
+---
 
-### **Phase 3C: Advanced Automation (Weeks 7-10)**
+## Maybe/Later (cool, but not urgent)
 
-- MCP Workflow Automation (80% manual reduction)
-- Performance Analytics (real-time visibility)
-- Build System Enhancement (50% speed improvement)
+* **Advanced theming editor** (export/import CSS tokens).
+* **In-app tutorial mode** (guided tooltips over first-run flow).
+* **Screenshot-to-Persona** (parse character card from an image using OCR + heuristics).
 
-### **Phase 3D: Optimization & Intelligence (Weeks 11-12)**
+---
 
-- Rule System Consolidation (30% complexity reduction)
-- Diagnostic Integration (proactive monitoring)
+## Assumptions & Risks (for ideas above)
 
-## 🚧 **TECHNICAL DEBT**
+* Token costs will remain within budget after adding summarization or TTS.
+* Browser APIs (ASR/TTS) are sufficiently reliable across Chromium/WebKit.
+* Import/export remains the user’s primary sharing mechanism until any marketplace exists.
 
-### **Code Quality**
+---
 
-- Continue JavaScript modularization (remaining business logic modules)
-- CSS specificity optimization (50% reduction target)
-- Performance optimization opportunities
+## Not Doing (for now)
 
-### **System Architecture**
+* Server-side persistence beyond Dexie (doesn’t fit Perchance single-file constraint).
+* Large UI redesigns (functionality first).
 
-- Rule system optimization
-- Build process improvements
-- Testing coverage expansion
+---
 
-## 🔒 **BLOCKERS & DEPENDENCIES**
+## Intake Template (copy for new ideas)
 
-### **Current Blockers**
-
-- None identified
-
-### **Dependencies**
-
-- JavaScript modularization completion required for CSS optimization
-- AI rule selection integration depends on foundation enhancement completion
-
-## 🎯 **PRIORITIES**
-
-### **High Priority**
-
-- Complete RPGlitch storyboard flow hardening
-- Finish deterministic placeholders implementation
-- Continue JavaScript modularization
-
-### **Medium Priority**
-
-- AI Rule Selection Integration
-- Build System Enhancement
-- Performance Monitoring Setup
-
-### **Low Priority**
-
-- Advanced automation features
-- Rule system consolidation
-- Diagnostic integration
-
-## 📅 **TIMELINE**
-
-### **Next 30 Days**
-
-1. Complete JavaScript modularization (all business logic modules)
-2. Complete CSS performance optimization (50% specificity reduction)
-3. Integrate AI rule selection with Unified Orchestrator Mode (50% efficiency improvement)
-4. Implement incremental build system (50% speed improvement)
-
-### **Next 90 Days**
-
-1. Complete Phase 3 implementation with advanced automation
-2. AI-driven development system fully operational
-3. 80% reduction in manual workflow coordination achieved
+```md
+### <Idea Title>
+**Rationale:** <why>
+**Impact:** S/M/L
+**Effort:** S/M/L
+**Dependencies:** <systems/features>
+**Status:** idea
+**Signals to commit:** <what evidence unlocks promotion>
+```

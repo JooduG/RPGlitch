@@ -31,6 +31,11 @@
       "description": "Current instructions, design systems, and today's relevance",
       "path": "present"
     },
+    "forever": {
+      "name": "Permanent References",
+      "description": "Durable standards, canonical guides, evergreen docs",
+      "path": "forever"
+    },
     "docs": {
       "name": "Documentation",
       "description": "Active documentation and guides",
@@ -47,11 +52,7 @@
     "backup_enabled": true,
     "sync_interval": 300,
     "indexing": {
-      "include_patterns": [
-        "**/*.md",
-        "**/*.mdc",
-        "**/*.mdx"
-      ],
+      "include_patterns": ["**/*.md", "**/*.mdc", "**/*.mdx"],
       "exclude_patterns": [
         "**/node_modules/**",
         "**/.git/**",
@@ -64,6 +65,7 @@
         "future",
         "past",
         "present",
+        "forever",
         "../docs",
         "../rules"
       ]

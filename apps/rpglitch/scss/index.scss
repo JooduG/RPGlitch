@@ -20,6 +20,7 @@
   --brand-text-on: #fff;
   --profile-left-width: min(40vw, 520px);
   --container-margin: 0px; /* computed from top bar at runtime */
+  --rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
 
   /* initials stay white by default */
 }
@@ -123,8 +124,7 @@ button {
 
 .title {
   margin: 0;
-  font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.2; /* rely on heading defaults for weight/size */
 }
 
 .chin-card .title,
@@ -172,7 +172,39 @@ button {
   object-fit: cover;
 }
 
-/* stylelint-disable-next-line no-descending-specificity */
+/* Ensure lower-specificity .profile-left rules appear before more specific
+   .chin-card .card-poster .picture selectors to satisfy stylelint ordering */
+/* stylelint-disable no-descending-specificity */
+.profile-left .picture {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: transparent !important;
+}
+
+.profile-left .picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-left .placeholder-image {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.profile-left .placeholder-image svg {
+  width: clamp(96px, 40%, 320px);
+  height: auto;
+  opacity: 0.9;
+}
+/* stylelint-enable no-descending-specificity */
+
+/* stylelint-disable no-descending-specificity */
 .profile-hero .picture,
 .chin-card .card-poster .picture,
 .profile-hero img,
@@ -182,6 +214,8 @@ button {
   transition: opacity 0.25s ease;
   transform: none;
 }
+
+/* stylelint-enable no-descending-specificity */
 
 .chin-card .card-poster img {
   border-radius: 0;
@@ -510,6 +544,7 @@ input[type="submit"]:not([disabled]):hover {
   opacity: 1;
   text-wrap: balance;
 }
+.description.muted { color: var(--pico-muted-color); }
 
 /* stylelint-disable no-descending-specificity */
 :is(.chin-card) :is(button, select, input, textarea) {
@@ -720,11 +755,9 @@ body.chin-open .chin-focus-ring {
 }
 
 .profile-description {
-  font-size: 1.2rem;
-  color: rgb(255 255 255 / 90%);
+  color: var(--pico-color);
   line-height: 1.6;
   margin: 0 1rem 1rem;
-  text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
   background: rgb(0 0 0 / 20%);
   padding: 1rem;
   border-radius: var(--pico-radius);
@@ -735,15 +768,13 @@ body.chin-open .chin-focus-ring {
   display: grid;
   grid-template-columns: 20% auto;
   align-items: center;
-  color: #fff;
+  color: var(--pico-color);
   line-height: 1.7;
   padding: 1rem;
   background: rgb(255 255 255 / 8%);
   border-radius: var(--pico-radius);
-  font-size: 0.95rem;
   min-height: 3rem;
   margin: 0.5rem 1rem;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
 }
 
 .profile-field:last-child {
@@ -772,9 +803,8 @@ body.chin-open .chin-focus-ring {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  font-size: 2em;
-  font-weight: 400;
-  letter-spacing: 0.05em;
+
+  /* use Pico's default h1 size/weight; keep a soft shadow */
   text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
   padding: 0;
   margin: 0;
@@ -842,7 +872,7 @@ body.chin-open .chin-focus-ring {
   top: 0;
   bottom: 0;
   width: clamp(12px, 4vw, 56px);
-  background: linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(90deg, rgb(0 0 0 / 35%) 0%, rgb(0 0 0 / 15%) 35%, rgb(0 0 0 / 0%) 100%);
   pointer-events: none;
 }
 
@@ -915,27 +945,37 @@ body.chin-open .chin-focus-ring {
   visibility: hidden;
 }
 
-.hero-wrap { position: relative; width: 100%; height: 100%; }
-.hero-bleed { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-bleed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 /* Make the left profile image/placeholder fully cover the column */
-.profile-left .picture { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; background: transparent !important; }
-.profile-left .picture img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.profile-left .placeholder-image { width: 100%; height: 100%; display: grid; place-items: center; }
-.profile-left .placeholder-image svg { width: clamp(96px, 40%, 320px); height: auto; opacity: 0.9; }
+
+/* moved .profile-left rules earlier to satisfy specificity order */
 
 /* Gentle left vignette + right fade for readability */
 .profile-left::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(120% 80% at -10% 50%, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0) 70%);
+  background: radial-gradient(120% 80% at -10% 50%, rgb(0 0 0 / 35%) 0%, rgb(0 0 0 / 15%) 45%, rgb(0 0 0 / 0%) 70%);
   pointer-events: none;
 }
+
 .profile-left::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.2) 30%, rgba(0,0,0,0) 65%);
+  background: linear-gradient(90deg, rgb(0 0 0 / 35%) 0%, rgb(0 0 0 / 20%) 30%, rgb(0 0 0 / 0%) 65%);
   pointer-events: none;
 }
 
@@ -950,6 +990,7 @@ body.chin-open .chin-focus-ring {
   z-index: 3;
   pointer-events: none;
 }
+
 .chip {
   display: inline-flex;
   align-items: center;
@@ -957,9 +998,13 @@ body.chin-open .chin-focus-ring {
   border-radius: 999px;
   background: var(--brand, rgb(0 0 0 / 65%));
   color: var(--brand-contrast, #fff);
-  font-size: 12px;
   line-height: 1;
   box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+}
+
+.chip > small {
+  font-size: 0.8125rem;
+  line-height: 1;
 }
 
 .tag-chips {
@@ -1147,29 +1192,64 @@ body.chin-open .chin-focus-ring {
     box-shadow: 0 4px 15px rgb(0 0 0 / 20%), 0 0 10px rgb(255 255 255 / 5%);
   }
 }
-.profile-right-content { padding-top: 1rem; }
-.profile-right-content .profile-name { margin-top: 0.5rem; margin-bottom: 0.75rem; }
+
+.profile-right-content {
+  padding-top: 1rem;
+}
+
+.profile-right-content .profile-name {
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+}
 
 /* FPPF two-column section layout */
-.profile-sections { display: grid; row-gap: 0.75rem; }
+.profile-sections {
+  display: grid;
+  row-gap: 0.75rem;
+}
+
 .profile-sections .section-row {
   display: grid;
   grid-template-columns: minmax(120px, 18ch) 1fr;
   column-gap: 1rem;
   align-items: center;
+  padding-block: 0.375rem;
 }
+
 .profile-sections .section-label {
   justify-self: end;
   text-align: right;
   font-weight: 600;
   color: var(--pico-h1-color, #fff);
 }
-.profile-sections .section-content { color: rgb(255 255 255 / 90%); line-height: 1.7; text-align: left; }
-.profile-sections .section-label-main { font-size: 1rem; }
-.profile-sections .section-sublabel { font-size: 0.825rem; opacity: 0.75; }
-.profile-sections .section-row { padding-block: 0.375rem; }
+
+.profile-sections .section-content {
+  color: rgb(255 255 255 / 90%);
+  line-height: 1.7;
+  text-align: left;
+}
+
+.profile-sections .section-label-main {
+  font-size: 1rem;
+}
+
+.profile-sections .section-sublabel {
+  font-size: 0.825rem;
+  opacity: 0.75;
+}
+
+/* merged duplicate: .profile-sections .section-row padding-block moved above */
 
 @media (width <= 640px) {
-  .profile-sections .section-row { grid-template-columns: 1fr; }
-  .profile-sections .section-label { justify-self: start; text-align: left; opacity: 0.85; }
+  .profile-sections .section-row {
+    grid-template-columns: 1fr;
 }
+
+.profile-sections .section-label {
+    justify-self: start;
+    text-align: left;
+    opacity: 0.85;
+  }
+}
+
+.muted { color: var(--pico-muted-color) !important; }

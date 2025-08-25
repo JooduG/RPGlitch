@@ -20,4 +20,5 @@ Thumbs.db
 logs/
 *.min.js
 *.min.css
+apps/character-ai-instructions/
 dist/

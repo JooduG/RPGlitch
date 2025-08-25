@@ -20,6 +20,7 @@
     "build/config/.stylelintignore",
     "build/config/.htmlhintignore",
     "build/config/.markdownlintignore",
+    "apps/character-ai-instructions/",
     "build/config/ignore.eslint.json"
   ],
   "cursorignore": [
@@ -40,6 +41,7 @@
     "build/config/.stylelintignore",
     "build/config/.htmlhintignore",
     "build/config/.markdownlintignore",
+    "apps/character-ai-instructions/",
     "build/config/ignore.eslint.json"
   ],
   "markdownlintignore": [
@@ -51,6 +53,7 @@
     ".DS_Store",
     "Thumbs.db",
     "memory-bank/archive",
+    "apps/character-ai-instructions/",
     "memory-bank/scribbles.md"
   ],
   "eslintIgnore": [
@@ -61,6 +64,7 @@
     "dist/",
     ".DS_Store",
     "Thumbs.db",
+    "apps/character-ai-instructions/",
     "memory-bank/archive"
   ],
   "stylelintIgnore": [
@@ -71,6 +75,7 @@
     "dist/",
     ".DS_Store",
     "Thumbs.db",
+    "apps/character-ai-instructions/",
     "memory-bank/archive"
   ],
   "htmlhintIgnore": [
@@ -82,6 +87,7 @@
     ".DS_Store",
     "Thumbs.db",
     "memory-bank/archive",
+    "apps/character-ai-instructions/",
     "build/output/RPGlitch-perchance.html"
   ],
   "basicmemoryignore": [
@@ -106,6 +112,7 @@
     "logs/",
     "*.min.js",
     "*.min.css",
+    "apps/character-ai-instructions/",
     "dist/"
   ],
   "vscodeFilesExclude": [

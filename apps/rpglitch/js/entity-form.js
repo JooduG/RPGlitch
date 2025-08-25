@@ -145,7 +145,7 @@
           App.debounce?.(() => App.setProfileLayoutSizing?.(0.35), 150)
         );
       }
-    } catch (_) {
+    } catch {
       /* noop */
     }
 
