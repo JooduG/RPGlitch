@@ -37,10 +37,9 @@
     App.debounce ||
     function (fn, wait = 250) {
       let t;
-      return function (...args) {
-        const context = this;
+      return (...args) => {
         clearTimeout(t);
-        t = setTimeout(() => fn.apply(context, args), wait);
+        t = setTimeout(() => fn.apply(null, args), wait);
       };
     };
 
@@ -161,82 +160,114 @@
       }
     };
 
-  // ---------- Chin open/close & focus visuals ----------
-  App._closeChin = function () {
-    const container = document.getElementById("chin-container");
-    if (!container) return;
-    container.querySelectorAll(".chin").forEach((p) => App.hideEl(p));
-    App.hideEl(container);
-    App.selectTopBarTab?.(null);
-  };
+  // ---------- Chin controls ----------
+  App.chin = (function (doc) {
+    const container = () => doc.getElementById("chin-container");
 
-  App._closeChin = (function (prev) {
-    return function (...args) {
-      prev?.apply(this, args);
-      requestAnimationFrame(() => {
-        global.document.activeElement?.blur();
-        global.document.body.classList.remove("chin-open");
+    function getButtons() {
+      return container()?.querySelectorAll("[data-chin]") || doc.querySelectorAll("header [data-chin]");
+    }
+
+    function getPanels() {
+      return container()?.querySelectorAll(".chin[data-chin]") || doc.querySelectorAll(".chin[data-chin]");
+    }
+
+    function sync() {
+      const buttons = getButtons();
+      const panels = getPanels();
+      let anyOpen = false;
+      panels.forEach((panel) => {
+        const name = panel.dataset.chin;
+        const hidden = panel.hasAttribute("hidden");
+        const btn = [...buttons].find((b) => b.dataset.chin === name);
+        const selected = !hidden;
+        if (btn) {
+          btn.classList.toggle("selected", selected);
+          btn.setAttribute("aria-selected", selected ? "true" : "false");
+          btn.setAttribute("aria-expanded", selected ? "true" : "false");
+          btn.setAttribute("tabindex", selected ? "0" : "-1");
+        }
+        if (selected) anyOpen = true;
       });
-    };
-  })(App._closeChin);
+      const cont = container();
+      if (anyOpen) {
+        cont?.removeAttribute("hidden");
+        doc.body.classList.add("chin-open");
+      } else {
+        cont?.setAttribute("hidden", "");
+        doc.body.classList.remove("chin-open");
+      }
+    }
 
-  App._toggleChinContent = function (chin) {
-    const container = document.getElementById("chin-container");
-    if (!container) return;
+    function closeAll() {
+      getPanels().forEach((p) => p.setAttribute("hidden", ""));
+      sync();
+    }
 
-    const panels = container.querySelectorAll(".chin");
-    const target = chin
-      ? container.querySelector(`[data-chin="${chin}"]`)
-      : null;
+    function close(name) {
+      const panel = [...getPanels()].find((p) => p.dataset.chin === name);
+      if (panel) panel.setAttribute("hidden", "");
+      sync();
+    }
 
-    // Hide everything first
-    panels.forEach((panel) => App.hideEl(panel));
-    App.hideEl(container);
-    document.body.classList.remove("chin-open");
+    function open(name) {
+      if (!name) return;
+      const panels = getPanels();
+      panels.forEach((p) => {
+        if (p.dataset.chin === name) {
+          p.removeAttribute("hidden");
+          const focusTarget =
+            p.querySelector("[tabindex], button, input, select, textarea, a") ||
+            p;
+          focusTarget.focus?.();
+        } else {
+          p.setAttribute("hidden", "");
+        }
+      });
+      sync();
+    }
 
-    if (!target || target.classList.contains("is-open")) return;
+    function toggle(name) {
+      const panel = [...getPanels()].find((p) => p.dataset.chin === name);
+      if (!panel) return;
+      if (panel.hasAttribute("hidden")) open(name);
+      else close(name);
+    }
 
-    // Open requested panel
-    App.showEl(container);
-    App.showEl(target);
-    document.body.classList.add("chin-open");
+    function init() {
+      const buttons = getButtons();
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const name = btn.dataset.chin;
+          const panel = [...getPanels()].find((p) => p.dataset.chin === name);
+          const hidden = panel?.hasAttribute("hidden");
+          if (hidden) open(name);
+          else close(name);
+        });
+      });
+      doc.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeAll();
+      });
+      const observer = new MutationObserver(sync);
+      getPanels().forEach((p) =>
+        observer.observe(p, { attributes: true, attributeFilter: ["hidden"] })
+      );
+      const cont = container();
+      if (cont)
+        observer.observe(cont, { attributes: true, attributeFilter: ["hidden"] });
+      sync();
+    }
 
-    const input = target.querySelector(".chin-search");
-    if (input) input.focus();
+    return { getButtons, getPanels, open, close, closeAll, toggle, sync, init };
+  })(global.document);
 
-    const c = target.dataset.chin;
-    if (c === "stories" && typeof App.renderStoryList === "function")
-      App.renderStoryList();
-    if (c === "characters" && typeof App.renderCharacterList === "function")
-      App.renderCharacterList();
-    if (c === "worlds" && typeof App.renderWorldList === "function")
-      App.renderWorldList();
+  App._toggleChinContent = function (name) {
+    App.chin.toggle(name);
   };
 
-  // Ensure we close chin on ESC / outside click / route change
-  App._ensureGlobalChinEvents = function () {
-    if (App._chinEventsBound) return;
-    App._chinEventsBound = true;
-
-    window.addEventListener("hashchange", App._closeChin, { passive: true });
-    document.addEventListener(
-      "click",
-      (e) => {
-        // Do not close chin when interacting with storyboard selects or when
-        // blur suppression is active (prevents native picker from instantly dismissing).
-        if (typeof App !== "undefined" && App._suppressNextBlur) return;
-
-        const storyboard = document.getElementById("storyboard-grid");
-        if (storyboard && storyboard.contains(e.target)) return;
-
-        const inside = e.target.closest?.("#chin-container, [data-open-chin]");
-        if (!inside) App._closeChin();
-      },
-      { capture: true }
-    );
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") App._closeChin();
-    });
+  App._closeChin = function (name) {
+    if (name) App.chin.close(name);
+    else App.chin.closeAll();
   };
 
   // ---------- Profile layout sizing (left image column width) ----------

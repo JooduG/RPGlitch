@@ -256,8 +256,7 @@
   };
 
   App.ui.setupChinListeners = function () {
-    App._attachTopBarEventListeners();
-    App.ui.observeChins();
+    App.chin.init();
   };
 
   App._attachChinSearchHandlers = function () {
@@ -868,9 +867,6 @@
         ); // capture
       });
     }
-
-    // Clean up chin visuals on route changes / outside clicks (existing behavior)
-    App._ensureGlobalChinEvents?.();
 
     App._cardNavAttached = true;
   };

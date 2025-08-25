@@ -18,3 +18,6 @@
 - Removed redundant chin sync calls; MutationObserver now sole source of state.
 - Chin click handlers simplified without redundant synchronization calls.
 - Lint passes without duplicate selector warning.
+- Introduced `App.chin` helpers (open/close/closeAll/sync) with MutationObserver to keep buttons and body class accurate.
+- Escape now closes any open chin and clears selection.
+- Replaced debounce helper with rest parameters to avoid parse errors.
