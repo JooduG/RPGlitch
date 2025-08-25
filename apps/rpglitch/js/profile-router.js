@@ -58,10 +58,9 @@
 
       const doc = global.document;
 
-      // Chin tab buttons: selected/focus handling
+      // Chin tab buttons: ensure base class
       doc.querySelectorAll("button[data-chin]").forEach((btn) => {
         btn.classList.add("chin-button");
-        btn.addEventListener("click", () => App.activateChin(btn));
       });
 
       // Prevent search form reload; convert button to clear
@@ -91,32 +90,6 @@
     handleRoute,
   };
 
-  App.activateChin = (btn) => {
-    if (!btn) return;
-    const group = btn.closest('[role="tablist"]');
-    group
-      ?.querySelectorAll(".chin-button.selected")
-      .forEach((b) => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    btn.focus();
-  };
-})(typeof window !== "undefined" ? window : globalThis);
-
-(function (global) {
-  const root = global.document;
-  root.querySelectorAll('details[id^="chin-"], .chin').forEach((el) => {
-    el.addEventListener(
-      "toggle",
-      () => {
-        if (!el.open) {
-          el.querySelectorAll(".button--focused").forEach((b) =>
-            b.classList.remove("button--focused")
-          );
-        }
-      },
-      { capture: true }
-    );
-  });
 })(typeof window !== "undefined" ? window : globalThis);
 
 (function (global) {
