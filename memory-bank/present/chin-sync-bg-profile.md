@@ -16,5 +16,6 @@ Keep chin toggle buttons and body classes in sync while stabilizing layout and b
 - edit `apps/rpglitch/scss/index.scss`
 
 ## Summary
+
 - Synced top bar chin buttons with panel visibility via MutationObserver.
 - Fixed background gradient scroll and aligned profile screen with top bar width.
