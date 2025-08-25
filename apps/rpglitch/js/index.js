@@ -51,7 +51,7 @@
         card?.style?.setProperty("--brand", brand);
         card?.classList?.add("has-brand");
       }
-    } catch (_) {
+    } catch {
       /* noop */
     }
   }
@@ -526,7 +526,7 @@
           media.prepend(maybe);
         } else if (typeof maybe === "string") {
           const t = document.createElement("template");
-          t.innerHTML = maybe.trim();
+          t.innerHTML = global.DOMPurify ? global.DOMPurify.sanitize(maybe.trim()) : maybe.trim();
           const node = t.content.firstElementChild;
           if (node) media.prepend(node);
         }
@@ -689,21 +689,21 @@
           try {
             // Avoid showPicker in iframes (Perchance runs cross-origin)
             const inIframe = (() => {
-              try { return window.top !== window; } catch (_) { return true; }
+              try { return window.top !== window; } catch { return true; }
             })();
             if (!inIframe && typeof select.showPicker === 'function') {
               try {
                 select.showPicker();
                 return;
-              } catch (_) {
+              } catch {
                 // SecurityError or unsupported context – fall back
               }
             }
-          } catch (_) { /* ignore */ }
+          } catch { /* ignore */ }
           // Fallback: focus so user can open manually
-          try { select.focus(); } catch (_) { /* noop */ }
+          try { select.focus(); } catch { /* noop */ }
           // best-effort synthetic click while still in user gesture
-          try { select.click(); } catch (_) { /* noop */ }
+          try { select.click(); } catch { /* noop */ }
         }
 
         // Click handler
@@ -910,12 +910,11 @@
               out = maybe;
             } else if (typeof maybe === "string") {
               const tpl = document.createElement("template");
-              tpl.innerHTML = maybe.trim();
+              tpl.innerHTML = global.DOMPurify ? global.DOMPurify.sanitize(maybe.trim()) : maybe.trim();
               out = tpl.content.firstElementChild;
             }
           }
-        // eslint-disable-next-line no-unused-vars
-      } catch (_) {
+      } catch {
         /* empty */
       }
 
@@ -961,7 +960,7 @@
             footer.appendChild(pill);
           }
         }
-      } catch (_) { /* noop */ }
+      } catch { /* noop */ }
       // Also brand the card itself so external accents (badges, borders) inherit
       applyCardBrand(card, entity);
       card.dataset.entityType = card.dataset.type || entity.kind || "";
@@ -984,7 +983,7 @@
       try {
         const footer = card.querySelector('.storyboard-card-right footer');
         if (footer) footer.querySelectorAll('.chip').forEach((n) => n.remove());
-      } catch (_) { /* noop */ }
+      } catch { /* noop */ }
       delete card.dataset.entityType;
       delete card.dataset.entityId;
 
@@ -1152,7 +1151,7 @@
           })();
         }
       }
-    } catch (_) { /* noop */ }
+    } catch { /* noop */ }
   };
 
   App._attachStoryboardListeners =

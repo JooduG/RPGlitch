@@ -112,7 +112,7 @@
         "basic_memory.mcp"
       ],
       "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "C:\\Users\\johng\\Documents\\GitHub\\default\\memory-bank"
+        "BASIC_MEMORY_PROJECT_ROOT": "/workspace/default/memory-bank"
       },
       "autoApprove": [
         "list_projects",
