@@ -26,7 +26,7 @@ test('early chin toggle reveals chin container and selected chin', () => {
   dom.window.eval(rpgScript);
 
 
-  dom.window.App._toggleChinContent('stories');
+  dom.window.App.chin.open('stories');
   const chinContainer = dom.window.document.getElementById('chin-container');
   const selectedChin = dom.window.document.querySelector('[data-chin="stories"]');
   expect(chinContainer.hasAttribute('hidden')).toBe(false);

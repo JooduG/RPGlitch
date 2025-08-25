@@ -32,7 +32,8 @@ function loadApp() {
     downloadBackupButton: dom.window.document.getElementById('download-backup'),
     deleteAllDataButton: dom.window.document.getElementById('delete-all-data')
   };
-  App._attachTopBarEventListeners();
+  App.chin.init();
+  App._attachOptionChinActions();
   return App;
 }
 

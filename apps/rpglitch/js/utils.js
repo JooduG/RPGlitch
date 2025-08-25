@@ -37,10 +37,9 @@
     App.debounce ||
     function (fn, wait = 250) {
       let t;
-      return function (...args) {
-        const context = this;
+      return (...args) => {
         clearTimeout(t);
-        t = setTimeout(() => fn.apply(context, args), wait);
+        t = setTimeout(() => fn.apply(null, args), wait);
       };
     };
 
@@ -161,82 +160,149 @@
       }
     };
 
-  // ---------- Chin open/close & focus visuals ----------
-  App._closeChin = function () {
-    const container = document.getElementById("chin-container");
-    if (!container) return;
-    container.querySelectorAll(".chin").forEach((p) => App.hideEl(p));
-    App.hideEl(container);
-    App.selectTopBarTab?.(null);
+  // ---------- Chin Management ----------
+  App.chin = App.chin || {};
+
+  App.chin.getButtons = function () {
+    return document.querySelectorAll("#top-bar-left [data-chin]");
   };
 
-  App._closeChin = (function (prev) {
-    return function (...args) {
-      prev?.apply(this, args);
-      requestAnimationFrame(() => {
-        global.document.activeElement?.blur();
-        global.document.body.classList.remove("chin-open");
-      });
-    };
-  })(App._closeChin);
-
-  App._toggleChinContent = function (chin) {
-    const container = document.getElementById("chin-container");
-    if (!container) return;
-
-    const panels = container.querySelectorAll(".chin");
-    const target = chin
-      ? container.querySelector(`[data-chin="${chin}"]`)
-      : null;
-
-    // Hide everything first
-    panels.forEach((panel) => App.hideEl(panel));
-    App.hideEl(container);
-    document.body.classList.remove("chin-open");
-
-    if (!target || target.classList.contains("is-open")) return;
-
-    // Open requested panel
-    App.showEl(container);
-    App.showEl(target);
-    document.body.classList.add("chin-open");
-
-    const input = target.querySelector(".chin-search");
-    if (input) input.focus();
-
-    const c = target.dataset.chin;
-    if (c === "stories" && typeof App.renderStoryList === "function")
-      App.renderStoryList();
-    if (c === "characters" && typeof App.renderCharacterList === "function")
-      App.renderCharacterList();
-    if (c === "worlds" && typeof App.renderWorldList === "function")
-      App.renderWorldList();
+  App.chin.getPanels = function () {
+    return document.querySelectorAll("#chin-container .chin[data-chin]");
   };
 
-  // Ensure we close chin on ESC / outside click / route change
-  App._ensureGlobalChinEvents = function () {
-    if (App._chinEventsBound) return;
-    App._chinEventsBound = true;
-
-    window.addEventListener("hashchange", App._closeChin, { passive: true });
-    document.addEventListener(
-      "click",
-      (e) => {
-        // Do not close chin when interacting with storyboard selects or when
-        // blur suppression is active (prevents native picker from instantly dismissing).
-        if (typeof App !== "undefined" && App._suppressNextBlur) return;
-
-        const storyboard = document.getElementById("storyboard-grid");
-        if (storyboard && storyboard.contains(e.target)) return;
-
-        const inside = e.target.closest?.("#chin-container, [data-open-chin]");
-        if (!inside) App._closeChin();
-      },
-      { capture: true }
-    );
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") App._closeChin();
+  App.chin.open = function (name) {
+    if (!name) return;
+    const container = document.getElementById("chin-container");
+    const panels = App.chin.getPanels();
+    let target = null;
+    panels.forEach((p) => {
+      if (p.dataset.chin === name) {
+        target = p;
+        App.showEl(p);
+      } else {
+        App.hideEl(p);
+      }
     });
+    if (container) App.showEl(container);
+    const buttons = App.chin.getButtons();
+    buttons.forEach((btn) => {
+      const active = btn.dataset.chin === name;
+      btn.classList.toggle("selected", active);
+      btn.setAttribute("aria-selected", String(active));
+      btn.setAttribute("aria-expanded", String(active));
+      btn.tabIndex = active ? 0 : -1;
+    });
+    document.body.classList.add("chin-open");
+    if (target) {
+      const focusEl =
+        target.querySelector(
+          "input, button, select, textarea, a[href], [tabindex]:not([tabindex='-1'])"
+        ) || target;
+      focusEl.focus();
+    }
+  };
+
+  App.chin.close = function (name) {
+    const panels = App.chin.getPanels();
+    let changed = false;
+    panels.forEach((p) => {
+      if (!name || p.dataset.chin === name) {
+        App.hideEl(p);
+        changed = true;
+      }
+    });
+    if (!name) {
+      const container = document.getElementById("chin-container");
+      if (container) App.hideEl(container);
+    }
+    const buttons = App.chin.getButtons();
+    buttons.forEach((btn) => {
+      if (!name || btn.dataset.chin === name) {
+        btn.classList.remove("selected");
+        btn.setAttribute("aria-selected", "false");
+        btn.setAttribute("aria-expanded", "false");
+        btn.tabIndex = -1;
+      }
+    });
+    App.chin.sync();
+    return changed;
+  };
+
+  App.chin.closeAll = function () {
+    App.chin.close();
+  };
+
+  App.chin.sync = function () {
+    const buttons = App.chin.getButtons();
+    const panels = App.chin.getPanels();
+    let anyOpen = false;
+    buttons.forEach((btn, idx) => {
+      const panel = Array.from(panels).find(
+        (p) => p.dataset.chin === btn.dataset.chin
+      );
+      const open = panel && !panel.hasAttribute("hidden");
+      btn.classList.toggle("selected", open);
+      btn.setAttribute("aria-selected", String(open));
+      btn.setAttribute("aria-expanded", String(open));
+      btn.tabIndex = open ? 0 : -1;
+      if (open) anyOpen = true;
+    });
+    if (!anyOpen && buttons[0]) buttons[0].tabIndex = 0;
+    document.body.classList.toggle("chin-open", anyOpen);
+  };
+
+  App.chin.init = function () {
+    const container = document.getElementById("chin-container");
+    const buttons = App.chin.getButtons();
+
+    buttons.forEach((btn, idx) => {
+      if (btn._chinBound) return;
+      btn.addEventListener("click", () => {
+        const name = btn.dataset.chin;
+        const panel = Array.from(App.chin.getPanels()).find(
+          (p) => p.dataset.chin === name
+        );
+        const hidden = panel ? panel.hasAttribute("hidden") : true;
+        if (hidden) App.chin.open(name);
+        else App.chin.closeAll();
+      });
+      btn.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        const dir = e.key === "ArrowRight" ? 1 : -1;
+        const all = Array.from(App.chin.getButtons());
+        const next = (idx + dir + all.length) % all.length;
+        all[next].focus();
+      });
+      btn._chinBound = true;
+    });
+
+    if (!App._chinObserver) {
+      const obs = new MutationObserver(App.chin.sync);
+      App.chin.getPanels().forEach((p) =>
+        obs.observe(p, { attributes: true, attributeFilter: ["hidden"] })
+      );
+      if (container)
+        obs.observe(container, { attributes: true, attributeFilter: ["hidden"] });
+      App._chinObserver = obs;
+    }
+
+    if (!App._outsideChinClickBound) {
+      document.addEventListener("click", (e) => {
+        const c = document.getElementById("chin-container");
+        const left = document.getElementById("top-bar-left");
+        if (!c || c.hasAttribute("hidden")) return;
+        if (c.contains(e.target) || left.contains(e.target)) return;
+        App.chin.closeAll();
+      });
+      App._outsideChinClickBound = true;
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") App.chin.closeAll();
+    });
+
+    App.chin.sync();
   };
 
   // ---------- Profile layout sizing (left image column width) ----------
