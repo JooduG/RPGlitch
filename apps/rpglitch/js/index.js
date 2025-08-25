@@ -690,6 +690,7 @@
             // Avoid showPicker in iframes (Perchance runs cross-origin)
             const inIframe = (() => {
               try { return window.top !== window; } catch { return true; }
+
             })();
             if (!inIframe && typeof select.showPicker === 'function') {
               try {

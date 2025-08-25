@@ -36,7 +36,7 @@ try {
   console.warn('ML model prediction failed, using fallback:', error.message);
   prediction = this.fallbackClassification(features);
 }
-```
+```text
 
 #### **Implemented Robust Fallback System**
 
@@ -72,7 +72,7 @@ if (featureCount > 1) {
 if (features.hasBackend) {
   confidence += 0.03;
 }
-```
+```text
 
 #### **Enhanced Feature Detection**
 
@@ -122,7 +122,7 @@ if (features.hasBackend) {
 
 ### **Enhanced Component Structure**
 
-```
+```text
 🤖 AI-Driven Rule Selection System
 ├── 📊 Context Analyzer (Enhanced)
 │   ├── ML-based classification
@@ -153,7 +153,7 @@ if (features.hasBackend) {
 
 ### **Enhanced Error Handling Architecture**
 
-```
+```text
 🔄 Error Handling Flow
 ├── Primary: ML Model Prediction
 ├── Fallback: Enhanced Classification
