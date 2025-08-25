@@ -268,6 +268,7 @@
   App._closeChin = function (name) {
     if (name) App.chin.close(name);
     else App.chin.closeAll();
+
   };
 
   // ---------- Profile layout sizing (left image column width) ----------

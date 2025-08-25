@@ -17,24 +17,21 @@ test('top bar click triggers chin toggle without duplicate handlers', () => {
   global.document = dom.window.document;
   
   // Load the actual RPGlitch.js
+  const utilsScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
+  dom.window.eval(utilsScript);
   const rpgScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/index.js'), 'utf8');
   dom.window.eval(rpgScript);
-  
-  // Mock the methods that _attachTopBarEventListeners depends on
-  dom.window.App.ui.showChin = jest.fn();
-  dom.window.App.selectTopBarTab = jest.fn();
-  dom.window.App._attachedTopBarButtons = new Set();
-  
-  // Test the actual method
-  dom.window.App._attachTopBarEventListeners();
-  dom.window.App._attachTopBarEventListeners();
-  
+
+  dom.window.App.chin.init();
+  dom.window.App.chin.init();
+
   const btn = dom.window.document.querySelector('#top-bar-left button[data-chin="stories"]');
-  if (btn) {
+  const panel = dom.window.document.querySelector('.chin[data-chin="stories"]');
+  if (btn && panel) {
     btn.click();
-    expect(dom.window.App.selectTopBarTab).toHaveBeenCalledTimes(1);
-    expect(dom.window.App.ui.showChin).toHaveBeenCalledTimes(1);
-    expect(dom.window.App.ui.showChin).toHaveBeenCalledWith('stories');
+    expect(panel.hasAttribute('hidden')).toBe(false);
+    btn.click();
+    expect(panel.hasAttribute('hidden')).toBe(true);
   }
 });
 
