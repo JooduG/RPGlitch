@@ -148,54 +148,6 @@
     if (sectionMap[mode]) App.showEl(sectionMap[mode]);
   };
 
-  /**
-   * Reveals the chin container and the specified chin panel.
-   * @param {string} chin - The value of the data-chin attribute to reveal.
-   */
-  App._toggleChinContent = function (chin) {
-    const anyOpen = !!document.querySelector(".chin-card.is-open");
-    document.body.classList.toggle("chin-open", anyOpen);
-    if (!chin) return;
-    const ui = App._getUIElements();
-    const container = ui.chinContainer;
-    if (!container) return;
-    const target = container.querySelector(`[data-chin="${chin}"]`);
-    const wasHidden = !target || target.hasAttribute("hidden");
-    const panels = container.querySelectorAll(".chin");
-    panels.forEach((panel) => App.hideEl(panel));
-    if (!target) return;
-
-    if (!wasHidden) {
-      App._closeChin();
-      return;
-    }
-
-    App.showEl(container);
-    App.showEl(target);
-
-    const input = target.querySelector(".chin-search");
-    if (input) input.focus();
-
-    if (chin === "stories" && typeof App.renderStoryList === "function")
-      App.renderStoryList();
-    if (chin === "characters" && typeof App.renderCharacterList === "function")
-      App.renderCharacterList();
-    if (chin === "worlds" && typeof App.renderWorldList === "function")
-      App.renderWorldList();
-  };
-
-  App._closeChin = function () {
-    const ui = App._getUIElements();
-    const container = ui.chinContainer;
-    if (!container) return;
-    const panels = container.querySelectorAll(".chin");
-    panels.forEach((p) => App.hideEl(p));
-    App.hideEl(container);
-    const last = App._lastActiveTab;
-    App.selectTopBarTab(null);
-    if (last) last.focus();
-  };
-
   // NEW: Copy & Customise — opens the form prefilled from a premade (or any source) via ?from=
   App.copyEntity = function (type, id) {
     try {
@@ -214,51 +166,8 @@
     }
   };
 
-  // UI helpers for toggling chin visibility and initializing listeners
+  // UI placeholder to maintain namespace
   App.ui = App.ui || {};
-
-  App.ui.showChin = function (chinId) {
-    if (!chinId) return;
-    App._toggleChinContent(chinId);
-  };
-
-  function getButtonForChin(chinEl) {
-    const name = chinEl?.dataset?.chin;
-    if (!name) return null;
-    const esc =
-      typeof CSS !== "undefined" && CSS.escape ? CSS.escape(name) : name;
-    return document.querySelector(`button[data-chin="${esc}"]`);
-  }
-
-  App.ui.syncChinButtons = function () {
-    document.querySelectorAll(".chin").forEach((chin) => {
-      const btn = getButtonForChin(chin);
-      if (!btn) return;
-      const open = !chin.hasAttribute("hidden");
-      btn.classList.toggle("selected", open);
-      btn.setAttribute("aria-expanded", String(open));
-      btn.setAttribute("aria-selected", String(open));
-    });
-    const anyOpen = !!document.querySelector(".chin:not([hidden])");
-    document.body.classList.toggle("chin-open", anyOpen);
-  };
-
-  App.ui.observeChins = function () {
-    if (App._chinObserver) return;
-    const observer = new MutationObserver(() => {
-      App.ui.syncChinButtons();
-    });
-    document.querySelectorAll(".chin").forEach((chin) => {
-      observer.observe(chin, { attributes: true, attributeFilter: ["hidden"] });
-    });
-    App._chinObserver = observer;
-    App.ui.syncChinButtons();
-  };
-
-  App.ui.setupChinListeners = function () {
-    App._attachTopBarEventListeners();
-    App.ui.observeChins();
-  };
 
   App._attachChinSearchHandlers = function () {
     const inputs = document.querySelectorAll(".chin-search");
@@ -1383,67 +1292,6 @@
     App._contentListenersAttached = true;
   };
 
-  /**
-   * Attaches event listeners for top bar interactions.
-   * Guards against attaching duplicate listeners across multiple invocations.
-   */
-  App._attachTopBarEventListeners = function () {
-    const ui = App._getUIElements();
-    if (!ui) return;
-
-    if (ui.topBarButtons) {
-      const buttons = Array.from(ui.topBarButtons);
-      buttons.forEach((btn, idx) => {
-        if (!App._attachedTopBarButtons.has(btn)) {
-          btn.addEventListener("click", () => {
-            const chinId = btn.dataset.chin;
-            const panel = document.querySelector(
-              `.chin[data-chin="${chinId}"]`
-            );
-            if (!panel) return;
-            const open = !panel.hasAttribute("hidden");
-            if (open) {
-              App._closeChin();
-            } else {
-              App.selectTopBarTab(btn);
-              App.ui.showChin(chinId);
-            }
-          });
-          btn.addEventListener("keydown", (e) => {
-            if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-            const dir = e.key === "ArrowRight" ? 1 : -1;
-            const next = (idx + dir + buttons.length) % buttons.length;
-            buttons[next].focus();
-          });
-          App._attachedTopBarButtons.add(btn);
-        }
-      });
-    }
-
-    App._attachOptionChinActions();
-    App._attachContentChinActions();
-    App._attachCardNavigation();
-
-    if (!App._outsideChinListenerAttached) {
-      document.addEventListener("click", (e) => {
-        const current = App.ui || App._getUIElements();
-        if (
-          !current.chinContainer ||
-          current.chinContainer.hasAttribute("hidden")
-        )
-          return;
-        if (
-          current.chinContainer.contains(e.target) ||
-          current.topBarLeft.contains(e.target)
-        )
-          return;
-        e.preventDefault();
-        App._closeChin();
-      });
-      App._outsideChinListenerAttached = true;
-    }
-  };
-
   App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
 
   /**
@@ -1457,7 +1305,10 @@
 
     try {
       App._getUIElements();
-      App.ui.setupChinListeners();
+      App.chin.init?.();
+      App._attachOptionChinActions?.();
+      App._attachContentChinActions?.();
+      App._attachCardNavigation?.();
       App._attachChinSearchHandlers();
       if (typeof App.initialLoad === "function") {
         await App.initialLoad();
