@@ -169,6 +169,48 @@
   // UI placeholder to maintain namespace
   App.ui = App.ui || {};
 
+  App.ui.showChin = function (chinId) {
+    if (!chinId) return;
+    App._toggleChinContent(chinId);
+  };
+
+  function getButtonForChin(chinEl) {
+    const name = chinEl?.dataset?.chin;
+    if (!name) return null;
+    const esc =
+      typeof CSS !== "undefined" && CSS.escape ? CSS.escape(name) : name;
+    return document.querySelector(`button[data-chin="${esc}"]`);
+  }
+
+  App.ui.syncChinButtons = function () {
+    document.querySelectorAll(".chin").forEach((chin) => {
+      const btn = getButtonForChin(chin);
+      if (!btn) return;
+      const open = !chin.hasAttribute("hidden");
+      btn.classList.toggle("selected", open);
+      btn.setAttribute("aria-expanded", String(open));
+      btn.setAttribute("aria-selected", String(open));
+    });
+    const anyOpen = !!document.querySelector(".chin:not([hidden])");
+    document.body.classList.toggle("chin-open", anyOpen);
+  };
+
+  App.ui.observeChins = function () {
+    if (App._chinObserver) return;
+    const observer = new MutationObserver(() => {
+      App.ui.syncChinButtons();
+    });
+    document.querySelectorAll(".chin").forEach((chin) => {
+      observer.observe(chin, { attributes: true, attributeFilter: ["hidden"] });
+    });
+    App._chinObserver = observer;
+    App.ui.syncChinButtons();
+  };
+
+  App.ui.setupChinListeners = function () {
+    App.chin.init();
+  };
+
   App._attachChinSearchHandlers = function () {
     const inputs = document.querySelectorAll(".chin-search");
     inputs.forEach((input) => {
@@ -777,9 +819,6 @@
         ); // capture
       });
     }
-
-    // Clean up chin visuals on route changes / outside clicks (existing behavior)
-    App._ensureGlobalChinEvents?.();
 
     App._cardNavAttached = true;
   };

@@ -142,7 +142,7 @@
         App._profileResizeBound = true;
         global.addEventListener(
           "resize",
-          App.debounce?.(() => App.setProfileLayoutSizing?.(0.35), 150)
+          App.debounce(() => App.setProfileLayoutSizing?.(0.35), 150)
         );
       }
     } catch {
