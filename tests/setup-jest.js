@@ -6,17 +6,6 @@ globalThis.__TEST__ = true;
 
 afterEach(() => {
   jest.clearAllTimers();
-  if (typeof jest.useRealTimers === 'function') {
-    jest.useRealTimers();
-  }
-});
-
-// If you need timers or extra matchers later, enable here.
-// Example: require('@testing-library/jest-dom');
-globalThis.__TEST__ = true;
-
-afterEach(() => {
-  jest.clearAllTimers();
   jest.useRealTimers?.();
 });
 

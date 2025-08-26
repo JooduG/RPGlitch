@@ -51,17 +51,14 @@
 
   const DATA_KEYS = ["stories", "characters", "worlds"];
 
-  App.isTestMode = function () {
-    return (
-      /jsdom/i.test(globalThis.navigator?.userAgent || "") ||
-      !!globalThis.__TEST__
-    );
-  };
-
-  const TEST_MODE = App.isTestMode();
-  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
-  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
-  App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
+  App.isTestMode =
+    App.isTestMode ||
+    function () {
+      return (
+        /jsdom/i.test(global.navigator?.userAgent || "") ||
+        !!globalThis.__TEST__
+      );
+    };
 
   // Highlight the active top bar tab and update ARIA attributes
   App.selectTopBarTab = function (btn) {
@@ -199,6 +196,8 @@
   };
 
   App._attachChinSearchHandlers = function () {
+    if (App._chinSearchBound) return;
+    App._chinSearchBound = true;
     const inputs = document.querySelectorAll(".chin-search");
     inputs.forEach((input) => {
       if (input._chinSearchBound) return; // idempotent
@@ -220,7 +219,8 @@
       };
 
       // NEW: debounce without adding new deps; but run synchronously in tests
-      const handler = TEST_MODE
+      const handler = App.isTestMode()
+
         ? doFilter
         : App.debounce
         ? App.debounce(doFilter, 250)
@@ -1313,6 +1313,12 @@
 
     App._contentListenersAttached = true;
   };
+
+  const TEST_MODE = App.isTestMode();
+  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
+  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
+
+  App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
 
   /**
    * Initializes the application once dependencies and DOM are ready.
