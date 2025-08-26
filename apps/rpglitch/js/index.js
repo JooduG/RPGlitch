@@ -183,28 +183,11 @@
   }
 
   App.ui.syncChinButtons = function () {
-    document.querySelectorAll(".chin").forEach((chin) => {
-      const btn = getButtonForChin(chin);
-      if (!btn) return;
-      const open = !chin.hasAttribute("hidden");
-      btn.classList.toggle("selected", open);
-      btn.setAttribute("aria-expanded", String(open));
-      btn.setAttribute("aria-selected", String(open));
-    });
-    const anyOpen = !!document.querySelector(".chin:not([hidden])");
-    document.body.classList.toggle("chin-open", anyOpen);
+    App.chin.sync();
   };
 
   App.ui.observeChins = function () {
-    if (App._chinObserver) return;
-    const observer = new MutationObserver(() => {
-      App.ui.syncChinButtons();
-    });
-    document.querySelectorAll(".chin").forEach((chin) => {
-      observer.observe(chin, { attributes: true, attributeFilter: ["hidden"] });
-    });
-    App._chinObserver = observer;
-    App.ui.syncChinButtons();
+    App.chin.init();
   };
 
   App.ui.setupChinListeners = function () {
@@ -1342,6 +1325,14 @@
   const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
 
   App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
+  const isJSDOM =
+    typeof window !== 'undefined' &&
+    typeof window.navigator !== 'undefined' &&
+    /jsdom/i.test(window.navigator.userAgent || '');
+  const isTest = typeof globalThis !== 'undefined' && !!globalThis.__TEST__;
+  const TEST_MODE = isJSDOM || isTest;
+  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
+  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
 
   /**
    * Initializes the application once dependencies and DOM are ready.
@@ -1371,8 +1362,12 @@
         (App.initializeWhenReadyRetryCount || 0) + 1;
       console.error("Failed to initialize App:", error);
       if (App.initializeWhenReadyRetryCount < MAX_INIT_RETRIES) {
-        if (TEST_MODE) return;
-        setTimeout(App.initializeWhenReady, INIT_BACKOFF_MS);
+        if (TEST_MODE) {
+          return;
+        }
+        await new Promise((r) => setTimeout(r, INIT_BACKOFF_MS));
+        return App.initializeWhenReady();
+
       }
     }
   };

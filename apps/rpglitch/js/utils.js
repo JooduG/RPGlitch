@@ -246,8 +246,9 @@
         });
       });
       if (!App._chinEscBound) {
-        doc.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') App.chin.closeAll();
+        doc.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") App.chin.closeAll();
+
         });
         App._chinEscBound = true;
       }
@@ -268,11 +269,6 @@
     App.chin.toggle(name);
   };
 
-  App._closeChin = function (name) {
-    if (name) App.chin.close(name);
-    else App.chin.closeAll();
-
-  };
 
   // ---------- Profile layout sizing (left image column width) ----------
   App.setProfileLayoutSizing = function (ratio = 0.35) {
