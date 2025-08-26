@@ -245,9 +245,12 @@
           else close(name);
         });
       });
-      doc.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeAll();
-      });
+      if (!App._chinEscBound) {
+        doc.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') App.chin.closeAll();
+        });
+        App._chinEscBound = true;
+      }
       const observer = new MutationObserver(sync);
       getPanels().forEach((p) =>
         observer.observe(p, { attributes: true, attributeFilter: ["hidden"] })
