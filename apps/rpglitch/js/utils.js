@@ -250,7 +250,6 @@
       if (!App._chinEscBound) {
         doc.addEventListener("keydown", (e) => {
           if (e.key === "Escape") App.chin.closeAll();
-
         });
         App._chinEscBound = true;
       }

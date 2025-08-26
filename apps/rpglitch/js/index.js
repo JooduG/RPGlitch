@@ -1,5 +1,19 @@
+window.App = window.App || {};
+App.isTestMode =
+  App.isTestMode ||
+  function () {
+    try {
+      return (
+        !!globalThis.__TEST__ ||
+        /jsdom/i.test(globalThis?.navigator?.userAgent || "")
+      );
+    } catch {
+      return !!globalThis.__TEST__;
+    }
+  };
+
 (function (global, document) {
-  const App = global.App || (global.App = {});
+  const App = global.App;
   // Main RPGlitch application namespace
 
   // Map utility helpers to App namespace with fallbacks
@@ -50,18 +64,6 @@
   }
 
   const DATA_KEYS = ["stories", "characters", "worlds"];
-
-  App.isTestMode = function () {
-    return (
-      /jsdom/i.test(globalThis.navigator?.userAgent || "") ||
-      !!globalThis.__TEST__
-    );
-  };
-
-  const TEST_MODE = App.isTestMode();
-  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
-  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
-  App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
 
   // Highlight the active top bar tab and update ARIA attributes
   App.selectTopBarTab = function (btn) {
@@ -199,6 +201,7 @@
   };
 
   App._attachChinSearchHandlers = function () {
+    const TEST_MODE = App.isTestMode();
     const inputs = document.querySelectorAll(".chin-search");
     inputs.forEach((input) => {
       if (input._chinSearchBound) return; // idempotent
@@ -1319,13 +1322,17 @@
    * Sets default database name, collects UI elements, and runs initial load.
    */
   App.initializeWhenReady = async function initializeWhenReady() {
+    const TEST_MODE = App.isTestMode();
+    const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
+    const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
+    App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
     if (typeof global.dbName === "undefined") {
       global.dbName = "rpglitch-db";
     }
 
     try {
       App._getUIElements();
-      App.chin.init?.();
+      if (!TEST_MODE) App.chin.init?.();
       App._attachOptionChinActions?.();
       App._attachContentChinActions?.();
       App._attachCardNavigation?.();
