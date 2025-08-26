@@ -1,14 +1,15 @@
 window.App = window.App || {};
-App.isTestMode =
-  App.isTestMode ||
+
+window.App.isTestMode =
+  window.App.isTestMode ||
   function () {
+    if (!!globalThis.__TEST__) {
+      return true;
+    }
     try {
-      return (
-        !!globalThis.__TEST__ ||
-        /jsdom/i.test(globalThis?.navigator?.userAgent || "")
-      );
+      return /jsdom/i.test(globalThis?.navigator?.userAgent || "");
     } catch {
-      return !!globalThis.__TEST__;
+      return false;
     }
   };
 
@@ -64,6 +65,11 @@ App.isTestMode =
   }
 
   const DATA_KEYS = ["stories", "characters", "worlds"];
+
+
+  App.initializeWhenReadyRetryCount =
+    App.initializeWhenReadyRetryCount || 0;
+
 
   // Highlight the active top bar tab and update ARIA attributes
   App.selectTopBarTab = function (btn) {
@@ -201,8 +207,11 @@ App.isTestMode =
   };
 
   App._attachChinSearchHandlers = function () {
-    const TEST_MODE = App.isTestMode();
+
+    if (App._chinSearchBound) return;
+    App._chinSearchBound = true;
     const inputs = document.querySelectorAll(".chin-search");
+    const TEST_MODE = App.isTestMode();
     inputs.forEach((input) => {
       if (input._chinSearchBound) return; // idempotent
       const container = input.closest(".chin") || input.closest(".chin-widget");
@@ -223,7 +232,8 @@ App.isTestMode =
       };
 
       // NEW: debounce without adding new deps; but run synchronously in tests
-      const handler = TEST_MODE
+      const handler = App.isTestMode()
+
         ? doFilter
         : App.debounce
         ? App.debounce(doFilter, 250)
@@ -1317,6 +1327,12 @@ App.isTestMode =
     App._contentListenersAttached = true;
   };
 
+  const TEST_MODE = App.isTestMode();
+  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
+  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
+
+  App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
+
   /**
    * Initializes the application once dependencies and DOM are ready.
    * Sets default database name, collects UI elements, and runs initial load.
@@ -1326,6 +1342,7 @@ App.isTestMode =
     const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
     const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
     App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
+
     if (typeof global.dbName === "undefined") {
       global.dbName = "rpglitch-db";
     }
@@ -1346,13 +1363,13 @@ App.isTestMode =
       App.initializeWhenReadyRetryCount = 0; // ✅ reset here on success
       return true;
     } catch (error) {
-      App.initializeWhenReadyRetryCount =
-        (App.initializeWhenReadyRetryCount || 0) + 1;
+      const retryCount = (App.initializeWhenReadyRetryCount || 0) + 1;
+      App.initializeWhenReadyRetryCount = retryCount;
       console.error("Failed to initialize App:", error);
       if (TEST_MODE) {
         return false;
       }
-      if (App.initializeWhenReadyRetryCount < MAX_INIT_RETRIES) {
+      if (retryCount < MAX_INIT_RETRIES) {
         await new Promise((r) => setTimeout(r, INIT_BACKOFF_MS));
         return App.initializeWhenReady();
       }

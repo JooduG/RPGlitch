@@ -201,7 +201,8 @@
 
     function closeAll() {
       getPanels().forEach((p) => p.setAttribute("hidden", ""));
-      App.chin.sync();
+      sync();
+
     }
 
     function close(name) {
