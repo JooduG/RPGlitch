@@ -201,7 +201,7 @@
 
     function closeAll() {
       getPanels().forEach((p) => p.setAttribute("hidden", ""));
-      App.chin.sync();
+      sync();
     }
 
     function close(name) {
@@ -250,7 +250,6 @@
       if (!App._chinEscBound) {
         doc.addEventListener("keydown", (e) => {
           if (e.key === "Escape") App.chin.closeAll();
-
         });
         App._chinEscBound = true;
       }
