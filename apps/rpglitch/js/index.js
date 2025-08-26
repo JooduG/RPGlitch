@@ -2,13 +2,13 @@ window.App = window.App || {};
 window.App.isTestMode =
   window.App.isTestMode ||
   function () {
+    if (!!globalThis.__TEST__) {
+      return true;
+    }
     try {
-      return (
-        !!globalThis.__TEST__ ||
-        /jsdom/i.test(globalThis?.navigator?.userAgent || "")
-      );
+      return /jsdom/i.test(globalThis?.navigator?.userAgent || "");
     } catch {
-      return !!globalThis.__TEST__;
+      return false;
     }
   };
 
