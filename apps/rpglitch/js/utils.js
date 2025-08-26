@@ -245,9 +245,12 @@
           else close(name);
         });
       });
-      doc.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeAll();
-      });
+      if (!App._chinEscBound) {
+        doc.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") App.chin.closeAll();
+        });
+        App._chinEscBound = true;
+      }
       const observer = new MutationObserver(sync);
       getPanels().forEach((p) =>
         observer.observe(p, { attributes: true, attributeFilter: ["hidden"] })
@@ -265,11 +268,6 @@
     App.chin.toggle(name);
   };
 
-  App._closeChin = function (name) {
-    if (name) App.chin.close(name);
-    else App.chin.closeAll();
-
-  };
 
   // ---------- Profile layout sizing (left image column width) ----------
   App.setProfileLayoutSizing = function (ratio = 0.35) {
