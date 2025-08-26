@@ -1441,13 +1441,13 @@ window.App.isTestMode =
           console.error("RPGlitch boot failed:", err);
         }
       };
-      // If DOM is already ready, schedule microtask; otherwise wire events
-      if (document.readyState === "complete" || document.readyState === "interactive") {
-        setTimeout(boot, 0);
-      } else {
-        document.addEventListener("DOMContentLoaded", boot, { once: true });
-        window.addEventListener("load", boot, { once: true });
-      }
-    }
-  } catch {}
+  // If DOM is already ready, schedule microtask; otherwise wire events
+  if (document.readyState === "complete" || document.readyState === "interactive") {
+    setTimeout(boot, 0);
+  } else {
+    document.addEventListener("DOMContentLoaded", boot, { once: true });
+    window.addEventListener("load", boot, { once: true });
+  }
+}
+} catch { /* empty */ }
 })(window, document);
