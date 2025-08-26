@@ -174,14 +174,6 @@
     App._toggleChinContent(chinId);
   };
 
-  function getButtonForChin(chinEl) {
-    const name = chinEl?.dataset?.chin;
-    if (!name) return null;
-    const esc =
-      typeof CSS !== "undefined" && CSS.escape ? CSS.escape(name) : name;
-    return document.querySelector(`button[data-chin="${esc}"]`);
-  }
-
   App.ui.syncChinButtons = function () {
     App.chin.sync();
   };
@@ -197,6 +189,7 @@
   App._attachChinSearchHandlers = function () {
     const inputs = document.querySelectorAll(".chin-search");
     inputs.forEach((input) => {
+      if (input._chinSearchBound) return; // idempotent
       const container = input.closest(".chin") || input.closest(".chin-widget");
       const list = container?.querySelector(".chin-grid");
       if (!list) return;
@@ -227,6 +220,7 @@
         ? App.debounce(doFilter, 250)
         : doFilter;
       input.addEventListener("input", handler);
+      input._chinSearchBound = true;
     });
   };
 
@@ -1314,25 +1308,22 @@
     App._contentListenersAttached = true;
   };
 
-  const isJSDOM =
-    typeof window !== 'undefined' &&
-    typeof window.navigator !== 'undefined' &&
-    /jsdom/i.test(window.navigator.userAgent || '');
-  const isTest =
-    typeof globalThis !== 'undefined' && !!globalThis.__TEST__;
-  const TEST_MODE = isJSDOM || isTest;
+  // --- Test-mode detection (Single Source of Truth) ---
+  App.isTestMode = function () {
+    const isJSDOM = typeof window !== 'undefined'
+      && typeof window.navigator !== 'undefined'
+      && /jsdom/i.test(window.navigator.userAgent || '');
+    const isTest = typeof globalThis !== 'undefined' && !!globalThis.__TEST__;
+    return isJSDOM || isTest;
+  };
+  
+  const TEST_MODE = App.isTestMode();
   const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
-  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
-
+  const INIT_BACKOFF_MS  = TEST_MODE ? 0 : 250;
+  
+  // Keep your existing counter init if present:
   App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
-  const isJSDOM =
-    typeof window !== 'undefined' &&
-    typeof window.navigator !== 'undefined' &&
-    /jsdom/i.test(window.navigator.userAgent || '');
-  const isTest = typeof globalThis !== 'undefined' && !!globalThis.__TEST__;
-  const TEST_MODE = isJSDOM || isTest;
-  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
-  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
+  
 
   /**
    * Initializes the application once dependencies and DOM are ready.
@@ -1361,14 +1352,10 @@
       App.initializeWhenReadyRetryCount =
         (App.initializeWhenReadyRetryCount || 0) + 1;
       console.error("Failed to initialize App:", error);
-      if (App.initializeWhenReadyRetryCount < MAX_INIT_RETRIES) {
-        if (TEST_MODE) {
-          return;
-        }
-        await new Promise((r) => setTimeout(r, INIT_BACKOFF_MS));
-        return App.initializeWhenReady();
-
+      if (App.initializeWhenReadyRetryCount < MAX_INIT_RETRIES && !TEST_MODE) {
+        setTimeout(App.initializeWhenReady, INIT_BACKOFF_MS);
       }
+      
     }
   };
 

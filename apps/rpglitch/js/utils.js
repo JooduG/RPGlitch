@@ -237,6 +237,7 @@
     function init() {
       const buttons = getButtons();
       buttons.forEach((btn) => {
+        if (btn._chinBound) return; // idempotent
         btn.addEventListener("click", () => {
           const name = btn.dataset.chin;
           const panel = [...getPanels()].find((p) => p.dataset.chin === name);
@@ -244,6 +245,7 @@
           if (hidden) open(name);
           else close(name);
         });
+        btn._chinBound = true;
       });
       if (!App._chinEscBound) {
         doc.addEventListener("keydown", (e) => {
@@ -252,7 +254,14 @@
         });
         App._chinEscBound = true;
       }
+      // Ensure only one active MutationObserver tracks hidden-state changes
+      try {
+        if (App._chinObserver && typeof App._chinObserver.disconnect === "function") {
+          App._chinObserver.disconnect();
+        }
+      } catch { /* noop */ }
       const observer = new MutationObserver(sync);
+      App._chinObserver = observer;
       getPanels().forEach((p) =>
         observer.observe(p, { attributes: true, attributeFilter: ["hidden"] })
       );
