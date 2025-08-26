@@ -1,15 +1,18 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '../..');
+const ROOT = path.resolve(__dirname, '../../');
 const CONFIG_DIR = path.join(ROOT, 'build', 'config');
 const VSCODE_DIR = path.join(ROOT, '.vscode');
+const GEMINI_DIR = path.join(ROOT, '.gemini');
+const GEMINI_SETTINGS_FILE = path.join(GEMINI_DIR, 'settings.json');
 
 // Master sources
 const MASTER_IGNORES_PATH = path.join(CONFIG_DIR, 'ignores.master.json');
 const MASTER_RULES_DIR = path.join(ROOT, 'rules');
 const MASTER_MCP_PATH = path.join(CONFIG_DIR, 'mcp.master.json');
 const TOOLS_MCP_PATH = path.join(ROOT, 'tools', 'mcp.json');
+const ROOT_MCP_PATH = path.join(ROOT, 'mcp.json');
 
 // Ignore targets
 const ESLINT_IGNORE_JSON = path.join(CONFIG_DIR, 'ignore.eslint.json');
@@ -19,6 +22,7 @@ const MARKDOWNLINT_IGNORE_FILE = path.join(CONFIG_DIR, '.markdownlintignore');
 const GITIGNORE_FILE = path.join(ROOT, '.gitignore');
 const CURSORIGNORE_FILE = path.join(ROOT, '.cursorignore');
 const BASICMEMORYIGNORE_FILE = path.join(ROOT, '.basicmemoryignore');
+const GEMINIIGNORE_FILE = path.join(ROOT, '.geminiignore');
 const SETTINGS_PATH = path.join(VSCODE_DIR, 'settings.json');
 
 // IDE config targets
@@ -45,7 +49,7 @@ function normalizeGlobs(globs) {
   const out = [];
   for (const g of globs) {
     if (!out.includes(g)) out.push(g);
-    const star = g.startsWith('**/') ? g : `**/${g}`;
+    const star = g.startsWith('**_/') ? g : `**_/${g}`;
     if (!out.includes(star)) out.push(star);
   }
   return out;
@@ -112,23 +116,30 @@ function syncIgnores() {
   if (master.gitignore?.length) writeText(GITIGNORE_FILE, header + master.gitignore.join('\n') + '\n');
   if (master.cursorignore?.length) writeText(CURSORIGNORE_FILE, header + master.cursorignore.join('\n') + '\n');
   if (master.basicmemoryignore?.length) writeText(BASICMEMORYIGNORE_FILE, header + master.basicmemoryignore.join('\n') + '\n');
+
+  // .geminiignore: use explicit geminiignore list if provided; otherwise fall back to cursorignore
+  const geminiSrc = master.geminiignore ?? master.geminiIgnore ?? master.cursorignore ?? [];
+  if (geminiSrc && geminiSrc.length !== undefined) {
+    const gemIgnores = normalizeGlobs(geminiSrc);
+    writeText(GEMINIIGNORE_FILE, header + gemIgnores.join('\n') + '\n');
+  }
 }
 
 function resolveMcpConfig() {
-  const master = readJson(MASTER_MCP_PATH, { servers: {}, inputs: [] });
+  const master = readJson(MASTER_MCP_PATH, { mcpServers: {}, inputs: [] });
   const tools = readJson(TOOLS_MCP_PATH, null);
 
   // Prefer MASTER as the source of truth; merge in only missing servers from tools
-  if (tools && tools.servers) {
-    master.servers = master.servers || {};
-    for (const [key, srv] of Object.entries(tools.servers)) {
-      if (!master.servers[key]) master.servers[key] = srv;
+  if (tools && tools.mcpServers) {
+    master.mcpServers = master.mcpServers || {};
+    for (const [key, srv] of Object.entries(tools.mcpServers)) {
+      if (!master.mcpServers[key]) master.mcpServers[key] = srv;
     }
   }
 
   // Normalize Basic Memory project root to memory-bank folder for least privilege
-  if (master.servers && master.servers['basic-memory']) {
-    const bm = master.servers['basic-memory'];
+  if (master.mcpServers && master.mcpServers['basic-memory']) {
+    const bm = master.mcpServers['basic-memory'];
     bm.env = bm.env || {};
     bm.env.BASIC_MEMORY_PROJECT_ROOT = path.join(ROOT, 'memory-bank');
   }
@@ -151,7 +162,28 @@ function syncConfigs() {
   writeJson(MASTER_MCP_PATH, resolvedMcp);
   writeJson(CURSOR_MCP_PATH, resolvedMcp);
   writeJson(WINDSURF_MCP_PATH, resolvedMcp);
+  writeJson(ROOT_MCP_PATH, resolvedMcp);
   console.log('🔧 MCP configuration synced (tools → master → IDE)');
+
+  // Sync Gemini MCP servers block only: preserve any other Gemini settings.
+  try {
+    if (fs.existsSync(GEMINI_SETTINGS_FILE)) {
+      const raw = fs.readFileSync(GEMINI_SETTINGS_FILE, 'utf8');
+      let gemini;
+      try { gemini = JSON.parse(raw); } catch { gemini = {}; }
+      if (!gemini || typeof gemini !== 'object') gemini = {};
+      // Replace entire servers block with resolved master servers (SSOT)
+      gemini.mcpServers = resolvedMcp.mcpServers || {};
+      ensureDir(GEMINI_DIR);
+      writeJson(GEMINI_SETTINGS_FILE, gemini);
+      console.log('🔗 .gemini/settings.json: mcpServers block updated from SSOT (other settings preserved)');
+    } else {
+      // If settings file doesn’t exist, do nothing (don’t create unrelated files by default)
+      console.log('ℹ️  .gemini/settings.json not found; skipped Gemini MCP sync');
+    }
+  } catch (err) {
+    console.warn('⚠️  Failed to sync Gemini MCP servers:', err && err.message ? err.message : err);
+  }
 
 
 }

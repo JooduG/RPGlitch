@@ -2,8 +2,8 @@ window.App = window.App || {};
 
 window.App.isTestMode =
   window.App.isTestMode ||
-  function () {
-    if (!!globalThis.__TEST__) {
+  function() {
+    if (globalThis.__TEST__) {
       return true;
     }
     try {
@@ -16,6 +16,10 @@ window.App.isTestMode =
 (function (global, document) {
   const App = global.App;
   // Main RPGlitch application namespace
+
+  const TEST_MODE = App.isTestMode();
+  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
+  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
 
   // Map utility helpers to App namespace with fallbacks
   App.hideEl =
@@ -211,7 +215,6 @@ window.App.isTestMode =
     if (App._chinSearchBound) return;
     App._chinSearchBound = true;
     const inputs = document.querySelectorAll(".chin-search");
-    const TEST_MODE = App.isTestMode();
     inputs.forEach((input) => {
       if (input._chinSearchBound) return; // idempotent
       const container = input.closest(".chin") || input.closest(".chin-widget");
@@ -232,7 +235,7 @@ window.App.isTestMode =
       };
 
       // NEW: debounce without adding new deps; but run synchronously in tests
-      const handler = App.isTestMode()
+      const handler = TEST_MODE
 
         ? doFilter
         : App.debounce
@@ -1327,10 +1330,6 @@ window.App.isTestMode =
     App._contentListenersAttached = true;
   };
 
-  const TEST_MODE = App.isTestMode();
-  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
-  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
-
   App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
 
   /**
@@ -1338,9 +1337,6 @@ window.App.isTestMode =
    * Sets default database name, collects UI elements, and runs initial load.
    */
   App.initializeWhenReady = async function initializeWhenReady() {
-    const TEST_MODE = App.isTestMode();
-    const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
-    const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
     App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
 
     if (typeof global.dbName === "undefined") {
@@ -1365,14 +1361,17 @@ window.App.isTestMode =
     } catch (error) {
       const retryCount = (App.initializeWhenReadyRetryCount || 0) + 1;
       App.initializeWhenReadyRetryCount = retryCount;
-      console.error("Failed to initialize App:", error);
+      // MODIFIED: Log the error with the retry count for better diagnostics
+      console.warn(`⚠️ App initialization failed (attempt ${retryCount}/${MAX_INIT_RETRIES}):`, error.message);
       if (TEST_MODE) {
         return false;
       }
       if (retryCount < MAX_INIT_RETRIES) {
+        // eslint-disable-next-line promise/param-names
         await new Promise((r) => setTimeout(r, INIT_BACKOFF_MS));
         return App.initializeWhenReady();
       }
+      console.error(`❌ App initialization failed after ${MAX_INIT_RETRIES} attempts.`, error);
       throw error;
     }
   };

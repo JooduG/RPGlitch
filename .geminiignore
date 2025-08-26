@@ -3,8 +3,6 @@ node_modules/
 **_/node_modules/
 build/local_libs/
 **_/build/local_libs/
-build/output/
-**_/build/output/
 .cache/
 **_/.cache/
 dist/
@@ -19,3 +17,17 @@ memory-bank/archive
 **_/memory-bank/archive
 memory-bank/scribbles.md
 **_/memory-bank/scribbles.md
+test-basic-memory/
+**_/test-basic-memory/
+.cursor/
+**_/.cursor/
+.windsurf/
+**_/.windsurf/
+.amazonq/
+**_/.amazonq/
+.codex/
+**_/.codex/
+.github/
+**_/.github/
+.vscode/
+**_/.vscode/

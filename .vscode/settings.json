@@ -1,25 +1,25 @@
 {
   "markdownlint.ignore": [
     "node_modules/",
-    "**/node_modules/",
-    "build/output/",
-    "**/build/output/",
+    "**_/node_modules/",
     "build/local_libs/",
-    "**/build/local_libs/",
+    "**_/build/local_libs/",
+    "build/output/",
+    "**_/build/output/",
     ".cache/",
-    "**/.cache/",
+    "**_/.cache/",
     "dist/",
-    "**/dist/",
+    "**_/dist/",
+    ".env",
+    "**_/.env",
     ".DS_Store",
-    "**/.DS_Store",
+    "**_/.DS_Store",
     "Thumbs.db",
-    "**/Thumbs.db",
+    "**_/Thumbs.db",
     "memory-bank/archive",
-    "**/memory-bank/archive",
-    "apps/character-ai-instructions/",
-    "**/apps/character-ai-instructions/",
+    "**_/memory-bank/archive",
     "memory-bank/scribbles.md",
-    "**/memory-bank/scribbles.md"
+    "**_/memory-bank/scribbles.md"
   ],
   "files.exclude": {
     "test-basic-memory/": true,
@@ -38,7 +38,8 @@
     "build/local_libs": true,
     "mcp.json": true,
     "mcp/": true,
-    ".basicmemoryignore": true
+    ".basicmemoryignore": true,
+    ".geminiignore": true
   },
   "files.associations": {
     "*.md": "markdown"

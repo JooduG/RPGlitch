@@ -1,102 +1,286 @@
 {
-	"servers": {
-		"github": {
-			"url": "https://api.githubcopilot.com/mcp/",
-			"type": "http"
-		},
-		"markitdown": {
-			"command": "uvx",
-			"args": [
-				"markitdown-mcp"
-			],
-			"type": "stdio"
-		},
-		"time": {
-		"command": "python",
-		"args": [
-			"-m",
-			"mcp_server_time"
-		],
-		"autoStart": true,
-		"description": "Provides tools to get the current time and date. To start, run: python -m mcp_server_time"
-		},
-		
-		"Context7": {
-		"url": "https://mcp.context7.com/mcp",
-		"description": "Connects to the remote Context7 service for advanced context-aware capabilities. As a URL-based server, it does not need to be started locally."
-		},
-
-		"mcp-sequentialthinking-tools": {
-		"command": "npx",
-		"args": [
-			"-y",
-			"mcp-sequentialthinking-tools"
-		],
-		"type": "stdio",
-		"pollingInterval": 30000,
-		"startupTimeout": 30000,
-		"restartOnFailure": true,
-		"autoStart": true,
-		"description": "Provides advanced sequential thinking tools with persistent state. To start, run: npx -y mcp-sequentialthinking-tools"
-		},
-
-		"pollinations": {
-		"command": "npx",
-		"args": [
-			"-y",
-			"@pollinations/model-context-protocol"
-		],
-		"type": "stdio",
-		"pollingInterval": 30000,
-		"startupTimeout": 30000,
-		"restartOnFailure": true,
-		"autoStart": true,
-		"description": "Provides AI image generation and creative tools through Pollinations services. To start, run: npx -y @pollinations/model-context-protocol"
-		},
-
-		"filesystem": {
-		"command": "npx",
-		"args": [
-			"-y",
-			"@modelcontextprotocol/server-filesystem",
-			"${input}",
-			"."
-		],
-		"env": {},
-		"autoApprove": ["read_file","write_file","list_dir"],
-		"autoStart": true,
-		"description": "Portable filesystem server"
-		},
-	
-		"playwright": {
-		"command": "npx",
-		"args": ["-y","@playwright/mcp"],
-		"autoApprove": ["open_page","screenshot"],  
-		"autoStart": true
-		},
-
-		"Toolbox": {
-		"type": "stdio",
-		"command": "npx",
-		"args": ["-y","@smithery/cli@latest","run","@smithery/toolbox","--key","${d7ad75eb-9a3e-4a3a-90ee-83012ed280e6}","--profile","${voluntary-hornet-y52X3F}"],
-		"env": {}
-		},
-
-		"basic-memory": {
-		"command": "uvx",
-		"args": ["basic-memory", "mcp"],
-		"env": {
-			"BASIC_MEMORY_PROJECT_ROOT": "C:/Users/johng/Documents/GitHub/default/memory-bank"
-		},
-
-		"autoApprove": [
-			"list_projects",
-			"list_project_files",
-			"memory_bank_read",
-			"memory_bank_write",
-			"memory_bank_update"
-		],
-		"autoStart": true,
-		"description": "Basic Memory MCP server for semantic knowledge management."
-		}	
-	}}
+  "theme": "Atom One",
+  "selectedAuthType": "oauth-personal",
+  "mcpServers": {
+    "github": {
+      "url": "https://api.githubcopilot.com/mcp/",
+      "type": "http"
+    },
+    "markitdown": {
+      "command": "uvx",
+      "args": [
+        "markitdown-mcp"
+      ],
+      "type": "stdio",
+      "autoStart": true
+    },
+    "time": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_server_time"
+      ],
+      "autoStart": true,
+      "description": "Provides tools to get the current time and date. To start, run: python -m mcp_server_time"
+    },
+    "Context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "mcp-sequentialthinking-tools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-sequentialthinking-tools"
+      ],
+      "type": "stdio",
+      "pollingInterval": 30000,
+      "startupTimeout": 30000,
+      "restartOnFailure": true,
+      "autoStart": true,
+      "description": "Provides advanced sequential thinking tools with persistent state. To start, run: npx -y mcp-sequentialthinking-tools"
+    },
+    "pollinations": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@pollinations/model-context-protocol"
+      ],
+      "type": "stdio",
+      "pollingInterval": 30000,
+      "startupTimeout": 30000,
+      "restartOnFailure": true,
+      "autoStart": true,
+      "description": "Provides AI image generation and creative tools through Pollinations services. To start, run: npx -y @pollinations/model-context-protocol"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${input}",
+        "."
+      ],
+      "env": {},
+      "autoApprove": [
+        "read_file",
+        "write_file",
+        "list_dir"
+      ],
+      "autoStart": true,
+      "description": "Portable filesystem server",
+      "type": "stdio"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp"
+      ],
+      "autoApprove": [
+        "open_page",
+        "screenshot"
+      ],
+      "autoStart": true
+    },
+    "Toolbox": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@smithery/toolbox",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "env": {},
+      "autoStart": true
+    },
+    "basic-memory": {
+      "type": "http",
+      "url": "https://server.smithery.ai/@basicmachines-co/basic-memory/mcp?api_key=d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
+      "description": "Basic Memory MCP server via Smithery.",
+      "env": {
+        "BASIC_MEMORY_PROJECT_ROOT": "C:\\Users\\johng\\Documents\\GitHub\\default\\memory-bank"
+      }
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "microsoft-docs": {
+      "url": "https://learn.microsoft.com/api/mcp",
+      "description": "Microsoft Docs MCP for documentation search and fetch."
+    },
+    "deepwiki": {
+      "url": "https://mcp.deepwiki.com/sse",
+      "description": "DeepWiki MCP over SSE for knowledge lookup."
+    },
+    "Multi-AgentDebate": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@albinjal/multi-agent-debate-mcp",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "autoStart": true,
+      "description": "Multi-agent debate tools via Smithery MCP (stdio)."
+    },
+    "NPMSentinelMCP": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@Nekzus/npm-sentinel-mcp",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "autoStart": true,
+      "description": "NPM package sentinel analysis via Smithery MCP (stdio)."
+    },
+    "HuggingFaceMCPServer": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@shreyaskarnik/huggingface-mcp-server",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "autoStart": true,
+      "description": "Hugging Face utilities via Smithery MCP (stdio)."
+    },
+    "PapersWithCodeClient": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@hbg/mcp-paperswithcode",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "autoStart": true,
+      "description": "Papers With Code client via Smithery MCP (stdio)."
+    },
+    "ScientificMethodServer": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@waldzellai/scientific-method",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "autoStart": true,
+      "description": "Scientific method reasoning tools via Smithery MCP (stdio)."
+    },
+    "MetacognitiveMonitoringServer": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@waldzellai/metacognitive-monitoring",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "autoStart": true,
+      "description": "Metacognitive monitoring tools via Smithery MCP (stdio)."
+    },
+    "everything": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-everything"
+      ],
+      "type": "stdio",
+      "autoStart": true,
+      "description": "Convenience MCP exposing many demo tools in one server."
+    },
+    "SourcebotCodeSearchServer": {
+      "type": "http",
+      "url": "https://server.smithery.ai/@sourcebot-dev/sourcebot/mcp?api_key=${SOURCEBOT_API_KEY}&profile=${SOURCEBOT_PROFILE}",
+      "description": "Sourcebot code search via Smithery MCP (http)."
+    },
+    "ClearThought15": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@waldzellai/clear-thought",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "autoStart": true,
+      "description": "Clear Thought reasoning server via Smithery MCP (stdio)."
+    },
+    "CodebaseContextDumper": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@lex-tools/codebase-context-dumper",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "autoStart": true,
+      "description": "Dump codebase context via Smithery MCP (stdio)."
+    },
+    "MarkdownRules": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@valstro/markdown-rules-mcp",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "autoStart": true,
+      "description": "Markdown rules utilities via Smithery MCP (stdio)."
+    }
+  }
+}

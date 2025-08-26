@@ -10,6 +10,7 @@ const APP_JS_DIR = path.join(APP_DIR, 'js');
 const BUILD_DIR = path.join(ROOT, 'build');
 const LOCAL_LIBS_DIR = path.join(BUILD_DIR, 'local_libs');
 const OUTPUT_DIR = path.join(BUILD_DIR, 'output');
+const STRAY_APP_HTML = path.join(APP_DIR, 'RPGlitch.html');
 
 const OUTPUT_HTML = path.join(OUTPUT_DIR, 'RPGlitch.html');
 
@@ -156,6 +157,17 @@ function bundleJs() {
   console.log('🔨 Building RPGlitch…');
   ensureDir(LOCAL_LIBS_DIR);
   ensureDir(OUTPUT_DIR);
+
+  // Heads-up: if a duplicate built file exists in the app folder, warn.
+  // The only supported deliverable is build/output/RPGlitch.html.
+  try {
+    if (fs.existsSync(STRAY_APP_HTML)) {
+      console.warn(
+        `⚠️  Found stray duplicate: ${path.relative(ROOT, STRAY_APP_HTML)}\n` +
+          '    This file is not used by the build. Consider removing it to avoid confusion.'
+      );
+    }
+  } catch { /* ignore */ }
 
   const htmlSrc = readFileSafe(SRC_HTML, 'source HTML');
   if (!htmlSrc) {

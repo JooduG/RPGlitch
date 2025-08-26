@@ -1,84 +1,72 @@
 # Gemini CLI Operational Protocol
 
-This is your foundational bootstrap protocol. You MUST follow these steps at the beginning of every session to align with the project's operational context.
+Version **2.0.0** · Adapted from **AGENTS.md v1.6.0**
 
-## 1. Bootstrap Sequence
+This is your foundational bootstrap protocol. You MUST follow these steps at the beginning of every session to align with the project's operational context. It defines how you think, what you're allowed to touch, and how you keep your work deterministic, safe, and shippable.
 
-1. **Acknowledge Protocol:** Silently acknowledge that this protocol is active and you are beginning the bootstrap sequence.
+---
 
-2. **Load Core Context:** Read the following files and directories to load the project's foundational principles, workflows, and tool configurations:
-    * `@.cursor/rules/` (Agent rules)
-    * `@memory-bank/` (Project information and state, contains `project/` and `rpglitch/` subdirectories)
-    * `mcp.json` (MCP server and tool configuration)
+## 1. Core Principles
 
-3. **Confirm and Operate:** After successfully loading all context, confirm your readiness by stating: **"I have loaded the project's rules, memory banks, and MCP configuration. I will now operate in accordance with this context."** You will then be ready to accept user commands.
+- **Proactive Tool-First Approach:** For any task, actively seek opportunities to use the specialized MCP servers. Prefer using a tool to automate, enrich, or validate, rather than relying on manual analysis or general knowledge.
+- **Favor determinism over cleverness**. If it’s inspectable, it’s debuggable.
+- **Small, reversible diffs** > large, entangled changes.
+- **Keep single sources of truth (SSOT)** for config and rules.
+- **Strategy → Tactics → Operations (STO)**. State your intent, define the steps, then execute.
+- When blocked, create a minimal reproduction and document it in `memory-bank/present/`.
 
-## 2. Rule Application Strategy
+---
 
-When operating, you will apply the loaded rules according to the following hierarchy and logic. The file prefixes indicate the category and context for application.
+## 2. Agent Operating Loop
 
-### Content & Rule Hierarchy
+At the start of every session, and for every task, you must follow this loop:
 
-1. **Project Memory (`@memory-bank/`):** Contains the project's state, plans, and informational context. This is not a set of rules, but the foundational knowledge base that informs the agent.
-2. **Agent Rules (`@.cursor/rules/`):** These are the explicit rules and guidelines that direct the agent's behavior and decision-making, applied based on the categories below.
+1. **Load Context:** Read the project state in this specific order, applying rules contextually based on the task.
+    - **This Protocol:** The rules in this `GEMINI.md` file.
+    - **Core Framework Rules (Always Load):** These define your fundamental operating system.
+        - `system-orchestration-mode.md`: The primary 3-role (Strategic, Tactical, Operational) model.
+        - `thinking-framework.md`: The 3 thinking approaches (Contemplative, Sequential, Professional).
+        - `system-architecture.md`: The overall system design and principles.
+        - `thinking-context-aware-rule-loading.md`: The strategy for loading other rules efficiently.
+    - **Supporting Systems (Load as needed):** These define how you interact with key subsystems.
+        - `memory-bank-*.md`: For reading from or writing to long-term memory.
+        - `mcp-*.md`: For interacting with the MCP tool ecosystem.
+    - **Technology-Specific Rules (Load based on task domain):**
+        - `js-*.md`: When working with JavaScript.
+        - `html-*.md`: When working with HTML.
+        - `scss-*.md`: When working with SCSS.
+    - **Memory Bank & Live Pointers:**
+        - `memory-bank/**`: Emphasize `present/` for current tasks.
+        - `memory-bank/present/INDEX.md` and `context-*.md`: For the most current operational context.
 
-### Application Logic for `.cursor/rules/`
+2. **Plan → Implement → Validate:**
+    - **Plan:** Record a concise plan or TODO in `memory-bank/present/`.
+    - **Implement:** Make small, reviewable changes only in permitted write paths.
+    - **Validate:** Run `npm run lint && npm test` (or `npm run validate`) to ensure changes are safe.
 
-The rules within `@.cursor/rules/` are categorized and applied as follows:
+3. **Record & Archive:**
+    - Capture key decisions and a summary in a new file in `memory-bank/present/`.
+    - Upon task completion, promote the summary to `memory-bank/past/` with a date stamp.
 
-* **Core System (`system-`, `mcp-`, `memory-bank-`):** Foundational rules for the agent's operating system and core protocols.
-  * `system-context-aware-rule-loading.mdc`
-  * `system-documentation.mdc`
-  * `system-effective-rule-writing.mdc`
-  * `mcp-integration.mdc`
-  * `mcp-context7.mdc`
-  * `mcp-comprehensive-guide.mdc`
-  * `mcp-sequential-thinking.mdc`
-  * `mcp-time.mdc`
-  * `memory-bank-integration.mdc`
-  * `memory-bank-optimization.mdc`
+---
 
-* **Operational Modes (`mode-`):** Activated to switch the agent's behavior for specific, high-level tasks.
-  * `mode-complexity-routing.mdc`
-  * `mode-orchestrator.mdc`
-  * `mode-system-enhanced.mdc`
-  * `mode-system.mdc`
+## 3. MCP Server Configuration (`.gemini/settings.json`)
 
-* **Agent Roles (`role-`):** Defines different personas or specializations for the agent to adopt.
-  * `role-1-operator.mdc`
-  * `role-2-tactician.mdc`
-  * `role-3-strategist.mdc`
-  * `role-assistant.mdc`
-  * `role-project-manager.mdc`
+The `.gemini/settings.json` file defines available Model Context Protocol (MCP) servers.
 
-* **Thinking Frameworks (`thinking-`):** High-level guides on how to process information and approach tasks.
-  * `thinking-framework.mdc`
-  * `thinking-contemplative.mdc`
+- **On Startup:** You will check this file to identify available tools and their startup configurations.
+- **Server Management:** For tools that are not URL-based, you will check if they can be started automatically via their `autoStart: true` flag. If a required server cannot be auto-started, you will inform the user and ask them to start it manually, providing the necessary command from its `description` or `command`/`args`.
 
-* **Project-Specific (`perchance-`):** Applied only when working on the Perchance-based RPGlitch application.
-  * `perchance-architecture.mdc`
-  * `perchance-build-deployment.mdc`
-  * `perchance-development-workflow.mdc`
-  * `perchance-plugin-system.mdc`
+---
 
-* **Technology-Specific (`js-`, `html-`, `scss-`):** Applied only when working directly with the specified technology.
-  * `html-development.mdc`
-  * `html-hyperscript-usage.mdc`
-  * `js-development.mdc`
-  * `js-cash-dom-usage.mdc`
-  * `js-dexie-usage.mdc`
-  * `js-indexeddb-principles.mdc`
-  * `scss-development.mdc`
-  * `scss-advanced-patterns.mdc`
-  * `scss-debugging.mdc`
-  * `scss-pico-usage.mdc`
+## 4. Key Project Constraints
 
-## 3. MCP Server Configuration (`mcp.json`)
-
-The `mcp.json` file in the project root defines available Model Context Protocol (MCP) servers.
-
-* **On Startup:** I will check this file to identify available tools and their startup configurations.
-* **Server Management:** For tools that are not URL-based, I will check if they can be started automatically. If not, and I need to use one, I will inform the user and ask them to start the required server. I can also assist in modifying `mcp.json` to enable auto-starting for servers that support it.
+- **Build Commands:** Use the `npm run ...` commands defined in `AGENTS.md` for building, testing, and linting.
+- **Permissions:** Respect the `allow_write` and `deny_write` paths specified in `AGENTS.md`. Do not modify files in `node_modules`, `.cursor`, or `build/output`.
+- **Security:**
+  - Never commit secrets.
+  - Sanitize all dynamic HTML with `DOMPurify.sanitize()`.
+  - Fetch time exclusively via the **Time MCP**.
 
 ## Rationale
 

@@ -1,5 +1,5 @@
 {
-  "servers": {
+  "mcpServers": {
     "github": {
       "url": "https://api.githubcopilot.com/mcp/",
       "type": "http"
@@ -22,17 +22,8 @@
       "description": "Provides tools to get the current time and date. To start, run: python -m mcp_server_time"
     },
     "Context7": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@context7/mcp"
-      ],
-      "env": {
-        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
-      },
-      "autoStart": true,
-      "description": "Context7 stdio server via @context7/mcp."
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
     },
     "mcp-sequentialthinking-tools": {
       "command": "npx",
@@ -75,7 +66,8 @@
         "list_dir"
       ],
       "autoStart": true,
-      "description": "Portable filesystem server"
+      "description": "Portable filesystem server",
+      "type": "stdio"
     },
     "playwright": {
       "command": "npx",
@@ -106,23 +98,20 @@
       "autoStart": true
     },
     "basic-memory": {
-      "command": "python",
-      "args": [
-        "-m",
-        "basic_memory.mcp"
-      ],
+      "type": "http",
+      "url": "https://server.smithery.ai/@basicmachines-co/basic-memory/mcp?api_key=d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
+      "description": "Basic Memory MCP server via Smithery.",
       "env": {
         "BASIC_MEMORY_PROJECT_ROOT": "C:\\Users\\johng\\Documents\\GitHub\\default\\memory-bank"
-      },
-      "autoApprove": [
-        "list_projects",
-        "list_project_files",
-        "memory_bank_read",
-        "memory_bank_write",
-        "memory_bank_update"
-      ],
-      "autoStart": true,
-      "description": "Basic Memory MCP server for semantic knowledge management."
+      }
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
     },
     "microsoft-docs": {
       "url": "https://learn.microsoft.com/api/mcp",
@@ -239,20 +228,9 @@
       "description": "Convenience MCP exposing many demo tools in one server."
     },
     "SourcebotCodeSearchServer": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@sourcebot-dev/sourcebot",
-        "--key",
-        "${SMITHERY_API_KEY}",
-        "--profile",
-        "${SMITHERY_PROFILE}"
-      ],
-      "autoStart": true,
-      "description": "Sourcebot code search via Smithery MCP (stdio)."
+      "type": "http",
+      "url": "https://server.smithery.ai/@sourcebot-dev/sourcebot/mcp?api_key=${SOURCEBOT_API_KEY}&profile=${SOURCEBOT_PROFILE}",
+      "description": "Sourcebot code search via Smithery MCP (http)."
     },
     "ClearThought15": {
       "type": "stdio",
