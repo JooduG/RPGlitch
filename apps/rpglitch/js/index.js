@@ -68,6 +68,7 @@ window.App.isTestMode =
   App.initializeWhenReadyRetryCount =
     App.initializeWhenReadyRetryCount || 0;
 
+
   // Highlight the active top bar tab and update ARIA attributes
   App.selectTopBarTab = function (btn) {
     const ui = App._getUIElements();
@@ -204,6 +205,8 @@ window.App.isTestMode =
   };
 
   App._attachChinSearchHandlers = function () {
+    if (App._chinSearchBound) return;
+    App._chinSearchBound = true;
     const inputs = document.querySelectorAll(".chin-search");
     const TEST_MODE = App.isTestMode();
     inputs.forEach((input) => {
@@ -226,7 +229,8 @@ window.App.isTestMode =
       };
 
       // NEW: debounce without adding new deps; but run synchronously in tests
-      const handler = TEST_MODE
+      const handler = App.isTestMode()
+
         ? doFilter
         : App.debounce
         ? App.debounce(doFilter, 250)
@@ -1319,6 +1323,12 @@ window.App.isTestMode =
 
     App._contentListenersAttached = true;
   };
+
+  const TEST_MODE = App.isTestMode();
+  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
+  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
+
+  App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
 
   /**
    * Initializes the application once dependencies and DOM are ready.
