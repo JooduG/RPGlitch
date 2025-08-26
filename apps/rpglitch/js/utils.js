@@ -165,7 +165,8 @@
     const container = () => doc.getElementById("chin-container");
 
     function getButtons() {
-      return container()?.querySelectorAll("[data-chin]") || doc.querySelectorAll("header [data-chin]");
+      // Query both header top-bar buttons and any in-container toggles
+      return doc.querySelectorAll("header [data-chin], #chin-container [data-chin]");
     }
 
     function getPanels() {

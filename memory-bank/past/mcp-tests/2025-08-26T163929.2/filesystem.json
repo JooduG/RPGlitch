@@ -1,0 +1,20 @@
+{
+  "name": "filesystem",
+  "cmd": "npx",
+  "args": [
+    "-y",
+    "@modelcontextprotocol/server-filesystem",
+    "${input}",
+    "."
+  ],
+  "initializeOk": false,
+  "toolsListOk": false,
+  "toolsCount": null,
+  "toolCallOk": false,
+  "exitInfo": {
+    "code": 1,
+    "signal": null
+  },
+  "stdoutBytes": 0,
+  "stderrBytes": 1188
+}

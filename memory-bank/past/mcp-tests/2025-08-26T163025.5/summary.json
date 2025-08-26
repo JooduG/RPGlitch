@@ -1,0 +1,34 @@
+{
+  "when": "2025-08-26T16:30:53.513Z",
+  "results": [
+    {
+      "name": "markitdown",
+      "type": "stdio",
+      "status": "skipped",
+      "reason": "uvx missing"
+    },
+    {
+      "name": "time",
+      "type": "stdio",
+      "status": "timeout",
+      "toolsListOk": false,
+      "toolsCount": null,
+      "toolCallOk": false,
+      "stdout": "C:\\Users\\johng\\Documents\\GitHub\\default\\memory-bank\\past\\mcp-tests\\2025-08-26T163025.5\\time.stdout.log",
+      "stderr": "C:\\Users\\johng\\Documents\\GitHub\\default\\memory-bank\\past\\mcp-tests\\2025-08-26T163025.5\\time.stderr.log",
+      "meta": "C:\\Users\\johng\\Documents\\GitHub\\default\\memory-bank\\past\\mcp-tests\\2025-08-26T163025.5\\time.json"
+    },
+    {
+      "name": "Context7",
+      "type": "url",
+      "status": "skipped",
+      "reason": "URL server"
+    },
+    {
+      "name": "basic-memory",
+      "type": "url",
+      "status": "skipped",
+      "reason": "URL server"
+    }
+  ]
+}

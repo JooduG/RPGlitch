@@ -1425,4 +1425,29 @@ window.App.isTestMode =
     });
     App.refreshAllLists();
   };
+  // ---- Deterministic bootstrap (non-test environments) ----
+  try {
+    if (!App._bootBound) {
+      App._bootBound = true;
+      const boot = async () => {
+        try {
+          if (App.isTestMode && App.isTestMode()) return; // tests call initialize explicitly
+          if (App._bootStarted) return;
+          App._bootStarted = true;
+          await App.initializeWhenReady?.();
+          App._bootCompleted = true;
+        } catch (err) {
+          // Surface errors clearly; initializeWhenReady already retries internally
+          console.error("RPGlitch boot failed:", err);
+        }
+      };
+      // If DOM is already ready, schedule microtask; otherwise wire events
+      if (document.readyState === "complete" || document.readyState === "interactive") {
+        setTimeout(boot, 0);
+      } else {
+        document.addEventListener("DOMContentLoaded", boot, { once: true });
+        window.addEventListener("load", boot, { once: true });
+      }
+    }
+  } catch {}
 })(window, document);

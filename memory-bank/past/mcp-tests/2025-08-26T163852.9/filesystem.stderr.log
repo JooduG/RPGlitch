@@ -1,0 +1,18 @@
+node:internal/modules/esm/resolve:275
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\Users\johng\AppData\Local\npm-cache\_npx\a3241bba59c344f5\node_modules\@modelcontextprotocol\sdk\dist\esm\server\index.js' imported from C:\Users\johng\AppData\Local\npm-cache\_npx\a3241bba59c344f5\node_modules\@modelcontextprotocol\server-filesystem\dist\index.js
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:860:10)
+    at defaultResolve (node:internal/modules/esm/resolve:984:11)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///C:/Users/johng/AppData/Local/npm-cache/_npx/a3241bba59c344f5/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js'
+}
+
+Node.js v22.14.0

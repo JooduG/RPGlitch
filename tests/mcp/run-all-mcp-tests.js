@@ -68,7 +68,7 @@ class StdioJsonRpc {
   }
   send(msg) {
     const data = Buffer.from(JSON.stringify(msg), 'utf8');
-    const header = Buffer.from(`Content-Length: ${data.length}\r\n\r\n`, 'utf8');
+    const header = Buffer.from(`Content-Length: ${data.length}\r\nContent-Type: application/json\r\n\r\n`, 'utf8');
     this.proc.stdin.write(header);
     this.proc.stdin.write(data);
   }
@@ -140,7 +140,9 @@ async function testServer(name, srv, allEnv, opts) {
   let proc;
   let timedOut = false;
   try {
-    proc = spawn(command, args, { env, stdio: ['pipe', 'pipe', 'pipe'] });
+    // On Windows, spawning .cmd shims like npx.cmd often requires a shell
+    const useShell = process.platform === 'win32';
+    proc = spawn(command, args, { env, stdio: ['pipe', 'pipe', 'pipe'], shell: useShell });
   } catch (e) {
     return { name, type: 'stdio', status: 'spawn-failed', error: e.message };
   }

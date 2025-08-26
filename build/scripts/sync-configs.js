@@ -150,6 +150,35 @@ function resolveMcpConfig() {
   return master;
 }
 
+function loadEnvExports(filePath) {
+  const env = {};
+  try {
+    const raw = fs.readFileSync(filePath, 'utf8');
+    for (const line of raw.split(/\r?\n/)) {
+      const m = line.match(/^\s*export\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"?(.*?)"?\s*$/);
+      if (m) env[m[1]] = m[2];
+    }
+  } catch {
+    // ignore missing .env
+  }
+  return env;
+}
+
+function deepSubstitute(obj, envMap) {
+  const subst = (v) => String(v).replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g, (_, key) => (envMap[key] != null ? String(envMap[key]) : `\${${key}}`));
+  const walk = (val) => {
+    if (Array.isArray(val)) return val.map(walk);
+    if (val && typeof val === 'object') {
+      const out = Array.isArray(val) ? [] : {};
+      for (const [k, v] of Object.entries(val)) out[k] = walk(v);
+      return out;
+    }
+    if (typeof val === 'string') return subst(val);
+    return val;
+  };
+  return walk(obj);
+}
+
 function syncConfigs() {
   // Sync rules to IDE directories
   if (fs.existsSync(MASTER_RULES_DIR)) {
@@ -161,10 +190,15 @@ function syncConfigs() {
 
   // Sync MCP configuration to IDE directories
   const resolvedMcp = resolveMcpConfig();
-  // Persist back to master for auditability/editing
+  const envMap = { ...process.env, ...loadEnvExports(path.join(ROOT, '.env')) };
+  const clientMcp = deepSubstitute(resolvedMcp, envMap);
+  // Persist back to master for auditability/editing (keep placeholders)
   writeJson(MASTER_MCP_PATH, resolvedMcp);
-  writeJson(CURSOR_MCP_PATH, resolvedMcp);
-  writeJson(WINDSURF_MCP_PATH, resolvedMcp);
+  // Write client configs with env-substituted values (untracked by git)
+  writeJson(CURSOR_MCP_PATH, clientMcp);
+  writeJson(WINDSURF_MCP_PATH, clientMcp);
+  writeJson(path.join(VSCODE_DIR, 'mcp.json'), clientMcp);
+  // Root mcp.json is tracked; keep placeholders to avoid leaking secrets
   writeJson(ROOT_MCP_PATH, resolvedMcp);
   console.log('🔧 MCP configuration synced (tools → master → IDE)');
 
@@ -175,8 +209,8 @@ function syncConfigs() {
       let gemini;
       try { gemini = JSON.parse(raw); } catch { gemini = {}; }
       if (!gemini || typeof gemini !== 'object') gemini = {};
-      // Replace entire servers block with resolved master servers (SSOT)
-      gemini.mcpServers = resolvedMcp.mcpServers || {};
+      // Replace entire servers block with resolved client servers (SSOT with env substitution)
+      gemini.mcpServers = clientMcp.mcpServers || clientMcp.servers || {};
       ensureDir(GEMINI_DIR);
       writeJson(GEMINI_SETTINGS_FILE, gemini);
       console.log('🔗 .gemini/settings.json: mcpServers block updated from SSOT (other settings preserved)');

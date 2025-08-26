@@ -160,20 +160,17 @@ JWT-based authentication with secure token handling
 }
 ```
 
-### **Project Structure**
+### **Project Structure (Updated 2025-08-26)**
 
 ```md
 memory-bank/
-├── projects/
-│   ├── system-architecture/     # 🎭 Strategic knowledge
-│   ├── rpglitch/               # 🎨 Tactical knowledge
-│   ├── strategic/              # 🎭 Strategic mode knowledge
-│   ├── tactical/               # 🎨 Tactical mode knowledge
-│   └── operational/            # ⚒️ Operational mode knowledge
-├── active/                     # Current active context
-├── docs/                       # Documentation
-└── archives/                   # Historical knowledge
+├── past/        # Recent completions, summaries, and lessons
+├── present/     # Active context, today’s notes, execution plans
+├── future/      # Ideas, planning, and upcoming initiatives
+└── forever/     # Durable references, policies, canonical guides
 ```
+
+Note: The previous `projects/` structure (strategic/tactical/operational) is deprecated. Use the four buckets above.
 
 ### **Knowledge Capture Workflow**
 

@@ -1,0 +1,16 @@
+{
+  "when": "2025-08-26T16:24:44.789Z",
+  "results": [
+    {
+      "name": "time",
+      "type": "stdio",
+      "status": "timeout",
+      "toolsListOk": false,
+      "toolsCount": null,
+      "toolCallOk": false,
+      "stdout": "C:\\Users\\johng\\Documents\\GitHub\\default\\memory-bank\\past\\mcp-tests\\2025-08-26T162417.0\\time.stdout.log",
+      "stderr": "C:\\Users\\johng\\Documents\\GitHub\\default\\memory-bank\\past\\mcp-tests\\2025-08-26T162417.0\\time.stderr.log",
+      "meta": "C:\\Users\\johng\\Documents\\GitHub\\default\\memory-bank\\past\\mcp-tests\\2025-08-26T162417.0\\time.json"
+    }
+  ]
+}

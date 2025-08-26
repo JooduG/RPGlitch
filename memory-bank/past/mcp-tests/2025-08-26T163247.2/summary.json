@@ -1,0 +1,11 @@
+{
+  "when": "2025-08-26T16:32:47.256Z",
+  "results": [
+    {
+      "name": "filesystem",
+      "type": "stdio",
+      "status": "spawn-failed",
+      "error": "spawn EINVAL"
+    }
+  ]
+}

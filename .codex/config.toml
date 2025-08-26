@@ -63,14 +63,13 @@ exclude_globs = ["**/archive/**"]
 load_first = ["rules/**", "memory-bank/**"]
 local_readme_rule = true
 
-[mcp]
-config = "build/config/mcp.master.json"
-enable = ["time", "basic-memory", "filesystem"]
+[mcp_servers.basic-memory-stdio]
+command = "npx"
+args = ["-y", "@smithery/cli@latest", "run", "@basicmachines-co/basic-memory", "--key", "${SMITHERY_API_KEY}", "--profile", "${SMITHERY_PROFILE}"]
 
 [safety]
 block_external_network = false
 enforce_guardrails = true
-Notes
 
 [memory]
 record_decisions = true

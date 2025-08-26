@@ -282,6 +282,22 @@
       ],
       "autoStart": true,
       "description": "Markdown rules utilities via Smithery MCP (stdio)."
+    },
+    "basic-memory-stdio": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@basicmachines-co/basic-memory",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "autoStart": true,
+      "description": "Basic Memory MCP server via Smithery (stdio)."
     }
   },
   "inputs": [],
@@ -568,6 +584,22 @@
       ],
       "autoStart": true,
       "description": "Markdown rules utilities via Smithery MCP (stdio)."
+    },
+    "basic-memory-stdio": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@basicmachines-co/basic-memory",
+        "--key",
+        "${SMITHERY_API_KEY}",
+        "--profile",
+        "${SMITHERY_PROFILE}"
+      ],
+      "autoStart": true,
+      "description": "Basic Memory MCP server via Smithery (stdio)."
     }
   }
 }

@@ -1,0 +1,24 @@
+{
+  "name": "basic-memory-stdio",
+  "cmd": "npx",
+  "args": [
+    "-y",
+    "@smithery/cli@latest",
+    "run",
+    "@basicmachines-co/basic-memory",
+    "--key",
+    "${SMITHERY_API_KEY}",
+    "--profile",
+    "${SMITHERY_PROFILE}"
+  ],
+  "initializeOk": false,
+  "toolsListOk": false,
+  "toolsCount": null,
+  "toolCallOk": false,
+  "exitInfo": {
+    "code": null,
+    "signal": "SIGTERM"
+  },
+  "stdoutBytes": 0,
+  "stderrBytes": 1826
+}
