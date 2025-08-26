@@ -227,7 +227,7 @@
       };
 
       // NEW: debounce without adding new deps; but run synchronously in tests
-      const handler = App.isTestMode()
+      const handler = TEST_MODE
         ? doFilter
         : App.debounce
         ? App.debounce(doFilter, 250)
