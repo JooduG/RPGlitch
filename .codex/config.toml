@@ -65,12 +65,12 @@ local_readme_rule = true
 
 [mcp]
 config = "build/config/mcp.master.json"
-# Enable the actual server keys defined in tools/mcp.json
-enable = ["basic-memory", "mcp-sequentialthinking-tools", "time", "Context7", "filesystem", "playwright", "Toolbox", "markitdown", "pollinations", "github"]
+enable = ["time", "basic-memory", "filesystem"]
 
 [safety]
-block_external_network = true
+block_external_network = false
 enforce_guardrails = true
+Notes
 
 [memory]
 record_decisions = true

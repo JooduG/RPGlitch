@@ -144,6 +144,9 @@ function resolveMcpConfig() {
     bm.env.BASIC_MEMORY_PROJECT_ROOT = path.join(ROOT, 'memory-bank');
   }
 
+  // Provide a compatibility alias for clients expecting `servers` instead of `mcpServers`
+  master.servers = master.mcpServers;
+
   return master;
 }
 

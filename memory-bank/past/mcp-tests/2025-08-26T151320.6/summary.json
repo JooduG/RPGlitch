@@ -1,0 +1,11 @@
+{
+  "when": "2025-08-26T15:13:20.710Z",
+  "results": [
+    {
+      "name": "everything",
+      "type": "stdio",
+      "status": "spawn-failed",
+      "error": "spawn EINVAL"
+    }
+  ]
+}

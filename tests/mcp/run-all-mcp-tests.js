@@ -10,7 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 
 const ROOT = process.cwd();
 const CONFIG_PATH = path.join(ROOT, 'build', 'config', 'mcp.master.json');
@@ -33,6 +33,12 @@ function loadEnvExports(filePath) {
 }
 
 function ensureDir(p) { fs.mkdirSync(p, { recursive: true }); }
+
+function hasInPath(cmd) {
+  const bin = process.platform === 'win32' ? `${cmd}.cmd` : cmd;
+  const res = spawnSync(process.platform === 'win32' ? 'where' : 'which', [bin], { encoding: 'utf8' });
+  return res.status === 0;
+}
 
 class StdioJsonRpc {
   constructor(proc) {
@@ -95,6 +101,11 @@ function parseArgs(argv) {
 async function testServer(name, srv, allEnv, opts) {
   const isUrl = !!srv.url && !srv.command;
   if (isUrl) return { name, type: 'url', status: 'skipped', reason: 'URL server' };
+
+  // Skip uvx-based servers when uvx is not available locally
+  if (srv.command === 'uvx' && !hasInPath('uvx')) {
+    return { name, type: 'stdio', status: 'skipped', reason: 'uvx missing' };
+  }
 
   const cmd = srv.command;
   const args = Array.isArray(srv.args) ? srv.args.slice() : [];
@@ -213,8 +224,10 @@ async function run() {
   ensureDir(LOG_ROOT);
   ensureDir(SESSION_DIR);
   const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+  // Support both schemas: { mcpServers: {...} } and { servers: {...} }
+  const serverMap = config.servers || config.mcpServers || {};
   const allEnv = { ...loadEnvExports(ENV_PATH), ...process.env };
-  let entries = Object.entries(config.servers || {});
+  let entries = Object.entries(serverMap);
   const cli = parseArgs(process.argv);
   if (cli.only) entries = entries.filter(([n]) => cli.only.has(n));
   if (cli.skip && cli.skip.size) entries = entries.filter(([n]) => !cli.skip.has(n));
