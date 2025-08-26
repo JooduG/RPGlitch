@@ -51,6 +51,18 @@
 
   const DATA_KEYS = ["stories", "characters", "worlds"];
 
+  App.isTestMode = function () {
+    return (
+      /jsdom/i.test(globalThis.navigator?.userAgent || "") ||
+      !!globalThis.__TEST__
+    );
+  };
+
+  const TEST_MODE = App.isTestMode();
+  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
+  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
+  App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
+
   // Highlight the active top bar tab and update ARIA attributes
   App.selectTopBarTab = function (btn) {
     const ui = App._getUIElements();
@@ -199,7 +211,7 @@
     inputs.forEach((input) => {
       const container = input.closest(".chin") || input.closest(".chin-widget");
       const list = container?.querySelector(".chin-grid");
-      if (!list) return;
+      if (!list || input._chinSearchBound) return;
 
       const doFilter = () => {
         const term = input.value.toLowerCase();
@@ -215,18 +227,13 @@
       };
 
       // NEW: debounce without adding new deps; but run synchronously in tests
-      const isTestEnv =
-        (typeof process !== "undefined" &&
-          process.env &&
-          process.env.NODE_ENV === "test") ||
-        (typeof navigator !== "undefined" &&
-          /jsdom/i.test(navigator.userAgent || ""));
-      const handler = isTestEnv
+      const handler = TEST_MODE
         ? doFilter
         : App.debounce
         ? App.debounce(doFilter, 250)
         : doFilter;
       input.addEventListener("input", handler);
+      input._chinSearchBound = true;
     });
   };
 
@@ -1314,26 +1321,6 @@
     App._contentListenersAttached = true;
   };
 
-  const isJSDOM =
-    typeof window !== 'undefined' &&
-    typeof window.navigator !== 'undefined' &&
-    /jsdom/i.test(window.navigator.userAgent || '');
-  const isTest =
-    typeof globalThis !== 'undefined' && !!globalThis.__TEST__;
-  const TEST_MODE = isJSDOM || isTest;
-  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
-  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
-
-  App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
-  const isJSDOM =
-    typeof window !== 'undefined' &&
-    typeof window.navigator !== 'undefined' &&
-    /jsdom/i.test(window.navigator.userAgent || '');
-  const isTest = typeof globalThis !== 'undefined' && !!globalThis.__TEST__;
-  const TEST_MODE = isJSDOM || isTest;
-  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
-  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
-
   /**
    * Initializes the application once dependencies and DOM are ready.
    * Sets default database name, collects UI elements, and runs initial load.
@@ -1357,18 +1344,19 @@
       App._attachStoryboardListeners?.();
       App.updateStoryboardTitle?.();
       App.initializeWhenReadyRetryCount = 0; // ✅ reset here on success
+      return true;
     } catch (error) {
       App.initializeWhenReadyRetryCount =
         (App.initializeWhenReadyRetryCount || 0) + 1;
       console.error("Failed to initialize App:", error);
+      if (TEST_MODE) {
+        return false;
+      }
       if (App.initializeWhenReadyRetryCount < MAX_INIT_RETRIES) {
-        if (TEST_MODE) {
-          return;
-        }
         await new Promise((r) => setTimeout(r, INIT_BACKOFF_MS));
         return App.initializeWhenReady();
-
       }
+      throw error;
     }
   };
 
