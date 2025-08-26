@@ -1314,6 +1314,16 @@
     App._contentListenersAttached = true;
   };
 
+  const isJSDOM =
+    typeof window !== 'undefined' &&
+    typeof window.navigator !== 'undefined' &&
+    /jsdom/i.test(window.navigator.userAgent || '');
+  const isTest =
+    typeof globalThis !== 'undefined' && !!globalThis.__TEST__;
+  const TEST_MODE = isJSDOM || isTest;
+  const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
+  const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
+
   App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
   const isJSDOM =
     typeof window !== 'undefined' &&
@@ -1357,6 +1367,7 @@
         }
         await new Promise((r) => setTimeout(r, INIT_BACKOFF_MS));
         return App.initializeWhenReady();
+
       }
     }
   };
