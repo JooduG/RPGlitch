@@ -183,14 +183,6 @@
     App._toggleChinContent(chinId);
   };
 
-  function getButtonForChin(chinEl) {
-    const name = chinEl?.dataset?.chin;
-    if (!name) return null;
-    const esc =
-      typeof CSS !== "undefined" && CSS.escape ? CSS.escape(name) : name;
-    return document.querySelector(`button[data-chin="${esc}"]`);
-  }
-
   App.ui.syncChinButtons = function () {
     App.chin.sync();
   };
@@ -208,9 +200,10 @@
     App._chinSearchBound = true;
     const inputs = document.querySelectorAll(".chin-search");
     inputs.forEach((input) => {
+      if (input._chinSearchBound) return; // idempotent
       const container = input.closest(".chin") || input.closest(".chin-widget");
       const list = container?.querySelector(".chin-grid");
-      if (!list) return;
+      if (!list || input._chinSearchBound) return;
 
       const doFilter = () => {
         const term = input.value.toLowerCase();
@@ -227,11 +220,13 @@
 
       // NEW: debounce without adding new deps; but run synchronously in tests
       const handler = App.isTestMode()
+
         ? doFilter
         : App.debounce
         ? App.debounce(doFilter, 250)
         : doFilter;
       input.addEventListener("input", handler);
+      input._chinSearchBound = true;
     });
   };
 

@@ -17,6 +17,10 @@ npm run deploy
 npm run build:copy
 ```
 
+## Contributor Guide
+
+See Repository Guidelines in `docs/CONTRIBUTING.md` for project structure, build/test commands, coding style, and PR conventions.
+
 ## Common tasks
 
 - **Deploy to Perchance:** `npm run deploy` (sync all, test, lint, build & copy)
