@@ -34,7 +34,7 @@ test('initializeWhenReady runs without errors', async () => {
   const App = loadApp(dom);
   App.initialLoad = jest.fn().mockResolvedValue();
   App._attachStoryboardEventListeners = jest.fn();
-  await expect(App.initializeWhenReady()).resolves.not.toThrow();
+  await expect(App.initializeWhenReady()).resolves.toBe(true);
 });
 
 test('_getUIElements is defined before initialization', () => {
