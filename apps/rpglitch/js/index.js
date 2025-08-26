@@ -1,4 +1,5 @@
 window.App = window.App || {};
+
 window.App.isTestMode =
   window.App.isTestMode ||
   function () {
@@ -13,7 +14,7 @@ window.App.isTestMode =
   };
 
 (function (global, document) {
-  const App = global.App || (global.App = {});
+  const App = global.App;
   // Main RPGlitch application namespace
 
   // Map utility helpers to App namespace with fallbacks
@@ -64,6 +65,7 @@ window.App.isTestMode =
   }
 
   const DATA_KEYS = ["stories", "characters", "worlds"];
+
 
   App.initializeWhenReadyRetryCount =
     App.initializeWhenReadyRetryCount || 0;
@@ -205,6 +207,7 @@ window.App.isTestMode =
   };
 
   App._attachChinSearchHandlers = function () {
+
     if (App._chinSearchBound) return;
     App._chinSearchBound = true;
     const inputs = document.querySelectorAll(".chin-search");
@@ -1338,13 +1341,15 @@ window.App.isTestMode =
     const TEST_MODE = App.isTestMode();
     const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
     const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
+    App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
+
     if (typeof global.dbName === "undefined") {
       global.dbName = "rpglitch-db";
     }
 
     try {
       App._getUIElements();
-      App.chin.init?.();
+      if (!TEST_MODE) App.chin.init?.();
       App._attachOptionChinActions?.();
       App._attachContentChinActions?.();
       App._attachCardNavigation?.();
