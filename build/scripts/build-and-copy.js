@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
 /**
- * Wrapper that:
- *  1) builds the Perchance bundle (build-perchance.js)
- *  2) copies build/output/RPGlitch-perchance.html to the OS clipboard
+ * Build wrapper:
+ *  1) builds the Perchance bundle (build-rpglitch.js)
+ *  2) copies build/output/RPGlitch.html to the OS clipboard (skipped in CI)
  *
- * Clipboard support:
+ * CI rules:
+ *  - If CI=1 (or NO_CLIPBOARD=1), we DO NOT attempt any clipboard operations.
+ *  - Build still runs and the output path is printed.
+ *
+ * Clipboard support (local/dev only):
  *  - Windows: PowerShell Set-Clipboard (fallback to clip.exe)
  *  - macOS: pbcopy
  *  - Linux/WSL: wl-copy | xclip | xsel (first available)
@@ -18,6 +22,13 @@ const { spawnSync } = require('child_process');
 const ROOT = path.resolve(__dirname, '..', '..');
 const BUILD_DIR = path.join(ROOT, 'build');
 const OUTPUT_FILE = path.join(BUILD_DIR, 'output', 'RPGlitch.html');
+
+function boolEnv(name) {
+  const v = (process.env[name] || '').toString().trim().toLowerCase();
+  return v === '1' || v === 'true' || v === 'yes';
+}
+
+const IN_CI = boolEnv('CI') || boolEnv('NO_CLIPBOARD');
 
 function runNode(scriptRelPath, args = []) {
   const scriptAbs = path.join(__dirname, scriptRelPath);
@@ -53,12 +64,10 @@ function copyFileToClipboard(filePath) {
 
   // WINDOWS (PowerShell Set-Clipboard → fallback to clip.exe)
   if (isWin) {
-    // Prefer Set-Clipboard (PowerShell 5+)
     const psCmd = [
       '-NoProfile',
       '-NonInteractive',
       '-Command',
-      // Use -LiteralPath to avoid issues with special chars; -Raw to keep the file un-split
       `Get-Content -LiteralPath '${filePath.replace(/'/g, "''")}' -Raw | Set-Clipboard`,
     ];
     const ps = spawnSync('powershell.exe', psCmd, { stdio: 'ignore' });
@@ -66,8 +75,6 @@ function copyFileToClipboard(filePath) {
       console.log('📋 Copied to clipboard (Windows PowerShell).');
       return true;
     }
-
-    // Fallback: clip.exe (ANSI), still better than nothing
     if (which('clip.exe')) {
       const clip = spawnSync('clip.exe', [], {
         input: fs.readFileSync(filePath, 'utf8'),
@@ -79,7 +86,6 @@ function copyFileToClipboard(filePath) {
         return true;
       }
     }
-
     return false;
   }
 
@@ -140,28 +146,31 @@ function copyFileToClipboard(filePath) {
 
 (function main() {
   try {
-    console.log('🔨 Building RPGlitch (wrapper)…');
-
-    // 1) Build RPGlitch bundle (writes build/output/RPGlitch.html)
     console.log('🔨 Building RPGlitch…');
     runNode('build-rpglitch.js');
 
-    // 2) Verify and copy to clipboard
-    if (fs.existsSync(OUTPUT_FILE)) {
-      console.log(`✅ Built: ${path.relative(ROOT, OUTPUT_FILE)}`);
-      const ok = copyFileToClipboard(OUTPUT_FILE);
-      if (!ok) {
-        console.warn('⚠️  Clipboard copy failed: no supported clipboard tool detected or command failed.');
-      }
-    } else {
+    if (!fs.existsSync(OUTPUT_FILE)) {
       console.error(`❌ Build reported success but output file was not found at: ${OUTPUT_FILE}`);
       process.exitCode = 1;
       return;
     }
 
+    console.log(`✅ Built: ${path.relative(ROOT, OUTPUT_FILE)}`);
+
+    if (IN_CI) {
+      console.log('CI: skipping clipboard copy (CI or NO_CLIPBOARD is set).');
+      console.log(`Path to artifact: ${OUTPUT_FILE}`);
+      console.log('✅ Done.');
+      return;
+    }
+
+    const ok = copyFileToClipboard(OUTPUT_FILE);
+    if (!ok) {
+      console.warn('⚠️  Clipboard copy failed or no clipboard tool available. Artifact path printed above.');
+    }
     console.log('✅ All done.');
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error('❌ Error:', err && err.message ? err.message : err);
     process.exitCode = 1;
   }
 })();

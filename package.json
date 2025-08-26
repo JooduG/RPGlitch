@@ -25,7 +25,9 @@
     "validate": "node -e \"const fs=require('fs');const p='build/output/RPGlitch.html';if(!fs.existsSync(p)||!fs.readFileSync(p,'utf8').trim())process.exit(2)\"",
     "mcp:test": "node tests/mcp/run-all-mcp-tests.js",
     "mcp:preflight": "node tests/mcp/preflight.js",
-    "mcp:basic": "node tests/mcp/run-all-mcp-tests.js --only time,basic-memory,Context7,markitdown --maxMs 12000"
+    "mcp:basic": "node tests/mcp/run-all-mcp-tests.js --only time,basic-memory,Context7,markitdown --maxMs 12000",
+    "build:ci": "node build/scripts/build-rpglitch.js",
+    "deploy:ci": "run-s sync test lint:fix build:ci"
   },
   "keywords": [
     "perchance",

@@ -1,3 +1,9 @@
+#!/usr/bin/env node
+/* Generate build/output/hub.md with a small dashboard and quick links.
+ * - Never blocks the pipeline.
+ * - Tests are OPTIONAL: set HUB_RUN_TESTS=1 to include counts (30s timeout).
+ */
+
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -8,39 +14,35 @@ const OUTPUT_DIR = path.join(__dirname, '..', 'output');
 function getActivityDashboard() {
   const stats = {
     tests: '?/?',
-    lint: '?',
     build: '?',
     lastSync: 'Never'
   };
 
-  // ⚠️ Important:
-  // We intentionally SKIP running the test suite here by default, because this script
-  // is called inside `npm run sync`, and `deploy(:loose)` runs `npm test` right after sync.
-  // To *optionally* run tests from the hub, set HUB_RUN_TESTS=1.
+  // Optional test run (off by default)
   if (process.env.HUB_RUN_TESTS === '1') {
     try {
-      // Keep it deterministic and fast; also guard against hangs.
       const cmd = process.platform === 'win32' ? 'npm.cmd test --silent' : 'npm test --silent';
-      const testOutput = execSync(cmd, {
+      const out = execSync(cmd, {
         cwd: REPO_ROOT,
         encoding: 'utf8',
         stdio: 'pipe',
-        timeout: 30000,           // 30s safety cap so hub generation can’t hang forever
+        timeout: 30000, // hard cap so hub cannot hang
         env: { ...process.env, CI: 'true' }
       });
-      const testMatch = testOutput.match(/(\d+)\s+passed.*?(\d+)\s+total/);
-      if (testMatch) stats.tests = `${testMatch[1]}/${testMatch[2]}`;
+      const m = out.match(/(\d+)\s+passed.*?(\d+)\s+total/);
+      if (m) stats.tests = `${m[1]}/${m[2]}`;
     } catch {
-      // If tests fail or timeout, show a warning glyph instead of blocking the pipeline.
       stats.tests = '⚠︎';
     }
   }
 
+  // Check actual build artifact used by build-rpglitch.js
   try {
-    const buildFile = path.join(REPO_ROOT, 'build/output/RPGlitch-perchance.html');
+    const buildFile = path.join(REPO_ROOT, 'build', 'output', 'RPGlitch.html');
     stats.build = fs.existsSync(buildFile) ? '✅' : '❌';
-  } catch { /* noop */ }
+  } catch { /* ignore */ }
 
+  // Rough "last sync" from previous hub timestamp
   try {
     const hubFile = path.join(OUTPUT_DIR, 'hub.md');
     if (fs.existsSync(hubFile)) {
@@ -52,7 +54,7 @@ function getActivityDashboard() {
         stats.lastSync = diffHours < 1 ? 'Just now' : `${diffHours}h ago`;
       }
     }
-  } catch { /* noop */ }
+  } catch { /* ignore */ }
 
   return `🧪 Tests: ${stats.tests}  🏗️ Build: ${stats.build}  🔄 Last sync: ${stats.lastSync}`;
 }
@@ -108,10 +110,11 @@ function buildHub(built) {
     '',
     '```bash',
     'npm run sync          # Update all (libs + configs + docs)',
-    'npm run deploy        # Full deploy pipeline',
+    'npm run deploy        # Full deploy pipeline (local)',
+    'npm run deploy:ci     # CI-safe deploy (no clipboard)',
     'npm run test          # Run test suite',
     'npm run lint:fix      # Fix linting issues',
-    'npm run build:copy    # Build & copy to clipboard',
+    'npm run build:copy    # Build & copy to clipboard (local)',
     'npm run sync:hub      # Update this hub',
     '```',
     ''
@@ -150,13 +153,19 @@ function writeHub(built) {
 
 // CLI support
 if (require.main === module) {
-  const outputFiles = fs.readdirSync(OUTPUT_DIR)
-    .filter(f => f.startsWith('combined-') && f.endsWith('.md'))
-    .map(f => ({
-      name: f.replace('combined-', '').replace('.md', ''),
-      title: f.replace('combined-', '').replace('.md', '').replace(/-/g, ' '),
-      output: f
-    }));
+  // Gather available combined files if the folder exists; otherwise still emit a hub.
+  let outputFiles = [];
+  try {
+    if (fs.existsSync(OUTPUT_DIR)) {
+      outputFiles = fs.readdirSync(OUTPUT_DIR)
+        .filter(f => f.startsWith('combined-') && f.endsWith('.md'))
+        .map(f => ({
+          name: f.replace('combined-', '').replace('.md', ''),
+          title: f.replace('combined-', '').replace('.md', '').replace(/-/g, ' '),
+          output: f
+        }));
+    }
+  } catch { /* ignore */ }
 
   writeHub(outputFiles);
 }
