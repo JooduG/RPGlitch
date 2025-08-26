@@ -201,7 +201,7 @@
 
     function closeAll() {
       getPanels().forEach((p) => p.setAttribute("hidden", ""));
-      return sync();
+      sync();
 
     }
 

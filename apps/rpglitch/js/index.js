@@ -1,3 +1,17 @@
+window.App = window.App || {};
+window.App.isTestMode =
+  window.App.isTestMode ||
+  function () {
+    if (!!globalThis.__TEST__) {
+      return true;
+    }
+    try {
+      return /jsdom/i.test(globalThis?.navigator?.userAgent || "");
+    } catch {
+      return false;
+    }
+  };
+
 (function (global, document) {
   const App = global.App || (global.App = {});
   // Main RPGlitch application namespace
@@ -51,14 +65,9 @@
 
   const DATA_KEYS = ["stories", "characters", "worlds"];
 
-  App.isTestMode =
-    App.isTestMode ||
-    function () {
-      return (
-        /jsdom/i.test(global.navigator?.userAgent || "") ||
-        !!globalThis.__TEST__
-      );
-    };
+  App.initializeWhenReadyRetryCount =
+    App.initializeWhenReadyRetryCount || 0;
+
 
   // Highlight the active top bar tab and update ARIA attributes
   App.selectTopBarTab = function (btn) {
@@ -199,6 +208,7 @@
     if (App._chinSearchBound) return;
     App._chinSearchBound = true;
     const inputs = document.querySelectorAll(".chin-search");
+    const TEST_MODE = App.isTestMode();
     inputs.forEach((input) => {
       if (input._chinSearchBound) return; // idempotent
       const container = input.closest(".chin") || input.closest(".chin-widget");
@@ -1325,6 +1335,9 @@
    * Sets default database name, collects UI elements, and runs initial load.
    */
   App.initializeWhenReady = async function initializeWhenReady() {
+    const TEST_MODE = App.isTestMode();
+    const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
+    const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
     if (typeof global.dbName === "undefined") {
       global.dbName = "rpglitch-db";
     }
@@ -1345,13 +1358,13 @@
       App.initializeWhenReadyRetryCount = 0; // ✅ reset here on success
       return true;
     } catch (error) {
-      App.initializeWhenReadyRetryCount =
-        (App.initializeWhenReadyRetryCount || 0) + 1;
+      const retryCount = (App.initializeWhenReadyRetryCount || 0) + 1;
+      App.initializeWhenReadyRetryCount = retryCount;
       console.error("Failed to initialize App:", error);
       if (TEST_MODE) {
         return false;
       }
-      if (App.initializeWhenReadyRetryCount < MAX_INIT_RETRIES) {
+      if (retryCount < MAX_INIT_RETRIES) {
         await new Promise((r) => setTimeout(r, INIT_BACKOFF_MS));
         return App.initializeWhenReady();
       }
