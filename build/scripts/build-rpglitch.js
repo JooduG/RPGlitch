@@ -118,13 +118,7 @@ function injectJs(html, js) {
     '(function(){',
     '  try {',
     js,
-    '    if (typeof App !== "undefined" && typeof App.initializeWhenReady === "function") {',
-    '      if (document.readyState === "loading") {',
-    '        document.addEventListener("DOMContentLoaded", function(){ App.initializeWhenReady(); }, { once: true });',
-    '      } else {',
-    '        App.initializeWhenReady();',
-    '      }',
-    '    }',
+    '    // App bootstrap is handled inside apps/rpglitch/js/index.js',
     '  } catch (err) {',
     '    console.error("App bootstrap failed:", err);',
     '  }',
@@ -134,7 +128,8 @@ function injectJs(html, js) {
   return html.includes('</body>') ? html.replace('</body>', `${wrapped}\n</body>`) : `${html}\n${wrapped}`;
 }
 
-function bundleJs() {
+function bundleJs(opts = {}) {
+  const skipLibs = !!opts.noLibs;
   const libs = [
     path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.cash.file),
     path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.dexie.file),
@@ -142,9 +137,11 @@ function bundleJs() {
     path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.hyperscript.file),
   ];
   const parts = [];
-  for (const p of libs) {
-    const code = readFileSafe(p, 'local lib JS', true);
-    if (code) parts.push(`/* ${path.basename(p)} */\n${code}\n`);
+  if (!skipLibs) {
+    for (const p of libs) {
+      const code = readFileSafe(p, 'local lib JS', true);
+      if (code) parts.push(`/* ${path.basename(p)} */\n${code}\n`);
+    }
   }
   for (const p of APP_JS_FILES) {
     const code = readFileSafe(p, `app script ${path.basename(p)}`, true);
@@ -183,7 +180,8 @@ function bundleJs() {
   const compiledScss = buildScss();
   const combinedCss = [picoCss, compiledScss].filter(Boolean).join('\n\n');
 
-  const jsBundle = bundleJs();
+  const noLibs = process.argv.includes('--no-libs');
+  const jsBundle = bundleJs({ noLibs });
 
   let finalHtml = stripTagsForInlining(htmlSrc);
   finalHtml = injectCss(finalHtml, combinedCss);

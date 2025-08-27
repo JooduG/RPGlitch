@@ -5,6 +5,7 @@
   "main": "build/scripts/build-rpglitch.js",
   "scripts": {
     "build": "node build/scripts/build-rpglitch.js",
+    "build:bare": "node build/scripts/build-rpglitch.js --no-libs",
     "build:copy": "node build/scripts/build-and-copy.js",
     "clean": "rm -rf build/output/",
     "clean:libs": "node -e \"require('fs').rmSync('build/local_libs', { recursive: true, force: true }); console.log('🧹 cleaned build/local_libs');\"",

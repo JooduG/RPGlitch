@@ -64,11 +64,34 @@ body {
   box-sizing: border-box;
 }
 
+/* Ensure non-open dialogs never block interaction in embedding environments */
+dialog:not([open]) {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+dialog[open] {
+  z-index: var(--z-overlay, 10000);
+}
+
 #profile-screen {
   box-sizing: border-box;
   max-width: var(--app-container-max);
   margin-inline: auto;
   padding-inline: var(--app-container-pad);
+}
+
+#chin-container {
+  box-sizing: border-box;
+  max-width: var(--app-container-max);
+  margin-inline: auto;
+  padding-inline: var(--app-container-pad);
+  position: relative; /* position context for absolute .chin */
+  pointer-events: none; /* JS toggles to auto only when a chin is open */
+}
+
+#chin-container[hidden] {
+  display: none !important;
 }
 
 h1,
@@ -405,8 +428,8 @@ input[type="submit"]:not([disabled]):hover {
 }
 
 .chin {
-  left: 1rem;
-  right: 1rem;
+  left: var(--app-container-pad); /* align to container padding */
+  right: var(--app-container-pad); /* align to container padding */
   top: -0.5rem;
   color: #fff;
   padding: 0.5rem 1rem 1rem;
@@ -426,6 +449,11 @@ input[type="submit"]:not([disabled]):hover {
   transition:
     transform 0.25s ease,
     opacity 0.25s ease;
+  pointer-events: auto; /* ensure the panel itself is interactive */
+}
+
+.chin[hidden] {
+  display: none !important;
 }
 
 .chin-actions {

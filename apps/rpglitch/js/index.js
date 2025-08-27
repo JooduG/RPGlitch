@@ -40,32 +40,9 @@ window.App.isTestMode =
       return el;
     };
 
-  // Deterministic brand color for entities (matches entities.js behavior)
-  function _hashHue(seed) {
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++)
-      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-    return Math.abs(hash) % 360;
-  }
-  function entityBrand(entity = {}) {
-    if (entity.palette || entity.brandColor || entity.color)
-      return entity.palette || entity.brandColor || entity.color;
-    const seed = [
-      entity.name || entity.title || "",
-      ...(entity.tags || []),
-    ].join(",");
-    return `hsl(${_hashHue(seed)}, 40%, 60%)`;
-  }
+  // Brand application: delegate to App.applyBrand from utils.js to avoid duplication
   function applyCardBrand(card, entity) {
-    try {
-      const brand = entityBrand(entity || {});
-      if (brand) {
-        card?.style?.setProperty("--brand", brand);
-        card?.classList?.add("has-brand");
-      }
-    } catch {
-      /* noop */
-    }
+    try { App.applyBrand?.(card, entity); } catch {}
   }
 
   const DATA_KEYS = ["stories", "characters", "worlds"];
@@ -444,6 +421,7 @@ window.App.isTestMode =
 
     container.textContent = "";
     const all = App.getAllItems(key);
+    const frag = document.createDocumentFragment();
 
     if (all.length === 0) {
       const message = document.createElement("p");
@@ -514,6 +492,8 @@ window.App.isTestMode =
 
       // Apply brand to the card so the Premade badge and accents can pick it up
       applyCardBrand(card, item);
+      // Also ensure media inherits brand for consistent visuals
+      try { App.applyBrand?.(media, item); } catch {}
 
       // Overlay chips: Premade + tags (pills over the media)
       if (media) {
@@ -563,8 +543,9 @@ window.App.isTestMode =
         if (type && id) App.router?.navigate?.(`#profile/${type}/${id}`);
       });
 
-      container.appendChild(card);
+      frag.appendChild(card);
     });
+    container.appendChild(frag);
   }
 
   function renderDropdown(selectId, key) {
@@ -1338,6 +1319,9 @@ window.App.isTestMode =
    */
   App.initializeWhenReady = async function initializeWhenReady() {
     App.initializeWhenReadyRetryCount = App.initializeWhenReadyRetryCount || 0;
+    try {
+ console.log('[RPGlitch] initializeWhenReady start', { retry: App.initializeWhenReadyRetryCount });
+    } catch (e) { /* ignore */ }
 
     if (typeof global.dbName === "undefined") {
       global.dbName = "rpglitch-db";
@@ -1356,13 +1340,28 @@ window.App.isTestMode =
       App.refreshAllLists?.();
       App._attachStoryboardListeners?.();
       App.updateStoryboardTitle?.();
-      App.initializeWhenReadyRetryCount = 0; // ✅ reset here on success
+      // Open a sane default chin so users see content immediately
+      try { App.chin?.open?.('stories'); } catch (e) { /* ignore */ }
+      // Hide any loading UI if present
+      try { App.dismissLoadingUI?.(); } catch (e) { void e; }
+      // Start watchdog to auto-heal any blocking overlays that slip through
+      try { App.startUIWatchdog?.(); } catch (e) { void e; }
+      // Install focus/visibility and hotkey recovery hooks
+      try { App.installUIRecoveryHooks?.(); } catch (e) { void e; }
+      // Install attribute observer to neutralize new blockers instantly
+      try { App.installUIBlockerAttributeObserver?.(); } catch (e) { void e; }
+      App.initializeWhenReadyRetryCount = 0; // ✅ reset on success
+      try {
+ console.log('[RPGlitch] initializeWhenReady success');
+      } catch (e) { /* ignore */ }
       return true;
     } catch (error) {
       const retryCount = (App.initializeWhenReadyRetryCount || 0) + 1;
       App.initializeWhenReadyRetryCount = retryCount;
-      // MODIFIED: Log the error with the retry count for better diagnostics
-      console.warn(`⚠️ App initialization failed (attempt ${retryCount}/${MAX_INIT_RETRIES}):`, error.message);
+      // MODIFIED: Log the error with stack for better diagnostics
+      try {
+        console.error(`❗ App initialization failed (attempt ${retryCount}/${MAX_INIT_RETRIES})`, error && (error.stack || error));
+      } catch (e) { /* ignore */ }
       if (TEST_MODE) {
         return false;
       }

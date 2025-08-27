@@ -22,6 +22,9 @@
 - `present/chin-focus-gradient-alignment.md`
   Chin focus and background/profile alignment fix notes.
 
+- `present/chin-lockup-hardening-2025-08-27.md`
+  Overlay guard + watchdog + attribute observer, chin alignment/close behavior, and router safety notes.
+
 ## Context Snapshot
 
 - `present/context-2025-08-25.md`  

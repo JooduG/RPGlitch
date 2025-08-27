@@ -7,9 +7,23 @@
   const App = (global.App = global.App || {});
 
   // ---------- Debug Logger ----------
-  App.debug = App.debug ?? true;
+  // Debug flag (persistable via localStorage: 'rpglitch.debug' => '1'|'true')
+  try {
+    const stored = (global.localStorage && global.localStorage.getItem('rpglitch.debug')) || '';
+    const on = /^(1|true)$/i.test(String(stored).trim());
+    App.debug = typeof App.debug === 'boolean' ? App.debug : on;
+  } catch {
+    App.debug = App.debug ?? true;
+  }
   App.log = function (...args) {
     if (App.debug) console.log("[RPGlitch]", ...args);
+  };
+
+  App.setDebug = function (on) {
+    const v = !!on;
+    App.debug = v;
+    try { global.localStorage && global.localStorage.setItem('rpglitch.debug', v ? '1' : '0'); } catch {}
+    return v;
   };
 
   // ---------- Safe JSON & Storage ----------
@@ -45,14 +59,207 @@
 
   // ---------- Show / Hide ----------
   App.hideEl = function (el) {
-    if (!el) return;
-    el.setAttribute("hidden", "");
-    el.classList.remove("is-open");
+    try {
+      if (typeof el === 'string') el = global.document.getElementById(el);
+      if (!el) return;
+      el.setAttribute("hidden", "");
+      el.classList.remove("is-open");
+    } catch { /* ignore */ }
   };
   App.showEl = function (el) {
-    if (!el) return;
-    el.removeAttribute("hidden");
-    el.classList.add("is-open");
+    try {
+      if (typeof el === 'string') el = global.document.getElementById(el);
+      if (!el) return;
+      el.removeAttribute("hidden");
+      el.classList.add("is-open");
+    } catch { /* ignore */ }
+  };
+
+  // ---------- Loading/Overlay guards ----------
+  // Force-close the loading modal and clear common busy states that can block the UI.
+  App.dismissLoadingUI = function () {
+    try {
+      const doc = global.document;
+      const dlg = doc.getElementById("loading-modal");
+      if (dlg) {
+        try { typeof dlg.close === "function" && dlg.close(); } catch (e) { void e; }
+        dlg.removeAttribute("open");
+        dlg.setAttribute("aria-hidden", "true");
+        dlg.style.display = "none";
+      }
+      // Remove aria-busy from any lingering element
+      doc.querySelectorAll('[aria-busy]')
+        .forEach((el) => el.removeAttribute('aria-busy'));
+      // Close any open dialogs except an emergency modal
+      doc.querySelectorAll('dialog[open]')
+        .forEach((d) => {
+          if (d.id === 'emergency-modal') return;
+          try { typeof d.close === 'function' && d.close(); } catch (e) { void e; }
+          d.removeAttribute('open');
+        });
+      // Defensive: ensure <dialog> elements that are not open don’t intercept clicks
+      doc.querySelectorAll('dialog:not([open])').forEach((d) => {
+        d.style.display = 'none';
+        d.setAttribute('aria-hidden', 'true');
+      });
+      // If any custom overlays exist, clear permissive data attributes
+      doc.querySelectorAll('[data-overlay],[data-block-ui]')
+        .forEach((el) => {
+          el.removeAttribute('data-overlay');
+          el.removeAttribute('data-block-ui');
+          el.removeAttribute('open');
+          el.style.pointerEvents = 'none';
+          el.style.display = 'none';
+        });
+      // Aggressively ensure main containers are interactive
+      const roots = [
+        doc.documentElement,
+        doc.body,
+        doc.getElementById('main'),
+        doc.getElementById('chin-container'),
+        doc.getElementById('storyboard-screen'),
+        doc.getElementById('profile-screen'),
+        doc.getElementById('character-form-screen'),
+        doc.getElementById('world-form-screen'),
+      ].filter(Boolean);
+      roots.forEach((el) => {
+        el.removeAttribute('inert');
+        try { el.style.pointerEvents = 'auto'; } catch {}
+        try { el.style.opacity = ''; } catch {}
+        try { el.style.visibility = ''; } catch {}
+        if (el === doc.body) {
+          try { el.style.overflow = 'auto'; } catch {}
+        }
+      });
+      App.log?.('dismissLoadingUI: ensured interactive state');
+    } catch (e) {
+      try { console.warn('dismissLoadingUI failed', e); } catch (err) { void err; }
+    }
+  };
+
+  // ---------- UI Block Detection / Watchdog ----------
+  App.isUIBlocked = function () {
+    try {
+      const doc = global.document;
+      // Any open non-emergency dialog
+      const openDialog = doc.querySelector('dialog[open]:not(#emergency-modal)');
+      if (openDialog) return { blocked: true, reason: 'dialog-open', node: openDialog };
+      // Any aria-busy elements in the DOM
+      const busy = doc.querySelector('[aria-busy="true"]');
+      if (busy) return { blocked: true, reason: 'aria-busy', node: busy };
+      // Pointer-events disabled on body or main containers
+      const candidates = [
+        doc.body,
+        doc.getElementById('main'),
+        doc.getElementById('chin-container'),
+      ].filter(Boolean);
+      for (const el of candidates) {
+        const cs = global.getComputedStyle?.(el);
+        if (cs && cs.pointerEvents === 'none') {
+          return { blocked: true, reason: 'pointer-events-none', node: el };
+        }
+        if (el.hasAttribute('inert')) {
+          return { blocked: true, reason: 'inert', node: el };
+        }
+      }
+      return { blocked: false };
+    } catch (e) {
+      return { blocked: false };
+    }
+  };
+
+  App.startUIWatchdog = function () {
+    try {
+      if (App._uiWatchdogStarted) return;
+      App._uiWatchdogStarted = true;
+      if (App.isTestMode && App.isTestMode()) return; // keep tests deterministic
+      let lastBlocked = undefined;
+      const tick = () => {
+        const st = App.isUIBlocked?.() || { blocked: false };
+        if (st.blocked) {
+          if (lastBlocked !== true) {
+            App.log?.('ui.watchdog: blocked', { reason: st.reason });
+          }
+          // Attempt to self-heal our own overlays
+          App.dismissLoadingUI?.();
+          lastBlocked = true;
+        } else if (lastBlocked !== false) {
+          App.log?.('ui.watchdog: unblocked');
+          lastBlocked = false;
+        }
+      };
+      App._uiWatchdogTimer = global.setInterval(tick, 500);
+      // Run immediately once
+      tick();
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  // ---------- Recovery Hooks (focus/visibility + hotkey) ----------
+  App.installUIRecoveryHooks = function () {
+    try {
+      if (App._uiHooksInstalled) return;
+      App._uiHooksInstalled = true;
+      const doc = global.document;
+      // On focus/visibility/pageshow, attempt to clear blockers
+      global.addEventListener('focus', () => App.dismissLoadingUI?.(), true);
+      doc.addEventListener('visibilitychange', () => App.dismissLoadingUI?.());
+      global.addEventListener('pageshow', () => App.dismissLoadingUI?.());
+      // Panic hotkey: Ctrl+Shift+D to dismiss overlays immediately
+      doc.addEventListener('keydown', (e) => {
+        try {
+          const ctrl = e.ctrlKey || e.metaKey; // allow Cmd on macOS
+          if (ctrl && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+            App.dismissLoadingUI?.();
+            App.log?.('ui.recovery: hotkey Ctrl+Shift+D');
+          }
+        } catch { /* ignore */ }
+      });
+      App.log?.('ui.recovery: hooks installed');
+    } catch { /* ignore */ }
+  };
+
+  // ---------- Attribute observer to neutralize new blockers instantly ----------
+  App.installUIBlockerAttributeObserver = function () {
+    try {
+      if (App._uiAttrObserverInstalled) return;
+      App._uiAttrObserverInstalled = true;
+      if (App.isTestMode && App.isTestMode()) return;
+      const doc = global.document;
+      const nodes = [
+        doc.documentElement,
+        doc.body,
+        doc.getElementById('main'),
+        doc.getElementById('chin-container'),
+      ].filter(Boolean);
+      const heal = (who) => {
+        try {
+          if (!who) return;
+          who.removeAttribute('inert');
+          who.style && (who.style.pointerEvents = 'auto');
+          if (who === doc.body) who.style.overflow = 'auto';
+        } catch (e) { void e; }
+      };
+      const obs = new MutationObserver((recs) => {
+        for (const r of recs) {
+          if (r.type === 'attributes') {
+            if (r.attributeName === 'inert' || r.attributeName === 'style') {
+              heal(r.target);
+              // Run the full dismissor as a fallback
+              App.dismissLoadingUI?.();
+            }
+          }
+        }
+      });
+      nodes.forEach((n) =>
+        obs.observe(n, { attributes: true, attributeFilter: ['inert', 'style'] })
+      );
+      App._uiAttrObserver = obs;
+      App.log?.('ui.attrObserver: installed');
+    } catch (e) {
+      // ignore
+    }
   };
 
   // ---------- Branding ----------
@@ -191,25 +398,32 @@
         if (selected) anyOpen = true;
       });
       const cont = container();
+      if (cont && cont.style) {
+        cont.style.pointerEvents = anyOpen ? 'auto' : 'none';
+      }
       if (anyOpen) {
         cont?.removeAttribute("hidden");
+        cont?.setAttribute("aria-hidden", "false");
         doc.body.classList.add("chin-open");
       } else {
         cont?.setAttribute("hidden", "");
+        cont?.setAttribute("aria-hidden", "true");
         doc.body.classList.remove("chin-open");
       }
+      App.log?.('chin.sync', { anyOpen, count: (panels||[]).length });
     }
 
     function closeAll() {
       getPanels().forEach((p) => p.setAttribute("hidden", ""));
       sync();
-
+      App.log?.('chin.closeAll');
     }
 
     function close(name) {
       const panel = [...getPanels()].find((p) => p.dataset.chin === name);
       if (panel) panel.setAttribute("hidden", "");
       sync();
+      App.log?.('chin.close', { name });
     }
 
     function open(name) {
@@ -227,6 +441,7 @@
         }
       });
       sync();
+      App.log?.('chin.open', { name });
     }
 
     function toggle(name) {
@@ -234,6 +449,7 @@
       if (!panel) return;
       if (panel.hasAttribute("hidden")) open(name);
       else close(name);
+      App.log?.('chin.toggle', { name });
     }
 
     function init() {
@@ -255,6 +471,23 @@
         });
         App._chinEscBound = true;
       }
+      // Close chins when clicking outside
+      if (!App._outsideChinListenerAttached) {
+        doc.addEventListener(
+          "click",
+          (e) => {
+            const cont = container();
+            if (!cont || cont.hasAttribute("hidden")) return;
+            if (e.defaultPrevented) return;
+            const t = e.target;
+            if (t && (t.closest && (t.closest(".chin") || t.closest("[data-chin]")))) return;
+            // Defer closing to allow target click handlers (like navigation) first
+            setTimeout(() => { App.chin.closeAll(); App.dismissLoadingUI?.(); }, 0);
+          },
+          true
+        );
+        App._outsideChinListenerAttached = true;
+      }
       // Ensure only one active MutationObserver tracks hidden-state changes
       try {
         if (App._chinObserver && typeof App._chinObserver.disconnect === "function") {
@@ -270,6 +503,7 @@
       if (cont)
         observer.observe(cont, { attributes: true, attributeFilter: ["hidden"] });
       sync();
+      App.log?.('chin.init: listeners attached');
     }
 
     return { getButtons, getPanels, open, close, closeAll, toggle, sync, init };
