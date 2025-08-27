@@ -11,13 +11,15 @@ globs:
 ---
 description: "ImageGlitch: A minimalist Text-to-Image generator built for the Perchance platform."
 tags:
-  - imageglitch
-  - perchance
-  - app
+
+- imageglitch
+- perchance
+- app
 globs:
-  - "**/*.html"
-  - "**/*.js"
-  - "**/*.scss"
+- "**/*.html"
+- "**/*.js"
+- "**/*.scss"
+
 ---
 
 # ImageGlitch

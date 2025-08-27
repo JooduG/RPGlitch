@@ -12,15 +12,13 @@ big sky Hyperscript enables easy, readable interactivity directly in HTML using 
 
 ## Foundation Requirements
 
-This rule builds upon semantic HTML principles. Ensure your HTML follows the guidelines in [HTML Development](../.cursor/rules/html-development.mdc) before adding Hyperscript interactivity.
+This rule builds upon semantic HTML principles. Ensure your HTML follows the guidelines in [HTML Development](../.cursor/rules/html-development.md) before adding Hyperscript interactivity.
 
 ## Usage Guidelines
 
 - **How to include:**
 
-    ```html
-    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
-    ```
+    The build process automatically includes Hyperscript. See `build/README.md` for the current version.
 
 - **When to use:** For form submission, button clicks, toggles, and simple UI logic.
 - **Example:**
@@ -54,13 +52,13 @@ This rule builds upon semantic HTML principles. Ensure your HTML follows the gui
 ## References
 
 - [big sky Hyperscript Docs](https://hyperscript.org/docs/)
-- [Cash DOM Usage](../.cursor/rules/js-cash-dom-usage.mdc)
-- [JavaScript Development](../.cursor/rules/js-development.mdc)
-- [HTML Development](../.cursor/rules/html-development.mdc) - Foundation for semantic HTML structure
+- [Cash DOM Usage](../.cursor/rules/js-cash-dom-usage.md)
+- [JavaScript Development](../.cursor/rules/js-development.md)
+- [HTML Development](../.cursor/rules/html-development.md) - Foundation for semantic HTML structure
 
 ## Related Rules
 
-- [Perchance Build & Deployment](../.cursor/rules/perchance-build-deployment.mdc)
-- [Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.mdc)
+- [Perchance Build & Deployment](../.cursor/rules/perchance-build-deployment.md)
+- [Perchance Development Lifecycle](../.cursor/rules/perchance-development-lifecycle.md)
 
 ---

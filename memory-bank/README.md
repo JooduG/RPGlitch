@@ -7,6 +7,11 @@ Basic Memory is organized into four top-level buckets:
 - future/ — ideas, plans, and upcoming initiatives
 - forever/ — durable references, policies, and canonical guides
 
+Other files:
+
+- `basic-memory-config.json`: Configuration for the Basic Memory system.
+- `orchestrating-agents.ipynb`: A guide on orchestrating multiple AI agents.
+
 Notes:
 
 - Prefer adding new content directly under these buckets.

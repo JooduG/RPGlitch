@@ -2,10 +2,11 @@
 
 This directory centralizes project documentation. Key sections:
 
-- **protocols/** – agent and operational guides (e.g. `gemini-protocol.md`, `agent-guide.md`)
-- **build/** – build scripts and system notes
-- **apps/** – application overviews
-- **tools/** – development utilities
-- **memory-bank/** – persistent knowledge base (remains outside this folder)
-
-Refer to the root [README.md](../README.md) for a broader introduction.
+- **[Root README.md](../README.md)**: The main entry point for the project.
+- **[Agent Protocols](./protocols/)**: Guidelines for AI agent interaction.
+  - **[AGENTS.md](../AGENTS.md)**: The canonical playbook for all contributors (human and AI).
+  - **[GEMINI.md](../.gemini/GEMINI.md)**: The operational protocol for the Gemini CLI agent.
+- **[Build System](./build/)**: Documentation for the build scripts and system.
+- **[Applications](./apps/)**: Overviews of the `RPGlitch` and `ImageGlitch` applications.
+- **[Tools](./tools/)**: Information on development utilities.
+- **[Memory Bank](../memory-bank/)**: The project's persistent knowledge base.

@@ -36,9 +36,7 @@ Cash DOM provides a tiny, fast jQuery-like API for DOM selection and manipulatio
 
 ### **How to include:**
 
-```html
-<script src="https://unpkg.com/cash-dom"></script>
-```
+    The build process automatically includes Cash DOM. See `build/README.md` for the current version.
 
 ### **When to use:** For selecting, updating, or animating DOM elements in JS
 
@@ -171,6 +169,6 @@ $('#button').on('click', async () => {
 ## References
 
 - [Cash DOM Docs](https://github.com/fabiospampinato/cash)
-- [DOM Manipulation](../.cursor/rules/js-dom-manipulation.mdc) - Vanilla DOM APIs
-- [Modern JavaScript Features](../.cursor/rules/js-modern-features.mdc) - ES2023+ features
-- [JavaScript Development](../.cursor/rules/js-development.mdc) - Comprehensive JavaScript guide
+- [DOM Manipulation](../.cursor/rules/js-dom-manipulation.md) - Vanilla DOM APIs
+- [Modern JavaScript Features](../.cursor/rules/js-modern-features.md) - ES2023+ features
+- [JavaScript Development](../.cursor/rules/js-development.md) - Comprehensive JavaScript guide

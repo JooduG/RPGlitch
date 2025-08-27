@@ -24,6 +24,7 @@ test('outside click closes chin and disables container pointer-events', async ()
   const html = `<!doctype html><html><body>
     <header id="top-bar"></header>
     <div id="chin-container">
+      <div id="chin-backdrop" hidden></div>
       <div class="chin" data-chin="stories" hidden></div>
       <div class="chin" data-chin="characters" hidden></div>
     </div>
@@ -43,8 +44,9 @@ test('outside click closes chin and disables container pointer-events', async ()
   expect(cont.style.pointerEvents).toBe('auto');
   expect(panel.hasAttribute('hidden')).toBe(false);
 
-  // Click outside (on body)
-  dom.window.document.body.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
+  // Click on backdrop (outside chin but within container)
+  const bd = dom.window.document.getElementById('chin-backdrop');
+  bd.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
   // Allow deferred close (setTimeout 0) to run via jest fake timers
   jest.runOnlyPendingTimers();
 

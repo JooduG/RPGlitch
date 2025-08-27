@@ -42,7 +42,7 @@ window.App.isTestMode =
 
   // Brand application: delegate to App.applyBrand from utils.js to avoid duplication
   function applyCardBrand(card, entity) {
-    try { App.applyBrand?.(card, entity); } catch {}
+    try { App.applyBrand?.(card, entity); } catch (e) { void e; }
   }
 
   const DATA_KEYS = ["stories", "characters", "worlds"];
@@ -493,7 +493,7 @@ window.App.isTestMode =
       // Apply brand to the card so the Premade badge and accents can pick it up
       applyCardBrand(card, item);
       // Also ensure media inherits brand for consistent visuals
-      try { App.applyBrand?.(media, item); } catch {}
+      try { App.applyBrand?.(media, item); } catch (e) { void e; }
 
       // Overlay chips: Premade + tags (pills over the media)
       if (media) {
@@ -1346,10 +1346,28 @@ window.App.isTestMode =
       try { App.dismissLoadingUI?.(); } catch (e) { void e; }
       // Start watchdog to auto-heal any blocking overlays that slip through
       try { App.startUIWatchdog?.(); } catch (e) { void e; }
-      // Install focus/visibility and hotkey recovery hooks
       try { App.installUIRecoveryHooks?.(); } catch (e) { void e; }
-      // Install attribute observer to neutralize new blockers instantly
       try { App.installUIBlockerAttributeObserver?.(); } catch (e) { void e; }
+      try { App.enableAutoUnlock?.(); } catch (e) { void e; }
+      // If utils loaded after this file, retry starting safety guards briefly
+      try {
+        let attempts = 0;
+        const maxAttempts = 24; // ~6s at 250ms
+        const rearm = () => {
+          attempts++;
+          if (App._uiWatchdogStarted || attempts > maxAttempts) {
+            clearInterval(timer);
+            return;
+          }
+          try { App.startUIWatchdog?.(); } catch (e) { void e; }
+          try { App.installUIRecoveryHooks?.(); } catch (e) { void e; }
+          try { App.installUIBlockerAttributeObserver?.(); } catch (e) { void e; }
+          try { App.enableAutoUnlock?.(); } catch (e) { void e; }
+        };
+        const timer = setInterval(rearm, 250);
+        // run minimum once in a microtask too
+        setTimeout(rearm, 0);
+      } catch (e) { void e; }
       App.initializeWhenReadyRetryCount = 0; // ✅ reset on success
       try {
  console.log('[RPGlitch] initializeWhenReady success');

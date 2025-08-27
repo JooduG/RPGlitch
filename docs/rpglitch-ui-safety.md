@@ -46,4 +46,3 @@ tags:
 
 - `App.setDebug(true|false)` persists in `localStorage['rpglitch.debug']`.
 - Console logs include: `[RPGlitch] chin.*`, `router.*`, `ui.watchdog:*`, `dismissLoadingUI:*`.
-

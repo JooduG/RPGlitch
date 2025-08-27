@@ -55,23 +55,39 @@ html,
 body {
   min-height: 100vh;
   height: 100%;
-  overflow: visible;
   background: linear-gradient(120deg, #181c2f 0%, #23243a 40%, #1a3a4a 70%, #2a1a3a 100%);
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: cover;
   padding-top: 0;
   box-sizing: border-box;
+
+  /* Defensive: ensure the app is always interactive even if hosts/extensions
+     flip pointer-events on root nodes. JS heals as well; CSS is a last resort. */
+  pointer-events: auto;
+  overflow: auto;
+}
+
+/* Defensive: disable host-level pseudo-element overlays that could occlude input */
+body#output-container::before,
+body#output-container::after,
+html::before,
+html::after {
+  display: none;
+  content: none;
+  pointer-events: none;
+  background: none;
 }
 
 /* Ensure non-open dialogs never block interaction in embedding environments */
 dialog:not([open]) {
-  display: none !important;
-  pointer-events: none !important;
+  display: none;
+  pointer-events: none;
 }
 
 dialog[open] {
   z-index: var(--z-overlay, 10000);
+  pointer-events: auto;
 }
 
 #profile-screen {
@@ -91,7 +107,7 @@ dialog[open] {
 }
 
 #chin-container[hidden] {
-  display: none !important;
+  display: none;
 }
 
 h1,
@@ -453,7 +469,20 @@ input[type="submit"]:not([disabled]):hover {
 }
 
 .chin[hidden] {
-  display: none !important;
+  display: none;
+}
+
+/* Backdrop behind open chin, restricted to the container area */
+#chin-backdrop {
+  position: absolute;
+  inset: 0;
+  background: transparent; /* keep visuals unchanged */
+  z-index: 9998; /* just below .chin */
+  pointer-events: none; /* JS enables when any chin is open */
+}
+
+#chin-backdrop[hidden] {
+  display: none;
 }
 
 .chin-actions {

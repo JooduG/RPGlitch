@@ -37,7 +37,7 @@
       App.hideEl("character-form-screen");
       App.hideEl("world-form-screen");
       App.renderProfile?.(type, id);
-      try { App.chin?.closeAll?.(); App.dismissLoadingUI?.(); } catch (e) { void e; }
+      try { App.chin?.closeAll?.(); App.dismissLoadingUI?.(); App.unlockNow?.(); } catch (e) { void e; }
     } else if (section === "form" && isType(type)) {
       // Check authorization before accessing form (allow if no guard provided)
       if (
@@ -51,7 +51,7 @@
       App.hideEl("storyboard-screen");
       App.hideEl("profile-screen");
       App.renderForm?.(type, id || "new");
-      try { App.chin?.closeAll?.(); App.dismissLoadingUI?.(); } catch (e) { void e; }
+      try { App.chin?.closeAll?.(); App.dismissLoadingUI?.(); App.unlockNow?.(); } catch (e) { void e; }
     } else {
       // Default to storyboard for '#', '#storyboard', or unknown routes
       App.setTopBarRight?.("storyboard");

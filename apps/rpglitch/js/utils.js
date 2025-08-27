@@ -13,7 +13,7 @@
     const on = /^(1|true)$/i.test(String(stored).trim());
     App.debug = typeof App.debug === 'boolean' ? App.debug : on;
   } catch {
-    App.debug = App.debug ?? true;
+    App.debug = App.debug ?? false;
   }
   App.log = function (...args) {
     if (App.debug) console.log("[RPGlitch]", ...args);
@@ -22,7 +22,7 @@
   App.setDebug = function (on) {
     const v = !!on;
     App.debug = v;
-    try { global.localStorage && global.localStorage.setItem('rpglitch.debug', v ? '1' : '0'); } catch {}
+    try { global.localStorage && global.localStorage.setItem('rpglitch.debug', v ? '1' : '0'); } catch (e) { void e; }
     return v;
   };
 
@@ -80,6 +80,13 @@
   App.dismissLoadingUI = function () {
     try {
       const doc = global.document;
+      // Heal documentElement / html early
+      try {
+        doc.documentElement.removeAttribute('inert');
+        if (doc.documentElement && doc.documentElement.style) {
+          doc.documentElement.style.pointerEvents = 'auto';
+        }
+      } catch (e) { void e; }
       const dlg = doc.getElementById("loading-modal");
       if (dlg) {
         try { typeof dlg.close === "function" && dlg.close(); } catch (e) { void e; }
@@ -124,11 +131,11 @@
       ].filter(Boolean);
       roots.forEach((el) => {
         el.removeAttribute('inert');
-        try { el.style.pointerEvents = 'auto'; } catch {}
-        try { el.style.opacity = ''; } catch {}
-        try { el.style.visibility = ''; } catch {}
+        try { el.style.pointerEvents = 'auto'; } catch (e) { void e; }
+        try { el.style.opacity = ''; } catch (e) { void e; }
+        try { el.style.visibility = ''; } catch (e) { void e; }
         if (el === doc.body) {
-          try { el.style.overflow = 'auto'; } catch {}
+          try { el.style.overflow = 'auto'; } catch (e) { void e; }
         }
       });
       App.log?.('dismissLoadingUI: ensured interactive state');
@@ -149,6 +156,7 @@
       if (busy) return { blocked: true, reason: 'aria-busy', node: busy };
       // Pointer-events disabled on body or main containers
       const candidates = [
+        doc.documentElement,
         doc.body,
         doc.getElementById('main'),
         doc.getElementById('chin-container'),
@@ -162,6 +170,46 @@
           return { blocked: true, reason: 'inert', node: el };
         }
       }
+
+      // Heuristic A: hit-test the viewport center and confirm the element belongs to our app
+      try {
+        const vw = global.innerWidth || doc.documentElement.clientWidth || 0;
+        const vh = global.innerHeight || doc.documentElement.clientHeight || 0;
+        if (vw && vh) {
+          const cx = Math.floor(vw / 2);
+          const cy = Math.floor(vh / 2);
+          const el = doc.elementFromPoint?.(cx, cy);
+          if (el) {
+            const ok = el.closest?.('#main, header, #chin-container, .chin');
+            if (!ok) {
+              return { blocked: true, reason: 'hit-test-overlay', node: el };
+            }
+          }
+        }
+      } catch (e) { void e; }
+
+      // Heuristic B: scan body children for full-viewport overlays (fallback)
+      try {
+        const vw = global.innerWidth || doc.documentElement.clientWidth || 0;
+        const vh = global.innerHeight || doc.documentElement.clientHeight || 0;
+        if (vw && vh) {
+          const kids = Array.from(doc.body?.children || []);
+          // Scan from the end (top-most appended) up to 100 nodes
+          for (let i = kids.length - 1, n = 0; i >= 0 && n < 100; i--, n++) {
+            const el = kids[i];
+            const cs = global.getComputedStyle?.(el);
+            if (!cs || cs.pointerEvents === 'none') continue;
+            const pos = cs.position;
+            if (pos !== 'fixed' && pos !== 'absolute') continue;
+            const r = el.getBoundingClientRect?.();
+            if (!r) continue;
+            const covers = r.width >= vw * 0.9 && r.height >= vh * 0.9 && r.left <= 5 && r.top <= 5;
+            if (covers && !el.closest?.('#main, header, #chin-container, .chin')) {
+              return { blocked: true, reason: 'viewport-overlay', node: el };
+            }
+          }
+        }
+      } catch (e) { void e; }
       return { blocked: false };
     } catch (e) {
       return { blocked: false };
@@ -174,26 +222,204 @@
       App._uiWatchdogStarted = true;
       if (App.isTestMode && App.isTestMode()) return; // keep tests deterministic
       let lastBlocked = undefined;
+      let blockedSince = 0;
+      let lastWarnAt = 0;
+      const doc = global.document;
+      // Lightweight in-app indicator for persistent blocks
+      function installStatusIndicator() {
+        try {
+          if (doc.getElementById('rpglitch-guard-indicator')) return;
+          const wrap = doc.createElement('div');
+          wrap.id = 'rpglitch-guard-indicator';
+          wrap.style.cssText = [
+            'position:fixed',
+            'top:8px',
+            'left:8px',
+            'z-index:2147483646',
+            'background:rgba(0,0,0,0.7)',
+            'color:#fff',
+            'padding:6px 8px',
+            'border-radius:6px',
+            'font:12px/1.2 system-ui,sans-serif',
+            'display:none',
+            'gap:8px',
+            'align-items:center',
+            'pointer-events:auto',
+          ].join(';');
+          const text = doc.createElement('span');
+          text.id = 'rpglitch-guard-text';
+          text.textContent = 'UI blocked';
+          const btn = doc.createElement('button');
+          btn.textContent = 'Force Unlock';
+          btn.style.cssText = [
+            'margin-left:8px',
+            'background:#ec4899',
+            'color:#fff',
+            'border:0',
+            'border-radius:4px',
+            'padding:4px 6px',
+            'cursor:pointer',
+          ].join(';');
+          btn.addEventListener('click', () => {
+            try { App.unlockNow?.(); App.dismissLoadingUI?.(); } catch {}
+            wrap.style.display = 'none';
+          });
+          wrap.append(text, btn);
+          doc.body.appendChild(wrap);
+        } catch (e) { void e; }
+      }
+      function neutralizeNodeChain(node) {
+        try {
+          let n = node;
+          let hops = 0;
+          while (n && n !== doc.body && hops < 3) {
+            if (n.id !== 'emergency-modal') {
+              n.removeAttribute?.('open');
+              n.removeAttribute?.('inert');
+              if (n.style) {
+                const t = (n.tagName || '').toLowerCase();
+                if (t !== 'html' && t !== 'body') {
+                  n.style.pointerEvents = 'none';
+                  n.style.display = 'none';
+                  n.style.visibility = '';
+                  n.style.opacity = '';
+                }
+              }
+              n.setAttribute?.('aria-hidden', 'true');
+            }
+            n = n.parentElement;
+            hops++;
+          }
+        } catch (e) { void e; }
+      }
+      function probeAndHealOverlay() {
+        try {
+          const vw = global.innerWidth || doc.documentElement.clientWidth || 0;
+          const vh = global.innerHeight || doc.documentElement.clientHeight || 0;
+          if (!vw || !vh) return;
+          const px = Math.floor(vw / 2);
+          const py = Math.floor(vh / 2);
+          const el = doc.elementFromPoint?.(px, py);
+          if (!el) return;
+          const allowedRoot = doc.getElementById('main') || doc.body;
+          const isRoot = el === doc.body || el === doc.documentElement;
+          const ok = isRoot || el.closest?.('#main, header, #chin-container, .chin');
+          if (!ok && allowedRoot && !allowedRoot.contains(el)) {
+            neutralizeNodeChain(el);
+          }
+        } catch { /* noop */ }
+      }
+      const describe = (n) => {
+        try {
+          if (!n) return '';
+          const id = n.id ? `#${n.id}` : '';
+          const cls = n.className ? `.${String(n.className).split(/\s+/).filter(Boolean).join('.')}` : '';
+          const tag = (n.tagName || '').toLowerCase();
+          return `${tag}${id}${cls}`;
+        } catch { return ''; }
+      };
       const tick = () => {
         const st = App.isUIBlocked?.() || { blocked: false };
         if (st.blocked) {
           if (lastBlocked !== true) {
+            // Always surface first detection once for diagnostics
+          try { console.log('[RPGlitch] ui.watchdog: blocked', { reason: st.reason }); } catch (e) { void e; }
             App.log?.('ui.watchdog: blocked', { reason: st.reason });
           }
           // Attempt to self-heal our own overlays
           App.dismissLoadingUI?.();
+          // Heuristic overlay healing using hit-test
+          probeAndHealOverlay();
+          const now = Date.now();
+          if (!blockedSince) blockedSince = now;
+          // Emit a quiet-but-visible warning if blocked persists without debug enabled
+          const elapsed = now - blockedSince;
+          if (!App.debug && elapsed > 1500 && now - lastWarnAt > 3000) {
+            try {
+              const info = { reason: st.reason, node: describe(st.node) };
+              // Use console.log so external scribblers capture it reliably
+              console.log('[RPGlitch] ui.watchdog: still blocked', info);
+              lastWarnAt = now;
+            } catch (e) { void e; }
+          }
+          // Show small in-app hint if block persists
+          try {
+            if (elapsed > 1500) {
+              installStatusIndicator();
+              const wrap = doc.getElementById('rpglitch-guard-indicator');
+              const text = doc.getElementById('rpglitch-guard-text');
+              if (wrap && text) {
+                text.textContent = `UI blocked: ${st.reason || 'unknown'}`;
+                wrap.style.display = 'inline-flex';
+              }
+            }
+          } catch (e) { void e; }
           lastBlocked = true;
         } else if (lastBlocked !== false) {
           App.log?.('ui.watchdog: unblocked');
+          blockedSince = 0;
           lastBlocked = false;
+          try {
+            const wrap = doc.getElementById('rpglitch-guard-indicator');
+            if (wrap) wrap.style.display = 'none';
+          } catch { /* noop */ }
         }
+        // Always run a light heal pass to be resilient in embed contexts
+        try { App.dismissLoadingUI?.(); } catch (e) { void e; }
+        try { probeAndHealOverlay(); } catch (e) { void e; }
       };
       App._uiWatchdogTimer = global.setInterval(tick, 500);
       // Run immediately once
       tick();
+      try { console.log('[RPGlitch] ui.watchdog: armed'); } catch (e) { void e; }
     } catch (e) {
       // ignore
     }
+  };
+
+  // ---------- On-demand unlock + optional auto-unlock ----------
+  App.unlockNow = function () {
+    try {
+      App.dismissLoadingUI?.();
+      const doc = global.document;
+      // Heal html/body first
+      try {
+        doc.documentElement.removeAttribute('inert');
+        if (doc.documentElement && doc.documentElement.style) doc.documentElement.style.pointerEvents = 'auto';
+        doc.body && doc.body.removeAttribute('inert');
+        if (doc.body && doc.body.style) {
+          doc.body.style.pointerEvents = 'auto';
+          doc.body.style.overflow = 'auto';
+        }
+      } catch (e) { void e; }
+      const root = doc.getElementById('main') || doc.body || doc.documentElement;
+      // Heal obvious blockers inside our root
+      const all = root.querySelectorAll('dialog, [role="dialog"], [data-overlay], [data-block-ui]');
+      all.forEach((el) => {
+        try {
+          el.removeAttribute('inert');
+          el.removeAttribute('open');
+          el.style.pointerEvents = 'none';
+          el.style.display = 'none';
+          el.setAttribute('aria-hidden', 'true');
+        } catch {}
+      });
+    } catch {}
+  };
+
+  App.enableAutoUnlock = function () {
+    try {
+      if (App.isTestMode && App.isTestMode()) return; // skip in tests
+      if (App._autoUnlockBound) return;
+      App._autoUnlockBound = true;
+      global.addEventListener('pointerdown', () => {
+        // Run after other handlers to avoid interference; repeat to catch late overlays
+        setTimeout(() => App.unlockNow?.(), 0);
+        setTimeout(() => App.unlockNow?.(), 50);
+        setTimeout(() => App.unlockNow?.(), 200);
+      }, true);
+      App.log?.('ui.autounlock: enabled');
+    } catch {}
   };
 
   // ---------- Recovery Hooks (focus/visibility + hotkey) ----------
@@ -370,6 +596,7 @@
   // ---------- Chin controls ----------
   App.chin = (function (doc) {
     const container = () => doc.getElementById("chin-container");
+    const backdrop = () => doc.getElementById("chin-backdrop");
 
     function getButtons() {
       // Query both header top-bar buttons and any in-container toggles
@@ -400,6 +627,16 @@
       const cont = container();
       if (cont && cont.style) {
         cont.style.pointerEvents = anyOpen ? 'auto' : 'none';
+      }
+      const bd = backdrop();
+      if (bd) {
+        if (anyOpen) {
+          bd.removeAttribute('hidden');
+          bd.style.pointerEvents = 'auto';
+        } else {
+          bd.setAttribute('hidden', '');
+          bd.style.pointerEvents = 'none';
+        }
       }
       if (anyOpen) {
         cont?.removeAttribute("hidden");
@@ -453,6 +690,22 @@
     }
 
     function init() {
+      // Ensure backdrop exists and is clickable to close all
+      const cont = container();
+      if (cont && !backdrop()) {
+        const bd = doc.createElement('div');
+        bd.id = 'chin-backdrop';
+        bd.setAttribute('hidden', '');
+        bd.setAttribute('aria-hidden', 'true');
+        cont.prepend(bd);
+      }
+      const bd = backdrop();
+      if (bd && !bd._bound) {
+        bd.addEventListener('click', () => {
+          try { closeAll(); App.dismissLoadingUI?.(); } catch (e) { void e; }
+        });
+        bd._bound = true;
+      }
       const buttons = getButtons();
       buttons.forEach((btn) => {
         if (btn._chinBound) return; // idempotent
@@ -471,23 +724,7 @@
         });
         App._chinEscBound = true;
       }
-      // Close chins when clicking outside
-      if (!App._outsideChinListenerAttached) {
-        doc.addEventListener(
-          "click",
-          (e) => {
-            const cont = container();
-            if (!cont || cont.hasAttribute("hidden")) return;
-            if (e.defaultPrevented) return;
-            const t = e.target;
-            if (t && (t.closest && (t.closest(".chin") || t.closest("[data-chin]")))) return;
-            // Defer closing to allow target click handlers (like navigation) first
-            setTimeout(() => { App.chin.closeAll(); App.dismissLoadingUI?.(); }, 0);
-          },
-          true
-        );
-        App._outsideChinListenerAttached = true;
-      }
+      // Removed document-level outside click in favor of in-container backdrop
       // Ensure only one active MutationObserver tracks hidden-state changes
       try {
         if (App._chinObserver && typeof App._chinObserver.disconnect === "function") {
@@ -499,9 +736,9 @@
       getPanels().forEach((p) =>
         observer.observe(p, { attributes: true, attributeFilter: ["hidden"] })
       );
-      const cont = container();
-      if (cont)
-        observer.observe(cont, { attributes: true, attributeFilter: ["hidden"] });
+      const cont2 = container();
+      if (cont2)
+        observer.observe(cont2, { attributes: true, attributeFilter: ["hidden"] });
       sync();
       App.log?.('chin.init: listeners attached');
     }

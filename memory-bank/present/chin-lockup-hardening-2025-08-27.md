@@ -28,4 +28,3 @@ Host/editor overlays and attribute flips (`inert`, `pointer-events:none`, linger
 
 - Optionally gate logs by a secondary flag and reduce verbosity in normal operation.
 - Passive listeners for host touchstart warnings (low priority).
-
