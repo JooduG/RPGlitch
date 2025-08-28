@@ -9,6 +9,7 @@ permalink: memory-bank-project-rpglitch-folder-cleanup-complete-1
 ## ✅ **Cleanup Accomplished**
 
 ### **Files Moved to Archive:**
+
 - All temporary fix scripts (`fix-*.js`)
 - All backup files (`*.backup*`)
 - PowerShell scripts (`*.ps1`)
@@ -17,6 +18,7 @@ permalink: memory-bank-project-rpglitch-folder-cleanup-complete-1
 - Additional cleanup scripts (`add-top-bar-logic.js`, `chin_fix.js`, etc.)
 
 ### **Files Kept (Clean Core):**
+
 - `RPGlitch.js` - Main application file
 - `RPGlitch.html` - Main HTML file
 - `RPGlitch.scss` - Main stylesheet
@@ -41,6 +43,7 @@ Based on the `RPGlitch-left-panel.html` analysis, the main issues to fix in `RPG
    - Graceful degradation when elements aren't found
 
 ## 📁 **Archive Location**
+
 All cleaned files are now in: `memory-bank/archives/rpglitch-cleanup-archive/`
 
 **Date**: 2025-07-27
