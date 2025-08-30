@@ -1,67 +1,115 @@
+/**
+ * @fileoverview This script synchronizes configuration files across the workspace.
+ * It reads master configuration files and distributes them to various locations,
+ * ensuring consistency for linters, IDEs, and other development tools.
+ *
+ * Key Functions:
+ * - Syncs ignore files (.gitignore, .eslintignore, etc.) from a master JSON file.
+ * - Manages and syncs MCP (Model Context Protocol) server configurations.
+ * - Copies development rules to IDE-specific directories.
+ * - Handles environment variable substitution for client-specific configs.
+ */
+
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '../../');
-const CONFIG_DIR = path.join(ROOT, 'build', 'config');
-const VSCODE_DIR = path.join(ROOT, '.vscode');
-const GEMINI_DIR = path.join(ROOT, '.gemini');
-const GEMINI_SETTINGS_FILE = path.join(GEMINI_DIR, 'settings.json');
+// --- Constants: Define all paths in one place for easy maintenance ---
 
-// Master sources
-const MASTER_IGNORES_PATH = path.join(CONFIG_DIR, 'ignores.master.json');
-const MASTER_RULES_DIR = path.join(ROOT, 'rules');
-const MASTER_MCP_PATH = path.join(CONFIG_DIR, 'mcp.master.json');
-const TOOLS_MCP_PATH = path.join(ROOT, 'tools', 'mcp.json');
-const ROOT_MCP_PATH = path.join(ROOT, 'mcp.json');
+const ROOT_DIR = path.resolve(__dirname, '../../');
 
-// Ignore targets
-const ESLINT_IGNORE_JSON = path.join(CONFIG_DIR, 'ignore.eslint.json');
-const STYLELINT_IGNORE_FILE = path.join(CONFIG_DIR, '.stylelintignore');
-const HTMLHINT_IGNORE_FILE = path.join(CONFIG_DIR, '.htmlhintignore');
-const MARKDOWNLINT_IGNORE_FILE = path.join(CONFIG_DIR, '.markdownlintignore');
-const GITIGNORE_FILE = path.join(ROOT, '.gitignore');
-const CURSORIGNORE_FILE = path.join(ROOT, '.cursorignore');
-const BASICMEMORYIGNORE_FILE = path.join(ROOT, '.basicmemoryignore');
-const GEMINIIGNORE_FILE = path.join(ROOT, '.geminiignore');
-const SETTINGS_PATH = path.join(VSCODE_DIR, 'settings.json');
+const PATHS = {
+  // Source configurations
+  configDir: path.join(ROOT_DIR, 'build', 'config'),
+  masterIgnores: path.join(ROOT_DIR, 'build', 'config', 'ignores.master.json'),
+  masterRules: path.join(ROOT_DIR, 'rules'),
+  masterMcp: path.join(ROOT_DIR, 'build', 'config', 'mcp.master.json'),
+  toolsMcp: path.join(ROOT_DIR, 'tools', 'mcp.json'),
+  masterCodacy: path.join(ROOT_DIR, 'build', 'config', 'codacy'),
+  envFile: path.join(ROOT_DIR, '.env'),
 
-// IDE config targets
-const CURSOR_RULES_DIR = path.join(ROOT, '.cursor', 'rules');
-const CURSOR_MCP_PATH = path.join(ROOT, '.cursor', 'mcp.json');
-const WINDSURF_RULES_DIR = path.join(ROOT, '.windsurf', 'rules');
-const WINDSURF_MCP_PATH = path.join(ROOT, '.windsurf', 'mcp.json');
-const AMAZONQ_RULES_DIR = path.join(ROOT, '.amazonq', 'rules');
-const MASTER_CODACY_DIR = path.join(CONFIG_DIR, 'codacy');
-const CODACY_DIR = path.join(ROOT, '.codacy');
+  // Target IDE and tool directories
+  vscodeDir: path.join(ROOT_DIR, '.vscode'),
+  geminiDir: path.join(ROOT_DIR, '.gemini'),
+  cursorDir: path.join(ROOT_DIR, '.cursor'),
+  windsurfDir: path.join(ROOT_DIR, '.windsurf'),
+  amazonqDir: path.join(ROOT_DIR, '.amazonq'),
+  codacyDir: path.join(ROOT_DIR, '.codacy'),
 
-function ensureDir(p) { fs.mkdirSync(p, { recursive: true }); }
-function readJson(p, fallback) {
-  try { return JSON.parse(fs.readFileSync(p, 'utf8')); }
-  catch { return fallback; }
-}
-function writeText(p, s) {
-  ensureDir(path.dirname(p));
-  fs.writeFileSync(p, s, 'utf8');
-  console.log('📝 wrote', path.relative(ROOT, p));
-}
-function writeJson(p, obj) {
-  writeText(p, JSON.stringify(obj, null, 2) + '\n');
-}
-function normalizeGlobs(globs) {
-  const out = [];
-  for (const g of globs) {
-    if (!out.includes(g)) out.push(g);
-    const star = g.startsWith('**_/') ? g : `**_/${g}`;
-    if (!out.includes(star)) out.push(star);
+  // Target files
+  gitignore: path.join(ROOT_DIR, '.gitignore'),
+  cursorignore: path.join(ROOT_DIR, '.cursorignore'),
+  basicmemoryignore: path.join(ROOT_DIR, '.basicmemoryignore'),
+  geminiignore: path.join(ROOT_DIR, '.geminiignore'),
+  eslintIgnore: path.join(ROOT_DIR, 'build', 'config', 'ignore.eslint.json'),
+  stylelintIgnore: path.join(ROOT_DIR, 'build', 'config', '.stylelintignore'),
+  htmlhintIgnore: path.join(ROOT_DIR, 'build', 'config', '.htmlhintignore'),
+  markdownlintIgnore: path.join(ROOT_DIR, 'build', 'config', '.markdownlintignore'),
+  vscodeSettings: path.join(ROOT_DIR, '.vscode', 'settings.json'),
+  geminiSettings: path.join(ROOT_DIR, '.gemini', 'settings.json'),
+  rootMcp: path.join(ROOT_DIR, 'mcp.json'),
+};
+
+// --- File System Utilities ---
+
+/**
+ * Ensures a directory exists, creating it if necessary.
+ * @param {string} dirPath - The path to the directory.
+ */
+function ensureDir(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
   }
-  return out;
 }
 
+/**
+ * Reads a JSON file and returns its content.
+ * @param {string} filePath - The path to the JSON file.
+ * @param {any} [fallback={}] - The value to return if the file doesn't exist or is invalid.
+ * @returns {object} The parsed JSON object.
+ */
+function readJson(filePath, fallback = {}) {
+  try {
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(fileContent);
+  } catch (error) {
+    // console.warn(`Warning: Could not read JSON file at ${filePath}. Returning fallback.`, error.message);
+    return fallback;
+  }
+}
+
+/**
+ * Writes text content to a file.
+ * @param {string} filePath - The path to the file.
+ * @param {string} content - The content to write.
+ */
+function writeText(filePath, content) {
+  ensureDir(path.dirname(filePath));
+  fs.writeFileSync(filePath, content, 'utf8');
+  console.log(`📝 Wrote ${path.relative(ROOT_DIR, filePath)}`);
+}
+
+/**
+ * Writes a JavaScript object to a JSON file.
+ * @param {string} filePath - The path to the file.
+ * @param {object} data - The object to serialize and write.
+ */
+function writeJson(filePath, data) {
+  writeText(filePath, JSON.stringify(data, null, 2) + '\n');
+}
+
+/**
+ * Recursively copies a directory.
+ * @param {string} sourceDir - The source directory path.
+ * @param {string} targetDir - The target directory path.
+ * @param {object} [options={}] - Options for copying.
+ * @param {string[]} [options.fileExtensions] - Optional array of file extensions to include.
+ * @param {string[]} [options.exclude] - Optional array of file/directory names to exclude.
+ */
 function copyDirectory(sourceDir, targetDir, options = {}) {
-  const { fileExtensions, exclude = [] } = options;
   if (!fs.existsSync(sourceDir)) return;
 
   ensureDir(targetDir);
+  const { fileExtensions, exclude = [] } = options;
   const files = fs.readdirSync(sourceDir, { withFileTypes: true });
 
   for (const file of files) {
@@ -72,205 +120,141 @@ function copyDirectory(sourceDir, targetDir, options = {}) {
 
     if (file.isDirectory()) {
       copyDirectory(sourcePath, targetPath, options);
-    } else {
-      const shouldCopy = !fileExtensions || fileExtensions.some(ext => file.name.endsWith(ext));
-      if (shouldCopy) {
-        const content = fs.readFileSync(sourcePath, 'utf8');
-        writeText(targetPath, content);
-      }
+    } else if (!fileExtensions || fileExtensions.some(ext => file.name.endsWith(ext))) {
+      fs.copyFileSync(sourcePath, targetPath);
+      console.log(`↳ Copied ${path.relative(ROOT_DIR, targetPath)}`);
     }
   }
 }
 
-function syncIgnores() {
-  const master = readJson(MASTER_IGNORES_PATH, {
-    gitignore: [],
-    cursorignore: [],
-    eslintIgnore: [],
-    stylelintIgnore: [],
-    htmlhintIgnore: [],
-    markdownlintIgnore: [],
-    basicmemoryignore: [],
-  });
+// --- Core Logic ---
 
-  const mdIgnoreSrc = master.markdownlintignore ?? master.markdownlintIgnore ?? [];
+/**
+ * Synchronizes various ignore files from the master configuration.
+ */
+function syncIgnoreFiles() {
+  console.log('\n🔄 Syncing ignore files...');
+  const masterIgnores = readJson(PATHS.masterIgnores);
+  const header = '# Generated by build/scripts/sync-configs-v2.js – Do not edit.\n';
 
-  const header = '# Generated by build/scripts/sync-configs.js – do not edit.\n';
-
-  writeJson(ESLINT_IGNORE_JSON, { ignorePatterns: master.eslintIgnore || [] });
-  writeText(STYLELINT_IGNORE_FILE, header + (master.stylelintIgnore || []).join('\n') + '\n');
-  writeText(HTMLHINT_IGNORE_FILE, header + (master.htmlhintIgnore || []).join('\n') + '\n');
-
-  const mdIgnores = normalizeGlobs(mdIgnoreSrc);
-  writeText(MARKDOWNLINT_IGNORE_FILE, header + mdIgnores.join('\n') + '\n');
-
-  ensureDir(VSCODE_DIR);
-  const settings = readJson(SETTINGS_PATH, {});
-  settings['markdownlint.ignore'] = mdIgnores;
-  
-  if (master.vscodeFilesExclude?.length) {
-    settings['files.exclude'] = {};
-    for (const pattern of master.vscodeFilesExclude) {
-      settings['files.exclude'][pattern] = true;
+  // Helper to write an ignore file from a given source array in the master config
+  const writeIgnoreFile = (filePath, sourceArray) => {
+    if (Array.isArray(sourceArray) && sourceArray.length > 0) {
+      writeText(filePath, header + sourceArray.join('\n') + '\n');
     }
-  }
-  
-  writeJson(SETTINGS_PATH, settings);
-  console.log('⚙️  VS Code settings.json updated');
-
-  if (master.gitignore?.length) writeText(GITIGNORE_FILE, header + master.gitignore.join('\n') + '\n');
-  if (master.cursorignore?.length) writeText(CURSORIGNORE_FILE, header + master.cursorignore.join('\n') + '\n');
-  if (master.basicmemoryignore?.length) writeText(BASICMEMORYIGNORE_FILE, header + master.basicmemoryignore.join('\n') + '\n');
-
-  // .geminiignore: use explicit geminiignore list if provided; otherwise fall back to cursorignore
-  const geminiSrc = master.geminiignore ?? master.geminiIgnore ?? master.cursorignore ?? [];
-  if (geminiSrc && geminiSrc.length !== undefined) {
-    const gemIgnores = normalizeGlobs(geminiSrc);
-    writeText(GEMINIIGNORE_FILE, header + gemIgnores.join('\n') + '\n');
-  }
-}
-
-function resolveMcpConfig() {
-  const master = readJson(MASTER_MCP_PATH, { mcpServers: {}, inputs: [] });
-  const tools = readJson(TOOLS_MCP_PATH, null);
-
-  // Prefer MASTER as the source of truth; merge in only missing servers from tools
-  if (tools && tools.mcpServers) {
-    master.mcpServers = master.mcpServers || {};
-    for (const [key, srv] of Object.entries(tools.mcpServers)) {
-      if (!master.mcpServers[key]) master.mcpServers[key] = srv;
-    }
-  }
-
-  // Normalize Basic Memory project root to memory-bank folder for least privilege
-  if (master.mcpServers && master.mcpServers['basic-memory']) {
-    const bm = master.mcpServers['basic-memory'];
-    bm.env = bm.env || {};
-    bm.env.BASIC_MEMORY_PROJECT_ROOT = path.join(ROOT, 'memory-bank');
-  }
-
-  // Provide a compatibility alias for clients expecting `servers` instead of `mcpServers`
-  master.servers = master.mcpServers;
-
-  return master;
-}
-
-function loadEnvExports(filePath) {
-  const env = {};
-  try {
-    const raw = fs.readFileSync(filePath, 'utf8');
-    for (const line of raw.split(/\r?\n/)) {
-      const m = line.match(/^\s*export\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"?(.*?)"?\s*$/);
-      if (m) env[m[1]] = m[2];
-    }
-  } catch {
-    // ignore missing .env
-  }
-  return env;
-}
-
-function deepSubstitute(obj, envMap) {
-  const subst = (v) => String(v).replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g, (_, key) => (envMap[key] != null ? String(envMap[key]) : `\${${key}}`));
-  const walk = (val) => {
-    if (Array.isArray(val)) return val.map(walk);
-    if (val && typeof val === 'object') {
-      const out = Array.isArray(val) ? [] : {};
-      for (const [k, v] of Object.entries(val)) out[k] = walk(v);
-      return out;
-    }
-    if (typeof val === 'string') return subst(val);
-    return val;
   };
-  return walk(obj);
+
+  writeIgnoreFile(PATHS.gitignore, masterIgnores.gitignore);
+  writeIgnoreFile(PATHS.cursorignore, masterIgnores.cursorignore);
+  writeIgnoreFile(PATHS.basicmemoryignore, masterIgnores.basicmemoryignore);
+  writeIgnoreFile(PATHS.stylelintIgnore, masterIgnores.stylelintIgnore);
+  writeIgnoreFile(PATHS.htmlhintIgnore, masterIgnores.htmlhintIgnore);
+  writeIgnoreFile(PATHS.markdownlintIgnore, masterIgnores.markdownlintIgnore);
+
+  // ESLint uses a JSON format
+  if (masterIgnores.eslintIgnore) {
+    writeJson(PATHS.eslintIgnore, { ignorePatterns: masterIgnores.eslintIgnore });
+  }
+
+  // Gemini uses cursorignore as a fallback
+  const geminiIgnores = masterIgnores.geminiignore || masterIgnores.cursorignore || [];
+  writeIgnoreFile(PATHS.geminiignore, geminiIgnores);
+
+  // Update VS Code settings with markdownlint ignores
+  const settings = readJson(PATHS.vscodeSettings, {});
+  settings['markdownlint.ignore'] = masterIgnores.markdownlintIgnore || [];
+  writeJson(PATHS.vscodeSettings, settings);
 }
 
-function syncConfigs() {
-  // Sync rules to IDE directories
-  if (fs.existsSync(MASTER_RULES_DIR)) {
-    const ruleOptions = { fileExtensions: ['.md', '.mdc'], exclude: ['templates'] };
-    copyDirectory(MASTER_RULES_DIR, CURSOR_RULES_DIR, ruleOptions);
-    copyDirectory(MASTER_RULES_DIR, WINDSURF_RULES_DIR, ruleOptions);
-    copyDirectory(MASTER_RULES_DIR, AMAZONQ_RULES_DIR, ruleOptions);
-    console.log('📋 Rules synced to IDE directories');
-  }
+/**
+ * Loads and merges MCP configurations from master and tools files.
+ * @returns {object} The resolved MCP configuration.
+ */
+function resolveMcpConfig() {
+    const masterConfig = readJson(PATHS.masterMcp, { mcpServers: {} });
+    const toolsConfig = readJson(PATHS.toolsMcp, { mcpServers: {} });
 
-  // Sync Codacy configuration
-  if (fs.existsSync(MASTER_CODACY_DIR)) {
-    copyDirectory(MASTER_CODACY_DIR, CODACY_DIR);
-    console.log('📋 Codacy configuration synced');
-  }
+    // Start with the master config and merge in any tools that are not already defined
+    const resolvedServers = { ...toolsConfig.mcpServers, ...masterConfig.mcpServers };
 
-  // Sync MCP configuration to IDE directories
-  const resolvedMcp = resolveMcpConfig();
-  const envMap = { ...process.env, ...loadEnvExports(path.join(ROOT, '.env')) };
-  const clientMcp = deepSubstitute(resolvedMcp, envMap);
-  // Persist back to master for auditability/editing (keep placeholders)
-  writeJson(MASTER_MCP_PATH, resolvedMcp);
-  // Write client configs with env-substituted values (untracked by git)
-  writeJson(CURSOR_MCP_PATH, clientMcp);
-  writeJson(WINDSURF_MCP_PATH, clientMcp);
-  writeJson(path.join(VSCODE_DIR, 'mcp.json'), clientMcp);
-  // Root mcp.json is tracked; keep placeholders to avoid leaking secrets
-  writeJson(ROOT_MCP_PATH, resolvedMcp);
-  console.log('🔧 MCP configuration synced (tools → master → IDE)');
-
-  // Sync Gemini MCP servers block only: preserve any other Gemini settings.
-  try {
-    if (fs.existsSync(GEMINI_SETTINGS_FILE)) {
-      const raw = fs.readFileSync(GEMINI_SETTINGS_FILE, 'utf8');
-      let gemini;
-      try { gemini = JSON.parse(raw); } catch { gemini = {}; }
-      if (!gemini || typeof gemini !== 'object') gemini = {};
-      // Replace entire servers block with resolved client servers (SSOT with env substitution)
-      gemini.mcpServers = clientMcp.mcpServers || clientMcp.servers || {};
-      ensureDir(GEMINI_DIR);
-      writeJson(GEMINI_SETTINGS_FILE, gemini);
-      console.log('🔗 .gemini/settings.json: mcpServers block updated from SSOT (other settings preserved)');
-    } else {
-      // If settings file doesn’t exist, do nothing (don’t create unrelated files by default)
-      console.log('ℹ️  .gemini/settings.json not found; skipped Gemini MCP sync');
+    // Standardize the basic-memory path
+    if (resolvedServers['basic-memory']?.env) {
+        resolvedServers['basic-memory'].env.BASIC_MEMORY_PROJECT_ROOT = path.join(ROOT_DIR, 'memory-bank');
     }
-  } catch (err) {
-    console.warn('⚠️  Failed to sync Gemini MCP servers:', err && err.message ? err.message : err);
-  }
 
+    return { ...masterConfig, mcpServers: resolvedServers };
+}
 
+/**
+ * Substitutes environment variables in a configuration object.
+ * @param {object} config - The configuration object.
+ * @returns {object} The configuration with variables substituted.
+ */
+function substituteEnvVariables(config) {
+    const envContent = fs.existsSync(PATHS.envFile) ? fs.readFileSync(PATHS.envFile, 'utf8') : '';
+    const envFromFile = Object.fromEntries(
+        envContent.split('\n').map(line => line.match(/^\s*([^=]+)=(.*)\s*$/)).filter(Boolean).map(match => [match[1], match[2]])
+    );
+
+    const envMap = { ...envFromFile, ...process.env };
+    const configString = JSON.stringify(config);
+
+    const substitutedString = configString.replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g, (_, key) => {
+        return envMap[key] || `\${${key}}`; // Keep placeholder if var not found
+    });
+
+    return JSON.parse(substitutedString);
 }
 
 
+/**
+ * Synchronizes MCP and other development configurations.
+ */
+function syncDevConfigs() {
+  console.log('\n🔄 Syncing development configs (Rules, MCP)...');
 
-function syncCodacyConfig() {
-  const masterIgnores = readJson(MASTER_IGNORES_PATH, {});
-  const codacyIgnores = masterIgnores.codacyIgnore || [];
+  // 1. Copy Rules
+  const ruleOptions = { fileExtensions: ['.md', '.mdc'], exclude: ['templates'] };
+  copyDirectory(PATHS.masterRules, path.join(PATHS.cursorDir, 'rules'), ruleOptions);
+  copyDirectory(PATHS.masterRules, path.join(PATHS.windsurfDir, 'rules'), ruleOptions);
+  copyDirectory(PATHS.masterRules, path.join(PATHS.amazonqDir, 'rules'), ruleOptions);
 
-  if (codacyIgnores.length === 0) {
-    return; // Silently exit if no patterns are defined
-  }
+  // 2. Copy Codacy Configs
+  copyDirectory(PATHS.masterCodacy, PATHS.codacyDir);
 
-  const codacyYamlPath = path.join(ROOT, '.codacy', 'codacy.yaml');
-  if (!fs.existsSync(codacyYamlPath)) {
-    console.warn(`⚠️ .codacy/codacy.yaml not found; skipping Codacy sync.`);
-    return;
-  }
+  // 3. Resolve and Distribute MCP Configs
+  const masterMcp = resolveMcpConfig();
+  const clientMcp = substituteEnvVariables(masterMcp);
 
-  let content = fs.readFileSync(codacyYamlPath, 'utf8');
-  const excludeBlock = 'exclude:\n' + codacyIgnores.map(p => `  - "${p}"`).join('\n');
-  const excludeRegex = /^exclude:(\n\s+.*)*/m;
+  // Create the compatibility alias for clients that need "servers"
+  const clientMcpWithAlias = {
+    ...clientMcp,
+    servers: clientMcp.mcpServers,
+  };
 
-  if (excludeRegex.test(content)) {
-    content = content.replace(excludeRegex, excludeBlock);
-  } else {
-    content = content.trim() + '\n\n' + excludeBlock + '\n';
-  }
+  // Write substituted configs to untracked IDE locations
+  writeJson(path.join(PATHS.vscodeDir, 'mcp.json'), clientMcpWithAlias);
+  writeJson(path.join(PATHS.cursorDir, 'mcp.json'), clientMcpWithAlias);
+  writeJson(path.join(PATHS.windsurfDir, 'mcp.json'), clientMcpWithAlias);
 
-  writeText(codacyYamlPath, content);
-  console.log('📋 Codacy configuration synced with master ignore list.');
+  // Write the master (unsubstituted) config to the root mcp.json for tracking
+  writeJson(PATHS.rootMcp, { ...masterMcp, servers: masterMcp.mcpServers });
+  
+  // Update Gemini settings carefully
+  const geminiSettings = readJson(PATHS.geminiSettings);
+  geminiSettings.mcpServers = clientMcp.mcpServers;
+  writeJson(PATHS.geminiSettings, geminiSettings);
 }
 
-(function main() {
-  syncIgnores();
-  syncConfigs();
-  syncCodacyConfig();
-  console.log('✅ All configurations synchronized (ignores + rules + MCP + IDE settings)');
-})();
 
+/**
+ * Main function to run all synchronization tasks.
+ */
+function main() {
+  console.log('Starting workspace configuration sync...');
+  syncIgnoreFiles();
+  syncDevConfigs();
+  console.log('\n✅ All configurations synchronized successfully!');
+}
+
+main();
