@@ -177,20 +177,18 @@
   "vscodeFilesExclude": [
     "test-basic-memory/",
     ".cursor/rules/",
-    ".cursor/mcp.json",
     ".windsurf/rules/",
-    ".windsurf/mcp.json",
     ".amazonq/rules/",
     "build/config/.stylelintignore",
     "build/config/.htmlhintignore",
     "build/config/.markdownlintignore",
     "build/config/ignore.eslint.json",
-    ".cursorignore",
+    "*.cursorignore",
     "*.gitignore",
     "node_modules/",
     "build/local_libs",
-    "mcp.json",
-    "mcp/",
+    "*mcp.json",
+    "*mcp/",
     "*.basicmemoryignore",
     "*.geminiignore"
   ]

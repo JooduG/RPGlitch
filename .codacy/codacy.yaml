@@ -21,8 +21,11 @@ runtimes:
     - node@22.2.0
     - python@3.11.11
 tools:
-    - eslint@9.32.0
     - lizard@1.17.31
     - pmd@7.16.0
     - semgrep@1.78.0
     - trivy@0.65.0
+    - name: eslint
+      enabled: true
+      config:
+        file: build/config/eslint.config.mjs

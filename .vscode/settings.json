@@ -32,20 +32,18 @@
   "files.exclude": {
     "test-basic-memory/": true,
     ".cursor/rules/": true,
-    ".cursor/mcp.json": true,
     ".windsurf/rules/": true,
-    ".windsurf/mcp.json": true,
     ".amazonq/rules/": true,
     "build/config/.stylelintignore": true,
     "build/config/.htmlhintignore": true,
     "build/config/.markdownlintignore": true,
     "build/config/ignore.eslint.json": true,
-    ".cursorignore": true,
+    "*.cursorignore": true,
     "*.gitignore": true,
     "node_modules/": true,
     "build/local_libs": true,
-    "mcp.json": true,
-    "mcp/": true,
+    "*mcp.json": true,
+    "*mcp/": true,
     "*.basicmemoryignore": true,
     "*.geminiignore": true
   },
@@ -64,5 +62,11 @@
     "**/node_modules": true,
     "**/.git": true
   },
-  "markdown.validate.enabled": true
+  "markdown.validate.enabled": true,
+  "yaml.schemas": {
+    "c:\\Users\\johng\\.cursor\\extensions\\redhat.granitecode-0.4.0-win32-x64\\config-yaml-schema.json": [
+      ".continue/**/*.yaml"
+    ],
+    "https://www.schemastore.org/yamllint.json": "file:///c%3A/Users/johng/Documents/GitHub/default/.codacy/codacy.yaml"
+  }
 }

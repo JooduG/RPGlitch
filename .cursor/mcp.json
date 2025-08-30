@@ -1,9 +1,5 @@
 {
   "mcpServers": {
-    "github": {
-      "url": "https://api.githubcopilot.com/mcp/",
-      "type": "http"
-    },
     "markitdown": {
       "command": "uvx",
       "args": [
@@ -54,24 +50,6 @@
       "autoStart": true,
       "description": "Provides AI image generation and creative tools through Pollinations services. To start, run: npx -y @pollinations/model-context-protocol"
     },
-    "filesystem": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "${input}",
-        "."
-      ],
-      "env": {},
-      "autoApprove": [
-        "read_file",
-        "write_file",
-        "list_dir"
-      ],
-      "autoStart": true,
-      "description": "Portable filesystem server",
-      "type": "stdio"
-    },
     "playwright": {
       "command": "npx",
       "args": [
@@ -115,10 +93,6 @@
         "-y",
         "@modelcontextprotocol/server-memory"
       ]
-    },
-    "microsoft-docs": {
-      "url": "https://learn.microsoft.com/api/mcp",
-      "description": "Microsoft Docs MCP for documentation search and fetch."
     },
     "deepwiki": {
       "url": "https://mcp.deepwiki.com/sse",
@@ -229,11 +203,6 @@
       "type": "stdio",
       "autoStart": true,
       "description": "Convenience MCP exposing many demo tools in one server."
-    },
-    "SourcebotCodeSearchServer": {
-      "type": "http",
-      "url": "https://server.smithery.ai/@sourcebot-dev/sourcebot/mcp?api_key=d7ad75eb-9a3e-4a3a-90ee-83012ed280e6&profile=voluntary-hornet-y52X3F",
-      "description": "Sourcebot code search via Smithery MCP (http)."
     },
     "ClearThought15": {
       "type": "stdio",
@@ -302,10 +271,6 @@
   },
   "inputs": [],
   "servers": {
-    "github": {
-      "url": "https://api.githubcopilot.com/mcp/",
-      "type": "http"
-    },
     "markitdown": {
       "command": "uvx",
       "args": [
@@ -356,24 +321,6 @@
       "autoStart": true,
       "description": "Provides AI image generation and creative tools through Pollinations services. To start, run: npx -y @pollinations/model-context-protocol"
     },
-    "filesystem": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "${input}",
-        "."
-      ],
-      "env": {},
-      "autoApprove": [
-        "read_file",
-        "write_file",
-        "list_dir"
-      ],
-      "autoStart": true,
-      "description": "Portable filesystem server",
-      "type": "stdio"
-    },
     "playwright": {
       "command": "npx",
       "args": [
@@ -417,10 +364,6 @@
         "-y",
         "@modelcontextprotocol/server-memory"
       ]
-    },
-    "microsoft-docs": {
-      "url": "https://learn.microsoft.com/api/mcp",
-      "description": "Microsoft Docs MCP for documentation search and fetch."
     },
     "deepwiki": {
       "url": "https://mcp.deepwiki.com/sse",
@@ -531,11 +474,6 @@
       "type": "stdio",
       "autoStart": true,
       "description": "Convenience MCP exposing many demo tools in one server."
-    },
-    "SourcebotCodeSearchServer": {
-      "type": "http",
-      "url": "https://server.smithery.ai/@sourcebot-dev/sourcebot/mcp?api_key=d7ad75eb-9a3e-4a3a-90ee-83012ed280e6&profile=voluntary-hornet-y52X3F",
-      "description": "Sourcebot code search via Smithery MCP (http)."
     },
     "ClearThought15": {
       "type": "stdio",
