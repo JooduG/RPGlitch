@@ -16,7 +16,8 @@
     ".amazonq/",
     ".codex/",
     ".gemini/",
-    ".vscode/"
+    ".vscode/",
+    ".codacy"
   ],
   "cursorignore": [
     "node_modules/",
@@ -35,7 +36,8 @@
     ".codex/",
     ".gemini/",
     ".github/",
-    ".vscode/"
+    ".vscode/",
+    ".codacy"
   ],
   "geminiignore": [
     "node_modules/",
@@ -53,6 +55,26 @@
     ".amazonq/",
     ".codex/",
     ".github/",
+    ".vscode/",
+    ".codacy"
+  ],
+  "codacyIgnore": [
+    "node_modules/",
+    "build/local_libs/",
+    ".cache/",
+    "dist/",
+    ".env",
+    ".DS_Store",
+    "Thumbs.db",
+    "memory-bank/archive",
+    "memory-bank/scribbles.md",
+    "test-basic-memory/",
+    ".cursor/",
+    ".windsurf/",
+    ".amazonq/",
+    ".codex/",
+    ".gemini/",
+    ".github/",
     ".vscode/"
   ],
   "markdownlintignore": [
@@ -65,8 +87,11 @@
     ".DS_Store",
     "Thumbs.db",
     "memory-bank/archive",
-    "memory-bank/scribbles.md"
-
+    "memory-bank/scribbles.md",
+    ".codacy/tools-configs/",
+    ".codacy/cli-config.yaml",
+    ".codacy/logs/",
+    ".codacy/*.sh"
   ],
   "eslintIgnore": [
     "node_modules/",
@@ -78,7 +103,11 @@
     ".DS_Store",
     "Thumbs.db",
     "memory-bank/archive",
-    "memory-bank/scribbles.md"
+    "memory-bank/scribbles.md",
+    ".codacy/tools-configs/",
+    ".codacy/cli-config.yaml",
+    ".codacy/logs/",
+    ".codacy/*.sh"
   ],
   "stylelintIgnore": [
     "node_modules/",
@@ -90,7 +119,11 @@
     ".DS_Store",
     "Thumbs.db",
     "memory-bank/archive",
-    "memory-bank/scribbles.md"
+    "memory-bank/scribbles.md",
+    ".codacy/tools-configs/",
+    ".codacy/cli-config.yaml",
+    ".codacy/logs/",
+    ".codacy/*.sh"
   ],
   "htmlhintIgnore": [
     "node_modules/",
@@ -102,7 +135,11 @@
     ".DS_Store",
     "Thumbs.db",
     "memory-bank/archive",
-    "memory-bank/scribbles.md"
+    "memory-bank/scribbles.md",
+    ".codacy/tools-configs/",
+    ".codacy/cli-config.yaml",
+    ".codacy/logs/",
+    ".codacy/*.sh"
   ],
   "basicmemoryignore": [
     "node_modules/",
@@ -149,12 +186,12 @@
     "build/config/.markdownlintignore",
     "build/config/ignore.eslint.json",
     ".cursorignore",
-    ".gitignore",
+    "*.gitignore",
     "node_modules/",
     "build/local_libs",
     "mcp.json",
     "mcp/",
-    ".basicmemoryignore",
-    ".geminiignore"
+    "*.basicmemoryignore",
+    "*.geminiignore"
   ]
 }

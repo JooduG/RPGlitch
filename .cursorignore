@@ -16,3 +16,4 @@ test-basic-memory/
 .gemini/
 .github/
 .vscode/
+.codacy

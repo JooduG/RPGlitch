@@ -31,6 +31,8 @@ const CURSOR_MCP_PATH = path.join(ROOT, '.cursor', 'mcp.json');
 const WINDSURF_RULES_DIR = path.join(ROOT, '.windsurf', 'rules');
 const WINDSURF_MCP_PATH = path.join(ROOT, '.windsurf', 'mcp.json');
 const AMAZONQ_RULES_DIR = path.join(ROOT, '.amazonq', 'rules');
+const MASTER_CODACY_DIR = path.join(CONFIG_DIR, 'codacy');
+const CODACY_DIR = path.join(ROOT, '.codacy');
 
 function ensureDir(p) { fs.mkdirSync(p, { recursive: true }); }
 function readJson(p, fallback) {
@@ -55,24 +57,27 @@ function normalizeGlobs(globs) {
   return out;
 }
 
-function copyRules(sourceDir, targetDir) {
+function copyDirectory(sourceDir, targetDir, options = {}) {
+  const { fileExtensions, exclude = [] } = options;
   if (!fs.existsSync(sourceDir)) return;
-  
+
   ensureDir(targetDir);
   const files = fs.readdirSync(sourceDir, { withFileTypes: true });
-  
+
   for (const file of files) {
-    // Skip templates folder
-    if (file.name === 'templates') continue;
-    
+    if (exclude.includes(file.name)) continue;
+
     const sourcePath = path.join(sourceDir, file.name);
     const targetPath = path.join(targetDir, file.name);
-    
+
     if (file.isDirectory()) {
-      copyRules(sourcePath, targetPath);
-    } else if (file.name.endsWith('.md') || file.name.endsWith('.mdc')) {
-      const content = fs.readFileSync(sourcePath, 'utf8');
-      writeText(targetPath, content);
+      copyDirectory(sourcePath, targetPath, options);
+    } else {
+      const shouldCopy = !fileExtensions || fileExtensions.some(ext => file.name.endsWith(ext));
+      if (shouldCopy) {
+        const content = fs.readFileSync(sourcePath, 'utf8');
+        writeText(targetPath, content);
+      }
     }
   }
 }
@@ -182,10 +187,17 @@ function deepSubstitute(obj, envMap) {
 function syncConfigs() {
   // Sync rules to IDE directories
   if (fs.existsSync(MASTER_RULES_DIR)) {
-    copyRules(MASTER_RULES_DIR, CURSOR_RULES_DIR);
-    copyRules(MASTER_RULES_DIR, WINDSURF_RULES_DIR);
-    copyRules(MASTER_RULES_DIR, AMAZONQ_RULES_DIR);
+    const ruleOptions = { fileExtensions: ['.md', '.mdc'], exclude: ['templates'] };
+    copyDirectory(MASTER_RULES_DIR, CURSOR_RULES_DIR, ruleOptions);
+    copyDirectory(MASTER_RULES_DIR, WINDSURF_RULES_DIR, ruleOptions);
+    copyDirectory(MASTER_RULES_DIR, AMAZONQ_RULES_DIR, ruleOptions);
     console.log('📋 Rules synced to IDE directories');
+  }
+
+  // Sync Codacy configuration
+  if (fs.existsSync(MASTER_CODACY_DIR)) {
+    copyDirectory(MASTER_CODACY_DIR, CODACY_DIR);
+    console.log('📋 Codacy configuration synced');
   }
 
   // Sync MCP configuration to IDE directories
@@ -227,8 +239,38 @@ function syncConfigs() {
 
 
 
+function syncCodacyConfig() {
+  const masterIgnores = readJson(MASTER_IGNORES_PATH, {});
+  const codacyIgnores = masterIgnores.codacyIgnore || [];
+
+  if (codacyIgnores.length === 0) {
+    return; // Silently exit if no patterns are defined
+  }
+
+  const codacyYamlPath = path.join(ROOT, '.codacy', 'codacy.yaml');
+  if (!fs.existsSync(codacyYamlPath)) {
+    console.warn(`⚠️ .codacy/codacy.yaml not found; skipping Codacy sync.`);
+    return;
+  }
+
+  let content = fs.readFileSync(codacyYamlPath, 'utf8');
+  const excludeBlock = 'exclude:\n' + codacyIgnores.map(p => `  - "${p}"`).join('\n');
+  const excludeRegex = /^exclude:(\n\s+.*)*/m;
+
+  if (excludeRegex.test(content)) {
+    content = content.replace(excludeRegex, excludeBlock);
+  } else {
+    content = content.trim() + '\n\n' + excludeBlock + '\n';
+  }
+
+  writeText(codacyYamlPath, content);
+  console.log('📋 Codacy configuration synced with master ignore list.');
+}
+
 (function main() {
   syncIgnores();
   syncConfigs();
+  syncCodacyConfig();
   console.log('✅ All configurations synchronized (ignores + rules + MCP + IDE settings)');
 })();
+

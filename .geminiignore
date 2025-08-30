@@ -31,3 +31,5 @@ test-basic-memory/
 **_/.github/
 .vscode/
 **_/.vscode/
+.codacy
+**_/.codacy

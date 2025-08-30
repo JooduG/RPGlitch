@@ -9,6 +9,10 @@
     ".DS_Store",
     "Thumbs.db",
     "memory-bank/archive",
-    "memory-bank/scribbles.md"
+    "memory-bank/scribbles.md",
+    ".codacy/tools-configs/",
+    ".codacy/cli-config.yaml",
+    ".codacy/logs/",
+    ".codacy/*.sh"
   ]
 }

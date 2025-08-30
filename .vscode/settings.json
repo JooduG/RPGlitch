@@ -19,7 +19,15 @@
     "memory-bank/archive",
     "**_/memory-bank/archive",
     "memory-bank/scribbles.md",
-    "**_/memory-bank/scribbles.md"
+    "**_/memory-bank/scribbles.md",
+    ".codacy/tools-configs/",
+    "**_/.codacy/tools-configs/",
+    ".codacy/cli-config.yaml",
+    "**_/.codacy/cli-config.yaml",
+    ".codacy/logs/",
+    "**_/.codacy/logs/",
+    ".codacy/*.sh",
+    "**_/.codacy/*.sh"
   ],
   "files.exclude": {
     "test-basic-memory/": true,
@@ -33,13 +41,13 @@
     "build/config/.markdownlintignore": true,
     "build/config/ignore.eslint.json": true,
     ".cursorignore": true,
-    ".gitignore": true,
+    "*.gitignore": true,
     "node_modules/": true,
     "build/local_libs": true,
     "mcp.json": true,
     "mcp/": true,
-    ".basicmemoryignore": true,
-    ".geminiignore": true
+    "*.basicmemoryignore": true,
+    "*.geminiignore": true
   },
   "files.associations": {
     "*.md": "markdown"
