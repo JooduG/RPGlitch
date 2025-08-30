@@ -1,515 +1,253 @@
-/* build/scripts/combine-views.js
- * Combine key repo areas into Markdown overviews for fast human/AI review.
- * Outputs → build/output/*.md
+/**
+ * @fileoverview This script synchronizes configuration files across the workspace.
+ * It reads master configuration files and distributes them to various locations,
+ * ensuring consistency for linters, IDEs, and other development tools.
  *
- * This version:
- *  - **does not** create INDEX.md (delete yours once; it won’t come back)
- *  - keeps a merged hub at build/output/hub.md:
- *      quick links + Mermaid repo tree + curated overview body
- *  - treats docs/rules as OPTIONAL (no warning if missing)
- *  - prepends a generated-file banner to each output
- *
- * Env knobs:
- *   COMBINE_MAX_BYTES          (default: 250000)
- *   COMBINE_RECENT_SINCE_DAYS  (default: 7)
- *   COMBINE_RECENT_LIMIT       (default: 100)
- *   COMBINE_IGNORE_FILE        (default: config/ignore.master)
- *   COMBINE_TREE_DEPTH         (default: 2)
- *   COMBINE_TREE_MAX_NODES     (default: 200)
- *   COMBINE_DEBUG=1            (log files ignored by master ignore)
+ * Key Functions:
+ * - Syncs ignore files (.gitignore, .eslintignore, etc.) from a master JSON file.
+ * - Manages and syncs MCP (Model Context Protocol) server configurations.
+ * - Copies development rules to IDE-specific directories, ensuring a clean sync.
+ * - Handles environment variable substitution for client-specific configs,
+ * including support for `.env` files with the `export` keyword.
  */
 
 const fs = require('fs');
 const path = require('path');
-const cp = require('child_process');
-const picomatch = require('picomatch');
 
-// -------- config --------
-const REPO_ROOT  = path.join(__dirname, '..', '..');
-const OUTPUT_DIR = path.join(__dirname, '..', 'output');
+// --- Constants: Define all paths in one place for easy maintenance ---
 
-const MAX_BYTES          = Number(process.env.COMBINE_MAX_BYTES || 250_000);
-const RECENT_SINCE_DAYS  = Number(process.env.COMBINE_RECENT_SINCE_DAYS || 7);
-const RECENT_LIMIT       = Number(process.env.COMBINE_RECENT_LIMIT || 100);
-// const TREE_DEPTH         = Number(process.env.COMBINE_TREE_DEPTH || 2);
-// const TREE_MAX_NODES     = Number(process.env.COMBINE_TREE_MAX_NODES || 200);
+const ROOT_DIR = path.resolve(__dirname, '../../');
 
-const TEXT_EXTS = new Set([
-  '.md', '.mdx', '.mdc',
-  '.js', '.mjs', '.cjs', '.ts',
-  '.json', '.yml', '.yaml',
-  '.html', '.css', '.scss',
-  '.sh'
-]);
+const PATHS = {
+  // Source configurations
+  configDir: path.join(ROOT_DIR, 'build', 'config'),
+  masterIgnores: path.join(ROOT_DIR, 'build', 'config', 'ignores.master.json'),
+  masterRules: path.join(ROOT_DIR, 'rules'),
+  masterMcp: path.join(ROOT_DIR, 'build', 'config', 'mcp.master.json'),
+  envFile: path.join(ROOT_DIR, '.env'),
 
-// -------- master ignore (single source of truth for this combiner) --------
-const IGNORE_FILE = process.env.COMBINE_IGNORE_FILE || path.join(REPO_ROOT, 'config', 'ignore.master');
+  // Target IDE and tool directories
+  vscodeDir: path.join(ROOT_DIR, '.vscode'),
+  geminiDir: path.join(ROOT_DIR, '.gemini'),
+  cursorDir: path.join(ROOT_DIR, '.cursor'),
+  windsurfDir: path.join(ROOT_DIR, '.windsurf'),
+  amazonqDir: path.join(ROOT_DIR, '.amazonq'),
 
-function loadIgnorePatterns(filePath) {
+  // Target files
+  gitignore: path.join(ROOT_DIR, '.gitignore'),
+  cursorignore: path.join(ROOT_DIR, '.cursorignore'),
+  basicmemoryignore: path.join(ROOT_DIR, '.basicmemoryignore'),
+  geminiignore: path.join(ROOT_DIR, '.geminiignore'),
+  eslintIgnore: path.join(ROOT_DIR, 'build', 'config', 'ignore.eslint.json'),
+  stylelintIgnore: path.join(ROOT_DIR, 'build', 'config', '.stylelintignore'),
+  htmlhintIgnore: path.join(ROOT_DIR, 'build', 'config', '.htmlhintignore'),
+  markdownlintIgnore: path.join(ROOT_DIR, 'build', 'config', '.markdownlintignore'),
+  vscodeSettings: path.join(ROOT_DIR, '.vscode', 'settings.json'),
+  geminiSettings: path.join(ROOT_DIR, '.gemini', 'settings.json'),
+  rootMcp: path.join(ROOT_DIR, 'mcp.json'),
+};
+
+// --- File System Utilities ---
+
+/**
+ * Ensures a directory exists, creating it if necessary.
+ * @param {string} dirPath - The path to the directory.
+ */
+function ensureDir(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+}
+
+/**
+ * Reads a JSON file and returns its content, stripping comments first.
+ * @param {string} filePath - The path to the JSON file.
+ * @param {any} [fallback={}] - The value to return if the file doesn't exist or is invalid.
+ * @returns {object} The parsed JSON object.
+ */
+function readJson(filePath, fallback = {}) {
   try {
-    const raw = fs.readFileSync(filePath, 'utf8');
-    return raw
-      .split(/\r?\n/)
-      .map(s => s.trim())
-      .filter(s => s && !s.startsWith('#'));
-  } catch {
-    return [];
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    const jsonString = fileContent.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+    return JSON.parse(jsonString);
+  } catch (error) {
+    return fallback;
   }
 }
-const MASTER_IGNORE = loadIgnorePatterns(IGNORE_FILE);
-const _toPosix = p => p.split(path.sep).join('/');
-const MATCHERS = MASTER_IGNORE
-  .filter(p => !p.startsWith('!'))
-  .map(p => picomatch(p));
-function isIgnored(relPath) {
-  const posix = _toPosix(relPath);
-  return MATCHERS.some(fn => fn(posix));
+
+/**
+ * Writes text content to a file.
+ * @param {string} filePath - The path to the file.
+ * @param {string} content - The content to write.
+ */
+function writeText(filePath, content) {
+  ensureDir(path.dirname(filePath));
+  fs.writeFileSync(filePath, content, 'utf8');
+  console.log(`📝 Wrote ${path.relative(ROOT_DIR, filePath)}`);
 }
-const DEBUG_IGNORE = process.env.COMBINE_DEBUG === '1';
 
-// -------- targets to build --------
-const TARGETS = [
-  {
-    name: 'rules',
-    title: 'Combined Rules',
-    // Canonical rules live in `rules/`; additionally include any *.md with YAML front matter anywhere.
-    sources: ['rules'],
-    excludeDirs: new Set(['node_modules']),
-    output: 'combined-rules.md',
-    warnOnMissing: false, // <— silence missing-source warnings for this target
-    discoverRules: true
-  },
-  {
-    name: 'memory',
-    title: 'Combined Memory Bank (excluding archive/)',
-    sources: ['memory-bank'],
-    excludeDirs: new Set(['archive', 'node_modules']),
-    output: 'combined-memory.md'
-  },
-  {
-    name: 'tests',
-    title: 'Combined Tests (tests/)',
-    sources: ['tests'],
-    excludeDirs: new Set(['node_modules']),
-    output: 'combined-tests.md'
-  },
-  {
-    name: 'tools',
-    title: 'Combined Tools (tools/ + build/scripts/)',
-    sources: ['tools', 'build/scripts'],
-    excludeDirs: new Set(['node_modules', 'build/output']),
-    output: 'combined-tools.md'
-  },
-  {
-    name: 'docs',
-    title: 'Combined Docs (docs/)',
-    sources: ['docs'],
-    output: 'combined-docs.md',
-    excludeDirs: new Set(['node_modules', '.git', 'build/output'])
-  },
-  {
-    name: 'readmes',
-    title: 'All READMEs across repo',
-    sources: ['.'],
-    output: 'combined-readmes.md',
-    excludeDirs: new Set(['node_modules', '.git', 'build/output']),
-    filter: (relPath) => /(^|[\\/])README(\.(md|mdx|mdc))?$/i.test(relPath)
-  },
-  {
-    name: 'combined-other',
-    title: 'Combined Other (config files, root files, and miscellaneous)',
-    sources: ['.'],
-    excludeDirs: new Set([
-      'node_modules', 'build/output', '.git', '.cursor',
-      'apps', 'build/scripts', 'docs', 'memory-bank', 'tests', 'tools',
-      'archive', 'dist', 'coverage', '.nyc_output', '.cache', '.tmp', '.temp'
-    ]),
-    output: 'combined-other.md',
-    filter: (relPath) => {
-      // Only include files not covered by other combined files
-      const name = relPath.toLowerCase();
-      return !relPath.startsWith('apps/') &&
-             !relPath.startsWith('build/scripts/') &&
-             !relPath.startsWith('docs/') &&
-             !relPath.startsWith('memory-bank/') &&
-             !relPath.startsWith('tests/') &&
-             !relPath.startsWith('tools/') &&
-             !relPath.startsWith('rules/') &&
-             !name.includes('test') && 
-             !name.includes('spec') &&
-             !relPath.includes('combined-') &&
-             !relPath.includes('hub.md');
-    }
-  },
-  {
-    name: 'hub',
-    title: 'Repository Hub',
-    sources: [],
-    excludeDirs: new Set(),
-    output: 'hub.md',
-    hubOnly: true
-  },
-  {
-    name: 'combined-everything',
-    title: 'Combined Everything (entire repo except archive/ & generated dirs)',
-    sources: ['.'],
-    excludeDirs: new Set([
-      'archive',
-      'node_modules',
-      'build/output',
-      '.git',
-      '.cursor/.trash',
-      'dist',
-      'coverage',
-      '.nyc_output',
-      '.cache',
-      '.tmp',
-      '.temp'
-    ]),
-    output: 'combined-everything.md'
-  },
-  {
-    name: 'combined-recent-changes',
-    title: `Combined Recent Changes (last ${RECENT_SINCE_DAYS} days, up to ${RECENT_LIMIT} files)`,
-    sources: [
-      'apps',
-      'build/scripts',
-      'docs',
-      'memory-bank',
-      'tests',
-      'rules'
-    ],
-    excludeDirs: new Set(['node_modules', 'build/output', '.git']),
-    output: 'combined-recent-changes.md',
-    recent: true
+/**
+ * Writes a JavaScript object to a JSON file.
+ * @param {string} filePath - The path to the file.
+ * @param {object} data - The object to serialize and write.
+ */
+function writeJson(filePath, data) {
+  writeText(filePath, JSON.stringify(data, null, 2) + '\n');
+}
+
+/**
+ * Recursively syncs a directory, ensuring the target is an exact mirror.
+ * @param {string} sourceDir - The source directory path.
+ * @param {string} targetDir - The target directory path.
+ * @param {object} [options={}] - Options for copying.
+ */
+function syncDirectory(sourceDir, targetDir, options = {}) {
+  if (!fs.existsSync(sourceDir)) return;
+
+  if (fs.existsSync(targetDir)) {
+    fs.rmSync(targetDir, { recursive: true, force: true });
   }
-];
+  ensureDir(targetDir);
+  
+  console.log(`↳ Syncing from ${path.relative(ROOT_DIR, sourceDir)} to ${path.relative(ROOT_DIR, targetDir)}`);
 
-// -------- helpers --------
-function ensureDir(p){ fs.mkdirSync(p, { recursive: true }); }
-function isTextFile(file){ return TEXT_EXTS.has(path.extname(file).toLowerCase()); }
+  const { fileExtensions, exclude = [] } = options;
+  const files = fs.readdirSync(sourceDir, { withFileTypes: true });
 
-function walk(dir, excludeDirs, out = []) {
-  if (!fs.existsSync(dir)) return out;
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const e of entries) {
-    const abs = path.join(dir, e.name);
-    const rel = path.relative(REPO_ROOT, abs);
+  for (const file of files) {
+    if (exclude.includes(file.name)) continue;
+    const sourcePath = path.join(sourceDir, file.name);
+    const targetPath = path.join(targetDir, file.name);
 
-    const ignored = isIgnored(rel);
-    if (DEBUG_IGNORE && ignored) console.warn(`↪ ignored by master: ${rel}`);
-    if (ignored) continue;
-
-    if (e.isDirectory()) {
-      if (excludeDirs.has(e.name)) continue;
-      walk(abs, excludeDirs, out);
-    } else if (e.isFile()) {
-      if (isTextFile(abs)) out.push(rel);
+    if (file.isDirectory()) {
+      syncDirectory(sourcePath, targetPath, options);
+    } else if (!fileExtensions || fileExtensions.some(ext => file.name.endsWith(ext))) {
+      fs.copyFileSync(sourcePath, targetPath);
     }
   }
-  return out;
 }
 
-function stripFrontmatter(s){ return s.replace(/^---[\s\S]*?---\s*/, ''); }
-function demoteHeadings(s){ return s.replace(/^(#+)/gm, '#$1'); }
-function languageFromExt(rel){
-  const ext = path.extname(rel).toLowerCase();
-  switch (ext){
-    case '.js': case '.cjs': case '.mjs': return 'javascript';
-    case '.ts':  return 'typescript';
-    case '.json':return 'json';
-    case '.yml': case '.yaml': return 'yaml';
-    case '.html':return 'html';
-    case '.css': return 'css';
-    case '.scss':return 'scss';
-    case '.sh':  return 'bash';
-    case '.md': case '.mdx': case '.mdc': return 'markdown';
-    default:     return '';
-  }
-}
-function humanKB(n){ return (n/1024).toFixed(1) + ' KB'; }
+// --- Core Logic ---
 
-// recent helpers
-function gitAvailable(){
-  try { cp.execSync('git --version', { stdio: 'ignore' }); return true; }
-  catch { return false; }
-}
-function gitRecentFiles({ sinceDays, limit, includeDirs }){
-  const args = [
-    '-C', REPO_ROOT,
-    'log', `--since=${sinceDays} days ago`,
-    '--name-only', '--pretty=format:', '--diff-filter=ACMRT'
-  ].concat(includeDirs);
-  const cmd = 'git ' + args.map(a => (a.includes(' ') ? `"${a}"` : a)).join(' ');
-  let out = '';
-  try {
-    out = cp.execSync(cmd, { encoding: 'utf8', stdio: ['ignore','pipe','ignore'] });
-  } catch {
-    return [];
-  }
-  const lines = out.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-  const seen = new Set();
-  const files = [];
-  for (const rel of lines){
-    if (seen.has(rel)) continue;
-    const abs = path.join(REPO_ROOT, rel);
-    if (fs.existsSync(abs) && fs.statSync(abs).isFile() && isTextFile(abs)){
-      seen.add(rel);
-      files.push(rel);
-      if (files.length >= limit) break;
+/**
+ * Synchronizes various ignore files from the master configuration.
+ */
+function syncIgnoreFiles() {
+  console.log('\n🔄 Syncing ignore files...');
+  const masterIgnores = readJson(PATHS.masterIgnores);
+  const header = '# Generated by build/scripts/sync-configs-v2.js – Do not edit.\n';
+
+  const writeIgnoreFile = (filePath, patterns) => {
+    if (Array.isArray(patterns) && patterns.length > 0) {
+      writeText(filePath, header + patterns.join('\n') + '\n');
     }
-  }
-  return files;
-}
-function mtimeRecentFiles({ limit, includeDirs, excludeDirs }) {
-  const all = [];
-  for (const src of includeDirs){
-    const abs = path.join(REPO_ROOT, src);
-    if (!fs.existsSync(abs)) continue;
-    const stack = [abs];
-    while (stack.length){
-      const dir = stack.pop();
-      for (const e of fs.readdirSync(dir, { withFileTypes: true })){
-        const a = path.join(REPO_ROOT, path.relative(REPO_ROOT, path.join(dir, e.name)));
-        const r = path.relative(REPO_ROOT, a);
-        if (e.isDirectory()){
-          if (excludeDirs.has(e.name)) continue;
-          if (isIgnored(r)) continue;
-          stack.push(a);
-        } else if (e.isFile() && isTextFile(a)){
-          if (isIgnored(r)) continue;
-          all.push({ rel: r, mtime: fs.statSync(a).mtimeMs });
-        }
-      }
-    }
-  }
-  all.sort((a,b) => b.mtime - a.mtime);
-  return all.slice(0, limit).map(x => x.rel);
-}
-
-// sources hygiene
-function splitExistingSources(sources) {
-  const existing = [];
-  const missing  = [];
-  for (const src of sources) {
-    const abs = path.join(REPO_ROOT, src);
-    if (fs.existsSync(abs)) existing.push(src);
-    else missing.push(src);
-  }
-  return { existing, missing };
-}
-
-// markdown builder
-function buildFromList({ title, files }) {
-  let out =
-    `<!-- markdownlint-disable MD032 MD022 MD036 MD024 -->\n` +
-    `> **Generated file** — built by \`build/scripts/sync-combine.js\` at build time.  \n` +
-    `> Edit the source docs under \`docs/\` and \`memory-bank/docs/\`, not this file.\n\n` +
-    `# ${title}\n\n`;
-
-  const folderCounts = {};
-  for (const rel of files) {
-    const top = (rel.split(path.sep)[0] || '.');
-    folderCounts[top] = (folderCounts[top] || 0) + 1;
-  }
-  if (Object.keys(folderCounts).length > 1) {
-    out += '### Folder summary\n\n';
-    for (const top of Object.keys(folderCounts).sort()) {
-      out += `- \`${top}/\` — ${folderCounts[top]} files\n`;
-    }
-    out += `\n`;
-  }
-
-  out += `## Table of Contents\n\n`;
-  const groups = {};
-  for (const rel of files) {
-    const top = (rel.split(path.sep)[0] || '.');
-    (groups[top] ??= []).push(rel);
-  }
-  for (const top of Object.keys(groups).sort()) {
-    out += `- **${top}/**\n`;
-    for (const rel of groups[top]) {
-      const label = rel.replace(/\\/g, '/');
-      const id = safeAnchor(rel);
-      out += `  - [${label}](#${id})\n`;
-    }
-  }
-  out += `\n---\n`;
-
-  for (const rel of files) {
-    const abs = path.join(REPO_ROOT, rel);
-    const { text, size, truncated } = readPreview(abs);
-    const ext = path.extname(rel).toLowerCase();
-    const lang = languageFromExt(rel);
-
-    const id = safeAnchor(rel);
-    out += `\n\n<a id="${id}"></a>\n## ${rel}\n\n`;
-
-    if (ext === '.md' || ext === '.mdx' || ext === '.mdc') {
-      const processed = demoteHeadings(stripFrontmatter(text)).trim();
-      out += processed + '\n';
-    } else {
-      out += `\n\`\`\`${lang}\n${text}\n\`\`\`\n`;
-    }
-
-    if (truncated) {
-      out += `\n> ⚠️ File truncated at ${humanKB(MAX_BYTES)} (full size ${humanKB(size)}). Increase \`COMBINE_MAX_BYTES\` to include more.\n`;
-    }
-    out += `\n---\n`;
-  }
-  out = out.replace(/\n{3,}/g, '\n\n');
-  return out.trim() + '\n';
-}
-
-function safeAnchor(text) {
-  let slug = String(text).toLowerCase().trim();
-  slug = slug.replace(/[\\/]+/g, '');
-  slug = slug.replace(/\./g, '');
-  slug = slug.replace(/[^a-z0-9\s-]/g, '');
-  slug = slug.replace(/\s+/g, '-');
-  slug = slug.replace(/-+/g, '-').replace(/^-|-$/g, '');
-  return slug;
-}
-function readPreview(abs, max = MAX_BYTES){
-  const stat = fs.statSync(abs);
-  const truncated = stat.size > max;
-  const buf = fs.readFileSync(abs, 'utf8').slice(0, max);
-  return { text: buf, size: stat.size, truncated };
-}
-
-function hasFrontmatterStart(s) {
-  return /^---\s*[\r\n]/.test(s);
-}
-
-function readFileFrontmatterFlag(abs) {
-  try {
-    const chunk = fs.readFileSync(abs, 'utf8').slice(0, 4096);
-    return hasFrontmatterStart(chunk);
-  } catch {
-    return false;
-  }
-}
-
-function discoverRuleFiles() {
-  const exclude = new Set(['node_modules', '.git', 'build', '.cursor', '.amazonq', '.windsurf', 'archive']);
-  const all = walk(REPO_ROOT, exclude, []);
-  // Filter to markdown only
-  const md = all.filter(rel => rel.toLowerCase().endsWith('.md'));
-  const candidates = [];
-  for (const rel of md) {
-    const abs = path.join(REPO_ROOT, rel);
-    if (readFileFrontmatterFlag(abs)) candidates.push(rel);
-  }
-  // Prefer rules/ over others for duplicate basenames
-  const pick = new Map();
-  for (const rel of candidates.sort()) {
-    const base = path.basename(rel).toLowerCase();
-    const prev = pick.get(base);
-    if (!prev) {
-      pick.set(base, rel);
-    } else {
-      const aIsRules = rel.startsWith('rules/');
-      const bIsRules = prev.startsWith('rules/');
-      if (aIsRules && !bIsRules) pick.set(base, rel);
-    }
-  }
-  return Array.from(pick.values()).sort();
-}
-
-// build one target
-function buildOne(target) {
-  if (target.hubOnly) {
-    // Hub is handled separately by writeCombinedRepoHub
-    return {
-      name: target.name,
-      title: target.title,
-      output: target.output,
-      path: path.join(OUTPUT_DIR, target.output),
-      filesCount: 0,
-      sources: [],
-      excludeDirs: [],
-      recent: false
-    };
-  }
-
-  const { existing, missing } = splitExistingSources(target.sources);
-  const SOURCES = existing.length ? existing : [];
-
-  // Only warn about missing sources if explicitly enabled
-  const shouldWarn = target.warnOnMissing === true;
-  if (shouldWarn && missing.length) {
-    console.warn(`⚠ ${target.name}: missing source dirs -> ${missing.join(', ')}`);
-  }
-
-  const start = Date.now();
-  let files = [];
-
-  if (target.recent) {
-    files = gitAvailable()
-      ? gitRecentFiles({
-          sinceDays: RECENT_SINCE_DAYS,
-          limit: RECENT_LIMIT,
-          includeDirs: SOURCES
-        })
-      : [];
-    if (!files.length) {
-      files = mtimeRecentFiles({
-        limit: RECENT_LIMIT,
-        includeDirs: SOURCES,
-        excludeDirs: target.excludeDirs || new Set()
-      });
-    }
-  } else {
-    if (target.discoverRules) {
-      files = discoverRuleFiles();
-    } else {
-      for (const src of SOURCES) {
-        const abs = path.join(REPO_ROOT, src);
-        files.push(...walk(abs, target.excludeDirs || new Set()));
-      }
-      files = Array.from(new Set(files)).sort();
-      if (typeof target.filter === 'function') {
-        files = files.filter(target.filter);
-      }
-    }
-  }
-
-  ensureDir(OUTPUT_DIR);
-  const outfile = path.join(OUTPUT_DIR, target.output);
-  const markdown = buildFromList({ title: target.title, files });
-  fs.writeFileSync(outfile, markdown, 'utf8');
-
-  const meta = {
-    name: target.name,
-    title: target.title,
-    output: path.basename(outfile),
-    path: outfile,
-    filesCount: files.length,
-    sources: SOURCES,
-    excludeDirs: Array.from(target.excludeDirs || new Set()),
-    recent: !!target.recent
   };
 
-  console.log(`✔ ${target.name}: ${files.length} files → ${path.relative(REPO_ROOT, outfile)} (${Date.now()-start}ms)`);
-  return meta;
-}
+  writeIgnoreFile(PATHS.gitignore, masterIgnores.gitignore?.patterns);
+  writeIgnoreFile(PATHS.cursorignore, masterIgnores.ide?.patterns);
+  writeIgnoreFile(PATHS.geminiignore, masterIgnores.ide?.patterns);
+  writeIgnoreFile(PATHS.basicmemoryignore, masterIgnores.memory?.patterns);
 
-
-
-const { writeHub } = require('./sync-hub');
-
-function writeCombinedRepoHub(built) {
-  writeHub(built);
-}
-
-// -------- main --------
-(function main(){
-  const only = process.argv.slice(2); // allow: node combine-views.js rules recent ...
-  const selected = only.length ? TARGETS.filter(t => only.includes(t.name)) : TARGETS;
-  if (!selected.length){
-    console.error(`No targets matched. Use one of: ${TARGETS.map(t => t.name).join(', ')}`);
-    process.exit(1);
+  if (masterIgnores.linters) {
+    writeIgnoreFile(PATHS.stylelintIgnore, masterIgnores.linters.stylelint);
+    writeIgnoreFile(PATHS.htmlhintIgnore, masterIgnores.linters.htmlhint);
+    writeIgnoreFile(PATHS.markdownlintIgnore, masterIgnores.linters.markdownlint);
+    
+    if (masterIgnores.linters.eslint) {
+      writeJson(PATHS.eslintIgnore, { ignorePatterns: masterIgnores.linters.eslint });
+    }
   }
-  const built = selected.map(buildOne);
-  if (built.some(b => b.name === 'hub')) writeCombinedRepoHub(built);
-})();
+
+  const settings = readJson(PATHS.vscodeSettings, {});
+  settings['markdownlint.ignore'] = masterIgnores.linters?.markdownlint || [];
+  writeJson(PATHS.vscodeSettings, settings);
+}
+
+/**
+ * Loads MCP configurations from the master file.
+ * @returns {object} The resolved MCP configuration.
+ */
+function resolveMcpConfig() {
+    const masterConfig = readJson(PATHS.masterMcp, { mcpServers: {} });
+
+    if (masterConfig.mcpServers['basic-memory']?.env) {
+        masterConfig.mcpServers['basic-memory'].env.BASIC_MEMORY_PROJECT_ROOT = path.join(ROOT_DIR, 'memory-bank');
+    }
+
+    return masterConfig;
+}
+
+/**
+ * Substitutes environment variables in a configuration object.
+ * This version correctly handles `.env` files that use the `export` keyword.
+ * @param {object} config - The configuration object.
+ * @returns {object} The configuration with variables substituted.
+ */
+function substituteEnvVariables(config) {
+    const envContent = fs.existsSync(PATHS.envFile) ? fs.readFileSync(PATHS.envFile, 'utf8') : '';
+    
+    // This regex handles lines that start with an optional 'export', the key, an equals sign,
+    // and a value that is optionally quoted.
+    const envLineRegex = /^\s*(?:export\s+)?([\w.-]+)\s*=\s*(?:"(.*?)"|'(.*?)'|([^#\s]+))\s*$/gm;
+    
+    const envFromFile = {};
+    let match;
+    while ((match = envLineRegex.exec(envContent)) !== null) {
+        const key = match[1];
+        // The value could be in group 2 (double quotes), 3 (single quotes), or 4 (unquoted).
+        const value = match[2] || match[3] || match[4] || '';
+        envFromFile[key] = value;
+    }
+
+    const envMap = { ...envFromFile, ...process.env };
+    const configString = JSON.stringify(config);
+
+    const substitutedString = configString.replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g, (_, key) => {
+        return envMap[key] || `\${${key}}`;
+    });
+
+    return JSON.parse(substitutedString);
+}
+
+/**
+ * Synchronizes MCP and other development configurations.
+ */
+function syncDevConfigs() {
+  console.log('\n🔄 Syncing development configs (Rules, MCP)...');
+
+  const ruleOptions = { fileExtensions: ['.md', '.mdc'], exclude: ['templates'] };
+  syncDirectory(PATHS.masterRules, path.join(PATHS.cursorDir, 'rules'), ruleOptions);
+  syncDirectory(PATHS.masterRules, path.join(PATHS.windsurfDir, 'rules'), ruleOptions);
+  syncDirectory(PATHS.masterRules, path.join(PATHS.amazonqDir, 'rules'), ruleOptions);
+
+  const masterMcp = resolveMcpConfig();
+  const clientMcp = substituteEnvVariables(masterMcp);
+
+  const clientMcpWithAlias = {
+    ...clientMcp,
+    servers: clientMcp.mcpServers,
+  };
+
+  writeJson(path.join(PATHS.vscodeDir, 'mcp.json'), clientMcpWithAlias);
+  writeJson(path.join(PATHS.cursorDir, 'mcp.json'), clientMcpWithAlias);
+  writeJson(path.join(PATHS.windsurfDir, 'mcp.json'), clientMcpWithAlias);
+
+  writeJson(PATHS.rootMcp, { ...masterMcp, servers: masterMcp.mcpServers });
+  
+  const geminiSettings = readJson(PATHS.geminiSettings);
+  geminiSettings.mcpServers = clientMcp.mcpServers;
+  writeJson(PATHS.geminiSettings, geminiSettings);
+}
+
+/**
+ * Main function to run all synchronization tasks.
+ */
+function main() {
+  console.log('Starting workspace configuration sync...');
+  syncIgnoreFiles();
+  syncDevConfigs();
+  console.log('\n✅ All configurations synchronized successfully!');
+}
+
+main();
+
