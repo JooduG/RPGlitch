@@ -1,15 +1,6 @@
 {
-  "config": {
-    "first-line-heading": false
-  },
   "globs": [
-    "*.md",
-    "apps/**/*.md",
-    "docs/**/*.md",
-    "memory-bank/**/*.md",
-    "rules/*.md",
-    "!node_modules/**/*.md",
-    "!build/output/**/*.md"
+    "**/*.md"
   ],
   "ignores": [
     "*.bak",
@@ -18,18 +9,21 @@
     "**/.git/**",
     "**/archive/",
     "**/build/local_libs/**",
+    "**/node_modules**",
     "/.DS_Store",
+    "/.amazonq/rules/",
     "/.basicmemoryignore",
+    "/.cursor/rules/",
+    "/.cursorignore",
     "/.geminiignore",
     "/.gitignore",
     "/.npm",
+    "/.windsurf/rules/",
     "/coverage",
     "/dist",
+    "/node_modules",
     ".markdownlint.json",
     "build/config/.markdownlintignore",
-    "memory-bank/scribbles.md",
-    "memory-bank/archive/**/*.md",
-    "apps/imageglitch/README.md",
-    "memory-bank/present/**/*.md"
+    "memory-bank/scribbles.md"
   ]
 }

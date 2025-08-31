@@ -8,6 +8,7 @@
     ".geminiignore": true,
     ".gitignore": true,
     ".htmlhintrc": true,
+    "build/config/.markdownlint.json": true,
     ".markdownlint.json": true,
     ".vscode/mcp.json": true,
     ".vscode/rules/": true,
@@ -30,7 +31,10 @@
     "jsconfig.json": true,
     "**/mcp.json": true,
     "stylelint.config.js": true,
-    "test-basic-memory/": true
+    "test-basic-memory/": true,
+    ".markdownlintignore": true,
+    ".markdownlint-cli2.jsonc": true,
+    ".npmrc": true
   },
   "files.associations": {
     "*.md": "markdown"
