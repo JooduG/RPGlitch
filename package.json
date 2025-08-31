@@ -1,12 +1,12 @@
 {
-  "name": "glitch-default",
+  "name": "glitch-workspace",
   "version": "1.0.5",
   "description": "Unified workspace for Perchance.js apps, including RPGlitch and ImageGlitch.",
   "scripts": {
     "clean": "rm -rf build/output",
     "sync": "npm run sync:libs && npm run sync:configs && npm run sync:combine && npm run sync:hub",
     "sync:libs": "node build/scripts/sync-libs.js",
-    "sync:configs": "node build/scripts/sync-configs-v2.js",
+    "sync:configs": "node build/scripts/sync-configs.js",
     "sync:combine": "node build/scripts/sync-combine.js",
     "sync:hub": "node build/scripts/sync-hub.js",
     "build": "npm run clean && node build/scripts/build-rpglitch.js",
@@ -16,7 +16,7 @@
     "lint:css": "stylelint \"**/*.scss\"",
     "lint:html": "node build/scripts/background-htmlhint.js",
     "lint:fix": "npm run lint:js -- --fix && npm run lint:css -- --fix",
-    "test": "jest --json --outputFile=.jest-result.json || true",
+    "test": "jest --json --outputFile=build/output/.jest-result.json || true",
     "deploy": "npm run sync && npm run test && npm run lint && npm run build",
     "deploy:ci": "CI=true npm run deploy"
   },

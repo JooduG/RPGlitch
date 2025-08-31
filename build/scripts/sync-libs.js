@@ -26,9 +26,9 @@ const SOURCES = [
     sha256: '948e50b1d33c84025a72f07328e436c8435b8a531f82c6baf234b6b6028a07f0'
   },
   { 
-    url: 'https://unpkg.com/dexie@3.2.4/dist/dexie.js', 
+    url: 'https://unpkg.com/dexie@4.0.7/dist/dexie.js', 
     file: 'dexie.js',
-    sha256: '9232c65a0c326075c328131518f88f01b8705c754668b813f56f18378d380f2d'
+    sha256: 'b4a0372f5c71b69735235f377d4c827a44a6f9160d2e8b9826352932906e300f'
   },
   { 
     url: 'https://unpkg.com/dompurify@3.1.6/dist/purify.min.js', 
@@ -55,7 +55,6 @@ function getFileChecksum(filePath) {
 
 function download(url, dest, sha256) {
   return new Promise((resolve, reject) => {
-    // If file exists and checksum matches, we're good.
     if (fs.existsSync(dest) && getFileChecksum(dest) === sha256) {
       return resolve();
     }

@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-/* * Generate build/output/hub.md with a dashboard, quick links,
- * and a dynamically generated repository tree.
+/**
+ * Generate a `hub.md` file for easy repo navigation.
+ * This version dynamically creates the repo tree and reads test
+ * results from the new location in build/output.
  */
 
 const fs = require('fs');
@@ -9,155 +11,107 @@ const tree = require('tree-node-cli');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const OUTPUT_DIR = path.join(REPO_ROOT, 'build', 'output');
+const HUB_FILE = path.join(OUTPUT_DIR, 'hub.md');
+const JEST_RESULT_FILE = path.join(OUTPUT_DIR, '.jest-result.json'); // Updated path
+const PKG_FILE = path.join(REPO_ROOT, 'package.json');
 
-function getActivityDashboard() {
-  const stats = { tests: 'N/A', build: 'N/A', lastSync: 'N/A' };
+function getRepoTree() {
+  return tree(REPO_ROOT, {
+    allFiles: false,
+    maxDepth: 2,
+    exclude: [
+      /node_modules/,
+      /\.git/,
+      /build\/local_libs/,
+      /^\.yarn/,
+      /^\.idea/,
+      /^\.vscode\/extensions\.json/,
+      /^\.vscode\/launch\.json/,
+    ],
+  });
+}
+
+function getTestStats() {
   try {
-    const jestResult = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, '.jest-result.json'), 'utf8'));
-    if (jestResult.numTotalTests > 0) {
-      stats.tests = `${jestResult.numPassedTests}/${jestResult.numTotalTests} passed`;
+    if (fs.existsSync(JEST_RESULT_FILE)) {
+      const results = JSON.parse(fs.readFileSync(JEST_RESULT_FILE, 'utf8'));
+      const { numTotalTests, numPassedTests } = results;
+      const status = numTotalTests === numPassedTests ? '✅' : '❌';
+      return `${status} ${numPassedTests}/${numTotalTests} passed`;
     }
-  } catch {
-    // It's okay if there are no test results.
+  } catch (e) {
+    console.warn('⚠️  Could not read or parse jest result file.');
   }
-
-  const buildFile = path.join(OUTPUT_DIR, 'RPGlitch.html');
-  if (fs.existsSync(buildFile)) {
-    stats.build = new Date(fs.statSync(buildFile).mtime).toLocaleDateString();
-  }
-
-  const hubFile = path.join(OUTPUT_DIR, 'hub.md');
-  if (fs.existsSync(hubFile)) {
-      stats.lastSync = new Date(fs.statSync(hubFile).mtime).toLocaleString();
-  }
-  
-  return `🧪 Tests: ${stats.tests}  |  🏗️ Last Build: ${stats.build}  |  🔄 Last Sync: ${stats.lastSync}`;
+  return 'No test results found.';
 }
 
-/**
- * Dynamically generates a text-based tree of the repository structure.
- * @returns {string} The formatted tree string.
- */
-function buildDynamicRepoTree() {
+function getCombinedDocsLinks() {
+  if (!fs.existsSync(OUTPUT_DIR)) return [];
+  return fs.readdirSync(OUTPUT_DIR)
+    .filter(f => f.startsWith('combined-') && f.endsWith('.md'))
+    .map(f => `  - [${f.replace('combined-', '').replace('.md', '')}](/${f})`)
+    .join('\n');
+}
+
+function getPackageScripts() {
   try {
-    const treeString = tree(REPO_ROOT, {
-      allFiles: false,
-      maxDepth: 3,
-      exclude: [
-        /node_modules/,
-        /\.git/,
-        /build\/output/,
-        /build\/local_libs/,
-        /\.DS_Store/,
-        /package-lock\.json/,
-        /\.vscode/,
-        /\.cursor/,
-        /\.gemini/,
-        /\.amazonq/,
-        /\.windsurf/
-      ],
-    });
-    // The library includes the root directory name, which we can trim for a cleaner look
-    return treeString.substring(treeString.indexOf('\n') + 1);
-  } catch (error) {
-    console.warn("⚠️ Could not generate dynamic repo tree, falling back to static.", error);
-    return `
-apps/
-├── rpglitch/
-└── imageglitch/
-build/
-├── scripts/
-└── config/
-docs/
-memory-bank/
-rules/
-tests/
-tools/
-`;
+    const pkg = JSON.parse(fs.readFileSync(PKG_FILE, 'utf8'));
+    const scripts = pkg.scripts || {};
+    // Filter for top-level, user-facing commands
+    const importantScripts = [
+      'deploy',
+      'test',
+      'lint',
+      'lint:fix',
+      'build',
+      'build:copy',
+      'sync',
+      'clean'
+    ];
+    return importantScripts
+      .filter(key => scripts[key])
+      .map(key => `  - \`npm run ${key}\`: ${scripts[key]}`)
+      .join('\n');
+  } catch (e) {
+    console.warn('⚠️  Could not read or parse package.json for scripts.');
+    return 'Could not load scripts.';
   }
 }
 
-function buildHub(built) {
-  const ts = new Date().toISOString();
-  const others = built.filter(b => b.name !== 'hub');
+(function main() {
+  const content = `
+# 🧭 Hub: Repository Overview
 
-  const navSections = {
-    'Core': ['rules', 'docs', 'tests'],
-    'Content': ['memory', 'tools', 'combined-other'],
-    'Complete': ['everything', 'recent-changes', 'readmes']
-  };
+Welcome to the central navigation hub for the project.
 
-  const navLines = [];
-  for (const [section, names] of Object.entries(navSections)) {
-    const items = names.map(name => others.find(b => b.name === name)).filter(Boolean);
-    if (items.length) {
-      navLines.push(`**${section}**`);
-      items.forEach(b => {
-        navLines.push(`• [${b.title.replace('Combined ', '')}](./${b.output})`);
-      });
-      navLines.push('');
-    }
-  }
+- **🧪 Tests:** ${getTestStats()}
+- **Last updated:** ${new Date().toUTCString()}
 
-  const dashboard = getActivityDashboard();
-  const quickActions = [
-    '## Quick Actions',
-    '```bash',
-    'npm run sync          # Update all (libs + configs + docs)',
-    'npm run deploy        # Full deploy pipeline (local)',
-    'npm run build:copy    # Build & copy to clipboard (local)',
-    'npm run test          # Run test suite',
-    'npm run lint:fix      # Fix linting issues',
-    '```'
-  ].join('\n');
+---
 
-  const tree = buildDynamicRepoTree();
+## 🗺️ Repository Map
 
-  return [
-    '<!-- markdownlint-disable MD032 MD022 MD036 MD024 -->',
-    '# Repository Hub',
-    '',
-    `> Generated ${ts}`,
-    '',
-    dashboard,
-    '',
-    ...navLines,
-    quickActions,
-    '',
-    '## Repository Structure',
-    '```text',
-    tree,
-    '```',
-    ''
-  ].join('\n');
-}
+\`\`\`
+${getRepoTree()}
+\`\`\`
 
-function writeHub(built) {
-  const hubPath = path.join(OUTPUT_DIR, 'hub.md');
-  const content = buildHub(built);
+---
 
-  fs.mkdirSync(path.dirname(hubPath), { recursive: true });
-  fs.writeFileSync(hubPath, content, 'utf8');
-  console.log(`✔ Hub created → ${path.relative(REPO_ROOT, hubPath)}`);
-}
+## 📚 Combined Documentation
 
-// CLI support
-if (require.main === module) {
-  let outputFiles = [];
-  try {
-    if (fs.existsSync(OUTPUT_DIR)) {
-      outputFiles = fs.readdirSync(OUTPUT_DIR)
-        .filter(f => f.startsWith('combined-') && f.endsWith('.md'))
-        .map(f => ({
-          name: f.replace('combined-', '').replace('.md', ''),
-          title: f.replace(/combined-|\.md/g, ' ').trim(),
-          output: f
-        }));
-    }
-  } catch (err) {
-    console.warn('⚠️ Could not read output directory for hub links:', err.message);
-  }
-  writeHub(outputFiles);
-}
+Quick links to generated markdown overviews of the repository.
 
-module.exports = { writeHub };
+${getCombinedDocsLinks()}
+
+---
+
+## ⚡️ Common Commands
+
+A selection of useful scripts from \`package.json\`.
+
+${getPackageScripts()}
+  `;
+
+  fs.writeFileSync(HUB_FILE, content.trim() + '\n', 'utf8');
+  console.log(`✅ Hub file generated at: ${path.relative(REPO_ROOT, HUB_FILE)}`);
+})();
