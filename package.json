@@ -4,6 +4,7 @@
   "description": "A unified development and deployment workspace for Glitch projects.",
   "private": true,
   "scripts": {
+    "deploy": "npm run sync && npm run lint:fix && npm run build && npm run test",
     "//--- SETUP & SYNC ---": "",
     "setup": "npm install && npm run sync && npm run build",
     "sync": "npm run sync:ignores && npm run sync:rules && npm run sync:mcp && npm run sync:configs && npm run sync:libs",
