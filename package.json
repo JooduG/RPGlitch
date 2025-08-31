@@ -1,6 +1,6 @@
 {
   "name": "glitch-workspace",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Unified workspace for Perchance.js apps, including RPGlitch and ImageGlitch.",
   "scripts": {
     "clean": "rm -rf build/output",

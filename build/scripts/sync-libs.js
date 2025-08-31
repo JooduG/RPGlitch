@@ -13,32 +13,32 @@ const crypto = require('crypto');
 const ROOT = path.resolve(__dirname, '..', '..');
 const LOCAL_LIBS_DIR = path.join(ROOT, 'build', 'local_libs');
 
-// Libraries with UPDATED pinned versions and integrity checksums
+// Libraries with UPDATED pinned versions and integrity checksums from the latest error log
 const SOURCES = [
   { 
     url: 'https://unpkg.com/@picocss/pico@2.0.6/css/pico.min.css', 
     file: 'pico.min.css',
-    sha256: '792be4374f635c942aac24c89b7c6c4c9a2072186f9f0914e44b94f0d853c07f' 
+    sha256: 'dd5fd5591afd81ee21dcc117ad85c014dc3f1f19dc2d7b7d101ea0acc29274c2' 
   },
   { 
     url: 'https://unpkg.com/cash-dom@8.1.5/dist/cash.min.js', 
     file: 'cash.min.js',
-    sha256: '948e50b1d33c84025a72f07328e436c8435b8a531f82c6baf234b6b6028a07f0'
+    sha256: '9a044188efdb625c5e04d1220698c099927ff16bfb434c37cd7f04dd5ee1ae1f'
   },
   { 
     url: 'https://unpkg.com/dexie@4.0.7/dist/dexie.js', 
     file: 'dexie.js',
-    sha256: 'b4a0372f5c71b69735235f377d4c827a44a6f9160d2e8b9826352932906e300f'
+    sha256: 'abf1352af0b3d46aa875be259fcee0454bfc7e95e5f8b22e071c19027b6a3b64'
   },
   { 
     url: 'https://unpkg.com/dompurify@3.1.6/dist/purify.min.js', 
     file: 'purify.min.js',
-    sha256: 'e8334a171d18a42f883210d79679234190c68196e8d2f1f54924a259bb84cc37'
+    sha256: 'c0845096a7c4a6741f362ac506c94c1c7d27dc603bcc1bf64a587f76f2dbe3a1'
   },
   { 
     url: 'https://unpkg.com/hyperscript.org@0.9.12/dist/_hyperscript.min.js', 
     file: '_hyperscript.min.js',
-    sha256: '95821c1f1c75c87a1441c9f658c279326e3860064f77c385c786e24f74d9e033'
+    sha256: 'cd737e9904a7eed1ee9639b75eb07915baad92961586d0a1fd6d998d24179de6'
   },
 ];
 
