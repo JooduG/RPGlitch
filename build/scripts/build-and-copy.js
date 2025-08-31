@@ -2,26 +2,19 @@
 
 /**
  * Build wrapper:
- *  1) builds the Perchance bundle (build-rpglitch.js)
- *  2) copies build/output/RPGlitch.html to the OS clipboard (skipped in CI)
+ * 1) builds the Perchance bundle (build-rpglitch.js)
+ * 2) copies build/output/RPGlitch.html to the OS clipboard (skipped in CI)
  *
- * CI rules:
- *  - If CI=1 (or NO_CLIPBOARD=1), we DO NOT attempt any clipboard operations.
- *  - Build still runs and the output path is printed.
- *
- * Clipboard support (local/dev only):
- *  - Windows: PowerShell Set-Clipboard (fallback to clip.exe)
- *  - macOS: pbcopy
- *  - Linux/WSL: wl-copy | xclip | xsel (first available)
+ * This version uses the 'clipboardy' library for robust, cross-platform clipboard access.
  */
 
 const path = require('path');
 const fs = require('fs');
 const { spawnSync } = require('child_process');
+const clipboardy = require('clipboardy');
 
 const ROOT = path.resolve(__dirname, '..', '..');
-const BUILD_DIR = path.join(ROOT, 'build');
-const OUTPUT_FILE = path.join(BUILD_DIR, 'output', 'RPGlitch.html');
+const OUTPUT_FILE = path.join(ROOT, 'build', 'output', 'RPGlitch.html');
 
 function boolEnv(name) {
   const v = (process.env[name] || '').toString().trim().toLowerCase();
@@ -42,108 +35,6 @@ function runNode(scriptRelPath, args = []) {
   }
 }
 
-function which(cmd) {
-  const isWin = process.platform === 'win32';
-  const where = isWin ? 'where' : 'which';
-  const out = spawnSync(where, [cmd], { encoding: 'utf8' });
-  return out.status === 0;
-}
-
-/**
- * Copy a file’s UTF-8 contents to the clipboard with platform-specific tools.
- * Returns true if it looks successful, false otherwise.
- */
-function copyFileToClipboard(filePath) {
-  const isWin = process.platform === 'win32';
-  const isMac = process.platform === 'darwin';
-
-  if (!fs.existsSync(filePath)) {
-    console.warn(`⚠️  Clipboard copy skipped: file not found: ${filePath}`);
-    return false;
-  }
-
-  // WINDOWS (PowerShell Set-Clipboard → fallback to clip.exe)
-  if (isWin) {
-    const psCmd = [
-      '-NoProfile',
-      '-NonInteractive',
-      '-Command',
-      `Get-Content -LiteralPath '${filePath.replace(/'/g, "''")}' -Raw | Set-Clipboard`,
-    ];
-    const ps = spawnSync('powershell.exe', psCmd, { stdio: 'ignore' });
-    if (ps.status === 0) {
-      console.log('📋 Copied to clipboard (Windows PowerShell).');
-      return true;
-    }
-    if (which('clip.exe')) {
-      const clip = spawnSync('clip.exe', [], {
-        input: fs.readFileSync(filePath, 'utf8'),
-        encoding: 'utf8',
-        stdio: ['pipe', 'ignore', 'ignore'],
-      });
-      if (clip.status === 0) {
-        console.log('📋 Copied to clipboard (clip.exe fallback).');
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // macOS: pbcopy
-  if (isMac) {
-    if (which('pbcopy')) {
-      const pb = spawnSync('pbcopy', [], {
-        input: fs.readFileSync(filePath, 'utf8'),
-        encoding: 'utf8',
-        stdio: ['pipe', 'ignore', 'ignore'],
-      });
-      if (pb.status === 0) {
-        console.log('📋 Copied to clipboard (macOS pbcopy).');
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // LINUX / WSL: try wl-copy, then xclip, then xsel
-  const content = fs.readFileSync(filePath, 'utf8');
-  if (which('wl-copy')) {
-    const wl = spawnSync('wl-copy', [], {
-      input: content,
-      encoding: 'utf8',
-      stdio: ['pipe', 'ignore', 'ignore'],
-    });
-    if (wl.status === 0) {
-      console.log('📋 Copied to clipboard (wl-copy).');
-      return true;
-    }
-  }
-  if (which('xclip')) {
-    const xc = spawnSync('xclip', ['-selection', 'clipboard'], {
-      input: content,
-      encoding: 'utf8',
-      stdio: ['pipe', 'ignore', 'ignore'],
-    });
-    if (xc.status === 0) {
-      console.log('📋 Copied to clipboard (xclip).');
-      return true;
-    }
-  }
-  if (which('xsel')) {
-    const xs = spawnSync('xsel', ['--clipboard', '--input'], {
-      input: content,
-      encoding: 'utf8',
-      stdio: ['pipe', 'ignore', 'ignore'],
-    });
-    if (xs.status === 0) {
-      console.log('📋 Copied to clipboard (xsel).');
-      return true;
-    }
-  }
-
-  return false;
-}
-
 (function main() {
   try {
     console.log('🔨 Building RPGlitch…');
@@ -155,22 +46,25 @@ function copyFileToClipboard(filePath) {
       return;
     }
 
-    console.log(`✅ Built: ${path.relative(ROOT, OUTPUT_FILE)}`);
+    const relativePath = path.relative(ROOT, OUTPUT_FILE);
+    console.log(`✅ Built: ${relativePath}`);
 
     if (IN_CI) {
-      console.log('CI: skipping clipboard copy (CI or NO_CLIPBOARD is set).');
+      console.log('CI environment detected: skipping clipboard copy.');
       console.log(`Path to artifact: ${OUTPUT_FILE}`);
-      console.log('✅ Done.');
       return;
     }
 
-    const ok = copyFileToClipboard(OUTPUT_FILE);
-    if (!ok) {
-      console.warn('⚠️  Clipboard copy failed or no clipboard tool available. Artifact path printed above.');
-    }
-    console.log('✅ All done.');
+    console.log('📋 Copying to clipboard...');
+    const fileContent = fs.readFileSync(OUTPUT_FILE, 'utf8');
+    clipboardy.writeSync(fileContent);
+    console.log('✅ Copied to clipboard successfully!');
+
   } catch (err) {
-    console.error('❌ Error:', err && err.message ? err.message : err);
+    console.error('❌ An error occurred:', err && err.message ? err.message : err);
+    if (err.message && err.message.includes('clipboardy')) {
+        console.error('📋 Clipboard copy failed. Please copy the file content manually from:', OUTPUT_FILE);
+    }
     process.exitCode = 1;
   }
 })();

@@ -1,8 +1,12 @@
 #!/usr/bin/env node
-/* Build RPGlitch: inlines CSS/JS, respects Perchance constraints, writes build/output/RPGlitch.html */
+/* * Build RPGlitch: inlines CSS/JS, minifies JS, respects Perchance constraints,
+ * and writes the final bundle to build/output/RPGlitch.html.
+ */
 
 const fs = require('fs');
 const path = require('path');
+const sass = require('sass');
+const terser = require('terser');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const APP_DIR = path.join(ROOT, 'apps', 'rpglitch');
@@ -10,8 +14,6 @@ const APP_JS_DIR = path.join(APP_DIR, 'js');
 const BUILD_DIR = path.join(ROOT, 'build');
 const LOCAL_LIBS_DIR = path.join(BUILD_DIR, 'local_libs');
 const OUTPUT_DIR = path.join(BUILD_DIR, 'output');
-const STRAY_APP_HTML = path.join(APP_DIR, 'RPGlitch.html');
-
 const OUTPUT_HTML = path.join(OUTPUT_DIR, 'RPGlitch.html');
 
 const LOCAL_LIBS = {
@@ -22,22 +24,13 @@ const LOCAL_LIBS = {
   hyperscript: { file: '_hyperscript.min.js' },
 };
 
-// --- NEW: resolve helper looks in js/ first, then app root ---
-function resolveAppFile(basename) {
-  const candidateA = path.join(APP_JS_DIR, basename);
-  if (fs.existsSync(candidateA)) return candidateA;
-  // All JS files should now be in js/ folder
-  return candidateA;
-}
-
-// App scripts (keep order: utils → entities → entity-form → profile-router → RPGlitch)
 const APP_JS_FILES = [
-  resolveAppFile('utils.js'),
-  resolveAppFile('entities.js'),
-  resolveAppFile('entity-form.js'),
-  resolveAppFile('profile-router.js'),
-  resolveAppFile('index.js'),   // ← this now works whether it's in js/ or app root
-];
+  'utils.js',
+  'entities.js',
+  'entity-form.js',
+  'profile-router.js',
+  'index.js',
+].map(f => path.join(APP_JS_DIR, f));
 
 const SRC_HTML = path.join(APP_DIR, 'html', 'index.html');
 const ENTRY_SCSS = path.join(APP_DIR, 'scss', 'index.scss');
@@ -46,41 +39,18 @@ function ensureDir(p) {
   fs.mkdirSync(p, { recursive: true });
 }
 
-function readFileSafe(filePath, kind, allowEmpty = false) {
+function readFileSafe(filePath, kind) {
   try {
-    const buf = fs.readFileSync(filePath);
-    if (!allowEmpty && buf.length === 0) {
-      console.warn(`⚠️  ${kind} is empty: ${filePath}`);
-    }
-    return buf.toString('utf8');
+    return fs.readFileSync(filePath, 'utf8');
   } catch {
     console.warn(`⚠️  Missing ${kind}: ${filePath}`);
     return '';
   }
 }
 
-function hasAllLocalLibs() {
-  let ok = true;
-  for (const key of Object.keys(LOCAL_LIBS)) {
-    const p = path.join(LOCAL_LIBS_DIR, LOCAL_LIBS[key].file);
-    if (!fs.existsSync(p)) {
-      console.warn(`⚠️  Missing ${LOCAL_LIBS[key].file} in local_libs/. Place it at: ${p}`);
-      ok = false;
-    }
-  }
-  return ok;
-}
-
 function buildScss() {
   if (!fs.existsSync(ENTRY_SCSS)) {
-    console.warn(`⚠️  SCSS entry not found (optional): ${ENTRY_SCSS}`);
-    return '';
-  }
-  let sass;
-  try {
-    sass = require('sass');
-  } catch {
-    console.warn('⚠️  "sass" module not found. Skipping SCSS compilation.');
+    console.warn(`⚠️  SCSS entry not found: ${ENTRY_SCSS}`);
     return '';
   }
   try {
@@ -97,96 +67,78 @@ function buildScss() {
 
 function stripTagsForInlining(html) {
   let out = html.replace(/<link[^>]*href=["'][^"']*pico[^"']*["'][^>]*>\s*/gi, '');
-  out = out.replace(
-    /<script[^>]*\bsrc=(['"])(?!https?:\/\/)[^'"]+\.js\1[^>]*>\s*<\/script>\s*/gi,
-    ''
-  );
-  out = out.replace(/<script>[\s\S]*?App\.initializeWhenReady[\s\S]*?<\/script>\s*/gi, '');
+  out = out.replace(/<script[^>]*\bsrc=(['"])(?!https?:\/\/)[^'"]+\.js\1[^>]*>\s*<\/script>\s*/gi, '');
   return out;
 }
 
 function injectCss(html, css) {
   if (!css) return html;
-  const styleTag = `<style id="rpglitch-inline-css">\n${css}\n</style>`;
-  return html.includes('</head>') ? html.replace('</head>', `${styleTag}\n</head>`) : `${styleTag}\n${html}`;
+  const styleTag = `<style id="rpglitch-inline-css">${css}</style>`;
+  return html.replace('</head>', `${styleTag}</head>`);
 }
 
 function injectJs(html, js) {
   if (!js) return html;
-  const wrapped = [
-    '<script id="rpglitch-inline-js">',
-    '(function(){',
-    '  try {',
-    js,
-    '    // App bootstrap is handled inside apps/rpglitch/js/index.js',
-    '  } catch (err) {',
-    '    console.error("App bootstrap failed:", err);',
-    '  }',
-    '})();',
-    '</script>',
-  ].join('\n');
-  return html.includes('</body>') ? html.replace('</body>', `${wrapped}\n</body>`) : `${html}\n${wrapped}`;
+  const scriptTag = `<script id="rpglitch-inline-js">${js}</script>`;
+  return html.replace('</body>', `${scriptTag}</body>`);
 }
 
-function bundleJs(opts = {}) {
-  const skipLibs = !!opts.noLibs;
+async function bundleAndMinifyJs() {
   const libs = [
-    path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.cash.file),
-    path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.dexie.file),
-    path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.dompurify.file),
-    path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.hyperscript.file),
-  ];
-  const parts = [];
-  if (!skipLibs) {
-    for (const p of libs) {
-      const code = readFileSafe(p, 'local lib JS', true);
-      if (code) parts.push(`/* ${path.basename(p)} */\n${code}\n`);
-    }
+    LOCAL_LIBS.cash.file,
+    LOCAL_LIBS.dexie.file,
+    LOCAL_LIBS.dompurify.file,
+    LOCAL_LIBS.hyperscript.file,
+  ].map(f => path.join(LOCAL_LIBS_DIR, f));
+  
+  const allFiles = [...libs, ...APP_JS_FILES];
+  const codeMap = {};
+  for (const p of allFiles) {
+    codeMap[p] = readFileSafe(p, `JS file ${path.basename(p)}`);
   }
-  for (const p of APP_JS_FILES) {
-    const code = readFileSafe(p, `app script ${path.basename(p)}`, true);
-    if (code) parts.push(`/* ${path.basename(p)} */\n${code}\n`);
+
+  const result = await terser.minify(codeMap, {
+    sourceMap: false,
+    mangle: {
+      toplevel: false,
+    },
+    compress: {
+      toplevel: false,
+    },
+  });
+
+  if (result.error) {
+    console.error('❌ Terser minification failed:', result.error);
+    return '';
   }
-  return parts.join('\n');
+  
+  return result.code;
 }
 
-(function main() {
-  console.log('🔨 Building RPGlitch…');
-  ensureDir(LOCAL_LIBS_DIR);
-  ensureDir(OUTPUT_DIR);
-
-  // Heads-up: if a duplicate built file exists in the app folder, warn.
-  // The only supported deliverable is build/output/RPGlitch.html.
+(async function main() {
   try {
-    if (fs.existsSync(STRAY_APP_HTML)) {
-      console.warn(
-        `⚠️  Found stray duplicate: ${path.relative(ROOT, STRAY_APP_HTML)}\n` +
-          '    This file is not used by the build. Consider removing it to avoid confusion.'
-      );
+    console.log('🔨 Building RPGlitch…');
+    ensureDir(OUTPUT_DIR);
+
+    const htmlSrc = readFileSafe(SRC_HTML, 'source HTML');
+    if (!htmlSrc) {
+      throw new Error(`Source HTML not found at ${SRC_HTML}`);
     }
-  } catch { /* ignore */ }
 
-  const htmlSrc = readFileSafe(SRC_HTML, 'source HTML');
-  if (!htmlSrc) {
-    console.error(`❌ Source HTML not found at ${SRC_HTML}`);
-    process.exitCode = 1;
-    return;
+    const picoCss = readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.pico.file), 'pico.min.css');
+    const compiledScss = buildScss();
+    const combinedCss = [picoCss, compiledScss].filter(Boolean).join('');
+
+    const jsBundle = await bundleAndMinifyJs();
+
+    let finalHtml = stripTagsForInlining(htmlSrc);
+    finalHtml = injectCss(finalHtml, combinedCss);
+    finalHtml = injectJs(finalHtml, jsBundle);
+
+    fs.writeFileSync(OUTPUT_HTML, finalHtml, 'utf8');
+    console.log(`✅ Built: ${path.relative(ROOT, OUTPUT_HTML)}`);
+  } catch(err) {
+    console.error('❌ Build script failed:', err);
+    process.exit(1);
   }
-
-  if (!hasAllLocalLibs()) {
-    console.warn('⚠️  Some local libs are missing; build will continue but UI/runtime may be degraded.');
-  }
-  const picoCss = readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.pico.file), 'pico.min.css', true);
-  const compiledScss = buildScss();
-  const combinedCss = [picoCss, compiledScss].filter(Boolean).join('\n\n');
-
-  const noLibs = process.argv.includes('--no-libs');
-  const jsBundle = bundleJs({ noLibs });
-
-  let finalHtml = stripTagsForInlining(htmlSrc);
-  finalHtml = injectCss(finalHtml, combinedCss);
-  finalHtml = injectJs(finalHtml, jsBundle);
-
-  fs.writeFileSync(OUTPUT_HTML, finalHtml, 'utf8');
-  console.log(`✅ Built: ${path.relative(ROOT, OUTPUT_HTML)}`);
 })();

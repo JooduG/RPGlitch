@@ -1,85 +1,80 @@
 #!/usr/bin/env node
-/* Generate build/output/hub.md with a small dashboard and quick links.
- * - Never blocks the pipeline.
- * - Tests are OPTIONAL: set HUB_RUN_TESTS=1 to include counts (30s timeout).
+/* * Generate build/output/hub.md with a dashboard, quick links,
+ * and a dynamically generated repository tree.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const tree = require('tree-node-cli');
 
-const REPO_ROOT = path.join(__dirname, '..', '..');
-const OUTPUT_DIR = path.join(__dirname, '..', 'output');
+const REPO_ROOT = path.resolve(__dirname, '..', '..');
+const OUTPUT_DIR = path.join(REPO_ROOT, 'build', 'output');
 
 function getActivityDashboard() {
-  const stats = {
-    tests: '?/?',
-    build: '?',
-    lastSync: 'Never'
-  };
-
-  // Optional test run (off by default)
-  if (process.env.HUB_RUN_TESTS === '1') {
-    try {
-      const cmd = process.platform === 'win32' ? 'npm.cmd test --silent' : 'npm test --silent';
-      const out = execSync(cmd, {
-        cwd: REPO_ROOT,
-        encoding: 'utf8',
-        stdio: 'pipe',
-        timeout: 30000, // hard cap so hub cannot hang
-        env: { ...process.env, CI: 'true' }
-      });
-      const m = out.match(/(\d+)\s+passed.*?(\d+)\s+total/);
-      if (m) stats.tests = `${m[1]}/${m[2]}`;
-    } catch {
-      stats.tests = '⚠︎';
+  const stats = { tests: 'N/A', build: 'N/A', lastSync: 'N/A' };
+  try {
+    const jestResult = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, '.jest-result.json'), 'utf8'));
+    if (jestResult.numTotalTests > 0) {
+      stats.tests = `${jestResult.numPassedTests}/${jestResult.numTotalTests} passed`;
     }
+  } catch {
+    // It's okay if there are no test results.
   }
 
-  // Check actual build artifact used by build-rpglitch.js
-  try {
-    const buildFile = path.join(REPO_ROOT, 'build', 'output', 'RPGlitch.html');
-    stats.build = fs.existsSync(buildFile) ? '✅' : '❌';
-  } catch { /* ignore */ }
+  const buildFile = path.join(OUTPUT_DIR, 'RPGlitch.html');
+  if (fs.existsSync(buildFile)) {
+    stats.build = new Date(fs.statSync(buildFile).mtime).toLocaleDateString();
+  }
 
-  // Rough "last sync" from previous hub timestamp
-  try {
-    const hubFile = path.join(OUTPUT_DIR, 'hub.md');
-    if (fs.existsSync(hubFile)) {
-      const content = fs.readFileSync(hubFile, 'utf8');
-      const timeMatch = content.match(/Generated (\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/);
-      if (timeMatch) {
-        const syncTime = new Date(timeMatch[1]);
-        const diffHours = Math.floor((Date.now() - syncTime.getTime()) / 36e5);
-        stats.lastSync = diffHours < 1 ? 'Just now' : `${diffHours}h ago`;
-      }
-    }
-  } catch { /* ignore */ }
-
-  return `🧪 Tests: ${stats.tests}  🏗️ Build: ${stats.build}  🔄 Last sync: ${stats.lastSync}`;
+  const hubFile = path.join(OUTPUT_DIR, 'hub.md');
+  if (fs.existsSync(hubFile)) {
+      stats.lastSync = new Date(fs.statSync(hubFile).mtime).toLocaleString();
+  }
+  
+  return `🧪 Tests: ${stats.tests}  |  🏗️ Last Build: ${stats.build}  |  🔄 Last Sync: ${stats.lastSync}`;
 }
 
-function buildSimpleRepoTree() {
-  return `
-\`\`\`text
-rpglitch/
-├── apps/
-│   ├── rpglitch/          # Main Perchance app
-│   └── imageglitch/       # Image generator app
-├── build/
-│   ├── scripts/           # Build & sync automation
-│   ├── config/            # Linting & tool configs
-│   └── output/            # Generated files
-├── docs/                  # Project documentation
-├── tests/                 # Jest test suites
-├── tools/                 # Development utilities
-├── memory-bank/           # AI context & knowledge
-├── rules/                 # Canonical rules (synced to IDE configs)
-├── .cursor/               # Cursor IDE config
-├── .windsurf/             # Windsurf IDE config
-└── .github/               # GitHub workflows
-\`\`\`
+/**
+ * Dynamically generates a text-based tree of the repository structure.
+ * @returns {string} The formatted tree string.
+ */
+function buildDynamicRepoTree() {
+  try {
+    const treeString = tree(REPO_ROOT, {
+      allFiles: false,
+      maxDepth: 3,
+      exclude: [
+        /node_modules/,
+        /\.git/,
+        /build\/output/,
+        /build\/local_libs/,
+        /\.DS_Store/,
+        /package-lock\.json/,
+        /\.vscode/,
+        /\.cursor/,
+        /\.gemini/,
+        /\.amazonq/,
+        /\.windsurf/
+      ],
+    });
+    // The library includes the root directory name, which we can trim for a cleaner look
+    return treeString.substring(treeString.indexOf('\n') + 1);
+  } catch (error) {
+    console.warn("⚠️ Could not generate dynamic repo tree, falling back to static.", error);
+    return `
+apps/
+├── rpglitch/
+└── imageglitch/
+build/
+├── scripts/
+└── config/
+docs/
+memory-bank/
+rules/
+tests/
+tools/
 `;
+  }
 }
 
 function buildHub(built) {
@@ -89,7 +84,7 @@ function buildHub(built) {
   const navSections = {
     'Core': ['rules', 'docs', 'tests'],
     'Content': ['memory', 'tools', 'combined-other'],
-    'Complete': ['combined-everything', 'combined-recent-changes', 'readmes']
+    'Complete': ['everything', 'recent-changes', 'readmes']
   };
 
   const navLines = [];
@@ -107,37 +102,32 @@ function buildHub(built) {
   const dashboard = getActivityDashboard();
   const quickActions = [
     '## Quick Actions',
-    '',
     '```bash',
     'npm run sync          # Update all (libs + configs + docs)',
     'npm run deploy        # Full deploy pipeline (local)',
-    'npm run deploy:ci     # CI-safe deploy (no clipboard)',
+    'npm run build:copy    # Build & copy to clipboard (local)',
     'npm run test          # Run test suite',
     'npm run lint:fix      # Fix linting issues',
-    'npm run build:copy    # Build & copy to clipboard (local)',
-    'npm run sync:hub      # Update this hub',
-    '```',
-    ''
+    '```'
   ].join('\n');
 
-  const tree = buildSimpleRepoTree();
+  const tree = buildDynamicRepoTree();
 
   return [
     '<!-- markdownlint-disable MD032 MD022 MD036 MD024 -->',
     '# Repository Hub',
     '',
-    `> Generated ${ts} by \`build/scripts/sync-hub.js\``,
+    `> Generated ${ts}`,
     '',
     dashboard,
     '',
-    navLines.join('\n'),
+    ...navLines,
     quickActions,
-    '## Repository Structure',
-    tree,
-    '## About',
     '',
-    'This repository contains RPGlitch, an AI-powered storytelling platform for Perchance.',
-    'Use the links above to explore different aspects of the codebase.',
+    '## Repository Structure',
+    '```text',
+    tree,
+    '```',
     ''
   ].join('\n');
 }
@@ -148,12 +138,11 @@ function writeHub(built) {
 
   fs.mkdirSync(path.dirname(hubPath), { recursive: true });
   fs.writeFileSync(hubPath, content, 'utf8');
-  console.log(`✔ hub created → ${path.relative(REPO_ROOT, hubPath)}`);
+  console.log(`✔ Hub created → ${path.relative(REPO_ROOT, hubPath)}`);
 }
 
 // CLI support
 if (require.main === module) {
-  // Gather available combined files if the folder exists; otherwise still emit a hub.
   let outputFiles = [];
   try {
     if (fs.existsSync(OUTPUT_DIR)) {
@@ -161,12 +150,13 @@ if (require.main === module) {
         .filter(f => f.startsWith('combined-') && f.endsWith('.md'))
         .map(f => ({
           name: f.replace('combined-', '').replace('.md', ''),
-          title: f.replace('combined-', '').replace('.md', '').replace(/-/g, ' '),
+          title: f.replace(/combined-|\.md/g, ' ').trim(),
           output: f
         }));
     }
-  } catch { /* ignore */ }
-
+  } catch (err) {
+    console.warn('⚠️ Could not read output directory for hub links:', err.message);
+  }
   writeHub(outputFiles);
 }
 
