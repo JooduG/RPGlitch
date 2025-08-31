@@ -1,23 +1,33 @@
 {
-  "name": "glitch-workspace",
+  "name": "joodug",
   "version": "1.0.6",
   "description": "A unified development and deployment workspace for Glitch projects.",
-  "main": "index.js",
   "private": true,
   "scripts": {
-    "sync": "npm run sync:libs && npm run sync:configs && npm run sync:combine && npm run sync:hub",
-    "sync:libs": "node build/scripts/sync-libs.js",
+    "//--- SETUP & SYNC ---//": "",
+    "setup": "npm install && npm run sync && npm run build",
+    "sync": "npm run sync:ignores && npm run sync:rules && npm run sync:mcp && npm run sync:configs && npm run sync:libs",
+    "sync:ignores": "node build/scripts/sync-ignores.js",
+    "sync:rules": "node build/scripts/sync-rules.js",
+    "sync:mcp": "node build/scripts/sync-mcp.js",
     "sync:configs": "node build/scripts/sync-configs.js",
-    "sync:combine": "node build/scripts/sync-combine.js",
-    "sync:hub": "node build/scripts/sync-hub.js",
-    "test": "jest --config build/config/jest.config.js --json --outputFile=build/output/.jest-result.json",
+    "sync:tool-configs": "node build/scripts/sync-tool-configs.js",
+    "sync:libs": "node build/scripts/sync-libs.js",
+    "//--- LINTING & TESTING ---//": "",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:html && npm run lint:md",
-    "lint:js": "eslint . --config build/config/eslint.config.mjs --ignore-path build/config/ignore.eslint.json",
-    "lint:css": "stylelint \"**/*.scss\" --config build/config/stylelint.config.js --ignore-path .gitignore",
-    "lint:html": "htmlhint \"**/*.html\" --config build/config/.htmlhintrc --ignore-path .gitignore",
-    "lint:md": "markdownlint \"**/*.md\" --config build/config/.markdownlint.json --ignore-path .gitignore",
-    "build": "node build/scripts/build-rpglitch.js",
-    "deploy": "npm run sync && npm run test && npm run lint && npm run build"
+    "lint:fix": "npm run lint:js:fix && npm run lint:css:fix && npm run lint:md:fix",
+    "lint:js": "eslint .",
+    "lint:js:fix": "eslint . --fix",
+    "lint:css": "stylelint \"**/*.scss\"",
+    "lint:css:fix": "stylelint \"**/*.scss\" --fix",
+    "lint:html": "htmlhint \"**/*.html\"",
+    "lint:md": "markdownlint \"**/*.md\"",
+    "lint:md:fix": "markdownlint \"**/*.md\" --fix",
+    "test": "jest",
+    "//--- BUILDING ---//": "",
+    "build": "npm run build:combine && npm run build:hub",
+    "build:combine": "node build/scripts/build-combine.js",
+    "build:hub": "node build/scripts/build-hub.js"
   },
   "keywords": [
     "ai",
@@ -28,6 +38,7 @@
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.6.0",
+    "dotenv": "^16.4.5",
     "eslint": "^9.6.0",
     "eslint-plugin-jest": "^28.6.0",
     "globals": "^15.8.0",
@@ -43,7 +54,7 @@
     "stylelint-config-standard-scss": "^13.1.0"
   },
   "dependencies": {
-    "node-fetch": "^3.3.2",
-    "jsdom": "^24.1.0"
+    "jsdom": "^24.1.0",
+    "node-fetch": "^3.3.2"
   }
 }

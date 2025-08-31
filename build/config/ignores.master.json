@@ -1,49 +1,49 @@
 {
   "$schema": "https://json.schemastore.org/prettierrc",
-  "//": "This is the master file for all ignore patterns in the project. The sync-configs script uses this to generate tool-specific ignore files.",
+  "//": "This is the master file for all project ignore patterns.",
 
   "gitignore": {
-    "comment": "Patterns for Git to ignore. These are files that should not be committed to the repository.",
     "patterns": [
-      "node_modules",
-      "npm-debug.log",
-      ".env",
-      "build/output",
-      "dist",
-      "coverage",
-      "*.log",
-      ".DS_Store",
-      "apps/**/node_modules",
-      ".vscode/",
-      ".gemini/",
-      ".cursor/",
-      ".amazonq/",
-      "*.patch"
+      "/.DS_Store",
+      "/.env.local",
+      "/.env.*.local",
+      "/node_modules",
+      "/build/output",
+      "/.npm",
+      "/.vscode/*",
+      "!/.vscode/settings.json",
+      "!/.vscode/launch.json",
+      "/.cursor/*",
+      "!/.cursor/rules",
+      "!/.cursor/mcp.json",
+      "/.gemini/*",
+      "!/.gemini/settings.json",
+      "/.amazonq/*",
+      "!/.amazonq/rules",
+      "!/.amazonq/chat-preferences.json",
+      "/.codacy-coverage",
+      "/coverage",
+      "/dist"
     ]
   },
 
   "ide": {
-    "comment": "Patterns for AI assistants and IDEs to ignore for context.",
-    "patterns": [
-      "**/node_modules/**",
-      "**/.git/**",
-      "**/dist/**",
-      "**/build/output/**",
-      "**/*.log",
-      "**/.DS_Store"
-    ]
-  },
-
-  "linters": {
-    "comment": "Ignore patterns for various code quality tools.",
-    "eslint": ["build/local_libs/**"],
-    "stylelint": ["build/output/**", "build/local_libs/**"],
-    "htmlhint": ["build/output/**", "build/local_libs/**"],
-    "markdownlint": ["node_modules/**", "CHANGELOG.md"]
+    "patterns": ["**/node_modules/**", "**/.git/**", "**/build/output/**"]
   },
 
   "memory": {
-    "comment": "Files to be ignored by the Basic Memory tool.",
-    "patterns": [".git", "node_modules", "*.json", "*.log"]
+    "patterns": ["archive/", "past/", "diagnostics/"]
+  },
+
+  "linters": {
+    "eslint": [
+      "**/node_modules/**",
+      "**/build/**",
+      "**/dist/**",
+      "**/*.min.js"
+    ],
+    "stylelint": ["**/node_modules/**", "**/build/**", "**/dist/**"],
+    "htmlhint": ["**/node_modules/**", "**/build/**", "**/dist/**"],
+    "markdownlint": ["**/node_modules/**", "**/CHANGELOG.md"]
   }
 }
