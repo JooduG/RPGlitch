@@ -1,51 +1,45 @@
 {
   "name": "glitch-workspace",
   "version": "1.0.6",
-  "description": "Unified workspace for Perchance.js apps, including RPGlitch and ImageGlitch.",
+  "description": "A unified development and deployment workspace for Glitch projects.",
+  "main": "index.js",
+  "private": true,
   "scripts": {
-    "clean": "rm -rf build/output",
     "sync": "npm run sync:libs && npm run sync:configs && npm run sync:combine && npm run sync:hub",
     "sync:libs": "node build/scripts/sync-libs.js",
     "sync:configs": "node build/scripts/sync-configs.js",
     "sync:combine": "node build/scripts/sync-combine.js",
     "sync:hub": "node build/scripts/sync-hub.js",
-    "build": "npm run clean && node build/scripts/build-rpglitch.js",
-    "build:copy": "npm run clean && node build/scripts/build-and-copy.js",
-    "lint": "npm run lint:js && npm run lint:css && npm run lint:html",
-    "lint:js": "eslint .",
-    "lint:css": "stylelint \"**/*.scss\"",
-    "lint:html": "node build/scripts/background-htmlhint.js",
-    "lint:fix": "npm run lint:js -- --fix && npm run lint:css -- --fix",
-    "test": "jest --json --outputFile=build/output/.jest-result.json || true",
-    "deploy": "npm run sync && npm run test && npm run lint && npm run build",
-    "deploy:ci": "CI=true npm run deploy"
+    "test": "jest --config build/config/jest.config.js --json --outputFile=build/output/.jest-result.json",
+    "lint": "npm run lint:js && npm run lint:css && npm run lint:html && npm run lint:md",
+    "lint:js": "eslint . --config build/config/eslint.config.mjs --ignore-path build/config/ignore.eslint.json",
+    "lint:css": "stylelint \"**/*.scss\" --config build/config/stylelint.config.js --ignore-path .gitignore",
+    "lint:html": "htmlhint \"**/*.html\" --config build/config/.htmlhintrc --ignore-path .gitignore",
+    "lint:md": "markdownlint \"**/*.md\" --config build/config/.markdownlint.json --ignore-path .gitignore",
+    "build": "node build/scripts/build-rpglitch.js",
+    "deploy": "npm run sync && npm run test && npm run lint && npm run build"
   },
-  "author": "JooduG",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/JooduG/default.git"
-  },
-  "bugs": {
-    "url": "https://github.com/JooduG/default/issues"
-  },
-  "homepage": "https://github.com/JooduG/default#readme",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
-    "clipboardy": "4.0.0",
-    "eslint": "8.57.0",
-    "eslint-config-prettier": "9.1.0",
-    "eslint-plugin-jest": "28.6.0",
-    "eslint-plugin-promise": "6.2.0",
-    "globals": "15.6.0",
-    "htmlhint": "1.1.4",
-    "jest": "29.7.0",
-    "jest-environment-jsdom": "29.7.0",
-    "picomatch": "4.0.1",
-    "prettier": "3.3.2",
-    "sass": "1.77.6",
-    "stylelint": "16.6.1",
-    "stylelint-config-standard-scss": "13.1.0",
-    "terser": "5.31.0",
-    "tree-node-cli": "1.6.0"
+    "@eslint/js": "^9.6.0",
+    "eslint": "^9.6.0",
+    "eslint-plugin-jest": "^28.6.0",
+    "globals": "^15.8.0",
+    "html-minifier": "^4.0.0",
+    "htmlhint": "^1.1.4",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "markdownlint-cli": "^0.41.0",
+    "postcss": "^8.4.39",
+    "postcss-scss": "^4.0.9",
+    "sass": "^1.77.6",
+    "stylelint": "^16.6.1",
+    "stylelint-config-standard-scss": "^13.1.0"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "jsdom": "^24.1.0"
   }
 }
