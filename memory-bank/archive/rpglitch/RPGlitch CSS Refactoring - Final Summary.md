@@ -53,6 +53,7 @@ apps/rpglitch/
 **Recommendation**: Create dedicated section at the top of SCSS file
 
 **Implementation**:
+
 ```scss
 /* ========================================
    CSS CUSTOM PROPERTIES & THEMING
@@ -85,6 +86,7 @@ apps/rpglitch/
 **Recommendation**: Standardize border radius usage
 
 **Target Areas**:
+
 - Lines 432, 558, 672, 714, 784, 816, 829, 843, 855, 1075, 1098, 1210, 1301, 1327, 1404, 1621, 1916, 2402
 - Many instances of `var(--pico-radius, 0.5rem)` fallbacks
 

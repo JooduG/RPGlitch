@@ -97,6 +97,7 @@ Add this new section at the top of your `RPGlitch.scss` file, right after the ma
 Find and remove these scattered CSS custom properties from your current file:
 
 **Around line 497-502:**
+
 ```scss
 /* Remove these lines */
 --pico-box-shadow: 0;
@@ -108,6 +109,7 @@ Find and remove these scattered CSS custom properties from your current file:
 ```
 
 **Around line 1608-1609:**
+
 ```scss
 /* Remove these lines */
 --palette-medium: var(--pico-primary, #0172ad);
@@ -115,6 +117,7 @@ Find and remove these scattered CSS custom properties from your current file:
 ```
 
 **Around line 1594-1598:**
+
 ```scss
 /* Remove these lines */
 --swatch-color: var(--pico-primary, #0172ad);

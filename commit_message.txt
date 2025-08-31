@@ -1,0 +1,1 @@
+Fix: Configure Markdown linting and resolve all errors.

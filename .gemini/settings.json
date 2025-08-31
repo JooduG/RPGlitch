@@ -64,9 +64,9 @@
           "run",
           "@smithery/toolbox",
           "--key",
-          "${SMITHERY_API_KEY}",
+          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
-          "${SMITHERY_PROFILE}"
+          "voluntary-hornet-y52X3F"
         ],
         "env": {},
         "autoStart": true
@@ -80,9 +80,9 @@
           "run",
           "@albinjal/multi-agent-debate-mcp",
           "--key",
-          "${SMITHERY_API_KEY}",
+          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
-          "${SMITHERY_PROFILE}"
+          "voluntary-hornet-y52X3F"
         ],
         "autoStart": true,
         "description": "Multi-agent debate tools via Smithery MCP (stdio)."
@@ -96,9 +96,9 @@
           "run",
           "@waldzellai/scientific-method",
           "--key",
-          "${SMITHERY_API_KEY}",
+          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
-          "${SMITHERY_PROFILE}"
+          "voluntary-hornet-y52X3F"
         ],
         "autoStart": true,
         "description": "Scientific method reasoning tools via Smithery MCP (stdio)."
@@ -112,9 +112,9 @@
           "run",
           "@waldzellai/metacognitive-monitoring",
           "--key",
-          "${SMITHERY_API_KEY}",
+          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
-          "${SMITHERY_PROFILE}"
+          "voluntary-hornet-y52X3F"
         ],
         "autoStart": true,
         "description": "Metacognitive monitoring tools via Smithery MCP (stdio)."
@@ -128,9 +128,9 @@
           "run",
           "@waldzellai/clear-thought",
           "--key",
-          "${SMITHERY_API_KEY}",
+          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
-          "${SMITHERY_PROFILE}"
+          "voluntary-hornet-y52X3F"
         ],
         "autoStart": true,
         "description": "Clear Thought reasoning server via Smithery MCP (stdio)."
@@ -154,9 +154,9 @@
           "run",
           "@hbg/mcp-paperswithcode",
           "--key",
-          "${SMITHERY_API_KEY}",
+          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
-          "${SMITHERY_PROFILE}"
+          "voluntary-hornet-y52X3F"
         ],
         "autoStart": true,
         "description": "Papers With Code client via Smithery MCP (stdio)."
@@ -170,9 +170,9 @@
           "run",
           "@shreyaskarnik/huggingface-mcp-server",
           "--key",
-          "${SMITHERY_API_KEY}",
+          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
-          "${SMITHERY_PROFILE}"
+          "voluntary-hornet-y52X3F"
         ],
         "autoStart": true,
         "description": "Hugging Face utilities via Smithery MCP (stdio)."
@@ -200,9 +200,9 @@
           "run",
           "@Nekzus/npm-sentinel-mcp",
           "--key",
-          "${SMITHERY_API_KEY}",
+          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
-          "${SMITHERY_PROFILE}"
+          "voluntary-hornet-y52X3F"
         ],
         "autoStart": true,
         "description": "NPM package sentinel analysis via Smithery MCP (stdio)."
@@ -216,9 +216,9 @@
           "run",
           "@lex-tools/codebase-context-dumper",
           "--key",
-          "${SMITHERY_API_KEY}",
+          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
-          "${SMITHERY_PROFILE}"
+          "voluntary-hornet-y52X3F"
         ],
         "autoStart": true,
         "description": "Dump codebase context via Smithery MCP (stdio)."
@@ -240,9 +240,9 @@
           "run",
           "@valstro/markdown-rules-mcp",
           "--key",
-          "${SMITHERY_API_KEY}",
+          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
-          "${SMITHERY_PROFILE}"
+          "voluntary-hornet-y52X3F"
         ],
         "autoStart": true,
         "description": "Markdown rules utilities via Smithery MCP (stdio)."
@@ -251,7 +251,7 @@
     "Memory-and-Storage": {
       "basic-memory": {
         "type": "http",
-        "url": "https://server.smithery.ai/@basicmachines-co/basic-memory/mcp?api_key=${SMITHERY_API_KEY}",
+        "url": "https://server.smithery.ai/@basicmachines-co/basic-memory/mcp?api_key=d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
         "description": "Basic Memory MCP server via Smithery (API key via .env).",
         "env": {
           "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"

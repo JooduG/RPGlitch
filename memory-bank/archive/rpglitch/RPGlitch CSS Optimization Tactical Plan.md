@@ -22,11 +22,13 @@ Based on detailed analysis of the RPGlitch SCSS file, the following specific opt
 **Target**: Organize and document CSS custom properties for better maintainability
 
 **Specific Areas for Improvement**:
+
 - Lines 497-502: Pico CSS shadow variables
 - Lines 1608-1609: Custom palette variables
 - Lines 1594-1598: Swatch color variables
 
 **Implementation Steps**:
+
 1. Create a dedicated CSS custom properties section
 2. Group related properties together
 3. Add comprehensive documentation
@@ -38,10 +40,12 @@ Based on detailed analysis of the RPGlitch SCSS file, the following specific opt
 **Target**: Consolidate border radius usage for consistency
 
 **Specific Areas for Improvement**:
+
 - Lines 432, 558, 672, 714, 784, 816, 829, 843, 855, 1075, 1098, 1210, 1301, 1327, 1404, 1621, 1916, 2402
 - Many instances of `var(--pico-radius, 0.5rem)` fallbacks
 
 **Implementation Steps**:
+
 1. Standardize border radius usage
 2. Reduce redundant fallback values
 3. Maintain visual consistency
@@ -53,6 +57,7 @@ Based on detailed analysis of the RPGlitch SCSS file, the following specific opt
 **Target**: Add detailed documentation for CSS custom properties and complex selectors
 
 **Implementation Steps**:
+
 1. Document CSS custom property usage
 2. Add usage examples for complex selectors
 3. Explain theming system
@@ -64,6 +69,7 @@ Based on detailed analysis of the RPGlitch SCSS file, the following specific opt
 **Target**: Minor performance improvements
 
 **Implementation Steps**:
+
 1. Optimize a few complex selectors
 2. Reduce specificity where possible
 3. Maintain functionality
@@ -74,16 +80,19 @@ Based on detailed analysis of the RPGlitch SCSS file, the following specific opt
 ### **Phase 1: CSS Custom Property Organization** 🔄 **IN PROGRESS**
 
 **Step 1**: Create dedicated CSS custom properties section
+
 - Group Pico CSS variables
 - Group custom theming variables
 - Add comprehensive documentation
 
 **Step 2**: Organize variable definitions
+
 - Consolidate related properties
 - Add usage comments
 - Maintain backward compatibility
 
 **Step 3**: Update variable usage
+
 - Ensure all references work correctly
 - Test functionality
 - Validate design consistency
@@ -91,16 +100,19 @@ Based on detailed analysis of the RPGlitch SCSS file, the following specific opt
 ### **Phase 2: Border Radius Optimization**
 
 **Step 1**: Analyze current usage patterns
+
 - Identify redundant declarations
 - Find inconsistent fallback values
 - Map all border radius applications
 
 **Step 2**: Standardize usage
+
 - Create consistent fallback values
 - Reduce redundant declarations
 - Maintain visual consistency
 
 **Step 3**: Test and validate
+
 - Verify all border radius applications
 - Test responsive behavior
 - Ensure no visual regressions
@@ -108,16 +120,19 @@ Based on detailed analysis of the RPGlitch SCSS file, the following specific opt
 ### **Phase 3: Documentation Enhancement**
 
 **Step 1**: Document CSS custom properties
+
 - Add usage examples
 - Explain theming system
 - Document color palette usage
 
 **Step 2**: Enhance selector documentation
+
 - Add comments for complex selectors
 - Explain layout patterns
 - Document responsive behavior
 
 **Step 3**: Create usage guidelines
+
 - Document best practices
 - Add maintenance guidelines
 - Create troubleshooting guide
@@ -125,16 +140,19 @@ Based on detailed analysis of the RPGlitch SCSS file, the following specific opt
 ### **Phase 4: Minor Optimizations**
 
 **Step 1**: Identify optimization targets
+
 - Find complex selectors
 - Identify redundant rules
 - Analyze performance impact
 
 **Step 2**: Implement optimizations
+
 - Optimize selectors
 - Reduce redundancies
 - Maintain functionality
 
 **Step 3**: Validate improvements
+
 - Test performance
 - Verify functionality
 - Ensure no regressions
