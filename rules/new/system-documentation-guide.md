@@ -62,8 +62,6 @@ dontDoTheThing();
 
 We follow this rule because it improves performance and reduces errors.
 
-```
-
 ---
 
 ## 3. General Documentation Tips (For `docs/`)
