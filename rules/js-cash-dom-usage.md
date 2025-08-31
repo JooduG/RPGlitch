@@ -42,10 +42,8 @@ Cash DOM provides a tiny, fast jQuery-like API for DOM selection and manipulatio
 
 ### **Example:**
 
-```js
-$('#chat-input').val('');
-$('#chat-log').append('<chat-message text="Hello!"></chat-message>');
-```
+    $('#chat-input').val('');
+    $('#chat-log').append('<chat-message text="Hello!"></chat-message>');
 
 ### **Works well with:** Hyperscript for event handling, Pico.css for UI
 
@@ -53,116 +51,100 @@ $('#chat-log').append('<chat-message text="Hello!"></chat-message>');
 
 ### **Element Selection**
 
-```javascript
-// Single element
-const element = $('#my-element');
+    // Single element
+    const element = $('#my-element');
 
-// Multiple elements
-const elements = $('.my-class');
+    // Multiple elements
+    const elements = $('.my-class');
 
-// Complex selectors
-const items = $('ul li:first-child');
-```
+    // Complex selectors
+    const items = $('ul li:first-child');
 
 ### **DOM Manipulation**
 
-```javascript
-// Content manipulation
-$('#element').html('<span>New content</span>');
-$('#element').text('Plain text content');
+    // Content manipulation
+    $('#element').html('<span>New content</span>');
+    $('#element').text('Plain text content');
 
-// Attribute manipulation
-$('#element').attr('data-id', '123');
-const id = $('#element').attr('data-id');
+    // Attribute manipulation
+    $('#element').attr('data-id', '123');
+    const id = $('#element').attr('data-id');
 
-// Class manipulation
-$('#element').addClass('highlight');
-$('#element').removeClass('old-class');
-$('#element').toggleClass('active');
-```
+    // Class manipulation
+    $('#element').addClass('highlight');
+    $('#element').removeClass('old-class');
+    $('#element').toggleClass('active');
 
 ### **Event Handling**
 
-```javascript
-// Event binding
-$('#button').on('click', function() {
-  console.log('Button clicked!');
-});
+    // Event binding
+    $('#button').on('click', function() {
+      console.log('Button clicked!');
+    });
 
-// Event delegation
-$('#container').on('click', '.item', function() {
-  console.log('Item clicked!');
-});
+    // Event delegation
+    $('#container').on('click', '.item', function() {
+      console.log('Item clicked!');
+    });
 
-// Multiple events
-$('#element').on('click touchstart', function() {
-  console.log('Element interacted!');
-});
-```
+    // Multiple events
+    $('#element').on('click touchstart', function() {
+      console.log('Element interacted!');
+    });
 
 ### **Chaining**
 
-```javascript
-// Method chaining
-$('#element')
-  .addClass('active')
-  .attr('data-state', 'loading')
-  .html('Loading...')
-  .show();
-```
+    // Method chaining
+    $('#element')
+      .addClass('active')
+      .attr('data-state', 'loading')
+      .html('Loading...')
+      .show();
 
 ## Performance Considerations
 
 ### **Efficient Selection**
 
-```javascript
-// Cache selectors for repeated use
-const $element = $('#my-element');
-$element.addClass('active');
-$element.removeClass('inactive');
+    // Cache selectors for repeated use
+    const $element = $('#my-element');
+    $element.addClass('active');
+    $element.removeClass('inactive');
 
-// Use specific selectors
-$('div.my-class'); // More specific than $('.my-class')
-```
+    // Use specific selectors
+    $('div.my-class'); // More specific than $('.my-class')
 
 ### **Batch Operations**
 
-```javascript
-// Batch DOM operations
-const $elements = $('.item');
-$elements.each(function(index, element) {
-  $(element).addClass('processed');
-});
-```
+    // Batch DOM operations
+    const $elements = $('.item');
+    $elements.each(function(index, element) {
+      $(element).addClass('processed');
+    });
 
 ## Integration with Modern JavaScript
 
 ### **ES6+ Features**
 
-```javascript
-// Template literals
-const message = 'Hello World';
-$('#element').html(`<span>${message}</span>`);
+    // Template literals
+    const message = 'Hello World';
+    $('#element').html(`<span>${message}</span>`);
 
-// Arrow functions
-$('#button').on('click', () => {
-  console.log('Arrow function handler');
-});
+    // Arrow functions
+    $('#button').on('click', () => {
+      console.log('Arrow function handler');
+    });
 
-// Destructuring
-const { id, text } = elementData;
-$(`#${id}`).text(text);
-```
+    // Destructuring
+    const { id, text } = elementData;
+    $(`#${id}`).text(text);
 
 ### **Async/Await**
 
-```javascript
-// Async operations
-$('#button').on('click', async () => {
-  const data = await fetchData();
-  $('#result').html(data.content);
-});
-```
+    // Async operations
+    $('#button').on('click', async () => {
+      const data = await fetchData();
+      $('#result').html(data.content);
+    });
 
 ---
 
