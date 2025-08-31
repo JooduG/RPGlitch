@@ -86,6 +86,16 @@ function syncMcp() {
     // Write the original, unresolved master config to the root
     writeJson(ROOT_MCP_TARGET, masterMcp);
 
+    // --- Update Gemini settings.json (restored functionality) ---
+    try {
+        const geminiSettingsPath = path.join(REPO_ROOT, '.gemini', 'settings.json');
+        const geminiSettings = readJson(geminiSettingsPath) || {};
+        geminiSettings.mcpServers = resolvedClientMcp.mcpServers || {};
+        writeJson(geminiSettingsPath, geminiSettings);
+    } catch (error) {
+        console.warn('⚠️  Could not update Gemini settings.json.');
+    }
+    
     console.log('MCP sync complete.');
 }
 

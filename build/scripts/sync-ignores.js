@@ -70,6 +70,16 @@ function syncIgnoreFiles() {
     ]);
     jsconfig.exclude = Array.from(allExcludes).sort();
     writeJson(jsconfigPath, jsconfig);
+
+    // --- Update VS Code settings.json (restored functionality) ---
+    try {
+        const settingsPath = path.join(REPO_ROOT, '.vscode', 'settings.json');
+        const settings = readJson(settingsPath) || {};
+        settings['markdownlint.ignore'] = masterIgnores.linters?.markdownlint || [];
+        writeJson(settingsPath, settings);
+    } catch (error) {
+        console.warn('⚠️  Could not update VS Code settings.json.');
+    }
     
     console.log('Ignore files sync process complete.');
 }

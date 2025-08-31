@@ -9,18 +9,17 @@ const CONFIG_SOURCE_DIR = path.join(REPO_ROOT, 'build', 'config');
 // --- CONFIGURATION MAPPING ---
 const CONFIG_MAP = [
     // Simple copies (overwrite)
-    { type: 'copy', src: 'linters/.htmlhintrc', dest: 'build/config/.htmlhintrc' },
-    { type: 'copy', src: 'linters/.markdownlint.json', dest: 'build/config/.markdownlint.json' },
-    { type: 'copy', src: 'linters/eslint.config.mjs', dest: 'eslint.config.mjs' },
-    { type: 'copy', src: 'linters/stylelint.config.js', dest: 'stylelint.config.js' },
-    { type: 'copy', src: 'testing/jest.config.js', dest: 'jest.config.js' },
-    { type: 'copy', src: 'ide-settings/codex.config.toml', dest: '.codex/config.toml' },
-    { type: 'copy', src: 'ide-settings/codacy.yaml', dest: '.codacy/codacy.yaml' },
+    { type: 'copy', src: '.htmlhintrc', dest: 'build/config/.htmlhintrc' },
+    { type: 'copy', src: '.markdownlint.json', dest: 'build/config/.markdownlint.json' },
+    { type: 'copy', src: 'eslint.config.mjs', dest: 'eslint.config.mjs' },
+    { type: 'copy', src: 'stylelint.config.js', dest: 'stylelint.config.js' },
+    { type: 'copy', src: 'jest.config.js', dest: 'jest.config.js' },
+
 
     // Surgical merges (read, update, write)
-    { type: 'merge', src: 'ide-settings/vscode.settings.json', dest: '.vscode/settings.json' },
-    { type: 'merge', src: 'ide-settings/gemini.settings.json', dest: '.gemini/settings.json' },
-    { type: 'merge', src: 'ide-settings/amazonq.chat-preferences.json', dest: '.amazonq/chat-preferences.json' },
+    { type: 'merge', src: 'vscode.settings.json', dest: '.vscode/settings.json' },
+    { type: 'merge', src: 'gemini.settings.json', dest: '.gemini/settings.json' },
+    { type: 'merge', src: 'amazonq.chat-preferences.json', dest: '.amazonq/chat-preferences.json' },
 ];
 
 // --- UTILITIES ---
