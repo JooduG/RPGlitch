@@ -1,47 +1,23 @@
-# RPGlitch Workspace
+# JooduG-default
 
-A unified, Perchance-friendly workspace with:
+Welcome to the JooduG-default monorepo. This repository contains a complete, AI-assisted ecosystem for developing and maintaining web applications.
 
-- **Apps:** `apps/rpglitch`, `apps/imageglitch`
-- **One-source configs:** `build/config/*`
-- **Generators:** `build/scripts/sync-combine.js` (docs),
-  `sync-configs.js` (ignores + IDE configs)
-- **Output:** built HTML to `build/output/`
+## What is this?
 
-## Quick start
+This project is not just a collection of apps; it's a structured environment where an AI development assistant can operate effectively. It combines applications, a robust build system, extensive documentation, and a unique "rule-based" cognitive framework for an AI agent.
 
-```bash
-# One command to rule them all - ready for Perchance
-npm run deploy
-# Or just build and copy
-npm run build:copy
-```
+## Folder Overview
 
-## Contributor Guide
+- **`/apps`**: Contains the primary user-facing web applications.
+- **`/build`**: The "factory" of the repo. Holds all scripts, configs, and libraries for building and linting the apps.
+- **`/docs`**: The project's "library." Contains all human-readable documentation, guides, and glossaries.
+- **`/memory-bank`**: The AI agent's "brain," used for persistent, long-term memory and task tracking.
+- **`/rules`**: The "constitution" for the AI agent. These machine-readable files govern all of the agent's behavior.
+- **`/tests`**: Contains all automated tests to ensure application quality and stability.
+- **`/tools`**: A "toolbox" of utility and diagnostic scripts for various maintenance tasks.
 
-See Repository Guidelines in `docs/CONTRIBUTING.md` for project structure, build/test commands, coding style, and PR conventions.
+## Common Workflows
 
-## Common tasks
-
-- **Deploy to Perchance:** `npm run deploy` (sync all, test, lint, build & copy)
-- **Build RPGlitch only:** `npm run build`
-- **Lint everything:** `npm run lint` (use `npm run lint:fix` to auto-fix)
-- **Sync everything:** `npm run sync` (libs, configs, combine docs)
-- **Combine docs (generated):** `npm run sync:combine`
-
-## Where things live
-
-- **Configs:** `build/config/` (eslint, stylelint, htmlhint, md, jest)
-- **Config sync:** `build/config/ignores.master.json` + `.rules/` → `npm run sync` (or individual sync:xxx commands)
-- **Scripts:** `build/scripts/*`
-- **Generated docs:** `build/output/*.md` (⚠️ do not edit)
-
-## Perchance constraints
-
-- All scripts are **inlined**; no CDN tags in the final HTML.
-- Local libs pulled into `build/local_libs` only.
-- Output for RPGlitch: `build/output/RPGlitch.html`.
-
-**More docs:** see
-[`build/output/combined-docs.md`](build/output/combined-docs.md) and
-[`build/output/repo-overview.md`](build/output/hub.md).
+- **Building an App:** To manually build the `rpglitch` application, run the command `npm run build-rpglitch`.
+- **Running Tests:** To run the entire test suite, use `npm test`.
+- **Automated Building:** For active development, run `npm run watch`. This will automatically rebuild the `rpglitch` app whenever you save a change to its source files.

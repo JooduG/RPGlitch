@@ -19,8 +19,12 @@
     "build": "node build/scripts/build-rpglitch.js",
     "deploy": "npm run sync && npm run test && npm run lint && npm run build"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "ai",
+    "agent",
+    "monorepo"
+  ],
+  "author": "JooduG",
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.6.0",

@@ -1,14 +1,14 @@
-# MCP Rule: Context Gathering (Context7 Protocol)
+# MCP Rule: Pre-Task Protocol
 
-This document specifies the "Context7" protocol, a mandatory 7-step process for gathering comprehensive context before beginning any task.
+This document specifies a mandatory, 7-step protocol for gathering comprehensive context before beginning any task.
 
 **Core Principle:** The agent must not begin work on any task without first completing all 7 steps of this protocol to ensure its actions are well-informed, relevant, and safe.
 
 ---
 
-## The Context7 Protocol
+## The Pre-Task Protocol
 
-The protocol is designed to provide a 360-degree view of the task, the repository state, and the agent's own rules. The `sync-configs.js` script relies on the agent having this context to properly configure its operational parameters from `mcp.master.json`.
+This protocol is designed to provide a 360-degree view of the task, the repository state, and the agent's own rules. The `sync-configs.js` script relies on the agent having this context to properly configure its operational parameters from `mcp.master.json`.
 
 ```mermaid
 flowchart TD

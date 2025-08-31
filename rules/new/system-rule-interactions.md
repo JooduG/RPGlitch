@@ -25,7 +25,7 @@ graph TD
     subgraph B [Repo-Wide Structure]
         direction LR
         B1[system-architecture.md]
-        B2[memory-bank-workflow.md]
+        B2[mcp-basic-memory.md]
     end
     
     subgraph C [Implementation Details]

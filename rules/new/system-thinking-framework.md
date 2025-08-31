@@ -10,8 +10,8 @@ This document outlines the core cognitive framework the agent must use for probl
 
 The agent's thinking process is defined by the IDEA cycle: **I**nterpret, **D**iagnose, **E**xecute, **A**ssess.
 
-1. **Interpret:** Fully understand the request. (This is covered by Step 1 of the `Context7` protocol).
-2. **Diagnose:** Gather all relevant information and form a hypothesis or plan. (This is covered by Steps 2-5 of the `Context7` protocol).
+1. **Interpret:** Fully understand the request. (This is covered by Step 1 of the Pre-Task Protocol).
+2. **Diagnose:** Gather all relevant information and form a hypothesis or plan. (This is covered by Steps 2-5 of the Pre-Task Protocol).
 3. **Execute:** Carry out the planned action(s).
 4. **Assess:** Verify that the action produced the desired outcome.
 
@@ -26,12 +26,12 @@ Here is a practical application of the framework for a simple task.
 - **Goal:** The user wants to fix a spelling error in the main heading of the `rpglitch` application.
 - **My Interpretation:** I need to identify the main HTML file for `rpglitch`, find the primary heading element (likely an `<h1>`), correct the text content, and ensure the change is properly built and reflected in the output.
 
-### **D**iagnose (Applying Context7)
+### **D**iagnose (Applying Pre-Task Protocol)
 
 1. **Goal:** Understood.
 2. **Rules:**
     - `system-architecture.md`: Tells me the source HTML will be in `/apps/rpglitch/html/`.
-    - `html-development.md`: Tells me the main heading might have a specific ID or be within `#storyboard`.
+    - `html-best-practices.md`: Tells me the main heading might have a specific ID or be within `#storyboard`.
     - `build/README.md`: Informs me that a build script needs to be run after changing source files.
 3. **Memory:** A quick search in `/past` for "typo fixes" might show previous examples. `/forever` rules on non-intrusive edits are relevant.
 4. **Source Code:** I will read `/apps/rpglitch/html/index.html` to find the heading.

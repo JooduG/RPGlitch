@@ -18,33 +18,26 @@ The `build/scripts/sync-configs.js` script is responsible for reading these rule
 
 - **Purpose:** Governs the structure, semantics, and best practices for all HTML code.
 - **Key Files:**
-  - `html-development.md`: Core principles of HTML structure and accessibility.
-  - `html-hyperscript-usage.md`: Rules for using the `_hyperscript` library.
+  - `html-best-practices.md`: Foundational rules for valid, semantic, and accessible HTML.
+  - `html-hyperscript-guide.md`: Rules for using the `_hyperscript` library for simple UI interactions.
 
 ### `js-*.md`
 
 - **Purpose:** Defines the complete set of rules for JavaScript development, from style to architecture.
 - **Key Files:**
-  - `js-development.md`: The master guide for JS style and syntax.
   - `js-dom-guide.md`: Rules for DOM manipulation using `cash`.
   - `js-storage-guide.md`: Rules for client-side storage using `Dexie.js`.
   - `js-modern-guide.md`: Mandates the use of modern ES6+ features and APIs.
   - `js-ecosystem-overview.md`: An overview of the libraries used in the project.
+  - `js-patters-practices.md`: Defines architectural patterns like IIFE and data flow.
 
 ### `mcp-*.md`
 
 - **Purpose:** These are meta-rules that define the agent's own cognitive processes and core functions.
 - **Key Files:**
   - `mcp-basic-memory.md`: Defines how the agent interacts with its long-term memory system (`/memory-bank/`).
-  - `mcp-context7.md`: Specifies the protocol for gathering context before starting a task.
+  - `mcp-pre-task-protocol.md`: Specifies the mandatory checklist for gathering context before starting a task.
   - `mcp-time.md`: Rules for how the agent handles dates and times.
-
-### `memory-*.md`
-
-- **Purpose:** Documentation for the `/memory-bank/` system itself.
-- **Key Files:**
-  - `memory-bank-overview.md`: Explains the structure of the memory bank.
-  - `memory-bank-workflow.md`: Details the process for reading from and writing to memory.
 
 ### `scss-*.md`
 
