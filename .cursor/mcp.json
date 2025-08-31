@@ -50,9 +50,7 @@
         "restartOnFailure": true,
         "autoStart": true,
         "description": "Provides advanced sequential thinking tools with persistent state."
-      }
-    },
-    "Smithery-AI-Tools": {
+      },
       "Toolbox": {
         "type": "stdio",
         "command": "npx",
@@ -69,30 +67,13 @@
         "env": {},
         "autoStart": true
       },
-      "Multi-AgentDebate": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@albinjal/multi-agent-debate-mcp",
-          "--key",
-          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-          "--profile",
-          "voluntary-hornet-y52X3F"
-        ],
-        "autoStart": true,
-        "description": "Multi-agent debate tools via Smithery MCP (stdio)."
-      },
       "ScientificMethodServer": {
         "type": "stdio",
         "command": "npx",
         "args": [
           "-y",
-          "@smithery/cli@latest",
-          "run",
           "@waldzellai/scientific-method",
+          "run",
           "--key",
           "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
@@ -106,9 +87,8 @@
         "command": "npx",
         "args": [
           "-y",
-          "@smithery/cli@latest",
-          "run",
           "@waldzellai/metacognitive-monitoring",
+          "run",
           "--key",
           "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
@@ -122,9 +102,8 @@
         "command": "npx",
         "args": [
           "-y",
-          "@smithery/cli@latest",
-          "run",
           "@waldzellai/clear-thought",
+          "run",
           "--key",
           "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
           "--profile",
@@ -134,46 +113,28 @@
         "description": "Clear Thought reasoning server via Smithery MCP (stdio)."
       }
     },
-    "Knowledge-and-Research": {
-      "Context7": {
-        "type": "http",
-        "url": "https://mcp.context7.com/mcp"
+    "Memory-and-Storage": {
+      "basic-memory-stdio": {
+        "type": "stdio",
+        "command": "uvx",
+        "args": [
+          "basic-memory",
+          "mcp"
+        ],
+        "autoStart": true,
+        "description": "Basic Memory MCP server via direct command."
       },
       "deepwiki": {
         "url": "https://mcp.deepwiki.com/sse",
         "description": "DeepWiki MCP over SSE for knowledge lookup."
       },
-      "PapersWithCodeClient": {
+      "Context7": {
         "type": "stdio",
         "command": "npx",
         "args": [
           "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@hbg/mcp-paperswithcode",
-          "--key",
-          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-          "--profile",
-          "voluntary-hornet-y52X3F"
-        ],
-        "autoStart": true,
-        "description": "Papers With Code client via Smithery MCP (stdio)."
-      },
-      "HuggingFaceMCPServer": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@shreyaskarnik/huggingface-mcp-server",
-          "--key",
-          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-          "--profile",
-          "voluntary-hornet-y52X3F"
-        ],
-        "autoStart": true,
-        "description": "Hugging Face utilities via Smithery MCP (stdio)."
+          "@upstash/context7-mcp@latest"
+        ]
       }
     },
     "Development-and-Code": {
@@ -187,91 +148,8 @@
           "open_page",
           "screenshot"
         ],
-        "autoStart": true
-      },
-      "NPMSentinelMCP": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@Nekzus/npm-sentinel-mcp",
-          "--key",
-          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-          "--profile",
-          "voluntary-hornet-y52X3F"
-        ],
-        "autoStart": true,
-        "description": "NPM package sentinel analysis via Smithery MCP (stdio)."
-      },
-      "CodebaseContextDumper": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@lex-tools/codebase-context-dumper",
-          "--key",
-          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-          "--profile",
-          "voluntary-hornet-y52X3F"
-        ],
-        "autoStart": true,
-        "description": "Dump codebase context via Smithery MCP (stdio)."
-      },
-      "markitdown": {
-        "command": "uvx",
-        "args": [
-          "markitdown-mcp"
-        ],
         "type": "stdio",
         "autoStart": true
-      },
-      "MarkdownRules": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@valstro/markdown-rules-mcp",
-          "--key",
-          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-          "--profile",
-          "voluntary-hornet-y52X3F"
-        ],
-        "autoStart": true,
-        "description": "Markdown rules utilities via Smithery MCP (stdio)."
-      }
-    },
-    "Memory-and-Storage": {
-      "basic-memory": {
-        "type": "http",
-        "url": "https://server.smithery.ai/@basicmachines-co/basic-memory/mcp?api_key=d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-        "description": "Basic Memory MCP server via Smithery (API key via .env).",
-        "env": {
-          "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
-        }
-      },
-      "basic-memory-stdio": {
-        "type": "stdio",
-        "command": "uvx",
-        "args": [
-          "basic-memory",
-          "mcp"
-        ],
-        "autoStart": true,
-        "description": "Basic Memory MCP server via direct command."
-      },
-      "memory": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@modelcontextprotocol/server-memory"
-        ]
       }
     }
   },
@@ -341,30 +219,13 @@
       "env": {},
       "autoStart": true
     },
-    "Multi-AgentDebate": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@albinjal/multi-agent-debate-mcp",
-        "--key",
-        "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-        "--profile",
-        "voluntary-hornet-y52X3F"
-      ],
-      "autoStart": true,
-      "description": "Multi-agent debate tools via Smithery MCP (stdio)."
-    },
     "ScientificMethodServer": {
       "type": "stdio",
       "command": "npx",
       "args": [
         "-y",
-        "@smithery/cli@latest",
-        "run",
         "@waldzellai/scientific-method",
+        "run",
         "--key",
         "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
         "--profile",
@@ -378,9 +239,8 @@
       "command": "npx",
       "args": [
         "-y",
-        "@smithery/cli@latest",
-        "run",
         "@waldzellai/metacognitive-monitoring",
+        "run",
         "--key",
         "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
         "--profile",
@@ -394,9 +254,8 @@
       "command": "npx",
       "args": [
         "-y",
-        "@smithery/cli@latest",
-        "run",
         "@waldzellai/clear-thought",
+        "run",
         "--key",
         "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
         "--profile",
@@ -404,122 +263,6 @@
       ],
       "autoStart": true,
       "description": "Clear Thought reasoning server via Smithery MCP (stdio)."
-    },
-    "Context7": {
-      "type": "http",
-      "url": "https://mcp.context7.com/mcp"
-    },
-    "deepwiki": {
-      "url": "https://mcp.deepwiki.com/sse",
-      "description": "DeepWiki MCP over SSE for knowledge lookup."
-    },
-    "PapersWithCodeClient": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@hbg/mcp-paperswithcode",
-        "--key",
-        "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-        "--profile",
-        "voluntary-hornet-y52X3F"
-      ],
-      "autoStart": true,
-      "description": "Papers With Code client via Smithery MCP (stdio)."
-    },
-    "HuggingFaceMCPServer": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@shreyaskarnik/huggingface-mcp-server",
-        "--key",
-        "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-        "--profile",
-        "voluntary-hornet-y52X3F"
-      ],
-      "autoStart": true,
-      "description": "Hugging Face utilities via Smithery MCP (stdio)."
-    },
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp"
-      ],
-      "autoApprove": [
-        "open_page",
-        "screenshot"
-      ],
-      "autoStart": true
-    },
-    "NPMSentinelMCP": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@Nekzus/npm-sentinel-mcp",
-        "--key",
-        "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-        "--profile",
-        "voluntary-hornet-y52X3F"
-      ],
-      "autoStart": true,
-      "description": "NPM package sentinel analysis via Smithery MCP (stdio)."
-    },
-    "CodebaseContextDumper": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@lex-tools/codebase-context-dumper",
-        "--key",
-        "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-        "--profile",
-        "voluntary-hornet-y52X3F"
-      ],
-      "autoStart": true,
-      "description": "Dump codebase context via Smithery MCP (stdio)."
-    },
-    "markitdown": {
-      "command": "uvx",
-      "args": [
-        "markitdown-mcp"
-      ],
-      "type": "stdio",
-      "autoStart": true
-    },
-    "MarkdownRules": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@valstro/markdown-rules-mcp",
-        "--key",
-        "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-        "--profile",
-        "voluntary-hornet-y52X3F"
-      ],
-      "autoStart": true,
-      "description": "Markdown rules utilities via Smithery MCP (stdio)."
-    },
-    "basic-memory": {
-      "type": "http",
-      "url": "https://server.smithery.ai/@basicmachines-co/basic-memory/mcp?api_key=d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-      "description": "Basic Memory MCP server via Smithery (API key via .env).",
-      "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
-      }
     },
     "basic-memory-stdio": {
       "type": "stdio",
@@ -531,13 +274,30 @@
       "autoStart": true,
       "description": "Basic Memory MCP server via direct command."
     },
-    "memory": {
+    "deepwiki": {
+      "url": "https://mcp.deepwiki.com/sse",
+      "description": "DeepWiki MCP over SSE for knowledge lookup."
+    },
+    "Context7": {
       "type": "stdio",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-memory"
+        "@upstash/context7-mcp@latest"
       ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp"
+      ],
+      "autoApprove": [
+        "open_page",
+        "screenshot"
+      ],
+      "type": "stdio",
+      "autoStart": true
     }
   }
 }

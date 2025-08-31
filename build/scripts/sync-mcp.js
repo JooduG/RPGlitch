@@ -110,7 +110,7 @@ function syncMcp() {
     try {
         const geminiSettingsPath = path.join(REPO_ROOT, ".gemini", "settings.json");
         const geminiSettings = readJson(geminiSettingsPath) || {};
-        geminiSettings.mcpServers = resolvedClientMcp.mcpServers || {};
+        geminiSettings.mcpServers = flattenedServers || {};
         writeJson(geminiSettingsPath, geminiSettings);
     } catch (error) {
         console.warn(

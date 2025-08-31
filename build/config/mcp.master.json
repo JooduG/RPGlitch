@@ -21,7 +21,10 @@
     "AI-and-Reasoning": {
       "pollinations": {
         "command": "npx",
-        "args": ["-y", "@pollinations/model-context-protocol"],
+        "args": [
+          "-y",
+          "@pollinations/model-context-protocol"
+        ],
         "type": "stdio",
         "pollingInterval": 30000,
         "startupTimeout": 30000,
@@ -31,16 +34,17 @@
       },
       "mcp-sequentialthinking-tools": {
         "command": "npx",
-        "args": ["-y", "mcp-sequentialthinking-tools"],
+        "args": [
+          "-y",
+          "mcp-sequentialthinking-tools"
+        ],
         "type": "stdio",
         "pollingInterval": 30000,
         "startupTimeout": 30000,
         "restartOnFailure": true,
         "autoStart": true,
         "description": "Provides advanced sequential thinking tools with persistent state."
-      }
-    },
-    "Smithery-AI-Tools": {
+      },
       "Toolbox": {
         "type": "stdio",
         "command": "npx",
@@ -57,30 +61,13 @@
         "env": {},
         "autoStart": true
       },
-      "Multi-AgentDebate": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@albinjal/multi-agent-debate-mcp",
-          "--key",
-          "${SMITHERY_API_KEY}",
-          "--profile",
-          "${SMITHERY_PROFILE}"
-        ],
-        "autoStart": true,
-        "description": "Multi-agent debate tools via Smithery MCP (stdio)."
-      },
       "ScientificMethodServer": {
         "type": "stdio",
         "command": "npx",
         "args": [
           "-y",
-          "@smithery/cli@latest",
-          "run",
           "@waldzellai/scientific-method",
+          "run",
           "--key",
           "${SMITHERY_API_KEY}",
           "--profile",
@@ -94,9 +81,8 @@
         "command": "npx",
         "args": [
           "-y",
-          "@smithery/cli@latest",
-          "run",
           "@waldzellai/metacognitive-monitoring",
+          "run",
           "--key",
           "${SMITHERY_API_KEY}",
           "--profile",
@@ -110,9 +96,8 @@
         "command": "npx",
         "args": [
           "-y",
-          "@smithery/cli@latest",
-          "run",
           "@waldzellai/clear-thought",
+          "run",
           "--key",
           "${SMITHERY_API_KEY}",
           "--profile",
@@ -122,119 +107,7 @@
         "description": "Clear Thought reasoning server via Smithery MCP (stdio)."
       }
     },
-    "Knowledge-and-Research": {
-      "Context7": {
-        "type": "http",
-        "url": "https://mcp.context7.com/mcp"
-      },
-      "deepwiki": {
-        "url": "https://mcp.deepwiki.com/sse",
-        "description": "DeepWiki MCP over SSE for knowledge lookup."
-      },
-      "PapersWithCodeClient": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@hbg/mcp-paperswithcode",
-          "--key",
-          "${SMITHERY_API_KEY}",
-          "--profile",
-          "${SMITHERY_PROFILE}"
-        ],
-        "autoStart": true,
-        "description": "Papers With Code client via Smithery MCP (stdio)."
-      },
-      "HuggingFaceMCPServer": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@shreyaskarnik/huggingface-mcp-server",
-          "--key",
-          "${SMITHERY_API_KEY}",
-          "--profile",
-          "${SMITHERY_PROFILE}"
-        ],
-        "autoStart": true,
-        "description": "Hugging Face utilities via Smithery MCP (stdio)."
-      }
-    },
-    "Development-and-Code": {
-      "playwright": {
-        "command": "npx",
-        "args": ["-y", "@playwright/mcp"],
-        "autoApprove": ["open_page", "screenshot"],
-        "autoStart": true
-      },
-      "NPMSentinelMCP": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@Nekzus/npm-sentinel-mcp",
-          "--key",
-          "${SMITHERY_API_KEY}",
-          "--profile",
-          "${SMITHERY_PROFILE}"
-        ],
-        "autoStart": true,
-        "description": "NPM package sentinel analysis via Smithery MCP (stdio)."
-      },
-      "CodebaseContextDumper": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@lex-tools/codebase-context-dumper",
-          "--key",
-          "${SMITHERY_API_KEY}",
-          "--profile",
-          "${SMITHERY_PROFILE}"
-        ],
-        "autoStart": true,
-        "description": "Dump codebase context via Smithery MCP (stdio)."
-      },
-      "markitdown": {
-        "command": "uvx",
-        "args": ["markitdown-mcp"],
-        "type": "stdio",
-        "autoStart": true
-      },
-      "MarkdownRules": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@valstro/markdown-rules-mcp",
-          "--key",
-          "${SMITHERY_API_KEY}",
-          "--profile",
-          "${SMITHERY_PROFILE}"
-        ],
-        "autoStart": true,
-        "description": "Markdown rules utilities via Smithery MCP (stdio)."
-      }
-    },
     "Memory-and-Storage": {
-      "basic-memory": {
-        "type": "http",
-        "url": "https://server.smithery.ai/@basicmachines-co/basic-memory/mcp?api_key=${SMITHERY_API_KEY}",
-        "description": "Basic Memory MCP server via Smithery (API key via .env).",
-        "env": {
-          "BASIC_MEMORY_PROJECT_ROOT": "./memory-bank"
-        }
-      },
       "basic-memory-stdio": {
         "type": "stdio",
         "command": "uvx",
@@ -242,10 +115,26 @@
         "autoStart": true,
         "description": "Basic Memory MCP server via direct command."
       },
-      "memory": {
+      "deepwiki": {
+        "url": "https://mcp.deepwiki.com/sse",
+        "description": "DeepWiki MCP over SSE for knowledge lookup."
+      },
+      "Context7": {
         "type": "stdio",
         "command": "npx",
-        "args": ["-y", "@modelcontextprotocol/server-memory"]
+        "args": [
+          "-y",
+          "@upstash/context7-mcp@latest"
+        ]
+      }
+    },
+    "Development-and-Code": {
+      "playwright": {
+        "command": "npx",
+        "args": ["-y", "@playwright/mcp"],
+        "autoApprove": ["open_page", "screenshot"],
+        "type": "stdio",
+        "autoStart": true
       }
     }
   },

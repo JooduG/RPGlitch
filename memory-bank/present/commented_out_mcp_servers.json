@@ -1,0 +1,66 @@
+{
+  "OpenAIChat": {
+    "type": "http",
+    "url": "https://api.openai.com/v1/chat/completions",
+    "env": {
+      "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+    },
+    "description": "OpenAI Chat API via HTTP."
+  },
+  "SmitheryAI": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@smithery/cli@latest",
+      "run",
+      "@smithery/ai-mcp-server",
+      "--key",
+      "${SMITHERY_API_KEY}",
+      "--profile",
+      "${SMITHERY_PROFILE}"
+    ],
+    "autoStart": true,
+    "description": "Smithery AI tools via Smithery MCP (stdio)."
+  },
+  "claude-task-master": {
+    "command": "npx",
+    "args": ["-y", "task-master-ai"],
+    "env": {
+      "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+      "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+    },
+    "type": "stdio",
+    "autoStart": true,
+    "description": "Claude Task Master for AI-powered task management."
+  },
+  "codacy-mcp-server": {
+    "command": "npx",
+    "args": ["-y", "@codacy/mcp-server"],
+    "env": {
+      "CODACY_ACCOUNT_TOKEN": "${CODACY_ACCOUNT_TOKEN}"
+    },
+    "type": "stdio",
+    "autoStart": true,
+    "description": "Codacy MCP server for code quality analysis."
+  },
+  "github": {
+    "url": "https://api.githubcopilot.com/mcp/",
+    "type": "http"
+  },
+  "Multi-AgentDebate": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@albinjal/multi-agent-debate-mcp",
+      "run",
+      "--key",
+      "${SMITHERY_API_KEY}",
+      "--profile",
+      "${SMITHERY_PROFILE}"
+    ],
+    "autoStart": true,
+    "description": "Multi-agent debate tools via Smithery MCP (stdio)."
+  }
+}
