@@ -683,7 +683,7 @@ export function getPictureNode(entity, opts = {}) {
       entity || {},
       opts
     ) || "";
-  const frag = document.createRange().createContextualFragment(html);
+  const frag = document.createDocumentFragment().appendChild(document.createTextNode(html));
   return frag.firstElementChild || document.createElement("div");
 }
 
