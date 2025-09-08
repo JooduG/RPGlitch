@@ -335,10 +335,10 @@ Agent Requested Rules (14):
   - Organized test files in `tools/test-globs/` subfolder
 
 - [x] **Header Standardization**: Cleaned up all duplicate headers and frontmatter
-  - Removed duplicate headers from `html-hyperscript-usage.mdc`
+  - Removed duplicate headers from `html-hyperscript-guide.mdc`
   - Cleaned up duplicate header from `mode-orchestrator.mdc`
   - Standardized all frontmatter to use plain glob format (no brackets/quotes)
-  - Updated `system-effective-rule-writing.mdc` to follow its own guidance
+  - Updated `system-documentation-guide.mdc` to follow its own guidance
 
 - [x] **Rule Architecture Optimization**: Configured optimal rule activation
   - Set 6 fundamental meta-rules to `alwaysApply: true`

@@ -12,10 +12,10 @@ Successfully reorganized the JavaScript rules from 4 overlapping files into a co
 
 ### **Before (4 Files with Conflicts)**
 
-- `js-cash-dom-usage.mdc` (38 lines) - Cash DOM library
-- `js-development.mdc` (599 lines) - Comprehensive but overwhelming
-- `js-dexie-usage.mdc` (42 lines) - Dexie.js library
-- `js-indexeddb-principles.mdc` (61 lines) - IndexedDB principles
+- `js-dom.guide.mdc` (38 lines) - Cash DOM library
+- `js-modern-guide.mdc` (599 lines) - Comprehensive but overwhelming
+- `js-storage-guide.mdc` (42 lines) - Dexie.js library
+- `js-storage-guide.mdc` (61 lines) - IndexedDB principles
 
 **Issues Identified:**
 
@@ -28,15 +28,15 @@ Successfully reorganized the JavaScript rules from 4 overlapping files into a co
 ### **After (9 Focused Files with Clear Boundaries)**
 
 - `js-ecosystem-overview.mdc` - **NEW** - Unified decision frameworks
-- `js-modern-features.mdc` - **NEW** - ES2023+ features (extracted from js-development)
-- `js-dom-manipulation.mdc` - **NEW** - Modern DOM APIs (extracted from js-development)
-- `js-storage-strategy.mdc` - **NEW** - Unified storage guidance (resolves conflicts)
-- `js-modern-apis.mdc` - **NEW** - Modern browser APIs (extracted from js-development)
+- `js-modern-guide.mdc` - **NEW** - ES2023+ features (extracted from js-development)
+- `js-dom.guide.mdc` - **NEW** - Modern DOM APIs (extracted from js-development)
+- `js-storage-guide.mdc` - **NEW** - Unified storage guidance (resolves conflicts)
+- `js-modern-guide.mdc` - **NEW** - Modern browser APIs (extracted from js-development)
 - `js-patterns-practices.mdc` - **NEW** - Performance & best practices (extracted from js-development)
-- `js-cash-dom-usage.mdc` - **ENHANCED** - Added decision framework
-- `js-development.mdc` - **UPDATED** - Now serves as comprehensive reference
-- `js-dexie-usage.mdc` - **UNCHANGED** - Already well-structured
-- `js-indexeddb-principles.mdc` - **UNCHANGED** - Already well-structured
+- `js-dom.guide.mdc` - **ENHANCED** - Added decision framework
+- `js-modern-guide.mdc` - **UPDATED** - Now serves as comprehensive reference
+- `js-storage-guide.mdc` - **UNCHANGED** - Already well-structured
+- `js-storage-guide.mdc` - **UNCHANGED** - Already well-structured
 
 ## ✅ **Conflicts Resolved**
 
@@ -101,19 +101,19 @@ graph TD
 
 ### **🧠 Modern JavaScript Features**
 
-- `js-modern-features.mdc` - ES2023+ features, syntax, patterns
-- `js-modern-apis.mdc` - Fetch API, Observers, Service Workers
+- `js-modern-guide.mdc` - ES2023+ features, syntax, patterns
+- `js-modern-guide.mdc` - Fetch API, Observers, Service Workers
 
 ### **🎨 DOM & UI**
 
-- `js-dom-manipulation.mdc` - Vanilla DOM APIs
-- `js-cash-dom-usage.mdc` - Cash DOM library (enhanced)
+- `js-dom.guide.mdc` - Vanilla DOM APIs
+- `js-dom.guide.mdc` - Cash DOM library (enhanced)
 
 ### **💾 Storage Solutions**
 
-- `js-storage-strategy.mdc` - Unified storage guidance
-- `js-dexie-usage.mdc` - Dexie.js library
-- `js-indexeddb-principles.mdc` - IndexedDB principles
+- `js-storage-guide.mdc` - Unified storage guidance
+- `js-storage-guide.mdc` - Dexie.js library
+- `js-storage-guide.mdc` - IndexedDB principles
 
 ### **⚡ Performance & Quality**
 
@@ -121,7 +121,7 @@ graph TD
 
 ### **📚 Reference**
 
-- `js-development.mdc` - Comprehensive reference with cross-references
+- `js-modern-guide.mdc` - Comprehensive reference with cross-references
 
 ## 🚀 **Benefits Achieved**
 
@@ -154,7 +154,7 @@ graph TD
 ### **For New Projects**
 
 1. Start with `js-ecosystem-overview.mdc` for decision frameworks
-2. Use `js-modern-features.mdc` for ES2023+ features
+2. Use `js-modern-guide.mdc` for ES2023+ features
 3. Choose DOM approach based on decision tree
 4. Select storage strategy based on data requirements
 
@@ -166,9 +166,9 @@ graph TD
 
 ### **For Perchance Projects**
 
-1. `js-cash-dom-usage.mdc` for quick DOM manipulation
-2. `js-storage-strategy.mdc` for character data storage
-3. `js-modern-features.mdc` for modern JavaScript patterns
+1. `js-dom.guide.mdc` for quick DOM manipulation
+2. `js-storage-guide.mdc` for character data storage
+3. `js-modern-guide.mdc` for modern JavaScript patterns
 
 ## 📊 **Performance Impact**
 

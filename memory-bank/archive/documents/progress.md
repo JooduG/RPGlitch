@@ -407,7 +407,7 @@ The RPGlitch profile pages optimization is **complete and ready for deployment**
 
 #### ✅ **6.2.1 Duplicate Header Removal**
 
-- **Cleaned**: `html-hyperscript-usage.mdc` - removed duplicate header at end
+- **Cleaned**: `html-hyperscript-guide.mdc` - removed duplicate header at end
 - **Cleaned**: `mode-orchestrator.mdc` - removed duplicate header at end
 - **Verified**: All 30 rule files have clean, single frontmatter blocks
 
@@ -415,7 +415,7 @@ The RPGlitch profile pages optimization is **complete and ready for deployment**
 
 - **Updated**: All glob patterns to plain format (no brackets or quotes)
 - **Standardized**: YAML frontmatter structure across all files
-- **Optimized**: `system-effective-rule-writing.mdc` to follow its own guidance
+- **Optimized**: `system-documentation-guide.mdc` to follow its own guidance
 
 ### **6.3 Rule Architecture Optimization**
 

@@ -1,258 +1,41 @@
+# MCP Rule: Time Management
+
+This rule defines how the agent must handle and represent time and dates.
+
+**Core Principle:** All timestamps in filenames, logs, and metadata must strictly adhere to the ISO 8601 format to ensure universal consistency and machine-readability.
+
 ---
-alwaysApply: true
----
 
-# **🕐 TIME MCP USAGE: Ensuring accurate, consistent, and timezone-aware date handling across the entire system!**
+## 1. The Standard Format: ISO 8601
 
-## 🎯 **OBJECTIVE**
+The required format is `YYYY-MM-DDTHH:mm:ssZ`.
 
-**Enforce mandatory use of the Time MCP for all date formatting** to ensure consistency, accuracy, and proper timezone handling across all documentation, code, and system outputs.
+- **`YYYY-MM-DD`**: The full year, month, and day.
+- **`T`**: A literal character 'T' separating the date from the time.
+- **`HH:mm:ss`**: The full hours, minutes, and seconds, in 24-hour format.
+- **`Z`**: The UTC (Zulu) timezone designator. All timestamps must be in UTC to avoid ambiguity.
 
-## 📋 **MANDATORY REQUIREMENTS**
+**Example:** `2025-08-31T01:58:00Z`
 
-### **1. ALWAYS Use Time MCP for Dates**
+This is the standard format used in Sweden and internationally, making it ideal for this project.
 
-**NEVER hardcode dates** in any format. Instead, **ALWAYS** use the Time MCP to generate current dates and timestamps.
+## 2. Usage
 
-**Forbidden Patterns** (DO NOT USE):
+### Filenames and Directories
 
-```markdown
-**Date**: 2025-01-03
-date: 2025-01-02
-Last Updated: 2025-01-03
-```
+When creating timestamped directories or files, especially in `/memory-bank/past/`, use a simplified but still compliant version of the format.
 
-**Required Pattern** (ALWAYS USE):
+- **Example Directory Name:** `2025-08-31T015800Z` (colons are often problematic in filenames).
 
-```markdown
-**Date**: [Use Time MCP to get current date]
-date: [Use Time MCP to get current date]
-Last Updated: [Use Time MCP to get current date]
-```
+### In-File Timestamps
 
-### **2. Time MCP Integration Workflow**
-
-Step 1: Get Current Time
-
-```javascript
-// ALWAYS start by getting current time
-const currentTime = await mcp_time_get_current_time({ timezone: 'Europe/Berlin' });
-```
-
-Step 2: Format for Documentation
-
-```javascript
-// Use the current time for all date fields
-const formattedDate = currentTime.date; // YYYY-MM-DD format
-const formattedDateTime = currentTime.datetime; // Full datetime
-```
-
-Step 3: Apply to All Date Fields
-
-- Document headers
-- File metadata
-- Progress tracking
-- Handoff documentation
-- Archive timestamps
-
-### **3. Standardized Date Formats**
-
-**Document Headers**:
+When writing a timestamp within a log file or Markdown document, use the full, standard format.
 
 ```markdown
-**Date**: [Time MCP current date]
-**Last Updated**: [Time MCP current date]
-**Generated**: [Time MCP current datetime]
+- **Task Completed:** 2025-08-31T01:58:00Z
+- **Log Entry:** [2025-08-31T01:58:00Z] System initialized.
 ```
 
-**File Metadata**:
+## 3. Rationale
 
-```yaml
----
-date: [Time MCP current date]
-last_updated: [Time MCP current datetime]
-timezone: Europe/Berlin
----
-```
-
-**Progress Tracking**:
-
-```markdown
-**Completed**: [Time MCP current date]
-**Started**: [Time MCP current date]
-**Duration**: [Calculated from Time MCP timestamps]
-```
-
-## 🔧 **IMPLEMENTATION GUIDELINES**
-
-### **When Writing Documentation**
-
-1. **Before writing any date**:
-   - Call `mcp_time_get_current_time({ timezone: 'Europe/Berlin' })`
-   - Use the returned date for all date fields
-   - Never manually type dates
-
-2. **For file creation**:
-   - Always include current date from Time MCP
-   - Use consistent format: `YYYY-MM-DD`
-   - Include timezone information when relevant
-
-3. **For updates**:
-   - Update "Last Updated" field with current Time MCP date
-   - Maintain creation date from original Time MCP call
-   - Track duration using Time MCP timestamps
-
-### **When Updating Existing Files**
-
-1. **Identify date fields**:
-   - Search for hardcoded dates
-   - Replace with Time MCP calls
-   - Update all date references
-
-2. **Maintain consistency**:
-   - Use same timezone (Europe/Berlin)
-   - Apply same format across all files
-   - Update related timestamps
-
-### **Error Handling**
-
-**If Time MCP fails**:
-
-1. Log the error
-2. Use fallback format: `[Date: Time MCP unavailable]`
-3. Note the issue for later resolution
-4. **NEVER** fall back to hardcoded dates
-
-## 📝 **EXAMPLES**
-
-### **Correct Implementation**
-
-```markdown
-# Strategic Analysis Report
-
-**Date**: 2025-01-03 (from Time MCP)
-**Generated**: 2025-01-03T14:30:00+01:00 (from Time MCP)
-**Timezone**: Europe/Berlin
-
-## Current Status
-- **Last Updated**: 2025-01-03 (from Time MCP)
-- **Next Review**: 2025-01-10 (calculated from Time MCP)
-```
-
-### **Incorrect Implementation**
-
-```markdown
-# Strategic Analysis Report
-
-**Date**: 2025-01-03  ❌ HARDCODED
-**Generated**: 2025-01-03T14:30:00+01:00  ❌ HARDCODED
-**Timezone**: Europe/Berlin
-
-## Current Status
-- **Last Updated**: 2025-01-03  ❌ HARDCODED
-- **Next Review**: 2025-01-10  ❌ HARDCODED
-```
-
-## 🎯 **ENFORCEMENT MECHANISMS**
-
-### **1. Pre-Write Validation**
-
-**Before writing any content with dates**:
-
-- [ ] Time MCP called and working
-- [ ] Current date retrieved
-- [ ] No hardcoded dates in content
-- [ ] Consistent format applied
-
-### **2. Post-Write Verification**
-
-**After writing content**:
-
-- [ ] All dates sourced from Time MCP
-- [ ] No hardcoded date patterns found
-- [ ] Timezone information included
-- [ ] Format consistency verified
-
-### **3. Quality Assurance**
-
-**Regular checks**:
-
-- [ ] Scan for hardcoded date patterns
-- [ ] Verify Time MCP integration
-- [ ] Test date accuracy
-- [ ] Validate timezone handling
-
-## 🔄 **INTEGRATION WITH EXISTING SYSTEMS**
-
-### **Mode System Integration**
-
-**Strategic Mode**:
-
-- Use Time MCP for all planning dates
-- Track project timelines with Time MCP
-- Generate strategic timelines
-
-**Tactical Mode**:
-
-- Plan implementation dates with Time MCP
-- Track milestone dates
-- Generate tactical schedules
-
-**Operational Mode**:
-
-- Log completion dates with Time MCP
-- Track task durations
-- Generate operational reports
-
-### **Memory Bank Integration**
-
-**File Creation**:
-
-```yaml
----
-date: [Time MCP current date]
-created: [Time MCP current datetime]
-last_updated: [Time MCP current datetime]
-timezone: Europe/Berlin
----
-```
-
-**Progress Tracking**:
-
-```markdown
-**Phase**: Phase 3A - Foundation Enhancement
-**Started**: [Time MCP date]
-**Last Updated**: [Time MCP current date]
-**Duration**: [Calculated from Time MCP timestamps]
-```
-
-## ✅ **SUCCESS CRITERIA**
-
-### **Immediate Goals**
-
-- [ ] 100% of new documentation uses Time MCP
-- [ ] No hardcoded dates in new content
-- [ ] Consistent date format across all files
-- [ ] Timezone information included
-
-### **Long-term Goals**
-
-- [ ] All existing files updated to use Time MCP
-- [ ] Automated date validation in place
-- [ ] Time MCP integration in all workflows
-- [ ] Zero hardcoded dates in codebase
-
-## 🚨 **CRITICAL REMINDERS**
-
-1. **NEVER hardcode dates** - Always use Time MCP
-2. **ALWAYS include timezone** - Default to Europe/Berlin
-3. **MAINTAIN consistency** - Use same format everywhere
-4. **VALIDATE accuracy** - Verify Time MCP is working
-5. **DOCUMENT exceptions** - If Time MCP fails, note it
-
-## 📚 **RESOURCES**
-
-- **Time MCP Documentation**: Available in MCP ecosystem
-- **Timezone Reference**: Europe/Berlin (UTC+1/UTC+2)
-- **Date Format**: YYYY-MM-DD for dates, ISO 8601 for datetimes
-- **Integration Examples**: See implementation guidelines above
+Using a single, standardized, timezone-aware format prevents a whole class of bugs and confusion related to time. It ensures that logs can be sorted chronologically regardless of where or when they were generated.

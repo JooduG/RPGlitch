@@ -1,245 +1,44 @@
----
-alwaysApply: true
----
-# Basic Memory MCP Server Integration
+# MCP Rule: Basic Memory Interaction
 
-## Overview
+This rule defines how the agent interacts with its primary long-term storage system, the `/memory-bank/`.
 
-Basic Memory is a knowledge management system that builds persistent semantic graphs and long-term storage from conversations. It integrates with Obsidian.md and provides native MCP server capabilities for the 3-mode development system.
-
-## 🎯 **WHY BASIC MEMORY?**
-
-### **Perfect for 3-Mode System**
-
-- **Semantic Knowledge Management**: Automatic graph building from conversations
-- **Obsidian Integration**: Works with existing Obsidian workflows
-- **Multi-Project Support**: Separate knowledge bases for each mode
-- **Real-time Sync**: Automatic file synchronization with watch mode
-- **Markdown Storage**: Human-readable knowledge files
-- **Full Control**: You own all your data
-- **High Trust Score**: 8.0/10 reliability
-- **MCP Server**: Native MCP server integration
-
-## 🔧 **INSTALLATION & SETUP**
-
-### **Step 1: Install Basic Memory**
-
-```bash
-# Using pip (recommended for Windows)
-pip install basic-memory
-
-# Verify installation
-python -c "import basic_memory; print(basic_memory.__version__)"
-```
-
-### **Step 2: Configure MCP Server**
-
-Configuration is centralized in `build/config/mcp.master.json` (authoritative). Ensure the `basic-memory` entry exists and that `BASIC_MEMORY_PROJECT_ROOT` points to `./memory-bank` (or your absolute path), and set `autoStart: true` if desired.
-
-### **Step 3: Set Up Projects**
-
-Create mode-specific projects:
-
-```bash
-# Create strategic project
-mkdir -p memory-bank/strategic
-echo "# Strategic Knowledge Base" > memory-bank/strategic/README.md
-
-# Create tactical project  
-mkdir -p memory-bank/tactical
-echo "# Tactical Knowledge Base" > memory-bank/tactical/README.md
-
-# Create operational project
-mkdir -p memory-bank/operational
-echo "# Operational Knowledge Base" > memory-bank/operational/README.md
-```
-
-## 🔄 **3-MODE SYSTEM INTEGRATION**
-
-For end‑to‑end mode transitions and patterns, see `rules/memory-bank-workflow.md` (canonical). This section highlights Basic Memory specifics only.
-
-### **🎭 STRATEGIC MODE + Basic Memory**
-
-**Knowledge Categories**:
-
-- **System Architecture**: Workflow optimization insights
-- **Tool Configurations**: Successful tool setups and configurations
-- **Meta-Patterns**: Patterns across multiple projects
-- **Strategic Decisions**: Planning decisions and rationales
-
-**Usage Patterns**:
-
-```bash
-# Store strategic insights
-basic-memory store "workflow-optimization" --content "Hierarchical rule loading reduces context usage by 40%"
-
-# Search for strategic patterns
-basic-memory search "workflow" --project strategic --limit 10
-
-# Link related concepts
-basic-memory link "workflow-optimization" "rule-loading" "performance-improvement"
-```
-
-### **🎨 TACTICAL MODE + Basic Memory**
-
-**Knowledge Categories**:
-
-- **Design Decisions**: UI/UX design decisions and rationales
-- **Requirements Patterns**: Common requirement structures
-- **Architecture Templates**: Reusable architectural patterns
-- **Planning Templates**: Planning approaches and methodologies
-
-**Usage Patterns**:
-
-```bash
-# Store design decisions
-basic-memory store "ui-pattern-decision" --content "Using Pico CSS for minimal, modern UI design"
-
-# Search for design patterns
-basic-memory search "ui" --project tactical --limit 5
-
-# Create planning templates
-basic-memory store "sprint-planning-template" --content "Standard sprint planning approach with user stories"
-```
-
-### **⚒️ OPERATIONAL MODE + Basic Memory**
-
-**Knowledge Categories**:
-
-- **Implementation Patterns**: Code patterns and solutions
-- **Debug Solutions**: Problem resolution approaches
-- **Performance Optimizations**: Performance improvement techniques
-- **Deployment Configs**: Deployment and configuration setups
-
-**Usage Patterns**:
-
-```bash
-# Store implementation patterns
-basic-memory store "react-hook-pattern" --content "Custom hook for form state management"
-
-# Search for solutions
-basic-memory search "debug" --project operational --limit 10
-
-# Store performance optimizations
-basic-memory store "css-optimization" --content "Consolidating CSS reduces bundle size by 30%"
-```
-
-## 🔍 **KNOWLEDGE MANAGEMENT**
-
-### **Semantic Search**
-
-```bash
-# Search across all projects
-basic-memory search "workflow" --limit 20
-
-# Search specific project
-basic-memory search "react" --project operational --limit 10
-
-# Search with filters
-basic-memory search "optimization" --project strategic --type pattern --limit 5
-```
-
-### **Knowledge Relationships**
-
-Basic Memory automatically builds semantic connections:
-
-```bash
-# Store related concepts
-basic-memory store "react-hooks" --content "React Hooks for state management"
-basic-memory store "useState" --content "useState hook for component state"
-basic-memory store "useEffect" --content "useEffect hook for side effects"
-
-# Basic Memory automatically connects these concepts
-```
-
-### **Multi-Project Knowledge Sharing**
-
-```bash
-# Share knowledge between projects
-basic-memory link --from strategic --to tactical "workflow-patterns"
-basic-memory link --from tactical --to operational "implementation-patterns"
-```
-
-### **Knowledge Export/Import**
-
-```bash
-# Export knowledge for backup
-basic-memory export --project strategic --format markdown
-
-# Import knowledge from backup
-basic-memory import --project strategic --file backup.md
-```
-
-## 🔧 **TROUBLESHOOTING**
-
-### **Common Issues**
-
-1. **Installation Problems**
-
-   ```bash
-   # Check Python version
-   python --version
-   
-   # Reinstall if needed
-   pip uninstall basic-memory
-   pip install basic-memory
-   ```
-
-2. **MCP Server Not Starting**
-
-   ```bash
-   # Check if Basic Memory is installed
-   python -c "import basic_memory; print('Basic Memory installed')"
-   
-   # Test MCP server directly
-   python -m basic_memory.mcp
-   ```
-
-3. **File Permission Issues**
-
-   ```bash
-   # Check directory permissions
-   ls -la memory-bank/
-   
-   # Fix permissions if needed
-   chmod 755 memory-bank/
-   ```
-
-### **Verification Commands**
-
-```bash
-# Test Basic Memory installation
-basic-memory --version
-
-# Test MCP server
-python -m basic_memory.mcp --help
-
-# List available projects
-basic-memory list-projects
-
-# Test file operations
-basic-memory store "test" --content "Test knowledge entry"
-basic-memory search "test" --limit 1
-```
-
-## 📚 **REFERENCES**
-
-- [Basic Memory Documentation](https://docs.basicmemory.com/)
-- [Basic Memory GitHub Repository](https://github.com/basicmachines-co/basic-memory)
-- MCP Ecosystem Overview
-- System Documentation
-- Memory Bank Workflow
-
-## 🎯 **NEXT STEPS**
-
-1. **Install Basic Memory** using the provided commands
-2. **Configure MCP server** in your `mcp.json`
-3. **Set up mode-specific projects** in your memory-bank directory
-4. **Start using Basic Memory** with your 3-mode system
-5. **Integrate with Obsidian** for enhanced visualization
+**Core Principle:** The agent must strictly follow the defined workflow for reading from and writing to the memory bank to ensure data integrity and a coherent operational history.
 
 ---
 
-**Last Updated**: 2025-07-23  
-**Version**: 1.0  
-**Status**: Complete Basic Memory integration guide
+## 1. Memory Bank Structure
+
+The `/memory-bank/` is divided into four key directories:
+
+- **`/past`**: An archive of completed tasks, logs, and historical context. This is a read-only directory for the agent.
+- **`/present`**: Contains files related to the *current, active task*. This is the agent's primary working directory.
+- **`/future`**: A planning directory holding tasks and goals that are scheduled but not yet active.
+- **`/forever`**: Stores core identity rules, foundational principles, and critical guides that should never be forgotten. The agent should re-read these files periodically.
+
+## 2. Memory Workflow
+
+The agent must follow this process when handling tasks and information. This workflow is critical for maintaining context and ensuring the `mcp.master.json` configuration remains in sync with the agent's operational state.
+
+```mermaid
+graph TD
+    A[Start Task] --> B{Read from `/present` and `/forever`};
+    B --> C{Execute Task Logic};
+    C --> D{Generate Artifacts & Logs};
+    D --> E{Write new files to `/present`};
+    E --> F[End Task];
+    F --> G{Archive `/present` contents};
+    G --> H[Move files to `/past`];
+    H --> I[Clear `/present` directory];
+```
+
+### Workflow Steps Explained
+
+1. **Context Loading:** At the beginning of any task, the agent must load its context by reading all files in `/memory-bank/present/` and key files from `/memory-bank/forever/`.
+2. **Execution:** The agent performs the required actions (coding, writing, analysis).
+3. **Logging:** During execution, the agent generates logs, summaries, and other artifacts.
+4. **Write to Present:** All new files generated during the task are written to the `/memory-bank/present/` directory.
+5. **Archiving:** Once the task is fully complete, a final "archiving" step is initiated.
+6. **Move to Past:** All files from `/present/` are moved to a new timestamped directory within `/memory-bank/past/`.
+7. **Clear Present:** The `/present/` directory is cleared, making it ready for the next task.
+
+This ensures that the agent's "working memory" is always clean and relevant to the current objective.

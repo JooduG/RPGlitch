@@ -16,16 +16,16 @@ globs:
 
 ### Referenced Rules from `rules/`
 
-- **[js-development.md](../../../rules/js-development.md)** - Modern vanilla JavaScript development index and quick reference
-- **[js-cash-dom-usage.md](../../../rules/js-cash-dom-usage.md)** - Cash DOM for concise, readable JavaScript in Perchance projects
-- **[js-dexie-usage.md](../../../rules/js-dexie-usage.md)** - Dexie.js for IndexedDB management in Perchance projects
-- **[js-dom-manipulation.md](../../../rules/js-dom-manipulation.md)** - Modern DOM APIs and manipulation patterns for vanilla JavaScript
+- **[js-modern-guide.md](../../../rules/js-modern-guide.md)** - Modern vanilla JavaScript development index and quick reference
+- **[js-dom.guide.md](../../../rules/js-dom.guide.md)** - Cash DOM for concise, readable JavaScript in Perchance projects
+- **[js-storage-guide.md](../../../rules/js-storage-guide.md)** - Dexie.js for IndexedDB management in Perchance projects
+- **[js-dom.guide.md](../../../rules/js-dom.guide.md)** - Modern DOM APIs and manipulation patterns for vanilla JavaScript
 - **[js-ecosystem-overview.md](../../../rules/js-ecosystem-overview.md)** - Unified JavaScript ecosystem decision framework
-- **[js-indexeddb-principles.md](../../../rules/js-indexeddb-principles.md)** - IndexedDB principles and best practices for Perchance applications
-- **[js-modern-apis.md](../../../rules/js-modern-apis.md)** - Modern browser APIs including Fetch API, Intersection Observer, and contemporary web APIs
-- **[js-modern-features.md](../../../rules/js-modern-features.md)** - Modern JavaScript features (ES2023+) including template literals and destructuring
+- **[js-storage-guide.md](../../../rules/js-storage-guide.md)** - IndexedDB principles and best practices for Perchance applications
+- **[js-modern-guide.md](../../../rules/js-modern-guide.md)** - Modern browser APIs including Fetch API, Intersection Observer, and contemporary web APIs
+- **[js-modern-guide.md](../../../rules/js-modern-guide.md)** - Modern JavaScript features (ES2023+) including template literals and destructuring
 - **[js-patterns-practices.md](../../../rules/js-patterns-practices.md)** - JavaScript patterns, performance optimization, and debugging best practices
-- **[js-storage-strategy.md](../../../rules/js-storage-strategy.md)** - Unified client-side storage strategy covering localStorage, IndexedDB, and Dexie.js
+- **[js-storage-guide.md](../../../rules/js-storage-guide.md)** - Unified client-side storage strategy covering localStorage, IndexedDB, and Dexie.js
 
 ## Current Tasks (RPGlitch JavaScript-Specific)
 

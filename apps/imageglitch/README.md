@@ -45,10 +45,10 @@ The current styling strategy is to **use Pico.css as much as possible** for foun
 
 ### Referenced Rules from `rules/`
 
-- **[html-development.md](../../rules/html-development.md)** - Semantic HTML, accessibility, and Perchance-specific markup.
-- **[html-hyperscript-usage.md](../../rules/html-hyperscript-usage.md)** - For simple, readable interactivity directly in HTML.
-- **[scss-modern-css-frameworks.md](../../rules/scss-modern-css-frameworks.md)** - Core principles for using Pico.css and modern CSS.
-- **[js-development.md](../../rules/js-development.md)** - Guidelines for modern, modular JavaScript.
+- **[html-best-practises.md](../../rules/html-best-practises.md)** - Semantic HTML, accessibility, and Perchance-specific markup.
+- **[html-hyperscript-guide.md](../../rules/html-hyperscript-guide.md)** - For simple, readable interactivity directly in HTML.
+- **[scss-style-guide.md](../../rules/scss-style-guide.md)** - Core principles for using Pico.css and modern CSS.
+- **[js-modern-guide.md](../../rules/js-modern-guide.md)** - Guidelines for modern, modular JavaScript.
 
 ### Referenced Rules (Apps-Specific)
 

@@ -1,195 +1,61 @@
----
-description: Comprehensive system architecture documentation covering the unified 3-mode development system, MCP integration, memory bank management, and overall system design principles.
-alwaysApply: false
----
-# SYSTEM ARCHITECTURE
+# System Architecture
 
-> **TL;DR:** Comprehensive system architecture documentation covering the unified 3-mode development system, MCP integration, memory bank management, and overall system design principles.
+This document provides the high-level architectural blueprint for the JooduG-default repository. It explains how the major components fit together to form a cohesive development ecosystem.
 
-## 🎯 **SYSTEM OVERVIEW**
-
-The system architecture provides a unified framework for development with integrated thinking approaches, role behaviors, and automatic intelligence.
-
-## 🏗️ **CORE ARCHITECTURE COMPONENTS**
-
-### **🎭🎨⚒️ Three-Mode System**
-
-- **Strategic Mode**: System-level thinking & optimization
-- **Tactical Mode**: Planning & design decisions  
-- **Operational Mode**: Implementation & execution
-
-### **🧠 Thinking Framework Integration**
-
-- **Contemplative Thinking**: Deep exploration for Strategic Mode
-- **Sequential Thinking**: Systematic analysis for Tactical Mode
-- **Professional Coding**: Direct implementation for Operational Mode
-
-### **📚 Memory Bank System**
-
-- **Local Knowledge Management**: Persistent context & documentation
-- **Context7 Integration**: Real-time external documentation access
-- **Unified Documentation**: Single source of truth approach
-
-### **🔧 MCP Ecosystem Integration**
-
-- **Context7**: Library documentation & API access
-- **Time MCP**: Date standardization & timezone handling
-- **Basic Memory**: Local knowledge management
-- **Sequential Thinking**: Tool-guided problem solving
-
-## 🎯 **ARCHITECTURE PRINCIPLES**
-
-### **Unified Orchestration**
-
-- Single orchestrator managing multiple internal modes
-- Automatic complexity assessment and routing
-- Seamless context preservation across transitions
-
-### **Context-Aware Optimization**
-
-- Intelligent rule loading based on task context
-- Token efficiency through selective rule loading
-- Mode-specific rule selection for optimal performance
-
-### **Zero Technical Debt**
-
-- Production-ready code from the start
-- Clean architecture and maintainable design
-- Comprehensive testing and validation
-
-### **Continuous Evolution**
-
-- Strategic reflection for system improvement
-- Complexity tracking for optimization insights
-- Workflow optimization based on patterns
-
-## 🔄 **SYSTEM WORKFLOW**
-
-### **Task Processing Pipeline**
-
-1. **Complexity Assessment**: Automatic level detection (1-3)
-2. **Mode Routing**: Strategic → Tactical → Operational
-3. **Thinking Approach**: Contemplative → Sequential → Professional
-4. **Role Activation**: System Architect → Project Planner → Code Implementer
-5. **Execution**: Implementation with quality assurance
-6. **Reflection**: Strategic optimization and learning
-
-### **Context Management**
-
-- **Unified Context**: Single context across all modes
-- **Progressive Enhancement**: Context builds through mode transitions
-- **Persistence**: Context preserved in memory bank system
-
-## 📊 **PERFORMANCE OPTIMIZATION**
-
-### **Token Efficiency**
-
-- Context-aware rule loading
-- Mode-specific rule selection
-- Lazy loading of specialized features
-- Rule compression and optimization
-
-### **Response Quality**
-
-- Optimal thinking approach selection
-- Specialized role behaviors
-- Quality-first implementation
-- Comprehensive validation
-
-### **System Reliability**
-
-- Robust error handling
-- Graceful degradation
-- Continuous monitoring
-- Proactive optimization
-
-## 🎯 **INTEGRATION POINTS**
-
-### **Development Workflow**
-
-- **Project Management**: Unified TODO/handoff system
-- **Documentation**: Integrated memory bank and Context7
-- **Code Quality**: Professional coding standards
-- **Testing**: Comprehensive validation approach
-
-### **External Systems**
-
-- **Perchance Platform**: Platform-specific optimizations
-- **MCP Servers**: Real-time documentation access
-- **Version Control**: Git integration and workflow
-- **Deployment**: Build and deployment automation
-
-## 📋 **ARCHITECTURE DECISIONS**
-
-### **Mode-Based Design**
-
-- **Rationale**: Clear mental separation and specialized capabilities
-- **Benefits**: Optimal performance for each task type
-- **Trade-offs**: Complexity of orchestration management
-
-### **Thinking Approach Integration**
-
-- **Rationale**: Optimal problem-solving for each context
-- **Benefits**: Improved solution quality and efficiency
-- **Trade-offs**: Learning curve for approach selection
-
-### **Memory Bank System**
-
-- **Rationale**: Persistent context and knowledge management
-- **Benefits**: No lost context between sessions
-- **Trade-offs**: Storage and synchronization complexity
-
-### **MCP Integration**
-
-- **Rationale**: Real-time access to external resources
-- **Benefits**: Up-to-date documentation and examples
-- **Trade-offs**: Dependency on external services
-
-## 🔧 **TECHNICAL IMPLEMENTATION**
-
-### **Rule Management**
-
-- **File Structure**: Organized by domain and functionality
-- **Loading Strategy**: Context-aware selective loading
-- **Caching**: Intelligent rule caching for efficiency
-- **Versioning**: Rule version management and updates
-
-### **Context Preservation**
-
-- **Memory Bank**: Local persistent storage
-- **Session Management**: Context across interactions
-- **State Management**: Unified state across modes
-- **Recovery**: Graceful context recovery
-
-### **Performance Monitoring**
-
-- **Metrics**: Token usage, response quality, efficiency
-- **Optimization**: Continuous performance improvement
-- **Alerting**: Proactive issue detection
-- **Reporting**: Performance insights and trends
-
-## 🎯 **FUTURE ARCHITECTURE**
-
-### **Planned Enhancements**
-
-- **Advanced AI Integration**: Enhanced reasoning capabilities
-- **Multi-Project Support**: Context switching between projects
-- **Collaborative Features**: Team development support
-- **Advanced Analytics**: Deep performance insights
-
-### **Scalability Considerations**
-
-- **Rule Management**: Scalable rule organization
-- **Context Handling**: Efficient context management
-- **Performance**: Optimized for large-scale usage
-- **Integration**: Flexible external system integration
-
-## 📚 **RELATED DOCUMENTATION**
-
-- [Unified Orchestrator Mode](../.cursor/rules/orchestration-mode.mdc)
-- [Thinking Framework](../.cursor/rules/thinking-framework.mdc)
-- [Memory Bank Overview](../.cursor/rules/memory-bank-overview.mdc)
-- [MCP Ecosystem](../.cursor/rules/mcp-ecosystem.mdc)
-- [System Documentation](../.cursor/rules/system-documentation.mdc)
+**Core Principle:** This is a monorepo containing a self-sufficient, AI-assisted development environment. The structure is designed to support not just the applications, but the entire lifecycle of their creation, maintenance, and documentation.
 
 ---
+
+## 1. High-Level Directory Structure
+
+The repository is organized into several distinct, high-level directories, each with a specific responsibility.
+
+- **`/apps`**: Contains the user-facing web applications. This is the "product."
+- **`/build`**: Contains all scripts, configurations, and libraries required to build, lint, and test the applications. This is the "factory."
+- **`/docs`**: Contains all human-readable documentation, such as guides, glossaries, and changelogs. This is the "library."
+- **`/memory-bank`**: Provides persistent, long-term storage for the AI agent. This is the "brain."
+- **`/rules`**: Contains the machine-readable rule set that governs the AI agent's behavior. This is the "constitution."
+- **`/tests`**: Contains all automated tests for the applications. This is the "quality assurance department."
+- **`/tools`**: A collection of utility and diagnostic scripts. This is the "toolbox."
+
+---
+
+## 2. Development & Build Workflow
+
+The following diagram illustrates the typical workflow for making a change to the `rpglitch` application.
+
+```mermaid
+graph TD
+    subgraph "Developer/AI"
+        A[1. Edit code in /apps/rpglitch/js or /scss]
+    end
+
+    subgraph "Automation"
+        B(2. `watch.js` script detects file change)
+        C[3. Triggers `build-rpglitch.js` script]
+    end
+
+    subgraph "Build Process"
+        D[4. SCSS is compiled to CSS]
+        E[5. JS files are concatenated]
+        F[6. CSS & JS are injected into HTML template]
+    end
+    
+    subgraph "Verification"
+        H[8. Run tests from /tests]
+        I[9. Linting is checked]
+    end
+
+    G[7. Single `index.html` is output]
+    
+    A --> B;
+    B --> C;
+    C --> D;
+    C --> E;
+    D & E --> F;
+    F --> G;
+    G --> H;
+    H --> I;
+```
+
+This workflow demonstrates how the different parts of the repository interact to produce the final, runnable application. The `rules` and `memory-bank` guide the AI agent's actions during step 1.

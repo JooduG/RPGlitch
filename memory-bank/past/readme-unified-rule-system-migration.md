@@ -1,10 +1,12 @@
 ---
-description: "Strategic plan for migrating to unified README.md files with frontmatter containing human docs + AI rules + progress tracking"
+description: Strategic plan for migrating to unified README.md files with frontmatter
+  containing human docs + AI rules + progress tracking
 tags:
-  - migration
-  - rules
-  - documentation
-  - system-architecture
+- migration
+- rules
+- documentation
+- system-architecture
+permalink: past-readme-unified-rule-system-migration
 ---
 
 # README.md Unified Rule System Migration - Strategic Plan
@@ -119,8 +121,8 @@ Current state, recent changes, key decisions
 
 ### Referenced Rules from `/rules/`
 
-- **[js-development.md](../../rules/js-development.md)** - Modern vanilla JavaScript development
-- **[html-development.md](../../rules/html-development.md)** - Semantic HTML and accessibility
+- **[js-modern-guide.md](../../rules/js-modern-guide.md)** - Modern vanilla JavaScript development
+- **[html-best-practises.md](../../rules/html-best-practises.md)** - Semantic HTML and accessibility
 
 ### Referenced Rules (Folder-Specific)
 
