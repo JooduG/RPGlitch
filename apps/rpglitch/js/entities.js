@@ -266,7 +266,7 @@ const _allItemsCache = {};
 function _writeAndCache(type, items) {
   write(type, items);
   const key = storeMap[type];
-  _allItemsCache[key] = merge(type, items);
+  _allItemsCache[key] = merge(type, items.filter(item => allowedProperties.includes(item.property)));
 }
 
 export const entities = {
