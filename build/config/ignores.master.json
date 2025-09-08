@@ -50,8 +50,7 @@
       "**/node_modules/**",
       "**/archive/**",
       "**/memory-bank/archive/**",
-      "**/build/local_libs/**",
-      "**/build/output/**"
+      "**/build/local_libs/**"
         ]
   },
   "memory": {

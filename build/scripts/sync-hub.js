@@ -22,11 +22,16 @@ function getRepoTree() {
     exclude: [
       /node_modules/,
       /\.git/,
+      /\.codacy/,
+      /\.codex/,
+      /\.cursor/,
+      /\.gemini/,
+      /\.github/,
+      /\.vscode/,
+      /\.windsurf/,
       /build\/local_libs/,
       /^\.yarn/,
       /^\.idea/,
-      /^\.vscode\/extensions\.json/,
-      /^\.vscode\/launch\.json/,
     ],
   });
 }
@@ -49,7 +54,7 @@ function getCombinedDocsLinks() {
   if (!fs.existsSync(OUTPUT_DIR)) return [];
   return fs.readdirSync(OUTPUT_DIR)
     .filter(f => f.startsWith('combined-') && f.endsWith('.md'))
-    .map(f => `  - [${f.replace('combined-', '').replace('.md', '')}](/${f})`)
+    .map(f => `  - [${f.replace('combined-', '').replace('.md', '')}](./${f})`)
     .join('\n');
 }
 
@@ -91,9 +96,10 @@ Welcome to the central navigation hub for the project.
 
 ## 🗺️ Repository Map
 
-\`\`\`
+\`\`\`text
 ${getRepoTree()}
 \`\`\`
+
 
 ---
 

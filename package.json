@@ -28,7 +28,7 @@
     "//--- BUILDING ---": "",
     "build": "npm run build:combine && npm run build:hub",
     "build:combine": "node build/scripts/build-combine.js",
-    "build:hub": "node build/scripts/build-hub.js"
+    "build:hub": "node build/scripts/sync-hub.js"
   },
   "keywords": [
     "ai",
@@ -53,7 +53,8 @@
     "postcss-scss": "^4.0.9",
     "sass": "^1.77.6",
     "stylelint": "^16.6.1",
-    "stylelint-config-standard-scss": "^13.1.0"
+    "stylelint-config-standard-scss": "^13.1.0",
+    "tree-node-cli": "^1.6.0"
   },
   "dependencies": {
     "jsdom": "^24.1.0",
