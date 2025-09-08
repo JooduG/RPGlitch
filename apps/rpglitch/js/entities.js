@@ -275,7 +275,7 @@ export const entities = {
     if (key in _allItemsCache && Array.isArray(_allItemsCache[key]))
       return _allItemsCache[key];
     const data = merge(type, read(type));
-    _allItemsCache[key] = data;
+    if (key in _allItemsCache) _allItemsCache[key] = data;
     return data;
   },
   get(type, id) {
