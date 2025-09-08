@@ -272,7 +272,7 @@ function _writeAndCache(type, items) {
 export const entities = {
   list(type) {
     const key = storeMap[type];
-    if (Array.isArray(_allItemsCache[key]))
+    if (key in _allItemsCache && Array.isArray(_allItemsCache[key]))
       return _allItemsCache[key];
     const data = merge(type, read(type));
     _allItemsCache[key] = data;
