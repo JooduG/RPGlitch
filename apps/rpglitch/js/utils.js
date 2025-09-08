@@ -172,7 +172,7 @@ export function dismissLoadingUI() {
 }
 
 // ---------- UI Block Detection / Watchdog ----------
-export function isUIBlocked() {
+const isDialogOpen = () => document.querySelector('dialog[open]:not(#emergency-modal)');
   try {
     const doc = document;
     // Any open non-emergency dialog
