@@ -1,0 +1,35 @@
+// This file will contain reusable SCSS mixins.
+@mixin card-common {
+  display: block;
+  border: 0;
+  overflow: hidden;
+  backdrop-filter: blur(15px);
+  z-index: auto;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
+  transform: translateY(0) scale(1);
+  object-fit: cover;
+  position: relative;
+  transition:
+    transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow 0.4s ease,
+    opacity 0.4s ease,
+    outline 0.15s ease;
+  cursor: pointer;
+  border-radius: var(--pico-radius);
+  outline: none;
+  padding: 0;
+  background: var(--pico-form-element-background-color);
+
+  &:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--elevated-shadow, 0 10px 24px rgb(0 0 0 / 15%));
+    outline: 2px solid var(--pico-primary-hover);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px rgb(2 154 232 / 35%);
+    transform: translateY(-1px);
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+}

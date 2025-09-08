@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable */
+
 
 /**
  * Automation Script: Collect Browser Diagnostics from BrowserTools MCP/Server

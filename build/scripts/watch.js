@@ -17,7 +17,7 @@ const watcher = chokidar.watch([
   `${rpglitchPath}/js/**/*.js`,
   `${rpglitchPath}/scss/**/*.scss`,
 ], {
-  ignored: /(^|[\/\])../, // ignore dotfiles
+  ignored: /(^|[/\\])\../, // ignore dotfiles
   persistent: true,
   ignoreInitial: true, // Don't run on initial scan
 });

@@ -1,0 +1,53 @@
+// This file will contain SCSS variables for colors, fonts, spacing, etc.
+$gradient-color-1: #181c2f;
+$gradient-color-2: #23243a;
+$gradient-color-3: #1a3a4a;
+$gradient-color-4: #2a1a3a;
+
+:root {
+  --color-accent: #ff7ad5;
+  --z-overlay: 10000;
+  --pico-radius: 0.5rem;
+  --pico-box-shadow: 0;
+  --pico-switch-thumb-box-shadow: 0;
+  --pico-card-box-shadow: 0;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
+  --pico-nav-element-spacing-vertical: 0;
+  --pico-nav-element-spacing-horizontal: 0;
+  --pico-nav-link-spacing-vertical: var(--pico-form-element-spacing-vertical);
+  --pico-nav-link-spacing-horizontal: var(--pico-form-element-spacing-horizontal);
+  --pico-typography-spacing-vertical: 0;
+  --pico-typography-spacing-horizontal: 0;
+  --pico-spacing: 0;
+  --brand-default: #777;
+  --brand-text-on: #fff;
+  --profile-left-width: min(40vw, 520px);
+  --container-margin: 0px; /* computed from top bar at runtime */
+  --rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+  --app-container-max: 1200px;
+  --app-container-pad: 1rem;
+
+  /* initials stay white by default */
+}
+
+/* Each palette exposes ONE base color + useful derivatives */
+.palette--pink {
+  --brand: #ec4899;
+  --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
+  --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
+  --brand-contrast: var(--brand-text-on);
+}
+
+.palette--emerald {
+  --brand: #10b981;
+  --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
+  --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
+  --brand-contrast: var(--brand-text-on);
+}
+
+.palette--cyan {
+  --brand: #06b6d4;
+  --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
+  --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
+  --brand-contrast: var(--brand-text-on);
+}

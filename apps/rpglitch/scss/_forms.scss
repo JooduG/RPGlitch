@@ -1,0 +1,49 @@
+// This file will contain styles for forms and form elements.
+.chin-search {
+  line-height: 2.5rem;
+  padding-block: 0;
+  padding-inline: 0.75rem;
+  display: flex;
+  isolation: isolate;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.75rem center;
+  background-size: 1rem;
+  height: var(--pico-form-element-height);
+  box-sizing: border-box;
+}
+
+.chin-search:focus-within {
+  box-shadow: 0 0 0 0.125rem #ff6ad5;
+}
+
+.chin-search input,
+.chin-search button {
+  height: 2.5rem;
+  padding-block: 0.5rem;
+}
+
+.profile-field {
+  display: grid;
+  grid-template-columns: 20% auto;
+  align-items: center;
+  color: var(--pico-color);
+  line-height: 1.7;
+  padding: 1rem;
+  background: rgb(255 255 255 / 8%);
+  border-radius: var(--pico-radius);
+  min-height: 3rem;
+  margin: 0.5rem 1rem;
+}
+
+.profile-field:last-child {
+  margin-bottom: 2rem;
+}
+
+.profile-field-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  font-weight: 600;
+  color: var(--pico-h1-color, #fff);
+}
