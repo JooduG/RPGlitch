@@ -153,7 +153,7 @@ const _allItemsCache = {};
 
 function getAllItems(key, refresh = false) {
   if (!refresh && Array.isArray(_allItemsCache[key]))
-    return _allItemsCache[key];
+    return [..._allItemsCache[key]];
 
   if (
     (key === "characters" || key === "worlds") &&
