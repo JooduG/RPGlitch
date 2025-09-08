@@ -18,9 +18,9 @@ globs:
 
 ### Referenced Rules from `rules/`
 
-- **[scss-advanced-patterns.md](../../../rules/scss-advanced-patterns.md)** - Advanced SCSS patterns and modern features including color spaces and module system
-- **[scss-debugging.md](../../../rules/scss-debugging.md)** - Comprehensive SCSS debugging and troubleshooting guide
-- **[scss-modern-css-frameworks.md](../../../rules/scss-modern-css-frameworks.md)** - Modern CSS principles and Pico.css framework integration
+- **[scss-style-guide.md](../../../rules/scss-style-guide.md)** - Advanced SCSS patterns and modern features including color spaces and module system
+- **[scss-style-guide.md](../../../rules/scss-style-guide.md)** - Comprehensive SCSS debugging and troubleshooting guide
+- **[scss-style-guide.md](../../../rules/scss-style-guide.md)** - Modern CSS principles and Pico.css framework integration
 
 ## Current Tasks (RPGlitch SCSS-Specific)
 

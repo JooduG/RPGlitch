@@ -49,9 +49,8 @@
       "**/build/local_libs/**",
       "**/node_modules/**",
       "**/archive/**",
-      "**/memory-bank/archive/**",
-      "**/build/local_libs/**"
-        ]
+      "**/memory-bank/archive/**"
+    ]
   },
   "memory": {
     "patterns": [
@@ -194,7 +193,7 @@
       "stylelint.config.js": true,
       "test-basic-memory/": true,
       ".markdownlintignore": true,
-      ".markdownlint-cli2.jsonc": true, 
+      ".markdownlint-cli2.jsonc": true,
       ".npmrc": true
     }
   }

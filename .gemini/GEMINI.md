@@ -27,7 +27,7 @@ At the start of every session, and for every task, you must follow this loop:
         - `system-orchestration-mode.md`: The primary 3-role (Strategic, Tactical, Operational) model.
         - `thinking-framework.md`: The 3 thinking approaches (Contemplative, Sequential, Professional).
         - `system-architecture.md`: The overall system design and principles.
-        - `thinking-context-aware-rule-loading.md`: The strategy for loading other rules efficiently.
+        - `thinking-framework.md`: The strategy for loading other rules efficiently.
     - **Supporting Systems (Load as needed):** These define how you interact with key subsystems.
         - `memory-bank-*.md`: For reading from or writing to long-term memory.
         - `mcp-*.md`: For interacting with the MCP tool ecosystem.

@@ -15,8 +15,8 @@ globs:
 
 ### Referenced Rules from `rules/`
 
-- **[html-development.md](../../../rules/html-development.md)** - Semantic HTML, accessibility, and Perchance-specific markup
-- **[html-hyperscript-usage.md](../../../rules/html-hyperscript-usage.md)** - Hyperscript for easy, readable interactivity using \_ attribute
+- **[html-best-practises.md](../../../rules/html-best-practises.md)** - Semantic HTML, accessibility, and Perchance-specific markup
+- **[html-hyperscript-guide.md](../../../rules/html-hyperscript-guide.md)** - Hyperscript for easy, readable interactivity using \_ attribute
 
 ## Current Tasks (RPGlitch HTML-Specific)
 

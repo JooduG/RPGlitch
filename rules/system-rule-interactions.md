@@ -1,372 +1,54 @@
-# **🔍 RULE INTERACTIONS ANALYSIS: Unified 39-rule system with seamless integration and optimal performance!**
-
-> **TL;DR:** Comprehensive analysis of interactions, conflicts, and synergy opportunities between the 39 rule systems in the unified 3-mode development system.
-
-## 🎯 **OVERVIEW**
-
-This analysis examines the 39 rule systems in .cursor/rules/ to identify:
-
-- **Interactions** between different rule approaches
-- **Conflicts** that need resolution
-- **Synergy opportunities** for enhanced functionality
-- **Integration patterns** in the unified 3-mode system
-
-## 📊 **CURRENT RULE SYSTEM INVENTORY (39 Rules)**
-
-### **🎭🎨⚒️ 3-Mode System & Orchestration**
-
-1. **Unified Orchestrator Mode** (orchestration-mode.mdc)
-   - **Purpose**: Single Cursor mode managing 3 internal modes with automatic complexity routing
-   - **Approach**: Automatic role selection based on task complexity
-   - **Scope**: Complete development workflow orchestration
-
-2. **Orchestration System** (orchestration-system.mdc)
-   - **Purpose**: Enhanced 3-mode framework with integrated thinking approaches
-   - **Approach**: Complexity-based routing with mode-specific role behaviors
-   - **Scope**: Complete system architecture and workflow
-
-3. **Orchestration Architecture** (orchestration-architecture.mdc)
-   - **Purpose**: System architecture and relationships for unified development
-   - **Approach**: MCP integration and memory bank management
-   - **Scope**: Overall system design principles
-
-### **🧠 Thinking Framework & Approaches**
-
-1. **Thinking Framework** (thinking-framework.mdc)
-   - **Purpose**: Unified framework integrating Contemplative, Sequential, and Professional approaches
-   - **Approach**: Mode-to-thinking mapping with automatic selection
-   - **Scope**: Optimal problem-solving for each task type
-
-2. **Context-Aware Rule Loading** (thinking-context-aware-rule-loading.mdc)
-   - **Purpose**: Intelligent rule selection based on task context and complexity
-   - **Approach**: Token efficiency through selective rule loading
-   - **Scope**: Performance optimization and efficiency
-
-### **📚 Memory Bank & Knowledge Management**
-
-1. **Memory Bank Overview** (memory-bank-overview.mdc)
-   - **Purpose**: Knowledge management system with persistent semantic graphs
-   - **Approach**: Obsidian integration and multi-project support
-   - **Scope**: Long-term context preservation
-
-2. **Memory Bank Workflow** (memory-bank-workflow.mdc)
-   - **Purpose**: Memory bank workflow integration for 3-mode system
-   - **Approach**: Context preservation and knowledge management
-   - **Scope**: Seamless mode transitions
-
-### **🔧 MCP Ecosystem Integration**
-
-1. **MCP Ecosystem** (mcp-ecosystem.mdc)
-    - **Purpose**: Model Context Protocol ecosystem overview and integration
-    - **Approach**: Real-time documentation access and tool integration
-    - **Scope**: External system connectivity
-
-2. **Context7 MCP** (mcp-context7.mdc)
-    - **Purpose**: Real-time documentation access for libraries and frameworks
-    - **Approach**: Library resolution and documentation retrieval
-    - **Scope**: Development research and documentation
-
-3. **Basic Memory MCP** (mcp-basic-memory.mdc)
-    - **Purpose**: Local knowledge management with MCP server capabilities
-    - **Approach**: Semantic knowledge management with Obsidian integration
-    - **Scope**: Persistent context and knowledge graphs
-
-4. **Time MCP** (mcp-time.mdc)
-    - **Purpose**: Date standardization and timezone handling
-    - **Approach**: Consistent date formatting across all documentation
-    - **Scope**: Time management and standardization
-
-### **🎨 Development & Architecture**
-
-1. **Technical Architecture** (technical-architecture.mdc)
-    - **Purpose**: Comprehensive system architecture documentation
-    - **Approach**: Unified 3-mode development system with MCP integration
-    - **Scope**: Overall system design and principles
-
-2. **Perchance Architecture** (perchance-architecture.mdc)
-    - **Purpose**: High-level structure and principles for Perchance apps
-    - **Approach**: Platform-specific architectural guidance
-    - **Scope**: Perchance platform development
-
-3. **Perchance Build & Deployment** (perchance-build-deployment.mdc)
-    - **Purpose**: Build and deployment automation for Perchance applications
-    - **Approach**: Automated workflows and optimization strategies
-    - **Scope**: Production deployment and optimization
-
-4. **Perchance Development Lifecycle** (perchance-development-lifecycle.mdc)
-    - **Purpose**: Standard workflow and development process
-    - **Approach**: Protocol-driven development with quality assurance
-    - **Scope**: Complete development lifecycle
-
-5. **Perchance Plugin System** (perchance-plugin-system.mdc)
-    - **Purpose**: Plugin development and integration guidelines
-    - **Approach**: Extensible architecture and plugin patterns
-    - **Scope**: Platform extensibility and customization
-
-### **💻 JavaScript Development**
-
-1. **JavaScript Development** (js-development.mdc)
-    - **Purpose**: Modern JavaScript best practices and features
-    - **Approach**: ES2023+ features and modern APIs
-    - **Scope**: JavaScript development excellence
-
-2. **JavaScript Ecosystem Overview** (js-ecosystem-overview.mdc)
-    - **Purpose**: Unified JavaScript ecosystem decision framework
-    - **Approach**: Clear decision frameworks for choosing approaches
-    - **Scope**: Technology selection and architecture
-
-3. **JavaScript Modern Features** (js-modern-features.mdc)
-    - **Purpose**: Modern JavaScript features and syntax patterns
-    - **Approach**: ES2023+ features and modern syntax
-    - **Scope**: Contemporary JavaScript development
-
-4. **JavaScript Modern APIs** (js-modern-apis.mdc)
-    - **Purpose**: Modern browser APIs and contemporary web APIs
-    - **Approach**: Fetch API, Intersection Observer, Resize Observer
-    - **Scope**: Enhanced web functionality
-
-5. **JavaScript Patterns & Practices** (js-patterns-practices.mdc)
-    - **Purpose**: JavaScript patterns and performance optimization
-    - **Approach**: Code organization and debugging best practices
-    - **Scope**: Production-ready JavaScript development
-
-6. **JavaScript DOM Manipulation** (js-dom-manipulation.mdc)
-    - **Purpose**: Modern DOM APIs and manipulation patterns
-    - **Approach**: Element selection, event handling, modern DOM methods
-    - **Scope**: Frontend interactivity and DOM management
-
-7. **JavaScript Cash DOM Usage** (js-cash-dom-usage.mdc)
-    - **Purpose**: Cash DOM for concise, readable JavaScript
-    - **Approach**: Tiny, fast jQuery-like API for DOM manipulation
-    - **Scope**: Simplified DOM operations
-
-8. **JavaScript Dexie Usage** (js-dexie-usage.mdc)
-    - **Purpose**: IndexedDB management with Dexie.js
-    - **Approach**: Recommended library for persistent client-side storage
-    - **Scope**: Data persistence and management
-
-9. **JavaScript IndexedDB Principles** (js-indexeddb-principles.mdc)
-    - **Purpose**: IndexedDB principles and best practices
-    - **Approach**: Versioning, upgrades, and recommended libraries
-    - **Scope**: Client-side data storage
-
-10. **JavaScript Storage Strategy** (js-storage-strategy.mdc)
-    - **Purpose**: Unified client-side storage strategy
-    - **Approach**: localStorage, IndexedDB, and Dexie.js decision framework
-    - **Scope**: Storage architecture and decisions
-
-### **🎨 SCSS & Styling**
-
-1. **SCSS Advanced Patterns** (scss-advanced-patterns.mdc)
-    - **Purpose**: Advanced SCSS patterns and modern features
-    - **Approach**: Color spaces, module system, selector functions
-    - **Scope**: Advanced styling and CSS architecture
-
-2. **SCSS Modern CSS Frameworks** (scss-modern-css-frameworks.mdc)
-    - **Purpose**: Modern CSS frameworks and principles
-    - **Approach**: Utility-first CSS, component design, responsive layouts
-    - **Scope**: Modern styling approaches
-
-3. **SCSS Debugging** (scss-debugging.mdc)
-    - **Purpose**: Comprehensive SCSS debugging and troubleshooting
-    - **Approach**: Compilation errors, performance issues, common problems
-    - **Scope**: SCSS development and maintenance
-
-### **🌐 HTML Development**
-
-1. **HTML Development** (html-development.mdc)
-    - **Purpose**: Semantic HTML, accessibility, and Perchance-specific markup
-    - **Approach**: Semantic structure and accessibility best practices
-    - **Scope**: HTML architecture and standards
-
-2. **HTML Hyperscript Usage** (html-hyperscript-usage.mdc)
-    - **Purpose**: Hyperscript for easy, readable interactivity
-    - **Approach**: Direct HTML interactivity using _ attribute
-    - **Scope**: Simple UI actions and event handling
-
-### **📋 System & Documentation**
-
-1. **System Documentation** (system-documentation.mdc)
-    - **Purpose**: Integrated documentation system with Memory Bank and Context7
-    - **Approach**: Single source of truth with intelligent conflict resolution
-    - **Scope**: Complete documentation management
-
-2. **System Effective Rule Writing** (system-effective-rule-writing.mdc)
-    - **Purpose**: Guidelines for writing effective and maintainable rules
-    - **Approach**: Rule structure, clarity, and maintainability
-    - **Scope**: Rule system quality and effectiveness
-
-3. **System TODO Handoff Template** (system-todo-handoff-template.mdc)
-    - **Purpose**: Unified TODO and handoff document system
-    - **Approach**: Single source of truth for project management
-    - **Scope**: Cross-mode project coordination
-
-4. **System Rule Interactions** (system-rule-interactions.mdc)
-    - **Purpose**: Analysis of rule system interactions and conflicts
-    - **Approach**: Comprehensive rule system analysis and optimization
-    - **Scope**: Rule system harmony and efficiency
-
-## ⚠️ **IDENTIFIED CONFLICTS & RESOLUTIONS**
-
-### **1. Thinking Approach Integration** ✅ **RESOLVED**
-
-#### **Unified Thinking Framework**
-
-- **Resolution**: Integrated Contemplative, Sequential, and Professional approaches
-- **Implementation**: Mode-to-thinking mapping with automatic selection
-- **Benefits**: Optimal approach for each task type
-
-### **2. Mode System Conflicts** ✅ **RESOLVED**
-
-#### **Unified Orchestrator Mode**
-
-- **Resolution**: Single orchestrator managing 3 internal modes
-- **Implementation**: Automatic complexity-based routing
-- **Benefits**: Seamless mode transitions with context preservation
-
-### **3. Documentation Approach Conflicts** ✅ **RESOLVED**
-
-#### **Integrated Documentation System**
-
-- **Resolution**: Memory Bank + Context7 integration
-- **Implementation**: Clear documentation source hierarchy
-- **Benefits**: Comprehensive information access
-
-## 🤝 **SYNERGY OPPORTUNITIES**
-
-### **1. Enhanced 3-Mode System**
-
-#### **Automatic Intelligence**
-
-- **Complexity Assessment**: Automatic level detection (1-3)
-- **Mode Routing**: Strategic → Tactical → Operational
-- **Role Selection**: System Architect → Project Planner → Code Implementer
-- **Thinking Integration**: Contemplative → Sequential → Professional
-
-### **2. Memory Bank Integration**
-
-#### **Persistent Context Management**
-
-- **Local Knowledge**: Project-specific context and learnings
-- **External Access**: Context7 for up-to-date documentation
-- **Semantic Graphs**: Automatic relationship building
-- **Obsidian Integration**: Existing workflow compatibility
-
-### **3. MCP Ecosystem Synergy**
-
-#### **Real-Time Tool Integration**
-
-- **Context7**: Library documentation and API access
-- **Time MCP**: Date standardization and timezone handling
-- **Basic Memory**: Local knowledge management with MCP server
-- **Sequential Thinking**: Tool-guided problem solving
-
-## 🔧 **INTEGRATION PATTERNS**
-
-### **1. Context-Aware Rule Loading**
-
-#### **Intelligent Rule Selection**
-
-- **Essential Rules**: Always loaded for core functionality
-- **Mode-Specific Rules**: Loaded based on current mode
-- **Task-Specific Rules**: Loaded based on current task type
-- **Lazy Loading**: Specialized rules loaded only when needed
-
-### **2. Mode-Specific Rule Loading**
-
-#### **Strategic Mode Rules**
-
-- **Thinking Framework**: Contemplative thinking approach
-- **Memory Bank**: System-level optimization and meta-reflection
-- **Technical Architecture**: System-level decisions
-- **MCP Integration**: Context7 and Basic Memory
-
-#### **Tactical Mode Rules**
-
-- **Thinking Framework**: Sequential thinking approach
-- **JavaScript Development**: App-specific planning
-- **SCSS Patterns**: Design decisions and styling
-- **Perchance Architecture**: Platform-specific planning
-
-#### **Operational Mode Rules**
-
-- **Thinking Framework**: Professional coding approach
-- **JavaScript Patterns**: Implementation and execution
-- **HTML Development**: Semantic structure and accessibility
-- **Build & Deployment**: Production-ready implementation
-
-## 🚀 **SYSTEM OPTIMIZATION**
-
-### **1. Token Efficiency**
-
-#### **Context-Aware Loading**
-
-- **Essential Rules**: Always loaded for core functionality
-- **Mode-Specific Rules**: Loaded based on current mode
-- **Task-Specific Rules**: Loaded based on current task type
-- **Lazy Loading**: Specialized rules loaded only when needed
-
-### **2. Performance Optimization**
-
-#### **Rule Caching**
-
-- **Frequently Used Rules**: Cached for efficiency
-- **Rule Compression**: Optimized content for token efficiency
-- **Progressive Loading**: Core rules first, enhanced rules as needed
-- **Performance Monitoring**: Track token usage and efficiency
-
-### **3. Quality Assurance**
-
-#### **Rule Validation**
-
-- **Link Validation**: All internal references working
-- **Content Consistency**: Unified terminology and approach
-- **Version Management**: Rule updates and compatibility
-- **Conflict Resolution**: Clear boundaries and integration
-
-## 🎯 **EXPECTED BENEFITS**
-
-### **✅ Enhanced Problem-Solving**
-
-- **Right tool for the job**: Appropriate thinking approach for each task
-- **Comprehensive context**: Integrated local and external information
-- **Consistent quality**: Professional standards across all complexity levels
-- **Automatic intelligence**: Smart complexity assessment and routing
-
-### **✅ Improved Efficiency**
-
-- **Smart rule loading**: Only load relevant rules
-- **Reduced conflicts**: Clear decision criteria and integration
-- **Faster responses**: Optimized context management
-- **Token optimization**: Maximum efficiency with minimum context
-
-### **✅ Better User Experience**
-
-- **Consistent behavior**: Unified approach across tasks
-- **Clear expectations**: Predictable system responses
-- **Enhanced capabilities**: Best of all rule systems
-- **Seamless transitions**: Automatic mode routing and context preservation
-
-## 🔮 **FUTURE ENHANCEMENTS**
-
-### **Advanced Integration Opportunities**
-
-- **AI-driven rule selection**: Machine learning for optimal rule choice
-- **Dynamic rule generation**: Create rules on-the-fly based on context
-- **Cross-project learning**: Share insights across different projects
-- **Performance analytics**: Track and optimize rule system performance
-
-### **Scalability Considerations**
-
-- **Rule versioning**: Manage rule updates and compatibility
-- **Modular architecture**: Easy addition of new rule systems
-- **Performance monitoring**: Track token usage and response times
-- **User feedback integration**: Learn from user preferences
-
-## 📚 **RELATED DOCUMENTATION**
-
-- [Technical Architecture](../.cursor/rules/technical-architecture.mdc) - Complete system architecture
-- [Unified Orchestrator Mode](../.cursor/rules/orchestration-mode.mdc) - 3-mode system management
-- [Thinking Framework](../.cursor/rules/thinking-framework.mdc) - Integrated thinking approaches
-- [Memory Bank Overview](../.cursor/rules/memory-bank-overview.mdc) - Knowledge management system
-- [MCP Ecosystem](../.cursor/rules/mcp-ecosystem.mdc) - External tool integration
+# System Rule: Rule Interactions & Precedence
+
+This document explains how the agent should interpret and prioritize the rules, especially in situations where multiple rules might apply.
+
+**Core Principle:** Rules follow a hierarchy of specificity. System-wide rules establish a baseline, while technology-specific rules provide detailed implementation guidance.
+
+---
+
+## 1. The Rule Hierarchy
+
+When making a decision, the agent must consider rules in the following order of precedence, from most general to most specific. A more specific rule always overrides a general one.
+
+```mermaid
+graph TD
+    A[Level 1: System & Thinking Rules] --> B[Level 2: Architectural Rules];
+    B --> C[Level 3: Language/Technology Rules];
+    C --> D[Level 4: Application-Specific Docs];
+
+    subgraph A [System Philosophy]
+        direction LR
+        A1[thinking-framework.md]
+        A2[system-orchestration-mode.md]
+    end
+
+    subgraph B [Repo-Wide Structure]
+        direction LR
+        B1[system-architecture.md]
+        B2[mcp-basic-memory.md]
+    end
+    
+    subgraph C [Implementation Details]
+        direction LR
+        C1[js-dom-guide.md]
+        C2[scss-style-guide.md]
+    end
+    
+    subgraph D [Specific Context]
+        direction LR
+        D1[/apps/rpglitch/README.md]
+    end
+```
+
+### Hierarchy Explained
+
+1. **Level 1 (Highest Precedence - Philosophy):** The `thinking-*.md` and `system-orchestration-*.md` rules define *how to think*. They govern the entire decision-making process and are never to be violated.
+2. **Level 2 (Architecture):** Rules like `system-architecture.md` define the non-negotiable structure of the repository. You cannot, for example, decide to put a build script in the `/docs` folder.
+3. **Level 3 (Implementation):** These are the specific guides for writing code (`js-*.md`, `scss-*.md`, `html-*.md`). They tell you *how* to implement a feature within the established architecture.
+4. **Level 4 (Lowest Precedence - Application Context):** Documentation within an app's folder (like `apps/rpglitch/README.md`) provides context specific to that app, but does not override the higher-level rules.
+
+### 2. Conflict Resolution
+
+If two rules appear to conflict, the more specific rule takes precedence.
+
+- **Example:** `system-architecture.md` (Level 2) might broadly discuss the purpose of the `/apps` folder. `apps/rpglitch/README.md` (Level 4) will provide specific details about the `rpglitch` app's file structure. The Level 4 doc adds detail but does not override the Level 2 principle.
