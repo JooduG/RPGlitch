@@ -561,7 +561,7 @@ function _attachCardNavigation() {
   _cardNavAttached = true;
 }
 
-function updateStoryboardCard(
+if (!target || target.tagName !== "SELECT") return;
   target,
   entityOrKey,
   opts = {}
