@@ -253,7 +253,7 @@ function renderList(containerId, key) {
       } else if (typeof maybe === "string") {
         const t = document.createElement("template");
         t.innerHTML = DOMPurify ?
-          DOMPurify.sanitize(maybe.trim()) :
+          t.innerHTML = DOMPurify ? document.createTextNode(DOMPurify.sanitize(maybe.trim())).textContent : maybe.trim();
           maybe.trim();
         const node = t.content.firstElementChild;
         if (node) media.prepend(node);
