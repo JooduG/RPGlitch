@@ -79,7 +79,7 @@ const premade = {
 
 export function getPremadeItems(key) {
   const bank = premade;
-  const list = bank[key];
+  const list = bank[storeMap[key]] || [];
   return Array.isArray(list) ? list : [];
 }
 
