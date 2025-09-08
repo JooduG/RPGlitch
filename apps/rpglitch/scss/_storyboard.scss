@@ -60,8 +60,6 @@
       --pico-muted-border-color,
       #e7eaf0
     );
-    
-    /* stylelint-disable-next-line alpha-value-notation */
     box-shadow: var(--pico-box-shadow, 0 0 0 1px rgb(0 0 0 / 5%));
   }
 
@@ -76,10 +74,6 @@
 .storyboard-card .storyboard-card-left,
 .chin-card .picture-placeholder {
   color: #fff;
-}
-
-.storyboard-card .storyboard-card-left .picture-placeholder svg {
-  fill: currentcolor;
 }
 
 /* Center only storyboard card titles; keep dropdowns/options left-aligned */
@@ -114,9 +108,10 @@ select,
 }
 
 .storyboard-card {
+  @include card-common;
+
   display: flex;
   flex-direction: row;
-  z-index: auto;
   grid-template-columns: unset;
   grid-template-rows: unset;
   grid-column: auto;
@@ -127,18 +122,10 @@ select,
   outline: 2px solid transparent;
   transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
     box-shadow 0.4s ease, opacity 0.4s ease, outline 0.15s ease, color 0.2s ease;
-  border-radius: var(--pico-border-radius);
-  cursor: pointer;
   min-height: 260px;
   height: auto;
-  backdrop-filter: blur(15px);
-  position: relative;
   gap: 0;
-  overflow: hidden;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
   border: none;
-  transform: translateY(0) scale(1);
-  object-fit: cover;
   pointer-events: auto;
   align-items: stretch;
 }
@@ -245,12 +232,12 @@ select,
 .storyboard-card[disabled],
 .storyboard-card[disabled]:hover {
   color: var(--pico-primary);
-  text-shadow: 0 0 15px rgb(var(--pico-primary-rgb), 0.6);
+  text-shadow: 0 0 15px rgb(var(--pico-primary-rgb) 0.6);
   transition: color 0.3s ease, text-shadow 0.3s ease;
   font-weight: bold;
   font-size: 0.9em;
-  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb), 0.3);
-  border: 2px solid rgb(var(--pico-primary-rgb), 0.5);
+  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb) 0.3);
+  border: 2px solid rgb(var(--pico-primary-rgb) 0.5);
   cursor: pointer;
   pointer-events: auto;
   filter: none;

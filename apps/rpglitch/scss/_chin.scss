@@ -1,0 +1,129 @@
+// This file will contain styles for the 'chin' component.
+.chin {
+  left: var(--app-container-pad); /* align to container padding */
+  right: var(--app-container-pad); /* align to container padding */
+  top: -0.5rem;
+  color: #fff;
+  padding: 0.5rem 1rem 1rem;
+  font-family: inherit;
+  border-radius: 0 0 var(--pico-radius) var(--pico-radius);
+  min-height: 200px;
+  height: auto;
+  background: rgb(35 36 58 / 85%);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  gap: 1rem;
+  grid-template-rows: auto 1fr;
+  position: absolute;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+  pointer-events: auto; /* ensure the panel itself is interactive */
+}
+
+.chin[hidden] {
+  display: none;
+}
+
+/* Backdrop behind open chin, restricted to the container area */
+#chin-backdrop {
+  position: absolute;
+  inset: 0;
+  background: transparent; /* keep visuals unchanged */
+  z-index: 9998; /* just below .chin */
+  pointer-events: none; /* JS enables when any chin is open */
+}
+
+#chin-backdrop[hidden] {
+  display: none;
+}
+
+.chin-actions {
+  flex-flow: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  grid-row: 1;
+}
+
+.chin-actions-right {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: nowrap;
+}
+
+.chin-actions-left {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.chin-empty {
+  place-items: center;
+  font-size: 1.1em;
+  background: none;
+  border: none;
+  padding: 0;
+  opacity: 0.8;
+  font-style: italic;
+  color: var(--pico-muted-color, #aaa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  margin: 0 auto;
+  grid-column: 1 / -1;
+}
+
+.chin-options-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  grid-row: 2;
+}
+
+.chin-options-fields textarea {
+  width: 100%;
+  min-height: 8em;
+  border-radius: var(--pico-radius);
+  font-size: 1rem;
+  box-sizing: border-box;
+  margin: 0 0 0.5em;
+}
+
+.chin[hidden] * {
+  outline: 0;
+  box-shadow: none;
+}
+
+/* Hide focus ring if a chin is closed */
+details:not([open]) .button--focused,
+.chin[hidden] .button--focused {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Only show the nice focus effect while any chin is open */
+.chin-focus-ring {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+body.chin-open .chin-focus-ring {
+  opacity: 1;
+}
+
+.chin-button.selected,
+.chin-button:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 2px;
+}

@@ -4,45 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>RPGlitch - AI Storytelling Platform</title>
-    <style>
-      :root {
-        --app-container-max: 1200px;
-        --app-container-pad: 1rem;
-      }
-
-      html,
-      body {
-        background: linear-gradient(
-          120deg,
-          #181c2f 0%,
-          #23243a 40%,
-          #1a3a4a 70%,
-          #2a1a3a 100%
-        );
-        background-attachment: fixed;
-        background-repeat: no-repeat;
-        background-size: cover;
-      }
-
-      header.container,
-      #profile-screen {
-        box-sizing: border-box;
-        max-width: var(--app-container-max);
-        margin-inline: auto;
-        padding-inline: var(--app-container-pad);
-      }
-    </style>
   </head>
 
   <body>
     <!-- Hidden for accessibility/SEO -->
-    <a href="#main" hidden="hidden">Skip to main content</a>
+    <a href="#main" hidden>Skip to main content</a>
 
     <!-- Initial Loading -->
     <dialog id="loading-modal">
       <article>
         <header>
-          <button aria-label="Close" rel="prev"></button>
+          <button aria-label="Close"></button>
         </header>
         <span aria-busy="true">
           <h2>Loading...</h2>
@@ -54,7 +26,7 @@
     <dialog id="emergency-modal">
       <article>
         <header>
-          <button aria-label="Close" rel="prev"></button>
+          <button aria-label="Close"></button>
         </header>
         <h2>Error during load?</h2>
         <footer>
@@ -73,7 +45,7 @@
       <nav id="top-bar" class="top-bar">
         <!-- Top Bar Left -->
         <ul role="presentation" id="top-bar-left">
-          <div role="tablist" class="top-bar-left">
+          <li><div role="tablist" class="top-bar-left">
             <li role="presentation">
               <button
                 class="secondary"
@@ -126,46 +98,47 @@
                 Options
               </button>
             </li>
-          </div>
+          </div></li>
         </ul>
 
         <!-- Top Bar Right: Storyboard -->
         <ul id="top-bar-right-storyboard">
-          <div class="top-bar-right">
+          <li><div class="top-bar-right">
             <li><button class="secondary" id="shuffle-btn">Shuffle</button></li>
             <li>
               <button class="primary" id="begin-story">Begin Story</button>
             </li>
-          </div>
+          </div></li>
         </ul>
 
         <!-- Top Bar Right: Form -->
-        <ul id="top-bar-right-form" hidden="hidden">
-          <div class="top-bar-right">
+        <ul id="top-bar-right-form" hidden>
+          <li><div class="top-bar-right">
             <li><button class="secondary" id="form-cancel">Cancel</button></li>
             <li><button class="danger" id="form-delete">Delete</button></li>
             <li><button class="primary" id="form-save">Save</button></li>
-          </div>
+          </div></li>
         </ul>
 
         <!-- Top Bar Right: Profile -->
-        <ul id="top-bar-right-profile" hidden="hidden">
-          <div class="top-bar-right">
+        <ul id="top-bar-right-profile" hidden>
+          <li><div class="top-bar-right">
             <li><button class="secondary" id="profile-edit">Edit</button></li>
             <li>
               <button class="secondary" id="profile-copy">
-                Copy & Customise
+                Copy &amp; Customise
               </button>
             </li>
             <li><button class="primary" id="profile-back">Back</button></li>
-          </div>
+          </div></li>
         </ul>
       </nav>
     </header>
+    <h1 style="display: none;">RPGlitch</h1>
 
     <!-- Chin Container -->
-    <div id="chin-container" class="container" hidden="hidden">
-      <div id="chin-backdrop" hidden="hidden" aria-hidden="true"></div>
+    <div id="chin-container" class="container" hidden>
+      <div id="chin-backdrop" hidden aria-hidden="true"></div>
       <!-- Stories Chin -->
       <div
         role="tabpanel"
@@ -174,7 +147,7 @@
         aria-labelledby="tab-stories"
         data-chin="stories"
         class="chin"
-        hidden="hidden">
+        hidden>
         <div class="chin-actions">
           <div class="chin-actions-left">
             <form role="search">
@@ -203,7 +176,7 @@
               id="upload-story"
               aria-label="Upload Story"
               class="file-input"
-              hidden="hidden" />
+              hidden />
             <button id="new-story" class="secondary">New Story</button>
           </div>
         </div>
@@ -218,7 +191,7 @@
         aria-labelledby="tab-characters"
         data-chin="characters"
         class="chin"
-        hidden="hidden">
+        hidden>
         <div class="chin-actions">
           <div class="chin-actions-left">
             <form role="search">
@@ -246,7 +219,7 @@
               type="file"
               id="upload-character"
               aria-label="Upload Character"
-              hidden="hidden" />
+              hidden />
             <button id="new-character" class="secondary">New Character</button>
           </div>
         </div>
@@ -263,7 +236,7 @@
         aria-labelledby="tab-worlds"
         data-chin="worlds"
         class="chin"
-        hidden="hidden">
+        hidden>
         <div class="chin-actions">
           <div class="chin-actions-left">
             <form role="search">
@@ -287,7 +260,7 @@
               type="file"
               id="upload-world"
               aria-label="Upload World"
-              hidden="hidden" />
+              hidden />
             <button id="new-world" class="secondary">New World</button>
           </div>
         </div>
@@ -360,7 +333,7 @@
         aria-labelledby="tab-options"
         data-chin="options"
         class="chin"
-        hidden="hidden">
+        hidden>
         <div class="chin-actions">
           <div class="chin-actions-left"><!-- Something in the future? --></div>
           <div class="chin-actions-right">
@@ -374,7 +347,7 @@
               type="file"
               id="upload-backup"
               aria-label="Upload Backup"
-              hidden="hidden" />
+              hidden />
             <button id="download-backup" class="secondary">
               Download Backup
             </button>
@@ -477,7 +450,7 @@
       </div>
 
       <!-- Chat Screen -->
-      <div id="chat-screen-container" hidden="hidden">
+      <div id="chat-screen-container" hidden>
         <div id="chat-screen">
           <!-- Character Display Areas -->
           <div id="user-character-display"></div>
@@ -525,32 +498,32 @@
       </div>
 
       <!-- Profile Screen -->
-      <div id="profile-screen" hidden="hidden">
+      <div id="profile-screen" hidden>
         <!-- Profile content will be dynamically generated -->
       </div>
 
       <!-- Character Form Screen -->
-      <div id="character-form-screen" hidden="hidden">
+      <div id="character-form-screen" hidden>
         <!-- Character form content will be dynamically generated -->
       </div>
 
       <!-- World Form Screen -->
-      <div id="world-form-screen" hidden="hidden">
+      <div id="world-form-screen" hidden>
         <!-- World form content will be dynamically generated -->
       </div>
 
       <!-- Premade Character Bank -->
-      <div id="premade-character-bank" hidden="hidden">
+      <div id="premade-character-bank" hidden>
         <div id="premade-character-list"></div>
       </div>
 
       <!-- Premade World Bank -->
-      <div id="premade-world-bank" hidden="hidden">
+      <div id="premade-world-bank" hidden>
         <div id="premade-world-list"></div>
       </div>
 
       <!-- Memory Application Screen -->
-      <div id="memory-application-screen" hidden="hidden">
+      <div id="memory-application-screen" hidden>
         <!-- Memory application content will be dynamically generated -->
       </div>
     </main>
