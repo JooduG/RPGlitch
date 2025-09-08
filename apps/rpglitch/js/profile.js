@@ -101,7 +101,7 @@ export function renderProfile(type, id) {
     future: "Foreshadowing",
   };
   ["forever", "past", "present", "future"].forEach((key) => {
-    const value = sections[key];
+    const value = sections[key] !== undefined ? sections[key] : null;
     if (value) {
       const row = document.createElement("div");
       row.className = "section-row";
