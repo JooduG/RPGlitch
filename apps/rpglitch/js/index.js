@@ -605,7 +605,7 @@ if (!target || target.tagName !== "SELECT") return;
     descEl.dataset.placeholder = descEl.textContent || "";
   }
 
-  function buildPictureNode(ent, {
+  const hasEntity = !!(ent && (ent.id || ent.title || ent.name)) && !isEmpty;
     preferTemplateForEmpty = true
   } = {}) {
     const kind = (ent && ent.kind) || "";
