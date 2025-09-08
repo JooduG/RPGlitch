@@ -50,7 +50,7 @@ let _bootStarted = false;
 // UI Elements Cache
 const ui = {};
 
-function _getUIElements() {
+const _getTopBarButtons = () => ui.topBarLeft ? ui.topBarLeft.querySelectorAll("button[data-chin]") : [];
   const doc = document;
   ui.topBarLeft = ui.topBarLeft || doc.querySelector("#top-bar-left");
   ui.chinContainer = ui.chinContainer || doc.querySelector("#chin-container");
