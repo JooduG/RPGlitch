@@ -81,6 +81,55 @@ function injectJs(html, js) {
 async function bundleJs() {
   const jsPath = path.join(APP_JS_DIR, 'index.js');
   return readFileSafe(jsPath, 'JS file index.js');
+function stripUmdWrapper(jsContent) {
+  // This regex attempts to capture the inner IIFE content of a UMD bundle.
+  // It's a simplified version and might need adjustment for other UMD patterns.
+  const match = jsContent.match(/(?:function\s*\(global,\s*factory\)\s*\{[\s\S]*?\}\)\(this,\s*\(function\s*\(\)\s*\{\s*'use strict';([\s\S]*?)\}\)\|\|\s*function\s*\(\)\s*\{\s*'use strict';([\s\S]*?)\}\)\);/);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+  return jsContent; // Return original if no UMD wrapper found
+}
+
+async function bundleAndMinifyJs() {
+  if (APP_JS_FILES.length === 0) {
+    return ''; // No app-specific JS files to bundle
+  }
+
+  const libs = [
+    LOCAL_LIBS.cash.file,
+    LOCAL_LIBS.dexie.file,
+    LOCAL_LIBS.dompurify.file,
+    LOCAL_LIBS.hyperscript.file,
+  ].map(f => path.join(LOCAL_LIBS_DIR, f));
+  
+  const allFiles = [...libs, ...APP_JS_FILES];
+  const codeMap = {};
+  for (const p of allFiles) {
+    let fileContent = readFileSafe(p, `JS file ${path.basename(p)}`);
+    // Apply UMD stripping for known UMD-wrapped libraries
+    if (path.basename(p) === 'dexie.js') {
+      fileContent = stripUmdWrapper(fileContent);
+    }
+    codeMap[p] = fileContent;
+  }
+
+  const result = await terser.minify(codeMap, {
+    sourceMap: false,
+    mangle: {
+      toplevel: true,
+    },
+    compress: {
+      toplevel: true,
+    },
+  });
+
+  if (result.error) {
+    console.error('❌ Terser minification failed:', result.error);
+    return '';
+  }
+  
+  return result.code;
 }
 
 (async function main() {
