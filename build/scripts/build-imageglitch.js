@@ -66,10 +66,15 @@ function injectJs(html, js) {
     const combinedCss = [picoCss, customCss].filter(Boolean).join('');
 
     const jsSrc = readFileSafe(SRC_JS, 'source JS');
+    const minifiedResult = await terser.minify(jsSrc);
+
+    if (minifiedResult.error) {
+      throw new Error(`Terser minification failed: ${minifiedResult.error}`);
+    }
 
     let finalHtml = htmlSrc;
     finalHtml = injectCss(finalHtml, combinedCss);
-    finalHtml = injectJs(finalHtml, jsSrc);
+    finalHtml = injectJs(finalHtml, minifiedResult.code);
 
     fs.writeFileSync(OUTPUT_HTML, finalHtml, 'utf8');
     console.log(`✅ Built: ${path.relative(ROOT, OUTPUT_HTML)}`);

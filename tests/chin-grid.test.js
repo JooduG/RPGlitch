@@ -1,17 +1,30 @@
-const fs = require('fs');
-const path = require('path');
-const { JSDOM } = require('jsdom');
+import { JSDOM } from 'jsdom';
 
-function loadScripts(dom) {
+jest.mock('../apps/rpglitch/js/entities.js', () => ({
+  getPictureHTML: jest.fn(),
+  entities: {
+    get: jest.fn(),
+    getAll: jest.fn().mockReturnValue([]),
+  }
+}));
+
+async function loadScripts(dom) {
+  global.window = dom.window;
+  global.document = dom.window.document;
+
   dom.window.alert = () => {};
   dom.window.Dexie = function () {};
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
   dom.window.$ = function () {};
-  const utils = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
-  require(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'))(dom.window); require(path.resolve(__dirname, '../apps/rpglitch/js/index.js'))(dom.window);
-  const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/index.js'), 'utf8');
-  dom.window.utilsFunction = new Function(utils); dom.window.indexFunction = new Function(script); dom.window.utilsFunction(); dom.window.indexFunction();
+
+  const utils = await import('../apps/rpglitch/js/utils.js');
+  const index = await import('../apps/rpglitch/js/index.js');
+
+  dom.window.App = {
+    ...index,
+    ...utils,
+  };
 }
 
 afterEach(() => {
@@ -20,37 +33,31 @@ afterEach(() => {
   delete global.App;
 });
 
-test('renderStoryList loads items from storage', () => {
+test('renderStoryList loads items from storage', async () => {
   const dom = new JSDOM('<div id="chin-story-grid"></div>', { url: 'http://localhost', runScripts: 'outside-only' });
-  global.window = dom.window;
-  global.document = dom.window.document;
   dom.window.localStorage.setItem('stories', JSON.stringify([{ title: 'My Story' }]));
-  loadScripts(dom);
+  await loadScripts(dom);
   dom.window.App.renderStoryList();
   expect(dom.window.document.getElementById('chin-story-grid').textContent).toContain('My Story');
 });
 
-test('renderCharacterList loads items from storage', () => {
+test('renderCharacterList loads items from storage', async () => {
   const dom = new JSDOM('<div id="chin-character-grid"></div>', { url: 'http://localhost', runScripts: 'outside-only' });
-  global.window = dom.window;
-  global.document = dom.window.document;
   dom.window.localStorage.setItem('characters', JSON.stringify([{ title: 'Hero' }]));
-  loadScripts(dom);
+  await loadScripts(dom);
   dom.window.App.renderCharacterList();
   expect(dom.window.document.getElementById('chin-character-grid').textContent).toContain('Hero');
 });
 
-test('renderWorldList loads items from storage', () => {
+test('renderWorldList loads items from storage', async () => {
   const dom = new JSDOM('<div id="chin-world-grid"></div>', { url: 'http://localhost', runScripts: 'outside-only' });
-  global.window = dom.window;
-  global.document = dom.window.document;
   dom.window.localStorage.setItem('worlds', JSON.stringify([{ title: 'Earth' }]));
-  loadScripts(dom);
+  await loadScripts(dom);
   dom.window.App.renderWorldList();
   expect(dom.window.document.getElementById('chin-world-grid').textContent).toContain('Earth');
 });
 
-test('chin search hides non-matching cards via hidden attribute', () => {
+test('chin search hides non-matching cards via hidden attribute', async () => {
   const html = `
     <div class="chin-widget">
       <input class="chin-search" />
@@ -60,9 +67,7 @@ test('chin search hides non-matching cards via hidden attribute', () => {
       </div>
     </div>`;
   const dom = new JSDOM(html, { url: 'http://localhost', runScripts: 'outside-only' });
-  global.window = dom.window;
-  global.document = dom.window.document;
-  loadScripts(dom);
+  await loadScripts(dom);
   dom.window.App._attachChinSearchHandlers();
   const input = dom.window.document.querySelector('.chin-search');
   input.value = 'foo';
@@ -73,12 +78,10 @@ test('chin search hides non-matching cards via hidden attribute', () => {
   expect(bar.hasAttribute('hidden')).toBe(true);
 });
 
-test('renderDropdown groups premade and custom items', () => {
+test('renderDropdown groups premade and custom items', async () => {
   const dom = new JSDOM('<select id="sel"><option value="">Choose...</option></select>', { url: 'http://localhost', runScripts: 'outside-only' });
-  global.window = dom.window;
-  global.document = dom.window.document;
   dom.window.localStorage.setItem('characters', JSON.stringify([{ title: 'Custom' }]));
-  loadScripts(dom);
+  await loadScripts(dom);
   dom.window.App.renderDropdown('sel', 'characters');
   const groupLabels = Array.from(dom.window.document.querySelectorAll('#sel optgroup')).map((g) => g.label);
   expect(groupLabels).toEqual(expect.arrayContaining(['Premade', 'Custom']));

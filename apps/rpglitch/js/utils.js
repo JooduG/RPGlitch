@@ -55,18 +55,18 @@ export function debounce(fn, wait = 250) {
 }
 
 // ---------- Show / Hide ----------
-export function hideEl(el) {
+export function hideEl(el, doc = document) {
   try {
-    if (typeof el === 'string') el = document.querySelector(el.startsWith('#') ? el : `#${el}`);
+    if (typeof el === 'string') el = doc.querySelector(el.startsWith('#') ? el : `#${el}`);
     if (!el) return;
     el.hidden = true;
     el.classList.remove("is-open");
   } catch { /* ignore */ }
 }
 
-export function showEl(el) {
+export function showEl(el, doc = document) {
   try {
-    if (typeof el === 'string') el = document.querySelector(el.startsWith('#') ? el : `#${el}`);
+    if (typeof el === 'string') el = doc.querySelector(el.startsWith('#') ? el : `#${el}`);
     if (!el) return;
     el.hidden = false;
     el.classList.add("is-open");

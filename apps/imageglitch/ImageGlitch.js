@@ -607,11 +607,22 @@ function rerollImage(container, resolution) {
   }
 }
 
-const isButtonDisabled = () => promptIsEmpty || instructionsIsEmpty; summonBtn.disabled = isButtonDisabled();
+function checkAllButtonStates() {
   const summonBtn = document.getElementById('summonBtn');
   const aiMagicSelect = document.getElementById('aiMagicSelect');
+  const promptInput = document.getElementById('promptInput');
+  const instructionInput = document.getElementById('instructionInput');
+  const numImagesSelect = document.getElementById('numImagesSelect');
+
+  if (!summonBtn || !aiMagicSelect || !promptInput || !instructionInput || !numImagesSelect) {
+    return;
+  }
+
+  const mainPromptContent = promptInput.value;
+  const numImagesToGen = numImagesSelect.value;
+
   const promptIsEmpty = !(mainPromptContent || "").trim();
-  const instructionsIsEmpty = !document.getElementById('instructionInput').value.trim();
+  const instructionsIsEmpty = !instructionInput.value.trim();
 
   if (window.undoState.type || window.activeAiProcess) return;
 
