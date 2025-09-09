@@ -558,7 +558,7 @@ function rerollImage(container, resolution) {
   const prompt = safeDecodeURIComponent(container.dataset.prompt);
 
   // Always generate a new random seed for rerolls
-  const newSeed = Math.floor(Math.random() * 10000000);
+  const newSeed = window.crypto.getRandomValues(new Uint32Array(1))[0] % 10000000;
 
   if (container.classList.contains('solo-block')) {
     // For pollinations.ai images
