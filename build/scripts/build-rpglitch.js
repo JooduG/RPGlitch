@@ -95,7 +95,7 @@ async function bundleAndMinifyJs() {
     return result.outputFiles[0].text;
   } catch (err) {
     console.error('❌ esbuild bundling failed:', err);
-    return '';
+    throw err;
   }
 }
 
