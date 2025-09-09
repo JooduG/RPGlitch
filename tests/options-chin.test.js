@@ -1,44 +1,66 @@
-const fs = require('fs');
-const path = require('path');
-const { JSDOM } = require('jsdom');
+import { JSDOM } from 'jsdom';
 
-afterEach(() => {
-  delete global.window;
-  delete global.document;
-  delete global.App;
-});
+jest.mock('../apps/rpglitch/js/entities.js', () => ({
+  entities: {
+    list: jest.fn(),
+  },
+  getPremadeItems: jest.fn().mockReturnValue([]),
+  _allItemsCache: {},
+}));
 
-function loadApp() {
-  const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/html/index.html'), 'utf8');
-  const dom = new JSDOM(html, { runScripts: 'outside-only' });
+async function loadApp() {
+  const html = `<!doctype html><html><body>
+    <div id="upload-backup"></div>
+    <div data-trigger="upload-backup"></div>
+    <div id="download-backup"></div>
+    <div id="chin-container"></div>
+  </body></html>`;
+  const dom = new JSDOM(html, {
+    url: 'http://localhost',
+    runScripts: 'outside-only'
+  });
+
   global.window = dom.window;
   global.document = dom.window.document;
-  dom.window.App = {};
-  dom.window.document.addEventListener = jest.fn();
+
   dom.window.alert = () => {};
   dom.window.Dexie = function () {};
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
   dom.window.$ = function () {};
 
-  const utils = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
-  dom.window.eval(utils);
-  const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/index.js'), 'utf8');
-  dom.window.eval(script);
-  const App = dom.window.App;
-  App.ui = {
+  const utils = await import('../apps/rpglitch/js/utils.js');
+  const index = await import('../apps/rpglitch/js/index.js');
+
+  dom.window.App = {
+    ...index,
+    ...utils,
+  };
+
+  dom.window.App.ui = {
     uploadBackupInput: dom.window.document.getElementById('upload-backup'),
     uploadBackupTrigger: dom.window.document.querySelector('[data-trigger="upload-backup"]'),
     downloadBackupButton: dom.window.document.getElementById('download-backup'),
     deleteAllDataButton: dom.window.document.getElementById('delete-all-data')
   };
-  App.chin.init();
-  App._attachOptionChinActions();
-  return App;
+  dom.window.App.chin.init();
+  dom.window.App._attachOptionChinActions();
+
+  return dom.window.App;
 }
 
-test('options chin actions trigger database methods', () => {
-  const App = loadApp();
+afterEach(() => {
+  delete global.window;
+  delete global.document;
+  delete global.App;
+  const entities = require('../apps/rpglitch/js/entities.js');
+  for (const key in entities._allItemsCache) {
+    delete entities._allItemsCache[key];
+  }
+});
+
+test('options chin actions trigger database methods', async () => {
+  const App = await loadApp();
 
   App.importAllData = jest.fn();
   App.exportAllData = jest.fn();

@@ -1,23 +1,47 @@
-const fs = require('fs');
-const path = require('path');
-const { JSDOM } = require('jsdom');
+import { JSDOM } from 'jsdom';
 
-function load(dom) {
+jest.mock('../apps/rpglitch/js/entities.js', () => ({
+  entities: {
+    list: jest.fn(),
+  },
+  getPremadeItems: jest.fn().mockReturnValue([]),
+  _allItemsCache: {},
+}));
+
+async function loadApp() {
+  const dom = new JSDOM('<!doctype html><html><body></body></html>', {
+    url: 'http://localhost',
+    runScripts: 'outside-only'
+  });
+
   global.window = dom.window;
   global.document = dom.window.document;
+
   dom.window.alert = () => {};
   dom.window.Dexie = function () {};
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
   dom.window.$ = function () {};
-  const utils = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
-  dom.window.eval(utils);
+
+  const utils = await import('../apps/rpglitch/js/utils.js');
+  const index = await import('../apps/rpglitch/js/index.js');
+
+  dom.window.App = {
+    ...index,
+    ...utils,
+  };
+
+  return { dom, App: dom.window.App };
 }
 
 afterEach(() => {
   delete global.window;
   delete global.document;
   delete global.App;
+  const entities = require('../apps/rpglitch/js/entities.js');
+  for (const key in entities._allItemsCache) {
+    delete entities._allItemsCache[key];
+  }
 });
 
 test('outside click closes chin and disables container pointer-events', async () => {
@@ -30,13 +54,13 @@ test('outside click closes chin and disables container pointer-events', async ()
     </div>
   </body></html>`;
   const dom = new JSDOM(html, { url: 'http://localhost', runScripts: 'outside-only' });
-  load(dom);
+  const { App } = await loadApp();
 
   // Ensure listeners are attached
-  dom.window.App.chin.init();
+  App.chin.init();
 
   // Open the Stories chin
-  dom.window.App.chin.open('stories');
+  App.chin.open('stories');
   const cont = dom.window.document.getElementById('chin-container');
   const panel = dom.window.document.querySelector('.chin[data-chin="stories"]');
   expect(cont.hasAttribute('hidden')).toBe(false);
@@ -51,7 +75,7 @@ test('outside click closes chin and disables container pointer-events', async ()
   jest.runOnlyPendingTimers();
 
   // Ensure a sync pass applied post-close
-  dom.window.App.chin.sync();
+  App.chin.sync();
   // Container becomes hidden and non-interactive
   expect(cont.hasAttribute('hidden')).toBe(true);
   expect(cont.style.pointerEvents).toBe('none');

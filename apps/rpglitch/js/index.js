@@ -49,7 +49,7 @@ let _bootStarted = false;
 // UI Elements Cache
 const ui = {};
 
-function _getUIElements() {
+export function _getUIElements() {
   const doc = document;
   const ui = {}; // Initialize ui object inside the function
 
@@ -101,7 +101,7 @@ function _getUIElements() {
   return ui;
 }
 
-function _attachChinSearchHandlers() {
+export function _attachChinSearchHandlers() {
   if (_chinSearchBound) return;
   _chinSearchBound = true;
   const inputs = document.querySelectorAll(".chin-search");
@@ -128,7 +128,7 @@ function _attachChinSearchHandlers() {
   });
 }
 
-function loadStoredItems(key) {
+export function loadStoredItems(key) {
   try {
     const storage = localStorage;
     if (!storage) return [];
@@ -140,13 +140,13 @@ function loadStoredItems(key) {
   }
 }
 
-function resetStoryboard() {
+export function resetStoryboard() {
   // placeholder for future storyboard reset logic
 }
 
 
 
-function getAllItems(key, refresh = false) {
+export function getAllItems(key, refresh = false) {
   if (!refresh && Array.isArray(_allItemsCache[key]))
     return [..._allItemsCache[key]];
 
@@ -346,15 +346,15 @@ export function renderDropdown(selectId, key) {
   if (customCount > 0) select.appendChild(customGroup);
 }
 
-function renderStoryList() {
+export function renderStoryList() {
   renderList("chin-story-grid", "stories");
 }
 
-function renderCharacterList() {
+export function renderCharacterList() {
   renderList("chin-character-grid", "characters");
 }
 
-function renderWorldList() {
+export function renderWorldList() {
   renderList("chin-world-grid", "worlds");
 }
 
@@ -365,7 +365,7 @@ export function refreshAllLists() {
   renderWorldList?.();
 }
 
-function _attachCardNavigation() {
+export function _attachCardNavigation() {
   if (_cardNavAttached) return;
 
   if (typeof _suppressNextBlur === "undefined") {
@@ -727,12 +727,12 @@ function randPrompt() {
   return titlePrompts[Math.floor(Math.random() * titlePrompts.length)];
 }
 
-function _defaultStoryboardTitle() {
+export function _defaultStoryboardTitle() {
   const getTitle = (id, key) => {
     const select = document.querySelector(`#${id}`);
     const value = select ? select.value : "";
     if (!value) return null;
-    const item = getAllItems(key).find(
+    const item = App.getAllItems(key).find(
       (i) => (i.id ?? i.title) === value
     );
     return item ? item.title || null : null;
@@ -885,7 +885,7 @@ function onStoryboardChange(e) {
   }
 }
 
-function _attachStoryboardListeners() {
+export function _attachStoryboardListeners() {
   populateStoryboardSelects();
   _setupStoryboardTitle();
   const title = document.querySelector("#storyboard-dynamic-title");
@@ -926,7 +926,7 @@ function _attachStoryboardListeners() {
   });
 }
 
-function _attachOptionChinActions() {
+export function _attachOptionChinActions() {
   if (_optionsListenersAttached) return;
   const ui = _getUIElements();
   const {
@@ -962,7 +962,7 @@ function _attachOptionChinActions() {
   _optionsListenersAttached = true;
 }
 
-function _attachContentChinActions() {
+export function _attachContentChinActions() {
   if (_contentListenersAttached) return;
   const ui = _getUIElements();
 
@@ -1031,7 +1031,7 @@ function _attachContentChinActions() {
   _contentListenersAttached = true;
 }
 
-async function initializeWhenReady() {
+export async function initializeWhenReady() {
   initializeWhenReadyRetryCount = initializeWhenReadyRetryCount || 0;
   try {
     console.log('[RPGlitch] initializeWhenReady start', {
@@ -1134,7 +1134,7 @@ async function initializeWhenReady() {
   }
 }
 
-function importAllData(file) {
+export function importAllData(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -1156,7 +1156,7 @@ function importAllData(file) {
   reader.readAsText(file);
 }
 
-function exportAllData() {
+export function exportAllData() {
   const data = {};
   DATA_KEYS.forEach((key) => {
     try {
@@ -1179,7 +1179,7 @@ function exportAllData() {
   URL.revokeObjectURL(url);
 }
 
-function deleteAllData() {
+export function deleteAllData() {
   DATA_KEYS.forEach((key) => {
     localStorage.removeItem(key);
   });

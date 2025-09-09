@@ -1,42 +1,57 @@
-const fs = require('fs');
-const path = require('path');
-const { JSDOM } = require('jsdom');
+import { JSDOM } from 'jsdom';
+
+jest.mock('../apps/rpglitch/js/entities.js', () => ({
+  entities: {
+    list: jest.fn(),
+  },
+  getPremadeItems: jest.fn().mockReturnValue([]),
+  _allItemsCache: {},
+}));
+
+async function loadApp() {
+  const dom = new JSDOM('<!doctype html><html><body></body></html>', {
+    url: 'http://localhost',
+    runScripts: 'outside-only'
+  });
+
+  global.window = dom.window;
+  global.document = dom.window.document;
+
+  dom.window.Dexie = function () {};
+  dom.window.DOMPurify = {};
+  dom.window._hyperscript = {};
+  dom.window.$ = function () {};
+
+  const utils = await import('../apps/rpglitch/js/utils.js');
+  const index = await import('../apps/rpglitch/js/index.js');
+
+  dom.window.App = {
+    ...index,
+    ...utils,
+  };
+
+  return { dom, App: dom.window.App };
+}
 
 afterEach(() => {
   delete global.window;
   delete global.document;
   delete global.App;
+  const entities = require('../apps/rpglitch/js/entities.js');
+  for (const key in entities._allItemsCache) {
+    delete entities._allItemsCache[key];
+  }
 });
 
-function loadApp() {
-  const dom = new JSDOM('<!doctype html><html><body></body></html>', {
-    runScripts: 'outside-only'
-  });
-  dom.window.Dexie = function () {};
-  dom.window.DOMPurify = {};
-  dom.window._hyperscript = {};
-  dom.window.$ = function () {};
-  const utilsScript = fs.readFileSync(
-    path.resolve(__dirname, '../apps/rpglitch/js/utils.js'),
-    'utf8'
-  );
-  new Function(utilsScript)();
-  const script = fs.readFileSync(
-    path.resolve(__dirname, '../apps/rpglitch/js/index.js'),
-    'utf8'
-  );
-  dom.window.eval(script);
-  return { dom, App: dom.window.App };
-}
-
-test('default storyboard title adapts to selections', () => {
-  const { dom, App } = loadApp();
+test('default storyboard title adapts to selections', async () => {
+  const { dom, App } = await loadApp();
   const document = dom.window.document;
   document.body.innerHTML = `
     <select id="storyboard-ai-select"><option value=""></option><option value="a1">Alice</option></select>
     <select id="storyboard-user-select"><option value=""></option><option value="u1">Bob</option></select>
     <select id="storyboard-world-select"><option value=""></option><option value="w1">Mars</option></select>
   `;
+
   App.getAllItems = (key) => {
     const map = {
       characters: [
