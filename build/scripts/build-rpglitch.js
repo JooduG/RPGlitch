@@ -78,8 +78,9 @@ function injectJs(html, js) {
 async function bundleAndMinifyJs() {
   const entryPoint = path.join(APP_JS_DIR, 'index.js');
   if (!fs.existsSync(entryPoint)) {
-    console.error(`❌ Entry point not found: ${entryPoint}`);
-    return '';
+    const errorMsg = `❌ Entry point not found: ${entryPoint}`;
+    console.error(errorMsg);
+    throw new Error(errorMsg);
   }
 
   try {
