@@ -7,6 +7,13 @@ function safeDecodeURIComponent(str) {
     return str;
   }
 }
+const AI_PROCESS_TYPES = {
+  SUMMON: 'summon',
+  SCRIBE: 'scribe',
+  CHAOS: 'chaos',
+  TRANSFIGURE: 'transfigure',
+  CANCELLING: 'cancelling',
+};
 // ====== GLOBAL STATE & CONSTANTS ======
 const DEFAULT_CREATIVITY_LEVEL = "4";
 const creativityMap = {
