@@ -2,7 +2,7 @@ import { JSDOM } from 'jsdom';
 
 jest.mock('../apps/rpglitch/js/entities.js', () => ({
   entities: {
-    list: jest.fn(),
+    list: jest.fn().mockReturnValue([]),
   },
   getPremadeItems: jest.fn().mockReturnValue([]),
   _allItemsCache: {},

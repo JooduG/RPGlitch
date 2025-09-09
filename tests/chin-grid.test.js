@@ -6,6 +6,7 @@ jest.mock('../apps/rpglitch/js/entities.js', () => ({
   entities: {
     get: jest.fn(),
     getAll: jest.fn().mockReturnValue([]),
+    list: jest.fn().mockReturnValue([]),
   },
   _allItemsCache: {},
 }));
