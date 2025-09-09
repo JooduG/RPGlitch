@@ -9,7 +9,7 @@ function loadScripts(dom) {
   dom.window._hyperscript = {};
   dom.window.$ = function () {};
   const utils = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
-  dom.window.eval(utils);
+  require(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'))(dom.window); require(path.resolve(__dirname, '../apps/rpglitch/js/index.js'))(dom.window);
   const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/index.js'), 'utf8');
   dom.window.eval(script);
 }
