@@ -109,6 +109,7 @@ async function bundleAndMinifyJs() {
       throw new Error(`Source HTML not found at ${SRC_HTML}`);
     }
 
+    const picoCss = readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.pico.file), 'pico.min.css');
     const styleBlockHtml = readFileSafe(path.join(APP_DIR, 'ImageGlitch-style-block.html'), 'ImageGlitch-style-block.html');
     const customCss = extractCssFromHtml(styleBlockHtml);
     const combinedCss = [picoCss, customCss].filter(Boolean).join('');
