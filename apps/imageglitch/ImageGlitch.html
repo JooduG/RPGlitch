@@ -8,17 +8,16 @@
   <!--STYLES-->
 </head>
 <body>
-  <main class="container">
-    <fieldset>
-      <div class="controls">
-        <div class="focus-bar">
-          <!-- LEFT SIDE CONTROLS -->
-          <div class="control-group left-controls">
-            <!-- MAIN ACTIONS -->
-            <div class="action-item"><button id="summonBtn" class="summon-button" title="Generate images from your prompt">Generate Images</button></div>
-
-            <!-- AI TOOLS DROPDOWN -->
-            <div class="action-item">
+  <header class="container">
+    <nav id="top-bar" class="top-bar">
+      <!-- Top Bar Left -->
+      <ul role="presentation" id="top-bar-left">
+        <li>
+          <div class="top-bar-left">
+            <li role="presentation">
+              <button id="summonBtn" class="primary" title="Generate images from your prompt">Generate Images</button>
+            </li>
+            <li role="presentation">
               <select id="aiMagicSelect">
                 <option value="placeholder" selected disabled>AI Magic</option>
                 <option value="summon">Generate Images</option>
@@ -26,16 +25,16 @@
                 <option value="chaos">Embrace the Chaos</option>
                 <option value="transfigure">Instruct AI</option>
               </select>
-            </div>
+            </li>
           </div>
+        </li>
+      </ul>
 
-          <!-- SPACER -->
-          <div class="spacer"></div>
-
-          <!-- RIGHT SIDE CONTROLS -->
-          <div class="control-group right-controls">
-            <!-- SETTINGS -->
-            <div class="action-item setting-item">
+      <!-- Top Bar Right -->
+      <ul id="top-bar-right">
+        <li>
+          <div class="top-bar-right">
+            <li>
               <select id="numImagesSelect" value="[numImagesToGen]" title="Number of image blocks to generate">
                 <option value="0" selected>No Images</option>
                 <option value="1">1 Image Block</option>
@@ -49,30 +48,30 @@
                 <option value="9">9 Image Blocks</option>
                 <option value="10">10 Image Blocks</option>
               </select>
-            </div>
-
-            <div class="action-item setting-item">
-              <input type="text" id="imgSeed" placeholder="Seed (Leave Empty for Random)" value="" title="Use the same number to get the same results again">
-            </div>
-
-            <div class="action-item setting-item creativity-slider">
-              <label id="masterCreativityLabel" for="masterCreativitySlider">Creativity: <span id="masterCreativityValue">[masterCreativity]</span></label>
-              <input type="range" id="masterCreativitySlider" min="0" max="10" step="1" value="[masterCreativity]" title="Control the creativity level. Higher values increase Guidance Scale and lower Temperature.">
-            </div>
+            </li>
+            <li>
+              <input type="text" id="imgSeed" placeholder="Seed (Leave Empty for Random)" value=""
+                title="Use the same number to get the same results again">
+            </li>
+            <li class="creativity-slider">
+              <label id="masterCreativityLabel" for="masterCreativitySlider">Creativity: <span
+                  id="masterCreativityValue">[masterCreativity]</span></label>
+              <input type="range" id="masterCreativitySlider" min="0" max="10" step="1" value="[masterCreativity]"
+                title="Control the creativity level. Higher values increase Guidance Scale and lower Temperature.">
+            </li>
           </div>
-        </div>
-        
-        <div class="prompt-area">
-            <textarea id="promptInput" rows="2" placeholder="Enter your prompt here... then add some AI Magic if you'd like."></textarea>
-        </div>
-        <div id="instructionsPanel" style="display: none;">
-          <textarea id="instructionInput" rows="2" placeholder="Enter specific instructions for the AI, for example: Change 'landscape' to 'seascape'..."></textarea>
-        </div>
-        
-        <div class="secondary-controls">
-        </div>
-      </div>
-    </fieldset>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <main class="container">
+    <div class="prompt-area">
+      <textarea id="promptInput" rows="2" placeholder="Enter your prompt here... then add some AI Magic if you'd like."></textarea>
+    </div>
+    <div id="instructionsPanel" style="display: none;">
+      <textarea id="instructionInput" rows="2"
+        placeholder="Enter specific instructions for the AI, for example: Change 'landscape' to 'seascape'..."></textarea>
+    </div>
     <div id="output" class="output-area"></div>
   </main>
   <!--SCRIPTS-->
