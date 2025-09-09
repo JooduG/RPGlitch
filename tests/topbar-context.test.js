@@ -19,7 +19,7 @@ test('top bar click triggers chin toggle without duplicate handlers', () => {
   // Load the actual RPGlitch.js
   const utilsScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
   dom.window.eval(utilsScript);
-  const rpgScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/index.js'), 'utf8');
+  const rpgScript = fs.readFileSync(path.join(__dirname, '../apps/rpglitch/js/index.js'), 'utf8');
   dom.window.eval(rpgScript);
 
   dom.window.App.chin.init();
