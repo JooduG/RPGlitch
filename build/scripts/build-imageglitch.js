@@ -3,17 +3,14 @@
  * and writes the final bundle to build/output/ImageGlitch.html.
  */
 
-import fs from 'fs';
-import path from 'path';
-import * as sass from 'sass';
-import * as terser from 'terser';
-import { fileURLToPath } from 'url';
+const fs = require('fs');
+const path = require('path');
+const sass = require('sass');
+const terser = require('terser');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..', '..');
 const APP_DIR = path.join(ROOT, 'apps', 'imageglitch');
-const APP_JS_DIR = path.join(APP_DIR, 'js');
+const APP_JS_DIR = path.join(APP_DIR, 'js'); // Assuming a 'js' subdirectory for consistency, will verify
 const BUILD_DIR = path.join(ROOT, 'build');
 const LOCAL_LIBS_DIR = path.join(BUILD_DIR, 'local_libs');
 const OUTPUT_DIR = path.join(BUILD_DIR, 'output');
@@ -27,13 +24,9 @@ const LOCAL_LIBS = {
   hyperscript: { file: '_hyperscript.min.js' },
 };
 
-const APP_JS_FILES = [
-  'index.js',
-].map(f => path.join(APP_JS_DIR, f));
+const APP_JS_FILES = []; // No separate JS files for ImageGlitch
 
-const SRC_HTML = path.join(APP_DIR, 'html', 'index.html');
-const ENTRY_SCSS = path.join(APP_DIR, 'scss', 'index.scss');
-
+const SRC_HTML = path.join(APP_DIR, 'ImageGlitch.html');
 function ensureDir(p) {
   fs.mkdirSync(p, { recursive: true });
 }
@@ -47,40 +40,29 @@ function readFileSafe(filePath, kind) {
   }
 }
 
-function buildScss() {
-    if (!fs.existsSync(ENTRY_SCSS)) {
-      console.warn(`⚠️  SCSS entry not found: ${ENTRY_SCSS}`);
-      return '';
-    }
-    try {
-      const result = sass.compile(ENTRY_SCSS, {
-        style: 'compressed',
-        loadPaths: [path.join(APP_DIR, 'scss'), APP_DIR],
-      });
-      return result.css || '';
-    } catch (err) {
-      console.error('❌ SCSS compile failed:', err.message);
-      return '';
-    }
-  }
+function extractCssFromHtml(htmlContent) {
+  const match = htmlContent.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+  return match ? match[1].trim() : '';
+}
+
+function stripTagsForInlining(html) {
+  let out = html.replace(/<link[^>]*href=["'][^"']*pico[^"']*["'][^>]*>\s*/gi, '');
+  out = out.replace(/<script[^>]*\bsrc=(['"])(?!https?:\/\/)[^'"]+\.js\1[^>]*>\s*<\/script>\s*/gi, '');
+  return out;
+}
 
 function injectCss(html, css) {
   if (!css) return html;
   const styleTag = `<style id="imageglitch-inline-css">${css}</style>`;
-  // Replace <!--INJECT:css--> with the style tag
-  return html.replace('<!--INJECT:css-->', styleTag);
+  return html.replace('</head>', `${styleTag}</head>`);
 }
 
 function injectJs(html, js) {
   if (!js) return html;
   const scriptTag = `<script id="imageglitch-inline-js">${js}</script>`;
-  // Replace <!--INJECT:js--> with the script tag
-  return html.replace('<!--INJECT:js-->', scriptTag);
+  return html.replace('</body>', `${scriptTag}</body>`);
 }
 
-async function bundleJs() {
-  const jsPath = path.join(APP_JS_DIR, 'index.js');
-  return readFileSafe(jsPath, 'JS file index.js');
 function stripUmdWrapper(jsContent) {
   // This regex attempts to capture the inner IIFE content of a UMD bundle.
   // It's a simplified version and might need adjustment for other UMD patterns.
@@ -143,12 +125,13 @@ async function bundleAndMinifyJs() {
     }
 
     const picoCss = readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.pico.file), 'pico.min.css');
-    const compiledScss = buildScss();
-    const combinedCss = [picoCss, compiledScss].filter(Boolean).join('');
+    const styleBlockHtml = readFileSafe(path.join(APP_DIR, 'ImageGlitch-style-block.html'), 'ImageGlitch-style-block.html');
+    const customCss = extractCssFromHtml(styleBlockHtml);
+    const combinedCss = [picoCss, customCss].filter(Boolean).join('');
 
-    const jsBundle = await bundleJs();
+    const jsBundle = await bundleAndMinifyJs(); // This will now return empty string if no JS files
 
-    let finalHtml = htmlSrc; // Start with the new index.html
+    let finalHtml = stripTagsForInlining(htmlSrc);
     finalHtml = injectCss(finalHtml, combinedCss);
     finalHtml = injectJs(finalHtml, jsBundle);
 
