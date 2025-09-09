@@ -262,7 +262,7 @@ function merge(type, custom) {
   return premade.concat(normal);
 }
 
-const _allItemsCache = {};
+export const _allItemsCache = {};
 
 function _writeAndCache(type, items) {
   write(type, items);
