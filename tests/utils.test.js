@@ -23,7 +23,7 @@ function loadApp() {
     path.resolve(__dirname, '../apps/rpglitch/js/utils.js'),
     'utf8'
   );
-  dom.window.eval(utilsScript);
+  import { someFunctionFromUtils } from '../apps/rpglitch/js/utils.js'; 
 
   const script = fs.readFileSync(
     path.resolve(__dirname, '../apps/rpglitch/js/index.js'),
