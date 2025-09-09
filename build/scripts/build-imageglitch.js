@@ -58,12 +58,10 @@ function injectJs(html, js) {
       throw new Error(`Source HTML not found at ${SRC_HTML}`);
     }
 
-    const picoCss = readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.pico.file), 'pico.min.css');
-
     const scssResult = sass.compile(SRC_SCSS);
     const customCss = scssResult.css;
 
-    const combinedCss = [picoCss, customCss].filter(Boolean).join('');
+    const combinedCss = [customCss].filter(Boolean).join('');
 
     const jsSrc = readFileSafe(SRC_JS, 'source JS');
     const minifiedResult = await terser.minify(jsSrc);
