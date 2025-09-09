@@ -37,7 +37,13 @@ A minimalist Text-to-Image generator built for the Perchance platform, following
 
 ### Build Process
 
-This app is not yet wired into the default build pipeline. The process should mirror the `build-rpglitch.js` script when implemented.
+ImageGlitch is now wired into the build pipeline. To build the application, run the following command:
+
+```bash
+npm run build:imageglitch
+```
+
+This command will process `apps/imageglitch/ImageGlitch.html`, inline its styles from `ImageGlitch-style-block.html`, and output the final bundled HTML to `build/output/ImageGlitch.html`.
 
 ### Styling
 
@@ -59,6 +65,6 @@ The current styling strategy is to **use Pico.css as much as possible** for foun
 
 ## Current Tasks (ImageGlitch-Specific)
 
-- [ ] **Build Pipeline:** Wire ImageGlitch into the build pipeline (e.g., create `build-imageglitch.js`).
+- [x] **Build Pipeline:** Wired ImageGlitch into the build pipeline (e.g., created `build-imageglitch.js`).
 - [ ] **Documentation:** Document the build usage in this README once implemented.
-- [ ] **UI Consistency:** Update UI elements to use the standardized classes from `memory-bank/forever/designSystem.md` (e.g., `.summon-button`).
+- [x] **UI Consistency:** Updated UI elements to use the standardized classes from `memory-bank/forever/design-system.md` (e.g., `.summon-button`).

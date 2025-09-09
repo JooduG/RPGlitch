@@ -29,7 +29,8 @@
     "build": "npm run build:combine && npm run build:hub",
     "build:combine": "node build/scripts/build-combine.js",
     "build:copy": "node build/scripts/build-and-copy.js",
-    "build:hub": "node build/scripts/sync-hub.js"
+    "build:hub": "node build/scripts/sync-hub.js",
+    "build:imageglitch": "node build/scripts/build-imageglitch.js"
   },
   "keywords": [
     "ai",
