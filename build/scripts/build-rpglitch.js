@@ -83,6 +83,16 @@ function injectJs(html, js) {
   return html.replace('</body>', `${scriptTag}</body>`);
 }
 
+function stripUmdWrapper(jsContent) {
+  // This regex attempts to capture the inner IIFE content of a UMD bundle.
+  // It's a simplified version and might need adjustment for other UMD patterns.
+  const match = jsContent.match(/\(function\s*\(global,\s*factory\)\s*\{\s*typeof\s*exports\s*===\s*'object'\s*&&\s*typeof\s*module\s*!==\s*'undefined'\s*\?\s*module\.exports\s*=\s*factory\(\)\s*:\s*typeof\s*define\s*===\s*'function'\s*&&\s*define\.amd\s*\?\s*define\(factory\)\s*:\s*\(global\s*=\s*typeof\s*globalThis\s*!==\s*'undefined'\s*\?\s*globalThis\s*:\s*global\s*\|\|\s*self,\s*global\.(\w+)\s*=\s*factory\(\)\);\s*\}\s*\)\(this,\s*\(function\s*\(\s*\)\s*\{\s*'use strict';([\s\S]*)\}\s*\)\);\s*$/);
+  if (match && match[2]) {
+    return match[2].trim();
+  }
+  return jsContent; // Return original if no UMD wrapper found
+}
+
 async function bundleAndMinifyJs() {
   const libs = [
     LOCAL_LIBS.cash.file,
@@ -94,7 +104,12 @@ async function bundleAndMinifyJs() {
   const allFiles = [...libs, ...APP_JS_FILES];
   const codeMap = {};
   for (const p of allFiles) {
-    codeMap[p] = readFileSafe(p, `JS file ${path.basename(p)}`);
+    let fileContent = readFileSafe(p, `JS file ${path.basename(p)}`);
+    // Apply UMD stripping for known UMD-wrapped libraries
+    if (path.basename(p) === 'dexie.js') {
+      fileContent = stripUmdWrapper(fileContent);
+    }
+    codeMap[p] = fileContent;
   }
 
   const result = await terser.minify(codeMap, {
