@@ -26,11 +26,12 @@
     "lint:md:fix": "markdownlint-cli2 --config .markdownlint-cli2.jsonc --fix --ignore '**/node_modules/**' --ignore 'memory-bank/archive/**'",
     "test": "jest",
     "//--- BUILDING ---": "",
-    "build": "npm run build:combine && npm run build:hub",
+    "build": "npm run build:combine && npm run build:hub && build:imageglitch && build:rpglitch",
     "build:combine": "node build/scripts/build-combine.js",
     "build:copy": "node build/scripts/build-and-copy.js",
     "build:hub": "node build/scripts/sync-hub.js",
-    "build:imageglitch": "node build/scripts/build-imageglitch.js"
+    "build:imageglitch": "node build/scripts/build-imageglitch.js",
+    "build:rpglitch": "node build/scripts/build-rpglitch.js"
   },
   "keywords": [
     "ai",
