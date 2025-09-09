@@ -21,7 +21,7 @@ function loadApp(dom) {
   const utilsScript = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
   dom.window.eval(utilsScript);
   const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/index.js'), 'utf8');
-  dom.window.eval(script);
+  new Function(script)();
   if (typeof dom.window.App._getUIElements !== 'function') {
 dom.window.App._getUIElements = jest.fn();
   }
