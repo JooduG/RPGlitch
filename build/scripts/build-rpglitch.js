@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const sass = require('sass');
-const terser = require('terser');
+const esbuild = require('esbuild');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const APP_DIR = path.join(ROOT, 'apps', 'rpglitch');
@@ -23,14 +23,6 @@ const LOCAL_LIBS = {
   dompurify: { file: 'purify.min.js' },
   hyperscript: { file: '_hyperscript.min.js' },
 };
-
-const APP_JS_FILES = [
-  'utils.js',
-  'entities.js',
-  'entity-form.js',
-  'profile-router.js',
-  'index.js',
-].map(f => path.join(APP_JS_DIR, f));
 
 const SRC_HTML = path.join(APP_DIR, 'html', 'index.html');
 const ENTRY_SCSS = path.join(APP_DIR, 'scss', 'index.scss');
@@ -83,51 +75,27 @@ function injectJs(html, js) {
   return html.replace('</body>', `${scriptTag}</body>`);
 }
 
-function stripUmdWrapper(jsContent) {
-  // This regex attempts to capture the inner IIFE content of a UMD bundle.
-  // It's a simplified version and might need adjustment for other UMD patterns.
-  const match = jsContent.match(/\(function\s*\(global,\s*factory\)\s*\{\s*typeof\s*exports\s*===\s*'object'\s*&&\s*typeof\s*module\s*!==\s*'undefined'\s*\?\s*module\.exports\s*=\s*factory\(\)\s*:\s*typeof\s*define\s*===\s*'function'\s*&&\s*define\.amd\s*\?\s*define\(factory\)\s*:\s*\(global\s*=\s*typeof\s*globalThis\s*!==\s*'undefined'\s*\?\s*globalThis\s*:\s*global\s*\|\|\s*self,\s*global\.(\w+)\s*=\s*factory\(\)\);\s*\}\s*\)\(this,\s*\(function\s*\(\s*\)\s*\{\s*'use strict';([\s\S]*)\}\s*\)\);\s*$/);
-  if (match && match[2]) {
-    return match[2].trim();
-  }
-  return jsContent; // Return original if no UMD wrapper found
-}
-
 async function bundleAndMinifyJs() {
-  const libs = [
-    LOCAL_LIBS.cash.file,
-    LOCAL_LIBS.dexie.file,
-    LOCAL_LIBS.dompurify.file,
-    LOCAL_LIBS.hyperscript.file,
-  ].map(f => path.join(LOCAL_LIBS_DIR, f));
-  
-  const allFiles = [...libs, ...APP_JS_FILES];
-  const codeMap = {};
-  for (const p of allFiles) {
-    let fileContent = readFileSafe(p, `JS file ${path.basename(p)}`);
-    // Apply UMD stripping for known UMD-wrapped libraries
-    if (path.basename(p) === 'dexie.js') {
-      fileContent = stripUmdWrapper(fileContent);
-    }
-    codeMap[p] = fileContent;
-  }
-
-  const result = await terser.minify(codeMap, {
-    sourceMap: false,
-    mangle: {
-      toplevel: true,
-    },
-    compress: {
-      toplevel: true,
-    },
-  });
-
-  if (result.error) {
-    console.error('❌ Terser minification failed:', result.error);
+  const entryPoint = path.join(APP_JS_DIR, 'index.js');
+  if (!fs.existsSync(entryPoint)) {
+    console.error(`❌ Entry point not found: ${entryPoint}`);
     return '';
   }
-  
-  return result.code;
+
+  try {
+    const result = await esbuild.build({
+      entryPoints: [entryPoint],
+      bundle: true,
+      minify: true,
+      write: false, // returns the result as a string
+      format: 'iife',
+      globalName: 'App',
+    });
+    return result.outputFiles[0].text;
+  } catch (err) {
+    console.error('❌ esbuild bundling failed:', err);
+    return '';
+  }
 }
 
 (async function main() {
