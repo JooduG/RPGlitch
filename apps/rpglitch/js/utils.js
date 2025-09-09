@@ -809,13 +809,16 @@ function sync() {
 }
 
 function closeAll() {
+  if (chinObserver) chinObserver.disconnect(); // Disconnect before changes
   getPanels().forEach((p) => p.setAttribute("hidden", ""));
   sync();
+  if (chinObserver) initChinObserver(); // Reconnect after changes
   log?.('chin.closeAll');
 }
 
 function open(name) {
   if (!name) return;
+  if (chinObserver) chinObserver.disconnect(); // Disconnect before changes
   const panels = getPanels();
   panels.forEach((p) => {
     if (p.dataset.chin === name) {
@@ -829,6 +832,7 @@ function open(name) {
     }
   });
   sync();
+  if (chinObserver) initChinObserver(); // Reconnect after changes
   log?.('chin.open', {
     name
   });
@@ -888,14 +892,14 @@ function initChin() {
     chinBound = true;
   }
   // Removed document-level outside click in favor of in-container backdrop
-  // Ensure only one active MutationObserver tracks hidden-state changes
-  try {
-    if (chinObserver && typeof chinObserver.disconnect === "function") {
-      chinObserver.disconnect();
-    }
-  } catch { /* noop */ }
+  export let chinObserver = null; // Make it exportable
+
+function initChinObserver() {
+  if (chinObserver) {
+    chinObserver.disconnect();
+  }
   const observer = new MutationObserver(sync);
-  let chinObserver = observer;
+  chinObserver = observer; // Assign to the exported variable
   getPanels().forEach((p) =>
     observer.observe(p, {
       attributes: true,
@@ -908,8 +912,57 @@ function initChin() {
       attributes: true,
       attributeFilter: ["hidden"]
     });
+  log?.('chin.initObserver: listeners attached');
+}
+
+function initChin() {
+  const doc = document;
+  // Ensure backdrop exists and is clickable to close all
+  const cont = document.querySelector("#chin-container");
+  if (cont && !document.querySelector("#chin-backdrop")) {
+    const bd = doc.createElement('div');
+    bd.id = 'chin-backdrop';
+    bd.setAttribute('hidden', '');
+    bd.setAttribute('aria-hidden', 'true');
+    cont.prepend(bd);
+  }
+  const bd = document.querySelector("#chin-backdrop");
+  if (bd && !bd._bound) {
+    bd.addEventListener('click', () => {
+      try {
+        log('chin.backdrop: click detected, closing all chins');
+        closeAll();
+        dismissLoadingUI?.();
+      } catch {
+        void 0;
+      }
+    });
+    bd._bound = true;
+  }
+  const buttons = getButtons();
+  buttons.forEach((btn) => {
+    if (btn._chinBound) return; // idempotent
+    btn.addEventListener("click", () => {
+      const name = btn.dataset.chin;
+      const panel = [...getPanels()].find((p) => p.dataset.chin === name);
+      const hidden = panel?.hasAttribute("hidden");
+      if (hidden) open(name);
+      else close(name);
+    });
+    btn._chinBound = true;
+  });
+  if (!chinBound) {
+    doc.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeAll();
+    });
+    chinBound = true;
+  }
+  // Removed document-level outside click in favor of in-container backdrop
+  // Ensure only one active MutationObserver tracks hidden-state changes
+  initChinObserver(); // Call the new function
   sync();
   log?.('chin.init: listeners attached');
+}
 }
 
 export const chin = {
