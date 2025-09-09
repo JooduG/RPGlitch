@@ -26,7 +26,7 @@
     "lint:md:fix": "markdownlint-cli2 --config .markdownlint-cli2.jsonc --fix --ignore '**/node_modules/**' --ignore 'memory-bank/archive/**'",
     "test": "jest",
     "//--- BUILDING ---": "",
-    "build": "npm run build:combine && npm run build:hub && build:imageglitch && build:rpglitch",
+    "build": "npm run build:rpglitch",
     "build:combine": "node build/scripts/build-combine.js",
     "build:copy": "node build/scripts/build-and-copy.js",
     "build:hub": "node build/scripts/sync-hub.js",

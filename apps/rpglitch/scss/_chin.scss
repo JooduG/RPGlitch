@@ -29,12 +29,20 @@
 }
 
 /* Backdrop behind open chin, restricted to the container area */
-#chin-backdrop {
-  position: absolute;
+details.dropdown[open] summary::before {
+  display: block;
+  z-index: 1;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
   inset: 0;
-  background: transparent; /* keep visuals unchanged */
-  z-index: 9998; /* just below .chin */
-  pointer-events: none; /* JS enables when any chin is open */
+  background: 0 0;
+  content: "";
+  cursor: default;
+}
+
+body.chin-open details.dropdown[open] summary::before {
+  pointer-events: none;
 }
 
 #chin-backdrop[hidden] {

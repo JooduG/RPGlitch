@@ -56,6 +56,7 @@ afterEach(() => {
 
 test('initializeDb uses default db name when window.dbName is undefined', async () => {
   const { App, dom } = await loadApp();
+  dom.window.dbName = 'rpglitch-db'; // Set dbName here
   App.initialLoad = jest.fn().mockResolvedValue();
   App._attachStoryboardEventListeners = jest.fn();
   await App.initializeWhenReady();

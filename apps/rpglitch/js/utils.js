@@ -125,6 +125,11 @@ export function dismissLoadingUI() {
         el.style.pointerEvents = 'none';
         el.style.display = 'none';
       });
+    // Explicitly hide the watchdog indicator if it's visible
+    const guardIndicator = doc.querySelector('#rpglitch-guard-indicator');
+    if (guardIndicator) {
+      guardIndicator.style.display = 'none';
+    }
     // Aggressively ensure main containers are interactive
     const roots = [
       doc.documentElement,
@@ -153,9 +158,19 @@ export function dismissLoadingUI() {
       } catch {
         void 0;
       }
-      if (el === doc.body) {
+      if (el === doc.body || el === doc.documentElement) {
         try {
           el.style.overflow = 'auto';
+          el.style.position = '';
+          el.style.zIndex = '';
+          el.style.top = '';
+          el.style.left = '';
+          el.style.right = '';
+          el.style.bottom = '';
+          el.style.width = '';
+          el.style.height = '';
+          el.style.transform = '';
+          el.style.filter = '';
         } catch {
           void 0;
         }
@@ -401,18 +416,25 @@ export function startUIWatchdog() {
       const st = isDialogOpen?.() || {
         blocked: false
       };
+      log?.('ui.watchdog: tick', st);
+      // If the blocking node is our own guard indicator, don't report it as blocked
+      if (st.blocked && st.node && st.node.id === 'rpglitch-guard-indicator') {
+        st.blocked = false;
+      }
       if (st.blocked) {
         if (lastBlocked !== true) {
           // Always surface first detection once for diagnostics
           try {
             console.log('[RPGlitch] ui.watchdog: blocked', {
-              reason: st.reason
+              reason: st.reason,
+              node: describe(st.node)
             });
           } catch {
             void 0;
           }
           log?.('ui.watchdog: blocked', {
-            reason: st.reason
+            reason: st.reason,
+            node: describe(st.node)
           });
         }
         // Attempt to self-heal our own overlays
@@ -838,6 +860,7 @@ function initChin() {
   if (bd && !bd._bound) {
     bd.addEventListener('click', () => {
       try {
+        log('chin.backdrop: click detected, closing all chins');
         closeAll();
         dismissLoadingUI?.();
       } catch {

@@ -281,7 +281,7 @@ function renderList(containerId, key) {
     if (titleEl) titleEl.textContent = item.title || item.name || "Empty";
 
     const badge = card.querySelector(".badge");
-    if (badge) badge.hidden = true;
+    if (badge) badge.hidden = !item.isPremade;
 
     const descEl = card.querySelector(".description");
     if (descEl) {
@@ -816,41 +816,26 @@ function _setupStoryboardTitle() {
 function populateStoryboardSelects() {
   const configs = [{
     id: "storyboard-ai-select",
-    type: "character"
+    key: "characters"
   }, {
     id: "storyboard-user-select",
-    type: "character"
+    key: "characters"
   }, {
     id: "storyboard-world-select",
-    type: "world"
+    key: "worlds"
   }, ];
   configs.forEach(({
     id,
-    type
+    key
   }) => {
+    renderDropdown(id, key); // Use the existing renderDropdown function
     const select = document.querySelector(`#${id}`);
-    if (!select) return;
-    const placeholder = select.dataset.placeholder || "";
-    select.textContent = "";
-    const ph = document.createElement("option");
-    ph.value = "";
-    ph.textContent = placeholder;
-    select.appendChild(ph);
-    const list = entities.list(type) || [];
-    list.forEach((entity) => {
-      const opt = document.createElement("option");
-      opt.value = entity.id;
-      opt.textContent = entity.title || "";
-      opt.dataset.desc = entity.description || "";
-      opt.dataset.brand = entity.palette || "";
-      opt.dataset.image = entity.imageUrl || entity.image || "";
-      if (entity.isPremade) opt.dataset.premade = "1";
-      select.appendChild(opt);
-    });
-    select.addEventListener("change", onStoryboardChange);
-    onStoryboardChange({
-      target: select
-    });
+    if (select) {
+      select.addEventListener("change", onStoryboardChange);
+      onStoryboardChange({
+        target: select
+      });
+    }
   });
 }
 
@@ -1026,6 +1011,13 @@ export function _attachContentChinActions() {
         reader.readAsText(file);
       });
     }
+  });
+
+  // Add event listeners for the new close buttons
+  document.querySelectorAll(".chin-close-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      chin.closeAll();
+    });
   });
 
   _contentListenersAttached = true;

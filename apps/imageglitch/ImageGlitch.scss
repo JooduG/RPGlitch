@@ -41,6 +41,7 @@ body {
 h1, legend {
   display: none;
 }
+
 fieldset {
   background-color: transparent;
   border: none;
@@ -433,7 +434,6 @@ textarea::placeholder, input::placeholder {
   pointer-events: auto !important;
   overflow: hidden;
   backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
 }
 
 .prompt-display {
@@ -455,7 +455,6 @@ textarea::placeholder, input::placeholder {
   padding: 8px 16px;
   box-sizing: border-box;
   pointer-events: auto !important;
-  backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 
