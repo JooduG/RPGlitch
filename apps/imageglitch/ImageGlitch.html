@@ -414,7 +414,7 @@
 
       if (Math.random() < 0.1) {
         const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=1280&seed=${blockSeed}&model=flux&private=true&enhance=true&safe=false&nologo=true`;
-        outputHtml += `<div class="block solo-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}"><img src="${imgUrl}" loading="lazy" alt="Generated image"></div>`;
+        outputHtml += `<div class="block solo-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}"><img src="${imgUrl}" loading="lazy" alt="Generated image" crossorigin="anonymous"></div>`;
       } else {
         outputHtml += `<div class="block quad-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}">`;
         
