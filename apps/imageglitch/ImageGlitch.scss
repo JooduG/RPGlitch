@@ -51,7 +51,7 @@ textarea, input, select, button {
   background-color: var(--color-surface);
   font-family: inherit;
   transition: all 0.2s ease-in-out;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px color(rgba(0,0,0,0.1));
 }
 
 button, select {
