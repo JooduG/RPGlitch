@@ -607,7 +607,7 @@ function rerollImage(container, resolution) {
   }
 }
 
-function checkAllButtonStates() {
+const isButtonDisabled = () => promptIsEmpty || instructionsIsEmpty; summonBtn.disabled = isButtonDisabled();
   const summonBtn = document.getElementById('summonBtn');
   const aiMagicSelect = document.getElementById('aiMagicSelect');
   const promptIsEmpty = !(mainPromptContent || "").trim();
