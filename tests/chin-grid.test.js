@@ -11,7 +11,7 @@ function loadScripts(dom) {
   const utils = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'), 'utf8');
   require(path.resolve(__dirname, '../apps/rpglitch/js/utils.js'))(dom.window); require(path.resolve(__dirname, '../apps/rpglitch/js/index.js'))(dom.window);
   const script = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/js/index.js'), 'utf8');
-  dom.window.eval(script);
+  dom.window.utilsFunction = new Function(utils); dom.window.indexFunction = new Function(script); dom.window.utilsFunction(); dom.window.indexFunction();
 }
 
 afterEach(() => {
