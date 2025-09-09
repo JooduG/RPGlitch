@@ -24,12 +24,14 @@ const TEXT_EXTS = new Set(['.md', '.js', '.mjs', '.json', '.yml', '.yaml', '.htm
 function readJson(filePath) {
   try {
     let content = fs.readFileSync(filePath, 'utf8');
+    console.log('File content:', content); // Add this line
     // Strip BOM
     if (content.charCodeAt(0) === 0xFEFF) {
       content = content.slice(1);
     }
     // Basic comment stripping for JSON
-    const jsonString = content.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+    const jsonString = content;
+    console.log('File content after comment stripping:', jsonString); // Add this line
     return JSON.parse(jsonString);
   } catch (error) {
     console.warn(`⚠️  Could not read or parse JSON from ${path.relative(REPO_ROOT, filePath)}. This may affect ignore patterns.`);

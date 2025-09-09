@@ -106,8 +106,8 @@
 }
 
 /* Hide focus ring if a chin is closed */
-details:not([open]) .button--focused,
-.chin[hidden] .button--focused {
+details:not([open]) .button-focused,
+.chin[hidden] .button-focused {
   outline: none;
   box-shadow: none;
 }

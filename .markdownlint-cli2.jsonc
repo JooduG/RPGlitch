@@ -24,6 +24,7 @@
     "/node_modules",
     ".markdownlint.json",
     "build/config/.markdownlintignore",
-    "memory-bank/scribbles.md"
+    "memory-bank/scribbles.md",
+    "build/output/**"
   ]
 }

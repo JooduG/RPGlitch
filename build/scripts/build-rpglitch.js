@@ -100,10 +100,10 @@ async function bundleAndMinifyJs() {
   const result = await terser.minify(codeMap, {
     sourceMap: false,
     mangle: {
-      toplevel: false,
+      toplevel: true,
     },
     compress: {
-      toplevel: false,
+      toplevel: true,
     },
   });
 

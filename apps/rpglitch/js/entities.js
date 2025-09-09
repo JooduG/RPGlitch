@@ -1,4 +1,5 @@
 /* global DOMPurify */
+const allowedProperties = [];
 const premade = {
   stories: [],
   characters: [{

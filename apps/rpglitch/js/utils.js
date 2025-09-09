@@ -172,7 +172,14 @@ export function dismissLoadingUI() {
 }
 
 // ---------- UI Block Detection / Watchdog ----------
-const isDialogOpen = () => document.querySelector('dialog[open]:not(#emergency-modal)');
+const isDialogOpen = () => {
+  const dialogQuery = document.querySelector('dialog[open]:not(#emergency-modal)');
+  if (dialogQuery) return {
+    blocked: true,
+    reason: 'dialog-open',
+    node: dialogQuery
+  };
+
   try {
     const doc = document;
     // Any open non-emergency dialog
@@ -273,7 +280,7 @@ const isDialogOpen = () => document.querySelector('dialog[open]:not(#emergency-m
       blocked: false
     };
   }
-}
+};;;;;;;;
 
 let uiWatchdogTimer = null;
 export let _uiWatchdogStarted = false;
@@ -391,7 +398,7 @@ export function startUIWatchdog() {
       }
     };
     const tick = () => {
-      const st = isUIBlocked?.() || {
+      const st = isDialogOpen?.() || {
         blocked: false
       };
       if (st.blocked) {

@@ -31,21 +31,21 @@ $gradient-color-4: #2a1a3a;
 }
 
 /* Each palette exposes ONE base color + useful derivatives */
-.palette--pink {
+.palette-pink {
   --brand: #ec4899;
   --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
   --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
   --brand-contrast: var(--brand-text-on);
 }
 
-.palette--emerald {
+.palette-emerald {
   --brand: #10b981;
   --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
   --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
   --brand-contrast: var(--brand-text-on);
 }
 
-.palette--cyan {
+.palette-cyan {
   --brand: #06b6d4;
   --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
   --brand-20: color-mix(in srgb, var(--brand), transparent 80%);

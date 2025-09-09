@@ -128,10 +128,12 @@ document.addEventListener(
   }
 );
 
-export const router = {
+window.router = {
   navigate(hash) {
     location.hash = hash;
   },
   parseHash,
   handleRoute,
 };
+
+

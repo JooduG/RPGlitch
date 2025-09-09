@@ -1,4 +1,4 @@
-MCP configuration refresh (2025-08-26)
+# MCP configuration refresh (2025-08-26)
 
 Changes:
 

@@ -68,6 +68,7 @@ node build/scripts/build-rpglitch.js
 - [x] **Chin Close Behavior**: Outside‑click defers then closes safely; ESC to close
 - [x] **UI Safety Guards**: Overlay dismissor, watchdog, recovery hooks, and attribute observer
 - [x] **Router Hardening**: Close chins on Profile/Form; default unknown routes to Stories
+- [x] **IndexedDB Integration**: Replaced localStorage with Dexie.js for persistent data storage
 
 ## Chin UX & Safety
 

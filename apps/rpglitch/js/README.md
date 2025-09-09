@@ -17,7 +17,7 @@ globs:
 ### Referenced Rules from `rules/`
 
 - **[js-modern-guide.md](../../../rules/js-modern-guide.md)** - Modern vanilla JavaScript development index and quick reference
-- **[js-dom.guide.md](../../../rules/js-dom.guide.md)** - Cash DOM for concise, readable JavaScript in Perchance projects
+- **[js-dom.guide.md](../../../rules/js-dom.guide.md)** - Cash DOM for concise, readable JavaScript in Perchance projects (Note: Full migration to Cash DOM is an ongoing task, see "Cash DOM Migration" below.)
 - **[js-storage-guide.md](../../../rules/js-storage-guide.md)** - Dexie.js for IndexedDB management in Perchance projects
 - **[js-dom.guide.md](../../../rules/js-dom.guide.md)** - Modern DOM APIs and manipulation patterns for vanilla JavaScript
 - **[js-ecosystem-overview.md](../../../rules/js-ecosystem-overview.md)** - Unified JavaScript ecosystem decision framework
@@ -59,4 +59,4 @@ globs:
 
 - [x] **Initial JavaScript Structure**: Created basic JavaScript structure for RPGlitch
 - [x] **Character Creation Logic**: Implemented basic character creation functionality
-- [x] **Local Storage Setup**: Added localStorage for basic data persistence
+- [x] **IndexedDB Setup**: Migrated from localStorage to IndexedDB with Dexie.js for data persistence

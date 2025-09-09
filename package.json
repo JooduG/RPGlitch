@@ -17,17 +17,18 @@
     "//--- LINTING & TESTING ---": "",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:html && npm run lint:md",
     "lint:fix": "npm run lint:js:fix && npm run lint:css:fix && npm run lint:md:fix",
-    "lint:js": "eslint .",
-    "lint:js:fix": "eslint . --fix",
-    "lint:css": "stylelint \"**/*.scss\"",
-    "lint:css:fix": "stylelint \"**/*.scss\" --fix",
+    "lint:js": "eslint -c build/config/.eslintrc.js .",
+    "lint:js:fix": "eslint -c build/config/.eslintrc.js . --fix",
+    "lint:css": "stylelint \"**/*.scss\" --config build/config/.stylelintrc.json",
+    "lint:css:fix": "stylelint \"**/*.scss\" --config build/config/.stylelintrc.json --fix",
     "lint:html": "htmlhint \"**/*.html\"",
-    "lint:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc",
-    "lint:md:fix": "markdownlint-cli2 --config .markdownlint-cli2.jsonc --fix",
+    "lint:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc --ignore '**/node_modules/**' --ignore 'memory-bank/archive/**'",
+    "lint:md:fix": "markdownlint-cli2 --config .markdownlint-cli2.jsonc --fix --ignore '**/node_modules/**' --ignore 'memory-bank/archive/**'",
     "test": "jest",
     "//--- BUILDING ---": "",
     "build": "npm run build:combine && npm run build:hub",
     "build:combine": "node build/scripts/build-combine.js",
+    "build:copy": "node build/scripts/build-and-copy.js",
     "build:hub": "node build/scripts/sync-hub.js"
   },
   "keywords": [
@@ -57,10 +58,13 @@
     "tree-node-cli": "^1.6.0"
   },
   "dependencies": {
+    "@google/gemini-cli": "^0.3.4",
+    "copy-paste": "^2.2.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-n": "^17.21.3",
     "eslint-plugin-promise": "^7.2.1",
     "jsdom": "^24.1.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "terser": "^5.44.0"
   }
 }

@@ -62,12 +62,6 @@ dontDoTheThing();
 
 We follow this rule because it improves performance and reduces errors.
 
-```
-
----
-
-## 3. General Documentation Tips (For `docs/`)
-
 - **Audience is Key:** A user guide (`user-unified-system-guide.md`) should be written differently from a developer guide (`developer-orchestration-guide.md`). Avoid jargon in user-facing docs.
 - **Checklists are Powerful:** For complex processes, convert paragraphs of text into a numbered or bulleted checklist. They are easier to follow for both humans and AI.
 - **Keep it Updated:** Documentation is only useful if it's accurate. When you change code that affects a documented process, update the documentation in the same commit.

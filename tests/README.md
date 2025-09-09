@@ -1,24 +1,31 @@
-# Agent Rules
+# Tests Overview
 
-This directory is the "constitution" for the AI agent. It contains a comprehensive set of machine-readable Markdown files that define the agent's behavior, knowledge, and constraints.
+This directory contains all automated tests for the applications within the JooduG-default monorepo. These tests are crucial for ensuring the quality, stability, and correctness of the codebase.
 
 ## Purpose
 
-These files are not just documentation; they are the functional source code for the agent's "thinking" process. The agent is required to read and adhere to these rules for every task it performs. The `build/scripts/sync-configs.js` script processes these files into a format the agent can consume directly.
+The tests serve several key purposes:
 
-## Contents
+- **Regression Prevention:** Catch bugs introduced by new changes.
+- **Behavioral Verification:** Ensure that features behave as expected.
+- **Code Quality:** Promote better code design and modularity.
+- **AI Development Aid:** Provide a safety net for the AI agent when making modifications, allowing it to verify its changes.
 
-The rules are organized by prefixes into several categories:
+## Structure
 
-- **`html-*.md`**: Rules for writing HTML.
-- **`js-*.md`**: A comprehensive set of guides for writing JavaScript.
-- **`mcp-*.md`**: Meta-rules that govern the agent's core cognitive functions.
-- **`scss-*.md`**: The style guide for writing SCSS.
-- **`system-*.md`**: High-level rules for the repository architecture and documentation.
-- **`thinking-*.md`**: Defines the agent's problem-solving framework.
-- **`/templates`**: Contains templates for generating common documents.
+Tests are organized to mirror the application structure where appropriate.
 
-## How to Use This Folder
+- **Unit Tests:** Focus on individual functions or components in isolation.
+- **Integration Tests:** Verify the interaction between multiple components.
+- **End-to-End Tests:** Simulate user flows to ensure the entire application works correctly.
 
-- **For the Agent:** Before any task, the agent must identify and read all relevant rule files based on the task description, as defined in the Pre-Task Protocol.
-- **For Developers:** When modifying the agent's behavior or updating a coding standard, the corresponding rule file in this directory must be updated. This is the single source of truth.
+## Running Tests
+
+- To run the entire test suite, use the command: `npm test`
+- To run specific tests, you can often pass a path to the test runner (e.g., `npm test -- tests/chin-grid.test.js`).
+
+## Adding New Tests
+
+- When adding new features or fixing bugs, always write corresponding tests.
+- Ensure new tests adhere to the existing testing conventions and style.
+- Consult the relevant `js-*.md` rules for JavaScript testing best practices.

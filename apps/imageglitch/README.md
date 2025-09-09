@@ -1,11 +1,15 @@
+# ImageGlitch
+
 ---
 description: "ImageGlitch sample app; mirrors RPGlitch build flow"
 tags:
-  - imageglitch
-  - perchance
-  - sample
+
+- imageglitch
+- perchance
+- sample
 globs:
-  - "**/*.html"
+- "**/*.html"
+
 ---
 
 ---
@@ -21,8 +25,6 @@ globs:
 - "**/*.scss"
 
 ---
-
-# ImageGlitch
 
 A minimalist Text-to-Image generator built for the Perchance platform, following the same single-file build flow as RPGlitch.
 

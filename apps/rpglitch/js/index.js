@@ -14,11 +14,10 @@ import {
 import {
   entities,
   getPictureHTML,
-  getPremadeItems
+  getPremadeItems,
+  _allItemsCache
 } from './entities.js';
-import {
-  router
-} from './profile-router.js';
+
 
 /* global DOMPurify */
 
@@ -50,58 +49,54 @@ let _bootStarted = false;
 // UI Elements Cache
 const ui = {};
 
-const _getTopBarButtons = () => ui.topBarLeft ? ui.topBarLeft.querySelectorAll("button[data-chin]") : [];
+function _getUIElements() {
   const doc = document;
-  ui.topBarLeft = ui.topBarLeft || doc.querySelector("#top-bar-left");
-  ui.chinContainer = ui.chinContainer || doc.querySelector("#chin-container");
+  const ui = {}; // Initialize ui object inside the function
+
+  ui.topBarLeft = doc.querySelector("#top-bar-left");
+  ui.chinContainer = doc.querySelector("#chin-container");
   ui.topBarButtons =
-    ui.topBarButtons ||
-    (ui.topBarLeft ?
-      ui.topBarLeft.querySelectorAll("button[data-chin]") :
-      []);
+    ui.topBarLeft ?
+    ui.topBarLeft.querySelectorAll("button[data-chin]") :
+    [];
   ui.topBarRightStoryboard =
-    ui.topBarRightStoryboard ||
     doc.querySelector("#top-bar-right-storyboard");
   ui.topBarRightForm =
-    ui.topBarRightForm || doc.querySelector("#top-bar-right-form");
+    doc.querySelector("#top-bar-right-form");
   ui.topBarRightProfile =
-    ui.topBarRightProfile || doc.querySelector("#top-bar-right-profile");
+    doc.querySelector("#top-bar-right-profile");
 
   // Option chin actions
   ui.uploadBackupInput =
-    ui.uploadBackupInput || doc.querySelector("#upload-backup");
+    doc.querySelector("#upload-backup");
   ui.uploadBackupTrigger =
-    ui.uploadBackupTrigger ||
     doc.querySelector('[data-trigger="upload-backup"]');
   ui.downloadBackupButton =
-    ui.downloadBackupButton || doc.querySelector("#download-backup");
+    doc.querySelector("#download-backup");
   ui.deleteAllDataButton =
-    ui.deleteAllDataButton || doc.querySelector("#delete-all-data");
+    doc.querySelector("#delete-all-data");
 
   // Story chin actions
-  ui.newStoryButton = ui.newStoryButton || doc.querySelector("#new-story");
+  ui.newStoryButton = doc.querySelector("#new-story");
   ui.uploadStoryTrigger =
-    ui.uploadStoryTrigger ||
     doc.querySelector('[data-trigger="upload-story"]');
   ui.uploadStoryInput =
-    ui.uploadStoryInput || doc.querySelector("#upload-story");
+    doc.querySelector("#upload-story");
 
   // Character chin actions
   ui.newCharacterButton =
-    ui.newCharacterButton || doc.querySelector("#new-character");
+    doc.querySelector("#new-character");
   ui.uploadCharacterTrigger =
-    ui.uploadCharacterTrigger ||
     doc.querySelector('[data-trigger="upload-character"]');
   ui.uploadCharacterInput =
-    ui.uploadCharacterInput || doc.querySelector("#upload-character");
+    doc.querySelector("#upload-character");
 
   // World chin actions
-  ui.newWorldButton = ui.newWorldButton || doc.querySelector("#new-world");
+  ui.newWorldButton = doc.querySelector("#new-world");
   ui.uploadWorldTrigger =
-    ui.uploadWorldTrigger ||
     doc.querySelector('[data-trigger="upload-world"]');
   ui.uploadWorldInput =
-    ui.uploadWorldInput || doc.querySelector("#upload-world");
+    doc.querySelector("#upload-world");
 
   return ui;
 }
@@ -149,7 +144,7 @@ function resetStoryboard() {
   // placeholder for future storyboard reset logic
 }
 
-const _allItemsCache = {};
+
 
 function getAllItems(key, refresh = false) {
   if (!refresh && Array.isArray(_allItemsCache[key]))
@@ -252,9 +247,7 @@ function renderList(containerId, key) {
         media.prepend(maybe);
       } else if (typeof maybe === "string") {
         const t = document.createElement("template");
-        t.innerHTML = DOMPurify ?
-          t.innerHTML = DOMPurify ? document.createTextNode(DOMPurify.sanitize(maybe.trim())).textContent : maybe.trim();
-          maybe.trim();
+        t.innerHTML = DOMPurify ? DOMPurify.sanitize(maybe.trim()) : maybe.trim();
         const node = t.content.firstElementChild;
         if (node) media.prepend(node);
       }
@@ -561,11 +554,7 @@ function _attachCardNavigation() {
   _cardNavAttached = true;
 }
 
-if (!target || target.tagName !== "SELECT") return;
-  target,
-  entityOrKey,
-  opts = {}
-) {
+function updateStoryboardCard(target, entityOrKey, opts = {}) {
   let card, entity;
 
   if (target && target.tagName === "SELECT") {
@@ -605,9 +594,9 @@ if (!target || target.tagName !== "SELECT") return;
     descEl.dataset.placeholder = descEl.textContent || "";
   }
 
-  const hasEntity = !!(ent && (ent.id || ent.title || ent.name)) && !isEmpty;
+  const buildPictureNode = (ent, {
     preferTemplateForEmpty = true
-  } = {}) {
+  } = {}) => {
     const kind = (ent && ent.kind) || "";
     const isEmpty = !ent || !ent.imageUrl;
 
@@ -662,7 +651,7 @@ if (!target || target.tagName !== "SELECT") return;
       img.alt = img.alt || (ent?.kind ? `${ent.kind} image` : "image");
     }
     return out;
-  }
+  };
 
   if (entity) {
     if (descEl) descEl.textContent = entity.description || "";

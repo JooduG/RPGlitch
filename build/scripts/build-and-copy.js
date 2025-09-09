@@ -11,7 +11,7 @@
 const path = require('path');
 const fs = require('fs');
 const { spawnSync } = require('child_process');
-const clipboardy = require('clipboardy');
+const clipboard = require('copy-paste');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const OUTPUT_FILE = path.join(ROOT, 'build', 'output', 'RPGlitch.html');
@@ -57,8 +57,14 @@ function runNode(scriptRelPath, args = []) {
 
     console.log('📋 Copying to clipboard...');
     const fileContent = fs.readFileSync(OUTPUT_FILE, 'utf8');
-    clipboardy.writeSync(fileContent);
-    console.log('✅ Copied to clipboard successfully!');
+    clipboard.copy(fileContent, (err) => {
+      if (err) {
+        console.error('❌ An error occurred during clipboard copy:', err.message);
+        console.error('📋 Clipboard copy failed. Please copy the file content manually from:', OUTPUT_FILE);
+      } else {
+        console.log('✅ Copied to clipboard successfully!');
+      }
+    });
 
   } catch (err) {
     console.error('❌ An error occurred:', err && err.message ? err.message : err);

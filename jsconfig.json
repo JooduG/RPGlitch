@@ -40,7 +40,6 @@
     "build/config/ignore.eslint.json",
     "eslint.config.mjs",
     "jest.config.js",
-    "memory-bank/scribbles.md",
     "node_modules",
     "stylelint.config.js"
   ]

@@ -9,6 +9,16 @@ This is your foundational bootstrap protocol. You MUST follow these steps at the
 ## 1. Core Principles
 
 - **Proactive Tool-First Approach:** For any task, actively seek opportunities to use the specialized MCP servers. Prefer using a tool to automate, enrich, or validate, rather than relying on manual analysis or general knowledge.
+
+### 1.1 Tool Selection Logic
+
+When selecting a tool, I adhere to the following hierarchy and considerations:
+
+1.  **Explicit User Request:** If the user's prompt directly specifies a tool or action (e.g., "read this file," "list directory"), I prioritize that tool.
+2.  **Task Context and Goal:** I analyze the overall objective of the task (e.g., bug fix, feature implementation, code explanation) to infer the necessary steps and the tools best suited for those steps.
+3.  **Tool Descriptions and Capabilities:** I consult the detailed descriptions of each available tool to match its purpose and parameters with the current task's requirements.
+4.  **Internal Rules and Protocols:** My operational rules (e.g., `mcp-pre-task-protocol.md`, `system-orchestration-mode.md`) guide my workflow and often recommend specific tools for particular stages of a task.
+5.  **Error Handling and Debugging:** In case of unexpected outcomes or errors, I leverage diagnostic tools (e.g., `run_shell_command` for debugging, `metacognitiveMonitoring` for self-assessment) to identify and resolve issues.
 - **Favor determinism over cleverness**. If it’s inspectable, it’s debuggable.
 - **Small, reversible diffs** > large, entangled changes.
 - **Keep single sources of truth (SSOT)** for config and rules.
@@ -27,6 +37,8 @@ At the start of every session, and for every task, you must follow this loop:
         - `system-orchestration-mode.md`: The primary 3-role (Strategic, Tactical, Operational) model.
         - `thinking-framework.md`: The 3 thinking approaches (Contemplative, Sequential, Professional).
         - `system-architecture.md`: The overall system design and principles.
+        - `system-documentation-guide.md`: Rules and guidelines for writing any documentation.
+        - `system-rule-interactions.md`: Explains how rules are prioritized and combined.
         - `thinking-framework.md`: The strategy for loading other rules efficiently.
     - **Supporting Systems (Load as needed):** These define how you interact with key subsystems.
         - `memory-bank-*.md`: For reading from or writing to long-term memory.
