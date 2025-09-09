@@ -65,8 +65,7 @@ function injectJs(html, js) {
 
 function stripUmdWrapper(jsContent) {
   // This regex attempts to capture the inner IIFE content of a UMD bundle.
-  // It's a simplified version and might need adjustment for other UMD patterns.
-  const match = jsContent.match(/(?:function\s*\(global,\s*factory\)\s*\{[\s\S]*?\}\)\(this,\s*\(function\s*\(\)\s*\{\s*'use strict';([\s\S]*?)\}\)\|\|\s*function\s*\(\)\s*\{\s*'use strict';([\s\S]*?)\}\)\);/);
+  const match = jsContent.match(/\(function\s*\(\)\s*\{\s*'use strict';([\s\S]*?)\}\)/);
   if (match && match[1]) {
     return match[1].trim();
   }
