@@ -784,12 +784,12 @@ function sync() {
   const bd = document.querySelector("#chin-backdrop");
   if (bd) {
     if (anyOpen) {
-      // bd.removeAttribute('hidden'); // Comment out
-      // bd.style.pointerEvents = 'auto'; // Comment out
+      bd.removeAttribute('hidden');
+      bd.style.pointerEvents = 'auto';
       bd.style.display = 'block'; // Explicitly show
     } else {
-      // bd.setAttribute('hidden', ''); // Comment out
-      // bd.style.pointerEvents = 'none'; // Comment out
+      bd.setAttribute('hidden', '');
+      bd.style.pointerEvents = 'none';
       bd.style.display = 'none'; // Explicitly hide
     }
   }
