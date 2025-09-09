@@ -3,7 +3,6 @@
   "version": "1.0.6",
   "description": "A unified development and deployment workspace for Glitch projects.",
   "private": true,
-  "type": "module",
   "scripts": {
     "deploy": "npm run sync && npm run lint:fix && npm run build && npm run test",
     "//--- SETUP & SYNC ---": "",
@@ -25,7 +24,7 @@
     "lint:html": "htmlhint \"**/*.html\"",
     "lint:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc --ignore '**/node_modules/**' --ignore 'memory-bank/archive/**'",
     "lint:md:fix": "markdownlint-cli2 --config .markdownlint-cli2.jsonc --fix --ignore '**/node_modules/**' --ignore 'memory-bank/archive/**'",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test": "jest",
     "//--- BUILDING ---": "",
     "build": "npm run build:combine && npm run build:hub",
     "build:combine": "node build/scripts/build-combine.js",
@@ -41,10 +40,7 @@
   "author": "JooduG",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.28.4",
-    "@babel/preset-env": "^7.28.3",
     "@eslint/js": "^9.35.0",
-    "babel-jest": "^30.1.2",
     "dotenv": "^16.4.5",
     "eslint": "^9.6.0",
     "eslint-plugin-jest": "^28.6.0",
