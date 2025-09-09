@@ -127,7 +127,7 @@ function loadSavedSettings() {
     }
 
     if (localStorage.masterCreativity) {
-      masterCreativity = Number(localStorage.masterCreativity);
+      let masterCreativity = Number(localStorage.masterCreativity);
       document.getElementById('masterCreativitySlider').value = masterCreativity;
     }
 
