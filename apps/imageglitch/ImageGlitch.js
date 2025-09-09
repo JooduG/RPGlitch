@@ -1,4 +1,4 @@
-// Helper function to safely decode URI components
+// Move the safeDecodeURIComponent function to a separate file (e.g., utils.js)
 function safeDecodeURIComponent(str) {
   try {
     return decodeURIComponent(str);
