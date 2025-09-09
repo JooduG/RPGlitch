@@ -125,9 +125,4 @@ describe('Glob Pattern Matching', () => {
     });
 });
 
-// Run tests if called directly
-if (require.main === module) {
-    testGlobMatching();
-}
-
-module.exports = { testGlobMatching, matchesGlob, rules, testFiles };
+// The script can be run directly to see the output, but the Jest tests are the primary validation method.
