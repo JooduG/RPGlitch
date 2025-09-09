@@ -6,6 +6,19 @@
 
 ---
 
+## Basic Memory & MCP Integration
+
+This project leverages the **Basic Memory MCP** as its core knowledge management system. This system organizes project documentation and context across distinct temporal directories:
+
+*   **`/memory-bank/past`**: Archives completed tasks, historical context, and past decisions.
+*   **`/memory-bank/present`**: Contains documents and notes relevant to the *current, active task*.
+*   **`/memory-bank/future`**: Holds planning documents for upcoming tasks and long-term goals.
+*   **`/memory-bank/forever`**: Stores foundational principles, core identity rules, and critical evergreen guides.
+
+For a detailed understanding of the memory workflow and how the agent interacts with these directories, refer to the [Basic Memory MCP Rule](rules/mcp-basic-memory.md).
+
+---
+
 ## Live Plans & Blueprints
 
 - `present/rpglitch-core-execution-plan.md`
@@ -24,6 +37,9 @@
 
 - `present/chin-lockup-hardening-2025-08-27.md`
   Overlay guard + watchdog + attribute observer, chin alignment/close behavior, and router safety notes.
+
+- `present/chin-button-sync-summary.md`
+  Summary of the chin close button implementation and MutationObserver fix.
 
 ## Context Snapshot
 
