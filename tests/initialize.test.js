@@ -29,7 +29,7 @@ dom.window.App._getUIElements = jest.fn();
 }
 
 test('initializeWhenReady runs without errors', async () => {
-  const html = fs.readFileSync(path.resolve(__dirname, '../apps/rpglitch/html/index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '../apps/rpglitch/html/index.html'), 'utf8');
   const dom = new JSDOM(html, { runScripts: 'outside-only' });
   const App = loadApp(dom);
   App.initialLoad = jest.fn().mockResolvedValue();
