@@ -784,11 +784,9 @@ function sync() {
     if (anyOpen) {
       bd.removeAttribute('hidden');
       bd.style.pointerEvents = 'auto';
-      bd.style.display = 'block'; // Explicitly show
     } else {
       bd.setAttribute('hidden', '');
       bd.style.pointerEvents = 'none';
-      bd.style.display = 'none'; // Explicitly hide
     }
   }
   if (anyOpen) {
@@ -834,12 +832,38 @@ function open(name) {
 
 function close(name) {
   if (!name) return;
-  const panel = [...getPanels()].find((p) => p.dataset.chin === name);
-  if (panel) {
-    panel.setAttribute("hidden", "");
-  }
+  const panels = getPanels();
+  panels.forEach((p) => {
+    if (p.dataset.chin === name) {
+      p.setAttribute("hidden", "");
+    }
+  });
   sync();
-  log?.('chin.close', { name });
+  if (chinObserver) initChinObserver();
+  log?.('chin.close', {
+    name
+  });
+}
+
+function initChinObserver() {
+  if (chinObserver) {
+    chinObserver.disconnect();
+  }
+  const observer = new MutationObserver(sync);
+  chinObserver = observer; // Assign to the exported variable
+  getPanels().forEach((p) =>
+    observer.observe(p, {
+      attributes: true,
+      attributeFilter: ["hidden"]
+    })
+  );
+  const cont2 = document.querySelector("#chin-container");
+  if (cont2)
+    observer.observe(cont2, {
+      attributes: true,
+      attributeFilter: ["hidden"]
+    });
+  log?.('chin.initObserver: listeners attached');
 }
 
 function toggle(name) {
@@ -895,7 +919,13 @@ function initChin() {
     });
     chinBound = true;
   }
-  sync();
+
+  // Removed document-level outside click in favor of in-container backdrop
+  
+
+
+
+
 }
 
 export const chin = {
