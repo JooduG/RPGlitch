@@ -1044,7 +1044,7 @@ export async function initializeWhenReady() {
       chin.open?.('stories');
     } catch { /* ignore */ }
     try {
-      // dismissLoadingUI?.(); // Commented out for testing
+      dismissLoadingUI?.();
     } catch {
       void 0;
     }
