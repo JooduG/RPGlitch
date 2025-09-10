@@ -64,9 +64,10 @@ test('top bar click triggers chin toggle without duplicate handlers', async () =
   const panel = dom.window.document.querySelector('.chin[data-chin="stories"]');
   if (btn && panel) {
     btn.click();
+    App.chin.sync();
     expect(panel.hasAttribute('hidden')).toBe(false);
     btn.click();
+    App.chin.sync();
     expect(panel.hasAttribute('hidden')).toBe(true);
   }
 });
-

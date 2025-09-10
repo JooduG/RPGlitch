@@ -25,8 +25,6 @@ export function setDebug(on) {
   return isDebug;
 }
 
-export let chinObserver = null; // Make it exportable
-
 // ---------- Safe JSON & Storage ----------
 export function safeJSONParse(str, fallback = null) {
   try {
@@ -809,16 +807,13 @@ function sync() {
 }
 
 function closeAll() {
-  if (chinObserver) chinObserver.disconnect(); // Disconnect before changes
   getPanels().forEach((p) => p.setAttribute("hidden", ""));
-  sync(); // Re-enable sync()
-  if (chinObserver) initChinObserver(); // Reconnect after changes
+  sync();
   log?.('chin.closeAll');
 }
 
 function open(name) {
   if (!name) return;
-  if (chinObserver) chinObserver.disconnect(); // Disconnect before changes
   const panels = getPanels();
   panels.forEach((p) => {
     if (p.dataset.chin === name) {
@@ -832,10 +827,19 @@ function open(name) {
     }
   });
   sync();
-  if (chinObserver) initChinObserver(); // Reconnect after changes
   log?.('chin.open', {
     name
   });
+}
+
+function close(name) {
+  if (!name) return;
+  const panel = [...getPanels()].find((p) => p.dataset.chin === name);
+  if (panel) {
+    panel.setAttribute("hidden", "");
+  }
+  sync();
+  log?.('chin.close', { name });
 }
 
 function toggle(name) {
@@ -891,31 +895,7 @@ function initChin() {
     });
     chinBound = true;
   }
-  // Removed document-level outside click in favor of in-container backdrop
-  
-
-function initChinObserver() {
-  if (chinObserver) {
-    chinObserver.disconnect();
-  }
-  const observer = new MutationObserver(sync);
-  chinObserver = observer; // Assign to the exported variable
-  getPanels().forEach((p) =>
-    observer.observe(p, {
-      attributes: true,
-      attributeFilter: ["hidden"]
-    })
-  );
-  const cont2 = document.querySelector("#chin-container");
-  if (cont2)
-    observer.observe(cont2, {
-      attributes: true,
-      attributeFilter: ["hidden"]
-    });
-  log?.('chin.initObserver: listeners attached');
-}
-
-
+  sync();
 }
 
 export const chin = {
