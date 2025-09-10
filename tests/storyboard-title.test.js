@@ -1,10 +1,24 @@
 import { JSDOM } from 'jsdom';
 
+const mockCharacters = [
+  { id: 'a1', title: 'Alice', isPremade: true },
+  { id: 'u1', title: 'Bob', isPremade: false }
+];
+const mockWorlds = [{ id: 'w1', title: 'Mars', isPremade: true }];
+
 jest.mock('../apps/rpglitch/js/entities.js', () => ({
+  getPremadeItems: jest.fn().mockImplementation(key => {
+    if (key === 'characters') return mockCharacters.filter(c => c.isPremade);
+    if (key === 'worlds') return mockWorlds;
+    return [];
+  }),
   entities: {
-    list: jest.fn().mockReturnValue([]),
+    list: jest.fn((type) => {
+      if (type === 'character') return mockCharacters;
+      if (type === 'world') return mockWorlds;
+      return [];
+    }),
   },
-  getPremadeItems: jest.fn().mockReturnValue([]),
   _allItemsCache: {},
 }));
 
@@ -18,7 +32,7 @@ async function loadApp() {
   global.document = dom.window.document;
 
   dom.window.Dexie = function () {};
-  dom.window.DOMPurify = {};
+  dom.window.DOMPurify = { sanitize: (str) => str };
   dom.window._hyperscript = {};
   dom.window.$ = function () {};
 
@@ -41,6 +55,7 @@ afterEach(() => {
   for (const key in entities._allItemsCache) {
     delete entities._allItemsCache[key];
   }
+  jest.clearAllMocks();
 });
 
 test('default storyboard title adapts to selections', async () => {
@@ -52,20 +67,6 @@ test('default storyboard title adapts to selections', async () => {
     <select id="storyboard-world-select"><option value=""></option><option value="w1">Mars</option></select>
   `;
 
-  App.getAllItems = (key) => {
-    const map = {
-      characters: [
-        { id: 'a1', title: 'Alice' },
-        { id: 'u1', title: 'Bob' }
-      ],
-      worlds: [{ id: 'w1', title: 'Mars' }]
-    };
-    const items = map[key] || [];
-    return items.map(item => ({
-      ...item,
-      title: item.title ? String(item.title).replace(/[<>&"']/g, '') : ''
-    }));
-  };
   const originalRandom = dom.window.Math.random;
   dom.window.Math.random = () => 0;
   expect(App._defaultStoryboardTitle()).toBe('Your story begins…');

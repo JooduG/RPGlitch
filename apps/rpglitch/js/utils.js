@@ -25,8 +25,6 @@ export function setDebug(on) {
   return isDebug;
 }
 
-export let chinObserver = null; // Make it exportable
-
 // ---------- Safe JSON & Storage ----------
 export function safeJSONParse(str, fallback = null) {
   try {
@@ -814,7 +812,6 @@ function closeAll() {
 
 function open(name) {
   if (!name) return;
-  if (chinObserver) chinObserver.disconnect(); // Disconnect before changes
   const panels = getPanels();
   panels.forEach((p) => {
     if (p.dataset.chin === name) {
@@ -828,7 +825,6 @@ function open(name) {
     }
   });
   sync();
-  if (chinObserver) initChinObserver(); // Reconnect after changes
   log?.('chin.open', {
     name
   });
@@ -923,6 +919,7 @@ function initChin() {
     });
     chinBound = true;
   }
+
   // Removed document-level outside click in favor of in-container backdrop
   
 

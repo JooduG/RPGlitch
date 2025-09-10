@@ -44,9 +44,9 @@ afterEach(() => {
   }
 });
 
-test('early chin toggle reveals chin container and selected chin', async () => {
+test('App.chin.open() reveals chin container and selected chin', async () => {
   const html = `<!doctype html><html><body>
-    <div id="chin-container">
+    <div id="chin-container" hidden>
       <div class="chin" data-chin="stories" hidden></div>
     </div>
   </body></html>`;
@@ -54,8 +54,33 @@ test('early chin toggle reveals chin container and selected chin', async () => {
 
   App.chin.init();
   App.chin.open('stories');
+  App.chin.sync(); // Manually call sync
   const chinContainer = dom.window.document.getElementById('chin-container');
   const selectedChin = dom.window.document.querySelector('[data-chin="stories"]');
   expect(chinContainer.hasAttribute('hidden')).toBe(false);
   expect(selectedChin.hasAttribute('hidden')).toBe(false);
+});
+
+test('clicking a button toggles the chin', async () => {
+  const html = `<!doctype html><html><body>
+    <button data-chin="stories"></button>
+    <div id="chin-container">
+      <div class="chin" data-chin="stories" hidden></div>
+    </div>
+  </body></html>`;
+  const { dom, App } = await loadApp(html);
+
+  App.chin.init();
+  const button = dom.window.document.querySelector('[data-chin="stories"]');
+  const panel = dom.window.document.querySelector('.chin[data-chin="stories"]');
+
+  // Open the chin
+  button.click();
+  App.chin.sync(); // Manually call sync
+  expect(panel.hasAttribute('hidden')).toBe(false);
+
+  // Close the chin
+  button.click();
+  App.chin.sync(); // Manually call sync
+  expect(panel.hasAttribute('hidden')).toBe(true);
 });
