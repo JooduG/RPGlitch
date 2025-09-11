@@ -844,9 +844,7 @@ function sync() {
     document.body.classList.add("chin-open");
   } else {
     if (document.activeElement && cont?.contains(document.activeElement)) {
-      try {
-        document.activeElement.blur();
-      } catch { /* ignore */ }
+      document.activeElement.blur();
     }
     cont?.setAttribute("hidden", "");
     cont?.setAttribute("aria-hidden", "true");

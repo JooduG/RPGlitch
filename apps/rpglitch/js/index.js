@@ -1,4 +1,5 @@
-import './profile-router.js';
+import { router } from './profile-router.js';
+
 import {
   applyBrand,
   debounce,
