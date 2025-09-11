@@ -1,3 +1,4 @@
+import { router } from './profile-router.js';
 import {
   applyBrand,
   debounce,
@@ -37,7 +38,6 @@ const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
 
 const DATA_KEYS = ["stories", "characters", "worlds"];
 
-let initializeWhenReadyRetryCount = 0;
 let _cardNavAttached = false;
 let _suppressNextBlur = false;
 let _optionsListenersAttached = false;
@@ -416,8 +416,10 @@ export function _attachCardNavigation() {
             _suppressNextBlur = false;
           }, 1200);
         }
-      },
-      true
+      }, {
+        passive: true,
+        capture: true
+      }
     );
 
     function openSelectSafely(select) {
@@ -1023,8 +1025,8 @@ export function _attachContentChinActions() {
   _contentListenersAttached = true;
 }
 
+let initializeWhenReadyRetryCount = 0;
 export async function initializeWhenReady() {
-  initializeWhenReadyRetryCount = initializeWhenReadyRetryCount || 0;
   try {
     console.log('[RPGlitch] initializeWhenReady start', {
       retry: initializeWhenReadyRetryCount
@@ -1112,7 +1114,7 @@ export async function initializeWhenReady() {
     const retryCount = (initializeWhenReadyRetryCount || 0) + 1;
     initializeWhenReadyRetryCount = retryCount;
     try {
-      console.error(`❗ App initialization failed (attempt ${retryCount}/${MAX_INIT_RETRIES})`, error && (error.stack || error));
+      console.error(`❗ App initialization failed (attempt ${retryCount}/${MAX_INIT_RETRIES})`, error && (error.stack || error), error);
     } catch { /* ignore */ }
     if (TEST_MODE) {
       return false;

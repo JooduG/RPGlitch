@@ -128,7 +128,7 @@ document.addEventListener(
   }
 );
 
-window.router = {
+export const router = {
   navigate(hash) {
     location.hash = hash;
   },
