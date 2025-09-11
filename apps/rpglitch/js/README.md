@@ -16,16 +16,11 @@ globs:
 
 ### Referenced Rules from `rules/`
 
-- **[js-modern-guide.md](../../../rules/js-modern-guide.md)** - Modern vanilla JavaScript development index and quick reference
-- **[js-dom.guide.md](../../../rules/js-dom.guide.md)** - Cash DOM for concise, readable JavaScript in Perchance projects (Note: Full migration to Cash DOM is an ongoing task, see "Cash DOM Migration" below.)
-- **[js-storage-guide.md](../../../rules/js-storage-guide.md)** - Dexie.js for IndexedDB management in Perchance projects
-- **[js-dom.guide.md](../../../rules/js-dom.guide.md)** - Modern DOM APIs and manipulation patterns for vanilla JavaScript
-- **[js-ecosystem-overview.md](../../../rules/js-ecosystem-overview.md)** - Unified JavaScript ecosystem decision framework
-- **[js-storage-guide.md](../../../rules/js-storage-guide.md)** - IndexedDB principles and best practices for Perchance applications
-- **[js-modern-guide.md](../../../rules/js-modern-guide.md)** - Modern browser APIs including Fetch API, Intersection Observer, and contemporary web APIs
-- **[js-modern-guide.md](../../../rules/js-modern-guide.md)** - Modern JavaScript features (ES2023+) including template literals and destructuring
-- **[js-patterns-practices.md](../../../rules/js-patterns-practices.md)** - JavaScript patterns, performance optimization, and debugging best practices
-- **[js-storage-guide.md](../../../rules/js-storage-guide.md)** - Unified client-side storage strategy covering localStorage, IndexedDB, and Dexie.js
+- **[js-modern-guide.md](../../../rules/js-modern-guide.md)** - Guidelines for modern JavaScript (ES2023+), including features and browser APIs.
+- **[js-dom.guide.md](../../../rules/js-dom.guide.md)** - Patterns for DOM manipulation, including the use of Cash DOM.
+- **[js-storage-guide.md](../../../rules/js-storage-guide.md)** - The unified strategy for client-side storage (localStorage, IndexedDB, Dexie.js).
+- **[js-ecosystem-overview.md](../../../rules/js-ecosystem-overview.md)** - A decision framework for the JavaScript ecosystem.
+- **[js-patterns-practices.md](../../../rules/js-patterns-practices.md)** - Best practices for JavaScript patterns, performance, and debugging.
 
 ## Current Tasks (RPGlitch JavaScript-Specific)
 

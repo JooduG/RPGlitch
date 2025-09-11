@@ -6,7 +6,18 @@ const config = {
   setupFilesAfterEnv: ['<rootDir>/tests/setup-jest.js'],
   reporters: [
     'default'
-  ]
+  ],
+  transform: {
+    '^.+\.js
+
+module.exports = config;
+: [
+      'babel-jest',
+      {
+        configFile: './build/config/babel.config.js'
+      }
+    ]
+  }
 };
 
 module.exports = config;

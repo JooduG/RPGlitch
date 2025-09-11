@@ -1,7 +1,9 @@
 ---
 title: Chin Lockup Hardening
 date: 2025-08-27
-summary: "Fixes for overlay lockups, chin width/alignment, close behavior, and robust navigation guards."
+summary: Fixes for overlay lockups, chin width/alignment, close behavior, and robust
+  navigation guards.
+permalink: past-chin-lockup-hardening-2025-08-27
 ---
 
 ## What

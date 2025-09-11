@@ -27,7 +27,8 @@
 
 ## Testing Guidelines
 
-- Framework: Jest with jsdom (`build/config/jest.config.js`).
+- Framework: Jest with jsdom.
+- Configs: `build/config/jest.config.js`, `build/config/babel.config.js`.
 - Location: `tests/`. Prefer pure functions; for DOM code, use jsdom queries and events.
 - Naming: `<feature>.test.js`. Run with `npm test` locally and in CI.
 

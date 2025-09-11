@@ -1,18 +1,16 @@
-# Project Documentation
+# Memory Bank
 
-This directory is the central "library" for the JooduG-default project. It contains all human-readable documentation intended to help users and developers understand the repository.
+This directory is the "brain" of the AI agent, used for persistent, long-term memory, task tracking, and knowledge management. It is managed by the **Basic Memory MCP**.
 
-## Contents
+The structure is organized into several distinct temporal and logical buckets:
 
-### Key Files & Folders
+## Core Directories
 
-- **`/guides`**: Contains detailed guides for specific processes, such as the `developer-orchestration-guide.md` and the `user-unified-system-guide.md`. These are long-form documents explaining how to work with the system.
-- **`CHANGELOG.md`**: A log of all significant changes made to the project over time.
-- **`CONTRIBUTING.md`**: Guidelines for developers who wish to contribute to the project.
-- **`GLOSSARY.md`**: A dictionary of terms and concepts specific to this repository, ensuring consistent language across all documentation.
+- **`/forever`**: Stores foundational principles, core identity rules, and critical evergreen guides that should always be referenced.
+- **`/present`**: Contains documents and notes relevant to the *current, active task*. This is the AI's short-term working memory.
+- **`/past`**: An archive of completed tasks, historical context, and past decisions.
+- **`/future`**: A backlog for ideas, plans, and potential initiatives that are not yet committed.
 
-## How to Use This Folder
+## How It Works
 
-- **New Developers:** Should start by reading the guides in the `/guides` directory to get a comprehensive overview of the project's architecture and workflows.
-- **Understanding Terminology:** If you encounter a term you don't recognize (e.g., "Chin", "MCP"), consult the `GLOSSARY.md`.
-- **Writing New Docs:** When adding new documentation, ensure it follows the principles outlined in `rules/system-documentation-guide.md`.
+The AI agent uses the files within these directories to maintain context across sessions, learn from past actions, and follow established guidelines. The `basic-memory-config.json` file in this directory defines how the Basic Memory tool indexes and interacts with these contents.
