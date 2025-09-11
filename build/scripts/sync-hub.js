@@ -117,8 +117,8 @@ function getPackageScripts() {
 }
 
 (function main() {
-  const content = `
-# 🧭 Hub: Repository Overview
+    const content = `
+## 🧭 Hub: Repository Overview
 
 Welcome to the central navigation hub for the project.
 
@@ -126,6 +126,8 @@ Welcome to the central navigation hub for the project.
 - **Last updated:** ${new Date().toUTCString()}
 
 ---
+
+## Repository Map
 
 ${getRepoTree()}
 
@@ -146,7 +148,7 @@ package.json
 .
 
 ${getPackageScripts()}
-  `;
+`;
 
   fs.writeFileSync(HUB_FILE, content.trim() + '\n', 'utf8');
   console.log(`✅ Hub file generated at: ${path.relative(REPO_ROOT, HUB_FILE)}`);

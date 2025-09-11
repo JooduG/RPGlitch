@@ -65,11 +65,12 @@ function syncIgnoreFiles() {
     writeTextFile(path.join(REPO_ROOT, 'build', 'config', '.htmlhintignore'), header + (masterIgnores.linters?.htmlhint || []).join('\n') + '\n');
 
     // --- Generate .markdownlint-cli2.jsonc ---
-    const markdownlintConfig = {
-        globs: ['**/*.md'],
-        ignores: masterIgnores.linters?.markdownlint || [],
-    };
-    writeJson(path.join(REPO_ROOT, '.markdownlint-cli2.jsonc'), markdownlintConfig);
+    // This is now handled by generate-markdownlint-globs.js or manual config
+    // const markdownlintConfig = {
+    //     globs: ['**/*.md'],
+    //     ignores: masterIgnores.linters?.markdownlint || [],
+    // };
+    // writeJson(path.join(REPO_ROOT, '.markdownlint-cli2.jsonc'), markdownlintConfig);
 
     // --- Update jsconfig.json ---
     const jsconfig = readJson(jsconfigPath) || { compilerOptions: {}, exclude: [] };
