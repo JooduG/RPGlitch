@@ -8,6 +8,7 @@
     "//--- SETUP & SYNC ---": "",
     "setup": "npm install && npm run sync && npm run build",
     "sync": "npm run sync:ignores && npm run sync:rules && npm run sync:mcp && npm run sync:configs && npm run sync:libs",
+    "sync:markdownlint-globs": "node build/scripts/generate-markdownlint-globs.js",
     "sync:ignores": "node build/scripts/sync-ignores.js",
     "sync:rules": "node build/scripts/sync-rules.js",
     "sync:mcp": "node build/scripts/sync-mcp.js",
@@ -23,8 +24,7 @@
     "lint:css": "stylelint \"**/*.scss\" --config build/config/.stylelintrc.json",
     "lint:css:fix": "stylelint \"**/*.scss\" --config build/config/.stylelintrc.json --fix",
     "lint:html": "htmlhint \"**/*.html\" --ignore \"build/config/build/output/coverage/lcov-report/index.html\"",
-    "lint:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc --ignore \"node_modules\" --ignore \"build/output\" --ignore \"memory-bank/archive\"",
-    "lint:md:fix": "markdownlint-cli2 --config .markdownlint-cli2.jsonc --fix --ignore '**/node_modules/**' --ignore 'memory-bank/archive/**'",
+        "lint:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc",
     "test": "jest",
     "//--- BUILDING ---": "",
     "build": "npm run build:rpglitch",
@@ -62,7 +62,9 @@
     "sass": "^1.77.6",
     "stylelint": "^16.6.1",
     "stylelint-config-standard-scss": "^13.1.0",
-    "tree-node-cli": "^1.6.0"
+    "tree-node-cli": "^1.6.0",
+    "glob": "^10.4.2",
+    "ignore": "^5.3.1"
   },
   "dependencies": {
     "@google/gemini-cli": "^0.4.0",

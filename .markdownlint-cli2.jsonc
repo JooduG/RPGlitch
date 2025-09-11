@@ -1,6 +1,14 @@
 {
   "globs": [
-    "**/*.md"
+    "README.md",
+    "AGENTS.md",
+    "docs/**/*.md",
+    "rules/**/*.md",
+    "apps/**/*.md",
+    "memory-bank/forever/**/*.md",
+    "memory-bank/past/**/*.md",
+    "memory-bank/present/**/*.md",
+    "tests/**/*.md"
   ],
   "ignores": [
     "*.bak",

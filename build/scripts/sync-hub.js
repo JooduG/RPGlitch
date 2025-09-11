@@ -106,10 +106,9 @@ function getPackageScripts() {
     ];
     return importantScripts
       .filter(key => scripts[key])
-      .map(key => `  - 
-npm run ${key}
-: ${scripts[key]}`)
-      .join('\n');
+      .map(key => `npm run ${key}
+  # ${scripts[key]}`)
+      .join('\n\n');
    
   } catch (_) {
     console.warn('⚠️  Could not read or parse package.json for scripts.');
