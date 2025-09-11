@@ -194,32 +194,32 @@ select:disabled, select:disabled:hover {
 
 .summon-button {
   background-color: var(--color-green);
-  color: var(--color-text-inverse);
+  color: black;
 }
 
 .transfigure-button {
   background-color: var(--color-mauve);
-  color: var(--color-text-inverse);
+  color: black;
 }
 
 .scribe-button {
   background-color: var(--color-primary);
-  color: var(--color-text-inverse);
+  color: black;
 }
 
 .chaos-button {
   background-color: var(--color-red);
-  color: var(--color-text-inverse);
+  color: black;
 }
 
 .cancel-button {
   background-color: var(--color-yellow);
-  color: var(--color-text-inverse);
+  color: black;
 }
 
 .undo-button {
   background-color: var(--color-sky);
-  color: var(--color-text-inverse);
+  color: black;
 }
 
 button:not(:disabled):hover {

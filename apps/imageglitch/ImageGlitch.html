@@ -10,55 +10,47 @@
   <header class="container">
     <nav id="top-bar" class="top-bar">
       <!-- Top Bar Left -->
-      <ul role="presentation" id="top-bar-left">
-        <li>
-          <div class="top-bar-left">
-            <li role="presentation">
-              <button id="summonBtn" class="primary" title="Generate images from your prompt">Generate Images</button>
-            </li>
-            <li role="presentation">
-              <select id="aiMagicSelect">
-                <option value="placeholder" selected disabled>AI Magic</option>
-                <option value="summon">Generate Images</option>
-                <option value="scribe">Refine Prompt</option>
-                <option value="chaos">Embrace the Chaos</option>
-                <option value="transfigure">Instruct AI</option>
-              </select>
-            </li>
-          </div>
+      <ul role="presentation" id="top-bar-left" class="top-bar-left">
+        <li role="presentation">
+          <button id="summonBtn" class="primary" title="Generate images from your prompt">Generate Images</button>
+        </li>
+        <li role="presentation">
+          <select id="aiMagicSelect">
+            <option value="placeholder" selected disabled>AI Magic</option>
+            <option value="summon">Generate Images</option>
+            <option value="scribe">Refine Prompt</option>
+            <option value="chaos">Embrace the Chaos</option>
+            <option value="transfigure">Instruct AI</option>
+          </select>
         </li>
       </ul>
 
       <!-- Top Bar Right -->
-      <ul id="top-bar-right">
+      <ul id="top-bar-right" class="top-bar-right">
         <li>
-          <div class="top-bar-right">
-            <li>
-              <select id="numImagesSelect" value="[numImagesToGen]" title="Number of image blocks to generate">
-                <option value="0" selected>No Images</option>
-                <option value="1">1 Image Block</option>
-                <option value="2">2 Image Blocks</option>
-                <option value="3">3 Image Blocks</option>
-                <option value="4">4 Image Blocks</option>
-                <option value="5">5 Image Blocks</option>
-                <option value="6">6 Image Blocks</option>
-                <option value="7">7 Image Blocks</option>
-                <option value="8">8 Image Blocks</option>
-                <option value="9">9 Image Blocks</option>
-                <option value="10">10 Image Blocks</option>
-              </select>
-            </li>
-            <li>
-              <input type="text" id="imgSeed" placeholder="Seed (Leave Empty for Random)" value=""
-                title="Use the same number to get the same results again">
-            </li>
-            <li class="creativity-slider">
-              <label id="masterCreativityLabel" for="masterCreativitySlider">Creativity: <span
-                  id="masterCreativityValue">[masterCreativity]</span></label>
-              <input type="range" id="masterCreativitySlider" min="0" max="10" step="1" value="[masterCreativity]"
-                title="Control the creativity level. Higher values increase Guidance Scale and lower Temperature.">
-            </li>
-          </div>
+          <select id="numImagesSelect" value="[numImagesToGen]" title="Number of image blocks to generate">
+            <option value="0" selected>No Images</option>
+            <option value="1">1 Image Block</option>
+            <option value="2">2 Image Blocks</option>
+            <option value="3">3 Image Blocks</option>
+            <option value="4">4 Image Blocks</option>
+            <option value="5">5 Image Blocks</option>
+            <option value="6">6 Image Blocks</option>
+            <option value="7">7 Image Blocks</option>
+            <option value="8">8 Image Blocks</option>
+            <option value="9">9 Image Blocks</option>
+            <option value="10">10 Image Blocks</option>
+          </select>
+        </li>
+        <li>
+          <input type="text" id="imgSeed" placeholder="Seed (Leave Empty for Random)" value=""
+            title="Use the same number to get the same results again">
+        </li>
+        <li class="creativity-slider">
+          <label id="masterCreativityLabel" for="masterCreativitySlider">Creativity: <span
+              id="masterCreativityValue">[masterCreativity]</span></label>
+          <input type="range" id="masterCreativitySlider" min="0" max="10" step="1" value="[masterCreativity]"
+            title="Control the creativity level. Higher values increase Guidance Scale and lower Temperature.">
         </li>
       </ul>
     </nav>
