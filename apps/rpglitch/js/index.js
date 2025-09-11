@@ -1111,7 +1111,7 @@ export async function initializeWhenReady() {
     } catch { /* ignore */ }
     return true;
   } catch (error) {
-    const retryCount = (initializeWhenReadyRetryCount || 0) + 1;
+    const retryCount = initializeWhenReadyRetryCount + 1;
     initializeWhenReadyRetryCount = retryCount;
     try {
       console.error(`❗ App initialization failed (attempt ${retryCount}/${MAX_INIT_RETRIES})`, error && (error.stack || error), error);
