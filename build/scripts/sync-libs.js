@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-unused-vars */
 /*
  * Fetch/refresh local libs into build/local_libs.
  * This version includes updated integrity checks and will report the
@@ -85,7 +86,8 @@ function download(url, dest, sha256) {
         });
       });
     }).on('error', (err) => {
-      try { if(fs.existsSync(tmpDest)) fs.unlinkSync(tmpDest); } catch (_e) { /* suppress */ }
+      try { if(fs.existsSync(tmpDest)) fs.unlinkSync(tmpDest); }  
+      catch (_) { /* suppress */ }
       reject(err);
     });
   });

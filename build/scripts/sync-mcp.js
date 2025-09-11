@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-unused-vars */
 const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
@@ -31,7 +32,8 @@ function readJson(filePath) {
         let content = fs.readFileSync(filePath, "utf8");
         if (content.charCodeAt(0) === 0xfeff) content = content.slice(1);
         return JSON.parse(content);
-    } catch (_err) {
+     
+    } catch (_) {
         console.warn(
             `❌  Could not parse JSON from ${path.relative(
                 REPO_ROOT,
@@ -112,7 +114,8 @@ function syncMcp() {
         const geminiSettings = readJson(geminiSettingsPath) || {};
         geminiSettings.mcpServers = flattenedServers || {};
         writeJson(geminiSettingsPath, geminiSettings);
-    } catch (_error) {
+     
+    } catch (_) {
         console.warn(
             "⚠️  Could not update Gemini settings.json. It might be missing."
         );

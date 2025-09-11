@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-unused-vars */
 /**
  * Generate a `hub.md` file for easy repo navigation.
  */
@@ -44,7 +45,8 @@ function getRepoTree() {
           if (!a.isDirectory() && b.isDirectory()) return 1;
           return a.name.localeCompare(b.name);
         });
-    } catch (_e) { return; }
+     
+    } catch (_) { return; }
 
     entries.forEach(entry => {
       const prefix = '  '.repeat(depth) + '- ';
@@ -72,7 +74,8 @@ function getTestStats() {
       const status = numTotalTests === numPassedTests ? '✅' : '❌';
       return `${status} ${numPassedTests}/${numTotalTests} passed`;
     }
-  } catch (_e) {
+   
+  } catch (_) {
     console.warn('⚠️  Could not read or parse jest result file.');
   }
   return 'No test results found.';
@@ -107,7 +110,8 @@ function getPackageScripts() {
 npm run ${key}
 : ${scripts[key]}`)
       .join('\n');
-  } catch (_e) {
+   
+  } catch (_) {
     console.warn('⚠️  Could not read or parse package.json for scripts.');
     return 'Could not load scripts.';
   }

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-unused-vars */
 /**
  * Combine key repo areas into Markdown overviews for fast human/AI review.
  * This version reads ignore patterns from the centralized `ignores.master.json`
@@ -31,7 +32,8 @@ function readJson(filePath) {
     // Basic comment stripping for JSON
     const jsonString = content;
     return JSON.parse(jsonString);
-  } catch (_error) {
+     
+  } catch (_) {
     console.warn(`⚠️  Could not read or parse JSON from ${path.relative(REPO_ROOT, filePath)}. This may affect ignore patterns.`);
     return {}; // Return empty object on failure
   }
@@ -91,13 +93,14 @@ function walk(dir, allFiles = []) {
 
 function getGitRecentChanges() {
   try {
-    const stdout = execSync('git log --pretty=format:"%h %ad | %s" --date=short --since=\"1 week ago\"', {
+    const stdout = execSync('git log --pretty=format:"%h %ad | %s" --date=short --since=\\"1 week ago\\"', {
       cwd: REPO_ROOT,
       encoding: 'utf8',
       stdio: 'pipe'
     });
     return stdout.trim();
-  } catch (_e) {
+     
+  } catch (_) {
     console.warn('⚠️  Could not get git log for recent changes.');
     return 'Could not retrieve recent changes.';
   }
@@ -107,12 +110,19 @@ function buildFromList(title, fileList) {
   const lines = [`# ${title}\n`];
   for (const f of fileList) {
     const fullPath = path.join(REPO_ROOT, f);
-    lines.push(`\n\n---\n\n## \`/${f}\`\n\n`);
+    lines.push(`
+
+---
+
+## /${f}
+
+`);
     try {
       const content = fs.readFileSync(fullPath, 'utf8');
       const ext = path.extname(f).slice(1) || 'text';
       lines.push('```' + ext, content, '```');
-    } catch (_e) {
+     
+    } catch (_) {
       lines.push('Could not read file.');
     }
   }
