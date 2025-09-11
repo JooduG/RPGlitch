@@ -13,6 +13,8 @@ module.exports = [
   },
   {
     ignores: [
+      "node_modules/",
+      "build/output/",
       "memory-bank/archive/**",
       "build/local_libs/**",
       "build/config/build/output/coverage/**",

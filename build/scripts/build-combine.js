@@ -24,16 +24,14 @@ const TEXT_EXTS = new Set(['.md', '.js', '.mjs', '.json', '.yml', '.yaml', '.htm
 function readJson(filePath) {
   try {
     let content = fs.readFileSync(filePath, 'utf8');
-    console.log('File content:', content); // Add this line
     // Strip BOM
     if (content.charCodeAt(0) === 0xFEFF) {
       content = content.slice(1);
     }
     // Basic comment stripping for JSON
     const jsonString = content;
-    console.log('File content after comment stripping:', jsonString); // Add this line
     return JSON.parse(jsonString);
-  } catch (error) {
+  } catch (_error) {
     console.warn(`⚠️  Could not read or parse JSON from ${path.relative(REPO_ROOT, filePath)}. This may affect ignore patterns.`);
     return {}; // Return empty object on failure
   }
@@ -93,13 +91,13 @@ function walk(dir, allFiles = []) {
 
 function getGitRecentChanges() {
   try {
-    const stdout = execSync('git log --pretty=format:"%h %ad | %s" --date=short --since="1 week ago"', {
+    const stdout = execSync('git log --pretty=format:"%h %ad | %s" --date=short --since=\"1 week ago\"', {
       cwd: REPO_ROOT,
       encoding: 'utf8',
       stdio: 'pipe'
     });
     return stdout.trim();
-  } catch (e) {
+  } catch (_e) {
     console.warn('⚠️  Could not get git log for recent changes.');
     return 'Could not retrieve recent changes.';
   }
@@ -114,7 +112,7 @@ function buildFromList(title, fileList) {
       const content = fs.readFileSync(fullPath, 'utf8');
       const ext = path.extname(f).slice(1) || 'text';
       lines.push('```' + ext, content, '```');
-    } catch (e) {
+    } catch (_e) {
       lines.push('Could not read file.');
     }
   }
@@ -162,7 +160,10 @@ function buildFromList(title, fileList) {
 
   const recentChanges = getGitRecentChanges();
   const recentPath = path.join(OUTPUT_DIR, 'combined-recent-changes.md');
-  fs.writeFileSync(recentPath, `# Recent Changes (Last 7 Days)\n\n\`\`\`\n${recentChanges}\n\`\`\`\n`, 'utf8');
+  fs.writeFileSync(recentPath, `# Recent Changes (Last 7 Days)\n\n\
+${recentChanges}\
+\
+`, 'utf8');
   console.log(`✅ Wrote: ${path.relative(REPO_ROOT, recentPath)}`);
   
   console.log('✨ Combination complete.');

@@ -1,0 +1,44 @@
+name: Run Gemini CLI
+
+on:
+  push:
+    branches:
+      - main # or your default branch like 'master'
+  pull_request:
+    branches:
+      - main # or your default branch
+  workflow_dispatch: # Allows manual triggering from GitHub UI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js (assuming Gemini CLI is Node.js based)
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # Use a stable Node.js version
+
+    - name: Install Gemini CLI (adjust command if different)
+      run: |
+        # Replace this with the actual command to install your Gemini CLI
+        # For example: npm install -g your-gemini-cli-package
+        # Or if it's a local script: npm install
+        echo "Simulating Gemini CLI installation..."
+        # You might need to add your Gemini CLI installation steps here.
+        # For example, if it's a local project:
+        # npm ci
+        # npm run build # if there's a build step
+        # Then ensure the 'gemini' command is in PATH, or call it directly.
+
+    - name: Run Gemini CLI commands
+      run: |
+        # Replace this with the actual Gemini CLI commands you want to run
+        echo "Running Gemini CLI..."
+        # Example: gemini --version
+        # Example: gemini lint --fix
+        # Example: gemini test
+        echo "Gemini CLI commands executed successfully."

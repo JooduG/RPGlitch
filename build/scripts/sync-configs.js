@@ -1,27 +1,10 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { readFileSync, writeFileSync } = require('fs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 
 // --- UTILITIES ---
-function readJson(filePath) {
-    if (!fs.existsSync(filePath)) {
-        console.warn(`⚠️  Master file not found: ${path.relative(REPO_ROOT, filePath)}.`);
-        return null;
-    }
-    try {
-        let content = readFileSync(filePath, 'utf8');
-        if (content.charCodeAt(0) === 0xFEFF) content = content.slice(1);
-        const jsonString = content.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
-        return JSON.parse(jsonString);
-    } catch (err) {
-        console.warn(`❌  Could not parse JSON from ${path.relative(REPO_ROOT, filePath)}. Check for syntax errors.`);
-        return null;
-    }
-}
-
 function copyFile(sourcePath, targetPath) {
     if (!fs.existsSync(sourcePath)) {
         console.warn(`- Skipping: Master config not found at ${path.relative(REPO_ROOT, sourcePath)}`);

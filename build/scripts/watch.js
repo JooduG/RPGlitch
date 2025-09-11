@@ -27,7 +27,7 @@ const runBuild = (filePath) => {
   console.log(`\nFile changed: ${path.basename(filePath)}`);
   console.log('🚀 Triggering RPGlitch rebuild...');
 
-  const buildProcess = exec(`node "${buildScriptPath}"`, (error, stdout, stderr) => {
+  exec(`node "${buildScriptPath}"`, (error, stdout, stderr) => {
     if (error) {
       console.error('❌ Build failed:');
       console.error(stderr);

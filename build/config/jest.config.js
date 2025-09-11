@@ -8,10 +8,7 @@ const config = {
     'default'
   ],
   transform: {
-    '^.+\.js
-
-module.exports = config;
-: [
+    '^.+.js$': [
       'babel-jest',
       {
         configFile: './build/config/babel.config.js'

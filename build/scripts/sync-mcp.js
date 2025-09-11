@@ -31,7 +31,7 @@ function readJson(filePath) {
         let content = fs.readFileSync(filePath, "utf8");
         if (content.charCodeAt(0) === 0xfeff) content = content.slice(1);
         return JSON.parse(content);
-    } catch (err) {
+    } catch (_err) {
         console.warn(
             `❌  Could not parse JSON from ${path.relative(
                 REPO_ROOT,
@@ -58,7 +58,7 @@ function substituteEnvVariables(obj, envMap) {
     const replacer = (val) =>
         String(val).replace(
             /\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g,
-            (_, key) => envMap[key] ?? `\${${key}}`
+            (_, key) => envMap[key] ?? `\${key}`
         );
     const walk = (val) => {
         if (Array.isArray(val)) return val.map(walk);
@@ -112,7 +112,7 @@ function syncMcp() {
         const geminiSettings = readJson(geminiSettingsPath) || {};
         geminiSettings.mcpServers = flattenedServers || {};
         writeJson(geminiSettingsPath, geminiSettings);
-    } catch (error) {
+    } catch (_error) {
         console.warn(
             "⚠️  Could not update Gemini settings.json. It might be missing."
         );

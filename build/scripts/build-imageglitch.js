@@ -11,13 +11,11 @@ const terser = require('terser');
 const ROOT = path.resolve(__dirname, '..', '..');
 const APP_DIR = path.join(ROOT, 'apps', 'imageglitch');
 const BUILD_DIR = path.join(ROOT, 'build');
-const LOCAL_LIBS_DIR = path.join(BUILD_DIR, 'local_libs');
+
 const OUTPUT_DIR = path.join(BUILD_DIR, 'output');
 const OUTPUT_HTML = path.join(OUTPUT_DIR, 'ImageGlitch.html');
 
-const LOCAL_LIBS = {
-  pico: { file: 'pico.min.css' },
-};
+
 
 const SRC_HTML = path.join(APP_DIR, 'ImageGlitch.html');
 const SRC_SCSS = path.join(APP_DIR, 'ImageGlitch.scss');
@@ -81,3 +79,4 @@ function injectJs(html, js) {
     process.exit(1);
   }
 })();
+

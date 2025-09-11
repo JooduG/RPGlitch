@@ -19,23 +19,23 @@ const SOURCES = [
     url: 'https://unpkg.com/@picocss/pico@2.0.6/css/pico.min.css', 
     file: 'pico.min.css',
     sha256: 'dd5fd5591afd81ee21dcc117ad85c014dc3f1f19dc2d7b7d101ea0acc29274c2' 
-  },
-  { 
+  }, 
+  {
     url: 'https://unpkg.com/cash-dom@8.1.5/dist/cash.min.js', 
     file: 'cash.min.js',
     sha256: '9a044188efdb625c5e04d1220698c099927ff16bfb434c37cd7f04dd5ee1ae1f'
   },
-  { 
+  {
     url: 'https://unpkg.com/dexie@4.0.7/dist/dexie.js', 
     file: 'dexie.js',
     sha256: 'abf1352af0b3d46aa875be259fcee0454bfc7e95e5f8b22e071c19027b6a3b64'
   },
-  { 
+  {
     url: 'https://unpkg.com/dompurify@3.1.6/dist/purify.min.js', 
     file: 'purify.min.js',
     sha256: 'c0845096a7c4a6741f362ac506c94c1c7d27dc603bcc1bf64a587f76f2dbe3a1'
   },
-  { 
+  {
     url: 'https://unpkg.com/hyperscript.org@0.9.12/dist/_hyperscript.min.js', 
     file: '_hyperscript.min.js',
     sha256: 'cd737e9904a7eed1ee9639b75eb07915baad92961586d0a1fd6d998d24179de6'
@@ -85,7 +85,7 @@ function download(url, dest, sha256) {
         });
       });
     }).on('error', (err) => {
-      try { if(fs.existsSync(tmpDest)) fs.unlinkSync(tmpDest); } catch (e) { /* suppress */ }
+      try { if(fs.existsSync(tmpDest)) fs.unlinkSync(tmpDest); } catch (_e) { /* suppress */ }
       reject(err);
     });
   });

@@ -17,7 +17,7 @@ function readJson(filePath) {
         let content = fs.readFileSync(filePath, 'utf8');
         if (content.charCodeAt(0) === 0xFEFF) content = content.slice(1);
         return JSON.parse(content);
-    } catch (err) {
+    } catch (_err) {
         console.warn(`❌  Could not parse JSON from ${path.relative(REPO_ROOT, filePath)}. Check for syntax errors.`);
         return null;
     }
@@ -85,7 +85,7 @@ function syncIgnoreFiles() {
         const settings = readJson(settingsPath) || {};
         settings['files.exclude'] = masterIgnores.vscode?.filesExclude || {};
         writeJson(settingsPath, settings);
-    } catch (error) {
+    } catch (_error) {
         console.warn('⚠️  Could not update VS Code settings.json. It might be missing.');
     }
 
