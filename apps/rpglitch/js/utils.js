@@ -295,6 +295,7 @@ const isDialogOpen = () => {
 
 let uiWatchdogTimer = null;
 export let _uiWatchdogStarted = false;
+let chinObserver;
 export function startUIWatchdog() {
   try {
     if (uiWatchdogTimer) return;
@@ -794,6 +795,9 @@ function sync() {
     cont?.setAttribute("aria-hidden", "false");
     document.body.classList.add("chin-open");
   } else {
+    if (document.activeElement && cont?.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
     cont?.setAttribute("hidden", "");
     cont?.setAttribute("aria-hidden", "true");
     document.body.classList.remove("chin-open");
