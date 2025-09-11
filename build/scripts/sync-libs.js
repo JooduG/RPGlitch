@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-unused-vars */
+ 
 /*
  * Fetch/refresh local libs into build/local_libs.
  * This version includes updated integrity checks and will report the

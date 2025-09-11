@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-unused-vars */
+ 
 /**
  * Generate a `hub.md` file for easy repo navigation.
  */

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-unused-vars */
+ 
 /**
  * Combine key repo areas into Markdown overviews for fast human/AI review.
  * This version reads ignore patterns from the centralized `ignores.master.json`
