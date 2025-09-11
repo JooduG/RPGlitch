@@ -27,7 +27,7 @@
     "lint:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc",
     "test": "jest",
     "//--- BUILDING ---": "",
-    "build": "npm run build:rpglitch",
+    "build": "npm run build:rpglitch && npm run build:imageglitch",
     "build:combine": "node build/scripts/build-combine.js",
     "build:copy": "node build/scripts/build-and-copy.js",
     "build:hub": "node build/scripts/sync-hub.js",

@@ -1,6 +1,54 @@
+import { entities } from './entities.js';
 /* Utility helpers for RPGlitch
  * Safe storage, DOM helpers, chin management
  */
+
+export function generateUUID() {
+  // Public Domain/MIT
+  let d = new Date().getTime(); //Timestamp
+  let d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0; //Time in microseconds since page-load or 0 if unsupported
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    let r = Math.random() * 16; //random number between 0 and 16
+    if (d > 0) { //Use timestamp until depleted
+      r = (d + r) % 16 | 0;
+      d = Math.floor(d / 16);
+    } else { //Use microseconds since page-load if available
+      r = (d2 + r) % 16 | 0;
+      d2 = Math.floor(d2 / 16);
+    }
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+export function copyEntity(type, id) {
+  console.log(`Attempting to copy entity of type ${type} with id ${id}`);
+  const entityToCopy = entities.get(type, id);
+  if (!entityToCopy) {
+    console.error(`Entity with type ${type} and id ${id} not found.`);
+    return null;
+  }
+
+  const newEntity = { ...entityToCopy
+  };
+  newEntity.id = generateUUID();
+  newEntity.isPremade = false;
+
+  const key = `${type}s`;
+  const storedItems = safeLocalStorageGet(key);
+  storedItems.push(newEntity);
+  localStorage.setItem(key, JSON.stringify(storedItems));
+
+  console.log(`Copied entity:`, newEntity);
+  return newEntity;
+}
+
+export function sanitizeStr(str) {
+  if (typeof str !== 'string') {
+    return '';
+  }
+  return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 
 // ---------- Debug Logger ----------
 let isDebug = false;

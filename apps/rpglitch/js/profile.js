@@ -15,7 +15,7 @@ import {
 } from './profile-router.js';
 import {
   copyEntity
-} from './index.js';
+} from './utils.js';
 
 function renderTags(container, tags) {
   if (!tags || !tags.length) return;
