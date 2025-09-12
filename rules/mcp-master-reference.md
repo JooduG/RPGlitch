@@ -18,18 +18,13 @@ The `build/scripts/sync-configs.js` script is responsible for reading these rule
 
 - **Purpose:** Governs the structure, semantics, and best practices for all HTML code.
 - **Key Files:**
-  - `html-best-practices.md`: Foundational rules for valid, semantic, and accessible HTML.
-  - `html-hyperscript-guide.md`: Rules for using the `_hyperscript` library for simple UI interactions.
+  - `html-best-practises.md`: The single source of truth for writing valid, semantic, and accessible HTML, including usage of `_hyperscript`.
 
 ### `js-*.md`
 
 - **Purpose:** Defines the complete set of rules for JavaScript development, from style to architecture.
 - **Key Files:**
-  - `js-dom-guide.md`: Rules for DOM manipulation using `cash`.
-  - `js-storage-guide.md`: Rules for client-side storage using `Dexie.js`.
-  - `js-modern-guide.md`: Mandates the use of modern ES6+ features and APIs.
-  - `js-ecosystem-overview.md`: An overview of the libraries used in the project.
-  - `js-patters-practices.md`: Defines architectural patterns like IIFE and data flow.
+  - `js-guide.md`: The single source of truth for all JavaScript development, covering syntax, patterns, DOM manipulation, and storage.
 
 ### `mcp-*.md`
 

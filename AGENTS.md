@@ -63,19 +63,18 @@ Read in this order before you start changing anything:
 
 1. **This Protocol:** The rules in this `AGENTS.md` file.
 2. **Core Framework Rules (Always Load):**
-    - `system-orchestration-mode.md`: The primary 3-role (Strategic, Tactical, Operational) model.
-    - `thinking-framework.md`: The 3 thinking approaches (Contemplative, Sequential, Professional).
-    - `system-architecture.md`: The overall system design and principles.
-    - `system-documentation-guide.md`: Rules and guidelines for writing any documentation.
-    - `system-rule-interactions.md`: Explains how rules are prioritized and combined.
+  - `docs/system-documentation-guide.md`: The main entry point for all documentation.
+  - `rules/system-orchestration-mode.md`: The primary 3-role (Strategic, Tactical, Operational) model.
+  - `rules/system-thinking-framework.md`: The 3 thinking approaches (Contemplative, Sequential, Professional).
+  - `rules/system-architecture.md`: The overall system design and principles.
+  - `rules/system-rule-interactions.md`: Explains how rules are prioritized and combined.
 3. **Supporting Systems (Load as needed):**
-    - `memory-bank-*.md`: For reading from or writing to long-term memory.
-    - `mcp-*.md`: For interacting with the MCP tool ecosystem.
+  - `rules/mcp-*.md`: For interacting with the MCP tool ecosystem.
 4. **Technology-Specific Rules (Load based on task domain):**
-    - `js-*.md`, `html-*.md`, `scss-*.md`
+  - `rules/js-*.md`, `rules/html-*.md`, `rules/scss-*.md`
 5. **Memory Bank & Live Pointers:**
-    - `memory-bank/**`: Emphasize `present/` for current tasks.
-    - `memory-bank/present/INDEX.md` and `context-*.md`: For the most current operational context.
+  - `memory-bank/**`: Emphasize `present/` for current tasks.
+  - `memory-bank/present/INDEX.md`: For the most current operational context.
 
 ---
 

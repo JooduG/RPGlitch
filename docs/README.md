@@ -1,12 +1,23 @@
-# Documentation Overview
+# JooduG-default Documentation
 
-This directory centralizes project documentation. Key sections:
+Welcome to the JooduG-default monorepo documentation. This directory contains a complete, AI-assisted ecosystem for developing and maintaining web applications.
 
-- **[Root README.md](../README.md)**: The main entry point for the project.
-- **[Agent Protocols](./protocols/)**: Guidelines for AI agent interaction.
-  - **[AGENTS.md](../AGENTS.md)**: The canonical playbook for all contributors (human and AI).
-  - **[GEMINI.md](../.gemini/GEMINI.md)**: The operational protocol for the Gemini CLI agent.
-- **[Build System](./build/)**: Documentation for the build scripts and system.
-- **[Applications](./apps/)**: Overviews of the `RPGlitch` and `ImageGlitch` applications.
-- **[Tools](./tools/)**: Information on development utilities.
-- **[Memory Bank](../memory-bank/)**: The project's persistent knowledge base.
+For a comprehensive overview of all documentation, please see the **[System Documentation Guide](./system-documentation-guide.md)**.
+
+This project is not just a collection of apps; it's a structured environment where an AI development assistant can operate effectively. It combines applications, a robust build system, extensive documentation, and a unique "rule-based" cognitive framework for an AI agent.
+
+## Folder Overview
+
+- **`/apps`**: Contains the primary user-facing web applications.
+- **`/build`**: The "factory" of the repo. Holds all scripts, configs, and libraries for building and linting the apps.
+- **`/docs`**: The project's "library." Contains all human-readable documentation, guides, and glossaries.
+- **`/memory-bank`**: The AI agent's "brain," used for persistent, long-term memory and task tracking.
+- **`/rules`**: The "constitution" for the AI agent. These machine-readable files govern all of the agent's behavior.
+- **`/tests`**: Contains all automated tests to ensure application quality and stability.
+- **`/tools`**: A "toolbox" of utility and diagnostic scripts for various maintenance tasks.
+
+## Common Workflows
+
+- **Building an App:** To manually build the `rpglitch` application, run the command `npm run build-rpglitch`.
+- **Running Tests:** To run the entire test suite, use `npm test`.
+- **Automated Building:** For active development, run `npm run watch`. This will automatically rebuild the `rpglitch` app whenever you save a change to its source files.

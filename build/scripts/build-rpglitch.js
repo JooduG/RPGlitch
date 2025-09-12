@@ -99,6 +99,12 @@ async function bundleAndMinifyJs() {
   }
 }
 
+function injectJsLibs(html, libs) {
+  if (!libs) return html;
+  const scriptTag = `<script id="rpglitch-inline-libs">${libs}</script>`;
+  return html.replace('</body>', `${scriptTag}</body>`);
+}
+
 (async function main() {
   try {
     console.log('🔨 Building RPGlitch…');
@@ -115,8 +121,15 @@ async function bundleAndMinifyJs() {
 
     const jsBundle = await bundleAndMinifyJs();
 
+    const [cashJs, dexieJs, dompurifyJs, hyperscriptJs] =
+      ['cash', 'dexie', 'dompurify', 'hyperscript'].map(name =>
+        readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS[name].file), LOCAL_LIBS[name].file)
+      );
+    const combinedLibs = [cashJs, dexieJs, dompurifyJs, hyperscriptJs].filter(Boolean).join(';\n');
+
     let finalHtml = stripTagsForInlining(htmlSrc);
     finalHtml = injectCss(finalHtml, combinedCss);
+    finalHtml = injectJsLibs(finalHtml, combinedLibs);
     finalHtml = injectJs(finalHtml, jsBundle);
 
     fs.writeFileSync(OUTPUT_HTML, finalHtml, 'utf8');
