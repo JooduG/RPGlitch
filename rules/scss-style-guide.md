@@ -117,4 +117,18 @@ We do, however, use `pico.css` as a base for simple styling and classless semant
   @debug "Column width is #{$width}";
   width: $width;
 }
+
+---
+
+## 5. Atomic CSS Principles
+
+While this project uses custom SCSS for component-level styling, it also embraces atomic CSS for low-level utility styling. Atomic CSS is a methodology that favors small, single-purpose classes with names based on their visual function.
+
+**Core Principles:**
+
+*   **Single Responsibility:** Each class should do one thing and do it well (e.g., `d-flex` for `display: flex;`).
+*   **Immutability:** Avoid overriding utility classes. Compose them to achieve the desired result.
+*   **Readability:** Class names should be intuitive and predictable (e.g., `p-1` for a standard padding unit).
+
+This hybrid approach allows us to build complex, scoped components with SCSS while still benefiting from the flexibility and reusability of atomic utilities for common layout and spacing tasks.
 ```
