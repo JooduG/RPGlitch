@@ -1044,9 +1044,6 @@ export async function initializeWhenReady() {
     refreshAllLists?.();
     _attachStoryboardListeners?.();
     try {
-      chin.open?.('stories');
-    } catch { /* ignore */ }
-    try {
       dismissLoadingUI?.();
     } catch {
       void 0;

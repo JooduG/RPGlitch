@@ -45,6 +45,7 @@ async function loadScripts(dom) {
   dom.window.alert = () => {};
   dom.window.Dexie = function () {};
   dom.window.DOMPurify = { sanitize: (str) => str };
+  global.DOMPurify = { sanitize: (str) => str };
   dom.window._hyperscript = {};
   dom.window.$ = function () {};
 
@@ -69,7 +70,7 @@ afterEach(() => {
 });
 
 test('renderStoryList loads items from storage', async () => {
-  const dom = new JSDOM('<body><div id="chin-story-grid"></div><template id="chin-card-template"><div class="chin-card"><h4 class="title"></h4><p class="description"></p></div></template></body>', { url: 'http://localhost', runScripts: 'outside-only' });
+  const dom = new JSDOM('<body><div id="chin-story-grid"></div><template id="chin-card-template"><div class="chin-card"><div class="media"></div><h4 class="title"></h4><p class="description"></p></div></template></body>', { url: 'http://localhost', runScripts: 'outside-only' });
   await loadScripts(dom);
   dom.window.localStorage.setItem('stories', JSON.stringify([{ title: 'My Custom Story' }]));
   dom.window.App.renderStoryList();
@@ -78,7 +79,7 @@ test('renderStoryList loads items from storage', async () => {
 });
 
 test('renderCharacterList loads premade and stored items', async () => {
-  const dom = new JSDOM('<body><div id="chin-character-grid"></div><template id="chin-card-template"><div class="chin-card"><h4 class="title"></h4><p class="description"></p></div></template></body>', { url: 'http://localhost', runScripts: 'outside-only' });
+  const dom = new JSDOM('<body><div id="chin-character-grid"></div><template id="chin-card-template"><div class="chin-card"><div class="media"></div><h4 class="title"></h4><p class="description"></p></div></template></body>', { url: 'http://localhost', runScripts: 'outside-only' });
   await loadScripts(dom);
   dom.window.localStorage.setItem('characters', JSON.stringify([{ title: 'My Hero' }]));
   dom.window.App.renderCharacterList();
@@ -88,7 +89,7 @@ test('renderCharacterList loads premade and stored items', async () => {
 });
 
 test('renderWorldList loads premade and stored items', async () => {
-  const dom = new JSDOM('<body><div id="chin-world-grid"></div><template id="chin-card-template"><div class="chin-card"><h4 class="title"></h4><p class="description"></p></div></template></body>', { url: 'http://localhost', runScripts: 'outside-only' });
+  const dom = new JSDOM('<body><div id="chin-world-grid"></div><template id="chin-card-template"><div class="chin-card"><div class="media"></div><h4 class="title"></h4><p class="description"></p></div></template></body>', { url: 'http://localhost', runScripts: 'outside-only' });
   await loadScripts(dom);
   dom.window.localStorage.setItem('worlds', JSON.stringify([{ title: 'My World' }]));
   dom.window.App.renderWorldList();
