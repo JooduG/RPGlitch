@@ -1,22 +1,22 @@
-# 🧠 UNIFIED SYSTEM USER GUIDE
+# 🧠 User Guide
 
-## Your Complete Guide to the Unified Development Framework
+## Your Complete Guide to the Development Framework
 
 ---
 
 ## 🎯 OVERVIEW
 
-Welcome to your **Unified Development Framework**! This system combines three powerful components that work together intelligently:
+Welcome to your **Development Framework**! This system combines three powerful components that work together intelligently:
 
-1. **🧠 Unified Thinking Framework** - Automatically picks the right thinking approach
+1. **🧠 Thinking Approaches** - Automatically picks the right thinking approach
 2. **🎯 Context-Aware Rule Loading** - Loads only the rules you need
-3. **📚 Unified Documentation System** - Seamless access to all documentation
+3. **📚 Context Sources** - Seamless access to all documentation
 
 ---
 
-## 🧠 UNIFIED THINKING FRAMEWORK
+## 🧠 Thinking Approaches
 
-### What UNIFIED THINKING FRAMEWORK Does
+### What It Does
 
 Automatically selects the optimal thinking approach for each task:
 
@@ -24,7 +24,7 @@ Automatically selects the optimal thinking approach for each task:
 - **🤔 Contemplative Thinking** - For deep exploration and creativity
 - **⚡ Professional Coding** - For quick, production-ready implementation
 
-### How to Use It
+### How to Use Thinking Approaches
 
 #### Automatic Selection (Recommended)
 
@@ -61,35 +61,11 @@ You can also specify the approach directly:
 
 ---
 
-## 🎯 CONTEXT-AWARE RULE LOADING
-
-### What CONTEXT-AWARE RULE LOADING Does
-
-Intelligently loads only the rules you need, saving tokens and improving performance.
-
-### How It Works
-
-The system analyzes your current task and automatically loads relevant rules:
-
-- **Project-specific rules** (Perchance, RPGlitch, etc.)
-- **Language-specific rules** (JavaScript, CSS, etc.)
-- **Task-specific rules** (debugging, optimization, etc.)
-
-### What You'll Notice
-
-- **Faster responses** - Less token overhead
-- **More relevant suggestions** - Rules match your current task
-- **Better performance** - Optimized rule loading
-
-### No Action Required
-
-This works automatically! Just continue working normally.
-
 ---
 
-## 📚 UNIFIED DOCUMENTATION SYSTEM
+## 📚 Context Sources
 
-### What UNIFIED DOCUMENTATION SYSTEM Does
+### What It Does
 
 Provides seamless access to all your documentation sources:
 

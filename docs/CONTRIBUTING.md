@@ -34,9 +34,15 @@
 
 ## Commit & Pull Request Guidelines
 
-- Commits: `<scope>: <summary>` (present tense). Example: `rpglitch: add storyboard title sync`.
-- Branches: Agents use `codex/{date}-{time}-{feature}`; humans use `{scope}/{short-task}`.
-- PRs: Small and focused. Title `[rpglitch] <summary>`. Include what/why, validation steps, screenshots for UI, and linked issues.
+- **Commits:** Use the format `<scope>: <summary>` in the present tense. For example: `rpglitch: add storyboard title sync`.
+- **Branches:**
+  - **Agents:** `{agent-name}/{date}-{time}-{feature}` (e.g., `codex/2025-08-25-fix-title`)
+  - **Humans:** `{scope}/{short-task-description}` (e.g., `docs/update-contributing-guide`)
+- **Pull Requests:** Keep PRs small and focused on a single issue. The title should follow the format `[<scope>] <summary>`. For example: `[docs] Update contributing guidelines`. The PR description should include:
+  - A clear explanation of the changes.
+  - Steps for validation.
+  - Screenshots for any UI changes.
+  - Links to any related issues.
 
 ## Security & Configuration Tips
 
