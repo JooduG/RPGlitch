@@ -14,7 +14,7 @@ Welcome to your **Development Framework**! This system combines three powerful c
 
 ---
 
-## 🧠 Thinking Approaches**
+## 🧠 Thinking Approaches
 
 ### What It Does
 
