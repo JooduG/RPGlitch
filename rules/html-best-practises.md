@@ -44,6 +44,7 @@ Web accessibility (a11y) is a requirement, not a feature.
 Use `_hyperscript` for simple, declarative UI interactions. For complex logic involving state or multiple steps, use a dedicated JavaScript file as detailed in the `js-guide.md`.
 
 ### Basic Syntax
+
 The `_hyperscript` library is included from `/build/local_libs/` and looks for the `_` attribute on HTML elements.
 
 - **`on click`**: The most common trigger.
@@ -63,6 +64,7 @@ The `_hyperscript` library is included from `/build/local_libs/` and looks for t
 ```
 
 ### When to Use Hyperscript
+
 `_hyperscript` is ideal for:
 
 - **Toggling classes:** Showing/hiding elements, applying active states.
@@ -70,6 +72,7 @@ The `_hyperscript` library is included from `/build/local_libs/` and looks for t
 - **Adding/removing elements** in a simple, direct way.
 
 ### When **NOT** to Use Hyperscript
+
 Move logic to a dedicated `.js` file when:
 
 - **The logic is complex:** If an action requires multiple steps, conditional checks (`if/else`), or loops.

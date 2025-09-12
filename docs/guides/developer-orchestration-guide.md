@@ -91,7 +91,7 @@ You can also specify the role directly:
 
 ## 🧠 **Thinking Approaches**
 
-### **What It Does**
+### **What It Does** 1
 
 Automatically selects the optimal thinking approach for each task:
 
@@ -138,7 +138,7 @@ You can also specify the approach directly:
 
 ## 📚 **Context Sources**
 
-### **What It Does**
+### **What It Does** 2
 
 Provides seamless access to all your documentation sources:
 

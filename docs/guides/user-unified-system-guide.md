@@ -65,7 +65,7 @@ You can also specify the approach directly:
 
 ## 📚 Context Sources
 
-### What It Does
+### What It Does?
 
 Provides seamless access to all your documentation sources:
 

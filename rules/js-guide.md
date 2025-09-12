@@ -9,18 +9,23 @@
 The following features must be used consistently to ensure code is clean, efficient, and maintainable.
 
 ### `const` and `let`
+
 - **Rule:** Use `const` by default. Only use `let` if a variable's value must be reassigned. `var` is strictly forbidden.
 
 ### Arrow Functions
+
 - **Rule:** Use arrow functions for all anonymous functions and callbacks. They provide a concise syntax and handle `this` lexically.
 
 ### Template Literals
+
 - **Rule:** Use template literals (`` ` ``) for all string concatenation, especially when embedding variables.
 
 ### Destructuring
+
 - **Rule:** Use destructuring to access properties from objects and elements from arrays.
 
 ### Promises and `async/await`
+
 - **Rule:** All asynchronous operations must use Promises. For consuming promises, `async/await` syntax is strongly preferred.
 
 ---
@@ -28,8 +33,10 @@ The following features must be used consistently to ensure code is clean, effici
 ## 2. Architectural Patterns
 
 ### The Module Pattern (IIFE)
+
 - **Rule:** To avoid polluting the global namespace, all JavaScript files must be wrapped in an Immediately Invoked Function Expression (IIFE).
 - **Structure:**
+
   ```javascript
   (function() {
     'use strict';
@@ -42,6 +49,7 @@ The following features must be used consistently to ensure code is clean, effici
   ```
 
 ### State Management
+
 - **Single Source of Truth:** The IndexedDB database is the single source of truth for all application state. The UI is a reflection of this data.
 - **One-Way Data Flow:** User interaction modifies data in the database, which then triggers a re-render of the UI.
 
@@ -52,11 +60,14 @@ The following features must be used consistently to ensure code is clean, effici
 - **Core Principle:** All direct DOM manipulation must be performed using the `cash` library (`$`).
 
 ### Selecting and Manipulating Elements
+
 - **Selection:** Use CSS selectors: `$('#id')`, `$('.class')`.
 - **Manipulation:** Use `cash` methods like `.addClass()`, `.removeClass()`, `.attr()`, etc.
 
 ### Creating and Inserting Elements
+
 - **Rule:** Build elements in memory with `cash` before appending them to the live DOM to improve performance. Avoid using `innerHTML` with dynamic content.
+
   ```javascript
   // Correct Way
   const newEl = $('<p>Hello</p>');
@@ -64,7 +75,9 @@ The following features must be used consistently to ensure code is clean, effici
   ```
 
 ### Event Handling
+
 - **Rule:** Use the `.on()` method for attaching event listeners. For lists, use event delegation.
+
   ```javascript
   // Event delegation
   $('#profile-list').on('click', '.delete-btn', function() {
@@ -79,7 +92,9 @@ The following features must be used consistently to ensure code is clean, effici
 - **Core Principle:** All client-side storage must use IndexedDB via the `Dexie.js` wrapper. `localStorage` is forbidden for application state.
 
 ### Schema Definition
+
 - Define the database schema in a central initialization file.
+
   ```javascript
   const db = new Dexie('MyDatabase');
   db.version(1).stores({
@@ -88,7 +103,9 @@ The following features must be used consistently to ensure code is clean, effici
   ```
 
 ### CRUD Operations
+
 - Use `async/await` with Dexie's promise-based API for all database operations.
+
   ```javascript
   async function addFriend(friend) {
     try {
