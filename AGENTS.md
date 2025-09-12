@@ -73,7 +73,7 @@ Read in this order before you start changing anything:
 4. **Technology-Specific Rules (Load based on task domain):**
   - `rules/js-*.md`, `rules/html-*.md`, `rules/scss-*.md`
 5. **Memory Bank & Live Pointers:**
-    - `memory-bank/**`: Emphasize `present/` for current tasks.
+  - `memory-bank/**`: Emphasize `present/` for current tasks.
   - `memory-bank/present/INDEX.md`: For the most current operational context.
 
 ---
