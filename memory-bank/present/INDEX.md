@@ -15,7 +15,7 @@ This project leverages the **Basic Memory MCP** as its core knowledge management
 * **`/memory-bank/future`**: Holds planning documents for upcoming tasks and long-term goals.
 * **`/memory-bank/forever`**: Stores foundational principles, core identity rules, and critical evergreen guides.
 
-For a detailed understanding of the memory workflow and how the agent interacts with these directories, refer to the [Basic Memory MCP Rule](rules/mcp-basic-memory.md).
+For a detailed understanding of the memory workflow and how the agent interacts with these directories, refer to the [Basic Memory MCP Rule](../../rules/mcp-basic-memory.md).
 
 ---
 
