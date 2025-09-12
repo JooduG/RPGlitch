@@ -1,6 +1,6 @@
-# 🔧 UNIFIED SYSTEM TROUBLESHOOTING
+# 🔧 System Troubleshooting
 
-Common Issues and Solutions for the Unified Development Framework
+Common Issues and Solutions for the Development Framework
 
 This guide follows the **ANALYSE → PLAN → CODE** cycle.
 

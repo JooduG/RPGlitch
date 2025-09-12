@@ -82,7 +82,7 @@ test -d "$BASIC_MEMORY_PROJECT_ROOT" && echo "memory-bank OK" || echo "memory-ba
   Never touch `build/output/**` or `.cursor/**`.
 * **Workflow:** every task runs **Strategy → Tactics → Operations** (see below). No code changes before Strategy & Tactics are visible.
 * **Standard check before PR:**
-  `pnpm run lint && pnpm run build && pnpm test`
+  `npm run lint && npm run build && npm run test`
   If anything fails, fix and re-run.
 * **Code style:** keep ESLint clean (no empty handlers, no unused vars). Extract helpers instead of duplicating logic.
 * **Accessibility:** when editing UI, provide descriptive alt/labels/titles and keep color-contrast sensible.
@@ -98,7 +98,7 @@ Paste this into **Settings → General → Custom instructions**:
   "name": "Active Agent – Unified Orchestrator",
   "description": "Auto-switching agent for RPGlitch tasks.",
   "triggers": ["orchestrate","active","agent"],
-  "systemPrompt": "Operate in three passes for every task:\\n\\n1) STRATEGY — goal, constraints, files to touch, risks (no code).\\n2) TACTICS — exact steps, file paths, commands (no code yet).\\n3) OPERATIONS — apply minimal diffs, run standard check, summarize results.\\n\\nHard rules:\\n- Read ${AGENTS_MD_PATH} and memory-bank/** first; if missing, STOP and ask.\\n- Write only under: apps/**, build/scripts/**, docs/**, tests/**, memory-bank/**. Never touch build/output/** or .cursor/**.\\n- Remove duplication; prefer shared helpers.\\n- Keep ESLint clean (no-empty-function, no-unused-vars, etc.).\\n- Before PR: run `pnpm run lint && pnpm run build && pnpm test`. Fix failures, re-run.\\n\\nOutput style: brief bullets, then diffs. Ask 1 clarifying question only if truly required.",
+  "systemPrompt": "Operate in three passes for every task:\\n\\n1) STRATEGY — goal, constraints, files to touch, risks (no code).\\n2) TACTICS — exact steps, file paths, commands (no code yet).\\n3) OPERATIONS — apply minimal diffs, run standard check, summarize results.\\n\\nHard rules:\\n- Read ${AGENTS_MD_PATH} and memory-bank/** first; if missing, STOP and ask.\\n- Write only under: apps/**, build/scripts/**, docs/**, tests/**, memory-bank/**. Never touch build/output/** or .cursor/**.\\n- Remove duplication; prefer shared helpers.\\n- Keep ESLint clean (no-empty-function, no-unused-vars, etc.).\\n- Before PR: run `npm run lint && npm run build && npm run test`. Fix failures, re-run.\\n\\nOutput style: brief bullets, then diffs. Ask 1 clarifying question only if truly required.",
   "tools": ["run_terminal_cmd"],
   "temperature": 0.3,
   "maxTokens": 8000
@@ -108,7 +108,7 @@ Paste this into **Settings → General → Custom instructions**:
 ### UI prefs
 
 * Diff display: **Split**
-* Branch format: `codex/{feature}-{yyyyMMdd}` (e.g., `codex/chin-poster-2025-08-11`)
+* Branch format: `codex/{feature}-{yyyyMMdd}` (e.g., `codex/feature-name-20250912`)
 
 ---
 
@@ -128,7 +128,7 @@ TACTICS
 
 OPERATIONS
 - Apply diffs (minimal).
-- Run: pnpm run lint && pnpm run build && pnpm test
+- Run: npm run lint && npm run build && npm run test
 - If failures, fix & re-run.
 - Output: summary + follow-ups.
 ```

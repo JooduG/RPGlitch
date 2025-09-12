@@ -1,28 +1,27 @@
-# 🧠 UNIFIED SYSTEM COMPREHENSIVE GUIDE
+# 🧠 System Orchestration Guide
 
-## Your Complete Guide to the Unified Development Framework
+## Your Complete Guide to the Development Framework
 
-**Date**: 2025-07-23  
-**Last Updated**: 2025-07-23  
-**Timezone**: Europe/Berlin
+**Date**: 2025-09-12
+**Timezone**: Europe/Stockholm
 
 ---
 
 ## 🎯 **OVERVIEW**
 
-Welcome to your **Unified Development Framework**! This system combines three powerful components that work together intelligently:
+Welcome to your **Development Framework**! This system combines three powerful components that work together intelligently:
 
-1. **🎯 Unified Orchestrator Mode** - Single intelligent mode with automatic role selection
-2. **🧠 Unified Thinking Framework** - Automatically picks the right thinking approach
-3. **📚 Unified Documentation System** - Seamless access to all documentation
+1. **🎯 Agent Operating Loop** - Single intelligent mode with automatic role selection
+2. **🧠 Thinking Approaches** - Automatically picks the right thinking approach
+3. **📚 Context Sources** - Seamless access to all documentation
 
 ---
 
-## 🎯 **UNIFIED ORCHESTRATOR MODE**
+## 🎯 **Agent Operating Loop**
 
 ### **What It Does**
 
-The Unified Orchestrator Mode is a single, intelligent development mode that automatically:
+The Agent Operating Loop is a single, intelligent development mode that automatically:
 
 1. **Analyzes task complexity** and selects the optimal role
 2. **Applies the right thinking approach** for each task
@@ -90,9 +89,9 @@ You can also specify the role directly:
 
 ---
 
-## 🧠 **UNIFIED THINKING FRAMEWORK**
+## 🧠 **Thinking Approaches**
 
-### **What UNIFIED THINKING FRAMEWORK Does**
+### **What It Does**
 
 Automatically selects the optimal thinking approach for each task:
 
@@ -100,7 +99,7 @@ Automatically selects the optimal thinking approach for each task:
 - **🤔 Contemplative Thinking** - For deep exploration and creativity
 - **⚡ Professional Coding** - For quick, production-ready implementation
 
-### **How to Use UNIFIED THINKING FRAMEWORK**
+### **How to Use Thinking Approaches**
 
 #### **Automatic Selection (Recommended)**
 
@@ -137,9 +136,9 @@ You can also specify the approach directly:
 
 ---
 
-## 📚 **UNIFIED DOCUMENTATION SYSTEM**
+## 📚 **Context Sources**
 
-### **What UNIFIED DOCUMENTATION SYSTEM Does**
+### **What It Does**
 
 Provides seamless access to all your documentation sources:
 

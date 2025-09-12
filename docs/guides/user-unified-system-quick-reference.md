@@ -1,4 +1,4 @@
-# ⚡ UNIFIED SYSTEM QUICK REFERENCE
+# ⚡ System Quick Reference
 
 ## Daily Commands and Shortcuts for Maximum Productivity
 
