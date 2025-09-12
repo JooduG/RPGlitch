@@ -54,6 +54,7 @@ test('App.chin.open() reveals chin container and selected chin', async () => {
 
   App.chin.init();
   App.chin.open('stories');
+  await new Promise(resolve => setTimeout(resolve, 0));
   App.chin.sync(); // Manually call sync
   const chinContainer = dom.window.document.getElementById('chin-container');
   const selectedChin = dom.window.document.querySelector('[data-chin="stories"]');
