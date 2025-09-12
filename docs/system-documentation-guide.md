@@ -16,9 +16,9 @@ This document provides an overview of the entire documentation system for the Jo
 - **[Developer Guides](./guides/)**: In-depth guides for developers and AI agents.
   - **[Developer Assistant Creation](./guides/developer-assistant-creation.md)**: How to create a new developer assistant.
   - **[Developer Orchestration Guide](./guides/developer-orchestration-guide.md)**: How to orchestrate the different AI agents.
-  - **[Troubleshooting Unified System](./guides/troubleshooting-unified-system.md)**: How to troubleshoot the unified system.
-  - **[User Unified System Guide](./guides/user-unified-system-guide.md)**: A guide for end-users of the unified system.
-  - **[User Unified System Quick Reference](./guides/user-unified-system-quick-reference.md)**: A quick reference for end-users of the unified system.
+  - [System Troubleshooting](./guides/troubleshooting-unified-system.md): How to troubleshoot the unified system.
+  - [User Guide](./guides/user-unified-system-guide.md): A guide for end-users of the unified system.
+  - [System Quick Reference](./guides/user-unified-system-quick-reference.md): A quick reference for end-users of the unified system.
 - **[Glossary](./GLOSSARY.md)**: Definitions of key terms used in the project.
 - **[Changelog](./CHANGELOG.md)**: A record of all notable changes to the project.
 - **[Contributing Guide](./CONTRIBUTING.md)**: Guidelines for contributing to the project.
