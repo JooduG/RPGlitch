@@ -1,23 +1,17 @@
-# JooduG-default Documentation
+# Project Documentation
 
-Welcome to the JooduG-default monorepo documentation. This directory contains a complete, AI-assisted ecosystem for developing and maintaining web applications.
+Welcome to the documentation for the JooduG-default project. This directory contains all human-readable documentation, including guides, glossaries, and architectural overviews. This documentation is intended for developers, contributors, and anyone else who wants to understand how the project works.
 
-For a comprehensive overview of all documentation, please see the **[System Documentation Guide](./system-documentation-guide.md)**.
+For information related to the AI agent's internal memory and task management, please see the `/memory-bank` directory. For machine-readable rules that govern the agent's behavior, see the `/rules` directory.
 
-This project is not just a collection of apps; it's a structured environment where an AI development assistant can operate effectively. It combines applications, a robust build system, extensive documentation, and a unique "rule-based" cognitive framework for an AI agent.
+## Key Documents
 
-## Folder Overview
+- **`SYSTEM_ORGANIZATION.md`**: An overview of the entire repository structure, explaining the purpose of each top-level directory.
 
-- **`/apps`**: Contains the primary user-facing web applications.
-- **`/build`**: The "factory" of the repo. Holds all scripts, configs, and libraries for building and linting the apps.
-- **`/docs`**: The project's "library." Contains all human-readable documentation, guides, and glossaries.
-- **`/memory-bank`**: The AI agent's "brain," used for persistent, long-term memory and task tracking.
-- **`/rules`**: The "constitution" for the AI agent. These machine-readable files govern all of the agent's behavior.
-- **`/tests`**: Contains all automated tests to ensure application quality and stability.
-- **`/tools`**: A "toolbox" of utility and diagnostic scripts for various maintenance tasks.
+- **`GLOSSARY.md`**: A glossary of terms used throughout the project.
 
-## Common Workflows
+- **`/guides`**: A collection of guides for developers and users, covering topics such as setting up the development environment, contributing to the project, and using the applications.
 
-- **Building an App:** To manually build the `rpglitch` application, run the command `npm run build-rpglitch`.
-- **Running Tests:** To run the entire test suite, use `npm test`.
-- **Automated Building:** For active development, run `npm run watch`. This will automatically rebuild the `rpglitch` app whenever you save a change to its source files.
+## Contribution
+
+Contributions to the documentation are welcome. Please see the `CONTRIBUTING.md` file for more information.
