@@ -14,4 +14,4 @@ For information related to the AI agent's internal memory and task management, p
 
 ## Contribution
 
-Contributions to the documentation are welcome. Please see the `CONTRIBUTING.md` file for more information.
+Contributions to the documentation are welcome. Please see the [`CONTRIBUTING.md`](../CONTRIBUTING.md) file for more information.
