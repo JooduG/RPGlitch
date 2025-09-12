@@ -357,7 +357,7 @@ function buildImageGenerationHtml() {
     }
 
     if (Math.random() < 0.1) {
-      const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=1280&seed=${blockSeed}&model=flux&private=true&enhance=true&safe=false&nologo=true`;
+      const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=1280&seed=${blockSeed}&model=flux&private=true&enhance=false&safe=false&nologo=true`;
       outputHtml += `<div class="block solo-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}"><img src="${imgUrl}" loading="lazy" alt="Generated image" crossorigin="anonymous"></div>`;
     } else {
       outputHtml += `<div class="block quad-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}">`;
@@ -412,7 +412,7 @@ function addImageOverlays() {
     const bottomBar = document.createElement('div');
     bottomBar.className = 'image-control-bar';
     bottomBar.innerHTML = `
-      <div class="seed-guidance-display">Seed: ${seed}<br>Model: flux<br>Enhance: true</div>
+      <div class="seed-guidance-display">Seed: ${seed}<br>Model: flux<br>Enhance: false</div>
       <div class="overlay-controls">
         <button class="overlay-button download-btn" title="Download Image">⬇️</button>
         <button class="overlay-button reroll-btn" title="Regenerate Image">🔄</button>
@@ -564,14 +564,14 @@ function rerollImage(container, resolution) {
     // For pollinations.ai images
     const imgEl = container.querySelector('img');
     if (imgEl) {
-      const newUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=1280&seed=${newSeed}&model=flux&private=true&enhance=true&safe=false&nologo=true`;
+      const newUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=1280&seed=${newSeed}&model=flux&private=true&enhance=false&safe=false&nologo=true`;
       imgEl.src = newUrl;
       container.dataset.seed = newSeed;
 
       // Update the seed display in the overlay
       const seedDisplay = container.querySelector('.seed-guidance-display');
       if (seedDisplay) {
-        seedDisplay.innerHTML = `Seed: ${newSeed}<br>Model: flux<br>Enhance: true`;
+        seedDisplay.innerHTML = `Seed: ${newSeed}<br>Model: flux<br>Enhance: false`;
       }
     }
   } else {
