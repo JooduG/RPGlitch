@@ -22,4 +22,4 @@ This document provides an overview of the structure of the JooduG-default reposi
 
 - **Separation of Concerns**: Each directory has a clear and distinct purpose. This helps to keep the repository organized and easy to understand.
 - **Single Source of Truth**: Whenever possible, there should be a single source of truth for any given piece of information. For example, all build scripts are in the `/build` directory, and all documentation is in the `/docs` directory.
-- **Agent-Human Collaboration**: The repository is designed to be a collaborative environment for both human developers and AI agents. The `/memory-bank` and `/rules` directories are specifically for the agent, while the rest of the repository is for human developers.
+- **Agent-Human Collaboration**: The repository is designed for both human developers and AI agents. While directories like `/memory-bank` and `/rules` are primarily for the agent's operational use, they are structured for human review and modification to guide the agent's behavior.
