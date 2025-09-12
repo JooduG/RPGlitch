@@ -121,10 +121,10 @@ function injectJsLibs(html, libs) {
 
     const jsBundle = await bundleAndMinifyJs();
 
-    const cashJs = readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.cash.file), 'cash.min.js');
-    const dexieJs = readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.dexie.file), 'dexie.js');
-    const dompurifyJs = readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.dompurify.file), 'purify.min.js');
-    const hyperscriptJs = readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.hyperscript.file), '_hyperscript.min.js');
+    const [cashJs, dexieJs, dompurifyJs, hyperscriptJs] =
+      ['cash', 'dexie', 'dompurify', 'hyperscript'].map(name =>
+        readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS[name].file), LOCAL_LIBS[name].file)
+      );
     const combinedLibs = [cashJs, dexieJs, dompurifyJs, hyperscriptJs].filter(Boolean).join(';\n');
 
     let finalHtml = stripTagsForInlining(htmlSrc);
