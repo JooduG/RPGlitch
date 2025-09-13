@@ -19,7 +19,6 @@ import {
 
 function showStoryboard() {
   showEl("#storyboard-screen");
-  showEl("#chin-container");
   hideEl("#profile-screen");
   hideEl("#character-form-screen");
   hideEl("#world-form-screen");
@@ -91,8 +90,8 @@ function handleRoute() {
     setTopBarRight?.("storyboard");
     showStoryboard();
     try {
-      chin.open?.('stories');
-      log?.('router.defaultedToStories');
+      // chin.open?.('stories'); // removed to prevent auto-opening chin on load
+      log?.('router.defaultedToStoryboard');
     } catch (e) {
       void e;
     }

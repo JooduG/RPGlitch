@@ -70,9 +70,11 @@ afterEach(() => {
 });
 
 test('renderStoryList loads items from storage', async () => {
-  const dom = new JSDOM('<body><div id="chin-story-grid"></div><template id="chin-card-template"><div class="chin-card"><div class="media"></div><h4 class="title"></h4><p class="description"></p></div></template></body>', { url: 'http://localhost', runScripts: 'outside-only' });
+  const dom = new JSDOM('<body><div id="chin-container" hidden><div id="chin-story-grid" class="chin" data-chin="stories" hidden></div></div><template id="chin-card-template"><div class="chin-card"><div class="media"></div><h4 class="title"></h4><p class="description"></p></div></template></body>', { url: 'http://localhost', runScripts: 'outside-only' });
   await loadScripts(dom);
   dom.window.localStorage.setItem('stories', JSON.stringify([{ title: 'My Custom Story' }]));
+  dom.window.App.chin.open('stories');
+  await new Promise(resolve => setTimeout(resolve, 0));
   dom.window.App.renderStoryList();
   const text = dom.window.document.getElementById('chin-story-grid').textContent;
   expect(text).toContain('My Custom Story');

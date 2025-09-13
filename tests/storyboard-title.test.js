@@ -67,6 +67,7 @@ test('default storyboard title adapts to selections', async () => {
     <select id="storyboard-world-select"><option value=""></option><option value="w1">Mars</option></select>
   `;
 
+  await App.initializeWhenReady();
   const originalRandom = dom.window.Math.random;
   dom.window.Math.random = () => 0;
   expect(App._defaultStoryboardTitle()).toBe('Your story begins…');

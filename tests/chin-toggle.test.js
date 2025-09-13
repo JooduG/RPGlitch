@@ -55,7 +55,6 @@ test('App.chin.open() reveals chin container and selected chin', async () => {
   App.chin.init();
   App.chin.open('stories');
   await new Promise(resolve => setTimeout(resolve, 0));
-  App.chin.sync(); // Manually call sync
   const chinContainer = dom.window.document.getElementById('chin-container');
   const selectedChin = dom.window.document.querySelector('[data-chin="stories"]');
   expect(chinContainer.hasAttribute('hidden')).toBe(false);
@@ -77,11 +76,11 @@ test('clicking a button toggles the chin', async () => {
 
   // Open the chin
   button.click();
-  App.chin.sync(); // Manually call sync
+  await new Promise(resolve => setTimeout(resolve, 0));
   expect(panel.hasAttribute('hidden')).toBe(false);
 
   // Close the chin
   button.click();
-  App.chin.sync(); // Manually call sync
+  await new Promise(resolve => setTimeout(resolve, 0));
   expect(panel.hasAttribute('hidden')).toBe(true);
 });

@@ -66,6 +66,9 @@ test('options chin actions trigger database methods', async () => {
   App.exportAllData = jest.fn();
   App.deleteAllData = jest.fn();
 
+  App.chin.open('options');
+  await new Promise(resolve => setTimeout(resolve, 0));
+
   const { uploadBackupTrigger, uploadBackupInput, downloadBackupButton, deleteAllDataButton } = App.ui;
 
   if (uploadBackupTrigger && uploadBackupInput) {
