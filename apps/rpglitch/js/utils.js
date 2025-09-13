@@ -814,7 +814,7 @@ function sync() {
   let anyOpen = false;
   panels.forEach((panel) => {
     const name = panel.dataset.chin;
-    const hidden = panel.hasAttribute("hidden");
+    const hidden = panel.hidden;
     const btn = [...buttons].find((b) => b.dataset.chin === name);
     const selected = !hidden;
     if (btn) {
@@ -872,13 +872,15 @@ function open(name) {
   const panels = getPanels();
   panels.forEach((p) => {
     if (p.dataset.chin === name) {
-      p.removeAttribute("hidden");
+      p.hidden = false;
+      p.removeAttribute("hidden"); // Explicitly remove the attribute
       const focusTarget =
         p.querySelector("[tabindex], button, input, select, textarea, a") ||
         p;
       focusTarget.focus?.();
     } else {
-      p.setAttribute("hidden", "");
+      p.hidden = true;
+      p.setAttribute("hidden", ""); // Explicitly set the attribute
     }
   });
   sync();
@@ -892,7 +894,8 @@ function close(name) {
   const panels = getPanels();
   panels.forEach((p) => {
     if (p.dataset.chin === name) {
-      p.setAttribute("hidden", "");
+      p.hidden = true;
+      p.setAttribute("hidden", ""); // Explicitly set the attribute
     }
   });
   sync();
@@ -968,7 +971,7 @@ function initChin() {
     btn.addEventListener("click", () => {
       const name = btn.dataset.chin;
       const panel = [...getPanels()].find((p) => p.dataset.chin === name);
-      const hidden = panel?.hasAttribute("hidden");
+      const hidden = panel?.hidden;
       if (hidden) open(name);
       else close(name);
     });

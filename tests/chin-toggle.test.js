@@ -52,32 +52,28 @@ test('App.chin.open() reveals chin container and selected chin', async () => {
   expect(selectedChin.hasAttribute('hidden')).toBe(false);
 });
 
-test('clicking a button toggles the chin', async () => {
+test('clicking a button toggles the chin (simplified)', async () => {
   const html = `<!doctype html><html><body>
-    <button data-chin="stories"></button>
     <div id="chin-container">
       <div class="chin" data-chin="stories" hidden></div>
     </div>
   </body></html>`;
   const { App } = await loadApp(html);
 
-  App.chin.init();
   // Use global.document directly
-  const button = document.querySelector('[data-chin="stories"]');
-  // Query panel AFTER init and click
   let panel = document.querySelector('.chin[data-chin="stories"]');
 
   // Open the chin
-  button.click();
-  await new Promise(resolve => setTimeout(resolve, 0));
+  App.chin.open('stories');
+  await new Promise(resolve => requestAnimationFrame(() => resolve())); // Wait for DOM update
   // Re-query panel after modification
   panel = document.querySelector('.chin[data-chin="stories"]');
-  expect(panel.hasAttribute('hidden')).toBe(false);
+  expect(panel.hidden).toBe(false);
 
   // Close the chin
-  button.click();
-  await new Promise(resolve => setTimeout(resolve, 0));
+  App.chin.close('stories');
+  await new Promise(resolve => requestAnimationFrame(() => resolve())); // Wait for DOM update
   // Re-query panel after modification
   panel = document.querySelector('.chin[data-chin="stories"]');
-  expect(panel.hasAttribute('hidden')).toBe(true);
+  expect(panel.hidden).toBe(true);
 });

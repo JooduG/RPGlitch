@@ -18,44 +18,54 @@ async function loadApp() {
   // Clear the document body before each test
   document.body.innerHTML = html;
 
+  // Mock URL.createObjectURL as it's not implemented in JSDOM
+  Object.defineProperty(window.URL, 'createObjectURL', {
+    writable: true,
+    value: jest.fn(() => 'blob:mock-url'),
+  });
+  Object.defineProperty(window.URL, 'revokeObjectURL', {
+    writable: true,
+    value: jest.fn(),
+  });
+
   // Re-import modules to get a fresh state
   jest.resetModules();
+
   const utils = await import('../apps/rpglitch/js/utils.js');
   const index = await import('../apps/rpglitch/js/index.js');
 
-  // App object is now constructed from re-imported modules
-  const App = {
+  // Ensure window.App exists and mock its functions
+  window.App = {
     ...index,
     ...utils,
+    importAllData: jest.fn(),
+    exportAllData: jest.fn(),
+    deleteAllData: jest.fn(),
   };
 
+  jest.spyOn(window.App, 'refreshAllLists').mockImplementation(() => {});
+
   // Re-query ui elements after document.body.innerHTML is set
-  App.ui = {
+  window.App.ui = {
     uploadBackupInput: document.getElementById('upload-backup'),
     uploadBackupTrigger: document.querySelector('[data-trigger="upload-backup"]'),
     downloadBackupButton: document.getElementById('download-backup'),
     deleteAllDataButton: document.getElementById('delete-all-data')
   };
-  App.chin.init();
-  App._attachOptionChinActions();
+  window.App.chin.init();
+  window.App._attachOptionChinActions();
 
-  return App; // No need to return dom anymore
+  return window.App; // Return the global App object
 }
 
 afterEach(() => {
-  // delete global.window;
-  // delete global.document;
-  delete global.App;
+  delete global.window.App; // Clean up global App
   jest.resetModules();
   jest.clearAllMocks();
 });
 
 test('options chin actions trigger database methods', async () => {
-  const App = await loadApp();
-
-  App.importAllData = jest.fn();
-  App.exportAllData = jest.fn();
-  App.deleteAllData = jest.fn();
+  const App = await loadApp(); // App is now window.App
 
   App.chin.open('options');
   await new Promise(resolve => setTimeout(resolve, 0));

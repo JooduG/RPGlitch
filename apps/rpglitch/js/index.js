@@ -938,13 +938,13 @@ export function _attachOptionChinActions() {
 
   if (downloadBackupButton) {
     downloadBackupButton.addEventListener("click", () => {
-      if (typeof exportAllData === "function") exportAllData();
+      if (typeof window.App.exportAllData === "function") window.App.exportAllData();
     });
   }
 
   if (deleteAllDataButton) {
     deleteAllDataButton.addEventListener("click", () => {
-      if (typeof deleteAllData === "function") deleteAllData();
+      if (typeof window.App.deleteAllData === "function") window.App.deleteAllData();
     });
   }
 
@@ -1212,3 +1212,4 @@ document.addEventListener(
     once: true
   }
 );
+
