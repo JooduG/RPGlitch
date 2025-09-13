@@ -131,7 +131,7 @@ export function _attachChinSearchHandlers() {
 
 export function loadStoredItems(key) {
   try {
-    const storage = localStorage;
+    const storage = (global.window || window).localStorage;
     if (!storage) return [];
     const data = storage.getItem(key);
     return data ? JSON.parse(data) : [];
@@ -735,7 +735,8 @@ export function _defaultStoryboardTitle() {
     const select = document.querySelector(`#${id}`);
     const value = select ? select.value : "";
     if (!value) return null;
-    const item = App.getAllItems(key).find(
+    const items = (window.App && window.App.getAllItems) ? window.App.getAllItems(key) : getAllItems(key);
+    const item = items.find(
       (i) => (i.id ?? i.title) === value
     );
     return item ? item.title || null : null;
@@ -930,8 +931,8 @@ export function _attachOptionChinActions() {
     );
     uploadBackupInput.addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
-      if (file && typeof importAllData === "function")
-        importAllData(file);
+      if (file && typeof window.App.importAllData === "function")
+        window.App.importAllData(file);
     });
   }
 

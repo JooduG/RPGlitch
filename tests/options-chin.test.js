@@ -15,48 +15,39 @@ async function loadApp() {
     <div id="download-backup"></div>
     <div id="chin-container"></div>
   </body></html>`;
-  const dom = new JSDOM(html, {
-    url: 'http://localhost',
-    runScripts: 'outside-only'
-  });
+  // Clear the document body before each test
+  document.body.innerHTML = html;
 
-  global.window = dom.window;
-  global.document = dom.window.document;
-
-  dom.window.alert = () => {};
-  dom.window.Dexie = function () {};
-  dom.window.DOMPurify = {};
-  dom.window._hyperscript = {};
-  dom.window.$ = function () {};
-
+  // Re-import modules to get a fresh state
+  jest.resetModules();
   const utils = await import('../apps/rpglitch/js/utils.js');
   const index = await import('../apps/rpglitch/js/index.js');
 
-  dom.window.App = {
+  // App object is now constructed from re-imported modules
+  const App = {
     ...index,
     ...utils,
   };
 
-  dom.window.App.ui = {
-    uploadBackupInput: dom.window.document.getElementById('upload-backup'),
-    uploadBackupTrigger: dom.window.document.querySelector('[data-trigger="upload-backup"]'),
-    downloadBackupButton: dom.window.document.getElementById('download-backup'),
-    deleteAllDataButton: dom.window.document.getElementById('delete-all-data')
+  // Re-query ui elements after document.body.innerHTML is set
+  App.ui = {
+    uploadBackupInput: document.getElementById('upload-backup'),
+    uploadBackupTrigger: document.querySelector('[data-trigger="upload-backup"]'),
+    downloadBackupButton: document.getElementById('download-backup'),
+    deleteAllDataButton: document.getElementById('delete-all-data')
   };
-  dom.window.App.chin.init();
-  dom.window.App._attachOptionChinActions();
+  App.chin.init();
+  App._attachOptionChinActions();
 
-  return dom.window.App;
+  return App; // No need to return dom anymore
 }
 
 afterEach(() => {
-  delete global.window;
-  delete global.document;
+  // delete global.window;
+  // delete global.document;
   delete global.App;
-  const entities = require('../apps/rpglitch/js/entities.js');
-  for (const key in entities._allItemsCache) {
-    delete entities._allItemsCache[key];
-  }
+  jest.resetModules();
+  jest.clearAllMocks();
 });
 
 test('options chin actions trigger database methods', async () => {
@@ -69,10 +60,14 @@ test('options chin actions trigger database methods', async () => {
   App.chin.open('options');
   await new Promise(resolve => setTimeout(resolve, 0));
 
-  const { uploadBackupTrigger, uploadBackupInput, downloadBackupButton, deleteAllDataButton } = App.ui;
+  // Re-query elements after modification
+  const uploadBackupTrigger = document.querySelector('[data-trigger="upload-backup"]');
+  const uploadBackupInput = document.getElementById('upload-backup');
+  const downloadBackupButton = document.getElementById('download-backup');
+  const deleteAllDataButton = document.getElementById('delete-all-data');
 
   if (uploadBackupTrigger && uploadBackupInput) {
-    const view = uploadBackupInput.ownerDocument.defaultView;
+    const view = window; // Use global window
     const file = new view.File(['{}'], 'backup.json', { type: 'application/json' });
     uploadBackupTrigger.click();
     Object.defineProperty(uploadBackupInput, 'files', { value: [file] });

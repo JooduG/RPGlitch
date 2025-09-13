@@ -23,44 +23,34 @@ jest.mock('../apps/rpglitch/js/entities.js', () => ({
 }));
 
 async function loadApp() {
-  const dom = new JSDOM('<!doctype html><html><body></body></html>', {
-    url: 'http://localhost',
-    runScripts: 'outside-only'
-  });
+  // Clear the document body before each test
+  document.body.innerHTML = `<!doctype html><html><body></body></html>`;
 
-  global.window = dom.window;
-  global.document = dom.window.document;
-
-  dom.window.Dexie = function () {};
-  dom.window.DOMPurify = { sanitize: (str) => str };
-  dom.window._hyperscript = {};
-  dom.window.$ = function () {};
-
+  // Re-import modules to get a fresh state
+  jest.resetModules();
   const utils = await import('../apps/rpglitch/js/utils.js');
   const index = await import('../apps/rpglitch/js/index.js');
 
-  dom.window.App = {
+  // App object is now constructed from re-imported modules
+  const App = {
     ...index,
     ...utils,
   };
 
-  return { dom, App: dom.window.App };
+  return { App }; // No need to return dom anymore
 }
 
 afterEach(() => {
-  delete global.window;
-  delete global.document;
+  // delete global.window;
+  // delete global.document;
   delete global.App;
-  const entities = require('../apps/rpglitch/js/entities.js');
-  for (const key in entities._allItemsCache) {
-    delete entities._allItemsCache[key];
-  }
+  jest.resetModules();
   jest.clearAllMocks();
 });
 
 test('default storyboard title adapts to selections', async () => {
-  const { dom, App } = await loadApp();
-  const document = dom.window.document;
+  const { App } = await loadApp();
+  // Use global.document directly
   document.body.innerHTML = `
     <select id="storyboard-ai-select"><option value=""></option><option value="a1">Alice</option></select>
     <select id="storyboard-user-select"><option value=""></option><option value="u1">Bob</option></select>
@@ -68,8 +58,8 @@ test('default storyboard title adapts to selections', async () => {
   `;
 
   await App.initializeWhenReady();
-  const originalRandom = dom.window.Math.random;
-  dom.window.Math.random = () => 0;
+  const originalRandom = window.Math.random; // Use global window
+  window.Math.random = () => 0; // Use global window
   expect(App._defaultStoryboardTitle()).toBe('Your story begins…');
   document.getElementById('storyboard-ai-select').value = 'a1';
   expect(App._defaultStoryboardTitle()).toBe('Once upon a time Alice');
@@ -77,5 +67,5 @@ test('default storyboard title adapts to selections', async () => {
   expect(App._defaultStoryboardTitle()).toBe('Once upon a time Alice & Bob');
   document.getElementById('storyboard-world-select').value = 'w1';
   expect(App._defaultStoryboardTitle()).toBe('Once upon a time Alice & Bob in Mars');
-  dom.window.Math.random = originalRandom;
+  window.Math.random = originalRandom; // Use global window
 });

@@ -24,6 +24,7 @@ async function loadApp() {
   dom.window._hyperscript = {};
   dom.window.$ = function () {};
 
+  jest.resetModules();
   const utils = await import('../apps/rpglitch/js/utils.js');
   const index = await import('../apps/rpglitch/js/index.js');
 

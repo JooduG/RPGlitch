@@ -9,39 +9,29 @@ jest.mock('../apps/rpglitch/js/entities.js', () => ({
 }));
 
 async function loadApp(html) {
-  const dom = new JSDOM(html, {
-    url: 'http://localhost',
-    runScripts: 'outside-only'
-  });
+  // Clear the document body before each test
+  document.body.innerHTML = html;
 
-  global.window = dom.window;
-  global.document = dom.window.document;
-
-  dom.window.alert = () => {};
-  dom.window.Dexie = function () {};
-  dom.window.DOMPurify = {};
-  dom.window._hyperscript = {};
-  dom.window.$ = function () {};
-
+  // Re-import modules to get a fresh state
+  jest.resetModules();
   const utils = await import('../apps/rpglitch/js/utils.js');
   const index = await import('../apps/rpglitch/js/index.js');
 
-  dom.window.App = {
+  // App object is now constructed from re-imported modules
+  const App = {
     ...index,
     ...utils,
   };
 
-  return { dom, App: dom.window.App };
+  return { App }; // No need to return dom anymore
 }
 
 afterEach(() => {
-  delete global.window;
-  delete global.document;
+  // delete global.window;
+  // delete global.document;
   delete global.App;
-  const entities = require('../apps/rpglitch/js/entities.js');
-  for (const key in entities._allItemsCache) {
-    delete entities._allItemsCache[key];
-  }
+  jest.resetModules();
+  jest.clearAllMocks();
 });
 
 test('App.chin.open() reveals chin container and selected chin', async () => {
@@ -50,13 +40,14 @@ test('App.chin.open() reveals chin container and selected chin', async () => {
       <div class="chin" data-chin="stories" hidden></div>
     </div>
   </body></html>`;
-  const { dom, App } = await loadApp(html);
+  const { App } = await loadApp(html);
 
   App.chin.init();
   App.chin.open('stories');
   await new Promise(resolve => setTimeout(resolve, 0));
-  const chinContainer = dom.window.document.getElementById('chin-container');
-  const selectedChin = dom.window.document.querySelector('[data-chin="stories"]');
+  // Use global.document directly
+  const chinContainer = document.getElementById('chin-container');
+  const selectedChin = document.querySelector('[data-chin="stories"]');
   expect(chinContainer.hasAttribute('hidden')).toBe(false);
   expect(selectedChin.hasAttribute('hidden')).toBe(false);
 });
@@ -68,19 +59,25 @@ test('clicking a button toggles the chin', async () => {
       <div class="chin" data-chin="stories" hidden></div>
     </div>
   </body></html>`;
-  const { dom, App } = await loadApp(html);
+  const { App } = await loadApp(html);
 
   App.chin.init();
-  const button = dom.window.document.querySelector('[data-chin="stories"]');
-  const panel = dom.window.document.querySelector('.chin[data-chin="stories"]');
+  // Use global.document directly
+  const button = document.querySelector('[data-chin="stories"]');
+  // Query panel AFTER init and click
+  let panel = document.querySelector('.chin[data-chin="stories"]');
 
   // Open the chin
   button.click();
   await new Promise(resolve => setTimeout(resolve, 0));
+  // Re-query panel after modification
+  panel = document.querySelector('.chin[data-chin="stories"]');
   expect(panel.hasAttribute('hidden')).toBe(false);
 
   // Close the chin
   button.click();
   await new Promise(resolve => setTimeout(resolve, 0));
+  // Re-query panel after modification
+  panel = document.querySelector('.chin[data-chin="stories"]');
   expect(panel.hasAttribute('hidden')).toBe(true);
 });

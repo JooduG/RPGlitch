@@ -23,6 +23,7 @@ async function loadApp(htmlContent = '<!doctype html><html><body></body></html>'
   dom.window._hyperscript = {};
   dom.window.$ = function () {};
 
+  jest.resetModules();
   const utils = await import('../apps/rpglitch/js/utils.js');
   const index = await import('../apps/rpglitch/js/index.js');
 
@@ -42,10 +43,8 @@ afterEach(() => {
   delete global.window;
   delete global.document;
   delete global.App;
-  const entities = require('../apps/rpglitch/js/entities.js');
-  for (const key in entities._allItemsCache) {
-    delete entities._allItemsCache[key];
-  }
+  jest.resetModules();
+  jest.clearAllMocks();
 });
 
 test('initializeWhenReady runs without errors', async () => {

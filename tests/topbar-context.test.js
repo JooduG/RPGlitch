@@ -9,39 +9,29 @@ jest.mock('../apps/rpglitch/js/entities.js', () => ({
 }));
 
 async function loadApp(html) {
-  const dom = new JSDOM(html, {
-    url: 'http://localhost',
-    runScripts: 'outside-only'
-  });
+  // Clear the document body before each test
+  document.body.innerHTML = html;
 
-  global.window = dom.window;
-  global.document = dom.window.document;
-
-  dom.window.alert = () => {};
-  dom.window.Dexie = function () {};
-  dom.window.DOMPurify = {};
-  dom.window._hyperscript = {};
-  dom.window.$ = function () {};
-
+  // Re-import modules to get a fresh state
+  jest.resetModules();
   const utils = await import('../apps/rpglitch/js/utils.js');
   const index = await import('../apps/rpglitch/js/index.js');
 
-  dom.window.App = {
+  // App object is now constructed from re-imported modules
+  const App = {
     ...index,
     ...utils,
   };
 
-  return { dom, App: dom.window.App };
+  return { App }; // No need to return dom anymore
 }
 
 afterEach(() => {
-  delete global.window;
-  delete global.document;
+  // delete global.window;
+  // delete global.document;
   delete global.App;
-  const entities = require('../apps/rpglitch/js/entities.js');
-  for (const key in entities._allItemsCache) {
-    delete entities._allItemsCache[key];
-  }
+  jest.resetModules();
+  jest.clearAllMocks();
 });
 
 test('top bar click triggers chin toggle without duplicate handlers', async () => {
@@ -55,19 +45,24 @@ test('top bar click triggers chin toggle without duplicate handlers', async () =
       <div class="chin" data-chin="stories" hidden></div>
     </div>
   </body></html>`;
-  const { dom, App } = await loadApp(html);
+  const { App } = await loadApp(html);
 
   App.chin.init();
   App.chin.init(); // Call twice to ensure no duplicate handlers
 
-  const btn = dom.window.document.querySelector('#top-bar-left button[data-chin="stories"]');
-  const panel = dom.window.document.querySelector('.chin[data-chin="stories"]');
+  const btn = document.querySelector('#top-bar-left button[data-chin="stories"]');
+  // Re-query panel after modification
+  let panel = document.querySelector('.chin[data-chin="stories"]');
   if (btn && panel) {
     btn.click();
     await new Promise(resolve => setTimeout(resolve, 0));
+    // Re-query panel after modification
+    panel = document.querySelector('.chin[data-chin="stories"]');
     expect(panel.hasAttribute('hidden')).toBe(false);
     btn.click();
     await new Promise(resolve => setTimeout(resolve, 0));
+    // Re-query panel after modification
+    panel = document.querySelector('.chin[data-chin="stories"]');
     expect(panel.hasAttribute('hidden')).toBe(true);
   }
 });
