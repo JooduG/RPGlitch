@@ -64,9 +64,9 @@ test('_getUIElements is defined before initialization', async () => {
 test('initializeWhenReady resets retry counter on success', async () => {
   const html = `<!doctype html><html><body></body></html>`; // Simplified HTML
   const App = await loadApp(html);
-  App.initializeWhenReadyRetryCount = 2;
+  window.initializeWhenReadyRetryCount = 2;
   App.initialLoad = jest.fn().mockResolvedValue();
   App._attachStoryboardEventListeners = jest.fn();
   await App.initializeWhenReady();
-  expect(App.initializeWhenReadyRetryCount).toBe(0);
+  expect(window.initializeWhenReadyRetryCount).toBe(0);
 });

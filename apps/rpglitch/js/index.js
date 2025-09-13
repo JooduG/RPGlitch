@@ -248,7 +248,7 @@ function renderList(containerId, key) {
         media.prepend(maybe);
       } else if (typeof maybe === "string") {
         const t = document.createElement("template");
-        t.innerHTML = DOMPurify ? DOMPurify.sanitize(maybe.trim()) : maybe.trim();
+        t.innerHTML = window.DOMPurify ? window.DOMPurify.sanitize(maybe.trim()) : maybe.trim();
         const node = t.content.firstElementChild;
         if (node) media.prepend(node);
       }
@@ -630,8 +630,8 @@ function updateStoryboardCard(target, entityOrKey, opts = {}) {
           out = maybe;
         } else if (typeof maybe === "string") {
           const tpl = document.createElement("template");
-          tpl.innerHTML = DOMPurify ?
-            DOMPurify.sanitize(maybe.trim()) :
+          tpl.innerHTML = window.DOMPurify ?
+            window.DOMPurify.sanitize(maybe.trim()) :
             maybe.trim();
           out = tpl.content.firstElementChild;
         }
@@ -1026,11 +1026,10 @@ export function _attachContentChinActions() {
   _contentListenersAttached = true;
 }
 
-let initializeWhenReadyRetryCount = 0;
 export async function initializeWhenReady() {
   try {
     console.log('[RPGlitch] initializeWhenReady start', {
-      retry: initializeWhenReadyRetryCount
+      retry: window.initializeWhenReadyRetryCount || 0
     });
   } catch { /* ignore */ }
 
@@ -1103,14 +1102,14 @@ export async function initializeWhenReady() {
     } catch {
       void 0;
     }
-    initializeWhenReadyRetryCount = 0;
+    window.initializeWhenReadyRetryCount = 0;
     try {
       console.log('[RPGlitch] initializeWhenReady success');
     } catch { /* ignore */ }
     return true;
   } catch (error) {
-    const retryCount = initializeWhenReadyRetryCount + 1;
-    initializeWhenReadyRetryCount = retryCount;
+    const retryCount = (window.initializeWhenReadyRetryCount || 0) + 1;
+    window.initializeWhenReadyRetryCount = retryCount;
     try {
       console.error(`❗ App initialization failed (attempt ${retryCount}/${MAX_INIT_RETRIES})`, error && (error.stack || error), error);
     } catch { /* ignore */ }

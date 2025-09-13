@@ -67,7 +67,7 @@ test('outside click closes chin and disables container pointer-events', async ()
 
   // Open the Stories chin
   App.chin.open('stories');
-  App.chin.sync();
+  await new Promise(resolve => setTimeout(resolve, 0));
   const cont = dom.window.document.getElementById('chin-container');
   const panel = dom.window.document.querySelector('.chin[data-chin="stories"]');
   expect(cont.hasAttribute('hidden')).toBe(false);
@@ -79,8 +79,7 @@ test('outside click closes chin and disables container pointer-events', async ()
   const bd = dom.window.document.getElementById('chin-backdrop');
   bd.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
 
-  // Ensure a sync pass applied post-close
-  App.chin.sync();
+  await new Promise(resolve => setTimeout(resolve, 0));
   // Container becomes hidden and non-interactive
   expect(cont.hasAttribute('hidden')).toBe(true);
   expect(cont.style.pointerEvents).toBe('none');
