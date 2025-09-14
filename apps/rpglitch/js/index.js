@@ -907,6 +907,22 @@ export function _attachStoryboardListeners() {
       setDynamicTitle?.();
     });
   }
+  const beginStoryBtn = document.querySelector("#begin-story");
+  if(beginStoryBtn) {
+    beginStoryBtn.addEventListener("click", () => {
+      const aiSelect = document.querySelector("#storyboard-ai-select");
+      const userSelect = document.querySelector("#storyboard-user-select");
+      const worldSelect = document.querySelector("#storyboard-world-select");
+
+      if (aiSelect.value && userSelect.value && worldSelect.value) {
+        document.querySelector("#storyboard-screen").hidden = true;
+        document.querySelector("#chat-screen-container").hidden = false;
+        console.log("Navigating to chat screen.");
+      } else {
+        console.log("Please select an AI character, a user character, and a world to begin.");
+      }
+    });
+  }
   document.querySelectorAll(".storyboard-card").forEach((card) => {
     const type = card.dataset.entityType;
     const id = card.dataset.entityId || "";
@@ -1027,6 +1043,27 @@ export function _attachContentChinActions() {
   _contentListenersAttached = true;
 }
 
+export function _attachChatFormListener() {
+  const chatForm = document.querySelector("#chat-form");
+  if (chatForm && !chatForm._submitListenerAttached) {
+    chatForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = chatForm.querySelector('input[name="message"]');
+      const message = input.value.trim();
+      if (message) {
+        const chatFeed = document.querySelector("#chat-feed");
+        const messageEl = document.createElement("div");
+        messageEl.classList.add("chat-message", "user-message");
+        messageEl.textContent = message;
+        chatFeed.appendChild(messageEl);
+        input.value = "";
+        chatFeed.scrollTop = chatFeed.scrollHeight;
+      }
+    });
+    chatForm._submitListenerAttached = true;
+  }
+}
+
 export async function initializeWhenReady() {
   try {
     console.log('[RPGlitch] initializeWhenReady start', {
@@ -1036,6 +1073,7 @@ export async function initializeWhenReady() {
 
   try {
     _getUIElements();
+    _attachChatFormListener?.();
     if (!TEST_MODE) chin.init?.();
     _attachOptionChinActions?.();
     _attachContentChinActions?.();
