@@ -23,7 +23,7 @@
     "lint:js:fix": "eslint -c build/config/.eslintrc.js . --fix",
     "lint:css": "stylelint \"**/*.scss\" --config build/config/.stylelintrc.json",
     "lint:css:fix": "stylelint \"**/*.scss\" --config build/config/.stylelintrc.json --fix",
-    "lint:html": "htmlhint '**/*.html' --ignore 'build/output/**/*.html'",
+    "lint:html": "htmlhint '**/*.html' --ignore 'build/output/**/*.html' --ignore '**/coverage/**/*'",
     "lint:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc",
     "test": "jest",
     "//--- BUILDING ---": "",

@@ -28,6 +28,9 @@ const AI_CHAOS_INSTRUCTION = `You are a 'Mad Prompt Scientist'—a master of mix
 
 let currentGScale, currentAiTemperature;
 let imgSeed = "";
+let mainPromptContent = "";
+let numImagesToGen = 0;
+let masterCreativity = "4";
 
 window.activeAiProcess = null;
 window.aiProcessInterval = null;
@@ -127,7 +130,7 @@ function loadSavedSettings() {
     }
 
     if (localStorage.masterCreativity) {
-      let masterCreativity = Number(localStorage.masterCreativity);
+      masterCreativity = Number(localStorage.masterCreativity);
       document.getElementById('masterCreativitySlider').value = masterCreativity;
     }
 
@@ -679,7 +682,7 @@ document.addEventListener('DOMContentLoaded', function() {
   summonBtn.addEventListener('click', handlePrimaryButtonClick);
   aiMagicSelect.addEventListener('change', () => handleAiMagicSelection(aiMagicSelect));
   numImagesSelect.addEventListener('change', () => {
-    numImagesToGen = Number(numImagesToGen.value);
+    numImagesToGen = Number(numImagesSelect.value);
     checkAllButtonStates();
     rememberSettings();
   });
