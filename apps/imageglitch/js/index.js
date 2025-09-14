@@ -150,7 +150,7 @@ function handleTextareaKeyDown(event, textarea) {
     event.preventDefault(); // Prevent default behavior (adding a new line)
     const summonBtn = document.getElementById('summonBtn');
     if (!summonBtn.disabled) {
-      summonBtn.click(); // Trigger the command button
+      handlePrimaryButtonClick();
     }
   }
 }
@@ -206,7 +206,7 @@ async function executeAiProcess(type, prompt, instructions) {
       fallbackText = "A beautiful cat in a sunbeam, digital art.";
       break;
     case 'transfigure':
-      aiPrompt = `You are a 'Prompt Modification Specialist.' Your task is to take the user's prompt: "${prompt}" and modify it precisely according to these specific instructions: "${instructions}". IMPORTANT: Do NOT use numerical weighting syntax (e.g., 'word:1.2'). If the user's input contains weighted words or implies emphasis, translate that emphasis into descriptive language. Make sure the prompt is 100% affirmative and avoid negative phrasing (e.g., 'no hats', 'not blurry'); instead, describe what IS desired. When appropriate, you can introduce variations by using the syntax '{Option A|Option B|Option C}' to allow the final prompt to randomly select one of the specified options. If the user wants NSFW elements you must use explicit language throughout and exaggerate the NSFW-aspects. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.`;
+      aiPrompt = `You are a 'Prompt Modification Specialist.' Your task is to take the user's prompt: "${prompt}" and modify it precisely according to these specific instructions: "${instructions}". IMPORTANT: Do NOT use numerical weighting syntax (e.g., 'word:1.2'). If the user's input contains weighted words or implies emphasis, translate that emphasis into descriptive language. Make sure the prompt is 100% affirmative and avoid negative phrasing (e.g., 'no hats', 'not blurry'); instead, describe what IS desired. When appropriate, you can introduce creative variations by using the syntax '{Option A|Option B|Option C}' to allow the final prompt to randomly select one of the specified options. If the user wants NSFW elements you must use explicit language throughout and exaggerate the NSFW-aspects. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.`;
       break;
   }
 
@@ -265,14 +265,14 @@ function setUndoState(type) {
 
   summonBtn.textContent = `Undo ${typeName}`;
   summonBtn.className = 'undo-button';
-  summonBtn.onclick = handleUndoClick;
+  summonBtn.dataset.currentAction = 'undo';
 }
 
 function resetSmartButton() {
   const summonBtn = document.getElementById('summonBtn');
   summonBtn.textContent = 'Generate Images';
   summonBtn.className = 'summon-button';
-  summonBtn.onclick = handleSummonClick;
+  summonBtn.dataset.currentAction = 'summon';
   window.undoState.type = null;
   window.undoState.prompt = null;
   window.undoState.instruction = null;
@@ -292,7 +292,7 @@ function startTimerOnButton() {
   let seconds = 0;
   summonBtn.textContent = `Cancel (0s)`;
   summonBtn.className = 'cancel-button';
-  summonBtn.onclick = () => { window.activeAiProcess = 'cancelling'; };
+  summonBtn.dataset.currentAction = 'cancel';
 
   if (window.aiProcessInterval) clearInterval(window.aiProcessInterval);
   window.aiProcessInterval = setInterval(() => {
@@ -322,9 +322,34 @@ function setCommandState(commandType) {
 
   summonBtn.textContent = text;
   summonBtn.className = className;
-  summonBtn.onclick = () => handleAiButtonClick(commandType);
+  summonBtn.dataset.currentAction = commandType;
   checkAllButtonStates();
 }
+
+function handlePrimaryButtonClick() {
+  const summonBtn = document.getElementById('summonBtn');
+  const action = summonBtn.dataset.currentAction;
+
+  switch (action) {
+    case 'summon':
+      handleSummonClick();
+      break;
+    case 'scribe':
+    case 'chaos':
+    case 'transfigure':
+      handleAiButtonClick(action);
+      break;
+    case 'undo':
+      handleUndoClick();
+      break;
+    case 'cancel':
+      window.activeAiProcess = 'cancelling';
+      break;
+    default:
+      console.error('Unknown button action:', action);
+  }
+}
+
 
 // ====== IMAGE SUMMONING & MAIN STATE LOGIC ======
 function handleSummonClick() {
@@ -651,10 +676,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const promptInput = document.getElementById('promptInput');
   const instructionInput = document.getElementById('instructionInput');
 
-  summonBtn.addEventListener('click', handleSummonClick);
+  summonBtn.addEventListener('click', handlePrimaryButtonClick);
   aiMagicSelect.addEventListener('change', () => handleAiMagicSelection(aiMagicSelect));
   numImagesSelect.addEventListener('change', () => {
-    numImagesToGen = Number(numImagesSelect.value);
+    numImagesToGen = Number(numImagesToGen.value);
     checkAllButtonStates();
     rememberSettings();
   });
