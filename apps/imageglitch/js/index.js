@@ -148,11 +148,11 @@ function loadSavedSettings() {
 }
 
 // Function to handle Enter key press in textareas
-function handleTextareaKeyDown(event, textarea) {
+function handleTextareaKeyDown(event) {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault(); // Prevent default behavior (adding a new line)
     const summonBtn = document.getElementById('summonBtn');
-    if (!summonBtn.disabled) {
+    if (summonBtn && !summonBtn.disabled) {
       summonBtn.click(); // Trigger the command button
     }
   }
@@ -653,7 +653,13 @@ function main() {
   const promptInput = document.getElementById('promptInput');
   const instructionInput = document.getElementById('instructionInput');
 
-  summonBtn.addEventListener('click', handleSummonClick);
+  if (summonBtn) {
+    summonBtn.onclick = handleSummonClick;
+  }
+  if (promptInput) {
+    promptInput.addEventListener('keydown', handleTextareaKeyDown);
+  }
+
   aiMagicSelect.addEventListener('change', () => handleAiMagicSelection(aiMagicSelect));
   numImagesSelect.addEventListener('change', () => {
     numImagesToGen = Number(numImagesSelect.value);
@@ -668,7 +674,6 @@ function main() {
     mainPromptContent = promptInput.value;
     handleManualPromptChange();
   });
-  promptInput.addEventListener('keydown', (e) => handleTextareaKeyDown(e, promptInput));
   instructionInput.addEventListener('input', handleManualPromptChange);
   instructionInput.addEventListener('keydown', (e) => handleTextareaKeyDown(e, instructionInput));
 
