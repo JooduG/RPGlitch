@@ -69,12 +69,6 @@ function injectCss(html, css) {
   return html.replace('</head>', `${styleTag}</head>`);
 }
 
-function injectJs(html, js) {
-  if (!js) return html;
-  const scriptTag = `<script id="rpglitch-inline-js">${js}</script>`;
-  return html.replace('</body>', `${scriptTag}</body>`);
-}
-
 async function bundleAndMinifyJs() {
   const entryPoint = path.join(APP_JS_DIR, 'index.js');
   if (!fs.existsSync(entryPoint)) {
@@ -97,12 +91,6 @@ async function bundleAndMinifyJs() {
     console.error('❌ esbuild bundling failed:', err);
     throw err;
   }
-}
-
-function injectJsLibs(html, libs) {
-  if (!libs) return html;
-  const scriptTag = `<script id="rpglitch-inline-libs">${libs}</script>`;
-  return html.replace('</body>', `${scriptTag}</body>`);
 }
 
 (async function main() {
@@ -129,8 +117,10 @@ function injectJsLibs(html, libs) {
 
     let finalHtml = stripTagsForInlining(htmlSrc);
     finalHtml = injectCss(finalHtml, combinedCss);
-    finalHtml = injectJsLibs(finalHtml, combinedLibs);
-    finalHtml = injectJs(finalHtml, jsBundle);
+
+    const libsScript = combinedLibs ? `<script id="rpglitch-inline-libs">${combinedLibs}</script>` : '';
+    const jsScript = jsBundle ? `<script id="rpglitch-inline-js">${jsBundle}</script>` : '';
+    finalHtml = finalHtml.replace('</body>', `${libsScript}${jsScript}</body>`);
 
     fs.writeFileSync(OUTPUT_HTML, finalHtml, 'utf8');
     console.log(`✅ Built: ${path.relative(ROOT, OUTPUT_HTML)}`);
