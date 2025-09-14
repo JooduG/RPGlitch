@@ -7,6 +7,7 @@ This document provides an overview of the entire documentation system for the Jo
 - **[Project-Wide README](../README.md)**: The main entry point for the project, covering core principles, development environment setup, and key constraints.
 - **[AGENTS.md](../AGENTS.md)**: The canonical playbook for all contributors (human and AI).
 - **[System Rules](../rules/)**: Core principles and rules for the system.
+  - **[MCP Guide](../docs/mcp/guide.md)**: The consolidated guide for Metacognitive Process (MCP) configuration and usage.
   - **[System Architecture](../rules/system-architecture.md)**: The overall system design and principles.
   - **[System Orchestration Mode](../rules/system-orchestration-mode.md)**: The primary 3-role (Strategic, Tactical, Operational) model.
   - **[System Rule Interactions](../rules/system-rule-interactions.md)**: Explains how rules are prioritized and combined.

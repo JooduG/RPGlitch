@@ -72,7 +72,7 @@ Read in this order before you start changing anything:
 
 1. **Supporting Systems (Load as needed):**
 
-- `rules/mcp-*.md`: For interacting with the MCP tool ecosystem.
+- `docs/mcp/guide.md`: The consolidated guide for Metacognitive Process (MCP) configuration and usage.
 
 1. **Technology-Specific Rules (Load based on task domain):**
 
@@ -109,7 +109,7 @@ This file defines available Model Context Protocol (MCP) servers for the Gemini 
 - Prefer `npm ci` for clean, reproducible installs.
 - Respect the **allowed write paths** (see **Permissions**).
 
-### Build Commands
+### Build commands
 
 - **Deploy:** `npm run deploy` (sync all, test, lint, build & copy)
 - **Build:** `npm run build`

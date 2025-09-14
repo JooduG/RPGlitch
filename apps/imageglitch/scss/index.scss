@@ -128,7 +128,6 @@ select:disabled, select:disabled:hover {
 .creativity-slider {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
 }
 
 #master-creativity-label {
@@ -273,7 +272,7 @@ input[type="range"]::-moz-range-thumb:hover {
 }
 
 #prompt-input { min-height: 4.5em; }
-#instruction-input { min-height: 3.5em; }
+#instruction-input { min-height: 4.5em; }
 
 #prompt-input:focus, #instruction-input:focus {
   border-color: var(--color-primary);
@@ -336,9 +335,7 @@ textarea::placeholder, input::placeholder {
   display: grid;
   grid-template-rows: 60% 40%;
   grid-template-columns: 60% 40%;
-  grid-gap: 3px;
   background-color: var(--color-surface);
-  padding: 4px;
 }
 
 .quad-row-top, .quad-row-bot { display: contents; }

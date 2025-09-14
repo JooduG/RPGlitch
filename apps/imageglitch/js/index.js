@@ -92,6 +92,11 @@ function updateDerivedSettings() {
   currentGScale = selectedSettings.gScale;
   currentAiTemperature = selectedSettings.aiTemp;
   document.getElementById('masterCreativityValue').innerText = mc;
+
+  const label = document.getElementById('masterCreativityLabel');
+  if (label) {
+    label.innerText = `Creativity: ${mc} (G: ${currentGScale}, T: ${currentAiTemperature})`;
+  }
 }
 
 function handleSeedInput(value) {
@@ -383,12 +388,12 @@ function buildImageGenerationHtml() {
 
       // Create the quad cells
       outputHtml += `<div class="quad-row-top">
-        <div class="quad-cell wide" data-resolution="768x768" data-seed="${cellSeeds[0]}">${image({ prompt, seed: cellSeeds[0], guidanceScale: currentGScale, resolution: "768x768", onFinish: (r) => r.iframe?.replaceWith(r.canvas) })}</div>
-        <div class="quad-cell narrow" data-resolution="512x768" data-seed="${cellSeeds[1]}">${image({ prompt, seed: cellSeeds[1], guidanceScale: currentGScale, resolution: "512x768", onFinish: (r) => r.iframe?.replaceWith(r.canvas) })}</div>
+        <div class="quad-cell wide" data-resolution="768x768" data-seed="${cellSeeds[0]}">${image({ prompt, seed: cellSeeds[0], guidanceScale: currentGScale, resolution: "768x768", onFinish: (r) => { console.log('onFinish callback triggered for image generation:', r); if (r.iframe && r.canvas) { console.log('Attempting to replace iframe with canvas:', r.iframe, r.canvas); const parent = r.iframe.parentNode; if (parent) { parent.replaceChild(r.canvas, r.iframe); console.log('Successfully replaced iframe with canvas using replaceChild.'); } else { console.log('Parent node of iframe not found.'); } } else { console.log('r.iframe or r.canvas is null or undefined, cannot replace.'); } } })}</div>
+        <div class="quad-cell narrow" data-resolution="512x768" data-seed="${cellSeeds[1]}">${image({ prompt, seed: cellSeeds[1], guidanceScale: currentGScale, resolution: "512x768", onFinish: (r) => { console.log('onFinish callback triggered for image generation:', r); if (r.iframe && r.canvas) { console.log('Attempting to replace iframe with canvas:', r.iframe, r.canvas); const parent = r.iframe.parentNode; if (parent) { parent.replaceChild(r.canvas, r.iframe); console.log('Successfully replaced iframe with canvas using replaceChild.'); } else { console.log('Parent node of iframe not found.'); } } else { console.log('r.iframe or r.canvas is null or undefined, cannot replace.'); } } })}</div>
       </div>`;
       outputHtml += `<div class="quad-row-bot">
-        <div class="quad-cell wide" data-resolution="768x512" data-seed="${cellSeeds[2]}">${image({ prompt, seed: cellSeeds[2], guidanceScale: currentGScale, resolution: "768x512", onFinish: (r) => r.iframe?.replaceWith(r.canvas) })}</div>
-        <div class="quad-cell narrow" data-resolution="512x512" data-seed="${cellSeeds[3]}">${image({ prompt, seed: cellSeeds[3], guidanceScale: currentGScale, resolution: "512x512", onFinish: (r) => r.iframe?.replaceWith(r.canvas) })}</div>
+        <div class="quad-cell wide" data-resolution="768x512" data-seed="${cellSeeds[2]}">${image({ prompt, seed: cellSeeds[2], guidanceScale: currentGScale, resolution: "768x512", onFinish: (r) => { console.log('onFinish callback triggered for image generation:', r); if (r.iframe && r.canvas) { console.log('Attempting to replace iframe with canvas:', r.iframe, r.canvas); const parent = r.iframe.parentNode; if (parent) { parent.replaceChild(r.canvas, r.iframe); console.log('Successfully replaced iframe with canvas using replaceChild.'); } else { console.log('Parent node of iframe not found.'); } } else { console.log('r.iframe or r.canvas is null or undefined, cannot replace.'); } } })}</div>
+        <div class="quad-cell narrow" data-resolution="512x512" data-seed="${cellSeeds[3]}">${image({ prompt, seed: cellSeeds[3], guidanceScale: currentGScale, resolution: "512x512", onFinish: (r) => { console.log('onFinish callback triggered for image generation:', r); if (r.iframe && r.canvas) { console.log('Attempting to replace iframe with canvas:', r.iframe, r.canvas); const parent = r.iframe.parentNode; if (parent) { parent.replaceChild(r.canvas, r.iframe); console.log('Successfully replaced iframe with canvas using replaceChild.'); } else { console.log('Parent node of iframe not found.'); } } else { console.log('r.iframe or r.canvas is null or undefined, cannot replace.'); } } })}</div>
       </div>`;
       outputHtml += '</div>';
     }
