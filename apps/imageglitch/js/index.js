@@ -704,9 +704,6 @@ function main() {
     slider.addEventListener('pointerup', () => label.classList.remove('is-active'));
     slider.addEventListener('blur', () => label.classList.remove('is-active'));
   }
-
-  // Set the initial button states after everything is wired up
-  checkAllButtonStates();
 }
 
 
