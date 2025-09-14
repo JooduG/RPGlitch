@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ImageGlitch</title>
   <!--STYLES-->
 </head>
+
 <body>
   <header class="container">
     <nav id="top-bar" class="top-bar">
       <!-- Top Bar Left -->
       <ul role="presentation" id="top-bar-left" class="top-bar-left">
         <li>
-          <button id="summonBtn" class="primary" title="Generate images from your prompt">Generate Images</button>
+          <button id="summonBtn" class="primary" title="Generate images from your prompt">
+            Generate Images
+          </button>
         </li>
         <li>
           <select id="aiMagicSelect">
@@ -44,22 +48,21 @@
         </li>
         <li>
           <input type="text" id="imgSeed" placeholder="Seed (Leave Empty for Random)" value=""
-            title="Use the same number to get the same results again">
+            title="Use the same number to get the same results again" />
         </li>
         <li class="creativity-slider">
-          <label id="masterCreativityLabel" for="masterCreativitySlider">Creativity: <span
-              id="masterCreativityValue">[masterCreativity]</span></label>
           <input type="range" id="masterCreativitySlider" min="0" max="10" step="1" value="[masterCreativity]"
-            title="Control the creativity level. Higher values increase Guidance Scale and lower Temperature.">
+            title="Current creativity level: [masterCreativity]. Higher values increase Guidance Scale and lower Temperature." />
         </li>
       </ul>
     </nav>
   </header>
   <main class="container">
     <div class="prompt-area">
-      <textarea id="promptInput" rows="2" placeholder="Enter your prompt here... then add some AI Magic if you'd like."></textarea>
+      <textarea id="promptInput" rows="2"
+        placeholder="Enter your prompt here... then add some AI Magic if you'd like."></textarea>
     </div>
-    <div id="instructionsPanel" style="display: none;">
+    <div id="instructionsPanel" style="display: none">
       <textarea id="instructionInput" rows="2"
         placeholder="Enter specific instructions for the AI, for example: Change 'landscape' to 'seascape'..."></textarea>
     </div>
@@ -67,4 +70,5 @@
   </main>
   <!--SCRIPTS-->
 </body>
+
 </html>

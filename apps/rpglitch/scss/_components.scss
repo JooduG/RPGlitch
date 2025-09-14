@@ -48,7 +48,6 @@
 }
 
 .chip > small {
-  font-size: 0.8125rem;
   line-height: 1;
 }
 
@@ -67,7 +66,6 @@
   border-radius: 999px;
   background: var(--pico-primary-contrast);
   color: var(--pico-primary);
-  font-size: 0.875rem;
 }
 
 .danger,
@@ -148,7 +146,6 @@
 
 .chin-card .card-description,
 .chin-card .description {
-  font-size: 13px;
   color: rgb(255 255 255 / 85%);
   margin: 0;
   display: -webkit-box;

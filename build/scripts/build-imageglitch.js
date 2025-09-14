@@ -6,20 +6,29 @@
 const fs = require('fs');
 const path = require('path');
 const sass = require('sass');
-const terser = require('terser');
+const esbuild = require('esbuild');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const APP_DIR = path.join(ROOT, 'apps', 'imageglitch');
+const APP_JS_DIR = path.join(APP_DIR, 'js');
 const BUILD_DIR = path.join(ROOT, 'build');
+const LOCAL_LIBS_DIR = path.join(BUILD_DIR, 'local_libs');
+
+const LOCAL_LIBS = {
+  pico: { file: 'pico.min.css' },
+  cash: { file: 'cash.min.js' },
+  dexie: { file: 'dexie.js' },
+  dompurify: { file: 'purify.min.js' },
+  hyperscript: { file: '_hyperscript.min.js' },
+};
 
 const OUTPUT_DIR = path.join(BUILD_DIR, 'output');
 const OUTPUT_HTML = path.join(OUTPUT_DIR, 'ImageGlitch.html');
 
 
-
-const SRC_HTML = path.join(APP_DIR, 'ImageGlitch.html');
-const SRC_SCSS = path.join(APP_DIR, 'ImageGlitch.scss');
-const SRC_JS = path.join(APP_DIR, 'ImageGlitch.js');
+const SRC_HTML = path.join(APP_DIR, 'html', 'index.html');
+const SRC_SCSS = path.join(APP_DIR, 'scss', 'index.scss');
+const SRC_JS = path.join(APP_DIR, 'js', 'index.js');
 
 function ensureDir(p) {
   fs.mkdirSync(p, { recursive: true });
@@ -46,6 +55,18 @@ function injectJs(html, js) {
   return html.replace('<!--SCRIPTS-->', scriptTag);
 }
 
+function stripTagsForInlining(html) {
+  let out = html.replace(/<link[^>]*href=["'][^"']*pico[^"']*["'][^>]*>\s*/gi, '');
+  out = out.replace(/<script[^>]*\bsrc=(['"])(?!https?:\/\/)[^'"]+\.js\1[^>]*>\s*<\/script>\s*/gi, '');
+  return out;
+}
+
+function injectJsLibs(html, libs) {
+  if (!libs) return html;
+  const scriptTag = `<script id="imageglitch-inline-libs">${libs}</script>`;
+  return html.replace('</body>', `${scriptTag}</body>`);
+}
+
 (async function main() {
   try {
     console.log('🔨 Building ImageGlitch…');
@@ -59,18 +80,36 @@ function injectJs(html, js) {
     const scssResult = sass.compile(SRC_SCSS);
     const customCss = scssResult.css;
 
-    const combinedCss = [customCss].filter(Boolean).join('');
+    const picoCss = readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS.pico.file), 'pico.min.css');
+    const combinedCss = [picoCss, customCss].filter(Boolean).join('');
 
-    const jsSrc = readFileSafe(SRC_JS, 'source JS');
-    const minifiedResult = await terser.minify(jsSrc);
-
-    if (minifiedResult.error) {
-      throw new Error(`Terser minification failed: ${minifiedResult.error}`);
+    const entryPoint = SRC_JS;
+    if (!fs.existsSync(entryPoint)) {
+      const errorMsg = `❌ Entry point not found: ${entryPoint}`;
+      console.error(errorMsg);
+      throw new Error(errorMsg);
     }
 
-    let finalHtml = htmlSrc;
+    const jsBundleResult = await esbuild.build({
+      entryPoints: [entryPoint],
+      bundle: true,
+      minify: true,
+      write: false,
+      format: 'iife',
+      globalName: 'ImageGlitchApp',
+    });
+    const jsBundle = jsBundleResult.outputFiles[0].text;
+
+    const [cashJs, dexieJs, dompurifyJs, hyperscriptJs] =
+      ['cash', 'dexie', 'dompurify', 'hyperscript'].map(name =>
+        readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS[name].file), LOCAL_LIBS[name].file)
+      );
+    const combinedLibs = [cashJs, dexieJs, dompurifyJs, hyperscriptJs].filter(Boolean).join(';\n');
+
+    let finalHtml = stripTagsForInlining(htmlSrc);
     finalHtml = injectCss(finalHtml, combinedCss);
-    finalHtml = injectJs(finalHtml, minifiedResult.code);
+    finalHtml = injectJsLibs(finalHtml, combinedLibs);
+    finalHtml = injectJs(finalHtml, jsBundle);
 
     fs.writeFileSync(OUTPUT_HTML, finalHtml, 'utf8');
     console.log(`✅ Built: ${path.relative(ROOT, OUTPUT_HTML)}`);

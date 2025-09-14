@@ -1,9 +1,9 @@
 // Import RPGlitch styles
-@use "../../apps/rpglitch/scss/variables" as *;
-@use "../../apps/rpglitch/scss/base" as *;
-@use "../../apps/rpglitch/scss/layout" as *;
-@use "../../apps/rpglitch/scss/components" as *;
-@use "../../apps/rpglitch/scss/forms" as *;
+@use "../../rpglitch/scss/variables" as *;
+@use "../../rpglitch/scss/base" as *;
+@use "../../rpglitch/scss/layout" as *;
+@use "../../rpglitch/scss/components" as *;
+@use "../../rpglitch/scss/forms" as *;
 
 // ImageGlitch specific CSS variables (extracted from ImageGlitch-style-block.html)
 :root {
@@ -22,6 +22,7 @@
   --color-placeholder: #a6adc8;
   --color-overlay: rgb(24 24 37 / 85%);
   --color-scrollbar-track: #181825;
+  --app-container-max: 100%;
 }
 
 body {
@@ -34,44 +35,18 @@ body {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  line-height: 1.5;
 }
 
 .container {
   width: 95%;
   min-width: auto;
-  max-width: 1200px;
+  max-width: var(--app-container-max);
   box-sizing: border-box;
-  margin-top: 16px;
-}
-
-h1, legend {
-  display: none;
-}
-
-fieldset {
-  background-color: transparent;
-  border: none;
-  padding: 10px 0;
-  margin: 0;
-}
-
-textarea, input, select, button {
-  padding: 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1em;
-  box-sizing: border-box;
-  color: var(--color-text);
-  background-color: var(--color-surface);
-  font-family: inherit;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+  margin-top: 1rem;
 }
 
 button, select {
   cursor: pointer;
-  font-weight: 500;
 }
 
 button:hover, select:hover {
@@ -96,53 +71,53 @@ select:disabled, select:disabled:hover {
 .focus-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 1rem;
   align-items: center;
   background-color: var(--color-scrollbar-track);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 1rem;
+  padding: 1rem;
   box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 
 .control-group {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .left-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .right-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
   margin-left: auto;
 }
 
 .prompt-area, #instructions-panel {
-  margin-top: 16px;
+  margin-top: 1rem;
   position: relative;
 }
 
 .secondary-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 1rem;
   align-items: center;
-  margin-top: 16px;
+  margin-top: 1rem;
 }
 
 .action-item {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 1rem;
 }
 
 .setting-item {
@@ -161,15 +136,14 @@ select:disabled, select:disabled:hover {
   top: 30px;
   left: 0;
   background-color: #11111b; /* This color is not in our variables, keeping as is for now */
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.85em;
+  padding: 1rem;
+  border-radius: 1rem;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease-in-out;
   white-space: nowrap;
   z-index: 10;
-  box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
+  box-shadow: 0 4px 1rem rgb(0 0 0 / 20%);
 }
 
 #master-creativity-label.is-active {
@@ -187,12 +161,11 @@ top-bar ul {
 }
 
 #summon-btn {
-  font-weight: bold;
   transition: all 0.3s ease;
   min-width: 160px;
   text-align: center;
-  box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
-  padding: 12px 18px;
+  box-shadow: 0 4px 1rem rgb(0 0 0 / 20%);
+  padding: 12px 11rem;
   letter-spacing: 0.02em;
 }
 
@@ -236,29 +209,29 @@ input[type="range"] {
   padding: 0;
   background: transparent;
   width: 100%;
-  height: 8px;
+  height: 1rem;
   appearance: none;
-  margin: 16px 0;
+  margin: 1rem 0;
 }
 
 input[type="range"]::-webkit-slider-runnable-track {
-  height: 8px;
+  height: 0.5rem;
   background: var(--color-surface-hover);
-  border-radius: 8px;
+  border-radius: 1rem;
 }
 
 input[type="range"]::-moz-range-track {
-  height: 8px;
+  height: 0.5rem;
   background: var(--color-surface-hover);
-  border-radius: 8px;
+  border-radius: 1rem;
 }
 
 input[type="range"]::-webkit-slider-thumb {
   appearance: none;
-  margin-top: -4px;
+  margin-top: -0.25rem;
   background: var(--color-primary);
-  height: 16px;
-  width: 16px;
+  height: 1rem;
+  width: 1rem;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
@@ -266,8 +239,8 @@ input[type="range"]::-webkit-slider-thumb {
 
 input[type="range"]::-moz-range-thumb {
   background: var(--color-primary);
-  height: 16px;
-  width: 16px;
+  height: 0.5rem;
+  width: 0.5rem;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
@@ -290,13 +263,12 @@ input[type="range"]::-moz-range-thumb:hover {
 #prompt-input, #instruction-input {
   width: 100%;
   background-color: var(--color-surface);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 1rem;
+  padding: 1rem;
   resize: vertical;
   border: 1px solid var(--color-surface-hover);
   box-shadow: inset 0 2px 4px rgb(0 0 0 / 10%);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  font-size: 1.05em;
   line-height: 1.5;
 }
 
@@ -313,18 +285,17 @@ textarea::placeholder, input::placeholder {
   color: var(--color-placeholder);
   opacity: 0.8;
   font-style: italic;
-  font-size: 0.95em;
 }
 
 #num-images-select, #ai-magic-select, #img-seed {
   background-color: var(--color-surface);
   border: 1px solid var(--color-surface-hover);
   transition: all 0.3s ease;
-  padding: 8px 16px;
+  padding: 1rem;
 }
 
 #num-images-select, #ai-magic-select {
-  background: url("data:image/svg+xml;utf8,<svg fill='%23cdd6f4' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 8px center var(--color-surface);
+  background: url("data:image/svg+xml;utf8,<svg fill='%23cdd6f4' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 1rem center var(--color-surface);
   appearance: none;
   padding-right: 36px;
 }
@@ -338,7 +309,6 @@ textarea::placeholder, input::placeholder {
 #ai-magic-select {
   background-color: var(--color-surface);
   color: var(--color-text);
-  font-weight: 500;
 }
 
 .output-area {
@@ -357,8 +327,8 @@ textarea::placeholder, input::placeholder {
   aspect-ratio: 1/1;
   overflow: hidden;
   margin: 0;
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgb(0 0 0 / 25%);
+  border-radius: 1rem;
+  box-shadow: 0 1rem 20px rgb(0 0 0 / 25%);
   position: relative;
 }
 
@@ -376,13 +346,13 @@ textarea::placeholder, input::placeholder {
 .quad-cell {
   overflow: hidden;
   position: relative;
-  border-radius: 8px;
+  border-radius: 1rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .quad-cell:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 28px rgb(0 0 0 / 30%);
+  box-shadow: 0 12px 21rem rgb(0 0 0 / 30%);
   z-index: 5;
 }
 
@@ -405,7 +375,7 @@ textarea::placeholder, input::placeholder {
 
 .solo-block:hover img {
   transform: translateY(-5px);
-  box-shadow: 0 12px 28px rgb(0 0 0 / 30%);
+  box-shadow: 0 12px 21rem rgb(0 0 0 / 30%);
 }
 
 /* Image overlay styles */
@@ -444,7 +414,7 @@ textarea::placeholder, input::placeholder {
 
 .image-info-panel {
   background-color: var(--color-overlay);
-  padding: 16px;
+  padding: 1rem;
   max-width: 100%;
   box-sizing: border-box;
   pointer-events: auto;
@@ -453,8 +423,7 @@ textarea::placeholder, input::placeholder {
 }
 
 .prompt-display {
-  font-size: 0.95em;
-  margin-bottom: 8px;
+  margin-bottom: 1rem;
   white-space: normal;
   overflow-wrap: break-word;
   max-height: 120px;
@@ -468,21 +437,20 @@ textarea::placeholder, input::placeholder {
   align-items: center;
   width: 100%;
   background-color: var(--color-overlay);
-  padding: 8px 16px;
+  padding: 1rem;
   box-sizing: border-box;
   pointer-events: auto;
   backdrop-filter: blur(4px);
 }
 
 .seed-guidance-display {
-  font-size: 0.9em;
   color: var(--color-placeholder);
   line-height: 1.5;
 }
 
 .overlay-controls {
   display: flex;
-  gap: 16px;
+  gap: 1rem;
   pointer-events: auto;
 }
 
@@ -490,10 +458,9 @@ textarea::placeholder, input::placeholder {
   background-color: var(--color-primary-extralight);
   color: var(--color-text);
   border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 1rem;
+  border-radius: 1rem;
   cursor: pointer;
-  font-size: 16px;
   transition: all 0.2s ease;
   pointer-events: auto;
 }
@@ -504,16 +471,15 @@ textarea::placeholder, input::placeholder {
 }
 
 /* Touch-friendly button size for mobile */
-@media (width <= 768px) {
+@media (width <= 761rem) {
   .overlay-button {
-    padding: 8px 16px;
-    font-size: 18px;
+    padding: 1rem;
   }
 
   .focus-bar {
     flex-direction: column;
     align-items: stretch;
-    padding: 16px;
+    padding: 1rem;
   }
 
   .control-group, .left-controls, .right-controls {
@@ -527,7 +493,7 @@ textarea::placeholder, input::placeholder {
 
   .right-controls {
     margin-left: 0;
-    margin-top: 16px;
+    margin-top: 1rem;
   }
 
   #summon-btn {
@@ -545,8 +511,8 @@ textarea::placeholder, input::placeholder {
 
 /* Custom scrollbar styles to make them blend in better */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 1rem;
+  height: 1rem;
 }
 
 ::-webkit-scrollbar-track {
@@ -571,7 +537,7 @@ textarea::placeholder, input::placeholder {
 }
 
 /* Media queries for responsive design */
-@media (width >= 768px) {
+@media (width >= 761rem) {
   .container {
     width: 90%;
     margin-top: 24px;
