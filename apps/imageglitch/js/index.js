@@ -646,53 +646,67 @@ function checkAllButtonStates() {
 }
 
 function main() {
-  loadSavedSettings();
-  updateDerivedSettings();
-  checkAllButtonStates();
-
+  // Get all elements first
   const summonBtn = document.getElementById('summonBtn');
   const aiMagicSelect = document.getElementById('aiMagicSelect');
   const numImagesSelect = document.getElementById('numImagesSelect');
   const imgSeedInput = document.getElementById('imgSeed');
   const promptInput = document.getElementById('promptInput');
   const instructionInput = document.getElementById('instructionInput');
-
-  if (summonBtn) {
-    summonBtn.onclick = handleSummonClick;
-  }
-  if (promptInput) {
-    promptInput.addEventListener('keydown', handleTextareaKeyDown);
-  }
-
-  aiMagicSelect.addEventListener('change', () => handleAiMagicSelection(aiMagicSelect));
-  numImagesSelect.addEventListener('change', () => {
-    numImagesToGen = Number(numImagesSelect.value);
-    checkAllButtonStates();
-    rememberSettings();
-  });
-  imgSeedInput.addEventListener('input', () => {
-    handleSeedInput(imgSeedInput.value);
-    rememberSettings();
-  });
-  promptInput.addEventListener('input', () => {
-    mainPromptContent = promptInput.value;
-    handleManualPromptChange();
-  });
-  instructionInput.addEventListener('input', handleManualPromptChange);
-  instructionInput.addEventListener('keydown', (e) => handleTextareaKeyDown(e, instructionInput));
-
   const slider = document.getElementById('masterCreativitySlider');
   const label = document.getElementById('masterCreativityLabel');
 
-  slider.addEventListener('input', () => {
-    masterCreativity = Number(slider.value);
-    updateDerivedSettings();
-    rememberSettings();
-  });
+  // Load settings and update derived values
+  loadSavedSettings();
+  updateDerivedSettings();
 
-  slider.addEventListener('pointerdown', () => label.classList.add('is-active'));
-  slider.addEventListener('pointerup', () => label.classList.remove('is-active'));
-  slider.addEventListener('blur', () => label.classList.remove('is-active'));
+  // Set initial state for the main button
+  if (summonBtn) {
+    resetSmartButton();
+  }
+
+  // Attach all event listeners
+  if (aiMagicSelect) {
+    aiMagicSelect.addEventListener('change', () => handleAiMagicSelection(aiMagicSelect));
+  }
+  if (numImagesSelect) {
+    numImagesSelect.addEventListener('change', () => {
+      numImagesToGen = Number(numImagesSelect.value);
+      checkAllButtonStates();
+      rememberSettings();
+    });
+  }
+  if (imgSeedInput) {
+    imgSeedInput.addEventListener('input', () => {
+      handleSeedInput(imgSeedInput.value);
+      rememberSettings();
+    });
+  }
+  if (promptInput) {
+    promptInput.addEventListener('input', () => {
+      mainPromptContent = promptInput.value;
+      handleManualPromptChange();
+    });
+    promptInput.addEventListener('keydown', handleTextareaKeyDown);
+  }
+  if (instructionInput) {
+    instructionInput.addEventListener('input', handleManualPromptChange);
+    instructionInput.addEventListener('keydown', handleTextareaKeyDown);
+  }
+
+  if (slider && label) {
+    slider.addEventListener('input', () => {
+      masterCreativity = Number(slider.value);
+      updateDerivedSettings();
+      rememberSettings();
+    });
+    slider.addEventListener('pointerdown', () => label.classList.add('is-active'));
+    slider.addEventListener('pointerup', () => label.classList.remove('is-active'));
+    slider.addEventListener('blur', () => label.classList.remove('is-active'));
+  }
+
+  // Set the initial button states after everything is wired up
+  checkAllButtonStates();
 }
 
 
