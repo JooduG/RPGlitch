@@ -657,7 +657,7 @@ function main() {
     summonBtn.onclick = handleSummonClick;
   }
   if (promptInput) {
-    promptInput.onkeydown = handleTextareaKeyDown;
+    promptInput.addEventListener('keydown', handleTextareaKeyDown);
   }
 
   aiMagicSelect.addEventListener('change', () => handleAiMagicSelection(aiMagicSelect));
