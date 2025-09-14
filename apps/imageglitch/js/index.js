@@ -252,6 +252,10 @@ async function executeAiProcess(type, prompt, instructions) {
 }
 
 function handleManualPromptChange() {
+  // If the prompt content changes and we are in an undo state, reset the button
+  if (window.undoState.type && window.undoState.prompt && mainPromptContent.trim() !== window.undoState.prompt.trim()) {
+    resetSmartButton();
+  }
   checkAllButtonStates();
   rememberSettings();
 }
