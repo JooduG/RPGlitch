@@ -907,19 +907,21 @@ export function _attachStoryboardListeners() {
       setDynamicTitle?.();
     });
   }
+  const aiSelect = document.querySelector("#storyboard-ai-select");
+  const userSelect = document.querySelector("#storyboard-user-select");
+  const worldSelect = document.querySelector("#storyboard-world-select");
+  const storyboardScreen = document.querySelector("#storyboard-screen");
+  const chatScreenContainer = document.querySelector("#chat-screen-container");
+
   const beginStoryBtn = document.querySelector("#begin-story");
   if(beginStoryBtn) {
     beginStoryBtn.addEventListener("click", () => {
-      const aiSelect = document.querySelector("#storyboard-ai-select");
-      const userSelect = document.querySelector("#storyboard-user-select");
-      const worldSelect = document.querySelector("#storyboard-world-select");
-
-      if (aiSelect.value && userSelect.value && worldSelect.value) {
-        document.querySelector("#storyboard-screen").hidden = true;
-        document.querySelector("#chat-screen-container").hidden = false;
+      if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
+        if (storyboardScreen) storyboardScreen.hidden = true;
+        if (chatScreenContainer) chatScreenContainer.hidden = false;
         console.log("Navigating to chat screen.");
       } else {
-        console.log("Please select an AI character, a user character, and a world to begin.");
+        alert("Please select an AI character, a user character, and a world to begin.");
       }
     });
   }
@@ -1046,12 +1048,18 @@ export function _attachContentChinActions() {
 export function _attachChatFormListener() {
   const chatForm = document.querySelector("#chat-form");
   if (chatForm && !chatForm._submitListenerAttached) {
+    const input = chatForm.querySelector('input[name="message"]');
+    const chatFeed = document.querySelector("#chat-feed");
+
+    if (!input || !chatFeed) {
+      console.error("Chat UI elements not found, cannot attach listener.");
+      return;
+    }
+
     chatForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const input = chatForm.querySelector('input[name="message"]');
       const message = input.value.trim();
       if (message) {
-        const chatFeed = document.querySelector("#chat-feed");
         const messageEl = document.createElement("div");
         messageEl.classList.add("chat-message", "user-message");
         messageEl.textContent = message;
