@@ -16,9 +16,13 @@ describe('ImageGlitch', () => {
 
   test('should generate an image when the form is filled and the button is clicked', () => {
     const promptInput = document.getElementById('promptInput');
+    expect(promptInput).not.toBeNull();
     const numImagesSelect = document.getElementById('numImagesSelect');
+    expect(numImagesSelect).not.toBeNull();
     const summonBtn = document.getElementById('summonBtn');
+    expect(summonBtn).not.toBeNull();
     const outputArea = document.getElementById('output');
+    expect(outputArea).not.toBeNull();
 
     // Set the prompt and number of images
     promptInput.value = 'a test prompt';
