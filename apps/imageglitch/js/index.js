@@ -91,7 +91,10 @@ function updateDerivedSettings() {
   const selectedSettings = creativityMap[String(mc)] || { gScale: 7, aiTemp: 1.0 };
   currentGScale = selectedSettings.gScale;
   currentAiTemperature = selectedSettings.aiTemp;
-  document.getElementById('masterCreativityValue').innerText = mc;
+  const creativityValueEl = document.getElementById('masterCreativityValue');
+  if (creativityValueEl) {
+    creativityValueEl.innerText = mc;
+  }
 
   const label = document.getElementById('masterCreativityLabel');
   if (label) {
@@ -356,6 +359,8 @@ function buildImageGenerationHtml() {
   // Determine if we should use random seeds or a user-provided seed
   const useRandomSeeds = imgSeed === "";
 
+  // NOTE: The original quad-block logic was removed because it relied on the Perchance-specific `image()` function,
+  // which is not available in this standalone environment. This has been simplified to always generate solo blocks.
   for (let i = 0; i < n; i++) {
     // Create a block seed based on whether we're using random seeds or not
     let blockSeed;
@@ -367,36 +372,8 @@ function buildImageGenerationHtml() {
       // Use exactly the provided seed for all images
       blockSeed = imgSeed;
     }
-
-    if (Math.random() < 0.1) {
-      const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=1280&seed=${blockSeed}&model=flux&private=true&nologo=true`;
-      outputHtml += `<div class="block solo-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}"><img src="${imgUrl}" loading="lazy" alt="Generated image" crossorigin="anonymous"></div>`;
-    } else {
-      outputHtml += `<div class="block quad-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}">`;
-
-      // Create seeds for each quad cell - use the same seed if provided
-      const cellSeeds = [];
-      for (let j = 0; j < 4; j++) {
-        if (useRandomSeeds) {
-          // Each cell gets a completely random seed
-          cellSeeds.push(Math.floor(Math.random() * 10000000));
-        } else {
-          // Use exactly the provided seed for all cells
-          cellSeeds.push(imgSeed);
-        }
-      }
-
-      // Create the quad cells
-      outputHtml += `<div class="quad-row-top">
-        <div class="quad-cell wide" data-resolution="768x768" data-seed="${cellSeeds[0]}">${image({ prompt, seed: cellSeeds[0], guidanceScale: currentGScale, resolution: "768x768", onFinish: (r) => { console.log('onFinish callback triggered for image generation:', r); if (r.iframe && r.canvas) { console.log('Attempting to replace iframe with canvas:', r.iframe, r.canvas); const parent = r.iframe.parentNode; if (parent) { parent.replaceChild(r.canvas, r.iframe); console.log('Successfully replaced iframe with canvas using replaceChild.'); } else { console.log('Parent node of iframe not found.'); } } else { console.log('r.iframe or r.canvas is null or undefined, cannot replace.'); } } })}</div>
-        <div class="quad-cell narrow" data-resolution="512x768" data-seed="${cellSeeds[1]}">${image({ prompt, seed: cellSeeds[1], guidanceScale: currentGScale, resolution: "512x768", onFinish: (r) => { console.log('onFinish callback triggered for image generation:', r); if (r.iframe && r.canvas) { console.log('Attempting to replace iframe with canvas:', r.iframe, r.canvas); const parent = r.iframe.parentNode; if (parent) { parent.replaceChild(r.canvas, r.iframe); console.log('Successfully replaced iframe with canvas using replaceChild.'); } else { console.log('Parent node of iframe not found.'); } } else { console.log('r.iframe or r.canvas is null or undefined, cannot replace.'); } } })}</div>
-      </div>`;
-      outputHtml += `<div class="quad-row-bot">
-        <div class="quad-cell wide" data-resolution="768x512" data-seed="${cellSeeds[2]}">${image({ prompt, seed: cellSeeds[2], guidanceScale: currentGScale, resolution: "768x512", onFinish: (r) => { console.log('onFinish callback triggered for image generation:', r); if (r.iframe && r.canvas) { console.log('Attempting to replace iframe with canvas:', r.iframe, r.canvas); const parent = r.iframe.parentNode; if (parent) { parent.replaceChild(r.canvas, r.iframe); console.log('Successfully replaced iframe with canvas using replaceChild.'); } else { console.log('Parent node of iframe not found.'); } } else { console.log('r.iframe or r.canvas is null or undefined, cannot replace.'); } } })}</div>
-        <div class="quad-cell narrow" data-resolution="512x512" data-seed="${cellSeeds[3]}">${image({ prompt, seed: cellSeeds[3], guidanceScale: currentGScale, resolution: "512x512", onFinish: (r) => { console.log('onFinish callback triggered for image generation:', r); if (r.iframe && r.canvas) { console.log('Attempting to replace iframe with canvas:', r.iframe, r.canvas); const parent = r.iframe.parentNode; if (parent) { parent.replaceChild(r.canvas, r.iframe); console.log('Successfully replaced iframe with canvas using replaceChild.'); } else { console.log('Parent node of iframe not found.'); } } else { console.log('r.iframe or r.canvas is null or undefined, cannot replace.'); } } })}</div>
-      </div>`;
-      outputHtml += '</div>';
-    }
+    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=1280&seed=${blockSeed}&model=flux&private=true&nologo=true`;
+    outputHtml += `<div class="block solo-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}"><img src="${imgUrl}" loading="lazy" alt="Generated image" crossorigin="anonymous"></div>`;
   }
   return outputHtml;
 }
