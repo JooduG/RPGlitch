@@ -25,7 +25,9 @@ This is the canonical playbook for human contributors and AI agents working in t
 
 ## 1. Core Principles
 
-- **Proactive Tool-First Approach:** For any task, actively seek opportunities to use the specialized MCP servers or other available tools. Prefer using a tool to automate, enrich, or validate, rather than relying on manual analysis or general knowledge.
+- **Radical Tool-First Mentality:** For any task, actively seek opportunities to use the specialized MCP servers or other available tools. Prefer using a tool to automate, enrich, or validate, rather than relying on manual analysis or general knowledge.
+  - For any non-trivial task, your first thought must be 'Is there a tool for this?'
+  - Complex reasoning, planning, debugging, and decision-making MUST be delegated to a specialized reasoning tool whenever appropriate.
 - **Favor determinism over cleverness**. If it’s inspectable, it’s debuggable.
 - **Small, reversible diffs** > large, entangled changes.
 - **Keep single sources of truth (SSOT)** for config and rules.
@@ -41,6 +43,13 @@ When selecting a tool, adhere to the following hierarchy:
 3. **Tool Descriptions and Capabilities:** Consult the detailed descriptions of each available tool to match its purpose with the task's requirements.
 4. **Internal Rules and Protocols:** Your operational rules (e.g., `mcp-pre-task-protocol.md`, `system-orchestration-mode.md`) guide your workflow and often recommend specific tools.
 5. **Error Handling and Debugging:** In case of errors, leverage diagnostic tools (e.g., `run_shell_command` for debugging, `metacognitiveMonitoring` for self-assessment).
+
+### 1.3. Advanced Reasoning Tool Protocol
+
+- **RULE:** For any task that requires a multi-step plan, a complex decision, or breaking down a problem, your default starting point **MUST** be the `sequentialthinking_tools` MCP. Use it to map out your plan and identify other tools.
+- **RULE:** When you encounter an error or need to debug code, you **MUST** use the `debuggingapproach` MCP to systematically diagnose the issue.
+- **RULE:** When assessing your own reasoning or the certainty of your conclusions, you **MUST** use the `metacognitivemonitoring` MCP to ensure accuracy and identify knowledge gaps.
+- **RULE:** For tasks involving causal analysis or hypothesis testing, you **MUST** use the `scientificmethod` MCP.
 
 ---
 
