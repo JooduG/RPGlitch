@@ -16,7 +16,7 @@ This directory contains the primary, user-facing web applications of the JooduG-
 ## Application Summaries
 
 - **`/imageglitch`**: A single-file web application for applying generative glitch art effects to images, built using the Perchance Framework and its plugin system.
-- **`/rpglitch`**: A multi-file web application for creating, managing, and viewing entities for role-playing games, serving as the primary reference implementation of the Perchance Framework.
+- **`/rpglitch`**: A multi-file web application for creating, managing, and viewing entities for role-playing games, serving as the primary reference implementation of the Perchance Framework. RPGLitch has gotten much further in it's development cycle than ImageGlitch.
 
 ---
 
@@ -47,11 +47,13 @@ graph TD
 
 ### 2. Build Process
 
-The goal of the build process is to take the source files (HTML, SCSS, JS) and compile them into a single, standalone `index.html` file. This makes deployment and distribution incredibly simple.
+The goal of the build process is to take the source files (HTML, SCSS, JS) and compile them into a single, standalone `imageglitch.html`/`rpglitch.html` file. This makes deployment and distribution incredibly simple.
 
-The primary build script for this process is `build/scripts/build-rpglitch.js`.
+The primary build script´s for this process is `build/scripts/build-rpglitch.js` and `build/scripts/build-imageglitch.js`.
 
 The process is as follows:
+
+### RPGlitch Process
 
 1. **Read Source HTML**: The script starts by reading the main HTML structure from `apps/rpglitch/html/index.html`.
 2. **Compile SCSS**: It compiles the SCSS files (starting from `apps/rpglitch/scss/index.scss`) into a single block of CSS.

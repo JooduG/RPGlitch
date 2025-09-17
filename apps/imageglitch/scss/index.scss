@@ -26,23 +26,12 @@
 }
 
 body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: var(--color-background);
-  color: var(--color-text);
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 .container {
-  width: 95%;
-  min-width: auto;
-  max-width: var(--app-container-max);
   box-sizing: border-box;
-  margin-top: 1rem;
 }
 
 button, select {
@@ -68,104 +57,11 @@ select:disabled, select:disabled:hover {
   box-shadow: none;
 }
 
-.focus-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-  background-color: var(--color-scrollbar-track);
-  border-radius: 1rem;
-  padding: 1rem;
-  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
-  margin-bottom: 1rem;
-}
-
-.control-group {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.left-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-}
-
-.right-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-  margin-left: auto;
-}
-
-.prompt-area, #instructions-panel {
-  margin-top: 1rem;
-  position: relative;
-}
-
-.secondary-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-  margin-top: 1rem;
-}
-
-.action-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.setting-item {
-  position: relative;
-  min-width: 100px;
-}
-
-.creativity-slider {
-  display: flex;
-  align-items: center;
-}
-
-#master-creativity-label {
-  position: absolute;
-  top: 30px;
-  left: 0;
-  background-color: #11111b; /* This color is not in our variables, keeping as is for now */
-  padding: 1rem;
-  border-radius: 1rem;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease-in-out;
-  white-space: nowrap;
-  z-index: 10;
-  box-shadow: 0 4px 1rem rgb(0 0 0 / 20%);
-}
-
-#master-creativity-label.is-active {
-  opacity: 1;
-}
-
-.spacer {
-  flex-grow: 1;
-}
-
-top-bar ul {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-#summonBtn {
+#summon-btn {
   transition: all 0.3s ease;
   min-width: 160px;
   text-align: center;
   box-shadow: 0 4px 1rem rgb(0 0 0 / 20%);
-  padding: 12px 11rem;
-  letter-spacing: 0.02em;
 }
 
 .summon-button {
@@ -204,61 +100,6 @@ button:not(:disabled):hover {
   transform: translateY(-1px);
 }
 
-input[type="range"] {
-  padding: 0;
-  background: transparent;
-  width: 100%;
-  height: 1rem;
-  appearance: none;
-  margin: 1rem 0;
-}
-
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 0.5rem;
-  background: var(--color-surface-hover);
-  border-radius: 1rem;
-}
-
-input[type="range"]::-moz-range-track {
-  height: 0.5rem;
-  background: var(--color-surface-hover);
-  border-radius: 1rem;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  appearance: none;
-  margin-top: -0.25rem;
-  background: var(--color-primary);
-  height: 1rem;
-  width: 1rem;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
-}
-
-input[type="range"]::-moz-range-thumb {
-  background: var(--color-primary);
-  height: 0.5rem;
-  width: 0.5rem;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
-}
-
-input[type="range"]:focus {
-  outline: none;
-}
-
-input[type="range"]::-webkit-slider-thumb:hover {
-  background: var(--color-primary-light);
-  transform: scale(1.1);
-}
-
-input[type="range"]::-moz-range-thumb:hover {
-  background: var(--color-primary-light);
-  transform: scale(1.1);
-}
-
 #prompt-input, #instruction-input {
   width: 100%;
   background-color: var(--color-surface);
@@ -269,10 +110,7 @@ input[type="range"]::-moz-range-thumb:hover {
   box-shadow: inset 0 2px 4px rgb(0 0 0 / 10%);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   line-height: 1.5;
-}
-
-#prompt-input { min-height: 4.5em; }
-#instruction-input { min-height: 4.5em; }
+  min-height: 4.5em; }
 
 #prompt-input:focus, #instruction-input:focus {
   border-color: var(--color-primary);
@@ -284,30 +122,6 @@ textarea::placeholder, input::placeholder {
   color: var(--color-placeholder);
   opacity: 0.8;
   font-style: italic;
-}
-
-#num-images-select, #ai-magic-select, #img-seed {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-surface-hover);
-  transition: all 0.3s ease;
-  padding: 1rem;
-}
-
-#num-images-select, #ai-magic-select {
-  background: url("data:image/svg+xml;utf8,<svg fill='%23cdd6f4' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 1rem center var(--color-surface);
-  appearance: none;
-  padding-right: 36px;
-}
-
-#num-images-select:focus, #ai-magic-select:focus, #img-seed:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-extralight);
-  outline: none;
-}
-
-#ai-magic-select {
-  background-color: var(--color-surface);
-  color: var(--color-text);
 }
 
 .output-area {
