@@ -7,7 +7,7 @@ This document provides an overview of the entire documentation system for the Jo
 - **[Project-Wide README](../README.md)**: The main entry point for the project, covering core principles, development environment setup, and key constraints.
 - **[AGENTS.md](../AGENTS.md)**: The canonical playbook for all contributors (human and AI).
 - **[System Rules](../rules/)**: Core principles and rules for the system.
-  - **[MCP Guide](../docs/mcp/guide.md)**: The consolidated guide for Metacognitive Process (MCP) configuration and usage.
+  - **[MCP Guide](../rules/mcp-guide.md)**: The consolidated guide for Metacognitive Process (MCP) configuration and usage.
   - **[System Architecture](../rules/system-architecture.md)**: The overall system design and principles.
   - **[System Orchestration Mode](../rules/system-orchestration-mode.md)**: The primary 3-role (Strategic, Tactical, Operational) model.
   - **[System Rule Interactions](../rules/system-rule-interactions.md)**: Explains how rules are prioritized and combined.
@@ -21,7 +21,7 @@ This document provides an overview of the entire documentation system for the Jo
   - [User Guide](./guides/user-unified-system-guide.md): A guide for end-users of the unified system.
   - [System Quick Reference](./guides/user-unified-system-quick-reference.md): A quick reference for end-users of the unified system.
 - **[Glossary](./GLOSSARY.md)**: Definitions of key terms used in the project.
-- **[Changelog](./CHANGELOG.md)**: A record of all notable changes to the project.
+- **[Changelog](../CHANGELOG.md)**: A record of all notable changes to the project.
 - **[Contributing Guide](./CONTRIBUTING.md)**: Guidelines for contributing to the project.
 - **[Tools](../tools/)**: Information on development utilities.
 - **[Memory Bank](../memory-bank/)**: The project's persistent knowledge base.

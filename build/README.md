@@ -1,93 +1,31 @@
-# Build System
+# 📁 Folder: build
 
-## Overview
+## 🎯 Purpose
+This directory serves as the project's "factory," containing all scripts, configurations, and libraries necessary for building, linting, and packaging the applications. It orchestrates the transformation of source code into deployable artifacts.
 
-This directory contains build scripts and output for RPGlitch.
+---
 
-## Structure
+## 📜 Folder-Specific Rules & AI Directives
 
-```md
-build/
-├── scripts/             # Build scripts
-│   ├── build-and-copy.js
-│   ├── build-perchance.js
-│   └── README.md
-├── output/              # Build outputs (gitignored)
-│   ├── rpglitch/
-│   ├── imageglitch/
-│   └── archives/
-└── README.md            # This file
-```
+*   **Human Rules:** Modifications to build scripts and configurations within this directory must be thoroughly tested to prevent disruptions to the CI/CD pipeline. Ensure that any new build processes are clearly documented.
+*   **🤖 AI Directives:** AI, when performing build-related tasks (e.g., compiling, linting, packaging), you must refer to the scripts and configurations within this directory. Do not modify existing build scripts or introduce new ones without explicit instruction and a clear understanding of their impact on the overall build process.
 
-## Scripts
+---
 
-### `build-perchance.js`
+## 🔗 Overarching Rules (Single Source of Truth)
+This folder adheres to the following project-wide guidelines:
 
-The main build script that:
+*   [System Architecture Overview](../../docs/system/system-architecture.md)
+*   [JavaScript Best Practices](../../docs/guides/style-guides/js-guide.md)
 
-- Downloads and inlines external dependencies (Hyperscript, Cash DOM, Dexie.js, DOMPurify)
-- Compiles SCSS to CSS
-- Combines all source files into a single HTML file
-- Minifies CSS with PostCSS and cssnano
-- Minifies JavaScript with Terser
-- Minifies the final HTML output
-- Outputs to `../output/RPGlitch-perchance.html`
+---
 
-Install dev dependencies once before running builds:
+## ✅ TODO
 
-```bash
-npm install
-```
+- [ ] Consolidate and refactor build scripts for better maintainability and reduced redundancy.
+- [ ] Improve error handling and logging mechanisms within build processes to provide clearer feedback.
 
-**Usage:**
+---
 
-```bash
-node build-perchance.js
-```
-
-### `build-and-copy.js`
-
-Builds RPGlitch and automatically copies the result to the clipboard for easy pasting into Perchance.
-
-**Usage:**
-
-```bash
-# From build/scripts directory
-node build-and-copy.js
-
-# From project root
-npm run build:copy
-```
-
-## Output
-
-The build process creates:
-
-- `../output/RPGlitch-perchance.html` - Fully minified HTML for Perchance
-- `../output/archive/RPGlitch-perchance.css` - Compiled CSS (archived)
-- `../output/archive/RPGlitch-perchance.css.map` - CSS source map (archived)
-
-## Dependencies
-
-The build process automatically downloads and inlines:
-
-- **Hyperscript** (0.9.12) - For HTML interactivity
-- **Cash DOM** (8.1.5) - jQuery-like DOM manipulation
-- **Dexie.js** (4.0.8) - IndexedDB wrapper
-- **DOMPurify** (3.0.1) - XSS protection
-
-## Source Files
-
-The build combines:
-
-- `apps/rpglitch/RPGlitch.html` - Main HTML structure
-- `apps/rpglitch/RPGlitch.scss` - Main stylesheet (compiled to CSS)
-- `apps/rpglitch/ProfilePictureComponent.js` - Profile picture logic
-- `apps/rpglitch/RPGlitch.js` - Main JavaScript logic
-
-## Notes
-
-- The build process runs from the `build/scripts` directory
-- All paths are relative to the project root
-- The output file is optimized for Perchance deployment
-- External dependencies are inlined for reliability
+## 💡 Usage / Notes
+This directory is critical for transforming source code into deployable applications. It includes scripts for dependency management, code compilation, minification, and output generation. Developers should familiarize themselves with the build process to effectively contribute to the project and troubleshoot build-related issues.

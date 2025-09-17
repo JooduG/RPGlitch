@@ -6,7 +6,7 @@ This page explains **how to run Codex against the RPGlitch mono-repo** and the r
 
 ## 1 Environment (one-time)
 
-For quick CLI usage, see: `docs/CODEX-help.md`.
+For quick CLI usage, see: `./CODEX-help.md`.
 
 ### A. Create / edit an Environment
 
@@ -77,7 +77,7 @@ test -d "$BASIC_MEMORY_PROJECT_ROOT" && echo "memory-bank OK" || echo "memory-ba
 
 ## 2 Global guardrails (non-negotiable)
 
-* **Read first:** `AGENTS.md` + latest entries in `memory-bank/**`. If either is missing, **stop and ask**.
+* **Read first:** `../../AGENTS.md` + latest entries in `memory-bank/**`. If either is missing, **stop and ask**.
 * **Write only under:** `apps/**`, `build/scripts/**`, `docs/**`, `tests/**`, `memory-bank/**`.
   Never touch `build/output/**` or `.cursor/**`.
 * **Workflow:** every task runs **Strategy → Tactics → Operations** (see below). No code changes before Strategy & Tactics are visible.
@@ -149,7 +149,7 @@ Codex will call all three before proposing a PR.
 
 ## 6 PR template (optional but recommended)
 
-Create `.github/pull_request_template.md`:
+Create `../../.github/pull_request_template.md`:
 
 ```md
 ## Strategy

@@ -1,21 +1,37 @@
-# Agent Rules
+# 📁 Folder: rules
 
-This directory contains the "constitution" for the AI agent. It is a collection of machine-readable documents that govern the agent's behavior, decision-making processes, and overall operational protocols. These rules are fundamental to ensuring that the agent operates in a consistent, predictable, and safe manner.
+## 🎯 Purpose
 
-## Rule Format
+This folder is the AI's direct source of truth for operational instructions. It contains machine-adjacent, actionable rules, protocols, and constraints the AI needs to perform its tasks correctly. When the AI is about to write code, modify a file, or execute a task, it will look here for its script.
 
-The rules are written in Markdown format. This allows them to be both human-readable and machine-parsable. The agent is designed to read these documents and use them as a primary source of guidance for its tasks.
+---
 
-## Rule Categories
+## 📜 Folder-Specific Rules & AI Directives
 
-The rules are organized into several categories:
+* **Human Rules:** This directory defines the AI's operational parameters and behavioral constraints. Changes made here directly impact AI behavior and should be made with extreme caution, ensuring that modifications are clear, unambiguous, and align with project goals.
+* **🤖 AI Directives:** AI, this folder is your primary script. When about to write code, modify a file, or execute a task, you *must* consult the relevant rules and protocols defined within this directory. These documents constitute direct orders for your behavior and are paramount to your operation.
 
-- **`system-*.md`**: High-level rules that define the agent's core architecture, orchestration model, and thinking framework.
-- **`mcp-*.md`**: Rules related to the Model Context Protocol (MCP) and how the agent interacts with various tools and services.
-- **`js-*.md`**: Rules and best practices for working with JavaScript.
-- **`html-*.md`**: Rules and best practices for working with HTML.
-- **`scss-*.md`**: Rules and best practices for working with SCSS.
+---
 
-## Important Note
+## 🔗 Overarching Rules (Single Source of Truth)
 
-These rules are not just suggestions; they are the primary source of truth for the agent's behavior. Any changes to these files will have a direct impact on how the agent operates.
+This folder adheres to the following project-wide guidelines:
+
+* [Agent Protocol (AGENTS.md)](../AGENTS.md)
+* [MCP Guide](./mcp-guide.md)
+* [System Orchestration Mode](./system-orchestration-mode.md)
+* [System Rule Interactions](./system-rule-interactions.md)
+* [Clear Thought Usage Guide](./clear-thought-usage-guide.md)
+
+---
+
+## ✅ TODO
+
+* [ ] Review and refine existing rules for clarity, completeness, and unambiguous interpretation by AI agents.
+* [ ] Develop new rules and protocols for emerging operational needs or complex scenarios.
+
+---
+
+## 💡 Usage / Notes
+
+This directory is the "constitution" for the AI agent. It is the single source of truth for the AI's behavior and operational protocols. Human developers should understand that these rules are critical for guiding the AI's actions and ensuring its safe and effective integration into the development workflow.

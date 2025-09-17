@@ -1,81 +1,64 @@
-# HTML Guide: Best Practices & Hyperscript
+# HTML Best Practices
 
-This guide outlines the foundational principles for writing all HTML in this project, including the use of `_hyperscript` for simple UI interactions. These rules ensure that our applications are structured, accessible, and valid.
-
-**Core Principle:** Write clean, semantic, and accessible HTML. Use `_hyperscript` for simple, declarative interactions, and dedicated JavaScript for complex logic.
+**RULE:** Write clean, semantic, and accessible HTML. Use `_hyperscript` for simple, declarative interactions. Use dedicated JavaScript for complex logic.
 
 ---
 
 ## 1. Valid Document Structure
 
-Every HTML file must be a valid document. This is the absolute baseline.
+**RULE:** Every HTML file MUST be a valid document.
 
-- **`<!DOCTYPE html>`:** The file must always start with this declaration.
-- **Root Element:** The `<html>` element must have a `lang` attribute (e.g., `<html lang="en">`).
-- **Head:** The `<head>` must contain a `<meta charset="UTF-8">` and a `<meta name="viewport" content="width=device-width, initial-scale=1.0">` for responsiveness, along with a descriptive `<title>`.
+* **DIRECTIVE:** Start file with `<!DOCTYPE html>`.
+* **DIRECTIVE:** `<html>` element MUST have a `lang` attribute (e.g., `<html lang="en">`).
+* **DIRECTIVE:** `<head>` MUST contain `<meta charset="UTF-8">`, `<meta name="viewport" content="width=device-width, initial-scale=1.0">`, and a descriptive `<title>`.
 
 ---
 
 ## 2. Semantic Elements for Meaning
 
-Use HTML5 semantic elements to describe the structure of your content. Do not just use `<div>` for everything. Using the correct tag gives meaning to the content for browsers, screen readers, and other developers.
+**RULE:** Use HTML5 semantic elements to describe content structure. AVOID using `<div>` for everything.
 
-- **`<main>`:** Use for the primary, unique content of the page. There should only be one.
-- **`<nav>`:** Use for major navigation blocks.
-- **`<header>` & `<footer>`:** Use for the top and bottom sections of a page or an article.
-- **`<article>`:** Use for self-contained pieces of content (e.g., a single entity card).
-- **`<section>`:** Use to group related content together.
-- **`<aside>`:** Use for supplementary content, like a sidebar.
-
----
-
-## 3. Accessibility is Non-Negotiable
-
-Web accessibility (a11y) is a requirement, not a feature.
-
-- **Images:** All `<img>` tags **must** have an `alt` attribute. If the image is purely decorative, use an empty alt attribute (`alt=""`). If it conveys information, the alt text should describe the image.
-- **Buttons & Links:** Use `<button>` for actions (like submitting a form) and `<a>` for navigation (going to another page or section). Don't mix them up.
-- **Forms:** All `<input>` elements should be associated with a `<label>` element. This is crucial for screen reader users.
+* **DIRECTIVE:** Use `<main>` for primary, unique page content (only one per page).
+* **DIRECTIVE:** Use `<nav>` for major navigation blocks.
+* **DIRECTIVE:** Use `<header>` and `<footer>` for top/bottom sections of a page or article.
+* **DIRECTIVE:** Use `<article>` for self-contained content (e.g., a single entity card).
+* **DIRECTIVE:** Use `<section>` to group related content.
+* **DIRECTIVE:** Use `<aside>` for supplementary content.
 
 ---
 
-## 4. Hyperscript for UI Interactions
+## 3. Accessibility Directives
 
-Use `_hyperscript` for simple, declarative UI interactions. For complex logic involving state or multiple steps, use a dedicated JavaScript file as detailed in the `js-guide.md`.
+**RULE:** Web accessibility (a11y) is a non-negotiable requirement.
 
-### Basic Syntax
+* **DIRECTIVE:** All `<img>` tags MUST have an `alt` attribute. Use `alt=""` for decorative images. Describe image content for informative images.
+* **DIRECTIVE:** Use `<button>` for actions (e.g., form submission). Use `<a>` for navigation. DO NOT mix their purposes.
+* **DIRECTIVE:** All `<input>` elements MUST be associated with a `<label>` element.
 
-The `_hyperscript` library is included from `/build/local_libs/` and looks for the `_` attribute on HTML elements.
+---
 
-- **`on click`**: The most common trigger.
-- **`toggle`**: Toggles a class on an element.
-- **`call`**: Calls a global JavaScript function.
+## 4. Hyperscript Usage Directives
 
-```html
-<!-- Toggle a class on the #chin element when this button is clicked -->
-<button _="on click toggle .is-active on #chin">
-  Toggle Settings
-</button>
+**RULE:** Use `_hyperscript` for simple, declarative UI interactions. For complex logic, use a dedicated JavaScript file (refer to `js-guide.md`).
 
-<!-- Call a javascript function -->
-<button _="on click call handleCreateNew()">
-  Create New
-</button>
-```
+* **DIRECTIVE:** `_hyperscript` is included from `/build/local_libs/` and uses the `_` attribute.
+* **DIRECTIVE:** Use `on click` for click triggers.
+* **DIRECTIVE:** Use `toggle` to toggle classes.
+* **DIRECTIVE:** Use `call` to invoke global JavaScript functions.
 
 ### When to Use Hyperscript
 
-`_hyperscript` is ideal for:
+**DIRECTIVE:** Use `_hyperscript` for:
 
-- **Toggling classes:** Showing/hiding elements, applying active states.
-- **Simple function calls:** Triggering a single, predefined JavaScript function without needing to pass complex data.
-- **Adding/removing elements** in a simple, direct way.
+* Toggling classes (showing/hiding, active states).
+* Simple function calls (single, predefined JS function without complex data).
+* Adding/removing elements directly.
 
-### When **NOT** to Use Hyperscript
+### When NOT to Use Hyperscript
 
-Move logic to a dedicated `.js` file when:
+**DIRECTIVE:** Move logic to a dedicated `.js` file when:
 
-- **The logic is complex:** If an action requires multiple steps, conditional checks (`if/else`), or loops.
-- **State needs to be managed:** If the action needs to read from or write to the application's state (e.g., the Dexie database).
-- **Data needs to be passed:** If a function needs to be called with dynamic data.
-- **The script is long:** If your `_` attribute script is longer than a single, simple command.
+* Logic is complex (multiple steps, conditionals, loops).
+* State management is required (reading/writing to application state, e.g., Dexie database).
+* Dynamic data needs to be passed to functions.
+* The `_` attribute script is long (more than a single, simple command).

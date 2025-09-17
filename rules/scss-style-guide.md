@@ -1,16 +1,16 @@
-# SCSS Style Guide
+# SCSS Best Practices
 
-This guide defines the rules, patterns, and best practices for writing SCSS in this project. The goal is to create CSS that is modular, maintainable, and scalable.
+**RULE:** This guide defines the rules, patterns, and best practices for writing SCSS in this project. The goal is to create CSS that is modular, maintainable, and scalable.
 
 ---
 
 ## 1. Architecture & File Structure
 
-This project uses a simplified version of the 7-1 pattern for its SCSS structure within `apps/rpglitch/scss/`:
+**RULE:** This project uses a simplified version of the 7-1 pattern for its SCSS structure within `apps/rpglitch/scss/`.
 
-- **`index.scss`:** This is the main manifest file. It should not contain any CSS rules itself, but instead uses `@import` to assemble all other partials into a single output stylesheet.
-- **`_placeholders.scss`:** Contains placeholder selectors (e.g., `%flex-center`) for common, reusable patterns that don't add to CSS output unless extended.
-- **Component-specific files:** Styles for major UI components (e.g., `storyboard.scss`) are kept in their own files.
+* **DIRECTIVE:** `index.scss` MUST be the main manifest file. It MUST NOT contain CSS rules itself. It MUST use `@import` to assemble all other partials.
+* **DIRECTIVE:** `_placeholders.scss` MUST contain placeholder selectors (e.g., `%flex-center`) for common, reusable patterns.
+* **DIRECTIVE:** Component-specific styles (e.g., `storyboard.scss`) MUST be kept in their own files.
 
 ---
 
@@ -18,117 +18,52 @@ This project uses a simplified version of the 7-1 pattern for its SCSS structure
 
 ### Nesting
 
-- **Rule:** Nesting is powerful but dangerous. **Do not nest more than 3 levels deep.** Over-nesting leads to overly specific CSS selectors that are hard to override and tightly coupled to the HTML structure.
+**RULE:** Nesting is powerful but dangerous.
 
-```scss
-// Good
-.profile-card {
-  padding: 1rem;
-
-  .card-title {
-    font-size: 1.5rem;
-  }
-}
-
-// Bad (Avoid this)
-.profile-list {
-  .profile-card {
-    .card-header {
-      .card-title { // Too deep!
-        font-size: 1.5rem;
-      }
-    }
-  }
-}
-```
+* **DIRECTIVE:** DO NOT nest more than 3 levels deep.
+* **DIRECTIVE:** AVOID over-nesting as it leads to overly specific CSS selectors.
 
 ### Variables
 
-- **Rule:** Use SCSS variables (`$variable-name`) for all repeated values, especially colors, fonts, and spacing units. This allows for easy theme updates and maintains consistency.
+**RULE:** Use SCSS variables (`$variable-name`) for all repeated values (colors, fonts, spacing units).
 
-```scss
-// Variables
-$primary-color: #333;
-$base-font-size: 16px;
-
-// Usage
-body {
-  color: $primary-color;
-  font-size: $base-font-size;
-}
-```
+* **DIRECTIVE:** Use variables for easy theme updates and consistency.
 
 ### Mixins
 
-- **Rule:** Use mixins (`@mixin`) for reusable blocks of styles, especially for vendor prefixes or complex properties like flexbox centering.
-
-```scss
-@mixin flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.some-container {
-  @include flex-center;
-}
-```
+**RULE:** Use mixins (`@mixin`) for reusable blocks of styles (e.g., vendor prefixes, complex properties like flexbox centering).
 
 ### Extends
 
-- **Rule:** Use `@extend` with placeholder selectors (`%`) to share common properties between selectors without duplicating code in the final CSS output. This is ideal for structural or behavioral styles.
+**RULE:** Use `@extend` with placeholder selectors (`%`) to share common properties between selectors without duplicating code.
 
-```scss
-// Placeholder in _placeholders.scss
-%button-base {
-  padding: 0.5em 1em;
-  border-radius: 4px;
-}
-
-// Usage in another file
-.button-primary {
-  @extend %button-base;
-  background-color: blue;
-}
-```
+* **DIRECTIVE:** Use for structural or behavioral styles.
 
 ---
 
 ## 3. Relationship with CSS Frameworks
 
-This project **does not** use a large, all-encompassing CSS framework like Bootstrap or Foundation. Instead, it favors a custom, lightweight approach for the following reasons:
+**RULE:** This project DOES NOT use large, all-encompassing CSS frameworks (e.g., Bootstrap, Foundation).
 
-- **Performance:** Avoids shipping unused CSS, resulting in smaller file sizes.
-- **Control:** Provides full control over the final CSS output and avoids fighting framework specificity.
-- **Simplicity:** The current apps do not require the complexity of a full framework.
-
-We do, however, use `pico.css` as a base for simple styling and classless semantic HTML, which can be extended with custom SCSS.
+* **DIRECTIVE:** Favor a custom, lightweight approach for performance, control, and simplicity.
+* **DIRECTIVE:** Use `pico.css` as a base for simple styling and classless semantic HTML. Extend it with custom SCSS.
 
 ---
 
 ## 4. Debugging SCSS
 
-- **Source Maps:** The build process should always generate CSS source maps. This allows you to see the original SCSS file and line number in your browser's developer tools, making it much easier to trace where a style is coming from.
-- **The `debug` Directive:** For complex mixins or functions, use the `@debug` directive to print the value of a variable to the console during compilation. This is invaluable for troubleshooting logic.
+**RULE:** Utilize debugging features for SCSS.
 
-```scss
-@mixin calculate-width($columns) {
-  $width: (100% / $columns);
-  @debug "Column width is #{$width}";
-  width: $width;
-}
+* **DIRECTIVE:** The build process SHOULD always generate CSS source maps.
+* **DIRECTIVE:** Use the `@debug` directive to print variable values during compilation for troubleshooting.
 
 ---
 
 ## 5. Atomic CSS Principles
 
-While this project uses custom SCSS for component-level styling, it also embraces atomic CSS for low-level utility styling. Atomic CSS is a methodology that favors small, single-purpose classes with names based on their visual function.
+**RULE:** Embrace atomic CSS for low-level utility styling.
 
-**Core Principles:**
-
-*   **Single Responsibility:** Each class should do one thing and do it well (e.g., `d-flex` for `display: flex;`).
-*   **Immutability:** Avoid overriding utility classes. Compose them to achieve the desired result.
-*   **Readability:** Class names should be intuitive and predictable (e.g., `p-1` for a standard padding unit).
-
-This hybrid approach allows us to build complex, scoped components with SCSS while still benefiting from the flexibility and reusability of atomic utilities for common layout and spacing tasks.
-```
+* **DIRECTIVE:** Each class SHOULD have single responsibility (e.g., `d-flex` for `display: flex;`).
+* **DIRECTIVE:** AVOID overriding utility classes. Compose them instead.
+* **DIRECTIVE:** Class names SHOULD be intuitive and predictable (e.g., `p-1` for padding).
+* **DIRECTIVE:** Use a hybrid approach: custom SCSS for components, atomic CSS for utilities.

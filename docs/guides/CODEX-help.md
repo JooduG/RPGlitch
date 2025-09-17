@@ -40,12 +40,12 @@ tags:
 
 ## Guardrails (important)
 
-- Read first: `AGENTS.md` + relevant `memory-bank/**` (exclude `archive/`).
+- Read first: `../../AGENTS.md` + relevant `memory-bank/**` (exclude `archive/`).
 - Write only under: `apps/**`, `build/scripts/**`, `docs/**`, `tests/**`, `memory-bank/**`.
 - Don’t touch: `build/output/**`, `.cursor/**`, `node_modules/**`.
 - Validate before handoff: `npm run lint && npm test` (and build if relevant).
 
 ## Tips
 
-- Folder-first rules: open local `README.md` (with YAML) for context, tasks, and links to `rules/`.
+- Folder-first rules: open local `README.md` (with YAML) for context, tasks, and links to `../../rules/`.
 - Keep diffs small; ask for a plan on multi-step work.

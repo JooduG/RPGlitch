@@ -1,17 +1,35 @@
-# Project Documentation
+# 📁 Folder: docs
 
-Welcome to the documentation for the JooduG-default project. This directory contains all human-readable documentation, including guides, glossaries, and architectural overviews. This documentation is intended for developers, contributors, and anyone else who wants to understand how the project works.
+## 🎯 Purpose
 
-For information related to the AI agent's internal memory and task management, please see the `/memory-bank` directory. For machine-readable rules that govern the agent's behavior, see the `/rules` directory.
+This directory serves as the project's "Human's Library," containing all high-level, human-readable documentation that explains the *why* and *how* of the project's architecture, design, and concepts. It is intended for context and understanding, not direct AI execution.
 
-## Key Documents
+---
 
-- **`SYSTEM_ORGANIZATION.md`**: An overview of the entire repository structure, explaining the purpose of each top-level directory.
+## 📜 Folder-Specific Rules & AI Directives
 
-- **`GLOSSARY.md`**: A glossary of terms used throughout the project.
+* **Human Rules:** All documentation within this folder should be clear, concise, and aimed at providing context and understanding for human developers. Avoid direct operational instructions for AI here. Focus on explaining concepts, design decisions, and usage patterns.
+* **🤖 AI Directives:** AI, when asked to explain project concepts or provide context to a human, prioritize information from this `/docs` directory. Do not use this folder for direct operational instructions; those belong in the `/rules` directory. Ensure that any updates to documentation maintain a human-centric perspective.
 
-- **`/guides`**: A collection of guides for developers and users, covering topics such as setting up the development environment, contributing to the project, and using the applications.
+---
 
-## Contribution
+## 🔗 Overarching Rules (Single Source of Truth)
 
-Contributions to the documentation are welcome. Please see the [`CONTRIBUTING.md`](CONTRIBUTING.md) file for more information.
+This folder adheres to the following project-wide guidelines:
+
+* [System Documentation Guide](./system/system-documentation-guide.md)
+* [System Architecture Overview](./system/system-architecture.md)
+* [Agent Protocol (AGENTS.md)](../AGENTS.md)
+
+---
+
+## ✅ TODO
+
+* [ ] Review and update all existing documentation for clarity, accuracy, and adherence to the new information architecture.
+* [ ] Ensure all internal links within the `/docs` directory are correct and functional.
+
+---
+
+## 💡 Usage / Notes
+
+This is the primary resource for understanding the project's design, architecture, and operational principles from a human perspective. It complements the `/rules` directory (for AI directives) and `/memory-bank` (for historical context). Developers should explore this directory to gain a comprehensive understanding of the project.

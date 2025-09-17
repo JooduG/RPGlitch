@@ -2,6 +2,8 @@
 
 Version **2.0.0** · Updated **2025-09-11**
 
+**IMMUTABILITY DIRECTIVE:** The `/memory-bank/past` and `/memory-bank/archive` directories are considered historical archives. They are strictly read-only. You MUST NOT modify, update, delete, or validate links within any files in these directories during any task, unless given explicit, single-use permission to do so. These directories are to be excluded from all automated refactoring, cleanup, and validation processes.
+
 This is the canonical playbook for human contributors and AI agents working in this repository. It defines how we think, what we’re allowed to touch, and how we keep work deterministic, safe, and shippable.
 
 ---
@@ -64,11 +66,8 @@ Read in this order before you start changing anything:
 1. **This Protocol:** The rules in this `AGENTS.md` file.
 2. **Core Framework Rules (Always Load):**
 
-- `docs/system-documentation-guide.md`: The main entry point for all documentation.
-- `rules/system-orchestration-mode.md`: The primary 3-role (Strategic, Tactical, Operational) model.
-- `rules/system-thinking-framework.md`: The 3 thinking approaches (Contemplative, Sequential, Professional).
-- `rules/system-architecture.md`: The overall system design and principles.
-- `rules/system-rule-interactions.md`: Explains how rules are prioritized and combined.
+- `rules/mcp-pre-task-protocol.md`
+- `rules/system-orchestration-mode.md`
 
 1. **Supporting Systems (Load as needed):**
 
@@ -107,6 +106,7 @@ This file defines available Model Context Protocol (MCP) servers for the Gemini 
 
 - Use **npm** for Node-based operations (Node 22).
 - Prefer `npm ci` for clean, reproducible installs.
+
 - Respect the **allowed write paths** (see **Permissions**).
 
 ### Build commands

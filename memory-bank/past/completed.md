@@ -17,8 +17,8 @@ This file contains completed tasks moved from README.md files when their Current
 
 - **Folder-specific active tasks**: README.md Current Tasks (max 10)
 - **Completed tasks**: memory-bank/completed.md (when README tasks reach limit)
-- **Undecided ideas**: memory-bank/planning.md
-- **Cross-folder TODO**: memory-bank/planning.md
+- **Undecided ideas**: ../future/planning.md
+- **Cross-folder TODO**: ../future/planning.md
 
 ## Archive Format
 
