@@ -1,158 +1,4 @@
 {
-  "mcpServers": {
-    "Core-Utilities": {
-      "time": {
-        "command": "python",
-        "args": [
-          "-m",
-          "mcp_server_time"
-        ],
-        "env": {
-          "TZ": "Europe/Stockholm"
-        },
-        "autoStart": true,
-        "description": "Provides tools to get the current time and date."
-      },
-      "everything": {
-        "command": "npx",
-        "args": [
-          "-y",
-          "@modelcontextprotocol/server-everything"
-        ],
-        "type": "stdio",
-        "autoStart": true,
-        "description": "Convenience MCP exposing many demo tools in one server."
-      }
-    },
-    "AI-and-Reasoning": {
-      "pollinations": {
-        "command": "npx",
-        "args": [
-          "-y",
-          "@pollinations/model-context-protocol"
-        ],
-        "type": "stdio",
-        "pollingInterval": 30000,
-        "startupTimeout": 30000,
-        "restartOnFailure": true,
-        "autoStart": true,
-        "description": "Provides AI image generation and creative tools through Pollinations services."
-      },
-      "mcp-sequentialthinking-tools": {
-        "command": "npx",
-        "args": [
-          "-y",
-          "mcp-sequentialthinking-tools"
-        ],
-        "type": "stdio",
-        "pollingInterval": 30000,
-        "startupTimeout": 30000,
-        "restartOnFailure": true,
-        "autoStart": true,
-        "description": "Provides advanced sequential thinking tools with persistent state."
-      },
-      "Toolbox": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@smithery/cli@latest",
-          "run",
-          "@smithery/toolbox",
-          "--key",
-          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-          "--profile",
-          "voluntary-hornet-y52X3F"
-        ],
-        "env": {},
-        "autoStart": true
-      },
-      "ScientificMethodServer": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@waldzellai/scientific-method",
-          "run",
-          "--key",
-          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-          "--profile",
-          "voluntary-hornet-y52X3F"
-        ],
-        "autoStart": true,
-        "description": "Scientific method reasoning tools via Smithery MCP (stdio)."
-      },
-      "MetacognitiveMonitoringServer": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@waldzellai/metacognitive-monitoring",
-          "run",
-          "--key",
-          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-          "--profile",
-          "voluntary-hornet-y52X3F"
-        ],
-        "autoStart": true,
-        "description": "Metacognitive monitoring tools via Smithery MCP (stdio)."
-      },
-      "ClearThought15": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@waldzellai/clear-thought",
-          "run",
-          "--key",
-          "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-          "--profile",
-          "voluntary-hornet-y52X3F"
-        ],
-        "autoStart": true,
-        "description": "Clear Thought reasoning server via Smithery MCP (stdio)."
-      }
-    },
-    "Memory-and-Storage": {
-      "basic-memory-stdio": {
-        "type": "stdio",
-        "command": "uvx",
-        "args": [
-          "basic-memory",
-          "mcp"
-        ],
-        "autoStart": true,
-        "description": "Basic Memory MCP server via direct command."
-      },
-      "deepwiki": {
-        "url": "https://mcp.deepwiki.com/sse",
-        "description": "DeepWiki MCP over SSE for knowledge lookup."
-      },
-      "Context7": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "@upstash/context7-mcp@latest"
-        ]
-      }
-    },
-    "Development-and-Code": {
-      "playwright": {
-        "command": "npx",
-        "args": [
-          "-y",
-          "@playwright/mcp"
-        ],
-        "autoApprove": [
-          "open_page",
-          "screenshot"
-        ],
-        "type": "stdio",
-        "autoStart": true
-      }
-    }
-  },
   "inputs": [],
   "servers": {
     "time": {
@@ -203,10 +49,11 @@
       "autoStart": true,
       "description": "Provides advanced sequential thinking tools with persistent state."
     },
-    "Toolbox": {
-      "type": "stdio",
-      "command": "npx",
+    "toolbox": {
+      "command": "cmd",
       "args": [
+        "/c",
+        "npx",
         "-y",
         "@smithery/cli@latest",
         "run",
@@ -215,51 +62,34 @@
         "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
         "--profile",
         "voluntary-hornet-y52X3F"
-      ],
-      "env": {},
-      "autoStart": true
+      ]
     },
     "ScientificMethodServer": {
       "type": "stdio",
-      "command": "npx",
+      "command": "sh",
       "args": [
-        "-y",
-        "@waldzellai/scientific-method",
-        "run",
-        "--key",
-        "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-        "--profile",
-        "voluntary-hornet-y52X3F"
+        "-c",
+        "node -r dotenv/config -e 'process.exit()' && npx -y @waldzellai/scientific-method run --key \"$SMITHERY_API_KEY\" --profile \"$SMITHERY_PROFILE\""
       ],
       "autoStart": true,
       "description": "Scientific method reasoning tools via Smithery MCP (stdio)."
     },
     "MetacognitiveMonitoringServer": {
       "type": "stdio",
-      "command": "npx",
+      "command": "sh",
       "args": [
-        "-y",
-        "@waldzellai/metacognitive-monitoring",
-        "run",
-        "--key",
-        "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-        "--profile",
-        "voluntary-hornet-y52X3F"
+        "-c",
+        "node -r dotenv/config -e 'process.exit()' && npx -y @waldzellai/metacognitive-monitoring run --key \"$SMITHERY_API_KEY\" --profile \"$SMITHERY_PROFILE\""
       ],
       "autoStart": true,
       "description": "Metacognitive monitoring tools via Smithery MCP (stdio)."
     },
     "ClearThought15": {
       "type": "stdio",
-      "command": "npx",
+      "command": "sh",
       "args": [
-        "-y",
-        "@waldzellai/clear-thought",
-        "run",
-        "--key",
-        "d7ad75eb-9a3e-4a3a-90ee-83012ed280e6",
-        "--profile",
-        "voluntary-hornet-y52X3F"
+        "-c",
+        "node -r dotenv/config -e 'process.exit()' && npx -y @waldzellai/clear-thought run --key \"$SMITHERY_API_KEY\" --profile \"$SMITHERY_PROFILE\""
       ],
       "autoStart": true,
       "description": "Clear Thought reasoning server via Smithery MCP (stdio)."
