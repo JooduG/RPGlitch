@@ -1,12 +1,8 @@
+# rpglitch
+
 # RPGlitch
 
 A single-file Perchance deliverable with storyboard and profiles functionality.
-
-## How to Use
-
-1.  Open the `RPGlitch.html` file in your browser.
-2.  Use the storyboard to create and organize your story.
-3.  Use the profiles to create and manage your characters.
 
 ## For Developers
 
@@ -22,4 +18,4 @@ npm run build:rpglitch
 - **Entry HTML:** `apps/rpglitch/html/index.html`
 - **Output HTML:** `build/output/RPGlitch.html`
 
-For more detailed information about the "Chin" UI component, please see the [RPGlitch Chin UX and Safety Guide](../guides/rpglitch-chin-ux-and-safety.md).
+For more detailed information about the "Chin" UI component, please see the [RPGlitch Chin UX and Safety Guide](../../docs/guides/rpglitch-chin-ux-and-safety.md).

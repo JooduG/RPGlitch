@@ -15,6 +15,7 @@
     "sync:configs": "node build/scripts/sync-configs.js",
     "sync:tool-configs": "node build/scripts/sync-tool-configs.js",
     "sync:libs": "node build/scripts/sync-libs.js",
+    "sync:app-docs": "node build/scripts/sync-app-docs.js",
     "sync:hub": "node build/scripts/sync-hub.js",
     "//--- LINTING & TESTING ---": "",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:html && npm run lint:md",

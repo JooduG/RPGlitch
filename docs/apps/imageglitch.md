@@ -1,12 +1,8 @@
+# imageglitch
+
 # ImageGlitch
 
 A minimalist Text-to-Image generator built for the Perchance platform, following the same single-file build flow as RPGlitch.
-
-## How to Use
-
-1.  Open the `ImageGlitch.html` file in your browser.
-2.  Enter a text prompt in the input field.
-3.  Click the "Glitch" button to generate an image.
 
 ## For Developers
 

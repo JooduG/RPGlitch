@@ -8,9 +8,9 @@ This project is not just a collection of apps; it's a structured environment whe
 
 ## Folder Overview
 
-- **`/apps`**: Contains the primary user-facing web applications.
+- **`/apps`**: Contains the primary user-facing web applications. See the [Application Guides](./apps/) for overviews of the `RPGlitch` and `ImageGlitch` applications.
 - **`/build`**: The "factory" of the repo. Holds all scripts, configs, and libraries for building and linting the apps.
-- **`/docs`**: The project's "library." Contains all human-readable documentation, guides, and glossaries.
+- **`/docs`**: The project's "library." Contains all human-readable documentation, guides, and glossaries. See the [System Documentation Guide](./docs/system-documentation-guide.md) for a complete overview.
 - **`/memory-bank`**: The AI agent's "brain," used for persistent, long-term memory and task tracking.
 - **`/rules`**: The "constitution" for the AI agent. These machine-readable files govern all of the agent's behavior.
 - **`/tests`**: Contains all automated tests to ensure application quality and stability.
