@@ -35,11 +35,12 @@
     "build:imageglitch": "node build/scripts/build-imageglitch.js",
     "build:rpglitch": "node build/scripts/build-rpglitch.js",
     "//--- MCP SERVERS ---": "",
-    "mcp:toolbox": "dotenv -- npx --yes @smithery/cli run @smithery/toolbox",
+    "mcp:toolbox": "node start-toolbox.js",
     "mcp:metacognitive": "dotenv -- npx --yes @waldzellai/metacognitive-monitoring run",
     "mcp:scientific": "dotenv -- npx --yes @waldzellai/scientific-method run",
     "mcp:clearthought": "dotenv -- npx --yes @waldzellai/clear-thought run",
-    "mcp:start-all": "npm run mcp:toolbox & npm run mcp:metacognitive & npm run mcp:scientific & npm run mcp:clearthought"
+    "mcp:start-all": "npm run mcp:toolbox & npm run mcp:metacognitive & npm run mcp:scientific & npm run mcp:clearthought",
+    "test:env": "dotenv -- node -e \"console.log('API Key Found:', process.env.SMITHERY_API_KEY)\""
   },
   "keywords": [
     "ai",

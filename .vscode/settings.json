@@ -57,5 +57,7 @@
       ".continue/**/*.yaml"
     ],
     "https://www.schemastore.org/yamllint.json": "file:///c%3A/Users/johng/Documents/GitHub/default/.codacy/codacy.yaml"
-  }
+  },
+  "jest.jestCommandLine": "jest",
+  "jest.rootPath": "tests/"
 }

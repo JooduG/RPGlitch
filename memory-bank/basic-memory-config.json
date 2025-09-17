@@ -57,11 +57,10 @@
         "**/node_modules/**",
         "**/.git/**",
         "**/build/**",
-        "**/dist/**"
+        "**/dist/**",
+        "**/archive/**"
       ],
       "watch_directories": [
-        "archive",
-        "conversation-summaries",
         "future",
         "past",
         "present",
