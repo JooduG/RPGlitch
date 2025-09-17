@@ -1,9 +1,10 @@
 ---
-description: "Centralized completed tasks from all README.md files across the workspace"
+description: Centralized completed tasks from all README.md files across the workspace
 tags:
-  - completed
-  - tasks
-  - archive
+- completed
+- tasks
+- archive
+permalink: past-completed
 ---
 
 # Completed Tasks Archive

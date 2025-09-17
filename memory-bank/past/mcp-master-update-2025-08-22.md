@@ -1,6 +1,7 @@
 ---
 description: Added MCP servers from scribbles to master config, sanitized secrets
 tags: mcp, tooling, config
+permalink: past-mcp-master-update-2025-08-22
 ---
 
 # MCP Master Config Update (2025-08-22)

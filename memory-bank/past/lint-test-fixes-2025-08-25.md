@@ -1,7 +1,9 @@
 ---
 description: Fix lint errors (stylelint) and stabilize chin search test
 tags: rpglitch, lint, tests, scss, jsdom
+permalink: past-lint-test-fixes-2025-08-25
 ---
+
 # lint-test-fixes-2025-08-25
 
 Summary
