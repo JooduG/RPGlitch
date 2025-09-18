@@ -14,16 +14,6 @@
       "autoStart": true,
       "description": "Provides tools to get the current time and date."
     },
-    "everything": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-everything"
-      ],
-      "type": "stdio",
-      "autoStart": true,
-      "description": "Official MCP demo server with many useful basic tools."
-    },
     "pollinations": {
       "command": "npx",
       "args": [
@@ -46,7 +36,7 @@
       "autoStart": true,
       "description": "Provides advanced sequential thinking tools with persistent state."
     },
-    "basic-memory-stdio": {
+    "basic-memory": {
       "type": "stdio",
       "command": "uvx",
       "args": [
@@ -54,14 +44,17 @@
         "mcp"
       ],
       "autoStart": true,
-      "description": "Basic Memory MCP server via direct command."
+      "description": "Basic Memory MCP server via direct command.",
+      "env": {
+        "BASIC_MEMORY_PROJECT_ROOT": "."
+      }
     },
     "deepwiki": {
       "url": "https://mcp.deepwiki.com/sse",
       "description": "DeepWiki MCP over SSE for knowledge lookup."
     },
     "context7": {
-      "httpUrl": "https://mcp.context7.com/mcp",
+      "url": "https://mcp.context7.com/mcp",
       "headers": {
         "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}",
         "Accept": "application/json, text/event-stream"

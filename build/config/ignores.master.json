@@ -33,18 +33,19 @@
   "ide": {
     "patterns": [
       "**/build/local_libs/**",
+      "**/build/output/**",
       "**/node_modules/**",
-      "**/archive/**",
-      "**/memory-bank/archive/**"
+      "**/archive/**"
     ]
   },
   "memory": {
     "patterns": [
       "**/.git/**",
-      "**/archive/",
+      "**/archive/**",
       "**/build/local_libs/**",
+      "**/build/output/**",
       "**/node_modules/**",
-      "diagnostics/"
+      "**/diagnostics/**"
     ]
   },
   "linters": {

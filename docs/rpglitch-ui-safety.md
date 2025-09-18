@@ -1,11 +1,13 @@
 ---
-description: "RPGlitch UI safety: overlay guard, watchdog, recovery hooks, attribute observer"
+description: 'RPGlitch UI safety: overlay guard, watchdog, recovery hooks, attribute
+  observer'
 tags:
-  - rpglitch
-  - ui-safety
-  - overlays
-  - inert
-  - aria-busy
+- rpglitch
+- ui-safety
+- overlays
+- inert
+- aria-busy
+permalink: docs/rpglitch-ui-safety
 ---
 
 # RPGlitch UI Safety
