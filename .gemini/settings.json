@@ -14,6 +14,21 @@
       "autoStart": true,
       "description": "Provides tools to get the current time and date."
     },
+    "toolbox": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@smithery/toolbox",
+        "--key",
+        "280e2eb3-2ed8-480d-a979-da7492da8ec1",
+        "--profile",
+        "voluntary-hornet-y52X3F"
+      ]
+    },
     "pollinations": {
       "command": "npx",
       "args": [
@@ -36,18 +51,35 @@
       "autoStart": true,
       "description": "Provides advanced sequential thinking tools with persistent state."
     },
-    "basic-memory": {
-      "type": "stdio",
-      "command": "uvx",
+    "waldzell-metagames": {
+      "command": "npx",
       "args": [
-        "basic-memory",
-        "mcp"
+        "-y",
+        "waldzell-metagames-server"
       ],
+      "type": "stdio",
       "autoStart": true,
-      "description": "Basic Memory MCP server via direct command.",
-      "env": {
-        "BASIC_MEMORY_PROJECT_ROOT": "."
-      }
+      "description": "Provides game-theoretic workflows for development."
+    },
+    "waldzell-clear-thought": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@waldzellai/clear-thought"
+      ],
+      "type": "stdio",
+      "autoStart": true,
+      "description": "Provides sequential thinking tools from Waldzell."
+    },
+    "waldzell-stochastic-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@waldzellai/stochasticthinking"
+      ],
+      "type": "stdio",
+      "autoStart": true,
+      "description": "Provides stochastic thinking utilities."
     },
     "deepwiki": {
       "url": "https://mcp.deepwiki.com/sse",
@@ -56,7 +88,7 @@
     "context7": {
       "url": "https://mcp.context7.com/mcp",
       "headers": {
-        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}",
+        "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9",
         "Accept": "application/json, text/event-stream"
       }
     },
@@ -73,6 +105,16 @@
       "type": "stdio",
       "autoStart": true,
       "description": "Lets the AI control a web browser for scraping and automation. 🌐"
+    },
+    "npm-sentinel": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@nekzus/mcp-server@latest"
+      ],
+      "type": "stdio",
+      "autoStart": true,
+      "description": "An MCP server for analyzing NPM packages."
     }
   }
 }

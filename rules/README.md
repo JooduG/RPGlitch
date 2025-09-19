@@ -17,11 +17,9 @@ This folder is the AI's direct source of truth for operational instructions. It 
 
 This folder adheres to the following project-wide guidelines:
 
-* [Agent Protocol (AGENTS.md)](../AGENTS.md)
 * [MCP Guide](./mcp-guide.md)
 * [System Orchestration Mode](./system-orchestration-mode.md)
 * [System Rule Interactions](./system-rule-interactions.md)
-* [Clear Thought Usage Guide](./clear-thought-usage-guide.md)
 
 ---
 

@@ -17,10 +17,9 @@ This folder contains the `RPGlitch` application, a single-file Perchance deliver
 
 This folder adheres to the following project-wide guidelines:
 
-* [JavaScript Best Practices](../../../docs/guides/style-guides/js-guide.md)
-* [SCSS Style Guide](../../../docs/guides/style-guides/scss-style-guide.md)
-* [Perchance Framework Overview](../../../docs/guides/perchance-framework-overview.md)
-* [RPGlitch Chin UX and Safety Guide](../../../docs/guides/rpglitch-chin-ux-and-safety.md)
+* [JavaScript Best Practices](../../rules/js-guide.md)
+* [SCSS Style Guide](../../rules/scss-style-guide.md)
+* [HTML Best Practices](../../rules/html-best-practises.md)
 
 ---
 
@@ -33,6 +32,11 @@ This folder adheres to the following project-wide guidelines:
 
 ## 💡 Usage / Notes
 
-* **Entry HTML:** `apps/rpglitch/html/index.html`
+* **Entry HTML:** `apps/rpglitch/RPGlitch.html`
 * **Output HTML:** `build/output/RPGlitch.html`
-* **Build Command:** To build the application for development, run `npm run build:rpglitch`.
+* **Build Command:** To build the application, run `npm run build:rpglitch`. This command processes the entry HTML, inlines styles, and outputs the bundled HTML.
+* **Copy & Paste** Take the output from `build/output/RPGlitch.html` and `apps/rpglitch/RPGlitch-left-panel.txt` into their respective panel in to `https://perchance.org/rpglitch#edit`.
+
+## 🗺️ Navigation
+
+* [**Up to Root**](../README.md)

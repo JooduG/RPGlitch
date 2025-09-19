@@ -17,9 +17,9 @@ This directory contains the primary, user-facing web applications of the JooduG-
 
 This folder adheres to the following project-wide guidelines:
 
-* [JavaScript Best Practices](../../docs/guides/style-guides/js-guide.md)
-* [SCSS Style Guide](../../docs/guides/style-guides/scss-style-guide.md)
-* [Perchance Framework Overview](../../docs/guides/perchance-framework-overview.md)
+* [JavaScript Best Practices](../rules/js-guide.md)
+* [SCSS Style Guide](../rules/scss-style-guide.md)
+* [Perchance Framework Overview](../docs/guides/perchance-framework-overview.md)
 
 ---
 

@@ -1,10 +1,11 @@
 ---
-description: "Codex CLI quick help: agent operations, triggers, and common tasks"
+description: 'Codex CLI quick help: agent operations, triggers, and common tasks'
 tags:
-  - codex
-  - cli
-  - help
-  - operations
+- codex
+- cli
+- help
+- operations
+permalink: docs/guides/codex-help
 ---
 
 # Codex CLI — Quick Help

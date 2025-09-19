@@ -17,9 +17,9 @@ This folder contains the `ImageGlitch` application, a minimalist Text-to-Image g
 
 This folder adheres to the following project-wide guidelines:
 
-* [JavaScript Best Practices](../../../docs/guides/style-guides/js-guide.md)
-* [SCSS Style Guide](../../../docs/guides/style-guides/scss-style-guide.md)
-* [Perchance Framework Overview](../../../docs/guides/perchance-framework-overview.md)
+* [JavaScript Best Practices](../../rules/js-guide.md)
+* [SCSS Style Guide](../../rules/scss-style-guide.md)
+* [HTML Best Practices](../../rules/html-best-practises.md)
 
 ---
 
@@ -35,3 +35,8 @@ This folder adheres to the following project-wide guidelines:
 * **Entry HTML:** `apps/imageglitch/ImageGlitch.html`
 * **Output HTML:** `build/output/ImageGlitch.html`
 * **Build Command:** To build the application, run `npm run build:imageglitch`. This command processes the entry HTML, inlines styles, and outputs the bundled HTML.
+* **Copy & Paste** Take the output from `build/output/ImageGlitch.html` and `apps/imageglitch/ImageGlitch-left-panel.txt` into their respective panel in to `https://perchance.org/imageglitch#edit`.
+
+## 🗺️ Navigation
+
+* [**Up to Root**](../README.md)

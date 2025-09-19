@@ -20,7 +20,7 @@ This is the root directory, and as such, it primarily points to overarching rule
 This folder adheres to the following project-wide guidelines:
 
 * [Agent Protocol (AGENTS.md)](./AGENTS.md)
-* [System Architecture Overview](./docs/system/system-architecture.md)
+* [System Architecture Overview](./rules/system-architecture.md)
 * [System Documentation Guide](./docs/system/system-documentation-guide.md)
 
 ---

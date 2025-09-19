@@ -59,3 +59,39 @@
 * Test passed.
 * Typo fixed in final output.
 * **CONCLUSION:** Task successfully completed.
+
+---
+
+## 3. Framework for Complex Problems
+
+The IDEA cycle is sufficient for most tasks. However, when a problem is particularly complex or ambiguous, a more structured approach to the **Diagnose** phase is required.
+
+### 3.1. When to Use a Deeper Framework
+
+A deeper analysis is warranted for:
+
+* **Complex Decision-Making:** When there are multiple options with various pros and cons.
+* **Argument Analysis & Debate:** When a topic needs to be explored from multiple perspectives.
+* **System Design & Visualization:** When understanding the relationships and flows within a system is crucial.
+* **Problem Decomposition:** When a problem is too large or abstract and needs to be broken down into smaller, more manageable parts.
+
+### 3.2. Activation Checklist
+
+Before engaging in deep analysis, confirm that the problem meets at least two of the following criteria:
+
+* [ ] **Ambiguity:** The user's request is open-ended and does not have a single, obvious answer.
+* [ ] **Complexity:** The problem involves multiple interacting parts, variables, or stakeholders.
+* [ ] **Comparison:** The task requires evaluating and comparing different options, arguments, or designs.
+* [ ] **Abstraction:** The problem requires thinking about concepts, structures, or systems rather than concrete implementation details.
+
+### 3.3. General Workflow
+
+If the criteria are met, expand the **Diagnose** phase with the following workflow:
+
+1. **Define the Problem:** Clearly state the problem or question you are addressing.
+2. **Iterate and Analyze:** Use an appropriate framework to build out the analysis. This may involve:
+    * Defining options, criteria, and weights for decisions.
+    * Building a thesis, antithesis, and synthesis for arguments.
+    * Creating nodes and edges to represent a system.
+3. **Synthesize and Conclude:** After iterating, formulate a final conclusion, recommendation, or summary based on the analysis.
+4. **Present the Findings:** Clearly present the conclusion and a summary of the reasoning process.

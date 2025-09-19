@@ -2,8 +2,6 @@
 
 This guide outlines the rules, protocols, and best practices for using the Model Context Protocol (MCP) and its associated tools. Adherence to these guidelines is mandatory for ensuring stable, predictable, and efficient operation.
 
-**Cross-Reference:** For a detailed list of all available tools and their capabilities, see the [MCP Available Tools documentation](../docs/agents/mcp-available-tools.md).
-
 ## 1. Core Principles
 
 - **Protocol First:** Always follow the 7-step Pre-Task Protocol before beginning any task.
@@ -54,37 +52,19 @@ flowchart TD
 
 ## 4. Specific MCP Tool Rules
 
-### Basic Memory (`basic-memory`)
+This section details the principles and workflows for core MCP servers.
 
-**Principle:** The agent must strictly follow the defined workflow for reading from and writing to the `/memory-bank/` to ensure data integrity and a coherent operational history.
+### Memory Bank Interaction
+
+**Principle:** The agent must interact with the `/memory-bank/` directories in a structured way to ensure data integrity and a coherent operational history.
 
 - **Structure:**
   - `/past`: Read-only archive of completed tasks.
   - `/present`: Primary working directory for the current task.
   - `/future`: Planning directory for upcoming tasks.
   - `/forever`: Core identity, rules, and principles.
-- **Workflow:**
-    1. **Load Context:** Start by reading from `/present` and `/forever`.
-    2. **Execute & Log:** Perform the task, generating logs and artifacts.
-    3. **Write to Present:** Save all new files to `/present`.
-    4. **Archive:** When the task is complete, move all contents of `/present` to a new timestamped directory in `/past`.
-    5. **Clear Present:** Empty the `/present` directory to prepare for the next task.
 
-```mermaid
-graph TD
-    subgraph Task Execution
-        A[Start] --> B{Load Context from /present, /forever};
-        B --> C{Execute & Log};
-        C --> D[Write Artifacts to /present];
-        D --> E[Finish];
-    end
-    subgraph Archival
-        F(Task Complete) --> G{Archive /present};
-        G --> H[Move files to /past];
-        H --> I[Clear /present];
-    end
-    E --> F;
-```
+- **Workflow:** The specific tools for memory interaction are not currently defined. The agent should rely on manual file operations to read from and write to the memory bank, following the structure above and the process outlined in `system-orchestration-mode.md`.
 
 ### Time (`time`)
 
@@ -112,6 +92,20 @@ graph TD
     1. **Resolve:** Use `resolve_library_id` with the user's query (e.g., "react").
     2. **Confirm:** From the results, select the correct `context7CompatibleLibraryID`.
     3. **Fetch:** Use `get_library_docs` with the exact ID obtained in the previous step.
+
+### Other Configured Servers
+
+For the following servers, refer to their descriptions in `mcp.master.json` for their purpose. Detailed usage protocols have not yet been documented here.
+
+- **`toolbox`**: Provides a collection of general-purpose developer tools.
+- **`pollinations`**: Provides AI image generation through Pollinations services. 🎨
+- **`mcp-sequentialthinking-tools`**: Provides advanced sequential thinking tools with persistent state.
+- **`waldzell-metagames`**: Provides game-theoretic workflows for development.
+- **`waldzell-clear-thought`**: Provides sequential thinking tools from Waldzell.
+- **`waldzell-stochastic-thinking`**: Provides stochastic thinking utilities.
+- **`deepwiki`**: DeepWiki MCP over SSE for knowledge lookup.
+- **`sourcebot`**: A self-hosted tool for code understanding, search, and navigation.
+- **`npm-sentinel`**: An MCP server for analyzing NPM packages.
 
 ## 5. Troubleshooting
 
