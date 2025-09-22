@@ -1,6 +1,6 @@
 const mockCharacters = [{ id: 'c1', title: 'Hero', isPremade: true, description: 'A hero' }];
 const mockWorlds = [{ id: 'w1', title: 'Earth', isPremade: true, description: 'Our world' }];
-const mockStories = [{ id: 's1', title: 'My Story', isPremade: false, description: 'A story' }];
+
 
 async function loadScripts(html) {
   // Clear the document body before each test

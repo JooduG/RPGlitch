@@ -1,5 +1,3 @@
-import { JSDOM } from 'jsdom';
-
 const mockCharacters = [
   { id: 'a1', title: 'Alice', isPremade: true },
   { id: 'u1', title: 'Bob', isPremade: false }

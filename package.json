@@ -25,7 +25,7 @@
     "lint:js:fix": "eslint . --fix",
     "lint:css": "stylelint \"**/*.scss\" --config build/config/.stylelintrc.json",
     "lint:css:fix": "stylelint \"**/*.scss\" --config build/config/.stylelintrc.json --fix",
-    "lint:html": "htmlhint '**/*.html' --ignore 'build/output/**/*.html' --ignore '**/coverage/**/*'",
+    "lint:html": "node -e \"require('glob').glob('apps/**/*.html', { ignore: ['build/output/**/*.html', '**/coverage/**/*'] }).then(files => require('child_process').execSync(`npx htmlhint ${files.join(' ')}`, { stdio: 'inherit' }))\"",
     "lint:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc",
     "test": "jest",
     "//--- BUILDING ---": "",

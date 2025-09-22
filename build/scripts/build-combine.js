@@ -33,7 +33,7 @@ function readJson(filePath) {
     const jsonString = content;
     return JSON.parse(jsonString);
      
-  } catch (_) {
+  } catch {
     console.warn(`⚠️  Could not read or parse JSON from ${path.relative(REPO_ROOT, filePath)}. This may affect ignore patterns.`);
     return {}; // Return empty object on failure
   }
@@ -93,14 +93,14 @@ function walk(dir, allFiles = []) {
 
 function getGitRecentChanges() {
   try {
-    const stdout = execSync('git log --pretty=format:"%h %ad | %s" --date=short --since=\\"1 week ago\\"', {
+    const stdout = execSync('git log --pretty=format:"%h %ad | %s" --date=short --since=\"1 week ago\"', {
       cwd: REPO_ROOT,
       encoding: 'utf8',
       stdio: 'pipe'
     });
     return stdout.trim();
      
-  } catch (_) {
+  } catch {
     console.warn('⚠️  Could not get git log for recent changes.');
     return 'Could not retrieve recent changes.';
   }
@@ -122,7 +122,7 @@ function buildFromList(title, fileList) {
       const ext = path.extname(f).slice(1) || 'text';
       lines.push('```' + ext, content, '```');
      
-    } catch (_) {
+    } catch {
       lines.push('Could not read file.');
     }
   }

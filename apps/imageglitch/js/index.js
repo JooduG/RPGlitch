@@ -4,13 +4,7 @@ import { safeDecodeURIComponent } from './utils.js';
 // NOTE: The SCSS import has been removed from this file.
 // The build script now handles style compilation and injection separately.
 
-const AI_PROCESS_TYPES = {
-  SUMMON: 'summon',
-  SCRIBE: 'scribe',
-  CHAOS: 'chaos',
-  TRANSFIGURE: 'transfigure',
-  CANCELLING: 'cancelling',
-};
+
 // ====== GLOBAL STATE & CONSTANTS ======
 const DEFAULT_CREATIVITY_LEVEL = "4";
 const creativityMap = {

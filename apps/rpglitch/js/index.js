@@ -21,7 +21,7 @@ import {
 } from './entities.js';
 
 
-/* global DOMPurify */
+
 
 const TEST_MODE = (() => {
   if (globalThis.__TEST__) {
@@ -47,8 +47,6 @@ let _chinSearchBound = false;
 let _bootBound = false;
 let _bootStarted = false;
 
-// UI Elements Cache
-const ui = {};
 
 export function _getUIElements() {
   const doc = document;

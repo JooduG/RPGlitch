@@ -46,7 +46,8 @@ function getRepoTree() {
           return a.name.localeCompare(b.name);
         });
      
-    } catch (_) { return; }
+    } catch {
+ return; }
 
     entries.forEach(entry => {
       const prefix = '  '.repeat(depth) + '- ';
@@ -75,7 +76,7 @@ function getTestStats() {
       return `${status} ${numPassedTests}/${numTotalTests} passed`;
     }
    
-  } catch (_) {
+  } catch {
     console.warn('⚠️  Could not read or parse jest result file.');
   }
   return 'No test results found.';
@@ -110,7 +111,7 @@ function getPackageScripts() {
   # ${scripts[key]}`)
       .join('\n\n');
    
-  } catch (_) {
+  } catch {
     console.warn('⚠️  Could not read or parse package.json for scripts.');
     return 'Could not load scripts.';
   }

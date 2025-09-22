@@ -1,5 +1,3 @@
-import { JSDOM } from 'jsdom';
-
 jest.mock('../apps/rpglitch/js/entities.js', () => ({
   entities: {
     list: jest.fn().mockReturnValue([]),
@@ -13,6 +11,7 @@ async function loadApp() {
     <div id="upload-backup"></div>
     <div data-trigger="upload-backup"></div>
     <div id="download-backup"></div>
+    <div id="delete-all-data"></div>
     <div id="chin-container"></div>
   </body></html>`;
   // Clear the document body before each test
@@ -76,22 +75,21 @@ test('options chin actions trigger database methods', async () => {
   const downloadBackupButton = document.getElementById('download-backup');
   const deleteAllDataButton = document.getElementById('delete-all-data');
 
-  if (uploadBackupTrigger && uploadBackupInput) {
-    const view = window; // Use global window
-    const file = new view.File(['{}'], 'backup.json', { type: 'application/json' });
-    uploadBackupTrigger.click();
-    Object.defineProperty(uploadBackupInput, 'files', { value: [file] });
-    uploadBackupInput.dispatchEvent(new view.Event('change'));
-    expect(App.importAllData).toHaveBeenCalledWith(file);
-  }
+  expect(uploadBackupTrigger).not.toBeNull();
+  expect(uploadBackupInput).not.toBeNull();
+  expect(downloadBackupButton).not.toBeNull();
+  expect(deleteAllDataButton).not.toBeNull();
 
-  if (downloadBackupButton) {
-    downloadBackupButton.click();
-    expect(App.exportAllData).toHaveBeenCalled();
-  }
+  const view = window; // Use global window
+  const file = new view.File(['{}'], 'backup.json', { type: 'application/json' });
+  uploadBackupTrigger.click();
+  Object.defineProperty(uploadBackupInput, 'files', { value: [file] });
+  uploadBackupInput.dispatchEvent(new view.Event('change'));
+  expect(App.importAllData).toHaveBeenCalledWith(file);
 
-  if (deleteAllDataButton) {
-    deleteAllDataButton.click();
-    expect(App.deleteAllData).toHaveBeenCalled();
-  }
+  downloadBackupButton.click();
+  expect(App.exportAllData).toHaveBeenCalled();
+
+  deleteAllDataButton.click();
+  expect(App.deleteAllData).toHaveBeenCalled();
 });

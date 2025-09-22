@@ -1,5 +1,3 @@
-import { JSDOM } from 'jsdom';
-
 jest.mock('../apps/rpglitch/js/entities.js', () => ({
   entities: {
     list: jest.fn().mockReturnValue([]),
@@ -51,18 +49,18 @@ test('top bar click triggers chin toggle without duplicate handlers', async () =
   App.chin.init(); // Call twice to ensure no duplicate handlers
 
   const btn = document.querySelector('#top-bar-left button[data-chin="stories"]');
-  // Re-query panel after modification
   let panel = document.querySelector('.chin[data-chin="stories"]');
-  if (btn && panel) {
-    btn.click();
-    await new Promise(resolve => setTimeout(resolve, 0));
-    // Re-query panel after modification
-    panel = document.querySelector('.chin[data-chin="stories"]');
-    expect(panel.hasAttribute('hidden')).toBe(false);
-    btn.click();
-    await new Promise(resolve => setTimeout(resolve, 0));
-    // Re-query panel after modification
-    panel = document.querySelector('.chin[data-chin="stories"]');
-    expect(panel.hasAttribute('hidden')).toBe(true);
-  }
+
+  expect(btn).not.toBeNull();
+  expect(panel).not.toBeNull();
+
+  btn.click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  panel = document.querySelector('.chin[data-chin="stories"]');
+  expect(panel.hasAttribute('hidden')).toBe(false);
+
+  btn.click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  panel = document.querySelector('.chin[data-chin="stories"]');
+  expect(panel.hasAttribute('hidden')).toBe(true);
 });

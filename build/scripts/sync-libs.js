@@ -80,7 +80,7 @@ function download(url, dest, sha256) {
       });
     }).on('error', (err) => {
       try { if (fs.existsSync(tmpDest)) fs.unlinkSync(tmpDest); }
-      catch (_) { /* suppress */ }
+      catch { /* suppress */ }
       reject(err);
     });
   });

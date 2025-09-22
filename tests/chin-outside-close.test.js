@@ -1,4 +1,4 @@
-import { JSDOM } from 'jsdom';
+
 
 jest.mock('../apps/rpglitch/js/entities.js', () => ({
   entities: {
