@@ -1,13 +1,18 @@
 #!/usr/bin/env node
-/* * Build RPGlitch: inlines CSS/JS, minifies JS, respects Perchance constraints,
+/*
+ * Build RPGlitch: inlines CSS/JS, minifies JS, respects Perchance constraints,
  * and writes the final bundle to build/output/RPGlitch.html.
  */
 
-const fs = require('fs');
-const path = require('path');
-const sass = require('sass');
-const esbuild = require('esbuild');
+import fs from 'fs';
+import path from 'path';
+import * as sass from 'sass'; // Corrected this line!
+import esbuild from 'esbuild';
+import { fileURLToPath } from 'url';
 
+// --- PATHS (ESM Version) ---
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..', '..');
 const APP_DIR = path.join(ROOT, 'apps', 'rpglitch');
 const APP_JS_DIR = path.join(APP_DIR, 'js');
@@ -15,6 +20,8 @@ const BUILD_DIR = path.join(ROOT, 'build');
 const LOCAL_LIBS_DIR = path.join(BUILD_DIR, 'local_libs');
 const OUTPUT_DIR = path.join(BUILD_DIR, 'output');
 const OUTPUT_HTML = path.join(OUTPUT_DIR, 'RPGlitch.html');
+const SRC_HTML = path.join(APP_DIR, 'html', 'index.html');
+const ENTRY_SCSS = path.join(APP_DIR, 'scss', 'index.scss');
 
 const LOCAL_LIBS = {
   pico: { file: 'pico.min.css' },
@@ -24,11 +31,11 @@ const LOCAL_LIBS = {
   hyperscript: { file: '_hyperscript.min.js' },
 };
 
-const SRC_HTML = path.join(APP_DIR, 'html', 'index.html');
-const ENTRY_SCSS = path.join(APP_DIR, 'scss', 'index.scss');
-
+// --- UTILITIES ---
 function ensureDir(p) {
-  fs.mkdirSync(p, { recursive: true });
+  if (!fs.existsSync(p)) {
+    fs.mkdirSync(p, { recursive: true });
+  }
 }
 
 function readFileSafe(filePath, kind) {
@@ -84,7 +91,7 @@ async function bundleAndMinifyJs() {
       minify: true,
       write: false, // returns the result as a string
       format: 'iife',
-      globalName: 'App',
+      globalName: 'App', // Optional: for debugging in the browser
     });
     return result.outputFiles[0].text;
   } catch (err) {
@@ -93,6 +100,7 @@ async function bundleAndMinifyJs() {
   }
 }
 
+// --- MAIN LOGIC ---
 (async function main() {
   try {
     console.log('🔨 Building RPGlitch…');
@@ -124,7 +132,7 @@ async function bundleAndMinifyJs() {
 
     fs.writeFileSync(OUTPUT_HTML, finalHtml, 'utf8');
     console.log(`✅ Built: ${path.relative(ROOT, OUTPUT_HTML)}`);
-  } catch(err) {
+  } catch (err) {
     console.error('❌ Build script failed:', err);
     process.exit(1);
   }

@@ -1,42 +1,37 @@
-// Flat config for ESLint v9+ (no JSON import assertions)
-// Loads ignore patterns from ignores.master.json using createRequire to avoid `assert { type: 'json' }`.
-
 import js from '@eslint/js';
 import globals from 'globals';
+import jest from 'eslint-plugin-jest';
 import pluginImport from 'eslint-plugin-import';
 import pluginN from 'eslint-plugin-n';
 import pluginPromise from 'eslint-plugin-promise';
 import { createRequire } from 'node:module';
 
+// Use createRequire to import JSON without syntax errors in an ES module
 const require = createRequire(import.meta.url);
 
-// Default fallbacks in case the master file is missing or shaped differently
+// Default fallbacks in case the master file is missing
 let eslintIgnores = [
-  'node_modules/',
-  'build/output/',
-  'build/local_libs/',
-  '.cache/',
-  'dist/',
-  '_DS_Store',
-  'Thumbs.db',
-  // workspace-specific
-  'memory-bank/archive',
-  'memory-bank/scribbles.md',
+  "**/node_modules/**",
+  "**/build/output/**",
+  "**/build/local_libs/**",
+  "**/.cache/**",
+  "**/dist/**",
+  "**/.DS_Store",
+  "**/Thumbs.db",
+  "memory-bank/archive/",
+  "memory-bank/scribbles.md",
 ];
 
-// Try to read central ignore list
+// Try to read the central ignore list from the master config
 try {
-  const master = require('./ignores.master.json');
-  // Accept a few possible keys to be resilient
-  eslintIgnores =
-    master.eslintIgnore ||
-    master.eslint_ignore ||
-    master.common?.eslint ||
-    master.all?.eslint ||
-    master.eslint ||
-    eslintIgnores;
-} catch {
-  // keep defaults
+  // Corrected path: relative to the root, where this config file lives
+  const master = require('./build/config/ignores.master.json');
+  // Use the specific key from your master config
+  if (master && master.linters && master.linters.eslint) {
+    eslintIgnores = master.linters.eslint;
+  }
+} catch (e) {
+  console.warn("⚠️ Could not load ignores.master.json for ESLint, using fallback ignores.", e.message);
 }
 
 export default [
@@ -45,18 +40,17 @@ export default [
     ignores: eslintIgnores,
   },
 
-  // 2) Base JS recommended rules
-  js.configs.recommended,
-
-  // 3) Project rules (browser + node)
+  // 2) Base JS recommended rules for all files
   {
-    files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
+    ...js.configs.recommended,
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: {
         ...globals.browser,
         ...globals.node,
+        // Declare 'image' as a known global from perchance.js
+        'image': 'readonly',
       },
     },
     plugins: {
@@ -65,46 +59,35 @@ export default [
       promise: pluginPromise,
     },
     rules: {
-      // Reasonable defaults
       'no-unused-vars': ['warn', { args: 'none', ignoreRestSiblings: true }],
       'no-undef': 'error',
-
-      // You rely on bundling/Perchance includes; relax unresolved warnings
       'import/no-unresolved': 'off',
       'n/no-missing-import': 'off',
-
-      // Optional ergonomics
-      'promise/no-return-wrap': 'warn',
-      'promise/param-names': 'warn',
-      'promise/no-nesting': 'off',
-      'promise/catch-or-return': 'off',
-      'promise/always-return': 'off',
       'no-console': 'off',
     },
   },
 
-  // 4) Jest test files
+  // 3) Jest test files configuration
   {
-    files: ['tests/**/*.js'],
-    languageOptions: {
-      globals: {
-        ...globals.jest,
-      },
+    files: ['**/tests/**/*.js', '**/*.test.js'],
+    ...jest.configs['flat/recommended'],
+    rules: {
+      ...jest.configs['flat/recommended'].rules,
+      'jest/prefer-expect-assertions': 'off',
     },
   },
 
-  // 5) Node-only overrides for build scripts
+  // 4) Node-only overrides for build scripts
   {
     files: ['build/scripts/**/*.js'],
     languageOptions: {
-      sourceType: 'module',
       globals: {
         ...globals.node,
       },
     },
     rules: {
-      // scripts often use sync fs/child_process — keep them permissive
       'import/no-extraneous-dependencies': 'off',
     },
   },
 ];
+

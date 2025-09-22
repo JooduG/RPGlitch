@@ -1,11 +1,9 @@
-#!/usr/bin/env node
-
-const fs = require("fs");
-const path = require("path");
-const dotenv = require("dotenv");
+import fs from "fs";
+import path from "path";
+import dotenv from "dotenv";
 
 // --- PATHS ---
-const REPO_ROOT = path.resolve(__dirname, "..", "..");
+const REPO_ROOT = process.cwd();
 const masterMcpPath = path.join(
   REPO_ROOT,
   "build",
@@ -30,7 +28,7 @@ function readJson(filePath) {
   }
   try {
     let content = fs.readFileSync(filePath, "utf8");
-    if (content.charCodeAt(0) === 0xfeff) content = content.slice(1);
+    if (content.charCodeAt(0) === 0xfeff) content = content.slice(1); // Strip BOM
     return JSON.parse(content);
   } catch (error) {
     console.error(
@@ -52,8 +50,8 @@ function writeJson(filePath, data) {
 
 function loadEnvFile(filePath) {
     if (!fs.existsSync(filePath)) {
-        console.warn(`⚠️  .env file not found at: ${filePath}. No secrets will be loaded.`);
-        return {};
+      console.warn(`⚠️  .env file not found at: ${filePath}. No secrets will be loaded.`);
+      return {};
     }
     console.log(`✅ Found .env file at: ${filePath}`);
     const envContent = fs.readFileSync(filePath);
@@ -61,7 +59,6 @@ function loadEnvFile(filePath) {
     console.log(`🔑 Loaded keys from .env: ${Object.keys(parsed).join(", ")}`);
     return parsed;
 }
-
 
 function substituteEnvVariables(obj, envMap) {
   const replacer = (val) =>
@@ -93,12 +90,6 @@ function substituteEnvVariables(obj, envMap) {
   return result;
 }
 
-/**
- * Creates a clean version of the server config specifically for VS Code,
- * which has a stricter schema and does not allow certain properties.
- * @param {object} fullServerConfig The original server configuration.
- * @returns {object} A new configuration object with unsupported properties removed.
- */
 function createVsCodeCleanConfig(fullServerConfig) {
     const cleanedConfig = { ...fullServerConfig };
     // These properties are not allowed by the VS Code MCP extension schema
@@ -115,7 +106,6 @@ function createVsCodeCleanConfig(fullServerConfig) {
 
     return cleanedConfig;
 }
-
 
 // --- MAIN LOGIC ---
 function syncMcp() {
@@ -148,12 +138,10 @@ function syncMcp() {
   const vsCodeClientTemplate = { ...masterMcp, servers: vsCodeServers };
   delete vsCodeClientTemplate.mcpServers;
 
-
   // Inject secrets
   const envMap = { ...process.env, ...loadEnvFile(envPath) };
   const resolvedGenericClientMcp = substituteEnvVariables(genericClientTemplate, envMap);
   const resolvedVsCodeClientMcp = substituteEnvVariables(vsCodeClientTemplate, envMap);
-
 
   // Write the clean config to VS Code
   writeJson(VSCODE_TARGET, resolvedVsCodeClientMcp);

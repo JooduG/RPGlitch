@@ -1,12 +1,9 @@
-// Move the safeDecodeURIComponent function to a separate file (e.g., utils.js)
-function safeDecodeURIComponent(str) {
-  try {
-    return decodeURIComponent(str);
-  } catch (e) {
-    console.error("Failed to decode URI component:", str, e);
-    return str;
-  }
-}
+import './perchance.js';
+import { safeDecodeURIComponent } from './utils.js';
+
+// NOTE: The SCSS import has been removed from this file.
+// The build script now handles style compilation and injection separately.
+
 const AI_PROCESS_TYPES = {
   SUMMON: 'summon',
   SCRIBE: 'scribe',
@@ -356,15 +353,12 @@ function handleSummonClick() {
 
 let imageGenerator = 'pollinations';
 
-// ... (rest of the code)
-
 function buildImageGenerationHtml() {
   updateDerivedSettings();
   const n = Number(numImagesToGen);
   let outputHtml = "";
   const prompt = (mainPromptContent || "").trim();
 
-  // Determine if we should use random seeds or a user-provided seed
   const useRandomSeeds = imgSeed === "";
 
   if (imageGenerator === 'perchance') {
@@ -402,10 +396,7 @@ function buildImageGenerationHtml() {
   return outputHtml;
 }
 
-// ... (rest of the code)
-
 function main() {
-  // Get all elements first
   const summonBtn = document.getElementById('summonBtn');
   const aiMagicSelect = document.getElementById('aiMagicSelect');
   const numImagesSelect = document.getElementById('numImagesSelect');
@@ -416,16 +407,13 @@ function main() {
   const label = document.getElementById('masterCreativityLabel');
   const imageGeneratorSelect = document.getElementById('imageGeneratorSelect');
 
-  // Load settings and update derived values
   loadSavedSettings();
   updateDerivedSettings();
 
-  // Set initial state for the main button
   if (summonBtn) {
     resetSmartButton();
   }
 
-  // Attach all event listeners
   if (aiMagicSelect) {
     aiMagicSelect.addEventListener('change', () => handleAiMagicSelection(aiMagicSelect));
   }
@@ -472,7 +460,6 @@ function main() {
     });
   }
 
-  // Initial image generation for Perchance
   if (imageGenerator === 'perchance') {
     document.querySelectorAll('.quad-cell').forEach(cell => {
       const prompt = safeDecodeURIComponent(cell.closest('.quad-block').dataset.prompt);
@@ -493,12 +480,9 @@ function main() {
   }
 }
 
-
-// Add image overlay functions for download, reroll, and seed display
 function addImageOverlays() {
-  // Add overlays to solo blocks
   document.querySelectorAll('.solo-block').forEach(block => {
-    if (block.querySelector('.image-overlay')) return; // Skip if overlay already exists
+    if (block.querySelector('.image-overlay')) return;
 
     const seed = block.dataset.seed;
     const prompt = safeDecodeURIComponent(block.dataset.prompt);
@@ -506,14 +490,10 @@ function addImageOverlays() {
     const overlay = document.createElement('div');
     overlay.className = 'image-overlay';
 
-    // Create an info panel for prompt, seed, and guidance scale
     const infoPanel = document.createElement('div');
     infoPanel.className = 'image-info-panel';
-    infoPanel.innerHTML = `
-      <div class="prompt-display">${prompt}</div>
-    `;
+    infoPanel.innerHTML = `<div class="prompt-display">${prompt}</div>`;
 
-    // Create a bottom control bar that contains both seed display and buttons
     const bottomBar = document.createElement('div');
     bottomBar.className = 'image-control-bar';
     bottomBar.innerHTML = `
@@ -527,7 +507,6 @@ function addImageOverlays() {
     overlay.appendChild(infoPanel);
     overlay.appendChild(bottomBar);
 
-    // Add event listeners
     bottomBar.querySelector('.download-btn').addEventListener('click', (e) => {
       e.stopPropagation();
       downloadImage(block);
@@ -541,9 +520,8 @@ function addImageOverlays() {
     block.appendChild(overlay);
   });
 
-  // Add overlays to quad cells
   document.querySelectorAll('.quad-cell').forEach(cell => {
-    if (cell.querySelector('.image-overlay')) return; // Skip if overlay already exists
+    if (cell.querySelector('.image-overlay')) return;
 
     const seed = cell.dataset.seed;
     const quadBlock = cell.closest('.quad-block');
@@ -553,14 +531,10 @@ function addImageOverlays() {
     const overlay = document.createElement('div');
     overlay.className = 'image-overlay';
 
-    // Create an info panel for prompt, seed, and guidance scale
     const infoPanel = document.createElement('div');
     infoPanel.className = 'image-info-panel';
-    infoPanel.innerHTML = `
-      <div class="prompt-display">${prompt}</div>
-    `;
+    infoPanel.innerHTML = `<div class="prompt-display">${prompt}</div>`;
 
-    // Create a bottom control bar that contains both seed display and buttons
     const bottomBar = document.createElement('div');
     bottomBar.className = 'image-control-bar';
     bottomBar.innerHTML = `
@@ -574,7 +548,6 @@ function addImageOverlays() {
     overlay.appendChild(infoPanel);
     overlay.appendChild(bottomBar);
 
-    // Add event listeners with stopPropagation to prevent event bubbling
     bottomBar.querySelector('.download-btn').addEventListener('click', (e) => {
       e.stopPropagation();
       downloadImage(cell);
@@ -590,16 +563,13 @@ function addImageOverlays() {
   });
 }
 
-// Function to download an image
 function downloadImage(container) {
   const imgEl = container.querySelector('img');
   const canvasEl = container.querySelector('canvas');
   const seed = container.dataset.seed;
 
   if (imgEl) {
-    // For pollinations.ai images
     try {
-      // Try to use the Fetch API to download the image directly
       fetch(imgEl.src)
         .then(response => response.blob())
         .then(blob => {
@@ -616,15 +586,11 @@ function downloadImage(container) {
         })
         .catch(err => {
           console.error("Error fetching image:", err);
-
-          // Fallback: Try canvas method
           const tempCanvas = document.createElement('canvas');
           tempCanvas.width = imgEl.naturalWidth || 1280;
           tempCanvas.height = imgEl.naturalHeight || 1280;
-
           const ctx = tempCanvas.getContext('2d');
           ctx.drawImage(imgEl, 0, 0, tempCanvas.width, tempCanvas.height);
-
           try {
             const dataUrl = tempCanvas.toDataURL('image/png');
             const a = document.createElement('a');
@@ -643,7 +609,6 @@ function downloadImage(container) {
       alert("Failed to download the image. Please try right-clicking and using 'Save Image As' instead.");
     }
   } else if (canvasEl) {
-    // For canvas elements
     try {
       const a = document.createElement('a');
       a.href = canvasEl.toDataURL('image/png');
@@ -658,35 +623,25 @@ function downloadImage(container) {
   }
 }
 
-// Function to regenerate an image
 function rerollImage(container, resolution) {
   const prompt = safeDecodeURIComponent(container.dataset.prompt);
-
-  // Always generate a new random seed for rerolls
   const newSeed = window.crypto.getRandomValues(new Uint32Array(1))[0] % 10000000;
 
   if (container.classList.contains('solo-block')) {
-    // For pollinations.ai images
     const imgEl = container.querySelector('img');
     if (imgEl) {
       const newUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=1280&seed=${newSeed}&model=flux&private=true&nologo=true`;
       imgEl.src = newUrl;
       container.dataset.seed = newSeed;
-
-      // Update the seed display in the overlay
       const seedDisplay = container.querySelector('.seed-guidance-display');
       if (seedDisplay) {
         seedDisplay.innerHTML = `Seed: ${newSeed}<br>model: flux<br>`;
       }
     }
   } else if (container.classList.contains('quad-cell')) {
-    // For quad cells (Perchance)
     const canvasEl = container.querySelector('canvas');
     if (canvasEl && resolution) {
-      // Remove old canvas
       canvasEl.remove();
-
-      // Create new image
       image({
         prompt: prompt,
         seed: newSeed,
@@ -697,8 +652,6 @@ function rerollImage(container, resolution) {
           container.appendChild(r.canvas);
         }
       });
-
-      // Update the seed display in the overlay
       container.dataset.seed = newSeed;
       const seedDisplay = container.querySelector('.seed-guidance-display');
       if (seedDisplay) {
@@ -721,7 +674,6 @@ function checkAllButtonStates() {
 
   const mainPromptContent = promptInput.value;
   const numImagesToGen = numImagesSelect.value;
-
   const promptIsEmpty = !(mainPromptContent || "").trim();
   const instructionsIsEmpty = !instructionInput.value.trim();
 
@@ -741,3 +693,4 @@ function checkAllButtonStates() {
 
 // ====== INIT ======
 document.addEventListener('DOMContentLoaded', main);
+

@@ -1,53 +1,47 @@
 {
   "$schema": "https://json.schemastore.org/prettierrc",
-  "gitignore": {
-    "patterns": [
-      "*.bak",
-      "*.log",
-      "*.tmp",
-      "**/.git/**",
-      "**/archive/**",
-      "**/memory-bank/archive/**",
-      "**/build/local_libs/**",
-      "**/build/output/**",
-      "/.DS_Store",
-      ".amazonq/",
-      ".basicmemoryignore",
-      ".cursor/",
-      ".cursorignore",
-      ".env.*.local",
-      ".env.local",
-      ".gemini/",
-      ".geminiignore",
-      ".gitignore",
-      ".npm",
-      ".vscode/",
-      ".windsurf/",
-      "/coverage",
-      "/dist",
-      "**mcp.json",
-      "node_modules/",
-      "gha-creds-*.json"
-    ]
-  },
-  "ide": {
-    "patterns": [
-      "**/build/local_libs/**",
-      "**/build/output/**",
-      "**/node_modules/**",
-      "**/archive/**"
-    ]
-  },
-  "memory": {
-    "patterns": [
-      "**/.git/**",
-      "**/archive/**",
-      "**/build/local_libs/**",
-      "**/build/output/**",
-      "**/node_modules/**",
-      "**/diagnostics/**"
-    ]
-  },
+  "gitignore": [
+    "*.bak",
+    "*.log",
+    "*.tmp",
+    "**/.git/**",
+    "**/archive/**",
+    "**/memory-bank/archive/**",
+    "**/build/local_libs/**",
+    "**/build/output/**",
+    "/.DS_Store",
+    ".amazonq/",
+    ".basicmemoryignore",
+    ".cursor/",
+    ".cursorignore",
+    ".env.*.local",
+    ".env.local",
+    ".gemini/",
+    ".geminiignore",
+    ".gitignore",
+    ".npm",
+    ".vscode/",
+    ".windsurf/",
+    "/coverage",
+    "/dist",
+    "**mcp.json",
+    "node_modules/",
+    "gha-creds-*.json"
+  ],
+  "ide": [
+    "**/build/local_libs/**",
+    "**/build/output/**",
+    "**/node_modules/**",
+    "**/archive/**"
+  ],
+  "memory": [
+    "**/.git/**",
+    "**/archive/**",
+    "**/build/local_libs/**",
+    "**/build/output/**",
+    "**/node_modules/**",
+    "**/diagnostics/**"
+  ],
   "linters": {
     "eslint": [
       "*.bak",
@@ -148,14 +142,14 @@
   "vscode": {
     "filesExclude": {
       ".amazonq/rules/": true,
-      ".basicmemoryignore": true,
       ".cursor/mcp.json": true,
       ".cursor/rules/": true,
       ".cursorignore": true,
       ".geminiignore": true,
       ".gitignore": true,
+      ".stylelintignore": true,
+      ".basicmemoryignore": true,
       ".htmlhintrc": true,
-      "build/config/.markdownlint.json": true,
       ".markdownlint.json": true,
       ".vscode/mcp.json": true,
       ".vscode/rules/": true,
@@ -169,17 +163,12 @@
       "**/Thumbs.db": true,
       "**/build/local_libs/**": true,
       "**/node_modules/**": true,
-      "build/config/.htmlhintignore": true,
-      "build/config/.markdownlintignore": true,
-      "build/config/.stylelintignore": true,
-      "build/config/ignore.eslint.json": true,
       "eslint.config.mjs": true,
       "jest.config.js": true,
       "jsconfig.json": true,
       "**/mcp.json": true,
       "stylelint.config.js": true,
       "test-basic-memory/": true,
-      ".markdownlintignore": true,
       ".markdownlint-cli2.jsonc": true,
       ".npmrc": true
     }
