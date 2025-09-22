@@ -4,14 +4,11 @@ This directory contains the primary, user-facing web applications for this repos
 
 ## Table of Contents
 
-- [Applications Overview](#applications-overview)
-  - [Table of Contents](#table-of-contents)
-  - [The Perchance Framework: The Golden Rule](#the-perchance-framework-the-golden-rule)
-  - [Application Summaries](#application-summaries)
-  - [Right-Panel Architecture](#right-panel-architecture)
-  - [Build Process](#build-process)
-  - [Application Lifecycle](#application-lifecycle)
-  - [🗺️ Navigation](#️-navigation)
+- [The Perchance Framework: The Golden Rule](https://www.google.com/search?q=%23the-perchance-framework-the-golden-rule)
+- [Application Summaries](https://www.google.com/search?q=%23application-summaries)
+- [Right-Panel Architecture](https://www.google.com/search?q=%23right-panel-architecture)
+- [Build Process](https://www.google.com/search?q=%23build-process)
+- [Application Lifecycle](https://www.google.com/search?q=%23application-lifecycle)
 
 -----
 
@@ -61,19 +58,9 @@ graph TD
 
 ## Build Process
 
-The goal of the build process is to take the source files (HTML, SCSS, JS) and compile them into a single, standalone HTML block for the **Right Panel**. This simplifies deployment directly into the Perchance editor.
+The goal of the build process is to take the source files (HTML, SCSS, JS) and compile them into a single, standalone HTML block for the **Right Panel**. This simplifies deployment directly into the Perchance editor. The main build scripts for this are `build-rpglitch.js` and `build-imageglitch.js`.
 
-The primary build scripts for this are `build/scripts/build-rpglitch.js` and `build/scripts/build-imageglitch.js`.
-
-The process is as follows:
-
-1. **Read Source HTML**: The script reads the main HTML file (e.g., `apps/rpglitch/html/index.html`).
-2. **Compile SCSS**: It compiles all SCSS files into a single block of CSS.
-3. **Combine JavaScript**: It reads and concatenates all JavaScript source files in a predefined order.
-4. **Inject and Assemble**:
-      - The compiled CSS is injected into a `<style>` tag.
-      - The combined JavaScript is injected into a `<script>` tag.
-5. **Write Output**: The final, self-contained HTML is written to a file in `build/output/`, ready to be pasted into the **Right Panel** of Perchance.
+The process begins by **reading the source HTML** file (e.g., `apps/rpglitch/html/index.html`). Next, it **compiles all SCSS** files into a single block of CSS and **combines all JavaScript** files in a predefined order. Finally, it **injects and assembles** the final HTML by placing the CSS in a `<style>` tag and the JavaScript in a `<script>` tag. The final, self-contained HTML is then **written to an output file** in the `build/output/` directory, ready to be pasted into the Right Panel of Perchance.
 
 -----
 
@@ -81,23 +68,8 @@ The process is as follows:
 
 The application lifecycle is managed by the JavaScript running in the **Right Panel**.
 
-1. **Initialization (`init`)**:
+The process starts with **initialization**, where the main `index.js` script waits for `DOMContentLoaded` and then calls an `init()` function. This function sets up the application, initializes the database with `Dexie.js`, and attaches event listeners.
 
-      - The main `index.js` script waits for `DOMContentLoaded`.
-      - It calls an `init()` function to set up the application, initialize the database (`Dexie.js`), attach event listeners, and render the initial UI state.
+Next is **event handling**, where user interactions are captured by the listeners attached during initialization. This is handled with `cash` for imperative event handling and `_hyperscript` for declarative event handling directly in the HTML.
 
-2. **Event Handling**:
-
-      - User interactions are captured by event listeners attached during `init`.
-      - The project uses `cash` for imperative event handling (`.on()`) and `_hyperscript` for declarative event handling in the HTML.
-
-3. **State Management**:
-
-      - Application state (e.g., RPGlitch entities) is stored in IndexedDB.
-      - When state changes, the JavaScript updates the database first, then re-renders the DOM to ensure the UI always reflects the stored data.
-
-## 🗺️ Navigation
-
-- [**Up to Root**](../README.md)
-- [ImageGlitch/](./imageglitch/README.md)
-- [RPGlitch/](./rpglitch/README.md)
+Finally, **state management** ensures that the application's state (like the list of entities in RPGlitch) is stored in IndexedDB. When the state changes, the JavaScript updates the database first and then re-renders the DOM, ensuring the UI always reflects the stored data.

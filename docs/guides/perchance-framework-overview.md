@@ -4,11 +4,13 @@ This directory contains the primary, user-facing web applications for this repos
 
 ## Table of Contents
 
-- [The Perchance Framework: The Golden Rule](#the-perchance-framework-the-golden-rule)
-- [Application Summaries](#application-summaries)
-- [Right-Panel Architecture](#right-panel-architecture)
-- [Build Process](#build-process)
-- [Application Lifecycle](#application-lifecycle)
+- [Applications Overview](#applications-overview)
+  - [Table of Contents](#table-of-contents)
+  - [The Perchance Framework: The Golden Rule](#the-perchance-framework-the-golden-rule)
+  - [Application Summaries](#application-summaries)
+  - [Right-Panel Architecture](#right-panel-architecture)
+  - [Build Process](#build-process)
+  - [Application Lifecycle](#application-lifecycle)
 
 -----
 
