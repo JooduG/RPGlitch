@@ -20,15 +20,24 @@ This folder contains the `ImageGlitch` application, a minimalist Text-to-Image g
 * **Generator Logic (Left Panel):** All changes to the core logic, lists, random generation, and Perchance-specific syntax **MUST** be made in the `ImageGlitch-left-panel.txt` file. This is the "code" side.
 * **User Interface (Right Panel):** All changes to the HTML, CSS, and JavaScript that the user sees and interacts with **MUST** be made in the `/html`, `/scss`, and `/js` directories, which are then compiled into the final output. This is the "interface" side.
 
-**Do not deviate from this structure.** Your primary responsibility is to maintain the integrity of this architectural separation. Refer to the [Perchance Framework Overview](../../docs/guides/perchance-framework-overview.md) if you are ever in doubt.
+#### Integrated Development Rules
+
+Since this application does not have separate README files for its `js`, `html`, and `scss` directories, you **MUST** hold all relevant rules in your context when making changes:
+
+* **JavaScript:** Adhere strictly to `/rules/js-guide.md`.
+* **HTML:** Follow the best practices in `/rules/html-best-practises.md`.
+* **SCSS:** All styling must conform to `/rules/scss-style-guide.md` and the Pico.css framework.
+A change in one area (e.g., adding a new HTML element) may require a corresponding change in another (e.g., adding a JS hook and SCSS styling). Be mindful of this interconnectedness.
+
+If you have any uncertainty, you **MUST** consult the [**Core Development Guide**](../../rules/PERCHANCE-DEVELOPMENT-GUIDE.md) immediately.
 
 -----
 
 ## 🔗 Overarching Rules (Single Source of Truth)
 
-This folder adheres to the following project-wide guidelines:
+This folder is governed by the one true source of truth for all Perchance development:
 
-* [Perchance Framework Overview](../../docs/guides/perchance-framework-overview.md)
+➡️ **[The Gospel of Perchance: Core Development Guide](../../rules/PERCHANCE-DEVELOPMENT-GUIDE.md)** ⬅️
 
 -----
 

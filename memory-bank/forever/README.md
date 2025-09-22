@@ -17,8 +17,8 @@ This directory stores foundational knowledge, core principles, and critical guid
 
 This folder adheres to the following project-wide guidelines:
 
-* [Agent Protocol (AGENTS.md)](../../../AGENTS.md)
-* [System Documentation Guide](../../../docs/system/system-documentation-guide.md)
+* [Agent Protocol (AGENTS.md)](../../AGENTS.md)
+* [System Documentation Guide](../../docs/system/system-documentation-guide.md)
 
 ---
 

@@ -18,17 +18,17 @@ This folder contains the `RPGlitch` application, a dynamic tool for role-playing
 **Attention AI Agent: This is a Perchance application. All development MUST follow the two-panel structure.**
 
 * **Generator Logic (Left Panel):** All modifications to the core logic, Perchance lists, random generation, and any Perchance-specific syntax **MUST** be made exclusively in the `RPGlitch-left-panel.txt` file. This file is the "code" and engine of the application.
-* **User Interface (Right Panel):** All changes to the user-facing elements—including HTML, CSS, and JavaScript—**MUST** be made within the `/html`, `/scss`, and `/js` directories. These are compiled to create the final user interface.
+* **User Interface (Right Panel):** All changes to the user-facing elements—including HTML, CSS, and JavaScript—**MUST** be made within the `/html`, `/scss`, and `/js` directories. These are compiled to create the final user interface. For technology-specific rules, consult the README within the relevant sub-folder.
 
-**Do not violate this architectural separation.** Your core mission is to ensure that logic and presentation remain distinct. If you have any uncertainty, consult the [Perchance Framework Overview](../../docs/guides/perchance-framework-overview.md) immediately.
+If you have any uncertainty, you **MUST** consult the [**Core Development Guide**](../../rules/PERCHANCE-DEVELOPMENT-GUIDE.md) immediately.
 
 -----
 
 ## 🔗 Overarching Rules (Single Source of Truth)
 
-This folder is governed by the following critical project-wide documents:
+This folder is governed by the one true source of truth for all Perchance development:
 
-* [Perchance Framework Overview](../../docs/guides/perchance-framework-overview.md)
+➡️ **[The Gospel of Perchance: Core Development Guide](../../rules/PERCHANCE-DEVELOPMENT-GUIDE.md)** ⬅️
 
 -----
 
@@ -45,12 +45,12 @@ This folder is governed by the following critical project-wide documents:
 * **Output HTML:** `build/output/RPGlitch.html`
 * **Build Command:** To compile the application, run `npm run build:rpglitch`. This script processes the source files, inlines styles, and bundles the final HTML for the right panel.
 * **Deployment:**
-    1. Take the complete, compiled output from `build/output/RPGlitch.html` and paste it into the **right panel** of the Perchance editor.
-    2. Take the entire content of `apps/rpglitch/RPGlitch-left-panel.txt` and paste it into the **left panel** at `https://perchance.org/rpglitch#edit`.
+    1. Take the complete, compiled output from `build/output/RPGlitch.html` and paste it into the **right panel** of the Perchance editor.
+    2. Take the entire content of `apps/rpglitch/RPGlitch-left-panel.txt` and paste it into the **left panel** at `https://perchance.org/rpglitch#edit`.
 
 ## 🗺️ Navigation
 
 * [**Up to Root**](../README.md)
-* [RPGlitch HTML](../../apps/rpglitch/html/readme.md)
-* [RPGlitch JavaScript](../../apps/rpglitch/js/readme.md)
-* [RPGlitch SCSS](../../apps/rpglitch/SCSS/readme.md)
+* [RPGlitch HTML README](./html/README.md)
+* [RPGlitch JavaScript README](./js/README.md)
+* [RPGlitch SCSS README](./scss/README.md)

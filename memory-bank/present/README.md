@@ -17,8 +17,8 @@ This directory serves as the AI agent's active workspace. It holds all informati
 
 This folder adheres to the following project-wide guidelines:
 
-* [Agent Protocol (AGENTS.md)](../../../AGENTS.md)
-* [System Documentation Guide](../../../docs/system/system-documentation-guide.md)
+* [Agent Protocol (AGENTS.md)](../../AGENTS.md)
+* [System Documentation Guide](../../docs/system/system-documentation-guide.md)
 
 ---
 

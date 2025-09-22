@@ -17,8 +17,8 @@ This directory contains all automated tests for the applications and shared comp
 
 This folder adheres to the following project-wide guidelines:
 
-* [JavaScript Best Practices](../../docs/guides/style-guides/js-guide.md)
-* [System Architecture Overview](../../docs/system/system-architecture.md)
+* [JavaScript Best Practices](../docs/guides/style-guides/js-guide.md)
+* [System Architecture Overview](../docs/system/system-architecture.md)
 
 ---
 

@@ -18,7 +18,7 @@ This directory contains tests specifically designed for the Model Context Protoc
 This folder adheres to the following project-wide guidelines:
 
 * [MCP Guide](../../rules/mcp-guide.md)
-* [Agent Protocol (AGENTS.md)](../../../AGENTS.md)
+* [Agent Protocol (AGENTS.md)](../../AGENTS.md)
 
 ---
 
