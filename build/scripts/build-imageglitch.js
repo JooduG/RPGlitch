@@ -91,7 +91,7 @@ function injectJsLibs(html, libs) {
     }
 
     const jsBundleResult = await esbuild.build({
-      entryPoints: [entryPoint],
+      entryPoints: [entryPoint, path.join(APP_JS_DIR, 'perchance.js')],
       bundle: true,
       minify: true,
       write: false,

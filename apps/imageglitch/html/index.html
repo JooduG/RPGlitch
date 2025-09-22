@@ -32,6 +32,12 @@
       <!-- Top Bar Right -->
       <ul id="top-bar-right" class="top-bar-right">
         <li>
+          <select id="imageGeneratorSelect" title="Select the image generation engine">
+            <option value="pollinations" selected>Pollinations</option>
+            <option value="perchance">Perchance</option>
+          </select>
+        </li>
+        <li>
           <select id="numImagesSelect" value="[numImagesToGen]" title="Number of image blocks to generate">
             <option value="0" selected>No Images</option>
             <option value="1">1 Image Block</option>
@@ -68,6 +74,7 @@
     <div id="output" class="output-area"></div>
   </main>
   <!--SCRIPTS-->
+  <script src="../js/perchance.js"></script>
 </body>
 
 </html>

@@ -354,6 +354,10 @@ function handleSummonClick() {
   setTimeout(addImageOverlays, 500);
 }
 
+let imageGenerator = 'pollinations';
+
+// ... (rest of the code)
+
 function buildImageGenerationHtml() {
   updateDerivedSettings();
   const n = Number(numImagesToGen);
@@ -363,32 +367,132 @@ function buildImageGenerationHtml() {
   // Determine if we should use random seeds or a user-provided seed
   const useRandomSeeds = imgSeed === "";
 
-  // NOTE: The original quad-block logic was removed because it relied on the Perchance-specific `image()` function,
-  // which is not available in this standalone environment. This has been simplified to always generate solo blocks.
-  for (let i = 0; i < n; i++) {
-    // Create a block seed based on whether we're using random seeds or not
-    let blockSeed;
-
-    if (useRandomSeeds) {
-      // Generate a completely random seed for this block
-      blockSeed = Math.floor(Math.random() * 10000000);
-    } else {
-      // Use exactly the provided seed for all images
-      blockSeed = imgSeed;
+  if (imageGenerator === 'perchance') {
+    outputHtml += `<div class="block quad-block" data-prompt="${encodeURIComponent(prompt)}">`;
+    for (let i = 0; i < 4; i++) {
+      let blockSeed;
+      if (useRandomSeeds) {
+        blockSeed = Math.floor(Math.random() * 10000000);
+      } else {
+        blockSeed = imgSeed;
+      }
+      outputHtml += `<div class="quad-cell" data-seed="${blockSeed}" data-resolution="512x512"></div>`;
     }
-    const params = new URLSearchParams({
-      width: DEFAULT_IMAGE_WIDTH,
-      height: DEFAULT_IMAGE_HEIGHT,
-      seed: blockSeed,
-      model: 'flux',
-      private: true,
-      nologo: true,
-    });
-    const imgUrl = `${BASE_IMAGE_URL}${encodeURIComponent(prompt)}?${params.toString()}`;
-    outputHtml += `<div class="block solo-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}"><img src="${imgUrl}" loading="lazy" alt="Generated image" crossorigin="anonymous"></div>`;
+    outputHtml += `</div>`;
+  } else {
+    for (let i = 0; i < n; i++) {
+      let blockSeed;
+      if (useRandomSeeds) {
+        blockSeed = Math.floor(Math.random() * 10000000);
+      } else {
+        blockSeed = imgSeed;
+      }
+      const params = new URLSearchParams({
+        width: DEFAULT_IMAGE_WIDTH,
+        height: DEFAULT_IMAGE_HEIGHT,
+        seed: blockSeed,
+        model: 'flux',
+        private: true,
+        nologo: true,
+      });
+      const imgUrl = `${BASE_IMAGE_URL}${encodeURIComponent(prompt)}?${params.toString()}`;
+      outputHtml += `<div class="block solo-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}"><img src="${imgUrl}" loading="lazy" alt="Generated image" crossorigin="anonymous"></div>`;
+    }
   }
   return outputHtml;
 }
+
+// ... (rest of the code)
+
+function main() {
+  // Get all elements first
+  const summonBtn = document.getElementById('summonBtn');
+  const aiMagicSelect = document.getElementById('aiMagicSelect');
+  const numImagesSelect = document.getElementById('numImagesSelect');
+  const imgSeedInput = document.getElementById('imgSeed');
+  const promptInput = document.getElementById('promptInput');
+  const instructionInput = document.getElementById('instructionInput');
+  const slider = document.getElementById('masterCreativitySlider');
+  const label = document.getElementById('masterCreativityLabel');
+  const imageGeneratorSelect = document.getElementById('imageGeneratorSelect');
+
+  // Load settings and update derived values
+  loadSavedSettings();
+  updateDerivedSettings();
+
+  // Set initial state for the main button
+  if (summonBtn) {
+    resetSmartButton();
+  }
+
+  // Attach all event listeners
+  if (aiMagicSelect) {
+    aiMagicSelect.addEventListener('change', () => handleAiMagicSelection(aiMagicSelect));
+  }
+  if (numImagesSelect) {
+    numImagesSelect.addEventListener('change', () => {
+      numImagesToGen = Number(numImagesSelect.value);
+      checkAllButtonStates();
+      rememberSettings();
+    });
+  }
+  if (imgSeedInput) {
+    imgSeedInput.addEventListener('input', () => {
+      handleSeedInput(imgSeedInput.value);
+      rememberSettings();
+    });
+  }
+  if (promptInput) {
+    promptInput.addEventListener('input', () => {
+      mainPromptContent = promptInput.value;
+      handleManualPromptChange();
+    });
+    promptInput.addEventListener('keydown', handleTextareaKeyDown);
+  }
+  if (instructionInput) {
+    instructionInput.addEventListener('input', handleManualPromptChange);
+    instructionInput.addEventListener('keydown', handleTextareaKeyDown);
+  }
+
+  if (slider && label) {
+    slider.addEventListener('input', () => {
+      masterCreativity = Number(slider.value);
+      updateDerivedSettings();
+      rememberSettings();
+    });
+    slider.addEventListener('pointerdown', () => label.classList.add('is-active'));
+    slider.addEventListener('pointerup', () => label.classList.remove('is-active'));
+    slider.addEventListener('blur', () => label.classList.remove('is-active'));
+  }
+
+  if (imageGeneratorSelect) {
+    imageGeneratorSelect.addEventListener('change', () => {
+      imageGenerator = imageGeneratorSelect.value;
+      rememberSettings();
+    });
+  }
+
+  // Initial image generation for Perchance
+  if (imageGenerator === 'perchance') {
+    document.querySelectorAll('.quad-cell').forEach(cell => {
+      const prompt = safeDecodeURIComponent(cell.closest('.quad-block').dataset.prompt);
+      const seed = cell.dataset.seed;
+      const resolution = cell.dataset.resolution;
+
+      image({
+        prompt: prompt,
+        seed: seed,
+        guidanceScale: currentGScale,
+        resolution: resolution,
+        onFinish: (r) => {
+          r.iframe?.replaceWith(r.canvas);
+          cell.appendChild(r.canvas);
+        }
+      });
+    });
+  }
+}
+
 
 // Add image overlay functions for download, reroll, and seed display
 function addImageOverlays() {
@@ -575,28 +679,24 @@ function rerollImage(container, resolution) {
         seedDisplay.innerHTML = `Seed: ${newSeed}<br>model: flux<br>`;
       }
     }
-  } else {
-    // For quad cells
+  } else if (container.classList.contains('quad-cell')) {
+    // For quad cells (Perchance)
     const canvasEl = container.querySelector('canvas');
     if (canvasEl && resolution) {
       // Remove old canvas
       canvasEl.remove();
 
       // Create new image
-      const newImgEl = document.createElement('div');
-      newImgEl.innerHTML = image({
+      image({
         prompt: prompt,
         seed: newSeed,
         guidanceScale: currentGScale,
         resolution: resolution,
         onFinish: (r) => {
           r.iframe?.replaceWith(r.canvas);
+          container.appendChild(r.canvas);
         }
       });
-
-      // Insert new element before overlay
-      const overlay = container.querySelector('.image-overlay');
-      container.insertBefore(newImgEl, overlay);
 
       // Update the seed display in the overlay
       container.dataset.seed = newSeed;
@@ -649,6 +749,7 @@ function main() {
   const instructionInput = document.getElementById('instructionInput');
   const slider = document.getElementById('masterCreativitySlider');
   const label = document.getElementById('masterCreativityLabel');
+  const imageGeneratorSelect = document.getElementById('imageGeneratorSelect');
 
   // Load settings and update derived values
   loadSavedSettings();
@@ -697,6 +798,35 @@ function main() {
     slider.addEventListener('pointerdown', () => label.classList.add('is-active'));
     slider.addEventListener('pointerup', () => label.classList.remove('is-active'));
     slider.addEventListener('blur', () => label.classList.remove('is-active'));
+  }
+
+  if (imageGeneratorSelect) {
+    imageGeneratorSelect.addEventListener('change', () => {
+      imageGenerator = imageGeneratorSelect.value;
+      rememberSettings();
+    });
+  }
+
+  // Initial image generation for Perchance
+  if (imageGenerator === 'perchance') {
+    document.querySelectorAll('.quad-cell').forEach(cell => {
+      const prompt = safeDecodeURIComponent(cell.closest('.quad-block').dataset.prompt);
+      const seed = cell.dataset.seed;
+      const resolution = cell.dataset.resolution;
+
+      const newImgEl = document.createElement('div');
+      newImgEl.innerHTML = image({
+        prompt: prompt,
+        seed: seed,
+        guidanceScale: currentGScale,
+        resolution: resolution,
+        onFinish: (r) => {
+          r.iframe?.replaceWith(r.canvas);
+        }
+      });
+
+      cell.appendChild(newImgEl);
+    });
   }
 }
 

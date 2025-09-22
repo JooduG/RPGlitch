@@ -20,6 +20,7 @@ This folder adheres to the following project-wide guidelines:
 * [JavaScript Best Practices](../../rules/js-guide.md)
 * [SCSS Style Guide](../../rules/scss-style-guide.md)
 * [HTML Best Practices](../../rules/html-best-practises.md)
+* [Perchance Framework Overview](../../docs/guides/perchance-framework-overview.md)
 
 ---
 

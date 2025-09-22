@@ -13,16 +13,6 @@ This directory contains the primary, user-facing web applications of the JooduG-
 
 ---
 
-## 🔗 Overarching Rules (Single Source of Truth)
-
-This folder adheres to the following project-wide guidelines:
-
-* [JavaScript Best Practices](../rules/js-guide.md)
-* [SCSS Style Guide](../rules/scss-style-guide.md)
-* [Perchance Framework Overview](../docs/guides/perchance-framework-overview.md)
-
----
-
 ## ✅ TODO
 
 * [ ] Ensure all applications have their own `README.md` files.
@@ -39,5 +29,5 @@ Each subdirectory within `/apps` represents a distinct web application. Develope
 ## 🗺️ Navigation
 
 * [**Up to Root**](../README.md)
-* [imageglitch/](./imageglitch/README.md)
-* [rpglitch/](./rpglitch/README.md)
+* [ImageGlitch/](./imageglitch/README.md)
+* [RPGlitch/](./rpglitch/README.md)

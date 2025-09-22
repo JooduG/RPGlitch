@@ -17,9 +17,7 @@ This folder contains the `RPGlitch` application, a single-file Perchance deliver
 
 This folder adheres to the following project-wide guidelines:
 
-* [JavaScript Best Practices](../../rules/js-guide.md)
-* [SCSS Style Guide](../../rules/scss-style-guide.md)
-* [HTML Best Practices](../../rules/html-best-practises.md)
+* [Perchance Framework Overview](../../docs/guides/perchance-framework-overview.md)
 
 ---
 
@@ -40,3 +38,6 @@ This folder adheres to the following project-wide guidelines:
 ## 🗺️ Navigation
 
 * [**Up to Root**](../README.md)
+* [RPGlitch HTML](../../apps/rpglitch/html/readme.md)
+* [RPGlitch JavaScript](../../apps/rpglitch/js/readme.md)
+* [RPGlitch SCSS](../../apps/rpglitch/SCSS/readme.md)
