@@ -1,93 +1,94 @@
 # Applications Overview
 
-This directory contains the primary, user-facing web applications of the JooduG-default repository.
+This directory contains the primary, user-facing web applications for this repository. All applications herein are built for the **Perchance platform** and must strictly adhere to its core architectural principles.
 
 ## Table of Contents
 
+- [The Perchance Framework: The Golden Rule](#the-perchance-framework-the-golden-rule)
 - [Application Summaries](#application-summaries)
-- [The Perchance Framework](#the-perchance-framework)
-  - [1. Core Architecture](#1-core-architecture)
-  - [2. Build Process](#2-build-process)
-  - [3. Application Lifecycle](#3-application-lifecycle)
-  - [4. Plugin System](#4-plugin-system)
+- [Right-Panel Architecture](#right-panel-architecture)
+- [Build Process](#build-process)
+- [Application Lifecycle](#application-lifecycle)
 
----
+-----
+
+## The Perchance Framework: The Golden Rule
+
+The applications in this repository are built exclusively for Perchance. The single most important principle is the **Two-Panel Architecture**. This is a non-negotiable separation of concerns that dictates the entire structure and build process.
+
+- **The Left Panel (The "Code" / Logic):**
+    This panel contains all the Perchance-specific logic. It's where you define lists, variables, and the core generative behavior of the application. All files named `*-left-panel.txt` are the source of truth for this panel. This is the application's "backend."
+
+- **The Right Panel (The "Interface" / UI):**
+    This panel contains everything the user sees and interacts with: the HTML structure, the CSS styling, and the JavaScript functionality. The content for this panel is the output of our build process, which compiles all frontend assets into a single block of HTML. This is the application's "frontend."
+
+**AI Directive:** All development **MUST** respect this separation. Logic modifications belong in the left-panel files. UI and interactivity modifications belong in the source files (HTML, SCSS, JS) that are compiled for the right panel.
+
+-----
 
 ## Application Summaries
 
-- **`/imageglitch`**: A single-file web application for applying generative glitch art effects to images, built using the Perchance Framework and its plugin system.
-- **`/rpglitch`**: A multi-file web application for creating, managing, and viewing entities for role-playing games, serving as the primary reference implementation of the Perchance Framework. RPGLitch has gotten much further in it's development cycle than ImageGlitch.
+- **`/imageglitch`**: A minimalist text-to-image generator. It uses a simple left-panel for its core logic and a compiled right-panel for its interface, styled with Pico.css.
+- **`/rpglitch`**: A more complex application for managing role-playing game entities, storyboards, and profiles. It serves as the primary reference implementation of the Two-Panel Architecture, with extensive logic in its left panel and a dynamic, feature-rich UI in its right panel.
 
----
+-----
 
-## The Perchance Framework
+## Right-Panel Architecture
 
-The applications in this repository are built using a custom, lightweight framework inspired by the principles of the Perchance random text generator. This framework is designed to create simple, single-page applications with a consistent structure and build process.
+The "Right Panel" of our Perchance applications has a consistent component-based structure.
 
-### 1. Core Architecture
-
-The framework is built on a component-based architecture. Every application is composed of several key structural components that have a defined role.
-
-- **`#main-app-container`**: The root element for the entire application.
+- **`#main-app-container`**: The root element for the entire application interface.
 - **`#main-output`**: The primary content area.
-- **`#top-bar`**: A persistent header component for global controls and branding. It typically contains a title and context-sensitive buttons.
-- **`#chin`**: A persistent footer or bottom-bar component. It acts as a container for secondary controls, options, or settings panels that can be toggled.
-- **`#storyboard`**: The main content panel within `#main-output`. This is where the primary user interaction or content display occurs. It often contains dynamic content like lists of items or forms.
-- **`#left-panel` and `#right-panel`**: Optional side panels within `#main-output` for auxiliary information, navigation, or controls.
+- **`#top-bar`**: A persistent header for global controls and branding.
+- **`#chin`**: A persistent footer or bottom-bar for secondary controls and options panels.
+- **`#storyboard`**: The main content panel within `#main-output` where primary user interaction occurs.
+
+<!-- end list -->
 
 ```mermaid
 graph TD
-    A[#main-app-container] --> B[#top-bar];
-    A --> C[#main-output];
-    A --> D[#chin];
-    C --> E[#left-panel];
-    C --> F[#storyboard];
-    C --> G[#right-panel];
+    A[Right Panel UI] --> B[#main-app-container];
+    B --> C[#top-bar];
+    B --> D[#main-output];
+    B --> E[#chin];
+    D --> F[#storyboard];
 ```
 
-### 2. Build Process
+-----
 
-The goal of the build process is to take the source files (HTML, SCSS, JS) and compile them into a single, standalone `imageglitch.html`/`rpglitch.html` file. This makes deployment and distribution incredibly simple.
+## Build Process
 
-The primary build script´s for this process is `build/scripts/build-rpglitch.js` and `build/scripts/build-imageglitch.js`.
+The goal of the build process is to take the source files (HTML, SCSS, JS) and compile them into a single, standalone HTML block for the **Right Panel**. This simplifies deployment directly into the Perchance editor.
+
+The primary build scripts for this are `build/scripts/build-rpglitch.js` and `build/scripts/build-imageglitch.js`.
 
 The process is as follows:
 
-### RPGlitch Process
-
-1. **Read Source HTML**: The script starts by reading the main HTML structure from `apps/rpglitch/html/index.html`.
-2. **Compile SCSS**: It compiles the SCSS files (starting from `apps/rpglitch/scss/index.scss`) into a single block of CSS.
-3. **Combine JavaScript**: It reads and concatenates all JavaScript files from `apps/rpglitch/js/` in a specific, predefined order.
+1. **Read Source HTML**: The script reads the main HTML file (e.g., `apps/rpglitch/html/index.html`).
+2. **Compile SCSS**: It compiles all SCSS files into a single block of CSS.
+3. **Combine JavaScript**: It reads and concatenates all JavaScript source files in a predefined order.
 4. **Inject and Assemble**:
-    - The compiled CSS is injected into a `<style>` tag in the `<head>` of the HTML.
-    - The combined JavaScript is injected into a `<script>` tag at the end of the `<body>`.
-5. **Write Output**: The final, assembled HTML content is written to a single output file.
+      - The compiled CSS is injected into a `<style>` tag.
+      - The combined JavaScript is injected into a `<script>` tag.
+5. **Write Output**: The final, self-contained HTML is written to a file in `build/output/`, ready to be pasted into the **Right Panel** of Perchance.
 
-### 3. Application Lifecycle
+-----
 
-The application has a defined lifecycle managed by the JavaScript modules.
+## Application Lifecycle
+
+The application lifecycle is managed by the JavaScript running in the **Right Panel**.
 
 1. **Initialization (`init`)**:
-    - The main `index.js` script waits for the `DOMContentLoaded` event.
-    - It calls an `init()` function which is responsible for setting up the application.
-    - This involves initializing the database (`Dexie.js`), setting up initial event listeners (e.g., for buttons in the `#chin`), and rendering the initial state of the UI.
+
+      - The main `index.js` script waits for `DOMContentLoaded`.
+      - It calls an `init()` function to set up the application, initialize the database (`Dexie.js`), attach event listeners, and render the initial UI state.
 
 2. **Event Handling**:
-    - User interactions (clicks, form submissions) are captured by event listeners.
-    - These listeners are typically attached during the `init` phase.
-    - The project uses `cash` for event handling (`.on()`) and `_hyperscript` for simple, declarative event handling directly in the HTML.
+
+      - User interactions are captured by event listeners attached during `init`.
+      - The project uses `cash` for imperative event handling (`.on()`) and `_hyperscript` for declarative event handling in the HTML.
 
 3. **State Management**:
-    - The application state (e.g., the list of entities in `RPGlitch`) is stored in the IndexedDB database.
-    - When the state changes (e.g., a new entity is added), the JavaScript code updates the database *first*, and then re-renders the relevant part of the DOM to reflect the new state. This ensures the UI is always a reflection of the stored data.
 
-### 4. Plugin System
-
-The framework supports a simple plugin system, primarily used by the `ImageGlitch` application.
-
-- **Plugin Definition**: A plugin is essentially a self-contained block of HTML, CSS, and JavaScript that defines a specific piece of functionality.
-- **Loading**: Plugins are loaded and integrated into the main application. In `ImageGlitch`, different glitch effects are implemented as plugins.
-- **Structure**:
-  - **HTML (`-style-block.html`)**: Contains the CSS for the plugin.
-  - **Perchance Code (`-left-panel.txt`)**: Contains the Perchance generator logic, which is used to create dynamic UI or generative content.
-  - **Main HTML**: The main application file orchestrates the loading and interaction of these plugin parts.
+      - Application state (e.g., RPGlitch entities) is stored in IndexedDB.
+      - When state changes, the JavaScript updates the database first, then re-renders the DOM to ensure the UI always reflects the stored data.

@@ -94,13 +94,15 @@ function injectJsLibs(html, libs) {
       entryPoints: [entryPoint, path.join(APP_JS_DIR, 'perchance.js')],
       bundle: true,
       minify: true,
-      write: false,
+      outdir: path.join(OUTPUT_DIR, 'js'),
       format: 'iife',
       globalName: 'ImageGlitchApp',
     });
-    const jsBundle = jsBundleResult.outputFiles[0].text;
+    const indexJs = readFileSafe(path.join(OUTPUT_DIR, 'js', 'index.js'), 'index.js');
+    const perchanceJs = readFileSafe(path.join(OUTPUT_DIR, 'js', 'perchance.js'), 'perchance.js');
+    const jsBundle = [indexJs, perchanceJs].filter(Boolean).join(';\n');
 
-    const [cashJs, dexieJs, dompurifyJs, hyperscriptJs] =
+    const [cashJs, dexieJs, dompurifyJs, hyperscriptJs] = 
       ['cash', 'dexie', 'dompurify', 'hyperscript'].map(name =>
         readFileSafe(path.join(LOCAL_LIBS_DIR, LOCAL_LIBS[name].file), LOCAL_LIBS[name].file)
       );
