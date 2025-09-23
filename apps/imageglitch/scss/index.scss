@@ -41,7 +41,11 @@ body {
 
 .container {
   width: 90%;
+}
+
+.prompt-container {
   max-width: 1400px;
+  width: 90%;
 }
 
 // Separate container for the main content to allow header to be full-width

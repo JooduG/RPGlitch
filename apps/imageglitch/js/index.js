@@ -477,6 +477,13 @@ function main() {
   if (imageGeneratorSelect) {
     imageGeneratorSelect.addEventListener('change', () => {
       imageGenerator = imageGeneratorSelect.value;
+      const numImagesSelect = document.getElementById('numImagesSelect');
+      if (imageGenerator === 'perchance') {
+        numImagesSelect.disabled = true;
+        numImagesToGen = 4;
+      } else {
+        numImagesSelect.disabled = false;
+      }
       rememberSettings();
     });
   }
