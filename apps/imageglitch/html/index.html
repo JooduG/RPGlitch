@@ -38,7 +38,7 @@
           </select>
         </li>
         <li>
-          <select id="numImagesSelect" value="[numImagesToGen]" title="Number of image blocks to generate">
+          <select id="numImagesSelect" title="Number of image blocks to generate">
             <option value="0" selected>No Images</option>
             <option value="1">1 Image Block</option>
             <option value="2">2 Image Blocks</option>
@@ -57,6 +57,7 @@
             title="Use the same number to get the same results again" />
         </li>
         <li class="creativity-slider">
+          <label id="masterCreativityLabel" for="masterCreativitySlider">Creativity: <span id="masterCreativityValue"></span></label>
           <input type="range" id="masterCreativitySlider" min="0" max="10" step="1"
             title="Higher values increase Guidance Scale and lower Temperature" />
         </li>
