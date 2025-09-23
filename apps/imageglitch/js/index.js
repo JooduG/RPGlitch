@@ -1,4 +1,4 @@
-import './perchance.js';
+
 import { safeDecodeURIComponent } from './utils.js';
 
 // NOTE: The SCSS import has been removed from this file.
@@ -340,6 +340,25 @@ function setCommandState(commandType) {
 function handleSummonClick() {
   if (!mainPromptContent.trim()) return;
   document.getElementById('output').innerHTML = buildImageGenerationHtml();
+
+  if (imageGenerator === 'perchance') {
+    document.querySelectorAll('.quad-cell').forEach(cell => {
+      const prompt = safeDecodeURIComponent(cell.closest('.quad-block').dataset.prompt);
+      const seed = cell.dataset.seed;
+      const resolution = cell.dataset.resolution;
+
+      image({
+        prompt: prompt,
+        seed: seed,
+        guidanceScale: currentGScale,
+        resolution: resolution,
+        onFinish: (r) => {
+          r.iframe?.replaceWith(r.canvas);
+          cell.appendChild(r.canvas);
+        }
+      });
+    });
+  }
 
   // Add the mouseover actions after images are generated
   setTimeout(addImageOverlays, 500);
