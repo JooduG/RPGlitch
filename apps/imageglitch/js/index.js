@@ -1,4 +1,3 @@
-
 import { safeDecodeURIComponent } from './utils.js';
 
 // NOTE: The SCSS import has been removed from this file.
@@ -383,15 +382,18 @@ function buildImageGenerationHtml() {
       "bottom-left": "768x512",
       "bottom-right": "512x512"
     };
+    const positions = Object.keys(resolutions);
 
-    for (const position in resolutions) {
+    for (let i = 0; i < n; i++) {
+      const position = positions[i];
+      const resolution = resolutions[position];
       let blockSeed;
       if (useRandomSeeds) {
         blockSeed = Math.floor(Math.random() * 10000000);
       } else {
         blockSeed = imgSeed;
       }
-      outputHtml += `<div class="quad-cell ${position}" data-seed="${blockSeed}" data-resolution="${resolutions[position]}"></div>`;
+      outputHtml += `<div class="quad-cell ${position}" data-seed="${blockSeed}" data-resolution="${resolution}"></div>`;
     }
     outputHtml += `</div>`;
   } else {
@@ -477,13 +479,6 @@ function main() {
   if (imageGeneratorSelect) {
     imageGeneratorSelect.addEventListener('change', () => {
       imageGenerator = imageGeneratorSelect.value;
-      const numImagesSelect = document.getElementById('numImagesSelect');
-      if (imageGenerator === 'perchance') {
-        numImagesSelect.disabled = true;
-        numImagesToGen = 4;
-      } else {
-        numImagesSelect.disabled = false;
-      }
       rememberSettings();
     });
   }
@@ -721,4 +716,3 @@ function checkAllButtonStates() {
 
 // ====== INIT ======
 document.addEventListener('DOMContentLoaded', main);
-
