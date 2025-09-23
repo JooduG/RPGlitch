@@ -374,28 +374,29 @@ function buildImageGenerationHtml() {
   const useRandomSeeds = imgSeed === "";
 
   if (imageGenerator === 'perchance') {
-    outputHtml += `<div class="block quad-block" data-prompt="${encodeURIComponent(prompt)}">`;
-
-    const resolutions = {
-      "top-left": "768x768",
-      "top-right": "512x768",
-      "bottom-left": "768x512",
-      "bottom-right": "512x512"
-    };
-    const positions = Object.keys(resolutions);
-
     for (let i = 0; i < n; i++) {
-      const position = positions[i % 4];
-      const resolution = resolutions[position];
-      let blockSeed;
-      if (useRandomSeeds) {
-        blockSeed = Math.floor(Math.random() * 10000000);
-      } else {
-        blockSeed = imgSeed;
+      outputHtml += `<div class="block quad-block" data-prompt="${encodeURIComponent(prompt)}">`;
+
+      const resolutions = {
+        "top-left": "768x768",
+        "top-right": "512x768",
+        "bottom-left": "768x512",
+        "bottom-right": "512x512"
+      };
+      const positions = Object.keys(resolutions);
+
+      for (const position of positions) {
+        const resolution = resolutions[position];
+        let blockSeed;
+        if (useRandomSeeds) {
+          blockSeed = Math.floor(Math.random() * 10000000);
+        } else {
+          blockSeed = imgSeed;
+        }
+        outputHtml += `<div class="quad-cell ${position}" data-seed="${blockSeed}" data-resolution="${resolution}"></div>`;
       }
-      outputHtml += `<div class="quad-cell ${position}" data-seed="${blockSeed}" data-resolution="${resolution}"></div>`;
+      outputHtml += `</div>`;
     }
-    outputHtml += `</div>`;
   } else {
     for (let i = 0; i < n; i++) {
       let blockSeed;
