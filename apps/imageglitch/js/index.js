@@ -376,14 +376,22 @@ function buildImageGenerationHtml() {
 
   if (imageGenerator === 'perchance') {
     outputHtml += `<div class="block quad-block" data-prompt="${encodeURIComponent(prompt)}">`;
-    for (let i = 0; i < 4; i++) {
+
+    const resolutions = {
+      "top-left": "1024x1024",
+      "top-right": "512x1024",
+      "bottom-left": "1024x512",
+      "bottom-right": "512x512"
+    };
+
+    for (const position in resolutions) {
       let blockSeed;
       if (useRandomSeeds) {
         blockSeed = Math.floor(Math.random() * 10000000);
       } else {
         blockSeed = imgSeed;
       }
-      outputHtml += `<div class="quad-cell" data-seed="${blockSeed}" data-resolution="512x512"></div>`;
+      outputHtml += `<div class="quad-cell ${position}" data-seed="${blockSeed}" data-resolution="${resolutions[position]}"></div>`;
     }
     outputHtml += `</div>`;
   } else {
