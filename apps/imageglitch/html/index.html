@@ -32,12 +32,6 @@
       <!-- Top Bar Right -->
       <ul id="top-bar-right" class="top-bar-right">
         <li>
-          <select id="imageGeneratorSelect" title="Select the image generation engine">
-            <option value="pollinations" selected>Pollinations</option>
-            <option value="perchance">Perchance</option>
-          </select>
-        </li>
-        <li>
           <select id="numImagesSelect" title="Number of image blocks to generate">
             <option value="0" selected>No Images</option>
             <option value="1">1 Image Block</option>
@@ -56,10 +50,8 @@
           <input type="text" id="imgSeed" placeholder="Seed (Leave Empty for Random)" value=""
             title="Use the same number to get the same results again" />
         </li>
-        <li class="creativity-slider">
-          <label id="masterCreativityLabel" for="masterCreativitySlider">Creativity: <span id="masterCreativityValue"></span></label>
-          <input type="range" id="masterCreativitySlider" min="0" max="10" step="1"
-            title="Higher values increase Guidance Scale and lower Temperature" />
+        <li>
+            <button id="options-btn" class="secondary">Options</button>
         </li>
       </ul>
     </nav>
@@ -77,6 +69,30 @@
     </div>
     <div id="output" class="output-area"></div>
   </main>
+
+  <!-- Chin Container -->
+  <div id="chin-container" class="container" hidden>
+    <div id="chin-backdrop" hidden aria-hidden="true"></div>
+    <div id="chin-options" class="chin" hidden>
+        <div class="chin-actions">
+            <div class="chin-actions-left">
+                <select id="imageGeneratorSelect" title="Select the image generation engine">
+                    <option value="pollinations" selected>Pollinations</option>
+                    <option value="perchance">Perchance</option>
+                </select>
+            </div>
+            <div class="chin-actions-right">
+                <li class="creativity-slider">
+                    <label id="masterCreativityLabel" for="masterCreativitySlider">Creativity: <span id="masterCreativityValue"></span></label>
+                    <input type="range" id="masterCreativitySlider" min="0" max="10" step="1"
+                      title="Higher values increase Guidance Scale and lower Temperature" />
+                </li>
+                <button class="secondary chin-close-button">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
   <!--SCRIPTS will be injected here by the build process-->
 </body>
 

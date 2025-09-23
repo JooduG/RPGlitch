@@ -17,8 +17,7 @@ This directory serves as the project's "factory," containing all scripts, config
 
 This folder adheres to the following project-wide guidelines:
 
-* [System Architecture Overview](../../docs/system/system-architecture.md)
-* [JavaScript Best Practices](../../docs/guides/style-guides/js-guide.md)
+* [System Architecture Overview](../rules/system-architecture.md)
 
 ---
 
