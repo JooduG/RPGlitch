@@ -194,11 +194,7 @@ textarea::placeholder, input::placeholder {
 
 .quad-block {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  grid-template-rows: 2fr 1fr;
-  grid-template-areas:
-    "top-left top-right"
-    "bottom-left bottom-right";
+  grid-template: "top-left top-right" 2fr "bottom-left bottom-right" 1fr / 2fr 1fr;
   background-color: var(--color-surface);
   gap: 0.5rem;
   padding: 0.5rem;

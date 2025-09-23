@@ -378,9 +378,9 @@ function buildImageGenerationHtml() {
     outputHtml += `<div class="block quad-block" data-prompt="${encodeURIComponent(prompt)}">`;
 
     const resolutions = {
-      "top-left": "1024x1024",
-      "top-right": "512x1024",
-      "bottom-left": "1024x512",
+      "top-left": "768x768",
+      "top-right": "512x768",
+      "bottom-left": "768x512",
       "bottom-right": "512x512"
     };
 
