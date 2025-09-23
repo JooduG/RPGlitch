@@ -385,7 +385,7 @@ function buildImageGenerationHtml() {
     const positions = Object.keys(resolutions);
 
     for (let i = 0; i < n; i++) {
-      const position = positions[i];
+      const position = positions[i % 4];
       const resolution = resolutions[position];
       let blockSeed;
       if (useRandomSeeds) {
