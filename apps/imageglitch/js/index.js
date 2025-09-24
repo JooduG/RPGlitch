@@ -92,7 +92,7 @@ function updateDerivedSettings() {
 
   const label = document.getElementById('masterCreativityLabel');
   if (label) {
-    label.innerText = `Creativity: ${mc} (G: ${currentGScale}, T: ${currentAiTemperature})`;
+    label.innerText = `Creativity: ${mc}`;
   }
 }
 
@@ -428,12 +428,7 @@ function main() {
   const promptInput = document.getElementById('promptInput');
   const instructionInput = document.getElementById('instructionInput');
   const slider = document.getElementById('masterCreativitySlider');
-  const label = document.getElementById('masterCreativityLabel');
-  const imageGeneratorSelect = document.getElementById('imageGeneratorSelect');
-  const optionsBtn = document.getElementById('options-btn');
-  const chinContainer = document.getElementById('chin-container');
-  const chinBackdrop = document.getElementById('chin-backdrop');
-  const chinCloseButton = document.querySelector('.chin-close-button');
+  const tooltip = document.getElementById('masterCreativityTooltip');
 
   loadSavedSettings();
   updateDerivedSettings();
@@ -470,44 +465,23 @@ function main() {
     instructionInput.addEventListener('keydown', handleTextareaKeyDown);
   }
 
-  if (slider && label) {
+  if (slider && tooltip) {
+    const updateTooltip = () => {
+      const value = slider.value;
+      tooltip.textContent = `Creativity: ${value}`;
+    };
+
     slider.addEventListener('input', () => {
       masterCreativity = Number(slider.value);
       updateDerivedSettings();
       rememberSettings();
+      updateTooltip();
     });
-    slider.addEventListener('pointerdown', () => label.classList.add('is-active'));
-    slider.addEventListener('pointerup', () => label.classList.remove('is-active'));
-    slider.addEventListener('blur', () => label.classList.remove('is-active'));
+
+    slider.addEventListener('mouseenter', updateTooltip);
   }
 
-  if (imageGeneratorSelect) {
-    imageGeneratorSelect.addEventListener('change', () => {
-      imageGenerator = imageGeneratorSelect.value;
-      rememberSettings();
-    });
-  }
-
-  if (optionsBtn) {
-    optionsBtn.addEventListener('click', () => {
-      chinContainer.hidden = !chinContainer.hidden;
-      chinBackdrop.hidden = !chinBackdrop.hidden;
-    });
-  }
-
-  if (chinBackdrop) {
-    chinBackdrop.addEventListener('click', () => {
-      chinContainer.hidden = true;
-      chinBackdrop.hidden = true;
-    });
-  }
-
-  if (chinCloseButton) {
-    chinCloseButton.addEventListener('click', () => {
-      chinContainer.hidden = true;
-      chinBackdrop.hidden = true;
-    });
-  }
+  
 }
 
 function addImageOverlays() {

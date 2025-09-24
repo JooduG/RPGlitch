@@ -1,5 +1,5 @@
 // ImageGlitch specific CSS variables
-@use "chin";
+
 :root {
   --color-background: #1e1e2e;
   --color-text: #cdd6f4;
@@ -17,6 +17,7 @@
   --color-overlay: rgb(24 24 37 / 85%);
   --color-scrollbar-track: #181825;
   --app-container-max: 100%;
+  --pico-radius: 0.5rem;
 }
 
 // --- BASE STYLES ---
@@ -42,11 +43,18 @@ body {
 
 .container {
   width: 90%;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .prompt-container {
   max-width: 1400px;
   width: 90%;
+  margin: 0 auto;
+}
+
+.prompt-area {
+    width: 100%;
 }
 
 // Separate container for the main content to allow header to be full-width
@@ -100,24 +108,45 @@ select:disabled, select:disabled:hover {
 header.container {
     width: 100%;
     max-width: 100%;
-    padding: 0.5rem 5%; // Give some padding on the sides
-    border-bottom: 1px solid var(--color-surface);
+    padding: 0;
     margin-bottom: 1.5rem;
 }
 
 .top-bar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  width: 90%;
-  max-width: 1400px;
-  margin: 0 auto; // Center the bar within the full-width header
+  justify-content: space-between;
+  position: relative;
+  z-index: 10;
+  background: rgb(35 36 58 / 85%);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
+  padding: 1rem;
+  color: var(--pico-contrast, #fff);
+  border-radius: var(--pico-radius);
+  margin: 1rem 0 0;
+  width: auto;
+  max-width: 100%;
+  border: 0;
 }
 
 .top-bar-left, .top-bar-right {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+ul, li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li::marker {
+    display: none;
 }
 
 .summon-button {
@@ -355,4 +384,37 @@ textarea::placeholder, input::placeholder {
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-primary-extralight) var(--color-scrollbar-track);
+}
+
+.creativity-slider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.creativity-slider .tooltip {
+  visibility: hidden;
+  width: 120px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.creativity-slider:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.creativity-slider input[type="range"] {
+  width: 120px;
 }

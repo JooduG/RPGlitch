@@ -95,7 +95,8 @@ async function build() {
     console.log(`✨ Successfully created ${path.relative(REPO_ROOT, outputHtmlFile)}`);
 
   } catch (error) {
-    console.error(`\n❌ Build failed for ${appName}.`);
+    console.error(`
+❌ Build failed for ${appName}.`, error);
     process.exit(1);
   }
 }
