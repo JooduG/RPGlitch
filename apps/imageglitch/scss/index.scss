@@ -49,8 +49,10 @@ body {
 
 .prompt-container {
   max-width: 1400px;
-  width: 90%;
+  width: 100%;
   margin: 0 auto;
+  gap: 1rem;
+  display: grid;
 }
 
 .prompt-area {
@@ -71,6 +73,10 @@ button, select, input, textarea {
     border: 1px solid var(--color-surface-hover);
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
+}
+
+textarea {
+  width: 100%;
 }
 
 button, select {
@@ -124,30 +130,20 @@ header.container {
   padding: 1rem;
   color: var(--pico-contrast, #fff);
   border-radius: var(--pico-radius);
-  margin: 1rem 0 0;
-  width: auto;
-  max-width: 100%;
+  margin: 1rem auto 0;
+  width: 90%;
+  max-width: 1400px;
   border: 0;
 }
 
-.top-bar-left, .top-bar-right {
+#top-bar-left, #top-bar-right {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 0.75rem;
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
 }
 
-ul, li {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
 
-li::marker {
-    display: none;
-}
 
 .summon-button {
   background-color: var(--color-green);

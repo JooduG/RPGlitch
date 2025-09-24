@@ -25,6 +25,7 @@ let numImagesToGen = 1;
 let masterCreativity = DEFAULT_CREATIVITY_LEVEL;
 let currentGScale, currentAiTemperature;
 let imgSeed = "";
+let imageGenerator = 'pollinations';
 
 window.activeAiProcess = null;
 window.aiProcessInterval = null;
@@ -89,11 +90,6 @@ function updateDerivedSettings() {
   if (creativityValueEl) {
     creativityValueEl.innerText = mc;
   }
-
-  const label = document.getElementById('masterCreativityLabel');
-  if (label) {
-    label.innerText = `Creativity: ${mc}`;
-  }
 }
 
 function handleSeedInput(value) {
@@ -109,6 +105,7 @@ function rememberSettings() {
     localStorage.masterCreativity = masterCreativity || DEFAULT_CREATIVITY_LEVEL;
     localStorage.instructionInput = document.getElementById('instructionInput').value || "";
     localStorage.instructionsVisible = (document.getElementById('instructionsPanel').style.display !== 'none');
+    localStorage.imageGenerator = imageGenerator;
   } catch (e) {
     console.error("Error saving settings to localStorage:", e);
   }
@@ -143,6 +140,10 @@ function loadSavedSettings() {
     if (localStorage.instructionsVisible === 'true') {
       document.getElementById('instructionsPanel').style.display = 'block';
       checkAllButtonStates();
+    }
+    if (localStorage.imageGenerator) {
+        imageGenerator = localStorage.imageGenerator;
+        document.getElementById('imageGeneratorSelect').value = imageGenerator;
     }
   } catch (e) {
     console.error("Error loading settings from localStorage:", e);
@@ -363,8 +364,6 @@ function handleSummonClick() {
   setTimeout(addImageOverlays, 500);
 }
 
-let imageGenerator = 'pollinations';
-
 function buildImageGenerationHtml() {
   updateDerivedSettings();
   const n = Number(numImagesToGen);
@@ -429,6 +428,7 @@ function main() {
   const instructionInput = document.getElementById('instructionInput');
   const slider = document.getElementById('masterCreativitySlider');
   const tooltip = document.getElementById('masterCreativityTooltip');
+  const imageGeneratorSelect = document.getElementById('imageGeneratorSelect');
 
   loadSavedSettings();
   updateDerivedSettings();
@@ -481,7 +481,15 @@ function main() {
     slider.addEventListener('mouseenter', updateTooltip);
   }
 
-  
+  if (imageGeneratorSelect) {
+    imageGeneratorSelect.addEventListener('change', () => {
+      imageGenerator = imageGeneratorSelect.value;
+      rememberSettings();
+      if (document.getElementById('output').innerHTML.trim() !== '') {
+        handleSummonClick();
+      }
+    });
+  }
 }
 
 function addImageOverlays() {
