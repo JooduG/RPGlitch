@@ -25,3 +25,7 @@
 **mcp.json
 node_modules/
 gha-creds-*.json
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
