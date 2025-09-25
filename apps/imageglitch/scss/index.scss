@@ -65,7 +65,7 @@ main.container {
 }
 
 
-button, select, input, textarea {
+select, input, textarea {
     font-family: inherit;
     font-size: 1rem;
     background-color: var(--color-surface);
@@ -79,20 +79,16 @@ textarea {
   width: 100%;
 }
 
-button, select {
+select {
   cursor: pointer;
 }
 
-button:hover, select:hover {
+select:hover {
   border-color: var(--color-primary);
 }
 
-button:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 10%);
-}
 
-button:disabled, button:disabled:hover,
+
 select:disabled, select:disabled:hover {
   background-color: var(--color-surface-hover);
   cursor: not-allowed;
@@ -104,12 +100,7 @@ select:disabled, select:disabled:hover {
 
 // --- LAYOUT & COMPONENT STYLES ---
 
-#summon-btn {
-  transition: all 0.3s ease;
-  min-width: 160px;
-  text-align: center;
-  box-shadow: 0 4px 1rem rgb(0 0 0 / 20%);
-}
+
 
 header.container {
     width: 100%;
@@ -175,11 +166,7 @@ header.container {
   color: black;
 }
 
-button:not(:disabled):hover {
-  filter: brightness(1.1);
-  box-shadow: 0 6px 12px rgb(0 0 0 / 20%);
-  transform: translateY(-1px);
-}
+
 
 #prompt-input, #instruction-input {
   width: 100%;

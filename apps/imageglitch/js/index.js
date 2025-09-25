@@ -3,6 +3,7 @@ import { safeDecodeURIComponent } from './utils.js';
 // NOTE: The SCSS import has been removed from this file.
 // The build script now handles style compilation and injection separately.
 
+const generateButton = document.getElementById('generate-button');
 
 // ====== GLOBAL STATE & CONSTANTS ======
 const DEFAULT_CREATIVITY_LEVEL = "4";
@@ -32,7 +33,7 @@ window.aiProcessInterval = null;
 
 window.undoState = { type: null, prompt: null, instruction: null };
 
-// ====== UTILITY & UI FUNCTIONS ======
+// ====== UTILITY & UI FUNCTIONS ====== 
 function extractAiResponse(aiResponse) {
   if (!aiResponse) return "";
 
@@ -76,11 +77,11 @@ function setUiLockState(isLocked) {
     ta.style.cursor = isLocked ? 'not-allowed' : 'text';
   });
 
-  if (isLocked) document.getElementById('summonBtn').disabled = false;
+  if (isLocked) document.getElementById('generate-button').disabled = false;
   else checkAllButtonStates();
 }
 
-// ====== SETTINGS & STATE MANAGEMENT ======
+// ====== SETTINGS & STATE MANAGEMENT ====== 
 function updateDerivedSettings() {
   const mc = Number(masterCreativity);
   const selectedSettings = creativityMap[String(mc)] || { gScale: 7, aiTemp: 1.0 };
@@ -154,14 +155,14 @@ function loadSavedSettings() {
 function handleTextareaKeyDown(event) {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault(); // Prevent default behavior (adding a new line)
-    const summonBtn = document.getElementById('summonBtn');
-    if (summonBtn && !summonBtn.disabled) {
-      summonBtn.click(); // Trigger the command button
+    const generateButton = document.getElementById('generate-button');
+    if (generateButton && !generateButton.disabled) {
+      generateButton.click(); // Trigger the command button
     }
   }
 }
 
-// ====== AI PROCESSING & COMMAND BUTTON LOGIC ======
+// ====== AI PROCESSING & COMMAND BUTTON LOGIC ====== 
 function handleAiMagicSelection(selectElement) {
   const selection = selectElement.value;
   if (selection === 'placeholder') return;
@@ -263,26 +264,26 @@ function handleManualPromptChange() {
   rememberSettings();
 }
 
-// ====== SMART BUTTON STATES ======
+// ====== SMART BUTTON STATES ====== 
 function setUndoState(type) {
   window.undoState.type = type;
-  const summonBtn = document.getElementById('summonBtn');
+  const generateButton = document.getElementById('generate-button');
   let typeName = type.charAt(0).toUpperCase() + type.slice(1);
 
   if (type === 'scribe') typeName = 'Refining';
   if (type === 'chaos') typeName = 'Chaos';
   if (type === 'transfigure') typeName = 'Instructions';
 
-  summonBtn.textContent = `Undo ${typeName}`;
-  summonBtn.className = 'undo-button';
-  summonBtn.onclick = handleUndoClick;
+  generateButton.textContent = `Undo ${typeName}`;
+  generateButton.className = 'undo-button';
+  generateButton.onclick = handleUndoClick;
 }
 
 function resetSmartButton() {
-  const summonBtn = document.getElementById('summonBtn');
-  summonBtn.textContent = 'Generate Images';
-  summonBtn.className = 'summon-button';
-  summonBtn.onclick = handleSummonClick;
+  const generateButton = document.getElementById('generate-button');
+  generateButton.textContent = 'Generate Images';
+  generateButton.className = 'summon-button';
+  generateButton.onclick = handleSummonClick;
   window.undoState.type = null;
   window.undoState.prompt = null;
   window.undoState.instruction = null;
@@ -298,17 +299,17 @@ function handleUndoClick() {
 }
 
 function startTimerOnButton() {
-  const summonBtn = document.getElementById('summonBtn');
+  const generateButton = document.getElementById('generate-button');
   let seconds = 0;
-  summonBtn.textContent = `Cancel (0s)`;
-  summonBtn.className = 'cancel-button';
-  summonBtn.onclick = () => { window.activeAiProcess = 'cancelling'; };
+  generateButton.textContent = `Cancel (0s)`;
+  generateButton.className = 'cancel-button';
+  generateButton.onclick = () => { window.activeAiProcess = 'cancelling'; };
 
   if (window.aiProcessInterval) clearInterval(window.aiProcessInterval);
   window.aiProcessInterval = setInterval(() => {
     seconds++;
     if (window.activeAiProcess && window.activeAiProcess !== 'cancelling') {
-      summonBtn.textContent = `Cancel (${seconds}s)`;
+      generateButton.textContent = `Cancel (${seconds}s)`;
     } else {
       clearInterval(window.aiProcessInterval);
     }
@@ -316,7 +317,7 @@ function startTimerOnButton() {
 }
 
 function setCommandState(commandType) {
-  const summonBtn = document.getElementById('summonBtn');
+  const generateButton = document.getElementById('generate-button');
   let text = '', className = '';
 
   if (commandType === 'scribe') {
@@ -330,38 +331,48 @@ function setCommandState(commandType) {
     className = 'transfigure-button';
   }
 
-  summonBtn.textContent = text;
-  summonBtn.className = className;
-  summonBtn.onclick = () => handleAiButtonClick(commandType);
+  generateButton.textContent = text;
+  generateButton.className = className;
+  generateButton.onclick = () => handleAiButtonClick(commandType);
   checkAllButtonStates();
 }
 
-// ====== IMAGE SUMMONING & MAIN STATE LOGIC ======
-function handleSummonClick() {
-  if (!mainPromptContent.trim()) return;
-  document.getElementById('output').innerHTML = buildImageGenerationHtml();
+// ====== IMAGE SUMMONING & MAIN STATE LOGIC ====== 
+async function handleSummonClick() {
+  const generateButton = document.getElementById('generate-button');
+  generateButton.setAttribute('aria-busy', 'true');
+  generateButton.disabled = true;
 
-  if (imageGenerator === 'perchance') {
-    document.querySelectorAll('.quad-cell').forEach(cell => {
-      const prompt = safeDecodeURIComponent(cell.closest('.quad-block').dataset.prompt);
-      const seed = cell.dataset.seed;
-      const resolution = cell.dataset.resolution;
+  try {
+    if (!mainPromptContent.trim()) return;
+    document.getElementById('output').innerHTML = buildImageGenerationHtml();
 
-      image({
-        prompt: prompt,
-        seed: seed,
-        guidanceScale: currentGScale,
-        resolution: resolution,
-        onFinish: (r) => {
-          r.iframe?.replaceWith(r.canvas);
-          cell.appendChild(r.canvas);
-        }
+    if (imageGenerator === 'perchance') {
+      document.querySelectorAll('.quad-cell').forEach(cell => {
+        const prompt = safeDecodeURIComponent(cell.closest('.quad-block').dataset.prompt);
+        const seed = cell.dataset.seed;
+        const resolution = cell.dataset.resolution;
+
+        image({
+          prompt: prompt,
+          seed: seed,
+          guidanceScale: currentGScale,
+          resolution: resolution,
+          onFinish: (r) => {
+            r.iframe?.replaceWith(r.canvas);
+            cell.appendChild(r.canvas);
+          }
+        });
       });
-    });
-  }
+    }
 
-  // Add the mouseover actions after images are generated
-  setTimeout(addImageOverlays, 500);
+    // Add the mouseover actions after images are generated
+    await new Promise(resolve => setTimeout(resolve, 500));
+    addImageOverlays();
+  } finally {
+    generateButton.setAttribute('aria-busy', 'false');
+    generateButton.disabled = false;
+  }
 }
 
 function buildImageGenerationHtml() {
@@ -420,7 +431,7 @@ function buildImageGenerationHtml() {
 }
 
 function main() {
-  const summonBtn = document.getElementById('summonBtn');
+  const generateButton = document.getElementById('generate-button');
   const aiMagicSelect = document.getElementById('aiMagicSelect');
   const numImagesSelect = document.getElementById('numImagesSelect');
   const imgSeedInput = document.getElementById('imgSeed');
@@ -433,7 +444,7 @@ function main() {
   loadSavedSettings();
   updateDerivedSettings();
 
-  if (summonBtn) {
+  if (generateButton) {
     resetSmartButton();
   }
 
@@ -674,13 +685,13 @@ function rerollImage(container, resolution) {
 }
 
 function checkAllButtonStates() {
-  const summonBtn = document.getElementById('summonBtn');
+  const generateButton = document.getElementById('generate-button');
   const aiMagicSelect = document.getElementById('aiMagicSelect');
   const promptInput = document.getElementById('promptInput');
   const instructionInput = document.getElementById('instructionInput');
   const numImagesSelect = document.getElementById('numImagesSelect');
 
-  if (!summonBtn || !aiMagicSelect || !promptInput || !instructionInput || !numImagesSelect) {
+  if (!generateButton || !aiMagicSelect || !promptInput || !instructionInput || !numImagesSelect) {
     return;
   }
 
@@ -691,17 +702,17 @@ function checkAllButtonStates() {
 
   if (window.undoState.type || window.activeAiProcess) return;
 
-  const currentMode = summonBtn.className;
+  const currentMode = generateButton.className;
   if (currentMode.includes('transfigure-button')) {
-    summonBtn.disabled = promptIsEmpty || instructionsIsEmpty;
+    generateButton.disabled = promptIsEmpty || instructionsIsEmpty;
   } else if (currentMode.includes('scribe-button') || currentMode.includes('chaos-button')) {
-    summonBtn.disabled = promptIsEmpty;
+    generateButton.disabled = promptIsEmpty;
   } else { // It's in 'summon-button' mode
-    summonBtn.disabled = promptIsEmpty || Number(numImagesToGen) === 0;
+    generateButton.disabled = promptIsEmpty || Number(numImagesToGen) === 0;
   }
 
   aiMagicSelect.disabled = promptIsEmpty;
 }
 
-// ====== INIT ======
+// ====== INIT ====== 
 document.addEventListener('DOMContentLoaded', main);
