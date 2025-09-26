@@ -1,60 +1,33 @@
-# 📁 Folder: imageglitch
+# **📁 Folder: /apps/imageglitch**
 
-## 🎯 Purpose
+## **🎯 Purpose**
 
-This folder contains the `ImageGlitch` application, a minimalist Text-to-Image generator built specifically for the Perchance platform. It follows a strict single-file build flow optimized for Perchance's unique two-panel architecture.
+This folder contains the ImageGlitch application, a minimalist Text-to-Image generator built for the Perchance platform.
 
------
+It serves as a lean, focused implementation of the project's core architectural principles, making it an ideal starting point for understanding the **Two-Panel Architecture** and the single-file build flow. It is the simple, elegant sibling to the more complex RPGlitch application.
 
-## 📜 Folder-Specific Rules & AI Directives
+## **💡 The Blueprint (Key Files & Commands)**
 
-### Human Rules
+This application follows the standard Perchance development lifecycle, transforming source files into a single, deployable artifact.
 
-* **Styling:** Adhere to Pico.css for all foundational styling elements.
-* **Architecture:** All components and logic must support a single-file build output, maintaining a clean separation between the generator logic (left panel) and the user interface (right panel).
+* Left Panel (Logic):  
+  apps/imageglitch/ImageGlitch-left-panel.txt  
+* Right Panel (UI Source):  
+  apps/imageglitch/html/index.html  
+* Final Output (UI Compiled):  
+  build/output/ImageGlitch.html  
+* **Build Command:**  
 
-### 🤖 AI Directives: Perchance Development for ImageGlitch
+´´´
+  npm run build:imageglitch
+´´´
 
-**Attention AI Agent: This is a Perchance application. All development MUST follow the two-panel structure.**
+* **Deployment:** The content of the **Final Output** is pasted into the **right panel** of the Perchance editor. The content of the **Left Panel** file is pasted into the **left panel**.
 
-* **Generator Logic (Left Panel):** All changes to the core logic, lists, random generation, and Perchance-specific syntax **MUST** be made in the `ImageGlitch-left-panel.txt` file. This is the "code" side.
-* **User Interface (Right Panel):** All changes to the HTML, CSS, and JavaScript that the user sees and interacts with **MUST** be made in the `/html`, `/scss`, and `/js` directories, which are then compiled into the final output. This is the "interface" side.
+## **🔗 Governing Protocols**
 
-#### Integrated Development Rules
+All activities within this directory are governed by the Universal Agent Protocol and its supplemental, context-specific rules. For a complete understanding of operational procedures, consult the master rule files.
 
-Since this application does not have separate README files for its `js`, `html`, and `scss` directories, you **MUST** hold all relevant rules in your context when making changes:
-
-* **JavaScript:** Adhere strictly to `/rules/js-guide.md`.
-* **HTML:** Follow the best practices in `/rules/html-best-practises.md`.
-* **SCSS:** All styling must conform to `/rules/scss-style-guide.md` and the Pico.css framework.
-A change in one area (e.g., adding a new HTML element) may require a corresponding change in another (e.g., adding a JS hook and SCSS styling). Be mindful of this interconnectedness.
-
-If you have any uncertainty, you **MUST** consult the [**Core Development Guide**](../../rules/PERCHANCE-DEVELOPMENT-GUIDE.md) immediately.
-
------
-
-## 🔗 Overarching Rules (Single Source of Truth)
-
-This folder is governed by the one true source of truth for all Perchance development:
-
-➡️ **[The Gospel of Perchance: Core Development Guide](../../rules/PERCHANCE-DEVELOPMENT-GUIDE.md)** ⬅️
-
------
-
-## ✅ TODO
-
-* [ ] Explore and potentially implement a more custom styling system beyond Pico.css.
-* [ ] Add comprehensive unit tests for the core image glitching logic.
-
------
-
-## 💡 Usage / Notes
-
-* **Entry HTML:** `apps/imageglitch/html/index.html`
-* **Output HTML:** `build/output/ImageGlitch.html`
-* **Build Command:** To build the application, run `npm run build:imageglitch`. This command processes the entry HTML, inlines styles, and outputs the bundled HTML for the right panel.
-* **Deployment:** Take the entire output from `build/output/ImageGlitch.html` and paste it into the **right panel** of the Perchance editor. Then, take the entire content of `apps/imageglitch/ImageGlitch-left-panel.txt` and paste it into the **left panel** at `https://perchance.org/imageglitch#edit`.
-
-## 🗺️ Navigation
-
-* [**Up to Root**](../README.md)
+* **Master Protocol:** \[suspicious link removed\]  
+* **Perchance Bible:** \[suspicious link removed\]  
+* **Rule Loading Logic:** \[suspicious link removed\]

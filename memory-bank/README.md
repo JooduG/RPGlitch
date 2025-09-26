@@ -1,42 +1,28 @@
-# 📁 Folder: memory-bank
+# **📁 Folder: /memory-bank**
 
-## 🎯 Purpose
+## **🎯 Purpose**
 
-This directory serves as the project's "Diary," a chronological logbook that tracks the project's journey over time—what has been done, what is being done, and what is planned. It is a shared space for both human and AI to access historical context and project evolution.
+This directory is the project's **AI Brain & Logbook**. It serves as the agent's persistent memory, providing the stateful, chronological context that informs all its decisions and actions. This is where the AI keeps its receipts, plans its next move, and archives its life story.
 
----
+While [/docs](https://www.google.com/search?q=../docs/README.md) is the human's library and [/rules](https://www.google.com/search?q=../rules/README.md) is the AI's instruction manual, this folder is the AI's *experience*.
 
-## 📜 Folder-Specific Rules & AI Directives
+## **🗺️ The Temporal Lobes (Structure)**
 
-* **Human Rules:** This folder is primarily for historical context, work logs, and tracking project progress. Avoid placing static documentation (which belongs in `/docs`) or direct operational rules (which belong in `/rules`) here. Content should be organized chronologically or by task.
-* **🤖 AI Directives:** AI, use this folder to log work, summarize completed tasks, store future plans, and capture learnings. Strictly adhere to the `past/`, `present/`, and `future/` subdirectories for chronological organization. When a task is completed, move relevant files from `/present` to a timestamped subdirectory in `/past`.
+The AI's consciousness is organized chronologically to manage its operational state:
 
----
+* [**/forever**](https://www.google.com/search?q=./forever/README.md)**:** The **Core Identity**. Contains the foundational principles, ethical directives, and critical SOPs that are immutable and must never be forgotten. This is the AI's soul.  
+* [**/future**](https://www.google.com/search?q=./future/README.md)**:** The **Prefrontal Cortex**. This is the planning and strategy hub, holding the roadmap for upcoming tasks and long-term goals.  
+* [**/present**](https://www.google.com/search?q=./present/README.md)**:** The **Working Memory**. This is the AI's active workbench for the *current* task. It's a temporary space for plans, notes, and intermediate files.  
+* [**/past**](https://www.google.com/search?q=./past/README.md)**:** The **Long-Term Memory**. A read-only, timestamped archive of every completed task. This is the project's historical logbook.  
+* [**/archive**](https://www.google.com/search?q=./archive/)**:** The **Deep Archive**. The attic where old, deprecated files are stored for historical record, but are not part of the active memory.
 
-## 🔗 Overarching Rules (Single Source of Truth)
+## **💡 Core Workflow: The Flow of Consciousness**
 
-This folder adheres to the following project-wide guidelines:
+The agent's operational loop is deeply tied to this structure. A task begins its life in /future, is moved to /present when it becomes active, and upon completion, its records are permanently archived to /past. This ensures a clean, stateful, and auditable workflow.
 
-* [Agent Protocol (AGENTS.md)](../AGENTS.md)
-* [System Documentation Guide](../docs/system/system-documentation-guide.md)
+## **🔗 Governing Protocols**
 
----
+The agent's interaction with the Memory Bank is strictly governed by its master protocol.
 
-## ✅ TODO
-
-* [ ] Implement automated archiving mechanisms for moving completed task logs from `/present` to `/past`.
-* [ ] Define clear guidelines and templates for content stored in the `/future` directory to ensure consistency.
-
----
-
-## 💡 Usage / Notes
-
-This directory is crucial for understanding the project's evolution and maintaining a comprehensive historical record. It provides a chronological record of activities, decisions, and future directions, making it invaluable for reviewing past work and planning future endeavors.
-
-### Subdirectories
-
-* **`/forever`**: Contains foundational knowledge, core principles, and critical guides that should never be forgotten.
-* **`/past`**: An archive of completed tasks, logs, and historical context.
-* **`/present`**: Holds information relevant to the current, active task.
-* **`/future`**: For planning and long-term goals; ideas and proposed tasks not yet active.
-* **`/archive`**: For information no longer in active use but retained for reference (e.g., deprecated content).
+* **Master Protocol:** [../AGENTS.md](https://www.google.com/search?q=../AGENTS.md)  
+* **Rule Loading Logic:** [../rules/system-rule-interactions.md](https://www.google.com/search?q=../rules/system-rule-interactions.md)

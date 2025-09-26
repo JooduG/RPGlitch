@@ -1,56 +1,34 @@
-# 📁 Folder: rpglitch
+# **📁 Folder: /apps/rpglitch**
 
-## 🎯 Purpose
+## **🎯 Purpose**
 
-This folder contains the `RPGlitch` application, a dynamic tool for role-playing games featuring storyboard and profile management. It is designed as a single-file Perchance deliverable, optimized for the platform's unique two-panel architecture.
+This folder contains the RPGlitch application, a dynamic tool for managing role-playing game entities, storyboards, and character profiles.
 
------
+It serves as the project's flagship Perchance application and the primary reference implementation of the **Two-Panel Architecture**. Where ImageGlitch is the simple proof-of-concept, RPGlitch is the feature-rich, complex powerhouse, demonstrating the full capabilities of our development patterns.
 
-## 📜 Folder-Specific Rules & AI Directives
+## **💡 The Blueprint (Key Files & Commands)**
 
-### Human Rules
+This application follows the standard Perchance development lifecycle, transforming a rich set of source files into a single, deployable artifact.
 
-* **Architecture:** Strictly maintain the single-file Perchance deliverable structure.
-* **UI/UX:** All changes, especially to the "Chin" component, must follow the detailed guidelines in the `RPGlitch Chin UX and Safety Guide`.
+* Left Panel (Logic):  
+  apps/rpglitch/RPGlitch-left-panel.txt  
+* Right Panel (UI Source):  
+  apps/rpglitch/html/index.html  
+* Final Output (UI Compiled):  
+  build/output/RPGlitch.html  
+* **Build Command:**  
 
-### 🤖 AI Directives: Perchance Development for RPGlitch
+´´´
+  npm run build:rpglitch
+´´´
 
-**Attention AI Agent: This is a Perchance application. All development MUST follow the two-panel structure.**
+* **Deployment:** The content of the **Final Output** is pasted into the **right panel** of the Perchance editor. The content of the **Left Panel** file is pasted into the **left panel**.
 
-* **Generator Logic (Left Panel):** All modifications to the core logic, Perchance lists, random generation, and any Perchance-specific syntax **MUST** be made exclusively in the `RPGlitch-left-panel.txt` file. This file is the "code" and engine of the application.
-* **User Interface (Right Panel):** All changes to the user-facing elements—including HTML, CSS, and JavaScript—**MUST** be made within the `/html`, `/scss`, and `/js` directories. These are compiled to create the final user interface. For technology-specific rules, consult the README within the relevant sub-folder.
+## **🔗 Governing Protocols**
 
-If you have any uncertainty, you **MUST** consult the [**Core Development Guide**](../../rules/PERCHANCE-DEVELOPMENT-GUIDE.md) immediately.
+All activities within this directory are governed by the Universal Agent Protocol and its supplemental, context-specific rules. For a complete understanding of operational procedures, consult the master rule files.
 
------
-
-## 🔗 Overarching Rules (Single Source of Truth)
-
-This folder is governed by the one true source of truth for all Perchance development:
-
-➡️ **[The Gospel of Perchance: Core Development Guide](../../rules/PERCHANCE-DEVELOPMENT-GUIDE.md)** ⬅️
-
------
-
-## ✅ TODO
-
-* [ ] Enhance storyboard functionality with new features.
-* [ ] Improve profiles management for better user experience.
-
------
-
-## 💡 Usage / Notes
-
-* **Entry HTML:** `apps/rpglitch/html/index.html`
-* **Output HTML:** `build/output/RPGlitch.html`
-* **Build Command:** To compile the application, run `npm run build:rpglitch`. This script processes the source files, inlines styles, and bundles the final HTML for the right panel.
-* **Deployment:**
-    1. Take the complete, compiled output from `build/output/RPGlitch.html` and paste it into the **right panel** of the Perchance editor.
-    2. Take the entire content of `apps/rpglitch/RPGlitch-left-panel.txt` and paste it into the **left panel** at `https://perchance.org/rpglitch#edit`.
-
-## 🗺️ Navigation
-
-* [**Up to Root**](../README.md)
-* [RPGlitch HTML README](./html/README.md)
-* [RPGlitch JavaScript README](./js/README.md)
-* [RPGlitch SCSS README](./scss/README.md)
+* **Master Protocol:** \[suspicious link removed\]  
+* **Perchance Bible:** \[suspicious link removed\]  
+* **Rule Loading Logic:** \[suspicious link removed\]  
+* **App-Specific UX Guide:** \[suspicious link removed\]

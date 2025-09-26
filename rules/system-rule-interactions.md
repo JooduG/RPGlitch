@@ -1,53 +1,32 @@
-# System Rule: Rule Interactions & Precedence
+# **Contextual Rule Protocol**
 
-This document explains how the agent should interpret and prioritize the rules, especially in situations where multiple rules might apply.
+Version 3.0.0 · Updated 2025-09-26
 
-**Core Principle:** Rules follow a hierarchy of specificity. System-wide rules establish a baseline, while technology-specific rules provide detailed implementation guidance.
+**RULE:** This document provides the active, conditional logic the agent **MUST** use to load the correct set of rules for any given task. It replaces the need for context-specific README.md files in every subdirectory.
 
----
+**CORE PRINCIPLE:** Your operational context is not static. You must dynamically load and apply supplemental rules based on the specific files, technologies, and domains involved in the user's request.
 
-## 1. The Rule Hierarchy
+## **1\. Baseline Context (Always Load)**
 
-When making a decision, the agent must consider rules in the following order of precedence, from most general to most specific. A more specific rule always overrides a general one.
+For **EVERY** task, you must begin by loading the following three documents in this exact order. They form the non-negotiable foundation of your operational logic.
 
-```mermaid
-graph TD
-    A[Level 1: System & Thinking Rules] --> B[Level 2: Architectural Rules];
-    B --> C[Level 3: Language/Technology Rules];
-    C --> D[Level 4: Application-Specific Docs];
+1. [**AGENTS.md**](https://www.google.com/search?q=../AGENTS.md)**:** The Master Protocol. Defines your core identity, cognitive framework, and operational loop.  
+2. [**rules/system-architecture.md**](https://www.google.com/search?q=./system-architecture.md)**:** The Repository Blueprint. Defines the high-level structure and purpose of all directories.  
+3. **This Document (rules/system-rule-interactions.md):** Your dynamic routing table.
 
-    subgraph A [System Philosophy]
-        direction LR
-        A1[thinking-framework.md]
-        A2[system-orchestration-mode.md]
-    end
+## **2\. The Dynamic Rule-Loading Table**
 
-    subgraph B [Repo-Wide Structure]
-        direction LR
-        B1[system-architecture.md]
-    end
-    
-    subgraph C [Implementation Details]
-        direction LR
-        C1[js-dom-guide.md]
-        C2[scss-style-guide.md]
-    end
-    
-    subgraph D [Specific Context]
-        direction LR
-        D1[/apps/rpglitch/README.md]
-    end
-```
+After loading the baseline context, you **MUST** consult the following table. Analyze the task at hand and load the corresponding rule files. If multiple conditions are met, load all relevant files.
 
-### Hierarchy Explained
+| IF the task involves... | THEN you MUST load and adhere to... |
+| :---- | :---- |
+| Any Perchance application (/apps/\*) | ➡️ [**/rules/perchance-development-guide.md**](https://www.google.com/search?q=./perchance-development-guide.md) |
+| Using or configuring MCP servers | ➡️ [**/rules/mcp-guide.md**](https://www.google.com/search?q=./mcp-guide.md) |
+| Writing or modifying JavaScript (.js) | ➡️ [**/rules/js-guide.md**](https://www.google.com/search?q=./js-guide.md) |
+| Writing or modifying SCSS (.scss) | ➡️ [**/rules/scss-style-guide.md**](https://www.google.com/search?q=./scss-style-guide.md) |
+| Writing or modifying HTML (.html) | ➡️ [**/rules/html-best-practises.md**](https://www.google.com/search?q=./html-best-practises.md) |
+| Writing any documentation (.md) | ➡️ [**/rules/system-documentation-guide.md**](https://www.google.com/search?q=./system-documentation-guide.md) |
 
-1. **Level 1 (Highest Precedence - Philosophy):** The `thinking-*.md` and `system-orchestration-*.md` rules define *how to think*. They govern the entire decision-making process and are never to be violated.
-2. **Level 2 (Architecture):** Rules like `system-architecture.md` define the non-negotiable structure of the repository. You cannot, for example, decide to put a build script in the `/docs` folder.
-3. **Level 3 (Implementation):** These are the specific guides for writing code (`js-*.md`, `scss-*.md`, `html-*.md`). They tell you *how* to implement a feature within the established architecture.
-4. **Level 4 (Lowest Precedence - Application Context):** Documentation within an app's folder (like `apps/rpglitch/README.md`) provides context specific to that app, but does not override the higher-level rules.
+## **3\. Conflict Resolution**
 
-### 2. Conflict Resolution
-
-If two rules appear to conflict, the more specific rule takes precedence.
-
-- **Example:** `system-architecture.md` (Level 2) might broadly discuss the purpose of the `/apps` folder. `apps/rpglitch/README.md` (Level 4) will provide specific details about the `rpglitch` app's file structure. The Level 4 doc adds detail but does not override the Level 2 principle.
+**RULE:** True conflicts should not exist in this system. AGENTS.md is always the final arbiter. The contextual rules loaded from the table above provide domain-specific implementation details that operate *within* the framework established by the Master Protocol. They do not override it.

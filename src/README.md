@@ -1,34 +1,30 @@
-# 📁 Folder: src
+# **📁 Folder: /src**
 
-## 🎯 Purpose
+## **🎯 Purpose**
 
-This directory serves as the primary location for the project's core source code, excluding application-specific code found in `/apps`. It contains shared modules, utilities, foundational components, and common logic intended for reuse across the entire project.
+This directory is the project's **Shared Code Library**. It contains all the core source code—modules, utilities, and foundational components—that are designed to be reused across multiple applications within this monorepo.
 
----
+While the [/apps](https://www.google.com/search?q=../apps/README.md) directory contains the self-contained, user-facing applications, /src holds the shared, application-agnostic DNA that they might inherit or depend upon.
 
-## 📜 Folder-Specific Rules & AI Directives
+## **🗺️ Library Layout**
 
-* **Human Rules:** Code within this directory should be highly modular, reusable, and well-tested. Strict adherence to established coding standards (JavaScript, SCSS, etc.) is mandatory. Each module should have a clear responsibility and minimal dependencies.
-* **🤖 AI Directives:** AI, when developing shared components, utilities, or foundational code, place them in this directory. Ensure high code quality, comprehensive testing, and clear documentation for all modules created or modified here. Prioritize reusability and maintainability.
+The library is organized to be self-contained and rigorously testable:
 
----
+* [**/main**](https://www.google.com/search?q=./main/)**:** The actual source code for the shared modules and utilities.  
+* [**/tests**](https://www.google.com/search?q=./tests/)**:** The corresponding unit and integration tests for the code in /main.
 
-## 🔗 Overarching Rules (Single Source of Truth)
+## **💡 Core Philosophy**
 
-This folder adheres to the following project-wide guidelines:
+Code that lives in /src is held to the highest standard of quality. It **MUST** be:
 
-* [JavaScript Best Practices](../../docs/guides/style-guides/js-guide.md)
-* [System Architecture Overview](../../docs/system/system-architecture.md)
+* **Application-Agnostic:** Designed without knowledge of any specific application's business logic.  
+* **Highly Reusable:** Built for general-purpose use cases.  
+* **Rigorously Tested:** Every module must have comprehensive test coverage.
 
----
+## **🔗 Governing Protocols**
 
-## ✅ TODO
+All development within this directory is governed by the Universal Agent Protocol and the project's core coding standards.
 
-* [ ] Define clear module boundaries and responsibilities for all components within `src/`.
-* [ ] Implement a robust and comprehensive testing strategy for all shared components and utilities.
-
----
-
-## 💡 Usage / Notes
-
-This directory is for code that is intended to be shared across multiple applications or is fundamental to the project's infrastructure. Developers should look here for common functionalities and contribute reusable components that benefit the entire ecosystem.
+* **Master Protocol:** [../AGENTS.md](https://www.google.com/search?q=../AGENTS.md)  
+* **Rule Loading Logic:** [../rules/system-rule-interactions.md](https://www.google.com/search?q=../rules/system-rule-interactions.md)  
+* **JavaScript Bible:** [../rules/js-guide.md](https://www.google.com/search?q=../rules/js-guide.md)

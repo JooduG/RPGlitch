@@ -1,6 +1,5 @@
 {
-  "theme": "Atom One",
-  "selectedAuthType": "oauth-personal",
+  "ideMode": true,
   "mcpServers": {
     "time": {
       "command": "python",
@@ -116,5 +115,27 @@
       "autoStart": true,
       "description": "An MCP server for analyzing NPM packages."
     }
+  },
+  "folderTrust": true,
+  "theme": "Atom One",
+  "showMemoryUsage": false,
+  "accessibility": {
+    "screenReader": true
+  },
+  "hasSeenIdeIntegrationNudge": true,
+  "fileFiltering": {
+    "respectGitIgnore": false
+  },
+  "folderTrustFeature": true,
+  "selectedAuthType": "gemini-api-key",
+  "tools": {
+    "useRipgrep": true
+  },
+  "general": {
+    "enablePromptCompletion": true
+  },
+  "preferredEditor": "vscode",
+  "context": {
+    "loadMemoryFromIncludeDirectories": true
   }
 }

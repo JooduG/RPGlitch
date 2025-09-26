@@ -1,34 +1,35 @@
-# 📁 Folder: tests
+# **📁 Folder: /tests**
 
-## 🎯 Purpose
+## **🎯 Purpose**
 
-This directory contains all automated tests for the applications and shared components within the JooduG-default monorepo. These tests are crucial for ensuring the quality, stability, and correctness of the codebase, serving as a safety net for development.
+This directory is the project's **Quality Assurance Department & Safety Net**. It contains all the automated tests that verify the functionality, stability, and correctness of the applications and the core system.
 
----
+If [/build](https://www.google.com/search?q=../build/README.md) is the factory, then this folder is the final inspection line. Its purpose is to catch regressions, validate new features, and ensure that every piece of code that ships is flawless and production-ready.
 
-## 📜 Folder-Specific Rules & AI Directives
+## **🗺️ The QA Floor (Structure)**
 
-* **Human Rules:** All new features and bug fixes must be accompanied by corresponding tests in this directory. Tests should be clear, maintainable, and follow established testing patterns and conventions. Prioritize writing tests that are easy to understand and debug.
-* **🤖 AI Directives:** AI, when developing or modifying any part of the project, you must create or update corresponding tests in this directory. Ensure high test coverage and that all tests pass before considering a task complete. Use the existing test files as a guide for structure and methodology.
+The testing strategy is organized to mirror the project's structure:
 
----
+* **Application Tests:** The root of this folder contains tests for the user-facing applications (e.g., imageglitch.test.js, rpglitch.test.js).  
+* **Shared Component Tests:** Tests for the reusable, shared code library live alongside the code they are testing, in [/src/tests/](https://www.google.com/search?q=../src/tests/).  
+* **AI & Tooling Tests:** Specialized tests for the AI's tool integrations are located in [/mcp/](https://www.google.com/search?q=./mcp/).
 
-## 🔗 Overarching Rules (Single Source of Truth)
+## **💡 Core Philosophy: The Law of the Land**
 
-This folder adheres to the following project-wide guidelines:
+The testing philosophy is simple and non-negotiable: **No feature ships without a test. No bug is fixed without a test.** Tests are the ultimate backstop that allows both human and AI developers to contribute with confidence and speed.
 
-* [JavaScript Best Practices](../docs/guides/style-guides/js-guide.md)
-* [System Architecture Overview](../docs/system/system-architecture.md)
+### **How to Run Tests**
 
----
+To invoke the entire QA department and run the full suite of project tests, use the following command from the root directory:
 
-## ✅ TODO
+´´´
+npm test
+´´´
 
-* [ ] Improve test coverage for all applications and shared components to reach a target threshold.
-* [ ] Standardize testing frameworks and methodologies across the project for consistency and ease of maintenance.
+## **🔗 Governing Protocols**
 
----
+All testing practices are governed by the Universal Agent Protocol and the project's coding standards.
 
-## 💡 Usage / Notes
-
-To run the entire test suite, use the command `npm test`. This directory is crucial for maintaining code quality, preventing regressions, and providing a robust safety net for both human and AI development. Developers should run tests frequently during their development cycle.
+* **Master Protocol:** [../AGENTS.md](https://www.google.com/search?q=../AGENTS.md)  
+* **Rule Loading Logic:** [../rules/system-rule-interactions.md](https://www.google.com/search?q=../rules/system-rule-interactions.md)  
+* **JavaScript Bible:** [../rules/js-guide.md](https://www.google.com/search?q=../rules/js-guide.md)

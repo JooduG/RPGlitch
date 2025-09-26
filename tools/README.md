@@ -1,34 +1,30 @@
-# 📁 Folder: tools
+# **📁 Folder: /tools**
 
-## 🎯 Purpose
+## **🎯 Purpose**
 
-This directory contains a collection of utility and diagnostic scripts designed to assist with various maintenance tasks, development workflows, and system diagnostics. These tools are intended to streamline common operations and provide insights into the project's health and performance.
+This directory is the project's **Utility Belt & Diagnostic Kit**. It contains a collection of specialized scripts and utilities designed to assist with maintenance, automate repetitive tasks, and diagnose system issues.
 
----
+If [/build](https://www.google.com/search?q=../build/README.md) is the factory and [/tests](https://www.google.com/search?q=../tests/README.md) is the QA department, then this folder is the high-tech workshop where the custom machinery is built and the diagnostic computers are kept.
 
-## 📜 Folder-Specific Rules & AI Directives
+## **🗺️ The Workshop Layout (Structure)**
 
-* **Human Rules:** Tools within this directory should be self-contained, well-documented, and serve a specific, clearly defined purpose. They should be easy to use and provide clear output. Any new tools added must adhere to the project's coding standards.
-* **🤖 AI Directives:** AI, when performing maintenance, diagnostic, or utility tasks, you must prioritize using the scripts provided in this directory. Ensure any new tools developed are placed here and adhere to the established guidelines for documentation and functionality. Do not create ad-hoc scripts outside of this directory for recurring tasks.
+The toolbox is organized into specialized compartments for clarity and function:
 
----
+* **Root-Level Utilities:** The base of this folder contains general-purpose scripts for everyday development and maintenance tasks (e.g., css-cleanup.js).  
+* [**/diagnostics**](https://www.google.com/search?q=./diagnostics/)**:** The First-Aid Kit. This contains scripts used to debug, gather system information, and get to the root cause of a problem.  
+* [**/mcp-test**](https://www.google.com/search?q=./mcp-test/)**:** The AI Proving Grounds. This holds specialized tests and logs for validating the agent's interactions with the MCP tool servers, ensuring our AI's gadgets are working flawlessly.
 
-## 🔗 Overarching Rules (Single Source of Truth)
+## **💡 Core Philosophy: Automate & Analyze**
 
-This folder adheres to the following project-wide guidelines:
+The tools in this directory are built on two core principles:
 
-* [JavaScript Best Practices](../rules/js-guide.md)
-* [System Architecture Overview](../rules/system-architecture.md)
+1. **Automate Everything:** Never perform a repetitive, manual task if a script can do it for you.  
+2. **Get the Receipts:** When something goes wrong, use diagnostic tools to gather empirical evidence before attempting a fix.
 
----
+## **🔗 Governing Protocols**
 
-## ✅ TODO
+All scripts and tools within this directory are governed by the Universal Agent Protocol and the project's coding standards.
 
-* [ ] Review and categorize existing tools for better discoverability and organization.
-* [ ] Add comprehensive documentation for each tool's usage, purpose, and any prerequisites.
-
----
-
-## 💡 Usage / Notes
-
-These tools are designed to streamline common operations and provide insights into the project's health and performance. Developers can use these scripts to automate repetitive tasks, diagnose issues, and maintain the overall quality of the project. Refer to individual tool files for specific usage instructions.
+* **Master Protocol:** [../AGENTS.md](https://www.google.com/search?q=../AGENTS.md)  
+* **Rule Loading Logic:** [../rules/system-rule-interactions.md](https://www.google.com/search?q=../rules/system-rule-interactions.md)  
+* **JavaScript Bible:** [../rules/js-guide.md](https://www.google.com/search?q=../rules/js-guide.md)

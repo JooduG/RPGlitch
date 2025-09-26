@@ -1,35 +1,27 @@
-# 📁 Folder: rules
+# **📁 Folder: /rules**
 
-## 🎯 Purpose
+## **🎯 Purpose**
 
-This folder is the AI's direct source of truth for operational instructions. It contains machine-adjacent, actionable rules, protocols, and constraints the AI needs to perform its tasks correctly. When the AI is about to write code, modify a file, or execute a task, it will look here for its script.
+This directory is the project's **AI Rulebook & Constitution**. It contains the direct, machine-adjacent, and legally binding protocols that govern every action the agent takes.
 
----
+While the [/docs](https://www.google.com/search?q=../docs/README.md) directory is the "Human's Library" for understanding concepts, this folder is the AI's executable source code for behavior. These are not suggestions; they are commands.
 
-## 📜 Folder-Specific Rules & AI Directives
+## **🗺️ The Legal System (Structure)**
 
-* **Human Rules:** This directory defines the AI's operational parameters and behavioral constraints. Changes made here directly impact AI behavior and should be made with extreme caution, ensuring that modifications are clear, unambiguous, and align with project goals.
-* **🤖 AI Directives:** AI, this folder is your primary script. When about to write code, modify a file, or execute a task, you *must* consult the relevant rules and protocols defined within this directory. These documents constitute direct orders for your behavior and are paramount to your operation.
+The rules are not a flat list; they are a dynamic system loaded based on the task at hand. The agent's process for understanding its legal obligations is as follows:
 
----
+1. **Load the Constitution:** The agent always starts with the [**AGENTS.md**](https://www.google.com/search?q=../AGENTS.md) master protocol.  
+2. **Consult the Law Library:** It then uses the intelligent routing table within [**system-rule-interactions.md**](https://www.google.com/search?q=./system-rule-interactions.md) to determine which specific statutes (e.g., js-guide.md, mcp-guide.md) apply to the current task.
 
-## 🔗 Overarching Rules (Single Source of Truth)
+This ensures the agent is always operating with the correct, context-specific set of instructions.
 
-This folder adheres to the following project-wide guidelines:
+## **💡 Core Philosophy**
 
-* [MCP Guide](./mcp-guide.md)
-* [System Orchestration Mode](./system-orchestration-mode.md)
-* [System Rule Interactions](./system-rule-interactions.md)
+All rules are written with a strict **AI-first** mindset. They must be explicit, structured, and unambiguous to ensure flawless execution. For the complete guide on writing effective rules, refer to the official protocol.
 
----
+## **🔗 Governing Protocols**
 
-## ✅ TODO
+The creation and execution of rules in this directory are governed by the highest laws of the land.
 
-* [ ] Review and refine existing rules for clarity, completeness, and unambiguous interpretation by AI agents.
-* [ ] Develop new rules and protocols for emerging operational needs or complex scenarios.
-
----
-
-## 💡 Usage / Notes
-
-This directory is the "constitution" for the AI agent. It is the single source of truth for the AI's behavior and operational protocols. Human developers should understand that these rules are critical for guiding the AI's actions and ensuring its safe and effective integration into the development workflow.
+* **Master Protocol:** [../AGENTS.md](https://www.google.com/search?q=../AGENTS.md)  
+* **Documentation Bible:** [./system-documentation-guide.md](https://www.google.com/search?q=./system-documentation-guide.md)

@@ -1,45 +1,63 @@
-# Core Principles for Perchance.org Development
+# **Perchance Development Core Guide**
 
-This file contains foundational, permanent knowledge about the Perchance platform to ensure all development tasks are successful. This is my core understanding of the platform, expanded for maximum clarity.
+Version 3.0.0 · Updated 2025-09-26
 
-## 1. The Two-Panel Paradigm is Absolute
+**RULE:** This document is the canonical guide for all development on Perchance platform applications within this repository. It is the single source of truth for the core architecture and development workflow.
 
-Perchance is fundamentally divided into two distinct but interconnected parts. My entire development process must respect this separation of concerns.
+**CORE PRINCIPLE:** All applications are built for the Perchance platform and **MUST** adhere to its **Two-Panel Architecture**. This is the foundational, non-negotiable architectural pattern.
 
-* **The Left Panel (The "Engine Room" / Logic & Data):**
-  * This is where all procedural logic, data lists, variables, and Perchance-specific syntax reside.
-  * The content for this panel is sourced from `.txt` files in the repository (e.g., `RPGlitch-left-panel.txt`).
-  * **Example:** A list of monster names like `monster: goblin, orc, dragon` is defined here. I will not write HTML or complex UI JavaScript in this panel.
+## **1\. The Golden Rule: The Two-Panel Architecture**
 
-* **The Right Panel (The "Stage" / UI & Output):**
-  * This is the user-facing application, where the output is rendered.
-  * It is **always** a single, self-contained `index.html` file after the build process is complete.
-  * **Example:** The HTML in the source files might contain `<p>You encounter a [monster]!</p>`, which pulls a random monster from the list defined in the Left Panel.
+The Perchance platform is fundamentally divided into two distinct but interconnected parts. Your entire development process must respect this separation of concerns.
 
-## 2. The Build Process is Mandatory
+* **The Left Panel (The "Engine Room"):** This is where **ALL** procedural logic, data lists, variables, and Perchance-specific syntax reside.  
+  * **Source Files:** The content for this panel comes exclusively from .txt files (e.g., RPGlitch-left-panel.txt).  
+  * **Function:** This is the application's "backend." It defines the raw data and generative rules. For example, a list like monster: goblin, orc, dragon belongs here.  
+  * **Directive:** You will **NEVER** write HTML, CSS, or complex UI JavaScript in this panel.  
+* **The Right Panel (The "Stage"):** This is the user-facing UI, where the output is rendered and interacted with.  
+  * **Source Files:** You will edit the source files in apps/\[appName\]/html, apps/\[appName\]/js, and apps/\[appName\]/scss.  
+  * **Function:** This is the application's "frontend." It pulls data and logic from the Left Panel to present a dynamic experience. For example, the HTML might contain \<p\>You encounter a \[monster\]\!\</p\>.  
+  * **Directive:** The final output for this panel is **always** a single, self-contained HTML file after the build process is complete.
 
-I do not work on the final product directly. I work on the ingredients, and the build scripts are the chefs.
+## **2\. The Build Philosophy: Singular & Immutable Output**
 
-* **Edit Source Files Only:** My modifications must be limited to the source files located in the `/apps/[appName]/` subdirectories (e.g., `/apps/rpglitch/js/`, `/apps/rpglitch/scss/`, etc.).
-* **Trust the Scripts:** I must rely on the Node.js scripts in `/build/scripts/` to correctly compile, concatenate, and inline all the source files into the final `index.html` for the Right Panel.
-* **Forbidden Action:** I will never attempt to edit a compiled `index.html` file directly. It is a temporary artifact created by the build process, and any changes would be overwritten.
+Our development workflow is built on a simple but strict philosophy: we edit the ingredients, and the build scripts are the chefs. The final, compiled application file is a sacred, immutable artifact.
 
-## 3. The Final Output is Singular
+* **Edit Source Files Only:** All modifications **MUST** be made to the source files located in the /apps/\[appName\]/ subdirectories (.html, .js, .scss, .txt).  
+* **Trust the Build Scripts:** You **MUST** rely on the Node.js scripts in /build/scripts/ to correctly compile, concatenate, and inline all source files into the final index.html for the Right Panel.  
+* **The Final Output is Singular:** The Perchance platform does not support external files. Therefore, all CSS and JavaScript **MUST** be inlined within the final HTML file. Your code must be written to function in this self-contained environment.  
+* **Forbidden Action:** You **MUST NEVER** attempt to edit a compiled output file in /build/output/ directly. It is a temporary artifact, and any manual changes will be overwritten by the next build.
 
-The end goal of the build process is a single, monolithic file. This is a hard constraint of the Perchance platform.
+## **3\. Shared Right-Panel Architecture**
 
-* **No External Files:** The platform does not support separate, linked files. Therefore, I must not write code that relies on `<link rel="stylesheet" href="...">` or `<script src="..."></script>`.
-* **Inline Everything:** My mental model must be that all CSS will be placed inside `<style>` tags and all JavaScript will be placed inside `<script>` tags within the one `index.html` file. The build scripts handle this automatically, but my code must be written to function in this self-contained environment.
+**RULE:** To ensure consistency, the "Right Panel" of all Perchance applications in this repository **MUST** follow a consistent, component-based HTML structure.
 
-## 4. Reference the Master Guide
+graph TD  
+    A\[Right Panel UI\] \--\> B\[\#main-app-container\];  
+    B \--\> C\[\#top-bar\];  
+    B \--\> D\[\#main-output\];  
+    B \--\> E\[\#chin\];  
+    D \--\> F\[\#storyboard\];
 
-When in doubt, consult the source of truth.
+* **\#main-app-container**: The root element for the entire application interface.  
+* **\#main-output**: The primary content area.  
+* **\#top-bar**: A persistent header for global controls and branding.  
+* **\#chin**: A persistent footer or bottom-bar for secondary controls and options panels.  
+* **\#storyboard**: The main content panel within \#main-output where primary user interaction occurs.
 
-* **Pre-Flight Check:** For any complex task or moment of uncertainty, I will re-read the main guide at `/rules/PERCHANCE_DEVELOPMENT_GUIDE.md`. This is my primary directive for refreshing my knowledge and ensuring I am aligned with the project's requirements.
+## **4\. Shared Application Lifecycle & State Management**
 
-## 5. State Management is Left-Panel Centric
+**RULE:** The application lifecycle is managed by the JavaScript running in the **Right Panel** and follows a standard pattern.
 
-The "brain" of the application lives in the Left Panel.
+1. **Initialization:** The main index.js script waits for the DOMContentLoaded event, then calls an init() function. This function sets up the application, initializes the database, and attaches all necessary event listeners.  
+2. **Event Handling:** User interactions are captured by the listeners attached during initialization. This is handled with cash for imperative event handling and \_hyperscript for declarative event handling directly in the HTML.  
+3. **State Management:** This is a critical concept with two layers:  
+   * **Simple Generative State:** For basic procedural text, the "state" (e.g., variables like gold \= 100\) can be defined and managed in the **Left Panel** using Perchance syntax.  
+   * **Complex Application State:** For our rich applications like RPGlitch, the primary application state (e.g., the full list of characters, their stats, and relationships) is managed in the **Right Panel**. The state is stored in IndexedDB via **Dexie.js**. When the state changes, the JavaScript **MUST** update the database first, and only then re-render the DOM. This ensures the UI is always a reflection of persistent, stored data.
 
-* **Source of Truth:** Variables and application state (e.g., `gold = 100`, `playerName = "Hero"`) are defined and primarily managed within the Left Panel's Perchance syntax.
-* **UI is a Reflection:** The Right Panel's JavaScript may interact with and update this state via Perchance-specific functions, but the UI is ultimately a *reflection* of the state held in the Left Panel.
+## **5\. Build & Deployment**
+
+* **Build Process:** The goal is to compile all source files (.html, .scss, .js) into a single, self-contained HTML file for the Right Panel. The app-specific README.md files contain the exact npm run build:\[appName\] command.  
+* **Deployment:**  
+  1. Paste the entire content of the compiled HTML file from /build/output/ into the **right panel** of the Perchance editor.  
+  2. Paste the entire content of the \*-left-panel.txt file into the **left panel** of the Perchance editor.

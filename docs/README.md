@@ -1,35 +1,28 @@
-# 📁 Folder: docs
+# **📁 Folder: /docs**
 
-## 🎯 Purpose
+## **🎯 Purpose**
 
-This directory serves as the project's "Human's Library," containing all high-level, human-readable documentation that explains the *why* and *how* of the project's architecture, design, and concepts. It is intended for context and understanding, not direct AI execution.
+This directory is the project's **Human's Library**. It contains all the high-level, human-readable documentation—the guides, architectural diagrams, and glossaries—that explain the *why* and *how* of this project.
 
----
+While the AI consults these files for deep context, its direct, executable instructions live in the [/rules](https://www.google.com/search?q=../rules/README.md) directory. This folder is for understanding; that folder is for doing.
 
-## 📜 Folder-Specific Rules & AI Directives
+## **🗺️ Library Layout**
 
-* **Human Rules:** All documentation within this folder should be clear, concise, and aimed at providing context and understanding for human developers. Avoid direct operational instructions for AI here. Focus on explaining concepts, design decisions, and usage patterns.
-* **🤖 AI Directives:** AI, when asked to explain project concepts or provide context to a human, prioritize information from this `/docs` directory. Do not use this folder for direct operational instructions; those belong in the `/rules` directory. Ensure that any updates to documentation maintain a human-centric perspective.
+The library is organized into key sections designed to guide human developers:
 
----
+* [**/guides**](https://www.google.com/search?q=./guides/README.md)**:** The **Workshop**. A collection of practical, step-by-step "how-to" guides and tutorials.  
+* [**/system**](https://www.google.com/search?q=./system/README.md)**:** The **Blueprint Room**. High-level documentation detailing the project's core system architecture, organization, and design principles.  
+* [**GLOSSARY.md**](https://www.google.com/search?q=./GLOSSARY.md)**:** The official dictionary for project-specific terminology, ensuring consistent language.  
+* [**CONTRIBUTING.md**](https://www.google.com/search?q=./CONTRIBUTING.md)**:** Guidelines for contributing to the project.
 
-## 🔗 Overarching Rules (Single Source of Truth)
+## **💡 Core Philosophy**
 
-This folder adheres to the following project-wide guidelines:
+All documentation in this repository is written with an **AI-first** mindset. This means clarity, structure, and machine-readability are paramount, ensuring that both human and AI developers can easily understand and utilize the information. For the specific guidelines on how to write effective documentation, refer to the official protocol.
 
-* [System Documentation Guide](./system/system-documentation-guide.md)
-* [System Architecture Overview](./system/system-architecture.md)
-* [Agent Protocol (AGENTS.md)](../AGENTS.md)
+## **🔗 Governing Protocols**
 
----
+All activities and content within this directory are governed by the Universal Agent Protocol and its supplemental, context-specific rules.
 
-## ✅ TODO
-
-* [ ] Review and update all existing documentation for clarity, accuracy, and adherence to the new information architecture.
-* [ ] Ensure all internal links within the `/docs` directory are correct and functional.
-
----
-
-## 💡 Usage / Notes
-
-This is the primary resource for understanding the project's design, architecture, and operational principles from a human perspective. It complements the `/rules` directory (for AI directives) and `/memory-bank` (for historical context). Developers should explore this directory to gain a comprehensive understanding of the project.
+* **Master Protocol:** [../AGENTS.md](https://www.google.com/search?q=../AGENTS.md)  
+* **Rule Loading Logic:** [../rules/system-rule-interactions.md](https://www.google.com/search?q=../rules/system-rule-interactions.md)  
+* **Documentation Bible:** [../rules/system-documentation-guide.md](https://www.google.com/search?q=../rules/system-documentation-guide.md)
