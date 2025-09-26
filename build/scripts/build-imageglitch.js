@@ -19,17 +19,25 @@ const entryPointJs = path.join(appDir, "js", "index.js");
 const entryPointScss = path.join(appDir, "scss", "index.scss");
 const htmlFile = path.join(appDir, "html", "index.html");
 const outputHtmlFile = path.join(OUTPUT_DIR, `${appName}.html`);
+const PICO_CSS_PATH = path.resolve(REPO_ROOT, "build", "local_libs", "pico.min.css");
+
 
 /**
- * Compiles SCSS to CSS and runs it through PostCSS for autoprefixing.
+ * Compiles SCSS to CSS, prepends PicoCSS, and runs it through PostCSS for autoprefixing.
  */
 async function compileStyles() {
   try {
-    // 1. Compile SCSS to CSS
+    // 1. Read PicoCSS content
+    const picoCss = await fs.readFile(PICO_CSS_PATH, "utf8");
+
+    // 2. Compile SCSS to CSS
     const sassResult = await sass.compileAsync(entryPointScss);
     
-    // 2. Run PostCSS for autoprefixing
-    const postcssResult = await postcss([autoprefixer]).process(sassResult.css, { from: undefined });
+    // 3. Concatenate PicoCSS and compiled SCSS
+    const combinedCss = picoCss + '\n' + sassResult.css;
+
+    // 4. Run PostCSS for autoprefixing
+    const postcssResult = await postcss([autoprefixer]).process(combinedCss, { from: undefined });
     
     return postcssResult.css;
   } catch (error) {

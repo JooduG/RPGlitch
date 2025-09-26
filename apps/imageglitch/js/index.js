@@ -275,14 +275,14 @@ function setUndoState(type) {
   if (type === 'transfigure') typeName = 'Instructions';
 
   generateButton.textContent = `Undo ${typeName}`;
-  generateButton.className = 'undo-button';
+  generateButton.className = 'secondary';
   generateButton.onclick = handleUndoClick;
 }
 
 function resetSmartButton() {
   const generateButton = document.getElementById('generate-button');
   generateButton.textContent = 'Generate Images';
-  generateButton.className = 'summon-button';
+  generateButton.className = 'primary';
   generateButton.onclick = handleSummonClick;
   window.undoState.type = null;
   window.undoState.prompt = null;
@@ -302,7 +302,7 @@ function startTimerOnButton() {
   const generateButton = document.getElementById('generate-button');
   let seconds = 0;
   generateButton.textContent = `Cancel (0s)`;
-  generateButton.className = 'cancel-button';
+  generateButton.className = 'contrast';
   generateButton.onclick = () => { window.activeAiProcess = 'cancelling'; };
 
   if (window.aiProcessInterval) clearInterval(window.aiProcessInterval);
@@ -322,13 +322,13 @@ function setCommandState(commandType) {
 
   if (commandType === 'scribe') {
     text = 'Refine Prompt';
-    className = 'scribe-button';
+    className = 'secondary';
   } else if (commandType === 'chaos') {
     text = 'Embrace Chaos';
-    className = 'chaos-button';
+    className = 'contrast';
   } else if (commandType === 'transfigure') {
     text = 'Apply Instructions';
-    className = 'transfigure-button';
+    className = 'secondary';
   }
 
   generateButton.textContent = text;
@@ -702,12 +702,11 @@ function checkAllButtonStates() {
 
   if (window.undoState.type || window.activeAiProcess) return;
 
-  const currentMode = generateButton.className;
-  if (currentMode.includes('transfigure-button')) {
+  if (generateButton.classList.contains('secondary')) {
     generateButton.disabled = promptIsEmpty || instructionsIsEmpty;
-  } else if (currentMode.includes('scribe-button') || currentMode.includes('chaos-button')) {
+  } else if (generateButton.classList.contains('contrast')) {
     generateButton.disabled = promptIsEmpty;
-  } else { // It's in 'summon-button' mode
+  } else { // It's in 'primary' mode
     generateButton.disabled = promptIsEmpty || Number(numImagesToGen) === 0;
   }
 

@@ -1,21 +1,19 @@
 // ImageGlitch specific CSS variables
 
 :root {
-  --color-background: #1e1e2e;
-  --color-text: #cdd6f4;
-  --color-surface: #313244;
-  --color-surface-hover: #45475a;
-  --color-primary: #89b4fa;
-  --color-primary-light: rgb(137 180 250 / 80%);
-  --color-primary-extralight: rgb(137 180 250 / 25%);
-  --color-green: #a6e3a1;
-  --color-mauve: #cba6f7;
-  --color-red: #f38ba8;
-  --color-yellow: #fab387;
-  --color-sky: #74c7ec;
-  --color-placeholder: #a6adc8;
-  --color-overlay: rgb(24 24 37 / 85%);
-  --color-scrollbar-track: #181825;
+  --pico-background-color: #1e1e2e;
+  --pico-color: #cdd6f4;
+  --pico-card-background-color: #313244;
+  --pico-card-border-color: #45475a;
+  --pico-primary: #89b4fa;
+  --pico-primary-hover: rgb(137 180 250 / 80%);
+  --pico-primary-focus: rgb(137 180 250 / 25%);
+  --pico-success: #a6e3a1;
+  --pico-warning: #fab387;
+  --pico-danger: #f38ba8;
+  --pico-info: #74c7ec;
+  --pico-placeholder-color: #a6adc8;
+  --pico-scrollbar-track: #181825;
   --app-container-max: 100%;
   --pico-radius: 0.5rem;
 }
@@ -27,24 +25,13 @@
 }
 
 body {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-
-  // ** THE NUCLEAR OPTION **
-  // We are using !important here to override the default white background
-  // that the Perchance output panel injects into the iframe.
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--pico-background-color);
+  color: var(--pico-color);
   margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-}
-
-.container {
-  width: 90%;
-  margin-right: auto;
-  margin-left: auto;
 }
 
 .prompt-container {
@@ -64,17 +51,6 @@ main.container {
     flex-grow: 1; // Allows the main area to fill remaining vertical space
 }
 
-
-select, input, textarea {
-    font-family: inherit;
-    font-size: 1rem;
-    background-color: var(--color-surface);
-    color: var(--color-text);
-    border: 1px solid var(--color-surface-hover);
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-}
-
 textarea {
   width: 100%;
 }
@@ -83,30 +59,13 @@ select {
   cursor: pointer;
 }
 
-select:hover {
-  border-color: var(--color-primary);
-}
-
-
-
-select:disabled, select:disabled:hover {
-  background-color: var(--color-surface-hover);
-  cursor: not-allowed;
-  opacity: 0.6;
-  transform: none;
-  filter: none;
-  box-shadow: none;
-}
-
 // --- LAYOUT & COMPONENT STYLES ---
-
-
 
 header.container {
     width: 100%;
     max-width: 100%;
     padding: 0;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .top-bar {
@@ -131,47 +90,13 @@ header.container {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
-
-
-
-.summon-button {
-  background-color: var(--color-green);
-  color: black;
-}
-
-.transfigure-button {
-  background-color: var(--color-mauve);
-  color: black;
-}
-
-.scribe-button {
-  background-color: var(--color-primary);
-  color: black;
-}
-
-.chaos-button {
-  background-color: var(--color-red);
-  color: black;
-}
-
-.cancel-button {
-  background-color: var(--color-yellow);
-  color: black;
-}
-
-.undo-button {
-  background-color: var(--color-sky);
-  color: black;
-}
-
-
 
 #prompt-input, #instruction-input {
   width: 100%;
   background-color: var(--color-surface);
-  border-radius: 1rem;
+  border-radius: var(--pico-radius);
   padding: 1rem;
   resize: vertical;
   border: 1px solid var(--color-surface-hover);
@@ -196,15 +121,15 @@ textarea::placeholder, input::placeholder {
 .output-area {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  padding-top: 1.5rem;
+  gap: 1rem;
+  padding-top: 1rem;
 }
 
 .block {
   width: 100%;
   aspect-ratio: 1/1;
   overflow: hidden;
-  border-radius: 1rem;
+  border-radius: var(--pico-radius);
   box-shadow: 0 1rem 20px rgb(0 0 0 / 25%);
   position: relative;
 }
@@ -213,8 +138,8 @@ textarea::placeholder, input::placeholder {
   display: grid;
   grid-template: "top-left top-right" 2fr "bottom-left bottom-right" 1fr / 2fr 1fr;
   background-color: var(--color-surface);
-  gap: 0.5rem;
-  padding: 0.5rem;
+  gap: 1rem;
+  padding: 1rem;
 }
 
 .top-left {
@@ -236,12 +161,12 @@ textarea::placeholder, input::placeholder {
 .quad-cell {
   overflow: hidden;
   position: relative;
-  border-radius: 0.5rem;
+  border-radius: var(--pico-radius);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .quad-cell:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
   box-shadow: 0 12px 21rem rgb(0 0 0 / 30%);
   z-index: 5;
 }
@@ -261,7 +186,7 @@ textarea::placeholder, input::placeholder {
 }
 
 .solo-block:hover {
-    transform: scale(1.02);
+    transform: scale(1.1);
     box-shadow: 0 12px 21rem rgb(0 0 0 / 30%);
 }
 
@@ -292,7 +217,7 @@ textarea::placeholder, input::placeholder {
 }
 
 .image-info-panel {
-  padding: 0.75rem;
+  padding: 1rem;
   max-width: 100%;
   overflow: hidden;
   backdrop-filter: blur(4px);
@@ -304,37 +229,35 @@ textarea::placeholder, input::placeholder {
   max-height: 120px;
   overflow-y: auto;
   line-height: 1.4;
-  padding-right: 0.5rem; /* for scrollbar */
+  padding-right: 1rem; 
 }
 
 .image-control-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
+  padding: 1rem;
   backdrop-filter: blur(4px);
 }
 
 .seed-guidance-display {
   color: var(--color-placeholder);
   line-height: 1.5;
-  font-size: 0.8rem;
 }
 
 .overlay-controls {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .overlay-button {
   background-color: var(--color-primary-extralight);
   color: var(--color-text);
   border: none;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
+  padding: 1rem;
+  border-radius: var(--pico-radius);
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 1.25rem;
   line-height: 1;
 }
 
@@ -372,7 +295,7 @@ textarea::placeholder, input::placeholder {
 .creativity-slider {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   position: relative;
 }
 
