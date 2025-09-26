@@ -1,4 +1,5 @@
 {
+  "agentProtocolFile": "../AGENTS.md",
   "ideMode": true,
   "mcpServers": {
     "time": {
