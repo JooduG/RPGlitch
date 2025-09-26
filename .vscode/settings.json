@@ -20,39 +20,16 @@
     "**/.svn": true,
     "**/CVS": true,
     "**/Thumbs.db": true,
+    "**/build/local_libsnode_modulesmcp.json": true,
+    "stylelint.config.js": true,
+    "test-basic-memory/": true,
+    ".markdownlint-cli2.jsonc": true,
+    ".npmrc": true,
     "**/build/local_libs/**": true,
     "**/node_modules/**": true,
     "eslint.config.mjs": true,
     "jest.config.js": true,
     "jsconfig.json": true,
-    "**/mcp.json": true,
-    "stylelint.config.js": true,
-    "test-basic-memory/": true,
-    ".markdownlint-cli2.jsonc": true,
-    ".npmrc": true
-  },
-  "files.associations": {
-    "*.md": "markdown"
-  },
-  "markdown.preview.breaks": true,
-  "markdown.preview.linkify": true,
-  "editor.wordWrap": "on",
-  "editor.quickSuggestions": {
-    "other": true,
-    "comments": true,
-    "strings": true
-  },
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/.git": true
-  },
-  "markdown.validate.enabled": true,
-  "yaml.schemas": {
-    "c:\\Users\\johng\\.cursor\\extensions\\redhat.granitecode-0.4.0-win32-x64\\config-yaml-schema.json": [
-      ".continue/**/*.yaml"
-    ],
-    "https://www.schemastore.org/yamllint.json": "file:///c%3A/Users/johng/Documents/GitHub/default/.codacy/codacy.yaml"
-  },
-  "jest.jestCommandLine": "jest",
-  "jest.rootPath": "tests/"
+    "**/mcp.json": true
+  }
 }

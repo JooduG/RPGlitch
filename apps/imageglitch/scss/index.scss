@@ -16,6 +16,7 @@
   --pico-scrollbar-track: #181825;
   --app-container-max: 100%;
   --pico-radius: 0.5rem;
+  --pico-spacing: 0; 
 }
 
 // --- BASE STYLES ---
@@ -48,8 +49,8 @@ body {
 
 // Separate container for the main content to allow header to be full-width
 main.container {
-    flex-grow: 1; // Allows the main area to fill remaining vertical space
-}
+    flex-grow: 1; 
+  }
 
 textarea {
   width: 100%;

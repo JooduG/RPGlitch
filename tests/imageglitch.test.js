@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { JSDOM } = require('jsdom');
+const { JSDOM, VirtualConsole } = require('jsdom');
 
 describe('ImageGlitch', () => {
   let dom;
@@ -9,15 +9,11 @@ describe('ImageGlitch', () => {
 
   beforeEach(() => {
     const html = fs.readFileSync(path.resolve(__dirname, '../build/output/ImageGlitch.html'), 'utf8');
-    dom = new JSDOM(html, { runScripts: 'dangerously', resources: 'usable' });
+    const virtualConsole = new VirtualConsole();
+    virtualConsole.sendTo(console, { omitJSDOMErrors: true });
+    dom = new JSDOM(html, { runScripts: 'dangerously', resources: 'usable', virtualConsole });
     window = dom.window;
     document = window.document;
-
-    // Remove the style tag that causes CSS parsing errors in JSDOM if it exists
-    const style = document.getElementById('imageglitch-inline-css');
-    if (style) {
-      style.remove();
-    }
   });
 
   test('should generate an image when the form is filled and the button is clicked', () => {
@@ -25,7 +21,7 @@ describe('ImageGlitch', () => {
     expect(promptInput).not.toBeNull();
     const numImagesSelect = document.getElementById('numImagesSelect');
     expect(numImagesSelect).not.toBeNull();
-    const summonBtn = document.getElementById('summonBtn');
+    const summonBtn = document.getElementById('generate-button');
     expect(summonBtn).not.toBeNull();
     const outputArea = document.getElementById('output');
     expect(outputArea).not.toBeNull();

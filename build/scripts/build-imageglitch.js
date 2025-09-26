@@ -5,7 +5,7 @@ import autoprefixer from "autoprefixer";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
-import { JSDOM } from "jsdom";
+import { JSDOM, VirtualConsole } from "jsdom";
 
 // --- PATHS ---
 const __filename = fileURLToPath(import.meta.url);
@@ -83,7 +83,9 @@ async function build() {
     console.log("✅ JS and CSS processed successfully.");
 
     // 2. Inject the CSS and JS into the HTML
-    const dom = new JSDOM(htmlContent);
+    const virtualConsole = new VirtualConsole();
+    virtualConsole.sendTo(console, { omitJSDOMErrors: true });
+    const dom = new JSDOM(htmlContent, { virtualConsole });
     const { document } = dom.window;
 
     // Inject CSS into the <head>

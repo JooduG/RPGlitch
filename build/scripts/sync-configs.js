@@ -23,8 +23,8 @@ function syncAllConfigs() {
   copyFile(path.join(REPO_ROOT, 'build', 'config', '.htmlhintrc'), path.join(REPO_ROOT, '.htmlhintrc'));
   copyFile(path.join(REPO_ROOT, 'build', 'config', '.markdownlint.json'), path.join(REPO_ROOT, '.markdownlint.json'));
   copyFile(path.join(REPO_ROOT, 'build', 'config', 'eslint.config.mjs'), path.join(REPO_ROOT, 'eslint.config.mjs'));
-  copyFile(path.join(REPO_ROOT, 'build', 'config', 'stylelint.config.js'), path.join(REPO_ROOT, 'stylelint.config.js'));
-  copyFile(path.join(REPO_ROOT, 'build', 'config', 'jest.config.js'), path.join(REPO_ROOT, 'jest.config.js'));
+  copyFile(path.join(REPO_ROOT, 'build', 'config', 'stylelint.config.cjs'), path.join(REPO_ROOT, 'stylelint.config.cjs'));
+  copyFile(path.join(REPO_ROOT, 'build', 'config', 'jest.config.cjs'), path.join(REPO_ROOT, 'jest.config.cjs'));
 
   console.log('✅ Configuration file sync process complete.');
 }

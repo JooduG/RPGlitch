@@ -1,10 +1,9 @@
-// Stylelint config (ESM)
-import fs from 'fs';
-const master = JSON.parse(fs.readFileSync('./build/config/ignores.master.json', 'utf8'));
+// Stylelint config (CJS)
+const master = require('./ignores.master.json');
 
-export default {
+module.exports = {
   // one source of truth for ignore globs
-  ignoreFiles: master.linters.stylelint || [],
+  ignoreFiles: master.stylelintIgnore || [],
   extends: [
     'stylelint-config-standard',
     'stylelint-config-standard-scss'

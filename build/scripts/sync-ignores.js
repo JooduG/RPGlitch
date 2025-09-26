@@ -13,12 +13,13 @@ const settingsPath = path.join(REPO_ROOT, '.vscode', 'settings.json');
 // --- UTILITIES ---
 function readJson(filePath) {
     if (!fs.existsSync(filePath)) {
-        console.warn(`⚠️  Master file not found: ${path.relative(REPO_ROOT, filePath)}.`);
+        console.warn(`⚠️  File not found: ${path.relative(REPO_ROOT, filePath)}.`);
         return null;
     }
     try {
         let content = fs.readFileSync(filePath, 'utf8');
-        // Strip BOM
+        // Strip BOM and comments
+        
         if (content.charCodeAt(0) === 0xFEFF) content = content.slice(1);
         return JSON.parse(content);
     } catch (e) {
@@ -81,7 +82,14 @@ function syncIgnoreFiles() {
     // --- Update VS Code settings.json ---
     try {
         const settings = readJson(settingsPath) || {};
-        settings['files.exclude'] = masterIgnores.vscode?.filesExclude || {};
+        
+        // Preserve existing settings and only update files.exclude
+        const newFilesExclude = masterIgnores.vscode?.filesExclude || {};
+        settings['files.exclude'] = {
+            ...(settings['files.exclude'] || {}),
+            ...newFilesExclude
+        };
+
         writeJson(settingsPath, settings);
     } catch (e) {
         console.warn(`⚠️  Could not update VS Code settings.json. It might be missing. Error: ${e.message}`);
