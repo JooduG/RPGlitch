@@ -4,15 +4,15 @@
 
 This directory is the project's **Quality Assurance Department & Safety Net**. It contains all the automated tests that verify the functionality, stability, and correctness of the applications and the core system.
 
-If [/build](https://www.google.com/search?q=../build/README.md) is the factory, then this folder is the final inspection line. Its purpose is to catch regressions, validate new features, and ensure that every piece of code that ships is flawless and production-ready.
+If [/build](../build/README.md) is the factory, then this folder is the final inspection line. Its purpose is to catch regressions, validate new features, and ensure that every piece of code that ships is flawless and production-ready.
 
 ## **🗺️ The QA Floor (Structure)**
 
 The testing strategy is organized to mirror the project's structure:
 
 * **Application Tests:** The root of this folder contains tests for the user-facing applications (e.g., imageglitch.test.js, rpglitch.test.js).  
-* **Shared Component Tests:** Tests for the reusable, shared code library live alongside the code they are testing, in [/src/tests/](https://www.google.com/search?q=../src/tests/).  
-* **AI & Tooling Tests:** Specialized tests for the AI's tool integrations are located in [/mcp/](https://www.google.com/search?q=./mcp/).
+* **Shared Component Tests:** Tests for the reusable, shared code library live alongside the code they are testing, in [/src/tests/](../src/tests/).  
+* **AI & Tooling Tests:** Specialized tests for the AI's tool integrations are located in [/mcp/](./mcp/).
 
 ## **💡 Core Philosophy: The Law of the Land**
 
@@ -30,6 +30,6 @@ npm test
 
 All testing practices are governed by the Universal Agent Protocol and the project's coding standards.
 
-* **Master Protocol:** [../AGENTS.md](https://www.google.com/search?q=../AGENTS.md)  
-* **Rule Loading Logic:** [../rules/system-rule-interactions.md](https://www.google.com/search?q=../rules/system-rule-interactions.md)  
-* **JavaScript Bible:** [../rules/js-guide.md](https://www.google.com/search?q=../rules/js-guide.md)
+* **Master Protocol:** [../AGENTS.md](../AGENTS.md)  
+* **Rule Loading Logic:** [../rules/README.md](../rules/README.md)  
+* **JavaScript Bible:** [../rules/js.md](../rules/js.md)

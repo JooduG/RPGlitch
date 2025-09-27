@@ -28,7 +28,7 @@ This application follows the standard Perchance development lifecycle, transform
 
 All activities within this directory are governed by the Universal Agent Protocol and its supplemental, context-specific rules. For a complete understanding of operational procedures, consult the master rule files.
 
-* **Master Protocol:** \[suspicious link removed\]  
-* **Perchance Bible:** \[suspicious link removed\]  
-* **Rule Loading Logic:** \[suspicious link removed\]  
-* **App-Specific UX Guide:** \[suspicious link removed\]
+* **Master Protocol:** [../AGENTS.md](../../AGENTS.md)  
+* **Perchance Bible:** [../rules/perchance.md](../../rules/perchance.md)  
+* **Rule Loading Logic:** [../rules/README.md](../../rules/README.md)  
+* **App-Specific UX Guide:** [../../docs/design-system.md](../../docs/design-system.md)

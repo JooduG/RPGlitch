@@ -36,7 +36,7 @@ This architecture consists of two parts:
 
 **DIRECTIVE:** This separation of concerns is **absolute**. For a complete and exhaustive explanation, all agents **MUST** refer to the canonical guide before any development work:
 
-➡️ [**/rules/perchance-development-guide.md**](https://www.google.com/search?q=./perchance-development-guide.md) ⬅️
+➡️ [**/rules/perchance-development-guide.md**](./perchance.md) ⬅️
 
 ## **Changelog**
 
