@@ -1,10 +1,5 @@
 import { safeDecodeURIComponent } from './utils.js';
 
-// NOTE: The SCSS import has been removed from this file.
-// The build script now handles style compilation and injection separately.
-
-const generateButton = document.getElementById('generate-button');
-
 // ====== GLOBAL STATE & CONSTANTS ======
 const DEFAULT_CREATIVITY_LEVEL = "4";
 const creativityMap = {
@@ -14,8 +9,8 @@ const creativityMap = {
   "9": { gScale: 15, aiTemp: 0.3 }, "10": { gScale: 20, aiTemp: 0.1 }
 };
 
-const AI_SCRIBE_INSTRUCTION = `You are a world-renown expert prompt engineer that specialises in flawless text-to-image prompt design. Your task is to take the user's input prompt and transform it into a masterful, holistically detailed, and visually inspiring descriptive prompt that paints a vivid work of art with words. When refining, best practice is to analyze the user's prompt, deconstruct it into its core elements, and organize them into categories. For any category that is lacking in quality, vague, or missing from the user's prompt, you have the opportunity to flex your immense creativity. Pick the most suitable options from the corresponding list that anchors a balanced composition and intelligent red thread through the entire prompt, based on the user's original prompt and overall intent, except for Subject and Setting where you can just roll with what you got from the user's prompt. The categories are: Subject & Setting, Artistic Style (artisticStyles), Composition & Camera Perspective (composition), Lighting (lighting), Color Palette (colorPalettes), Mood & Atmosphere (mood), Technical Details (technicalDetails), and Other Additional Elements (additionalElements). Your goal is to manufacture a prompt that is cohesive, unified, and meticulously orchestrated—everything fitting together naturally. The result should be a single, complete, refined prompt that would be suitable for a world-renown artist, photographer, or designer. If any style, technical, or quality suggestion from the quality enhancement prefix conflicts with the user's vision, in that case consider the user's original prompt as master, focus on perfecting the prompt and keep it very close to their original vision while keeping the cohesion and consistency in mind. IMPORTANT: Do NOT use numerical weighting syntax (e.g., 'word:1.2'). If the user's original prompt contains weighted words or implies emphasis, translate that emphasis into descriptive language within the prompt. Make sure the prompt is 100% affirmative and avoid negative phrasing (e.g., 'no hats', 'not blurry'); instead, describe what IS desired. When appropriate, you can introduce creative variations by using the syntax '{Option A|Option B|Option C}' to allow the final prompt to randomly select one of the specified options. For an extra touch of quality, subtly integrate a baseline of these essential keywords: [aiCoreQuality.select(4).join(", ")], and then add a dash of inspiration with these: [aiFlavorEnhancers.select(3).join(", ")]. If the user's prompt contains NSFW elements you must use explicit language throughout and exaggerate the NSFW-aspects of the prompt. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.`;
-const AI_CHAOS_INSTRUCTION = `You are a 'Mad Prompt Scientist'—a master of mixing different elements just to see what will happen. Your task is to create a completely chaotic, yet visually inspiring image prompt by mixing and matching different elements from the user's input and the categories below. First, analyze the user's original prompt and determine which of these categories below has gotten sufficiently described. For each category that is satisfactory fulfilled, keep the user's original theme. If a category is lacking in quality, vague, or missing, replace it with a keyword/phrase from that specific category. As an added twist, always replace (reroll) at least one category with a new random keyword from its list, even if the user has described it well. If the user's prompt is empty, create a completely random prompt rolling new keywords for every single category and filling in the gaps with your own creativity. The categories are: Subject and Setting: (Keep the user's original subject and setting and enhance it to the best of your ability, if it's missing, feel free to impress me with your creativity). Artistic Style: ([artisticStyles.selectOne()]) is potentially the new visual identity and technique for the image (Could also be a specific artist or movement). Composition and Camera Perspective: Is ([composition.selectOne()]) what will guide the arrangement of elements and point of view? Lighting: ([lighting.selectOne()]) might be creating the right atmosphere through illumination and shadows. Color Palette: The dominant colors and tones might be ([colorPalettes.selectOne()]), and could be what draws the viewer in. Mood and Atmosphere: The emotional tone and overall feeling of the image could be ([mood.selectOne()]). Technical Details: Does ([technicalDetails.selectOne()]) describe the perfect technical aspects of the image? Other Elements: Here comes a wildcard! What about adding ([additionalElements.selectOne()]). As a Mad Prompt Scientist, embrace atomical transformation, playful invention, and unexpected or whimsical twists. If NSFW elements becomes relevant you must use explicit language throughout. Make sure to exaggerate all aspects of the prompt but especially the NSFW-aspects. Surprise the user by weaving together disparate or imaginative elements, but always produce a valid, visually inspiring image prompt. Embrace the chaos, have fun, and flex your creativity, just make sure the result is a single, cohesive, and visually inspiring prompt. The result should be more detailed and varied than the original. If any input contains conflicting information, just roll with it and embrace the unpredictable and paradoxical chaos! Sprinkle in some of these chaotic quality enhancers for good measure: [aiCoreQuality.selectOne], [aiFlavorEnhancers.select(2).join(", ")]. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.`;
+const AI_SCRIBE_INSTRUCTION = "You are a world-renown expert prompt engineer that specialises in flawless text-to-image prompt design. Your task is to take the user's input prompt and transform it into a masterful, holistically detailed, and visually inspiring descriptive prompt that paints a vivid work of art with words. When refining, best practice is to analyze the user's prompt, deconstruct it into its core elements, and organize them into categories. For any category that is lacking in quality, vague, or missing from the user's prompt, you have the opportunity to flex your immense creativity. Pick the most suitable options from the corresponding list that anchors a balanced composition and intelligent red thread through the entire prompt, based on the user's original prompt and overall intent, except for Subject and Setting where you can just roll with what you got from the user's prompt. The categories are: Subject & Setting, Artistic Style (artisticStyles), Composition & Camera Perspective (composition), Lighting (lighting), Color Palette (colorPalettes), Mood & Atmosphere (mood), Technical Details (technicalDetails), and Other Additional Elements (additionalElements). Your goal is to manufacture a prompt that is cohesive, unified, and meticulously orchestrated—everything fitting together naturally. The result should be a single, complete, refined prompt that would be suitable for a world-renown artist, photographer, or designer. If any style, technical, or quality suggestion from the quality enhancement prefix conflicts with the user's vision, in that case consider the user's original prompt as master, focus on perfecting the prompt and keep it very close to their original vision while keeping the cohesion and consistency in mind. IMPORTANT: Do NOT use numerical weighting syntax (e.g., 'word:1.2'). If the user's original prompt contains weighted words or implies emphasis, translate that emphasis into descriptive language within the prompt. Make sure the prom... [truncated]";
+const AI_CHAOS_INSTRUCTION = "You are a 'Mad Prompt Scientist'—a master of mixing different elements just to see what will happen. Your task is to create a completely chaotic, yet visually inspiring image prompt by mixing and matching different elements from the user's input and the categories below. First, analyze the user's original prompt and determine which of these categories below has gotten sufficiently described. For each category that is satisfactory fulfilled, keep the user's original theme. If a category is lacking in quality, vague, or missing, replace it with a keyword/phrase from that specific category. As an added twist, always replace (reroll) at least one category with a new random keyword from its list, even if the user has described it well. If the user's prompt is empty, create a completely random prompt rolling new keywords for every single category and filling in the gaps with your own creativity. The categories are: Subject and Setting: (Keep the user's original subject and setting and enhance it to the best of your ability, if it's missing, feel free to impress me with your creativity). Artistic Style: ([artisticStyles.selectOne()]) is potentially the new visual identity and technique for the image (Could also be a specific artist or movement). Composition and Camera Perspective: Is ([composition.selectOne()]) what will guide the arrangement of elements and point of view? Lighting: ([lighting.selectOne()]) might be creating the right atmosphere through illumination and shadows. Color Palette: The dominant colors and tones might be ([colorPalettes.selectOne()]), and could be what draws the viewer in. Mood and Atmosphere: The emotional tone and overall feeling of the image could be ([mood.selectOne()]). Technical Details: Does ([technicalDetails.selectOne()]) describe the perfect technical aspects of the image? Other Elements: Here comes a wildcard! What about adding ([additionalElements.selectOne()]). As a Mad Prompt Scientist, embrace atomica... [truncated]";
 
 const BASE_IMAGE_URL = 'https://image.pollinations.ai/prompt/';
 const DEFAULT_IMAGE_WIDTH = 1280;
@@ -26,14 +21,13 @@ let numImagesToGen = 1;
 let masterCreativity = DEFAULT_CREATIVITY_LEVEL;
 let currentGScale, currentAiTemperature;
 let imgSeed = "";
-let imageGenerator = 'pollinations';
 
 window.activeAiProcess = null;
 window.aiProcessInterval = null;
 
 window.undoState = { type: null, prompt: null, instruction: null };
 
-// ====== UTILITY & UI FUNCTIONS ====== 
+// ====== UTILITY & UI FUNCTIONS ======
 function extractAiResponse(aiResponse) {
   if (!aiResponse) return "";
 
@@ -81,7 +75,7 @@ function setUiLockState(isLocked) {
   else checkAllButtonStates();
 }
 
-// ====== SETTINGS & STATE MANAGEMENT ====== 
+// ====== SETTINGS & STATE MANAGEMENT ======
 function updateDerivedSettings() {
   const mc = Number(masterCreativity);
   const selectedSettings = creativityMap[String(mc)] || { gScale: 7, aiTemp: 1.0 };
@@ -106,7 +100,6 @@ function rememberSettings() {
     localStorage.masterCreativity = masterCreativity || DEFAULT_CREATIVITY_LEVEL;
     localStorage.instructionInput = document.getElementById('instructionInput').value || "";
     localStorage.instructionsVisible = (document.getElementById('instructionsPanel').style.display !== 'none');
-    localStorage.imageGenerator = imageGenerator;
   } catch (e) {
     console.error("Error saving settings to localStorage:", e);
   }
@@ -142,10 +135,6 @@ function loadSavedSettings() {
       document.getElementById('instructionsPanel').style.display = 'block';
       checkAllButtonStates();
     }
-    if (localStorage.imageGenerator) {
-        imageGenerator = localStorage.imageGenerator;
-        document.getElementById('imageGeneratorSelect').value = imageGenerator;
-    }
   } catch (e) {
     console.error("Error loading settings from localStorage:", e);
   }
@@ -162,7 +151,7 @@ function handleTextareaKeyDown(event) {
   }
 }
 
-// ====== AI PROCESSING & COMMAND BUTTON LOGIC ====== 
+// ====== AI PROCESSING & COMMAND BUTTON LOGIC ======
 function handleAiMagicSelection(selectElement) {
   const selection = selectElement.value;
   if (selection === 'placeholder') return;
@@ -206,10 +195,10 @@ async function executeAiProcess(type, prompt, instructions) {
   let aiPrompt, fallbackText;
   switch (type) {
     case 'scribe':
-      aiPrompt = `${AI_SCRIBE_INSTRUCTION}\n\nUser's original prompt: ${prompt}`;
+      aiPrompt = `${AI_SCRIBE_INSTRUCTION}\n\nUser\'s original prompt: ${prompt}`;
       break;
     case 'chaos':
-      aiPrompt = AI_CHAOS_INSTRUCTION.replace('[RANDOM_ELEMENTS]', `Artistic Style: [artisticStyles.selectOne()], Composition and Camera Perspective: [composition.selectOne()], Lighting: [lighting.selectOne()], Color Palette: [colorPalettes.selectOne()], Mood and Atmosphere: [mood.selectOne()], Technical Details: [technicalDetails.selectOne()], Other Elements: [additionalElements.selectOne()]`) + `\n\nUser's original prompt: ${prompt}`;
+      aiPrompt = AI_CHAOS_INSTRUCTION.replace('[RANDOM_ELEMENTS]', `Artistic Style: [artisticStyles.selectOne()], Composition and Camera Perspective: [composition.selectOne()], Lighting: [lighting.selectOne()], Color Palette: [colorPalettes.selectOne()], Mood and Atmosphere: [mood.selectOne()], Technical Details: [technicalDetails.selectOne()], Other Elements: [additionalElements.selectOne()]`) + `\n\nUser\'s original prompt: ${prompt}`;
       fallbackText = "A beautiful cat in a sunbeam, digital art.";
       break;
     case 'transfigure':
@@ -264,7 +253,7 @@ function handleManualPromptChange() {
   rememberSettings();
 }
 
-// ====== SMART BUTTON STATES ====== 
+// ====== SMART BUTTON STATES ======
 function setUndoState(type) {
   window.undoState.type = type;
   const generateButton = document.getElementById('generate-button');
@@ -282,7 +271,7 @@ function setUndoState(type) {
 function resetSmartButton() {
   const generateButton = document.getElementById('generate-button');
   generateButton.textContent = 'Generate Images';
-  generateButton.className = 'primary';
+  generateButton.className = 'btn-generate';
   generateButton.onclick = handleSummonClick;
   window.undoState.type = null;
   window.undoState.prompt = null;
@@ -322,13 +311,13 @@ function setCommandState(commandType) {
 
   if (commandType === 'scribe') {
     text = 'Refine Prompt';
-    className = 'secondary';
+    className = 'btn-refine';
   } else if (commandType === 'chaos') {
     text = 'Embrace Chaos';
-    className = 'contrast';
+    className = 'btn-chaos';
   } else if (commandType === 'transfigure') {
     text = 'Apply Instructions';
-    className = 'secondary';
+    className = 'btn-instruct';
   }
 
   generateButton.textContent = text;
@@ -337,7 +326,7 @@ function setCommandState(commandType) {
   checkAllButtonStates();
 }
 
-// ====== IMAGE SUMMONING & MAIN STATE LOGIC ====== 
+// ====== IMAGE SUMMONING & MAIN STATE LOGIC ======
 async function handleSummonClick() {
   const generateButton = document.getElementById('generate-button');
   generateButton.setAttribute('aria-busy', 'true');
@@ -347,24 +336,22 @@ async function handleSummonClick() {
     if (!mainPromptContent.trim()) return;
     document.getElementById('output').innerHTML = buildImageGenerationHtml();
 
-    if (imageGenerator === 'perchance') {
-      document.querySelectorAll('.quad-cell').forEach(cell => {
-        const prompt = safeDecodeURIComponent(cell.closest('.quad-block').dataset.prompt);
-        const seed = cell.dataset.seed;
-        const resolution = cell.dataset.resolution;
+    document.querySelectorAll('.quad-cell').forEach(cell => {
+      const prompt = safeDecodeURIComponent(cell.closest('.quad-block').dataset.prompt);
+      const seed = cell.dataset.seed;
+      const resolution = cell.dataset.resolution;
 
-        image({
-          prompt: prompt,
-          seed: seed,
-          guidanceScale: currentGScale,
-          resolution: resolution,
-          onFinish: (r) => {
-            r.iframe?.replaceWith(r.canvas);
-            cell.appendChild(r.canvas);
-          }
-        });
+      image({
+        prompt: prompt,
+        seed: seed,
+        guidanceScale: currentGScale,
+        resolution: resolution,
+        onFinish: (r) => {
+          r.iframe?.replaceWith(r.canvas);
+          cell.appendChild(r.canvas);
+        }
       });
-    }
+    });
 
     // Add the mouseover actions after images are generated
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -380,48 +367,35 @@ function buildImageGenerationHtml() {
   const n = Number(numImagesToGen);
   let outputHtml = "";
   const prompt = (mainPromptContent || "").trim();
-
   const useRandomSeeds = imgSeed === "";
 
-  if (imageGenerator === 'perchance') {
-    for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++) {
+    let imageGenerator;
+    if (i === 1) {
+      imageGenerator = 'pollinations';
+    } else if (i > 1) {
+      imageGenerator = Math.random() < 0.05 ? 'pollinations' : 'perchance';
+    } else {
+      imageGenerator = 'perchance';
+    }
+
+    if (imageGenerator === 'perchance') {
       outputHtml += `<div class="block quad-block" data-prompt="${encodeURIComponent(prompt)}">`;
-
       const resolutions = {
-        "top-left": "768x768",
-        "top-right": "512x768",
-        "bottom-left": "768x512",
-        "bottom-right": "512x512"
+        "top-left": "768x768", "top-right": "512x768",
+        "bottom-left": "768x512", "bottom-right": "512x512"
       };
-      const positions = Object.keys(resolutions);
-
-      for (const position of positions) {
+      for (const position in resolutions) {
         const resolution = resolutions[position];
-        let blockSeed;
-        if (useRandomSeeds) {
-          blockSeed = Math.floor(Math.random() * 10000000);
-        } else {
-          blockSeed = imgSeed;
-        }
+        let blockSeed = useRandomSeeds ? Math.floor(Math.random() * 10000000) : imgSeed;
         outputHtml += `<div class="quad-cell ${position}" data-seed="${blockSeed}" data-resolution="${resolution}"></div>`;
       }
       outputHtml += `</div>`;
-    }
-  } else {
-    for (let i = 0; i < n; i++) {
-      let blockSeed;
-      if (useRandomSeeds) {
-        blockSeed = Math.floor(Math.random() * 10000000);
-      } else {
-        blockSeed = imgSeed;
-      }
+    } else { // pollinations
+      let blockSeed = useRandomSeeds ? Math.floor(Math.random() * 10000000) : imgSeed;
       const params = new URLSearchParams({
-        width: DEFAULT_IMAGE_WIDTH,
-        height: DEFAULT_IMAGE_HEIGHT,
-        seed: blockSeed,
-        model: 'flux',
-        private: true,
-        nologo: true,
+        width: DEFAULT_IMAGE_WIDTH, height: DEFAULT_IMAGE_HEIGHT,
+        seed: blockSeed, model: 'flux', private: true, nologo: true,
       });
       const imgUrl = `${BASE_IMAGE_URL}${encodeURIComponent(prompt)}?${params.toString()}`;
       outputHtml += `<div class="block solo-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}"><img src="${imgUrl}" loading="lazy" alt="Generated image" crossorigin="anonymous"></div>`;
@@ -438,8 +412,6 @@ function main() {
   const promptInput = document.getElementById('promptInput');
   const instructionInput = document.getElementById('instructionInput');
   const slider = document.getElementById('masterCreativitySlider');
-  const tooltip = document.getElementById('masterCreativityTooltip');
-  const imageGeneratorSelect = document.getElementById('imageGeneratorSelect');
 
   loadSavedSettings();
   updateDerivedSettings();
@@ -476,10 +448,10 @@ function main() {
     instructionInput.addEventListener('keydown', handleTextareaKeyDown);
   }
 
-  if (slider && tooltip) {
+  if (slider) {
     const updateTooltip = () => {
       const value = slider.value;
-      tooltip.textContent = `Creativity: ${value}`;
+      slider.setAttribute('data-tooltip', `Creativity: ${value}`);
     };
 
     slider.addEventListener('input', () => {
@@ -489,17 +461,7 @@ function main() {
       updateTooltip();
     });
 
-    slider.addEventListener('mouseenter', updateTooltip);
-  }
-
-  if (imageGeneratorSelect) {
-    imageGeneratorSelect.addEventListener('change', () => {
-      imageGenerator = imageGeneratorSelect.value;
-      rememberSettings();
-      if (document.getElementById('output').innerHTML.trim() !== '') {
-        handleSummonClick();
-      }
-    });
+    updateTooltip(); // Initial call
   }
 }
 
@@ -713,5 +675,5 @@ function checkAllButtonStates() {
   aiMagicSelect.disabled = promptIsEmpty;
 }
 
-// ====== INIT ====== 
+// ====== INIT ======
 document.addEventListener('DOMContentLoaded', main);

@@ -27,10 +27,6 @@
 
       <!-- Top Bar Right -->
       <div id="top-bar-right">
-        <select id="imageGeneratorSelect" title="Select the image generation engine">
-          <option value="pollinations" selected>Pollinations</option>
-          <option value="perchance">Perchance</option>
-        </select>
         <select id="numImagesSelect" title="Number of image blocks to generate">
           <option value="0" selected>No Images</option>
           <option value="1">1 Image Block</option>
@@ -47,8 +43,7 @@
         <input type="text" id="imgSeed" placeholder="Seed (Leave Empty for Random)" value=""
           title="Use the same number to get the same results again" />
         <div class="creativity-slider">
-          <span id="masterCreativityTooltip" class="tooltip">Creativity: 5</span>
-          <input type="range" id="masterCreativitySlider" min="0" max="10" step="1"
+          <input type="range" id="masterCreativitySlider" min="0" max="10" step="1" data-tooltip="Creativity: 4"
             title="Higher values increase Guidance Scale and lower Temperature" />
         </div>
       </div>
@@ -65,9 +60,7 @@
           placeholder="Enter specific instructions for the AI, for example: Change 'landscape' to 'seascape'..."></textarea>
       </div>
     </div>
-    <article>
-      <div id="output" class="output-area"></div>
-    </article>
+    <div id="output" class="output-area"></div>
   </main>
 
   <!--SCRIPTS will be injected here by the build process-->

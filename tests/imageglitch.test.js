@@ -11,7 +11,20 @@ describe('ImageGlitch', () => {
     const html = fs.readFileSync(path.resolve(__dirname, '../build/output/ImageGlitch.html'), 'utf8');
     const virtualConsole = new VirtualConsole();
     virtualConsole.sendTo(console, { omitJSDOMErrors: true });
-    dom = new JSDOM(html, { runScripts: 'dangerously', resources: 'usable', virtualConsole });
+    dom = new JSDOM(html, {
+      runScripts: 'dangerously',
+      resources: 'usable',
+      virtualConsole,
+      beforeParse(window) {
+        window.localStorage = {
+          _data: {},
+          getItem: jest.fn(function(key) { return this._data[key] || null; }),
+          setItem: jest.fn(function(key, value) { this._data[key] = value; }),
+          removeItem: jest.fn(function(key) { delete this._data[key]; }),
+        };
+        window.image = () => {};
+      }
+    });
     window = dom.window;
     document = window.document;
   });
@@ -37,10 +50,8 @@ describe('ImageGlitch', () => {
     // Click the button
     summonBtn.click();
 
-    // Check that an image was added to the output area
-    const img = outputArea.querySelector('img');
-    expect(img).not.toBeNull();
-    // Verify img.src contains the expected Pollinations URL based on the prompt
-    expect(img.src).toContain('https://image.pollinations.ai/prompt/a%20test%20prompt');
+    // Check that a quad-cell was added to the output area
+    const quadCell = outputArea.querySelector('.quad-cell');
+    expect(quadCell).not.toBeNull();
   });
 });

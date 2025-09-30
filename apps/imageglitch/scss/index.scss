@@ -1,32 +1,41 @@
-// ImageGlitch specific CSS variables
+/* ImageGlitch specific CSS variables */
 
 :root {
-  --pico-background-color: #1e1e2e;
-  --pico-color: #cdd6f4;
-  --pico-card-background-color: #313244;
-  --pico-card-border-color: #45475a;
-  --pico-primary: #89b4fa;
-  --pico-primary-hover: rgb(137 180 250 / 80%);
-  --pico-primary-focus: rgb(137 180 250 / 25%);
-  --pico-success: #a6e3a1;
-  --pico-warning: #fab387;
-  --pico-danger: #f38ba8;
-  --pico-info: #74c7ec;
-  --pico-placeholder-color: #a6adc8;
-  --pico-scrollbar-track: #181825;
+  /* --- App-specific Layout Variables --- */
   --app-container-max: 100%;
   --pico-radius: 0.5rem;
-  --pico-spacing: 0; 
+  --pico-spacing: 0;
 }
 
 // --- BASE STYLES ---
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
+html {
+  font-size: 100%;
+}
+
+/* --- background gradient color variables --- */
+$gradient-color-1: #181c2f;
+$gradient-color-2: #23243a;
+$gradient-color-3: #1a3a4a;
+$gradient-color-4: #2a1a3a;
+
 body {
-  background-color: var(--pico-background-color);
+  background: linear-gradient(
+    120deg,
+    $gradient-color-1 0%,
+    $gradient-color-2 40%,
+    $gradient-color-3 70%,
+    $gradient-color-4 100%
+  );
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
   color: var(--pico-color);
   margin: 0;
   display: flex;
@@ -44,16 +53,19 @@ body {
 }
 
 .prompt-area {
-    width: 100%;
+  width: 100%;
 }
 
 // Separate container for the main content to allow header to be full-width
 main.container {
-    flex-grow: 1; 
-  }
+  flex-grow: 1;
+  max-width: calc(100% - 2rem);
+}
 
 textarea {
-  width: 100%;
+  width: calc(90% + 2rem);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 select {
@@ -63,10 +75,10 @@ select {
 // --- LAYOUT & COMPONENT STYLES ---
 
 header.container {
-    width: 100%;
-    max-width: 100%;
-    padding: 0;
-    margin-bottom: 1rem;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin-bottom: 1rem;
 }
 
 .top-bar {
@@ -75,72 +87,83 @@ header.container {
   justify-content: space-between;
   position: relative;
   z-index: 10;
-  background: rgb(35 36 58 / 85%);
+  background: color-mix(in srgb, var(--pico-background-color) 85%, transparent);
   backdrop-filter: blur(15px);
   box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
   padding: 1rem;
-  color: var(--pico-contrast, #fff);
+  color: var(--pico-contrast);
   border-radius: var(--pico-radius);
   margin: 1rem auto 0;
   width: 90%;
   max-width: 1400px;
-  border: 0;
+  border: 1px solid var(--pico-card-border-color);
 }
 
-#top-bar-left, #top-bar-right {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+#top-bar-left,
+#top-bar-right {
+  display: grid;
   gap: 1rem;
+  align-items: center;
 }
 
-#prompt-input, #instruction-input {
+#top-bar-left {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+#top-bar-right {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+#prompt-input,
+#instruction-input {
   width: 100%;
-  background-color: var(--color-surface);
+  background-color: var(--pico-form-element-background-color);
   border-radius: var(--pico-radius);
   padding: 1rem;
   resize: vertical;
-  border: 1px solid var(--color-surface-hover);
-  box-shadow: inset 0 2px 4px rgb(0 0 0 / 10%);
+  border: 1px solid var(--pico-form-element-border-color);
+  box-shadow: var(--pico-form-element-box-shadow);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   line-height: 1.5;
   min-height: 4.5em;
 }
 
-#prompt-input:focus, #instruction-input:focus {
-  border-color: var(--color-primary);
-  box-shadow: inset 0 2px 4px rgb(0 0 0 / 10%), 0 0 0 3px var(--color-primary-extralight);
+#prompt-input:focus,
+#instruction-input:focus {
+  border-color: var(--pico-primary);
+  box-shadow: var(--pico-form-element-focus-box-shadow);
   outline: none;
 }
 
-textarea::placeholder, input::placeholder {
-  color: var(--color-placeholder);
+area::placeholder,
+input::placeholder {
+  color: var(--pico-form-element-placeholder-color);
   opacity: 0.8;
   font-style: italic;
 }
 
 .output-area {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+  justify-content: center;
   padding-top: 1rem;
+  background-color: transparent;
 }
 
 .block {
-  width: 100%;
+  flex: 1 1 350px;
+  max-width: 100%;
   aspect-ratio: 1/1;
   overflow: hidden;
   border-radius: var(--pico-radius);
-  box-shadow: 0 1rem 20px rgb(0 0 0 / 25%);
   position: relative;
 }
 
 .quad-block {
   display: grid;
   grid-template: "top-left top-right" 2fr "bottom-left bottom-right" 1fr / 2fr 1fr;
-  background-color: var(--color-surface);
   gap: 1rem;
-  padding: 1rem;
 }
 
 .top-left {
@@ -167,12 +190,14 @@ textarea::placeholder, input::placeholder {
 }
 
 .quad-cell:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
   box-shadow: 0 12px 21rem rgb(0 0 0 / 30%);
   z-index: 5;
 }
 
-.quad-cell iframe, .quad-cell canvas, .solo-block img {
+.quad-cell iframe,
+.quad-cell canvas,
+.solo-block img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -187,8 +212,8 @@ textarea::placeholder, input::placeholder {
 }
 
 .solo-block:hover {
-    transform: scale(1.1);
-    box-shadow: 0 12px 21rem rgb(0 0 0 / 30%);
+  transform: scale(1.05);
+  box-shadow: 0 12px 21rem rgb(0 0 0 / 30%);
 }
 
 /* Image overlay styles */
@@ -209,7 +234,13 @@ textarea::placeholder, input::placeholder {
   transition: opacity 0.3s ease;
   pointer-events: none;
   z-index: 10;
-  background: linear-gradient(to bottom, rgb(0 0 0 / 60%) 0%, transparent 30%, transparent 70%, rgb(0 0 0 / 60%) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 60%) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgb(0 0 0 / 60%) 100%
+  );
 }
 
 .image-container:hover .image-overlay {
@@ -230,7 +261,7 @@ textarea::placeholder, input::placeholder {
   max-height: 120px;
   overflow-y: auto;
   line-height: 1.4;
-  padding-right: 1rem; 
+  padding-right: 1rem;
 }
 
 .image-control-bar {
@@ -242,7 +273,7 @@ textarea::placeholder, input::placeholder {
 }
 
 .seed-guidance-display {
-  color: var(--color-placeholder);
+  color: var(--pico-muted-color);
   line-height: 1.5;
 }
 
@@ -252,8 +283,8 @@ textarea::placeholder, input::placeholder {
 }
 
 .overlay-button {
-  background-color: var(--color-primary-extralight);
-  color: var(--color-text);
+  background-color: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
   border: none;
   padding: 1rem;
   border-radius: var(--pico-radius);
@@ -263,8 +294,8 @@ textarea::placeholder, input::placeholder {
 }
 
 .overlay-button:hover {
-  background-color: var(--color-primary-light);
-  transform: scale(1.1);
+  background-color: var(--pico-primary-hover-background);
+  transform: scale(1.05);
 }
 
 /* Custom scrollbar styles */
@@ -275,22 +306,22 @@ textarea::placeholder, input::placeholder {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-scrollbar-track);
+  background: var(--pico-scrollbar-track);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-primary-extralight);
+  background: var(--pico-primary-background);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary-light);
+  background: var(--pico-primary-hover-background);
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary-extralight) var(--color-scrollbar-track);
+  scrollbar-color: var(--pico-primary-background) var(--pico-scrollbar-track);
 }
 
 .creativity-slider {
@@ -303,8 +334,8 @@ textarea::placeholder, input::placeholder {
 .creativity-slider .tooltip {
   visibility: hidden;
   width: 120px;
-  background-color: var(--color-surface);
-  color: var(--color-text);
+  background-color: var(--pico-card-background-color);
+  color: var(--pico-color);
   text-align: center;
   border-radius: 6px;
   padding: 5px 0;
@@ -323,5 +354,40 @@ textarea::placeholder, input::placeholder {
 }
 
 .creativity-slider input[type="range"] {
-  width: 120px;
+  width: 100%;
+}
+
+#generate-button {
+  transition: background-color 0.2s ease-in-out, filter 0.2s ease-in-out;
+
+  &.btn-generate {
+    background-color: var(--pico-color-jade-500, #43a047);
+    border-color: var(--pico-color-jade-500, #43a047);
+    color: #fff;
+  }
+
+  &.btn-refine {
+    background-color: var(--pico-color-azure-400, #1e88e5);
+    border-color: var(--pico-color-azure-400, #1e88e5);
+    color: #fff;
+  }
+
+  &.btn-chaos {
+    background-color: var(--pico-color-pumpkin-500, #fb8c00);
+    border-color: var(--pico-color-pumpkin-500, #fb8c00);
+    color: #fff;
+  }
+
+  &.btn-instruct {
+    background-color: var(--pico-color-pink-400, #d81b60);
+    border-color: var(--pico-color-pink-400, #d81b60);
+    color: #fff;
+  }
+
+  &.btn-generate:hover,
+  &.btn-refine:hover,
+  &.btn-chaos:hover,
+  &.btn-instruct:hover {
+    filter: brightness(1.1);
+  }
 }

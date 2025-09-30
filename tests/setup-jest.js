@@ -22,6 +22,7 @@ global.window.DOMPurify = { sanitize: (str) => str };
 global.DOMPurify = { sanitize: (str) => str }; // Also expose globally for direct access
 global.window._hyperscript = {};
 global.window.$ = function () {};
+global.image = () => {};
 
 // Mock localStorage
 global.window.localStorage = {
