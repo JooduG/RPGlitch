@@ -3,7 +3,9 @@
 
 // 1. Create the database instance.
 // The 'Dexie' global variable is loaded by your build script.
-const db = new Dexie('RPGlitchDB');
+import Dexie from 'dexie';
+
+const db = new Dexie('rpglitch');
 
 // 2. Define the schema
 db.version(1).stores({

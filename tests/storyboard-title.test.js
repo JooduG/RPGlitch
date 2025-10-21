@@ -58,12 +58,12 @@ test('default storyboard title adapts to selections', async () => {
   await App.initializeWhenReady();
   const originalRandom = window.Math.random; // Use global window
   window.Math.random = () => 0; // Use global window
-  expect(App._defaultStoryboardTitle()).toBe('Your story begins…');
+  expect(await App._defaultStoryboardTitle()).toBe('Your story begins…');
   document.getElementById('storyboard-ai-select').value = 'a1';
-  expect(App._defaultStoryboardTitle()).toBe('Once upon a time Alice');
+  expect(await App._defaultStoryboardTitle()).toBe('Once upon a time Alice');
   document.getElementById('storyboard-user-select').value = 'u1';
-  expect(App._defaultStoryboardTitle()).toBe('Once upon a time Alice & Bob');
+  expect(await App._defaultStoryboardTitle()).toBe('Once upon a time Alice & Bob');
   document.getElementById('storyboard-world-select').value = 'w1';
-  expect(App._defaultStoryboardTitle()).toBe('Once upon a time Alice & Bob in Mars');
+  expect(await App._defaultStoryboardTitle()).toBe('Once upon a time Alice & Bob in Mars');
   window.Math.random = originalRandom; // Use global window
 });

@@ -313,8 +313,8 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
   container.appendChild(frag);
 }
 
-export async function renderDropdown(selectId, key) { // <-- MADE ASYNC
-  const select = document.querySelector(`#${selectId}`);
+export async function renderDropdown(doc, selectId, key) { // <-- MADE ASYNC
+  const select = doc.querySelector(`#${selectId}`);
   if (!select) return;
   const existingPlaceholder = select.querySelector('option[value=""]');
   const placeholderText = existingPlaceholder ?
@@ -323,20 +323,20 @@ export async function renderDropdown(selectId, key) { // <-- MADE ASYNC
   select.dataset.placeholder = placeholderText;
   const placeholder = existingPlaceholder ?
     existingPlaceholder.cloneNode(true) :
-    document.createElement("option");
+    doc.createElement("option");
   placeholder.value = "";
   placeholder.textContent = placeholderText;
   select.textContent = "";
   select.appendChild(placeholder);
   const items = await getAllItems(key); // <-- AWAITED
-  const premadeGroup = document.createElement("optgroup");
+  const premadeGroup = doc.createElement("optgroup");
   premadeGroup.label = "Premade";
-  const customGroup = document.createElement("optgroup");
+  const customGroup = doc.createElement("optgroup");
   customGroup.label = "Custom";
   let premadeCount = 0;
   let customCount = 0;
   items.forEach((item) => {
-    const option = document.createElement("option");
+    const option = doc.createElement("option");
     option.value = item.id || item.title;
     option.textContent = item.title || "";
     if (item.isPremade) {
@@ -840,7 +840,7 @@ async function populateStoryboardSelects() { // <-- MADE ASYNC
   
   // Run in parallel
   await Promise.all(configs.map(async ({ id, key }) => { // <-- AWAITED
-    await renderDropdown(id, key); // Use the existing async renderDropdown
+    await renderDropdown(document, id, key); // Use the existing async renderDropdown
     const select = document.querySelector(`#${id}`);
     if (select) {
       select.addEventListener("change", onStoryboardChange);

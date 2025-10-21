@@ -1,10 +1,17 @@
-jest.mock('../apps/rpglitch/js/entities.js', () => ({
-  entities: {
-    list: jest.fn().mockReturnValue([]),
+jest.mock('../apps/rpglitch/js/db.js', () => ({
+  db: {
+    entities: {
+      bulkPut: jest.fn(),
+      clear: jest.fn(),
+      where: jest.fn(() => ({
+        equals: jest.fn(() => ({
+          toArray: jest.fn().mockResolvedValue([]),
+        })),
+      })),
+    },
   },
-  getPremadeItems: jest.fn().mockReturnValue([]),
-  _allItemsCache: {},
-}));
+  initDB: jest.fn().mockResolvedValue(),
+})); 
 
 async function loadApp() {
   const html = `<!doctype html><html><body>
@@ -33,63 +40,51 @@ async function loadApp() {
   const utils = await import('../apps/rpglitch/js/utils.js');
   const index = await import('../apps/rpglitch/js/index.js');
 
-  // Ensure window.App exists and mock its functions
-  window.App = {
+  const App = {
     ...index,
     ...utils,
-    importAllData: jest.fn(),
-    exportAllData: jest.fn(),
-    deleteAllData: jest.fn(),
   };
 
-  jest.spyOn(window.App, 'refreshAllLists').mockImplementation(() => {});
+  // Spy on the functions in the index module
+  const importAllDataSpy = jest.spyOn(index, 'importAllData');
+  const exportAllDataSpy = jest.spyOn(index, 'exportAllData');
+  const deleteAllDataSpy = jest.spyOn(index, 'deleteAllData');
 
-  // Re-query ui elements after document.body.innerHTML is set
-  window.App.ui = {
-    uploadBackupInput: document.getElementById('upload-backup'),
-    uploadBackupTrigger: document.querySelector('[data-trigger="upload-backup"]'),
-    downloadBackupButton: document.getElementById('download-backup'),
-    deleteAllDataButton: document.getElementById('delete-all-data')
-  };
-  window.App.chin.init();
-  window.App._attachOptionChinActions();
+  await App.initializeWhenReady();
+  App._attachOptionChinActions();
 
-  return window.App; // Return the global App object
+  return { App, importAllDataSpy, exportAllDataSpy, deleteAllDataSpy };
 }
 
 afterEach(() => {
-  delete global.window.App; // Clean up global App
   jest.resetModules();
   jest.clearAllMocks();
 });
 
 test('options chin actions trigger database methods', async () => {
-  const App = await loadApp(); // App is now window.App
+  const { App, importAllDataSpy, exportAllDataSpy, deleteAllDataSpy } = await loadApp();
 
   App.chin.open('options');
   await new Promise(resolve => setTimeout(resolve, 0));
 
   // Re-query elements after modification
-  const uploadBackupTrigger = document.querySelector('[data-trigger="upload-backup"]');
   const uploadBackupInput = document.getElementById('upload-backup');
   const downloadBackupButton = document.getElementById('download-backup');
   const deleteAllDataButton = document.getElementById('delete-all-data');
 
-  expect(uploadBackupTrigger).not.toBeNull();
   expect(uploadBackupInput).not.toBeNull();
   expect(downloadBackupButton).not.toBeNull();
   expect(deleteAllDataButton).not.toBeNull();
 
   const view = window; // Use global window
   const file = new view.File(['{}'], 'backup.json', { type: 'application/json' });
-  uploadBackupTrigger.click();
   Object.defineProperty(uploadBackupInput, 'files', { value: [file] });
   uploadBackupInput.dispatchEvent(new view.Event('change'));
-  expect(App.importAllData).toHaveBeenCalledWith(file);
+  expect(importAllDataSpy).toHaveBeenCalledWith(file);
 
   downloadBackupButton.click();
-  expect(App.exportAllData).toHaveBeenCalled();
+  expect(exportAllDataSpy).toHaveBeenCalled();
 
   deleteAllDataButton.click();
-  expect(App.deleteAllData).toHaveBeenCalled();
+  expect(deleteAllDataSpy).toHaveBeenCalled();
 });

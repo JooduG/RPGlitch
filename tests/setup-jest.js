@@ -1,3 +1,7 @@
+import rfdc from 'rfdc';
+global.structuredClone = rfdc();
+
+import 'fake-indexeddb/auto';
 const { TextEncoder, TextDecoder } = require('util');
 
 global.TextEncoder = TextEncoder;
@@ -17,7 +21,6 @@ global.navigator = dom.window.navigator; // Expose navigator as well
 
 // Mock common browser globals that might be used by the app
 global.window.alert = () => {};
-global.window.Dexie = function () {};
 global.window.DOMPurify = { sanitize: (str) => str };
 global.DOMPurify = { sanitize: (str) => str }; // Also expose globally for direct access
 global.window._hyperscript = {};
@@ -25,12 +28,25 @@ global.window.$ = function () {};
 global.image = () => {};
 
 // Mock localStorage
-global.window.localStorage = {
-  _data: {},
-  getItem: jest.fn(function(key) { return this._data[key] || null; }),
-  setItem: jest.fn(function(key, value) { this._data[key] = value; }),
-  removeItem: jest.fn(function(key) { delete this._data[key]; }),
-};
+Object.defineProperty(window, 'localStorage', {
+  value: (() => {
+    let store = {};
+    return {
+      getItem: function(key) {
+        return store[key] || null;
+      },
+      setItem: function(key, value) {
+        store[key] = value.toString();
+      },
+      removeItem: function(key) {
+        delete store[key];
+      },
+      clear: function() {
+        store = {};
+      }
+    };
+  })()
+});
 
 // Mock getComputedStyle
 global.window.getComputedStyle = jest.fn((el) => {

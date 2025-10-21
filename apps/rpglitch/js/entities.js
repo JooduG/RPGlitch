@@ -275,7 +275,7 @@ export const entities = {
     const allItems = premadeList.concat(filteredCustom);
     
     // Sort by name
-    return allItems.sort((a, b) => a.name.localeCompare(b.name));
+    return allItems.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   },
 
   /**
