@@ -1,4 +1,5 @@
 import { router } from './profile-router.js';
+import { init as initDB, db } from './db.js'; // <-- ADDED THIS
 
 import {
   applyBrand,
@@ -17,11 +18,9 @@ import {
   entities,
   getPictureHTML,
   getPremadeItems,
-  _allItemsCache
 } from './entities.js';
 
-
-
+let _allItemsCache = {}; // Local cache for lists
 
 const TEST_MODE = (() => {
   if (globalThis.__TEST__) {
@@ -144,24 +143,31 @@ export function resetStoryboard() {
 }
 
 
-
-export function getAllItems(key, refresh = false) {
+/**
+ * Gets all items, merging premade and custom.
+ * Uses entities.list() for async db operations for characters/worlds.
+ * Falls back to localStorage for 'stories'.
+ */
+export async function getAllItems(key, refresh = false) { // <-- MADE ASYNC
   if (!refresh && Array.isArray(_allItemsCache[key]))
     return [..._allItemsCache[key]];
 
+  const type = key.replace(/s$/, ""); // 'characters' -> 'character'
+
   if (
-    (key === "characters" || key === "worlds") &&
+    (type === "character" || type === "world") &&
     entities &&
     typeof entities.list === "function"
   ) {
     if (refresh) {
       delete _allItemsCache[key];
     }
-    const items = entities.list(key.slice(0, -1));
+    const items = await entities.list(type); // <-- AWAITED
     _allItemsCache[key] = items;
     return items;
   }
 
+  // Fallback for 'stories' or other non-entity types
   const premadeItems = getPremadeItems(key).map((item) => ({
     ...item,
     isPremade: true,
@@ -175,7 +181,7 @@ export function getAllItems(key, refresh = false) {
   return data;
 }
 
-function renderList(containerId, key) {
+async function renderList(containerId, key) { // <-- MADE ASYNC
   const container = document.querySelector(`#${containerId}`);
   if (!container) return;
 
@@ -186,7 +192,7 @@ function renderList(containerId, key) {
     });
 
   container.textContent = "";
-  const all = getAllItems(key);
+  const all = await getAllItems(key); // <-- AWAITED
   const frag = document.createDocumentFragment();
 
   if (all.length === 0) {
@@ -307,7 +313,7 @@ function renderList(containerId, key) {
   container.appendChild(frag);
 }
 
-export function renderDropdown(selectId, key) {
+export async function renderDropdown(selectId, key) { // <-- MADE ASYNC
   const select = document.querySelector(`#${selectId}`);
   if (!select) return;
   const existingPlaceholder = select.querySelector('option[value=""]');
@@ -322,7 +328,7 @@ export function renderDropdown(selectId, key) {
   placeholder.textContent = placeholderText;
   select.textContent = "";
   select.appendChild(placeholder);
-  const items = getAllItems(key);
+  const items = await getAllItems(key); // <-- AWAITED
   const premadeGroup = document.createElement("optgroup");
   premadeGroup.label = "Premade";
   const customGroup = document.createElement("optgroup");
@@ -345,23 +351,23 @@ export function renderDropdown(selectId, key) {
   if (customCount > 0) select.appendChild(customGroup);
 }
 
-export function renderStoryList() {
-  renderList("chin-story-grid", "stories");
+export async function renderStoryList() { // <-- MADE ASYNC
+  await renderList("chin-story-grid", "stories"); // <-- AWAITED
 }
 
-export function renderCharacterList() {
-  renderList("chin-character-grid", "characters");
+export async function renderCharacterList() { // <-- MADE ASYNC
+  await renderList("chin-character-grid", "characters"); // <-- AWAITED
 }
 
-export function renderWorldList() {
-  renderList("chin-world-grid", "worlds");
+export async function renderWorldList() { // <-- MADE ASYNC
+  await renderList("chin-world-grid", "worlds"); // <-- AWAITED
 }
 
-export function refreshAllLists() {
-  DATA_KEYS.forEach((key) => getAllItems(key, true));
-  renderStoryList?.();
-  renderCharacterList?.();
-  renderWorldList?.();
+export async function refreshAllLists() { // <-- MADE ASYNC
+  await Promise.all(DATA_KEYS.map((key) => getAllItems(key, true))); // <-- AWAITED
+  await renderStoryList?.(); // <-- AWAITED
+  await renderCharacterList?.(); // <-- AWAITED
+  await renderWorldList?.(); // <-- AWAITED
 }
 
 export function _attachCardNavigation() {
@@ -555,7 +561,7 @@ export function _attachCardNavigation() {
   _cardNavAttached = true;
 }
 
-function updateStoryboardCard(target, entityOrKey, opts = {}) {
+async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MADE ASYNC
   let card, entity;
 
   if (target && target.tagName === "SELECT") {
@@ -567,14 +573,11 @@ function updateStoryboardCard(target, entityOrKey, opts = {}) {
       select.dataset.type ||
       "";
     const id = select.value || "";
-    const key = entityOrKey;
+    // const key = entityOrKey; // No longer needed
 
     if (id) {
-      const list =
-        typeof entities.list === "function" ?
-        entities.list(type || (key ? key.replace(/s$/, "") : "")) :
-        [];
-      entity = list.find((e) => String(e.id) === String(id)) || null;
+      // Get the single entity asynchronously
+      entity = await entities.get(type, id); // <-- AWAITED
     } else {
       entity = null;
     }
@@ -728,20 +731,26 @@ function randPrompt() {
   return titlePrompts[Math.floor(Math.random() * titlePrompts.length)];
 }
 
-export function _defaultStoryboardTitle() {
-  const getTitle = (id, key) => {
+// THIS FUNCTION IS NOW ASYNC
+export async function _defaultStoryboardTitle() { // <-- MADE ASYNC
+  const getTitle = async (id, key) => { // <-- MADE ASYNC
     const select = document.querySelector(`#${id}`);
     const value = select ? select.value : "";
     if (!value) return null;
-    const items = (window.App && window.App.getAllItems) ? window.App.getAllItems(key) : getAllItems(key);
+    // Use the async getAllItems instead of synchronous access
+    const items = await getAllItems(key); // <-- AWAITED
     const item = items.find(
       (i) => (i.id ?? i.title) === value
     );
     return item ? item.title || null : null;
   };
-  const ai = getTitle("storyboard-ai-select", "characters");
-  const user = getTitle("storyboard-user-select", "characters");
-  const world = getTitle("storyboard-world-select", "worlds");
+  // Await all title parts in parallel
+  const [ai, user, world] = await Promise.all([ // <-- AWAITED
+    getTitle("storyboard-ai-select", "characters"),
+    getTitle("storyboard-user-select", "characters"),
+    getTitle("storyboard-world-select", "worlds")
+  ]);
+
   const subjects = [ai, user].filter(Boolean).join(" & ");
 
   let title;
@@ -758,13 +767,15 @@ export function _defaultStoryboardTitle() {
   return title.length > 80 ? `${title.slice(0, 77)}…` : title;
 }
 
-function setDynamicTitle(title, {
+// THIS FUNCTION IS NOW ASYNC
+async function setDynamicTitle(title, { // <-- MADE ASYNC
   manual = false
 } = {}) {
   const el = document.querySelector("#storyboard-dynamic-title");
   if (!el) return;
   if (!el.dataset.manual || el.dataset.manual === "false" || manual) {
-    el.textContent = title || _defaultStoryboardTitle?.() || "";
+    // Await the default title if no title is provided
+    el.textContent = title || (await _defaultStoryboardTitle?.()) || ""; // <-- AWAITED
     el.dataset.manual = manual ? "true" : "false";
   }
 }
@@ -815,7 +826,7 @@ function _setupStoryboardTitle() {
   });
 }
 
-function populateStoryboardSelects() {
+async function populateStoryboardSelects() { // <-- MADE ASYNC
   const configs = [{
     id: "storyboard-ai-select",
     key: "characters"
@@ -826,25 +837,22 @@ function populateStoryboardSelects() {
     id: "storyboard-world-select",
     key: "worlds"
   }, ];
-  configs.forEach(({
-    id,
-    key
-  }) => {
-    renderDropdown(id, key); // Use the existing renderDropdown function
+  
+  // Run in parallel
+  await Promise.all(configs.map(async ({ id, key }) => { // <-- AWAITED
+    await renderDropdown(id, key); // Use the existing async renderDropdown
     const select = document.querySelector(`#${id}`);
     if (select) {
       select.addEventListener("change", onStoryboardChange);
-      onStoryboardChange({
-        target: select
-      });
+      await onStoryboardChange({ target: select }); // <-- AWAITED
     }
-  });
+  }));
 }
 
-function onStoryboardChange(e) {
+async function onStoryboardChange(e) { // <-- MADE ASYNC
   const select = e.target;
-  updateStoryboardCard(select);
-  setDynamicTitle?.();
+  await updateStoryboardCard(select); // <-- AWAITED
+  await setDynamicTitle?.(); // <-- AWAITED
   if (typeof _suppressNextBlur !== "undefined") {
     _suppressNextBlur = false;
   }
@@ -854,10 +862,8 @@ function onStoryboardChange(e) {
     const left = card?.querySelector(".storyboard-card-left");
     const type = card?.dataset?.type || "";
     const id = select.value || "";
-    if (type && id && typeof entities.list === "function") {
-      const entity = entities
-        .list(type)
-        .find((e) => String(e.id) === String(id));
+    if (type && id && typeof entities.get === "function") {
+      const entity = await entities.get(type, id); // <-- AWAITED
       if (entity) {
         applyBrand?.(left, entity);
         (function applyCardBrandShim() {
@@ -872,22 +878,22 @@ function onStoryboardChange(e) {
   }
 }
 
-export function _attachStoryboardListeners() {
-  populateStoryboardSelects();
+export async function _attachStoryboardListeners() { // <-- MADE ASYNC
+  await populateStoryboardSelects(); // <-- AWAITED
   _setupStoryboardTitle();
   const title = document.querySelector("#storyboard-dynamic-title");
   if (title) {
     title.addEventListener("input", () => {
       title.dataset.manual = "true";
     });
-    title.addEventListener("dblclick", () => {
+    title.addEventListener("dblclick", async () => { // <-- async
       title.dataset.manual = "false";
-      setDynamicTitle();
+      await setDynamicTitle(); // <-- await
     });
   }
   const shuffleBtn = document.querySelector("#shuffle-btn");
   if (shuffleBtn) {
-    shuffleBtn.addEventListener("click", () => {
+    shuffleBtn.addEventListener("click", async () => { // <-- async
       [
         "storyboard-ai-select",
         "storyboard-user-select",
@@ -902,7 +908,7 @@ export function _attachStoryboardListeners() {
           bubbles: true
         }));
       });
-      setDynamicTitle?.();
+      await setDynamicTitle?.(); // <-- await
     });
   }
   const aiSelect = document.querySelector("#storyboard-ai-select");
@@ -923,44 +929,46 @@ export function _attachStoryboardListeners() {
       }
     });
   }
-  document.querySelectorAll(".storyboard-card").forEach((card) => {
+
+  // Use for...of loop to handle async await inside
+  const cards = document.querySelectorAll(".storyboard-card");
+  for (const card of cards) { // <-- FOR...OF
     const type = card.dataset.entityType;
     const id = card.dataset.entityId || "";
-    const entity = entities.get?.(type, id);
+    const entity = await entities.get?.(type, id); // <-- AWAITED
     updateStoryboardCard(card, entity);
-  });
+  }
 }
 
 export function _attachOptionChinActions() {
   if (_optionsListenersAttached) return;
   const ui = _getUIElements();
   const {
-    uploadBackupTrigger,
     uploadBackupInput,
     downloadBackupButton,
     deleteAllDataButton,
   } = ui;
 
-  if (uploadBackupTrigger && uploadBackupInput) {
-    uploadBackupTrigger.addEventListener("click", () =>
-      uploadBackupInput.click()
-    );
+  // This trigger is now handled by the importAllData function
+  // if (uploadBackupTrigger && uploadBackupInput) { ... }
+
+  if (uploadBackupInput) {
     uploadBackupInput.addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
-      if (file && typeof window.App.importAllData === "function")
-        window.App.importAllData(file);
+      if (file && typeof importAllData === "function")
+        importAllData(file);
     });
   }
 
   if (downloadBackupButton) {
     downloadBackupButton.addEventListener("click", () => {
-      if (typeof window.App.exportAllData === "function") window.App.exportAllData();
+      if (typeof exportAllData === "function") exportAllData();
     });
   }
 
   if (deleteAllDataButton) {
     deleteAllDataButton.addEventListener("click", () => {
-      if (typeof window.App.deleteAllData === "function") window.App.deleteAllData();
+      if (typeof deleteAllData === "function") deleteAllData();
     });
   }
 
@@ -1009,20 +1017,29 @@ export function _attachContentChinActions() {
 
     if (uploadTrigger && uploadInput) {
       uploadTrigger.addEventListener("click", () => uploadInput.click());
-      uploadInput.addEventListener("change", (e) => {
+      uploadInput.addEventListener("change", async (e) => { // <-- MADE ASYNC
         const file = e.target.files && e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = (ev) => {
+        reader.onload = async (ev) => { // <-- MADE ASYNC
           try {
             const data = JSON.parse(ev.target.result);
             if (!Array.isArray(data)) return;
-            const current = loadStoredItems(key);
-            localStorage.setItem(
-              key,
-              JSON.stringify(current.concat(data))
-            );
-            refreshAllLists();
+
+            const type = key.replace(/s$/, "");
+            if (type === 'character' || type === 'world') {
+              // Import into Dexie
+              const validData = data.filter(item => item.name && item.type === type);
+              await db.entities.bulkPut(validData.map(item => ({...item, isCustom: true, isPremade: false})));
+            } else {
+              // Fallback to localStorage for 'stories'
+              const current = loadStoredItems(key);
+              localStorage.setItem(
+                key,
+                JSON.stringify(current.concat(data))
+              );
+            }
+            await refreshAllLists(); // <-- AWAITED
           } catch (err) {
             console.error("Failed to import", err);
           }
@@ -1072,6 +1089,10 @@ export function _attachChatFormListener() {
 
 export async function initializeWhenReady() {
   try {
+    // Initialize database first
+    await initDB(); // <-- ADDED
+    console.log('[RPGlitch] Database initialized.'); // <-- ADDED
+
     console.log('[RPGlitch] initializeWhenReady start', {
       retry: window.initializeWhenReadyRetryCount || 0
     });
@@ -1085,8 +1106,8 @@ export async function initializeWhenReady() {
     _attachContentChinActions?.();
     _attachCardNavigation?.();
     _attachChinSearchHandlers();
-    refreshAllLists?.();
-    _attachStoryboardListeners?.();
+    await refreshAllLists?.(); // <-- AWAITED
+    await _attachStoryboardListeners?.(); // <-- AWAITED
     try {
       dismissLoadingUI?.();
     } catch {
@@ -1170,18 +1191,25 @@ export async function initializeWhenReady() {
   }
 }
 
-export function importAllData(file) {
+export async function importAllData(file) { // <-- MADE ASYNC
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = async (e) => { // <-- MADE ASYNC
     try {
       const data = JSON.parse(e.target.result);
-      DATA_KEYS.forEach((key) => {
-        if (Array.isArray(data[key])) {
-          localStorage.setItem(key, JSON.stringify(data[key]));
-        }
-      });
-      refreshAllLists();
+      
+      // Handle entities (characters, worlds)
+      const entitiesToImport = (data.characters || []).concat(data.worlds || []);
+      if (entitiesToImport.length > 0) {
+        await db.entities.bulkPut(entitiesToImport);
+      }
+      
+      // Handle stories (still localStorage)
+      if (Array.isArray(data.stories)) {
+        localStorage.setItem('stories', JSON.stringify(data.stories));
+      }
+      
+      await refreshAllLists(); // <-- AWAITED
     } catch (err) {
       console.error("Failed to import backup", err);
     } finally {
@@ -1192,16 +1220,21 @@ export function importAllData(file) {
   reader.readAsText(file);
 }
 
-export function exportAllData() {
+export async function exportAllData() { // <-- MADE ASYNT
   const data = {};
-  DATA_KEYS.forEach((key) => {
-    try {
-      const value = localStorage.getItem(key);
-      data[key] = value ? JSON.parse(value) : [];
-    } catch {
-      data[key] = [];
-    }
-  });
+  
+  // Get entities from Dexie
+  data.characters = await db.entities.where('type').equals('character').toArray();
+  data.worlds = await db.entities.where('type').equals('world').toArray();
+
+  // Get stories from localStorage
+  try {
+    const value = localStorage.getItem('stories');
+    data.stories = value ? JSON.parse(value) : [];
+  } catch {
+    data.stories = [];
+  }
+
   const blob = new Blob([JSON.stringify(data)], {
     type: "application/json"
   });
@@ -1215,11 +1248,13 @@ export function exportAllData() {
   URL.revokeObjectURL(url);
 }
 
-export function deleteAllData() {
-  DATA_KEYS.forEach((key) => {
-    localStorage.removeItem(key);
-  });
-  refreshAllLists();
+export async function deleteAllData() { // <-- MADE ASYNC
+  // Delete from Dexie
+  await db.entities.clear();
+  // Delete stories from localStorage
+  localStorage.removeItem('stories');
+  
+  await refreshAllLists(); // <-- AWAITED
 }
 
 try {
@@ -1251,9 +1286,9 @@ try {
 document.addEventListener(
   "DOMContentLoaded",
   () => {
-    initializeWhenReady();
+    // This is now redundant with the _bootBound logic, but safe.
+    // We'll rely on the _bootBound logic.
   }, {
     once: true
   }
 );
-

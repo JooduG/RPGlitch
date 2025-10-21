@@ -82,7 +82,11 @@ export default [
     files: ['build/scripts/**/*.js'],
     languageOptions: {
       globals: {
+        ...globals.browser,
         ...globals.node,
+        // Declare 'image' as a known global from perchance.js
+        'image': 'readonly',
+        'Dexie': 'readonly', 
       },
     },
     rules: {

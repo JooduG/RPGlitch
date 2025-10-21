@@ -37,7 +37,7 @@ function createField(id, labelText, inputEl) {
   return field;
 }
 
-export function renderForm(type, id) {
+export async function renderForm(type, id) { // <-- MADE ASYNC
   const cancelBtn = document.querySelector("#form-cancel");
   if (cancelBtn) {
     cancelBtn.addEventListener("click", (e) => {
@@ -52,8 +52,11 @@ export function renderForm(type, id) {
   const isEdit = id && id !== "new";
   const params = getHashQuery();
   const from = params.get("from");
-  const template = !isEdit && from ? entities.copy(type, from) : null;
-  const existing = isEdit ? entities.get(type, id) : template;
+  
+  // v-- AWAITED ASYNC FUNCTIONS --v
+  const template = !isEdit && from ? await entities.copy(type, from) : null;
+  const existing = isEdit ? await entities.get(type, id) : template;
+  // ^-- END AWAITED --^
 
   const screenId =
     type === "character" ? "character-form-screen" : "world-form-screen";
@@ -141,16 +144,16 @@ export function renderForm(type, id) {
 
   if (deleteBtn) {
     deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
-    deleteBtn.addEventListener("click", () => {
+    deleteBtn.addEventListener("click", async () => { // <-- MADE ASYNC
       if (isEdit && confirm("Delete this item?")) {
-        entities.remove(type, entity.id);
-        refreshAllLists?.();
+        await entities.remove(type, entity.id); // <-- AWAITED
+        await refreshAllLists?.(); // <-- AWAITED
         router.navigate("#storyboard");
       }
     });
   }
 
-  saveBtn?.addEventListener("click", () => {
+  saveBtn?.addEventListener("click", async () => { // <-- MADE ASYNC
     const data = {
       kind: type,
       name: sanitizeStr(titleInput.value.trim()),
@@ -169,7 +172,7 @@ export function renderForm(type, id) {
       },
     };
     if (!data.name) return;
-    const saved = entities.upsert(
+    const saved = await entities.upsert( // <-- AWAITED
       type,
       id === "new" ? data : { ...data,
         id

@@ -8,14 +8,13 @@ import {
   applyBrand,
   setProfileLayoutSizing,
   debounce,
-  goBackWithFallback
+  goBackWithFallback,
+  copyEntity // Import the async version
 } from './utils.js';
 import {
   router
 } from './profile-router.js';
-import {
-  copyEntity
-} from './utils.js';
+// Removed redundant copyEntity import
 
 function renderTags(container, tags) {
   if (!tags || !tags.length) return;
@@ -49,15 +48,19 @@ function buildHero(entity) {
 }
 
 let profileResizeBound = false;
-export function renderProfile(type, id) {
+export async function renderProfile(type, id) { // <-- Made this function async
   const sb = document.querySelector("#storyboard-screen");
   if (sb) hideEl(sb);
 
-  const entity = entities.get(type, id);
+  // v-- This is the key change: we await the database call --v
+  const entity = await entities.get(type, id); 
+  
   if (!entity) {
+    console.warn(`Entity not found for profile: ${type}/${id}. Redirecting.`);
     router.navigate("#");
     return;
   }
+  // ^-- From here down, the code is the same because `entity` is now populated --^
 
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
@@ -145,7 +148,21 @@ export function renderProfile(type, id) {
   const editBtn = document.querySelector("#profile-edit");
   const copyBtn = document.querySelector("#profile-copy");
 
-  copyBtn?.addEventListener("click", () => copyEntity?.(type, id));
+  // v-- This click listener is now async to handle the async copyEntity --v
+  copyBtn?.addEventListener("click", async () => {
+    const newEntity = await copyEntity?.(type, id);
+    if (newEntity && newEntity.id) {
+      // After copying, let's navigate to the edit form for the new copy
+      router.navigate(
+        `#form/${type}/${newEntity.id}?return=#profile/${type}/${newEntity.id}`
+      );
+    } else {
+      console.error("Copy operation failed or returned no entity.");
+      // TODO: Show a user-facing error toast/modal
+    }
+  });
+  // ^-- End of changed block --^
+  
   if (copyBtn) copyBtn.hidden = !entity.isPremade;
   if (editBtn) editBtn.hidden = entity.isPremade;
   if (backBtn) backBtn.addEventListener("click", () => goBackWithFallback("#storyboard", "#storyboard", router));

@@ -1,5 +1,7 @@
 /* global DOMPurify */
+import { db } from './db.js'; // <-- Import our new database
 
+// --- PREMADE CONTENT (Unchanged) ---
 const premade = {
   stories: [],
   characters: [{
@@ -90,7 +92,7 @@ const storeMap = {
 };
 const STORAGE_VERSION = 1;
 
-// --- NEW: safe string sanitize (no-op if DOMPurify missing) ---
+// --- UTILITY FUNCTIONS (Unchanged) ---
 function sanitizeStr(s) {
   const v = typeof s === "string" ? s : String(s ?? "");
   try {
@@ -149,7 +151,8 @@ export function getPictureHTML(entity = {}, options = {}) {
     neutralPlaceholder = false
   } = options;
   const title = entity.title || entity.name || "Empty";
-  const kind = entity.kind || "default";
+  // Ensure 'kind' is derived correctly, defaulting to 'default'
+  const kind = (entity.kind || entity.type || 'default').toLowerCase();
   const src =
     typeof entity.imageUrl === "string" && entity.imageUrl.trim() ?
     entity.imageUrl.trim() :
@@ -188,21 +191,8 @@ export function getPictureHTML(entity = {}, options = {}) {
   return wrap;
 }
 
-function read(type) {
-  const key = storeMap[type];
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function write(type, items) {
-  const key = storeMap[type];
-  localStorage.setItem(key, JSON.stringify(items));
-}
-
+// --- NEW: Data Normalization (pulled from old 'normalize') ---
+// This prepares data to be saved to the database.
 function normalize(base = {}) {
   const nameOrTitle = sanitizeStr(base.name || base.title || "").trim();
   const summaryOrDesc = sanitizeStr(
@@ -239,96 +229,146 @@ function normalize(base = {}) {
   };
 }
 
-function merge(type, custom) {
-  const key = storeMap[type];
-  const premade = (getPremadeItems ? getPremadeItems(key) : []).map(
-    (e) => ({
-      ...e,
-      kind: type,
-      isPremade: true,
-      isCustom: false,
-      version: STORAGE_VERSION,
-      ...normalize(e),
-    })
-  );
-  const normal = custom.map((e) => ({
-    ...e,
-    kind: type,
-    isPremade: false,
-    isCustom: true,
+// --- NEW: Format Premade Entities ---
+// This makes premade items look like items from the database.
+function formatPremade(entity, type) {
+  return {
+    ...entity,
+    kind: type, // Ensure 'kind' is set (was missing)
+    type: type, // Ensure 'type' is set
+    isPremade: true,
+    isCustom: false,
     version: STORAGE_VERSION,
-    ...normalize(e),
-  }));
-  return premade.concat(normal);
+    ...normalize(entity), // Ensure premades are also normalized
+    updated: 0, // Give a fake timestamp
+  };
 }
 
-export const _allItemsCache = {};
 
-function _writeAndCache(type, items) {
-  write(type, items);
-  const key = storeMap[type];
-  _allItemsCache[key] = merge(type, items);
-}
+// --- REWRITTEN: Entity CRUD Functions (now async) ---
+
+// We no longer need _allItemsCache, read(), write(), or _writeAndCache()
+// Dexie handles all caching and storage.
 
 export const entities = {
-  list(type) {
+  /**
+   * Lists all entities of a given type, merging premade and custom.
+   * @param {string} type - 'character' or 'world'
+   * @returns {Promise<Array>} A promise that resolves to the merged list.
+   */
+  async list(type) {
+    const key = storeMap[type]; // 'characters' or 'worlds'
+    if (!key) return [];
+
+    // 1. Get premade items and format them
+    const premadeList = (getPremadeItems(key) || []).map(e => formatPremade(e, type));
+    
+    // 2. Get custom items from the database
+    const customList = await db.entities.where('type').equals(type).toArray();
+
+    // 3. Merge and sort
+    // We filter out any premade IDs that might be in the custom list (if we ever saved them)
+    // This isn't strictly necessary with Dexie, but good practice.
+    const premadeIds = new Set(premadeList.map(p => p.id));
+    const filteredCustom = customList.filter(c => !premadeIds.has(c.id));
+    
+    const allItems = premadeList.concat(filteredCustom);
+    
+    // Sort by name
+    return allItems.sort((a, b) => a.name.localeCompare(b.name));
+  },
+
+  /**
+   * Gets a single entity by its ID.
+   * @param {string} type - 'character' or 'world'
+   * @param {string} id - The ID of the entity.
+   * @returns {Promise<Object|null>} A promise resolving to the entity or null.
+   */
+  async get(type, id) {
+    // 1. Check premade items first
     const key = storeMap[type];
-    if (key in _allItemsCache && Array.isArray(_allItemsCache[key]))
-      return _allItemsCache[key];
-    const data = merge(type, read(type));
-    if (key in _allItemsCache) _allItemsCache[key] = data;
-    return data;
+    const premadeItem = (getPremadeItems(key) || []).find((e) => e.id === id);
+    if (premadeItem) {
+      return formatPremade(premadeItem, type);
+    }
+    
+    // 2. If not premade, get from the database
+    const item = await db.entities.get(id);
+    
+    // 3. Ensure it's the correct type before returning
+    return (item && item.type === type) ? item : null;
   },
-  get(type, id) {
-    return this.list(type).find((e) => e.id === id) || null;
-  },
-  upsert(type, entity) {
-    const items = read(type);
-    const id =
-      entity.id || crypto?.randomUUID?.() || `${type}-${Date.now()}`;
-    const idx = items.findIndex((e) => e.id === id);
-    const base = idx >= 0 ? items[idx] : {};
+
+  /**
+   * Creates or updates an entity in the database.
+   * @param {string} type - 'character' or 'world'
+   * @param {Object} entity - The entity data to save.
+   * @returns {Promise<Object>} A promise resolving to the saved entity.
+   */
+  async upsert(type, entity) {
+    const id = entity.id || crypto?.randomUUID?.() || `${type}-${Date.now()}`;
+    
+    // Get the existing item (if it exists) to merge with
+    const base = await db.entities.get(id) || {};
+    
     const saved = {
-      id,
-      kind: type,
+      ...base,
+      ...normalize({ ...base, ...entity }), // Merge and normalize
+      id: id,
+      type: type, // Ensure 'type' is set (was 'kind' before)
+      kind: type, // Keep 'kind' for compatibility
       isCustom: true,
       isPremade: false,
       version: STORAGE_VERSION,
-      ...base,
-      ...normalize({ ...base,
-        ...entity
-      }),
+      updated: Date.now(), // Set the updated timestamp
     };
-    if (idx >= 0) items[idx] = saved;
-    else items.push(saved);
-    _writeAndCache(type, items);
+    
+    // Dexie's 'put' is a perfect "upsert" command
+    await db.entities.put(saved);
     return saved;
   },
-  update(type, id, entity) {
-    const items = read(type);
-    const idx = items.findIndex((e) => e.id === id);
-    if (idx < 0) return null;
-    const base = items[idx];
-    const saved = {
-      ...base,
-      ...normalize({ ...base,
-        ...entity
-      }),
-    };
-    items[idx] = saved;
-    _writeAndCache(type, items);
-    return saved;
+
+  /**
+   * Updates an existing entity. (This is now just an alias for upsert).
+   * @param {string} type - 'character' or 'world'
+   * @param {string} id - The ID of the entity to update.
+   * @param {Object} entity - The new data.
+   * @returns {Promise<Object>} A promise resolving to the updated entity.
+   */
+  async update(type, id, entity) {
+    // With Dexie, update is the same as upsert, but we ensure the ID is set.
+    return this.upsert(type, { ...entity, id: id });
   },
-  remove(type, id) {
-    const remaining = read(type).filter((e) => e.id !== id);
-    _writeAndCache(type, remaining);
+
+  /**
+   * Removes an entity from the database.
+   * @param {string} type - 'character' or 'world'
+   * @param {string} id - The ID of the entity to remove.
+   * @returns {Promise<void>}
+   */
+  async remove(type, id) {
+    // We only remove custom items. We can't remove premade items.
+    // Dexie's delete won't fail if the ID doesn't exist.
+    const item = await db.entities.get(id);
+    if (item && item.type === type && item.isCustom) {
+      return db.entities.delete(id);
+    }
   },
-  copy(type, id) {
-    const item = this.get(type, id);
+
+  /**
+   * Creates a deep copy of an entity, ready for editing.
+   * @param {string} type - 'character' or 'world'
+   * @param {string} id - The ID of the entity to copy.
+   * @returns {Promise<Object|null>} A promise resolving to the copy or null.
+   */
+  async copy(type, id) {
+    const item = await this.get(type, id);
     if (!item) return null;
-    return { ...item,
-      sections: { ...item.sections
-      }
+    
+    // Return a deep copy
+    return { 
+      ...item,
+      sections: { ...item.sections }
     };
   },
 };

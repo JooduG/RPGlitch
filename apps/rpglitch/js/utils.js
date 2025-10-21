@@ -20,26 +20,43 @@ export function generateUUID() {
   });
 }
 
-export function copyEntity(type, id) {
+/**
+ * Creates an async copy of an entity.
+ * @param {string} type - 'character' or 'world'
+ * @param {string} id - The ID of the entity to copy.
+ * @returns {Promise<Object|null>} A promise resolving to the new entity or null.
+ */
+export async function copyEntity(type, id) {
   console.log(`Attempting to copy entity of type ${type} with id ${id}`);
-  const entityToCopy = entities.get(type, id);
+  
+  // 1. Get the entity asynchronously
+  const entityToCopy = await entities.get(type, id);
   if (!entityToCopy) {
     console.error(`Entity with type ${type} and id ${id} not found.`);
     return null;
   }
 
-  const newEntity = { ...entityToCopy
+  // 2. Create the new entity object
+  const newEntity = { 
+    ...entityToCopy,
+    sections: { ...entityToCopy.sections } // Deep copy sections
   };
-  newEntity.id = generateUUID();
+  
+  // 3. Remove ID (so upsert creates a new one) and mark as custom
+  delete newEntity.id; 
   newEntity.isPremade = false;
+  newEntity.name = `${newEntity.name || 'Untitled'} (Copy)`;
+  newEntity.title = newEntity.name;
 
-  const key = `${type}s`;
-  const storedItems = safeLocalStorageGet(key);
-  storedItems.push(newEntity);
-  localStorage.setItem(key, JSON.stringify(storedItems));
-
-  console.log(`Copied entity:`, newEntity);
-  return newEntity;
+  // 4. Save the new entity to the database
+  try {
+    const saved = await entities.upsert(type, newEntity);
+    console.log(`Copied entity:`, saved);
+    return saved;
+  } catch (err) {
+    console.error(`Failed to save copied entity:`, err);
+    return null;
+  }
 }
 
 export function sanitizeStr(str) {
@@ -74,24 +91,7 @@ export function setDebug(on) {
 }
 
 // ---------- Safe JSON & Storage ----------
-export function safeJSONParse(str, fallback = null) {
-  try {
-    return JSON.parse(str);
-  } catch (e) {
-    console.warn("⚠️ Failed to parse JSON:", e.message);
-    return fallback;
-  }
-}
-
-export function safeLocalStorageGet(key, fallback = []) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? safeJSONParse(raw, fallback) : fallback;
-  } catch (e) {
-    console.warn(`⚠️ Storage error for key "${key}"`, e.message);
-    return fallback;
-  }
-}
+// safeJSONParse and safeLocalStorageGet have been removed as they are no longer used.
 
 // ---------- Debounce ----------
 export function debounce(fn, wait = 250) {
