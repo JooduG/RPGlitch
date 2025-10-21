@@ -10,18 +10,10 @@ It serves as the project's flagship Perchance application and the primary refere
 
 This application follows the standard Perchance development lifecycle, transforming a rich set of source files into a single, deployable artifact.
 
-* Left Panel (Logic):  
-  apps/rpglitch/RPGlitch-left-panel.txt  
-* Right Panel (UI Source):  
-  apps/rpglitch/html/index.html  
-* Final Output (UI Compiled):  
-  build/output/RPGlitch.html  
-* **Build Command:**  
-
-´´´
-  npm run build:rpglitch
-´´´
-
+* Left Panel (Logic): apps/rpglitch/RPGlitch-left-panel.txt  
+* Right Panel (UI Source): apps/rpglitch/html/index.html  
+* Final Output (UI Compiled): build/output/RPGlitch.html  
+* **Build Command:** npm run build:rpglitch
 * **Deployment:** The content of the **Final Output** is pasted into the **right panel** of the Perchance editor. The content of the **Left Panel** file is pasted into the **left panel**.
 
 ## **🔗 Governing Protocols**
