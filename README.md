@@ -62,11 +62,11 @@ This section provides a guide to the development process, from building and test
 
 - `npm run build`: Builds RPGlitch into a single inlined HTML.
 - `npm run deploy`: Syncs, runs tests, lints (fix), builds, and copies artifacts.
-- `npm run deploy:loose`: Same as deploy but continues on non‑critical failures.
+- `npm run deploy:loose`: Same as deploy but continues on non-critical failures.
 - `npm run sync`: Sync shared libs/configs/docs.
-- `npm run lint` / `npm run lint:fix`: Lint JS, CSS, Markdown (auto‑fix where possible).
+- `npm run lint` / `npm run lint:fix`: Lint JS, CSS, Markdown (auto-fix where possible).
 - `npm test`: Run Jest test suite (jsdom environment).
-- `npm run validate`: Sanity‑check that `build/output/RPGlitch.html` exists and is non‑empty.
+- `npm run validate`: Sanity-check that `build/output/RPGlitch.html` exists and is non-empty.
 
 ### **Coding Style & Naming Conventions**
 
