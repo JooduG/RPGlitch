@@ -140,7 +140,7 @@ async function build(appName) {
               document.body.appendChild(appScript);
             `;
             const loaderScriptTag = document.createElement('script');
-            loaderScriptTag.textContent = loaderScriptContent.trim().replace(/\s*\n\s*/g, '');
+            loaderScriptTag.textContent = loaderScriptContent.trim();
             document.body.appendChild(loaderScriptTag);
 
         } else {
