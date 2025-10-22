@@ -810,7 +810,6 @@ function getPanels() {
 }
 
 function sync() {
-  console.log(document.body.innerHTML);
   const buttons = getButtons();
   const panels = getPanels();
   let anyOpen = false;
@@ -827,7 +826,6 @@ function sync() {
     }
     if (selected) anyOpen = true;
   });
-  console.log('anyOpen:', anyOpen);
   const cont = document.querySelector("#chin-container");
   if (cont && cont.style) {
     cont.style.pointerEvents = anyOpen ? 'auto' : 'none';
@@ -843,10 +841,7 @@ function sync() {
     }
   }
   if (anyOpen) {
-    console.log('Before removeAttribute:', document.body.innerHTML);
     cont?.removeAttribute("hidden");
-    console.log('After removeAttribute:', document.body.innerHTML);
-    console.log('chinContainer hidden after removeAttribute:', cont?.hasAttribute('hidden'));
     cont?.setAttribute("aria-hidden", "false");
     document.body.classList.add("chin-open");
   } else {
