@@ -86,7 +86,7 @@ This section provides a guide to the development process, from building and test
 Our design philosophy is built on a foundation of minimalism, clarity, and robustness.
 
 * **Clarity Over Cleverness:** The user should never have to guess. Functionality must be explicit and unambiguous.
-* **Minimalism with Purpose:** Every visual element must serve a a purpose. We remove the unnecessary to give power to the essential.
+* **Minimalism with Purpose:** Every visual element must serve a purpose. We remove the unnecessary to give power to the essential.
 * **Consistency is Queen:** Similar elements must look and behave similarly across all applications. This builds trust and reduces cognitive load.
 * **Accessibility by Design:** Our interfaces must be usable and accessible to everyone. This is a non-negotiable baseline.
 
