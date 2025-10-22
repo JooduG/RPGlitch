@@ -1,31 +1,48 @@
-# **📁 Default Monorepo**
+# **📁 AI-Assisted Monorepo**
 
 ## **🎯 Purpose**
 
-This monorepo contains a complete, AI-assisted ecosystem for developing and maintaining web applications. It is built on an **AI-first design philosophy**, meaning its structure, rules, and documentation are all optimized to facilitate effective, autonomous operation by AI agents, guided by human oversight.
+This monorepo contains a complete, AI-assisted ecosystem for developing and maintaining web applications. Its structure and documentation are **optimized for AI agent operation and human oversight**, facilitating a collaborative development environment.
 
-This repository doesn't just hold code; it holds the entire operational consciousness for its AI partners.
+## **🤖 Note to AI Agents**
 
-## **📜 The Sacred Texts (Governing Protocols)**
+All operational instructions, protocols, coding standards, and workflows are defined in the master protocol document:
 
-All activities within this repository are governed by a central, unified protocol system. Before undertaking any task, you must begin with these two documents.
+➡️ **[AGENTS.md](./AGENTS.md)** ⬅️
 
-* **The Master Protocol:** [AGENTS.md](./AGENTS.md)  
-  This is the AI's core identity. It defines the operational modes, the cognitive framework (how to think), the standard operating procedures (how to act), and the non-negotiable rules of the project. It is the ultimate source of truth.  
-* **The AI's GPS:** [/rules/README.md](./rules/README.md)  
-  This is the dynamic routing table. It provides the active, conditional logic that tells an agent which specific rule files it must load from the /rules directory for any given task.
+This is your single source of truth. You must read and adhere to it before taking any action.
 
-## **🗺️ The Grand Tour (Repository Navigation)**
+## **🗺️ Repository Navigation**
 
-This monorepo is organized into several distinct districts, each with a specific purpose.
+This monorepo is organized into several distinct directories. Below is a guide to the purpose, key files, and common tasks for each.
 
-| Directory | The Vibe Check (Purpose) |
-| :---- | :---- |
-| **[/apps](./apps/README.md)** | **The Stage:** Contains the user-facing Perchance applications (RPGlitch, ImageGlitch). |
-| [**/build**](./build/README.md) | **The Factory:** All scripts, configs, and libraries for building, testing, and packaging the apps. |
-| [**/docs**](./docs/README.md) | **The Human's Library:** High-level guides, architectural diagrams, and project philosophy for human developers. |
-| [**/memory-bank**](./memory-bank/README.md) | **The AI's Diary:** The chronological logbook of the AI's work: past, present, future, and core memories. |
-| [**/rules**](./rules/README.md) | **The AI's Rulebook:** The machine-readable, direct-order protocols and guides that constitute the AI's script. |
-| [**/src**](./src/README.md) | **The Shared DNA:** The core source code, shared modules, and reusable components for the entire project. |
-| [**/tests**](./tests/README.md) | **The Quality Assurance Dept.:** The complete suite of automated tests that ensure the project's stability and correctness. |
-| [**/tools**](./tools/README.md) | **The Utility Belt:** A collection of utility and diagnostic scripts for maintenance and development workflows. |
+### **`/apps` - The Applications**
+This directory contains the user-facing Perchance applications. Each sub-folder is a self-contained application with its own logic, UI source, and build command.
+
+*   **`apps/rpglitch`**: A feature-rich application for managing RPG entities.
+    *   **Logic:** `apps/rpglitch/RPGlitch-left-panel.txt`
+    *   **UI Source:** `apps/rpglitch/html/index.html`
+    *   **Build Command:** `npm run build:rpglitch`
+*   **`apps/imageglitch`**: A minimalist Text-to-Image generator.
+    *   **Logic:** `apps/imageglitch/ImageGlitch-left-panel.txt`
+    *   **UI Source:** `apps/imageglitch/html/index.html`
+    *   **Build Command:** `npm run build:imageglitch`
+
+### **`/build` - The Factory**
+This is the project's factory floor. It contains all the essential machinery (`/scripts`), blueprints (`/config`), and raw materials (`/local_libs`) required to transform the source code from `/apps` into final, deployable artifacts, which are placed in `/build/output`.
+
+### **`/docs` - The Human's Library**
+This directory is for human-readable documentation. It contains high-level guides, architectural diagrams (`/system`), and a `GLOSSARY.md` that explain the *why* and *how* of this project.
+
+### **`/memory-bank` - The AI's Diary**
+This is the AI's chronological logbook. It is organized into `/past`, `/present`, `/future`, and `/forever` to manage the AI's state and provide a complete history of its work.
+
+### **`/src` - The Shared DNA**
+This directory holds core source code, shared modules, and reusable components that are utilized across multiple applications within the monorepo.
+
+### **`/tests` - The Quality Assurance Department**
+This contains all the automated tests that verify the functionality, stability, and correctness of the applications and core systems.
+*   **Run Tests:** To run the full suite, use the command `npm test`.
+
+### **`/tools` - The Utility Belt**
+This directory contains a collection of specialized scripts and utilities designed to assist with maintenance (`css-cleanup.js`), automate repetitive tasks, and diagnose system issues (`/diagnostics`).
