@@ -39,14 +39,14 @@
   border-right: 1px solid var(--pico-contrast-inverse);
 }
 
-.top-bar-left li:first-child button,
-.top-bar-right li:first-child button {
+.top-bar-left button:first-of-type,
+.top-bar-right button:first-of-type {
   border-top-left-radius: var(--pico-border-radius);
   border-bottom-left-radius: var(--pico-border-radius);
 }
 
-.top-bar-left li:last-child button,
-.top-bar-right li:last-child button {
+.top-bar-left button:last-of-type,
+.top-bar-right button:last-of-type {
   border-top-right-radius: var(--pico-border-radius);
   border-bottom-right-radius: var(--pico-border-radius);
   border-right: 0;
