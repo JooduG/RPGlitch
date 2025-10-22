@@ -104,10 +104,26 @@
   z-index: 1;
   margin-left: var(--profile-left-width);
   width: calc(100% - var(--profile-left-width));
-  overflow: visible; /* avoid over-constraining with container margin; /* fill remaining space beside fixed left column */
+  overflow: visible;
   max-width: none;
   box-sizing: border-box;
   overflow-x: hidden;
-  padding-left: 1rem;
-  padding-right: 1rem; /* avoid over-constraining with container margin */
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .profile-layout {
+    flex-direction: column;
+  }
+
+  .profile-left {
+    position: relative;
+    width: 100%;
+    height: 50vh;
+  }
+
+  .profile-right {
+    width: 100%;
+    margin-left: 0;
+  }
 }
