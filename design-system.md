@@ -40,20 +40,15 @@ In this project, all interactive UI elements (buttons, links, navigation) **MUST
 
 Our visual language is built on the **Pico.css** framework, extended with a custom, purposeful design layer. All base typography, primary accent colors, and foundational element styling are inherited directly from Pico.css.
 
-### **Color System (Custom Extensions)**
+### **Color System**
 
-The visual identity is defined by a deep, dark gradient background, contrasted with selective accent colors that extend Pico's defaults.
+Our visual language is built on the **Pico.css** framework. All base typography, primary accent colors, and foundational element styling are inherited directly from Pico.css.
 
 * **⬛ Background (Global):** A fixed, 4-stop linear gradient is used across all applications.
     * `$gradient-color-1: #181c2f`
     * `$gradient-color-2: #23243a`
     * `$gradient-color-3: #1a3a4a`
     * `$gradient-color-4: #2a1a3a`
-
-* **🎨 Dynamic Palettes (RPGlitch):** RPGlitch entities (like Characters and Worlds) can use a palette system to define their primary brand color.
-    * `.palette-pink { --brand: #ec4899; }`
-    * `.palette-emerald { --brand: #10b981; }`
-    * `.palette-cyan { --brand: #06b6d4; }`
 
 * **⚪ Text:** Standard text color is inherited from Pico.css (`--pico-color`).
 
