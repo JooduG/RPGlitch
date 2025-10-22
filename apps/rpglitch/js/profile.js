@@ -90,38 +90,31 @@ export async function renderProfile(type, id) { // <-- Made this function async
 
   if (entity.summary) {
     const p = document.createElement("p");
+    p.className = "profile-description";
     p.textContent = entity.summary;
     content.appendChild(p);
   }
 
   const sections = entity.sections || {};
   const secWrap = document.createElement("div");
-  secWrap.className = "profile-sections";
-  const SUB = {
-    forever: "Timeless truth",
-    past: "Backstory",
-    present: "Current state",
-    future: "Foreshadowing",
-  };
+  secWrap.className = "profile-fields";
+
   ["forever", "past", "present", "future"].forEach((key) => {
     const value = sections[key] !== undefined ? sections[key] : null;
     if (value) {
-      const row = document.createElement("div");
-      row.className = "section-row";
+      const field = document.createElement("div");
+      field.className = "profile-field";
+
       const label = document.createElement("div");
-      label.className = "section-label";
-      const main = document.createElement("div");
-      main.className = "section-label-main";
-      main.textContent = key.charAt(0).toUpperCase() + key.slice(1);
-      const sub = document.createElement("div");
-      sub.className = "section-sublabel";
-      sub.textContent = SUB[key] || "";
-      label.append(main, sub);
-      const body = document.createElement("div");
-      body.className = "section-content";
-      body.textContent = value;
-      row.append(label, body);
-      secWrap.appendChild(row);
+      label.className = "profile-field-label";
+      label.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+
+      const text = document.createElement("div");
+      text.className = "profile-field-text";
+      text.textContent = value;
+
+      field.append(label, text);
+      secWrap.appendChild(field);
     }
   });
   content.appendChild(secWrap);
