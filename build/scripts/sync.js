@@ -188,7 +188,6 @@ function syncIgnores() {
     new Set([
       "node_modules",
       ...getPatterns("gitignore"),
-      ...getPatterns("ide"),
     ])
   ).sort();
   writeJson(jsconfigPath, jsconfig);

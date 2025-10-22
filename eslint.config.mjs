@@ -31,7 +31,7 @@ try {
     eslintIgnores = master.linters.eslint;
   }
 } catch (e) {
-  console.warn("⚠️ Could not load ignores.master.json for ESLint, using fallback ignores.", e.message);
+  // Silently fail and use the fallback ignores
 }
 
 export default [
