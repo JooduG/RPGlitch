@@ -1,5 +1,5 @@
 {
-  "files.exclude": {
+  // "files.exclude": {
     ".amazonq/rules/": true,
     ".cursor/mcp.json": true,
     ".cursor/rules/": true,
@@ -31,5 +31,5 @@
     "jest.config.js": true,
     "jsconfig.json": true,
     "**/mcp.json": true
-  }
+  } 
 }
