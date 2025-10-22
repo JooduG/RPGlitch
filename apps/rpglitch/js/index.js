@@ -1050,13 +1050,6 @@ export function _attachContentChinActions() {
     }
   });
 
-  // Add event listeners for the new close buttons
-  document.querySelectorAll(".chin-close-button").forEach((button) => {
-    button.addEventListener("click", () => {
-      chin.closeAll();
-    });
-  });
-
   _contentListenersAttached = true;
 }
 
@@ -1064,12 +1057,17 @@ export function _attachChatFormListener() {
   const chatForm = document.querySelector("#chat-form");
   if (chatForm && !chatForm._submitListenerAttached) {
     const input = chatForm.querySelector('input[name="message"]');
+    const submitButton = chatForm.querySelector('input[type="submit"]');
     const chatFeed = document.querySelector("#chat-feed");
 
-    if (!input || !chatFeed) {
+    if (!input || !submitButton || !chatFeed) {
       console.error("Chat UI elements not found, cannot attach listener.");
       return;
     }
+
+    input.addEventListener("input", () => {
+      submitButton.disabled = !input.value.trim();
+    });
 
     chatForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -1080,6 +1078,7 @@ export function _attachChatFormListener() {
         messageEl.textContent = message;
         chatFeed.appendChild(messageEl);
         input.value = "";
+        submitButton.disabled = true;
         chatFeed.scrollTop = chatFeed.scrollHeight;
       }
     });

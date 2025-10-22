@@ -25,12 +25,31 @@
 
 .top-bar-right {
   display: flex;
-  gap: 1rem;
+  gap: 0;
 }
 
 .top-bar-left {
   display: flex;
-  gap: 1rem;
+  gap: 0;
+}
+
+.top-bar-left button,
+.top-bar-right button {
+  border-radius: 0;
+  border-right: 1px solid var(--pico-contrast-inverse);
+}
+
+.top-bar-left button:first-of-type,
+.top-bar-right button:first-of-type {
+  border-top-left-radius: var(--pico-border-radius);
+  border-bottom-left-radius: var(--pico-border-radius);
+}
+
+.top-bar-left button:last-of-type,
+.top-bar-right button:last-of-type {
+  border-top-right-radius: var(--pico-border-radius);
+  border-bottom-right-radius: var(--pico-border-radius);
+  border-right: 0;
 }
 
 #chin-container {
