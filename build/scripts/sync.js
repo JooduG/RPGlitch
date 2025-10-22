@@ -162,12 +162,7 @@ async function syncLibs() {
 // --- SYNC IGNORES LOGIC ---
 function syncIgnores() {
   console.log("\n🔄 Syncing ignore files...");
-  const masterIgnoresPath = path.join(
-    REPO_ROOT,
-    "build",
-    "config",
-    "ignores.master.json"
-  );
+  const masterIgnoresPath = path.join(REPO_ROOT, "ignores.master.json");
   const jsconfigPath = path.join(REPO_ROOT, "jsconfig.json");
   const settingsPath = path.join(REPO_ROOT, ".vscode", "settings.json");
 
@@ -208,12 +203,7 @@ function syncIgnores() {
 // --- SYNC MCP LOGIC ---
 function syncMcp() {
   console.log("\n🔄 Syncing MCP configurations...");
-  const masterMcpPath = path.join(
-    REPO_ROOT,
-    "build",
-    "config",
-    "mcp.master.json"
-  );
+  const masterMcpPath = path.join(REPO_ROOT, "mcp.master.json");
   const envPath = path.join(REPO_ROOT, ".env");
   const masterMcp = readJson(masterMcpPath);
   if (Object.keys(masterMcp).length === 0) return;

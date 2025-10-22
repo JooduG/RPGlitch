@@ -33,7 +33,7 @@ These are concise, actionable rules to make an AI agent productive immediately.
 6. Patterns and conventions to follow (concrete, repo-specific):
 
    - Use npm scripts (do not invent new top-level commands without adding them to `package.json` under `scripts`). Examples: `npm run sync`, `npm run build:imageglitch`.
-   - Derived configs must be produced by sync scripts. Edit master configs under `build/config/` and then run the appropriate `npm run sync:*` script (e.g., `npm run sync:configs`).
+   - Derived configs must be produced by sync scripts. Edit master configs under the project root and then run the appropriate `npm run sync:*` script (e.g., `npm run sync:configs`).
    - Sanitize dynamic HTML using `DOMPurify.sanitize()` where applicable (this repo explicitly requires this in AGENTS guidance).
    - Commit message format: `<scope>: <summary>` (e.g., `rpglitch: add storyboard title sync`). Branch naming: `{agent}/{scope}/{short-task}`.
 

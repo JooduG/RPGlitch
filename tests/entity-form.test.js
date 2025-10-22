@@ -1,4 +1,3 @@
-/* eslint-env jest */
 import { renderForm } from '../apps/rpglitch/js/entity-form.js';
 import { router } from '../apps/rpglitch/js/profile-router.js';
 

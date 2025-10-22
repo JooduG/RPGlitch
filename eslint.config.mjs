@@ -25,7 +25,7 @@ let eslintIgnores = [
 // Try to read the central ignore list from the master config
 try {
   // Corrected path: relative to the root, where this config file lives
-  const master = require('./build/config/ignores.master.json');
+  const master = require('./ignores.master.json');
   // Use the specific key from your master config
   if (master && master.linters && master.linters.eslint) {
     eslintIgnores = master.linters.eslint;

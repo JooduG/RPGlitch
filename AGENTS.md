@@ -168,7 +168,7 @@ This section defines the tools you use and the rules for interacting with the en
 
 ### **3.2. MCP (Model Context Protocol) Usage**
 
-* **Master File:** All MCP server definitions reside in `build/config/mcp.master.json`. To add a server, edit this file, then run `npm run sync:mcp`.
+* **Master File:** All MCP server definitions reside in `mcp.master.json`. To add a server, edit this file, then run `npm run sync:mcp`.
 * **Time MCP:** All timestamps in filenames, logs, and metadata **MUST** be fetched from the Time MCP. **NEVER** hardcode dates or times. Default timezone is **Europe/Stockholm**.
 * **Advanced Reasoning Tools:**
   * For multi-step planning, your default **MUST** be the `sequentialthinking_tools` MCP.
