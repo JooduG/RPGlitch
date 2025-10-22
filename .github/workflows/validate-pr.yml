@@ -3,6 +3,8 @@ name: Validate PR body
 on:
   pull_request:
     types: [opened, edited, synchronize]
+permissions:
+  contents: read
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -15,14 +17,14 @@ jobs:
               "## Strategy", "## Tactics", "## Operations", "## Checklist"
             ];
             const requiredChecks = [
-              /- \[x\] Read AGENTS\.md/i,
-              /- \[x\] Wrote only under allowed paths/i,
-              /- \[x\] No empty handlers \/ unused vars/i,
-              /- \[x\] A11y: descriptive `alt` for images/i,
-              /- \[x\] Placeholder colors use `--brand` and `--brand-contrast`/i
+              /- \[x\] I have read and followed the guidelines in `AGENTS\.md`\./i,
+              /- \[x\] My changes adhere to the project's coding and architectural standards\./i,
+              /- \[x\] I have verified that all automated validation checks \(`validate-pr\.yml`\) pass\./i
             ];
             const failures = requiredChecks.filter(rx => !rx.test(body));
-            if (failures.length) core.setFailed("Please complete the checklist.");
+            if (failures.length) {
+              core.setFailed("Please complete the checklist in the PR body.");
+            }
             const missing = mustHave.filter(h => !body.includes(h));
             if (missing.length) {
               core.setFailed(`PR is missing sections: ${missing.join(", ")}`);
