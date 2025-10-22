@@ -142,7 +142,7 @@ async function syncLibs() {
                             resolve();
                         } else {
                             fs.unlinkSync(tmpDest);
-                            reject(new Error(`Checksum mismatch for ${path.basename(dest)}.`));
+                            reject(new Error(`Checksum mismatch for ${path.basename(dest)}.\nExpected: ${sha256}\nGot:      ${actualHash}`));
                         }
                     });
                 });
