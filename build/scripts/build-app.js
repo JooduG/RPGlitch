@@ -121,7 +121,7 @@ async function build(appName) {
             const extraLibsContent = config.extraLibs
                 .map(lib => readFileSafe(path.join(LOCAL_LIBS_DIR, lib.file), lib.name))
                 .filter(Boolean)
-                .join(';\\n');
+                .join(';\n');
 
             const libsChunks = chunkString(extraLibsContent, 500);
             const jsChunks = chunkString(jsContent, 500);
