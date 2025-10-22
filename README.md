@@ -38,7 +38,10 @@ This directory is for human-readable documentation. It contains high-level guide
 This is the AI's chronological logbook. It is organized into `/past`, `/present`, `/future`, and `/forever` to manage the AI's state and provide a complete history of its work.
 
 ### **`/src` - The Shared DNA**
-This directory holds core source code, shared modules, and reusable components that are utilized across multiple applications within the monorepo.
+This directory is the project's **Shared Code Library**. It contains all the core source code—modules, utilities, and foundational components—that are designed to be reused across multiple applications. While `/apps` contains self-contained applications, `/src` holds the shared, application-agnostic DNA they might depend upon.
+
+*   **Layout:** Source code resides in `/src/main` with corresponding tests in `/src/tests`.
+*   **Philosophy:** All code in `/src` must be application-agnostic, highly reusable, and have comprehensive test coverage.
 
 ### **`/tests` - The Quality Assurance Department**
 This contains all the automated tests that verify the functionality, stability, and correctness of the applications and core systems.
