@@ -24,7 +24,7 @@ function main() {
     const timestamp = now.toISOString(); // Full ISO 8601 timestamp
 
     // Create directory structure relative to the project root
-    const projectRoot = path.resolve(__dirname, '..');
+    const projectRoot = path.resolve(__dirname, '..', '..');
     const summaryDir = path.join(projectRoot, 'memory-bank', 'conversation-summaries', date);
 
     try {
