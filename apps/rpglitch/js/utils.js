@@ -59,10 +59,12 @@ export async function copyEntity(type, id) {
   }
 }
 
-export function sanitizeStr(str) {
+export function escapeHtml(str) {
   if (typeof str !== 'string') {
     return '';
   }
+  // WARNING: This is NOT a sanitizer. It only escapes HTML for display in text.
+  // For safe HTML, use a library like DOMPurify.
   return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 

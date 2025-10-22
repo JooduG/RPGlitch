@@ -7,7 +7,7 @@ import {
   showEl,
   getHashQuery,
   navigateBackOrReturnDefault,
-  sanitizeStr
+  escapeHtml
 } from './utils.js';
 import {
   router
@@ -156,19 +156,19 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   saveBtn?.addEventListener("click", async () => { // <-- MADE ASYNC
     const data = {
       kind: type,
-      name: sanitizeStr(titleInput.value.trim()),
-      summary: sanitizeStr(summaryInput.value.trim()),
-      imageUrl: sanitizeStr(imageInput.value.trim()),
-      image: sanitizeStr(imageInput.value.trim()),
+      name: escapeHtml(titleInput.value.trim()),
+      summary: escapeHtml(summaryInput.value.trim()),
+      imageUrl: escapeHtml(imageInput.value.trim()),
+      image: escapeHtml(imageInput.value.trim()),
       tags: tagsInput.value
         .split(",")
-        .map((t) => sanitizeStr(t.trim()))
+        .map((t) => escapeHtml(t.trim()))
         .filter(Boolean),
       sections: {
-        forever: sanitizeStr(form.elements.forever.value.trim()),
-        past: sanitizeStr(form.elements.past.value.trim()),
-        present: sanitizeStr(form.elements.present.value.trim()),
-        future: sanitizeStr(form.elements.future.value.trim()),
+        forever: escapeHtml(form.elements.forever.value.trim()),
+        past: escapeHtml(form.elements.past.value.trim()),
+        present: escapeHtml(form.elements.present.value.trim()),
+        future: escapeHtml(form.elements.future.value.trim()),
       },
     };
     if (!data.name) return;

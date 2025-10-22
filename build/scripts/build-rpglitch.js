@@ -100,6 +100,14 @@ async function bundleAndMinifyJs() {
   }
 }
 
+function chunkString(str, chunkSize) {
+  const chunks = [];
+  for (let i = 0; i < str.length; i += chunkSize) {
+    chunks.push(str.substring(i, i + chunkSize));
+  }
+  return chunks;
+}
+
 // --- MAIN LOGIC ---
 (async function main() {
   try {
@@ -126,9 +134,30 @@ async function bundleAndMinifyJs() {
     let finalHtml = stripTagsForInlining(htmlSrc);
     finalHtml = injectCss(finalHtml, combinedCss);
 
-    const libsScript = combinedLibs ? `<script id="rpglitch-inline-libs">${combinedLibs}</script>` : '';
-    const jsScript = jsBundle ? `<script id="rpglitch-inline-js">${jsBundle}</script>` : '';
-    finalHtml = finalHtml.replace('</body>', `${libsScript}${jsScript}</body>`);
+    const libsChunks = chunkString(combinedLibs, 500);
+    const jsChunks = chunkString(jsBundle, 500);
+
+    const libsString = JSON.stringify(libsChunks) + ".join('')";
+    const jsString = JSON.stringify(jsChunks) + ".join('')";
+
+    const loaderScript = `
+      const libsContent = ${libsString};
+      const appContent = ${jsString};
+
+      const libsScript = document.createElement('script');
+      libsScript.id = 'rpglitch-inline-libs';
+      libsScript.textContent = libsContent;
+      document.body.appendChild(libsScript);
+
+      const appScript = document.createElement('script');
+      appScript.id = 'rpglitch-inline-js';
+      appScript.textContent = appContent;
+      document.body.appendChild(appScript);
+    `;
+
+    const finalLoaderScript = `<script id="rpglitch-loader">${loaderScript}</script>`;
+
+    finalHtml = finalHtml.replace('</body>', `${finalLoaderScript}</body>`);
 
     fs.writeFileSync(OUTPUT_HTML, finalHtml, 'utf8');
     console.log(`✅ Built: ${path.relative(ROOT, OUTPUT_HTML)}`);

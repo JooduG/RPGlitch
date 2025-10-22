@@ -93,7 +93,7 @@ const storeMap = {
 const STORAGE_VERSION = 1;
 
 // --- UTILITY FUNCTIONS (Unchanged) ---
-function sanitizeStr(s) {
+function sanitizeHtml(s) {
   const v = typeof s === "string" ? s : String(s ?? "");
   try {
     return DOMPurify ? DOMPurify.sanitize(v) : v;
@@ -118,7 +118,7 @@ function getContrast(color) {
       hex
       .split("")
       .map((c) => c + c)
-      .join("") :
+      .join("") : 
       hex;
     const num = parseInt(full, 16);
     const r = (num >> 16) & 255;
@@ -182,7 +182,7 @@ export function getPictureHTML(entity = {}, options = {}) {
     ph.style.backgroundColor = "var(--brand)";
     ph.style.color = "var(--brand-contrast)";
   }
-  ph.innerHTML = sanitizeStr(
+  ph.innerHTML = sanitizeHtml(
     PLACEHOLDER_ICONS[kind] || PLACEHOLDER_ICONS.default
   );
   ph.setAttribute("role", "img");
@@ -194,18 +194,18 @@ export function getPictureHTML(entity = {}, options = {}) {
 // --- NEW: Data Normalization (pulled from old 'normalize') ---
 // This prepares data to be saved to the database.
 function normalize(base = {}) {
-  const nameOrTitle = sanitizeStr(base.name || base.title || "").trim();
-  const summaryOrDesc = sanitizeStr(
+  const nameOrTitle = sanitizeHtml(base.name || base.title || "").trim();
+  const summaryOrDesc = sanitizeHtml(
     base.summary || base.description || ""
   ).trim();
-  const image = sanitizeStr(base.imageUrl || base.image || "").trim();
+  const image = sanitizeHtml(base.imageUrl || base.image || "").trim();
 
   const sections = base.sections || {};
   const safeSections = {
-    forever: sanitizeStr(sections.forever || "").trim(),
-    past: sanitizeStr(sections.past || "").trim(),
-    present: sanitizeStr(sections.present || "").trim(),
-    future: sanitizeStr(sections.future || "").trim(),
+    forever: sanitizeHtml(sections.forever || "").trim(),
+    past: sanitizeHtml(sections.past || "").trim(),
+    present: sanitizeHtml(sections.present || "").trim(),
+    future: sanitizeHtml(sections.future || "").trim(),
   };
 
   const rawTags = Array.isArray(base.tags) ?
@@ -214,7 +214,7 @@ function normalize(base = {}) {
     String(base.tags).split(",") :
     [];
   const safeTags = rawTags
-    .map((s) => sanitizeStr(String(s).trim()))
+    .map((s) => sanitizeHtml(String(s).trim()))
     .filter(Boolean);
 
   return {

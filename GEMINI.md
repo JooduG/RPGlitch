@@ -131,6 +131,10 @@ For any task, actively seek opportunities to use the specialized MCP servers or 
 
 * Use **npm** (Node 22\) and prefer npm ci for installs.  
 * Respect the **allowed write paths** defined in the Permissions section.
+* Common npm scripts agents use: `npm ci` + `npm run sync`, `npm run build`, `npm test`, `npm run lint`, `npm run deploy`, `npm run mcp:start-all` (starts MCP servers). Use exact script names.
+* Config workflow: edit master configs under `build/config/` and then run the appropriate `npm run sync:*` (e.g., `npm run sync:configs`); do not hand-edit derived config files.
+* Tests: reuse `tests/setup-jest.js` mocks and ensure any test that opens `App.db` closes it (see `afterAll` teardown) to prevent Jest from hanging.
+* Sanitize any generated HTML with `DOMPurify.sanitize()` (see `tests/setup-jest.js` mocks and repository rules).
 
 ### **7.3. Build Commands**
 
@@ -138,7 +142,11 @@ For any task, actively seek opportunities to use the specialized MCP servers or 
 * **Build:** npm run build  
 * **Lint:** npm run lint (fix with npm run lint:fix)  
 * **Sync:** npm run sync  
-* **Test:** npm test
+* **Test:** npm test  
+
+### **7.4. Quality & Security**
+
+* Codacy policy: After any file edit you MUST run the repository Codacy analysis per `.github/instructions/codacy.instructions.md` (run `codacy_cli_analyze` with rootPath set to the repo). After adding or changing dependencies run the Codacy Trivy scan (tool: trivy) before continuing.
 
 ## **8\. Permissions, Security & Commits**
 
