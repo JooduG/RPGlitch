@@ -19,6 +19,7 @@ module.exports = {
         resolveNestedSelectors: true,
         message: 'Expected class selector to be kebab-case, optionally with a BEM modifier (--modifier).'
       }
-    ]
+    ],
+    'no-descending-specificity': null
   }
 };

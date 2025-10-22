@@ -7,16 +7,7 @@
 **/build/local_libs/**
 **/node_modules**
 /.DS_Store
-/.amazonq/rules/
-/.basicmemoryignore
-/.cursor/rules/
-/.cursorignore
-/.geminiignore
-/.gitignore
 /.npm
-/.windsurf/rules/
 /coverage
 /dist
 /node_modules
-build/config/.stylelintignore
-stylelint.config.js

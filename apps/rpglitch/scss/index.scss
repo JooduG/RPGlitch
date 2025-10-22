@@ -1,16 +1,16 @@
-// 1. Abstracts - Variables, mixins, functions, etc.
+/* 1. Abstracts - Variables, mixins, functions, etc. */
 @use "variables";
 @use "mixins";
 
-// 2. Base - Base styles, typography, etc.
+/* 2. Base - Base styles, typography, etc. */
 @use "base";
 
-// 3. Layout - Main layout structure
+/* 3. Layout - Main layout structure */
 @use "layout";
 
-// 4. Components - Individual UI components
+/* 4. Components - Individual UI components */
 @use "components";
 @use "forms";
 
-// 5. Placeholders - Placeholder styles
+/* 5. Placeholders - Placeholder styles */
 @use "placeholders";
