@@ -1,5 +1,5 @@
 {
-  "files.exclude": {
+  // "files.exclude": {
     ".amazonq/rules/": true,
     ".cursor/mcp.json": true,
     ".cursor/rules/": true,
@@ -30,5 +30,5 @@
     "test-basic-memory/": true,
     ".markdownlint-cli2.jsonc": true,
     ".npmrc": true
-  }
+  // }
 }
