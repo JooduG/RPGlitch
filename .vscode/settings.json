@@ -1,5 +1,5 @@
 {
-  // "files.exclude": {
+  "files.exclude": {
     ".amazonq/rules/": true,
     ".cursor/mcp.json": true,
     ".cursor/rules/": true,
@@ -20,15 +20,15 @@
     "**/.svn": true,
     "**/CVS": true,
     "**/Thumbs.db": true,
-    "**/build/local_libsnode_modulesmcp.json": true,
-    "stylelint.config.js": true,
-    "test-basic-memory/": true,
-    ".markdownlint-cli2.jsonc": true,
-    ".npmrc": true,
     "**/build/local_libs/**": true,
     "**/node_modules/**": true,
     "eslint.config.mjs": true,
     "jest.config.js": true,
     "jsconfig.json": true,
-    "**/mcp.json": true
-  } 
+    "**/mcp.json": true,
+    "stylelint.config.js": true,
+    "test-basic-memory/": true,
+    ".markdownlint-cli2.jsonc": true,
+    ".npmrc": true
+  }
+}

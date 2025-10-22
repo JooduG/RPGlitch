@@ -1,10 +1,16 @@
-@use "storyboard";
-@use "placeholders";
+// 1. Abstracts - Variables, mixins, functions, etc.
 @use "variables";
+@use "mixins";
+
+// 2. Base - Base styles, typography, etc.
 @use "base";
+
+// 3. Layout - Main layout structure
 @use "layout";
+
+// 4. Components - Individual UI components
 @use "components";
-@use "chin";
-@use "profile";
 @use "forms";
 
+// 5. Placeholders - Placeholder styles
+@use "placeholders";
