@@ -112,12 +112,11 @@ async function build() {
 
     // Conditional logic for RPGlitch
     if (appName === 'rpglitch') {
-        const [cashJs, dexieJs, dompurifyJs, hyperscriptJs] = await Promise.all(
-            ['cash', 'dexie', 'dompurify', 'hyperscript'].map(name =>
-                readFileSafe(path.join(LOCAL_LIBS_DIR, RPGlitchLibs[name].file), RPGlitchLibs[name].file)
-            )
+        const libPromises = Object.values(RPGlitchLibs).map(lib =>
+            readFileSafe(path.join(LOCAL_LIBS_DIR, lib.file), lib.file)
         );
-        const combinedLibs = [cashJs, dexieJs, dompurifyJs, hyperscriptJs].filter(Boolean).join(';\n');
+        const libContents = await Promise.all(libPromises);
+        const combinedLibs = libContents.filter(Boolean).join(';\n');
 
         const libsChunks = chunkString(combinedLibs, 500);
         const jsChunks = chunkString(jsContent, 500);
