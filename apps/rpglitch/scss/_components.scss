@@ -190,6 +190,7 @@ article header {
   background: var(--pico-form-element-background-color);
   border: 0;
 }
+
 // This file will contain styles for the 'chin' component.
 .chin {
   left: var(--app-container-pad); /* align to container padding */
@@ -324,6 +325,7 @@ body.chin-open .chin-focus-ring {
   outline: 2px solid currentcolor;
   outline-offset: 2px;
 }
+
 // This file will contain styles for the profile view.
 
 .profile-hero .picture,
@@ -502,6 +504,7 @@ body.chin-open .chin-focus-ring {
   font-style: italic;
   pointer-events: none;
 }
+
 .selected {
   border-color: currentcolor;
   filter: none;
