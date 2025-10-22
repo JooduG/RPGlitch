@@ -24,11 +24,8 @@ def run(playwright):
     chin_stories = page.locator("#chin-stories")
     expect(chin_stories).to_be_visible()
 
-    # Give the JS a moment to attach the event listener
-    time.sleep(0.1)
-
-    # Dispatch a click event directly on the backdrop element
-    page.dispatch_event("#chin-backdrop", "click")
+    # Click the backdrop to close the chin
+    page.locator("#chin-backdrop").click()
 
     # Wait for the chin to be hidden
     expect(chin_stories).to_be_hidden()
