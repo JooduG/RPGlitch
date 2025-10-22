@@ -196,7 +196,7 @@ class AtomicClassGenerator {
 
 // Run generator if script is called directly
 if (require.main === module) {
-  const cssPath = path.join(__dirname, "../RPGlitch/RPGlitch.css");
+  const cssPath = path.join(__dirname, "../../apps/rpglitch/html/RPGlitch.css");
   const generator = new AtomicClassGenerator(cssPath);
   generator.appendAtomicClasses(true);
   generator.outputReport(true);
