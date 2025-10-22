@@ -211,3 +211,54 @@ This section defines the tools you use and the rules for interacting with the en
 
 * **1.1.0 (2025-10-21)** — **Clarification Pass.** Incorporated feedback to improve clarity and completeness. Rephrased core principle, added context to the primary directive, included a conflict resolution clause, and added a Handoff template.
 * **1.0.0 (2025-10-21)** — **The Great Consolidation.** Merged `GEMINI.md`, the entire `/rules` directory, and key `README.md` files into this single, unified protocol.
+
+---
+
+## **Part 4: Execution Framework (STO)**
+
+This section defines the structured thinking and execution framework you **MUST** use for all non-trivial tasks. It ensures a calm, error-proof process.
+
+### **4.1. Core Principles**
+
+*   **Plan, Then Act:** Always formulate a strategy and tactical plan before executing.
+*   **Error-Proofing > Speed:** Prioritize small, verifiable steps with clear checkpoints.
+*   **Assume and Proceed:** If information is missing, state your assumptions and proceed with safe defaults. Do not stall by asking unnecessary questions.
+
+### **4.2. STO Format (Structure, Tactics, Operations)**
+
+You **MUST** follow these exact headings when formulating a plan.
+
+#### **STRATEGY**
+
+*   **Goal:** Restate the primary objective in one clear sentence.
+*   **Constraints & Non-Goals:** List all limitations (time, tools, scope) and what is explicitly out of scope.
+*   **Success Criteria:** Define the measurable "Definition of Done" in bullet points.
+*   **Premortem:** Identify 3-5 likely failure modes to anticipate and mitigate risks.
+
+#### **TACTICS**
+
+*   **Approaches:** List 2-3 viable approaches with their tradeoffs (1-2 lines each).
+*   **Decision:** Select one approach and briefly justify your choice.
+*   **Guardrails:** Define 3 simple rules that, if followed, will prevent the most common mistakes for this task.
+
+#### **OPERATIONS**
+
+*   Provide a step-by-step plan. For each step, include:
+    *   **ACTION:** The specific action to take.
+    *   **CHECK:** A quick, verifiable test to confirm success.
+    *   **FAILSAFE:** The recovery procedure if the check fails.
+*   After the plan, produce the requested deliverable.
+
+### **4.3. Quality Gate (Pre-Submission Checks)**
+
+Before completing a task, you **MUST** verify the following:
+
+*   **Consistency:** All names, numbers, requirements, and conventions are consistent.
+*   **Constraints Honored:** The final output respects all specified constraints (length, format, etc.).
+*   **Edge Cases:** At least two edge cases have been considered and handled.
+*   **Sanity Scan:** A final review for obvious omissions, contradictions, or unsafe assumptions.
+
+### **4.4. Modes of Operation**
+
+*   **QUICK MODE:** If time is critical, use a simplified plan with ≤5 operational steps.
+*   **THOROUGH MODE:** If correctness is paramount, expand all checks, tests, and failsafes.

@@ -60,37 +60,32 @@ This section provides a guide to the development process, from building and test
 
 ### **Build, Test, and Development Commands**
 
-- `npm run build`: Builds RPGlitch into a single inlined HTML.
-- `npm run deploy`: Syncs, runs tests, lints (fix), builds, and copies artifacts.
-- `npm run deploy:loose`: Same as deploy but continues on non-critical failures.
-- `npm run sync`: Sync shared libs/configs/docs.
-- `npm run lint` / `npm run lint:fix`: Lint JS, CSS, Markdown (auto-fix where possible).
-- `npm test`: Run Jest test suite (jsdom environment).
-- `npm run validate`: Sanity-check that `build/output/RPGlitch.html` exists and is non-empty.
+* `npm run build`: Builds RPGlitch into a single inlined HTML.
+* `npm run deploy`: Syncs, runs tests, lints (fix), builds, and copies artifacts.
+* `npm run deploy:loose`: Same as deploy but continues on non-critical failures.
+* `npm run sync`: Sync shared libs/configs/docs.
+* `npm run lint` / `npm run lint:fix`: Lint JS, CSS, Markdown (auto-fix where possible).
+* `npm test`: Run Jest test suite (jsdom environment).
+* `npm run validate`: Sanity-check that `build/output/RPGlitch.html` exists and is non-empty.
 
 ### **Coding Style & Naming Conventions**
 
-- **JavaScript:** ES2022+, 2‑space indentation, `camelCase` for functions, `App.*` for global app APIs.
-- **CSS/SCSS:** `kebab-case` classes, optional BEM modifier (`.block--modifier`).
-- **Linting:** ESLint (`build/config/eslint.config.mjs`) and Stylelint (`build/config/stylelint.config.js`). Keep diffs small and deterministic.
-- **HTML safety:** Sanitize any dynamic HTML via `DOMPurify.sanitize()`.
+* **JavaScript:** ES2022+, 2‑space indentation, `camelCase` for functions, `App.*` for global app APIs.
+* **CSS/SCSS:** `kebab-case` classes, optional BEM modifier (`.block--modifier`).
+* **Linting:** ESLint (`build/config/eslint.config.mjs`) and Stylelint (`build/config/stylelint.config.js`). Keep diffs small and deterministic.
+* **HTML safety:** Sanitize any dynamic HTML via `DOMPurify.sanitize()`.
 
 ### **Security & Configuration Tips**
 
-- Never commit secrets. Use local `.env` for dev.
-- Avoid external network calls in app code; prefer vendoring to `build/local_libs/`.
-- Don’t hand‑edit generated outputs (`build/output/`). Avoid writing to `node_modules/`.
+* Never commit secrets. Use local `.env` for dev.
+* Avoid external network calls in app code; prefer vendoring to `build/local_libs/`.
+* Don’t hand‑edit generated outputs (`build/output/`). Avoid writing to `node_modules/`.
 
 ## **🎨 Design Philosophy**
 
-Our design philosophy is built on a foundation of minimalism, clarity, and robustness.
+For detailed information on our design system, including core principles, the component library, and UI safety protocols, please see the canonical document:
 
-* **Clarity Over Cleverness:** The user should never have to guess. Functionality must be explicit and unambiguous.
-* **Minimalism with Purpose:** Every visual element must serve a purpose. We remove the unnecessary to give power to the essential.
-* **Consistency is Queen:** Similar elements must look and behave similarly across all applications. This builds trust and reduces cognitive load.
-* **Accessibility by Design:** Our interfaces must be usable and accessible to everyone. This is a non-negotiable baseline.
-
-For more detailed information on our design system, please see the [Design System documentation](./docs/design-system.md).
+➡️ **[design-system.md](./design-system.md)**
 
 ## **🤝 Contributing**
 
@@ -98,13 +93,13 @@ We welcome contributions to this project. To ensure a smooth and collaborative p
 
 ### **Pull Request Guidelines**
 
-- **Keep PRs small and focused:** Each pull request should address a single issue or feature.
-- **Clear Titles and Descriptions:** The title should follow the format `[<scope>] <summary>` (e.g., `[docs] Update contributing guidelines`). The description should include:
-  - A clear explanation of the changes.
-  - Steps for validation.
-  - Screenshots for any UI changes.
-  - Links to any related issues.
-- **Branch Naming for Humans:** Use the format `{scope}/{short-task-description}` (e.g., `docs/update-contributing-guide`).
+* **Keep PRs small and focused:** Each pull request should address a single issue or feature.
+* **Clear Titles and Descriptions:** The title should follow the format `[<scope>] <summary>` (e.g., `[docs] Update contributing guidelines`). The description should include:
+  * A clear explanation of the changes.
+  * Steps for validation.
+  * Screenshots for any UI changes.
+  * Links to any related issues.
+* **Branch Naming for Humans:** Use the format `{scope}/{short-task-description}` (e.g., `docs/update-contributing-guide`).
 
 ## **📖 Glossary**
 
