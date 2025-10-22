@@ -7,10 +7,10 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM, VirtualConsole } = require('jsdom');
 
-const OUTPUT_HTML = path.resolve(__dirname, '..', 'build', 'output', 'RPGlitch.html');
+const OUTPUT_HTML = path.resolve(__dirname, '..', '..', 'build', 'output', 'RPGlitch.html');
 
 if (!fs.existsSync(OUTPUT_HTML)) {
-  console.error('❌ Missing build/output/RPGlitch.html. Run `npm run build` first.');
+  console.error(`❌ Missing ${path.relative(process.cwd(), OUTPUT_HTML)}. Run \`npm run build:rpglitch\` first.`);
   process.exit(2);
 }
 
