@@ -1,33 +1,42 @@
-// Description: This script watches for file changes in the rpglitch app directory
-// and automatically triggers a rebuild.
-// To run: `npm run watch`
+// Description: This script watches for file changes in a specified app directory
+// and automatically triggers a rebuild using the consolidated build-app.js script.
+// To run: `npm run watch -- <app-name>`
 
-const chokidar = require('chokidar');
-const { exec } = require('child_process');
-const path = require('path');
+import chokidar from 'chokidar';
+import { exec } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-console.log('👀 Starting build watcher for RPGlitch...');
+const appName = process.argv[2];
+if (!appName) {
+  console.error('❌ Error: No app name provided.');
+  console.log('Usage: node watch.js <app-name>');
+  process.exit(1);
+}
 
-const rpglitchPath = path.resolve(__dirname, '../../apps/rpglitch');
-const buildScriptPath = path.resolve(__dirname, 'build-rpglitch.js');
+console.log(`👀 Starting build watcher for ${appName}...`);
 
-// Initialize watcher.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const appPath = path.resolve(__dirname, `../../apps/${appName}`);
+const buildScriptPath = path.resolve(__dirname, 'build-app.js');
+
 const watcher = chokidar.watch([
-  `${rpglitchPath}/html/**/*.html`,
-  `${rpglitchPath}/js/**/*.js`,
-  `${rpglitchPath}/scss/**/*.scss`,
+  `${appPath}/html/**/*.html`,
+  `${appPath}/js/**/*.js`,
+  `${appPath}/scss/**/*.scss`,
 ], {
-  ignored: /(^|[/\\])\../, // ignore dotfiles
+  ignored: /(^|[/\\])\../,
   persistent: true,
-  ignoreInitial: true, // Don't run on initial scan
+  ignoreInitial: true,
 });
 
-// Function to run the build script
 const runBuild = (filePath) => {
   console.log(`\nFile changed: ${path.basename(filePath)}`);
-  console.log('🚀 Triggering RPGlitch rebuild...');
+  console.log(`🚀 Triggering ${appName} rebuild...`);
 
-  exec(`node "${buildScriptPath}"`, (error, stdout, stderr) => {
+  const command = `node "${buildScriptPath}" ${appName}`;
+  exec(command, (error, stdout, stderr) => {
     if (error) {
       console.error('❌ Build failed:');
       console.error(stderr);
@@ -38,10 +47,9 @@ const runBuild = (filePath) => {
   });
 };
 
-// Add event listeners.
 watcher
   .on('add', runBuild)
   .on('change', runBuild)
   .on('unlink', runBuild)
   .on('error', error => console.error(`Watcher error: ${error}`))
-  .on('ready', () => console.log('Watcher is ready and watching for changes...'));
+  .on('ready', () => console.log(`Watcher for ${appName} is ready and watching for changes...`));

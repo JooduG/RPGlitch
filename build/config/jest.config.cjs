@@ -8,13 +8,11 @@ const config = {
     'default'
   ],
   transform: {
-    '^.+.js$': [
-      'babel-jest',
-      {
-        configFile: './build/config/babel.config.js'
-      }
-    ]
-  }
+    '^.+\\.[tj]sx?$': ['babel-jest', { configFile: './build/config/babel.config.js' }]
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!cash-dom|dexie|jsdom)'
+  ]
 };
 
 module.exports = config;

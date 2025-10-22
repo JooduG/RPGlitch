@@ -38,7 +38,7 @@ function runNode(scriptRelPath, args = []) {
 (function main() {
   try {
     console.log('🔨 Building RPGlitch…');
-    runNode('build-rpglitch.js');
+    runNode('build-app.js', ['rpglitch']);
 
     if (!fs.existsSync(OUTPUT_FILE)) {
       console.error(`❌ Build reported success but output file was not found at: ${OUTPUT_FILE}`);
