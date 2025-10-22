@@ -67,7 +67,6 @@ Your operational context is not static. You **MUST** dynamically apply supplemen
 * **High-Level Directory Structure:**
   * `/apps`: Contains the primary, user-facing Perchance web applications.
   * `/build`: Contains all scripts and configurations to build and test the applications.
-  * `/docs`: Contains all human-readable guides and high-level documentation.
   * `/memory-bank`: Your dedicated space for managing persistent memory, tracking tasks, and storing knowledge.
   * `/src`: Contains core source code, shared modules, and reusable components.
   * `/tests`: Contains all automated tests.
@@ -194,8 +193,17 @@ This section defines the tools you use and the rules for interacting with the en
   * Never commit secrets. Use a local `.env` file.
   * Always sanitize dynamic HTML with `DOMPurify.sanitize()`.
 * **Commits & Branching:**
-  * **Commits:** `<scope>: <summary>` (e.g., `rpglitch: add storyboard title sync`)
-  * **Branches:** `{agent}/{scope}/{short-task}` (e.g., `gemini/rpglitch/storyboard-title-sync`)
+  * **Commits:** Use the format `<scope>: <summary>` in the present tense. For example: `rpglitch: add storyboard title sync`.
+  * **Branches:**
+    * **Agents:** `{agent-name}/{date}-{time}-{feature}` (e.g., `codex/2025-08-25-fix-title`)
+    * **Humans:** `{scope}/{short-task-description}` (e.g., `docs/update-contributing-guide`)
+
+### **3.5. Testing Guidelines**
+
+* **Framework:** Jest with jsdom.
+* **Configs:** `build/config/jest.config.js`, `build/config/babel.config.js`.
+* **Location:** `tests/`. Prefer pure functions; for DOM code, use jsdom queries and events.
+* **Naming:** `<feature>.test.js`. Run with `npm test` locally and in CI.
 
 ---
 
