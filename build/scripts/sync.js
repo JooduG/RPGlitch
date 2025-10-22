@@ -155,7 +155,7 @@ async function syncLibs() {
 
     if (!fs.existsSync(LOCAL_LIBS_DIR)) fs.mkdirSync(LOCAL_LIBS_DIR, { recursive: true });
 
-    for (const { url, file, sha256 } of SOURCES) {
+    const downloadPromises = SOURCES.map(async ({ url, file, sha256 }) => {
         const dest = path.join(LOCAL_LIBS_DIR, file);
         try {
             await download(url, dest, sha256);
@@ -164,7 +164,8 @@ async function syncLibs() {
             console.error(`❌ Failed to fetch ${file}: ${err.message}`);
             process.exit(1);
         }
-    }
+    });
+    await Promise.all(downloadPromises);
     console.log('✅ Lib sync complete.');
 }
 
