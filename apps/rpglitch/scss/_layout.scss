@@ -26,21 +26,12 @@
 .top-bar-right {
   display: flex;
   margin-left: auto;
+  gap: 1rem;
 }
 
 .top-bar-left {
   display: flex;
-}
-
-.top-bar-left button {
-  margin-right: 1rem;}
-
-.top-bar-right button {
-  margin-right: 1rem;}
-
-.top-bar-left button, .top-bar-right button {
-  border-radius: 0;
-  border-right: 1px solid var(--pico-contrast-inverse);
+  gap: 1rem;
 }
 
 .top-bar-left button:first-of-type,
