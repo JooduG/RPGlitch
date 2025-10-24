@@ -111,7 +111,7 @@
   padding: 1rem;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .profile-layout {
     flex-direction: column;
   }
