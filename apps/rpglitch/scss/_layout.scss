@@ -32,10 +32,15 @@
   display: flex;
 }
 
-.top-bar-left button
-  margin-right: 0.75rem;,
-.top-bar-right button 
-  margin-right: 0.5rem;{
+.top-bar-left button {
+  margin-right: 0.75rem;
+}
+
+.top-bar-right button {
+  margin-right: 0.5rem;
+}
+
+.top-bar-left button, .top-bar-right button {
   border-radius: 0;
   border-right: 1px solid var(--pico-contrast-inverse);
 }
