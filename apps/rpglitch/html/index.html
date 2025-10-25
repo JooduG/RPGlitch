@@ -44,93 +44,85 @@
       <!-- Top Bar -->
       <nav id="top-bar" class="top-bar">
         <!-- Top Bar Left -->
-        <ul role="presentation" id="top-bar-left">
-          <li><div role="tablist" class="top-bar-left">
-            <li role="presentation">
-              <button
-                class="secondary"
-                role="tab"
-                tabindex="0"
-                id="tab-stories"
-                aria-selected="false"
-                aria-expanded="false"
-                aria-controls="chin-stories"
-                data-chin="stories">
-                Stories
-              </button>
-            </li>
-            <li role="presentation">
-              <button
-                class="secondary"
-                role="tab"
-                tabindex="-1"
-                id="tab-characters"
-                aria-selected="false"
-                aria-expanded="false"
-                aria-controls="chin-characters"
-                data-chin="characters">
-                Characters
-              </button>
-            </li>
-            <li role="presentation">
-              <button
-                class="secondary"
-                role="tab"
-                tabindex="-1"
-                id="tab-worlds"
-                aria-selected="false"
-                aria-expanded="false"
-                aria-controls="chin-worlds"
-                data-chin="worlds">
-                Worlds
-              </button>
-            </li>
-            <li role="presentation">
-              <button
-                class="secondary"
-                role="tab"
-                tabindex="-1"
-                id="tab-options"
-                aria-selected="false"
-                aria-expanded="false"
-                aria-controls="chin-options"
-                data-chin="options">
-                Options
-              </button>
-            </li>
-          </div></li>
+        <ul role="tablist" id="top-bar-left" class="top-bar-left">
+          <li role="presentation">
+            <button
+              class="secondary"
+              role="tab"
+              tabindex="0"
+              id="tab-stories"
+              aria-selected="false"
+              aria-expanded="false"
+              aria-controls="chin-stories"
+              data-chin="stories">
+              Stories
+            </button>
+          </li>
+          <li role="presentation">
+            <button
+              class="secondary"
+              role="tab"
+              tabindex="-1"
+              id="tab-characters"
+              aria-selected="false"
+              aria-expanded="false"
+              aria-controls="chin-characters"
+              data-chin="characters">
+              Characters
+            </button>
+          </li>
+          <li role="presentation">
+            <button
+              class="secondary"
+              role="tab"
+              tabindex="-1"
+              id="tab-worlds"
+              aria-selected="false"
+              aria-expanded="false"
+              aria-controls="chin-worlds"
+              data-chin="worlds">
+              Worlds
+            </button>
+          </li>
+          <li role="presentation">
+            <button
+              class="secondary"
+              role="tab"
+              tabindex="-1"
+              id="tab-options"
+              aria-selected="false"
+              aria-expanded="false"
+              aria-controls="chin-options"
+              data-chin="options">
+              Options
+            </button>
+          </li>
         </ul>
 
         <!-- Top Bar Right: Storyboard -->
-        <ul id="top-bar-right-storyboard">
-          <li><div class="top-bar-right">
-            <li><button class="secondary" id="shuffle-btn">Shuffle</button></li>
-            <li>
-              <button class="primary" id="begin-story">Begin Story</button>
-            </li>
-          </div></li>
+        <ul id="top-bar-right-storyboard" class="top-bar-right">
+          <li><button class="secondary" id="shuffle-btn">Shuffle</button></li>
+          <li>
+            <button class="primary" id="begin-story">Begin Story</button>
+          </li>
         </ul>
 
         <!-- Top Bar Right: Form -->
-        <ul id="top-bar-right-form" hidden>
-          <li><div class="top-bar-right">
-            <li><button class="secondary" id="form-cancel">Cancel</button></li>
-            <li><button class="danger" id="form-delete">Delete</button></li>
-            <li><button class="primary" id="form-save">Save</button></li>
-          </div></li>
+        <ul id="top-bar-right-form" class="top-bar-right" hidden>
+          <li><button class="secondary" id="form-cancel">Cancel</button></li>
+          <li><button class="danger" id="form-delete">Delete</button></li>
+          <li><button class="primary" id="form-save">Save</button></li>
         </ul>
 
         <!-- Top Bar Right: Profile -->
-        <ul id="top-bar-right-profile" hidden>
-          <li><div class="top-bar-right">
-            <li><button class="secondary" id="profile-edit">Edit</button></li>
-            <li>
-              <button class="secondary" id="profile-copy">
-                Copy &amp; Customise
-              </button>
-            </li>
-            <li><button class="primary" id="profile-back">Back</button></li>
-          </div></li>
+        <ul id="top-bar-right-profile" class="top-bar-right" hidden>
+          <li><button class="secondary" id="profile-edit">Edit</button></li>
+          <li>
+            <button class="secondary" id="profile-copy">
+              Copy &amp; Customise
+            </button>
+          </li>
+          <li><button class="primary" id="profile-back">Back</button></li>
         </ul>
       </nav>
     </header>

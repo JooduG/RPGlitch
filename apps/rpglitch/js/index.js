@@ -20,6 +20,53 @@ import {
   getPremadeItems,
 } from './entities.js';
 
+// =================================================================
+// App State Management
+// =================================================================
+
+const App = {
+  state: {
+    characters: { byId: {}, allIds: [] },
+    threads:    { byId: {}, allIds: [], activeId: null },
+    messages:   { byThreadId: {} }, // { [threadId]: [{id, role, text, seed, meta, createdAt}] }
+    settings:   { temperature: 0.7, top_p: 1.0, maxTokens: 512, stop: [], model: "default" },
+    ui:         { fsm: "idle", promptPreviewOpen: false, lastError: null, title: "RPGlitch" }
+  },
+  
+  /**
+   * Updates the global App.state by merging a patch and emits a state:changed event.
+   * @param {object} patch - A partial state object to merge into the current state.
+   */
+  applyPatch(patch) {
+    // Simple deep merge for nested objects.
+    // This is a basic implementation. For more complex needs, a library like lodash.merge would be used.
+    const merge = (target, source) => {
+      for (const key in source) {
+        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+          if (!target[key]) {
+            Object.assign(target, { [key]: {} });
+          }
+          merge(target[key], source[key]);
+        } else {
+          Object.assign(target, { [key]: source[key] });
+        }
+      }
+      return target;
+    };
+
+    merge(App.state, patch);
+    
+    // Emit a custom event to notify components that the state has changed.
+    // This allows different parts of the UI to re-render themselves based on the new state.
+    document.dispatchEvent(new CustomEvent('state:changed', { detail: { patch } }));
+  }
+};
+
+// Expose App to the window for debugging and easy access
+window.App = App;
+
+// =================================================================
+
 let _allItemsCache = {}; // Local cache for lists
 
 const TEST_MODE = (() => {

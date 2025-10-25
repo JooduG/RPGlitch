@@ -79,6 +79,8 @@
 
 <!-- path: present/rpglitch-core-execution-plan.md -->
 
+> **Status Update (2025-10-25):** This execution plan was authored on 2025-08-25 and was approved, but has not yet been implemented. A recent code audit confirms that the key components and functions outlined below (e.g., `App.prompt.build`, `App.chat.send`) do not exist in the current codebase. The plan remains the approved, active roadmap for the next development cycle for RPGlitch.
+
 # RPGlitch — Core Execution Plan (30 Days) + Orchestration Blueprint
 
 **Date:** 2025-08-25  
