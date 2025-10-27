@@ -1098,7 +1098,6 @@ async function onStoryboardChange(e) { // <-- MADE ASYNC
   }
 
   // --- NEW CODE ---
-  const aiSelect = document.querySelector("#storyboard-ai-select");
   const userSelect = document.querySelector("#storyboard-user-select");
   const worldSelect = document.querySelector("#storyboard-world-select");
 

@@ -4,7 +4,6 @@ import fs from "fs";
 import path from "path";
 import https from "https";
 import crypto from "crypto";
-import { execSync } from "child_process";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 

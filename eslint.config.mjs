@@ -30,7 +30,7 @@ try {
   if (master && master.linters && master.linters.eslint) {
     eslintIgnores = master.linters.eslint;
   }
-} catch (e) {
+} catch {
   // Silently fail and use the fallback ignores
 }
 
