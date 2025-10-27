@@ -263,8 +263,12 @@ export const entities = {
     // 1. Get premade items and format them
     const premadeList = (getPremadeItems(key) || []).map(e => formatPremade(e, type));
     
-    // 2. Get custom items from the database, ensuring we only get custom ones.
-    const customList = await db.entities.where({ type: type, isCustom: true }).toArray();
+try {
+  const customList = await db.entities.where({ type: type, isCustom: true }).toArray();
+} catch (error) {
+  console.error("Error fetching custom entities:", error);
+  return []; // Or handle the error appropriately
+}
 
     // 3. Merge and sort. No need to filter premade IDs anymore, the query handles it.
     const allItems = premadeList.concat(customList);
