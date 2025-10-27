@@ -1368,7 +1368,7 @@ export async function initializeWhenReady() {
     // Check if settings are initialized (indicates a fresh or cleared DB)
     const currentSettings = await db.settings.get('settings');
     if (!currentSettings) {
-      console.log('[RPGlitch] Initializing default settings and premade entities.');
+      console.log('[RPGlitch] Initializing default settings.');
       // Initialize default settings
       await db.settings.add({
         id: 'settings',
@@ -1379,11 +1379,6 @@ export async function initializeWhenReady() {
         model: App.state.settings.model,
         historyLength: App.state.settings.historyLength,
       });
-
-      // Populate premade characters and worlds
-      const premadeCharacters = getPremadeItems('characters').map(e => formatPremade(e, 'character'));
-      const premadeWorlds = getPremadeItems('worlds').map(e => formatPremade(e, 'world'));
-      await db.entities.bulkAdd([...premadeCharacters, ...premadeWorlds]);
     }
 
     console.log('[RPGlitch] initializeWhenReady start', {

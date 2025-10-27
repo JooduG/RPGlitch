@@ -263,16 +263,11 @@ export const entities = {
     // 1. Get premade items and format them
     const premadeList = (getPremadeItems(key) || []).map(e => formatPremade(e, type));
     
-    // 2. Get custom items from the database
-    const customList = await db.entities.where('type').equals(type).toArray();
+    // 2. Get custom items from the database, ensuring we only get custom ones.
+    const customList = await db.entities.where({ type: type, isCustom: true }).toArray();
 
-    // 3. Merge and sort
-    // We filter out any premade IDs that might be in the custom list (if we ever saved them)
-    // This isn't strictly necessary with Dexie, but good practice.
-    const premadeIds = new Set(premadeList.map(p => p.id));
-    const filteredCustom = customList.filter(c => !premadeIds.has(c.id));
-    
-    const allItems = premadeList.concat(filteredCustom);
+    // 3. Merge and sort. No need to filter premade IDs anymore, the query handles it.
+    const allItems = premadeList.concat(customList);
     
     // Sort by name
     return allItems.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
