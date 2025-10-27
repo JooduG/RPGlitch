@@ -153,7 +153,7 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
     });
   }
 
-  saveBtn?.addEventListener("click", async () => { // <-- MADE ASYNC
+  saveBtn?.addEventListener("click", async () => {
     const data = {
       kind: type,
       name: escapeHtml(titleInput.value.trim()),
@@ -172,12 +172,16 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
       },
     };
     if (!data.name) return;
-    const saved = await entities.upsert( // <-- AWAITED
-      type,
-      id === "new" ? data : { ...data,
-        id
-      }
-    );
+
+    // Check if the original entity is premade.
+    const originalEntity = isEdit ? await entities.get(type, id) : null;
+    const isEditingPremade = originalEntity?.isPremade;
+
+    // If it's a new entity or a copy of a premade one, we don't pass an ID.
+    // Otherwise, we pass the existing ID to update the custom entity.
+    const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
+
+    const saved = await entities.upsert(type, entityToSave);
     router.navigate(`#profile/${type}/${saved.id}`);
   });
 
