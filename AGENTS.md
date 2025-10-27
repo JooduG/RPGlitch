@@ -1,6 +1,6 @@
 # **📜 AGENTS.md – The Unified Agent Protocol**
 
-Version 1.1.0 · Updated 2025-10-21
+Version 1.1.1 · Updated 2025-10-25
 
 **CORE PRINCIPLE:** This is the **single, canonical playbook** for all AI agents working in this repository. It defines your primary system, core personas, operational workflow, and rules for architecture, coding, and tooling. It is the **single foundation of truth** for all agent behavior.
 
@@ -97,7 +97,7 @@ Your operational context is not static. You **MUST** dynamically apply supplemen
   * All JS files **MUST** be wrapped in an IIFE to avoid polluting the global namespace.
   * The IndexedDB database is the **SINGLE SOURCE OF TRUTH** for all application state.
 * **DOM Manipulation:**
-  * All DOM manipulation **MUST** be performed using the `cash` library (`$`).
+  * All DOM manipulation **MUST** be performed using the `cash` library (`).
   * **AVOID** using `innerHTML` with dynamic content.
 * **Storage:**
   * All client-side storage **MUST** use IndexedDB via the `Dexie.js` wrapper. `localStorage` is **FORBIDDEN** for application state.

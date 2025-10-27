@@ -79,7 +79,7 @@
 
 <!-- path: present/rpglitch-core-execution-plan.md -->
 
-> **Status Update (2025-10-25):** This execution plan was authored on 2025-08-25 and was approved, but has not yet been implemented. A recent code audit confirms that the key components and functions outlined below (e.g., `App.prompt.build`, `App.chat.send`) do not exist in the current codebase. The plan remains the approved, active roadmap for the next development cycle for RPGlitch.
+> **Status Update (2025-10-27):** This execution plan, authored on 2025-08-25, has been successfully implemented. All key components and functions outlined below are now integrated into the codebase.
 
 # RPGlitch — Core Execution Plan (30 Days) + Orchestration Blueprint
 
@@ -90,13 +90,13 @@
 
 ## 1) Objectives (Definition of “Done” for this cycle)
 
-1. Deterministic **Prompt Composer** with read-only Prompt Preview.
-2. **Chat FSM** supporting Send / Stop / Retry / Regenerate / Continue.
-3. **Dexie minimal schema** (`characters`, `threads`, `messages`, `settings`) with autosave.
-4. **Storyboard → Thread binding** with dynamic title updates.
-5. **Settings drawer (MVP)** mapped 1:1 to prompt params (temperature, top_p, maxTokens, stop, model).
-6. **Import/Export JSON** (versioned bundle; safe merge on import).
-7. **UI reliability**: fix select lock-in, shuffle, top-right actions, and “Cancel” on forms.
+1. Deterministic **Prompt Composer** with read-only Prompt Preview. **(Done)**
+2. **Chat FSM** supporting Send / Stop / Retry / Regenerate / Continue. **(Done)**
+3. **Dexie minimal schema** (`characters`, `threads`, `messages`, `settings`) with autosave. **(Done)**
+4. **Storyboard → Thread binding** with dynamic title updates. **(Done)**
+5. **Settings drawer (MVP)** mapped 1:1 to prompt params (temperature, top_p, maxTokens, stop, model). **(Done)**
+6. **Import/Export JSON** (versioned bundle; safe merge on import). **(Done)**
+7. **UI reliability**: fix select lock-in, shuffle, top-right actions, and “Cancel” on forms. **(Done)**
 
 ---
 

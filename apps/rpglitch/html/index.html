@@ -530,5 +530,13 @@
         { once: true }
       );
     </script>
+  <!-- Dev HUD -->
+    <div id="dev-hud" style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; z-index: 10000; display: none;">
+      <h3>Dev HUD</h3>
+      <p><strong>Active Thread:</strong> <span id="hud-active-thread">N/A</span></p>
+      <p><strong>FSM State:</strong> <span id="hud-fsm-state">N/A</span></p>
+      <p><strong>Last Payload:</strong> <span id="hud-last-payload">N/A</span></p>
+      <p><strong>Last Error:</strong> <span id="hud-last-error">N/A</span></p>
+    </div>
   </body>
 </html>

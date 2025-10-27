@@ -231,7 +231,7 @@ function normalize(base = {}) {
 
 // --- NEW: Format Premade Entities ---
 // This makes premade items look like items from the database.
-function formatPremade(entity, type) {
+export function formatPremade(entity, type) {
   return {
     ...entity,
     kind: type, // Ensure 'kind' is set (was missing)

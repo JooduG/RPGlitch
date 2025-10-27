@@ -1,6 +1,6 @@
 # **🎨 Project Design System & UI Protocol**
 
-Version 3.1.1 · Updated 2025-10-22
+Version 3.1.2 · Updated 2025-10-25
 
 **CORE PRINCIPLE:** This document is the **single source of truth** for the visual and interaction design of all applications in this repository. It defines our philosophy, our styling foundation (Pico.css), our custom component library, and our user experience patterns. All UI/UX development **MUST** adhere to these guidelines.
 

@@ -18,6 +18,7 @@ import {
   entities,
   getPictureHTML,
   getPremadeItems,
+  formatPremade, // <-- ADDED THIS
 } from './entities.js';
 
 // =================================================================
@@ -29,7 +30,7 @@ const App = {
     characters: { byId: {}, allIds: [] },
     threads:    { byId: {}, allIds: [], activeId: null },
     messages:   { byThreadId: {} }, // { [threadId]: [{id, role, text, seed, meta, createdAt}] }
-    settings:   { temperature: 0.7, top_p: 1.0, maxTokens: 512, stop: [], model: "default" },
+    settings:   { temperature: 0.7, top_p: 1.0, maxTokens: 512, stop: [], model: "default", historyLength: 10 },
     ui:         { fsm: "idle", promptPreviewOpen: false, lastError: null, title: "RPGlitch" }
   },
   
@@ -59,6 +60,178 @@ const App = {
     // Emit a custom event to notify components that the state has changed.
     // This allows different parts of the UI to re-render themselves based on the new state.
     document.dispatchEvent(new CustomEvent('state:changed', { detail: { patch } }));
+  },
+
+  prompt: {
+    build: (threadId) => {
+      const thread = App.state.threads.byId[threadId];
+      // Note: App.state.characters.byId will now contain entities of type 'character'
+      const ch = Object.values(App.state.characters.byId).find(c => c.id === thread?.characterId && c.type === 'character');
+      const msgs = App.prompt.trimHistory(App.state.messages.byThreadId[threadId] || []);
+      const system = [ch?.persona, ch?.scenario].filter(Boolean).join("\n\n");
+
+      const params = {
+        temperature: App.state.settings.temperature,
+        top_p:       App.state.settings.top_p,
+        maxTokens:   App.state.settings.maxTokens,
+        stop:        App.state.settings.stop,
+        model:       App.state.settings.model
+      };
+
+      return { system, messages: msgs, params };
+    },
+
+    trimHistory: (msgs) => {
+      // Conservative, token-budget-aware trimming:
+      // - Always retain latest N user/assistant pairs (configurable).
+      // - Optional summarizer hook can be added later (not in this cycle).
+      const historyLength = App.state.settings.historyLength;
+      if (msgs.length <= historyLength * 2) { // * 2 because we count user/assistant pairs
+        return msgs;
+      }
+
+      // Keep the last 'historyLength' user/assistant pairs
+      return msgs.slice(-historyLength * 2);
+    }
+  },
+
+  threads: {
+    requireActive: () => {
+      // Placeholder for now. Will implement in a later step.
+      // For now, return a dummy threadId or throw an error if no active thread.
+      if (App.state.threads.activeId) {
+        return App.state.threads.activeId;
+      } else {
+        // For testing purposes, let's create a dummy active thread if none exists
+        const dummyThreadId = "dummy-thread-1";
+        App.state.threads.activeId = dummyThreadId;
+        App.state.threads.byId[dummyThreadId] = { id: dummyThreadId, characterId: "dummy-char-1", title: "Dummy Thread", settingsSnapshot: {}, createdAt: Date.now(), updatedAt: Date.now() };
+        App.state.threads.allIds.push(dummyThreadId);
+        console.warn("No active thread found, created a dummy one.");
+        return dummyThreadId;
+      }
+    },
+
+    createFromSelection: async ({ storyId, characterId, worldId }) => {
+      const ch = Object.values(App.state.characters.byId).find(c => c.id === characterId && c.type === 'character');
+      const title = `${ch?.name || "Character"} × ${storyId || "Story"}`;
+
+      const threadId = await db.threads.add({
+        characterId,
+        title,
+        settingsSnapshot: { ...App.state.settings },
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      });
+
+      App.state.applyPatch({ threads: { activeId: threadId }, ui: { title } });
+      return threadId;
+    }
+  },
+
+  ai: {
+    generateStream: async ({ payload, signal, onToken, onDone }) => {
+      // Placeholder for AI stream generation.
+      // Simulate a stream for now.
+      console.log("Simulating AI stream generation with payload:", payload);
+      const dummyResponse = "This is a simulated AI response. " +
+                            "It will provide some interesting text. " +
+                            "The story continues...";
+      const tokens = dummyResponse.split(" ");
+
+      for (let i = 0; i < tokens.length; i++) {
+        if (signal.aborted) {
+          console.log("AI stream aborted.");
+          return;
+        }
+        await new Promise(resolve => setTimeout(resolve, 50)); // Simulate network delay
+        onToken(tokens[i] + " ");
+      }
+      onDone();
+    }
+  },
+
+  chat: {
+    send: async (userText) => {
+      if (!userText) return;
+      if (!["idle", "done", "error", "aborted"].includes(App.state.ui.fsm)) return;
+
+      const threadId = App.threads.requireActive();
+      await db.messages.add({ threadId, role: "user", text: userText, createdAt: Date.now() });
+
+      const payload = App.prompt.build(threadId);
+      const ctrl = new AbortController();
+      App.state.applyPatch({ ui: { fsm: "sending", lastError: null, abortController: ctrl } });
+
+      try {
+        App.state.applyPatch({ ui: { fsm: "streaming" } });
+
+        await App.ai.generateStream({
+          payload,
+          signal: ctrl.signal,
+          onToken: (t) => App.chat._appendAssistantToken(threadId, t),
+          onDone:  () => App.chat._finalizeAssistantMessage(threadId)
+        });
+
+        App.state.applyPatch({ ui: { fsm: "done" } });
+      } catch (e) {
+        const isAbort = e?.name === "AbortError";
+        App.state.applyPatch({ ui: { fsm: isAbort ? "aborted" : "error", lastError: e?.message || String(e) } });
+      }
+    },
+
+    stop: () => {
+      if (App.state.ui.abortController) {
+        App.state.ui.abortController.abort();
+        App.state.applyPatch({ ui: { fsm: "aborted", abortController: null } });
+        console.log("Chat stream aborted.");
+      }
+    },
+    retry: async () => {
+      const threadId = App.threads.requireActive();
+      const messages = App.state.messages.byThreadId[threadId];
+      if (messages && messages.length > 0) {
+        const lastUserMessage = messages.findLast(msg => msg.role === "user");
+        if (lastUserMessage) {
+          // Remove any assistant messages after the last user message
+          const lastUserMessageIndex = messages.lastIndexOf(lastUserMessage);
+          App.state.messages.byThreadId[threadId] = messages.slice(0, lastUserMessageIndex + 1);
+          await App.chat.send(lastUserMessage.text);
+        }
+      }
+    },
+    regenerate: async () => {
+      const threadId = App.threads.requireActive();
+      const messages = App.state.messages.byThreadId[threadId];
+      if (messages && messages.length > 0) {
+        // Find the last user message and remove it and subsequent assistant messages
+        const lastUserMessageIndex = messages.findLastIndex(msg => msg.role === "user");
+        if (lastUserMessageIndex !== -1) {
+          App.state.messages.byThreadId[threadId] = messages.slice(0, lastUserMessageIndex);
+          const previousUserMessage = messages[lastUserMessageIndex];
+          await App.chat.send(previousUserMessage.text);
+        }
+      }
+    },
+    continue: async () => {
+      await App.chat.send("continue"); // Send a predefined 'continue' message
+    },
+    _appendAssistantToken: (threadId, token) => {
+      let messages = App.state.messages.byThreadId[threadId] || [];
+      let lastMessage = messages[messages.length - 1];
+
+      if (!lastMessage || lastMessage.role !== "assistant") {
+        lastMessage = { id: Date.now(), threadId, role: "assistant", text: "", createdAt: Date.now() };
+        messages.push(lastMessage);
+      }
+      lastMessage.text += token;
+      App.state.applyPatch({ messages: { byThreadId: { [threadId]: messages } } });
+    },
+    _finalizeAssistantMessage: (threadId) => {
+      // No explicit action needed here for now, as tokens are appended directly.
+      // This might be used for saving the final message to DB in the future.
+      console.log(`Finalizing assistant message for thread ${threadId}.`);
+    }
   }
 };
 
@@ -100,47 +273,47 @@ export function _getUIElements() {
 
   ui.topBarLeft = doc.querySelector("#top-bar-left");
   ui.chinContainer = doc.querySelector("#chin-container");
-  ui.topBarButtons =
-    ui.topBarLeft ?
-    ui.topBarLeft.querySelectorAll("button[data-chin]") :
+  ui.topBarButtons = 
+    ui.topBarLeft ? 
+    ui.topBarLeft.querySelectorAll("button[data-chin]") : 
     [];
-  ui.topBarRightStoryboard =
+  ui.topBarRightStoryboard = 
     doc.querySelector("#top-bar-right-storyboard");
-  ui.topBarRightForm =
+  ui.topBarRightForm = 
     doc.querySelector("#top-bar-right-form");
-  ui.topBarRightProfile =
+  ui.topBarRightProfile = 
     doc.querySelector("#top-bar-right-profile");
 
   // Option chin actions
-  ui.uploadBackupInput =
+  ui.uploadBackupInput = 
     doc.querySelector("#upload-backup");
-  ui.uploadBackupTrigger =
+  ui.uploadBackupTrigger = 
     doc.querySelector('[data-trigger="upload-backup"]');
-  ui.downloadBackupButton =
+  ui.downloadBackupButton = 
     doc.querySelector("#download-backup");
-  ui.deleteAllDataButton =
+  ui.deleteAllDataButton = 
     doc.querySelector("#delete-all-data");
 
   // Story chin actions
   ui.newStoryButton = doc.querySelector("#new-story");
-  ui.uploadStoryTrigger =
+  ui.uploadStoryTrigger = 
     doc.querySelector('[data-trigger="upload-story"]');
-  ui.uploadStoryInput =
+  ui.uploadStoryInput = 
     doc.querySelector("#upload-story");
 
   // Character chin actions
-  ui.newCharacterButton =
+  ui.newCharacterButton = 
     doc.querySelector("#new-character");
-  ui.uploadCharacterTrigger =
+  ui.uploadCharacterTrigger = 
     doc.querySelector('[data-trigger="upload-character"]');
-  ui.uploadCharacterInput =
+  ui.uploadCharacterInput = 
     doc.querySelector("#upload-character");
 
   // World chin actions
   ui.newWorldButton = doc.querySelector("#new-world");
-  ui.uploadWorldTrigger =
+  ui.uploadWorldTrigger = 
     doc.querySelector('[data-trigger="upload-world"]');
-  ui.uploadWorldInput =
+  ui.uploadWorldInput = 
     doc.querySelector("#upload-world");
 
   return ui;
@@ -383,7 +556,7 @@ export async function renderDropdown(doc, selectId, key) { // <-- MADE ASYNC
   let premadeCount = 0;
   let customCount = 0;
   items.forEach((item) => {
-    const option = doc.createElement("option");
+    const option = document.createElement("option");
     option.value = item.id || item.title;
     option.textContent = item.title || "";
     if (item.isPremade) {
@@ -434,9 +607,9 @@ export function _attachCardNavigation() {
         card,
         container.querySelectorAll(".chin-card[data-type][data-id]")
       );
-      const {
-        type,
-        id
+      const { 
+        type, 
+        id 
       } = card.dataset;
       if (type && id) router.navigate(`#profile/${type}/${id}`);
     });
@@ -446,9 +619,9 @@ export function _attachCardNavigation() {
       if (!card) return;
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        const {
-          type,
-          id
+        const { 
+          type, 
+          id 
         } = card.dataset;
         if (type && id) router.navigate(`#profile/${type}/${id}`);
       }
@@ -923,6 +1096,20 @@ async function onStoryboardChange(e) { // <-- MADE ASYNC
   } catch {
     /* noop */
   }
+
+  // --- NEW CODE ---
+  const aiSelect = document.querySelector("#storyboard-ai-select");
+  const userSelect = document.querySelector("#storyboard-user-select");
+  const worldSelect = document.querySelector("#storyboard-world-select");
+
+  const storyId = "default-story"; // Placeholder for now, as storyId is not directly from a select
+  const characterId = userSelect?.value;
+  const worldId = worldSelect?.value;
+
+  if (characterId && worldId) { // Only create thread if character and world are selected
+    await App.threads.createFromSelection({ storyId, characterId, worldId });
+  }
+  // --- END NEW CODE ---
 }
 
 export async function _attachStoryboardListeners() { // <-- MADE ASYNC
@@ -1100,6 +1287,45 @@ export function _attachContentChinActions() {
   _contentListenersAttached = true;
 }
 
+let _settingsListenersAttached = false;
+
+export function _attachSettingsListeners() {
+  if (_settingsListenersAttached) return;
+  _settingsListenersAttached = true;
+
+  const settings = App.state.settings;
+
+  const temperatureInput = document.querySelector("#setting-temperature");
+  const topPInput = document.querySelector("#setting-top_p");
+  const maxTokensInput = document.querySelector("#setting-max-tokens");
+  const stopInput = document.querySelector("#setting-stop");
+  const modelSelect = document.querySelector("#setting-model");
+
+  // Initialize UI with current settings
+  if (temperatureInput) temperatureInput.value = settings.temperature;
+  if (topPInput) topPInput.value = settings.top_p;
+  if (maxTokensInput) maxTokensInput.value = settings.maxTokens;
+  if (stopInput) stopInput.value = settings.stop.join(", ");
+  if (modelSelect) modelSelect.value = settings.model;
+
+  // Attach event listeners
+  temperatureInput?.addEventListener("input", (e) => {
+    App.state.applyPatch({ settings: { temperature: parseFloat(e.target.value) } });
+  });
+  topPInput?.addEventListener("input", (e) => {
+    App.state.applyPatch({ settings: { top_p: parseFloat(e.target.value) } });
+  });
+  maxTokensInput?.addEventListener("input", (e) => {
+    App.state.applyPatch({ settings: { maxTokens: parseInt(e.target.value, 10) } });
+  });
+  stopInput?.addEventListener("input", (e) => {
+    App.state.applyPatch({ settings: { stop: e.target.value.split(",").map(s => s.trim()).filter(Boolean) } });
+  });
+  modelSelect?.addEventListener("change", (e) => {
+    App.state.applyPatch({ settings: { model: e.target.value } });
+  });
+}
+
 export function _attachChatFormListener() {
   const chatForm = document.querySelector("#chat-form");
   if (chatForm && !chatForm._submitListenerAttached) {
@@ -1139,6 +1365,27 @@ export async function initializeWhenReady() {
     await initDB(); // <-- ADDED
     console.log('[RPGlitch] Database initialized.'); // <-- ADDED
 
+    // Check if settings are initialized (indicates a fresh or cleared DB)
+    const currentSettings = await db.settings.get('settings');
+    if (!currentSettings) {
+      console.log('[RPGlitch] Initializing default settings and premade entities.');
+      // Initialize default settings
+      await db.settings.add({
+        id: 'settings',
+        temperature: App.state.settings.temperature,
+        top_p: App.state.settings.top_p,
+        maxTokens: App.state.settings.maxTokens,
+        stop: App.state.settings.stop,
+        model: App.state.settings.model,
+        historyLength: App.state.settings.historyLength,
+      });
+
+      // Populate premade characters and worlds
+      const premadeCharacters = getPremadeItems('characters').map(e => formatPremade(e, 'character'));
+      const premadeWorlds = getPremadeItems('worlds').map(e => formatPremade(e, 'world'));
+      await db.entities.bulkAdd([...premadeCharacters, ...premadeWorlds]);
+    }
+
     console.log('[RPGlitch] initializeWhenReady start', {
       retry: window.initializeWhenReadyRetryCount || 0
     });
@@ -1150,6 +1397,7 @@ export async function initializeWhenReady() {
     if (!TEST_MODE) chin.init?.();
     _attachOptionChinActions?.();
     _attachContentChinActions?.();
+    _attachSettingsListeners?.(); // <-- ADDED
     _attachCardNavigation?.();
     _attachChinSearchHandlers();
     await refreshAllLists?.(); // <-- AWAITED
@@ -1237,25 +1485,46 @@ export async function initializeWhenReady() {
   }
 }
 
-export async function importAllData(file) { // <-- MADE ASYNC
+export async function importAllData(file) {
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = async (e) => { // <-- MADE ASYNC
+  reader.onload = async (e) => {
     try {
       const data = JSON.parse(e.target.result);
-      
-      // Handle entities (characters, worlds)
-      const entitiesToImport = (data.characters || []).concat(data.worlds || []);
-      if (entitiesToImport.length > 0) {
-        await db.entities.bulkPut(entitiesToImport);
+
+      // 1. Validate version
+      if (data.version !== 1) {
+        console.warn("Imported data version mismatch. Attempting to import anyway.");
+        // In a real application, you might want to handle migrations here.
+      }
+
+      // 2. Import characters (entities)
+      if (Array.isArray(data.characters)) {
+        // Clear existing characters and add new ones. This is a simple conflict resolution strategy.
+        await db.entities.where('type').equals('character').delete();
+        await db.entities.bulkAdd(data.characters);
+      }
+
+      // 3. Import threads
+      if (Array.isArray(data.threads)) {
+        await db.threads.clear();
+        await db.threads.bulkAdd(data.threads);
+      }
+
+      // 4. Import messages
+      if (Array.isArray(data.messages)) {
+        await db.messages.clear();
+        await db.messages.bulkAdd(data.messages);
+      }
+
+      // 5. Import settings
+      if (data.settings) {
+        // Assuming settings is a singleton, clear and add
+        await db.settings.clear();
+        await db.settings.add(data.settings);
       }
       
-      // Handle stories (still localStorage)
-      if (Array.isArray(data.stories)) {
-        localStorage.setItem('stories', JSON.stringify(data.stories));
-      }
-      
-      await refreshAllLists(); // <-- AWAITED
+      await refreshAllLists();
     } catch (err) {
       console.error("Failed to import backup", err);
     } finally {
@@ -1266,20 +1535,22 @@ export async function importAllData(file) { // <-- MADE ASYNC
   reader.readAsText(file);
 }
 
-export async function exportAllData() { // <-- MADE ASYNT
-  const data = {};
+export async function exportAllData() {
+  const data = {
+    version: 1, // Add version
+  };
   
-  // Get entities from Dexie
+  // Get characters from Dexie (filtered from entities)
   data.characters = await db.entities.where('type').equals('character').toArray();
-  data.worlds = await db.entities.where('type').equals('world').toArray();
+  
+  // Get threads from Dexie
+  data.threads = await db.threads.toArray();
 
-  // Get stories from localStorage
-  try {
-    const value = localStorage.getItem('stories');
-    data.stories = value ? JSON.parse(value) : [];
-  } catch {
-    data.stories = [];
-  }
+  // Get messages from Dexie
+  data.messages = await db.messages.toArray();
+
+  // Get settings from Dexie (assuming it's a singleton with key 'settings')
+  data.settings = await db.settings.get('settings'); // Assuming 'settings' is the key for the singleton settings object
 
   const blob = new Blob([JSON.stringify(data)], {
     type: "application/json"
@@ -1334,7 +1605,8 @@ document.addEventListener(
   () => {
     // This is now redundant with the _bootBound logic, but safe.
     // We'll rely on the _bootBound logic.
-  }, {
+  },
+  {
     once: true
   }
 );

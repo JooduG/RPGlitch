@@ -8,11 +8,11 @@ import Dexie from 'dexie';
 const db = new Dexie('rpglitch');
 
 // 2. Define the schema
-db.version(1).stores({
-  entities: '++id, name, type, updated',
-  threads: '++id, characterId, worldId, updated',
-  messages: '++id, threadId, role, created',
-  settings: '&key', // '&key' means 'key' is the unique primary key
+db.version(2).stores({
+  entities: '++id, name, type, updated, avatar, persona, scenario, tags, createdAt, updatedAt',
+  threads: '++id, characterId, title, settingsSnapshot, createdAt, updatedAt',
+  messages: '++id, threadId, role, text, seed, meta, createdAt',
+  settings: '&id, temperature, top_p, maxTokens, stop, model', // 'id' as singleton key
 });
 
 /**
