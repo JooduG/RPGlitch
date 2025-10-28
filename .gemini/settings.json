@@ -139,6 +139,12 @@
       "type": "stdio",
       "autoStart": true,
       "description": "An MCP server for analyzing NPM packages."
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest"
+      ]
     }
   },
   "general": {

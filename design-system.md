@@ -1,6 +1,6 @@
 # **🎨 Project Design System & UI Protocol**
 
-Version 3.1.2 · Updated 2025-10-28
+Version 3.2.0 · Updated 2025-10-28
 
 **CORE PRINCIPLE:** This document is the **single source of truth** for the visual and interaction design of all applications in this repository. It defines our philosophy, our styling foundation (Pico.css), our custom component library, and our user experience patterns. All UI/UX development **MUST** adhere to these guidelines.
 
@@ -12,6 +12,8 @@ Our design philosophy is built on a foundation of minimalism, clarity, and robus
 * **Minimalism with Purpose:** Every visual element must serve a purpose. We remove the unnecessary to give power to the essential.
 * **Consistency is Queen:** Similar elements must look and behave similarly across all applications. This builds trust and reduces cognitive load.
 * **Accessibility by Design:** Our interfaces must be usable and accessible to everyone. This is a non-negotiable baseline.
+
+---
 
 ## **2. Interaction & UX Principles**
 
@@ -36,6 +38,8 @@ In this project, all interactive UI elements (buttons, links, navigation) **MUST
 * **Cancellable Actions:** All long-running AI actions **MUST** be cancellable.
 * **Responsive & Touch-Friendly:** All layouts and controls must be fully responsive and provide adequate touch targets for mobile users.
 
+---
+
 ## **3. The Visual System (The "Look")**
 
 Our visual language is built on the **Pico.css** framework, extended with a custom, purposeful design layer. All base typography, primary accent colors, and foundational element styling are inherited directly from Pico.css.
@@ -49,9 +53,7 @@ Our visual language is built on the **Pico.css** framework. All base typography,
     * `$gradient-color-2: #23243a`
     * `$gradient-color-3: #1a3a4a`
     * `$gradient-color-4: #2a1a3a`
-
 * **⚪ Text:** Standard text color is inherited from Pico.css (`--pico-color`).
-
 * **🎨 Palettes:** We use a set of predefined color palettes to provide visual variety.
     * **Pink:** `--brand: #ec4899`
     * **Emerald:** `--brand: #10b981`
@@ -69,6 +71,8 @@ Our visual language is built on the **Pico.css** framework. All base typography,
 * **Base Unit:** `1rem` (16px).
 * **Scale:** All major layout margins, paddings, and gaps (e.g., `.top-bar`, `.chin-grid`, `.output-area`) **MUST** use the `1rem` unit for a consistent rhythm.
 * **Radius:** A secondary unit of `0.5rem` (8px) is used for border-radius on most elements, defined via `--pico-radius` (inherited from Pico.css).
+
+---
 
 ## **4. The Component Library (The "Parts")**
 
@@ -127,6 +131,25 @@ The "Chin" is the signature slide-out panel for entity selection (Stories, Chara
 
 * **Style:** Tags are displayed as pills with a background color and rounded corners.
 
+### **4.X The "Chat View" Component (RPGlitch Specific)**
+
+This section defines the main user interaction screen (`#chat-screen-container`) which becomes visible after a story begins.
+
+* **Layout:**
+    * **Wide Screens (e.g., Desktop):** A **three-column layout**.
+        * Left Column: Displays AI character avatar/picture.
+        * Center Column (Main): Contains the `#chat-feed` and `#chat-form`.
+        * Right Column: Displays User character avatar/picture.
+    * **Narrow Screens (e.g., Mobile):** Collapses to a **single-column layout**. Character avatars might be integrated directly into the chat feed messages or a compact header.
+* **Components:**
+    * **`#chat-feed`:** The main log for messages. Messages **MUST** have distinct styling for messages attributed to the `user` and the `assistant` (AI).
+        * **Note on `role` attribute:** We use `role="user"` and `role="assistant"` attributes on message elements. This is a standard convention in chat interfaces and aligns with how many LLM APIs structure conversation history. `assistant` simply denotes the message originated from the AI persona in the current chat.
+    * **`#chat-form`:** The footer component containing the text input and "Send" button. The "Send" button's state **MUST** be bound to the Chat FSM (e.g., disabled when `fsm: "streaming"`).
+    * **`#typing-indicator`:** A dedicated element (as seen in `index.html`) that **MUST** be shown when the FSM is in the `streaming` or `sending` state.
+    * **`#conclude-story`:** A button allowing the user to end the current story. **(Note:** The exact behavior of "concluding" a story needs further definition - e.g., saving a summary, returning to storyboard, locking the thread).
+
+---
+
 ## **5. UI Safety & Hardening (RPGlitch Implementation)**
 
 To ensure the application remains interactive and robust, especially within the Perchance iframe environment, RPGlitch implements a suite of safety features (typically in `App.js` or `index.js`).
@@ -136,11 +159,15 @@ To ensure the application remains interactive and robust, especially within the 
 * **Recovery Hooks (e.g., `App.installUIRecoveryHooks()`):** The UI self-heals on common browser events like `focus`, `visibilitychange`, and `pageshow`.
 * **Attribute Observer:** May be used to instantly strip any newly added `inert` or `pointer-events: none` attributes on root-level containers to prevent external scripts from locking the UI.
 
+---
+
 ## **Changelog**
 
+* **3.2.0 (2025-10-28)** — Updated **Chat View** layout description to specify 3-column (desktop) / 1-column (mobile) structure. Added clarification note on `role="user"`/`role="assistant"` convention. Added note that `#conclude-story` functionality needs design. Removed 'Top Notification' component section.
 * **3.1.2 (2025-10-28)** — Added more details to the "Color System", "Typography", "Spacing", and "Components" sections.
 * **3.1.1 (2025-10-22)** — Simplified **Visual System**; removed "Typography" and "Primary Accent" sections to correctly imply inheritance from Pico.css. Updated **Chin Component** UX to specify "click-outside-to-close" behavior and remove the dedicated "Close" button.
 * **3.1.0 (2025-10-22)** — Overhauled **Visual System** section. Corrected the **Color System** to reflect the *actual* 4-color gradient and accent palettes (removing incorrect Catppuccin reference). Corrected **Spacing** guidelines to reflect the `1rem` layout unit standard.
 * **3.0.0 (2025-09-26)** — Major consolidation. Merged `design-icon-free-standard.md`, `core-design-system.md`, and `rpglitch-chin-ux-and-safety.md` into this single, canonical file.
 * **2.0.0 (Prior Version)** — Previous version of the core design system.
 * **1.0.0 (Initial Version)** — Initial design principles.
+* 
