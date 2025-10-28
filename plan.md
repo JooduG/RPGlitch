@@ -40,17 +40,37 @@
 | Standardize Testing Frameworks | Ensure consistency across the project for easier maintenance. | M | L | N/A | idea | Two or more fundamentally different testing patterns are used for similar features. |
 | Expand MCP Test Coverage | Ensure all MCP tool interactions are comprehensively validated. | M | M | mcp-guide.md | idea | An untested MCP integration fails silently. |
 
-## **Moonshots (Speculative)**
+## **Future Development**
 
-* **Agentic Scene Director**: AI model proposes the next storyboard beat, drafts prompts, and assembles assets for RPGlitch.  
-* **Co-op Sessions**: Two users role-play in a shared RPGlitch session with synchronized state and per-user UI.  
+### **Moonshots (Speculative)**
+
+* **Agentic Scene Director**: AI model proposes the next storyboard beat, drafts prompts, and assembles assets for RPGlitch.
+* **Co-op Sessions**: Two users role-play in a shared RPGlitch session with synchronized state and per-user UI.
 * **Heuristics-Augmented Decider**: A lightweight rules layer that nudges AI sampling parameters based on scene type.
 
-## **Maybe/Later (Cool, but not urgent)**
+### **Maybe/Later (Cool, but not urgent)**
 
-* Advanced in-app theming editor (export/import CSS tokens).  
-* In-app interactive tutorial mode for new users.  
+* Advanced in-app theming editor (export/import CSS tokens).
+* In-app interactive tutorial mode for new users.
 * "Screenshot-to-Persona" feature (parse a character card from an image using OCR + heuristics).
+
+### **Idea Backlog (New)**
+
+| Idea | Rationale | Impact | Effort | Dependencies | Status | Signals to Commit |
+| :---- | :---- | :---- | :---- | :---- | :---- | :---- |
+| **\--- RPGlitch: Core Functionality \---** | | | | | | |
+| Implement AI Character Interaction | Integrate Perchance for AI chat, enabling core roleplaying functionality. | L | L | Perchance API | idea | Core chat functionality is the primary goal of the application. |
+| Implement Storyboard Functionality | Allow users to select characters and worlds to start a story. | M | M | Character/World Management | idea | Storyboard is the primary user interface for starting a new game. |
+| Implement Character and World Management | Allow users to create, edit, and delete their own characters and worlds. | M | M | Dexie.js schema | idea | User-created content is a core feature of the application. |
+| Implement Data Persistence | Persist all user data locally using IndexedDB. | M | M | Dexie.js schema | idea | Data persistence is essential for a good user experience. |
+| **\--- RPGlitch: UI/UX Improvements \---** | | | | | | |
+| Improve the Chat View | Enhance the chat interface with character avatars, typing indicators, and a conclude story button. | S | S | AI Character Interaction | idea | A more polished chat view will improve the user experience. |
+| Improve the Profile View | Enhance the profile view with character/world images and tags. | S | S | Character/World Management | idea | A more informative profile view will help users choose characters and worlds. |
+| Improve the Form View | Enhance the form view with image upload and a tags input field. | S | S | Character/World Management | idea | A more user-friendly form view will make it easier to create content. |
+| **\--- RPGlitch: Advanced Features \---** | | | | | | |
+| Implement Story Management | Allow users to save, load, and manage their stories. | M | M | Data Persistence | idea | Story management is a key feature for long-term engagement. |
+| Implement Memory and Lore | Implement the memory and lore functionality from the Perchance script. | L | L | AI Character Interaction | idea | Memory and lore will create a more immersive and personalized experience. |
+| Implement Custom Code | Allow users to add custom JavaScript to their characters and worlds. | L | L | Perchance API | idea | Custom code will allow for advanced customization and functionality. |
 
 ## **Assumptions & Risks**
 

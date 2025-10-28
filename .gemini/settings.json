@@ -1,6 +1,30 @@
 {
-  "agentProtocolFile": "../AGENTS.md",
-  "ideMode": true,
+  "ui": {
+    "accessibility": {
+      "screenReader": false
+    },
+    "showMemoryUsage": false,
+    "theme": "Atom One"
+  },
+  "context": {
+    "loadMemoryFromIncludeDirectories": true,
+    "fileFiltering": {
+      "respectGitIgnore": false
+    }
+  },
+  "security": {
+    "folderTrust": {
+      "featureEnabled": true,
+      "enabled": true
+    },
+    "auth": {
+      "selectedType": "gemini-api-key"
+    }
+  },
+  "ide": {
+    "hasSeenNudge": true,
+    "enabled": true
+  },
   "mcpServers": {
     "time": {
       "command": "python",
@@ -117,26 +141,12 @@
       "description": "An MCP server for analyzing NPM packages."
     }
   },
-  "folderTrust": true,
-  "theme": "Atom One",
-  "showMemoryUsage": false,
-  "accessibility": {
-    "screenReader": true
+  "general": {
+    "enablePromptCompletion": true,
+    "preferredEditor": "vscode"
   },
-  "hasSeenIdeIntegrationNudge": true,
-  "fileFiltering": {
-    "respectGitIgnore": false
-  },
-  "folderTrustFeature": true,
-  "selectedAuthType": "gemini-api-key",
+  "agentProtocolFile": "../AGENTS.md",
   "tools": {
     "useRipgrep": true
-  },
-  "general": {
-    "enablePromptCompletion": true
-  },
-  "preferredEditor": "vscode",
-  "context": {
-    "loadMemoryFromIncludeDirectories": true
   }
 }

@@ -1,6 +1,6 @@
 # **🎨 Project Design System & UI Protocol**
 
-Version 3.1.2 · Updated 2025-10-25
+Version 3.1.2 · Updated 2025-10-28
 
 **CORE PRINCIPLE:** This document is the **single source of truth** for the visual and interaction design of all applications in this repository. It defines our philosophy, our styling foundation (Pico.css), our custom component library, and our user experience patterns. All UI/UX development **MUST** adhere to these guidelines.
 
@@ -52,6 +52,18 @@ Our visual language is built on the **Pico.css** framework. All base typography,
 
 * **⚪ Text:** Standard text color is inherited from Pico.css (`--pico-color`).
 
+* **🎨 Palettes:** We use a set of predefined color palettes to provide visual variety.
+    * **Pink:** `--brand: #ec4899`
+    * **Emerald:** `--brand: #10b981`
+    * **Cyan:** `--brand: #06b6d4`
+
+### **Typography**
+
+* **Font Family:** Inherited from Pico.css (system font stack).
+* **Font Sizes:** Inherited from Pico.css.
+* **Font Weights:** Inherited from Pico.css.
+* **Line Heights:** Inherited from Pico.css.
+
 ### **Spacing**
 
 * **Base Unit:** `1rem` (16px).
@@ -67,6 +79,12 @@ This section defines our custom components, built on top of Pico.css.
 * **Style:** Buttons follow Pico.css standards (`.primary`, `.secondary`, `.danger`).
 * **Rule:** **MUST** follow the **Icon-Free Mandate**.
 
+### **Cards (Storyboard & Chin)**
+
+* **Structure:** Use semantic HTML (`<article>`, `<header>`, `<footer>`) as seen in `#chin-card-template` and `.storyboard-card`.
+* **Layout:** Cards are responsive and use flexbox or grid for layout.
+* **Style:** Adhere to the project's color palette and spacing rules, with `overflow: hidden` for clean visual boundaries.
+
 ### **The "Chin" Component (RPGlitch Specific)**
 
 The "Chin" is the signature slide-out panel for entity selection (Stories, Characters, Worlds) and options in RPGlitch.
@@ -76,18 +94,38 @@ The "Chin" is the signature slide-out panel for entity selection (Stories, Chara
     * Top-bar tab buttons (`#tab-stories`, etc.) toggle their corresponding chin panel (`#chin-stories`).
     * Pressing ESC or clicking the backdrop (`#chin-backdrop`) closes any open chin. (Note: Chin panels **do not** have their own "Close" button; closure is handled by these "click-outside" and ESC key actions.)
 
-### **Cards (Storyboard & Chin)**
+### **Forms**
 
-* **Structure:** Use semantic HTML (`<article>`, `<header>`, `<footer>`) as seen in `#chin-card-template` and `.storyboard-card`.
-* **Layout:** Cards are responsive and use flexbox or grid for layout.
-* **Style:** Adhere to the project's color palette and spacing rules, with `overflow: hidden` for clean visual boundaries.
+* **Style:** Forms follow Pico.css standards.
+* **Components:**
+    * **Search Input:** A custom-styled search input with a search icon.
+    * **Profile Fields:** Custom-styled fields for the profile view.
 
-### **Image Blocks (ImageGlitch Specific)**
+### **Modals**
 
-* **Layout:** Image containers are designed to be responsive, square, and flexible, supporting both single (`.block`) and grid (`.quad-block`) layouts.
-    * `aspect-ratio: 1/1` is enforced.
-    * `flex: 1 1 350px` allows blocks to wrap elegantly.
-* **Interaction:** A full-size overlay (`.image-overlay`) appears on hover, revealing image info and text-based action buttons (`.overlay-button`), adhering to the **Icon-Free Mandate**.
+* **Style:** Modals (dialogs) follow Pico.css standards.
+* **Components:**
+    * **Loading Modal:** A modal that displays a loading message.
+    * **Emergency Modal:** A modal that displays an error message and provides options to save or delete data.
+
+### **Pictures**
+
+* **Style:** Pictures are displayed in a container with a 1:1 aspect ratio.
+* **Placeholders:** Placeholder images are used when no image is available.
+
+### **Profiles**
+
+* **Layout:** A two-column layout with the character/world image on the left and the details on the right.
+* **Style:** The profile view uses the brand color of the character/world.
+
+### **Storyboard**
+
+* **Layout:** A three-column grid with cards for the AI character, the user character, and the world.
+* **Style:** The storyboard cards are styled to be easily distinguishable from each other.
+
+### **Tags**
+
+* **Style:** Tags are displayed as pills with a background color and rounded corners.
 
 ## **5. UI Safety & Hardening (RPGlitch Implementation)**
 
@@ -100,6 +138,7 @@ To ensure the application remains interactive and robust, especially within the 
 
 ## **Changelog**
 
+* **3.1.2 (2025-10-28)** — Added more details to the "Color System", "Typography", "Spacing", and "Components" sections.
 * **3.1.1 (2025-10-22)** — Simplified **Visual System**; removed "Typography" and "Primary Accent" sections to correctly imply inheritance from Pico.css. Updated **Chin Component** UX to specify "click-outside-to-close" behavior and remove the dedicated "Close" button.
 * **3.1.0 (2025-10-22)** — Overhauled **Visual System** section. Corrected the **Color System** to reflect the *actual* 4-color gradient and accent palettes (removing incorrect Catppuccin reference). Corrected **Spacing** guidelines to reflect the `1rem` layout unit standard.
 * **3.0.0 (2025-09-26)** — Major consolidation. Merged `design-icon-free-standard.md`, `core-design-system.md`, and `rpglitch-chin-ux-and-safety.md` into this single, canonical file.
