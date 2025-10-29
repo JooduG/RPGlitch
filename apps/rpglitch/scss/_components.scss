@@ -242,7 +242,7 @@ body.chin-open details.dropdown[open] summary::before {
   position: fixed;
   inset: 0;
   background: hsl(0 0% 0% / 25%);
-  z-index: 9998; /* Below chin but above everything else */
+  z-index: calc(var(--z-index-chin, 9999) - 1); /* Below chin but above everything else */
 }
 
 #chin-backdrop[hidden] {
