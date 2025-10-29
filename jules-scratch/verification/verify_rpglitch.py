@@ -16,10 +16,10 @@ def main():
         page.select_option('select#ai-select', index=1)
 
         # 2. Verify "Begin Story" button leads to the story view
-        begin_story_button = page.locator('button#begin-story-button')
+        begin_story_button = page.locator('button#begin-story')
         expect(begin_story_button).to_be_enabled()
         begin_story_button.click()
-        expect(page.locator('#story-view')).to_be_visible()
+        expect(page.locator('#chat-screen-container')).to_be_visible()
 
         # Go back to the main page to test other buttons
         page.go_back()
