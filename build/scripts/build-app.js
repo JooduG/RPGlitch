@@ -117,7 +117,7 @@ async function build(appName) {
         document.head.appendChild(styleTag);
 
         // Remove existing script tags to prevent duplicates
-        Array.from(document.querySelectorAll('script[src*="js/index.js"]')).forEach(s => s.remove());
+        Array.from(document.querySelectorAll('script[src="js/index.js"]')).forEach(s => s.remove());
 
         // Inject JS
         if (config.useComplexLoader) {
