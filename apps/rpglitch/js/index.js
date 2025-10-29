@@ -1203,10 +1203,6 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
           const beginStoryBtn = document.querySelector("#begin-story");
           if(beginStoryBtn) {
             beginStoryBtn.addEventListener("click", async () => {
-              const aiSelect = document.querySelector("#storyboard-ai-select");
-              const userSelect = document.querySelector("#storyboard-user-select");
-              const worldSelect = document.querySelector("#storyboard-world-select");
-
               if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
                 const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
                 const storyId = storyTitleEl?.textContent || "default-story";
@@ -1214,8 +1210,6 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
                 const worldId = worldSelect.value;
                 const threadId = await App.threads.createFromSelection({ storyId, characterId, worldId });
 
-                const storyboardScreen = document.querySelector("#storyboard-screen");
-                const chatScreenContainer = document.querySelector("#chat-screen-container");
                 if (storyboardScreen) storyboardScreen.hidden = true;
                 if (chatScreenContainer) chatScreenContainer.hidden = false;
 
