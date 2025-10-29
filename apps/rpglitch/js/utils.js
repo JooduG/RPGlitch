@@ -981,14 +981,6 @@ function initChin() {
     chinBound = true;
   }
 
-  // Removed document-level outside click in favor of in-container backdrop
-  const backdrop = document.querySelector("#chin-backdrop");
-  if (backdrop && !backdrop.dataset.clickBound) {
-    backdrop.dataset.clickBound = "true";
-    backdrop.addEventListener("click", () => {
-      closeAll();
-    });
-  }
 
   // Initial sync to set the correct state of the backdrop
   sync();
