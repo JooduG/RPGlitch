@@ -3,9 +3,13 @@
  * Loads the bundled HTML, executes inline scripts, and reports runtime errors.
  */
 
-const fs = require('fs');
-const path = require('path');
-const { JSDOM, VirtualConsole } = require('jsdom');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { JSDOM, VirtualConsole } from 'jsdom';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const OUTPUT_HTML = path.resolve(__dirname, '..', '..', 'build', 'output', 'RPGlitch.html');
 
