@@ -39,7 +39,8 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8em;
   border-radius: 999px;
   background: var(--brand, rgb(0 0 0 / 65%));
   color: var(--brand-contrast, #fff);
@@ -62,7 +63,8 @@
 }
 
 .tag-chip {
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8em;
   border-radius: 999px;
   background: var(--pico-primary-contrast);
   color: var(--pico-primary);
@@ -84,12 +86,32 @@
   width: 100%;
   max-width: 100%;
 
+  article {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    text-align: left;
+    align-items: flex-start;
+  }
+
   .picture img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
     place-items: center;
+  }
+
+  .title {
+    font-size: 1.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .description {
+    font-size: 0.9em;
+    flex-grow: 1;
   }
 }
 
@@ -205,16 +227,16 @@ article header {
   backdrop-filter: blur(15px);
   border-bottom: 1px solid var(--pico-muted-border-color);
   gap: 1rem;
-  grid-template-rows: auto 1fr;
   position: absolute;
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  transform: translateY(-1rem); /* Move chin up by 1rem */
+  transform: translateY(0);
   transition:
     transform 0.25s ease,
     opacity 0.25s ease;
   pointer-events: auto; /* ensure the panel itself is interactive */
+  overflow: hidden;
 }
 
 .chin[hidden] {
@@ -241,8 +263,17 @@ body.chin-open details.dropdown[open] summary::before {
 #chin-backdrop {
   position: fixed;
   inset: 0;
-  background: hsl(0deg 0% 0% / 25%);
+  background: transparent;
   z-index: calc(var(--z-index-chin, 9999) - 1); /* Below chin but above everything else */
+}
+
+.chin-search-group {
+  display: flex;
+  align-items: center;
+}
+
+.chin-search {
+  height: 100%;
 }
 
 #chin-backdrop[hidden] {
@@ -567,17 +598,25 @@ body.chin-open .chin-focus-ring {
   pointer-events: none;
 }
 
+.storyboard-card:hover,
 .storyboard-card.selected {
   outline: 2px solid var(--pico-primary);
   box-shadow: 0 0 20px rgb(var(--pico-primary-rgb) / 30%);
   transform: translateY(-2px) scale(1.01);
 }
 
+.storyboard-card.active {
+  opacity: 1;
+  font-family: var(--pico-font-family);
+}
+
+.storyboard-card:hover::before,
 .storyboard-card.selected::before {
   opacity: 1;
   transform: scale(1);
 }
 
+.storyboard-card:hover::after,
 .storyboard-card.selected::after {
   opacity: 1;
   transform: scale(1);
