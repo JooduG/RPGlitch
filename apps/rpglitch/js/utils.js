@@ -974,13 +974,14 @@ function initChin() {
     btn._chinBound = true;
   });
   if (!chinBound) {
+    const chinContainer = doc.querySelector("#chin-container");
+    const topBar = doc.querySelector("#top-bar");
+
     doc.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeAll();
     });
 
     doc.addEventListener("click", (e) => {
-      const chinContainer = doc.querySelector("#chin-container");
-      const topBar = doc.querySelector("#top-bar");
       if (chinContainer && !chinContainer.contains(e.target) && topBar && !topBar.contains(e.target)) {
         closeAll();
       }

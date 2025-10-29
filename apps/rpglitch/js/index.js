@@ -123,7 +123,7 @@ const App = {
         updatedAt: Date.now()
       });
 
-      App.state.applyPatch({ threads: { activeId: threadId }, ui: { title } });
+      App.applyPatch({ threads: { activeId: threadId }, ui: { title } });
       return threadId;
     }
   },
@@ -1210,7 +1210,7 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
               if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
                 const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
                 const storyId = storyTitleEl?.textContent || "default-story";
-                const characterId = userSelect.value;
+                const characterId = aiSelect.value;
                 const worldId = worldSelect.value;
                 const threadId = await App.threads.createFromSelection({ storyId, characterId, worldId });
 

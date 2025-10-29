@@ -598,7 +598,8 @@ body.chin-open .chin-focus-ring {
   pointer-events: none;
 }
 
-.storyboard-card:hover {
+.storyboard-card:hover,
+.storyboard-card.selected {
   outline: 2px solid var(--pico-primary);
   box-shadow: 0 0 20px rgb(var(--pico-primary-rgb) / 30%);
   transform: translateY(-2px) scale(1.01);
@@ -609,12 +610,14 @@ body.chin-open .chin-focus-ring {
   font-family: var(--pico-font-family);
 }
 
-.storyboard-card:hover::before {
+.storyboard-card:hover::before,
+.storyboard-card.selected::before {
   opacity: 1;
   transform: scale(1);
 }
 
-.storyboard-card:hover::after {
+.storyboard-card:hover::after,
+.storyboard-card.selected::after {
   opacity: 1;
   transform: scale(1);
 }
