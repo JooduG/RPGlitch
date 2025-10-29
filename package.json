@@ -52,6 +52,7 @@
     "@babel/core": "^7.28.4",
     "@babel/preset-env": "^7.28.3",
     "@eslint/js": "^9.35.0",
+    "@playwright/test": "^1.56.1",
     "@smithery/cli": "^1.2.31",
     "@testing-library/jest-dom": "^6.9.1",
     "@waldzellai/clear-thought": "^0.0.4",
@@ -94,6 +95,7 @@
     "dexie": "^4.2.1",
     "jsdom": "^24.1.0",
     "node-fetch": "^3.3.2",
+    "playwright": "^1.56.1",
     "terser": "^5.44.0"
   }
 }
