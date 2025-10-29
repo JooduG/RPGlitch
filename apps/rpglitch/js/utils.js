@@ -185,7 +185,6 @@ export function dismissLoadingUI() {
       doc.documentElement,
       doc.body,
       doc.querySelector('#main'),
-      doc.querySelector('#chin-container'),
       doc.querySelector('#storyboard-screen'),
       doc.querySelector('#profile-screen'),
       doc.querySelector('#character-form-screen'),
@@ -815,7 +814,7 @@ function sync() {
   let anyOpen = false;
   panels.forEach((panel) => {
     const name = panel.dataset.chin;
-    const hidden = panel.hidden;
+    const hidden = panel.hasAttribute('hidden');
     const btn = [...buttons].find((b) => b.dataset.chin === name);
     const selected = !hidden;
     if (btn) {

@@ -116,6 +116,9 @@ async function build(appName) {
         styleTag.textContent = cssContent;
         document.head.appendChild(styleTag);
 
+        // Remove existing script tags to prevent duplicates
+        Array.from(document.querySelectorAll('script[src="js/index.js"]')).forEach(s => s.remove());
+
         // Inject JS
         if (config.useComplexLoader) {
             const extraLibsContent = config.extraLibs

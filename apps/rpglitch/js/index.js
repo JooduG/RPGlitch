@@ -369,7 +369,7 @@ export function _attachChinSearchHandlers() {
 
 export function loadStoredItems(key) {
   try {
-    const storage = (global.window || window).localStorage;
+    const storage = window.localStorage;
     if (!storage) return [];
     const data = storage.getItem(key);
     return data ? JSON.parse(data) : [];
@@ -1213,7 +1213,6 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
                 if (chatScreenContainer) chatScreenContainer.hidden = false;
                 App.state.applyPatch({ ui: { fsm: "idle" } }); // Set FSM to idle when chat screen is shown
                 await App.chat.render(threadId); // Render chat messages for the new thread
-                console.log("Navigating to chat screen.");
               } else {
                 alert("Please select an AI character, a user character, and a world to begin.");
               }
