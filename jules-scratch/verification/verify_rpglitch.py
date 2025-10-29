@@ -42,11 +42,11 @@ def main():
         expect(page.locator('#storyboard')).to_be_visible()
 
         # 5. Verify Chin Panel auto-closure
-        page.locator('#chin-toggle').click()
-        expect(page.locator('#chin')).not_to_have_class('hidden')
+        page.locator('#tab-stories').click()
+        expect(page.locator('#chin-stories')).not_to_have_attribute('hidden')
         # Click outside to close
         page.locator('body').click(position={'x': 10, 'y': 250}) # y is lower to avoid clicking the topbar
-        expect(page.locator('#chin')).to_have_class('hidden')
+        expect(page.locator('#chin-stories')).to_have_attribute('hidden')
 
         # 6. Re-open chin and select a character to show final state for screenshot
         page.locator('#chin-toggle').click()
