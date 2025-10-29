@@ -29,7 +29,7 @@ def main():
 
 
         # 3. Verify "Copy and Customise" button opens the entity form
-        copy_button = page.locator('button:has-text("Copy and Customise")')
+        copy_button = page.locator('#profile-copy')
         expect(copy_button).to_be_visible()
         copy_button.click()
         expect(page.locator('#entity-form')).to_be_visible()
