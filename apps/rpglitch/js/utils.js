@@ -989,6 +989,9 @@ function initChin() {
       closeAll();
     });
   }
+
+  // Initial sync to set the correct state of the backdrop
+  sync();
 }
 
 export const chin = {
