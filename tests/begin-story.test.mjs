@@ -56,7 +56,7 @@ let mockAttachStoryboardListeners = jest.fn(async () => {
       if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
         const storyTitleEl = document.getElementById("storyboard-dynamic-title");
         const storyId = storyTitleEl?.textContent || "default-story";
-        const characterId = userSelect.value;
+        const characterId = aiSelect.value; // <-- use AI character id (was userSelect.value)
         const worldId = worldSelect.value;
         
         // Mock App.threads.createFromSelection
@@ -226,7 +226,7 @@ describe('Begin Story Button Functionality', () => {
     // Verify a new thread was created in the database (mocked behavior)
     const threadsInDb = await db.threads.toArray();
     expect(threadsInDb.length).toBe(1);
-    expect(threadsInDb[0].characterId).toBe('char-2'); // userSelect value
+    expect(threadsInDb[0].characterId).toBe('char-1'); // userSelect value
     expect(threadsInDb[0].title).toMatch(/mock-thread-/); // Mocked dynamic title
 
     // Verify chat rendering (mocked behavior)

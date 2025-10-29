@@ -153,7 +153,18 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
     });
   }
 
-  saveBtn?.addEventListener("click", async () => {
+if (saveBtn) {
+  // 1. Remove the old handler if it exists to prevent the stale closure bug.
+  if (saveBtn._saveHandler) {
+    saveBtn.removeEventListener('click', saveBtn._saveHandler);
+  }
+
+  // 2. Define the new handler. This function must be defined inside the renderForm
+  //    function's scope so it correctly closes over the new 'type' and 'id'.
+  const saveHandler = async () => {
+    // SECURITY NOTE: This section correctly sanitizes user inputs (titleInput.value, summaryInput.value, etc.)
+    // using the global 'escapeHtml' (DOMPurify wrapper). DO NOT REMOVE.
+
     const data = {
       kind: type,
       name: escapeHtml(titleInput.value.trim()),
@@ -173,17 +184,20 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
     };
     if (!data.name) return;
 
-    // Check if the original entity is premade.
+    // Use the correctly scoped 'id' and 'type' variables.
     const originalEntity = isEdit ? await entities.get(type, id) : null;
     const isEditingPremade = originalEntity?.isPremade;
 
-    // If it's a new entity or a copy of a premade one, we don't pass an ID.
-    // Otherwise, we pass the existing ID to update the custom entity.
     const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
 
     const saved = await entities.upsert(type, entityToSave);
     router.navigate(`#profile/${type}/${saved.id}`);
-  });
+  };
+
+  // 3. Attach the new handler and store its reference for next time.
+  saveBtn.addEventListener("click", saveHandler);
+  saveBtn._saveHandler = saveHandler;
+}
 
   if (!isEdit) {
     setTimeout(() => titleInput.focus(), 0);

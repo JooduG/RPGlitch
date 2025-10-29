@@ -141,19 +141,30 @@ export async function renderProfile(type, id) { // <-- Made this function async
   const editBtn = document.querySelector("#profile-edit");
   const copyBtn = document.querySelector("#profile-copy");
 
-  // v-- This click listener is now async to handle the async copyEntity --v
-  copyBtn?.addEventListener("click", async () => {
-    const newEntity = await copyEntity?.(type, id);
-    if (newEntity && newEntity.id) {
-      // After copying, let's navigate to the edit form for the new copy
-      router.navigate(
-        `#form/${type}/${newEntity.id}?return=#profile/${type}/${newEntity.id}`
-      );
-    } else {
-      console.error("Copy operation failed or returned no entity.");
-      // TODO: Show a user-facing error toast/modal
+  if (copyBtn) {
+    // 1. Remove the old handler if it exists to prevent the stale closure bug.
+    if (copyBtn._copyHandler) {
+      copyBtn.removeEventListener('click', copyBtn._copyHandler);
     }
-  });
+
+    // 2. Define the new handler. This function must be defined inside the renderProfile
+    //    function's scope so it correctly closes over the new 'type' and 'id'.
+    const copyHandler = async () => {
+      // Use the correctly scoped 'id' and 'type' variables.
+      const newEntity = await copyEntity?.(type, id);
+      if (newEntity && newEntity.id) {
+        router.navigate(
+          `#form/${type}/${newEntity.id}?return=#profile/${type}/${newEntity.id}`
+        );
+      } else {
+        console.error("Copy operation failed or returned no entity.");
+      }
+    };
+
+    // 3. Attach the new handler and store its reference for next time.
+    copyBtn.addEventListener("click", copyHandler);
+    copyBtn._copyHandler = copyHandler;
+  }
   // ^-- End of changed block --^
   
   if (copyBtn) copyBtn.hidden = !entity.isPremade;
