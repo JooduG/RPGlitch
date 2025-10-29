@@ -982,9 +982,19 @@ function initChin() {
     });
 
     doc.addEventListener("click", (e) => {
-      if (chinContainer && !chinContainer.contains(e.target) && topBar && !topBar.contains(e.target)) {
-        closeAll();
+      // If the click is on a button in the top bar, let its own handler manage it.
+      if (topBar && topBar.contains(e.target)) {
+        return;
       }
+
+      // If the click is inside an open chin panel's content area, do nothing.
+      if (e.target.closest('.chin')) {
+        return;
+      }
+
+      // Otherwise, the click was outside, so close any open chin.
+      // This will correctly handle clicks on the body or the chin backdrop.
+      closeAll();
     });
 
     chinBound = true;

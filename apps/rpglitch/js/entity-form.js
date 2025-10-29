@@ -153,37 +153,37 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
     });
   }
 
-  saveBtn?.addEventListener("click", async () => {
-    const data = {
-      kind: type,
-      name: escapeHtml(titleInput.value.trim()),
-      summary: escapeHtml(summaryInput.value.trim()),
-      imageUrl: escapeHtml(imageInput.value.trim()),
-      image: escapeHtml(imageInput.value.trim()),
-      tags: tagsInput.value
-        .split(",")
-        .map((t) => escapeHtml(t.trim()))
-        .filter(Boolean),
-      sections: {
-        forever: escapeHtml(form.elements.forever.value.trim()),
-        past: escapeHtml(form.elements.past.value.trim()),
-        present: escapeHtml(form.elements.present.value.trim()),
-        future: escapeHtml(form.elements.future.value.trim()),
-      },
-    };
-    if (!data.name) return;
+  if (saveBtn && !saveBtn._saveBound) {
+    saveBtn.addEventListener("click", async () => {
+      const data = {
+        kind: type,
+        name: escapeHtml(titleInput.value.trim()),
+        summary: escapeHtml(summaryInput.value.trim()),
+        imageUrl: escapeHtml(imageInput.value.trim()),
+        image: escapeHtml(imageInput.value.trim()),
+        tags: tagsInput.value
+          .split(",")
+          .map((t) => escapeHtml(t.trim()))
+          .filter(Boolean),
+        sections: {
+          forever: escapeHtml(form.elements.forever.value.trim()),
+          past: escapeHtml(form.elements.past.value.trim()),
+          present: escapeHtml(form.elements.present.value.trim()),
+          future: escapeHtml(form.elements.future.value.trim()),
+        },
+      };
+      if (!data.name) return;
 
-    // Check if the original entity is premade.
-    const originalEntity = isEdit ? await entities.get(type, id) : null;
-    const isEditingPremade = originalEntity?.isPremade;
+      const originalEntity = isEdit ? await entities.get(type, id) : null;
+      const isEditingPremade = originalEntity?.isPremade;
 
-    // If it's a new entity or a copy of a premade one, we don't pass an ID.
-    // Otherwise, we pass the existing ID to update the custom entity.
-    const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
+      const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
 
-    const saved = await entities.upsert(type, entityToSave);
-    router.navigate(`#profile/${type}/${saved.id}`);
-  });
+      const saved = await entities.upsert(type, entityToSave);
+      router.navigate(`#profile/${type}/${saved.id}`);
+    });
+    saveBtn._saveBound = true;
+  }
 
   if (!isEdit) {
     setTimeout(() => titleInput.focus(), 0);

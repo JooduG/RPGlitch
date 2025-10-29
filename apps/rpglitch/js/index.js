@@ -1200,32 +1200,35 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
   const storyboardScreen = document.querySelector("#storyboard-screen");
   const chatScreenContainer = document.querySelector("#chat-screen-container");
 
-          const beginStoryBtn = document.querySelector("#begin-story");
-          if(beginStoryBtn) {
-            beginStoryBtn.addEventListener("click", async () => {
-              const aiSelect = document.querySelector("#storyboard-ai-select");
-              const userSelect = document.querySelector("#storyboard-user-select");
-              const worldSelect = document.querySelector("#storyboard-world-select");
+  async function beginStory() {
+    const aiSelect = document.querySelector("#storyboard-ai-select");
+    const userSelect = document.querySelector("#storyboard-user-select");
+    const worldSelect = document.querySelector("#storyboard-world-select");
 
-              if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
-                const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
-                const storyId = storyTitleEl?.textContent || "default-story";
-                const characterId = aiSelect.value;
-                const worldId = worldSelect.value;
-                const threadId = await App.threads.createFromSelection({ storyId, characterId, worldId });
+    if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
+      const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
+      const storyId = storyTitleEl?.textContent || "default-story";
+      const characterId = aiSelect.value; // Correctly use the AI's character ID
+      const worldId = worldSelect.value;
+      const threadId = await App.threads.createFromSelection({ storyId, characterId, worldId });
 
-                const storyboardScreen = document.querySelector("#storyboard-screen");
-                const chatScreenContainer = document.querySelector("#chat-screen-container");
-                if (storyboardScreen) storyboardScreen.hidden = true;
-                if (chatScreenContainer) chatScreenContainer.hidden = false;
+      if (storyboardScreen) storyboardScreen.hidden = true;
+      if (chatScreenContainer) chatScreenContainer.hidden = false;
 
-                App.applyPatch({ ui: { fsm: "idle" } });
-                await App.chat.render(threadId);
-              } else {
-                alert("Please select an AI character, a user character, and a world to begin.");
-              }
-            });
-          }
+      App.applyPatch({ ui: { fsm: "idle" } });
+      await App.chat.render(threadId);
+    } else {
+      alert("Please select an AI character, your own character, and a world to begin the story.");
+    }
+  }
+
+  const beginStoryBtn = document.querySelector("#begin-story");
+  if(beginStoryBtn) {
+    if (!beginStoryBtn._beginStoryBound) {
+      beginStoryBtn.addEventListener("click", beginStory);
+      beginStoryBtn._beginStoryBound = true;
+    }
+  }
   // Use for...of loop to handle async await inside
   const cards = document.querySelectorAll(".storyboard-card");
   for (const card of cards) { // <-- FOR...OF

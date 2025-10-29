@@ -141,19 +141,19 @@ export async function renderProfile(type, id) { // <-- Made this function async
   const editBtn = document.querySelector("#profile-edit");
   const copyBtn = document.querySelector("#profile-copy");
 
-  // v-- This click listener is now async to handle the async copyEntity --v
-  copyBtn?.addEventListener("click", async () => {
-    const newEntity = await copyEntity?.(type, id);
-    if (newEntity && newEntity.id) {
-      // After copying, let's navigate to the edit form for the new copy
-      router.navigate(
-        `#form/${type}/${newEntity.id}?return=#profile/${type}/${newEntity.id}`
-      );
-    } else {
-      console.error("Copy operation failed or returned no entity.");
-      // TODO: Show a user-facing error toast/modal
-    }
-  });
+  if (copyBtn && !copyBtn._copyBound) {
+    copyBtn.addEventListener("click", async () => {
+      const newEntity = await copyEntity?.(type, id);
+      if (newEntity && newEntity.id) {
+        router.navigate(
+          `#form/${type}/${newEntity.id}?return=#profile/${type}/${newEntity.id}`
+        );
+      } else {
+        console.error("Copy operation failed or returned no entity.");
+      }
+    });
+    copyBtn._copyBound = true;
+  }
   // ^-- End of changed block --^
   
   if (copyBtn) copyBtn.hidden = !entity.isPremade;
