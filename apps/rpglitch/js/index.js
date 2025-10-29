@@ -1120,7 +1120,7 @@ async function populateStoryboardSelects() {
       await renderDropdown(document, id, key);
       const select = document.querySelector(`#${id}`);
       if (select) {
-        if (savedValue && select.querySelector(`option[value="${savedValue}"]`)) {
+        if (savedValue && Array.from(select.options).some(o => o.value === savedValue)) {
           select.value = savedValue;
         }
         select.addEventListener("change", onStoryboardChange);
