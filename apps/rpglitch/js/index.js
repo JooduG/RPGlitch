@@ -1223,11 +1223,14 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
   }
 
   const beginStoryBtn = document.querySelector("#begin-story");
-  if(beginStoryBtn) {
-    if (!beginStoryBtn._beginStoryBound) {
-      beginStoryBtn.addEventListener("click", beginStory);
-      beginStoryBtn._beginStoryBound = true;
+  if (beginStoryBtn) {
+    // Remove the old handler if it exists to prevent duplicate listeners
+    if (beginStoryBtn._beginStoryHandler) {
+      beginStoryBtn.removeEventListener('click', beginStoryBtn._beginStoryHandler);
     }
+    // Attach the new handler and store its reference for the next time
+    beginStoryBtn.addEventListener("click", beginStory);
+    beginStoryBtn._beginStoryHandler = beginStory;
   }
   // Use for...of loop to handle async await inside
   const cards = document.querySelectorAll(".storyboard-card");

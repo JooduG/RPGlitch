@@ -141,8 +141,16 @@ export async function renderProfile(type, id) { // <-- Made this function async
   const editBtn = document.querySelector("#profile-edit");
   const copyBtn = document.querySelector("#profile-copy");
 
-  if (copyBtn && !copyBtn._copyBound) {
-    copyBtn.addEventListener("click", async () => {
+  if (copyBtn) {
+    // 1. Remove the old handler if it exists to prevent the stale closure bug.
+    if (copyBtn._copyHandler) {
+      copyBtn.removeEventListener('click', copyBtn._copyHandler);
+    }
+
+    // 2. Define the new handler. This function must be defined inside the renderProfile
+    //    function's scope so it correctly closes over the new 'type' and 'id'.
+    const copyHandler = async () => {
+      // Use the correctly scoped 'id' and 'type' variables.
       const newEntity = await copyEntity?.(type, id);
       if (newEntity && newEntity.id) {
         router.navigate(
@@ -151,8 +159,11 @@ export async function renderProfile(type, id) { // <-- Made this function async
       } else {
         console.error("Copy operation failed or returned no entity.");
       }
-    });
-    copyBtn._copyBound = true;
+    };
+
+    // 3. Attach the new handler and store its reference for next time.
+    copyBtn.addEventListener("click", copyHandler);
+    copyBtn._copyHandler = copyHandler;
   }
   // ^-- End of changed block --^
   

@@ -153,37 +153,51 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
     });
   }
 
-  if (saveBtn && !saveBtn._saveBound) {
-    saveBtn.addEventListener("click", async () => {
-      const data = {
-        kind: type,
-        name: escapeHtml(titleInput.value.trim()),
-        summary: escapeHtml(summaryInput.value.trim()),
-        imageUrl: escapeHtml(imageInput.value.trim()),
-        image: escapeHtml(imageInput.value.trim()),
-        tags: tagsInput.value
-          .split(",")
-          .map((t) => escapeHtml(t.trim()))
-          .filter(Boolean),
-        sections: {
-          forever: escapeHtml(form.elements.forever.value.trim()),
-          past: escapeHtml(form.elements.past.value.trim()),
-          present: escapeHtml(form.elements.present.value.trim()),
-          future: escapeHtml(form.elements.future.value.trim()),
-        },
-      };
-      if (!data.name) return;
-
-      const originalEntity = isEdit ? await entities.get(type, id) : null;
-      const isEditingPremade = originalEntity?.isPremade;
-
-      const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
-
-      const saved = await entities.upsert(type, entityToSave);
-      router.navigate(`#profile/${type}/${saved.id}`);
-    });
-    saveBtn._saveBound = true;
+if (saveBtn) {
+  // 1. Remove the old handler if it exists to prevent the stale closure bug.
+  if (saveBtn._saveHandler) {
+    saveBtn.removeEventListener('click', saveBtn._saveHandler);
   }
+
+  // 2. Define the new handler. This function must be defined inside the renderForm
+  //    function's scope so it correctly closes over the new 'type' and 'id'.
+  const saveHandler = async () => {
+    // SECURITY NOTE: This section correctly sanitizes user inputs (titleInput.value, summaryInput.value, etc.)
+    // using the global 'escapeHtml' (DOMPurify wrapper). DO NOT REMOVE.
+
+    const data = {
+      kind: type,
+      name: escapeHtml(titleInput.value.trim()),
+      summary: escapeHtml(summaryInput.value.trim()),
+      imageUrl: escapeHtml(imageInput.value.trim()),
+      image: escapeHtml(imageInput.value.trim()),
+      tags: tagsInput.value
+        .split(",")
+        .map((t) => escapeHtml(t.trim()))
+        .filter(Boolean),
+      sections: {
+        forever: escapeHtml(form.elements.forever.value.trim()),
+        past: escapeHtml(form.elements.past.value.trim()),
+        present: escapeHtml(form.elements.present.value.trim()),
+        future: escapeHtml(form.elements.future.value.trim()),
+      },
+    };
+    if (!data.name) return;
+
+    // Use the correctly scoped 'id' and 'type' variables.
+    const originalEntity = isEdit ? await entities.get(type, id) : null;
+    const isEditingPremade = originalEntity?.isPremade;
+
+    const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
+
+    const saved = await entities.upsert(type, entityToSave);
+    router.navigate(`#profile/${type}/${saved.id}`);
+  };
+
+  // 3. Attach the new handler and store its reference for next time.
+  saveBtn.addEventListener("click", saveHandler);
+  saveBtn._saveHandler = saveHandler;
+}
 
   if (!isEdit) {
     setTimeout(() => titleInput.focus(), 0);
