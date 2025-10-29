@@ -560,9 +560,20 @@ body.chin-open .chin-focus-ring {
   pointer-events: none;
 }
 
-.selected {
-  border-color: currentcolor;
-  filter: none;
+.storyboard-card.selected {
+  outline: 2px solid var(--pico-primary);
+  box-shadow: 0 0 20px rgb(var(--pico-primary-rgb) / 30%);
+  transform: translateY(-2px) scale(1.01);
+}
+
+.storyboard-card.selected::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.storyboard-card.selected::after {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .empty-card {

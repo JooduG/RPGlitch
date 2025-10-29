@@ -58,7 +58,7 @@
 | Implement Story Management | Allow users to save, load, and manage their stories. | M | M | Data Persistence | idea | Users want to return to previous sessions or branch narratives. |
 | Implement Advanced Memory & Lore System | Unified system combining user-driven memory extraction ("Apply Memories") and automatic lorebook injection (RAG-lite). | L | L | AI Interaction, `App.prompt.build`, Dexie | researching | Needs design work. Should integrate with existing profile fields (e.g., 'past'). Combines previous Memory Mgmt & Lorebook ideas. |
 | Implement Custom Code | Allow users to add custom JavaScript to their characters and worlds. | L | L | Perchance API | idea | Advanced users want to script unique behaviors or game mechanics. |
-| Implement Thread-Specific 'Reminder' Field | Provides dynamic, in-conversation context to the AI (e.g., "The user is holding a red key"). | M | M | `App.prompt.build` | idea | Undecided. Might be useful but needs careful design (maybe dynamic/temporary reminders?). |
+
 
 ### **Category: UI/UX Improvements (New Ideas)**
 
@@ -69,7 +69,7 @@
 | Improve the Form View | Enhance the form view with image upload/generation and a tags input field. | M | M | Character/World Management | idea | A more user-friendly form view will make it easier to create content. Connects to Image Generation goal. |
 | Implement Profile Image Generation | Allows users to generate (or upload) images for characters/worlds, possibly integrating ImageGlitch. | M | M | Perchance `text-to-image-plugin` | researching | User wants image generation, not just upload. Explore integration/merge with ImageGlitch. Replaces previous "Upload" item with broader scope. |
 | Implement Entity Color Picker | Adds a simple color picker to entity forms to set a theme color (e.g., `--pico-primary`). | S | M | Form View, CSS variables | approved | High-impact, low-effort visual customization. |
-| Implement Top Notification System | A global, non-blocking utility to provide feedback (e.g., "Story Saved," "Error"). | M | M | Global utility | idea | Undecided on necessity and final design. Remove from immediate plans. |
+
 
 ---
 

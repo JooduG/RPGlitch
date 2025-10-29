@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 import rfdc from 'rfdc';
 global.structuredClone = rfdc();
 

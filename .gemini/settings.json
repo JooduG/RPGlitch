@@ -75,16 +75,6 @@
       "autoStart": true,
       "description": "Provides advanced sequential thinking tools with persistent state."
     },
-    "waldzell-metagames": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "waldzell-metagames-server"
-      ],
-      "type": "stdio",
-      "autoStart": true,
-      "description": "Provides game-theoretic workflows for development."
-    },
     "waldzell-clear-thought": {
       "command": "npx",
       "args": [
@@ -108,13 +98,6 @@
     "deepwiki": {
       "url": "https://mcp.deepwiki.com/sse",
       "description": "DeepWiki MCP over SSE for knowledge lookup."
-    },
-    "context7": {
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {
-        "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9",
-        "Accept": "application/json, text/event-stream"
-      }
     },
     "playwright": {
       "command": "npx",

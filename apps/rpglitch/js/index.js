@@ -18,7 +18,6 @@ import {
   entities,
   getPictureHTML,
   getPremadeItems,
-  formatPremade, // <-- ADDED THIS
 } from './entities.js';
 
 // =================================================================
@@ -31,7 +30,7 @@ const App = {
     threads:    { byId: {}, allIds: [], activeId: null },
     messages:   { byThreadId: {} }, // { [threadId]: [{id, role, text, seed, meta, createdAt}] }
     settings:   { temperature: 0.7, top_p: 1.0, maxTokens: 512, stop: [], model: "default", historyLength: 10 },
-    ui:         { fsm: "idle", promptPreviewOpen: false, lastError: null, title: "RPGlitch" }
+    ui:         { fsm: "idle", promptPreviewOpen: false, lastError: null, title: "RPGlitch", selectedStoryboardCard: null }
   },
   
   /**
@@ -131,27 +130,49 @@ const App = {
 
   ai: {
     generateStream: async ({ payload, signal, onToken, onDone }) => {
-      // Placeholder for AI stream generation.
-      // Simulate a stream for now.
-      console.log("Simulating AI stream generation with payload:", payload);
-      const dummyResponse = "This is a simulated AI response. " +
-                            "It will provide some interesting text. " +
-                            "The story continues...";
-      const tokens = dummyResponse.split(" ");
-
-      for (let i = 0; i < tokens.length; i++) {
-        if (signal.aborted) {
-          console.log("AI stream aborted.");
-          return;
-        }
-        await new Promise(resolve => setTimeout(resolve, 50)); // Simulate network delay
-        onToken(tokens[i] + " ");
+      if (!window.Perchance || !window.Perchance.plugins || !window.Perchance.plugins.aiText) {
+        console.error("Perchance AI Text plugin not available.");
+        throw new Error("Perchance AI Text plugin not available.");
       }
-      onDone();
+
+      console.log("Calling Perchance AI Text plugin with payload:", payload);
+      await window.Perchance.plugins.aiText.generateStream({
+        system: payload.system,
+        messages: payload.messages,
+        params: payload.params,
+        signal: signal,
+        onToken: onToken,
+        onDone:  onDone
+      });
     }
   },
 
   chat: {
+    render: async (threadId) => {
+      const chatFeed = document.querySelector("#chat-feed");
+      const noMessagesEl = document.querySelector("#no-messages");
+      if (!chatFeed || !noMessagesEl) return;
+
+      chatFeed.innerHTML = ""; // Clear existing messages
+
+      const messages = App.state.messages.byThreadId[threadId] || [];
+      
+      if (messages.length === 0) {
+        noMessagesEl.hidden = false;
+        return;
+      }
+
+      noMessagesEl.hidden = true;
+      messages.forEach(msg => {
+        const messageEl = document.createElement("div");
+        messageEl.classList.add("chat-message", `${msg.role}-message`);
+        messageEl.textContent = msg.text;
+        chatFeed.appendChild(messageEl);
+      });
+
+      chatFeed.scrollTop = chatFeed.scrollHeight;
+    },
+
     send: async (userText) => {
       if (!userText) return;
       if (!["idle", "done", "error", "aborted"].includes(App.state.ui.fsm)) return;
@@ -533,7 +554,7 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
   container.appendChild(frag);
 }
 
-export async function renderDropdown(doc, selectId, key) { // <-- MADE ASYNC
+async function renderDropdown(doc, selectId, key) { // <-- MADE ASYNC
   const select = doc.querySelector(`#${selectId}`);
   if (!select) return;
   const existingPlaceholder = select.querySelector('option[value=""]');
@@ -680,7 +701,7 @@ export function _attachCardNavigation() {
       }
     }
 
-    storyboard.addEventListener("click", (e) => {
+    storyboard.addEventListener("click", async (e) => { // <-- MADE ASYNC
       if (e.target.closest("select, button, a, input, textarea")) return;
 
       const card = e.target.closest(".storyboard-card");
@@ -693,6 +714,17 @@ export function _attachCardNavigation() {
 
       const type = card.dataset.entityType || card.dataset.type;
       const id = card.dataset.entityId || select?.value || "";
+
+      // Update App.state and persist selection
+      if (type && id) {
+        App.applyPatch({ ui: { selectedStoryboardCard: { type, id } } });
+        // Deselect all other entities of the same type
+        await db.entities.where({ type: type, isSelected: true }).modify({ isSelected: false });
+        // Select the current entity
+        await db.entities.update(id, { isSelected: true });
+      } else {
+        App.applyPatch({ ui: { selectedStoryboardCard: null } });
+      }
 
       if (!id && select) {
         e.preventDefault();
@@ -818,9 +850,7 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
     descEl.dataset.placeholder = descEl.textContent || "";
   }
 
-  const buildPictureNode = (ent, {
-    preferTemplateForEmpty = true
-  } = {}) => {
+  const buildPictureNode = (ent, { preferTemplateForEmpty = true } = {}) => {
     const kind = (ent && ent.kind) || "";
     const isEmpty = !ent || !ent.imageUrl;
 
@@ -910,6 +940,12 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
     if (select && select.value !== String(entity.id)) {
       select.value = String(entity.id);
     }
+    // Apply 'selected' class if this card is the active one
+    if (App.state.ui.selectedStoryboardCard && App.state.ui.selectedStoryboardCard.id === entity.id && App.state.ui.selectedStoryboardCard.type === entity.type) {
+      card.classList.add('selected');
+    } else {
+      card.classList.remove('selected');
+    }
   } else {
     if (descEl) descEl.textContent = descEl.dataset.placeholder || "";
     if (tag) tag.textContent = "";
@@ -927,7 +963,7 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
     } catch {
       /* noop */
     }
-    delete card.dataset.entityType;
+    card.classList.remove('selected'); // Remove selected class if no entity    delete card.dataset.entityType;
     delete card.dataset.entityId;
 
     if (select && select.value !== "") {
@@ -1096,19 +1132,6 @@ async function onStoryboardChange(e) { // <-- MADE ASYNC
   } catch {
     /* noop */
   }
-
-  // --- NEW CODE ---
-  const userSelect = document.querySelector("#storyboard-user-select");
-  const worldSelect = document.querySelector("#storyboard-world-select");
-
-  const storyId = "default-story"; // Placeholder for now, as storyId is not directly from a select
-  const characterId = userSelect?.value;
-  const worldId = worldSelect?.value;
-
-  if (characterId && worldId) { // Only create thread if character and world are selected
-    await App.threads.createFromSelection({ storyId, characterId, worldId });
-  }
-  // --- END NEW CODE ---
 }
 
 export async function _attachStoryboardListeners() { // <-- MADE ASYNC
@@ -1150,19 +1173,25 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
   const storyboardScreen = document.querySelector("#storyboard-screen");
   const chatScreenContainer = document.querySelector("#chat-screen-container");
 
-  const beginStoryBtn = document.querySelector("#begin-story");
-  if(beginStoryBtn) {
-    beginStoryBtn.addEventListener("click", () => {
-      if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
-        if (storyboardScreen) storyboardScreen.hidden = true;
-        if (chatScreenContainer) chatScreenContainer.hidden = false;
-        console.log("Navigating to chat screen.");
-      } else {
-        alert("Please select an AI character, a user character, and a world to begin.");
-      }
-    });
-  }
-
+          const beginStoryBtn = document.querySelector("#begin-story");
+          if(beginStoryBtn) {
+            beginStoryBtn.addEventListener("click", async () => { // <-- async
+              if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
+                const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
+                const storyId = storyTitleEl?.textContent || "default-story";
+                const characterId = userSelect.value;
+                const worldId = worldSelect.value;
+                const threadId = await App.threads.createFromSelection({ storyId, characterId, worldId });
+                if (storyboardScreen) storyboardScreen.hidden = true;
+                if (chatScreenContainer) chatScreenContainer.hidden = false;
+                App.state.applyPatch({ ui: { fsm: "idle" } }); // Set FSM to idle when chat screen is shown
+                await App.chat.render(threadId); // Render chat messages for the new thread
+                console.log("Navigating to chat screen.");
+              } else {
+                alert("Please select an AI character, a user character, and a world to begin.");
+              }
+            });
+          }
   // Use for...of loop to handle async await inside
   const cards = document.querySelectorAll(".storyboard-card");
   for (const card of cards) { // <-- FOR...OF
@@ -1341,14 +1370,11 @@ export function _attachChatFormListener() {
       submitButton.disabled = !input.value.trim();
     });
 
-    chatForm.addEventListener("submit", (e) => {
+    chatForm.addEventListener("submit", async (e) => { // <-- MADE ASYNC
       e.preventDefault();
       const message = input.value.trim();
       if (message) {
-        const messageEl = document.createElement("div");
-        messageEl.classList.add("chat-message", "user-message");
-        messageEl.textContent = message;
-        chatFeed.appendChild(messageEl);
+        await App.chat.send(message); // Call App.chat.send to process the message
         input.value = "";
         submitButton.disabled = true;
         chatFeed.scrollTop = chatFeed.scrollHeight;
@@ -1358,11 +1384,23 @@ export function _attachChatFormListener() {
   }
 }
 
-export async function initializeWhenReady() {
+export async function initializeWhenReady() { // <-- MADE ASYNC
   try {
     // Initialize database first
     await initDB(); // <-- ADDED
     console.log('[RPGlitch] Database initialized.'); // <-- ADDED
+
+    // Listen for state changes to re-render the chat
+    document.addEventListener('state:changed', async (event) => { // <-- MADE ASYNC
+      const { patch } = event.detail;
+      // Check if messages for the active thread or the active thread itself changed
+      if (patch.messages?.byThreadId || patch.threads?.activeId !== undefined) {
+        const activeThreadId = App.state.threads.activeId;
+        if (activeThreadId) {
+          await App.chat.render(activeThreadId);
+        }
+      }
+    });
 
     // Check if settings are initialized (indicates a fresh or cleared DB)
     const currentSettings = await db.settings.get('settings');
@@ -1380,7 +1418,13 @@ export async function initializeWhenReady() {
       });
     }
 
-    console.log('[RPGlitch] initializeWhenReady start', {
+    // Load selected storyboard card from DB
+    const selectedEntity = await db.entities.where('isSelected').equals(true).first();
+    if (selectedEntity) {
+      App.applyPatch({ ui: { selectedStoryboardCard: { type: selectedEntity.type, id: selectedEntity.id } } });
+    }
+
+    console.log('[RPGlitch] initializeWhenReady start', { // <-- ADDED
       retry: window.initializeWhenReadyRetryCount || 0
     });
   } catch { /* ignore */ }
@@ -1479,10 +1523,10 @@ export async function initializeWhenReady() {
   }
 }
 
-export async function importAllData(file) {
+export async function importAllData(file) { // <-- MADE ASYNC
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = async (e) => {
+  reader.onload = async (e) => { // <-- MADE ASYNC
     try {
       const data = JSON.parse(e.target.result);
 
@@ -1529,7 +1573,7 @@ export async function importAllData(file) {
   reader.readAsText(file);
 }
 
-export async function exportAllData() {
+export async function exportAllData() { // <-- MADE ASYNC
   const data = {
     version: 1, // Add version
   };
@@ -1571,7 +1615,7 @@ export async function deleteAllData() { // <-- MADE ASYNC
 try {
   if (!_bootBound) {
     _bootBound = true;
-    const boot = async () => {
+    const boot = async () => { // <-- MADE ASYNC
       try {
         if (TEST_MODE) return;
         if (_bootStarted) return;

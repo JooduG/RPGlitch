@@ -37,8 +37,7 @@ const checks = [
   { name: 'uvx', exists: !!which('uvx') },
   { name: 'python', cmd: process.platform === 'win32' ? 'where python' : 'which python' },
   { name: 'SMITHERY_API_KEY', env: checkEnv('SMITHERY_API_KEY') },
-  { name: 'SMITHERY_PROFILE', env: checkEnv('SMITHERY_PROFILE') },
-  { name: 'CONTEXT7_API_KEY', env: checkEnv('CONTEXT7_API_KEY') }
+  { name: 'SMITHERY_PROFILE', env: checkEnv('SMITHERY_PROFILE') }
 ];
 
 console.log('MCP Preflight');
