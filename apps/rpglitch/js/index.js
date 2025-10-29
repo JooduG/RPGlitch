@@ -379,6 +379,31 @@ export function loadStoredItems(key) {
   }
 }
 
+const STORYBOARD_SELECTION_KEY = "rpglitch-storyboard-selection";
+
+function saveStoryboardSelection() {
+  const selects = {
+    ai: document.querySelector("#storyboard-ai-select")?.value,
+    user: document.querySelector("#storyboard-user-select")?.value,
+    world: document.querySelector("#storyboard-world-select")?.value,
+  };
+  try {
+    localStorage.setItem(STORYBOARD_SELECTION_KEY, JSON.stringify(selects));
+  } catch (e) {
+    console.error("Failed to save storyboard selection:", e);
+  }
+}
+
+function loadStoryboardSelection() {
+  try {
+    const stored = localStorage.getItem(STORYBOARD_SELECTION_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    console.error("Failed to load storyboard selection:", e);
+    return {};
+  }
+}
+
 export function resetStoryboard() {
   // placeholder for future storyboard reset logic
 }
@@ -1082,33 +1107,35 @@ function _setupStoryboardTitle() {
   });
 }
 
-async function populateStoryboardSelects() { // <-- MADE ASYNC
-  const configs = [{
-    id: "storyboard-ai-select",
-    key: "characters"
-  }, {
-    id: "storyboard-user-select",
-    key: "characters"
-  }, {
-    id: "storyboard-world-select",
-    key: "worlds"
-  }, ];
-  
-  // Run in parallel
-  await Promise.all(configs.map(async ({ id, key }) => { // <-- AWAITED
-    await renderDropdown(document, id, key); // Use the existing async renderDropdown
-    const select = document.querySelector(`#${id}`);
-    if (select) {
-      select.addEventListener("change", onStoryboardChange);
-      await onStoryboardChange({ target: select }); // <-- AWAITED
-    }
-  }));
+async function populateStoryboardSelects() {
+  const selections = loadStoryboardSelection();
+  const configs = [
+    { id: "storyboard-ai-select", key: "characters", savedValue: selections.ai },
+    { id: "storyboard-user-select", key: "characters", savedValue: selections.user },
+    { id: "storyboard-world-select", key: "worlds", savedValue: selections.world },
+  ];
+
+  await Promise.all(
+    configs.map(async ({ id, key, savedValue }) => {
+      await renderDropdown(document, id, key);
+      const select = document.querySelector(`#${id}`);
+      if (select) {
+        if (savedValue && select.querySelector(`option[value="${savedValue}"]`)) {
+          select.value = savedValue;
+        }
+        select.addEventListener("change", onStoryboardChange);
+        // Trigger the initial update after setting the value
+        await onStoryboardChange({ target: select });
+      }
+    })
+  );
 }
 
 async function onStoryboardChange(e) { // <-- MADE ASYNC
   const select = e.target;
   await updateStoryboardCard(select); // <-- AWAITED
   await setDynamicTitle?.(); // <-- AWAITED
+  saveStoryboardSelection();
   if (typeof _suppressNextBlur !== "undefined") {
     _suppressNextBlur = false;
   }
