@@ -204,11 +204,7 @@ This section defines the tools you use, the rules for interacting with the envir
 
 * **Master File:** All MCP server definitions reside in `mcp.master.json`. To add a server, edit this file, then run `npm run sync:mcp`.
 * **Time MCP:** All timestamps in filenames, logs, and metadata **MUST** be fetched from the Time MCP. **NEVER** hardcode dates or times. Default timezone is **Europe/Stockholm**.
-*   **Advanced Reasoning Tools:**
-    *   For multi-step planning, your default **MUST** be the `sequentialthinking_tools` MCP.
-    *   When debugging, you **MUST** use the `debuggingapproach` MCP.
-    *   For causal analysis, you **MUST** use the `scientificmethod` MCP.
-    *   **DIRECTIVE (Self-Correction):** My adherence to the above MCP usage rules is mandatory and non-negotiable. I must actively choose these tools for their specified tasks in all future operations to comply with my core protocol.
+* **Sequential Thinking:** For multi-step planning and complex reasoning, use the `sequentialthinking_tools` MCP.
 
 ### **3.3. Project Commands & Environment**
 

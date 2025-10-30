@@ -8,7 +8,7 @@ const config = {
     'default'
   ],
   transform: {
-    '^.+\\.[tj]sx?$': ['babel-jest', { configFile: './babel.config.js' }]
+    '^.+\\.[tj]sx?$': ['babel-jest', { configFile: './babel.config.cjs' }]
   },
   transformIgnorePatterns: [
     '/node_modules/(?!cash-dom|dexie|jsdom)'

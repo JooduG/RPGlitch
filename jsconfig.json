@@ -10,6 +10,7 @@
     "*.bak",
     "*.log",
     "*.tmp",
+    ".env",
     ".env.*.local",
     ".env.local",
     ".gemini/",
