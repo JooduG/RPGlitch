@@ -153,7 +153,10 @@ const App = {
       const noMessagesEl = document.querySelector("#no-messages");
       if (!chatFeed || !noMessagesEl) return;
 
-      chatFeed.innerHTML = ""; // Clear existing messages
+      // Clear existing messages using DOM API
+      while (chatFeed.firstChild) {
+        chatFeed.removeChild(chatFeed.firstChild);
+      }
 
       const messages = App.state.messages.byThreadId[threadId] || [];
       
@@ -484,18 +487,31 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
     if (tpl && tpl.content) {
       card = tpl.content.firstElementChild.cloneNode(true);
     } else {
+      // Fallback: create card structure using DOM API
       card = document.createElement("div");
       card.className = "chin-card";
-      card.innerHTML = `
-        <div class="media"></div>
-        <div class="body"><p class="description"></p></div>`;
+
+      const media = document.createElement("div");
+      media.className = "media";
+
+      const body = document.createElement("div");
+      body.className = "body";
+
+      const desc = document.createElement("p");
+      desc.className = "description";
+      body.appendChild(desc);
+
+      card.appendChild(media);
+      card.appendChild(body);
+
       const t = document.createElement("h4");
       t.className = "title";
-      card.querySelector(".media").appendChild(t);
+      media.appendChild(t);
+
       const b = document.createElement("div");
       b.className = "badge";
       b.hidden = true;
-      card.querySelector(".media").appendChild(b);
+      media.appendChild(b);
     }
 
     card.dataset.title = item.title || item.name || "Empty";
@@ -1194,9 +1210,6 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
       await setDynamicTitle?.(); // <-- await
     });
   }
-  const aiSelect = document.querySelector("#storyboard-ai-select");
-  const userSelect = document.querySelector("#storyboard-user-select");
-  const worldSelect = document.querySelector("#storyboard-world-select");
   const storyboardScreen = document.querySelector("#storyboard-screen");
   const chatScreenContainer = document.querySelector("#chat-screen-container");
 

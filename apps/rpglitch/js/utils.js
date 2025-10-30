@@ -974,7 +974,6 @@ function initChin() {
     btn._chinBound = true;
   });
   if (!chinBound) {
-    const chinContainer = doc.querySelector("#chin-container");
     const topBar = doc.querySelector("#top-bar");
 
     doc.addEventListener("keydown", (e) => {

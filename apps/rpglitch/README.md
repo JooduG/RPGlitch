@@ -33,7 +33,7 @@ build/output/RPGlitch.html
 
 ## Source Structure
 
-```
+```text
 apps/rpglitch/
 ├── RPGlitch-left-panel.txt    # Perchance engine (plugin imports, setup)
 ├── html/
@@ -70,6 +70,7 @@ apps/rpglitch/
 ## Development
 
 See the main repository README.md and AGENTS.md for:
+
 - Coding standards
 - Build process details
 - Testing guidelines

@@ -3,7 +3,14 @@
     "allow": [
       "Bash(mv:*)",
       "Bash(npm run sync:ignores:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(npm test)",
+      "Bash(npm run lint)",
+      "Bash(npx markdownlint-cli2-fix:*)",
+      "Bash(npx markdownlint-cli2:*)",
+      "Bash(awk:*)",
+      "Bash(npm run sync:*)",
+      "Bash(npm run build:combine:*)"
     ],
     "deny": [],
     "ask": []

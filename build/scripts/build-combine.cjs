@@ -14,7 +14,7 @@ const picomatch = require('picomatch');
 // --- Configuration ---
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const OUTPUT_DIR = path.join(REPO_ROOT, 'build', 'output');
-const IGNORE_FILE_PATH = path.join(REPO_ROOT, 'build', 'config', 'ignores.master.json');
+const IGNORE_FILE_PATH = path.join(REPO_ROOT, 'ignores.master.json');
 const TEXT_EXTS = new Set(['.md', '.js', '.mjs', '.json', '.yml', '.yaml', '.html', '.css', '.scss', '.sh', '.ts', '.tsx', '.jsx', '.toml', '.ps1', '.patch']);
 
 /**

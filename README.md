@@ -33,16 +33,9 @@ This directory contains the user-facing Perchance applications. Each sub-folder 
 
 This is the project's factory floor. It contains all the essential machinery (`/scripts`), blueprints (`/config`), and raw materials (`/local_libs`) required to transform the source code from `/apps` into final, deployable artifacts, which are placed in `/build/output`.
 
-### **`/memory-bank` - The AI's Diary**
+### **`/memory-bank` - The AI's Archive**
 
-This is the AI's chronological logbook. It is organized into `/past`, `/present`, `/future`, and `/forever` to manage the AI's state and provide a complete history of its work.
-
-### **`/src` - The Shared DNA**
-
-This directory is the project's **Shared Code Library**. It contains all the core source code—modules, utilities, and foundational components—that are designed to be reused across multiple applications. While `/apps` contains self-contained applications, `/src` holds the shared, application-agnostic DNA they might depend upon.
-
-* **Layout:** Source code resides in `/src/main` with corresponding tests in `/src/tests`.
-* **Philosophy:** All code in `/src` must be application-agnostic, highly reusable, and have comprehensive test coverage.
+This is the AI's chronological logbook, organized by year-month (e.g., `archive/2025-07/`, `archive/2025-08/`) to preserve project history, strategic decisions, and implementation artifacts.
 
 ### **`/tests` - The Quality Assurance Department**
 

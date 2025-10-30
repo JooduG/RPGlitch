@@ -33,7 +33,7 @@ build/output/ImageGlitch.html
 
 ## Source Structure
 
-```
+```text
 apps/imageglitch/
 ├── ImageGlitch-left-panel.txt  # Perchance engine (plugin imports, setup)
 ├── html/
@@ -60,6 +60,7 @@ apps/imageglitch/
 ## Development
 
 See the main repository README.md and AGENTS.md for:
+
 - Coding standards
 - Build process details
 - Testing guidelines
