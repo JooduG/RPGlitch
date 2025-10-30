@@ -75,6 +75,30 @@ function setUiLockState(isLocked) {
   else checkAllButtonStates();
 }
 
+function validatePrompt(prompt) {
+  if (!prompt || prompt.trim().length === 0) {
+    alert('Prompt cannot be empty');
+    return null;
+  }
+  if (prompt.length > 1000) { // reasonable limit
+    alert('Prompt too long (max 1000 characters)');
+    return null;
+  }
+  return prompt.trim();
+}
+
+function validateSeed(seed) {
+  if (seed === '' || seed === null || typeof seed === 'undefined') {
+    return ''; // Return empty string for random
+  }
+  const parsed = parseInt(seed, 10);
+  if (isNaN(parsed) || parsed < 0) {
+    alert('Seed must be a non-negative number. A random seed will be used.');
+    return ''; // Return empty string for random
+  }
+  return parsed;
+}
+
 // ====== SETTINGS & STATE MANAGEMENT ======
 function updateDerivedSettings() {
   const mc = Number(masterCreativity);
@@ -175,14 +199,21 @@ function handleAiMagicSelection(selectElement) {
 function handleAiButtonClick(processType) {
   if (window.activeAiProcess) return;
 
-  const currentPrompt = (mainPromptContent || "").trim();
   const instructions = document.getElementById('instructionInput').value;
 
-  if (processType === 'transfigure' && !instructions.trim()) return;
-  if (processType !== 'chaos' && !currentPrompt) return;
+  if (processType === 'transfigure' && !instructions.trim()) {
+    alert('Instructions cannot be empty for Transfigure.');
+    return;
+  }
+  
+  if (processType !== 'chaos') {
+    const validatedPrompt = validatePrompt(mainPromptContent);
+    if (!validatedPrompt) return;
+    mainPromptContent = validatedPrompt;
+  }
 
   updateDerivedSettings();
-  executeAiProcess(processType, currentPrompt, instructions);
+  executeAiProcess(processType, mainPromptContent, instructions);
 }
 
 async function executeAiProcess(type, prompt, instructions) {
@@ -329,11 +360,15 @@ function setCommandState(commandType) {
 // ====== IMAGE SUMMONING & MAIN STATE LOGIC ======
 async function handleSummonClick() {
   const generateButton = document.getElementById('generate-button');
+  
+  const validatedPrompt = validatePrompt(mainPromptContent);
+  if (!validatedPrompt) return;
+  mainPromptContent = validatedPrompt; // update with trimmed prompt
+
   generateButton.setAttribute('aria-busy', 'true');
   generateButton.disabled = true;
 
   try {
-    if (!mainPromptContent.trim()) return;
     document.getElementById('output').innerHTML = buildImageGenerationHtml();
 
     document.querySelectorAll('.quad-cell').forEach(cell => {
@@ -366,8 +401,9 @@ function buildImageGenerationHtml() {
   updateDerivedSettings();
   const n = Number(numImagesToGen);
   let outputHtml = "";
-  const prompt = (mainPromptContent || "").trim();
-  const useRandomSeeds = imgSeed === "";
+  const prompt = mainPromptContent.trim(); // Already validated
+  const validatedSeed = validateSeed(imgSeed);
+  const useRandomSeeds = validatedSeed === '';
 
   for (let i = 0; i < n; i++) {
     let imageGenerator;
@@ -387,12 +423,12 @@ function buildImageGenerationHtml() {
       };
       for (const position in resolutions) {
         const resolution = resolutions[position];
-        let blockSeed = useRandomSeeds ? Math.floor(Math.random() * 10000000) : imgSeed;
+        let blockSeed = useRandomSeeds ? Math.floor(Math.random() * 10000000) : validatedSeed;
         outputHtml += `<div class="quad-cell ${position}" data-seed="${blockSeed}" data-resolution="${resolution}"></div>`;
       }
       outputHtml += `</div>`;
     } else { // pollinations
-      let blockSeed = useRandomSeeds ? Math.floor(Math.random() * 10000000) : imgSeed;
+      let blockSeed = useRandomSeeds ? Math.floor(Math.random() * 10000000) : validatedSeed;
       const params = new URLSearchParams({
         width: DEFAULT_IMAGE_WIDTH, height: DEFAULT_IMAGE_HEIGHT,
         seed: blockSeed, model: 'flux', private: true, nologo: true,

@@ -1,6 +1,6 @@
 import { jest, describe, beforeEach, afterEach, test, expect } from '@jest/globals';
 import { init as initDB, db } from '../apps/rpglitch/js/db.js';
-import { entities, getPremadeItems } from '../apps/rpglitch/js/entities.js';
+import { getPremadeItems } from '../apps/rpglitch/js/entities.js';
 import { JSDOM } from 'jsdom'; // ADDED: ensure JSDOM is available for new JSDOM(...) in beforeEach
 
 // Mock the Perchance global and its plugins
@@ -172,8 +172,6 @@ describe('Begin Story Button Functionality', () => {
   test('should show alert if not all selections are made', async () => {
     const beginStoryBtn = document.getElementById('begin-story');
     const aiSelect = document.getElementById('storyboard-ai-select');
-    const userSelect = document.getElementById('storyboard-user-select');
-    const worldSelect = document.getElementById('storyboard-world-select');
 
     // Only select AI character
     aiSelect.value = 'char-1';
