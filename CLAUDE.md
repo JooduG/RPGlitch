@@ -1,6 +1,8 @@
-# CLAUDE.md
+# 🚀 Claude Code Quick Start
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+> **Before you start coding, read [FOUNDATIONS.md](./FOUNDATIONS.md).** It contains your operational rulebook, persona definitions, and the STO execution framework.
+
+> **For complete protocols, see [AGENTS.md](./AGENTS.md).**
 
 ## Overview
 

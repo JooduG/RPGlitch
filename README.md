@@ -1,107 +1,250 @@
-# **📁 AI-Assisted Monorepo**
+# 🚀 Perchance Development Monorepo
 
-## **🎯 Purpose**
+An **AI-assisted, production-ready ecosystem** for building Perchance applications with sophisticated tooling, automation, and rigorous standards.
 
-This monorepo contains a complete, AI-assisted ecosystem for developing and maintaining web applications. Its structure and documentation are **optimized for AI agent operation and human oversight**, facilitating a collaborative development environment.
+---
 
-## **🤖 Note to AI Agents**
+## 🎯 Quick Start
+```bash
+# Setup
+npm ci && npm run sync
 
-All operational instructions, protocols, coding standards, and workflows are defined in the master protocol document:
+# Build
+npm run build:apps
 
-➡️ **[AGENTS.md](./AGENTS.md)** ⬅️
+# Test
+npm test
 
-This is your single source of truth. You must read and adhere to it before taking any action.
+# Lint & fix
+npm run lint:fix
 
-## **🗺️ Repository Navigation**
+# Deploy
+npm run deploy
+```
 
-This monorepo is organized into several distinct directories. Below is a guide to the purpose, key files, and common tasks for each.
+---
 
-### **`/apps` - The Applications**
+## 📚 Master Documentation (Start Here)
 
-This directory contains the user-facing Perchance applications. Each sub-folder is a self-contained application with its own logic, UI source, and build command.
+This is your single source of truth. Read in this order:
 
-* **`apps/rpglitch`**: A feature-rich application for managing RPG entities.
-  * **Logic:** `apps/rpglitch/RPGlitch-left-panel.txt`
-  * **UI Source:** `apps/rpglitch/html/index.html`
-  * **Build Command:** `npm run build:rpglitch`
-* **`apps/imageglitch`**: A minimalist Text-to-Image generator.
-  * **Logic:** `apps/imageglitch/ImageGlitch-left-panel.txt`
-  * **UI Source:** `apps/imageglitch/html/index.html`
-  * **Build Command:** `npm run build:imageglitch`
+1. **[FOUNDATIONS.md](./FOUNDATIONS.md)** ← **Start here** for operational identity & STO framework
+2. **[AGENTS.md](./AGENTS.md)** ← Complete protocols, coding standards, all rules
+3. **[CLAUDE.md](./CLAUDE.md)** ← Claude Code quick start
+4. **[design-system.md](./design-system.md)** ← UI/UX guidelines & components
+5. **[CODE_REVIEW.md](./CODE_REVIEW.md)** ← Quality gates, security, implementation checklist
+6. **[plan.md](./plan.md)** ← Project roadmap, backlog, feature pipeline
 
-### **`/build` - The Factory**
+---
 
-This is the project's factory floor. It contains all the essential machinery (`/scripts`), blueprints (`/config`), and raw materials (`/local_libs`) required to transform the source code from `/apps` into final, deployable artifacts, which are placed in `/build/output`.
+## 🤖 AI Agent Operation
 
-### **`/memory-bank` - The AI's Archive**
+This repository is optimized for AI-assisted development via Claude Code subagents.
 
-This is the AI's chronological logbook, organized by year-month (e.g., `archive/2025-07/`, `archive/2025-08/`) to preserve project history, strategic decisions, and implementation artifacts.
+### Subagent Architecture
 
-### **`/tests` - The Quality Assurance Department**
+All subagents live in `.claude/agents/` and are automatically loaded by Claude Code.
 
-This contains all the automated tests that verify the functionality, stability, and correctness of the applications and core systems.
+| Subagent | Role | Tools | When to Use |
+|----------|------|-------|------------|
+| **Architect** | Strategic design | read, grep | High-level system decisions |
+| **Planner** | Operational blueprints | read, grep | Planning before execution (MUST USE) |
+| **Coder** | Implementation | read, write, bash | Writing code, running tests |
+| **UI/UX** | Interface design | read, write, bash | Designing & implementing UI |
+| **Security/QA** | Quality gates | read, bash | Verify security, run tests |
+| **Debugger** | Error resolution | read, bash | Investigate & fix bugs |
+| **Test Runner** | Test automation | read, write, bash | Run tests, improve coverage |
+| **Memory Keeper** | Knowledge archive | read, write | Document handoffs, archive tasks |
 
-* **Run Tests:** To run the full suite, use the command `npm test`.
+**Usage:** Mention a subagent by name in Claude Code, or they auto-delegate based on task context.
 
-### **`/tools` - The Utility Belt**
+**Read More:** [FOUNDATIONS.md](./FOUNDATIONS.md) – Operational roles & hierarchy
 
-This directory contains a collection of specialized scripts and utilities designed to assist with maintenance (`css-cleanup.js`), automate repetitive tasks, and diagnose system issues (`/diagnostics`).
+### Model Efficiency
 
-## **🛠️ Development**
+Each subagent uses a cost-optimized Claude model:
+- **Opus 4.1** (Strategy/Planning) – Heavy thinking
+- **Sonnet 4.5** (Implementation/Design) – Balanced
+- **Haiku 4.5** (Testing/Security/Docs) – Fast & cheap
 
-This section provides a guide to the development process, from building and testing to coding style and security.
+---
 
-### **Build, Test, and Development Commands**
+## 📁 Repository Structure
 
-* `npm run build`: Builds RPGlitch into a single inlined HTML.
-* `npm run deploy`: Syncs, runs tests, lints (fix), builds, and copies artifacts.
-* `npm run deploy:loose`: Same as deploy but continues on non-critical failures.
-* `npm run sync`: Sync shared libs/configs/docs.
-* `npm run lint` / `npm run lint:fix`: Lint JS, CSS, Markdown (auto-fix where possible).
-* `npm test`: Run Jest test suite (jsdom environment).
-* `npm run validate`: Sanity-check that `build/output/RPGlitch.html` exists and is non-empty.
+### Applications
+- **[`apps/rpglitch/`](./apps/rpglitch/)** - RPG entity manager (Characters, Worlds, Stories, Chat)
+- **[`apps/imageglitch/`](./apps/imageglitch/)** - Text-to-image generator
 
-### **Coding Style & Naming Conventions**
+### Build System
+- **[`build/`](./build/)** - Build scripts, vendored dependencies, output artifacts
+- **[`build/scripts/`](./build/scripts/)** - Automated build pipeline
+- **[`build/local_libs/`](./build/local_libs/)** - Vendored dependencies (Pico.css, Dexie, DOMPurify, etc.)
+- **[`build/output/`](./build/output/)** - ⚠️ DO NOT EDIT - generated artifacts only
 
-* **JavaScript:** ES2022+, 2‑space indentation, `camelCase` for functions, `App.*` for global app APIs.
-* **CSS/SCSS:** `kebab-case` classes, optional BEM modifier (`.block--modifier`).
-* **Linting:** ESLint (`build/config/eslint.config.mjs`) and Stylelint (`build/config/stylelint.config.js`). Keep diffs small and deterministic.
-* **HTML safety:** Sanitize any dynamic HTML via `DOMPurify.sanitize()`.
+### Testing & Quality
+- **[`tests/`](./tests/)** - Jest test suite with jsdom environment
+- **[`CODE_REVIEW.md`](./CODE_REVIEW.md)** - Current code review & improvement backlog
 
-### **Security & Configuration Tips**
+### Tooling & Utilities
+- **[`tools/`](./tools/)** - Diagnostic scripts, utilities, git guards
+- **[`.claude/agents/`](./.claude/agents/)** - Claude Code subagent definitions
 
-* Never commit secrets. Use local `.env` for dev.
-* Avoid external network calls in app code; prefer vendoring to `build/local_libs/`.
-* Don’t hand‑edit generated outputs (`build/output/`). Avoid writing to `node_modules/`.
+### Documentation & Planning
+- **[`plan.md`](./plan.md)** - Project roadmap, feature backlog, execution plans
+- **[`design-system.md`](./design-system.md)** - UI/UX guidelines, components, Icon-Free Mandate
+- **[`memory-bank/archive/`](./memory-bank/archive/)** - Historical task logs & decisions (read-only)
 
-## **🎨 Design Philosophy**
+---
 
-For detailed information on our design system, including core principles, the component library, and UI safety protocols, please see the canonical document:
+## 🔧 Development Workflow
 
-➡️ **[design-system.md](./design-system.md)**
+### For Humans
+1. Read [FOUNDATIONS.md](./FOUNDATIONS.md) & [AGENTS.md](./AGENTS.md)
+2. Understand the architecture in `/apps/`
+3. Check [design-system.md](./design-system.md) for UI rules
+4. See [plan.md](./plan.md) for what to work on next
 
-## **🤝 Contributing**
+### For Claude Code
+1. Mention a subagent by name or task
+2. Subagents auto-coordinate using STO framework
+3. All work flows through Planner (orchestrator)
+4. Security/QA gates every change
+5. Tests run automatically after implementation
 
-We welcome contributions to this project. To ensure a smooth and collaborative process, please adhere to the following guidelines. For detailed technical and AI-specific protocols, please refer to [AGENTS.md](./AGENTS.md).
+---
 
-### **Pull Request Guidelines**
+## ✅ Non-Negotiable Rules
 
-* **Keep PRs small and focused:** Each pull request should address a single issue or feature.
-* **Clear Titles and Descriptions:** The title should follow the format `[<scope>] <summary>` (e.g., `[docs] Update contributing guidelines`). The description should include:
-  * A clear explanation of the changes.
-  * Steps for validation.
-  * Screenshots for any UI changes.
-  * Links to any related issues.
-* **Branch Naming for Humans:** Use the format `{scope}/{short-task-description}` (e.g., `docs/update-contributing-guide`).
+**Code:**
+- No `var` keyword (use `const`/`let`)
+- No localStorage/sessionStorage (IndexedDB only)
+- DOMPurify.sanitize() on all dynamic HTML
+- ES6 modules only (no IIFEs)
+- Vanilla DOM APIs (no external libraries)
 
-## **📖 Glossary**
+**UI:**
+- Icon-Free Mandate: text labels required, icons embellish
+- Semantic HTML5 (`<main>`, `<nav>`, `<header>`, etc.)
+- Accessibility baseline: alt text, labels, keyboard nav
 
-| Term                 | Meaning                                                                  |
-| -------------------- | ------------------------------------------------------------------------ |
-| Chin (Panel)         | Slide-out side panel used in RPGlitch UI                                 |
-| Storyboard Card      | Card representing Story + Character + World tuple                        |
-| PF-Pic               | Profile-picture placeholder component                                    |
-| Overlay Guard        | A function that force-closes loading modals and clears UI-blocking states. |
-| UI Watchdog          | A polling mechanism to detect and auto-heal UI blocking issues.            |
-| Recovery Hooks       | Event listeners that trigger UI healing on user interaction or browser events. |
-| Attribute Observer   | A mechanism to instantly neutralize UI-blocking attribute changes.       |
+**Architecture:**
+- Perchance Two-Panel Architecture (Left/Right Panel separation)
+- Single inlined HTML output per app (all CSS/JS embedded)
+- IndexedDB (via Dexie) as single source of truth
+
+**Quality:**
+- Zero-error policy: fix bugs immediately
+- Run tests after every change
+- Linting passes before commit
+- Conventional Commits format
+
+**Security:**
+- Never commit secrets (use `.env`)
+- All dependencies vendored (no CDN)
+- Sanitize all user/AI content
+
+---
+
+## 🎯 Common Tasks
+
+### Build & Deploy
+```bash
+npm run build                  # Build all apps
+npm run build:rpglitch        # Build RPGlitch only
+npm run deploy                # Full pipeline: sync → lint → build → test
+```
+
+### Testing
+```bash
+npm test                      # Run all tests
+npm run lint                  # Check linting
+npm run lint:fix              # Auto-fix linting
+npm run validate              # Verify artifacts exist
+```
+
+### Development
+```bash
+node build/scripts/watch.js   # Auto-rebuild on file changes
+npm run sync                  # Sync configs & libraries
+```
+
+### MCP & Advanced
+```bash
+npm run sync:mcp              # Generate MCP config from master
+npm run mcp:start-all         # Start all MCP servers
+```
+
+---
+
+## 🏗️ Architecture Overview
+
+### Two-Panel Architecture (Perchance)
+
+Every application follows this strict separation:
+
+- **Left Panel** (`*-left-panel.txt`)
+  - Perchance engine logic
+  - Plugin imports (ai-text-plugin, text-to-image-plugin, etc.)
+  - Core setup & configuration
+
+- **Right Panel** (source: `apps/*/html/index.html`)
+  - Main application UI & logic
+  - JavaScript modules (`js/`)
+  - Styles (`scss/`)
+  - **Compiled into single inlined HTML** during build
+
+### Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **State** | IndexedDB (Dexie.js) | Persistent, local-first storage |
+| **UI Framework** | Pico.css (+ custom SCSS) | Minimalist, semantic styling |
+| **JavaScript** | ES6+ modules (vanilla) | Pure, modular, no frameworks |
+| **Security** | DOMPurify | XSS prevention on all HTML |
+| **Build** | esbuild + PostCSS | Compile & inline into single HTML |
+
+### Build Output
+
+- **Single HTML file per app** - No external dependencies
+- **All CSS inlined** - In `<style>` tags
+- **All JS inlined** - In `<script type="module">` tags
+- **Vendored libs inlined** - Pico.css, Dexie, DOMPurify, etc.
+
+---
+
+## 📖 Glossary
+
+| Term | Meaning |
+|------|---------|
+| Chin | Slide-out side panel in RPGlitch UI |
+| Storyboard | 3-column grid for selecting Story/Character/World |
+| Two-Panel Architecture | Perchance Left (engine) + Right (UI) separation |
+| FSM | Finite State Machine (Chat state: idle, sending, streaming, done) |
+| Watchdog | Polling mechanism to detect and auto-heal UI blocking |
+| Overlay Guard | Function to force-close lingering UI blockers |
+| DOMPurify | HTML sanitizer library (prevents XSS) |
+| Dexie | IndexedDB wrapper library (state persistence) |
+| STO Framework | Strategy → Tactics → Operations (execution blueprint) |
+
+---
+
+## 🚀 Next Steps
+
+1. **New to the project?** → Read [FOUNDATIONS.md](./FOUNDATIONS.md)
+2. **Using Claude Code?** → Check [CLAUDE.md](./CLAUDE.md)
+3. **Building UI?** → See [design-system.md](./design-system.md)
+4. **Reviewing code?** → Check [CODE_REVIEW.md](./CODE_REVIEW.md)
+5. **Planning features?** → See [plan.md](./plan.md)
+
+---
+
+## 📞 Support
+
+- **AI Agent Protocols:** [AGENTS.md](./AGENTS.md)
+- **Build Issues:** [build/README.md](./build/README.md)
+- **Testing:** [tests/](./tests/) & [CODE_REVIEW.md](./CODE_REVIEW.md)
+- **Tools & Utilities:** [tools/README.md](./tools/README.md)
+
+---
+
+*Optimized for AI-assisted Perchance development. Humans welcome too.*
