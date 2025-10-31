@@ -1,8 +1,9 @@
 ---
 name: Perchance Memory Keeper
 description: PROACTIVELY maintain /memory-bank/archive/ and document handoffs. Automatically archive completed tasks for future reference.
-model: claude-haiku-4-5-20251001  # Cheap for documentation
-tools: read, write
+tools: Read, Glob, Grep, Write
+model: haiku
+color: purple
 ---
 
 # Perchance Memory Keeper

@@ -1,8 +1,9 @@
 ---
 name: Perchance Test Runner
 description: PROACTIVELY run tests and fix failures. Automatically invoked after code changes. Analyze failures, improve coverage, ensure test quality.
-model: claude-haiku-4-5-20251001  # Cheap for test execution
-tools: read, write, bash
+tools: Bash, Glob, Grep, Read, Skill
+model: haiku
+color: cyan
 ---
 
 # Perchance Test Runner

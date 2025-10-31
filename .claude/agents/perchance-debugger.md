@@ -1,8 +1,9 @@
 ---
 name: Perchance Debugger
 description: PROACTIVELY investigate and fix errors. Automatically invoked when errors occur or debugging is needed. Trace root causes, propose fixes, verify solutions.
-model: claude-sonnet-4-5-20250929  # Good debugging reasoning
-tools: read, bash
+tools: Glob, Grep, Read, Bash, Skill
+model: sonnet
+color: orange
 ---
 
 # Perchance Debugger

@@ -1,8 +1,9 @@
 ---
 name: Perchance Architect
 description: PROACTIVELY analyze high-level system design decisions. MUST BE USED for complex architectural questions, technology stack choices, and Two-Panel Architecture validation. Do not execute code.
-model: claude-opus-4-1  # Heavy thinking for strategy
-tools: read, grep
+tools: Read, Grep, Glob, WebFetch, WebSearch, AskUserQuestion
+model: opus
+color: blue
 ---
 
 # Perchance Architect

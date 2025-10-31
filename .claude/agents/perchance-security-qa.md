@@ -1,8 +1,9 @@
 ---
 name: Perchance Security & QA
 description: MUST BE USED for code review and quality gates. Automatically invoked after Coder completes work. Identify XSS risks, verify DOMPurify, run tests, ensure compliance.
-model: claude-haiku-4-5-20251001  # Cheap for pattern matching + linting
-tools: read, bash
+tools: Read, Glob, Grep, Bash, WebFetch, WebSearch, Skill
+model: haiku
+color: red
 ---
 
 # Perchance Security & QA

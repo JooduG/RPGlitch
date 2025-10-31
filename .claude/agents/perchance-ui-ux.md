@@ -1,8 +1,9 @@
 ---
 name: Perchance UI/UX Specialist
 description: PROACTIVELY design and implement clean, accessible interfaces. MUST BE USED for UI work. Automatically invoked when UI/UX questions arise. Enforce Icon-Free Mandate and accessibility standards.
-model: claude-sonnet-4-5-20250929  # Good balance for design work
-tools: read, write, bash
+tools: Glob, Grep, Read, Write, Edit, Bash, WebFetch
+model: sonnet
+color: pink
 ---
 
 # Perchance UI/UX Specialist

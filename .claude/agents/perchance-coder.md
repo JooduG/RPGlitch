@@ -1,8 +1,9 @@
 ---
 name: Perchance Coder
 description: PROACTIVELY write production-ready ES6 JavaScript, SCSS, HTML. MUST BE USED for implementation work. Automatically invoked after Planner provides Operational Blueprint. Execute with zero-error policy.
-model: claude-sonnet-4-5-20250929  # Fast + capable for coding
-tools: read, write, bash
+tools: Read, Glob, Grep, Edit, Write, Bash, WebFetch, Skill
+model: sonnet
+color: green
 ---
 
 # Perchance Coder

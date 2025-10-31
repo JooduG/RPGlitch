@@ -44,14 +44,14 @@
       }
     },
     "model_selection": {
-      "architect": "claude-opus-4-1",
-      "planner": "claude-opus-4-1",
-      "coder": "claude-sonnet-4-5-20250929",
-      "ui": "claude-sonnet-4-5-20250929",
-      "security": "claude-haiku-4-5-20251001",
-      "debugger": "claude-sonnet-4-5-20250929",
-      "test-runner": "claude-haiku-4-5-20251001",
-      "memory": "claude-haiku-4-5-20251001"
+      "architect": "opus",
+      "planner": "opus",
+      "coder": "sonnet",
+      "ui": "sonnet",
+      "security": "haiku",
+      "debugger": "sonnet",
+      "test-runner": "haiku",
+      "memory": "haiku"
     },
     "notes": "Model selection balances cost vs. capability. Opus for heavy thinking, Sonnet for general work, Haiku for pattern matching."
   }

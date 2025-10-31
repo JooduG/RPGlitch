@@ -1,8 +1,9 @@
 ---
 name: Perchance Planner
 description: MUST BE USED to translate requests into Operational Blueprints using STO Framework. Automatically invoked for feature requests, task planning, and cross-subagent coordination. Orchestrator for all development work.
-model: claude-opus-4-1  # Heavy thinking for orchestration
-tools: read, grep
+tools: Glob, Grep, Read, Write, TodoWrite, WebSearch, AskUserQuestion
+model: opus
+color: yellow
 ---
 
 # Perchance Planner
