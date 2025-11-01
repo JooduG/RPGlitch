@@ -533,6 +533,8 @@ function buildImageGenerationHtml() {
 /**
  * Wait for Perchance plugins to become available before initializing.
  * Plugins are loaded asynchronously by the left panel and may not be ready immediately.
+ * Left panel exposes them with "plugin" prefix (pluginImage, pluginAi, etc.)
+ * to avoid Perchance syntax parsing issues with dot notation.
  * In test mode, this function skips the wait and returns immediately.
  * @param {string[]} requiredPlugins - Array of global plugin names to wait for
  * @param {number} timeout - Maximum time to wait in milliseconds
@@ -551,10 +553,19 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
 
   console.log(`[ImageGlitch] Waiting for plugins (attempt ${retryCount + 1}/${maxRetries + 1}):`, requiredPlugins);
 
-  while (Date.now() - startTime < timeout) {
-    const allAvailable = requiredPlugins.every(name => typeof window[name] !== 'undefined');
+  // Convert standard names to prefixed names that left panel actually exposes
+  // (e.g., 'image' -> 'pluginImage', 'ai' -> 'pluginAi')
+  const prefixedPlugins = requiredPlugins.map(name => {
+    return 'plugin' + name.charAt(0).toUpperCase() + name.slice(1);
+  });
 
-    if (allAvailable) {
+  while (Date.now() - startTime < timeout) {
+    // Check if prefixed plugins are available (they get exposed by left panel)
+    const allPrefixedAvailable = prefixedPlugins.every(name => typeof window[name] !== 'undefined');
+    // Also check if standard names are available (they get set by setupPlugins())
+    const allStandardAvailable = requiredPlugins.every(name => typeof window[name] !== 'undefined');
+
+    if (allPrefixedAvailable || allStandardAvailable) {
       console.log('[ImageGlitch] All plugins loaded successfully:', requiredPlugins);
       return true;
     }
@@ -567,9 +578,11 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
     return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
   }
 
-  const available = requiredPlugins.filter(name => typeof window[name] !== 'undefined');
-  const missing = requiredPlugins.filter(name => typeof window[name] === 'undefined');
-  console.warn(`[ImageGlitch] Plugin timeout after ${Date.now() - startTime}ms. Available: ${available.join(', ') || 'none'} | Missing: ${missing.join(', ') || 'none'}`);
+  const availableStandard = requiredPlugins.filter(name => typeof window[name] !== 'undefined');
+  const missingStandard = requiredPlugins.filter(name => typeof window[name] === 'undefined');
+  const availablePrefixed = prefixedPlugins.filter(name => typeof window[name] !== 'undefined');
+  const missingPrefixed = prefixedPlugins.filter(name => typeof window[name] === 'undefined');
+  console.warn(`[ImageGlitch] Plugin timeout after ${Date.now() - startTime}ms. Standard available: ${availableStandard.join(', ') || 'none'} | Prefixed available: ${availablePrefixed.join(', ') || 'none'} | Missing standard: ${missingStandard.join(', ') || 'none'} | Missing prefixed: ${missingPrefixed.join(', ') || 'none'}`);
   return false;
 }
 
