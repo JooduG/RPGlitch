@@ -2,6 +2,16 @@ import { safeDecodeURIComponent } from './utils.js';
 import { db } from './db.js';
 
 // ====== GLOBAL STATE & CONSTANTS ======
+const TEST_MODE = (() => {
+  if (globalThis.__TEST__) {
+    return true;
+  }
+  try {
+    return /jsdom/i.test(globalThis?.navigator?.userAgent || "");
+  } catch {
+    return false;
+  }
+})();
 const DEFAULT_CREATIVITY_LEVEL = "4";
 const creativityMap = {
   "0": { gScale: 1, aiTemp: 1.9 }, "1": { gScale: 3, aiTemp: 1.5 }, "2": { gScale: 5, aiTemp: 1.2 },
@@ -493,7 +503,59 @@ function buildImageGenerationHtml() {
   return outputHtml;
 }
 
+/**
+ * Wait for Perchance plugins to become available before initializing.
+ * Plugins are loaded asynchronously by the left panel and may not be ready immediately.
+ * In test mode, this function skips the wait and returns immediately.
+ * @param {string[]} requiredPlugins - Array of global plugin names to wait for
+ * @param {number} timeout - Maximum time to wait in milliseconds
+ * @param {number} retryCount - Current retry attempt
+ * @param {number} maxRetries - Maximum number of retry attempts
+ * @returns {Promise<boolean>} - True if all plugins loaded, false if timeout
+ */
+async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, maxRetries = 3) {
+  // Skip plugin waiting in test mode
+  if (TEST_MODE) {
+    console.log('[ImageGlitch] Test mode detected, skipping plugin wait');
+    return true;
+  }
+
+  const startTime = Date.now();
+
+  console.log(`[ImageGlitch] Waiting for plugins (attempt ${retryCount + 1}/${maxRetries + 1}):`, requiredPlugins);
+
+  while (Date.now() - startTime < timeout) {
+    const allAvailable = requiredPlugins.every(name => typeof window[name] !== 'undefined');
+
+    if (allAvailable) {
+      console.log('[ImageGlitch] All plugins loaded successfully:', requiredPlugins);
+      return true;
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms before checking again
+  }
+
+  if (retryCount < maxRetries) {
+    console.warn(`[ImageGlitch] Plugins not available, retrying (${retryCount + 1}/${maxRetries})...`);
+    return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
+  }
+
+  const available = requiredPlugins.filter(name => typeof window[name] !== 'undefined');
+  const missing = requiredPlugins.filter(name => typeof window[name] === 'undefined');
+  console.warn(`[ImageGlitch] Plugin timeout after ${Date.now() - startTime}ms. Available: ${available.join(', ') || 'none'} | Missing: ${missing.join(', ') || 'none'}`);
+  return false;
+}
+
 async function main() {
+  // Wait for required Perchance plugins to load
+  const pluginsLoaded = await waitForPlugins(['image', 'ai']);
+
+  if (!pluginsLoaded) {
+    console.error('[ImageGlitch] Required plugins failed to load. Application may not function correctly.');
+    alert('Required plugins failed to load. Please refresh the page and try again.');
+    // Continue with initialization anyway for graceful degradation
+  }
+
   // Verify plugin dependencies are available
   console.log('[ImageGlitch] Dexie available:', typeof Dexie !== 'undefined');
   console.log('[ImageGlitch] DOMPurify available:', typeof DOMPurify !== 'undefined');
