@@ -6,6 +6,22 @@ image = {import:text-to-image-plugin}
 ai = {import:ai-text-plugin}
 r = {import:remember-plugin}
 
+// Expose plugins to right-panel JavaScript via globalThis
+(async () => {
+  let attempts = 0;
+  const maxAttempts = 100;
+  while(attempts < maxAttempts) {
+    if(typeof image !== 'undefined' && typeof ai !== 'undefined') {
+      globalThis.image = image;
+      globalThis.ai = ai;
+      globalThis.r = r;
+      break;
+    }
+    await new Promise(r => setTimeout(r, 50));
+    attempts++;
+  }
+})();
+
 doggo
   imgSeed = ""
   onFinish(result) =>

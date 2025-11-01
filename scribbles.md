@@ -1,412 +1,193 @@
-[{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/imageglitch/ImageGlitch-left-panel.txt",
-	"owner": "codacy",
-	"code": "syntax-error",
-	"severity": 8,
-	"message": "Parsing failed: 'invalid decimal literal (ImageGlitch-left-panel, line 22)'",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 22,
-	"startColumn": 3,
-	"endLineNumber": 22,
-	"endColumn": 100,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'window' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 7,
-	"startColumn": 15,
-	"endLineNumber": 7,
-	"endColumn": 21,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 11,
-	"startColumn": 3,
-	"endLineNumber": 11,
-	"endColumn": 10,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 34,
-	"startColumn": 5,
-	"endLineNumber": 34,
-	"endColumn": 12,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'localStorage' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 47,
-	"startColumn": 27,
-	"endLineNumber": 47,
-	"endColumn": 39,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'localStorage' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 55,
-	"startColumn": 31,
-	"endLineNumber": 55,
-	"endColumn": 43,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'localStorage' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 70,
-	"startColumn": 7,
-	"endLineNumber": 70,
-	"endColumn": 19,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'localStorage' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 71,
-	"startColumn": 7,
-	"endLineNumber": 71,
-	"endColumn": 19,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 76,
-	"startColumn": 5,
-	"endLineNumber": 76,
-	"endColumn": 12,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 78,
-	"startColumn": 5,
-	"endLineNumber": 78,
-	"endColumn": 12,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'localStorage' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 96,
-	"startColumn": 25,
-	"endLineNumber": 96,
-	"endColumn": 37,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 116,
-	"startColumn": 9,
-	"endLineNumber": 116,
-	"endColumn": 16,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'localStorage' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 122,
-	"startColumn": 7,
-	"endLineNumber": 122,
-	"endColumn": 19,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 127,
-	"startColumn": 5,
-	"endLineNumber": 127,
-	"endColumn": 12,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "syntax-error",
-	"severity": 8,
-	"message": "Parsing failed: 'unterminated string literal (detected at line 128) (db, line 128)'",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 128,
-	"startColumn": 11,
-	"endLineNumber": 128,
-	"endColumn": 100,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 156,
-	"startColumn": 7,
-	"endLineNumber": 156,
-	"endColumn": 14,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 159,
-	"startColumn": 5,
-	"endLineNumber": 159,
-	"endColumn": 12,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 175,
-	"startColumn": 7,
-	"endLineNumber": 175,
-	"endColumn": 14,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 180,
-	"startColumn": 9,
-	"endLineNumber": 180,
-	"endColumn": 16,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 192,
-	"startColumn": 9,
-	"endLineNumber": 192,
-	"endColumn": 16,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 208,
-	"startColumn": 9,
-	"endLineNumber": 208,
-	"endColumn": 16,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/js/db.js",
-	"owner": "codacy",
-	"code": "no-undef",
-	"severity": 8,
-	"message": "'console' is not defined.",
-	"source": "Codacy CLI [ESLint]",
-	"startLineNumber": 212,
-	"startColumn": 7,
-	"endLineNumber": 212,
-	"endColumn": 14,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/RPGlitch-left-panel.txt",
-	"owner": "codacy",
-	"code": "syntax-error",
-	"severity": 8,
-	"message": "Parsing failed: 'unterminated string literal (detected at line 64) (RPGlitch-left-panel, line 64)'",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 64,
-	"startColumn": 100,
-	"endLineNumber": 64,
-	"endColumn": 243,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/apps/rpglitch/RPGlitch-left-panel.txt",
-	"owner": "codacy",
-	"code": "Lizard_ccn-medium",
-	"severity": 4,
-	"message": "Method if has a cyclomatic complexity of 27 (limit is 8)",
-	"source": "Codacy CLI [Lizard]",
-	"startLineNumber": 84,
-	"startColumn": 1,
-	"endLineNumber": 84,
-	"endColumn": 100,
-	"origin": "extHost3"
-}]
-[{
-	"resource": "/C:/Users/johng/AppData/Local/Temp/perchance-development-guide.md",
-	"owner": "codacy",
-	"code": "syntax-error",
-	"severity": 8,
-	"message": "Parsing failed: 'unterminated string literal (detected at line 11) (perchance-development-guide, line 11)'",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 11,
-	"startColumn": 100,
-	"endLineNumber": 11,
-	"endColumn": 160,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/.claude/agents/perchance-architect.md",
-	"owner": "codacy",
-	"code": "syntax-error",
-	"severity": 8,
-	"message": "Parsing failed: 'unterminated string literal (detected at line 28) (perchance-architect, line 28)'",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 28,
-	"startColumn": 10,
-	"endLineNumber": 28,
-	"endColumn": 100,
-	"origin": "extHost3"
-},{
-	"resource": "/C:/Users/johng/Documents/GitHub/default/.claude/agents/perchance-planner.md",
-	"owner": "codacy",
-	"code": "syntax-error",
-	"severity": 8,
-	"message": "Parsing failed: 'unterminated string literal (detected at line 28) (perchance-planner, line 28)'",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 28,
-	"startColumn": 10,
-	"endLineNumber": 28,
-	"endColumn": 100,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/.claude/agents/perchance-security-qa.md",
-	"owner": "codacy",
-	"code": "syntax-error",
-	"severity": 8,
-	"message": "Parsing failed: 'invalid character '—' (U+2014) (perchance-security-qa, line 34)'",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 34,
-	"startColumn": 50,
-	"endLineNumber": 34,
-	"endColumn": 100,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/.gitignore",
-	"owner": "codacy",
-	"code": "syntax-error",
-	"severity": 8,
-	"message": "Parsing failed: 'invalid syntax (.gitignore, line 2)'",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 2,
-	"startColumn": 2,
-	"endLineNumber": 2,
-	"endColumn": 100,
-	"origin": "extHost3"
-}]
-[{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/CLAUDE.md",
-	"owner": "codacy",
-	"code": "syntax-error",
-	"severity": 8,
-	"message": "Parsing failed: 'invalid character '·' (U+00B7) (CLAUDE, line 3)'",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 3,
-	"startColumn": 19,
-	"endLineNumber": 3,
-	"endColumn": 100,
-	"origin": "extHost3"
-}]
-[{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/perchance-development-guide.md",
-	"owner": "codacy",
-	"code": "syntax-error",
-	"severity": 8,
-	"message": "Parsing failed: 'unterminated string literal (detected at line 11) (perchance-development-guide, line 11)'",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 11,
-	"startColumn": 100,
-	"endLineNumber": 11,
-	"endColumn": 160,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/PERCHANCE.md",
-	"owner": "codacy",
-	"code": "syntax-error",
-	"severity": 8,
-	"message": "Parsing failed: 'invalid character '→' (U+2192) (PERCHANCE, line 34)'",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 34,
-	"startColumn": 35,
-	"endLineNumber": 34,
-	"endColumn": 100,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/scribbles.md",
-	"owner": "codacy",
-	"code": "pointless-statement",
-	"severity": 4,
-	"message": "Statement seems to have no effect",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 1,
-	"startColumn": 1,
-	"endLineNumber": 1,
-	"endColumn": 100,
-	"origin": "extHost3"
-},{
-	"resource": "/c:/Users/johng/Documents/GitHub/default/.claude/mcp.json",
-	"owner": "codacy",
-	"code": "pointless-statement",
-	"severity": 4,
-	"message": "Statement seems to have no effect",
-	"source": "Codacy CLI [Pylint]",
-	"startLineNumber": 1,
-	"startColumn": 1,
-	"endLineNumber": 1,
-	"endColumn": 100,
-	"origin": "extHost3"
-}]
+An error has occurred near line number 8: There's a problem with the 'rpglitch' generator. You've created a top-level list called "window.ai", which is not allowed. Unfortunately top-level list names are subject to some strict rules:
+They must not contain any spaces
+They must only contain letters (lower or upper case), numbers and underscores ("_")
+They must not begin with a number
+They must not be any of the following special "reserved" names: update, do, if, in, for, let, new, try, var, case, else, enum, eval, null, this, true, void, with, await, break, catch, class, const, false, super, throw, while, yield, delete, export, import, public, return, static, switch, typeof, default, extends, finally, package, private, continue, debugger, function, arguments, interface, protected, implements, instanceof
+Sorry for the inconvenience! These rules may seem strange, but they're needed to make the more advanced features of the perchance engine work.
+An error has occurred near line number 9: There's a problem with the 'rpglitch' generator. You've created a top-level list called "window.textToImage", which is not allowed. Unfortunately top-level list names are subject to some strict rules:
+They must not contain any spaces
+They must only contain letters (lower or upper case), numbers and underscores ("_")
+They must not begin with a number
+They must not be any of the following special "reserved" names: update, do, if, in, for, let, new, try, var, case, else, enum, eval, null, this, true, void, with, await, break, catch, class, const, false, super, throw, while, yield, delete, export, import, public, return, static, switch, typeof, default, extends, finally, package, private, continue, debugger, function, arguments, interface, protected, implements, instanceof
+Sorry for the inconvenience! These rules may seem strange, but they're needed to make the more advanced features of the perchance engine work.
+An error has occurred near line number 10: There's a problem with the 'rpglitch' generator. You've created a top-level list called "window.superFetch", which is not allowed. Unfortunately top-level list names are subject to some strict rules:
+They must not contain any spaces
+They must only contain letters (lower or upper case), numbers and underscores ("_")
+They must not begin with a number
+They must not be any of the following special "reserved" names: update, do, if, in, for, let, new, try, var, case, else, enum, eval, null, this, true, void, with, await, break, catch, class, const, false, super, throw, while, yield, delete, export, import, public, return, static, switch, typeof, default, extends, finally, package, private, continue, debugger, function, arguments, interface, protected, implements, instanceof
+Sorry for the inconvenience! These rules may seem strange, but they're needed to make the more advanced features of the perchance engine work.
+An error has occurred near line number 11: There's a problem with the 'rpglitch' generator. You've created a top-level list called "window.rememberPlugin", which is not allowed. Unfortunately top-level list names are subject to some strict rules:
+They must not contain any spaces
+They must only contain letters (lower or upper case), numbers and underscores ("_")
+They must not begin with a number
+They must not be any of the following special "reserved" names: update, do, if, in, for, let, new, try, var, case, else, enum, eval, null, this, true, void, with, await, break, catch, class, const, false, super, throw, while, yield, delete, export, import, public, return, static, switch, typeof, default, extends, finally, package, private, continue, debugger, function, arguments, interface, protected, implements, instanceof
+Sorry for the inconvenience! These rules may seem strange, but they're needed to make the more advanced features of the perchance engine work.
+An error has occurred near line number 12: There's a problem with the 'rpglitch' generator. You've created a top-level list called "window.upload", which is not allowed. Unfortunately top-level list names are subject to some strict rules:
+They must not contain any spaces
+They must only contain letters (lower or upper case), numbers and underscores ("_")
+They must not begin with a number
+They must not be any of the following special "reserved" names: update, do, if, in, for, let, new, try, var, case, else, enum, eval, null, this, true, void, with, await, break, catch, class, const, false, super, throw, while, yield, delete, export, import, public, return, static, switch, typeof, default, extends, finally, package, private, continue, debugger, function, arguments, interface, protected, implements, instanceof
+Sorry for the inconvenience! These rules may seem strange, but they're needed to make the more advanced features of the perchance engine work.
+
+---
+
+VM2072:3 let a of arr supported
+rpglitch#storyboard:2984 Unrecognized feature: 'ambient-light-sensor'.
+rpglitch#storyboard:2984 Unrecognized feature: 'speaker-selection'.
+rpglitch#storyboard:2984 Allow attribute will take precedence over 'allowfullscreen'.
+rpglitch:1336 transferSize (likely partial): 410676
+rpglitch:7970  GET https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015 net::ERR_BLOCKED_BY_CLIENT
+[DOM] Password field is not contained in a form: (More info: <URL>) 
+[DOM] Password field is not contained in a form: (More info: <URL>) 
+[DOM] Password field is not contained in a form: (More info: <URL>) 
+[DOM] Password field is not contained in a form: (More info: <URL>) 
+[DOM] Password field is not contained in a form: (More info: <URL>) 
+[DOM] Password field is not contained in a form: (More info: <URL>) 
+[DOM] Password field is not contained in a form: (More info: <URL>) 
+rpglitch?__generatorLastEditTime=1762021555357:524 {toString: ƒ}
+chext_driver.js:539 Initialized driver at: Sat Nov 01 2025 19:26:05 GMT+0100 (Central European Standard Time)
+VM2072:2 async/await is supported
+content_script.js:1 [Violation] 'setTimeout' handler took 59ms
+rpglitch?__generatorLastEditTime=1762021555357:6221 Embed transfer size: /rpglitch 300
+rpglitch?__generatorLastEditTime=1762021555357:6413  GET https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015 net::ERR_BLOCKED_BY_CLIENT
+rpglitch?__generatorLastEditTime=1762021555357:2845 upload-plugin init: 3ms
+rpglitch?__generatorLastEditTime=1762021555357:2845 text-to-image-plugin init: 5ms
+rpglitch?__generatorLastEditTime=1762021555357:2845 super-fetch-plugin init: 1ms
+rpglitch?__generatorLastEditTime=1762021555357:2845 remember-plugin init: 2ms
+rpglitch?__generatorLastEditTime=1762021555357:2845 ai-text-plugin init: 9ms
+rpglitch?__generatorLastEditTime=1762021555357:2845 rpglitch init: 10ms
+VM2103:3 [RPGlitch] Waiting for plugins (attempt 1/4): (5) ['ai', 'textToImage', 'superFetch', 'rememberPlugin', 'upload']
+rpglitch?__generatorLastEditTime=1762021555357:4519 dummyOnloadRan
+chext_loader.js:73 Initialized chextloader at: 1762021566238
+chext_loader.js:73 Initialized chextloader at: 1762021566414
+VM2103:3 [RPGlitch] Plugins not available, retrying (1/3)...
+Xe @ VM2103:3
+await in Xe
+Ze @ VM2103:3
+e @ VM2103:3
+setTimeout
+(anonymous) @ VM2103:3
+(anonymous) @ VM2103:3
+(anonymous) @ VM2101:9
+PERCH.executeScriptTag @ rpglitch?__generatorLastEditTime=1762021555357:4787
+PERCH.executeScriptTags @ rpglitch?__generatorLastEditTime=1762021555357:4619
+PERCH.updateOutput @ rpglitch?__generatorLastEditTime=1762021555357:4522
+PERCH.updateOutputMessageHandler @ rpglitch?__generatorLastEditTime=1762021555357:5281
+(anonymous) @ rpglitch?__generatorLastEditTime=1762021555357:5497
+VM2103:3 [RPGlitch] Waiting for plugins (attempt 2/4): (5) ['ai', 'textToImage', 'superFetch', 'rememberPlugin', 'upload']
+rpglitch:1241 [Violation] Added non-passive event listener to a scroll-blocking 'touchstart' event. Consider marking event handler as 'passive' to make the page more responsive. See https://www.chromestatus.com/feature/5745543795965952
+(anonymous) @ rpglitch:1241
+(anonymous) @ rpglitch:1241
+init @ rpglitch:4080
+goToEditMode @ rpglitch:6180
+onclick @ VM2146 rpglitch:1
+rpglitch:1241 [Violation] Added non-passive event listener to a scroll-blocking 'touchstart' event. Consider marking event handler as 'passive' to make the page more responsive. See https://www.chromestatus.com/feature/5745543795965952
+(anonymous) @ rpglitch:1241
+(anonymous) @ rpglitch:1241
+init @ rpglitch:4102
+goToEditMode @ rpglitch:6180
+onclick @ VM2146 rpglitch:1
+rpglitch:1241 [Violation] Added non-passive event listener to a scroll-blocking 'touchstart' event. Consider marking event handler as 'passive' to make the page more responsive. See https://www.chromestatus.com/feature/5745543795965952
+(anonymous) @ rpglitch:1241
+(anonymous) @ rpglitch:1241
+init @ rpglitch:4124
+goToEditMode @ rpglitch:6180
+onclick @ VM2146 rpglitch:1
+editors.bundle.min.js?v=75:1 htmlLanguageExtension: LanguageSupport {language: LRLanguage, support: Array(4), extension: Array(2)}
+[Violation] 'requestIdleCallback' handler took 106ms
+[Violation] 'requestIdleCallback' handler took 87ms
+[Violation] 'setTimeout' handler took 57ms
+VM2103:3 [RPGlitch] Plugins not available, retrying (2/3)...
+Xe @ VM2103:3
+await in Xe
+Xe @ VM2103:3
+await in Xe
+Ze @ VM2103:3
+e @ VM2103:3
+setTimeout
+(anonymous) @ VM2103:3
+(anonymous) @ VM2103:3
+(anonymous) @ VM2101:9
+PERCH.executeScriptTag @ rpglitch?__generatorLastEditTime=1762021555357:4787
+PERCH.executeScriptTags @ rpglitch?__generatorLastEditTime=1762021555357:4619
+PERCH.updateOutput @ rpglitch?__generatorLastEditTime=1762021555357:4522
+PERCH.updateOutputMessageHandler @ rpglitch?__generatorLastEditTime=1762021555357:5281
+(anonymous) @ rpglitch?__generatorLastEditTime=1762021555357:5497
+VM2103:3 [RPGlitch] Waiting for plugins (attempt 3/4): (5) ['ai', 'textToImage', 'superFetch', 'rememberPlugin', 'upload']
+editors.bundle.min.js?v=75:1 Getting next model text node for bug finding...
+editors.bundle.min.js?v=75:1 Getting next output template node for bug finding...
+editors.bundle.min.js?v=75:1 Bug Finding (modelText): {node: {…}, timeTaken: 149.19999998807907}
+editors.bundle.min.js?v=75:1 Added 0 bugs for node (from cache): {node: {…}, bugs: Array(0)}
+editors.bundle.min.js?v=75:1 Getting next model text node for bug finding...
+  console.log('Checking plugin globals:');
+  console.log('ai:', typeof window.ai);
+  console.log('textToImage:', typeof window.textToImage);
+  console.log('superFetch:', typeof window.superFetch);
+  console.log('rememberPlugin:', typeof window.rememberPlugin);
+  console.log('upload:', typeof window.upload);
+VM2161:1 Checking plugin globals:
+VM2161:2 ai: undefined
+VM2161:3 textToImage: undefined
+VM2161:4 superFetch: undefined
+VM2161:5 rememberPlugin: undefined
+VM2161:6 upload: undefined
+undefined
+VM2103:3 [RPGlitch] Plugins not available, retrying (3/3)...
+Xe @ VM2103:3
+await in Xe
+Xe @ VM2103:3
+await in Xe
+Xe @ VM2103:3
+await in Xe
+Ze @ VM2103:3
+e @ VM2103:3
+setTimeout
+(anonymous) @ VM2103:3
+(anonymous) @ VM2103:3
+(anonymous) @ VM2101:9
+PERCH.executeScriptTag @ rpglitch?__generatorLastEditTime=1762021555357:4787
+PERCH.executeScriptTags @ rpglitch?__generatorLastEditTime=1762021555357:4619
+PERCH.updateOutput @ rpglitch?__generatorLastEditTime=1762021555357:4522
+PERCH.updateOutputMessageHandler @ rpglitch?__generatorLastEditTime=1762021555357:5281
+(anonymous) @ rpglitch?__generatorLastEditTime=1762021555357:5497
+VM2103:3 [RPGlitch] Waiting for plugins (attempt 4/4): (5) ['ai', 'textToImage', 'superFetch', 'rememberPlugin', 'upload']
+VM2103:3 [RPGlitch] Plugin timeout after 10201ms. Available: none | Missing: ai, textToImage, superFetch, rememberPlugin, upload
+Xe @ VM2103:3
+await in Xe
+Xe @ VM2103:3
+await in Xe
+Xe @ VM2103:3
+await in Xe
+Xe @ VM2103:3
+await in Xe
+Ze @ VM2103:3
+e @ VM2103:3
+setTimeout
+(anonymous) @ VM2103:3
+(anonymous) @ VM2103:3
+(anonymous) @ VM2101:9
+PERCH.executeScriptTag @ rpglitch?__generatorLastEditTime=1762021555357:4787
+PERCH.executeScriptTags @ rpglitch?__generatorLastEditTime=1762021555357:4619
+PERCH.updateOutput @ rpglitch?__generatorLastEditTime=1762021555357:4522
+PERCH.updateOutputMessageHandler @ rpglitch?__generatorLastEditTime=1762021555357:5281
+(anonymous) @ rpglitch?__generatorLastEditTime=1762021555357:5497
+VM2103:3 [RPGlitch] Required plugins failed to load. Application may not function correctly.
+Ze @ VM2103:3
+await in Ze
+e @ VM2103:3
+setTimeout
+(anonymous) @ VM2103:3
+(anonymous) @ VM2103:3
+(anonymous) @ VM2101:9
+PERCH.executeScriptTag @ rpglitch?__generatorLastEditTime=1762021555357:4787
+PERCH.executeScriptTags @ rpglitch?__generatorLastEditTime=1762021555357:4619
+PERCH.updateOutput @ rpglitch?__generatorLastEditTime=1762021555357:4522
+PERCH.updateOutputMessageHandler @ rpglitch?__generatorLastEditTime=1762021555357:5281
+(anonymous) @ rpglitch?__generatorLastEditTime=1762021555357:5497
+VM2103:3 [RPGlitch] Database initialized.
+VM2103:1 [RPGlitch] ui.watchdog: blocked {reason: 'pointer-events-none', node: 'div#chin-container.container'}
+VM2103:1 [RPGlitch] ui.watchdog: armed
+VM2103:3 [RPGlitch] initializeWhenReady success
+VM2103:1 [RPGlitch] ui.watchdog: still blocked {reason: 'pointer-events-none', node: 'div#chin-container.container'}
+VM2103:1 [RPGlitch] ui.watchdog: still blocked {reason: 'pointer-events-none', node: 'div#chin-container.container'}
+VM2103:1 [RPGlitch] ui.watchdog: still blocked {reason: 'pointer-events-none', node: 'div#chin-container.container'}

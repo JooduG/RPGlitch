@@ -1,11 +1,27 @@
-nomic-ai/nomic-embed-text-v1.5-GGUF
-
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
 superFetch = {import:super-fetch-plugin} // <-- to bypass CORs issues in character custom code
 rememberPlugin = {import:remember-plugin}
 upload = {import:upload-plugin} // <-- for profile picture uploads
-  
+
+// Expose plugins to right-panel JavaScript via globalThis
+(async () => {
+  let attempts = 0;
+  const maxAttempts = 100;
+  while(attempts < maxAttempts) {
+    if(typeof ai !== 'undefined' && typeof textToImage !== 'undefined') {
+      globalThis.ai = ai;
+      globalThis.textToImage = textToImage;
+      globalThis.superFetch = superFetch;
+      globalThis.rememberPlugin = rememberPlugin;
+      globalThis.upload = upload;
+      break;
+    }
+    await new Promise(r => setTimeout(r, 50));
+    attempts++;
+  }
+})();
+
 async evaluatePerchanceTextInSandbox(text, opts) =>
   if(!opts) opts = {};
   let iframe = document.querySelector('#perchanceCodeEvaluationSandboxIframe');
