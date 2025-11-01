@@ -9,6 +9,34 @@
 </head>
 
 <body>
+  <!-- Expose Perchance plugins via wrapper functions -->
+  <script>
+    // Create wrapper functions that call the actual Perchance plugins
+    // These wrappers execute in the Perchance context where bracket syntax works
+    window.image = function(...args) {
+      return [image](...args);
+    };
+
+    window.ai = function(...args) {
+      return [ai](...args);
+    };
+
+    window.r = {
+      get: function(...args) {
+        return [r].get(...args);
+      },
+      set: function(...args) {
+        return [r].set(...args);
+      }
+    };
+
+    console.log('[ImageGlitch] Plugin wrappers created:', {
+      image: typeof window.image,
+      ai: typeof window.ai,
+      r: typeof window.r
+    });
+  </script>
+
   <header class="container">
     <nav id="top-bar" class="top-bar">
 
