@@ -525,7 +525,7 @@ function buildImageGenerationHtml() {
  * @param {number} maxRetries - Maximum number of retry attempts
  * @returns {Promise<boolean>} - True if all plugins loaded, false if timeout
  */
-async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, maxRetries = 3) {
+async function waitForPlugins(requiredPlugins, timeout = 5000, retryCount = 0, maxRetries = 3) {
   // Skip plugin waiting in test mode
   if (TEST_MODE) {
     console.log('[ImageGlitch] Test mode detected, skipping plugin wait');
@@ -535,6 +535,9 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
   const startTime = Date.now();
 
   console.log(`[ImageGlitch] Waiting for plugins (attempt ${retryCount + 1}/${maxRetries + 1}):`, requiredPlugins);
+
+  // Initial delay to allow left panel script to execute
+  await new Promise(resolve => setTimeout(resolve, 200));
 
   while (Date.now() - startTime < timeout) {
     // Check if plugins are available and are functions
@@ -552,7 +555,7 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
       return true;
     }
 
-    await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms before checking again
+    await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms before checking again
   }
 
   if (retryCount < maxRetries) {
