@@ -58,16 +58,62 @@ Perchance plugins load **asynchronously** after the left-panel is parsed:
 2. **Left Panel Parse** (immediate)
 3. **Plugin Imports Declared** (immediate) - `{import:plugin-name}` creates variable declarations
 4. **Plugins Fetch & Initialize** (50-500ms) - Asynchronous network requests
-5. **Plugin Globals Available** (100-500ms) - Variables become accessible to JavaScript
+5. **Plugin Variables Available** (100-500ms) - Variables become accessible in Perchance scope
 6. **Right Panel JavaScript Executes** (50-200ms after plugins available)
 
-**Critical Issue:** Our right-panel JavaScript used to check for plugins synchronously on `DOMContentLoaded`, before they had time to load. This was the root cause of "image function available: false" errors.
+### Plugin Exposure Strategy
 
-**Solution:** Added `waitForPlugins()` function that polls for plugin globals with timeout and retries. See **Plugin Availability Waiting** below.
+The challenge: Perchance plugins initialize in the left-panel context, but right-panel JavaScript needs to access them.
+
+**Solution:** Use simple variable assignment to expose plugins as globals:
+
+**Left Panel (`*-left-panel.txt`):**
+```perchance
+ai = {import:ai-text-plugin}
+textToImage = {import:text-to-image-plugin}
+superFetch = {import:super-fetch-plugin}
+rememberPlugin = {import:remember-plugin}
+upload = {import:upload-plugin}
+
+// Expose plugins using underscore naming (avoids Perchance parse errors)
+pluginAi = ai
+pluginTextToImage = textToImage
+pluginSuperFetch = superFetch
+pluginRememberPlugin = rememberPlugin
+pluginUpload = upload
+```
+
+**Why underscore naming?** - Perchance's parser would misinterpret `window.ai = ai` as trying to create a list named "window.ai" (invalid due to dots). Simple variable assignment avoids this syntax conflict.
+
+**Right Panel JavaScript (`js/index.js`):**
+```javascript
+/**
+ * Copies plugins exposed by the Perchance left panel (pluginAi, pluginTextToImage, etc.)
+ * to the standard window property names (ai, textToImage, etc.)
+ */
+function setupPlugins() {
+  const pluginMap = {
+    pluginAi: 'ai',
+    pluginTextToImage: 'textToImage',
+    pluginSuperFetch: 'superFetch',
+    pluginRememberPlugin: 'rememberPlugin',
+    pluginUpload: 'upload',
+  };
+
+  for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
+    if (window[perchanceName] && !window[standardName]) {
+      window[standardName] = window[perchanceName];
+    }
+  }
+}
+
+// Call setup immediately on module load
+setupPlugins();
+```
 
 ### Plugin Availability Waiting
 
-Both apps now implement `waitForPlugins()` at initialization:
+Both apps implement `waitForPlugins()` at initialization to ensure plugins are available before using them:
 
 ```javascript
 async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, maxRetries = 3) {
@@ -93,7 +139,7 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
 ```
 
 **Called from:**
-- ImageGlitch: Start of `main()` function (line 496)
+- ImageGlitch: Start of `main()` function
 - RPGlitch: Start of `initializeWhenReady()` function
 
 ## Perchance Syntax Rules
@@ -171,7 +217,24 @@ npm run lint:fix
 - Check browser console for network errors
 - Verify left-panel has valid `{import:plugin-name}` syntax
 
-### Issue 2: Invalid List Name Error
+### Issue 2: Invalid List Name Error from Dot Notation
+
+**Symptom:** "There's a problem with the 'rpglitch' generator. You've created a top-level list called 'window.ai'"
+
+**Root Cause:** Attempting to use `window.ai = ai` in Perchance's left panel. Perchance's parser interprets this as trying to define a list with the name "window.ai", which contains an invalid character (dot).
+
+**Status:** FIXED - Use simple variable assignment instead of dot notation:
+```perchance
+// WRONG: Causes parse error
+window.ai = ai
+
+// CORRECT: Use underscore naming to avoid parser confusion
+pluginAi = ai
+```
+
+Then in right-panel JavaScript, copy to standard names via `setupPlugins()` function (see **Plugin Exposure Strategy** section).
+
+### Issue 2b: General Invalid List Name Error
 
 **Symptom:** "There's a problem with the '[name]' generator. You've created a top-level list called '[invalid-name]'"
 
