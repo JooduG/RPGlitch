@@ -165,7 +165,7 @@ App.state = {
 App.state.applyPatch = (patch) => {
   // Shallow-merge per slice; emit a "state:changed" event for re-renders.
 };
-````
+```
 
 ### 4.2 Dexie Minimal Schema
 

@@ -150,8 +150,9 @@ Each subagent uses a cost-optimized Claude model:
 
 ### Build & Deploy
 ```bash
-npm run build                  # Build all apps
+npm run build:apps            # Build all apps
 npm run build:rpglitch        # Build RPGlitch only
+npm run build:imageglitch     # Build ImageGlitch only
 npm run deploy                # Full pipeline: sync -> lint -> build -> test
 ```
 

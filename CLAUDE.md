@@ -28,7 +28,7 @@ npm run deploy
 
 ### Build Commands
 
-- **Build all apps:** `npm run build`
+- **Build all apps:** `npm run build:apps`
 - **Build RPGlitch:** `npm run build:rpglitch`
 - **Build ImageGlitch:** `npm run build:imageglitch`
 
@@ -291,7 +291,7 @@ To optimize for cost while maintaining quality, each Claude Code subagent uses a
 
 * **Common Scripts:**
   * `npm ci && npm run sync`: Install cleanly and sync all configs. **Run this first.**
-  * `npm run build`: Build all applications
+  * `npm run build:apps`: Build all applications
   * `npm test`: Run full Jest test suite
   * `npm run lint`: Run all linting checks
   * `npm run lint:fix`: Auto-fix linting errors
@@ -426,10 +426,7 @@ default/
 │   ├── local_libs/ (vendored Dexie, DOMPurify, Pico.css)
 │   └── output/ (final HTML — DO NOT EDIT)
 ├── /memory-bank/
-│   ├── forever/
-│   ├── present/
-│   ├── past/
-│   └── future/
+│   └── archive/
 ├── /tests/ (Jest with jsdom)
 ├── CLAUDE.md (this file - unified protocol)
 ├── design-system.md (UI/UX guidelines)
@@ -446,7 +443,7 @@ default/
 - **IndexedDB First:** No localStorage for app state
 - **DOMPurify Always:** Sanitize before `innerHTML`
 - **ES6 Modules Only:** `import`/`export`, no IIFEs
-- **Vanilla DOM:** No jQuery or `cash`
+- **Vanilla DOM:** No `jQuery` or `cash`
 - **Single HTML Output:** All CSS and JS inlined
 
 ---
