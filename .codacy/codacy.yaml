@@ -1,3 +1,13 @@
+exclude_paths:
+    - '**/*.txt'
+    - '**/*.md'
+    - '**/.gitignore'
+    - '**/scribbles.md'
+    - '**/mcp.json'
+exclude_patterns:
+    - 'pylint: *.txt'
+    - 'pylint: *.md'
+    - 'pylint: .gitignore'
 runtimes:
     - java@17.0.10
     - node@22.2.0

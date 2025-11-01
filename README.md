@@ -28,9 +28,14 @@ npm run deploy
 
 This is your single source of truth. Read in this order:
 
-1. **[CLAUDE.md](./CLAUDE.md)** ← **START HERE** — Complete unified protocol, quick start, operational identity, tooling, and all rules
-2. **[design-system.md](./design-system.md)** ← UI/UX guidelines & components
-3. **[plan.md](./plan.md)** ← Project roadmap, backlog, feature pipeline
+1. **[CLAUDE.md](./CLAUDE.md)** - **START HERE** - Complete unified protocol, quick start, operational identity, tooling, and all rules
+2. **[design-system.md](./design-system.md)** - UI/UX guidelines & components (Icon-Free Mandate, Chat View, Chin, etc.)
+3. **[PERCHANCE.md](./PERCHANCE.md)** - Perchance Two-Panel Architecture, plugin integration, deployment workflow, troubleshooting
+4. **[plan.md](./plan.md)** - Project roadmap, backlog, feature pipeline
+
+### Additional References
+
+- **[perchance-development-guide.md](./perchance-development-guide.md)** - Comprehensive Perchance platform reference (procedural generation, AI plugins, oc object, LLM theory)
 
 ---
 
@@ -55,14 +60,14 @@ All subagents live in `.claude/agents/` and are automatically loaded by Claude C
 
 **Usage:** Mention a subagent by name in Claude Code, or they auto-delegate based on task context.
 
-**Read More:** [CLAUDE.md](./CLAUDE.md) – Operational roles, identity, and complete protocols
+**Read More:** [CLAUDE.md](./CLAUDE.md) - Operational roles, identity, and complete protocols
 
 ### Model Efficiency
 
 Each subagent uses a cost-optimized Claude model:
-- **Opus 4.1** (Strategy/Planning) – Heavy thinking
-- **Sonnet 4.5** (Implementation/Design) – Balanced
-- **Haiku 4.5** (Testing/Security/Docs) – Fast & cheap
+- **Opus 4.1** (Strategy/Planning) - Heavy thinking
+- **Sonnet 4.5** (Implementation/Design) - Balanced
+- **Haiku 4.5** (Testing/Security/Docs) - Fast & cheap
 
 ---
 
@@ -80,7 +85,6 @@ Each subagent uses a cost-optimized Claude model:
 
 ### Testing & Quality
 - **[`tests/`](./tests/)** - Jest test suite with jsdom environment
-- **[`CODE_REVIEW.md`](./CODE_REVIEW.md)** - Current code review & improvement backlog
 
 ### Tooling & Utilities
 - **[`tools/`](./tools/)** - Diagnostic scripts, utilities, git guards
@@ -148,7 +152,7 @@ Each subagent uses a cost-optimized Claude model:
 ```bash
 npm run build                  # Build all apps
 npm run build:rpglitch        # Build RPGlitch only
-npm run deploy                # Full pipeline: sync → lint → build → test
+npm run deploy                # Full pipeline: sync -> lint -> build -> test
 ```
 
 ### Testing
@@ -177,18 +181,20 @@ npm run mcp:start-all         # Start all MCP servers
 
 ### Two-Panel Architecture (Perchance)
 
-Every application follows this strict separation:
+Every application follows this strict separation (see [PERCHANCE.md](./PERCHANCE.md) for detailed deployment workflow):
 
-- **Left Panel** (`*-left-panel.txt`)
+- **Left Panel** (`*-left-panel.txt`) - **Manually deployed, NOT built**
   - Perchance engine logic
   - Plugin imports (ai-text-plugin, text-to-image-plugin, etc.)
   - Core setup & configuration
+  - Directly copied/pasted into Perchance editor
 
-- **Right Panel** (source: `apps/*/html/index.html`)
+- **Right Panel** (source: `apps/*/html/index.html`) - **Auto-built**
   - Main application UI & logic
   - JavaScript modules (`js/`)
   - Styles (`scss/`)
   - **Compiled into single inlined HTML** during build
+  - Output: `build/output/RPGlitch.html` or `build/output/imageglitch.html`
 
 ### Tech Stack
 
@@ -221,15 +227,15 @@ Every application follows this strict separation:
 | Overlay Guard | Function to force-close lingering UI blockers |
 | DOMPurify | HTML sanitizer library (prevents XSS) |
 | Dexie | IndexedDB wrapper library (state persistence) |
-| STO Framework | Strategy → Tactics → Operations (execution blueprint) |
+| STO Framework | Strategy -> Tactics -> Operations (execution blueprint) |
 
 ---
 
 ## 🚀 Next Steps
 
-1. **New to the project?** → Read [CLAUDE.md](./CLAUDE.md)
-2. **Building UI?** → See [design-system.md](./design-system.md)
-3. **Planning features?** → See [plan.md](./plan.md)
+1. **New to the project?** - Read [CLAUDE.md](./CLAUDE.md)
+2. **Building UI?** - See [design-system.md](./design-system.md)
+3. **Planning features?** - See [plan.md](./plan.md)
 
 ---
 

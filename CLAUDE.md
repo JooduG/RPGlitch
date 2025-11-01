@@ -1,6 +1,6 @@
 # 🚀 Claude Code – Unified Protocol & Quick Start
 
-**Version 2.0.0** · Consolidated from AGENTS.md (1.3.0) + CLAUDE.md
+**Version 2.0.0** | Consolidated from AGENTS.md (1.3.0) + CLAUDE.md
 **Last Updated:** 2025-10-31
 
 > **This is your single source of truth.** For operational protocols, coding standards, execution frameworks, and project setup, everything you need is here.
@@ -225,7 +225,7 @@ Your operational context is not static. After loading your core identity, you **
 * **Principle:** `/memory-bank` is your knowledge base, optimized for Retrieval-Augmented Generation (RAG). Maintain it carefully to provide context for future tasks.
 
 * **Structure:**
-  * **`/forever`**: Core identity and immutable principles (CLAUDE.md, design-system.md)
+  * **`/forever`**: Core identity and immutable principles (CLAUDE.md, design-system.md, PERCHANCE.md)
   * **`/present`**: Active task workspace, including Handoffs and current work-in-progress
   * **`/past`**: Read-only, timestamped archive of completed tasks and Handoffs (e.g., `code-review-completion-2025-10-31.md`)
   * **`/future`**: Planned tasks and strategic roadmap items
@@ -431,9 +431,11 @@ default/
 │   ├── past/
 │   └── future/
 ├── /tests/ (Jest with jsdom)
-├── CLAUDE.md (this file)
-├── design-system.md
-├── plan.md
+├── CLAUDE.md (this file - unified protocol)
+├── design-system.md (UI/UX guidelines)
+├── PERCHANCE.md (Two-Panel Architecture & deployment)
+├── perchance-development-guide.md (Perchance platform reference)
+├── plan.md (roadmap & backlog)
 └── package.json
 ```
 

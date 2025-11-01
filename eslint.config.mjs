@@ -53,6 +53,11 @@ export default [
         'image': 'readonly',
         'ai': 'readonly',
         'Dexie': 'readonly',
+        // Explicit browser globals (for Codacy compatibility)
+        'window': 'readonly',
+        'console': 'readonly',
+        'localStorage': 'readonly',
+        'DOMPurify': 'readonly',
       },
     },
     plugins: {

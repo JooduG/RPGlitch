@@ -1,8 +1,10 @@
 # **🎨 Project Design System & UI Protocol**
 
-Version 3.2.0 · Updated 2025-10-28
+Version 3.2.0 | Updated 2025-10-28
 
 **CORE PRINCIPLE:** This document is the **single source of truth** for the visual and interaction design of all applications in this repository. It defines our philosophy, our styling foundation (Pico.css), our custom component library, and our user experience patterns. All UI/UX development **MUST** adhere to these guidelines.
+
+**Related Docs:** See [README.md](./README.md) for architecture overview, [PERCHANCE.md](./PERCHANCE.md) for deployment workflow, and [CLAUDE.md](./CLAUDE.md) for coding standards.
 
 ## **1. Core Philosophy: The Vibe Check**
 
@@ -163,11 +165,11 @@ To ensure the application remains interactive and robust, especially within the 
 
 ## **Changelog**
 
-* **3.2.0 (2025-10-28)** — Updated **Chat View** layout description to specify 3-column (desktop) / 1-column (mobile) structure. Added clarification note on `role="user"`/`role="assistant"` convention. Added note that `#conclude-story` functionality needs design. Removed 'Top Notification' component section.
-* **3.1.2 (2025-10-28)** — Added more details to the "Color System", "Typography", "Spacing", and "Components" sections.
-* **3.1.1 (2025-10-22)** — Simplified **Visual System**; removed "Typography" and "Primary Accent" sections to correctly imply inheritance from Pico.css. Updated **Chin Component** UX to specify "click-outside-to-close" behavior and remove the dedicated "Close" button.
-* **3.1.0 (2025-10-22)** — Overhauled **Visual System** section. Corrected the **Color System** to reflect the *actual* 4-color gradient and accent palettes (removing incorrect Catppuccin reference). Corrected **Spacing** guidelines to reflect the `1rem` layout unit standard.
-* **3.0.0 (2025-09-26)** — Major consolidation. Merged `design-icon-free-standard.md`, `core-design-system.md`, and `rpglitch-chin-ux-and-safety.md` into this single, canonical file.
-* **2.0.0 (Prior Version)** — Previous version of the core design system.
-* **1.0.0 (Initial Version)** — Initial design principles.
+* **3.2.0 (2025-10-28)** - Updated **Chat View** layout description to specify 3-column (desktop) / 1-column (mobile) structure. Added clarification note on `role="user"`/`role="assistant"` convention. Added note that `#conclude-story` functionality needs design. Removed 'Top Notification' component section.
+* **3.1.2 (2025-10-28)** - Added more details to the "Color System", "Typography", "Spacing", and "Components" sections.
+* **3.1.1 (2025-10-22)** - Simplified **Visual System**; removed "Typography" and "Primary Accent" sections to correctly imply inheritance from Pico.css. Updated **Chin Component** UX to specify "click-outside-to-close" behavior and remove the dedicated "Close" button.
+* **3.1.0 (2025-10-22)** - Overhauled **Visual System** section. Corrected the **Color System** to reflect the *actual* 4-color gradient and accent palettes (removing incorrect Catppuccin reference). Corrected **Spacing** guidelines to reflect the `1rem` layout unit standard.
+* **3.0.0 (2025-09-26)** - Major consolidation. Merged `design-icon-free-standard.md`, `core-design-system.md`, and `rpglitch-chin-ux-and-safety.md` into this single, canonical file.
+* **2.0.0 (Prior Version)** - Previous version of the core design system.
+* **1.0.0 (Initial Version)** - Initial design principles.
 * 
