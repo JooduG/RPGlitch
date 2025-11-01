@@ -4,23 +4,12 @@ superFetch = {import:super-fetch-plugin} // <-- to bypass CORs issues in charact
 rememberPlugin = {import:remember-plugin}
 upload = {import:upload-plugin} // <-- for profile picture uploads
 
-// Expose plugins to right-panel JavaScript via globalThis
-(async () => {
-  let attempts = 0;
-  const maxAttempts = 100;
-  while(attempts < maxAttempts) {
-    if(typeof ai !== 'undefined' && typeof textToImage !== 'undefined') {
-      globalThis.ai = ai;
-      globalThis.textToImage = textToImage;
-      globalThis.superFetch = superFetch;
-      globalThis.rememberPlugin = rememberPlugin;
-      globalThis.upload = upload;
-      break;
-    }
-    await new Promise(r => setTimeout(r, 50));
-    attempts++;
-  }
-})();
+// Expose plugins to right-panel JavaScript using underscore naming (avoids Perchance parse errors)
+pluginAi = ai
+pluginTextToImage = textToImage
+pluginSuperFetch = superFetch
+pluginRememberPlugin = rememberPlugin
+pluginUpload = upload
 
 async evaluatePerchanceTextInSandbox(text, opts) =>
   if(!opts) opts = {};

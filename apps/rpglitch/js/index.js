@@ -21,6 +21,35 @@ import {
 } from './entities.js';
 
 // =================================================================
+// Plugin Setup: Copy Perchance-exposed plugins to standard names
+// =================================================================
+
+/**
+ * Copies plugins exposed by the Perchance left panel (pluginAi, pluginTextToImage, etc.)
+ * to the standard window property names (ai, textToImage, etc.) so the rest of the app
+ * can access them without needing to know about the Perchance naming convention.
+ */
+function setupPlugins() {
+  // Map Perchance-exposed plugin names to standard names
+  const pluginMap = {
+    pluginAi: 'ai',
+    pluginTextToImage: 'textToImage',
+    pluginSuperFetch: 'superFetch',
+    pluginRememberPlugin: 'rememberPlugin',
+    pluginUpload: 'upload',
+  };
+
+  for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
+    if (window[perchanceName] && !window[standardName]) {
+      window[standardName] = window[perchanceName];
+    }
+  }
+}
+
+// Call setup immediately on module load
+setupPlugins();
+
+// =================================================================
 // App State Management
 // =================================================================
 
