@@ -9,6 +9,18 @@
 </head>
 
 <body>
+  <!-- Expose Perchance plugins to window BEFORE any other scripts run -->
+  <script>
+    window.pluginImage = [image];
+    window.pluginAi = [ai];
+    window.pluginR = [r];
+    console.log('[ImageGlitch] Plugins exposed via HTML script tag:', {
+      pluginImage: typeof window.pluginImage,
+      pluginAi: typeof window.pluginAi,
+      pluginR: typeof window.pluginR
+    });
+  </script>
+
 
   <header class="container">
     <nav id="top-bar" class="top-bar">

@@ -7,6 +7,22 @@
   </head>
 
   <body>
+    <!-- Expose Perchance plugins to window BEFORE any other scripts run -->
+    <script>
+      // Perchance evaluates [ai], [textToImage], etc. when rendering this HTML
+      window.pluginAi = [ai];
+      window.pluginTextToImage = [textToImage];
+      window.pluginSuperFetch = [superFetch];
+      window.pluginRememberPlugin = [rememberPlugin];
+      window.pluginUpload = [upload];
+      console.log('[RPGlitch] Plugins exposed via HTML script tag:', {
+        pluginAi: typeof window.pluginAi,
+        pluginTextToImage: typeof window.pluginTextToImage,
+        pluginSuperFetch: typeof window.pluginSuperFetch,
+        pluginRememberPlugin: typeof window.pluginRememberPlugin,
+        pluginUpload: typeof window.pluginUpload
+      });
+    </script>
 
     <!-- Hidden for accessibility/SEO -->
     <a href="#main" hidden>Skip to main content</a>

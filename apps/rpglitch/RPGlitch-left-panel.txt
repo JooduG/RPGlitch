@@ -429,27 +429,3 @@ async injectHierarchicalSummariesAndComputeNextSummariesInBackgroundIfNeeded(thr
       window.__aiHierarchicalSummaryStuff[threadId].alreadyDoingSummary = false;
     }
   })();
-// Expose plugins to window for right-panel JavaScript access
-// This code runs after plugins have initialized
-(function() {
-  // Wait briefly for plugins to be fully initialized
-  setTimeout(function() {
-    try {
-      if (typeof ai !== 'undefined') window.pluginAi = ai;
-      if (typeof textToImage !== 'undefined') window.pluginTextToImage = textToImage;
-      if (typeof superFetch !== 'undefined') window.pluginSuperFetch = superFetch;
-      if (typeof rememberPlugin !== 'undefined') window.pluginRememberPlugin = rememberPlugin;
-      if (typeof upload !== 'undefined') window.pluginUpload = upload;
-      
-      console.log('[RPGlitch Left Panel] Plugins exposed to window:', {
-        pluginAi: typeof window.pluginAi,
-        pluginTextToImage: typeof window.pluginTextToImage,
-        pluginSuperFetch: typeof window.pluginSuperFetch,
-        pluginRememberPlugin: typeof window.pluginRememberPlugin,
-        pluginUpload: typeof window.pluginUpload
-      });
-    } catch(e) {
-      console.error('[RPGlitch Left Panel] Failed to expose plugins:', e);
-    }
-  }, 100); // Wait 100ms for plugins to initialize
-})();
