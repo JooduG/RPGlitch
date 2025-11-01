@@ -59,8 +59,9 @@ apps/imageglitch/
 
 ## Development
 
-See the main repository README.md and AGENTS.md for:
+See the main repository README.md and CLAUDE.md for:
 
+- Complete development protocol and rules
 - Coding standards
 - Build process details
 - Testing guidelines
@@ -68,6 +69,6 @@ See the main repository README.md and AGENTS.md for:
 
 ## Related Documentation
 
-- [AGENTS.md](../../AGENTS.md) - Development protocols and rules
+- [CLAUDE.md](../../CLAUDE.md) - Complete protocol and development guidelines
 - [design-system.md](../../design-system.md) - UI/UX guidelines and components
-- [CLAUDE.md](../../CLAUDE.md) - Quick start guide
+- [plan.md](../../plan.md) - Project roadmap and feature backlog

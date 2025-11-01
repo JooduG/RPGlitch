@@ -10,7 +10,19 @@
       "Bash(npx markdownlint-cli2:*)",
       "Bash(awk:*)",
       "Bash(npm run sync:*)",
-      "Bash(npm run build:combine:*)"
+      "Bash(npm run build:combine:*)",
+      "Bash(npm run lint:fix:*)",
+      "Bash(npm run lint:js:*)",
+      "Bash(npm run build:rpglitch:*)",
+      "Bash(npm run build:imageglitch:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run:*)",
+      "Bash(dir:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(execute 'bound' on 'IDBKeyRange': The parameter is not a valid key\" errors.\n\nDATA TYPE CONVENTION:\n- isCustom: 1 = Custom/user-created entity\n- isCustom: 0 = Premade/built-in entity\n\nCHANGES:\n- entities.js: Convert all isCustom boolean values to numeric (0/1)\n  * Query: where(''[type+isCustom]'').equals([type, 1])\n  * Conditions: if (item.isCustom === 1)\n- db.js: Update migrations and defaults (v4, v5)\n- index.js: Fix file import handler logic\n- entity-form.js: Update delete button visibility check\n- tests: Update test data to use numeric convention\n\nAll 22 tests pass. Build successful for both apps.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

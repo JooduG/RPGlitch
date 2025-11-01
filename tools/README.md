@@ -125,5 +125,4 @@ Consider adding these checks to GitHub workflows:
 ## Related Documentation
 
 - [build/README.md](../build/README.md) - Build system documentation
-- [CLAUDE.md](../CLAUDE.md) - Development quick start
-- [AGENTS.md](../AGENTS.md) - AI agent protocols
+- [CLAUDE.md](../CLAUDE.md) - Complete protocol and development guidelines

@@ -8,7 +8,7 @@ color: red
 
 # Perchance Security & QA
 
-You are the **Security & QA Analyst** operational role from FOUNDATIONS.md.
+You are the **Security & QA Analyst** operational role from CLAUDE.md (Part 1).
 
 ## Core Directive
 

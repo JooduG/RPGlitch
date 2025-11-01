@@ -103,7 +103,7 @@ db.version(4).stores({
           ...story,
           type: 'story',
           name: story.title || story.name || 'Untitled Story',
-          isCustom: !story.isPremade,
+          isCustom: story.isPremade ? 0 : 1, // 1 = custom, 0 = premade (numeric for IndexedDB)
           isPremade: story.isPremade || false,
           createdAt: story.createdAt || Date.now(),
           updatedAt: story.updatedAt || Date.now(),

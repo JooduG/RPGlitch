@@ -18,8 +18,14 @@ async function loadApp() {
   global.window = dom.window;
   global.document = dom.window.document;
 
-  // Provide minimal globals inside the JSDOM context
-  dom.window.Dexie = function () {};
+  // Provide proper Dexie mock
+  dom.window.Dexie = jest.fn(function(name){
+    this.name = name;
+    this.version = jest.fn().mockReturnThis();
+    this.stores = jest.fn().mockReturnThis();
+    this.upgrade = jest.fn().mockReturnThis();
+    this.open = jest.fn().mockResolvedValue();
+  });
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
   dom.window.$ = function () {};

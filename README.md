@@ -28,12 +28,9 @@ npm run deploy
 
 This is your single source of truth. Read in this order:
 
-1. **[FOUNDATIONS.md](./FOUNDATIONS.md)** ← **Start here** for operational identity & STO framework
-2. **[AGENTS.md](./AGENTS.md)** ← Complete protocols, coding standards, all rules
-3. **[CLAUDE.md](./CLAUDE.md)** ← Claude Code quick start
-4. **[design-system.md](./design-system.md)** ← UI/UX guidelines & components
-5. **[CODE_REVIEW.md](./CODE_REVIEW.md)** ← Quality gates, security, implementation checklist
-6. **[plan.md](./plan.md)** ← Project roadmap, backlog, feature pipeline
+1. **[CLAUDE.md](./CLAUDE.md)** ← **START HERE** — Complete unified protocol, quick start, operational identity, tooling, and all rules
+2. **[design-system.md](./design-system.md)** ← UI/UX guidelines & components
+3. **[plan.md](./plan.md)** ← Project roadmap, backlog, feature pipeline
 
 ---
 
@@ -58,7 +55,7 @@ All subagents live in `.claude/agents/` and are automatically loaded by Claude C
 
 **Usage:** Mention a subagent by name in Claude Code, or they auto-delegate based on task context.
 
-**Read More:** [FOUNDATIONS.md](./FOUNDATIONS.md) – Operational roles & hierarchy
+**Read More:** [CLAUDE.md](./CLAUDE.md) – Operational roles, identity, and complete protocols
 
 ### Model Efficiency
 
@@ -99,9 +96,9 @@ Each subagent uses a cost-optimized Claude model:
 ## 🔧 Development Workflow
 
 ### For Humans
-1. Read [FOUNDATIONS.md](./FOUNDATIONS.md) & [AGENTS.md](./AGENTS.md)
-2. Understand the architecture in `/apps/`
-3. Check [design-system.md](./design-system.md) for UI rules
+1. Read [CLAUDE.md](./CLAUDE.md) for the complete protocol
+2. Check [design-system.md](./design-system.md) for UI rules
+3. Understand the architecture in `/apps/`
 4. See [plan.md](./plan.md) for what to work on next
 
 ### For Claude Code
@@ -230,19 +227,17 @@ Every application follows this strict separation:
 
 ## 🚀 Next Steps
 
-1. **New to the project?** → Read [FOUNDATIONS.md](./FOUNDATIONS.md)
-2. **Using Claude Code?** → Check [CLAUDE.md](./CLAUDE.md)
-3. **Building UI?** → See [design-system.md](./design-system.md)
-4. **Reviewing code?** → Check [CODE_REVIEW.md](./CODE_REVIEW.md)
-5. **Planning features?** → See [plan.md](./plan.md)
+1. **New to the project?** → Read [CLAUDE.md](./CLAUDE.md)
+2. **Building UI?** → See [design-system.md](./design-system.md)
+3. **Planning features?** → See [plan.md](./plan.md)
 
 ---
 
 ## 📞 Support
 
-- **AI Agent Protocols:** [AGENTS.md](./AGENTS.md)
+- **Complete Protocol:** [CLAUDE.md](./CLAUDE.md)
 - **Build Issues:** [build/README.md](./build/README.md)
-- **Testing:** [tests/](./tests/) & [CODE_REVIEW.md](./CODE_REVIEW.md)
+- **Testing:** [tests/](./tests/)
 - **Tools & Utilities:** [tools/README.md](./tools/README.md)
 
 ---

@@ -12,8 +12,9 @@ RPGlitch enables users to create characters and worlds, then engage in AI-driven
 
 - **Left Panel:** `RPGlitch-left-panel.txt`
   - Perchance engine logic
-  - Plugin imports (ai-text-plugin, ai-character-chat-dependencies-v1)
+  - Plugin imports (ai-text-plugin, text-to-image-plugin, super-fetch-plugin, etc.)
   - Core setup and configuration
+  - Note: Dexie.js and DOMPurify are vendored in build, not loaded via plugins
 
 - **Right Panel:** Source in `html/index.html`
   - Main application UI and logic
@@ -69,8 +70,9 @@ apps/rpglitch/
 
 ## Development
 
-See the main repository README.md and AGENTS.md for:
+See the main repository README.md and CLAUDE.md for:
 
+- Complete development protocol and rules
 - Coding standards
 - Build process details
 - Testing guidelines
@@ -78,6 +80,6 @@ See the main repository README.md and AGENTS.md for:
 
 ## Related Documentation
 
-- [AGENTS.md](../../AGENTS.md) - Development protocols and rules
+- [CLAUDE.md](../../CLAUDE.md) - Complete protocol and development guidelines
 - [design-system.md](../../design-system.md) - UI/UX guidelines and components
-- [CLAUDE.md](../../CLAUDE.md) - Quick start guide
+- [plan.md](../../plan.md) - Project roadmap and feature backlog

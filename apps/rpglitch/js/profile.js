@@ -52,15 +52,16 @@ export async function renderProfile(type, id) { // <-- Made this function async
   const sb = document.querySelector("#storyboard-screen");
   if (sb) hideEl(sb);
 
-  // v-- This is the key change: we await the database call --v
-  const entity = await entities.get(type, id); 
-  
-  if (!entity) {
-    console.warn(`Entity not found for profile: ${type}/${id}. Redirecting.`);
-    router.navigate("#");
-    return;
-  }
-  // ^-- From here down, the code is the same because `entity` is now populated --^
+  try {
+    // v-- This is the key change: we await the database call --v
+    const entity = await entities.get(type, id);
+
+    if (!entity) {
+      console.warn(`Entity not found for profile: ${type}/${id}. Redirecting.`);
+      router.navigate("#");
+      return;
+    }
+    // ^-- From here down, the code is the same because `entity` is now populated --^
 
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
@@ -175,4 +176,9 @@ export async function renderProfile(type, id) { // <-- Made this function async
       `#form/${type}/${entity.id}?return=#profile/${type}/${entity.id}`
     );
   });
+  } catch (error) {
+    console.error('Failed to load profile:', error);
+    alert('Could not load profile. Please try again.');
+    router.navigate("#");
+  }
 }

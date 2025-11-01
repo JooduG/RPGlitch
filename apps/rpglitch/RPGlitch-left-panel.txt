@@ -1,6 +1,5 @@
 nomic-ai/nomic-embed-text-v1.5-GGUF
 
-loadDependencies = {import:ai-character-chat-dependencies-v1} // dexie.js, dompurify, etc.
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
 superFetch = {import:super-fetch-plugin} // <-- to bypass CORs issues in character custom code

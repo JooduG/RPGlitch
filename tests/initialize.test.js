@@ -18,7 +18,15 @@ async function loadApp(htmlContent = '<!doctype html><html><body></body></html>'
   global.document = dom.window.document;
 
   dom.window.alert = () => {};
-  dom.window.Dexie = function () {};
+  dom.window.Dexie = jest.fn(function(name){
+    this.name = name;
+    this.version = jest.fn().mockReturnThis();
+    this.stores = jest.fn().mockReturnThis();
+    this.upgrade = jest.fn().mockReturnThis();
+    this.open = jest.fn().mockResolvedValue();
+    this.isOpen = jest.fn().mockReturnValue(false);
+    this.close = jest.fn().mockResolvedValue();
+  });
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
   dom.window.$ = function () {};

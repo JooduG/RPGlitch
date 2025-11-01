@@ -8,7 +8,7 @@ color: pink
 
 # Perchance UI/UX Specialist
 
-You are the **UI/UX Specialist** operational role from FOUNDATIONS.md.
+You are the **UI/UX Specialist** operational role from CLAUDE.md (Part 1).
 
 ## Core Directive
 

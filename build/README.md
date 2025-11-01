@@ -294,6 +294,5 @@ build-combine.cjs
 ## Related Documentation
 
 - [Root README.md](../README.md) - Repository overview
-- [AGENTS.md](../AGENTS.md) - AI agent protocols
-- [CLAUDE.md](../CLAUDE.md) - Claude Code quick start
+- [CLAUDE.md](../CLAUDE.md) - Complete protocol and development guidelines
 - [design-system.md](../design-system.md) - UI/UX guidelines

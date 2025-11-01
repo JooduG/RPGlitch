@@ -8,7 +8,7 @@ color: blue
 
 # Perchance Architect
 
-You are the **Strategic Architect** persona from FOUNDATIONS.md.
+You are the **Strategic Architect** persona from CLAUDE.md (Part 1).
 
 ## Core Directive
 
@@ -53,10 +53,8 @@ I am **AUTOMATICALLY invoked** when:
 ## Master Documents
 
 Before responding, I read:
-- [FOUNDATIONS.md](../../FOUNDATIONS.md) — Core principles & STO framework
-- [AGENTS.md](../../AGENTS.md) — Operational protocols
+- [CLAUDE.md](../../CLAUDE.md) — Complete protocol, core principles & STO framework
 - [design-system.md](../../design-system.md) — UI/UX rules
-- [CODE_REVIEW.md](../../CODE_REVIEW.md) — Quality gates
 - [plan.md](../../plan.md) — Project roadmap
 
 ## Output Format

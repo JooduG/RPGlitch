@@ -143,12 +143,17 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   if (suppressDelete) sessionStorage.removeItem("rpglitch-no-delete");
 
   if (deleteBtn) {
-    deleteBtn.hidden = !(isEdit && entity.isCustom && !suppressDelete);
+    deleteBtn.hidden = !(isEdit && entity.isCustom === 1 && !suppressDelete);
     deleteBtn.addEventListener("click", async () => { // <-- MADE ASYNC
       if (isEdit && confirm("Delete this item?")) {
-        await entities.remove(type, entity.id); // <-- AWAITED
-        await refreshAllLists?.(); // <-- AWAITED
-        router.navigate("#storyboard");
+        try {
+          await entities.remove(type, entity.id); // <-- AWAITED
+          await refreshAllLists?.(); // <-- AWAITED
+          router.navigate("#storyboard");
+        } catch (error) {
+          console.error('Delete failed:', error);
+          alert(error.message || 'Failed to delete. Please try again.');
+        }
       }
     });
   }
@@ -162,36 +167,44 @@ if (saveBtn) {
   // 2. Define the new handler. This function must be defined inside the renderForm
   //    function's scope so it correctly closes over the new 'type' and 'id'.
   const saveHandler = async () => {
-    // SECURITY NOTE: This section correctly sanitizes user inputs (titleInput.value, summaryInput.value, etc.)
-    // using the global 'escapeHtml' (DOMPurify wrapper). DO NOT REMOVE.
+    try {
+      // SECURITY NOTE: This section correctly sanitizes user inputs (titleInput.value, summaryInput.value, etc.)
+      // using the global 'escapeHtml' (DOMPurify wrapper). DO NOT REMOVE.
 
-    const data = {
-      kind: type,
-      name: escapeHtml(titleInput.value.trim()),
-      summary: escapeHtml(summaryInput.value.trim()),
-      imageUrl: escapeHtml(imageInput.value.trim()),
-      image: escapeHtml(imageInput.value.trim()),
-      tags: tagsInput.value
-        .split(",")
-        .map((t) => escapeHtml(t.trim()))
-        .filter(Boolean),
-      sections: {
-        forever: escapeHtml(form.elements.forever.value.trim()),
-        past: escapeHtml(form.elements.past.value.trim()),
-        present: escapeHtml(form.elements.present.value.trim()),
-        future: escapeHtml(form.elements.future.value.trim()),
-      },
-    };
-    if (!data.name) return;
+      const data = {
+        kind: type,
+        name: escapeHtml(titleInput.value.trim()),
+        summary: escapeHtml(summaryInput.value.trim()),
+        imageUrl: escapeHtml(imageInput.value.trim()),
+        image: escapeHtml(imageInput.value.trim()),
+        tags: tagsInput.value
+          .split(",")
+          .map((t) => escapeHtml(t.trim()))
+          .filter(Boolean),
+        sections: {
+          forever: escapeHtml(form.elements.forever.value.trim()),
+          past: escapeHtml(form.elements.past.value.trim()),
+          present: escapeHtml(form.elements.present.value.trim()),
+          future: escapeHtml(form.elements.future.value.trim()),
+        },
+      };
+      if (!data.name) {
+        alert('Please enter a name for this entity.');
+        return;
+      }
 
-    // Use the correctly scoped 'id' and 'type' variables.
-    const originalEntity = isEdit ? await entities.get(type, id) : null;
-    const isEditingPremade = originalEntity?.isPremade;
+      // Use the correctly scoped 'id' and 'type' variables.
+      const originalEntity = isEdit ? await entities.get(type, id) : null;
+      const isEditingPremade = originalEntity?.isPremade;
 
-    const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
+      const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
 
-    const saved = await entities.upsert(type, entityToSave);
-    router.navigate(`#profile/${type}/${saved.id}`);
+      const saved = await entities.upsert(type, entityToSave);
+      router.navigate(`#profile/${type}/${saved.id}`);
+    } catch (error) {
+      console.error('Save failed:', error);
+      alert(error.message || 'Failed to save. Please try again.');
+    }
   };
 
   // 3. Attach the new handler and store its reference for next time.

@@ -28,6 +28,18 @@ global.window._hyperscript = {};
 global.window.$ = function () {};
 global.image = () => {};
 
+// Mock Dexie for all tests
+global.window.Dexie = jest.fn(function(name){
+  this.name = name;
+  this.version = jest.fn().mockReturnThis();
+  this.stores = jest.fn().mockReturnThis();
+  this.upgrade = jest.fn().mockReturnThis();
+  this.open = jest.fn().mockResolvedValue();
+  this.isOpen = jest.fn().mockReturnValue(false);
+  this.close = jest.fn().mockResolvedValue();
+});
+global.Dexie = global.window.Dexie; // Also expose globally for direct access
+
 // Mock localStorage
 Object.defineProperty(window, 'localStorage', {
   value: (() => {

@@ -49,8 +49,10 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.node,
-        // Declare 'image' as a known global from perchance.js
+        // Declare Perchance plugin globals
         'image': 'readonly',
+        'ai': 'readonly',
+        'Dexie': 'readonly',
       },
     },
     plugins: {

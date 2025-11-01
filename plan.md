@@ -2,6 +2,8 @@
 
 **Purpose:** This is the project's strategic command center. It serves as a parking lot for ideas, a backlog for committed work, and a launchpad for moonshots. When an item is approved for active development, it moves to /memory-bank/present/ with a delivery target.
 
+**📋 Merged Document:** CODE_REVIEW.md (2025-10-30) has been merged into this plan. Completed work has been archived to `memory-bank/past/code-review-completion-2025-10-31.md`. Stage 3 refactoring tasks are now integrated below under "Code Quality & Refactoring".
+
 ## **How we use this file**
 
 * **Status values**: idea (default), researching, spiking, approved (ready for /present), In Progress, Done, Maybe/Later.
@@ -31,7 +33,7 @@
 | Refactor Build Scripts | Improve modularity, reusability, and maintainability of the build system. | M | L | N/A | idea | Build times become a significant bottleneck in the development workflow. |
 | Add Error Handling to Scripts | Make the build process more reliable and easier to debug when it fails. | M | M | All build scripts | idea | A single build failure takes more than 15 minutes to diagnose. |
 | **\--- Memory Bank \---** | | | | | | |
-| Automate Task Archiving | Automatically move logs from /present to /past to enforce clean state. | S | M | AGENTS.md SOPs | idea | Manual archiving process is forgotten for two or more consecutive tasks. |
+| Automate Task Archiving | Automatically move logs from /present to /past to enforce clean state. | S | M | CLAUDE.md protocols | idea | Manual archiving process is forgotten for two or more consecutive tasks. |
 | Standardize /future Templates | Create clear and consistent templates for planning documents. | S | S | N/A | idea | The backlog becomes difficult to parse due to inconsistent formatting. |
 | **\--- Testing \---** | | | | | | |
 | Increase Test Coverage | Reach a target threshold for all apps and shared code to improve stability. | L | L | All source code | idea | A critical regression is deployed to production that would have been caught by tests. |
@@ -50,6 +52,17 @@
 | Implement Character/World Management | Allow users to create, edit, and delete their own characters and worlds. | M | M | Dexie.js schema | **Done** | Core requirement. |
 | Implement Storyboard Functionality | Allow users to select characters and worlds to start a story. | M | M | Character/World Management | **Done** | Core requirement. |
 | Implement AI Character Interaction | Integrate Perchance for AI chat, enabling core roleplaying functionality. | L | L | Perchance API | **In Progress** | Core chat FSM/Prompt logic is **Done**. UI wiring is the next step. |
+
+### **Category: Code Quality & Refactoring (Stage 3 - Optional)**
+
+| Idea | Rationale | Impact | Effort | Dependencies | Status | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Full Refactor - Split God Functions | Break 138-line `initializeWhenReady()` into focused, testable units; similar for `updateStoryboardCard()` and `renderList()` | M | L | Code passing Stages 1 & 2 | idea | Optional enhancement. Details archived in `memory-bank/past/code-review-completion-2025-10-31.md` |
+| Replace Console Logging | Use existing `log()` utility respecting debug flag; remove production console noise (~41 statements) | S | M | Logging infrastructure | idea | Cleaner console, better debugging control |
+| Extract Card Navigation Handlers | DRY principle: eliminate duplicate click/keydown handlers in chin cards and storyboard | S | S | RPGlitch refactoring | idea | Reduces code duplication, easier maintenance |
+| Replace Empty Catch Blocks | Add minimal logging to 50+ empty catch blocks (currently `catch { void 0; }`) | S | M | Logging infrastructure | idea | Easier debugging and error tracking |
+| Extract Magic Numbers | Document hardcoded values (MAX_INIT_RETRIES=40, INIT_BACKOFF_MS=250, UI_BLOCK_THRESHOLD_MS=1500, etc.) | S | S | Code review | idea | Self-documenting code |
+| Add JSDoc Comments | Add function documentation; currently only 1 JSDoc found in codebase | M | M | Code documentation | idea | Improves maintainability and IDE support |
 
 ### **Category: Chat & AI Features (New Ideas)**
 

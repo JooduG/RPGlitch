@@ -17,6 +17,6 @@
 
 ## Checklist
 
-- [ ] I have read and followed the guidelines in `AGENTS.md`.
+- [ ] I have read and followed the guidelines in `CLAUDE.md`.
 - [ ] My changes adhere to the project's coding and architectural standards.
 - [ ] I have verified that all automated validation checks (`validate-pr.yml`) pass.

@@ -1,4 +1,5 @@
 import { safeDecodeURIComponent } from './utils.js';
+import { db } from './db.js';
 
 // ====== GLOBAL STATE & CONSTANTS ======
 const DEFAULT_CREATIVITY_LEVEL = "4";
@@ -116,51 +117,93 @@ function handleSeedInput(value) {
   imgSeed = (trimmedValue === '' || isNaN(Number(trimmedValue))) ? trimmedValue : Number(trimmedValue);
 }
 
-function rememberSettings() {
+async function rememberSettings() {
   try {
-    localStorage.mainPromptContent = mainPromptContent || "";
-    localStorage.imgSeed = imgSeed;
-    localStorage.numImagesToGen = numImagesToGen || 0;
-    localStorage.masterCreativity = masterCreativity || DEFAULT_CREATIVITY_LEVEL;
-    localStorage.instructionInput = document.getElementById('instructionInput').value || "";
-    localStorage.instructionsVisible = (document.getElementById('instructionsPanel').style.display !== 'none');
-  } catch (e) {
-    console.error("Error saving settings to localStorage:", e);
+    const instructionInput = document.getElementById('instructionInput');
+    const instructionsPanel = document.getElementById('instructionsPanel');
+
+    const settings = {
+      id: 'app-settings',
+      mainPromptContent: mainPromptContent || "",
+      seed: imgSeed !== '' && imgSeed !== null ? Number(imgSeed) : '',
+      numImagesToGen: Number(numImagesToGen) || 1,
+      masterCreativity: Number(masterCreativity) || Number(DEFAULT_CREATIVITY_LEVEL),
+      instructionInput: instructionInput ? instructionInput.value : "",
+      instructionsVisible: instructionsPanel ? (instructionsPanel.style.display !== 'none') : false
+    };
+
+    await db.settings.put(settings);
+  } catch (error) {
+    console.error('Failed to save settings to IndexedDB:', error);
+    // Non-critical - don't alert user
   }
 }
 
-function loadSavedSettings() {
+async function loadSavedSettings() {
   try {
-    if (localStorage.mainPromptContent) {
-      mainPromptContent = localStorage.mainPromptContent;
-      document.getElementById('promptInput').value = mainPromptContent;
+    const settings = await db.settings.get('app-settings');
+    if (!settings) {
+      console.log('No saved settings found, using defaults');
+      return; // First run, no settings yet
     }
 
-    if (localStorage.hasOwnProperty('imgSeed')) {
-      imgSeed = localStorage.imgSeed;
-      document.getElementById('imgSeed').value = imgSeed;
+    // Restore main prompt content
+    if (settings.mainPromptContent) {
+      mainPromptContent = settings.mainPromptContent;
+      const promptInput = document.getElementById('promptInput');
+      if (promptInput) {
+        promptInput.value = settings.mainPromptContent;
+      }
     }
 
-    if (localStorage.numImagesToGen) {
-      numImagesToGen = Number(localStorage.numImagesToGen);
-      document.getElementById('numImagesSelect').value = numImagesToGen;
+    // Restore seed
+    if (settings.seed !== undefined && settings.seed !== null) {
+      imgSeed = settings.seed;
+      const seedInput = document.getElementById('imgSeed');
+      if (seedInput) {
+        seedInput.value = settings.seed;
+      }
     }
 
-    if (localStorage.masterCreativity) {
-      masterCreativity = Number(localStorage.masterCreativity);
-      document.getElementById('masterCreativitySlider').value = masterCreativity;
+    // Restore number of images to generate
+    if (typeof settings.numImagesToGen === 'number') {
+      numImagesToGen = settings.numImagesToGen;
+      const numImagesSelect = document.getElementById('numImagesSelect');
+      if (numImagesSelect) {
+        numImagesSelect.value = settings.numImagesToGen;
+      }
     }
 
-    if (localStorage.instructionInput) {
-      document.getElementById('instructionInput').value = localStorage.instructionInput;
+    // Restore master creativity
+    if (typeof settings.masterCreativity === 'number') {
+      masterCreativity = settings.masterCreativity;
+      const creativitySlider = document.getElementById('masterCreativitySlider');
+      if (creativitySlider) {
+        creativitySlider.value = settings.masterCreativity;
+      }
     }
 
-    if (localStorage.instructionsVisible === 'true') {
-      document.getElementById('instructionsPanel').style.display = 'block';
-      checkAllButtonStates();
+    // Restore instruction input
+    if (settings.instructionInput) {
+      const instructionInput = document.getElementById('instructionInput');
+      if (instructionInput) {
+        instructionInput.value = settings.instructionInput;
+      }
     }
-  } catch (e) {
-    console.error("Error loading settings from localStorage:", e);
+
+    // Restore instructions panel visibility
+    if (typeof settings.instructionsVisible === 'boolean') {
+      const instructionsPanel = document.getElementById('instructionsPanel');
+      if (instructionsPanel) {
+        instructionsPanel.style.display = settings.instructionsVisible ? 'block' : 'none';
+        if (settings.instructionsVisible) {
+          checkAllButtonStates();
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load settings from IndexedDB:', error);
+    // Non-critical - app continues with defaults
   }
 }
 
@@ -193,7 +236,7 @@ function handleAiMagicSelection(selectElement) {
   }
 
   selectElement.value = 'placeholder';
-  rememberSettings();
+  rememberSettings().catch(err => console.error('Failed to save settings:', err));
 }
 
 function handleAiButtonClick(processType) {
@@ -281,7 +324,7 @@ function handleManualPromptChange() {
     resetSmartButton();
   }
   checkAllButtonStates();
-  rememberSettings();
+  rememberSettings().catch(err => console.error('Failed to save settings:', err));
 }
 
 // ====== SMART BUTTON STATES ======
@@ -369,6 +412,13 @@ async function handleSummonClick() {
   generateButton.disabled = true;
 
   try {
+    // Verify text-to-image plugin is available
+    if (typeof image === 'undefined') {
+      console.error('[ImageGlitch] text-to-image-plugin not loaded - image function unavailable');
+      alert('Image generation is currently unavailable. Please refresh the page.');
+      return;
+    }
+
     document.getElementById('output').innerHTML = buildImageGenerationHtml();
 
     document.querySelectorAll('.quad-cell').forEach(cell => {
@@ -391,6 +441,9 @@ async function handleSummonClick() {
     // Add the mouseover actions after images are generated
     await new Promise(resolve => setTimeout(resolve, 500));
     addImageOverlays();
+  } catch (error) {
+    console.error('Image generation failed:', error);
+    alert('Failed to generate images. Please try again.');
   } finally {
     generateButton.setAttribute('aria-busy', 'false');
     generateButton.disabled = false;
@@ -440,7 +493,13 @@ function buildImageGenerationHtml() {
   return outputHtml;
 }
 
-function main() {
+async function main() {
+  // Verify plugin dependencies are available
+  console.log('[ImageGlitch] Dexie available:', typeof Dexie !== 'undefined');
+  console.log('[ImageGlitch] DOMPurify available:', typeof DOMPurify !== 'undefined');
+  console.log('[ImageGlitch] image function available:', typeof image !== 'undefined');
+  console.log('[ImageGlitch] ai function available:', typeof ai !== 'undefined');
+
   const generateButton = document.getElementById('generate-button');
   const aiMagicSelect = document.getElementById('aiMagicSelect');
   const numImagesSelect = document.getElementById('numImagesSelect');
@@ -449,7 +508,7 @@ function main() {
   const instructionInput = document.getElementById('instructionInput');
   const slider = document.getElementById('masterCreativitySlider');
 
-  loadSavedSettings();
+  await loadSavedSettings();
   updateDerivedSettings();
 
   if (generateButton) {
@@ -463,13 +522,13 @@ function main() {
     numImagesSelect.addEventListener('change', () => {
       numImagesToGen = Number(numImagesSelect.value);
       checkAllButtonStates();
-      rememberSettings();
+      rememberSettings().catch(err => console.error('Failed to save settings:', err));
     });
   }
   if (imgSeedInput) {
     imgSeedInput.addEventListener('input', () => {
       handleSeedInput(imgSeedInput.value);
-      rememberSettings();
+      rememberSettings().catch(err => console.error('Failed to save settings:', err));
     });
   }
   if (promptInput) {
@@ -493,7 +552,7 @@ function main() {
     slider.addEventListener('input', () => {
       masterCreativity = Number(slider.value);
       updateDerivedSettings();
-      rememberSettings();
+      rememberSettings().catch(err => console.error('Failed to save settings:', err));
       updateTooltip();
     });
 
@@ -513,7 +572,9 @@ function addImageOverlays() {
 
     const infoPanel = document.createElement('div');
     infoPanel.className = 'image-info-panel';
-    infoPanel.innerHTML = `<div class="prompt-display">${prompt}</div>`;
+    // Sanitize user prompt before displaying (XSS protection)
+    const sanitizedPrompt = window.DOMPurify ? window.DOMPurify.sanitize(prompt) : prompt;
+    infoPanel.innerHTML = `<div class="prompt-display">${sanitizedPrompt}</div>`;
 
     const bottomBar = document.createElement('div');
     bottomBar.className = 'image-control-bar';
@@ -554,7 +615,9 @@ function addImageOverlays() {
 
     const infoPanel = document.createElement('div');
     infoPanel.className = 'image-info-panel';
-    infoPanel.innerHTML = `<div class="prompt-display">${prompt}</div>`;
+    // Sanitize user prompt before displaying (XSS protection)
+    const sanitizedPrompt = window.DOMPurify ? window.DOMPurify.sanitize(prompt) : prompt;
+    infoPanel.innerHTML = `<div class="prompt-display">${sanitizedPrompt}</div>`;
 
     const bottomBar = document.createElement('div');
     bottomBar.className = 'image-control-bar';

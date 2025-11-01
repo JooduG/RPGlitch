@@ -1,4 +1,5 @@
 import { entities } from './entities.js';
+import { db } from './db.js';
 /* Utility helpers for RPGlitch
  * Safe storage, DOM helpers, chin management
  */
@@ -70,24 +71,42 @@ export function escapeHtml(str) {
 
 
 // ---------- Debug Logger ----------
+// Uses IndexedDB for persistence (migrated from localStorage)
 let isDebug = false;
-try {
-  const stored = (localStorage.getItem('rpglitch.debug')) || '';
-  isDebug = /^(1|true)$/i.test(String(stored).trim());
-} catch {
-  isDebug = false;
+
+/**
+ * Initializes debug mode from IndexedDB settings.
+ * Should be called during app initialization.
+ */
+export async function initDebugMode() {
+  try {
+    const settings = await db.settings.get('app-settings');
+    if (settings && typeof settings.debugMode !== 'undefined') {
+      isDebug = !!settings.debugMode;
+    }
+  } catch (e) {
+    console.error('Failed to load debug mode from settings:', e);
+    isDebug = false;
+  }
+  return isDebug;
 }
 
 export function log(...args) {
   if (isDebug) console.log("[RPGlitch]", ...args);
 }
 
-export function setDebug(on) {
+export async function setDebug(on) {
   isDebug = !!on;
   try {
-    localStorage.setItem('rpglitch.debug', isDebug ? '1' : '0');
-  } catch {
-    void 0;
+    // Get existing settings or create new one
+    let settings = await db.settings.get('app-settings');
+    if (!settings) {
+      settings = { id: 'app-settings' };
+    }
+    settings.debugMode = isDebug;
+    await db.settings.put(settings);
+  } catch (e) {
+    console.error('Failed to save debug mode to settings:', e);
   }
   return isDebug;
 }

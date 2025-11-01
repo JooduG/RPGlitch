@@ -13,11 +13,11 @@ import {
   setSelected,
   deriveBrand,
   _uiWatchdogStarted,
+  initDebugMode,
 } from './utils.js';
 import {
   entities,
   getPictureHTML,
-  getPremadeItems,
 } from './entities.js';
 
 // =================================================================
@@ -112,19 +112,25 @@ const App = {
     },
 
     createFromSelection: async ({ storyId, characterId, worldId }) => {
-      const ch = Object.values(App.state.characters.byId).find(c => c.id === characterId && c.type === 'character');
-      const title = `${ch?.name || "Character"} × ${storyId || "Story"}`;
+      try {
+        const ch = Object.values(App.state.characters.byId).find(c => c.id === characterId && c.type === 'character');
+        const title = `${ch?.name || "Character"} × ${storyId || "Story"}`;
 
-      const threadId = await db.threads.add({
-        characterId,
-        title,
-        settingsSnapshot: { ...App.state.settings },
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      });
+        const threadId = await db.threads.add({
+          characterId,
+          title,
+          settingsSnapshot: { ...App.state.settings },
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        });
 
-      App.applyPatch({ threads: { activeId: threadId }, ui: { title } });
-      return threadId;
+        App.applyPatch({ threads: { activeId: threadId }, ui: { title } });
+        return threadId;
+      } catch (error) {
+        console.error('Failed to create thread:', error);
+        alert('Could not create story thread. Please try again.');
+        throw error;
+      }
     }
   },
 
@@ -180,27 +186,33 @@ const App = {
       if (!userText) return;
       if (!["idle", "done", "error", "aborted"].includes(App.state.ui.fsm)) return;
 
-      const threadId = App.threads.requireActive();
-      await db.messages.add({ threadId, role: "user", text: userText, createdAt: Date.now() });
-
-      const payload = App.prompt.build(threadId);
-      const ctrl = new AbortController();
-      App.state.applyPatch({ ui: { fsm: "sending", lastError: null, abortController: ctrl } });
-
       try {
-        App.state.applyPatch({ ui: { fsm: "streaming" } });
+        const threadId = App.threads.requireActive();
+        await db.messages.add({ threadId, role: "user", text: userText, createdAt: Date.now() });
 
-        await App.ai.generateStream({
-          payload,
-          signal: ctrl.signal,
-          onToken: (t) => App.chat._appendAssistantToken(threadId, t),
-          onDone:  () => App.chat._finalizeAssistantMessage(threadId)
-        });
+        const payload = App.prompt.build(threadId);
+        const ctrl = new AbortController();
+        App.state.applyPatch({ ui: { fsm: "sending", lastError: null, abortController: ctrl } });
 
-        App.state.applyPatch({ ui: { fsm: "done" } });
-      } catch (e) {
-        const isAbort = e?.name === "AbortError";
-        App.state.applyPatch({ ui: { fsm: isAbort ? "aborted" : "error", lastError: e?.message || String(e) } });
+        try {
+          App.state.applyPatch({ ui: { fsm: "streaming" } });
+
+          await App.ai.generateStream({
+            payload,
+            signal: ctrl.signal,
+            onToken: (t) => App.chat._appendAssistantToken(threadId, t),
+            onDone:  () => App.chat._finalizeAssistantMessage(threadId)
+          });
+
+          App.state.applyPatch({ ui: { fsm: "done" } });
+        } catch (e) {
+          const isAbort = e?.name === "AbortError";
+          App.state.applyPatch({ ui: { fsm: isAbort ? "aborted" : "error", lastError: e?.message || String(e) } });
+        }
+      } catch (error) {
+        console.error('Failed to save message:', error);
+        alert('Could not save your message. Please try again.');
+        App.state.applyPatch({ ui: { fsm: "error", lastError: "Failed to save message" } });
       }
     },
 
@@ -370,37 +382,31 @@ export function _attachChinSearchHandlers() {
   });
 }
 
-export function loadStoredItems(key) {
-  try {
-    const storage = window.localStorage;
-    if (!storage) return [];
-    const data = storage.getItem(key);
-    return data ? JSON.parse(data) : [];
-  } catch (e) {
-    console.error(`Failed to parse localStorage item with key "${key}":`, e);
-    return [];
-  }
-}
 
-const STORYBOARD_SELECTION_KEY = "rpglitch-storyboard-selection";
-
-function saveStoryboardSelection() {
+// Migrated from localStorage to IndexedDB
+async function saveStoryboardSelection() {
   const selects = {
     ai: document.querySelector("#storyboard-ai-select")?.value,
     user: document.querySelector("#storyboard-user-select")?.value,
     world: document.querySelector("#storyboard-world-select")?.value,
   };
   try {
-    localStorage.setItem(STORYBOARD_SELECTION_KEY, JSON.stringify(selects));
+    // Get existing settings or create new one
+    let settings = await db.settings.get('app-settings');
+    if (!settings) {
+      settings = { id: 'app-settings' };
+    }
+    settings.storyboardSelection = selects;
+    await db.settings.put(settings);
   } catch (e) {
     console.error("Failed to save storyboard selection:", e);
   }
 }
 
-function loadStoryboardSelection() {
+async function loadStoryboardSelection() {
   try {
-    const stored = localStorage.getItem(STORYBOARD_SELECTION_KEY);
-    return stored ? JSON.parse(stored) : {};
+    const settings = await db.settings.get('app-settings');
+    return settings?.storyboardSelection || {};
   } catch (e) {
     console.error("Failed to load storyboard selection:", e);
     return {};
@@ -414,40 +420,34 @@ export function resetStoryboard() {
 
 /**
  * Gets all items, merging premade and custom.
- * Uses entities.list() for async db operations for characters/worlds.
- * Falls back to localStorage for 'stories'.
+ * Uses entities.list() for async db operations for all entity types (stories, characters, worlds).
  */
-export async function getAllItems(key, refresh = false) { // <-- MADE ASYNC
+export async function getAllItems(key, refresh = false) {
   if (!refresh && Array.isArray(_allItemsCache[key]))
     return [..._allItemsCache[key]];
 
-  const type = key.replace(/s$/, ""); // 'characters' -> 'character'
+  const type = key.replace(/s$/, ""); // 'characters' -> 'character', 'stories' -> 'story'
 
-  if (
-    (type === "character" || type === "world") &&
-    entities &&
-    typeof entities.list === "function"
-  ) {
-    if (refresh) {
-      delete _allItemsCache[key];
+  if (entities && typeof entities.list === "function") {
+    try {
+      if (refresh) {
+        delete _allItemsCache[key];
+      }
+      const items = await entities.list(type);
+      _allItemsCache[key] = items;
+      return items;
+    } catch (error) {
+      console.error(`Failed to load ${type}:`, error);
+      alert(`Could not load ${type} data. Please refresh and try again.`);
+      _allItemsCache[key] = [];
+      return [];
     }
-    const items = await entities.list(type); // <-- AWAITED
-    _allItemsCache[key] = items;
-    return items;
   }
 
-  // Fallback for 'stories' or other non-entity types
-  const premadeItems = getPremadeItems(key).map((item) => ({
-    ...item,
-    isPremade: true,
-  }));
-  const stored = loadStoredItems(key).map((item) => ({
-    ...item,
-    isPremade: false,
-  }));
-  const data = premadeItems.concat(stored);
-  _allItemsCache[key] = data;
-  return data;
+  // Fallback to empty array if entities module is not available
+  console.warn(`getAllItems: entities.list not available for type "${type}"`);
+  _allItemsCache[key] = [];
+  return [];
 }
 
 async function renderList(containerId, key) { // <-- MADE ASYNC
@@ -758,11 +758,16 @@ export function _attachCardNavigation() {
 
       // Update App.state and persist selection
       if (type && id) {
-        App.applyPatch({ ui: { selectedStoryboardCard: { type, id } } });
-        // Deselect all other entities of the same type
-        await db.entities.where({ type: type, isSelected: true }).modify({ isSelected: false });
-        // Select the current entity
-        await db.entities.update(id, { isSelected: true });
+        try {
+          App.applyPatch({ ui: { selectedStoryboardCard: { type, id } } });
+          // Deselect all other entities of the same type
+          await db.entities.where({ type: type, isSelected: true }).modify({ isSelected: false });
+          // Select the current entity
+          await db.entities.update(id, { isSelected: true });
+        } catch (error) {
+          console.error('Failed to update selection:', error);
+          // Don't show alert for selection errors - not critical to user workflow
+        }
       } else {
         App.applyPatch({ ui: { selectedStoryboardCard: null } });
       }
@@ -869,8 +874,14 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
     // const key = entityOrKey; // No longer needed
 
     if (id) {
-      // Get the single entity asynchronously
-      entity = await entities.get(type, id); // <-- AWAITED
+      try {
+        // Get the single entity asynchronously
+        entity = await entities.get(type, id); // <-- AWAITED
+      } catch (error) {
+        console.error(`Failed to load ${type}:`, error);
+        alert(`Could not load ${type} details. Please try again.`);
+        entity = null;
+      }
     } else {
       entity = null;
     }
@@ -1124,7 +1135,7 @@ function _setupStoryboardTitle() {
 }
 
 async function populateStoryboardSelects() {
-  const selections = loadStoryboardSelection();
+  const selections = await loadStoryboardSelection();
   const configs = [
     { id: "storyboard-ai-select", key: "characters", savedValue: selections.ai },
     { id: "storyboard-user-select", key: "characters", savedValue: selections.user },
@@ -1151,7 +1162,7 @@ async function onStoryboardChange(e) { // <-- MADE ASYNC
   const select = e.target;
   await updateStoryboardCard(select); // <-- AWAITED
   await setDynamicTitle?.(); // <-- AWAITED
-  saveStoryboardSelection();
+  await saveStoryboardSelection();
   if (typeof _suppressNextBlur !== "undefined") {
     _suppressNextBlur = false;
   }
@@ -1342,21 +1353,25 @@ export function _attachContentChinActions() {
             if (!Array.isArray(data)) return;
 
             const type = key.replace(/s$/, "");
-            if (type === 'character' || type === 'world') {
-              // Import into Dexie
+            if (type === 'character' || type === 'world' || type === 'story') {
+              // Import into IndexedDB
               const validData = data.filter(item => item.name && item.type === type);
-              await db.entities.bulkPut(validData.map(item => ({...item, isCustom: true, isPremade: false})));
+              await db.entities.bulkPut(validData.map(item => ({
+                ...item,
+                isCustom: item.isPremade ? 0 : 1, // 1 = custom, 0 = premade (numeric for IndexedDB)
+                isPremade: item.isPremade || false,
+                createdAt: item.createdAt || Date.now(),
+                updatedAt: item.updatedAt || Date.now(),
+              })));
+              alert(`Successfully imported ${validData.length} ${type}(s).`);
             } else {
-              // Fallback to localStorage for 'stories'
-              const current = loadStoredItems(key);
-              localStorage.setItem(
-                key,
-                JSON.stringify(current.concat(data))
-              );
+              console.warn(`Import for type "${type}" is not supported`);
+              alert(`Import for type "${type}" is not supported.`);
             }
             await refreshAllLists(); // <-- AWAITED
           } catch (err) {
             console.error("Failed to import", err);
+            alert(`Failed to import ${key}. Please check the file format and try again.`);
           }
           uploadInput.value = null;
         };
@@ -1440,8 +1455,17 @@ export function _attachChatFormListener() {
 export async function initializeWhenReady() { // <-- MADE ASYNC
   try {
     // Initialize database first
-    await initDB(); // <-- ADDED
-    console.log('[RPGlitch] Database initialized.'); // <-- ADDED
+    try {
+      await initDB();
+      console.log('[RPGlitch] Database initialized.');
+    } catch (error) {
+      console.error('[RPGlitch] Failed to initialize database:', error);
+      alert('Database initialization failed. Please refresh the page. Error: ' + error.message);
+      throw error; // Stop initialization
+    }
+
+    // Initialize debug mode from IndexedDB
+    await initDebugMode();
 
     // Listen for state changes to re-render the chat
     document.addEventListener('state:changed', async (event) => { // <-- MADE ASYNC
@@ -1614,10 +1638,12 @@ export async function importAllData(file) { // <-- MADE ASYNC
         await db.settings.clear();
         await db.settings.add(data.settings);
       }
-      
+
       await refreshAllLists();
+      alert('Backup imported successfully!');
     } catch (err) {
       console.error("Failed to import backup", err);
+      alert('Failed to import backup. Please check the file and try again.');
     } finally {
       const ui = _getUIElements();
       if (ui.uploadBackupInput) ui.uploadBackupInput.value = null;
@@ -1627,42 +1653,58 @@ export async function importAllData(file) { // <-- MADE ASYNC
 }
 
 export async function exportAllData() { // <-- MADE ASYNC
-  const data = {
-    version: 1, // Add version
-  };
-  
-  // Get characters from Dexie (filtered from entities)
-  data.characters = await db.entities.where('type').equals('character').toArray();
-  
-  // Get threads from Dexie
-  data.threads = await db.threads.toArray();
+  try {
+    const data = {
+      version: 1, // Add version
+    };
 
-  // Get messages from Dexie
-  data.messages = await db.messages.toArray();
+    // Get characters from Dexie (filtered from entities)
+    data.characters = await db.entities.where('type').equals('character').toArray();
 
-  // Get settings from Dexie (assuming it's a singleton with key 'settings')
-  data.settings = await db.settings.get('settings'); // Assuming 'settings' is the key for the singleton settings object
+    // Get threads from Dexie
+    data.threads = await db.threads.toArray();
 
-  const blob = new Blob([JSON.stringify(data)], {
-    type: "application/json"
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "rpglitch-backup.json";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+    // Get messages from Dexie
+    data.messages = await db.messages.toArray();
+
+    // Get settings from Dexie (assuming it's a singleton with key 'settings')
+    data.settings = await db.settings.get('settings'); // Assuming 'settings' is the key for the singleton settings object
+
+    const blob = new Blob([JSON.stringify(data)], {
+      type: "application/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "rpglitch-backup.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Failed to export backup:', error);
+    alert('Failed to export backup. Please try again.');
+  }
 }
 
-export async function deleteAllData() { // <-- MADE ASYNC
-  // Delete from Dexie
-  await db.entities.clear();
-  // Delete stories from localStorage
-  localStorage.removeItem('stories');
-  
-  await refreshAllLists(); // <-- AWAITED
+export async function deleteAllData() {
+  try {
+    // Confirm before destructive action
+    if (!confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
+      return;
+    }
+
+    // Delete all entities from IndexedDB (includes stories, characters, worlds)
+    await db.entities.clear();
+    await db.threads.clear();
+    await db.messages.clear();
+
+    await refreshAllLists();
+    alert('All data has been deleted.');
+  } catch (error) {
+    console.error('Failed to delete data:', error);
+    alert('Failed to delete data. Please try again.');
+  }
 }
 
 try {

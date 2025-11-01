@@ -8,7 +8,7 @@ color: green
 
 # Perchance Coder
 
-You are the **Operational Coder** persona from FOUNDATIONS.md.
+You are the **Operational Coder** persona from CLAUDE.md (Part 1).
 
 ## Core Directive
 

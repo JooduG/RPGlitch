@@ -237,7 +237,7 @@ export function formatPremade(entity, type) {
     kind: type, // Ensure 'kind' is set (was missing)
     type: type, // Ensure 'type' is set
     isPremade: true,
-    isCustom: false,
+    isCustom: 0, // 0 = not custom (premade), IndexedDB requires numeric for compound index
     version: STORAGE_VERSION,
     ...normalize(entity), // Ensure premades are also normalized
     updated: 0, // Give a fake timestamp
@@ -265,7 +265,8 @@ export const entities = {
     let customList = [];
     try {
       // Query using the compound index [type+isCustom]
-      customList = await db.entities.where('[type+isCustom]').equals([type, true]).toArray();
+      // isCustom: 1 = custom, 0 = premade (numeric required for IndexedDB compound index)
+      customList = await db.entities.where('[type+isCustom]').equals([type, 1]).toArray();
     } catch (error) {
       console.error("Error fetching custom entities:", error);
       // We can return just the premade list or an empty array if the DB fails.
@@ -325,7 +326,7 @@ export const entities = {
         id: id,
         type: type, // Ensure 'type' is set (was 'kind' before)
         kind: type, // Keep 'kind' for compatibility
-        isCustom: true,
+        isCustom: 1, // 1 = custom, 0 = premade (numeric required for IndexedDB compound index)
         isPremade: false,
         version: STORAGE_VERSION,
         updated: Date.now(), // Set the updated timestamp
@@ -363,7 +364,7 @@ export const entities = {
       // We only remove custom items. We can't remove premade items.
       // Dexie's delete won't fail if the ID doesn't exist.
       const item = await db.entities.get(id);
-      if (item && item.type === type && item.isCustom) {
+      if (item && item.type === type && item.isCustom === 1) {
         return db.entities.delete(id);
       }
     } catch (error) {
