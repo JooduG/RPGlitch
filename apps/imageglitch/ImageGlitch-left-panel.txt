@@ -6,14 +6,6 @@ image = {import:text-to-image-plugin}
 ai = {import:ai-text-plugin}
 r = {import:remember-plugin}
 
-exposePlugins
-  <script>
-    // Expose Perchance plugins to window for right-panel JavaScript
-    window.pluginImage = [image];
-    window.pluginAi = [ai];
-    window.pluginR = [r];
-  </script>
-
 doggo
   imgSeed = ""
   onFinish(result) =>
@@ -434,3 +426,23 @@ additionalElements
 
 generated_images_output_simple_repeat
   $output = [buildImageGenerationHtml(doggo)]
+// Expose plugins to window for right-panel JavaScript access
+// This code runs after plugins have initialized
+(function() {
+  // Wait briefly for plugins to be fully initialized
+  setTimeout(function() {
+    try {
+      if (typeof image !== 'undefined') window.pluginImage = image;
+      if (typeof ai !== 'undefined') window.pluginAi = ai;
+      if (typeof r !== 'undefined') window.pluginR = r;
+      
+      console.log('[ImageGlitch Left Panel] Plugins exposed to window:', {
+        pluginImage: typeof window.pluginImage,
+        pluginAi: typeof window.pluginAi,
+        pluginR: typeof window.pluginR
+      });
+    } catch(e) {
+      console.error('[ImageGlitch Left Panel] Failed to expose plugins:', e);
+    }
+  }, 100); // Wait 100ms for plugins to initialize
+})();
