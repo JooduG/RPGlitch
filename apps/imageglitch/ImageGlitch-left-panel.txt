@@ -6,28 +6,9 @@ image = {import:text-to-image-plugin}
 ai = {import:ai-text-plugin}
 r = {import:remember-plugin}
 
-// JavaScript code to expose plugins - this will be evaluated by Perchance
-// and included in the HTML output where [image], [ai], [r] will be the actual plugin references
-exposePluginsScript
-  <script>
-    setTimeout(function() {
-      // Direct assignment using Perchance bracket evaluation
-      window.__perchanceImage = [image];
-      window.__perchanceAi = [ai];
-      window.__perchanceR = [r];
-
-      // Copy to expected names
-      window.image = window.__perchanceImage;
-      window.ai = window.__perchanceAi;
-      window.r = window.__perchanceR;
-
-      console.log('[ImageGlitch-LeftPanel] Plugins exposed:', {
-        image: typeof window.image,
-        ai: typeof window.ai,
-        r: typeof window.r
-      });
-    }, 100);
-  </script>
+// Expose plugins using html property to preserve execution context
+exposePlugins
+  this.html = "<script>(function(){window.pluginImage=image;window.pluginAi=ai;window.pluginR=r;window.image=window.pluginImage;window.ai=window.pluginAi;window.r=window.pluginR;console.log('[Left] Exposed:',{i:typeof image,a:typeof ai,r:typeof r});})()</script>"
 
 doggo
   imgSeed = ""
@@ -449,4 +430,4 @@ additionalElements
 
 
 generated_images_output_simple_repeat
-  $output = [exposePluginsScript][buildImageGenerationHtml(doggo)]
+  $output = [exposePlugins][buildImageGenerationHtml(doggo)]
