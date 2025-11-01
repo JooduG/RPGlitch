@@ -35,7 +35,9 @@ Example: `A random animal is the [animal].` might produce "A random animal is th
 
 For simple, inline random choices, a shorthand syntax using curly brackets (`{}`) with items separated by a vertical bar (`|`) is available. This avoids the need to create a formal list for minor variations.
 
-Example: `The cow is {very|extremely} large.` For lists containing only a single item, a concise shortcut is `listName = [item]`.
+Example: `The cow is {very|extremely} large.` 
+
+For lists containing only a single item, a concise shortcut is `listName = [item]`.
 
 ### **Naming Conventions**
 
@@ -128,9 +130,9 @@ The syntax `[identifierName = listName]` assigns a randomly selected item from `
 
 Example code snippet: This ensures the same flower name is used in both sentences.
 
-```
-[f = flower.selectOne]
-The [f] is beautiful. I love the smell of the [f].
+```MD
+`[f = flower.selectOne]`
+The `[f]` is beautiful. I love the smell of the `[f]`.
 ```
 
 ### **Multi-Action Execution**
@@ -213,8 +215,8 @@ The platform offers a wide array of official plugins that cater to various needs
 
 The most powerful extensions to the Perchance platform are the AI plugins, which integrate large-scale generative models directly into the generator workflow.
 
-* **ai-text-plugin**: This plugin provides an interface to a Llama-based Large Language Model (LLM) for generating text, such as stories, poems, or dialogue, based on a user-defined instruction.  
-* **text-to-image-plugin**: This plugin utilizes a Stable Diffusion model to generate images from a textual description.
+* **`ai-text-plugin`**: This plugin provides an interface to a Llama-based Large Language Model (LLM) for generating text, such as stories, poems, or dialogue, based on a user-defined instruction.  
+* **`text-to-image-plugin`**: This plugin utilizes a Stable Diffusion model to generate images from a textual description.
 
 These plugins represent a fundamental architectural shift. While the core Perchance engine operates entirely client-side within the user's browser, the AI plugins function as clients for a powerful server-side infrastructure. The computationally intensive task of running the AI models is offloaded to dedicated servers with GPUs. This client-server model is what makes it possible to offer state-of-the-art AI capabilities within a lightweight, browser-based tool. This architecture also explains the platform's funding model (ads are displayed for non-logged-in users to cover server costs) and the explicit warning against forking these specific plugins, as their client-side code is inextricably linked to a backend that cannot be replicated by users.
 
@@ -334,7 +336,7 @@ A critical feature of this system is that event handlers can be declared as `asy
 
 Example: Intercepting and modifying user messages (JavaScript).
 
-```JavaScript
+```JS
 oc.thread.on("MessageAdded", async function ({message}) {
   // Check if the latest message is from the user
   if(message.author === "user" && message.content.startsWith("charname "))
@@ -429,7 +431,7 @@ For generators that create images, maintaining a consistent character appearance
 
 The most engaging Perchance generators move beyond static text generation to create dynamic, interactive experiences.
 
-* **Pattern: Interactive Choices:** A powerful pattern for text adventures, RPGs, or choice-based narratives involves using the `messageRenderingPipeline`. The developer instructs the AI (via its `roleInstruction`) to present choices to the user in a specific format, such as `[[Attack the goblin]]` or `[[Flee the cave]]`. Then, a function in the rendering pipeline detects this pattern and replaces it with a clickable HTML `<button>` for the user. The button's onclick handler then uses `oc.thread.messages.push()` to submit the user's choice as a new message. This creates a seamless, interactive UI for the user while maintaining a simple, text-based format for the AI to process.
+* **Pattern: Interactive Choices:** A powerful pattern for text adventures, RPGs, or choice-based narratives involves using the `messageRenderingPipeline`. The developer instructs the AI (via its `roleInstruction`) to present choices to the user in a specific format, such as `[[Attack the goblin]]` or `[[Flee the cave]]`. Then, a function in the rendering pipeline detects this pattern and replaces it with a clickable HTML `<button>` for the user. The button's `onclick` handler then uses `oc.thread.messages.push()` to submit the user's choice as a new message. This creates a seamless, interactive UI for the user while maintaining a simple, text-based format for the AI to process.
 
 * **Pattern: AI-Generated UI:** A more advanced technique involves prompting the AI to not only narrate a scene but also to generate the interactive choices itself. By instructing the AI to output text in the custom `[[Choice]]` format, the LLM effectively becomes a "UI composer," dynamically creating the available actions based on the narrative context. This approach can lead to more emergent and unpredictable gameplay. 
 

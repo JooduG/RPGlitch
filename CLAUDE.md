@@ -14,7 +14,7 @@
 npm ci && npm run sync
 
 # Build all applications
-npm run build
+npm run build:apps
 
 # Run tests
 npm test
