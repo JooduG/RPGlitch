@@ -2,31 +2,15 @@ import { safeDecodeURIComponent } from './utils.js';
 import { db } from './db.js';
 
 // =================================================================
-// Plugin Setup: Copy Perchance-exposed plugins to standard names
+// Plugin Setup: Perchance plugins auto-expose themselves
 // =================================================================
 
 /**
- * Copies plugins exposed by the Perchance left panel (pluginImage, pluginAi, etc.)
- * to the standard window property names (image, ai, etc.) so the rest of the app
- * can access them without needing to know about the Perchance naming convention.
+ * Perchance plugins automatically expose themselves to the window object
+ * when they initialize (e.g., window.image, window.ai, window.r).
+ * This happens during the left panel's plugin import process.
+ * We just need to wait for them to become available.
  */
-function setupPlugins() {
-  // Map Perchance-exposed plugin names to standard names
-  const pluginMap = {
-    pluginImage: 'image',
-    pluginAi: 'ai',
-    pluginR: 'r',
-  };
-
-  for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (window[perchanceName] && !window[standardName]) {
-      window[standardName] = window[perchanceName];
-    }
-  }
-}
-
-// Call setup immediately on module load
-setupPlugins();
 
 // ====== GLOBAL STATE & CONSTANTS ======
 const TEST_MODE = (() => {
@@ -532,9 +516,8 @@ function buildImageGenerationHtml() {
 
 /**
  * Wait for Perchance plugins to become available before initializing.
- * Plugins are loaded asynchronously by the left panel and may not be ready immediately.
- * Left panel exposes them with "plugin" prefix (pluginImage, pluginAi, etc.)
- * to avoid Perchance syntax parsing issues with dot notation.
+ * Plugins are loaded asynchronously by the left panel and automatically
+ * expose themselves to window (e.g., window.image, window.ai).
  * In test mode, this function skips the wait and returns immediately.
  * @param {string[]} requiredPlugins - Array of global plugin names to wait for
  * @param {number} timeout - Maximum time to wait in milliseconds
@@ -553,20 +536,19 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
 
   console.log(`[ImageGlitch] Waiting for plugins (attempt ${retryCount + 1}/${maxRetries + 1}):`, requiredPlugins);
 
-  // Convert standard names to prefixed names that left panel actually exposes
-  // (e.g., 'image' -> 'pluginImage', 'ai' -> 'pluginAi')
-  const prefixedPlugins = requiredPlugins.map(name => {
-    return 'plugin' + name.charAt(0).toUpperCase() + name.slice(1);
-  });
-
   while (Date.now() - startTime < timeout) {
-    // Check if prefixed plugins are available (they get exposed by left panel)
-    const allPrefixedAvailable = prefixedPlugins.every(name => typeof window[name] !== 'undefined');
-    // Also check if standard names are available (they get set by setupPlugins())
-    const allStandardAvailable = requiredPlugins.every(name => typeof window[name] !== 'undefined');
+    // Check if plugins are available and are functions
+    const allAvailable = requiredPlugins.every(name => {
+      const plugin = window[name];
+      return typeof plugin === 'function' || (typeof plugin === 'object' && plugin !== null);
+    });
 
-    if (allPrefixedAvailable || allStandardAvailable) {
+    if (allAvailable) {
       console.log('[ImageGlitch] All plugins loaded successfully:', requiredPlugins);
+      // Log plugin types for debugging
+      requiredPlugins.forEach(name => {
+        console.log(`[ImageGlitch] ${name}: ${typeof window[name]}, callable: ${typeof window[name] === 'function'}`);
+      });
       return true;
     }
 
@@ -578,11 +560,9 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
     return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
   }
 
-  const availableStandard = requiredPlugins.filter(name => typeof window[name] !== 'undefined');
-  const missingStandard = requiredPlugins.filter(name => typeof window[name] === 'undefined');
-  const availablePrefixed = prefixedPlugins.filter(name => typeof window[name] !== 'undefined');
-  const missingPrefixed = prefixedPlugins.filter(name => typeof window[name] === 'undefined');
-  console.warn(`[ImageGlitch] Plugin timeout after ${Date.now() - startTime}ms. Standard available: ${availableStandard.join(', ') || 'none'} | Prefixed available: ${availablePrefixed.join(', ') || 'none'} | Missing standard: ${missingStandard.join(', ') || 'none'} | Missing prefixed: ${missingPrefixed.join(', ') || 'none'}`);
+  const available = requiredPlugins.filter(name => typeof window[name] !== 'undefined');
+  const missing = requiredPlugins.filter(name => typeof window[name] === 'undefined');
+  console.warn(`[ImageGlitch] Plugin timeout after ${Date.now() - startTime}ms. Available: ${available.join(', ') || 'none'} | Missing: ${missing.join(', ') || 'none'}`);
   return false;
 }
 
@@ -599,8 +579,8 @@ async function main() {
   // Verify plugin dependencies are available
   console.log('[ImageGlitch] Dexie available:', typeof Dexie !== 'undefined');
   console.log('[ImageGlitch] DOMPurify available:', typeof DOMPurify !== 'undefined');
-  console.log('[ImageGlitch] image function available:', typeof image !== 'undefined');
-  console.log('[ImageGlitch] ai function available:', typeof ai !== 'undefined');
+  console.log('[ImageGlitch] image available:', typeof image !== 'undefined', 'callable:', typeof image === 'function');
+  console.log('[ImageGlitch] ai available:', typeof ai !== 'undefined', 'callable:', typeof ai === 'function');
 
   const generateButton = document.getElementById('generate-button');
   const aiMagicSelect = document.getElementById('aiMagicSelect');
