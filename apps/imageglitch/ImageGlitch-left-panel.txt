@@ -6,9 +6,10 @@ image = {import:text-to-image-plugin}
 ai = {import:ai-text-plugin}
 r = {import:remember-plugin}
 
-// Expose plugins using html property to preserve execution context
-exposePlugins
-  this.html = "<script>(function(){window.pluginImage=image;window.pluginAi=ai;window.pluginR=r;window.image=window.pluginImage;window.ai=window.pluginAi;window.r=window.pluginR;console.log('[Left] Exposed:',{i:typeof image,a:typeof ai,r:typeof r});})()</script>"
+// Output a script block that exposes plugins
+// JavaScript code that runs in Perchance evaluation context
+exposePluginsToWindow
+  <script>window.image=image;window.ai=ai;window.r=r;console.log('[Left-Panel]',{image:typeof image,ai:typeof ai,r:typeof r});</script>
 
 doggo
   imgSeed = ""
@@ -430,4 +431,4 @@ additionalElements
 
 
 generated_images_output_simple_repeat
-  $output = [exposePlugins][buildImageGenerationHtml(doggo)]
+  $output = [exposePluginsToWindow][buildImageGenerationHtml(doggo)]
