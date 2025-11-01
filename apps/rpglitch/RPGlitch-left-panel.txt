@@ -4,12 +4,15 @@ superFetch = {import:super-fetch-plugin} // <-- to bypass CORs issues in charact
 rememberPlugin = {import:remember-plugin}
 upload = {import:upload-plugin} // <-- for profile picture uploads
 
-// Expose plugins to right-panel JavaScript using underscore naming (avoids Perchance parse errors)
-pluginAi = ai
-pluginTextToImage = textToImage
-pluginSuperFetch = superFetch
-pluginRememberPlugin = rememberPlugin
-pluginUpload = upload
+exposePlugins
+  <script>
+    // Expose Perchance plugins to window for right-panel JavaScript
+    window.pluginAi = [ai];
+    window.pluginTextToImage = [textToImage];
+    window.pluginSuperFetch = [superFetch];
+    window.pluginRememberPlugin = [rememberPlugin];
+    window.pluginUpload = [upload];
+  </script>
 
 async evaluatePerchanceTextInSandbox(text, opts) =>
   if(!opts) opts = {};

@@ -6,10 +6,13 @@ image = {import:text-to-image-plugin}
 ai = {import:ai-text-plugin}
 r = {import:remember-plugin}
 
-// Expose plugins to right-panel JavaScript using underscore naming (avoids Perchance parse errors)
-pluginImage = image
-pluginAi = ai
-pluginR = r
+exposePlugins
+  <script>
+    // Expose Perchance plugins to window for right-panel JavaScript
+    window.pluginImage = [image];
+    window.pluginAi = [ai];
+    window.pluginR = [r];
+  </script>
 
 doggo
   imgSeed = ""
