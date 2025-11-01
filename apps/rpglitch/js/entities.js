@@ -264,12 +264,13 @@ export const entities = {
     const premadeList = (getPremadeItems(key) || []).map(e => formatPremade(e, type));
     let customList = [];
     try {
-      customList = await db.entities.where({ type: type, isCustom: true }).toArray();
+      // Query using the compound index [type+isCustom]
+      customList = await db.entities.where('[type+isCustom]').equals([type, true]).toArray();
     } catch (error) {
       console.error("Error fetching custom entities:", error);
       // We can return just the premade list or an empty array if the DB fails.
       // For a more robust app, you might want to notify the user.
-      return premadeList; 
+      return premadeList;
     }
 
     // 3. Merge and sort.
@@ -286,18 +287,23 @@ export const entities = {
    * @returns {Promise<Object|null>} A promise resolving to the entity or null.
    */
   async get(type, id) {
-    // 1. Check premade items first
-    const key = storeMap[type];
-    const premadeItem = (getPremadeItems(key) || []).find((e) => e.id === id);
-    if (premadeItem) {
-      return formatPremade(premadeItem, type);
+    try {
+      // 1. Check premade items first
+      const key = storeMap[type];
+      const premadeItem = (getPremadeItems(key) || []).find((e) => e.id === id);
+      if (premadeItem) {
+        return formatPremade(premadeItem, type);
+      }
+
+      // 2. If not premade, get from the database
+      const item = await db.entities.get(id);
+
+      // 3. Ensure it's the correct type before returning
+      return (item && item.type === type) ? item : null;
+    } catch (error) {
+      console.error(`Failed to get ${type} with id ${id}:`, error);
+      return null;
     }
-    
-    // 2. If not premade, get from the database
-    const item = await db.entities.get(id);
-    
-    // 3. Ensure it's the correct type before returning
-    return (item && item.type === type) ? item : null;
   },
 
   /**
@@ -307,26 +313,31 @@ export const entities = {
    * @returns {Promise<Object>} A promise resolving to the saved entity.
    */
   async upsert(type, entity) {
-    const id = entity.id || crypto?.randomUUID?.() || `${type}-${Date.now()}`;
-    
-    // Get the existing item (if it exists) to merge with
-    const base = await db.entities.get(id) || {};
-    
-    const saved = {
-      ...base,
-      ...normalize({ ...base, ...entity }), // Merge and normalize
-      id: id,
-      type: type, // Ensure 'type' is set (was 'kind' before)
-      kind: type, // Keep 'kind' for compatibility
-      isCustom: true,
-      isPremade: false,
-      version: STORAGE_VERSION,
-      updated: Date.now(), // Set the updated timestamp
-    };
-    
-    // Dexie's 'put' is a perfect "upsert" command
-    await db.entities.put(saved);
-    return saved;
+    try {
+      const id = entity.id || crypto?.randomUUID?.() || `${type}-${Date.now()}`;
+
+      // Get the existing item (if it exists) to merge with
+      const base = await db.entities.get(id) || {};
+
+      const saved = {
+        ...base,
+        ...normalize({ ...base, ...entity }), // Merge and normalize
+        id: id,
+        type: type, // Ensure 'type' is set (was 'kind' before)
+        kind: type, // Keep 'kind' for compatibility
+        isCustom: true,
+        isPremade: false,
+        version: STORAGE_VERSION,
+        updated: Date.now(), // Set the updated timestamp
+      };
+
+      // Dexie's 'put' is a perfect "upsert" command
+      await db.entities.put(saved);
+      return saved;
+    } catch (error) {
+      console.error(`Failed to save ${type}:`, error);
+      throw new Error(`Failed to save ${type}. Please try again.`);
+    }
   },
 
   /**
@@ -348,11 +359,16 @@ export const entities = {
    * @returns {Promise<void>}
    */
   async remove(type, id) {
-    // We only remove custom items. We can't remove premade items.
-    // Dexie's delete won't fail if the ID doesn't exist.
-    const item = await db.entities.get(id);
-    if (item && item.type === type && item.isCustom) {
-      return db.entities.delete(id);
+    try {
+      // We only remove custom items. We can't remove premade items.
+      // Dexie's delete won't fail if the ID doesn't exist.
+      const item = await db.entities.get(id);
+      if (item && item.type === type && item.isCustom) {
+        return db.entities.delete(id);
+      }
+    } catch (error) {
+      console.error(`Failed to delete ${type}:`, error);
+      throw new Error(`Could not delete ${type}. Please try again.`);
     }
   },
 
@@ -363,13 +379,18 @@ export const entities = {
    * @returns {Promise<Object|null>} A promise resolving to the copy or null.
    */
   async copy(type, id) {
-    const item = await this.get(type, id);
-    if (!item) return null;
-    
-    // Return a deep copy
-    return { 
-      ...item,
-      sections: { ...item.sections }
-    };
+    try {
+      const item = await this.get(type, id);
+      if (!item) return null;
+
+      // Return a deep copy
+      return {
+        ...item,
+        sections: { ...item.sections }
+      };
+    } catch (error) {
+      console.error(`Failed to copy ${type}:`, error);
+      return null;
+    }
   },
 };
