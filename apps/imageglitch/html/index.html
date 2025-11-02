@@ -6,6 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ImageGlitch</title>
   <!--STYLES will be injected here by the build process via JS-->
+  <script>
+    // Expose Perchance plugins to window BEFORE any other scripts run
+    window.pluginTextToImage = [image];
+    window.pluginAi = [ai];
+    window.pluginRememberPlugin = [r];
+    console.log('[ImageGlitch] Plugins exposed via HTML script tag:', {
+      pluginTextToImage: typeof window.pluginTextToImage,
+      pluginAi: typeof window.pluginAi,
+      pluginRememberPlugin: typeof window.pluginRememberPlugin
+    });
+  </script>
 </head>
 
 <body>
