@@ -928,16 +928,28 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
 
   if (!card) return;
 
-  const tpl = document.querySelector("#unified-card-template");
-  if (tpl && tpl.content) {
-    const newCard = tpl.content.firstElementChild.cloneNode(true);
-    card.innerHTML = newCard.innerHTML;
-  }
+  // Clear the card
+  card.innerHTML = '';
 
-  const media = card.querySelector(".card-media");
-  const titleEl = card.querySelector(".card-title");
-  const descEl = card.querySelector(".card-description");
-  const footer = card.querySelector(".card-footer");
+  const media = document.createElement("div");
+  media.className = "card-media";
+  card.appendChild(media);
+
+  const body = document.createElement("div");
+  body.className = "card-body";
+  card.appendChild(body);
+
+  const titleEl = document.createElement("select");
+  titleEl.className = "card-title";
+  body.appendChild(titleEl);
+
+  const descEl = document.createElement("p");
+  descEl.className = "card-description";
+  body.appendChild(descEl);
+
+  const footer = document.createElement("div");
+  footer.className = "card-footer";
+  card.appendChild(footer);
 
   if (descEl && !descEl.dataset.placeholder) {
     descEl.dataset.placeholder = descEl.textContent || "";
@@ -1165,135 +1177,265 @@ function _setupStoryboardTitle() {
 }
 
 async function populateStoryboardSelects() {
+
   const selections = await loadStoryboardSelection();
+
   const configs = [
+
     { id: "storyboard-ai-select", key: "characters", savedValue: selections.ai },
+
     { id: "storyboard-user-select", key: "characters", savedValue: selections.user },
+
     { id: "storyboard-world-select", key: "worlds", savedValue: selections.world },
+
   ];
 
+
+
   await Promise.all(
+
     configs.map(async ({ id, key, savedValue }) => {
+
       await renderDropdown(document, id, key);
+
       const select = document.querySelector(`#${id}`);
+
       if (select) {
+
         if (savedValue && Array.from(select.options).some(o => o.value === savedValue)) {
+
           select.value = savedValue;
+
         }
+
         select.addEventListener("change", onStoryboardChange);
+
         // Trigger the initial update after setting the value
+
         await onStoryboardChange({ target: select });
+
       }
+
     })
+
   );
+
 }
+
+
 
 async function onStoryboardChange(e) { // <-- MADE ASYNC
+
   const select = e.target;
+
   await updateStoryboardCard(select); // <-- AWAITED
+
   await setDynamicTitle?.(); // <-- AWAITED
+
   await saveStoryboardSelection();
+
   if (typeof _suppressNextBlur !== "undefined") {
+
     _suppressNextBlur = false;
+
   }
+
+
 
   try {
+
     const card = select.closest(".storyboard-card");
+
     const left = card?.querySelector(".storyboard-card-left");
+
     const type = card?.dataset?.type || "";
+
     const id = select.value || "";
+
     if (type && id && typeof entities.get === "function") {
+
       const entity = await entities.get(type, id); // <-- AWAITED
+
       if (entity) {
+
         applyBrand?.(left, entity);
+
         (function applyCardBrandShim() {
+
           const brand = deriveBrand ? deriveBrand(entity) : null;
+
           if (brand && card && card.style)
+
             card.style.setProperty("--brand", brand);
+
         })();
+
       }
+
     }
+
   } catch {
+
     /* noop */
+
   }
+
 }
 
+
+
 export async function _attachStoryboardListeners() { // <-- MADE ASYNC
+
   await populateStoryboardSelects(); // <-- AWAITED
+
   _setupStoryboardTitle();
+
   const title = document.querySelector("#storyboard-dynamic-title");
+
   if (title) {
+
     title.addEventListener("input", () => {
+
       title.dataset.manual = "true";
+
     });
+
     title.addEventListener("dblclick", async () => { // <-- async
+
       title.dataset.manual = "false";
+
       await setDynamicTitle(); // <-- await
+
     });
+
   }
+
   const shuffleBtn = document.querySelector("#shuffle-btn");
+
   if (shuffleBtn) {
+
     shuffleBtn.addEventListener("click", async () => { // <-- async
+
       [
+
         "storyboard-ai-select",
+
         "storyboard-user-select",
+
         "storyboard-world-select",
+
       ].forEach((id) => {
+
         const s = document.querySelector(`#${id}`);
+
         if (!s) return;
+
         const opts = Array.from(s.options).filter((o) => o.value);
+
         if (opts.length)
+
           s.value = opts[Math.floor(Math.random() * opts.length)].value;
+
         s.dispatchEvent(new Event("change", {
+
           bubbles: true
+
         }));
+
       });
+
       await setDynamicTitle?.(); // <-- await
+
     });
+
   }
+
   const storyboardScreen = document.querySelector("#storyboard-screen");
+
   const chatScreenContainer = document.querySelector("#chat-screen-container");
 
+
+
   async function beginStory() {
+
     const aiSelect = document.querySelector("#storyboard-ai-select");
+
     const userSelect = document.querySelector("#storyboard-user-select");
+
     const worldSelect = document.querySelector("#storyboard-world-select");
 
+
+
     if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
+
       const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
+
       const storyId = storyTitleEl?.textContent || "default-story";
+
       const characterId = aiSelect.value; // Correctly use the AI's character ID
+
       const worldId = worldSelect.value;
+
       const threadId = await App.threads.createFromSelection({ storyId, characterId, worldId });
 
+
+
       if (storyboardScreen) storyboardScreen.hidden = true;
+
       if (chatScreenContainer) chatScreenContainer.hidden = false;
 
+
+
       App.applyPatch({ ui: { fsm: "idle" } });
+
       await App.chat.render(threadId);
+
     } else {
+
       alert("Please select an AI character, your own character, and a world to begin the story.");
+
     }
+
   }
 
+
+
   const beginStoryBtn = document.querySelector("#begin-story");
+
   if (beginStoryBtn) {
+
     // Remove the old handler if it exists to prevent duplicate listeners
+
     if (beginStoryBtn._beginStoryHandler) {
+
       beginStoryBtn.removeEventListener('click', beginStoryBtn._beginStoryHandler);
+
     }
+
     // Attach the new handler and store its reference for the next time
+
     beginStoryBtn.addEventListener("click", beginStory);
+
     beginStoryBtn._beginStoryHandler = beginStory;
+
   }
+
   // Use for...of loop to handle async await inside
+
   const cards = document.querySelectorAll(".storyboard-card");
+
   for (const card of cards) { // <-- FOR...OF
+
     const type = card.dataset.entityType;
+
     const id = card.dataset.entityId || "";
+
     const entity = await entities.get?.(type, id); // <-- AWAITED
+
     updateStoryboardCard(card, entity);
+
   }
+
 }
 
 export function _attachOptionChinActions() {
