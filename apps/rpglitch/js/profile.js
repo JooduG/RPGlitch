@@ -153,9 +153,10 @@ export async function renderProfile(type, id) { // <-- Made this function async
     const copyHandler = async () => {
       // Use the correctly scoped 'id' and 'type' variables.
       const newEntity = await copyEntity?.(type, id);
-      if (newEntity && newEntity.id) {
+      if (newEntity) {
+        window.ephemeralEntity = newEntity;
         router.navigate(
-          `#form/${type}/${newEntity.id}?return=#profile/${type}/${newEntity.id}`
+          `#form/${type}/new?clone=true&return=#profile/${type}/${id}`
         );
       } else {
         console.error("Copy operation failed or returned no entity.");

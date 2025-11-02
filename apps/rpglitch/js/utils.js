@@ -46,18 +46,10 @@ export async function copyEntity(type, id) {
   // 3. Remove ID (so upsert creates a new one) and mark as custom
   delete newEntity.id; 
   newEntity.isPremade = false;
-  newEntity.name = `${newEntity.name || 'Untitled'} (Copy)`;
+  newEntity.name = `${newEntity.name || 'Untitled'} (Clone)`;
   newEntity.title = newEntity.name;
 
-  // 4. Save the new entity to the database
-  try {
-    const saved = await entities.upsert(type, newEntity);
-    console.log(`Copied entity:`, saved);
-    return saved;
-  } catch (err) {
-    console.error(`Failed to save copied entity:`, err);
-    return null;
-  }
+  return newEntity;
 }
 
 export function escapeHtml(str) {

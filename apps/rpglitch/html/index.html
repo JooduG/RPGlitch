@@ -136,7 +136,7 @@
           <li><button class="secondary" id="profile-edit">Edit</button></li>
           <li>
             <button class="secondary" id="profile-copy">
-              Copy &amp; Customise
+              Clone
             </button>
           </li>
           <li><button class="primary" id="profile-back">Back</button></li>
@@ -275,21 +275,18 @@
         </div>
         <div id="chin-world-grid" class="chin-grid">
           <!-- Chin Card Template -->
-          <template id="chin-card-template">
-            <div class="chin-card" role="button" tabindex="0" aria-label="">
-              <div class="media">
+          <template id="unified-card-template">
+            <div class="card" role="button" tabindex="0" aria-label="">
+              <div class="card-media">
                 <!-- picture gets injected here -->
-                <div class="badge" hidden>Premade</div>
               </div>
-              <article>
-                <header>
-                  <h4 class="title"></h4>
-                </header>
-                <div class="body">
-                  <p class="description"></p>
-                </div>
-                <footer></footer>
-              </article>
+              <div class="card-body">
+                <h4 class="card-title"></h4>
+                <p class="card-description"></p>
+              </div>
+              <div class="card-footer">
+                <!-- chips go here -->
+              </div>
             </div>
           </template>
 
@@ -385,75 +382,9 @@
         </div>
 
         <div id="storyboard-grid">
-          <div
-            class="storyboard-card empty-card"
-            id="storyboard-card-ai"
-            data-type="character">
-            <div class="storyboard-card-left"></div>
-
-            <article class="storyboard-card-right">
-              <header>
-                <select
-                  id="storyboard-ai-select"
-                  class="storyboard-card-title"
-                  aria-label="Choose AI Character"
-                  data-placeholder="Select AI Character…">
-                  <option value="" class="storyboard-card-title-placeholder">
-                    Select AI Character…
-                  </option>
-                </select>
-              </header>
-              <p class="desc">Select an AI character for your story...</p>
-            </article>
-          </div>
-
-          <div
-            class="storyboard-card empty-card"
-            id="storyboard-card-user"
-            data-type="character">
-            <div class="storyboard-card-left"></div>
-            <article class="storyboard-card-right">
-              <header>
-                <select
-                  id="storyboard-user-select"
-                  class="storyboard-card-title"
-                  aria-label="Choose User Character"
-                  data-placeholder="Select Your Character…">
-                  <option value="" class="storyboard-card-title-placeholder">
-                    Select Your Character…
-                  </option>
-                </select>
-              </header>
-              <p class="desc">Select your character for the story...</p>
-              <footer>
-                <small><!-- Premade Tag --></small>
-              </footer>
-            </article>
-          </div>
-
-          <div
-            class="storyboard-card empty-card"
-            id="storyboard-card-world"
-            data-type="world">
-            <div class="storyboard-card-left"></div>
-            <article class="storyboard-card-right">
-              <header>
-                <select
-                  id="storyboard-world-select"
-                  class="storyboard-card-title"
-                  aria-label="Choose World"
-                  data-placeholder="Select World…">
-                  <option value="" class="storyboard-card-title-placeholder">
-                    Select World…
-                  </option>
-                </select>
-              </header>
-              <p class="desc">Select a world for your story...</p>
-              <footer>
-                <small><!-- Premade Tag --></small>
-              </footer>
-            </article>
-          </div>
+          <div class="card storyboard-card empty-card" id="storyboard-card-ai" data-type="character"></div>
+          <div class="card storyboard-card empty-card" id="storyboard-card-user" data-type="character"></div>
+          <div class="card storyboard-card empty-card" id="storyboard-card-world" data-type="world"></div>
         </div>
       </div>
 

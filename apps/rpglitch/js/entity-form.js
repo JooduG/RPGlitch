@@ -49,14 +49,27 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   const sb = document.querySelector("#storyboard-screen");
   if (sb) hideEl(sb);
 
-  const isEdit = id && id !== "new";
   const params = getHashQuery();
-  const from = params.get("from");
-  
-  // v-- AWAITED ASYNC FUNCTIONS --v
-  const template = !isEdit && from ? await entities.copy(type, from) : null;
-  const existing = isEdit ? await entities.get(type, id) : template;
-  // ^-- END AWAITED --^
+  const isClone = params.get("clone") === "true";
+  let isEdit = id && id !== "new";
+
+  let existing;
+  if (isClone && window.ephemeralEntity) {
+    existing = window.ephemeralEntity;
+    window.ephemeralEntity = null; // Clear the ephemeral entity
+    isEdit = false; // Treat it as a new entity
+    id = "new"; // Set id to "new" to ensure it's treated as a new entity
+  } else {
+    const from = params.get("from");
+    const template = !isEdit && from ? await entities.copy(type, from) : null;
+    existing = isEdit ? await entities.get(type, id) : template;
+  }
+
+  if (!existing && isEdit) {
+    console.warn(`Entity not found for form: ${type}/${id}. Redirecting.`);
+    router.navigate("#");
+    return;
+  }
 
   const screenId =
     type === "character" ? "character-form-screen" : "world-form-screen";
@@ -66,6 +79,7 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   const entity = { ...(existing || {}),
     kind: type
   };
+
   screen.textContent = "";
 
   const heroWrap = buildHero(entity);

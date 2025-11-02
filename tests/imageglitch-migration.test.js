@@ -50,7 +50,7 @@ describe('ImageGlitch IndexedDB Migration', () => {
     // Define localStorage property on window - try direct assignment first
     try {
       delete global.window.localStorage;
-    } catch (e) { /* ignore */ }
+    } catch { /* ignore */ }
     global.window.localStorage = mockLocalStorage;
 
     // Mock Dexie database
@@ -106,8 +106,7 @@ describe('ImageGlitch IndexedDB Migration', () => {
       'instructionsVisible': 'true',
     };
 
-    // Import the db module to trigger migration setup
-    const { db } = await import('../apps/imageglitch/js/db.js');
+    await import('../apps/imageglitch/js/db.js');
 
     // Get the upgrade callback that was stored
     const upgradeFunc = mockDb._upgradeCallback;
@@ -149,9 +148,7 @@ describe('ImageGlitch IndexedDB Migration', () => {
 
   test('Migration handles empty localStorage gracefully', async () => {
     // Setup: Empty localStorage
-    mockLocalStorage.data = {};
-
-    const { db } = await import('../apps/imageglitch/js/db.js');
+    await import('../apps/imageglitch/js/db.js');
 
     const upgradeFunc = mockDb._upgradeCallback;
 
@@ -183,7 +180,7 @@ describe('ImageGlitch IndexedDB Migration', () => {
       'mainPromptContent': 'Should not be migrated',
     };
 
-    const { db } = await import('../apps/imageglitch/js/db.js');
+    await import('../apps/imageglitch/js/db.js');
 
     const upgradeFunc = mockDb._upgradeCallback;
 
@@ -213,7 +210,7 @@ describe('ImageGlitch IndexedDB Migration', () => {
       'imgSeed': '99999',
     };
 
-    const { db } = await import('../apps/imageglitch/js/db.js');
+    await import('../apps/imageglitch/js/db.js');
 
     const upgradeFunc = mockDb._upgradeCallback;
 
@@ -241,7 +238,7 @@ describe('ImageGlitch IndexedDB Migration', () => {
       'instructionsVisible': 'false',
     };
 
-    const { db } = await import('../apps/imageglitch/js/db.js');
+    await import('../apps/imageglitch/js/db.js');
 
     const upgradeFunc = mockDb._upgradeCallback;
 
@@ -267,7 +264,7 @@ describe('ImageGlitch IndexedDB Migration', () => {
       'masterCreativity': '0', // Edge case: minimum creativity
     };
 
-    const { db } = await import('../apps/imageglitch/js/db.js');
+    await import('../apps/imageglitch/js/db.js');
 
     const upgradeFunc = mockDb._upgradeCallback;
 

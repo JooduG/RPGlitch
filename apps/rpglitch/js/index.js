@@ -483,6 +483,8 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
   const container = document.querySelector(`#${containerId}`);
   if (!container) return;
 
+  container.setAttribute("aria-busy", "true");
+
   container
     .querySelectorAll('img.entity-image[src^="blob:"]')
     .forEach((img) => {
@@ -505,10 +507,11 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
       "No worlds found yet" :
       "No items found";
     container.appendChild(message);
+    container.setAttribute("aria-busy", "false");
     return;
   }
 
-  const tpl = document.querySelector("#chin-card-template");
+  const tpl = document.querySelector("#unified-card-template");
 
   all.forEach((item) => {
     let card;
@@ -518,29 +521,28 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
     } else {
       // Fallback: create card structure using DOM API
       card = document.createElement("div");
-      card.className = "chin-card";
+      card.className = "card";
 
       const media = document.createElement("div");
-      media.className = "media";
+      media.className = "card-media";
 
       const body = document.createElement("div");
-      body.className = "body";
+      body.className = "card-body";
+
+      const title = document.createElement("h4");
+      title.className = "card-title";
+      body.appendChild(title);
 
       const desc = document.createElement("p");
-      desc.className = "description";
+      desc.className = "card-description";
       body.appendChild(desc);
+
+      const footer = document.createElement("div");
+      footer.className = "card-footer";
 
       card.appendChild(media);
       card.appendChild(body);
-
-      const t = document.createElement("h4");
-      t.className = "title";
-      media.appendChild(t);
-
-      const b = document.createElement("div");
-      b.className = "badge";
-      b.hidden = true;
-      media.appendChild(b);
+      card.appendChild(footer);
     }
 
     card.dataset.title = item.title || item.name || "Empty";
@@ -554,7 +556,7 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
 
     card.setAttribute("aria-label", item.title || "Open");
 
-    const media = card.querySelector(".media");
+    const media = card.querySelector(".card-media");
     if (typeof getPictureHTML === "function") {
       const maybe = getPictureHTML(item, {
         cover: true
@@ -576,7 +578,8 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
       void e;
     }
 
-    if (media) {
+    const footer = card.querySelector(".card-footer");
+    if (footer) {
       const row = document.createElement("div");
       row.className = "chip-row";
       const chips = [];
@@ -590,16 +593,13 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
         span.appendChild(sm);
         row.appendChild(span);
       });
-      media.appendChild(row);
+      footer.appendChild(row);
     }
 
-    const titleEl = card.querySelector(".title");
+    const titleEl = card.querySelector(".card-title");
     if (titleEl) titleEl.textContent = item.title || item.name || "Empty";
 
-    const badge = card.querySelector(".badge");
-    if (badge) badge.hidden = !item.isPremade;
-
-    const descEl = card.querySelector(".description");
+    const descEl = card.querySelector(".card-description");
     if (descEl) {
       descEl.textContent = item.description ? item.description : "";
       descEl.classList.add("muted");
@@ -622,11 +622,15 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
     frag.appendChild(card);
   });
   container.appendChild(frag);
+  container.setAttribute("aria-busy", "false");
 }
 
 async function renderDropdown(doc, selectId, key) { // <-- MADE ASYNC
   const select = doc.querySelector(`#${selectId}`);
   if (!select) return;
+
+  select.setAttribute("aria-busy", "true");
+
   const existingPlaceholder = select.querySelector('option[value=""]');
   const placeholderText = existingPlaceholder ?
     existingPlaceholder.textContent :
@@ -660,6 +664,8 @@ async function renderDropdown(doc, selectId, key) { // <-- MADE ASYNC
   });
   if (premadeCount > 0) select.appendChild(premadeGroup);
   if (customCount > 0) select.appendChild(customGroup);
+
+  select.setAttribute("aria-busy", "false");
 }
 
 export async function renderStoryList() { // <-- MADE ASYNC
@@ -888,24 +894,24 @@ export function _attachCardNavigation() {
   _cardNavAttached = true;
 }
 
+
+
 async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MADE ASYNC
   let card, entity;
 
   if (target && target.tagName === "SELECT") {
     const select = target;
-    card = select.closest(".storyboard-card");
+    card = select.closest(".card");
     const type =
       card?.dataset?.type ||
       select.dataset.entityType ||
       select.dataset.type ||
       "";
     const id = select.value || "";
-    // const key = entityOrKey; // No longer needed
 
     if (id) {
       try {
-        // Get the single entity asynchronously
-        entity = await entities.get(type, id); // <-- AWAITED
+        entity = await entities.get(type, id);
       } catch (error) {
         console.error(`Failed to load ${type}:`, error);
         alert(`Could not load ${type} details. Please try again.`);
@@ -922,10 +928,16 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
 
   if (!card) return;
 
-  const left = card.querySelector(".storyboard-card-left");
-  const descEl = card.querySelector(".storyboard-card-right .desc");
-  const tag = card.querySelector("footer small");
-  const select = card.querySelector("select");
+  const tpl = document.querySelector("#unified-card-template");
+  if (tpl && tpl.content) {
+    const newCard = tpl.content.firstElementChild.cloneNode(true);
+    card.innerHTML = newCard.innerHTML;
+  }
+
+  const media = card.querySelector(".card-media");
+  const titleEl = card.querySelector(".card-title");
+  const descEl = card.querySelector(".card-description");
+  const footer = card.querySelector(".card-footer");
 
   if (descEl && !descEl.dataset.placeholder) {
     descEl.dataset.placeholder = descEl.textContent || "";
@@ -989,64 +1001,53 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
   };
 
   if (entity) {
+    if (titleEl) titleEl.textContent = entity.name || entity.title || "Empty";
     if (descEl) descEl.textContent = entity.description || "";
-    if (tag) {
-      tag.textContent = "";
-      tag.style.display = "none";
+    if (media) {
+      media.textContent = "";
+      media.appendChild(buildPictureNode(entity));
+      applyBrand?.(media, entity);
     }
-    if (left) {
-      left.textContent = "";
-      left.appendChild(buildPictureNode(entity));
-      applyBrand?.(left, entity);
-    }
-    try {
-      const footer = card.querySelector(".storyboard-card-right footer");
-      if (footer) {
-        footer.querySelectorAll(".chip").forEach((n) => n.remove());
-        if (entity.isPremade) {
-          const pill = document.createElement("span");
-          pill.className = "chip";
-          const sm = document.createElement("small");
-          sm.textContent = "Premade";
-          pill.appendChild(sm);
-          footer.appendChild(pill);
-        }
+    if (footer) {
+      footer.querySelectorAll(".chip").forEach((n) => n.remove());
+      if (entity.isPremade) {
+        const pill = document.createElement("span");
+        pill.className = "chip";
+        const sm = document.createElement("small");
+        sm.textContent = "Premade";
+        pill.appendChild(sm);
+        footer.appendChild(pill);
       }
-    } catch {
-      /* noop */
     }
     applyBrand(card, entity);
     card.dataset.entityType = card.dataset.type || entity.kind || "";
     card.dataset.entityId = entity.id;
+    const select = card.querySelector("select");
     if (select && select.value !== String(entity.id)) {
       select.value = String(entity.id);
     }
-    // Apply 'selected' class if this card is the active one
     if (App.state.ui.selectedStoryboardCard && App.state.ui.selectedStoryboardCard.id === entity.id && App.state.ui.selectedStoryboardCard.type === entity.type) {
       card.classList.add('selected');
     } else {
       card.classList.remove('selected');
     }
   } else {
+    if (titleEl) titleEl.textContent = card.dataset.placeholder || "";
     if (descEl) descEl.textContent = descEl.dataset.placeholder || "";
-    if (tag) tag.textContent = "";
-    if (left) {
-      left.textContent = "";
-      left.appendChild(buildPictureNode({
+    if (media) {
+      media.textContent = "";
+      media.appendChild(buildPictureNode({
         kind: card.dataset.type
       }));
       card?.style?.removeProperty("--brand");
-      left?.style?.removeProperty("--brand");
+      media?.style?.removeProperty("--brand");
     }
-    try {
-      const footer = card.querySelector(".storyboard-card-right footer");
-      if (footer) footer.querySelectorAll(".chip").forEach((n) => n.remove());
-    } catch {
-      /* noop */
-    }
-    card.classList.remove('selected'); // Remove selected class if no entity    delete card.dataset.entityType;
+    if (footer) footer.querySelectorAll(".chip").forEach((n) => n.remove());
+    card.classList.remove('selected');
+    delete card.dataset.entityType;
     delete card.dataset.entityId;
 
+    const select = card.querySelector("select");
     if (select && select.value !== "") {
       select.value = "";
       select.dispatchEvent(new Event("change", {
