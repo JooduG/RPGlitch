@@ -204,7 +204,7 @@ article header {
 .chin {
   left: var(--app-container-pad);
   right: var(--app-container-pad);
-  top: calc(1rem + var(--top-bar-height) + 1rem);
+  top: calc(2rem + var(--top-bar-height));
   color: #fff;
   padding: 1.5rem;
   border-radius: 0 0 var(--pico-radius) var(--pico-radius);

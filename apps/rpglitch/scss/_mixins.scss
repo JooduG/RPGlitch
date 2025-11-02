@@ -12,7 +12,16 @@
   }
 }
 
-@mixin custom-scrollbar($thumb-color: rgb(0 0 0 / 50%), $track-color: transparent) {
+@mixin custom-scrollbar(
+  $thumb-color: rgb(0 0 0 / 50%),
+  $track-color: transparent,
+  $thumb-hover-color: rgb(0 0 0 / 70%)
+) {
+  // For Firefox
+  scrollbar-width: thin;
+  scrollbar-color: $thumb-color $track-color;
+
+  // For Webkit-based browsers
   &::-webkit-scrollbar {
     width: 8px;
   }
@@ -25,6 +34,11 @@
     background-color: $thumb-color;
     border-radius: 4px;
     border: 2px solid $track-color;
+    transition: background-color 0.2s ease;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: $thumb-hover-color;
   }
 }
 
@@ -36,8 +50,15 @@
     transform 0.3s ease,
     box-shadow 0.3s ease;
 
-  &:hover {
+  &:hover,
+  &:has(:focus-visible) {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgb(0 0 0 / 20%);
+  }
+
+  &:has(:focus-visible) {
+    box-shadow:
+      0 0 0 2px var(--pico-primary-focus),
+      0 6px 16px rgb(0 0 0 / 20%);
   }
 }

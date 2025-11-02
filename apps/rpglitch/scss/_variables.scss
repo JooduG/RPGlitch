@@ -45,22 +45,25 @@ $breakpoint-tablet: 1024px;
 
 /* Each palette exposes ONE base color + useful derivatives */
 .palette-pink {
-  --brand: #ec4899;
-  --brand-10: #{color.mix(#ec4899, transparent, 10%)};
-  --brand-20: #{color.mix(#ec4899, transparent, 20%)};
+  $brand-color: #ec4899;
+  --brand: #{$brand-color};
+  --brand-10: #{color.mix($brand-color, transparent, 10%)};
+  --brand-20: #{color.mix($brand-color, transparent, 20%)};
   --brand-contrast: var(--brand-text-on);
 }
 
 .palette-emerald {
-  --brand: #10b981;
-  --brand-10: #{color.mix(#10b981, transparent, 10%)};
-  --brand-20: #{color.mix(#10b981, transparent, 20%)};
+  $brand-color: #10b981;
+  --brand: #{$brand-color};
+  --brand-10: #{color.mix($brand-color, transparent, 10%)};
+  --brand-20: #{color.mix($brand-color, transparent, 20%)};
   --brand-contrast: var(--brand-text-on);
 }
 
 .palette-cyan {
-  --brand: #06b6d4;
-  --brand-10: #{color.mix(#06b6d4, transparent, 10%)};
-  --brand-20: #{color.mix(#06b6d4, transparent, 20%)};
+  $brand-color: #06b6d4;
+  --brand: #{$brand-color};
+  --brand-10: #{color.mix($brand-color, transparent, 10%)};
+  --brand-20: #{color.mix($brand-color, transparent, 20%)};
   --brand-contrast: var(--brand-text-on);
 }
