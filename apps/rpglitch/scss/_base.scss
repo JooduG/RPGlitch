@@ -1,3 +1,4 @@
+@use "sass:color";
 @use "variables" as *;
 
 // This file will contain base styles, like resets and default typography.
@@ -5,16 +6,40 @@
 :root {
   --app-container-max: 1200px;
   --app-container-pad: 1rem;
+  --header-height: 6rem;
+  --dark-background-rgb: 35 36 58;
+
+  /* Z-index scale */
+  --z-base: 1;
+  --z-chip: 3;
+  --z-content: 5;
+  --z-header: 10;
+  --z-dropdown: 100;
+  --z-overlay: 1000;
+  --z-chin-container: 9998;
+  --z-chin: 9999;
+  --z-modal: 10000;
 }
 
-html {
-  scroll-behavior: smooth;
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 html,
 body {
   pointer-events: auto;
-  z-index: 1;
+  z-index: var(--z-base);
   height: 100%;
   overflow: hidden;
   background: linear-gradient(
@@ -55,7 +80,7 @@ dialog:not([open]) {
 }
 
 dialog[open] {
-  z-index: var(--z-overlay, 10000);
+  z-index: var(--z-modal);
   pointer-events: auto;
 }
 
@@ -122,7 +147,7 @@ button,
 [type="button"],
 [type="submit"],
 [role="button"] {
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:not(:disabled):hover {
     transform: translateY(-1px);
@@ -172,7 +197,7 @@ button.danger,
   font-weight: 600;
 
   &:not(:disabled):hover {
-    background: color-mix(in srgb, var(--pico-del-color, #dc3545), black 10%);
-    box-shadow: 0 6px 12px hsl(from var(--pico-del-color, #dc3545) h s l / 30%);
+    background: color.mix($pico-del-color, black, 90%);
+    box-shadow: 0 6px 12px rgba($pico-del-color, 0.3);
   }
 }
