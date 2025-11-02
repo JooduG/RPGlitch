@@ -76,7 +76,8 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   const screen = document.querySelector(`#${screenId}`);
   if (!screen) return;
 
-  const entity = { ...(existing || {}),
+  const entity = {
+    ...(existing || {}),
     kind: type
   };
 
@@ -94,16 +95,16 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
 
   const form = document.createElement("form");
 
-  const titleInput = document.createElement("input");
-  titleInput.name = "name";
-  titleInput.required = true;
-  titleInput.value = entity.name || "";
-  form.appendChild(createField("name", "Title", titleInput));
+  const nameInput = document.createElement("input");
+  nameInput.name = "name";
+  nameInput.required = true;
+  nameInput.value = entity.name || "";
+  form.appendChild(createField("name", "Name", nameInput));
 
-  const summaryInput = document.createElement("input");
-  summaryInput.name = "summary";
-  summaryInput.value = entity.summary || "";
-  form.appendChild(createField("summary", "Summary", summaryInput));
+  const descriptionInput = document.createElement("input");
+  descriptionInput.name = "description";
+  descriptionInput.value = entity.description || "";
+  form.appendChild(createField("description", "Description", descriptionInput));
 
   const imageInput = document.createElement("input");
   imageInput.name = "imageUrl";
@@ -182,13 +183,13 @@ if (saveBtn) {
   //    function's scope so it correctly closes over the new 'type' and 'id'.
   const saveHandler = async () => {
     try {
-      // SECURITY NOTE: This section correctly sanitizes user inputs (titleInput.value, summaryInput.value, etc.)
+      // SECURITY NOTE: This section correctly sanitizes user inputs (nameInput.value, descriptionInput.value, etc.)
       // using the global 'escapeHtml' (DOMPurify wrapper). DO NOT REMOVE.
 
       const data = {
         kind: type,
-        name: escapeHtml(titleInput.value.trim()),
-        summary: escapeHtml(summaryInput.value.trim()),
+        name: escapeHtml(nameInput.value.trim()),
+        description: escapeHtml(descriptionInput.value.trim()),
         imageUrl: escapeHtml(imageInput.value.trim()),
         image: escapeHtml(imageInput.value.trim()),
         tags: tagsInput.value
@@ -227,7 +228,7 @@ if (saveBtn) {
 }
 
   if (!isEdit) {
-    setTimeout(() => titleInput.focus(), 0);
+    setTimeout(() => nameInput.focus(), 0);
   }
 }
 

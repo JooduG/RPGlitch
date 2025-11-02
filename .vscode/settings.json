@@ -12,5 +12,8 @@
     "**/Thumbs.db": true,
     "**/build/local_libs/**": true,
     "**/node_modules/**": true
-  }
+  },
+  "css.validate": true,
+  "html.validate.styles": false,
+  "css.lint.unknownAtRules": "ignore"
 }

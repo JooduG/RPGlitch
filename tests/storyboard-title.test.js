@@ -1,8 +1,8 @@
 const mockCharacters = [
-  { id: 'a1', title: 'Alice', isPremade: true },
-  { id: 'u1', title: 'Bob', isPremade: false }
+  { id: 'a1', name: 'Alice', isPremade: true },
+  { id: 'u1', name: 'Bob', isPremade: false }
 ];
-const mockWorlds = [{ id: 'w1', title: 'Mars', isPremade: true }];
+const mockWorlds = [{ id: 'w1', name: 'Mars', isPremade: true }];
 
 jest.mock('../apps/rpglitch/js/entities.js', () => ({
   getPremadeItems: jest.fn().mockImplementation(key => {
@@ -50,20 +50,20 @@ test('default storyboard title adapts to selections', async () => {
   const { App } = await loadApp();
   // Use global.document directly
   document.body.innerHTML = `
-    <select id="storyboard-ai-select"><option value=""></option><option value="a1">Alice</option></select>
-    <select id="storyboard-user-select"><option value=""></option><option value="u1">Bob</option></select>
-    <select id="storyboard-world-select"><option value=""></option><option value="w1">Mars</option></select>
+    <select id="storyboard-card-ai-select"><option value=""></option><option value="a1">Alice</option></select>
+    <select id="storyboard-card-user-select"><option value=""></option><option value="u1">Bob</option></select>
+    <select id="storyboard-card-world-select"><option value=""></option><option value="w1">Mars</option></select>
   `;
 
   await App.initializeWhenReady();
   const originalRandom = window.Math.random; // Use global window
   window.Math.random = () => 0; // Use global window
   expect(await App._defaultStoryboardTitle()).toBe('Your story begins…');
-  document.getElementById('storyboard-ai-select').value = 'a1';
+  document.getElementById('storyboard-card-ai-select').value = 'a1';
   expect(await App._defaultStoryboardTitle()).toBe('Once upon a time Alice');
-  document.getElementById('storyboard-user-select').value = 'u1';
+  document.getElementById('storyboard-card-user-select').value = 'u1';
   expect(await App._defaultStoryboardTitle()).toBe('Once upon a time Alice & Bob');
-  document.getElementById('storyboard-world-select').value = 'w1';
+  document.getElementById('storyboard-card-world-select').value = 'w1';
   expect(await App._defaultStoryboardTitle()).toBe('Once upon a time Alice & Bob in Mars');
   window.Math.random = originalRandom; // Use global window
 });

@@ -6,7 +6,7 @@ const premade = {
   stories: [],
   characters: [{
     id: "char-1",
-    title: "Aether Blade",
+    name: "Aether Blade",
     description: "Cybernetic warrior forging light into weapons.",
     type: "Character",
     palette: "cyan",
@@ -18,7 +18,7 @@ const premade = {
     },
   }, {
     id: "char-2",
-    title: "Mystic Bard",
+    name: "Mystic Bard",
     description: "Traveling musician who weaves spells with song.",
     type: "Character",
     palette: "pink",
@@ -30,7 +30,7 @@ const premade = {
     },
   }, {
     id: "char-3",
-    title: "Clockwork Rogue",
+    name: "Clockwork Rogue",
     description: "Stealthy thief powered by ticking gears.",
     type: "Character",
     palette: "emerald",
@@ -42,7 +42,7 @@ const premade = {
     },
   }, {
     id: "char-4",
-    title: "Shadow Whisperer",
+    name: "Shadow Whisperer",
     description: "Mysterious figure communing with darkness.",
     type: "Character",
     palette: "cyan",
@@ -55,7 +55,7 @@ const premade = {
   }, ],
   worlds: [{
     id: "world-1",
-    title: "Eldoria",
+    name: "Eldoria",
     description: "Floating isles bound by ancient magic.",
     type: "World",
     palette: "emerald",
@@ -67,7 +67,7 @@ const premade = {
     },
   }, {
     id: "world-2",
-    title: "Neo Arcadia",
+    name: "Neo Arcadia",
     description: "Futuristic metropolis built on dream tech.",
     type: "World",
     palette: "pink",
@@ -133,7 +133,7 @@ function getContrast(color) {
 function getBrand(entity = {}) {
   if (entity.palette?.brand) return entity.palette.brand;
   const seed = [
-    entity.name || entity.title || "",
+    entity.name || "",
     ...(entity.tags || []),
   ].join(",");
   return getDeterministicColor(seed || entity.id || entity.kind || "");
@@ -150,7 +150,7 @@ export function getPictureHTML(entity = {}, options = {}) {
     cover,
     neutralPlaceholder = false
   } = options;
-  const title = entity.title || entity.name || "Empty";
+  const title = entity.name || "Empty";
   // Ensure 'kind' is derived correctly, defaulting to 'default'
   const kind = (entity.kind || entity.type || 'default').toLowerCase();
   const src =
@@ -194,10 +194,8 @@ export function getPictureHTML(entity = {}, options = {}) {
 // --- NEW: Data Normalization (pulled from old 'normalize') ---
 // This prepares data to be saved to the database.
 function normalize(base = {}) {
-  const nameOrTitle = sanitizeHtml(base.name || base.title || "").trim();
-  const summaryOrDesc = sanitizeHtml(
-    base.summary || base.description || ""
-  ).trim();
+  const nameOrTitle = sanitizeHtml(base.name || "").trim();
+  const summaryOrDesc = sanitizeHtml(base.description || "").trim();
   const image = sanitizeHtml(base.imageUrl || base.image || "").trim();
 
   const sections = base.sections || {};
@@ -219,8 +217,6 @@ function normalize(base = {}) {
 
   return {
     name: nameOrTitle,
-    title: nameOrTitle,
-    summary: summaryOrDesc,
     description: summaryOrDesc,
     imageUrl: image,
     image,

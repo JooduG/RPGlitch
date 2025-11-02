@@ -29,7 +29,7 @@ export function generateUUID() {
  */
 export async function copyEntity(type, id) {
   console.log(`Attempting to copy entity of type ${type} with id ${id}`);
-  
+
   // 1. Get the entity asynchronously
   const entityToCopy = await entities.get(type, id);
   if (!entityToCopy) {
@@ -38,16 +38,15 @@ export async function copyEntity(type, id) {
   }
 
   // 2. Create the new entity object
-  const newEntity = { 
+  const newEntity = {
     ...entityToCopy,
     sections: { ...entityToCopy.sections } // Deep copy sections
   };
-  
+
   // 3. Remove ID (so upsert creates a new one) and mark as custom
-  delete newEntity.id; 
+  delete newEntity.id;
   newEntity.isPremade = false;
   newEntity.name = `${newEntity.name || 'Untitled'} (Clone)`;
-  newEntity.title = newEntity.name;
 
   return newEntity;
 }
@@ -709,7 +708,7 @@ export function deriveBrand(entity = {}) {
     if (entity.color) return entity.color;
   }
   const seed =
-    [entity?.name || entity?.title || "", ...(entity?.tags || [])].join(
+    [entity?.name || "", ...(entity?.tags || [])].join(
       ","
     ) ||
     entity?.id ||

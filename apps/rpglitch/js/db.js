@@ -161,6 +161,37 @@ db.version(5).stores({
   }
 });
 
+// Version 6: Rename 'summary' field to 'description' for consistency
+db.version(6).stores({
+  entities: '++id, name, type, updated, avatar, persona, scenario, tags, createdAt, updatedAt, isSelected, [type+isCustom]',
+  threads: '++id, characterId, title, settingsSnapshot, createdAt, updatedAt',
+  messages: '++id, threadId, role, text, seed, meta, createdAt',
+  settings: 'id',
+}).upgrade(async (trans) => {
+  try {
+    console.log('[RPGlitch DB Migration] Starting migration v6: summary → description...');
+
+    const entities = trans.table('entities');
+    const allEntities = await entities.toArray();
+
+    let migrated = 0;
+    for (const entity of allEntities) {
+      // Rename 'summary' to 'description' if it exists
+      if ('summary' in entity && !('description' in entity)) {
+        entity.description = entity.summary;
+        delete entity.summary;
+        await entities.put(entity);
+        migrated++;
+      }
+    }
+
+    console.log(`[RPGlitch DB Migration] Migration v6 completed: ${migrated} entities updated.`);
+  } catch (err) {
+    console.error('[RPGlitch DB Migration v6] Failed:', err);
+    // Don't throw - allow app to continue
+  }
+});
+
 /**
  * Initializes the database connection.
  * If the database has a corrupt schema, delete it and recreate fresh.

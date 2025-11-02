@@ -545,7 +545,7 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
       card.appendChild(footer);
     }
 
-    card.dataset.title = item.title || item.name || "Empty";
+    card.dataset.title = item.name || "Empty";
     if (item.id) {
       card.dataset.id = item.id;
       card.dataset.type = key.slice(0, -1);
@@ -554,7 +554,7 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
     }
     if (item.isPremade) card.dataset.premade = "true";
 
-    card.setAttribute("aria-label", item.title || "Open");
+    card.setAttribute("aria-label", item.name || "Open");
 
     const media = card.querySelector(".card-media");
     if (typeof getPictureHTML === "function") {
@@ -597,7 +597,7 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
     }
 
     const titleEl = card.querySelector(".card-title");
-    if (titleEl) titleEl.textContent = item.title || item.name || "Empty";
+    if (titleEl) titleEl.textContent = item.name || "Empty";
 
     const descEl = card.querySelector(".card-description");
     if (descEl) {
@@ -641,7 +641,6 @@ async function renderDropdown(doc, selectId, key) { // <-- MADE ASYNC
     doc.createElement("option");
   placeholder.value = "";
   placeholder.textContent = placeholderText;
-  select.textContent = "";
   select.appendChild(placeholder);
   const items = await getAllItems(key); // <-- AWAITED
   const premadeGroup = doc.createElement("optgroup");
@@ -652,8 +651,8 @@ async function renderDropdown(doc, selectId, key) { // <-- MADE ASYNC
   let customCount = 0;
   items.forEach((item) => {
     const option = document.createElement("option");
-    option.value = item.id || item.title;
-    option.textContent = item.title || "";
+    option.value = item.id || item.name;
+    option.textContent = item.name || "";
     if (item.isPremade) {
       premadeGroup.appendChild(option);
       premadeCount += 1;
@@ -774,8 +773,8 @@ export function _attachCardNavigation() {
         select.click();
       } catch {
         /* noop */
+        }
       }
-    }
 
     storyboard.addEventListener("click", async (e) => { // <-- MADE ASYNC
       if (e.target.closest("select, button, a, input, textarea")) return;
@@ -808,13 +807,9 @@ export function _attachCardNavigation() {
       }
 
       if (!id && select) {
-        e.preventDefault();
-        e.stopPropagation();
-
         _suppressNextBlur = true;
 
         requestAnimationFrame(() => {
-          openSelectSafely(select);
           setTimeout(() => {
             _suppressNextBlur = false;
           }, 1200);
@@ -838,8 +833,8 @@ export function _attachCardNavigation() {
 
       if (!id && select) {
         _suppressNextBlur = true;
+
         requestAnimationFrame(() => {
-          openSelectSafely(select);
           setTimeout(() => {
             _suppressNextBlur = false;
           }, 1200);
@@ -876,18 +871,6 @@ export function _attachCardNavigation() {
         });
         c._navBound = true;
       }
-    });
-
-    ["mousedown", "pointerdown", "click"].forEach((evt) => {
-      storyboard.addEventListener(
-        evt,
-        (ev) => {
-          if (ev.target.closest("select")) {
-            ev.stopPropagation();
-          }
-        },
-        true
-      );
     });
   }
 
@@ -928,28 +911,52 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
 
   if (!card) return;
 
-  // Clear the card
-  card.innerHTML = '';
+  // Determine the card type and generate a unique select ID
+  const cardId = card.id; // e.g., "storyboard-card-ai", "storyboard-card-user", "storyboard-card-world"
+  const cardType = card.dataset?.type; // "character" or "world"
+  const selectId = cardId ? `${cardId}-select` : null;
 
-  const media = document.createElement("div");
-  media.className = "card-media";
-  card.appendChild(media);
+  // Check if card already has structure, if so, just update content
+  let media = card.querySelector(".card-media");
+  let body = card.querySelector(".card-body");
+  let titleEl = card.querySelector(".card-title");
+  let descEl = card.querySelector(".card-description");
+  let footer = card.querySelector(".card-footer");
 
-  const body = document.createElement("div");
-  body.className = "card-body";
-  card.appendChild(body);
+  // If card is empty, create the structure
+  if (!media || !body || !titleEl || !descEl || !footer) {
+    card.innerHTML = '';
 
-  const titleEl = document.createElement("select");
-  titleEl.className = "card-title";
-  body.appendChild(titleEl);
+    media = document.createElement("div");
+    media.className = "card-media";
+    card.appendChild(media);
 
-  const descEl = document.createElement("p");
-  descEl.className = "card-description";
-  body.appendChild(descEl);
+    body = document.createElement("div");
+    body.className = "card-body";
+    card.appendChild(body);
 
-  const footer = document.createElement("div");
-  footer.className = "card-footer";
-  card.appendChild(footer);
+    titleEl = document.createElement("select");
+    titleEl.className = "card-title";
+    if (selectId) titleEl.id = selectId;
+    titleEl.dataset.entityType = cardType;
+    titleEl.dataset.type = cardType;
+    body.appendChild(titleEl);
+
+    descEl = document.createElement("p");
+    descEl.className = "card-description";
+    body.appendChild(descEl);
+
+    footer = document.createElement("div");
+    footer.className = "card-footer";
+    card.appendChild(footer);
+
+    // Populate the select dropdown
+    const dataKey = cardType === "world" ? "worlds" : "characters";
+    await renderDropdown(document, selectId || titleEl.id, dataKey);
+
+    // Attach change event listener
+    titleEl.addEventListener("change", onStoryboardChange);
+  }
 
   if (descEl && !descEl.dataset.placeholder) {
     descEl.dataset.placeholder = descEl.textContent || "";
@@ -959,7 +966,7 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
     const kind = (ent && ent.kind) || "";
     const isEmpty = !ent || !ent.imageUrl;
 
-    const hasEntity = !!(ent && (ent.id || ent.title || ent.name));
+    const hasEntity = !!(ent && (ent.id || ent.name));
     if (preferTemplateForEmpty && isEmpty && !hasEntity) {
       const id = kind ?
         `tpl-storyboard-picture-${kind}` :
@@ -1013,7 +1020,6 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
   };
 
   if (entity) {
-    if (titleEl) titleEl.textContent = entity.name || entity.title || "Empty";
     if (descEl) descEl.textContent = entity.description || "";
     if (media) {
       media.textContent = "";
@@ -1044,7 +1050,6 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
       card.classList.remove('selected');
     }
   } else {
-    if (titleEl) titleEl.textContent = card.dataset.placeholder || "";
     if (descEl) descEl.textContent = descEl.dataset.placeholder || "";
     if (media) {
       media.textContent = "";
@@ -1090,15 +1095,15 @@ export async function _defaultStoryboardTitle() { // <-- MADE ASYNC
     // Use the async getAllItems instead of synchronous access
     const items = await getAllItems(key); // <-- AWAITED
     const item = items.find(
-      (i) => (i.id ?? i.title) === value
+      (i) => (i.id ?? i.name) === value
     );
-    return item ? item.title || null : null;
+    return item ? item.name || null : null;
   };
   // Await all title parts in parallel
   const [ai, user, world] = await Promise.all([ // <-- AWAITED
-    getTitle("storyboard-ai-select", "characters"),
-    getTitle("storyboard-user-select", "characters"),
-    getTitle("storyboard-world-select", "worlds")
+    getTitle("storyboard-card-ai-select", "characters"),
+    getTitle("storyboard-card-user-select", "characters"),
+    getTitle("storyboard-card-world-select", "worlds")
   ]);
 
   const subjects = [ai, user].filter(Boolean).join(" & ");
@@ -1182,11 +1187,11 @@ async function populateStoryboardSelects() {
 
   const configs = [
 
-    { id: "storyboard-ai-select", key: "characters", savedValue: selections.ai },
+    { id: "storyboard-card-ai-select", key: "characters", savedValue: selections.ai },
 
-    { id: "storyboard-user-select", key: "characters", savedValue: selections.user },
+    { id: "storyboard-card-user-select", key: "characters", savedValue: selections.user },
 
-    { id: "storyboard-world-select", key: "worlds", savedValue: selections.world },
+    { id: "storyboard-card-world-select", key: "worlds", savedValue: selections.world },
 
   ];
 
@@ -1195,8 +1200,6 @@ async function populateStoryboardSelects() {
   await Promise.all(
 
     configs.map(async ({ id, key, savedValue }) => {
-
-      await renderDropdown(document, id, key);
 
       const select = document.querySelector(`#${id}`);
 
@@ -1207,8 +1210,6 @@ async function populateStoryboardSelects() {
           select.value = savedValue;
 
         }
-
-        select.addEventListener("change", onStoryboardChange);
 
         // Trigger the initial update after setting the value
 
@@ -1318,11 +1319,11 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
 
       [
 
-        "storyboard-ai-select",
+        "storyboard-card-ai-select",
 
-        "storyboard-user-select",
+        "storyboard-card-user-select",
 
-        "storyboard-world-select",
+        "storyboard-card-world-select",
 
       ].forEach((id) => {
 
@@ -1358,11 +1359,11 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
 
   async function beginStory() {
 
-    const aiSelect = document.querySelector("#storyboard-ai-select");
+    const aiSelect = document.querySelector("#storyboard-card-ai-select");
 
-    const userSelect = document.querySelector("#storyboard-user-select");
+    const userSelect = document.querySelector("#storyboard-card-user-select");
 
-    const worldSelect = document.querySelector("#storyboard-world-select");
+    const worldSelect = document.querySelector("#storyboard-card-world-select");
 
 
 

@@ -86,13 +86,13 @@ export async function renderProfile(type, id) { // <-- Made this function async
 
   const h1 = document.createElement("h1");
   h1.className = "profile-name";
-  h1.textContent = entity.name || entity.title || "Empty";
+  h1.textContent = entity.name || "Empty";
   content.appendChild(h1);
 
-  if (entity.summary) {
+  if (entity.description) {
     const p = document.createElement("p");
     p.className = "profile-description";
-    p.textContent = entity.summary;
+    p.textContent = entity.description;
     content.appendChild(p);
   }
 
