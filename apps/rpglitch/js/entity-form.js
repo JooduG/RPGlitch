@@ -90,7 +90,7 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   };
 
   screen.textContent = "";
-  screen.className = "form-view"; // Add a class for styling hooks
+  screen.className = "profile-view form-view"; // Add a class for styling hooks
 
   const layout = document.createElement("div");
   layout.className = "profile-layout";
@@ -98,12 +98,9 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   const leftCol = document.createElement("div");
   leftCol.className = "profile-left";
   const heroWrap = buildHero(entity);
-  leftCol.appendChild(heroWrap);
-  applyBrand?.(leftCol, entity);
 
-  // Create the image overlay with inputs
   const imageOverlay = document.createElement("div");
-  imageOverlay.className = "image-overlay";
+  imageOverlay.className = "profile-hero-overlay";
 
   const imageInput = document.createElement("input");
   imageInput.name = "imageUrl";
@@ -112,14 +109,12 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   imageInput.value = entity.imageUrl || "";
   imageInput.addEventListener("change", () => {
     const val = imageInput.value.trim();
-    const newPic = getPictureHTML ?
-      getPictureHTML({ ...entity,
-        imageUrl: val,
-        image: val
-      }, {
-        cover: true
-      }) :
-      null;
+    const newPic = getPictureHTML
+      ? getPictureHTML(
+          { ...entity, imageUrl: val, image: val },
+          { cover: true }
+        )
+      : null;
     if (newPic) {
       const currentWrap = heroWrap.querySelector(".picture");
       if (currentWrap) currentWrap.replaceWith(newPic);
@@ -130,7 +125,7 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   const paletteSelect = document.createElement("select");
   paletteSelect.name = "palette";
   const palettes = ["Default", "Pink", "Emerald", "Cyan"];
-  palettes.forEach(p => {
+  palettes.forEach((p) => {
     const option = document.createElement("option");
     option.value = p.toLowerCase();
     option.textContent = p;
@@ -142,15 +137,16 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
 
   imageOverlay.appendChild(imageInput);
   imageOverlay.appendChild(paletteSelect);
-  leftCol.appendChild(imageOverlay);
+  heroWrap.appendChild(imageOverlay);
+
+  leftCol.appendChild(heroWrap);
+  applyBrand?.(leftCol, entity);
 
   const rightCol = document.createElement("div");
   rightCol.className = "profile-right";
 
   const content = document.createElement("div");
   content.className = "profile-right-content";
-
-
 
   const form = document.createElement("form");
 
@@ -160,20 +156,18 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   nameInput.required = true;
   nameInput.value = entity.name || "";
   nameInput.className = "profile-name-input"; // For h1-like styling
-  form.appendChild(nameInput);
+  content.appendChild(nameInput);
 
   // Create and style the description input to look like a paragraph
   const descriptionInput = document.createElement("textarea");
   descriptionInput.name = "description";
   descriptionInput.value = entity.description || "";
   descriptionInput.className = "profile-description-input"; // For p-like styling
-  form.appendChild(descriptionInput);
+  content.appendChild(descriptionInput);
 
   // Wrap the rest of the fields
   const fieldsWrap = document.createElement("div");
   fieldsWrap.className = "profile-fields";
-
-
 
   const tagsInput = document.createElement("input");
   tagsInput.name = "tags";
@@ -184,6 +178,7 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
     const textarea = document.createElement("textarea");
     textarea.name = key;
     textarea.value = entity.sections?.[key] || "";
+    textarea.className = "profile-field-input";
     fieldsWrap.appendChild(createField(key, label, textarea));
   });
 

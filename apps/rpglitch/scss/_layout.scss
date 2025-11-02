@@ -163,6 +163,53 @@ body.chin-open .top-bar {
   padding: 1rem;
 }
 
+.profile-hero-overlay {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  background: rgb(0 0 0 / 50%);
+  padding: 1rem;
+  border-radius: var(--pico-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: all;
+}
+
+.form-view .profile-name-input,
+.form-view .profile-description-input,
+.form-view .profile-field-input {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  width: 100%;
+  resize: none;
+}
+
+.form-view .profile-name-input {
+  font-size: var(--pico-font-size-h1);
+  font-weight: bold;
+}
+
+.form-view .profile-description-input {
+  font-size: var(--pico-font-size-p);
+}
+
+.form-view .profile-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-view .profile-field-label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
 @media (width <= 768px) {
   .profile-layout {
     flex-direction: column;

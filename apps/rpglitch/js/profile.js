@@ -68,6 +68,7 @@ export async function renderProfile(type, id) { // <-- Made this function async
 
   screen.textContent = "";
   screen.setAttribute("aria-live", "polite");
+  screen.className = "profile-view";
 
   const layout = document.createElement("div");
   layout.className = "profile-layout";
