@@ -46,6 +46,7 @@ $breakpoint-tablet: 1024px;
 /* Each palette exposes ONE base color + useful derivatives */
 .palette-pink {
   $brand-color: #ec4899;
+
   --brand: #{$brand-color};
   --brand-10: #{color.mix($brand-color, transparent, 10%)};
   --brand-20: #{color.mix($brand-color, transparent, 20%)};
@@ -54,6 +55,7 @@ $breakpoint-tablet: 1024px;
 
 .palette-emerald {
   $brand-color: #10b981;
+
   --brand: #{$brand-color};
   --brand-10: #{color.mix($brand-color, transparent, 10%)};
   --brand-20: #{color.mix($brand-color, transparent, 20%)};
@@ -62,6 +64,7 @@ $breakpoint-tablet: 1024px;
 
 .palette-cyan {
   $brand-color: #06b6d4;
+
   --brand: #{$brand-color};
   --brand-10: #{color.mix($brand-color, transparent, 10%)};
   --brand-20: #{color.mix($brand-color, transparent, 20%)};
