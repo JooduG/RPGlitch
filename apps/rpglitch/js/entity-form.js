@@ -238,9 +238,9 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
           kind: type,
           name: escapeHtml(form.elements.name.value.trim()),
           description: escapeHtml(form.elements.description.value.trim()),
-          imageUrl: escapeHtml(form.elements.imageUrl.value.trim()),
-          image: escapeHtml(form.elements.imageUrl.value.trim()),
-          signatureColour: escapeHtml(form.elements.signatureColour.value.trim()),
+          imageUrl: escapeHtml(imageInput.value.trim()),
+          image: escapeHtml(imageInput.value.trim()),
+          signatureColour: escapeHtml(paletteSelect.value.trim()),
           tags: form.elements.tags.value.split(",").map((t) => escapeHtml(t.trim())).filter(Boolean),
           sections: {
             forever: escapeHtml(form.elements.forever.value.trim()),
