@@ -8,7 +8,8 @@ import {
   getHashQuery,
   navigateBackOrReturnDefault,
   escapeHtml,
-  applyBrand
+  applyBrand,
+  buildHero
 } from './utils.js';
 import {
   router
@@ -38,20 +39,31 @@ function createField(id, labelText, inputEl) {
   return field;
 }
 
+function renderTagPills(container, tags) {
+    if (!tags || tags.length === 0) return;
+    const wrap = document.createElement("div");
+    wrap.className = "form-tag-pills";
+    tags.forEach((t) => {
+      const chip = document.createElement("span");
+      chip.className = "tag-chip";
+      chip.textContent = t;
+      wrap.appendChild(chip);
+    });
+    container.appendChild(wrap);
+}
+
 export async function renderForm(type, id) { // <-- MADE ASYNC
   const cancelBtn = document.querySelector("#form-cancel");
   if (cancelBtn) {
-    // Stale closure bug fix: remove old handler before adding new one.
     if (cancelBtn._cancelHandler) {
       cancelBtn.removeEventListener('click', cancelBtn._cancelHandler);
     }
     const cancelHandler = (e) => {
       e?.preventDefault();
-      // By not passing a default, we allow the function to use the `return` param or its own default.
       navigateBackOrReturnDefault(undefined, router);
     };
     cancelBtn.addEventListener("click", cancelHandler);
-    cancelBtn._cancelHandler = cancelHandler; // Store new handler for removal next time
+    cancelBtn._cancelHandler = cancelHandler;
   }
 
   const sb = document.querySelector("#storyboard-screen");
@@ -64,9 +76,9 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   let existing;
   if (isClone && window.ephemeralEntity) {
     existing = window.ephemeralEntity;
-    window.ephemeralEntity = null; // Clear the ephemeral entity
-    isEdit = false; // Treat it as a new entity
-    id = "new"; // Set id to "new" to ensure it's treated as a new entity
+    window.ephemeralEntity = null;
+    isEdit = false;
+    id = "new";
   } else {
     const from = params.get("from");
     const template = !isEdit && from ? await entities.copy(type, from) : null;
@@ -79,22 +91,19 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
     return;
   }
 
-  const screenId =
-    type === "character" ? "character-form-screen" : "world-form-screen";
+  const screenId = type === "character" ? "character-form-screen" : "world-form-screen";
   const screen = document.querySelector(`#${screenId}`);
   if (!screen) return;
 
-  const entity = {
-    ...(existing || {}),
-    kind: type
-  };
+  const entity = { ...(existing || {}), kind: type };
 
   screen.textContent = "";
-  screen.className = "profile-view form-view"; // Add a class for styling hooks
+  screen.className = "profile-view form-view";
 
   const layout = document.createElement("div");
   layout.className = "profile-layout";
 
+  // --- Left Column ---
   const leftCol = document.createElement("div");
   leftCol.className = "profile-left";
   const heroWrap = buildHero(entity);
@@ -109,12 +118,7 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   imageInput.value = entity.imageUrl || "";
   imageInput.addEventListener("change", () => {
     const val = imageInput.value.trim();
-    const newPic = getPictureHTML
-      ? getPictureHTML(
-          { ...entity, imageUrl: val, image: val },
-          { cover: true }
-        )
-      : null;
+    const newPic = getPictureHTML ? getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true }) : null;
     if (newPic) {
       const currentWrap = heroWrap.querySelector(".picture");
       if (currentWrap) currentWrap.replaceWith(newPic);
@@ -122,26 +126,33 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
     }
   });
 
+  const signatureColourLabel = document.createElement("label");
+  signatureColourLabel.textContent = "Signature Colour";
+  signatureColourLabel.setAttribute("for", "signatureColour");
+
   const paletteSelect = document.createElement("select");
-  paletteSelect.name = "palette";
+  paletteSelect.name = "signatureColour";
+  paletteSelect.id = "signatureColour";
   const palettes = ["Default", "Pink", "Emerald", "Cyan"];
   palettes.forEach((p) => {
     const option = document.createElement("option");
     option.value = p.toLowerCase();
     option.textContent = p;
-    if ((entity.palette || "default") === p.toLowerCase()) {
+    if ((entity.signatureColour || "default") === p.toLowerCase()) {
       option.selected = true;
     }
     paletteSelect.appendChild(option);
   });
 
   imageOverlay.appendChild(imageInput);
+  imageOverlay.appendChild(signatureColourLabel);
   imageOverlay.appendChild(paletteSelect);
   heroWrap.appendChild(imageOverlay);
 
   leftCol.appendChild(heroWrap);
   applyBrand?.(leftCol, entity);
 
+  // --- Right Column ---
   const rightCol = document.createElement("div");
   rightCol.className = "profile-right";
 
@@ -150,39 +161,41 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
 
   const form = document.createElement("form");
 
-  // Create and style the name input to look like a heading
   const nameInput = document.createElement("input");
   nameInput.name = "name";
   nameInput.required = true;
   nameInput.value = entity.name || "";
-  nameInput.className = "profile-name-input"; // For h1-like styling
-  content.appendChild(nameInput);
+  nameInput.className = "profile-name";
+  form.appendChild(nameInput);
 
-  // Create and style the description input to look like a paragraph
   const descriptionInput = document.createElement("textarea");
   descriptionInput.name = "description";
   descriptionInput.value = entity.description || "";
-  descriptionInput.className = "profile-description-input"; // For p-like styling
-  content.appendChild(descriptionInput);
-
-  // Wrap the rest of the fields
-  const fieldsWrap = document.createElement("div");
-  fieldsWrap.className = "profile-fields";
+  descriptionInput.className = "profile-description";
+  form.appendChild(descriptionInput);
 
   const tagsInput = document.createElement("input");
   tagsInput.name = "tags";
   tagsInput.value = (entity.tags || []).join(", ");
-  fieldsWrap.appendChild(createField("tags", "Tags", tagsInput));
+  const tagsField = createField("tags", "Tags", tagsInput);
+  form.appendChild(tagsField);
+
+  if (entity.tags && entity.tags.length > 0) {
+    renderTagPills(tagsField, entity.tags);
+  }
+
+  const secWrap = document.createElement("div");
+  secWrap.className = "profile-fields";
 
   SECTIONS.forEach(([label, key]) => {
     const textarea = document.createElement("textarea");
     textarea.name = key;
     textarea.value = entity.sections?.[key] || "";
-    textarea.className = "profile-field-input";
-    fieldsWrap.appendChild(createField(key, label, textarea));
+    textarea.className = "profile-field-text";
+    secWrap.appendChild(createField(key, label, textarea));
   });
+  form.appendChild(secWrap);
 
-  form.appendChild(fieldsWrap);
   content.appendChild(form);
   rightCol.appendChild(content);
   layout.append(leftCol, rightCol);
@@ -190,25 +203,22 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
 
   hideEl("#chin-container");
   hideEl("#profile-screen");
-  hideEl(
-    type === "character" ? "world-form-screen" : "character-form-screen"
-  );
+  hideEl(type === "character" ? "world-form-screen" : "character-form-screen");
   showEl(screen);
 
   const saveBtn = document.querySelector("#form-save");
   const deleteBtn = document.querySelector("#form-delete");
 
-  const suppressDelete =
-    id && sessionStorage?.getItem("rpglitch-no-delete") === id;
+  const suppressDelete = id && sessionStorage?.getItem("rpglitch-no-delete") === id;
   if (suppressDelete) sessionStorage.removeItem("rpglitch-no-delete");
 
   if (deleteBtn) {
     deleteBtn.hidden = !(isEdit && entity.isCustom === 1 && !suppressDelete);
-    deleteBtn.addEventListener("click", async () => { // <-- MADE ASYNC
+    deleteBtn.addEventListener("click", async () => {
       if (isEdit && confirm("Delete this item?")) {
         try {
-          await entities.remove(type, entity.id); // <-- AWAITED
-          await refreshAllLists?.(); // <-- AWAITED
+          await entities.remove(type, entity.id);
+          await refreshAllLists?.();
           router.navigate("#storyboard");
         } catch (error) {
           console.error('Delete failed:', error);
@@ -218,92 +228,47 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
     });
   }
 
-if (saveBtn) {
-  // 1. Remove the old handler if it exists to prevent the stale closure bug.
-  if (saveBtn._saveHandler) {
-    saveBtn.removeEventListener('click', saveBtn._saveHandler);
-  }
-
-  // 2. Define the new handler. This function must be defined inside the renderForm
-  //    function's scope so it correctly closes over the new 'type' and 'id'.
-  const saveHandler = async () => {
-    try {
-      // SECURITY NOTE: This section correctly sanitizes user inputs (nameInput.value, descriptionInput.value, etc.)
-      // using the global 'escapeHtml' (DOMPurify wrapper). DO NOT REMOVE.
-
-      const data = {
-        kind: type,
-        name: escapeHtml(nameInput.value.trim()),
-        description: escapeHtml(descriptionInput.value.trim()),
-        imageUrl: escapeHtml(imageInput.value.trim()),
-        image: escapeHtml(imageInput.value.trim()),
-        tags: tagsInput.value
-          .split(",")
-          .map((t) => escapeHtml(t.trim()))
-          .filter(Boolean),
-        sections: {
-          forever: escapeHtml(form.elements.forever.value.trim()),
-          past: escapeHtml(form.elements.past.value.trim()),
-          present: escapeHtml(form.elements.present.value.trim()),
-          future: escapeHtml(form.elements.future.value.trim()),
-        },
-      };
-      if (!data.name) {
-        alert('Please enter a name for this entity.');
-        return;
-      }
-
-      // Use the correctly scoped 'id' and 'type' variables.
-      const originalEntity = isEdit ? await entities.get(type, id) : null;
-      const isEditingPremade = originalEntity?.isPremade;
-
-      const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
-
-      const saved = await entities.upsert(type, entityToSave);
-      router.navigate(`#profile/${type}/${saved.id}`);
-    } catch (error) {
-      console.error('Save failed:', error);
-      alert(error.message || 'Failed to save. Please try again.');
+  if (saveBtn) {
+    if (saveBtn._saveHandler) {
+      saveBtn.removeEventListener('click', saveBtn._saveHandler);
     }
-  };
+    const saveHandler = async () => {
+      try {
+        const data = {
+          kind: type,
+          name: escapeHtml(form.elements.name.value.trim()),
+          description: escapeHtml(form.elements.description.value.trim()),
+          imageUrl: escapeHtml(form.elements.imageUrl.value.trim()),
+          image: escapeHtml(form.elements.imageUrl.value.trim()),
+          signatureColour: escapeHtml(form.elements.signatureColour.value.trim()),
+          tags: form.elements.tags.value.split(",").map((t) => escapeHtml(t.trim())).filter(Boolean),
+          sections: {
+            forever: escapeHtml(form.elements.forever.value.trim()),
+            past: escapeHtml(form.elements.past.value.trim()),
+            present: escapeHtml(form.elements.present.value.trim()),
+            future: escapeHtml(form.elements.future.value.trim()),
+          },
+        };
+        if (!data.name) {
+          alert('Please enter a name for this entity.');
+          return;
+        }
 
-  // 3. Attach the new handler and store its reference for next time.
-  saveBtn.addEventListener("click", saveHandler);
-  saveBtn._saveHandler = saveHandler;
-}
+        const originalEntity = isEdit ? await entities.get(type, id) : null;
+        const isEditingPremade = originalEntity?.isPremade;
+        const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
+        const saved = await entities.upsert(type, entityToSave);
+        router.navigate(`#profile/${type}/${saved.id}`);
+      } catch (error) {
+        console.error('Save failed:', error);
+        alert(error.message || 'Failed to save. Please try again.');
+      }
+    };
+    saveBtn.addEventListener("click", saveHandler);
+    saveBtn._saveHandler = saveHandler;
+  }
 
   if (!isEdit) {
     setTimeout(() => nameInput.focus(), 0);
   }
-}
-
-function buildHero(entity) {
-  const wrap = document.createElement("div");
-  wrap.className = "hero-wrap";
-  const pic = getPictureHTML ?
-    getPictureHTML(entity, {
-      cover: true
-    }) :
-    null;
-  if (pic) {
-    pic.classList?.add("hero-bleed");
-    wrap.appendChild(pic);
-  }
-  const chips = Array.isArray(entity.tags) ? [...entity.tags] : [];
-  if (entity.isPremade) chips.unshift("Premade");
-  renderTags(wrap, chips);
-  return wrap;
-}
-
-function renderTags(container, tags) {
-  if (!tags || !tags.length) return;
-  const wrap = document.createElement("div");
-  wrap.className = "tag-chips";
-  tags.forEach((t) => {
-    const chip = document.createElement("span");
-    chip.className = "tag-chip";
-    chip.textContent = t;
-    wrap.appendChild(chip);
-  });
-  container.appendChild(wrap);
 }

@@ -9,43 +9,12 @@ import {
   setProfileLayoutSizing,
   debounce,
   goBackWithFallback,
-  copyEntity // Import the async version
+  copyEntity,
+  buildHero
 } from './utils.js';
 import {
   router
 } from './profile-router.js';
-// Removed redundant copyEntity import
-
-function renderTags(container, tags) {
-  if (!tags || !tags.length) return;
-  const wrap = document.createElement("div");
-  wrap.className = "tag-chips";
-  tags.forEach((t) => {
-    const chip = document.createElement("span");
-    chip.className = "tag-chip";
-    chip.textContent = t;
-    wrap.appendChild(chip);
-  });
-  container.appendChild(wrap);
-}
-
-function buildHero(entity) {
-  const wrap = document.createElement("div");
-  wrap.className = "hero-wrap";
-  const pic = getPictureHTML ?
-    getPictureHTML(entity, {
-      cover: true
-    }) :
-    null;
-  if (pic) {
-    pic.classList?.add("hero-bleed");
-    wrap.appendChild(pic);
-  }
-  const chips = Array.isArray(entity.tags) ? [...entity.tags] : [];
-  if (entity.isPremade) chips.unshift("Premade");
-  renderTags(wrap, chips);
-  return wrap;
-}
 
 let profileResizeBound = false;
 export async function renderProfile(type, id) { // <-- Made this function async

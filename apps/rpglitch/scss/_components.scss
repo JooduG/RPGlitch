@@ -70,6 +70,13 @@
   color: var(--pico-primary);
 }
 
+.form-tag-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
 .danger,
 .danger:active,
 .danger:hover {
