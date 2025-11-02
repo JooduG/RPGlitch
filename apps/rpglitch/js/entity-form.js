@@ -7,7 +7,8 @@ import {
   showEl,
   getHashQuery,
   navigateBackOrReturnDefault,
-  escapeHtml
+  escapeHtml,
+  applyBrand
 } from './utils.js';
 import {
   router
@@ -40,10 +41,17 @@ function createField(id, labelText, inputEl) {
 export async function renderForm(type, id) { // <-- MADE ASYNC
   const cancelBtn = document.querySelector("#form-cancel");
   if (cancelBtn) {
-    cancelBtn.addEventListener("click", (e) => {
+    // Stale closure bug fix: remove old handler before adding new one.
+    if (cancelBtn._cancelHandler) {
+      cancelBtn.removeEventListener('click', cancelBtn._cancelHandler);
+    }
+    const cancelHandler = (e) => {
       e?.preventDefault();
-      navigateBackOrReturnDefault("#storyboard", router);
-    });
+      // By not passing a default, we allow the function to use the `return` param or its own default.
+      navigateBackOrReturnDefault(undefined, router);
+    };
+    cancelBtn.addEventListener("click", cancelHandler);
+    cancelBtn._cancelHandler = cancelHandler; // Store new handler for removal next time
   }
 
   const sb = document.querySelector("#storyboard-screen");
@@ -82,33 +90,25 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   };
 
   screen.textContent = "";
+  screen.className = "form-view"; // Add a class for styling hooks
 
+  const layout = document.createElement("div");
+  layout.className = "profile-layout";
+
+  const leftCol = document.createElement("div");
+  leftCol.className = "profile-left";
   const heroWrap = buildHero(entity);
-  screen.appendChild(heroWrap);
+  leftCol.appendChild(heroWrap);
+  applyBrand?.(leftCol, entity);
 
-  const content = document.createElement("div");
-  const h1 = document.createElement("h1");
-  h1.textContent = isEdit ?
-    `Editing ${type.charAt(0).toUpperCase() + type.slice(1)}` :
-    `New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
-  content.appendChild(h1);
-
-  const form = document.createElement("form");
-
-  const nameInput = document.createElement("input");
-  nameInput.name = "name";
-  nameInput.required = true;
-  nameInput.value = entity.name || "";
-  form.appendChild(createField("name", "Name", nameInput));
-
-  const descriptionInput = document.createElement("input");
-  descriptionInput.name = "description";
-  descriptionInput.value = entity.description || "";
-  form.appendChild(createField("description", "Description", descriptionInput));
+  // Create the image overlay with inputs
+  const imageOverlay = document.createElement("div");
+  imageOverlay.className = "image-overlay";
 
   const imageInput = document.createElement("input");
   imageInput.name = "imageUrl";
   imageInput.type = "url";
+  imageInput.placeholder = "Image URL";
   imageInput.value = entity.imageUrl || "";
   imageInput.addEventListener("change", () => {
     const val = imageInput.value.trim();
@@ -126,22 +126,72 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
       else heroWrap.appendChild(newPic);
     }
   });
-  form.appendChild(createField("imageUrl", "Image URL", imageInput));
+
+  const paletteSelect = document.createElement("select");
+  paletteSelect.name = "palette";
+  const palettes = ["Default", "Pink", "Emerald", "Cyan"];
+  palettes.forEach(p => {
+    const option = document.createElement("option");
+    option.value = p.toLowerCase();
+    option.textContent = p;
+    if ((entity.palette || "default") === p.toLowerCase()) {
+      option.selected = true;
+    }
+    paletteSelect.appendChild(option);
+  });
+
+  imageOverlay.appendChild(imageInput);
+  imageOverlay.appendChild(paletteSelect);
+  leftCol.appendChild(imageOverlay);
+
+  const rightCol = document.createElement("div");
+  rightCol.className = "profile-right";
+
+  const content = document.createElement("div");
+  content.className = "profile-right-content";
+
+
+
+  const form = document.createElement("form");
+
+  // Create and style the name input to look like a heading
+  const nameInput = document.createElement("input");
+  nameInput.name = "name";
+  nameInput.required = true;
+  nameInput.value = entity.name || "";
+  nameInput.className = "profile-name-input"; // For h1-like styling
+  form.appendChild(nameInput);
+
+  // Create and style the description input to look like a paragraph
+  const descriptionInput = document.createElement("textarea");
+  descriptionInput.name = "description";
+  descriptionInput.value = entity.description || "";
+  descriptionInput.className = "profile-description-input"; // For p-like styling
+  form.appendChild(descriptionInput);
+
+  // Wrap the rest of the fields
+  const fieldsWrap = document.createElement("div");
+  fieldsWrap.className = "profile-fields";
+
+
 
   const tagsInput = document.createElement("input");
   tagsInput.name = "tags";
   tagsInput.value = (entity.tags || []).join(", ");
-  form.appendChild(createField("tags", "Tags", tagsInput));
+  fieldsWrap.appendChild(createField("tags", "Tags", tagsInput));
 
   SECTIONS.forEach(([label, key]) => {
     const textarea = document.createElement("textarea");
     textarea.name = key;
     textarea.value = entity.sections?.[key] || "";
-    form.appendChild(createField(key, label, textarea));
+    fieldsWrap.appendChild(createField(key, label, textarea));
   });
 
+  form.appendChild(fieldsWrap);
   content.appendChild(form);
-  screen.appendChild(content);
+  rightCol.appendChild(content);
+  layout.append(leftCol, rightCol);
+  screen.appendChild(layout);
 
   hideEl("#chin-container");
   hideEl("#profile-screen");
