@@ -717,6 +717,7 @@ body.chin-open .chin-focus-ring {
   box-sizing: border-box;
   padding-left: 35vw;
   padding-right: calc(5% - 1rem);
+
   @include mixins.custom-scrollbar(rgb(255 255 255 / 30%), rgb(255 255 255 / 30%));
 }
 
