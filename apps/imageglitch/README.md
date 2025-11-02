@@ -67,6 +67,24 @@ See the main repository README.md and GEMINI.md for:
 - Testing guidelines
 - Deployment workflow
 
+## Troubleshooting
+
+### Plugin Loading Issues
+
+If the application fails to load and the browser console shows errors related to plugins not being available (e.g., `TypeError: image is not a function`), it is likely that the Perchance plugins are not being correctly exposed to the application's JavaScript environment.
+
+This can happen if the script in `html/index.html` that exposes the plugins is missing or incorrect. The plugins should be assigned directly to the `window` object, not as arrays. For example:
+
+```html
+<script>
+  window.pluginTextToImage = image;
+  window.pluginAi = ai;
+  window.pluginRememberPlugin = r;
+</script>
+```
+
+If the plugins are wrapped in arrays (e.g., `window.pluginAi = [ai];`), they will be loaded as objects instead of functions, which will cause `TypeError` exceptions when the application tries to call them.
+
 ## Related Documentation
 
 - [GEMINI.md](../../GEMINI.md) - Complete protocol and development guidelines

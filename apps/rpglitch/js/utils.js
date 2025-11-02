@@ -309,7 +309,7 @@ const isDialogOpen = () => {
         const cy = Math.floor(vh / 2);
         const el = doc.elementFromPoint?.(cx, cy);
         if (el) {
-          const ok = el.closest?.('#main, header, #chin-container, .chin');
+          const ok = el.closest?.('#main, header, #chin-container, .chin, #output-container');
           if (!ok) {
             return {
               blocked: true,
@@ -985,10 +985,7 @@ function initChin() {
     if (btn._chinBound) return; // idempotent
     btn.addEventListener("click", () => {
       const name = btn.dataset.chin;
-      const panel = [...getPanels()].find((p) => p.dataset.chin === name);
-      const hidden = panel?.hidden;
-      if (hidden) open(name);
-      else close(name);
+      toggle(name);
     });
     btn._chinBound = true;
   });

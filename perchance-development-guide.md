@@ -514,7 +514,28 @@ Plugins imported in the Left Panel are not automatically available to the JavaSc
     pluginAi = ai
     pluginTextToImage = textToImage
     ```
-2.  **Wait and Copy in Right Panel:** In the Right Panel's JavaScript, use a utility function to wait for the exposed plugins to appear on the `window` object and then copy them to their standard names.
+
+2.  **Expose in Right Panel's HTML:** In the Right Panel's HTML, add a `<script>` tag before any other scripts to expose the plugins to the `window` object.
+
+    **IMPORTANT:** The plugins must be assigned directly, not as arrays. Wrapping them in arrays will cause them to be loaded as objects, which will result in a `TypeError` when the application tries to call them.
+
+    **Correct:**
+    ```html
+    <script>
+      window.pluginAi = ai;
+      window.pluginTextToImage = textToImage;
+    </script>
+    ```
+
+    **Incorrect:**
+    ```html
+    <script>
+      window.pluginAi = [ai];
+      window.pluginTextToImage = [textToImage];
+    </script>
+    ```
+
+3.  **Wait and Copy in Right Panel's JavaScript:** In the Right Panel's JavaScript, use a utility function to wait for the exposed plugins to appear on the `window` object and then copy them to their standard names.
     ```javascript
     // In the Right Panel's JavaScript
     async function waitForPlugins(requiredPlugins, timeout = 10000) {
