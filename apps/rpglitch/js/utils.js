@@ -767,14 +767,30 @@ import {
   getPictureHTML
 } from './entities.js';
 
-export function renderTags(container, tags) {
-  if (!tags || !tags.length) return;
+export function renderTags(container, entity) {
+  const tags = entity.tags || [];
+  if (entity.isPremade) {
+    tags.unshift('Premade');
+  }
+
+  if (tags.length === 0) return;
+
   const wrap = document.createElement("div");
   wrap.className = "tag-chips";
   tags.forEach((t) => {
     const chip = document.createElement("span");
     chip.className = "tag-chip";
     chip.textContent = t;
+
+    if (t === 'Premade' && entity.signatureColour && entity.signatureColour !== 'default') {
+      const colourMap = {
+        pink: '#ff6ad5',
+        emerald: '#00c853',
+        cyan: '#00b8d4',
+      };
+      chip.style.backgroundColor = colourMap[entity.signatureColour];
+      chip.style.color = 'white';
+    }
     wrap.appendChild(chip);
   });
   container.appendChild(wrap);
@@ -790,11 +806,21 @@ export function buildHero(entity) {
     null;
   if (pic) {
     pic.classList?.add("hero-bleed");
+
+    // Signature Colour implementation for placeholder
+    const placeholder = pic.querySelector('.placeholder-image');
+    if (placeholder && entity.signatureColour && entity.signatureColour !== 'default') {
+      const colourMap = {
+        pink: '#ff6ad5',
+        emerald: '#00c853',
+        cyan: '#00b8d4',
+      };
+      placeholder.style.backgroundColor = colourMap[entity.signatureColour];
+    }
+
     wrap.appendChild(pic);
   }
-  const chips = Array.isArray(entity.tags) ? [...entity.tags] : [];
-  if (entity.isPremade) chips.unshift("Premade");
-  renderTags(wrap, chips);
+  renderTags(wrap, entity);
   return wrap;
 }
 
