@@ -5,6 +5,32 @@
   margin-left: auto;
 }
 
+main.container {
+  overflow: hidden auto;
+  height: calc(100vh - 6rem);
+  padding: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 20%) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 20%);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: rgb(255 255 255 / 30%);
+    }
+  }
+}
+
 .top-bar {
   display: flex;
   align-items: center;
@@ -234,23 +260,47 @@ body.chin-open .top-bar {
 
 
 
+#storyboard-dynamic-title-wrapper {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+#storyboard-dynamic-title {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: bold;
+  color: var(--pico-color);
+  padding: 1rem;
+  border-radius: var(--pico-radius);
+  background: rgb(35 36 58 / 40%);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: 2px solid var(--pico-primary);
+    background: rgb(35 36 58 / 60%);
+  }
+}
+
 #storyboard-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-  align-items: flex-start;
-  gap: 1rem; /* Add some space between cards */
+  align-items: stretch;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .storyboard-card {
-  flex: 1 1 calc(33.333% - 1rem); /* Three columns with gap */
-  max-width: calc(33.333% - 1rem); /* Ensure max width for three columns */
+  flex: 1 1 calc(33.333% - 1.5rem);
+  max-width: calc(33.333% - 1.5rem);
+  min-height: 300px;
   display: grid;
-  grid-template-columns: 1fr 2fr; /* Picture left (1fr), content right (2fr) */
+  grid-template-columns: 1fr 2fr;
   grid-template-rows: 1fr;
   gap: 0;
   padding: 0;
   overflow: hidden;
+  transition: all 0.3s ease;
 
   .card-media {
     grid-column: 1;
@@ -280,8 +330,39 @@ body.chin-open .top-bar {
     padding: 0 1rem 1rem;
   }
 
+  &.empty-card {
+    background: rgb(35 36 58 / 30%);
+    backdrop-filter: blur(8px);
+    border: 2px dashed var(--pico-muted-border-color);
+    cursor: default;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: none;
+      opacity: 0.85;
+      border-color: var(--pico-primary);
+    }
+
+    .card-body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-style: italic;
+      color: var(--pico-muted-color);
+      padding: 2rem;
+    }
+
+    .placeholder-image {
+      opacity: 0.5;
+    }
+  }
+
   @media (width <= 768px) {
-    grid-template-columns: 1fr; /* Stack on mobile */
+    flex: 1 1 100%;
+    max-width: 100%;
+    grid-template-columns: 1fr;
     grid-template-rows: auto auto;
 
     .card-media {
