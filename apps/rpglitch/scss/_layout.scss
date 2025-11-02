@@ -11,7 +11,7 @@
 main.container {
   overflow: hidden auto;
   height: calc(100vh - var(--header-height));
-  padding: 1rem;
+  padding: var(--app-container-pad);
 
   @include mixins.custom-scrollbar;
 }
@@ -24,7 +24,6 @@ main.container {
   z-index: var(--z-header);
   background: rgb(var(--dark-background-rgb) / 85%);
   backdrop-filter: blur(15px);
-  will-change: backdrop-filter;
   box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
   padding: 1rem;
   color: var(--pico-contrast, #fff);
@@ -227,7 +226,7 @@ body.chin-open .top-bar {
   margin-bottom: 0.5rem;
 }
 
-@media (width <= $breakpoint-mobile) {
+@include mixins.mobile {
   .profile-layout {
     flex-direction: column;
   }
@@ -259,7 +258,6 @@ body.chin-open .top-bar {
   border-radius: var(--pico-radius);
   background: rgb(var(--dark-background-rgb) / 40%);
   backdrop-filter: blur(10px);
-  will-change: backdrop-filter;
   transition: outline 0.3s ease, background 0.3s ease;
 
   &:focus {
@@ -320,7 +318,6 @@ body.chin-open .top-bar {
   &.empty-card {
     background: rgb(var(--dark-background-rgb) / 30%);
     backdrop-filter: blur(8px);
-    will-change: backdrop-filter;
     border: 2px dashed var(--pico-muted-border-color);
     cursor: default;
     opacity: 0.7;
@@ -347,7 +344,7 @@ body.chin-open .top-bar {
     }
   }
 
-  @media (width <= $breakpoint-mobile) {
+  @include mixins.mobile {
     flex: 1 1 100%;
     max-width: 100%;
     grid-template-columns: 1fr;

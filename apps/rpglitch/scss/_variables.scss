@@ -1,3 +1,5 @@
+@use "sass:color";
+
 /* Defines global SCSS variables for colors, fonts, spacing, and other theming values */
 
 $gradient-color-1: #181c2f;
@@ -13,6 +15,7 @@ $breakpoint-mobile: 768px;
 $breakpoint-tablet: 1024px;
 
 :root {
+  --top-bar-height: 3rem;
   --color-accent: #ff7ad5;
   --pico-radius: 0.5rem;
   --pico-box-shadow: 0;
@@ -43,21 +46,21 @@ $breakpoint-tablet: 1024px;
 /* Each palette exposes ONE base color + useful derivatives */
 .palette-pink {
   --brand: #ec4899;
-  --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
-  --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
+  --brand-10: #{color.mix(#ec4899, transparent, 10%)};
+  --brand-20: #{color.mix(#ec4899, transparent, 20%)};
   --brand-contrast: var(--brand-text-on);
 }
 
 .palette-emerald {
   --brand: #10b981;
-  --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
-  --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
+  --brand-10: #{color.mix(#10b981, transparent, 10%)};
+  --brand-20: #{color.mix(#10b981, transparent, 20%)};
   --brand-contrast: var(--brand-text-on);
 }
 
 .palette-cyan {
   --brand: #06b6d4;
-  --brand-10: color-mix(in srgb, var(--brand), transparent 90%);
-  --brand-20: color-mix(in srgb, var(--brand), transparent 80%);
+  --brand-10: #{color.mix(#06b6d4, transparent, 10%)};
+  --brand-20: #{color.mix(#06b6d4, transparent, 20%)};
   --brand-contrast: var(--brand-text-on);
 }
