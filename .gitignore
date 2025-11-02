@@ -20,4 +20,5 @@
 **mcp.json
 node_modules/
 gha-creds-*.json
-**/scribbles.md
+**scribbles.md
+**nul

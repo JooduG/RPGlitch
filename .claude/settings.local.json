@@ -13,9 +13,15 @@
       "Bash(npm run sync:mcp:*)",
       "Bash(cmd /c \"dir /s /b %USERPROFILE%\\.claude 2>nul\")",
       "Bash(node build/scripts/sync-mcp-to-claude-code.js:*)",
-      "WebFetch(domain:perchance.org)"
+      "WebFetch(domain:perchance.org)",
+      "Bash(cmd /c \"dir /s /b %USERPROFILE%\\.claude 2>nul | findstr /i mcp\")",
+      "Bash(npm run:*)",
+      "Bash(findstr:*)",
+      "Bash(cmd /c \"dir /b C:\\Users\\johng\\Documents\\GitHub\\default\\*mcp.json\")",
+      "Bash(node build/scripts/sync.js:*)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "outputStyle": "default"
 }

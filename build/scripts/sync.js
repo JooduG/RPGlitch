@@ -5,6 +5,7 @@ import path from "path";
 import https from "https";
 import crypto from "crypto";
 import dotenv from "dotenv";
+import { execSync } from "child_process";
 import { fileURLToPath } from "url";
 
 // --- GENERIC SETUP & UTILITIES ---
@@ -220,8 +221,74 @@ function syncMcp() {
 
   const resolvedMcp = substituteEnvVariables(masterMcp);
 
+  // Write both mcp.json and .mcp.json (for different tools/contexts)
   writeJson(path.join(REPO_ROOT, "mcp.json"), resolvedMcp);
+  writeJson(path.join(REPO_ROOT, ".mcp.json"), resolvedMcp);
   console.log("✅ MCP sync complete.");
+}
+
+// --- SYNC MCP TO CLAUDE CODE CLI ---
+function syncMcpToClaudeCode() {
+  console.log("\n🔄 Syncing MCP servers to Claude Code CLI...");
+  const mcpJsonPath = path.join(REPO_ROOT, "mcp.json");
+
+  if (!fs.existsSync(mcpJsonPath)) {
+    console.log("⚠️  mcp.json not found. Run sync:mcp first.");
+    return;
+  }
+
+  const mcpConfig = readJson(mcpJsonPath);
+  const servers = mcpConfig.mcpServers || {};
+
+  if (Object.keys(servers).length === 0) {
+    console.log("⚠️  No MCP servers found in mcp.json");
+    return;
+  }
+
+  let successCount = 0;
+  let existsCount = 0;
+  let failCount = 0;
+
+  for (const [name, config] of Object.entries(servers)) {
+    try {
+      console.log(`  Adding ${name}...`);
+
+      // Convert config to JSON string for add-json command
+      const jsonString = JSON.stringify(config);
+
+      // Execute claude mcp add-json command
+      const command = `claude mcp add-json "${name}" ${JSON.stringify(
+        jsonString
+      )}`;
+      execSync(command, { stdio: "pipe" });
+
+      successCount++;
+      console.log(`    ✅ Added`);
+    } catch (error) {
+      const errorMsg = error.message || "";
+      // Check if server already exists (this is not an error)
+      if (errorMsg.includes("already exists")) {
+        existsCount++;
+        console.log(`    ⏭️  Already exists (skipped)`);
+      } else {
+        failCount++;
+        console.error(`    ❌ Failed:`, errorMsg.split("\n")[0]);
+      }
+    }
+  }
+
+  console.log(
+    `\n✅ Complete: ${successCount} added, ${existsCount} already existed, ${failCount} failed`
+  );
+
+  if (failCount === 0) {
+    console.log("🎉 All MCP servers synced to Claude Code CLI!");
+    console.log("   Restart Claude Code to see the changes.");
+  } else {
+    console.log(
+      "⚠️  Some servers failed. Check errors above and add manually if needed."
+    );
+  }
 }
 
 // --- GENERATE HUB LOGIC ---
@@ -350,6 +417,7 @@ async function main() {
 
   if (runAll || args.ignores) syncIgnores();
   if (runAll || args.mcp) syncMcp();
+  if (args.claude) syncMcpToClaudeCode();
   if (runAll || args.hub) generateHub();
 }
 
