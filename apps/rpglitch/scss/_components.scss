@@ -204,7 +204,7 @@ article header {
 .chin {
   left: var(--app-container-pad);
   right: var(--app-container-pad);
-  top: calc(1rem + 3rem + 1rem);
+  top: calc(2rem + var(--top-bar-height));
   color: #fff;
   padding: 1.5rem;
   border-radius: 0 0 var(--pico-radius) var(--pico-radius);
@@ -212,7 +212,6 @@ article header {
   height: auto;
   background: rgb(var(--dark-background-rgb) / 90%);
   backdrop-filter: blur(20px);
-  will-change: backdrop-filter;
   border-bottom: 2px solid var(--pico-muted-border-color);
   border-left: 1px solid rgb(255 255 255 / 10%);
   border-right: 1px solid rgb(255 255 255 / 10%);
@@ -428,7 +427,7 @@ body.chin-open .chin-focus-ring {
   gap: 1rem;
   align-items: start;
 
-  @media (width <= $breakpoint-tablet) {
+  @include mixins.tablet {
     grid-template-columns: 1fr; /* Single column on smaller screens */
     gap: 0.5rem;
   }
@@ -443,7 +442,7 @@ body.chin-open .chin-focus-ring {
   align-items: center;
   gap: 1rem;
 
-  @media (width <= $breakpoint-tablet) {
+  @include mixins.tablet {
     display: none; /* Hide character displays on mobile */
   }
 
@@ -486,7 +485,7 @@ body.chin-open .chin-focus-ring {
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   animation: message-slide-in 0.3s ease;
 
-  @media (width <= $breakpoint-tablet) {
+  @include mixins.tablet {
     max-width: 95%;
   }
 }
@@ -513,7 +512,6 @@ body.chin-open .chin-focus-ring {
   align-self: flex-start;
   background: rgb(var(--dark-background-rgb) / 85%);
   backdrop-filter: blur(10px);
-  will-change: backdrop-filter;
 }
 
 #typing-indicator {
@@ -522,7 +520,6 @@ body.chin-open .chin-focus-ring {
   max-width: 85%;
   background: rgb(var(--dark-background-rgb) / 85%);
   backdrop-filter: blur(10px);
-  will-change: backdrop-filter;
   font-style: italic;
   color: var(--pico-muted-color);
   display: none;
@@ -539,15 +536,11 @@ body.chin-open .chin-focus-ring {
 }
 
 @keyframes typing-dots {
-  0%, 20% {
+  0%, 100% {
     opacity: 0.3;
   }
 
-  40% {
-    opacity: 0.6;
-  }
-
-  60%, 100% {
+  50% {
     opacity: 1;
   }
 }
@@ -568,7 +561,6 @@ body.chin-open .chin-focus-ring {
   padding: 1rem;
   background: rgb(var(--dark-background-rgb) / 95%);
   backdrop-filter: blur(10px);
-  will-change: backdrop-filter;
   border-radius: var(--pico-radius);
   box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
   z-index: var(--z-overlay);
