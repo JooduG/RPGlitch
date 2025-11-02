@@ -19,6 +19,8 @@ import {
   entities,
   getPictureHTML,
 } from './entities.js';
+import { renderProfile } from './profile.js';
+import { renderForm } from './entity-form.js';
 
 // =================================================================
 // Plugin Setup: Copy Perchance-exposed plugins to standard names

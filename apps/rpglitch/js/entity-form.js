@@ -9,7 +9,8 @@ import {
   navigateBackOrReturnDefault,
   escapeHtml,
   applyBrand,
-  buildHero
+  buildHero,
+  renderTags
 } from './utils.js';
 import {
   router
@@ -166,23 +167,31 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   nameInput.required = true;
   nameInput.value = entity.name || "";
   nameInput.className = "profile-name";
+  nameInput.placeholder = "Enter entity name...";
   form.appendChild(nameInput);
 
   const descriptionInput = document.createElement("textarea");
   descriptionInput.name = "description";
   descriptionInput.value = entity.description || "";
   descriptionInput.className = "profile-description";
+  descriptionInput.placeholder = "Describe the entity, its background, personality...";
   form.appendChild(descriptionInput);
 
+  // Render static tags below the description
+  renderTags(form, entity);
+
+  /*
   const tagsInput = document.createElement("input");
   tagsInput.name = "tags";
   tagsInput.value = (entity.tags || []).join(", ");
+  tagsInput.placeholder = "Enter tags, separated by commas...";
   const tagsField = createField("tags", "Tags", tagsInput);
   form.appendChild(tagsField);
 
   if (entity.tags && entity.tags.length > 0) {
     renderTagPills(tagsField, entity.tags);
   }
+  */
 
   const secWrap = document.createElement("div");
   secWrap.className = "profile-fields";
@@ -241,7 +250,7 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
           imageUrl: escapeHtml(imageInput.value.trim()),
           image: escapeHtml(imageInput.value.trim()),
           signatureColour: escapeHtml(paletteSelect.value.trim()),
-          tags: form.elements.tags.value.split(",").map((t) => escapeHtml(t.trim())).filter(Boolean),
+          tags: entity.tags || [],
           sections: {
             forever: escapeHtml(form.elements.forever.value.trim()),
             past: escapeHtml(form.elements.past.value.trim()),

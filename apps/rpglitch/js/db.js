@@ -2,13 +2,14 @@
 'use strict';
 
 // 1. Create the database instance.
-// Dexie is provided globally by vendored library in /build/local_libs/ (bundled into build output)
-// In test environment, it will be mocked by the test setup
-const Dexie = window.Dexie || globalThis.Dexie;
-
-if (typeof Dexie === 'undefined' && typeof global === 'undefined') {
-  // Only error in browser environment (not in test environment)
-  console.error('[RPGlitch DB] Dexie is not available. Ensure build includes vendored Dexie library.');
+// In the browser, Dexie is provided globally by a vendored library.
+// In the Jest/Node.js test environment, we must require it.
+let Dexie;
+if (typeof window !== 'undefined' && window.Dexie) {
+  Dexie = window.Dexie;
+} else {
+  // Jest/Node.js environment
+  Dexie = require('dexie').default;
 }
 
 const db = new Dexie('rpglitch');
