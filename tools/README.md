@@ -125,4 +125,4 @@ Consider adding these checks to GitHub workflows:
 ## Related Documentation
 
 - [build/README.md](../build/README.md) - Build system documentation
-- [CLAUDE.md](../CLAUDE.md) - Complete protocol and development guidelines
+- [GEMINI.md](../GEMINI.md) - Complete protocol and development guidelines

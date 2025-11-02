@@ -177,7 +177,29 @@ Cascading StyleSheets (CSS) are used to control the visual appearance of the gen
 
 A key architectural choice of the Perchance engine is that it *ignores* all content inside `<style>` tags. This design prevents syntax collisions, as CSS selectors often use curly braces (`{}`), which would otherwise conflict with Perchance's shorthand list syntax. This allows developers to write standard CSS without needing to escape any characters.
 
-For AI Character Chat generators, a dedicated "message style" input field is provided in the character editor. This field accepts CSS rules to style the chat bubbles. It also supports the `light-dark(light*_value, dark_*value)` function, enabling the creation of themes that adapt to the user's system-wide light or dark mode settings. 
+For AI Character Chat generators, a dedicated "message style" input field is provided in the character editor. This field accepts CSS rules to style the chat bubbles and supports several powerful features:
+
+*   **Theme-Adaptive Styling:** Use the `light-dark(light_value, dark_value)` function to create styles that adapt to the user's system-wide light or dark mode settings.
+    ```css
+    .message-bubble {
+      background-color: light-dark(#EEEEEE, #333333);
+      color: light-dark(black, white);
+    }
+    ```
+*   **Custom Fonts:** Import and use custom fonts, such as from Google Fonts.
+    ```css
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+    .message-bubble {
+      font-family: 'Roboto', sans-serif;
+    }
+    ```
+*   **Advanced Styling:** Apply any standard CSS for creative effects.
+    ```css
+    .message-bubble {
+      text-shadow: 1px 1px 2px black;
+      background-image: linear-gradient(to right, #ff8177 0%, #ff867a 0%, #ff8c7f 21%, #f99185 52%, #cf556c 78%, #b12a5b 100%);
+    }
+    ```
 
 ### **Introduction to JavaScript in Perchance**
 
@@ -273,6 +295,13 @@ The platform provides several distinct fields for inputting information, each wi
 ### **Advanced Formatting**
 
 All three of these fields support an advanced syntax that allows for multiple messages and the specification of an author (`: message`). The author can be `SYSTEM` (the default for instructions and reminders), `AI`, or `USER`. This enables the creation of complex, multi-part instructions or the simulation of an initial conversational exchange that remains permanently at the start of the thread.
+
+**Example:**
+```
+[AI]: I'm a dragon.
+[USER]: I'm the queen of the nearby kingdom.
+[SYSTEM]: What follows is a story about the queen and the dragon.
+```
 
 ## **Building a World: Managing Long-Term Context with Lorebooks**
 
@@ -425,7 +454,12 @@ For generators that create images, maintaining a consistent character appearance
 
 * **The Power of the Seed:** The single most critical parameter for visual consistency is the `seed`. Using the same seed number for a given prompt will produce a very similar, if not identical, image. By locking in a seed for a character, developers can ensure their facial features and core appearance remain consistent across different scenes and poses.
 
-* **Negative Prompts:** The `negativePrompt` parameter is essential for quality control. It should be used to explicitly exclude common AI image artifacts, such as "blurry," "low quality," "extra hands," or "deformed," which significantly improves the reliability of the output. 
+* **Negative Prompts:** The `negativePrompt` parameter is essential for quality control. It should be used to explicitly exclude common AI image artifacts, such as "blurry," "low quality," "extra hands," or "deformed," which significantly improves the reliability of the output.
+
+*   **Parameter Syntax:** To control these settings, use the `(parameter:::value)` syntax within the `/image` command's prompt.
+    *   `/image a cute rabbit (resolution:::512x768)`
+    *   `/image a cute rabbit (seed:::84756293)`
+    *   `/image a cute rabbit (negativePrompt:::blurry, low quality)`
 
 ### **Designing Dynamic and Interactive Chat Experiences**
 
@@ -452,6 +486,94 @@ Developing on the Perchance platform, particularly with its AI features, is fund
 The platform's architecture provides a layered approach to context management—a hierarchy of control from the foundational `instruction` message to the tactical `reminder`, the expansive `lorebook`, and the dynamic `memory`. Mastery of the platform comes from understanding the distinct role of each layer and knowing where to place a given piece of information for maximum effect.
 
 Ultimately, the development workflow is an iterative cycle: **prompt, generate, edit, and refine**. By structuring a clear initial context, observing the AI's output, correcting its deviations by editing messages, and then refining the core instructions based on those observations, a developer can progressively steer the probabilistic system toward producing consistently high-quality, engaging, and intelligent results.
+
+# **Section 8: Building & Deploying Web Applications**
+
+While the previous sections detail the components of the Perchance platform, this section provides the architectural and security patterns required to assemble those components into a secure, deployable web application.
+
+## **The Two-Panel Architecture**
+
+Complex applications like RPGlitch are built using the **Two-Panel Architecture**. This is a fundamental concept dictated by the Perchance platform's sandboxed design.
+
+*   **Left Panel (Engine):** This is where all Perchance-specific code, lists, and crucially, `{import:plugin-name}` statements reside.
+*   **Right Panel (Stage):** This contains the entire standard web application, including all HTML, CSS, and ES6+ JavaScript logic.
+
+These two panels exist in **separate, sandboxed iframes**. They cannot directly access each other's variables or functions. This separation is the reason the following integration patterns are necessary.
+
+## **Plugin Integration & Exposure**
+
+Plugins imported in the Left Panel are not automatically available to the JavaScript running in the Right Panel. A specific pattern must be used to expose them.
+
+1.  **Expose from Left Panel:** Use simple variable assignment in the Left Panel to attach plugin functions to the `window` object.
+    ```perchance
+    // In the Left Panel (Lists Panel)
+    ai = {import:ai-text-plugin}
+    textToImage = {import:text-to-image-plugin}
+
+    // Expose to the window so the Right Panel can access them
+    pluginAi = ai
+    pluginTextToImage = textToImage
+    ```
+2.  **Wait and Copy in Right Panel:** In the Right Panel's JavaScript, use a utility function to wait for the exposed plugins to appear on the `window` object and then copy them to their standard names.
+    ```javascript
+    // In the Right Panel's JavaScript
+    async function waitForPlugins(requiredPlugins, timeout = 10000) {
+      const startTime = Date.now();
+      while (Date.now() - startTime < timeout) {
+        const allAvailable = requiredPlugins.every(name => typeof window[name] !== 'undefined');
+        if (allAvailable) return true;
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      return false;
+    }
+
+    function setupPlugins() {
+      // Map of exposed names to standard names
+      const pluginMap = {
+        pluginAi: 'ai',
+        pluginTextToImage: 'textToImage',
+      };
+      for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
+        if (window[perchanceName]) {
+          window[standardName] = window[perchanceName];
+        }
+      }
+    }
+
+    // In your app's initialization logic:
+    // await waitForPlugins(['pluginAi', 'pluginTextToImage']);
+    // setupPlugins();
+    ```
+
+## **Mandatory Security Protocol: Preventing XSS**
+
+When rendering any content that originates from a user or an AI model, there is a significant risk of Cross-Site Scripting (XSS) attacks. It is **mandatory** to sanitize all such content.
+
+*   **The Problem:** Malicious content like `<img src=x onerror=alert('XSS')>` will execute JavaScript if rendered directly into the DOM using `.innerHTML`.
+*   **The Solution:** All dynamic content **MUST** be sanitized using a library like **DOMPurify** before being inserted into the page. Prefer using `.textContent` where possible, and only use `.innerHTML` after sanitization when HTML rendering is required.
+
+    ```javascript
+    import DOMPurify from 'dompurify'; // Assuming DOMPurify is available
+
+    function sanitizeHTML(htmlString) {
+      return DOMPurify.sanitize(htmlString);
+    }
+
+    // Usage:
+    const untrustedContent = ai.generate(); // e.g., "Hello <script>alert('pwned')</script>"
+    const sanitizedContent = sanitizeHTML(untrustedContent);
+    myElement.innerHTML = sanitizedContent; // Now safe
+    ```
+
+## **Project Deployment**
+
+The deployment process for a Perchance application built with this framework is a manual, two-step process:
+
+1.  **Build the Application:** Run the project's build script (e.g., `npm run build:rpglitch`) to generate the single, inlined `.html` file located in the `/build/output/` directory.
+2.  **Copy to Perchance:**
+    *   Copy the entire contents of your application's **Left Panel `.txt` file** (e.g., `apps/rpglitch/RPGlitch-left-panel.txt`) and paste it into the Perchance editor's **Lists Panel**.
+    *   Copy the entire contents of the generated **`.html` file** (e.g., `build/output/RPGlitch.html`) and paste it into the Perchance editor's **HTML Panel**.
+    *   Save the generator.
 
 # **Conclusion**
 

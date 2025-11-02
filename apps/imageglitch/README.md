@@ -59,7 +59,7 @@ apps/imageglitch/
 
 ## Development
 
-See the main repository README.md and CLAUDE.md for:
+See the main repository README.md and GEMINI.md for:
 
 - Complete development protocol and rules
 - Coding standards
@@ -69,6 +69,6 @@ See the main repository README.md and CLAUDE.md for:
 
 ## Related Documentation
 
-- [CLAUDE.md](../../CLAUDE.md) - Complete protocol and development guidelines
+- [GEMINI.md](../../GEMINI.md) - Complete protocol and development guidelines
 - [design-system.md](../../design-system.md) - UI/UX guidelines and components
 - [plan.md](../../plan.md) - Project roadmap and feature backlog

@@ -4,7 +4,7 @@ Version 3.2.0 | Updated 2025-10-28
 
 **CORE PRINCIPLE:** This document is the **single source of truth** for the visual and interaction design of all applications in this repository. It defines our philosophy, our styling foundation (Pico.css), our custom component library, and our user experience patterns. All UI/UX development **MUST** adhere to these guidelines.
 
-**Related Docs:** See [README.md](./README.md) for architecture overview, [PERCHANCE.md](./PERCHANCE.md) for deployment workflow, and [CLAUDE.md](./CLAUDE.md) for coding standards.
+**Related Docs:** See [README.md](./README.md) for architecture overview, [PERCHANCE.md](./PERCHANCE.md) for deployment workflow, and [GEMINI.md](./GEMINI.md) for coding standards.
 
 ## **1. Core Philosophy: The Vibe Check**
 
