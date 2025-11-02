@@ -2,15 +2,35 @@ import { safeDecodeURIComponent } from './utils.js';
 import { db } from './db.js';
 
 // =================================================================
-// Plugin Setup: Perchance plugins auto-expose themselves
+// Plugin Setup
 // =================================================================
 
+// Single source of truth for mapping Perchance plugin names to standard names.
+const pluginMap = {
+  pluginAi: 'ai',
+  pluginTextToImage: 'image',
+  pluginRememberPlugin: 'r',
+};
+
+// Create a reverse map for easy lookup of Perchance names from standard names.
+const reversePluginMap = Object.fromEntries(
+  Object.entries(pluginMap).map(([perchanceName, standardName]) => [standardName, perchanceName])
+);
+
 /**
- * Perchance plugins automatically expose themselves to the window object
- * when they initialize (e.g., window.image, window.ai, window.r).
- * This happens during the left panel's plugin import process.
- * We just need to wait for them to become available.
+ * Copies plugins exposed by the Perchance left panel (e.g., pluginAi)
+ * to standard window property names (e.g., ai) for consistent access.
  */
+function setupPlugins() {
+  for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
+    if (window[perchanceName] && !window[standardName]) {
+      window[standardName] = window[perchanceName];
+    }
+  }
+}
+
+// Call setup immediately on module load
+setupPlugins();
 
 // ====== GLOBAL STATE & CONSTANTS ======
 const TEST_MODE = (() => {
@@ -516,8 +536,9 @@ function buildImageGenerationHtml() {
 
 /**
  * Wait for Perchance plugins to become available before initializing.
- * Plugins are loaded asynchronously by the left panel and automatically
- * expose themselves to window (e.g., window.image, window.ai).
+ * Plugins are loaded asynchronously by the left panel and may not be ready immediately.
+ * Left panel exposes them with "plugin" prefix (pluginAi, pluginTextToImage, etc.)
+ * to avoid Perchance syntax parsing issues with dot notation.
  * In test mode, this function skips the wait and returns immediately.
  * @param {string[]} requiredPlugins - Array of global plugin names to wait for
  * @param {number} timeout - Maximum time to wait in milliseconds
@@ -525,7 +546,7 @@ function buildImageGenerationHtml() {
  * @param {number} maxRetries - Maximum number of retry attempts
  * @returns {Promise<boolean>} - True if all plugins loaded, false if timeout
  */
-async function waitForPlugins(requiredPlugins, timeout = 5000, retryCount = 0, maxRetries = 3) {
+async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, maxRetries = 3) {
   // Skip plugin waiting in test mode
   if (TEST_MODE) {
     console.log('[ImageGlitch] Test mode detected, skipping plugin wait');
@@ -536,26 +557,25 @@ async function waitForPlugins(requiredPlugins, timeout = 5000, retryCount = 0, m
 
   console.log(`[ImageGlitch] Waiting for plugins (attempt ${retryCount + 1}/${maxRetries + 1}):`, requiredPlugins);
 
-  // Initial delay to allow left panel script to execute
-  await new Promise(resolve => setTimeout(resolve, 200));
+  // Convert standard names to the prefixed names the left panel actually exposes.
+  const prefixedPlugins = requiredPlugins.map(name => reversePluginMap[name] || `plugin${name.charAt(0).toUpperCase()}${name.slice(1)}`);
 
   while (Date.now() - startTime < timeout) {
-    // Check if plugins are available and are functions
-    const allAvailable = requiredPlugins.every(name => {
+    // Immediately run setupPlugins to ensure any loaded prefixed plugins are mapped
+    setupPlugins();
+
+    // Check if standard names are now available and are of the correct type
+    const allPluginsReady = requiredPlugins.every(name => {
       const plugin = window[name];
       return typeof plugin === 'function' || (typeof plugin === 'object' && plugin !== null);
     });
 
-    if (allAvailable) {
+    if (allPluginsReady) {
       console.log('[ImageGlitch] All plugins loaded successfully:', requiredPlugins);
-      // Log plugin types for debugging
-      requiredPlugins.forEach(name => {
-        console.log(`[ImageGlitch] ${name}: ${typeof window[name]}, callable: ${typeof window[name] === 'function'}`);
-      });
       return true;
     }
 
-    await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms before checking again
+    await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms before checking again
   }
 
   if (retryCount < maxRetries) {
@@ -563,15 +583,17 @@ async function waitForPlugins(requiredPlugins, timeout = 5000, retryCount = 0, m
     return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
   }
 
-  const available = requiredPlugins.filter(name => typeof window[name] !== 'undefined');
-  const missing = requiredPlugins.filter(name => typeof window[name] === 'undefined');
-  console.warn(`[ImageGlitch] Plugin timeout after ${Date.now() - startTime}ms. Available: ${available.join(', ') || 'none'} | Missing: ${missing.join(', ') || 'none'}`);
+  const availableStandard = requiredPlugins.filter(name => typeof window[name] !== 'undefined');
+  const missingStandard = requiredPlugins.filter(name => typeof window[name] === 'undefined');
+  const availablePrefixed = prefixedPlugins.filter(name => typeof window[name] !== 'undefined');
+  const missingPrefixed = prefixedPlugins.filter(name => typeof window[name] === 'undefined');
+  console.warn(`[ImageGlitch] Plugin timeout after ${Date.now() - startTime}ms. Standard available: ${availableStandard.join(', ') || 'none'} | Prefixed available: ${availablePrefixed.join(', ') || 'none'} | Missing standard: ${missingStandard.join(', ') || 'none'} | Missing prefixed: ${missingPrefixed.join(', ') || 'none'}`);
   return false;
 }
 
 async function main() {
   // Wait for required Perchance plugins to load
-  const pluginsLoaded = await waitForPlugins(['image', 'ai']);
+  const pluginsLoaded = await waitForPlugins(['image', 'ai', 'r']);
 
   if (!pluginsLoaded) {
     console.error('[ImageGlitch] Required plugins failed to load. Application may not function correctly.');
