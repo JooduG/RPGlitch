@@ -2,22 +2,26 @@ import { safeDecodeURIComponent } from './utils.js';
 import { db } from './db.js';
 
 // =================================================================
-// Plugin Setup: Copy Perchance-exposed plugins to standard names
+// Plugin Setup
 // =================================================================
 
+// Single source of truth for mapping Perchance plugin names to standard names.
+const pluginMap = {
+  pluginAi: 'ai',
+  pluginTextToImage: 'image',
+  pluginRememberPlugin: 'r',
+};
+
+// Create a reverse map for easy lookup of Perchance names from standard names.
+const reversePluginMap = Object.fromEntries(
+  Object.entries(pluginMap).map(([perchanceName, standardName]) => [standardName, perchanceName])
+);
+
 /**
- * Copies plugins exposed by the Perchance left panel (pluginAi, pluginTextToImage, etc.)
- * to the standard window property names (ai, image, etc.) so the rest of the app
- * can access them without needing to know about the Perchance naming convention.
+ * Copies plugins exposed by the Perchance left panel (e.g., pluginAi)
+ * to standard window property names (e.g., ai) for consistent access.
  */
 function setupPlugins() {
-  // Map Perchance-exposed plugin names to standard names
-  const pluginMap = {
-    pluginAi: 'ai',
-    pluginTextToImage: 'image',
-    pluginRememberPlugin: 'r',
-  };
-
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
     if (window[perchanceName] && !window[standardName]) {
       window[standardName] = window[perchanceName];
@@ -553,22 +557,20 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
 
   console.log(`[ImageGlitch] Waiting for plugins (attempt ${retryCount + 1}/${maxRetries + 1}):`, requiredPlugins);
 
-  // Convert standard names to prefixed names that left panel actually exposes
-  // (e.g., 'ai' -> 'pluginAi', 'image' -> 'pluginTextToImage')
-  const prefixedPlugins = requiredPlugins.map(name => {
-    if (name === 'image') return 'pluginTextToImage';
-    if (name === 'r') return 'pluginRememberPlugin';
-    return 'plugin' + name.charAt(0).toUpperCase() + name.slice(1);
-  });
+  // Convert standard names to the prefixed names the left panel actually exposes.
+  const prefixedPlugins = requiredPlugins.map(name => reversePluginMap[name] || `plugin${name.charAt(0).toUpperCase()}${name.slice(1)}`);
 
   while (Date.now() - startTime < timeout) {
     // Immediately run setupPlugins to ensure any loaded prefixed plugins are mapped
     setupPlugins();
 
-    // Check if standard names are now available on the window object
-    const allStandardAvailable = requiredPlugins.every(name => typeof window[name] !== 'undefined');
+    // Check if standard names are now available and are of the correct type
+    const allPluginsReady = requiredPlugins.every(name => {
+      const plugin = window[name];
+      return typeof plugin === 'function' || (typeof plugin === 'object' && plugin !== null);
+    });
 
-    if (allStandardAvailable) {
+    if (allPluginsReady) {
       console.log('[ImageGlitch] All plugins loaded successfully:', requiredPlugins);
       return true;
     }
