@@ -5,9 +5,15 @@ $gradient-color-2: #23243a;
 $gradient-color-3: #1a3a4a;
 $gradient-color-4: #2a1a3a;
 
+// Pico CSS color values as SCSS variables for compile-time color functions
+$pico-del-color: #dc3545;
+
+// Breakpoint variables for responsive design
+$breakpoint-mobile: 768px;
+$breakpoint-tablet: 1024px;
+
 :root {
   --color-accent: #ff7ad5;
-  --z-overlay: 10000;
   --pico-radius: 0.5rem;
   --pico-box-shadow: 0;
   --pico-switch-thumb-box-shadow: 0;

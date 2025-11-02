@@ -1,3 +1,4 @@
+@use "variables" as *;
 @use "mixins";
 
 // This file will import individual component styles.
@@ -32,7 +33,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  z-index: 3;
+  z-index: var(--z-chip);
   pointer-events: none;
 }
 
@@ -156,7 +157,7 @@
     }
 
     pointer-events: auto;
-    z-index: 1;
+    z-index: var(--z-base);
     background-color: var(--pico-form-element-background-color);
   }
 }
@@ -209,14 +210,15 @@ article header {
   border-radius: 0 0 var(--pico-radius) var(--pico-radius);
   min-height: 200px;
   height: auto;
-  background: rgb(35 36 58 / 90%);
+  background: rgb(var(--dark-background-rgb) / 90%);
   backdrop-filter: blur(20px);
+  will-change: backdrop-filter;
   border-bottom: 2px solid var(--pico-muted-border-color);
   border-left: 1px solid rgb(255 255 255 / 10%);
   border-right: 1px solid rgb(255 255 255 / 10%);
   gap: 1rem;
   position: absolute;
-  z-index: 9999;
+  z-index: var(--z-chin);
   display: flex;
   flex-direction: column;
   transform: translateY(0);
@@ -248,7 +250,7 @@ article header {
 /* Backdrop behind open chin, restricted to the container area */
 details.dropdown[open] summary::before {
   display: block;
-  z-index: 1;
+  z-index: var(--z-base);
   position: fixed;
   width: 100vw;
   height: 100vh;
@@ -266,7 +268,7 @@ body.chin-open details.dropdown[open] summary::before {
   position: fixed;
   inset: 0;
   background: transparent;
-  z-index: calc(var(--z-index-chin, 9999) - 1); /* Below chin but above everything else */
+  z-index: var(--z-chin-container); /* Below chin but above everything else */
 }
 
 .chin-search-group {
@@ -426,7 +428,7 @@ body.chin-open .chin-focus-ring {
   gap: 1rem;
   align-items: start;
 
-  @media (width <= 1024px) {
+  @media (width <= $breakpoint-tablet) {
     grid-template-columns: 1fr; /* Single column on smaller screens */
     gap: 0.5rem;
   }
@@ -441,7 +443,7 @@ body.chin-open .chin-focus-ring {
   align-items: center;
   gap: 1rem;
 
-  @media (width <= 1024px) {
+  @media (width <= $breakpoint-tablet) {
     display: none; /* Hide character displays on mobile */
   }
 
@@ -484,7 +486,7 @@ body.chin-open .chin-focus-ring {
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   animation: message-slide-in 0.3s ease;
 
-  @media (width <= 1024px) {
+  @media (width <= $breakpoint-tablet) {
     max-width: 95%;
   }
 }
@@ -509,16 +511,18 @@ body.chin-open .chin-focus-ring {
 
 .chat-message[role="assistant"] {
   align-self: flex-start;
-  background: rgb(35 36 58 / 85%);
+  background: rgb(var(--dark-background-rgb) / 85%);
   backdrop-filter: blur(10px);
+  will-change: backdrop-filter;
 }
 
 #typing-indicator {
   padding: 1rem;
   border-radius: var(--pico-radius);
   max-width: 85%;
-  background: rgb(35 36 58 / 85%);
+  background: rgb(var(--dark-background-rgb) / 85%);
   backdrop-filter: blur(10px);
+  will-change: backdrop-filter;
   font-style: italic;
   color: var(--pico-muted-color);
   display: none;
@@ -536,15 +540,15 @@ body.chin-open .chin-focus-ring {
 
 @keyframes typing-dots {
   0%, 20% {
-    content: ".";
+    opacity: 0.3;
   }
 
   40% {
-    content: "..";
+    opacity: 0.6;
   }
 
   60%, 100% {
-    content: "...";
+    opacity: 1;
   }
 }
 
@@ -562,11 +566,12 @@ body.chin-open .chin-focus-ring {
   bottom: 5rem;
   right: 1rem;
   padding: 1rem;
-  background: rgb(35 36 58 / 95%);
+  background: rgb(var(--dark-background-rgb) / 95%);
   backdrop-filter: blur(10px);
+  will-change: backdrop-filter;
   border-radius: var(--pico-radius);
   box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
-  z-index: 1000;
+  z-index: var(--z-overlay);
   display: none;
 
   &:not(:empty) {
@@ -608,7 +613,7 @@ body.chin-open .chin-focus-ring {
 
   input[type="submit"] {
     border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:not(:disabled):hover {
       transform: translateY(-1px);
@@ -703,8 +708,8 @@ body.chin-open .chin-focus-ring {
   position: fixed;
   left: 0;
   right: 0;
-  z-index: 5;
-  height: calc(100vh - 6.7rem);
+  z-index: var(--z-content);
+  height: calc(100vh - var(--header-height) - 0.7rem);
   overflow: hidden auto;
   display: flex;
   flex-direction: column;
@@ -712,21 +717,7 @@ body.chin-open .chin-focus-ring {
   box-sizing: border-box;
   padding-left: 35vw;
   padding-right: calc(5% - 1rem);
-  scrollbar-width: thin;
-  scrollbar-color: rgb(255 255 255 / 30%) transparent;
-}
-
-.profile-content-overlay::-webkit-scrollbar,
-.profile-content-overlay::-webkit-scrollbar-track {
-  background: transparent;
-  width: 8px;
-}
-
-.profile-content-overlay::-webkit-scrollbar-thumb,
-.profile-content-overlay::-webkit-scrollbar-thumb:hover {
-  background: rgb(255 255 255 / 30%);
-  border-radius: 4px;
-  transition: background 0.2s ease;
+  @include mixins.custom-scrollbar(rgb(255 255 255 / 30%), rgb(255 255 255 / 30%));
 }
 
 .profile-description {
@@ -760,7 +751,7 @@ body.chin-open .chin-focus-ring {
   margin: 1rem;
   border: none;
   border-radius: var(--pico-radius);
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   color: var(--pico-color, #fff);
   min-width: 0;
   background: transparent;
