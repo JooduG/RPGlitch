@@ -719,8 +719,14 @@ export function deriveBrand(entity = {}) {
 
 export function applyBrand(container, entity) {
   if (!container) return;
+
+  // Remove all palette classes
+  container.classList.remove("palette-pink", "palette-emerald", "palette-cyan");
+
   const color = deriveBrand?.(entity || {}) || "";
-  if (color) {
+  if (entity.signatureColour && entity.signatureColour !== 'default') {
+    container.classList.add(`palette-${entity.signatureColour}`);
+  } else if (color) {
     const c = String(color);
     container.style.setProperty("--brand-color", c);
     container.style.setProperty("--brand", c);
@@ -760,6 +766,37 @@ export function getHashQuery() {
 import {
   getPictureHTML
 } from './entities.js';
+
+export function renderTags(container, tags) {
+  if (!tags || !tags.length) return;
+  const wrap = document.createElement("div");
+  wrap.className = "tag-chips";
+  tags.forEach((t) => {
+    const chip = document.createElement("span");
+    chip.className = "tag-chip";
+    chip.textContent = t;
+    wrap.appendChild(chip);
+  });
+  container.appendChild(wrap);
+}
+
+export function buildHero(entity) {
+  const wrap = document.createElement("div");
+  wrap.className = "hero-wrap";
+  const pic = getPictureHTML ?
+    getPictureHTML(entity, {
+      cover: true
+    }) :
+    null;
+  if (pic) {
+    pic.classList?.add("hero-bleed");
+    wrap.appendChild(pic);
+  }
+  const chips = Array.isArray(entity.tags) ? [...entity.tags] : [];
+  if (entity.isPremade) chips.unshift("Premade");
+  renderTags(wrap, chips);
+  return wrap;
+}
 
 // ---------- Image helper ----------
 export function getPictureNode(entity, opts = {}) {

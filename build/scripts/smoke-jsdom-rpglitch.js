@@ -53,6 +53,28 @@ const dom = new JSDOM(html, {
     if (!window.crypto.randomUUID) {
       window.crypto.randomUUID = () => 'uuid-jsdom';
     }
+    // Mock the Perchance.org 'ai' plugin
+    window.ai = {
+      generateStream: async function*() {
+        // Yield nothing; we just need the function to exist.
+      },
+    };
+    // Mock the Perchance.org 'textToImage' plugin
+    window.textToImage = async (options) => {
+      return Promise.resolve({
+        url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+      });
+    };
+    // Mock other Perchance plugins
+    window.superFetch = async (url, options) => Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    window.rememberPlugin = (() => {
+      const memory = {};
+      return {
+        get: (key) => memory[key],
+        set: (key, value) => (memory[key] = value),
+      };
+    })();
+    window.upload = () => {};
   },
 });
 

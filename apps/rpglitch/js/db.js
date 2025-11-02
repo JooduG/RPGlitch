@@ -161,33 +161,24 @@ db.version(5).stores({
   }
 });
 
-// Version 6: Rename 'summary' field to 'description' for consistency
-db.version(6).stores({
-  entities: '++id, name, type, updated, avatar, persona, scenario, tags, createdAt, updatedAt, isSelected, [type+isCustom]',
+// Version 7: Add signatureColour to entities
+db.version(7).stores({
+  entities: '++id, name, type, updated, avatar, persona, scenario, tags, createdAt, updatedAt, isSelected, [type+isCustom], signatureColour',
   threads: '++id, characterId, title, settingsSnapshot, createdAt, updatedAt',
   messages: '++id, threadId, role, text, seed, meta, createdAt',
   settings: 'id',
 }).upgrade(async (trans) => {
   try {
-    console.log('[RPGlitch DB Migration] Starting migration v6: summary → description...');
-
+    console.log('[RPGlitch DB Migration] Starting migration v7: Add signatureColour...');
     const entities = trans.table('entities');
-    const allEntities = await entities.toArray();
-
-    let migrated = 0;
-    for (const entity of allEntities) {
-      // Rename 'summary' to 'description' if it exists
-      if ('summary' in entity && !('description' in entity)) {
-        entity.description = entity.summary;
-        delete entity.summary;
-        await entities.put(entity);
-        migrated++;
+    await entities.toCollection().modify(entity => {
+      if (!entity.signatureColour) {
+        entity.signatureColour = 'default';
       }
-    }
-
-    console.log(`[RPGlitch DB Migration] Migration v6 completed: ${migrated} entities updated.`);
+    });
+    console.log('[RPGlitch DB Migration] Migration v7 completed successfully.');
   } catch (err) {
-    console.error('[RPGlitch DB Migration v6] Failed:', err);
+    console.error('[RPGlitch DB Migration v7] Failed:', err);
     // Don't throw - allow app to continue
   }
 });

@@ -131,6 +131,9 @@ function getContrast(color) {
 }
 
 function getBrand(entity = {}) {
+  if (entity.signatureColour && entity.signatureColour !== 'default') {
+    return `var(--brand-${entity.signatureColour})`;
+  }
   if (entity.palette?.brand) return entity.palette.brand;
   const seed = [
     entity.name || "",
