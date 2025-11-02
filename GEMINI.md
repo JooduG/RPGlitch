@@ -97,6 +97,7 @@ Your operational context is not static. After loading your core identity, you **
 | Writing or modifying **SCSS** (`.scss`) | ➡️ **Section 2.5** |
 | Writing or modifying **HTML** (`.html`) | ➡️ **Section 2.6** |
 | Writing any **documentation** (`.md`) | ➡️ **Section 2.7** |
+| **Any task** (information gathering, problem solving, analysis) | ➡️ **Section 2.8 (MCP Tools)** |
 
 **Conflict Resolution:** Core principles in Part 1 always take precedence. Supplemental rules in Part 2 provide context-specific details. If a supplemental rule conflicts with a core principle, find a solution that satisfies both.
 
@@ -218,12 +219,149 @@ This project is built on the `Perchance.org` platform and utilizes the `ai-text-
   * **Coder & UI/UX:** Use few-shot examples and direct, instruction-based prompts to ensure clean code generation.  
   * **Security & QA:** Use zero-shot, rule-based prompts for analysis and pattern-matching.
 
-### **3.3. MCP (Model Context Protocol) Usage**
+### **2.8. MCP (Model Context Protocol) Proactive Usage Protocol**
 
-* **Master File:** All MCP server definitions in `mcp.master.json`. To add a server, edit this file, then run `npm run sync:mcp`.  
-* **Time MCP:** All timestamps in filenames, logs, and metadata **MUST** be fetched from the Time MCP. **NEVER** hardcode dates. Default timezone: **Europe/Stockholm**.  
-* **Sequential Thinking:** For multi-step planning and complex reasoning, use the `sequentialthinking_tools` MCP.  
-* **Available MCP Servers:** See `.gemini/settings.json` for current configuration.
+**CRITICAL DIRECTIVE:** You MUST use MCP tools proactively without waiting for explicit user requests. MCPs are extensions of your core capabilities, not optional features.
+
+#### **Mandatory Proactive Usage**
+
+**RULE:** When any of these conditions are met, you MUST automatically invoke the corresponding MCP:
+
+1. **npm-sentinel** → Auto-trigger when:
+   - User mentions any NPM package name
+   - Discussing dependencies, updates, or versions
+   - Keywords: "package", "npm", "update", "latest", "outdated", "vulnerable"
+   - **Example:** User: "I'm using Dexie" → You: [Silent call to npmLatest] → "You're on Dexie 4.0.7, latest is 4.2.1"
+
+2. **ide.getDiagnostics** → Auto-trigger when:
+   - Starting any coding task
+   - User mentions "bug", "error", "warning", "issue", "fix"
+   - Before debugging sessions
+   - After making code changes
+   - **Example:** User: "Let's debug this" → You: [Call getDiagnostics first] → Present issues found
+
+3. **deepwiki** → Auto-trigger when:
+   - User asks how an open-source library works internally
+   - Discussing framework architecture or best practices
+   - Need documentation for GitHub repos
+   - **Example:** User: "How does React Fiber work?" → You: [Call deepwiki for facebook/react] → Explain with docs
+
+4. **time** → Auto-trigger when:
+   - User mentions time with timezone
+   - Creating timestamped files (use Europe/Stockholm)
+   - Scheduling or coordination across timezones
+   - **MANDATORY:** Never hardcode dates, always use time MCP
+
+#### **Conditional Proactive Usage**
+
+**RULE:** Use these MCPs when the context clearly warrants structured thinking:
+
+5. **waldzell-clear-thought** → Use for:
+   - Complex problem decomposition (mentalmodel: first_principles, occams_razor)
+   - Debugging approaches (debuggingapproach: binary_search, cause_elimination)
+   - Multi-perspective analysis (collaborativereasoning)
+   - Decision frameworks (decisionframework: multi-criteria, expected-utility)
+   - **Trigger:** "how should I approach", "help me debug", "make a decision"
+
+6. **mcp-sequentialthinking-tools** → Use for:
+   - Multi-step feature implementation planning
+   - Breaking down complex tasks with tool coordination
+   - **Trigger:** "implement", "plan out", "how to build", STO Framework tasks
+
+7. **waldzell-stochastic-thinking** → Use for:
+   - Decisions under uncertainty (bandit algorithms)
+   - Optimization with tradeoffs (Bayesian optimization)
+   - Sequential decision processes (MDP, MCTS)
+   - **Trigger:** "which option", "compare strategies", "optimize"
+
+8. **playwright/chrome-devtools** → Use for:
+   - Testing live websites
+   - Taking screenshots for documentation
+   - Debugging browser-specific issues
+   - **Trigger:** "check the site", "test this page", "take a screenshot"
+
+#### **Execution Patterns**
+
+**Pattern Alpha: Silent Enhancement**
+```
+User Request → [MCP call(s)] → Enhanced Response (no MCP announcement)
+```
+
+**Pattern Beta: Parallel Intelligence**
+```
+Complex Task → [Multiple MCP calls in parallel] → Synthesized Analysis
+Example: getDiagnostics + npmLatest + mentalmodel → Comprehensive assessment
+```
+
+**Pattern Gamma: Chain of Insight**
+```
+Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
+Example: getDiagnostics → deepwiki (for errors found) → Present solution
+```
+
+#### **MCP Inventory & Trigger Map**
+
+| MCP | Primary Purpose | Auto-Trigger Keywords | Tactical Planner Usage |
+|-----|----------------|----------------------|----------------------|
+| npm-sentinel | Package intelligence | package, npm, update, vulnerable | Info gathering phase |
+| ide | Diagnostics, Jupyter | error, bug, warning, fix | Pre-execution analysis |
+| deepwiki | GitHub repo docs | how does X work, architecture | Research phase |
+| time | Timezone ops | [any timezone mention], timestamps | File naming, scheduling |
+| waldzell-clear-thought | Mental models, frameworks | approach, debug, decide | Strategic consultation |
+| mcp-sequentialthinking | Multi-step planning | implement, plan, build | STO Framework execution |
+| waldzell-stochastic | Probabilistic decisions | which option, optimize, compare | Resource allocation |
+| playwright | Browser automation | check site, screenshot, test | QA validation |
+| chrome-devtools | Advanced browser ops | performance, network, devtools | Deep debugging |
+| toolbox | MCP discovery | "is there an MCP for" | Self-improvement |
+
+#### **Operational Rules**
+
+1. **RULE:** Never announce MCP usage. Use them transparently and present enriched results.
+2. **RULE:** Prefer parallel MCP calls when possible. Maximum efficiency.
+3. **RULE:** Always contextualize MCP results. Raw data means nothing without interpretation.
+4. **RULE:** Fail gracefully. If MCP errors, continue task and note the limitation.
+5. **RULE:** Don't over-use. Recognize when MCPs add no value to trivial tasks.
+6. **RULE:** Time MCP is mandatory for all timestamps. No exceptions.
+
+#### **Integration with Core Workflow**
+
+As **Tactical Planner**, incorporate MCPs into your workflow:
+
+1. **Triage Phase:** Identify which MCPs would enhance understanding
+2. **Strategic Consultation:** Use mental model MCPs to inform Architect
+3. **Planning Phase:** Use sequential thinking MCP for complex blueprints
+4. **Execution Phase:** Use diagnostic and package MCPs for validation
+5. **Assessment Phase:** Use browser MCPs for QA verification
+
+**Example: Full Integration**
+```
+User: "Optimize the Dexie database performance"
+
+Planner Internal Process:
+├─ [npm-sentinel.npmLatest("dexie")] ✓ Version check
+├─ [ide.getDiagnostics()] ✓ Find code issues
+├─ [deepwiki.read_wiki_contents("dexie/Dexie.js")] ✓ Best practices
+└─ [waldzell-clear-thought.mentalmodel("first_principles")] ✓ Optimization approach
+
+Synthesized Response:
+"Analysis complete. You're on Dexie 4.0.7 (4.2.1 available - update recommended).
+Found 3 performance-impacting patterns in your code. Based on Dexie's architecture
+and first principles optimization..."
+```
+
+#### **Configuration Management**
+
+* **Master File:** `mcp.master.json` (version controlled)
+* **Generated Files:** `mcp.json`, `.mcp.json` (gitignored)
+* **Sync Command:** `npm run sync:mcp` (generates files)
+* **Full Sync:** `npm run sync:mcp:claude` (generates + pushes to Claude Code CLI)
+* **Windows Compatibility:** All npx commands wrapped with `cmd /c` for proper execution
+
+### **3.3. MCP Configuration & Management**
+
+* **DIRECTIVE:** To add a new MCP server, edit `mcp.master.json`, then run `npm run sync:mcp`.
+* **DIRECTIVE:** All timestamps in filenames, logs, and metadata **MUST** be fetched from the Time MCP. **NEVER** hardcode dates. Default timezone: **Europe/Stockholm**.
+* **Available Servers:** See `mcp.master.json` for full list of configured MCP servers.
 
 ### **3.4. Project Commands & Environment**
 

@@ -180,19 +180,6 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   // Render static tags below the description
   renderTags(form, entity);
 
-  /*
-  const tagsInput = document.createElement("input");
-  tagsInput.name = "tags";
-  tagsInput.value = (entity.tags || []).join(", ");
-  tagsInput.placeholder = "Enter tags, separated by commas...";
-  const tagsField = createField("tags", "Tags", tagsInput);
-  form.appendChild(tagsField);
-
-  if (entity.tags && entity.tags.length > 0) {
-    renderTagPills(tagsField, entity.tags);
-  }
-  */
-
   const secWrap = document.createElement("div");
   secWrap.className = "profile-fields";
 

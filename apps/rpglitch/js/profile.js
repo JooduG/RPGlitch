@@ -10,7 +10,9 @@ import {
   debounce,
   goBackWithFallback,
   copyEntity,
-  buildHero
+  buildHero,
+  renderTags,
+  BASE_COLOUR_MAP
 } from './utils.js';
 import {
   router
@@ -60,12 +62,7 @@ export async function renderProfile(type, id) { // <-- Made this function async
 
   // Signature Colour implementation
   const signatureColour = entity.signatureColour || 'default';
-  const colourMap = {
-    default: 'var(--pico-h1-color)',
-    pink: '#ff6ad5',
-    emerald: '#00c853',
-    cyan: '#00b8d4',
-  };
+  const colourMap = { default: 'var(--pico-h1-color)', ...BASE_COLOUR_MAP };
   h1.style.color = colourMap[signatureColour] || colourMap.default;
 
   content.appendChild(h1);

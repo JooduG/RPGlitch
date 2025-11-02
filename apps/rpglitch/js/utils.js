@@ -4,6 +4,13 @@ import { db } from './db.js';
  * Safe storage, DOM helpers, chin management
  */
 
+// Brand color constants (signature colours)
+export const BASE_COLOUR_MAP = {
+  pink: '#ff6ad5',
+  emerald: '#00c853',
+  cyan: '#00b8d4'
+};
+
 export function generateUUID() {
   // Public Domain/MIT
   let d = new Date().getTime(); //Timestamp
@@ -783,12 +790,7 @@ export function renderTags(container, entity) {
     chip.textContent = t;
 
     if (t === 'Premade' && entity.signatureColour && entity.signatureColour !== 'default') {
-      const colourMap = {
-        pink: '#ff6ad5',
-        emerald: '#00c853',
-        cyan: '#00b8d4',
-      };
-      chip.style.backgroundColor = colourMap[entity.signatureColour];
+      chip.style.backgroundColor = BASE_COLOUR_MAP[entity.signatureColour];
       chip.style.color = 'white';
     }
     wrap.appendChild(chip);
@@ -810,12 +812,7 @@ export function buildHero(entity) {
     // Signature Colour implementation for placeholder
     const placeholder = pic.querySelector('.placeholder-image');
     if (placeholder && entity.signatureColour && entity.signatureColour !== 'default') {
-      const colourMap = {
-        pink: '#ff6ad5',
-        emerald: '#00c853',
-        cyan: '#00b8d4',
-      };
-      placeholder.style.backgroundColor = colourMap[entity.signatureColour];
+      placeholder.style.backgroundColor = BASE_COLOUR_MAP[entity.signatureColour];
     }
 
     wrap.appendChild(pic);

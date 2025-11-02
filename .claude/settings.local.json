@@ -18,7 +18,19 @@
       "Bash(npm run:*)",
       "Bash(findstr:*)",
       "Bash(cmd /c \"dir /b C:\\Users\\johng\\Documents\\GitHub\\default\\*mcp.json\")",
-      "Bash(node build/scripts/sync.js:*)"
+      "Bash(node build/scripts/sync.js:*)",
+      "mcp__time__get_current_time",
+      "mcp__time__convert_time",
+      "mcp__toolbox__search_servers",
+      "mcp__npm-sentinel__npmLatest",
+      "mcp__deepwiki__read_wiki_structure",
+      "mcp__ide__getDiagnostics",
+      "mcp__waldzell-clear-thought__mentalmodel",
+      "mcp__waldzell-stochastic-thinking__stochasticalgorithm",
+      "mcp__playwright__browser_snapshot",
+      "mcp__chrome-devtools__list_pages",
+      "mcp__mcp-sequentialthinking-tools__sequentialthinking_tools",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

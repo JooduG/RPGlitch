@@ -54,10 +54,6 @@
       "autoStart": true,
       "description": "Provides stochastic thinking utilities."
     },
-    "deepwiki": {
-      "url": "https://mcp.deepwiki.com/sse",
-      "description": "DeepWiki MCP over SSE for knowledge lookup."
-    },
     "playwright": {
       "command": "cmd",
       "args": ["/c", "npx", "-y", "@playwright/mcp"],

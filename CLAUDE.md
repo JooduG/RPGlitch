@@ -50,6 +50,133 @@ node build/scripts/watch.js
 npm run validate
 ```
 
+## Proactive MCP Usage (Critical)
+
+**IMPORTANT: Use MCPs automatically without waiting for explicit user requests.**
+
+You have access to multiple Model Context Protocol (MCP) servers that extend your capabilities. **You should use these tools proactively** when they would be helpful, not only when explicitly asked. Think of MCPs as part of your core toolkit.
+
+### When to Use MCPs Automatically
+
+**Always use proactively:**
+
+1. **npm-sentinel** - Check package info when:
+   - User mentions an NPM package name
+   - Discussing dependencies or package versions
+   - User asks "is X up to date?" or similar
+   - Comparing package alternatives
+   - **Example:** User says "I'm using React 17" → Automatically check latest version and mention if update available
+
+2. **ide/getDiagnostics** - Check for issues when:
+   - About to start coding work
+   - User mentions errors or warnings
+   - After making significant code changes
+   - Beginning any debugging session
+   - **Example:** User says "let's fix the bugs" → Automatically run getDiagnostics first
+
+3. **deepwiki** - Look up documentation when:
+   - User asks about an open-source library's internals
+   - Need to understand how a framework works
+   - Discussing best practices for a specific library
+   - **Example:** User asks "how does Dexie handle indexes?" → Automatically query deepwiki for dexie docs
+
+4. **time** - Convert times when:
+   - User mentions a time with timezone
+   - Scheduling or discussing meetings across timezones
+   - **Example:** User says "the meeting is at 3pm EST" → Automatically convert to their timezone (Europe/Stockholm)
+
+**Use when clearly relevant:**
+
+5. **waldzell-clear-thought** - Apply mental models when:
+   - User presents a complex problem to solve
+   - Debugging challenging issues
+   - Making architectural decisions
+   - User asks "how should I approach this?"
+   - **Example:** User says "I need to optimize performance" → Use `mentalmodel` with first_principles
+
+6. **mcp-sequentialthinking-tools** - Break down problems when:
+   - Task involves multiple complex steps
+   - Planning a new feature implementation
+   - User asks for help organizing their thoughts
+   - **Example:** User says "help me implement authentication" → Use sequential thinking to plan steps
+
+7. **waldzell-stochastic-thinking** - Apply probabilistic reasoning when:
+   - Making decisions under uncertainty
+   - Comparing multiple options with tradeoffs
+   - Resource allocation problems
+   - **Example:** User asks "which caching strategy?" → Use multi-armed bandit algorithm
+
+8. **playwright/chrome-devtools** - Automate browser when:
+   - Need to test a live website
+   - User asks to check how a page looks
+   - Debugging web-specific issues
+   - Taking screenshots for documentation
+   - **Example:** User says "check if the site is working" → Navigate and screenshot
+
+### How to Use MCPs Proactively
+
+**Pattern 1: Silent Enhancement**
+```
+User: "Is Dexie the latest version?"
+You: [Silently call npm-sentinel__npmLatest for "dexie"]
+You: "You're using Dexie 4.0.7, and the latest is 4.2.1. Consider updating for bug fixes."
+```
+
+**Pattern 2: Parallel Information Gathering**
+```
+User: "Let's optimize the build"
+You: [Parallel calls to getDiagnostics + npmLatest for build tools + mental model]
+You: "I've checked diagnostics and build tool versions. Here's what I found..."
+```
+
+**Pattern 3: Context Enhancement**
+```
+User: "The React component isn't rendering"
+You: [Check getDiagnostics, then use deepwiki for React internals if needed]
+You: "I see 3 warnings in your component. Based on React's rendering lifecycle..."
+```
+
+### MCP Quick Reference
+
+| MCP | Primary Use | Auto-trigger Keywords |
+|-----|-------------|----------------------|
+| npm-sentinel | Package info, versions, vulnerabilities | package names, "update", "latest", "outdated" |
+| ide | Diagnostics, code errors | "error", "warning", "bug", "fix", starting work |
+| deepwiki | Library documentation | "how does X work", framework names, "best practice" |
+| time | Timezone conversion | time + timezone mention, "when is", "meeting" |
+| waldzell-clear-thought | Problem solving frameworks | "how should I", "approach", "debug", "decide" |
+| mcp-sequentialthinking | Multi-step planning | "implement", "plan", "how to build" |
+| waldzell-stochastic | Uncertain decisions | "which option", "should I choose", "compare" |
+| playwright/chrome-devtools | Browser automation | "check site", "screenshot", "test page" |
+| toolbox | Find more MCPs | "is there an MCP for X" |
+
+### Rules for MCP Usage
+
+1. **Don't announce MCP usage** - Just use them naturally and present results
+2. **Use in parallel when possible** - Multiple MCP calls in one message for efficiency
+3. **Always provide context** - Explain what the MCP results mean for the user
+4. **Fail gracefully** - If MCP fails, continue without it but mention the limitation
+5. **Know when NOT to use** - Don't use MCPs for trivial tasks or when unnecessary
+
+### Example: Full Proactive Flow
+
+```
+User: "I want to improve the Dexie performance in my app"
+
+Your internal process:
+1. [Call npm-sentinel to check Dexie version]
+2. [Call getDiagnostics to check for code issues]
+3. [Call deepwiki to understand Dexie performance best practices]
+4. [Use waldzell-clear-thought mentalmodel for optimization approach]
+
+Your response:
+"I've analyzed your setup. You're on Dexie 4.0.7 (latest is 4.2.1 - update recommended).
+I found 3 diagnostics warnings that could impact performance. Looking at Dexie's
+architecture, here are the key optimization strategies..."
+```
+
+**Key Principle: Be proactive, not reactive. MCPs are tools YOU use to be more helpful, not features users need to request.**
+
 ## Architecture & Key Concepts
 
 ### Two-Panel Architecture (Critical)
