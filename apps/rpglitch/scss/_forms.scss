@@ -47,80 +47,52 @@
   color: var(--pico-h1-color, #fff);
 }
 
-/* Styles for inline-editable form fields */
 .form-view {
-  .profile-field {
-    // Keep the original background for visual separation
-    background: rgb(255 255 255 / 8%);
+  // Overrides to make form fields look like static text
+  .profile-name,
+  .profile-description,
+  .profile-field-text {
+    background-color: var(--pico-form-element-background-color);
+    border: var(--pico-form-element-border-width) solid var(--pico-form-element-border-color);
+    padding: var(--pico-form-element-padding);
 
-    // Vertically align the label with the input content
-    align-items: baseline;
-  }
-
-  // Target inputs and textareas within the form view, excluding the name and description fields
-  input:not(.profile-name-input, .profile-description-input),
-  textarea:not(.profile-name-input, .profile-description-input) {
-    // Make the input fields blend with the .profile-field background
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
-    color: var(--pico-color); // Inherit text color
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
-    width: 100%;
-    resize: none; // Disable textarea resize handle
-
-    // Add a clear focus style
     &:focus {
-      outline: none;
-      box-shadow: none;
-
-      // Use a bottom border to indicate focus without adding a background
-      border-bottom: 2px solid var(--pico-primary-focus);
-      margin-bottom: -2px; // Prevent layout shift on focus
+      --pico-box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus);
     }
   }
 
-  // Style for the name input to look like an h1
-  .profile-name-input {
+  .profile-name {
+    // Mimic h1
     font-size: var(--pico-font-size-h1);
     font-weight: var(--pico-font-weight-h1);
-    color: var(--pico-h1-color);
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin-bottom: 1rem;
-
-    &:focus {
-      outline: none;
-      box-shadow: none;
-      border-bottom: 2px solid var(--pico-primary-focus);
-      margin-bottom: -2px;
-    }
+    line-height: var(--pico-line-height-h1);
+    margin-bottom: var(--pico-spacing);
   }
 
-  // Style for the description input to look like a p
-  .profile-description-input {
+  .profile-description {
+    // Mimic p
     font-size: var(--pico-font-size);
-    color: var(--pico-color);
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin-bottom: 1.5rem;
-    resize: none;
-
-    &:focus {
-      outline: none;
-      box-shadow: none;
-      border-bottom: 2px solid var(--pico-primary-focus);
-      margin-bottom: -2px;
-    }
+    margin-bottom: var(--pico-spacing);
+    min-height: 10rem;
   }
 
-  // Ensure textareas have a sensible default size
-  textarea {
-    min-height: 8rem;
+  // Remove the grid layout in the form view
+  .profile-field {
+    display: block;
+    background: transparent;
+    padding: 0;
+    margin: 0 0 1.5rem;
+  }
+
+  .profile-field-label {
+    // Mimic the static label styles
+    color: var(--pico-h1-color);
+    font-weight: var(--pico-font-weight-bold);
+    margin-bottom: 0.5rem;
+  }
+
+  .profile-field-text {
+    width: 100%;
+    min-height: 5rem;
   }
 }

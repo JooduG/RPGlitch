@@ -57,6 +57,17 @@ export async function renderProfile(type, id) { // <-- Made this function async
   const h1 = document.createElement("h1");
   h1.className = "profile-name";
   h1.textContent = entity.name || "Empty";
+
+  // Signature Colour implementation
+  const signatureColour = entity.signatureColour || 'default';
+  const colourMap = {
+    default: 'var(--pico-h1-color)',
+    pink: '#ff6ad5',
+    emerald: '#00c853',
+    cyan: '#00b8d4',
+  };
+  h1.style.color = colourMap[signatureColour] || colourMap.default;
+
   content.appendChild(h1);
 
   if (entity.description) {
@@ -89,6 +100,9 @@ export async function renderProfile(type, id) { // <-- Made this function async
     }
   });
   content.appendChild(secWrap);
+
+  // Render tags below the description
+  renderTags(content, entity);
 
   rightCol.appendChild(content);
   layout.append(leftCol, rightCol);
