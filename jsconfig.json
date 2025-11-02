@@ -6,6 +6,7 @@
     "**/build/local_libs/**",
     "**/build/output/**",
     "**/memory-bank/archive/**",
+    "**/scribbles.md",
     "**mcp.json",
     "*.bak",
     "*.log",

@@ -20,7 +20,8 @@
     "/dist",
     "**mcp.json",
     "node_modules/",
-    "gha-creds-*.json"
+    "gha-creds-*.json",
+    "**/scribbles.md"
   ],
   "memory": [
     "**/.git/**",
