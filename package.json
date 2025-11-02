@@ -30,6 +30,7 @@
     "build:imageglitch": "node build/scripts/build-app.js imageglitch",
     "build:rpglitch": "node build/scripts/build-app.js rpglitch",
     "//--- MCP SERVERS ---": "",
+    "mcp:sync-to-claude-code": "node build/scripts/sync-mcp-to-claude-code.js",
     "mcp:start-all": "echo 'MCP servers configured in mcp.master.json - start via Claude Code or IDE'",
     "test:env": "dotenv -- node -e \"console.log('SMITHERY_API_KEY:', process.env.SMITHERY_API_KEY ? 'Found' : 'Not found')\""
   },

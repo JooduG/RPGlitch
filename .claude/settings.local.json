@@ -4,7 +4,16 @@
       "Bash(npm run build:rpglitch:*)",
       "Bash(npm run lint:fix:*)",
       "Bash(npm test)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(dir:*)",
+      "Read(//c/Users/johng/AppData/Roaming/**)",
+      "Read(//c/Users/johng/**)",
+      "Bash(claude mcp:*)",
+      "Bash(cat:*)",
+      "Bash(npm run sync:mcp:*)",
+      "Bash(cmd /c \"dir /s /b %USERPROFILE%\\.claude 2>nul\")",
+      "Bash(node build/scripts/sync-mcp-to-claude-code.js:*)",
+      "WebFetch(domain:perchance.org)"
     ],
     "deny": [],
     "ask": []

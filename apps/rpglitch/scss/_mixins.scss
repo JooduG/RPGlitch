@@ -1,6 +1,5 @@
 // This file will contain reusable SCSS mixins.
 @mixin card-common {
-  display: block;
   border: 0;
   backdrop-filter: blur(15px);
   z-index: auto;
