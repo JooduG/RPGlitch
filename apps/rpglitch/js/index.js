@@ -994,7 +994,8 @@ async function _ensureCardStructure(card) {
       } catch (error) {
         console.error('Failed to build card structure:', error);
         card.innerHTML = '';
-        return { media: null, body: null, titleEl: null, descEl: null, footer: null };
+        media = body = titleEl = descEl = footer = null;
+        return { media, body, titleEl, descEl, footer };
       }
     })();
 
