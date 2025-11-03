@@ -963,44 +963,48 @@ async function _ensureCardStructure(card) {
       try {
         card.innerHTML = '';
 
-        media = document.createElement("div");
-        media.className = "card-media";
-        card.appendChild(media);
+        const newMedia = document.createElement("div");
+        newMedia.className = "card-media";
+        card.appendChild(newMedia);
 
-        body = document.createElement("div");
-        body.className = "card-body";
-        card.appendChild(body);
+        const newBody = document.createElement("div");
+        newBody.className = "card-body";
+        card.appendChild(newBody);
 
-        titleEl = document.createElement("select");
-        titleEl.className = "card-title";
-        if (selectId) titleEl.id = selectId;
-        titleEl.dataset.entityType = cardType;
-        titleEl.dataset.type = cardType;
-        body.appendChild(titleEl);
+        const newTitleEl = document.createElement("select");
+        newTitleEl.className = "card-title";
+        if (selectId) newTitleEl.id = selectId;
+        newTitleEl.dataset.entityType = cardType;
+        newTitleEl.dataset.type = cardType;
+        newBody.appendChild(newTitleEl);
 
-        descEl = document.createElement("p");
-        descEl.className = "card-description";
-        body.appendChild(descEl);
+        const newDescEl = document.createElement("p");
+        newDescEl.className = "card-description";
+        newBody.appendChild(newDescEl);
 
-        footer = document.createElement("div");
-        footer.className = "card-footer";
-        card.appendChild(footer);
+        const newFooter = document.createElement("div");
+        newFooter.className = "card-footer";
+        card.appendChild(newFooter);
 
         const dataKey = cardType === "world" ? "worlds" : "characters";
-        await renderDropdown(document, selectId || titleEl.id, dataKey);
-        titleEl.addEventListener("change", onStoryboardChange);
+        await renderDropdown(document, selectId || newTitleEl.id, dataKey);
+        newTitleEl.addEventListener("change", onStoryboardChange);
 
-        return { media, body, titleEl, descEl, footer };
+        return { media: newMedia, body: newBody, titleEl: newTitleEl, descEl: newDescEl, footer: newFooter };
       } catch (error) {
         console.error('Failed to build card structure:', error);
         card.innerHTML = '';
-        media = body = titleEl = descEl = footer = null;
-        return { media, body, titleEl, descEl, footer };
+        return { media: null, body: null, titleEl: null, descEl: null, footer: null };
       }
     })();
 
     try {
-      await card._initPromise;
+      const resolvedElements = await card._initPromise;
+      media = resolvedElements.media;
+      body = resolvedElements.body;
+      titleEl = resolvedElements.titleEl;
+      descEl = resolvedElements.descEl;
+      footer = resolvedElements.footer;
     } finally {
       // Cleanup: prevent memory leak by removing temporary properties
       card._isInitializing = false;
