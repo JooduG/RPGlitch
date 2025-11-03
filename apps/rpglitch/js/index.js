@@ -960,42 +960,51 @@ async function _ensureCardStructure(card) {
 
     // Wrap setup logic in promise to prevent race conditions
     card._initPromise = (async () => {
-      card.innerHTML = '';
+      try {
+        card.innerHTML = '';
 
-      media = document.createElement("div");
-      media.className = "card-media";
-      card.appendChild(media);
+        media = document.createElement("div");
+        media.className = "card-media";
+        card.appendChild(media);
 
-      body = document.createElement("div");
-      body.className = "card-body";
-      card.appendChild(body);
+        body = document.createElement("div");
+        body.className = "card-body";
+        card.appendChild(body);
 
-      titleEl = document.createElement("select");
-      titleEl.className = "card-title";
-      if (selectId) titleEl.id = selectId;
-      titleEl.dataset.entityType = cardType;
-      titleEl.dataset.type = cardType;
-      body.appendChild(titleEl);
+        titleEl = document.createElement("select");
+        titleEl.className = "card-title";
+        if (selectId) titleEl.id = selectId;
+        titleEl.dataset.entityType = cardType;
+        titleEl.dataset.type = cardType;
+        body.appendChild(titleEl);
 
-      descEl = document.createElement("p");
-      descEl.className = "card-description";
-      body.appendChild(descEl);
+        descEl = document.createElement("p");
+        descEl.className = "card-description";
+        body.appendChild(descEl);
 
-      footer = document.createElement("div");
-      footer.className = "card-footer";
-      card.appendChild(footer);
+        footer = document.createElement("div");
+        footer.className = "card-footer";
+        card.appendChild(footer);
 
-      const dataKey = cardType === "world" ? "worlds" : "characters";
-      await renderDropdown(document, selectId || titleEl.id, dataKey);
-      titleEl.addEventListener("change", onStoryboardChange);
+        const dataKey = cardType === "world" ? "worlds" : "characters";
+        await renderDropdown(document, selectId || titleEl.id, dataKey);
+        titleEl.addEventListener("change", onStoryboardChange);
 
-      return { media, body, titleEl, descEl, footer };
+        return { media, body, titleEl, descEl, footer };
+      } catch (error) {
+        console.error('Failed to build card structure:', error);
+        card.innerHTML = '';
+        return { media: null, body: null, titleEl: null, descEl: null, footer: null };
+      }
     })();
 
-    await card._initPromise;
-    // Cleanup: prevent memory leak by removing temporary properties
-    card._isInitializing = false;
-    delete card._initPromise;
+    try {
+      await card._initPromise;
+    } finally {
+      // Cleanup: prevent memory leak by removing temporary properties
+      card._isInitializing = false;
+      delete card._initPromise;
+    }
   }
 
   if (descEl && !descEl.dataset.placeholder) {
