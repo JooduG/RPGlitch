@@ -14,6 +14,7 @@ import {
   deriveBrand,
   _uiWatchdogStarted,
   initDebugMode,
+  handleAsyncError,
 } from './utils.js';
 import {
   entities,
@@ -328,7 +329,6 @@ const DATA_KEYS = ["stories", "characters", "worlds"];
 // UI Timing Constants
 const BLUR_SUPPRESS_DURATION_MS = 1200;
 const DEBOUNCE_SEARCH_MS = 250;
-const AUTO_UNLOCK_DELAYS_MS = [0, 50, 200];
 const UI_WATCHDOG_MAX_ATTEMPTS = 24;
 
 let _cardNavAttached = false;
@@ -886,7 +886,16 @@ export function _attachCardNavigation() {
 
 // ========== Storyboard Card Helpers ==========
 
-// Helper: Resolve card and entity from target (select or card element)
+/**
+ * Resolves card element and entity data from target (select or card element).
+ *
+ * @param {HTMLElement|string} target - Either a select element or card element/selector
+ * @param {Object} entityOrKey - Entity object or key for lookup
+ * @returns {Promise<{card: HTMLElement|null, entity: Object|null}>} Card and entity objects
+ *
+ * Error handling: Uses handleAsyncError to show user alert on entity load failure.
+ * Returns null entity on error (does not throw).
+ */
 async function _resolveCardAndEntity(target, entityOrKey) {
   let card, entity;
 
@@ -897,13 +906,14 @@ async function _resolveCardAndEntity(target, entityOrKey) {
     const id = select.value || "";
 
     if (id) {
-      try {
-        entity = await entities.get(type, id);
-      } catch (error) {
-        console.error(`Failed to load ${type}:`, error);
-        alert(`Could not load ${type} details. Please try again.`);
-        entity = null;
-      }
+      entity = await handleAsyncError(
+        async () => await entities.get(type, id),
+        {
+          errorMessage: `Could not load ${type} details. Please try again.`,
+          context: `load ${type}`,
+          fallback: null
+        }
+      );
     } else {
       entity = null;
     }
@@ -915,8 +925,22 @@ async function _resolveCardAndEntity(target, entityOrKey) {
   return { card, entity };
 }
 
-// Helper: Ensure card has proper structure (create elements if missing)
+/**
+ * Ensures card has proper DOM structure (creates elements if missing).
+ * Implements race condition prevention using promise-based locking.
+ *
+ * @param {HTMLElement} card - The storyboard card element
+ * @returns {Promise<{media: HTMLElement, body: HTMLElement, titleEl: HTMLElement, descEl: HTMLElement, footer: HTMLElement}>} Card element references
+ *
+ * Error handling: Does not throw. Returns existing structure or builds new one.
+ * Race condition safe: Multiple concurrent calls will await the same initialization promise.
+ */
 async function _ensureCardStructure(card) {
+  // Guard against race condition: if already initializing, wait for completion
+  if (card._isInitializing) {
+    return await card._initPromise;
+  }
+
   const cardId = card.id;
   const cardType = card.dataset?.type;
   const selectId = cardId ? `${cardId}-select` : null;
@@ -929,34 +953,44 @@ async function _ensureCardStructure(card) {
 
   // Build structure if empty
   if (!media || !body || !titleEl || !descEl || !footer) {
-    card.innerHTML = '';
+    card._isInitializing = true;
 
-    media = document.createElement("div");
-    media.className = "card-media";
-    card.appendChild(media);
+    // Wrap setup logic in promise to prevent race conditions
+    card._initPromise = (async () => {
+      card.innerHTML = '';
 
-    body = document.createElement("div");
-    body.className = "card-body";
-    card.appendChild(body);
+      media = document.createElement("div");
+      media.className = "card-media";
+      card.appendChild(media);
 
-    titleEl = document.createElement("select");
-    titleEl.className = "card-title";
-    if (selectId) titleEl.id = selectId;
-    titleEl.dataset.entityType = cardType;
-    titleEl.dataset.type = cardType;
-    body.appendChild(titleEl);
+      body = document.createElement("div");
+      body.className = "card-body";
+      card.appendChild(body);
 
-    descEl = document.createElement("p");
-    descEl.className = "card-description";
-    body.appendChild(descEl);
+      titleEl = document.createElement("select");
+      titleEl.className = "card-title";
+      if (selectId) titleEl.id = selectId;
+      titleEl.dataset.entityType = cardType;
+      titleEl.dataset.type = cardType;
+      body.appendChild(titleEl);
 
-    footer = document.createElement("div");
-    footer.className = "card-footer";
-    card.appendChild(footer);
+      descEl = document.createElement("p");
+      descEl.className = "card-description";
+      body.appendChild(descEl);
 
-    const dataKey = cardType === "world" ? "worlds" : "characters";
-    await renderDropdown(document, selectId || titleEl.id, dataKey);
-    titleEl.addEventListener("change", onStoryboardChange);
+      footer = document.createElement("div");
+      footer.className = "card-footer";
+      card.appendChild(footer);
+
+      const dataKey = cardType === "world" ? "worlds" : "characters";
+      await renderDropdown(document, selectId || titleEl.id, dataKey);
+      titleEl.addEventListener("change", onStoryboardChange);
+
+      return { media, body, titleEl, descEl, footer };
+    })();
+
+    await card._initPromise;
+    card._isInitializing = false;
   }
 
   if (descEl && !descEl.dataset.placeholder) {
@@ -966,8 +1000,20 @@ async function _ensureCardStructure(card) {
   return { media, body, titleEl, descEl, footer };
 }
 
-// Helper: Build picture node from entity data or placeholder template
-function _buildPictureNode(ent, { preferTemplateForEmpty = true } = {}) {
+/**
+ * Builds a picture node from entity data or placeholder template.
+ * Pure function - does not query DOM directly, uses provided templates.
+ *
+ * @param {Object} ent - Entity object with kind, imageUrl, id, and name
+ * @param {Object} options - Options object
+ * @param {boolean} options.preferTemplateForEmpty - Use template for empty states (default: true)
+ * @param {Object} options.templates - Map of template IDs to template elements
+ * @returns {HTMLElement} Picture node (either from template, getPictureHTML, or fallback div)
+ *
+ * Error handling: Does not throw. Returns fallback div if all attempts fail.
+ * Pure function: No DOM queries, only uses provided templates parameter.
+ */
+function _buildPictureNode(ent, { preferTemplateForEmpty = true, templates = {} } = {}) {
   const kind = (ent && ent.kind) || "";
   const isEmpty = !ent || !ent.imageUrl;
   const hasEntity = !!(ent && (ent.id || ent.name));
@@ -975,7 +1021,7 @@ function _buildPictureNode(ent, { preferTemplateForEmpty = true } = {}) {
   // Try to use template for empty states
   if (preferTemplateForEmpty && isEmpty && !hasEntity) {
     const id = kind ? `tpl-storyboard-picture-${kind}` : "tpl-storyboard-picture-default";
-    const tpl = document.querySelector(`#${id}`) || document.querySelector("#tpl-storyboard-picture-default");
+    const tpl = templates[id] || templates["tpl-storyboard-picture-default"];
     if (tpl && tpl.content && tpl.content.firstElementChild) {
       return tpl.content.firstElementChild.cloneNode(true);
     }
@@ -1020,15 +1066,24 @@ function _buildPictureNode(ent, { preferTemplateForEmpty = true } = {}) {
   return out;
 }
 
-// Helper: Populate card with entity data
-function _populateCardWithEntity(card, entity, elements) {
+/**
+ * Populates a storyboard card with entity data.
+ *
+ * @param {HTMLElement} card - The storyboard card element
+ * @param {Object} entity - Entity object with description, isPremade, kind, id
+ * @param {Object} elements - Card DOM element references
+ * @param {Object} templates - Template elements map for picture generation
+ *
+ * Error handling: Does not throw. Silently handles missing elements.
+ */
+function _populateCardWithEntity(card, entity, elements, templates) {
   const { media, descEl, footer } = elements;
 
   if (descEl) descEl.textContent = entity.description || "";
 
   if (media) {
     media.textContent = "";
-    media.appendChild(_buildPictureNode(entity));
+    media.appendChild(_buildPictureNode(entity, { templates }));
     applyBrand?.(media, entity);
   }
 
@@ -1060,15 +1115,23 @@ function _populateCardWithEntity(card, entity, elements) {
   card.classList.toggle('selected', isSelected);
 }
 
-// Helper: Clear card to empty state
-function _clearCard(card, elements) {
+/**
+ * Clears a storyboard card to empty state.
+ *
+ * @param {HTMLElement} card - The storyboard card element
+ * @param {Object} elements - Card DOM element references
+ * @param {Object} templates - Template elements map for placeholder picture
+ *
+ * Error handling: Does not throw. Silently handles missing elements.
+ */
+function _clearCard(card, elements, templates) {
   const { media, descEl, footer } = elements;
 
   if (descEl) descEl.textContent = descEl.dataset.placeholder || "";
 
   if (media) {
     media.textContent = "";
-    media.appendChild(_buildPictureNode({ kind: card.dataset.type }));
+    media.appendChild(_buildPictureNode({ kind: card.dataset.type }, { templates }));
     card?.style?.removeProperty("--brand");
     media?.style?.removeProperty("--brand");
   }
@@ -1093,10 +1156,17 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) {
 
   const elements = await _ensureCardStructure(card);
 
+  // Query templates once for purity
+  const templates = {
+    "tpl-storyboard-picture-character": document.querySelector("#tpl-storyboard-picture-character"),
+    "tpl-storyboard-picture-world": document.querySelector("#tpl-storyboard-picture-world"),
+    "tpl-storyboard-picture-default": document.querySelector("#tpl-storyboard-picture-default")
+  };
+
   if (entity) {
-    _populateCardWithEntity(card, entity, elements);
+    _populateCardWithEntity(card, entity, elements, templates);
   } else {
-    _clearCard(card, elements);
+    _clearCard(card, elements, templates);
   }
 }
 
@@ -1530,6 +1600,7 @@ export function _attachContentChinActions() {
     if (newButton) {
       newButton.addEventListener("click", () => {
         if (key === "stories") {
+          // No storyboard reset needed - cards update dynamically via router/state changes
           router.navigate("#storyboard");
           return;
         }

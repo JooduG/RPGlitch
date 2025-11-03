@@ -13,7 +13,8 @@ import {
   buildHero,
   renderTags,
   BASE_COLOUR_MAP,
-  replaceEventHandler
+  replaceEventHandler,
+  PROFILE_RESIZE_DEBOUNCE_MS
 } from './utils.js';
 import {
   router
@@ -113,7 +114,7 @@ export async function renderProfile(type, id) { // <-- Made this function async
       profileResizeBound = true;
       window.addEventListener(
         "resize",
-        debounce(() => setProfileLayoutSizing?.(0.35), 150)
+        debounce(() => setProfileLayoutSizing?.(0.35), PROFILE_RESIZE_DEBOUNCE_MS)
       );
     }
   } catch {

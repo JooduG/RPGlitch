@@ -11,7 +11,8 @@ import {
   applyBrand,
   buildHero,
   renderTags,
-  replaceEventHandler
+  replaceEventHandler,
+  handleAsyncError
 } from './utils.js';
 import {
   router
@@ -223,36 +224,36 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
 
   if (saveBtn) {
     const saveHandler = async () => {
-      try {
-        const data = {
-          kind: type,
-          name: escapeHtml(form.elements.name.value.trim()),
-          description: escapeHtml(form.elements.description.value.trim()),
-          imageUrl: escapeHtml(imageInput.value.trim()),
-          image: escapeHtml(imageInput.value.trim()),
-          signatureColour: escapeHtml(paletteSelect.value.trim()),
-          tags: entity.tags || [],
-          sections: {
-            forever: escapeHtml(form.elements.forever.value.trim()),
-            past: escapeHtml(form.elements.past.value.trim()),
-            present: escapeHtml(form.elements.present.value.trim()),
-            future: escapeHtml(form.elements.future.value.trim()),
-          },
-        };
-        if (!data.name) {
-          alert('Please enter a name for this entity.');
-          return;
-        }
+      const data = {
+        kind: type,
+        name: escapeHtml(form.elements.name.value.trim()),
+        description: escapeHtml(form.elements.description.value.trim()),
+        imageUrl: escapeHtml(imageInput.value.trim()),
+        image: escapeHtml(imageInput.value.trim()),
+        signatureColour: escapeHtml(paletteSelect.value.trim()),
+        tags: entity.tags || [],
+        sections: {
+          forever: escapeHtml(form.elements.forever.value.trim()),
+          past: escapeHtml(form.elements.past.value.trim()),
+          present: escapeHtml(form.elements.present.value.trim()),
+          future: escapeHtml(form.elements.future.value.trim()),
+        },
+      };
+      if (!data.name) {
+        alert('Please enter a name for this entity.');
+        return;
+      }
 
+      await handleAsyncError(async () => {
         const originalEntity = isEdit ? await entities.get(type, id) : null;
         const isEditingPremade = originalEntity?.isPremade;
         const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
         const saved = await entities.upsert(type, entityToSave);
         router.navigate(`#profile/${type}/${saved.id}`);
-      } catch (error) {
-        console.error('Save failed:', error);
-        alert(error.message || 'Failed to save. Please try again.');
-      }
+      }, {
+        errorMessage: 'Failed to save. Please try again.',
+        context: 'save entity'
+      });
     };
     replaceEventHandler(saveBtn, 'click', saveHandler, '_saveHandler');
   }
