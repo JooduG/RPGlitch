@@ -12,8 +12,8 @@ export const BASE_COLOUR_MAP = {
 };
 
 // UI Timing Constants
-const AUTO_UNLOCK_DELAYS_MS = [0, 50, 200];
-const UI_WATCHDOG_INTERVAL_MS = 500;
+export const AUTO_UNLOCK_DELAYS_MS = [0, 50, 200];
+export const UI_WATCHDOG_INTERVAL_MS = 500;
 export const PROFILE_RESIZE_DEBOUNCE_MS = 150;
 
 export function generateUUID() {

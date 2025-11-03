@@ -229,7 +229,6 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
         name: escapeHtml(form.elements.name.value.trim()),
         description: escapeHtml(form.elements.description.value.trim()),
         imageUrl: escapeHtml(imageInput.value.trim()),
-        image: escapeHtml(imageInput.value.trim()),
         signatureColour: escapeHtml(paletteSelect.value.trim()),
         tags: entity.tags || [],
         sections: {
@@ -239,12 +238,13 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
           future: escapeHtml(form.elements.future.value.trim()),
         },
       };
-      if (!data.name) {
-        alert('Please enter a name for this entity.');
-        return;
-      }
 
       await handleAsyncError(async () => {
+        // Validation inside async block for consistent error handling
+        if (!data.name) {
+          throw new Error('Please enter a name for this entity.');
+        }
+
         const originalEntity = isEdit ? await entities.get(type, id) : null;
         const isEditingPremade = originalEntity?.isPremade;
         const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };

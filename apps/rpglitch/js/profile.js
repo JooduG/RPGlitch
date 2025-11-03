@@ -14,7 +14,8 @@ import {
   renderTags,
   BASE_COLOUR_MAP,
   replaceEventHandler,
-  PROFILE_RESIZE_DEBOUNCE_MS
+  PROFILE_RESIZE_DEBOUNCE_MS,
+  handleAsyncError
 } from './utils.js';
 import {
   router
@@ -25,16 +26,12 @@ export async function renderProfile(type, id) { // <-- Made this function async
   const sb = document.querySelector("#storyboard-screen");
   if (sb) hideEl(sb);
 
-  try {
-    // v-- This is the key change: we await the database call --v
+  await handleAsyncError(async () => {
     const entity = await entities.get(type, id);
 
     if (!entity) {
-      console.warn(`Entity not found for profile: ${type}/${id}. Redirecting.`);
-      router.navigate("#");
-      return;
+      throw new Error(`Entity not found for profile: ${type}/${id}`);
     }
-    // ^-- From here down, the code is the same because `entity` is now populated --^
 
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
@@ -148,9 +145,14 @@ export async function renderProfile(type, id) { // <-- Made this function async
       `#form/${type}/${entity.id}?return=#profile/${type}/${entity.id}`
     );
   });
-  } catch (error) {
-    console.error('Failed to load profile:', error);
-    alert('Could not load profile. Please try again.');
+  }, {
+    errorMessage: 'Could not load profile. Please try again.',
+    context: 'load profile',
+    fallback: null
+  });
+
+  // Navigate away on error (after handleAsyncError shows alert)
+  if (!document.querySelector("#profile-screen")?.textContent) {
     router.navigate("#");
   }
 }

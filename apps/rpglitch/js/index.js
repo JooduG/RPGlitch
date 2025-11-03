@@ -339,6 +339,9 @@ let _chinSearchBound = false;
 let _bootBound = false;
 let _bootStarted = false;
 
+// Cache for storyboard picture templates (populated in initializeWhenReady)
+let templates = {};
+
 
 export function _getUIElements() {
   const doc = document;
@@ -990,7 +993,9 @@ async function _ensureCardStructure(card) {
     })();
 
     await card._initPromise;
+    // Cleanup: prevent memory leak by removing temporary properties
     card._isInitializing = false;
+    delete card._initPromise;
   }
 
   if (descEl && !descEl.dataset.placeholder) {
@@ -1007,13 +1012,18 @@ async function _ensureCardStructure(card) {
  * @param {Object} ent - Entity object with kind, imageUrl, id, and name
  * @param {Object} options - Options object
  * @param {boolean} options.preferTemplateForEmpty - Use template for empty states (default: true)
- * @param {Object} options.templates - Map of template IDs to template elements
+ * @param {Object} options.templates - Map of template IDs to template elements (REQUIRED)
  * @returns {HTMLElement} Picture node (either from template, getPictureHTML, or fallback div)
  *
  * Error handling: Does not throw. Returns fallback div if all attempts fail.
  * Pure function: No DOM queries, only uses provided templates parameter.
  */
-function _buildPictureNode(ent, { preferTemplateForEmpty = true, templates = {} } = {}) {
+function _buildPictureNode(ent, { preferTemplateForEmpty = true, templates } = {}) {
+  // Warn if templates object is missing (indicates improper usage)
+  if (!templates || typeof templates !== 'object') {
+    console.warn('[_buildPictureNode] templates parameter is missing or invalid. Picture generation may fail.');
+  }
+
   const kind = (ent && ent.kind) || "";
   const isEmpty = !ent || !ent.imageUrl;
   const hasEntity = !!(ent && (ent.id || ent.name));
@@ -1038,11 +1048,8 @@ function _buildPictureNode(ent, { preferTemplateForEmpty = true, templates = {} 
       });
       if (maybe instanceof Node) {
         out = maybe;
-      } else if (typeof maybe === "string") {
-        const tpl = document.createElement("template");
-        tpl.innerHTML = window.DOMPurify ? window.DOMPurify.sanitize(maybe.trim()) : maybe.trim();
-        out = tpl.content.firstElementChild;
       }
+      // Note: getPictureHTML always returns a Node, string branch removed for security
     }
   } catch {
     /* empty */
@@ -1156,13 +1163,7 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) {
 
   const elements = await _ensureCardStructure(card);
 
-  // Query templates once for purity
-  const templates = {
-    "tpl-storyboard-picture-character": document.querySelector("#tpl-storyboard-picture-character"),
-    "tpl-storyboard-picture-world": document.querySelector("#tpl-storyboard-picture-world"),
-    "tpl-storyboard-picture-default": document.querySelector("#tpl-storyboard-picture-default")
-  };
-
+  // Use cached templates for performance (populated in initializeWhenReady)
   if (entity) {
     _populateCardWithEntity(card, entity, elements, templates);
   } else {
@@ -1842,6 +1843,14 @@ export async function initializeWhenReady() { // <-- MADE ASYNC
 
   try {
     _getUIElements();
+
+    // Cache storyboard picture templates once for performance
+    templates = {
+      "tpl-storyboard-picture-character": document.querySelector("#tpl-storyboard-picture-character"),
+      "tpl-storyboard-picture-world": document.querySelector("#tpl-storyboard-picture-world"),
+      "tpl-storyboard-picture-default": document.querySelector("#tpl-storyboard-picture-default")
+    };
+
     _attachChatFormListener?.();
     if (!TEST_MODE) chin.init?.();
     _attachOptionChinActions?.();
