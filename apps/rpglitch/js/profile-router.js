@@ -48,13 +48,6 @@ function handleRoute() {
     void e;
   }
   if (section === "profile" && isType(type) && id) {
-    // if (
-    //   typeof canAccessProfile === "function" &&
-    //   !canAccessProfile(type, id)
-    // ) {
-    //   showStoryboard();
-    //   return;
-    // }
     setTopBarRight?.("profile");
     hideEl("#storyboard-screen");
     hideEl("#character-form-screen");
@@ -68,13 +61,6 @@ function handleRoute() {
       void e;
     }
   } else if (section === "form" && isType(type)) {
-    // if (
-    //   typeof canAccessForm === "function" &&
-    //   !canAccessForm(type, id)
-    // ) {
-    //   showStoryboard();
-    //   return;
-    // }
     setTopBarRight?.("form");
     hideEl("#storyboard-screen");
     hideEl("#profile-screen");

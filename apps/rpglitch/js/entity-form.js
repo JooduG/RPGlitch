@@ -10,7 +10,8 @@ import {
   escapeHtml,
   applyBrand,
   buildHero,
-  renderTags
+  renderTags,
+  replaceEventHandler
 } from './utils.js';
 import {
   router
@@ -56,15 +57,11 @@ function renderTagPills(container, tags) {
 export async function renderForm(type, id) { // <-- MADE ASYNC
   const cancelBtn = document.querySelector("#form-cancel");
   if (cancelBtn) {
-    if (cancelBtn._cancelHandler) {
-      cancelBtn.removeEventListener('click', cancelBtn._cancelHandler);
-    }
     const cancelHandler = (e) => {
       e?.preventDefault();
       navigateBackOrReturnDefault(undefined, router);
     };
-    cancelBtn.addEventListener("click", cancelHandler);
-    cancelBtn._cancelHandler = cancelHandler;
+    replaceEventHandler(cancelBtn, 'click', cancelHandler, '_cancelHandler');
   }
 
   const sb = document.querySelector("#storyboard-screen");
@@ -225,9 +222,6 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   }
 
   if (saveBtn) {
-    if (saveBtn._saveHandler) {
-      saveBtn.removeEventListener('click', saveBtn._saveHandler);
-    }
     const saveHandler = async () => {
       try {
         const data = {
@@ -260,8 +254,7 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
         alert(error.message || 'Failed to save. Please try again.');
       }
     };
-    saveBtn.addEventListener("click", saveHandler);
-    saveBtn._saveHandler = saveHandler;
+    replaceEventHandler(saveBtn, 'click', saveHandler, '_saveHandler');
   }
 
   if (!isEdit) {

@@ -11,6 +11,11 @@ export const BASE_COLOUR_MAP = {
   cyan: '#00b8d4'
 };
 
+// UI Timing Constants
+const AUTO_UNLOCK_DELAYS_MS = [0, 50, 200];
+const UI_WATCHDOG_INTERVAL_MS = 500;
+const PROFILE_RESIZE_DEBOUNCE_MS = 150;
+
 export function generateUUID() {
   // Public Domain/MIT
   let d = new Date().getTime(); //Timestamp
@@ -67,6 +72,58 @@ export function escapeHtml(str) {
   return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// ---------- Error Handling ----------
+
+/**
+ * Standardized async error handler wrapper
+ * @param {Function} asyncFn - Async function to execute
+ * @param {Object} options - Error handling options
+ * @param {string} options.errorMessage - User-facing error message
+ * @param {string} options.context - Context for logging (e.g., 'save entity', 'delete message')
+ * @param {boolean} options.showAlert - Whether to show alert to user (default: true)
+ * @param {*} options.fallback - Fallback value to return on error
+ * @returns {Promise<*>} Result of asyncFn or fallback value
+ */
+export async function handleAsyncError(asyncFn, options = {}) {
+  const {
+    errorMessage = 'An error occurred. Please try again.',
+    context = 'operation',
+    showAlert = true,
+    fallback = null
+  } = options;
+
+  try {
+    return await asyncFn();
+  } catch (error) {
+    console.error(`Failed to ${context}:`, error);
+    if (showAlert) {
+      alert(errorMessage);
+    }
+    return fallback;
+  }
+}
+
+// ---------- Event Handler Utilities ----------
+
+/**
+ * Safely replace an event listener, removing old handler if it exists
+ * @param {HTMLElement} element - Target element
+ * @param {string} eventType - Event type (e.g., 'click', 'submit')
+ * @param {Function} handler - New event handler function
+ * @param {string} handlerKey - Property name to store handler reference (default: '_handler')
+ */
+export function replaceEventHandler(element, eventType, handler, handlerKey = '_handler') {
+  if (!element) return;
+
+  // Remove old handler if it exists
+  if (element[handlerKey]) {
+    element.removeEventListener(eventType, element[handlerKey]);
+  }
+
+  // Add new handler and store reference
+  element.addEventListener(eventType, handler);
+  element[handlerKey] = handler;
+}
 
 // ---------- Debug Logger ----------
 // Uses IndexedDB for persistence (migrated from localStorage)
@@ -557,7 +614,7 @@ export function startUIWatchdog() {
         void 0;
       }
     };
-    uiWatchdogTimer = setInterval(tick, 500);
+    uiWatchdogTimer = setInterval(tick, UI_WATCHDOG_INTERVAL_MS);
     // Run immediately once
     tick();
     try {
@@ -613,9 +670,7 @@ export function enableAutoUnlock() {
     autoUnlockBound = true;
     window.addEventListener('pointerdown', () => {
       // Run after other handlers to avoid interference; repeat to catch late overlays
-      setTimeout(() => unlockNow?.(), 0);
-      setTimeout(() => unlockNow?.(), 50);
-      setTimeout(() => unlockNow?.(), 200);
+      AUTO_UNLOCK_DELAYS_MS.forEach(delay => setTimeout(() => unlockNow?.(), delay));
     }, true);
     log?.('ui.autounlock: enabled');
   } catch {
@@ -819,17 +874,6 @@ export function buildHero(entity) {
   }
   renderTags(wrap, entity);
   return wrap;
-}
-
-// ---------- Image helper ----------
-export function getPictureNode(entity, opts = {}) {
-  const html =
-    (getPictureHTML || getPictureHTML)?.(
-      entity || {},
-      opts
-    ) || "";
-  const frag = document.createDocumentFragment().appendChild(document.createTextNode(html));
-  return frag.firstElementChild || document.createElement("div");
 }
 
 // ---------- Navigation shims ----------

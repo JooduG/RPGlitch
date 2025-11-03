@@ -325,6 +325,12 @@ const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
 
 const DATA_KEYS = ["stories", "characters", "worlds"];
 
+// UI Timing Constants
+const BLUR_SUPPRESS_DURATION_MS = 1200;
+const DEBOUNCE_SEARCH_MS = 250;
+const AUTO_UNLOCK_DELAYS_MS = [0, 50, 200];
+const UI_WATCHDOG_MAX_ATTEMPTS = 24;
+
 let _cardNavAttached = false;
 let _suppressNextBlur = false;
 let _optionsListenersAttached = false;
@@ -407,7 +413,7 @@ export function _attachChinSearchHandlers() {
 
     const handler = TEST_MODE ?
       doFilter :
-      debounce(doFilter, 250);
+      debounce(doFilter, DEBOUNCE_SEARCH_MS);
     input.addEventListener("input", handler);
     input._chinSearchBound = true;
   });
@@ -444,9 +450,6 @@ async function loadStoryboardSelection() {
   }
 }
 
-export function resetStoryboard() {
-  // placeholder for future storyboard reset logic
-}
 
 
 /**
@@ -737,7 +740,7 @@ export function _attachCardNavigation() {
           _suppressNextBlur = true;
           setTimeout(() => {
             _suppressNextBlur = false;
-          }, 1200);
+          }, BLUR_SUPPRESS_DURATION_MS);
         }
       }, {
         passive: true,
@@ -814,7 +817,7 @@ export function _attachCardNavigation() {
         requestAnimationFrame(() => {
           setTimeout(() => {
             _suppressNextBlur = false;
-          }, 1200);
+          }, BLUR_SUPPRESS_DURATION_MS);
         });
         return;
       }
@@ -839,7 +842,7 @@ export function _attachCardNavigation() {
         requestAnimationFrame(() => {
           setTimeout(() => {
             _suppressNextBlur = false;
-          }, 1200);
+          }, BLUR_SUPPRESS_DURATION_MS);
         });
         return;
       }
@@ -881,17 +884,16 @@ export function _attachCardNavigation() {
 
 
 
-async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MADE ASYNC
+// ========== Storyboard Card Helpers ==========
+
+// Helper: Resolve card and entity from target (select or card element)
+async function _resolveCardAndEntity(target, entityOrKey) {
   let card, entity;
 
   if (target && target.tagName === "SELECT") {
     const select = target;
     card = select.closest(".card");
-    const type =
-      card?.dataset?.type ||
-      select.dataset.entityType ||
-      select.dataset.type ||
-      "";
+    const type = card?.dataset?.type || select.dataset.entityType || select.dataset.type || "";
     const id = select.value || "";
 
     if (id) {
@@ -906,26 +908,26 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
       entity = null;
     }
   } else {
-    card =
-      typeof target === "string" ? document.querySelector(target) : target;
+    card = typeof target === "string" ? document.querySelector(target) : target;
     entity = entityOrKey || null;
   }
 
-  if (!card) return;
+  return { card, entity };
+}
 
-  // Determine the card type and generate a unique select ID
-  const cardId = card.id; // e.g., "storyboard-card-ai", "storyboard-card-user", "storyboard-card-world"
-  const cardType = card.dataset?.type; // "character" or "world"
+// Helper: Ensure card has proper structure (create elements if missing)
+async function _ensureCardStructure(card) {
+  const cardId = card.id;
+  const cardType = card.dataset?.type;
   const selectId = cardId ? `${cardId}-select` : null;
 
-  // Check if card already has structure, if so, just update content
   let media = card.querySelector(".card-media");
   let body = card.querySelector(".card-body");
   let titleEl = card.querySelector(".card-title");
   let descEl = card.querySelector(".card-description");
   let footer = card.querySelector(".card-footer");
 
-  // If card is empty, create the structure
+  // Build structure if empty
   if (!media || !body || !titleEl || !descEl || !footer) {
     card.innerHTML = '';
 
@@ -952,11 +954,8 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
     footer.className = "card-footer";
     card.appendChild(footer);
 
-    // Populate the select dropdown
     const dataKey = cardType === "world" ? "worlds" : "characters";
     await renderDropdown(document, selectId || titleEl.id, dataKey);
-
-    // Attach change event listener
     titleEl.addEventListener("change", onStoryboardChange);
   }
 
@@ -964,115 +963,140 @@ async function updateStoryboardCard(target, entityOrKey, opts = {}) { // <-- MAD
     descEl.dataset.placeholder = descEl.textContent || "";
   }
 
-  const buildPictureNode = (ent, { preferTemplateForEmpty = true } = {}) => {
-    const kind = (ent && ent.kind) || "";
-    const isEmpty = !ent || !ent.imageUrl;
+  return { media, body, titleEl, descEl, footer };
+}
 
-    const hasEntity = !!(ent && (ent.id || ent.name));
-    if (preferTemplateForEmpty && isEmpty && !hasEntity) {
-      const id = kind ?
-        `tpl-storyboard-picture-${kind}` :
-        "tpl-storyboard-picture-default";
-      const tpl =
-        document.querySelector(`#${id}`) ||
-        document.querySelector("#tpl-storyboard-picture-default");
-      if (tpl && tpl.content && tpl.content.firstElementChild) {
-        return tpl.content.firstElementChild.cloneNode(true);
+// Helper: Build picture node from entity data or placeholder template
+function _buildPictureNode(ent, { preferTemplateForEmpty = true } = {}) {
+  const kind = (ent && ent.kind) || "";
+  const isEmpty = !ent || !ent.imageUrl;
+  const hasEntity = !!(ent && (ent.id || ent.name));
+
+  // Try to use template for empty states
+  if (preferTemplateForEmpty && isEmpty && !hasEntity) {
+    const id = kind ? `tpl-storyboard-picture-${kind}` : "tpl-storyboard-picture-default";
+    const tpl = document.querySelector(`#${id}`) || document.querySelector("#tpl-storyboard-picture-default");
+    if (tpl && tpl.content && tpl.content.firstElementChild) {
+      return tpl.content.firstElementChild.cloneNode(true);
+    }
+  }
+
+  // Generate picture HTML
+  let out = null;
+  try {
+    if (typeof getPictureHTML === "function") {
+      const maybe = getPictureHTML(ent || { kind }, {
+        context: "storyboard",
+        cover: true,
+        neutralPlaceholder: !hasEntity,
+      });
+      if (maybe instanceof Node) {
+        out = maybe;
+      } else if (typeof maybe === "string") {
+        const tpl = document.createElement("template");
+        tpl.innerHTML = window.DOMPurify ? window.DOMPurify.sanitize(maybe.trim()) : maybe.trim();
+        out = tpl.content.firstElementChild;
       }
     }
+  } catch {
+    /* empty */
+  }
 
-    let out = null;
-    try {
-      if (typeof getPictureHTML === "function") {
-        const maybe = getPictureHTML(ent || {
-          kind
-        }, {
-          context: "storyboard",
-          cover: true,
-          neutralPlaceholder: !hasEntity,
-        });
-        if (maybe instanceof Node) {
-          out = maybe;
-        } else if (typeof maybe === "string") {
-          const tpl = document.createElement("template");
-          tpl.innerHTML = window.DOMPurify ?
-            window.DOMPurify.sanitize(maybe.trim()) :
-            maybe.trim();
-          out = tpl.content.firstElementChild;
-        }
-      }
-    } catch {
-      /* empty */
-    }
+  // Fallback to empty div
+  if (!out) {
+    const div = document.createElement("div");
+    div.className = "picture picture--cover";
+    out = div;
+  }
 
-    if (!out) {
-      const div = document.createElement("div");
-      div.className = "picture picture--cover";
-      out = div;
-    }
+  // Configure image attributes
+  const img = out.querySelector?.("img");
+  if (img) {
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.referrerPolicy = "no-referrer";
+    img.alt = img.alt || (ent?.kind ? `${ent.kind} image` : "image");
+  }
+  return out;
+}
 
-    const img = out.querySelector?.("img");
-    if (img) {
-      img.loading = "lazy";
-      img.decoding = "async";
-      img.referrerPolicy = "no-referrer";
-      img.alt = img.alt || (ent?.kind ? `${ent.kind} image` : "image");
+// Helper: Populate card with entity data
+function _populateCardWithEntity(card, entity, elements) {
+  const { media, descEl, footer } = elements;
+
+  if (descEl) descEl.textContent = entity.description || "";
+
+  if (media) {
+    media.textContent = "";
+    media.appendChild(_buildPictureNode(entity));
+    applyBrand?.(media, entity);
+  }
+
+  if (footer) {
+    footer.querySelectorAll(".chip").forEach((n) => n.remove());
+    if (entity.isPremade) {
+      const pill = document.createElement("span");
+      pill.className = "chip";
+      const sm = document.createElement("small");
+      sm.textContent = "Premade";
+      pill.appendChild(sm);
+      footer.appendChild(pill);
     }
-    return out;
-  };
+  }
+
+  applyBrand(card, entity);
+  card.dataset.entityType = card.dataset.type || entity.kind || "";
+  card.dataset.entityId = entity.id;
+
+  const select = card.querySelector("select");
+  if (select && select.value !== String(entity.id)) {
+    select.value = String(entity.id);
+  }
+
+  const isSelected = App.state.ui.selectedStoryboardCard &&
+    App.state.ui.selectedStoryboardCard.id === entity.id &&
+    App.state.ui.selectedStoryboardCard.type === entity.type;
+
+  card.classList.toggle('selected', isSelected);
+}
+
+// Helper: Clear card to empty state
+function _clearCard(card, elements) {
+  const { media, descEl, footer } = elements;
+
+  if (descEl) descEl.textContent = descEl.dataset.placeholder || "";
+
+  if (media) {
+    media.textContent = "";
+    media.appendChild(_buildPictureNode({ kind: card.dataset.type }));
+    card?.style?.removeProperty("--brand");
+    media?.style?.removeProperty("--brand");
+  }
+
+  if (footer) footer.querySelectorAll(".chip").forEach((n) => n.remove());
+
+  card.classList.remove('selected');
+  delete card.dataset.entityType;
+  delete card.dataset.entityId;
+
+  const select = card.querySelector("select");
+  if (select && select.value !== "") {
+    select.value = "";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+}
+
+// Main: Update storyboard card (orchestrates helpers)
+async function updateStoryboardCard(target, entityOrKey, opts = {}) {
+  const { card, entity } = await _resolveCardAndEntity(target, entityOrKey);
+  if (!card) return;
+
+  const elements = await _ensureCardStructure(card);
 
   if (entity) {
-    if (descEl) descEl.textContent = entity.description || "";
-    if (media) {
-      media.textContent = "";
-      media.appendChild(buildPictureNode(entity));
-      applyBrand?.(media, entity);
-    }
-    if (footer) {
-      footer.querySelectorAll(".chip").forEach((n) => n.remove());
-      if (entity.isPremade) {
-        const pill = document.createElement("span");
-        pill.className = "chip";
-        const sm = document.createElement("small");
-        sm.textContent = "Premade";
-        pill.appendChild(sm);
-        footer.appendChild(pill);
-      }
-    }
-    applyBrand(card, entity);
-    card.dataset.entityType = card.dataset.type || entity.kind || "";
-    card.dataset.entityId = entity.id;
-    const select = card.querySelector("select");
-    if (select && select.value !== String(entity.id)) {
-      select.value = String(entity.id);
-    }
-    if (App.state.ui.selectedStoryboardCard && App.state.ui.selectedStoryboardCard.id === entity.id && App.state.ui.selectedStoryboardCard.type === entity.type) {
-      card.classList.add('selected');
-    } else {
-      card.classList.remove('selected');
-    }
+    _populateCardWithEntity(card, entity, elements);
   } else {
-    if (descEl) descEl.textContent = descEl.dataset.placeholder || "";
-    if (media) {
-      media.textContent = "";
-      media.appendChild(buildPictureNode({
-        kind: card.dataset.type
-      }));
-      card?.style?.removeProperty("--brand");
-      media?.style?.removeProperty("--brand");
-    }
-    if (footer) footer.querySelectorAll(".chip").forEach((n) => n.remove());
-    card.classList.remove('selected');
-    delete card.dataset.entityType;
-    delete card.dataset.entityId;
-
-    const select = card.querySelector("select");
-    if (select && select.value !== "") {
-      select.value = "";
-      select.dispatchEvent(new Event("change", {
-        bubbles: true
-      }));
-    }
+    _clearCard(card, elements);
   }
 }
 
@@ -1506,7 +1530,6 @@ export function _attachContentChinActions() {
     if (newButton) {
       newButton.addEventListener("click", () => {
         if (key === "stories") {
-          resetStoryboard?.();
           router.navigate("#storyboard");
           return;
         }
@@ -1784,7 +1807,7 @@ export async function initializeWhenReady() { // <-- MADE ASYNC
     }
     try {
       let attempts = 0;
-      const maxAttempts = 24;
+      const maxAttempts = UI_WATCHDOG_MAX_ATTEMPTS;
       const rearm = () => {
         attempts++;
         if (_uiWatchdogStarted || attempts > maxAttempts) {

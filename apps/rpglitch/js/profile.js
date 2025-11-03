@@ -12,7 +12,8 @@ import {
   copyEntity,
   buildHero,
   renderTags,
-  BASE_COLOUR_MAP
+  BASE_COLOUR_MAP,
+  replaceEventHandler
 } from './utils.js';
 import {
   router
@@ -124,15 +125,7 @@ export async function renderProfile(type, id) { // <-- Made this function async
   const copyBtn = document.querySelector("#profile-copy");
 
   if (copyBtn) {
-    // 1. Remove the old handler if it exists to prevent the stale closure bug.
-    if (copyBtn._copyHandler) {
-      copyBtn.removeEventListener('click', copyBtn._copyHandler);
-    }
-
-    // 2. Define the new handler. This function must be defined inside the renderProfile
-    //    function's scope so it correctly closes over the new 'type' and 'id'.
     const copyHandler = async () => {
-      // Use the correctly scoped 'id' and 'type' variables.
       const newEntity = await copyEntity?.(type, id);
       if (newEntity) {
         window.ephemeralEntity = newEntity;
@@ -143,12 +136,8 @@ export async function renderProfile(type, id) { // <-- Made this function async
         console.error("Copy operation failed or returned no entity.");
       }
     };
-
-    // 3. Attach the new handler and store its reference for next time.
-    copyBtn.addEventListener("click", copyHandler);
-    copyBtn._copyHandler = copyHandler;
+    replaceEventHandler(copyBtn, 'click', copyHandler, '_copyHandler');
   }
-  // ^-- End of changed block --^
   
   if (copyBtn) copyBtn.hidden = !entity.isPremade;
   if (editBtn) editBtn.hidden = entity.isPremade;
