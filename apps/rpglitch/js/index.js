@@ -1022,6 +1022,7 @@ function _buildPictureNode(ent, { preferTemplateForEmpty = true, templates } = {
   // Warn if templates object is missing (indicates improper usage)
   if (!templates || typeof templates !== 'object') {
     console.warn('[_buildPictureNode] templates parameter is missing or invalid. Picture generation may fail.');
+    templates = {};
   }
 
   const kind = (ent && ent.kind) || "";
