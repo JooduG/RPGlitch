@@ -68,3 +68,94 @@ test('showEl reveals element by removing hidden attribute', async () => {
   App.showEl('test-el', document);
   expect(el.hasAttribute('hidden')).toBe(false);
 });
+
+test('handleAsyncError executes async function and returns result on success', async () => {
+  const { App } = await loadApp();
+  const result = await App.handleAsyncError(
+    async () => 'success',
+    { context: 'test operation', showAlert: false }
+  );
+  expect(result).toBe('success');
+});
+
+test('handleAsyncError catches errors and returns fallback value', async () => {
+  const { dom, App } = await loadApp();
+  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  const alertSpy = jest.spyOn(dom.window, 'alert').mockImplementation();
+
+  const result = await App.handleAsyncError(
+    async () => { throw new Error('Test error'); },
+    {
+      errorMessage: 'Operation failed',
+      context: 'test operation',
+      showAlert: true,
+      fallback: 'fallback value'
+    }
+  );
+
+  expect(result).toBe('fallback value');
+  expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to test operation:', expect.any(Error));
+  expect(alertSpy).toHaveBeenCalledWith('Operation failed');
+
+  consoleErrorSpy.mockRestore();
+  alertSpy.mockRestore();
+});
+
+test('handleAsyncError suppresses alert when showAlert is false', async () => {
+  const { dom, App } = await loadApp();
+  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  const alertSpy = jest.spyOn(dom.window, 'alert').mockImplementation();
+
+  await App.handleAsyncError(
+    async () => { throw new Error('Test error'); },
+    {
+      errorMessage: 'Should not alert',
+      context: 'silent test',
+      showAlert: false,
+      fallback: null
+    }
+  );
+
+  expect(alertSpy).not.toHaveBeenCalled();
+  expect(consoleErrorSpy).toHaveBeenCalled();
+
+  consoleErrorSpy.mockRestore();
+  alertSpy.mockRestore();
+});
+
+test('replaceEventHandler replaces existing event listener', async () => {
+  const { dom, App } = await loadApp();
+  const document = dom.window.document;
+  document.body.innerHTML = '<button id="test-btn">Click me</button>';
+  const btn = document.getElementById('test-btn');
+
+  let callCount = 0;
+  const handler1 = () => { callCount += 1; };
+  const handler2 = () => { callCount += 10; };
+
+  // Add first handler
+  App.replaceEventHandler(btn, 'click', handler1, '_testHandler');
+  btn.click();
+  expect(callCount).toBe(1);
+
+  // Replace with second handler
+  App.replaceEventHandler(btn, 'click', handler2, '_testHandler');
+  btn.click();
+  expect(callCount).toBe(11); // Should be 1 + 10, not 1 + 1 + 10
+
+  // Verify first handler was removed
+  btn.click();
+  expect(callCount).toBe(21); // Should be 11 + 10, confirming only handler2 is active
+});
+
+test('replaceEventHandler handles null element gracefully', async () => {
+  const { App } = await loadApp();
+  const handler = jest.fn();
+
+  // Should not throw
+  expect(() => {
+    App.replaceEventHandler(null, 'click', handler, '_testHandler');
+  }).not.toThrow();
+
+  expect(handler).not.toHaveBeenCalled();
+});

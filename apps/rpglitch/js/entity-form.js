@@ -10,7 +10,9 @@ import {
   escapeHtml,
   applyBrand,
   buildHero,
-  renderTags
+  renderTags,
+  replaceEventHandler,
+  handleAsyncError
 } from './utils.js';
 import {
   router
@@ -56,15 +58,11 @@ function renderTagPills(container, tags) {
 export async function renderForm(type, id) { // <-- MADE ASYNC
   const cancelBtn = document.querySelector("#form-cancel");
   if (cancelBtn) {
-    if (cancelBtn._cancelHandler) {
-      cancelBtn.removeEventListener('click', cancelBtn._cancelHandler);
-    }
     const cancelHandler = (e) => {
       e?.preventDefault();
       navigateBackOrReturnDefault(undefined, router);
     };
-    cancelBtn.addEventListener("click", cancelHandler);
-    cancelBtn._cancelHandler = cancelHandler;
+    replaceEventHandler(cancelBtn, 'click', cancelHandler, '_cancelHandler');
   }
 
   const sb = document.querySelector("#storyboard-screen");
@@ -225,29 +223,26 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   }
 
   if (saveBtn) {
-    if (saveBtn._saveHandler) {
-      saveBtn.removeEventListener('click', saveBtn._saveHandler);
-    }
     const saveHandler = async () => {
-      try {
-        const data = {
-          kind: type,
-          name: escapeHtml(form.elements.name.value.trim()),
-          description: escapeHtml(form.elements.description.value.trim()),
-          imageUrl: escapeHtml(imageInput.value.trim()),
-          image: escapeHtml(imageInput.value.trim()),
-          signatureColour: escapeHtml(paletteSelect.value.trim()),
-          tags: entity.tags || [],
-          sections: {
-            forever: escapeHtml(form.elements.forever.value.trim()),
-            past: escapeHtml(form.elements.past.value.trim()),
-            present: escapeHtml(form.elements.present.value.trim()),
-            future: escapeHtml(form.elements.future.value.trim()),
-          },
-        };
+      const data = {
+        kind: type,
+        name: escapeHtml(form.elements.name.value.trim()),
+        description: escapeHtml(form.elements.description.value.trim()),
+        imageUrl: escapeHtml(imageInput.value.trim()),
+        signatureColour: escapeHtml(paletteSelect.value.trim()),
+        tags: entity.tags || [],
+        sections: {
+          forever: escapeHtml(form.elements.forever.value.trim()),
+          past: escapeHtml(form.elements.past.value.trim()),
+          present: escapeHtml(form.elements.present.value.trim()),
+          future: escapeHtml(form.elements.future.value.trim()),
+        },
+      };
+
+      await handleAsyncError(async () => {
+        // Validation inside async block for consistent error handling
         if (!data.name) {
-          alert('Please enter a name for this entity.');
-          return;
+          throw new Error('Please enter a name for this entity.');
         }
 
         const originalEntity = isEdit ? await entities.get(type, id) : null;
@@ -255,13 +250,12 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
         const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
         const saved = await entities.upsert(type, entityToSave);
         router.navigate(`#profile/${type}/${saved.id}`);
-      } catch (error) {
-        console.error('Save failed:', error);
-        alert(error.message || 'Failed to save. Please try again.');
-      }
+      }, {
+        errorMessage: 'Failed to save. Please try again.',
+        context: 'save entity'
+      });
     };
-    saveBtn.addEventListener("click", saveHandler);
-    saveBtn._saveHandler = saveHandler;
+    replaceEventHandler(saveBtn, 'click', saveHandler, '_saveHandler');
   }
 
   if (!isEdit) {

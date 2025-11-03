@@ -12,7 +12,10 @@ import {
   copyEntity,
   buildHero,
   renderTags,
-  BASE_COLOUR_MAP
+  BASE_COLOUR_MAP,
+  replaceEventHandler,
+  PROFILE_RESIZE_DEBOUNCE_MS,
+  handleAsyncError
 } from './utils.js';
 import {
   router
@@ -23,16 +26,12 @@ export async function renderProfile(type, id) { // <-- Made this function async
   const sb = document.querySelector("#storyboard-screen");
   if (sb) hideEl(sb);
 
-  try {
-    // v-- This is the key change: we await the database call --v
+  await handleAsyncError(async () => {
     const entity = await entities.get(type, id);
 
     if (!entity) {
-      console.warn(`Entity not found for profile: ${type}/${id}. Redirecting.`);
-      router.navigate("#");
-      return;
+      throw new Error(`Entity not found for profile: ${type}/${id}`);
     }
-    // ^-- From here down, the code is the same because `entity` is now populated --^
 
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
@@ -112,7 +111,7 @@ export async function renderProfile(type, id) { // <-- Made this function async
       profileResizeBound = true;
       window.addEventListener(
         "resize",
-        debounce(() => setProfileLayoutSizing?.(0.35), 150)
+        debounce(() => setProfileLayoutSizing?.(0.35), PROFILE_RESIZE_DEBOUNCE_MS)
       );
     }
   } catch {
@@ -124,15 +123,7 @@ export async function renderProfile(type, id) { // <-- Made this function async
   const copyBtn = document.querySelector("#profile-copy");
 
   if (copyBtn) {
-    // 1. Remove the old handler if it exists to prevent the stale closure bug.
-    if (copyBtn._copyHandler) {
-      copyBtn.removeEventListener('click', copyBtn._copyHandler);
-    }
-
-    // 2. Define the new handler. This function must be defined inside the renderProfile
-    //    function's scope so it correctly closes over the new 'type' and 'id'.
     const copyHandler = async () => {
-      // Use the correctly scoped 'id' and 'type' variables.
       const newEntity = await copyEntity?.(type, id);
       if (newEntity) {
         window.ephemeralEntity = newEntity;
@@ -143,12 +134,8 @@ export async function renderProfile(type, id) { // <-- Made this function async
         console.error("Copy operation failed or returned no entity.");
       }
     };
-
-    // 3. Attach the new handler and store its reference for next time.
-    copyBtn.addEventListener("click", copyHandler);
-    copyBtn._copyHandler = copyHandler;
+    replaceEventHandler(copyBtn, 'click', copyHandler, '_copyHandler');
   }
-  // ^-- End of changed block --^
   
   if (copyBtn) copyBtn.hidden = !entity.isPremade;
   if (editBtn) editBtn.hidden = entity.isPremade;
@@ -158,9 +145,14 @@ export async function renderProfile(type, id) { // <-- Made this function async
       `#form/${type}/${entity.id}?return=#profile/${type}/${entity.id}`
     );
   });
-  } catch (error) {
-    console.error('Failed to load profile:', error);
-    alert('Could not load profile. Please try again.');
+  }, {
+    errorMessage: 'Could not load profile. Please try again.',
+    context: 'load profile',
+    fallback: null
+  });
+
+  // Navigate away on error (after handleAsyncError shows alert)
+  if (!document.querySelector("#profile-screen")?.textContent) {
     router.navigate("#");
   }
 }
