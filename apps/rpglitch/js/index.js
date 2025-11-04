@@ -15,6 +15,7 @@ import {
   _uiWatchdogStarted,
   initDebugMode,
   handleAsyncError,
+  isHtmlErrorPage,
 } from './utils.js';
 import {
   entities,
@@ -1505,7 +1506,7 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
 
     } else {
 
-      alert("Please select an AI character, your own character, and a world to begin the story.");
+      alert(`Please select an AI character, your own character, and a world to begin the story.`);
 
     }
 
@@ -1645,7 +1646,7 @@ export function _attachContentChinActions() {
             const text = ev.target.result;
 
             // Check if result looks like HTML error page
-            if (typeof text === 'string' && text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+            if (isHtmlErrorPage(text)) {
               console.error('Received HTML instead of JSON. File may be corrupted or is not a valid JSON file.');
               alert(`Invalid file format. Expected JSON but received HTML. Please check the file and try again.`);
               uploadInput.value = null;
@@ -1837,7 +1838,7 @@ export async function initializeWhenReady() { // <-- MADE ASYNC
 
     if (!pluginsLoaded) {
       console.error('[RPGlitch] Required plugins failed to load. Application may not function correctly.');
-      alert('Required plugins failed to load. Please refresh the page and try again.');
+      alert(`Required plugins failed to load. Please refresh the page and try again.`);
       // Continue with initialization anyway for graceful degradation
     }
 
@@ -1847,7 +1848,7 @@ export async function initializeWhenReady() { // <-- MADE ASYNC
       console.log('[RPGlitch] Database initialized.');
     } catch (error) {
       console.error('[RPGlitch] Failed to initialize database:', error);
-      alert('Database initialization failed. Please refresh the page. Error: ' + error.message);
+      alert(`Database initialization failed. Please refresh the page. Error: ${error.message}`);
       throw error; // Stop initialization
     }
 
@@ -2000,7 +2001,7 @@ export async function importAllData(file) { // <-- MADE ASYNC
 
   // Validate file type
   if (!file.type || (!file.type.includes('json') && !file.name.endsWith('.json'))) {
-    alert('Invalid file type. Please upload a JSON file.');
+    alert(`Invalid file type. Please upload a JSON file.`);
     return;
   }
 
@@ -2010,11 +2011,9 @@ export async function importAllData(file) { // <-- MADE ASYNC
       const text = e.target.result;
 
       // Check if result looks like HTML error page
-      if (typeof text === 'string' && (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html'))) {
+      if (isHtmlErrorPage(text)) {
         console.error('Received HTML instead of JSON. File may be corrupted or server returned an error page.');
-        alert('Invalid file format. Expected JSON but received HTML. The file may be corrupted or incomplete.');
-        const ui = _getUIElements();
-        if (ui.uploadBackupInput) ui.uploadBackupInput.value = null;
+        alert(`Invalid file format. Expected JSON but received HTML. The file may be corrupted or incomplete.`);
         return;
       }
 
@@ -2053,13 +2052,13 @@ export async function importAllData(file) { // <-- MADE ASYNC
       }
 
       await refreshAllLists();
-      alert('Backup imported successfully!');
+      alert(`Backup imported successfully!`);
     } catch (err) {
       console.error("Failed to import backup", err);
       if (err instanceof SyntaxError) {
         alert(`Invalid JSON format in backup file. Please check the file and try again.\n\nError: ${err.message}`);
       } else {
-        alert('Failed to import backup. Please check the file and try again.');
+        alert(`Failed to import backup. Please check the file and try again.`);
       }
     } finally {
       const ui = _getUIElements();
@@ -2068,7 +2067,7 @@ export async function importAllData(file) { // <-- MADE ASYNC
   };
   reader.onerror = () => {
     console.error('Failed to read backup file');
-    alert('Failed to read backup file. Please try again.');
+    alert(`Failed to read backup file. Please try again.`);
     const ui = _getUIElements();
     if (ui.uploadBackupInput) ui.uploadBackupInput.value = null;
   };
@@ -2123,10 +2122,10 @@ export async function deleteAllData() {
     await db.messages.clear();
 
     await refreshAllLists();
-    alert('All data has been deleted.');
+    alert(`All data has been deleted.`);
   } catch (error) {
     console.error('Failed to delete data:', error);
-    alert('Failed to delete data. Please try again.');
+    alert(`Failed to delete data. Please try again.`);
   }
 }
 

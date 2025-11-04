@@ -105,6 +105,18 @@ export async function handleAsyncError(asyncFn, options = {}) {
   }
 }
 
+/**
+ * Detects if a text string is an HTML error page (e.g., server returned HTML instead of JSON)
+ * @param {*} text - Text to check
+ * @returns {boolean} True if text appears to be an HTML document
+ */
+export function isHtmlErrorPage(text) {
+  if (typeof text !== 'string') {
+    return false;
+  }
+  const trimmedText = text.trim().toLowerCase();
+  // FIX: Add correct parentheses for operator precedence
+  return (trimmedText.startsWith('<!doctype') || trimmedText.startsWith('<html'));
 // ---------- Event Handler Utilities ----------
 
 /**
@@ -960,6 +972,7 @@ function sync() {
   if (anyOpen) {
     cont?.removeAttribute("hidden");
     cont?.setAttribute("aria-hidden", "false");
+    // Set display:block when chins are open to make container visible
     cont?.style.setProperty('display', 'block');
     document.body.classList.add("chin-open");
   } else {
@@ -968,7 +981,8 @@ function sync() {
     }
     cont?.setAttribute("hidden", "");
     cont?.setAttribute("aria-hidden", "true");
-    // Don't set display:none on container, it needs to stay in flow for positioning
+    // Don't set display:none when closed - hidden attribute handles visibility
+    // while keeping container in document flow for correct positioning
     document.body.classList.remove("chin-open");
   }
   log?.('chin.sync', {
