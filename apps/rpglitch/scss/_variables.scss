@@ -37,13 +37,13 @@ $breakpoint-tablet: 1024px;
   --app-container-max: 100%;
   --app-container-pad: 1rem;
 
-  /* Brand color palette - must match BASE_COLOUR_MAP in utils.js */
+  /* Signature Color options - must match BASE_COLOUR_MAP in utils.js */
   --brand-pink: #ec4899;
   --brand-emerald: #10b981;
   --brand-cyan: #06b6d4;
 }
 
-/* Each palette exposes ONE base color + useful derivatives */
+/* Each Signature Color exposes ONE base color + useful derivatives */
 .palette-pink {
   $brand-color: #ec4899;
 
