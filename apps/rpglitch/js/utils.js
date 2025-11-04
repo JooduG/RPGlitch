@@ -5,10 +5,12 @@ import { db } from './db.js';
  */
 
 // Brand color constants (signature colours)
+// These must match the palette options in entity-form.js and _variables.scss
 export const BASE_COLOUR_MAP = {
-  pink: '#ff6ad5',
-  emerald: '#00c853',
-  cyan: '#00b8d4'
+  pink: '#ec4899',     // --brand-pink
+  emerald: '#10b981',  // --brand-emerald
+  cyan: '#06b6d4',     // --brand-cyan
+  default: '#777'      // --brand-default (fallback/auto-generated)
 };
 
 // UI Timing Constants
@@ -948,14 +950,17 @@ function sync() {
     if (anyOpen) {
       bd.removeAttribute('hidden');
       bd.style.pointerEvents = 'auto';
+      bd.style.display = 'block';
     } else {
       bd.setAttribute('hidden', '');
       bd.style.pointerEvents = 'none';
+      bd.style.display = 'none';
     }
   }
   if (anyOpen) {
     cont?.removeAttribute("hidden");
     cont?.setAttribute("aria-hidden", "false");
+    cont?.style.setProperty('display', 'block');
     document.body.classList.add("chin-open");
   } else {
     if (document.activeElement && cont?.contains(document.activeElement)) {
@@ -963,6 +968,7 @@ function sync() {
     }
     cont?.setAttribute("hidden", "");
     cont?.setAttribute("aria-hidden", "true");
+    // Don't set display:none on container, it needs to stay in flow for positioning
     document.body.classList.remove("chin-open");
   }
   log?.('chin.sync', {

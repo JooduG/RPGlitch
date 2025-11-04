@@ -1631,16 +1631,44 @@ export function _attachContentChinActions() {
       uploadInput.addEventListener("change", async (e) => { // <-- MADE ASYNC
         const file = e.target.files && e.target.files[0];
         if (!file) return;
+
+        // Validate file type
+        if (!file.type || (!file.type.includes('json') && !file.name.endsWith('.json'))) {
+          alert(`Invalid file type. Please upload a JSON file.`);
+          uploadInput.value = null;
+          return;
+        }
+
         const reader = new FileReader();
         reader.onload = async (ev) => { // <-- MADE ASYNC
           try {
-            const data = JSON.parse(ev.target.result);
-            if (!Array.isArray(data)) return;
+            const text = ev.target.result;
+
+            // Check if result looks like HTML error page
+            if (typeof text === 'string' && text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+              console.error('Received HTML instead of JSON. File may be corrupted or is not a valid JSON file.');
+              alert(`Invalid file format. Expected JSON but received HTML. Please check the file and try again.`);
+              uploadInput.value = null;
+              return;
+            }
+
+            const data = JSON.parse(text);
+            if (!Array.isArray(data)) {
+              alert(`Invalid file format. Expected an array of ${key}.`);
+              uploadInput.value = null;
+              return;
+            }
 
             const type = key.replace(/s$/, "");
             if (type === 'character' || type === 'world' || type === 'story') {
               // Import into IndexedDB
               const validData = data.filter(item => item.name && item.type === type);
+              if (validData.length === 0) {
+                alert(`No valid ${type}s found in the file.`);
+                uploadInput.value = null;
+                return;
+              }
+
               await db.entities.bulkPut(validData.map(item => ({
                 ...item,
                 isCustom: item.isPremade ? 0 : 1, // 1 = custom, 0 = premade (numeric for IndexedDB)
@@ -1656,8 +1684,17 @@ export function _attachContentChinActions() {
             await refreshAllLists(); // <-- AWAITED
           } catch (err) {
             console.error("Failed to import", err);
-            alert(`Failed to import ${key}. Please check the file format and try again.`);
+            if (err instanceof SyntaxError) {
+              alert(`Invalid JSON format in file. Please check the file and try again.\n\nError: ${err.message}`);
+            } else {
+              alert(`Failed to import ${key}. Please check the file format and try again.`);
+            }
           }
+          uploadInput.value = null;
+        };
+        reader.onerror = () => {
+          console.error('Failed to read file');
+          alert(`Failed to read file. Please try again.`);
           uploadInput.value = null;
         };
         reader.readAsText(file);
@@ -1960,10 +1997,28 @@ export async function initializeWhenReady() { // <-- MADE ASYNC
 
 export async function importAllData(file) { // <-- MADE ASYNC
   if (!file) return;
+
+  // Validate file type
+  if (!file.type || (!file.type.includes('json') && !file.name.endsWith('.json'))) {
+    alert('Invalid file type. Please upload a JSON file.');
+    return;
+  }
+
   const reader = new FileReader();
   reader.onload = async (e) => { // <-- MADE ASYNC
     try {
-      const data = JSON.parse(e.target.result);
+      const text = e.target.result;
+
+      // Check if result looks like HTML error page
+      if (typeof text === 'string' && (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html'))) {
+        console.error('Received HTML instead of JSON. File may be corrupted or server returned an error page.');
+        alert('Invalid file format. Expected JSON but received HTML. The file may be corrupted or incomplete.');
+        const ui = _getUIElements();
+        if (ui.uploadBackupInput) ui.uploadBackupInput.value = null;
+        return;
+      }
+
+      const data = JSON.parse(text);
 
       // 1. Validate version
       if (data.version !== 1) {
@@ -2001,11 +2056,21 @@ export async function importAllData(file) { // <-- MADE ASYNC
       alert('Backup imported successfully!');
     } catch (err) {
       console.error("Failed to import backup", err);
-      alert('Failed to import backup. Please check the file and try again.');
+      if (err instanceof SyntaxError) {
+        alert(`Invalid JSON format in backup file. Please check the file and try again.\n\nError: ${err.message}`);
+      } else {
+        alert('Failed to import backup. Please check the file and try again.');
+      }
     } finally {
       const ui = _getUIElements();
       if (ui.uploadBackupInput) ui.uploadBackupInput.value = null;
     }
+  };
+  reader.onerror = () => {
+    console.error('Failed to read backup file');
+    alert('Failed to read backup file. Please try again.');
+    const ui = _getUIElements();
+    if (ui.uploadBackupInput) ui.uploadBackupInput.value = null;
   };
   reader.readAsText(file);
 }
