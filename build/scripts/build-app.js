@@ -57,7 +57,7 @@ const LOCAL_LIBS_DIR = path.join(REPO_ROOT, 'build', 'local_libs');
  * @param {number} chunkSize - Size of each chunk (default: 500)
  * @returns {string[]} Array of string chunks
  */
-function chunkString(str, chunkSize) {
+function chunkString(str, chunkSize = 500) {
     const chunks = [];
     for (let i = 0; i < str.length; i += chunkSize) {
         chunks.push(str.substring(i, i + chunkSize));
