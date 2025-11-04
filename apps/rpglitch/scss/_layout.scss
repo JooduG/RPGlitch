@@ -288,7 +288,7 @@ body.chin-open .top-bar {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.3s ease, opacity 0.3s ease;
   border-radius: var(--pico-radius);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
   &:hover {
     transform: translateY(-4px);
