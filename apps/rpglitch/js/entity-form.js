@@ -12,7 +12,8 @@ import {
   buildHero,
   renderTags,
   replaceEventHandler,
-  handleAsyncError
+  handleAsyncError,
+  BASE_COLOUR_MAP
 } from './utils.js';
 import {
   router
@@ -92,7 +93,7 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   // --- Left Column ---
   const leftCol = document.createElement("div");
   leftCol.className = "profile-left";
-  const heroWrap = buildHero(entity);
+  const heroWrap = buildHero(entity, { singleTag: true });
 
   const imageOverlay = document.createElement("div");
   imageOverlay.className = "profile-hero-overlay";
@@ -119,7 +120,7 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   const paletteSelect = document.createElement("select");
   paletteSelect.name = "signatureColour";
   paletteSelect.id = "signatureColour";
-  const palettes = ["Default", "Pink", "Emerald", "Cyan"];
+  const palettes = ["Default", "Pink", "Emerald", "Cyan", "Orange", "Purple"];
   palettes.forEach((p) => {
     const option = document.createElement("option");
     option.value = p.toLowerCase();
@@ -128,6 +129,33 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
       option.selected = true;
     }
     paletteSelect.appendChild(option);
+  });
+
+  // Live color preview: update the display when signature color changes
+  paletteSelect.addEventListener("change", () => {
+    const selectedColour = paletteSelect.value;
+    const tempEntity = { ...entity, signatureColour: selectedColour };
+
+    // Update the left column brand
+    applyBrand?.(leftCol, tempEntity);
+
+    // Update placeholder image color
+    const placeholder = heroWrap.querySelector('.placeholder-image');
+    if (placeholder && selectedColour && selectedColour !== 'default') {
+      placeholder.style.backgroundColor = BASE_COLOUR_MAP[selectedColour];
+    } else if (placeholder) {
+      placeholder.style.backgroundColor = '';
+    }
+
+    // Update tag chip color
+    const tagChip = heroWrap.querySelector('.tag-chip');
+    if (tagChip && selectedColour && selectedColour !== 'default') {
+      tagChip.style.backgroundColor = BASE_COLOUR_MAP[selectedColour];
+      tagChip.style.color = 'white';
+    } else if (tagChip) {
+      tagChip.style.backgroundColor = '';
+      tagChip.style.color = '';
+    }
   });
 
   imageOverlay.appendChild(imageInput);
@@ -162,8 +190,8 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   descriptionInput.placeholder = "Describe the entity, its background, personality...";
   form.appendChild(descriptionInput);
 
-  // Render static tags below the description
-  renderTags(form, entity);
+  // Note: tags are now rendered in the hero (left column) as a single tag pill
+  // No need to render tags again in the form area
 
   const secWrap = document.createElement("div");
   secWrap.className = "profile-fields";

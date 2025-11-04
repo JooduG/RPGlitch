@@ -44,7 +44,7 @@ export async function renderProfile(type, id) { // <-- Made this function async
 
   const leftCol = document.createElement("div");
   leftCol.className = "profile-left";
-  const hero = buildHero(entity);
+  const hero = buildHero(entity, { singleTag: true });
   leftCol.appendChild(hero);
   applyBrand?.(leftCol, entity);
 
@@ -96,8 +96,8 @@ export async function renderProfile(type, id) { // <-- Made this function async
   });
   content.appendChild(secWrap);
 
-  // Render tags below the description
-  renderTags(content, entity);
+  // Note: tags are now rendered in the hero (left column) as a single tag pill
+  // No need to render tags again in the content area
 
   rightCol.appendChild(content);
   layout.append(leftCol, rightCol);

@@ -41,6 +41,8 @@ $breakpoint-tablet: 1024px;
   --brand-pink: #ec4899;
   --brand-emerald: #10b981;
   --brand-cyan: #06b6d4;
+  --brand-orange: #f97316;
+  --brand-purple: #a855f7;
 }
 
 /* Each Signature Color exposes ONE base color + useful derivatives */
@@ -64,6 +66,24 @@ $breakpoint-tablet: 1024px;
 
 .palette-cyan {
   $brand-color: #06b6d4;
+
+  --brand: #{$brand-color};
+  --brand-10: #{color.mix($brand-color, transparent, 10%)};
+  --brand-20: #{color.mix($brand-color, transparent, 20%)};
+  --brand-contrast: var(--brand-text-on);
+}
+
+.palette-orange {
+  $brand-color: #f97316;
+
+  --brand: #{$brand-color};
+  --brand-10: #{color.mix($brand-color, transparent, 10%)};
+  --brand-20: #{color.mix($brand-color, transparent, 20%)};
+  --brand-contrast: var(--brand-text-on);
+}
+
+.palette-purple {
+  $brand-color: #a855f7;
 
   --brand: #{$brand-color};
   --brand-10: #{color.mix($brand-color, transparent, 10%)};
