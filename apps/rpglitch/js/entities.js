@@ -138,13 +138,14 @@ function getContrast(color) {
  *
  * The fallback chain is:
  * 1. Returns CSS variable `--brand-{color}` if `entity.signatureColour` is defined and not 'default'
- * 2. Falls back to `entity.palette.brand` if available (legacy data support)
- * 3. Generates a deterministic color based on entity name and tags as final fallback
+ * 2. Falls back to `entity.palette.brand` if available (legacy object format)
+ * 3. Falls back to `entity.palette` if it's a string (legacy string format)
+ * 4. Generates a deterministic color based on entity name and tags as final fallback
  *
  * @param {Object} entity - The entity object (character, world, or story)
  * @param {string} [entity.signatureColour] - The new signature color property ('pink', 'emerald', 'cyan', etc.)
- * @param {Object} [entity.palette] - Legacy palette object containing brand color
- * @param {string} [entity.palette.brand] - Legacy brand color value
+ * @param {Object|string} [entity.palette] - Legacy palette object containing brand color, or direct color string
+ * @param {string} [entity.palette.brand] - Legacy brand color value (when palette is an object)
  * @param {string} [entity.name] - Entity name used for deterministic color generation
  * @param {Array<string>} [entity.tags] - Entity tags used for deterministic color generation
  * @param {string} [entity.id] - Entity ID used as fallback seed for color generation
@@ -157,9 +158,14 @@ function getContrast(color) {
  * // Returns: 'var(--brand-cyan)'
  *
  * @example
- * // Legacy entity with palette
+ * // Legacy entity with palette object
  * getBrand({ palette: { brand: '#ec4899' } })
  * // Returns: '#ec4899'
+ *
+ * @example
+ * // Legacy entity with palette string
+ * getBrand({ palette: '#06b6d4' })
+ * // Returns: '#06b6d4'
  *
  * @example
  * // Entity with both (signature color takes precedence)
@@ -175,11 +181,17 @@ function getBrand(entity = {}) {
   if (entity.signatureColour && entity.signatureColour !== 'default') {
     return `var(--brand-${entity.signatureColour})`;
   }
+  // Legacy palette object format
   if (entity.palette?.brand) return entity.palette.brand;
+  // Legacy palette string format
+  if (typeof entity.palette === 'string' && entity.palette) return entity.palette;
+
+  // Build seed from name and tags, filtering out empty values
   const seed = [
     entity.name || "",
     ...(entity.tags || []),
-  ].join(",");
+  ].filter(Boolean).join(",");
+
   return getDeterministicColor(seed || entity.id || entity.kind || "");
 }
 
