@@ -1,3 +1,17 @@
+/**
+ * Build Script for Perchance Applications (RPGlitch & ImageGlitch)
+ *
+ * This script compiles SCSS, bundles JavaScript with esbuild, inlines vendored
+ * libraries, and outputs a single self-contained HTML file for deployment to
+ * Perchance.org.
+ *
+ * Two loader strategies are available:
+ * - Complex Loader: Chunks code into 500-char pieces (proven on Perchance)
+ * - Simple Loader: Direct inline (simpler, but untested on Perchance)
+ *
+ * Usage: node build-app.js <appname>
+ * Example: node build-app.js rpglitch
+ */
 import esbuild from "esbuild";
 import * as sass from "sass";
 import postcss from "postcss";
@@ -15,7 +29,7 @@ const APP_CONFIGS = {
       { name: 'dexie', file: 'dexie.js' },
       { name: 'dompurify', file: 'purify.min.js' },
     ],
-    useComplexLoader: true
+    useComplexLoader: true  // Proven to work on Perchance
   },
   rpglitch: {
     extraLibs: [
@@ -24,7 +38,7 @@ const APP_CONFIGS = {
       { name: 'dompurify', file: 'purify.min.js' },
       { name: 'hyperscript', file: '_hyperscript.min.js' },
     ],
-    useComplexLoader: true
+    useComplexLoader: true  // Proven to work on Perchance
   }
 };
 
@@ -36,6 +50,13 @@ const OUTPUT_DIR = path.join(REPO_ROOT, "build", "output");
 const LOCAL_LIBS_DIR = path.join(REPO_ROOT, 'build', 'local_libs');
 
 // --- UTILITIES ---
+/**
+ * Splits a string into fixed-size chunks for the complex loader.
+ * Used to work around potential Perchance HTML panel size limits.
+ * @param {string} str - The string to split
+ * @param {number} chunkSize - Size of each chunk (default: 500)
+ * @returns {string[]} Array of string chunks
+ */
 function chunkString(str, chunkSize) {
     const chunks = [];
     for (let i = 0; i < str.length; i += chunkSize) {
@@ -44,10 +65,16 @@ function chunkString(str, chunkSize) {
     return chunks;
 }
 
+/**
+ * Safely reads a vendored library file. Returns empty string if not found.
+ * @param {string} filePath - Absolute path to the library file
+ * @param {string} kind - Library name for logging purposes
+ * @returns {string} File contents or empty string
+ */
 function readFileSafe(filePath, kind) {
     try {
         return fsSync.readFileSync(filePath, 'utf8');
-    } catch {
+    } catch (err) {
         console.warn(`⚠️  Missing ${kind}: ${filePath}`);
         return '';
     }
@@ -122,12 +149,23 @@ async function build(appName) {
         // Remove existing script tags to prevent duplicates
         Array.from(document.querySelectorAll('script[src="js/index.js"]')).forEach(s => s.remove());
 
-        // Inject JS
+        // --- INJECT JAVASCRIPT ---
+        // Read vendored libraries once (used by both loaders)
+        const extraLibsContent = config.extraLibs
+            .map(lib => readFileSafe(path.join(LOCAL_LIBS_DIR, lib.file), lib.name))
+            .filter(Boolean)
+            .join(';\n');
+
         if (config.useComplexLoader) {
-            const extraLibsContent = config.extraLibs
-                .map(lib => readFileSafe(path.join(LOCAL_LIBS_DIR, lib.file), lib.name))
-                .filter(Boolean)
-                .join(';\n');
+            // COMPLEX LOADER: Splits code into 500-char chunks and reassembles at runtime.
+            //
+            // Why chunking? Historical reasons - possibly to work around:
+            //   - Perchance HTML panel size limits (unconfirmed)
+            //   - Browser string literal limits (unlikely)
+            //   - Copy-paste reliability (most likely)
+            //
+            // This approach is proven to work on Perchance in production. The simple
+            // loader below is untested but should work for smaller builds.
 
             const libsChunks = chunkString(extraLibsContent, 500);
             const jsChunks = chunkString(jsContent, 500);
@@ -136,12 +174,12 @@ async function build(appName) {
             const jsString = JSON.stringify(jsChunks) + ".join('')";
 
             const loaderScriptContent = `
-              var libsContent = ${libsString};
-              var appContent = ${jsString};
-              var libsScript = document.createElement('script');
+              const libsContent = ${libsString};
+              const appContent = ${jsString};
+              const libsScript = document.createElement('script');
               libsScript.textContent = libsContent;
               document.body.appendChild(libsScript);
-              var appScript = document.createElement('script');
+              const appScript = document.createElement('script');
               appScript.textContent = appContent;
               document.body.appendChild(appScript);
             `;
@@ -150,8 +188,15 @@ async function build(appName) {
             document.body.appendChild(loaderScriptTag);
 
         } else {
+            // SIMPLE LOADER: Inlines all code directly into a single script tag.
+            //
+            // This is simpler and more standard, but untested on Perchance.
+            // Use for smaller apps or when chunking proves unnecessary.
+
+            const finalJsContent = extraLibsContent + ';\n' + jsContent;
+
             const scriptTag = document.createElement("script");
-            scriptTag.textContent = jsContent;
+            scriptTag.textContent = finalJsContent;
             document.body.appendChild(scriptTag);
         }
         console.log("✅ Injected CSS and JS into HTML.");
