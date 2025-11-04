@@ -130,6 +130,47 @@ function getContrast(color) {
   return "#000";
 }
 
+/**
+ * Retrieves the brand color for an entity with backward-compatible fallback logic.
+ *
+ * This function implements a migration path from the legacy `palette` property
+ * to the new `signatureColour` property, ensuring existing data continues to work.
+ *
+ * The fallback chain is:
+ * 1. Returns CSS variable `--brand-{color}` if `entity.signatureColour` is defined and not 'default'
+ * 2. Falls back to `entity.palette.brand` if available (legacy data support)
+ * 3. Generates a deterministic color based on entity name and tags as final fallback
+ *
+ * @param {Object} entity - The entity object (character, world, or story)
+ * @param {string} [entity.signatureColour] - The new signature color property ('pink', 'emerald', 'cyan', etc.)
+ * @param {Object} [entity.palette] - Legacy palette object containing brand color
+ * @param {string} [entity.palette.brand] - Legacy brand color value
+ * @param {string} [entity.name] - Entity name used for deterministic color generation
+ * @param {Array<string>} [entity.tags] - Entity tags used for deterministic color generation
+ * @param {string} [entity.id] - Entity ID used as fallback seed for color generation
+ * @param {string} [entity.kind] - Entity kind used as fallback seed for color generation
+ * @returns {string} A CSS color value (CSS variable reference, hex code, or HSL color)
+ *
+ * @example
+ * // Modern entity with signature color
+ * getBrand({ signatureColour: 'cyan' })
+ * // Returns: 'var(--brand-cyan)'
+ *
+ * @example
+ * // Legacy entity with palette
+ * getBrand({ palette: { brand: '#ec4899' } })
+ * // Returns: '#ec4899'
+ *
+ * @example
+ * // Entity with both (signature color takes precedence)
+ * getBrand({ signatureColour: 'emerald', palette: { brand: '#ec4899' } })
+ * // Returns: 'var(--brand-emerald)'
+ *
+ * @example
+ * // Entity with neither property (deterministic generation)
+ * getBrand({ name: 'Aether Blade', tags: ['cyberpunk'] })
+ * // Returns: 'hsl(123, 40%, 60%)' (deterministic based on name/tags)
+ */
 function getBrand(entity = {}) {
   if (entity.signatureColour && entity.signatureColour !== 'default') {
     return `var(--brand-${entity.signatureColour})`;
@@ -394,3 +435,6 @@ export const entities = {
     }
   },
 };
+
+// Export getBrand for testing purposes
+export { getBrand };
