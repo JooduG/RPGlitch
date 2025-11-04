@@ -10,6 +10,8 @@ export const BASE_COLOUR_MAP = {
   pink: '#ec4899',     // --brand-pink
   emerald: '#10b981',  // --brand-emerald
   cyan: '#06b6d4',     // --brand-cyan
+  orange: '#f97316',   // --brand-orange
+  purple: '#a855f7',   // --brand-purple
   default: '#777'      // --brand-default (fallback/auto-generated)
 };
 
@@ -799,7 +801,7 @@ export function applyBrand(container, entity) {
   if (!container) return;
 
   // Remove all palette classes
-  container.classList.remove("palette-pink", "palette-emerald", "palette-cyan");
+  container.classList.remove("palette-pink", "palette-emerald", "palette-cyan", "palette-orange", "palette-purple");
 
   const color = deriveBrand?.(entity || {}) || "";
   if (entity.signatureColour && entity.signatureColour !== 'default') {
@@ -845,7 +847,33 @@ import {
   getPictureHTML
 } from './entities.js';
 
-export function renderTags(container, entity) {
+export function renderTags(container, entity, options = {}) {
+  const { singleTag = false } = options;
+
+  // For single tag mode, only show the entity type
+  if (singleTag) {
+    const entityType = entity.type || entity.kind || 'Entity';
+    const typeLabel = entityType.charAt(0).toUpperCase() + entityType.slice(1);
+
+    const wrap = document.createElement("div");
+    wrap.className = "tag-chips";
+
+    const chip = document.createElement("span");
+    chip.className = "tag-chip";
+    chip.textContent = typeLabel;
+
+    // Apply signature color if available
+    if (entity.signatureColour && entity.signatureColour !== 'default') {
+      chip.style.backgroundColor = BASE_COLOUR_MAP[entity.signatureColour];
+      chip.style.color = 'white';
+    }
+
+    wrap.appendChild(chip);
+    container.appendChild(wrap);
+    return;
+  }
+
+  // Original multi-tag behavior for backward compatibility
   const tags = entity.tags || [];
   if (entity.isPremade) {
     tags.unshift('Premade');
@@ -869,7 +897,7 @@ export function renderTags(container, entity) {
   container.appendChild(wrap);
 }
 
-export function buildHero(entity) {
+export function buildHero(entity, options = {}) {
   const wrap = document.createElement("div");
   wrap.className = "hero-wrap";
   const pic = getPictureHTML ?
@@ -888,7 +916,7 @@ export function buildHero(entity) {
 
     wrap.appendChild(pic);
   }
-  renderTags(wrap, entity);
+  renderTags(wrap, entity, options);
   return wrap;
 }
 
