@@ -114,9 +114,7 @@ export function isHtmlErrorPage(text) {
   if (typeof text !== 'string') {
     return false;
   }
-  const trimmedText = text.trim();
-  // FIX: Add correct parentheses for operator precedence
-  return (trimmedText.startsWith('<!DOCTYPE') || trimmedText.startsWith('<html'));
+  return /^\\s*(?:<!DOCTYPE|<html)/i.test(text);
 }
 
 // ---------- Event Handler Utilities ----------
