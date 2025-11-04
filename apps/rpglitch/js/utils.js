@@ -4,8 +4,8 @@ import { db } from './db.js';
  * Safe storage, DOM helpers, chin management
  */
 
-// Brand color constants (signature colours)
-// These must match the palette options in entity-form.js and _variables.scss
+// Signature Color constants
+// These must match the Signature Color options in entity-form.js and _variables.scss
 export const BASE_COLOUR_MAP = {
   pink: '#ec4899',     // --brand-pink
   emerald: '#10b981',  // --brand-emerald
