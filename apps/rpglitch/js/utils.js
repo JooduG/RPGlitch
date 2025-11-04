@@ -97,7 +97,7 @@ export async function handleAsyncError(asyncFn, options = {}) {
   } catch (error) {
     console.error(`Failed to ${context}:`, error);
     if (showAlert) {
-      alert(errorMessage);
+      window.alert(errorMessage);
     }
     return fallback;
   }
