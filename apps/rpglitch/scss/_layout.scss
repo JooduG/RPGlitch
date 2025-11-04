@@ -391,8 +391,15 @@ body.chin-open .top-bar {
       opacity: 0.6;
     }
   }
+}
 
-  @include mixins.mobile {
+/* Mobile: Consolidated storyboard responsive styles */
+@include mixins.mobile {
+  #storyboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .storyboard-card {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
 
@@ -411,12 +418,5 @@ body.chin-open .top-bar {
       grid-column: 1;
       grid-row: 2;
     }
-  }
-}
-
-/* Mobile: Single column for storyboard grid */
-@include mixins.mobile {
-  #storyboard-grid {
-    grid-template-columns: 1fr;
   }
 }
