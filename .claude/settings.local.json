@@ -35,5 +35,16 @@
     "deny": [],
     "ask": []
   },
-  "outputStyle": "default"
+  "outputStyle": "default",
+  "enabledMcpjsonServers": [
+    "time",
+    "toolbox",
+    "pollinations",
+    "mcp-sequentialthinking-tools",
+    "waldzell-clear-thought",
+    "waldzell-stochastic-thinking",
+    "playwright",
+    "npm-sentinel",
+    "chrome-devtools"
+  ]
 }

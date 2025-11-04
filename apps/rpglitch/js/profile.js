@@ -1,6 +1,5 @@
 import {
-  entities,
-  getPictureHTML
+  entities
 } from './entities.js';
 import {
   hideEl,

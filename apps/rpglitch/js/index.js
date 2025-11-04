@@ -21,8 +21,6 @@ import {
   entities,
   getPictureHTML,
 } from './entities.js';
-import { renderProfile } from './profile.js';
-import { renderForm } from './entity-form.js';
 
 // =================================================================
 // Plugin Setup: Copy Perchance-exposed plugins to standard names
@@ -751,39 +749,6 @@ export function _attachCardNavigation() {
         capture: true
       }
     );
-
-    function openSelectSafely(select) {
-      if (!select) return;
-      try {
-        const inIframe = (() => {
-          try {
-            return window.top !== window;
-          } catch {
-            return true;
-          }
-        })();
-        if (!inIframe && typeof select.showPicker === "function") {
-          try {
-            select.showPicker();
-            return;
-          } catch {
-            // SecurityError or unsupported context – fall back
-          }
-        }
-      } catch {
-        /* ignore */
-      }
-      try {
-        select.focus();
-      } catch {
-        /* noop */
-      }
-      try {
-        select.click();
-      } catch {
-        /* noop */
-        }
-      }
 
     storyboard.addEventListener("click", async (e) => { // <-- MADE ASYNC
       if (e.target.closest("select, button, a, input, textarea")) return;

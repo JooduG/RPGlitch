@@ -117,6 +117,8 @@ export function isHtmlErrorPage(text) {
   const trimmedText = text.trim().toLowerCase();
   // FIX: Add correct parentheses for operator precedence
   return (trimmedText.startsWith('<!doctype') || trimmedText.startsWith('<html'));
+}
+
 // ---------- Event Handler Utilities ----------
 
 /**

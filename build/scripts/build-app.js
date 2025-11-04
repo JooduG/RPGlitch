@@ -74,7 +74,7 @@ function chunkString(str, chunkSize = 500) {
 function readFileSafe(filePath, kind) {
     try {
         return fsSync.readFileSync(filePath, 'utf8');
-    } catch (err) {
+    } catch {
         console.warn(`⚠️  Missing ${kind}: ${filePath}`);
         return '';
     }

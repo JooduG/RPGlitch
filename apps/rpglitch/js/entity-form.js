@@ -42,19 +42,6 @@ function createField(id, labelText, inputEl) {
   return field;
 }
 
-function renderTagPills(container, tags) {
-    if (!tags || tags.length === 0) return;
-    const wrap = document.createElement("div");
-    wrap.className = "form-tag-pills";
-    tags.forEach((t) => {
-      const chip = document.createElement("span");
-      chip.className = "tag-chip";
-      chip.textContent = t;
-      wrap.appendChild(chip);
-    });
-    container.appendChild(wrap);
-}
-
 export async function renderForm(type, id) { // <-- MADE ASYNC
   const cancelBtn = document.querySelector("#form-cancel");
   if (cancelBtn) {
