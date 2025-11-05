@@ -606,40 +606,36 @@ For advanced developers, the `oc` JavaScript object unlocks the full potential o
 
 Effective development on Perchance requires a shift in mindset from traditional, deterministic programming to a practice of **context architecture**. The developer's role is to structure information, manage state, and provide clear constraints to guide a powerful probabilistic system. By mastering the platform's hierarchy of control—from foundational syntax and AI prompting to advanced scripting—developers can build a vast range of creative and intelligent applications, from simple randomizers to complex, interactive AI-driven worlds.
 
-## **Works cited**
+## **Documentation References**
 
-1. Perchance Tutorial ― Perchance Generator \- Perchance.org, accessed on September 19, 2025, [https://perchance.org/tutorial](https://perchance.org/tutorial)  
-2. Perchance To Type. Creative Coding with random text… | by Jenny B Kowalski | TylerD\&I, accessed on September 19, 2025, [https://medium.com/tylerdi/perchance-to-type-5a27ca2baadf](https://medium.com/tylerdi/perchance-to-type-5a27ca2baadf)  
-3. Comprehensive Guide to the Perchance Character Creation. \- Reddit, accessed on September 19, 2025, [https://www.reddit.com/r/perchance/comments/1jb6dyu/comprehensive\_guide\_to\_the\_perchance\_character/](https://www.reddit.com/r/perchance/comments/1jb6dyu/comprehensive_guide_to_the_perchance_character/)  
-4. \#List/Perchance Panel ― Perchance Generator \- Perchance.org, accessed on September 19, 2025, [https://perchance.org/learn-perchance-ui-lists](https://perchance.org/learn-perchance-ui-lists)  
-5. \#Creating Top-Level Lists ― Perchance Generator \- Perchance.org, accessed on September 19, 2025, [https://perchance.org/learn-perchance-101-top-level](https://perchance.org/learn-perchance-101-top-level)  
-6. \#Using Lists ― Perchance Generator, accessed on September 19, 2025, [https://perchance.org/learn-perchance-101-using-lists](https://perchance.org/learn-perchance-101-using-lists)  
-7. Perchance Example Generators \- Perchance.org, accessed on September 19, 2025, [https://perchance.org/examples](https://perchance.org/examples)  
-8. Perchance Reference ― Perchance Generator \- Perchance.org, accessed on September 19, 2025, [https://perchance.org/perchance-reference](https://perchance.org/perchance-reference)  
-9. Please help me with the correct construction of the prompt : r/perchance \- Reddit, accessed on September 19, 2025, [https://www.reddit.com/r/perchance/comments/1ba35u1/please\_help\_me\_with\_the\_correct\_construction\_of/](https://www.reddit.com/r/perchance/comments/1ba35u1/please_help_me_with_the_correct_construction_of/)  
-10. Learn Web Programming ― Perchance Generator \- Perchance.org, accessed on September 19, 2025, [https://perchance.org/learn-web](https://perchance.org/learn-web)  
-11. \#HTML and Preview/Output Panel ― Perchance Generator, accessed on September 19, 2025, [https://perchance.org/learn-perchance-ui-html-preview](https://perchance.org/learn-perchance-ui-html-preview)  
-12. \#UI Navigation ― Perchance Generator \- Perchance.org, accessed on September 19, 2025, [https://perchance.org/learn-perchance-ui-navbar](https://perchance.org/learn-perchance-ui-navbar)  
-13. How would I go about adding items to a list "on the go"? : r/perchance \- Reddit, accessed on September 19, 2025, [https://www.reddit.com/r/perchance/comments/jkuquf/how\_would\_i\_go\_about\_adding\_items\_to\_a\_list\_on/](https://www.reddit.com/r/perchance/comments/jkuquf/how_would_i_go_about_adding_items_to_a_list_on/)  
-14. Perchance AI Chat Compilation  
-15. Perchance Plugins ― Perchance Generator \- Perchance.org, accessed on September 19, 2025, [https://perchance.org/plugins](https://perchance.org/plugins)  
-16. Perchance: Create a random text generator (now with 2 dozen plugins and a bunch of new features) : r/rpg \- Reddit, accessed on September 19, 2025, [https://www.reddit.com/r/rpg/comments/772ben/perchance\_create\_a\_random\_text\_generator\_now\_with/](https://www.reddit.com/r/rpg/comments/772ben/perchance_create_a_random_text_generator_now_with/)  
-17. AI Text Plugin \- Perchance, accessed on September 19, 2025, [https://perchance.org/ai-text-plugin](https://perchance.org/ai-text-plugin)  
-18. AI Image Generator (free, no sign-up, unlimited) \- Perchance.org, accessed on September 19, 2025, [https://perchance.org/ai-text-to-image-generator](https://perchance.org/ai-text-to-image-generator)  
-19. Perchance AI: Character Generation \- YouTube, accessed on September 19, 2025, [https://www.youtube.com/watch?v=evN3rUT9Yy0](https://www.youtube.com/watch?v=evN3rUT9Yy0)  
-20. What is Perchance AI? Safe, Free Character Generator Tool \- Quantum IT Innovation, accessed on September 19, 2025, [https://quantumitinnovation.com/blog/perchance-ai-character-generator-guide](https://quantumitinnovation.com/blog/perchance-ai-character-generator-guide)  
-21. 2506.10077v1.pdf  
-22. Research from Perplexity  
-23. How do i make the best out of the chat? : r/perchance \- Reddit, accessed on September 19, 2025, [https://www.reddit.com/r/perchance/comments/1imro8w/how\_do\_i\_make\_the\_best\_out\_of\_the\_chat/](https://www.reddit.com/r/perchance/comments/1imro8w/how_do_i_make_the_best_out_of_the_chat/)  
-24. LLM Document Instruction Research  
-25. Perchance AI Character Chat | PDF \- Scribd, accessed on September 19, 2025, [https://www.scribd.com/document/846120988/Perchance-AI-Character-Chat](https://www.scribd.com/document/846120988/Perchance-AI-Character-Chat)  
-26. CHARACTER CHAT TUTORIAL PT3 : r/perchance \- Reddit, accessed on September 19, 2025, [https://www.reddit.com/r/perchance/comments/1jnppbb/character\_chat\_tutorial\_pt3/](https://www.reddit.com/r/perchance/comments/1jnppbb/character_chat_tutorial_pt3/)  
-27. Tips for AI Character Chat, or a character I can download to follow as an example? \- Reddit, accessed on September 19, 2025, [https://www.reddit.com/r/perchance/comments/1iv6vm0/tips\_for\_ai\_character\_chat\_or\_a\_character\_i\_can/](https://www.reddit.com/r/perchance/comments/1iv6vm0/tips_for_ai_character_chat_or_a_character_i_can/)  
-28. ︎ Perchance \- Create a Random Text Generator \- Reddit, accessed on September 19, 2025, [https://www.reddit.com/r/perchance/](https://www.reddit.com/r/perchance/)  
-29. Persistent memory across chats : r/perchance \- Reddit, accessed on September 19, 2025, [https://www.reddit.com/r/perchance/comments/1iov4x7/persistent\_memory\_across\_chats/](https://www.reddit.com/r/perchance/comments/1iov4x7/persistent_memory_across_chats/)  
-30. Perchance Code | PDF | Web Server \- Scribd, accessed on September 19, 2025, [https://www.scribd.com/document/846120978/Perchance-code](https://www.scribd.com/document/846120978/Perchance-code)  
-31. How can I keep my Ai created images of characters consistent \- KDP Community, accessed on September 19, 2025, [https://www.kdpcommunity.com/s/question/0D5at00000IjPuZCAV/how-can-i-keep-my-ai-created-images-of-characters-consistent?language=en\_US](https://www.kdpcommunity.com/s/question/0D5at00000IjPuZCAV/how-can-i-keep-my-ai-created-images-of-characters-consistent?language=en_US)  
-32. Character interactions and model consistency \-Tips? : r/perchance \- Reddit, accessed on September 19, 2025, [https://www.reddit.com/r/perchance/comments/1moco01/character\_interactions\_and\_model\_consistency\_tips/](https://www.reddit.com/r/perchance/comments/1moco01/character_interactions_and_model_consistency_tips/)  
-33. Perchance AI: The Best AI Character Generator of 2025? \- Content Beta, accessed on September 19, 2025, [https://www.contentbeta.com/blog/perchance-ai/](https://www.contentbeta.com/blog/perchance-ai/)  
-34. How to Create FREE Consistent AI Characters in 2025 \- YouTube, accessed on September 19, 2025, [https://www.youtube.com/watch?v=7Dtb9kO97\_w](https://www.youtube.com/watch?v=7Dtb9kO97_w)  
-35. Directed Context Programming for AI-Generated UIs | by Peter Jackson \- Medium, accessed on September 19, 2025, [https://medium.com/@peter\_84200/directed-context-programming-for-ai-generated-uis-588505a1172b](https://medium.com/@peter_84200/directed-context-programming-for-ai-generated-uis-588505a1172b)
+### **General Perchance**
+* [Welcome Page](https://perchance.org/welcome)
+* [Tutorial](https://perchance.org/tutorial)
+* [Advanced Tutorial](https://perchance.org/advanced-tutorial)
+* [Reference](https://perchance.org/perchance-reference)
+* [Example Generators](https://perchance.org/examples)
+* [Learn Web Programming](https://perchance.org/learn-web)
+
+### **Learn Perchance (UI & Basics)**
+* [List/Perchance Panel](https://perchance.org/learn-perchance-ui-lists)
+* [Creating Top-Level Lists](https://perchance.org/learn-perchance-101-top-level)
+* [Using Lists](https://perchance.org/learn-perchance-101-using-lists)
+* [HTML and Preview/Output Panel](https://perchance.org/learn-perchance-ui-html-preview)
+* [UI Navigation](https://perchance.org/learn-perchance-ui-navbar)
+
+### **Plugins**
+* [Plugins](https://perchance.org/plugins)
+* [ai-text-plugin](https://perchance.org/ai-text-plugin)
+* [text-to-image-plugin](https://perchance.org/text-to-image-plugin)
+* [super-fetch-plugin](https://perchance.org/super-fetch-plugin)
+* [remember-plugin](https://perchance.org/remember-plugin)
+* [upload-plugin](https://perchance.org/upload-plugin)
+
+### **Application Examples & Generators**
+* [Character Chat](https://perchance.org/ai-character-chat)
+* [RPG](https://perchance.org/ai-rpg)
+* [Image Generator](https://perchance.org/ai-text-to-image-generator)
+
+### **External Resources**
+* [Perchance AI Character Chat - Scribd](https://www.scribd.com/document/846120988/Perchance-AI-Character-Chat)
+* [Perchance Code - Scribd](https://www.scribd.com/document/846120978/Perchance-code)

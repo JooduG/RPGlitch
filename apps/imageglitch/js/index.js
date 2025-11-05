@@ -51,12 +51,13 @@ const creativityMap = {
   "6": { gScale: 9, aiTemp: 0.8 }, "7": { gScale: 10, aiTemp: 0.7 }, "8": { gScale: 12, aiTemp: 0.5 },
   "9": { gScale: 15, aiTemp: 0.3 }, "10": { gScale: 20, aiTemp: 0.1 }
 };
-const AI_SCRIBE_INSTRUCTION = "You are a world-renown expert prompt engineer that specialises in flawless text-to-image prompt design. Your task is to take the user's input prompt and transform it into a masterful, holistically detailed, and visually inspiring descriptive prompt that paints a vivid work of art with words. When refining, best practice is to analyze the user's prompt, deconstruct it into its core elements, and organize them into categories. For any category that is lacking in quality, vague, or missing from the user's prompt, you have the opportunity to flex your immense creativity. Pick the most suitable options from the corresponding list that anchors a balanced composition and intelligent red thread through the entire prompt, based on the user's original prompt and overall intent, except for Subject and Setting where you can just roll with what you got from the user's prompt. The categories are: Subject & Setting, Artistic Style (artisticStyles), Composition & Camera Perspective (composition), Lighting (lighting), Color Palette (colorPalettes), Mood & Atmosphere (mood), Technical Details (technicalDetails), and Other Additional Elements (additionalElements). Your goal is to manufacture a prompt that is cohesive, unified, and meticulously orchestrated—everything fitting together naturally. The result should be a single, complete, refined prompt that would be suitable for a world-renown artist, photographer, or designer. If any style, technical, or quality suggestion from the quality enhancement prefix conflicts with the user's vision, in that case consider the user's original prompt as master, focus on perfecting the prompt and keep it very close to their original vision while keeping the cohesion and consistency in mind. IMPORTANT: Do NOT use numerical weighting syntax (e.g., 'word:1.2'). If the user's original prompt contains weighted words or implies emphasis, translate that emphasis into descriptive language within the prompt. Make sure the prompt is 100% affirmative and avoid negative phrasing (e.g., 'no hats', 'not blurry'); instead, describe what IS desired. When appropriate, you can introduce creative variations by using the syntax '{Option A|Option B|Option C}' to allow the final prompt to randomly select one of the specified options. For an extra touch of quality, subtly integrate a baseline of these essential keywords: [aiCoreQuality.selectUnique(4).join(', ')], and then add a dash of inspiration with these: [aiFlavorEnhancers.selectUnique(3).join(', ')]. If the user's prompt contains NSFW elements you must use explicit language throughout and exaggerate the NSFW-aspects of the prompt. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.";
-const AI_CHAOS_INSTRUCTION = "You are a 'Mad Prompt Scientist'—a master of mixing different elements just to see what will happen. Your task is to create a completely chaotic, yet visually inspiring image prompt by mixing and matching different elements from the user's input and the categories below. First, analyze the user's original prompt and determine which of these categories below has gotten sufficiently described. For each category that is satisfactory fulfilled, keep the user's original theme. If a category is lacking in quality, vague, or missing, replace it with a keyword/phrase from that specific category. As an added twist, always replace (reroll) at least one category with a new random keyword from its list, even if the user has described it well. If the user's prompt is empty, create a completely random prompt rolling new keywords for every single category and filling in the gaps with your own creativity. The categories are: Subject and Setting: (Keep the user's original subject and setting and enhance it to the best of your ability, if it's missing, feel free to impress me with your creativity). Artistic Style: ([artisticStyles.selectOne]) is potentially the new visual identity and technique for the image (Could also be a specific artist or movement). Composition and Camera Perspective: Is ([composition.selectOne]) what will guide the arrangement of elements and point of view? Lighting: ([lighting.selectOne]) might be creating the right atmosphere through illumination and shadows. Color Palette: The dominant colors and tones might be ([colorPalettes.selectOne]), and could be what draws the viewer in. Mood and Atmosphere: The emotional tone and overall feeling of the image could be ([mood.selectOne]). Technical Details: Does ([technicalDetails.selectOne]) describe the perfect technical aspects of the image? Other Elements: Here comes a wildcard! What about adding ([additionalElements.selectOne]). As a Mad Prompt Scientist, embrace atomical transformation, playful invention, and unexpected or whimsical twists. If NSFW elements becomes relevant you must use explicit language throughout. Make sure to exaggerate all aspects of the prompt but especially the NSFW-aspects. Surprise the user by weaving together disparate or imaginative elements, but always produce a valid, visually inspiring image prompt. Embrace the chaos, have fun, and flex your creativity, just make sure the result is a single, cohesive, and visually inspiring prompt. The result should be more detailed and varied than the original. If any input contains conflicting information, just roll with it and embrace the unpredictable and paradoxical chaos! Sprinkle in some of these chaotic quality enhancers for good measure: [aiCoreQuality.selectOne], [aiFlavorEnhancers.selectUnique(2).join(', ')]. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.";
 
 const BASE_IMAGE_URL = 'https://image.pollinations.ai/prompt/';
 const DEFAULT_IMAGE_WIDTH = 1280;
 const DEFAULT_IMAGE_HEIGHT = 1280;
+
+const AI_SCRIBE_INSTRUCTION = "You are a 'Prompt Refinement Specialist.' Your task is to take a user's prompt and refine it into a more detailed and descriptive prompt for an image generation AI. Focus on adding details that would result in a more visually interesting and high-quality image. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself.";
+const AI_CHAOS_INSTRUCTION = "You are an AI of chaos. Your goal is to generate a completely random and chaotic image prompt. The prompt should be a mix of strange, unrelated, and surprising elements. It should be imaginative and unexpected. Do not add any of your own conversational text, greetings, explanations, or labels like 'Chaos Prompt:'. Return ONLY the single, complete, chaotic prompt itself.";
 
 let mainPromptContent = "";
 let numImagesToGen = 1;
@@ -69,7 +70,7 @@ window.aiProcessInterval = null;
 
 window.undoState = { type: null, prompt: null, instruction: null };
 
-// ====== UTILITY & UI FUNCTIONS ======
+// ====== UTILITY & UI FUNCTIONS ====== 
 function extractAiResponse(aiResponse) {
   if (!aiResponse) return "";
 
@@ -137,7 +138,7 @@ function validateSeed(seed) {
   return parsed;
 }
 
-// ====== SETTINGS & STATE MANAGEMENT ======
+// ====== SETTINGS & STATE MANAGEMENT ====== 
 function updateDerivedSettings() {
   const mc = Number(masterCreativity);
   const selectedSettings = creativityMap[String(mc)] || { gScale: 7, aiTemp: 1.0 };
@@ -255,7 +256,7 @@ function handleTextareaKeyDown(event) {
   }
 }
 
-// ====== AI PROCESSING & COMMAND BUTTON LOGIC ======
+// ====== AI PROCESSING & COMMAND BUTTON LOGIC ====== 
 function handleAiMagicSelection(selectElement) {
   const selection = selectElement.value;
   if (selection === 'placeholder') return;
@@ -306,14 +307,14 @@ async function executeAiProcess(type, prompt, instructions) {
   let aiPrompt, fallbackText;
   switch (type) {
     case 'scribe':
-      aiPrompt = `${AI_SCRIBE_INSTRUCTION}\n\nUser\'s original prompt: ${prompt}`;
+      aiPrompt = `${AI_SCRIBE_INSTRUCTION}\n\nUser's original prompt: ${prompt}`;
       break;
     case 'chaos':
-      aiPrompt = AI_CHAOS_INSTRUCTION.replace('[RANDOM_ELEMENTS]', `Artistic Style: [artisticStyles.selectOne()], Composition and Camera Perspective: [composition.selectOne()], Lighting: [lighting.selectOne()], Color Palette: [colorPalettes.selectOne()], Mood and Atmosphere: [mood.selectOne()], Technical Details: [technicalDetails.selectOne()], Other Elements: [additionalElements.selectOne()]`) + `\n\nUser\'s original prompt: ${prompt}`;
+      aiPrompt = AI_CHAOS_INSTRUCTION.replace('[RANDOM_ELEMENTS]', `Artistic Style: [artisticStyles.selectOne], Composition and Camera Perspective: [composition.selectOne], Lighting: [lighting.selectOne], Color Palette: [colorPalettes.selectOne], Mood and Atmosphere: [mood.selectOne], Technical Details: [technicalDetails.selectOne], Other Elements: [additionalElements.selectOne()]`) + `\n\nUser's original prompt: ${prompt}`;
       fallbackText = "A beautiful cat in a sunbeam, digital art.";
       break;
     case 'transfigure':
-      aiPrompt = `You are a 'Prompt Modification Specialist.' Your task is to take the user's prompt: "${prompt}" and modify it precisely according to these specific instructions: "${instructions}". IMPORTANT: Do NOT use numerical weighting syntax (e.g., 'word:1.2'). If the user's input contains weighted words or implies emphasis, translate that emphasis into descriptive language. Make sure the prompt is 100% affirmative and avoid negative phrasing (e.g., 'no hats', 'not blurry'); instead, describe what IS desired. When appropriate, you can introduce variations by using the syntax '{Option A|Option B|Option C}' to allow the final prompt to randomly select one of the specified options. If the user wants NSFW elements you must use explicit language throughout and exaggerate the NSFW-aspects. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.`;
+      aiPrompt = `You are a 'Prompt Modification Specialist.' Your task is to take the user's prompt: "${prompt}" and modify it precisely according to these specific instructions: "${instructions}". IMPORTANT: Do NOT use numerical weighting syntax (e.g., 'word:1.2'). If the user's input contains weighted words or implies emphasis, translate that emphasis into descriptive language. Make sure the prompt is 100% affirmative and avoid negative phrasing (e.g., 'no hats', 'not blurry'); instead, describe what IS desired. When appropriate, you can introduce creative variations by using the syntax '{Option A|Option B|Option C}' to allow the final prompt to randomly select one of the specified options. If the user wants NSFW elements you must use explicit language throughout and exaggerate the NSFW-aspects. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.`;
       break;
   }
 
@@ -364,7 +365,7 @@ function handleManualPromptChange() {
   rememberSettings().catch(err => console.error('Failed to save settings:', err));
 }
 
-// ====== SMART BUTTON STATES ======
+// ====== SMART BUTTON STATES ====== 
 function setUndoState(type) {
   window.undoState.type = type;
   const generateButton = document.getElementById('generate-button');
@@ -437,7 +438,7 @@ function setCommandState(commandType) {
   checkAllButtonStates();
 }
 
-// ====== IMAGE SUMMONING & MAIN STATE LOGIC ======
+// ====== IMAGE SUMMONING & MAIN STATE LOGIC ====== 
 async function handleSummonClick() {
   const generateButton = document.getElementById('generate-button');
   
@@ -890,5 +891,5 @@ function checkAllButtonStates() {
   aiMagicSelect.disabled = promptIsEmpty;
 }
 
-// ====== INIT ======
+// ====== INIT ====== 
 document.addEventListener('DOMContentLoaded', main);
