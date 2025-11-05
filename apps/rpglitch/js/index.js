@@ -1,4 +1,4 @@
-import { router } from "./profile-router.js";
+import { router, initViews } from "./views.js";
 import { init as initDB, db } from "./db.js"; // <-- ADDED THIS
 
 import {
@@ -1992,6 +1992,8 @@ export async function initializeWhenReady() {
   }
 
   try {
+    initViews({ refreshAllLists });
+
     _getUIElements();
 
     // Cache storyboard picture templates once for performance

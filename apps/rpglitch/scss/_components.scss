@@ -1,5 +1,4 @@
-@use "variables" as *;
-@use "mixins";
+@use "foundation" as *;
 
 // This file will import individual component styles.
 .picture {
@@ -87,7 +86,7 @@
 }
 
 .card {
-  @include mixins.card-common;
+  @include card-common;
 
   min-height: 260px;
   height: auto;
@@ -138,6 +137,7 @@
     line-height: 1.5;
     color: var(--pico-muted-color);
     display: -webkit-box;
+    line-clamp: 3;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -423,7 +423,7 @@ body.chin-open .chin-focus-ring {
   gap: 1rem;
   align-items: start;
 
-  @include mixins.tablet {
+  @include tablet {
     grid-template-columns: 1fr; /* Single column on smaller screens */
     gap: 0.5rem;
   }
@@ -438,7 +438,7 @@ body.chin-open .chin-focus-ring {
   align-items: center;
   gap: 1rem;
 
-  @include mixins.tablet {
+  @include tablet {
     display: none; /* Hide character displays on mobile */
   }
 
@@ -481,7 +481,7 @@ body.chin-open .chin-focus-ring {
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   animation: message-slide-in 0.3s ease;
 
-  @include mixins.tablet {
+  @include tablet {
     max-width: 95%;
   }
 }
@@ -707,10 +707,7 @@ body.chin-open .chin-focus-ring {
   padding-left: 35vw;
   padding-right: calc(5% - 1rem);
 
-  @include mixins.custom-scrollbar(
-    rgb(255 255 255 / 30%),
-    rgb(255 255 255 / 30%)
-  );
+  @include custom-scrollbar(rgb(255 255 255 / 30%), rgb(255 255 255 / 30%));
 }
 
 .profile-description {
@@ -765,4 +762,54 @@ body.chin-open .chin-focus-ring {
   color: rgb(255 255 255 / 50%);
   font-style: italic;
   pointer-events: none;
+}
+
+.chin-search input,
+.chin-search button {
+  height: 2.5rem;
+  padding-block: 0.5rem;
+}
+
+.form-view {
+  // Overrides to make form fields look like static text
+  .profile-name,
+  .profile-description,
+  .profile-field-text {
+    background-color: var(--pico-form-element-background-color);
+    border: var(--pico-form-element-border-width) solid
+      var(--pico-form-element-border-color);
+    padding: var(--pico-form-element-padding);
+
+    &:focus {
+      --pico-box-shadow: 0 0 0 var(--pico-outline-width)
+        var(--pico-primary-focus);
+    }
+  }
+
+  .profile-name {
+    // Mimic h1
+    font-size: var(--pico-font-size-h1);
+    font-weight: var(--pico-font-weight-h1);
+    line-height: var(--pico-line-height-h1);
+    margin-bottom: var(--pico-spacing);
+  }
+
+  .profile-description {
+    // Mimic p
+    font-size: var(--pico-font-size);
+    margin-bottom: var(--pico-spacing);
+    min-height: 10rem;
+  }
+
+  // Keep the grid layout from profile view for visual consistency
+  .profile-field {
+    // Apply the profile view's grid layout for visual consistency
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+  }
+
+  .profile-field-text {
+    width: 100%;
+    min-height: 5rem;
+  }
 }

@@ -1,5 +1,5 @@
+@use "foundation";
 @use "sass:color";
-@use "variables" as *;
 
 // This file will contain base styles, like resets and default typography.
 
@@ -29,10 +29,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+    scroll-behavior: auto;
   }
 }
 
@@ -44,10 +44,10 @@ body {
   overflow: hidden;
   background: linear-gradient(
     120deg,
-    $gradient-color-1 0%,
-    $gradient-color-2 40%,
-    $gradient-color-3 70%,
-    $gradient-color-4 100%
+    foundation.$gradient-color-1 0%,
+    foundation.$gradient-color-2 40%,
+    foundation.$gradient-color-3 70%,
+    foundation.$gradient-color-4 100%
   );
   background-attachment: fixed;
   background-repeat: no-repeat;
@@ -197,7 +197,8 @@ button.danger,
   font-weight: 600;
 
   &:not(:disabled):hover {
-    background: color.mix($pico-del-color, black, 90%);
-    box-shadow: 0 6px 12px color.adjust($pico-del-color, $alpha: -0.7);
+    background: color.mix(foundation.$pico-del-color, black, 90%);
+    box-shadow: 0 6px 12px
+      color.adjust(foundation.$pico-del-color, $alpha: -0.7);
   }
 }

@@ -1,6 +1,5 @@
 // This file will contain layout styles, such as for the main container, header, and grid systems.
-@use "variables" as *;
-@use "mixins";
+@use "foundation";
 
 .container {
   position: relative;
@@ -13,7 +12,7 @@ main.container {
   height: calc(100vh - var(--header-height));
   padding: var(--app-container-pad);
 
-  @include mixins.custom-scrollbar;
+  @include foundation.custom-scrollbar;
 }
 
 .top-bar {
@@ -226,7 +225,7 @@ body.chin-open .top-bar {
   margin-bottom: 0.5rem;
 }
 
-@include mixins.mobile {
+@include foundation.mobile {
   .profile-layout {
     flex-direction: column;
   }
@@ -346,6 +345,7 @@ body.chin-open .top-bar {
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     margin-bottom: 0.5rem;
   }
@@ -407,7 +407,7 @@ body.chin-open .top-bar {
 }
 
 /* Mobile: Consolidated storyboard responsive styles */
-@include mixins.mobile {
+@include foundation.mobile {
   #storyboard-grid {
     grid-template-columns: 1fr;
   }
