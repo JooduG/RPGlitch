@@ -302,10 +302,12 @@ function handleAiButtonClick(processType) {
 async function executeAiProcess(type, prompt, instructions) {
   // Helper function to check if instructions are missing for the current type
   const areInstructionsMissing = () => {
-    if (type === 'scribe') return !AI_SCRIBE_INSTRUCTION;
-    if (type === 'chaos') return !AI_CHAOS_INSTRUCTION;
-    if (type === 'transfigure') return !AI_TRANSFIGURE_INSTRUCTION;
-    return false;
+    const instructionMap = {
+      'scribe': AI_SCRIBE_INSTRUCTION,
+      'chaos': AI_CHAOS_INSTRUCTION,
+      'transfigure': AI_TRANSFIGURE_INSTRUCTION
+    };
+    return !instructionMap[type];
   };
 
   // Validate AI instructions are loaded
