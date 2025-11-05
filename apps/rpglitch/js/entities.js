@@ -1,83 +1,92 @@
 /* global DOMPurify */
-import { db } from './db.js'; // <-- Import our new database
+import { db } from "./db.js"; // <-- Import our new database
 
 // --- PREMADE CONTENT (Unchanged) ---
 const premade = {
   stories: [],
-  characters: [{
-    id: "char-1",
-    name: "Aether Blade",
-    description: "Cybernetic warrior forging light into weapons.",
-    type: "Character",
-    signatureColour: "cyan",
-    sections: {
-      forever: "Bound to the Aether Core, their blade hums with starlight.",
-      past: "Once a street tinkerer who reverse‑engineered a fallen drone.",
-      present: "Hired to protect caravans across the skybridges of Neo Arcadia.",
-      future: "Fated to sever the Source that powers the city itself.",
+  characters: [
+    {
+      id: "char-1",
+      name: "Aether Blade",
+      description: "Cybernetic warrior forging light into weapons.",
+      type: "Character",
+      signatureColour: "cyan",
+      sections: {
+        forever: "Bound to the Aether Core, their blade hums with starlight.",
+        past: "Once a street tinkerer who reverse‑engineered a fallen drone.",
+        present:
+          "Hired to protect caravans across the skybridges of Neo Arcadia.",
+        future: "Fated to sever the Source that powers the city itself.",
+      },
     },
-  }, {
-    id: "char-2",
-    name: "Mystic Bard",
-    description: "Traveling musician who weaves spells with song.",
-    type: "Character",
-    signatureColour: "pink",
-    sections: {
-      forever: "Every note carries a memory; every chorus, a charm.",
-      past: "Exiled from a royal conservatory for forbidden harmonics.",
-      present: "Busks in markets, mending hearts and stirring rebellions.",
-      future: "Composes the Anthem that ends a century‑long war.",
+    {
+      id: "char-2",
+      name: "Mystic Bard",
+      description: "Traveling musician who weaves spells with song.",
+      type: "Character",
+      signatureColour: "pink",
+      sections: {
+        forever: "Every note carries a memory; every chorus, a charm.",
+        past: "Exiled from a royal conservatory for forbidden harmonics.",
+        present: "Busks in markets, mending hearts and stirring rebellions.",
+        future: "Composes the Anthem that ends a century‑long war.",
+      },
     },
-  }, {
-    id: "char-3",
-    name: "Clockwork Rogue",
-    description: "Stealthy thief powered by ticking gears.",
-    type: "Character",
-    signatureColour: "emerald",
-    sections: {
-      forever: "Precision over passion; gears never lie.",
-      past: "Built in a hidden workshop as a prototype companion.",
-      present: "Steals artifacts to buy freedom for their maker.",
-      future: "Breaks their mainspring to stop a time heist.",
+    {
+      id: "char-3",
+      name: "Clockwork Rogue",
+      description: "Stealthy thief powered by ticking gears.",
+      type: "Character",
+      signatureColour: "emerald",
+      sections: {
+        forever: "Precision over passion; gears never lie.",
+        past: "Built in a hidden workshop as a prototype companion.",
+        present: "Steals artifacts to buy freedom for their maker.",
+        future: "Breaks their mainspring to stop a time heist.",
+      },
     },
-  }, {
-    id: "char-4",
-    name: "Shadow Whisperer",
-    description: "Mysterious figure communing with darkness.",
-    type: "Character",
-    signatureColour: "cyan",
-    sections: {
-      forever: "The dark is not empty; it listens back.",
-      past: "Swallowed by a rift and returned with a voice not their own.",
-      present: "Brokers secrets between guilds through living silhouettes.",
-      future: "Merges with the Night to blind an invading fleet.",
+    {
+      id: "char-4",
+      name: "Shadow Whisperer",
+      description: "Mysterious figure communing with darkness.",
+      type: "Character",
+      signatureColour: "cyan",
+      sections: {
+        forever: "The dark is not empty; it listens back.",
+        past: "Swallowed by a rift and returned with a voice not their own.",
+        present: "Brokers secrets between guilds through living silhouettes.",
+        future: "Merges with the Night to blind an invading fleet.",
+      },
     },
-  }, ],
-  worlds: [{
-    id: "world-1",
-    name: "Eldoria",
-    description: "Floating isles bound by ancient magic.",
-    type: "World",
-    signatureColour: "emerald",
-    sections: {
-      forever: "Isles drift on leylines braided like song.",
-      past: "Sky anchors forged by archmages after the Great Sundering.",
-      present: "Airships trade between isles while storms hide ruins.",
-      future: "The leylines unravel unless the lost keystone is found.",
+  ],
+  worlds: [
+    {
+      id: "world-1",
+      name: "Eldoria",
+      description: "Floating isles bound by ancient magic.",
+      type: "World",
+      signatureColour: "emerald",
+      sections: {
+        forever: "Isles drift on leylines braided like song.",
+        past: "Sky anchors forged by archmages after the Great Sundering.",
+        present: "Airships trade between isles while storms hide ruins.",
+        future: "The leylines unravel unless the lost keystone is found.",
+      },
     },
-  }, {
-    id: "world-2",
-    name: "Neo Arcadia",
-    description: "Futuristic metropolis built on dream tech.",
-    type: "World",
-    signatureColour: "pink",
-    sections: {
-      forever: "Dreams scaffold towers; intent becomes steel.",
-      past: "Founded by lucid engineers who stabilized shared dreaming.",
-      present: "Neon districts vie for control of the Somnus Grid.",
-      future: "A city‑wide insomnia threatens to collapse reality seams.",
+    {
+      id: "world-2",
+      name: "Neo Arcadia",
+      description: "Futuristic metropolis built on dream tech.",
+      type: "World",
+      signatureColour: "pink",
+      sections: {
+        forever: "Dreams scaffold towers; intent becomes steel.",
+        past: "Founded by lucid engineers who stabilized shared dreaming.",
+        present: "Neon districts vie for control of the Somnus Grid.",
+        future: "A city‑wide insomnia threatens to collapse reality seams.",
+      },
     },
-  }, ],
+  ],
 };
 
 export function getPremadeItems(key) {
@@ -88,7 +97,7 @@ export function getPremadeItems(key) {
 
 const storeMap = {
   character: "characters",
-  world: "worlds"
+  world: "worlds",
 };
 const STORAGE_VERSION = 1;
 
@@ -114,12 +123,12 @@ function getContrast(color) {
   const hex = color.startsWith("#") ? color.slice(1) : null;
   if (hex && (hex.length === 3 || hex.length === 6)) {
     const full =
-      hex.length === 3 ?
-      hex
-      .split("")
-      .map((c) => c + c)
-      .join("") : 
-      hex;
+      hex.length === 3
+        ? hex
+            .split("")
+            .map((c) => c + c)
+            .join("")
+        : hex;
     const num = parseInt(full, 16);
     const r = (num >> 16) & 255;
     const g = (num >> 8) & 255;
@@ -181,41 +190,40 @@ function getBrand(entity = {}) {
   if (!entity) {
     return getDeterministicColor("");
   }
-  if (entity.signatureColour && entity.signatureColour !== 'default') {
+  if (entity.signatureColour && entity.signatureColour !== "default") {
     return `var(--brand-${entity.signatureColour})`;
   }
   // Legacy palette object format
   if (entity.palette?.brand) return entity.palette.brand;
   // Legacy palette string format
-  if (typeof entity.palette === 'string' && entity.palette) return entity.palette;
+  if (typeof entity.palette === "string" && entity.palette)
+    return entity.palette;
 
   // Build seed from name and tags, filtering out empty values
-  const seed = [
-    entity.name || "",
-    ...(entity.tags || []),
-  ].filter(Boolean).join(",");
+  const seed = [entity.name || "", ...(entity.tags || [])]
+    .filter(Boolean)
+    .join(",");
 
   return getDeterministicColor(seed || entity.id || entity.kind || "");
 }
 
 const PLACEHOLDER_ICONS = {
-  character: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.33 0-8 1.67-8 5v3h16v-3c0-3.33-4.67-5-8-5z"/></svg>',
+  character:
+    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.33 0-8 1.67-8 5v3h16v-3c0-3.33-4.67-5-8-5z"/></svg>',
   world: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 010-16 8 8 0 010 16zm0-14a6 6 0 00-5.29 3h10.58A6 6 0 0012 6zm-5.29 5a6 6 0 000 2h10.58a6 6 0 000-2H6.71zm.42 3a6 6 0 005.29 3 6 6 0 005.29-3H7.13z"/></svg>`,
-  default: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>',
+  default:
+    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>',
 };
 
 export function getPictureHTML(entity = {}, options = {}) {
-  const {
-    cover,
-    neutralPlaceholder = false
-  } = options;
+  const { cover, neutralPlaceholder = false } = options;
   const title = entity.name || "Empty";
   // Ensure 'kind' is derived correctly, defaulting to 'default'
-  const kind = (entity.kind || entity.type || 'default').toLowerCase();
+  const kind = (entity.kind || entity.type || "default").toLowerCase();
   const src =
-    typeof entity.imageUrl === "string" && entity.imageUrl.trim() ?
-    entity.imageUrl.trim() :
-    "";
+    typeof entity.imageUrl === "string" && entity.imageUrl.trim()
+      ? entity.imageUrl.trim()
+      : "";
   const brand = getBrand(entity);
   const contrast = getContrast(brand);
 
@@ -265,11 +273,11 @@ function normalize(base = {}) {
     future: sanitizeHtml(sections.future || "").trim(),
   };
 
-  const rawTags = Array.isArray(base.tags) ?
-    base.tags :
-    base.tags ?
-    String(base.tags).split(",") :
-    [];
+  const rawTags = Array.isArray(base.tags)
+    ? base.tags
+    : base.tags
+    ? String(base.tags).split(",")
+    : [];
   const safeTags = rawTags
     .map((s) => sanitizeHtml(String(s).trim()))
     .filter(Boolean);
@@ -299,7 +307,6 @@ export function formatPremade(entity, type) {
   };
 }
 
-
 // --- REWRITTEN: Entity CRUD Functions (now async) ---
 
 // We no longer need _allItemsCache, read(), write(), or _writeAndCache()
@@ -316,12 +323,17 @@ export const entities = {
     if (!key) return [];
 
     // 1. Get premade items and format them
-    const premadeList = (getPremadeItems(key) || []).map(e => formatPremade(e, type));
+    const premadeList = (getPremadeItems(key) || []).map((e) =>
+      formatPremade(e, type)
+    );
     let customList = [];
     try {
       // Query using the compound index [type+isCustom]
       // isCustom: 1 = custom, 0 = premade (numeric required for IndexedDB compound index)
-      customList = await db.entities.where('[type+isCustom]').equals([type, 1]).toArray();
+      customList = await db.entities
+        .where("[type+isCustom]")
+        .equals([type, 1])
+        .toArray();
     } catch (error) {
       console.error("Error fetching custom entities:", error);
       // We can return just the premade list or an empty array if the DB fails.
@@ -331,9 +343,9 @@ export const entities = {
 
     // 3. Merge and sort.
     const allItems = premadeList.concat(customList);
-    
+
     // Sort by name
-    return allItems.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    return allItems.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   },
 
   /**
@@ -355,7 +367,7 @@ export const entities = {
       const item = await db.entities.get(id);
 
       // 3. Ensure it's the correct type before returning
-      return (item && item.type === type) ? item : null;
+      return item && item.type === type ? item : null;
     } catch (error) {
       console.error(`Failed to get ${type} with id ${id}:`, error);
       return null;
@@ -373,7 +385,7 @@ export const entities = {
       const id = entity.id || crypto?.randomUUID?.() || `${type}-${Date.now()}`;
 
       // Get the existing item (if it exists) to merge with
-      const base = await db.entities.get(id) || {};
+      const base = (await db.entities.get(id)) || {};
 
       const saved = {
         ...base,
@@ -442,7 +454,7 @@ export const entities = {
       // Return a deep copy
       return {
         ...item,
-        sections: { ...item.sections }
+        sections: { ...item.sections },
       };
     } catch (error) {
       console.error(`Failed to copy ${type}:`, error);

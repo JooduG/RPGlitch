@@ -25,7 +25,9 @@ $breakpoint-tablet: 1024px;
   --pico-nav-element-spacing-vertical: 0;
   --pico-nav-element-spacing-horizontal: 0;
   --pico-nav-link-spacing-vertical: var(--pico-form-element-spacing-vertical);
-  --pico-nav-link-spacing-horizontal: var(--pico-form-element-spacing-horizontal);
+  --pico-nav-link-spacing-horizontal: var(
+    --pico-form-element-spacing-horizontal
+  );
   --pico-typography-spacing-vertical: 0;
   --pico-typography-spacing-horizontal: 0;
   --pico-spacing: 0;

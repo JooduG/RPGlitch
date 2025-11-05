@@ -1,7 +1,4 @@
-import {
-  entities,
-  getPictureHTML
-} from './entities.js';
+import { entities, getPictureHTML } from "./entities.js";
 import {
   hideEl,
   showEl,
@@ -12,14 +9,10 @@ import {
   buildHero,
   replaceEventHandler,
   handleAsyncError,
-  BASE_COLOUR_MAP
-} from './utils.js';
-import {
-  router
-} from './profile-router.js';
-import {
-  refreshAllLists
-} from './index.js';
+  BASE_COLOUR_MAP,
+} from "./utils.js";
+import { router } from "./profile-router.js";
+import { refreshAllLists } from "./index.js";
 
 const SECTIONS = [
   ["Forever", "forever"],
@@ -42,14 +35,15 @@ function createField(id, labelText, inputEl) {
   return field;
 }
 
-export async function renderForm(type, id) { // <-- MADE ASYNC
+export async function renderForm(type, id) {
+  // <-- MADE ASYNC
   const cancelBtn = document.querySelector("#form-cancel");
   if (cancelBtn) {
     const cancelHandler = (e) => {
       e?.preventDefault();
       navigateBackOrReturnDefault(undefined, router);
     };
-    replaceEventHandler(cancelBtn, 'click', cancelHandler, '_cancelHandler');
+    replaceEventHandler(cancelBtn, "click", cancelHandler, "_cancelHandler");
   }
 
   const sb = document.querySelector("#storyboard-screen");
@@ -77,7 +71,8 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
     return;
   }
 
-  const screenId = type === "character" ? "character-form-screen" : "world-form-screen";
+  const screenId =
+    type === "character" ? "character-form-screen" : "world-form-screen";
   const screen = document.querySelector(`#${screenId}`);
   if (!screen) return;
 
@@ -104,7 +99,12 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   imageInput.value = entity.imageUrl || "";
   imageInput.addEventListener("change", () => {
     const val = imageInput.value.trim();
-    const newPic = getPictureHTML ? getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true }) : null;
+    const newPic = getPictureHTML
+      ? getPictureHTML(
+          { ...entity, imageUrl: val, image: val },
+          { cover: true }
+        )
+      : null;
     if (newPic) {
       const currentWrap = heroWrap.querySelector(".picture");
       if (currentWrap) currentWrap.replaceWith(newPic);
@@ -139,21 +139,21 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
     applyBrand?.(leftCol, tempEntity);
 
     // Update placeholder image color
-    const placeholder = heroWrap.querySelector('.placeholder-image');
-    if (placeholder && selectedColour && selectedColour !== 'default') {
+    const placeholder = heroWrap.querySelector(".placeholder-image");
+    if (placeholder && selectedColour && selectedColour !== "default") {
       placeholder.style.backgroundColor = BASE_COLOUR_MAP[selectedColour];
     } else if (placeholder) {
-      placeholder.style.backgroundColor = '';
+      placeholder.style.backgroundColor = "";
     }
 
     // Update tag chip color
-    const tagChip = heroWrap.querySelector('.tag-chip');
-    if (tagChip && selectedColour && selectedColour !== 'default') {
+    const tagChip = heroWrap.querySelector(".tag-chip");
+    if (tagChip && selectedColour && selectedColour !== "default") {
       tagChip.style.backgroundColor = BASE_COLOUR_MAP[selectedColour];
-      tagChip.style.color = 'white';
+      tagChip.style.color = "white";
     } else if (tagChip) {
-      tagChip.style.backgroundColor = '';
-      tagChip.style.color = '';
+      tagChip.style.backgroundColor = "";
+      tagChip.style.color = "";
     }
   });
 
@@ -186,7 +186,8 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   descriptionInput.name = "description";
   descriptionInput.value = entity.description || "";
   descriptionInput.className = "profile-description";
-  descriptionInput.placeholder = "Describe the entity, its background, personality...";
+  descriptionInput.placeholder =
+    "Describe the entity, its background, personality...";
   form.appendChild(descriptionInput);
 
   // Note: tags are now rendered in the hero (left column) as a single tag pill
@@ -217,7 +218,8 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
   const saveBtn = document.querySelector("#form-save");
   const deleteBtn = document.querySelector("#form-delete");
 
-  const suppressDelete = id && sessionStorage?.getItem("rpglitch-no-delete") === id;
+  const suppressDelete =
+    id && sessionStorage?.getItem("rpglitch-no-delete") === id;
   if (suppressDelete) sessionStorage.removeItem("rpglitch-no-delete");
 
   if (deleteBtn) {
@@ -229,8 +231,8 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
           await refreshAllLists?.();
           router.navigate("#storyboard");
         } catch (error) {
-          console.error('Delete failed:', error);
-          alert(error.message || 'Failed to delete. Please try again.');
+          console.error("Delete failed:", error);
+          alert(error.message || "Failed to delete. Please try again.");
         }
       }
     });
@@ -253,23 +255,27 @@ export async function renderForm(type, id) { // <-- MADE ASYNC
         },
       };
 
-      await handleAsyncError(async () => {
-        // Validation inside async block for consistent error handling
-        if (!data.name) {
-          throw new Error('Please enter a name for this entity.');
-        }
+      await handleAsyncError(
+        async () => {
+          // Validation inside async block for consistent error handling
+          if (!data.name) {
+            throw new Error("Please enter a name for this entity.");
+          }
 
-        const originalEntity = isEdit ? await entities.get(type, id) : null;
-        const isEditingPremade = originalEntity?.isPremade;
-        const entityToSave = (id === "new" || isEditingPremade) ? data : { ...data, id };
-        const saved = await entities.upsert(type, entityToSave);
-        router.navigate(`#profile/${type}/${saved.id}`);
-      }, {
-        errorMessage: 'Failed to save. Please try again.',
-        context: 'save entity'
-      });
+          const originalEntity = isEdit ? await entities.get(type, id) : null;
+          const isEditingPremade = originalEntity?.isPremade;
+          const entityToSave =
+            id === "new" || isEditingPremade ? data : { ...data, id };
+          const saved = await entities.upsert(type, entityToSave);
+          router.navigate(`#profile/${type}/${saved.id}`);
+        },
+        {
+          errorMessage: "Failed to save. Please try again.",
+          context: "save entity",
+        }
+      );
     };
-    replaceEventHandler(saveBtn, 'click', saveHandler, '_saveHandler');
+    replaceEventHandler(saveBtn, "click", saveHandler, "_saveHandler");
   }
 
   if (!isEdit) {

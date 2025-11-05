@@ -1,5 +1,5 @@
-import { router } from './profile-router.js';
-import { init as initDB, db } from './db.js'; // <-- ADDED THIS
+import { router } from "./profile-router.js";
+import { init as initDB, db } from "./db.js"; // <-- ADDED THIS
 
 import {
   applyBrand,
@@ -16,11 +16,8 @@ import {
   initDebugMode,
   handleAsyncError,
   isHtmlErrorPage,
-} from './utils.js';
-import {
-  entities,
-  getPictureHTML,
-} from './entities.js';
+} from "./utils.js";
+import { entities, getPictureHTML } from "./entities.js";
 
 // =================================================================
 // Plugin Setup: Copy Perchance-exposed plugins to standard names
@@ -34,11 +31,11 @@ import {
 function setupPlugins() {
   // Map Perchance-exposed plugin names to standard names
   const pluginMap = {
-    pluginAi: 'ai',
-    pluginTextToImage: 'textToImage',
-    pluginSuperFetch: 'superFetch',
-    pluginRememberPlugin: 'rememberPlugin',
-    pluginUpload: 'upload',
+    pluginAi: "ai",
+    pluginTextToImage: "textToImage",
+    pluginSuperFetch: "superFetch",
+    pluginRememberPlugin: "rememberPlugin",
+    pluginUpload: "upload",
   };
 
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
@@ -58,12 +55,25 @@ setupPlugins();
 const App = {
   state: {
     characters: { byId: {}, allIds: [] },
-    threads:    { byId: {}, allIds: [], activeId: null },
-    messages:   { byThreadId: {} }, // { [threadId]: [{id, role, text, seed, meta, createdAt}] }
-    settings:   { temperature: 0.7, top_p: 1.0, maxTokens: 512, stop: [], model: "default", historyLength: 10 },
-    ui:         { fsm: "idle", promptPreviewOpen: false, lastError: null, title: "RPGlitch", selectedStoryboardCard: null }
+    threads: { byId: {}, allIds: [], activeId: null },
+    messages: { byThreadId: {} }, // { [threadId]: [{id, role, text, seed, meta, createdAt}] }
+    settings: {
+      temperature: 0.7,
+      top_p: 1.0,
+      maxTokens: 512,
+      stop: [],
+      model: "default",
+      historyLength: 10,
+    },
+    ui: {
+      fsm: "idle",
+      promptPreviewOpen: false,
+      lastError: null,
+      title: "RPGlitch",
+      selectedStoryboardCard: null,
+    },
   },
-  
+
   /**
    * Updates the global App.state by merging a patch and emits a state:changed event.
    * @param {object} patch - A partial state object to merge into the current state.
@@ -73,7 +83,11 @@ const App = {
     // This is a basic implementation. For more complex needs, a library like lodash.merge would be used.
     const merge = (target, source) => {
       for (const key in source) {
-        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+        if (
+          source[key] &&
+          typeof source[key] === "object" &&
+          !Array.isArray(source[key])
+        ) {
           if (!target[key]) {
             Object.assign(target, { [key]: {} });
           }
@@ -86,26 +100,32 @@ const App = {
     };
 
     merge(App.state, patch);
-    
+
     // Emit a custom event to notify components that the state has changed.
     // This allows different parts of the UI to re-render themselves based on the new state.
-    document.dispatchEvent(new CustomEvent('state:changed', { detail: { patch } }));
+    document.dispatchEvent(
+      new CustomEvent("state:changed", { detail: { patch } })
+    );
   },
 
   prompt: {
     build: (threadId) => {
       const thread = App.state.threads.byId[threadId];
       // Note: App.state.characters.byId will now contain entities of type 'character'
-      const ch = Object.values(App.state.characters.byId).find(c => c.id === thread?.characterId && c.type === 'character');
-      const msgs = App.prompt.trimHistory(App.state.messages.byThreadId[threadId] || []);
+      const ch = Object.values(App.state.characters.byId).find(
+        (c) => c.id === thread?.characterId && c.type === "character"
+      );
+      const msgs = App.prompt.trimHistory(
+        App.state.messages.byThreadId[threadId] || []
+      );
       const system = [ch?.persona, ch?.scenario].filter(Boolean).join("\n\n");
 
       const params = {
         temperature: App.state.settings.temperature,
-        top_p:       App.state.settings.top_p,
-        maxTokens:   App.state.settings.maxTokens,
-        stop:        App.state.settings.stop,
-        model:       App.state.settings.model
+        top_p: App.state.settings.top_p,
+        maxTokens: App.state.settings.maxTokens,
+        stop: App.state.settings.stop,
+        model: App.state.settings.model,
       };
 
       return { system, messages: msgs, params };
@@ -116,13 +136,14 @@ const App = {
       // - Always retain latest N user/assistant pairs (configurable).
       // - Optional summarizer hook can be added later (not in this cycle).
       const historyLength = App.state.settings.historyLength;
-      if (msgs.length <= historyLength * 2) { // * 2 because we count user/assistant pairs
+      if (msgs.length <= historyLength * 2) {
+        // * 2 because we count user/assistant pairs
         return msgs;
       }
 
       // Keep the last 'historyLength' user/assistant pairs
       return msgs.slice(-historyLength * 2);
-    }
+    },
   },
 
   threads: {
@@ -135,7 +156,14 @@ const App = {
         // For testing purposes, let's create a dummy active thread if none exists
         const dummyThreadId = "dummy-thread-1";
         App.state.threads.activeId = dummyThreadId;
-        App.state.threads.byId[dummyThreadId] = { id: dummyThreadId, characterId: "dummy-char-1", title: "Dummy Thread", settingsSnapshot: {}, createdAt: Date.now(), updatedAt: Date.now() };
+        App.state.threads.byId[dummyThreadId] = {
+          id: dummyThreadId,
+          characterId: "dummy-char-1",
+          title: "Dummy Thread",
+          settingsSnapshot: {},
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
         App.state.threads.allIds.push(dummyThreadId);
         console.warn("No active thread found, created a dummy one.");
         return dummyThreadId;
@@ -144,7 +172,9 @@ const App = {
 
     createFromSelection: async ({ storyId, characterId, worldId }) => {
       try {
-        const ch = Object.values(App.state.characters.byId).find(c => c.id === characterId && c.type === 'character');
+        const ch = Object.values(App.state.characters.byId).find(
+          (c) => c.id === characterId && c.type === "character"
+        );
         const title = `${ch?.name || "Character"} × ${storyId || "Story"}`;
 
         const threadId = await db.threads.add({
@@ -152,22 +182,26 @@ const App = {
           title,
           settingsSnapshot: { ...App.state.settings },
           createdAt: Date.now(),
-          updatedAt: Date.now()
+          updatedAt: Date.now(),
         });
 
         App.applyPatch({ threads: { activeId: threadId }, ui: { title } });
         return threadId;
       } catch (error) {
-        console.error('Failed to create thread:', error);
-        alert('Could not create story thread. Please try again.');
+        console.error("Failed to create thread:", error);
+        alert("Could not create story thread. Please try again.");
         throw error;
       }
-    }
+    },
   },
 
   ai: {
     generateStream: async ({ payload, signal, onToken, onDone }) => {
-      if (!window.Perchance || !window.Perchance.plugins || !window.Perchance.plugins.aiText) {
+      if (
+        !window.Perchance ||
+        !window.Perchance.plugins ||
+        !window.Perchance.plugins.aiText
+      ) {
         console.error("Perchance AI Text plugin not available.");
         throw new Error("Perchance AI Text plugin not available.");
       }
@@ -179,9 +213,9 @@ const App = {
         params: payload.params,
         signal: signal,
         onToken: onToken,
-        onDone:  onDone
+        onDone: onDone,
       });
-    }
+    },
   },
 
   chat: {
@@ -196,14 +230,14 @@ const App = {
       }
 
       const messages = App.state.messages.byThreadId[threadId] || [];
-      
+
       if (messages.length === 0) {
         noMessagesEl.hidden = false;
         return;
       }
 
       noMessagesEl.hidden = true;
-      messages.forEach(msg => {
+      messages.forEach((msg) => {
         const messageEl = document.createElement("div");
         messageEl.classList.add("chat-message", `${msg.role}-message`);
         messageEl.textContent = msg.text;
@@ -215,15 +249,23 @@ const App = {
 
     send: async (userText) => {
       if (!userText) return;
-      if (!["idle", "done", "error", "aborted"].includes(App.state.ui.fsm)) return;
+      if (!["idle", "done", "error", "aborted"].includes(App.state.ui.fsm))
+        return;
 
       try {
         const threadId = App.threads.requireActive();
-        await db.messages.add({ threadId, role: "user", text: userText, createdAt: Date.now() });
+        await db.messages.add({
+          threadId,
+          role: "user",
+          text: userText,
+          createdAt: Date.now(),
+        });
 
         const payload = App.prompt.build(threadId);
         const ctrl = new AbortController();
-        App.state.applyPatch({ ui: { fsm: "sending", lastError: null, abortController: ctrl } });
+        App.state.applyPatch({
+          ui: { fsm: "sending", lastError: null, abortController: ctrl },
+        });
 
         try {
           App.state.applyPatch({ ui: { fsm: "streaming" } });
@@ -232,18 +274,25 @@ const App = {
             payload,
             signal: ctrl.signal,
             onToken: (t) => App.chat._appendAssistantToken(threadId, t),
-            onDone:  () => App.chat._finalizeAssistantMessage(threadId)
+            onDone: () => App.chat._finalizeAssistantMessage(threadId),
           });
 
           App.state.applyPatch({ ui: { fsm: "done" } });
         } catch (e) {
           const isAbort = e?.name === "AbortError";
-          App.state.applyPatch({ ui: { fsm: isAbort ? "aborted" : "error", lastError: e?.message || String(e) } });
+          App.state.applyPatch({
+            ui: {
+              fsm: isAbort ? "aborted" : "error",
+              lastError: e?.message || String(e),
+            },
+          });
         }
       } catch (error) {
-        console.error('Failed to save message:', error);
-        alert('Could not save your message. Please try again.');
-        App.state.applyPatch({ ui: { fsm: "error", lastError: "Failed to save message" } });
+        console.error("Failed to save message:", error);
+        alert("Could not save your message. Please try again.");
+        App.state.applyPatch({
+          ui: { fsm: "error", lastError: "Failed to save message" },
+        });
       }
     },
 
@@ -258,11 +307,14 @@ const App = {
       const threadId = App.threads.requireActive();
       const messages = App.state.messages.byThreadId[threadId];
       if (messages && messages.length > 0) {
-        const lastUserMessage = messages.findLast(msg => msg.role === "user");
+        const lastUserMessage = messages.findLast((msg) => msg.role === "user");
         if (lastUserMessage) {
           // Remove any assistant messages after the last user message
           const lastUserMessageIndex = messages.lastIndexOf(lastUserMessage);
-          App.state.messages.byThreadId[threadId] = messages.slice(0, lastUserMessageIndex + 1);
+          App.state.messages.byThreadId[threadId] = messages.slice(
+            0,
+            lastUserMessageIndex + 1
+          );
           await App.chat.send(lastUserMessage.text);
         }
       }
@@ -272,9 +324,14 @@ const App = {
       const messages = App.state.messages.byThreadId[threadId];
       if (messages && messages.length > 0) {
         // Find the last user message and remove it and subsequent assistant messages
-        const lastUserMessageIndex = messages.findLastIndex(msg => msg.role === "user");
+        const lastUserMessageIndex = messages.findLastIndex(
+          (msg) => msg.role === "user"
+        );
         if (lastUserMessageIndex !== -1) {
-          App.state.messages.byThreadId[threadId] = messages.slice(0, lastUserMessageIndex);
+          App.state.messages.byThreadId[threadId] = messages.slice(
+            0,
+            lastUserMessageIndex
+          );
           const previousUserMessage = messages[lastUserMessageIndex];
           await App.chat.send(previousUserMessage.text);
         }
@@ -288,18 +345,26 @@ const App = {
       let lastMessage = messages[messages.length - 1];
 
       if (!lastMessage || lastMessage.role !== "assistant") {
-        lastMessage = { id: Date.now(), threadId, role: "assistant", text: "", createdAt: Date.now() };
+        lastMessage = {
+          id: Date.now(),
+          threadId,
+          role: "assistant",
+          text: "",
+          createdAt: Date.now(),
+        };
         messages.push(lastMessage);
       }
       lastMessage.text += token;
-      App.state.applyPatch({ messages: { byThreadId: { [threadId]: messages } } });
+      App.state.applyPatch({
+        messages: { byThreadId: { [threadId]: messages } },
+      });
     },
     _finalizeAssistantMessage: (threadId) => {
       // No explicit action needed here for now, as tokens are appended directly.
       // This might be used for saving the final message to DB in the future.
       console.log(`Finalizing assistant message for thread ${threadId}.`);
-    }
-  }
+    },
+  },
 };
 
 // Expose App to the window for debugging and easy access
@@ -341,55 +406,41 @@ let _bootStarted = false;
 // Cache for storyboard picture templates (populated in initializeWhenReady)
 let templates = {};
 
-
 export function _getUIElements() {
   const doc = document;
   const ui = {}; // Initialize ui object inside the function
 
   ui.topBarLeft = doc.querySelector("#top-bar-left");
   ui.chinContainer = doc.querySelector("#chin-container");
-  ui.topBarButtons = 
-    ui.topBarLeft ? 
-    ui.topBarLeft.querySelectorAll("button[data-chin]") : 
-    [];
-  ui.topBarRightStoryboard = 
-    doc.querySelector("#top-bar-right-storyboard");
-  ui.topBarRightForm = 
-    doc.querySelector("#top-bar-right-form");
-  ui.topBarRightProfile = 
-    doc.querySelector("#top-bar-right-profile");
+  ui.topBarButtons = ui.topBarLeft
+    ? ui.topBarLeft.querySelectorAll("button[data-chin]")
+    : [];
+  ui.topBarRightStoryboard = doc.querySelector("#top-bar-right-storyboard");
+  ui.topBarRightForm = doc.querySelector("#top-bar-right-form");
+  ui.topBarRightProfile = doc.querySelector("#top-bar-right-profile");
 
   // Option chin actions
-  ui.uploadBackupInput = 
-    doc.querySelector("#upload-backup");
-  ui.uploadBackupTrigger = 
-    doc.querySelector('[data-trigger="upload-backup"]');
-  ui.downloadBackupButton = 
-    doc.querySelector("#download-backup");
-  ui.deleteAllDataButton = 
-    doc.querySelector("#delete-all-data");
+  ui.uploadBackupInput = doc.querySelector("#upload-backup");
+  ui.uploadBackupTrigger = doc.querySelector('[data-trigger="upload-backup"]');
+  ui.downloadBackupButton = doc.querySelector("#download-backup");
+  ui.deleteAllDataButton = doc.querySelector("#delete-all-data");
 
   // Story chin actions
   ui.newStoryButton = doc.querySelector("#new-story");
-  ui.uploadStoryTrigger = 
-    doc.querySelector('[data-trigger="upload-story"]');
-  ui.uploadStoryInput = 
-    doc.querySelector("#upload-story");
+  ui.uploadStoryTrigger = doc.querySelector('[data-trigger="upload-story"]');
+  ui.uploadStoryInput = doc.querySelector("#upload-story");
 
   // Character chin actions
-  ui.newCharacterButton = 
-    doc.querySelector("#new-character");
-  ui.uploadCharacterTrigger = 
-    doc.querySelector('[data-trigger="upload-character"]');
-  ui.uploadCharacterInput = 
-    doc.querySelector("#upload-character");
+  ui.newCharacterButton = doc.querySelector("#new-character");
+  ui.uploadCharacterTrigger = doc.querySelector(
+    '[data-trigger="upload-character"]'
+  );
+  ui.uploadCharacterInput = doc.querySelector("#upload-character");
 
   // World chin actions
   ui.newWorldButton = doc.querySelector("#new-world");
-  ui.uploadWorldTrigger = 
-    doc.querySelector('[data-trigger="upload-world"]');
-  ui.uploadWorldInput = 
-    doc.querySelector("#upload-world");
+  ui.uploadWorldTrigger = doc.querySelector('[data-trigger="upload-world"]');
+  ui.uploadWorldInput = doc.querySelector("#upload-world");
 
   return ui;
 }
@@ -413,14 +464,13 @@ export function _attachChinSearchHandlers() {
       });
     };
 
-    const handler = TEST_MODE ?
-      doFilter :
-      debounce(doFilter, DEBOUNCE_SEARCH_MS);
+    const handler = TEST_MODE
+      ? doFilter
+      : debounce(doFilter, DEBOUNCE_SEARCH_MS);
     input.addEventListener("input", handler);
     input._chinSearchBound = true;
   });
 }
-
 
 // Migrated from localStorage to IndexedDB
 async function saveStoryboardSelection() {
@@ -431,9 +481,9 @@ async function saveStoryboardSelection() {
   };
   try {
     // Get existing settings or create new one
-    let settings = await db.settings.get('app-settings');
+    let settings = await db.settings.get("app-settings");
     if (!settings) {
-      settings = { id: 'app-settings' };
+      settings = { id: "app-settings" };
     }
     settings.storyboardSelection = selects;
     await db.settings.put(settings);
@@ -444,15 +494,13 @@ async function saveStoryboardSelection() {
 
 async function loadStoryboardSelection() {
   try {
-    const settings = await db.settings.get('app-settings');
+    const settings = await db.settings.get("app-settings");
     return settings?.storyboardSelection || {};
   } catch (e) {
     console.error("Failed to load storyboard selection:", e);
     return {};
   }
 }
-
-
 
 /**
  * Gets all items, merging premade and custom.
@@ -486,7 +534,8 @@ export async function getAllItems(key, refresh = false) {
   return [];
 }
 
-async function renderList(containerId, key) { // <-- MADE ASYNC
+async function renderList(containerId, key) {
+  // <-- MADE ASYNC
   const container = document.querySelector(`#${containerId}`);
   if (!container) return;
 
@@ -506,13 +555,13 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
     const message = document.createElement("p");
     message.className = "chin-empty";
     message.textContent =
-      key === "stories" ?
-      "Empty here—time to write your first story!" :
-      key === "characters" ?
-      "No characters found yet" :
-      key === "worlds" ?
-      "No worlds found yet" :
-      "No items found";
+      key === "stories"
+        ? "Empty here—time to write your first story!"
+        : key === "characters"
+        ? "No characters found yet"
+        : key === "worlds"
+        ? "No worlds found yet"
+        : "No items found";
     container.appendChild(message);
     container.setAttribute("aria-busy", "false");
     return;
@@ -566,13 +615,15 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
     const media = card.querySelector(".card-media");
     if (typeof getPictureHTML === "function") {
       const maybe = getPictureHTML(item, {
-        cover: true
+        cover: true,
       });
       if (maybe instanceof Node) {
         media.prepend(maybe);
       } else if (typeof maybe === "string") {
         const t = document.createElement("template");
-        t.innerHTML = window.DOMPurify ? window.DOMPurify.sanitize(maybe.trim()) : maybe.trim();
+        t.innerHTML = window.DOMPurify
+          ? window.DOMPurify.sanitize(maybe.trim())
+          : maybe.trim();
         const node = t.content.firstElementChild;
         if (node) media.prepend(node);
       }
@@ -632,20 +683,21 @@ async function renderList(containerId, key) { // <-- MADE ASYNC
   container.setAttribute("aria-busy", "false");
 }
 
-async function renderDropdown(doc, selectId, key) { // <-- MADE ASYNC
+async function renderDropdown(doc, selectId, key) {
+  // <-- MADE ASYNC
   const select = doc.querySelector(`#${selectId}`);
   if (!select) return;
 
   select.setAttribute("aria-busy", "true");
 
   const existingPlaceholder = select.querySelector('option[value=""]');
-  const placeholderText = existingPlaceholder ?
-    existingPlaceholder.textContent :
-    select.dataset.placeholder || "";
+  const placeholderText = existingPlaceholder
+    ? existingPlaceholder.textContent
+    : select.dataset.placeholder || "";
   select.dataset.placeholder = placeholderText;
-  const placeholder = existingPlaceholder ?
-    existingPlaceholder.cloneNode(true) :
-    doc.createElement("option");
+  const placeholder = existingPlaceholder
+    ? existingPlaceholder.cloneNode(true)
+    : doc.createElement("option");
   placeholder.value = "";
   placeholder.textContent = placeholderText;
   select.appendChild(placeholder);
@@ -674,19 +726,23 @@ async function renderDropdown(doc, selectId, key) { // <-- MADE ASYNC
   select.setAttribute("aria-busy", "false");
 }
 
-export async function renderStoryList() { // <-- MADE ASYNC
+export async function renderStoryList() {
+  // <-- MADE ASYNC
   await renderList("chin-story-grid", "stories"); // <-- AWAITED
 }
 
-export async function renderCharacterList() { // <-- MADE ASYNC
+export async function renderCharacterList() {
+  // <-- MADE ASYNC
   await renderList("chin-character-grid", "characters"); // <-- AWAITED
 }
 
-export async function renderWorldList() { // <-- MADE ASYNC
+export async function renderWorldList() {
+  // <-- MADE ASYNC
   await renderList("chin-world-grid", "worlds"); // <-- AWAITED
 }
 
-export async function refreshAllLists() { // <-- MADE ASYNC
+export async function refreshAllLists() {
+  // <-- MADE ASYNC
   await Promise.all(DATA_KEYS.map((key) => getAllItems(key, true))); // <-- AWAITED
   await renderStoryList?.(); // <-- AWAITED
   await renderCharacterList?.(); // <-- AWAITED
@@ -710,10 +766,7 @@ export function _attachCardNavigation() {
         card,
         container.querySelectorAll(".chin-card[data-type][data-id]")
       );
-      const { 
-        type, 
-        id 
-      } = card.dataset;
+      const { type, id } = card.dataset;
       if (type && id) router.navigate(`#profile/${type}/${id}`);
     });
 
@@ -722,10 +775,7 @@ export function _attachCardNavigation() {
       if (!card) return;
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        const { 
-          type, 
-          id 
-        } = card.dataset;
+        const { type, id } = card.dataset;
         if (type && id) router.navigate(`#profile/${type}/${id}`);
       }
     });
@@ -744,13 +794,15 @@ export function _attachCardNavigation() {
             _suppressNextBlur = false;
           }, BLUR_SUPPRESS_DURATION_MS);
         }
-      }, {
+      },
+      {
         passive: true,
-        capture: true
+        capture: true,
       }
     );
 
-    storyboard.addEventListener("click", async (e) => { // <-- MADE ASYNC
+    storyboard.addEventListener("click", async (e) => {
+      // <-- MADE ASYNC
       if (e.target.closest("select, button, a, input, textarea")) return;
 
       const card = e.target.closest(".storyboard-card");
@@ -769,11 +821,13 @@ export function _attachCardNavigation() {
         try {
           App.applyPatch({ ui: { selectedStoryboardCard: { type, id } } });
           // Deselect all other entities of the same type
-          await db.entities.where({ type: type, isSelected: true }).modify({ isSelected: false });
+          await db.entities
+            .where({ type: type, isSelected: true })
+            .modify({ isSelected: false });
           // Select the current entity
           await db.entities.update(id, { isSelected: true });
         } catch (error) {
-          console.error('Failed to update selection:', error);
+          console.error("Failed to update selection:", error);
           // Don't show alert for selection errors - not critical to user workflow
         }
       } else {
@@ -851,8 +905,6 @@ export function _attachCardNavigation() {
   _cardNavAttached = true;
 }
 
-
-
 // ========== Storyboard Card Helpers ==========
 
 /**
@@ -871,7 +923,11 @@ async function _resolveCardAndEntity(target, entityOrKey) {
   if (target && target.tagName === "SELECT") {
     const select = target;
     card = select.closest(".card");
-    const type = card?.dataset?.type || select.dataset.entityType || select.dataset.type || "";
+    const type =
+      card?.dataset?.type ||
+      select.dataset.entityType ||
+      select.dataset.type ||
+      "";
     const id = select.value || "";
 
     if (id) {
@@ -880,7 +936,7 @@ async function _resolveCardAndEntity(target, entityOrKey) {
         {
           errorMessage: `Could not load ${type} details. Please try again.`,
           context: `load ${type}`,
-          fallback: null
+          fallback: null,
         }
       );
     } else {
@@ -927,7 +983,7 @@ async function _ensureCardStructure(card) {
     // Wrap setup logic in promise to prevent race conditions
     card._initPromise = (async () => {
       try {
-        card.innerHTML = '';
+        card.innerHTML = "";
 
         const newMedia = document.createElement("div");
         newMedia.className = "card-media";
@@ -956,11 +1012,23 @@ async function _ensureCardStructure(card) {
         await renderDropdown(document, selectId || newTitleEl.id, dataKey);
         newTitleEl.addEventListener("change", onStoryboardChange);
 
-        return { media: newMedia, body: newBody, titleEl: newTitleEl, descEl: newDescEl, footer: newFooter };
+        return {
+          media: newMedia,
+          body: newBody,
+          titleEl: newTitleEl,
+          descEl: newDescEl,
+          footer: newFooter,
+        };
       } catch (error) {
-        console.error('Failed to build card structure:', error);
-        card.innerHTML = '';
-        return { media: null, body: null, titleEl: null, descEl: null, footer: null };
+        console.error("Failed to build card structure:", error);
+        card.innerHTML = "";
+        return {
+          media: null,
+          body: null,
+          titleEl: null,
+          descEl: null,
+          footer: null,
+        };
       }
     })();
 
@@ -998,10 +1066,15 @@ async function _ensureCardStructure(card) {
  * Error handling: Does not throw. Returns fallback div if all attempts fail.
  * Pure function: No DOM queries, only uses provided templates parameter.
  */
-function _buildPictureNode(ent, { preferTemplateForEmpty = true, templates } = {}) {
+function _buildPictureNode(
+  ent,
+  { preferTemplateForEmpty = true, templates } = {}
+) {
   // Warn if templates object is missing (indicates improper usage)
-  if (!templates || typeof templates !== 'object') {
-    console.warn('[_buildPictureNode] templates parameter is missing or invalid. Picture generation may fail.');
+  if (!templates || typeof templates !== "object") {
+    console.warn(
+      "[_buildPictureNode] templates parameter is missing or invalid. Picture generation may fail."
+    );
     templates = {};
   }
 
@@ -1011,7 +1084,9 @@ function _buildPictureNode(ent, { preferTemplateForEmpty = true, templates } = {
 
   // Try to use template for empty states
   if (preferTemplateForEmpty && isEmpty && !hasEntity) {
-    const id = kind ? `tpl-storyboard-picture-${kind}` : "tpl-storyboard-picture-default";
+    const id = kind
+      ? `tpl-storyboard-picture-${kind}`
+      : "tpl-storyboard-picture-default";
     const tpl = templates[id] || templates["tpl-storyboard-picture-default"];
     if (tpl && tpl.content && tpl.content.firstElementChild) {
       return tpl.content.firstElementChild.cloneNode(true);
@@ -1096,11 +1171,12 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     select.value = String(entity.id);
   }
 
-  const isSelected = App.state.ui.selectedStoryboardCard &&
+  const isSelected =
+    App.state.ui.selectedStoryboardCard &&
     App.state.ui.selectedStoryboardCard.id === entity.id &&
     App.state.ui.selectedStoryboardCard.type === entity.type;
 
-  card.classList.toggle('selected', isSelected);
+  card.classList.toggle("selected", isSelected);
 }
 
 /**
@@ -1119,14 +1195,16 @@ function _clearCard(card, elements, templates) {
 
   if (media) {
     media.textContent = "";
-    media.appendChild(_buildPictureNode({ kind: card.dataset.type }, { templates }));
+    media.appendChild(
+      _buildPictureNode({ kind: card.dataset.type }, { templates })
+    );
     card?.style?.removeProperty("--brand");
     media?.style?.removeProperty("--brand");
   }
 
   if (footer) footer.querySelectorAll(".chip").forEach((n) => n.remove());
 
-  card.classList.remove('selected');
+  card.classList.remove("selected");
   delete card.dataset.entityType;
   delete card.dataset.entityId;
 
@@ -1165,23 +1243,24 @@ function randPrompt() {
 }
 
 // THIS FUNCTION IS NOW ASYNC
-export async function _defaultStoryboardTitle() { // <-- MADE ASYNC
-  const getTitle = async (id, key) => { // <-- MADE ASYNC
+export async function _defaultStoryboardTitle() {
+  // <-- MADE ASYNC
+  const getTitle = async (id, key) => {
+    // <-- MADE ASYNC
     const select = document.querySelector(`#${id}`);
     const value = select ? select.value : "";
     if (!value) return null;
     // Use the async getAllItems instead of synchronous access
     const items = await getAllItems(key); // <-- AWAITED
-    const item = items.find(
-      (i) => (i.id ?? i.name) === value
-    );
+    const item = items.find((i) => (i.id ?? i.name) === value);
     return item ? item.name || null : null;
   };
   // Await all title parts in parallel
-  const [ai, user, world] = await Promise.all([ // <-- AWAITED
+  const [ai, user, world] = await Promise.all([
+    // <-- AWAITED
     getTitle("storyboard-card-ai-select", "characters"),
     getTitle("storyboard-card-user-select", "characters"),
-    getTitle("storyboard-card-world-select", "worlds")
+    getTitle("storyboard-card-world-select", "worlds"),
   ]);
 
   const subjects = [ai, user].filter(Boolean).join(" & ");
@@ -1201,9 +1280,13 @@ export async function _defaultStoryboardTitle() { // <-- MADE ASYNC
 }
 
 // THIS FUNCTION IS NOW ASYNC
-async function setDynamicTitle(title, { // <-- MADE ASYNC
-  manual = false
-} = {}) {
+async function setDynamicTitle(
+  title,
+  {
+    // <-- MADE ASYNC
+    manual = false,
+  } = {}
+) {
   const el = document.querySelector("#storyboard-dynamic-title");
   if (!el) return;
   if (!el.dataset.manual || el.dataset.manual === "false" || manual) {
@@ -1260,50 +1343,50 @@ function _setupStoryboardTitle() {
 }
 
 async function populateStoryboardSelects() {
-
   const selections = await loadStoryboardSelection();
 
   const configs = [
+    {
+      id: "storyboard-card-ai-select",
+      key: "characters",
+      savedValue: selections.ai,
+    },
 
-    { id: "storyboard-card-ai-select", key: "characters", savedValue: selections.ai },
+    {
+      id: "storyboard-card-user-select",
+      key: "characters",
+      savedValue: selections.user,
+    },
 
-    { id: "storyboard-card-user-select", key: "characters", savedValue: selections.user },
-
-    { id: "storyboard-card-world-select", key: "worlds", savedValue: selections.world },
-
+    {
+      id: "storyboard-card-world-select",
+      key: "worlds",
+      savedValue: selections.world,
+    },
   ];
 
-
-
   await Promise.all(
-
     configs.map(async ({ id, key, savedValue }) => {
-
       const select = document.querySelector(`#${id}`);
 
       if (select) {
-
-        if (savedValue && Array.from(select.options).some(o => o.value === savedValue)) {
-
+        if (
+          savedValue &&
+          Array.from(select.options).some((o) => o.value === savedValue)
+        ) {
           select.value = savedValue;
-
         }
 
         // Trigger the initial update after setting the value
 
         await onStoryboardChange({ target: select });
-
       }
-
     })
-
   );
-
 }
 
-
-
-async function onStoryboardChange(e) { // <-- MADE ASYNC
+async function onStoryboardChange(e) {
+  // <-- MADE ASYNC
 
   const select = e.target;
 
@@ -1314,15 +1397,10 @@ async function onStoryboardChange(e) { // <-- MADE ASYNC
   await saveStoryboardSelection();
 
   if (typeof _suppressNextBlur !== "undefined") {
-
     _suppressNextBlur = false;
-
   }
 
-
-
   try {
-
     const card = select.closest(".storyboard-card");
 
     const left = card?.querySelector(".storyboard-card-left");
@@ -1332,38 +1410,26 @@ async function onStoryboardChange(e) { // <-- MADE ASYNC
     const id = select.value || "";
 
     if (type && id && typeof entities.get === "function") {
-
       const entity = await entities.get(type, id); // <-- AWAITED
 
       if (entity) {
-
         applyBrand?.(left, entity);
 
         (function applyCardBrandShim() {
-
           const brand = deriveBrand ? deriveBrand(entity) : null;
 
           if (brand && card && card.style)
-
             card.style.setProperty("--brand", brand);
-
         })();
-
       }
-
     }
-
   } catch {
-
     /* noop */
-
   }
-
 }
 
-
-
-export async function _attachStoryboardListeners() { // <-- MADE ASYNC
+export async function _attachStoryboardListeners() {
+  // <-- MADE ASYNC
 
   await populateStoryboardSelects(); // <-- AWAITED
 
@@ -1372,39 +1438,32 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
   const title = document.querySelector("#storyboard-dynamic-title");
 
   if (title) {
-
     title.addEventListener("input", () => {
-
       title.dataset.manual = "true";
-
     });
 
-    title.addEventListener("dblclick", async () => { // <-- async
+    title.addEventListener("dblclick", async () => {
+      // <-- async
 
       title.dataset.manual = "false";
 
       await setDynamicTitle(); // <-- await
-
     });
-
   }
 
   const shuffleBtn = document.querySelector("#shuffle-btn");
 
   if (shuffleBtn) {
-
-    shuffleBtn.addEventListener("click", async () => { // <-- async
+    shuffleBtn.addEventListener("click", async () => {
+      // <-- async
 
       [
-
         "storyboard-card-ai-select",
 
         "storyboard-card-user-select",
 
         "storyboard-card-world-select",
-
       ].forEach((id) => {
-
         const s = document.querySelector(`#${id}`);
 
         if (!s) return;
@@ -1412,41 +1471,31 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
         const opts = Array.from(s.options).filter((o) => o.value);
 
         if (opts.length)
-
           s.value = opts[Math.floor(Math.random() * opts.length)].value;
 
-        s.dispatchEvent(new Event("change", {
-
-          bubbles: true
-
-        }));
-
+        s.dispatchEvent(
+          new Event("change", {
+            bubbles: true,
+          })
+        );
       });
 
       await setDynamicTitle?.(); // <-- await
-
     });
-
   }
 
   const storyboardScreen = document.querySelector("#storyboard-screen");
 
   const chatScreenContainer = document.querySelector("#chat-screen-container");
 
-
-
   async function beginStory() {
-
     const aiSelect = document.querySelector("#storyboard-card-ai-select");
 
     const userSelect = document.querySelector("#storyboard-card-user-select");
 
     const worldSelect = document.querySelector("#storyboard-card-world-select");
 
-
-
     if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
-
       const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
 
       const storyId = storyTitleEl?.textContent || "default-story";
@@ -1455,40 +1504,36 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
 
       const worldId = worldSelect.value;
 
-      const threadId = await App.threads.createFromSelection({ storyId, characterId, worldId });
-
-
+      const threadId = await App.threads.createFromSelection({
+        storyId,
+        characterId,
+        worldId,
+      });
 
       if (storyboardScreen) storyboardScreen.hidden = true;
 
       if (chatScreenContainer) chatScreenContainer.hidden = false;
 
-
-
       App.applyPatch({ ui: { fsm: "idle" } });
 
       await App.chat.render(threadId);
-
     } else {
-
-      alert(`Please select an AI character, your own character, and a world to begin the story.`);
-
+      alert(
+        `Please select an AI character, your own character, and a world to begin the story.`
+      );
     }
-
   }
-
-
 
   const beginStoryBtn = document.querySelector("#begin-story");
 
   if (beginStoryBtn) {
-
     // Remove the old handler if it exists to prevent duplicate listeners
 
     if (beginStoryBtn._beginStoryHandler) {
-
-      beginStoryBtn.removeEventListener('click', beginStoryBtn._beginStoryHandler);
-
+      beginStoryBtn.removeEventListener(
+        "click",
+        beginStoryBtn._beginStoryHandler
+      );
     }
 
     // Attach the new handler and store its reference for the next time
@@ -1496,14 +1541,14 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
     beginStoryBtn.addEventListener("click", beginStory);
 
     beginStoryBtn._beginStoryHandler = beginStory;
-
   }
 
   // Use for...of loop to handle async await inside
 
   const cards = document.querySelectorAll(".storyboard-card");
 
-  for (const card of cards) { // <-- FOR...OF
+  for (const card of cards) {
+    // <-- FOR...OF
 
     const type = card.dataset.entityType;
 
@@ -1512,19 +1557,13 @@ export async function _attachStoryboardListeners() { // <-- MADE ASYNC
     const entity = await entities.get?.(type, id); // <-- AWAITED
 
     updateStoryboardCard(card, entity);
-
   }
-
 }
 
 export function _attachOptionChinActions() {
   if (_optionsListenersAttached) return;
   const ui = _getUIElements();
-  const {
-    uploadBackupInput,
-    downloadBackupButton,
-    deleteAllDataButton,
-  } = ui;
+  const { uploadBackupInput, downloadBackupButton, deleteAllDataButton } = ui;
 
   // This trigger is now handled by the importAllData function
   // if (uploadBackupTrigger && uploadBackupInput) { ... }
@@ -1532,8 +1571,7 @@ export function _attachOptionChinActions() {
   if (uploadBackupInput) {
     uploadBackupInput.addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
-      if (file && typeof importAllData === "function")
-        importAllData(file);
+      if (file && typeof importAllData === "function") importAllData(file);
     });
   }
 
@@ -1556,29 +1594,28 @@ export function _attachContentChinActions() {
   if (_contentListenersAttached) return;
   const ui = _getUIElements();
 
-  const configs = [{
-    key: "stories",
-    newButton: ui.newStoryButton,
-    uploadTrigger: ui.uploadStoryTrigger,
-    uploadInput: ui.uploadStoryInput,
-  }, {
-    key: "characters",
-    newButton: ui.newCharacterButton,
-    uploadTrigger: ui.uploadCharacterTrigger,
-    uploadInput: ui.uploadCharacterInput,
-  }, {
-    key: "worlds",
-    newButton: ui.newWorldButton,
-    uploadTrigger: ui.uploadWorldTrigger,
-    uploadInput: ui.uploadWorldInput,
-  }, ];
+  const configs = [
+    {
+      key: "stories",
+      newButton: ui.newStoryButton,
+      uploadTrigger: ui.uploadStoryTrigger,
+      uploadInput: ui.uploadStoryInput,
+    },
+    {
+      key: "characters",
+      newButton: ui.newCharacterButton,
+      uploadTrigger: ui.uploadCharacterTrigger,
+      uploadInput: ui.uploadCharacterInput,
+    },
+    {
+      key: "worlds",
+      newButton: ui.newWorldButton,
+      uploadTrigger: ui.uploadWorldTrigger,
+      uploadInput: ui.uploadWorldInput,
+    },
+  ];
 
-  configs.forEach(({
-    key,
-    newButton,
-    uploadTrigger,
-    uploadInput
-  }) => {
+  configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
     if (newButton) {
       newButton.addEventListener("click", () => {
         if (key === "stories") {
@@ -1594,26 +1631,35 @@ export function _attachContentChinActions() {
 
     if (uploadTrigger && uploadInput) {
       uploadTrigger.addEventListener("click", () => uploadInput.click());
-      uploadInput.addEventListener("change", async (e) => { // <-- MADE ASYNC
+      uploadInput.addEventListener("change", async (e) => {
+        // <-- MADE ASYNC
         const file = e.target.files && e.target.files[0];
         if (!file) return;
 
         // Validate file type
-        if (!file.type || (!file.type.includes('json') && !file.name.endsWith('.json'))) {
+        if (
+          !file.type ||
+          (!file.type.includes("json") && !file.name.endsWith(".json"))
+        ) {
           alert(`Invalid file type. Please upload a JSON file.`);
           uploadInput.value = null;
           return;
         }
 
         const reader = new FileReader();
-        reader.onload = async (ev) => { // <-- MADE ASYNC
+        reader.onload = async (ev) => {
+          // <-- MADE ASYNC
           try {
             const text = ev.target.result;
 
             // Check if result looks like HTML error page
             if (isHtmlErrorPage(text)) {
-              console.error('Received HTML instead of JSON. File may be corrupted or is not a valid JSON file.');
-              alert(`Invalid file format. Expected JSON but received HTML. Please check the file and try again.`);
+              console.error(
+                "Received HTML instead of JSON. File may be corrupted or is not a valid JSON file."
+              );
+              alert(
+                `Invalid file format. Expected JSON but received HTML. Please check the file and try again.`
+              );
               uploadInput.value = null;
               return;
             }
@@ -1626,22 +1672,26 @@ export function _attachContentChinActions() {
             }
 
             const type = key.replace(/s$/, "");
-            if (type === 'character' || type === 'world' || type === 'story') {
+            if (type === "character" || type === "world" || type === "story") {
               // Import into IndexedDB
-              const validData = data.filter(item => item.name && item.type === type);
+              const validData = data.filter(
+                (item) => item.name && item.type === type
+              );
               if (validData.length === 0) {
                 alert(`No valid ${type}s found in the file.`);
                 uploadInput.value = null;
                 return;
               }
 
-              await db.entities.bulkPut(validData.map(item => ({
-                ...item,
-                isCustom: item.isPremade ? 0 : 1, // 1 = custom, 0 = premade (numeric for IndexedDB)
-                isPremade: item.isPremade || false,
-                createdAt: item.createdAt || Date.now(),
-                updatedAt: item.updatedAt || Date.now(),
-              })));
+              await db.entities.bulkPut(
+                validData.map((item) => ({
+                  ...item,
+                  isCustom: item.isPremade ? 0 : 1, // 1 = custom, 0 = premade (numeric for IndexedDB)
+                  isPremade: item.isPremade || false,
+                  createdAt: item.createdAt || Date.now(),
+                  updatedAt: item.updatedAt || Date.now(),
+                }))
+              );
               alert(`Successfully imported ${validData.length} ${type}(s).`);
             } else {
               console.warn(`Import for type "${type}" is not supported`);
@@ -1651,15 +1701,19 @@ export function _attachContentChinActions() {
           } catch (err) {
             console.error("Failed to import", err);
             if (err instanceof SyntaxError) {
-              alert(`Invalid JSON format in file. Please check the file and try again.\n\nError: ${err.message}`);
+              alert(
+                `Invalid JSON format in file. Please check the file and try again.\n\nError: ${err.message}`
+              );
             } else {
-              alert(`Failed to import ${key}. Please check the file format and try again.`);
+              alert(
+                `Failed to import ${key}. Please check the file format and try again.`
+              );
             }
           }
           uploadInput.value = null;
         };
         reader.onerror = () => {
-          console.error('Failed to read file');
+          console.error("Failed to read file");
           alert(`Failed to read file. Please try again.`);
           uploadInput.value = null;
         };
@@ -1694,16 +1748,27 @@ export function _attachSettingsListeners() {
 
   // Attach event listeners
   temperatureInput?.addEventListener("input", (e) => {
-    App.state.applyPatch({ settings: { temperature: parseFloat(e.target.value) } });
+    App.state.applyPatch({
+      settings: { temperature: parseFloat(e.target.value) },
+    });
   });
   topPInput?.addEventListener("input", (e) => {
     App.state.applyPatch({ settings: { top_p: parseFloat(e.target.value) } });
   });
   maxTokensInput?.addEventListener("input", (e) => {
-    App.state.applyPatch({ settings: { maxTokens: parseInt(e.target.value, 10) } });
+    App.state.applyPatch({
+      settings: { maxTokens: parseInt(e.target.value, 10) },
+    });
   });
   stopInput?.addEventListener("input", (e) => {
-    App.state.applyPatch({ settings: { stop: e.target.value.split(",").map(s => s.trim()).filter(Boolean) } });
+    App.state.applyPatch({
+      settings: {
+        stop: e.target.value
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+      },
+    });
   });
   modelSelect?.addEventListener("change", (e) => {
     App.state.applyPatch({ settings: { model: e.target.value } });
@@ -1726,7 +1791,8 @@ export function _attachChatFormListener() {
       submitButton.disabled = !input.value.trim();
     });
 
-    chatForm.addEventListener("submit", async (e) => { // <-- MADE ASYNC
+    chatForm.addEventListener("submit", async (e) => {
+      // <-- MADE ASYNC
       e.preventDefault();
       const message = input.value.trim();
       if (message) {
@@ -1752,68 +1818,120 @@ export function _attachChatFormListener() {
  * @param {number} maxRetries - Maximum number of retry attempts
  * @returns {Promise<boolean>} - True if all plugins loaded, false if timeout
  */
-async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, maxRetries = 3) {
+async function waitForPlugins(
+  requiredPlugins,
+  timeout = 10000,
+  retryCount = 0,
+  maxRetries = 3
+) {
   // Skip plugin waiting in test mode
   if (TEST_MODE) {
-    console.log('[RPGlitch] Test mode detected, skipping plugin wait');
+    console.log("[RPGlitch] Test mode detected, skipping plugin wait");
     return true;
   }
 
   const startTime = Date.now();
 
-  console.log(`[RPGlitch] Waiting for plugins (attempt ${retryCount + 1}/${maxRetries + 1}):`, requiredPlugins);
+  console.log(
+    `[RPGlitch] Waiting for plugins (attempt ${retryCount + 1}/${
+      maxRetries + 1
+    }):`,
+    requiredPlugins
+  );
 
   // Convert standard names to prefixed names that left panel actually exposes
   // (e.g., 'ai' -> 'pluginAi', 'textToImage' -> 'pluginTextToImage')
-  const prefixedPlugins = requiredPlugins.map(name => {
-    return 'plugin' + name.charAt(0).toUpperCase() + name.slice(1);
+  const prefixedPlugins = requiredPlugins.map((name) => {
+    return "plugin" + name.charAt(0).toUpperCase() + name.slice(1);
   });
 
   while (Date.now() - startTime < timeout) {
     // Check if prefixed plugins are available (they get exposed by left panel)
-    const allPrefixedAvailable = prefixedPlugins.every(name => typeof window[name] !== 'undefined');
+    const allPrefixedAvailable = prefixedPlugins.every(
+      (name) => typeof window[name] !== "undefined"
+    );
     // Also check if standard names are available (they get set by setupPlugins())
-    const allStandardAvailable = requiredPlugins.every(name => typeof window[name] !== 'undefined');
+    const allStandardAvailable = requiredPlugins.every(
+      (name) => typeof window[name] !== "undefined"
+    );
 
     if (allPrefixedAvailable || allStandardAvailable) {
-      console.log('[RPGlitch] All plugins loaded successfully:', requiredPlugins);
+      console.log(
+        "[RPGlitch] All plugins loaded successfully:",
+        requiredPlugins
+      );
       return true;
     }
 
-    await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms before checking again
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms before checking again
   }
 
   if (retryCount < maxRetries) {
-    console.warn(`[RPGlitch] Plugins not available, retrying (${retryCount + 1}/${maxRetries})...`);
+    console.warn(
+      `[RPGlitch] Plugins not available, retrying (${
+        retryCount + 1
+      }/${maxRetries})...`
+    );
     return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
   }
 
-  const availableStandard = requiredPlugins.filter(name => typeof window[name] !== 'undefined');
-  const missingStandard = requiredPlugins.filter(name => typeof window[name] === 'undefined');
-  const availablePrefixed = prefixedPlugins.filter(name => typeof window[name] !== 'undefined');
-  const missingPrefixed = prefixedPlugins.filter(name => typeof window[name] === 'undefined');
-  console.warn(`[RPGlitch] Plugin timeout after ${Date.now() - startTime}ms. Standard available: ${availableStandard.join(', ') || 'none'} | Prefixed available: ${availablePrefixed.join(', ') || 'none'} | Missing standard: ${missingStandard.join(', ') || 'none'} | Missing prefixed: ${missingPrefixed.join(', ') || 'none'}`);
+  const availableStandard = requiredPlugins.filter(
+    (name) => typeof window[name] !== "undefined"
+  );
+  const missingStandard = requiredPlugins.filter(
+    (name) => typeof window[name] === "undefined"
+  );
+  const availablePrefixed = prefixedPlugins.filter(
+    (name) => typeof window[name] !== "undefined"
+  );
+  const missingPrefixed = prefixedPlugins.filter(
+    (name) => typeof window[name] === "undefined"
+  );
+  console.warn(
+    `[RPGlitch] Plugin timeout after ${
+      Date.now() - startTime
+    }ms. Standard available: ${
+      availableStandard.join(", ") || "none"
+    } | Prefixed available: ${
+      availablePrefixed.join(", ") || "none"
+    } | Missing standard: ${
+      missingStandard.join(", ") || "none"
+    } | Missing prefixed: ${missingPrefixed.join(", ") || "none"}`
+  );
   return false;
 }
 
-export async function initializeWhenReady() { // <-- MADE ASYNC
+export async function initializeWhenReady() {
+  // <-- MADE ASYNC
   try {
     // Wait for required Perchance plugins to load
-    const pluginsLoaded = await waitForPlugins(['ai', 'textToImage', 'superFetch', 'rememberPlugin', 'upload']);
+    const pluginsLoaded = await waitForPlugins([
+      "ai",
+      "textToImage",
+      "superFetch",
+      "rememberPlugin",
+      "upload",
+    ]);
 
     if (!pluginsLoaded) {
-      console.error('[RPGlitch] Required plugins failed to load. Application may not function correctly.');
-      alert(`Required plugins failed to load. Please refresh the page and try again.`);
+      console.error(
+        "[RPGlitch] Required plugins failed to load. Application may not function correctly."
+      );
+      alert(
+        `Required plugins failed to load. Please refresh the page and try again.`
+      );
       // Continue with initialization anyway for graceful degradation
     }
 
     // Initialize database first
     try {
       await initDB();
-      console.log('[RPGlitch] Database initialized.');
+      console.log("[RPGlitch] Database initialized.");
     } catch (error) {
-      console.error('[RPGlitch] Failed to initialize database:', error);
-      alert(`Database initialization failed. Please refresh the page. Error: ${error.message}`);
+      console.error("[RPGlitch] Failed to initialize database:", error);
+      alert(
+        `Database initialization failed. Please refresh the page. Error: ${error.message}`
+      );
       throw error; // Stop initialization
     }
 
@@ -1821,7 +1939,8 @@ export async function initializeWhenReady() { // <-- MADE ASYNC
     await initDebugMode();
 
     // Listen for state changes to re-render the chat
-    document.addEventListener('state:changed', async (event) => { // <-- MADE ASYNC
+    document.addEventListener("state:changed", async (event) => {
+      // <-- MADE ASYNC
       const { patch } = event.detail;
       // Check if messages for the active thread or the active thread itself changed
       if (patch.messages?.byThreadId || patch.threads?.activeId !== undefined) {
@@ -1833,12 +1952,12 @@ export async function initializeWhenReady() { // <-- MADE ASYNC
     });
 
     // Check if settings are initialized (indicates a fresh or cleared DB)
-    const currentSettings = await db.settings.get('settings');
+    const currentSettings = await db.settings.get("settings");
     if (!currentSettings) {
-      console.log('[RPGlitch] Initializing default settings.');
+      console.log("[RPGlitch] Initializing default settings.");
       // Initialize default settings
       await db.settings.add({
-        id: 'settings',
+        id: "settings",
         temperature: App.state.settings.temperature,
         top_p: App.state.settings.top_p,
         maxTokens: App.state.settings.maxTokens,
@@ -1849,24 +1968,43 @@ export async function initializeWhenReady() { // <-- MADE ASYNC
     }
 
     // Load selected storyboard card from DB
-    const selectedEntity = await db.entities.where('isSelected').equals(true).first();
+    const selectedEntity = await db.entities
+      .where("isSelected")
+      .equals(true)
+      .first();
     if (selectedEntity) {
-      App.applyPatch({ ui: { selectedStoryboardCard: { type: selectedEntity.type, id: selectedEntity.id } } });
+      App.applyPatch({
+        ui: {
+          selectedStoryboardCard: {
+            type: selectedEntity.type,
+            id: selectedEntity.id,
+          },
+        },
+      });
     }
 
-    console.log('[RPGlitch] initializeWhenReady start', { // <-- ADDED
-      retry: window.initializeWhenReadyRetryCount || 0
+    console.log("[RPGlitch] initializeWhenReady start", {
+      // <-- ADDED
+      retry: window.initializeWhenReadyRetryCount || 0,
     });
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   try {
     _getUIElements();
 
     // Cache storyboard picture templates once for performance
     templates = {
-      "tpl-storyboard-picture-character": document.querySelector("#tpl-storyboard-picture-character"),
-      "tpl-storyboard-picture-world": document.querySelector("#tpl-storyboard-picture-world"),
-      "tpl-storyboard-picture-default": document.querySelector("#tpl-storyboard-picture-default")
+      "tpl-storyboard-picture-character": document.querySelector(
+        "#tpl-storyboard-picture-character"
+      ),
+      "tpl-storyboard-picture-world": document.querySelector(
+        "#tpl-storyboard-picture-world"
+      ),
+      "tpl-storyboard-picture-default": document.querySelector(
+        "#tpl-storyboard-picture-default"
+      ),
     };
 
     _attachChatFormListener?.();
@@ -1940,15 +2078,23 @@ export async function initializeWhenReady() { // <-- MADE ASYNC
     }
     window.initializeWhenReadyRetryCount = 0;
     try {
-      console.log('[RPGlitch] initializeWhenReady success');
-    } catch { /* ignore */ }
+      console.log("[RPGlitch] initializeWhenReady success");
+    } catch {
+      /* ignore */
+    }
     return true;
   } catch (error) {
     const retryCount = (window.initializeWhenReadyRetryCount || 0) + 1;
     window.initializeWhenReadyRetryCount = retryCount;
     try {
-      console.error(`❗ App initialization failed (attempt ${retryCount}/${MAX_INIT_RETRIES})`, error && (error.stack || error), error);
-    } catch { /* ignore */ }
+      console.error(
+        `❗ App initialization failed (attempt ${retryCount}/${MAX_INIT_RETRIES})`,
+        error && (error.stack || error),
+        error
+      );
+    } catch {
+      /* ignore */
+    }
     if (TEST_MODE) {
       return false;
     }
@@ -1956,29 +2102,41 @@ export async function initializeWhenReady() { // <-- MADE ASYNC
       await new Promise((resolve) => setTimeout(resolve, INIT_BACKOFF_MS));
       return initializeWhenReady();
     }
-    console.error(`❌ App initialization failed after ${MAX_INIT_RETRIES} attempts.`, error);
+    console.error(
+      `❌ App initialization failed after ${MAX_INIT_RETRIES} attempts.`,
+      error
+    );
     throw error;
   }
 }
 
-export async function importAllData(file) { // <-- MADE ASYNC
+export async function importAllData(file) {
+  // <-- MADE ASYNC
   if (!file) return;
 
   // Validate file type
-  if (!file.type || (!file.type.includes('json') && !file.name.endsWith('.json'))) {
+  if (
+    !file.type ||
+    (!file.type.includes("json") && !file.name.endsWith(".json"))
+  ) {
     alert(`Invalid file type. Please upload a JSON file.`);
     return;
   }
 
   const reader = new FileReader();
-  reader.onload = async (e) => { // <-- MADE ASYNC
+  reader.onload = async (e) => {
+    // <-- MADE ASYNC
     try {
       const text = e.target.result;
 
       // Check if result looks like HTML error page
       if (isHtmlErrorPage(text)) {
-        console.error('Received HTML instead of JSON. File may be corrupted or server returned an error page.');
-        alert(`Invalid file format. Expected JSON but received HTML. The file may be corrupted or incomplete.`);
+        console.error(
+          "Received HTML instead of JSON. File may be corrupted or server returned an error page."
+        );
+        alert(
+          `Invalid file format. Expected JSON but received HTML. The file may be corrupted or incomplete.`
+        );
         return;
       }
 
@@ -1986,14 +2144,16 @@ export async function importAllData(file) { // <-- MADE ASYNC
 
       // 1. Validate version
       if (data.version !== 1) {
-        console.warn("Imported data version mismatch. Attempting to import anyway.");
+        console.warn(
+          "Imported data version mismatch. Attempting to import anyway."
+        );
         // In a real application, you might want to handle migrations here.
       }
 
       // 2. Import characters (entities)
       if (Array.isArray(data.characters)) {
         // Clear existing characters and add new ones. This is a simple conflict resolution strategy.
-        await db.entities.where('type').equals('character').delete();
+        await db.entities.where("type").equals("character").delete();
         await db.entities.bulkAdd(data.characters);
       }
 
@@ -2021,7 +2181,9 @@ export async function importAllData(file) { // <-- MADE ASYNC
     } catch (err) {
       console.error("Failed to import backup", err);
       if (err instanceof SyntaxError) {
-        alert(`Invalid JSON format in backup file. Please check the file and try again.\n\nError: ${err.message}`);
+        alert(
+          `Invalid JSON format in backup file. Please check the file and try again.\n\nError: ${err.message}`
+        );
       } else {
         alert(`Failed to import backup. Please check the file and try again.`);
       }
@@ -2031,7 +2193,7 @@ export async function importAllData(file) { // <-- MADE ASYNC
     }
   };
   reader.onerror = () => {
-    console.error('Failed to read backup file');
+    console.error("Failed to read backup file");
     alert(`Failed to read backup file. Please try again.`);
     const ui = _getUIElements();
     if (ui.uploadBackupInput) ui.uploadBackupInput.value = null;
@@ -2039,14 +2201,18 @@ export async function importAllData(file) { // <-- MADE ASYNC
   reader.readAsText(file);
 }
 
-export async function exportAllData() { // <-- MADE ASYNC
+export async function exportAllData() {
+  // <-- MADE ASYNC
   try {
     const data = {
       version: 1, // Add version
     };
 
     // Get characters from Dexie (filtered from entities)
-    data.characters = await db.entities.where('type').equals('character').toArray();
+    data.characters = await db.entities
+      .where("type")
+      .equals("character")
+      .toArray();
 
     // Get threads from Dexie
     data.threads = await db.threads.toArray();
@@ -2055,10 +2221,10 @@ export async function exportAllData() { // <-- MADE ASYNC
     data.messages = await db.messages.toArray();
 
     // Get settings from Dexie (assuming it's a singleton with key 'settings')
-    data.settings = await db.settings.get('settings'); // Assuming 'settings' is the key for the singleton settings object
+    data.settings = await db.settings.get("settings"); // Assuming 'settings' is the key for the singleton settings object
 
     const blob = new Blob([JSON.stringify(data)], {
-      type: "application/json"
+      type: "application/json",
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -2069,15 +2235,19 @@ export async function exportAllData() { // <-- MADE ASYNC
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('Failed to export backup:', error);
-    alert('Failed to export backup. Please try again.');
+    console.error("Failed to export backup:", error);
+    alert("Failed to export backup. Please try again.");
   }
 }
 
 export async function deleteAllData() {
   try {
     // Confirm before destructive action
-    if (!confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
+    if (
+      !confirm(
+        "Are you sure you want to delete ALL data? This cannot be undone."
+      )
+    ) {
       return;
     }
 
@@ -2089,7 +2259,7 @@ export async function deleteAllData() {
     await refreshAllLists();
     alert(`All data has been deleted.`);
   } catch (error) {
-    console.error('Failed to delete data:', error);
+    console.error("Failed to delete data:", error);
     alert(`Failed to delete data. Please try again.`);
   }
 }
@@ -2097,7 +2267,8 @@ export async function deleteAllData() {
 try {
   if (!_bootBound) {
     _bootBound = true;
-    const boot = async () => { // <-- MADE ASYNC
+    const boot = async () => {
+      // <-- MADE ASYNC
       try {
         if (TEST_MODE) return;
         if (_bootStarted) return;
@@ -2107,18 +2278,23 @@ try {
         console.error("RPGlitch boot failed:", err);
       }
     };
-    if (document.readyState === "complete" || document.readyState === "interactive") {
+    if (
+      document.readyState === "complete" ||
+      document.readyState === "interactive"
+    ) {
       setTimeout(boot, 0);
     } else {
       document.addEventListener("DOMContentLoaded", boot, {
-        once: true
+        once: true,
       });
       window.addEventListener("load", boot, {
-        once: true
+        once: true,
       });
     }
   }
-} catch { /* empty */ }
+} catch {
+  /* empty */
+}
 
 document.addEventListener(
   "DOMContentLoaded",
@@ -2127,6 +2303,6 @@ document.addEventListener(
     // We'll rely on the _bootBound logic.
   },
   {
-    once: true
+    once: true,
   }
 );

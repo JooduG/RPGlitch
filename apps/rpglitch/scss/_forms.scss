@@ -53,11 +53,13 @@
   .profile-description,
   .profile-field-text {
     background-color: var(--pico-form-element-background-color);
-    border: var(--pico-form-element-border-width) solid var(--pico-form-element-border-color);
+    border: var(--pico-form-element-border-width) solid
+      var(--pico-form-element-border-color);
     padding: var(--pico-form-element-padding);
 
     &:focus {
-      --pico-box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus);
+      --pico-box-shadow: 0 0 0 var(--pico-outline-width)
+        var(--pico-primary-focus);
     }
   }
 

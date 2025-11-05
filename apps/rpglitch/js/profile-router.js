@@ -5,17 +5,11 @@ import {
   chin,
   log,
   unlockNow,
-  setTopBarRight
-} from './utils.js';
-import {
-  renderProfile
-} from './profile.js';
-import {
-  renderForm
-} from './entity-form.js';
-import {
-  refreshAllLists
-} from './index.js';
+  setTopBarRight,
+} from "./utils.js";
+import { renderProfile } from "./profile.js";
+import { renderForm } from "./entity-form.js";
+import { refreshAllLists } from "./index.js";
 
 function showStoryboard() {
   showEl("#storyboard-screen");
@@ -39,10 +33,10 @@ function handleRoute() {
   const isType = (t) => t === "character" || t === "world";
   chin.closeAll?.();
   try {
-    log?.('router.handleRoute', {
+    log?.("router.handleRoute", {
       section,
       type,
-      id
+      id,
     });
   } catch (e) {
     void e;
@@ -77,7 +71,7 @@ function handleRoute() {
     showStoryboard();
     try {
       // chin.open?.('stories'); // removed to prevent auto-opening chin on load
-      log?.('router.defaultedToStoryboard');
+      log?.("router.defaultedToStoryboard");
     } catch (e) {
       void e;
     }
@@ -108,8 +102,9 @@ document.addEventListener(
         });
       }
     });
-  }, {
-    once: true
+  },
+  {
+    once: true,
   }
 );
 
@@ -120,5 +115,3 @@ export const router = {
   parseHash,
   handleRoute,
 };
-
-

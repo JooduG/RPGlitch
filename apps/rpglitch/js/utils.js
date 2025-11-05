@@ -1,5 +1,5 @@
-import { entities } from './entities.js';
-import { db } from './db.js';
+import { entities } from "./entities.js";
+import { db } from "./db.js";
 /* Utility helpers for RPGlitch
  * Safe storage, DOM helpers, chin management
  */
@@ -7,12 +7,12 @@ import { db } from './db.js';
 // Signature Color constants
 // These must match the Signature Color options in entity-form.js and _variables.scss
 export const BASE_COLOUR_MAP = {
-  pink: '#ec4899',     // --brand-pink
-  emerald: '#10b981',  // --brand-emerald
-  cyan: '#06b6d4',     // --brand-cyan
-  orange: '#f97316',   // --brand-orange
-  purple: '#a855f7',   // --brand-purple
-  default: '#777'      // --brand-default (fallback/auto-generated)
+  pink: "#ec4899", // --brand-pink
+  emerald: "#10b981", // --brand-emerald
+  cyan: "#06b6d4", // --brand-cyan
+  orange: "#f97316", // --brand-orange
+  purple: "#a855f7", // --brand-purple
+  default: "#777", // --brand-default (fallback/auto-generated)
 };
 
 // UI Timing Constants
@@ -23,17 +23,23 @@ export const PROFILE_RESIZE_DEBOUNCE_MS = 150;
 export function generateUUID() {
   // Public Domain/MIT
   let d = new Date().getTime(); //Timestamp
-  let d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0; //Time in microseconds since page-load or 0 if unsupported
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  let d2 =
+    (typeof performance !== "undefined" &&
+      performance.now &&
+      performance.now() * 1000) ||
+    0; //Time in microseconds since page-load or 0 if unsupported
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     let r = Math.random() * 16; //random number between 0 and 16
-    if (d > 0) { //Use timestamp until depleted
+    if (d > 0) {
+      //Use timestamp until depleted
       r = (d + r) % 16 | 0;
       d = Math.floor(d / 16);
-    } else { //Use microseconds since page-load if available
+    } else {
+      //Use microseconds since page-load if available
       r = (d2 + r) % 16 | 0;
       d2 = Math.floor(d2 / 16);
     }
-    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
   });
 }
 
@@ -56,24 +62,24 @@ export async function copyEntity(type, id) {
   // 2. Create the new entity object
   const newEntity = {
     ...entityToCopy,
-    sections: { ...entityToCopy.sections } // Deep copy sections
+    sections: { ...entityToCopy.sections }, // Deep copy sections
   };
 
   // 3. Remove ID (so upsert creates a new one) and mark as custom
   delete newEntity.id;
   newEntity.isPremade = false;
-  newEntity.name = `${newEntity.name || 'Untitled'} (Clone)`;
+  newEntity.name = `${newEntity.name || "Untitled"} (Clone)`;
 
   return newEntity;
 }
 
 export function escapeHtml(str) {
-  if (typeof str !== 'string') {
-    return '';
+  if (typeof str !== "string") {
+    return "";
   }
   // WARNING: This is NOT a sanitizer. It only escapes HTML for display in text.
   // For safe HTML, use a library like DOMPurify.
-  return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 // ---------- Error Handling ----------
@@ -90,10 +96,10 @@ export function escapeHtml(str) {
  */
 export async function handleAsyncError(asyncFn, options = {}) {
   const {
-    errorMessage = 'An error occurred. Please try again.',
-    context = 'operation',
+    errorMessage = "An error occurred. Please try again.",
+    context = "operation",
     showAlert = true,
-    fallback = null
+    fallback = null,
   } = options;
 
   try {
@@ -113,12 +119,12 @@ export async function handleAsyncError(asyncFn, options = {}) {
  * @returns {boolean} True if text appears to be an HTML document
  */
 export function isHtmlErrorPage(text) {
-  if (typeof text !== 'string') {
+  if (typeof text !== "string") {
     return false;
   }
   const trimmedText = text.trim().toLowerCase();
   // FIX: Add correct parentheses for operator precedence
-  return (trimmedText.startsWith('<!doctype') || trimmedText.startsWith('<html'));
+  return trimmedText.startsWith("<!doctype") || trimmedText.startsWith("<html");
 }
 
 // ---------- Event Handler Utilities ----------
@@ -130,7 +136,12 @@ export function isHtmlErrorPage(text) {
  * @param {Function} handler - New event handler function
  * @param {string} handlerKey - Property name to store handler reference (default: '_handler')
  */
-export function replaceEventHandler(element, eventType, handler, handlerKey = '_handler') {
+export function replaceEventHandler(
+  element,
+  eventType,
+  handler,
+  handlerKey = "_handler"
+) {
   if (!element) return;
 
   // Remove old handler if it exists
@@ -153,12 +164,12 @@ let isDebug = false;
  */
 export async function initDebugMode() {
   try {
-    const settings = await db.settings.get('app-settings');
-    if (settings && typeof settings.debugMode !== 'undefined') {
+    const settings = await db.settings.get("app-settings");
+    if (settings && typeof settings.debugMode !== "undefined") {
       isDebug = !!settings.debugMode;
     }
   } catch (e) {
-    console.error('Failed to load debug mode from settings:', e);
+    console.error("Failed to load debug mode from settings:", e);
     isDebug = false;
   }
   return isDebug;
@@ -172,14 +183,14 @@ export async function setDebug(on) {
   isDebug = !!on;
   try {
     // Get existing settings or create new one
-    let settings = await db.settings.get('app-settings');
+    let settings = await db.settings.get("app-settings");
     if (!settings) {
-      settings = { id: 'app-settings' };
+      settings = { id: "app-settings" };
     }
     settings.debugMode = isDebug;
     await db.settings.put(settings);
   } catch (e) {
-    console.error('Failed to save debug mode to settings:', e);
+    console.error("Failed to save debug mode to settings:", e);
   }
   return isDebug;
 }
@@ -199,20 +210,26 @@ export function debounce(fn, wait = 250) {
 // ---------- Show / Hide ----------
 export function hideEl(el, doc = document) {
   try {
-    if (typeof el === 'string') el = doc.querySelector(el.startsWith('#') ? el : `#${el}`);
+    if (typeof el === "string")
+      el = doc.querySelector(el.startsWith("#") ? el : `#${el}`);
     if (!el) return;
     el.hidden = true;
     el.classList.remove("is-open");
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 export function showEl(el, doc = document) {
   try {
-    if (typeof el === 'string') el = doc.querySelector(el.startsWith('#') ? el : `#${el}`);
+    if (typeof el === "string")
+      el = doc.querySelector(el.startsWith("#") ? el : `#${el}`);
     if (!el) return;
     el.hidden = false;
     el.classList.add("is-open");
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 // ---------- Loading/Overlay guards ----------
@@ -221,9 +238,9 @@ export function dismissLoadingUI() {
     const doc = document;
     // Heal documentElement / html early
     try {
-      doc.documentElement.removeAttribute('inert');
+      doc.documentElement.removeAttribute("inert");
       if (doc.documentElement && doc.documentElement.style) {
-        doc.documentElement.style.pointerEvents = 'auto';
+        doc.documentElement.style.pointerEvents = "auto";
       }
     } catch {
       void 0;
@@ -240,83 +257,82 @@ export function dismissLoadingUI() {
       dlg.style.display = "none";
     }
     // Remove aria-busy from any lingering element
-    doc.querySelectorAll('[aria-busy]')
-      .forEach((el) => el.removeAttribute('aria-busy'));
+    doc
+      .querySelectorAll("[aria-busy]")
+      .forEach((el) => el.removeAttribute("aria-busy"));
     // Close any open dialogs except an emergency modal
-    doc.querySelectorAll('dialog[open]')
-      .forEach((d) => {
-        if (d.id === 'emergency-modal') return;
-        try {
-          if (typeof d.close === 'function') d.close();
-        } catch {
-          void 0;
-        }
-        d.removeAttribute('open');
-      });
+    doc.querySelectorAll("dialog[open]").forEach((d) => {
+      if (d.id === "emergency-modal") return;
+      try {
+        if (typeof d.close === "function") d.close();
+      } catch {
+        void 0;
+      }
+      d.removeAttribute("open");
+    });
     // Defensive: ensure <dialog> elements that are not open don’t intercept clicks
-    doc.querySelectorAll('dialog:not([open])').forEach((d) => {
-      d.style.display = 'none';
-      d.setAttribute('aria-hidden', 'true');
+    doc.querySelectorAll("dialog:not([open])").forEach((d) => {
+      d.style.display = "none";
+      d.setAttribute("aria-hidden", "true");
     });
     // If any custom overlays exist, clear permissive data attributes
-    doc.querySelectorAll('[data-overlay],[data-block-ui]')
-      .forEach((el) => {
-        el.removeAttribute('data-overlay');
-        el.removeAttribute('data-block-ui');
-        el.removeAttribute('open');
-        el.style.pointerEvents = 'none';
-        el.style.display = 'none';
-      });
+    doc.querySelectorAll("[data-overlay],[data-block-ui]").forEach((el) => {
+      el.removeAttribute("data-overlay");
+      el.removeAttribute("data-block-ui");
+      el.removeAttribute("open");
+      el.style.pointerEvents = "none";
+      el.style.display = "none";
+    });
     // Explicitly hide the watchdog indicator if it's visible
-    const guardIndicator = doc.querySelector('#rpglitch-guard-indicator');
+    const guardIndicator = doc.querySelector("#rpglitch-guard-indicator");
     if (guardIndicator) {
-      guardIndicator.style.display = 'none';
+      guardIndicator.style.display = "none";
     }
     // Aggressively ensure main containers are interactive
     const roots = [
       doc.documentElement,
       doc.body,
-      doc.querySelector('#main'),
-      doc.querySelector('#storyboard-screen'),
-      doc.querySelector('#profile-screen'),
-      doc.querySelector('#character-form-screen'),
-      doc.querySelector('#world-form-screen'),
+      doc.querySelector("#main"),
+      doc.querySelector("#storyboard-screen"),
+      doc.querySelector("#profile-screen"),
+      doc.querySelector("#character-form-screen"),
+      doc.querySelector("#world-form-screen"),
     ].filter(Boolean);
     roots.forEach((el) => {
-      el.removeAttribute('inert');
+      el.removeAttribute("inert");
       try {
-        el.style.pointerEvents = 'auto';
+        el.style.pointerEvents = "auto";
       } catch {
         void 0;
       }
-      el.style.opacity = '';
+      el.style.opacity = "";
       try {
-        el.style.visibility = '';
+        el.style.visibility = "";
       } catch {
         void 0;
       }
       if (el === doc.body || el === doc.documentElement) {
         try {
-          el.style.overflow = 'auto';
-          el.style.position = '';
-          el.style.zIndex = '';
-          el.style.top = '';
-          el.style.left = '';
-          el.style.right = '';
-          el.style.bottom = '';
-          el.style.width = '';
-          el.style.height = '';
-          el.style.transform = '';
-          el.style.filter = '';
+          el.style.overflow = "auto";
+          el.style.position = "";
+          el.style.zIndex = "";
+          el.style.top = "";
+          el.style.left = "";
+          el.style.right = "";
+          el.style.bottom = "";
+          el.style.width = "";
+          el.style.height = "";
+          el.style.transform = "";
+          el.style.filter = "";
         } catch {
           void 0;
         }
       }
     });
-    log?.('dismissLoadingUI: ensured interactive state');
+    log?.("dismissLoadingUI: ensured interactive state");
   } catch (e) {
     try {
-      console.warn('dismissLoadingUI failed', e);
+      console.warn("dismissLoadingUI failed", e);
     } catch {
       void 0;
     }
@@ -325,50 +341,55 @@ export function dismissLoadingUI() {
 
 // ---------- UI Block Detection / Watchdog ----------
 const isDialogOpen = () => {
-  const dialogQuery = document.querySelector('dialog[open]:not(#emergency-modal)');
-  if (dialogQuery) return {
-    blocked: true,
-    reason: 'dialog-open',
-    node: dialogQuery
-  };
+  const dialogQuery = document.querySelector(
+    "dialog[open]:not(#emergency-modal)"
+  );
+  if (dialogQuery)
+    return {
+      blocked: true,
+      reason: "dialog-open",
+      node: dialogQuery,
+    };
 
   try {
     const doc = document;
     // Any open non-emergency dialog
-    const openDialog = doc.querySelector('dialog[open]:not(#emergency-modal)');
-    if (openDialog) return {
-      blocked: true,
-      reason: 'dialog-open',
-      node: openDialog
-    };
+    const openDialog = doc.querySelector("dialog[open]:not(#emergency-modal)");
+    if (openDialog)
+      return {
+        blocked: true,
+        reason: "dialog-open",
+        node: openDialog,
+      };
     // Any aria-busy elements in the DOM
     const busy = doc.querySelector('[aria-busy="true"]');
-    if (busy) return {
-      blocked: true,
-      reason: 'aria-busy',
-      node: busy
-    };
+    if (busy)
+      return {
+        blocked: true,
+        reason: "aria-busy",
+        node: busy,
+      };
     // Pointer-events disabled on body or main containers
     const candidates = [
       doc.documentElement,
       doc.body,
-      doc.querySelector('#main'),
-      doc.querySelector('#chin-container'),
+      doc.querySelector("#main"),
+      doc.querySelector("#chin-container"),
     ].filter(Boolean);
     for (const el of candidates) {
       const cs = getComputedStyle?.(el);
-      if (cs && cs.pointerEvents === 'none') {
+      if (cs && cs.pointerEvents === "none") {
         return {
           blocked: true,
-          reason: 'pointer-events-none',
-          node: el
+          reason: "pointer-events-none",
+          node: el,
         };
       }
-      if (el.hasAttribute('inert')) {
+      if (el.hasAttribute("inert")) {
         return {
           blocked: true,
-          reason: 'inert',
-          node: el
+          reason: "inert",
+          node: el,
         };
       }
     }
@@ -382,12 +403,14 @@ const isDialogOpen = () => {
         const cy = Math.floor(vh / 2);
         const el = doc.elementFromPoint?.(cx, cy);
         if (el) {
-          const ok = el.closest?.('#main, header, #chin-container, .chin, #output-container');
+          const ok = el.closest?.(
+            "#main, header, #chin-container, .chin, #output-container"
+          );
           if (!ok) {
             return {
               blocked: true,
-              reason: 'hit-test-overlay',
-              node: el
+              reason: "hit-test-overlay",
+              node: el,
             };
           }
         }
@@ -406,17 +429,24 @@ const isDialogOpen = () => {
         for (let i = kids.length - 1, n = 0; i >= 0 && n < 100; i--, n++) {
           const el = kids[i];
           const cs = getComputedStyle?.(el);
-          if (!cs || cs.pointerEvents === 'none') continue;
+          if (!cs || cs.pointerEvents === "none") continue;
           const pos = cs.position;
-          if (pos !== 'fixed' && pos !== 'absolute') continue;
+          if (pos !== "fixed" && pos !== "absolute") continue;
           const r = el.getBoundingClientRect?.();
           if (!r) continue;
-          const covers = r.width >= vw * 0.9 && r.height >= vh * 0.9 && r.left <= 5 && r.top <= 5;
-          if (covers && !el.closest?.('#main, header, #chin-container, .chin')) {
+          const covers =
+            r.width >= vw * 0.9 &&
+            r.height >= vh * 0.9 &&
+            r.left <= 5 &&
+            r.top <= 5;
+          if (
+            covers &&
+            !el.closest?.("#main, header, #chin-container, .chin")
+          ) {
             return {
               blocked: true,
-              reason: 'viewport-overlay',
-              node: el
+              reason: "viewport-overlay",
+              node: el,
             };
           }
         }
@@ -425,14 +455,14 @@ const isDialogOpen = () => {
       void 0;
     }
     return {
-      blocked: false
+      blocked: false,
     };
   } catch {
     return {
-      blocked: false
+      blocked: false,
     };
   }
-};;;;;;;;
+};
 
 let uiWatchdogTimer = null;
 export let _uiWatchdogStarted = false;
@@ -447,46 +477,46 @@ export function startUIWatchdog() {
     // Lightweight in-app indicator for persistent blocks
     function installStatusIndicator() {
       try {
-        if (doc.querySelector('#rpglitch-guard-indicator')) return;
-        const wrap = doc.createElement('div');
-        wrap.id = 'rpglitch-guard-indicator';
+        if (doc.querySelector("#rpglitch-guard-indicator")) return;
+        const wrap = doc.createElement("div");
+        wrap.id = "rpglitch-guard-indicator";
         wrap.style.cssText = [
-          'position:fixed',
-          'top:8px',
-          'left:8px',
-          'z-index:2147483646',
-          'background:rgba(0,0,0,0.7)',
-          'color:#fff',
-          'padding:6px 8px',
-          'border-radius:6px',
-          'font:12px/1.2 system-ui,sans-serif',
-          'display:none',
-          'gap:8px',
-          'align-items:center',
-          'pointer-events:auto',
-        ].join(';');
-        const text = doc.createElement('span');
-        text.id = 'rpglitch-guard-text';
-        text.textContent = 'UI blocked';
-        const btn = doc.createElement('button');
-        btn.textContent = 'Force Unlock';
+          "position:fixed",
+          "top:8px",
+          "left:8px",
+          "z-index:2147483646",
+          "background:rgba(0,0,0,0.7)",
+          "color:#fff",
+          "padding:6px 8px",
+          "border-radius:6px",
+          "font:12px/1.2 system-ui,sans-serif",
+          "display:none",
+          "gap:8px",
+          "align-items:center",
+          "pointer-events:auto",
+        ].join(";");
+        const text = doc.createElement("span");
+        text.id = "rpglitch-guard-text";
+        text.textContent = "UI blocked";
+        const btn = doc.createElement("button");
+        btn.textContent = "Force Unlock";
         btn.style.cssText = [
-          'margin-left:8px',
-          'background:#ec4899',
-          'color:#fff',
-          'border:0',
-          'border-radius:4px',
-          'padding:4px 6px',
-          'cursor:pointer',
-        ].join(';');
-        btn.addEventListener('click', () => {
+          "margin-left:8px",
+          "background:#ec4899",
+          "color:#fff",
+          "border:0",
+          "border-radius:4px",
+          "padding:4px 6px",
+          "cursor:pointer",
+        ].join(";");
+        btn.addEventListener("click", () => {
           try {
             unlockNow?.();
             dismissLoadingUI?.();
           } catch {
             void 0;
           }
-          wrap.style.display = 'none';
+          wrap.style.display = "none";
         });
         wrap.append(text, btn);
         doc.body.appendChild(wrap);
@@ -500,19 +530,19 @@ export function startUIWatchdog() {
         let n = node;
         let hops = 0;
         while (n && n !== doc.body && hops < 3) {
-          if (n.id !== 'emergency-modal') {
-            n.removeAttribute?.('open');
-            n.removeAttribute?.('inert');
+          if (n.id !== "emergency-modal") {
+            n.removeAttribute?.("open");
+            n.removeAttribute?.("inert");
             if (n.style) {
-              const t = (n.tagName || '').toLowerCase();
-              if (t !== 'html' && t !== 'body') {
-                n.style.pointerEvents = 'none';
-                n.style.display = 'none';
-                n.style.visibility = '';
-                n.style.opacity = '';
+              const t = (n.tagName || "").toLowerCase();
+              if (t !== "html" && t !== "body") {
+                n.style.pointerEvents = "none";
+                n.style.display = "none";
+                n.style.visibility = "";
+                n.style.opacity = "";
               }
             }
-            n.setAttribute?.('aria-hidden', 'true');
+            n.setAttribute?.("aria-hidden", "true");
           }
           n = n.parentElement;
           hops++;
@@ -531,48 +561,53 @@ export function startUIWatchdog() {
         const py = Math.floor(vh / 2);
         const el = doc.elementFromPoint?.(px, py);
         if (!el) return;
-        const allowedRoot = doc.querySelector('#main') || doc.body;
+        const allowedRoot = doc.querySelector("#main") || doc.body;
         const isRoot = el === doc.body || el === doc.documentElement;
-        const ok = isRoot || el.closest?.('#main, header, #chin-container, .chin');
+        const ok =
+          isRoot || el.closest?.("#main, header, #chin-container, .chin");
         if (!ok && allowedRoot && !allowedRoot.contains(el)) {
           neutralizeNodeChain(el);
         }
-      } catch { /* noop */ }
+      } catch {
+        /* noop */
+      }
     }
     const describe = (n) => {
       try {
-        if (!n) return '';
-        const id = n.id ? `#${n.id}` : '';
-        const cls = n.className ? `.${String(n.className).split(/\s+/).filter(Boolean).join('.')}` : '';
-        const tag = (n.tagName || '').toLowerCase();
+        if (!n) return "";
+        const id = n.id ? `#${n.id}` : "";
+        const cls = n.className
+          ? `.${String(n.className).split(/\s+/).filter(Boolean).join(".")}`
+          : "";
+        const tag = (n.tagName || "").toLowerCase();
         return `${tag}${id}${cls}`;
       } catch {
-        return '';
+        return "";
       }
     };
     const tick = () => {
       const st = isDialogOpen?.() || {
-        blocked: false
+        blocked: false,
       };
-      log?.('ui.watchdog: tick', st);
+      log?.("ui.watchdog: tick", st);
       // If the blocking node is our own guard indicator, don't report it as blocked
-      if (st.blocked && st.node && st.node.id === 'rpglitch-guard-indicator') {
+      if (st.blocked && st.node && st.node.id === "rpglitch-guard-indicator") {
         st.blocked = false;
       }
       if (st.blocked) {
         if (lastBlocked !== true) {
           // Always surface first detection once for diagnostics
           try {
-            console.log('[RPGlitch] ui.watchdog: blocked', {
+            console.log("[RPGlitch] ui.watchdog: blocked", {
               reason: st.reason,
-              node: describe(st.node)
+              node: describe(st.node),
             });
           } catch {
             void 0;
           }
-          log?.('ui.watchdog: blocked', {
+          log?.("ui.watchdog: blocked", {
             reason: st.reason,
-            node: describe(st.node)
+            node: describe(st.node),
           });
         }
         // Attempt to self-heal our own overlays
@@ -587,10 +622,10 @@ export function startUIWatchdog() {
           try {
             const info = {
               reason: st.reason,
-              node: describe(st.node)
+              node: describe(st.node),
             };
             // Use console.log so external scribblers capture it reliably
-            console.log('[RPGlitch] ui.watchdog: still blocked', info);
+            console.log("[RPGlitch] ui.watchdog: still blocked", info);
             lastWarnAt = now;
           } catch {
             void 0;
@@ -600,11 +635,11 @@ export function startUIWatchdog() {
         try {
           if (elapsed > 1500) {
             installStatusIndicator();
-            const wrap = doc.querySelector('#rpglitch-guard-indicator');
-            const text = doc.querySelector('#rpglitch-guard-text');
+            const wrap = doc.querySelector("#rpglitch-guard-indicator");
+            const text = doc.querySelector("#rpglitch-guard-text");
             if (wrap && text) {
-              text.textContent = `UI blocked: ${st.reason || 'unknown'}`;
-              wrap.style.display = 'inline-flex';
+              text.textContent = `UI blocked: ${st.reason || "unknown"}`;
+              wrap.style.display = "inline-flex";
             }
           }
         } catch {
@@ -612,13 +647,15 @@ export function startUIWatchdog() {
         }
         lastBlocked = true;
       } else if (lastBlocked !== false) {
-        log?.('ui.watchdog: unblocked');
+        log?.("ui.watchdog: unblocked");
         blockedSince = 0;
         lastBlocked = false;
         try {
-          const wrap = doc.querySelector('#rpglitch-guard-indicator');
-          if (wrap) wrap.style.display = 'none';
-        } catch { /* noop */ }
+          const wrap = doc.querySelector("#rpglitch-guard-indicator");
+          if (wrap) wrap.style.display = "none";
+        } catch {
+          /* noop */
+        }
       }
       // Always run a light heal pass to be resilient in embed contexts
       try {
@@ -636,7 +673,7 @@ export function startUIWatchdog() {
     // Run immediately once
     tick();
     try {
-      console.log('[RPGlitch] ui.watchdog: armed');
+      console.log("[RPGlitch] ui.watchdog: armed");
     } catch {
       void 0;
     }
@@ -652,26 +689,29 @@ export function unlockNow() {
     const doc = document;
     // Heal html/body first
     try {
-      doc.documentElement.removeAttribute('inert');
-      if (doc.documentElement && doc.documentElement.style) doc.documentElement.style.pointerEvents = 'auto';
-      doc.body && doc.body.removeAttribute('inert');
+      doc.documentElement.removeAttribute("inert");
+      if (doc.documentElement && doc.documentElement.style)
+        doc.documentElement.style.pointerEvents = "auto";
+      doc.body && doc.body.removeAttribute("inert");
       if (doc.body && doc.body.style) {
-        doc.body.style.pointerEvents = 'auto';
-        doc.body.style.overflow = 'auto';
+        doc.body.style.pointerEvents = "auto";
+        doc.body.style.overflow = "auto";
       }
     } catch {
       void 0;
     }
-    const root = doc.querySelector('#main') || doc.body || doc.documentElement;
+    const root = doc.querySelector("#main") || doc.body || doc.documentElement;
     // Heal obvious blockers inside our root
-    const all = root.querySelectorAll('dialog, [role="dialog"], [data-overlay], [data-block-ui]');
+    const all = root.querySelectorAll(
+      'dialog, [role="dialog"], [data-overlay], [data-block-ui]'
+    );
     all.forEach((el) => {
       try {
-        el.removeAttribute('inert');
-        el.removeAttribute('open');
-        el.style.pointerEvents = 'none';
-        el.style.display = 'none';
-        el.setAttribute('aria-hidden', 'true');
+        el.removeAttribute("inert");
+        el.removeAttribute("open");
+        el.style.pointerEvents = "none";
+        el.style.display = "none";
+        el.setAttribute("aria-hidden", "true");
       } catch {
         void 0;
       }
@@ -686,11 +726,17 @@ export function enableAutoUnlock() {
   try {
     if (autoUnlockBound) return;
     autoUnlockBound = true;
-    window.addEventListener('pointerdown', () => {
-      // Run after other handlers to avoid interference; repeat to catch late overlays
-      AUTO_UNLOCK_DELAYS_MS.forEach(delay => setTimeout(() => unlockNow?.(), delay));
-    }, true);
-    log?.('ui.autounlock: enabled');
+    window.addEventListener(
+      "pointerdown",
+      () => {
+        // Run after other handlers to avoid interference; repeat to catch late overlays
+        AUTO_UNLOCK_DELAYS_MS.forEach((delay) =>
+          setTimeout(() => unlockNow?.(), delay)
+        );
+      },
+      true
+    );
+    log?.("ui.autounlock: enabled");
   } catch {
     void 0;
   }
@@ -704,21 +750,25 @@ export function installUIRecoveryHooks() {
     uiHooksInstalled = true;
     const doc = document;
     // On focus/visibility/pageshow, attempt to clear blockers
-    window.addEventListener('focus', () => dismissLoadingUI?.(), true);
-    doc.addEventListener('visibilitychange', () => dismissLoadingUI?.());
-    window.addEventListener('pageshow', () => dismissLoadingUI?.());
+    window.addEventListener("focus", () => dismissLoadingUI?.(), true);
+    doc.addEventListener("visibilitychange", () => dismissLoadingUI?.());
+    window.addEventListener("pageshow", () => dismissLoadingUI?.());
     // Panic hotkey: Ctrl+Shift+D to dismiss overlays immediately
-    doc.addEventListener('keydown', (e) => {
+    doc.addEventListener("keydown", (e) => {
       try {
         const ctrl = e.ctrlKey || e.metaKey; // allow Cmd on macOS
-        if (ctrl && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+        if (ctrl && e.shiftKey && (e.key === "D" || e.key === "d")) {
           dismissLoadingUI?.();
-          log?.('ui.recovery: hotkey Ctrl+Shift+D');
+          log?.("ui.recovery: hotkey Ctrl+Shift+D");
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     });
-    log?.('ui.recovery: hooks installed');
-  } catch { /* ignore */ }
+    log?.("ui.recovery: hooks installed");
+  } catch {
+    /* ignore */
+  }
 }
 
 // ---------- Attribute observer to neutralize new blockers instantly ----------
@@ -730,23 +780,23 @@ export function installUIBlockerAttributeObserver() {
     const nodes = [
       doc.documentElement,
       doc.body,
-      doc.querySelector('#main'),
-      doc.querySelector('#chin-container'),
+      doc.querySelector("#main"),
+      doc.querySelector("#chin-container"),
     ].filter(Boolean);
     const heal = (who) => {
       try {
         if (!who) return;
-        who.removeAttribute('inert');
-        who.style && (who.style.pointerEvents = 'auto');
-        if (who === doc.body) who.style.overflow = 'auto';
+        who.removeAttribute("inert");
+        who.style && (who.style.pointerEvents = "auto");
+        if (who === doc.body) who.style.overflow = "auto";
       } catch {
         void 0;
       }
     };
     const obs = new MutationObserver((recs) => {
       for (const r of recs) {
-        if (r.type === 'attributes') {
-          if (r.attributeName === 'inert' || r.attributeName === 'style') {
+        if (r.type === "attributes") {
+          if (r.attributeName === "inert" || r.attributeName === "style") {
             heal(r.target);
             // Run the full dismissor as a fallback
             dismissLoadingUI?.();
@@ -757,11 +807,11 @@ export function installUIBlockerAttributeObserver() {
     nodes.forEach((n) =>
       obs.observe(n, {
         attributes: true,
-        attributeFilter: ['inert', 'style']
+        attributeFilter: ["inert", "style"],
       })
     );
     uiAttrObserver = obs;
-    log?.('ui.attrObserver: installed');
+    log?.("ui.attrObserver: installed");
   } catch {
     // ignore
   }
@@ -788,9 +838,7 @@ export function deriveBrand(entity = {}) {
     if (entity.color) return entity.color;
   }
   const seed =
-    [entity?.name || "", ...(entity?.tags || [])].join(
-      ","
-    ) ||
+    [entity?.name || "", ...(entity?.tags || [])].join(",") ||
     entity?.id ||
     entity?.kind ||
     "";
@@ -801,10 +849,16 @@ export function applyBrand(container, entity) {
   if (!container) return;
 
   // Remove all palette classes
-  container.classList.remove("palette-pink", "palette-emerald", "palette-cyan", "palette-orange", "palette-purple");
+  container.classList.remove(
+    "palette-pink",
+    "palette-emerald",
+    "palette-cyan",
+    "palette-orange",
+    "palette-purple"
+  );
 
   const color = deriveBrand?.(entity || {}) || "";
-  if (entity.signatureColour && entity.signatureColour !== 'default') {
+  if (entity.signatureColour && entity.signatureColour !== "default") {
     container.classList.add(`palette-${entity.signatureColour}`);
   } else if (color) {
     const c = String(color);
@@ -843,16 +897,14 @@ export function getHashQuery() {
   }
 }
 
-import {
-  getPictureHTML
-} from './entities.js';
+import { getPictureHTML } from "./entities.js";
 
 export function renderTags(container, entity, options = {}) {
   const { singleTag = false } = options;
 
   // For single tag mode, only show the entity type
   if (singleTag) {
-    const entityType = entity.type || entity.kind || 'Entity';
+    const entityType = entity.type || entity.kind || "Entity";
     const typeLabel = entityType.charAt(0).toUpperCase() + entityType.slice(1);
 
     const wrap = document.createElement("div");
@@ -863,9 +915,9 @@ export function renderTags(container, entity, options = {}) {
     chip.textContent = typeLabel;
 
     // Apply signature color if available
-    if (entity.signatureColour && entity.signatureColour !== 'default') {
+    if (entity.signatureColour && entity.signatureColour !== "default") {
       chip.style.backgroundColor = BASE_COLOUR_MAP[entity.signatureColour];
-      chip.style.color = 'white';
+      chip.style.color = "white";
     }
 
     wrap.appendChild(chip);
@@ -876,7 +928,7 @@ export function renderTags(container, entity, options = {}) {
   // Original multi-tag behavior for backward compatibility
   const tags = entity.tags || [];
   if (entity.isPremade) {
-    tags.unshift('Premade');
+    tags.unshift("Premade");
   }
 
   if (tags.length === 0) return;
@@ -888,9 +940,13 @@ export function renderTags(container, entity, options = {}) {
     chip.className = "tag-chip";
     chip.textContent = t;
 
-    if (t === 'Premade' && entity.signatureColour && entity.signatureColour !== 'default') {
+    if (
+      t === "Premade" &&
+      entity.signatureColour &&
+      entity.signatureColour !== "default"
+    ) {
       chip.style.backgroundColor = BASE_COLOUR_MAP[entity.signatureColour];
-      chip.style.color = 'white';
+      chip.style.color = "white";
     }
     wrap.appendChild(chip);
   });
@@ -900,18 +956,23 @@ export function renderTags(container, entity, options = {}) {
 export function buildHero(entity, options = {}) {
   const wrap = document.createElement("div");
   wrap.className = "hero-wrap";
-  const pic = getPictureHTML ?
-    getPictureHTML(entity, {
-      cover: true
-    }) :
-    null;
+  const pic = getPictureHTML
+    ? getPictureHTML(entity, {
+        cover: true,
+      })
+    : null;
   if (pic) {
     pic.classList?.add("hero-bleed");
 
     // Signature Colour implementation for placeholder
-    const placeholder = pic.querySelector('.placeholder-image');
-    if (placeholder && entity.signatureColour && entity.signatureColour !== 'default') {
-      placeholder.style.backgroundColor = BASE_COLOUR_MAP[entity.signatureColour];
+    const placeholder = pic.querySelector(".placeholder-image");
+    if (
+      placeholder &&
+      entity.signatureColour &&
+      entity.signatureColour !== "default"
+    ) {
+      placeholder.style.backgroundColor =
+        BASE_COLOUR_MAP[entity.signatureColour];
     }
 
     wrap.appendChild(pic);
@@ -927,7 +988,11 @@ export function navigateBackOrReturnDefault(returnTo = "#storyboard", router) {
   router?.navigate?.(fallback);
 }
 
-export function goBackWithFallback(returnTo = "#storyboard", fallback = "#storyboard", router) {
+export function goBackWithFallback(
+  returnTo = "#storyboard",
+  fallback = "#storyboard",
+  router
+) {
   try {
     navigateBackOrReturnDefault?.(returnTo, router) ??
       router?.navigate(fallback);
@@ -939,12 +1004,9 @@ export function goBackWithFallback(returnTo = "#storyboard", fallback = "#storyb
 // ---------- Top Bar ----------
 export function setTopBarRight(mode) {
   const doc = document;
-  const topBarRightStoryboard =
-    doc.querySelector("#top-bar-right-storyboard");
-  const topBarRightForm =
-    doc.querySelector("#top-bar-right-form");
-  const topBarRightProfile =
-    doc.querySelector("#top-bar-right-profile");
+  const topBarRightStoryboard = doc.querySelector("#top-bar-right-storyboard");
+  const topBarRightForm = doc.querySelector("#top-bar-right-form");
+  const topBarRightProfile = doc.querySelector("#top-bar-right-profile");
   const sectionMap = {
     storyboard: topBarRightStoryboard,
     form: topBarRightForm,
@@ -954,16 +1016,20 @@ export function setTopBarRight(mode) {
   if (sectionMap[mode]) showEl(sectionMap[mode]);
 }
 
-
 // ---------- Chin controls ----------
 function getButtons() {
   // Query both header top-bar buttons and any in-container toggles
-  return document.querySelectorAll("header [data-chin], #chin-container [data-chin]");
+  return document.querySelectorAll(
+    "header [data-chin], #chin-container [data-chin]"
+  );
 }
 
 function getPanels() {
   const container = () => document.querySelector("#chin-container");
-  return container()?.querySelectorAll(".chin[data-chin]") || document.querySelectorAll(".chin[data-chin]");
+  return (
+    container()?.querySelectorAll(".chin[data-chin]") ||
+    document.querySelectorAll(".chin[data-chin]")
+  );
 }
 
 function sync() {
@@ -972,7 +1038,7 @@ function sync() {
   let anyOpen = false;
   panels.forEach((panel) => {
     const name = panel.dataset.chin;
-    const hidden = panel.hasAttribute('hidden');
+    const hidden = panel.hasAttribute("hidden");
     const btn = [...buttons].find((b) => b.dataset.chin === name);
     const selected = !hidden;
     if (btn) {
@@ -985,25 +1051,25 @@ function sync() {
   });
   const cont = document.querySelector("#chin-container");
   if (cont && cont.style) {
-    cont.style.pointerEvents = anyOpen ? 'auto' : 'none';
+    cont.style.pointerEvents = anyOpen ? "auto" : "none";
   }
   const bd = document.querySelector("#chin-backdrop");
   if (bd) {
     if (anyOpen) {
-      bd.removeAttribute('hidden');
-      bd.style.pointerEvents = 'auto';
-      bd.style.display = 'block';
+      bd.removeAttribute("hidden");
+      bd.style.pointerEvents = "auto";
+      bd.style.display = "block";
     } else {
-      bd.setAttribute('hidden', '');
-      bd.style.pointerEvents = 'none';
-      bd.style.display = 'none';
+      bd.setAttribute("hidden", "");
+      bd.style.pointerEvents = "none";
+      bd.style.display = "none";
     }
   }
   if (anyOpen) {
     cont?.removeAttribute("hidden");
     cont?.setAttribute("aria-hidden", "false");
     // Set display:block when chins are open to make container visible
-    cont?.style.setProperty('display', 'block');
+    cont?.style.setProperty("display", "block");
     document.body.classList.add("chin-open");
   } else {
     if (document.activeElement && cont?.contains(document.activeElement)) {
@@ -1015,16 +1081,16 @@ function sync() {
     // while keeping container in document flow for correct positioning
     document.body.classList.remove("chin-open");
   }
-  log?.('chin.sync', {
+  log?.("chin.sync", {
     anyOpen,
-    count: (panels || []).length
+    count: (panels || []).length,
   });
 }
 
 function closeAll() {
   getPanels().forEach((p) => p.setAttribute("hidden", ""));
   sync();
-  log?.('chin.closeAll');
+  log?.("chin.closeAll");
 }
 
 function open(name) {
@@ -1035,8 +1101,7 @@ function open(name) {
       p.hidden = false;
       p.removeAttribute("hidden"); // Explicitly remove the attribute
       const focusTarget =
-        p.querySelector("[tabindex], button, input, select, textarea, a") ||
-        p;
+        p.querySelector("[tabindex], button, input, select, textarea, a") || p;
       focusTarget.focus?.();
     } else {
       p.hidden = true;
@@ -1044,8 +1109,8 @@ function open(name) {
     }
   });
   sync();
-  log?.('chin.open', {
-    name
+  log?.("chin.open", {
+    name,
   });
 }
 
@@ -1060,8 +1125,8 @@ function close(name) {
   });
   sync();
   if (chinObserver) initChinObserver();
-  log?.('chin.close', {
-    name
+  log?.("chin.close", {
+    name,
   });
 }
 
@@ -1074,16 +1139,16 @@ function initChinObserver() {
   getPanels().forEach((p) =>
     observer.observe(p, {
       attributes: true,
-      attributeFilter: ["hidden"]
+      attributeFilter: ["hidden"],
     })
   );
   const cont2 = document.querySelector("#chin-container");
   if (cont2)
     observer.observe(cont2, {
       attributes: true,
-      attributeFilter: ["hidden"]
+      attributeFilter: ["hidden"],
     });
-  log?.('chin.initObserver: listeners attached');
+  log?.("chin.initObserver: listeners attached");
 }
 
 function toggle(name) {
@@ -1091,32 +1156,32 @@ function toggle(name) {
   if (!panel) return;
   if (panel.hasAttribute("hidden")) open(name);
   else close(name);
-  log?.('chin.toggle', {
-    name
+  log?.("chin.toggle", {
+    name,
   });
 }
 
 let chinBound = false;
 function initChin() {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initChin);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initChin);
     return;
   }
   const doc = document;
   // Ensure backdrop exists and is clickable to close all
   const cont = document.querySelector("#chin-container");
   if (cont && !document.querySelector("#chin-backdrop")) {
-    const bd = doc.createElement('div');
-    bd.id = 'chin-backdrop';
-    bd.setAttribute('hidden', '');
-    bd.setAttribute('aria-hidden', 'true');
+    const bd = doc.createElement("div");
+    bd.id = "chin-backdrop";
+    bd.setAttribute("hidden", "");
+    bd.setAttribute("aria-hidden", "true");
     cont.prepend(bd);
   }
   const bd = document.querySelector("#chin-backdrop");
   if (bd && !bd._bound) {
-    bd.addEventListener('click', () => {
+    bd.addEventListener("click", () => {
       try {
-        log('chin.backdrop: click detected, closing all chins');
+        log("chin.backdrop: click detected, closing all chins");
         closeAll();
         dismissLoadingUI?.();
       } catch {
@@ -1148,7 +1213,7 @@ function initChin() {
       }
 
       // If the click is inside an open chin panel's content area, do nothing.
-      if (e.target.closest('.chin')) {
+      if (e.target.closest(".chin")) {
         return;
       }
 
@@ -1159,7 +1224,6 @@ function initChin() {
 
     chinBound = true;
   }
-
 
   // Initial sync to set the correct state of the backdrop
   sync();
@@ -1173,14 +1237,12 @@ export const chin = {
   closeAll,
   toggle,
   sync,
-  init: initChin
+  init: initChin,
 };
-
 
 export function toggleChinContent(name) {
   chin.toggle(name);
 }
-
 
 // ---------- Profile layout sizing (left image column width) ----------
 export function setProfileLayoutSizing(ratio = 0.35) {
@@ -1188,9 +1250,9 @@ export function setProfileLayoutSizing(ratio = 0.35) {
     const doc = document;
     const topBar = doc.querySelector("#top-bar");
     const header = topBar?.closest("header") || doc.querySelector("header");
-    const container = header?.classList.contains("container") ?
-      header :
-      header?.closest?.(".container") || header;
+    const container = header?.classList.contains("container")
+      ? header
+      : header?.closest?.(".container") || header;
     const rect = container?.getBoundingClientRect?.();
     const vw = window.innerWidth || doc.documentElement.clientWidth || 1280;
     const refWidth = Math.max(0, rect?.width || vw);

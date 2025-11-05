@@ -162,8 +162,6 @@
   }
 }
 
-
-
 article {
   box-shadow: 0 0 0 0 rgb(0 0 0 / 0%);
   display: flex;
@@ -221,9 +219,7 @@ article header {
   display: flex;
   flex-direction: column;
   transform: translateY(0);
-  transition:
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
   pointer-events: auto;
   overflow: hidden;
   box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
@@ -536,7 +532,8 @@ body.chin-open .chin-focus-ring {
 }
 
 @keyframes typing-dots {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.3;
   }
 
@@ -710,7 +707,10 @@ body.chin-open .chin-focus-ring {
   padding-left: 35vw;
   padding-right: calc(5% - 1rem);
 
-  @include mixins.custom-scrollbar(rgb(255 255 255 / 30%), rgb(255 255 255 / 30%));
+  @include mixins.custom-scrollbar(
+    rgb(255 255 255 / 30%),
+    rgb(255 255 255 / 30%)
+  );
 }
 
 .profile-description {
@@ -766,8 +766,3 @@ body.chin-open .chin-focus-ring {
   font-style: italic;
   pointer-events: none;
 }
-
-
-
-
-

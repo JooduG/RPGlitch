@@ -15,12 +15,12 @@
       window.pluginSuperFetch = superFetch;
       window.pluginRememberPlugin = rememberPlugin;
       window.pluginUpload = upload;
-      console.log('[RPGlitch] Plugins exposed via HTML script tag:', {
+      console.log("[RPGlitch] Plugins exposed via HTML script tag:", {
         pluginAi: typeof window.pluginAi,
         pluginTextToImage: typeof window.pluginTextToImage,
         pluginSuperFetch: typeof window.pluginSuperFetch,
         pluginRememberPlugin: typeof window.pluginRememberPlugin,
-        pluginUpload: typeof window.pluginUpload
+        pluginUpload: typeof window.pluginUpload,
       });
     </script>
 
@@ -45,12 +45,21 @@
           <a href="#close" aria-label="Close" class="close"></a>
           Error
         </header>
-        <p>An error occurred during loading. You can try to save your data or delete it to start fresh.</p>
+        <p>
+          An error occurred during loading. You can try to save your data or
+          delete it to start fresh.
+        </p>
         <footer>
-          <button id="emergency-export" class="secondary" data-action="export-all">
+          <button
+            id="emergency-export"
+            class="secondary"
+            data-action="export-all">
             Save All Data
           </button>
-          <button id="emergency-delete" class="contrast" data-action="delete-all">
+          <button
+            id="emergency-delete"
+            class="contrast"
+            data-action="delete-all">
             Delete All Data
           </button>
         </footer>
@@ -135,15 +144,13 @@
         <ul id="top-bar-right-profile" class="top-bar-right" hidden>
           <li><button class="secondary" id="profile-edit">Edit</button></li>
           <li>
-            <button class="secondary" id="profile-copy">
-              Clone
-            </button>
+            <button class="secondary" id="profile-copy">Clone</button>
           </li>
           <li><button class="primary" id="profile-back">Back</button></li>
         </ul>
       </nav>
     </header>
-    <h1 style="display: none;">RPGlitch</h1>
+    <h1 style="display: none">RPGlitch</h1>
 
     <!-- Chin Container -->
     <div id="chin-container" class="container" hidden>
@@ -382,9 +389,18 @@
         </div>
 
         <div id="storyboard-grid">
-          <div class="card storyboard-card empty-card" id="storyboard-card-ai" data-type="character"></div>
-          <div class="card storyboard-card empty-card" id="storyboard-card-user" data-type="character"></div>
-          <div class="card storyboard-card empty-card" id="storyboard-card-world" data-type="world"></div>
+          <div
+            class="card storyboard-card empty-card"
+            id="storyboard-card-ai"
+            data-type="character"></div>
+          <div
+            class="card storyboard-card empty-card"
+            id="storyboard-card-user"
+            data-type="character"></div>
+          <div
+            class="card storyboard-card empty-card"
+            id="storyboard-card-world"
+            data-type="world"></div>
         </div>
       </div>
 
@@ -468,12 +484,30 @@
     </main>
 
     <script type="module" src="js/index.js"></script>
-  <!-- Dev HUD -->
-    <div id="dev-hud" style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; z-index: 10000; display: none;">
+    <!-- Dev HUD -->
+    <div
+      id="dev-hud"
+      style="
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 12px;
+        z-index: 10000;
+        display: none;
+      ">
       <h3>Dev HUD</h3>
-      <p><strong>Active Thread:</strong> <span id="hud-active-thread">N/A</span></p>
+      <p>
+        <strong>Active Thread:</strong> <span id="hud-active-thread">N/A</span>
+      </p>
       <p><strong>FSM State:</strong> <span id="hud-fsm-state">N/A</span></p>
-      <p><strong>Last Payload:</strong> <span id="hud-last-payload">N/A</span></p>
+      <p>
+        <strong>Last Payload:</strong> <span id="hud-last-payload">N/A</span>
+      </p>
       <p><strong>Last Error:</strong> <span id="hud-last-error">N/A</span></p>
     </div>
   </body>
