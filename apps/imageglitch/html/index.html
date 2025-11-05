@@ -67,6 +67,9 @@
       <div class="prompt-area">
         <textarea id="promptInput" rows="2"
           placeholder="Enter your prompt here... then add some AI Magic if you'd like."></textarea>
+        <small id="prompt-length-warning" style="display: none; color: var(--pico-form-element-invalid-border-color); margin-top: 0.25rem; float: right;">
+          Note: Prompts over 2,000 characters will be truncated.
+        </small>
       </div>
       <div id="instructionsPanel" style="display: none">
         <textarea id="instructionInput" rows="2"
