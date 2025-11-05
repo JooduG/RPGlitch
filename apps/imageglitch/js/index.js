@@ -122,10 +122,6 @@ function validatePrompt(prompt) {
     alert('Prompt cannot be empty');
     return null;
   }
-  if (prompt.length > 1000) { // reasonable limit
-    alert('Prompt too long (max 1000 characters)');
-    return null;
-  }
   return prompt.trim();
 }
 
