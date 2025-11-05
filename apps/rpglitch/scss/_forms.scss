@@ -76,19 +76,15 @@
     min-height: 10rem;
   }
 
-  // Remove the grid layout in the form view
+  // Keep the grid layout from profile view for visual consistency
   .profile-field {
-    display: block;
-    background: transparent;
-    padding: 0;
-    margin: 0 0 1.5rem;
+    // Inherit grid layout from _components.scss .profile-field
+    // This ensures the form matches the profile's side-by-side layout
   }
 
   .profile-field-label {
-    // Mimic the static label styles
-    color: var(--pico-h1-color);
-    font-weight: var(--pico-font-weight-bold);
-    margin-bottom: 0.5rem;
+    // Labels maintain profile styling for visual consistency
+    // Inherits from _components.scss and base .profile-field-label
   }
 
   .profile-field-text {
