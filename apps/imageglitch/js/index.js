@@ -44,7 +44,6 @@ const TEST_MODE = (() => {
   }
 })();
 const DEFAULT_CREATIVITY_LEVEL = "4";
-const MAX_PROMPT_LENGTH = 2000;
 const creativityMap = {
   "0": { gScale: 1, aiTemp: 1.9 }, "1": { gScale: 3, aiTemp: 1.5 }, "2": { gScale: 5, aiTemp: 1.2 },
   "3": { gScale: 6, aiTemp: 1.1 }, "4": { gScale: 7, aiTemp: 1.0 }, "5": { gScale: 8, aiTemp: 0.9 },
@@ -121,6 +120,10 @@ function setUiLockState(isLocked) {
 function validatePrompt(prompt) {
   if (!prompt || prompt.trim().length === 0) {
     alert('Prompt cannot be empty');
+    return null;
+  }
+  if (prompt.length > 1000) { // reasonable limit
+    alert('Prompt too long (max 1000 characters)');
     return null;
   }
   return prompt.trim();
@@ -492,7 +495,7 @@ function buildImageGenerationHtml() {
   updateDerivedSettings();
   const n = Number(numImagesToGen);
   let outputHtml = "";
-  const prompt = mainPromptContent.trim().substring(0, MAX_PROMPT_LENGTH);
+  const prompt = mainPromptContent.trim(); // Already validated
   const validatedSeed = validateSeed(imgSeed);
   const useRandomSeeds = validatedSeed === '';
 
@@ -611,8 +614,20 @@ async function main() {
   const promptInput = document.getElementById('promptInput');
   const instructionInput = document.getElementById('instructionInput');
   const slider = document.getElementById('masterCreativitySlider');
+  const warningEl = document.getElementById('prompt-length-warning');
+
+  if (warningEl) {
+    warningEl.textContent = `Note: Prompts over ${MAX_PROMPT_LENGTH.toLocaleString()} characters will be truncated.`;
+  }
+
+  function updatePromptWarning() {
+    if (warningEl) {
+      warningEl.style.display = promptInput.value.length > MAX_PROMPT_LENGTH ? 'block' : 'none';
+    }
+  }
 
   await loadSavedSettings();
+  updatePromptWarning();
   updateDerivedSettings();
 
   if (generateButton) {
@@ -638,10 +653,7 @@ async function main() {
   if (promptInput) {
     promptInput.addEventListener('input', () => {
       mainPromptContent = promptInput.value;
-      const warningEl = document.getElementById('prompt-length-warning');
-      if (warningEl) {
-        warningEl.style.display = promptInput.value.length > MAX_PROMPT_LENGTH ? 'block' : 'none';
-      }
+      updatePromptWarning();
       handleManualPromptChange();
     });
     promptInput.addEventListener('keydown', handleTextareaKeyDown);

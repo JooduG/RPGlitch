@@ -391,3 +391,10 @@ input::placeholder {
     filter: brightness(1.1);
   }
 }
+
+.prompt-length-warning {
+  display: none;
+  color: var(--pico-form-element-invalid-border-color);
+  margin-top: 0.25rem;
+  float: right;
+}
