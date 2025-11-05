@@ -443,6 +443,5 @@ additionalElements
   wooden mask
   zodiac constellation
 
-
 generated_images_output_simple_repeat
   $output = [init][exposePluginsToWindow][buildImageGenerationHtml(doggo)]

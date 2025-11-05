@@ -6,7 +6,7 @@ Version 3.2.0 | Updated 2025-10-28
 
 **Related Docs:** See [README.md](./README.md) for architecture overview, [PERCHANCE.md](./PERCHANCE.md) for deployment workflow, and [GEMINI.md](./GEMINI.md) for coding standards.
 
-## **1. Core Philosophy: The Vibe Check**
+## **Core Philosophy: The Vibe Check**
 
 Our design philosophy is built on a foundation of minimalism, clarity, and robustness.
 
@@ -17,7 +17,7 @@ Our design philosophy is built on a foundation of minimalism, clarity, and robus
 
 ---
 
-## **2. Interaction & UX Principles**
+## **Interaction & UX Principles**
 
 ### **The Icon-Free Mandate (Non-Negotiable)**
 
@@ -42,7 +42,7 @@ In this project, all interactive UI elements (buttons, links, navigation) **MUST
 
 ---
 
-## **3. The Visual System (The "Look")**
+## **The Visual System (The "Look")**
 
 Our visual language is built on the **Pico.css** framework, extended with a custom, purposeful design layer. All base typography, primary accent colors, and foundational element styling are inherited directly from Pico.css.
 
@@ -76,14 +76,27 @@ Our visual language is built on the **Pico.css** framework. All base typography,
 
 ---
 
-## **4. The Component Library (The "Parts")**
-
-This section defines our custom components, built on top of Pico.css.
+## The Perchance Application Common Components
 
 ### **Buttons**
 
 * **Style:** Buttons follow Pico.css standards (`.primary`, `.secondary`, `.danger`).
 * **Rule:** **MUST** follow the **Icon-Free Mandate**.
+
+### **Modals**
+
+* **Style:** Modals (dialogs) follow Pico.css standards.
+* **Components:**
+    * **Loading Modal:** A modal that displays a loading message.
+    * **Emergency Modal:** A modal that displays an error message and provides options to save or delete data.
+
+### **Tags**
+
+* **Style:** Tags are displayed as pills with a background color and rounded corners.
+
+## **RPGlitch Component Library**
+
+This section defines our custom components, built on top of Pico.css.
 
 ### **Cards (Storyboard & Chin)**
 
@@ -91,7 +104,7 @@ This section defines our custom components, built on top of Pico.css.
 * **Layout:** Cards are responsive and use flexbox or grid for layout.
 * **Style:** Adhere to the project's color palette and spacing rules, with `overflow: hidden` for clean visual boundaries.
 
-### **The "Chin" Component (RPGlitch Specific)**
+### **The "Chin" Component**
 
 The "Chin" is the signature slide-out panel for entity selection (Stories, Characters, Worlds) and options in RPGlitch.
 
@@ -106,13 +119,6 @@ The "Chin" is the signature slide-out panel for entity selection (Stories, Chara
 * **Components:**
     * **Search Input:** A custom-styled search input with a search icon.
     * **Profile Fields:** Custom-styled fields for the profile view.
-
-### **Modals**
-
-* **Style:** Modals (dialogs) follow Pico.css standards.
-* **Components:**
-    * **Loading Modal:** A modal that displays a loading message.
-    * **Emergency Modal:** A modal that displays an error message and provides options to save or delete data.
 
 ### **Pictures**
 
@@ -129,11 +135,7 @@ The "Chin" is the signature slide-out panel for entity selection (Stories, Chara
 * **Layout:** A three-column grid with cards for the AI character, the user character, and the world.
 * **Style:** The storyboard cards are styled to be easily distinguishable from each other.
 
-### **Tags**
-
-* **Style:** Tags are displayed as pills with a background color and rounded corners.
-
-### **4.X The "Chat View" Component (RPGlitch Specific)**
+### **The "Chat View" Component**
 
 This section defines the main user interaction screen (`#chat-screen-container`) which becomes visible after a story begins.
 
@@ -150,9 +152,66 @@ This section defines the main user interaction screen (`#chat-screen-container`)
     * **`#typing-indicator`:** A dedicated element (as seen in `index.html`) that **MUST** be shown when the FSM is in the `streaming` or `sending` state.
     * **`#conclude-story`:** A button allowing the user to end the current story. **(Note:** The exact behavior of "concluding" a story needs further definition - e.g., saving a summary, returning to storyboard, locking the thread).
 
+## ImageGlitch Component Library
+
+### Refine (Internal Name: `scribe`)
+
+* **Persona:** The "Holistic Prompt Architect"
+* **Core Goal:** To act as an expert assistant that intelligently **improves a user's prompt**. This is a **convergent** process, designed to take a simple idea and make it "better" by holistically filling in descriptive gaps.
+
+#### AI Process Steps:
+
+1.  **Receive:** The AI receives the user's base prompt (e.g., "a knight").
+2.  **Analyze:** It deconstructs the prompt into its core elements, identifying the `Subject & Setting`.
+3.  **Categorize:** It compares the user's prompt against a predefined list of creative categories:
+    * `Artistic Style`
+    * `Composition & Camera Perspective`
+    * `Lighting`
+    * `Color Palette`
+    * `Mood & Atmosphere`
+    * `Technical Details`
+    * `Other Additional Elements`
+4.  **Identify Gaps:** It determines which of these categories are "lacking... vague, or missing" (i.e., not addressed by the user's base prompt).
+5.  **Holistic Selection:** For each identified "gap," the AI intelligently selects the *most suitable* and *thematically consistent* term from the corresponding internal list. For example, for "a knight," it would choose "fantasy realism" over "cyberpunk" for the `Artistic Style` category.
+6.  **Preserve Intent:** It is instructed to keep the user's original `Subject & Setting` as the master vision.
+7.  **Enhance:** It automatically injects a selection of baseline quality-enhancing keywords (e.g., `masterpiece`, `8K`, `cinematic`) from the `aiCoreQuality` and `aiFlavorEnhancers` lists.
+8.  **Synthesize:** It combines the user's original prompt, the new holistically-selected terms, and the quality keywords into a single, cohesive, comma-separated string.
+9.  **Return:** It returns *only* this new, refined prompt string.
+
+### Embrace the Chaos (Internal Name: `chaos`)
+
+* **Persona:** The "Mad Prompt Scientist"
+* **Core Goal:** To provide creative **serendipity and mutation**. This is a **divergent** process, designed to take a user's prompt and spark new, unexpected ideas by introducing random elements.
+
+#### AI Process Steps:
+
+1.  **Receive:** The AI receives the user's base prompt.
+2.  **Handle Empty Case:** If the user's prompt is empty, the AI generates a *completely new* random prompt by selecting one or more terms for every single creative category.
+3.  **Analyze (if prompt exists):** It deconstructs the prompt and identifies which creative categories are "sufficiently described" and which are "lacking".
+4.  **Fill Gaps:** It fills any "lacking" categories by selecting a **random** keyword from the corresponding internal list.
+5.  **The "Chaos Twist":** The AI is instructed to *always* "replace (reroll) at least one category with a new random keyword... even if the user has described it well". This is the key mutation step.
+6.  **Enhance:** It auto-injects a small, *random* set of quality-enhancing keywords.
+7.  **Synthesize:** It combines the (potentially modified) user prompt, the new random terms, and the chaos-injected keywords into a new, mutated, and cohesive prompt.
+8.  **Return:** It returns *only* this new, mutated prompt string.
+
+### Transfigure (Internal Name: `transfigure`)
+
+* **Persona:** The "Prompt Modification Specialist"
+* **Core Goal:** To provide precise, **user-directed modification** of a prompt. It takes two inputs—the current prompt and a set of natural language instructions—and surgically alters the prompt to match the instructions.
+
+#### AI Process Steps:
+
+1.  **Receive Two Inputs:**
+    * **Input A:** The "Base Prompt" (e.g., "a beautiful red car").
+    * **Input B:** The "Instruction" (e.g., "make the car blue and add a spoiler").
+2.  **Analyze:** The AI is instructed to treat Input A as the text to be edited and Input B as a list of commands.
+3.  **Execute Modification:** It surgically modifies the Base Prompt *exactly* as described by the Instruction.
+4.  **Handle Negation:** It is specifically instructed to convert any negative phrasing (e.g., "no hats," "not red") into 100% affirmative descriptions (e.g., "a car without a spoiler," "a blue car").
+5.  **Return:** It returns *only* the new, surgically-modified prompt string.
+
 ---
 
-## **5. UI Safety & Hardening (RPGlitch Implementation)**
+## **UI Safety & Hardening (RPGlitch Implementation)**
 
 To ensure the application remains interactive and robust, especially within the Perchance iframe environment, RPGlitch implements a suite of safety features (typically in `App.js` or `index.js`).
 
