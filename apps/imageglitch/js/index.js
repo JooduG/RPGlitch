@@ -59,6 +59,7 @@ const DEFAULT_IMAGE_HEIGHT = 1280;
 // AI instructions will be loaded from remember plugin (populated by left panel)
 let AI_SCRIBE_INSTRUCTION = null;
 let AI_CHAOS_INSTRUCTION = null;
+let AI_TRANSFIGURE_INSTRUCTION = null;
 
 let mainPromptContent = "";
 let numImagesToGen = 1;
@@ -299,12 +300,20 @@ function handleAiButtonClick(processType) {
 }
 
 async function executeAiProcess(type, prompt, instructions) {
+  // Helper function to check if instructions are missing for the current type
+  const areInstructionsMissing = () => {
+    if (type === 'scribe') return !AI_SCRIBE_INSTRUCTION;
+    if (type === 'chaos') return !AI_CHAOS_INSTRUCTION;
+    if (type === 'transfigure') return !AI_TRANSFIGURE_INSTRUCTION;
+    return false;
+  };
+
   // Validate AI instructions are loaded
-  if ((type === 'scribe' && !AI_SCRIBE_INSTRUCTION) || (type === 'chaos' && !AI_CHAOS_INSTRUCTION)) {
+  if (areInstructionsMissing()) {
     console.error('[ImageGlitch] AI instructions not loaded, attempting to reload...');
     await loadAiInstructions();
 
-    if ((type === 'scribe' && !AI_SCRIBE_INSTRUCTION) || (type === 'chaos' && !AI_CHAOS_INSTRUCTION)) {
+    if (areInstructionsMissing()) {
       alert('AI instructions failed to load. Please refresh the page and try again.');
       return;
     }
@@ -327,27 +336,11 @@ async function executeAiProcess(type, prompt, instructions) {
       break;
     case 'transfigure':
       // Transfigure: Prompt Modification Specialist
-      // Takes two inputs (base prompt + instruction) and surgically modifies the prompt
-      aiPrompt = `You are the "Prompt Modification Specialist" — providing precise, user-directed modification of prompts.
-Your core goal is to surgically alter a prompt to match natural language instructions.
+      // Use the instruction loaded from remember plugin with user's inputs interpolated
+      aiPrompt = `${AI_TRANSFIGURE_INSTRUCTION}
 
-PROCESS:
-1. RECEIVE TWO INPUTS:
-   - Input A (Base Prompt): "${prompt}"
-   - Input B (Instruction): "${instructions}"
-2. ANALYZE: Treat Input A as the text to be edited and Input B as a list of commands
-3. EXECUTE MODIFICATION: Surgically modify the Base Prompt EXACTLY as described by the Instruction
-4. HANDLE NEGATION: Convert any negative phrasing (e.g., "no hats," "not red") into 100% affirmative descriptions (e.g., "a car without a spoiler," "a blue car")
-5. RETURN: Output ONLY the new, surgically-modified prompt string
-
-IMPORTANT RULES:
-- Do NOT use numerical weighting syntax (e.g., 'word:1.2')
-- Make the prompt 100% affirmative — avoid negative phrasing
-- Describe what IS desired, not what isn't
-- You may use variant syntax '{Option A|Option B|Option C}' for creative variations
-- If NSFW elements are requested, use explicit language and exaggerate NSFW aspects
-- Do NOT add conversational text, greetings, explanations, or labels like 'Modified Prompt:'
-- Return ONLY the modified prompt string itself`;
+Input A (Base Prompt): "${prompt}"
+Input B (Instruction): "${instructions}"`;
       break;
   }
 
@@ -626,34 +619,55 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
  * These are populated by the left panel's init list.
  */
 async function loadAiInstructions() {
+  // Fallback instructions for test mode or when remember plugin is unavailable
+  const FALLBACK_SCRIBE = "You are a 'Prompt Refinement Specialist.' Your task is to take a user's prompt and refine it into a more detailed and descriptive prompt for an image generation AI. Focus on adding details that would result in a more visually interesting and high-quality image. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself.";
+  const FALLBACK_CHAOS = "You are an AI of chaos. Your goal is to generate a completely random and chaotic image prompt. The prompt should be a mix of strange, unrelated, and surprising elements. It should be imaginative and unexpected. Do not add any of your own conversational text, greetings, explanations, or labels like 'Chaos Prompt:'. Return ONLY the single, complete, chaotic prompt itself.";
+  const FALLBACK_TRANSFIGURE = "You are a 'Prompt Modification Specialist.' Your task is to take the user's prompt and modify it precisely according to their specific instructions. Make sure the prompt is 100% affirmative and avoid negative phrasing. Do not add any of your own conversational text, greetings, explanations, or labels. Return ONLY the single, complete, modified prompt itself.";
+
   if (TEST_MODE || typeof r === 'undefined') {
     console.log('[ImageGlitch] Test mode or remember plugin unavailable, using fallback instructions');
-    // Fallback instructions for test mode
-    AI_SCRIBE_INSTRUCTION = "You are a 'Prompt Refinement Specialist.' Your task is to take a user's prompt and refine it into a more detailed and descriptive prompt for an image generation AI. Focus on adding details that would result in a more visually interesting and high-quality image. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself.";
-    AI_CHAOS_INSTRUCTION = "You are an AI of chaos. Your goal is to generate a completely random and chaotic image prompt. The prompt should be a mix of strange, unrelated, and surprising elements. It should be imaginative and unexpected. Do not add any of your own conversational text, greetings, explanations, or labels like 'Chaos Prompt:'. Return ONLY the single, complete, chaotic prompt itself.";
+    AI_SCRIBE_INSTRUCTION = FALLBACK_SCRIBE;
+    AI_CHAOS_INSTRUCTION = FALLBACK_CHAOS;
+    AI_TRANSFIGURE_INSTRUCTION = FALLBACK_TRANSFIGURE;
     return;
   }
 
   try {
-    // Retrieve instructions from remember plugin
-    const scribeInstruction = await r.get('aiScribeInstruction');
-    const chaosInstruction = await r.get('aiChaosInstruction');
+    // Retrieve instructions from remember plugin in parallel
+    const [scribeInstruction, chaosInstruction, transfigureInstruction] = await Promise.all([
+      r.get('aiScribeInstruction'),
+      r.get('aiChaosInstruction'),
+      r.get('aiTransfigureInstruction')
+    ]);
 
     if (scribeInstruction) {
       AI_SCRIBE_INSTRUCTION = scribeInstruction;
       console.log('[ImageGlitch] Loaded aiScribeInstruction from remember plugin');
+    } else {
+      console.warn('[ImageGlitch] aiScribeInstruction not found in remember plugin, using fallback');
+      AI_SCRIBE_INSTRUCTION = FALLBACK_SCRIBE;
     }
 
     if (chaosInstruction) {
       AI_CHAOS_INSTRUCTION = chaosInstruction;
       console.log('[ImageGlitch] Loaded aiChaosInstruction from remember plugin');
+    } else {
+      console.warn('[ImageGlitch] aiChaosInstruction not found in remember plugin, using fallback');
+      AI_CHAOS_INSTRUCTION = FALLBACK_CHAOS;
     }
 
-    if (!scribeInstruction || !chaosInstruction) {
-      console.warn('[ImageGlitch] Some AI instructions not found in remember plugin, using fallbacks');
+    if (transfigureInstruction) {
+      AI_TRANSFIGURE_INSTRUCTION = transfigureInstruction;
+      console.log('[ImageGlitch] Loaded aiTransfigureInstruction from remember plugin');
+    } else {
+      console.warn('[ImageGlitch] aiTransfigureInstruction not found in remember plugin, using fallback');
+      AI_TRANSFIGURE_INSTRUCTION = FALLBACK_TRANSFIGURE;
     }
   } catch (error) {
-    console.error('[ImageGlitch] Failed to load AI instructions from remember plugin:', error);
+    console.error('[ImageGlitch] Failed to load AI instructions from remember plugin, using fallbacks:', error);
+    AI_SCRIBE_INSTRUCTION = FALLBACK_SCRIBE;
+    AI_CHAOS_INSTRUCTION = FALLBACK_CHAOS;
+    AI_TRANSFIGURE_INSTRUCTION = FALLBACK_TRANSFIGURE;
   }
 }
 
