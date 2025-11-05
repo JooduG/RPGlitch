@@ -2,6 +2,7 @@ $meta
   title = ImageGlitch
   description = Minimalist Text to ImageGlitch Generator
 
+// --- Plugin Imports ---
 image = {import:text-to-image-plugin}
 ai = {import:ai-text-plugin}
 r = {import:remember-plugin}
@@ -29,330 +30,172 @@ doggo
 numImagesToGen = 0
 masterCreativity = 4
 
+// --- AI SCRIBE INSTRUCTION (ORIGINAL LOGIC RESTORED) ---
 aiScribeInstruction
-  You are a world-renown expert prompt engineer that specialises in flawless text-to-image prompt design. Your task is to take the user's input prompt and transform it into a masterful, holistically detailed, and visually inspiring descriptive prompt that paints a vivid work of art with words. When refining, best practice is to analyze the user's prompt, deconstruct it into its core elements, and organize them into categories. For any category that is lacking in quality, vague, or missing from the user's prompt, you have the opportunity to flex your immense creativity. Pick the most suitable options from the corresponding list that anchors a balanced composition and intelligent red thread through the entire prompt, based on the user's original prompt and overall intent, except for Subject and Setting where you can just roll with what you got from the user's prompt. The categories are: Subject & Setting, Artistic Style (artisticStyles), Composition & Camera Perspective (composition), Lighting (lighting), Color Palette (colorPalettes), Mood & Atmosphere (mood), Technical Details (technicalDetails), and Other Additional Elements (additionalElements). Your goal is to manufacture a prompt that is cohesive, unified, and meticulously orchestrated—everything fitting together naturally. The result should be a single, complete, refined prompt that would be suitable for a world-renown artist, photographer, or designer. If any style, technical, or quality suggestion from the quality enhancement prefix conflicts with the user's vision, in that case consider the user's original prompt as master, focus on perfecting the prompt and keep it very close to their original vision while keeping the cohesion and consistency in mind. IMPORTANT: Do NOT use numerical weighting syntax (e.g., 'word:1.2'). If the user's original prompt contains weighted words or implies emphasis, translate that emphasis into descriptive language within the prompt. Make sure the prompt is 100% affirmative and avoid negative phrasing (e.g., 'no hats', 'not blurry'); instead, describe what IS desired. When appropriate, you can introduce creative variations by using the syntax '{Option A|Option B|Option C}' to allow the final prompt to randomly select one of the specified options. For an extra touch of quality, subtly integrate a baseline of these essential keywords: [aiCoreQuality.selectUnique(4).join(', ')], and then add a dash of inspiration with these: [aiFlavorEnhancers.selectUnique(3).join(', ')]. If the user's prompt contains NSFW elements you must use explicit language throughout and exaggerate the NSFW-aspects of the prompt. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.
+  You are a world-renown expert prompt engineer that specialises in flawless text-to-image prompt design.
+  Your task is to take the user's input prompt and transform it into a masterful, holistically detailed, and visually inspiring descriptive prompt that paints a vivid work of art with words.
+  When refining, best practice is to analyze the user's prompt, deconstruct it into its core elements, and organize them into categories.
+  For any category that is lacking in quality, vague, or missing from the user's prompt, you have the opportunity to flex your immense creativity.
+  Pick the most suitable options from the corresponding list that anchors a balanced composition and intelligent red thread through the entire prompt, based on the user's original prompt and overall intent, except for Subject and Setting where you can just roll with what you got from the user's prompt.
+  The categories are: Subject & Setting, Artistic Style (artisticStyles), Composition & Camera Perspective (composition), Lighting (lighting), Color Palette (colorPalettes), Mood & Atmosphere (mood), Technical Details (technicalDetails), and Other Additional Elements (additionalElements).
+  Your goal is to manufacture a prompt that is cohesive, unified, and meticulously orchestrated—everything fitting together naturally.
+  The result should be a single, complete, refined prompt that would be suitable for a world-renown artist, photographer, or designer.
+  If any style, technical, or quality suggestion from the quality enhancement prefix conflicts with the user's vision, in that case consider the user's original prompt as master, focus on perfecting the prompt and keep it very close to their original vision while keeping the cohesion and consistency in mind.
+  IMPORTANT: Do NOT use numerical weighting syntax (e.g., 'word:1.2'). If the user's original prompt contains weighted words or implies emphasis, translate that emphasis into descriptive language within the prompt.
+  Make sure the prompt is 100% affirmative and avoid negative phrasing (e.g., 'no hats', 'not blurry');
+  instead, describe what IS desired. When appropriate, you can introduce creative variations by using the syntax '{Option A|Option B|Option A|Option C}' to allow the final prompt to randomly select one of the specified options.
+  For an extra touch of quality, subtly integrate a baseline of these essential keywords: [aiCoreQuality.selectUnique(4).join(', ')], and then add a dash of inspiration with these: [aiFlavorEnhancers.selectUnique(3).join(', ')].
+  If the user's prompt contains NSFW elements you must use explicit language throughout and exaggerate the NSFW-aspects of the prompt.
+  Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'.
+  Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.
 
+// --- AI CHAOS INSTRUCTION (ORIGINAL LOGIC RESTORED) ---
 aiChaosInstruction
-  You are a 'Mad Prompt Scientist'—a master of mixing different elements just to see what will happen. Your task is to create a completely chaotic, yet visually inspiring image prompt by mixing and matching different elements from the user's input and the categories below. First, analyze the user's original prompt and determine which of these categories below has gotten sufficiently described. For each category that is satisfactory fulfilled, keep the user's original theme. If a category is lacking in quality, vague, or missing, replace it with a keyword/phrase from that specific category. As an added twist, always replace (reroll) at least one category with a new random keyword from its list, even if the user has described it well. If the user's prompt is empty, create a completely random prompt rolling new keywords for every single category and filling in the gaps with your own creativity. The categories are: Subject and Setting: (Keep the user's original subject and setting and enhance it to the best of your ability, if it's missing, feel free to impress me with your creativity). Artistic Style: ([artisticStyles.selectOne]) is potentially the new visual identity and technique for the image (Could also be a specific artist or movement). Composition and Camera Perspective: Is ([composition.selectOne]) what will guide the arrangement of elements and point of view? Lighting: ([lighting.selectOne]) might be creating the right atmosphere through illumination and shadows. Color Palette: The dominant colors and tones might be ([colorPalettes.selectOne]), and could be what draws the viewer in. Mood and Atmosphere: The emotional tone and overall feeling of the image could be ([mood.selectOne]). Technical Details: Does ([technicalDetails.selectOne]) describe the perfect technical aspects of the image? Other Elements: Here comes a wildcard! What about adding ([additionalElements.selectOne]). As a Mad Prompt Scientist, embrace atomical transformation, playful invention, and unexpected or whimsical twists. If NSFW elements becomes relevant you must use explicit language throughout. Make sure to exaggerate all aspects of the prompt but especially the NSFW-aspects. Surprise the user by weaving together disparate or imaginative elements, but always produce a valid, visually inspiring image prompt. Embrace the chaos, have fun, and flex your creativity, just make sure the result is a single, cohesive, and visually inspiring prompt. The result should be more detailed and varied than the original. If any input contains conflicting information, just roll with it and embrace the unpredictable and paradoxical chaos! Sprinkle in some of these chaotic quality enhancers for good measure: [aiCoreQuality.selectOne], [aiFlavorEnhancers.selectUnique(2).join(', ')]. Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'. Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.
+  You are a 'Mad Prompt Scientist'—a master of mixing different elements just to see what will happen.
+  Your task is to create a completely chaotic, yet visually inspiring image prompt by mixing and matching different elements from the user's input and the categories below.
+  First, analyze the user's original prompt and determine which of these categories below has gotten sufficiently described.
+  For each category that is satisfactory fulfilled, keep the user's original theme.
+  If a category is lacking in quality, vague, or missing, replace it with a keyword/phrase from that specific category.
+  As an added twist, always replace (reroll) at least one category with a new random keyword from its list, even if the user has described it well.
+  If the user's prompt is empty, create a completely random prompt rolling new keywords for every single category and filling in the gaps with your own creativity.
+  The categories are: Subject and Setting: (Keep the user's original subject and setting and enhance it to the best of your ability, if it's missing, feel free to impress me with your creativity).
+  Artistic Style: ([artisticStyles.selectOne]) is potentially the new visual identity and technique for the image (Could also be a specific artist or movement).
+  Composition and Camera Perspective: Is ([composition.selectOne]) what will guide the arrangement of elements and point of view?
+  Lighting: ([lighting.selectOne]) might be creating the right atmosphere through illumination and shadows.
+  Color Palette: The dominant colors and tones might be ([colorPalettes.selectOne]), and could be what draws the viewer in. Mood and Atmosphere: The emotional tone and overall feeling of the image could be ([mood.selectOne]).
+  Technical Details: Does ([technicalDetails.selectOne]) describe the perfect technical aspects of the image? Other Elements: Here comes a wildcard!
+  What about adding ([additionalElements.selectOne]). As a Mad Prompt Scientist, embrace atomical transformation, playful invention, and unexpected or whimsical twists.
+  If NSFW elements becomes relevant you must use explicit language throughout.
+  Make sure to exaggerate all aspects of the prompt but especially the NSFW-aspects.
+  Surprise the user by weaving together disparate or imaginative elements, but always produce a valid, visually inspiring image prompt.
+  The result should be more detailed and varied than the original.
+  If any input contains conflicting information, just roll with it and embrace the unpredictable and paradoxical chaos!
+  Sprinkle in some of these chaotic quality enhancers for good measure: [aiCoreQuality.selectOne], [aiFlavorEnhancers.selectUnique(2).join(', ')].
+  Do not add any of your own conversational text, greetings, explanations, or labels like 'Refined Prompt:'.
+  Return ONLY the single, complete, refined prompt itself. Output ONLY the new and finalized prompt itself, with no category names, headlines, or explanations—just the prompt.
+
+// --- CORE IMAGE GENERATION LISTS (ALL MODIFIED) ---
 
 aiCoreQuality
-  masterpiece
-  impeccable attention to detail
-  8K ultra-high resolution
-  high dynamic range
-  lifelike textures and materials
-  world-class work of art
+  masterpiece, world-class masterpiece, award-winning quality
+  impeccable attention to detail, high detail, ultra-intricate detail
+  8K ultra-high resolution, 45 megapixels, ultra high res, huge file size
+  high dynamic range, HDR, 8k resolution
+  lifelike textures and materials, photorealistic textures
+  world-class work of art, original realistic, extremely detailed CG unity 8k wallpaper
+  photorealistic, ultra-realistic, strictly realistic, unbelievable realism, hyper-stunning
 
 aiFlavorEnhancers
-  cinematic
-  mood invoking bokeh
-  volumetric lighting
-  iridescent moody lighting
-  dramatic shadows
-  larger-than-life color palette
-  thought-provoking scale
-  dimensional depth of field
-  laser-sharp focus
-  action enhancing motion blur
-  atmospheric special effects
-  world-class post-processing
-  natural film grain
-  trending on ArtStation
-  award-winning
-  innovative technical excellence
+  cinematic, dramatic shadows, world-class post-processing
+  mood invoking bokeh, soft bokeh background blur, beautiful bokeh
+  volumetric lighting, iridescent moody lighting, strong magical ambient glow
+  larger-than-life color palette, vibrant color grading, high-contrast color grading
+  thought-provoking scale, dimensional depth of field
+  laser-sharp focus, razor-sharp intricate attention, sharp lines creating depth of field
+  action enhancing motion blur, soft motion blur, natural film grain
+  atmospheric special effects, light film grain, faint lens flares, pronounced lens flares
+  trending on ArtStation, award-winning, innovative technical excellence
 
 artisticStyles
   3d render
-  abstract
-  anime
-  cartoon
-  charcoal sketc
-  children's book
-  collage
-  concept art
-  cyberpunk
-  dali
-  digital art
-  escher
-  fantasy realism
-  fantasy
-  fashion illustration
-  gothic
-  graffiti
-  impressionism
-  impasto
-  ink drawing
-  line art
-  low poly
-  magazine cover
-  minimalism
-  photomontage
-  photorealism
-  picasso
-  pixel art
-  pop art
-  stained glass
-  steampunk
-  studio ghibli
-  surrealism
-  ukiyo-e
-  van gogh
-  vaporwave
-  vintage comic
-  watercolor
-  stippled
-  watercolor wash
-  pixelated
+  abstract, minimalism, surrealism, photorealism
+  anime, studio ghibli
+  cartoon, children's book
+  charcoal sketc, ink drawing, line art, stippled, watercolor wash
+  collage, photomontage
+  concept art, fantasy realism, fantasy
+  cyberpunk, vaporwave
+  dali, picasso, escher, van gogh
+  digital art, ukiyo-e
+  fashion illustration, gothic, impasto
+  graffiti, pop art
+  low poly, pixel art, pixelated
+  magazine cover, vintage comic
+  stained glass, steampunk
+  photorealism, hyper-realistic, lifelike, photo-realistic, true-to-life, dreamlike realism
+  RAW photo, real world photo, captured with a high-end camera, optimal photography
 
 lighting
-  backlit
-  bioluminescent
-  candlelit
-  chiaroscuro
-  cinematic lighting
-  colored gels
-  CRT screen glow
-  disco lights
-  dramatic
-  firelight
-  fluorescent
-  golden hour
-  harsh midday sun
-  high key
-  low key
-  moonlit
-  neon glow
-  overcast
-  rainbow lighting
-  rim lighting
-  soft morning light
-  spotlight
-  starlight
-  studio lighting
-  underwater lighting
-  volumetric light
+  backlit, rim lighting
+  bioluminescent, underwater lighting
+  candlelit, firelight
+  chiaroscuro, dramatic, low key
+  disco lights, colored gels, rainbow lighting
+  fluorescent, studio lighting, spotlight
+  golden hour, soft morning light
+  harsh midday sun, high key
+  moonlit, starlight
+  neon glow, CRT screen glow
+  overcast, soft highlights
+  natural light, soft warm lighting, deep inviting shadows
+  cinematic lighting, dramatic moody lighting, volumetric light
+  dramatic moonlight casting long shadows
+  professional lighting, photon mapping, physically-based rendering
+  directional and atmospheric lighting, emphasizing mood and drama
 
 colorPalettes
-  analogous
-  autumn palette
-  black and white
-  candy colors
-  complementary
-  cool blues
-  duotone
-  earth tones
-  fiery reds
-  forest greens and browns
-  gradient
-  iridescent
-  jewel tones
-  metallic
-  monochrome
-  muted
-  neon
-  pastel pinks and purples
-  pastel
-  primary colors
-  rainbow
-  sepia
-  spring palette
-  summer palette
-  vibrant
-  winter palette
+  analogous, complementary, gradient
+  autumn palette, fiery reds, forest greens and browns, earth tones
+  black and white, monochrome, sepia
+  candy colors, jewel tones
+  cool blues, winter palette
+  duotone, color palette is a study in contrasts
+  iridescent, metallic
+  muted, true-to-life colors
+  neon, vibrant
+  pastel pinks and purples, pastel
+  primary colors, rainbow
+  spring palette, summer palette
+  balanced palette, realistic skin tones, color palette features deep darks against bright whites
 
 composition
-  asymmetry
-  bird's eye view
-  centered
-  close-up
-  collage
-  dutch angle
-  dynamic diagonal
-  fisheye
-  frame within a frame
-  golden ratio
-  isometric
-  landscape orientation
-  layered depth
-  leading lines
-  negative space
-  panoramic
-  portrait orientation
-  rule of thirds
-  split screen
-  symmetry
-  triptych
-  vignette
-  wide shot
-  worm's eye view
-  low angle
-  high angle
-
+  asymmetry, rule of thirds, dynamic diagonal
+  bird's eye view, high angle
+  centered, symmetry
+  close-up, medium shot, close-up shot, long shot, full body portrait
+  collage, split screen, triptych
+  dutch angle, low angle, worm's eye view
+  dynamic diagonal, leading lines
+  fisheye, barrel distortion, exaggerated perspective
+  frame within a frame, vignette
+  golden ratio, balanced composition
+  isometric, orthographic view
+  landscape orientation, panoramic, wide shot
+  layered depth, negative space
+  portrait orientation, aesthetically pleasing image
+  world class composition, clear focal point, impressive composition
+  captured in a single vivid moment, aesthetically-pleasing-world-class-masterpiece-image
+  immersive intimate atmosphere, raw sexual energy, gay-masculine-atmosphere, intensely homoerotic
+  
 mood
-  ancient
-  chaotic
-  dark
-  dramatic
-  energetic
-  epic
-  futuristic
-  gritty
-  hopeful
-  humorous
-  magical
-  melancholic
-  mysterious
-  nostalgic
-  peaceful
-  playful
-  rebellious
-  romantic
-  serene
-  surreal
-  tranquil
-  tense
-  uplifting
+  ancient, dark, gothic
+  chaotic, rebellious
+  dramatic, tense
+  energetic, action enhancing motion blur
+  epic, larger-than-life scale
+  futuristic, cybernetic implant
+  gritty, harsh midday sun
+  hopeful, uplifting
+  humorous, playful
+  magical, enchanted forest
+  melancholic, nostalgic
+  mysterious, unknown
+  peaceful, serene, tranquil
+  romantic, affectionate
+  surreal, dreamlike realism
+  climactic scene, immersive intimate atmosphere, homoerotic vibe very suggestive
 
 technicalDetails
-  3D render
-  35mm film
-  4K resolution
-  8K resolution
-  AI upscaling
-  alpha channel
-  ambient occlusion
-  analog emulation
-  analog process
-  animated gif
-  anti-aliasing
-  asset management
-  background removal
-  ball mill
-  batch processing
-  beadwork
-  bloom effect
-  blurring
-  bokeh background
-  borderless print
-  brazing
-  brushwork
-  bump mapping
-  burnishing
-  camera shake
-  camera simulation
-  casting
-  cel shading
-  checkerboard pattern
-  chromatic aberration
-  chromatic shift
-  claymation
-  cloud rendering
-  collage
-  color banding
-  color correction
-  color grading
-  color inversion
-  color splash
-  colorization
-  composited layers
-  compositing
-  contrast stretching
-  controlled marks
-  contour mapping
-  copperplate
-  CPU rendering
-  crystalline materials
-  cyanotype process
-  depth of field
-  digital grain
-  double exposure
-  dynamic range
-  edge detection
-  embroidery
-  enamel finish
-  environment mapping
-  exposure blending
-  film grain
-  fisheye lens
-  focus stacking
-  frame blending
-  fractal detail
-  fresnel effect
-  full spectrum
-  fusion rendering
-  glitch effect
-  grain overlay
-  halftone pattern
-  hand-drawn overlay
-  high dynamic range
-  holographic effect
-  infrared imaging
-  isometric projection
-  layer masking
-  lens distortion
-  lens flare
-  long exposure
-  low poly
-  macro lens
-  matte finish
-  metallic texture
-  micro-contrast
-  motion blur
-  multi-pass rendering
-  noise reduction
-  occlusion culling
-  optical flow
-  orthographic view
-  panorama stitching
-  parallax effect
-  particle simulation
-  pattern overlay
-  photobashing
-  photogrammetry
-  pixel sorting
-  polygon reduction
-  post-processing
-  procedural texture
-  ray tracing
-  real-time rendering
-  reflection mapping
-  refraction
-  render pass
-  retro filter
-  scanline effect
-  screen space reflections
-  shading network
-  sharpening
-  silkscreen
-  simulation
-  sky replacement
-  smudge tool
-  solarization
-  stereoscopic 3D
-  subsurface scattering
-  super-resolution
-  tilt-shift
-  time-lapse
-  tonal mapping
-  toon shading
-  transparency mask
-  ultra-wide angle
-  UV mapping
-  vectorization
-  vignette
-  virtual camera
-  volumetric lighting
-  watermark
-  wireframe overlay
-  z-depth pass
-  ultra-detailed
-  high texture
-  smooth
-  rough
-  metallic
-  soft focus
-  grainy
-  crisp lines
+  3D render, 35mm film grain, 4K resolution, 8K resolution, AI upscaling, alpha channel, ambient occlusion, analog emulation, analog process, animated gif, anti-aliasing, asset management, background removal, ball mill, batch processing, beadwork, bloom effect, blurring, bokeh background, borderless print, brazing, brushwork, bump mapping, burnishing, camera shake, camera simulation, casting, cel shading, checkerboard pattern, chromatic aberration, chromatic shift, claymation, cloud rendering, collage, color banding, color correction, color grading, color inversion, color splash, colorization, composited layers, compositing, contrast stretching, controlled marks, contour mapping, copperplate, CPU rendering, crystalline materials, cyanotype process, depth of field, digital grain, double exposure, dynamic range, edge detection, embroidery, enamel finish, environment mapping, exposure blending, film grain, fisheye lens, focus stacking, frame blending, fractal detail, fresnel effect, full spectrum, fusion rendering, glitch effect, grain overlay, halftone pattern, hand-drawn overlay, high dynamic range, holographic effect, infrared imaging, isometric projection, layer masking, lens distortion, lens flare, long exposure, low poly, macro lens, matte finish, metallic texture, micro-contrast, motion blur, multi-pass rendering, noise reduction, occlusion culling, optical flow, orthographic view, panorama stitching, parallax effect, particle simulation, pattern overlay, photobashing, photogrammetry, pixel sorting, polygon reduction, post-processing, procedural texture, ray tracing, real-time rendering, reflection mapping, refraction, render pass, retro filter, scanline effect, screen space reflections, shading network, sharpening, silkscreen, simulation, sky replacement, smudge tool, solarization, stereoscopic 3D, subsurface scattering, super-resolution, tilt-shift, time-lapse, tonal mapping, toon shading, transparency mask, ultra-wide angle, UV mapping, vectorization, vignette, virtual camera, volumetric lighting, watermark, wireframe overlay, z-depth pass, ultra-detailed, high texture, smooth, rough, metallic, soft focus, grainy, crisp lines
+  captured by professional camera, high-end camera shot, Canon EOS R5, RF 50mm f/1.2L USM lens, RAW photo, candid hidden camera perspective, digital camera
+  natural skin pores, realistic blemishes, sweat glistening skin, anatomically correct, lifelike imperfect textures, natural healthy anatomy
+  35mm film grain with analog emulation, showing natural skin pores and realistic blemishes, hyper-detailed skin texture
+  photogrammetry rendering with ambient occlusion, anti-aliasing, and a sharp focus on metallic textures
+  low-poly art style with isometric projection, cel shading, and a high-contrast color splash effect
+  macro lens with depth of field, tilt-shift effect, and intricate fractal detail
+  ray tracing, physically-based rendering, and full spectrum dynamic range
+  chromatic aberration, lens distortion, and a glitch effect for a digital chaos aesthetic
+  long exposure, camera shake, and soft motion blur for dynamic realism
 
 additionalElements
   an alien landscape
