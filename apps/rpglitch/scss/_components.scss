@@ -70,6 +70,13 @@
   color: var(--pico-primary);
 }
 
+.form-tag-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
 .danger,
 .danger:active,
 .danger:hover {
@@ -372,53 +379,6 @@ body.chin-open .chin-focus-ring {
   block-size: 100%;
   object-fit: cover;
   display: block;
-}
-
-.profile-right-content {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  text-align: left;
-}
-
-.profile-fields {
-  width: 100%;
-  max-width: 600px;
-  margin-top: 2rem;
-}
-
-.profile-field {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  text-align: left;
-
-  [data-read-field] {
-    display: block;
-    width: 100%; // Ensure it fills the grid area
-  }
-}
-
-.profile-field-label-wrapper {
-  // This new wrapper holds the label and sub-label
-  display: flex;
-  flex-direction: column;
-  justify-content: center; // Vertically center the text block
-  text-align: right;
-  gap: 0.25rem; // A small space between label and sub-label
-}
-
-.profile-field-label {
-  font-weight: bold;
-  text-align: right;
-}
-
-.profile-field-sublabel {
-  font-size: 0.85em;
-  color: var(--pico-muted-color);
-  font-style: italic;
-  font-weight: normal; // Ensure it's not bold
 }
 
 #chat-screen-container {
@@ -724,70 +684,6 @@ body.chin-open .chin-focus-ring {
   @include custom-scrollbar(rgb(255 255 255 / 30%), rgb(255 255 255 / 30%));
 }
 
-.profile-description {
-  color: var(--pico-color);
-  margin: 1rem;
-  background: rgb(0 0 0 / 20%);
-  padding: 1rem;
-  border-radius: var(--pico-radius);
-  backdrop-filter: blur(10px);
-
-  // Mimic p
-  font-size: var(--pico-font-size);
-  line-height: var(--pico-line-height);
-  margin-bottom: var(--pico-spacing);
-  min-height: 8rem; // Give it some default height
-}
-
-.profile-name {
-  text-wrap: balance;
-  height: 3.5em;
-  overflow: visible;
-  text-overflow: unset;
-  white-space: normal;
-  word-wrap: break-word;
-  word-break: break-all;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-
-  /* use Pico's default h1 size/weight; keep a soft shadow */
-  text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
-  padding: 0;
-  margin: 1rem;
-  border: none;
-  border-radius: var(--pico-radius);
-  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  color: var(--pico-color, #fff);
-  min-width: 0;
-  background: transparent;
-  box-shadow: none;
-  position: relative;
-
-  // Mimic h1
-  font-size: var(--pico-h1-font-size);
-  font-weight: var(--pico-h1-font-weight);
-  line-height: var(--pico-h1-line-height);
-  margin-bottom: var(--pico-spacing); // Keep the h1's bottom margin
-}
-
-.profile-name:focus {
-  outline: none;
-  background: rgb(255 255 255 / 10%);
-  border-color: var(--pico-primary, #0172ad);
-  box-shadow: 0 0 0 3px rgb(var(--pico-primary-rgb, 1, 114, 173) 0.1);
-}
-
-.profile-name:empty::before,
-.profile-name:blank::before {
-  content: attr(data-placeholder);
-  color: rgb(255 255 255 / 50%);
-  font-style: italic;
-  pointer-events: none;
-}
-
 .chin-search input,
 .chin-search button {
   height: 2.5rem;
@@ -798,20 +694,38 @@ body.chin-open .chin-focus-ring {
    Stateful Profile Page (Inline Editing)
    ========================================================================== */
 
-// --- Base styles for shared elements ---
-.profile-name,
-.profile-description {
-  // Reset defaults to allow typography to be identical
-  margin: 0;
-  padding: 0;
-  border: var(--pico-form-element-border-width) solid transparent;
-  border-radius: var(--pico-radius);
-  width: 100%;
-  background: transparent;
-  font-family: var(--pico-font-family);
+// --- Layout Fix ---
+// This was our layout bug fix. We still need it.
+.profile-right-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; // Force children to be full-width
+  text-align: left;
 }
 
-// --- Default (Read) Mode ---
+// Just add a bit of space above the section fields
+.profile-fields {
+  margin-top: 2rem;
+}
+
+// --- Read-Only Styling ---
+// These styles are for the read-only <div> tags
+// to make them look like static text and match the <textarea> height.
+.profile-description-read,
+.profile-field-text-read {
+  min-height: 8rem; // Match textarea height
+  white-space: pre-wrap; // Respect newlines
+  padding: var(--pico-form-element-padding); // Align with textarea
+  line-height: var(--pico-line-height); // Match Pico text
+}
+
+// Specific padding for the description <p> tag in read mode
+.profile-description-read {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+// --- Hide/Show Logic ---
 // Hide all 'edit' fields by default
 [data-edit-field],
 .profile-hero-overlay {
@@ -820,13 +734,7 @@ body.chin-open .chin-focus-ring {
 
 // Show all 'read' fields by default
 [data-read-field] {
-  display: block;
-}
-
-.profile-field-text[data-read-field] {
-  min-height: 5rem; // Match the textarea
-  padding-top: var(--pico-form-element-padding); // Align text
-  white-space: pre-wrap; // Respect newlines from saved data
+  display: block; // or whatever its default is
 }
 
 // --- Editing Mode (.is-editing) ---
@@ -839,28 +747,6 @@ body.chin-open .chin-focus-ring {
   // Show 'edit' fields
   [data-edit-field],
   .profile-hero-overlay {
-    display: block;
-  }
-
-  // Style the inputs to look like inputs, but keep typography
-  .profile-name[data-edit-field],
-  .profile-description[data-edit-field],
-  .profile-field-text[data-edit-field] {
-    background-color: var(--pico-form-element-background-color);
-    border-color: var(--pico-form-element-border-color);
-    padding: var(--pico-form-element-padding);
-    color: var(
-      --pico-form-element-color
-    ); // Ensure text color is correct for forms
-
-    &:focus {
-      --pico-box-shadow: 0 0 0 var(--pico-outline-width)
-        var(--pico-primary-focus);
-    }
-  }
-
-  .profile-field-text[data-edit-field] {
-    width: 100%;
-    min-height: 5rem;
+    display: block; // or 'inline-block', etc.
   }
 }

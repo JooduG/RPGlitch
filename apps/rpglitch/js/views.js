@@ -73,9 +73,7 @@ function handleRoute() {
     } catch (e) {
       void e;
     }
-  } 
-
-  else {
+  } else {
     setTopBarRight?.("storyboard");
     showStoryboard();
     try {
@@ -130,62 +128,62 @@ export const router = {
 
 let profileResizeBound = false;
 
-// NEW: Define all section labels and sub-labels in one place
+// Define all section labels and sub-labels
 const SECTION_DEFINITIONS = {
   forever: {
     label: "Forever",
     sublabels: {
       character: "Core persona & permanent characteristics.",
-      world: "Eternal truths, core concepts, & unbreakable laws."
-    }
+      world: "Eternal truths, core concepts, & unbreakable laws.",
+    },
   },
   past: {
     label: "Past",
     sublabels: {
       character: "Biography, key memories, & backstory.",
-      world: "History, ancient lore, & formative events."
-    }
+      world: "History, ancient lore, & formative events.",
+    },
   },
   present: {
     label: "Present",
     sublabels: {
       character: "Current situation, motivations, & relationships.",
-      world: "Current state, major factions, & ongoing conflicts."
-    }
+      world: "Current state, major factions, & ongoing conflicts.",
+    },
   },
   future: {
     label: "Future",
     sublabels: {
       character: "Goals, prophecies, & potential plot hooks.",
-      world: "Impending events, prophecies, & story seeds."
-    }
-  }
+      world: "Impending events, prophecies, & story seeds.",
+    },
+  },
 };
 
 /**
- * Creates a field for the profile page, including both read and edit elements.
- * @param {string} id - The base ID for the field (e.g., "name")
- * @param {string} labelText - The human-readable label
- * @param {string} readElement - The tag name for the read-only element (e.g., "h1", "p")
- * @param {string} editElement - The tag name for the edit element (e.g., "input", "textarea")
- * @param {string} value - The current value for the field
- * @param {object} options - Additional options
- * @param {string} options.sublabel - Helper text to display below the label.
- * @param {string} options.readClass - CSS class for the read element
- * @param {string} options.editClass - CSS class for the edit element
- * @param {string} options.placeholder - Placeholder for the edit element
- * @returns {HTMLElement} A fragment or element containing both read and edit views
+ * SIMPLIFIED: Creates a field for the profile page.
+ * This now only handles the read/edit elements, not the labels.
  */
-function createProfileField(id, labelText, readElement, editElement, value, options = {}) {
+function createFieldElements(
+  id,
+  readElement,
+  editElement,
+  value,
+  options = {}
+) {
+  const frag = document.createDocumentFragment();
+
   // Read-only element
   const readEl = document.createElement(readElement);
   readEl.dataset.readField = id;
   readEl.className = options.readClass || "";
-  readEl.textContent = value || (options.placeholder ? `(${options.placeholder})` : "(Not set)");
+  readEl.textContent =
+    value || (options.placeholder ? `(${options.placeholder})` : "(Not set)");
   if (!value) {
     readEl.style.opacity = "0.6";
     readEl.style.fontStyle = "italic";
   }
+  frag.appendChild(readEl);
 
   // Editable element
   const editEl = document.createElement(editElement);
@@ -194,54 +192,18 @@ function createProfileField(id, labelText, readElement, editElement, value, opti
   editEl.id = `form-field-${id}`;
   editEl.className = options.editClass || "";
   editEl.placeholder = options.placeholder || "";
+
   if (editElement === "textarea") {
     editEl.value = value;
   } else {
     editEl.setAttribute("value", value);
-  }
-  if (id === "name") {
-    editEl.required = true;
-  }
-
-  // For complex fields like "sections"
-  if (labelText) {
-    const field = document.createElement("div");
-    field.className = "profile-field";
-
-    // Create a wrapper for the label and new sub-label
-    const labelWrapper = document.createElement("div");
-    labelWrapper.className = "profile-field-label-wrapper";
-
-    const label = document.createElement("label");
-    label.className = "profile-field-label";
-    label.setAttribute("for", `form-field-${id}`);
-    label.textContent = labelText;
-    
-    labelWrapper.appendChild(label);
-
-    // Add the sublabel if it exists
-    if (options.sublabel) {
-      const sublabelEl = document.createElement("small");
-      sublabelEl.className = "profile-field-sublabel";
-      sublabelEl.textContent = options.sublabel;
-      labelWrapper.appendChild(sublabelEl);
+    if (id === "name") {
+      editEl.required = true;
     }
-    
-    // The edit element needs a wrapper to match the grid layout
-    const editWrapper = document.createElement("div");
-    editWrapper.className = "profile-field-text-wrapper";
-    editWrapper.dataset.editField = id; // Add data-attribute to wrapper
-    editWrapper.appendChild(editEl);
-
-    // Append the new labelWrapper instead of the old label
-    field.append(labelWrapper, readEl, editWrapper); 
-    return field;
-  } else {
-    // For simple fields like "name" and "description"
-    const frag = document.createDocumentFragment();
-    frag.append(readEl, editEl);
-    return frag;
   }
+  frag.appendChild(editEl);
+
+  return frag;
 }
 
 export async function renderProfilePage(type, id) {
@@ -252,7 +214,7 @@ export async function renderProfilePage(type, id) {
   let isEditing = id === "new";
   const params = getHashQuery();
   const isClone = params.get("clone") === "true";
-  
+
   let entity;
 
   if (isClone && window.ephemeralEntity) {
@@ -279,7 +241,7 @@ export async function renderProfilePage(type, id) {
       }
     );
   }
-  
+
   // Navigate away on error
   if (!entity) {
     router.navigate("#");
@@ -300,8 +262,7 @@ export async function renderProfilePage(type, id) {
   const leftCol = document.createElement("div");
   leftCol.className = "profile-left";
   const heroWrap = buildHero(entity, { singleTag: true });
-  
-  // --- Hero Editing UI ---
+
   const imageOverlay = document.createElement("div");
   imageOverlay.className = "profile-hero-overlay";
   imageOverlay.dataset.editField = "hero"; // Controls visibility
@@ -345,14 +306,13 @@ export async function renderProfilePage(type, id) {
     const selectedColour = paletteSelect.value;
     const tempEntity = { ...entity, signatureColour: selectedColour };
     applyBrand?.(leftCol, tempEntity);
-    // (Additional color preview logic from old renderForm)
   });
 
   imageOverlay.appendChild(imageInput);
   imageOverlay.appendChild(signatureColourLabel);
   imageOverlay.appendChild(paletteSelect);
   heroWrap.appendChild(imageOverlay);
-  
+
   leftCol.appendChild(heroWrap);
   applyBrand?.(leftCol, entity);
 
@@ -363,64 +323,74 @@ export async function renderProfilePage(type, id) {
   const content = document.createElement("div");
   content.className = "profile-right-content";
 
-  const form = document.createElement("form"); // Use a form for semantics
-  form.addEventListener("submit", (e) => e.preventDefault()); // Prevent default submit
+  const form = document.createElement("form");
+  form.addEventListener("submit", (e) => e.preventDefault());
 
-  // --- Name Field (Read/Edit) ---
+  // --- (REFACTORED) Name Field (Read/Edit) ---
+  // Pico handles styling for <h1> and <input> automatically.
   form.appendChild(
-    createProfileField(
+    createFieldElements(
       "name",
-      null,
-      "h1",
-      "input",
+      "h1", // Read: <h1>
+      "input", // Edit: <input>
       entity.name || "",
       {
-        readClass: "profile-name",
-        editClass: "profile-name",
         placeholder: "Enter entity name...",
       }
     )
   );
 
-  // --- Description Field (Read/Edit) ---
+  // --- (REFACTORED) Description Field (Read/Edit) ---
+  // Pico handles styling for <p> and <textarea> automatically.
   form.appendChild(
-    createProfileField(
+    createFieldElements(
       "description",
-      null,
-      "p",
-      "textarea",
+      "p", // Read: <p>
+      "textarea", // Edit: <textarea>
       entity.description || "",
       {
-        readClass: "profile-description",
-        editClass: "profile-description",
+        readClass: "profile-description-read", // Add a class for min-height
         placeholder: "Describe the entity...",
       }
     )
   );
 
-  // --- Sections (Read/Edit) ---
+  // --- (REFACTORED) Sections (Read/Edit) ---
   const secWrap = document.createElement("div");
-  secWrap.className = "profile-fields";
-  
-  // Iterate over the new definitions object
+  secWrap.className = "profile-fields"; // Just a wrapper
+
   Object.entries(SECTION_DEFINITIONS).forEach(([key, def]) => {
-    secWrap.appendChild(
-      createProfileField(
-        key,                  // The field key (e.g., 'forever')
-        def.label,            // The main label (e.g., 'Forever')
-        "div",                // Read element
-        "textarea",           // Edit element
-        entity.sections?.[key] || "", // The value
+    // This is the standard Pico.css form group structure
+    const fieldDiv = document.createElement("div");
+
+    // 1. Create the Label with <small> helper text
+    const label = document.createElement("label");
+    label.setAttribute("for", `form-field-${key}`);
+    label.textContent = def.label;
+
+    const sublabel = document.createElement("small");
+    sublabel.textContent = def.sublabels[type] || "";
+    label.appendChild(document.createElement("br")); // Pico convention
+    label.appendChild(sublabel);
+
+    fieldDiv.appendChild(label);
+
+    // 2. Create the read/edit elements
+    fieldDiv.appendChild(
+      createFieldElements(
+        key,
+        "div", // Read: <div>
+        "textarea", // Edit: <textarea>
+        entity.sections?.[key] || "",
         {
-          readClass: "profile-field-text",
-          editClass: "profile-field-text",
-          // Here is the magic:
-          sublabel: def.sublabels[type] || "" // Pass the correct sub-label
+          readClass: "profile-field-text-read", // Class for read-only styling
         }
       )
     );
+
+    secWrap.appendChild(fieldDiv);
   });
-  
+
   form.appendChild(secWrap);
   content.appendChild(form);
   rightCol.appendChild(content);
@@ -433,43 +403,48 @@ export async function renderProfilePage(type, id) {
     setProfileLayoutSizing?.(0.35);
     if (!profileResizeBound) {
       profileResizeBound = true;
-      window.addEventListener("resize", debounce(() => setProfileLayoutSizing?.(0.35), PROFILE_RESIZE_DEBOUNCE_MS));
+      window.addEventListener(
+        "resize",
+        debounce(
+          () => setProfileLayoutSizing?.(0.35),
+          PROFILE_RESIZE_DEBOUNCE_MS
+        )
+      );
     }
-  } catch { /* noop */ }
-  
-  // Set initial top bar state
+  } catch {
+    /* noop */
+  }
+
   setTopBarRight(isEditing ? "form" : "profile");
 
   // --- 5. Event Handlers ---
-  const backBtn = document.querySelector("#profile-back"); // On 'profile' bar
-  const editBtn = document.querySelector("#profile-edit"); // On 'profile' bar
-  const copyBtn = document.querySelector("#profile-copy"); // On 'profile' bar
-  
-  const cancelBtn = document.querySelector("#form-cancel"); // On 'form' bar
-  const saveBtn = document.querySelector("#form-save"); // On 'form' bar
-  const deleteBtn = document.querySelector("#form-delete"); // On 'form' bar
+  const backBtn = document.querySelector("#profile-back");
+  const editBtn = document.querySelector("#profile-edit");
+  const copyBtn = document.querySelector("#profile-copy");
+  const cancelBtn = document.querySelector("#form-cancel");
+  const saveBtn = document.querySelector("#form-save");
+  const deleteBtn = document.querySelector("#form-delete");
 
-  // --- State Toggling Function ---
   function setEditMode(editing) {
     isEditing = editing;
-    screen.classList.toggle('is-editing', isEditing);
-    setTopBarRight(isEditing ? 'form' : 'profile');
-
-    // If we just entered edit mode, focus the name input
+    screen.classList.toggle("is-editing", isEditing);
+    setTopBarRight(isEditing ? "form" : "profile");
     if (isEditing) {
       screen.querySelector('[data-edit-field="name"]')?.focus();
     }
   }
 
-  // --- Button Handlers ---
-  
-  // (Profile Bar)
   if (backBtn) {
-    replaceEventHandler(backBtn, "click", () => goBackWithFallback("#storyboard", "#storyboard", router), "_backHandler");
+    replaceEventHandler(
+      backBtn,
+      "click",
+      () => goBackWithFallback("#storyboard", "#storyboard", router),
+      "_backHandler"
+    );
   }
-  
+
   if (editBtn) {
-    editBtn.hidden = entity.isPremade || id === 'new';
+    editBtn.hidden = entity.isPremade || id === "new";
     replaceEventHandler(editBtn, "click", () => setEditMode(true), "_editHandler");
   }
 
@@ -479,8 +454,9 @@ export async function renderProfilePage(type, id) {
       const newEntity = await copyEntity?.(type, id);
       if (newEntity) {
         window.ephemeralEntity = newEntity;
-        // Navigate to the new profile page, which will start in 'edit' mode
-        router.navigate(`#profile/${type}/new?clone=true&return=#profile/${type}/${id}`);
+        router.navigate(
+          `#profile/${type}/new?clone=true&return=#profile/${type}/${id}`
+        );
       } else {
         console.error("Copy operation failed or returned no entity.");
       }
@@ -488,28 +464,22 @@ export async function renderProfilePage(type, id) {
     replaceEventHandler(copyBtn, "click", copyHandler, "_copyHandler");
   }
 
-  // (Form Bar)
   if (cancelBtn) {
     const cancelHandler = (e) => {
       e?.preventDefault();
       if (id === "new") {
-        // If it was a new entity, just go back
         navigateBackOrReturnDefault(undefined, router);
       } else {
-        // If editing, just toggle view. (We need to reset fields here)
-        // For simplicity, we'll just re-render the whole page
         router.navigate(`#profile/${type}/${id}`);
-        // A more advanced way would be to reset form fields to 'entity' values
-        // setEditMode(false); 
       }
     };
     replaceEventHandler(cancelBtn, "click", cancelHandler, "_cancelHandler");
   }
-  
+
   if (deleteBtn) {
-    const isDeletable = id !== 'new' && entity.isCustom === 1;
+    const isDeletable = id !== "new" && entity.isCustom === 1;
     deleteBtn.hidden = !isDeletable;
-    
+
     const deleteHandler = async () => {
       if (isDeletable && confirm("Delete this item?")) {
         try {
@@ -533,7 +503,7 @@ export async function renderProfilePage(type, id) {
         description: escapeHtml(form.elements.description.value.trim()),
         imageUrl: escapeHtml(imageInput.value.trim()),
         signatureColour: escapeHtml(paletteSelect.value.trim()),
-        tags: entity.tags || [], // Tags are not currently editable in this form
+        tags: entity.tags || [],
         sections: {
           forever: escapeHtml(form.elements.forever.value.trim()),
           past: escapeHtml(form.elements.past.value.trim()),
@@ -548,21 +518,19 @@ export async function renderProfilePage(type, id) {
             throw new Error("Please enter a name for this entity.");
           }
 
-          const originalEntity = (id !== 'new') ? await entities.get(type, id) : null;
+          const originalEntity =
+            id !== "new" ? await entities.get(type, id) : null;
           const isEditingPremade = originalEntity?.isPremade;
           const entityToSave =
             id === "new" || isEditingPremade ? data : { ...data, id };
-          
+
           const saved = await entities.upsert(type, entityToSave);
-          
-          // If it was a new entity, navigate to its new URL
-          if (id === 'new') {
+
+          if (id === "new") {
             router.navigate(`#profile/${type}/${saved.id}`);
           } else {
-            // Otherwise, just exit edit mode
-            entity = saved; // Update local entity data
+            entity = saved;
             setEditMode(false);
-            // We'll re-render to be safe, though a lighter update is possible
             renderProfilePage(type, saved.id);
           }
         },
@@ -605,5 +573,5 @@ async function copyEntity(type, id) {
  */
 export async function renderForm(type, id) {
   console.warn("renderForm() is deprecated. Navigating to profile page.");
-  router.navigate(`#profile/${type}/${id || 'new'}`);
+  router.navigate(`#profile/${type}/${id || "new"}`);
 }
