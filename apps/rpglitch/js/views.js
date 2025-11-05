@@ -129,12 +129,38 @@ export const router = {
 // ============================================================================
 
 let profileResizeBound = false;
-const SECTIONS = [
-  ["Forever", "forever"],
-  ["Past", "past"],
-  ["Present", "present"],
-  ["Future", "future"],
-];
+
+// NEW: Define all section labels and sub-labels in one place
+const SECTION_DEFINITIONS = {
+  forever: {
+    label: "Forever",
+    sublabels: {
+      character: "Core persona & permanent characteristics.",
+      world: "Eternal truths, core concepts, & unbreakable laws."
+    }
+  },
+  past: {
+    label: "Past",
+    sublabels: {
+      character: "Biography, key memories, & backstory.",
+      world: "History, ancient lore, & formative events."
+    }
+  },
+  present: {
+    label: "Present",
+    sublabels: {
+      character: "Current situation, motivations, & relationships.",
+      world: "Current state, major factions, & ongoing conflicts."
+    }
+  },
+  future: {
+    label: "Future",
+    sublabels: {
+      character: "Goals, prophecies, & potential plot hooks.",
+      world: "Impending events, prophecies, & story seeds."
+    }
+  }
+};
 
 /**
  * Creates a field for the profile page, including both read and edit elements.
@@ -144,6 +170,7 @@ const SECTIONS = [
  * @param {string} editElement - The tag name for the edit element (e.g., "input", "textarea")
  * @param {string} value - The current value for the field
  * @param {object} options - Additional options
+ * @param {string} options.sublabel - Helper text to display below the label.
  * @param {string} options.readClass - CSS class for the read element
  * @param {string} options.editClass - CSS class for the edit element
  * @param {string} options.placeholder - Placeholder for the edit element
@@ -181,10 +208,24 @@ function createProfileField(id, labelText, readElement, editElement, value, opti
     const field = document.createElement("div");
     field.className = "profile-field";
 
+    // Create a wrapper for the label and new sub-label
+    const labelWrapper = document.createElement("div");
+    labelWrapper.className = "profile-field-label-wrapper";
+
     const label = document.createElement("label");
     label.className = "profile-field-label";
     label.setAttribute("for", `form-field-${id}`);
     label.textContent = labelText;
+    
+    labelWrapper.appendChild(label);
+
+    // Add the sublabel if it exists
+    if (options.sublabel) {
+      const sublabelEl = document.createElement("small");
+      sublabelEl.className = "profile-field-sublabel";
+      sublabelEl.textContent = options.sublabel;
+      labelWrapper.appendChild(sublabelEl);
+    }
     
     // The edit element needs a wrapper to match the grid layout
     const editWrapper = document.createElement("div");
@@ -192,7 +233,8 @@ function createProfileField(id, labelText, readElement, editElement, value, opti
     editWrapper.dataset.editField = id; // Add data-attribute to wrapper
     editWrapper.appendChild(editEl);
 
-    field.append(label, readEl, editWrapper);
+    // Append the new labelWrapper instead of the old label
+    field.append(labelWrapper, readEl, editWrapper); 
     return field;
   } else {
     // For simple fields like "name" and "description"
@@ -360,17 +402,20 @@ export async function renderProfilePage(type, id) {
   const secWrap = document.createElement("div");
   secWrap.className = "profile-fields";
   
-  SECTIONS.forEach(([label, key]) => {
+  // Iterate over the new definitions object
+  Object.entries(SECTION_DEFINITIONS).forEach(([key, def]) => {
     secWrap.appendChild(
       createProfileField(
-        key,
-        label,
-        "div", // Read element
-        "textarea", // Edit element
-        entity.sections?.[key] || "",
+        key,                  // The field key (e.g., 'forever')
+        def.label,            // The main label (e.g., 'Forever')
+        "div",                // Read element
+        "textarea",           // Edit element
+        entity.sections?.[key] || "", // The value
         {
           readClass: "profile-field-text",
           editClass: "profile-field-text",
+          // Here is the magic:
+          sublabel: def.sublabels[type] || "" // Pass the correct sub-label
         }
       )
     );

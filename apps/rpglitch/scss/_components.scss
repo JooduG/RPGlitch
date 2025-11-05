@@ -70,13 +70,6 @@
   color: var(--pico-primary);
 }
 
-.form-tag-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
 .danger,
 .danger:active,
 .danger:hover {
@@ -384,8 +377,8 @@ body.chin-open .chin-focus-ring {
 .profile-right-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: stretch;
+  text-align: left;
 }
 
 .profile-fields {
@@ -407,9 +400,25 @@ body.chin-open .chin-focus-ring {
   }
 }
 
+.profile-field-label-wrapper {
+  // This new wrapper holds the label and sub-label
+  display: flex;
+  flex-direction: column;
+  justify-content: center; // Vertically center the text block
+  text-align: right;
+  gap: 0.25rem; // A small space between label and sub-label
+}
+
 .profile-field-label {
   font-weight: bold;
   text-align: right;
+}
+
+.profile-field-sublabel {
+  font-size: 0.85em;
+  color: var(--pico-muted-color);
+  font-style: italic;
+  font-weight: normal; // Ensure it's not bold
 }
 
 #chat-screen-container {
@@ -783,50 +792,6 @@ body.chin-open .chin-focus-ring {
 .chin-search button {
   height: 2.5rem;
   padding-block: 0.5rem;
-}
-
-.form-view {
-  // Overrides to make form fields look like static text
-  .profile-name,
-  .profile-description,
-  .profile-field-text {
-    background-color: var(--pico-form-element-background-color);
-    border: var(--pico-form-element-border-width) solid
-      var(--pico-form-element-border-color);
-    padding: var(--pico-form-element-padding);
-
-    &:focus {
-      --pico-box-shadow: 0 0 0 var(--pico-outline-width)
-        var(--pico-primary-focus);
-    }
-  }
-
-  .profile-name {
-    // Mimic h1
-    font-size: var(--pico-font-size-h1);
-    font-weight: var(--pico-font-weight-h1);
-    line-height: var(--pico-line-height-h1);
-    margin-bottom: var(--pico-spacing);
-  }
-
-  .profile-description {
-    // Mimic p
-    font-size: var(--pico-font-size);
-    margin-bottom: var(--pico-spacing);
-    min-height: 10rem;
-  }
-
-  // Keep the grid layout from profile view for visual consistency
-  .profile-field {
-    // Apply the profile view's grid layout for visual consistency
-    grid-template-columns: 1fr 2fr;
-    gap: 1rem;
-  }
-
-  .profile-field-text {
-    width: 100%;
-    min-height: 5rem;
-  }
 }
 
 /* ==========================================================================
