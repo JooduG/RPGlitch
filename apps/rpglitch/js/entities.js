@@ -178,6 +178,9 @@ function getContrast(color) {
  * // Returns: 'hsl(123, 40%, 60%)' (deterministic based on name/tags)
  */
 function getBrand(entity = {}) {
+  if (!entity) {
+    return getDeterministicColor("");
+  }
   if (entity.signatureColour && entity.signatureColour !== 'default') {
     return `var(--brand-${entity.signatureColour})`;
   }
