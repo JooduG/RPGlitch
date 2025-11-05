@@ -9,7 +9,7 @@ export function safeDecodeURIComponent(str) {
   try {
     return decodeURIComponent(str);
   } catch (e) {
-    console.error('Failed to decode URI component:', str, e);
+    console.error("Failed to decode URI component:", str, e);
     return str;
   }
 }

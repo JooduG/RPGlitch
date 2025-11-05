@@ -1,83 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ImageGlitch</title>
+    <!--STYLES will be injected here by the build process via JS-->
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ImageGlitch</title>
-  <!--STYLES will be injected here by the build process via JS-->
-  <script>
-    // Expose Perchance plugins to window BEFORE any other scripts run
-    window.pluginTextToImage = image;
-    window.pluginAi = ai;
-    window.pluginRememberPlugin = r;
-    console.log('[ImageGlitch] Plugins exposed via HTML script tag:', {
-      pluginTextToImage: typeof window.pluginTextToImage,
-      pluginAi: typeof window.pluginAi,
-      pluginRememberPlugin: typeof window.pluginRememberPlugin
-    });
-  </script>
-</head>
+  <body>
+    <!-- Perchance plugins will auto-expose after initialization -->
+    <!-- We poll for them in waitForPlugins() -->
+    <header class="container">
+      <nav id="top-bar" class="top-bar">
+        <div id="top-bar-left">
+          <button
+            id="generate-button"
+            class="primary"
+            title="Generate images from your prompt">
+            Generate Images
+          </button>
+          <select id="aiMagicSelect">
+            <option value="placeholder" selected disabled>AI Magic</option>
+            <option value="summon">Generate Images</option>
+            <option value="scribe">Refine Prompt</option>
+            <option value="chaos">Embrace the Chaos</option>
+            <option value="transfigure">Instruct AI</option>
+          </select>
+        </div>
 
-<body>
-  <!-- Perchance plugins will auto-expose after initialization -->
-  <!-- We poll for them in waitForPlugins() -->
-  <header class="container">
-    <nav id="top-bar" class="top-bar">
-
-      <div id="top-bar-left">
-        <button id="generate-button" class="primary" title="Generate images from your prompt">
-          Generate Images
-        </button>
-        <select id="aiMagicSelect">
-          <option value="placeholder" selected disabled>AI Magic</option>
-          <option value="summon">Generate Images</option>
-          <option value="scribe">Refine Prompt</option>
-          <option value="chaos">Embrace the Chaos</option>
-          <option value="transfigure">Instruct AI</option>
-        </select>
-      </div>
-
-      <!-- Top Bar Right -->
-      <div id="top-bar-right">
-        <select id="numImagesSelect" title="Number of image blocks to generate">
-          <option value="0" selected>No Images</option>
-          <option value="1">1 Image Block</option>
-          <option value="2">2 Image Blocks</option>
-          <option value="3">3 Image Blocks</option>
-          <option value="4">4 Image Blocks</option>
-          <option value="5">5 Image Blocks</option>
-          <option value="6">6 Image Blocks</option>
-          <option value="7">7 Image Blocks</option>
-          <option value="8">8 Image Blocks</option>
-          <option value="9">9 Image Blocks</option>
-          <option value="10">10 Image Blocks</option>
-        </select>
-        <input type="text" id="imgSeed" placeholder="Seed (Leave Empty for Random)" value=""
-          title="Use the same number to get the same results again" />
-        <div class="creativity-slider">
-          <input type="range" id="masterCreativitySlider" min="0" max="10" step="1" data-tooltip="Creativity: 4"
-            title="Higher values increase Guidance Scale and lower Temperature" />
+        <!-- Top Bar Right -->
+        <div id="top-bar-right">
+          <select
+            id="numImagesSelect"
+            title="Number of image blocks to generate">
+            <option value="0" selected>No Images</option>
+            <option value="1">1 Image Block</option>
+            <option value="2">2 Image Blocks</option>
+            <option value="3">3 Image Blocks</option>
+            <option value="4">4 Image Blocks</option>
+            <option value="5">5 Image Blocks</option>
+            <option value="6">6 Image Blocks</option>
+            <option value="7">7 Image Blocks</option>
+            <option value="8">8 Image Blocks</option>
+            <option value="9">9 Image Blocks</option>
+            <option value="10">10 Image Blocks</option>
+          </select>
+          <input
+            type="text"
+            id="imgSeed"
+            placeholder="Seed (Leave Empty for Random)"
+            value=""
+            title="Use the same number to get the same results again" />
+          <div class="creativity-slider">
+            <input
+              type="range"
+              id="masterCreativitySlider"
+              min="0"
+              max="10"
+              step="1"
+              data-tooltip="Creativity: 4"
+              title="Higher values increase Guidance Scale and lower Temperature" />
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main class="container">
+      <div class="prompt-container">
+        <div class="prompt-area">
+          <textarea
+            id="promptInput"
+            rows="2"
+            placeholder="Enter your prompt here... then add some AI Magic if you'd like."></textarea>
+          <small
+            id="prompt-length-warning"
+            class="prompt-length-warning"></small>
+        </div>
+        <div id="instructionsPanel" style="display: none">
+          <textarea
+            id="instructionInput"
+            rows="2"
+            placeholder="Enter specific instructions for the AI, for example: Change 'landscape' to 'seascape'..."></textarea>
         </div>
       </div>
-    </nav>
-  </header>
-  <main class="container">
-    <div class="prompt-container">
-      <div class="prompt-area">
-        <textarea id="promptInput" rows="2"
-          placeholder="Enter your prompt here... then add some AI Magic if you'd like."></textarea>
-        <small id="prompt-length-warning" class="prompt-length-warning"></small>
-      </div>
-      <div id="instructionsPanel" style="display: none">
-        <textarea id="instructionInput" rows="2"
-          placeholder="Enter specific instructions for the AI, for example: Change 'landscape' to 'seascape'..."></textarea>
-      </div>
-    </div>
-    <div id="output" class="output-area"></div>
-  </main>
+      <div id="output" class="output-area"></div>
+    </main>
 
-  <!--SCRIPTS will be injected here by the build process-->
-</body>
-
+    <!--SCRIPTS will be injected here by the build process-->
+  </body>
 </html>

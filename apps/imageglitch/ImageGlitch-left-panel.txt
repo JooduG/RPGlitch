@@ -3,23 +3,26 @@ $meta
   description = Minimalist Text to ImageGlitch Generator
 
 // --- Plugin Imports ---
-image = {import:text-to-image-plugin}
-ai = {import:ai-text-plugin}
-r = {import:remember-plugin}
+// Import plugins with the prefixed names that index.js expects
+pluginTextToImage = {import:text-to-image-plugin}
+pluginAi = {import:ai-text-plugin}
+pluginRememberPlugin = {import:remember-plugin}
 
 // This list runs on load and saves the evaluated instructions to the remember-plugin
 init
   [storeInstructionsToMemory]
 
 storeInstructionsToMemory
-  [r.set("aiScribeInstruction", `[aiScribeInstruction]`)]
-  [r.set("aiChaosInstruction", `[aiChaosInstruction]`)]
-  [r.set("aiTransfigureInstruction", `[aiTransfigureInstruction]`)]
+  // Use the correct plugin variable name 'pluginRememberPlugin'
+  [pluginRememberPlugin.set("aiScribeInstruction", `[aiScribeInstruction]`)]
+  [pluginRememberPlugin.set("aiChaosInstruction", `[aiChaosInstruction]`)]
+  [pluginRememberPlugin.set("aiTransfigureInstruction", `[aiTransfigureInstruction]`)]
 
-// Output a script block that exposes plugins
-// JavaScript code that runs in Perchance evaluation context
+// Expose plugins to the Right Panel (window.parent)
 exposePluginsToWindow
-  <script>window.image=image;window.ai=ai;window.r=r;console.log('[Left-Panel]',{image:typeof image,ai:typeof ai,r:typeof r});</script>
+  [window.parent.pluginTextToImage = pluginTextToImage, ""]
+  [window.parent.pluginAi = pluginAi, ""]
+  [window.parent.pluginRememberPlugin = pluginRememberPlugin, ""]
 
 doggo
   imgSeed = ""
@@ -35,7 +38,6 @@ masterCreativity = 4
 aiScribeInstruction
   You are the "Holistic Prompt Architect" — an expert assistant that intelligently improves user prompts through convergent refinement.
   Your core goal is to take a simple idea and make it better by holistically filling in descriptive gaps.
-
   PROCESS:
   1. RECEIVE: Accept the user's base prompt (e.g., "a knight")
   2. ANALYZE: Deconstruct the prompt into its core elements, identifying the Subject & Setting
@@ -47,7 +49,9 @@ aiScribeInstruction
     - Technical Details: [technicalDetails.selectOne]
     - Other Additional Elements: [additionalElements.selectOne]
   4. IDENTIFY GAPS: Determine which categories are lacking, vague, or missing from the user's base prompt
-  5. HOLISTIC SELECTION: For each identified gap, intelligently select the MOST SUITABLE and THEMATICALLY CONSISTENT term from the corresponding category. For example, for "a knight," choose "fantasy realism" over "cyberpunk" for Artistic Style
+  5. HOLISTIC SELECTION: 
+  For each identified gap, intelligently select the MOST SUITABLE and THEMATICALLY CONSISTENT term from the corresponding category.
+  For example, for "a knight," choose "fantasy realism" over "cyberpunk" for Artistic Style
   6. PRESERVE INTENT: Keep the user's original Subject & Setting as the master vision
   7. ENHANCE: Automatically inject quality-enhancing keywords: [aiCoreQuality.selectUnique(4).join(', ')], [aiFlavorEnhancers.selectUnique(3).join(', ')]
   8. SYNTHESIZE: Combine the user's original prompt, the holistically-selected terms, and the quality keywords into a single, cohesive, comma-separated string
@@ -56,6 +60,7 @@ aiScribeInstruction
   IMPORTANT RULES:
   - Do NOT use numerical weighting syntax (e.g., 'word:1.2')
   - Make the prompt 100% affirmative — avoid negative phrasing (e.g., 'no hats', 'not blurry')
+  
   - Describe what IS desired
   - You may use variant syntax '{Option A|Option B|Option C}' for creative variations
   - If the user's prompt contains NSFW elements, use explicit language and exaggerate NSFW aspects
@@ -66,7 +71,6 @@ aiScribeInstruction
 aiChaosInstruction
   You are the "Mad Prompt Scientist" — providing creative serendipity and mutation through divergent transformation.
   Your core goal is to take a user's prompt and spark new, unexpected ideas by introducing random elements.
-
   PROCESS:
   1. RECEIVE: Accept the user's base prompt
   2. HANDLE EMPTY CASE: If the user's prompt is EMPTY, generate a completely new random prompt by selecting one or more terms for EVERY category below
@@ -76,10 +80,12 @@ aiChaosInstruction
     - Composition & Camera Perspective: [composition.selectOne]
     - Lighting: [lighting.selectOne]
     - Color Palette: [colorPalettes.selectOne]
+ 
     - Mood & Atmosphere: [mood.selectOne]
     - Technical Details: [technicalDetails.selectOne]
     - Other Additional Elements: [additionalElements.selectOne]
-  5. THE CHAOS TWIST: ALWAYS replace (reroll) at least ONE category with a new random keyword from its list, EVEN IF the user has described it well. This is the key mutation step
+  5. THE CHAOS TWIST: ALWAYS replace (reroll) at least ONE category with a new random keyword from its list, EVEN IF the user has described it well.
+  This is the key mutation step
   6. ENHANCE: Auto-inject a small, RANDOM set of quality-enhancing keywords: [aiCoreQuality.selectOne], [aiFlavorEnhancers.selectUnique(2).join(', ')]
   7. SYNTHESIZE: Combine the (potentially modified) user prompt, the new random terms, and the chaos-injected keywords into a new, mutated, cohesive prompt
   8. RETURN: Output ONLY this new, mutated prompt string
@@ -90,7 +96,8 @@ aiChaosInstruction
   - Surprise the user with imaginative, disparate elements woven together
   - If conflicting information appears, embrace the paradox
 
-  IMPORTANT RULES:
+  IMPORTANT 
+  RULES:
   - Do NOT use numerical weighting syntax
   - Make the prompt 100% affirmative
   - You may use variant syntax '{Option A|Option B|Option C}' for extra chaos
@@ -102,7 +109,6 @@ aiChaosInstruction
 aiTransfigureInstruction
   You are the "Prompt Modification Specialist" — providing precise, user-directed modification of prompts.
   Your core goal is to surgically alter a prompt to match natural language instructions.
-
   PROCESS:
   1. RECEIVE TWO INPUTS:
     - Input A (Base Prompt): The original user prompt
@@ -112,6 +118,7 @@ aiTransfigureInstruction
   4. HANDLE NEGATION: Convert any negative phrasing (e.g., "no hats," "not red") into 100% affirmative descriptions (e.g., "a car without a spoiler," "a blue car")
   5. RETURN: Output ONLY the new, surgically-modified prompt string
 
+  
   IMPORTANT RULES:
   - Do NOT use numerical weighting syntax (e.g., 'word:1.2')
   - Make the prompt 100% affirmative — avoid negative phrasing
@@ -125,7 +132,8 @@ aiTransfigureInstruction
 
 aiCoreQuality
   masterpiece, world-class masterpiece, award-winning quality
-  impeccable attention to detail, high detail, ultra-intricate detail
+  impeccable attention 
+  to detail, high detail, ultra-intricate detail
   8K ultra-high resolution, 45 megapixels, ultra high res, huge file size
   high dynamic range, HDR, 8k resolution
   lifelike textures and materials, photorealistic textures
@@ -138,7 +146,8 @@ aiFlavorEnhancers
   volumetric lighting, iridescent moody lighting, strong magical ambient glow
   larger-than-life color palette, vibrant color grading, high-contrast color grading
   thought-provoking scale, dimensional depth of field
-  laser-sharp focus, razor-sharp intricate attention, sharp lines creating depth of field
+  laser-sharp focus, razor-sharp 
+  intricate attention, sharp lines creating depth of field
   action enhancing motion blur, soft motion blur, natural film grain
   atmospheric special effects, light film grain, faint lens flares, pronounced lens flares
   trending on ArtStation, award-winning, innovative technical excellence
@@ -156,7 +165,8 @@ artisticStyles
   digital art, ukiyo-e
   fashion illustration, gothic, impasto
   graffiti, pop art
-  low poly, pixel art, pixelated
+  low poly, 
+  pixel art, pixelated
   magazine cover, vintage comic
   stained glass, steampunk
   photorealism, hyper-realistic, lifelike, photo-realistic, true-to-life, dreamlike realism
@@ -175,7 +185,8 @@ lighting
   neon glow, CRT screen glow
   overcast, soft highlights
   natural light, soft warm lighting, deep inviting shadows
-  cinematic lighting, dramatic moody lighting, volumetric light
+  cinematic lighting, dramatic moody 
+  lighting, volumetric light
   dramatic moonlight casting long shadows
   professional lighting, photon mapping, physically-based rendering
   directional and atmospheric lighting, emphasizing mood and drama
@@ -193,7 +204,8 @@ colorPalettes
   pastel pinks and purples, pastel
   primary colors, rainbow
   spring palette, summer palette
-  balanced palette, realistic skin tones, color palette features deep darks against bright whites
+  balanced palette, realistic skin tones, color palette features deep 
+  darks against bright whites
 
 composition
   asymmetry, rule of thirds, dynamic diagonal
@@ -211,7 +223,8 @@ composition
   layered depth, negative space
   portrait orientation, aesthetically pleasing image
   world class composition, clear focal point, impressive composition
-  captured in a single vivid moment, aesthetically-pleasing-world-class-masterpiece-image
+  captured in a 
+  single vivid moment, aesthetically-pleasing-world-class-masterpiece-image
   immersive intimate atmosphere, raw sexual energy, gay-masculine-atmosphere, intensely homoerotic
   
 mood
@@ -233,11 +246,15 @@ mood
   climactic scene, immersive intimate atmosphere, homoerotic vibe very suggestive
 
 technicalDetails
-  3D render, 35mm film grain, 4K resolution, 8K resolution, AI upscaling, alpha channel, ambient occlusion, analog emulation, analog process, animated gif, anti-aliasing, asset management, background removal, ball mill, batch processing, beadwork, bloom effect, blurring, bokeh background, borderless print, brazing, brushwork, bump mapping, burnishing, camera shake, camera simulation, casting, cel shading, checkerboard pattern, chromatic aberration, chromatic shift, claymation, cloud rendering, collage, color banding, color correction, color grading, color inversion, color splash, colorization, composited layers, compositing, contrast stretching, controlled marks, contour mapping, copperplate, CPU rendering, crystalline materials, cyanotype process, depth of field, digital grain, double exposure, dynamic range, edge detection, embroidery, enamel finish, environment mapping, exposure blending, film grain, fisheye lens, focus stacking, frame blending, fractal detail, fresnel effect, full spectrum, fusion rendering, glitch effect, grain overlay, halftone pattern, hand-drawn overlay, high dynamic range, holographic effect, infrared imaging, isometric projection, layer masking, lens distortion, lens flare, long exposure, low poly, macro lens, matte finish, metallic texture, micro-contrast, motion blur, multi-pass rendering, noise reduction, occlusion culling, optical flow, orthographic view, panorama stitching, parallax effect, particle simulation, pattern overlay, photobashing, photogrammetry, pixel sorting, polygon reduction, post-processing, procedural texture, ray tracing, real-time rendering, reflection mapping, refraction, render pass, retro filter, scanline effect, screen space reflections, shading network, sharpening, silkscreen, simulation, sky replacement, smudge tool, solarization, stereoscopic 3D, subsurface scattering, super-resolution, tilt-shift, time-lapse, tonal mapping, toon shading, transparency mask, ultra-wide angle, UV mapping, vectorization, vignette, virtual camera, volumetric lighting, watermark, wireframe overlay, z-depth pass, ultra-detailed, high texture, smooth, rough, metallic, soft focus, grainy, crisp lines
+  3D render, 35mm film grain, 4K resolution, 8K resolution, AI upscaling, alpha channel, ambient occlusion, analog emulation, 
+  analog process, animated gif, anti-aliasing, asset management, background removal, ball mill, batch processing, beadwork, bloom effect, blurring, bokeh background, borderless print, brazing, brushwork, bump mapping, burnishing, camera shake, camera simulation, casting, cel shading, checkerboard pattern, chromatic aberration, chromatic shift, claymation, cloud rendering, collage, color banding, color correction, color grading, color inversion, color splash, colorization, composited layers, compositing, contrast stretching, controlled marks, contour mapping, copperplate, CPU rendering, crystalline materials, cyanotype process, depth of field, digital grain, double exposure, dynamic range, edge detection, embroidery, enamel finish, environment mapping, exposure blending, film grain, fisheye lens, focus stacking, frame blending, fractal detail, fresnel effect, 
+  full spectrum, fusion rendering, glitch effect, grain overlay, halftone pattern, hand-drawn overlay, high dynamic range, holographic effect, infrared imaging, isometric projection, layer masking, lens distortion, lens flare, long exposure, low poly, macro lens, matte finish, metallic texture, micro-contrast, motion blur, multi-pass rendering, noise reduction, occlusion culling, optical flow, orthographic view, panorama stitching, parallax effect, particle simulation, pattern overlay, photobashing, photogrammetry, pixel sorting, polygon reduction, post-processing, procedural texture, ray tracing, real-time rendering, reflection mapping, refraction, render pass, retro filter, scanline effect, screen space reflections, shading network, sharpening, silkscreen, simulation, sky replacement, smudge tool, solarization, stereoscopic 3D, subsurface scattering, super-resolution, tilt-shift, time-lapse, 
+  tonal mapping, toon shading, transparency mask, ultra-wide angle, UV mapping, vectorization, vignette, virtual camera, volumetric lighting, watermark, wireframe overlay, z-depth pass, ultra-detailed, high texture, smooth, rough, metallic, soft focus, grainy, crisp lines
   captured by professional camera, high-end camera shot, Canon EOS R5, RF 50mm f/1.2L USM lens, RAW photo, candid hidden camera perspective, digital camera
   natural skin pores, realistic blemishes, sweat glistening skin, anatomically correct, lifelike imperfect textures, natural healthy anatomy
   35mm film grain with analog emulation, showing natural skin pores and realistic blemishes, hyper-detailed skin texture
-  photogrammetry rendering with ambient occlusion, anti-aliasing, and a sharp focus on metallic textures
+  photogrammetry rendering with ambient occlusion, anti-aliasing, and a sharp 
+  focus on metallic textures
   low-poly art style with isometric projection, cel shading, and a high-contrast color splash effect
   macro lens with depth of field, tilt-shift effect, and intricate fractal detail
   ray tracing, physically-based rendering, and full spectrum dynamic range
@@ -253,6 +270,7 @@ additionalElements
   an enchanted forest
   an elf shooting an arrow
   an orc charging
+ 
   anaglyph 3D
   ancient ruins
   animated gif
@@ -286,7 +304,8 @@ additionalElements
   dreamcatcher
   drone flying
   falling feathers
-  floating lanterns
+  floating 
+  lanterns
   futuristic cityscape
   geometric shapes
   glowing mushrooms
@@ -319,7 +338,8 @@ additionalElements
   steampunk goggles
   strawberry shortcake
   sword in stone
-  tangled vines
+  tangled 
+  vines
   teacup
   television static
   toys
