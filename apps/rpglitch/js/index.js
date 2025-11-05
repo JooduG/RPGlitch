@@ -1619,12 +1619,11 @@ export function _attachContentChinActions() {
     if (newButton) {
       newButton.addEventListener("click", () => {
         if (key === "stories") {
-          // No storyboard reset needed - cards update dynamically via router/state changes
           router.navigate("#storyboard");
           return;
         }
         if (key === "characters" || key === "worlds") {
-          router.navigate(`#form/${key.slice(0, -1)}/new`);
+          router.navigate(`#profile/${key.slice(0, -1)}/new`);
         }
       });
     }
@@ -1632,7 +1631,6 @@ export function _attachContentChinActions() {
     if (uploadTrigger && uploadInput) {
       uploadTrigger.addEventListener("click", () => uploadInput.click());
       uploadInput.addEventListener("change", async (e) => {
-        // <-- MADE ASYNC
         const file = e.target.files && e.target.files[0];
         if (!file) return;
 
@@ -1648,7 +1646,6 @@ export function _attachContentChinActions() {
 
         const reader = new FileReader();
         reader.onload = async (ev) => {
-          // <-- MADE ASYNC
           try {
             const text = ev.target.result;
 

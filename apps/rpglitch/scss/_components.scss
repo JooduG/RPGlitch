@@ -400,6 +400,11 @@ body.chin-open .chin-focus-ring {
   gap: 1rem;
   margin-bottom: 1rem;
   text-align: left;
+
+  [data-read-field] {
+    display: block;
+    width: 100%; // Ensure it fills the grid area
+  }
 }
 
 .profile-field-label {
@@ -712,18 +717,22 @@ body.chin-open .chin-focus-ring {
 
 .profile-description {
   color: var(--pico-color);
-  line-height: 1.6;
   margin: 1rem;
   background: rgb(0 0 0 / 20%);
   padding: 1rem;
   border-radius: var(--pico-radius);
   backdrop-filter: blur(10px);
+
+  // Mimic p
+  font-size: var(--pico-font-size);
+  line-height: var(--pico-line-height);
+  margin-bottom: var(--pico-spacing);
+  min-height: 8rem; // Give it some default height
 }
 
 .profile-name {
   text-wrap: balance;
   height: 3.5em;
-  line-height: 1.4em;
   overflow: visible;
   text-overflow: unset;
   white-space: normal;
@@ -747,6 +756,12 @@ body.chin-open .chin-focus-ring {
   background: transparent;
   box-shadow: none;
   position: relative;
+
+  // Mimic h1
+  font-size: var(--pico-h1-font-size);
+  font-weight: var(--pico-h1-font-weight);
+  line-height: var(--pico-h1-line-height);
+  margin-bottom: var(--pico-spacing); // Keep the h1's bottom margin
 }
 
 .profile-name:focus {
@@ -809,6 +824,77 @@ body.chin-open .chin-focus-ring {
   }
 
   .profile-field-text {
+    width: 100%;
+    min-height: 5rem;
+  }
+}
+
+/* ==========================================================================
+   Stateful Profile Page (Inline Editing)
+   ========================================================================== */
+
+// --- Base styles for shared elements ---
+.profile-name,
+.profile-description {
+  // Reset defaults to allow typography to be identical
+  margin: 0;
+  padding: 0;
+  border: var(--pico-form-element-border-width) solid transparent;
+  border-radius: var(--pico-radius);
+  width: 100%;
+  background: transparent;
+  font-family: var(--pico-font-family);
+}
+
+// --- Default (Read) Mode ---
+// Hide all 'edit' fields by default
+[data-edit-field],
+.profile-hero-overlay {
+  display: none;
+}
+
+// Show all 'read' fields by default
+[data-read-field] {
+  display: block;
+}
+
+.profile-field-text[data-read-field] {
+  min-height: 5rem; // Match the textarea
+  padding-top: var(--pico-form-element-padding); // Align text
+  white-space: pre-wrap; // Respect newlines from saved data
+}
+
+// --- Editing Mode (.is-editing) ---
+.is-editing {
+  // Hide 'read' fields
+  [data-read-field] {
+    display: none;
+  }
+
+  // Show 'edit' fields
+  [data-edit-field],
+  .profile-hero-overlay {
+    display: block;
+  }
+
+  // Style the inputs to look like inputs, but keep typography
+  .profile-name[data-edit-field],
+  .profile-description[data-edit-field],
+  .profile-field-text[data-edit-field] {
+    background-color: var(--pico-form-element-background-color);
+    border-color: var(--pico-form-element-border-color);
+    padding: var(--pico-form-element-padding);
+    color: var(
+      --pico-form-element-color
+    ); // Ensure text color is correct for forms
+
+    &:focus {
+      --pico-box-shadow: 0 0 0 var(--pico-outline-width)
+        var(--pico-primary-focus);
+    }
+  }
+
+  .profile-field-text[data-edit-field] {
     width: 100%;
     min-height: 5rem;
   }

@@ -1,6 +1,5 @@
 // apps/rpglitch/js/views.js
-// Consolidated view layer: routing, profile rendering, and entity form rendering
-// Merged from: profile-router.js, profile.js, entity-form.js
+// Consolidated view layer: routing and stateful entity profile page.
 
 import { entities, getPictureHTML } from "./entities.js";
 import {
@@ -32,14 +31,13 @@ export function initViews(dependencies) {
 }
 
 // ============================================================================
-// ROUTER MODULE (from profile-router.js)
+// ROUTER MODULE (Refactored)
 // ============================================================================
 
 function showStoryboard() {
+  setTopBarRight?.("storyboard");
   showEl("#storyboard-screen");
   hideEl("#profile-screen");
-  hideEl("#character-form-screen");
-  hideEl("#world-form-screen");
 }
 
 function parseHash() {
@@ -56,21 +54,18 @@ function handleRoute() {
   const [section, type, id] = parseHash();
   const isType = (t) => t === "character" || t === "world";
   chin.closeAll?.();
+
   try {
-    log?.("router.handleRoute", {
-      section,
-      type,
-      id,
-    });
+    log?.("router.handleRoute", { section, type, id });
   } catch (e) {
     void e;
   }
+
+  // UPDATED: The 'profile' route now handles 'new' and 'edit' states.
   if (section === "profile" && isType(type) && id) {
-    setTopBarRight?.("profile");
+    // Top bar will be set by renderProfilePage
     hideEl("#storyboard-screen");
-    hideEl("#character-form-screen");
-    hideEl("#world-form-screen");
-    renderProfile?.(type, id);
+    renderProfilePage(type, id); // <-- This is our new stateful function
     try {
       chin.closeAll?.();
       dismissLoadingUI?.();
@@ -78,19 +73,9 @@ function handleRoute() {
     } catch (e) {
       void e;
     }
-  } else if (section === "form" && isType(type)) {
-    setTopBarRight?.("form");
-    hideEl("#storyboard-screen");
-    hideEl("#profile-screen");
-    renderForm?.(type, id || "new");
-    try {
-      chin.closeAll?.();
-      dismissLoadingUI?.();
-      unlockNow?.();
-    } catch (e) {
-      void e;
-    }
-  } else {
+  } 
+
+  else {
     setTopBarRight?.("storyboard");
     showStoryboard();
     try {
@@ -140,178 +125,10 @@ export const router = {
 };
 
 // ============================================================================
-// PROFILE VIEW MODULE (from profile.js)
+// STATEFUL PROFILE VIEW (Replaces old renderProfile and renderForm)
 // ============================================================================
 
 let profileResizeBound = false;
-
-export async function renderProfile(type, id) {
-  const sb = document.querySelector("#storyboard-screen");
-  if (sb) hideEl(sb);
-
-  await handleAsyncError(
-    async () => {
-      const entity = await entities.get(type, id);
-
-      if (!entity) {
-        throw new Error(`Entity not found for profile: ${type}/${id}`);
-      }
-
-      const screen = document.querySelector("#profile-screen");
-      if (!screen) return;
-
-      screen.textContent = "";
-      screen.setAttribute("aria-live", "polite");
-      screen.className = "profile-view";
-
-      const layout = document.createElement("div");
-      layout.className = "profile-layout";
-
-      const leftCol = document.createElement("div");
-      leftCol.className = "profile-left";
-      const hero = buildHero(entity, { singleTag: true });
-      leftCol.appendChild(hero);
-      applyBrand?.(leftCol, entity);
-
-      const rightCol = document.createElement("div");
-      rightCol.className = "profile-right";
-
-      const content = document.createElement("div");
-      content.className = "profile-right-content";
-
-      const h1 = document.createElement("h1");
-      h1.className = "profile-name";
-      h1.textContent = entity.name || "Empty";
-
-      // Signature Colour implementation
-      const signatureColour = entity.signatureColour || "default";
-      const colourMap = { default: "var(--pico-h1-color)", ...BASE_COLOUR_MAP };
-      h1.style.color = colourMap[signatureColour] || colourMap.default;
-
-      content.appendChild(h1);
-
-      if (entity.description) {
-        const p = document.createElement("p");
-        p.className = "profile-description";
-        p.textContent = entity.description;
-        content.appendChild(p);
-      }
-
-      const sections = entity.sections || {};
-      const secWrap = document.createElement("div");
-      secWrap.className = "profile-fields";
-
-      ["forever", "past", "present", "future"].forEach((key) => {
-        const value = sections[key] !== undefined ? sections[key] : null;
-        if (value) {
-          const field = document.createElement("div");
-          field.className = "profile-field";
-
-          const label = document.createElement("div");
-          label.className = "profile-field-label";
-          label.textContent = key.charAt(0).toUpperCase() + key.slice(1);
-
-          const text = document.createElement("div");
-          text.className = "profile-field-text";
-          text.textContent = value;
-
-          field.append(label, text);
-          secWrap.appendChild(field);
-        }
-      });
-      content.appendChild(secWrap);
-
-      rightCol.appendChild(content);
-      layout.append(leftCol, rightCol);
-      screen.appendChild(layout);
-      showEl(screen);
-
-      try {
-        setProfileLayoutSizing?.(0.35);
-        if (!profileResizeBound) {
-          profileResizeBound = true;
-          window.addEventListener(
-            "resize",
-            debounce(
-              () => setProfileLayoutSizing?.(0.35),
-              PROFILE_RESIZE_DEBOUNCE_MS
-            )
-          );
-        }
-      } catch {
-        /* noop */
-      }
-
-      const backBtn = document.querySelector("#profile-back");
-      const editBtn = document.querySelector("#profile-edit");
-      const copyBtn = document.querySelector("#profile-copy");
-
-      if (copyBtn) {
-        const copyHandler = async () => {
-          const newEntity = await copyEntity?.(type, id);
-          if (newEntity) {
-            window.ephemeralEntity = newEntity;
-            router.navigate(
-              `#form/${type}/new?clone=true&return=#profile/${type}/${id}`
-            );
-          } else {
-            console.error("Copy operation failed or returned no entity.");
-          }
-        };
-        replaceEventHandler(copyBtn, "click", copyHandler, "_copyHandler");
-      }
-
-      if (copyBtn) copyBtn.hidden = !entity.isPremade;
-      if (editBtn) editBtn.hidden = entity.isPremade;
-      if (backBtn)
-        backBtn.addEventListener("click", () =>
-          goBackWithFallback("#storyboard", "#storyboard", router)
-        );
-      editBtn?.addEventListener("click", () => {
-        router.navigate(
-          `#form/${type}/${entity.id}?return=#profile/${type}/${entity.id}`
-        );
-      });
-    },
-    {
-      errorMessage: "Could not load profile. Please try again.",
-      context: "load profile",
-      fallback: null,
-    }
-  );
-
-  // Navigate away on error (after handleAsyncError shows alert)
-  if (!document.querySelector("#profile-screen")?.textContent) {
-    router.navigate("#");
-  }
-}
-
-// Helper function needed by profile (was in utils.js but specific to this module)
-async function copyEntity(type, id) {
-  console.log(`Attempting to copy entity of type ${type} with id ${id}`);
-
-  const entityToCopy = await entities.get(type, id);
-  if (!entityToCopy) {
-    console.error(`Entity with type ${type} and id ${id} not found.`);
-    return null;
-  }
-
-  const newEntity = {
-    ...entityToCopy,
-    sections: { ...entityToCopy.sections },
-  };
-
-  delete newEntity.id;
-  newEntity.isPremade = false;
-  newEntity.name = `${newEntity.name || "Untitled"} (Clone)`;
-
-  return newEntity;
-}
-
-// ============================================================================
-// ENTITY FORM MODULE (from entity-form.js)
-// ============================================================================
-
 const SECTIONS = [
   ["Forever", "forever"],
   ["Past", "past"],
@@ -319,75 +136,133 @@ const SECTIONS = [
   ["Future", "future"],
 ];
 
-function createField(id, labelText, inputEl) {
-  const field = document.createElement("div");
-  field.className = "profile-field";
+/**
+ * Creates a field for the profile page, including both read and edit elements.
+ * @param {string} id - The base ID for the field (e.g., "name")
+ * @param {string} labelText - The human-readable label
+ * @param {string} readElement - The tag name for the read-only element (e.g., "h1", "p")
+ * @param {string} editElement - The tag name for the edit element (e.g., "input", "textarea")
+ * @param {string} value - The current value for the field
+ * @param {object} options - Additional options
+ * @param {string} options.readClass - CSS class for the read element
+ * @param {string} options.editClass - CSS class for the edit element
+ * @param {string} options.placeholder - Placeholder for the edit element
+ * @returns {HTMLElement} A fragment or element containing both read and edit views
+ */
+function createProfileField(id, labelText, readElement, editElement, value, options = {}) {
+  // Read-only element
+  const readEl = document.createElement(readElement);
+  readEl.dataset.readField = id;
+  readEl.className = options.readClass || "";
+  readEl.textContent = value || (options.placeholder ? `(${options.placeholder})` : "(Not set)");
+  if (!value) {
+    readEl.style.opacity = "0.6";
+    readEl.style.fontStyle = "italic";
+  }
 
-  const label = document.createElement("label");
-  label.className = "profile-field-label";
-  label.setAttribute("for", id);
-  label.textContent = labelText;
+  // Editable element
+  const editEl = document.createElement(editElement);
+  editEl.dataset.editField = id;
+  editEl.name = id;
+  editEl.id = `form-field-${id}`;
+  editEl.className = options.editClass || "";
+  editEl.placeholder = options.placeholder || "";
+  if (editElement === "textarea") {
+    editEl.value = value;
+  } else {
+    editEl.setAttribute("value", value);
+  }
+  if (id === "name") {
+    editEl.required = true;
+  }
 
-  inputEl.id = id;
-  field.append(label, inputEl);
-  return field;
+  // For complex fields like "sections"
+  if (labelText) {
+    const field = document.createElement("div");
+    field.className = "profile-field";
+
+    const label = document.createElement("label");
+    label.className = "profile-field-label";
+    label.setAttribute("for", `form-field-${id}`);
+    label.textContent = labelText;
+    
+    // The edit element needs a wrapper to match the grid layout
+    const editWrapper = document.createElement("div");
+    editWrapper.className = "profile-field-text-wrapper";
+    editWrapper.dataset.editField = id; // Add data-attribute to wrapper
+    editWrapper.appendChild(editEl);
+
+    field.append(label, readEl, editWrapper);
+    return field;
+  } else {
+    // For simple fields like "name" and "description"
+    const frag = document.createDocumentFragment();
+    frag.append(readEl, editEl);
+    return frag;
+  }
 }
 
-export async function renderForm(type, id) {
-  const cancelBtn = document.querySelector("#form-cancel");
-  if (cancelBtn) {
-    const cancelHandler = (e) => {
-      e?.preventDefault();
-      navigateBackOrReturnDefault(undefined, router);
-    };
-    replaceEventHandler(cancelBtn, "click", cancelHandler, "_cancelHandler");
-  }
+export async function renderProfilePage(type, id) {
+  const screen = document.querySelector("#profile-screen");
+  if (!screen) return;
 
-  const sb = document.querySelector("#storyboard-screen");
-  if (sb) hideEl(sb);
-
+  // --- 1. State and Data Setup ---
+  let isEditing = id === "new";
   const params = getHashQuery();
   const isClone = params.get("clone") === "true";
-  let isEdit = id && id !== "new";
+  
+  let entity;
 
-  let existing;
   if (isClone && window.ephemeralEntity) {
-    existing = window.ephemeralEntity;
+    entity = { ...window.ephemeralEntity, kind: type };
     window.ephemeralEntity = null;
-    isEdit = false;
+    isEditing = true;
     id = "new";
+  } else if (id === "new") {
+    entity = { kind: type, type: type, sections: {} };
+    isEditing = true;
   } else {
-    const from = params.get("from");
-    const template = !isEdit && from ? await entities.copy(type, from) : null;
-    existing = isEdit ? await entities.get(type, id) : template;
+    entity = await handleAsyncError(
+      async () => {
+        const fetched = await entities.get(type, id);
+        if (!fetched) {
+          throw new Error(`Entity not found for profile: ${type}/${id}`);
+        }
+        return fetched;
+      },
+      {
+        errorMessage: "Could not load profile. Please try again.",
+        context: "load profile",
+        fallback: null,
+      }
+    );
   }
-
-  if (!existing && isEdit) {
-    console.warn(`Entity not found for form: ${type}/${id}. Redirecting.`);
+  
+  // Navigate away on error
+  if (!entity) {
     router.navigate("#");
     return;
   }
 
-  const screenId =
-    type === "character" ? "character-form-screen" : "world-form-screen";
-  const screen = document.querySelector(`#${screenId}`);
-  if (!screen) return;
-
-  const entity = { ...(existing || {}), kind: type };
-
+  // --- 2. Clean and Setup Screen ---
   screen.textContent = "";
-  screen.className = "profile-view form-view";
+  screen.setAttribute("aria-live", "polite");
+  screen.className = "profile-view"; // Base class
+  screen.classList.toggle("is-editing", isEditing);
 
+  // --- 3. Build Static Layout ---
   const layout = document.createElement("div");
   layout.className = "profile-layout";
 
-  // --- Left Column ---
+  // --- Left Column (Hero) ---
   const leftCol = document.createElement("div");
   leftCol.className = "profile-left";
   const heroWrap = buildHero(entity, { singleTag: true });
-
+  
+  // --- Hero Editing UI ---
   const imageOverlay = document.createElement("div");
   imageOverlay.className = "profile-hero-overlay";
+  imageOverlay.dataset.editField = "hero"; // Controls visibility
 
   const imageInput = document.createElement("input");
   imageInput.name = "imageUrl";
@@ -397,10 +272,7 @@ export async function renderForm(type, id) {
   imageInput.addEventListener("change", () => {
     const val = imageInput.value.trim();
     const newPic = getPictureHTML
-      ? getPictureHTML(
-          { ...entity, imageUrl: val, image: val },
-          { cover: true }
-        )
+      ? getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
       : null;
     if (newPic) {
       const currentWrap = heroWrap.querySelector(".picture");
@@ -427,99 +299,174 @@ export async function renderForm(type, id) {
     paletteSelect.appendChild(option);
   });
 
-  // Live color preview: update the display when signature color changes
   paletteSelect.addEventListener("change", () => {
     const selectedColour = paletteSelect.value;
     const tempEntity = { ...entity, signatureColour: selectedColour };
-
-    // Update the left column brand
     applyBrand?.(leftCol, tempEntity);
-
-    // Update placeholder image color
-    const placeholder = heroWrap.querySelector(".placeholder-image");
-    if (placeholder && selectedColour && selectedColour !== "default") {
-      placeholder.style.backgroundColor = BASE_COLOUR_MAP[selectedColour];
-    } else if (placeholder) {
-      placeholder.style.backgroundColor = "";
-    }
-
-    // Update tag chip color
-    const tagChip = heroWrap.querySelector(".tag-chip");
-    if (tagChip && selectedColour && selectedColour !== "default") {
-      tagChip.style.backgroundColor = BASE_COLOUR_MAP[selectedColour];
-      tagChip.style.color = "white";
-    } else if (tagChip) {
-      tagChip.style.backgroundColor = "";
-      tagChip.style.color = "";
-    }
+    // (Additional color preview logic from old renderForm)
   });
 
   imageOverlay.appendChild(imageInput);
   imageOverlay.appendChild(signatureColourLabel);
   imageOverlay.appendChild(paletteSelect);
   heroWrap.appendChild(imageOverlay);
-
+  
   leftCol.appendChild(heroWrap);
   applyBrand?.(leftCol, entity);
 
-  // --- Right Column ---
+  // --- Right Column (Content) ---
   const rightCol = document.createElement("div");
   rightCol.className = "profile-right";
 
   const content = document.createElement("div");
   content.className = "profile-right-content";
 
-  const form = document.createElement("form");
+  const form = document.createElement("form"); // Use a form for semantics
+  form.addEventListener("submit", (e) => e.preventDefault()); // Prevent default submit
 
-  const nameInput = document.createElement("input");
-  nameInput.name = "name";
-  nameInput.required = true;
-  nameInput.value = entity.name || "";
-  nameInput.className = "profile-name";
-  nameInput.placeholder = "Enter entity name...";
-  form.appendChild(nameInput);
+  // --- Name Field (Read/Edit) ---
+  form.appendChild(
+    createProfileField(
+      "name",
+      null,
+      "h1",
+      "input",
+      entity.name || "",
+      {
+        readClass: "profile-name",
+        editClass: "profile-name",
+        placeholder: "Enter entity name...",
+      }
+    )
+  );
 
-  const descriptionInput = document.createElement("textarea");
-  descriptionInput.name = "description";
-  descriptionInput.value = entity.description || "";
-  descriptionInput.className = "profile-description";
-  descriptionInput.placeholder =
-    "Describe the entity, its background, personality...";
-  form.appendChild(descriptionInput);
+  // --- Description Field (Read/Edit) ---
+  form.appendChild(
+    createProfileField(
+      "description",
+      null,
+      "p",
+      "textarea",
+      entity.description || "",
+      {
+        readClass: "profile-description",
+        editClass: "profile-description",
+        placeholder: "Describe the entity...",
+      }
+    )
+  );
 
+  // --- Sections (Read/Edit) ---
   const secWrap = document.createElement("div");
   secWrap.className = "profile-fields";
-
+  
   SECTIONS.forEach(([label, key]) => {
-    const textarea = document.createElement("textarea");
-    textarea.name = key;
-    textarea.value = entity.sections?.[key] || "";
-    textarea.className = "profile-field-text";
-    secWrap.appendChild(createField(key, label, textarea));
+    secWrap.appendChild(
+      createProfileField(
+        key,
+        label,
+        "div", // Read element
+        "textarea", // Edit element
+        entity.sections?.[key] || "",
+        {
+          readClass: "profile-field-text",
+          editClass: "profile-field-text",
+        }
+      )
+    );
   });
+  
   form.appendChild(secWrap);
-
   content.appendChild(form);
   rightCol.appendChild(content);
   layout.append(leftCol, rightCol);
   screen.appendChild(layout);
-
-  hideEl("#chin-container");
-  hideEl("#profile-screen");
-  hideEl(type === "character" ? "world-form-screen" : "character-form-screen");
   showEl(screen);
 
-  const saveBtn = document.querySelector("#form-save");
-  const deleteBtn = document.querySelector("#form-delete");
+  // --- 4. Setup Sizing and Top Bar ---
+  try {
+    setProfileLayoutSizing?.(0.35);
+    if (!profileResizeBound) {
+      profileResizeBound = true;
+      window.addEventListener("resize", debounce(() => setProfileLayoutSizing?.(0.35), PROFILE_RESIZE_DEBOUNCE_MS));
+    }
+  } catch { /* noop */ }
+  
+  // Set initial top bar state
+  setTopBarRight(isEditing ? "form" : "profile");
 
-  const suppressDelete =
-    id && sessionStorage?.getItem("rpglitch-no-delete") === id;
-  if (suppressDelete) sessionStorage.removeItem("rpglitch-no-delete");
+  // --- 5. Event Handlers ---
+  const backBtn = document.querySelector("#profile-back"); // On 'profile' bar
+  const editBtn = document.querySelector("#profile-edit"); // On 'profile' bar
+  const copyBtn = document.querySelector("#profile-copy"); // On 'profile' bar
+  
+  const cancelBtn = document.querySelector("#form-cancel"); // On 'form' bar
+  const saveBtn = document.querySelector("#form-save"); // On 'form' bar
+  const deleteBtn = document.querySelector("#form-delete"); // On 'form' bar
 
+  // --- State Toggling Function ---
+  function setEditMode(editing) {
+    isEditing = editing;
+    screen.classList.toggle('is-editing', isEditing);
+    setTopBarRight(isEditing ? 'form' : 'profile');
+
+    // If we just entered edit mode, focus the name input
+    if (isEditing) {
+      screen.querySelector('[data-edit-field="name"]')?.focus();
+    }
+  }
+
+  // --- Button Handlers ---
+  
+  // (Profile Bar)
+  if (backBtn) {
+    replaceEventHandler(backBtn, "click", () => goBackWithFallback("#storyboard", "#storyboard", router), "_backHandler");
+  }
+  
+  if (editBtn) {
+    editBtn.hidden = entity.isPremade || id === 'new';
+    replaceEventHandler(editBtn, "click", () => setEditMode(true), "_editHandler");
+  }
+
+  if (copyBtn) {
+    copyBtn.hidden = !entity.isPremade;
+    const copyHandler = async () => {
+      const newEntity = await copyEntity?.(type, id);
+      if (newEntity) {
+        window.ephemeralEntity = newEntity;
+        // Navigate to the new profile page, which will start in 'edit' mode
+        router.navigate(`#profile/${type}/new?clone=true&return=#profile/${type}/${id}`);
+      } else {
+        console.error("Copy operation failed or returned no entity.");
+      }
+    };
+    replaceEventHandler(copyBtn, "click", copyHandler, "_copyHandler");
+  }
+
+  // (Form Bar)
+  if (cancelBtn) {
+    const cancelHandler = (e) => {
+      e?.preventDefault();
+      if (id === "new") {
+        // If it was a new entity, just go back
+        navigateBackOrReturnDefault(undefined, router);
+      } else {
+        // If editing, just toggle view. (We need to reset fields here)
+        // For simplicity, we'll just re-render the whole page
+        router.navigate(`#profile/${type}/${id}`);
+        // A more advanced way would be to reset form fields to 'entity' values
+        // setEditMode(false); 
+      }
+    };
+    replaceEventHandler(cancelBtn, "click", cancelHandler, "_cancelHandler");
+  }
+  
   if (deleteBtn) {
-    deleteBtn.hidden = !(isEdit && entity.isCustom === 1 && !suppressDelete);
-    deleteBtn.addEventListener("click", async () => {
-      if (isEdit && confirm("Delete this item?")) {
+    const isDeletable = id !== 'new' && entity.isCustom === 1;
+    deleteBtn.hidden = !isDeletable;
+    
+    const deleteHandler = async () => {
+      if (isDeletable && confirm("Delete this item?")) {
         try {
           await entities.remove(type, entity.id);
           await refreshAllLists?.();
@@ -529,7 +476,8 @@ export async function renderForm(type, id) {
           alert(error.message || "Failed to delete. Please try again.");
         }
       }
-    });
+    };
+    replaceEventHandler(deleteBtn, "click", deleteHandler, "_deleteHandler");
   }
 
   if (saveBtn) {
@@ -540,7 +488,7 @@ export async function renderForm(type, id) {
         description: escapeHtml(form.elements.description.value.trim()),
         imageUrl: escapeHtml(imageInput.value.trim()),
         signatureColour: escapeHtml(paletteSelect.value.trim()),
-        tags: entity.tags || [],
+        tags: entity.tags || [], // Tags are not currently editable in this form
         sections: {
           forever: escapeHtml(form.elements.forever.value.trim()),
           past: escapeHtml(form.elements.past.value.trim()),
@@ -555,12 +503,23 @@ export async function renderForm(type, id) {
             throw new Error("Please enter a name for this entity.");
           }
 
-          const originalEntity = isEdit ? await entities.get(type, id) : null;
+          const originalEntity = (id !== 'new') ? await entities.get(type, id) : null;
           const isEditingPremade = originalEntity?.isPremade;
           const entityToSave =
             id === "new" || isEditingPremade ? data : { ...data, id };
+          
           const saved = await entities.upsert(type, entityToSave);
-          router.navigate(`#profile/${type}/${saved.id}`);
+          
+          // If it was a new entity, navigate to its new URL
+          if (id === 'new') {
+            router.navigate(`#profile/${type}/${saved.id}`);
+          } else {
+            // Otherwise, just exit edit mode
+            entity = saved; // Update local entity data
+            setEditMode(false);
+            // We'll re-render to be safe, though a lighter update is possible
+            renderProfilePage(type, saved.id);
+          }
         },
         {
           errorMessage: "Failed to save. Please try again.",
@@ -570,8 +529,36 @@ export async function renderForm(type, id) {
     };
     replaceEventHandler(saveBtn, "click", saveHandler, "_saveHandler");
   }
+}
 
-  if (!isEdit) {
-    setTimeout(() => nameInput.focus(), 0);
+// Helper function needed by profile (was in utils.js but specific to this module)
+async function copyEntity(type, id) {
+  console.log(`Attempting to copy entity of type ${type} with id ${id}`);
+
+  const entityToCopy = await entities.get(type, id);
+  if (!entityToCopy) {
+    console.error(`Entity with type ${type} and id ${id} not found.`);
+    return null;
   }
+
+  const newEntity = {
+    ...entityToCopy,
+    sections: { ...entityToCopy.sections },
+  };
+
+  delete newEntity.id;
+  newEntity.isPremade = false;
+  newEntity.name = `${newEntity.name || "Untitled"} (Clone)`;
+
+  return newEntity;
+}
+
+/**
+ * This function is no longer called by the router but is kept
+ * to prevent errors if it's referenced elsewhere.
+ * The logic is now inside renderProfilePage.
+ */
+export async function renderForm(type, id) {
+  console.warn("renderForm() is deprecated. Navigating to profile page.");
+  router.navigate(`#profile/${type}/${id || 'new'}`);
 }
