@@ -626,50 +626,52 @@ async function loadAiInstructions() {
   const FALLBACK_CHAOS = "You are an AI of chaos. Your goal is to generate a completely random and chaotic image prompt. The prompt should be a mix of strange, unrelated, and surprising elements. It should be imaginative and unexpected. Do not add any of your own conversational text, greetings, explanations, or labels like 'Chaos Prompt:'. Return ONLY the single, complete, chaotic prompt itself.";
   const FALLBACK_TRANSFIGURE = "You are a 'Prompt Modification Specialist.' Your task is to take the user's prompt and modify it precisely according to their specific instructions. Make sure the prompt is 100% affirmative and avoid negative phrasing. Do not add any of your own conversational text, greetings, explanations, or labels. Return ONLY the single, complete, modified prompt itself.";
 
-  if (TEST_MODE || typeof r === 'undefined') {
-    console.log('[ImageGlitch] Test mode or remember plugin unavailable, using fallback instructions');
+  const setAllFallbacks = (logMessage, error) => {
+    if (error) {
+      console.error(logMessage, error);
+    } else {
+      console.log(logMessage);
+    }
     AI_SCRIBE_INSTRUCTION = FALLBACK_SCRIBE;
     AI_CHAOS_INSTRUCTION = FALLBACK_CHAOS;
     AI_TRANSFIGURE_INSTRUCTION = FALLBACK_TRANSFIGURE;
+  };
+
+  if (TEST_MODE || typeof window.r === 'undefined') {
+    setAllFallbacks('[ImageGlitch] Test mode or remember plugin unavailable, using fallback instructions');
     return;
   }
 
   try {
     // Retrieve instructions from remember plugin in parallel
     const [scribeInstruction, chaosInstruction, transfigureInstruction] = await Promise.all([
-      r.get('aiScribeInstruction'),
-      r.get('aiChaosInstruction'),
-      r.get('aiTransfigureInstruction')
+      window.r.get('aiScribeInstruction'),
+      window.r.get('aiChaosInstruction'),
+      window.r.get('aiTransfigureInstruction')
     ]);
 
+    AI_SCRIBE_INSTRUCTION = scribeInstruction || FALLBACK_SCRIBE;
     if (scribeInstruction) {
-      AI_SCRIBE_INSTRUCTION = scribeInstruction;
       console.log('[ImageGlitch] Loaded aiScribeInstruction from remember plugin');
     } else {
       console.warn('[ImageGlitch] aiScribeInstruction not found in remember plugin, using fallback');
-      AI_SCRIBE_INSTRUCTION = FALLBACK_SCRIBE;
     }
 
+    AI_CHAOS_INSTRUCTION = chaosInstruction || FALLBACK_CHAOS;
     if (chaosInstruction) {
-      AI_CHAOS_INSTRUCTION = chaosInstruction;
       console.log('[ImageGlitch] Loaded aiChaosInstruction from remember plugin');
     } else {
       console.warn('[ImageGlitch] aiChaosInstruction not found in remember plugin, using fallback');
-      AI_CHAOS_INSTRUCTION = FALLBACK_CHAOS;
     }
 
+    AI_TRANSFIGURE_INSTRUCTION = transfigureInstruction || FALLBACK_TRANSFIGURE;
     if (transfigureInstruction) {
-      AI_TRANSFIGURE_INSTRUCTION = transfigureInstruction;
       console.log('[ImageGlitch] Loaded aiTransfigureInstruction from remember plugin');
     } else {
       console.warn('[ImageGlitch] aiTransfigureInstruction not found in remember plugin, using fallback');
-      AI_TRANSFIGURE_INSTRUCTION = FALLBACK_TRANSFIGURE;
     }
   } catch (error) {
-    console.error('[ImageGlitch] Failed to load AI instructions from remember plugin, using fallbacks:', error);
-    AI_SCRIBE_INSTRUCTION = FALLBACK_SCRIBE;
-    AI_CHAOS_INSTRUCTION = FALLBACK_CHAOS;
-    AI_TRANSFIGURE_INSTRUCTION = FALLBACK_TRANSFIGURE;
+    setAllFallbacks('[ImageGlitch] Failed to load AI instructions from remember plugin, using fallbacks:', error);
   }
 }
 
