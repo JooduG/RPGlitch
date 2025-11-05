@@ -610,8 +610,20 @@ async function main() {
   const promptInput = document.getElementById('promptInput');
   const instructionInput = document.getElementById('instructionInput');
   const slider = document.getElementById('masterCreativitySlider');
+  const warningEl = document.getElementById('prompt-length-warning');
+
+  if (warningEl) {
+    warningEl.textContent = `Note: Prompts over ${MAX_PROMPT_LENGTH.toLocaleString()} characters will be truncated.`;
+  }
+
+  function updatePromptWarning() {
+    if (warningEl) {
+      warningEl.style.display = promptInput.value.length > MAX_PROMPT_LENGTH ? 'block' : 'none';
+    }
+  }
 
   await loadSavedSettings();
+  updatePromptWarning();
   updateDerivedSettings();
 
   if (generateButton) {
@@ -637,6 +649,7 @@ async function main() {
   if (promptInput) {
     promptInput.addEventListener('input', () => {
       mainPromptContent = promptInput.value;
+      updatePromptWarning();
       handleManualPromptChange();
     });
     promptInput.addEventListener('keydown', handleTextareaKeyDown);
