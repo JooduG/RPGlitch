@@ -10,7 +10,6 @@ import {
   escapeHtml,
   applyBrand,
   buildHero,
-  renderTags,
   replaceEventHandler,
   handleAsyncError,
   BASE_COLOUR_MAP

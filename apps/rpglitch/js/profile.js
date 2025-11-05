@@ -10,7 +10,6 @@ import {
   goBackWithFallback,
   copyEntity,
   buildHero,
-  renderTags,
   BASE_COLOUR_MAP,
   replaceEventHandler,
   PROFILE_RESIZE_DEBOUNCE_MS,
