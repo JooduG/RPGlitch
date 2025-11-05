@@ -78,8 +78,9 @@
 
   // Keep the grid layout from profile view for visual consistency
   .profile-field {
-    // Inherit grid layout from _components.scss .profile-field
-    // This ensures the form matches the profile's side-by-side layout
+    // Apply the profile view's grid layout for visual consistency
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
   }
 
   .profile-field-label {
