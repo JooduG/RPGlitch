@@ -212,6 +212,22 @@ export async function renderProfilePage(type, id) {
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
 
+  // Helper function to show non-blocking notifications
+  function showNotification(message, duration = 5000) {
+    const notifier = document.querySelector("#status-notifier");
+    if (notifier) {
+      notifier.textContent = message;
+      notifier.style.display = "block";
+      setTimeout(() => {
+        notifier.textContent = "";
+        notifier.style.display = "none";
+      }, duration);
+    } else {
+      // Fallback to alert if notifier element not found
+      alert(message);
+    }
+  }
+
   // --- 1. State and Data Setup ---
   let isEditing = id === "new";
   const params = getHashQuery();
@@ -265,22 +281,65 @@ export async function renderProfilePage(type, id) {
   leftCol.className = "profile-left";
   const heroWrap = buildHero(entity, { singleTag: true });
 
+  // Helper function to detect URLs
+  function isUrl(text) {
+    const trimmed = text.trim();
+    if (trimmed.startsWith("data:image/")) {
+      return true;
+    }
+    try {
+      // This is a more robust way to check for a valid URL.
+      new URL(trimmed);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   const imageOverlay = document.createElement("div");
   imageOverlay.className = "profile-hero-overlay";
   imageOverlay.dataset.editField = "hero"; // Controls visibility
 
-  // --- [NEW] Dynamic Image Input Group ---
+  // Create fieldset for grouping input and button
   const imageFieldset = document.createElement("fieldset");
-  imageFieldset.role = "group";
-  imageFieldset.className = "profile-image-group"; // For styling
+  imageFieldset.setAttribute("role", "group");
 
+  // Create the dynamic input
   const imageInput = document.createElement("input");
-  imageInput.name = "imageUrl"; // <-- Name is still needed for saveHandler
-  imageInput.type = "text"; // Changed from 'url' to 'text' for dual purpose
+  imageInput.name = "imageUrl";
+  imageInput.type = "text"; // Changed from "url" to allow prompts
   imageInput.placeholder = "Type prompt, paste URL, or click to upload...";
   imageInput.value = entity.imageUrl || "";
 
-  // This existing listener is perfect, it handles the preview update
+  // Create the action button
+  const actionButton = document.createElement("button");
+  actionButton.type = "button";
+  actionButton.textContent = "Upload";
+  actionButton.dataset.action = "upload";
+
+  // State management function for button
+  function updateButtonState() {
+    const value = imageInput.value.trim();
+
+    if (value === "") {
+      actionButton.textContent = "Upload";
+      actionButton.dataset.action = "upload";
+    } else if (!isUrl(value)) {
+      actionButton.textContent = "Generate";
+      actionButton.dataset.action = "generate";
+    } else {
+      actionButton.textContent = "Replace";
+      actionButton.dataset.action = "upload";
+    }
+  }
+
+  // Add input listener for dynamic state updates
+  imageInput.addEventListener("input", updateButtonState);
+
+  // Set initial button state based on existing value
+  updateButtonState();
+
+  // Add change listener for preview updates (existing functionality)
   imageInput.addEventListener("change", () => {
     const val = imageInput.value.trim();
     const newPic = getPictureHTML
@@ -293,114 +352,65 @@ export async function renderProfilePage(type, id) {
     }
   });
 
-  const actionButton = document.createElement("button");
-  actionButton.type = "button";
-  actionButton.className = "secondary"; // Will be updated by state
-  
-  // Helper to check for URL-like strings
-  const isUrl = (text) => {
-    // Checks for http(s):// or data:image/...
-    return /^(https?:\/\/|data:image\/)/.test(text.trim());
-  };
-
-  // Function to update button state based on input text
-  const updateButtonState = () => {
-    const text = imageInput.value;
-    if (text === "") {
-      // STATE 1: Empty Field
-      actionButton.textContent = "Upload";
-      actionButton.dataset.action = "upload";
-    } else if (isUrl(text)) {
-      // STATE 2: Pasted URL - Preview updates on 'change'. Button defaults to "Upload".
-      actionButton.textContent = "Upload";
-      actionButton.dataset.action = "upload";
-    } else {
-      // STATE 3: Typing a Prompt
-      actionButton.textContent = "Generate";
-      actionButton.dataset.action = "generate";
-    }
-  };
-
-  // Add 'input' listener to update button on every keystroke
-  imageInput.addEventListener("input", updateButtonState);
-
-  // Add one 'click' listener to the button to handle all actions
+  // Button click handler for Upload/Generate actions
   actionButton.addEventListener("click", async () => {
     const action = actionButton.dataset.action;
 
-    // Set loading state (as per ImageGlitch spec)
-    actionButton.disabled = true;
-    actionButton.setAttribute("aria-busy", "true");
-    imageInput.disabled = true;
-    // Show indeterminate progress on button
-    actionButton.innerHTML = '<span aria-busy="true"></span>'; 
-
     try {
-      if (action === "upload") {
-        // --- [FIX 1 (Upload)] ---
-        // Your log shows the plugin returns data.url, not data.imageUrl
-        if (!window.pluginUpload) throw new Error("Upload plugin not found.");
-        const data = await window.pluginUpload({ accept: 'image/*' }); 
-        
-        if (data && data.url) { // <-- FIXED
-          // Check that the uploaded file is an image, not a .txt
-          if (!/\.(jpg|jpeg|png|gif|webp)$/i.test(data.url)) {
-            throw new Error(`Upload failed: File must be an image, not a '${data.fileExtension || 'file'}'.`);
-          }
-          imageInput.value = data.url; // <-- FIXED
-        } else if (data && data.error) {
-          throw new Error(`Upload failed: ${data.error}`);
-        } else if (!data) {
-           // User cancelled the upload dialog
-           console.log("Upload cancelled by user.");
-        } else {
-          // This is the error you saw in the last log
-          throw new Error("Upload failed: Plugin returned no URL.");
-        }
-      } else if (action === "generate") {
-        // --- [FIX 2 (Generate)] ---
-        if (!window.pluginTextToImage) throw new Error("Image Generation plugin not found.");
+      // Set loading state
+      actionButton.disabled = true;
+      actionButton.setAttribute("aria-busy", "true");
+      imageInput.disabled = true;
+
+      if (action === "generate") {
+        // Flow A: AI Image Generation
         const prompt = imageInput.value.trim();
-        if (!prompt) throw new Error("Prompt cannot be empty.");
-        
         const data = await window.pluginTextToImage({ prompt });
 
-        // Your log shows data is at the TOP LEVEL, not nested in .generatedImage
-        if (data && data.imageId && data.fileExtension) { // <-- FIXED
-          const { imageId, fileExtension } = data; // <-- FIXED
-          // We must construct the URL manually
-          imageInput.value = `https://img.perchance.org/${imageId}.${fileExtension || 'jpeg'}`;
-        } else {
-          // This is the error you saw in the last log
-          throw new Error("Generation failed to return a valid image object.");
+        // FIX 2: Expect response at top level
+        const imageUrl = `https://img.perchance.org/${data.imageId}.${
+          data.fileExtension || "jpeg"
+        }`;
+        imageInput.value = imageUrl;
+
+        // Dispatch change event to update preview
+        imageInput.dispatchEvent(new Event("change"));
+      } else if (action === "upload") {
+        // Flow B: File Upload
+        // FIX 1: Pass accept parameter to prevent invalid_data_type error
+        const data = await window.pluginUpload({ accept: "image/*" });
+
+        // If user cancels, data might be null or empty - exit gracefully
+        if (!data || !data.url) {
+          return;
         }
-        // [--- END FIX 2 ---]
+
+        // Verify it's an image file
+        if (!data.url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+          throw new Error("Please upload a valid image file.");
+        }
+
+        imageInput.value = data.url;
+
+        // Dispatch change event to update preview
+        imageInput.dispatchEvent(new Event("change"));
       }
     } catch (error) {
-      console.error("Image action failed:", error);
-      alert(`Error: ${error.message || "Operation failed."}`);
+      console.error("Image operation failed:", error);
+      showNotification(error.message || "Operation failed. Please try again.");
     } finally {
-      // Remove loading state
+      // Always remove loading state
       actionButton.disabled = false;
       actionButton.removeAttribute("aria-busy");
       imageInput.disabled = false;
-      
-      // Manually trigger a 'change' event to update the preview
-      imageInput.dispatchEvent(new Event("change", { bubbles: true }));
-      
-      // After action, re-check the state (e.g., it's now a URL, so button should say "Upload")
-      updateButtonState(); // This also restores the button text
+      updateButtonState();
     }
   });
 
-  // Set initial button state on load
-  updateButtonState();
-
-  // Add the new components to the fieldset
+  // Add elements to fieldset and overlay
   imageFieldset.appendChild(imageInput);
   imageFieldset.appendChild(actionButton);
-  // --- [END NEW] Dynamic Image Input Group ---
-
+  imageOverlay.appendChild(imageFieldset);
 
   const signatureColourLabel = document.createElement("label");
   signatureColourLabel.textContent = "Signature Colour";
@@ -427,7 +437,6 @@ export async function renderProfilePage(type, id) {
     applyBrand?.(leftCol, tempEntity);
   });
 
-  imageOverlay.appendChild(imageFieldset); // Append the new grouped fieldset
   imageOverlay.appendChild(signatureColourLabel);
   imageOverlay.appendChild(paletteSelect);
   heroWrap.appendChild(imageOverlay);
