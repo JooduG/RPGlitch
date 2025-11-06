@@ -299,8 +299,7 @@ body.chin-open details.dropdown[open] summary::before {
   background: rgb(0 0 0 / 70%);
 }
 
-#loading-modal p[aria-busy="true"]::after,
-[aria-busy="true"]::after {
+#loading-modal [aria-busy="true"]::after {
   content: "";
   display: inline-block;
   width: 1.5em;
@@ -581,55 +580,28 @@ body.chin-open .chin-focus-ring {
 /* Apply character signature colors to chat messages based on body palette classes */
 
 /* User messages get branded with user's signature color */
-.palette-pink .chat-message[role="user"] {
-  border-left: 4px solid var(--brand-pink);
-  box-shadow: 0 2px 8px rgb(236 72 153 / 25%);
-}
-
-.palette-emerald .chat-message[role="user"] {
-  border-left: 4px solid var(--brand-emerald);
-  box-shadow: 0 2px 8px rgb(16 185 129 / 25%);
-}
-
-.palette-cyan .chat-message[role="user"] {
-  border-left: 4px solid var(--brand-cyan);
-  box-shadow: 0 2px 8px rgb(6 182 212 / 25%);
-}
-
-.palette-orange .chat-message[role="user"] {
-  border-left: 4px solid var(--brand-orange);
-  box-shadow: 0 2px 8px rgb(249 115 22 / 25%);
-}
-
-.palette-purple .chat-message[role="user"] {
-  border-left: 4px solid var(--brand-purple);
-  box-shadow: 0 2px 8px rgb(168 85 247 / 25%);
-}
-
 /* AI messages get branded when AI character has a palette */
-#chat-screen[data-ai-palette="pink"] .chat-message[role="assistant"] {
-  border-left: 4px solid var(--brand-pink);
-  box-shadow: 0 2px 8px rgb(236 72 153 / 20%);
-}
+$brand-palettes: (
+  "pink": (color: var(--brand-pink), rgb: "236 72 153"),
+  "emerald": (color: var(--brand-emerald), rgb: "16 185 129"),
+  "cyan": (color: var(--brand-cyan), rgb: "6 182 212"),
+  "orange": (color: var(--brand-orange), rgb: "249 115 22"),
+  "purple": (color: var(--brand-purple), rgb: "168 85 247")
+);
 
-#chat-screen[data-ai-palette="emerald"] .chat-message[role="assistant"] {
-  border-left: 4px solid var(--brand-emerald);
-  box-shadow: 0 2px 8px rgb(16 185 129 / 20%);
-}
+@each $name, $palette in $brand-palettes {
+  $color: map-get($palette, color);
+  $rgb: map-get($palette, rgb);
 
-#chat-screen[data-ai-palette="cyan"] .chat-message[role="assistant"] {
-  border-left: 4px solid var(--brand-cyan);
-  box-shadow: 0 2px 8px rgb(6 182 212 / 20%);
-}
+  .palette-#{$name} .chat-message[role="user"] {
+    border-left: 4px solid $color;
+    box-shadow: 0 2px 8px unquote("rgb(#{$rgb} / 25%)");
+  }
 
-#chat-screen[data-ai-palette="orange"] .chat-message[role="assistant"] {
-  border-left: 4px solid var(--brand-orange);
-  box-shadow: 0 2px 8px rgb(249 115 22 / 20%);
-}
-
-#chat-screen[data-ai-palette="purple"] .chat-message[role="assistant"] {
-  border-left: 4px solid var(--brand-purple);
-  box-shadow: 0 2px 8px rgb(168 85 247 / 20%);
+  #chat-screen[data-ai-palette="#{$name}"] .chat-message[role="assistant"] {
+    border-left: 4px solid $color;
+    box-shadow: 0 2px 8px unquote("rgb(#{$rgb} / 20%)");
+  }
 }
 
 /* ===== SIGNATURE TYPING INDICATOR (Phase 4.2) ===== */
@@ -710,54 +682,20 @@ body.chin-open .chin-focus-ring {
 }
 
 /* AI brand color typing indicators */
-#chat-screen[data-ai-palette="pink"] #typing-indicator::after {
-  background-image: radial-gradient(
-      circle,
-      var(--brand-pink) 25%,
-      transparent 25%
-    ),
-    radial-gradient(circle, var(--brand-pink) 25%, transparent 25%),
-    radial-gradient(circle, var(--brand-pink) 25%, transparent 25%);
-}
+$typing-palettes: (
+  "pink": var(--brand-pink),
+  "emerald": var(--brand-emerald),
+  "cyan": var(--brand-cyan),
+  "orange": var(--brand-orange),
+  "purple": var(--brand-purple)
+);
 
-#chat-screen[data-ai-palette="emerald"] #typing-indicator::after {
-  background-image: radial-gradient(
-      circle,
-      var(--brand-emerald) 25%,
-      transparent 25%
-    ),
-    radial-gradient(circle, var(--brand-emerald) 25%, transparent 25%),
-    radial-gradient(circle, var(--brand-emerald) 25%, transparent 25%);
-}
-
-#chat-screen[data-ai-palette="cyan"] #typing-indicator::after {
-  background-image: radial-gradient(
-      circle,
-      var(--brand-cyan) 25%,
-      transparent 25%
-    ),
-    radial-gradient(circle, var(--brand-cyan) 25%, transparent 25%),
-    radial-gradient(circle, var(--brand-cyan) 25%, transparent 25%);
-}
-
-#chat-screen[data-ai-palette="orange"] #typing-indicator::after {
-  background-image: radial-gradient(
-      circle,
-      var(--brand-orange) 25%,
-      transparent 25%
-    ),
-    radial-gradient(circle, var(--brand-orange) 25%, transparent 25%),
-    radial-gradient(circle, var(--brand-orange) 25%, transparent 25%);
-}
-
-#chat-screen[data-ai-palette="purple"] #typing-indicator::after {
-  background-image: radial-gradient(
-      circle,
-      var(--brand-purple) 25%,
-      transparent 25%
-    ),
-    radial-gradient(circle, var(--brand-purple) 25%, transparent 25%),
-    radial-gradient(circle, var(--brand-purple) 25%, transparent 25%);
+@each $name, $color in $typing-palettes {
+  #chat-screen[data-ai-palette="#{$name}"] #typing-indicator::after {
+    background-image: radial-gradient(circle, $color 25%, transparent 25%),
+      radial-gradient(circle, $color 25%, transparent 25%),
+      radial-gradient(circle, $color 25%, transparent 25%);
+  }
 }
 
 #no-messages,
@@ -841,39 +779,20 @@ body.chin-open .chin-focus-ring {
 }
 
 /* User palette-specific glows */
-.palette-pink #chat-form input[type="submit"]:not(:disabled):hover {
-  box-shadow:
-    0 4px 12px rgb(0 0 0 / 25%),
-    0 0 20px rgb(236 72 153 / 40%),
-    0 0 40px rgb(236 72 153 / 20%);
-}
+$glow-palettes: (
+  "pink": "236 72 153",
+  "emerald": "16 185 129",
+  "cyan": "6 182 212",
+  "orange": "249 115 22",
+  "purple": "168 85 247"
+);
 
-.palette-emerald #chat-form input[type="submit"]:not(:disabled):hover {
-  box-shadow:
-    0 4px 12px rgb(0 0 0 / 25%),
-    0 0 20px rgb(16 185 129 / 40%),
-    0 0 40px rgb(16 185 129 / 20%);
-}
-
-.palette-cyan #chat-form input[type="submit"]:not(:disabled):hover {
-  box-shadow:
-    0 4px 12px rgb(0 0 0 / 25%),
-    0 0 20px rgb(6 182 212 / 40%),
-    0 0 40px rgb(6 182 212 / 20%);
-}
-
-.palette-orange #chat-form input[type="submit"]:not(:disabled):hover {
-  box-shadow:
-    0 4px 12px rgb(0 0 0 / 25%),
-    0 0 20px rgb(249 115 22 / 40%),
-    0 0 40px rgb(249 115 22 / 20%);
-}
-
-.palette-purple #chat-form input[type="submit"]:not(:disabled):hover {
-  box-shadow:
-    0 4px 12px rgb(0 0 0 / 25%),
-    0 0 20px rgb(168 85 247 / 40%),
-    0 0 40px rgb(168 85 247 / 20%);
+@each $name, $rgb in $glow-palettes {
+  .palette-#{$name} #chat-form input[type="submit"]:not(:disabled):hover {
+    box-shadow: 0 4px 12px rgb(0 0 0 / 25%),
+      0 0 20px unquote("rgb(#{$rgb} / 40%)"),
+      0 0 40px unquote("rgb(#{$rgb} / 20%)");
+  }
 }
 
 #chat-form input[type="submit"]:disabled,
