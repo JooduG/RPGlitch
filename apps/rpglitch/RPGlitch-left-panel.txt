@@ -4,16 +4,14 @@ $meta
   header
     mode = minimal
 
-pluginAi = {import:ai-text-plugin}
-pluginTextToImage = {import:text-to-image-plugin}
-pluginRememberPlugin = {import:remember-plugin}
-pluginUploadPlugin = {import:upload-plugin} 
-pluginSuperFetch = {import:super-fetch-plugin} 
+ai = {import:ai-text-plugin}
+textToImage = {import:text-to-image-plugin}
+superFetch = {import:super-fetch-plugin}
+remember = {import:remember-plugin}
+upload = {import:upload-plugin}
 
-exposePlugins
-  [window.parent.pluginAi = window.ai, ""]
-  [window.parent.pluginImage = window.image, ""]
-  [window.parent.pluginSuperFetch = window.superFetch, ""]
-  [window.parent.pluginTextToImage = window.textToImage, ""]
-  [window.parent.pluginRemember = window.rememberPlugin, ""]
-  [window.parent.pluginUpload = window.upload, ""]
+pluginAi = ai
+pluginTextToImage = textToImage
+pluginSuperFetch = superFetch
+pluginRemember = remember
+pluginUpload = upload

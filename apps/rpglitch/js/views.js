@@ -346,42 +346,35 @@ export async function renderProfilePage(type, id) {
     }
   });
   
-    actionButton.addEventListener("click", async () => {
-      const action = actionButton.dataset.action;
-  
+  actionButton.addEventListener("click", async () => {
+    const action = actionButton.dataset.action;
+    if (action === "generate") {
+      const prompt = imageInput.value.trim();
+      if (!prompt) return;
+
+      // [FIX] Use the mandated window.pluginTextToImage function...
+      if (!window.pluginTextToImage || typeof window.pluginTextToImage !== 'function') {
+        throw new Error("Image generation plugin (pluginTextToImage) is not available.");
+      }
+      const result = await window.pluginTextToImage({ prompt });
+
       try {
         actionButton.disabled = true;
-        actionButton.setAttribute("aria-busy", "true");
-        imageInput.disabled = true;
-  
-        if (action === "generate") {
-          const prompt = imageInput.value.trim();
-          if (!prompt) return;
-  
-          // [FIX] Use the standard window.textToImage function,
-          // not the prefixed window.pluginTextToImage.
-          // This conforms to the pattern set by setupPlugins() in index.js.
-          if (!window.textToImage || typeof window.textToImage !== 'function') {
-            throw new Error("Image generation plugin (textToImage) is not available.");
-          }
-          
-          const result = await window.textToImage({ prompt });
-          
-          if (!result?.dataUrl) throw new Error("Image generation failed");
-  
-          imageInput.value = result.dataUrl;
-          imageInput.dispatchEvent(new Event("input"));
-        } else {
-        showNotification("Upload feature coming soon - use URL paste for now");
+        actionButton.textContent = "Generating...";
+        const result = await window.pluginTextToImage({ prompt });
+        if (!result?.dataUrl) throw new Error("Image generation failed");
+
+        imageInput.value = result.dataUrl;
+        imageInput.dispatchEvent(new Event("input"));
+      } catch (error) {
+        console.error("Image generation error:", error);
+        showNotification("Image generation failed. Please try again.");
+      } finally {
+        actionButton.disabled = false;
+        updateButtonState();
       }
-    } catch (error) {
-      console.error("Image operation failed:", error);
-      showNotification(error.message || "Operation failed");
-    } finally {
-      actionButton.disabled = false;
-      actionButton.removeAttribute("aria-busy");
-      imageInput.disabled = false;
     }
+    // TODO: Implement 'upload' action to open a file picker.
   });
 
   imageFieldset.appendChild(imageInput);

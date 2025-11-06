@@ -42,7 +42,7 @@ The right panel is a standard web application (HTML/CSS/JavaScript) that:
 - `ai` = {import:ai-text-plugin} - LLM text generation
 - `textToImage` = {import:text-to-image-plugin} - Image generation
 - `superFetch` = {import:super-fetch-plugin} - CORS bypass for external APIs
-- `rememberPlugin` = {import:remember-plugin} - Persistent storage
+- `remember` = {import:remember-plugin} - Persistent storage (exposed as `rememberPlugin`)
 - `upload` = {import:upload-plugin} - File uploads for profile pictures
 
 **ImageGlitch:**
@@ -63,29 +63,45 @@ Perchance plugins load **asynchronously** after the left-panel is parsed:
 
 ### Plugin Exposure Strategy
 
-The challenge: Perchance plugins initialize in the left-panel context, but right-panel JavaScript needs to access them.
+The challenge: Perchance plugins initialize in the left-panel context, but right-panel JavaScript needs to access them. The two panels run in **separate sandboxed iframes** and cannot directly access each other's variables.
 
-**Solution:** Use simple variable assignment to expose plugins as globals:
+**Solution:** Three-step exposure pattern:
 
-**Left Panel (`*-left-panel.txt`):**
+**Step 1: Import in Left Panel (`*-left-panel.txt`):**
 ```perchance
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
 superFetch = {import:super-fetch-plugin}
-rememberPlugin = {import:remember-plugin}
+remember = {import:remember-plugin}
 upload = {import:upload-plugin}
 
-// Expose plugins using underscore naming (avoids Perchance parse errors)
 pluginAi = ai
 pluginTextToImage = textToImage
 pluginSuperFetch = superFetch
-pluginRememberPlugin = rememberPlugin
+pluginRemember = remember
 pluginUpload = upload
 ```
 
-**Why underscore naming?** - Perchance's parser would misinterpret `window.ai = ai` as trying to create a list named "window.ai" (invalid due to dots). Simple variable assignment avoids this syntax conflict.
+**Step 2: Expose to Window in Right Panel HTML (`html/index.html`):**
 
-**Right Panel JavaScript (`js/index.js`):**
+This inline script **must come before** any module scripts. It runs in the Perchance context where the left panel variables are available.
+
+```html
+<!-- Expose Perchance plugins to window object (must come before module script) -->
+<script>
+  // These variables (ai, textToImage, etc.) are available from the left panel
+  // Expose them to window so the module script can access them
+  if (typeof ai !== 'undefined') window.pluginAi = ai;
+  if (typeof textToImage !== 'undefined') window.pluginTextToImage = textToImage;
+  if (typeof superFetch !== 'undefined') window.pluginSuperFetch = superFetch;
+  if (typeof remember !== 'undefined') window.pluginRemember = remember;
+  if (typeof upload !== 'undefined') window.pluginUpload = upload;
+</script>
+
+<script type="module" src="js/index.js"></script>
+```
+
+**Step 3: Copy to Standard Names in Right Panel JavaScript (`js/index.js`):**
 ```javascript
 /**
  * Copies plugins exposed by the Perchance left panel (pluginAi, pluginTextToImage, etc.)
@@ -96,7 +112,7 @@ function setupPlugins() {
     pluginAi: 'ai',
     pluginTextToImage: 'textToImage',
     pluginSuperFetch: 'superFetch',
-    pluginRememberPlugin: 'rememberPlugin',
+    pluginRemember: 'rememberPlugin',
     pluginUpload: 'upload',
   };
 

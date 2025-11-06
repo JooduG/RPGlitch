@@ -455,6 +455,17 @@
       </div>
     </main>
 
+    <!-- Expose Perchance plugins to window object (must come before module script) -->
+    <script>
+      // These variables (ai, textToImage, etc.) are available from the left panel
+      // Expose them to window so the module script can access them
+      if (typeof ai !== 'undefined') window.pluginAi = ai;
+      if (typeof textToImage !== 'undefined') window.pluginTextToImage = textToImage;
+      if (typeof superFetch !== 'undefined') window.pluginSuperFetch = superFetch;
+      if (typeof remember !== 'undefined') window.pluginRemember = remember;
+      if (typeof upload !== 'undefined') window.pluginUpload = upload;
+    </script>
+
     <script type="module" src="js/index.js"></script>
     <!-- Dev HUD -->
     <div

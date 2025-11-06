@@ -42,7 +42,7 @@ function setupPlugins() {
     pluginAi: "ai",
     pluginTextToImage: "textToImage",
     pluginSuperFetch: "superFetch",
-    pluginRememberPlugin: "rememberPlugin",
+    pluginRemember: "rememberPlugin",
     pluginUpload: "upload",
   };
 
@@ -1916,7 +1916,7 @@ export async function initializeWhenReady() {
       "ai",
       "textToImage",
       "superFetch",
-      "rememberPlugin",
+      "remember",
       "upload",
     ]);
 

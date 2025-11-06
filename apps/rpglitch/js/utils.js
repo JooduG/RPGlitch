@@ -380,6 +380,16 @@ const isDialogOpen = () => {
     for (const el of candidates) {
       const cs = getComputedStyle?.(el);
       if (cs && cs.pointerEvents === "none") {
+        // Special case: chin-container is allowed to have pointer-events:none when all chins are closed
+        // This is intentional behavior controlled by chin.updateState() in line 1058
+        if (el.id === "chin-container") {
+          const openChins = doc.querySelectorAll('.chin[data-chin]:not([hidden])');
+          if (openChins.length === 0) {
+            // No chins are open, so pointer-events:none is expected - skip this check
+            continue;
+          }
+          // If chins ARE open but container still has pointer-events:none, that's a real block
+        }
         return {
           blocked: true,
           reason: "pointer-events-none",
