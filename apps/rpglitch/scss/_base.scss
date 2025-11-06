@@ -36,22 +36,89 @@
   }
 }
 
+/* ===== LIVING BACKGROUND (Phase 4.3) ===== */
+/* Subtle animated pattern adds texture and depth to the main background */
 html,
 body {
   pointer-events: auto;
   z-index: var(--z-base);
   height: 100%;
   overflow: hidden;
+  /* Base gradient */
   background: linear-gradient(
-    120deg,
-    foundation.$gradient-color-1 0%,
-    foundation.$gradient-color-2 40%,
-    foundation.$gradient-color-3 70%,
-    foundation.$gradient-color-4 100%
-  );
+      120deg,
+      foundation.$gradient-color-1 0%,
+      foundation.$gradient-color-2 40%,
+      foundation.$gradient-color-3 70%,
+      foundation.$gradient-color-4 100%
+    ),
+    /* Subtle diagonal lines pattern */
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 35px,
+      rgb(255 255 255 / 2%) 35px,
+      rgb(255 255 255 / 2%) 70px
+    );
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: cover;
+  position: relative;
+}
+
+/* Optional: Add subtle animated grain for extra texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+  animation: grain-animation 8s steps(10) infinite;
+}
+
+@keyframes grain-animation {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  10% {
+    transform: translate(-5%, -10%);
+  }
+
+  20% {
+    transform: translate(-15%, 5%);
+  }
+
+  30% {
+    transform: translate(7%, -25%);
+  }
+
+  40% {
+    transform: translate(-5%, 25%);
+  }
+
+  50% {
+    transform: translate(-15%, 10%);
+  }
+
+  60% {
+    transform: translate(15%, 0%);
+  }
+
+  70% {
+    transform: translate(0%, 15%);
+  }
+
+  80% {
+    transform: translate(3%, 35%);
+  }
+
+  90% {
+    transform: translate(-10%, 10%);
+  }
 }
 
 header.container,
@@ -197,4 +264,102 @@ button.danger,
     box-shadow: 0 6px 12px
       color.adjust(foundation.$pico-del-color, $alpha: -0.7);
   }
+}
+
+/* ===== PICO-PERFECT TYPOGRAPHY (Phase 1.2) ===== */
+/* Enforce semantic Pico.css typography standards across all text elements */
+
+/* Ensure paragraphs follow Pico's spacing and line-height */
+p {
+  margin-block-start: var(--pico-typography-spacing-vertical, 1rem);
+  margin-block-end: var(--pico-typography-spacing-vertical, 1rem);
+  line-height: var(--pico-line-height, 1.5);
+}
+
+/* Ensure blockquotes have proper styling */
+blockquote {
+  padding: 1rem 1.5rem;
+  border-left: 4px solid var(--pico-primary);
+  background: var(--pico-card-background-color);
+  font-style: italic;
+  margin: 1rem 0;
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+/* Ensure all heading levels maintain hierarchy */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.25;
+  margin-block-start: 1.5rem;
+  margin-block-end: 1rem;
+}
+
+h1 {
+  font-size: var(--pico-font-size-h1, 2rem);
+}
+
+h2 {
+  font-size: var(--pico-font-size-h2, 1.75rem);
+}
+
+h3 {
+  font-size: var(--pico-font-size-h3, 1.5rem);
+}
+
+/* Ensure lists maintain proper structure */
+ul,
+ol {
+  padding-left: 2rem;
+  margin: 1rem 0;
+}
+
+li {
+  margin-bottom: 0.5rem;
+  line-height: var(--pico-line-height, 1.5);
+}
+
+/* Code elements */
+code,
+pre {
+  font-family: var(--pico-font-family-monospace, monospace);
+  background: var(--pico-code-background-color, #f4f4f5);
+  border-radius: var(--pico-radius, 0.25rem);
+}
+
+code {
+  padding: 0.2em 0.4em;
+  font-size: 0.875em;
+}
+
+pre {
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+/* Strong emphasis */
+strong,
+b {
+  font-weight: 700;
+  color: var(--pico-color);
+}
+
+/* Emphasis */
+em,
+i {
+  font-style: italic;
+}
+
+/* Small text */
+small {
+  font-size: 0.875em;
+  color: var(--pico-muted-color);
 }
