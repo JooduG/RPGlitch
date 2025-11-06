@@ -266,11 +266,16 @@ export async function renderProfilePage(type, id) {
   // Helper function to detect URLs
   function isUrl(text) {
     const trimmed = text.trim();
-    return (
-      trimmed.startsWith("http://") ||
-      trimmed.startsWith("https://") ||
-      trimmed.startsWith("data:image/")
-    );
+    if (trimmed.startsWith("data:image/")) {
+      return true;
+    }
+    try {
+      // This is a more robust way to check for a valid URL.
+      new URL(trimmed);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   const imageOverlay = document.createElement("div");
