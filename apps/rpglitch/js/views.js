@@ -210,6 +210,22 @@ export async function renderProfilePage(type, id) {
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
 
+  // Helper function to show non-blocking notifications
+  function showNotification(message, duration = 5000) {
+    const notifier = document.querySelector("#status-notifier");
+    if (notifier) {
+      notifier.textContent = message;
+      notifier.style.display = "block";
+      setTimeout(() => {
+        notifier.textContent = "";
+        notifier.style.display = "none";
+      }, duration);
+    } else {
+      // Fallback to alert if notifier element not found
+      alert(message);
+    }
+  }
+
   // --- 1. State and Data Setup ---
   let isEditing = id === "new";
   const params = getHashQuery();
@@ -318,6 +334,9 @@ export async function renderProfilePage(type, id) {
   // Add input listener for dynamic state updates
   imageInput.addEventListener("input", updateButtonState);
 
+  // Set initial button state based on existing value
+  updateButtonState();
+
   // Add change listener for preview updates (existing functionality)
   imageInput.addEventListener("change", () => {
     const val = imageInput.value.trim();
@@ -359,8 +378,13 @@ export async function renderProfilePage(type, id) {
         // FIX 1: Pass accept parameter to prevent invalid_data_type error
         const data = await window.pluginUpload({ accept: "image/*" });
 
+        // If user cancels, data might be null or empty - exit gracefully
+        if (!data || !data.url) {
+          return;
+        }
+
         // Verify it's an image file
-        if (!data.url || !data.url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+        if (!data.url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
           throw new Error("Please upload a valid image file.");
         }
 
@@ -371,7 +395,7 @@ export async function renderProfilePage(type, id) {
       }
     } catch (error) {
       console.error("Image operation failed:", error);
-      alert(error.message || "Operation failed. Please try again.");
+      showNotification(error.message || "Operation failed. Please try again.");
     } finally {
       // Always remove loading state
       actionButton.disabled = false;
@@ -410,7 +434,6 @@ export async function renderProfilePage(type, id) {
     applyBrand?.(leftCol, tempEntity);
   });
 
-  imageOverlay.appendChild(imageInput);
   imageOverlay.appendChild(signatureColourLabel);
   imageOverlay.appendChild(paletteSelect);
   heroWrap.appendChild(imageOverlay);
