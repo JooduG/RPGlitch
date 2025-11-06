@@ -1,23 +1,31 @@
-import { router, initViews } from "./views.js";
-import { init as initDB, db } from "./db.js"; // <-- ADDED THIS
+// apps/rpglitch/js/index.js
 
+// --- [FIX 1: IMPORT BLOCK] ---
+// Added all the missing functions that were causing 'no-undef' errors.
+import { entities, getPremadeItems, formatPremade, getPictureHTML } from "./entities.js";
+import { initViews, router } from "./views.js";
+import { db } from "./db.js";
 import {
-  applyBrand,
-  debounce,
-  chin,
-  dismissLoadingUI,
+  log,
+  setDebug,
+  initDebugMode,
+  enableAutoUnlock,
   startUIWatchdog,
   installUIRecoveryHooks,
   installUIBlockerAttributeObserver,
-  enableAutoUnlock,
-  setSelected,
   deriveBrand,
-  _uiWatchdogStarted,
-  initDebugMode,
+  applyBrand,
+  buildHero,
+  replaceEventHandler,
+  setSelected,
   handleAsyncError,
-  isHtmlErrorPage,
+  chin,
+  debounce, // <--- ADDED
+  isHtmlErrorPage, // <--- ADDED
+  dismissLoadingUI, // <--- ADDED
+  _uiWatchdogStarted, // <--- ADDED
 } from "./utils.js";
-import { entities, getPictureHTML } from "./entities.js";
+// --- [END FIX 1] ---
 
 // =================================================================
 // Plugin Setup: Copy Perchance-exposed plugins to standard names
@@ -263,12 +271,12 @@ const App = {
 
         const payload = App.prompt.build(threadId);
         const ctrl = new AbortController();
-        App.state.applyPatch({
+        App.applyPatch({
           ui: { fsm: "sending", lastError: null, abortController: ctrl },
         });
 
         try {
-          App.state.applyPatch({ ui: { fsm: "streaming" } });
+          App.applyPatch({ ui: { fsm: "streaming" } });
 
           await App.ai.generateStream({
             payload,
@@ -277,10 +285,10 @@ const App = {
             onDone: () => App.chat._finalizeAssistantMessage(threadId),
           });
 
-          App.state.applyPatch({ ui: { fsm: "done" } });
+          App.applyPatch({ ui: { fsm: "done" } });
         } catch (e) {
           const isAbort = e?.name === "AbortError";
-          App.state.applyPatch({
+          App.applyPatch({
             ui: {
               fsm: isAbort ? "aborted" : "error",
               lastError: e?.message || String(e),
@@ -290,7 +298,7 @@ const App = {
       } catch (error) {
         console.error("Failed to save message:", error);
         alert("Could not save your message. Please try again.");
-        App.state.applyPatch({
+        App.applyPatch({
           ui: { fsm: "error", lastError: "Failed to save message" },
         });
       }
@@ -355,7 +363,7 @@ const App = {
         messages.push(lastMessage);
       }
       lastMessage.text += token;
-      App.state.applyPatch({
+      App.applyPatch({
         messages: { byThreadId: { [threadId]: messages } },
       });
     },
@@ -1922,7 +1930,11 @@ export async function initializeWhenReady() {
 
     // Initialize database first
     try {
-      await initDB();
+      // --- [FIX 2: DATABASE INIT] ---
+      // The call was `initDB()`, which doesn't exist.
+      // The correct call is `db.open()`.
+      await db.open();
+      // --- [END FIX 2] ---
       console.log("[RPGlitch] Database initialized.");
     } catch (error) {
       console.error("[RPGlitch] Failed to initialize database:", error);

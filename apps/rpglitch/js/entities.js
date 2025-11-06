@@ -264,7 +264,7 @@ function normalize(base = {}) {
   const nameOrTitle = sanitizeHtml(base.name || "").trim();
   const summaryOrDesc = sanitizeHtml(base.description || "").trim();
   const image = sanitizeHtml(base.imageUrl || base.image || "").trim();
-
+  const signatureColour = sanitizeHtml(base.signatureColour || "default").trim();
   const sections = base.sections || {};
   const safeSections = {
     forever: sanitizeHtml(sections.forever || "").trim(),
@@ -287,6 +287,7 @@ function normalize(base = {}) {
     description: summaryOrDesc,
     imageUrl: image,
     image,
+    signatureColour: signatureColour,
     tags: safeTags,
     sections: safeSections,
   };

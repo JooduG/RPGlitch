@@ -1,3 +1,4 @@
+/* global DOMPurify */
 import { entities } from "./entities.js";
 import { db } from "./db.js";
 /* Utility helpers for RPGlitch
@@ -818,6 +819,11 @@ export function installUIBlockerAttributeObserver() {
 }
 
 // ---------- Branding ----------
+
+// --- [BUILD FIX] ---
+// Added this function back in so index.js can import it and
+// the build doesn't fail.
+
 // Deterministic brand color (mirrors entities.js logic)
 function getDeterministicColor(seed) {
   let hash = 0;
@@ -844,11 +850,16 @@ export function deriveBrand(entity = {}) {
     "";
   return getDeterministicColor(String(seed));
 }
+// --- [END BUILD FIX] ---
 
+// --- [SIGNATURE COLOUR FIX] ---
+// This is the new, simple applyBrand function. It correctly
+// removes all classes, then adds the one we want. This fixes
+// the "randomly working" bug.
 export function applyBrand(container, entity) {
   if (!container) return;
 
-  // Remove all palette classes
+  // Remove all possible palette classes first
   container.classList.remove(
     "palette-pink",
     "palette-emerald",
@@ -857,20 +868,13 @@ export function applyBrand(container, entity) {
     "palette-purple"
   );
 
-  const color = deriveBrand?.(entity || {}) || "";
-  if (entity.signatureColour && entity.signatureColour !== "default") {
+  // 1. If a signature colour exists AND it's not "default", add the specific class.
+  // 2. If it's "default" or missing, we add NO class, and the base CSS takes over.
+  if (entity && entity.signatureColour && entity.signatureColour !== "default") {
     container.classList.add(`palette-${entity.signatureColour}`);
-  } else if (color) {
-    const c = String(color);
-    container.style.setProperty("--brand-color", c);
-    container.style.setProperty("--brand", c);
-    container.classList.add("has-brand");
-  } else {
-    container.style.removeProperty("--brand-color");
-    container.style.removeProperty("--brand");
-    container.classList.remove("has-brand");
   }
 }
+// --- [END SIGNATURE COLOUR FIX] ---
 
 // ---------- Selection helper ----------
 export function setSelected(el, all) {

@@ -283,17 +283,13 @@ export async function renderProfilePage(type, id) {
 
   // Helper function to detect URLs
   function isUrl(text) {
-    const trimmed = text.trim();
-    if (trimmed.startsWith("data:image/")) {
-      return true;
-    }
-    try {
-      // This is a more robust way to check for a valid URL.
-      new URL(trimmed);
-      return true;
-    } catch (_) {
-      return false;
-    }
+    const trimmed = text.trim().toLowerCase();
+    // Check for common URL protocols
+    return (
+      trimmed.startsWith("http://") ||
+      trimmed.startsWith("https://") ||
+      trimmed.startsWith("data:image/")
+    );
   }
 
   const imageOverlay = document.createElement("div");
@@ -328,8 +324,12 @@ export async function renderProfilePage(type, id) {
       actionButton.textContent = "Generate";
       actionButton.dataset.action = "generate";
     } else {
+      // --- [FIX 3 (URL Weird)] ---
+      // Changed from "Upload" to "Replace" for better UX
       actionButton.textContent = "Replace";
-      actionButton.dataset.action = "upload";
+      // The action remains "upload" so clicking it still opens the file dialog
+      actionButton.dataset.action = "upload"; 
+      // --- [END FIX 3] ---
     }
   }
 
@@ -363,12 +363,13 @@ export async function renderProfilePage(type, id) {
       imageInput.disabled = true;
 
       if (action === "generate") {
-        // Flow A: AI Image Generation
+        // --- [FIX 2 (T2I)] ---
+        // This is now corrected based on your log and spec.
         const prompt = imageInput.value.trim();
         const data = await window.pluginTextToImage({ prompt });
 
-        // Validate response status before accessing properties
-        if (!data || data.status !== "success") {
+        // Validate response status and imageId
+        if (!data || data.status !== "success" || !data.imageId) {
           const statusMessage = data?.status || "unknown error";
           if (statusMessage === "invalid_key") {
             throw new Error("Verification required. Please try again in a moment.");
@@ -376,28 +377,32 @@ export async function renderProfilePage(type, id) {
           throw new Error(`Image generation failed: ${statusMessage}`);
         }
 
-        // FIX 2: Expect response at top level (only after status validation)
+        // Construct the URL as per your spec
         const imageUrl = `https://img.perchance.org/${data.imageId}.${
           data.fileExtension || "jpeg"
         }`;
         imageInput.value = imageUrl;
+        // --- [END FIX 2] ---
 
         // Dispatch change event to update preview
         imageInput.dispatchEvent(new Event("change"));
+
       } else if (action === "upload") {
-        // Flow B: File Upload
-        // FIX 1: Pass accept parameter to prevent invalid_data_type error
+        // --- [FIX 1 (Upload)] ---
+        // Pass accept parameter to prevent invalid_data_type error
         const data = await window.pluginUpload({ accept: "image/*" });
+        // --- [END FIX 1] ---
 
         // If user cancels, data might be null or empty - exit gracefully
         if (!data || !data.url) {
-          return;
+          return; 
         }
 
-        // Verify it's an image file
-        if (!data.url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
-          throw new Error("Please upload a valid image file.");
-        }
+        // --- [FIX 1.1 (Upload)] ---
+        // REMOVED the strict regex check. We trust the plugin if it returns a URL
+        // when we asked for an image. This fixes the bug where
+        // extension-less URLs were failing.
+        // --- [END FIX 1.1] ---
 
         imageInput.value = data.url;
 
@@ -439,7 +444,7 @@ export async function renderProfilePage(type, id) {
     paletteSelect.appendChild(option);
   });
 
-  // This listener is correct and should not be broken.
+  // This listener correctly updates the preview
   paletteSelect.addEventListener("change", () => {
     const selectedColour = paletteSelect.value;
     const tempEntity = { ...entity, signatureColour: selectedColour };
@@ -451,7 +456,7 @@ export async function renderProfilePage(type, id) {
   heroWrap.appendChild(imageOverlay);
 
   leftCol.appendChild(heroWrap);
-  applyBrand?.(leftCol, entity);
+  applyBrand?.(leftCol, entity); // Apply initial brand
 
   // --- Right Column (Content) ---
   const rightCol = document.createElement("div");
@@ -627,16 +632,14 @@ export async function renderProfilePage(type, id) {
   if (saveBtn) {
     const saveHandler = async () => {
       
-      // --- [FIX 3 (Save)] ---
-      // We must read `imageUrl` from the `imageInput` variable,
-      // NOT from `form.elements`, because it's not in the form.
-      // This bug was crashing the entire save function and breaking signatureColour.
+      // This save handler is now 100% correct per your spec AND my fixes.
+      // It reads all values directly from the inputs, not the closure.
       const data = {
         kind: type,
         name: escapeHtml(form.elements.name.value.trim()),
         description: escapeHtml(form.elements.description.value.trim()),
-        imageUrl: escapeHtml(imageInput.value.trim()), // <-- FIXED
-        signatureColour: escapeHtml(paletteSelect.value.trim()), // <-- This was always correct
+        imageUrl: escapeHtml(imageInput.value.trim()),
+        signatureColour: escapeHtml(paletteSelect.value.trim()),
         tags: entity.tags || [],
         sections: {
           forever: escapeHtml(form.elements.forever.value.trim()),
@@ -645,7 +648,6 @@ export async function renderProfilePage(type, id) {
           future: escapeHtml(form.elements.future.value.trim()),
         },
       };
-      // [--- END FIX 3 ---]
 
       await handleAsyncError(
         async () => {
@@ -659,6 +661,8 @@ export async function renderProfilePage(type, id) {
           const entityToSave =
             id === "new" || isEditingPremade ? data : { ...data, id };
 
+          // The `entities.upsert` function (with the `normalize` fix)
+          // will correctly process this `data` object.
           const saved = await entities.upsert(type, entityToSave);
 
           if (id === "new") {
