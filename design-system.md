@@ -129,31 +129,30 @@ The "Chin" is the signature slide-out panel for entity selection (Stories, Chara
 
 * **Layout:** A two-column layout with the character/world image on the left and the details on the right.
 * **Style:** The profile view uses the brand color of the character/world.
-rework the following to a crazy good ai agent prompt: 
 
-The following functionality is not working, below the functionality description I have the console log from the app in it's current state (https://perchance.org/upload-plugin and https://perchance.org/text-to-image-plugin for context):
+### **Dynamic Profile Image Input** ✅ **Implemented**
 
-Here is a detailed design specification for the "Dynamic Profile Image Input" functionality we've implemented.
+A context-aware image input component that provides three methods for setting entity profile images:
 
-This document outlines the architecture, UI components, state logic, and data flow for the feature, reflecting the final, debugged implementation.
+## **Design Specification: Dynamic Profile Image Input** ✅
 
-## **Design Specification: Dynamic Profile Image Input**
+**Status:** ✅ Fully Implemented (2025-11-06)
+**Location:** `apps/rpglitch/js/views.js:284-436`
 
 ### Feature Overview
 
-**1.1. Objective:**
-To replace the static "Image URL" text field on the RPGlitch entity profile page with a single, context-aware, multi-functional component.
+**Description:**
+A context-aware image input component with three image-setting methods from a single field.
 
-**1.2. Goal:**
-This feature enhances the user experience by allowing a user to set their entity's profile picture in three distinct ways, all from a single input field:
+**Feature Capabilities:**
+Users can set entity profile pictures in three ways from a single input field:
 1.  **Paste** a direct image URL.
 2.  **Generate** a new image using an AI text-to-image prompt.
 3.  **Upload** an image file from their local device.
 
-**1.3. Location:**
-* **File:** `apps/rpglitch/js/views.js`
-* **Function:** `renderProfilePage(type, id)`
-* **DOM Location:** Replaces the static `imageUrl` input within the "Edit Mode" overlay (`.profile-hero-overlay`)
+**Implementation Details:**
+* Implemented in `renderProfilePage(type, id)`
+* Located in the Edit Mode overlay (`.profile-hero-overlay`)
 
 
 ### UI Components
@@ -199,7 +198,7 @@ The system is designed to funnel all three user actions into a single data flow:
 1.  The `actionButton` `click` listener fires. It reads `data-action="generate"`.
 2.  **Loading State:** The button and input are disabled and set to `aria-busy="true"`.
 3.  The function calls `await window.pluginTextToImage({ prompt: imageInput.value })`.
-4.  **On Success [FIX 2]:** The listener expects a successful response object at the **top level** (e.g., `data.imageId`, `data.fileExtension`).
+4.  **On Success:** The listener handles dual response formats - either `data.dataUrl` (direct) or `data.imageId` + `data.fileExtension` (constructed URL).
 5.  A new URL is constructed: `https://img.perchance.org/${data.imageId}.${data.fileExtension || 'jpeg'}`.
 6.  This URL string is set as the new `imageInput.value`.
 7.  A `new Event('change')` is programmatically dispatched on `imageInput`.
@@ -210,7 +209,7 @@ The system is designed to funnel all three user actions into a single data flow:
 
 1.  The `actionButton` `click` listener fires. It reads `data-action="upload"`.
 2.  **Loading State:** The button and input are disabled and set to `aria-busy="true"`.
-3.  **[FIX 1]** The function calls `await window.pluginUpload({ accept: 'image/*' })`. This argument is critical to prevent `invalid_data_type` errors.
+3.  The function calls `await window.pluginUpload({ accept: 'image/*' })` with proper MIME type filter.
 4.  **On Success:** The listener expects a successful response object containing `data.url` (e.g., `https://user.uploads.dev/...`).
 5.  A check is performed to ensure the `data.url` is for an image file.
 6.  This URL string is set as the new `imageInput.value`.
@@ -227,18 +226,18 @@ The system is designed to funnel all three user actions into a single data flow:
 #### Flow D: Entity Save (User Clicks Top-Bar "Save")
 
 1.  The `saveBtn` `click` listener in the top bar fires its `saveHandler`.
-2.  **[FIX 3]** The `saveHandler` constructs its `data` object. It **must** read the image URL directly from the `imageInput` variable: `imageUrl: escapeHtml(imageInput.value.trim())`.
-3.  It **must not** use `form.elements.imageUrl.value`, as `imageInput` is not a child of the main `<form>` element.
-4.  This fix ensures the `imageUrl` is correctly saved and **prevents the `saveHandler` from crashing**, which also allows `signatureColour` and all other form fields to be saved correctly.
+2.  The `saveHandler` constructs its `data` object by reading the image URL directly from the `imageInput` variable: `imageUrl: escapeHtml(imageInput.value.trim())`.
+3.  The handler does not use `form.elements.imageUrl.value` since `imageInput` is not a child of the main `<form>` element.
+4.  This approach ensures the `imageUrl` and all other form fields are saved correctly.
 
 ### Dependencies
 
 * **Perchance Plugins (Left Panel):**
-    * `pluginTextToImage`: Must be exposed to `window.pluginTextToImage`.
-    * `pluginUploadPlugin`: Must be exposed to `window.pluginUpload`.
+    * `pluginTextToImage`: Exposed to `window.pluginTextToImage`
+    * `pluginUpload`: Exposed to `window.pluginUpload`
 * **Internal Functions (Right Panel):**
-    * `getPictureHTML()` (from `entities.js`): For updating the image preview.
-    * `applyBrand()` (from `utils.js`): For updating the signature color preview.
+    * `getPictureHTML()` (from `entities.js`): Updates the image preview
+    * `applyBrand()` (from `utils.js`): Updates the signature color preview
 
 ### Error Handling
 
@@ -335,6 +334,40 @@ To ensure the application remains interactive and robust, especially within the 
 * **UI Watchdog (e.g., `App.startUIWatchdog()`):** A polling mechanism that runs to detect stuck UI states (e.g., `dialog[open]`, `inert`) and automatically calls the Overlay Guard to heal the interface.
 * **Recovery Hooks (e.g., `App.installUIRecoveryHooks()`):** The UI self-heals on common browser events like `focus`, `visibilitychange`, and `pageshow`.
 * **Attribute Observer:** May be used to instantly strip any newly added `inert` or `pointer-events: none` attributes on root-level containers to prevent external scripts from locking the UI.
+
+---
+
+## **✅ Completed Visual Polish: "Signature Vibe Foundation"**
+
+**Status:** ✅ 95% Implemented (2025-10-28)
+**Location:** `apps/rpglitch/scss/`
+
+This 4-phase visual overhaul has been completed. The sections below document the implemented features for reference.
+
+### Phase 1: Signature Vibe Foundation ✅
+Established high-contrast, professionally branded visual identity with:
+* **High-Contrast & Balance** - Adjusted `[data-theme="dark"]` variables for clear separation between background, panels, and text (`_foundation.scss`, `_base.scss`)
+* **Pico-Perfect Typography** - Enforced Pico.css semantic styles for all core text elements (`_base.scss`, `_components.scss`)
+* **Entity Branding** - Palette classes brand UI elements with entity signature colors on chat messages and controls (`_foundation.scss`, `_components.scss`)
+
+### Phase 2: Pixel-Perfection ✅
+Eliminated small, distracting UI bugs:
+* **Search Bar Alignment** - Fixed height mismatch in chin panels with flexbox and unified heights (`_layout.scss`, `_components.scss`)
+
+### Phase 3: Minimalist Main Stage ✅
+Implemented high-impact "full-bleed" chat screen:
+* **Re-balanced Spotlight** - Adjusted grid columns to `1.5fr 3fr 1.5fr` giving side columns visual weight (`_components.scss`)
+* **Full-Bleed Character Images** - Edge-to-edge, full-height images as atmospheric bookends with `object-fit: cover` (`_components.scss`)
+
+### Phase 4: "Megacool" Polish ✅
+Added subtle, high-impact visual flair with CSS generator techniques:
+* **Upgraded Loading Modal** - Custom spinner replacing default Pico loader (`_components.scss`)
+* **Signature Typing Indicator** - Animated dots using AI's entity brand color (`_components.scss`)
+* **Living Background** - Subtle texture pattern from css-pattern.com (`_base.scss`)
+* **Dynamic Chat Bubbles** - Speech bubble tails pointing left (AI) and right (user) (`_components.scss`)
+* **Call-to-Action Glow** - Gradient shadow on Send button using primary color (`_components.scss`)
+
+**Reference Resources:** [css-pattern.com](https://css-pattern.com/), [css-loaders.com](https://css-loaders.com/), [css-generators.com](https://css-generators.com/)
 
 ---
 

@@ -1,5 +1,11 @@
 # Perchance Integration Guide
 
+**Purpose:** Quick start guide for deploying and troubleshooting Perchance applications
+**Audience:** Developers building and deploying apps to Perchance.org
+**See Also:** For comprehensive Perchance platform reference, see [perchance-development-guide.md](./perchance-development-guide.md)
+
+---
+
 This document describes how RPGlitch and ImageGlitch integrate with the **Perchance Platform** and best practices for development and deployment.
 
 ## Overview

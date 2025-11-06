@@ -348,33 +348,91 @@ export async function renderProfilePage(type, id) {
   
   actionButton.addEventListener("click", async () => {
     const action = actionButton.dataset.action;
+
     if (action === "generate") {
       const prompt = imageInput.value.trim();
       if (!prompt) return;
 
-      // [FIX] Use the mandated window.pluginTextToImage function...
+      // Check plugin availability before try block
       if (!window.pluginTextToImage || typeof window.pluginTextToImage !== 'function') {
-        throw new Error("Image generation plugin (pluginTextToImage) is not available.");
+        showNotification("Image generation plugin is not available. Please refresh the page.");
+        return;
       }
-      const result = await window.pluginTextToImage({ prompt });
 
       try {
+        // Set loading state on both button and input
         actionButton.disabled = true;
+        imageInput.disabled = true;
+        actionButton.setAttribute("aria-busy", "true");
+        imageInput.setAttribute("aria-busy", "true");
         actionButton.textContent = "Generating...";
-        const result = await window.pluginTextToImage({ prompt });
-        if (!result?.dataUrl) throw new Error("Image generation failed");
 
-        imageInput.value = result.dataUrl;
-        imageInput.dispatchEvent(new Event("input"));
+        const result = await window.pluginTextToImage({ prompt });
+
+        // Handle response format: check for both dataUrl (direct) and imageId/fileExtension (constructed)
+        let imageUrl;
+        if (result?.dataUrl) {
+          imageUrl = result.dataUrl;
+        } else if (result?.imageId) {
+          // Construct URL from imageId and fileExtension
+          const ext = result.fileExtension || 'jpeg';
+          imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
+        } else {
+          throw new Error("Image generation failed: invalid response format");
+        }
+
+        imageInput.value = imageUrl;
+        imageInput.dispatchEvent(new Event("change"));
       } catch (error) {
         console.error("Image generation error:", error);
         showNotification("Image generation failed. Please try again.");
       } finally {
         actionButton.disabled = false;
+        imageInput.disabled = false;
+        actionButton.removeAttribute("aria-busy");
+        imageInput.removeAttribute("aria-busy");
+        updateButtonState();
+      }
+    } else if (action === "upload") {
+      // Check plugin availability before try block
+      if (!window.pluginUpload || typeof window.pluginUpload !== 'function') {
+        showNotification("Upload plugin is not available. Please refresh the page.");
+        return;
+      }
+
+      try {
+        // Set loading state on both button and input
+        actionButton.disabled = true;
+        imageInput.disabled = true;
+        actionButton.setAttribute("aria-busy", "true");
+        imageInput.setAttribute("aria-busy", "true");
+        actionButton.textContent = "Uploading...";
+
+        const result = await window.pluginUpload({ accept: 'image/*' });
+
+        if (!result?.url) {
+          throw new Error("Upload failed: no URL returned");
+        }
+
+        // Validate that the uploaded file is an image
+        const isImage = result.url.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i);
+        if (!isImage) {
+          throw new Error("Uploaded file is not an image. Please select an image file.");
+        }
+
+        imageInput.value = result.url;
+        imageInput.dispatchEvent(new Event("change"));
+      } catch (error) {
+        console.error("Upload error:", error);
+        showNotification(error.message || "Upload failed. Please try again.");
+      } finally {
+        actionButton.disabled = false;
+        imageInput.disabled = false;
+        actionButton.removeAttribute("aria-busy");
+        imageInput.removeAttribute("aria-busy");
         updateButtonState();
       }
     }
-    // TODO: Implement 'upload' action to open a file picker.
   });
 
   imageFieldset.appendChild(imageInput);

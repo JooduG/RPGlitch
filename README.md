@@ -28,9 +28,11 @@ npm run deploy
 
 This is your single source of truth. Read in this order:
 
-1.  **[GEMINI.md](./GEMINI.md)** - **START HERE** - Complete unified protocol, quick start, operational identity, tooling, and all rules
+1.  **AI Protocol** - **START HERE** - Pick your platform:
+    - **[CLAUDE.md](./CLAUDE.md)** for Claude Code
+    - **[GEMINI.md](./GEMINI.md)** for Gemini
 2.  **[design-system.md](./design-system.md)** - UI/UX guidelines & components (Icon-Free Mandate, Chat View, Chin, etc.)
-3.  **[PERCHANCE.md](./PERCHANCE.md)** - Perchance Two-Panel Architecture, plugin integration, deployment workflow, troubleshooting
+3.  **[PERCHANCE.md](./PERCHANCE.md)** - Perchance Two-Panel Architecture, plugin integration, deployment workflow
 4.  **[plan.md](./plan.md)** - Project roadmap, backlog, feature pipeline
 
 ### Additional References
@@ -41,19 +43,20 @@ This is your single source of truth. Read in this order:
 
 ## 🤖 AI Operation
 
-This repository is optimized for AI-assisted development. The core protocol for this is defined in **[GEMINI.md](./GEMINI.md)**.
+This repository is optimized for AI-assisted development with comprehensive protocols for multiple AI platforms:
 
-### Unified Gemini Strategy
+### Supported AI Platforms
 
-Unlike previous versions, this project no longer uses a delegated system of different models. It now operates with a **single, unified Gemini Pro model** that adopts different operational personas based on the task.
+- **Claude Code** → See **[CLAUDE.md](./CLAUDE.md)** - Instructions for Anthropic's Claude Code CLI
+- **Gemini** → See **[GEMINI.md](./GEMINI.md)** - Instructions for Google's Gemini with STO Framework & personas
 
-  * **🎭 The Strategic Architect:** For high-level system design.
-  * **🎨 The Tactical Planner:** For creating step-by-step blueprints (your default interaction model).
-  * **⚒️ The Operational Coder:** For writing production-ready code.
-  * **🖱️ The UI/UX Specialist:** For implementing UI according to `design-system.md`.
-  * **🛡️ The Security & QA Analyst:** For identifying security risks and ensuring quality.
+Both protocols cover:
+- Project architecture & build system
+- Coding standards & non-negotiable rules
+- Task planning & execution workflows
+- Testing & deployment procedures
 
-All work is coordinated by the **Tactical Planner** persona using the **STO Framework** defined in `GEMINI.md`.
+Choose the protocol matching your AI platform.
 
 -----
 
@@ -92,18 +95,18 @@ All work is coordinated by the **Tactical Planner** persona using the **STO Fram
 
 ### For Humans
 
-1.  Read **[GEMINI.md](./GEMINI.md)** for the complete protocol.
-2.  Check **[design-system.md](./design-system.md)** for UI rules.
-3.  Understand the architecture in `/apps/`.
-4.  See **[plan.md](./plan.md)** for what to work on next.
+1.  Read the complete protocol: **[CLAUDE.md](./CLAUDE.md)** or **[GEMINI.md](./GEMINI.md)**
+2.  Check **[design-system.md](./design-system.md)** for UI rules
+3.  Understand the architecture in `/apps/`
+4.  See **[plan.md](./plan.md)** for what to work on next
 
-### For AI
+### For AI Assistants
 
-1.  Default to the **Tactical Planner** persona.
-2.  Coordinate all work using the **STO Framework** (Strategy, Tactics, Operations).
-3.  Adopt operational roles (Coder, UI/UX, QA) as needed to execute the plan.
-4.  Gate all changes with Security/QA checks.
-5.  Adhere to all **Non-Negotiable Rules**.
+1.  Load your platform-specific protocol (CLAUDE.md or GEMINI.md)
+2.  Follow the workflow defined in that protocol
+3.  Adhere to all **Non-Negotiable Rules** below
+4.  Use TodoWrite for task tracking
+5.  Run tests after changes
 
 -----
 
@@ -238,15 +241,16 @@ Every application follows this strict separation (see **[PERCHANCE.md](./PERCHAN
 
 ## 🚀 Next Steps
 
-1.  **New to the project?** - Read **[GEMINI.md](./GEMINI.md)**
+1.  **New to the project?** - Read **[CLAUDE.md](./CLAUDE.md)** or **[GEMINI.md](./GEMINI.md)**
 2.  **Building UI?** - See **[design-system.md](./design-system.md)**
 3.  **Planning features?** - See **[plan.md](./plan.md)**
+4.  **Deploying to Perchance?** - See **[PERCHANCE.md](./PERCHANCE.md)**
 
 -----
 
 ## 📞 Support
 
-  - **Complete Protocol:** **[GEMINI.md](./GEMINI.md)**
+  - **AI Protocols:** **[CLAUDE.md](./CLAUDE.md)** | **[GEMINI.md](./GEMINI.md)**
   - **Build Issues:** [build/README.md](./build/README.md)
   - **Testing:** [tests/](./tests/)
   - **Tools & Utilities:** [tools/README.md](./tools/README.md)
