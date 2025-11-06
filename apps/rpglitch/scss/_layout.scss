@@ -199,8 +199,6 @@ body.chin-open .top-bar {
   border: none;
   padding: 0;
   margin: 0;
-  font-family: inherit;
-  font-size: inherit;
   color: inherit;
   width: 100%;
   resize: none;
@@ -316,7 +314,7 @@ body.chin-open .top-bar {
   .card-body {
     grid-column: 2;
     grid-row: 1;
-    padding: 1rem;
+    padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -326,19 +324,21 @@ body.chin-open .top-bar {
   }
 
   .card-title {
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    font-size: 1rem;
     width: 100%;
-    padding: 0.5rem;
-    border-radius: var(--pico-radius);
-    background: var(--brand, transparent);
-    color: var(--brand-text-on, #fff);
+    color: var(--brand, transparent);
+    text-align: center;
+    flex: 0;
+    padding: 0;
+    background-image: none;
+    font: bold;
+
+    --pico-background-color: none;
+    --pico-border-color: none;
+    --pico-box-shadow: none;
   }
 
   .card-description {
     flex: 1;
-    font-size: 0.9rem;
     line-height: 1.4;
     color: var(--pico-muted-color);
     overflow: hidden;
@@ -363,7 +363,6 @@ body.chin-open .top-bar {
 
     .tag-chip {
       padding: 0.25rem 0.75rem;
-      font-size: 0.8em;
       border-radius: 999px;
       background: var(--brand, var(--pico-primary-contrast));
       color: var(--brand-text-on, #fff);
@@ -391,12 +390,10 @@ body.chin-open .top-bar {
       flex-direction: column;
       align-items: stretch;
       justify-content: flex-start;
-      padding: 1rem;
     }
 
     .card-description {
       text-align: center;
-      font-style: italic;
       color: var(--pico-muted-color);
     }
 

@@ -163,7 +163,6 @@ button,
 /* Top bar buttons with better spacing */
 .top-bar button {
   position: relative;
-  font-weight: 500;
 
   &[aria-selected="true"],
   &[aria-expanded="true"] {
@@ -176,7 +175,6 @@ button,
 /* Primary button enhancements */
 button.primary,
 [type="submit"].primary {
-  font-weight: 600;
   box-shadow: 0 2px 4px rgb(0 0 0 / 15%);
 
   &:not(:disabled):hover {
@@ -194,8 +192,6 @@ button.secondary {
 /* Danger button emphasis */
 button.danger,
 .danger {
-  font-weight: 600;
-
   &:not(:disabled):hover {
     background: color.mix(foundation.$pico-del-color, black, 90%);
     box-shadow: 0 6px 12px

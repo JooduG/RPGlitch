@@ -294,26 +294,22 @@ export async function renderProfilePage(type, id) {
 
   const imageOverlay = document.createElement("div");
   imageOverlay.className = "profile-hero-overlay";
-  imageOverlay.dataset.editField = "hero"; // Controls visibility
+  imageOverlay.dataset.editField = "hero";
 
-  // Create fieldset for grouping input and button
   const imageFieldset = document.createElement("fieldset");
   imageFieldset.setAttribute("role", "group");
 
-  // Create the dynamic input
   const imageInput = document.createElement("input");
   imageInput.name = "imageUrl";
-  imageInput.type = "text"; // Changed from "url" to allow prompts
+  imageInput.type = "text";
   imageInput.placeholder = "Type prompt, paste URL, or click to upload...";
   imageInput.value = entity.imageUrl || "";
 
-  // Create the action button
   const actionButton = document.createElement("button");
   actionButton.type = "button";
   actionButton.textContent = "Upload";
   actionButton.dataset.action = "upload";
 
-  // State management function for button
   function updateButtonState() {
     const value = imageInput.value.trim();
 
@@ -324,7 +320,7 @@ export async function renderProfilePage(type, id) {
       actionButton.textContent = "Generate";
       actionButton.dataset.action = "generate";
     } else {
-      actionButton.textContent = "Replace";
+      actionButton.textContent = "Upload";
       actionButton.dataset.action = "upload";
     }
   }
@@ -335,78 +331,52 @@ export async function renderProfilePage(type, id) {
   // Set initial button state based on existing value
   updateButtonState();
 
-  // Add change listener for preview updates (existing functionality)
-  imageInput.addEventListener("change", () => {
+  // Add input listener for live preview updates
+  imageInput.addEventListener("input", () => {
     const val = imageInput.value.trim();
-    const newPic = getPictureHTML
-      ? getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
-      : null;
-    if (newPic) {
-      const currentWrap = heroWrap.querySelector(".picture");
-      if (currentWrap) currentWrap.replaceWith(newPic);
-      else heroWrap.appendChild(newPic);
+    if (isUrl(val)) {
+      const newPic = getPictureHTML
+        ? getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
+        : null;
+      if (newPic) {
+        const currentWrap = heroWrap.querySelector(".picture");
+        if (currentWrap) currentWrap.replaceWith(newPic);
+        else heroWrap.appendChild(newPic);
+      }
     }
   });
 
-  // ========================================================================
-  // --- [THE FIX IS HERE] ---
-  // Button click handler for Upload/Generate actions
-  // ========================================================================
   actionButton.addEventListener("click", async () => {
     const action = actionButton.dataset.action;
 
     try {
-      // Set loading state
       actionButton.disabled = true;
       actionButton.setAttribute("aria-busy", "true");
       imageInput.disabled = true;
 
       if (action === "generate") {
         const prompt = imageInput.value.trim();
+        if (!prompt) return;
 
-        // Call the plugin and wait for completion
-        const result = await window.pluginTextToImage({ prompt: prompt });
+        const result = await window.pluginTextToImage({ prompt });
         
-        // The result is a String (dataUrl) with attached properties
-        // Use the dataUrl directly as the image source
-        if (!result || !result.dataUrl) {
-          throw new Error("Image generation failed");
-        }
+        if (!result?.dataUrl) throw new Error("Image generation failed");
 
-        // Use the data URL directly (it's a base64-encoded image)
-        const imageUrl = result.dataUrl;
-        imageInput.value = imageUrl;
-        imageInput.dispatchEvent(new Event("change"));
-      } else if (action === "upload") {
-        // The upload plugin *is* promise-based, so this logic was already correct.
-        if (typeof window.pluginUpload !== "function") {
-          throw new Error("Upload plugin not loaded.");
-        }
-        const data = await window.pluginUpload({ accept: "image/*" });
-
-        if (!data || !data.url) {
-          return; // User cancelled
-        }
-
-        imageInput.value = data.url;
-        imageInput.dispatchEvent(new Event("change"));
+        imageInput.value = result.dataUrl;
+        imageInput.dispatchEvent(new Event("input"));
+      } else {
+        showNotification("Upload feature coming soon - use URL paste for now");
       }
     } catch (error) {
       console.error("Image operation failed:", error);
-      showNotification(error.message || "Operation failed. Please try again.");
+      showNotification(error.message || "Operation failed");
     } finally {
-      // Always remove loading state
       actionButton.disabled = false;
       actionButton.removeAttribute("aria-busy");
       imageInput.disabled = false;
-      updateButtonState();
     }
   });
-  // ========================================================================
-  // --- [END OF FIX] ---
-  // ========================================================================
 
-  // Add elements to fieldset and overlay
   imageFieldset.appendChild(imageInput);
   imageFieldset.appendChild(actionButton);
   imageOverlay.appendChild(imageFieldset);
