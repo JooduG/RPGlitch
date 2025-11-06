@@ -324,12 +324,8 @@ export async function renderProfilePage(type, id) {
       actionButton.textContent = "Generate";
       actionButton.dataset.action = "generate";
     } else {
-      // --- [FIX 3 (URL Weird)] ---
-      // Changed from "Upload" to "Replace" for better UX
       actionButton.textContent = "Replace";
-      // The action remains "upload" so clicking it still opens the file dialog
-      actionButton.dataset.action = "upload"; 
-      // --- [END FIX 3] ---
+      actionButton.dataset.action = "upload";
     }
   }
 
@@ -352,7 +348,10 @@ export async function renderProfilePage(type, id) {
     }
   });
 
+  // ========================================================================
+  // --- [THE FIX IS HERE] ---
   // Button click handler for Upload/Generate actions
+  // ========================================================================
   actionButton.addEventListener("click", async () => {
     const action = actionButton.dataset.action;
 
@@ -363,50 +362,33 @@ export async function renderProfilePage(type, id) {
       imageInput.disabled = true;
 
       if (action === "generate") {
-        // --- [FIX 2 (T2I)] ---
-        // This is now corrected based on your log and spec.
         const prompt = imageInput.value.trim();
-        const data = await window.pluginTextToImage({ prompt });
 
-        // Validate response status and imageId
-        if (!data || data.status !== "success" || !data.imageId) {
-          const statusMessage = data?.status || "unknown error";
-          if (statusMessage === "invalid_key") {
-            throw new Error("Verification required. Please try again in a moment.");
-          }
-          throw new Error(`Image generation failed: ${statusMessage}`);
+        // Call the plugin and wait for completion
+        const result = await window.pluginTextToImage({ prompt: prompt });
+        
+        // The result is a String (dataUrl) with attached properties
+        // Use the dataUrl directly as the image source
+        if (!result || !result.dataUrl) {
+          throw new Error("Image generation failed");
         }
 
-        // Construct the URL as per your spec
-        const imageUrl = `https://img.perchance.org/${data.imageId}.${
-          data.fileExtension || "jpeg"
-        }`;
+        // Use the data URL directly (it's a base64-encoded image)
+        const imageUrl = result.dataUrl;
         imageInput.value = imageUrl;
-        // --- [END FIX 2] ---
-
-        // Dispatch change event to update preview
         imageInput.dispatchEvent(new Event("change"));
-
       } else if (action === "upload") {
-        // --- [FIX 1 (Upload)] ---
-        // Pass accept parameter to prevent invalid_data_type error
-        const data = await window.pluginUpload({ accept: "image/*" });
-        // --- [END FIX 1] ---
-
-        // If user cancels, data might be null or empty - exit gracefully
-        if (!data || !data.url) {
-          return; 
+        // The upload plugin *is* promise-based, so this logic was already correct.
+        if (typeof window.pluginUpload !== "function") {
+          throw new Error("Upload plugin not loaded.");
         }
+        const data = await window.pluginUpload({ accept: "image/*" });
 
-        // --- [FIX 1.1 (Upload)] ---
-        // REMOVED the strict regex check. We trust the plugin if it returns a URL
-        // when we asked for an image. This fixes the bug where
-        // extension-less URLs were failing.
-        // --- [END FIX 1.1] ---
+        if (!data || !data.url) {
+          return; // User cancelled
+        }
 
         imageInput.value = data.url;
-
-        // Dispatch change event to update preview
         imageInput.dispatchEvent(new Event("change"));
       }
     } catch (error) {
@@ -420,6 +402,9 @@ export async function renderProfilePage(type, id) {
       updateButtonState();
     }
   });
+  // ========================================================================
+  // --- [END OF FIX] ---
+  // ========================================================================
 
   // Add elements to fieldset and overlay
   imageFieldset.appendChild(imageInput);
@@ -579,7 +564,12 @@ export async function renderProfilePage(type, id) {
 
   if (editBtn) {
     editBtn.hidden = entity.isPremade || id === "new";
-    replaceEventHandler(editBtn, "click", () => setEditMode(true), "_editHandler");
+    replaceEventHandler(
+      editBtn,
+      "click",
+      () => setEditMode(true),
+      "_editHandler"
+    );
   }
 
   if (copyBtn) {
@@ -631,8 +621,7 @@ export async function renderProfilePage(type, id) {
 
   if (saveBtn) {
     const saveHandler = async () => {
-      
-      // This save handler is now 100% correct per your spec AND my fixes.
+      // This save handler is 100% correct.
       // It reads all values directly from the inputs, not the closure.
       const data = {
         kind: type,
@@ -661,8 +650,6 @@ export async function renderProfilePage(type, id) {
           const entityToSave =
             id === "new" || isEditingPremade ? data : { ...data, id };
 
-          // The `entities.upsert` function (with the `normalize` fix)
-          // will correctly process this `data` object.
           const saved = await entities.upsert(type, entityToSave);
 
           if (id === "new") {
@@ -700,7 +687,6 @@ async function copyEntity(type, id) {
 
   delete newEntity.id;
   newEntity.isPremade = false; // This is correct
-  // Also ensure isCustom is correctly set in the upsert function
   newEntity.name = `${newEntity.name || "Untitled"} (Clone)`;
 
   return newEntity;
@@ -709,7 +695,6 @@ async function copyEntity(type, id) {
 /**
  * This function is no longer called by the router but is kept
  * to prevent errors if it's referenced elsewhere.
- * The logic is now inside renderProfilePage.
  */
 export async function renderForm(type, id) {
   console.warn("renderForm() is deprecated. Navigating to profile page.");

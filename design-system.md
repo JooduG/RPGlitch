@@ -129,6 +129,122 @@ The "Chin" is the signature slide-out panel for entity selection (Stories, Chara
 
 * **Layout:** A two-column layout with the character/world image on the left and the details on the right.
 * **Style:** The profile view uses the brand color of the character/world.
+rework the following to a crazy good ai agent prompt: 
+
+The following functionality is not working, below the functionality description I have the console log from the app in it's current state (https://perchance.org/upload-plugin and https://perchance.org/text-to-image-plugin for context):
+
+Here is a detailed design specification for the "Dynamic Profile Image Input" functionality we've implemented.
+
+This document outlines the architecture, UI components, state logic, and data flow for the feature, reflecting the final, debugged implementation.
+
+## **Design Specification: Dynamic Profile Image Input**
+
+### Feature Overview
+
+**1.1. Objective:**
+To replace the static "Image URL" text field on the RPGlitch entity profile page with a single, context-aware, multi-functional component.
+
+**1.2. Goal:**
+This feature enhances the user experience by allowing a user to set their entity's profile picture in three distinct ways, all from a single input field:
+1.  **Paste** a direct image URL.
+2.  **Generate** a new image using an AI text-to-image prompt.
+3.  **Upload** an image file from their local device.
+
+**1.3. Location:**
+* **File:** `apps/rpglitch/js/views.js`
+* **Function:** `renderProfilePage(type, id)`
+* **DOM Location:** Replaces the static `imageUrl` input within the "Edit Mode" overlay (`.profile-hero-overlay`)
+
+
+### UI Components
+
+The feature consists of a single grouped component created dynamically within `renderProfilePage`:
+
+* **`<fieldset role="group">`:** A Pico.css `fieldset` to visually group the input and button.
+* **`imageInput` (`<input type="text">`):**
+    * Serves as the single field for all three user actions.
+    * `type` is set to `text` (from `url`) to allow non-URL prompt text.
+    * `name` is `"imageUrl"` to be correctly picked up by the `saveHandler`.
+    * `placeholder` is set to: `"Type prompt, paste URL, or click to upload..."`
+* **`actionButton` (`<button type="button">`):**
+    * A single button whose text and function change dynamically based on the content of `imageInput`.
+
+### State Management: Context-Aware Button Logic
+
+The core of the feature is an `input` event listener attached to `imageInput` that calls an `updateButtonState()` function on every keystroke. This function transitions the `actionButton` between three states.
+
+A helper utility `isUrl(text)` is used to check for strings beginning with `http://`, `https://`, or `data:image/`.
+
+* **State 1: Empty Field**
+    * **Condition:** `imageInput.value.trim() === ""`
+    * **Button Text:** "Upload"
+    * **Button Action:** `actionButton.dataset.action = "upload"`
+
+* **State 2: Prompt Text**
+    * **Condition:** `imageInput.value.trim() !== ""` AND `!isUrl(imageInput.value)`
+    * **Button Text:** "Generate"
+    * **Button Action:** `actionButton.dataset.action = "generate"`
+
+* **State 3: URL Text**
+    * **Condition:** `isUrl(imageInput.value)`
+    * **Button Text:** "Upload" (Serves as the default fallback action, as the URL preview updates automatically on the `change` event).
+    * **Button Action:** `actionButton.dataset.action = "upload"`
+
+### Data Flow & Event Logic
+
+The system is designed to funnel all three user actions into a single data flow: **populating `imageInput.value` with a valid URL and dispatching a `change` event.**
+
+#### Flow A: AI Generation (User Clicks "Generate")
+
+1.  The `actionButton` `click` listener fires. It reads `data-action="generate"`.
+2.  **Loading State:** The button and input are disabled and set to `aria-busy="true"`.
+3.  The function calls `await window.pluginTextToImage({ prompt: imageInput.value })`.
+4.  **On Success [FIX 2]:** The listener expects a successful response object at the **top level** (e.g., `data.imageId`, `data.fileExtension`).
+5.  A new URL is constructed: `https://img.perchance.org/${data.imageId}.${data.fileExtension || 'jpeg'}`.
+6.  This URL string is set as the new `imageInput.value`.
+7.  A `new Event('change')` is programmatically dispatched on `imageInput`.
+8.  The *existing* `change` listener on `imageInput` fires, calling `getPictureHTML` and updating the hero image preview.
+9.  The `finally` block removes the loading state and calls `updateButtonState()`, which now sets the button to "Upload" (since the field contains a URL).
+
+#### Flow B: File Upload (User Clicks "Upload")
+
+1.  The `actionButton` `click` listener fires. It reads `data-action="upload"`.
+2.  **Loading State:** The button and input are disabled and set to `aria-busy="true"`.
+3.  **[FIX 1]** The function calls `await window.pluginUpload({ accept: 'image/*' })`. This argument is critical to prevent `invalid_data_type` errors.
+4.  **On Success:** The listener expects a successful response object containing `data.url` (e.g., `https://user.uploads.dev/...`).
+5.  A check is performed to ensure the `data.url` is for an image file.
+6.  This URL string is set as the new `imageInput.value`.
+7.  A `new Event('change')` is dispatched, updating the preview.
+8.  The `finally` block removes the loading state and updates the button.
+
+#### Flow C: URL Paste (User Pastes URL)
+
+1.  The user pastes a URL into `imageInput` and clicks away, firing the browser's native `change` event.
+2.  The *existing* `change` listener on `imageInput` fires.
+3.  `getPictureHTML` is called and the hero image preview updates.
+4.  This flow requires no new logic; it is the baseline behavior.
+
+#### Flow D: Entity Save (User Clicks Top-Bar "Save")
+
+1.  The `saveBtn` `click` listener in the top bar fires its `saveHandler`.
+2.  **[FIX 3]** The `saveHandler` constructs its `data` object. It **must** read the image URL directly from the `imageInput` variable: `imageUrl: escapeHtml(imageInput.value.trim())`.
+3.  It **must not** use `form.elements.imageUrl.value`, as `imageInput` is not a child of the main `<form>` element.
+4.  This fix ensures the `imageUrl` is correctly saved and **prevents the `saveHandler` from crashing**, which also allows `signatureColour` and all other form fields to be saved correctly.
+
+### Dependencies
+
+* **Perchance Plugins (Left Panel):**
+    * `pluginTextToImage`: Must be exposed to `window.pluginTextToImage`.
+    * `pluginUploadPlugin`: Must be exposed to `window.pluginUpload`.
+* **Internal Functions (Right Panel):**
+    * `getPictureHTML()` (from `entities.js`): For updating the image preview.
+    * `applyBrand()` (from `utils.js`): For updating the signature color preview.
+
+### Error Handling
+
+* Both the "Upload" and "Generate" actions are wrapped in a `try...catch...finally` block.
+* **On `catch`:** Any error (e.g., plugin failure, non-image upload, `invalid_data_type`) is caught, logged to the console, and presented to the user via a `window.alert()`.
+* **On `finally`:** The loading state (`aria-busy`, `disabled`) is *always* removed from `actionButton` and `imageInput`. This is a critical safety measure to prevent the user from being soft-locked in a loading state if an API call fails.
 
 ### **Storyboard**
 
