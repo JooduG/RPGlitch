@@ -367,7 +367,16 @@ export async function renderProfilePage(type, id) {
         const prompt = imageInput.value.trim();
         const data = await window.pluginTextToImage({ prompt });
 
-        // FIX 2: Expect response at top level
+        // Validate response status before accessing properties
+        if (!data || data.status !== "success") {
+          const statusMessage = data?.status || "unknown error";
+          if (statusMessage === "invalid_key") {
+            throw new Error("Verification required. Please try again in a moment.");
+          }
+          throw new Error(`Image generation failed: ${statusMessage}`);
+        }
+
+        // FIX 2: Expect response at top level (only after status validation)
         const imageUrl = `https://img.perchance.org/${data.imageId}.${
           data.fileExtension || "jpeg"
         }`;
