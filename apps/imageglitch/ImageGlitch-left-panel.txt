@@ -1,11 +1,11 @@
 $meta
   title = ImageGlitch
-  description = Minimalist Text to ImageGlitch Generator
+  description = ImageGlitch
+  header
+    mode = minimal
 
-// --- Plugin Imports ---
-// Import plugins with the prefixed names that index.js expects
-pluginTextToImage = {import:text-to-image-plugin}
 pluginAi = {import:ai-text-plugin}
+pluginTextToImage = {import:text-to-image-plugin}
 pluginRememberPlugin = {import:remember-plugin}
 
 // This list runs on load and saves the evaluated instructions to the remember-plugin
