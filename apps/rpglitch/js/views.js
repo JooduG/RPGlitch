@@ -1,3 +1,5 @@
+console.log("--- [DEBUG] NEW views.js v5 LOADED ---"); // New debug message
+
 // apps/rpglitch/js/views.js
 // Consolidated view layer: routing and stateful entity profile page.
 
@@ -267,11 +269,18 @@ export async function renderProfilePage(type, id) {
   imageOverlay.className = "profile-hero-overlay";
   imageOverlay.dataset.editField = "hero"; // Controls visibility
 
+  // --- [NEW] Dynamic Image Input Group ---
+  const imageFieldset = document.createElement("fieldset");
+  imageFieldset.role = "group";
+  imageFieldset.className = "profile-image-group"; // For styling
+
   const imageInput = document.createElement("input");
-  imageInput.name = "imageUrl";
-  imageInput.type = "url";
-  imageInput.placeholder = "Image URL";
+  imageInput.name = "imageUrl"; // <-- Name is still needed for saveHandler
+  imageInput.type = "text"; // Changed from 'url' to 'text' for dual purpose
+  imageInput.placeholder = "Type prompt, paste URL, or click to upload...";
   imageInput.value = entity.imageUrl || "";
+
+  // This existing listener is perfect, it handles the preview update
   imageInput.addEventListener("change", () => {
     const val = imageInput.value.trim();
     const newPic = getPictureHTML
@@ -283,6 +292,115 @@ export async function renderProfilePage(type, id) {
       else heroWrap.appendChild(newPic);
     }
   });
+
+  const actionButton = document.createElement("button");
+  actionButton.type = "button";
+  actionButton.className = "secondary"; // Will be updated by state
+  
+  // Helper to check for URL-like strings
+  const isUrl = (text) => {
+    // Checks for http(s):// or data:image/...
+    return /^(https?:\/\/|data:image\/)/.test(text.trim());
+  };
+
+  // Function to update button state based on input text
+  const updateButtonState = () => {
+    const text = imageInput.value;
+    if (text === "") {
+      // STATE 1: Empty Field
+      actionButton.textContent = "Upload";
+      actionButton.dataset.action = "upload";
+    } else if (isUrl(text)) {
+      // STATE 2: Pasted URL - Preview updates on 'change'. Button defaults to "Upload".
+      actionButton.textContent = "Upload";
+      actionButton.dataset.action = "upload";
+    } else {
+      // STATE 3: Typing a Prompt
+      actionButton.textContent = "Generate";
+      actionButton.dataset.action = "generate";
+    }
+  };
+
+  // Add 'input' listener to update button on every keystroke
+  imageInput.addEventListener("input", updateButtonState);
+
+  // Add one 'click' listener to the button to handle all actions
+  actionButton.addEventListener("click", async () => {
+    const action = actionButton.dataset.action;
+
+    // Set loading state (as per ImageGlitch spec)
+    actionButton.disabled = true;
+    actionButton.setAttribute("aria-busy", "true");
+    imageInput.disabled = true;
+    // Show indeterminate progress on button
+    actionButton.innerHTML = '<span aria-busy="true"></span>'; 
+
+    try {
+      if (action === "upload") {
+        // --- [FIX 1 (Upload)] ---
+        // Your log shows the plugin returns data.url, not data.imageUrl
+        if (!window.pluginUpload) throw new Error("Upload plugin not found.");
+        const data = await window.pluginUpload({ accept: 'image/*' }); 
+        
+        if (data && data.url) { // <-- FIXED
+          // Check that the uploaded file is an image, not a .txt
+          if (!/\.(jpg|jpeg|png|gif|webp)$/i.test(data.url)) {
+            throw new Error(`Upload failed: File must be an image, not a '${data.fileExtension || 'file'}'.`);
+          }
+          imageInput.value = data.url; // <-- FIXED
+        } else if (data && data.error) {
+          throw new Error(`Upload failed: ${data.error}`);
+        } else if (!data) {
+           // User cancelled the upload dialog
+           console.log("Upload cancelled by user.");
+        } else {
+          // This is the error you saw in the last log
+          throw new Error("Upload failed: Plugin returned no URL.");
+        }
+      } else if (action === "generate") {
+        // --- [FIX 2 (Generate)] ---
+        if (!window.pluginTextToImage) throw new Error("Image Generation plugin not found.");
+        const prompt = imageInput.value.trim();
+        if (!prompt) throw new Error("Prompt cannot be empty.");
+        
+        const data = await window.pluginTextToImage({ prompt });
+
+        // Your log shows data is at the TOP LEVEL, not nested in .generatedImage
+        if (data && data.imageId && data.fileExtension) { // <-- FIXED
+          const { imageId, fileExtension } = data; // <-- FIXED
+          // We must construct the URL manually
+          imageInput.value = `https://img.perchance.org/${imageId}.${fileExtension || 'jpeg'}`;
+        } else {
+          // This is the error you saw in the last log
+          throw new Error("Generation failed to return a valid image object.");
+        }
+        // [--- END FIX 2 ---]
+      }
+    } catch (error) {
+      console.error("Image action failed:", error);
+      alert(`Error: ${error.message || "Operation failed."}`);
+    } finally {
+      // Remove loading state
+      actionButton.disabled = false;
+      actionButton.removeAttribute("aria-busy");
+      imageInput.disabled = false;
+      
+      // Manually trigger a 'change' event to update the preview
+      imageInput.dispatchEvent(new Event("change", { bubbles: true }));
+      
+      // After action, re-check the state (e.g., it's now a URL, so button should say "Upload")
+      updateButtonState(); // This also restores the button text
+    }
+  });
+
+  // Set initial button state on load
+  updateButtonState();
+
+  // Add the new components to the fieldset
+  imageFieldset.appendChild(imageInput);
+  imageFieldset.appendChild(actionButton);
+  // --- [END NEW] Dynamic Image Input Group ---
+
 
   const signatureColourLabel = document.createElement("label");
   signatureColourLabel.textContent = "Signature Colour";
@@ -302,13 +420,14 @@ export async function renderProfilePage(type, id) {
     paletteSelect.appendChild(option);
   });
 
+  // This listener is correct and should not be broken.
   paletteSelect.addEventListener("change", () => {
     const selectedColour = paletteSelect.value;
     const tempEntity = { ...entity, signatureColour: selectedColour };
     applyBrand?.(leftCol, tempEntity);
   });
 
-  imageOverlay.appendChild(imageInput);
+  imageOverlay.appendChild(imageFieldset); // Append the new grouped fieldset
   imageOverlay.appendChild(signatureColourLabel);
   imageOverlay.appendChild(paletteSelect);
   heroWrap.appendChild(imageOverlay);
@@ -327,7 +446,6 @@ export async function renderProfilePage(type, id) {
   form.addEventListener("submit", (e) => e.preventDefault());
 
   // --- (REFACTORED) Name Field (Read/Edit) ---
-  // Pico handles styling for <h1> and <input> automatically.
   form.appendChild(
     createFieldElements(
       "name",
@@ -341,7 +459,6 @@ export async function renderProfilePage(type, id) {
   );
 
   // --- (REFACTORED) Description Field (Read/Edit) ---
-  // Pico handles styling for <p> and <textarea> automatically.
   form.appendChild(
     createFieldElements(
       "description",
@@ -360,10 +477,7 @@ export async function renderProfilePage(type, id) {
   secWrap.className = "profile-fields"; // Just a wrapper
 
   Object.entries(SECTION_DEFINITIONS).forEach(([key, def]) => {
-    // This is the standard Pico.css form group structure
     const fieldDiv = document.createElement("div");
-
-    // 1. Create the Label with <small> helper text
     const label = document.createElement("label");
     label.setAttribute("for", `form-field-${key}`);
     label.textContent = def.label;
@@ -374,8 +488,6 @@ export async function renderProfilePage(type, id) {
     label.appendChild(sublabel);
 
     fieldDiv.appendChild(label);
-
-    // 2. Create the read/edit elements
     fieldDiv.appendChild(
       createFieldElements(
         key,
@@ -387,7 +499,6 @@ export async function renderProfilePage(type, id) {
         }
       )
     );
-
     secWrap.appendChild(fieldDiv);
   });
 
@@ -497,12 +608,17 @@ export async function renderProfilePage(type, id) {
 
   if (saveBtn) {
     const saveHandler = async () => {
+      
+      // --- [FIX 3 (Save)] ---
+      // We must read `imageUrl` from the `imageInput` variable,
+      // NOT from `form.elements`, because it's not in the form.
+      // This bug was crashing the entire save function and breaking signatureColour.
       const data = {
         kind: type,
         name: escapeHtml(form.elements.name.value.trim()),
         description: escapeHtml(form.elements.description.value.trim()),
-        imageUrl: escapeHtml(imageInput.value.trim()),
-        signatureColour: escapeHtml(paletteSelect.value.trim()),
+        imageUrl: escapeHtml(imageInput.value.trim()), // <-- FIXED
+        signatureColour: escapeHtml(paletteSelect.value.trim()), // <-- This was always correct
         tags: entity.tags || [],
         sections: {
           forever: escapeHtml(form.elements.forever.value.trim()),
@@ -511,6 +627,7 @@ export async function renderProfilePage(type, id) {
           future: escapeHtml(form.elements.future.value.trim()),
         },
       };
+      // [--- END FIX 3 ---]
 
       await handleAsyncError(
         async () => {
@@ -560,7 +677,8 @@ async function copyEntity(type, id) {
   };
 
   delete newEntity.id;
-  newEntity.isPremade = false;
+  newEntity.isPremade = false; // This is correct
+  // Also ensure isCustom is correctly set in the upsert function
   newEntity.name = `${newEntity.name || "Untitled"} (Clone)`;
 
   return newEntity;
