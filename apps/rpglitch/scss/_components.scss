@@ -261,17 +261,66 @@ body.chin-open details.dropdown[open] summary::before {
   z-index: var(--z-chin-container); /* Below chin but above everything else */
 }
 
+/* ===== SEARCH BAR ALIGNMENT FIX (Phase 2.1) ===== */
+/* Ensure input and button in search groups have unified, equal height */
 .chin-search-group {
   display: flex;
+  align-items: stretch; /* Force children to equal height */
+  gap: 0;
+}
+
+.chin-search-group input[type="search"],
+.chin-search-group button {
+  height: 2.75rem; /* Unified, explicit height */
+  min-height: 2.75rem;
+  padding-block: 0.625rem;
+  margin: 0;
+  display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .chin-search {
   height: 100%;
+  flex: 1;
 }
 
 #chin-backdrop[hidden] {
   display: none;
+}
+
+/* ===== UPGRADED LOADING MODAL (Phase 4.1) ===== */
+/* Modern CSS spinner replacing default Pico loader */
+#loading-modal[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  background: rgb(0 0 0 / 70%);
+}
+
+#loading-modal [aria-busy="true"]::after {
+  content: "";
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  margin-left: 0.5em;
+  border: 3px solid transparent;
+  border-top-color: var(--pico-primary);
+  border-right-color: var(--pico-primary);
+  border-radius: 50%;
+  animation: spinner-rotation 0.8s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spinner-rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .chin-actions {
@@ -383,12 +432,14 @@ body.chin-open .chin-focus-ring {
   width: 100%;
 }
 
+/* ===== CHAT SCREEN GRID REBALANCE (Phase 3.1) ===== */
+/* Give side columns more visual weight while keeping chat feed as hero */
 #chat-screen {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr; /* AI character | Chat | User character */
+  grid-template-columns: 1.5fr 3fr 1.5fr; /* AI character | Chat | User character */
   gap: 1rem;
   align-items: start;
 
@@ -398,14 +449,18 @@ body.chin-open .chin-focus-ring {
   }
 }
 
+/* ===== FULL-BLEED CHARACTER IMAGES (Phase 3.2) ===== */
+/* Create edge-to-edge, full-height atmospheric character bookends */
 #ai-character-display,
 #user-character-display {
   position: sticky;
-  top: 1rem;
+  top: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0;
+  height: calc(100vh - 2rem); /* Full viewport height minus padding */
+  overflow: hidden;
 
   @include tablet {
     display: none; /* Hide character displays on mobile */
@@ -413,16 +468,24 @@ body.chin-open .chin-focus-ring {
 
   .picture {
     width: 100%;
-    max-width: 200px;
-    aspect-ratio: 1 / 1;
-    border-radius: var(--pico-radius);
+    height: 100%;
+    max-width: none;
+    aspect-ratio: auto;
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+    box-shadow: none;
+    flex: 1;
+  }
+
+  .picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Fill the entire space while maintaining aspect ratio */
+    display: block;
   }
 
   .character-name {
-    text-align: center;
-    color: var(--pico-color);
+    display: none; /* Hide character names for minimalist full-bleed effect */
   }
 }
 
@@ -440,6 +503,8 @@ body.chin-open .chin-focus-ring {
   flex: 1;
 }
 
+/* ===== DYNAMIC CHAT BUBBLES WITH TAILS (Phase 4.4) ===== */
+/* Speech bubble tails pointing from user (right) and AI (left) */
 .chat-message {
   padding: 1rem;
   border-radius: var(--pico-radius);
@@ -448,6 +513,7 @@ body.chin-open .chin-focus-ring {
   background: var(--pico-form-element-background-color);
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   animation: message-slide-in 0.3s ease;
+  position: relative;
 
   @include tablet {
     max-width: 95%;
@@ -466,18 +532,80 @@ body.chin-open .chin-focus-ring {
   }
 }
 
+/* User messages with tail pointing from the right */
 .chat-message[role="user"] {
   align-self: flex-end;
   background: var(--pico-primary-background);
   border: 1px solid var(--pico-primary);
+  border-top-right-radius: 2px;
+
+  /* Tail pointing right */
+  &::after {
+    content: "";
+    position: absolute;
+    right: -8px;
+    top: 8px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 0 8px 8px;
+    border-color: transparent transparent transparent
+      var(--pico-primary-background);
+  }
 }
 
+/* AI messages with tail pointing from the left */
 .chat-message[role="assistant"] {
   align-self: flex-start;
   background: rgb(var(--dark-background-rgb) / 85%);
   backdrop-filter: blur(10px);
+  border-top-left-radius: 2px;
+
+  /* Tail pointing left */
+  &::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: 8px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 8px 8px 0;
+    border-color: transparent rgb(var(--dark-background-rgb) / 85%) transparent
+      transparent;
+  }
 }
 
+/* ===== ENTITY BRANDING (Phase 1.3) ===== */
+/* Apply character signature colors to chat messages based on body palette classes */
+
+/* User messages get branded with user's signature color */
+/* AI messages get branded when AI character has a palette */
+$brand-palettes: (
+  "pink": (color: var(--brand-pink), rgb: "236 72 153"),
+  "emerald": (color: var(--brand-emerald), rgb: "16 185 129"),
+  "cyan": (color: var(--brand-cyan), rgb: "6 182 212"),
+  "orange": (color: var(--brand-orange), rgb: "249 115 22"),
+  "purple": (color: var(--brand-purple), rgb: "168 85 247")
+);
+
+@each $name, $palette in $brand-palettes {
+  $color: map-get($palette, color);
+  $rgb: map-get($palette, rgb);
+
+  .palette-#{$name} .chat-message[role="user"] {
+    border-left: 4px solid $color;
+    box-shadow: 0 2px 8px unquote("rgb(#{$rgb} / 25%)");
+  }
+
+  #chat-screen[data-ai-palette="#{$name}"] .chat-message[role="assistant"] {
+    border-left: 4px solid $color;
+    box-shadow: 0 2px 8px unquote("rgb(#{$rgb} / 20%)");
+  }
+}
+
+/* ===== SIGNATURE TYPING INDICATOR (Phase 4.2) ===== */
+/* Modern dots animation with AI brand color support */
 #typing-indicator {
   padding: 1rem;
   border-radius: var(--pico-radius);
@@ -487,26 +615,86 @@ body.chin-open .chin-focus-ring {
   font-style: italic;
   color: var(--pico-muted-color);
   display: none;
+  align-self: flex-start;
 
   &:not(:empty) {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     animation: message-slide-in 0.3s ease;
   }
 
   &::after {
-    content: "...";
-    animation: typing-dots 1.5s infinite;
+    content: "";
+    display: inline-flex;
+    gap: 0.25rem;
+    align-items: center;
+    width: 3rem;
+    height: 1rem;
+    background-image: radial-gradient(
+        circle,
+        var(--pico-primary) 25%,
+        transparent 25%
+      ),
+      radial-gradient(circle, var(--pico-primary) 25%, transparent 25%),
+      radial-gradient(circle, var(--pico-primary) 25%, transparent 25%);
+    background-size: 0.75rem 0.75rem;
+    background-position:
+      0 50%,
+      50% 50%,
+      100% 50%;
+    background-repeat: no-repeat;
+    animation: typing-dots-pulse 1.4s infinite ease-in-out;
   }
 }
 
-@keyframes typing-dots {
+@keyframes typing-dots-pulse {
   0%,
   100% {
-    opacity: 0.3;
+    background-image: radial-gradient(
+        circle,
+        var(--pico-primary) 25%,
+        transparent 25%
+      ),
+      radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%),
+      radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%);
   }
 
-  50% {
-    opacity: 1;
+  33% {
+    background-image: radial-gradient(
+        circle,
+        var(--pico-muted-color) 25%,
+        transparent 25%
+      ),
+      radial-gradient(circle, var(--pico-primary) 25%, transparent 25%),
+      radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%);
+  }
+
+  66% {
+    background-image: radial-gradient(
+        circle,
+        var(--pico-muted-color) 25%,
+        transparent 25%
+      ),
+      radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%),
+      radial-gradient(circle, var(--pico-primary) 25%, transparent 25%);
+  }
+}
+
+/* AI brand color typing indicators */
+$typing-palettes: (
+  "pink": var(--brand-pink),
+  "emerald": var(--brand-emerald),
+  "cyan": var(--brand-cyan),
+  "orange": var(--brand-orange),
+  "purple": var(--brand-purple)
+);
+
+@each $name, $color in $typing-palettes {
+  #chat-screen[data-ai-palette="#{$name}"] #typing-indicator::after {
+    background-image: radial-gradient(circle, $color 25%, transparent 25%),
+      radial-gradient(circle, $color 25%, transparent 25%),
+      radial-gradient(circle, $color 25%, transparent 25%);
   }
 }
 
@@ -554,6 +742,8 @@ body.chin-open .chin-focus-ring {
   margin-top: 1rem;
 }
 
+/* ===== GLOWING SEND BUTTON (Phase 4.5) ===== */
+/* Gradient shadow creates call-to-action pop using user's primary color */
 #chat-form {
   padding: 1rem;
   background: var(--pico-form-element-background-color);
@@ -570,12 +760,38 @@ body.chin-open .chin-focus-ring {
 
   input[type="submit"] {
     border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
 
     &:not(:disabled):hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
+      transform: translateY(-2px);
+      box-shadow:
+        0 4px 12px rgb(0 0 0 / 25%),
+        0 0 20px rgb(79 70 229 / 40%),
+        0 0 40px rgb(79 70 229 / 20%);
     }
+
+    &:not(:disabled):active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+    }
+  }
+}
+
+/* User palette-specific glows */
+$glow-palettes: (
+  "pink": "236 72 153",
+  "emerald": "16 185 129",
+  "cyan": "6 182 212",
+  "orange": "249 115 22",
+  "purple": "168 85 247"
+);
+
+@each $name, $rgb in $glow-palettes {
+  .palette-#{$name} #chat-form input[type="submit"]:not(:disabled):hover {
+    box-shadow: 0 4px 12px rgb(0 0 0 / 25%),
+      0 0 20px unquote("rgb(#{$rgb} / 40%)"),
+      0 0 40px unquote("rgb(#{$rgb} / 20%)");
   }
 }
 

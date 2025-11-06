@@ -100,6 +100,33 @@ $breakpoint-tablet: 1024px;
   --brand-contrast: var(--brand-text-on);
 }
 
+/* ===== DARK THEME HIGH-CONTRAST OVERRIDES ===== */
+/* Phase 1.1: Enhanced contrast and visual hierarchy for dark theme */
+[data-theme="dark"] {
+  /* Darken main body background for deeper contrast */
+  --pico-background-color: #0f1116;
+
+  /* Lighten card/panel backgrounds to stand out from body */
+  --pico-card-background-color: #1a1d2e;
+  --pico-form-element-background-color: #1a1d2e;
+
+  /* Ensure text is bright and highly readable */
+  --pico-color: #f1f5f9;
+  --pico-h1-color: #f8fafc;
+  --pico-h2-color: #f8fafc;
+  --pico-h3-color: #f1f5f9;
+
+  /* Enhance muted text contrast */
+  --pico-muted-color: #94a3b8;
+
+  /* Improve border visibility */
+  --pico-muted-border-color: #334155;
+
+  /* Enhance primary color visibility */
+  --pico-primary-hover: #4f46e5;
+  --pico-primary-focus: rgb(79 70 229 / 50%);
+}
+
 /* ===== MIXINS ===== */
 
 @mixin mobile {
