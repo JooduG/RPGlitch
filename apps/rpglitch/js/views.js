@@ -310,7 +310,7 @@ export async function renderProfilePage(type, id) {
       actionButton.textContent = "Generate";
       actionButton.dataset.action = "generate";
     } else {
-      actionButton.textContent = "Upload";
+      actionButton.textContent = "Replace";
       actionButton.dataset.action = "upload";
     }
   }
