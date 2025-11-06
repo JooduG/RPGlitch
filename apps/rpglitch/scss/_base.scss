@@ -37,6 +37,7 @@
 }
 
 /* ===== LIVING BACKGROUND (Phase 4.3) ===== */
+
 /* Subtle animated pattern adds texture and depth to the main background */
 html,
 body {
@@ -44,6 +45,7 @@ body {
   z-index: var(--z-base);
   height: 100%;
   overflow: hidden;
+
   /* Base gradient */
   background: linear-gradient(
       120deg,
@@ -267,12 +269,12 @@ button.danger,
 }
 
 /* ===== PICO-PERFECT TYPOGRAPHY (Phase 1.2) ===== */
+
 /* Enforce semantic Pico.css typography standards across all text elements */
 
 /* Ensure paragraphs follow Pico's spacing and line-height */
 p {
-  margin-block-start: var(--pico-typography-spacing-vertical, 1rem);
-  margin-block-end: var(--pico-typography-spacing-vertical, 1rem);
+  margin-block: var(--pico-typography-spacing-vertical, 1rem) var(--pico-typography-spacing-vertical, 1rem);
   line-height: var(--pico-line-height, 1.5);
 }
 
@@ -298,8 +300,7 @@ h5,
 h6 {
   font-weight: 700;
   line-height: 1.25;
-  margin-block-start: 1.5rem;
-  margin-block-end: 1rem;
+  margin-block: 1.5rem 1rem;
 }
 
 h1 {

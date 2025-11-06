@@ -203,19 +203,21 @@ const App = {
     },
   },
 
+  // apps/rpglitch/js/index.js
+
   ai: {
     generateStream: async ({ payload, signal, onToken, onDone }) => {
-      if (
-        !window.Perchance ||
-        !window.Perchance.plugins ||
-        !window.Perchance.plugins.aiText
-      ) {
-        console.error("Perchance AI Text plugin not available.");
-        throw new Error("Perchance AI Text plugin not available.");
+      // [FIX] Check for the standard 'ai' plugin (window.ai) as defined
+      // by setupPlugins() and documented in PERCHANCE.md.
+      if (!window.ai || typeof window.ai.generateStream !== 'function') {
+        console.error("Standard AI plugin (window.ai.generateStream) not available.");
+        throw new Error("Standard AI plugin not available.");
       }
 
-      console.log("Calling Perchance AI Text plugin with payload:", payload);
-      await window.Perchance.plugins.aiText.generateStream({
+      console.log("Calling Standard AI plugin (window.ai) with payload:", payload);
+      
+      // [FIX] Call window.ai.generateStream, not the incorrect window.Perchance path
+      await window.ai.generateStream({
         system: payload.system,
         messages: payload.messages,
         params: payload.params,

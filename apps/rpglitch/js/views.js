@@ -345,26 +345,33 @@ export async function renderProfilePage(type, id) {
       }
     }
   });
-
-  actionButton.addEventListener("click", async () => {
-    const action = actionButton.dataset.action;
-
-    try {
-      actionButton.disabled = true;
-      actionButton.setAttribute("aria-busy", "true");
-      imageInput.disabled = true;
-
-      if (action === "generate") {
-        const prompt = imageInput.value.trim();
-        if (!prompt) return;
-
-        const result = await window.pluginTextToImage({ prompt });
-        
-        if (!result?.dataUrl) throw new Error("Image generation failed");
-
-        imageInput.value = result.dataUrl;
-        imageInput.dispatchEvent(new Event("input"));
-      } else {
+  
+    actionButton.addEventListener("click", async () => {
+      const action = actionButton.dataset.action;
+  
+      try {
+        actionButton.disabled = true;
+        actionButton.setAttribute("aria-busy", "true");
+        imageInput.disabled = true;
+  
+        if (action === "generate") {
+          const prompt = imageInput.value.trim();
+          if (!prompt) return;
+  
+          // [FIX] Use the standard window.textToImage function,
+          // not the prefixed window.pluginTextToImage.
+          // This conforms to the pattern set by setupPlugins() in index.js.
+          if (!window.textToImage || typeof window.textToImage !== 'function') {
+            throw new Error("Image generation plugin (textToImage) is not available.");
+          }
+          
+          const result = await window.textToImage({ prompt });
+          
+          if (!result?.dataUrl) throw new Error("Image generation failed");
+  
+          imageInput.value = result.dataUrl;
+          imageInput.dispatchEvent(new Event("input"));
+        } else {
         showNotification("Upload feature coming soon - use URL paste for now");
       }
     } catch (error) {

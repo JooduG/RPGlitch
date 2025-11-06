@@ -7,26 +7,6 @@
   </head>
 
   <body>
-    <!-- Expose Perchance plugins to window BEFORE any other scripts run -->
-    <script>
-      // Perchance evaluates the variables on the RIGHT side of the =
-      // These *must* match the variable names in RPGlitch-left-panel.txt
-      window.pluginAi = pluginAi;
-      window.pluginTextToImage = pluginTextToImage;
-      window.pluginSuperFetch = pluginSuperFetch;
-      window.pluginRememberPlugin = pluginRememberPlugin;
-      window.pluginUpload = pluginUploadPlugin; // <-- This was the 'upload' vs 'pluginUploadPlugin' mismatch
-
-      console.log("[RPGlitch] Plugins exposed via HTML script tag:", {
-        pluginAi: typeof window.pluginAi,
-        pluginTextToImage: typeof window.pluginTextToImage,
-        pluginSuperFetch: typeof window.pluginSuperFetch,
-        pluginRememberPlugin: typeof window.pluginRememberPlugin,
-        pluginUpload: typeof window.pluginUpload, // This logs the var we use in our app
-      });
-    </script>
-
-    <!-- Hidden for accessibility/SEO -->
     <a href="#main" hidden>Skip to main content</a>
 
     <!-- Initial Loading -->

@@ -1,4 +1,6 @@
 @use "sass:color";
+@use "sass:map";
+@use "sass:string";
 
 /* ============================================================================
    Foundation Layer - Variables, Mixins, and Placeholders
@@ -101,6 +103,7 @@ $breakpoint-tablet: 1024px;
 }
 
 /* ===== DARK THEME HIGH-CONTRAST OVERRIDES ===== */
+
 /* Phase 1.1: Enhanced contrast and visual hierarchy for dark theme */
 [data-theme="dark"] {
   /* Darken main body background for deeper contrast */
