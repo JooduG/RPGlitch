@@ -208,8 +208,6 @@ article header {
   background: rgb(var(--dark-background-rgb) / 90%);
   backdrop-filter: blur(20px);
   border-bottom: 2px solid var(--pico-muted-border-color);
-  border-left: 1px solid rgb(255 255 255 / 10%);
-  border-right: 1px solid rgb(255 255 255 / 10%);
   gap: 1rem;
   position: absolute;
   z-index: var(--z-chin);
@@ -261,31 +259,6 @@ body.chin-open details.dropdown[open] summary::before {
   inset: 0;
   background: transparent;
   z-index: var(--z-chin-container); /* Below chin but above everything else */
-}
-
-/* ===== SEARCH BAR ALIGNMENT FIX (Phase 2.1) ===== */
-
-/* Ensure input and button in search groups have unified, equal height */
-.chin-search-group {
-  display: flex;
-  align-items: stretch; /* Force children to equal height */
-  gap: 0;
-}
-
-.chin-search-group input[type="search"],
-.chin-search-group button {
-  height: 2.75rem; /* Unified, explicit height */
-  min-height: 2.75rem;
-  padding-block: 0.625rem;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chin-search {
-  height: 100%;
-  flex: 1;
 }
 
 #chin-backdrop[hidden] {
@@ -903,12 +876,6 @@ $glow-palettes: (
   padding-right: calc(5% - 1rem);
 
   @include custom-scrollbar(rgb(255 255 255 / 30%), rgb(255 255 255 / 30%));
-}
-
-.chin-search input,
-.chin-search button {
-  height: 2.5rem;
-  padding-block: 0.5rem;
 }
 
 /* ==========================================================================

@@ -409,7 +409,6 @@ let _cardNavAttached = false;
 let _suppressNextBlur = false;
 let _optionsListenersAttached = false;
 let _contentListenersAttached = false;
-let _chinSearchBound = false;
 let _bootBound = false;
 let _bootStarted = false;
 
@@ -453,33 +452,6 @@ export function _getUIElements() {
   ui.uploadWorldInput = doc.querySelector("#upload-world");
 
   return ui;
-}
-
-export function _attachChinSearchHandlers() {
-  if (_chinSearchBound) return;
-  _chinSearchBound = true;
-  const inputs = document.querySelectorAll(".chin-search");
-  inputs.forEach((input) => {
-    if (input._chinSearchBound) return; // idempotent
-    const container = input.closest(".chin") || input.closest(".chin-widget");
-    const list = container?.querySelector(".chin-grid");
-    if (!list || input._chinSearchBound) return;
-
-    const doFilter = () => {
-      const term = input.value.toLowerCase();
-      list.querySelectorAll("[data-title]").forEach((card) => {
-        const title = (card.dataset.title || "").toLowerCase();
-        const match = title.includes(term);
-        card.hidden = !match;
-      });
-    };
-
-    const handler = TEST_MODE
-      ? doFilter
-      : debounce(doFilter, DEBOUNCE_SEARCH_MS);
-    input.addEventListener("input", handler);
-    input._chinSearchBound = true;
-  });
 }
 
 // Migrated from localStorage to IndexedDB
@@ -2026,7 +1998,6 @@ export async function initializeWhenReady() {
     _attachContentChinActions?.();
     _attachSettingsListeners?.(); // <-- ADDED
     _attachCardNavigation?.();
-    _attachChinSearchHandlers();
     await refreshAllLists?.(); // <-- AWAITED
     await _attachStoryboardListeners?.(); // <-- AWAITED
     try {

@@ -42,13 +42,14 @@ body.chin-open .top-bar {
 
 .top-bar-right {
   display: flex;
-  margin-left: auto;
   gap: 1rem;
+  margin: 0;
 }
 
 .top-bar-left {
   display: flex;
   gap: 1rem;
+  margin: 0;
 }
 
 .top-bar-left button:first-of-type,
@@ -264,34 +265,37 @@ body.chin-open .top-bar {
 #storyboard-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  gap: 1rem;
   margin-bottom: 2rem;
   align-items: stretch;
 }
 
 .storyboard-card {
-  min-height: 200px;
+  min-height: 12.5rem;
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: 12rem 1fr;
   grid-template-rows: 1fr;
   gap: 0;
   padding: 0;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   border-radius: var(--pico-radius);
   box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-0.25rem);
     box-shadow: 0 8px 16px rgb(0 0 0 / 25%);
   }
 
   .card-media {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 1 / -1;
+    width: 100%;
     height: 100%;
-    min-height: 200px;
+    min-height: 12.5rem;
+    padding: 0;
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -299,73 +303,114 @@ body.chin-open .top-bar {
     overflow: hidden;
     background: var(--brand, var(--pico-muted-border-color));
 
-    img {
+    // Real uploaded images - edge-to-edge
+    img:not([data-is-placeholder]) {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center center;
       transition: transform 0.3s ease;
+    }
+
+    // Placeholder images/icons - centered, not edge-to-edge
+    img[data-is-placeholder],
+    .placeholder-image,
+    .profile-picture[data-is-placeholder] {
+      position: relative;
+      width: auto;
+      height: auto;
+      max-width: 60%;
+      max-height: 60%;
+      object-fit: contain;
+      opacity: 0.8;
+      color: #fff;
     }
   }
 
-  &:hover .card-media img {
+  &:hover .card-media img:not([data-is-placeholder]) {
     transform: scale(1.05);
   }
 
   .card-body {
     grid-column: 2;
-    grid-row: 1;
+    grid-row: 1 / -1;
     padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: stretch;
     box-sizing: border-box;
     background: var(--pico-card-background-color);
+    position: relative;
+    z-index: 1;
   }
 
   .card-title {
     width: 100%;
-    color: var(--brand, transparent);
+    padding: 0.75rem 1rem;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
     text-align: center;
-    flex: 0;
-    padding: 0;
-    background-image: none;
-    font: bold;
+    color: var(--brand, var(--pico-color));
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.75rem) center;
+    background-size: 0.875rem;
+    padding-right: 2.5rem;
 
-    --pico-background-color: none;
-    --pico-border-color: none;
+    --pico-background-color: transparent;
+    --pico-border-color: transparent;
     --pico-box-shadow: none;
+
+    &:focus {
+      outline: 2px solid var(--brand, var(--pico-primary));
+      outline-offset: -2px;
+      border-bottom-color: var(--brand, var(--pico-primary));
+    }
+
+    &:hover {
+      background-color: rgb(var(--brand-rgb, 255 255 255) / 5%);
+    }
   }
 
   .card-description {
     flex: 1;
+    padding: 0.75rem 1rem;
     line-height: 1.4;
     color: var(--pico-muted-color);
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
-    margin-bottom: 0.5rem;
+    margin: 0;
   }
 
   .card-footer {
-    grid-column: 2;
-    grid-row: 1;
-    align-self: end;
-    padding: 0 1rem 1rem;
+    padding: 0 1rem 0.75rem;
     display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 0.5rem;
+    flex-wrap: wrap;
     background: transparent;
 
     .tag-chip {
       padding: 0.25rem 0.75rem;
       border-radius: 999px;
-      background: var(--brand, var(--pico-primary-contrast));
+      background: var(--brand, var(--pico-primary));
       color: var(--brand-text-on, #fff);
+      font-size: 0.875rem;
     }
   }
 
@@ -374,15 +419,19 @@ body.chin-open .top-bar {
     backdrop-filter: blur(8px);
     border: 2px dashed var(--pico-muted-border-color);
     cursor: pointer;
-    opacity: 0.75;
-    transition: transform 0.2s ease, opacity 0.3s ease, border-color 0.3s ease,
-      box-shadow 0.3s ease;
+    opacity: 0.85;
+    transition: transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease,
+      box-shadow 0.2s ease;
 
     &:hover {
-      transform: translateY(-4px);
-      opacity: 0.9;
+      transform: translateY(-0.25rem);
+      opacity: 1;
       border-color: var(--pico-primary);
       box-shadow: 0 8px 16px rgb(0 0 0 / 20%);
+    }
+
+    .card-media {
+      background: var(--brand, var(--pico-muted-border-color));
     }
 
     .card-body {
@@ -392,9 +441,15 @@ body.chin-open .top-bar {
       justify-content: flex-start;
     }
 
+    .card-title {
+      font-style: italic;
+      color: var(--pico-muted-color);
+    }
+
     .card-description {
       text-align: center;
       color: var(--pico-muted-color);
+      font-style: italic;
     }
 
     .placeholder-image {
@@ -407,16 +462,46 @@ body.chin-open .top-bar {
 @include foundation.mobile {
   #storyboard-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .storyboard-card {
-    grid-template-columns: 120px 1fr;
-    grid-template-rows: 1fr;
+    grid-template-columns: 8rem 1fr;
+    min-height: 10rem;
 
     .card-media {
-      grid-column: 1;
-      grid-row: 1;
-      min-height: 160px;
+      min-height: 10rem;
+
+      img:not([data-is-placeholder]) {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center center;
+      }
+
+      img[data-is-placeholder],
+      .placeholder-image {
+        max-width: 50%;
+        max-height: 50%;
+      }
+    }
+
+    .card-title {
+      font-size: 1rem;
+      padding: 0.5rem 0.75rem;
+      padding-right: 2rem;
+    }
+
+    .card-description {
+      padding: 0.5rem 0.75rem;
+      -webkit-line-clamp: 2;
+    }
+
+    .card-footer {
+      padding: 0 0.75rem 0.5rem;
     }
 
     .card-body {
