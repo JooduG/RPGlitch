@@ -263,15 +263,57 @@ export async function renderProfilePage(type, id) {
   leftCol.className = "profile-left";
   const heroWrap = buildHero(entity, { singleTag: true });
 
+  // Helper function to detect URLs
+  function isUrl(text) {
+    const trimmed = text.trim();
+    return (
+      trimmed.startsWith("http://") ||
+      trimmed.startsWith("https://") ||
+      trimmed.startsWith("data:image/")
+    );
+  }
+
   const imageOverlay = document.createElement("div");
   imageOverlay.className = "profile-hero-overlay";
   imageOverlay.dataset.editField = "hero"; // Controls visibility
 
+  // Create fieldset for grouping input and button
+  const imageFieldset = document.createElement("fieldset");
+  imageFieldset.setAttribute("role", "group");
+
+  // Create the dynamic input
   const imageInput = document.createElement("input");
   imageInput.name = "imageUrl";
-  imageInput.type = "url";
-  imageInput.placeholder = "Image URL";
+  imageInput.type = "text"; // Changed from "url" to allow prompts
+  imageInput.placeholder = "Type prompt, paste URL, or click to upload...";
   imageInput.value = entity.imageUrl || "";
+
+  // Create the action button
+  const actionButton = document.createElement("button");
+  actionButton.type = "button";
+  actionButton.textContent = "Upload";
+  actionButton.dataset.action = "upload";
+
+  // State management function for button
+  function updateButtonState() {
+    const value = imageInput.value.trim();
+
+    if (value === "") {
+      actionButton.textContent = "Upload";
+      actionButton.dataset.action = "upload";
+    } else if (!isUrl(value)) {
+      actionButton.textContent = "Generate";
+      actionButton.dataset.action = "generate";
+    } else {
+      actionButton.textContent = "Upload";
+      actionButton.dataset.action = "upload";
+    }
+  }
+
+  // Add input listener for dynamic state updates
+  imageInput.addEventListener("input", updateButtonState);
+
+  // Add change listener for preview updates (existing functionality)
   imageInput.addEventListener("change", () => {
     const val = imageInput.value.trim();
     const newPic = getPictureHTML
@@ -283,6 +325,61 @@ export async function renderProfilePage(type, id) {
       else heroWrap.appendChild(newPic);
     }
   });
+
+  // Button click handler for Upload/Generate actions
+  actionButton.addEventListener("click", async () => {
+    const action = actionButton.dataset.action;
+
+    try {
+      // Set loading state
+      actionButton.disabled = true;
+      actionButton.setAttribute("aria-busy", "true");
+      imageInput.disabled = true;
+
+      if (action === "generate") {
+        // Flow A: AI Image Generation
+        const prompt = imageInput.value.trim();
+        const data = await window.pluginTextToImage({ prompt });
+
+        // FIX 2: Expect response at top level
+        const imageUrl = `https://img.perchance.org/${data.imageId}.${
+          data.fileExtension || "jpeg"
+        }`;
+        imageInput.value = imageUrl;
+
+        // Dispatch change event to update preview
+        imageInput.dispatchEvent(new Event("change"));
+      } else if (action === "upload") {
+        // Flow B: File Upload
+        // FIX 1: Pass accept parameter to prevent invalid_data_type error
+        const data = await window.pluginUpload({ accept: "image/*" });
+
+        // Verify it's an image file
+        if (!data.url || !data.url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+          throw new Error("Please upload a valid image file.");
+        }
+
+        imageInput.value = data.url;
+
+        // Dispatch change event to update preview
+        imageInput.dispatchEvent(new Event("change"));
+      }
+    } catch (error) {
+      console.error("Image operation failed:", error);
+      alert(error.message || "Operation failed. Please try again.");
+    } finally {
+      // Always remove loading state
+      actionButton.disabled = false;
+      actionButton.removeAttribute("aria-busy");
+      imageInput.disabled = false;
+      updateButtonState();
+    }
+  });
+
+  // Add elements to fieldset and overlay
+  imageFieldset.appendChild(imageInput);
+  imageFieldset.appendChild(actionButton);
+  imageOverlay.appendChild(imageFieldset);
 
   const signatureColourLabel = document.createElement("label");
   signatureColourLabel.textContent = "Signature Colour";
