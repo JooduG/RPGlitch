@@ -790,15 +790,26 @@ $glow-signatures: (
 .profile-left .picture {
   width: 100%;
   height: 100%;
-  aspect-ratio: auto;
+  aspect-ratio: 1 / 1; /* Force 1:1 aspect ratio for profile pictures */
   border-radius: 0;
   background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Hide overflow from cropped images */
+  position: absolute; /* Position absolutely to allow centering */
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Adjust for true centering */
+  max-width: 100vh; /* Limit width to viewport height to maintain square */
+  max-height: 100vh; /* Ensure it doesn't exceed viewport height */
 }
 
 .profile-left .picture img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* Cover entire container while maintaining aspect ratio */
+  object-position: center center; /* Center the image within the container */
   display: block;
 }
 

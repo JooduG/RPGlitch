@@ -367,10 +367,11 @@ export async function renderProfilePage(type, id) {
         imageInput.setAttribute("aria-busy", "true");
         actionButton.textContent = "Generating...";
 
-        // Call plugin with prompt and guidanceScale (required for API authentication)
+        // Call plugin with prompt, guidanceScale, and portrait resolution
         const result = await window.pluginTextToImage({
           prompt,
           guidanceScale: 7, // Default guidance scale for consistent results
+          resolution: 'portrait', // Force portrait aspect ratio for all generated images
         });
 
         // Handle response format: check for both dataUrl (direct) and imageId/fileExtension (constructed)
