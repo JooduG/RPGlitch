@@ -30,12 +30,12 @@
       "mcp__playwright__browser_snapshot",
       "mcp__chrome-devtools__list_pages",
       "mcp__mcp-sequentialthinking-tools__sequentialthinking_tools",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
   },
-  "outputStyle": "default",
   "enabledMcpjsonServers": [
     "time",
     "toolbox",
@@ -46,5 +46,6 @@
     "playwright",
     "npm-sentinel",
     "chrome-devtools"
-  ]
+  ],
+  "outputStyle": "default"
 }

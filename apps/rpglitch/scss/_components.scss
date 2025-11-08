@@ -43,8 +43,8 @@
   align-items: center;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  background: var(--brand, rgb(0 0 0 / 65%));
-  color: var(--brand-contrast, #fff);
+  background: var(--signature, rgb(0 0 0 / 65%));
+  color: var(--signature-contrast, #fff);
   line-height: 1;
   box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
 }
@@ -155,8 +155,29 @@
 
     pointer-events: auto;
     z-index: var(--z-base);
-    background-color: var(--pico-form-element-background-color);
   }
+}
+
+.storyboard-card .card-title {
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: inherit;
+  line-height: inherit;
+  color: var(--signature);
+  font-weight: bold;
+  font-style: normal;
+  text-align: center;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
 }
 
 article {
@@ -558,24 +579,24 @@ body.chin-open .chin-focus-ring {
 
 /* ===== ENTITY BRANDING (Phase 1.3) ===== */
 
-/* Apply character signature colors to chat messages based on body palette classes */
+/* Apply character signature colors to chat messages based on body signature classes */
 
-/* User messages get branded with user's signature color */
+/* User messages get signature color styling */
 
-/* AI messages get branded when AI character has a palette */
-$brand-palettes: (
-  "pink": (color: var(--brand-pink), rgb: 236 72 153),
-  "emerald": (color: var(--brand-emerald), rgb: 16 185 129),
-  "cyan": (color: var(--brand-cyan), rgb: 6 182 212),
-  "orange": (color: var(--brand-orange), rgb: 249 115 22),
-  "purple": (color: var(--brand-purple), rgb: 168 85 247)
+/* AI messages get signature color styling when AI character has a signature */
+$signature-palettes: (
+  "pink": (color: var(--signature-pink), rgb: 236 72 153),
+  "emerald": (color: var(--signature-emerald), rgb: 16 185 129),
+  "cyan": (color: var(--signature-cyan), rgb: 6 182 212),
+  "orange": (color: var(--signature-orange), rgb: 249 115 22),
+  "purple": (color: var(--signature-purple), rgb: 168 85 247)
 );
 
-@each $name, $palette in $brand-palettes {
+@each $name, $palette in $signature-palettes {
   $color: map.get($palette, color);
   $rgb: map.get($palette, rgb);
 
-  .palette-#{$name} .chat-message[role="user"] {
+  .signature-#{$name} .chat-message[role="user"] {
     border-left: 4px solid #{$color};
     box-shadow: 0 2px 8px rgba($rgb..., 0.25);
   }
@@ -664,13 +685,13 @@ $brand-palettes: (
   }
 }
 
-/* AI brand color typing indicators */
+/* AI signature color typing indicators */
 $typing-palettes: (
-  "pink": var(--brand-pink),
-  "emerald": var(--brand-emerald),
-  "cyan": var(--brand-cyan),
-  "orange": var(--brand-orange),
-  "purple": var(--brand-purple)
+  "pink": var(--signature-pink),
+  "emerald": var(--signature-emerald),
+  "cyan": var(--signature-cyan),
+  "orange": var(--signature-orange),
+  "purple": var(--signature-purple)
 );
 
 @each $name, $color in $typing-palettes {
@@ -762,8 +783,8 @@ $typing-palettes: (
   }
 }
 
-/* User palette-specific glows */
-$glow-palettes: (
+/* User signature-specific glows */
+$glow-signatures: (
   "pink": 236 72 153,
   "emerald": 16 185 129,
   "cyan": 6 182 212,
@@ -771,10 +792,10 @@ $glow-palettes: (
   "purple": 168 85 247
 );
 
-@each $name, $rgb in $glow-palettes {
-  .palette-#{$name} #chat-form input[type="submit"]:not(:disabled):hover {
-    box-shadow: 0 4px 12px rgb(0 0 0 / 25%), 
-      0 0 20px rgba($rgb..., 0.40), 
+@each $name, $rgb in $glow-signatures {
+  .signature-#{$name} #chat-form input[type="submit"]:not(:disabled):hover {
+    box-shadow: 0 4px 12px rgb(0 0 0 / 25%),
+      0 0 20px rgba($rgb..., 0.40),
       0 0 40px rgba($rgb..., 0.20);
   }
 }

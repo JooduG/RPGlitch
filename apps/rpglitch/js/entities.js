@@ -146,7 +146,7 @@ function getContrast(color) {
  * to the new `signatureColour` property, ensuring existing data continues to work.
  *
  * The fallback chain is:
- * 1. Returns CSS variable `--brand-{color}` if `entity.signatureColour` is defined and not 'default'
+ * 1. Returns CSS variable `--signature-{color}` if `entity.signatureColour` is defined and not 'default'
  * 2. Falls back to `entity.palette.brand` if available (legacy object format)
  * 3. Falls back to `entity.palette` if it's a string (legacy string format)
  * 4. Generates a deterministic color based on entity name and tags as final fallback
@@ -163,35 +163,35 @@ function getContrast(color) {
  *
  * @example
  * // Modern entity with signature color
- * getBrand({ signatureColour: 'cyan' })
- * // Returns: 'var(--brand-cyan)'
+ * getSignature({ signatureColour: 'cyan' })
+ * // Returns: 'var(--signature-cyan)'
  *
  * @example
  * // Legacy entity with palette object
- * getBrand({ palette: { brand: '#ec4899' } })
+ * getSignature({ palette: { brand: '#ec4899' } })
  * // Returns: '#ec4899'
  *
  * @example
  * // Legacy entity with palette string
- * getBrand({ palette: '#06b6d4' })
+ * getSignature({ palette: '#06b6d4' })
  * // Returns: '#06b6d4'
  *
  * @example
  * // Entity with both (signature color takes precedence)
- * getBrand({ signatureColour: 'emerald', palette: { brand: '#ec4899' } })
- * // Returns: 'var(--brand-emerald)'
+ * getSignature({ signatureColour: 'emerald', palette: { brand: '#ec4899' } })
+ * // Returns: 'var(--signature-emerald)'
  *
  * @example
  * // Entity with neither property (deterministic generation)
- * getBrand({ name: 'Aether Blade', tags: ['cyberpunk'] })
+ * getSignature({ name: 'Aether Blade', tags: ['cyberpunk'] })
  * // Returns: 'hsl(123, 40%, 60%)' (deterministic based on name/tags)
  */
-function getBrand(entity = {}) {
+function getSignature(entity = {}) {
   if (!entity) {
     return getDeterministicColor("");
   }
   if (entity.signatureColour && entity.signatureColour !== "default") {
-    return `var(--brand-${entity.signatureColour})`;
+    return `var(--signature-${entity.signatureColour})`;
   }
   // Legacy palette object format
   if (entity.palette?.brand) return entity.palette.brand;
@@ -224,13 +224,13 @@ export function getPictureHTML(entity = {}, options = {}) {
     typeof entity.imageUrl === "string" && entity.imageUrl.trim()
       ? entity.imageUrl.trim()
       : "";
-  const brand = getBrand(entity);
-  const contrast = getContrast(brand);
+  const signature = getSignature(entity);
+  const contrast = getContrast(signature);
 
   const wrap = document.createElement("div");
   wrap.className = `picture${cover ? " picture--cover" : ""}`;
-  wrap.style.setProperty("--brand", brand);
-  wrap.style.setProperty("--brand-contrast", contrast);
+  wrap.style.setProperty("--signature", signature);
+  wrap.style.setProperty("--signature-contrast", contrast);
 
   if (src) {
     const img = document.createElement("img");
@@ -246,8 +246,8 @@ export function getPictureHTML(entity = {}, options = {}) {
   ph.className = "placeholder-image";
   const useNeutral = !!neutralPlaceholder;
   if (!useNeutral) {
-    ph.style.backgroundColor = "var(--brand)";
-    ph.style.color = "var(--brand-contrast)";
+    ph.style.backgroundColor = "var(--signature)";
+    ph.style.color = "var(--signature-contrast)";
   }
   ph.innerHTML = sanitizeHtml(
     PLACEHOLDER_ICONS[kind] || PLACEHOLDER_ICONS.default
@@ -464,5 +464,5 @@ export const entities = {
   },
 };
 
-// Export getBrand for testing purposes
-export { getBrand };
+// Export getSignature for testing purposes
+export { getSignature };

@@ -863,25 +863,25 @@ export function deriveBrand(entity = {}) {
 // --- [END BUILD FIX] ---
 
 // --- [SIGNATURE COLOUR FIX] ---
-// This is the new, simple applyBrand function. It correctly
+// This is the applySignature function. It correctly
 // removes all classes, then adds the one we want. This fixes
 // the "randomly working" bug.
-export function applyBrand(container, entity) {
+export function applySignature(container, entity) {
   if (!container) return;
 
-  // Remove all possible palette classes first
+  // Remove all possible signature classes first
   container.classList.remove(
-    "palette-pink",
-    "palette-emerald",
-    "palette-cyan",
-    "palette-orange",
-    "palette-purple"
+    "signature-pink",
+    "signature-emerald",
+    "signature-cyan",
+    "signature-orange",
+    "signature-purple"
   );
 
   // 1. If a signature colour exists AND it's not "default", add the specific class.
   // 2. If it's "default" or missing, we add NO class, and the base CSS takes over.
   if (entity && entity.signatureColour && entity.signatureColour !== "default") {
-    container.classList.add(`palette-${entity.signatureColour}`);
+    container.classList.add(`signature-${entity.signatureColour}`);
   }
 }
 // --- [END SIGNATURE COLOUR FIX] ---

@@ -159,7 +159,7 @@ body.chin-open .top-bar {
   z-index: 0; /* stays under the top bar (which has higher z-index) */
   pointer-events: none; /* image acts as backdrop */
   overflow: hidden;
-  background: var(--brand, transparent);
+  background: var(--signature, transparent);
 }
 
 .profile-right {
@@ -273,7 +273,7 @@ body.chin-open .top-bar {
 .storyboard-card {
   min-height: 12.5rem;
   display: grid;
-  grid-template-columns: 12rem 1fr;
+  grid-template-columns: 30% 1fr;
   grid-template-rows: 1fr;
   gap: 0;
   padding: 0;
@@ -296,12 +296,12 @@ body.chin-open .top-bar {
     min-height: 12.5rem;
     padding: 0;
     margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
     position: relative;
     overflow: hidden;
-    background: var(--brand, var(--pico-muted-border-color));
+    background: var(--signature, var(--pico-muted-border-color));
+    border-radius: var(--pico-radius) 0 0 var(--pico-radius);
 
     // Real uploaded images - edge-to-edge
     img:not([data-is-placeholder]) {
@@ -350,35 +350,37 @@ body.chin-open .top-bar {
 
   .card-title {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.3rem 1rem;
     margin: 0;
     font-size: 1.125rem;
-    font-weight: 600;
+    font-weight: bold;
     text-align: center;
-    color: var(--brand, var(--pico-color));
+    color: var(--signature);
     background: transparent;
     border: none;
-    border-bottom: 1px solid var(--pico-muted-border-color);
+    border-bottom: 2px solid var(--pico-muted-border-color);
     cursor: pointer;
     appearance: none;
+    font-style: normal;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: calc(100% - 0.75rem) center;
     background-size: 0.875rem;
     padding-right: 2.5rem;
+    line-height: 1.1;
 
     --pico-background-color: transparent;
     --pico-border-color: transparent;
     --pico-box-shadow: none;
 
     &:focus {
-      outline: 2px solid var(--brand, var(--pico-primary));
+      outline: 2px solid var(--signature, var(--pico-primary));
       outline-offset: -2px;
-      border-bottom-color: var(--brand, var(--pico-primary));
+      border-bottom-color: var(--signature, var(--pico-primary));
     }
 
     &:hover {
-      background-color: rgb(var(--brand-rgb, 255 255 255) / 5%);
+      background-color: rgb(var(--signature-rgb, 255 255 255) / 5%);
     }
   }
 
@@ -386,7 +388,8 @@ body.chin-open .top-bar {
     flex: 1;
     padding: 0.75rem 1rem;
     line-height: 1.4;
-    color: var(--pico-muted-color);
+    color: var(--pico-color);
+    opacity: 0.9;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -400,7 +403,7 @@ body.chin-open .top-bar {
     padding: 0 1rem 0.75rem;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
     gap: 0.5rem;
     flex-wrap: wrap;
     background: transparent;
@@ -408,9 +411,23 @@ body.chin-open .top-bar {
     .tag-chip {
       padding: 0.25rem 0.75rem;
       border-radius: 999px;
-      background: var(--brand, var(--pico-primary));
-      color: var(--brand-text-on, #fff);
+      background: var(--signature, var(--pico-primary));
+      color: var(--signature-text-on, #fff);
       font-size: 0.875rem;
+      font-weight: 600;
+      opacity: 1;
+    }
+  }
+
+  &.selected {
+    .card-title,
+    .card-description,
+    .card-media,
+    .card-media img,
+    .card-media .placeholder-image,
+    .card-footer,
+    .tag-chip {
+      opacity: 1 !important;
     }
   }
 
@@ -431,7 +448,7 @@ body.chin-open .top-bar {
     }
 
     .card-media {
-      background: var(--brand, var(--pico-muted-border-color));
+      background: var(--signature, var(--pico-muted-border-color));
     }
 
     .card-body {
@@ -442,8 +459,6 @@ body.chin-open .top-bar {
     }
 
     .card-title {
-      font-style: italic;
-      color: var(--pico-muted-color);
     }
 
     .card-description {
@@ -466,7 +481,7 @@ body.chin-open .top-bar {
   }
 
   .storyboard-card {
-    grid-template-columns: 8rem 1fr;
+    grid-template-columns: 30% 1fr;
     min-height: 10rem;
 
     .card-media {
@@ -491,17 +506,16 @@ body.chin-open .top-bar {
 
     .card-title {
       font-size: 1rem;
-      padding: 0.5rem 0.75rem;
+      font-weight: 700;
+      font-style: normal;
+      padding: 0.3rem 0.75rem;
       padding-right: 2rem;
+      line-height: 1.1;
     }
 
     .card-description {
       padding: 0.5rem 0.75rem;
       -webkit-line-clamp: 2;
-    }
-
-    .card-footer {
-      padding: 0 0.75rem 0.5rem;
     }
 
     .card-body {
@@ -510,8 +524,8 @@ body.chin-open .top-bar {
     }
 
     .card-footer {
-      grid-column: 2;
-      grid-row: 1;
+      padding: 0 0.75rem 0.5rem;
+      justify-content: flex-end;
     }
   }
 }

@@ -14,7 +14,7 @@ import {
   installUIRecoveryHooks,
   installUIBlockerAttributeObserver,
   deriveBrand,
-  applyBrand,
+  applySignature,
   buildHero,
   replaceEventHandler,
   setSelected,
@@ -611,9 +611,9 @@ async function renderList(containerId, key) {
       }
     }
 
-    applyBrand(card, item);
+    applySignature(card, item);
     try {
-      applyBrand?.(media, item);
+      applySignature?.(media, item);
     } catch (e) {
       void e;
     }
@@ -988,7 +988,7 @@ async function _ensureCardStructure(card) {
 
         const newFooter = document.createElement("div");
         newFooter.className = "card-footer";
-        card.appendChild(newFooter);
+        newBody.appendChild(newFooter);
 
         const dataKey = cardType === "world" ? "worlds" : "characters";
         await renderDropdown(document, selectId || newTitleEl.id, dataKey);
@@ -1129,7 +1129,7 @@ function _populateCardWithEntity(card, entity, elements, templates) {
   if (media) {
     media.textContent = "";
     media.appendChild(_buildPictureNode(entity, { templates }));
-    applyBrand?.(media, entity);
+    applySignature?.(media, entity);
   }
 
   if (footer) {
@@ -1144,7 +1144,7 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     }
   }
 
-  applyBrand(card, entity);
+  applySignature(card, entity);
   card.dataset.entityType = card.dataset.type || entity.kind || "";
   card.dataset.entityId = entity.id;
 
@@ -1395,7 +1395,7 @@ async function onStoryboardChange(e) {
       const entity = await entities.get(type, id); // <-- AWAITED
 
       if (entity) {
-        applyBrand?.(left, entity);
+        applySignature?.(left, entity);
 
         (function applyCardBrandShim() {
           const brand = deriveBrand ? deriveBrand(entity) : null;
@@ -2060,6 +2060,18 @@ export async function initializeWhenReady() {
     } catch {
       void 0;
     }
+
+    // Attach click handlers to topbar buttons for chin control
+    const topBarButtons = document.querySelectorAll("#top-bar-left button[data-chin]");
+    topBarButtons.forEach((button) => {
+      const chinName = button.dataset.chin;
+      if (chinName) {
+        button.addEventListener("click", () => {
+          chin.open(chinName);
+        });
+      }
+    });
+
     window.initializeWhenReadyRetryCount = 0;
     try {
       console.log("[RPGlitch] initializeWhenReady success");

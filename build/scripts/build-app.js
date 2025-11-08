@@ -174,12 +174,12 @@ async function build(appName) {
             const jsString = JSON.stringify(jsChunks) + ".join('')";
 
             const loaderScriptContent = `
-              const libsContent = ${libsString};
-              const appContent = ${jsString};
-              const libsScript = document.createElement('script');
+              var libsContent = ${libsString};
+              var appContent = ${jsString};
+              var libsScript = document.createElement('script');
               libsScript.textContent = libsContent;
               document.body.appendChild(libsScript);
-              const appScript = document.createElement('script');
+              var appScript = document.createElement('script');
               appScript.textContent = appContent;
               document.body.appendChild(appScript);
             `;

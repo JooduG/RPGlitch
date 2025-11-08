@@ -15,6 +15,10 @@ Our design philosophy is built on a foundation of minimalism, clarity, and robus
 * **Consistency is Queen:** Similar elements must look and behave similarly across all applications. This builds trust and reduces cognitive load.
 * **Accessibility by Design:** Our interfaces must be usable and accessible to everyone. This is a non-negotiable baseline.
 
+### **Terminology**
+
+*   **Entity vs. Item:** In the context of this project, "Entity" is the canonical term for our core data objects: Stories, Characters, and Worlds. You will see "Item" used in the codebase, particularly in relation to generic functions that handle these objects. Consider "Item" to be a developer-facing synonym for "Entity" in most cases.
+
 ---
 
 ## **Interaction & UX Principles**
@@ -56,10 +60,12 @@ Our visual language is built on the **Pico.css** framework. All base typography,
     * `$gradient-color-3: #1a3a4a`
     * `$gradient-color-4: #2a1a3a`
 * **⚪ Text:** Standard text color is inherited from Pico.css (`--pico-color`).
-* **🎨 Palettes:** We use a set of predefined color palettes to provide visual variety.
-    * **Pink:** `--brand: #ec4899`
-    * **Emerald:** `--brand: #10b981`
-    * **Cyan:** `--brand: #06b6d4`
+* **🎨 Signature Colors:** We use a set of predefined signature colors to provide visual variety and entity identity.
+    * **Pink:** `--signature: #ec4899`
+    * **Emerald:** `--signature: #10b981`
+    * **Cyan:** `--signature: #06b6d4`
+    * **Orange:** `--signature: #f97316`
+    * **Purple:** `--signature: #a855f7`
 
 ### **Typography**
 
@@ -128,7 +134,7 @@ The "Chin" is the signature slide-out panel for entity selection (Stories, Chara
 ### **Profiles**
 
 * **Layout:** A two-column layout with the character/world image on the left and the details on the right.
-* **Style:** The profile view uses the brand color of the character/world.
+* **Style:** The profile view uses the signature color of the character/world.
 
 ### **Dynamic Profile Image Input** ✅ **Implemented**
 
@@ -348,7 +354,7 @@ This 4-phase visual overhaul has been completed. The sections below document the
 Established high-contrast, professionally branded visual identity with:
 * **High-Contrast & Balance** - Adjusted `[data-theme="dark"]` variables for clear separation between background, panels, and text (`_foundation.scss`, `_base.scss`)
 * **Pico-Perfect Typography** - Enforced Pico.css semantic styles for all core text elements (`_base.scss`, `_components.scss`)
-* **Entity Branding** - Palette classes brand UI elements with entity signature colors on chat messages and controls (`_foundation.scss`, `_components.scss`)
+* **Entity Signature Colors** - Signature color classes (`.signature-*`) apply entity-specific colors to UI elements including chat messages, cards, and controls (`_foundation.scss`, `_components.scss`)
 
 ### Phase 2: Pixel-Perfection ✅
 Eliminated small, distracting UI bugs (search fields removed from codebase 2025-11-06)

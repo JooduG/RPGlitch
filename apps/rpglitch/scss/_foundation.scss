@@ -40,8 +40,8 @@ $breakpoint-tablet: 1024px;
   --pico-typography-spacing-vertical: 0;
   --pico-typography-spacing-horizontal: 0;
   --pico-spacing: 0;
-  --brand-default: #777;
-  --brand-text-on: #fff;
+  --signature-default: #777;
+  --signature-text-on: #fff;
   --profile-left-width: min(40vw, 520px);
   --container-margin: 0px; /* computed from top bar at runtime */
   --rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
@@ -49,57 +49,57 @@ $breakpoint-tablet: 1024px;
   --app-container-pad: 1rem;
 
   /* Signature Color options - must match BASE_COLOUR_MAP in utils.js */
-  --brand-pink: #ec4899;
-  --brand-emerald: #10b981;
-  --brand-cyan: #06b6d4;
-  --brand-orange: #f97316;
-  --brand-purple: #a855f7;
+  --signature-pink: #ec4899;
+  --signature-emerald: #10b981;
+  --signature-cyan: #06b6d4;
+  --signature-orange: #f97316;
+  --signature-purple: #a855f7;
 }
 
 /* Each Signature Color exposes ONE base color + useful derivatives */
-.palette-pink {
-  $brand-color: #ec4899;
+.signature-pink {
+  $signature-color: #ec4899;
 
-  --brand: #{$brand-color};
-  --brand-10: #{color.mix($brand-color, transparent, 10%)};
-  --brand-20: #{color.mix($brand-color, transparent, 20%)};
-  --brand-contrast: var(--brand-text-on);
+  --signature: #{$signature-color};
+  --signature-10: #{color.mix($signature-color, transparent, 10%)};
+  --signature-20: #{color.mix($signature-color, transparent, 20%)};
+  --signature-contrast: var(--signature-text-on);
 }
 
-.palette-emerald {
-  $brand-color: #10b981;
+.signature-emerald {
+  $signature-color: #10b981;
 
-  --brand: #{$brand-color};
-  --brand-10: #{color.mix($brand-color, transparent, 10%)};
-  --brand-20: #{color.mix($brand-color, transparent, 20%)};
-  --brand-contrast: var(--brand-text-on);
+  --signature: #{$signature-color};
+  --signature-10: #{color.mix($signature-color, transparent, 10%)};
+  --signature-20: #{color.mix($signature-color, transparent, 20%)};
+  --signature-contrast: var(--signature-text-on);
 }
 
-.palette-cyan {
-  $brand-color: #06b6d4;
+.signature-cyan {
+  $signature-color: #06b6d4;
 
-  --brand: #{$brand-color};
-  --brand-10: #{color.mix($brand-color, transparent, 10%)};
-  --brand-20: #{color.mix($brand-color, transparent, 20%)};
-  --brand-contrast: var(--brand-text-on);
+  --signature: #{$signature-color};
+  --signature-10: #{color.mix($signature-color, transparent, 10%)};
+  --signature-20: #{color.mix($signature-color, transparent, 20%)};
+  --signature-contrast: var(--signature-text-on);
 }
 
-.palette-orange {
-  $brand-color: #f97316;
+.signature-orange {
+  $signature-color: #f97316;
 
-  --brand: #{$brand-color};
-  --brand-10: #{color.mix($brand-color, transparent, 10%)};
-  --brand-20: #{color.mix($brand-color, transparent, 20%)};
-  --brand-contrast: var(--brand-text-on);
+  --signature: #{$signature-color};
+  --signature-10: #{color.mix($signature-color, transparent, 10%)};
+  --signature-20: #{color.mix($signature-color, transparent, 20%)};
+  --signature-contrast: var(--signature-text-on);
 }
 
-.palette-purple {
-  $brand-color: #a855f7;
+.signature-purple {
+  $signature-color: #a855f7;
 
-  --brand: #{$brand-color};
-  --brand-10: #{color.mix($brand-color, transparent, 10%)};
-  --brand-20: #{color.mix($brand-color, transparent, 20%)};
-  --brand-contrast: var(--brand-text-on);
+  --signature: #{$signature-color};
+  --signature-10: #{color.mix($signature-color, transparent, 10%)};
+  --signature-20: #{color.mix($signature-color, transparent, 20%)};
+  --signature-contrast: var(--signature-text-on);
 }
 
 /* ===== DARK THEME HIGH-CONTRAST OVERRIDES ===== */
@@ -229,7 +229,7 @@ $breakpoint-tablet: 1024px;
 }
 
 .storyboard-card .card-media {
-  background: var(--brand, var(--pico-muted-border-color));
+  background: var(--signature, var(--pico-muted-border-color));
 
   .placeholder-image,
   img[data-is-placeholder],
@@ -240,7 +240,7 @@ $breakpoint-tablet: 1024px;
     max-width: 60%;
     max-height: 60%;
     color: #fff;
-    opacity: 0.8;
+    opacity: 1;
   }
 }
 
@@ -248,7 +248,7 @@ $breakpoint-tablet: 1024px;
   .placeholder-image,
   img[data-is-placeholder],
   .profile-picture[data-is-placeholder] {
-    opacity: 0.6;
+    opacity: 0.8;
   }
 }
 
@@ -267,11 +267,7 @@ $breakpoint-tablet: 1024px;
   color: #fff;
 }
 
-.storyboard-card-title-placeholder {
-  text-align: center;
-  font-style: italic;
-  opacity: 0.8;
-}
+
 
 .profile-name[data-placeholder]:not(:focus):empty::before,
 .profile-name[data-placeholder]:not(:focus):blank::before {

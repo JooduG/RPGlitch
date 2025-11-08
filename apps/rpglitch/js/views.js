@@ -10,7 +10,7 @@ import {
   getHashQuery,
   navigateBackOrReturnDefault,
   escapeHtml,
-  applyBrand,
+  applySignature,
   buildHero,
   replaceEventHandler,
   handleAsyncError,
@@ -461,7 +461,7 @@ export async function renderProfilePage(type, id) {
   paletteSelect.addEventListener("change", () => {
     const selectedColour = paletteSelect.value;
     const tempEntity = { ...entity, signatureColour: selectedColour };
-    applyBrand?.(leftCol, tempEntity);
+    applySignature?.(leftCol, tempEntity);
   });
 
   imageOverlay.appendChild(signatureColourLabel);
@@ -469,7 +469,7 @@ export async function renderProfilePage(type, id) {
   heroWrap.appendChild(imageOverlay);
 
   leftCol.appendChild(heroWrap);
-  applyBrand?.(leftCol, entity); // Apply initial brand
+  applySignature?.(leftCol, entity); // Apply initial signature
 
   // --- Right Column (Content) ---
   const rightCol = document.createElement("div");
