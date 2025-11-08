@@ -14,7 +14,6 @@ import {
   buildHero,
   replaceEventHandler,
   handleAsyncError,
-  BASE_COLOUR_MAP,
   setProfileLayoutSizing,
   debounce,
   goBackWithFallback,
@@ -346,6 +345,13 @@ export async function renderProfilePage(type, id) {
     }
   });
   
+  function updateImageInput(input, url) {
+    input.value = url;
+    // Dispatch both input and change events to update preview and state
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
   actionButton.addEventListener("click", async () => {
     const action = actionButton.dataset.action;
 
@@ -385,10 +391,7 @@ export async function renderProfilePage(type, id) {
           throw new Error("Image generation failed: invalid response format");
         }
 
-        imageInput.value = imageUrl;
-        // Dispatch both input and change events to update preview and state
-        imageInput.dispatchEvent(new Event("input", { bubbles: true }));
-        imageInput.dispatchEvent(new Event("change", { bubbles: true }));
+        updateImageInput(imageInput, imageUrl);
       } catch (error) {
         console.error("Image generation error:", error);
         showNotification("Image generation failed. Please try again.");
@@ -417,12 +420,8 @@ export async function renderProfilePage(type, id) {
         const result = await window.pluginUpload({ accept: 'image/*' });
 
         // Handle both string and object responses from the upload plugin
-        let imageUrl;
-        if (typeof result === 'string') {
-          imageUrl = result;
-        } else if (result?.url) {
-          imageUrl = result.url;
-        } else {
+        const imageUrl = typeof result === 'string' ? result : result?.url;
+        if (!imageUrl) {
           throw new Error("Upload failed: no URL returned");
         }
 
@@ -432,10 +431,7 @@ export async function renderProfilePage(type, id) {
           throw new Error("Uploaded file is not an image. Please select an image file.");
         }
 
-        imageInput.value = imageUrl;
-        // Dispatch both input and change events to update preview and state
-        imageInput.dispatchEvent(new Event("input", { bubbles: true }));
-        imageInput.dispatchEvent(new Event("change", { bubbles: true }));
+        updateImageInput(imageInput, imageUrl);
       } catch (error) {
         console.error("Upload error:", error);
         showNotification(error.message || "Upload failed. Please try again.");
