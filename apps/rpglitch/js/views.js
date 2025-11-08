@@ -369,7 +369,7 @@ export async function renderProfilePage(type, id) {
 
         // Call plugin with prompt and guidanceScale (required for API authentication)
         const result = await window.pluginTextToImage({
-          prompt: prompt,
+          prompt,
           guidanceScale: 7, // Default guidance scale for consistent results
         });
 
