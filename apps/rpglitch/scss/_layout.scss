@@ -480,14 +480,6 @@ body.chin-open .top-bar {
     .card-media {
       min-height: 10rem;
 
-      img:not([data-is-placeholder]) {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        object-position: center center;
-      }
-
       img[data-is-placeholder],
       .placeholder-image {
         max-width: 50%;
