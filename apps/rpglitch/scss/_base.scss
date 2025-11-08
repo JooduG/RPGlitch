@@ -184,6 +184,11 @@ textarea,
   touch-action: manipulation;
 }
 
+/* Ensure select elements use default Pico color, not inherited signature colors */
+select {
+  color: var(--pico-color);
+}
+
 input[type="text"],
 input[type="email"],
 input[type="password"],
