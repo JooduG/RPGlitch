@@ -1850,12 +1850,6 @@ async function waitForPlugins(
     return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
   }
 
-  const availableStandard = requiredPlugins.filter(
-    (name) => typeof window[name] === "function"
-  );
-  const missingStandard = requiredPlugins.filter(
-    (name) => typeof window[name] !== "function"
-  );
   const availablePrefixed = prefixedPlugins.filter(
     (name) => typeof window[name] === "function"
   );
@@ -1865,12 +1859,8 @@ async function waitForPlugins(
   console.warn(
     `[RPGlitch] Plugin timeout after ${
       Date.now() - startTime
-    }ms. Standard available: ${
-      availableStandard.join(", ") || "none"
-    } | Prefixed available: ${
+    }ms. Prefixed available: ${
       availablePrefixed.join(", ") || "none"
-    } | Missing standard: ${
-      missingStandard.join(", ") || "none"
     } | Missing prefixed: ${missingPrefixed.join(", ") || "none"}`
   );
   return false;
