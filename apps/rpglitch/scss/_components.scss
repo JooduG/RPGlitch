@@ -915,12 +915,23 @@ $glow-signatures: (
   gap: 1.5rem; // Comfortable spacing between columns
   margin-bottom: 1.5rem; // Vertical spacing between rows
   align-items: start; // Align items to the top of each row
+
+  @media (width <= $breakpoint-mobile) {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
 }
 
 .field-label {
   text-align: right; // Right-align labels for modern, clean look
   padding-right: 0.5rem;
   padding-top: 0.25rem; // Slight top padding to align with input fields
+
+  @media (width <= $breakpoint-mobile) {
+    text-align: left;
+    padding-right: 0;
+    padding-top: 0;
+  }
 
   label {
     font-weight: bold;

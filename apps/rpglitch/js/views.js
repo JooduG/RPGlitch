@@ -207,6 +207,35 @@ function createFieldElements(
   return frag;
 }
 
+// Helper to create the standard 2-column form row
+function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
+  const fieldRow = document.createElement("div");
+  fieldRow.className = "field-row";
+
+  const labelCol = document.createElement("div");
+  labelCol.className = "field-label";
+
+  const label = document.createElement("label");
+  label.setAttribute("for", `form-field-${fieldId}`);
+  label.textContent = labelText;
+
+  const sublabel = document.createElement("small");
+  sublabel.textContent = sublabelText;
+
+  labelCol.appendChild(label);
+  labelCol.appendChild(document.createElement("br"));
+  labelCol.appendChild(sublabel);
+
+  const inputCol = document.createElement("div");
+  inputCol.className = "field-input";
+  // createFieldElements returns a DocumentFragment, which appends correctly
+  inputCol.appendChild(createFieldElements(...fieldConfig));
+
+  fieldRow.appendChild(labelCol);
+  fieldRow.appendChild(inputCol);
+  return fieldRow;
+}
+
 export async function renderProfilePage(type, id) {
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
@@ -492,120 +521,60 @@ export async function renderProfilePage(type, id) {
   const form = document.createElement("form");
   form.addEventListener("submit", (e) => e.preventDefault());
 
-  // --- (REFACTORED) Name Field (Read/Edit) - 2-Column Layout ---
-  const nameRow = document.createElement("div");
-  nameRow.className = "field-row";
-
-  const nameLabelCol = document.createElement("div");
-  nameLabelCol.className = "field-label";
-
-  const nameLabel = document.createElement("label");
-  nameLabel.setAttribute("for", "form-field-name");
-  nameLabel.textContent = "Name";
-
-  const nameSubLabel = document.createElement("small");
-  nameSubLabel.textContent = "The primary identifier for this entity.";
-
-  nameLabelCol.appendChild(nameLabel);
-  nameLabelCol.appendChild(document.createElement("br"));
-  nameLabelCol.appendChild(nameSubLabel);
-
-  const nameInputCol = document.createElement("div");
-  nameInputCol.className = "field-input";
-  nameInputCol.appendChild(
-    createFieldElements(
+  // --- Name Field (Using Helper) ---
+  form.appendChild(
+    createFieldRow(
       "name",
-      "h1", // Read: <h1>
-      "input", // Edit: <input>
-      entity.name || "",
-      {
-        placeholder: "Enter entity name...",
-      }
+      "Name",
+      "The primary identifier for this entity.",
+      [
+        "name",
+        "h1",
+        "input",
+        entity.name || "",
+        { placeholder: "Enter entity name..." }
+      ]
     )
   );
 
-  nameRow.appendChild(nameLabelCol);
-  nameRow.appendChild(nameInputCol);
-  form.appendChild(nameRow);
-
-  // --- (REFACTORED) Description Field (Read/Edit) - 2-Column Layout ---
-  const descRow = document.createElement("div");
-  descRow.className = "field-row";
-
-  const descLabelCol = document.createElement("div");
-  descLabelCol.className = "field-label";
-
-  const descLabel = document.createElement("label");
-  descLabel.setAttribute("for", "form-field-description");
-  descLabel.textContent = "Description";
-
-  const descSubLabel = document.createElement("small");
-  descSubLabel.textContent = "A brief overview of this entity.";
-
-  descLabelCol.appendChild(descLabel);
-  descLabelCol.appendChild(document.createElement("br"));
-  descLabelCol.appendChild(descSubLabel);
-
-  const descInputCol = document.createElement("div");
-  descInputCol.className = "field-input";
-  descInputCol.appendChild(
-    createFieldElements(
+  // --- Description Field (Using Helper) ---
+  form.appendChild(
+    createFieldRow(
       "description",
-      "p", // Read: <p>
-      "textarea", // Edit: <textarea>
-      entity.description || "",
-      {
-        readClass: "profile-description-read", // Add a class for min-height
-        placeholder: "Describe the entity...",
-      }
+      "Description",
+      "A brief overview of this entity.",
+      [
+        "description",
+        "p",
+        "textarea",
+        entity.description || "",
+        {
+          readClass: "profile-description-read",
+          placeholder: "Describe the entity..."
+        }
+      ]
     )
   );
 
-  descRow.appendChild(descLabelCol);
-  descRow.appendChild(descInputCol);
-  form.appendChild(descRow);
-
-  // --- (REFACTORED) Sections (Read/Edit) - 2-Column Layout ---
+  // --- Sections (Using Helper) ---
   const secWrap = document.createElement("div");
-  secWrap.className = "profile-fields"; // Just a wrapper
+  secWrap.className = "profile-fields";
 
   Object.entries(SECTION_DEFINITIONS).forEach(([key, def]) => {
-    const fieldRow = document.createElement("div");
-    fieldRow.className = "field-row";
-
-    // Column 1: Label container (right-aligned via CSS)
-    const labelCol = document.createElement("div");
-    labelCol.className = "field-label";
-
-    const label = document.createElement("label");
-    label.setAttribute("for", `form-field-${key}`);
-    label.textContent = def.label;
-
-    const sublabel = document.createElement("small");
-    sublabel.textContent = def.sublabels[type] || "";
-
-    labelCol.appendChild(label);
-    labelCol.appendChild(document.createElement("br")); // Pico convention
-    labelCol.appendChild(sublabel);
-
-    // Column 2: Input container
-    const inputCol = document.createElement("div");
-    inputCol.className = "field-input";
-    inputCol.appendChild(
-      createFieldElements(
+    secWrap.appendChild(
+      createFieldRow(
         key,
-        "div", // Read: <div>
-        "textarea", // Edit: <textarea>
-        entity.sections?.[key] || "",
-        {
-          readClass: "profile-field-text-read", // Class for read-only styling
-        }
+        def.label,
+        def.sublabels[type] || "",
+        [
+          key,
+          "div",
+          "textarea",
+          entity.sections?.[key] || "",
+          { readClass: "profile-field-text-read" }
+        ]
       )
     );
-
-    fieldRow.appendChild(labelCol);
-    fieldRow.appendChild(inputCol);
-    secWrap.appendChild(fieldRow);
   });
 
   form.appendChild(secWrap);
