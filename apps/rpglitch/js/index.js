@@ -1887,7 +1887,7 @@ export async function initializeWhenReady() {
         `Required plugins failed to load. Please refresh the page and try again.`
       );
       // STOP EXECUTION
-      throw new Error("Required plugins failed to load. Please refresh.");
+      throw Object.assign(new Error("Required plugins failed to load. Please refresh."), { isPluginError: true });
     }
 
     // Initialize database first
