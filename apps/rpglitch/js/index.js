@@ -1825,13 +1825,13 @@ async function waitForPlugins(
   });
 
   while (Date.now() - startTime < timeout) {
-    // Check if prefixed plugins are available (they get exposed by left panel)
+    // Check if prefixed plugins are available AND are functions (they get exposed by left panel)
     const allPrefixedAvailable = prefixedPlugins.every(
-      (name) => typeof window[name] !== "undefined"
+      (name) => typeof window[name] === "function"
     );
-    // Also check if standard names are available (they get set by setupPlugins())
+    // Also check if standard names are available AND are functions (they get set by setupPlugins())
     const allStandardAvailable = requiredPlugins.every(
-      (name) => typeof window[name] !== "undefined"
+      (name) => typeof window[name] === "function"
     );
 
     if (allPrefixedAvailable || allStandardAvailable) {
@@ -1855,16 +1855,16 @@ async function waitForPlugins(
   }
 
   const availableStandard = requiredPlugins.filter(
-    (name) => typeof window[name] !== "undefined"
+    (name) => typeof window[name] === "function"
   );
   const missingStandard = requiredPlugins.filter(
-    (name) => typeof window[name] === "undefined"
+    (name) => typeof window[name] !== "function"
   );
   const availablePrefixed = prefixedPlugins.filter(
-    (name) => typeof window[name] !== "undefined"
+    (name) => typeof window[name] === "function"
   );
   const missingPrefixed = prefixedPlugins.filter(
-    (name) => typeof window[name] === "undefined"
+    (name) => typeof window[name] !== "function"
   );
   console.warn(
     `[RPGlitch] Plugin timeout after ${
