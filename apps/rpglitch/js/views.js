@@ -416,7 +416,7 @@ export async function renderProfilePage(type, id) {
           guidanceScale: 7, // Default guidance scale for consistent results
           resolution: 'portrait', // Force portrait aspect ratio for all generated images
         });
-        console.log("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
+        log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
 
         // Handle response format: check for both dataUrl (direct) and imageId/fileExtension (constructed)
         let imageUrl;
