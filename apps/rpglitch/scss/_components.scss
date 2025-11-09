@@ -907,6 +907,45 @@ $glow-signatures: (
   margin-top: 2rem;
 }
 
+// --- 2-Column Grid Layout for Profile Form Fields ---
+// Creates a modern, balanced layout with labels in column 1 and inputs in column 2
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr; // Label column | Input column (wider)
+  gap: 1.5rem; // Comfortable spacing between columns
+  margin-bottom: 1.5rem; // Vertical spacing between rows
+  align-items: start; // Align items to the top of each row
+}
+
+.field-label {
+  text-align: right; // Right-align labels for modern, clean look
+  padding-right: 0.5rem;
+  padding-top: 0.25rem; // Slight top padding to align with input fields
+
+  label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  small {
+    display: block;
+    color: var(--pico-muted-color);
+    line-height: 1.4;
+  }
+}
+
+.field-input {
+  // Ensure input fields take full width of their column
+  width: 100%;
+
+  // Ensure all child elements (textareas, inputs, read-only divs) are full-width
+  > * {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
 // --- Read-Only Styling ---
 // These styles are for the read-only <div> tags
 // to make them look like static text and match the <textarea> height.

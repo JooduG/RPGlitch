@@ -492,8 +492,27 @@ export async function renderProfilePage(type, id) {
   const form = document.createElement("form");
   form.addEventListener("submit", (e) => e.preventDefault());
 
-  // --- (REFACTORED) Name Field (Read/Edit) ---
-  form.appendChild(
+  // --- (REFACTORED) Name Field (Read/Edit) - 2-Column Layout ---
+  const nameRow = document.createElement("div");
+  nameRow.className = "field-row";
+
+  const nameLabelCol = document.createElement("div");
+  nameLabelCol.className = "field-label";
+
+  const nameLabel = document.createElement("label");
+  nameLabel.setAttribute("for", "form-field-name");
+  nameLabel.textContent = "Name";
+
+  const nameSubLabel = document.createElement("small");
+  nameSubLabel.textContent = "The primary identifier for this entity.";
+
+  nameLabelCol.appendChild(nameLabel);
+  nameLabelCol.appendChild(document.createElement("br"));
+  nameLabelCol.appendChild(nameSubLabel);
+
+  const nameInputCol = document.createElement("div");
+  nameInputCol.className = "field-input";
+  nameInputCol.appendChild(
     createFieldElements(
       "name",
       "h1", // Read: <h1>
@@ -505,8 +524,31 @@ export async function renderProfilePage(type, id) {
     )
   );
 
-  // --- (REFACTORED) Description Field (Read/Edit) ---
-  form.appendChild(
+  nameRow.appendChild(nameLabelCol);
+  nameRow.appendChild(nameInputCol);
+  form.appendChild(nameRow);
+
+  // --- (REFACTORED) Description Field (Read/Edit) - 2-Column Layout ---
+  const descRow = document.createElement("div");
+  descRow.className = "field-row";
+
+  const descLabelCol = document.createElement("div");
+  descLabelCol.className = "field-label";
+
+  const descLabel = document.createElement("label");
+  descLabel.setAttribute("for", "form-field-description");
+  descLabel.textContent = "Description";
+
+  const descSubLabel = document.createElement("small");
+  descSubLabel.textContent = "A brief overview of this entity.";
+
+  descLabelCol.appendChild(descLabel);
+  descLabelCol.appendChild(document.createElement("br"));
+  descLabelCol.appendChild(descSubLabel);
+
+  const descInputCol = document.createElement("div");
+  descInputCol.className = "field-input";
+  descInputCol.appendChild(
     createFieldElements(
       "description",
       "p", // Read: <p>
@@ -519,23 +561,37 @@ export async function renderProfilePage(type, id) {
     )
   );
 
-  // --- (REFACTORED) Sections (Read/Edit) ---
+  descRow.appendChild(descLabelCol);
+  descRow.appendChild(descInputCol);
+  form.appendChild(descRow);
+
+  // --- (REFACTORED) Sections (Read/Edit) - 2-Column Layout ---
   const secWrap = document.createElement("div");
   secWrap.className = "profile-fields"; // Just a wrapper
 
   Object.entries(SECTION_DEFINITIONS).forEach(([key, def]) => {
-    const fieldDiv = document.createElement("div");
+    const fieldRow = document.createElement("div");
+    fieldRow.className = "field-row";
+
+    // Column 1: Label container (right-aligned via CSS)
+    const labelCol = document.createElement("div");
+    labelCol.className = "field-label";
+
     const label = document.createElement("label");
     label.setAttribute("for", `form-field-${key}`);
     label.textContent = def.label;
 
     const sublabel = document.createElement("small");
     sublabel.textContent = def.sublabels[type] || "";
-    label.appendChild(document.createElement("br")); // Pico convention
-    label.appendChild(sublabel);
 
-    fieldDiv.appendChild(label);
-    fieldDiv.appendChild(
+    labelCol.appendChild(label);
+    labelCol.appendChild(document.createElement("br")); // Pico convention
+    labelCol.appendChild(sublabel);
+
+    // Column 2: Input container
+    const inputCol = document.createElement("div");
+    inputCol.className = "field-input";
+    inputCol.appendChild(
       createFieldElements(
         key,
         "div", // Read: <div>
@@ -546,7 +602,10 @@ export async function renderProfilePage(type, id) {
         }
       )
     );
-    secWrap.appendChild(fieldDiv);
+
+    fieldRow.appendChild(labelCol);
+    fieldRow.appendChild(inputCol);
+    secWrap.appendChild(fieldRow);
   });
 
   form.appendChild(secWrap);
