@@ -28,6 +28,13 @@ import {
 // --- [END FIX 1] ---
 
 // =================================================================
+// Plugin Loading Configuration
+// =================================================================
+const PLUGIN_POLL_INTERVAL_MS = 500;
+const PLUGIN_WAIT_TIMEOUT_MS = 10000;
+const PLUGIN_MAX_RETRIES = 3;
+
+// =================================================================
 // Plugin Setup: Copy Perchance-exposed plugins to standard names
 // =================================================================
 
@@ -47,7 +54,7 @@ function setupPlugins() {
   };
 
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (typeof window[perchanceName] === 'function') {
+    if (typeof window[perchanceName] === 'function' && !window[standardName]) {
       window[standardName] = window[perchanceName];
     }
   }
@@ -1786,22 +1793,18 @@ export function _attachChatFormListener() {
 }
 
 /**
- * Wait for Perchance plugins to become available before initializing.
- * Plugins are loaded asynchronously by the left panel and may not be ready immediately.
- * Left panel exposes them with "plugin" prefix (pluginAi, pluginTextToImage, etc.)
- * to avoid Perchance syntax parsing issues with dot notation.
- * In test mode, this function skips the wait and returns immediately.
- * @param {string[]} requiredPlugins - Array of global plugin names to wait for
- * @param {number} timeout - Maximum time to wait in milliseconds
- * @param {number} retryCount - Current retry attempt
+ * Waits for Perchance plugins to be fully loaded and callable.
+ * @param {string[]} requiredPlugins - Plugin names in standard format (e.g., 'ai', 'textToImage')
+ * @param {number} timeout - Maximum wait time in milliseconds
+ * @param {number} retryCount - Current retry attempt (for internal recursion)
  * @param {number} maxRetries - Maximum number of retry attempts
- * @returns {Promise<boolean>} - True if all plugins loaded, false if timeout
+ * @returns {Promise<boolean>} True if all plugins loaded, false if timeout
  */
 async function waitForPlugins(
   requiredPlugins,
-  timeout = 10000,
+  timeout = PLUGIN_WAIT_TIMEOUT_MS,
   retryCount = 0,
-  maxRetries = 3
+  maxRetries = PLUGIN_MAX_RETRIES
 ) {
   // Skip plugin waiting in test mode
   if (TEST_MODE) {
@@ -1842,7 +1845,7 @@ async function waitForPlugins(
       return true;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms before checking again
+    await new Promise((resolve) => setTimeout(resolve, PLUGIN_POLL_INTERVAL_MS)); // Wait before checking again
   }
 
   if (retryCount < maxRetries) {
