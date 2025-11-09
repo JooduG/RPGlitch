@@ -207,7 +207,14 @@ function createFieldElements(
   return frag;
 }
 
-// Helper to create the standard 2-column form row
+/**
+ * Creates a standardized 2-column form row.
+ * @param {string} fieldId - The unique ID for the field (used for 'for' attribute).
+ * @param {string} labelText - The text for the <label> element.
+ * @param {string} sublabelText - The help text for the <small> element.
+ * @param {Array<any>} fieldConfig - Array of args for createFieldElements (e.g., [readEl, editEl, value, options]).
+ * @returns {HTMLElement} The complete field row element.
+ */
 function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
   const fieldRow = document.createElement("div");
   fieldRow.className = "field-row";
@@ -222,6 +229,7 @@ function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
   labelCol.appendChild(label);
 
   if (sublabelText) {
+    labelCol.appendChild(document.createElement("br"));
     const sublabel = document.createElement("small");
     sublabel.textContent = sublabelText;
     labelCol.appendChild(sublabel);
@@ -230,7 +238,7 @@ function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
   const inputCol = document.createElement("div");
   inputCol.className = "field-input";
   // createFieldElements returns a DocumentFragment, which appends correctly
-  inputCol.appendChild(createFieldElements(...fieldConfig));
+  inputCol.appendChild(createFieldElements(fieldId, ...fieldConfig));
 
   fieldRow.appendChild(labelCol);
   fieldRow.appendChild(inputCol);
@@ -529,7 +537,6 @@ export async function renderProfilePage(type, id) {
       "Name",
       "The primary identifier for this entity.",
       [
-        "name",
         "h1",
         "input",
         entity.name || "",
@@ -545,7 +552,6 @@ export async function renderProfilePage(type, id) {
       "Description",
       "A brief overview of this entity.",
       [
-        "description",
         "p",
         "textarea",
         entity.description || "",
@@ -568,7 +574,6 @@ export async function renderProfilePage(type, id) {
         def.label,
         def.sublabels[type] || "",
         [
-          key,
           "div",
           "textarea",
           entity.sections?.[key] || "",

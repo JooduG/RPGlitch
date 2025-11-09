@@ -22,6 +22,7 @@ export const UI_WATCHDOG_INTERVAL_MS = 500;
 export const PROFILE_RESIZE_DEBOUNCE_MS = 150;
 
 // Profile Layout Constants
+// Aligns with --profile-left-width in SCSS to ensure JS/CSS max widths are synchronized.
 const PROFILE_MAX_LEFT_WIDTH = 650;
 
 export function generateUUID() {
