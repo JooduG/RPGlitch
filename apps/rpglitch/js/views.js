@@ -457,7 +457,7 @@ export async function renderProfilePage(type, id) {
         actionButton.textContent = "Uploading...";
 
         const result = await window.pluginUpload({ accept: 'image/*' });
-        console.log("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
+        log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
         // Handle both string and object responses from the upload plugin
         const imageUrl = typeof result === 'string' ? result : result?.url;
