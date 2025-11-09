@@ -2081,7 +2081,6 @@ export async function initializeWhenReady() {
     // If this is a plugin loading failure, stop immediately without retrying
     if (error instanceof PluginError) {
       console.error("[RPGlitch] Plugin loading failed, stopping initialization:", error.message);
-      App.showError(error); // Show the error, but we will re-throw next
       throw error; // Re-throw to ensure initialization stops
     }
 
