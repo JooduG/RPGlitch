@@ -28,6 +28,23 @@ import {
 // --- [END FIX 1] ---
 
 // =================================================================
+// Plugin Loading Configuration
+// =================================================================
+const PLUGIN_POLL_INTERVAL_MS = 500;
+const PLUGIN_WAIT_TIMEOUT_MS = 10000;
+const PLUGIN_MAX_RETRIES = 3;
+
+// =================================================================
+// Custom Error Classes
+// =================================================================
+class PluginError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'PluginError';
+  }
+}
+
+// =================================================================
 // Plugin Setup: Copy Perchance-exposed plugins to standard names
 // =================================================================
 
@@ -47,14 +64,11 @@ function setupPlugins() {
   };
 
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (window[perchanceName] && !window[standardName]) {
+    if (typeof window[perchanceName] === 'function') {
       window[standardName] = window[perchanceName];
     }
   }
 }
-
-// Call setup immediately on module load
-setupPlugins();
 
 // =================================================================
 // App State Management
@@ -1786,22 +1800,18 @@ export function _attachChatFormListener() {
 }
 
 /**
- * Wait for Perchance plugins to become available before initializing.
- * Plugins are loaded asynchronously by the left panel and may not be ready immediately.
- * Left panel exposes them with "plugin" prefix (pluginAi, pluginTextToImage, etc.)
- * to avoid Perchance syntax parsing issues with dot notation.
- * In test mode, this function skips the wait and returns immediately.
- * @param {string[]} requiredPlugins - Array of global plugin names to wait for
- * @param {number} timeout - Maximum time to wait in milliseconds
- * @param {number} retryCount - Current retry attempt
+ * Waits for Perchance plugins to be fully loaded and callable.
+ * @param {string[]} requiredPlugins - Plugin names in standard format (e.g., 'ai', 'textToImage')
+ * @param {number} timeout - Maximum wait time in milliseconds
+ * @param {number} retryCount - Current retry attempt (for internal recursion)
  * @param {number} maxRetries - Maximum number of retry attempts
- * @returns {Promise<boolean>} - True if all plugins loaded, false if timeout
+ * @returns {Promise<boolean>} True if all plugins loaded, false if timeout
  */
 async function waitForPlugins(
   requiredPlugins,
-  timeout = 10000,
+  timeout = PLUGIN_WAIT_TIMEOUT_MS,
   retryCount = 0,
-  maxRetries = 3
+  maxRetries = PLUGIN_MAX_RETRIES
 ) {
   // Skip plugin waiting in test mode
   if (TEST_MODE) {
@@ -1825,24 +1835,21 @@ async function waitForPlugins(
   });
 
   while (Date.now() - startTime < timeout) {
-    // Check if prefixed plugins are available (they get exposed by left panel)
+    // Check if prefixed plugins are available AND are functions (they get exposed by left panel)
     const allPrefixedAvailable = prefixedPlugins.every(
-      (name) => typeof window[name] !== "undefined"
-    );
-    // Also check if standard names are available (they get set by setupPlugins())
-    const allStandardAvailable = requiredPlugins.every(
-      (name) => typeof window[name] !== "undefined"
+      (name) => typeof window[name] === "function"
     );
 
-    if (allPrefixedAvailable || allStandardAvailable) {
+    if (allPrefixedAvailable) {
       console.log(
         "[RPGlitch] All plugins loaded successfully:",
         requiredPlugins
       );
+      setupPlugins();
       return true;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms before checking again
+    await new Promise((resolve) => setTimeout(resolve, PLUGIN_POLL_INTERVAL_MS)); // Wait before checking again
   }
 
   if (retryCount < maxRetries) {
@@ -1854,27 +1861,17 @@ async function waitForPlugins(
     return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
   }
 
-  const availableStandard = requiredPlugins.filter(
-    (name) => typeof window[name] !== "undefined"
-  );
-  const missingStandard = requiredPlugins.filter(
-    (name) => typeof window[name] === "undefined"
-  );
   const availablePrefixed = prefixedPlugins.filter(
-    (name) => typeof window[name] !== "undefined"
+    (name) => typeof window[name] === "function"
   );
   const missingPrefixed = prefixedPlugins.filter(
-    (name) => typeof window[name] === "undefined"
+    (name) => typeof window[name] !== "function"
   );
   console.warn(
-    `[RPGlitch] Plugin timeout after ${
-      Date.now() - startTime
-    }ms. Standard available: ${
-      availableStandard.join(", ") || "none"
-    } | Prefixed available: ${
+    `[RPGlitch] Plugin timeout after a total of ${
+      (retryCount + 1) * PLUGIN_WAIT_TIMEOUT_MS
+    }ms (retries: ${retryCount}). Prefixed available: ${
       availablePrefixed.join(", ") || "none"
-    } | Missing standard: ${
-      missingStandard.join(", ") || "none"
     } | Missing prefixed: ${missingPrefixed.join(", ") || "none"}`
   );
   return false;
@@ -1899,7 +1896,8 @@ export async function initializeWhenReady() {
       alert(
         `Required plugins failed to load. Please refresh the page and try again.`
       );
-      // Continue with initialization anyway for graceful degradation
+      // STOP EXECUTION
+      throw new PluginError("Required plugins failed to load. Please refresh.");
     }
 
     // Initialize database first
@@ -2080,6 +2078,12 @@ export async function initializeWhenReady() {
     }
     return true;
   } catch (error) {
+    // If this is a plugin loading failure, stop immediately without retrying
+    if (error instanceof PluginError) {
+      console.error("[RPGlitch] Plugin loading failed, stopping initialization:", error.message);
+      throw error; // Re-throw to ensure initialization stops
+    }
+
     const retryCount = (window.initializeWhenReadyRetryCount || 0) + 1;
     window.initializeWhenReadyRetryCount = retryCount;
     try {

@@ -123,14 +123,13 @@ function setupPlugins() {
   };
 
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (window[perchanceName] && !window[standardName]) {
+    if (typeof window[perchanceName] === 'function') {
       window[standardName] = window[perchanceName];
     }
   }
 }
 
-// Call setup immediately on module load
-setupPlugins();
+// Called by waitForPlugins() after plugins are confirmed to be loaded
 ```
 
 ### Plugin Availability Waiting
@@ -142,7 +141,7 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
   const startTime = Date.now();
 
   while (Date.now() - startTime < timeout) {
-    const allAvailable = requiredPlugins.every(name => typeof window[name] !== 'undefined');
+    const allAvailable = requiredPlugins.every(name => typeof window[name] === 'function');
     if (allAvailable) {
       console.log('[AppName] All plugins loaded:', requiredPlugins);
       return true;
