@@ -228,8 +228,7 @@ function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
 
   labelCol.appendChild(label);
 
-  if (sublabelText) {
-    labelCol.appendChild(document.createElement("br"));
+  if (sublabelText && sublabelText.trim()) {
     const sublabel = document.createElement("small");
     sublabel.textContent = sublabelText;
     labelCol.appendChild(sublabel);
