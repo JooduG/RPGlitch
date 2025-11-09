@@ -141,7 +141,7 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
   const startTime = Date.now();
 
   while (Date.now() - startTime < timeout) {
-    const allAvailable = requiredPlugins.every(name => typeof window[name] !== 'undefined');
+    const allAvailable = requiredPlugins.every(name => typeof window[name] === 'function');
     if (allAvailable) {
       console.log('[AppName] All plugins loaded:', requiredPlugins);
       return true;

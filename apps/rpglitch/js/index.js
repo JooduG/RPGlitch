@@ -1859,7 +1859,7 @@ async function waitForPlugins(
   );
   console.warn(
     `[RPGlitch] Plugin timeout after a total of ${
-      (retryCount * PLUGIN_WAIT_TIMEOUT_MS) + (Date.now() - startTime)
+      (retryCount * PLUGIN_POLL_INTERVAL_MS) + (Date.now() - startTime)
     }ms. Prefixed available: ${
       availablePrefixed.join(", ") || "none"
     } | Missing prefixed: ${missingPrefixed.join(", ") || "none"}`
@@ -2068,6 +2068,12 @@ export async function initializeWhenReady() {
     }
     return true;
   } catch (error) {
+    // If this is a plugin loading failure, stop immediately without retrying
+    if (error.message && error.message.includes("Required plugins failed to load")) {
+      console.error("[RPGlitch] Plugin loading failed, stopping initialization:", error);
+      throw error;
+    }
+
     const retryCount = (window.initializeWhenReadyRetryCount || 0) + 1;
     window.initializeWhenReadyRetryCount = retryCount;
     try {
