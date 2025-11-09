@@ -47,7 +47,7 @@ function setupPlugins() {
   };
 
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (window[perchanceName] && !window[standardName]) {
+    if (window[perchanceName]) {
       window[standardName] = window[perchanceName];
     }
   }
@@ -1891,6 +1891,9 @@ export async function initializeWhenReady() {
       "remember",
       "upload",
     ]);
+
+    // Set up plugin aliases now that plugins are loaded
+    setupPlugins();
 
     if (!pluginsLoaded) {
       console.error(
