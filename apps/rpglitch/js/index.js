@@ -1859,7 +1859,7 @@ async function waitForPlugins(
   );
   console.warn(
     `[RPGlitch] Plugin timeout after a total of ${
-      (retryCount * PLUGIN_POLL_INTERVAL_MS) + (Date.now() - startTime)
+      (retryCount + 1) * timeout
     }ms. Prefixed available: ${
       availablePrefixed.join(", ") || "none"
     } | Missing prefixed: ${missingPrefixed.join(", ") || "none"}`
