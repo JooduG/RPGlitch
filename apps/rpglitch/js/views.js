@@ -416,6 +416,7 @@ export async function renderProfilePage(type, id) {
           guidanceScale: 7, // Default guidance scale for consistent results
           resolution: 'portrait', // Force portrait aspect ratio for all generated images
         });
+        log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
 
         // Handle response format: check for both dataUrl (direct) and imageId/fileExtension (constructed)
         let imageUrl;
@@ -456,6 +457,7 @@ export async function renderProfilePage(type, id) {
         actionButton.textContent = "Uploading...";
 
         const result = await window.pluginUpload({ accept: 'image/*' });
+        log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
         // Handle both string and object responses from the upload plugin
         const imageUrl = typeof result === 'string' ? result : result?.url;
