@@ -123,14 +123,13 @@ function setupPlugins() {
   };
 
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (window[perchanceName] && !window[standardName]) {
+    if (typeof window[perchanceName] === 'function') {
       window[standardName] = window[perchanceName];
     }
   }
 }
 
-// Call setup immediately on module load
-setupPlugins();
+// Called by waitForPlugins() after plugins are confirmed to be loaded
 ```
 
 ### Plugin Availability Waiting

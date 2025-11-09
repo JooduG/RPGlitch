@@ -1835,6 +1835,7 @@ async function waitForPlugins(
         "[RPGlitch] All plugins loaded successfully:",
         requiredPlugins
       );
+      setupPlugins();
       return true;
     }
 
@@ -1857,8 +1858,8 @@ async function waitForPlugins(
     (name) => typeof window[name] !== "function"
   );
   console.warn(
-    `[RPGlitch] Plugin timeout after ${
-      Date.now() - startTime
+    `[RPGlitch] Plugin timeout after a total of ${
+      (retryCount * PLUGIN_WAIT_TIMEOUT_MS) + (Date.now() - startTime)
     }ms. Prefixed available: ${
       availablePrefixed.join(", ") || "none"
     } | Missing prefixed: ${missingPrefixed.join(", ") || "none"}`
@@ -1878,9 +1879,6 @@ export async function initializeWhenReady() {
       "upload",
     ]);
 
-    // Set up plugin aliases now that plugins are loaded
-    setupPlugins();
-
     if (!pluginsLoaded) {
       console.error(
         "[RPGlitch] Required plugins failed to load. Application may not function correctly."
@@ -1888,7 +1886,8 @@ export async function initializeWhenReady() {
       alert(
         `Required plugins failed to load. Please refresh the page and try again.`
       );
-      // Continue with initialization anyway for graceful degradation
+      // STOP EXECUTION
+      throw new Error("Required plugins failed to load. Please refresh.");
     }
 
     // Initialize database first
