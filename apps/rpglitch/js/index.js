@@ -54,14 +54,11 @@ function setupPlugins() {
   };
 
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (typeof window[perchanceName] === 'function' && !window[standardName]) {
+    if (typeof window[perchanceName] === 'function') {
       window[standardName] = window[perchanceName];
     }
   }
 }
-
-// Call setup immediately on module load
-setupPlugins();
 
 // =================================================================
 // App State Management
@@ -1832,12 +1829,8 @@ async function waitForPlugins(
     const allPrefixedAvailable = prefixedPlugins.every(
       (name) => typeof window[name] === "function"
     );
-    // Also check if standard names are available AND are functions (they get set by setupPlugins())
-    const allStandardAvailable = requiredPlugins.every(
-      (name) => typeof window[name] === "function"
-    );
 
-    if (allPrefixedAvailable || allStandardAvailable) {
+    if (allPrefixedAvailable) {
       console.log(
         "[RPGlitch] All plugins loaded successfully:",
         requiredPlugins
