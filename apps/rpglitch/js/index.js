@@ -47,7 +47,7 @@ function setupPlugins() {
   };
 
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (window[perchanceName]) {
+    if (typeof window[perchanceName] === 'function') {
       window[standardName] = window[perchanceName];
     }
   }
