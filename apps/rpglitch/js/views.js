@@ -219,12 +219,13 @@ function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
   label.setAttribute("for", `form-field-${fieldId}`);
   label.textContent = labelText;
 
-  const sublabel = document.createElement("small");
-  sublabel.textContent = sublabelText;
-
   labelCol.appendChild(label);
-  labelCol.appendChild(document.createElement("br"));
-  labelCol.appendChild(sublabel);
+
+  if (sublabelText) {
+    const sublabel = document.createElement("small");
+    sublabel.textContent = sublabelText;
+    labelCol.appendChild(sublabel);
+  }
 
   const inputCol = document.createElement("div");
   inputCol.className = "field-input";

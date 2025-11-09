@@ -918,7 +918,7 @@ $glow-signatures: (
 
   @media (width <= $breakpoint-mobile) {
     grid-template-columns: 1fr;
-    gap: 0.5rem;
+    gap: 1rem;
   }
 }
 

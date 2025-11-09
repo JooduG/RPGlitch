@@ -21,6 +21,9 @@ export const AUTO_UNLOCK_DELAYS_MS = [0, 50, 200];
 export const UI_WATCHDOG_INTERVAL_MS = 500;
 export const PROFILE_RESIZE_DEBOUNCE_MS = 150;
 
+// Profile Layout Constants
+const PROFILE_MAX_LEFT_WIDTH = 650;
+
 export function generateUUID() {
   // Public Domain/MIT
   let d = new Date().getTime(); //Timestamp
@@ -1271,7 +1274,7 @@ export function setProfileLayoutSizing(ratio = 0.35) {
     const vw = window.innerWidth || doc.documentElement.clientWidth || 1280;
     const refWidth = Math.max(0, rect?.width || vw);
     const leftWidth = Math.round(
-      Math.max(260, Math.min(refWidth * ratio, Math.min(650, vw * 0.45)))
+      Math.max(260, Math.min(refWidth * ratio, Math.min(PROFILE_MAX_LEFT_WIDTH, vw * 0.45)))
     );
     const containerMargin = Math.max(0, Math.round((vw - refWidth) / 2));
     doc.documentElement.style.setProperty(
