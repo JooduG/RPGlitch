@@ -2069,7 +2069,7 @@ export async function initializeWhenReady() {
     return true;
   } catch (error) {
     // If this is a plugin loading failure, stop immediately without retrying
-    if (error.message && error.message.includes("Required plugins failed to load")) {
+    if (error?.isPluginError) {
       console.error("[RPGlitch] Plugin loading failed, stopping initialization:", error);
       throw error;
     }
