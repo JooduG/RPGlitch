@@ -237,7 +237,7 @@ function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
   const inputCol = document.createElement("div");
   inputCol.className = "field-input";
   // createFieldElements returns a DocumentFragment, which appends correctly
-  inputCol.appendChild(createFieldElements(fieldId, ...fieldConfig));
+  inputCol.appendChild(createFieldElements(fieldId, ...(Array.isArray(fieldConfig) ? fieldConfig : [])));
 
   fieldRow.appendChild(labelCol);
   fieldRow.appendChild(inputCol);
