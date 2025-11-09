@@ -35,6 +35,16 @@ const PLUGIN_WAIT_TIMEOUT_MS = 10000;
 const PLUGIN_MAX_RETRIES = 3;
 
 // =================================================================
+// Custom Error Classes
+// =================================================================
+class PluginError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'PluginError';
+  }
+}
+
+// =================================================================
 // Plugin Setup: Copy Perchance-exposed plugins to standard names
 // =================================================================
 
@@ -1859,8 +1869,8 @@ async function waitForPlugins(
   );
   console.warn(
     `[RPGlitch] Plugin timeout after a total of ${
-      (retryCount + 1) * timeout
-    }ms. Prefixed available: ${
+      (retryCount + 1) * PLUGIN_WAIT_TIMEOUT_MS
+    }ms (retries: ${retryCount}). Prefixed available: ${
       availablePrefixed.join(", ") || "none"
     } | Missing prefixed: ${missingPrefixed.join(", ") || "none"}`
   );
@@ -1887,7 +1897,7 @@ export async function initializeWhenReady() {
         `Required plugins failed to load. Please refresh the page and try again.`
       );
       // STOP EXECUTION
-      throw Object.assign(new Error("Required plugins failed to load. Please refresh."), { isPluginError: true });
+      throw new PluginError("Required plugins failed to load. Please refresh.");
     }
 
     // Initialize database first
@@ -2069,9 +2079,10 @@ export async function initializeWhenReady() {
     return true;
   } catch (error) {
     // If this is a plugin loading failure, stop immediately without retrying
-    if (error?.isPluginError) {
-      console.error("[RPGlitch] Plugin loading failed, stopping initialization:", error);
-      throw error;
+    if (error instanceof PluginError) {
+      console.error("[RPGlitch] Plugin loading failed, stopping initialization:", error.message);
+      App.showError(error); // Show the error, but we will re-throw next
+      throw error; // Re-throw to ensure initialization stops
     }
 
     const retryCount = (window.initializeWhenReadyRetryCount || 0) + 1;
