@@ -544,7 +544,7 @@ export async function renderProfilePage(type, id) {
       if (!prompt) return;
 
       // Check plugin availability before try block
-      if (!window.textToImage || typeof window.textToImage !== 'function') {
+      if (typeof window.textToImage !== 'function') {
         showNotification("Image generation plugin is not available. Please refresh the page.");
         return;
       }
