@@ -544,7 +544,7 @@ export async function renderProfilePage(type, id) {
       if (!prompt) return;
 
       // Check plugin availability before try block
-      if (!window.pluginTextToImage || typeof window.pluginTextToImage !== 'function') {
+      if (typeof window.textToImage !== 'function') {
         showNotification("Image generation plugin is not available. Please refresh the page.");
         return;
       }
@@ -561,7 +561,7 @@ export async function renderProfilePage(type, id) {
         const DEFAULT_GUIDANCE_SCALE = 7;
 
         // Call plugin with prompt, guidanceScale, and portrait resolution
-        const result = await window.pluginTextToImage({
+        const result = await window.textToImage({
           prompt,
           guidanceScale: DEFAULT_GUIDANCE_SCALE,
           resolution: 'portrait', // Force portrait aspect ratio for all generated images
@@ -588,7 +588,7 @@ export async function renderProfilePage(type, id) {
       }
     } else if (action === "upload") {
       // Check plugin availability before try block
-      if (!window.pluginUpload || typeof window.pluginUpload !== 'function') {
+      if (typeof window.upload !== 'function') {
         showNotification("Upload plugin is not available. Please refresh the page.");
         return;
       }
@@ -601,7 +601,7 @@ export async function renderProfilePage(type, id) {
         imageInput.setAttribute("aria-busy", "true");
         actionButton.textContent = "Uploading...";
 
-        const result = await window.pluginUpload({ accept: 'image/*' });
+        const result = await window.upload({ accept: 'image/*' });
         log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
         // Extract URL from plugin response (sanitized inside helper)
