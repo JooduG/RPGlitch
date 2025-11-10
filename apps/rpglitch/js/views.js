@@ -246,29 +246,29 @@ function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
  * Extracts and validates image URL from plugin response.
  * Handles multiple response formats from Perchance plugins.
  * @param {*} result - Plugin response (can be string, object, or various nested structures)
- * @returns {string|undefined} Trimmed URL string or undefined if no URL found
+ * @returns {string|undefined} Trimmed, sanitized URL string or undefined if no URL found
  */
 function _extractImageUrlFromPlugin(result) {
   let imageUrl;
 
-  // Check all possible response formats in priority order
-  if (result?.imageUrl) {
+  // Check all possible response formats in priority order with type validation
+  if (result?.imageUrl && typeof result.imageUrl === 'string') {
     // Standard text-to-image response format
     imageUrl = result.imageUrl;
-  } else if (result?.dataUrl) {
+  } else if (result?.dataUrl && typeof result.dataUrl === 'string') {
     // Alternative text-to-image format (data URLs)
     imageUrl = result.dataUrl;
-  } else if (result?.imageId) {
+  } else if (result?.imageId && typeof result.imageId === 'string') {
     // Text-to-image format with separate ID and extension
     const ext = result.fileExtension || 'jpeg';
     imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
   } else if (typeof result === 'string') {
     // Direct string URL response
     imageUrl = result;
-  } else if (result?.url) {
+  } else if (result?.url && typeof result.url === 'string') {
     // Upload plugin standard format
     imageUrl = result.url;
-  } else if (result?.file?.url) {
+  } else if (result?.file?.url && typeof result.file.url === 'string') {
     // Upload plugin nested format
     imageUrl = result.file.url;
   } else if (result?.name && typeof result.name === 'string') {
@@ -277,12 +277,52 @@ function _extractImageUrlFromPlugin(result) {
     imageUrl = result.name;
   }
 
-  // Trim whitespace if we got a string
+  // Trim whitespace and sanitize to prevent XSS attacks
   if (typeof imageUrl === 'string') {
     imageUrl = imageUrl.trim();
+    // Sanitize URL to prevent XSS vulnerabilities
+    if (window.DOMPurify) {
+      imageUrl = window.DOMPurify.sanitize(imageUrl);
+    }
   }
 
   return imageUrl || undefined;
+}
+
+/**
+ * Validates that a URL is a valid image URL using SOTA URL parsing.
+ * @param {string} url - The URL to validate
+ * @param {boolean} allowDataUrls - Whether to allow data:image URLs (default: true)
+ * @returns {boolean} True if the URL is valid, false otherwise
+ */
+function _isValidImageUrl(url, allowDataUrls = true) {
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+
+  try {
+    // Check for data URLs first (they don't parse well with URL constructor)
+    const isDataImage = url.startsWith('data:image/');
+    if (isDataImage) {
+      return allowDataUrls;
+    }
+
+    // Parse URL using native URL constructor for robust validation
+    const urlObj = new URL(url);
+
+    // Validate protocol
+    const isHttp = urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    if (!isHttp) {
+      return false;
+    }
+
+    // Validate file extension on pathname (not full URL, avoiding query param issues)
+    const hasValidExtension = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(urlObj.pathname);
+    return hasValidExtension;
+  } catch (error) {
+    // URL constructor throws on invalid URLs
+    return false;
+  }
 }
 
 export async function renderProfilePage(type, id) {
@@ -461,17 +501,12 @@ export async function renderProfilePage(type, id) {
         });
         log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
 
-        // Extract URL from plugin response
+        // Extract URL from plugin response (sanitized inside helper)
         const imageUrl = _extractImageUrlFromPlugin(result);
 
-        // Validate that we got a URL
-        if (!imageUrl) {
-          throw new Error("Image generation failed: invalid response format");
-        }
-
         // Validate URL format (allow http/https and data:image URLs)
-        if (!imageUrl.match(/^(https?:\/\/|data:image\/)/i)) {
-          throw new Error("Invalid URL format returned");
+        if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
+          throw new Error("Image generation failed: invalid or unsupported URL format");
         }
 
         updateImageInput(imageInput, imageUrl);
@@ -503,23 +538,14 @@ export async function renderProfilePage(type, id) {
         const result = await window.pluginUpload({ accept: 'image/*' });
         log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
-        // Extract URL from plugin response
+        // Extract URL from plugin response (sanitized inside helper)
         const imageUrl = _extractImageUrlFromPlugin(result);
 
-        // Validate that we got a URL
-        if (!imageUrl) {
-          throw new Error("Upload failed: no URL returned");
-        }
-
-        // Upload handler requires http/https URLs (no data URLs)
-        if (!imageUrl.match(/^https?:\/\//i)) {
-          throw new Error("Invalid URL format returned. URL must be http or https.");
-        }
-
-        // Validate that the uploaded file is an image
-        const isImage = imageUrl.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)(?:[?#].*)?$/i);
-        if (!isImage) {
-          throw new Error("Uploaded file is not an image. Please select an image file.");
+        // Upload handler only accepts http/https URLs (no data URLs)
+        // Rationale: Uploaded images must be permanently hosted on external servers,
+        // whereas data URLs are ephemeral and exist only in the current session
+        if (!imageUrl || !_isValidImageUrl(imageUrl, false)) {
+          throw new Error("Upload failed: URL must be a valid, hosted image (http/https)");
         }
 
         updateImageInput(imageInput, imageUrl);
