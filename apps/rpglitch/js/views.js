@@ -242,6 +242,95 @@ function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
   return fieldRow;
 }
 
+/**
+ * Extracts and trims image URL from plugin response.
+ * Handles multiple response formats from Perchance plugins.
+ * Note: URL validation is handled separately by _isValidImageUrl()
+ * @param {*} result - Plugin response (can be string, object, or various nested structures)
+ * @returns {string|undefined} Trimmed URL string or undefined if no URL found
+ */
+function _extractImageUrlFromPlugin(result) {
+  let imageUrl;
+
+  // Check all possible response formats in priority order with type validation
+  if (result?.imageUrl && typeof result.imageUrl === 'string') {
+    // Standard text-to-image response format
+    imageUrl = result.imageUrl;
+  } else if (result?.dataUrl && typeof result.dataUrl === 'string') {
+    // Alternative text-to-image format (data URLs)
+    imageUrl = result.dataUrl;
+  } else if (result?.imageId && typeof result.imageId === 'string') {
+    // Text-to-image format with separate ID and extension
+    const ext = ((typeof result.fileExtension === 'string' && result.fileExtension) || 'jpeg').replace(/^\./, '');
+    imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
+  } else if (typeof result === 'string') {
+    // Direct string URL response
+    imageUrl = result;
+  } else if (result?.url && typeof result.url === 'string') {
+    // Upload plugin standard format
+    imageUrl = result.url;
+  } else if (result?.file?.url && typeof result.file.url === 'string') {
+    // Upload plugin nested format
+    imageUrl = result.file.url;
+  } else if (result?.name && typeof result.name === 'string') {
+    // Unusual fallback: some plugin versions return URL in name field
+    console.warn('[RPGlitch] Plugin used unusual "name" field for URL. Result:', result);
+    imageUrl = result.name;
+  }
+
+  // Trim whitespace if we got a string
+  if (typeof imageUrl === 'string') {
+    imageUrl = imageUrl.trim();
+    // Return undefined for empty strings after trim
+    if (imageUrl === '') {
+      return undefined;
+    }
+  }
+
+  return imageUrl || undefined;
+}
+
+// Valid image file extensions for URL validation
+const VALID_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'avif', 'heic', 'heif'];
+
+// Regex pattern for validating image file extensions in URLs (handles query params and fragments)
+const IMAGE_EXTENSION_REGEX = new RegExp(`\\.(${VALID_IMAGE_EXTENSIONS.join('|')})(?:[?#].*)?$`, 'i');
+
+/**
+ * Validates that a URL is a valid image URL using SOTA URL parsing.
+ * @param {string} url - The URL to validate
+ * @param {boolean} allowDataUrls - Whether to allow data:image URLs (default: true)
+ * @returns {boolean} True if the URL is valid, false otherwise
+ */
+function _isValidImageUrl(url, allowDataUrls = true) {
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+
+  // Check for data URLs first (they don't parse well with URL constructor)
+  const isDataImage = url.startsWith('data:image/');
+  if (isDataImage) {
+    return allowDataUrls;
+  }
+
+  // For non-data URLs, use URL constructor for robust validation
+  try {
+    const urlObj = new URL(url);
+
+    // Validate protocol (only http and https allowed)
+    const isHttp = urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    if (!isHttp) {
+      return false;
+    }
+
+    // Validate file extension on pathname (not full URL, avoiding query param issues)
+    return IMAGE_EXTENSION_REGEX.test(urlObj.pathname);
+  } catch (error) {
+    // URL constructor throws on invalid URLs
+    return false;
+  }
+}
+
 export async function renderProfilePage(type, id) {
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
@@ -315,17 +404,6 @@ export async function renderProfilePage(type, id) {
   leftCol.className = "profile-left";
   const heroWrap = buildHero(entity, { singleTag: true });
 
-  // Helper function to detect URLs
-  function isUrl(text) {
-    const trimmed = text.trim().toLowerCase();
-    // Check for common URL protocols
-    return (
-      trimmed.startsWith("http://") ||
-      trimmed.startsWith("https://") ||
-      trimmed.startsWith("data:image/")
-    );
-  }
-
   const imageOverlay = document.createElement("div");
   imageOverlay.className = "profile-hero-overlay";
   imageOverlay.dataset.editField = "hero";
@@ -350,7 +428,7 @@ export async function renderProfilePage(type, id) {
     if (value === "") {
       actionButton.textContent = "Upload";
       actionButton.dataset.action = "upload";
-    } else if (!isUrl(value)) {
+    } else if (value && !_isValidImageUrl(value, true)) {
       actionButton.textContent = "Generate";
       actionButton.dataset.action = "generate";
     } else {
@@ -359,30 +437,77 @@ export async function renderProfilePage(type, id) {
     }
   }
 
-  // Add input listener for dynamic state updates
-  imageInput.addEventListener("input", updateButtonState);
-
-  // Set initial button state based on existing value
-  updateButtonState();
-
-  // Add input listener for live preview updates
+  // Combined input listener for dynamic state updates and live preview
   imageInput.addEventListener("input", () => {
+    // Update button state
+    updateButtonState();
+
+    // Update live preview
     const val = imageInput.value.trim();
-    if (isUrl(val)) {
+    if (val && _isValidImageUrl(val, true)) {
+      // Valid URL: update preview with sanitized URL
+      const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
       const newPic = getPictureHTML
-        ? getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
+        ? getPictureHTML({ ...entity, imageUrl: safeVal, image: safeVal }, { cover: true })
         : null;
       if (newPic) {
         const currentWrap = heroWrap.querySelector(".picture");
         if (currentWrap) currentWrap.replaceWith(newPic);
         else heroWrap.appendChild(newPic);
       }
+    } else {
+      // Invalid or empty: revert to original entity image
+      const originalPic = getPictureHTML
+        ? getPictureHTML(entity, { cover: true })
+        : null;
+      if (originalPic) {
+        const currentWrap = heroWrap.querySelector(".picture");
+        if (currentWrap) currentWrap.replaceWith(originalPic);
+        else heroWrap.appendChild(originalPic);
+      }
+
+      // Only show notification if input looks like a complete URL attempt (contains protocol or domain pattern)
+      // This reduces noise while user is typing
+      if (val && (val.includes('://') || val.includes('data:image/'))) {
+        showNotification("Invalid image URL format");
+      }
     }
   });
+
+  // Set initial button state based on existing value
+  updateButtonState();
   
   function updateImageInput(input, url) {
-    input.value = url;
-    // Dispatch both input and change events to update preview and state
+    // Type check and trim whitespace
+    if (!url || typeof url !== 'string') {
+      console.warn('[RPGlitch] updateImageInput: Invalid URL type or empty value', { url, type: typeof url });
+      return;
+    }
+
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) {
+      console.warn('[RPGlitch] updateImageInput: URL is empty after trimming');
+      return;
+    }
+
+    // Validate URL format
+    if (!_isValidImageUrl(trimmedUrl, true)) {
+      console.warn('[RPGlitch] updateImageInput: URL failed validation', { url: trimmedUrl });
+      return;
+    }
+
+    // Sanitize URL with DOMPurify to prevent XSS
+    const sanitizedUrl = window.DOMPurify ? window.DOMPurify.sanitize(trimmedUrl) : trimmedUrl;
+
+    // Debug log successful update
+    console.log('[RPGlitch] updateImageInput: Setting validated and sanitized URL', {
+      original: url,
+      trimmed: trimmedUrl,
+      sanitized: sanitizedUrl
+    });
+
+    // Set input value and dispatch events to update preview and state
+    input.value = sanitizedUrl;
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));
   }
@@ -408,24 +533,23 @@ export async function renderProfilePage(type, id) {
         imageInput.setAttribute("aria-busy", "true");
         actionButton.textContent = "Generating...";
 
+        // Default guidance scale for consistent results
+        const DEFAULT_GUIDANCE_SCALE = 7;
+
         // Call plugin with prompt, guidanceScale, and portrait resolution
         const result = await window.pluginTextToImage({
           prompt,
-          guidanceScale: 7, // Default guidance scale for consistent results
+          guidanceScale: DEFAULT_GUIDANCE_SCALE,
           resolution: 'portrait', // Force portrait aspect ratio for all generated images
         });
         log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
 
-        // Handle response format: check for both dataUrl (direct) and imageId/fileExtension (constructed)
-        let imageUrl;
-        if (result?.dataUrl) {
-          imageUrl = result.dataUrl;
-        } else if (result?.imageId) {
-          // Construct URL from imageId and fileExtension
-          const ext = result.fileExtension || 'jpeg';
-          imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
-        } else {
-          throw new Error("Image generation failed: invalid response format");
+        // Extract URL from plugin response (sanitized inside helper)
+        const imageUrl = _extractImageUrlFromPlugin(result);
+
+        // Validate URL format (allow http/https and data:image URLs)
+        if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
+          throw new Error("Image generation failed: invalid or unsupported URL format");
         }
 
         updateImageInput(imageInput, imageUrl);
@@ -457,16 +581,14 @@ export async function renderProfilePage(type, id) {
         const result = await window.pluginUpload({ accept: 'image/*' });
         log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
-        // Handle both string and object responses from the upload plugin
-        const imageUrl = typeof result === 'string' ? result : result?.url;
-        if (!imageUrl) {
-          throw new Error("Upload failed: no URL returned");
-        }
+        // Extract URL from plugin response (sanitized inside helper)
+        const imageUrl = _extractImageUrlFromPlugin(result);
 
-        // Validate that the uploaded file is an image
-        const isImage = imageUrl.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i);
-        if (!isImage) {
-          throw new Error("Uploaded file is not an image. Please select an image file.");
+        // Upload handler only accepts http/https URLs (no data URLs)
+        // Rationale: Uploaded images must be permanently hosted on external servers,
+        // whereas data URLs are ephemeral and exist only in the current session
+        if (!imageUrl || !_isValidImageUrl(imageUrl, false)) {
+          throw new Error("Upload failed: URL must be a valid, hosted image (http/https)");
         }
 
         updateImageInput(imageInput, imageUrl);
