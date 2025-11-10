@@ -242,6 +242,49 @@ function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
   return fieldRow;
 }
 
+/**
+ * Extracts and validates image URL from plugin response.
+ * Handles multiple response formats from Perchance plugins.
+ * @param {*} result - Plugin response (can be string, object, or various nested structures)
+ * @returns {string|undefined} Trimmed URL string or undefined if no URL found
+ */
+function _extractImageUrlFromPlugin(result) {
+  let imageUrl;
+
+  // Check all possible response formats in priority order
+  if (result?.imageUrl) {
+    // Standard text-to-image response format
+    imageUrl = result.imageUrl;
+  } else if (result?.dataUrl) {
+    // Alternative text-to-image format (data URLs)
+    imageUrl = result.dataUrl;
+  } else if (result?.imageId) {
+    // Text-to-image format with separate ID and extension
+    const ext = result.fileExtension || 'jpeg';
+    imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
+  } else if (typeof result === 'string') {
+    // Direct string URL response
+    imageUrl = result;
+  } else if (result?.url) {
+    // Upload plugin standard format
+    imageUrl = result.url;
+  } else if (result?.file?.url) {
+    // Upload plugin nested format
+    imageUrl = result.file.url;
+  } else if (result?.name && typeof result.name === 'string') {
+    // Unusual fallback: some plugin versions return URL in name field
+    console.warn('[RPGlitch] Plugin used unusual "name" field for URL. Result:', result);
+    imageUrl = result.name;
+  }
+
+  // Trim whitespace if we got a string
+  if (typeof imageUrl === 'string') {
+    imageUrl = imageUrl.trim();
+  }
+
+  return imageUrl || undefined;
+}
+
 export async function renderProfilePage(type, id) {
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
@@ -369,8 +412,10 @@ export async function renderProfilePage(type, id) {
   imageInput.addEventListener("input", () => {
     const val = imageInput.value.trim();
     if (isUrl(val)) {
+      // Sanitize URL to prevent XSS attacks before rendering
+      const sanitizedVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
       const newPic = getPictureHTML
-        ? getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
+        ? getPictureHTML({ ...entity, imageUrl: sanitizedVal, image: sanitizedVal }, { cover: true })
         : null;
       if (newPic) {
         const currentWrap = heroWrap.querySelector(".picture");
@@ -385,49 +430,6 @@ export async function renderProfilePage(type, id) {
     // Dispatch both input and change events to update preview and state
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));
-  }
-
-  /**
-   * Extracts and validates image URL from plugin response.
-   * Handles multiple response formats from Perchance plugins.
-   * @param {*} result - Plugin response (can be string, object, or various nested structures)
-   * @returns {string|undefined} Trimmed URL string or undefined if no URL found
-   */
-  function _extractImageUrlFromPlugin(result) {
-    let imageUrl;
-
-    // Check all possible response formats in priority order
-    if (result?.imageUrl) {
-      // Standard text-to-image response format
-      imageUrl = result.imageUrl;
-    } else if (result?.dataUrl) {
-      // Alternative text-to-image format (data URLs)
-      imageUrl = result.dataUrl;
-    } else if (result?.imageId) {
-      // Text-to-image format with separate ID and extension
-      const ext = result.fileExtension || 'jpeg';
-      imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
-    } else if (typeof result === 'string') {
-      // Direct string URL response
-      imageUrl = result;
-    } else if (result?.url) {
-      // Upload plugin standard format
-      imageUrl = result.url;
-    } else if (result?.file?.url) {
-      // Upload plugin nested format
-      imageUrl = result.file.url;
-    } else if (result?.name && typeof result.name === 'string') {
-      // Unusual fallback: some plugin versions return URL in name field
-      console.warn('[RPGlitch] Plugin used unusual "name" field for URL. Result:', result);
-      imageUrl = result.name;
-    }
-
-    // Trim whitespace if we got a string
-    if (typeof imageUrl === 'string') {
-      imageUrl = imageUrl.trim();
-    }
-
-    return imageUrl || undefined;
   }
 
   actionButton.addEventListener("click", async () => {
@@ -467,7 +469,7 @@ export async function renderProfilePage(type, id) {
           throw new Error("Image generation failed: invalid response format");
         }
 
-        // For raw string responses, validate URL format (allow http/https and data:image URLs)
+        // Validate URL format (allow http/https and data:image URLs)
         if (!imageUrl.match(/^(https?:\/\/|data:image\/)/i)) {
           throw new Error("Invalid URL format returned");
         }
