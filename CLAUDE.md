@@ -790,7 +790,14 @@ element.innerHTML = DOMPurify.sanitize(userInput);
 ## Changelog
 
 <changelog>
-* **4.0.2 (2025-11-10)** — **Security & Stability Hardening.** Major security improvements in RPGlitch (PRs #278-286): Patched critical XSS vulnerabilities in image handling, implemented SOTA URL validation with native URL constructor, added comprehensive type checking for plugin responses, fixed image upload/generation bugs, resolved chin panel UI issues, improved error logging consistency, and eliminated build warnings. All applications now feature defense-in-depth security posture with DOMPurify sanitization throughout.
+* **4.0.2 (2025-11-10)** — **Security & Stability Hardening.** Major security improvements in RPGlitch (PRs #278-286):
+  - Patched critical XSS vulnerabilities in image handling.
+  - Implemented SOTA URL validation with native URL constructor.
+  - Added comprehensive type checking for plugin responses.
+  - Fixed image upload/generation bugs.
+  - Resolved chin panel UI issues.
+  - Improved error logging consistency, and eliminated build warnings.
+  - All applications now feature defense-in-depth security posture with DOMPurify sanitization throughout.
 * **4.0.1 (2025-11-10)** — **PR Feedback Applied.** Fixed incomplete plugin examples (added superFetch, remember, upload). Added command explanations for better UX. Clarified IIFE usage in build process (source code still uses ES6 modules). Improved structural consistency with GEMINI.md.
 * **4.0.0 (2025-11-10)** — **Full Synchronization.** Complete refactor to achieve perfect parity with GEMINI.md. Integrated all rules from 8 source documents (GEMINI.md, CLAUDE.md, codacy.instructions.md, design-system.md, PERCHANCE.md, README.md, perchance-development-guide.md, plan.md). Added explicit Codacy integration protocols. Restructured with XML tags for Claude-optimized parsing. Enhanced MCP protocols with explicit execution patterns.
 * **Previous versions:** See GEMINI.md for full changelog history
