@@ -261,7 +261,7 @@ function _extractImageUrlFromPlugin(result) {
   } else if (result?.imageId && typeof result.imageId === 'string') {
     // Text-to-image format with separate ID and extension
     const ext = result.fileExtension || 'jpeg';
-    imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
+    imageUrl = `https://img.perchance.org/${encodeURIComponent(result.imageId)}.${ext}`;
   } else if (typeof result === 'string') {
     // Direct string URL response
     imageUrl = result;
