@@ -12,15 +12,12 @@ import {
   buildHero,
   replaceEventHandler,
   handleAsyncError,
-  setProfileLayoutSizing,
-  debounce,
   goBackWithFallback,
   dismissLoadingUI,
   chin,
   log,
   unlockNow,
   setTopBarRight,
-  PROFILE_RESIZE_DEBOUNCE_MS,
   copyEntity,
 } from "./utils.js";
 
@@ -128,8 +125,6 @@ export const router = {
 // ============================================================================
 // STATEFUL PROFILE VIEW
 // ============================================================================
-
-let profileResizeBound = false;
 
 // Define all section labels and sub-labels
 const SECTION_DEFINITIONS = {
@@ -829,23 +824,7 @@ export async function renderProfilePage(type, id) {
   screen.appendChild(layout);
   showEl(screen);
 
-  // --- 4. Setup Sizing and Top Bar ---
-  try {
-    setProfileLayoutSizing?.(0.35);
-    if (!profileResizeBound) {
-      profileResizeBound = true;
-      window.addEventListener(
-        "resize",
-        debounce(
-          () => setProfileLayoutSizing?.(0.35),
-          PROFILE_RESIZE_DEBOUNCE_MS
-        )
-      );
-    }
-  } catch {
-    /* noop */
-  }
-
+  // --- 4. Setup Top Bar ---
   setTopBarRight(isEditing ? "form" : "profile");
 
   // --- 5. Event Handlers ---

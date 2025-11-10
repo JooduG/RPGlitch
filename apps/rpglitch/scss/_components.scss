@@ -424,7 +424,7 @@ body.chin-open .chin-focus-ring {
   overflow-y: auto;
   padding: 1rem;
   display: grid;
-  grid-template-columns: 1.5fr 3fr 1.5fr; /* AI character | Chat | User character */
+  grid-template-columns: var(--layout-left-col) var(--layout-center-col) var(--layout-right-col); /* AI character | Chat | User character */
   gap: 1rem;
   align-items: start;
 
@@ -816,22 +816,20 @@ $glow-signatures: (
 
 /* Ensure lower-specificity .profile-left rules appear before more specific
    .chin-card .card-poster .picture selectors to satisfy stylelint ordering */
+.profile-left .hero-wrap {
+  width: 100%;
+  height: 100%;
+}
+
 .profile-left .picture {
   width: 100%;
   height: 100%;
-  aspect-ratio: 1 / 1; /* Force 1:1 aspect ratio for profile pictures */
   border-radius: 0;
   background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden; /* Hide overflow from cropped images */
-  position: absolute; /* Position absolutely to allow centering */
-  top: 50%; /* Center vertically */
-  left: 50%; /* Center horizontally */
-  transform: translate(-50%, -50%); /* Adjust for true centering */
-  max-width: 100vh; /* Limit width to viewport height to maintain square */
-  max-height: 100vh; /* Ensure it doesn't exceed viewport height */
 }
 
 .profile-left .picture img {
@@ -940,7 +938,7 @@ $glow-signatures: (
 // Creates a modern, balanced layout with labels in column 1 and inputs in column 2
 .field-row {
   display: grid;
-  grid-template-columns: 1fr 2fr; // Label column | Input column (wider)
+  grid-template-columns: 1fr 3fr; // Label column | Input column (more spacious)
   gap: 1rem; // Comfortable spacing between columns
   margin-bottom: 1rem; // Vertical spacing between rows
   align-items: center; // Center items vertically for better balance with labels

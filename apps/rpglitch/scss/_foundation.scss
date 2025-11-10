@@ -42,11 +42,15 @@ $breakpoint-tablet: 1024px;
   --pico-spacing: 0;
   --signature-default: #777;
   --signature-text-on: #fff;
-  --profile-left-width: min(50%, 650px);
   --container-margin: 0px; /* computed from top bar at runtime */
   --rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
   --app-container-max: 100%;
   --app-container-pad: 1rem;
+
+  /* Shared 3-column grid layout (used by chat screen and profile page) */
+  --layout-left-col: 1.5fr;
+  --layout-center-col: 3fr;
+  --layout-right-col: 1.5fr;
 
   /* Signature Color options - must match BASE_COLOUR_MAP in utils.js */
   --signature-pink: #ec4899;

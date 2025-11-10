@@ -18,11 +18,6 @@ export const BASE_COLOUR_MAP = {
 // UI Timing Constants
 export const AUTO_UNLOCK_DELAYS_MS = [0, 50, 200];
 export const UI_WATCHDOG_INTERVAL_MS = 500;
-export const PROFILE_RESIZE_DEBOUNCE_MS = 150;
-
-// Profile Layout Constants
-// Aligns with --profile-left-width in SCSS to ensure JS/CSS max widths are synchronized.
-const PROFILE_MAX_LEFT_WIDTH = 650;
 
 export function generateUUID() {
   // Public Domain/MIT
@@ -1233,33 +1228,4 @@ export const chin = {
 
 export function toggleChinContent(name) {
   chin.toggle(name);
-}
-
-// ---------- Profile layout sizing (left image column width) ----------
-export function setProfileLayoutSizing(ratio = 0.35) {
-  try {
-    const doc = document;
-    const topBar = doc.querySelector("#top-bar");
-    const header = topBar?.closest("header") || doc.querySelector("header");
-    const container = header?.classList.contains("container")
-      ? header
-      : header?.closest?.(".container") || header;
-    const rect = container?.getBoundingClientRect?.();
-    const vw = window.innerWidth || doc.documentElement.clientWidth || 1280;
-    const refWidth = Math.max(0, rect?.width || vw);
-    const leftWidth = Math.round(
-      Math.max(260, Math.min(refWidth * ratio, Math.min(PROFILE_MAX_LEFT_WIDTH, vw * 0.45)))
-    );
-    const containerMargin = Math.max(0, Math.round((vw - refWidth) / 2));
-    doc.documentElement.style.setProperty(
-      "--profile-left-width",
-      `${leftWidth}px`
-    );
-    doc.documentElement.style.setProperty(
-      "--container-margin",
-      `${containerMargin}px`
-    );
-  } catch {
-    /* ignore */
-  }
 }
