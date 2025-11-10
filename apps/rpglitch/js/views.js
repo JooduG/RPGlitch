@@ -243,10 +243,11 @@ function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
 }
 
 /**
- * Extracts and validates image URL from plugin response.
+ * Extracts and trims image URL from plugin response.
  * Handles multiple response formats from Perchance plugins.
+ * Note: URL validation is handled separately by _isValidImageUrl()
  * @param {*} result - Plugin response (can be string, object, or various nested structures)
- * @returns {string|undefined} Trimmed, sanitized URL string or undefined if no URL found
+ * @returns {string|undefined} Trimmed URL string or undefined if no URL found
  */
 function _extractImageUrlFromPlugin(result) {
   let imageUrl;
@@ -260,7 +261,9 @@ function _extractImageUrlFromPlugin(result) {
     imageUrl = result.dataUrl;
   } else if (result?.imageId && typeof result.imageId === 'string') {
     // Text-to-image format with separate ID and extension
-    const ext = result.fileExtension || 'jpeg';
+    const ext = (result.fileExtension && typeof result.fileExtension === 'string')
+      ? result.fileExtension
+      : 'jpeg';
     imageUrl = `https://img.perchance.org/${encodeURIComponent(result.imageId)}.${ext}`;
   } else if (typeof result === 'string') {
     // Direct string URL response
@@ -277,13 +280,9 @@ function _extractImageUrlFromPlugin(result) {
     imageUrl = result.name;
   }
 
-  // Trim whitespace and sanitize to prevent XSS attacks
+  // Trim whitespace if we got a string
   if (typeof imageUrl === 'string') {
     imageUrl = imageUrl.trim();
-    // Sanitize URL to prevent XSS vulnerabilities
-    if (window.DOMPurify) {
-      imageUrl = window.DOMPurify.sanitize(imageUrl);
-    }
   }
 
   return imageUrl || undefined;
@@ -300,17 +299,17 @@ function _isValidImageUrl(url, allowDataUrls = true) {
     return false;
   }
 
-  try {
-    // Check for data URLs first (they don't parse well with URL constructor)
-    const isDataImage = url.startsWith('data:image/');
-    if (isDataImage) {
-      return allowDataUrls;
-    }
+  // Check for data URLs first (they don't parse well with URL constructor)
+  const isDataImage = url.startsWith('data:image/');
+  if (isDataImage) {
+    return allowDataUrls;
+  }
 
-    // Parse URL using native URL constructor for robust validation
+  // For non-data URLs, use URL constructor for robust validation
+  try {
     const urlObj = new URL(url);
 
-    // Validate protocol
+    // Validate protocol (only http and https allowed)
     const isHttp = urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
     if (!isHttp) {
       return false;
@@ -451,11 +450,10 @@ export async function renderProfilePage(type, id) {
   // Add input listener for live preview updates
   imageInput.addEventListener("input", () => {
     const val = imageInput.value.trim();
-    if (isUrl(val)) {
-      // Sanitize URL to prevent XSS attacks before rendering
-      const sanitizedVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
+    // Validate URL using SOTA validation (allows data URLs for preview)
+    if (val && _isValidImageUrl(val, true)) {
       const newPic = getPictureHTML
-        ? getPictureHTML({ ...entity, imageUrl: sanitizedVal, image: sanitizedVal }, { cover: true })
+        ? getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
         : null;
       if (newPic) {
         const currentWrap = heroWrap.querySelector(".picture");
