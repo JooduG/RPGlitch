@@ -21,9 +21,13 @@ import {
   unlockNow,
   setTopBarRight,
   PROFILE_RESIZE_DEBOUNCE_MS,
+  copyEntity,
 } from "./utils.js";
 
 let refreshAllLists;
+let imageInput = null;
+let actionButton = null;
+let fileInput = null;
 
 export function initViews(dependencies) {
   refreshAllLists = dependencies.refreshAllLists;
@@ -122,7 +126,7 @@ export const router = {
 };
 
 // ============================================================================
-// STATEFUL PROFILE VIEW (Replaces old renderProfile and renderForm)
+// STATEFUL PROFILE VIEW
 // ============================================================================
 
 let profileResizeBound = false;
@@ -235,7 +239,12 @@ function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
   const inputCol = document.createElement("div");
   inputCol.className = "field-input";
   // createFieldElements returns a DocumentFragment, which appends correctly
-  inputCol.appendChild(createFieldElements(fieldId, ...(Array.isArray(fieldConfig) ? fieldConfig : [])));
+  inputCol.appendChild(
+    createFieldElements(
+      fieldId,
+      ...(Array.isArray(fieldConfig) ? fieldConfig : [])
+    )
+  );
 
   fieldRow.appendChild(labelCol);
   fieldRow.appendChild(inputCol);
@@ -253,36 +262,51 @@ function _extractImageUrlFromPlugin(result) {
   let imageUrl;
 
   // Check all possible response formats in priority order with type validation
-  if (result?.imageUrl && typeof result.imageUrl === 'string') {
+  if (result?.imageUrl && typeof result.imageUrl === "string") {
     // Standard text-to-image response format
     imageUrl = result.imageUrl;
-  } else if (result?.dataUrl && typeof result.dataUrl === 'string') {
+  } else if (result?.dataUrl && typeof result.dataUrl === "string") {
     // Alternative text-to-image format (data URLs)
     imageUrl = result.dataUrl;
-  } else if (result?.imageId && typeof result.imageId === 'string') {
+  } else if (result?.imageId && typeof result.imageId === "string") {
     // Text-to-image format with separate ID and extension
-    const ext = ((typeof result.fileExtension === 'string' && result.fileExtension) || 'jpeg').replace(/^\./, '');
+    const ext = (
+      (typeof result.fileExtension === "string" && result.fileExtension) ||
+      "jpeg"
+    ).replace(/^\./, "");
     imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
-  } else if (typeof result === 'string') {
+  } else if (typeof result === "string") {
     // Direct string URL response
     imageUrl = result;
-  } else if (result?.url && typeof result.url === 'string') {
-    // Upload plugin standard format
-    imageUrl = result.url;
-  } else if (result?.file?.url && typeof result.file.url === 'string') {
+  } else if (result?.url && (typeof result.url === "string" || result.url instanceof String)) {
+    // Upload plugin standard format (handle primitive string or String object)
+    imageUrl = String(result.url);
+  } else if (result?.file?.url && typeof result.file.url === "string") {
     // Upload plugin nested format
     imageUrl = result.file.url;
-  } else if (result?.name && typeof result.name === 'string') {
+  } else if (result?.file && typeof result.file === "string") {
+    // Handle cases where result.file is the URL string directly
+    imageUrl = result.file;
+  } else if (result?.name && typeof result.name === "string") {
     // Unusual fallback: some plugin versions return URL in name field
-    console.warn('[RPGlitch] Plugin used unusual "name" field for URL. Result:', result);
+    console.warn(
+      '[RPGlitch] Plugin used unusual "name" field for URL. Result:',
+      result
+    );
     imageUrl = result.name;
+  } else if (result?.value && typeof result.value === "string") {
+    // Handle cases where result.value is the URL string directly
+    imageUrl = result.value;
+  } else if (typeof result === "string") {
+    // Handle cases where the result itself is the URL string
+    imageUrl = result;
   }
 
   // Trim whitespace if we got a string
-  if (typeof imageUrl === 'string') {
+  if (typeof imageUrl === "string") {
     imageUrl = imageUrl.trim();
     // Return undefined for empty strings after trim
-    if (imageUrl === '') {
+    if (imageUrl === "") {
       return undefined;
     }
   }
@@ -291,10 +315,24 @@ function _extractImageUrlFromPlugin(result) {
 }
 
 // Valid image file extensions for URL validation
-const VALID_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'avif', 'heic', 'heif'];
+const VALID_IMAGE_EXTENSIONS = [
+  "jpg",
+  "jpeg",
+  "png",
+  "gif",
+  "webp",
+  "bmp",
+  "svg",
+  "avif",
+  "heic",
+  "heif",
+];
 
 // Regex pattern for validating image file extensions in URLs (handles query params and fragments)
-const IMAGE_EXTENSION_REGEX = new RegExp(`\\.(${VALID_IMAGE_EXTENSIONS.join('|')})(?:[?#].*)?$`, 'i');
+const IMAGE_EXTENSION_REGEX = new RegExp(
+  `\\.(${VALID_IMAGE_EXTENSIONS.join("|")})(?:[?#].*)?$`,
+  "i"
+);
 
 /**
  * Validates that a URL is a valid image URL using SOTA URL parsing.
@@ -303,12 +341,12 @@ const IMAGE_EXTENSION_REGEX = new RegExp(`\\.(${VALID_IMAGE_EXTENSIONS.join('|')
  * @returns {boolean} True if the URL is valid, false otherwise
  */
 function _isValidImageUrl(url, allowDataUrls = true) {
-  if (!url || typeof url !== 'string') {
+  if (!url || typeof url !== "string") {
     return false;
   }
 
   // Check for data URLs first (they don't parse well with URL constructor)
-  const isDataImage = url.startsWith('data:image/');
+  const isDataImage = url.startsWith("data:image/");
   if (isDataImage) {
     return allowDataUrls;
   }
@@ -319,16 +357,16 @@ function _isValidImageUrl(url, allowDataUrls = true) {
 
     // Validate protocol (http, https, and blob are allowed)
     const isValidProtocol =
-      urlObj.protocol === 'http:' ||
-      urlObj.protocol === 'https:' ||
-      urlObj.protocol === 'blob:';
+      urlObj.protocol === "http:" ||
+      urlObj.protocol === "https:" ||
+      urlObj.protocol === "blob:";
 
     if (!isValidProtocol) {
       return false;
     }
 
     // For blob URLs, pathname validation doesn't apply (no file extension)
-    if (urlObj.protocol === 'blob:') {
+    if (urlObj.protocol === "blob:") {
       return true;
     }
 
@@ -420,19 +458,25 @@ export async function renderProfilePage(type, id) {
   const imageFieldset = document.createElement("fieldset");
   imageFieldset.setAttribute("role", "group");
 
-  const imageInput = document.createElement("input");
+  imageInput = document.createElement("input");
   imageInput.name = "imageUrl";
   imageInput.type = "text";
   imageInput.placeholder = "Type prompt, paste URL, or click to upload...";
   imageInput.value = entity.imageUrl || "";
 
-  const actionButton = document.createElement("button");
+  actionButton = document.createElement("button");
   actionButton.type = "button";
   actionButton.textContent = "Upload";
   actionButton.dataset.action = "upload";
 
+  fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "image/*";
+  fileInput.style.display = "none";
+
   function updateButtonState() {
     const value = imageInput.value.trim();
+    console.log("[DEBUG] updateButtonState - value:", value, "isValidImageUrl:", _isValidImageUrl(value, true)); // Added log
 
     if (value === "") {
       actionButton.textContent = "Upload";
@@ -440,24 +484,28 @@ export async function renderProfilePage(type, id) {
     } else if (value && !_isValidImageUrl(value, true)) {
       actionButton.textContent = "Generate";
       actionButton.dataset.action = "generate";
-    } else {
-      actionButton.textContent = "Upload";
-      actionButton.dataset.action = "upload";
+    } else { // value is not empty and _isValidImageUrl is true
+      actionButton.textContent = "Use URL"; // Indicate that the URL will be used
+      actionButton.dataset.action = "use-url"; // A new action to signify no operation
     }
   }
 
   // Helper function to handle action errors consistently
   function handleActionError(error, action) {
-    const isUpload = action === 'upload';
-    const actionName = isUpload ? 'Upload' : 'Image generation';
-    const pluginName = isUpload ? 'Upload plugin' : 'Plugin';
+    const isUpload = action === "upload";
+    const actionName = isUpload ? "Upload" : "Image generation";
+    const pluginName = isUpload ? "Upload plugin" : "Plugin";
 
     console.error(`${actionName} error:`, error);
 
-    if (error.message && error.message.includes('postMessage')) {
-      showNotification(`${pluginName} not ready. Please wait a moment and try again.`);
+    if (error.message && error.message.includes("postMessage")) {
+      showNotification(
+        `${pluginName} not ready. Please wait a moment and try again.`
+      );
     } else {
-      showNotification(error.message || `${actionName} failed. Please try again.`);
+      showNotification(
+        error.message || `${actionName} failed. Please try again.`
+      );
     }
   }
 
@@ -472,7 +520,7 @@ export async function renderProfilePage(type, id) {
       // Valid URL: update preview with sanitized URL
       const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
       const newPic = getPictureHTML
-        ? getPictureHTML({ ...entity, imageUrl: safeVal, image: safeVal }, { cover: true })
+        ? getPictureHTML({ ...entity, imageUrl: safeVal }, { cover: true })
         : null;
       if (newPic) {
         const currentWrap = heroWrap.querySelector(".picture");
@@ -492,7 +540,7 @@ export async function renderProfilePage(type, id) {
 
       // Only show notification if input looks like a complete URL attempt (contains protocol or domain pattern)
       // This reduces noise while user is typing
-      if (val && (val.includes('://') || val.includes('data:image/'))) {
+      if (val && (val.includes("://") || val.includes("data:image/"))) {
         showNotification("Invalid image URL format");
       }
     }
@@ -500,35 +548,45 @@ export async function renderProfilePage(type, id) {
 
   // Set initial button state based on existing value
   updateButtonState();
-  
+
   function updateImageInput(input, url) {
     // Type check and trim whitespace
-    if (!url || typeof url !== 'string') {
-      console.warn('[RPGlitch] updateImageInput: Invalid URL type or empty value', { url, type: typeof url });
+    if (!url || typeof url !== "string") {
+      console.warn(
+        "[RPGlitch] updateImageInput: Invalid URL type or empty value",
+        { url, type: typeof url }
+      );
       return;
     }
 
     const trimmedUrl = url.trim();
     if (!trimmedUrl) {
-      console.warn('[RPGlitch] updateImageInput: URL is empty after trimming');
+      console.warn("[RPGlitch] updateImageInput: URL is empty after trimming");
       return;
     }
 
     // Validate URL format
     if (!_isValidImageUrl(trimmedUrl, true)) {
-      console.warn('[RPGlitch] updateImageInput: URL failed validation', { url: trimmedUrl });
+      console.warn("[RPGlitch] updateImageInput: URL failed validation", {
+        url: trimmedUrl,
+      });
       return;
     }
 
     // Sanitize URL with DOMPurify to prevent XSS
-    const sanitizedUrl = window.DOMPurify ? window.DOMPurify.sanitize(trimmedUrl) : trimmedUrl;
+    const sanitizedUrl = window.DOMPurify
+      ? window.DOMPurify.sanitize(trimmedUrl)
+      : trimmedUrl;
 
     // Debug log successful update
-    console.log('[RPGlitch] updateImageInput: Setting validated and sanitized URL', {
-      original: url,
-      trimmed: trimmedUrl,
-      sanitized: sanitizedUrl
-    });
+    console.log(
+      "[RPGlitch] updateImageInput: Setting validated and sanitized URL",
+      {
+        original: url,
+        trimmed: trimmedUrl,
+        sanitized: sanitizedUrl,
+      }
+    );
 
     // Set input value and dispatch events to update preview and state
     input.value = sanitizedUrl;
@@ -544,8 +602,10 @@ export async function renderProfilePage(type, id) {
       if (!prompt) return;
 
       // Check plugin availability before try block
-      if (typeof window.textToImage !== 'function') {
-        showNotification("Image generation plugin is not available. Please refresh the page.");
+      if (typeof window.textToImage !== "function") {
+        showNotification(
+          "Image generation plugin is not available. Please refresh the page."
+        );
         return;
       }
 
@@ -564,8 +624,9 @@ export async function renderProfilePage(type, id) {
         const result = await window.textToImage({
           prompt,
           guidanceScale: DEFAULT_GUIDANCE_SCALE,
-          resolution: 'portrait', // Force portrait aspect ratio for all generated images
+          resolution: "512x768", // Force portrait aspect ratio for all generated images
         });
+        console.log("[DEBUG] T2I Plugin Raw Result:", result); // Added log
         log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
 
         // Extract URL from plugin response (sanitized inside helper)
@@ -573,12 +634,15 @@ export async function renderProfilePage(type, id) {
 
         // Validate URL format (allow http/https, blob, and data:image URLs)
         if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
-          throw new Error("Image generation failed: invalid or unsupported URL format");
+          throw new Error(
+            "Image generation failed: invalid or unsupported URL format"
+          );
         }
 
         updateImageInput(imageInput, imageUrl);
-      } catch (error) {
-        handleActionError(error, 'generate');
+         
+      } catch (e) {
+        handleActionError(e, "generate");
       } finally {
         actionButton.disabled = false;
         imageInput.disabled = false;
@@ -587,46 +651,87 @@ export async function renderProfilePage(type, id) {
         updateButtonState();
       }
     } else if (action === "upload") {
-      // Check plugin availability before try block
-      if (typeof window.upload !== 'function') {
-        showNotification("Upload plugin is not available. Please refresh the page.");
-        return;
-      }
-
-      try {
-        // Set loading state on both button and input
-        actionButton.disabled = true;
-        imageInput.disabled = true;
-        actionButton.setAttribute("aria-busy", "true");
-        imageInput.setAttribute("aria-busy", "true");
-        actionButton.textContent = "Uploading...";
-
-        const result = await window.upload({ accept: 'image/*' });
-        log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
-
-        // Extract URL from plugin response (sanitized inside helper)
-        const imageUrl = _extractImageUrlFromPlugin(result);
-
-        // Validate URL - now accepts blob URLs too (blob URLs are valid for uploads)
-        if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
-          throw new Error("Upload failed: invalid image URL received from plugin");
+      // Set up file selection handler before triggering click
+      fileInput.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+          // User cancelled file selection
+          actionButton.disabled = false;
+          imageInput.disabled = false;
+          actionButton.removeAttribute("aria-busy");
+          imageInput.removeAttribute("aria-busy");
+          updateButtonState();
+          return;
         }
 
-        updateImageInput(imageInput, imageUrl);
-      } catch (error) {
-        handleActionError(error, 'upload');
-      } finally {
-        actionButton.disabled = false;
-        imageInput.disabled = false;
-        actionButton.removeAttribute("aria-busy");
-        imageInput.removeAttribute("aria-busy");
-        updateButtonState();
-      }
+        // Check plugin availability before try block
+        if (typeof window.upload !== "function") {
+          showNotification(
+            "Upload plugin is not available. Please refresh the page."
+          );
+          return;
+        }
+
+        try {
+          // Set loading state on both button and input
+          actionButton.disabled = true;
+          imageInput.disabled = true;
+          actionButton.setAttribute("aria-busy", "true");
+          imageInput.setAttribute("aria-busy", "true");
+          actionButton.textContent = "Uploading...";
+
+          // Read file as Data URL
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          await new Promise((resolve) => (reader.onload = resolve));
+          const fileDataUrl = reader.result; // This is a string
+
+          const result = await window.upload(fileDataUrl); // Pass the Data URL string
+          console.log("[DEBUG] Upload Plugin Raw Result:", result); // Added log
+          log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
+
+          // Extract URL from plugin response (sanitized inside helper)
+          const imageUrl = _extractImageUrlFromPlugin(result);
+
+          // Validate URL - now accepts blob URLs too (blob URLs are valid for uploads)
+          if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
+            throw new Error(
+              "Upload failed: invalid image URL received from plugin"
+            );
+          }
+
+          updateImageInput(imageInput, imageUrl);
+           
+        } catch (e) {
+          handleActionError(e, "upload");
+        } finally {
+          actionButton.disabled = false;
+          imageInput.disabled = false;
+          actionButton.removeAttribute("aria-busy");
+          imageInput.removeAttribute("aria-busy");
+          updateButtonState();
+          fileInput.value = null; // Clear file input to allow re-uploading the same file
+
+          // Display warning for temporary URL if upload was successful and a URL was received
+          if (imageUrl && _isValidImageUrl(imageUrl, true)) {
+            showNotification(
+              "Image uploaded! This is a temporary URL. Please re-host your image on a permanent service (like GitHub Gist or your own cloud storage) and replace this URL in the input field.",
+              10000 // Display for 10 seconds
+            );
+          }
+        }
+      };
+      // Trigger the hidden file input
+      fileInput.click();
+    } else if (action === "use-url") {
+      // Do nothing, the URL is already in the input and will be saved with the entity
+      return;
     }
-  });
+  }); // This closes the actionButton.addEventListener
 
   imageFieldset.appendChild(imageInput);
   imageFieldset.appendChild(actionButton);
+  imageFieldset.appendChild(fileInput); // Add the file input
   imageOverlay.appendChild(imageFieldset);
 
   const signatureColourLabel = document.createElement("label");
@@ -673,17 +778,12 @@ export async function renderProfilePage(type, id) {
 
   // --- Name Field (Using Helper) ---
   form.appendChild(
-    createFieldRow(
-      "name",
-      "Name",
-      "The primary identifier for this entity.",
-      [
-        "h1",
-        "input",
-        entity.name || "",
-        { placeholder: "Enter entity name..." }
-      ]
-    )
+    createFieldRow("name", "Name", "The primary identifier for this entity.", [
+      "h1",
+      "input",
+      entity.name || "",
+      { placeholder: "Enter entity name..." },
+    ])
   );
 
   // --- Description Field (Using Helper) ---
@@ -698,8 +798,8 @@ export async function renderProfilePage(type, id) {
         entity.description || "",
         {
           readClass: "profile-description-read",
-          placeholder: "Describe the entity..."
-        }
+          placeholder: "Describe the entity...",
+        },
       ]
     )
   );
@@ -710,17 +810,12 @@ export async function renderProfilePage(type, id) {
 
   Object.entries(SECTION_DEFINITIONS).forEach(([key, def]) => {
     secWrap.appendChild(
-      createFieldRow(
-        key,
-        def.label,
-        def.sublabels[type] || "",
-        [
-          "div",
-          "textarea",
-          entity.sections?.[key] || "",
-          { readClass: "profile-field-text-read" }
-        ]
-      )
+      createFieldRow(key, def.label, def.sublabels[type] || "", [
+        "div",
+        "textarea",
+        entity.sections?.[key] || "",
+        { readClass: "profile-field-text-read" },
+      ])
     );
   });
 
@@ -838,9 +933,9 @@ export async function renderProfilePage(type, id) {
       // This save handler is 100% correct.
       // It reads all values directly from the inputs, not the closure.
       const data = {
-        kind: type,
         name: escapeHtml(form.elements.name.value.trim()),
         description: escapeHtml(form.elements.description.value.trim()),
+         
         imageUrl: escapeHtml(imageInput.value.trim()),
         signatureColour: escapeHtml(paletteSelect.value.trim()),
         tags: entity.tags || [],
@@ -882,35 +977,4 @@ export async function renderProfilePage(type, id) {
     };
     replaceEventHandler(saveBtn, "click", saveHandler, "_saveHandler");
   }
-}
-
-// Helper function needed by profile (was in utils.js but specific to this module)
-async function copyEntity(type, id) {
-  console.log(`Attempting to copy entity of type ${type} with id ${id}`);
-
-  const entityToCopy = await entities.get(type, id);
-  if (!entityToCopy) {
-    console.error(`Entity with type ${type} and id ${id} not found.`);
-    return null;
-  }
-
-  const newEntity = {
-    ...entityToCopy,
-    sections: { ...entityToCopy.sections },
-  };
-
-  delete newEntity.id;
-  newEntity.isPremade = false; // This is correct
-  newEntity.name = `${newEntity.name || "Untitled"} (Clone)`;
-
-  return newEntity;
-}
-
-/**
- * This function is no longer called by the router but is kept
- * to prevent errors if it's referenced elsewhere.
- */
-export async function renderForm(type, id) {
-  console.warn("renderForm() is deprecated. Navigating to profile page.");
-  router.navigate(`#profile/${type}/${id || "new"}`);
 }
