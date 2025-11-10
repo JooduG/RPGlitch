@@ -1214,7 +1214,9 @@ function initChin() {
   const buttons = getButtons();
   buttons.forEach((btn) => {
     if (btn._chinBound) return; // idempotent
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (e) => {
+      // Stop propagation to prevent document click handler from closing the chin
+      e.stopPropagation();
       const name = btn.dataset.chin;
       toggle(name);
     });
