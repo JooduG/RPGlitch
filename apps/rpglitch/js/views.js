@@ -468,7 +468,7 @@ export async function renderProfilePage(type, id) {
         }
 
         // For raw string responses, validate URL format (allow http/https and data:image URLs)
-        if (typeof result === 'string' && !imageUrl.match(/^(https?:\/\/|data:image\/)/i)) {
+        if (!imageUrl.match(/^(https?:\/\/|data:image\/)/i)) {
           throw new Error("Invalid URL format returned");
         }
 
