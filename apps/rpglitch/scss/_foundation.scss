@@ -196,8 +196,9 @@ $breakpoint-tablet: 1024px;
 .placeholder-image {
   display: flex;
   align-items: center;
+  justify-content: center;
   width: 100%;
-  height: auto;
+  height: 100%;
   color: rgb(255 255 255 / 85%);
   font-weight: bold;
   overflow: hidden;
@@ -234,11 +235,7 @@ $breakpoint-tablet: 1024px;
   .placeholder-image,
   img[data-is-placeholder],
   .profile-picture[data-is-placeholder] {
-    display: block;
-    width: auto;
-    height: auto;
-    max-width: 60%;
-    max-height: 60%;
+    display: flex;
     color: #fff;
     opacity: 1;
   }

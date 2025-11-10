@@ -9,7 +9,8 @@
 
 main.container {
   overflow: hidden auto;
-  height: calc(100vh - var(--header-height));
+
+  // height: calc(100vh - var(--header-height));
   padding: var(--app-container-pad);
 
   @include foundation.custom-scrollbar;
@@ -211,13 +212,6 @@ body.chin-open .top-bar {
   button {
     white-space: nowrap;
   }
-
-  // Remove any background text like "character"
-  &::before,
-  &::after {
-    content: none !important;
-    display: none !important;
-  }
 }
 
 .form-view .profile-name-input,
@@ -345,10 +339,6 @@ body.chin-open .top-bar {
     .placeholder-image,
     .profile-picture[data-is-placeholder] {
       position: relative;
-      width: auto;
-      height: auto;
-      max-width: 60%;
-      max-height: 60%;
       object-fit: contain;
       opacity: 0.8;
       color: #fff;
@@ -483,10 +473,6 @@ body.chin-open .top-bar {
       color: var(--pico-muted-color);
       font-style: italic;
     }
-
-    .placeholder-image {
-      opacity: 0.6;
-    }
   }
 }
 
@@ -503,12 +489,6 @@ body.chin-open .top-bar {
 
     .card-media {
       min-height: 10rem;
-
-      img[data-is-placeholder],
-      .placeholder-image {
-        max-width: 50%;
-        max-height: 50%;
-      }
     }
 
     .card-title {

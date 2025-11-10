@@ -582,24 +582,24 @@ async function renderList(containerId, key) {
     }
 
     // Append chips to media (image area) for proper absolute positioning overlay
-    const footer = card.querySelector(".card-footer");
-    if (media) {
-      const row = document.createElement("div");
-      row.className = "chip-row";
-      const chips = [];
-      if (item.isPremade) chips.push("Premade");
-      if (Array.isArray(item.tags)) chips.push(...item.tags.slice(0, 3));
-      chips.forEach((txt) => {
-        const span = document.createElement("span");
-        span.className = "chip";
-        const sm = document.createElement("small");
-        sm.textContent = txt;
-        span.appendChild(sm);
-        row.appendChild(span);
-      });
-      // Append to media instead of footer so chips overlay the image
-      media.appendChild(row);
-    }
+    // const footer = card.querySelector(".card-footer");
+    // if (media) {
+    //   const row = document.createElement("div");
+    //   row.className = "chip-row";
+    //   const chips = [];
+    //   if (item.isPremade) chips.push("Premade");
+    //   if (Array.isArray(item.tags)) chips.push(...item.tags.slice(0, 3));
+    //   chips.forEach((txt) => {
+    //     const span = document.createElement("span");
+    //     span.className = "chip";
+    //     const sm = document.createElement("small");
+    //     sm.textContent = txt;
+    //     span.appendChild(sm);
+    //     row.appendChild(span);
+    //   });
+    //   Append to media instead of footer so chips overlay the image
+    //   media.appendChild(row);
+    // }
 
     const titleEl = card.querySelector(".card-title");
     if (titleEl) titleEl.textContent = item.name || "Empty";

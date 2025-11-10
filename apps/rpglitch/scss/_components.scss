@@ -147,6 +147,7 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    place-content: center;
   }
 
   .card-title {
@@ -154,6 +155,7 @@
     text-align: center;
     width: 100%;
     min-width: 100px;
+    flex: 0.5;
 
     &:focus {
       outline: none;
@@ -1043,6 +1045,6 @@ $glow-signatures: (
   // Show 'edit' fields
   [data-edit-field],
   .profile-hero-overlay {
-    display: block; // or 'inline-block', etc.
+    display: flex; // or 'inline-block', etc.
   }
 }
