@@ -748,7 +748,7 @@ export async function renderProfilePage(type, id) {
     const option = document.createElement("option");
     option.value = p.toLowerCase();
     option.textContent = p;
-    if ((entity.signatureColour || "pink") === p.toLowerCase()) {
+    if ((entity.signatureColour || palettes[0].toLowerCase()) === p.toLowerCase()) {
       option.selected = true;
     }
     paletteSelect.appendChild(option);
