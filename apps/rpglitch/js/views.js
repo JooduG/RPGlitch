@@ -417,21 +417,31 @@ export async function renderProfilePage(type, id) {
         log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
 
         // Handle response format: Perchance text-to-image plugin returns { imageUrl, seed }
+        // Step 1: Find potential URL from various sources
         let imageUrl;
+        let isRawString = false;
         if (result?.imageUrl) {
-          // Standard Perchance response format
           imageUrl = result.imageUrl;
         } else if (result?.dataUrl) {
-          // Fallback: check for dataUrl (older format)
           imageUrl = result.dataUrl;
         } else if (result?.imageId) {
-          // Fallback: construct URL from imageId and fileExtension
           const ext = result.fileExtension || 'jpeg';
           imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
         } else if (typeof result === 'string') {
-          // Fallback: direct string URL
           imageUrl = result;
-        } else {
+          isRawString = true;
+        }
+
+        // Step 2: Validate URL format for raw string responses
+        if (isRawString && imageUrl && !imageUrl.match(/^https?:\/\//i)) {
+          throw new Error("Invalid URL format returned");
+        }
+
+        // Step 3: Trim and validate
+        if (typeof imageUrl === 'string') {
+          imageUrl = imageUrl.trim();
+        }
+        if (!imageUrl) {
           throw new Error("Image generation failed: invalid response format");
         }
 
@@ -465,24 +475,29 @@ export async function renderProfilePage(type, id) {
         log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
         // Handle different response formats from the upload plugin
+        // Step 1: Find potential URL from various sources
         let imageUrl;
         if (typeof result === 'string') {
-          // Direct string URL
           imageUrl = result;
         } else if (result?.url) {
-          // Object with url property
           imageUrl = result.url;
         } else if (result?.file?.url) {
-          // Nested url in file property
           imageUrl = result.file.url;
         } else if (result?.name && typeof result.name === 'string') {
-          // Some versions return URL in the name field
+          // Some versions return URL in the name field (unusual fallback)
+          console.warn('[RPGlitch] Upload plugin used unusual "name" field fallback. Result:', result);
           imageUrl = result.name;
-        } else {
+        }
+
+        // Step 2: Trim and validate
+        if (typeof imageUrl === 'string') {
+          imageUrl = imageUrl.trim();
+        }
+        if (!imageUrl) {
           throw new Error("Upload failed: no URL returned");
         }
 
-        // Validate that the uploaded file is an image
+        // Step 3: Validate that the uploaded file is an image
         const isImage = imageUrl.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i);
         if (!isImage) {
           throw new Error("Uploaded file is not an image. Please select an image file.");
