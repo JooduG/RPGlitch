@@ -651,6 +651,8 @@ export async function renderProfilePage(type, id) {
         updateButtonState();
       }
     } else if (action === "upload") {
+      let imageUrl = null; // Declare imageUrl here
+
       // Set up file selection handler before triggering click
       fileInput.onchange = async (e) => {
         const file = e.target.files[0];
@@ -691,7 +693,7 @@ export async function renderProfilePage(type, id) {
           log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
           // Extract URL from plugin response (sanitized inside helper)
-          const imageUrl = _extractImageUrlFromPlugin(result);
+          imageUrl = _extractImageUrlFromPlugin(result); // Assign to already declared imageUrl
 
           // Validate URL - now accepts blob URLs too (blob URLs are valid for uploads)
           if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
