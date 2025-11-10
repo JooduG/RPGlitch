@@ -184,7 +184,7 @@ export function log(...args) {
 }
 
 export function error(...args) {
-  if (isDebug) console.error("[RPGlitch]", ...args);
+  console.error("[RPGlitch]", ...args);
 }
 
 export async function setDebug(on) {
@@ -198,7 +198,7 @@ export async function setDebug(on) {
     settings.debugMode = isDebug;
     await db.settings.put(settings);
   } catch (e) {
-    console.error("Failed to save debug mode to settings:", e);
+    error("Failed to save debug mode to settings:", e);
   }
   return isDebug;
 }
