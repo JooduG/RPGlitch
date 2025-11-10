@@ -282,6 +282,9 @@ pluginSuperFetch = superFetch
 <script>
   if (typeof ai !== 'undefined') window.pluginAi = ai;
   if (typeof textToImage !== 'undefined') window.pluginTextToImage = textToImage;
+  if (typeof superFetch !== 'undefined') window.pluginSuperFetch = superFetch;
+  if (typeof remember !== 'undefined') window.pluginRemember = remember;
+  if (typeof upload !== 'undefined') window.pluginUpload = upload;
 </script>
 <script type="module" src="js/index.js"></script>
 ```
