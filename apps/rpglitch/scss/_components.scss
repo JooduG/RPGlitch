@@ -79,7 +79,7 @@
 }
 
 // Show tag pills only for premade entities on form pages
-.profile-view[data-premade="true"] .form-tag-pills {
+.profile-view[data-is-premade="true"] .form-tag-pills {
   display: flex;
 }
 
@@ -941,7 +941,7 @@ $glow-signatures: (
   grid-template-columns: 1fr 2fr; // Label column | Input column (wider)
   gap: 1rem; // Comfortable spacing between columns
   margin-bottom: 1rem; // Vertical spacing between rows
-  align-items: start; // Align items to the top of each row
+  align-items: center; // Center items vertically for better balance with labels
 
   @media (width <= $breakpoint-mobile) {
     grid-template-columns: 1fr;
@@ -985,8 +985,14 @@ $glow-signatures: (
   .field-input {
     text-align: center; // Center the content
 
+    // Center-align the input/textarea elements themselves
+    input,
+    textarea,
+    h1 {
+      text-align: center;
     }
   }
+}
 
 .field-input {
   // Ensure input fields take full width of their column
@@ -1001,10 +1007,9 @@ $glow-signatures: (
 
 // --- Read-Only Styling ---
 // These styles are for the read-only <div> tags
-// to make them look like static text and match the <textarea> height.
+// to make them look like static text.
 .profile-description-read,
 .profile-field-text-read {
-  min-height: 8rem; // Match textarea height
   white-space: pre-wrap; // Respect newlines
   padding: var(--pico-form-element-padding); // Align with textarea
   line-height: var(--pico-line-height); // Match Pico text

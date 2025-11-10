@@ -736,19 +736,15 @@ export async function renderProfilePage(type, id) {
   imageFieldset.appendChild(fileInput); // Add the file input
   imageOverlay.appendChild(imageFieldset);
 
-  const signatureColourLabel = document.createElement("label");
-  signatureColourLabel.textContent = "Signature Colour";
-  signatureColourLabel.setAttribute("for", "signatureColour");
-
   const paletteSelect = document.createElement("select");
   paletteSelect.name = "signatureColour";
   paletteSelect.id = "signatureColour";
-  const palettes = ["Pink", "Emerald", "Cyan", "Orange", "Purple"];
+  const palettes = ["Signature Colour", "Pink", "Emerald", "Cyan", "Orange", "Purple"];
   palettes.forEach((p) => {
     const option = document.createElement("option");
-    option.value = p.toLowerCase();
+    option.value = p === "Signature Colour" ? "default" : p.toLowerCase();
     option.textContent = p;
-    if ((entity.signatureColour || palettes[0].toLowerCase()) === p.toLowerCase()) {
+    if ((entity.signatureColour || "default") === option.value) {
       option.selected = true;
     }
     paletteSelect.appendChild(option);
@@ -761,7 +757,6 @@ export async function renderProfilePage(type, id) {
     applySignature?.(leftCol, tempEntity);
   });
 
-  imageOverlay.appendChild(signatureColourLabel);
   imageOverlay.appendChild(paletteSelect);
   heroWrap.appendChild(imageOverlay);
 
