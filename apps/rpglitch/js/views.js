@@ -333,11 +333,6 @@ function _isValidImageUrl(url, allowDataUrls = true) {
     }
 
     // Validate file extension on pathname (not full URL, avoiding query param issues)
-    // If pathname is just "/" (no file), accept it (some CDNs use path params)
-    if (urlObj.pathname === '/' || urlObj.pathname === '') {
-      return true;
-    }
-
     return IMAGE_EXTENSION_REGEX.test(urlObj.pathname);
   } catch (error) {
     // URL constructor throws on invalid URLs
@@ -448,6 +443,21 @@ export async function renderProfilePage(type, id) {
     } else {
       actionButton.textContent = "Upload";
       actionButton.dataset.action = "upload";
+    }
+  }
+
+  // Helper function to handle action errors consistently
+  function handleActionError(error, action) {
+    const isUpload = action === 'upload';
+    const actionName = isUpload ? 'Upload' : 'Image generation';
+    const pluginName = isUpload ? 'Upload plugin' : 'Plugin';
+
+    console.error(`${actionName} error:`, error);
+
+    if (error.message && error.message.includes('postMessage')) {
+      showNotification(`${pluginName} not ready. Please wait a moment and try again.`);
+    } else {
+      showNotification(error.message || `${actionName} failed. Please try again.`);
     }
   }
 
@@ -568,13 +578,7 @@ export async function renderProfilePage(type, id) {
 
         updateImageInput(imageInput, imageUrl);
       } catch (error) {
-        console.error("Image generation error:", error);
-        // Handle specific plugin initialization errors
-        if (error.message && error.message.includes('postMessage')) {
-          showNotification("Plugin not ready. Please wait a moment and try again.");
-        } else {
-          showNotification(error.message || "Image generation failed. Please try again.");
-        }
+        handleActionError(error, 'generate');
       } finally {
         actionButton.disabled = false;
         imageInput.disabled = false;
@@ -610,13 +614,7 @@ export async function renderProfilePage(type, id) {
 
         updateImageInput(imageInput, imageUrl);
       } catch (error) {
-        console.error("Upload error:", error);
-        // Handle specific plugin initialization errors
-        if (error.message && error.message.includes('postMessage')) {
-          showNotification("Upload plugin not ready. Please wait a moment and try again.");
-        } else {
-          showNotification(error.message || "Upload failed. Please try again.");
-        }
+        handleActionError(error, 'upload');
       } finally {
         actionButton.disabled = false;
         imageInput.disabled = false;
