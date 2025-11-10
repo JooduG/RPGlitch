@@ -281,6 +281,10 @@ function _extractImageUrlFromPlugin(result) {
   // Trim whitespace if we got a string
   if (typeof imageUrl === 'string') {
     imageUrl = imageUrl.trim();
+    // Return undefined for empty strings after trim
+    if (imageUrl === '') {
+      return undefined;
+    }
   }
 
   return imageUrl || undefined;
@@ -288,7 +292,9 @@ function _extractImageUrlFromPlugin(result) {
 
 // Valid image file extensions for URL validation
 const VALID_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'avif', 'heic', 'heif'];
-const IMAGE_EXTENSION_PATTERN = new RegExp(`\\.(${VALID_IMAGE_EXTENSIONS.join('|')})$`, 'i');
+
+// Regex pattern for validating image file extensions in URLs (handles query params and fragments)
+const IMAGE_EXTENSION_REGEX = new RegExp(`\\.(${VALID_IMAGE_EXTENSIONS.join('|')})(?:[?#].*)?$`, 'i');
 
 /**
  * Validates that a URL is a valid image URL using SOTA URL parsing.
@@ -318,7 +324,7 @@ function _isValidImageUrl(url, allowDataUrls = true) {
     }
 
     // Validate file extension on pathname (not full URL, avoiding query param issues)
-    return IMAGE_EXTENSION_PATTERN.test(urlObj.pathname);
+    return IMAGE_EXTENSION_REGEX.test(urlObj.pathname);
   } catch (error) {
     // URL constructor throws on invalid URLs
     return false;
@@ -439,7 +445,7 @@ export async function renderProfilePage(type, id) {
     // Update live preview
     const val = imageInput.value.trim();
     if (val && _isValidImageUrl(val, true)) {
-      // Sanitize URL to prevent XSS attacks before rendering
+      // Valid URL: update preview with sanitized URL
       const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
       const newPic = getPictureHTML
         ? getPictureHTML({ ...entity, imageUrl: safeVal, image: safeVal }, { cover: true })
@@ -449,9 +455,22 @@ export async function renderProfilePage(type, id) {
         if (currentWrap) currentWrap.replaceWith(newPic);
         else heroWrap.appendChild(newPic);
       }
-    } else if (val) {
-      // Show error notification for invalid URLs
-      showNotification("Invalid image URL format");
+    } else {
+      // Invalid or empty: revert to original entity image
+      const originalPic = getPictureHTML
+        ? getPictureHTML(entity, { cover: true })
+        : null;
+      if (originalPic) {
+        const currentWrap = heroWrap.querySelector(".picture");
+        if (currentWrap) currentWrap.replaceWith(originalPic);
+        else heroWrap.appendChild(originalPic);
+      }
+
+      // Only show notification if input looks like a complete URL attempt (contains protocol or domain pattern)
+      // This reduces noise while user is typing
+      if (val && (val.includes('://') || val.includes('data:image/'))) {
+        showNotification("Invalid image URL format");
+      }
     }
   });
 
@@ -459,13 +478,38 @@ export async function renderProfilePage(type, id) {
   updateButtonState();
   
   function updateImageInput(input, url) {
-    // Validate URL before setting input value
-    if (url && _isValidImageUrl(url, true)) {
-      input.value = url;
-      // Dispatch both input and change events to update preview and state
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-      input.dispatchEvent(new Event("change", { bubbles: true }));
+    // Type check and trim whitespace
+    if (!url || typeof url !== 'string') {
+      console.warn('[RPGlitch] updateImageInput: Invalid URL type or empty value', { url, type: typeof url });
+      return;
     }
+
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) {
+      console.warn('[RPGlitch] updateImageInput: URL is empty after trimming');
+      return;
+    }
+
+    // Validate URL format
+    if (!_isValidImageUrl(trimmedUrl, true)) {
+      console.warn('[RPGlitch] updateImageInput: URL failed validation', { url: trimmedUrl });
+      return;
+    }
+
+    // Sanitize URL with DOMPurify to prevent XSS
+    const sanitizedUrl = window.DOMPurify ? window.DOMPurify.sanitize(trimmedUrl) : trimmedUrl;
+
+    // Debug log successful update
+    console.log('[RPGlitch] updateImageInput: Setting validated and sanitized URL', {
+      original: url,
+      trimmed: trimmedUrl,
+      sanitized: sanitizedUrl
+    });
+
+    // Set input value and dispatch events to update preview and state
+    input.value = sanitizedUrl;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
   actionButton.addEventListener("click", async () => {
