@@ -317,8 +317,7 @@ function _isValidImageUrl(url, allowDataUrls = true) {
     }
 
     // Validate file extension on pathname (not full URL, avoiding query param issues)
-    const extensionPattern = new RegExp(`\\.(${VALID_IMAGE_EXTENSIONS.join('|')})$`, 'i');
-    return extensionPattern.test(urlObj.pathname);
+    return IMAGE_EXTENSION_PATTERN.test(urlObj.pathname);
   } catch (error) {
     // URL constructor throws on invalid URLs
     return false;
