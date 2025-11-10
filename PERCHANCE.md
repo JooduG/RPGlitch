@@ -328,7 +328,7 @@ When integrating with Perchance plugins, follow these security best practices:
 
 - **Validate image URLs:** Check protocol, pathname, and file extensions
 - **Data URL handling:** Be cautious with data URLs; validate and sanitize appropriately
-- **File extension validation:** Only allow known safe image formats (jpg, jpeg, png, gif, webp, svg)
+- **File extension validation:** Only allow known safe image formats (jpg, jpeg, png, gif, webp, svg). **Note:** SVGs must be sanitized to prevent XSS.
 - **Query parameter handling:** Parse URLs properly to handle query parameters in validation
 
 ### Recent Security Improvements (2025-11-10)
