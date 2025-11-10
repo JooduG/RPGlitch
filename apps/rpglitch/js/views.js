@@ -288,6 +288,7 @@ function _extractImageUrlFromPlugin(result) {
 
 // Valid image file extensions for URL validation
 const VALID_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'avif', 'heic', 'heif'];
+const IMAGE_EXTENSION_PATTERN = new RegExp(`\\.(${VALID_IMAGE_EXTENSIONS.join('|')})$`, 'i');
 
 /**
  * Validates that a URL is a valid image URL using SOTA URL parsing.
