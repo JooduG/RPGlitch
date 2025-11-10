@@ -515,7 +515,7 @@ export async function renderProfilePage(type, id) {
         }
 
         // Validate that the uploaded file is an image
-        const isImage = imageUrl.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i);
+        const isImage = imageUrl.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)(?:[?#].*)?$/i);
         if (!isImage) {
           throw new Error("Uploaded file is not an image. Please select an image file.");
         }
