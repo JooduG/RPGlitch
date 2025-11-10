@@ -376,7 +376,7 @@ Build process (`build/scripts/build-app.js`):
 
 **Critical rules:**
 - **Use `const` by default, `let` only for reassignment** - `var` is **FORBIDDEN**
-- **ES6 modules only** (`import`/`export`) - **IIFEs are FORBIDDEN**
+- **ES6 modules only** (`import`/`export`) - **IIFEs are FORBIDDEN** as a module pattern.
 - **Vanilla DOM APIs** - No jQuery (Cash is for legacy support only)
 - **IndexedDB only** - `localStorage`/`sessionStorage` **FORBIDDEN** for app state
 - **Prefer plain objects over classes** for better interoperability
