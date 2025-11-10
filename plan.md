@@ -80,8 +80,20 @@
 | Improve the Chat View | Enhance the chat interface with character avatars, revised layout, typing indicators, etc. | M | M | AI Character Interaction | approved | Key next step after basic chat UI wiring. Layout defined in `design-system.md`. `Conclude Story` button functionality needs further design. |
 | Improve the Profile View | Enhance the profile view with character/world images and tags. | S | S | Character/World Management | idea | A more informative profile view will help users choose characters and worlds. |
 | Improve the Form View | Enhance the form view with image upload/generation and a tags input field. | M | M | Character/World Management | idea | A more user-friendly form view will make it easier to create content. Connects to Image Generation goal. |
-| Implement Profile Image Generation | Allows users to generate (or upload) images for characters/worlds, possibly integrating ImageGlitch. | M | M | Perchance `text-to-image-plugin` | researching | User wants image generation, not just upload. Explore integration/merge with ImageGlitch. Replaces previous "Upload" item with broader scope. |
+| Implement Profile Image Generation | Allows users to generate (or upload) images for characters/worlds, possibly integrating ImageGlitch. | M | M | Perchance `text-to-image-plugin` | **In Progress** | **UPDATE 2025-11-10:** Core image upload/generation implemented with security hardening (PRs #280-286). UI integration complete. Additional features (edit, tags, advanced generation options) remain. |
 | Implement Entity Color Picker | Adds a simple color picker to entity forms to set a theme color (e.g., `--pico-primary`). | S | M | Form View, CSS variables | approved | High-impact, low-effort visual customization. |
+
+### **Category: Security & Quality (Recent Completed Work - 2025-11-10)**
+
+| Task | Description | Impact | Status | PRs |
+| :--- | :--- | :--- | :--- | :--- |
+| XSS Vulnerability Fixes | Patch critical XSS vulnerabilities in image handling and user input processing | **HIGH** | **Done** | #280 |
+| URL Validation Hardening | Implement SOTA URL validation using native URL constructor, replacing regex patterns | **HIGH** | **Done** | #280, #284 |
+| Type Safety Improvements | Add comprehensive type checking for all plugin responses and external data | **MEDIUM** | **Done** | #280 |
+| Image Upload Bug Fixes | Fix image upload, generation, and validation bugs in profile forms | **MEDIUM** | **Done** | #280-286 |
+| Chin Panel UI Fixes | Resolve chin panel closing immediately after opening, improve UX | **MEDIUM** | **Done** | #285, #286 |
+| Error Logging Consistency | Fix error logging to work consistently across development and production | **LOW** | **Done** | #279 |
+| Build Quality | Eliminate all build warnings and test errors from npm run deploy | **MEDIUM** | **Done** | #278 |
 
 
 ---

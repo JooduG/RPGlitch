@@ -295,6 +295,62 @@ Then in right-panel JavaScript, copy to standard names via `setupPlugins()` func
 4. **Use Graceful Degradation:** Apps should function (at reduced capacity) even if plugins timeout
 5. **Keep Left-Panel Simple:** Complex logic belongs in the right-panel JavaScript, not Perchance syntax
 
+## Security Considerations
+
+When integrating with Perchance plugins, follow these security best practices:
+
+### Input Validation
+
+- **Validate all plugin responses:** Never trust external data, even from trusted plugins
+- **Type checking:** Always verify response types before processing (check for strings, objects, arrays)
+- **URL validation:** Use native URL constructor to validate URLs before processing
+  ```javascript
+  function isValidUrl(str) {
+    try {
+      const url = new URL(str);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }
+  ```
+
+### XSS Prevention
+
+- **DOMPurify is mandatory:** All user input and AI-generated content must be sanitized
+  ```javascript
+  element.innerHTML = DOMPurify.sanitize(untrustedContent);
+  ```
+- **Prefer safe methods:** Use `textContent` over `innerHTML` when HTML rendering is not needed
+- **Sanitize plugin responses:** Even responses from Perchance plugins should be sanitized before rendering
+
+### Image Handling Security
+
+- **Validate image URLs:** Check protocol, pathname, and file extensions
+- **Data URL handling:** Be cautious with data URLs; validate and sanitize appropriately
+- **File extension validation:** Only allow known safe image formats (jpg, jpeg, png, gif, webp, svg). **Note:** SVGs must be sanitized to prevent XSS.
+- **Query parameter handling:** Parse URLs properly to handle query parameters in validation
+
+### Recent Security Improvements (2025-11-10)
+
+The codebase has undergone comprehensive security hardening:
+
+- **XSS Vulnerability Fixes:** Critical XSS vulnerabilities in image handling have been patched
+- **SOTA URL Validation:** Implemented native URL constructor-based validation replacing brittle regex patterns
+- **Enhanced Type Checking:** All plugin response handling now includes comprehensive type guards
+- **Defense in Depth:** Multiple layers of validation and sanitization throughout the application
+
+### Security Checklist
+
+Before deploying to Perchance:
+
+- [ ] All dynamic HTML is sanitized with DOMPurify
+- [ ] All URLs are validated using proper URL parsing
+- [ ] All plugin responses have type checking
+- [ ] Error handling does not leak sensitive information
+- [ ] No secrets or API keys are committed to code
+- [ ] All user inputs are validated and sanitized
+
 ## Configuration
 
 ### Left Panel Configuration

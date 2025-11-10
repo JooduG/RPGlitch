@@ -60,6 +60,7 @@ apps/rpglitch/
 - **Local-First:** All data stored in IndexedDB (fully offline capable)
 - **Import/Export:** JSON-based data portability
 - **UI Safety:** Watchdog systems to prevent UI blocking
+- **Security Hardened:** Defense-in-depth approach with XSS prevention and input validation
 
 ## Technology Stack
 
@@ -68,6 +69,23 @@ apps/rpglitch/
 - **JavaScript:** ES6+ modules (vanilla, no framework)
 - **Styling:** SCSS compiled to CSS, inlined in build
 - **Security:** DOMPurify for all dynamic HTML sanitization
+
+## Security Features
+
+RPGlitch implements a defense-in-depth security architecture:
+
+- **XSS Prevention:** All user input and AI-generated content sanitized with DOMPurify before rendering
+- **URL Validation:** SOTA URL validation using native URL constructor for image uploads and generation
+- **Type Safety:** Comprehensive type checking for all plugin responses and external data
+- **Input Sanitization:** Multi-layer validation for file uploads, image URLs, and user-provided content
+- **Safe DOM Manipulation:** Prefer `textContent` over `innerHTML` where possible; sanitize when HTML rendering is required
+- **Plugin Response Validation:** All Perchance plugin responses validated and sanitized before use
+
+Recent security improvements (2025-11-10):
+- Patched critical XSS vulnerabilities in image handling (PR #280)
+- Implemented comprehensive URL validation with proper pathname and query parameter handling
+- Added defense against malicious data URLs and file paths
+- Enhanced error logging for security-relevant events
 
 ## Development
 
