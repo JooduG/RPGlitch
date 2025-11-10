@@ -317,13 +317,27 @@ function _isValidImageUrl(url, allowDataUrls = true) {
   try {
     const urlObj = new URL(url);
 
-    // Validate protocol (only http and https allowed)
-    const isHttp = urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
-    if (!isHttp) {
+    // Validate protocol (http, https, and blob are allowed)
+    const isValidProtocol =
+      urlObj.protocol === 'http:' ||
+      urlObj.protocol === 'https:' ||
+      urlObj.protocol === 'blob:';
+
+    if (!isValidProtocol) {
       return false;
     }
 
+    // For blob URLs, pathname validation doesn't apply (no file extension)
+    if (urlObj.protocol === 'blob:') {
+      return true;
+    }
+
     // Validate file extension on pathname (not full URL, avoiding query param issues)
+    // If pathname is just "/" (no file), accept it (some CDNs use path params)
+    if (urlObj.pathname === '/' || urlObj.pathname === '') {
+      return true;
+    }
+
     return IMAGE_EXTENSION_REGEX.test(urlObj.pathname);
   } catch (error) {
     // URL constructor throws on invalid URLs
@@ -547,7 +561,7 @@ export async function renderProfilePage(type, id) {
         // Extract URL from plugin response (sanitized inside helper)
         const imageUrl = _extractImageUrlFromPlugin(result);
 
-        // Validate URL format (allow http/https and data:image URLs)
+        // Validate URL format (allow http/https, blob, and data:image URLs)
         if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
           throw new Error("Image generation failed: invalid or unsupported URL format");
         }
@@ -555,7 +569,12 @@ export async function renderProfilePage(type, id) {
         updateImageInput(imageInput, imageUrl);
       } catch (error) {
         console.error("Image generation error:", error);
-        showNotification("Image generation failed. Please try again.");
+        // Handle specific plugin initialization errors
+        if (error.message && error.message.includes('postMessage')) {
+          showNotification("Plugin not ready. Please wait a moment and try again.");
+        } else {
+          showNotification(error.message || "Image generation failed. Please try again.");
+        }
       } finally {
         actionButton.disabled = false;
         imageInput.disabled = false;
@@ -584,17 +603,20 @@ export async function renderProfilePage(type, id) {
         // Extract URL from plugin response (sanitized inside helper)
         const imageUrl = _extractImageUrlFromPlugin(result);
 
-        // Upload handler only accepts http/https URLs (no data URLs)
-        // Rationale: Uploaded images must be permanently hosted on external servers,
-        // whereas data URLs are ephemeral and exist only in the current session
-        if (!imageUrl || !_isValidImageUrl(imageUrl, false)) {
-          throw new Error("Upload failed: URL must be a valid, hosted image (http/https)");
+        // Validate URL - now accepts blob URLs too (blob URLs are valid for uploads)
+        if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
+          throw new Error("Upload failed: invalid image URL received from plugin");
         }
 
         updateImageInput(imageInput, imageUrl);
       } catch (error) {
         console.error("Upload error:", error);
-        showNotification(error.message || "Upload failed. Please try again.");
+        // Handle specific plugin initialization errors
+        if (error.message && error.message.includes('postMessage')) {
+          showNotification("Upload plugin not ready. Please wait a moment and try again.");
+        } else {
+          showNotification(error.message || "Upload failed. Please try again.");
+        }
       } finally {
         actionButton.disabled = false;
         imageInput.disabled = false;
