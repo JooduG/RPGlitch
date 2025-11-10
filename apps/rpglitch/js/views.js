@@ -593,7 +593,7 @@ export async function renderProfilePage(type, id) {
         // Upload handler accepts both hosted URLs and data URLs
         // Data URLs are supported for local file uploads via the plugin
         if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
-          throw new Error("Upload failed: URL must be a valid, hosted image (http/https)");
+          throw new Error("Upload failed: URL must be a valid image URL (http/https or data:image)");
         }
 
         updateImageInput(imageInput, imageUrl);
