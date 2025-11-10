@@ -172,8 +172,8 @@ body.chin-open .top-bar {
   // Remove any background text like "character"
   &::before,
   &::after {
-    content: none !important;
-    display: none !important;
+    content: none;
+    display: none;
   }
 }
 
