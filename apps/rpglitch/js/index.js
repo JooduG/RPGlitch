@@ -581,8 +581,9 @@ async function renderList(containerId, key) {
       void e;
     }
 
+    // Append chips to media (image area) for proper absolute positioning overlay
     const footer = card.querySelector(".card-footer");
-    if (footer) {
+    if (media) {
       const row = document.createElement("div");
       row.className = "chip-row";
       const chips = [];
@@ -596,7 +597,8 @@ async function renderList(containerId, key) {
         span.appendChild(sm);
         row.appendChild(span);
       });
-      footer.appendChild(row);
+      // Append to media instead of footer so chips overlay the image
+      media.appendChild(row);
     }
 
     const titleEl = card.querySelector(".card-title");

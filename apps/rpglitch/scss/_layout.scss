@@ -168,6 +168,13 @@ body.chin-open .top-bar {
   pointer-events: none; /* image acts as backdrop */
   overflow: hidden;
   background: var(--signature, transparent);
+
+  // Remove any background text like "character"
+  &::before,
+  &::after {
+    content: none;
+    display: none;
+  }
 }
 
 .profile-right {
@@ -197,12 +204,19 @@ body.chin-open .top-bar {
   border-radius: var(--pico-radius);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
   pointer-events: all;
 
   // Prevent button text wrapping for image actions
   button {
     white-space: nowrap;
+  }
+
+  // Remove any background text like "character"
+  &::before,
+  &::after {
+    content: none !important;
+    display: none !important;
   }
 }
 
