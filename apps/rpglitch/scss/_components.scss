@@ -335,7 +335,7 @@ body.chin-open details.dropdown[open] summary::before {
   background: none;
   border: none;
   padding: 0;
-  opacity: 0.8;
+  opacity: 1;
   font-style: italic;
   color: var(--pico-muted-color, #aaa);
   display: flex;
@@ -811,7 +811,7 @@ $glow-signatures: (
 #chat-form input[type="submit"]:disabled,
 #begin-story:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 1;
 }
 
 /* Ensure lower-specificity .profile-left rules appear before more specific
@@ -852,7 +852,7 @@ $glow-signatures: (
 .profile-left .placeholder-image svg {
   width: clamp(96px, 40%, 320px);
   height: auto;
-  opacity: 0.9;
+  opacity: 1;
 }
 
 .profile header {

@@ -183,7 +183,7 @@ function createFieldElements(
   readEl.textContent =
     value || (options.placeholder ? `(${options.placeholder})` : "(Not set)");
   if (!value) {
-    readEl.style.opacity = "0.6";
+    readEl.style.opacity = "0.8";
     readEl.style.fontStyle = "italic";
   }
   frag.appendChild(readEl);

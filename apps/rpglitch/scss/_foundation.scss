@@ -222,7 +222,7 @@ $breakpoint-tablet: 1024px;
 
 *::placeholder {
   font-style: italic;
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .profile-picture[data-is-placeholder="1"] {
@@ -245,7 +245,7 @@ $breakpoint-tablet: 1024px;
   .placeholder-image,
   img[data-is-placeholder],
   .profile-picture[data-is-placeholder] {
-    opacity: 0.8;
+    opacity: 1;
   }
 }
 
