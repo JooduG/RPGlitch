@@ -286,6 +286,9 @@ function _extractImageUrlFromPlugin(result) {
   return imageUrl || undefined;
 }
 
+// Valid image file extensions for URL validation
+const VALID_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'avif', 'heic', 'heif'];
+
 /**
  * Validates that a URL is a valid image URL using SOTA URL parsing.
  * @param {string} url - The URL to validate
@@ -314,8 +317,8 @@ function _isValidImageUrl(url, allowDataUrls = true) {
     }
 
     // Validate file extension on pathname (not full URL, avoiding query param issues)
-    const hasValidExtension = /\.(jpg|jpeg|png|gif|webp|bmp|svg|avif|heic|heif)$/i.test(urlObj.pathname);
-    return hasValidExtension;
+    const extensionPattern = new RegExp(`\\.(${VALID_IMAGE_EXTENSIONS.join('|')})$`, 'i');
+    return extensionPattern.test(urlObj.pathname);
   } catch (error) {
     // URL constructor throws on invalid URLs
     return false;
@@ -419,7 +422,7 @@ export async function renderProfilePage(type, id) {
     if (value === "") {
       actionButton.textContent = "Upload";
       actionButton.dataset.action = "upload";
-    } else if (!isUrl(value)) {
+    } else if (value && !_isValidImageUrl(value, true)) {
       actionButton.textContent = "Generate";
       actionButton.dataset.action = "generate";
     } else {
@@ -428,33 +431,41 @@ export async function renderProfilePage(type, id) {
     }
   }
 
-  // Add input listener for dynamic state updates
-  imageInput.addEventListener("input", updateButtonState);
-
-  // Set initial button state based on existing value
-  updateButtonState();
-
-  // Add input listener for live preview updates
+  // Combined input listener for dynamic state updates and live preview
   imageInput.addEventListener("input", () => {
+    // Update button state
+    updateButtonState();
+
+    // Update live preview
     const val = imageInput.value.trim();
-    // Validate URL using SOTA validation (allows data URLs for preview)
     if (val && _isValidImageUrl(val, true)) {
+      // Sanitize URL to prevent XSS attacks before rendering
+      const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
       const newPic = getPictureHTML
-        ? getPictureHTML({ ...entity, imageUrl: val, image: val }, { cover: true })
+        ? getPictureHTML({ ...entity, imageUrl: safeVal, image: safeVal }, { cover: true })
         : null;
       if (newPic) {
         const currentWrap = heroWrap.querySelector(".picture");
         if (currentWrap) currentWrap.replaceWith(newPic);
         else heroWrap.appendChild(newPic);
       }
+    } else if (val) {
+      // Show error notification for invalid URLs
+      showNotification("Invalid image URL format");
     }
   });
+
+  // Set initial button state based on existing value
+  updateButtonState();
   
   function updateImageInput(input, url) {
-    input.value = url;
-    // Dispatch both input and change events to update preview and state
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.dispatchEvent(new Event("change", { bubbles: true }));
+    // Validate URL before setting input value
+    if (url && _isValidImageUrl(url, true)) {
+      input.value = url;
+      // Dispatch both input and change events to update preview and state
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
   }
 
   actionButton.addEventListener("click", async () => {
@@ -478,10 +489,13 @@ export async function renderProfilePage(type, id) {
         imageInput.setAttribute("aria-busy", "true");
         actionButton.textContent = "Generating...";
 
+        // Default guidance scale for consistent results
+        const DEFAULT_GUIDANCE_SCALE = 7;
+
         // Call plugin with prompt, guidanceScale, and portrait resolution
         const result = await window.pluginTextToImage({
           prompt,
-          guidanceScale: 7, // Default guidance scale for consistent results
+          guidanceScale: DEFAULT_GUIDANCE_SCALE,
           resolution: 'portrait', // Force portrait aspect ratio for all generated images
         });
         log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
