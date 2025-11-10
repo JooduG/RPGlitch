@@ -416,14 +416,21 @@ export async function renderProfilePage(type, id) {
         });
         log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
 
-        // Handle response format: check for both dataUrl (direct) and imageId/fileExtension (constructed)
+        // Handle response format: Perchance text-to-image plugin returns { imageUrl, seed }
         let imageUrl;
-        if (result?.dataUrl) {
+        if (result?.imageUrl) {
+          // Standard Perchance response format
+          imageUrl = result.imageUrl;
+        } else if (result?.dataUrl) {
+          // Fallback: check for dataUrl (older format)
           imageUrl = result.dataUrl;
         } else if (result?.imageId) {
-          // Construct URL from imageId and fileExtension
+          // Fallback: construct URL from imageId and fileExtension
           const ext = result.fileExtension || 'jpeg';
           imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
+        } else if (typeof result === 'string') {
+          // Fallback: direct string URL
+          imageUrl = result;
         } else {
           throw new Error("Image generation failed: invalid response format");
         }
@@ -457,9 +464,21 @@ export async function renderProfilePage(type, id) {
         const result = await window.pluginUpload({ accept: 'image/*' });
         log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
-        // Handle both string and object responses from the upload plugin
-        const imageUrl = typeof result === 'string' ? result : result?.url;
-        if (!imageUrl) {
+        // Handle different response formats from the upload plugin
+        let imageUrl;
+        if (typeof result === 'string') {
+          // Direct string URL
+          imageUrl = result;
+        } else if (result?.url) {
+          // Object with url property
+          imageUrl = result.url;
+        } else if (result?.file?.url) {
+          // Nested url in file property
+          imageUrl = result.file.url;
+        } else if (result?.name && typeof result.name === 'string') {
+          // Some versions return URL in the name field
+          imageUrl = result.name;
+        } else {
           throw new Error("Upload failed: no URL returned");
         }
 
