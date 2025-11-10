@@ -66,7 +66,7 @@ export default [
       promise: pluginPromise,
     },
     rules: {
-      'no-unused-vars': ['warn', { args: 'none', ignoreRestSiblings: true }],
+      'no-unused-vars': ['warn', { args: 'none', ignoreRestSiblings: true, caughtErrors: 'none' }],
       'no-undef': 'error',
       'import/no-unresolved': 'off',
       'n/no-missing-import': 'off',

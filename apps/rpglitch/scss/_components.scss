@@ -159,7 +159,6 @@
   }
 }
 
-
 article {
   box-shadow: 0 0 0 0 rgb(0 0 0 / 0%);
   display: flex;
@@ -565,11 +564,26 @@ body.chin-open .chin-focus-ring {
 
 /* AI messages get signature color styling when AI character has a signature */
 $signature-palettes: (
-  "pink": (color: var(--signature-pink), rgb: 236 72 153),
-  "emerald": (color: var(--signature-emerald), rgb: 16 185 129),
-  "cyan": (color: var(--signature-cyan), rgb: 6 182 212),
-  "orange": (color: var(--signature-orange), rgb: 249 115 22),
-  "purple": (color: var(--signature-purple), rgb: 168 85 247)
+  "pink": (
+    color: var(--signature-pink),
+    rgb: 236 72 153,
+  ),
+  "emerald": (
+    color: var(--signature-emerald),
+    rgb: 16 185 129,
+  ),
+  "cyan": (
+    color: var(--signature-cyan),
+    rgb: 6 182 212,
+  ),
+  "orange": (
+    color: var(--signature-orange),
+    rgb: 249 115 22,
+  ),
+  "purple": (
+    color: var(--signature-purple),
+    rgb: 168 85 247,
+  ),
 );
 
 @each $name, $palette in $signature-palettes {
@@ -578,12 +592,18 @@ $signature-palettes: (
 
   .signature-#{$name} .chat-message[role="user"] {
     border-left: 4px solid #{$color};
-    box-shadow: 0 2px 8px rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 25%);
+    box-shadow: 0
+      2px
+      8px
+      rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 25%);
   }
 
   #chat-screen[data-ai-palette="#{$name}"] .chat-message[role="assistant"] {
     border-left: 4px solid #{$color};
-    box-shadow: 0 2px 8px rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 20%);
+    box-shadow: 0
+      2px
+      8px
+      rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 20%);
   }
 }
 
@@ -623,10 +643,7 @@ $signature-palettes: (
       radial-gradient(circle, var(--pico-primary) 25%, transparent 25%),
       radial-gradient(circle, var(--pico-primary) 25%, transparent 25%);
     background-size: 0.75rem 0.75rem;
-    background-position:
-      0 50%,
-      50% 50%,
-      100% 50%;
+    background-position: 0 50%, 50% 50%, 100% 50%;
     background-repeat: no-repeat;
     animation: typing-dots-pulse 1.4s infinite ease-in-out;
   }
@@ -671,7 +688,7 @@ $typing-palettes: (
   "emerald": var(--signature-emerald),
   "cyan": var(--signature-cyan),
   "orange": var(--signature-orange),
-  "purple": var(--signature-purple)
+  "purple": var(--signature-purple),
 );
 
 @each $name, $color in $typing-palettes {
@@ -750,9 +767,7 @@ $typing-palettes: (
 
     &:not(:disabled):hover {
       transform: translateY(-2px);
-      box-shadow:
-        0 4px 12px rgb(0 0 0 / 25%),
-        0 0 20px rgb(79 70 229 / 40%),
+      box-shadow: 0 4px 12px rgb(0 0 0 / 25%), 0 0 20px rgb(79 70 229 / 40%),
         0 0 40px rgb(79 70 229 / 20%);
     }
 
@@ -769,14 +784,20 @@ $glow-signatures: (
   "emerald": 16 185 129,
   "cyan": 6 182 212,
   "orange": 249 115 22,
-  "purple": 168 85 247
+  "purple": 168 85 247,
 );
 
 @each $name, $rgb in $glow-signatures {
   .signature-#{$name} #chat-form input[type="submit"]:not(:disabled):hover {
     box-shadow: 0 4px 12px rgb(0 0 0 / 25%),
-      0 0 20px rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 40%),
-      0 0 40px rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 20%);
+      0
+        0
+        20px
+        rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 40%),
+      0
+        0
+        40px
+        rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 20%);
   }
 }
 

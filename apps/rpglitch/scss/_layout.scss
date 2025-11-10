@@ -387,7 +387,7 @@ body.chin-open .top-bar {
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
-    line-clamp: 2;
+    line-clamp: 2; // added standard property for compatibility
     -webkit-box-orient: vertical;
     margin: 0;
   }
@@ -420,7 +420,7 @@ body.chin-open .top-bar {
     .card-media .placeholder-image,
     .card-footer,
     .tag-chip {
-      opacity: 1 !important;
+      opacity: 1;
     }
   }
 
@@ -495,6 +495,7 @@ body.chin-open .top-bar {
     .card-description {
       padding: 0.5rem 0.75rem;
       -webkit-line-clamp: 2;
+      line-clamp: 2; // added standard property for compatibility
     }
 
     .card-body {

@@ -1,5 +1,5 @@
 /* global DOMPurify */
-import { db } from "./db.js"; // <-- Import our new database
+import { db } from "./db.js"; // <-- Import our database
 
 // --- PREMADE CONTENT (Unchanged) ---
 const premade = {
@@ -13,7 +13,7 @@ const premade = {
       signatureColour: "cyan",
       sections: {
         forever: "Bound to the Aether Core, their blade hums with starlight.",
-        past: "Once a street tinkerer who reverse‑engineered a fallen drone.",
+        past: "Once a street tinkerer who reverse-engineered a fallen drone.",
         present:
           "Hired to protect caravans across the skybridges of Neo Arcadia.",
         future: "Fated to sever the Source that powers the city itself.",
@@ -29,7 +29,7 @@ const premade = {
         forever: "Every note carries a memory; every chorus, a charm.",
         past: "Exiled from a royal conservatory for forbidden harmonics.",
         present: "Busks in markets, mending hearts and stirring rebellions.",
-        future: "Composes the Anthem that ends a century‑long war.",
+        future: "Composes the Anthem that ends a century-long war.",
       },
     },
     {
@@ -83,7 +83,7 @@ const premade = {
         forever: "Dreams scaffold towers; intent becomes steel.",
         past: "Founded by lucid engineers who stabilized shared dreaming.",
         present: "Neon districts vie for control of the Somnus Grid.",
-        future: "A city‑wide insomnia threatens to collapse reality seams.",
+        future: "A city-wide insomnia threatens to collapse reality seams.",
       },
     },
   ],
@@ -140,71 +140,31 @@ function getContrast(color) {
 }
 
 /**
- * Retrieves the brand color for an entity with backward-compatible fallback logic.
- *
- * This function implements a migration path from the legacy `palette` property
- * to the new `signatureColour` property, ensuring existing data continues to work.
+ * Retrieves the brand color for an entity.
  *
  * The fallback chain is:
  * 1. Returns CSS variable `--signature-{color}` if `entity.signatureColour` is defined and not 'default'
- * 2. Falls back to `entity.palette.brand` if available (legacy object format)
- * 3. Falls back to `entity.palette` if it's a string (legacy string format)
- * 4. Generates a deterministic color based on entity name and tags as final fallback
+ * 2. Generates a deterministic color based on entity name and tags as final fallback
  *
  * @param {Object} entity - The entity object (character, world, or story)
- * @param {string} [entity.signatureColour] - The new signature color property ('pink', 'emerald', 'cyan', etc.)
- * @param {Object|string} [entity.palette] - Legacy palette object containing brand color, or direct color string
- * @param {string} [entity.palette.brand] - Legacy brand color value (when palette is an object)
- * @param {string} [entity.name] - Entity name used for deterministic color generation
- * @param {Array<string>} [entity.tags] - Entity tags used for deterministic color generation
- * @param {string} [entity.id] - Entity ID used as fallback seed for color generation
- * @param {string} [entity.kind] - Entity kind used as fallback seed for color generation
  * @returns {string} A CSS color value (CSS variable reference, hex code, or HSL color)
- *
- * @example
- * // Modern entity with signature color
- * getSignature({ signatureColour: 'cyan' })
- * // Returns: 'var(--signature-cyan)'
- *
- * @example
- * // Legacy entity with palette object
- * getSignature({ palette: { brand: '#ec4899' } })
- * // Returns: '#ec4899'
- *
- * @example
- * // Legacy entity with palette string
- * getSignature({ palette: '#06b6d4' })
- * // Returns: '#06b6d4'
- *
- * @example
- * // Entity with both (signature color takes precedence)
- * getSignature({ signatureColour: 'emerald', palette: { brand: '#ec4899' } })
- * // Returns: 'var(--signature-emerald)'
- *
- * @example
- * // Entity with neither property (deterministic generation)
- * getSignature({ name: 'Aether Blade', tags: ['cyberpunk'] })
- * // Returns: 'hsl(123, 40%, 60%)' (deterministic based on name/tags)
  */
 function getSignature(entity = {}) {
   if (!entity) {
     return getDeterministicColor("");
   }
+
+  // 1. Modern signature color property
   if (entity.signatureColour && entity.signatureColour !== "default") {
     return `var(--signature-${entity.signatureColour})`;
   }
-  // Legacy palette object format
-  if (entity.palette?.brand) return entity.palette.brand;
-  // Legacy palette string format
-  if (typeof entity.palette === "string" && entity.palette)
-    return entity.palette;
 
-  // Build seed from name and tags, filtering out empty values
+  // 2. Fallback: Build seed from name and tags, filtering out empty values
   const seed = [entity.name || "", ...(entity.tags || [])]
     .filter(Boolean)
     .join(",");
 
-  return getDeterministicColor(seed || entity.id || entity.kind || "");
+  return getDeterministicColor(seed || entity.id || entity.type || "");
 }
 
 const PLACEHOLDER_ICONS = {
@@ -218,8 +178,8 @@ const PLACEHOLDER_ICONS = {
 export function getPictureHTML(entity = {}, options = {}) {
   const { cover, neutralPlaceholder = false } = options;
   const title = entity.name || "Empty";
-  // Ensure 'kind' is derived correctly, defaulting to 'default'
-  const kind = (entity.kind || entity.type || "default").toLowerCase();
+  // Use 'type' directly, no 'kind' fallback
+  const type = (entity.type || "default").toLowerCase();
   const src =
     typeof entity.imageUrl === "string" && entity.imageUrl.trim()
       ? entity.imageUrl.trim()
@@ -234,7 +194,7 @@ export function getPictureHTML(entity = {}, options = {}) {
 
   if (src) {
     const img = document.createElement("img");
-    img.alt = `${kind} image for ${title}`;
+    img.alt = `${type} image for ${title}`; // Use 'type'
     img.src = src;
     img.loading = "lazy";
     img.decoding = "async";
@@ -250,10 +210,10 @@ export function getPictureHTML(entity = {}, options = {}) {
     ph.style.color = "var(--signature-contrast)";
   }
   ph.innerHTML = sanitizeHtml(
-    PLACEHOLDER_ICONS[kind] || PLACEHOLDER_ICONS.default
+    PLACEHOLDER_ICONS[type] || PLACEHOLDER_ICONS.default // Use 'type'
   );
   ph.setAttribute("role", "img");
-  ph.setAttribute("aria-label", `${kind} placeholder for ${title}`);
+  ph.setAttribute("aria-label", `${type} placeholder for ${title}`); // Use 'type'
   wrap.appendChild(ph);
   return wrap;
 }
@@ -263,8 +223,11 @@ export function getPictureHTML(entity = {}, options = {}) {
 function normalize(base = {}) {
   const nameOrTitle = sanitizeHtml(base.name || "").trim();
   const summaryOrDesc = sanitizeHtml(base.description || "").trim();
-  const image = sanitizeHtml(base.imageUrl || base.image || "").trim();
-  const signatureColour = sanitizeHtml(base.signatureColour || "default").trim();
+  // Simplified: Only check for 'imageUrl'
+  const imageUrl = sanitizeHtml(base.imageUrl || "").trim();
+  const signatureColour = sanitizeHtml(
+    base.signatureColour || "default"
+  ).trim();
   const sections = base.sections || {};
   const safeSections = {
     forever: sanitizeHtml(sections.forever || "").trim(),
@@ -285,8 +248,7 @@ function normalize(base = {}) {
   return {
     name: nameOrTitle,
     description: summaryOrDesc,
-    imageUrl: image,
-    image,
+    imageUrl: imageUrl, // Only use imageUrl
     signatureColour: signatureColour,
     tags: safeTags,
     sections: safeSections,
@@ -298,10 +260,9 @@ function normalize(base = {}) {
 export function formatPremade(entity, type) {
   return {
     ...entity,
-    kind: type, // Ensure 'kind' is set (was missing)
     type: type, // Ensure 'type' is set
     isPremade: true,
-    isCustom: 0, // 0 = not custom (premade), IndexedDB requires numeric for compound index
+    isCustom: 0, // 0 = not custom (premade)
     version: STORAGE_VERSION,
     ...normalize(entity), // Ensure premades are also normalized
     updated: 0, // Give a fake timestamp
@@ -309,9 +270,6 @@ export function formatPremade(entity, type) {
 }
 
 // --- REWRITTEN: Entity CRUD Functions (now async) ---
-
-// We no longer need _allItemsCache, read(), write(), or _writeAndCache()
-// Dexie handles all caching and storage.
 
 export const entities = {
   /**
@@ -329,23 +287,18 @@ export const entities = {
     );
     let customList = [];
     try {
-      // Query using the compound index [type+isCustom]
-      // isCustom: 1 = custom, 0 = premade (numeric required for IndexedDB compound index)
+      // 2. Query using the compound index [type+isCustom]
       customList = await db.entities
         .where("[type+isCustom]")
-        .equals([type, 1])
+        .equals([type, 1]) // 1 = custom
         .toArray();
     } catch (error) {
       console.error("Error fetching custom entities:", error);
-      // We can return just the premade list or an empty array if the DB fails.
-      // For a more robust app, you might want to notify the user.
-      return premadeList;
+      return premadeList; // Return premade if DB fails
     }
 
     // 3. Merge and sort.
     const allItems = premadeList.concat(customList);
-
-    // Sort by name
     return allItems.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   },
 
@@ -392,9 +345,8 @@ export const entities = {
         ...base,
         ...normalize({ ...base, ...entity }), // Merge and normalize
         id: id,
-        type: type, // Ensure 'type' is set (was 'kind' before)
-        kind: type, // Keep 'kind' for compatibility
-        isCustom: 1, // 1 = custom, 0 = premade (numeric required for IndexedDB compound index)
+        type: type, // Ensure 'type' is set
+        isCustom: 1, // 1 = custom
         isPremade: false,
         version: STORAGE_VERSION,
         updated: Date.now(), // Set the updated timestamp
@@ -429,8 +381,7 @@ export const entities = {
    */
   async remove(type, id) {
     try {
-      // We only remove custom items. We can't remove premade items.
-      // Dexie's delete won't fail if the ID doesn't exist.
+      // We only remove custom items.
       const item = await db.entities.get(id);
       if (item && item.type === type && item.isCustom === 1) {
         return db.entities.delete(id);

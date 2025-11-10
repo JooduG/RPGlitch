@@ -267,8 +267,6 @@ $breakpoint-tablet: 1024px;
   color: #fff;
 }
 
-
-
 .profile-name[data-placeholder]:not(:focus):empty::before,
 .profile-name[data-placeholder]:not(:focus):blank::before {
   content: attr(data-placeholder);

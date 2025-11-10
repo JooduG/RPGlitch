@@ -11,6 +11,7 @@ RPGlitch enables users to create characters and worlds, then engage in AI-driven
 ### Two-Panel Structure (Perchance)
 
 - **Left Panel:** `RPGlitch-left-panel.txt`
+
   - Perchance engine logic
   - Plugin imports (ai-text-plugin, text-to-image-plugin, super-fetch-plugin, etc.)
   - Core setup and configuration

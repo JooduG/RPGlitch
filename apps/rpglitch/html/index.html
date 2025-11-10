@@ -13,8 +13,7 @@
     <dialog id="loading-modal">
       <article>
         <header>
-          <a href="#close" aria-label="Close" class="close"></a>
-          Loading...
+          <a href="#close" aria-label="Close" class="close"></a>Loading...
         </header>
         <p aria-busy="true">Please wait while the application loads.</p>
       </article>
@@ -412,11 +411,11 @@
     <script>
       // These variables (ai, textToImage, etc.) are available from the left panel
       // Expose them to window so the module script can access them
-      if (typeof ai !== 'undefined') window.pluginAi = ai;
-      if (typeof textToImage !== 'undefined') window.pluginTextToImage = textToImage;
-      if (typeof superFetch !== 'undefined') window.pluginSuperFetch = superFetch;
-      if (typeof remember !== 'undefined') window.pluginRemember = remember;
-      if (typeof upload !== 'undefined') window.pluginUpload = upload;
+      if (typeof ai !== "undefined") window.ai = ai;
+      if (typeof textToImage !== "undefined") window.textToImage = textToImage;
+      if (typeof superFetch !== "undefined") window.superFetch = superFetch;
+      if (typeof remember !== "undefined") window.remember = remember;
+      if (typeof upload !== "undefined") window.upload = upload;
     </script>
 
     <script type="module" src="js/index.js"></script>

@@ -33,7 +33,8 @@
     "sync:mcp:claude": "node build/scripts/sync.js --mcp --claude",
     "mcp:sync-to-claude-code": "npm run sync:mcp:claude",
     "mcp:start-all": "echo 'MCP servers configured in mcp.master.json - start via Claude Code or IDE'",
-    "test:env": "dotenv -- node -e \"console.log('SMITHERY_API_KEY:', process.env.SMITHERY_API_KEY ? 'Found' : 'Not found')\""
+    "test:env": "dotenv -- node -e \"console.log('SMITHERY_API_KEY:', process.env.SMITHERY_API_KEY ? 'Found' : 'Not found')\"",
+    "start": "node server.js"
   },
   "keywords": [
     "ai",

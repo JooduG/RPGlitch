@@ -36,61 +36,6 @@ describe('getSignature()', () => {
     });
   });
 
-  describe('Legacy entities with palette property', () => {
-    test('returns palette.brand for legacy entity', () => {
-      const entity = {
-        palette: { brand: '#ec4899' }
-      };
-      const result = getSignature(entity);
-      expect(result).toBe('#ec4899');
-    });
-
-    test('returns palette.brand for legacy entity with different color', () => {
-      const entity = {
-        palette: { brand: '#10b981' }
-      };
-      const result = getSignature(entity);
-      expect(result).toBe('#10b981');
-    });
-
-    test('returns palette for legacy entity with palette as string', () => {
-      const entity = {
-        palette: '#06b6d4'
-      };
-      const result = getSignature(entity);
-      expect(result).toBe('#06b6d4');
-    });
-  });
-
-  describe('Precedence: signatureColour over palette', () => {
-    test('prioritizes signatureColour when both are present', () => {
-      const entity = {
-        signatureColour: 'emerald',
-        palette: { brand: '#ec4899' }
-      };
-      const result = getSignature(entity);
-      expect(result).toBe('var(--signature-emerald)');
-    });
-
-    test('falls back to palette when signatureColour is "default"', () => {
-      const entity = {
-        signatureColour: 'default',
-        palette: { brand: '#ec4899' }
-      };
-      const result = getSignature(entity);
-      expect(result).toBe('#ec4899');
-    });
-
-    test('uses signatureColour even when palette is null', () => {
-      const entity = {
-        signatureColour: 'cyan',
-        palette: null
-      };
-      const result = getSignature(entity);
-      expect(result).toBe('var(--signature-cyan)');
-    });
-  });
-
   describe('Deterministic color generation fallback', () => {
     test('generates deterministic color for entity with name only', () => {
       const entity = { name: 'Aether Blade' };

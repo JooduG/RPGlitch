@@ -1,5 +1,15 @@
 import { JSDOM } from 'jsdom';
 
+jest.mock('../apps/rpglitch/js/db.js', () => ({
+  db: {
+    on: jest.fn(),
+    settings: {
+      get: jest.fn().mockResolvedValue({}),
+      put: jest.fn().mockResolvedValue(),
+    },
+  },
+}));
+
 jest.mock('../apps/rpglitch/js/entities.js', () => ({
   getPictureHTML: jest.fn(),
 }));

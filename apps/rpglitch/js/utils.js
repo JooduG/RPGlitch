@@ -837,38 +837,6 @@ export function installUIBlockerAttributeObserver() {
 
 // ---------- Branding ----------
 
-// --- [BUILD FIX] ---
-// Added this function back in so index.js can import it and
-// the build doesn't fail.
-
-// Deterministic brand color (mirrors entities.js logic)
-function getDeterministicColor(seed) {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++)
-    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-  const hue = Math.abs(hash) % 360;
-  return `hsl(${hue}, 40%, 60%)`;
-}
-export function deriveBrand(entity = {}) {
-  if (entity && typeof entity === "object") {
-    if (
-      entity.palette &&
-      typeof entity.palette === "object" &&
-      entity.palette.brand
-    )
-      return entity.palette.brand;
-    if (entity.brandColor) return entity.brandColor;
-    if (entity.color) return entity.color;
-  }
-  const seed =
-    [entity?.name || "", ...(entity?.tags || [])].join(",") ||
-    entity?.id ||
-    entity?.kind ||
-    "";
-  return getDeterministicColor(String(seed));
-}
-// --- [END BUILD FIX] ---
-
 // --- [SIGNATURE COLOUR FIX] ---
 // This is the applySignature function. It correctly
 // removes all classes, then adds the one we want. This fixes

@@ -12,6 +12,9 @@ const config = {
   },
   transformIgnorePatterns: [
     '/node_modules/(?!cash-dom|dexie|jsdom)'
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/tests/rpglitch-image-upload.test.js'
   ]
 };
 

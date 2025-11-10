@@ -13,7 +13,6 @@ import {
   startUIWatchdog,
   installUIRecoveryHooks,
   installUIBlockerAttributeObserver,
-  deriveBrand,
   applySignature,
   setSelected,
   handleAsyncError,
@@ -37,33 +36,7 @@ const PLUGIN_MAX_RETRIES = 3;
 class PluginError extends Error {
   constructor(message) {
     super(message);
-    this.name = 'PluginError';
-  }
-}
-
-// =================================================================
-// Plugin Setup: Copy Perchance-exposed plugins to standard names
-// =================================================================
-
-/**
- * Copies plugins exposed by the Perchance left panel (pluginAi, pluginTextToImage, etc.)
- * to the standard window property names (ai, textToImage, etc.) so the rest of the app
- * can access them without needing to know about the Perchance naming convention.
- */
-function setupPlugins() {
-  // Map Perchance-exposed plugin names to standard names
-  const pluginMap = {
-    pluginAi: "ai",
-    pluginTextToImage: "textToImage",
-    pluginSuperFetch: "superFetch",
-    pluginRemember: "rememberPlugin",
-    pluginUpload: "upload",
-  };
-
-  for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (typeof window[perchanceName] === 'function') {
-      window[standardName] = window[perchanceName];
-    }
+    this.name = "PluginError";
   }
 }
 
@@ -195,7 +168,6 @@ const App = {
           (c) => c.id === characterId && c.type === "character"
         );
         const title = `${ch?.name || "Character"} × ${storyId || "Story"}`;
-
         const threadId = await db.threads.add({
           characterId,
           title,
@@ -220,13 +192,13 @@ const App = {
     generateStream: async ({ payload, signal, onToken, onDone }) => {
       // [FIX] Check for the standard 'ai' plugin (window.ai) as defined
       // by setupPlugins() and documented in PERCHANCE.md.
-      if (!window.ai || typeof window.ai.generateStream !== 'function') {
+      if (!window.ai || typeof window.ai.generateStream !== "function") {
         error("Standard AI plugin (window.ai.generateStream) not available.");
         throw new Error("Standard AI plugin not available.");
       }
 
       log("Calling Standard AI plugin (window.ai) with payload:", payload);
-      
+
       // [FIX] Call window.ai.generateStream, not the incorrect window.Perchance path
       await window.ai.generateStream({
         system: payload.system,
@@ -251,7 +223,6 @@ const App = {
       }
 
       const messages = App.state.messages.byThreadId[threadId] || [];
-
       if (messages.length === 0) {
         noMessagesEl.hidden = false;
         return;
@@ -290,7 +261,6 @@ const App = {
 
         try {
           App.applyPatch({ ui: { fsm: "streaming" } });
-
           await App.ai.generateStream({
             payload,
             signal: ctrl.signal,
@@ -364,7 +334,6 @@ const App = {
     _appendAssistantToken: (threadId, token) => {
       let messages = App.state.messages.byThreadId[threadId] || [];
       let lastMessage = messages[messages.length - 1];
-
       if (!lastMessage || lastMessage.role !== "assistant") {
         lastMessage = {
           id: Date.now(),
@@ -408,13 +377,11 @@ const TEST_MODE = (() => {
 
 const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
 const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
-
 const DATA_KEYS = ["stories", "characters", "worlds"];
 
 // UI Timing Constants
 const BLUR_SUPPRESS_DURATION_MS = 1200;
 const UI_WATCHDOG_MAX_ATTEMPTS = 24;
-
 let _cardNavAttached = false;
 let _suppressNextBlur = false;
 let _optionsListenersAttached = false;
@@ -501,9 +468,7 @@ async function loadStoryboardSelection() {
 export async function getAllItems(key, refresh = false) {
   if (!refresh && Array.isArray(_allItemsCache[key]))
     return [..._allItemsCache[key]];
-
   const type = key.replace(/s$/, ""); // 'characters' -> 'character', 'stories' -> 'story'
-
   if (entities && typeof entities.list === "function") {
     try {
       if (refresh) {
@@ -530,9 +495,7 @@ async function renderList(containerId, key) {
   // <-- MADE ASYNC
   const container = document.querySelector(`#${containerId}`);
   if (!container) return;
-
   container.setAttribute("aria-busy", "true");
-
   container
     .querySelectorAll('img.entity-image[src^="blob:"]')
     .forEach((img) => {
@@ -542,7 +505,6 @@ async function renderList(containerId, key) {
   container.textContent = "";
   const all = await getAllItems(key); // <-- AWAITED
   const frag = document.createDocumentFragment();
-
   if (all.length === 0) {
     const message = document.createElement("p");
     message.className = "chin-empty";
@@ -560,7 +522,6 @@ async function renderList(containerId, key) {
   }
 
   const tpl = document.querySelector("#unified-card-template");
-
   all.forEach((item) => {
     let card;
 
@@ -570,24 +531,18 @@ async function renderList(containerId, key) {
       // Fallback: create card structure using DOM API
       card = document.createElement("div");
       card.className = "card";
-
       const media = document.createElement("div");
       media.className = "card-media";
-
       const body = document.createElement("div");
       body.className = "card-body";
-
       const title = document.createElement("h4");
       title.className = "card-title";
       body.appendChild(title);
-
       const desc = document.createElement("p");
       desc.className = "card-description";
       body.appendChild(desc);
-
       const footer = document.createElement("div");
       footer.className = "card-footer";
-
       card.appendChild(media);
       card.appendChild(body);
       card.appendChild(footer);
@@ -601,9 +556,7 @@ async function renderList(containerId, key) {
       card.dataset.entityType = key.slice(0, -1);
     }
     if (item.isPremade) card.dataset.premade = "true";
-
     card.setAttribute("aria-label", item.name || "Open");
-
     const media = card.querySelector(".card-media");
     if (typeof getPictureHTML === "function") {
       const maybe = getPictureHTML(item, {
@@ -743,7 +696,6 @@ export async function refreshAllLists() {
 
 export function _attachCardNavigation() {
   if (_cardNavAttached) return;
-
   if (typeof _suppressNextBlur === "undefined") {
     _suppressNextBlur = false;
   }
@@ -776,7 +728,6 @@ export function _attachCardNavigation() {
   const storyboard = document.querySelector("#storyboard-grid");
   if (storyboard && !storyboard._bound) {
     storyboard._bound = true;
-
     storyboard.addEventListener(
       "pointerdown",
       (e) => {
@@ -796,15 +747,11 @@ export function _attachCardNavigation() {
     storyboard.addEventListener("click", async (e) => {
       // <-- MADE ASYNC
       if (e.target.closest("select, button, a, input, textarea")) return;
-
       const card = e.target.closest(".storyboard-card");
       if (!card) return;
-
       const select = card.querySelector("select");
-
       const all = storyboard.querySelectorAll(".storyboard-card");
       setSelected(card, all);
-
       const type = card.dataset.entityType || card.dataset.type;
       const id = card.dataset.entityId || select?.value || "";
 
@@ -828,7 +775,6 @@ export function _attachCardNavigation() {
 
       if (!id && select) {
         _suppressNextBlur = true;
-
         requestAnimationFrame(() => {
           setTimeout(() => {
             _suppressNextBlur = false;
@@ -844,16 +790,12 @@ export function _attachCardNavigation() {
       const card = e.target.closest(".storyboard-card");
       if (!card) return;
       if (e.key !== "Enter" && e.key !== " ") return;
-
       e.preventDefault();
-
       const select = card.querySelector("select");
       const type = card.dataset.entityType || card.dataset.type;
       const id = card.dataset.entityId || select?.value || "";
-
       if (!id && select) {
         _suppressNextBlur = true;
-
         requestAnimationFrame(() => {
           setTimeout(() => {
             _suppressNextBlur = false;
@@ -893,7 +835,6 @@ export function _attachCardNavigation() {
       }
     });
   }
-
   _cardNavAttached = true;
 }
 
@@ -961,7 +902,6 @@ async function _ensureCardStructure(card) {
   const cardId = card.id;
   const cardType = card.dataset?.type;
   const selectId = cardId ? `${cardId}-select` : null;
-
   let media = card.querySelector(".card-media");
   let body = card.querySelector(".card-body");
   let titleEl = card.querySelector(".card-title");
@@ -1133,9 +1073,7 @@ function _buildPictureNode(
  */
 function _populateCardWithEntity(card, entity, elements, templates) {
   const { media, descEl, footer } = elements;
-
   if (descEl) descEl.textContent = entity.description || "";
-
   if (media) {
     media.textContent = "";
     media.appendChild(_buildPictureNode(entity, { templates }));
@@ -1157,7 +1095,6 @@ function _populateCardWithEntity(card, entity, elements, templates) {
   applySignature(card, entity);
   card.dataset.entityType = card.dataset.type || entity.kind || "";
   card.dataset.entityId = entity.id;
-
   const select = card.querySelector("select");
   if (select && select.value !== String(entity.id)) {
     select.value = String(entity.id);
@@ -1167,7 +1104,6 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     App.state.ui.selectedStoryboardCard &&
     App.state.ui.selectedStoryboardCard.id === entity.id &&
     App.state.ui.selectedStoryboardCard.type === entity.type;
-
   card.classList.toggle("selected", isSelected);
 }
 
@@ -1182,9 +1118,7 @@ function _populateCardWithEntity(card, entity, elements, templates) {
  */
 function _clearCard(card, elements, templates) {
   const { media, descEl, footer } = elements;
-
   if (descEl) descEl.textContent = descEl.dataset.placeholder || "";
-
   if (media) {
     media.textContent = "";
     media.appendChild(
@@ -1193,13 +1127,10 @@ function _clearCard(card, elements, templates) {
     card?.style?.removeProperty("--brand");
     media?.style?.removeProperty("--brand");
   }
-
   if (footer) footer.querySelectorAll(".chip").forEach((n) => n.remove());
-
   card.classList.remove("selected");
   delete card.dataset.entityType;
   delete card.dataset.entityId;
-
   const select = card.querySelector("select");
   if (select && select.value !== "") {
     select.value = "";
@@ -1211,7 +1142,6 @@ function _clearCard(card, elements, templates) {
 async function updateStoryboardCard(target, entityOrKey, opts = {}) {
   const { card, entity } = await _resolveCardAndEntity(target, entityOrKey);
   if (!card) return;
-
   const elements = await _ensureCardStructure(card);
 
   // Use cached templates for performance (populated in initializeWhenReady)
@@ -1256,7 +1186,6 @@ export async function _defaultStoryboardTitle() {
   ]);
 
   const subjects = [ai, user].filter(Boolean).join(" & ");
-
   let title;
   if (subjects && world) {
     title = `${randPrompt()} ${subjects} in ${world}`;
@@ -1267,7 +1196,6 @@ export async function _defaultStoryboardTitle() {
   } else {
     title = "Your story begins…";
   }
-
   return title.length > 80 ? `${title.slice(0, 77)}…` : title;
 }
 
@@ -1336,20 +1264,17 @@ function _setupStoryboardTitle() {
 
 async function populateStoryboardSelects() {
   const selections = await loadStoryboardSelection();
-
   const configs = [
     {
       id: "storyboard-card-ai-select",
       key: "characters",
       savedValue: selections.ai,
     },
-
     {
       id: "storyboard-card-user-select",
       key: "characters",
       savedValue: selections.user,
     },
-
     {
       id: "storyboard-card-world-select",
       key: "worlds",
@@ -1360,7 +1285,6 @@ async function populateStoryboardSelects() {
   await Promise.all(
     configs.map(async ({ id, key, savedValue }) => {
       const select = document.querySelector(`#${id}`);
-
       if (select) {
         if (
           savedValue &&
@@ -1370,7 +1294,6 @@ async function populateStoryboardSelects() {
         }
 
         // Trigger the initial update after setting the value
-
         await onStoryboardChange({ target: select });
       }
     })
@@ -1381,38 +1304,22 @@ async function onStoryboardChange(e) {
   // <-- MADE ASYNC
 
   const select = e.target;
-
   await updateStoryboardCard(select); // <-- AWAITED
-
   await setDynamicTitle?.(); // <-- AWAITED
-
   await saveStoryboardSelection();
-
   if (typeof _suppressNextBlur !== "undefined") {
     _suppressNextBlur = false;
   }
 
   try {
     const card = select.closest(".storyboard-card");
-
     const left = card?.querySelector(".storyboard-card-left");
-
     const type = card?.dataset?.type || "";
-
     const id = select.value || "";
-
     if (type && id && typeof entities.get === "function") {
       const entity = await entities.get(type, id); // <-- AWAITED
-
       if (entity) {
         applySignature?.(left, entity);
-
-        (function applyCardBrandShim() {
-          const brand = deriveBrand ? deriveBrand(entity) : null;
-
-          if (brand && card && card.style)
-            card.style.setProperty("--brand", brand);
-        })();
       }
     }
   } catch {
@@ -1424,11 +1331,8 @@ export async function _attachStoryboardListeners() {
   // <-- MADE ASYNC
 
   await populateStoryboardSelects(); // <-- AWAITED
-
   _setupStoryboardTitle();
-
   const title = document.querySelector("#storyboard-dynamic-title");
-
   if (title) {
     title.addEventListener("input", () => {
       title.dataset.manual = "true";
@@ -1436,66 +1340,46 @@ export async function _attachStoryboardListeners() {
 
     title.addEventListener("dblclick", async () => {
       // <-- async
-
       title.dataset.manual = "false";
-
       await setDynamicTitle(); // <-- await
     });
   }
-
   const shuffleBtn = document.querySelector("#shuffle-btn");
-
   if (shuffleBtn) {
     shuffleBtn.addEventListener("click", async () => {
       // <-- async
 
       [
         "storyboard-card-ai-select",
-
         "storyboard-card-user-select",
-
         "storyboard-card-world-select",
       ].forEach((id) => {
         const s = document.querySelector(`#${id}`);
-
         if (!s) return;
-
         const opts = Array.from(s.options).filter((o) => o.value);
-
         if (opts.length)
           s.value = opts[Math.floor(Math.random() * opts.length)].value;
-
         s.dispatchEvent(
           new Event("change", {
             bubbles: true,
           })
         );
       });
-
       await setDynamicTitle?.(); // <-- await
     });
   }
 
   const storyboardScreen = document.querySelector("#storyboard-screen");
-
   const chatScreenContainer = document.querySelector("#chat-screen-container");
-
   async function beginStory() {
     const aiSelect = document.querySelector("#storyboard-card-ai-select");
-
     const userSelect = document.querySelector("#storyboard-card-user-select");
-
     const worldSelect = document.querySelector("#storyboard-card-world-select");
-
     if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
       const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
-
       const storyId = storyTitleEl?.textContent || "default-story";
-
       const characterId = aiSelect.value; // Correctly use the AI's character ID
-
       const worldId = worldSelect.value;
-
       const threadId = await App.threads.createFromSelection({
         storyId,
         characterId,
@@ -1503,11 +1387,8 @@ export async function _attachStoryboardListeners() {
       });
 
       if (storyboardScreen) storyboardScreen.hidden = true;
-
       if (chatScreenContainer) chatScreenContainer.hidden = false;
-
       App.applyPatch({ ui: { fsm: "idle" } });
-
       await App.chat.render(threadId);
     } else {
       alert(
@@ -1517,10 +1398,8 @@ export async function _attachStoryboardListeners() {
   }
 
   const beginStoryBtn = document.querySelector("#begin-story");
-
   if (beginStoryBtn) {
     // Remove the old handler if it exists to prevent duplicate listeners
-
     if (beginStoryBtn._beginStoryHandler) {
       beginStoryBtn.removeEventListener(
         "click",
@@ -1529,25 +1408,17 @@ export async function _attachStoryboardListeners() {
     }
 
     // Attach the new handler and store its reference for the next time
-
     beginStoryBtn.addEventListener("click", beginStory);
-
     beginStoryBtn._beginStoryHandler = beginStory;
   }
 
   // Use for...of loop to handle async await inside
-
   const cards = document.querySelectorAll(".storyboard-card");
-
   for (const card of cards) {
     // <-- FOR...OF
-
     const type = card.dataset.entityType;
-
     const id = card.dataset.entityId || "";
-
     const entity = await entities.get?.(type, id); // <-- AWAITED
-
     updateStoryboardCard(card, entity);
   }
 }
@@ -1824,28 +1695,20 @@ async function waitForPlugins(
     requiredPlugins
   );
 
-  // Convert standard names to prefixed names that left panel actually exposes
-  // (e.g., 'ai' -> 'pluginAi', 'textToImage' -> 'pluginTextToImage')
-  const prefixedPlugins = requiredPlugins.map((name) => {
-    return "plugin" + name.charAt(0).toUpperCase() + name.slice(1);
-  });
-
   while (Date.now() - startTime < timeout) {
-    // Check if prefixed plugins are available AND are functions (they get exposed by left panel)
-    const allPrefixedAvailable = prefixedPlugins.every(
+    // Check if plugins are available AND are functions
+    const allAvailable = requiredPlugins.every(
       (name) => typeof window[name] === "function"
     );
 
-    if (allPrefixedAvailable) {
-      log(
-        "[RPGlitch] All plugins loaded successfully:",
-        requiredPlugins
-      );
-      setupPlugins();
+    if (allAvailable) {
+      log("[RPGlitch] All plugins loaded successfully:", requiredPlugins);
       return true;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, PLUGIN_POLL_INTERVAL_MS)); // Wait before checking again
+    await new Promise((resolve) =>
+      setTimeout(resolve, PLUGIN_POLL_INTERVAL_MS)
+    ); // Wait before checking again
   }
 
   if (retryCount < maxRetries) {
@@ -1857,18 +1720,18 @@ async function waitForPlugins(
     return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
   }
 
-  const availablePrefixed = prefixedPlugins.filter(
+  const available = requiredPlugins.filter(
     (name) => typeof window[name] === "function"
   );
-  const missingPrefixed = prefixedPlugins.filter(
+  const missing = requiredPlugins.filter(
     (name) => typeof window[name] !== "function"
   );
   log(
     `[RPGlitch] Plugin timeout after a total of ${
       (retryCount + 1) * PLUGIN_WAIT_TIMEOUT_MS
-    }ms (retries: ${retryCount}). Prefixed available: ${
-      availablePrefixed.join(", ") || "none"
-    } | Missing prefixed: ${missingPrefixed.join(", ") || "none"}`
+    }ms (retries: ${retryCount}). Available: ${
+      available.join(", ") || "none"
+    } | Missing: ${missing.join(", ") || "none"}`
   );
   return false;
 }
@@ -1999,6 +1862,8 @@ export async function initializeWhenReady() {
     } catch {
       void 0;
     }
+
+    // --- [FIX 3: ASYNC BOOTSTRAP] ---
     try {
       startUIWatchdog?.();
     } catch {
@@ -2068,7 +1933,10 @@ export async function initializeWhenReady() {
   } catch (err) {
     // If this is a plugin loading failure, stop immediately without retrying
     if (err instanceof PluginError) {
-      error("[RPGlitch] Plugin loading failed, stopping initialization:", err.message);
+      error(
+        "[RPGlitch] Plugin loading failed, stopping initialization:",
+        err.message
+      );
       throw err; // Re-throw to ensure initialization stops
     }
 
