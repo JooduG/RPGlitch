@@ -323,6 +323,12 @@ function _isValidImageUrl(url, allowDataUrls = true) {
       return false;
     }
 
+    // Special case: Allow all Perchance image host URLs (img.perchance.org)
+    // Perchance image URLs may not include file extensions but are always valid
+    if (urlObj.hostname === 'img.perchance.org') {
+      return true;
+    }
+
     // Validate file extension on pathname (not full URL, avoiding query param issues)
     return IMAGE_EXTENSION_REGEX.test(urlObj.pathname);
   } catch (error) {
@@ -584,11 +590,10 @@ export async function renderProfilePage(type, id) {
         // Extract URL from plugin response (sanitized inside helper)
         const imageUrl = _extractImageUrlFromPlugin(result);
 
-        // Upload handler only accepts http/https URLs (no data URLs)
-        // Rationale: Uploaded images must be permanently hosted on external servers,
-        // whereas data URLs are ephemeral and exist only in the current session
-        if (!imageUrl || !_isValidImageUrl(imageUrl, false)) {
-          throw new Error("Upload failed: URL must be a valid, hosted image (http/https)");
+        // Upload handler accepts both hosted URLs and data URLs
+        // Data URLs are supported for local file uploads via the plugin
+        if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
+          throw new Error("Upload failed: URL must be a valid image URL (http/https or data:image)");
         }
 
         updateImageInput(imageInput, imageUrl);
