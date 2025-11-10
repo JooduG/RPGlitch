@@ -1,4 +1,4 @@
-<claude_protocol version="4.0.0" last_updated="2025-11-10">
+<claude_protocol version="4.0.1" last_updated="2025-11-10">
 
 # CLAUDE.md - Unified AI Protocol
 
@@ -34,15 +34,15 @@ npm run deploy
 
 ### Essential Commands
 
-<command name="build-all">npm run build:apps</command>
-<command name="build-rpglitch">npm run build:rpglitch</command>
-<command name="build-imageglitch">npm run build:imageglitch</command>
-<command name="lint-all">npm run lint</command>
-<command name="lint-fix">npm run lint:fix</command>
-<command name="test-all">npm test</command>
-<command name="sync-configs">npm run sync</command>
-<command name="sync-mcp">npm run sync:mcp</command>
-<command name="deploy">npm run deploy</command>
+<command name="build-all">npm run build:apps - Build all applications</command>
+<command name="build-rpglitch">npm run build:rpglitch - Build RPGlitch only</command>
+<command name="build-imageglitch">npm run build:imageglitch - Build ImageGlitch only</command>
+<command name="lint-all">npm run lint - Check all linting (JS, CSS, HTML, Markdown)</command>
+<command name="lint-fix">npm run lint:fix - Auto-fix linting errors</command>
+<command name="test-all">npm test - Run all tests</command>
+<command name="sync-configs">npm run sync - Sync all configurations</command>
+<command name="sync-mcp">npm run sync:mcp - Sync MCP server configs only</command>
+<command name="deploy">npm run deploy - Full pipeline: sync → lint fix → build → test</command>
 </quick_start>
 
 ---
@@ -271,10 +271,14 @@ Perchance plugins load **asynchronously** after the left-panel is parsed. The ch
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
 superFetch = {import:super-fetch-plugin}
+remember = {import:remember-plugin}
+upload = {import:upload-plugin}
 
 pluginAi = ai
 pluginTextToImage = textToImage
 pluginSuperFetch = superFetch
+pluginRemember = remember
+pluginUpload = upload
 ```
 
 **Step 2: Expose to Window in Right Panel HTML:**
@@ -295,7 +299,9 @@ function setupPlugins() {
   const pluginMap = {
     pluginAi: 'ai',
     pluginTextToImage: 'textToImage',
-    pluginSuperFetch: 'superFetch'
+    pluginSuperFetch: 'superFetch',
+    pluginRemember: 'rememberPlugin',
+    pluginUpload: 'upload'
   };
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
     if (typeof window[perchanceName] === 'function') {
@@ -378,7 +384,7 @@ npm run sync:mcp              # Sync MCP server configs only
 <build_process>
 Build process (`build/scripts/build-app.js`):
 1. Compile SCSS → CSS (with Pico.css base + custom SCSS)
-2. Bundle JS modules → single IIFE bundle (esbuild)
+2. Bundle JS modules into a single IIFE for browser compatibility, preventing global scope pollution. Source code must still use ES6 modules.
 3. Inline vendored libraries (Dexie, DOMPurify, _hyperscript, Cash)
 4. Inject into HTML template → single output file
 5. Output to `build/output/[AppName].html`
@@ -784,6 +790,7 @@ element.innerHTML = DOMPurify.sanitize(userInput);
 ## Changelog
 
 <changelog>
+* **4.0.1 (2025-11-10)** — **PR Feedback Applied.** Fixed incomplete plugin examples (added superFetch, remember, upload). Added command explanations for better UX. Clarified IIFE usage in build process (source code still uses ES6 modules). Improved structural consistency with GEMINI.md.
 * **4.0.0 (2025-11-10)** — **Full Synchronization.** Complete refactor to achieve perfect parity with GEMINI.md. Integrated all rules from 8 source documents (GEMINI.md, CLAUDE.md, codacy.instructions.md, design-system.md, PERCHANCE.md, README.md, perchance-development-guide.md, plan.md). Added explicit Codacy integration protocols. Restructured with XML tags for Claude-optimized parsing. Enhanced MCP protocols with explicit execution patterns.
 * **Previous versions:** See GEMINI.md for full changelog history
 </changelog>
