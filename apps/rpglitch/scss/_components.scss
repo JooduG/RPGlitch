@@ -79,7 +79,7 @@
 }
 
 // Show tag pills only for premade entities on form pages
-.profile-view[data-is-premade="true"] .form-tag-pills {
+.profile-view[data-premade="true"] .form-tag-pills {
   display: flex;
 }
 
@@ -985,14 +985,8 @@ $glow-signatures: (
   .field-input {
     text-align: center; // Center the content
 
-    // Center-align the input/textarea elements themselves
-    input,
-    textarea,
-    h1 {
-      text-align: center;
     }
   }
-}
 
 .field-input {
   // Ensure input fields take full width of their column
