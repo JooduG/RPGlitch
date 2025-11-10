@@ -2,12 +2,12 @@
 
 // --- [FIX 1: IMPORT BLOCK] ---
 // Added all the missing functions that were causing 'no-undef' errors.
-import { entities, getPremadeItems, formatPremade, getPictureHTML } from "./entities.js";
+import { entities, getPictureHTML } from "./entities.js";
 import { initViews, router } from "./views.js";
 import { db } from "./db.js";
 import {
   log,
-  setDebug,
+  error,
   initDebugMode,
   enableAutoUnlock,
   startUIWatchdog,
@@ -15,15 +15,12 @@ import {
   installUIBlockerAttributeObserver,
   deriveBrand,
   applySignature,
-  buildHero,
-  replaceEventHandler,
   setSelected,
   handleAsyncError,
   chin,
-  debounce, // <--- ADDED
-  isHtmlErrorPage, // <--- ADDED
-  dismissLoadingUI, // <--- ADDED
-  _uiWatchdogStarted, // <--- ADDED
+  isHtmlErrorPage,
+  dismissLoadingUI,
+  _uiWatchdogStarted,
 } from "./utils.js";
 // --- [END FIX 1] ---
 
@@ -187,7 +184,7 @@ const App = {
           updatedAt: Date.now(),
         };
         App.state.threads.allIds.push(dummyThreadId);
-        console.warn("No active thread found, created a dummy one.");
+        log("No active thread found, created a dummy one.");
         return dummyThreadId;
       }
     },
@@ -209,10 +206,10 @@ const App = {
 
         App.applyPatch({ threads: { activeId: threadId }, ui: { title } });
         return threadId;
-      } catch (error) {
-        console.error("Failed to create thread:", error);
+      } catch (err) {
+        error("Failed to create thread:", err);
         alert("Could not create story thread. Please try again.");
-        throw error;
+        throw err;
       }
     },
   },
@@ -224,11 +221,11 @@ const App = {
       // [FIX] Check for the standard 'ai' plugin (window.ai) as defined
       // by setupPlugins() and documented in PERCHANCE.md.
       if (!window.ai || typeof window.ai.generateStream !== 'function') {
-        console.error("Standard AI plugin (window.ai.generateStream) not available.");
+        error("Standard AI plugin (window.ai.generateStream) not available.");
         throw new Error("Standard AI plugin not available.");
       }
 
-      console.log("Calling Standard AI plugin (window.ai) with payload:", payload);
+      log("Calling Standard AI plugin (window.ai) with payload:", payload);
       
       // [FIX] Call window.ai.generateStream, not the incorrect window.Perchance path
       await window.ai.generateStream({
@@ -311,8 +308,8 @@ const App = {
             },
           });
         }
-      } catch (error) {
-        console.error("Failed to save message:", error);
+      } catch (err) {
+        error("Failed to save message:", err);
         alert("Could not save your message. Please try again.");
         App.applyPatch({
           ui: { fsm: "error", lastError: "Failed to save message" },
@@ -386,7 +383,7 @@ const App = {
     _finalizeAssistantMessage: (threadId) => {
       // No explicit action needed here for now, as tokens are appended directly.
       // This might be used for saving the final message to DB in the future.
-      console.log(`Finalizing assistant message for thread ${threadId}.`);
+      log(`Finalizing assistant message for thread ${threadId}.`);
     },
   },
 };
@@ -416,7 +413,6 @@ const DATA_KEYS = ["stories", "characters", "worlds"];
 
 // UI Timing Constants
 const BLUR_SUPPRESS_DURATION_MS = 1200;
-const DEBOUNCE_SEARCH_MS = 250;
 const UI_WATCHDOG_MAX_ATTEMPTS = 24;
 
 let _cardNavAttached = false;
@@ -484,7 +480,7 @@ async function saveStoryboardSelection() {
     settings.storyboardSelection = selects;
     await db.settings.put(settings);
   } catch (e) {
-    console.error("Failed to save storyboard selection:", e);
+    error("Failed to save storyboard selection:", e);
   }
 }
 
@@ -493,7 +489,7 @@ async function loadStoryboardSelection() {
     const settings = await db.settings.get("app-settings");
     return settings?.storyboardSelection || {};
   } catch (e) {
-    console.error("Failed to load storyboard selection:", e);
+    error("Failed to load storyboard selection:", e);
     return {};
   }
 }
@@ -516,8 +512,8 @@ export async function getAllItems(key, refresh = false) {
       const items = await entities.list(type);
       _allItemsCache[key] = items;
       return items;
-    } catch (error) {
-      console.error(`Failed to load ${type}:`, error);
+    } catch (err) {
+      error(`Failed to load ${type}:`, err);
       alert(`Could not load ${type} data. Please refresh and try again.`);
       _allItemsCache[key] = [];
       return [];
@@ -822,8 +818,8 @@ export function _attachCardNavigation() {
             .modify({ isSelected: false });
           // Select the current entity
           await db.entities.update(id, { isSelected: true });
-        } catch (error) {
-          console.error("Failed to update selection:", error);
+        } catch (err) {
+          error("Failed to update selection:", err);
           // Don't show alert for selection errors - not critical to user workflow
         }
       } else {
@@ -1015,8 +1011,8 @@ async function _ensureCardStructure(card) {
           descEl: newDescEl,
           footer: newFooter,
         };
-      } catch (error) {
-        console.error("Failed to build card structure:", error);
+      } catch (err) {
+        error("Failed to build card structure:", err);
         card.innerHTML = "";
         return {
           media: null,
@@ -1647,7 +1643,7 @@ export function _attachContentChinActions() {
 
             // Check if result looks like HTML error page
             if (isHtmlErrorPage(text)) {
-              console.error(
+              error(
                 "Received HTML instead of JSON. File may be corrupted or is not a valid JSON file."
               );
               alert(
@@ -1692,7 +1688,7 @@ export function _attachContentChinActions() {
             }
             await refreshAllLists(); // <-- AWAITED
           } catch (err) {
-            console.error("Failed to import", err);
+            error("Failed to import", err);
             if (err instanceof SyntaxError) {
               alert(
                 `Invalid JSON format in file. Please check the file and try again.\n\nError: ${err.message}`
@@ -1706,7 +1702,7 @@ export function _attachContentChinActions() {
           uploadInput.value = null;
         };
         reader.onerror = () => {
-          console.error("Failed to read file");
+          error("Failed to read file");
           alert(`Failed to read file. Please try again.`);
           uploadInput.value = null;
         };
@@ -1776,7 +1772,7 @@ export function _attachChatFormListener() {
     const chatFeed = document.querySelector("#chat-feed");
 
     if (!input || !submitButton || !chatFeed) {
-      console.error("Chat UI elements not found, cannot attach listener.");
+      error("Chat UI elements not found, cannot attach listener.");
       return;
     }
 
@@ -1815,13 +1811,13 @@ async function waitForPlugins(
 ) {
   // Skip plugin waiting in test mode
   if (TEST_MODE) {
-    console.log("[RPGlitch] Test mode detected, skipping plugin wait");
+    log("[RPGlitch] Test mode detected, skipping plugin wait");
     return true;
   }
 
   const startTime = Date.now();
 
-  console.log(
+  log(
     `[RPGlitch] Waiting for plugins (attempt ${retryCount + 1}/${
       maxRetries + 1
     }):`,
@@ -1841,7 +1837,7 @@ async function waitForPlugins(
     );
 
     if (allPrefixedAvailable) {
-      console.log(
+      log(
         "[RPGlitch] All plugins loaded successfully:",
         requiredPlugins
       );
@@ -1853,7 +1849,7 @@ async function waitForPlugins(
   }
 
   if (retryCount < maxRetries) {
-    console.warn(
+    log(
       `[RPGlitch] Plugins not available, retrying (${
         retryCount + 1
       }/${maxRetries})...`
@@ -1867,7 +1863,7 @@ async function waitForPlugins(
   const missingPrefixed = prefixedPlugins.filter(
     (name) => typeof window[name] !== "function"
   );
-  console.warn(
+  log(
     `[RPGlitch] Plugin timeout after a total of ${
       (retryCount + 1) * PLUGIN_WAIT_TIMEOUT_MS
     }ms (retries: ${retryCount}). Prefixed available: ${
@@ -1890,7 +1886,7 @@ export async function initializeWhenReady() {
     ]);
 
     if (!pluginsLoaded) {
-      console.error(
+      error(
         "[RPGlitch] Required plugins failed to load. Application may not function correctly."
       );
       alert(
@@ -1907,13 +1903,13 @@ export async function initializeWhenReady() {
       // The correct call is `db.open()`.
       await db.open();
       // --- [END FIX 2] ---
-      console.log("[RPGlitch] Database initialized.");
-    } catch (error) {
-      console.error("[RPGlitch] Failed to initialize database:", error);
+      log("[RPGlitch] Database initialized.");
+    } catch (err) {
+      error("[RPGlitch] Failed to initialize database:", err);
       alert(
-        `Database initialization failed. Please refresh the page. Error: ${error.message}`
+        `Database initialization failed. Please refresh the page. Error: ${err.message}`
       );
-      throw error; // Stop initialization
+      throw err; // Stop initialization
     }
 
     // Initialize debug mode from IndexedDB
@@ -1935,7 +1931,7 @@ export async function initializeWhenReady() {
     // Check if settings are initialized (indicates a fresh or cleared DB)
     const currentSettings = await db.settings.get("settings");
     if (!currentSettings) {
-      console.log("[RPGlitch] Initializing default settings.");
+      log("[RPGlitch] Initializing default settings.");
       // Initialize default settings
       await db.settings.add({
         id: "settings",
@@ -2072,25 +2068,25 @@ export async function initializeWhenReady() {
 
     window.initializeWhenReadyRetryCount = 0;
     try {
-      console.log("[RPGlitch] initializeWhenReady success");
+      log("[RPGlitch] initializeWhenReady success");
     } catch {
       /* ignore */
     }
     return true;
-  } catch (error) {
+  } catch (err) {
     // If this is a plugin loading failure, stop immediately without retrying
-    if (error instanceof PluginError) {
-      console.error("[RPGlitch] Plugin loading failed, stopping initialization:", error.message);
-      throw error; // Re-throw to ensure initialization stops
+    if (err instanceof PluginError) {
+      error("[RPGlitch] Plugin loading failed, stopping initialization:", err.message);
+      throw err; // Re-throw to ensure initialization stops
     }
 
     const retryCount = (window.initializeWhenReadyRetryCount || 0) + 1;
     window.initializeWhenReadyRetryCount = retryCount;
     try {
-      console.error(
+      error(
         `❗ App initialization failed (attempt ${retryCount}/${MAX_INIT_RETRIES})`,
-        error && (error.stack || error),
-        error
+        err && (err.stack || err),
+        err
       );
     } catch {
       /* ignore */
@@ -2102,11 +2098,11 @@ export async function initializeWhenReady() {
       await new Promise((resolve) => setTimeout(resolve, INIT_BACKOFF_MS));
       return initializeWhenReady();
     }
-    console.error(
+    error(
       `❌ App initialization failed after ${MAX_INIT_RETRIES} attempts.`,
-      error
+      err
     );
-    throw error;
+    throw err;
   }
 }
 
@@ -2131,7 +2127,7 @@ export async function importAllData(file) {
 
       // Check if result looks like HTML error page
       if (isHtmlErrorPage(text)) {
-        console.error(
+        error(
           "Received HTML instead of JSON. File may be corrupted or server returned an error page."
         );
         alert(
@@ -2179,7 +2175,7 @@ export async function importAllData(file) {
       await refreshAllLists();
       alert(`Backup imported successfully!`);
     } catch (err) {
-      console.error("Failed to import backup", err);
+      error("Failed to import backup", err);
       if (err instanceof SyntaxError) {
         alert(
           `Invalid JSON format in backup file. Please check the file and try again.\n\nError: ${err.message}`
@@ -2193,7 +2189,7 @@ export async function importAllData(file) {
     }
   };
   reader.onerror = () => {
-    console.error("Failed to read backup file");
+    error("Failed to read backup file");
     alert(`Failed to read backup file. Please try again.`);
     const ui = _getUIElements();
     if (ui.uploadBackupInput) ui.uploadBackupInput.value = null;
@@ -2234,8 +2230,8 @@ export async function exportAllData() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Failed to export backup:", error);
+  } catch (err) {
+    error("Failed to export backup:", err);
     alert("Failed to export backup. Please try again.");
   }
 }
@@ -2258,8 +2254,8 @@ export async function deleteAllData() {
 
     await refreshAllLists();
     alert(`All data has been deleted.`);
-  } catch (error) {
-    console.error("Failed to delete data:", error);
+  } catch (err) {
+    error("Failed to delete data:", err);
     alert(`Failed to delete data. Please try again.`);
   }
 }
@@ -2275,7 +2271,7 @@ try {
         _bootStarted = true;
         await initializeWhenReady?.();
       } catch (err) {
-        console.error("RPGlitch boot failed:", err);
+        error("RPGlitch boot failed:", err);
       }
     };
     if (

@@ -1,4 +1,5 @@
 import { JSDOM } from 'jsdom';
+import { db } from '../apps/rpglitch/js/db.js';
 
 jest.mock('../apps/rpglitch/js/entities.js', () => ({
   entities: {
@@ -6,6 +7,24 @@ jest.mock('../apps/rpglitch/js/entities.js', () => ({
   },
   getPremadeItems: jest.fn().mockReturnValue([]),
   _allItemsCache: {},
+}));
+
+jest.mock('../apps/rpglitch/js/db.js', () => ({
+  db: {
+    settings: {
+      get: jest.fn().mockResolvedValue(undefined),
+      put: jest.fn().mockResolvedValue(undefined),
+      add: jest.fn().mockResolvedValue(undefined),
+    },
+    entities: {
+      where: jest.fn(() => ({
+        equals: jest.fn(() => ({
+          first: jest.fn().mockResolvedValue(null),
+        })),
+      })),
+    },
+    open: jest.fn().mockResolvedValue(undefined),
+  },
 }));
 
 async function loadApp(htmlContent = '<!doctype html><html><body></body></html>') {

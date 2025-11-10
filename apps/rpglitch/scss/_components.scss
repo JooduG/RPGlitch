@@ -577,12 +577,12 @@ $signature-palettes: (
 
   .signature-#{$name} .chat-message[role="user"] {
     border-left: 4px solid #{$color};
-    box-shadow: 0 2px 8px rgba($rgb..., 0.25);
+    box-shadow: 0 2px 8px rgba(nth($rgb, 1), nth($rgb, 2), nth($rgb, 3), 0.25);
   }
 
   #chat-screen[data-ai-palette="#{$name}"] .chat-message[role="assistant"] {
     border-left: 4px solid #{$color};
-    box-shadow: 0 2px 8px rgba($rgb..., 0.20);
+    box-shadow: 0 2px 8px rgba(nth($rgb, 1), nth($rgb, 2), nth($rgb, 3), 0.20);
   }
 }
 
@@ -774,8 +774,8 @@ $glow-signatures: (
 @each $name, $rgb in $glow-signatures {
   .signature-#{$name} #chat-form input[type="submit"]:not(:disabled):hover {
     box-shadow: 0 4px 12px rgb(0 0 0 / 25%),
-      0 0 20px rgba($rgb..., 0.40),
-      0 0 40px rgba($rgb..., 0.20);
+      0 0 20px rgba(nth($rgb, 1), nth($rgb, 2), nth($rgb, 3), 0.40),
+      0 0 40px rgba(nth($rgb, 1), nth($rgb, 2), nth($rgb, 3), 0.20);
   }
 }
 

@@ -1,4 +1,3 @@
-/* global DOMPurify */
 import { entities } from "./entities.js";
 import { db } from "./db.js";
 /* Utility helpers for RPGlitch
@@ -182,6 +181,10 @@ export async function initDebugMode() {
 
 export function log(...args) {
   if (isDebug) console.log("[RPGlitch]", ...args);
+}
+
+export function error(...args) {
+  if (isDebug) console.error("[RPGlitch]", ...args);
 }
 
 export async function setDebug(on) {

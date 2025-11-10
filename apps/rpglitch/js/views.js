@@ -1,5 +1,3 @@
-console.log("--- [DEBUG] NEW views.js v5 LOADED ---"); // New debug message
-
 // apps/rpglitch/js/views.js
 // Consolidated view layer: routing and stateful entity profile page.
 
