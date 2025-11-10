@@ -743,12 +743,12 @@ export async function renderProfilePage(type, id) {
   const paletteSelect = document.createElement("select");
   paletteSelect.name = "signatureColour";
   paletteSelect.id = "signatureColour";
-  const palettes = ["Default", "Pink", "Emerald", "Cyan", "Orange", "Purple"];
+  const palettes = ["Pink", "Emerald", "Cyan", "Orange", "Purple"];
   palettes.forEach((p) => {
     const option = document.createElement("option");
     option.value = p.toLowerCase();
     option.textContent = p;
-    if ((entity.signatureColour || "default") === p.toLowerCase()) {
+    if ((entity.signatureColour || palettes[0].toLowerCase()) === p.toLowerCase()) {
       option.selected = true;
     }
     paletteSelect.appendChild(option);

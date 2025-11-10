@@ -72,10 +72,15 @@
 }
 
 .form-tag-pills {
-  display: flex;
+  display: none; // Hidden by default on form pages
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
+}
+
+// Show tag pills only for premade entities on form pages
+.profile-view[data-is-premade="true"] .form-tag-pills {
+  display: flex;
 }
 
 .danger,
@@ -934,8 +939,8 @@ $glow-signatures: (
 .field-row {
   display: grid;
   grid-template-columns: 1fr 2fr; // Label column | Input column (wider)
-  gap: 1.5rem; // Comfortable spacing between columns
-  margin-bottom: 1.5rem; // Vertical spacing between rows
+  gap: 1rem; // Comfortable spacing between columns
+  margin-bottom: 1rem; // Vertical spacing between rows
   align-items: start; // Align items to the top of each row
 
   @media (width <= $breakpoint-mobile) {
@@ -965,6 +970,27 @@ $glow-signatures: (
     display: block;
     color: var(--pico-muted-color);
     line-height: 1.4;
+  }
+}
+
+// Hide labels for name and description fields, make inputs full-width and centered
+.field-row:has(label[for="form-field-name"]),
+.field-row:has(label[for="form-field-description"]) {
+  grid-template-columns: 1fr; // Single column instead of 2-column
+
+  .field-label {
+    display: none; // Hide the label column
+  }
+
+  .field-input {
+    text-align: center; // Center the content
+
+    // Center-align the input/textarea elements themselves
+    input,
+    textarea,
+    h1 {
+      text-align: center;
+    }
   }
 }
 
