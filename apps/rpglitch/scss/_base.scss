@@ -3,6 +3,16 @@
 
 // This file will contain base styles, like resets and default typography.
 
+// Hide all scrollbars globally for cleaner UI
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+}
+
 :root {
   --app-container-max: 1200px;
   --app-container-pad: 1rem;

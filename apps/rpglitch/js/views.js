@@ -755,6 +755,12 @@ export async function renderProfilePage(type, id) {
     const selectedColour = paletteSelect.value;
     const tempEntity = { ...entity, signatureColour: selectedColour };
     applySignature?.(leftCol, tempEntity);
+    // Also update the hero wrapper and media to reflect signature color on placeholders
+    applySignature?.(heroWrap, tempEntity);
+    const media = heroWrap.querySelector('.card-media, .picture');
+    if (media) {
+      applySignature?.(media, tempEntity);
+    }
   });
 
   imageOverlay.appendChild(paletteSelect);
