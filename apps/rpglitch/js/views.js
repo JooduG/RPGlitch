@@ -261,10 +261,8 @@ function _extractImageUrlFromPlugin(result) {
     imageUrl = result.dataUrl;
   } else if (result?.imageId && typeof result.imageId === 'string') {
     // Text-to-image format with separate ID and extension
-    const ext = (result.fileExtension && typeof result.fileExtension === 'string')
-      ? result.fileExtension
-      : 'jpeg';
-    imageUrl = `https://img.perchance.org/${encodeURIComponent(result.imageId)}.${ext}`;
+    const ext = ((typeof result.fileExtension === 'string' && result.fileExtension) || 'jpeg').replace(/^\./, '');
+    imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
   } else if (typeof result === 'string') {
     // Direct string URL response
     imageUrl = result;
@@ -316,7 +314,7 @@ function _isValidImageUrl(url, allowDataUrls = true) {
     }
 
     // Validate file extension on pathname (not full URL, avoiding query param issues)
-    const hasValidExtension = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(urlObj.pathname);
+    const hasValidExtension = /\.(jpg|jpeg|png|gif|webp|bmp|svg|avif|heic|heif)$/i.test(urlObj.pathname);
     return hasValidExtension;
   } catch (error) {
     // URL constructor throws on invalid URLs
@@ -396,17 +394,6 @@ export async function renderProfilePage(type, id) {
   const leftCol = document.createElement("div");
   leftCol.className = "profile-left";
   const heroWrap = buildHero(entity, { singleTag: true });
-
-  // Helper function to detect URLs
-  function isUrl(text) {
-    const trimmed = text.trim().toLowerCase();
-    // Check for common URL protocols
-    return (
-      trimmed.startsWith("http://") ||
-      trimmed.startsWith("https://") ||
-      trimmed.startsWith("data:image/")
-    );
-  }
 
   const imageOverlay = document.createElement("div");
   imageOverlay.className = "profile-hero-overlay";
