@@ -651,7 +651,7 @@ Consult these before seeking external information:
 
 **Perchance deployment issues:**
 - **Plugin timeout:** Verify left panel has correct `{import:plugin-name}` syntax
-- **Invalid list name:** List names must use only letters, numbers, underscores
+- **Invalid list name:** List names must use only letters, numbers, underscores (no hyphens, spaces, or other special characters).
 - **Plugins not available:** Check browser console for errors, refresh page
 
 ---
