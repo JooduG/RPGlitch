@@ -588,7 +588,7 @@ export async function renderProfilePage(type, id) {
       }
     } else if (action === "upload") {
       // Check plugin availability before try block
-      if (!window.upload || typeof window.upload !== 'function') {
+      if (typeof window.upload !== 'function') {
         showNotification("Upload plugin is not available. Please refresh the page.");
         return;
       }
