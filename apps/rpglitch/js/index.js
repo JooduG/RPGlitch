@@ -2055,16 +2055,8 @@ export async function initializeWhenReady() {
       void 0;
     }
 
-    // Attach click handlers to topbar buttons for chin control
-    const topBarButtons = document.querySelectorAll("#top-bar-left button[data-chin]");
-    topBarButtons.forEach((button) => {
-      const chinName = button.dataset.chin;
-      if (chinName) {
-        button.addEventListener("click", () => {
-          chin.open(chinName);
-        });
-      }
-    });
+    // Note: Click handlers for chin control are already attached by chin.init()
+    // Do not attach duplicate handlers here as it breaks toggle behavior
 
     window.initializeWhenReadyRetryCount = 0;
     try {
