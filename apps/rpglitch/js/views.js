@@ -9,7 +9,6 @@ import {
   navigateBackOrReturnDefault,
   escapeHtml,
   applySignature,
-  buildHero,
   replaceEventHandler,
   handleAsyncError,
   goBackWithFallback,
@@ -132,29 +131,29 @@ const SECTION_DEFINITIONS = {
   forever: {
     label: "Forever",
     sublabels: {
-      character: "Core persona & permanent characteristics.",
-      world: "Eternal truths, core concepts, & unbreakable laws.",
+      character: "Core Identity & Permanent Features",
+      world: "Eternal Truths & Laws of Nature",
     },
   },
   past: {
     label: "Past",
     sublabels: {
-      character: "Biography, key memories, & backstory.",
-      world: "History, ancient lore, & formative events.",
+      character: "Background & Memories",
+      world: "History & Ancient Lore",
     },
   },
   present: {
     label: "Present",
     sublabels: {
-      character: "Current situation, motivations, & relationships.",
-      world: "Current state, major factions, & ongoing conflicts.",
+      character: "Mood & Conditions",
+      world: "State of the World & Current Situation",
     },
   },
   future: {
     label: "Future",
     sublabels: {
-      character: "Goals, prophecies, & potential plot hooks.",
-      world: "Impending events, prophecies, & story seeds.",
+      character: "Goals & Prophecies",
+      world: "Impending Events & Prophecies",
     },
   },
 };
@@ -179,8 +178,7 @@ function createFieldElements(
   readEl.textContent =
     value || (options.placeholder ? `(${options.placeholder})` : "(Not set)");
   if (!value) {
-    readEl.style.opacity = "0.8";
-    readEl.style.fontStyle = "italic";
+    readEl.classList.add("placeholder-text");
   }
   frag.appendChild(readEl);
 
@@ -214,36 +212,38 @@ function createFieldElements(
  * @returns {HTMLElement} The complete field row element.
  */
 function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
-  const fieldRow = document.createElement("div");
-  fieldRow.className = "field-row";
+  const template = document.querySelector("#tpl-profile-field-section");
+  if (!template) {
+    console.error("Field row template not found!");
+    return document.createElement("div"); // Return a fallback element
+  }
+  const fieldRow = template.content.firstElementChild.cloneNode(true);
 
-  const labelCol = document.createElement("div");
-  labelCol.className = "field-label";
-
-  const label = document.createElement("label");
-  label.setAttribute("for", `form-field-${fieldId}`);
-  label.textContent = labelText;
-
-  labelCol.appendChild(label);
-
-  if (sublabelText && sublabelText.trim()) {
-    const sublabel = document.createElement("small");
-    sublabel.textContent = sublabelText;
-    labelCol.appendChild(sublabel);
+  const label = fieldRow.querySelector("label");
+  if (label) {
+    label.setAttribute("for", `form-field-${fieldId}`);
+    label.textContent = labelText;
   }
 
-  const inputCol = document.createElement("div");
-  inputCol.className = "field-input";
-  // createFieldElements returns a DocumentFragment, which appends correctly
-  inputCol.appendChild(
-    createFieldElements(
-      fieldId,
-      ...(Array.isArray(fieldConfig) ? fieldConfig : [])
-    )
-  );
+  const sublabel = fieldRow.querySelector("small");
+  if (sublabel) {
+    if (sublabelText && sublabelText.trim()) {
+      sublabel.textContent = sublabelText;
+    } else {
+      sublabel.remove(); // Remove if no sublabel text
+    }
+  }
 
-  fieldRow.appendChild(labelCol);
-  fieldRow.appendChild(inputCol);
+  const inputCol = fieldRow.querySelector(".field-input");
+  if (inputCol) {
+    inputCol.appendChild(
+      createFieldElements(
+        fieldId,
+        ...(Array.isArray(fieldConfig) ? fieldConfig : [])
+      )
+    );
+  }
+
   return fieldRow;
 }
 
@@ -440,36 +440,23 @@ export async function renderProfilePage(type, id) {
   screen.classList.toggle("is-editing", isEditing);
 
   // --- 3. Build Static Layout ---
-  const layout = document.createElement("div");
-  layout.className = "profile-layout";
+  const template = document.querySelector("#tpl-profile-page");
+  if (!template) {
+    console.error("Profile page template not found!");
+    return;
+  }
+  const layout = template.content.firstElementChild.cloneNode(true);
 
-  // --- Left Column (Hero) ---
-  const leftCol = document.createElement("div");
-  leftCol.className = "profile-left";
-  const heroWrap = buildHero(entity, { singleTag: true });
-
-  const imageOverlay = document.createElement("div");
-  imageOverlay.className = "profile-hero-overlay";
-  imageOverlay.dataset.editField = "hero";
-
-  const imageFieldset = document.createElement("fieldset");
-  imageFieldset.setAttribute("role", "group");
-
-  imageInput = document.createElement("input");
-  imageInput.name = "imageUrl";
-  imageInput.type = "text";
-  imageInput.placeholder = "Type prompt, paste URL, or click to upload...";
-  imageInput.value = entity.imageUrl || "";
-
-  actionButton = document.createElement("button");
-  actionButton.type = "button";
-  actionButton.textContent = "Upload";
-  actionButton.dataset.action = "upload";
-
-  fileInput = document.createElement("input");
-  fileInput.type = "file";
-  fileInput.accept = "image/*";
-  fileInput.style.display = "none";
+  // Query for elements within the cloned template
+  const leftCol = layout.querySelector(".profile-left");
+  const heroWrap = layout.querySelector(".hero-wrap");
+  const imageOverlay = layout.querySelector(".profile-hero-overlay");
+  imageInput = imageOverlay.querySelector('[data-profile-field="imageUrl"]');
+  actionButton = imageOverlay.querySelector('button[data-action]');
+  fileInput = imageOverlay.querySelector('[data-profile-field="fileInput"]');
+  const paletteSelect = imageOverlay.querySelector('select[name="signatureColour"]');
+  const form = layout.querySelector('form');
+  const secWrap = form.querySelector('[data-profile-sections]');
 
   function updateButtonState() {
     const value = imageInput.value.trim();
@@ -542,6 +529,54 @@ export async function renderProfilePage(type, id) {
       }
     }
   });
+
+  // Set initial button state based on existing value
+  updateButtonState();
+
+  function updateImageInput(input, url) {
+    // Type check and trim whitespace
+    if (!url || typeof url !== "string") {
+      console.warn(
+        "[RPGlitch] updateImageInput: Invalid URL type or empty value",
+        { url, type: typeof url }
+      );
+      return;
+    }
+
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) {
+      console.warn("[RPGlitch] updateImageInput: URL is empty after trimming");
+      return;
+    }
+
+    // Validate URL format
+    if (!_isValidImageUrl(trimmedUrl, true)) {
+      console.warn("[RPGlitch] updateImageInput: URL failed validation", {
+        url: trimmedUrl,
+      });
+      return;
+    }
+
+    // Sanitize URL with DOMPurify to prevent XSS
+    const sanitizedUrl = window.DOMPurify
+      ? window.DOMPurify.sanitize(trimmedUrl)
+      : trimmedUrl;
+
+    // Debug log successful update
+    console.log(
+      "[RPGlitch] updateImageInput: Setting validated and sanitized URL",
+      {
+        original: url,
+        trimmed: trimmedUrl,
+        sanitized: sanitizedUrl,
+      }
+    );
+
+    // Set input value and dispatch events to update preview and state
+    input.value = sanitizedUrl;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
 
   // Set initial button state based on existing value
   updateButtonState();
@@ -728,23 +763,12 @@ export async function renderProfilePage(type, id) {
     }
   }); // This closes the actionButton.addEventListener
 
-  imageFieldset.appendChild(imageInput);
-  imageFieldset.appendChild(actionButton);
-  imageFieldset.appendChild(fileInput); // Add the file input
-  imageOverlay.appendChild(imageFieldset);
-
-  const paletteSelect = document.createElement("select");
-  paletteSelect.name = "signatureColour";
-  paletteSelect.id = "signatureColour";
   const palettes = ["Signature Colour", "Pink", "Emerald", "Cyan", "Orange", "Purple"];
   palettes.forEach((p) => {
-    const option = document.createElement("option");
-    option.value = p === "Signature Colour" ? "default" : p.toLowerCase();
-    option.textContent = p;
-    if ((entity.signatureColour || "default") === option.value) {
-      option.selected = true;
+    const option = paletteSelect.querySelector(`option[value="${p === "Signature Colour" ? "default" : p.toLowerCase()}"]`);
+    if (option) {
+      option.selected = (entity.signatureColour || "default") === option.value;
     }
-    paletteSelect.appendChild(option);
   });
 
   // This listener correctly updates the preview
@@ -760,21 +784,9 @@ export async function renderProfilePage(type, id) {
     }
   });
 
-  imageOverlay.appendChild(paletteSelect);
-  heroWrap.appendChild(imageOverlay);
-
-  leftCol.appendChild(heroWrap);
   applySignature?.(leftCol, entity); // Apply initial signature
 
-  // --- Right Column (Content) ---
-  const rightCol = document.createElement("div");
-  rightCol.className = "profile-right";
-
-  const content = document.createElement("div");
-  content.className = "profile-right-content";
-
-  const form = document.createElement("form");
-  form.addEventListener("submit", (e) => e.preventDefault());
+  // The form and secWrap are already queried above
 
   // --- Name Field (Using Helper) ---
   form.appendChild(
@@ -805,9 +817,6 @@ export async function renderProfilePage(type, id) {
   );
 
   // --- Sections (Using Helper) ---
-  const secWrap = document.createElement("div");
-  secWrap.className = "profile-fields";
-
   Object.entries(SECTION_DEFINITIONS).forEach(([key, def]) => {
     secWrap.appendChild(
       createFieldRow(key, def.label, def.sublabels[type] || "", [
@@ -819,10 +828,7 @@ export async function renderProfilePage(type, id) {
     );
   });
 
-  form.appendChild(secWrap);
-  content.appendChild(form);
-  rightCol.appendChild(content);
-  layout.append(leftCol, rightCol);
+  // Append the layout to the screen
   screen.appendChild(layout);
   showEl(screen);
 

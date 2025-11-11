@@ -167,14 +167,6 @@ function getSignature(entity = {}) {
   return getDeterministicColor(seed || entity.id || entity.type || "");
 }
 
-const PLACEHOLDER_ICONS = {
-  character:
-    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.33 0-8 1.67-8 5v3h16v-3c0-3.33-4.67-5-8-5z"/></svg>',
-  world: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 010-16 8 8 0 010 16zm0-14a6 6 0 00-5.29 3h10.58A6 6 0 0012 6zm-5.29 5a6 6 0 000 2h10.58a6 6 0 000-2H6.71zm.42 3a6 6 0 005.29 3 6 6 0 005.29-3H7.13z"/></svg>`,
-  default:
-    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>',
-};
-
 export function getPictureHTML(entity = {}, options = {}) {
   const { cover, neutralPlaceholder = false } = options;
   const title = entity.name || "Empty";
@@ -209,9 +201,25 @@ export function getPictureHTML(entity = {}, options = {}) {
     ph.style.backgroundColor = "var(--signature)";
     ph.style.color = "var(--signature-contrast)";
   }
-  ph.innerHTML = sanitizeHtml(
-    PLACEHOLDER_ICONS[type] || PLACEHOLDER_ICONS.default // Use 'type'
-  );
+
+  // Use templates for placeholder icons
+  const iconTemplateId = `tpl-placeholder-icon-${type}`;
+  const defaultIconTemplate = document.querySelector("#tpl-placeholder-icon-default");
+  let iconTemplate = document.querySelector(`#${iconTemplateId}`);
+
+  if (!iconTemplate) {
+    iconTemplate = defaultIconTemplate;
+  }
+
+  if (iconTemplate && iconTemplate.content) {
+    const clonedIcon = iconTemplate.content.cloneNode(true);
+    ph.appendChild(clonedIcon);
+  } else if (defaultIconTemplate && defaultIconTemplate.content) {
+    // Fallback to default icon if specific one not found or invalid
+    const clonedIcon = defaultIconTemplate.content.cloneNode(true);
+    ph.appendChild(clonedIcon);
+  }
+
   ph.setAttribute("role", "img");
   ph.setAttribute("aria-label", `${type} placeholder for ${title}`); // Use 'type'
   wrap.appendChild(ph);

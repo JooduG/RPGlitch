@@ -873,6 +873,11 @@ $glow-signatures: (
   display: block;
 }
 
+.placeholder-text {
+  opacity: 0.8;
+  font-style: italic;
+}
+
 .profile-left .placeholder-image {
   width: 100%;
   height: 100%;

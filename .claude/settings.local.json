@@ -43,7 +43,10 @@
       "Bash(timeout 5 tail:*)",
       "mcp__playwright__browser_wait_for",
       "Bash(node:*)",
-      "Bash(timeout 8 tail:*)"
+      "Bash(timeout 8 tail:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)"
     ],
     "deny": [],
     "ask": []
