@@ -205,6 +205,7 @@ function createFieldElements(
 
 /**
  * Creates a standardized 2-column form row.
+ * @param {Document|DocumentFragment|Element} context - The DOM context (e.g., a form element) within which to find the template.
  * @param {string} fieldId - The unique ID for the field (used for 'for' attribute).
  * @param {string} labelText - The text for the <label> element.
  * @param {string} sublabelText - The help text for the <small> element.
@@ -790,7 +791,7 @@ export async function renderProfilePage(type, id) {
 
   // --- Name Field (Using Helper) ---
   form.appendChild(
-    createFieldRow(form, "name", "Name", "The primary identifier for this entity.", [
+    createFieldRow(layout, "name", "Name", "The primary identifier for this entity.", [
       "h1",
       "input",
       entity.name || "",
@@ -801,7 +802,7 @@ export async function renderProfilePage(type, id) {
   // --- Description Field (Using Helper) ---
   form.appendChild(
     createFieldRow(
-      form,
+      layout,
       "description",
       "Description",
       "A brief overview of this entity.",
@@ -820,7 +821,7 @@ export async function renderProfilePage(type, id) {
   // --- Sections (Using Helper) ---
   Object.entries(SECTION_DEFINITIONS).forEach(([key, def]) => {
     secWrap.appendChild(
-      createFieldRow(form, key, def.label, def.sublabels[type] || "", [
+      createFieldRow(layout, key, def.label, def.sublabels[type] || "", [
         "div",
         "textarea",
         entity.sections?.[key] || "",
