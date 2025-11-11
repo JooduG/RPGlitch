@@ -3,6 +3,23 @@
 const fs = require("fs");
 const path = require("path");
 const postcss = require('postcss');
+const sass = require('sass');
+const autoprefixer = require('autoprefixer');
+
+async function compileScssToString() {
+    const scssPath = path.join(__dirname, '../../apps/rpglitch/scss/index.scss');
+    const picoCssPath = path.resolve(__dirname, "..", "..", "build", "local_libs", "pico.min.css");
+
+    if (!fs.existsSync(scssPath)) {
+        throw new Error(`SCSS file not found at ${scssPath}`);
+    }
+
+    const picoCss = fs.readFileSync(picoCssPath, "utf8");
+    const sassResult = sass.compile(scssPath);
+    const combinedCss = picoCss + '\n' + sassResult.css;
+    const postcssResult = await postcss([autoprefixer]).process(combinedCss, { from: undefined });
+    return postcssResult.css;
+}
 
 // --- PURE ANALYSIS FUNCTIONS (from CSSAnalyzerAndCleaner) ---
 
@@ -77,39 +94,39 @@ function findRedundantSelectors(ast) {
 // --- MAIN BUILD PIPELINE CLASS (Combination) ---
 
 class CSSBuildPipeline {
-    constructor(cssFilePath) {
+    constructor(cssFilePath, originalContent = null) {
         this.cssFilePath = cssFilePath;
-        this.originalContent = fs.readFileSync(cssFilePath, 'utf8');
+        this.originalContent = originalContent || fs.readFileSync(cssFilePath, 'utf8');
+        this.ast = postcss.parse(this.originalContent);
         this.cleanedContent = this.originalContent; // Placeholder
         this.finalContent = this.originalContent;   // Placeholder
-        this.designTokens = this.extractDesignTokens(this.originalContent);
+        this.designTokens = this.extractDesignTokens(this.ast);
         this.initialAnalysis = {};
         this.finalAnalysis = {};
     }
 
     /**
      * Extracts design tokens from a given CSS string.
-     * @param {string} content The CSS content string.
+     * @param {postcss.Root} ast The PostCSS Abstract Syntax Tree.
      * @returns {Object} Parsed design tokens.
      */
-    extractDesignTokens(content) {
+    extractDesignTokens(ast) {
         const tokens = { spacing: [], fontSize: [], colors: [], borderRadius: [] };
 
-        // Extract spacing tokens
-        const spacingMatches = content.match(/--([a-z-]+)-spacing:\s*([^;]+);/g) || [];
-        tokens.spacing = spacingMatches.map((match) => {
-            const [, name] = match.match(/--([a-z-]+)-spacing:\s*([^;]+);/);
-            return { name };
+        ast.walkDecls(decl => {
+            if (decl.prop.startsWith('--')) {
+                const name = decl.prop.substring(2); // remove --
+                if (name.includes('spacing')) {
+                    tokens.spacing.push({ name });
+                } else if (name.includes('color')) {
+                    tokens.colors.push({ name });
+                } else if (name.includes('font-size')) {
+                    tokens.fontSize.push({ name });
+                } else if (name.includes('border-radius')) {
+                    tokens.borderRadius.push({ name });
+                }
+            }
         });
-
-        // Extract color tokens
-        const colorMatches = content.match(/--([a-z-]+)-color:\s*([^;]+);/g) || [];
-        tokens.colors = colorMatches.map((match) => {
-            const [, name] = match.match(/--([a-z-]+)-color:\s*([^;]+);/);
-            return { name };
-        });
-        
-        // ... (other token extractions can be added here) ...
 
         return tokens;
     }
@@ -119,12 +136,11 @@ class CSSBuildPipeline {
      */
     runCleanup() {
         // Run initial analysis before cleaning to report on the *original* file quality
-        const ast = postcss.parse(this.originalContent);
         this.initialAnalysis = {
-            totalSelectors: analyzeTotalSelectors(ast).total,
-            topSpecificSelectors: analyzeTotalSelectors(ast).specificityBreakdown.slice(0, 5),
-            redundantSelectors: findRedundantSelectors(ast),
-            potentiallyUnusedRules: findUnusedRules(ast)
+            totalSelectors: analyzeTotalSelectors(this.ast).total,
+            topSpecificSelectors: analyzeTotalSelectors(this.ast).specificityBreakdown.slice(0, 5),
+            redundantSelectors: findRedundantSelectors(this.ast),
+            potentiallyUnusedRules: findUnusedRules(this.ast)
         };
 
 
@@ -232,20 +248,17 @@ class CSSBuildPipeline {
 
 // Main execution block
 if (require.main === module) {
-    const cssPath = path.join(__dirname, '../../apps/rpglitch/html/RPGlitch.css');
-
-    if (!fs.existsSync(cssPath)) {
-        console.error(`Error: CSS file not found at ${cssPath}`);
-        process.exit(1);
-    }
-
-    try {
-        const pipeline = new CSSBuildPipeline(cssPath);
-        pipeline.runBuild(true); // Run the full pipeline and write to disk
-    } catch (error) {
-        console.error("❌ An error occurred during the CSS build pipeline:", error);
-        process.exit(1);
-    }
+    (async () => {
+        try {
+            const cssContent = await compileScssToString();
+            const pipeline = new CSSBuildPipeline('in-memory.css', cssContent); // Pass content directly
+            const report = pipeline.runBuild(false); // Run the pipeline without writing to disk
+            console.log(JSON.stringify(report.initialAnalysis, null, 2));
+        } catch (error) {
+            console.error("❌ An error occurred during the CSS build pipeline:", error);
+            process.exit(1);
+        }
+    })();
 }
 
 module.exports = CSSBuildPipeline;

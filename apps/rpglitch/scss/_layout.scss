@@ -11,7 +11,8 @@ main.container {
   overflow: hidden auto;
 
   // height: calc(100vh - var(--header-height));
-  padding: var(--app-container-pad);
+  padding: 0;
+  max-width: 100%;
 
   @include foundation.custom-scrollbar;
 }
@@ -159,14 +160,12 @@ body.chin-open .top-bar {
   min-height: 100vh;
   max-width: 2000px; /* Prevent ultra-wide stretching */
   margin: 0 auto; /* Center when capped */
-  margin-inline: calc(var(--app-container-pad) * -1); /* Counteract parent padding to go edge-to-edge */
   display: grid;
   grid-template-columns: var(--layout-left-col) var(--layout-center-col) var(--layout-right-col); /* 25% hero | 50% content | 25% breathing room */
   gap: 0;
 
   @include foundation.mobile {
     grid-template-columns: 1fr; /* Stack on mobile */
-    margin-inline: 0; /* Keep padding on mobile */
   }
 }
 

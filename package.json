@@ -22,6 +22,7 @@
     "lint:css:fix": "stylelint \"**/*.scss\" --config stylelint.config.cjs --fix",
     "lint:html": "node -e \"require('glob').glob('apps/**/*.html', { ignore: ['build/output/**/*.html', '**/coverage/**/*'] }).then(files => require('child_process').execSync(`npx htmlhint ${files.join(' ')}`, { stdio: 'inherit' }))\"",
     "lint:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc",
+    "analyze:css": "node build/scripts/analyze-css.cjs",
     "test": "jest",
     "//--- BUILDING ---": "",
     "build:apps": "npm run build:rpglitch && npm run build:imageglitch",

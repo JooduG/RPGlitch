@@ -35,6 +35,7 @@ export function initViews(dependencies) {
 // ============================================================================
 
 function showStoryboard() {
+  document.body.classList.remove("profile-view-active");
   setTopBarRight?.("storyboard");
   showEl("#storyboard-screen");
   hideEl("#profile-screen");
@@ -374,6 +375,7 @@ function _isValidImageUrl(url, allowDataUrls = true) {
 }
 
 export async function renderProfilePage(type, id) {
+  document.body.classList.add("profile-view-active");
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
 
