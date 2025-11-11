@@ -469,6 +469,10 @@ export async function renderProfilePage(type, id) {
   );
   const form = layout.querySelector("form");
   const secWrap = form.querySelector("[data-profile-sections]");
+  const paletteSelect = imageOverlay.querySelector('select[name="signatureColour"]');
+  const form = layout.querySelector('form');
+  const headerWrap = form.querySelector('[data-profile-header]');
+  const secWrap = form.querySelector('[data-profile-sections]');
 
   function updateButtonState() {
     const value = imageInput.value.trim();
@@ -832,7 +836,7 @@ export async function renderProfilePage(type, id) {
   );
 
   // --- Description Field (Using Helper) ---
-  form.appendChild(
+  headerWrap.appendChild(
     createFieldRow(
       layout,
       "description",

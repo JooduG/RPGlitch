@@ -361,45 +361,6 @@
         <div class="profile-right">
           <div class="profile-right-content">
             <form>
-              <!-- Name Field -->
-              <template id="tpl-profile-field-name">
-                <div class="field-row">
-                  <div class="field-label">
-                    <label for="form-field-name">Name</label>
-                    <small>The primary identifier for this entity.</small>
-                  </div>
-                  <div class="field-input">
-                    <h1 data-read-field="name"></h1>
-                    <input
-                      data-edit-field="name"
-                      name="name"
-                      id="form-field-name"
-                      placeholder="Enter entity name..."
-                      required />
-                  </div>
-                </div>
-              </template>
-
-              <!-- Description Field -->
-              <template id="tpl-profile-field-description">
-                <div class="field-row">
-                  <div class="field-label">
-                    <label for="form-field-description">Description</label>
-                    <small>A brief overview of this entity.</small>
-                  </div>
-                  <div class="field-input">
-                    <p
-                      data-read-field="description"
-                      class="profile-description-read"></p>
-                    <textarea
-                      data-edit-field="description"
-                      name="description"
-                      id="form-field-description"
-                      placeholder="Describe the entity..."></textarea>
-                  </div>
-                </div>
-              </template>
-
               <!-- Section Fields -->
               <template id="tpl-profile-field-section">
                 <div class="field-row">
@@ -416,7 +377,12 @@
                 </div>
               </template>
 
-              <div class="profile-fields" data-profile-sections></div>
+              <div class="profile-header" data-profile-header>
+                <!-- Name and description will be rendered here -->
+              </div>
+              <div class="profile-fields" data-profile-sections>
+                <!-- Forever, Past, Present, Future will be rendered here -->
+              </div>
             </form>
           </div>
         </div>
