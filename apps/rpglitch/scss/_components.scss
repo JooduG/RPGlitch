@@ -865,9 +865,9 @@ $glow-signatures: (
 
 #profile-screen {
   box-sizing: border-box;
-  max-width: var(--app-container-max);
+  max-width: 100%;
   margin-inline: auto;
-  padding-inline: var(--app-container-pad);
+  padding-inline: 0;
 }
 
 .profile-background {
@@ -940,12 +940,13 @@ $glow-signatures: (
   display: grid;
   grid-template-columns: 1fr 3fr; // Label column | Input column (more spacious)
   gap: 1rem; // Comfortable spacing between columns
-  margin-bottom: 1rem; // Vertical spacing between rows
+  margin-bottom: 2rem; // Increased vertical spacing for better visual rhythm
   align-items: center; // Center items vertically for better balance with labels
 
   @media (width <= $breakpoint-mobile) {
     grid-template-columns: 1fr;
     gap: 1rem;
+    margin-bottom: 1.5rem; // Slightly less spacing on mobile
   }
 }
 
@@ -961,15 +962,21 @@ $glow-signatures: (
   }
 
   label {
-    font-weight: bold;
+    font-weight: 700; // Bolder for better hierarchy
+    font-size: 1.125rem; // Slightly larger
     display: block;
     margin-bottom: 0.25rem;
+    color: var(--pico-h3-color); // Use heading color for prominence
+    text-transform: uppercase; // More distinct from content
+    letter-spacing: 0.05em; // Slight spacing for readability
   }
 
   small {
     display: block;
     color: var(--pico-muted-color);
     line-height: 1.4;
+    font-size: 0.875rem; // Slightly smaller to differentiate from label
+    font-style: italic; // Make sublabel more subtle
   }
 }
 
@@ -1013,12 +1020,21 @@ $glow-signatures: (
   white-space: pre-wrap; // Respect newlines
   padding: var(--pico-form-element-padding); // Align with textarea
   line-height: var(--pico-line-height); // Match Pico text
+  color: var(--pico-color); // Use standard text color for better contrast
+  opacity: 1; // Full opacity for readability
 }
 
 // Specific padding for the description <p> tag in read mode
 .profile-description-read {
   padding-left: 0;
   padding-right: 0;
+  font-size: 1.125rem; // Slightly larger for better readability
+  text-align: center; // Center to match edit mode
+}
+
+// Center name in read mode to match edit mode
+.profile-right-content > h1:first-child {
+  text-align: center;
 }
 
 // --- Hide/Show Logic ---

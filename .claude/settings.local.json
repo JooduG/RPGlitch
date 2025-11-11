@@ -37,7 +37,8 @@
       "mcp__playwright__browser_evaluate",
       "mcp__playwright__browser_take_screenshot",
       "Bash(node -e:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "mcp__chrome-devtools__take_snapshot"
     ],
     "deny": [],
     "ask": []
