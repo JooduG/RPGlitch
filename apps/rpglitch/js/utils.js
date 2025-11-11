@@ -385,7 +385,9 @@ const isDialogOpen = () => {
         // Special case: chin-container is allowed to have pointer-events:none when all chins are closed
         // This is intentional behavior controlled by chin.updateState() in line 1058
         if (el.id === "chin-container") {
-          const openChins = doc.querySelectorAll('.chin[data-chin]:not([hidden])');
+          const openChins = doc.querySelectorAll(
+            ".chin[data-chin]:not([hidden])"
+          );
           if (openChins.length === 0) {
             // No chins are open, so pointer-events:none is expected - skip this check
             continue;
@@ -850,7 +852,11 @@ export function applySignature(container, entity) {
 
   // 1. If a signature colour exists AND it's not "default", add the specific class.
   // 2. If it's "default" or missing, we add NO class, and the base CSS takes over.
-  if (entity && entity.signatureColour && entity.signatureColour !== "default") {
+  if (
+    entity &&
+    entity.signatureColour &&
+    entity.signatureColour !== "default"
+  ) {
     container.classList.add(`signature-${entity.signatureColour}`);
   }
 }

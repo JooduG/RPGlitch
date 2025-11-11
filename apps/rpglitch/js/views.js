@@ -212,7 +212,13 @@ function createFieldElements(
  * @param {Array<any>} fieldConfig - Array of args for createFieldElements (e.g., [readEl, editEl, value, options]).
  * @returns {HTMLElement} The complete field row element.
  */
-function createFieldRow(context, fieldId, labelText, sublabelText, fieldConfig) {
+function createFieldRow(
+  context,
+  fieldId,
+  labelText,
+  sublabelText,
+  fieldConfig
+) {
   const template = context.querySelector("#tpl-profile-field-section");
   if (!template) {
     console.error("Field row template not found!");
@@ -275,7 +281,10 @@ function _extractImageUrlFromPlugin(result) {
   } else if (typeof result === "string") {
     // Direct string URL response
     imageUrl = result;
-  } else if (result?.url && (typeof result.url === "string" || result.url instanceof String)) {
+  } else if (
+    result?.url &&
+    (typeof result.url === "string" || result.url instanceof String)
+  ) {
     // Upload plugin standard format (handle primitive string or String object)
     imageUrl = String(result.url);
   } else if (result?.file?.url && typeof result.file.url === "string") {
@@ -453,15 +462,22 @@ export async function renderProfilePage(type, id) {
   const heroWrap = layout.querySelector(".hero-wrap");
   const imageOverlay = layout.querySelector(".profile-hero-overlay");
   imageInput = imageOverlay.querySelector('[data-profile-field="imageUrl"]');
-  actionButton = imageOverlay.querySelector('button[data-action]');
+  actionButton = imageOverlay.querySelector("button[data-action]");
   fileInput = imageOverlay.querySelector('[data-profile-field="fileInput"]');
-  const paletteSelect = imageOverlay.querySelector('select[name="signatureColour"]');
-  const form = layout.querySelector('form');
-  const secWrap = form.querySelector('[data-profile-sections]');
+  const paletteSelect = imageOverlay.querySelector(
+    'select[name="signatureColour"]'
+  );
+  const form = layout.querySelector("form");
+  const secWrap = form.querySelector("[data-profile-sections]");
 
   function updateButtonState() {
     const value = imageInput.value.trim();
-    console.log("[DEBUG] updateButtonState - value:", value, "isValidImageUrl:", _isValidImageUrl(value, true)); // Added log
+    console.log(
+      "[DEBUG] updateButtonState - value:",
+      value,
+      "isValidImageUrl:",
+      _isValidImageUrl(value, true)
+    ); // Added log
 
     if (value === "") {
       actionButton.textContent = "Upload";
@@ -469,7 +485,8 @@ export async function renderProfilePage(type, id) {
     } else if (value && !_isValidImageUrl(value, true)) {
       actionButton.textContent = "Generate";
       actionButton.dataset.action = "generate";
-    } else { // value is not empty and _isValidImageUrl is true
+    } else {
+      // value is not empty and _isValidImageUrl is true
       actionButton.textContent = "Use URL"; // Indicate that the URL will be used
       actionButton.dataset.action = "use-url"; // A new action to signify no operation
     }
@@ -673,7 +690,6 @@ export async function renderProfilePage(type, id) {
         }
 
         updateImageInput(imageInput, imageUrl);
-         
       } catch (e) {
         handleActionError(e, "generate");
       } finally {
@@ -736,7 +752,6 @@ export async function renderProfilePage(type, id) {
           }
 
           updateImageInput(imageInput, imageUrl);
-           
         } catch (e) {
           handleActionError(e, "upload");
         } finally {
@@ -764,9 +779,20 @@ export async function renderProfilePage(type, id) {
     }
   }); // This closes the actionButton.addEventListener
 
-  const palettes = ["Signature Colour", "Pink", "Emerald", "Cyan", "Orange", "Purple"];
+  const palettes = [
+    "Signature Colour",
+    "Pink",
+    "Emerald",
+    "Cyan",
+    "Orange",
+    "Purple",
+  ];
   palettes.forEach((p) => {
-    const option = paletteSelect.querySelector(`option[value="${p === "Signature Colour" ? "default" : p.toLowerCase()}"]`);
+    const option = paletteSelect.querySelector(
+      `option[value="${
+        p === "Signature Colour" ? "default" : p.toLowerCase()
+      }"]`
+    );
     if (option) {
       option.selected = (entity.signatureColour || "default") === option.value;
     }
@@ -779,7 +805,7 @@ export async function renderProfilePage(type, id) {
     applySignature?.(leftCol, tempEntity);
     // Also update the hero wrapper and media to reflect signature color on placeholders
     applySignature?.(heroWrap, tempEntity);
-    const media = heroWrap.querySelector('.card-media, .picture');
+    const media = heroWrap.querySelector(".card-media, .picture");
     if (media) {
       applySignature?.(media, tempEntity);
     }
@@ -791,12 +817,18 @@ export async function renderProfilePage(type, id) {
 
   // --- Name Field (Using Helper) ---
   form.appendChild(
-    createFieldRow(layout, "name", "Name", "The primary identifier for this entity.", [
-      "h1",
-      "input",
-      entity.name || "",
-      { placeholder: "Enter entity name..." },
-    ])
+    createFieldRow(
+      layout,
+      "name",
+      "Name",
+      "The primary identifier for this entity.",
+      [
+        "h1",
+        "input",
+        entity.name || "",
+        { placeholder: "Enter entity name..." },
+      ]
+    )
   );
 
   // --- Description Field (Using Helper) ---
@@ -852,7 +884,7 @@ export async function renderProfilePage(type, id) {
     const data = {
       name: escapeHtml(nameElement.value.trim()),
       description: escapeHtml(form.elements.description.value.trim()),
-       
+
       imageUrl: escapeHtml(imageInput.value.trim()),
       signatureColour: escapeHtml(paletteSelect.value.trim()),
       tags: entity.tags || [],
@@ -972,4 +1004,3 @@ export async function renderProfilePage(type, id) {
     replaceEventHandler(saveBtn, "click", saveHandler, "_saveHandler");
   }
 }
-

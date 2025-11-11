@@ -28,9 +28,7 @@ db.version(1).stores({
 // This hook runs ONLY when the database is created for the first time.
 // It sets up the default settings singleton.
 db.on("populate", async (trans) => {
-  console.log(
-    "[RPGlitch DB] Populating new database with default settings..."
-  );
+  console.log("[RPGlitch DB] Populating new database with default settings...");
   try {
     const settings = trans.table("settings");
     await settings.put({

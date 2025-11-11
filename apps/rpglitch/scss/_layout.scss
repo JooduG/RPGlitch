@@ -11,14 +11,11 @@ main.container {
   overflow: hidden auto;
   padding: 0;
 
-
-
   // height: calc(100vh - var(--header-height));
 
   // max-width: 100%;
 
   @include foundation.custom-scrollbar;
-
 }
 
 // Remove container margins when in profile view to allow edge-to-edge image
@@ -201,7 +198,10 @@ body.profile-view-active .top-bar {
   width: 100vw; /* Full viewport width */
   max-width: 100vw; /* No max-width constraint */
   display: grid;
-  grid-template-columns: var(--layout-left-col) var(--layout-center-col) var(--layout-right-col); /* 25% hero | 50% content | 25% breathing room */
+  grid-template-columns: var(--layout-left-col) var(--layout-center-col) var(
+      --layout-right-col
+    ); /* 25% hero | 50% content | 25% breathing room */
+    
   gap: 0;
 
   @include foundation.mobile {
@@ -243,11 +243,15 @@ body.profile-view-active .top-bar {
   overflow-x: hidden;
   padding: 1rem;
   padding-inline: var(--app-container-pad);
-  padding-top: calc(var(--top-bar-height, 3rem) + 4rem); /* top-bar height + extra spacing to avoid overlap */
+  padding-top: calc(
+    var(--top-bar-height, 3rem) + 4rem
+  ); /* top-bar height + extra spacing to avoid overlap */
 
   @include foundation.mobile {
     grid-column: 1;
-    padding-top: calc(var(--top-bar-height, 3rem) + 2rem); /* Less spacing on mobile */
+    padding-top: calc(
+      var(--top-bar-height, 3rem) + 2rem
+    ); /* Less spacing on mobile */
   }
 }
 

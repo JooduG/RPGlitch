@@ -204,7 +204,9 @@ export function getPictureHTML(entity = {}, options = {}) {
 
   // Use templates for placeholder icons
   const iconTemplateId = `tpl-placeholder-icon-${type}`;
-  const defaultIconTemplate = document.querySelector("#tpl-placeholder-icon-default");
+  const defaultIconTemplate = document.querySelector(
+    "#tpl-placeholder-icon-default"
+  );
   let iconTemplate = document.querySelector(`#${iconTemplateId}`);
 
   if (!iconTemplate) {
