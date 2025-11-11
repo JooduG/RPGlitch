@@ -243,6 +243,8 @@ function createFieldRow(
 
   const inputCol = fieldRow.querySelector(".field-input");
   if (inputCol) {
+    // Clear existing template placeholder elements before adding new ones
+    inputCol.textContent = "";
     inputCol.appendChild(
       createFieldElements(
         fieldId,
@@ -469,10 +471,6 @@ export async function renderProfilePage(type, id) {
   );
   const form = layout.querySelector("form");
   const secWrap = form.querySelector("[data-profile-sections]");
-  const paletteSelect = imageOverlay.querySelector('select[name="signatureColour"]');
-  const form = layout.querySelector('form');
-  const headerWrap = form.querySelector('[data-profile-header]');
-  const secWrap = form.querySelector('[data-profile-sections]');
 
   function updateButtonState() {
     const value = imageInput.value.trim();
@@ -551,54 +549,6 @@ export async function renderProfilePage(type, id) {
       }
     }
   });
-
-  // Set initial button state based on existing value
-  updateButtonState();
-
-  function updateImageInput(input, url) {
-    // Type check and trim whitespace
-    if (!url || typeof url !== "string") {
-      console.warn(
-        "[RPGlitch] updateImageInput: Invalid URL type or empty value",
-        { url, type: typeof url }
-      );
-      return;
-    }
-
-    const trimmedUrl = url.trim();
-    if (!trimmedUrl) {
-      console.warn("[RPGlitch] updateImageInput: URL is empty after trimming");
-      return;
-    }
-
-    // Validate URL format
-    if (!_isValidImageUrl(trimmedUrl, true)) {
-      console.warn("[RPGlitch] updateImageInput: URL failed validation", {
-        url: trimmedUrl,
-      });
-      return;
-    }
-
-    // Sanitize URL with DOMPurify to prevent XSS
-    const sanitizedUrl = window.DOMPurify
-      ? window.DOMPurify.sanitize(trimmedUrl)
-      : trimmedUrl;
-
-    // Debug log successful update
-    console.log(
-      "[RPGlitch] updateImageInput: Setting validated and sanitized URL",
-      {
-        original: url,
-        trimmed: trimmedUrl,
-        sanitized: sanitizedUrl,
-      }
-    );
-
-    // Set input value and dispatch events to update preview and state
-    input.value = sanitizedUrl;
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.dispatchEvent(new Event("change", { bubbles: true }));
-  }
 
   // Set initial button state based on existing value
   updateButtonState();
@@ -818,9 +768,10 @@ export async function renderProfilePage(type, id) {
   applySignature?.(leftCol, entity); // Apply initial signature
 
   // The form and secWrap are already queried above
+  const headerWrap = form.querySelector("[data-profile-header]");
 
   // --- Name Field (Using Helper) ---
-  form.appendChild(
+  headerWrap.appendChild(
     createFieldRow(
       layout,
       "name",

@@ -1094,9 +1094,12 @@ $glow-signatures: (
     display: none;
   }
 
-  // Show 'edit' fields
-  [data-edit-field],
+  // Show 'edit' fields with appropriate display types
+  [data-edit-field] {
+    display: block; // Use block for inputs and textareas
+  }
+
   .profile-hero-overlay {
-    display: flex; // or 'inline-block', etc.
+    display: flex; // Only flex for the overlay container
   }
 }
