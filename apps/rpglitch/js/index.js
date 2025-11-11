@@ -1371,34 +1371,51 @@ export async function _attachStoryboardListeners() {
     });
   }
 
-  const storyboardScreen = document.querySelector("#storyboard-screen");
-  const chatScreenContainer = document.querySelector("#chat-screen-container");
-  async function beginStory() {
-    const aiSelect = document.querySelector("#storyboard-card-ai-select");
-    const userSelect = document.querySelector("#storyboard-card-user-select");
-    const worldSelect = document.querySelector("#storyboard-card-world-select");
-    if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
-      const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
-      const storyId = storyTitleEl?.textContent || "default-story";
-      const characterId = aiSelect.value; // Correctly use the AI's character ID
-      const worldId = worldSelect.value;
-      const threadId = await App.threads.createFromSelection({
-        storyId,
-        characterId,
-        worldId,
-      });
-
-      if (storyboardScreen) storyboardScreen.hidden = true;
-      if (chatScreenContainer) chatScreenContainer.hidden = false;
-      App.applyPatch({ ui: { fsm: "idle" } });
-      await App.chat.render(threadId);
-    } else {
-      alert(
-        `Please select an AI character, your own character, and a world to begin the story.`
-      );
-    }
-  }
-
+      const storyboardScreen = document.querySelector("#storyboard-screen");
+      const chatScreenContainer = document.querySelector("#chat-screen-container");
+      async function beginStory() {
+        const aiSelect = document.querySelector("#storyboard-card-ai-select");
+        const userSelect = document.querySelector("#storyboard-card-user-select");
+        const worldSelect = document.querySelector("#storyboard-card-world-select");
+  
+        console.log('Begin Story clicked.');
+        console.log('AI Select Value:', aiSelect?.value);
+        console.log('User Select Value:', userSelect?.value);
+        console.log('World Select Value:', worldSelect?.value);
+  
+        if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
+          const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
+          const storyId = storyTitleEl?.textContent || "default-story";
+          const characterId = aiSelect.value; // Correctly use the AI's character ID
+          const worldId = worldSelect.value;
+  
+          console.log('Creating thread with:', { storyId, characterId, worldId });
+          const threadId = await App.threads.createFromSelection({
+            storyId,
+            characterId,
+            worldId,
+          });
+          console.log('Thread ID created:', threadId);
+  
+          if (storyboardScreen) {
+            storyboardScreen.hidden = true;
+            console.log('Storyboard screen hidden:', storyboardScreen.hidden);
+          }
+          if (chatScreenContainer) {
+            chatScreenContainer.hidden = false;
+            console.log('Chat screen container hidden:', chatScreenContainer.hidden);
+          }
+          App.applyPatch({ ui: { fsm: "idle" } });
+          await App.chat.render(threadId);
+          console.log('Chat rendered for thread:', threadId);
+          console.log('Messages for thread:', App.state.messages.byThreadId[threadId]);
+        } else {
+          alert(
+            `Please select an AI character, your own character, and a world to begin the story.`
+          );
+          console.log('Alert shown: Missing selections.');
+        }
+      }
   const beginStoryBtn = document.querySelector("#begin-story");
   if (beginStoryBtn) {
     // Remove the old handler if it exists to prevent duplicate listeners
@@ -1668,6 +1685,21 @@ export function _attachChatFormListener() {
   }
 }
 
+function setupPlugins() {
+  const pluginMap = {
+    pluginAi: 'ai',
+    pluginTextToImage: 'textToImage',
+    pluginSuperFetch: 'superFetch',
+    pluginRemember: 'remember',
+    pluginUpload: 'upload'
+  };
+  for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
+    if (typeof window[perchanceName] === 'function') {
+      window[standardName] = window[perchanceName];
+    }
+  }
+}
+
 /**
  * Waits for Perchance plugins to be fully loaded and callable.
  * @param {string[]} requiredPlugins - Plugin names in standard format (e.g., 'ai', 'textToImage')
@@ -1760,6 +1792,9 @@ export async function initializeWhenReady() {
       // STOP EXECUTION
       throw new PluginError("Required plugins failed to load. Please refresh.");
     }
+
+    // Setup plugins to map Perchance names to standard names
+    setupPlugins();
 
     // Initialize database first
     try {

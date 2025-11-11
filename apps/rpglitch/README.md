@@ -82,6 +82,7 @@ RPGlitch implements a defense-in-depth security architecture:
 - **Plugin Response Validation:** All Perchance plugin responses validated and sanitized before use
 
 Recent security improvements (2025-11-10):
+
 - Patched critical XSS vulnerabilities in image handling (PR #280)
 - Implemented comprehensive URL validation with proper pathname and query parameter handling
 - Added defense against malicious data URLs and file paths

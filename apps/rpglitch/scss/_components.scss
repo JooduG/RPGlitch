@@ -415,31 +415,57 @@ body.chin-open .chin-focus-ring {
   flex-direction: column;
   height: 100%;
   width: 100%;
-}
 
-/* ===== CHAT SCREEN GRID REBALANCE (Phase 3.1) ===== */
-
-/* Give side columns more visual weight while keeping chat feed as hero */
-#chat-screen {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  display: grid;
-  grid-template-columns: var(--layout-left-col) var(--layout-center-col) var(--layout-right-col); /* AI character | Chat | User character */
-  gap: 1rem;
-  align-items: start;
-
-  @include tablet {
-    grid-template-columns: 1fr; /* Single column on smaller screens */
-    gap: 0.5rem;
+  .profile-layout {
+    flex: 1; /* Allow profile-layout to take available height */
+    overflow-y: auto; /* Add scrolling to the main layout if content overflows */
+    padding: 1rem; /* Add padding to the overall chat area */
   }
 }
 
 /* ===== FULL-BLEED CHARACTER IMAGES (Phase 3.2) ===== */
 
 /* Create edge-to-edge, full-height atmospheric character bookends */
-#ai-character-display,
 #user-character-display {
+  grid-column: 1; /* User character on the left */
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  height: calc(100vh - 2rem); /* Full viewport height minus padding */
+  overflow: hidden;
+
+  @include tablet {
+    display: none; /* Hide character displays on mobile */
+  }
+
+  .picture {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    aspect-ratio: auto;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: none;
+    flex: 1;
+  }
+
+  .picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Fill the entire space while maintaining aspect ratio */
+    display: block;
+  }
+
+  .character-name {
+    display: none; /* Hide character names for minimalist full-bleed effect */
+  }
+}
+
+#ai-character-display {
+  grid-column: 3; /* AI character on the right */
   position: sticky;
   top: 0;
   display: flex;
@@ -477,10 +503,14 @@ body.chin-open .chin-focus-ring {
 }
 
 #chat-wrapper {
+  grid-column: 2; /* Chat in the center */
   display: flex;
   flex-direction: column;
   gap: 1rem;
   min-height: 100%;
+  flex: 1; /* Ensure it takes available space within profile-right */
+  overflow-y: auto; /* Add scrolling for chat feed */
+  padding: 1rem; /* Add padding back to the chat wrapper */
 }
 
 #chat-feed {

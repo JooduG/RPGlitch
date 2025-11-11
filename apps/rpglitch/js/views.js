@@ -837,6 +837,54 @@ export async function renderProfilePage(type, id) {
   const saveBtn = document.querySelector("#form-save");
   const deleteBtn = document.querySelector("#form-delete");
 
+  // This save handler is 100% correct.
+  // It reads all values directly from the inputs, not the closure.
+  const saveHandler = async () => {
+    const nameElement = screen.querySelector('[data-edit-field="name"]');
+    const data = {
+      name: escapeHtml(nameElement.value.trim()),
+      description: escapeHtml(form.elements.description.value.trim()),
+       
+      imageUrl: escapeHtml(imageInput.value.trim()),
+      signatureColour: escapeHtml(paletteSelect.value.trim()),
+      tags: entity.tags || [],
+      sections: {
+        forever: escapeHtml(form.elements.forever.value.trim()),
+        past: escapeHtml(form.elements.past.value.trim()),
+        present: escapeHtml(form.elements.present.value.trim()),
+        future: escapeHtml(form.elements.future.value.trim()),
+      },
+    };
+
+    await handleAsyncError(
+      async () => {
+        if (!data.name) {
+          throw new Error("Please enter a name for this entity.");
+        }
+
+        const originalEntity =
+          id !== "new" ? await entities.get(type, id) : null;
+        const isEditingPremade = originalEntity?.isPremade;
+        const entityToSave =
+          id === "new" || isEditingPremade ? data : { ...data, id };
+
+        const saved = await entities.upsert(type, entityToSave);
+
+        if (id === "new") {
+          router.navigate(`#profile/${type}/${saved.id}`);
+        } else {
+          entity = saved;
+          setEditMode(false);
+          renderProfilePage(type, saved.id);
+        }
+      },
+      {
+        errorMessage: "Failed to save. Please try again.",
+        context: "save entity",
+      }
+    );
+  };
+
   function setEditMode(editing) {
     isEditing = editing;
     screen.classList.toggle("is-editing", isEditing);
@@ -913,52 +961,7 @@ export async function renderProfilePage(type, id) {
   }
 
   if (saveBtn) {
-    const saveHandler = async () => {
-      // This save handler is 100% correct.
-      // It reads all values directly from the inputs, not the closure.
-      const data = {
-        name: escapeHtml(form.elements.name.value.trim()),
-        description: escapeHtml(form.elements.description.value.trim()),
-         
-        imageUrl: escapeHtml(imageInput.value.trim()),
-        signatureColour: escapeHtml(paletteSelect.value.trim()),
-        tags: entity.tags || [],
-        sections: {
-          forever: escapeHtml(form.elements.forever.value.trim()),
-          past: escapeHtml(form.elements.past.value.trim()),
-          present: escapeHtml(form.elements.present.value.trim()),
-          future: escapeHtml(form.elements.future.value.trim()),
-        },
-      };
-
-      await handleAsyncError(
-        async () => {
-          if (!data.name) {
-            throw new Error("Please enter a name for this entity.");
-          }
-
-          const originalEntity =
-            id !== "new" ? await entities.get(type, id) : null;
-          const isEditingPremade = originalEntity?.isPremade;
-          const entityToSave =
-            id === "new" || isEditingPremade ? data : { ...data, id };
-
-          const saved = await entities.upsert(type, entityToSave);
-
-          if (id === "new") {
-            router.navigate(`#profile/${type}/${saved.id}`);
-          } else {
-            entity = saved;
-            setEditMode(false);
-            renderProfilePage(type, saved.id);
-          }
-        },
-        {
-          errorMessage: "Failed to save. Please try again.",
-          context: "save entity",
-        }
-      );
-    };
     replaceEventHandler(saveBtn, "click", saveHandler, "_saveHandler");
   }
 }
+
