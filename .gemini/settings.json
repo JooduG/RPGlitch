@@ -134,7 +134,7 @@
     "enablePromptCompletion": true,
     "preferredEditor": "vscode"
   },
-  "agentProtocolFile": "../AGENTS.md",
+  "agentProtocolFile": "../GEMINI.md",
   "tools": {
     "useRipgrep": true
   }

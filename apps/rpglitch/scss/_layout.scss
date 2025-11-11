@@ -11,9 +11,14 @@ main.container {
   overflow: hidden auto;
   padding: 0;
 
+
+
   // height: calc(100vh - var(--header-height));
+
   // max-width: 100%;
+
   @include foundation.custom-scrollbar;
+
 }
 
 // Remove container margins when in profile view to allow edge-to-edge image
@@ -190,6 +195,7 @@ body.profile-view-active .top-bar {
 .profile-layout {
   position: relative;
   min-height: 100vh;
+  height: 100%; /* Ensure it takes full height of its parent */
   margin: 0;
   padding: 0;
   width: 100vw; /* Full viewport width */

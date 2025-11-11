@@ -428,13 +428,14 @@ body.chin-open .chin-focus-ring {
 /* Create edge-to-edge, full-height atmospheric character bookends */
 #user-character-display {
   grid-column: 1; /* User character on the left */
-  position: sticky;
+
+  /* Removed position: sticky for now */
   top: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
-  height: calc(100vh - 2rem); /* Full viewport height minus padding */
+  height: 100%; /* Simplified height to fill parent grid cell */
   overflow: hidden;
 
   @include tablet {
@@ -466,13 +467,14 @@ body.chin-open .chin-focus-ring {
 
 #ai-character-display {
   grid-column: 3; /* AI character on the right */
-  position: sticky;
+
+  /* Removed position: sticky for now */
   top: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
-  height: calc(100vh - 2rem); /* Full viewport height minus padding */
+  height: 100%; /* Simplified height to fill parent grid cell */
   overflow: hidden;
 
   @include tablet {

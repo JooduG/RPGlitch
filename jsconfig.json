@@ -6,9 +6,6 @@
     "**/build/local_libs/**",
     "**/build/output/**",
     "**/memory-bank/archive/**",
-    "**mcp.json",
-    "**nul",
-    "**scribbles.md",
     "*.bak",
     "*.log",
     "*.tmp",
@@ -17,13 +14,17 @@
     ".env.local",
     ".gemini/",
     ".gitignore",
+    ".mcp.json",
     ".npm",
     ".vscode/",
     "/.DS_Store",
     "/coverage",
     "/dist",
     "gha-creds-*.json",
+    "mcp.json",
     "node_modules",
-    "node_modules/"
+    "node_modules/",
+    "nul",
+    "scribbles.md"
   ]
 }

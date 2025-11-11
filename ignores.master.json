@@ -18,19 +18,12 @@
     ".vscode/",
     "/coverage",
     "/dist",
-    "**mcp.json",
+    "mcp.json",
+    ".mcp.json",
     "node_modules/",
     "gha-creds-*.json",
-    "**scribbles.md",
-    "**nul"
-  ],
-  "memory": [
-    "**/.git/**",
-    "**/archive/**",
-    "**/build/local_libs/**",
-    "**/build/output/**",
-    "**/node_modules/**",
-    "**/diagnostics/**"
+    "scribbles.md",
+    "nul"
   ],
   "linters": {
     "eslint": [
@@ -38,65 +31,59 @@
       "*.log",
       "*.tmp",
       "**/.git/**",
-      "**/archive/",
+      "**/archive/**",
       "**/build/local_libs/**",
-      "**/node_modules**",
+      "**/node_modules/**",
       "/.DS_Store",
       "/.npm",
       "/coverage",
-      "/dist",
-      "/node_modules"
+      "/dist"
     ],
     "stylelint": [
       "*.bak",
       "*.log",
       "*.tmp",
       "**/.git/**",
-      "**/archive/",
+      "**/archive/**",
       "**/build/local_libs/**",
-      "**/node_modules**",
+      "**/node_modules/**",
       "/.DS_Store",
       "/.npm",
       "/coverage",
-      "/dist",
-      "/node_modules"
+      "/dist"
     ],
     "htmlhint": [
       "*.bak",
       "*.log",
       "*.tmp",
       "**/.git/**",
-      "**/archive/",
+      "**/archive/**",
       "**/build/local_libs/**",
-      "**/node_modules**",
+      "**/node_modules/**",
       "/.DS_Store",
       "/.npm",
       "/coverage",
-      "/dist",
-      "/node_modules"
+      "/dist"
     ],
     "markdownlint": [
       "*.bak",
       "*.log",
       "*.tmp",
       "**/.git/**",
-      "**/archive/",
+      "**/archive/**",
       "**/build/local_libs/**",
-      "**/node_modules**",
+      "**/node_modules/**",
       "/.DS_Store",
       "/.npm",
       "/coverage",
       "/dist",
-      "/node_modules",
       ".markdownlint.json",
-      "build/config/.markdownlintignore",
       "memory-bank/scribbles.md"
     ]
   },
   "vscode": {
     "filesExclude": {
       "**/.DS_Store": true,
-      "**/.git": true,
       "**/.hg": true,
       "**/.svn": true,
       "**/CVS": true,
