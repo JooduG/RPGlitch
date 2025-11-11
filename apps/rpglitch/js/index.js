@@ -1373,6 +1373,19 @@ export async function _attachStoryboardListeners() {
 
   const storyboardScreen = document.querySelector("#storyboard-screen");
   const chatScreenContainer = document.querySelector("#chat-screen-container");
+
+  const renderCharacterPicture = (displayElement, character) => {
+    if (displayElement && character) {
+      displayElement.innerHTML = "";
+      const pic = getPictureHTML(character, { cover: true });
+      if (pic) {
+            // Safe: getPictureHTML returns a DOM element created with createElement
+        displayElement.appendChild(pic);
+        applySignature(displayElement, character);
+      }
+    }
+  };
+
   async function beginStory() {
     const aiSelect = document.querySelector("#storyboard-card-ai-select");
     const userSelect = document.querySelector("#storyboard-card-user-select");
@@ -1397,23 +1410,8 @@ export async function _attachStoryboardListeners() {
         "#ai-character-display"
       );
 
-      if (userCharacterDisplay && userChar) {
-        userCharacterDisplay.innerHTML = "";
-        const userPic = getPictureHTML(userChar, { cover: true });
-        if (userPic) {
-          userCharacterDisplay.appendChild(userPic);
-          applySignature(userCharacterDisplay, userChar);
-        }
-      }
-
-      if (aiCharacterDisplay && aiChar) {
-        aiCharacterDisplay.innerHTML = "";
-        const aiPic = getPictureHTML(aiChar, { cover: true });
-        if (aiPic) {
-          aiCharacterDisplay.appendChild(aiPic);
-          applySignature(aiCharacterDisplay, aiChar);
-        }
-      }
+      renderCharacterPicture(userCharacterDisplay, userChar);
+      renderCharacterPicture(aiCharacterDisplay, aiChar);
 
       const threadId = await App.threads.createFromSelection({
         storyId,
@@ -1768,12 +1766,8 @@ async function waitForPlugins(
     return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
   }
 
-  const available = requiredPlugins.filter(
-    (name) => typeof window[name] === "function"
-  );
-  const missing = requiredPlugins.filter(
-    (name) => typeof window[name] !== "function"
-  );
+  const available = requiredPlugins.filter((name) => window[name]);
+  const missing = requiredPlugins.filter((name) => !window[name]);
   log(
     `[RPGlitch] Plugin timeout after a total of ${
       (retryCount + 1) * PLUGIN_WAIT_TIMEOUT_MS
@@ -1787,7 +1781,10 @@ async function waitForPlugins(
 export async function initializeWhenReady() {
   // <-- MADE ASYNC
   try {
-    // Wait for required Perchance plugins to load
+    // Wait for required Perchance plugins to load.
+    // We wait for the `plugin*` names because they are guaranteed to be exposed
+    // by the Perchance HTML panel. The `setupPlugins` call below creates the
+    // standard aliases (`ai`, `textToImage`, etc.) after they are loaded.
     const pluginsLoaded = await waitForPlugins([
       "pluginAi",
       "pluginTextToImage",
