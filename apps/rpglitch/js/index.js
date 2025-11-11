@@ -1376,12 +1376,12 @@ export async function _attachStoryboardListeners() {
 
   const renderCharacterPicture = (displayElement, character) => {
     if (displayElement && character) {
-      displayElement.innerHTML = "";
       const pic = getPictureHTML(character, { cover: true });
       if (pic) {
-            // Safe: getPictureHTML returns a DOM element created with createElement
-        displayElement.appendChild(pic);
+        displayElement.replaceChildren(pic);
         applySignature(displayElement, character);
+      } else {
+        displayElement.replaceChildren();
       }
     }
   };
