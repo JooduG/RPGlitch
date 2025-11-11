@@ -211,8 +211,8 @@ function createFieldElements(
  * @param {Array<any>} fieldConfig - Array of args for createFieldElements (e.g., [readEl, editEl, value, options]).
  * @returns {HTMLElement} The complete field row element.
  */
-function createFieldRow(fieldId, labelText, sublabelText, fieldConfig) {
-  const template = document.querySelector("#tpl-profile-field-section");
+function createFieldRow(context, fieldId, labelText, sublabelText, fieldConfig) {
+  const template = context.querySelector("#tpl-profile-field-section");
   if (!template) {
     console.error("Field row template not found!");
     return document.createElement("div"); // Return a fallback element
@@ -790,7 +790,7 @@ export async function renderProfilePage(type, id) {
 
   // --- Name Field (Using Helper) ---
   form.appendChild(
-    createFieldRow("name", "Name", "The primary identifier for this entity.", [
+    createFieldRow(form, "name", "Name", "The primary identifier for this entity.", [
       "h1",
       "input",
       entity.name || "",
@@ -801,6 +801,7 @@ export async function renderProfilePage(type, id) {
   // --- Description Field (Using Helper) ---
   form.appendChild(
     createFieldRow(
+      form,
       "description",
       "Description",
       "A brief overview of this entity.",
@@ -819,7 +820,7 @@ export async function renderProfilePage(type, id) {
   // --- Sections (Using Helper) ---
   Object.entries(SECTION_DEFINITIONS).forEach(([key, def]) => {
     secWrap.appendChild(
-      createFieldRow(key, def.label, def.sublabels[type] || "", [
+      createFieldRow(form, key, def.label, def.sublabels[type] || "", [
         "div",
         "textarea",
         entity.sections?.[key] || "",
