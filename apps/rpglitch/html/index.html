@@ -271,30 +271,21 @@
           </template>
 
           <template id="tpl-placeholder-icon-character">
-            <svg
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path
                 d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.33 0-8 1.67-8 5v3h16v-3c0-3.33-4.67-5-8-5z" />
             </svg>
           </template>
 
           <template id="tpl-placeholder-icon-world">
-            <svg
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path
                 d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 010-16 8 8 0 010 16zm0-14a6 6 0 00-5.29 3h10.58A6 6 0 0012 6zm-5.29 5a6 6 0 000 2h10.58a6 6 0 000-2H6.71zm.42 3a6 6 0 005.29 3 6 6 0 005.29-3H7.13z" />
             </svg>
           </template>
 
           <template id="tpl-placeholder-icon-default">
-            <svg
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <rect x="4" y="4" width="16" height="16" rx="2" />
             </svg>
           </template>
@@ -348,10 +339,13 @@
                   name="imageUrl"
                   type="text"
                   placeholder="Type prompt, paste URL, or click to upload..."
-                  data-profile-field="imageUrl"
-                />
+                  data-profile-field="imageUrl" />
                 <button type="button" data-action="upload"></button>
-                <input type="file" accept="image/*" hidden data-profile-field="fileInput" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  data-profile-field="fileInput" />
               </fieldset>
               <select name="signatureColour" id="signatureColour">
                 <option value="default">Signature Colour</option>
@@ -381,8 +375,7 @@
                       name="name"
                       id="form-field-name"
                       placeholder="Enter entity name..."
-                      required
-                    />
+                      required />
                   </div>
                 </div>
               </template>
@@ -395,13 +388,14 @@
                     <small>A brief overview of this entity.</small>
                   </div>
                   <div class="field-input">
-                    <p data-read-field="description" class="profile-description-read"></p>
+                    <p
+                      data-read-field="description"
+                      class="profile-description-read"></p>
                     <textarea
                       data-edit-field="description"
                       name="description"
                       id="form-field-description"
-                      placeholder="Describe the entity..."
-                    ></textarea>
+                      placeholder="Describe the entity..."></textarea>
                   </div>
                 </div>
               </template>
@@ -414,7 +408,9 @@
                     <small data-field-sublabel=""></small>
                   </div>
                   <div class="field-input">
-                    <div data-read-field="" class="profile-field-text-read"></div>
+                    <div
+                      data-read-field=""
+                      class="profile-field-text-read"></div>
                     <textarea data-edit-field="" name="" id=""></textarea>
                   </div>
                 </div>
