@@ -457,6 +457,7 @@ export async function renderProfilePage(type, id) {
   fileInput = imageOverlay.querySelector('[data-profile-field="fileInput"]');
   const paletteSelect = imageOverlay.querySelector('select[name="signatureColour"]');
   const form = layout.querySelector('form');
+  const headerWrap = form.querySelector('[data-profile-header]');
   const secWrap = form.querySelector('[data-profile-sections]');
 
   function updateButtonState() {
@@ -790,7 +791,7 @@ export async function renderProfilePage(type, id) {
   // The form and secWrap are already queried above
 
   // --- Name Field (Using Helper) ---
-  form.appendChild(
+  headerWrap.appendChild(
     createFieldRow(layout, "name", "Name", "The primary identifier for this entity.", [
       "h1",
       "input",
@@ -800,7 +801,7 @@ export async function renderProfilePage(type, id) {
   );
 
   // --- Description Field (Using Helper) ---
-  form.appendChild(
+  headerWrap.appendChild(
     createFieldRow(
       layout,
       "description",
