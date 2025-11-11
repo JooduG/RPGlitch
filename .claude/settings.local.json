@@ -38,7 +38,12 @@
       "mcp__playwright__browser_take_screenshot",
       "Bash(node -e:*)",
       "Bash(curl:*)",
-      "mcp__chrome-devtools__take_snapshot"
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__playwright__browser_select_option",
+      "Bash(timeout 5 tail:*)",
+      "mcp__playwright__browser_wait_for",
+      "Bash(node:*)",
+      "Bash(timeout 8 tail:*)"
     ],
     "deny": [],
     "ask": []

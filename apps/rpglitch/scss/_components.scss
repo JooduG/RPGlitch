@@ -208,7 +208,7 @@ article header {
   right: var(--app-container-pad);
   top: calc(2rem + var(--top-bar-height));
   color: #fff;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 0 0 var(--pico-radius) var(--pico-radius);
   min-height: 200px;
   height: auto;
@@ -226,6 +226,7 @@ article header {
   overflow: hidden;
   box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
   animation: chin-slide-down 0.3s ease;
+  width: 100%;
 }
 
 @keyframes chin-slide-down {
