@@ -1378,48 +1378,58 @@ export async function _attachStoryboardListeners() {
     const userSelect = document.querySelector("#storyboard-card-user-select");
     const worldSelect = document.querySelector("#storyboard-card-world-select");
 
-    console.log("Begin Story clicked.");
-    console.log("AI Select Value:", aiSelect?.value);
-    console.log("User Select Value:", userSelect?.value);
-    console.log("World Select Value:", worldSelect?.value);
-
     if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
       const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
       const storyId = storyTitleEl?.textContent || "default-story";
-      const characterId = aiSelect.value; // Correctly use the AI's character ID
+      const characterId = aiSelect.value;
       const worldId = worldSelect.value;
+      const userId = userSelect.value;
 
-      console.log("Creating thread with:", { storyId, characterId, worldId });
+      const [aiChar, userChar] = await Promise.all([
+        entities.get("character", characterId),
+        entities.get("character", userId),
+      ]);
+
+      const userCharacterDisplay = document.querySelector(
+        "#user-character-display"
+      );
+      const aiCharacterDisplay = document.querySelector(
+        "#ai-character-display"
+      );
+
+      if (userCharacterDisplay && userChar) {
+        userCharacterDisplay.innerHTML = "";
+        const userPic = getPictureHTML(userChar, { cover: true });
+        if (userPic) {
+          userCharacterDisplay.appendChild(userPic);
+          applySignature(userCharacterDisplay, userChar);
+        }
+      }
+
+      if (aiCharacterDisplay && aiChar) {
+        aiCharacterDisplay.innerHTML = "";
+        const aiPic = getPictureHTML(aiChar, { cover: true });
+        if (aiPic) {
+          aiCharacterDisplay.appendChild(aiPic);
+          applySignature(aiCharacterDisplay, aiChar);
+        }
+      }
+
       const threadId = await App.threads.createFromSelection({
         storyId,
         characterId,
         worldId,
       });
-      console.log("Thread ID created:", threadId);
 
-      if (storyboardScreen) {
-        storyboardScreen.hidden = true;
-        console.log("Storyboard screen hidden:", storyboardScreen.hidden);
-      }
-      if (chatScreenContainer) {
-        chatScreenContainer.hidden = false;
-        console.log(
-          "Chat screen container hidden:",
-          chatScreenContainer.hidden
-        );
-      }
+      if (storyboardScreen) storyboardScreen.hidden = true;
+      if (chatScreenContainer) chatScreenContainer.hidden = false;
+
       App.applyPatch({ ui: { fsm: "idle" } });
       await App.chat.render(threadId);
-      console.log("Chat rendered for thread:", threadId);
-      console.log(
-        "Messages for thread:",
-        App.state.messages.byThreadId[threadId]
-      );
     } else {
       alert(
-        `Please select an AI character, your own character, and a world to begin the story.`
+        "Please select an AI character, your own character, and a world to begin the story."
       );
-      console.log("Alert shown: Missing selections.");
     }
   }
   const beginStoryBtn = document.querySelector("#begin-story");
@@ -1700,7 +1710,7 @@ function setupPlugins() {
     pluginUpload: "upload",
   };
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (typeof window[perchanceName] === "function") {
+    if (window[perchanceName]) {
       window[standardName] = window[perchanceName];
     }
   }
@@ -1736,10 +1746,8 @@ async function waitForPlugins(
   );
 
   while (Date.now() - startTime < timeout) {
-    // Check if plugins are available AND are functions
-    const allAvailable = requiredPlugins.every(
-      (name) => typeof window[name] === "function"
-    );
+    // Check if plugins are available
+    const allAvailable = requiredPlugins.every((name) => window[name]);
 
     if (allAvailable) {
       log("[RPGlitch] All plugins loaded successfully:", requiredPlugins);
@@ -1781,11 +1789,11 @@ export async function initializeWhenReady() {
   try {
     // Wait for required Perchance plugins to load
     const pluginsLoaded = await waitForPlugins([
-      "ai",
-      "textToImage",
-      "superFetch",
-      "remember",
-      "upload",
+      "pluginAi",
+      "pluginTextToImage",
+      "pluginSuperFetch",
+      "pluginRemember",
+      "pluginUpload",
     ]);
 
     if (!pluginsLoaded) {

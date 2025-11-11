@@ -11,7 +11,7 @@ import { JSDOM, VirtualConsole } from 'jsdom';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const OUTPUT_HTML = path.resolve(__dirname, '..', '..', 'build', 'output', 'RPGlitch.html');
+const OUTPUT_HTML = path.resolve(__dirname, '..', 'build', 'output', 'RPGlitch.html');
 
 if (!fs.existsSync(OUTPUT_HTML)) {
   console.error(`❌ Missing ${path.relative(process.cwd(), OUTPUT_HTML)}. Run \`npm run build:rpglitch\` first.`);
