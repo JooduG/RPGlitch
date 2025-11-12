@@ -95,3 +95,60 @@ test('initializeWhenReady resets retry counter on success', async () => {
   await App.initializeWhenReady();
   expect(window.initializeWhenReadyRetryCount).toBe(0);
 });
+
+describe('waitForPlugins', () => {
+  beforeEach(() => {
+    globalThis.__TEST__ = false;
+  });
+
+  afterEach(() => {
+    globalThis.__TEST__ = true;
+  });
+
+  test('handles nested paths like pluginAi.generateStream', async () => {
+    const App = await loadApp();
+    window.pluginAi = { generateStream: jest.fn() };
+    const result = await App.waitForPlugins(['pluginAi.generateStream'], 100);
+    expect(result).toBe(true);
+  });
+
+  test('fails when nested path is not a function', async () => {
+    const App = await loadApp();
+    window.pluginAi = { generateStream: 'not a function' };
+    const result = await App.waitForPlugins(['pluginAi.generateStream'], 100, 0, 0);
+    expect(result).toBe(false);
+  });
+
+  test('succeeds with a mix of root and nested plugins', async () => {
+    const App = await loadApp();
+    window.pluginSuperFetch = {};
+    window.pluginAi = { generateStream: jest.fn() };
+    const result = await App.waitForPlugins(['pluginSuperFetch', 'pluginAi.generateStream'], 100);
+    expect(result).toBe(true);
+  });
+
+  test('fails if a root plugin is missing', async () => {
+    const App = await loadApp();
+    window.pluginAi = { generateStream: jest.fn() };
+    const result = await App.waitForPlugins(['pluginSuperFetch', 'pluginAi.generateStream'], 100, 0, 0);
+    expect(result).toBe(false);
+  });
+
+  test('returns false for empty string path', async () => {
+    const App = await loadApp();
+    const result = await App.waitForPlugins([''], 100, 0, 0);
+    expect(result).toBe(false);
+  });
+
+  test('returns false for invalid paths', async () => {
+    const App = await loadApp();
+    const result = await App.waitForPlugins(['..invalid'], 100, 0, 0);
+    expect(result).toBe(false);
+  });
+
+  test('returns false for paths with spaces', async () => {
+    const App = await loadApp();
+    const result = await App.waitForPlugins(['ai. generateStream'], 100, 0, 0);
+    expect(result).toBe(false);
+  });
+});

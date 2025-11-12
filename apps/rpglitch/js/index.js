@@ -365,8 +365,8 @@ window.App = App;
 let _allItemsCache = {}; // Local cache for lists
 
 const TEST_MODE = (() => {
-  if (globalThis.__TEST__) {
-    return true;
+  if (typeof globalThis.__TEST__ === 'boolean') {
+    return globalThis.__TEST__;
   }
   try {
     return /jsdom/i.test(globalThis?.navigator?.userAgent || "");
@@ -1716,14 +1716,53 @@ function setupPlugins() {
 
 /**
  * Waits for Perchance plugins to be fully loaded and callable.
- * @param {string[]} requiredPlugins - Plugin names in standard format (e.g., 'ai', 'textToImage')
+ * @param {string[]} requiredPluginPaths - Plugin paths (e.g., 'ai', 'textToImage', 'ai.generateStream')
  * @param {number} timeout - Maximum wait time in milliseconds
  * @param {number} retryCount - Current retry attempt (for internal recursion)
  * @param {number} maxRetries - Maximum number of retry attempts
  * @returns {Promise<boolean>} True if all plugins loaded, false if timeout
  */
-async function waitForPlugins(
-  requiredPlugins,
+/**
+ * Checks if a plugin path is available on the window object.
+ * Supports nested paths like 'ai.generateStream' or root paths like 'pluginAi'.
+ * @param {string} path - Dot-separated path (e.g., 'ai.generateStream', 'pluginAi')
+ * @returns {boolean} True if the path exists and is valid, false otherwise
+ * @example
+ * isPluginPathAvailable('ai.generateStream') // true if window.ai.generateStream exists and is a function
+ * isPluginPathAvailable('pluginAi') // true if window.pluginAi exists
+ */
+export function isPluginPathAvailable(path) {
+  // Validate input
+  if (typeof path !== "string" || !path.trim()) {
+    return false;
+  }
+
+  // Prevent potentially dangerous paths
+  if (path.includes("__proto__") || path.includes("constructor") || path.includes("prototype")) {
+    return false;
+  }
+
+  const parts = path.split(".");
+  let obj = window;
+
+  for (const part of parts) {
+    if (obj && typeof obj === "object" && part in obj) {
+      obj = obj[part];
+    } else {
+      return false;
+    }
+  }
+
+  // For method paths (more than one part), verify it's callable
+  if (parts.length > 1) {
+    return typeof obj === "function";
+  }
+
+  return true;
+}
+
+export async function waitForPlugins(
+  requiredPluginPaths,
   timeout = PLUGIN_WAIT_TIMEOUT_MS,
   retryCount = 0,
   maxRetries = PLUGIN_MAX_RETRIES
@@ -1740,15 +1779,12 @@ async function waitForPlugins(
     `[RPGlitch] Waiting for plugins (attempt ${retryCount + 1}/${
       maxRetries + 1
     }):`,
-    requiredPlugins
+    requiredPluginPaths
   );
 
   while (Date.now() - startTime < timeout) {
-    // Check if plugins are available
-    const allAvailable = requiredPlugins.every((name) => window[name]);
-
-    if (allAvailable) {
-      log("[RPGlitch] All plugins loaded successfully:", requiredPlugins);
+    if (requiredPluginPaths.every(isPluginPathAvailable)) {
+      log("[RPGlitch] All plugins loaded successfully:", requiredPluginPaths);
       return true;
     }
 
@@ -1763,11 +1799,18 @@ async function waitForPlugins(
         retryCount + 1
       }/${maxRetries})...`
     );
-    return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
+    return waitForPlugins(
+      requiredPluginPaths,
+      timeout,
+      retryCount + 1,
+      maxRetries
+    );
   }
 
-  const available = requiredPlugins.filter((name) => window[name]);
-  const missing = requiredPlugins.filter((name) => !window[name]);
+  const available = requiredPluginPaths.filter(isPluginPathAvailable);
+  const missing = requiredPluginPaths.filter(
+    (path) => !isPluginPathAvailable(path)
+  );
   log(
     `[RPGlitch] Plugin timeout after a total of ${
       (retryCount + 1) * PLUGIN_WAIT_TIMEOUT_MS
@@ -1791,6 +1834,7 @@ export async function initializeWhenReady() {
       "pluginSuperFetch",
       "pluginRemember",
       "pluginUpload",
+      "pluginAi.generateStream",
     ]);
 
     if (!pluginsLoaded) {
