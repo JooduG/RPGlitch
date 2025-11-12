@@ -1738,7 +1738,7 @@ export function isPluginPathAvailable(path) {
   }
 
   // If we are checking for a function, let's ensure it's a function
-  if (path.includes("generateStream")) {
+  if (path.endsWith(".generateStream")) {
     return typeof obj === "function";
   }
 
