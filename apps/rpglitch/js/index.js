@@ -140,24 +140,55 @@ const App = {
 
   ai: {
     generateStream: async ({ payload, signal, onToken, onDone }) => {
-      // [FIX] Check for the standard 'ai' plugin (window.ai) as defined
-      // by setupPlugins() and documented in PERCHANCE.md.
-      if (!window.ai || typeof window.ai.generateStream !== "function") {
-        error("Standard AI plugin (window.ai.generateStream) not available.");
-        throw new Error("Standard AI plugin not available.");
+      // Check for the Perchance AI plugin (it's a callable function, not an object)
+      if (!window.ai || typeof window.ai !== "function") {
+        error("Perchance AI plugin (window.ai) not available.");
+        throw new Error("Perchance AI plugin not available.");
       }
 
-      log("Calling Standard AI plugin (window.ai) with payload:", payload);
+      log("Calling Perchance AI plugin with payload:", payload);
 
-      // [FIX] Call window.ai.generateStream, not the incorrect window.Perchance path
-      await window.ai.generateStream({
-        system: payload.system,
-        messages: payload.messages,
-        params: payload.params,
-        signal: signal,
-        onToken: onToken,
-        onDone: onDone,
-      });
+      try {
+        // Build the instruction from system + messages
+        let instruction = "";
+
+        if (payload.system) {
+          instruction += payload.system + "\n\n";
+        }
+
+        // Format messages as a conversation
+        if (payload.messages && payload.messages.length > 0) {
+          for (const msg of payload.messages) {
+            const role = msg.role === "user" ? "User" : "Assistant";
+            instruction += `${role}: ${msg.content}\n\n`;
+          }
+          instruction += "Assistant: ";
+        }
+
+        // Call the Perchance AI plugin
+        // The plugin is a function: ai(instruction, options)
+        const result = await window.ai(instruction, {
+          temperature: payload.params?.temperature,
+          top_p: payload.params?.top_p,
+          max_tokens: payload.params?.maxTokens,
+          model: payload.params?.model,
+        });
+
+        // Simulate streaming by calling onToken with the full result
+        if (onToken && typeof onToken === "function") {
+          onToken(result);
+        }
+
+        // Call onDone when complete
+        if (onDone && typeof onDone === "function") {
+          onDone();
+        }
+
+        return result;
+      } catch (err) {
+        error("AI generation error:", err);
+        throw err;
+      }
     },
   },
 
@@ -1821,6 +1852,12 @@ export function isPluginPathAvailable(path) {
     }
   }
 
+  // For plugin functions (pluginAi, pluginTextToImage, etc.), verify they're callable
+  // These are exposed as functions by Perchance, not objects
+  if (parts.length === 1 && parts[0].startsWith("plugin")) {
+    return typeof obj === "function";
+  }
+
   // For method paths (more than one part), verify it's callable
   if (parts.length > 1) {
     return typeof obj === "function";
@@ -1902,7 +1939,6 @@ export async function initializeWhenReady() {
       "pluginSuperFetch",
       "pluginRemember",
       "pluginUpload",
-      "pluginAi.generateStream",
     ]);
 
     if (!pluginsLoaded) {
