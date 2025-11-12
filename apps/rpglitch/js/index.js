@@ -47,8 +47,8 @@ class PluginError extends Error {
 const App = {
   state: {
     characters: { byId: {}, allIds: [] },
-    threads: { byId: {}, allIds: [], activeId: null },
-    messages: { byThreadId: {} }, // { [threadId]: [{id, role, text, seed, meta, createdAt}] }
+    story: { byId: {}, allIds: [], activeId: null },
+    messages: { byStoryId: {} }, // { [storyId]: [{id, role, text, seed, meta, createdAt}] }
     settings: {
       temperature: 0.7,
       top_p: 1.0,
@@ -101,14 +101,14 @@ const App = {
   },
 
   prompt: {
-    build: (threadId) => {
-      const thread = App.state.threads.byId[threadId];
+    build: (storyId) => {
+      const story = App.state.story.byId[storyId];
       // Note: App.state.characters.byId will now contain entities of type 'character'
       const ch = Object.values(App.state.characters.byId).find(
-        (c) => c.id === thread?.characterId && c.type === "character"
+        (c) => c.id === story?.characterId && c.type === "character"
       );
       const msgs = App.prompt.trimHistory(
-        App.state.messages.byThreadId[threadId] || []
+        App.state.messages.byStoryId[storyId] || []
       );
       const system = [ch?.persona, ch?.scenario].filter(Boolean).join("\n\n");
 
@@ -138,56 +138,6 @@ const App = {
     },
   },
 
-  threads: {
-    requireActive: () => {
-      // Placeholder for now. Will implement in a later step.
-      // For now, return a dummy threadId or throw an error if no active thread.
-      if (App.state.threads.activeId) {
-        return App.state.threads.activeId;
-      } else {
-        // For testing purposes, let's create a dummy active thread if none exists
-        const dummyThreadId = "dummy-thread-1";
-        App.state.threads.activeId = dummyThreadId;
-        App.state.threads.byId[dummyThreadId] = {
-          id: dummyThreadId,
-          characterId: "dummy-char-1",
-          title: "Dummy Thread",
-          settingsSnapshot: {},
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        };
-        App.state.threads.allIds.push(dummyThreadId);
-        log("No active thread found, created a dummy one.");
-        return dummyThreadId;
-      }
-    },
-
-    createFromSelection: async ({ storyId, characterId, worldId }) => {
-      try {
-        const ch = Object.values(App.state.characters.byId).find(
-          (c) => c.id === characterId && c.type === "character"
-        );
-        const title = `${ch?.name || "Character"} × ${storyId || "Story"}`;
-        const threadId = await db.threads.add({
-          characterId,
-          title,
-          settingsSnapshot: { ...App.state.settings },
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        });
-
-        App.applyPatch({ threads: { activeId: threadId }, ui: { title } });
-        return threadId;
-      } catch (err) {
-        error("Failed to create thread:", err);
-        alert("Could not create story thread. Please try again.");
-        throw err;
-      }
-    },
-  },
-
-  // apps/rpglitch/js/index.js
-
   ai: {
     generateStream: async ({ payload, signal, onToken, onDone }) => {
       // [FIX] Check for the standard 'ai' plugin (window.ai) as defined
@@ -211,18 +161,113 @@ const App = {
     },
   },
 
-  chat: {
-    render: async (threadId) => {
-      const chatFeed = document.querySelector("#chat-feed");
+  story: {
+    requireActive: () => {
+      if (!App.state.story.activeId) {
+        error("No active story found. Please create a new story first.");
+        throw new Error("No active story. Please create a new story.");
+      }
+      return App.state.story.activeId;
+    },
+
+    loadActive: async () => {
+      try {
+        // Guard clause: check if database is initialized
+        if (!db || !db.stories) {
+          log("Database not initialized, skipping story loading.");
+          return null;
+        }
+
+        // Load the most recent story from database
+        const stories = await db.stories.orderBy("updatedAt").reverse().toArray();
+
+        if (stories.length === 0) {
+          log("No stories found in database.");
+          return null;
+        }
+
+        const activeStory = stories[0]; // Most recently updated story
+
+        // Load story into state
+        App.applyPatch({
+          story: {
+            activeId: activeStory.id,
+            byId: { [activeStory.id]: activeStory },
+            allIds: [activeStory.id],
+          },
+        });
+
+        log(`Loaded active story: ${activeStory.id} - ${activeStory.title}`);
+
+        // Load messages for this story
+        await App.story.loadMessages(activeStory.id);
+
+        return activeStory.id;
+      } catch (err) {
+        error("Failed to load active story:", err);
+        return null;
+      }
+    },
+
+    createFromSelection: async ({ storyTitle, characterId, worldId }) => {
+      try {
+        const ch = Object.values(App.state.characters.byId).find(
+          (c) => c.id === characterId && c.type === "character"
+        );
+        const title = storyTitle || `${ch?.name || "Character"} × Story`;
+        const storyId = await db.stories.add({
+          characterId,
+          title,
+          settingsSnapshot: { ...App.state.settings },
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        });
+
+        App.applyPatch({ story: { activeId: storyId }, ui: { title } });
+        return storyId;
+      } catch (err) {
+        error("Failed to create story:", err);
+        alert("Could not create story. Please try again.");
+        throw err;
+      }
+    },
+
+    loadMessages: async (storyId) => {
+      try {
+        // Load all messages for this story from database
+        const messages = await db.messages
+          .where("storyId")
+          .equals(storyId)
+          .sortBy("createdAt");
+
+        // Update state with loaded messages
+        App.applyPatch({
+          messages: {
+            byStoryId: {
+              [storyId]: messages,
+            },
+          },
+        });
+
+        log(`Loaded ${messages.length} messages for story ${storyId}`);
+        return messages;
+      } catch (err) {
+        error("Failed to load messages:", err);
+        return [];
+      }
+    },
+
+    render: async (storyId) => {
+      const storyFeed = document.querySelector("#story-feed");
       const noMessagesEl = document.querySelector("#no-messages");
-      if (!chatFeed || !noMessagesEl) return;
+      if (!storyFeed || !noMessagesEl) return;
 
       // Clear existing messages using DOM API
-      while (chatFeed.firstChild) {
-        chatFeed.removeChild(chatFeed.firstChild);
+      while (storyFeed.firstChild) {
+        storyFeed.removeChild(storyFeed.firstChild);
       }
 
-      const messages = App.state.messages.byThreadId[threadId] || [];
+      const messages = App.state.messages.byStoryId[storyId] || [];
       if (messages.length === 0) {
         noMessagesEl.hidden = false;
         return;
@@ -230,13 +275,14 @@ const App = {
 
       noMessagesEl.hidden = true;
       messages.forEach((msg) => {
+
         const messageEl = document.createElement("div");
-        messageEl.classList.add("chat-message", `${msg.role}-message`);
+        messageEl.classList.add("story-message", `${msg.role}-message`);
         messageEl.textContent = msg.text;
-        chatFeed.appendChild(messageEl);
+        storyFeed.appendChild(messageEl);
       });
 
-      chatFeed.scrollTop = chatFeed.scrollHeight;
+      storyFeed.scrollTop = storyFeed.scrollHeight;
     },
 
     send: async (userText) => {
@@ -245,15 +291,15 @@ const App = {
         return;
 
       try {
-        const threadId = App.threads.requireActive();
+        const storyId = App.story.requireActive();
         await db.messages.add({
-          threadId,
+          storyId,
           role: "user",
           text: userText,
           createdAt: Date.now(),
         });
 
-        const payload = App.prompt.build(threadId);
+        const payload = App.prompt.build(storyId);
         const ctrl = new AbortController();
         App.applyPatch({
           ui: { fsm: "sending", lastError: null, abortController: ctrl },
@@ -264,8 +310,8 @@ const App = {
           await App.ai.generateStream({
             payload,
             signal: ctrl.signal,
-            onToken: (t) => App.chat._appendAssistantToken(threadId, t),
-            onDone: () => App.chat._finalizeAssistantMessage(threadId),
+            onToken: (t) => App.story._appendAssistantToken(storyId, t),
+            onDone: async () => await App.story._finalizeAssistantMessage(storyId),
           });
 
           App.applyPatch({ ui: { fsm: "done" } });
@@ -291,53 +337,53 @@ const App = {
       if (App.state.ui.abortController) {
         App.state.ui.abortController.abort();
         App.state.applyPatch({ ui: { fsm: "aborted", abortController: null } });
-        console.log("Chat stream aborted.");
+        console.log("Story stream aborted.");
       }
     },
     retry: async () => {
-      const threadId = App.threads.requireActive();
-      const messages = App.state.messages.byThreadId[threadId];
+      const storyId = App.story.requireActive();
+      const messages = App.state.messages.byStoryId[storyId];
       if (messages && messages.length > 0) {
         const lastUserMessage = messages.findLast((msg) => msg.role === "user");
         if (lastUserMessage) {
           // Remove any assistant messages after the last user message
           const lastUserMessageIndex = messages.lastIndexOf(lastUserMessage);
-          App.state.messages.byThreadId[threadId] = messages.slice(
+          App.state.messages.byStoryId[storyId] = messages.slice(
             0,
             lastUserMessageIndex + 1
           );
-          await App.chat.send(lastUserMessage.text);
+          await App.story.send(lastUserMessage.text);
         }
       }
     },
     regenerate: async () => {
-      const threadId = App.threads.requireActive();
-      const messages = App.state.messages.byThreadId[threadId];
+      const storyId = App.story.requireActive();
+      const messages = App.state.messages.byStoryId[storyId];
       if (messages && messages.length > 0) {
         // Find the last user message and remove it and subsequent assistant messages
         const lastUserMessageIndex = messages.findLastIndex(
           (msg) => msg.role === "user"
         );
         if (lastUserMessageIndex !== -1) {
-          App.state.messages.byThreadId[threadId] = messages.slice(
+          App.state.messages.byStoryId[storyId] = messages.slice(
             0,
             lastUserMessageIndex
           );
           const previousUserMessage = messages[lastUserMessageIndex];
-          await App.chat.send(previousUserMessage.text);
+          await App.story.send(previousUserMessage.text);
         }
       }
     },
     continue: async () => {
-      await App.chat.send("continue"); // Send a predefined 'continue' message
+      await App.story.send("continue"); // Send a predefined 'continue' message
     },
-    _appendAssistantToken: (threadId, token) => {
-      let messages = App.state.messages.byThreadId[threadId] || [];
+    _appendAssistantToken: (storyId, token) => {
+      let messages = App.state.messages.byStoryId[storyId] || [];
       let lastMessage = messages[messages.length - 1];
       if (!lastMessage || lastMessage.role !== "assistant") {
         lastMessage = {
           id: Date.now(),
-          threadId,
+          storyId,
           role: "assistant",
           text: "",
           createdAt: Date.now(),
@@ -346,13 +392,35 @@ const App = {
       }
       lastMessage.text += token;
       App.applyPatch({
-        messages: { byThreadId: { [threadId]: messages } },
+        messages: { byStoryId: { [storyId]: messages } },
       });
     },
-    _finalizeAssistantMessage: (threadId) => {
-      // No explicit action needed here for now, as tokens are appended directly.
-      // This might be used for saving the final message to DB in the future.
-      log(`Finalizing assistant message for thread ${threadId}.`);
+    _finalizeAssistantMessage: async (storyId) => {
+      try {
+        const messages = App.state.messages.byStoryId[storyId] || [];
+        const lastMessage = messages[messages.length - 1];
+
+        if (!lastMessage || lastMessage.role !== "assistant") {
+          error("No assistant message to finalize");
+          return;
+        }
+
+        // Save the completed assistant message to database
+        await db.messages.add({
+          storyId,
+          role: "assistant",
+          text: lastMessage.text,
+          createdAt: lastMessage.createdAt || Date.now(),
+        });
+
+        // Update story's updatedAt timestamp
+        await db.stories.update(storyId, { updatedAt: Date.now() });
+
+        log(`Finalized and saved assistant message for story ${storyId}`);
+      } catch (err) {
+        error("Failed to save assistant message:", err);
+        // Don't throw - UI should still show the message even if save fails
+      }
     },
   },
 };
@@ -1372,7 +1440,7 @@ export async function _attachStoryboardListeners() {
   }
 
   const storyboardScreen = document.querySelector("#storyboard-screen");
-  const chatScreenContainer = document.querySelector("#chat-screen-container");
+  const storyScreenContainer = document.querySelector("#story-screen-container");
 
   const renderCharacterPicture = (displayElement, character) => {
     if (displayElement && character) {
@@ -1393,7 +1461,7 @@ export async function _attachStoryboardListeners() {
 
     if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
       const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
-      const storyId = storyTitleEl?.textContent || "default-story";
+      const storyTitle = storyTitleEl?.textContent || "default-story";
       const characterId = aiSelect.value;
       const worldId = worldSelect.value;
       const userId = userSelect.value;
@@ -1413,17 +1481,17 @@ export async function _attachStoryboardListeners() {
       renderCharacterPicture(userCharacterDisplay, userChar);
       renderCharacterPicture(aiCharacterDisplay, aiChar);
 
-      const threadId = await App.threads.createFromSelection({
-        storyId,
+      const storyId = await App.story.createFromSelection({
+        storyTitle,
         characterId,
         worldId,
       });
 
       if (storyboardScreen) storyboardScreen.hidden = true;
-      if (chatScreenContainer) chatScreenContainer.hidden = false;
+      if (storyScreenContainer) storyScreenContainer.hidden = false;
 
       App.applyPatch({ ui: { fsm: "idle" } });
-      await App.chat.render(threadId);
+      await App.story.render(storyId);
     } else {
       alert(
         "Please select an AI character, your own character, and a world to begin the story."
@@ -1668,15 +1736,15 @@ export function _attachSettingsListeners() {
   });
 }
 
-export function _attachChatFormListener() {
-  const chatForm = document.querySelector("#chat-form");
-  if (chatForm && !chatForm._submitListenerAttached) {
-    const input = chatForm.querySelector('input[name="message"]');
-    const submitButton = chatForm.querySelector('input[type="submit"]');
-    const chatFeed = document.querySelector("#chat-feed");
+export function _attachStoryFormListener() {
+  const storyForm = document.querySelector("#story-form");
+  if (storyForm && !storyForm._submitListenerAttached) {
+    const input = storyForm.querySelector('input[name="message"]');
+    const submitButton = storyForm.querySelector('input[type="submit"]');
+    const storyFeed = document.querySelector("#story-feed");
 
-    if (!input || !submitButton || !chatFeed) {
-      error("Chat UI elements not found, cannot attach listener.");
+    if (!input || !submitButton || !storyFeed) {
+      error("Story UI elements not found, cannot attach listener.");
       return;
     }
 
@@ -1684,18 +1752,18 @@ export function _attachChatFormListener() {
       submitButton.disabled = !input.value.trim();
     });
 
-    chatForm.addEventListener("submit", async (e) => {
+    storyForm.addEventListener("submit", async (e) => {
       // <-- MADE ASYNC
       e.preventDefault();
       const message = input.value.trim();
       if (message) {
-        await App.chat.send(message); // Call App.chat.send to process the message
+        await App.story.send(message); // Call App.story.send to process the message
         input.value = "";
         submitButton.disabled = true;
-        chatFeed.scrollTop = chatFeed.scrollHeight;
+        storyFeed.scrollTop = storyFeed.scrollHeight;
       }
     });
-    chatForm._submitListenerAttached = true;
+    storyForm._submitListenerAttached = true;
   }
 }
 
@@ -1870,15 +1938,15 @@ export async function initializeWhenReady() {
     // Initialize debug mode from IndexedDB
     await initDebugMode();
 
-    // Listen for state changes to re-render the chat
+    // Listen for state changes to re-render the story
     document.addEventListener("state:changed", async (event) => {
       // <-- MADE ASYNC
       const { patch } = event.detail;
-      // Check if messages for the active thread or the active thread itself changed
-      if (patch.messages?.byThreadId || patch.threads?.activeId !== undefined) {
-        const activeThreadId = App.state.threads.activeId;
-        if (activeThreadId) {
-          await App.chat.render(activeThreadId);
+      // Check if messages for the active story or the active story itself changed
+      if (patch.messages?.byStoryId || patch.story?.activeId !== undefined) {
+        const activeStoryId = App.state.story.activeId;
+        if (activeStoryId) {
+          await App.story.render(activeStoryId);
         }
       }
     });
@@ -1941,7 +2009,7 @@ export async function initializeWhenReady() {
       ),
     };
 
-    _attachChatFormListener?.();
+    _attachStoryFormListener?.();
     if (!TEST_MODE) chin.init?.();
     _attachOptionChinActions?.();
     _attachContentChinActions?.();
@@ -2105,10 +2173,10 @@ export async function importAllData(file) {
         await db.entities.bulkAdd(data.characters);
       }
 
-      // 3. Import threads
-      if (Array.isArray(data.threads)) {
-        await db.threads.clear();
-        await db.threads.bulkAdd(data.threads);
+      // 3. Import stories
+      if (Array.isArray(data.stories)) {
+        await db.stories.clear();
+        await db.stories.bulkAdd(data.stories);
       }
 
       // 4. Import messages
@@ -2162,8 +2230,8 @@ export async function exportAllData() {
       .equals("character")
       .toArray();
 
-    // Get threads from Dexie
-    data.threads = await db.threads.toArray();
+    // Get stories from Dexie
+    data.stories = await db.stories.toArray();
 
     // Get messages from Dexie
     data.messages = await db.messages.toArray();
@@ -2201,7 +2269,7 @@ export async function deleteAllData() {
 
     // Delete all entities from IndexedDB (includes stories, characters, worlds)
     await db.entities.clear();
-    await db.threads.clear();
+    await db.stories.clear();
     await db.messages.clear();
 
     await refreshAllLists();
