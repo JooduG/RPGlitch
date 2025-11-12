@@ -160,7 +160,7 @@ const App = {
         if (payload.messages && payload.messages.length > 0) {
           for (const msg of payload.messages) {
             const role = msg.role === "user" ? "User" : "Assistant";
-            instruction += `${role}: ${msg.content}\n\n`;
+            instruction += `${role}: ${msg.text}\n\n`;
           }
           instruction += "Assistant: ";
         }
@@ -326,10 +326,13 @@ const App = {
         const storyId = App.story.requireActive();
         await db.messages.add({
           storyId,
-          role: "director",
+          role: "user",
           text: userText,
           createdAt: Date.now(),
         });
+
+        // Reload messages after adding the user message
+        await App.story.loadMessages(storyId);
 
         const payload = App.prompt.build(storyId);
         const ctrl = new AbortController();
