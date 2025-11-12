@@ -1723,7 +1723,7 @@ function setupPlugins() {
  * @returns {Promise<boolean>} True if all plugins loaded, false if timeout
  */
 async function waitForPlugins(
-  requiredPlugins,
+  requiredPluginPaths,
   timeout = PLUGIN_WAIT_TIMEOUT_MS,
   retryCount = 0,
   maxRetries = PLUGIN_MAX_RETRIES
@@ -1740,15 +1740,29 @@ async function waitForPlugins(
     `[RPGlitch] Waiting for plugins (attempt ${retryCount + 1}/${
       maxRetries + 1
     }):`,
-    requiredPlugins
+    requiredPluginPaths
   );
 
   while (Date.now() - startTime < timeout) {
-    // Check if plugins are available
-    const allAvailable = requiredPlugins.every((name) => window[name]);
+    const allAvailable = requiredPluginPaths.every((path) => {
+      const parts = path.split(".");
+      let obj = window;
+      for (const part of parts) {
+        if (obj && typeof obj === "object" && part in obj) {
+          obj = obj[part];
+        } else {
+          return false;
+        }
+      }
+      // If we are checking for a function, let's ensure it's a function
+      if (path.includes("generateStream")) {
+        return typeof obj === "function";
+      }
+      return true;
+    });
 
     if (allAvailable) {
-      log("[RPGlitch] All plugins loaded successfully:", requiredPlugins);
+      log("[RPGlitch] All plugins loaded successfully:", requiredPluginPaths);
       return true;
     }
 
@@ -1763,11 +1777,27 @@ async function waitForPlugins(
         retryCount + 1
       }/${maxRetries})...`
     );
-    return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
+    return waitForPlugins(
+      requiredPluginPaths,
+      timeout,
+      retryCount + 1,
+      maxRetries
+    );
   }
 
-  const available = requiredPlugins.filter((name) => window[name]);
-  const missing = requiredPlugins.filter((name) => !window[name]);
+  const available = requiredPluginPaths.filter((path) => {
+    const parts = path.split(".");
+    let obj = window;
+    for (const part of parts) {
+      if (obj && typeof obj === "object" && part in obj) {
+        obj = obj[part];
+      } else {
+        return false;
+      }
+    }
+    return true;
+  });
+  const missing = requiredPluginPaths.filter((path) => !available.includes(path));
   log(
     `[RPGlitch] Plugin timeout after a total of ${
       (retryCount + 1) * PLUGIN_WAIT_TIMEOUT_MS
@@ -1791,6 +1821,7 @@ export async function initializeWhenReady() {
       "pluginSuperFetch",
       "pluginRemember",
       "pluginUpload",
+      "ai.generateStream",
     ]);
 
     if (!pluginsLoaded) {
