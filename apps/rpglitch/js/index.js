@@ -172,6 +172,7 @@ const App = {
           top_p: payload.params?.top_p,
           max_tokens: payload.params?.maxTokens,
           model: payload.params?.model,
+          signal,
         });
 
         // Simulate streaming by calling onToken with the full result
