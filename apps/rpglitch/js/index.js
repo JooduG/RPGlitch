@@ -159,7 +159,10 @@ const App = {
         // Format messages as a conversation
         if (payload.messages && payload.messages.length > 0) {
           for (const msg of payload.messages) {
-            const role = msg.role === "user" ? "User" : "Assistant";
+            // Capitalize role for prompt formatting (user -> User, narrator -> Narrator, etc.)
+            const role = msg.role
+              ? msg.role.charAt(0).toUpperCase() + msg.role.slice(1).toLowerCase()
+              : "Assistant";
             instruction += `${role}: ${msg.text}\n\n`;
           }
           instruction += "Assistant: ";
@@ -322,18 +325,36 @@ const App = {
       if (!["idle", "done", "error", "aborted"].includes(App.state.ui.fsm))
         return;
 
+      const storyId = App.story.requireActive();
+
+      // Save user message with robust error handling
       try {
-        const storyId = App.story.requireActive();
         await db.messages.add({
           storyId,
           role: "user",
           text: userText,
           createdAt: Date.now(),
         });
+      } catch (err) {
+        error("Failed to save user message:", err);
+        alert("Could not save your message. Please try again.");
+        App.applyPatch({
+          ui: { fsm: "error", lastError: "Failed to save message" },
+        });
+        return;
+      }
 
-        // Reload messages after adding the user message
+      // Reload messages with robust error handling
+      try {
         await App.story.loadMessages(storyId);
+      } catch (err) {
+        error("Failed to reload messages:", err);
+        // Non-fatal: message was saved, but state might be stale
+        // Continue anyway - the message will load on next page refresh
+      }
 
+      // Build prompt and generate AI response
+      try {
         const payload = App.prompt.build(storyId);
         const ctrl = new AbortController();
         App.applyPatch({
@@ -360,10 +381,9 @@ const App = {
           });
         }
       } catch (err) {
-        error("Failed to save message:", err);
-        alert("Could not save your message. Please try again.");
+        error("Failed to generate AI response:", err);
         App.applyPatch({
-          ui: { fsm: "error", lastError: "Failed to save message" },
+          ui: { fsm: "error", lastError: "Failed to generate response" },
         });
       }
     },
