@@ -18,7 +18,7 @@ const db = new Dexie("rpglitch");
 // All previous migration logic has been "nuked" into this single version.
 db.version(1).stores({
   entities:
-    "++id, name, type, updated, avatar, persona, scenario, tags, createdAt, updatedAt, isSelected, [type+isCustom], signatureColour",
+    "++id, name, type, updated, avatar, persona, scenario, tags, createdAt, updatedAt, isChosen, [type+isCustom], signatureColour",
   stories: "++id, characterId, title, settingsSnapshot, createdAt, updatedAt",
   messages: "++id, storyId, role, text, seed, meta, createdAt",
   settings: "id", // Singleton settings table
@@ -39,7 +39,7 @@ db.on("populate", async (trans) => {
       stop: [],
       model: "default",
       debugMode: false,
-      storyboardSelection: { ai: null, user: null, world: null },
+      storyboardSelection: { narrator: null, user: null, world: null },
     });
     console.log("[RPGlitch DB] Default settings created successfully.");
   } catch (err) {

@@ -863,10 +863,10 @@ export function applySignature(container, entity) {
 // --- [END SIGNATURE COLOUR FIX] ---
 
 // ---------- Selection helper ----------
-export function setSelected(el, all) {
+export function setChosen(el, all) {
   if (!el || !all) return;
   Array.from(all).forEach((node) =>
-    node.classList.toggle("selected", node === el)
+    node.classList.toggle("chosen", node === el)
   );
 }
 

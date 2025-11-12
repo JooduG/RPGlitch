@@ -410,7 +410,7 @@ body.chin-open .chin-focus-ring {
   display: block;
 }
 
-#story-screen-container {
+#stage-container {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -465,7 +465,7 @@ body.chin-open .chin-focus-ring {
   }
 }
 
-#ai-character-display {
+#narrator-character-display {
   grid-column: 3; /* AI character on the right */
 
   /* Removed position: sticky for now */
@@ -553,7 +553,7 @@ body.chin-open .chin-focus-ring {
 }
 
 /* User messages with tail pointing from the right */
-.story-message[role="user"] {
+.story-message[role="director"] {
   align-self: flex-end;
   background: var(--pico-primary-background);
   border: 1px solid var(--pico-primary);
@@ -574,8 +574,8 @@ body.chin-open .chin-focus-ring {
   }
 }
 
-/* AI messages with tail pointing from the left */
-.story-message[role="assistant"] {
+/* Narrator messages with tail pointing from the left */
+.story-message[role="narrator"] {
   align-self: flex-start;
   background: rgb(var(--dark-background-rgb) / 85%);
   backdrop-filter: blur(10px);
@@ -602,7 +602,7 @@ body.chin-open .chin-focus-ring {
 
 /* User messages get signature color styling */
 
-/* AI messages get signature color styling when AI character has a signature */
+/* Narrator messages get signature color styling when Narrator character has a signature */
 $signature-palettes: (
   "pink": (
     color: var(--signature-pink),
@@ -630,7 +630,7 @@ $signature-palettes: (
   $color: map.get($palette, color);
   $rgb: map.get($palette, rgb);
 
-  .signature-#{$name} .story-message[role="user"] {
+  .signature-#{$name} .story-message[role="director"] {
     border-left: 4px solid #{$color};
     box-shadow: 0
       2px
@@ -638,7 +638,7 @@ $signature-palettes: (
       rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 25%);
   }
 
-  #story-screen[data-ai-palette="#{$name}"] .story-message[role="assistant"] {
+  #story-screen[data-narrator-palette="#{$name}"] .story-message[role="narrator"] {
     border-left: 4px solid #{$color};
     box-shadow: 0
       2px
@@ -722,7 +722,7 @@ $signature-palettes: (
   }
 }
 
-/* AI signature color typing indicators */
+/* Narrator signature color typing indicators */
 $typing-palettes: (
   "pink": var(--signature-pink),
   "emerald": var(--signature-emerald),
@@ -732,7 +732,7 @@ $typing-palettes: (
 );
 
 @each $name, $color in $typing-palettes {
-  #story-screen[data-ai-palette="#{$name}"] #typing-indicator::after {
+  #story-screen[data-narrator-palette="#{$name}"] #typing-indicator::after {
     background-image: radial-gradient(circle, $color 25%, transparent 25%),
       radial-gradient(circle, $color 25%, transparent 25%),
       radial-gradient(circle, $color 25%, transparent 25%);
