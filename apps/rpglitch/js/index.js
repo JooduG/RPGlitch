@@ -1815,7 +1815,7 @@ export async function initializeWhenReady() {
       "pluginSuperFetch",
       "pluginRemember",
       "pluginUpload",
-      "ai.generateStream",
+      "pluginAi.generateStream",
     ]);
 
     if (!pluginsLoaded) {
