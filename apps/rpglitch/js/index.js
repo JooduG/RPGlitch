@@ -401,7 +401,7 @@ const App = {
         const lastMessage = messages[messages.length - 1];
 
         if (!lastMessage || lastMessage.role !== "narrator") {
-          error("No assistant message to finalize");
+          error("No narrator message to finalize");
           return;
         }
 
