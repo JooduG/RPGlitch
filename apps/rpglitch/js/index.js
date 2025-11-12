@@ -365,7 +365,7 @@ window.App = App;
 let _allItemsCache = {}; // Local cache for lists
 
 const TEST_MODE = (() => {
-  if (typeof globalThis.__TEST__ === "boolean") {
+  if (typeof globalThis.__TEST__ === 'boolean') {
     return globalThis.__TEST__;
   }
   try {
@@ -1722,7 +1722,26 @@ function setupPlugins() {
  * @param {number} maxRetries - Maximum number of retry attempts
  * @returns {Promise<boolean>} True if all plugins loaded, false if timeout
  */
+/**
+ * Checks if a plugin path is available on the window object.
+ * Supports nested paths like 'ai.generateStream' or root paths like 'pluginAi'.
+ * @param {string} path - Dot-separated path (e.g., 'ai.generateStream', 'pluginAi')
+ * @returns {boolean} True if the path exists and is valid, false otherwise
+ * @example
+ * isPluginPathAvailable('ai.generateStream') // true if window.ai.generateStream exists and is a function
+ * isPluginPathAvailable('pluginAi') // true if window.pluginAi exists
+ */
 export function isPluginPathAvailable(path) {
+  // Validate input
+  if (typeof path !== "string" || !path.trim()) {
+    return false;
+  }
+
+  // Prevent potentially dangerous paths
+  if (path.includes("__proto__") || path.includes("constructor") || path.includes("prototype")) {
+    return false;
+  }
+
   const parts = path.split(".");
   let obj = window;
 
@@ -1734,8 +1753,8 @@ export function isPluginPathAvailable(path) {
     }
   }
 
-  // If we are checking for a function, let's ensure it's a function
-  if (path.endsWith(".generateStream")) {
+  // For method paths (more than one part), verify it's callable
+  if (parts.length > 1) {
     return typeof obj === "function";
   }
 
