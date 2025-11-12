@@ -365,11 +365,8 @@ window.App = App;
 let _allItemsCache = {}; // Local cache for lists
 
 const TEST_MODE = (() => {
-  if (globalThis.__TEST__ === false) {
-    return false;
-  }
-  if (globalThis.__TEST__) {
-    return true;
+  if (typeof globalThis.__TEST__ === "boolean") {
+    return globalThis.__TEST__;
   }
   try {
     return /jsdom/i.test(globalThis?.navigator?.userAgent || "");
