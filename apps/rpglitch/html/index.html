@@ -155,6 +155,7 @@
               id="upload-story"
               aria-label="Upload Story"
               class="file-input"
+              autocomplete="off"
               hidden />
             <button id="new-story" class="secondary">New Story</button>
           </div>
@@ -183,6 +184,7 @@
               type="file"
               id="upload-character"
               aria-label="Upload Character"
+              autocomplete="off"
               hidden />
             <button id="new-character" class="secondary">New Character</button>
           </div>
@@ -210,6 +212,7 @@
               type="file"
               id="upload-world"
               aria-label="Upload World"
+              autocomplete="off"
               hidden />
             <button id="new-world" class="secondary">New World</button>
           </div>
@@ -314,6 +317,7 @@
               type="file"
               id="upload-backup"
               aria-label="Upload Backup"
+              autocomplete="off"
               hidden />
             <button id="download-backup" class="secondary">
               Download Backup
@@ -322,8 +326,14 @@
           </div>
         </div>
         <div class="chin-options-fields">
-          <textarea id="opening-prompt" placeholder="Story Prompt"></textarea>
-          <textarea id="custom-js" placeholder="Custom JS"></textarea>
+          <textarea
+            id="opening-prompt"
+            placeholder="Story Prompt"
+            autocomplete="off"></textarea>
+          <textarea
+            id="custom-js"
+            placeholder="Custom JS"
+            autocomplete="off"></textarea>
         </div>
       </div>
     </div>
@@ -339,11 +349,13 @@
                   name="imageUrl"
                   type="text"
                   placeholder="Type prompt, paste URL, or click to upload..."
+                  autocomplete="off"
                   data-profile-field="imageUrl" />
                 <button type="button" data-action="upload"></button>
                 <input
                   type="file"
                   accept="image/png,image/jpeg,image/webp,image/gif"
+                  autocomplete="off"
                   hidden
                   data-profile-field="fileInput" />
               </fieldset>
@@ -459,7 +471,8 @@
                 type="text"
                 name="message"
                 placeholder="Type your message..."
-                aria-label="Message" />
+                aria-label="Message"
+                autocomplete="off" />
               <input type="submit" value="Send" disabled />
             </fieldset>
           </form>
