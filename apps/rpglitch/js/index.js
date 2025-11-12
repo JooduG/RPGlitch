@@ -502,9 +502,9 @@ export function _getUIElements() {
 // Migrated from localStorage to IndexedDB
 async function saveStoryboardSelection() {
   const selects = {
-    narrator: document.querySelector("#storyboard-narrator-select")?.value,
-    user: document.querySelector("#storyboard-user-select")?.value,
-    world: document.querySelector("#storyboard-world-select")?.value,
+    narrator: document.querySelector("#storyboard-card-narrator-select")?.value,
+    user: document.querySelector("#storyboard-card-user-select")?.value,
+    world: document.querySelector("#storyboard-card-world-select")?.value
   };
   try {
     // Get existing settings or create new one
