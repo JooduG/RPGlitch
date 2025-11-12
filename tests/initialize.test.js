@@ -95,3 +95,42 @@ test('initializeWhenReady resets retry counter on success', async () => {
   await App.initializeWhenReady();
   expect(window.initializeWhenReadyRetryCount).toBe(0);
 });
+
+describe('waitForPlugins', () => {
+  beforeEach(() => {
+    globalThis.__TEST__ = false;
+  });
+
+  afterEach(() => {
+    globalThis.__TEST__ = true;
+  });
+
+  test('handles nested paths like ai.generateStream', async () => {
+    const App = await loadApp();
+    window.ai = { generateStream: jest.fn() };
+    const result = await App.waitForPlugins(['ai.generateStream'], 100);
+    expect(result).toBe(true);
+  });
+
+  test('fails when nested path is not a function', async () => {
+    const App = await loadApp();
+    window.ai = { generateStream: 'not a function' };
+    const result = await App.waitForPlugins(['ai.generateStream'], 100, 0, 0);
+    expect(result).toBe(false);
+  });
+
+  test('succeeds with a mix of root and nested plugins', async () => {
+    const App = await loadApp();
+    window.pluginSuperFetch = {};
+    window.ai = { generateStream: jest.fn() };
+    const result = await App.waitForPlugins(['pluginSuperFetch', 'ai.generateStream'], 100);
+    expect(result).toBe(true);
+  });
+
+  test('fails if a root plugin is missing', async () => {
+    const App = await loadApp();
+    window.ai = { generateStream: jest.fn() };
+    const result = await App.waitForPlugins(['pluginSuperFetch', 'ai.generateStream'], 100, 0, 0);
+    expect(result).toBe(false);
+  });
+});

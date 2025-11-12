@@ -365,6 +365,9 @@ window.App = App;
 let _allItemsCache = {}; // Local cache for lists
 
 const TEST_MODE = (() => {
+  if (globalThis.__TEST__ === false) {
+    return false;
+  }
   if (globalThis.__TEST__) {
     return true;
   }
@@ -1716,13 +1719,33 @@ function setupPlugins() {
 
 /**
  * Waits for Perchance plugins to be fully loaded and callable.
- * @param {string[]} requiredPlugins - Plugin names in standard format (e.g., 'ai', 'textToImage')
+ * @param {string[]} requiredPluginPaths - Plugin paths (e.g., 'ai', 'textToImage', 'ai.generateStream')
  * @param {number} timeout - Maximum wait time in milliseconds
  * @param {number} retryCount - Current retry attempt (for internal recursion)
  * @param {number} maxRetries - Maximum number of retry attempts
  * @returns {Promise<boolean>} True if all plugins loaded, false if timeout
  */
-async function waitForPlugins(
+export function isPluginPathAvailable(path) {
+  const parts = path.split(".");
+  let obj = window;
+
+  for (const part of parts) {
+    if (obj && typeof obj === "object" && part in obj) {
+      obj = obj[part];
+    } else {
+      return false;
+    }
+  }
+
+  // If we are checking for a function, let's ensure it's a function
+  if (path.includes("generateStream")) {
+    return typeof obj === "function";
+  }
+
+  return true;
+}
+
+export async function waitForPlugins(
   requiredPluginPaths,
   timeout = PLUGIN_WAIT_TIMEOUT_MS,
   retryCount = 0,
@@ -1744,24 +1767,7 @@ async function waitForPlugins(
   );
 
   while (Date.now() - startTime < timeout) {
-    const allAvailable = requiredPluginPaths.every((path) => {
-      const parts = path.split(".");
-      let obj = window;
-      for (const part of parts) {
-        if (obj && typeof obj === "object" && part in obj) {
-          obj = obj[part];
-        } else {
-          return false;
-        }
-      }
-      // If we are checking for a function, let's ensure it's a function
-      if (path.includes("generateStream")) {
-        return typeof obj === "function";
-      }
-      return true;
-    });
-
-    if (allAvailable) {
+    if (requiredPluginPaths.every(isPluginPathAvailable)) {
       log("[RPGlitch] All plugins loaded successfully:", requiredPluginPaths);
       return true;
     }
@@ -1785,19 +1791,10 @@ async function waitForPlugins(
     );
   }
 
-  const available = requiredPluginPaths.filter((path) => {
-    const parts = path.split(".");
-    let obj = window;
-    for (const part of parts) {
-      if (obj && typeof obj === "object" && part in obj) {
-        obj = obj[part];
-      } else {
-        return false;
-      }
-    }
-    return true;
-  });
-  const missing = requiredPluginPaths.filter((path) => !available.includes(path));
+  const available = requiredPluginPaths.filter(isPluginPathAvailable);
+  const missing = requiredPluginPaths.filter(
+    (path) => !isPluginPathAvailable(path)
+  );
   log(
     `[RPGlitch] Plugin timeout after a total of ${
       (retryCount + 1) * PLUGIN_WAIT_TIMEOUT_MS
