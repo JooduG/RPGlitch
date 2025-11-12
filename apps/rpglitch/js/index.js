@@ -14,7 +14,7 @@ import {
   installUIRecoveryHooks,
   installUIBlockerAttributeObserver,
   applySignature,
-  setSelected,
+  setChosen,
   handleAsyncError,
   chin,
   isHtmlErrorPage,
@@ -62,7 +62,7 @@ const App = {
       promptPreviewOpen: false,
       lastError: null,
       title: "RPGlitch",
-      selectedStoryboardCard: null,
+      chosenStoryboardCard: null,
     },
   },
 
@@ -294,7 +294,7 @@ const App = {
         const storyId = App.story.requireActive();
         await db.messages.add({
           storyId,
-          role: "user",
+          role: "director",
           text: userText,
           createdAt: Date.now(),
         });
@@ -380,11 +380,11 @@ const App = {
     _appendAssistantToken: (storyId, token) => {
       let messages = App.state.messages.byStoryId[storyId] || [];
       let lastMessage = messages[messages.length - 1];
-      if (!lastMessage || lastMessage.role !== "assistant") {
+      if (!lastMessage || lastMessage.role !== "narrator") {
         lastMessage = {
           id: Date.now(),
           storyId,
-          role: "assistant",
+          role: "narrator",
           text: "",
           createdAt: Date.now(),
         };
@@ -400,15 +400,15 @@ const App = {
         const messages = App.state.messages.byStoryId[storyId] || [];
         const lastMessage = messages[messages.length - 1];
 
-        if (!lastMessage || lastMessage.role !== "assistant") {
-          error("No assistant message to finalize");
+        if (!lastMessage || lastMessage.role !== "narrator") {
+          error("No narrator message to finalize");
           return;
         }
 
-        // Save the completed assistant message to database
+        // Save the completed narrator message to database
         await db.messages.add({
           storyId,
-          role: "assistant",
+          role: "narrator",
           text: lastMessage.text,
           createdAt: lastMessage.createdAt || Date.now(),
         });
@@ -416,9 +416,9 @@ const App = {
         // Update story's updatedAt timestamp
         await db.stories.update(storyId, { updatedAt: Date.now() });
 
-        log(`Finalized and saved assistant message for story ${storyId}`);
+        log(`Finalized and saved narrator message for story ${storyId}`);
       } catch (err) {
-        error("Failed to save assistant message:", err);
+        error("Failed to save narrator message:", err);
         // Don't throw - UI should still show the message even if save fails
       }
     },
@@ -502,9 +502,9 @@ export function _getUIElements() {
 // Migrated from localStorage to IndexedDB
 async function saveStoryboardSelection() {
   const selects = {
-    ai: document.querySelector("#storyboard-ai-select")?.value,
-    user: document.querySelector("#storyboard-user-select")?.value,
-    world: document.querySelector("#storyboard-world-select")?.value,
+    narrator: document.querySelector("#storyboard-card-narrator-select")?.value,
+    user: document.querySelector("#storyboard-card-user-select")?.value,
+    world: document.querySelector("#storyboard-card-world-select")?.value
   };
   try {
     // Get existing settings or create new one
@@ -776,7 +776,7 @@ export function _attachCardNavigation() {
       if (e.target.closest("button, a, input, select, textarea")) return;
       const card = e.target.closest(".chin-card[data-type][data-id]");
       if (!card) return;
-      setSelected?.(
+      setChosen?.(
         card,
         container.querySelectorAll(".chin-card[data-type][data-id]")
       );
@@ -821,26 +821,26 @@ export function _attachCardNavigation() {
       if (!card) return;
       const select = card.querySelector("select");
       const all = storyboard.querySelectorAll(".storyboard-card");
-      setSelected(card, all);
+      setChosen(card, all);
       const type = card.dataset.entityType || card.dataset.type;
       const id = card.dataset.entityId || select?.value || "";
 
       // Update App.state and persist selection
       if (type && id) {
         try {
-          App.applyPatch({ ui: { selectedStoryboardCard: { type, id } } });
+          App.applyPatch({ ui: { chosenStoryboardCard: { type, id } } });
           // Deselect all other entities of the same type
           await db.entities
-            .where({ type: type, isSelected: true })
-            .modify({ isSelected: false });
+            .where({ type: type, isChosen: true })
+            .modify({ isChosen: false });
           // Select the current entity
-          await db.entities.update(id, { isSelected: true });
+          await db.entities.update(id, { isChosen: true });
         } catch (err) {
           error("Failed to update selection:", err);
           // Don't show alert for selection errors - not critical to user workflow
         }
       } else {
-        App.applyPatch({ ui: { selectedStoryboardCard: null } });
+        App.applyPatch({ ui: { chosenStoryboardCard: null } });
       }
 
       if (!id && select) {
@@ -1170,11 +1170,11 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     select.value = String(entity.id);
   }
 
-  const isSelected =
-    App.state.ui.selectedStoryboardCard &&
-    App.state.ui.selectedStoryboardCard.id === entity.id &&
-    App.state.ui.selectedStoryboardCard.type === entity.type;
-  card.classList.toggle("selected", isSelected);
+  const isChosen =
+    App.state.ui.chosenStoryboardCard &&
+    App.state.ui.chosenStoryboardCard.id === entity.id &&
+    App.state.ui.chosenStoryboardCard.type === entity.type;
+  card.classList.toggle("chosen", isChosen);
 }
 
 /**
@@ -1198,7 +1198,7 @@ function _clearCard(card, elements, templates) {
     media?.style?.removeProperty("--brand");
   }
   if (footer) footer.querySelectorAll(".chip").forEach((n) => n.remove());
-  card.classList.remove("selected");
+  card.classList.remove("chosen");
   delete card.dataset.entityType;
   delete card.dataset.entityId;
   const select = card.querySelector("select");
@@ -1248,14 +1248,14 @@ export async function _defaultStoryboardTitle() {
     return item ? item.name || null : null;
   };
   // Await all title parts in parallel
-  const [ai, user, world] = await Promise.all([
+  const [narrator, user, world] = await Promise.all([
     // <-- AWAITED
-    getTitle("storyboard-card-ai-select", "characters"),
+    getTitle("storyboard-card-narrator-select", "characters"),
     getTitle("storyboard-card-user-select", "characters"),
     getTitle("storyboard-card-world-select", "worlds"),
   ]);
 
-  const subjects = [ai, user].filter(Boolean).join(" & ");
+  const subjects = [narrator, user].filter(Boolean).join(" & ");
   let title;
   if (subjects && world) {
     title = `${randPrompt()} ${subjects} in ${world}`;
@@ -1336,9 +1336,9 @@ async function populateStoryboardSelects() {
   const selections = await loadStoryboardSelection();
   const configs = [
     {
-      id: "storyboard-card-ai-select",
+      id: "storyboard-card-narrator-select",
       key: "characters",
-      savedValue: selections.ai,
+      savedValue: selections.narrator,
     },
     {
       id: "storyboard-card-user-select",
@@ -1420,7 +1420,7 @@ export async function _attachStoryboardListeners() {
       // <-- async
 
       [
-        "storyboard-card-ai-select",
+        "storyboard-card-narrator-select",
         "storyboard-card-user-select",
         "storyboard-card-world-select",
       ].forEach((id) => {
@@ -1440,7 +1440,7 @@ export async function _attachStoryboardListeners() {
   }
 
   const storyboardScreen = document.querySelector("#storyboard-screen");
-  const storyScreenContainer = document.querySelector("#story-screen-container");
+  const stageContainer = document.querySelector("#stage-container");
 
   const renderCharacterPicture = (displayElement, character) => {
     if (displayElement && character) {
@@ -1455,18 +1455,18 @@ export async function _attachStoryboardListeners() {
   };
 
   async function beginStory() {
-    const aiSelect = document.querySelector("#storyboard-card-ai-select");
+    const narratorSelect = document.querySelector("#storyboard-card-narrator-select");
     const userSelect = document.querySelector("#storyboard-card-user-select");
     const worldSelect = document.querySelector("#storyboard-card-world-select");
 
-    if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
+    if (narratorSelect?.value && userSelect?.value && worldSelect?.value) {
       const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
       const storyTitle = storyTitleEl?.textContent || "default-story";
-      const characterId = aiSelect.value;
+      const characterId = narratorSelect.value;
       const worldId = worldSelect.value;
       const userId = userSelect.value;
 
-      const [aiChar, userChar] = await Promise.all([
+      const [narratorChar, userChar] = await Promise.all([
         entities.get("character", characterId),
         entities.get("character", userId),
       ]);
@@ -1474,12 +1474,12 @@ export async function _attachStoryboardListeners() {
       const userCharacterDisplay = document.querySelector(
         "#user-character-display"
       );
-      const aiCharacterDisplay = document.querySelector(
-        "#ai-character-display"
+      const narratorCharacterDisplay = document.querySelector(
+        "#narrator-character-display"
       );
 
       renderCharacterPicture(userCharacterDisplay, userChar);
-      renderCharacterPicture(aiCharacterDisplay, aiChar);
+      renderCharacterPicture(narratorCharacterDisplay, narratorChar);
 
       const storyId = await App.story.createFromSelection({
         storyTitle,
@@ -1488,13 +1488,13 @@ export async function _attachStoryboardListeners() {
       });
 
       if (storyboardScreen) storyboardScreen.hidden = true;
-      if (storyScreenContainer) storyScreenContainer.hidden = false;
+      if (stageContainer) stageContainer.hidden = false;
 
       App.applyPatch({ ui: { fsm: "idle" } });
       await App.story.render(storyId);
     } else {
       alert(
-        "Please select an AI character, your own character, and a world to begin the story."
+        "Please select a Narrator character, your own character, and a world to begin the story."
       );
     }
   }
@@ -1967,17 +1967,17 @@ export async function initializeWhenReady() {
       });
     }
 
-    // Load selected storyboard card from DB
-    const selectedEntity = await db.entities
-      .where("isSelected")
+    // Load chosen storyboard card from DB
+    const chosenEntity = await db.entities
+      .where("isChosen")
       .equals(true)
       .first();
-    if (selectedEntity) {
+    if (chosenEntity) {
       App.applyPatch({
         ui: {
-          selectedStoryboardCard: {
-            type: selectedEntity.type,
-            id: selectedEntity.id,
+          chosenStoryboardCard: {
+            type: chosenEntity.type,
+            id: chosenEntity.id,
           },
         },
       });
