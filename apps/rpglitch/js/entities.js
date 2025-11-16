@@ -2,6 +2,10 @@
 import { db } from "./db.js"; // <-- Import our database
 import { log, error as warn } from "./utils.js";
 
+// --- MODULE-LEVEL CACHE ---
+// Cache the default placeholder template to avoid repeated DOM queries.
+const defaultIconTemplate = document.querySelector("#tpl-placeholder-icon-default");
+
 // --- PREMADE CONTENT (Unchanged) ---
 const premade = {
   stories: [],
@@ -208,10 +212,10 @@ export function getPictureHTML(entity = {}, options = {}) {
   log(`getPictureHTML: Looking for template ID: ${iconTemplateId}`);
   let iconTemplate = document.querySelector(`#${iconTemplateId}`);
 
-  // If the specific template is not found, fall back to the default
+  // If the specific template is not found, fall back to the cached default template
   if (!iconTemplate) {
     log(`getPictureHTML: Specific template not found, falling back to default.`);
-    iconTemplate = document.querySelector("#tpl-placeholder-icon-default");
+    iconTemplate = defaultIconTemplate;
   }
 
   // Now, use the selected template (either specific or default)
