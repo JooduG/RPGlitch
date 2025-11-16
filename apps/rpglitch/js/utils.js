@@ -1,19 +1,13 @@
 import { entities } from "./entities.js";
 import { db } from "./db.js";
+import { SIGNATURE_COLORS } from "./validation.js";
 /* Utility helpers for RPGlitch
  * Safe storage, DOM helpers, chin management
  */
 
-// Signature Color constants
+// Re-export SIGNATURE_COLORS as BASE_COLOUR_MAP for backward compatibility
 // These must match the Signature Color options in entity-form.js and _variables.scss
-export const BASE_COLOUR_MAP = {
-  pink: "#ec4899", 
-  emerald: "#10b981", 
-  cyan: "#06b6d4", 
-  orange: "#f97316", 
-  purple: "#a855f7", 
-  default: "#777", 
-};
+export const BASE_COLOUR_MAP = SIGNATURE_COLORS;
 
 // UI Timing Constants
 export const AUTO_UNLOCK_DELAYS_MS = [0, 50, 200];
@@ -832,32 +826,7 @@ export function installUIBlockerAttributeObserver() {
   }
 }
 
-// This is the applySignature function. It correctly
-// removes all classes, then adds the one we want. This fixes
-// the "randomly working" bug.
-export function applySignature(container, entity) {
-  if (!container) return;
-
-  // Remove all possible signature classes first
-  container.classList.remove(
-    "signature-pink",
-    "signature-emerald",
-    "signature-cyan",
-    "signature-orange",
-    "signature-purple"
-  );
-
-  // 1. If a signature colour exists AND it's not "default", add the specific class.
-  // 2. If it's "default" or missing, we add NO class, and the base CSS takes over.
-  if (
-    entity &&
-    entity.signatureColour &&
-    entity.signatureColour !== "default"
-  ) {
-    container.classList.add(`signature-${entity.signatureColour}`);
-  }
-}
-// --- [END SIGNATURE COLOUR FIX] ---
+// Signature color application is now handled by getPictureHTML via CSS custom properties
 
 // ---------- Selection helper ----------
 export function setChosen(el, all) {
@@ -940,33 +909,7 @@ export function renderTags(container, entity, options = {}) {
   container.appendChild(wrap);
 }
 
-export function buildHero(entity, options = {}) {
-  const wrap = document.createElement("div");
-  wrap.className = "hero-wrap";
-  const pic = getPictureHTML
-    ? getPictureHTML(entity, {
-        cover: true,
-      })
-    : null;
-  if (pic) {
-    pic.classList?.add("hero-bleed");
-
-    // Signature Colour implementation for placeholder
-    const placeholder = pic.querySelector(".placeholder-image");
-    if (
-      placeholder &&
-      entity.signatureColour &&
-      entity.signatureColour !== "default"
-    ) {
-      placeholder.style.backgroundColor =
-        BASE_COLOUR_MAP[entity.signatureColour];
-    }
-
-    wrap.appendChild(pic);
-  }
-  renderTags(wrap, entity, options);
-  return wrap;
-}
+// buildHero removed - use getPictureHTML directly with cover:true option
 
 // ---------- Navigation shims ----------
 export function navigateBackOrReturnDefault(returnTo = "#storyboard", router) {
