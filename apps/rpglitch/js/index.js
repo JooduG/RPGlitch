@@ -1733,8 +1733,11 @@ export async function _attachStoryboardListeners() {
         userId,
       });
 
+      const newStory = await db.stories.get(storyId);
+      App.applyPatch({ story: { byId: { [storyId]: newStory } } });
+
       const story = {
-        ...App.state.story.byId[storyId],
+        ...newStory,
         messages: App.state.messages.byStoryId[storyId] || [],
       };
 
