@@ -3,7 +3,7 @@
 // --- [FIX 1: IMPORT BLOCK] ---
 // Added all the missing functions that were causing 'no-undef' errors.
 import { entities, getPictureHTML } from "./entities.js";
-import { initViews, router } from "./views.js";
+import { initViews, router, renderStoryScreen, renderMessage } from "./views.js";
 import { db } from "./db.js";
 import {
   log,
@@ -402,21 +402,31 @@ ${characterName}: Careful what you touch. Some items here... bite.
       }
     },
 
-    createFromSelection: async ({ storyTitle, characterId, worldId }) => {
+    createFromSelection: async ({ storyTitle, characterId, worldId, userId }) => {
       try {
         const ch = Object.values(App.state.characters.byId).find(
           (c) => c.id === characterId && c.type === "character"
         );
         const title = storyTitle || `${ch?.name || "Character"} × Story`;
-        const storyId = await db.stories.add({
+        const newStory = {
           characterId,
+          worldId,
+          userId,
           title,
           settingsSnapshot: { ...App.state.settings },
           createdAt: Date.now(),
           updatedAt: Date.now(),
-        });
+        };
+        const storyId = await db.stories.add(newStory);
+        newStory.id = storyId;
 
-        App.applyPatch({ story: { activeId: storyId }, ui: { title } });
+        App.applyPatch({
+          story: {
+            activeId: storyId,
+            byId: { [storyId]: newStory }
+          },
+          ui: { title }
+        });
         return storyId;
       } catch (err) {
         error("Failed to create story:", err);
@@ -452,53 +462,23 @@ ${characterName}: Careful what you touch. Some items here... bite.
 
     render: async (storyId) => {
       const storyFeed = document.querySelector("#story-feed");
-      const noMessagesEl = document.querySelector("#no-messages");
-      if (!storyFeed || !noMessagesEl) return;
+      if (!storyFeed) return;
 
-      // Clear existing messages using DOM API
-      while (storyFeed.firstChild) {
-        storyFeed.removeChild(storyFeed.firstChild);
-      }
+      // Clear existing messages
+      storyFeed.innerHTML = '';
 
       const messages = App.state.messages.byStoryId[storyId] || [];
+      const noMessagesEl = document.querySelector("#no-messages");
+
       if (messages.length === 0) {
-        noMessagesEl.hidden = false;
+        if(noMessagesEl) noMessagesEl.hidden = false;
         return;
       }
 
-      noMessagesEl.hidden = true;
-      messages.forEach((msg) => {
+      if(noMessagesEl) noMessagesEl.hidden = true;
 
-        const messageEl = document.createElement("div");
-        messageEl.classList.add("story-message", `${msg.role}-message`);
-
-        // Map database role to presentation role for CSS
-        const presentationRole = msg.role === "user" ? "director" : "narrator";
-        messageEl.setAttribute("role", presentationRole);
-
-        // Set message type (IC or OOC)
-        const messageType = msg.type || "IC"; // Default to IC for old messages
-        messageEl.setAttribute("data-type", messageType);
-
-        // Add character name for IC messages
-        if (messageType === "IC" && msg.characterName) {
-          messageEl.setAttribute("data-character-name", msg.characterName);
-        }
-
-        // For OOC director messages, add special icon styling
-        if (msg.role === "user" && messageType === "OOC") {
-          messageEl.classList.add("director-command");
-        }
-
-        // For OOC narrator messages, add "Narrator:" prefix if not already present
-        if (msg.role === "narrator" && messageType === "OOC") {
-          messageEl.textContent = msg.text;
-        } else {
-          // IC messages: text only (character name shown via CSS ::before)
-          messageEl.textContent = msg.text;
-        }
-
-        storyFeed.appendChild(messageEl);
+      messages.forEach(msg => {
+        renderMessage(storyFeed, msg.role, msg.text, msg.characterName, msg.type);
       });
 
       storyFeed.scrollTop = storyFeed.scrollHeight;
@@ -1756,27 +1736,22 @@ export async function _attachStoryboardListeners() {
         entities.get("character", userId),
       ]);
 
-      const userCharacterDisplay = document.querySelector(
-        "#user-character-display"
-      );
-      const narratorCharacterDisplay = document.querySelector(
-        "#narrator-character-display"
-      );
-
-      renderCharacterPicture(userCharacterDisplay, userChar);
-      renderCharacterPicture(narratorCharacterDisplay, narratorChar);
-
       const storyId = await App.story.createFromSelection({
         storyTitle,
         characterId,
         worldId,
+        userId,
       });
 
-      if (storyboardScreen) storyboardScreen.hidden = true;
-      if (stageContainer) stageContainer.hidden = false;
+      const story = {
+        ...App.state.story.byId[storyId],
+        messages: App.state.messages.byStoryId[storyId] || [],
+      };
+
+      await renderStoryScreen(story, narratorChar, userChar);
+      router.navigate("#story");
 
       App.applyPatch({ ui: { fsm: "idle" } });
-      await App.story.render(storyId);
     } else {
       alert(
         "Please select a Narrator character, your own character, and a world to begin the story."
@@ -2025,7 +2000,7 @@ export function _attachStoryFormListener() {
   const storyForm = document.querySelector("#story-form");
   if (storyForm && !storyForm._submitListenerAttached) {
     const input = storyForm.querySelector('input[name="message"]');
-    const submitButton = storyForm.querySelector('input[type="submit"]');
+    const submitButton = storyForm.querySelector('button[type="submit"]');
     const storyFeed = document.querySelector("#story-feed");
 
     if (!input || !submitButton || !storyFeed) {
@@ -2038,14 +2013,18 @@ export function _attachStoryFormListener() {
     });
 
     storyForm.addEventListener("submit", async (e) => {
-      // <-- MADE ASYNC
       e.preventDefault();
       const message = input.value.trim();
       if (message) {
-        await App.story.send(message); // Call App.story.send to process the message
+        // Render the user's message immediately
+        const userCharacter = await entities.get("character", App.state.story.byId[App.state.story.activeId].userId);
+        const storyFeed = document.querySelector("#story-feed");
+        renderMessage(storyFeed, "user", message, userCharacter?.name || "You", "IC");
+
+        // Disable input and send to AI
         input.value = "";
         submitButton.disabled = true;
-        storyFeed.scrollTop = storyFeed.scrollHeight;
+        await App.story.send(message);
       }
     });
     storyForm._submitListenerAttached = true;

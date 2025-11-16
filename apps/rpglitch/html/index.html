@@ -432,51 +432,46 @@
       </div>
 
       <!-- Story Screen -->
-      <div id="stage-container" hidden>
-        <div class="profile-layout">
-          <!-- Character Display Areas -->
-          <div id="user-character-display"></div>
-          <!-- Story Wrapper -->
-          <div id="story-wrapper">
-            <!-- Story Feed -->
-            <div
-              id="story-feed"
-              role="log"
-              aria-live="polite"
-              aria-relevant="additions text"></div>
-
-            <!-- Status Elements -->
-            <div id="story-concluded">Story concluded</div>
-            <div id="no-messages">No messages yet</div>
-            <div
-              id="status-notifier"
-              role="status"
-              aria-live="polite"
-              aria-atomic="true"></div>
-            <div
-              id="typing-indicator"
-              role="status"
-              aria-live="polite"
-              aria-atomic="true"></div>
-            <button id="conclude-story">Conclude Story</button>
+      <div id="story-screen" hidden>
+        <div class="story-grid">
+          <!-- Left Character Column -->
+          <div id="story-left-character" class="story-side-column">
+            <div class="character-image"></div>
+            <div class="character-name-overlay">
+              <h2 id="left-character-name"></h2>
+            </div>
           </div>
-          <div id="narrator-character-display"></div>
-        </div>
 
-        <!-- Input Area -->
-        <footer>
-          <form id="story-form">
-            <fieldset role="group">
-              <input
-                type="text"
-                name="message"
-                placeholder="Type your message..."
-                aria-label="Message"
-                autocomplete="off" />
-              <input type="submit" value="Send" disabled />
-            </fieldset>
-          </form>
-        </footer>
+          <!-- Center Chat Column -->
+          <main id="story-center-chat" class="story-main-column">
+            <div id="story-feed" role="log" aria-live="polite">
+              <div id="no-messages" hidden>No messages yet</div>
+              <!-- Status Elements -->
+              <div id="typing-indicator" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+              <div class="story-actions" hidden>
+                <button id="conclude-story">Conclude Story</button>
+              </div>
+            </div>
+            <div id="story-input-area">
+                <div id="story-concluded" hidden>Story concluded</div>
+                <div id="status-notifier" role="status" aria-live="polite" aria-atomic="true"></div>
+              <form id="story-form">
+                <fieldset role="group">
+                  <input type="text" name="message" placeholder="Type your message..." aria-label="Message" autocomplete="off" />
+                  <button type="submit" disabled>Send<span class="material-icons">send</span></button>
+                </fieldset>
+              </form>
+            </div>
+          </main>
+
+          <!-- Right Character Column -->
+          <div id="story-right-character" class="story-side-column">
+            <div class="character-image"></div>
+            <div class="character-name-overlay">
+              <h2 id="right-character-name"></h2>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Profile Screen -->

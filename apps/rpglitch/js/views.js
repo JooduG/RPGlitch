@@ -35,9 +35,20 @@ export function initViews(dependencies) {
 
 function showStoryboard() {
   document.body.classList.remove("profile-view-active");
+  document.body.classList.remove("story-active");
   setTopBarRight?.("storyboard");
   showEl("#storyboard-screen");
   hideEl("#profile-screen");
+  hideEl("#story-screen");
+}
+
+function showStoryScreen() {
+  document.body.classList.remove("profile-view-active");
+  document.body.classList.add("story-active");
+  hideEl("#top-bar"); // Hide top bar explicitly
+  hideEl("#storyboard-screen");
+  hideEl("#profile-screen");
+  showEl("#story-screen");
 }
 
 function parseHash() {
@@ -73,6 +84,8 @@ function handleRoute() {
     } catch (e) {
       void e;
     }
+  } else if (section === "story") {
+    showStoryScreen();
   } else {
     setTopBarRight?.("storyboard");
     showStoryboard();
@@ -383,6 +396,95 @@ function _isValidImageUrl(url, allowDataUrls = true) {
   } catch (error) {
     // URL constructor throws on invalid URLs
     return false;
+  }
+}
+
+export async function renderStoryScreen(story, aiCharacter, userCharacter) {
+  const leftColumn = document.querySelector("#story-left-character");
+  const rightColumn = document.querySelector("#story-right-character");
+  const leftName = document.querySelector("#left-character-name");
+  const rightName = document.querySelector("#right-character-name");
+  const storyFeed = document.querySelector("#story-feed");
+
+  if (!leftColumn || !rightColumn || !leftName || !rightName || !storyFeed) {
+    error("Story screen elements not found.");
+    return;
+  }
+
+  const leftImage = leftColumn.querySelector(".character-image");
+  const rightImage = rightColumn.querySelector(".character-image");
+
+  if (!leftImage || !rightImage) {
+    error("Character image elements not found.");
+    return;
+  }
+
+  // Clear previous story content
+  storyFeed.replaceChildren();
+
+  if (aiCharacter) {
+    leftName.textContent = aiCharacter.name;
+    if (aiCharacter.imageUrl && _isValidImageUrl(aiCharacter.imageUrl)) {
+      leftImage.style.backgroundImage = `url("${aiCharacter.imageUrl.replace(/"/g, '\\"')}")`;
+    }
+    applySignature(leftColumn, aiCharacter);
+  }
+
+  if (userCharacter) {
+    rightName.textContent = userCharacter.name;
+    if (userCharacter.imageUrl && _isValidImageUrl(userCharacter.imageUrl)) {
+      rightImage.style.backgroundImage = `url("${userCharacter.imageUrl.replace(/"/g, '\\"')}")`;
+    }
+    applySignature(rightColumn, userCharacter);
+  }
+
+  if (story && story.messages) {
+    for (const message of story.messages) {
+      renderMessage(storyFeed, message.role, message.text, message.characterName, message.type, { autoScroll: false });
+    }
+    storyFeed.scrollTop = storyFeed.scrollHeight;
+  }
+}
+
+export function renderMessage(feed, speaker, message, characterName, messageType = "IC", { autoScroll = true } = {}) {
+  if (!feed) return;
+
+  const messageWrapper = document.createElement("div");
+  messageWrapper.classList.add("story-message");
+
+  // Determine speaker class and apply signature color
+  if (speaker === "user") {
+    messageWrapper.classList.add("user");
+    // User character signature color is applied via a class on a parent element,
+    // which will be handled in the main story rendering logic.
+  } else {
+    messageWrapper.classList.add("ai");
+    // AI character signature color can be applied here if we pass the character object
+  }
+
+  // Add message type and character name for styling hooks
+  messageWrapper.dataset.type = messageType;
+  if (characterName) {
+    messageWrapper.dataset.characterName = characterName;
+  }
+
+  // Set the text content safely
+  const sanitizedMessage = window.DOMPurify ? DOMPurify.sanitize(message) : message;
+
+  if (messageType === "OOC" && speaker !== "user") {
+    const narratorSpan = document.createElement("span");
+    narratorSpan.className = "narrator-prefix";
+    narratorSpan.textContent = "Narrator: ";
+    messageWrapper.appendChild(narratorSpan);
+    messageWrapper.insertAdjacentHTML('beforeend', sanitizedMessage);
+  } else {
+    messageWrapper.innerHTML = sanitizedMessage;
+  }
+
+
+  feed.appendChild(messageWrapper);
+  if (autoScroll) {
+    feed.scrollTop = feed.scrollHeight; // Auto-scroll to bottom
   }
 }
 

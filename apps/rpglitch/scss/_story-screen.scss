@@ -1,0 +1,128 @@
+@use "foundation";
+
+body.story-active {
+  overflow: hidden; // Prevents scrolling the entire page
+  padding: 0;
+  margin: 0;
+
+  > .top-bar {
+    display: none; // Hide the top bar
+  }
+}
+
+.story-grid {
+  display: grid;
+  grid-template-columns: 25vw 50vw 25vw;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
+.story-side-column {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+
+  .character-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .character-name-overlay {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--pico-border-radius);
+    h2 {
+      margin: 0;
+      font-size: 2rem;
+    }
+  }
+
+  &#story-right-character .character-name-overlay {
+    left: auto;
+    right: 2rem;
+    text-align: right;
+  }
+}
+
+.story-main-column {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--pico-card-background-color);
+  border-left: 1px solid var(--pico-muted-border-color);
+  border-right: 1px solid var(--pico-muted-border-color);
+}
+
+#story-feed {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  @include foundation.custom-scrollbar;
+}
+
+#story-input-area {
+  padding: 1rem;
+  border-top: 1px solid var(--pico-muted-border-color);
+  background-color: var(--pico-background-color);
+
+  form {
+    margin: 0;
+  }
+
+  fieldset[role="group"] {
+    margin: 0;
+  }
+}
+
+.story-message {
+  padding: 1rem 1.5rem;
+  border-radius: var(--pico-border-radius);
+  max-width: 80%;
+  word-wrap: break-word;
+
+  &.narrator, &.ai {
+    background-color: var(--pico-muted-background-color);
+    align-self: flex-start;
+  }
+
+  &.user {
+    background-color: var(--pico-primary-background);
+    color: var(--pico-primary-inverse);
+    align-self: flex-end;
+  }
+
+  &[data-type="OOC"] {
+    font-style: italic;
+    background-color: var(--pico-secondary-background);
+    color: var(--pico-secondary-inverse);
+    align-self: center;
+    max-width: 90%;
+  }
+
+  .narrator-prefix {
+    font-weight: bold;
+    color: var(--pico-primary);
+  }
+}
+
+@media (max-width: 768px) {
+  .story-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .story-side-column {
+    display: none; // Hide side columns on mobile
+  }
+}
