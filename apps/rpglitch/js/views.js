@@ -35,9 +35,20 @@ export function initViews(dependencies) {
 
 function showStoryboard() {
   document.body.classList.remove("profile-view-active");
+  document.body.classList.remove("story-active");
   setTopBarRight?.("storyboard");
   showEl("#storyboard-screen");
   hideEl("#profile-screen");
+  hideEl("#story-screen");
+}
+
+function showStoryScreen() {
+  document.body.classList.remove("profile-view-active");
+  document.body.classList.add("story-active");
+  hideEl("#top-bar"); // Hide top bar explicitly
+  hideEl("#storyboard-screen");
+  hideEl("#profile-screen");
+  showEl("#story-screen");
 }
 
 function parseHash() {
@@ -73,6 +84,8 @@ function handleRoute() {
     } catch (e) {
       void e;
     }
+  } else if (section === "story") {
+    showStoryScreen();
   } else {
     setTopBarRight?.("storyboard");
     showStoryboard();
@@ -384,6 +397,74 @@ function _isValidImageUrl(url, allowDataUrls = true) {
     // URL constructor throws on invalid URLs
     return false;
   }
+}
+
+export async function renderStoryScreen(story, aiCharacter, userCharacter) {
+  const leftColumn = document.querySelector("#story-left-character");
+  const rightColumn = document.querySelector("#story-right-character");
+  const leftName = document.querySelector("#left-character-name");
+  const rightName = document.querySelector("#right-character-name");
+  const leftImage = leftColumn.querySelector(".character-image");
+  const rightImage = rightColumn.querySelector(".character-image");
+  const storyFeed = document.querySelector("#story-feed");
+
+  // Clear previous story content
+  storyFeed.innerHTML = "";
+
+  if (aiCharacter) {
+    leftName.textContent = aiCharacter.name;
+    leftImage.style.backgroundImage = `url('${aiCharacter.imageUrl || ""}')`;
+    applySignature(leftColumn, aiCharacter);
+  }
+
+  if (userCharacter) {
+    rightName.textContent = userCharacter.name;
+    rightImage.style.backgroundImage = `url('${userCharacter.imageUrl || ""}')`;
+    applySignature(rightColumn, userCharacter);
+  }
+
+  if (story && story.messages) {
+    for (const message of story.messages) {
+      renderMessage(message.role, message.text, message.characterName, message.type);
+    }
+  }
+}
+
+export function renderMessage(speaker, message, characterName, messageType = "IC") {
+  const feed = document.querySelector("#story-feed");
+  if (!feed) return;
+
+  const messageWrapper = document.createElement("div");
+  messageWrapper.classList.add("story-message");
+
+  // Determine speaker class and apply signature color
+  if (speaker === "user") {
+    messageWrapper.classList.add("user");
+    // User character signature color is applied via a class on a parent element,
+    // which will be handled in the main story rendering logic.
+  } else {
+    messageWrapper.classList.add("ai");
+    // AI character signature color can be applied here if we pass the character object
+  }
+
+  // Add message type and character name for styling hooks
+  messageWrapper.dataset.type = messageType;
+  if (characterName) {
+    messageWrapper.dataset.characterName = characterName;
+  }
+
+  // Set the text content
+  const sanitizedMessage = DOMPurify.sanitize(message);
+
+  if(messageType === "OOC" && speaker !== "user") {
+      messageWrapper.innerHTML = `<span class="narrator-prefix">Narrator:</span> ${sanitizedMessage}`;
+  } else {
+      messageWrapper.textContent = sanitizedMessage;
+  }
+
+
+  feed.appendChild(messageWrapper);
+  feed.scrollTop = feed.scrollHeight; // Auto-scroll to bottom
 }
 
 export async function renderProfilePage(type, id) {
