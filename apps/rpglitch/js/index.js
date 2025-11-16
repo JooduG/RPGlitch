@@ -478,7 +478,7 @@ ${characterName}: Careful what you touch. Some items here... bite.
       if(noMessagesEl) noMessagesEl.hidden = true;
 
       messages.forEach(msg => {
-        renderMessage(msg.role, msg.text, msg.characterName, msg.type);
+        renderMessage(storyFeed, msg.role, msg.text, msg.characterName, msg.type);
       });
 
       storyFeed.scrollTop = storyFeed.scrollHeight;
