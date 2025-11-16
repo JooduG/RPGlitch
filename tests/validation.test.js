@@ -15,11 +15,15 @@ import {
 // Mock DOMPurify for sanitizeHtml tests
 global.DOMPurify = {
   sanitize: (input) => {
-    // Simple XSS removal for testing
-    return input
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/on\w+="[^"]*"/gi, '')
-      .replace(/on\w+='[^']*'/gi, '');
+    if (typeof input !== 'string') return String(input ?? '');
+    let sanitized = input;
+    // Remove script tags
+    sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    // Remove inline event handlers
+    sanitized = sanitized.replace(/on\w+=\"[^\"]*\"/gi, '');
+    sanitized = sanitized.replace(/on\w+=\'[^\']*\'/gi, '');
+    sanitized = sanitized.replace(/on\w+=[^\s>]+/gi, '');
+    return sanitized;
   },
 };
 

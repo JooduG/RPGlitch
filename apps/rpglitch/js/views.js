@@ -435,7 +435,6 @@ export async function renderProfilePage(type, id) {
   const layout = template.content.firstElementChild.cloneNode(true);
 
   // Query for elements within the cloned template
-  const leftCol = layout.querySelector(".profile-left");
   const heroWrap = layout.querySelector(".hero-wrap");
   const imageOverlay = layout.querySelector(".profile-hero-overlay");
   imageInput = imageOverlay.querySelector('[data-profile-field="profilePictureUrl"]');

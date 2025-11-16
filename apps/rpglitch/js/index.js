@@ -1601,19 +1601,6 @@ async function onStoryboardChange(e) {
   if (typeof _suppressNextBlur !== "undefined") {
     _suppressNextBlur = false;
   }
-
-  try {
-    const card = select.closest(".storyboard-card");
-    const left = card?.querySelector(".storyboard-card-left");
-    const type = card?.dataset?.type || "";
-    const id = select.value || "";
-    if (type && id && typeof entities.get === "function") {
-      const entity = await entities.get(type, id); // <-- AWAITED
-      // Signature color is handled by CSS custom properties in getPictureHTML
-    }
-  } catch {
-    /* noop */
-  }
 }
 
 export async function _attachStoryboardListeners() {

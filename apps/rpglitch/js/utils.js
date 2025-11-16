@@ -853,8 +853,6 @@ export function getHashQuery() {
   }
 }
 
-import { getPictureHTML } from "./entities.js";
-
 export function renderTags(container, entity, options = {}) {
   const { singleTag = false } = options;
 

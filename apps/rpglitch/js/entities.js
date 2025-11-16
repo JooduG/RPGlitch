@@ -1,6 +1,5 @@
-/* global DOMPurify */
 import { db } from "./db.js"; // <-- Import our database
-import { log, error as warn } from "./utils.js";
+import { error as warn } from "./utils.js";
 import { sanitizeHtml } from "./validation.js";
 
 // --- PREMADE CONTENT (Unchanged) ---
@@ -162,7 +161,7 @@ function getSignature(entity = {}) {
 }
 
 export function getPictureHTML(entity = {}, options = {}) {
-  const { cover, neutralPlaceholder = false, templates = {} } = options; // Accept templates parameter
+  const { cover, neutralPlaceholder = false } = options;
   const title = entity.name || "Empty";
   // Use 'type' directly, no 'kind' fallback
   const type = (entity.type || "default").toLowerCase();

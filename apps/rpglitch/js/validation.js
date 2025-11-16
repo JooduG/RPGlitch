@@ -152,7 +152,7 @@ export function extractImageUrl(result) {
     url = result.dataUrl;
   }
   // Format 3: upload plugin
-  else if (result?.url && typeof result.url === 'string') {
+  else if (result?.url) {
     url = String(result.url);
   }
   // Format 4: Legacy fallback - direct string (last resort)
@@ -247,6 +247,11 @@ export function getContrastColor(hexColor) {
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
   const b = parseInt(hex.substring(4, 6), 16);
+
+  // Check for invalid hex characters resulting in NaN
+  if (isNaN(r) || isNaN(g) || isNaN(b)) {
+    return '#000'; // Return default for invalid input
+  }
 
   // Calculate luminance using YIQ coefficients (common approximation)
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
