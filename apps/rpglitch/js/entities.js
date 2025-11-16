@@ -4,8 +4,10 @@ import { log, error as warn } from "./utils.js";
 
 // --- UTILITY ---
 // Safely query for the default icon template at runtime.
-const defaultIconTemplate = () =>
-  document.querySelector("#tpl-placeholder-icon-default");
+const defaultIconTemplate = (() => {
+  let node;
+  return () => node || (node = document.querySelector("#tpl-placeholder-icon-default"));
+})();
 
 // --- PREMADE CONTENT (Unchanged) ---
 const premade = {
