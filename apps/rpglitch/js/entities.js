@@ -4,7 +4,15 @@ import { log, error as warn } from "./utils.js";
 
 // --- MODULE-LEVEL CACHE ---
 // Cache the default placeholder template to avoid repeated DOM queries.
-const defaultIconTemplate = document.querySelector("#tpl-placeholder-icon-default");
+const defaultIconTemplate = {
+  _node: null,
+  get value() {
+    if (!this._node) {
+      this._node = document.querySelector("#tpl-placeholder-icon-default");
+    }
+    return this._node;
+  }
+};
 
 // --- PREMADE CONTENT (Unchanged) ---
 const premade = {
@@ -212,10 +220,10 @@ export function getPictureHTML(entity = {}, options = {}) {
   log(`getPictureHTML: Looking for template ID: ${iconTemplateId}`);
   let iconTemplate = document.querySelector(`#${iconTemplateId}`);
 
-  // If the specific template is not found, fall back to the cached default template
-  if (!iconTemplate) {
-    log(`getPictureHTML: Specific template not found, falling back to default.`);
-    iconTemplate = defaultIconTemplate;
+  // If the specific template is not found or is invalid, fall back to the default
+  if (!iconTemplate || !iconTemplate.content) {
+    log(`getPictureHTML: Specific template #${iconTemplateId} not found or invalid, falling back to default.`);
+    iconTemplate = defaultIconTemplate.value;
   }
 
   // Now, use the selected template (either specific or default)
