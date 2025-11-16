@@ -188,8 +188,7 @@ export function extractImageUrl(result) {
 export function sanitizeHtml(html) {
   const value = typeof html === 'string' ? html : String(html ?? '');
   try {
-    const Purify = typeof window !== 'undefined' ? window.DOMPurify : undefined;
-    return Purify ? Purify.sanitize(value) : value;
+    return globalThis.DOMPurify ? globalThis.DOMPurify.sanitize(value) : value;
   } catch {
     return value;
   }
