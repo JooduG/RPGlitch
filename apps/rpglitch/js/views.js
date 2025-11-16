@@ -295,20 +295,19 @@ export async function renderStoryScreen(story, aiCharacter, userCharacter) {
   // Clear previous story content
   storyFeed.replaceChildren();
 
+  leftImage.innerHTML = '';
+  rightImage.innerHTML = '';
+
   if (aiCharacter) {
     leftName.textContent = aiCharacter.name;
-    if (aiCharacter.profilePictureUrl && isValidImageUrl(aiCharacter.profilePictureUrl)) {
-      leftImage.style.backgroundImage = `url("${aiCharacter.profilePictureUrl.replace(/"/g, '\\"')}")`;
-    }
-    // Signature color is handled by CSS custom properties in getPictureHTML
+    const aiPic = getPictureHTML(aiCharacter, { cover: false });
+    leftImage.appendChild(aiPic);
   }
 
   if (userCharacter) {
     rightName.textContent = userCharacter.name;
-    if (userCharacter.profilePictureUrl && isValidImageUrl(userCharacter.profilePictureUrl)) {
-      rightImage.style.backgroundImage = `url("${userCharacter.profilePictureUrl.replace(/"/g, '\\"')}")`;
-    }
-    // Signature color is handled by CSS custom properties in getPictureHTML
+    const userPic = getPictureHTML(userCharacter, { cover: false });
+    rightImage.appendChild(userPic);
   }
 
   if (story && story.messages) {
@@ -436,6 +435,17 @@ export async function renderProfilePage(type, id) {
 
   // Query for elements within the cloned template
   const heroWrap = layout.querySelector(".hero-wrap");
+
+  // *** FIX: Render the initial picture (or placeholder) into the hero ***
+  if (getPictureHTML) {
+    const heroPic = getPictureHTML(entity, { cover: true });
+    if (heroPic) {
+      heroPic.classList.add("hero-bleed"); // Ensure it has the right class
+      heroWrap.appendChild(heroPic);
+    }
+  }
+  // ********************************************************************
+
   const imageOverlay = layout.querySelector(".profile-hero-overlay");
   imageInput = imageOverlay.querySelector('[data-profile-field="profilePictureUrl"]');
   actionButton = imageOverlay.querySelector("button[data-action]");
@@ -865,7 +875,7 @@ export async function renderProfilePage(type, id) {
           id !== "new" ? await entities.get(type, id) : null;
         const isEditingPremade = originalEntity?.isPremade;
         const entityToSave =
-          id === "new" || isEditingPremade ? data : { ...data, id };
+          id === "new" || isEditingPremde ? data : { ...data, id };
 
         const saved = await entities.upsert(type, entityToSave);
 
