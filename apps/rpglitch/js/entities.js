@@ -1,7 +1,7 @@
 /* global DOMPurify */
 import { db } from "./db.js"; // <-- Import our database
 import { log, error as warn } from "./utils.js";
-import { sanitizeHtml, getSignatureColor, getContrastColor } from "./validation.js";
+import { sanitizeHtml } from "./validation.js";
 
 // --- PREMADE CONTENT (Unchanged) ---
 const premade = {

@@ -117,7 +117,7 @@ export function isValidImageUrl(urlString, allowLog = false) {
 /**
  * Extracts image URL from plugin response.
  *
- * Supports 3 active plugin formats:
+ * Supports 4 active plugin formats:
  * 1. text-to-image standard: { imageUrl: "..." }
  * 2. text-to-image data URL: { dataUrl: "..." }
  * 3. upload plugin: { url: "..." }
@@ -212,25 +212,43 @@ export function getSignatureColor(colorKey) {
 /**
  * Calculates contrast color (black or white) for a given background color.
  *
- * Uses relative luminance calculation per WCAG 2.0 specification.
+ * Uses luminance calculation with YIQ coefficients (common approximation).
+ * Handles both 6-digit (#rrggbb) and 3-digit (#rgb) hex formats.
  *
- * @param {string} hexColor - Hex color code (e.g., '#ec4899')
+ * @param {string} hexColor - Hex color code (e.g., '#ec4899' or '#f00')
  * @returns {string} '#000' for light backgrounds, '#fff' for dark backgrounds
  *
  * @example
  * getContrastColor('#ec4899') // '#fff' (pink is dark enough)
  * getContrastColor('#10b981') // '#000' (emerald is too light)
+ * getContrastColor('#fff') // '#000' (white background needs black text)
+ * getContrastColor('invalid') // '#000' (fallback for invalid input)
  */
 export function getContrastColor(hexColor) {
+  // Input validation
+  if (typeof hexColor !== 'string' || !hexColor) {
+    return '#000';
+  }
+
   // Remove # if present
-  const hex = hexColor.replace('#', '');
+  let hex = hexColor.replace('#', '');
+
+  // Handle 3-digit hex shorthand (e.g., #fff -> #ffffff)
+  if (hex.length === 3) {
+    hex = hex.split('').map(char => char + char).join('');
+  }
+
+  // Validate hex length
+  if (hex.length !== 6) {
+    return '#000'; // Return default for invalid input
+  }
 
   // Parse RGB components
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
   const b = parseInt(hex.substring(4, 6), 16);
 
-  // Calculate relative luminance (WCAG 2.0 formula)
+  // Calculate luminance using YIQ coefficients (common approximation)
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 
   // Return black for light backgrounds, white for dark backgrounds
