@@ -476,9 +476,9 @@ export function renderMessage(feed, speaker, message, characterName, messageType
     narratorSpan.className = "narrator-prefix";
     narratorSpan.textContent = "Narrator: ";
     messageWrapper.appendChild(narratorSpan);
-    messageWrapper.append(sanitizedMessage); // Appends the text content safely
+    messageWrapper.insertAdjacentHTML('beforeend', sanitizedMessage);
   } else {
-    messageWrapper.textContent = sanitizedMessage;
+    messageWrapper.innerHTML = sanitizedMessage;
   }
 
 
