@@ -295,8 +295,8 @@ export async function renderStoryScreen(story, aiCharacter, userCharacter) {
   // Clear previous story content
   storyFeed.replaceChildren();
 
-  leftImage.innerHTML = '';
-  rightImage.innerHTML = '';
+  leftImage.innerHTML = "";
+  rightImage.innerHTML = "";
 
   if (aiCharacter) {
     leftName.textContent = aiCharacter.name;
@@ -312,13 +312,27 @@ export async function renderStoryScreen(story, aiCharacter, userCharacter) {
 
   if (story && story.messages) {
     for (const message of story.messages) {
-      renderMessage(storyFeed, message.role, message.text, message.characterName, message.type, { autoScroll: false });
+      renderMessage(
+        storyFeed,
+        message.role,
+        message.text,
+        message.characterName,
+        message.type,
+        { autoScroll: false }
+      );
     }
     storyFeed.scrollTop = storyFeed.scrollHeight;
   }
 }
 
-export function renderMessage(feed, speaker, message, characterName, messageType = "IC", { autoScroll = true } = {}) {
+export function renderMessage(
+  feed,
+  speaker,
+  message,
+  characterName,
+  messageType = "IC",
+  { autoScroll = true } = {}
+) {
   if (!feed) return;
 
   const messageWrapper = document.createElement("div");
@@ -341,18 +355,19 @@ export function renderMessage(feed, speaker, message, characterName, messageType
   }
 
   // Set the text content safely
-  const sanitizedMessage = window.DOMPurify ? DOMPurify.sanitize(message) : message;
+  const sanitizedMessage = window.DOMPurify
+    ? DOMPurify.sanitize(message)
+    : message;
 
   if (messageType === "OOC" && speaker !== "user") {
     const narratorSpan = document.createElement("span");
     narratorSpan.className = "narrator-prefix";
     narratorSpan.textContent = "Narrator: ";
     messageWrapper.appendChild(narratorSpan);
-    messageWrapper.insertAdjacentHTML('beforeend', sanitizedMessage);
+    messageWrapper.insertAdjacentHTML("beforeend", sanitizedMessage);
   } else {
     messageWrapper.innerHTML = sanitizedMessage;
   }
-
 
   feed.appendChild(messageWrapper);
   if (autoScroll) {
@@ -447,7 +462,9 @@ export async function renderProfilePage(type, id) {
   // ********************************************************************
 
   const imageOverlay = layout.querySelector(".profile-hero-overlay");
-  imageInput = imageOverlay.querySelector('[data-profile-field="profilePictureUrl"]');
+  imageInput = imageOverlay.querySelector(
+    '[data-profile-field="profilePictureUrl"]'
+  );
   actionButton = imageOverlay.querySelector("button[data-action]");
   fileInput = imageOverlay.querySelector('[data-profile-field="fileInput"]');
   const paletteSelect = imageOverlay.querySelector(
@@ -508,7 +525,10 @@ export async function renderProfilePage(type, id) {
       // Valid URL: update preview with sanitized URL
       const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
       const newPic = getPictureHTML
-        ? getPictureHTML({ ...entity, profilePictureUrl: safeVal }, { cover: true })
+        ? getPictureHTML(
+            { ...entity, profilePictureUrl: safeVal },
+            { cover: true }
+          )
         : null;
       if (newPic) {
         const currentWrap = heroWrap.querySelector(".picture");
@@ -875,7 +895,7 @@ export async function renderProfilePage(type, id) {
           id !== "new" ? await entities.get(type, id) : null;
         const isEditingPremade = originalEntity?.isPremade;
         const entityToSave =
-          id === "new" || isEditingPremde ? data : { ...data, id };
+          id === "new" || isEditingPremade ? data : { ...data, id };
 
         const saved = await entities.upsert(type, entityToSave);
 
