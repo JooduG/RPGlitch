@@ -1730,6 +1730,7 @@ export async function _attachStoryboardListeners() {
         storyTitle,
         characterId,
         worldId,
+        userId,
       });
 
       const story = {
