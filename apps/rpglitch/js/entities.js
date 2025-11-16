@@ -1,5 +1,18 @@
 /* global DOMPurify */
 import { db } from "./db.js"; // <-- Import our database
+import { log, error as warn } from "./utils.js";
+
+// --- MODULE-LEVEL CACHE ---
+// Cache the default placeholder template to avoid repeated DOM queries.
+const defaultIconTemplate = {
+  _node: null,
+  get value() {
+    if (!this._node) {
+      this._node = document.querySelector("#tpl-placeholder-icon-default");
+    }
+    return this._node;
+  }
+};
 
 // --- PREMADE CONTENT (Unchanged) ---
 const premade = {
@@ -204,28 +217,22 @@ export function getPictureHTML(entity = {}, options = {}) {
 
   // Use templates for placeholder icons
   const iconTemplateId = `tpl-placeholder-icon-${type}`;
-  console.log(`[DEBUG] getPictureHTML: Looking for template ID: ${iconTemplateId}`);
-  const defaultIconTemplate = document.querySelector(
-    "#tpl-placeholder-icon-default"
-  );
+  log(`getPictureHTML: Looking for template ID: ${iconTemplateId}`);
   let iconTemplate = document.querySelector(`#${iconTemplateId}`);
 
-  if (!iconTemplate) {
-    console.log(`[DEBUG] getPictureHTML: Specific template not found, falling back to default.`);
-    iconTemplate = defaultIconTemplate;
+  // If the specific template is not found or is invalid, fall back to the default
+  if (!iconTemplate || !iconTemplate.content) {
+    log(`getPictureHTML: Specific template #${iconTemplateId} not found or invalid, falling back to default.`);
+    iconTemplate = defaultIconTemplate.value;
   }
 
+  // Now, use the selected template (either specific or default)
   if (iconTemplate && iconTemplate.content) {
-    console.log(`[DEBUG] getPictureHTML: Template found, cloning and appending.`);
+    log(`getPictureHTML: Template found, cloning and appending.`);
     const clonedIcon = iconTemplate.content.cloneNode(true);
     ph.appendChild(clonedIcon);
-  } else if (defaultIconTemplate && defaultIconTemplate.content) {
-    console.log(`[DEBUG] getPictureHTML: Default template found, cloning and appending.`);
-    // Fallback to default icon if specific one not found or invalid
-    const clonedIcon = defaultIconTemplate.content.cloneNode(true);
-    ph.appendChild(clonedIcon);
   } else {
-    console.warn(`[DEBUG] getPictureHTML: No icon template found for ${type} or default.`);
+    warn(`getPictureHTML: No icon template found for ${type} or default.`);
   }
 
   ph.setAttribute("role", "img");
