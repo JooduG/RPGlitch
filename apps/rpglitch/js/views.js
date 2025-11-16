@@ -454,7 +454,7 @@ export function renderMessage(speaker, message, characterName, messageType = "IC
   }
 
   // Set the text content
-  const sanitizedMessage = window.DOMPurify ? DOMPurify.sanitize(message) : message;
+  const sanitizedMessage = DOMPurify.sanitize(message);
 
   if(messageType === "OOC" && speaker !== "user") {
       messageWrapper.innerHTML = `<span class="narrator-prefix">Narrator:</span> ${sanitizedMessage}`;

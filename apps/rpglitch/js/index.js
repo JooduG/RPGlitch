@@ -1730,14 +1730,10 @@ export async function _attachStoryboardListeners() {
         storyTitle,
         characterId,
         worldId,
-        userId,
       });
 
-      const newStory = await db.stories.get(storyId);
-      App.applyPatch({ story: { byId: { [storyId]: newStory } } });
-
       const story = {
-        ...newStory,
+        ...App.state.story.byId[storyId],
         messages: App.state.messages.byStoryId[storyId] || [],
       };
 
