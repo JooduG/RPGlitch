@@ -2,20 +2,11 @@
 import { db } from "./db.js"; // <-- Import our database
 import { log, error as warn } from "./utils.js";
 
-// --- MODULE-LEVEL CACHE ---
-// Cache the default placeholder template to avoid repeated DOM queries.
+// --- UTILITY ---
+// Safely query for the default icon template at runtime.
 const defaultIconTemplate = (() => {
   let node;
-  let queried = false;
-  return {
-    get value() {
-      if (!queried) {
-        queried = true;
-        node = document.querySelector("#tpl-placeholder-icon-default");
-      }
-      return node;
-    }
-  };
+  return () => node || (node = document.querySelector("#tpl-placeholder-icon-default"));
 })();
 
 // --- PREMADE CONTENT (Unchanged) ---
@@ -227,7 +218,7 @@ export function getPictureHTML(entity = {}, options = {}) {
   // If the specific template is not found or is invalid, fall back to the default
   if (!iconTemplate || !iconTemplate.content) {
     log(`getPictureHTML: Specific template #${iconTemplateId} not found or invalid, falling back to default.`);
-    iconTemplate = defaultIconTemplate.value;
+    iconTemplate = defaultIconTemplate();
   }
 
   // Now, use the selected template (either specific or default)
