@@ -4,15 +4,19 @@ import { log, error as warn } from "./utils.js";
 
 // --- MODULE-LEVEL CACHE ---
 // Cache the default placeholder template to avoid repeated DOM queries.
-const defaultIconTemplate = {
-  _node: null,
-  get value() {
-    if (!this._node) {
-      this._node = document.querySelector("#tpl-placeholder-icon-default");
+const defaultIconTemplate = (() => {
+  let node;
+  let queried = false;
+  return {
+    get value() {
+      if (!queried) {
+        queried = true;
+        node = document.querySelector("#tpl-placeholder-icon-default");
+      }
+      return node;
     }
-    return this._node;
-  }
-};
+  };
+})();
 
 // --- PREMADE CONTENT (Unchanged) ---
 const premade = {
