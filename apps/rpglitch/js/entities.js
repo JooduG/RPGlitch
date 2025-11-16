@@ -6,7 +6,13 @@ import { log, error as warn } from "./utils.js";
 // Safely query for the default icon template at runtime.
 const defaultIconTemplate = (() => {
   let node;
-  return () => node || (node = document.querySelector("#tpl-placeholder-icon-default"));
+  return () => {
+    // If we have a valid node, return it. If not, re-query.
+    // This is robust against being called before the DOM is ready.
+    if (node && node.content) return node;
+    node = document.querySelector("#tpl-placeholder-icon-default");
+    return node;
+  };
 })();
 
 // --- PREMADE CONTENT (Unchanged) ---
