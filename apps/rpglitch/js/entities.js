@@ -140,7 +140,7 @@ function getContrast(color) {
 }
 
 /**
- * Retrieves the brand color for an entity.
+ * Retrieves the signature color for an entity.
  *
  * The fallback chain is:
  * 1. Returns CSS variable `--signature-{color}` if `entity.signatureColour` is defined and not 'default'
@@ -173,8 +173,8 @@ export function getPictureHTML(entity = {}, options = {}) {
   // Use 'type' directly, no 'kind' fallback
   const type = (entity.type || "default").toLowerCase();
   const src =
-    typeof entity.imageUrl === "string" && entity.imageUrl.trim()
-      ? entity.imageUrl.trim()
+    typeof entity.profilePictureUrl === "string" && entity.profilePictureUrl.trim()
+      ? entity.profilePictureUrl.trim()
       : "";
   const signature = getSignature(entity);
   const contrast = getContrast(signature);
@@ -204,22 +204,28 @@ export function getPictureHTML(entity = {}, options = {}) {
 
   // Use templates for placeholder icons
   const iconTemplateId = `tpl-placeholder-icon-${type}`;
+  console.log(`[DEBUG] getPictureHTML: Looking for template ID: ${iconTemplateId}`);
   const defaultIconTemplate = document.querySelector(
     "#tpl-placeholder-icon-default"
   );
   let iconTemplate = document.querySelector(`#${iconTemplateId}`);
 
   if (!iconTemplate) {
+    console.log(`[DEBUG] getPictureHTML: Specific template not found, falling back to default.`);
     iconTemplate = defaultIconTemplate;
   }
 
   if (iconTemplate && iconTemplate.content) {
+    console.log(`[DEBUG] getPictureHTML: Template found, cloning and appending.`);
     const clonedIcon = iconTemplate.content.cloneNode(true);
     ph.appendChild(clonedIcon);
   } else if (defaultIconTemplate && defaultIconTemplate.content) {
+    console.log(`[DEBUG] getPictureHTML: Default template found, cloning and appending.`);
     // Fallback to default icon if specific one not found or invalid
     const clonedIcon = defaultIconTemplate.content.cloneNode(true);
     ph.appendChild(clonedIcon);
+  } else {
+    console.warn(`[DEBUG] getPictureHTML: No icon template found for ${type} or default.`);
   }
 
   ph.setAttribute("role", "img");
@@ -233,18 +239,14 @@ export function getPictureHTML(entity = {}, options = {}) {
 function normalize(base = {}) {
   const nameOrTitle = sanitizeHtml(base.name || "").trim();
   const summaryOrDesc = sanitizeHtml(base.description || "").trim();
-  // Simplified: Only check for 'imageUrl'
-  const imageUrl = sanitizeHtml(base.imageUrl || "").trim();
+  const profilePictureUrl = sanitizeHtml(base.profilePictureUrl || "").trim();
   const signatureColour = sanitizeHtml(
     base.signatureColour || "default"
   ).trim();
-  const sections = base.sections || {};
-  const safeSections = {
-    forever: sanitizeHtml(sections.forever || "").trim(),
-    past: sanitizeHtml(sections.past || "").trim(),
-    present: sanitizeHtml(sections.present || "").trim(),
-    future: sanitizeHtml(sections.future || "").trim(),
-  };
+  const forever = sanitizeHtml(base.forever || "").trim();
+  const past = sanitizeHtml(base.past || "").trim();
+  const present = sanitizeHtml(base.present || "").trim();
+  const future = sanitizeHtml(base.future || "").trim();
 
   const rawTags = Array.isArray(base.tags)
     ? base.tags
@@ -258,24 +260,33 @@ function normalize(base = {}) {
   return {
     name: nameOrTitle,
     description: summaryOrDesc,
-    imageUrl: imageUrl, // Only use imageUrl
+    profilePictureUrl: profilePictureUrl,
     signatureColour: signatureColour,
+    forever: forever,
+    past: past,
+    present: present,
+    future: future,
     tags: safeTags,
-    sections: safeSections,
   };
 }
 
 // --- NEW: Format Premade Entities ---
 // This makes premade items look like items from the database.
 export function formatPremade(entity, type) {
-  return {
+  const flattenedEntity = {
     ...entity,
+    ...(entity.sections || {}), // Flatten sections into top-level properties
+  };
+  delete flattenedEntity.sections; // Remove the original sections object
+
+  return {
+    ...flattenedEntity,
     type: type, // Ensure 'type' is set
     isPremade: true,
     isCustom: 0, // 0 = not custom (premade)
     version: STORAGE_VERSION,
-    ...normalize(entity), // Ensure premades are also normalized
-    updated: 0, // Give a fake timestamp
+    ...normalize(flattenedEntity), // Ensure premades are also normalized
+    updatedAt: 0, // Give a fake timestamp
   };
 }
 
@@ -359,7 +370,7 @@ export const entities = {
         isCustom: 1, // 1 = custom
         isPremade: false,
         version: STORAGE_VERSION,
-        updated: Date.now(), // Set the updated timestamp
+        updatedAt: Date.now(), // Set the updated timestamp
       };
 
       // Dexie's 'put' is a perfect "upsert" command
@@ -413,11 +424,8 @@ export const entities = {
       const item = await this.get(type, id);
       if (!item) return null;
 
-      // Return a deep copy
-      return {
-        ...item,
-        sections: { ...item.sections },
-      };
+      // Return a deep copy, relying on the already flattened structure from get()
+      return { ...item };
     } catch (error) {
       console.error(`Failed to copy ${type}:`, error);
       return null;

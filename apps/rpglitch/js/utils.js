@@ -7,12 +7,12 @@ import { db } from "./db.js";
 // Signature Color constants
 // These must match the Signature Color options in entity-form.js and _variables.scss
 export const BASE_COLOUR_MAP = {
-  pink: "#ec4899", // --brand-pink
-  emerald: "#10b981", // --brand-emerald
-  cyan: "#06b6d4", // --brand-cyan
-  orange: "#f97316", // --brand-orange
-  purple: "#a855f7", // --brand-purple
-  default: "#777", // --brand-default (fallback/auto-generated)
+  pink: "#ec4899", 
+  emerald: "#10b981", 
+  cyan: "#06b6d4", 
+  orange: "#f97316", 
+  purple: "#a855f7", 
+  default: "#777", 
 };
 
 // UI Timing Constants
@@ -832,9 +832,6 @@ export function installUIBlockerAttributeObserver() {
   }
 }
 
-// ---------- Branding ----------
-
-// --- [SIGNATURE COLOUR FIX] ---
 // This is the applySignature function. It correctly
 // removes all classes, then adds the one we want. This fixes
 // the "randomly working" bug.

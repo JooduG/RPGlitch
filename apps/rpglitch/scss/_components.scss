@@ -668,8 +668,6 @@ body.chin-open .chin-focus-ring {
   }
 }
 
-/* ===== ENTITY BRANDING (Phase 1.3) ===== */
-
 /* Apply character signature colors to story messages based on body signature classes */
 
 /* User messages get signature color styling */
@@ -721,7 +719,6 @@ $signature-palettes: (
 
 /* ===== SIGNATURE TYPING INDICATOR (Phase 4.2) ===== */
 
-/* Modern dots animation with AI brand color support */
 #typing-indicator {
   padding: 1rem;
   border-radius: var(--pico-radius);

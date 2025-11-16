@@ -1345,7 +1345,7 @@ function _buildPictureNode(
   }
 
   const kind = (ent && ent.kind) || "";
-  const isEmpty = !ent || !ent.imageUrl;
+  const isEmpty = !ent || !ent.profilePictureUrl;
   const hasEntity = !!(ent && (ent.id || ent.name));
 
   // Try to use template for empty states
@@ -1458,8 +1458,8 @@ function _clearCard(card, elements, templates) {
     media.appendChild(
       _buildPictureNode({ kind: card.dataset.type }, { templates })
     );
-    card?.style?.removeProperty("--brand");
-    media?.style?.removeProperty("--brand");
+    card?.style?.removeProperty("--signatureColour");
+    media?.style?.removeProperty("--signatureColour");
   }
   if (footer) footer.querySelectorAll(".chip").forEach((n) => n.remove());
   card.classList.remove("chosen");

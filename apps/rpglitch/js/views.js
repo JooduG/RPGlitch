@@ -277,63 +277,63 @@ function createFieldRow(
  * @param {*} result - Plugin response (can be string, object, or various nested structures)
  * @returns {string|undefined} Trimmed URL string or undefined if no URL found
  */
-function _extractImageUrlFromPlugin(result) {
-  let imageUrl;
+function _extractProfilePictureUrlFromPlugin(result) {
+  let profilePictureUrl;
 
   // Check all possible response formats in priority order with type validation
   if (result?.imageUrl && typeof result.imageUrl === "string") {
     // Standard text-to-image response format
-    imageUrl = result.imageUrl;
+    profilePictureUrl = result.imageUrl;
   } else if (result?.dataUrl && typeof result.dataUrl === "string") {
     // Alternative text-to-image format (data URLs)
-    imageUrl = result.dataUrl;
+    profilePictureUrl = result.dataUrl;
   } else if (result?.imageId && typeof result.imageId === "string") {
     // Text-to-image format with separate ID and extension
     const ext = (
       (typeof result.fileExtension === "string" && result.fileExtension) ||
       "jpeg"
     ).replace(/^\./, "");
-    imageUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
+    profilePictureUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
   } else if (typeof result === "string") {
     // Direct string URL response
-    imageUrl = result;
+    profilePictureUrl = result;
   } else if (
     result?.url &&
     (typeof result.url === "string" || result.url instanceof String)
   ) {
     // Upload plugin standard format (handle primitive string or String object)
-    imageUrl = String(result.url);
+    profilePictureUrl = String(result.url);
   } else if (result?.file?.url && typeof result.file.url === "string") {
     // Upload plugin nested format
-    imageUrl = result.file.url;
+    profilePictureUrl = result.file.url;
   } else if (result?.file && typeof result.file === "string") {
     // Handle cases where result.file is the URL string directly
-    imageUrl = result.file;
+    profilePictureUrl = result.file;
   } else if (result?.name && typeof result.name === "string") {
     // Unusual fallback: some plugin versions return URL in name field
     console.warn(
       '[RPGlitch] Plugin used unusual "name" field for URL. Result:',
       result
     );
-    imageUrl = result.name;
+    profilePictureUrl = result.name;
   } else if (result?.value && typeof result.value === "string") {
     // Handle cases where result.value is the URL string directly
-    imageUrl = result.value;
+    profilePictureUrl = result.value;
   } else if (typeof result === "string") {
     // Handle cases where the result itself is the URL string
-    imageUrl = result;
+    profilePictureUrl = result;
   }
 
   // Trim whitespace if we got a string
-  if (typeof imageUrl === "string") {
-    imageUrl = imageUrl.trim();
+  if (typeof profilePictureUrl === "string") {
+    profilePictureUrl = profilePictureUrl.trim();
     // Return undefined for empty strings after trim
-    if (imageUrl === "") {
+    if (profilePictureUrl === "") {
       return undefined;
     }
   }
 
-  return imageUrl || undefined;
+  return profilePictureUrl || undefined;
 }
 
 // Valid image file extensions for URL validation
@@ -362,7 +362,7 @@ const IMAGE_EXTENSION_REGEX = new RegExp(
  * @param {boolean} allowDataUrls - Whether to allow data:image URLs (default: true)
  * @returns {boolean} True if the URL is valid, false otherwise
  */
-function _isValidImageUrl(url, allowDataUrls = true) {
+function _isValidProfilePictureUrl(url, allowDataUrls = true) {
   if (!url || typeof url !== "string") {
     return false;
   }
@@ -425,16 +425,16 @@ export async function renderStoryScreen(story, aiCharacter, userCharacter) {
 
   if (aiCharacter) {
     leftName.textContent = aiCharacter.name;
-    if (aiCharacter.imageUrl && _isValidImageUrl(aiCharacter.imageUrl)) {
-      leftImage.style.backgroundImage = `url("${aiCharacter.imageUrl.replace(/"/g, '\\"')}")`;
+    if (aiCharacter.profilePictureUrl && _isValidProfilePictureUrl(aiCharacter.profilePictureUrl)) {
+      leftImage.style.backgroundImage = `url("${aiCharacter.profilePictureUrl.replace(/"/g, '\\"')}")`;
     }
     applySignature(leftColumn, aiCharacter);
   }
 
   if (userCharacter) {
     rightName.textContent = userCharacter.name;
-    if (userCharacter.imageUrl && _isValidImageUrl(userCharacter.imageUrl)) {
-      rightImage.style.backgroundImage = `url("${userCharacter.imageUrl.replace(/"/g, '\\"')}")`;
+    if (userCharacter.profilePictureUrl && _isValidProfilePictureUrl(userCharacter.profilePictureUrl)) {
+      rightImage.style.backgroundImage = `url("${userCharacter.profilePictureUrl.replace(/"/g, '\\"')}")`;
     }
     applySignature(rightColumn, userCharacter);
   }
@@ -566,7 +566,7 @@ export async function renderProfilePage(type, id) {
   const leftCol = layout.querySelector(".profile-left");
   const heroWrap = layout.querySelector(".hero-wrap");
   const imageOverlay = layout.querySelector(".profile-hero-overlay");
-  imageInput = imageOverlay.querySelector('[data-profile-field="imageUrl"]');
+  imageInput = imageOverlay.querySelector('[data-profile-field="profilePictureUrl"]');
   actionButton = imageOverlay.querySelector("button[data-action]");
   fileInput = imageOverlay.querySelector('[data-profile-field="fileInput"]');
   const paletteSelect = imageOverlay.querySelector(
@@ -581,13 +581,13 @@ export async function renderProfilePage(type, id) {
       "[DEBUG] updateButtonState - value:",
       value,
       "isValidImageUrl:",
-      _isValidImageUrl(value, true)
+      _isValidProfilePictureUrl(value, true)
     ); // Added log
 
     if (value === "") {
       actionButton.textContent = "Upload";
       actionButton.dataset.action = "upload";
-    } else if (value && !_isValidImageUrl(value, true)) {
+    } else if (value && !_isValidProfilePictureUrl(value, true)) {
       actionButton.textContent = "Generate";
       actionButton.dataset.action = "generate";
     } else {
@@ -623,11 +623,11 @@ export async function renderProfilePage(type, id) {
 
     // Update live preview
     const val = imageInput.value.trim();
-    if (val && _isValidImageUrl(val, true)) {
+    if (val && _isValidProfilePictureUrl(val, true)) {
       // Valid URL: update preview with sanitized URL
       const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
       const newPic = getPictureHTML
-        ? getPictureHTML({ ...entity, imageUrl: safeVal }, { cover: true })
+        ? getPictureHTML({ ...entity, profilePictureUrl: safeVal }, { cover: true })
         : null;
       if (newPic) {
         const currentWrap = heroWrap.querySelector(".picture");
@@ -673,7 +673,7 @@ export async function renderProfilePage(type, id) {
     }
 
     // Validate URL format
-    if (!_isValidImageUrl(trimmedUrl, true)) {
+    if (!_isValidProfilePictureUrl(trimmedUrl, true)) {
       console.warn("[RPGlitch] updateImageInput: URL failed validation", {
         url: trimmedUrl,
       });
@@ -737,16 +737,16 @@ export async function renderProfilePage(type, id) {
         log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
 
         // Extract URL from plugin response (sanitized inside helper)
-        const imageUrl = _extractImageUrlFromPlugin(result);
+        const profilePictureUrl = _extractProfilePictureUrlFromPlugin(result);
 
         // Validate URL format (allow http/https, blob, and data:image URLs)
-        if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
+        if (!profilePictureUrl || !_isValidProfilePictureUrl(profilePictureUrl, true)) {
           throw new Error(
             "Image generation failed: invalid or unsupported URL format"
           );
         }
 
-        updateImageInput(imageInput, imageUrl);
+        updateImageInput(imageInput, profilePictureUrl);
       } catch (e) {
         handleActionError(e, "generate");
       } finally {
@@ -757,7 +757,7 @@ export async function renderProfilePage(type, id) {
         updateButtonState();
       }
     } else if (action === "upload") {
-      let imageUrl = null; // Declare imageUrl here
+      let profilePictureUrl = null; // Declare profilePictureUrl here
 
       // Set up file selection handler before triggering click
       fileInput.onchange = async (e) => {
@@ -799,16 +799,16 @@ export async function renderProfilePage(type, id) {
           log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
           // Extract URL from plugin response (sanitized inside helper)
-          imageUrl = _extractImageUrlFromPlugin(result); // Assign to already declared imageUrl
+          profilePictureUrl = _extractProfilePictureUrlFromPlugin(result); // Assign to already declared profilePictureUrl
 
           // Validate URL - now accepts blob URLs too (blob URLs are valid for uploads)
-          if (!imageUrl || !_isValidImageUrl(imageUrl, true)) {
+          if (!profilePictureUrl || !_isValidProfilePictureUrl(profilePictureUrl, true)) {
             throw new Error(
               "Upload failed: invalid image URL received from plugin"
             );
           }
 
-          updateImageInput(imageInput, imageUrl);
+          updateImageInput(imageInput, profilePictureUrl);
         } catch (e) {
           handleActionError(e, "upload");
         } finally {
@@ -820,7 +820,7 @@ export async function renderProfilePage(type, id) {
           fileInput.value = null; // Clear file input to allow re-uploading the same file
 
           // Display warning for temporary URL if upload was successful and a URL was received
-          if (imageUrl && _isValidImageUrl(imageUrl, true)) {
+          if (profilePictureUrl && _isValidProfilePictureUrl(profilePictureUrl, true)) {
             showNotification(
               "Image uploaded! This is a temporary URL. Please re-host your image on a permanent service (like GitHub Gist or your own cloud storage) and replace this URL in the input field.",
               10000 // Display for 10 seconds
@@ -914,7 +914,7 @@ export async function renderProfilePage(type, id) {
       createFieldRow(layout, key, def.label, def.sublabels[type] || "", [
         "div",
         "textarea",
-        entity.sections?.[key] || "",
+        entity[key] || "",
         { readClass: "profile-field-text-read" },
       ])
     );
@@ -943,15 +943,13 @@ export async function renderProfilePage(type, id) {
       name: escapeHtml(nameElement.value.trim()),
       description: escapeHtml(form.elements.description.value.trim()),
 
-      imageUrl: escapeHtml(imageInput.value.trim()),
+      profilePictureUrl: escapeHtml(imageInput.value.trim()),
       signatureColour: escapeHtml(paletteSelect.value.trim()),
       tags: entity.tags || [],
-      sections: {
-        forever: escapeHtml(form.elements.forever.value.trim()),
-        past: escapeHtml(form.elements.past.value.trim()),
-        present: escapeHtml(form.elements.present.value.trim()),
-        future: escapeHtml(form.elements.future.value.trim()),
-      },
+      forever: escapeHtml(form.elements.forever.value.trim()),
+      past: escapeHtml(form.elements.past.value.trim()),
+      present: escapeHtml(form.elements.present.value.trim()),
+      future: escapeHtml(form.elements.future.value.trim()),
     };
 
     await handleAsyncError(
