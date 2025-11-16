@@ -435,12 +435,12 @@
       <div id="story-screen" hidden>
         <div class="story-grid">
           <!-- Left Character Column -->
-          <aside id="story-left-character" class="story-side-column">
+          <div id="story-left-character" class="story-side-column">
             <div class="character-image"></div>
             <div class="character-name-overlay">
               <h2 id="left-character-name"></h2>
             </div>
-          </aside>
+          </div>
 
           <!-- Center Chat Column -->
           <main id="story-center-chat" class="story-main-column">
@@ -448,6 +448,9 @@
               <div id="no-messages" hidden>No messages yet</div>
               <!-- Status Elements -->
               <div id="typing-indicator" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+              <div class="story-actions" hidden>
+                <button id="conclude-story">Conclude Story</button>
+              </div>
             </div>
             <div id="story-input-area">
                 <div id="story-concluded" hidden>Story concluded</div>
@@ -455,19 +458,19 @@
               <form id="story-form">
                 <fieldset role="group">
                   <input type="text" name="message" placeholder="Type your message..." aria-label="Message" autocomplete="off" />
-                  <button type="submit" disabled><span class="material-icons">send</span></button>
+                  <button type="submit" disabled>Send<span class="material-icons">send</span></button>
                 </fieldset>
               </form>
             </div>
           </main>
 
           <!-- Right Character Column -->
-          <aside id="story-right-character" class="story-side-column">
+          <div id="story-right-character" class="story-side-column">
             <div class="character-image"></div>
             <div class="character-name-overlay">
               <h2 id="right-character-name"></h2>
             </div>
-          </aside>
+          </div>
         </div>
       </div>
 

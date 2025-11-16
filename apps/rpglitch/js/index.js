@@ -402,21 +402,31 @@ ${characterName}: Careful what you touch. Some items here... bite.
       }
     },
 
-    createFromSelection: async ({ storyTitle, characterId, worldId }) => {
+    createFromSelection: async ({ storyTitle, characterId, worldId, userId }) => {
       try {
         const ch = Object.values(App.state.characters.byId).find(
           (c) => c.id === characterId && c.type === "character"
         );
         const title = storyTitle || `${ch?.name || "Character"} × Story`;
-        const storyId = await db.stories.add({
+        const newStory = {
           characterId,
+          worldId,
+          userId,
           title,
           settingsSnapshot: { ...App.state.settings },
           createdAt: Date.now(),
           updatedAt: Date.now(),
-        });
+        };
+        const storyId = await db.stories.add(newStory);
+        newStory.id = storyId;
 
-        App.applyPatch({ story: { activeId: storyId }, ui: { title } });
+        App.applyPatch({
+          story: {
+            activeId: storyId,
+            byId: { [storyId]: newStory }
+          },
+          ui: { title }
+        });
         return storyId;
       } catch (err) {
         error("Failed to create story:", err);
@@ -1730,6 +1740,7 @@ export async function _attachStoryboardListeners() {
         storyTitle,
         characterId,
         worldId,
+        userId,
       });
 
       const story = {

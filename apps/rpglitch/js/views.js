@@ -404,34 +404,49 @@ export async function renderStoryScreen(story, aiCharacter, userCharacter) {
   const rightColumn = document.querySelector("#story-right-character");
   const leftName = document.querySelector("#left-character-name");
   const rightName = document.querySelector("#right-character-name");
-  const leftImage = leftColumn.querySelector(".character-image");
-  const rightImage = rightColumn.querySelector(".character-image");
   const storyFeed = document.querySelector("#story-feed");
 
+  if (!leftColumn || !rightColumn || !leftName || !rightName || !storyFeed) {
+    error("Story screen elements not found.");
+    return;
+  }
+
+  const leftImage = leftColumn.querySelector(".character-image");
+  const rightImage = rightColumn.querySelector(".character-image");
+
+  if (!leftImage || !rightImage) {
+    error("Character image elements not found.");
+    return;
+  }
+
   // Clear previous story content
-  storyFeed.innerHTML = "";
+  storyFeed.replaceChildren();
 
   if (aiCharacter) {
     leftName.textContent = aiCharacter.name;
-    leftImage.style.backgroundImage = `url("${(aiCharacter.imageUrl || '').replace(/"/g, '\\"')}")`;
+    if (aiCharacter.imageUrl && _isValidImageUrl(aiCharacter.imageUrl)) {
+      leftImage.style.backgroundImage = `url("${aiCharacter.imageUrl.replace(/"/g, '\\"')}")`;
+    }
     applySignature(leftColumn, aiCharacter);
   }
 
   if (userCharacter) {
     rightName.textContent = userCharacter.name;
-    rightImage.style.backgroundImage = `url("${(userCharacter.imageUrl || '').replace(/"/g, '\\"')}")`;
+    if (userCharacter.imageUrl && _isValidImageUrl(userCharacter.imageUrl)) {
+      rightImage.style.backgroundImage = `url("${userCharacter.imageUrl.replace(/"/g, '\\"')}")`;
+    }
     applySignature(rightColumn, userCharacter);
   }
 
   if (story && story.messages) {
     for (const message of story.messages) {
-      renderMessage(message.role, message.text, message.characterName, message.type);
+      renderMessage(storyFeed, message.role, message.text, message.characterName, message.type, { autoScroll: false });
     }
+    storyFeed.scrollTop = storyFeed.scrollHeight;
   }
 }
 
-export function renderMessage(speaker, message, characterName, messageType = "IC") {
-  const feed = document.querySelector("#story-feed");
+export function renderMessage(feed, speaker, message, characterName, messageType = "IC", { autoScroll = true } = {}) {
   if (!feed) return;
 
   const messageWrapper = document.createElement("div");
@@ -453,18 +468,24 @@ export function renderMessage(speaker, message, characterName, messageType = "IC
     messageWrapper.dataset.characterName = characterName;
   }
 
-  // Set the text content
+  // Set the text content safely
   const sanitizedMessage = window.DOMPurify ? DOMPurify.sanitize(message) : message;
 
-  if(messageType === "OOC" && speaker !== "user") {
-      messageWrapper.innerHTML = `<span class="narrator-prefix">Narrator:</span> ${sanitizedMessage}`;
+  if (messageType === "OOC" && speaker !== "user") {
+    const narratorSpan = document.createElement("span");
+    narratorSpan.className = "narrator-prefix";
+    narratorSpan.textContent = "Narrator: ";
+    messageWrapper.appendChild(narratorSpan);
+    messageWrapper.append(sanitizedMessage); // Appends the text content safely
   } else {
-      messageWrapper.textContent = sanitizedMessage;
+    messageWrapper.textContent = sanitizedMessage;
   }
 
 
   feed.appendChild(messageWrapper);
-  feed.scrollTop = feed.scrollHeight; // Auto-scroll to bottom
+  if (autoScroll) {
+    feed.scrollTop = feed.scrollHeight; // Auto-scroll to bottom
+  }
 }
 
 export async function renderProfilePage(type, id) {
