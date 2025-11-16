@@ -724,6 +724,25 @@ let _bootStarted = false;
 // Cache for storyboard picture templates (populated in initializeWhenReady)
 let templates = {};
 
+// Function to cache templates
+function _cacheTemplates() {
+  const templateIds = [
+    "tpl-storyboard-picture-character",
+    "tpl-storyboard-picture-world",
+    "tpl-storyboard-picture-default",
+    "tpl-placeholder-icon-character",
+    "tpl-placeholder-icon-world",
+    "tpl-placeholder-icon-default",
+  ];
+  templateIds.forEach((id) => {
+    const tpl = document.querySelector(`#${id}`);
+    if (tpl) {
+      templates[id] = tpl;
+    }
+  });
+  log?.("Templates cached:", Object.keys(templates));
+}
+
 export function _getUIElements() {
   const doc = document;
   const ui = {}; // Initialize ui object inside the function
@@ -893,6 +912,7 @@ async function renderList(containerId, key) {
     if (typeof getPictureHTML === "function") {
       const maybe = getPictureHTML(item, {
         cover: true,
+        templates: templates, // Pass the templates object
       });
       if (maybe instanceof Node) {
         media.prepend(maybe);
@@ -1351,9 +1371,9 @@ function _buildPictureNode(
   // Try to use template for empty states
   if (preferTemplateForEmpty && isEmpty && !hasEntity) {
     const id = kind
-      ? `tpl-storyboard-picture-${kind}`
-      : "tpl-storyboard-picture-default";
-    const tpl = templates[id] || templates["tpl-storyboard-picture-default"];
+      ? `tpl-placeholder-icon-${kind}`
+      : "tpl-placeholder-icon-default";
+    const tpl = templates[id] || templates["tpl-placeholder-icon-default"];
     if (tpl && tpl.content && tpl.content.firstElementChild) {
       return tpl.content.firstElementChild.cloneNode(true);
     }
@@ -1367,6 +1387,7 @@ function _buildPictureNode(
         context: "storyboard",
         cover: true,
         neutralPlaceholder: !hasEntity,
+        templates: templates, // Pass the templates object
       });
       if (maybe instanceof Node) {
         out = maybe;
@@ -2568,6 +2589,8 @@ try {
 document.addEventListener(
   "DOMContentLoaded",
   () => {
+    _cacheTemplates(); // Cache templates here
+    router.handleRoute();
     // This is now redundant with the _bootBound logic, but safe.
     // We'll rely on the _bootBound logic.
   },

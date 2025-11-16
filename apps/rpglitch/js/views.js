@@ -425,16 +425,22 @@ export async function renderStoryScreen(story, aiCharacter, userCharacter) {
 
   if (aiCharacter) {
     leftName.textContent = aiCharacter.name;
-    if (aiCharacter.profilePictureUrl && _isValidProfilePictureUrl(aiCharacter.profilePictureUrl)) {
-      leftImage.style.backgroundImage = `url("${aiCharacter.profilePictureUrl.replace(/"/g, '\\"')}")`;
+    // Use getPictureHTML to render character image (with placeholder support)
+    leftImage.replaceChildren();
+    const leftPicture = getPictureHTML(aiCharacter, { cover: true });
+    if (leftPicture) {
+      leftImage.appendChild(leftPicture);
     }
     applySignature(leftColumn, aiCharacter);
   }
 
   if (userCharacter) {
     rightName.textContent = userCharacter.name;
-    if (userCharacter.profilePictureUrl && _isValidProfilePictureUrl(userCharacter.profilePictureUrl)) {
-      rightImage.style.backgroundImage = `url("${userCharacter.profilePictureUrl.replace(/"/g, '\\"')}")`;
+    // Use getPictureHTML to render character image (with placeholder support)
+    rightImage.replaceChildren();
+    const rightPicture = getPictureHTML(userCharacter, { cover: true });
+    if (rightPicture) {
+      rightImage.appendChild(rightPicture);
     }
     applySignature(rightColumn, userCharacter);
   }

@@ -5,12 +5,12 @@ import { log, error as warn } from "./utils.js";
 // --- UTILITY ---
 // Safely query for the default icon template at runtime.
 const defaultIconTemplate = (() => {
-  let node;
+  let node = null; // Initialize node to null
   return () => {
-    // If we have a valid node, return it. If not, re-query.
-    // This is robust against being called before the DOM is ready.
-    if (node && node.content) return node;
-    node = document.querySelector("#tpl-placeholder-icon-default");
+    // Always re-query if node is null or its content is not available
+    if (!node || !node.content) {
+      node = document.querySelector("#tpl-placeholder-icon-default");
+    }
     return node;
   };
 })();
@@ -182,7 +182,7 @@ function getSignature(entity = {}) {
 }
 
 export function getPictureHTML(entity = {}, options = {}) {
-  const { cover, neutralPlaceholder = false } = options;
+  const { cover, neutralPlaceholder = false, templates = {} } = options; // Accept templates parameter
   const title = entity.name || "Empty";
   // Use 'type' directly, no 'kind' fallback
   const type = (entity.type || "default").toLowerCase();
@@ -219,12 +219,16 @@ export function getPictureHTML(entity = {}, options = {}) {
   // Use templates for placeholder icons
   const iconTemplateId = `tpl-placeholder-icon-${type}`;
   log(`getPictureHTML: Looking for template ID: ${iconTemplateId}`);
-  let iconTemplate = document.querySelector(`#${iconTemplateId}`);
+  let iconTemplate = templates[iconTemplateId]; // Try to get from passed templates
 
-  // If the specific template is not found or is invalid, fall back to the default
+  // If not found in passed templates or invalid, fall back to document.querySelector and then defaultIconTemplate
   if (!iconTemplate || !iconTemplate.content) {
-    log(`getPictureHTML: Specific template #${iconTemplateId} not found or invalid, falling back to default.`);
-    iconTemplate = defaultIconTemplate();
+    log(`getPictureHTML: Specific template #${iconTemplateId} not found in passed templates or invalid, falling back to document.querySelector.`);
+    iconTemplate = document.querySelector(`#${iconTemplateId}`);
+    if (!iconTemplate || !iconTemplate.content) {
+      log(`getPictureHTML: Specific template #${iconTemplateId} not found via querySelector, falling back to default.`);
+      iconTemplate = defaultIconTemplate();
+    }
   }
 
   // Now, use the selected template (either specific or default)
