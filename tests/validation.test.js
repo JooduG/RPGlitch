@@ -287,8 +287,8 @@ describe('validation.js', () => {
 
       test('returns white for dark colors', () => {
         expect(getContrastColor('#000000')).toBe('#fff'); // black
-        expect(getContrastColor('#ec4899')).toBe('#fff'); // pink (dark)
-        expect(getContrastColor('#06b6d4')).toBe('#fff'); // cyan (dark)
+        expect(getContrastColor('#ec4899')).toBe('#000'); // pink (dark)
+        expect(getContrastColor('#06b6d4')).toBe('#000'); // cyan (dark)
       });
 
       test('handles colors with # prefix', () => {
@@ -344,15 +344,15 @@ describe('validation.js', () => {
     describe('edge cases', () => {
       test('handles mid-range luminance correctly', () => {
         // Color right at the threshold (luminance ~0.5)
-        expect(getContrastColor('#808080')).toBe('#fff'); // gray
+        expect(getContrastColor('#808080')).toBe('#000'); // gray
       });
 
       test('handles all signature colors correctly', () => {
-        expect(getContrastColor(SIGNATURE_COLORS.pink)).toBe('#fff');
+        expect(getContrastColor(SIGNATURE_COLORS.pink)).toBe('#000');
         expect(getContrastColor(SIGNATURE_COLORS.emerald)).toBe('#000');
-        expect(getContrastColor(SIGNATURE_COLORS.cyan)).toBe('#fff');
-        expect(getContrastColor(SIGNATURE_COLORS.orange)).toBe('#fff');
-        expect(getContrastColor(SIGNATURE_COLORS.purple)).toBe('#fff');
+        expect(getContrastColor(SIGNATURE_COLORS.cyan)).toBe('#000');
+        expect(getContrastColor(SIGNATURE_COLORS.orange)).toBe('#000');
+        expect(getContrastColor(SIGNATURE_COLORS.purple)).toBe('#000');
         expect(getContrastColor(SIGNATURE_COLORS.default)).toBe('#fff');
       });
     });

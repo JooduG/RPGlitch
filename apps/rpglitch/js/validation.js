@@ -5,7 +5,6 @@
  * @module validation
  */
 
-import DOMPurify from 'dompurify';
 
 /**
  * Valid image file extensions.
@@ -189,7 +188,8 @@ export function extractImageUrl(result) {
 export function sanitizeHtml(html) {
   const value = typeof html === 'string' ? html : String(html ?? '');
   try {
-    return DOMPurify ? DOMPurify.sanitize(value) : value;
+    const Purify = typeof window !== 'undefined' ? window.DOMPurify : undefined;
+    return Purify ? Purify.sanitize(value) : value;
   } catch {
     return value;
   }
