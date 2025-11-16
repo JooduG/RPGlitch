@@ -2007,7 +2007,8 @@ export function _attachStoryFormListener() {
       if (message) {
         // Render the user's message immediately
         const userCharacter = await entities.get("character", App.state.story.byId[App.state.story.activeId].userId);
-        renderMessage("user", message, userCharacter?.name || "You", "IC");
+        const storyFeed = document.querySelector("#story-feed");
+        renderMessage(storyFeed, "user", message, userCharacter?.name || "You", "IC");
 
         // Disable input and send to AI
         input.value = "";
