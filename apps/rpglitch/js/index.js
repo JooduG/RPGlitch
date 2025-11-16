@@ -101,16 +101,56 @@ const App = {
   },
 
   prompt: {
-    build: (storyId) => {
+    build: async (storyId) => {
       const story = App.state.story.byId[storyId];
-      // Note: App.state.characters.byId will now contain entities of type 'character'
-      const ch = Object.values(App.state.characters.byId).find(
-        (c) => c.id === story?.characterId && c.type === "character"
-      );
+
+      // Load character from database (not from state, which isn't populated)
+      let ch = null;
+      if (story?.characterId) {
+        try {
+          ch = await entities.get("character", story.characterId);
+        } catch (err) {
+          error("Failed to load character for prompt:", err);
+        }
+      }
+
       const msgs = App.prompt.trimHistory(
         App.state.messages.byStoryId[storyId] || []
       );
-      const system = [ch?.persona, ch?.scenario].filter(Boolean).join("\n\n");
+
+      // Build system prompt with IC/OOC instructions
+      const characterPersona = [ch?.persona, ch?.scenario].filter(Boolean).join("\n\n");
+      const characterName = ch?.name || "Character";
+
+      log(`Building prompt for character: ${characterName}`);
+      const icOocInstructions = `
+CRITICAL RESPONSE FORMAT:
+You must respond in ONE of these two formats ONLY:
+
+FORMAT 1 (Character Only - DEFAULT):
+${characterName}: [Your character's dialogue or actions]
+
+FORMAT 2 (Narrator + Character):
+Narrator: [Scene description, atmosphere, or NPC actions]
+${characterName}: [Your character's response or dialogue]
+
+RULES:
+- Use FORMAT 1 by default (just character speaking/acting)
+- Use FORMAT 2 when scene description is needed BEFORE character speaks
+- NEVER send ONLY "Narrator:" - if using Narrator, you MUST follow with "${characterName}:"
+- NEVER send more than 2 segments (Narrator + Character)
+- Character name is ALWAYS "${characterName}" (not "Character")
+
+EXAMPLES:
+✓ GOOD (Format 1): ${characterName}: Welcome, traveler. What brings you to my shop?
+✓ GOOD (Format 2): Narrator: The old wizard gestures toward dusty shelves lined with glowing artifacts.
+${characterName}: Careful what you touch. Some items here... bite.
+✗ BAD: Character: Hello (WRONG - use "${characterName}")
+✗ BAD: Narrator: The room darkens. (MISSING character response)
+✗ BAD: Three segments (TOO MANY)
+`;
+
+      const system = [characterPersona, icOocInstructions].filter(Boolean).join("\n\n");
 
       const params = {
         temperature: App.state.settings.temperature,
@@ -125,15 +165,15 @@ const App = {
 
     trimHistory: (msgs) => {
       // Conservative, token-budget-aware trimming:
-      // - Always retain latest N user/assistant pairs (configurable).
+      // - Always retain latest N director/narrator pairs (configurable).
       // - Optional summarizer hook can be added later (not in this cycle).
       const historyLength = App.state.settings.historyLength;
       if (msgs.length <= historyLength * 2) {
-        // * 2 because we count user/assistant pairs
+        // * 2 because we count director/narrator pairs
         return msgs;
       }
 
-      // Keep the last 'historyLength' user/assistant pairs
+      // Keep the last 'historyLength' director/narrator pairs
       return msgs.slice(-historyLength * 2);
     },
   },
@@ -162,10 +202,10 @@ const App = {
             // Capitalize role for prompt formatting (user -> User, narrator -> Narrator, etc.)
             const role = msg.role
               ? msg.role.charAt(0).toUpperCase() + msg.role.slice(1).toLowerCase()
-              : "Assistant";
+              : "Narrator";
             instruction += `${role}: ${msg.text}\n\n`;
           }
-          instruction += "Assistant: ";
+          instruction += "Narrator: ";
         }
 
         // Call the Perchance AI plugin
@@ -197,6 +237,124 @@ const App = {
   },
 
   story: {
+    /**
+     * Parse user input to determine message type (IC vs OOC)
+     * @param {string} text - Raw user input
+     * @param {Object} userCharacter - User's selected character
+     * @returns {Object} - {type: "IC"|"OOC", text: string, characterName?: string}
+     */
+    parseUserInput: (text, userCharacter) => {
+      // Check for /director prefix (OOC command)
+      if (text.startsWith('/director ')) {
+        return {
+          type: "OOC",
+          text: text.substring(10).trim(), // Remove "/director "
+        };
+      }
+
+      // Shortcut: /continue
+      if (text === '/continue') {
+        return {
+          type: "OOC",
+          text: "Continue the story",
+        };
+      }
+
+      // Shortcut: /retry
+      if (text === '/retry') {
+        return {
+          type: "OOC",
+          text: "Retry the last response",
+        };
+      }
+
+      // Default: In-Character
+      return {
+        type: "IC",
+        text: text,
+        characterName: userCharacter?.name || "Character",
+      };
+    },
+
+    /**
+     * Parse narrator response to determine if 1 or 2 messages
+     * Format 1: "CharacterName: dialogue"
+     * Format 2: "Narrator: description\nCharacterName: dialogue"
+     * @param {string} text - AI generated text
+     * @param {Object} aiCharacter - AI's selected character
+     * @returns {Array} - Array of 1 or 2 message objects: [{type, text, characterName}]
+     */
+    parseNarratorResponse: (text, aiCharacter) => {
+      const trimmedText = text.trim();
+      const characterName = aiCharacter?.name || "Character";
+
+      // Check if response starts with "Narrator:"
+      if (trimmedText.startsWith("Narrator:")) {
+        // Format 2: Look for character response after narrator
+        // Pattern: "Narrator: ...\nCharacterName: ..."
+        const narratorPattern = /^Narrator:\s*([\s\S]*?)(?=\n\s*[A-Za-z\s'-]+:\s*|$)/;
+        const narratorMatch = trimmedText.match(narratorPattern);
+
+        if (narratorMatch) {
+          const narratorText = narratorMatch[1].trim();
+          const remainingText = trimmedText.substring(narratorMatch[0].length).trim();
+
+          // Look for character response
+          const characterPattern = new RegExp(`^([A-Za-z\\s'-]+):\\s*([\\s\\S]+)$`);
+          const characterMatch = remainingText.match(characterPattern);
+
+          if (characterMatch) {
+            // Found both narrator and character - return 2 messages
+            return [
+              {
+                type: "OOC",
+                text: narratorText,
+                characterName: null,
+              },
+              {
+                type: "IC",
+                text: characterMatch[2].trim(),
+                characterName: characterMatch[1].trim(),
+              }
+            ];
+          } else {
+            // Only narrator found (should be rare based on our rules)
+            return [
+              {
+                type: "OOC",
+                text: narratorText,
+                characterName: null,
+              }
+            ];
+          }
+        }
+      }
+
+      // Format 1: Character only (default)
+      // Pattern: "CharacterName: dialogue"
+      const characterPattern = new RegExp(`^([A-Za-z\\s'-]+):\\s*([\\s\\S]+)$`);
+      const characterMatch = trimmedText.match(characterPattern);
+
+      if (characterMatch) {
+        return [
+          {
+            type: "IC",
+            text: characterMatch[2].trim(),
+            characterName: characterMatch[1].trim(),
+          }
+        ];
+      }
+
+      // Fallback: treat entire response as character dialogue
+      return [
+        {
+          type: "IC",
+          text: trimmedText,
+          characterName: characterName,
+        }
+      ];
+    },
+
     requireActive: () => {
       if (!App.state.story.activeId) {
         error("No active story found. Please create a new story first.");
@@ -313,7 +471,33 @@ const App = {
 
         const messageEl = document.createElement("div");
         messageEl.classList.add("story-message", `${msg.role}-message`);
-        messageEl.textContent = msg.text;
+
+        // Map database role to presentation role for CSS
+        const presentationRole = msg.role === "user" ? "director" : "narrator";
+        messageEl.setAttribute("role", presentationRole);
+
+        // Set message type (IC or OOC)
+        const messageType = msg.type || "IC"; // Default to IC for old messages
+        messageEl.setAttribute("data-type", messageType);
+
+        // Add character name for IC messages
+        if (messageType === "IC" && msg.characterName) {
+          messageEl.setAttribute("data-character-name", msg.characterName);
+        }
+
+        // For OOC director messages, add special icon styling
+        if (msg.role === "user" && messageType === "OOC") {
+          messageEl.classList.add("director-command");
+        }
+
+        // For OOC narrator messages, add "Narrator:" prefix if not already present
+        if (msg.role === "narrator" && messageType === "OOC") {
+          messageEl.textContent = msg.text;
+        } else {
+          // IC messages: text only (character name shown via CSS ::before)
+          messageEl.textContent = msg.text;
+        }
+
         storyFeed.appendChild(messageEl);
       });
 
@@ -326,13 +510,33 @@ const App = {
         return;
 
       const storyId = App.story.requireActive();
+      const story = App.state.story.byId[storyId];
+
+      // Get user's character for IC messages
+      // Note: We need to determine which character is the user's
+      // For now, we'll get this from the storyboard selection
+      const userCharacterSelect = document.querySelector("#storyboard-card-user-select");
+      const userCharacterId = userCharacterSelect?.value;
+      let userCharacter = null;
+      if (userCharacterId) {
+        try {
+          userCharacter = await entities.get("character", userCharacterId);
+        } catch (err) {
+          error("Failed to load user character:", err);
+        }
+      }
+
+      // Parse user input (IC vs OOC)
+      const parsed = App.story.parseUserInput(userText, userCharacter);
 
       // Save user message with robust error handling
       try {
         await db.messages.add({
           storyId,
           role: "user",
-          text: userText,
+          type: parsed.type,
+          text: parsed.text,
+          characterName: parsed.characterName || null,
           createdAt: Date.now(),
         });
       } catch (err) {
@@ -355,7 +559,7 @@ const App = {
 
       // Build prompt and generate AI response
       try {
-        const payload = App.prompt.build(storyId);
+        const payload = await App.prompt.build(storyId);
         const ctrl = new AbortController();
         App.applyPatch({
           ui: { fsm: "sending", lastError: null, abortController: ctrl },
@@ -401,7 +605,7 @@ const App = {
       if (messages && messages.length > 0) {
         const lastUserMessage = messages.findLast((msg) => msg.role === "user");
         if (lastUserMessage) {
-          // Remove any assistant messages after the last user message
+          // Remove any narrator messages after the last user message
           const lastUserMessageIndex = messages.lastIndexOf(lastUserMessage);
           App.state.messages.byStoryId[storyId] = messages.slice(
             0,
@@ -415,7 +619,7 @@ const App = {
       const storyId = App.story.requireActive();
       const messages = App.state.messages.byStoryId[storyId];
       if (messages && messages.length > 0) {
-        // Find the last user message and remove it and subsequent assistant messages
+        // Find the last user message and remove it and subsequent narrator messages
         const lastUserMessageIndex = messages.findLastIndex(
           (msg) => msg.role === "user"
         );
@@ -440,7 +644,9 @@ const App = {
           id: Date.now(),
           storyId,
           role: "narrator",
+          type: null, // Will be determined when finalized
           text: "",
+          characterName: null,
           createdAt: Date.now(),
         };
         messages.push(lastMessage);
@@ -460,18 +666,42 @@ const App = {
           return;
         }
 
-        // Save the completed narrator message to database
-        await db.messages.add({
-          storyId,
-          role: "narrator",
-          text: lastMessage.text,
-          createdAt: lastMessage.createdAt || Date.now(),
-        });
+        // Parse narrator response to determine IC/OOC (returns array of 1 or 2 messages)
+        const story = App.state.story.byId[storyId];
+        const aiCharacterId = story?.characterId; // The AI's character
+        let aiCharacter = null;
+        if (aiCharacterId) {
+          try {
+            aiCharacter = await entities.get("character", aiCharacterId);
+          } catch (err) {
+            error("Failed to load AI character:", err);
+          }
+        }
+
+        const parsedMessages = App.story.parseNarratorResponse(lastMessage.text, aiCharacter);
+
+        // Save each parsed message to database
+        const baseTimestamp = lastMessage.createdAt || Date.now();
+        for (let i = 0; i < parsedMessages.length; i++) {
+          const parsed = parsedMessages[i];
+          await db.messages.add({
+            storyId,
+            role: "narrator",
+            type: parsed.type,
+            text: parsed.text,
+            characterName: parsed.characterName,
+            createdAt: baseTimestamp + i, // Slightly increment timestamp to maintain order
+          });
+        }
 
         // Update story's updatedAt timestamp
         await db.stories.update(storyId, { updatedAt: Date.now() });
 
-        log(`Finalized and saved narrator message for story ${storyId}`);
+        log(`Finalized and saved ${parsedMessages.length} message(s) for story ${storyId}`);
+
+        // Reload messages from database to update UI with properly parsed messages
+        await App.story.loadMessages(storyId);
+        await App.story.render(storyId);
       } catch (err) {
         error("Failed to save narrator message:", err);
         // Don't throw - UI should still show the message even if save fails

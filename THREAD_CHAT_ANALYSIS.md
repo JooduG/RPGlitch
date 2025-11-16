@@ -1,25 +1,33 @@
-# RPGlitch Thread Chat Implementation Analysis
+# RPGlitch Story Implementation Analysis
 
-Date: 2025-11-12
+Date: 2025-11-16 (Updated)
 Codebase: apps/rpglitch/
+
+## Terminology Reference
+
+**RPGlitch uses the following terminology:**
+- **Story** = A conversation session (replaces "thread" or "chat")
+- **Narrator** = AI assistant role (replaces "assistant")
+- **Director** = User/player role (replaces "user" in UI context)
+- **Message** = Individual story turn from either narrator or director
 
 ## Executive Summary
 
-The RPGlitch application has a well-defined database schema for threads and messages, but implementation of thread chat functionality is incomplete. The `App.threads.requireActive()` method currently returns dummy thread data instead of properly managing active threads.
+The RPGlitch application has a well-defined database schema for stories and messages. Most persistence functionality is now working, but story loading on startup is still missing.
 
 ## Database Schema (db.js)
 
-Three tables define thread/chat functionality:
+Three tables define story functionality:
 
-### threads table
+### stories table
 - Primary Key: ++id (auto-increment)
 - Fields: id, characterId, title, settingsSnapshot, createdAt, updatedAt
-- Stores: One record per conversation session
+- Stores: One record per story session
 
 ### messages table
 - Primary Key: ++id (auto-increment)
-- Fields: id, threadId, role ("user"|"assistant"), text, seed, meta, createdAt
-- Stores: Individual messages within conversations
+- Fields: id, storyId, role ("user"|"narrator"), text, seed, meta, createdAt
+- Stores: Individual messages within stories
 
 ### Strengths
 ✅ Proper foreign key relationships
@@ -27,106 +35,188 @@ Three tables define thread/chat functionality:
 ✅ Settings snapshot for context preservation
 ✅ Simple, normalized structure
 
-## Thread Usage Throughout Application
+## Story Usage Throughout Application
 
-### 1. Thread Creation (index.js lines 165-186) - ✅ WORKING
-Creates thread in database and updates App.state.
+### 1. Story Creation (index.js:247-268) - ✅ WORKING
+Creates story in database and updates App.state.
 Called when user clicks "Begin Story" button.
 
-### 2. Active Thread Management (index.js lines 141-163) - ❌ PLACEHOLDER
-Critical Issue: Returns dummy thread instead of loading persisted data.
-
-Current problematic code:
+**Current implementation:**
 ```javascript
-App.threads.requireActive: () => {
-  if (App.state.threads.activeId) {
-    return App.state.threads.activeId;
-  } else {
-    // Creates DUMMY thread for testing
-    const dummyThreadId = "dummy-thread-1";
-    // ... sets up fake data
-  }
+createFromSelection: async ({ storyTitle, characterId, worldId }) => {
+  const storyId = await db.stories.add({
+    characterId,
+    title,
+    settingsSnapshot: { ...App.state.settings },
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  });
+  App.applyPatch({ story: { activeId: storyId }, ui: { title } });
+  return storyId;
 }
 ```
 
-Problems:
-- Does NOT load threads from IndexedDB
-- Returns fake data if no active thread
-- Threads lost on page refresh
-- Dummy character ID doesn't exist in database
+### 2. Active Story Management (index.js:200-206) - ✅ FIXED
+Now properly throws error instead of creating dummy data.
+
+**Current implementation:**
+```javascript
+requireActive: () => {
+  if (!App.state.story.activeId) {
+    error("No active story found. Please create a new story first.");
+    throw new Error("No active story. Please create a new story.");
+  }
+  return App.state.story.activeId;
+}
+```
+
+**Status:** No longer creates dummy data ✅
 
 ### 3. Message Handling
 
-#### User Messages - ✅ PERSISTED
-- Saved to db.messages via db.messages.add()
-- Stored with threadId, role="user", createdAt
+#### Director (User) Messages - ✅ PERSISTED
+Saved to db.messages via db.messages.add() in App.story.send()
 
-#### Assistant Messages - ❌ NOT PERSISTED
-- Accumulated in-memory during streaming
-- App.chat._finalizeAssistantMessage() is a no-op
-- Lost on page refresh
-
-Code evidence (line 352-356):
+**Current implementation (index.js:332-337):**
 ```javascript
-App.chat._finalizeAssistantMessage: (threadId) => {
-  // No explicit action needed here for now...
-  // This might be used for saving the final message to DB in the future.
-  log(...);
+await db.messages.add({
+  storyId,
+  role: "user",
+  text: userText,
+  createdAt: Date.now(),
+});
+```
+
+#### Narrator (Assistant) Messages - ✅ NOW PERSISTED
+Saved after AI streaming completes.
+
+**Current implementation (index.js:453-479):**
+```javascript
+_finalizeAssistantMessage: async (storyId) => {
+  const messages = App.state.messages.byStoryId[storyId] || [];
+  const lastMessage = messages[messages.length - 1];
+
+  if (!lastMessage || lastMessage.role !== "narrator") {
+    error("No narrator message to finalize");
+    return;
+  }
+
+  // Save the completed narrator message to database
+  await db.messages.add({
+    storyId,
+    role: "narrator",
+    text: lastMessage.text,
+    createdAt: lastMessage.createdAt || Date.now(),
+  });
+
+  // Update story's updatedAt timestamp
+  await db.stories.update(storyId, { updatedAt: Date.now() });
 }
 ```
 
-#### Message Loading - ❌ MISSING
-- Never loads persisted messages from IndexedDB
-- App.state.messages.byThreadId never populated from database
-- Only works in-memory for current session
+#### Message Loading - ✅ IMPLEMENTED
+Function exists to load messages from database.
 
-### 4. Chat Rendering - ✅ FUNCTIONAL
+**Current implementation (index.js:270-293):**
+```javascript
+loadMessages: async (storyId) => {
+  const messages = await db.messages
+    .where("storyId")
+    .equals(storyId)
+    .sortBy("createdAt");
+
+  App.applyPatch({
+    messages: {
+      byStoryId: {
+        [storyId]: messages,
+      },
+    },
+  });
+
+  log(`Loaded ${messages.length} messages for story ${storyId}`);
+  return messages;
+}
+```
+
+**Note:** Function exists but only called after user sends message, not on app startup.
+
+### 4. Story Rendering - ✅ FUNCTIONAL
 Renders messages from App.state to DOM.
-Uses CSS classes: chat-message, user-message, assistant-message
+
+**Current implementation (index.js:295-321):**
+```javascript
+render: async (storyId) => {
+  const storyFeed = document.querySelector("#story-feed");
+  const noMessagesEl = document.querySelector("#no-messages");
+
+  const messages = App.state.messages.byStoryId[storyId] || [];
+
+  messages.forEach((msg) => {
+    const messageEl = document.createElement("div");
+    messageEl.classList.add("story-message", `${msg.role}-message`);
+    messageEl.textContent = msg.text;
+    storyFeed.appendChild(messageEl);
+  });
+}
+```
+
+**⚠️ Styling Bug:** CSS expects `role="director"` and `role="narrator"` attributes, but code only adds class names `user-message` and `narrator-message`.
 
 ## Critical Gaps
 
-### Gap 1: No Thread Persistence on Startup
-- Threads created/saved to DB
-- But never loaded when app initializes
-- User refreshes page → all threads lost from memory
+### Gap 1: No Story Loading on Startup - ❌ CRITICAL
+**Status:** `App.story.loadActive()` exists (index.js:208-245) but is **NEVER CALLED** in `initializeWhenReady()`
 
-### Gap 2: Assistant Messages Never Persisted
-- Only user messages saved
-- AI responses streamed in-memory only
-- _finalizeAssistantMessage() doesn't save to database
-- Conversations incomplete in database
+**Impact:**
+- Stories created/saved to DB ✅
+- But never loaded when app initializes ❌
+- User refreshes page → story context lost ❌
+- Must create new story every time ❌
 
-### Gap 3: Dummy Thread Logic is Dangerous
-- requireActive() creates fake in-memory thread
-- Dummy ID ("dummy-thread-1") not in database
-- Messages saved to dummy thread won't match actual records
-- Risk of polluting database with fake data
+**Solution:** Add `await App.story.loadActive()` call in `initializeWhenReady()` after database initialization.
 
-### Gap 4: No Thread UI/Management
-- No way to view list of previous threads
-- No way to switch between conversations
-- No thread metadata display
-- Can only create new threads, not access old ones
+### Gap 2: Message Role Attribute Bug - ⚠️ STYLING
+**CSS expects:**
+```scss
+.story-message[role="director"] { /* user messages */ }
+.story-message[role="narrator"] { /* AI messages */ }
+```
 
-### Gap 5: Settings Snapshot Unused
-- Saved at thread creation time
-- But never used in chat operations
-- Current implementation uses global App.state.settings for all threads
+**JS creates:**
+```javascript
+messageEl.classList.add("story-message", `${msg.role}-message`);
+// Results in class="story-message user-message" (no role attribute!)
+```
+
+**Impact:** Story message speech bubble styling may not work correctly.
+
+**Solution:** Add `messageEl.setAttribute("role", msg.role === "user" ? "director" : "narrator");`
+
+### Gap 3: No Story List/History UI - ⚠️ MEDIUM
+- No way to view list of previous stories
+- No way to switch between story sessions
+- No story metadata display
+- Can only create new stories, not access old ones
+
+### Gap 4: Settings Snapshot Unused - ⚠️ LOW
+- Saved at story creation time
+- But never used in prompt building
+- Current implementation uses global App.state.settings for all stories
 
 ## UI Components
 
-### Chat Screen (index.html lines 423-467)
-- #chat-screen-container: Main chat view
-- #chat-feed: Message log (role=log, aria-live=polite)
-- #chat-form: Input with message field and send button
-- #user-character-display, #ai-character-display: Character visuals
+### Story Screen (index.html:434-469)
+- #stage-container: Main story view
+- #story-feed: Message log (role=log, aria-live=polite)
+- #story-form: Input with message field and send button
+- #user-character-display: Director's character visual (left)
+- #narrator-character-display: Narrator's character visual (right)
 - #no-messages, #story-concluded: Status elements
 
-### Chat Form Listener (index.js 1671-1700)
+### Story Form Listener (index.js:1794-1823)
 - Validates input
 - Manages button state
-- Calls App.chat.send() on submit
+- Calls App.story.send() on submit
 - Clears input after sending
 - ✅ Implementation is solid
 
@@ -134,50 +224,52 @@ Uses CSS classes: chat-message, user-message, assistant-message
 
 ### Critical (Must Fix)
 
-1. **Persist Assistant Messages**
-   - Modify App.chat._finalizeAssistantMessage()
-   - Save completed assistant message to db.messages
-   - Update thread's updatedAt timestamp
+1. **✅ DONE: Persist Narrator Messages**
+   - `App.story._finalizeAssistantMessage()` now saves to db.messages
+   - Updates story's updatedAt timestamp
+   - Implementation complete (index.js:453-479)
 
-2. **Load Messages from Database**
-   - Create App.chat.loadMessages(threadId)
-   - Query db.messages where threadId = X
-   - Populate App.state.messages.byThreadId
+2. **✅ DONE: Load Messages from Database**
+   - `App.story.loadMessages(storyId)` implemented
+   - Queries db.messages where storyId = X
+   - Populates App.state.messages.byStoryId
+   - Implementation complete (index.js:270-293)
 
-3. **Fix requireActive()**
-   - Throw error if no active thread (instead of creating dummy)
-   - Validate thread exists in database before returning
-   - Add separate method App.threads.loadActive() to load from DB
+3. **✅ DONE: Fix requireActive()**
+   - Throws error if no active story (instead of creating dummy)
+   - No longer creates fake data
+   - Implementation complete (index.js:200-206)
 
-4. **Load Threads on App Startup**
-   - Call App.threads.loadActive() in initializeWhenReady()
-   - Load all threads from db.threads
-   - Restore App.state.threads.byId and allIds
-   - Load messages for active thread
+4. **❌ TODO: Load Stories on App Startup**
+   - `App.story.loadActive()` exists but NOT CALLED (index.js:208-245)
+   - Add call in `initializeWhenReady()` after db.open()
+   - Should load most recent story from db.stories
+   - Should load messages for active story
+   - **This is the main missing piece!**
 
-5. **Validate Threads Before Use**
-   - Check thread exists in database before operations
-   - Validate characterId exists
-   - Throw clear error messages for invalid states
+5. **⚠️ TODO: Fix Message Role Attributes**
+   - Add `role` attribute to message elements in render()
+   - Map "user" → "director" for CSS compatibility
+   - Fix in `App.story.render()` (index.js:312-317)
 
 ### Medium Priority
 
-6. **Thread List/Session History View**
-   - Show list of available conversations
+6. **Story List/Session History View**
+   - Show list of available story sessions
    - Display last message preview
    - Show creation date
-   - Allow quick switching between threads
+   - Allow quick switching between stories
 
 7. **Use Settings Snapshot**
-   - Use thread.settingsSnapshot in prompt building
-   - Display snapshot info in chat header
+   - Use story.settingsSnapshot in prompt building (index.js:104-124)
+   - Display snapshot info in story header
    - Show "using original settings" indicator
 
 ### Low Priority
 
-8. Thread metadata display (title, date, character, message count)
-9. Export/import thread conversations
-10. Thread continuation suggestions
+8. Story metadata display (title, date, character, message count)
+9. Export/import story sessions
+10. Story continuation suggestions
 11. Message editing/deletion in UI
 
 ## Code Quality Observations
@@ -198,47 +290,55 @@ Improvements Needed:
 
 ## Files to Modify
 
-| File | Method | Priority |
-|------|--------|----------|
-| index.js | App.chat._finalizeAssistantMessage() | Critical |
-| index.js | App.chat.loadMessages() (new) | Critical |
-| index.js | App.threads.requireActive() | Critical |
-| index.js | App.threads.loadActive() (new) | Critical |
-| index.js | initializeWhenReady() | Critical |
-| index.js | App.chat.send() | Critical |
-| index.html | Chat UI enhancements | Medium |
+| File | Method | Status | Priority |
+|------|--------|--------|----------|
+| index.js | App.story._finalizeAssistantMessage() | ✅ DONE | - |
+| index.js | App.story.loadMessages() | ✅ DONE | - |
+| index.js | App.story.requireActive() | ✅ DONE | - |
+| index.js | App.story.loadActive() | ✅ EXISTS | - |
+| index.js | initializeWhenReady() | ❌ TODO | **Critical** |
+| index.js | App.story.render() | ⚠️ TODO | Medium |
+| index.html | Story UI enhancements | - | Low |
 
 ## Summary of Current State
 
-### Working
-✅ Thread creation and storage
-✅ User message persistence
-✅ Chat form and rendering
+### Working ✅
+✅ Story creation and storage
+✅ Director (user) message persistence
+✅ **Narrator (assistant) message persistence** - NOW WORKING!
+✅ **Message loading from database** - Function implemented
+✅ Story form and rendering
 ✅ AI plugin integration and streaming
 ✅ FSM state management
 ✅ Database initialization
+✅ **Story validation** - No more dummy data
 
-### Broken/Missing
-❌ Thread loading on startup
-❌ Assistant message persistence
-❌ Message loading from database
-❌ Thread validation and error handling
-❌ Thread switching/history UI
+### Broken/Missing ❌
+❌ **Story loading on startup** - Function exists but not called
+⚠️ Message role attributes for CSS styling
+❌ Story switching/history UI
 ❌ Settings snapshot usage
 
 ### Result
-Conversations are **ephemeral** - lost on page refresh. Only works for single-session use.
+Stories **partially persist** - saved to database correctly, but not reloaded on page refresh. User must create new story each session.
 
 ## Conclusion
 
-The database schema and thread creation logic are sound. However, **persistence is incomplete**. Critical gaps in message loading and assistant message saving prevent conversations from surviving page refreshes.
+**Major Progress:** The database schema is sound, and most persistence is now working:
+- ✅ Stories save to database
+- ✅ Director messages save to database
+- ✅ Narrator messages save to database
+- ✅ Message loading function exists
 
-To implement proper thread chat:
-1. Save assistant messages in _finalizeAssistantMessage()
-2. Load messages from database before rendering
-3. Load threads from database on startup
-4. Fix requireActive() to validate instead of creating dummy threads
-5. Add UI for thread management and switching
+**One Critical Gap Remains:**
+`App.story.loadActive()` exists (lines 208-245) but is **never called** in `initializeWhenReady()`.
 
-Once completed, RPGlitch will have true persistent, multi-thread conversation support.
+**To complete story persistence:**
+1. ✅ ~~Save narrator messages~~ - DONE
+2. ✅ ~~Load messages from database~~ - DONE
+3. ✅ ~~Fix requireActive() validation~~ - DONE
+4. ❌ **Call `App.story.loadActive()` in `initializeWhenReady()`** - TODO
+5. ⚠️ Fix message role attributes for CSS styling - TODO
+
+Once step 4 is complete, RPGlitch will have full persistent story support with messages surviving page refreshes.
 

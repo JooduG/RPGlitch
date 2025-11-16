@@ -527,9 +527,12 @@ body.chin-open .chin-focus-ring {
 /* Speech bubble tails pointing from user (right) and AI (left) */
 .story-message {
   padding: 1rem;
+  padding-right: 1.5rem; /* Extra padding to prevent text from being cut off */
   border-radius: var(--pico-radius);
-  max-width: 85%;
+  max-width: 90%;
   word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
   background: var(--pico-form-element-background-color);
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   animation: message-slide-in 0.3s ease;
@@ -552,12 +555,21 @@ body.chin-open .chin-focus-ring {
   }
 }
 
-/* User messages with tail pointing from the right */
-.story-message[role="director"] {
+/* ===== IC/OOC MESSAGE SYSTEM ===== */
+
+/* User IC messages - Character dialogue with character name */
+.story-message[role="director"][data-type="IC"] {
   align-self: flex-end;
   background: var(--pico-primary-background);
   border: 1px solid var(--pico-primary);
   border-top-right-radius: 2px;
+
+  /* Show character name before message */
+  &::before {
+    content: attr(data-character-name) ": ";
+    font-weight: bold;
+    color: var(--pico-primary);
+  }
 
   /* Tail pointing right */
   &::after {
@@ -574,15 +586,75 @@ body.chin-open .chin-focus-ring {
   }
 }
 
-/* Narrator messages with tail pointing from the left */
-.story-message[role="narrator"] {
+/* User OOC messages - Director commands (system style) */
+.story-message[role="director"][data-type="OOC"],
+.story-message.director-command {
+  align-self: center;
+  max-width: 70%;
+  background: rgb(var(--dark-background-rgb) / 50%);
+  border: 1px dashed var(--pico-muted-border-color);
+  font-style: italic;
+  color: var(--pico-muted-color);
+  border-radius: var(--pico-radius);
+
+  /* Director command icon */
+  &::before {
+    content: "⚙️ ";
+  }
+
+  /* No tail for OOC messages */
+  &::after {
+    display: none;
+  }
+}
+
+/* Narrator IC messages - AI character speaking */
+.story-message[role="narrator"][data-type="IC"] {
   align-self: flex-start;
   background: rgb(var(--dark-background-rgb) / 85%);
   backdrop-filter: blur(10px);
   border-top-left-radius: 2px;
 
-  /* Tail pointing left */
+  /* Show character name before dialogue */
   &::before {
+    content: attr(data-character-name) ": ";
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Tail pointing left */
+  &::after {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: 8px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 8px 8px 0;
+    border-color: transparent rgb(var(--dark-background-rgb) / 85%) transparent
+      transparent;
+  }
+}
+
+/* Narrator OOC messages - Scene narration */
+.story-message[role="narrator"][data-type="OOC"] {
+  align-self: flex-start;
+  background: rgb(var(--dark-background-rgb) / 85%);
+  backdrop-filter: blur(10px);
+  border-top-left-radius: 2px;
+
+  /* Show "Narrator:" prefix */
+  &::before {
+    content: "Narrator: ";
+    font-weight: bold;
+    font-style: italic;
+    color: var(--pico-primary);
+  }
+
+  /* Tail pointing left */
+  &::after {
     content: "";
     position: absolute;
     left: -8px;

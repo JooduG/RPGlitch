@@ -1,6 +1,6 @@
 # RPGlitch
 
-A feature-rich Perchance application for managing AI-powered RPG entities (Characters, Worlds, Stories) with interactive chat capabilities.
+A feature-rich Perchance application for managing AI-powered RPG entities (Characters, Worlds, Stories) with interactive story capabilities.
 
 ## Overview
 
@@ -55,8 +55,8 @@ apps/rpglitch/
 ## Key Features
 
 - **Entity Management:** Create, edit, and delete Characters, Worlds, and Stories
-- **Storyboard:** Select Character + World combinations to start AI conversations
-- **Chat Interface:** Interactive AI-driven roleplay with FSM-based message handling
+- **Storyboard:** Select Character + World combinations to start AI story sessions
+- **Story Interface:** Interactive AI-driven roleplay with FSM-based message handling
 - **Local-First:** All data stored in IndexedDB (fully offline capable)
 - **Import/Export:** JSON-based data portability
 - **UI Safety:** Watchdog systems to prevent UI blocking
