@@ -106,9 +106,9 @@ const App = {
 
       // Load character from database (not from state, which isn't populated)
       let ch = null;
-      if (story?.characterId) {
+      if (story?.aiCharacterId) {
         try {
-          ch = await entities.get("character", story.characterId);
+          ch = await entities.get("character", story.aiCharacterId);
         } catch (err) {
           error("Failed to load character for prompt:", err);
         }
@@ -402,16 +402,16 @@ ${characterName}: Careful what you touch. Some items here... bite.
       }
     },
 
-    createFromSelection: async ({ storyTitle, characterId, worldId, userId }) => {
+    createFromSelection: async ({ storyTitle, aiCharacterId, userCharacterId, worldId }) => {
       try {
         const ch = Object.values(App.state.characters.byId).find(
-          (c) => c.id === characterId && c.type === "character"
+          (c) => c.id === aiCharacterId && c.type === "character"
         );
         const title = storyTitle || `${ch?.name || "Character"} × Story`;
         const newStory = {
-          characterId,
+          aiCharacterId,
+          userCharacterId,
           worldId,
-          userId,
           title,
           settingsSnapshot: { ...App.state.settings },
           createdAt: Date.now(),
@@ -490,7 +490,6 @@ ${characterName}: Careful what you touch. Some items here... bite.
         return;
 
       const storyId = App.story.requireActive();
-      const story = App.state.story.byId[storyId];
 
       // Get user's character for IC messages
       // Note: We need to determine which character is the user's
@@ -648,7 +647,7 @@ ${characterName}: Careful what you touch. Some items here... bite.
 
         // Parse narrator response to determine IC/OOC (returns array of 1 or 2 messages)
         const story = App.state.story.byId[storyId];
-        const aiCharacterId = story?.characterId; // The AI's character
+        const aiCharacterId = story?.aiCharacterId; // The AI's character
         let aiCharacter = null;
         if (aiCharacterId) {
           try {
@@ -1704,21 +1703,6 @@ export async function _attachStoryboardListeners() {
     });
   }
 
-  const storyboardScreen = document.querySelector("#storyboard-screen");
-  const stageContainer = document.querySelector("#stage-container");
-
-  const renderCharacterPicture = (displayElement, character) => {
-    if (displayElement && character) {
-      const pic = getPictureHTML(character, { cover: true });
-      if (pic) {
-        displayElement.replaceChildren(pic);
-        applySignature(displayElement, character);
-      } else {
-        displayElement.replaceChildren();
-      }
-    }
-  };
-
   async function beginStory() {
     const narratorSelect = document.querySelector("#storyboard-card-narrator-select");
     const userSelect = document.querySelector("#storyboard-card-user-select");
@@ -1727,20 +1711,20 @@ export async function _attachStoryboardListeners() {
     if (narratorSelect?.value && userSelect?.value && worldSelect?.value) {
       const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
       const storyTitle = storyTitleEl?.textContent || "default-story";
-      const characterId = narratorSelect.value;
+      const aiCharacterId = narratorSelect.value;
       const worldId = worldSelect.value;
-      const userId = userSelect.value;
+      const userCharacterId = userSelect.value;
 
       const [narratorChar, userChar] = await Promise.all([
-        entities.get("character", characterId),
-        entities.get("character", userId),
+        entities.get("character", aiCharacterId),
+        entities.get("character", userCharacterId),
       ]);
 
       const storyId = await App.story.createFromSelection({
         storyTitle,
-        characterId,
+        aiCharacterId,
+        userCharacterId,
         worldId,
-        userId,
       });
 
       const story = {

@@ -50,7 +50,7 @@ test('default storyboard title adapts to selections', async () => {
   const { App } = await loadApp();
   // Use global.document directly
   document.body.innerHTML = `
-    <select id="storyboard-card-ai-select"><option value=""></option><option value="a1">Alice</option></select>
+    <select id="storyboard-card-narrator-select"><option value=""></option><option value="a1">Alice</option></select>
     <select id="storyboard-card-user-select"><option value=""></option><option value="u1">Bob</option></select>
     <select id="storyboard-card-world-select"><option value=""></option><option value="w1">Mars</option></select>
   `;
@@ -59,7 +59,7 @@ test('default storyboard title adapts to selections', async () => {
   const originalRandom = window.Math.random; // Use global window
   window.Math.random = () => 0; // Use global window
   expect(await App._defaultStoryboardTitle()).toBe('Your story begins…');
-  document.getElementById('storyboard-card-ai-select').value = 'a1';
+  document.getElementById('storyboard-card-narrator-select').value = 'a1';
   expect(await App._defaultStoryboardTitle()).toBe('Once upon a time Alice');
   document.getElementById('storyboard-card-user-select').value = 'u1';
   expect(await App._defaultStoryboardTitle()).toBe('Once upon a time Alice & Bob');

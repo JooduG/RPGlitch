@@ -15,6 +15,7 @@ import {
   dismissLoadingUI,
   chin,
   log,
+  error,
   unlockNow,
   setTopBarRight,
   copyEntity,

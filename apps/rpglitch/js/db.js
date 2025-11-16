@@ -19,7 +19,7 @@ const db = new Dexie("rpglitch");
 db.version(1).stores({
   entities:
     "++id, name, type, updated, avatar, persona, scenario, tags, createdAt, updatedAt, isChosen, [type+isCustom], signatureColour",
-  stories: "++id, characterId, title, settingsSnapshot, createdAt, updatedAt",
+  stories: "++id, aiCharacterId, userCharacterId, worldId, title, settingsSnapshot, createdAt, updatedAt",
   messages: "++id, storyId, role, type, text, characterName, seed, meta, createdAt",
   settings: "id", // Singleton settings table
 });

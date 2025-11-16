@@ -121,7 +121,7 @@ describe('waitForPlugins', () => {
 
   test('succeeds with a mix of root and nested plugins', async () => {
     const App = await loadApp();
-    window.pluginSuperFetch = {};
+    window.pluginSuperFetch = jest.fn(); // Plugin must be a function
     window.pluginAi = { generateStream: jest.fn() };
     const result = await App.waitForPlugins(['pluginSuperFetch', 'pluginAi.generateStream'], 100);
     expect(result).toBe(true);
