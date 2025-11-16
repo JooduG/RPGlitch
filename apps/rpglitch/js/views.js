@@ -419,7 +419,7 @@ export async function renderStoryScreen(story, aiCharacter, userCharacter) {
 
   if (userCharacter) {
     rightName.textContent = userCharacter.name;
-    rightImage.style.backgroundImage = `url('${userCharacter.imageUrl || ""}')`;
+    rightImage.style.backgroundImage = `url("${(userCharacter.imageUrl || '').replace(/"/g, '\\"')}")`;
     applySignature(rightColumn, userCharacter);
   }
 
