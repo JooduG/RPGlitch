@@ -205,24 +205,18 @@ export function getPictureHTML(entity = {}, options = {}) {
   // Use templates for placeholder icons
   const iconTemplateId = `tpl-placeholder-icon-${type}`;
   console.log(`[DEBUG] getPictureHTML: Looking for template ID: ${iconTemplateId}`);
-  const defaultIconTemplate = document.querySelector(
-    "#tpl-placeholder-icon-default"
-  );
   let iconTemplate = document.querySelector(`#${iconTemplateId}`);
 
+  // If the specific template is not found, fall back to the default
   if (!iconTemplate) {
     console.log(`[DEBUG] getPictureHTML: Specific template not found, falling back to default.`);
-    iconTemplate = defaultIconTemplate;
+    iconTemplate = document.querySelector("#tpl-placeholder-icon-default");
   }
 
+  // Now, use the selected template (either specific or default)
   if (iconTemplate && iconTemplate.content) {
     console.log(`[DEBUG] getPictureHTML: Template found, cloning and appending.`);
     const clonedIcon = iconTemplate.content.cloneNode(true);
-    ph.appendChild(clonedIcon);
-  } else if (defaultIconTemplate && defaultIconTemplate.content) {
-    console.log(`[DEBUG] getPictureHTML: Default template found, cloning and appending.`);
-    // Fallback to default icon if specific one not found or invalid
-    const clonedIcon = defaultIconTemplate.content.cloneNode(true);
     ph.appendChild(clonedIcon);
   } else {
     console.warn(`[DEBUG] getPictureHTML: No icon template found for ${type} or default.`);
