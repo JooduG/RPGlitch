@@ -13,7 +13,6 @@ import {
   startUIWatchdog,
   installUIRecoveryHooks,
   installUIBlockerAttributeObserver,
-  applySignature,
   setChosen,
   handleAsyncError,
   chin,
@@ -926,12 +925,7 @@ async function renderList(containerId, key) {
       }
     }
 
-    applySignature(card, item);
-    try {
-      applySignature?.(media, item);
-    } catch (e) {
-      void e;
-    }
+    // Signature color is handled by CSS custom properties in getPictureHTML
 
     // Append chips to media (image area) for proper absolute positioning overlay
     // const footer = card.querySelector(".card-footer");
@@ -1352,69 +1346,7 @@ async function _ensureCardStructure(card) {
  * Error handling: Does not throw. Returns fallback div if all attempts fail.
  * Pure function: No DOM queries, only uses provided templates parameter.
  */
-function _buildPictureNode(
-  ent,
-  { preferTemplateForEmpty = true, templates } = {}
-) {
-  // Warn if templates object is missing (indicates improper usage)
-  if (!templates || typeof templates !== "object") {
-    console.warn(
-      "[_buildPictureNode] templates parameter is missing or invalid. Picture generation may fail."
-    );
-    templates = {};
-  }
-
-  const kind = (ent && ent.kind) || "";
-  const isEmpty = !ent || !ent.profilePictureUrl;
-  const hasEntity = !!(ent && (ent.id || ent.name));
-
-  // Try to use template for empty states
-  if (preferTemplateForEmpty && isEmpty && !hasEntity) {
-    const id = kind
-      ? `tpl-placeholder-icon-${kind}`
-      : "tpl-placeholder-icon-default";
-    const tpl = templates[id] || templates["tpl-placeholder-icon-default"];
-    if (tpl && tpl.content && tpl.content.firstElementChild) {
-      return tpl.content.firstElementChild.cloneNode(true);
-    }
-  }
-
-  // Generate picture HTML
-  let out = null;
-  try {
-    if (typeof getPictureHTML === "function") {
-      const maybe = getPictureHTML(ent || { kind }, {
-        context: "storyboard",
-        cover: true,
-        neutralPlaceholder: !hasEntity,
-        templates: templates, // Pass the templates object
-      });
-      if (maybe instanceof Node) {
-        out = maybe;
-      }
-      // Note: getPictureHTML always returns a Node, string branch removed for security
-    }
-  } catch {
-    /* empty */
-  }
-
-  // Fallback to empty div
-  if (!out) {
-    const div = document.createElement("div");
-    div.className = "picture picture--cover";
-    out = div;
-  }
-
-  // Configure image attributes
-  const img = out.querySelector?.("img");
-  if (img) {
-    img.loading = "lazy";
-    img.decoding = "async";
-    img.referrerPolicy = "no-referrer";
-    img.alt = img.alt || (ent?.kind ? `${ent.kind} image` : "image");
-  }
-  return out;
-}
+// _buildPictureNode removed - use getPictureHTML directly
 
 /**
  * Populates a storyboard card with entity data.
@@ -1431,8 +1363,11 @@ function _populateCardWithEntity(card, entity, elements, templates) {
   if (descEl) descEl.textContent = entity.description || "";
   if (media) {
     media.textContent = "";
-    media.appendChild(_buildPictureNode(entity, { templates }));
-    applySignature?.(media, entity);
+    const picture = getPictureHTML(entity, { cover: true, neutralPlaceholder: !entity?.id && !entity?.name });
+    if (picture) {
+      media.appendChild(picture);
+    }
+    // Signature color is handled by CSS custom properties in getPictureHTML
   }
 
   if (footer) {
@@ -1447,7 +1382,7 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     }
   }
 
-  applySignature(card, entity);
+  // Signature color is handled by CSS custom properties in getPictureHTML
   card.dataset.entityType = card.dataset.type || entity.kind || "";
   card.dataset.entityId = entity.id;
   const select = card.querySelector("select");
@@ -1476,9 +1411,10 @@ function _clearCard(card, elements, templates) {
   if (descEl) descEl.textContent = descEl.dataset.placeholder || "";
   if (media) {
     media.textContent = "";
-    media.appendChild(
-      _buildPictureNode({ kind: card.dataset.type }, { templates })
-    );
+    const picture = getPictureHTML({ type: card.dataset.type }, { cover: true, neutralPlaceholder: true });
+    if (picture) {
+      media.appendChild(picture);
+    }
     card?.style?.removeProperty("--signatureColour");
     media?.style?.removeProperty("--signatureColour");
   }
@@ -1673,9 +1609,7 @@ async function onStoryboardChange(e) {
     const id = select.value || "";
     if (type && id && typeof entities.get === "function") {
       const entity = await entities.get(type, id); // <-- AWAITED
-      if (entity) {
-        applySignature?.(left, entity);
-      }
+      // Signature color is handled by CSS custom properties in getPictureHTML
     }
   } catch {
     /* noop */

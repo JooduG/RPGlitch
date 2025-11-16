@@ -1,19 +1,7 @@
 /* global DOMPurify */
 import { db } from "./db.js"; // <-- Import our database
 import { log, error as warn } from "./utils.js";
-
-// --- UTILITY ---
-// Safely query for the default icon template at runtime.
-const defaultIconTemplate = (() => {
-  let node = null; // Initialize node to null
-  return () => {
-    // Always re-query if node is null or its content is not available
-    if (!node || !node.content) {
-      node = document.querySelector("#tpl-placeholder-icon-default");
-    }
-    return node;
-  };
-})();
+import { sanitizeHtml } from "./validation.js";
 
 // --- PREMADE CONTENT (Unchanged) ---
 const premade = {
@@ -116,14 +104,6 @@ const storeMap = {
 const STORAGE_VERSION = 1;
 
 // --- UTILITY FUNCTIONS (Unchanged) ---
-function sanitizeHtml(s) {
-  const v = typeof s === "string" ? s : String(s ?? "");
-  try {
-    return DOMPurify ? DOMPurify.sanitize(v) : v;
-  } catch {
-    return v;
-  }
-}
 
 function getDeterministicColor(seed) {
   let hash = 0;
@@ -204,6 +184,7 @@ export function getPictureHTML(entity = {}, options = {}) {
     img.src = src;
     img.loading = "lazy";
     img.decoding = "async";
+    img.referrerPolicy = "no-referrer";
     wrap.appendChild(img);
     return wrap;
   }
@@ -216,24 +197,12 @@ export function getPictureHTML(entity = {}, options = {}) {
     ph.style.color = "var(--signature-contrast)";
   }
 
-  // Use templates for placeholder icons
+  // Use templates for placeholder icons - simple lookup with fallback
   const iconTemplateId = `tpl-placeholder-icon-${type}`;
-  log(`getPictureHTML: Looking for template ID: ${iconTemplateId}`);
-  let iconTemplate = templates[iconTemplateId]; // Try to get from passed templates
+  const iconTemplate = document.querySelector(`#${iconTemplateId}`)
+    || document.querySelector('#tpl-placeholder-icon-default');
 
-  // If not found in passed templates or invalid, fall back to document.querySelector and then defaultIconTemplate
-  if (!iconTemplate || !iconTemplate.content) {
-    log(`getPictureHTML: Specific template #${iconTemplateId} not found in passed templates or invalid, falling back to document.querySelector.`);
-    iconTemplate = document.querySelector(`#${iconTemplateId}`);
-    if (!iconTemplate || !iconTemplate.content) {
-      log(`getPictureHTML: Specific template #${iconTemplateId} not found via querySelector, falling back to default.`);
-      iconTemplate = defaultIconTemplate();
-    }
-  }
-
-  // Now, use the selected template (either specific or default)
-  if (iconTemplate && iconTemplate.content) {
-    log(`getPictureHTML: Template found, cloning and appending.`);
+  if (iconTemplate?.content) {
     const clonedIcon = iconTemplate.content.cloneNode(true);
     ph.appendChild(clonedIcon);
   } else {

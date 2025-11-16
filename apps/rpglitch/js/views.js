@@ -8,7 +8,6 @@ import {
   getHashQuery,
   navigateBackOrReturnDefault,
   escapeHtml,
-  applySignature,
   replaceEventHandler,
   handleAsyncError,
   goBackWithFallback,
@@ -20,6 +19,7 @@ import {
   setTopBarRight,
   copyEntity,
 } from "./utils.js";
+import { isValidImageUrl, extractImageUrl } from "./validation.js";
 
 let refreshAllLists;
 let imageInput = null;
@@ -270,135 +270,7 @@ function createFieldRow(
   return fieldRow;
 }
 
-/**
- * Extracts and trims image URL from plugin response.
- * Handles multiple response formats from Perchance plugins.
- * Note: URL validation is handled separately by _isValidImageUrl()
- * @param {*} result - Plugin response (can be string, object, or various nested structures)
- * @returns {string|undefined} Trimmed URL string or undefined if no URL found
- */
-function _extractProfilePictureUrlFromPlugin(result) {
-  let profilePictureUrl;
-
-  // Check all possible response formats in priority order with type validation
-  if (result?.imageUrl && typeof result.imageUrl === "string") {
-    // Standard text-to-image response format
-    profilePictureUrl = result.imageUrl;
-  } else if (result?.dataUrl && typeof result.dataUrl === "string") {
-    // Alternative text-to-image format (data URLs)
-    profilePictureUrl = result.dataUrl;
-  } else if (result?.imageId && typeof result.imageId === "string") {
-    // Text-to-image format with separate ID and extension
-    const ext = (
-      (typeof result.fileExtension === "string" && result.fileExtension) ||
-      "jpeg"
-    ).replace(/^\./, "");
-    profilePictureUrl = `https://img.perchance.org/${result.imageId}.${ext}`;
-  } else if (typeof result === "string") {
-    // Direct string URL response
-    profilePictureUrl = result;
-  } else if (
-    result?.url &&
-    (typeof result.url === "string" || result.url instanceof String)
-  ) {
-    // Upload plugin standard format (handle primitive string or String object)
-    profilePictureUrl = String(result.url);
-  } else if (result?.file?.url && typeof result.file.url === "string") {
-    // Upload plugin nested format
-    profilePictureUrl = result.file.url;
-  } else if (result?.file && typeof result.file === "string") {
-    // Handle cases where result.file is the URL string directly
-    profilePictureUrl = result.file;
-  } else if (result?.name && typeof result.name === "string") {
-    // Unusual fallback: some plugin versions return URL in name field
-    console.warn(
-      '[RPGlitch] Plugin used unusual "name" field for URL. Result:',
-      result
-    );
-    profilePictureUrl = result.name;
-  } else if (result?.value && typeof result.value === "string") {
-    // Handle cases where result.value is the URL string directly
-    profilePictureUrl = result.value;
-  } else if (typeof result === "string") {
-    // Handle cases where the result itself is the URL string
-    profilePictureUrl = result;
-  }
-
-  // Trim whitespace if we got a string
-  if (typeof profilePictureUrl === "string") {
-    profilePictureUrl = profilePictureUrl.trim();
-    // Return undefined for empty strings after trim
-    if (profilePictureUrl === "") {
-      return undefined;
-    }
-  }
-
-  return profilePictureUrl || undefined;
-}
-
-// Valid image file extensions for URL validation
-const VALID_IMAGE_EXTENSIONS = [
-  "jpg",
-  "jpeg",
-  "png",
-  "gif",
-  "webp",
-  "bmp",
-  "svg",
-  "avif",
-  "heic",
-  "heif",
-];
-
-// Regex pattern for validating image file extensions in URLs (handles query params and fragments)
-const IMAGE_EXTENSION_REGEX = new RegExp(
-  `\\.(${VALID_IMAGE_EXTENSIONS.join("|")})(?:[?#].*)?$`,
-  "i"
-);
-
-/**
- * Validates that a URL is a valid image URL using SOTA URL parsing.
- * @param {string} url - The URL to validate
- * @param {boolean} allowDataUrls - Whether to allow data:image URLs (default: true)
- * @returns {boolean} True if the URL is valid, false otherwise
- */
-function _isValidProfilePictureUrl(url, allowDataUrls = true) {
-  if (!url || typeof url !== "string") {
-    return false;
-  }
-
-  // Check for data URLs first (they don't parse well with URL constructor)
-  const isDataImage = url.startsWith("data:image/");
-  if (isDataImage) {
-    return allowDataUrls;
-  }
-
-  // For non-data URLs, use URL constructor for robust validation
-  try {
-    const urlObj = new URL(url);
-
-    // Validate protocol (http, https, and blob are allowed)
-    const isValidProtocol =
-      urlObj.protocol === "http:" ||
-      urlObj.protocol === "https:" ||
-      urlObj.protocol === "blob:";
-
-    if (!isValidProtocol) {
-      return false;
-    }
-
-    // For blob URLs, pathname validation doesn't apply (no file extension)
-    if (urlObj.protocol === "blob:") {
-      return true;
-    }
-
-    // Validate file extension on pathname (not full URL, avoiding query param issues)
-    return IMAGE_EXTENSION_REGEX.test(urlObj.pathname);
-  } catch (error) {
-    // URL constructor throws on invalid URLs
-    return false;
-  }
-}
+// Validation functions now imported from validation.js module
 
 export async function renderStoryScreen(story, aiCharacter, userCharacter) {
   const leftColumn = document.querySelector("#story-left-character");
@@ -425,24 +297,18 @@ export async function renderStoryScreen(story, aiCharacter, userCharacter) {
 
   if (aiCharacter) {
     leftName.textContent = aiCharacter.name;
-    // Use getPictureHTML to render character image (with placeholder support)
-    leftImage.replaceChildren();
-    const leftPicture = getPictureHTML(aiCharacter, { cover: true });
-    if (leftPicture) {
-      leftImage.appendChild(leftPicture);
+    if (aiCharacter.profilePictureUrl && isValidImageUrl(aiCharacter.profilePictureUrl)) {
+      leftImage.style.backgroundImage = `url("${aiCharacter.profilePictureUrl.replace(/"/g, '\\"')}")`;
     }
-    applySignature(leftColumn, aiCharacter);
+    // Signature color is handled by CSS custom properties in getPictureHTML
   }
 
   if (userCharacter) {
     rightName.textContent = userCharacter.name;
-    // Use getPictureHTML to render character image (with placeholder support)
-    rightImage.replaceChildren();
-    const rightPicture = getPictureHTML(userCharacter, { cover: true });
-    if (rightPicture) {
-      rightImage.appendChild(rightPicture);
+    if (userCharacter.profilePictureUrl && isValidImageUrl(userCharacter.profilePictureUrl)) {
+      rightImage.style.backgroundImage = `url("${userCharacter.profilePictureUrl.replace(/"/g, '\\"')}")`;
     }
-    applySignature(rightColumn, userCharacter);
+    // Signature color is handled by CSS custom properties in getPictureHTML
   }
 
   if (story && story.messages) {
@@ -587,13 +453,13 @@ export async function renderProfilePage(type, id) {
       "[DEBUG] updateButtonState - value:",
       value,
       "isValidImageUrl:",
-      _isValidProfilePictureUrl(value, true)
+      isValidImageUrl(value, true)
     ); // Added log
 
     if (value === "") {
       actionButton.textContent = "Upload";
       actionButton.dataset.action = "upload";
-    } else if (value && !_isValidProfilePictureUrl(value, true)) {
+    } else if (value && !isValidImageUrl(value, true)) {
       actionButton.textContent = "Generate";
       actionButton.dataset.action = "generate";
     } else {
@@ -629,7 +495,7 @@ export async function renderProfilePage(type, id) {
 
     // Update live preview
     const val = imageInput.value.trim();
-    if (val && _isValidProfilePictureUrl(val, true)) {
+    if (val && isValidImageUrl(val, true)) {
       // Valid URL: update preview with sanitized URL
       const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
       const newPic = getPictureHTML
@@ -659,6 +525,39 @@ export async function renderProfilePage(type, id) {
     }
   });
 
+  // Double-click to reset profile picture input
+  imageInput.addEventListener("dblclick", (e) => {
+    e.preventDefault();
+
+    // Clear the input
+    imageInput.value = "";
+
+    // Revert to entity's original picture (or placeholder if none)
+    const originalPic = getPictureHTML
+      ? getPictureHTML(entity, { cover: true })
+      : null;
+    if (originalPic) {
+      const currentWrap = heroWrap.querySelector(".picture");
+      if (currentWrap) {
+        currentWrap.replaceWith(originalPic);
+      } else {
+        heroWrap.appendChild(originalPic);
+      }
+    }
+
+    // Update button state
+    updateButtonState();
+
+    // Optional: Show feedback to user
+    console.log("[RPGlitch] Profile picture input reset");
+  });
+
+  // Update tooltip to indicate double-click functionality
+  imageInput.setAttribute(
+    "data-tooltip",
+    "Type prompt, paste URL, or click Upload (double-click to reset)"
+  );
+
   // Set initial button state based on existing value
   updateButtonState();
 
@@ -679,7 +578,7 @@ export async function renderProfilePage(type, id) {
     }
 
     // Validate URL format
-    if (!_isValidProfilePictureUrl(trimmedUrl, true)) {
+    if (!isValidImageUrl(trimmedUrl, true)) {
       console.warn("[RPGlitch] updateImageInput: URL failed validation", {
         url: trimmedUrl,
       });
@@ -743,10 +642,10 @@ export async function renderProfilePage(type, id) {
         log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
 
         // Extract URL from plugin response (sanitized inside helper)
-        const profilePictureUrl = _extractProfilePictureUrlFromPlugin(result);
+        const profilePictureUrl = extractImageUrl(result);
 
         // Validate URL format (allow http/https, blob, and data:image URLs)
-        if (!profilePictureUrl || !_isValidProfilePictureUrl(profilePictureUrl, true)) {
+        if (!profilePictureUrl || !isValidImageUrl(profilePictureUrl, true)) {
           throw new Error(
             "Image generation failed: invalid or unsupported URL format"
           );
@@ -805,10 +704,10 @@ export async function renderProfilePage(type, id) {
           log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
           // Extract URL from plugin response (sanitized inside helper)
-          profilePictureUrl = _extractProfilePictureUrlFromPlugin(result); // Assign to already declared profilePictureUrl
+          profilePictureUrl = extractImageUrl(result); // Assign to already declared profilePictureUrl
 
           // Validate URL - now accepts blob URLs too (blob URLs are valid for uploads)
-          if (!profilePictureUrl || !_isValidProfilePictureUrl(profilePictureUrl, true)) {
+          if (!profilePictureUrl || !isValidImageUrl(profilePictureUrl, true)) {
             throw new Error(
               "Upload failed: invalid image URL received from plugin"
             );
@@ -826,7 +725,7 @@ export async function renderProfilePage(type, id) {
           fileInput.value = null; // Clear file input to allow re-uploading the same file
 
           // Display warning for temporary URL if upload was successful and a URL was received
-          if (profilePictureUrl && _isValidProfilePictureUrl(profilePictureUrl, true)) {
+          if (profilePictureUrl && isValidImageUrl(profilePictureUrl, true)) {
             showNotification(
               "Image uploaded! This is a temporary URL. Please re-host your image on a permanent service (like GitHub Gist or your own cloud storage) and replace this URL in the input field.",
               10000 // Display for 10 seconds
@@ -861,20 +760,19 @@ export async function renderProfilePage(type, id) {
     }
   });
 
-  // This listener correctly updates the preview
+  // This listener correctly updates the preview when palette changes
   paletteSelect.addEventListener("change", () => {
     const selectedColour = paletteSelect.value;
     const tempEntity = { ...entity, signatureColour: selectedColour };
-    applySignature?.(leftCol, tempEntity);
-    // Also update the hero wrapper and media to reflect signature color on placeholders
-    applySignature?.(heroWrap, tempEntity);
-    const media = heroWrap.querySelector(".card-media, .picture");
-    if (media) {
-      applySignature?.(media, tempEntity);
+
+    // Re-render the picture with the new signature color
+    const currentPicture = heroWrap.querySelector(".picture");
+    if (currentPicture) {
+      const newPicture = getPictureHTML(tempEntity, { cover: true });
+      newPicture.classList.add("hero-bleed");
+      currentPicture.replaceWith(newPicture);
     }
   });
-
-  applySignature?.(leftCol, entity); // Apply initial signature
 
   // The form and secWrap are already queried above
   const headerWrap = form.querySelector("[data-profile-header]");
