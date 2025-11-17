@@ -432,7 +432,10 @@ Build process (`build/scripts/build-app.js`):
 - Starting any coding task
 - User mentions "bug", "error", "warning", "issue", "fix"
 - Before debugging sessions
-- After making code changes
+- **MANDATORY: Immediately after ANY successful file edit** (Edit, Write, NotebookEdit tools)
+- After completing a series of related code changes
+- Before marking a task as complete
+**Example:** After editing views.js → You: [Silent call to getDiagnostics with file URI] → Check for linting errors, type errors, etc.
 </mcp>
 
 <mcp name="deepwiki" trigger="auto">
@@ -502,6 +505,10 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 4. **RULE:** Fail gracefully. If MCP errors, continue task and note the limitation.
 5. **RULE:** Don't over-use. Recognize when MCPs add no value to trivial tasks.
 6. **RULE:** Time MCP is mandatory for all timestamps. No exceptions.
+7. **RULE:** After EVERY file edit, ALWAYS call `mcp__ide__getDiagnostics` with the file URI to check for errors.
+8. **RULE:** When starting any coding task, call `mcp__ide__getDiagnostics` without URI to get full project diagnostics.
+9. **RULE:** Use thinking MCPs (waldzell-clear-thought, sequential-thinking) for debugging multi-step problems.
+10. **RULE:** Never wait for user to remind you to use MCPs - they are part of your default workflow.
 </mcp_operational_rules>
 
 <mcp_configuration>

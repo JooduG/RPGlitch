@@ -279,6 +279,31 @@ Then in right-panel JavaScript, copy to standard names via `setupPlugins()` func
 
 **Status:** Mitigated with error recovery in database init() function
 
+### Issue 5: Profile Image Input Not Interactable
+
+**Symptom:** On profile form pages (`#profile/character/new`, `#profile/world/new`), the image URL input field cannot be clicked or typed into. Upload button and signature color dropdown work correctly.
+
+**Root Cause:** The `.profile-left` parent container has `pointer-events: none` to allow image to act as backdrop. When entering edit mode, this CSS property cascaded to child elements, blocking interaction with the image input field specifically.
+
+**Fix Applied:** In `setEditMode()` function (`apps/rpglitch/js/views.js`):
+```javascript
+// Enable pointer-events on parent container when editing
+const profileLeft = screen.querySelector('.profile-left');
+if (profileLeft) {
+  profileLeft.style.pointerEvents = editing ? 'auto' : 'none';
+}
+
+// Enable pointer-events directly on imageInput element
+if (imageInput) {
+  imageInput.style.display = editing ? 'block' : 'none';
+  imageInput.style.pointerEvents = editing ? 'auto' : 'none';
+}
+```
+
+**Status:** FIXED in commit `[current]` (2025-11-17)
+
+**Note:** CSS rule `.is-editing .profile-left { pointer-events: auto; }` provides defense-in-depth but inline JavaScript style takes precedence to ensure reliability across browser rendering engines.
+
 ## Documentation References
 
 - [Perchance Official Tutorial](https://perchance.org/tutorial)

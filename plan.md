@@ -91,6 +91,7 @@
 | URL Validation Hardening | Implement SOTA URL validation using native URL constructor, replacing regex patterns | **HIGH** | **Done** | #280, #284 |
 | Type Safety Improvements | Add comprehensive type checking for all plugin responses and external data | **MEDIUM** | **Done** | #280 |
 | Image Upload Bug Fixes | Fix image upload, generation, and validation bugs in profile forms | **MEDIUM** | **Done** | #280-286 |
+| Profile Image Input Interactivity Fix | Fix pointer-events blocking image URL input field in profile edit mode | **MEDIUM** | **Done** | 2025-11-17 |
 | Chin Panel UI Fixes | Resolve chin panel closing immediately after opening, improve UX | **MEDIUM** | **Done** | #285, #286 |
 | Error Logging Consistency | Fix error logging to work consistently across development and production | **LOW** | **Done** | #279 |
 | Build Quality | Eliminate all build warnings and test errors from npm run deploy | **MEDIUM** | **Done** | #278 |
