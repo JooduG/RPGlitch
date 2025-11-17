@@ -1463,9 +1463,10 @@ function _populateCardWithEntity(card, entity, elements, templates) {
  * Error handling: Does not throw. Silently handles missing elements.
  */
 function _clearCard(card, elements, templates) {
-  const { media, titleEl, descEl, footer } = elements;
+  const { media, descEl, footer } = elements;
 
   // Set placeholder text for the title (select element)
+  const titleEl = card.querySelector(".card-title");
   if (titleEl) {
     titleEl.value = ""; // Ensure no option is selected
     const placeholderOption = titleEl.querySelector('option[value=""]');
