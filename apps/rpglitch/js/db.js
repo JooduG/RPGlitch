@@ -1,6 +1,8 @@
 // apps/rpglitch/js/db.js
 "use strict";
 
+import { log, error } from "./utils.js";
+
 // 1. Create the database instance.
 // In the browser, Dexie is provided globally by a vendored library.
 // In the Jest/Node.js test environment, we must require it.
@@ -30,7 +32,7 @@ db.version(1).stores({
 // This hook runs ONLY when the database is created for the first time.
 // It sets up the default settings singleton.
 db.on("populate", async (trans) => {
-  console.log("[RPGlitch DB] Populating new database with default settings...");
+  log("[RPGlitch DB] Populating new database with default settings...");
   try {
     const settings = trans.table("settings");
     await settings.put({
@@ -43,9 +45,9 @@ db.on("populate", async (trans) => {
       debugMode: false,
       storyboardSelection: { narrator: null, user: null, world: null },
     });
-    console.log("[RPGlitch DB] Default settings created successfully.");
+    log("[RPGlitch DB] Default settings created successfully.");
   } catch (err) {
-    console.error("[RPGlitch DB] Failed to populate default settings:", err);
+    error("[RPGlitch DB] Failed to populate default settings:", err);
     throw err; // Make sure the populate transaction fails if this fails
   }
 });
@@ -59,10 +61,10 @@ db.on("populate", async (trans) => {
 export async function init() {
   try {
     await db.open();
-    console.log("[RPGlitch DB] Database opened successfully.");
+    log("[RPGlitch DB] Database opened successfully.");
     return db; // Return the opened instance
   } catch (err) {
-    console.error(
+    error(
       "[RPGlitch DB] Failed to open database. You may need to manually delete it from browser DevTools.",
       err.stack || err
     );

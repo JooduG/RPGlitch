@@ -51,7 +51,8 @@
       "Bash(git commit:*)",
       "Bash(npm run deploy:*)",
       "mcp__waldzell-clear-thought__debuggingapproach",
-      "mcp__waldzell-clear-thought__sequentialthinking"
+      "mcp__waldzell-clear-thought__sequentialthinking",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

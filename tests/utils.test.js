@@ -104,7 +104,7 @@ test('handleAsyncError catches errors and returns fallback value', async () => {
   );
 
   expect(result).toBe('fallback value');
-  expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to test operation:', expect.any(Error));
+  expect(consoleErrorSpy).toHaveBeenCalledWith('[RPGlitch]', 'Failed to test operation:', expect.any(Error));
   expect(alertSpy).toHaveBeenCalledWith('Operation failed');
 
   consoleErrorSpy.mockRestore();

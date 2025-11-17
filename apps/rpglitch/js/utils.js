@@ -43,12 +43,12 @@ export function generateUUID() {
  * @returns {Promise<Object|null>} A promise resolving to the new entity or null.
  */
 export async function copyEntity(type, id) {
-  console.log(`Attempting to copy entity of type ${type} with id ${id}`);
+  log(`Attempting to copy entity of type ${type} with id ${id}`);
 
   // 1. Get the entity asynchronously
   const entityToCopy = await entities.get(type, id);
   if (!entityToCopy) {
-    console.error(`Entity with type ${type} and id ${id} not found.`);
+    error(`Entity with type ${type} and id ${id} not found.`);
     return null;
   }
 
@@ -97,8 +97,8 @@ export async function handleAsyncError(asyncFn, options = {}) {
 
   try {
     return await asyncFn();
-  } catch (error) {
-    console.error(`Failed to ${context}:`, error);
+  } catch (err) {
+    error(`Failed to ${context}:`, err);
     if (showAlert) {
       window.alert(errorMessage);
     }
@@ -162,7 +162,7 @@ export async function initDebugMode() {
       isDebug = !!settings.debugMode;
     }
   } catch (e) {
-    console.error("Failed to load debug mode from settings:", e);
+    error("Failed to load debug mode from settings:", e);
     isDebug = false;
   }
   return isDebug;
@@ -329,7 +329,7 @@ export function dismissLoadingUI() {
     log?.("dismissLoadingUI: ensured interactive state");
   } catch (e) {
     try {
-      console.warn("dismissLoadingUI failed", e);
+      log("dismissLoadingUI failed", e);
     } catch {
       void 0;
     }
@@ -607,17 +607,13 @@ export function startUIWatchdog() {
         if (lastBlocked !== true) {
           // Always surface first detection once for diagnostics
           try {
-            console.log("[RPGlitch] ui.watchdog: blocked", {
+            log("[RPGlitch] ui.watchdog: blocked", {
               reason: st.reason,
               node: describe(st.node),
             });
           } catch {
             void 0;
           }
-          log?.("ui.watchdog: blocked", {
-            reason: st.reason,
-            node: describe(st.node),
-          });
         }
         // Attempt to self-heal our own overlays
         dismissLoadingUI?.();
@@ -633,8 +629,8 @@ export function startUIWatchdog() {
               reason: st.reason,
               node: describe(st.node),
             };
-            // Use console.log so external scribblers capture it reliably
-            console.log("[RPGlitch] ui.watchdog: still blocked", info);
+            // Use log() for standardized logging
+            log("[RPGlitch] ui.watchdog: still blocked", info);
             lastWarnAt = now;
           } catch {
             void 0;
@@ -682,7 +678,7 @@ export function startUIWatchdog() {
     // Run immediately once
     tick();
     try {
-      console.log("[RPGlitch] ui.watchdog: armed");
+      log("[RPGlitch] ui.watchdog: armed");
     } catch {
       void 0;
     }

@@ -235,7 +235,7 @@ function createFieldRow(
 ) {
   const template = context.querySelector("#tpl-profile-field-section");
   if (!template) {
-    console.error("Field row template not found!");
+    error("Field row template not found!");
     return document.createElement("div"); // Return a fallback element
   }
   const fieldRow = template.content.firstElementChild.cloneNode(true);
@@ -443,7 +443,7 @@ export async function renderProfilePage(type, id) {
   // --- 3. Build Static Layout ---
   const template = document.querySelector("#tpl-profile-page");
   if (!template) {
-    console.error("Profile page template not found!");
+    error("Profile page template not found!");
     return;
   }
   const layout = template.content.firstElementChild.cloneNode(true);
@@ -485,7 +485,7 @@ export async function renderProfilePage(type, id) {
 
   function updateButtonState() {
     const value = imageInput.value.trim();
-    console.log(
+    log(
       "[DEBUG] updateButtonState - value:",
       value,
       "isValidImageUrl:",
@@ -511,7 +511,7 @@ export async function renderProfilePage(type, id) {
     const actionName = isUpload ? "Upload" : "Image generation";
     const pluginName = isUpload ? "Upload plugin" : "Plugin";
 
-    console.error(`${actionName} error:`, error);
+    error(`${actionName} error:`, error);
 
     if (error.message && error.message.includes("postMessage")) {
       showNotification(
@@ -588,7 +588,7 @@ export async function renderProfilePage(type, id) {
     updateButtonState();
 
     // Optional: Show feedback to user
-    console.log("[RPGlitch] Profile picture input reset");
+    log("[RPGlitch] Profile picture input reset");
   });
 
   // Update tooltip to indicate double-click functionality
@@ -603,7 +603,7 @@ export async function renderProfilePage(type, id) {
   function updateImageInput(input, url) {
     // Type check and trim whitespace
     if (!url || typeof url !== "string") {
-      console.warn(
+      log(
         "[RPGlitch] updateImageInput: Invalid URL type or empty value",
         { url, type: typeof url }
       );
@@ -612,13 +612,13 @@ export async function renderProfilePage(type, id) {
 
     const trimmedUrl = url.trim();
     if (!trimmedUrl) {
-      console.warn("[RPGlitch] updateImageInput: URL is empty after trimming");
+      log("[RPGlitch] updateImageInput: URL is empty after trimming");
       return;
     }
 
     // Validate URL format
     if (!isValidImageUrl(trimmedUrl, true)) {
-      console.warn("[RPGlitch] updateImageInput: URL failed validation", {
+      log("[RPGlitch] updateImageInput: URL failed validation", {
         url: trimmedUrl,
       });
       return;
@@ -630,7 +630,7 @@ export async function renderProfilePage(type, id) {
       : trimmedUrl;
 
     // Debug log successful update
-    console.log(
+    log(
       "[RPGlitch] updateImageInput: Setting validated and sanitized URL",
       {
         original: url,
@@ -677,7 +677,7 @@ export async function renderProfilePage(type, id) {
           guidanceScale: DEFAULT_GUIDANCE_SCALE,
           resolution: "512x768", // Force portrait aspect ratio for all generated images
         });
-        console.log("[DEBUG] T2I Plugin Raw Result:", result); // Added log
+        log("[DEBUG] T2I Plugin Raw Result:", result); // Added log
         log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
 
         // Extract URL from plugin response (sanitized inside helper)
@@ -739,7 +739,7 @@ export async function renderProfilePage(type, id) {
           const fileDataUrl = reader.result; // This is a string
 
           const result = await window.upload(fileDataUrl); // Pass the Data URL string
-          console.log("[DEBUG] Upload Plugin Raw Result:", result); // Added log
+          log("[DEBUG] Upload Plugin Raw Result:", result); // Added log
           log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
           // Extract URL from plugin response (sanitized inside helper)
@@ -984,7 +984,7 @@ export async function renderProfilePage(type, id) {
           `#profile/${type}/new?clone=true&return=#profile/${type}/${id}`
         );
       } else {
-        console.error("Copy operation failed or returned no entity.");
+        error("Copy operation failed or returned no entity.");
       }
     };
     replaceEventHandler(copyBtn, "click", copyHandler, "_copyHandler");
@@ -1013,7 +1013,7 @@ export async function renderProfilePage(type, id) {
           await refreshAllLists?.();
           router.navigate("#storyboard");
         } catch (error) {
-          console.error("Delete failed:", error);
+          error("Delete failed:", error);
           alert(error.message || "Failed to delete. Please try again.");
         }
       }

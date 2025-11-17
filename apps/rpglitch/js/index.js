@@ -606,7 +606,7 @@ ${characterName}: Careful what you touch. Some items here... bite.
       if (App.state.ui.abortController) {
         App.state.ui.abortController.abort();
         App.state.applyPatch({ ui: { fsm: "aborted", abortController: null } });
-        console.log("Story stream aborted.");
+        log("Story stream aborted.");
       }
     },
     retry: async () => {
@@ -873,7 +873,7 @@ export async function getAllItems(key, refresh = false) {
   }
 
   // Fallback to empty array if entities module is not available
-  console.warn(`getAllItems: entities.list not available for type "${type}"`);
+  log(`getAllItems: entities.list not available for type "${type}"`);
   _allItemsCache[key] = [];
   return [];
 }
@@ -1030,7 +1030,8 @@ async function renderDropdown(doc, selectId, key) {
     : doc.createElement("option");
   placeholder.value = "";
   placeholder.textContent = placeholderText;
-  select.appendChild(placeholder);
+  placeholder.selected = true; // Make it the default selected option
+  select.prepend(placeholder); // Add as the first child
   const items = await getAllItems(key); // <-- AWAITED
   const premadeGroup = doc.createElement("optgroup");
   premadeGroup.label = "Premade";
@@ -1315,6 +1316,13 @@ async function _ensureCardStructure(card) {
         if (selectId) newTitleEl.id = selectId;
         newTitleEl.dataset.entityType = cardType;
         newTitleEl.dataset.type = cardType;
+        if (card.id === "storyboard-card-narrator") {
+          newTitleEl.dataset.placeholder = "Select AI Character";
+        } else if (card.id === "storyboard-card-user") {
+          newTitleEl.dataset.placeholder = "Select Your Character";
+        } else if (card.id === "storyboard-card-world") {
+          newTitleEl.dataset.placeholder = "Select World";
+        }
         newBody.appendChild(newTitleEl);
 
         const newDescEl = document.createElement("p");
@@ -1396,7 +1404,7 @@ async function _ensureCardStructure(card) {
  * Error handling: Does not throw. Silently handles missing elements.
  */
 function _populateCardWithEntity(card, entity, elements, templates) {
-  const { media, descEl, footer } = elements;
+  const { media, titleEl, descEl, footer } = elements;
   if (descEl) descEl.textContent = entity.description || "";
   if (media) {
     media.textContent = "";
@@ -1407,7 +1415,6 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     if (picture) {
       media.appendChild(picture);
     }
-    // Signature color is handled by CSS custom properties in getPictureHTML
   }
 
   if (footer) {
@@ -1415,6 +1422,9 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     if (entity.isPremade) {
       const pill = document.createElement("span");
       pill.className = "chip";
+      if (entity.signatureColour) {
+        pill.style.setProperty("--signature", `var(--pico-${entity.signatureColour.toLowerCase()})`);
+      }
       const sm = document.createElement("small");
       sm.textContent = "Premade";
       pill.appendChild(sm);
@@ -1422,7 +1432,14 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     }
   }
 
-  // Signature color is handled by CSS custom properties in getPictureHTML
+  if (entity.signatureColour) {
+    card.style.setProperty("--signature", `var(--pico-${entity.signatureColour.toLowerCase()})`);
+    if (titleEl) titleEl.style.color = `var(--pico-${entity.signatureColour.toLowerCase()}-contrast, #fff)`;
+  } else {
+    card.style.removeProperty("--signature");
+    if (titleEl) titleEl.style.removeProperty("color");
+  }
+
   card.dataset.entityType = card.dataset.type || entity.kind || "";
   card.dataset.entityId = entity.id;
   const select = card.querySelector("select");
@@ -1447,8 +1464,38 @@ function _populateCardWithEntity(card, entity, elements, templates) {
  * Error handling: Does not throw. Silently handles missing elements.
  */
 function _clearCard(card, elements, templates) {
-  const { media, descEl, footer } = elements;
-  if (descEl) descEl.textContent = descEl.dataset.placeholder || "";
+  const { media, titleEl, descEl, footer } = elements;
+
+  // Set placeholder text for the title (select element)
+  if (titleEl) {
+    titleEl.value = ""; // Ensure no option is selected
+    titleEl.style.color = "white"; // Set text color to white for empty state
+    const placeholderOption = titleEl.querySelector('option[value=""]');
+    if (placeholderOption) {
+      placeholderOption.textContent = titleEl.dataset.placeholder || "";
+    }
+  }
+
+  // Set descriptive placeholder for the description
+  if (descEl) {
+    let placeholderText = "";
+    switch (card.id) {
+      case "storyboard-card-narrator":
+        placeholderText = "Select the AI character for your story.";
+        break;
+      case "storyboard-card-user":
+        placeholderText = "Select your character to play the story.";
+        break;
+      case "storyboard-card-world":
+        placeholderText = "Select a world to set the scene.";
+        break;
+      default:
+        placeholderText = "Select an entity.";
+    }
+    descEl.textContent = placeholderText;
+    descEl.classList.add("placeholder-text");
+  }
+
   if (media) {
     media.textContent = "";
     const picture = getPictureHTML(
@@ -1458,8 +1505,7 @@ function _clearCard(card, elements, templates) {
     if (picture) {
       media.appendChild(picture);
     }
-    card?.style?.removeProperty("--signatureColour");
-    media?.style?.removeProperty("--signatureColour");
+    card?.style?.removeProperty("--signature");
   }
   if (footer) footer.querySelectorAll(".chip").forEach((n) => n.remove());
   card.classList.remove("chosen");
@@ -1886,7 +1932,7 @@ export function _attachContentChinActions() {
               );
               alert(`Successfully imported ${validData.length} ${type}(s).`);
             } else {
-              console.warn(`Import for type "${type}" is not supported`);
+              log(`Import for type "${type}" is not supported`);
               alert(`Import for type "${type}" is not supported.`);
             }
             await refreshAllLists(); // <-- AWAITED
@@ -2236,7 +2282,7 @@ export async function initializeWhenReady() {
       });
     }
 
-    console.log("[RPGlitch] initializeWhenReady start", {
+    log("[RPGlitch] initializeWhenReady start", {
       // <-- ADDED
       retry: window.initializeWhenReadyRetryCount || 0,
     });
@@ -2413,7 +2459,7 @@ export async function importAllData(file) {
 
       // 1. Validate version
       if (data.version !== 1) {
-        console.warn(
+        log(
           "Imported data version mismatch. Attempting to import anyway."
         );
         // In a real application, you might want to handle migrations here.

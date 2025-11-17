@@ -1,5 +1,5 @@
 import { db } from "./db.js"; // <-- Import our database
-import { error as warn } from "./utils.js";
+import { log, error } from "./utils.js";
 import { sanitizeHtml } from "./validation.js";
 
 // --- PREMADE CONTENT (Unchanged) ---
@@ -207,7 +207,7 @@ export function getPictureHTML(entity = {}, options = {}) {
     const clonedIcon = iconTemplate.content.cloneNode(true);
     ph.appendChild(clonedIcon);
   } else {
-    warn(`getPictureHTML: No icon template found for ${type} or default.`);
+    log(`getPictureHTML: No icon template found for ${type} or default.`);
   }
 
   ph.setAttribute("role", "img");
@@ -295,8 +295,8 @@ export const entities = {
         .where("[type+isCustom]")
         .equals([type, 1]) // 1 = custom
         .toArray();
-    } catch (error) {
-      console.error("Error fetching custom entities:", error);
+    } catch (err) {
+      error("Error fetching custom entities:", err);
       return premadeList; // Return premade if DB fails
     }
 
@@ -325,8 +325,8 @@ export const entities = {
 
       // 3. Ensure it's the correct type before returning
       return item && item.type === type ? item : null;
-    } catch (error) {
-      console.error(`Failed to get ${type} with id ${id}:`, error);
+    } catch (err) {
+      error(`Failed to get ${type} with id ${id}:`, err);
       return null;
     }
   },
@@ -358,8 +358,8 @@ export const entities = {
       // Dexie's 'put' is a perfect "upsert" command
       await db.entities.put(saved);
       return saved;
-    } catch (error) {
-      console.error(`Failed to save ${type}:`, error);
+    } catch (err) {
+      error(`Failed to save ${type}:`, err);
       throw new Error(`Failed to save ${type}. Please try again.`);
     }
   },
@@ -389,8 +389,8 @@ export const entities = {
       if (item && item.type === type && item.isCustom === 1) {
         return db.entities.delete(id);
       }
-    } catch (error) {
-      console.error(`Failed to delete ${type}:`, error);
+    } catch (err) {
+      error(`Failed to delete ${type}:`, err);
       throw new Error(`Could not delete ${type}. Please try again.`);
     }
   },
@@ -408,8 +408,8 @@ export const entities = {
 
       // Return a deep copy, relying on the already flattened structure from get()
       return { ...item };
-    } catch (error) {
-      console.error(`Failed to copy ${type}:`, error);
+    } catch (err) {
+      error(`Failed to copy ${type}:`, err);
       return null;
     }
   },

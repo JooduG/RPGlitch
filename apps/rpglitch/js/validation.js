@@ -5,6 +5,8 @@
  * @module validation
  */
 
+import { log } from "./utils.js";
+
 /**
  * Valid image file extensions.
  * Covers common web formats and some legacy formats.
@@ -87,7 +89,7 @@ export function isValidImageUrl(urlString, allowLog = false) {
     // Protocol validation - security critical
     if (!VALID_PROTOCOLS.includes(urlObj.protocol)) {
       if (allowLog) {
-        console.warn("[Validation] Invalid protocol:", urlObj.protocol);
+        log("[Validation] Invalid protocol:", urlObj.protocol);
       }
       return false;
     }
@@ -96,7 +98,7 @@ export function isValidImageUrl(urlString, allowLog = false) {
     if (urlObj.protocol === "data:") {
       const isImageDataUrl = urlString.startsWith("data:image/");
       if (!isImageDataUrl && allowLog) {
-        console.warn("[Validation] Data URL must be image/* MIME type");
+        log("[Validation] Data URL must be image/* MIME type");
       }
       return isImageDataUrl;
     }
@@ -109,7 +111,7 @@ export function isValidImageUrl(urlString, allowLog = false) {
     // Extension validation for http/https URLs
     const hasValidExtension = IMAGE_EXTENSION_REGEX.test(urlObj.pathname);
     if (!hasValidExtension && allowLog) {
-      console.warn(
+      log(
         "[Validation] Missing or invalid image extension in:",
         urlObj.pathname
       );
@@ -117,7 +119,7 @@ export function isValidImageUrl(urlString, allowLog = false) {
     return hasValidExtension;
   } catch (error) {
     if (allowLog) {
-      console.warn("[Validation] URL parse error:", error.message);
+      log("[Validation] URL parse error:", error.message);
     }
     return false;
   }
