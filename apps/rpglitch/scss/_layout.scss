@@ -201,7 +201,7 @@ body.profile-view-active .top-bar {
   grid-template-columns: var(--layout-left-col) var(--layout-center-col) var(
       --layout-right-col
     ); /* 25% hero | 50% content | 25% breathing room */
-    
+
   gap: 0;
 
   @include foundation.mobile {

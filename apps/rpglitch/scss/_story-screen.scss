@@ -125,7 +125,8 @@ body.story-active {
   max-width: 80%;
   word-wrap: break-word;
 
-  &.narrator, &.ai {
+  &.narrator,
+  &.ai {
     background-color: var(--pico-muted-background-color);
     align-self: flex-start;
   }

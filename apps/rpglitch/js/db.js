@@ -18,9 +18,11 @@ const db = new Dexie("rpglitch");
 // All previous migration logic has been "nuked" into this single version.
 db.version(1).stores({
   entities:
-    "++id, name, description,  forever, past, present, future, profilePicture, signatureColour, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
-  stories: "++id, title, aiCharacterId, userCharacterId, worldId, settingsSnapshot, createdAt, updatedAt",
-  messages: "++id, storyId, role, type, characterName, text, seed, meta, createdAt",
+    "++id, name, description, forever, past, present, future, profilePicture, signatureColour, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
+  stories:
+    "++id, title, aiCharacterId, userCharacterId, worldId, settingsSnapshot, createdAt, updatedAt",
+  messages:
+    "++id, storyId, role, type, characterName, text, seed, meta, createdAt",
   settings: "id", // Singleton settings table
 });
 

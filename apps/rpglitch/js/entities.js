@@ -166,7 +166,8 @@ export function getPictureHTML(entity = {}, options = {}) {
   // Use 'type' directly, no 'kind' fallback
   const type = (entity.type || "default").toLowerCase();
   const src =
-    typeof entity.profilePictureUrl === "string" && entity.profilePictureUrl.trim()
+    typeof entity.profilePictureUrl === "string" &&
+    entity.profilePictureUrl.trim()
       ? entity.profilePictureUrl.trim()
       : "";
   const signature = getSignature(entity);
@@ -198,8 +199,9 @@ export function getPictureHTML(entity = {}, options = {}) {
 
   // Use templates for placeholder icons - simple lookup with fallback
   const iconTemplateId = `tpl-placeholder-icon-${type}`;
-  const iconTemplate = document.querySelector(`#${iconTemplateId}`)
-    || document.querySelector('#tpl-placeholder-icon-default');
+  const iconTemplate =
+    document.querySelector(`#${iconTemplateId}`) ||
+    document.querySelector("#tpl-placeholder-icon-default");
 
   if (iconTemplate?.content) {
     const clonedIcon = iconTemplate.content.cloneNode(true);

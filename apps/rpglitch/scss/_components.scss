@@ -708,7 +708,8 @@ $signature-palettes: (
       rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 25%);
   }
 
-  #story-screen[data-narrator-palette="#{$name}"] .story-message[role="narrator"] {
+  #story-screen[data-narrator-palette="#{$name}"]
+    .story-message[role="narrator"] {
     border-left: 4px solid #{$color};
     box-shadow: 0
       2px

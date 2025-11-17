@@ -3,7 +3,12 @@
 // --- [FIX 1: IMPORT BLOCK] ---
 // Added all the missing functions that were causing 'no-undef' errors.
 import { entities, getPictureHTML } from "./entities.js";
-import { initViews, router, renderStoryScreen, renderMessage } from "./views.js";
+import {
+  initViews,
+  router,
+  renderStoryScreen,
+  renderMessage,
+} from "./views.js";
 import { db } from "./db.js";
 import {
   log,
@@ -118,7 +123,9 @@ const App = {
       );
 
       // Build system prompt with IC/OOC instructions
-      const characterPersona = [ch?.persona, ch?.scenario].filter(Boolean).join("\n\n");
+      const characterPersona = [ch?.persona, ch?.scenario]
+        .filter(Boolean)
+        .join("\n\n");
       const characterName = ch?.name || "Character";
 
       log(`Building prompt for character: ${characterName}`);
@@ -149,7 +156,9 @@ ${characterName}: Careful what you touch. Some items here... bite.
 ✗ BAD: Three segments (TOO MANY)
 `;
 
-      const system = [characterPersona, icOocInstructions].filter(Boolean).join("\n\n");
+      const system = [characterPersona, icOocInstructions]
+        .filter(Boolean)
+        .join("\n\n");
 
       const params = {
         temperature: App.state.settings.temperature,
@@ -200,7 +209,8 @@ ${characterName}: Careful what you touch. Some items here... bite.
           for (const msg of payload.messages) {
             // Capitalize role for prompt formatting (user -> User, narrator -> Narrator, etc.)
             const role = msg.role
-              ? msg.role.charAt(0).toUpperCase() + msg.role.slice(1).toLowerCase()
+              ? msg.role.charAt(0).toUpperCase() +
+                msg.role.slice(1).toLowerCase()
               : "Narrator";
             instruction += `${role}: ${msg.text}\n\n`;
           }
@@ -244,7 +254,7 @@ ${characterName}: Careful what you touch. Some items here... bite.
      */
     parseUserInput: (text, userCharacter) => {
       // Check for /director prefix (OOC command)
-      if (text.startsWith('/director ')) {
+      if (text.startsWith("/director ")) {
         return {
           type: "OOC",
           text: text.substring(10).trim(), // Remove "/director "
@@ -252,7 +262,7 @@ ${characterName}: Careful what you touch. Some items here... bite.
       }
 
       // Shortcut: /continue
-      if (text === '/continue') {
+      if (text === "/continue") {
         return {
           type: "OOC",
           text: "Continue the story",
@@ -260,7 +270,7 @@ ${characterName}: Careful what you touch. Some items here... bite.
       }
 
       // Shortcut: /retry
-      if (text === '/retry') {
+      if (text === "/retry") {
         return {
           type: "OOC",
           text: "Retry the last response",
@@ -291,15 +301,20 @@ ${characterName}: Careful what you touch. Some items here... bite.
       if (trimmedText.startsWith("Narrator:")) {
         // Format 2: Look for character response after narrator
         // Pattern: "Narrator: ...\nCharacterName: ..."
-        const narratorPattern = /^Narrator:\s*([\s\S]*?)(?=\n\s*[A-Za-z\s'-]+:\s*|$)/;
+        const narratorPattern =
+          /^Narrator:\s*([\s\S]*?)(?=\n\s*[A-Za-z\s'-]+:\s*|$)/;
         const narratorMatch = trimmedText.match(narratorPattern);
 
         if (narratorMatch) {
           const narratorText = narratorMatch[1].trim();
-          const remainingText = trimmedText.substring(narratorMatch[0].length).trim();
+          const remainingText = trimmedText
+            .substring(narratorMatch[0].length)
+            .trim();
 
           // Look for character response
-          const characterPattern = new RegExp(`^([A-Za-z\\s'-]+):\\s*([\\s\\S]+)$`);
+          const characterPattern = new RegExp(
+            `^([A-Za-z\\s'-]+):\\s*([\\s\\S]+)$`
+          );
           const characterMatch = remainingText.match(characterPattern);
 
           if (characterMatch) {
@@ -314,7 +329,7 @@ ${characterName}: Careful what you touch. Some items here... bite.
                 type: "IC",
                 text: characterMatch[2].trim(),
                 characterName: characterMatch[1].trim(),
-              }
+              },
             ];
           } else {
             // Only narrator found (should be rare based on our rules)
@@ -323,7 +338,7 @@ ${characterName}: Careful what you touch. Some items here... bite.
                 type: "OOC",
                 text: narratorText,
                 characterName: null,
-              }
+              },
             ];
           }
         }
@@ -340,7 +355,7 @@ ${characterName}: Careful what you touch. Some items here... bite.
             type: "IC",
             text: characterMatch[2].trim(),
             characterName: characterMatch[1].trim(),
-          }
+          },
         ];
       }
 
@@ -350,7 +365,7 @@ ${characterName}: Careful what you touch. Some items here... bite.
           type: "IC",
           text: trimmedText,
           characterName: characterName,
-        }
+        },
       ];
     },
 
@@ -371,7 +386,10 @@ ${characterName}: Careful what you touch. Some items here... bite.
         }
 
         // Load the most recent story from database
-        const stories = await db.stories.orderBy("updatedAt").reverse().toArray();
+        const stories = await db.stories
+          .orderBy("updatedAt")
+          .reverse()
+          .toArray();
 
         if (stories.length === 0) {
           log("No stories found in database.");
@@ -401,7 +419,12 @@ ${characterName}: Careful what you touch. Some items here... bite.
       }
     },
 
-    createFromSelection: async ({ storyTitle, aiCharacterId, userCharacterId, worldId }) => {
+    createFromSelection: async ({
+      storyTitle,
+      aiCharacterId,
+      userCharacterId,
+      worldId,
+    }) => {
       try {
         const ch = Object.values(App.state.characters.byId).find(
           (c) => c.id === aiCharacterId && c.type === "character"
@@ -422,9 +445,9 @@ ${characterName}: Careful what you touch. Some items here... bite.
         App.applyPatch({
           story: {
             activeId: storyId,
-            byId: { [storyId]: newStory }
+            byId: { [storyId]: newStory },
           },
-          ui: { title }
+          ui: { title },
         });
         return storyId;
       } catch (err) {
@@ -464,20 +487,26 @@ ${characterName}: Careful what you touch. Some items here... bite.
       if (!storyFeed) return;
 
       // Clear existing messages
-      storyFeed.innerHTML = '';
+      storyFeed.innerHTML = "";
 
       const messages = App.state.messages.byStoryId[storyId] || [];
       const noMessagesEl = document.querySelector("#no-messages");
 
       if (messages.length === 0) {
-        if(noMessagesEl) noMessagesEl.hidden = false;
+        if (noMessagesEl) noMessagesEl.hidden = false;
         return;
       }
 
-      if(noMessagesEl) noMessagesEl.hidden = true;
+      if (noMessagesEl) noMessagesEl.hidden = true;
 
-      messages.forEach(msg => {
-        renderMessage(storyFeed, msg.role, msg.text, msg.characterName, msg.type);
+      messages.forEach((msg) => {
+        renderMessage(
+          storyFeed,
+          msg.role,
+          msg.text,
+          msg.characterName,
+          msg.type
+        );
       });
 
       storyFeed.scrollTop = storyFeed.scrollHeight;
@@ -493,7 +522,9 @@ ${characterName}: Careful what you touch. Some items here... bite.
       // Get user's character for IC messages
       // Note: We need to determine which character is the user's
       // For now, we'll get this from the storyboard selection
-      const userCharacterSelect = document.querySelector("#storyboard-card-user-select");
+      const userCharacterSelect = document.querySelector(
+        "#storyboard-card-user-select"
+      );
       const userCharacterId = userCharacterSelect?.value;
       let userCharacter = null;
       if (userCharacterId) {
@@ -549,7 +580,8 @@ ${characterName}: Careful what you touch. Some items here... bite.
             payload,
             signal: ctrl.signal,
             onToken: (t) => App.story._appendAssistantToken(storyId, t),
-            onDone: async () => await App.story._finalizeAssistantMessage(storyId),
+            onDone: async () =>
+              await App.story._finalizeAssistantMessage(storyId),
           });
 
           App.applyPatch({ ui: { fsm: "done" } });
@@ -656,7 +688,10 @@ ${characterName}: Careful what you touch. Some items here... bite.
           }
         }
 
-        const parsedMessages = App.story.parseNarratorResponse(lastMessage.text, aiCharacter);
+        const parsedMessages = App.story.parseNarratorResponse(
+          lastMessage.text,
+          aiCharacter
+        );
 
         // Save each parsed message to database
         const baseTimestamp = lastMessage.createdAt || Date.now();
@@ -675,7 +710,9 @@ ${characterName}: Careful what you touch. Some items here... bite.
         // Update story's updatedAt timestamp
         await db.stories.update(storyId, { updatedAt: Date.now() });
 
-        log(`Finalized and saved ${parsedMessages.length} message(s) for story ${storyId}`);
+        log(
+          `Finalized and saved ${parsedMessages.length} message(s) for story ${storyId}`
+        );
 
         // Reload messages from database to update UI with properly parsed messages
         await App.story.loadMessages(storyId);
@@ -696,7 +733,7 @@ window.App = App;
 let _allItemsCache = {}; // Local cache for lists
 
 const TEST_MODE = (() => {
-  if (typeof globalThis.__TEST__ === 'boolean') {
+  if (typeof globalThis.__TEST__ === "boolean") {
     return globalThis.__TEST__;
   }
   try {
@@ -786,7 +823,7 @@ async function saveStoryboardSelection() {
   const selects = {
     narrator: document.querySelector("#storyboard-card-narrator-select")?.value,
     user: document.querySelector("#storyboard-card-user-select")?.value,
-    world: document.querySelector("#storyboard-card-world-select")?.value
+    world: document.querySelector("#storyboard-card-world-select")?.value,
   };
   try {
     // Get existing settings or create new one
@@ -1363,7 +1400,10 @@ function _populateCardWithEntity(card, entity, elements, templates) {
   if (descEl) descEl.textContent = entity.description || "";
   if (media) {
     media.textContent = "";
-    const picture = getPictureHTML(entity, { cover: true, neutralPlaceholder: !entity?.id && !entity?.name });
+    const picture = getPictureHTML(entity, {
+      cover: true,
+      neutralPlaceholder: !entity?.id && !entity?.name,
+    });
     if (picture) {
       media.appendChild(picture);
     }
@@ -1411,7 +1451,10 @@ function _clearCard(card, elements, templates) {
   if (descEl) descEl.textContent = descEl.dataset.placeholder || "";
   if (media) {
     media.textContent = "";
-    const picture = getPictureHTML({ type: card.dataset.type }, { cover: true, neutralPlaceholder: true });
+    const picture = getPictureHTML(
+      { type: card.dataset.type },
+      { cover: true, neutralPlaceholder: true }
+    );
     if (picture) {
       media.appendChild(picture);
     }
@@ -1646,7 +1689,9 @@ export async function _attachStoryboardListeners() {
   }
 
   async function beginStory() {
-    const narratorSelect = document.querySelector("#storyboard-card-narrator-select");
+    const narratorSelect = document.querySelector(
+      "#storyboard-card-narrator-select"
+    );
     const userSelect = document.querySelector("#storyboard-card-user-select");
     const worldSelect = document.querySelector("#storyboard-card-world-select");
 
@@ -1943,9 +1988,18 @@ export function _attachStoryFormListener() {
       const message = input.value.trim();
       if (message) {
         // Render the user's message immediately
-        const userCharacter = await entities.get("character", App.state.story.byId[App.state.story.activeId].userId);
+        const userCharacter = await entities.get(
+          "character",
+          App.state.story.byId[App.state.story.activeId].userId
+        );
         const storyFeed = document.querySelector("#story-feed");
-        renderMessage(storyFeed, "user", message, userCharacter?.name || "You", "IC");
+        renderMessage(
+          storyFeed,
+          "user",
+          message,
+          userCharacter?.name || "You",
+          "IC"
+        );
 
         // Disable input and send to AI
         input.value = "";
@@ -1996,7 +2050,11 @@ export function isPluginPathAvailable(path) {
   }
 
   // Prevent potentially dangerous paths
-  if (path.includes("__proto__") || path.includes("constructor") || path.includes("prototype")) {
+  if (
+    path.includes("__proto__") ||
+    path.includes("constructor") ||
+    path.includes("prototype")
+  ) {
     return false;
   }
 

@@ -427,18 +427,34 @@
             <div id="story-feed" role="log" aria-live="polite">
               <div id="no-messages" hidden>No messages yet</div>
               <!-- Status Elements -->
-              <div id="typing-indicator" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+              <div
+                id="typing-indicator"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+                hidden></div>
               <div class="story-actions" hidden>
                 <button id="conclude-story">Conclude Story</button>
               </div>
             </div>
             <div id="story-input-area">
-                <div id="story-concluded" hidden>Story concluded</div>
-                <div id="status-notifier" role="status" aria-live="polite" aria-atomic="true"></div>
+              <div id="story-concluded" hidden>Story concluded</div>
+              <div
+                id="status-notifier"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"></div>
               <form id="story-form">
                 <fieldset role="group">
-                  <input type="text" name="message" placeholder="Type your message..." aria-label="Message" autocomplete="off" />
-                  <button type="submit" disabled>Send<span class="material-icons">send</span></button>
+                  <input
+                    type="text"
+                    name="message"
+                    placeholder="Type your message..."
+                    aria-label="Message"
+                    autocomplete="off" />
+                  <button type="submit" disabled>
+                    Send<span class="material-icons">send</span>
+                  </button>
                 </fieldset>
               </form>
             </div>
