@@ -49,7 +49,9 @@
       "Bash(gh pr diff:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(npm run deploy:*)"
+      "Bash(npm run deploy:*)",
+      "mcp__waldzell-clear-thought__debuggingapproach",
+      "mcp__waldzell-clear-thought__sequentialthinking"
     ],
     "deny": [],
     "ask": []

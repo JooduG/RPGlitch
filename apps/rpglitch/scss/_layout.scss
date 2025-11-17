@@ -280,6 +280,40 @@ body.profile-view-active .top-bar {
   }
 }
 
+// --- Hide/Show Logic ---
+// Hide all 'edit' fields by default
+[data-edit-field],
+.profile-hero-overlay {
+  display: none;
+}
+
+// Show all 'read' fields by default
+[data-read-field] {
+  display: block; // or whatever its default is
+}
+
+// --- Editing Mode (.is-editing) ---
+.is-editing {
+  // Enable pointer-events on profile-left when editing
+  .profile-left {
+    pointer-events: auto;
+  }
+
+  // Hide 'read' fields
+  [data-read-field] {
+    display: none;
+  }
+
+  // Show 'edit' fields with appropriate display types
+  [data-edit-field] {
+    display: block; // Use block for inputs and textareas
+  }
+
+  .profile-hero-overlay {
+    display: flex; // Only flex for the overlay container
+  }
+}
+
 .form-view .profile-name-input,
 .form-view .profile-description-input,
 .form-view .profile-field-input {
@@ -419,7 +453,7 @@ body.profile-view-active .top-bar {
     font-size: 1.125rem;
     font-weight: bold;
     text-align: center;
-    color: var(--signature);
+    color: var(--pico-primary);
     background: transparent;
     border: none;
     border-bottom: 2px solid var(--pico-muted-border-color);
@@ -552,6 +586,7 @@ body.profile-view-active .top-bar {
       padding: 0.5rem 0.75rem;
       -webkit-line-clamp: 2;
       line-clamp: 2; // added standard property for compatibility
+      -webkit-box-orient: vertical;
     }
 
     .card-body {

@@ -467,12 +467,16 @@ export async function renderProfilePage(type, id) {
   actionButton = imageOverlay.querySelector("button[data-action]");
   fileInput = imageOverlay.querySelector('[data-profile-field="fileInput"]');
 
+  // Initialize image controls as enabled
   if (imageInput) {
-    imageInput.disabled = !isEditing;
+    imageInput.disabled = false;
+    imageInput.removeAttribute('aria-busy');
   }
   if (actionButton) {
-    actionButton.disabled = !isEditing;
+    actionButton.disabled = false;
+    actionButton.removeAttribute('aria-busy');
   }
+
 
   const paletteSelect = imageOverlay.querySelector(
     'select[name="signatureColour"]'
@@ -926,11 +930,25 @@ export async function renderProfilePage(type, id) {
     screen.classList.toggle("is-editing", isEditing);
     setTopBarRight(isEditing ? "form" : "profile");
 
-    if (imageInput) {
-      imageInput.disabled = !editing;
+    // Enable pointer-events on .profile-left when editing
+    const profileLeft = screen.querySelector('.profile-left');
+    if (profileLeft) {
+      profileLeft.style.pointerEvents = editing ? 'auto' : 'none';
     }
+
+    // Show/hide the overlay container
+    if (imageOverlay) {
+      imageOverlay.style.display = editing ? 'flex' : 'none';
+    }
+
+    // Enable pointer-events and display for image input
+    if (imageInput) {
+      imageInput.style.display = editing ? 'block' : 'none';
+      imageInput.style.pointerEvents = editing ? 'auto' : 'none';
+    }
+
     if (actionButton) {
-      actionButton.disabled = !editing;
+      actionButton.style.display = editing ? 'flex' : 'none';
     }
 
     if (isEditing) {
@@ -1007,4 +1025,7 @@ export async function renderProfilePage(type, id) {
   if (saveBtn) {
     replaceEventHandler(saveBtn, "click", saveHandler, "_saveHandler");
   }
+
+  // Initialize the edit mode UI state (show/hide image controls)
+  setEditMode(isEditing);
 }
