@@ -459,7 +459,6 @@ export async function renderProfilePage(type, id) {
       heroWrap.appendChild(heroPic);
     }
   }
-  // ********************************************************************
 
   const imageOverlay = layout.querySelector(".profile-hero-overlay");
   imageInput = imageOverlay.querySelector(
@@ -467,6 +466,14 @@ export async function renderProfilePage(type, id) {
   );
   actionButton = imageOverlay.querySelector("button[data-action]");
   fileInput = imageOverlay.querySelector('[data-profile-field="fileInput"]');
+
+  if (imageInput) {
+    imageInput.disabled = !isEditing;
+  }
+  if (actionButton) {
+    actionButton.disabled = !isEditing;
+  }
+
   const paletteSelect = imageOverlay.querySelector(
     'select[name="signatureColour"]'
   );
@@ -918,6 +925,14 @@ export async function renderProfilePage(type, id) {
     isEditing = editing;
     screen.classList.toggle("is-editing", isEditing);
     setTopBarRight(isEditing ? "form" : "profile");
+
+    if (imageInput) {
+      imageInput.disabled = !editing;
+    }
+    if (actionButton) {
+      actionButton.disabled = !editing;
+    }
+
     if (isEditing) {
       screen.querySelector('[data-edit-field="name"]')?.focus();
     }
