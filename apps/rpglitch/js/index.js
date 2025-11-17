@@ -1429,7 +1429,7 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     }
   }
 
-  if (entity.signatureColour) {
+  if (entity.signatureColour && entity.signatureColour !== 'default') {
     card.style.setProperty("--signature", `var(--pico-${entity.signatureColour.toLowerCase()})`);
   } else {
     card.style.removeProperty("--signature");
