@@ -1404,7 +1404,7 @@ async function _ensureCardStructure(card) {
  * Error handling: Does not throw. Silently handles missing elements.
  */
 function _populateCardWithEntity(card, entity, elements, templates) {
-  const { media, titleEl, descEl, footer } = elements;
+  const { media, descEl, footer } = elements;
   if (descEl) descEl.textContent = entity.description || "";
   if (media) {
     media.textContent = "";
@@ -1434,10 +1434,8 @@ function _populateCardWithEntity(card, entity, elements, templates) {
 
   if (entity.signatureColour) {
     card.style.setProperty("--signature", `var(--pico-${entity.signatureColour.toLowerCase()})`);
-    if (titleEl) titleEl.style.color = `var(--pico-${entity.signatureColour.toLowerCase()}-contrast, #fff)`;
   } else {
     card.style.removeProperty("--signature");
-    if (titleEl) titleEl.style.removeProperty("color");
   }
 
   card.dataset.entityType = card.dataset.type || entity.kind || "";
@@ -1452,6 +1450,7 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     App.state.ui.chosenStoryboardCard.id === entity.id &&
     App.state.ui.chosenStoryboardCard.type === entity.type;
   card.classList.toggle("chosen", isChosen);
+  card.classList.add("selected");
 }
 
 /**
@@ -1464,12 +1463,12 @@ function _populateCardWithEntity(card, entity, elements, templates) {
  * Error handling: Does not throw. Silently handles missing elements.
  */
 function _clearCard(card, elements, templates) {
-  const { media, titleEl, descEl, footer } = elements;
+  const { media, descEl, footer } = elements;
 
   // Set placeholder text for the title (select element)
+  const titleEl = card.querySelector(".card-title");
   if (titleEl) {
     titleEl.value = ""; // Ensure no option is selected
-    titleEl.style.color = "white"; // Set text color to white for empty state
     const placeholderOption = titleEl.querySelector('option[value=""]');
     if (placeholderOption) {
       placeholderOption.textContent = titleEl.dataset.placeholder || "";
@@ -1509,6 +1508,7 @@ function _clearCard(card, elements, templates) {
   }
   if (footer) footer.querySelectorAll(".chip").forEach((n) => n.remove());
   card.classList.remove("chosen");
+  card.classList.remove("selected");
   delete card.dataset.entityType;
   delete card.dataset.entityId;
   const select = card.querySelector("select");
