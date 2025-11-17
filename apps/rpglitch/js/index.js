@@ -1422,9 +1422,6 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     if (entity.isPremade) {
       const pill = document.createElement("span");
       pill.className = "chip";
-      if (entity.signatureColour) {
-        pill.style.setProperty("--signature", `var(--pico-${entity.signatureColour.toLowerCase()})`);
-      }
       const sm = document.createElement("small");
       sm.textContent = "Premade";
       pill.appendChild(sm);
