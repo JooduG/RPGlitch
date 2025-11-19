@@ -1,7 +1,12 @@
 // apps/rpglitch/js/views.js
 // Consolidated view layer: routing and stateful entity profile page.
 
-import { entities, getPictureHTML, getSignature, copyEntity } from "./entities.js";
+import {
+  entities,
+  getPictureHTML,
+  getSignature,
+  copyEntity,
+} from "./entities.js";
 import {
   hideEl,
   showEl,
@@ -297,12 +302,14 @@ export async function renderStoryScreen(story, aiCharacter, userCharacter) {
   leftImage.innerHTML = "";
   rightImage.innerHTML = "";
 
+  // Left Column = AI (Narrator)
   if (aiCharacter) {
     leftName.textContent = aiCharacter.name;
     const aiPic = getPictureHTML(aiCharacter, { cover: false });
     leftImage.appendChild(aiPic);
   }
 
+  // Right Column = User
   if (userCharacter) {
     rightName.textContent = userCharacter.name;
     const userPic = getPictureHTML(userCharacter, { cover: false });
@@ -317,11 +324,48 @@ export async function renderStoryScreen(story, aiCharacter, userCharacter) {
         message.text,
         message.characterName,
         message.type,
-        { autoScroll: false }
+        {
+          autoScroll: false,
+          aiCharacter,
+          userCharacter,
+        }
       );
     }
     storyFeed.scrollTop = storyFeed.scrollHeight;
   }
+}
+
+/**
+ * Simple Markdown Parser for Chat
+ * Handles: **bold**, *italic*, and newlines
+ * Preserves asterisks in the output (visual style).
+ */
+function parseBasicMarkdown(text) {
+  if (!text) return "";
+  let html = text;
+
+  // Newlines to <br>
+  html = html.replace(/\n/g, "<br>");
+
+  // 1. Tokenize Bold (**text**) to hide it from Italic parser
+  // We replace **text** with placeholders, then process italics, then restore bold.
+  const boldMap = [];
+  html = html.replace(/\*\*(.+?)\*\*/g, (match, content) => {
+    boldMap.push(content);
+    return `%%%BOLD${boldMap.length - 1}%%%`;
+  });
+
+  // 2. Process Italics (*text*)
+  // We preserve the asterisks visually: *text* -> <em>*text*</em>
+  html = html.replace(/\*([^\*]+?)\*/g, "<em>*$1*</em>");
+
+  // 3. Restore Bold and Apply Styling
+  // We preserve the asterisks visually: **text** -> <strong>**text**</strong>
+  html = html.replace(/%%%BOLD(\d+)%%%/g, (match, index) => {
+    return `<strong>**${boldMap[index]}**</strong>`;
+  });
+
+  return html;
 }
 
 export function renderMessage(
@@ -330,7 +374,7 @@ export function renderMessage(
   message,
   characterName,
   messageType = "IC",
-  { autoScroll = true } = {}
+  { autoScroll = true, aiCharacter = null, userCharacter = null } = {}
 ) {
   if (!feed) return;
 
@@ -340,11 +384,18 @@ export function renderMessage(
   // Determine speaker class and apply signature color
   if (speaker === "user") {
     messageWrapper.classList.add("user");
-    // User character signature color is applied via a class on a parent element,
-    // which will be handled in the main story rendering logic.
+    // Apply User's signature color if available
+    if (userCharacter && userCharacter.signatureColour) {
+      messageWrapper.classList.add(
+        `signature-${userCharacter.signatureColour}`
+      );
+    }
   } else {
     messageWrapper.classList.add("ai");
-    // AI character signature color can be applied here if we pass the character object
+    // Apply AI's signature color only if it's an IC message (not narrator/neutral)
+    if (aiCharacter && aiCharacter.signatureColour && messageType === "IC") {
+      messageWrapper.classList.add(`signature-${aiCharacter.signatureColour}`);
+    }
   }
 
   // Add message type and character name for styling hooks
@@ -353,10 +404,14 @@ export function renderMessage(
     messageWrapper.dataset.characterName = characterName;
   }
 
-  // Set the text content safely
+  // 1. Parse Markdown (returns HTML string with <strong>/<em> tags)
+  const formattedMessage = parseBasicMarkdown(message);
+
+  // 2. Sanitize the resulting HTML to prevent XSS (e.g. <script>)
+  // DOMPurify allows safe tags like <strong>, <em>, <br> by default.
   const sanitizedMessage = window.DOMPurify
-    ? DOMPurify.sanitize(message)
-    : message;
+    ? DOMPurify.sanitize(formattedMessage)
+    : formattedMessage;
 
   if (messageType === "OOC" && speaker !== "user") {
     const narratorSpan = document.createElement("span");
@@ -535,9 +590,9 @@ export async function renderProfilePage(type, id) {
       const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
       const newPic = getPictureHTML
         ? getPictureHTML(
-          { ...entity, profilePictureUrl: safeVal },
-          { cover: true }
-        )
+            { ...entity, profilePictureUrl: safeVal },
+            { cover: true }
+          )
         : null;
       if (newPic) {
         const currentWrap = heroWrap.querySelector(".picture");
@@ -823,7 +878,8 @@ export async function renderProfilePage(type, id) {
   ];
   palettes.forEach((p) => {
     const option = paletteSelect.querySelector(
-      `option[value="${p === "Signature Colour" ? "default" : p.toLowerCase()
+      `option[value="${
+        p === "Signature Colour" ? "default" : p.toLowerCase()
       }"]`
     );
     if (option) {

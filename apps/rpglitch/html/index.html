@@ -9,7 +9,6 @@
   <body>
     <a href="#main" hidden>Skip to main content</a>
 
-    <!-- Initial Loading -->
     <dialog id="loading-modal">
       <article>
         <header>
@@ -19,7 +18,6 @@
       </article>
     </dialog>
 
-    <!-- Error Emergency -->
     <dialog id="emergency-modal">
       <article>
         <header>
@@ -48,9 +46,7 @@
     </dialog>
 
     <header class="container">
-      <!-- Top Bar -->
       <nav id="top-bar" class="top-bar">
-        <!-- Top Bar Left -->
         <ul role="tablist" id="top-bar-left" class="top-bar-left">
           <li role="presentation">
             <button
@@ -106,7 +102,6 @@
           </li>
         </ul>
 
-        <!-- Top Bar Right: Storyboard -->
         <ul id="top-bar-right-storyboard" class="top-bar-right">
           <li><button class="secondary" id="shuffle-btn">Shuffle</button></li>
           <li>
@@ -114,14 +109,12 @@
           </li>
         </ul>
 
-        <!-- Top Bar Right: Form -->
         <ul id="top-bar-right-form" class="top-bar-right" hidden>
           <li><button class="secondary" id="form-cancel">Cancel</button></li>
           <li><button class="danger" id="form-delete">Delete</button></li>
           <li><button class="primary" id="form-save">Save</button></li>
         </ul>
 
-        <!-- Top Bar Right: Profile -->
         <ul id="top-bar-right-profile" class="top-bar-right" hidden>
           <li><button class="secondary" id="profile-edit">Edit</button></li>
           <li>
@@ -133,10 +126,8 @@
     </header>
     <h1 style="display: none">RPGlitch</h1>
 
-    <!-- Chin Container -->
     <div id="chin-container" class="container" hidden>
       <div id="chin-backdrop" hidden aria-hidden="true"></div>
-      <!-- Stories Chin -->
       <div
         role="tabpanel"
         tabindex="0"
@@ -160,10 +151,9 @@
             <button id="new-story" class="secondary">New Story</button>
           </div>
         </div>
-        <div id="chin-story-grid" class="chin-grid"><!-- Story Cards --></div>
+        <div id="chin-story-grid" class="chin-grid"></div>
       </div>
 
-      <!-- Chin: Character -->
       <div
         role="tabpanel"
         tabindex="0"
@@ -190,11 +180,9 @@
           </div>
         </div>
         <div id="chin-character-grid" class="chin-grid">
-          <!-- Character Cards -->
-        </div>
+          </div>
       </div>
 
-      <!-- Chin: World -->
       <div
         role="tabpanel"
         tabindex="0"
@@ -218,23 +206,19 @@
           </div>
         </div>
         <div id="chin-world-grid" class="chin-grid">
-          <!-- Chin Card Template -->
           <template id="unified-card-template">
             <div class="card" role="button" tabindex="0" aria-label="">
               <div class="card-media">
-                <!-- picture gets injected here -->
-              </div>
+                </div>
               <div class="card-body">
                 <h4 class="card-title"></h4>
                 <p class="card-description"></p>
               </div>
               <div class="card-footer">
-                <!-- chips go here -->
-              </div>
+                </div>
             </div>
           </template>
 
-          <!-- Optional: Storyboard Empty Picture Templates -->
           <template id="tpl-storyboard-picture-character">
             <div class="picture picture--cover">
               <div class="placeholder-image" role="img" aria-label="character">
@@ -275,7 +259,6 @@
         </div>
       </div>
 
-      <!-- Chin: Options -->
       <div
         role="tabpanel"
         tabindex="0"
@@ -285,7 +268,7 @@
         class="chin"
         hidden>
         <div class="chin-actions">
-          <div class="chin-actions-left"><!-- Something in the future? --></div>
+          <div class="chin-actions-left"></div>
           <div class="chin-actions-right">
             <button
               type="button"
@@ -322,7 +305,6 @@
       <div class="profile-layout">
         <div class="profile-left">
           <div class="hero-wrap">
-            <!-- Picture will be injected here by buildHero -->
             <div class="profile-hero-overlay" data-edit-field="hero">
               <fieldset role="group">
                 <input
@@ -353,7 +335,6 @@
         <div class="profile-right">
           <div class="profile-right-content">
             <form>
-              <!-- Section Fields -->
               <template id="tpl-profile-field-section">
                 <div class="field-row">
                   <div class="field-label">
@@ -370,20 +351,16 @@
               </template>
 
               <div class="profile-header" data-profile-header>
-                <!-- Name and description will be rendered here -->
-              </div>
+                </div>
               <div class="profile-fields" data-profile-sections>
-                <!-- Forever, Past, Present, Future will be rendered here -->
-              </div>
+                </div>
             </form>
           </div>
         </div>
       </div>
     </template>
 
-    <!-- Main Container -->
     <main id="main" class="container">
-      <!-- Storyboard Screen -->
       <div id="storyboard-screen">
         <div id="storyboard-dynamic-title-wrapper">
           <h2
@@ -411,10 +388,8 @@
         </div>
       </div>
 
-      <!-- Story Screen -->
       <div id="story-screen" hidden>
         <div class="story-grid">
-          <!-- Left Character Column -->
           <div id="story-left-character" class="story-side-column">
             <div class="character-image"></div>
             <div class="character-name-overlay">
@@ -422,11 +397,9 @@
             </div>
           </div>
 
-          <!-- Center Chat Column -->
           <main id="story-center-chat" class="story-main-column">
             <div id="story-feed" role="log" aria-live="polite">
               <div id="no-messages" hidden>No messages yet</div>
-              <!-- Status Elements -->
               <div
                 id="typing-indicator"
                 role="status"
@@ -453,14 +426,13 @@
                     aria-label="Message"
                     autocomplete="off" />
                   <button type="submit" disabled>
-                    Send<span class="material-icons">send</span>
+                    Send<span class="material-icons"></span>
                   </button>
                 </fieldset>
               </form>
             </div>
           </main>
 
-          <!-- Right Character Column -->
           <div id="story-right-character" class="story-side-column">
             <div class="character-image"></div>
             <div class="character-name-overlay">
@@ -470,28 +442,21 @@
         </div>
       </div>
 
-      <!-- Profile Screen -->
       <div id="profile-screen" hidden>
-        <!-- Profile content will be dynamically generated -->
-      </div>
+        </div>
 
-      <!-- Premade Character Bank -->
       <div id="premade-character-bank" hidden>
         <div id="premade-character-list"></div>
       </div>
 
-      <!-- Premade World Bank -->
       <div id="premade-world-bank" hidden>
         <div id="premade-world-list"></div>
       </div>
 
-      <!-- Memory Application Screen -->
       <div id="memory-application-screen" hidden>
-        <!-- Memory application content will be dynamically generated -->
-      </div>
+        </div>
     </main>
 
-    <!-- Global Templates (must be outside hidden containers) -->
     <div id="global-templates" hidden aria-hidden="true">
       <template id="tpl-placeholder-icon-character">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -514,7 +479,6 @@
       </template>
     </div>
 
-    <!-- Expose Perchance plugins to window object (must come before module script) -->
     <script>
       // These variables (ai, textToImage, etc.) are available from the left panel
       // Expose them to window so the module script can access them
@@ -541,7 +505,6 @@
     </script>
 
     <script type="module" src="js/index.js"></script>
-    <!-- Dev HUD -->
     <div
       id="dev-hud"
       style="
