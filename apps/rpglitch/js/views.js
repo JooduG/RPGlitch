@@ -1,7 +1,7 @@
 // apps/rpglitch/js/views.js
 // Consolidated view layer: routing and stateful entity profile page.
 
-import { entities, getPictureHTML } from "./entities.js";
+import { entities, getPictureHTML, getSignature, copyEntity } from "./entities.js";
 import {
   hideEl,
   showEl,
@@ -17,7 +17,6 @@ import {
   error,
   unlockNow,
   setTopBarRight,
-  copyEntity,
 } from "./utils.js";
 import { isValidImageUrl, extractImageUrl } from "./validation.js";
 
@@ -536,9 +535,9 @@ export async function renderProfilePage(type, id) {
       const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
       const newPic = getPictureHTML
         ? getPictureHTML(
-            { ...entity, profilePictureUrl: safeVal },
-            { cover: true }
-          )
+          { ...entity, profilePictureUrl: safeVal },
+          { cover: true }
+        )
         : null;
       if (newPic) {
         const currentWrap = heroWrap.querySelector(".picture");
@@ -824,8 +823,7 @@ export async function renderProfilePage(type, id) {
   ];
   palettes.forEach((p) => {
     const option = paletteSelect.querySelector(
-      `option[value="${
-        p === "Signature Colour" ? "default" : p.toLowerCase()
+      `option[value="${p === "Signature Colour" ? "default" : p.toLowerCase()
       }"]`
     );
     if (option) {
@@ -852,6 +850,12 @@ export async function renderProfilePage(type, id) {
         currentPicture.replaceWith(newPicture);
       }
     }
+
+    // Update the name header color
+    const nameHeader = form.querySelector('[data-read-field="name"]');
+    if (nameHeader) {
+      nameHeader.style.color = getSignature(tempEntity);
+    }
   });
 
   // The form and secWrap are already queried above
@@ -872,6 +876,12 @@ export async function renderProfilePage(type, id) {
       ]
     )
   );
+
+  // Apply signature color to the name field
+  const nameHeader = headerWrap.querySelector('[data-read-field="name"]');
+  if (nameHeader) {
+    nameHeader.style.color = getSignature(entity);
+  }
 
   // --- Description Field (Using Helper) ---
   headerWrap.appendChild(

@@ -118,9 +118,9 @@ function getContrast(color) {
     const full =
       hex.length === 3
         ? hex
-            .split("")
-            .map((c) => c + c)
-            .join("")
+          .split("")
+          .map((c) => c + c)
+          .join("")
         : hex;
     const num = parseInt(full, 16);
     const r = (num >> 16) & 255;
@@ -167,7 +167,7 @@ export function getPictureHTML(entity = {}, options = {}) {
   const type = (entity.type || "default").toLowerCase();
   const src =
     typeof entity.profilePictureUrl === "string" &&
-    entity.profilePictureUrl.trim()
+      entity.profilePictureUrl.trim()
       ? entity.profilePictureUrl.trim()
       : "";
   const signature = getSignature(entity);
@@ -233,8 +233,8 @@ function normalize(base = {}) {
   const rawTags = Array.isArray(base.tags)
     ? base.tags
     : base.tags
-    ? String(base.tags).split(",")
-    : [];
+      ? String(base.tags).split(",")
+      : [];
   const safeTags = rawTags
     .map((s) => sanitizeHtml(String(s).trim()))
     .filter(Boolean);
@@ -417,3 +417,33 @@ export const entities = {
 
 // Export getSignature for testing purposes
 export { getSignature };
+
+/**
+ * Creates an async copy of an entity.
+ * @param {string} type - 'character' or 'world'
+ * @param {string} id - The ID of the entity to copy.
+ * @returns {Promise<Object|null>} A promise resolving to the new entity or null.
+ */
+export async function copyEntity(type, id) {
+  log(`Attempting to copy entity of type ${type} with id ${id}`);
+
+  // 1. Get the entity asynchronously
+  const entityToCopy = await entities.get(type, id);
+  if (!entityToCopy) {
+    error(`Entity with type ${type} and id ${id} not found.`);
+    return null;
+  }
+
+  // 2. Create the new entity object
+  const newEntity = {
+    ...entityToCopy,
+    sections: { ...entityToCopy.sections }, // Deep copy sections
+  };
+
+  // 3. Remove ID (so upsert creates a new one) and mark as custom
+  delete newEntity.id;
+  newEntity.isPremade = false;
+  newEntity.name = `${newEntity.name || "Untitled"} (Clone)`;
+
+  return newEntity;
+}

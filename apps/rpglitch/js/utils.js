@@ -1,4 +1,4 @@
-import { entities } from "./entities.js";
+
 import { db } from "./db.js";
 import { SIGNATURE_COLORS } from "./validation.js";
 /* Utility helpers for RPGlitch
@@ -36,35 +36,7 @@ export function generateUUID() {
   });
 }
 
-/**
- * Creates an async copy of an entity.
- * @param {string} type - 'character' or 'world'
- * @param {string} id - The ID of the entity to copy.
- * @returns {Promise<Object|null>} A promise resolving to the new entity or null.
- */
-export async function copyEntity(type, id) {
-  log(`Attempting to copy entity of type ${type} with id ${id}`);
 
-  // 1. Get the entity asynchronously
-  const entityToCopy = await entities.get(type, id);
-  if (!entityToCopy) {
-    error(`Entity with type ${type} and id ${id} not found.`);
-    return null;
-  }
-
-  // 2. Create the new entity object
-  const newEntity = {
-    ...entityToCopy,
-    sections: { ...entityToCopy.sections }, // Deep copy sections
-  };
-
-  // 3. Remove ID (so upsert creates a new one) and mark as custom
-  delete newEntity.id;
-  newEntity.isPremade = false;
-  newEntity.name = `${newEntity.name || "Untitled"} (Clone)`;
-
-  return newEntity;
-}
 
 export function escapeHtml(str) {
   if (typeof str !== "string") {
