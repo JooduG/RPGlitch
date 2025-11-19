@@ -1418,12 +1418,12 @@ function _populateCardWithEntity(card, entity, elements, templates) {
   }
 
   if (footer) {
-    footer.querySelectorAll(".chip").forEach((n) => n.remove());
+    footer.querySelectorAll(".tag-chip").forEach((n) => n.remove());
     if (entity.isPremade) {
       const pill = document.createElement("span");
-      pill.className = "chip";
+      pill.className = "tag-chip";
       if (entity.signatureColour) {
-        pill.style.setProperty("--signature", `var(--pico-${entity.signatureColour.toLowerCase()})`);
+        pill.style.setProperty("--signature", `var(--signature-${entity.signatureColour.toLowerCase()})`);
       }
       const sm = document.createElement("small");
       sm.textContent = "Premade";
@@ -1433,7 +1433,7 @@ function _populateCardWithEntity(card, entity, elements, templates) {
   }
 
   if (entity.signatureColour) {
-    card.style.setProperty("--signature", `var(--pico-${entity.signatureColour.toLowerCase()})`);
+    card.style.setProperty("--signature", `var(--signature-${entity.signatureColour.toLowerCase()})`);
   } else {
     card.style.removeProperty("--signature");
   }
@@ -1505,7 +1505,7 @@ function _clearCard(card, elements, templates) {
     }
     card?.style?.removeProperty("--signature");
   }
-  if (footer) footer.querySelectorAll(".chip").forEach((n) => n.remove());
+  if (footer) footer.querySelectorAll(".tag-chip").forEach((n) => n.remove());
   card.classList.remove("chosen");
   card.classList.remove("selected");
   delete card.dataset.entityType;

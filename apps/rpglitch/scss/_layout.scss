@@ -513,7 +513,11 @@ body.profile-view-active .top-bar {
   }
 
   &.chosen {
-    .card-title,
+    .card-title {
+      opacity: 1;
+      color: var(--signature, var(--pico-primary));
+    }
+
     .card-description,
     .card-media,
     .card-media img,

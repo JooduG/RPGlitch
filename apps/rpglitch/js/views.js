@@ -671,12 +671,29 @@ export async function renderProfilePage(type, id) {
         // Default guidance scale for consistent results
         const DEFAULT_GUIDANCE_SCALE = 7;
 
+        // Wrap textToImage in a timeout to prevent UI from getting stuck
+        const GENERATION_TIMEOUT = 30000; // 30 seconds
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(
+            () =>
+              reject(
+                new Error(
+                  "Image generation timed out. The server may be experiencing issues. Please try again later."
+                )
+              ),
+            GENERATION_TIMEOUT
+          )
+        );
+
         // Call plugin with prompt, guidanceScale, and portrait resolution
-        const result = await window.textToImage({
-          prompt,
-          guidanceScale: DEFAULT_GUIDANCE_SCALE,
-          resolution: "512x768", // Force portrait aspect ratio for all generated images
-        });
+        const result = await Promise.race([
+          window.textToImage({
+            prompt,
+            guidanceScale: DEFAULT_GUIDANCE_SCALE,
+            resolution: "512x768", // Force portrait aspect ratio for all generated images
+          }),
+          timeoutPromise,
+        ]);
         log("[DEBUG] T2I Plugin Raw Result:", result); // Added log
         log?.("[DEBUG] T2I Result:", JSON.stringify(result, null, 2));
 
@@ -738,7 +755,24 @@ export async function renderProfilePage(type, id) {
           await new Promise((resolve) => (reader.onload = resolve));
           const fileDataUrl = reader.result; // This is a string
 
-          const result = await window.upload(fileDataUrl); // Pass the Data URL string
+          // Wrap upload in a timeout to prevent UI from getting stuck
+          const UPLOAD_TIMEOUT = 60000; // 60 seconds (uploads may take longer)
+          const uploadTimeoutPromise = new Promise((_, reject) =>
+            setTimeout(
+              () =>
+                reject(
+                  new Error(
+                    "Upload timed out. The file may be too large or the server may be experiencing issues."
+                  )
+                ),
+              UPLOAD_TIMEOUT
+            )
+          );
+
+          const result = await Promise.race([
+            window.upload(fileDataUrl),
+            uploadTimeoutPromise,
+          ]); // Pass the Data URL string
           log("[DEBUG] Upload Plugin Raw Result:", result); // Added log
           log?.("[DEBUG] Upload Result:", JSON.stringify(result, null, 2));
 
@@ -802,14 +836,21 @@ export async function renderProfilePage(type, id) {
   // This listener correctly updates the preview when palette changes
   paletteSelect.addEventListener("change", () => {
     const selectedColour = paletteSelect.value;
-    const tempEntity = { ...entity, signatureColour: selectedColour };
+    const currentImageUrl = imageInput.value.trim(); // Get current value from input
+    const tempEntity = {
+      ...entity,
+      signatureColour: selectedColour,
+      profilePictureUrl: currentImageUrl, // Use the current value from the input
+    };
 
     // Re-render the picture with the new signature color
     const currentPicture = heroWrap.querySelector(".picture");
     if (currentPicture) {
       const newPicture = getPictureHTML(tempEntity, { cover: true });
-      newPicture.classList.add("hero-bleed");
-      currentPicture.replaceWith(newPicture);
+      if (newPicture) {
+        newPicture.classList.add("hero-bleed");
+        currentPicture.replaceWith(newPicture);
+      }
     }
   });
 
