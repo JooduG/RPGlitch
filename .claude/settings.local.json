@@ -52,7 +52,8 @@
       "Bash(npm run deploy:*)",
       "mcp__waldzell-clear-thought__debuggingapproach",
       "mcp__waldzell-clear-thought__sequentialthinking",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "ask": []

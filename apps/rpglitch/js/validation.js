@@ -128,18 +128,12 @@ export function isValidImageUrl(urlString, allowLog = false) {
 /**
  * Extracts image URL from plugin response.
  *
- * Supports 4 active plugin formats:
+ * Supports 5 active plugin formats:
  * 1. text-to-image standard: { imageUrl: "..." }
  * 2. text-to-image data URL: { dataUrl: "..." }
  * 3. upload plugin: { url: "..." }
- * 4. Legacy fallback: direct string (last resort)
- *
- * Does NOT support deprecated formats:
- * - { imageId, fileExtension } (old text-to-image)
- * - { file: { url } } (nested upload)
- * - { file: "..." } (direct file)
- * - { name: "..." } (unusual fallback)
- * - { value: "..." } (generic fallback)
+ * 4. text-to-image ID (legacy): { imageId: "...", fileExtension: "..." }
+ * 5. Legacy fallback: direct string (last resort)
  *
  * @param {*} result - Plugin response (object or string)
  * @returns {string|undefined} Extracted URL or undefined if not found
@@ -148,8 +142,8 @@ export function isValidImageUrl(urlString, allowLog = false) {
  * extractImageUrl({ imageUrl: 'https://...' }) // 'https://...'
  * extractImageUrl({ dataUrl: 'data:image/...' }) // 'data:image/...'
  * extractImageUrl({ url: 'blob:...' }) // 'blob:...'
+ * extractImageUrl({ imageId: '123', fileExtension: 'jpg' }) // 'https://img.perchance.org/123.jpg'
  * extractImageUrl('https://...') // 'https://...' (legacy)
- * extractImageUrl({ imageId: '123' }) // undefined (deprecated format)
  */
 export function extractImageUrl(result) {
   let url;
@@ -166,7 +160,12 @@ export function extractImageUrl(result) {
   else if (result?.url) {
     url = String(result.url);
   }
-  // Format 4: Legacy fallback - direct string (last resort)
+  // Format 4: Legacy/Alternative text-to-image (imageId + fileExtension)
+  // Restored to support plugin responses seen in production
+  else if (result?.imageId && result?.fileExtension) {
+    url = `https://img.perchance.org/${result.imageId}.${result.fileExtension}`;
+  }
+  // Format 5: Legacy fallback - direct string (last resort)
   else if (typeof result === "string") {
     url = result;
   }

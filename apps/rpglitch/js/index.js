@@ -2577,6 +2577,9 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     }
   }
 
+  // Export functions for testing and external use
+  export { waitForPlugins, initializeWhenReady, _defaultStoryboardTitle };
+
   try {
     if (!_bootBound) {
       _bootBound = true;
