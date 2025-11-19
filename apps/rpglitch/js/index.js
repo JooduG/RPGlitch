@@ -1421,6 +1421,7 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     footer.querySelectorAll(".tag-chip").forEach((n) => n.remove());
     if (entity.isPremade) {
       const pill = document.createElement("span");
+      pill.className = "chip";
       pill.className = "tag-chip";
       if (entity.signatureColour) {
         pill.style.setProperty("--signature", `var(--signature-${entity.signatureColour.toLowerCase()})`);
@@ -1432,6 +1433,8 @@ function _populateCardWithEntity(card, entity, elements, templates) {
     }
   }
 
+  if (entity.signatureColour && entity.signatureColour !== 'default') {
+    card.style.setProperty("--signature", `var(--pico-${entity.signatureColour.toLowerCase()})`);
   if (entity.signatureColour) {
     card.style.setProperty("--signature", `var(--signature-${entity.signatureColour.toLowerCase()})`);
   } else {
