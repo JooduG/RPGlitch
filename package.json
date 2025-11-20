@@ -1,6 +1,6 @@
 {
   "name": "joodug",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A unified development and deployment workspace for Glitch projects.",
   "type": "module",
   "private": true,
@@ -18,8 +18,8 @@
     "lint:fix": "npm run lint:js:fix && npm run lint:css:fix",
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
-    "lint:css": "stylelint \"**/*.scss\" --config stylelint.config.cjs",
-    "lint:css:fix": "stylelint \"**/*.scss\" --config stylelint.config.cjs --fix",
+    "lint:css": "stylelint \"**/*.scss\" --config stylelint.config.js",
+    "lint:css:fix": "stylelint \"**/*.scss\" --config stylelint.config.js --fix",
     "lint:html": "node -e \"require('glob').glob('apps/**/*.html', { ignore: ['build/output/**/*.html', '**/coverage/**/*'] }).then(files => { if (files.length > 0) { require('child_process').execSync('npx htmlhint ' + files.join(' '), { stdio: 'inherit' }) } })\"",
     "lint:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc",
     "analyze:css": "node build/scripts/analyze-css.cjs",

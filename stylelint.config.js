@@ -1,7 +1,9 @@
-// Stylelint config (CJS)
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 const master = require('./ignores.master.json');
 
-module.exports = {
+/** @type {import('stylelint').Config} */
+export default {
   // one source of truth for ignore globs
   ignoreFiles: master.stylelintIgnore || [],
   extends: [
@@ -12,7 +14,8 @@ module.exports = {
     { files: ['**/*.scss'], customSyntax: 'postcss-scss' }
   ],
   rules: {
-    // Accept kebab-case and optional BEM modifier: e.g. .card-title, .card-title--editing
+    // Accept kebab-case and optional BEM modifier: e.g.
+    // .card-title, .card-title--editing
     'selector-class-pattern': [
       '^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:--[a-z0-9]+(?:-[a-z0-9]+)*)?$',
       {
