@@ -144,9 +144,9 @@ describe('validation.js', () => {
     });
 
     describe('deprecated formats', () => {
-      test('returns undefined for old text-to-image { imageId, fileExtension }', () => {
+      test('returns URL for old text-to-image { imageId, fileExtension }', () => {
         const result = { imageId: '12345', fileExtension: 'jpeg' };
-        expect(extractImageUrl(result)).toBeUndefined();
+        expect(extractImageUrl(result)).toBe('https://img.perchance.org/12345.jpeg');
       });
 
       test('returns undefined for nested upload { file: { url } }', () => {

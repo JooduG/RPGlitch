@@ -2366,6 +2366,9 @@ async function deleteAllData() {
   }
 }
 
+// Export functions for testing
+export { waitForPlugins, initializeWhenReady, _defaultStoryboardTitle };
+
 try {
   if (!_bootBound) {
     _bootBound = true;
