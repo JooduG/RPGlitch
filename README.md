@@ -10,55 +10,42 @@ An **AI-assisted, production-ready ecosystem** for building Perchance applicatio
 # Setup
 npm ci && npm run sync
 
-# Build
+# Build all apps
 npm run build:apps
 
-# Test
-npm test
+# Test & lint
+npm test && npm run lint:fix
 
-# Lint & fix
-npm run lint:fix
-
-# Deploy
+# Deploy to Perchance
 npm run deploy
 ```
 
 ---
 
-## 📚 Master Documentation (Start Here)
+## 📚 Documentation Roadmap
 
-This is your single source of truth. Read in this order:
+**Choose your path below:**
 
-1. **AI Protocol** - **START HERE** - Pick your platform:
-    - **[CLAUDE.md](./CLAUDE.md)** for Claude Code
-    - **[GEMINI.md](./GEMINI.md)** for Gemini
-2. **[design-system.md](./design-system.md)** - UI/UX guidelines & components (Icon-Free Mandate, Chat View, Chin, etc.)
-3. **[PERCHANCE.md](./PERCHANCE.md)** - Perchance Two-Panel Architecture, plugin integration, deployment workflow
-4. **[plan.md](./plan.md)** - Project roadmap, backlog, feature pipeline
+### 🤖 For AI Assistants
 
-### Additional References
+**Load your AI platform protocol first** (this defines your complete workflow):
 
-- **[perchance-development-guide.md](./perchance-development-guide.md)** - Comprehensive Perchance platform reference (procedural generation, AI plugins, oc object, LLM theory)
+- **Claude Code** → **[CLAUDE.md](./CLAUDE.md)** - Complete operational protocol
+- **Gemini** → **[GEMINI.md](./GEMINI.md)** - Complete operational protocol
 
----
+Then reference:
+1. **[PERCHANCE.md](./PERCHANCE.md)** - Deployment workflow (manual steps to Perchance.org)
+2. **[design-system.md](./design-system.md)** - UI/UX rules and component specs
+3. **[plan.md](./plan.md)** - Feature backlog and roadmap
 
-## 🤖 AI Operation
+### 👤 For Humans (Developers)
 
-This repository is optimized for AI-assisted development with comprehensive protocols for multiple AI platforms:
+Start here, then pick your task:
 
-### Supported AI Platforms
-
-- **Claude Code** → See **[CLAUDE.md](./CLAUDE.md)** - Instructions for Anthropic's Claude Code CLI
-- **Gemini** → See **[GEMINI.md](./GEMINI.md)** - Instructions for Google's Gemini with STO Framework & personas
-
-Both protocols cover:
-
-- Project architecture & build system
-- Coding standards & non-negotiable rules
-- Task planning & execution workflows
-- Testing & deployment procedures
-
-Choose the protocol matching your AI platform.
+- **New to the codebase?** → Read **[perchance-development-guide.md](./perchance-development-guide.md)** (comprehensive platform reference)
+- **Building UI?** → Read **[design-system.md](./design-system.md)** (Icon-Free Mandate, components, examples)
+- **Deploying?** → Read **[PERCHANCE.md](./PERCHANCE.md)** (Two-Panel Architecture, manual deployment steps)
+- **Planning features?** → Read **[plan.md](./plan.md)** (roadmap, backlog, next steps)
 
 ---
 
@@ -185,43 +172,17 @@ npm run mcp:start-all         # Start all MCP servers
 
 ---
 
-## 🏗️ Architecture Overview
-
-### Two-Panel Architecture (Perchance)
-
-Every application follows this strict separation (see **[PERCHANCE.md](./PERCHANCE.md)** for detailed deployment workflow):
-
-- **Left Panel** (`*-left-panel.txt`) - **Manually deployed, NOT built**
-
-  - Perchance engine logic
-  - Plugin imports (ai-text-plugin, text-to-image-plugin, etc.)
-  - Core setup & configuration
-  - Directly copied/pasted into Perchance editor
-
-- **Right Panel** (source: `apps/*/html/index.html`) - **Auto-built**
-
-  - Main application UI & logic
-  - JavaScript modules (`js/`)
-  - Styles (`scss/`)
-  - **Compiled into single inlined HTML** during build
-  - Output: `build/output/RPGlitch.html` or `build/output/imageglitch.html`
-
-### Tech Stack
+## 🏗️ Tech Stack
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| **State** | IndexedDB (Dexie.js) | Persistent, local-first storage |
+| **State** | IndexedDB (Dexie.js) | Local-first storage, single source of truth |
 | **UI Framework** | Pico.css (+ custom SCSS) | Minimalist, semantic styling |
 | **JavaScript** | ES6+ modules (vanilla) | Pure, modular, no frameworks |
-| **Security** | DOMPurify | XSS prevention on all HTML |
-| **Build** | esbuild + PostCSS | Compile & inline into single HTML |
+| **Security** | DOMPurify | XSS prevention for dynamic HTML |
+| **Build** | esbuild + PostCSS | Compile & inline into single HTML file |
 
-### Build Output
-
-- **Single HTML file per app** - No external dependencies
-- **All CSS inlined** - In `<style>` tags
-- **All JS inlined** - In `<script type="module">` tags
-- **Vendored libs inlined** - Pico.css, Dexie, DOMPurify, etc.
+See **[PERCHANCE.md](./PERCHANCE.md)** for the Two-Panel Architecture explanation and deployment workflow.
 
 ---
 

@@ -1,145 +1,119 @@
-# Perchance Integration Guide
+# Perchance Integration Guide: RPGlitch & ImageGlitch
 
-**Purpose:** Quick start guide for deploying and troubleshooting Perchance applications
-**Audience:** Developers building and deploying apps to Perchance.org
-**See Also:** For comprehensive Perchance platform reference, see [perchance-development-guide.md](./perchance-development-guide.md)
+**Purpose:** Deployment, build configuration, and app-specific implementation details for RPGlitch and ImageGlitch.
+
+**Audience:** Developers deploying and troubleshooting our Perchance applications.
+
+**See Also:**
+- [perchance-development-guide.md](./perchance-development-guide.md) — Comprehensive Perchance platform reference
+- [CLAUDE.md](./CLAUDE.md) — Development protocols and coding standards
+- [README.md](./README.md) — Project overview
 
 ---
 
-This document describes how RPGlitch and ImageGlitch integrate with the **Perchance Platform** and best practices for development and deployment.
-
 ## Overview
 
-Our applications use the **Perchance Two-Panel Architecture**:
+Our applications use the **Perchance Two-Panel Architecture** (see [Section 7](./perchance-development-guide.md#section-7-architectural-patterns-the-two-panel-standard) of the development guide):
+
 - **Left Panel** (`*-left-panel.txt`): Perchance engine declarations (plugin imports, lists, logic)
 - **Right Panel** (built from `apps/*/html/`): Standard HTML/CSS/JavaScript UI compiled into a single HTML file
 
 The build system only processes the right-panel. The left-panel is manually copied/pasted during deployment.
 
-## Perchance Two-Panel Architecture
+---
 
-### Left Panel Structure
+## Application Structure
 
-The left panel defines:
-1. **Plugin Imports** - Perchance plugins used by the app
-2. **Perchance Lists** - Declarative data structures
-3. **Perchance Variables** - Stored values and references
+### RPGlitch
 
-**File Locations:**
-- `apps/rpglitch/RPGlitch-left-panel.txt`
-- `apps/imageglitch/ImageGlitch-left-panel.txt`
+**Purpose:** AI-powered RPG with character/story/world management and interactive chat.
 
-### Right Panel Structure
+**Left Panel File:** `apps/rpglitch/RPGlitch-left-panel.txt`
+**Right Panel Source:** `apps/rpglitch/html/` + `apps/rpglitch/js/` + `apps/rpglitch/scss/`
+**Build Output:** `build/output/RPGlitch.html`
 
-The right panel is a standard web application (HTML/CSS/JavaScript) that:
-1. Accesses Perchance plugin globals (e.g., `ai()`, `image()`)
-2. Uses IndexedDB (Dexie) for state persistence
-3. Renders UI using Pico.css
+**Plugins Used:**
+- `ai-text-plugin` → `window.ai` (text generation)
+- `text-to-image-plugin` → `window.textToImage` (image generation)
+- `super-fetch-plugin` → `window.superFetch` (CORS bypass)
+- `remember-plugin` → `window.rememberPlugin` (persistent storage)
+- `upload-plugin` → `window.upload` (file uploads)
 
-**Source Locations:**
-- `apps/rpglitch/html/index.html` -> compiled to `build/output/RPGlitch.html`
-- `apps/imageglitch/html/index.html` -> compiled to `build/output/imageglitch.html`
+### ImageGlitch
+
+**Purpose:** Text-to-image generation with AI-driven prompt refinement.
+
+**Left Panel File:** `apps/imageglitch/ImageGlitch-left-panel.txt`
+**Right Panel Source:** `apps/imageglitch/html/` + `apps/imageglitch/js/` + `apps/imageglitch/scss/`
+**Build Output:** `build/output/imageglitch.html`
+
+**Plugins Used:**
+- `ai-text-plugin` → `window.ai` (prompt refinement)
+- `text-to-image-plugin` → `window.image` (image generation—note: named `image` not `textToImage`)
+- `remember-plugin` → `window.r` (persistent storage—shortened name)
+
+---
 
 ## Perchance Plugin Integration
 
-### Available Plugins
+For a complete explanation of the Two-Panel Architecture and plugin exposure pattern, see [Section 7: Plugin Exposure Pattern](./perchance-development-guide.md#plugin-exposure-pattern) in the development guide.
 
-**RPGlitch:**
-- `ai` = {import:ai-text-plugin} - LLM text generation
-- `textToImage` = {import:text-to-image-plugin} - Image generation
-- `superFetch` = {import:super-fetch-plugin} - CORS bypass for external APIs
-- `remember` = {import:remember-plugin} - Persistent storage (exposed as `rememberPlugin`)
-- `upload` = {import:upload-plugin} - File uploads for profile pictures
+### Plugin Exposure Strategy (Standard Pattern)
 
-**ImageGlitch:**
-- `image` = {import:text-to-image-plugin} - Image generation
-- `ai` = {import:ai-text-plugin} - LLM text generation
-- `r` = {import:remember-plugin} - Persistent storage
+**Step 1: Import in Left Panel**
 
-### Plugin Loading Lifecycle
-
-Perchance plugins load **asynchronously** after the left-panel is parsed:
-
-1. **Page Load** (0ms)
-2. **Left Panel Parse** (immediate)
-3. **Plugin Imports Declared** (immediate) - `{import:plugin-name}` creates variable declarations
-4. **Plugins Fetch & Initialize** (50-500ms) - Asynchronous network requests
-5. **Plugin Variables Available** (100-500ms) - Variables become accessible in Perchance scope
-6. **Right Panel JavaScript Executes** (50-200ms after plugins available)
-
-### Plugin Exposure Strategy
-
-The challenge: Perchance plugins initialize in the left-panel context, but right-panel JavaScript needs to access them. The two panels run in **separate sandboxed iframes** and cannot directly access each other's variables.
-
-**Solution:** Three-step exposure pattern:
-
-**Step 1: Import in Left Panel (`*-left-panel.txt`):**
+Perchance plugins must be imported in the left-panel:
 ```perchance
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
-superFetch = {import:super-fetch-plugin}
-remember = {import:remember-plugin}
-upload = {import:upload-plugin}
 
+// Expose with prefixed names for the right panel
 pluginAi = ai
 pluginTextToImage = textToImage
-pluginSuperFetch = superFetch
-pluginRemember = remember
-pluginUpload = upload
 ```
 
-**Step 2: Expose to Window in Right Panel HTML (`html/index.html`):**
+**Step 2: Expose to Window in Right Panel HTML**
 
-This inline script **must come before** any module scripts. It runs in the Perchance context where the left panel variables are available.
-
+An inline `<script>` (before module script) exposes plugins:
 ```html
-<!-- Expose Perchance plugins to window object (must come before module script) -->
 <script>
-  // These variables (ai, textToImage, etc.) are available from the left panel
-  // Expose them to window so the module script can access them
   if (typeof ai !== 'undefined') window.pluginAi = ai;
   if (typeof textToImage !== 'undefined') window.pluginTextToImage = textToImage;
-  if (typeof superFetch !== 'undefined') window.pluginSuperFetch = superFetch;
-  if (typeof remember !== 'undefined') window.pluginRemember = remember;
-  if (typeof upload !== 'undefined') window.pluginUpload = upload;
 </script>
-
 <script type="module" src="js/index.js"></script>
 ```
 
-**Step 3: Copy to Standard Names in Right Panel JavaScript (`js/index.js`):**
+**Step 3: Copy to Standard Names in JavaScript**
+
+In the right-panel JavaScript (`js/index.js`), call `setupPlugins()`:
 ```javascript
-/**
- * Copies plugins exposed by the Perchance left panel (pluginAi, pluginTextToImage, etc.)
- * to the standard window property names (ai, textToImage, etc.)
- */
 function setupPlugins() {
   const pluginMap = {
     pluginAi: 'ai',
-    pluginTextToImage: 'textToImage',
+    pluginTextToImage: 'textToImage',  // ImageGlitch uses 'image' instead
     pluginSuperFetch: 'superFetch',
     pluginRemember: 'rememberPlugin',
-    pluginUpload: 'upload',
+    pluginUpload: 'upload'
   };
-
   for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (typeof window[perchanceName] === 'function') {
+    if (window[perchanceName]) {
       window[standardName] = window[perchanceName];
     }
   }
 }
-
-// Called by waitForPlugins() after plugins are confirmed to be loaded
 ```
+
+**Step 4: Wait for Plugins**
+
+Both applications implement `waitForPlugins()` with retry logic and timeout handling. This is called at app initialization (see [Section 7: Plugin Exposure Pattern](./perchance-development-guide.md#plugin-exposure-pattern)).
 
 ### Plugin Availability Waiting
 
-Both apps implement `waitForPlugins()` at initialization to ensure plugins are available before using them:
+Both apps implement `waitForPlugins()` to ensure plugins are loaded before app logic executes:
 
 ```javascript
-async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, maxRetries = 3) {
+async function waitForPlugins(requiredPlugins, timeout = 10000) {
   const startTime = Date.now();
-
   while (Date.now() - startTime < timeout) {
     const allAvailable = requiredPlugins.every(name => typeof window[name] === 'function');
     if (allAvailable) {
@@ -148,38 +122,76 @@ async function waitForPlugins(requiredPlugins, timeout = 10000, retryCount = 0, 
     }
     await new Promise(resolve => setTimeout(resolve, 500));
   }
-
-  if (retryCount < maxRetries) {
-    console.warn(`[AppName] Plugins not available, retrying (${retryCount + 1}/${maxRetries})...`);
-    return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
-  }
-
-  console.warn(`[AppName] Plugin timeout. Available: ${available.join(', ')} | Missing: ${missing.join(', ')}`);
+  console.warn(`[AppName] Plugin timeout after ${timeout}ms`);
   return false;
 }
 ```
 
-**Called from:**
-- ImageGlitch: Start of `main()` function
-- RPGlitch: Start of `initializeWhenReady()` function
+RPGlitch additionally implements **retry logic** with `maxRetries` for robustness, and **security checks** to prevent prototype pollution attacks when accessing plugin paths.
+
+---
+
+## Application-Specific Implementations
+
+### ImageGlitch: Custom Image Generation Pipeline
+
+⚠️ **Important:** ImageGlitch does **NOT** use the Perchance `text-to-image-plugin` directly. Instead:
+
+1. **Custom AI Refinement Layer** — Prompts go through three AI "Personas" (stored in `remember-plugin`):
+   - **AI Scribe Instruction** ("Holistic Prompt Architect") — Refines user prompts intelligently
+   - **AI Chaos Instruction** ("Mad Prompt Scientist") — Adds randomness and mutation
+   - **AI Transfigure Instruction** ("Prompt Modification Specialist") — Surgically modifies prompts
+
+2. **Pollinations.ai Backend** — Actual image generation uses:
+   ```javascript
+   const BASE_IMAGE_URL = "https://image.pollinations.ai/prompt/";
+   ```
+   Not the Perchance plugin, but a direct API call to Pollinations.
+
+3. **Creativity Mapping** — Custom mapping from user "creativity" level (0-10) to Stable Diffusion parameters:
+   ```javascript
+   const creativityMap = {
+     0: { gScale: 1, aiTemp: 1.9 },
+     4: { gScale: 7, aiTemp: 1.0 },  // Default
+     10: { gScale: 20, aiTemp: 0.1 }
+   };
+   ```
+
+4. **Extensive Category Lists** — Refined through `remember-plugin`, used by AI instructions:
+   - `artisticStyles`, `composition`, `lighting`, `colorPalettes`
+   - `mood`, `technicalDetails`, `additionalElements`
+   - `aiCoreQuality`, `aiFlavorEnhancers`
+
+**Implication:** ImageGlitch's image generation is a **multi-stage pipeline**: User Prompt → AI Refine → AI Chaos/Transfigure → Pollinations.ai → Image Output
+
+This is **very different** from a simple "prompt to image" Perchance plugin call. See the [left panel](./apps/imageglitch/ImageGlitch-left-panel.txt) for the full implementation.
+
+### RPGlitch: Standard AI Character Chat Integration
+
+RPGlitch uses a standard pattern for AI generation:
+- Calls `window.ai(instruction, options)` directly with specific prompts
+- Uses Dexie.js for chat history and game state persistence
+- Implements event listeners (via the standard Perchance chat API) for message handling
+
+No custom image generation pipeline. Image generation (when used) calls `window.textToImage()` directly.
+
+---
 
 ## Perchance Syntax Rules
+
+For complete syntax reference, see [Section 1: The Perchance Engine](./perchance-development-guide.md#section-1-the-perchance-engine).
 
 ### Valid List Names
 
 List names in Perchance must follow strict rules:
 
 ✅ **Valid:**
-- `animal`
-- `my_list`
-- `list123`
-- `MyList`
+- `animal`, `my_list`, `list123`, `MyList`
 
 ❌ **Invalid:**
 - `my-list` (hyphens not allowed)
 - `my list` (spaces not allowed)
 - `123list` (cannot start with number)
-- `nomic-ai/nomic-embed-text-v1.5-GGUF` (special characters not allowed)
 - Reserved keywords: `if`, `for`, `while`, `class`, `function`, `import`, etc.
 
 ### Escaping Perchance Syntax
@@ -194,141 +206,118 @@ When you need literal `[` or `{` characters in HTML/CSS, escape them with backsl
 <div>Select from \[item1|item2\]</div>
 ```
 
+---
+
 ## Deployment Workflow
 
 ### Build Phase (Run Locally)
 
 ```bash
-npm run build:apps
-npm test
-npm run lint:fix
+npm run build:apps       # Build all applications
+npm run lint:fix         # Fix linting issues
+npm test                 # Run tests
 ```
 
 **Output:** Creates single HTML files in `build/output/`:
 - `build/output/RPGlitch.html`
 - `build/output/imageglitch.html`
 
-### Deployment Phase (Manual to Perchance)
+### Deployment Phase (Manual to Perchance.org)
 
 1. **Copy Left Panel:**
-   - Open `apps/rpglitch/RPGlitch-left-panel.txt`
-   - Copy entire contents
-   - Paste into Perchance editor **Left Panel** (Lists section)
+   - Open `apps/rpglitch/RPGlitch-left-panel.txt` (or ImageGlitch equivalent)
+   - Copy **entire contents**
+   - Paste into Perchance editor's **Left Panel** (Lists section)
 
 2. **Copy Right Panel:**
-   - Open `build/output/RPGlitch.html`
-   - Copy entire contents
-   - Paste into Perchance editor **HTML Panel**
+   - Open `build/output/RPGlitch.html` (or ImageGlitch equivalent)
+   - Copy **entire contents**
+   - Paste into Perchance editor's **HTML Panel**
 
 3. **Save:** Click save in Perchance editor
 
-4. **Test:** Refresh page, check console for errors
+4. **Test:**
+   - Refresh the page
+   - Check browser console (F12) for errors
+   - Verify plugin initialization: Look for "All plugins loaded" or "Plugin timeout" messages
+
+---
 
 ## Known Issues & Workarounds
 
 ### Issue 1: Plugin Timeout
 
-**Symptom:** Console shows `"image function available: false"` or `"Plugin timeout after 10000ms"`
+**Symptom:** Console shows `"Plugin timeout after 10000ms"` or plugins not loading
 
-**Cause:** Perchance plugins failed to load within 10 seconds
+**Root Cause:** Perchance plugins failed to initialize within 10 seconds
 
 **Workaround:**
 - Refresh the page
 - Check internet connection
-- Check browser console for network errors
-- Verify left-panel has valid `{import:plugin-name}` syntax
+- Verify browser console for network errors
+- Verify left-panel has valid `{import:plugin-name}` syntax with **no typos**
 
-### Issue 2: Invalid List Name Error from Dot Notation
+**Prevention:**
+- Ensure left-panel is syntactically correct (no invalid list names)
+- Check that left-panel initializes before right-panel JavaScript executes
 
-**Symptom:** "There's a problem with the 'rpglitch' generator. You've created a top-level list called 'window.ai'"
+### Issue 2: Invalid List Name Error
 
-**Root Cause:** Attempting to use `window.ai = ai` in Perchance's left panel. Perchance's parser interprets this as trying to define a list with the name "window.ai", which contains an invalid character (dot).
+**Symptom:** "There's a problem with the '[app]' generator. You've created a top-level list called '[invalid-name]'"
 
-**Status:** FIXED - Use simple variable assignment instead of dot notation:
-```perchance
-// WRONG: Causes parse error
-window.ai = ai
+**Root Cause:** Left-panel contains invalid Perchance list name (spaces, hyphens, dots, special characters)
 
-// CORRECT: Use underscore naming to avoid parser confusion
-pluginAi = ai
-```
+**Fix:** Review left-panel for invalid names. Valid names only contain letters, numbers, underscores.
 
-Then in right-panel JavaScript, copy to standard names via `setupPlugins()` function (see **Plugin Exposure Strategy** section).
+**Common Mistakes:**
+- `window.ai = ai` ❌ (contains dot—Perchance parses this as list name "window.ai")
+- `my-list` ❌ (contains hyphen)
+- `123list` ❌ (starts with number)
 
-### Issue 2b: General Invalid List Name Error
-
-**Symptom:** "There's a problem with the '[name]' generator. You've created a top-level list called '[invalid-name]'"
-
-**Cause:** Left-panel contains invalid Perchance list name (spaces, hyphens, special chars)
-
-**Fix:** Remove or rename the invalid list. Valid names only contain letters, numbers, underscores.
+**Solution:** Use underscore notation: `plugin_ai = ai` or simple assignment: `pluginAi = ai`
 
 ### Issue 3: Database Schema Mismatch
 
 **Symptom:** "Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key"
 
-**Cause:** Dexie.js compound index query used invalid data type (booleans not allowed as keys)
+**Cause:** Dexie.js compound index query used invalid data type (e.g., boolean as index key)
 
-**Status:** FIXED in commit `6f58204b` - Converted `isCustom` from boolean to numeric (0/1)
+**Status:** Fixed in recent commits. Ensure boolean fields are converted to numeric (0/1) when used as keys.
 
-### Issue 4: Chat State Error
+### Issue 4: Chat State Error (RPGlitch)
 
 **Symptom:** "TypeError: p.state.applyPatch is not a function"
 
-**Cause:** Async timing issue when saving messages to database
+**Cause:** Async timing issue when persisting messages to IndexedDB during rapid AI responses
 
-**Status:** Mitigated with error recovery in database init() function
+**Status:** Mitigated with error recovery in database initialization. Should be transparent to user.
 
-### Issue 5: Profile Image Input Not Interactable
+### Issue 5: Profile Image Input Not Interactable (RPGlitch)
 
-**Symptom:** On profile form pages (`#profile/character/new`, `#profile/world/new`), the image URL input field cannot be clicked or typed into. Upload button and signature color dropdown work correctly.
+**Symptom:** On profile form pages, the image URL input field cannot be clicked or typed into
 
-**Root Cause:** The `.profile-left` parent container has `pointer-events: none` to allow image to act as backdrop. When entering edit mode, this CSS property cascaded to child elements, blocking interaction with the image input field specifically.
+**Root Cause:** CSS `pointer-events: none` on parent container cascaded to child elements
 
-**Fix Applied:** In `setEditMode()` function (`apps/rpglitch/js/views.js`):
+**Fix Applied:** JavaScript explicitly enables `pointer-events: auto` on the input field when editing:
 ```javascript
-// Enable pointer-events on parent container when editing
-const profileLeft = screen.querySelector('.profile-left');
-if (profileLeft) {
-  profileLeft.style.pointerEvents = editing ? 'auto' : 'none';
-}
-
-// Enable pointer-events directly on imageInput element
 if (imageInput) {
-  imageInput.style.display = editing ? 'block' : 'none';
   imageInput.style.pointerEvents = editing ? 'auto' : 'none';
 }
 ```
 
-**Status:** FIXED in commit `[current]` (2025-11-17)
+**Status:** Fixed
 
-**Note:** CSS rule `.is-editing .profile-left { pointer-events: auto; }` provides defense-in-depth but inline JavaScript style takes precedence to ensure reliability across browser rendering engines.
-
-## Documentation References
-
-- [Perchance Official Tutorial](https://perchance.org/tutorial)
-- [Perchance Advanced Tutorial](https://perchance.org/advanced-tutorial)
-- [Perchance Plugin List](https://perchance.org/plugins)
-- [AI Text Plugin](https://perchance.org/ai-text-plugin)
-- [Text to Image Plugin](https://perchance.org/text-to-image-plugin)
-
-## Best Practices
-
-1. **Single-Turn Context:** Provide all necessary information to plugins in one call, not over multiple turns
-2. **Test Left Panel Syntax:** Validate Perchance code before deploying by checking for console errors
-3. **Monitor Plugin Loading:** Check "Waiting for plugins" logs in console to verify successful load
-4. **Use Graceful Degradation:** Apps should function (at reduced capacity) even if plugins timeout
-5. **Keep Left-Panel Simple:** Complex logic belongs in the right-panel JavaScript, not Perchance syntax
+---
 
 ## Security Considerations
 
-When integrating with Perchance plugins, follow these security best practices:
+For comprehensive security guidelines, see [Section 7: Security: The "Zero Trust" Model](./perchance-development-guide.md#security-the-zero-trust-model).
 
 ### Input Validation
 
-- **Validate all plugin responses:** Never trust external data, even from trusted plugins
-- **Type checking:** Always verify response types before processing (check for strings, objects, arrays)
-- **URL validation:** Use native URL constructor to validate URLs before processing
+- Validate all plugin responses before processing
+- Type check strings, objects, arrays before use
+- Validate URLs using native `URL` constructor:
   ```javascript
   function isValidUrl(str) {
     try {
@@ -342,70 +331,130 @@ When integrating with Perchance plugins, follow these security best practices:
 
 ### XSS Prevention
 
-- **DOMPurify is mandatory:** All user input and AI-generated content must be sanitized
+- **`DOMPurify.sanitize()` is MANDATORY** for all dynamic HTML (user input, AI-generated content)
   ```javascript
   element.innerHTML = DOMPurify.sanitize(untrustedContent);
   ```
-- **Prefer safe methods:** Use `textContent` over `innerHTML` when HTML rendering is not needed
-- **Sanitize plugin responses:** Even responses from Perchance plugins should be sanitized before rendering
+- Prefer `textContent` over `innerHTML` when HTML rendering not needed
+- Sanitize all plugin responses before rendering
 
 ### Image Handling Security
 
-- **Validate image URLs:** Check protocol, pathname, and file extensions
-- **Data URL handling:** Be cautious with data URLs; validate and sanitize appropriately
-- **File extension validation:** Only allow known safe image formats (jpg, jpeg, png, gif, webp, svg). **Note:** SVGs must be sanitized to prevent XSS.
-- **Query parameter handling:** Parse URLs properly to handle query parameters in validation
+- Validate image URLs: protocol, pathname, file extensions
+- **File extension validation:** Only allow safe image formats (jpg, jpeg, png, gif, webp, svg)
+  - **SVGs must be sanitized** to prevent XSS
+- Handle data URLs carefully: validate and sanitize appropriately
+- Parse URLs properly to handle query parameters
 
-### Recent Security Improvements (2025-11-10)
+### Recent Security Improvements
 
-The codebase has undergone comprehensive security hardening:
-
-- **XSS Vulnerability Fixes:** Critical XSS vulnerabilities in image handling have been patched
-- **SOTA URL Validation:** Implemented native URL constructor-based validation replacing brittle regex patterns
-- **Enhanced Type Checking:** All plugin response handling now includes comprehensive type guards
-- **Defense in Depth:** Multiple layers of validation and sanitization throughout the application
+Comprehensive security hardening applied (2025-11-10):
+- Fixed critical XSS vulnerabilities in image handling
+- Implemented native URL constructor-based validation
+- Added comprehensive type checking for plugin responses
+- Defense-in-depth sanitization throughout applications
 
 ### Security Checklist
 
 Before deploying to Perchance:
 
-- [ ] All dynamic HTML is sanitized with DOMPurify
+- [ ] All dynamic HTML is sanitized with `DOMPurify.sanitize()`
 - [ ] All URLs are validated using proper URL parsing
 - [ ] All plugin responses have type checking
 - [ ] Error handling does not leak sensitive information
 - [ ] No secrets or API keys are committed to code
 - [ ] All user inputs are validated and sanitized
 
-## Configuration
+---
+
+## Build Configuration & Deployment Details
 
 ### Left Panel Configuration
 
 Located in `apps/[app]/[App]-left-panel.txt`
 
-**Lines 1-10:** Plugin imports and initial setup
-**Lines 11+:** Perchance lists and logic (if any)
+**Lines 1-10:** Plugin imports and metadata
+**Lines 11+:** Perchance lists and logic
+
+**Key Constraint:** Left Panel **MUST be stateless**. It handles only:
+- Plugin imports
+- Static data structures (lists, lookup tables)
+- Perchance-specific generation logic
+
+**NOT:**
+- Application state (player inventory, chat history, etc.)
+- Business logic that requires persistence
 
 ### Right Panel Configuration
 
-Located in `apps/[app]/html/index.html` and compiled JavaScript/SCSS
+Located in source files compiled into `build/output/[App].html`
 
-**Key Variables:**
-- ImageGlitch: `image()` function, `ai()` function
-- RPGlitch: `ai()`, `textToImage()`, `superFetch()`, `rememberPlugin()`, `upload()`
+**Key Files:**
+- `apps/[app]/html/index.html` — HTML structure
+- `apps/[app]/js/index.js` — Main entry point (ES6 module)
+- `apps/[app]/scss/index.scss` — Styles (compiles to inlined CSS)
+
+**Build Process:**
+1. Compile SCSS → CSS (with Pico.css base + custom SCSS)
+2. Bundle JS modules into a single IIFE (source code uses ES6 modules)
+3. Inline all vendored libraries (Dexie, DOMPurify, etc.)
+4. Inject into HTML template
+5. Output to `build/output/[AppName].html`
+
+### Vendored Libraries
+
+Located in `build/local_libs/`. Inlined into the final HTML:
+- **Pico.css** — UI framework (semantic styling)
+- **Dexie.js** — IndexedDB wrapper (local-first database)
+- **DOMPurify** — XSS sanitization
+- **_hyperscript** — Declarative UI interactions
+- **Cash** — Lightweight DOM library (RPGlitch only)
+
+---
+
+## Best Practices for Deployment
+
+1. **Single-Turn Context:** Provide all necessary information to plugins in one call, not over multiple turns
+2. **Test Left Panel Syntax:** Validate Perchance code before deploying by checking for console errors
+3. **Monitor Plugin Loading:** Check "All plugins loaded" logs in console to verify successful initialization
+4. **Graceful Degradation:** Apps should function (at reduced capacity) even if plugins timeout
+5. **Keep Left-Panel Simple:** Complex logic belongs in the right-panel JavaScript, not Perchance syntax
 
 ---
 
 ## For Deeper Learning
 
-This guide focuses on **deploying and troubleshooting our apps**. For a comprehensive understanding of the Perchance platform itself, see:
+This guide focuses on **deployment and app-specific implementation details**.
 
-- **[perchance-development-guide.md](./perchance-development-guide.md)** - Complete reference covering:
-  - Procedural generation syntax & lists
-  - LLM theory and prompting best practices
-  - AI Character Chat engine architecture
-  - oc object programming API
-  - Advanced patterns and plugins
+For comprehensive understanding of the Perchance platform and architectural patterns, see:
+
+- **[perchance-development-guide.md](./perchance-development-guide.md)** — Complete reference covering:
+  - Procedural generation syntax & lists (Section 1)
+  - Web technologies: HTML, CSS, JavaScript (Section 2)
+  - Plugin ecosystem (Section 3)
+  - LLM theory and prompting best practices (Section 4)
+  - AI Character Chat engine architecture (Section 5)
+  - oc object programming API (Section 6)
+  - Two-Panel Architecture & Architectural Patterns (Section 7)
+  - Expert patterns and best practices (Section 8)
 
 ---
 
-**See Also:** [README.md](./README.md) for the complete documentation index and architecture overview.
+## Changelog
+
+**4.1.0 (2025-11-20)** — **Complete Restructuring for Deployment Focus**
+- Removed ~50% of duplicated content from perchance-development-guide.md
+- Replaced generic explanations with cross-references to development guide
+- Added detailed "Application-Specific Implementations" section highlighting:
+  - ImageGlitch's custom Pollinations.ai pipeline (vs. generic image generation)
+  - ImageGlitch's AI Refine/Chaos/Transfigure three-stage approach
+  - RPGlitch's standard AI integration pattern
+  - Creativity mapping custom implementation
+- Consolidated all app-specific configuration and build details
+- Improved Known Issues & Workarounds with specific fixes and root causes
+- Restructured as focused **Deployment & Troubleshooting Guide**
+- Clarified when to refer to development guide for theory vs. here for practice
+
+**4.0.2 (2025-11-10)** — Comprehensive security hardening
+
+**4.0.0 (2025-11-10)** — Full synchronization with GEMINI.md and project documentation
