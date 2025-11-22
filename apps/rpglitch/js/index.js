@@ -15,13 +15,9 @@ function updateWorldAmbience(worldEntity) {
 }
 
 function generateDynamicTitle(ai, user, world) {
-  if (ai && user && world) {
-    return `The Story of ${user.name} & ${ai.name}`;
-  } else if (world) {
-    return `Adventures in ${world.name}`;
-  } else {
-    return "My Story";
-  }
+  if (ai && user && world) return `The Story of ${user.name} & ${ai.name}`;
+  if (world) return `Adventures in ${world.name}`;
+  return "My Story";
 }
 
 const App = {
@@ -43,6 +39,7 @@ const App = {
       return target;
     };
     merge(App.state, patch);
+    document.dispatchEvent(new CustomEvent("state:changed", { detail: { patch } }));
   },
   prompt: {
     build: async (storyId) => {
@@ -200,6 +197,49 @@ async function initUniversalStage() {
     newBtn.addEventListener("click", handleBeginStory);
   }
 
+  // --- SETTINGS WIRING (FINAL) ---
+  const settingsBtn = document.querySelector("#btn-settings");
+  const settingsModal = document.querySelector("#settings-screen");
+
+  if (settingsBtn && settingsModal) {
+    const closeSettings = () => {
+      settingsModal.classList.remove("is-open");
+      setTimeout(() => settingsModal.setAttribute("hidden", ""), 200);
+    };
+
+    settingsBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      settingsModal.removeAttribute("hidden");
+      settingsModal.classList.add("is-open");
+
+      const promptInput = document.querySelector("#opening-prompt");
+      const jsInput = document.querySelector("#custom-js");
+      if (promptInput) promptInput.value = App.state.settings.openingPrompt || "";
+      if (jsInput) jsInput.value = App.state.settings.customJs || "";
+    });
+
+    settingsModal.addEventListener("click", (e) => {
+      if (e.target === settingsModal) closeSettings();
+    });
+
+    const resetBtn = document.querySelector("#settings-reset");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        if (confirm("Are you sure you want to reset all data? This cannot be undone.")) {
+          await db.delete();
+          window.location.reload();
+        }
+      });
+    }
+
+    const promptInput = document.querySelector("#opening-prompt");
+    if (promptInput) promptInput.addEventListener("input", (e) => App.applyPatch({ settings: { openingPrompt: e.target.value } }));
+
+    const jsInput = document.querySelector("#custom-js");
+    if (jsInput) jsInput.addEventListener("input", (e) => App.applyPatch({ settings: { customJs: e.target.value } }));
+  }
+
   const form = document.querySelector("#story-form");
   if (form) {
     const input = form.querySelector('input[name="message"]');
@@ -269,11 +309,7 @@ async function generateOpeningMessage(storyId) {
       entities.get("character", story.aiCharacterId)
     ]);
 
-    const prompt = `Generate a short, atmospheric opening scene for a story set in ${world.name}. 
-        The character is ${ai.name}. 
-        World Context: ${world.forever}
-        Character Context: ${ai.forever}
-        Focus on setting the mood.`;
+    const prompt = App.state.settings.openingPrompt || `Generate a short, atmospheric opening scene for a story set in ${world.name}. The character is ${ai.name}. Focus on setting the mood.`;
 
     const text = await window.ai(prompt, { temperature: 0.8, max_tokens: 400 });
 

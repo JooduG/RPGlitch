@@ -13,6 +13,7 @@
 main.container {
   overflow: hidden auto;
   padding: 0;
+
   @include foundation.custom-scrollbar;
 }
 
@@ -26,14 +27,15 @@ main.container {
   z-index: 1000;
 
   /* Frosted Glass Effect */
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(0 0 0 / 60%);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 
   /* Center the modal */
   display: none;
   place-items: center;
   padding: 1rem;
+
   /* Fallback padding */
 
   &[hidden] {
@@ -57,14 +59,15 @@ main.container {
 
   /* Solid background to hide content behind */
   background: #11191f;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 16px;
-  box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 50px 100px rgb(0 0 0 / 80%);
 
   /* Grid Layout */
   display: grid;
   grid-template-columns: 40% 60%;
   overflow: hidden;
+
   /* Clip rounded corners */
 }
 
@@ -87,6 +90,7 @@ main.container {
     width: 100%;
     height: 100%;
     object-fit: cover;
+
     /* Crop image to fill space */
     display: block;
   }
@@ -131,7 +135,7 @@ article {
   bottom: 1rem;
   left: 1rem;
   right: 1rem;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgb(0 0 0 / 80%);
   backdrop-filter: blur(8px);
   padding: 1rem;
   border-radius: var(--pico-radius);
@@ -184,11 +188,9 @@ article {
   justify-content: space-between;
   position: relative;
   z-index: var(--z-header);
-
   background: rgb(var(--dark-background-rgb) / 85%);
   backdrop-filter: blur(15px);
   box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
-
   padding: 1rem;
   color: var(--pico-contrast, #fff);
   border-radius: var(--pico-radius);

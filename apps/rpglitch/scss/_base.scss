@@ -86,16 +86,17 @@ button,
 
     &:not(:disabled):hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
     }
 }
 
 /* --- MODAL PROFILE --- */
-#profile-screen {
+#profile-screen,
+#settings-screen {
     position: fixed;
     inset: 0;
     z-index: var(--z-modal);
-    background: rgba(0, 0, 0, 0.6);
+    background: rgb(0 0 0 / 60%);
     backdrop-filter: blur(10px);
     display: none;
     place-items: center;
@@ -106,47 +107,104 @@ button,
     &.profile-view-active {
         display: grid;
     }
+}
 
-    .profile-layout {
+.profile-layout {
+    width: 100%;
+    max-width: 1100px;
+    height: auto;
+    max-height: 90vh;
+    background: rgb(17 25 31 / 98%);
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: 24px;
+    box-shadow: 0 50px 100px rgb(0 0 0 / 80%);
+    display: grid;
+    grid-template-columns: 40% 60%;
+    overflow: hidden;
+}
+
+.profile-left {
+    background: #000;
+    position: relative;
+    min-height: 300px;
+    height: auto;
+
+    .hero-wrap {
+        position: absolute;
+        inset: 0;
         width: 100%;
-        max-width: 1100px;
-        height: auto;
-        max-height: 90vh;
-        background: rgba(17, 25, 31, 0.98);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 24px;
-        box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8);
-        display: grid;
-        grid-template-columns: 40% 60%;
-        overflow: hidden;
+        height: 100%;
     }
 
-    .profile-left {
-        background: #000;
-        position: relative;
-        min-height: 300px;
-        height: auto;
+    .picture,
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+}
 
-        .hero-wrap {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-        }
+.profile-right {
+    padding: 3rem;
+    overflow-y: auto;
+    max-height: 90vh;
+}
 
-        .picture,
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
+/* Settings Layout */
+.settings-layout {
+    width: 100%;
+    max-width: 800px;
+    background: rgb(17 25 31 / 98%);
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: 24px;
+    box-shadow: 0 50px 100px rgb(0 0 0 / 80%);
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: pop-in 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+
+    .settings-header {
+        text-align: center;
+        padding-bottom: 1rem;
     }
 
-    .profile-right {
-        padding: 3rem;
+    .settings-content {
+        flex: 1;
         overflow-y: auto;
-        max-height: 90vh;
+    }
+}
+
+@keyframes pop-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+#settings-form {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    label {
+        text-align: right;
+        font-weight: 700;
+        color: var(--pico-muted-color);
+        margin-bottom: 0;
+    }
+
+    textarea {
+        width: 100%;
+        resize: vertical;
     }
 }
 
@@ -172,30 +230,50 @@ button,
     font-weight: 800;
     width: 100%;
     background: transparent;
-    border: none;
+    border: none !important;
     color: white;
     padding: 0.5rem 0;
     margin-bottom: 1rem;
+    resize: none;
+    overflow: hidden;
 
     &:focus {
         outline: none;
-        border-color: var(--pico-primary);
+        border: none;
     }
 }
 
 .profile-desc-input {
     width: 100%;
     min-height: 100px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(255 255 255 / 10%);
     border-radius: 8px;
     color: white;
     padding: 1rem;
-    margin-bottom: 2rem;
     font-size: 1rem;
+    resize: none;
+    overflow: hidden;
 
     &:focus {
         border-color: var(--pico-primary);
         outline: none;
+    }
+}
+
+.field-label {
+    margin-bottom: 0.5rem;
+
+    label {
+        font-weight: 700;
+        display: block;
+        color: #fff;
+    }
+
+    small {
+        display: block;
+        font-size: 0.85em;
+        opacity: 0.6;
+        margin-top: 0.2rem;
     }
 }
 
@@ -204,13 +282,10 @@ button,
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 1rem;
     border-top: none;
-    /* FIX: Explicitly no border */
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
     #profile-screen {
         padding: 0;
     }
@@ -234,5 +309,23 @@ button,
 
     .profile-right {
         padding: 1.5rem;
+    }
+
+    #settings-screen {
+        padding: 1rem;
+    }
+
+    #settings-screen .settings-layout {
+        padding: 1.5rem;
+    }
+
+    #settings-screen #settings-form {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        align-items: start;
+
+        label {
+            text-align: left;
+        }
     }
 }
