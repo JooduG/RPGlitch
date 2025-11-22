@@ -21,58 +21,43 @@
 
   <dialog id="emergency-modal">
     <article>
-      <header>
-        <a href="#close" aria-label="Close" class="close"></a>
-        Error
-      </header>
-      <p>
-        An error occurred during loading. You can try to save your data or
-        delete it to start fresh.
-      </p>
+      <header><a href="#close" aria-label="Close" class="close"></a>Error</header>
+      <p>An error occurred during loading.</p>
       <footer>
-        <button id="emergency-export" class="secondary" data-action="export-all">
-          Save All Data
-        </button>
-        <button id="emergency-delete" class="contrast" data-action="delete-all">
-          Delete All Data
-        </button>
+        <button id="emergency-export" class="secondary" data-action="export-all">Save All Data</button>
+        <button id="emergency-delete" class="contrast" data-action="delete-all">Delete All Data</button>
       </footer>
     </article>
   </dialog>
 
   <dialog id="settings-modal">
     <article>
-      <header>
-        <a href="#close" aria-label="Close" class="close"></a>
-        Settings
-      </header>
+      <header><a href="#close" aria-label="Close" class="close"></a>Settings</header>
       <form id="settings-form">
         <label for="opening-prompt">Story Prompt</label>
-        <textarea id="opening-prompt" name="opening-prompt" placeholder="Enter the opening prompt for your story..."
+        <textarea id="opening-prompt" name="opening-prompt" placeholder="Enter the opening prompt..."
           autocomplete="off"></textarea>
-
         <label for="custom-js">Custom JavaScript</label>
         <textarea id="custom-js" name="custom-js" placeholder="Custom JS (advanced)" autocomplete="off"></textarea>
       </form>
-      <footer>
-        <button id="settings-close" class="primary">Close</button>
-      </footer>
+      <footer><button id="settings-close" class="primary">Close</button></footer>
     </article>
   </dialog>
 
   <main id="main" class="universal-stage">
+
     <div class="stage-column stage-column--side" id="stage-ai">
       <div class="stage-content--storyboard">
-        <article class="entity-card slot-card">
-          <header>NARRATOR</header>
-          <div id="btn-select-ai" class="card-slot drawer-trigger" role="button" tabindex="0">
+        <article class="entity-card">
+          <div id="btn-select-ai" class="card-slot" role="button" tabindex="0">
+            <span class="slot-category">AI Character</span>
             <div class="slot-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+              <svg viewBox="0 0 24 24" fill="currentColor">
                 <path
                   d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2a7.2 7.2 0 01-6-3.22c.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08a7.2 7.2 0 01-6 3.22z" />
               </svg>
             </div>
-            <span class="slot-label">Select AI</span>
+            <span class="slot-label">Select Archetype</span>
           </div>
           <div id="ai-character-preview" class="entity-preview" hidden></div>
         </article>
@@ -87,23 +72,22 @@
     </div>
 
     <div class="stage-column stage-column--center" id="stage-center">
-      <div class="stage-content--storyboard">
+      <div class="stage-content--storyboard center-layout-grid">
+
         <div id="storyboard-header">
-          <h1 id="title-storyboard" class="story-title-input">
-            My Story
-          </h1>
+          <h1 id="title-storyboard" class="story-title-input">My Story</h1>
         </div>
 
         <article class="entity-card world-card">
-          <header>WORLD</header>
-          <div id="btn-select-world" class="card-slot drawer-trigger" role="button" tabindex="0">
+          <div id="btn-select-world" class="card-slot" role="button" tabindex="0">
+            <span class="slot-category">World</span>
             <div class="slot-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+              <svg viewBox="0 0 24 24" fill="currentColor">
                 <path
                   d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 010-16 8 8 0 010 16zm0-14a6 6 0 00-5.29 3h10.58A6 6 0 0012 6zm-5.29 5a6 6 0 000 2h10.58a6 6 0 000-2H6.71zm.42 3a6 6 0 005.29 3 6 6 0 005.29-3H7.13z" />
               </svg>
             </div>
-            <span class="slot-label">Select World</span>
+            <span class="slot-label">Select Setting</span>
           </div>
           <div id="world-preview" class="entity-preview" hidden></div>
         </article>
@@ -115,9 +99,7 @@
 
       <div class="stage-content--gameplay">
         <div class="sticky-header">
-          <h1 id="title-gameplay" class="story-title-input">
-            Story Title
-          </h1>
+          <h1 id="title-gameplay" class="story-title-input">Story Title</h1>
         </div>
         <div id="chat-feed" role="log" aria-live="polite">
           <div id="no-messages" hidden>No messages yet</div>
@@ -139,15 +121,15 @@
 
     <div class="stage-column stage-column--side" id="stage-user">
       <div class="stage-content--storyboard">
-        <article class="entity-card slot-card">
-          <header>PLAYER</header>
-          <div id="btn-select-user" class="card-slot drawer-trigger" role="button" tabindex="0">
+        <article class="entity-card">
+          <div id="btn-select-user" class="card-slot" role="button" tabindex="0">
+            <span class="slot-category">Your Character</span>
             <div class="slot-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+              <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.33 0-8 1.67-8 5v3h16v-3c0-3.33-4.67-5-8-5z" />
               </svg>
             </div>
-            <span class="slot-label">Select You</span>
+            <span class="slot-label">Select Persona</span>
           </div>
           <div id="user-character-preview" class="entity-preview" hidden></div>
         </article>
@@ -163,8 +145,6 @@
   </main>
 
   <div id="profile-screen" hidden></div>
-
-  <h1 style="display: none">RPGlitch</h1>
 
   <div id="storyboard-drawer" class="storyboard-drawer" aria-hidden="true" hidden>
     <div class="drawer-handle"></div>
@@ -233,7 +213,6 @@
     if (typeof remember !== "undefined") { window.remember = remember; window.pluginRemember = remember; }
     if (typeof upload !== "undefined") { window.upload = upload; window.pluginUpload = upload; }
   </script>
-
   <div id="dev-hud" style="display: none;"></div>
 </body>
 

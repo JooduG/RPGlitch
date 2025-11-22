@@ -1,12 +1,6 @@
 import { entities, getPictureHTML } from "./entities.js";
 import { log, error } from "./utils.js";
 
-/**
- * Storyboard Drawer Module
- * Manages the bottom drawer for entity selection in the Storyboard.
- * Toggles visibility of pre-existing DOM elements and populates content.
- */
-
 const DRAWER_ID = "storyboard-drawer";
 const BACKDROP_ID = "storyboard-drawer-backdrop";
 const CONTENT_ID = "storyboard-drawer-content";
@@ -14,52 +8,32 @@ const TITLE_ID = "drawer-title";
 
 let _onSelectCallback = null;
 
-/**
- * Initialize the drawer system.
- * Checks if required DOM elements exist and binds close handlers.
- */
 export function initDrawer() {
     const drawer = document.getElementById(DRAWER_ID);
     const backdrop = document.getElementById(BACKDROP_ID);
+    if (!drawer || !backdrop) return;
 
-    if (!drawer || !backdrop) {
-        console.warn("[Drawer] Elements not found in HTML. Ensure #storyboard-drawer exists.");
-        return;
-    }
-
-    // Bind close button
     const closeBtn = drawer.querySelector(".close-drawer");
-    if (closeBtn) {
-        closeBtn.addEventListener("click", closeDrawer);
-    }
-
-    // Bind backdrop click
+    if (closeBtn) closeBtn.addEventListener("click", closeDrawer);
     backdrop.addEventListener("click", closeDrawer);
 
-    // Bind Escape key
     document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && isOpen()) {
-            closeDrawer();
-        }
+        if (e.key === "Escape" && isOpen()) closeDrawer();
+    });
+
+    window.addEventListener("resize", () => {
+        if (isOpen()) closeDrawer();
     });
 
     log("[Drawer] Initialized.");
 }
 
-/**
- * Check if the drawer is currently open.
- */
 export function isOpen() {
     const drawer = document.getElementById(DRAWER_ID);
     return drawer && drawer.classList.contains("is-open");
 }
 
-/**
- * Open the drawer with entities of the specified type.
- * @param {string} type - 'character' or 'world'
- * @param {Function} onSelect - Callback function(entityId) when an item is selected
- */
-export function openDrawer(type, onSelect) {
+export function openDrawer(type, onSelect, triggerElement) {
     _onSelectCallback = onSelect;
 
     const drawer = document.getElementById(DRAWER_ID);
@@ -69,58 +43,105 @@ export function openDrawer(type, onSelect) {
 
     if (!drawer || !content) return;
 
-    // 1. Update Title
-    if (title) {
-        title.textContent = `Select ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+    if (title) title.textContent = `Select ${type}`;
+
+    // --- ROBUST POSITIONING LOGIC ---
+    if (triggerElement) {
+        const rect = triggerElement.getBoundingClientRect();
+        const viewportW = window.innerWidth;
+        const viewportH = window.innerHeight;
+
+        // 1. Reset styles to prevent conflict
+        drawer.style.cssText = '';
+        drawer.classList.remove('drop-up');
+        drawer.classList.remove('centered-modal');
+
+        // 2. Width & X-Position
+        drawer.style.width = `${rect.width}px`;
+
+        // Clamp horizontal to viewport
+        let leftPos = rect.left;
+        if (leftPos + rect.width > viewportW) {
+            leftPos = viewportW - rect.width - 10; // Buffer
+        }
+        if (leftPos < 10) leftPos = 10;
+        drawer.style.left = `${leftPos}px`;
+
+        // 3. Vertical Position Strategy
+        const spaceBelow = viewportH - rect.bottom;
+        const spaceAbove = rect.top;
+        const GAP = 8;
+        const SAFE_MARGIN = 16;
+        const MIN_USABLE_HEIGHT = 200; // Minimum height for a usable drawer
+
+        // Check if we have enough space anywhere
+        const canGoDown = spaceBelow >= MIN_USABLE_HEIGHT;
+        const canGoUp = spaceAbove >= MIN_USABLE_HEIGHT;
+
+        if (canGoDown) {
+            // --- DROP DOWN ---
+            drawer.style.top = `${rect.bottom + GAP}px`;
+            drawer.style.bottom = 'auto';
+            drawer.style.maxHeight = `${spaceBelow - SAFE_MARGIN}px`;
+            drawer.style.transformOrigin = 'top center';
+
+        } else if (canGoUp) {
+            // --- DROP UP ---
+            drawer.style.bottom = `${viewportH - rect.top + GAP}px`;
+            drawer.style.top = 'auto';
+            drawer.style.maxHeight = `${spaceAbove - SAFE_MARGIN}px`;
+            drawer.classList.add('drop-up');
+            drawer.style.transformOrigin = 'bottom center';
+
+        } else {
+            // --- FALLBACK: CENTERED MODAL ---
+            // Not enough space above or below (card is huge or screen is tiny)
+            drawer.style.top = '50%';
+            drawer.style.left = '50%';
+            drawer.style.transform = 'translate(-50%, -50%)';
+            drawer.style.width = 'min(400px, 90vw)';
+            drawer.style.maxHeight = '60vh';
+            drawer.classList.add('centered-modal');
+        }
+
+    } else {
+        // Mobile / No Trigger Fallback
+        drawer.style.width = '100%';
+        drawer.style.left = '0';
+        drawer.style.bottom = '0';
+        drawer.style.top = 'auto';
+        drawer.style.maxHeight = '60vh';
     }
 
-    // 2. Show Loading State
     content.innerHTML = '<div class="drawer-loading" style="text-align:center; opacity:0.5; padding:2rem;">Loading...</div>';
 
-    // 3. Reveal UI (CSS Transitions)
     drawer.removeAttribute("hidden");
-    drawer.setAttribute("aria-hidden", "false");
-
-    // Force reflow to ensure transition triggers
-    void drawer.offsetWidth;
+    void drawer.offsetWidth; // Force reflow
     drawer.classList.add("is-open");
 
     backdrop.removeAttribute("hidden");
-    void backdrop.offsetWidth;
     backdrop.setAttribute("aria-hidden", "false");
 
-    document.body.classList.add("drawer-open");
-
-    // 4. Load Data
-    try {
-        entities.list(type).then(items => {
-            renderDrawerItems(items, type);
-        }).catch(err => {
-            error("Failed to load drawer items:", err);
-            content.innerHTML = '<div class="drawer-error">Failed to load items.</div>';
-        });
-    } catch (err) {
-        error("Failed to initiate drawer load:", err);
-    }
+    entities.list(type).then(items => {
+        renderDrawerItems(items, type);
+    }).catch(err => {
+        error("Failed to load drawer items:", err);
+        content.innerHTML = '<div class="drawer-error">Failed to load items.</div>';
+    });
 }
 
-/**
- * Close the drawer.
- */
 export function closeDrawer() {
     const drawer = document.getElementById(DRAWER_ID);
     const backdrop = document.getElementById(BACKDROP_ID);
 
     if (drawer) {
         drawer.classList.remove("is-open");
-
-        // Wait for transition to finish before setting hidden
         setTimeout(() => {
-            if (!drawer.classList.contains("is-open")) { // Double check
+            if (!drawer.classList.contains("is-open")) {
                 drawer.setAttribute("hidden", "");
-                drawer.setAttribute("aria-hidden", "true");
+                drawer.style.cssText = ''; // Reset all inline styles
             }
-        }, 400); // Match CSS transition duration
+        }, 200);
     }
 
     if (backdrop) {
@@ -129,49 +150,28 @@ export function closeDrawer() {
             if (!drawer.classList.contains("is-open")) {
                 backdrop.setAttribute("hidden", "");
             }
-        }, 400);
+        }, 200);
     }
-
-    document.body.classList.remove("drawer-open");
     _onSelectCallback = null;
 }
 
-/**
- * Render entity cards into the drawer content area.
- * @param {Array} items - List of entity objects
- * @param {string} type - Entity type
- */
 function renderDrawerItems(items, type) {
     const content = document.getElementById(CONTENT_ID);
     if (!content) return;
 
     content.innerHTML = "";
-
     const grid = document.createElement("div");
     grid.className = "drawer-grid";
 
-    // 1. Add "New" card
-    const newCard = createCard({ name: `New ${type}`, isNew: true }, type);
-    grid.appendChild(newCard);
+    grid.appendChild(createCard({ name: `New ${type}`, isNew: true }, type));
 
-    // 2. Add Entity cards
-    if (items.length > 0) {
-        items.forEach(item => {
-            const card = createCard(item, type);
-            grid.appendChild(card);
-        });
-    } else {
-        // Optional: Message if empty, but "New" card is already there
-    }
+    items.forEach(item => {
+        grid.appendChild(createCard(item, type));
+    });
 
     content.appendChild(grid);
 }
 
-/**
- * Create a single entity card element.
- * @param {Object} item - Entity object
- * @param {string} type - Entity type
- */
 function createCard(item, type) {
     const card = document.createElement("button");
     card.className = "drawer-card";
@@ -179,36 +179,30 @@ function createCard(item, type) {
 
     if (item.isNew) {
         card.classList.add("drawer-card--new");
-        card.innerHTML = `
-            <div class="drawer-card-icon" style="font-size:2rem; margin-bottom:0.5rem;">+</div>
-            <div class="drawer-card-label">Create New</div>
-        `;
+        card.innerHTML = `<div class="drawer-card-icon" style="font-size:1.5rem;">+</div><div class="drawer-card-label">Create New</div>`;
         card.addEventListener("click", () => {
             window.location.hash = `#profile/${type}/new`;
             closeDrawer();
         });
     } else {
-        // Use getPictureHTML for consistent rendering (cover mode)
+        if (item.signatureColour) {
+            card.style.setProperty("--card-signature", `var(--signature-${item.signatureColour})`);
+        }
         if (typeof getPictureHTML === 'function') {
             const pic = getPictureHTML(item, { cover: true });
             card.appendChild(pic);
         } else {
-            // Fallback if utility missing
             card.textContent = item.name;
         }
-
         const label = document.createElement("div");
         label.className = "drawer-card-label";
         label.textContent = item.name;
         card.appendChild(label);
 
         card.addEventListener("click", () => {
-            if (_onSelectCallback) {
-                _onSelectCallback(item.id);
-            }
+            if (_onSelectCallback) _onSelectCallback(item.id);
             closeDrawer();
         });
     }
-
     return card;
 }

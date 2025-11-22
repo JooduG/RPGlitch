@@ -1,5 +1,8 @@
-// This file will contain layout styles, such as for the main container, header, and grid systems.
 @use "foundation";
+
+/* =========================================
+   GLOBAL LAYOUT & CONTAINERS
+   ========================================= */
 
 .container {
   position: relative;
@@ -10,51 +13,170 @@
 main.container {
   overflow: hidden auto;
   padding: 0;
-
-  // height: calc(100vh - var(--header-height));
-
-  // max-width: 100%;
-
   @include foundation.custom-scrollbar;
 }
 
-// Profile Screen Overlay
+/* --- MODAL OVERLAY (Backdrop) --- */
 #profile-screen {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: var(--pico-background-color);
   z-index: 1000;
-  overflow-y: auto;
+
+  /* Frosted Glass Effect */
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  /* Center the modal */
+  display: none;
+  place-items: center;
+  padding: 1rem;
+  /* Fallback padding */
 
   &[hidden] {
+    display: none !important;
+  }
+
+  /* When active (controlled by JS classes or just display logic) */
+  body.profile-view-active & {
+    display: grid;
+  }
+}
+
+/* --- MODAL CARD --- */
+.profile-layout {
+  width: 100%;
+  max-width: 1100px;
+
+  /* BREATHING ROOM: Cap height to viewport minus margin */
+  height: auto;
+  min-height: calc(100vh - 4rem);
+
+  /* Solid background to hide content behind */
+  background: #11191f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8);
+
+  /* Grid Layout */
+  display: grid;
+  grid-template-columns: 40% 60%;
+  overflow: hidden;
+  /* Clip rounded corners */
+}
+
+/* Left Column: Image (Cropped to Fit) */
+.profile-left {
+  background: #000;
+  position: relative;
+  min-height: 300px;
+
+  /* Force the image container to fill the grid cell exactly */
+  .hero-wrap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .picture,
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Crop image to fill space */
+    display: block;
+  }
+
+  /* Remove pseudo-elements that might add text overlay */
+  &::before,
+  &::after {
     display: none;
   }
+}
+
+/* Right Column: Content (Scrollable) */
+.profile-right {
+  padding: 3rem;
+
+  /* INTERNAL SCROLL: Only the text area scrolls */
+  overflow-y: auto;
+  max-height: calc(100vh - 4rem);
 
   @include foundation.custom-scrollbar;
 }
 
-// Remove container margins when in profile view to allow edge-to-edge image
-body.profile-view-active {
-  padding: 0; // Remove all body padding in profile view
-  overflow: hidden; // Prevent scrolling the body itself
+.profile-right-content {
+  max-width: 100%;
+  margin-inline: auto;
+}
 
-  #profile-screen {
+/* --- OVERRIDES --- */
+
+/* Kill the default Article background/shadow to fix "weird box" */
+article {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+/* Profile Header Styles */
+.profile-hero-overlay {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  padding: 1rem;
+  border-radius: var(--pico-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  pointer-events: all;
+
+  button {
+    white-space: nowrap;
+  }
+}
+
+/* Hide edit controls by default */
+[data-edit-field],
+.profile-hero-overlay {
+  display: none;
+}
+
+[data-read-field] {
+  display: block;
+}
+
+/* Edit Mode */
+.is-editing {
+  .profile-left {
+    pointer-events: auto;
+  }
+
+  [data-read-field] {
+    display: none;
+  }
+
+  [data-edit-field] {
     display: block;
   }
 
-  // Override Pico CSS padding-block on body > main
-  >main {
-    padding-block: 0; // Remove Pico's default 1rem top/bottom padding
-  }
-
-  // Hide tag-chips in profile view to avoid overlap with upload controls
-  .tag-chips {
-    display: none;
+  .profile-hero-overlay {
+    display: flex;
   }
 }
+
+/* =========================================
+   TOP BAR
+   ========================================= */
 
 .top-bar {
   display: flex;
@@ -62,47 +184,29 @@ body.profile-view-active {
   justify-content: space-between;
   position: relative;
   z-index: var(--z-header);
+
   background: rgb(var(--dark-background-rgb) / 85%);
   backdrop-filter: blur(15px);
   box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
+
   padding: 1rem;
   color: var(--pico-contrast, #fff);
   border-radius: var(--pico-radius);
   margin: 1rem auto 0;
-
-  /* Center horizontally */
   width: var(--app-container-max);
-
-  /* Account for horizontal padding */
   max-width: var(--app-container-max);
   border: 0;
   transition: border-radius 0.25s ease;
 }
 
-/* Remove bottom border-radius when chin is open for seamless transition */
-body.chin-open .top-bar {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-/* In profile view, position top-bar fixed at top to overlay profile picture */
+/* Profile View override for Top Bar */
 body.profile-view-active .top-bar {
-  position: fixed;
-  top: 0;
-  margin-top: 1rem;
-
-  /* Maintain spacing from top */
-  margin-bottom: 0;
-
-  /* Width and max-width inherited from base .top-bar */
+  /* In modal mode, we usually hide the top bar or let it sit behind. 
+     If you want it visible, z-index handles it. 
+     Currently, modal z-index (1000) is > header (10), so it goes behind. */
 }
 
-.top-bar-right {
-  display: flex;
-  gap: 1rem;
-  margin: 0;
-}
-
+.top-bar-right,
 .top-bar-left {
   display: flex;
   gap: 1rem;
@@ -121,260 +225,7 @@ body.profile-view-active .top-bar {
   border-bottom-right-radius: var(--pico-border-radius);
 }
 
-#chin-container {
-  box-sizing: border-box;
-  max-width: var(--app-container-max);
-  margin-inline: auto;
-  padding-inline: var(--app-container-pad);
-  position: fixed;
-
-  /* Fixed positioning to overlay content */
-  top: 0;
-  left: 0;
-  right: 0;
-  pointer-events: none;
-
-  /* JS toggles to auto only when a chin is open */
-  z-index: var(--z-chin-container);
-
-  /* Below chin but above main content */
-  height: auto;
-
-  /* Allow chin to size to content */
-  max-height: 80vh;
-
-  /* Limit maximum height */
-  overflow: visible;
-
-  /* Allow chin to extend beyond container */
-}
-
-#chin-container[hidden] {
-  visibility: hidden;
-
-  /* Use visibility instead of display to maintain layout */
-  pointer-events: none;
-}
-
-.chin-grid {
-  align-content: start;
-  box-shadow: none;
-  margin-bottom: 0;
-  flex: 1;
-  overflow: visible;
-  max-height: 100%;
-  min-height: 160px;
-  height: auto;
-  z-index: var(--z-dropdown);
-  position: relative;
-  display: grid;
-  align-items: stretch;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-
-  .card {
-    border-top-left-radius: var(--pico-radius);
-    border-top-right-radius: var(--pico-radius);
-    overflow: hidden;
-    display: grid;
-    grid-template-columns: 1fr;
-
-    /* Single column */
-    grid-template-rows: auto 1fr;
-
-    /* Image row, content row */
-    gap: 0;
-    padding: 0;
-
-    .card-media {
-      grid-column: 1;
-      grid-row: 1;
-      border-top-left-radius: var(--pico-radius);
-      border-top-right-radius: var(--pico-radius);
-      min-height: 180px;
-      overflow: hidden;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-
-    .card-body {
-      grid-column: 1;
-      grid-row: 2;
-      padding: 0.5rem 1rem 1rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
-    }
-
-    .card-footer {
-      grid-column: 1;
-      grid-row: 2;
-      align-self: end;
-      padding: 0 1rem 1rem;
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-
-      .tag-chip {
-        opacity: 1;
-        visibility: visible;
-      }
-    }
-  }
-}
-
-.profile-layout {
-  position: relative;
-  min-height: 100vh;
-  height: 100%;
-
-  /* Ensure it takes full height of its parent */
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-
-  /* Full viewport width */
-  max-width: 100vw;
-
-  /* No max-width constraint */
-  display: grid;
-  grid-template-columns: var(--layout-left-col) var(--layout-center-col) var(--layout-right-col);
-
-  /* 25% hero | 50% content | 25% breathing room */
-
-  gap: 0;
-
-  @include foundation.mobile {
-    grid-template-columns: 1fr;
-
-    /* Stack on mobile */
-  }
-}
-
-.profile-left {
-  grid-column: 1;
-  position: sticky;
-  top: 0;
-
-  /* Start from very top of viewport for edge-to-edge */
-  height: 100vh;
-  z-index: 1;
-
-  /* Above body background (z-index: 0) but under top bar (z-index: 10) */
-  pointer-events: none;
-
-  /* image acts as backdrop */
-  overflow: hidden;
-  background: var(--signature, transparent);
-  margin: 0;
-
-  /* Ensure no margins */
-  padding: 0;
-
-  /* Ensure no padding */
-
-  @include foundation.mobile {
-    position: relative;
-    height: 50vh;
-  }
-
-  // Remove any background text like "character"
-  &::before,
-  &::after {
-    content: none;
-    display: none;
-  }
-}
-
-.profile-right {
-  grid-column: 2;
-
-  /* Center column only - third column is empty for breathing room */
-  position: relative;
-  z-index: var(--z-base);
-  overflow: visible;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  padding: 1rem;
-  padding-inline: var(--app-container-pad);
-  padding-top: calc(var(--top-bar-height, 3rem) + 4rem);
-
-  /* top-bar height + extra spacing to avoid overlap */
-
-  @include foundation.mobile {
-    grid-column: 1;
-    padding-top: calc(var(--top-bar-height, 3rem) + 2rem);
-
-    /* Less spacing on mobile */
-  }
-}
-
-.profile-right-content {
-  max-width: 90ch;
-
-  /* Increased from 80ch for better use of center column */
-  margin-inline: auto;
-}
-
-.profile-hero-overlay {
-  position: absolute;
-  bottom: 1rem; // Position at bottom of profile picture
-  left: 1rem;
-  right: 1rem;
-  background: rgb(0 0 0 / 70%);
-  backdrop-filter: blur(8px);
-  padding: 1rem;
-  border-radius: var(--pico-radius);
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  pointer-events: all;
-
-  // Prevent button text wrapping for image actions
-  button {
-    white-space: nowrap;
-  }
-}
-
-// --- Hide/Show Logic ---
-// Hide all 'edit' fields by default
-[data-edit-field],
-.profile-hero-overlay {
-  display: none;
-}
-
-// Show all 'read' fields by default
-[data-read-field] {
-  display: block; // or whatever its default is
-}
-
-// --- Editing Mode (.is-editing) ---
-.is-editing {
-  // Enable pointer-events on profile-left when editing
-  .profile-left {
-    pointer-events: auto;
-  }
-
-  // Hide 'read' fields
-  [data-read-field] {
-    display: none;
-  }
-
-  // Show 'edit' fields with appropriate display types
-  [data-edit-field] {
-    display: block; // Use block for inputs and textareas
-  }
-
-  .profile-hero-overlay {
-    display: flex; // Only flex for the overlay container
-  }
-}
-
+/* --- FORM VIEW --- */
 .form-view .profile-name-input,
 .form-view .profile-description-input,
 .form-view .profile-field-input {
@@ -406,262 +257,28 @@ body.profile-view-active .top-bar {
   margin-bottom: 0.5rem;
 }
 
-#storyboard-dynamic-title-wrapper {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-#storyboard-dynamic-title {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: bold;
-  color: var(--pico-color);
-  padding: 1rem;
-  border-radius: var(--pico-radius);
-  background: rgb(var(--dark-background-rgb) / 40%);
-  backdrop-filter: blur(10px);
-  transition: outline 0.3s ease, background 0.3s ease;
-
-  &:focus {
-    outline: 2px solid var(--pico-primary);
-    background: rgb(var(--dark-background-rgb) / 60%);
-  }
-}
-
-#storyboard-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-bottom: 2rem;
-  align-items: stretch;
-}
-
-.storyboard-card {
-  min-height: 12.5rem;
-  display: grid;
-  grid-template-columns: 30% 1fr;
-  grid-template-rows: 1fr;
-  gap: 0;
-  padding: 0;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border-radius: var(--pico-radius);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
-
-  &:hover {
-    transform: translateY(-0.25rem);
-    box-shadow: 0 8px 16px rgb(0 0 0 / 25%);
-  }
-
-  .card-media {
-    grid-column: 1;
-    grid-row: 1 / -1;
-    width: 100%;
-    height: 100%;
-    min-height: 12.5rem;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    place-items: center;
-    position: relative;
-    overflow: hidden;
-    background: var(--signature, var(--pico-muted-border-color));
-    border-radius: var(--pico-radius) 0 0 var(--pico-radius);
-
-    // Real uploaded images - centered
-    img:not([data-is-placeholder]) {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-      transition: transform 0.3s ease;
-    }
-
-    // Placeholder images/icons - centered, not edge-to-edge
-    img[data-is-placeholder],
-    .placeholder-image,
-    .profile-picture[data-is-placeholder] {
-      position: relative;
-      object-fit: contain;
-      opacity: 1;
-      color: #fff;
-    }
-  }
-
-  &:hover .card-media img:not([data-is-placeholder]) {
-    transform: scale(1.05);
-  }
-
-  .card-body {
-    grid-column: 2;
-    grid-row: 1 / -1;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    box-sizing: border-box;
-    background: var(--pico-card-background-color);
-    position: relative;
-    z-index: 1;
-  }
-
-  .card-title {
-    width: 100%;
-    padding: 0.3rem 1rem;
-    margin: 0;
-    font-size: 1.125rem;
-    font-weight: bold;
-    text-align: center;
-    color: var(--pico-primary);
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid var(--pico-muted-border-color);
-    cursor: pointer;
-    appearance: none;
-    font-style: normal;
-    line-height: 1.1;
-
-    --pico-background-color: transparent;
-    --pico-border-color: transparent;
-    --pico-box-shadow: none;
-
-    &:focus {
-      outline: 2px solid var(--signature, var(--pico-primary));
-      outline-offset: -2px;
-      border-bottom-color: var(--signature, var(--pico-primary));
-    }
-
-    &:hover {
-      background-color: rgb(var(--signature-rgb, 255 255 255) / 5%);
-    }
-  }
-
-  .card-description {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    line-height: 1.4;
-    color: var(--pico-color);
-    opacity: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2; // added standard property for compatibility
-    -webkit-box-orient: vertical;
-    margin: 0;
-  }
-
-  .card-footer {
-    padding: 0 1rem 0.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    background: transparent;
-
-    .tag-chip {
-      padding: 0.25rem 0.75rem;
-      border-radius: 999px;
-      background: var(--signature, var(--pico-primary));
-      color: var(--signature-text-on, #fff);
-      font-size: 0.875rem;
-      font-weight: 600;
-      opacity: 1;
-    }
-  }
-
-  &.chosen {
-    .card-title {
-      opacity: 1;
-      color: var(--signature, var(--pico-primary));
-    }
-
-    .card-description,
-    .card-media,
-    .card-media img,
-    .card-media .placeholder-image,
-    .card-footer,
-    .tag-chip {
-      opacity: 1;
-    }
-  }
-
-  &.empty-card {
-    background: rgb(var(--dark-background-rgb) / 30%);
-    backdrop-filter: blur(8px);
-    border: 2px dashed var(--pico-muted-border-color);
-    cursor: pointer;
-    opacity: 1;
-    transition: transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease,
-      box-shadow 0.2s ease;
-
-    &:hover {
-      transform: translateY(-0.25rem);
-      opacity: 1;
-      border-color: var(--pico-primary);
-      box-shadow: 0 8px 16px rgb(0 0 0 / 20%);
-    }
-
-    .card-media {
-      background: var(--signature, var(--pico-muted-border-color));
-    }
-
-    .card-body {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: flex-start;
-    }
-
-    .card-description {
-      text-align: center;
-      color: white;
-      font-style: normal;
-    }
-  }
-}
-
-/* Mobile: Consolidated storyboard responsive styles */
+/* Mobile Response */
 @include foundation.mobile {
-  #storyboard-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  #profile-screen {
+    padding: 0.5rem;
   }
 
-  .storyboard-card {
-    grid-template-columns: 30% 1fr;
-    min-height: 10rem;
+  .profile-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 250px 1fr;
+    max-height: 95vh;
+  }
 
-    .card-media {
-      min-height: 10rem;
-    }
+  .profile-left {
+    min-height: 250px;
 
-    .card-title {
-      font-size: 1rem;
-      font-weight: 700;
-      font-style: normal;
-      padding: 0.3rem 0.75rem;
-      line-height: 1.1;
+    .hero-wrap {
+      position: relative;
+      height: 100%;
     }
+  }
 
-    .card-description {
-      padding: 0.5rem 0.75rem;
-      -webkit-line-clamp: 2;
-      line-clamp: 2; // added standard property for compatibility
-      -webkit-box-orient: vertical;
-    }
-
-    .card-body {
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    .card-footer {
-      padding: 0 0.75rem 0.5rem;
-      justify-content: flex-end;
-    }
+  .profile-right {
+    padding: 1.5rem;
   }
 }

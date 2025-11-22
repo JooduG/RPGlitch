@@ -1,382 +1,159 @@
 @use "foundation";
 @use "sass:color";
 
-// This file will contain base styles, like resets and default typography.
-
-// Hide all scrollbars globally for cleaner UI
-* {
-  scrollbar-width: none;
-
-  /* Firefox */
-  -ms-overflow-style: none;
-
-  /* IE and Edge */
-
-  &::-webkit-scrollbar {
-    display: none;
-
-    /* Chrome, Safari, Opera */
-  }
-}
+/* --- RESET --- */
+* { box-sizing: border-box; scrollbar-width: none; -ms-overflow-style: none; &::-webkit-scrollbar { display: none; } }
 
 :root {
   --app-container-max: 1200px;
   --app-container-pad: 1rem;
   --header-height: 6rem;
-  --dark-background-rgb: 35 36 58;
-
-  /* Z-index scale */
-  --z-base: 1;
-  --z-chip: 3;
-  --z-content: 5;
-  --z-header: 10;
-  --z-dropdown: 100;
-  --z-overlay: 1000;
-  --z-chin-container: 9998;
-  --z-chin: 9999;
-  --z-modal: 10000;
+  --z-base: 1; --z-stage: 10; --z-ui: 100; --z-drawer: 2000; --z-modal: 10000;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
+html, body {
+    height: 100%; width: 100%; margin: 0; padding: 0;
+    overflow: hidden; overscroll-behavior: none;
+    background-color: #11191f; color: #fff;
+    font-family: var(--pico-font-family, sans-serif);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms;
-    animation-iteration-count: 1;
-    transition-duration: 0.01ms;
-    scroll-behavior: auto;
-  }
-}
-
-/* ===== LIVING BACKGROUND (Phase 4.3) ===== */
-
-/* Subtle animated pattern adds texture and depth to the main background */
-html,
-body {
-  pointer-events: auto;
-  z-index: var(--z-base);
-  height: 100%;
-  overflow: hidden;
-
-  /* Base gradient */
-  background: linear-gradient(120deg,
-      foundation.$gradient-color-1 0%,
-      foundation.$gradient-color-2 40%,
-      foundation.$gradient-color-3 70%,
-      foundation.$gradient-color-4 100%),
-    /* Subtle diagonal lines pattern */
-    repeating-linear-gradient(45deg,
-      transparent,
-      transparent 35px,
-      rgb(255 255 255 / 2%) 35px,
-      rgb(255 255 255 / 2%) 70px);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  background-size: cover;
-  position: relative;
-}
-
-/* Optional: Add subtle animated grain for extra texture */
+/* Texture */
 body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%20200%20200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cfilter%20id%3D%22noiseFilter%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.9%22%20numOctaves%3D%223%22%20stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url(%2523noiseFilter)%22%2F%3E%3C%2Fsvg%3E");
-  opacity: 0.03;
-  pointer-events: none;
-  z-index: 1;
-  animation: grain-animation 8s steps(10) infinite;
+    content: ""; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%20200%20200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cfilter%20id%3D%22noiseFilter%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.9%22%20numOctaves%3D%223%22%20stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url(%2523noiseFilter)%22%2F%3E%3C%2Fsvg%3E");
+    opacity: 0.03; pointer-events: none; z-index: 0;
 }
 
-@keyframes grain-animation {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-
-  10% {
-    transform: translate(-5%, -10%);
-  }
-
-  20% {
-    transform: translate(-15%, 5%);
-  }
-
-  30% {
-    transform: translate(7%, -25%);
-  }
-
-  40% {
-    transform: translate(-5%, 25%);
-  }
-
-  50% {
-    transform: translate(-15%, 10%);
-  }
-
-  60% {
-    transform: translate(15%, 0%);
-  }
-
-  70% {
-    transform: translate(0%, 15%);
-  }
-
-  80% {
-    transform: translate(3%, 35%);
-  }
-
-  90% {
-    transform: translate(-10%, 10%);
-  }
+/* --- OVERRIDES --- */
+/* Remove default Article styling that creates the "weird box" */
+article {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
 }
 
-header.container,
+h1, h2, h3, h4 { font-weight: 800; letter-spacing: -0.02em; margin-block: 0.5rem; color: inherit; }
+p { line-height: 1.5; margin-bottom: 1rem; }
+.muted { opacity: 0.6; }
+[hidden] { display: none !important; }
+
+button, [type="button"], [type="submit"] {
+  transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer;
+  &:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+  &:not(:disabled):active { transform: translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+}
+
+/* --- MODAL PROFILE --- */
 #profile-screen {
-  box-sizing: border-box;
-  max-width: var(--app-container-max);
-  margin-inline: auto;
-  padding-inline: var(--app-container-pad);
+    position: fixed; inset: 0;
+    z-index: var(--z-modal);
+    
+    /* Frosted Backdrop */
+    background: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    display: none;
+    place-items: center; /* Center the modal */
+    padding: 2rem; /* Breathing room around the modal */
+    
+    &.is-open, &.profile-view-active { display: grid; }
+
+    /* The Modal Card */
+    .profile-layout {
+        width: 100%; 
+        max-width: 1100px; 
+        
+        /* HEIGHT LOGIC:
+           1. auto: Shrinks to fit text content.
+           2. max-height: Capped at 85% of screen to ensure breathing room.
+        */
+        height: auto;
+        max-height: 85vh; 
+        
+        /* Glassy Card Background */
+        background: rgba(17, 25, 31, 0.95); 
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 24px;
+        box-shadow: 0 50px 100px rgba(0,0,0,0.8);
+        
+        display: grid;
+        grid-template-columns: 40% 60%;
+        overflow: hidden; 
+    }
+    
+    /* Left Column: Image */
+    .profile-left {
+        background: #000; 
+        position: relative; 
+        
+        /* CRITICAL: This removes the image from flow calculation.
+           The height will be dictated by .profile-right (the sibling).
+        */
+        height: auto; 
+        min-height: 300px; /* Minimum height so it's not too small if text is short */
+
+        .hero-wrap {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Force image to cover the available space */
+        .picture, img { 
+            width: 100%; height: 100%; 
+            object-fit: cover; display: block; 
+        }
+    }
+    
+    /* Right Column: Content (The Boss of Height) */
+    .profile-right {
+        padding: 3rem; 
+        
+        /* If content exceeds the layout's max-height (85vh), SCROLL HERE */
+        overflow-y: auto; 
+        height: auto; 
+    }
 }
 
-/* Defensive: disable host-level pseudo-element overlays that could occlude input */
-body#output-container::before,
-body#output-container::after,
-html::before,
-html::after {
-  display: none;
-  content: none;
-  pointer-events: none;
-  background: none;
+/* --- TYPOGRAPHY --- */
+.profile-name-display {
+    font-size: 3.5rem; font-weight: 900; letter-spacing: -1px; line-height: 1; margin-bottom: 0.5rem;
+    color: #fff;
 }
 
-/* Ensure non-open dialogs never block interaction in embedding environments */
-dialog:not([open]) {
-  display: none;
-  pointer-events: none;
+.profile-desc-display {
+    font-size: 1.1rem; line-height: 1.6; opacity: 0.8; margin-bottom: 2rem; max-width: 60ch;
 }
 
-dialog[open] {
-  z-index: var(--z-modal);
-  pointer-events: auto;
+.profile-name-input {
+    font-size: 2.5rem; font-weight: 800; width: 100%; background: transparent;
+    border: none; border-bottom: 2px solid rgba(255,255,255,0.2); color: white;
+    padding: 0.5rem 0; margin-bottom: 1rem;
+    &:focus { outline: none; border-color: var(--pico-primary); }
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-ul {
-  color: inherit;
+.profile-desc-input {
+    width: 100%; min-height: 100px; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white;
+    padding: 1rem; margin-bottom: 2rem; font-size: 1rem;
+    &:focus { border-color: var(--pico-primary); outline: none; }
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-}
-
-button[data-chin]:focus-visible {
-  outline: 2px solid var(--color-accent);
-}
-
-a,
-area,
-button,
-input,
-label,
-select,
-summary,
-textarea,
-[tabindex] {
-  touch-action: manipulation;
-}
-
-/* Ensure select elements use default Pico color, not inherited signature colors */
-select {
-  color: var(--pico-color);
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="search"],
-input[type="url"],
-input[type="tel"],
-input[type="number"],
-textarea {
-  cursor: text;
-}
-
-input[type="file"] {
-  cursor: pointer;
-}
-
-[data-tooltip],
-[data-tooltip]::before,
-[data-tooltip]::after {
-  position: relative;
-  z-index: var(--z-overlay);
-  pointer-events: none;
-}
-
-.muted {
-  color: var(--pico-muted-color);
-}
-
-/* Enhanced button styles */
-button,
-[type="button"],
-[type="submit"],
-[role="button"] {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:not(:disabled):hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
-  }
-
-  &:not(:disabled):active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgb(0 0 0 / 15%);
-  }
-}
-
-/* Top bar buttons with better spacing */
-.top-bar button {
-  position: relative;
-
-  &[aria-selected="true"],
-  &[aria-expanded="true"] {
-    background: var(--pico-primary);
-    color: var(--pico-primary-inverse);
-    box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
-  }
-}
-
-/* Primary button enhancements */
-button.primary,
-[type="submit"].primary {
-  box-shadow: 0 2px 4px rgb(0 0 0 / 15%);
-
-  &:not(:disabled):hover {
-    box-shadow: 0 6px 12px rgb(0 0 0 / 25%);
-  }
-}
-
-/* Secondary button refinements */
-button.secondary {
-  &:hover {
-    background: var(--pico-secondary-hover);
-  }
-}
-
-/* Danger button emphasis */
-button.danger,
-.danger {
-  &:not(:disabled):hover {
-    background: color.mix(foundation.$pico-del-color, black, 90%);
-    box-shadow: 0 6px 12px color.adjust(foundation.$pico-del-color, $alpha: -0.7);
-  }
-}
-
-/* ===== PICO-PERFECT TYPOGRAPHY (Phase 1.2) ===== */
-
-/* Enforce semantic Pico.css typography standards across all text elements */
-
-/* Ensure paragraphs follow Pico's spacing and line-height */
-p {
-  margin-block: var(--pico-typography-spacing-vertical, 1rem) var(--pico-typography-spacing-vertical, 1rem);
-  line-height: var(--pico-line-height, 1.5);
-}
-
-/* Ensure blockquotes have proper styling */
-blockquote {
-  padding: 1rem 1.5rem;
-  border-left: 4px solid var(--pico-primary);
-  background: var(--pico-card-background-color);
-  font-style: italic;
-  margin: 1rem 0;
-
-  p:last-child {
-    margin-bottom: 0;
-  }
-}
-
-/* Ensure all heading levels maintain hierarchy */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: 700;
-  line-height: 1.25;
-  margin-block: 1.5rem 1rem;
-}
-
-h1 {
-  font-size: var(--pico-font-size-h1, 2rem);
-}
-
-h2 {
-  font-size: var(--pico-font-size-h2, 1.75rem);
-}
-
-h3 {
-  font-size: var(--pico-font-size-h3, 1.5rem);
-}
-
-/* Ensure lists maintain proper structure */
-ul,
-ol {
-  padding-left: 2rem;
-  margin: 1rem 0;
-}
-
-li {
-  margin-bottom: 0.5rem;
-  line-height: var(--pico-line-height, 1.5);
-}
-
-/* Code elements */
-code,
-pre {
-  font-family: var(--pico-font-family-monospace, monospace);
-  background: var(--pico-code-background-color, #f4f4f5);
-  border-radius: var(--pico-radius, 0.25rem);
-}
-
-code {
-  padding: 0.2em 0.4em;
-  font-size: 0.875em;
-}
-
-pre {
-  padding: 1rem;
-  overflow-x: auto;
-  margin: 1rem 0;
-}
-
-/* Strong emphasis */
-strong,
-b {
-  font-weight: 700;
-  color: var(--pico-color);
-}
-
-/* Emphasis */
-em,
-i {
-  font-style: italic;
-}
-
-/* Small text */
-small {
-  font-size: 0.875em;
-  color: white;
+@media (max-width: 768px) {
+    #profile-screen { padding: 1rem; }
+    #profile-screen .profile-layout {
+        max-height: 95vh; border-radius: 16px;
+        grid-template-columns: 1fr; grid-template-rows: 250px 1fr; /* Stacked */
+    }
+    
+    /* On mobile, we give the image a fixed height */
+    .profile-left { min-height: 250px; height: 250px; }
+    .profile-left .hero-wrap { position: relative; } /* Revert absolute for stacking */
+    
+    .profile-right { padding: 1.5rem; }
 }
