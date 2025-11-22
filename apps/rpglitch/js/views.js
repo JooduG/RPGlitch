@@ -70,7 +70,6 @@ export const router = {
 };
 
 // --- MODAL MANAGEMENT ---
-
 function closeProfileModal() {
   const screen = document.querySelector("#profile-screen");
   if (screen) {
@@ -89,12 +88,10 @@ function openProfileModal(type, id) {
 }
 
 // --- PROFILE RENDERER ---
-
 export async function renderProfilePage(type, id) {
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
 
-  // Force Visible
   screen.removeAttribute("hidden");
   document.body.classList.add("profile-view-active");
   screen.classList.add("is-open");
@@ -103,7 +100,13 @@ export async function renderProfilePage(type, id) {
   let entity;
 
   if (id === "new") {
-    entity = { kind: type, type: type, sections: {} };
+    if (window.ephemeralEntity) {
+      entity = { ...window.ephemeralEntity, kind: type };
+      delete entity.id;
+      window.ephemeralEntity = null;
+    } else {
+      entity = { kind: type, type: type, sections: {} };
+    }
     isEditing = true;
   } else {
     entity = await handleAsyncError(
@@ -132,6 +135,7 @@ export async function renderProfilePage(type, id) {
   const imageOverlay = layout.querySelector(".profile-hero-overlay");
   const imageInput = imageOverlay.querySelector('[data-profile-field="profilePictureUrl"]');
   const actionButton = imageOverlay.querySelector("button[data-action]");
+  const fileInput = imageOverlay.querySelector('[data-profile-field="fileInput"]');
   const paletteSelect = imageOverlay.querySelector('select[name="signatureColour"]');
   const form = layout.querySelector("form");
   const secWrap = form.querySelector("[data-profile-sections]");
@@ -145,12 +149,64 @@ export async function renderProfilePage(type, id) {
     else if (val && !isValidImageUrl(val, true)) { actionButton.textContent = "Generate"; actionButton.dataset.action = "generate"; }
     else { actionButton.textContent = "Use URL"; actionButton.dataset.action = "use-url"; }
   }
-  imageInput.addEventListener("input", updateButtonState);
+
+  // --- FIX: Re-added Image Preview Logic ---
+  imageInput.addEventListener("input", () => {
+    updateButtonState();
+    const val = imageInput.value.trim();
+    if (val && isValidImageUrl(val, true)) {
+      const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
+      const newPic = getPictureHTML({ ...entity, profilePictureUrl: safeVal }, { cover: true });
+      const curPic = heroWrap.querySelector(".picture");
+      if (newPic) {
+        newPic.classList.add("hero-bleed");
+        if (curPic) curPic.replaceWith(newPic);
+        else heroWrap.appendChild(newPic);
+      }
+    }
+  });
+
   updateButtonState();
 
-  actionButton.addEventListener("click", () => {
+  function updateImageInput(input, url) {
+    if (!url) return;
+    input.value = url;
+    input.dispatchEvent(new Event("input"));
+    input.dispatchEvent(new Event("change"));
+  }
+
+  actionButton.addEventListener("click", async () => {
     const action = actionButton.dataset.action;
-    if (action === "upload") layout.querySelector('[data-profile-field="fileInput"]').click();
+    if (action === "generate") {
+      // ... Generation Logic ...
+      try {
+        actionButton.setAttribute("aria-busy", "true");
+        actionButton.textContent = "Generating...";
+        const prompt = imageInput.value.trim();
+        const res = await window.textToImage({ prompt, resolution: "512x768" });
+        const url = typeof res === 'string' ? res : extractImageUrl(res);
+        if (url) updateImageInput(imageInput, url);
+      } catch (e) { error(e); }
+      finally { actionButton.removeAttribute("aria-busy"); updateButtonState(); }
+    } else if (action === "upload") {
+      fileInput.click();
+    }
+  });
+
+  fileInput.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file || !window.upload) return;
+    try {
+      actionButton.setAttribute("aria-busy", "true");
+      actionButton.textContent = "Uploading...";
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      await new Promise(r => reader.onload = r);
+      const res = await window.upload(reader.result);
+      const url = typeof res === 'string' ? res : extractImageUrl(res);
+      if (url) updateImageInput(imageInput, url);
+    } catch (err) { error(err); }
+    finally { actionButton.removeAttribute("aria-busy"); updateButtonState(); fileInput.value = null; }
   });
 
   paletteSelect.addEventListener("change", () => {
@@ -159,22 +215,48 @@ export async function renderProfilePage(type, id) {
     if (curPic && newPic) { newPic.classList.add("hero-bleed"); curPic.replaceWith(newPic); }
   });
 
-  // --- HEADER (Custom) ---
+  // --- HEADER ---
   const headerWrap = form.querySelector("[data-profile-header]");
   headerWrap.innerHTML = "";
 
+  // Action Bar (Top)
+  const actionBar = document.createElement("div");
+  actionBar.className = "profile-actions-top";
+  actionBar.style.cssText = "display: flex; justify-content: flex-end; gap: 0.5rem; margin-bottom: 1rem;";
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "secondary outline"; closeBtn.textContent = "✕"; closeBtn.title = "Close";
+  closeBtn.onclick = (e) => { e.preventDefault(); closeProfileModal(); };
+  actionBar.appendChild(closeBtn);
+
+  if (!isEditing) {
+    const actionBtn = document.createElement("button");
+    actionBtn.className = "primary";
+    if (entity.isPremade) {
+      actionBtn.textContent = "Clone";
+      actionBtn.onclick = async (e) => {
+        e.preventDefault();
+        const newEntity = await copyEntity(type, entity.id);
+        if (newEntity) { window.ephemeralEntity = newEntity; openProfileModal(type, "new"); }
+      };
+    } else {
+      actionBtn.textContent = "Edit";
+      actionBtn.onclick = (e) => { e.preventDefault(); setEditMode(true); };
+    }
+    actionBar.prepend(actionBtn);
+  }
+  layout.querySelector(".profile-right-content").prepend(actionBar);
+
+  // Name/Desc
   if (isEditing) {
     const nameInput = document.createElement("input");
     nameInput.type = "text"; nameInput.className = "profile-name-input";
-    nameInput.dataset.editField = "name"; nameInput.value = entity.name || "";
-    nameInput.placeholder = "Name";
+    nameInput.dataset.editField = "name"; nameInput.value = entity.name || ""; nameInput.placeholder = "Name";
     headerWrap.appendChild(nameInput);
 
     const descInput = document.createElement("textarea");
     descInput.className = "profile-desc-input";
     descInput.dataset.editField = "description";
-    descInput.value = entity.description || "";
-    descInput.placeholder = "Short description...";
+    descInput.value = entity.description || ""; descInput.placeholder = "Short description...";
     headerWrap.appendChild(descInput);
   } else {
     const nameDisplay = document.createElement("h1");
@@ -189,7 +271,7 @@ export async function renderProfilePage(type, id) {
     headerWrap.appendChild(descDisplay);
   }
 
-  // --- SECTIONS ---
+  // Sections
   const sections = { forever: "Forever", past: "Past", present: "Present", future: "Future" };
   const createRow = (label, value, id) => {
     const div = document.createElement("div"); div.className = "field-row";
@@ -204,31 +286,17 @@ export async function renderProfilePage(type, id) {
   };
   Object.entries(sections).forEach(([key, label]) => secWrap.appendChild(createRow(label, entity[key], key)));
 
-  screen.appendChild(layout);
+  // --- FOOTER ACTIONS ---
+  const footerActions = document.createElement("div");
+  footerActions.className = "profile-actions-footer"; // Class handles layout now
 
-  // --- ACTIONS ---
-  const setEditMode = (editing) => {
-    isEditing = editing;
-    screen.classList.toggle("is-editing", editing);
-    setTopBarRight(editing ? "form" : "profile");
-    if (imageOverlay) imageOverlay.style.display = editing ? "flex" : "none";
-    renderProfilePage(type, id);
-  };
-
-  const editBtn = document.querySelector("#profile-edit");
-  if (editBtn) {
-    editBtn.hidden = entity.isPremade || id === "new";
-    replaceEventHandler(editBtn, "click", () => setEditMode(true), "_editHandler");
-  }
-
-  const backBtn = document.querySelector("#profile-back");
-  if (backBtn) replaceEventHandler(backBtn, "click", () => closeProfileModal(), "_backHandler");
-
-  const saveBtn = document.querySelector("#form-save");
-  if (saveBtn) {
-    replaceEventHandler(saveBtn, "click", async () => {
+  if (isEditing) {
+    const saveBtn = document.createElement("button");
+    saveBtn.className = "primary"; saveBtn.textContent = "Save";
+    saveBtn.onclick = async (e) => {
+      e.preventDefault();
       const nameVal = screen.querySelector('[data-edit-field="name"]').value.trim();
-      if (!nameVal) return alert("Name is required");
+      if (!nameVal) return alert("Name required");
       const data = {
         name: escapeHtml(nameVal),
         description: escapeHtml(screen.querySelector('[data-edit-field="description"]').value.trim()),
@@ -237,31 +305,45 @@ export async function renderProfilePage(type, id) {
         tags: entity.tags || []
       };
       Object.keys(sections).forEach(k => { data[k] = escapeHtml(screen.querySelector(`[data-edit-field="${k}"]`).value.trim()); });
-
       await entities.upsert(type, id === "new" || entity.isPremade ? data : { ...data, id });
-      if (id === "new") closeProfileModal();
-      else { entity = await entities.get(type, id); setEditMode(false); renderProfilePage(type, id); }
-    }, "_saveHandler");
+      if (id === "new") closeProfileModal(); else { entity = await entities.get(type, id); setEditMode(false); }
+    };
+
+    if (!entity.isPremade && id !== "new") {
+      const delBtn = document.createElement("button");
+      delBtn.className = "secondary outline"; delBtn.textContent = "Delete";
+      delBtn.onclick = async (e) => {
+        e.preventDefault();
+        if (confirm("Delete?")) { await entities.remove(type, id); closeProfileModal(); if (_refreshAllLists) _refreshAllLists(); }
+      };
+      footerActions.appendChild(delBtn);
+    }
+    footerActions.appendChild(saveBtn);
+    layout.querySelector(".profile-right-content").appendChild(footerActions);
   }
 
+  screen.appendChild(layout);
+
+  // Helpers
+  const setEditMode = (editing) => {
+    isEditing = editing;
+    screen.classList.toggle("is-editing", editing);
+    setTopBarRight(editing ? "form" : "profile");
+    if (imageOverlay) imageOverlay.style.display = editing ? "flex" : "none";
+    renderProfilePage(type, id);
+  };
   screen.onclick = (e) => { if (e.target === screen) closeProfileModal(); };
-  if (imageOverlay) imageOverlay.style.display = isEditing ? "flex" : "none";
 }
 
-// ============================================================================
-// SELECTION LOGIC
-// ============================================================================
+// ... (Selection Logic Preserved) ...
 
 export async function initViews(deps = {}) {
   _refreshAllLists = deps.refreshAllLists;
   _onSelectionChanged = deps.onSelectionChanged;
-
   initDrawer();
-
   bindDrawerTrigger("#btn-select-ai", "character", "#ai-character-preview", "aiCharacter");
   bindDrawerTrigger("#btn-select-user", "character", "#user-character-preview", "userCharacter");
   bindDrawerTrigger("#btn-select-world", "world", "#world-preview", "world");
-
   bindPortraitClick("#gameplay-ai-portrait", "aiCharacter");
   bindPortraitClick("#gameplay-user-portrait", "userCharacter");
 }
@@ -270,21 +352,15 @@ function bindDrawerTrigger(buttonId, entityType, previewId, stateKey) {
   const button = document.querySelector(buttonId);
   if (!button) return;
   const cardContainer = button.closest('.entity-card');
-
-  button.addEventListener("click", () => {
-    openDrawerFor(entityType, stateKey, previewId, button, cardContainer);
-  });
+  button.addEventListener("click", () => openDrawerFor(entityType, stateKey, previewId, button, cardContainer));
 }
 
 function bindPortraitClick(selector, stateKey) {
   const el = document.querySelector(selector);
-  if (el) {
-    el.addEventListener("click", () => {
-      const entity = selectedEntities[stateKey];
-      if (entity) openProfileModal(entity.type.toLowerCase(), entity.id);
-    });
-    el.style.cursor = "pointer";
-  }
+  if (el) el.addEventListener("click", () => {
+    const entity = selectedEntities[stateKey];
+    if (entity) openProfileModal(entity.type.toLowerCase(), entity.id);
+  });
 }
 
 function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) {
@@ -304,40 +380,29 @@ function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) 
 function renderEntityPreview(previewId, entity, slotButton, fallbackType) {
   const previewEl = document.querySelector(previewId);
   if (!previewEl) return;
-
   if (entity) {
     previewEl.innerHTML = "";
     previewEl.className = "entity-preview card-filled";
-
-    if (entity.signatureColour) {
-      previewEl.style.setProperty("--signature", `var(--signature-${entity.signatureColour})`);
-      previewEl.dataset.signature = entity.signatureColour;
-    }
-
+    if (entity.signatureColour) previewEl.style.setProperty("--signature", `var(--signature-${entity.signatureColour})`);
     const media = document.createElement("div");
     media.className = "card-media";
     media.title = "View Profile";
     media.appendChild(getPictureHTML(entity, { cover: true }));
-
     media.addEventListener("click", (e) => {
       e.stopPropagation();
       const type = (fallbackType || entity.type || "character").toLowerCase();
       openProfileModal(type, entity.id);
     });
-
     const body = document.createElement("div");
     body.className = "card-body";
     body.title = "Change Selection";
     body.innerHTML = `<h4>${entity.name}</h4><p class="muted">${entity.description || ""}</p>`;
-
     body.addEventListener("click", (e) => {
       e.stopPropagation();
       if (slotButton) slotButton.click();
     });
-
     previewEl.appendChild(media);
     previewEl.appendChild(body);
-
     previewEl.removeAttribute("hidden");
     previewEl.style.display = "flex";
     previewEl.style.pointerEvents = "auto";
