@@ -1169,7 +1169,10 @@ function bindDrawerTrigger(buttonId, entityType, previewId, stateKey) {
         renderEntityPreview(previewId, entity);
 
         // Update button text to show selection
-        button.textContent = "Change Selection";
+        const slotLabel = button.querySelector(".slot-label");
+        if (slotLabel) {
+          slotLabel.textContent = "Change Selection";
+        }
 
         // Notify parent
         if (_onSelectionChanged) {
@@ -1190,13 +1193,18 @@ function renderEntityPreview(previewId, entity) {
 
   previewEl.innerHTML = "";
   if (entity) {
-    const pic = getPictureHTML(entity, { cover: false });
+    const pic = getPictureHTML(entity, { cover: true });
     previewEl.appendChild(pic);
 
     const nameEl = document.createElement("div");
     nameEl.className = "preview-name";
     nameEl.textContent = entity.name;
     previewEl.appendChild(nameEl);
+
+    // CRITICAL FIX: Unhide the preview element
+    previewEl.removeAttribute("hidden");
+  } else {
+    previewEl.setAttribute("hidden", "");
   }
 }
 

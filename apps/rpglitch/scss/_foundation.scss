@@ -34,15 +34,15 @@ $breakpoint-tablet: 1024px;
   --pico-nav-element-spacing-vertical: 0;
   --pico-nav-element-spacing-horizontal: 0;
   --pico-nav-link-spacing-vertical: var(--pico-form-element-spacing-vertical);
-  --pico-nav-link-spacing-horizontal: var(
-    --pico-form-element-spacing-horizontal
-  );
+  --pico-nav-link-spacing-horizontal: var(--pico-form-element-spacing-horizontal);
   --pico-typography-spacing-vertical: 0;
   --pico-typography-spacing-horizontal: 0;
   --pico-spacing: 0;
   --signature-default: #777;
   --signature-text-on: #fff;
-  --container-margin: 0px; /* computed from top bar at runtime */
+  --container-margin: 0px;
+
+  /* computed from top bar at runtime */
   --rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
   --app-container-max: 100%;
   --app-container-pad: 1rem;
@@ -137,22 +137,20 @@ $breakpoint-tablet: 1024px;
 /* ===== MIXINS ===== */
 
 @mixin mobile {
-  @media (width <= $breakpoint-mobile) {
+  @media (width <=$breakpoint-mobile) {
     @content;
   }
 }
 
 @mixin tablet {
-  @media (width <= $breakpoint-tablet) {
+  @media (width <=$breakpoint-tablet) {
     @content;
   }
 }
 
-@mixin custom-scrollbar(
-  $thumb-color: rgb(0 0 0 / 50%),
+@mixin custom-scrollbar($thumb-color: rgb(0 0 0 / 50%),
   $track-color: transparent,
-  $thumb-hover-color: rgb(0 0 0 / 70%)
-) {
+  $thumb-hover-color: rgb(0 0 0 / 70%)) {
   // For Firefox
   scrollbar-width: thin;
   scrollbar-color: $thumb-color $track-color;

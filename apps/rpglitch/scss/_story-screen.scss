@@ -5,7 +5,7 @@ body.story-active {
   padding: 0;
   margin: 0;
 
-  > .top-bar {
+  >.top-bar {
     display: none; // Hide the top bar
   }
 
@@ -145,8 +145,7 @@ body.story-active {
       height: 0;
       border-style: solid;
       border-width: 0 8px 8px 0;
-      border-color: transparent var(--pico-muted-background-color) transparent
-        transparent;
+      border-color: transparent var(--pico-muted-background-color) transparent transparent;
     }
   }
 
@@ -168,8 +167,7 @@ body.story-active {
       height: 0;
       border-style: solid;
       border-width: 8px 8px 0 0;
-      border-color: var(--pico-primary-background) transparent transparent
-        transparent;
+      border-color: var(--pico-primary-background) transparent transparent transparent;
     }
   }
 
@@ -253,11 +251,9 @@ $colors: (
     align-items: center;
     width: 3rem;
     height: 1rem;
-    background-image: radial-gradient(
-        circle,
+    background-image: radial-gradient(circle,
         var(--pico-primary) 25%,
-        transparent 25%
-      ),
+        transparent 25%),
       radial-gradient(circle, var(--pico-primary) 25%, transparent 25%),
       radial-gradient(circle, var(--pico-primary) 25%, transparent 25%);
     background-size: 0.75rem 0.75rem;
@@ -270,31 +266,25 @@ $colors: (
 @keyframes typing-dots-pulse {
   0%,
   100% {
-    background-image: radial-gradient(
-        circle,
+    background-image: radial-gradient(circle,
         var(--pico-primary) 25%,
-        transparent 25%
-      ),
+        transparent 25%),
       radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%),
       radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%);
   }
 
   33% {
-    background-image: radial-gradient(
-        circle,
+    background-image: radial-gradient(circle,
         var(--pico-muted-color) 25%,
-        transparent 25%
-      ),
+        transparent 25%),
       radial-gradient(circle, var(--pico-primary) 25%, transparent 25%),
       radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%);
   }
 
   66% {
-    background-image: radial-gradient(
-        circle,
+    background-image: radial-gradient(circle,
         var(--pico-muted-color) 25%,
-        transparent 25%
-      ),
+        transparent 25%),
       radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%),
       radial-gradient(circle, var(--pico-primary) 25%, transparent 25%);
   }
@@ -400,7 +390,7 @@ $colors: (
   opacity: 1;
 }
 
-@media (width <= 768px) {
+@media (width <=768px) {
   .story-grid {
     grid-template-columns: 1fr;
   }

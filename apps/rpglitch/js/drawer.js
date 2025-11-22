@@ -1,60 +1,49 @@
-
 import { entities, getPictureHTML } from "./entities.js";
 import { log, error } from "./utils.js";
 
 /**
  * Storyboard Drawer Module
  * Manages the bottom drawer for entity selection in the Storyboard.
- * Replaces the legacy "Chin" system for this specific use case.
+ * Toggles visibility of pre-existing DOM elements and populates content.
  */
 
 const DRAWER_ID = "storyboard-drawer";
 const BACKDROP_ID = "storyboard-drawer-backdrop";
 const CONTENT_ID = "storyboard-drawer-content";
+const TITLE_ID = "drawer-title";
 
 let _onSelectCallback = null;
 
 /**
  * Initialize the drawer system.
- * Ensures the drawer DOM elements exist.
+ * Checks if required DOM elements exist and binds close handlers.
  */
 export function initDrawer() {
-    console.log("[Drawer] initDrawer called");
-    let drawer = document.getElementById(DRAWER_ID);
+    const drawer = document.getElementById(DRAWER_ID);
+    const backdrop = document.getElementById(BACKDROP_ID);
 
-    if (!drawer) {
-        // Create drawer structure if it doesn't exist
-        drawer = document.createElement("div");
-        drawer.id = DRAWER_ID;
-        drawer.className = "storyboard-drawer";
-        drawer.setAttribute("hidden", "");
-        drawer.setAttribute("aria-hidden", "true");
-
-        const content = document.createElement("div");
-        content.id = CONTENT_ID;
-        content.className = "storyboard-drawer-content";
-        drawer.appendChild(content);
-
-        document.body.appendChild(drawer);
+    if (!drawer || !backdrop) {
+        console.warn("[Drawer] Elements not found in HTML. Ensure #storyboard-drawer exists.");
+        return;
     }
 
-    let backdrop = document.getElementById(BACKDROP_ID);
-    if (!backdrop) {
-        backdrop = document.createElement("div");
-        backdrop.id = BACKDROP_ID;
-        backdrop.className = "storyboard-drawer-backdrop";
-        backdrop.setAttribute("hidden", "");
-        backdrop.setAttribute("aria-hidden", "true");
-        backdrop.addEventListener("click", closeDrawer);
-        document.body.appendChild(backdrop);
+    // Bind close button
+    const closeBtn = drawer.querySelector(".close-drawer");
+    if (closeBtn) {
+        closeBtn.addEventListener("click", closeDrawer);
     }
 
-    // Close on Escape key
+    // Bind backdrop click
+    backdrop.addEventListener("click", closeDrawer);
+
+    // Bind Escape key
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && isOpen()) {
             closeDrawer();
         }
     });
+
+    log("[Drawer] Initialized.");
 }
 
 /**
@@ -62,7 +51,7 @@ export function initDrawer() {
  */
 export function isOpen() {
     const drawer = document.getElementById(DRAWER_ID);
-    return drawer && !drawer.hasAttribute("hidden");
+    return drawer && drawer.classList.contains("is-open");
 }
 
 /**
@@ -76,22 +65,34 @@ export function openDrawer(type, onSelect) {
     const drawer = document.getElementById(DRAWER_ID);
     const backdrop = document.getElementById(BACKDROP_ID);
     const content = document.getElementById(CONTENT_ID);
+    const title = document.getElementById(TITLE_ID);
 
     if (!drawer || !content) return;
 
-    // Show loading state
-    content.innerHTML = '<div class="drawer-loading">Loading...</div>';
+    // 1. Update Title
+    if (title) {
+        title.textContent = `Select ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+    }
 
+    // 2. Show Loading State
+    content.innerHTML = '<div class="drawer-loading" style="text-align:center; opacity:0.5; padding:2rem;">Loading...</div>';
+
+    // 3. Reveal UI (CSS Transitions)
     drawer.removeAttribute("hidden");
     drawer.setAttribute("aria-hidden", "false");
-    drawer.classList.add("is-open"); // Add class for CSS transition
+
+    // Force reflow to ensure transition triggers
+    void drawer.offsetWidth;
+    drawer.classList.add("is-open");
 
     backdrop.removeAttribute("hidden");
+    void backdrop.offsetWidth;
     backdrop.setAttribute("aria-hidden", "false");
+
     document.body.classList.add("drawer-open");
 
+    // 4. Load Data
     try {
-        // entities.list is async, so we await it
         entities.list(type).then(items => {
             renderDrawerItems(items, type);
         }).catch(err => {
@@ -111,17 +112,24 @@ export function closeDrawer() {
     const backdrop = document.getElementById(BACKDROP_ID);
 
     if (drawer) {
-        drawer.classList.remove("is-open"); // Remove class for CSS transition
-        // Wait for transition to finish before hiding (optional, but good for UX)
+        drawer.classList.remove("is-open");
+
+        // Wait for transition to finish before setting hidden
         setTimeout(() => {
-            drawer.setAttribute("hidden", "");
-            drawer.setAttribute("aria-hidden", "true");
-        }, 300); // Match CSS transition duration
+            if (!drawer.classList.contains("is-open")) { // Double check
+                drawer.setAttribute("hidden", "");
+                drawer.setAttribute("aria-hidden", "true");
+            }
+        }, 400); // Match CSS transition duration
     }
 
     if (backdrop) {
-        backdrop.setAttribute("hidden", "");
         backdrop.setAttribute("aria-hidden", "true");
+        setTimeout(() => {
+            if (!drawer.classList.contains("is-open")) {
+                backdrop.setAttribute("hidden", "");
+            }
+        }, 400);
     }
 
     document.body.classList.remove("drawer-open");
@@ -139,22 +147,22 @@ function renderDrawerItems(items, type) {
 
     content.innerHTML = "";
 
-    if (items.length === 0) {
-        content.innerHTML = '<div class="drawer-empty">No items found. Create one!</div>';
-        return;
-    }
-
     const grid = document.createElement("div");
     grid.className = "drawer-grid";
 
-    // Add "New" card
+    // 1. Add "New" card
     const newCard = createCard({ name: `New ${type}`, isNew: true }, type);
     grid.appendChild(newCard);
 
-    items.forEach(item => {
-        const card = createCard(item, type);
-        grid.appendChild(card);
-    });
+    // 2. Add Entity cards
+    if (items.length > 0) {
+        items.forEach(item => {
+            const card = createCard(item, type);
+            grid.appendChild(card);
+        });
+    } else {
+        // Optional: Message if empty, but "New" card is already there
+    }
 
     content.appendChild(grid);
 }
@@ -172,19 +180,22 @@ function createCard(item, type) {
     if (item.isNew) {
         card.classList.add("drawer-card--new");
         card.innerHTML = `
-      <div class="drawer-card-icon">+</div>
-      <div class="drawer-card-label">${item.name}</div>
-    `;
+            <div class="drawer-card-icon" style="font-size:2rem; margin-bottom:0.5rem;">+</div>
+            <div class="drawer-card-label">Create New</div>
+        `;
         card.addEventListener("click", () => {
-            // Navigate to creation form
-            // This is a bit of a hack, ideally we'd pass a specific callback for "new"
             window.location.hash = `#profile/${type}/new`;
             closeDrawer();
         });
     } else {
-        // Use getPictureHTML for consistent rendering
-        const pic = getPictureHTML(item, { cover: false });
-        card.appendChild(pic);
+        // Use getPictureHTML for consistent rendering (cover mode)
+        if (typeof getPictureHTML === 'function') {
+            const pic = getPictureHTML(item, { cover: true });
+            card.appendChild(pic);
+        } else {
+            // Fallback if utility missing
+            card.textContent = item.name;
+        }
 
         const label = document.createElement("div");
         label.className = "drawer-card-label";

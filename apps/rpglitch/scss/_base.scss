@@ -5,11 +5,17 @@
 
 // Hide all scrollbars globally for cleaner UI
 * {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+
+  /* Firefox */
+  -ms-overflow-style: none;
+
+  /* IE and Edge */
 
   &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none;
+
+    /* Chrome, Safari, Opera */
   }
 }
 
@@ -57,21 +63,17 @@ body {
   overflow: hidden;
 
   /* Base gradient */
-  background: linear-gradient(
-      120deg,
+  background: linear-gradient(120deg,
       foundation.$gradient-color-1 0%,
       foundation.$gradient-color-2 40%,
       foundation.$gradient-color-3 70%,
-      foundation.$gradient-color-4 100%
-    ),
+      foundation.$gradient-color-4 100%),
     /* Subtle diagonal lines pattern */
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 35px,
-        rgb(255 255 255 / 2%) 35px,
-        rgb(255 255 255 / 2%) 70px
-      );
+    repeating-linear-gradient(45deg,
+      transparent,
+      transparent 35px,
+      rgb(255 255 255 / 2%) 35px,
+      rgb(255 255 255 / 2%) 70px);
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: cover;
@@ -278,8 +280,7 @@ button.danger,
 .danger {
   &:not(:disabled):hover {
     background: color.mix(foundation.$pico-del-color, black, 90%);
-    box-shadow: 0 6px 12px
-      color.adjust(foundation.$pico-del-color, $alpha: -0.7);
+    box-shadow: 0 6px 12px color.adjust(foundation.$pico-del-color, $alpha: -0.7);
   }
 }
 
@@ -289,8 +290,7 @@ button.danger,
 
 /* Ensure paragraphs follow Pico's spacing and line-height */
 p {
-  margin-block: var(--pico-typography-spacing-vertical, 1rem)
-    var(--pico-typography-spacing-vertical, 1rem);
+  margin-block: var(--pico-typography-spacing-vertical, 1rem) var(--pico-typography-spacing-vertical, 1rem);
   line-height: var(--pico-line-height, 1.5);
 }
 
