@@ -19,10 +19,10 @@
 
 High-impact items that are approved and ready to start immediately.
 
-| Item | Category | Impact | Effort | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| **[Settings Drawer UI](#settings-drawer-ui)** 🍎 | [UI/UX] | M | S | **🎯 AI Impl:** Backend fully implemented at `index.js:1922-1968` (`_attachSettingsListeners()`). Add HTML elements: `#setting-temperature`, `#setting-top_p`, `#setting-max-tokens`, `#setting-stop`, `#setting-model`. Use Pico.css form styling. Reference ImageGlitch for UI pattern. **CRITICAL:** Users cannot currently adjust AI parameters. |
-| **[Story List/Load UI](#story-list-ui)** | [UI/UX] | L | M | **🎯 AI Impl:** Stories table exists in `db.js`. CRUD operations exist (`App.story.loadActive()` works). Create: Story browser UI, "Load Story" view, story selection chin. Currently users lose access to old stories after refresh - they're in DB but no UI to access them. Consider infinite scroll or pagination for large story lists. |
+| **[Project Morph Grid: Phase 1 (Skeleton)](#morph-grid-p1)** 🔴 | [Architecture] | L | L | **🎯 AI Impl:** Rewrite `index.html` to 3-column grid. Remove old screens. Implement `.mode-storyboard` / `.mode-gameplay` in SCSS. |
+| **[Project Morph Grid: Phase 2 (Teleportation)](#morph-grid-p2)** | [UI/UX] | S | S | **🎯 AI Impl:** Sync dual title inputs in `views.js`. |
+| **[Project Morph Grid: Phase 3 (Wiring)](#morph-grid-p3)** | [Features] | L | M | **🎯 AI Impl:** Connect slots to `entities.js`. Implement Chin drawer for selection. |
+| **[Project Morph Grid: Phase 4 (Game Loop)](#morph-grid-p4)** | [Features] | M | S | **🎯 AI Impl:** "Begin" button logic, state transition, AI init. |
 
 ---
 

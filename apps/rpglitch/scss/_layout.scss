@@ -18,10 +18,32 @@ main.container {
   @include foundation.custom-scrollbar;
 }
 
+// Profile Screen Overlay
+#profile-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--pico-background-color);
+  z-index: 1000;
+  overflow-y: auto;
+
+  &[hidden] {
+    display: none;
+  }
+
+  @include foundation.custom-scrollbar;
+}
+
 // Remove container margins when in profile view to allow edge-to-edge image
 body.profile-view-active {
   padding: 0; // Remove all body padding in profile view
   overflow: hidden; // Prevent scrolling the body itself
+
+  #profile-screen {
+    display: block;
+  }
 
   // Override Pico CSS padding-block on body > main
   > main {
@@ -32,13 +54,6 @@ body.profile-view-active {
   .tag-chips {
     display: none;
   }
-}
-
-body.profile-view-active main.container {
-  margin: 0; // Remove all margins
-  padding: 0; // Remove all padding
-  width: 100vw; // Full viewport width
-  max-width: 100vw; // No max-width constraint;
 }
 
 .top-bar {

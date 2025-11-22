@@ -53,7 +53,10 @@
       "mcp__waldzell-clear-thought__debuggingapproach",
       "mcp__waldzell-clear-thought__sequentialthinking",
       "Bash(find:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(git checkout:*)",
+      "Read(//c//**)",
+      "Bash(awk:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,29 +1,10 @@
 // apps/rpglitch/js/index.js
+// Universal Stage - Streamlined Implementation
 
-// --- [FIX 1: IMPORT BLOCK] ---
 import { entities, getPictureHTML } from "./entities.js";
-import {
-  initViews,
-  router,
-  renderStoryScreen,
-  renderMessage,
-} from "./views.js";
+import { router, renderMessage, initViews } from "./views.js";
 import { db } from "./db.js";
-import {
-  log,
-  error,
-  initDebugMode,
-  enableAutoUnlock,
-  startUIWatchdog,
-  installUIRecoveryHooks,
-  installUIBlockerAttributeObserver,
-  setChosen,
-  handleAsyncError,
-  chin,
-  isHtmlErrorPage,
-  dismissLoadingUI,
-  _uiWatchdogStarted,
-} from "./utils.js";
+import { log, error } from "./utils.js";
 
 // =================================================================
 // Plugin Loading Configuration
@@ -32,9 +13,6 @@ const PLUGIN_POLL_INTERVAL_MS = 500;
 const PLUGIN_WAIT_TIMEOUT_MS = 10000;
 const PLUGIN_MAX_RETRIES = 3;
 
-// =================================================================
-// Custom Error Classes
-// =================================================================
 class PluginError extends Error {
   constructor(message) {
     super(message);
@@ -43,12 +21,19 @@ class PluginError extends Error {
 }
 
 // =================================================================
-// App State Management
+// App State & Core Logic
 // =================================================================
 
 const App = {
   state: {
-    characters: { byId: {}, allIds: [] },
+    // Universal Stage state
+    storyTitle: "My Story",
+    selectedAI: null,
+    selectedWorld: null,
+    selectedUser: null,
+    mode: "storyboard", // "storyboard" | "gameplay"
+
+    // Story runtime
     story: { byId: {}, allIds: [], activeId: null },
     messages: { byStoryId: {} },
     settings: {
@@ -60,11 +45,9 @@ const App = {
       historyLength: 10,
     },
     ui: {
-      fsm: "idle",
-      promptPreviewOpen: false,
+      fsm: "idle", // idle, sending, streaming, done, error, aborted
       lastError: null,
-      title: "RPGlitch",
-      chosenStoryboardCard: null,
+      abortController: null,
     },
   },
 
@@ -76,9 +59,7 @@ const App = {
           typeof source[key] === "object" &&
           !Array.isArray(source[key])
         ) {
-          if (!target[key]) {
-            Object.assign(target, { [key]: {} });
-          }
+          if (!target[key]) Object.assign(target, { [key]: {} });
           merge(target[key], source[key]);
         } else {
           Object.assign(target, { [key]: source[key] });
@@ -88,7 +69,6 @@ const App = {
     };
 
     merge(App.state, patch);
-
     document.dispatchEvent(
       new CustomEvent("state:changed", { detail: { patch } })
     );
@@ -110,34 +90,12 @@ const App = {
         App.state.messages.byStoryId[storyId] || []
       );
 
-      const characterPersona = [ch?.persona, ch?.scenario]
+      const characterPersona = [ch?.forever, ch?.past, ch?.present, ch?.future]
         .filter(Boolean)
         .join("\n\n");
       const characterName = ch?.name || "Character";
 
-      log(`Building prompt for character: ${characterName}`);
-      const icOocInstructions = `
-CRITICAL RESPONSE FORMAT:
-You must respond in ONE of these two formats ONLY:
-
-FORMAT 1 (Character Only - DEFAULT):
-${characterName}: [Your character's dialogue or actions]
-
-FORMAT 2 (Narrator + Character):
-Narrator: [Scene description, atmosphere, or NPC actions]
-${characterName}: [Your character's response or dialogue]
-
-RULES:
-- Use FORMAT 1 by default (just character speaking/acting)
-- Use FORMAT 2 when scene description is needed BEFORE character speaks
-- NEVER send ONLY "Narrator:" - if using Narrator, you MUST follow with "${characterName}:"
-- NEVER send more than 2 segments (Narrator + Character)
-- Character name is ALWAYS "${characterName}" (not "Character")
-`;
-
-      const system = [characterPersona, icOocInstructions]
-        .filter(Boolean)
-        .join("\n\n");
+      const system = characterPersona || `You are ${characterName}.`;
 
       const params = {
         temperature: App.state.settings.temperature,
@@ -152,9 +110,7 @@ RULES:
 
     trimHistory: (msgs) => {
       const historyLength = App.state.settings.historyLength;
-      if (msgs.length <= historyLength * 2) {
-        return msgs;
-      }
+      if (msgs.length <= historyLength * 2) return msgs;
       return msgs.slice(-historyLength * 2);
     },
   },
@@ -162,209 +118,55 @@ RULES:
   ai: {
     generateStream: async ({ payload, signal, onToken, onDone }) => {
       if (!window.ai || typeof window.ai !== "function") {
-        error("Perchance AI plugin (window.ai) not available.");
         throw new Error("Perchance AI plugin not available.");
       }
 
-      log("Calling Perchance AI plugin with payload:", payload);
+      let instruction = "";
+      if (payload.system) instruction += payload.system + "\n\n";
 
-      try {
-        let instruction = "";
-
-        if (payload.system) {
-          instruction += payload.system + "\n\n";
+      if (payload.messages && payload.messages.length > 0) {
+        for (const msg of payload.messages) {
+          const role =
+            msg.role === "user"
+              ? "User"
+              : msg.role === "narrator"
+                ? "Narrator"
+                : "Character";
+          instruction += `${role}: ${msg.text}\n\n`;
         }
-
-        if (payload.messages && payload.messages.length > 0) {
-          for (const msg of payload.messages) {
-            const role = msg.role
-              ? msg.role.charAt(0).toUpperCase() +
-                msg.role.slice(1).toLowerCase()
-              : "Narrator";
-            instruction += `${role}: ${msg.text}\n\n`;
-          }
-          instruction += "Narrator: ";
-        }
-
-        const result = await window.ai(instruction, {
-          temperature: payload.params?.temperature,
-          top_p: payload.params?.top_p,
-          max_tokens: payload.params?.maxTokens,
-          model: payload.params?.model,
-          signal,
-        });
-
-        if (onToken && typeof onToken === "function") {
-          onToken(result);
-        }
-
-        if (onDone && typeof onDone === "function") {
-          onDone();
-        }
-
-        return result;
-      } catch (err) {
-        error("AI generation error:", err);
-        throw err;
+        instruction += "Narrator: ";
       }
+
+      const result = await window.ai(instruction, {
+        temperature: payload.params?.temperature,
+        top_p: payload.params?.top_p,
+        max_tokens: payload.params?.maxTokens,
+        model: payload.params?.model,
+        signal,
+      });
+
+      if (onToken) onToken(result);
+      if (onDone) onDone();
+
+      return result;
     },
   },
 
   story: {
-    parseUserInput: (text, userCharacter) => {
-      if (text.startsWith("/director ")) {
-        return {
-          type: "OOC",
-          text: text.substring(10).trim(),
-        };
-      }
-      if (text === "/continue") {
-        return {
-          type: "OOC",
-          text: "Continue the story",
-        };
-      }
-      if (text === "/retry") {
-        return {
-          type: "OOC",
-          text: "Retry the last response",
-        };
-      }
-      return {
-        type: "IC",
-        text: text,
-        characterName: userCharacter?.name || "Character",
-      };
-    },
-
-    parseNarratorResponse: (text, aiCharacter) => {
-      const trimmedText = text.trim();
-      const characterName = aiCharacter?.name || "Character";
-
-      if (trimmedText.startsWith("Narrator:")) {
-        const narratorPattern =
-          /^Narrator:\s*([\s\S]*?)(?=\n\s*[A-Za-z\s'-]+:\s*|$)/;
-        const narratorMatch = trimmedText.match(narratorPattern);
-
-        if (narratorMatch) {
-          const narratorText = narratorMatch[1].trim();
-          const remainingText = trimmedText
-            .substring(narratorMatch[0].length)
-            .trim();
-
-          const characterPattern = new RegExp(
-            `^([A-Za-z\\s'-]+):\\s*([\\s\\S]+)$`
-          );
-          const characterMatch = remainingText.match(characterPattern);
-
-          if (characterMatch) {
-            return [
-              {
-                type: "OOC",
-                text: narratorText,
-                characterName: null,
-              },
-              {
-                type: "IC",
-                text: characterMatch[2].trim(),
-                characterName: characterMatch[1].trim(),
-              },
-            ];
-          } else {
-            return [
-              {
-                type: "OOC",
-                text: narratorText,
-                characterName: null,
-              },
-            ];
-          }
-        }
-      }
-
-      const characterPattern = new RegExp(`^([A-Za-z\\s'-]+):\\s*([\\s\\S]+)$`);
-      const characterMatch = trimmedText.match(characterPattern);
-
-      if (characterMatch) {
-        return [
-          {
-            type: "IC",
-            text: characterMatch[2].trim(),
-            characterName: characterMatch[1].trim(),
-          },
-        ];
-      }
-
-      return [
-        {
-          type: "IC",
-          text: trimmedText,
-          characterName: characterName,
-        },
-      ];
-    },
-
     requireActive: () => {
       if (!App.state.story.activeId) {
-        error("No active story found. Please create a new story first.");
         throw new Error("No active story. Please create a new story.");
       }
       return App.state.story.activeId;
     },
 
-    loadActive: async () => {
+    createFromSelection: async ({ storyTitle, aiCharacterId, userCharacterId, worldId }) => {
       try {
-        if (!db || !db.stories) {
-          log("Database not initialized, skipping story loading.");
-          return null;
-        }
-
-        const stories = await db.stories
-          .orderBy("updatedAt")
-          .reverse()
-          .toArray();
-
-        if (stories.length === 0) {
-          log("No stories found in database.");
-          return null;
-        }
-
-        const activeStory = stories[0];
-
-        App.applyPatch({
-          story: {
-            activeId: activeStory.id,
-            byId: { [activeStory.id]: activeStory },
-            allIds: [activeStory.id],
-          },
-        });
-
-        log(`Loaded active story: ${activeStory.id} - ${activeStory.title}`);
-        await App.story.loadMessages(activeStory.id);
-
-        return activeStory.id;
-      } catch (err) {
-        error("Failed to load active story:", err);
-        return null;
-      }
-    },
-
-    createFromSelection: async ({
-      storyTitle,
-      aiCharacterId,
-      userCharacterId,
-      worldId,
-    }) => {
-      try {
-        const ch = Object.values(App.state.characters.byId).find(
-          (c) => c.id === aiCharacterId && c.type === "character"
-        );
-        const title = storyTitle || `${ch?.name || "Character"} × Story`;
         const newStory = {
           aiCharacterId,
           userCharacterId,
           worldId,
-          title,
+          title: storyTitle || "Untitled Story",
           settingsSnapshot: { ...App.state.settings },
           createdAt: Date.now(),
           updatedAt: Date.now(),
@@ -377,12 +179,12 @@ RULES:
             activeId: storyId,
             byId: { [storyId]: newStory },
           },
-          ui: { title },
         });
+
+        log(`Created story: ${storyId} - ${storyTitle}`);
         return storyId;
       } catch (err) {
         error("Failed to create story:", err);
-        alert("Could not create story. Please try again.");
         throw err;
       }
     },
@@ -395,14 +197,9 @@ RULES:
           .sortBy("createdAt");
 
         App.applyPatch({
-          messages: {
-            byStoryId: {
-              [storyId]: messages,
-            },
-          },
+          messages: { byStoryId: { [storyId]: messages } },
         });
 
-        log(`Loaded ${messages.length} messages for story ${storyId}`);
         return messages;
       } catch (err) {
         error("Failed to load messages:", err);
@@ -411,294 +208,112 @@ RULES:
     },
 
     render: async (storyId) => {
-      const storyFeed = document.querySelector("#story-feed");
-      if (!storyFeed) return;
-
-      // --- FIX: RENDER LOCK TO PREVENT DUPLICATION ---
-      // Capture the current time as a "render ID"
-      const renderId = Date.now();
-      storyFeed.dataset.lastRenderId = renderId;
+      const feed = document.querySelector("#chat-feed");
+      if (!feed) return;
 
       const messages = App.state.messages.byStoryId[storyId] || [];
-      const noMessagesEl = document.querySelector("#no-messages");
-
-      // If we have 0 messages, show empty state and exit
-      if (messages.length === 0) {
-        storyFeed.innerHTML = "";
-        if (noMessagesEl) {
-            storyFeed.appendChild(noMessagesEl);
-            noMessagesEl.hidden = false;
-        }
-        return;
-      }
-
-      if (noMessagesEl) noMessagesEl.hidden = true;
-
-      // --- FETCH CHARACTERS FOR SIGNATURE COLORS ---
       const story = App.state.story.byId[storyId];
+
+      // Load characters for signature colors
       let aiCharacter = null;
       let userCharacter = null;
-
       if (story) {
-        try {
-          // Fetch characters in parallel to avoid delay
-          const [ai, user] = await Promise.all([
-            story.aiCharacterId
-              ? entities.get("character", story.aiCharacterId)
-              : null,
-            story.userCharacterId
-              ? entities.get("character", story.userCharacterId)
-              : null,
-          ]);
-          aiCharacter = ai;
-          userCharacter = user;
-        } catch (err) {
-          error("Failed to load characters for chat render:", err);
-        }
+        const [ai, user] = await Promise.all([
+          story.aiCharacterId ? entities.get("character", story.aiCharacterId) : null,
+          story.userCharacterId ? entities.get("character", story.userCharacterId) : null,
+        ]);
+        aiCharacter = ai;
+        userCharacter = user;
       }
 
-      // --- CHECK LOCK BEFORE MODIFYING DOM ---
-      // If another render started while we were awaiting, abort this one
-      if (storyFeed.dataset.lastRenderId != renderId) {
-        log("Render aborted due to newer update.");
+      // Clear and render
+      feed.innerHTML = "";
+      const noMessages = document.querySelector("#no-messages");
+      if (messages.length === 0) {
+        if (noMessages) {
+          noMessages.hidden = false;
+          feed.appendChild(noMessages);
+        }
         return;
       }
 
-      // Clear content right before appending
-      storyFeed.innerHTML = "";
-      if (noMessagesEl) {
-          storyFeed.appendChild(noMessagesEl); // Re-append hidden no-messages
-      }
-
-      // Append Typing Indicator placeholder
-      const typingIndicator = document.createElement("div");
-      typingIndicator.id = "typing-indicator";
-      typingIndicator.role = "status";
-      typingIndicator.setAttribute("aria-live", "polite");
-      typingIndicator.hidden = true;
-      storyFeed.appendChild(typingIndicator);
-
+      if (noMessages) noMessages.hidden = true;
 
       messages.forEach((msg) => {
-        renderMessage(
-          storyFeed,
-          msg.role,
-          msg.text,
-          msg.characterName,
-          msg.type,
-          {
-            aiCharacter,
-            userCharacter,
-          }
-        );
+        renderMessage(feed, msg.role, msg.text, msg.characterName, msg.type || "IC", {
+          aiCharacter,
+          userCharacter,
+        });
       });
-      
-      // Ensure typing indicator is always at the bottom
-      storyFeed.appendChild(typingIndicator);
 
-      storyFeed.scrollTop = storyFeed.scrollHeight;
+      feed.scrollTop = feed.scrollHeight;
     },
 
     send: async (userText) => {
       if (!userText) return;
-      if (!["idle", "done", "error", "aborted"].includes(App.state.ui.fsm))
-        return;
+      if (!["idle", "done", "error", "aborted"].includes(App.state.ui.fsm)) return;
 
       const storyId = App.story.requireActive();
       const story = App.state.story.byId[storyId];
 
-      // Fix: Use stored userCharacterId from story
-      let userCharacterId = story?.userCharacterId;
+      // Save user message
+      await db.messages.add({
+        storyId,
+        role: "user",
+        type: "IC",
+        text: userText,
+        characterName: null,
+        createdAt: Date.now(),
+      });
 
-      // Fallback if not on story object (legacy stories)
-      if (!userCharacterId) {
-        const userCharacterSelect = document.querySelector(
-          "#storyboard-card-user-select"
-        );
-        userCharacterId = userCharacterSelect?.value;
+      await App.story.loadMessages(storyId);
+      await App.story.render(storyId);
+
+      // Show typing indicator
+      const typingIndicator = document.querySelector("#typing-indicator");
+      if (typingIndicator) {
+        typingIndicator.textContent = "Typing...";
+        typingIndicator.hidden = false;
       }
 
-      let userCharacter = null;
-      if (userCharacterId) {
-        try {
-          userCharacter = await entities.get("character", userCharacterId);
-        } catch (err) {
-          error("Failed to load user character:", err);
-        }
-      }
-
-      const parsed = App.story.parseUserInput(userText, userCharacter);
-
-      try {
-        await db.messages.add({
-          storyId,
-          role: "user",
-          type: parsed.type,
-          text: parsed.text,
-          characterName: parsed.characterName || null,
-          createdAt: Date.now(),
-        });
-      } catch (err) {
-        error("Failed to save user message:", err);
-        alert("Could not save your message. Please try again.");
-        App.applyPatch({
-          ui: { fsm: "error", lastError: "Failed to save message" },
-        });
-        return;
-      }
-
-      try {
-        await App.story.loadMessages(storyId);
-      } catch (err) {
-        error("Failed to reload messages:", err);
-      }
-
+      // Generate AI response
       try {
         const payload = await App.prompt.build(storyId);
         const ctrl = new AbortController();
-        App.applyPatch({
-          ui: { fsm: "sending", lastError: null, abortController: ctrl },
+        App.applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
+
+        const response = await App.ai.generateStream({
+          payload,
+          signal: ctrl.signal,
+          onToken: (token) => {
+            // Stream token update (simple version)
+          },
+          onDone: async () => {
+            // Finalize message
+          },
         });
 
-        try {
-          App.applyPatch({ ui: { fsm: "streaming" } });
-          await App.ai.generateStream({
-            payload,
-            signal: ctrl.signal,
-            onToken: (t) => App.story._appendAssistantToken(storyId, t),
-            onDone: async () =>
-              await App.story._finalizeAssistantMessage(storyId),
-          });
-
-          App.applyPatch({ ui: { fsm: "done" } });
-        } catch (e) {
-          const isAbort = e?.name === "AbortError";
-          App.applyPatch({
-            ui: {
-              fsm: isAbort ? "aborted" : "error",
-              lastError: e?.message || String(e),
-            },
-          });
-        }
-      } catch (err) {
-        error("Failed to generate AI response:", err);
-        App.applyPatch({
-          ui: { fsm: "error", lastError: "Failed to generate response" },
-        });
-      }
-    },
-
-    stop: () => {
-      if (App.state.ui.abortController) {
-        App.state.ui.abortController.abort();
-        App.state.applyPatch({ ui: { fsm: "aborted", abortController: null } });
-        log("Story stream aborted.");
-      }
-    },
-    retry: async () => {
-      const storyId = App.story.requireActive();
-      const messages = App.state.messages.byStoryId[storyId];
-      if (messages && messages.length > 0) {
-        const lastUserMessage = messages.findLast((msg) => msg.role === "user");
-        if (lastUserMessage) {
-          const lastUserMessageIndex = messages.lastIndexOf(lastUserMessage);
-          App.state.messages.byStoryId[storyId] = messages.slice(
-            0,
-            lastUserMessageIndex + 1
-          );
-          await App.story.send(lastUserMessage.text);
-        }
-      }
-    },
-    regenerate: async () => {
-      const storyId = App.story.requireActive();
-      const messages = App.state.messages.byStoryId[storyId];
-      if (messages && messages.length > 0) {
-        const lastUserMessageIndex = messages.findLastIndex(
-          (msg) => msg.role === "user"
-        );
-        if (lastUserMessageIndex !== -1) {
-          App.state.messages.byStoryId[storyId] = messages.slice(
-            0,
-            lastUserMessageIndex
-          );
-          const previousUserMessage = messages[lastUserMessageIndex];
-          await App.story.send(previousUserMessage.text);
-        }
-      }
-    },
-    continue: async () => {
-      await App.story.send("continue");
-    },
-    _appendAssistantToken: (storyId, token) => {
-      let messages = App.state.messages.byStoryId[storyId] || [];
-      let lastMessage = messages[messages.length - 1];
-      if (!lastMessage || lastMessage.role !== "narrator") {
-        lastMessage = {
-          id: Date.now(),
+        // Save narrator response
+        await db.messages.add({
           storyId,
           role: "narrator",
-          type: null,
-          text: "",
-          characterName: null,
+          type: "IC",
+          text: response,
+          characterName: story.aiCharacterId ? (await entities.get("character", story.aiCharacterId))?.name : null,
           createdAt: Date.now(),
-        };
-        messages.push(lastMessage);
-      }
-      lastMessage.text += token;
-      App.applyPatch({
-        messages: { byStoryId: { [storyId]: messages } },
-      });
-    },
-    _finalizeAssistantMessage: async (storyId) => {
-      try {
-        const messages = App.state.messages.byStoryId[storyId] || [];
-        const lastMessage = messages[messages.length - 1];
-
-        if (!lastMessage || lastMessage.role !== "narrator") {
-          error("No narrator message to finalize");
-          return;
-        }
-
-        const story = App.state.story.byId[storyId];
-        const aiCharacterId = story?.aiCharacterId;
-        let aiCharacter = null;
-        if (aiCharacterId) {
-          try {
-            aiCharacter = await entities.get("character", aiCharacterId);
-          } catch (err) {
-            error("Failed to load AI character:", err);
-          }
-        }
-
-        const parsedMessages = App.story.parseNarratorResponse(
-          lastMessage.text,
-          aiCharacter
-        );
-
-        const baseTimestamp = lastMessage.createdAt || Date.now();
-        for (let i = 0; i < parsedMessages.length; i++) {
-          const parsed = parsedMessages[i];
-          await db.messages.add({
-            storyId,
-            role: "narrator",
-            type: parsed.type,
-            text: parsed.text,
-            characterName: parsed.characterName,
-            createdAt: baseTimestamp + i,
-          });
-        }
+        });
 
         await db.stories.update(storyId, { updatedAt: Date.now() });
-
-        log(
-          `Finalized and saved ${parsedMessages.length} message(s) for story ${storyId}`
-        );
-
         await App.story.loadMessages(storyId);
         await App.story.render(storyId);
+
+        App.applyPatch({ ui: { fsm: "done" } });
       } catch (err) {
-        error("Failed to save narrator message:", err);
+        error("AI generation failed:", err);
+        App.applyPatch({ ui: { fsm: "error", lastError: err.message } });
+        alert("AI response failed. Please try again.");
+      } finally {
+        if (typingIndicator) typingIndicator.hidden = true;
       }
     },
   },
@@ -707,1214 +322,230 @@ RULES:
 window.App = App;
 
 // =================================================================
+// Universal Stage Wiring
+// =================================================================
 
-let _allItemsCache = {};
+let isInitialized = false;
 
-const TEST_MODE = (() => {
-  if (typeof globalThis.__TEST__ === "boolean") {
-    return globalThis.__TEST__;
-  }
-  try {
-    return /jsdom/i.test(globalThis?.navigator?.userAgent || "");
-  } catch {
-    return false;
-  }
-})();
+async function initUniversalStage() {
+  if (isInitialized) return;
+  isInitialized = true;
 
-const MAX_INIT_RETRIES = TEST_MODE ? 1 : 40;
-const INIT_BACKOFF_MS = TEST_MODE ? 0 : 250;
-const DATA_KEYS = ["stories", "characters", "worlds"];
+  log("[Universal Stage] Initializing...");
 
-const BLUR_SUPPRESS_DURATION_MS = 1200;
-const UI_WATCHDOG_MAX_ATTEMPTS = 24;
-let _cardNavAttached = false;
-let _suppressNextBlur = false;
-let _optionsListenersAttached = false;
-let _contentListenersAttached = false;
-let _bootBound = false;
-let _bootStarted = false;
+  // ====== PHASE 2: TITLE SYNC ======
+  const titleStoryboard = document.querySelector("#title-storyboard");
+  const titleGameplay = document.querySelector("#title-gameplay");
 
-let templates = {};
+  if (titleStoryboard && titleGameplay) {
+    // Make title editable on click (contenteditable)
+    titleStoryboard.setAttribute("contenteditable", "true");
+    titleGameplay.setAttribute("contenteditable", "true");
 
-function _cacheTemplates() {
-  const templateIds = [
-    "tpl-storyboard-picture-character",
-    "tpl-storyboard-picture-world",
-    "tpl-storyboard-picture-default",
-    "tpl-placeholder-icon-character",
-    "tpl-placeholder-icon-world",
-    "tpl-placeholder-icon-default",
-  ];
-  templateIds.forEach((id) => {
-    const tpl = document.querySelector(`#${id}`);
-    if (tpl) {
-      templates[id] = tpl;
-    }
-  });
-  log?.("Templates cached:", Object.keys(templates));
-}
-
-export function _getUIElements() {
-  const doc = document;
-  const ui = {};
-
-  ui.topBarLeft = doc.querySelector("#top-bar-left");
-  ui.chinContainer = doc.querySelector("#chin-container");
-  ui.topBarButtons = ui.topBarLeft
-    ? ui.topBarLeft.querySelectorAll("button[data-chin]")
-    : [];
-  ui.topBarRightStoryboard = doc.querySelector("#top-bar-right-storyboard");
-  ui.topBarRightForm = doc.querySelector("#top-bar-right-form");
-  ui.topBarRightProfile = doc.querySelector("#top-bar-right-profile");
-
-  ui.uploadBackupInput = doc.querySelector("#upload-backup");
-  ui.uploadBackupTrigger = doc.querySelector('[data-trigger="upload-backup"]');
-  ui.downloadBackupButton = doc.querySelector("#download-backup");
-  ui.deleteAllDataButton = doc.querySelector("#delete-all-data");
-
-  ui.newStoryButton = doc.querySelector("#new-story");
-  ui.uploadStoryTrigger = doc.querySelector('[data-trigger="upload-story"]');
-  ui.uploadStoryInput = doc.querySelector("#upload-story");
-
-  ui.newCharacterButton = doc.querySelector("#new-character");
-  ui.uploadCharacterTrigger = doc.querySelector(
-    '[data-trigger="upload-character"]'
-  );
-  ui.uploadCharacterInput = doc.querySelector("#upload-character");
-
-  ui.newWorldButton = doc.querySelector("#new-world");
-  ui.uploadWorldTrigger = doc.querySelector('[data-trigger="upload-world"]');
-  ui.uploadWorldInput = doc.querySelector("#upload-world");
-
-  return ui;
-}
-
-async function saveStoryboardSelection() {
-  const selects = {
-    narrator: document.querySelector("#storyboard-card-narrator-select")?.value,
-    user: document.querySelector("#storyboard-card-user-select")?.value,
-    world: document.querySelector("#storyboard-card-world-select")?.value,
-  };
-  try {
-    let settings = await db.settings.get("app-settings");
-    if (!settings) {
-      settings = { id: "app-settings" };
-    }
-    settings.storyboardSelection = selects;
-    await db.settings.put(settings);
-  } catch (e) {
-    error("Failed to save storyboard selection:", e);
-  }
-}
-
-async function loadStoryboardSelection() {
-  try {
-    const settings = await db.settings.get("app-settings");
-    return settings?.storyboardSelection || {};
-  } catch (e) {
-    error("Failed to load storyboard selection:", e);
-    return {};
-  }
-}
-
-async function getAllItems(key, refresh = false) {
-  if (!refresh && Array.isArray(_allItemsCache[key]))
-    return [..._allItemsCache[key]];
-  const type = key.replace(/s$/, "");
-  if (entities && typeof entities.list === "function") {
-    try {
-      if (refresh) {
-        delete _allItemsCache[key];
-      }
-      const items = await entities.list(type);
-      _allItemsCache[key] = items;
-      return items;
-    } catch (err) {
-      error(`Failed to load ${type}:`, err);
-      alert(`Could not load ${type} data. Please refresh and try again.`);
-      _allItemsCache[key] = [];
-      return [];
-    }
-  }
-
-  log(`getAllItems: entities.list not available for type "${type}"`);
-  _allItemsCache[key] = [];
-  return [];
-}
-
-async function renderList(containerId, key) {
-  const container = document.querySelector(`#${containerId}`);
-  if (!container) return;
-  container.setAttribute("aria-busy", "true");
-  container
-    .querySelectorAll('img.entity-image[src^="blob:"]')
-    .forEach((img) => {
-      URL.revokeObjectURL(img.src);
+    titleStoryboard.addEventListener("input", () => {
+      const text = titleStoryboard.textContent.trim();
+      titleGameplay.textContent = text;
+      App.applyPatch({ storyTitle: text });
     });
 
-  container.textContent = "";
-  const all = await getAllItems(key);
-  const frag = document.createDocumentFragment();
-  if (all.length === 0) {
-    const message = document.createElement("p");
-    message.className = "chin-empty";
-    message.textContent =
-      key === "stories"
-        ? "Empty here—time to write your first story!"
-        : key === "characters"
-        ? "No characters found yet"
-        : key === "worlds"
-        ? "No worlds found yet"
-        : "No items found";
-    container.appendChild(message);
-    container.setAttribute("aria-busy", "false");
-    return;
-  }
-
-  const tpl = document.querySelector("#unified-card-template");
-  all.forEach((item) => {
-    let card;
-
-    if (tpl && tpl.content) {
-      card = tpl.content.firstElementChild.cloneNode(true);
-    } else {
-      card = document.createElement("div");
-      card.className = "card";
-      const media = document.createElement("div");
-      media.className = "card-media";
-      const body = document.createElement("div");
-      body.className = "card-body";
-      const title = document.createElement("h4");
-      title.className = "card-title";
-      body.appendChild(title);
-      const desc = document.createElement("p");
-      desc.className = "card-description";
-      body.appendChild(desc);
-      const footer = document.createElement("div");
-      footer.className = "card-footer";
-      card.appendChild(media);
-      card.appendChild(body);
-      card.appendChild(footer);
-    }
-
-    card.dataset.title = item.name || "Empty";
-    if (item.id) {
-      card.dataset.id = item.id;
-      card.dataset.type = key.slice(0, -1);
-      card.dataset.entityId = item.id;
-      card.dataset.entityType = key.slice(0, -1);
-    }
-    if (item.isPremade) card.dataset.premade = "true";
-    card.setAttribute("aria-label", item.name || "Open");
-    const media = card.querySelector(".card-media");
-    if (typeof getPictureHTML === "function") {
-      const maybe = getPictureHTML(item, {
-        cover: true,
-        templates: templates,
-      });
-      if (maybe instanceof Node) {
-        media.prepend(maybe);
-      } else if (typeof maybe === "string") {
-        const t = document.createElement("template");
-        t.innerHTML = window.DOMPurify
-          ? window.DOMPurify.sanitize(maybe.trim())
-          : maybe.trim();
-        const node = t.content.firstElementChild;
-        if (node) media.prepend(node);
-      }
-    }
-
-    const titleEl = card.querySelector(".card-title");
-    if (titleEl) titleEl.textContent = item.name || "Empty";
-
-    const descEl = card.querySelector(".card-description");
-    if (descEl) {
-      descEl.textContent = item.description ? item.description : "";
-      descEl.classList.add("muted");
-    }
-
-    card.addEventListener("click", (ev) => {
-      if (ev.target.closest("button, a, input, select, textarea")) return;
-      const type = card.dataset.entityType || card.dataset.type;
-      const id = card.dataset.entityId || card.dataset.id;
-      if (type && id) router.navigate(`#profile/${type}/${id}`);
-    });
-    card.addEventListener("keydown", (ev) => {
-      if (ev.key !== "Enter" && ev.key !== " ") return;
-      ev.preventDefault();
-      const type = card.dataset.entityType || card.dataset.type;
-      const id = card.dataset.entityId || card.dataset.id;
-      if (type && id) router.navigate(`#profile/${type}/${id}`);
-    });
-
-    frag.appendChild(card);
-  });
-  container.appendChild(frag);
-  container.setAttribute("aria-busy", "false");
-}
-
-async function renderDropdown(doc, selectId, key) {
-  const select = doc.querySelector(`#${selectId}`);
-  if (!select) return;
-
-  select.setAttribute("aria-busy", "true");
-
-  const existingPlaceholder = select.querySelector('option[value=""]');
-  const placeholderText = existingPlaceholder
-    ? existingPlaceholder.textContent
-    : select.dataset.placeholder || "";
-  select.dataset.placeholder = placeholderText;
-  const placeholder = existingPlaceholder
-    ? existingPlaceholder.cloneNode(true)
-    : doc.createElement("option");
-  placeholder.value = "";
-  placeholder.textContent = placeholderText;
-  placeholder.selected = true;
-  select.prepend(placeholder);
-  const items = await getAllItems(key);
-  const premadeGroup = doc.createElement("optgroup");
-  premadeGroup.label = "Premade";
-  const customGroup = doc.createElement("optgroup");
-  customGroup.label = "Custom";
-  let premadeCount = 0;
-  let customCount = 0;
-  items.forEach((item) => {
-    const option = document.createElement("option");
-    option.value = item.id || item.name;
-    option.textContent = item.name || "";
-    if (item.isPremade) {
-      premadeGroup.appendChild(option);
-      premadeCount += 1;
-    } else {
-      customGroup.appendChild(option);
-      customCount += 1;
-    }
-  });
-  if (premadeCount > 0) select.appendChild(premadeGroup);
-  if (customCount > 0) select.appendChild(customGroup);
-
-  select.setAttribute("aria-busy", "false");
-}
-
-async function renderStoryList() {
-  await renderList("chin-story-grid", "stories");
-}
-
-async function renderCharacterList() {
-  await renderList("chin-character-grid", "characters");
-}
-
-async function renderWorldList() {
-  await renderList("chin-world-grid", "worlds");
-}
-
-async function refreshAllLists() {
-  await Promise.all(DATA_KEYS.map((key) => getAllItems(key, true)));
-  await renderStoryList?.();
-  await renderCharacterList?.();
-  await renderWorldList?.();
-}
-
-function _attachCardNavigation() {
-  if (_cardNavAttached) return;
-  if (typeof _suppressNextBlur === "undefined") {
-    _suppressNextBlur = false;
-  }
-
-  const container = document.querySelector("#chin-container");
-  if (container) {
-    container.addEventListener("click", (e) => {
-      if (e.target.closest("button, a, input, select, textarea")) return;
-      const card = e.target.closest(".chin-card[data-type][data-id]");
-      if (!card) return;
-      setChosen?.(
-        card,
-        container.querySelectorAll(".chin-card[data-type][data-id]")
-      );
-      const { type, id } = card.dataset;
-      if (type && id) router.navigate(`#profile/${type}/${id}`);
-    });
-
-    container.addEventListener("keydown", (e) => {
-      const card = e.target.closest(".chin-card[data-type][data-id]");
-      if (!card) return;
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        const { type, id } = card.dataset;
-        if (type && id) router.navigate(`#profile/${type}/${id}`);
-      }
+    titleGameplay.addEventListener("input", () => {
+      const text = titleGameplay.textContent.trim();
+      titleStoryboard.textContent = text;
+      App.applyPatch({ storyTitle: text });
     });
   }
 
-  const storyboard = document.querySelector("#storyboard-grid");
-  if (storyboard && !storyboard._bound) {
-    storyboard._bound = true;
-    storyboard.addEventListener(
-      "pointerdown",
-      (e) => {
-        if (e.target.closest(".storyboard-card")) {
-          _suppressNextBlur = true;
-          setTimeout(() => {
-            _suppressNextBlur = false;
-          }, BLUR_SUPPRESS_DURATION_MS);
-        }
-      },
-      {
-        passive: true,
-        capture: true,
-      }
-    );
-
-    storyboard.addEventListener("click", async (e) => {
-      if (e.target.closest("select, button, a, input, textarea")) return;
-      const card = e.target.closest(".storyboard-card");
-      if (!card) return;
-      const select = card.querySelector("select");
-      const all = storyboard.querySelectorAll(".storyboard-card");
-      setChosen(card, all);
-      const type = card.dataset.entityType || card.dataset.type;
-      const id = card.dataset.entityId || select?.value || "";
-
-      if (type && id) {
-        try {
-          App.applyPatch({ ui: { chosenStoryboardCard: { type, id } } });
-          await db.entities
-            .where({ type: type, isChosen: true })
-            .modify({ isChosen: false });
-          await db.entities.update(id, { isChosen: true });
-        } catch (err) {
-          error("Failed to update selection:", err);
-        }
-      } else {
-        App.applyPatch({ ui: { chosenStoryboardCard: null } });
-      }
-
-      if (!id && select) {
-        _suppressNextBlur = true;
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            _suppressNextBlur = false;
-          }, BLUR_SUPPRESS_DURATION_MS);
-        });
-        return;
-      }
-
-      if (type && id) router.navigate(`#profile/${type}/${id}`);
-    });
-
-    storyboard.addEventListener("keydown", (e) => {
-      const card = e.target.closest(".storyboard-card");
-      if (!card) return;
-      if (e.key !== "Enter" && e.key !== " ") return;
-      e.preventDefault();
-      const select = card.querySelector("select");
-      const type = card.dataset.entityType || card.dataset.type;
-      const id = card.dataset.entityId || select?.value || "";
-      if (!id && select) {
-        _suppressNextBlur = true;
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            _suppressNextBlur = false;
-          }, BLUR_SUPPRESS_DURATION_MS);
-        });
-        return;
-      }
-
-      if (type && id) router.navigate(`#profile/${type}/${id}`);
-    });
-
-    storyboard.querySelectorAll(".storyboard-card").forEach((c) => {
-      if (!c.hasAttribute("tabindex")) c.tabIndex = 0;
-      c.setAttribute("role", "group");
-      const select = c.querySelector("select");
-      if (select && !select.hasAttribute("aria-label")) {
-        select.setAttribute("aria-label", "Select entity");
-      }
-
-      if (!c._navBound) {
-        c.addEventListener("click", (ev) => {
-          if (ev.target.closest("select, button, a, input, textarea")) return;
-          const type = c.dataset.entityType || c.dataset.type;
-          const id =
-            c.dataset.entityId || c.querySelector("select")?.value || "";
-          if (type && id) router.navigate?.(`#profile/${type}/${id}`);
-        });
-        c.addEventListener("keydown", (ev) => {
-          if (ev.key !== "Enter" && ev.key !== " ") return;
-          ev.preventDefault();
-          const type = c.dataset.entityType || c.dataset.type;
-          const id =
-            c.dataset.entityId || c.querySelector("select")?.value || "";
-          if (type && id) router.navigate?.(`#profile/${type}/${id}`);
-        });
-        c._navBound = true;
-      }
-    });
-  }
-  _cardNavAttached = true;
-}
-
-async function _resolveCardAndEntity(target, entityOrKey) {
-  let card, entity;
-
-  if (target && target.tagName === "SELECT") {
-    const select = target;
-    card = select.closest(".card");
-    const type =
-      card?.dataset?.type ||
-      select.dataset.entityType ||
-      select.dataset.type ||
-      "";
-    const id = select.value || "";
-
-    if (id) {
-      entity = await handleAsyncError(
-        async () => await entities.get(type, id),
-        {
-          errorMessage: `Could not load ${type} details. Please try again.`,
-          context: `load ${type}`,
-          fallback: null,
-        }
-      );
-    } else {
-      entity = null;
-    }
-  } else {
-    card = typeof target === "string" ? document.querySelector(target) : target;
-    entity = entityOrKey || null;
-  }
-
-  return { card, entity };
-}
-
-async function _ensureCardStructure(card) {
-  if (card._isInitializing) {
-    return await card._initPromise;
-  }
-
-  const cardId = card.id;
-  const cardType = card.dataset?.type;
-  const selectId = cardId ? `${cardId}-select` : null;
-  let media = card.querySelector(".card-media");
-  let body = card.querySelector(".card-body");
-  let titleEl = card.querySelector(".card-title");
-  let descEl = card.querySelector(".card-description");
-  let footer = card.querySelector(".card-footer");
-
-  if (!media || !body || !titleEl || !descEl || !footer) {
-    card._isInitializing = true;
-
-    card._initPromise = (async () => {
-      try {
-        card.innerHTML = "";
-
-        const newMedia = document.createElement("div");
-        newMedia.className = "card-media";
-        card.appendChild(newMedia);
-
-        const newBody = document.createElement("div");
-        newBody.className = "card-body";
-        card.appendChild(newBody);
-
-        const newTitleEl = document.createElement("select");
-        newTitleEl.className = "card-title";
-        if (selectId) newTitleEl.id = selectId;
-        newTitleEl.dataset.entityType = cardType;
-        newTitleEl.dataset.type = cardType;
-        if (card.id === "storyboard-card-narrator") {
-          newTitleEl.dataset.placeholder = "Select AI Character";
-        } else if (card.id === "storyboard-card-user") {
-          newTitleEl.dataset.placeholder = "Select Your Character";
-        } else if (card.id === "storyboard-card-world") {
-          newTitleEl.dataset.placeholder = "Select World";
-        }
-        newBody.appendChild(newTitleEl);
-
-        const newDescEl = document.createElement("p");
-        newDescEl.className = "card-description";
-        newBody.appendChild(newDescEl);
-
-        const newFooter = document.createElement("div");
-        newFooter.className = "card-footer";
-        newBody.appendChild(newFooter);
-
-        const dataKey = cardType === "world" ? "worlds" : "characters";
-        await renderDropdown(document, selectId || newTitleEl.id, dataKey);
-        newTitleEl.addEventListener("change", onStoryboardChange);
-
-        return {
-          media: newMedia,
-          body: newBody,
-          titleEl: newTitleEl,
-          descEl: newDescEl,
-          footer: newFooter,
-        };
-      } catch (err) {
-        error("Failed to build card structure:", err);
-        card.innerHTML = "";
-        return {
-          media: null,
-          body: null,
-          titleEl: null,
-          descEl: null,
-          footer: null,
-        };
-      }
-    })();
-
-    try {
-      const resolvedElements = await card._initPromise;
-      media = resolvedElements.media;
-      body = resolvedElements.body;
-      titleEl = resolvedElements.titleEl;
-      descEl = resolvedElements.descEl;
-      footer = resolvedElements.footer;
-    } finally {
-      card._isInitializing = false;
-      delete card._initPromise;
-    }
-  }
-
-  if (descEl && !descEl.dataset.placeholder) {
-    descEl.dataset.placeholder = descEl.textContent || "";
-  }
-
-  return { media, body, titleEl, descEl, footer };
-}
-
-function _populateCardWithEntity(card, entity, elements, templates) {
-  const { media, descEl, footer } = elements;
-  if (descEl) descEl.textContent = entity.description || "";
-  if (media) {
-    media.textContent = "";
-    const picture = getPictureHTML(entity, {
-      cover: true,
-      neutralPlaceholder: !entity?.id && !entity?.name,
-    });
-    if (picture) {
-      media.appendChild(picture);
-    }
-  }
-
-  if (footer) {
-    footer.querySelectorAll(".tag-chip").forEach((n) => n.remove());
-    if (entity.isPremade) {
-      const pill = document.createElement("span");
-      pill.className = "chip";
-      pill.className = "tag-chip";
-      if (entity.signatureColour) {
-        pill.style.setProperty(
-          "--signature",
-          `var(--signature-${entity.signatureColour.toLowerCase()})`
-        );
-      }
-      const sm = document.createElement("small");
-      sm.textContent = "Premade";
-      pill.appendChild(sm);
-      footer.appendChild(pill);
-    }
-  }
-
-  if (entity.signatureColour && entity.signatureColour !== "default") {
-    card.style.setProperty(
-      "--signature",
-      `var(--pico-${entity.signatureColour.toLowerCase()})`
-    );
-    if (entity.signatureColour) {
-      card.style.setProperty(
-        "--signature",
-        `var(--signature-${entity.signatureColour.toLowerCase()})`
-      );
-    } else {
-      card.style.removeProperty("--signature");
-    }
-
-    card.dataset.entityType = card.dataset.type || entity.kind || "";
-    card.dataset.entityId = entity.id;
-    const select = card.querySelector("select");
-    if (select && select.value !== String(entity.id)) {
-      select.value = String(entity.id);
-    }
-
-    const isChosen =
-      App.state.ui.chosenStoryboardCard &&
-      App.state.ui.chosenStoryboardCard.id === entity.id &&
-      App.state.ui.chosenStoryboardCard.type === entity.type;
-    card.classList.toggle("chosen", isChosen);
-    card.classList.add("selected");
-  }
-}
-
-function _clearCard(card, elements, templates) {
-  const { media, titleEl, descEl, footer } = elements;
-
-  if (titleEl) {
-    titleEl.value = "";
-    const placeholderOption = titleEl.querySelector('option[value=""]');
-    if (placeholderOption) {
-      placeholderOption.textContent = titleEl.dataset.placeholder || "";
-    }
-  }
-
-  if (descEl) {
-    let placeholderText = "";
-    switch (card.id) {
-      case "storyboard-card-narrator":
-        placeholderText = "Select the AI character for your story.";
-        break;
-      case "storyboard-card-user":
-        placeholderText = "Select your character to play the story.";
-        break;
-      case "storyboard-card-world":
-        placeholderText = "Select a world to set the scene.";
-        break;
-      default:
-        placeholderText = "Select an entity.";
-    }
-    descEl.textContent = placeholderText;
-    descEl.classList.add("placeholder-text");
-  }
-
-  if (media) {
-    media.textContent = "";
-    const picture = getPictureHTML(
-      { type: card.dataset.type },
-      { cover: true, neutralPlaceholder: true }
-    );
-    if (picture) {
-      media.appendChild(picture);
-    }
-    card?.style?.removeProperty("--signature");
-  }
-  if (footer) footer.querySelectorAll(".tag-chip").forEach((n) => n.remove());
-  card.classList.remove("chosen");
-  card.classList.remove("selected");
-  delete card.dataset.entityType;
-  delete card.dataset.entityId;
-  const select = card.querySelector("select");
-  if (select && select.value !== "") {
-    select.value = "";
-    select.dispatchEvent(new Event("change", { bubbles: true }));
-  }
-}
-
-async function updateStoryboardCard(target, entityOrKey, opts = {}) {
-  const { card, entity } = await _resolveCardAndEntity(target, entityOrKey);
-  if (!card) return;
-  const elements = await _ensureCardStructure(card);
-
-  if (entity) {
-    _populateCardWithEntity(card, entity, elements, templates);
-  } else {
-    _clearCard(card, elements, templates);
-  }
-}
-
-const titlePrompts = [
-  "Once upon a time",
-  "The tale of",
-  "Chronicles of",
-  "Legend speaks of",
-  "Adventures of",
-];
-
-function randPrompt() {
-  return titlePrompts[Math.floor(Math.random() * titlePrompts.length)];
-}
-
-async function _defaultStoryboardTitle() {
-  const getTitle = async (id, key) => {
-    const select = document.querySelector(`#${id}`);
-    const value = select ? select.value : "";
-    if (!value) return null;
-    const items = await getAllItems(key);
-    const item = items.find((i) => (i.id ?? i.name) === value);
-    return item ? item.name || null : null;
-  };
-  const [narrator, user, world] = await Promise.all([
-    getTitle("storyboard-card-narrator-select", "characters"),
-    getTitle("storyboard-card-user-select", "characters"),
-    getTitle("storyboard-card-world-select", "worlds"),
-  ]);
-
-  const subjects = [narrator, user].filter(Boolean).join(" & ");
-  let title;
-  if (subjects && world) {
-    title = `${randPrompt()} ${subjects} in ${world}`;
-  } else if (subjects) {
-    title = `${randPrompt()} ${subjects}`;
-  } else if (world) {
-    title = `${randPrompt()} a story in ${world}`;
-  } else {
-    title = "Your story begins…";
-  }
-  return title.length > 80 ? `${title.slice(0, 77)}…` : title;
-}
-
-async function setDynamicTitle(
-  title,
-  {
-    manual = false,
-  } = {}
-) {
-  const el = document.querySelector("#storyboard-dynamic-title");
-  if (!el) return;
-  if (!el.dataset.manual || el.dataset.manual === "false" || manual) {
-    el.textContent = title || (await _defaultStoryboardTitle?.()) || "";
-    el.dataset.manual = manual ? "true" : "false";
-  }
-}
-
-function _setupStoryboardTitle() {
-  const titleEl = document.querySelector("#storyboard-dynamic-title");
-  if (!titleEl) return;
-  if (titleEl.dataset.editable) return;
-  titleEl.dataset.editable = "true";
-
-  titleEl.setAttribute("role", "textbox");
-  titleEl.setAttribute("aria-multiline", "false");
-  if (!titleEl.hasAttribute("aria-label")) {
-    titleEl.setAttribute("aria-label", "Storyboard title");
-  }
-
-  titleEl.autocapitalize = "off";
-  titleEl.autocorrect = "off";
-  titleEl.spellcheck = false;
-  titleEl.setAttribute("autocomplete", "off");
-  titleEl.setAttribute("autocapitalize", "off");
-  titleEl.setAttribute("autocorrect", "off");
-  titleEl.setAttribute("spellcheck", "false");
-
-  const finishEditing = () => {
-    titleEl.contentEditable = "false";
-  };
-
-  titleEl.addEventListener("click", () => {
-    titleEl.contentEditable = "true";
-    titleEl.dataset.manual = "true";
-    const sel = getSelection();
-    if (sel) {
-      const range = document.createRange();
-      range.selectNodeContents(titleEl);
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-    titleEl.focus();
-  });
-
-  titleEl.addEventListener("blur", finishEditing);
-  titleEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      titleEl.blur();
-    }
-  });
-}
-
-async function populateStoryboardSelects() {
-  const selections = await loadStoryboardSelection();
-  const configs = [
-    {
-      id: "storyboard-card-narrator-select",
-      key: "characters",
-      savedValue: selections.narrator,
-    },
-    {
-      id: "storyboard-card-user-select",
-      key: "characters",
-      savedValue: selections.user,
-    },
-    {
-      id: "storyboard-card-world-select",
-      key: "worlds",
-      savedValue: selections.world,
-    },
-  ];
-
-  await Promise.all(
-    configs.map(async ({ id, key, savedValue }) => {
-      const select = document.querySelector(`#${id}`);
-      if (select) {
-        if (
-          savedValue &&
-          Array.from(select.options).some((o) => o.value === savedValue)
-        ) {
-          select.value = savedValue;
-        }
-
-        await onStoryboardChange({ target: select });
-      }
-    })
-  );
-}
-
-async function onStoryboardChange(e) {
-  const select = e.target;
-  await updateStoryboardCard(select);
-  await setDynamicTitle?.();
-  await saveStoryboardSelection();
-  if (typeof _suppressNextBlur !== "undefined") {
-    _suppressNextBlur = false;
-  }
-}
-
-async function _attachStoryboardListeners() {
-  await populateStoryboardSelects();
-  _setupStoryboardTitle();
-  const title = document.querySelector("#storyboard-dynamic-title");
-  if (title) {
-    title.addEventListener("input", () => {
-      title.dataset.manual = "true";
-    });
-
-    title.addEventListener("dblclick", async () => {
-      title.dataset.manual = "false";
-      await setDynamicTitle();
-    });
-  }
-  const shuffleBtn = document.querySelector("#shuffle-btn");
-  if (shuffleBtn) {
-    shuffleBtn.addEventListener("click", async () => {
-      [
-        "storyboard-card-narrator-select",
-        "storyboard-card-user-select",
-        "storyboard-card-world-select",
-      ].forEach((id) => {
-        const s = document.querySelector(`#${id}`);
-        if (!s) return;
-        const opts = Array.from(s.options).filter((o) => o.value);
-        if (opts.length)
-          s.value = opts[Math.floor(Math.random() * opts.length)].value;
-        s.dispatchEvent(
-          new Event("change", {
-            bubbles: true,
-          })
-        );
-      });
-      await setDynamicTitle?.();
-    });
-  }
-
-  async function beginStory() {
-    const narratorSelect = document.querySelector(
-      "#storyboard-card-narrator-select"
-    );
-    const userSelect = document.querySelector("#storyboard-card-user-select");
-    const worldSelect = document.querySelector("#storyboard-card-world-select");
-
-    if (narratorSelect?.value && userSelect?.value && worldSelect?.value) {
-      const storyTitleEl = document.querySelector("#storyboard-dynamic-title");
-      const storyTitle = storyTitleEl?.textContent || "default-story";
-      const aiCharacterId = narratorSelect.value;
-      const worldId = worldSelect.value;
-      const userCharacterId = userSelect.value;
-
-      const [narratorChar, userChar] = await Promise.all([
-        entities.get("character", aiCharacterId),
-        entities.get("character", userCharacterId),
-      ]);
-
-      const storyId = await App.story.createFromSelection({
-        storyTitle,
-        aiCharacterId,
-        userCharacterId,
-        worldId,
+  // ====== PHASE 3: ENTITY SELECTION ======
+  initViews({
+    onSelectionChanged: (selections) => {
+      const { aiCharacter, userCharacter, world } = selections;
+      App.applyPatch({
+        selectedAI: aiCharacter,
+        selectedUser: userCharacter,
+        selectedWorld: world,
       });
 
-      const story = {
-        ...App.state.story.byId[storyId],
-        messages: App.state.messages.byStoryId[storyId] || [],
-      };
-
-      await renderStoryScreen(story, narratorChar, userChar);
-      router.navigate("#story");
-
-      App.applyPatch({ ui: { fsm: "idle" } });
-    } else {
-      alert(
-        "Please select a Narrator character, your own character, and a world to begin the story."
-      );
-    }
-  }
-  const beginStoryBtn = document.querySelector("#begin-story");
-  if (beginStoryBtn) {
-    if (beginStoryBtn._beginStoryHandler) {
-      beginStoryBtn.removeEventListener(
-        "click",
-        beginStoryBtn._beginStoryHandler
-      );
-    }
-
-    beginStoryBtn.addEventListener("click", beginStory);
-    beginStoryBtn._beginStoryHandler = beginStory;
-  }
-
-  const cards = document.querySelectorAll(".storyboard-card");
-  for (const card of cards) {
-    const type = card.dataset.entityType;
-    const id = card.dataset.entityId || "";
-    const entity = await entities.get?.(type, id);
-    updateStoryboardCard(card, entity);
-  }
-}
-
-function _attachOptionChinActions() {
-  if (_optionsListenersAttached) return;
-  const ui = _getUIElements();
-  const { uploadBackupInput, downloadBackupButton, deleteAllDataButton } = ui;
-
-  if (uploadBackupInput) {
-    uploadBackupInput.addEventListener("change", (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (file && typeof importAllData === "function") importAllData(file);
-    });
-  }
-
-  if (downloadBackupButton) {
-    downloadBackupButton.addEventListener("click", () => {
-      if (typeof exportAllData === "function") exportAllData();
-    });
-  }
-
-  if (deleteAllDataButton) {
-    deleteAllDataButton.addEventListener("click", () => {
-      if (typeof deleteAllData === "function") deleteAllData();
-    });
-  }
-
-  _optionsListenersAttached = true;
-}
-
-function _attachContentChinActions() {
-  if (_contentListenersAttached) return;
-  const ui = _getUIElements();
-
-  const configs = [
-    {
-      key: "stories",
-      newButton: ui.newStoryButton,
-      uploadTrigger: ui.uploadStoryTrigger,
-      uploadInput: ui.uploadStoryInput,
+      // Update Begin Story button state
+      const beginButton = document.querySelector("#begin-story");
+      if (beginButton) {
+        const isReady = aiCharacter && userCharacter && world;
+        beginButton.disabled = !isReady;
+        beginButton.classList.toggle("disabled", !isReady);
+      }
     },
-    {
-      key: "characters",
-      newButton: ui.newCharacterButton,
-      uploadTrigger: ui.uploadCharacterTrigger,
-      uploadInput: ui.uploadCharacterInput,
-    },
-    {
-      key: "worlds",
-      newButton: ui.newWorldButton,
-      uploadTrigger: ui.uploadWorldTrigger,
-      uploadInput: ui.uploadWorldInput,
-    },
-  ];
-
-  configs.forEach(({ key, newButton, uploadTrigger, uploadInput }) => {
-    if (newButton) {
-      newButton.addEventListener("click", () => {
-        if (key === "stories") {
-          router.navigate("#storyboard");
-          return;
-        }
-        if (key === "characters" || key === "worlds") {
-          router.navigate(`#profile/${key.slice(0, -1)}/new`);
-        }
-      });
-    }
-
-    if (uploadTrigger && uploadInput) {
-      uploadTrigger.addEventListener("click", () => uploadInput.click());
-      uploadInput.addEventListener("change", async (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
-
-        if (
-          !file.type ||
-          (!file.type.includes("json") && !file.name.endsWith(".json"))
-        ) {
-          alert(`Invalid file type. Please upload a JSON file.`);
-          uploadInput.value = null;
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = async (ev) => {
-          try {
-            const text = ev.target.result;
-
-            if (isHtmlErrorPage(text)) {
-              error(
-                "Received HTML instead of JSON. File may be corrupted or is not a valid JSON file."
-              );
-              alert(
-                `Invalid file format. Expected JSON but received HTML. Please check the file and try again.`
-              );
-              uploadInput.value = null;
-              return;
-            }
-
-            const data = JSON.parse(text);
-            if (!Array.isArray(data)) {
-              alert(`Invalid file format. Expected an array of ${key}.`);
-              uploadInput.value = null;
-              return;
-            }
-
-            const type = key.replace(/s$/, "");
-            if (type === "character" || type === "world" || type === "story") {
-              const validData = data.filter(
-                (item) => item.name && item.type === type
-              );
-              if (validData.length === 0) {
-                alert(`No valid ${type}s found in the file.`);
-                uploadInput.value = null;
-                return;
-              }
-
-              await db.entities.bulkPut(
-                validData.map((item) => ({
-                  ...item,
-                  isCustom: item.isPremade ? 0 : 1,
-                  isPremade: item.isPremade || false,
-                  createdAt: item.createdAt || Date.now(),
-                  updatedAt: item.updatedAt || Date.now(),
-                }))
-              );
-              alert(`Successfully imported ${validData.length} ${type}(s).`);
-            } else {
-              log(`Import for type "${type}" is not supported`);
-              alert(`Import for type "${type}" is not supported.`);
-            }
-            await refreshAllLists();
-          } catch (err) {
-            error("Failed to import", err);
-            if (err instanceof SyntaxError) {
-              alert(
-                `Invalid JSON format in file. Please check the file and try again.\n\nError: ${err.message}`
-              );
-            } else {
-              alert(
-                `Failed to import ${key}. Please check the file format and try again.`
-              );
-            }
-          }
-          uploadInput.value = null;
-        };
-        reader.onerror = () => {
-          error("Failed to read file");
-          alert(`Failed to read file. Please try again.`);
-          uploadInput.value = null;
-        };
-        reader.readAsText(file);
-      });
+    refreshAllLists: async () => {
+      // Placeholder for list refresh logic if needed
+      log("Refreshing lists requested by views");
     }
   });
 
-  _contentListenersAttached = true;
-}
-
-let _settingsListenersAttached = false;
-
-function _attachSettingsListeners() {
-  if (_settingsListenersAttached) return;
-  _settingsListenersAttached = true;
-
-  const settings = App.state.settings;
-
-  const temperatureInput = document.querySelector("#setting-temperature");
-  const topPInput = document.querySelector("#setting-top_p");
-  const maxTokensInput = document.querySelector("#setting-max-tokens");
-  const stopInput = document.querySelector("#setting-stop");
-  const modelSelect = document.querySelector("#setting-model");
-
-  if (temperatureInput) temperatureInput.value = settings.temperature;
-  if (topPInput) topPInput.value = settings.top_p;
-  if (maxTokensInput) maxTokensInput.value = settings.maxTokens;
-  if (stopInput) stopInput.value = settings.stop.join(", ");
-  if (modelSelect) modelSelect.value = settings.model;
-
-  temperatureInput?.addEventListener("input", (e) => {
-    App.state.applyPatch({
-      settings: { temperature: parseFloat(e.target.value) },
+  // ====== PHASE 4: BEGIN STORY ======
+  const beginButton = document.querySelector("#begin-story");
+  if (beginButton) {
+    beginButton.addEventListener("click", async () => {
+      await handleBeginStory();
     });
-  });
-  topPInput?.addEventListener("input", (e) => {
-    App.state.applyPatch({ settings: { top_p: parseFloat(e.target.value) } });
-  });
-  maxTokensInput?.addEventListener("input", (e) => {
-    App.state.applyPatch({
-      settings: { maxTokens: parseInt(e.target.value, 10) },
-    });
-  });
-  stopInput?.addEventListener("input", (e) => {
-    App.state.applyPatch({
-      settings: {
-        stop: e.target.value
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-      },
-    });
-  });
-  modelSelect?.addEventListener("change", (e) => {
-    App.state.applyPatch({ settings: { model: e.target.value } });
-  });
-}
+  }
 
-function _attachStoryFormListener() {
+  // ====== CHAT FORM ======
   const storyForm = document.querySelector("#story-form");
-  if (storyForm && !storyForm._submitListenerAttached) {
+  if (storyForm) {
     const input = storyForm.querySelector('input[name="message"]');
-    const submitButton = storyForm.querySelector('button[type="submit"]');
-    const storyFeed = document.querySelector("#story-feed");
+    const submitBtn = storyForm.querySelector('button[type="submit"]');
 
-    if (!input || !submitButton || !storyFeed) {
-      error("Story UI elements not found, cannot attach listener.");
-      return;
-    }
-
-    input.addEventListener("input", () => {
-      submitButton.disabled = !input.value.trim();
+    input?.addEventListener("input", () => {
+      submitBtn.disabled = !input.value.trim();
     });
 
     storyForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const message = input.value.trim();
-      if (message) {
-        // --- [FIX 2: USER CHARACTER ID] ---
-        const activeStory = App.state.story.byId[App.state.story.activeId];
-        // Use correct userCharacterId property
-        const userCharacterId = activeStory?.userCharacterId;
+      if (!message) return;
 
-        let userCharacter = null;
-        if (userCharacterId) {
-          try {
-            userCharacter = await entities.get("character", userCharacterId);
-          } catch (err) {
-            error("Failed to load user character for immediate render:", err);
-          }
-        }
-        // --- [END FIX 2] ---
-
-        const storyFeed = document.querySelector("#story-feed");
-        renderMessage(
-          storyFeed,
-          "user",
-          message,
-          userCharacter?.name || "You",
-          "IC",
-          { userCharacter } // Pass character object for signature color
-        );
-
-        input.value = "";
-        submitButton.disabled = true;
-        await App.story.send(message);
-      }
+      input.value = "";
+      submitBtn.disabled = true;
+      await App.story.send(message);
     });
-    storyForm._submitListenerAttached = true;
+  }
+
+  log("[Universal Stage] Initialized successfully!");
+}
+
+
+
+async function handleBeginStory() {
+  const { selectedAI, selectedUser, selectedWorld, storyTitle } = App.state;
+
+  // Validate selections
+  if (!selectedAI || !selectedUser || !selectedWorld) {
+    alert("Please select an AI character, your character, and a world before beginning.");
+    return;
+  }
+
+  try {
+    // Create story in database
+    const storyId = await App.story.createFromSelection({
+      storyTitle,
+      aiCharacterId: selectedAI.id,
+      userCharacterId: selectedUser.id,
+      worldId: selectedWorld.id,
+    });
+
+    // Switch to gameplay mode
+    document.body.classList.remove("mode-storyboard");
+    document.body.classList.add("mode-gameplay");
+    App.applyPatch({ mode: "gameplay" });
+
+    // Update portrait displays
+    updatePortraits(selectedAI, selectedUser);
+
+    // Generate opening message
+    await generateOpeningMessage(storyId);
+  } catch (err) {
+    error("Failed to begin story:", err);
+    alert("Could not start story. Please try again.");
   }
 }
+
+
+
+function updatePortraits(aiCharacter, userCharacter) {
+  // AI Portrait
+  const aiPortrait = document.querySelector("#gameplay-ai-portrait");
+  if (aiPortrait) {
+    const imgDiv = aiPortrait.querySelector(".portrait-image");
+    const nameDiv = aiPortrait.querySelector(".portrait-name");
+
+    if (imgDiv) {
+      imgDiv.innerHTML = "";
+      const picture = getPictureHTML(aiCharacter, { cover: false });
+      if (picture) imgDiv.appendChild(picture);
+    }
+
+    if (nameDiv) nameDiv.textContent = aiCharacter.name || "AI";
+  }
+
+  // User Portrait
+  const userPortrait = document.querySelector("#gameplay-user-portrait");
+  if (userPortrait) {
+    const imgDiv = userPortrait.querySelector(".portrait-image");
+    const nameDiv = userPortrait.querySelector(".portrait-name");
+
+    if (imgDiv) {
+      imgDiv.innerHTML = "";
+      const picture = getPictureHTML(userCharacter, { cover: false });
+      if (picture) imgDiv.appendChild(picture);
+    }
+
+    if (nameDiv) nameDiv.textContent = userCharacter.name || "You";
+  }
+}
+
+async function generateOpeningMessage(storyId) {
+  const story = App.state.story.byId[storyId];
+  if (!story) return;
+
+  const typingIndicator = document.querySelector("#typing-indicator");
+  if (typingIndicator) {
+    typingIndicator.textContent = "Starting story...";
+    typingIndicator.hidden = false;
+  }
+
+  try {
+    // Load world and AI character for context
+    const [world, aiCharacter] = await Promise.all([
+      story.worldId ? entities.get("world", story.worldId) : null,
+      story.aiCharacterId ? entities.get("character", story.aiCharacterId) : null,
+    ]);
+
+    const worldContext = world
+      ? [world.forever, world.past, world.present, world.future].filter(Boolean).join("\n\n")
+      : "";
+
+    const characterContext = aiCharacter
+      ? [aiCharacter.forever, aiCharacter.past, aiCharacter.present, aiCharacter.future]
+        .filter(Boolean)
+        .join("\n\n")
+      : "";
+
+    const prompt = `You are beginning a new story. Generate an engaging opening scene.
+
+World Context:
+${worldContext}
+
+Character Context (${aiCharacter?.name || "Character"}):
+${characterContext}
+
+Generate a vivid opening scene that sets the stage for the adventure. Describe the setting, atmosphere, and introduce the character naturally.`;
+
+    const result = await window.ai(prompt, {
+      temperature: 0.8,
+      max_tokens: 300,
+    });
+
+    // Save opening message
+    await db.messages.add({
+      storyId,
+      role: "narrator",
+      type: "OOC",
+      text: result,
+      characterName: null,
+      createdAt: Date.now(),
+    });
+
+    await App.story.loadMessages(storyId);
+    await App.story.render(storyId);
+  } catch (err) {
+    error("Failed to generate opening:", err);
+    alert("Could not generate opening message. Please try typing to start the story.");
+  } finally {
+    if (typingIndicator) typingIndicator.hidden = true;
+  }
+}
+
+// =================================================================
+// Plugin Setup
+// =================================================================
 
 function setupPlugins() {
   const pluginMap = {
@@ -1932,10 +563,7 @@ function setupPlugins() {
 }
 
 function isPluginPathAvailable(path) {
-  if (typeof path !== "string" || !path.trim()) {
-    return false;
-  }
-
+  if (typeof path !== "string" || !path.trim()) return false;
   if (
     path.includes("__proto__") ||
     path.includes("constructor") ||
@@ -1955,15 +583,7 @@ function isPluginPathAvailable(path) {
     }
   }
 
-  if (parts.length === 1 && parts[0].startsWith("plugin")) {
-    return typeof obj === "function";
-  }
-
-  if (parts.length > 1) {
-    return typeof obj === "function";
-  }
-
-  return true;
+  return typeof obj === "function";
 }
 
 async function waitForPlugins(
@@ -1972,441 +592,113 @@ async function waitForPlugins(
   retryCount = 0,
   maxRetries = PLUGIN_MAX_RETRIES
 ) {
-  if (TEST_MODE) {
-    log("[RPGlitch] Test mode detected, skipping plugin wait");
-    return true;
-  }
-
   const startTime = Date.now();
 
-  log(
-    `[RPGlitch] Waiting for plugins (attempt ${retryCount + 1}/${
-      maxRetries + 1
-    }):`,
-    requiredPluginPaths
-  );
+  log(`[RPGlitch] Waiting for plugins (attempt ${retryCount + 1}/${maxRetries + 1}):`, requiredPluginPaths);
 
   while (Date.now() - startTime < timeout) {
     if (requiredPluginPaths.every(isPluginPathAvailable)) {
-      log("[RPGlitch] All plugins loaded successfully:", requiredPluginPaths);
+      log("[RPGlitch] All plugins loaded successfully");
       return true;
     }
-
-    await new Promise((resolve) =>
-      setTimeout(resolve, PLUGIN_POLL_INTERVAL_MS)
-    );
+    await new Promise((resolve) => setTimeout(resolve, PLUGIN_POLL_INTERVAL_MS));
   }
 
   if (retryCount < maxRetries) {
-    log(
-      `[RPGlitch] Plugins not available, retrying (${retryCount + 1}/${maxRetries})...`
-    );
-    return waitForPlugins(
-      requiredPluginPaths,
-      timeout,
-      retryCount + 1,
-      maxRetries
-    );
+    return waitForPlugins(requiredPluginPaths, timeout, retryCount + 1, maxRetries);
   }
 
-  const available = requiredPluginPaths.filter(isPluginPathAvailable);
-  const missing = requiredPluginPaths.filter(
-    (path) => !isPluginPathAvailable(path)
-  );
-  log(
-    `[RPGlitch] Plugin timeout after a total of ${
-      (retryCount + 1) * PLUGIN_WAIT_TIMEOUT_MS
-    }ms (retries: ${retryCount}). Available: ${
-      available.join(", ") || "none"
-    } | Missing: ${missing.join(", ") || "none"}`
-  );
+  const missing = requiredPluginPaths.filter((path) => !isPluginPathAvailable(path));
+  log(`[RPGlitch] Plugin timeout. Missing: ${missing.join(", ")}`);
   return false;
 }
 
-async function initializeWhenReady() {
+// =================================================================
+// Initialization
+// =================================================================
+
+function mockPlugins() {
+  window.pluginAi = async (prompt) => {
+    console.log("[Mock AI] Generating for:", prompt);
+    return "This is a mock AI response for local testing.";
+  };
+  window.pluginTextToImage = async (prompt) => {
+    console.log("[Mock Image] Generating for:", prompt);
+    return "https://via.placeholder.com/150";
+  };
+  window.pluginRemember = {
+    get: (key) => {
+      console.log("[Mock Remember] Get:", key);
+      return null;
+    },
+    set: (key, val) => {
+      console.log("[Mock Remember] Set:", key, val);
+    },
+  };
+  window.pluginSuperFetch = async (url) => {
+    console.log("[Mock Fetch] Fetching:", url);
+    return { text: async () => "Mock Fetch Result" };
+  };
+  window.pluginUpload = {
+    upload: async (file) => {
+      console.log("[Mock Upload] Uploading:", file);
+      return "https://via.placeholder.com/150";
+    }
+  };
+}
+
+async function initializeApp() {
   try {
-    const pluginsLoaded = await waitForPlugins([
-      "pluginAi",
-      "pluginTextToImage",
-      "pluginSuperFetch",
-      "pluginRemember",
-      "pluginUpload",
-    ]);
+    log("[RPGlitch] Starting initialization...");
+    console.log("[RPGlitch] Protocol:", window.location.protocol);
+    console.log("[RPGlitch] Hostname:", window.location.hostname);
+
+    // Wait for plugins
+    const isLocal = window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    console.log("[RPGlitch] isLocal detected as:", isLocal);
+
+    let pluginsLoaded = false;
+
+    if (isLocal) {
+      log("[RPGlitch] Local environment detected. Mocking plugins...");
+      mockPlugins();
+      pluginsLoaded = true;
+    } else {
+      pluginsLoaded = await waitForPlugins(["pluginAi", "pluginTextToImage", "pluginRemember"]);
+    }
 
     if (!pluginsLoaded) {
-      error(
-        "[RPGlitch] Required plugins failed to load. Application may not function correctly."
-      );
-      alert(
-        `Required plugins failed to load. Please refresh the page and try again.`
-      );
-      throw new PluginError("Required plugins failed to load. Please refresh.");
+      error("[RPGlitch] Required plugins failed to load");
+      alert("Required plugins failed to load. Please refresh the page.");
+      throw new PluginError("Required plugins failed to load");
     }
 
+    console.log("[RPGlitch] Plugins loaded/mocked. Setting up...");
     setupPlugins();
+    console.log("[RPGlitch] Plugins setup complete.");
 
-    try {
-      await db.open();
-      log("[RPGlitch] Database initialized.");
-    } catch (err) {
-      error("[RPGlitch] Failed to initialize database:", err);
-      alert(
-        `Database initialization failed. Please refresh the page. Error: ${err.message}`
-      );
-      throw err;
-    }
+    // Open database
+    console.log("[RPGlitch] Opening database...");
+    await db.open();
+    console.log("[RPGlitch] Database initialized");
 
-    await initDebugMode();
+    // Initialize Universal Stage
+    await initUniversalStage();
 
-    document.addEventListener("state:changed", async (event) => {
-      const { patch } = event.detail;
-      if (patch.messages?.byStoryId || patch.story?.activeId !== undefined) {
-        const activeStoryId = App.state.story.activeId;
-        if (activeStoryId) {
-          await App.story.render(activeStoryId);
-        }
-      }
-    });
+    // Hide loading modal
+    const loadingModal = document.querySelector("#loading-modal");
+    if (loadingModal) loadingModal.close();
 
-    const currentSettings = await db.settings.get("settings");
-    if (!currentSettings) {
-      log("[RPGlitch] Initializing default settings.");
-      await db.settings.add({
-        id: "settings",
-        temperature: App.state.settings.temperature,
-        top_p: App.state.settings.top_p,
-        maxTokens: App.state.settings.maxTokens,
-        stop: App.state.settings.stop,
-        model: App.state.settings.model,
-        historyLength: App.state.settings.historyLength,
-      });
-    }
-
-    const chosenEntity = await db.entities
-      .where("isChosen")
-      .equals(true)
-      .first();
-    if (chosenEntity) {
-      App.applyPatch({
-        ui: {
-          chosenStoryboardCard: {
-            type: chosenEntity.type,
-            id: chosenEntity.id,
-          },
-        },
-      });
-    }
-
-    log("[RPGlitch] initializeWhenReady start", {
-      retry: window.initializeWhenReadyRetryCount || 0,
-    });
-  } catch {
-    /* ignore */
-  }
-
-  try {
-    initViews({ refreshAllLists });
-
-    _getUIElements();
-
-    templates = {
-      "tpl-storyboard-picture-character": document.querySelector(
-        "#tpl-storyboard-picture-character"
-      ),
-      "tpl-storyboard-picture-world": document.querySelector(
-        "#tpl-storyboard-picture-world"
-      ),
-      "tpl-storyboard-picture-default": document.querySelector(
-        "#tpl-storyboard-picture-default"
-      ),
-    };
-
-    _attachStoryFormListener?.();
-    if (!TEST_MODE) chin.init?.();
-    _attachOptionChinActions?.();
-    _attachContentChinActions?.();
-    _attachSettingsListeners?.();
-    _attachCardNavigation?.();
-    await refreshAllLists?.();
-    await _attachStoryboardListeners?.();
-    try {
-      dismissLoadingUI?.();
-    } catch {
-      void 0;
-    }
-
-    try {
-      startUIWatchdog?.();
-    } catch {
-      void 0;
-    }
-    try {
-      installUIRecoveryHooks?.();
-    } catch {
-      void 0;
-    }
-    try {
-      installUIBlockerAttributeObserver?.();
-    } catch {
-      void 0;
-    }
-    try {
-      enableAutoUnlock?.();
-    } catch {
-      void 0;
-    }
-    try {
-      let attempts = 0;
-      const maxAttempts = UI_WATCHDOG_MAX_ATTEMPTS;
-      const rearm = () => {
-        attempts++;
-        if (_uiWatchdogStarted || attempts > maxAttempts) {
-          clearInterval(timer);
-          return;
-        }
-        try {
-          startUIWatchdog?.();
-        } catch {
-          void 0;
-        }
-        try {
-          installUIRecoveryHooks?.();
-        } catch {
-          void 0;
-        }
-        try {
-          installUIBlockerAttributeObserver?.();
-        } catch {
-          void 0;
-        }
-        try {
-          enableAutoUnlock?.();
-        } catch {
-          void 0;
-        }
-      };
-      const timer = setInterval(rearm, 250);
-      setTimeout(rearm, 0);
-    } catch {
-      void 0;
-    }
-
-    window.initializeWhenReadyRetryCount = 0;
-    try {
-      log("[RPGlitch] initializeWhenReady success");
-    } catch {
-      /* ignore */
-    }
-    return true;
+    log("[RPGlitch] Initialization complete!");
   } catch (err) {
-    if (err instanceof PluginError) {
-      error(
-        "[RPGlitch] Plugin loading failed, stopping initialization:",
-        err.message
-      );
-      throw err;
-    }
-
-    const retryCount = (window.initializeWhenReadyRetryCount || 0) + 1;
-    window.initializeWhenReadyRetryCount = retryCount;
-    try {
-      error(
-        `❗ App initialization failed (attempt ${retryCount}/${MAX_INIT_RETRIES})`,
-        err && (err.stack || err),
-        err
-      );
-    } catch {
-      /* ignore */
-    }
-    if (TEST_MODE) {
-      return false;
-    }
-    if (retryCount < MAX_INIT_RETRIES) {
-      await new Promise((resolve) => setTimeout(resolve, INIT_BACKOFF_MS));
-      return initializeWhenReady();
-    }
-    error(
-      `❌ App initialization failed after ${MAX_INIT_RETRIES} attempts.`,
-      err
-    );
-    throw err;
+    error("[RPGlitch] Initialization failed:", err);
+    alert("Application failed to initialize. Please refresh the page.");
   }
 }
 
-async function importAllData(file) {
-  if (!file) return;
-
-  if (
-    !file.type ||
-    (!file.type.includes("json") && !file.name.endsWith(".json"))
-  ) {
-    alert(`Invalid file type. Please upload a JSON file.`);
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    try {
-      const text = e.target.result;
-
-      if (isHtmlErrorPage(text)) {
-        error(
-          "Received HTML instead of JSON. File may be corrupted or server returned an error page."
-        );
-        alert(
-          `Invalid file format. Expected JSON but received HTML. The file may be corrupted or incomplete.`
-        );
-        return;
-      }
-
-      const data = JSON.parse(text);
-
-      if (data.version !== 1) {
-        log("Imported data version mismatch. Attempting to import anyway.");
-      }
-
-      if (Array.isArray(data.characters)) {
-        await db.entities.where("type").equals("character").delete();
-        await db.entities.bulkAdd(data.characters);
-      }
-
-      if (Array.isArray(data.stories)) {
-        await db.stories.clear();
-        await db.stories.bulkAdd(data.stories);
-      }
-
-      if (Array.isArray(data.messages)) {
-        await db.messages.clear();
-        await db.messages.bulkAdd(data.messages);
-      }
-
-      if (data.settings) {
-        await db.settings.clear();
-        await db.settings.add(data.settings);
-      }
-
-      await refreshAllLists();
-      alert(`Backup imported successfully!`);
-    } catch (err) {
-      error("Failed to import backup", err);
-      if (err instanceof SyntaxError) {
-        alert(
-          `Invalid JSON format in backup file. Please check the file and try again.\n\nError: ${err.message}`
-        );
-      } else {
-        alert(`Failed to import backup. Please check the file and try again.`);
-      }
-    } finally {
-      const ui = _getUIElements();
-      if (ui.uploadBackupInput) ui.uploadBackupInput.value = null;
-    }
-  };
-  reader.onerror = () => {
-    error("Failed to read backup file");
-    alert(`Failed to read backup file. Please try again.`);
-    const ui = _getUIElements();
-    if (ui.uploadBackupInput) ui.uploadBackupInput.value = null;
-  };
-  reader.readAsText(file);
+// Boot on DOM ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeApp);
+} else {
+  initializeApp();
 }
-
-async function exportAllData() {
-  try {
-    const data = {
-      version: 1,
-    };
-
-    data.characters = await db.entities
-      .where("type")
-      .equals("character")
-      .toArray();
-
-    data.stories = await db.stories.toArray();
-
-    data.messages = await db.messages.toArray();
-
-    data.settings = await db.settings.get("settings");
-
-    const blob = new Blob([JSON.stringify(data)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "rpglitch-backup.json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  } catch (err) {
-    error("Failed to export backup:", err);
-    alert("Failed to export backup. Please try again.");
-  }
-}
-
-async function deleteAllData() {
-  try {
-    if (
-      !confirm(
-        "Are you sure you want to delete ALL data? This cannot be undone."
-      )
-    ) {
-      return;
-    }
-
-    await db.entities.clear();
-    await db.stories.clear();
-    await db.messages.clear();
-
-    await refreshAllLists();
-    alert(`All data has been deleted.`);
-  } catch (err) {
-    error("Failed to delete data:", err);
-    alert(`Failed to delete data. Please try again.`);
-  }
-}
-
-// Export functions for testing
-export { waitForPlugins, initializeWhenReady, _defaultStoryboardTitle };
-
-try {
-  if (!_bootBound) {
-    _bootBound = true;
-    const boot = async () => {
-      try {
-        if (TEST_MODE) return;
-        if (_bootStarted) return;
-        _bootStarted = true;
-        await initializeWhenReady?.();
-      } catch (err) {
-        error("RPGlitch boot failed:", err);
-      }
-    };
-    if (
-      document.readyState === "complete" ||
-      document.readyState === "interactive"
-    ) {
-      setTimeout(boot, 0);
-    } else {
-      document.addEventListener("DOMContentLoaded", boot, {
-        once: true,
-      });
-      window.addEventListener("load", boot, {
-        once: true,
-      });
-    }
-  }
-} catch {
-  /* empty */
-}
-
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-    _cacheTemplates();
-    router.handleRoute();
-  },
-  {
-    once: true,
-  }
-);

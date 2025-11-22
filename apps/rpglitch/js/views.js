@@ -24,36 +24,31 @@ import {
   setTopBarRight,
 } from "./utils.js";
 import { isValidImageUrl, extractImageUrl } from "./validation.js";
+import { initDrawer, openDrawer } from "./drawer.js";
 
-let refreshAllLists;
-let imageInput = null;
-let actionButton = null;
-let fileInput = null;
+// Module-level dependencies
+let _refreshAllLists = null;
+let _onSelectionChanged = null;
 
-export function initViews(dependencies) {
-  refreshAllLists = dependencies.refreshAllLists;
-}
-
-// ============================================================================
-// ROUTER MODULE (Refactored)
-// ============================================================================
+// Module-level state for selected entities
+const selectedEntities = {
+  aiCharacter: null,
+  userCharacter: null,
+  world: null,
+};
 
 function showStoryboard() {
   document.body.classList.remove("profile-view-active");
-  document.body.classList.remove("story-active");
-  setTopBarRight?.("storyboard");
-  showEl("#storyboard-screen");
-  hideEl("#profile-screen");
-  hideEl("#story-screen");
+  document.body.classList.remove("mode-gameplay");
+  document.body.classList.add("mode-storyboard");
+  log?.("views.showStoryboard", "Switched to storyboard mode");
 }
 
 function showStoryScreen() {
   document.body.classList.remove("profile-view-active");
-  document.body.classList.add("story-active");
-  hideEl("#top-bar"); // Hide top bar explicitly
-  hideEl("#storyboard-screen");
-  hideEl("#profile-screen");
-  showEl("#story-screen");
+  document.body.classList.remove("mode-storyboard");
+  document.body.classList.add("mode-gameplay");
+  log?.("views.showStoryScreen", "Switched to gameplay mode");
 }
 
 function parseHash() {
@@ -77,11 +72,9 @@ function handleRoute() {
     void e;
   }
 
-  // UPDATED: The 'profile' route now handles 'new' and 'edit' states.
+  // Profile route: show profile overlay
   if (section === "profile" && isType(type) && id) {
-    // Top bar will be set by renderProfilePage
-    hideEl("#storyboard-screen");
-    renderProfilePage(type, id); // <-- This is our new stateful function
+    renderProfilePage(type, id);
     try {
       chin.closeAll?.();
       dismissLoadingUI?.();
@@ -90,9 +83,14 @@ function handleRoute() {
       void e;
     }
   } else if (section === "story") {
+    // Story/gameplay mode
+    document.body.classList.remove("profile-view-active");
+    showEl("#profile-screen", false); // Ensure profile is hidden
     showStoryScreen();
   } else {
-    setTopBarRight?.("storyboard");
+    // Storyboard mode (default)
+    document.body.classList.remove("profile-view-active");
+    hideEl("#profile-screen");
     showStoryboard();
     try {
       log?.("router.defaultedToStoryboard");
@@ -122,7 +120,7 @@ document.addEventListener(
           form.querySelectorAll('input[type="search"]').forEach((i) => {
             i.value = "";
           });
-          refreshAllLists?.();
+          _refreshAllLists?.();
         });
       }
     });
@@ -175,11 +173,6 @@ const SECTION_DEFINITIONS = {
     },
   },
 };
-
-/**
- * SIMPLIFIED: Creates a field for the profile page.
- * This now only handles the read/edit elements, not the labels.
- */
 function createFieldElements(
   id,
   readElement,
@@ -456,6 +449,9 @@ export async function renderProfilePage(type, id) {
   const isClone = params.get("clone") === "true";
 
   let entity;
+  let imageInput;
+  let actionButton;
+  let fileInput;
 
   if (isClone && window.ephemeralEntity) {
     entity = { ...window.ephemeralEntity, kind: type };
@@ -465,6 +461,7 @@ export async function renderProfilePage(type, id) {
   } else if (id === "new") {
     entity = { kind: type, type: type, sections: {} };
     isEditing = true;
+    id = "new"; // Ensure id is set to "new"
   } else {
     entity = await handleAsyncError(
       async () => {
@@ -590,9 +587,9 @@ export async function renderProfilePage(type, id) {
       const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
       const newPic = getPictureHTML
         ? getPictureHTML(
-            { ...entity, profilePictureUrl: safeVal },
-            { cover: true }
-          )
+          { ...entity, profilePictureUrl: safeVal },
+          { cover: true }
+        )
         : null;
       if (newPic) {
         const currentWrap = heroWrap.querySelector(".picture");
@@ -878,8 +875,7 @@ export async function renderProfilePage(type, id) {
   ];
   palettes.forEach((p) => {
     const option = paletteSelect.querySelector(
-      `option[value="${
-        p === "Signature Colour" ? "default" : p.toLowerCase()
+      `option[value="${p === "Signature Colour" ? "default" : p.toLowerCase()
       }"]`
     );
     if (option) {
@@ -1117,7 +1113,7 @@ export async function renderProfilePage(type, id) {
       if (isDeletable && confirm("Delete this item?")) {
         try {
           await entities.remove(type, entity.id);
-          await refreshAllLists?.();
+          await _refreshAllLists?.();
           router.navigate("#storyboard");
         } catch (error) {
           error("Delete failed:", error);
@@ -1134,4 +1130,76 @@ export async function renderProfilePage(type, id) {
 
   // Initialize the edit mode UI state (show/hide image controls)
   setEditMode(isEditing);
+}
+
+// ============================================================================
+// DRAWER & SELECTION LOGIC
+// ============================================================================
+
+export async function initViews(deps = {}) {
+  _refreshAllLists = deps.refreshAllLists;
+  _onSelectionChanged = deps.onSelectionChanged;
+
+  // Initialize Drawer
+  initDrawer();
+
+  // Bind drawer triggers
+  bindDrawerTrigger("#btn-select-ai", "character", "#ai-character-preview", "aiCharacter");
+  bindDrawerTrigger("#btn-select-user", "character", "#user-character-preview", "userCharacter");
+  bindDrawerTrigger("#btn-select-world", "world", "#world-preview", "world");
+
+  // Wire up action buttons
+  wireEntityActions();
+
+  log?.("views.initViews", "Views module initialized with dependencies");
+}
+
+function bindDrawerTrigger(buttonId, entityType, previewId, stateKey) {
+  const button = document.querySelector(buttonId);
+  if (!button) {
+    // error?.("views.bindDrawerTrigger", `Button element ${buttonId} not found`);
+    return;
+  }
+
+  button.addEventListener("click", () => {
+    openDrawer(entityType, async (entityId) => {
+      try {
+        const entity = await entities.get(entityType, entityId);
+        selectedEntities[stateKey] = entity; // Updates local state
+        renderEntityPreview(previewId, entity);
+
+        // Update button text to show selection
+        button.textContent = "Change Selection";
+
+        // Notify parent
+        if (_onSelectionChanged) {
+          _onSelectionChanged(selectedEntities);
+        }
+
+        log?.("views.handleDrawerSelection", `Selected ${stateKey}:`, entity.name);
+      } catch (err) {
+        error?.("views.handleDrawerSelection", `Failed to load entity ${entityId}:`, err);
+      }
+    });
+  });
+}
+
+function renderEntityPreview(previewId, entity) {
+  const previewEl = document.querySelector(previewId);
+  if (!previewEl) return;
+
+  previewEl.innerHTML = "";
+  if (entity) {
+    const pic = getPictureHTML(entity, { cover: false });
+    previewEl.appendChild(pic);
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "preview-name";
+    nameEl.textContent = entity.name;
+    previewEl.appendChild(nameEl);
+  }
+}
+
+function wireEntityActions() {
+  // Placeholder for any other entity actions if needed
 }
