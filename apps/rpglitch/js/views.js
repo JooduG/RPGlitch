@@ -40,9 +40,10 @@ function parseHash() {
 function handleRoute() {
   try { dismissLoadingUI?.(); } catch (e) { void e; }
   const [section, type, id] = parseHash();
+  const isType = (t) => t === "character" || t === "world";
   chin.closeAll?.();
 
-  if (section === "profile" && (type === "character" || type === "world") && id) {
+  if (section === "profile" && isType(type) && id) {
     if (!document.body.classList.contains("mode-gameplay") && !document.body.classList.contains("mode-storyboard")) {
       document.body.classList.add("mode-storyboard");
     }
@@ -62,7 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll('form[role="search"]').forEach((form) => {
     form.addEventListener("submit", (e) => e.preventDefault());
   });
-}, { once: true });
+}, { once: true }
+);
 
 export const router = { navigate(hash) { location.hash = hash; }, parseHash, handleRoute };
 
@@ -114,7 +116,7 @@ export function updateStoryboardSelection(newSelection) {
 }
 
 // --- RENDER MESSAGE (Chat Bubbles) ---
-export function renderMessage(container, role, text, characterName, type, context) {
+export function renderMessage(container, role, text, characterName, type) {
   const div = document.createElement("div");
   div.className = "story-message";
 
@@ -127,10 +129,9 @@ export function renderMessage(container, role, text, characterName, type, contex
     div.setAttribute("data-character-name", characterName);
   }
 
-  div.textContent = text; // Safe text insertion
+  div.textContent = text;
   container.appendChild(div);
 }
-
 
 // --- CONSTANTS ---
 const SECTION_DEFINITIONS = {
@@ -171,6 +172,7 @@ function openProfileModal(type, id) {
   renderProfilePage(type.toLowerCase(), id);
 }
 
+// --- AUTO-RESIZE HELPER ---
 function autoResize(el) {
   el.style.height = 'auto';
   el.style.height = el.scrollHeight + 'px';
@@ -491,8 +493,8 @@ function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) 
       selectedEntities[stateKey] = entity;
 
       const onEdit = () => {
-        const previewEl = document.querySelector(previewId);
-        openDrawerFor(entityType, stateKey, previewId, button, previewEl);
+        const container = button ? button.closest('.entity-card') : null;
+        openDrawerFor(entityType, stateKey, previewId, button, container);
       };
 
       renderEntityPreview(previewId, entity, button, entityType, onEdit);
