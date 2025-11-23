@@ -76,19 +76,20 @@ export function updatePortraits(aiCharacter, userCharacter) {
     const container = document.querySelector(id);
     if (!container) return;
 
-    const imgDiv = container.querySelector(".portrait-image");
-    const nameDiv = container.querySelector(".portrait-name");
-
-    if (imgDiv) {
-      imgDiv.innerHTML = "";
-      if (ent) {
-        const picture = getPictureHTML(ent, { cover: true });
-        if (picture) imgDiv.appendChild(picture);
-      }
-    }
-    if (nameDiv) nameDiv.textContent = ent?.name || label;
-  };
-
+            const imgDiv = container.querySelector(".portrait-image");
+            const nameDiv = container.querySelector(".portrait-name");
+    
+            if (imgDiv) {
+                imgDiv.innerHTML = "";
+                if (ent) {
+                    // Determine if the entity is a world to apply landscape aspect ratio
+                    const isWorld = ent.type === 'world';
+                    const picture = getPictureHTML(ent, { cover: true, landscape: isWorld });
+                    if (picture) imgDiv.appendChild(picture);
+                }
+            }
+            if (nameDiv) nameDiv.textContent = ent?.name || label;
+        };
   setPort("#gameplay-ai-portrait", aiCharacter, "AI");
   setPort("#gameplay-user-portrait", userCharacter, "You");
 }

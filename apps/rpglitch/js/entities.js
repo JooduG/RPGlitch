@@ -139,8 +139,14 @@ export function getPictureHTML(entity = {}, options = {}) {
   const contrast = getContrast(signature);
 
   const wrap = document.createElement("div");
-  // Pass landscape option to add class for CSS
-  wrap.className = `picture${cover ? " picture--cover" : ""}${landscape ? " picture--landscape" : ""}`;
+  // Dynamically add aspect ratio class based on the 'landscape' option
+  let aspectRatioClass = '';
+  if (landscape === true) {
+    aspectRatioClass = ' picture--landscape';
+  } else if (landscape === false) {
+    aspectRatioClass = ' picture--portrait';
+  }
+  wrap.className = `picture${cover ? " picture--cover" : ""}${aspectRatioClass}`;
   wrap.style.setProperty("--signature", signature);
   wrap.style.setProperty("--signature-contrast", contrast);
 
