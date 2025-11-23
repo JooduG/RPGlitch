@@ -79,7 +79,7 @@ async function handleBeginStory() {
         document.body.classList.add("mode-gameplay");
         applyPatch({ mode: "gameplay" });
 
-        // Portraits update logic is handled inside StoryController.generateOpening
+        // Set portraits before generating the opening scene
         updatePortraits(selectedAI, selectedUser);
         await StoryController.generateOpening(id);
     } catch (e) {
