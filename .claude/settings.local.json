@@ -56,7 +56,8 @@
       "Bash(sed:*)",
       "Bash(git checkout:*)",
       "Read(//c//**)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(markdownlint-cli2:*)"
     ],
     "deny": [],
     "ask": []

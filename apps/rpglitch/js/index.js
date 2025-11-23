@@ -157,7 +157,56 @@ App._getUIElements = function () {
 };
 
 App._defaultStoryboardTitle = async function () {
-  return 'Your story begins…';
+  const narratorSelect = document.getElementById('storyboard-card-narrator-select');
+  const userSelect = document.getElementById('storyboard-card-user-select');
+  const worldSelect = document.getElementById('storyboard-card-world-select');
+
+  const narratorId = narratorSelect?.value;
+  const userId = userSelect?.value;
+  const worldId = worldSelect?.value;
+
+  // If no selections, return default
+  if (!narratorId && !userId && !worldId) {
+    return 'Your story begins…';
+  }
+
+  let title = 'Once upon a time';
+
+  // Add narrator
+  if (narratorId) {
+    const { entities } = await import('./entities.js');
+    const characters = entities.list('character');
+    const narrator = characters.find(c => c.id === narratorId);
+    if (narrator) {
+      title += ` ${narrator.name}`;
+    }
+  }
+
+  // Add user
+  if (userId) {
+    const { entities } = await import('./entities.js');
+    const characters = entities.list('character');
+    const user = characters.find(c => c.id === userId);
+    if (user) {
+      if (narratorId) {
+        title += ` & ${user.name}`;
+      } else {
+        title += ` ${user.name}`;
+      }
+    }
+  }
+
+  // Add world
+  if (worldId) {
+    const { entities } = await import('./entities.js');
+    const worlds = entities.list('world');
+    const world = worlds.find(w => w.id === worldId);
+    if (world) {
+      title += ` in ${world.name}`;
+    }
+  }
+
+  return title;
 };
 
 export { App, applyPatch };

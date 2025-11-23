@@ -17,8 +17,8 @@ ImageGlitch provides a clean interface for generating images from text prompts u
 - **Left Panel:** `ImageGlitch-left-panel.txt`
   - Perchance engine logic
   - **Plugin Imports:**
-    * `ai-text-plugin` → Used for the three AI Personas (Scribe/Chaos/Transfigure)
-    * `remember-plugin` → Stores category lists and user preferences
+    - `ai-text-plugin` → Used for the three AI Personas (Scribe/Chaos/Transfigure)
+    - `remember-plugin` → Stores category lists and user preferences
   - Core setup and configuration
   - ⚠️ **Note:** Does **NOT** import `text-to-image-plugin` (uses Pollinations.ai API instead)
 
@@ -66,30 +66,34 @@ apps/imageglitch/
 ImageGlitch's image generation process consists of **four stages**:
 
 ### Stage 1: User Input
+
 User enters a simple prompt (e.g., "a knight")
 
 ### Stage 2: AI Prompt Refinement (Three Personas)
 
 **AI Scribe** (Refine) - "Holistic Prompt Architect"
-* Analyzes the base prompt and identifies gaps in creative categories
-* Intelligently fills gaps (artistic style, composition, lighting, color, mood, etc.)
-* Preserves the user's original subject/setting as the "master vision"
-* Injects baseline quality keywords (`masterpiece`, `8K`, `cinematic`)
-* Returns a refined, comma-separated prompt string
+
+- Analyzes the base prompt and identifies gaps in creative categories
+- Intelligently fills gaps (artistic style, composition, lighting, color, mood, etc.)
+- Preserves the user's original subject/setting as the "master vision"
+- Injects baseline quality keywords (`masterpiece`, `8K`, `cinematic`)
+- Returns a refined, comma-separated prompt string
 
 **AI Chaos** (Mutation) - "Mad Prompt Scientist"
-* Takes the prompt and adds creative **serendipity**
-* Randomly mutates at least one creative category (even if well-described)
-* Fills "lacking" categories with random keywords
-* Adds a random set of quality enhancers
-* Returns a mutated, divergent prompt
+
+- Takes the prompt and adds creative **serendipity**
+- Randomly mutates at least one creative category (even if well-described)
+- Fills "lacking" categories with random keywords
+- Adds a random set of quality enhancers
+- Returns a mutated, divergent prompt
 
 **AI Transfigure** (Modification) - "Prompt Modification Specialist"
-* Allows precise user-directed edits to the current prompt
-* Takes instructions like "make the car blue and add a spoiler"
-* Surgically modifies the prompt exactly as instructed
-* Converts negations to affirmative descriptions
-* Returns the modified prompt
+
+- Allows precise user-directed edits to the current prompt
+- Takes instructions like "make the car blue and add a spoiler"
+- Surgically modifies the prompt exactly as instructed
+- Converts negations to affirmative descriptions
+- Returns the modified prompt
 
 ### Stage 3: Backend Image Generation
 
@@ -97,9 +101,9 @@ User enters a simple prompt (e.g., "a knight")
 const BASE_IMAGE_URL = "https://image.pollinations.ai/prompt/";
 ```
 
-* Direct API call to **Pollinations.ai** (not Perchance's plugin)
-* Uses Stable Diffusion backend
-* Accepts custom Stable Diffusion parameters via `creativity` mapping
+- Direct API call to **Pollinations.ai** (not Perchance's plugin)
+- Uses Stable Diffusion backend
+- Accepts custom Stable Diffusion parameters via `creativity` mapping
 
 ### Stage 4: Creativity Mapping
 
@@ -113,15 +117,16 @@ const creativityMap = {
 };
 ```
 
-* **gScale** = Stable Diffusion guidance scale (1-20)
-* **aiTemp** = AI temperature for prompt refinement (0.1-1.9)
+- **gScale** = Stable Diffusion guidance scale (1-20)
+- **aiTemp** = AI temperature for prompt refinement (0.1-1.9)
 
 ### Category Lists (Stored in remember-plugin)
 
 ImageGlitch maintains extensive category lists for AI refinement:
-* `artisticStyles`, `composition`, `lighting`, `colorPalettes`
-* `mood`, `technicalDetails`, `additionalElements`
-* `aiCoreQuality`, `aiFlavorEnhancers`
+
+- `artisticStyles`, `composition`, `lighting`, `colorPalettes`
+- `mood`, `technicalDetails`, `additionalElements`
+- `aiCoreQuality`, `aiFlavorEnhancers`
 
 These lists are dynamically updated and stored in `remember-plugin` for persistence.
 
