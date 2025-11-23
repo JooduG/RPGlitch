@@ -17,66 +17,196 @@ main.container {
   @include foundation.custom-scrollbar;
 }
 
-/* --- MODAL OVERLAY (Backdrop) --- */
-#profile-screen {
+/* --- MODAL OVERLAY (Shared Placeholder) --- */
+%modal-overlay-shared {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 1000;
-
-  /* Frosted Glass Effect */
   background: rgb(0 0 0 / 60%);
   backdrop-filter: blur(10px);
-
-  /* Center the modal */
-  display: none;
+  display: grid;
   place-items: center;
   padding: 1rem;
-
-  /* Fallback padding */
 
   &[hidden] {
     display: none !important;
   }
+}
 
-  /* When active (controlled by JS classes or just display logic) */
-  body.profile-view-active & {
-    display: grid;
-  }
+.modal-overlay {
+  @extend %modal-overlay-shared;
+}
+
+#profile-screen {
+  @extend %modal-overlay-shared;
+}
+
+#story-options {
+  @extend %modal-overlay-shared;
 }
 
 /* --- MODAL CARD --- */
-.profile-layout {
+.profile-layout,
+.modal-content {
   width: 100%;
   max-width: 1100px;
-
-  /* BREATHING ROOM: Cap height to viewport minus margin */
-  height: auto;
-  min-height: calc(100vh - 4rem);
-
-  /* Solid background to hide content behind */
   background: #11191f;
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 16px;
   box-shadow: 0 50px 100px rgb(0 0 0 / 80%);
-
-  /* Grid Layout */
-  display: grid;
-  grid-template-columns: 40% 60%;
   overflow: hidden;
-
-  /* Clip rounded corners */
 }
 
-/* Left Column: Image (Cropped to Fit) */
+/* Profile Layout Specifics */
+.profile-layout {
+  height: auto;
+  min-height: calc(100vh - 4rem);
+  display: grid;
+  grid-template-columns: 40% 60%;
+}
+
+/* --- STORY OPTIONS / SETTINGS LAYOUT --- */
+.story-options-layout {
+  max-width: 950px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  height: 80vh;
+}
+
+.options-body-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  overflow: hidden;
+  height: 100%;
+}
+
+.options-col-left {
+  border-right: 1px solid var(--pico-muted-border-color);
+  padding-right: 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.options-col-right {
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.story-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  @include foundation.custom-scrollbar;
+}
+
+.story-item {
+  margin-bottom: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--pico-card-background-color);
+  border-radius: var(--pico-border-radius);
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--pico-primary);
+  }
+}
+
+#settings-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  @include foundation.custom-scrollbar;
+
+  label {
+    text-align: center;
+    display: block;
+    width: 100%;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--pico-h3-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+  }
+
+  textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 100px;
+  }
+}
+
+.muted-heading {
+  color: var(--pico-muted-color);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  padding-bottom: 0.5rem;
+  text-align: center;
+}
+
+.options-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--pico-muted-border-color);
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Mobile stack for Options */
+@include foundation.mobile {
+  .story-options-layout {
+    height: auto;
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+
+  .options-body-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: 2rem;
+    overflow: visible;
+  }
+
+  .options-col-left {
+    border-right: none;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    padding-right: 0;
+    padding-bottom: 1rem;
+    max-height: 300px;
+  }
+
+  .options-col-right {
+    padding-left: 0;
+  }
+}
+
 .profile-left {
   background: #000;
   position: relative;
   min-height: 300px;
 
-  /* Force the image container to fill the grid cell exactly */
   .hero-wrap {
     position: absolute;
     inset: 0;
@@ -89,23 +219,17 @@ main.container {
     width: 100%;
     height: 100%;
     object-fit: cover;
-
-    /* Crop image to fill space */
     display: block;
   }
 
-  /* Remove pseudo-elements that might add text overlay */
   &::before,
   &::after {
     display: none;
   }
 }
 
-/* Right Column: Content (Scrollable) */
 .profile-right {
   padding: 3rem;
-
-  /* INTERNAL SCROLL: Only the text area scrolls */
   overflow-y: auto;
   max-height: calc(100vh - 4rem);
 
@@ -118,8 +242,6 @@ main.container {
 }
 
 /* --- OVERRIDES --- */
-
-/* Kill the default Article background/shadow to fix "weird box" */
 article {
   background: transparent !important;
   box-shadow: none !important;
@@ -128,7 +250,6 @@ article {
   border: none !important;
 }
 
-/* Profile Header Styles */
 .profile-hero-overlay {
   position: absolute;
   bottom: 1rem;
@@ -148,7 +269,6 @@ article {
   }
 }
 
-/* Hide edit controls by default */
 [data-edit-field],
 .profile-hero-overlay {
   display: none;
@@ -158,7 +278,6 @@ article {
   display: block;
 }
 
-/* Edit Mode */
 .is-editing {
   .profile-left {
     pointer-events: auto;
@@ -180,7 +299,6 @@ article {
 /* =========================================
    TOP BAR
    ========================================= */
-
 .top-bar {
   display: flex;
   align-items: center;
@@ -200,11 +318,8 @@ article {
   transition: border-radius 0.25s ease;
 }
 
-/* Profile View override for Top Bar */
 body.profile-view-active .top-bar {
-  /* In modal mode, we usually hide the top bar or let it sit behind. 
-     If you want it visible, z-index handles it. 
-     Currently, modal z-index (1000) is > header (10), so it goes behind. */
+  /* Contextual styles */
 }
 
 .top-bar-right,
@@ -258,7 +373,6 @@ body.profile-view-active .top-bar {
   margin-bottom: 0.5rem;
 }
 
-/* Mobile Response */
 @include foundation.mobile {
   #profile-screen {
     padding: 0.5rem;

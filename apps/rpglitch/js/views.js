@@ -3,7 +3,7 @@ import { entities, getPictureHTML, getSignature, copyEntity } from "./entities.j
 import {
   escapeHtml,
   handleAsyncError, dismissLoadingUI,
-  chin, error, unlockNow, setTopBarRight
+  chin, error, setTopBarRight
 } from "./utils.js";
 import { isValidImageUrl, extractImageUrl } from "./validation.js";
 import { initDrawer, openDrawer } from "./drawer.js";
@@ -40,15 +40,14 @@ function parseHash() {
 function handleRoute() {
   try { dismissLoadingUI?.(); } catch (e) { void e; }
   const [section, type, id] = parseHash();
-  const isType = (t) => t === "character" || t === "world";
   chin.closeAll?.();
 
-  if (section === "profile" && isType(type) && id) {
+  if (section === "profile" && (type === "character" || type === "world") && id) {
     if (!document.body.classList.contains("mode-gameplay") && !document.body.classList.contains("mode-storyboard")) {
       document.body.classList.add("mode-storyboard");
     }
     renderProfilePage(type, id);
-    try { chin.closeAll?.(); dismissLoadingUI?.(); unlockNow?.(); } catch (e) { void e; }
+    try { chin.closeAll?.(); dismissLoadingUI?.(); } catch (e) { void e; }
   } else if (section === "story") {
     showStoryScreen();
   } else {
@@ -63,12 +62,77 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll('form[role="search"]').forEach((form) => {
     form.addEventListener("submit", (e) => e.preventDefault());
   });
-}, { once: true }
-);
+}, { once: true });
 
 export const router = { navigate(hash) { location.hash = hash; }, parseHash, handleRoute };
 
-// --- CONSTANTS (Restored) ---
+// --- SHARED UI HELPERS ---
+
+export function updatePortraits(aiCharacter, userCharacter) {
+  const setPort = (id, ent, label) => {
+    const container = document.querySelector(id);
+    if (!container) return;
+
+    const imgDiv = container.querySelector(".portrait-image");
+    const nameDiv = container.querySelector(".portrait-name");
+
+    if (imgDiv) {
+      imgDiv.innerHTML = "";
+      if (ent) {
+        const picture = getPictureHTML(ent, { cover: true });
+        if (picture) imgDiv.appendChild(picture);
+      }
+    }
+    if (nameDiv) nameDiv.textContent = ent?.name || label;
+  };
+
+  setPort("#gameplay-ai-portrait", aiCharacter, "AI");
+  setPort("#gameplay-user-portrait", userCharacter, "You");
+}
+
+export function updateStoryboardSelection(newSelection) {
+  const updateSlot = (key, entity, btnId, previewId, type) => {
+    if (entity) {
+      selectedEntities[key] = entity;
+      const btn = document.querySelector(btnId);
+
+      const onEdit = () => {
+        const container = btn ? btn.closest('.entity-card') : null;
+        openDrawerFor(type, key, previewId, btn, container);
+      };
+
+      renderEntityPreview(previewId, entity, btn, type, onEdit);
+      if (btn) btn.hidden = true;
+    }
+  };
+
+  updateSlot("aiCharacter", newSelection.aiCharacter, "#btn-select-ai", "#ai-character-preview", "character");
+  updateSlot("userCharacter", newSelection.userCharacter, "#btn-select-user", "#user-character-preview", "character");
+  updateSlot("world", newSelection.world, "#btn-select-world", "#world-preview", "world");
+
+  if (_onSelectionChanged) _onSelectionChanged(selectedEntities);
+}
+
+// --- RENDER MESSAGE (Chat Bubbles) ---
+export function renderMessage(container, role, text, characterName, type, context) {
+  const div = document.createElement("div");
+  div.className = "story-message";
+
+  // Map DB roles to CSS roles
+  const cssRole = role === "user" ? "director" : "narrator";
+  div.setAttribute("role", cssRole);
+  div.setAttribute("data-type", type || "IC");
+
+  if (characterName) {
+    div.setAttribute("data-character-name", characterName);
+  }
+
+  div.textContent = text; // Safe text insertion
+  container.appendChild(div);
+}
+
+
+// --- CONSTANTS ---
 const SECTION_DEFINITIONS = {
   forever: {
     label: "Forever",
@@ -107,7 +171,6 @@ function openProfileModal(type, id) {
   renderProfilePage(type.toLowerCase(), id);
 }
 
-// --- AUTO-RESIZE HELPER ---
 function autoResize(el) {
   el.style.height = 'auto';
   el.style.height = el.scrollHeight + 'px';
@@ -127,11 +190,9 @@ export async function renderProfilePage(type, id) {
   let entity;
 
   if (id === "new") {
-    // Clone Logic
     if (window.ephemeralEntity) {
       entity = { ...window.ephemeralEntity, kind: type };
       delete entity.id;
-      // window.ephemeralEntity = null; // Keep until saved?
     } else {
       entity = { kind: type, type: type, sections: {} };
     }
@@ -286,7 +347,7 @@ export async function renderProfilePage(type, id) {
     headerWrap.appendChild(descDisplay);
   }
 
-  // --- SECTIONS (Now using SECTION_DEFINITIONS) ---
+  // --- SECTIONS LOOP ---
   const createRow = (key, def) => {
     const div = document.createElement("div"); div.className = "field-row";
     const sublabel = def.sublabels[type] || "";
@@ -297,7 +358,7 @@ export async function renderProfilePage(type, id) {
             ${sublabel ? `<small class="muted">${sublabel}</small>` : ''}
         </div>
         <div class="field-input">
-            <div data-read class="profile-field-text-read">${entity[key] || ""}</div>
+            <div data-read class="profile-field-text-read">${escapeHtml(entity[key] || "")}</div>
         </div>`;
 
     if (isEditing) {
@@ -391,13 +452,17 @@ export async function renderProfilePage(type, id) {
   if (imageOverlay) imageOverlay.style.display = isEditing ? "flex" : "none";
 }
 
+// --- INITIALIZATION ---
+
 export async function initViews(deps = {}) {
   _refreshAllLists = deps.refreshAllLists;
   _onSelectionChanged = deps.onSelectionChanged;
   initDrawer();
+
   bindDrawerTrigger("#btn-select-ai", "character", "#ai-character-preview", "aiCharacter");
   bindDrawerTrigger("#btn-select-user", "character", "#user-character-preview", "userCharacter");
   bindDrawerTrigger("#btn-select-world", "world", "#world-preview", "world");
+
   bindPortraitClick("#gameplay-ai-portrait", "aiCharacter");
   bindPortraitClick("#gameplay-user-portrait", "userCharacter");
 }
@@ -406,6 +471,8 @@ function bindDrawerTrigger(buttonId, entityType, previewId, stateKey) {
   const button = document.querySelector(buttonId);
   if (!button) return;
   const cardContainer = button.closest('.entity-card');
+
+  // Standard click handler
   button.addEventListener("click", () => openDrawerFor(entityType, stateKey, previewId, button, cardContainer));
 }
 
@@ -422,7 +489,13 @@ function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) 
     try {
       const entity = await entities.get(entityType, entityId);
       selectedEntities[stateKey] = entity;
-      renderEntityPreview(previewId, entity, button, entityType);
+
+      const onEdit = () => {
+        const previewEl = document.querySelector(previewId);
+        openDrawerFor(entityType, stateKey, previewId, button, previewEl);
+      };
+
+      renderEntityPreview(previewId, entity, button, entityType, onEdit);
       button.hidden = true;
       if (_onSelectionChanged) _onSelectionChanged(selectedEntities);
     } catch (err) {
@@ -431,30 +504,40 @@ function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) 
   }, triggerElement);
 }
 
-function renderEntityPreview(previewId, entity, slotButton, fallbackType) {
+function renderEntityPreview(previewId, entity, slotButton, type, onEdit) {
   const previewEl = document.querySelector(previewId);
   if (!previewEl) return;
+
   if (entity) {
     previewEl.innerHTML = "";
     previewEl.className = "entity-preview card-filled";
     if (entity.signatureColour) previewEl.style.setProperty("--signature", `var(--signature-${entity.signatureColour})`);
+
     const media = document.createElement("div");
     media.className = "card-media";
     media.title = "View Profile";
     media.appendChild(getPictureHTML(entity, { cover: true }));
     media.addEventListener("click", (e) => {
       e.stopPropagation();
-      const type = (fallbackType || entity.type || "character").toLowerCase();
+      e.preventDefault();
       openProfileModal(type, entity.id);
     });
+
     const body = document.createElement("div");
     body.className = "card-body";
     body.title = "Change Selection";
     body.innerHTML = `<h4>${entity.name}</h4><p class="muted">${entity.description || ""}</p>`;
+
     body.addEventListener("click", (e) => {
       e.stopPropagation();
-      if (slotButton) slotButton.click();
+      e.preventDefault();
+      if (onEdit) {
+        onEdit();
+      } else if (slotButton) {
+        slotButton.click();
+      }
     });
+
     previewEl.appendChild(media);
     previewEl.appendChild(body);
     previewEl.removeAttribute("hidden");
@@ -462,7 +545,6 @@ function renderEntityPreview(previewId, entity, slotButton, fallbackType) {
     previewEl.style.pointerEvents = "auto";
   } else {
     previewEl.setAttribute("hidden", "");
+    if (slotButton) slotButton.hidden = false;
   }
 }
-
-export function renderMessage() { }

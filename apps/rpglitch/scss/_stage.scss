@@ -16,7 +16,7 @@
     --world-ambience-rgb: 17, 25, 31;
 
     background-color: #11191f;
-    background-image: radial-gradient(circle at 50% 30%, rgb(var(--world-ambience-rgb) 0.15) 0%, transparent 70%);
+    background-image: radial-gradient(circle at 50% 30%, rgb(var(--world-ambience-rgb) / 15%) 0%, transparent 70%);
     color: #fff;
     transition: all 0.6s ease;
 }
@@ -39,6 +39,8 @@
     width: 100%;
     opacity: 1;
     transition: opacity 0.3s ease;
+    position: relative;
+    z-index: 10;
 }
 
 .stage-content--gameplay {
@@ -95,6 +97,7 @@ body.mode-storyboard {
         width: 100%;
         display: flex;
         justify-content: center;
+        z-index: 50;
     }
 }
 
@@ -135,6 +138,8 @@ body.mode-gameplay {
     background: transparent !important;
     box-shadow: none !important;
     border: none !important;
+
+    /* IMPORTANT: No pointer-events: none here */
 }
 
 .world-card {
@@ -151,12 +156,15 @@ body.mode-gameplay {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
     transition: all 0.3s ease;
     color: rgb(255 255 255 / 50%);
     gap: 0.5rem;
     position: relative;
-    z-index: 1;
+
+    /* FIX: Force interactivity */
+    z-index: 20;
+    cursor: pointer;
+    pointer-events: auto !important;
 
     &:hover {
         background: rgb(255 255 255 / 6%);
@@ -185,11 +193,13 @@ body.mode-gameplay {
         margin-bottom: 1rem;
     }
 
-    .slot-icon svg {
+    .slot-icon svg,
+    .slot-icon span {
         width: 48px;
         height: 48px;
         opacity: 0.5;
         transition: all 0.3s;
+        display: block;
     }
 
     .slot-label {
@@ -202,6 +212,7 @@ body.mode-gameplay {
     aspect-ratio: 16/9;
 }
 
+/* PREVIEWS */
 .entity-preview.card-filled {
     position: relative;
     width: 100%;
@@ -213,7 +224,9 @@ body.mode-gameplay {
     display: flex;
     flex-direction: column;
     box-shadow: 0 15px 40px rgb(0 0 0 / 40%);
-    z-index: 10;
+
+    /* FIX: Force Interactivity */
+    z-index: 30;
     cursor: pointer;
     pointer-events: auto !important;
 
@@ -230,6 +243,7 @@ body.mode-gameplay {
         overflow: hidden;
         position: relative;
         background: #000;
+        pointer-events: auto;
 
         img,
         .picture {
@@ -247,6 +261,10 @@ body.mode-gameplay {
         flex-direction: column;
         gap: 0.25rem;
         border-top: 1px solid rgb(255 255 255 / 5%);
+
+        /* Ensure Body is Clickable */
+        cursor: pointer;
+        pointer-events: auto !important;
 
         h4 {
             margin: 0;
@@ -291,72 +309,72 @@ body.mode-gameplay {
     width: auto;
     align-items: stretch;
     box-shadow: 0 5px 15px rgb(0 0 0 / 30%);
-    overflow: visible;
     border-radius: 50px;
+    overflow: visible;
     background: transparent;
 
-    /* Allow buttons to set BG */
+    button {
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, color 0.2s;
+        padding: 1rem 1.5rem;
+        width: auto;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        pointer-events: auto;
+    }
 }
 
-/* Settings Cog (Gray) */
-.storyboard-actions button#btn-settings {
-    width: 60px;
-    margin: 0;
-    border: none;
-    box-shadow: none;
-
-    /* Neutral Gray to not compete */
+/* 1. Options Button (Left) */
+#btn-options {
     background: rgb(255 255 255 / 10%);
     color: #fff;
-    border-radius: 50px 0 0 50px;
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
     border-right: 1px solid rgb(0 0 0 / 20%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
 
     &:hover {
         background: rgb(255 255 255 / 20%);
     }
+}
 
-    /* Explicit Icon Size */
-    svg {
-        width: 24px;
-        height: 24px;
-        fill: currentcolor;
+/* 2. Shuffle Button (Middle) */
+#btn-shuffle {
+    background: rgb(255 255 255 / 10%);
+    color: #fff;
+    border-right: 1px solid rgb(0 0 0 / 20%);
+
+    &:hover {
+        background: rgb(255 255 255 / 20%);
     }
 }
 
-/* Begin Story (Green) */
-.storyboard-actions button#begin-story {
-    width: auto;
-    margin: 0;
+/* 3. Begin Story (Right) */
+#begin-story {
     padding: 1rem 2.5rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-
-    /* GREEN COLOR */
     background: #2d9d78;
+
+    /* Green */
     color: #fff;
-    border: none;
-    box-shadow: none;
-    border-radius: 0 50px 50px 0;
-    transition: background 0.2s;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    width: auto;
 
     &:hover {
         background: #268e6c;
-
-        /* Darker Green */
         box-shadow: 0 0 15px rgb(45 157 120 / 40%);
     }
 
-    /* Disabled State (Gray) */
     &:disabled {
         opacity: 1;
         background: #4a5568;
-
-        /* Slate Gray */
         color: #a0aec0;
         cursor: not-allowed;
         box-shadow: none;
@@ -364,7 +382,7 @@ body.mode-gameplay {
 }
 
 /* =========================================
-   GAMEPLAY
+   GAMEPLAY (Restored)
    ========================================= */
 .character-portrait {
     width: 100%;
@@ -465,7 +483,9 @@ body.mode-gameplay {
     }
 }
 
-/* Drawer */
+/* =========================================
+   DRAWER (Restored)
+   ========================================= */
 .storyboard-drawer {
     position: fixed;
     background: #1a222a;
@@ -489,20 +509,20 @@ body.mode-gameplay {
 
     &.drop-up {
         transform: translateY(-10px);
-    }
 
-    &.drop-up.is-open {
-        transform: translateY(0);
+        &.is-open {
+            transform: translateY(0);
+        }
     }
 
     &.centered-modal {
         opacity: 0;
         transform: translate(-50%, -40%) scale(0.95);
-    }
 
-    &.centered-modal.is-open {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        &.is-open {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
     }
 
     .drawer-handle {
@@ -627,7 +647,7 @@ body.mode-gameplay {
     }
 }
 
-@media (width <= 768px) {
+@media (width <=768px) {
     body.mode-gameplay .universal-stage {
         grid-template-columns: 1fr;
         grid-template-rows: 60px 1fr;

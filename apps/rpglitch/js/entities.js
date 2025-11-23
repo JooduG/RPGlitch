@@ -1,8 +1,9 @@
-import { db } from "./db.js"; // <-- Import our database
-import { log, error } from "./utils.js";
+// apps/rpglitch/js/entities.js
+import { db } from "./db.js";
+import { error } from "./utils.js";
 import { sanitizeHtml } from "./validation.js";
 
-// --- PREMADE CONTENT (Unchanged) ---
+// --- PREMADE CONTENT ---
 const premade = {
   stories: [],
   characters: [
@@ -15,8 +16,7 @@ const premade = {
       sections: {
         forever: "Bound to the Aether Core, their blade hums with starlight.",
         past: "Once a street tinkerer who reverse-engineered a fallen drone.",
-        present:
-          "Hired to protect caravans across the skybridges of Neo Arcadia.",
+        present: "Hired to protect caravans across the skybridges of Neo Arcadia.",
         future: "Fated to sever the Source that powers the city itself.",
       },
     },
@@ -90,19 +90,9 @@ const premade = {
   ],
 };
 
-export function getPremadeItems(key) {
-  const bank = premade;
-  const list = bank[key] || [];
-  return Array.isArray(list) ? list : [];
-}
-
-const storeMap = {
-  character: "characters",
-  world: "worlds",
-};
 const STORAGE_VERSION = 1;
 
-// --- UTILITY FUNCTIONS (Unchanged) ---
+// --- UTILITY FUNCTIONS ---
 
 function getDeterministicColor(seed) {
   let hash = 0;
@@ -117,10 +107,7 @@ function getContrast(color) {
   if (hex && (hex.length === 3 || hex.length === 6)) {
     const full =
       hex.length === 3
-        ? hex
-          .split("")
-          .map((c) => c + c)
-          .join("")
+        ? hex.split("").map((c) => c + c).join("")
         : hex;
     const num = parseInt(full, 16);
     const r = (num >> 16) & 255;
@@ -132,44 +119,22 @@ function getContrast(color) {
   return "#000";
 }
 
-/**
- * Retrieves the signature color for an entity.
- *
- * The fallback chain is:
- * 1. Returns CSS variable `--signature-{color}` if `entity.signatureColour` is defined and not 'default'
- * 2. Generates a deterministic color based on entity name and tags as final fallback
- *
- * @param {Object} entity - The entity object (character, world, or story)
- * @returns {string} A CSS color value (CSS variable reference, hex code, or HSL color)
- */
-function getSignature(entity = {}) {
-  if (!entity) {
-    return getDeterministicColor("");
-  }
-
-  // 1. Modern signature color property
+export function getSignature(entity = {}) {
+  if (!entity) return getDeterministicColor("");
   if (entity.signatureColour && entity.signatureColour !== "default") {
     return `var(--signature-${entity.signatureColour})`;
   }
-
-  // 2. Fallback: Build seed from name and tags, filtering out empty values
-  const seed = [entity.name || "", ...(entity.tags || [])]
-    .filter(Boolean)
-    .join(",");
-
+  const seed = [entity.name || "", ...(entity.tags || [])].filter(Boolean).join(",");
   return getDeterministicColor(seed || entity.id || entity.type || "");
 }
 
 export function getPictureHTML(entity = {}, options = {}) {
   const { cover, neutralPlaceholder = false } = options;
   const title = entity.name || "Empty";
-  // Use 'type' directly, no 'kind' fallback
   const type = (entity.type || "default").toLowerCase();
-  const src =
-    typeof entity.profilePictureUrl === "string" &&
-      entity.profilePictureUrl.trim()
-      ? entity.profilePictureUrl.trim()
-      : "";
+  const src = typeof entity.profilePictureUrl === "string" && entity.profilePictureUrl.trim()
+    ? entity.profilePictureUrl.trim()
+    : "";
   const signature = getSignature(entity);
   const contrast = getContrast(signature);
 
@@ -180,7 +145,7 @@ export function getPictureHTML(entity = {}, options = {}) {
 
   if (src) {
     const img = document.createElement("img");
-    img.alt = `${type} image for ${title}`; // Use 'type'
+    img.alt = `${type} image for ${title}`;
     img.src = src;
     img.loading = "lazy";
     img.decoding = "async";
@@ -191,171 +156,115 @@ export function getPictureHTML(entity = {}, options = {}) {
 
   const ph = document.createElement("div");
   ph.className = "placeholder-image";
-  const useNeutral = !!neutralPlaceholder;
-  if (!useNeutral) {
+  if (!neutralPlaceholder) {
     ph.style.backgroundColor = "var(--signature)";
     ph.style.color = "var(--signature-contrast)";
   }
 
-  // Use templates for placeholder icons - simple lookup with fallback
   const iconTemplateId = `tpl-placeholder-icon-${type}`;
-  const iconTemplate =
-    document.querySelector(`#${iconTemplateId}`) ||
-    document.querySelector("#tpl-placeholder-icon-default");
+  const iconTemplate = document.querySelector(`#${iconTemplateId}`) || document.querySelector("#tpl-placeholder-icon-default");
 
   if (iconTemplate?.content) {
-    const clonedIcon = iconTemplate.content.cloneNode(true);
-    ph.appendChild(clonedIcon);
-  } else {
-    log(`getPictureHTML: No icon template found for ${type} or default.`);
+    ph.appendChild(iconTemplate.content.cloneNode(true));
   }
 
   ph.setAttribute("role", "img");
-  ph.setAttribute("aria-label", `${type} placeholder for ${title}`); // Use 'type'
+  ph.setAttribute("aria-label", `${type} placeholder for ${title}`);
   wrap.appendChild(ph);
   return wrap;
 }
 
-// --- NEW: Data Normalization (pulled from old 'normalize') ---
-// This prepares data to be saved to the database.
 function normalize(base = {}) {
-  const nameOrTitle = sanitizeHtml(base.name || "").trim();
-  const summaryOrDesc = sanitizeHtml(base.description || "").trim();
-  const profilePictureUrl = sanitizeHtml(base.profilePictureUrl || "").trim();
-  const signatureColour = sanitizeHtml(
-    base.signatureColour || "default"
-  ).trim();
-  const forever = sanitizeHtml(base.forever || "").trim();
-  const past = sanitizeHtml(base.past || "").trim();
-  const present = sanitizeHtml(base.present || "").trim();
-  const future = sanitizeHtml(base.future || "").trim();
-
-  const rawTags = Array.isArray(base.tags)
-    ? base.tags
-    : base.tags
-      ? String(base.tags).split(",")
-      : [];
-  const safeTags = rawTags
+  const safeTags = (Array.isArray(base.tags) ? base.tags : (base.tags ? String(base.tags).split(",") : []))
     .map((s) => sanitizeHtml(String(s).trim()))
     .filter(Boolean);
 
   return {
-    name: nameOrTitle,
-    description: summaryOrDesc,
-    profilePictureUrl: profilePictureUrl,
-    signatureColour: signatureColour,
-    forever: forever,
-    past: past,
-    present: present,
-    future: future,
+    name: sanitizeHtml(base.name || "").trim(),
+    description: sanitizeHtml(base.description || "").trim(),
+    profilePictureUrl: sanitizeHtml(base.profilePictureUrl || "").trim(),
+    signatureColour: sanitizeHtml(base.signatureColour || "default").trim(),
+    forever: sanitizeHtml(base.forever || "").trim(),
+    past: sanitizeHtml(base.past || "").trim(),
+    present: sanitizeHtml(base.present || "").trim(),
+    future: sanitizeHtml(base.future || "").trim(),
     tags: safeTags,
   };
 }
 
-// --- NEW: Format Premade Entities ---
-// This makes premade items look like items from the database.
-export function formatPremade(entity, type) {
+// Format Premade Entities for Database Insertion
+function formatPremade(entity, type) {
   const flattenedEntity = {
     ...entity,
-    ...(entity.sections || {}), // Flatten sections into top-level properties
+    ...(entity.sections || {}),
   };
-  delete flattenedEntity.sections; // Remove the original sections object
+  delete flattenedEntity.sections;
 
   return {
     ...flattenedEntity,
-    type: type, // Ensure 'type' is set
-    isPremade: true,
-    isCustom: 0, // 0 = not custom (premade)
+    type: type.toLowerCase(),
+    isPremade: 1,
+    isCustom: 0,
     version: STORAGE_VERSION,
-    ...normalize(flattenedEntity), // Ensure premades are also normalized
-    updatedAt: 0, // Give a fake timestamp
+    ...normalize(flattenedEntity),
+    updatedAt: 0,
   };
 }
 
-// --- REWRITTEN: Entity CRUD Functions (now async) ---
+// --- SEEDER ---
+export async function seedPremades() {
+  console.log("[RPGlitch] Seeding premade content...");
+  try {
+    const chars = premade.characters.map(c => formatPremade(c, "character"));
+    const worlds = premade.worlds.map(w => formatPremade(w, "world"));
+    const stories = premade.stories.map(s => formatPremade(s, "story"));
+
+    await db.entities.bulkPut([...chars, ...worlds, ...stories]);
+    console.log(`[RPGlitch] Seeded ${chars.length} characters, ${worlds.length} worlds.`);
+  } catch (err) {
+    error("Failed to seed premades:", err);
+  }
+}
+
+// --- CRUD ---
 
 export const entities = {
-  /**
-   * Lists all entities of a given type, merging premade and custom.
-   * @param {string} type - 'character' or 'world'
-   * @returns {Promise<Array>} A promise that resolves to the merged list.
-   */
   async list(type) {
-    const key = storeMap[type]; // 'characters' or 'worlds'
-    if (!key) return [];
-
-    // 1. Get premade items and format them
-    const premadeList = (getPremadeItems(key) || []).map((e) =>
-      formatPremade(e, type)
-    );
-    let customList = [];
     try {
-      // 2. Query using the compound index [type+isCustom]
-      customList = await db.entities
-        .where("[type+isCustom]")
-        .equals([type, 1]) // 1 = custom
-        .toArray();
+      const items = await db.entities.where("type").equals(type).toArray();
+      return items.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
     } catch (err) {
-      error("Error fetching custom entities:", err);
-      return premadeList; // Return premade if DB fails
+      error(`Error listing ${type}:`, err);
+      return [];
     }
-
-    // 3. Merge and sort.
-    const allItems = premadeList.concat(customList);
-    return allItems.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   },
 
-  /**
-   * Gets a single entity by its ID.
-   * @param {string} type - 'character' or 'world'
-   * @param {string} id - The ID of the entity.
-   * @returns {Promise<Object|null>} A promise resolving to the entity or null.
-   */
   async get(type, id) {
     try {
-      // 1. Check premade items first
-      const key = storeMap[type];
-      const premadeItem = (getPremadeItems(key) || []).find((e) => e.id === id);
-      if (premadeItem) {
-        return formatPremade(premadeItem, type);
-      }
-
-      // 2. If not premade, get from the database
       const item = await db.entities.get(id);
-
-      // 3. Ensure it's the correct type before returning
-      return item && item.type === type ? item : null;
+      return item && item.type === type.toLowerCase() ? item : null;
     } catch (err) {
       error(`Failed to get ${type} with id ${id}:`, err);
       return null;
     }
   },
 
-  /**
-   * Creates or updates an entity in the database.
-   * @param {string} type - 'character' or 'world'
-   * @param {Object} entity - The entity data to save.
-   * @returns {Promise<Object>} A promise resolving to the saved entity.
-   */
   async upsert(type, entity) {
     try {
       const id = entity.id || crypto?.randomUUID?.() || `${type}-${Date.now()}`;
-
-      // Get the existing item (if it exists) to merge with
       const base = (await db.entities.get(id)) || {};
 
       const saved = {
         ...base,
-        ...normalize({ ...base, ...entity }), // Merge and normalize
+        ...normalize({ ...base, ...entity }),
         id: id,
-        type: type, // Ensure 'type' is set
-        isCustom: 1, // 1 = custom
-        isPremade: false,
+        type: type.toLowerCase(), // Force lowercase
+        isCustom: 1,
+        isPremade: 0,
         version: STORAGE_VERSION,
-        updatedAt: Date.now(), // Set the updated timestamp
+        updatedAt: Date.now(),
       };
 
-      // Dexie's 'put' is a perfect "upsert" command
       await db.entities.put(saved);
       return saved;
     } catch (err) {
@@ -364,49 +273,25 @@ export const entities = {
     }
   },
 
-  /**
-   * Updates an existing entity. (This is now just an alias for upsert).
-   * @param {string} type - 'character' or 'world'
-   * @param {string} id - The ID of the entity to update.
-   * @param {Object} entity - The new data.
-   * @returns {Promise<Object>} A promise resolving to the updated entity.
-   */
-  async update(type, id, entity) {
-    // With Dexie, update is the same as upsert, but we ensure the ID is set.
-    return this.upsert(type, { ...entity, id: id });
-  },
-
-  /**
-   * Removes an entity from the database.
-   * @param {string} type - 'character' or 'world'
-   * @param {string} id - The ID of the entity to remove.
-   * @returns {Promise<void>}
-   */
   async remove(type, id) {
     try {
-      // We only remove custom items.
       const item = await db.entities.get(id);
-      if (item && item.type === type && item.isCustom === 1) {
+      if (item && item.type === type.toLowerCase() && item.isCustom === 1) {
         return db.entities.delete(id);
+      }
+      if (item && item.isPremade) {
+        throw new Error("Cannot delete premade content.");
       }
     } catch (err) {
       error(`Failed to delete ${type}:`, err);
-      throw new Error(`Could not delete ${type}. Please try again.`);
+      throw err;
     }
   },
 
-  /**
-   * Creates a deep copy of an entity, ready for editing.
-   * @param {string} type - 'character' or 'world'
-   * @param {string} id - The ID of the entity to copy.
-   * @returns {Promise<Object|null>} A promise resolving to the copy or null.
-   */
   async copy(type, id) {
     try {
-      const item = await this.get(type, id);
+      const item = await db.entities.get(id);
       if (!item) return null;
-
-      // Return a deep copy, relying on the already flattened structure from get()
       return { ...item };
     } catch (err) {
       error(`Failed to copy ${type}:`, err);
@@ -415,34 +300,14 @@ export const entities = {
   },
 };
 
-// Export getSignature for testing purposes
-export { getSignature };
-
-/**
- * Creates an async copy of an entity.
- * @param {string} type - 'character' or 'world'
- * @param {string} id - The ID of the entity to copy.
- * @returns {Promise<Object|null>} A promise resolving to the new entity or null.
- */
 export async function copyEntity(type, id) {
-  log(`Attempting to copy entity of type ${type} with id ${id}`);
-
-  // 1. Get the entity asynchronously
   const entityToCopy = await entities.get(type, id);
-  if (!entityToCopy) {
-    error(`Entity with type ${type} and id ${id} not found.`);
-    return null;
-  }
+  if (!entityToCopy) return null;
 
-  // 2. Create the new entity object
-  const newEntity = {
-    ...entityToCopy,
-    sections: { ...entityToCopy.sections }, // Deep copy sections
-  };
-
-  // 3. Remove ID (so upsert creates a new one) and mark as custom
+  const newEntity = { ...entityToCopy };
   delete newEntity.id;
-  newEntity.isPremade = false;
+  newEntity.isPremade = 0;
+  newEntity.isCustom = 1;
   newEntity.name = `${newEntity.name || "Untitled"} (Clone)`;
 
   return newEntity;
