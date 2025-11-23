@@ -2,6 +2,7 @@
 import { state, applyPatch } from "./store.js";
 import { entities } from "./entities.js";
 import { StoryController } from "./story-controller.js";
+import { updatePortraits } from "./views.js";
 import { error } from "./utils.js";
 
 function updateWorldAmbience(worldEntity) {
@@ -79,6 +80,7 @@ async function handleBeginStory() {
         applyPatch({ mode: "gameplay" });
 
         // Portraits update logic is handled inside StoryController.generateOpening
+        updatePortraits(selectedAI, selectedUser);
         await StoryController.generateOpening(id);
     } catch (e) {
         error("Begin Story Failed", e);
@@ -147,15 +149,13 @@ export function initStoryboardStage(views) {
     });
 
     // 1. Title Logic (Manual Edit & Double Click)
-    if (titleStoryboard && titleGameplay) {
+    if (titleStoryboard) {
         titleStoryboard.setAttribute("contenteditable", "true");
-        titleGameplay.setAttribute("contenteditable", "true");
         titleStoryboard.title = "Double-click to re-roll title";
-        titleGameplay.title = "Double-click to re-roll title";
 
         const handleInput = (e) => {
             const val = e.target.textContent.trim();
-            (e.target === titleStoryboard ? titleGameplay : titleStoryboard).textContent = val;
+            if (titleGameplay) titleGameplay.textContent = val;
             applyPatch({ isCustomTitle: true, storyTitle: val });
         };
 
@@ -164,16 +164,13 @@ export function initStoryboardStage(views) {
             const newTitle = generateDynamicTitle(selectedAI, selectedUser, selectedWorld);
 
             titleStoryboard.textContent = newTitle;
-            titleGameplay.textContent = newTitle;
+            if (titleGameplay) titleGameplay.textContent = newTitle;
 
             applyPatch({ isCustomTitle: false, storyTitle: newTitle });
         };
 
         titleStoryboard.addEventListener("input", handleInput);
-        titleGameplay.addEventListener("input", handleInput);
-
         titleStoryboard.addEventListener("dblclick", handleReset);
-        titleGameplay.addEventListener("dblclick", handleReset);
     }
 
     // 2. Begin Story Button
