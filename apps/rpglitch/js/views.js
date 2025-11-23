@@ -1,9 +1,9 @@
 // apps/rpglitch/js/views.js
 import { entities, getPictureHTML, getSignature, copyEntity } from "./entities.js";
 import {
-  hideEl, showEl, getHashQuery, navigateBackOrReturnDefault, escapeHtml,
-  replaceEventHandler, handleAsyncError, goBackWithFallback, dismissLoadingUI,
-  chin, log, error, unlockNow, setTopBarRight
+  escapeHtml,
+  handleAsyncError, dismissLoadingUI,
+  chin, error, unlockNow, setTopBarRight
 } from "./utils.js";
 import { isValidImageUrl, extractImageUrl } from "./validation.js";
 import { initDrawer, openDrawer } from "./drawer.js";
@@ -391,7 +391,6 @@ export async function renderProfilePage(type, id) {
   if (imageOverlay) imageOverlay.style.display = isEditing ? "flex" : "none";
 }
 
-// ... (Selection Logic Preserved) ...
 export async function initViews(deps = {}) {
   _refreshAllLists = deps.refreshAllLists;
   _onSelectionChanged = deps.onSelectionChanged;

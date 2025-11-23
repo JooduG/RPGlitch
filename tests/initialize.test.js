@@ -103,6 +103,14 @@ describe('waitForPlugins', () => {
 
   afterEach(() => {
     globalThis.__TEST__ = true;
+    // Clean up plugin properties to ensure test isolation
+    if (typeof global.window !== 'undefined') {
+      delete global.window.pluginAi;
+      delete global.window.pluginSuperFetch;
+      delete global.window.pluginTextToImage;
+      delete global.window.pluginRemember;
+      delete global.window.pluginUpload;
+    }
   });
 
   test('handles nested paths like pluginAi.generateStream', async () => {
