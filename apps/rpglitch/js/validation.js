@@ -5,7 +5,7 @@
  * @module validation
  */
 
-import { log } from "./utils.js";
+import { log, error } from "./utils.js";
 
 /**
  * Valid image file extensions.
@@ -69,13 +69,6 @@ export const SIGNATURE_COLORS = {
  * @param {string} urlString - URL to validate
  * @param {boolean} [allowLog=false] - Enable console logging for debugging
  * @returns {boolean} True if valid image URL
- *
- * @example
- * isValidImageUrl('https://example.com/image.jpg') // true
- * isValidImageUrl('data:image/png;base64,...') // true
- * isValidImageUrl('blob:http://localhost/...') // true
- * isValidImageUrl('ftp://example.com/image.jpg') // false (invalid protocol)
- * isValidImageUrl('https://example.com/doc.pdf') // false (invalid extension)
  */
 export function isValidImageUrl(urlString, allowLog = false) {
   // Type and length validation
@@ -137,13 +130,6 @@ export function isValidImageUrl(urlString, allowLog = false) {
  *
  * @param {*} result - Plugin response (object or string)
  * @returns {string|undefined} Extracted URL or undefined if not found
- *
- * @example
- * extractImageUrl({ imageUrl: 'https://...' }) // 'https://...'
- * extractImageUrl({ dataUrl: 'data:image/...' }) // 'data:image/...'
- * extractImageUrl({ url: 'blob:...' }) // 'blob:...'
- * extractImageUrl({ imageId: '123', fileExtension: 'jpg' }) // 'https://img.perchance.org/123.jpg'
- * extractImageUrl('https://...') // 'https://...' (legacy)
  */
 export function extractImageUrl(result) {
   let url;
@@ -161,7 +147,6 @@ export function extractImageUrl(result) {
     url = String(result.url);
   }
   // Format 4: Legacy/Alternative text-to-image (imageId + fileExtension)
-  // Restored to support plugin responses seen in production
   else if (result?.imageId && result?.fileExtension) {
     url = `https://img.perchance.org/${result.imageId}.${result.fileExtension}`;
   }
@@ -181,28 +166,29 @@ export function extractImageUrl(result) {
 
 /**
  * Sanitizes HTML content using DOMPurify.
- *
- * Removes potentially dangerous HTML/JavaScript:
- * - Script tags and event handlers
- * - Dangerous attributes (onclick, onerror, etc.)
- * - JavaScript: protocol links
- * - Other XSS vectors
+ * * 🔴 SECURITY CRITICAL: This function Fails Closed.
+ * If DOMPurify is not available, it throws an error rather than
+ * returning potentially unsafe content.
  *
  * @param {string} html - HTML to sanitize
  * @returns {string} Sanitized HTML safe for innerHTML
- *
- * @example
- * sanitizeHtml('<p>Hello</p>') // '<p>Hello</p>'
- * sanitizeHtml('<script>alert("XSS")</script>') // ''
- * sanitizeHtml('<img src=x onerror=alert(1)>') // '<img src="x">'
+ * @throws {Error} If DOMPurify is missing
  */
 export function sanitizeHtml(html) {
   const value = typeof html === "string" ? html : String(html ?? "");
+
+  // ZERO TRUST: We do not allow execution without the sanitizer.
+  if (typeof window === "undefined" || !window.DOMPurify) {
+    const msg = "Security Error: DOMPurify not loaded. Cannot sanitize content.";
+    error(msg);
+    throw new Error(msg);
+  }
+
   try {
-    const Purify = typeof window !== "undefined" ? window.DOMPurify : undefined;
-    return Purify ? Purify.sanitize(value) : value;
-  } catch {
-    return value;
+    return window.DOMPurify.sanitize(value);
+  } catch (err) {
+    error("Sanitization failed:", err);
+    return ""; // Fail safe to empty string on processing error
   }
 }
 
@@ -211,10 +197,6 @@ export function sanitizeHtml(html) {
  *
  * @param {string} colorKey - Color key (pink, emerald, cyan, orange, purple, default)
  * @returns {string} Valid hex color code
- *
- * @example
- * getSignatureColor('pink') // '#ec4899'
- * getSignatureColor('invalid') // '#777' (default)
  */
 export function getSignatureColor(colorKey) {
   return SIGNATURE_COLORS[colorKey] || SIGNATURE_COLORS.default;
@@ -223,17 +205,8 @@ export function getSignatureColor(colorKey) {
 /**
  * Calculates contrast color (black or white) for a given background color.
  *
- * Uses luminance calculation with YIQ coefficients (common approximation).
- * Handles both 6-digit (#rrggbb) and 3-digit (#rgb) hex formats.
- *
  * @param {string} hexColor - Hex color code (e.g., '#ec4899' or '#f00')
  * @returns {string} '#000' for light backgrounds, '#fff' for dark backgrounds
- *
- * @example
- * getContrastColor('#ec4899') // '#fff' (pink is dark enough)
- * getContrastColor('#10b981') // '#000' (emerald is too light)
- * getContrastColor('#fff') // '#000' (white background needs black text)
- * getContrastColor('invalid') // '#000' (fallback for invalid input)
  */
 export function getContrastColor(hexColor) {
   // Input validation

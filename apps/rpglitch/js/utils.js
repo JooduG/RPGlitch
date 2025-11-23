@@ -9,8 +9,7 @@ import { SIGNATURE_COLORS } from "./validation.js";
 // Re-export SIGNATURE_COLORS as BASE_COLOUR_MAP for backward compatibility
 export const BASE_COLOUR_MAP = SIGNATURE_COLORS;
 
-// UI Timing Constants
-export const AUTO_UNLOCK_DELAYS_MS = [0, 50, 200];
+// Removed: AUTO_UNLOCK_DELAYS_MS (Watchdog relic)
 
 export function generateUUID() {
   let d = new Date().getTime();
@@ -139,7 +138,7 @@ export function showEl(el, doc = document) {
 
 /**
  * Cleanly closes the loading modal. 
- * Replaces the aggressive "watchdog" logic with standard Dialog API usage.
+ * Relies on the standard Dialog API usage.
  */
 export function dismissLoadingUI() {
   const modal = document.querySelector("#loading-modal");

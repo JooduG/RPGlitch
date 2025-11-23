@@ -1,136 +1,12 @@
 // apps/rpglitch/js/index.js
-import { seedPremades, entities } from "./entities.js";
-import { initViews, updatePortraits, updateStoryboardSelection } from "./views.js";
+import { seedPremades } from "./entities.js";
+import { initViews } from "./views.js";
 import { db } from "./db.js";
 import { log, error } from "./utils.js";
 import { state, applyPatch } from "./store.js";
 import { StoryController } from "./story-controller.js";
 import { StoryOptionsController } from "./story-options.js";
-
-function updateWorldAmbience(worldEntity) {
-  if (!worldEntity || !worldEntity.signatureColour) return;
-  const colorMap = {
-    pink: "236, 72, 153", emerald: "16, 185, 129", cyan: "6, 182, 212",
-    orange: "249, 115, 22", purple: "168, 85, 247", default: "255, 255, 255"
-  };
-  const rgb = colorMap[worldEntity.signatureColour] || colorMap.default;
-  document.documentElement.style.setProperty('--world-ambience-rgb', rgb);
-}
-
-function generateDynamicTitle(ai, user, world) {
-  // Helper to pick random variation
-  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-  const prefixes = [
-    "The Story of",
-    "The Adventures of",
-    "The Tale of",
-    "The Legend of",
-    "The Saga of",
-    "Chronicles of",
-    "The Journey of"
-  ];
-
-  // REORDERED: AI first, then User (matches Storyboard order: AI -> User)
-  // This logic was explicitly requested to be preserved/ensured
-  const chars = [ai, user].filter(Boolean);
-  const hasWorld = !!world;
-  const totalChars = chars.length;
-
-  // 1. Select Prefix
-  const prefix = pick(prefixes);
-
-  // 2. Build Content String based on selection
-  let content = "";
-
-  // Case: 3 Entities (2 Chars + World) -> "The Story of Char & Char in World"
-  if (totalChars === 2 && hasWorld) {
-    content = `${chars[0].name} & ${chars[1].name} in ${world.name}`;
-  }
-  // Case: 2 Characters -> "The Story of Char & Char"
-  else if (totalChars === 2 && !hasWorld) {
-    content = `${chars[0].name} & ${chars[1].name}`;
-  }
-  // Case: 1 Character + 1 World -> "The Story of Char in World"
-  else if (totalChars === 1 && hasWorld) {
-    content = `${chars[0].name} in ${world.name}`;
-  }
-  // Case: 1 Entity (Character only) -> "The Story of Char"
-  else if (totalChars === 1 && !hasWorld) {
-    content = chars[0].name;
-  }
-  // Case: 1 Entity (World only) -> "The Story of World"
-  else if (totalChars === 0 && hasWorld) {
-    // Special phrasing for just a world usually sounds better
-    const worldPrefixes = ["Adventures in", "Tales from", "The World of", "Journey to"];
-    return `${pick(worldPrefixes)} ${world.name}`;
-  }
-  else {
-    return "My New Story";
-  }
-
-  // 3. Combine
-  return `${prefix} ${content}`;
-}
-
-// --- UI Logic Handlers ---
-
-async function handleBeginStory() {
-  const { selectedAI, selectedUser, selectedWorld, storyTitle } = state;
-  if (!selectedAI || !selectedUser || !selectedWorld) return alert("Please select all entities.");
-
-  try {
-    const id = await StoryController.createFromSelection({
-      storyTitle,
-      aiCharacterId: selectedAI.id,
-      userCharacterId: selectedUser.id,
-      worldId: selectedWorld.id
-    });
-
-    document.body.classList.remove("mode-storyboard");
-    document.body.classList.add("mode-gameplay");
-    applyPatch({ mode: "gameplay" });
-
-    updatePortraits(selectedAI, selectedUser);
-    await StoryController.generateOpening(id);
-  } catch (e) {
-    error("Begin Story Failed", e);
-    alert("Could not start story.");
-  }
-}
-
-async function handleShuffle() {
-  try {
-    const chars = await entities.list('character');
-    const worlds = await entities.list('world');
-
-    if (chars.length < 1) {
-      console.warn("Not enough characters to shuffle");
-      return;
-    }
-
-    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-
-    // Pick random entities
-    const ai = pick(chars);
-    let user = pick(chars);
-
-    // Try to ensure they are different if possible
-    if (chars.length > 1) {
-      while (user.id === ai.id) {
-        user = pick(chars);
-      }
-    }
-
-    const world = worlds.length > 0 ? pick(worlds) : null;
-
-    // Update UI and internal state via the helper
-    updateStoryboardSelection({ aiCharacter: ai, userCharacter: user, world });
-
-  } catch (e) {
-    error("Shuffle failed:", e);
-  }
-}
+import { initStoryboardStage } from "./storyboard-controller.js"; // New import
 
 // --- Main Application Object (Bootstrapper) ---
 
@@ -139,100 +15,23 @@ const App = {
   applyPatch,
   story: StoryController,
   isInitialized: false,
+  views: null, // Will store views methods after init
 
   async initUniversalStage() {
     if (App.isInitialized) return;
     App.isInitialized = true;
     log("[Universal Stage] Initializing...");
 
-    const titleStoryboard = document.querySelector("#title-storyboard");
-    const titleGameplay = document.querySelector("#title-gameplay");
-
-    if (titleStoryboard && titleGameplay) {
-      titleStoryboard.setAttribute("contenteditable", "true");
-      titleGameplay.setAttribute("contenteditable", "true");
-      titleStoryboard.title = "Double-click to re-roll title";
-      titleGameplay.title = "Double-click to re-roll title";
-
-      // 1. Handle Manual Edits
-      const handleInput = (e) => {
-        const val = e.target.textContent.trim();
-        // Sync the other title element immediately
-        (e.target === titleStoryboard ? titleGameplay : titleStoryboard).textContent = val;
-
-        // Lock the title so auto-generation stops
-        applyPatch({ isCustomTitle: true, storyTitle: val });
-      };
-
-      // 2. Handle Reset / Re-roll (Double Click)
-      const handleReset = () => {
-        const { selectedAI, selectedUser, selectedWorld } = state;
-        const newTitle = generateDynamicTitle(selectedAI, selectedUser, selectedWorld);
-
-        titleStoryboard.textContent = newTitle;
-        titleGameplay.textContent = newTitle;
-
-        // Unlock the title so auto-generation resumes on selection change
-        applyPatch({ isCustomTitle: false, storyTitle: newTitle });
-      };
-
-      titleStoryboard.addEventListener("input", handleInput);
-      titleGameplay.addEventListener("input", handleInput);
-
-      titleStoryboard.addEventListener("dblclick", handleReset);
-      titleGameplay.addEventListener("dblclick", handleReset);
-    }
-
-    await initViews({
-      onSelectionChanged: (sel) => {
-        const { aiCharacter, userCharacter, world } = sel;
-        applyPatch({ selectedAI: aiCharacter, selectedUser: userCharacter, selectedWorld: world });
-        if (world) updateWorldAmbience(world);
-
-        // Only auto-generate if the user hasn't manually edited the title
-        if (!state.isCustomTitle && titleStoryboard && titleGameplay) {
-          const newTitle = generateDynamicTitle(aiCharacter, userCharacter, world);
-          titleStoryboard.textContent = newTitle;
-          titleGameplay.textContent = newTitle;
-          applyPatch({ storyTitle: newTitle });
-        }
-
-        const btn = document.querySelector("#begin-story");
-        if (btn) {
-          const ready = aiCharacter && userCharacter && world;
-          btn.disabled = !ready;
-          btn.classList.toggle("disabled", !ready);
-        }
-      },
+    // 1. Initialize Views (UI bindings and dependencies)
+    // initViews now returns setter functions for binding logic externally
+    App.views = await initViews({
       refreshAllLists: async () => { log("Refreshed lists"); }
     });
 
-    const beginBtn = document.querySelector("#begin-story");
-    if (beginBtn) {
-      const newBtn = beginBtn.cloneNode(true);
-      beginBtn.parentNode.replaceChild(newBtn, beginBtn);
-      newBtn.addEventListener("click", handleBeginStory);
-    }
+    // 2. Initialize Storyboard/Stage Control Logic
+    initStoryboardStage(App.views); // Pass views object to bind selection/shuffle logic
 
-    // NEW: Shuffle Button Wiring
-    const shuffleBtn = document.querySelector("#btn-shuffle");
-    if (shuffleBtn) {
-      shuffleBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        handleShuffle();
-      });
-    }
-
-    // --- STORY OPTIONS WIRING ---
-    StoryOptionsController.init();
-
-    // Wire settings inputs (Reset handled by Controller)
-    const promptInput = document.querySelector("#opening-prompt");
-    if (promptInput) promptInput.addEventListener("input", (e) => applyPatch({ settings: { openingPrompt: e.target.value } }));
-
-    const jsInput = document.querySelector("#custom-js");
-    if (jsInput) jsInput.addEventListener("input", (e) => applyPatch({ settings: { customJs: e.target.value } }));
-
+    // 3. Game/Chat Input Form Wiring (remains here as it interacts with StoryController)
     const form = document.querySelector("#story-form");
     if (form) {
       const input = form.querySelector('input[name="message"]');
@@ -248,6 +47,16 @@ const App = {
         }
       });
     }
+
+    // 4. Story Options Wiring
+    StoryOptionsController.init();
+
+    // 5. Settings Form Wiring
+    const promptInput = document.querySelector("#opening-prompt");
+    if (promptInput) promptInput.addEventListener("input", (e) => applyPatch({ settings: { openingPrompt: e.target.value } }));
+
+    const jsInput = document.querySelector("#custom-js");
+    if (jsInput) jsInput.addEventListener("input", (e) => applyPatch({ settings: { customJs: e.target.value } }));
 
     log("[Universal Stage] Ready.");
   },
@@ -289,7 +98,7 @@ const App = {
   async initializeApp() {
     const modal = document.querySelector("#loading-modal");
 
-    // --- SECURITY ENFORCEMENT ---
+    // --- SECURITY ENFORCEMENT (Fails Closed logic from validation.js) ---
     if (typeof window.DOMPurify === "undefined") {
       const msg = "CRITICAL SECURITY FAILURE: DOMPurify is missing. Aborting startup.";
       error(msg);

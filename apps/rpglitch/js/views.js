@@ -3,13 +3,14 @@ import { entities, getPictureHTML, getSignature, copyEntity } from "./entities.j
 import {
   escapeHtml,
   handleAsyncError, dismissLoadingUI,
-  chin, error, setTopBarRight
+  chin, error, setTopBarRight,
+  renderTags
 } from "./utils.js";
-import { isValidImageUrl, extractImageUrl } from "./validation.js";
+import { isValidImageUrl, extractImageUrl, sanitizeHtml } from "./validation.js";
 import { initDrawer, openDrawer } from "./drawer.js";
 
 let _refreshAllLists = null;
-let _onSelectionChanged = null;
+let _onSelectionChanged = null; // The function set by storyboard-controller
 
 const selectedEntities = {
   aiCharacter: null,
@@ -103,7 +104,10 @@ export function updateStoryboardSelection(newSelection) {
         openDrawerFor(type, key, previewId, btn, container);
       };
 
-      renderEntityPreview(previewId, entity, btn, type, onEdit);
+      // Ensure isWorld boolean is calculated here for the preview to render correctly
+      const isWorld = type === 'world';
+      renderEntityPreview(previewId, entity, btn, type, onEdit, isWorld);
+
       if (btn) btn.hidden = true;
     }
   };
@@ -160,6 +164,7 @@ function closeProfileModal() {
   if (screen) {
     screen.classList.remove("is-open");
     screen.setAttribute("hidden", "");
+    screen.classList.remove("profile-view--world"); // Cleanup context class
     if (location.hash.includes("#profile")) {
       const base = location.pathname + location.search;
       history.replaceState("", document.title, base + (document.body.classList.contains("mode-gameplay") ? "#story" : ""));
@@ -188,6 +193,16 @@ export async function renderProfilePage(type, id) {
   document.body.classList.add("profile-view-active");
   screen.classList.add("is-open");
 
+  // Determine if this is a World entity to apply landscape logic
+  const isWorld = type === 'world';
+
+  // Apply context class for CSS styling (wider layout)
+  if (isWorld) {
+    screen.classList.add("profile-view--world");
+  } else {
+    screen.classList.remove("profile-view--world");
+  }
+
   let isEditing = id === "new";
   let entity;
 
@@ -209,9 +224,10 @@ export async function renderProfilePage(type, id) {
   if (!entity) { closeProfileModal(); return; }
 
   screen.textContent = "";
-  screen.className = "profile-view";
-  screen.classList.toggle("is-editing", isEditing);
+  screen.className = "profile-view"; // Reset classes
   screen.classList.add("is-open");
+  if (isWorld) screen.classList.add("profile-view--world"); // Re-add context
+  screen.classList.toggle("is-editing", isEditing);
 
   const template = document.querySelector("#tpl-profile-page");
   if (!template) return;
@@ -219,7 +235,8 @@ export async function renderProfilePage(type, id) {
 
   const heroWrap = layout.querySelector(".hero-wrap");
   if (getPictureHTML) {
-    const heroPic = getPictureHTML(entity, { cover: true });
+    // Pass landscape option to getPictureHTML
+    const heroPic = getPictureHTML(entity, { cover: true, landscape: isWorld });
     if (heroPic) { heroPic.classList.add("hero-bleed"); heroWrap.appendChild(heroPic); }
   }
 
@@ -240,12 +257,13 @@ export async function renderProfilePage(type, id) {
     else if (val && !isValidImageUrl(val, true)) { actionButton.textContent = "Generate"; actionButton.dataset.action = "generate"; }
     else { actionButton.textContent = "Use URL"; actionButton.dataset.action = "use-url"; }
   }
+
   imageInput.addEventListener("input", () => {
     updateButtonState();
     const val = imageInput.value.trim();
     if (val && isValidImageUrl(val, true)) {
-      const safeVal = window.DOMPurify ? window.DOMPurify.sanitize(val) : val;
-      const newPic = getPictureHTML({ ...entity, profilePictureUrl: safeVal }, { cover: true });
+      const safeVal = sanitizeHtml(val);
+      const newPic = getPictureHTML({ ...entity, profilePictureUrl: safeVal }, { cover: true, landscape: isWorld });
       const curPic = heroWrap.querySelector(".picture");
       if (newPic) {
         newPic.classList.add("hero-bleed");
@@ -263,7 +281,11 @@ export async function renderProfilePage(type, id) {
         actionButton.setAttribute("aria-busy", "true");
         actionButton.textContent = "Generating...";
         const prompt = imageInput.value.trim();
-        const res = await window.textToImage({ prompt, resolution: "512x768" });
+
+        // Logic Fork: Landscape for Worlds, Portrait for others
+        const resolution = isWorld ? "768x512" : "512x768";
+
+        const res = await window.textToImage({ prompt, resolution: resolution });
         const url = typeof res === 'string' ? res : extractImageUrl(res);
         if (url) {
           imageInput.value = url;
@@ -300,7 +322,7 @@ export async function renderProfilePage(type, id) {
 
   paletteSelect.addEventListener("change", () => {
     const newColor = paletteSelect.value;
-    const newPic = getPictureHTML({ ...entity, signatureColour: newColor, profilePictureUrl: imageInput.value.trim() }, { cover: true });
+    const newPic = getPictureHTML({ ...entity, signatureColour: newColor, profilePictureUrl: imageInput.value.trim() }, { cover: true, landscape: isWorld });
     const curPic = heroWrap.querySelector(".picture");
     if (curPic && newPic) { newPic.classList.add("hero-bleed"); curPic.replaceWith(newPic); }
 
@@ -348,6 +370,34 @@ export async function renderProfilePage(type, id) {
     descDisplay.textContent = entity.description || "";
     headerWrap.appendChild(descDisplay);
   }
+
+  // --- TAGS (TEMPORARILY HIDDEN) ---
+  const tagsRow = document.createElement("div");
+  tagsRow.className = "field-row";
+
+  if (isEditing) {
+    tagsRow.innerHTML = `
+      <div class="field-label"><label>Tags</label><small class="muted">Comma separated</small></div>
+      <div class="field-input">
+        <textarea data-edit-field="tags" rows="1" placeholder="e.g. warrior, magic, dark">${(entity.tags || []).join(", ")}</textarea>
+      </div>`;
+    const tagInput = tagsRow.querySelector("textarea");
+    tagInput.addEventListener('input', () => autoResize(tagInput));
+    setTimeout(() => autoResize(tagInput), 0);
+  } else {
+    tagsRow.innerHTML = `<div class="field-label"><label>Tags</label></div><div class="field-input"></div>`;
+    const inputContainer = tagsRow.querySelector(".field-input");
+    if (renderTags) {
+      renderTags(inputContainer, entity);
+    } else {
+      inputContainer.textContent = (entity.tags || []).join(", ");
+    }
+  }
+
+  // HIDE: Hide the entire tags row until the feature is finalized
+  tagsRow.hidden = true;
+
+  headerWrap.after(tagsRow);
 
   // --- SECTIONS LOOP ---
   const createRow = (key, def) => {
@@ -403,12 +453,15 @@ export async function renderProfilePage(type, id) {
       const nameVal = screen.querySelector('[data-edit-field="name"]').value.trim();
       if (!nameVal) return alert("Name is required");
 
+      const tagsInput = screen.querySelector('[data-edit-field="tags"]').value;
+      const tagsArray = tagsInput.split(",").map(t => t.trim()).filter(Boolean);
+
       const data = {
         name: escapeHtml(nameVal),
         description: escapeHtml(screen.querySelector('[data-edit-field="description"]').value.trim()),
         profilePictureUrl: escapeHtml(imageInput.value.trim()),
         signatureColour: escapeHtml(paletteSelect.value.trim()),
-        tags: entity.tags || []
+        tags: tagsArray
       };
       Object.keys(SECTION_DEFINITIONS).forEach(k => {
         const el = screen.querySelector(`[data-edit-field="${k}"]`);
@@ -458,7 +511,17 @@ export async function renderProfilePage(type, id) {
 
 export async function initViews(deps = {}) {
   _refreshAllLists = deps.refreshAllLists;
-  _onSelectionChanged = deps.onSelectionChanged;
+
+  // NEW: Store the onSelectionChanged setter from the dependencies
+  if (deps.onSelectionChanged) {
+    _onSelectionChanged = deps.onSelectionChanged;
+  } else {
+    // Create a setter function to be used by initStoryboardStage
+    initViews.setOnSelectionChanged = (handler) => {
+      _onSelectionChanged = handler;
+    };
+  }
+
   initDrawer();
 
   bindDrawerTrigger("#btn-select-ai", "character", "#ai-character-preview", "aiCharacter");
@@ -467,6 +530,13 @@ export async function initViews(deps = {}) {
 
   bindPortraitClick("#gameplay-ai-portrait", "aiCharacter");
   bindPortraitClick("#gameplay-user-portrait", "userCharacter");
+
+  // Return the necessary setters/helpers for the App object
+  return {
+    setOnSelectionChanged: (handler) => { _onSelectionChanged = handler; },
+    updateStoryboardSelection, // Export update function for external use (e.g. shuffle)
+    renderProfilePage // Export for external use
+  };
 }
 
 function bindDrawerTrigger(buttonId, entityType, previewId, stateKey) {
@@ -474,7 +544,6 @@ function bindDrawerTrigger(buttonId, entityType, previewId, stateKey) {
   if (!button) return;
   const cardContainer = button.closest('.entity-card');
 
-  // Standard click handler
   button.addEventListener("click", () => openDrawerFor(entityType, stateKey, previewId, button, cardContainer));
 }
 
@@ -497,7 +566,10 @@ function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) 
         openDrawerFor(entityType, stateKey, previewId, button, container);
       };
 
-      renderEntityPreview(previewId, entity, button, entityType, onEdit);
+      // Pass landscape option here too, to show preview card correctly if desired
+      const isWorld = entityType === 'world';
+      renderEntityPreview(previewId, entity, button, entityType, onEdit, isWorld);
+
       button.hidden = true;
       if (_onSelectionChanged) _onSelectionChanged(selectedEntities);
     } catch (err) {
@@ -506,7 +578,7 @@ function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) 
   }, triggerElement);
 }
 
-function renderEntityPreview(previewId, entity, slotButton, type, onEdit) {
+function renderEntityPreview(previewId, entity, slotButton, type, onEdit, isWorld = false) {
   const previewEl = document.querySelector(previewId);
   if (!previewEl) return;
 
@@ -518,7 +590,8 @@ function renderEntityPreview(previewId, entity, slotButton, type, onEdit) {
     const media = document.createElement("div");
     media.className = "card-media";
     media.title = "View Profile";
-    media.appendChild(getPictureHTML(entity, { cover: true }));
+    // Pass landscape option
+    media.appendChild(getPictureHTML(entity, { cover: true, landscape: isWorld }));
     media.addEventListener("click", (e) => {
       e.stopPropagation();
       e.preventDefault();

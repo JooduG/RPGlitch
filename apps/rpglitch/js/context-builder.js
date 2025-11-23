@@ -22,26 +22,38 @@ export class ContextBuilder {
         // 2. Construct the System Prompt (The "Dossier")
         const sections = [];
 
+        // --- CORE INSTRUCTION (EXPLICIT CONSTRAINT) ---
+        // This sets the LLM's persona and hard constraints, following best practice
+        sections.push(`[SYSTEM INSTRUCTION]
+You are a creative, immersive, and responsive storyteller. Your primary role is to embody the AI CHARACTER and to provide NARRATION for the scene.
+- Always maintain the AI CHARACTER's defined CORE TRUTHS and personality.
+- When the user speaks, respond as the AI CHARACTER or the Narrator only. NEVER roleplay as the INTERLOCUTOR (USER CHARACTER).
+- Maintain an internal state of the scene (location, character status, weather) based on the world context and conversation history.
+- Ensure all responses are highly atmospheric, vivid, and progress the story dynamically.
+- Response format: Speak as the AI CHARACTER using their name followed by a colon (e.g., AI Character Name: dialogue). Use raw text for narration.`);
+
         // --- WORLD CONTEXT ---
         if (world) {
             sections.push(`[SCENE SETTING: ${world.name}]`);
+            sections.push(`Description: ${world.description || "N/A"}`);
             sections.push(this._formatEntityBlock(world));
         }
 
-        // --- AI CHARACTER CONTEXT ---
+        // --- AI CHARACTER CONTEXT (YOUR ROLE) ---
         if (ai) {
-            sections.push(`[YOUR ROLE: ${ai.name}]`);
+            sections.push(`[YOUR ROLE: AI CHARACTER - ${ai.name}]`);
             sections.push(`Description: ${ai.description || "N/A"}`);
             sections.push(this._formatEntityBlock(ai));
         } else {
-            sections.push(`[YOUR ROLE: Narrator]`);
+            sections.push(`[YOUR ROLE: Narrator Only]`);
         }
 
-        // --- USER CHARACTER CONTEXT ---
+        // --- USER CHARACTER CONTEXT (DO NOT ROLEPLAY) ---
         if (user) {
-            sections.push(`[INTERLOCUTOR: ${user.name}]`);
+            // Include full entity block to enrich the scene, but reinforce DO NOT ROLEPLAY constraint.
+            sections.push(`[INTERLOCUTOR: USER CHARACTER - ${user.name} (Do NOT Roleplay)]`);
             sections.push(`Description: ${user.description || "N/A"}`);
-            // We provide less info about the user to avoid the AI "playing" them
+            sections.push(this._formatEntityBlock(user));
         }
 
         // TODO: [RAG] Future home for Lorebook insertion

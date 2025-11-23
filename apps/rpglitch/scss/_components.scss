@@ -1,3 +1,4 @@
+// apps/rpglitch/scss/_components.scss
 @use "foundation" as *;
 @use "sass:map";
 @use "sass:string";
@@ -9,10 +10,19 @@
   height: 100%;
   overflow: hidden;
   display: block;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1 / 1; // Default square fallback
   border-radius: 0;
   background: var(--pico-muted-border-color, #e7eaf0);
   box-shadow: var(--pico-box-shadow, 0 0 0 1px rgb(0 0 0 / 5%));
+}
+
+// NEW: Explicitly define landscape and portrait aspect ratios
+.picture--landscape {
+  aspect-ratio: 3 / 2;
+}
+
+.picture--portrait {
+  aspect-ratio: 2 / 3;
 }
 
 .picture img {

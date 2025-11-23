@@ -1,3 +1,4 @@
+// apps/rpglitch/scss/_layout.scss
 @use "foundation";
 
 /* =========================================
@@ -60,12 +61,42 @@ main.container {
   overflow: hidden;
 }
 
-/* Profile Layout Specifics */
+/* Profile Layout Specifics (Default: 2-Column for Characters) */
 .profile-layout {
   height: auto;
   min-height: calc(100vh - 4rem);
   display: grid;
   grid-template-columns: 40% 60%;
+}
+
+/* MODIFIER: World Profile (Landscape) */
+
+/* Overrides default to use a 2-row layout on desktop/tablet */
+.profile-view--world .profile-layout {
+  @include foundation.desktop {
+    // 1. Change to a single column
+    grid-template-columns: 1fr;
+
+    // 2. Define rows: fixed/constrained image height, and remaining height for scrollable content
+    // FIX: Changed 'auto' to '1fr' to enforce scrolling in the data section.
+    grid-template-rows: min(60vh, 450px) 1fr;
+
+    // 3. Set a minimum height for the overall modal
+    min-height: 80vh;
+
+    // 4. Ensure left/right containers stretch/stack correctly
+    .profile-left {
+      // profile-left contains the image
+      overflow: hidden;
+      min-height: 0; // Essential reset to allow grid-row definition to take over
+    }
+
+    .profile-right {
+      // profile-right contains the data, must be scrollable
+      overflow-y: auto;
+      min-height: 0; // Essential reset for content in a 1fr row
+    }
+  }
 }
 
 /* --- STORY OPTIONS / SETTINGS LAYOUT --- */

@@ -129,7 +129,7 @@ export function getSignature(entity = {}) {
 }
 
 export function getPictureHTML(entity = {}, options = {}) {
-  const { cover, neutralPlaceholder = false } = options;
+  const { cover, landscape, neutralPlaceholder = false } = options;
   const title = entity.name || "Empty";
   const type = (entity.type || "default").toLowerCase();
   const src = typeof entity.profilePictureUrl === "string" && entity.profilePictureUrl.trim()
@@ -139,7 +139,8 @@ export function getPictureHTML(entity = {}, options = {}) {
   const contrast = getContrast(signature);
 
   const wrap = document.createElement("div");
-  wrap.className = `picture${cover ? " picture--cover" : ""}`;
+  // Pass landscape option to add class for CSS
+  wrap.className = `picture${cover ? " picture--cover" : ""}${landscape ? " picture--landscape" : ""}`;
   wrap.style.setProperty("--signature", signature);
   wrap.style.setProperty("--signature-contrast", contrast);
 
@@ -196,6 +197,7 @@ function normalize(base = {}) {
 function formatPremade(entity, type) {
   const flattenedEntity = {
     ...entity,
+    // Flatten sections into the root object
     ...(entity.sections || {}),
   };
   delete flattenedEntity.sections;
@@ -219,6 +221,7 @@ export async function seedPremades() {
     const worlds = premade.worlds.map(w => formatPremade(w, "world"));
     const stories = premade.stories.map(s => formatPremade(s, "story"));
 
+    // Bulk insert all premade data directly into the entities table
     await db.entities.bulkPut([...chars, ...worlds, ...stories]);
     console.log(`[RPGlitch] Seeded ${chars.length} characters, ${worlds.length} worlds.`);
   } catch (err) {
@@ -303,12 +306,10 @@ export const entities = {
 export async function copyEntity(type, id) {
   const entityToCopy = await entities.get(type, id);
   if (!entityToCopy) return null;
-
   const newEntity = { ...entityToCopy };
   delete newEntity.id;
   newEntity.isPremade = 0;
   newEntity.isCustom = 1;
   newEntity.name = `${newEntity.name || "Untitled"} (Clone)`;
-
   return newEntity;
 }

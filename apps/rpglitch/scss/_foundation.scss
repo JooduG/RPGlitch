@@ -148,6 +148,12 @@ $breakpoint-tablet: 1024px;
   }
 }
 
+@mixin desktop {
+  @media (width > $breakpoint-mobile) {
+    @content;
+  }
+}
+
 @mixin custom-scrollbar($thumb-color: rgb(0 0 0 / 50%),
   $track-color: transparent,
   $thumb-hover-color: rgb(0 0 0 / 70%)) {
