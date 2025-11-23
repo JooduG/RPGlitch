@@ -8,43 +8,40 @@
 
 ## 📍 Current Context (Auto-updated by AI)
 
-**In Progress:** **[Story List & Load UI](#story-list-ui)**
-**Recently Done:** - **Universal Stage:** 3-column "Morph Grid" layout (Storyboard ↔ Gameplay) complete.
-- **Smart Drawer:** Context-aware dropdowns with collision detection and "drop-up" logic.
-- **Profile Modal:** Frosted glass overlay with split interaction (Image -> View, Text -> Change).
-- **Settings Modal:** Redesigned as a glass modal; added "Story Prompt" and "Custom JS" fields.
-- **Entity Workflow:** "Clone" for premades, "Edit" for custom entities, integrated into Profile footer.
-**Codebase Health:** ✅ Core 90% • ⚠️ Critical Feature Gap (No Load Screen) • 🔄 Code quality 80%
-**Critical Next:** Story List/Load UI, Tag Management restoration.
+**Focus:** 🏗️ **ARCHITECTURAL RESCUE OPERATION**
+**In Progress:** **[Deconstruct `index.js` Monolith](#refactor-monolith)**
+**Recently Done:**
+- **Universal Stage:** 3-column "Morph Grid" layout complete.
+- **Smart Drawer:** Context-aware dropdowns with collision detection.
+- **Profile & Settings Modals:** "Glass" design implementation.
+**Codebase Health:** 🟥 **CRITICAL: Unmaintainable Monolith & Security Risks**
+**Critical Next:** Security Hardening, Store Extraction, Watchdog Elimination.
 
 ---
 
-## 🔴 Critical / Ready to Build
+## 🔴 The Architect's Mandate (Immediate Action Items)
 
-High-impact items that are approved and ready to start immediately.
+**Strict Priority:** These items must be resolved before new features are added to ensure stability and security.
 
 | Item | Category | Impact | Effort | Dependencies | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| <a id="story-list-ui"></a>**Story List & Load UI** 🔴 | [UI/UX] | L | M | Database | **🎯 AI Impl:** Create a "Load Story" modal (similar style to Settings). List entries from `db.stories`. Clicking resumes the session (loads messages/entities into state). |
-| **Tag Management UI** 🟠 | [UI/UX] | M | S | Profile Modal | **🎯 AI Impl:** Restore the ability to add/remove tags in the new Profile Modal. Use a "chip input" style field in the form section. |
-| **Custom Code Wiring** | [Features] | M | M | Settings UI | **🎯 AI Impl:** Connect the `#custom-js` field in Settings to the app initialization/prompt loop. Safely `eval` or inject user scripts. |
+| <a id="security-hardening"></a>**Security Enforcement** 🔴 | [Security] | H | S | None | **🎯 AI Impl:** Enforce `DOMPurify` check at application boot (`index.js`). Throw critical error if missing. Remove "optional" checks in `views.js`. **Fail Closed.** |
+| <a id="refactor-monolith"></a>**Fracture `index.js`** 🔴 | [Refactor] | H | L | Security | **🎯 AI Impl:** Explode the `App` object. <br>1. `js/store.js`: State & `applyPatch`.<br>2. `js/services/ai.js`: Pure AI logic (no DOM).<br>3. `js/controllers/story.js`: Orchestration.<br>4. `js/index.js`: Bootstrapper only. |
+| <a id="kill-watchdog"></a>**Eliminate Watchdog** 🔴 | [Cleanup] | H | M | Store | **🎯 AI Impl:** Delete `startUIWatchdog` and polling logic in `utils.js`. Replace with proper state-based UI blocking (`ui.fsm` in Store) and standard `<dialog>` API usage. |
+| <a id="data-hygiene"></a>**Database Seeding** 🟠 | [Data] | M | M | Database | **🎯 AI Impl:** Stop runtime merging of `premade` objects in `entities.js`. "Seed" premades into `db.entities` (with `isPremade: 1`) on app init. |
+| <a id="context-builder"></a>**Context Builder (RAG)** 🟠 | [AI Logic] | H | M | AI Service | **🎯 AI Impl:** Replace hardcoded string concatenation in AI service. Build a `ContextBuilder` class that fetches Character, **Lorebook** (missing), and Memories before generation. |
 
 ---
 
-## 🔄 In Progress
+## 🟠 Feature Queue (Paused)
 
-Currently active work with context tracking.
+Approved features temporarily on hold until architecture stabilizes.
 
-* **Refining Modal Interactions:** Polishing the specific behavior of the Profile and Settings modals (scrollbars, backgrounds, sizing).
-
----
-
-## 🍎 Low Hanging Fruit
-
-Quick wins for high-value progress without deep focus.
-
-- **[Extract Remaining Constants](#extract-remaining-constants)** - Move `UI_BLOCK_THRESHOLD_MS` and `WATCHDOG_INTERVAL_MS` to constants.
-- **[Story Management Actions]** - Add "Delete" buttons to the Story List items once the list is built.
+| Item | Category | Impact | Effort | Dependencies | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| <a id="story-list-ui"></a>**Story List & Load UI** | [UI/UX] | L | M | Refactor | **Blocked by Refactor.** Create "Load Story" modal reading from `db.stories`. |
+| **Tag Management UI** | [UI/UX] | M | S | Refactor | Restore `tags` editing in the new Profile Modal. |
+| **Custom Code Wiring** | [Features] | M | M | Refactor | Connect `#custom-js` in Settings to the new `ContextBuilder`. |
 
 ---
 
@@ -52,56 +49,26 @@ Quick wins for high-value progress without deep focus.
 
 ### High Priority
 
-Items with significant user impact or blocking other features.
-
 | Item | Category | Impact | Effort | Dependencies | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| <a id="story-management"></a>**Story Management** | [Features] | M | M | [Story List UI](#story-list-ui) | Add "Delete", "Export", and "Clone" actions to individual stories in the Load UI. |
-| **Advanced Memory & Lore System** | [Features] | L | L | AI Interaction | Unified system combining user-driven memory extraction ("Apply Memories") and automatic lorebook injection (RAG-lite). Should integrate with existing profile fields. |
-| **Improve Chat View Polish** | [UI/UX] | M | M | Universal Stage | Refine the gameplay center column. Better avatar layout, typing indicators, message styling to match the new "Glass" aesthetic. |
+| <a id="story-management"></a>**Story Management Actions** | [Features] | M | M | Story List UI | Add "Delete", "Export", and "Clone" actions to Load UI. |
+| **Improve Chat View Polish** | [UI/UX] | M | M | Universal Stage | Refine avatar layout, typing indicators, message styling. |
 
 ### Medium Priority
 
-Valuable improvements that enhance quality and developer experience.
-
 | Item | Category | Impact | Effort | Dependencies | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| <a id="extract-card-navigation"></a>**Extract Card Navigation Handlers** | [Code Quality] | S | S | None | **🎯 AI Impl:** Create shared `attachCardNavigation` utility to dry up click/keydown handlers in drawers and storyboard. |
-| **Add JSDoc Comments** | [Code Quality] | M | L | None | **Progress:** ~45% coverage. **🎯 AI Impl:** Document remaining exports in `index.js`, `views.js`, and `drawer.js`. |
-
-### Low Priority / Future
-
-Nice-to-have improvements and optimizations.
-
-| Item | Category | Impact | Effort | Dependencies | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Split God Functions** | [Code Quality] | M | L | None | Break `initializeWhenReady()` in `index.js` into focused units (plugins, db, settings, ui). |
-| **Advanced Theming Editor** | [Features] | L | L | None | In-app editor to customize the "Ambience" colors and background gradients beyond the presets. |
+| **Extract Card Navigation** | [Code Quality] | S | S | None | Shared utility for keyboard nav in drawers/storyboard. |
+| **Add JSDoc Comments** | [Code Quality] | M | L | None | Document new modules (`store.js`, `services/*`) as they are created. |
 
 ---
 
-## 🌙 Moonshots (Speculative)
+## 🌙 Moonshots
 
-Big vision ideas for future exploration. Not prioritized yet.
-
-- **Agentic Scene Director**: AI model proposes the next storyboard beat, drafts prompts, and assembles assets for RPGlitch automatically.
-- **Co-op Sessions**: Two users role-play in a shared RPGlitch session with synchronized state.
-- **Heuristics-Augmented Decider**: A lightweight rules layer that nudges AI sampling parameters based on scene type.
-- **Screenshot-to-Persona**: Parse a character card from an image using OCR + heuristics.
-
----
-
-## 📋 System Health & Tooling Ideas
-
-Infrastructure and tooling improvements (not directly user-facing).
-
-| Idea | Rationale | Impact | Effort | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| **Architecture & Rules** | Review & Refine Rule Files for clarity. | M | M | idea |
-| **Documentation** | Full Documentation Audit (docs vs code reality). | M | M | idea |
-| **Testing** | Update tests to match the new 3-column Universal Stage layout. | L | L | idea |
+- **Agentic Scene Director**: AI model proposes the next storyboard beat.
+- **Co-op Sessions**: Shared state via PeerJS or similar.
 
 ---
 
 **Last Updated:** 2025-11-23
-**Next Review:** After Story List/Load UI implementation
+**Next Review:** Post-Refactor Audit
