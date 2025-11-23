@@ -15,7 +15,6 @@
 
     --world-ambience-rgb: 17, 25, 31;
 
-    background-color: #11191f;
     background-image: radial-gradient(circle at 50% 30%, rgb(var(--world-ambience-rgb) / 15%) 0%, transparent 70%);
     color: #fff;
     transition: all 0.6s ease;
@@ -449,8 +448,6 @@ body.mode-gameplay {
 
 .sticky-header {
     padding: 1rem;
-    background: rgb(17 25 31 / 95%);
-    border-bottom: 1px solid rgb(255 255 255 / 5%);
     display: flex;
     justify-content: center;
     position: sticky;
@@ -468,9 +465,6 @@ body.mode-gameplay {
 }
 
 #chat-input-area {
-    padding: 2rem;
-    background: #161d25;
-    border-top: 1px solid rgb(255 255 255 / 5%);
 }
 
 @keyframes fade-in {

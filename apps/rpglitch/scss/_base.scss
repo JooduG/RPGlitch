@@ -1,3 +1,5 @@
+// apps/rpglitch/scss/_base.scss
+
 @use "foundation";
 @use "sass:color";
 
@@ -31,7 +33,18 @@ body {
     padding: 0;
     overflow: hidden;
     overscroll-behavior: none;
-    background-color: #11191f;
+
+    /* GRADIENT RE-INTRODUCED */
+    background-image: linear-gradient(to bottom right,
+            foundation.$gradient-color-1,
+            foundation.$gradient-color-2 50%,
+            foundation.$gradient-color-3 75%,
+            foundation.$gradient-color-4 );
+    background-attachment: fixed;
+    background-size: cover;
+
+    /* END GRADIENT */
+
     color: #fff;
     font-family: var(--pico-font-family, sans-serif);
 }
@@ -284,7 +297,7 @@ button,
     border-top: none;
 }
 
-@media (width <= 768px) {
+@media (width <=768px) {
     #profile-screen {
         padding: 0;
     }
