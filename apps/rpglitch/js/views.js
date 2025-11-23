@@ -76,20 +76,20 @@ export function updatePortraits(aiCharacter, userCharacter) {
     const container = document.querySelector(id);
     if (!container) return;
 
-            const imgDiv = container.querySelector(".portrait-image");
-            const nameDiv = container.querySelector(".portrait-name");
-    
-            if (imgDiv) {
-                imgDiv.innerHTML = "";
-                if (ent) {
-                    // Determine if the entity is a world to apply landscape aspect ratio
-                    const isWorld = ent.type === 'world';
-                    const picture = getPictureHTML(ent, { cover: true, landscape: isWorld });
-                    if (picture) imgDiv.appendChild(picture);
-                }
-            }
-            if (nameDiv) nameDiv.textContent = ent?.name || label;
-        };
+    const imgDiv = container.querySelector(".portrait-image");
+    const nameDiv = container.querySelector(".portrait-name");
+
+    if (imgDiv) {
+      imgDiv.innerHTML = "";
+      if (ent) {
+        // Determine if the entity is a world to apply landscape aspect ratio
+        const isWorld = ent.type === 'world';
+        const picture = getPictureHTML(ent, { cover: true, landscape: isWorld });
+        if (picture) imgDiv.appendChild(picture);
+      }
+    }
+    if (nameDiv) nameDiv.textContent = ent?.name || label;
+  };
   setPort("#gameplay-ai-portrait", aiCharacter, "AI");
   setPort("#gameplay-user-portrait", userCharacter, "You");
 }
@@ -121,20 +121,44 @@ export function updateStoryboardSelection(newSelection) {
 }
 
 // --- RENDER MESSAGE (Chat Bubbles) ---
-export function renderMessage(container, role, text, characterName, type) {
+// UPDATED: Added signatureColour to the function signature
+export function renderMessage(container, role, text, characterName, signatureColour, type) {
   const div = document.createElement("div");
-  div.className = "story-message";
 
-  // Map DB roles to CSS roles
-  const cssRole = role === "user" ? "director" : "narrator";
-  div.setAttribute("role", cssRole);
+  // 1. Determine base class and role class (user/ai/narrator)
+  const roleClass = (role === "user" || role === "ai") ? role : "narrator";
+  let classList = ["story-message", roleClass];
+
+  // 2. Add signature color class
+  if (signatureColour && signatureColour !== "default") {
+    classList.push(`signature-${signatureColour}`);
+  }
+
+  div.className = classList.join(" ");
+  div.setAttribute("role", "log-item");
   div.setAttribute("data-type", type || "IC");
 
   if (characterName) {
     div.setAttribute("data-character-name", characterName);
   }
 
-  div.textContent = text;
+  // 3. Construct and sanitize content, including the speaker name prefix
+  let contentHtml = sanitizeHtml(text); // Sanitize the message content first
+
+  // Prepend speaker name if available and it's not a generic narrator role
+  if (characterName && roleClass !== "narrator") {
+    const safeName = sanitizeHtml(characterName);
+    // Combine the sanitized name prefix with the sanitized message body
+    contentHtml = `<span class="narrator-prefix">${safeName}:</span> ${contentHtml}`;
+  } else if (roleClass === "narrator" && characterName) {
+    // For system messages that include a dedicated name (e.g., 'Narrator:')
+    const safeName = sanitizeHtml(characterName);
+    contentHtml = `<span class="narrator-prefix">${safeName}:</span> ${contentHtml}`;
+  }
+
+  // Use innerHTML to insert the content, including the narrator-prefix span
+  // MANDATE: Using sanitizeHtml on the text ensures security, but we must use innerHTML to insert the span.
+  div.innerHTML = contentHtml;
   container.appendChild(div);
 }
 
@@ -378,10 +402,10 @@ export async function renderProfilePage(type, id) {
 
   if (isEditing) {
     tagsRow.innerHTML = `
-      <div class="field-label"><label>Tags</label><small class="muted">Comma separated</small></div>
-      <div class="field-input">
-        <textarea data-edit-field="tags" rows="1" placeholder="e.g. warrior, magic, dark">${(entity.tags || []).join(", ")}</textarea>
-      </div>`;
+      <div class="field-label"><label>Tags</label><small class="muted">Comma separated</small></div>
+      <div class="field-input">
+        <textarea data-edit-field="tags" rows="1" placeholder="e.g. warrior, magic, dark">${(entity.tags || []).join(", ")}</textarea>
+      </div>`;
     const tagInput = tagsRow.querySelector("textarea");
     tagInput.addEventListener('input', () => autoResize(tagInput));
     setTimeout(() => autoResize(tagInput), 0);
@@ -406,13 +430,13 @@ export async function renderProfilePage(type, id) {
     const sublabel = def.sublabels[type] || "";
 
     div.innerHTML = `
-        <div class="field-label">
-            <label>${def.label}</label>
-            ${sublabel ? `<small class="muted">${sublabel}</small>` : ''}
-        </div>
-        <div class="field-input">
-            <div data-read class="profile-field-text-read">${escapeHtml(entity[key] || "")}</div>
-        </div>`;
+        <div class="field-label">
+            <label>${def.label}</label>
+            ${sublabel ? `<small class="muted">${sublabel}</small>` : ''}
+        </div>
+        <div class="field-input">
+            <div data-read class="profile-field-text-read">${escapeHtml(entity[key] || "")}</div>
+        </div>`;
 
     if (isEditing) {
       const input = document.createElement("textarea");

@@ -653,8 +653,7 @@ async function waitForPlugins(
   const startTime = Date.now();
 
   console.log(
-    `[ImageGlitch] Waiting for plugins (attempt ${retryCount + 1}/${
-      maxRetries + 1
+    `[ImageGlitch] Waiting for plugins (attempt ${retryCount + 1}/${maxRetries + 1
     }):`,
     requiredPlugins
   );
@@ -692,8 +691,7 @@ async function waitForPlugins(
 
   if (retryCount < maxRetries) {
     console.warn(
-      `[ImageGlitch] Plugins not available, retrying (${
-        retryCount + 1
+      `[ImageGlitch] Plugins not available, retrying (${retryCount + 1
       }/${maxRetries})...`
     );
     return waitForPlugins(requiredPlugins, timeout, retryCount + 1, maxRetries);
@@ -712,14 +710,10 @@ async function waitForPlugins(
     (name) => typeof window[name] === "undefined"
   );
   console.warn(
-    `[ImageGlitch] Plugin timeout after ${
-      Date.now() - startTime
-    }ms. Standard available: ${
-      availableStandard.join(", ") || "none"
-    } | Prefixed available: ${
-      availablePrefixed.join(", ") || "none"
-    } | Missing standard: ${
-      missingStandard.join(", ") || "none"
+    `[ImageGlitch] Plugin timeout after ${Date.now() - startTime
+    }ms. Standard available: ${availableStandard.join(", ") || "none"
+    } | Prefixed available: ${availablePrefixed.join(", ") || "none"
+    } | Missing standard: ${missingStandard.join(", ") || "none"
     } | Missing prefixed: ${missingPrefixed.join(", ") || "none"}`
   );
   return false;
@@ -806,41 +800,6 @@ async function loadAiInstructions() {
 }
 
 async function main() {
-  // Wait for required Perchance plugins to load
-  const pluginsLoaded = await waitForPlugins(["image", "ai", "r"]);
-
-  if (!pluginsLoaded) {
-    console.error(
-      "[ImageGlitch] Required plugins failed to load. Application may not function correctly."
-    );
-    alert(
-      "Required plugins failed to load. Please refresh the page and try again."
-    );
-    // Continue with initialization anyway for graceful degradation
-  }
-
-  // Load AI instructions from remember plugin
-  await loadAiInstructions();
-
-  // Verify plugin dependencies are available
-  console.log("[ImageGlitch] Dexie available:", typeof Dexie !== "undefined");
-  console.log(
-    "[ImageGlitch] DOMPurify available:",
-    typeof DOMPurify !== "undefined"
-  );
-  console.log(
-    "[ImageGlitch] image available:",
-    typeof image !== "undefined",
-    "callable:",
-    typeof image === "function"
-  );
-  console.log(
-    "[ImageGlitch] ai available:",
-    typeof ai !== "undefined",
-    "callable:",
-    typeof ai === "function"
-  );
-
   const generateButton = document.getElementById("generate-button");
   const aiMagicSelect = document.getElementById("aiMagicSelect");
   const numImagesSelect = document.getElementById("numImagesSelect");
@@ -861,14 +820,7 @@ async function main() {
     }
   }
 
-  await loadSavedSettings();
-  updatePromptWarning();
-  updateDerivedSettings();
-
-  if (generateButton) {
-    resetSmartButton();
-  }
-
+  // Initialize UI Listeners immediately so app is responsive
   if (aiMagicSelect) {
     aiMagicSelect.addEventListener("change", () =>
       handleAiMagicSelection(aiMagicSelect)
@@ -921,6 +873,51 @@ async function main() {
 
     updateTooltip(); // Initial call
   }
+
+  // Load settings
+  await loadSavedSettings();
+  updatePromptWarning();
+  updateDerivedSettings();
+
+  if (generateButton) {
+    resetSmartButton();
+  }
+
+  // Wait for required Perchance plugins to load
+  // We do this AFTER UI setup so the app is interactive
+  const pluginsLoaded = await waitForPlugins(["image", "ai", "r"]);
+
+  if (!pluginsLoaded) {
+    console.error(
+      "[ImageGlitch] Required plugins failed to load. Application may not function correctly."
+    );
+    alert(
+      "Required plugins failed to load. Please refresh the page and try again."
+    );
+    // Continue with initialization anyway for graceful degradation
+  }
+
+  // Load AI instructions from remember plugin
+  await loadAiInstructions();
+
+  // Verify plugin dependencies are available
+  console.log("[ImageGlitch] Dexie available:", typeof Dexie !== "undefined");
+  console.log(
+    "[ImageGlitch] DOMPurify available:",
+    typeof DOMPurify !== "undefined"
+  );
+  console.log(
+    "[ImageGlitch] image available:",
+    typeof image !== "undefined",
+    "callable:",
+    typeof image === "function"
+  );
+  console.log(
+    "[ImageGlitch] ai available:",
+    typeof ai !== "undefined",
+    "callable:",
+    typeof ai === "function"
+  );
 }
 
 function addImageOverlays() {

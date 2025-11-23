@@ -95,9 +95,10 @@ body.story-active {
   border-right: 1px solid var(--pico-muted-border-color);
 }
 
-#story-feed {
+// FIX: Targeting #chat-feed from HTML for correct scrolling container
+#chat-feed {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; // Enables vertical scrolling for the chat log
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -122,52 +123,65 @@ body.story-active {
 
 .story-message {
   padding: 1rem 1.5rem;
-  border-radius: var(--pico-border-radius);
+
+  // NEW: Increased standard border radius for a softer look
+  border-radius: 1.5rem; 
   max-width: 80%;
   word-wrap: break-word;
   position: relative;
+  align-self: flex-start; // Enforce Left-Alignment for all messages
+  border: none; // Remove border
+
+  // NEW: Add a subtle lift/shadow for depth
+  box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  // Base styling for all messages (left-aligned with left tail)
+  // FIX: Only flatten the top-left corner where the tail is attached
+  border-top-left-radius: 0.3rem; 
+  border-top-right-radius: 1.5rem;
 
   // Default styling for AI/Narrator (Neutral)
   &.narrator,
   &.ai {
     background-color: var(--pico-muted-background-color);
-    align-self: flex-start;
-    border-top-left-radius: 0;
-    border: 1px solid transparent; // consistent box model
-
-    // Tail for AI (left)
+    color: var(--pico-contrast);
+    
+    // Tail for AI/Narrator (left)
     &::before {
       content: "";
       position: absolute;
-      left: -8px;
+      left: -6px; // Adjust closer to the corner
       top: 0;
       width: 0;
       height: 0;
       border-style: solid;
-      border-width: 0 8px 8px 0;
+
+      // Tail size reduction
+      border-width: 0 6px 6px 0; 
       border-color: transparent var(--pico-muted-background-color) transparent transparent;
     }
   }
 
-  // Default styling for User (Primary)
+  // Default styling for User (Primary) - now left-aligned
   &.user {
-    background-color: var(--pico-primary-background);
+    // Default color, will be overridden by signature classes below
+    background-color: var(--pico-primary);
     color: var(--pico-primary-inverse);
-    align-self: flex-end;
-    border-top-right-radius: 0;
-    border: 1px solid transparent;
-
-    // Tail for User (right)
+    border-top-left-radius: 0.3rem; 
+    border-top-right-radius: 1.5rem;
+    
+    // Tail for User (left)
     &::before {
       content: "";
       position: absolute;
-      right: -8px;
+      left: -6px;
       top: 0;
       width: 0;
       height: 0;
       border-style: solid;
-      border-width: 8px 8px 0 0;
-      border-color: var(--pico-primary-background) transparent transparent transparent;
+      border-width: 0 6px 6px 0;
+      border-color: transparent var(--pico-primary) transparent transparent;
     }
   }
 
@@ -178,6 +192,8 @@ body.story-active {
     align-self: center;
     max-width: 90%;
     border-radius: var(--pico-border-radius); // Reset radius for centered messages
+    border-top-right-radius: var(--pico-border-radius); 
+    box-shadow: none;
 
     &::before {
       display: none; // No tail for OOC
@@ -185,8 +201,12 @@ body.story-active {
   }
 
   .narrator-prefix {
-    font-weight: bold;
-    color: var(--pico-primary);
+    font-weight: 700; // Slightly bolder 
+    display: block;
+    margin-bottom: 0.35rem; 
+
+    // Default prefix color for neutral bubbles
+    color: light-dark(var(--pico-primary), var(--pico-primary-light)); 
   }
 }
 
@@ -200,26 +220,23 @@ $colors: (
 );
 
 @each $name, $hex in $colors {
-  // User: Solid color background (Unchanged)
-  .story-message.user.signature-#{$name} {
-    background-color: $hex;
-    color: white;
-    border-color: $hex;
-
+  // === SIGNATURE COLOR APPLICATION ===
+  
+  // This block ensures any message (user or ai) with a signature class 
+  // uses the signature color for the bubble and its tail.
+  .story-message.signature-#{$name} {
+    background-color: $hex; 
+    color: white; // White text is necessary for contrast
+    
     &::before {
-      border-color: $hex transparent transparent transparent;
-    }
-  }
-
-  // AI: Solid color background (FIXED: removed tint/border-only style)
-  .story-message.ai.signature-#{$name} {
-    background-color: $hex; // Solid color
-    color: white; // Ensure text is readable
-    border-color: $hex;
-
-    &::before {
-      // Tail points left: transparent right-color transparent transparent
+      // Tail points left, uses the signature color
       border-color: transparent $hex transparent transparent;
+    }
+    
+    // Ensure prefix text is still visible (white) against the solid color
+    .narrator-prefix {
+      color: white;
+      opacity: 0.8;
     }
   }
 }
