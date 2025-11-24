@@ -18,11 +18,16 @@ storeInstructionsToMemory
   [pluginRememberPlugin.set("aiChaosInstruction", `[aiChaosInstruction]`)]
   [pluginRememberPlugin.set("aiTransfigureInstruction", `[aiTransfigureInstruction]`)]
 
-// Expose plugins to the Right Panel (window.parent)
+// Expose plugins to the Right Panel (Child Iframe) via Script Injection.
+// This implements the Perchance Two-Panel Bridge protocol.
 exposePluginsToWindow
-  [window.parent.pluginTextToImage = pluginTextToImage, ""]
-  [window.parent.pluginAi = pluginAi, ""]
-  [window.parent.pluginRememberPlugin = pluginRememberPlugin, ""]
+  <script>
+    // The Perchance list syntax ([pluginName]) is used to output the plugin object
+    // directly into the right panel's global window scope.
+    window.pluginTextToImage = [pluginTextToImage];
+    window.pluginAi = [pluginAi];
+    window.pluginRememberPlugin = [pluginRememberPlugin];
+  </script>
 
 doggo
   imgSeed = ""
