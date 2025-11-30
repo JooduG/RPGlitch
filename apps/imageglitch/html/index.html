@@ -4,12 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ImageGlitch</title>
-    <!--STYLES will be injected here by the build process via JS-->
-  </head>
+    </head>
 
   <body>
-    <!-- Perchance plugins will auto-expose after initialization -->
-    <!-- We poll for them in waitForPlugins() -->
     <header class="container">
       <nav id="top-bar" class="top-bar">
         <div id="top-bar-left">
@@ -28,7 +25,6 @@
           </select>
         </div>
 
-        <!-- Top Bar Right -->
         <div id="top-bar-right">
           <select
             id="numImagesSelect"
@@ -85,6 +81,26 @@
       <div id="output" class="output-area"></div>
     </main>
 
-    <!--SCRIPTS will be injected here by the build process-->
-  </body>
+    <script>
+      // Map Perchance 'ai' plugin to window
+      if (typeof ai !== "undefined") {
+        window.ai = ai;
+        window.pluginAi = ai;
+      }
+      
+      // Map Perchance 'textToImage' plugin to window
+      if (typeof textToImage !== "undefined") {
+        window.image = textToImage;
+        window.textToImage = textToImage;
+        window.pluginTextToImage = textToImage;
+      }
+
+      // Map Remember plugin if available
+      if (typeof remember !== "undefined") {
+        window.remember = remember;
+        window.pluginRemember = remember;
+      }
+    </script>
+
+    </body>
 </html>

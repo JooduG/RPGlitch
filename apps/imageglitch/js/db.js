@@ -43,8 +43,8 @@ db.version(2)
         typeof window !== "undefined"
           ? window.localStorage
           : typeof global !== "undefined"
-          ? global.localStorage
-          : localStorage;
+            ? global.localStorage
+            : localStorage;
 
       // Read all localStorage keys
       const mainPromptContent = storage.getItem("mainPromptContent") || "";

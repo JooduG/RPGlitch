@@ -26,13 +26,11 @@ $gradient-color-3: #1a3a4a;
 $gradient-color-4: #2a1a3a;
 
 body {
-  background: linear-gradient(
-    120deg,
-    $gradient-color-1 0%,
-    $gradient-color-2 40%,
-    $gradient-color-3 70%,
-    $gradient-color-4 100%
-  );
+  background: linear-gradient(120deg,
+      $gradient-color-1 0%,
+      $gradient-color-2 40%,
+      $gradient-color-3 70%,
+      $gradient-color-4 100%);
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: cover;
@@ -234,13 +232,11 @@ input::placeholder {
   transition: opacity 0.3s ease;
   pointer-events: none;
   z-index: 10;
-  background: linear-gradient(
-    to bottom,
-    rgb(0 0 0 / 60%) 0%,
-    transparent 30%,
-    transparent 70%,
-    rgb(0 0 0 / 60%) 100%
-  );
+  background: linear-gradient(to bottom,
+      rgb(0 0 0 / 60%) 0%,
+      transparent 30%,
+      transparent 70%,
+      rgb(0 0 0 / 60%) 100%);
 }
 
 .image-container:hover .image-overlay {
