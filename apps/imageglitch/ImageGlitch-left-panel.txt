@@ -4,113 +4,169 @@ $meta
   header
     mode = minimal
 
-// Import Plugins
+// --- IMPORTS ---
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
 remember = {import:remember-plugin}
 
-// Aliases to ensure they exist in global scope under these names
-pluginAi = ai
-pluginTextToImage = textToImage
-pluginRemember = remember
-
-init
-  [storeInstructionsToMemory]
-
-storeInstructionsToMemory
-  [remember.set("aiScribeInstruction", `[aiScribeInstruction]`)]
-  [remember.set("aiChaosInstruction", `[aiChaosInstruction]`)]
-  [remember.set("aiTransfigureInstruction", `[aiTransfigureInstruction]`)]
-
-// --- INSTRUCTION INJECTION ---
-// We inject the raw instructions into the HTML head as data scripts.
-// This ensures they are available immediately without async database calls.
-instructionInjection
-  <script id="data-scribe" type="application/text">[aiScribeInstruction.selectAll.join('\n')]</script>
-  <script id="data-chaos" type="application/text">[aiChaosInstruction.selectAll.join('\n')]</script>
-  <script id="data-transfigure" type="application/text">[aiTransfigureInstruction.selectAll.join('\n')]</script>
-
-// --- HTML BUILDER ---
+// --- BUILDER ---
 buildImageGenerationHtml(data) =>
   var html = {import:apps/imageglitch/html/index.html}
-  
-  // Inject instructions into HEAD
-  var htmlWithInstructions = html.replace("</head>", [instructionInjection] + "</head>")
-  
-  return htmlWithInstructions
+  // Inject the lists into the HTML head so JS can read them
+  var htmlWithConfig = html.replace("</head>", [clientSideConfig] + "</head>")
+  return htmlWithConfig
 
+// --- LIVE BRIDGE: EXPORT LISTS TO JS ---
+// We use backslashes \{ \} to tell Perchance these are LITERAL curly braces for JS.
+clientSideConfig
+  <script>
+    window.glitchLists = \{
+      styles: [JSON.stringify(artisticStyles.selectAll.map(i => i.text || i))],
+      lighting: [JSON.stringify(lighting.selectAll.map(i => i.text || i))],
+      colors: [JSON.stringify(colorPalettes.selectAll.map(i => i.text || i))],
+      composition: [JSON.stringify(composition.selectAll.map(i => i.text || i))],
+      mood: [JSON.stringify(mood.selectAll.map(i => i.text || i))],
+      tech: [JSON.stringify(technicalDetails.selectAll.map(i => i.text || i))],
+      extras: [JSON.stringify(additionalElements.selectAll.map(i => i.text || i))],
+      quality: [JSON.stringify(aiCoreQuality.selectAll.map(i => i.text || i))],
+      enhancers: [JSON.stringify(aiFlavorEnhancers.selectAll.map(i => i.text || i))]
+    \};
+  </script>
+
+// --- CONFIG ---
 doggo
   imgSeed = ""
-  onFinish(result) =>
-    let iframe = result.iframe;
-    let canvas = result.canvas;
-    iframe.replaceWith(canvas);
+  onFinish(result) => result.iframe.replaceWith(result.canvas)
 
-numImagesToGen = 0
-masterCreativity = 4
-
-// --- AI INSTRUCTIONS ---
-aiScribeInstruction
-  You are the "Holistic Prompt Architect".
-  Your core goal is to take a simple idea and make it better by holistically filling in descriptive gaps.
-  PROCESS:
-  1. RECEIVE: Accept the user's base prompt.
-  2. ANALYZE: Deconstruct the prompt.
-  4. IDENTIFY GAPS: Determine which categories are lacking.
-  5. HOLISTIC SELECTION: Select suitable terms from: [artisticStyles.selectOne], [composition.selectOne], [lighting.selectOne], [colorPalettes.selectOne], [mood.selectOne], [technicalDetails.selectOne].
-  6. ENHANCE: Inject quality keywords: [aiCoreQuality.selectUnique(4).join(', ')], [aiFlavorEnhancers.selectUnique(3).join(', ')].
-  7. SYNTHESIZE: Combine everything into a cohesive prompt.
-  8. RETURN: Output ONLY the refined prompt string.
-
-  IMPORTANT RULES:
-  - Make the prompt 100% affirmative.
-  - Return ONLY the prompt string.
-
-aiChaosInstruction
-  You are the "Mad Prompt Scientist".
-  Your core goal is to spark new ideas by introducing random elements.
-  PROCESS:
-  1. RECEIVE: Accept user prompt.
-  2. FILL GAPS: Fill lacking categories with RANDOM keywords: [artisticStyles.selectOne], [composition.selectOne], [lighting.selectOne], [colorPalettes.selectOne], [mood.selectOne].
-  3. CHAOS TWIST: Always reroll at least one category.
-  4. RETURN: Output ONLY the mutated prompt string.
-
-aiTransfigureInstruction
-  You are the "Prompt Modification Specialist".
-  Your core goal is to surgically alter a prompt to match instructions.
-  PROCESS:
-  1. RECEIVE: Input A (Prompt), Input B (Instruction).
-  2. MODIFY: Execute instructions precisely.
-  3. RETURN: Output ONLY the modified prompt string.
-
-// --- CORE LISTS ---
+// --- CONTENT LISTS ---
 aiCoreQuality
-  masterpiece, world-class masterpiece, 8K ultra-high resolution, photorealistic, ultra-realistic
+  masterpiece, world-class masterpiece, award-winning quality
+  impeccable attention to detail, high detail, ultra-intricate detail
+  8K ultra-high resolution, 45 megapixels, ultra high res
+  high dynamic range, HDR
+  lifelike textures and materials, photorealistic textures
+  world-class work of art, original realistic
+  photorealistic, ultra-realistic, strictly realistic, unbelievable realism
 
 aiFlavorEnhancers
-  cinematic, dramatic shadows, volumetric lighting, depth of field, trending on ArtStation
+  cinematic, dramatic shadows, world-class post-processing
+  mood invoking bokeh, soft bokeh background blur
+  volumetric lighting, iridescent moody lighting, strong magical ambient glow
+  larger-than-life color palette, vibrant color grading
+  thought-provoking scale, dimensional depth of field
+  razor-sharp focus, intricate attention
+  action enhancing motion blur, natural film grain
+  atmospheric special effects, faint lens flares
+  trending on ArtStation, award-winning
 
 artisticStyles
-  3d render, abstract, anime, studio ghibli, charcoal sketch, cyberpunk, fantasy realism, oil painting, pixel art, photorealism, watercolor
+  3d render
+  abstract, minimalism, surrealism, photorealism
+  anime, studio ghibli
+  cartoon, children's book
+  charcoal sketch, ink drawing, line art, stippled
+  collage, photomontage
+  concept art, fantasy realism
+  cyberpunk, vaporwave
+  dali, picasso, escher, van gogh
+  digital art, ukiyo-e
+  fashion illustration, gothic, impasto
+  graffiti, pop art
+  low poly, pixel art
+  stained glass, steampunk
+  photorealism, hyper-realistic, lifelike, dreamlike realism
+  RAW photo, real world photo, captured with a high-end camera
 
 lighting
-  backlit, bioluminescent, cinematic lighting, dramatic shadows, golden hour, neon glow, natural light, studio lighting, volumetric light
+  backlit, rim lighting
+  bioluminescent, underwater lighting
+  candlelit, firelight
+  chiaroscuro, dramatic, low key
+  disco lights, colored gels
+  fluorescent, studio lighting, spotlight
+  golden hour, soft morning light
+  harsh midday sun, high key
+  moonlit, starlight
+  neon glow, CRT screen glow
+  overcast, soft highlights
+  natural light, soft warm lighting
+  cinematic lighting, dramatic moody lighting
+  professional lighting, photon mapping
+  directional and atmospheric lighting
 
 colorPalettes
-  autumn palette, black and white, candy colors, cool blues, earth tones, neon, pastel, vibrant, warm tones
+  analogous, complementary, gradient
+  autumn palette, fiery reds, forest greens
+  black and white, monochrome, sepia
+  candy colors, jewel tones
+  cool blues, winter palette
+  duotone, high contrast
+  iridescent, metallic
+  muted, true-to-life colors
+  neon, vibrant
+  pastel pinks and purples
+  primary colors, rainbow
+  balanced palette, realistic skin tones
 
 composition
-  bird's eye view, close-up, dynamic diagonal, fisheye, golden ratio, isometric, panoramic, rule of thirds, symmetry
+  asymmetry, rule of thirds, dynamic diagonal
+  bird's eye view, high angle
+  centered, symmetry
+  close-up, medium shot, full body portrait
+  dutch angle, low angle, worm's eye view
+  fisheye, barrel distortion
+  frame within a frame, vignette
+  golden ratio, balanced composition
+  isometric, orthographic view
+  landscape orientation, panoramic
+  layered depth, negative space
+  immersive intimate atmosphere, raw energy
 
 mood
-  ancient, chaotic, dramatic, energetic, epic, futuristic, gritty, magical, melancholic, mysterious, peaceful, romantic, surreal
+  ancient, dark, gothic
+  chaotic, rebellious
+  dramatic, tense
+  energetic, dynamic
+  epic, larger-than-life scale
+  futuristic, cybernetic
+  gritty, harsh
+  hopeful, uplifting
+  humorous, playful
+  magical, enchanted
+  melancholic, nostalgic
+  mysterious, unknown
+  peaceful, serene
+  romantic, affectionate
+  surreal, dreamlike
+  climactic, immersive
 
 technicalDetails
-  4K resolution, 8K resolution, ambient occlusion, bokeh, chromatic aberration, depth of field, film grain, long exposure, macro lens, ray tracing, unreal engine 5 render
+  35mm film grain, 4K resolution, 8K resolution, ambient occlusion
+  analog emulation, anti-aliasing, bokeh background
+  chromatic aberration, color grading, depth of field
+  double exposure, dynamic range, film grain
+  long exposure, macro lens, motion blur
+  ray tracing, unreal engine 5 render
+  subsurface scattering, volumetric lighting
+  captured by professional camera, Canon EOS R5
+  natural skin pores, realistic blemishes, anatomically correct
 
 additionalElements
-  alien landscape, ancient ruins, astronaut, cyberpunk city, enchanted forest, floating island, giant robot, glowing mushrooms, neon sign, steampunk gears, wizard tower
+  an alien landscape, ancient ruins
+  an anime character, chibi mascot
+  an astronaut, cybernetic implant
+  enchanted forest, glowing mushrooms
+  floating islands, waterfall
+  futuristic cityscape, neon sign
+  haunted house, spooky ghost
+  cherry blossom branch, falling feathers
+  geometric shapes, kaleidoscope pattern
+  steampunk goggles, mechanical gears
+  space shuttle, meteor shower
+  dragon, phoenix rising
+  magic portal, rune stone
+  rain slicked streets, smoke plumes
 
 // OUTPUT
 mainOutput
-  $output = [init][buildImageGenerationHtml(doggo)]
+  $output = [buildImageGenerationHtml(doggo)]
