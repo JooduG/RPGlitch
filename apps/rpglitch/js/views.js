@@ -10,7 +10,7 @@ import { isValidImageUrl, extractImageUrl, sanitizeHtml } from "./validation.js"
 import { initDrawer, openDrawer } from "./drawer.js";
 
 let _refreshAllLists = null;
-let _onSelectionChanged = null; // The function set by storyboard-controller
+let _onSelectionChanged = null;
 
 const selectedEntities = {
   aiCharacter: null,
@@ -76,19 +76,43 @@ export function updatePortraits(aiCharacter, userCharacter) {
     const container = document.querySelector(id);
     if (!container) return;
 
+    // Apply signature class to parent for context
+    container.className = "character-portrait"; // Reset
+    if (ent && ent.signatureColour && ent.signatureColour !== "default") {
+      container.classList.add(`signature-${ent.signatureColour}`);
+    }
+
     const imgDiv = container.querySelector(".portrait-image");
-    const nameDiv = container.querySelector(".portrait-name");
+
+    // FIX: Use the correct class name matching SCSS (.character-name-overlay)
+    // Check for both old and new class names to be safe
+    let nameDiv = container.querySelector(".character-name-overlay") || container.querySelector(".portrait-name");
+
+    // Normalize class name if found
+    if (nameDiv) nameDiv.className = "character-name-overlay";
 
     if (imgDiv) {
       imgDiv.innerHTML = "";
       if (ent) {
-        // Determine if the entity is a world to apply landscape aspect ratio
         const isWorld = ent.type === 'world';
         const picture = getPictureHTML(ent, { cover: true, landscape: isWorld });
         if (picture) imgDiv.appendChild(picture);
       }
     }
-    if (nameDiv) nameDiv.textContent = ent?.name || label;
+
+    if (nameDiv) {
+      nameDiv.innerHTML = `<h2>${ent?.name || label}</h2>`;
+      // Apply signature to nameplate specifically if needed
+      if (ent && ent.signatureColour && ent.signatureColour !== "default") {
+        // We rely on the parent class or we can add it directly
+        nameDiv.style.borderColor = `var(--signature-${ent.signatureColour})`;
+        nameDiv.querySelector("h2").style.color = `var(--signature-${ent.signatureColour})`;
+      } else {
+        nameDiv.style.borderColor = "";
+        const h2 = nameDiv.querySelector("h2");
+        if (h2) h2.style.color = "";
+      }
+    }
   };
   setPort("#gameplay-ai-portrait", aiCharacter, "AI");
   setPort("#gameplay-user-portrait", userCharacter, "You");
@@ -105,7 +129,6 @@ export function updateStoryboardSelection(newSelection) {
         openDrawerFor(type, key, previewId, btn, container);
       };
 
-      // Ensure isWorld boolean is calculated here for the preview to render correctly
       const isWorld = type === 'world';
       renderEntityPreview(previewId, entity, btn, type, onEdit, isWorld);
 
@@ -121,15 +144,20 @@ export function updateStoryboardSelection(newSelection) {
 }
 
 // --- RENDER MESSAGE (Chat Bubbles) ---
-// UPDATED: Added signatureColour to the function signature
-export function renderMessage(container, role, text, characterName, signatureColour, type) {
+export function renderMessage(container, role, text, characterName, type, entities) {
   const div = document.createElement("div");
 
-  // 1. Determine base class and role class (user/ai/narrator)
   const roleClass = (role === "user" || role === "ai") ? role : "narrator";
   let classList = ["story-message", roleClass];
 
-  // 2. Add signature color class
+  // FIX: Determine signature color based on role and entities
+  let signatureColour = null;
+  if (role === "user" && entities?.userCharacter?.signatureColour) {
+    signatureColour = entities.userCharacter.signatureColour;
+  } else if (role === "ai" && entities?.aiCharacter?.signatureColour) {
+    signatureColour = entities.aiCharacter.signatureColour;
+  }
+
   if (signatureColour && signatureColour !== "default") {
     classList.push(`signature-${signatureColour}`);
   }
@@ -142,22 +170,17 @@ export function renderMessage(container, role, text, characterName, signatureCol
     div.setAttribute("data-character-name", characterName);
   }
 
-  // 3. Construct and sanitize content, including the speaker name prefix
-  let contentHtml = sanitizeHtml(text); // Sanitize the message content first
+  let contentHtml = sanitizeHtml(text);
 
-  // Prepend speaker name if available and it's not a generic narrator role
+  // Prepend speaker name
   if (characterName && roleClass !== "narrator") {
     const safeName = sanitizeHtml(characterName);
-    // Combine the sanitized name prefix with the sanitized message body
     contentHtml = `<span class="narrator-prefix">${safeName}:</span> ${contentHtml}`;
   } else if (roleClass === "narrator" && characterName) {
-    // For system messages that include a dedicated name (e.g., 'Narrator:')
     const safeName = sanitizeHtml(characterName);
     contentHtml = `<span class="narrator-prefix">${safeName}:</span> ${contentHtml}`;
   }
 
-  // Use innerHTML to insert the content, including the narrator-prefix span
-  // MANDATE: Using sanitizeHtml on the text ensures security, but we must use innerHTML to insert the span.
   div.innerHTML = contentHtml;
   container.appendChild(div);
 }
@@ -189,7 +212,7 @@ function closeProfileModal() {
   if (screen) {
     screen.classList.remove("is-open");
     screen.setAttribute("hidden", "");
-    screen.classList.remove("profile-view--world"); // Cleanup context class
+    screen.classList.remove("profile-view--world");
     if (location.hash.includes("#profile")) {
       const base = location.pathname + location.search;
       history.replaceState("", document.title, base + (document.body.classList.contains("mode-gameplay") ? "#story" : ""));
@@ -202,7 +225,6 @@ function openProfileModal(type, id) {
   renderProfilePage(type.toLowerCase(), id);
 }
 
-// --- AUTO-RESIZE HELPER ---
 function autoResize(el) {
   el.style.height = 'auto';
   el.style.height = el.scrollHeight + 'px';
@@ -218,10 +240,8 @@ export async function renderProfilePage(type, id) {
   document.body.classList.add("profile-view-active");
   screen.classList.add("is-open");
 
-  // Determine if this is a World entity to apply landscape logic
   const isWorld = type === 'world';
 
-  // Apply context class for CSS styling (wider layout)
   if (isWorld) {
     screen.classList.add("profile-view--world");
   } else {
@@ -249,9 +269,9 @@ export async function renderProfilePage(type, id) {
   if (!entity) { closeProfileModal(); return; }
 
   screen.textContent = "";
-  screen.className = "profile-view"; // Reset classes
+  screen.className = "profile-view";
   screen.classList.add("is-open");
-  if (isWorld) screen.classList.add("profile-view--world"); // Re-add context
+  if (isWorld) screen.classList.add("profile-view--world");
   screen.classList.toggle("is-editing", isEditing);
 
   const template = document.querySelector("#tpl-profile-page");
@@ -260,7 +280,6 @@ export async function renderProfilePage(type, id) {
 
   const heroWrap = layout.querySelector(".hero-wrap");
   if (getPictureHTML) {
-    // Pass landscape option to getPictureHTML
     const heroPic = getPictureHTML(entity, { cover: true, landscape: isWorld });
     if (heroPic) { heroPic.classList.add("hero-bleed"); heroWrap.appendChild(heroPic); }
   }
@@ -306,10 +325,7 @@ export async function renderProfilePage(type, id) {
         actionButton.setAttribute("aria-busy", "true");
         actionButton.textContent = "Generating...";
         const prompt = imageInput.value.trim();
-
-        // Logic Fork: Landscape for Worlds, Portrait for others
         const resolution = isWorld ? "768x512" : "512x768";
-
         const res = await window.textToImage({ prompt, resolution: resolution });
         const url = typeof res === 'string' ? res : extractImageUrl(res);
         if (url) {
@@ -396,16 +412,17 @@ export async function renderProfilePage(type, id) {
     headerWrap.appendChild(descDisplay);
   }
 
-  // --- TAGS (TEMPORARILY HIDDEN) ---
+  // --- TAGS ---
   const tagsRow = document.createElement("div");
   tagsRow.className = "field-row";
+  tagsRow.hidden = true; // Hidden for now
 
   if (isEditing) {
     tagsRow.innerHTML = `
-      <div class="field-label"><label>Tags</label><small class="muted">Comma separated</small></div>
-      <div class="field-input">
-        <textarea data-edit-field="tags" rows="1" placeholder="e.g. warrior, magic, dark">${(entity.tags || []).join(", ")}</textarea>
-      </div>`;
+      <div class="field-label"><label>Tags</label><small class="muted">Comma separated</small></div>
+      <div class="field-input">
+        <textarea data-edit-field="tags" rows="1" placeholder="e.g. warrior, magic, dark">${(entity.tags || []).join(", ")}</textarea>
+      </div>`;
     const tagInput = tagsRow.querySelector("textarea");
     tagInput.addEventListener('input', () => autoResize(tagInput));
     setTimeout(() => autoResize(tagInput), 0);
@@ -418,25 +435,21 @@ export async function renderProfilePage(type, id) {
       inputContainer.textContent = (entity.tags || []).join(", ");
     }
   }
-
-  // HIDE: Hide the entire tags row until the feature is finalized
-  tagsRow.hidden = true;
-
   headerWrap.after(tagsRow);
 
-  // --- SECTIONS LOOP ---
+  // --- SECTIONS ---
   const createRow = (key, def) => {
     const div = document.createElement("div"); div.className = "field-row";
     const sublabel = def.sublabels[type] || "";
 
     div.innerHTML = `
-        <div class="field-label">
-            <label>${def.label}</label>
-            ${sublabel ? `<small class="muted">${sublabel}</small>` : ''}
-        </div>
-        <div class="field-input">
-            <div data-read class="profile-field-text-read">${escapeHtml(entity[key] || "")}</div>
-        </div>`;
+        <div class="field-label">
+            <label>${def.label}</label>
+            ${sublabel ? `<small class="muted">${sublabel}</small>` : ''}
+        </div>
+        <div class="field-input">
+            <div data-read class="profile-field-text-read">${escapeHtml(entity[key] || "")}</div>
+        </div>`;
 
     if (isEditing) {
       const input = document.createElement("textarea");
@@ -537,11 +550,9 @@ export async function renderProfilePage(type, id) {
 export async function initViews(deps = {}) {
   _refreshAllLists = deps.refreshAllLists;
 
-  // NEW: Store the onSelectionChanged setter from the dependencies
   if (deps.onSelectionChanged) {
     _onSelectionChanged = deps.onSelectionChanged;
   } else {
-    // Create a setter function to be used by initStoryboardStage
     initViews.setOnSelectionChanged = (handler) => {
       _onSelectionChanged = handler;
     };
@@ -556,11 +567,10 @@ export async function initViews(deps = {}) {
   bindPortraitClick("#gameplay-ai-portrait", "aiCharacter");
   bindPortraitClick("#gameplay-user-portrait", "userCharacter");
 
-  // Return the necessary setters/helpers for the App object
   return {
     setOnSelectionChanged: (handler) => { _onSelectionChanged = handler; },
-    updateStoryboardSelection, // Export update function for external use (e.g. shuffle)
-    renderProfilePage // Export for external use
+    updateStoryboardSelection,
+    renderProfilePage
   };
 }
 
@@ -591,7 +601,6 @@ function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) 
         openDrawerFor(entityType, stateKey, previewId, button, container);
       };
 
-      // Pass landscape option here too, to show preview card correctly if desired
       const isWorld = entityType === 'world';
       renderEntityPreview(previewId, entity, button, entityType, onEdit, isWorld);
 
@@ -615,7 +624,6 @@ function renderEntityPreview(previewId, entity, slotButton, type, onEdit, isWorl
     const media = document.createElement("div");
     media.className = "card-media";
     media.title = "View Profile";
-    // Pass landscape option
     media.appendChild(getPictureHTML(entity, { cover: true, landscape: isWorld }));
     media.addEventListener("click", (e) => {
       e.stopPropagation();

@@ -7,7 +7,7 @@
   <title>RPGlitch - AI Storytelling Platform</title>
 </head>
 
-<body class="mode-storyboard">
+<body class="mode-storyboard" style="overflow: hidden;">
   <a href="#main" hidden>Skip to main content</a>
 
   <dialog id="loading-modal">
@@ -62,9 +62,9 @@
     </div>
   </div>
 
-  <main id="main" class="universal-stage">
+  <main id="main" class="universal-stage story-grid">
 
-    <div class="stage-column stage-column--side" id="stage-ai">
+    <div class="stage-column stage-column--side story-side-column" id="stage-ai">
       <div class="stage-content--storyboard">
         <article class="entity-card">
           <div id="btn-select-ai" class="card-slot" role="button" tabindex="0">
@@ -80,15 +80,15 @@
           <div id="ai-character-preview" class="entity-preview" hidden></div>
         </article>
       </div>
-      <div class="stage-content--gameplay">
+      <div class="stage-content--gameplay character-image">
         <div class="character-portrait" id="gameplay-ai-portrait">
           <div class="portrait-image"></div>
-          <div class="portrait-name"></div>
+          <div class="character-name-overlay"></div>
         </div>
       </div>
     </div>
 
-    <div class="stage-column stage-column--center" id="stage-center">
+    <div class="stage-column stage-column--center story-main-column" id="stage-center">
       <div class="stage-content--storyboard center-layout-grid">
         <div id="storyboard-header">
           <h1 id="title-storyboard" class="story-title-input">My Story</h1>
@@ -110,25 +110,24 @@
 
         <div class="storyboard-actions">
           <div role="group">
-            <button id="btn-options" aria-label="Options">
-              <span>Settings</span>
-            </button>
-            <button id="btn-shuffle" class="secondary" aria-label="Shuffle">
-              <span>Shuffle</span>
-            </button>
+            <button id="btn-options" aria-label="Options"><span>Settings</span></button>
+            <button id="btn-shuffle" class="secondary" aria-label="Shuffle"><span>Shuffle</span></button>
             <button id="begin-story" class="primary" disabled>Begin Story</button>
           </div>
         </div>
       </div>
 
-      <div class="stage-content--gameplay">
+      <div class="stage-content--gameplay"
+        style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
         <div class="sticky-header">
           <h1 id="title-gameplay" class="story-title-input">Story Title</h1>
         </div>
+
         <div id="chat-feed" role="log" aria-live="polite">
           <div id="no-messages" hidden>No messages yet</div>
           <div id="typing-indicator" role="status" aria-live="polite" aria-atomic="true" hidden></div>
         </div>
+
         <div id="chat-input-area">
           <div id="story-concluded" hidden>Story concluded</div>
           <div id="status-notifier" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -143,7 +142,7 @@
       </div>
     </div>
 
-    <div class="stage-column stage-column--side" id="stage-user">
+    <div class="stage-column stage-column--side story-side-column" id="stage-user">
       <div class="stage-content--storyboard">
         <article class="entity-card">
           <div id="btn-select-user" class="card-slot" role="button" tabindex="0">
@@ -158,17 +157,16 @@
           <div id="user-character-preview" class="entity-preview" hidden></div>
         </article>
       </div>
-      <div class="stage-content--gameplay">
+      <div class="stage-content--gameplay character-image" id="story-right-character">
         <div class="character-portrait" id="gameplay-user-portrait">
           <div class="portrait-image"></div>
-          <div class="portrait-name"></div>
+          <div class="character-name-overlay"></div>
         </div>
       </div>
     </div>
   </main>
 
   <div id="profile-screen" hidden></div>
-
   <div id="storyboard-drawer" class="storyboard-drawer" aria-hidden="true" hidden>
     <div class="drawer-handle"></div>
     <header class="drawer-header">

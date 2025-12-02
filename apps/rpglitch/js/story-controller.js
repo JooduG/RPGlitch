@@ -4,22 +4,20 @@ import { state, applyPatch } from "./store.js";
 import { generateStream } from "./ai-service.js";
 import { entities } from "./entities.js";
 import { renderMessage, updatePortraits } from "./views.js";
-import { error } from "./utils.js";
+import { error } from "./utils.js"; // Removed 'log'
 import { ContextBuilder } from "./context-builder.js";
 
-// --- Controller API ---
-
 export const StoryController = {
-  requireActive: () => { 
-    if (!state.story.activeId) throw new Error("No active story."); 
-    return state.story.activeId; 
+  requireActive: () => {
+    if (!state.story.activeId) throw new Error("No active story.");
+    return state.story.activeId;
   },
 
   createFromSelection: async (data) => {
-    const id = await db.stories.add({ 
-      ...data, 
-      createdAt: Date.now(), 
-      updatedAt: Date.now() 
+    const id = await db.stories.add({
+      ...data,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
     });
     applyPatch({ story: { activeId: id, byId: { [id]: data } } });
     return id;
@@ -30,7 +28,7 @@ export const StoryController = {
       const story = await db.stories.get(storyId);
       if (!story) throw new Error("Story not found.");
 
-      applyPatch({ 
+      applyPatch({
         story: { activeId: story.id, byId: { [story.id]: story } },
         storyTitle: story.storyTitle,
         mode: "gameplay"
@@ -42,14 +40,15 @@ export const StoryController = {
         entities.get("character", story.aiCharacterId),
         entities.get("character", story.userCharacterId)
       ]);
-      
+
       updatePortraits(ai, user);
       await StoryController.render(story.id);
 
+      // Set ambient color based on World
       if (story.worldId) {
         const world = await entities.get("world", story.worldId);
         if (world && world.signatureColour) {
-           const colorMap = {
+          const colorMap = {
             pink: "236, 72, 153", emerald: "16, 185, 129", cyan: "6, 182, 212",
             orange: "249, 115, 22", purple: "168, 85, 247", default: "255, 255, 255"
           };
@@ -76,34 +75,35 @@ export const StoryController = {
   render: async (storyId) => {
     const feed = document.querySelector("#chat-feed");
     if (!feed) return;
-    
+
     const msgs = state.messages.byStoryId[storyId] || [];
     const story = state.story.byId[storyId];
-    
+
     let [ai, user] = await Promise.all([
       story?.aiCharacterId ? entities.get("character", story.aiCharacterId) : null,
       story?.userCharacterId ? entities.get("character", story.userCharacterId) : null
     ]);
-    
+
     feed.innerHTML = "";
     const noMsg = document.querySelector("#no-messages");
-    
+
     if (msgs.length === 0) {
       if (noMsg) { noMsg.hidden = false; feed.appendChild(noMsg); }
       return;
     }
-    
+
     if (noMsg) noMsg.hidden = true;
-    
+
+    // Render using view logic
     msgs.forEach(m => renderMessage(
-      feed, 
-      m.role, 
-      m.text, 
-      m.characterName, 
-      m.type || "IC", 
+      feed,
+      m.role,
+      m.text,
+      m.characterName,
+      m.type || "IC",
       { aiCharacter: ai, userCharacter: user }
     ));
-    
+
     feed.scrollTop = feed.scrollHeight;
   },
 
@@ -111,15 +111,16 @@ export const StoryController = {
     if (!text) return;
     const storyId = StoryController.requireActive();
     const story = state.story.byId[storyId];
-    
-    await db.messages.add({ 
-      storyId, 
-      role: "user", 
-      type: "IC", 
-      text, 
-      createdAt: Date.now() 
+
+    // 1. Save User Message
+    await db.messages.add({
+      storyId,
+      role: "user",
+      type: "IC",
+      text,
+      createdAt: Date.now()
     });
-    
+
     await StoryController.loadMessages(storyId);
     await StoryController.render(storyId);
 
@@ -127,31 +128,36 @@ export const StoryController = {
     if (typing) typing.hidden = false;
 
     try {
+      // 2. Build Prompt
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build();
-      
-      // DEBUG: Log context payload (use console.log, no import needed)
-      console.log("%c[ContextBuilder Payload]", "color: #00ffff; font-weight: bold;", payload);
-      console.log("%c[System Prompt Preview]", "color: #00ffff;", payload.system);
+
+      // Log for debugging
+      console.log("[RPGlitch] System Prompt:", payload.system);
 
       const ctrl = new AbortController();
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
+      // 3. Generate Response
       const response = await generateStream({ payload, signal: ctrl.signal });
+
+      // 4. Save AI Response
+      // Note: We use 'ai' role now, not 'narrator', for active characters
+      const aiChar = await entities.get("character", story.aiCharacterId);
 
       await db.messages.add({
         storyId,
-        role: "narrator",
+        role: "ai", // Correct semantic role
         type: "IC",
         text: response,
-        characterName: (await entities.get("character", story.aiCharacterId))?.name,
+        characterName: aiChar?.name || "Narrator",
         createdAt: Date.now()
       });
-      
+
       await StoryController.loadMessages(storyId);
       await StoryController.render(storyId);
       applyPatch({ ui: { fsm: "done" } });
-      
+
     } catch (e) {
       error("AI Error", e);
       applyPatch({ ui: { fsm: "error", lastError: e.message } });
@@ -162,26 +168,32 @@ export const StoryController = {
   },
 
   generateOpening: async (storyId) => {
-    const story = state.story.byId[storyId];
+    // Removed unused 'story' variable
     const typing = document.querySelector("#typing-indicator");
     if (typing) { typing.textContent = "Generating opening..."; typing.hidden = false; }
 
     try {
-      const [world, ai] = await Promise.all([
-        entities.get("world", story.worldId),
-        entities.get("character", story.aiCharacterId)
-      ]);
+      // Use the centralized builder for consistency
+      const builder = new ContextBuilder(storyId);
+      const payload = await builder.buildOpening();
 
-      const prompt = state.settings.openingPrompt || 
-        `Generate a short, atmospheric opening scene for a story set in ${world.name}. The character is ${ai.name}. Focus on setting the mood.`;
+      console.log("[RPGlitch] Opening Prompt:", payload.system);
 
-      const text = await window.ai(prompt, { temperature: 0.8, max_tokens: 400 });
+      const response = await generateStream({ payload, signal: null });
 
-      await db.messages.add({ storyId, role: "narrator", type: "OOC", text, createdAt: Date.now() });
+      await db.messages.add({
+        storyId,
+        role: "narrator", // Openings are usually narration
+        type: "OOC",
+        text: response,
+        createdAt: Date.now()
+      });
+
       await StoryController.loadMessages(storyId);
       await StoryController.render(storyId);
     } catch (e) {
       error("Opening Gen Failed", e);
+      alert("Failed to generate opening: " + e.message);
     } finally {
       if (typing) typing.hidden = true;
     }
