@@ -117,9 +117,6 @@ body.story-active {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background-color: var(--pico-card-background-color);
-  border-left: 1px solid var(--pico-muted-border-color);
-  border-right: 1px solid var(--pico-muted-border-color);
 }
 
 #chat-feed {
