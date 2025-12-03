@@ -782,7 +782,6 @@ $signature-palettes: (
 }
 
 @keyframes fluid-bounce {
-
   0%,
   80%,
   100% {
@@ -906,4 +905,304 @@ $glow-signatures: (
 #begin-story:disabled {
   cursor: not-allowed;
   opacity: 1;
+}
+
+/* Ensure lower-specificity .profile-left rules appear before more specific
+   .chin-card .card-poster .picture selectors to satisfy stylelint ordering */
+.profile-left .hero-wrap {
+  width: 100%;
+  height: 100%;
+}
+
+.profile-left .picture {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  /* Hide overflow from cropped images */
+}
+
+.profile-left .picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  /* Cover entire container while maintaining aspect ratio */
+  object-position: center center;
+
+  /* Center the image within the container */
+  display: block;
+}
+
+.placeholder-text {
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.profile-left .placeholder-image {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.profile-left .placeholder-image svg {
+  width: clamp(96px, 40%, 320px);
+  height: auto;
+  opacity: 1;
+}
+
+.profile header {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  margin: 1rem;
+  padding: 1rem;
+}
+
+#profile-screen {
+  box-sizing: border-box;
+  max-width: 100%;
+  margin-inline: auto;
+  padding-inline: 0;
+}
+
+.profile-background {
+  position: sticky;
+  top: 0;
+  block-size: min(40vh, 360px);
+  inline-size: 100%;
+  overflow: clip;
+  border-radius: 0;
+}
+
+.profile-titlebar {
+  margin-block-start: 1rem;
+}
+
+.profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-block: 1rem;
+  padding: 0;
+}
+
+.profile-tags li {
+  list-style: none;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--pico-primary-contrast);
+  color: var(--pico-primary);
+}
+
+.profile-content-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: var(--z-content);
+  height: calc(100vh - var(--header-height) - 0.7rem);
+  overflow: hidden auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  padding-left: 35vw;
+  padding-right: calc(5% - 1rem);
+
+  @include custom-scrollbar(rgb(255 255 255 / 30%), rgb(255 255 255 / 30%));
+}
+
+/* ==========================================================================
+   Stateful Profile Page (Structured Layout)
+   ========================================================================== */
+
+/* --- Main Containers --- */
+.profile-right-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+
+  /* Global Left Align */
+  padding-bottom: 2rem;
+}
+
+/* --- HEADER: NAME & DESCRIPTION (Left Aligned) --- */
+.profile-name-display,
+.profile-name-input {
+  font-size: 2.5rem;
+  font-weight: 800;
+  text-align: left !important;
+
+  /* Force Left */
+  margin-bottom: 0.5rem;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #fff;
+  resize: none;
+  line-height: 1.1;
+  padding: 0;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.profile-desc-display,
+.profile-desc-input {
+  font-size: 1.1rem;
+  opacity: 0.8;
+  text-align: left !important;
+
+  /* Force Left */
+  margin-bottom: 2rem;
+  width: 100%;
+  background: transparent;
+  color: inherit;
+  resize: none;
+  border: 1px solid transparent;
+
+  /* Invisible border for input */
+  border-radius: var(--pico-radius);
+  padding: 0.5rem 0;
+
+  /* Minimal padding to align with text */
+
+  &.profile-desc-input {
+    border-color: var(--pico-muted-border-color);
+    padding: 0.75rem;
+
+    /* Add padding when it's an input box */
+    background: rgb(0 0 0 / 20%);
+  }
+}
+
+/* --- FORM FIELDS: 2-COLUMN GRID --- */
+.profile-fields {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  /* Space between rows */
+}
+
+.field-row {
+  display: grid;
+
+  /* 1. Left Col (Label), 2. Right Col (Input) */
+  grid-template-columns: 140px 1fr;
+  gap: 2rem;
+  align-items: center;
+
+  /* VERTICAL CENTER */
+  width: 100%;
+
+  @media (width <=768px) {
+    grid-template-columns: 1fr;
+
+    /* Stack on mobile */
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}
+
+/* LEFT COLUMN: Labels */
+.field-label {
+  text-align: right;
+
+  /* RIGHT ALIGNED */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  /* Vertically center content if height differs */
+  line-height: 1.2;
+
+  label {
+    font-weight: 700;
+    color: var(--pico-h3-color);
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    margin: 0;
+  }
+
+  small {
+    color: var(--pico-muted-color);
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-top: 0.25rem;
+  }
+
+  @media (width <=768px) {
+    text-align: left;
+
+    /* Left align on mobile stack */
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+}
+
+/* RIGHT COLUMN: Inputs */
+.field-input {
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  /* Vertically center inner content */
+
+  textarea,
+  .profile-field-text-read {
+    width: 100%;
+    margin: 0;
+    resize: vertical;
+    min-height: 2.5rem;
+
+    /* Ensure minimal height matches label block */
+  }
+
+  /* Read-Only Text Styling */
+  .profile-field-text-read {
+    padding: 0.75rem;
+    background: rgb(255 255 255 / 3%);
+    border-radius: var(--pico-radius);
+    color: var(--pico-color);
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+}
+
+/* --- EDITING STATES --- */
+[data-edit-field],
+.profile-hero-overlay {
+  display: none;
+}
+
+[data-read-field] {
+  display: block;
+}
+
+.is-editing {
+  [data-read-field] {
+    display: none;
+  }
+
+  [data-edit-field] {
+    display: block;
+  }
+
+  .profile-hero-overlay {
+    display: flex;
+  }
 }
