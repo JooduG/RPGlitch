@@ -81,13 +81,13 @@ body.story-active {
     }
   }
 
-  // Nameplate Styling
+  // Nameplate Styling (Default: Left-Aligned for AI)
   .character-name-overlay {
     position: absolute;
-    bottom: 2rem;
-    left: 2rem;
+    top: 2rem; // Top anchored
+    left: 2rem; // Left anchored (Default)
     color: white;
-    background-color: #181c25; // Solid dark background
+    background-color: #181c25;
     border: 2px solid var(--pico-muted-border-color);
     padding: 0.75rem 1.5rem;
     border-radius: var(--pico-border-radius);
@@ -106,9 +106,11 @@ body.story-active {
     }
   }
 
-  &#story-right-character .character-name-overlay {
-    left: auto;
-    right: 2rem;
+  // RIGHT COLUMN OVERRIDE (User Character)
+  // We target the ID injected by views.js (#gameplay-user-portrait)
+  #gameplay-user-portrait .character-name-overlay {
+    left: auto; // Release left anchor
+    right: 2rem; // Snap to Right
   }
 }
 
@@ -149,6 +151,7 @@ body.story-active {
 }
 
 // --- 3. MESSAGE BUBBLES ---
+// (Fallback structural styles, mostly handled by _components.scss now)
 
 .story-message {
   padding: 1rem 1.5rem;
@@ -232,7 +235,6 @@ body.story-active {
 }
 
 // --- 4. SIGNATURE COLORS & LOOPS ---
-// This generates the specific color classes for Bubbles, Nameplates, and Glows
 @each $name, $hex in $colors {
   // AI Bubbles
   .story-message.ai.signature-#{$name} {
