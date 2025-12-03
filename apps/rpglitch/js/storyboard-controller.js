@@ -15,7 +15,8 @@ function updateWorldAmbience(worldEntity) {
     document.documentElement.style.setProperty('--world-ambience-rgb', rgb);
 }
 
-function generateDynamicTitle(ai, user, world) {
+// MODIFIED: Exported for testing
+export function generateDynamicTitle(ai, user, world) {
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
     const prefixes = [

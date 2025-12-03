@@ -72,7 +72,8 @@ export class ContextBuilder {
     }
 
     // --- BACKGROUND UPDATER (THE PHYSICIST) ---
-    async buildUpdater(targetType) {
+    // Updated to accept forcedDynamics from the JS Physics Engine
+    async buildUpdater(targetType, forcedDynamics = null) {
         const story = state.story.byId[this.storyId];
         const [ai, user, world] = await this._resolveEntities(story);
         const history = state.messages.byStoryId[this.storyId] || [];
@@ -94,31 +95,54 @@ export class ContextBuilder {
 
         const currentDynamics = targetEntity.dynamics || { entropy: 10, permeability: 50, velocity: 10, resonance: 10 };
 
+        // === PHYSICS INJECTION ===
+        let physicsBlock = "";
+
+        if (forcedDynamics) {
+            // HARD PHYSICS (Calculated in JS)
+            const flags = forcedDynamics._flags || {};
+
+            physicsBlock = `
+<PHYSICS_MANDATE>
+The Physics Engine has calculated the following MANDATORY state changes based on coupling laws:
+- New Entropy: ${forcedDynamics.entropy}
+- New Permeability: ${forcedDynamics.permeability}
+- New Velocity: ${forcedDynamics.velocity}
+- New Resonance: ${forcedDynamics.resonance}
+
+ACTIVE LAWS:
+${flags.echoChamber ? "- ECHO_CHAMBER: High Impact + Calm. You MUST update the <FUTURE> vector to reflect a life-changing realization." : ""}
+${flags.glassCannon ? "- GLASS_CANNON: Vulnerability is High. Any emotional impact in this update is DOUBLED." : ""}
+${flags.panicSpiral ? "- PANIC_SPIRAL: Entropy is critical. Velocity forced up. The subject is spiraling." : ""}
+
+You MUST output these exact numbers in your JSON. Your job is to sync the <PRESENT> text to match these numbers.
+</PHYSICS_MANDATE>`;
+        } else {
+            // SOFT PHYSICS (Legacy Fallback)
+            physicsBlock = `
+<DYNAMICS_GUIDE>
+1. **The Adrenaline Shield:** IF Velocity > 80, Permeability MUST decrease.
+2. **The Fog of War:** IF Entropy > 80, Resonance MUST decrease.
+3. **The Glass Cannon:** IF Permeability > 80, Double Resonance gains.
+</DYNAMICS_GUIDE>`;
+        }
+
         const system = `[SYSTEM: NARRATIVE_PHYSICS_ENGINE]
 <INSTRUCTION>
 ${roleInstruction}
-Read the recent conversation. Update the entity state based on the **Laws of Narrative Physics**:
+Read the recent conversation. Update the entity state based on the **Laws of Narrative Physics**.
 
-1. **The Adrenaline Shield:** IF Velocity > 80 (Rushing/Combat), THEN Permeability MUST decrease by -20 (Defenses Up).
-2. **The Fog of War:** IF Entropy > 80 (Chaos), THEN Resonance MUST decrease by -10 (Noise kills Signal).
-3. **The Glass Cannon:** IF Permeability > 80 (Vulnerable), THEN double any Resonance gains (Critical Hit).
-4. **The Cool-Down:** IF Velocity < 20 (Calm), THEN Entropy decreases by -10.
+${physicsBlock}
 
 **Task:**
-1. UPDATE <DYNAMICS> (0-100):
-   - **ENTROPY**: Disorder, Confusion, Violence.
-   - **PERMEABILITY**: Openness, Vulnerability.
-   - **VELOCITY**: Pacing, Speed, Adrenaline.
-   - **RESONANCE**: Impact, Significance, Lore Weight.
-
-2. UPDATE <PRESENT> (Mutable):
+1. UPDATE <PRESENT> (Mutable):
    - Reflect the math. (High Entropy = Messy/Bleeding. Low Permeability = Guarded Stance).
    - Update Clothing, Inventory, Wounds.
 
-3. UPDATE <PAST> (Log):
+2. UPDATE <PAST> (Log):
    - Append significant events only.
 
-4. UPDATE <FOREVER>:
+3. UPDATE <FOREVER>:
    - Only for permanent biological/physical changes (Scars, Amputation).
 
 Current State:
@@ -127,12 +151,13 @@ ${JSON.stringify({
             present: targetEntity.present,
             past: targetEntity.past,
             future: targetEntity.future,
-            dynamics: currentDynamics
+            // We hide dynamics here if forced, so the LLM doesn't get confused by the old state
+            dynamics: forcedDynamics ? undefined : currentDynamics
         }, null, 2)}
 </INSTRUCTION>
 
 <FORMAT_MANDATE>
-Return ONLY a valid JSON object. No markdown. No thoughts.
+Return ONLY a valid JSON object. No markdown.
 { "forever": "...", "present": "...", "past": "...", "future": "...", "dynamics": {...} }
 </FORMAT_MANDATE>`;
 
@@ -142,6 +167,39 @@ Return ONLY a valid JSON object. No markdown. No thoughts.
             params: { ...state.settings, maxTokens: 1000, temperature: 0.5 },
             targetEntityId: targetEntity.id,
             targetType: targetEntity.type
+        };
+    }
+
+    // --- THE ARCHIVIST (Memory Compressor) ---
+    async buildArchivist(entity) {
+        const system = `[SYSTEM: THE_ARCHIVIST]
+[MODE: MEMORY_COMPRESSION]
+
+<INPUT_CONTEXT>
+You are compressing the memory log for: ${entity.name} (${entity.type}).
+Current Size: ${entity.past.length} chars.
+Target: Create a dense, highly relevant summary.
+</INPUT_CONTEXT>
+
+<PROTOCOL>
+1. **The Golden Rule:** PRESERVE all Proper Nouns (Names, Places, Artifacts) and "Critical Hits" (High Resonance events).
+2. **The Silver Rule:** SUMMARIZE repeated actions (e.g., "We walked for 3 days" > "The journey was long.").
+3. **The Lead Rule:** DELETE small talk, greetings, and failed actions.
+4. **Format:** Retain the First Person ('I') perspective if this is a Character.
+</PROTOCOL>
+
+<OLD_LOG>
+${entity.past}
+</OLD_LOG>
+
+<OUTPUT_INSTRUCTION>
+Return ONLY the new text for the <PAST> field. Do not use JSON. Just the text.
+</OUTPUT_INSTRUCTION>`;
+
+        return {
+            system: system,
+            messages: [],
+            params: { ...state.settings, maxTokens: 1500, temperature: 0.3 }
         };
     }
 

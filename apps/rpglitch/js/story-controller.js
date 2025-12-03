@@ -7,6 +7,8 @@ import { renderMessage, updatePortraits, setGameplayEntities } from "./views.js"
 import { error } from "./utils.js";
 import { ContextBuilder } from "./context-builder.js";
 import { analyzeRejection, getDirectorInstruction } from "./variance.js";
+// NEW: Import the Physics Engine
+import { calculateDynamics } from "./physics.js";
 
 export const StoryController = {
   requireActive: () => {
@@ -266,14 +268,35 @@ export const StoryController = {
     }
   },
 
+  // --- UPDATED: BACKGROUND UPDATE LOGIC ---
   runBackgroundUpdate: async (storyId, targetType, linkedMessageId) => {
     try {
       const builder = new ContextBuilder(storyId);
-      const payload = await builder.buildUpdater(targetType);
 
+      // 1. Fetch Entity (Explicitly needed here for physics calculation)
+      const story = state.story.byId[storyId];
+      if (!story) return;
+
+      let entity = null;
+      // We resolve the snapshot ID logic quickly here, mimicking getRealEntity logic partially
+      // or we just fetch the snapshot directly via entities helper if we knew the ID.
+      // Since we only have targetType, we rely on the builder logic or fetch manually:
+      if (targetType === 'ai_character') entity = await entities.getSnapshot(storyId, "character", story.aiCharacterId) || await entities.get("character", story.aiCharacterId);
+      else if (targetType === 'user_character') entity = await entities.getSnapshot(storyId, "character", story.userCharacterId) || await entities.get("character", story.userCharacterId);
+      else if (targetType === 'world') entity = await entities.getSnapshot(storyId, "world", story.worldId) || await entities.get("world", story.worldId);
+
+      if (!entity) return;
+
+      // 2. >>>> RUN THE PHYSICS ENGINE <<<<
+      // Calculate new dynamics based on current state + Hard Laws
+      const oldDynamics = entity.dynamics || { entropy: 10, permeability: 50, velocity: 10, resonance: 10 };
+      const newDynamics = calculateDynamics(oldDynamics);
+
+      // 3. Generate Update Prompt (Passing Forced Dynamics)
+      const payload = await builder.buildUpdater(targetType, newDynamics);
       const jsonResponse = await generateStream({ payload, signal: null });
 
-      // 1. Liveness Check
+      // 4. Liveness Check
       if (linkedMessageId) {
         const msgExists = await db.messages.get(linkedMessageId);
         if (!msgExists) {
@@ -296,10 +319,11 @@ export const StoryController = {
       }
 
       if (updates && payload.targetEntityId) {
+        // Fetch fresh to ensure no race condition, though we have 'entity' var
         const snapshot = await entities.get(payload.targetType, payload.targetEntityId);
 
         if (snapshot) {
-          // 2. Create Backup for Rollback
+          // 5. Create Backup for Rollback
           const backup = {
             forever: snapshot.forever,
             past: snapshot.past,
@@ -314,12 +338,34 @@ export const StoryController = {
             past: updates.past || snapshot.past,
             present: updates.present || snapshot.present,
             future: updates.future || snapshot.future,
-            dynamics: updates.dynamics || snapshot.dynamics,
+            // FORCE THE PHYSICS ENGINE VALUES (Ignore LLM drift)
+            dynamics: {
+              entropy: newDynamics.entropy,
+              permeability: newDynamics.permeability,
+              velocity: newDynamics.velocity,
+              resonance: newDynamics.resonance
+            },
             updatedAt: Date.now(),
-            // Store backup data
             _backupState: backup,
             _lastUpdateMsgId: linkedMessageId
           };
+
+          // 6. >>>> THE ARCHIVIST TRIGGER <<<<
+          const MAX_PAST_LENGTH = 2000;
+          if (updatedSnapshot.past && updatedSnapshot.past.length > MAX_PAST_LENGTH) {
+            console.log(`[ARCHIVIST] Triggered for ${entity.name}. Size: ${updatedSnapshot.past.length}`);
+            try {
+              const archPayload = await builder.buildArchivist(updatedSnapshot);
+              const summary = await generateStream({ payload: archPayload, signal: null });
+
+              if (summary && summary.length < updatedSnapshot.past.length) {
+                updatedSnapshot.past = summary.trim();
+                console.log(`[ARCHIVIST] Compression complete. New Size: ${updatedSnapshot.past.length}`);
+              }
+            } catch (archErr) {
+              console.warn("[ARCHIVIST] Failed:", archErr);
+            }
+          }
 
           await entities.upsert(payload.targetType, updatedSnapshot);
           console.log(`[PROMETHEUS] Update applied (Backup saved) for ${snapshot.name}`);
