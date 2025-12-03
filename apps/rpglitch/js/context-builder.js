@@ -6,11 +6,13 @@ import { entities } from "./entities.js";
 // CONFIGURATION: THE HEARTBEAT PROTOCOL
 // ==========================================
 const PROMETHEUS_CONFIG = {
-    UPDATE_SCHEDULE: {
-        3: 'ai_character',
-        6: 'user_character',
-        9: 'world'
-    }
+    // Rhythm: Updates every 4 user messages (approx every 2 full exchanges)
+    // Targets: 3 (AI), 7 (User), 11 (World)
+    UPDATE_MODULO: 4,
+    UPDATE_OFFSET: 3,
+
+    // Cycle 0 -> AI, Cycle 1 -> User, Cycle 2 -> World
+    TARGET_CYCLE: ['ai_character', 'user_character', 'world']
 };
 
 export class ContextBuilder {
@@ -30,8 +32,16 @@ export class ContextBuilder {
         const history = state.messages.byStoryId[this.storyId] || [];
 
         this.runtimeState.turnCount = history.length;
-        const cycleIndex = this.runtimeState.turnCount % 10;
-        const updateTarget = PROMETHEUS_CONFIG.UPDATE_SCHEDULE[cycleIndex] || null;
+
+        // --- DYNAMIC SCHEDULING LOGIC (V4.2 Pacing) ---
+        let updateTarget = null;
+        if (this.runtimeState.turnCount >= PROMETHEUS_CONFIG.UPDATE_OFFSET &&
+            (this.runtimeState.turnCount - PROMETHEUS_CONFIG.UPDATE_OFFSET) % PROMETHEUS_CONFIG.UPDATE_MODULO === 0) {
+
+            const updateIndex = (this.runtimeState.turnCount - PROMETHEUS_CONFIG.UPDATE_OFFSET) / PROMETHEUS_CONFIG.UPDATE_MODULO;
+            const typeIndex = updateIndex % 3;
+            updateTarget = PROMETHEUS_CONFIG.TARGET_CYCLE[typeIndex];
+        }
 
         const systemPrompt = [
             this._layerKernel_ANEX(),
@@ -54,7 +64,7 @@ export class ContextBuilder {
         };
     }
 
-    // --- VARIANCE INJECTION (RE-ROLL) ---
+    // --- VARIANCE INJECTION ---
     async buildWithVariance(varianceInstruction) {
         const payload = await this.build("");
         payload.system += `\n\n${varianceInstruction}`;
@@ -76,7 +86,7 @@ export class ContextBuilder {
             roleInstruction = `You are the Subconscious Manager of ${ai.name}. Write in First Person ('I').`;
         } else if (targetType === 'user_character') {
             targetEntity = user;
-            roleInstruction = `You are ${ai.name} observing ${user.name}. Update your notes.`;
+            roleInstruction = `You are ${ai.name} observing ${user.name}. Update your notes on them.`;
         } else {
             targetEntity = world;
             roleInstruction = `You are the State Manager for the World: ${world.name}. Update the environment.`;
@@ -122,14 +132,8 @@ ${JSON.stringify({
 </INSTRUCTION>
 
 <FORMAT_MANDATE>
-Return ONLY valid JSON.
-{ 
-  "forever": "string",
-  "present": "string",
-  "past": "string",
-  "future": "string",
-  "dynamics": { "entropy": number, "permeability": number, "velocity": number, "resonance": number }
-}
+Return ONLY a valid JSON object. No markdown. No thoughts.
+{ "forever": "...", "present": "...", "past": "...", "future": "...", "dynamics": {...} }
 </FORMAT_MANDATE>`;
 
         return {
@@ -146,7 +150,6 @@ Return ONLY valid JSON.
         const story = state.story.byId[this.storyId];
         if (!story) throw new Error(`Story ${this.storyId} not found`);
 
-        // FIX: Removed unused 'user' variable (replaced with empty slot)
         const [ai, , world] = await this._resolveEntities(story);
 
         const system = `[SYSTEM: PROMETHEUS_ENGINE_V3.3]
@@ -225,7 +228,7 @@ ${entity.future || "Exist."}
 
 <CORE_DIRECTIVES>
 1. AGENCY: You play <ACTIVE_CHARACTER_AI>. NEVER control <INTERLOCUTOR_USER>.
-2. SIMULATION: <WORLD_CONTEXT> defines physics.
+2. SIMULATION: <WORLD_CONTEXT> defines laws of physics/atmosphere.
 3. CONSISTENCY: Adhere to <PERMANENT> traits.
 </CORE_DIRECTIVES>
 

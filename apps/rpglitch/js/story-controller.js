@@ -15,22 +15,16 @@ export const StoryController = {
   },
 
   createFromSelection: async (data) => {
-    // 1. Add to DB to generate the ID
     const id = await db.stories.add({
       ...data,
       createdAt: Date.now(),
       updatedAt: Date.now()
     });
-
-    // 2. CRITICAL FIX: Inject the ID into the object before saving to State
-    // This ensures ContextBuilder can read 'story.id' correctly
     const storyWithId = { ...data, id: id };
-
     applyPatch({ story: { activeId: id, byId: { [id]: storyWithId } } });
     return id;
   },
 
-  // --- SNAPSHOT RESOLVER ---
   getRealEntity: async (storyId, type, masterId) => {
     const snap = await entities.getSnapshot(storyId, type, masterId);
     return snap || await entities.get(type, masterId);
@@ -49,7 +43,6 @@ export const StoryController = {
 
       await StoryController.loadMessages(story.id);
 
-      // Fetch Snapshots
       const [ai, user] = await Promise.all([
         StoryController.getRealEntity(storyId, "character", story.aiCharacterId),
         StoryController.getRealEntity(storyId, "character", story.userCharacterId)
@@ -155,7 +148,7 @@ export const StoryController = {
 
       const aiChar = await entities.get("character", story.aiCharacterId);
 
-      await db.messages.add({
+      const aiMsgId = await db.messages.add({
         storyId,
         role: "ai",
         type: "IC",
@@ -168,17 +161,17 @@ export const StoryController = {
       await StoryController.render(storyId);
       applyPatch({ ui: { fsm: "done" } });
 
+      if (payloadMeta && payloadMeta.triggerUpdate) {
+        console.log(`[PROMETHEUS] Triggering background update linked to msg: ${aiMsgId}`);
+        StoryController.runBackgroundUpdate(storyId, payloadMeta.updateTarget, aiMsgId);
+      }
+
     } catch (e) {
       error("AI Error", e);
       applyPatch({ ui: { fsm: "error", lastError: e.message } });
       alert("AI Error: " + e.message);
     } finally {
       if (typing) typing.hidden = true;
-
-      if (payloadMeta && payloadMeta.triggerUpdate) {
-        console.log(`[PROMETHEUS] Triggering background update for: ${payloadMeta.updateTarget}`);
-        StoryController.runBackgroundUpdate(storyId, payloadMeta.updateTarget);
-      }
     }
   },
 
@@ -203,6 +196,32 @@ export const StoryController = {
     const directorNote = getDirectorInstruction(varianceKey);
 
     console.log(`[PROMETHEUS] Regenerating with strategy: ${varianceKey}`);
+
+    // === STATE ROLLBACK (Ghost Prevention) ===
+    try {
+      const allSnapshots = await db.entities.where("storyId").equals(storyId).toArray();
+
+      for (const ent of allSnapshots) {
+        if (ent._lastUpdateMsgId === lastMsg.id && ent._backupState) {
+          console.log(`[PROMETHEUS] Rolling back state for ${ent.name} to prevent ghost memory.`);
+
+          const restored = {
+            ...ent,
+            forever: ent._backupState.forever,
+            past: ent._backupState.past,
+            present: ent._backupState.present,
+            future: ent._backupState.future,
+            dynamics: ent._backupState.dynamics,
+            // Clear backup logic
+            _backupState: null,
+            _lastUpdateMsgId: null
+          };
+          await entities.upsert(ent.type, restored);
+        }
+      }
+    } catch (err) {
+      console.warn("[PROMETHEUS] Rollback warning:", err);
+    }
 
     await db.messages.delete(lastMsg.id);
 
@@ -247,12 +266,21 @@ export const StoryController = {
     }
   },
 
-  runBackgroundUpdate: async (storyId, targetType) => {
+  runBackgroundUpdate: async (storyId, targetType, linkedMessageId) => {
     try {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildUpdater(targetType);
 
       const jsonResponse = await generateStream({ payload, signal: null });
+
+      // 1. Liveness Check
+      if (linkedMessageId) {
+        const msgExists = await db.messages.get(linkedMessageId);
+        if (!msgExists) {
+          console.warn(`[PROMETHEUS] Aborting update. Msg ${linkedMessageId} deleted.`);
+          return;
+        }
+      }
 
       let updates = {};
       try {
@@ -260,7 +288,6 @@ export const StoryController = {
         if (jsonMatch) {
           updates = JSON.parse(jsonMatch[0]);
         } else {
-          console.warn("[PROMETHEUS] Background update failed: No JSON found.");
           return;
         }
       } catch (jsonErr) {
@@ -272,6 +299,15 @@ export const StoryController = {
         const snapshot = await entities.get(payload.targetType, payload.targetEntityId);
 
         if (snapshot) {
+          // 2. Create Backup for Rollback
+          const backup = {
+            forever: snapshot.forever,
+            past: snapshot.past,
+            present: snapshot.present,
+            future: snapshot.future,
+            dynamics: snapshot.dynamics
+          };
+
           const updatedSnapshot = {
             ...snapshot,
             forever: updates.forever || snapshot.forever,
@@ -279,11 +315,14 @@ export const StoryController = {
             present: updates.present || snapshot.present,
             future: updates.future || snapshot.future,
             dynamics: updates.dynamics || snapshot.dynamics,
-            updatedAt: Date.now()
+            updatedAt: Date.now(),
+            // Store backup data
+            _backupState: backup,
+            _lastUpdateMsgId: linkedMessageId
           };
 
           await entities.upsert(payload.targetType, updatedSnapshot);
-          console.log(`[PROMETHEUS] Background update applied for ${snapshot.name}`, updates);
+          console.log(`[PROMETHEUS] Update applied (Backup saved) for ${snapshot.name}`);
         }
       }
 

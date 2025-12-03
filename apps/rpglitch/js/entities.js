@@ -3,7 +3,7 @@ import { db } from "./db.js";
 import { error } from "./utils.js";
 import { sanitizeHtml } from "./validation.js";
 
-// --- PREMADE CONTENT ---
+// --- PREMADE CONTENT (Kept for seeding) ---
 const premade = {
   stories: [],
   characters: [
@@ -195,8 +195,14 @@ function normalize(base = {}) {
     present: sanitizeHtml(base.present || "").trim(),
     future: sanitizeHtml(base.future || "").trim(),
     tags: safeTags,
-    // V4.2: Preserve dynamics if they exist (Critical for Physics Engine)
-    dynamics: base.dynamics || null
+
+    // V4.2: NARRATIVE PHYSICS
+    dynamics: base.dynamics || null,
+
+    // V4.2: ROLLBACK SYSTEM (Hidden Fields)
+    // These must be preserved so the "Time Machine" works during Re-Rolls
+    _backupState: base._backupState || null,
+    _lastUpdateMsgId: base._lastUpdateMsgId || null
   };
 }
 
@@ -305,14 +311,11 @@ export const entities = {
     }
   },
 
-  // --- SNAPSHOT SYSTEM (V4.2 - PROMETHEUS) ---
+  // --- SNAPSHOT SYSTEM (V4.2) ---
 
   async getSnapshot(storyId, type, masterId) {
     try {
-      // Filter by type first for index performance
       const candidates = await db.entities.where("type").equals(type.toLowerCase()).toArray();
-
-      // Find the specific snapshot for this story AND this master entity
       return candidates.find(e =>
         e.storyId === storyId &&
         e.isSnapshot === 1 &&
@@ -335,8 +338,7 @@ export const entities = {
         isCustom: 1,
         isPremade: 0,
         updatedAt: Date.now(),
-        // NEW: Initialize Narrative Physics Engine
-        // Defaults: Low Entropy (Calm), Mid Permeability (Neutral), Low Velocity (Slow)
+        // NEW: Narrative Physics Initialization
         dynamics: {
           entropy: 10,
           permeability: 50,
