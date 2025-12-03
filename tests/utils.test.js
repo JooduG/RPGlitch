@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom';
 
-jest.mock('../apps/rpglitch/js/db.js', () => ({
+jest.mock('../apps/rpglitch/js/core-db.js', () => ({
   db: {
     on: jest.fn(),
     settings: {
@@ -10,7 +10,7 @@ jest.mock('../apps/rpglitch/js/db.js', () => ({
   },
 }));
 
-jest.mock('../apps/rpglitch/js/entities.js', () => ({
+jest.mock('../apps/rpglitch/js/entity-structs.js', () => ({
   getPictureHTML: jest.fn(),
 }));
 
@@ -29,7 +29,7 @@ async function loadApp() {
   global.document = dom.window.document;
 
   // Provide proper Dexie mock
-  dom.window.Dexie = jest.fn(function(name){
+  dom.window.Dexie = jest.fn(function (name) {
     this.name = name;
     this.version = jest.fn().mockReturnThis();
     this.stores = jest.fn().mockReturnThis();
@@ -38,10 +38,10 @@ async function loadApp() {
   });
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
-  dom.window.$ = function () {};
+  dom.window.$ = function () { };
 
   jest.resetModules();
-  const utils = await import('../apps/rpglitch/js/utils.js');
+  const utils = await import('../apps/rpglitch/js/core-utils.js');
   const index = await import('../apps/rpglitch/js/index.js');
 
   dom.window.App = {

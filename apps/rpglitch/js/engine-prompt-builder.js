@@ -1,6 +1,6 @@
-// apps/rpglitch/js/context-builder.js
-import { state } from "./store.js";
-import { entities } from "./entities.js";
+// apps/rpglitch/js/engine-prompt-builder.js
+import { state } from "./app-state.js"; // Renamed import
+import { entities } from "./entity-crud.js"; // Renamed import
 
 // ==========================================
 // CONFIGURATION: THE HEARTBEAT PROTOCOL
@@ -8,8 +8,8 @@ import { entities } from "./entities.js";
 const PROMETHEUS_CONFIG = {
     // Rhythm: Updates every 4 user messages (approx every 2 full exchanges)
     // Targets: 3 (AI), 7 (User), 11 (World)
-    UPDATE_MODULO: 4,
-    UPDATE_OFFSET: 3,
+    UPDATE_MODULO: 4, // Must be moved to config.js
+    UPDATE_OFFSET: 3, // Must be moved to config.js
 
     // Cycle 0 -> AI, Cycle 1 -> User, Cycle 2 -> World
     TARGET_CYCLE: ['ai_character', 'user_character', 'world']
@@ -72,7 +72,6 @@ export class ContextBuilder {
     }
 
     // --- BACKGROUND UPDATER (THE PHYSICIST) ---
-    // Updated to accept forcedDynamics from the JS Physics Engine
     async buildUpdater(targetType, forcedDynamics = null) {
         const story = state.story.byId[this.storyId];
         const [ai, user, world] = await this._resolveEntities(story);

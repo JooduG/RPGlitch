@@ -1,4 +1,4 @@
-// apps/rpglitch/js/ai-service.js
+// apps/rpglitch/js/llm-adapter.js
 /**
  * Generates text using the Perchance AI plugin via a stream.
  * Now purely a pass-through. All prompt formatting happens in ContextBuilder.

@@ -1,12 +1,12 @@
 // apps/rpglitch/js/index.js
-import { seedPremades } from "./entities.js";
-import { initViews } from "./views.js";
-import { db } from "./db.js";
-import { log, error } from "./utils.js";
-import { state, applyPatch } from "./store.js";
-import { StoryController } from "./story-controller.js";
+import { seedPremades } from "./entity-crud.js";
+import { initViews } from "./ui-views.js";
+import { db } from "./core-db.js";
+import { log, error, initDebugMode } from "./core-utils.js";
+import { state, applyPatch } from "./app-state.js";
+import { StoryController } from "./manager-turns.js";
 import { StoryOptionsController } from "./story-options.js";
-import { initStoryboardStage, StoryboardController } from "./storyboard-controller.js";
+import { initStoryboardStage, StoryboardController } from "./manager-setup.js";
 
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
 (function enforceClientSideFreedom() {
@@ -149,6 +149,9 @@ const App = {
     try {
       log("[Init] Checking environment...");
       const isLocal = location.hostname === "localhost" || location.protocol === "file:";
+
+      // Initialize Debug Mode from DB before logging anything
+      await initDebugMode();
 
       if (isLocal) {
         App.mockPlugins();

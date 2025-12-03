@@ -1,4 +1,4 @@
-// apps/rpglitch/js/store.js
+// apps/rpglitch/js/app-state.js
 export const state = {
     storyTitle: "My Story",
     selectedAI: null,
@@ -14,7 +14,9 @@ export const state = {
         maxTokens: 512,
         stop: [],
         model: "default",
-        historyLength: 10
+        historyLength: 10,
+        // >>> DIRECTOR MODE ADDED HERE <<<
+        directorMode: false
     },
     ui: { fsm: "idle" },
 };

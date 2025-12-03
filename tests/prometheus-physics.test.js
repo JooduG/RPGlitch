@@ -1,10 +1,10 @@
 import { jest } from '@jest/globals';
-import { calculateDynamics } from '../apps/rpglitch/js/physics.js';
-import { ContextBuilder } from '../apps/rpglitch/js/context-builder.js';
+import { calculateDynamics } from '../apps/rpglitch/js/engine-physics.js';
+import { ContextBuilder } from '../apps/rpglitch/js/engine-prompt-builder.js';
 
 // --- MOCKS ---
 // We mock the store and entities to isolate the logic from the database/browser
-jest.mock('../apps/rpglitch/js/store.js', () => ({
+jest.mock('../apps/rpglitch/js/app-state.js', () => ({
   state: {
     story: {
       byId: {
@@ -30,7 +30,7 @@ jest.mock('../apps/rpglitch/js/store.js', () => ({
   }
 }));
 
-jest.mock('../apps/rpglitch/js/entities.js', () => ({
+jest.mock('../apps/rpglitch/js/entity-crud.js', () => ({
   entities: {
     get: jest.fn(),
     getSnapshot: jest.fn(),
@@ -39,7 +39,7 @@ jest.mock('../apps/rpglitch/js/entities.js', () => ({
 }));
 
 // Import the mocked entities to configure return values in tests
-import { entities } from '../apps/rpglitch/js/entities.js';
+import { entities } from '../apps/rpglitch/js/entity-crud.js';
 
 describe('PROMETHEUS ENGINE V4.2', () => {
 

@@ -8,13 +8,18 @@ const config = {
     'default'
   ],
   transform: {
-    '^.+\\.[tj]sx?$': ['babel-jest', { configFile: './babel.config.js' }]
+    '^.+\\.m?[tj]sx?$': ['babel-jest', { configFile: './babel.config.js' }]
   },
   transformIgnorePatterns: [
     '/node_modules/(?!cash-dom|dexie|jsdom)'
   ],
   testPathIgnorePatterns: [
     '<rootDir>/tests/rpglitch-image-upload.test.js'
+  ],
+  testMatch: [
+    "**/__tests__/**/*.[jt]s?(x)",
+    "**/?(*.)+(spec|test).[tj]s?(x)",
+    "**/?(*.)+(spec|test).mjs"
   ]
 };
 

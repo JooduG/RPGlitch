@@ -1,15 +1,42 @@
-// apps/rpglitch/js/story-controller.js
-import { db } from "./db.js";
-import { state, applyPatch } from "./store.js";
-import { generateStream } from "./ai-service.js";
-import { entities } from "./entities.js";
-import { renderMessage, updatePortraits, setGameplayEntities, showTypingIndicator, removeTypingIndicator, setSendLock } from "./views.js";
-import { error } from "./utils.js";
-import { ContextBuilder } from "./context-builder.js";
-import { analyzeRejection, getDirectorInstruction } from "./variance.js";
-import { calculateDynamics } from "./physics.js";
+// apps/rpglitch/js/manager-turns.js
+import { db } from "./core-db.js";
+import { state, applyPatch } from "./app-state.js";
+import { generateStream } from "./llm-adapter.js";
+import { entities } from "./entity-crud.js";
+import { renderMessage, updatePortraits, setGameplayEntities, showTypingIndicator, removeTypingIndicator, setSendLock, applyWorldAmbience } from "./ui-render-chat.js"; // Renamed imports
+import { error } from "./core-utils.js"; // Removed escapeHtml
+import { ContextBuilder } from "./engine-prompt-builder.js"; // Renamed import
+import { analyzeRejection, getDirectorInstruction } from "./engine-variance.js"; // Renamed import
+import { calculateDynamics } from "./engine-physics.js"; // Renamed import
 
-export const StoryController = {
+// Helper to create the structured debug log
+function createPhysicsDebugLog(oldDynamics, newDynamics) {
+  const flags = newDynamics._flags || {};
+  let debugText = "[PHYSICS LOG]\n";
+  debugText += `ENTROPY: ${newDynamics.entropy}% (was ${oldDynamics.entropy}%)\n`;
+  debugText += `PERMEABILITY: ${newDynamics.permeability}% (was ${oldDynamics.permeability}%)\n`;
+  debugText += `VELOCITY: ${newDynamics.velocity}% (was ${oldDynamics.velocity}%)\n`;
+  debugText += `RESONANCE: ${newDynamics.resonance}% (was ${oldDynamics.resonance}%)\n\n`;
+
+  if (flags.panicSpiral) debugText += ">> LAW 4: PANIC SPIRAL TRIGGERED (Velocity Forced Up)\n";
+  if (flags.fogOfWar) debugText += ">> LAW 2: FOG OF WAR TRIGGERED (Resonance Dampened)\n";
+  if (flags.echoChamber) debugText += ">> LAW 5: ECHO CHAMBER ACTIVE (Future Vector Critical)\n";
+  if (flags.glassCannon) debugText += ">> LAW 6: GLASS CANNON ACTIVE (Double Impact Gain)\n";
+
+  // Check for Adrenaline Shield/Cool-Down logs (from physics.js console.log)
+  if (newDynamics.permeability < oldDynamics.permeability && newDynamics.velocity > 80) {
+    debugText += ">> LAW 1: ADRENALINE SHIELD (Permeability Penalty)\n";
+  }
+  if (newDynamics.entropy < oldDynamics.entropy && newDynamics.velocity < 20) {
+    debugText += ">> LAW 3: COOL-DOWN (Entropy Reduced)\n";
+  }
+
+  // Clean up empty space
+  return debugText.trim();
+}
+
+
+export const TurnManager = {
   requireActive: () => {
     if (!state.story.activeId) throw new Error("No active story.");
     return state.story.activeId;
@@ -42,27 +69,23 @@ export const StoryController = {
         mode: "gameplay"
       });
 
-      await StoryController.loadMessages(story.id);
+      await TurnManager.loadMessages(story.id);
 
       const [ai, user] = await Promise.all([
-        StoryController.getRealEntity(storyId, "character", story.aiCharacterId),
-        StoryController.getRealEntity(storyId, "character", story.userCharacterId)
+        TurnManager.getRealEntity(storyId, "character", story.aiCharacterId),
+        TurnManager.getRealEntity(storyId, "character", story.userCharacterId)
       ]);
 
-      const world = await StoryController.getRealEntity(storyId, "world", story.worldId);
+      const world = await TurnManager.getRealEntity(storyId, "world", story.worldId);
 
       updatePortraits(ai, user);
       setGameplayEntities(ai, user, world);
 
-      await StoryController.render(story.id);
+      await TurnManager.render(story.id);
 
-      if (world && world.signatureColour) {
-        const colorMap = {
-          pink: "236, 72, 153", emerald: "16, 185, 129", cyan: "6, 182, 212",
-          orange: "249, 115, 22", purple: "168, 85, 247", default: "255, 255, 255"
-        };
-        const rgb = colorMap[world.signatureColour] || colorMap.default;
-        document.documentElement.style.setProperty('--world-ambience-rgb', rgb);
+      // --- PURIFIED: Ambience logic now uses a helper function (assumed to read CSS) ---
+      if (world) {
+        applyWorldAmbience(world);
       }
 
       document.body.classList.remove("mode-storyboard");
@@ -88,8 +111,8 @@ export const StoryController = {
     const story = state.story.byId[storyId];
 
     let [ai, user] = await Promise.all([
-      StoryController.getRealEntity(storyId, "character", story.aiCharacterId),
-      StoryController.getRealEntity(storyId, "character", story.userCharacterId)
+      TurnManager.getRealEntity(storyId, "character", story.aiCharacterId),
+      TurnManager.getRealEntity(storyId, "character", story.userCharacterId)
     ]);
 
     feed.innerHTML = "";
@@ -116,7 +139,7 @@ export const StoryController = {
 
   send: async (text) => {
     if (!text) return;
-    const storyId = StoryController.requireActive();
+    const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
 
     // 1. LOCK UI immediately
@@ -131,8 +154,8 @@ export const StoryController = {
         createdAt: Date.now()
       });
 
-      await StoryController.loadMessages(storyId);
-      await StoryController.render(storyId);
+      await TurnManager.loadMessages(storyId);
+      await TurnManager.render(storyId);
 
       // 2. SHOW TYPING BUBBLE (AI Style)
       const feed = document.querySelector("#chat-feed");
@@ -166,15 +189,15 @@ export const StoryController = {
         createdAt: Date.now()
       });
 
-      await StoryController.loadMessages(storyId);
-      await StoryController.render(storyId);
+      await TurnManager.loadMessages(storyId);
+      await TurnManager.render(storyId);
       applyPatch({ ui: { fsm: "done" } });
 
       // 4. BACKGROUND PHYSICS (Still Locked!)
       if (payloadMeta && payloadMeta.triggerUpdate) {
         console.log(`[PROMETHEUS] Running Physics... (UI Locked)`);
         // We await this so the lock persists
-        await StoryController.runBackgroundUpdate(storyId, payloadMeta.updateTarget, aiMsgId);
+        await TurnManager.runBackgroundUpdate(storyId, payloadMeta.updateTarget, aiMsgId);
       }
 
     } catch (e) {
@@ -191,7 +214,7 @@ export const StoryController = {
   },
 
   regenerate: async () => {
-    const storyId = StoryController.requireActive();
+    const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
 
     const msgs = state.messages.byStoryId[storyId] || [];
@@ -243,8 +266,8 @@ export const StoryController = {
 
     await db.messages.delete(lastMsg.id);
 
-    await StoryController.loadMessages(storyId);
-    await StoryController.render(storyId);
+    await TurnManager.loadMessages(storyId);
+    await TurnManager.render(storyId);
 
     const feed = document.querySelector("#chat-feed");
     // Show AI bubble
@@ -275,8 +298,8 @@ export const StoryController = {
         createdAt: Date.now()
       });
 
-      await StoryController.loadMessages(storyId);
-      await StoryController.render(storyId);
+      await TurnManager.loadMessages(storyId);
+      await TurnManager.render(storyId);
       applyPatch({ ui: { fsm: "done" } });
 
     } catch (e) {
@@ -306,6 +329,18 @@ export const StoryController = {
       const oldDynamics = entity.dynamics || { entropy: 10, permeability: 50, velocity: 10, resonance: 10 };
       const newDynamics = calculateDynamics(oldDynamics);
 
+      // >>> DIRECTOR MODE PHYSICS INJECTION (NEW) <<<
+      if (state.settings.directorMode) {
+        const debugText = createPhysicsDebugLog(oldDynamics, newDynamics);
+        await db.messages.add({
+          storyId,
+          role: "system",
+          type: "DEBUG", // New message type for styling
+          text: debugText,
+          createdAt: Date.now() + 1 // Ensures log is after the AI response
+        });
+      }
+
       const payload = await builder.buildUpdater(targetType, newDynamics);
       const jsonResponse = await generateStream({ payload, signal: null });
 
@@ -320,6 +355,7 @@ export const StoryController = {
 
       let updates = {};
       try {
+        // Attempt to parse the JSON. LLMs sometimes wrap it in markdown or text.
         const jsonMatch = jsonResponse.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           updates = JSON.parse(jsonMatch[0]);
@@ -360,7 +396,7 @@ export const StoryController = {
             _lastUpdateMsgId: linkedMessageId
           };
 
-          const MAX_PAST_LENGTH = 2000;
+          const MAX_PAST_LENGTH = 2000; // This should be moved to config.js
           if (updatedSnapshot.past && updatedSnapshot.past.length > MAX_PAST_LENGTH) {
             console.log(`[ARCHIVIST] Triggered for ${entity.name}. Size: ${updatedSnapshot.past.length}`);
             try {
@@ -380,6 +416,10 @@ export const StoryController = {
           console.log(`[PROMETHEUS] Update applied (Backup saved) for ${snapshot.name}`);
         }
       }
+
+      // We must re-render to show the DEBUG message added above
+      await TurnManager.loadMessages(storyId);
+      await TurnManager.render(storyId);
 
     } catch (e) {
       console.error("[PROMETHEUS] Background update error:", e);
@@ -415,8 +455,8 @@ export const StoryController = {
         createdAt: Date.now()
       });
 
-      await StoryController.loadMessages(storyId);
-      await StoryController.render(storyId);
+      await TurnManager.loadMessages(storyId);
+      await TurnManager.render(storyId);
     } catch (e) {
       error("Opening Gen Failed", e);
       alert("Failed to generate opening: " + e.message);
@@ -427,3 +467,6 @@ export const StoryController = {
     }
   }
 };
+
+// Renaming for the new manager structure
+export const StoryController = TurnManager;

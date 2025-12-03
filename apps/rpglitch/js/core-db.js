@@ -1,11 +1,9 @@
-// apps/rpglitch/js/db.js
+// apps/rpglitch/js/core-db.js
 "use strict";
 
-import { log, error } from "./utils.js";
+import { log, error } from "./core-utils.js"; // Renamed import
 
 // 1. Create the database instance.
-// In the browser, Dexie is provided globally by a vendored library.
-// In the Jest/Node.js test environment, we must require it.
 let Dexie;
 if (typeof window !== "undefined" && window.Dexie) {
   Dexie = window.Dexie;
@@ -17,7 +15,6 @@ if (typeof window !== "undefined" && window.Dexie) {
 const db = new Dexie("rpglitch");
 
 // 2. Define the schema (Final Version Only)
-// All previous migration logic has been "nuked" into this single version.
 db.version(1).stores({
   entities:
     "++id, name, description, forever, past, present, future, profilePicture, signatureColour, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
@@ -29,8 +26,6 @@ db.version(1).stores({
 });
 
 // 3. Populate default data
-// This hook runs ONLY when the database is created for the first time.
-// It sets up the default settings singleton.
 db.on("populate", async (trans) => {
   log("[RPGlitch DB] Populating new database with default settings...");
   try {
@@ -43,26 +38,25 @@ db.on("populate", async (trans) => {
       stop: [],
       model: "default",
       debugMode: false,
+      // >>> DIRECTOR MODE ADDED HERE <<<
+      directorMode: false,
       storyboardSelection: { narrator: null, user: null, world: null },
     });
     log("[RPGlitch DB] Default settings created successfully.");
   } catch (err) {
     error("[RPGlitch DB] Failed to populate default settings:", err);
-    throw err; // Make sure the populate transaction fails if this fails
+    throw err;
   }
 });
 
 /**
  * Initializes the database connection.
- * This simplified function just opens the database.
- * If it fails (e.g., schema error from you editing version(1) later),
- * just delete the database from your browser's DevTools as you normally do.
  */
 export async function init() {
   try {
     await db.open();
     log("[RPGlitch DB] Database opened successfully.");
-    return db; // Return the opened instance
+    return db;
   } catch (err) {
     error(
       "[RPGlitch DB] Failed to open database. You may need to manually delete it from browser DevTools.",

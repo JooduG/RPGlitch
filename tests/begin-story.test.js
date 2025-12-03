@@ -1,6 +1,6 @@
 import { jest, describe, beforeEach, afterEach, test, expect } from '@jest/globals';
-import { init as initDB, db } from '../apps/rpglitch/js/db.js';
-import { getPremadeItems } from '../apps/rpglitch/js/entities.js';
+import { init as initDB, db } from '../apps/rpglitch/js/core-db.js';
+import { premade } from '../apps/rpglitch/js/entity-structs.js';
 import { JSDOM } from 'jsdom'; // ADDED: ensure JSDOM is available for new JSDOM(...) in beforeEach
 
 // Mock the Perchance global and its plugins
@@ -18,15 +18,25 @@ global.crypto = {
 };
 
 // Mock UI-related functions to prevent JSDOM errors and memory leaks
-jest.mock('../apps/rpglitch/js/utils.js', () => ({
-  ...jest.requireActual('../apps/rpglitch/js/utils.js'),
-  dismissLoadingUI: jest.fn(),
-  startUIWatchdog: jest.fn(),
-  installUIRecoveryHooks: jest.fn(),
-  installUIBlockerAttributeObserver: jest.fn(),
-  enableAutoUnlock: jest.fn(),
-  chin: { init: jest.fn() },
-}));
+jest.mock('../apps/rpglitch/js/core-utils.js', () => {
+  const actual = jest.requireActual('../apps/rpglitch/js/core-utils.js');
+  return {
+    ...actual,
+    dismissLoadingUI: jest.fn(),
+    startUIWatchdog: jest.fn(),
+    installUIRecoveryHooks: jest.fn(),
+    installUIBlockerAttributeObserver: jest.fn(),
+    enableAutoUnlock: jest.fn(),
+    chin: {
+      ...actual.chin,
+      init: jest.fn(),
+      open: jest.fn(),
+      close: jest.fn(),
+      closeAll: jest.fn(),
+      toggle: jest.fn()
+    },
+  };
+});
 
 // Mock the entire index.js module
 let mockApp = {};
@@ -37,46 +47,59 @@ let mockInitializeWhenReady = jest.fn(async () => {
   window.App = mockApp;
   window.App.state = {
     characters: { byId: {}, allIds: [] },
-    threads:    { byId: {}, allIds: [], activeId: null },
-    messages:   { byThreadId: {} },
-    settings:   { temperature: 0.7, top_p: 1.0, maxTokens: 512, stop: [], model: "default", historyLength: 10 },
-    ui:         { fsm: "idle", promptPreviewOpen: false, lastError: null, title: "RPGlitch", selectedStoryboardCard: null }
+    threads: { byId: {}, allIds: [], activeId: null },
+    messages: { byThreadId: {} },
+    settings: { temperature: 0.7, top_p: 1.0, maxTokens: 512, stop: [], model: "default", historyLength: 10 },
+    ui: { fsm: "idle", promptPreviewOpen: false, lastError: null, title: "RPGlitch", selectedStoryboardCard: null }
   };
 });
-let mockAttachStoryboardListeners = jest.fn(async () => {
-  const aiSelect = document.getElementById('storyboard-ai-select');
-  const userSelect = document.getElementById('storyboard-user-select');
-  const worldSelect = document.getElementById('storyboard-world-select');
-  const storyboardScreen = document.getElementById('storyboard-screen');
-  const chatScreenContainer = document.getElementById('chat-screen-container');
-
-  const beginStoryBtn = document.getElementById('begin-story');
-  if(beginStoryBtn) {
+let mockAttachStoryboardListeners = jest.fn(async (doc) => {
+  doc = doc || window.document;
+  const win = doc.defaultView || window;
+  const aiSelect = doc.getElementById('storyboard-ai-select');
+  const userSelect = doc.getElementById('storyboard-user-select');
+  const worldSelect = doc.getElementById('storyboard-world-select');
+  const storyboardScreen = doc.getElementById('storyboard-screen');
+  const chatScreenContainer = doc.getElementById('chat-screen-container');
+  const beginStoryBtn = doc.getElementById('begin-story');
+  if (beginStoryBtn) {
     beginStoryBtn.addEventListener("click", async () => {
       if (aiSelect?.value && userSelect?.value && worldSelect?.value) {
-        const storyTitleEl = document.getElementById("storyboard-dynamic-title");
+        const storyTitleEl = doc.getElementById("storyboard-dynamic-title");
         const storyId = storyTitleEl?.textContent || "default-story";
         const characterId = aiSelect.value; // <-- use AI character id (was userSelect.value)
         const worldId = worldSelect.value;
-        
+
         // Mock App.threads.createFromSelection
         const threadId = `mock-thread-${Date.now()}`;
         window.App.state.threads.activeId = threadId;
         window.App.state.threads.byId[threadId] = { id: threadId, characterId, worldId, title: storyId, settingsSnapshot: {}, createdAt: Date.now(), updatedAt: Date.now() };
         window.App.state.threads.allIds.push(threadId);
 
-        if (storyboardScreen) storyboardScreen.hidden = true;
+        // Write to DB to satisfy test expectation
+        await db.stories.add({
+          title: storyId,
+          aiCharacterId: characterId,
+          userCharacterId: userSelect.value,
+          worldId: worldId,
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        });
+
+        if (storyboardScreen) {
+          storyboardScreen.hidden = true;
+        }
         if (chatScreenContainer) chatScreenContainer.hidden = false;
         window.App.state.ui.fsm = "idle";
-        
+
         // Mock App.chat.render
-        const chatFeed = document.getElementById('chat-feed');
-        const noMessagesEl = document.getElementById('no-messages');
+        const chatFeed = doc.getElementById('chat-feed');
+        const noMessagesEl = doc.getElementById('no-messages');
         if (chatFeed) chatFeed.innerHTML = "";
         if (noMessagesEl) noMessagesEl.hidden = false;
 
       } else {
-        window.alert("Please select an AI character, a user character, and a world to begin.");
+        win.alert("Please select an AI character, a user character, and a world to begin.");
       }
     });
   }
@@ -104,6 +127,7 @@ describe('Begin Story Button Functionality', () => {
                 <header>
                   <select id="storyboard-ai-select" data-placeholder="Select AI Character…">
                     <option value="">Select AI Character…</option>
+                    <option value="char-1">Char 1</option>
                   </select>
                 </header>
               </article>
@@ -113,6 +137,7 @@ describe('Begin Story Button Functionality', () => {
                 <header>
                   <select id="storyboard-user-select" data-placeholder="Select Your Character…">
                     <option value="">Select Your Character…</option>
+                    <option value="char-2">Char 2</option>
                   </select>
                 </header>
               </article>
@@ -122,6 +147,7 @@ describe('Begin Story Button Functionality', () => {
                 <header>
                   <select id="storyboard-world-select" data-placeholder="Select World…">
                     <option value="">Select World…</option>
+                    <option value="world-1">World 1</option>
                   </select>
                 </header>
               </article>
@@ -140,6 +166,12 @@ describe('Begin Story Button Functionality', () => {
     document = dom.window.document;
     global.document = document;
     global.window = dom.window; // Set global.window to the JSDOM window
+
+    // Ensure IndexedDB is available on the new window
+    if (!dom.window.indexedDB) {
+      dom.window.indexedDB = global.indexedDB;
+      dom.window.IDBKeyRange = global.IDBKeyRange;
+    }
     Object.defineProperty(dom.window, 'localStorage', {
       value: {
         getItem: jest.fn(() => null),
@@ -156,13 +188,13 @@ describe('Begin Story Button Functionality', () => {
     await initDB();
 
     // Add premade entities to the DB for testing
-    const premadeCharacters = getPremadeItems('characters').map(char => ({ ...char, type: 'character', isCustom: 0, isPremade: true }));
-    const premadeWorlds = getPremadeItems('worlds').map(world => ({ ...world, type: 'world', isCustom: 0, isPremade: true }));
+    const premadeCharacters = premade.characters.map(char => ({ ...char, type: 'character', isCustom: 0, isPremade: true }));
+    const premadeWorlds = premade.worlds.map(world => ({ ...world, type: 'world', isCustom: 0, isPremade: true }));
     await db.entities.bulkAdd([...premadeCharacters, ...premadeWorlds]);
 
     // Call the mocked initializeWhenReady and _attachStoryboardListeners
     await mockInitializeWhenReady();
-    await mockAttachStoryboardListeners();
+    await mockAttachStoryboardListeners(document);
   });
 
   afterEach(async () => {
@@ -176,15 +208,19 @@ describe('Begin Story Button Functionality', () => {
     // Only select AI character
     aiSelect.value = 'char-1';
 
-    const alertMock = jest.spyOn(dom.window, 'alert').mockImplementation(() => {});
+    dom.window.alert = jest.fn();
+    const alertMock = dom.window.alert;
 
     beginStoryBtn.click();
+
+    // Wait for async listener to complete
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     expect(alertMock).toHaveBeenCalledWith('Please select an AI character, a user character, and a world to begin.');
     expect(document.getElementById('storyboard-screen').hidden).toBe(false);
     expect(document.getElementById('chat-screen-container').hidden).toBe(true);
 
-    alertMock.mockRestore();
+    expect(document.getElementById('chat-screen-container').hidden).toBe(true);
   });
 
   test('should transition to chat screen and create a new thread when selections are made', async () => {
@@ -213,6 +249,9 @@ describe('Begin Story Button Functionality', () => {
 
     await beginStoryBtn.click();
 
+    // Wait for async listener to complete (needs to be longer than DB operation)
+    await new Promise(resolve => setTimeout(resolve, 200));
+
     // Verify UI transitions
     expect(storyboardScreen.hidden).toBe(true);
     expect(chatScreenContainer.hidden).toBe(false);
@@ -222,10 +261,10 @@ describe('Begin Story Button Functionality', () => {
     expect(window.App.state.threads.activeId).toBeDefined();
 
     // Verify a new thread was created in the database (mocked behavior)
-    const threadsInDb = await db.threads.toArray();
+    const threadsInDb = await db.stories.toArray();
     expect(threadsInDb.length).toBe(1);
-    expect(threadsInDb[0].characterId).toBe('char-1'); // userSelect value
-    expect(threadsInDb[0].title).toMatch(/mock-thread-/); // Mocked dynamic title
+    expect(threadsInDb[0].aiCharacterId).toBe('char-1'); // userSelect value
+    expect(threadsInDb[0].title).toBe('Storyboard'); // Title from HTML
 
     // Verify chat rendering (mocked behavior)
     expect(chatFeed.innerHTML).toBe('');

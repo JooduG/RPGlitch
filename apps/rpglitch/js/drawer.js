@@ -1,5 +1,7 @@
-import { entities, getPictureHTML } from "./entities.js";
-import { log, error } from "./utils.js";
+// apps/rpglitch/js/drawer.js
+import { entities } from "./entity-crud.js"; // Renamed import
+import { getPictureHTML } from "./entity-structs.js"; // Renamed import
+import { log, error } from "./core-utils.js"; // Renamed import
 
 const DRAWER_ID = "storyboard-drawer";
 const BACKDROP_ID = "storyboard-drawer-backdrop";

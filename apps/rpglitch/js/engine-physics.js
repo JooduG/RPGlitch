@@ -1,4 +1,4 @@
-// apps/rpglitch/js/physics.js
+// apps/rpglitch/js/engine-physics.js
 
 /**
  * THE PROMETHEUS PHYSICS ENGINE (V4.2)

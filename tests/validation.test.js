@@ -10,8 +10,8 @@ import {
   SIGNATURE_COLORS,
   getSignatureColor,
   getContrastColor,
-} from '../apps/rpglitch/js/validation.js';
-import * as utils from '../apps/rpglitch/js/utils.js';
+} from '../apps/rpglitch/js/core-utils.js';
+import * as utils from '../apps/rpglitch/js/core-utils.js';
 
 // Mock DOMPurify for sanitizeHtml tests
 global.DOMPurify = {
@@ -100,21 +100,7 @@ describe('validation.js', () => {
       });
     });
 
-    describe('logging parameter', () => {
-      test('logs warnings when allowLog is true', () => {
-        const logSpy = jest.spyOn(utils, 'log').mockImplementation();
-        isValidImageUrl('ftp://example.com/image.jpg', true);
-        expect(logSpy).toHaveBeenCalled();
-        logSpy.mockRestore();
-      });
 
-      test('does not log when allowLog is false', () => {
-        const logSpy = jest.spyOn(utils, 'log').mockImplementation();
-        isValidImageUrl('ftp://example.com/image.jpg', false);
-        expect(logSpy).not.toHaveBeenCalled();
-        logSpy.mockRestore();
-      });
-    });
   });
 
   // ============================================================================

@@ -1,10 +1,10 @@
 import { JSDOM } from 'jsdom';
 
-jest.mock('../apps/rpglitch/js/entities.js', () => ({
+jest.mock('../apps/rpglitch/js/entity-crud.js', () => ({
   entities: {
     list: jest.fn().mockReturnValue([]),
   },
-  getPremadeItems: jest.fn().mockReturnValue([]),
+  seedPremades: jest.fn().mockResolvedValue(),
   _allItemsCache: {},
 }));
 
@@ -17,8 +17,8 @@ async function loadApp() {
   global.window = dom.window;
   global.document = dom.window.document;
 
-  dom.window.alert = () => {};
-  dom.window.Dexie = jest.fn(function(name){
+  dom.window.alert = () => { };
+  dom.window.Dexie = jest.fn(function (name) {
     this.name = name;
     this.version = jest.fn().mockReturnThis();
     this.stores = jest.fn().mockReturnThis();
@@ -27,10 +27,10 @@ async function loadApp() {
   });
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
-  dom.window.$ = function () {};
+  dom.window.$ = function () { };
 
   jest.resetModules();
-  const utils = await import('../apps/rpglitch/js/utils.js');
+  const utils = await import('../apps/rpglitch/js/core-utils.js');
   const index = await import('../apps/rpglitch/js/index.js');
 
   dom.window.App = {

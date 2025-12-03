@@ -1,13 +1,16 @@
-// apps/rpglitch/js/views.js
-import { entities, getPictureHTML, getSignature, copyEntity } from "./entities.js";
+// apps/rpglitch/js/ui-views.js
+import { entities, copyEntity } from "./entity-crud.js"; // entities, copyEntity
+import { getPictureHTML, getSignature } from "./entity-structs.js"; // getPictureHTML, getSignature
+
 import {
-  escapeHtml,
-  handleAsyncError, dismissLoadingUI,
+  escapeHtml, handleAsyncError, dismissLoadingUI,
   chin, error, setTopBarRight,
-  renderTags
-} from "./utils.js";
-import { isValidImageUrl, extractImageUrl, sanitizeHtml } from "./validation.js";
+  renderTags, isValidImageUrl, extractImageUrl, sanitizeHtml
+} from "./core-utils.js";
 import { initDrawer, openDrawer } from "./drawer.js";
+// --- CRITICAL IMPORTS FROM NEW CHAT RENDER FILE ---
+import { setGameplayEntities, updatePortraits, setSendLock } from "./ui-render-chat.js";
+
 
 let _refreshAllLists = null;
 let _onSelectionChanged = null;
@@ -18,14 +21,10 @@ const selectedEntities = {
   world: null,
 };
 
-// --- NEW: FORCE UPDATE SELECTION (For Snapshots) ---
-export function setGameplayEntities(ai, user, world) {
-  if (ai) selectedEntities.aiCharacter = ai;
-  if (user) selectedEntities.userCharacter = user;
-  if (world) selectedEntities.world = world;
-}
+// --- FORCE UPDATE SELECTION (Exported but defined in ui-render-chat.js) ---
+export { setGameplayEntities };
 
-// --- CORE ROUTING ---
+// --- CORE ROUTING (REMAINS HERE) ---
 function showStoryboard() {
   document.body.classList.remove("profile-view-active");
   document.body.classList.remove("mode-gameplay");
@@ -39,7 +38,7 @@ function showStoryScreen() {
   document.body.classList.add("mode-gameplay");
   closeProfileModal();
 }
-
+// ... (parseHash, handleRoute, router logic remains) ...
 function parseHash() {
   const [path] = location.hash.slice(1).split("?");
   return path.split("/").filter(Boolean);
@@ -78,47 +77,8 @@ export const router = { navigate(hash) { location.hash = hash; }, parseHash, han
 
 // --- SHARED UI HELPERS ---
 
-export function updatePortraits(aiCharacter, userCharacter) {
-  const setPort = (id, ent, label) => {
-    const container = document.querySelector(id);
-    if (!container) return;
+export { updatePortraits }; // Imported from ui-render-chat.js
 
-    // Apply signature class to parent for context
-    container.className = "character-portrait"; // Reset
-    if (ent && ent.signatureColour && ent.signatureColour !== "default") {
-      container.classList.add(`signature-${ent.signatureColour}`);
-    }
-
-    const imgDiv = container.querySelector(".portrait-image");
-
-    // Normalize class name if found
-    let nameDiv = container.querySelector(".character-name-overlay") || container.querySelector(".portrait-name");
-    if (nameDiv) nameDiv.className = "character-name-overlay";
-
-    if (imgDiv) {
-      imgDiv.innerHTML = "";
-      if (ent) {
-        const isWorld = ent.type === 'world';
-        const picture = getPictureHTML(ent, { cover: true, landscape: isWorld });
-        if (picture) imgDiv.appendChild(picture);
-      }
-    }
-
-    if (nameDiv) {
-      nameDiv.innerHTML = `<h2>${ent?.name || label}</h2>`;
-      if (ent && ent.signatureColour && ent.signatureColour !== "default") {
-        nameDiv.style.borderColor = `var(--signature-${ent.signatureColour})`;
-        nameDiv.querySelector("h2").style.color = `var(--signature-${ent.signatureColour})`;
-      } else {
-        nameDiv.style.borderColor = "";
-        const h2 = nameDiv.querySelector("h2");
-        if (h2) h2.style.color = "";
-      }
-    }
-  };
-  setPort("#gameplay-ai-portrait", aiCharacter, "AI");
-  setPort("#gameplay-user-portrait", userCharacter, "You");
-}
 
 export function updateStoryboardSelection(newSelection) {
   const updateSlot = (key, entity, btnId, previewId, type) => {
@@ -145,146 +105,10 @@ export function updateStoryboardSelection(newSelection) {
   if (_onSelectionChanged) _onSelectionChanged(selectedEntities);
 }
 
-// --- RENDER MESSAGE (Chat Bubbles) ---
-export function renderMessage(container, role, text, characterName, type, entities) {
-  const div = document.createElement("div");
+// --- RENDER MESSAGE LOGIC REMOVED/MIGRATED ---
 
-  const roleClass = (role === "user" || role === "ai") ? role : "narrator";
-  let classList = ["story-message", roleClass];
-
-  // Determine signature color
-  let signatureColour = null;
-  if (role === "user" && entities?.userCharacter?.signatureColour) {
-    signatureColour = entities.userCharacter.signatureColour;
-  } else if (role === "ai" && entities?.aiCharacter?.signatureColour) {
-    signatureColour = entities.aiCharacter.signatureColour;
-  }
-
-  if (signatureColour && signatureColour !== "default") {
-    classList.push(`signature-${signatureColour}`);
-  }
-
-  div.className = classList.join(" ");
-  div.setAttribute("role", "log-item");
-  div.setAttribute("data-type", type || "IC");
-
-  if (characterName) {
-    div.setAttribute("data-character-name", characterName);
-  }
-
-  // === CONTENT PIPELINE ===
-
-  // 1. STRIP THOUGHTS
-  // Remove anything between <think> and </think> (case insensitive, multiline)
-  let rawContent = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
-
-  // 2. SANITIZE
-  // We sanitize FIRST to prevent XSS, then we add our own safe HTML tags.
-  let safeContent = sanitizeHtml(rawContent);
-
-  // 3. LITE MARKDOWN (Preserving Asterisks)
-  // Bold: **text** -> <strong>**text**</strong>
-  safeContent = safeContent.replace(/\*\*([^*]+)\*\*/g, '<strong>**$1**</strong>');
-
-  // Italic: *text* -> <em>*text*</em>
-  // Negative lookbehind (?<!\*) prevents matching the * inside **
-  safeContent = safeContent.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>*$1*</em>');
-
-  // 4. NAME PREFIX
-  // Show prefix for USER. Show prefix for NARRATOR. HIDE for AI.
-  if (characterName && roleClass === "user") {
-    const safeName = sanitizeHtml(characterName);
-    safeContent = `<span class="narrator-prefix">${safeName}:</span> ${safeContent}`;
-  } else if (roleClass === "narrator" && characterName) {
-    const safeName = sanitizeHtml(characterName);
-    safeContent = `<span class="narrator-prefix">${safeName}:</span> ${safeContent}`;
-  }
-
-  div.innerHTML = safeContent;
-  container.appendChild(div);
-}
-
-// === NEW: TYPING INDICATOR LOGIC ===
-
-export function showTypingIndicator(container, type = 'ai', entityId = null) {
-  // 1. Cleanup existing
-  removeTypingIndicator(container);
-
-  // 2. Create Bubble
-  const bubble = document.createElement("div");
-  bubble.id = "active-typing-indicator";
-  
-  // 3. Resolve Signature Color
-  // We check selectedEntities first (fastest), then fallback to defaults
-  let signatureColour = null;
-  if (type === 'ai' && selectedEntities.aiCharacter) {
-    signatureColour = selectedEntities.aiCharacter.signatureColour;
-  } else if (type === 'user' && selectedEntities.userCharacter) {
-    // Rare, but supported
-    signatureColour = selectedEntities.userCharacter.signatureColour;
-  }
-
-  // 4. Build Classes
-  let classes = ["story-message", "typing-bubble"];
-  
-  if (type === 'narrator' || type === 'system') {
-    classes.push("narrator");
-  } else {
-    classes.push("ai");
-  }
-
-  // Apply Signature Class
-  if (signatureColour && signatureColour !== "default") {
-    classes.push(`signature-${signatureColour}`);
-  }
-
-  bubble.className = classes.join(" ");
-
-  // 5. Content
-  bubble.innerHTML = `
-    <div class="typing-dot"></div>
-    <div class="typing-dot"></div>
-    <div class="typing-dot"></div>
-  `;
-
-  container.appendChild(bubble);
-  container.scrollTop = container.scrollHeight;
-}
-
-export function removeTypingIndicator(container) {
-  const existing = container.querySelector("#active-typing-indicator");
-  if (existing) existing.remove();
-}
-
-// === NEW: INPUT LOCK (Prevents race conditions) ===
-export function setSendLock(isLocked) {
-  const form = document.querySelector("#story-form");
-  if (!form) return;
-
-  const btn = form.querySelector('button[type="submit"]');
-  const input = form.querySelector('input[name="message"]');
-
-  if (btn) {
-    if (isLocked) {
-      btn.disabled = true;
-      // TAG THE BUTTON AS LOCKED
-      btn.dataset.locked = "true";
-      btn.classList.add("muted");
-    } else {
-      // UNTAG
-      delete btn.dataset.locked;
-      btn.classList.remove("muted");
-
-      // CHECK IF EMPTY before blindly enabling
-      const hasText = input && input.value.trim().length > 0;
-      btn.disabled = !hasText;
-    }
-  }
-
-  if (!isLocked && input) {
-    input.focus();
-  }
-}
+// --- INPUT LOCK LOGIC REMOVED/MIGRATED ---
+export { setSendLock }; // Imported from ui-render-chat.js
 
 // --- CONSTANTS ---
 const SECTION_DEFINITIONS = {
@@ -306,8 +130,7 @@ const SECTION_DEFINITIONS = {
   },
 };
 
-// --- MODAL MANAGEMENT ---
-
+// --- MODAL MANAGEMENT (REMAINS HERE) ---
 function closeProfileModal() {
   const screen = document.querySelector("#profile-screen");
   if (screen) {
@@ -331,8 +154,7 @@ function autoResize(el) {
   el.style.height = el.scrollHeight + 'px';
 }
 
-// --- PROFILE RENDERER ---
-
+// --- PROFILE RENDERER (REMAINS HERE) ---
 export async function renderProfilePage(type, id) {
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
@@ -341,7 +163,6 @@ export async function renderProfilePage(type, id) {
   document.body.classList.add("profile-view-active");
   screen.classList.add("is-open");
 
-  // Check if we are in gameplay mode
   const isGameplay = document.body.classList.contains("mode-gameplay");
 
   const isWorld = type === 'world';
@@ -585,7 +406,6 @@ export async function renderProfilePage(type, id) {
 
   // --- ACTIONS ---
 
-  // Only show Edit/Delete/Clone/Save buttons if NOT in Gameplay mode
   if (!isGameplay) {
     const footerActions = document.createElement("div");
     footerActions.className = "profile-actions-footer";
@@ -655,7 +475,7 @@ export async function renderProfilePage(type, id) {
   if (imageOverlay) imageOverlay.style.display = isEditing ? "flex" : "none";
 }
 
-// --- INITIALIZATION ---
+// --- INITIALIZATION (REMAINS HERE) ---
 
 export async function initViews(deps = {}) {
   _refreshAllLists = deps.refreshAllLists;

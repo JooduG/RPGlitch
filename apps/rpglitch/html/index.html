@@ -55,6 +55,13 @@
             <textarea id="opening-prompt" class="profile-desc-input" name="opening-prompt"
               placeholder="Enter the opening prompt..." autocomplete="off" rows="4"></textarea>
 
+            <fieldset>
+              <label for="director-mode-toggle">
+                <input type="checkbox" id="director-mode-toggle" name="director-mode-toggle" role="switch" />
+                Director Mode (Show AI Thoughts & Physics Logs)
+              </label>
+            </fieldset>
+
             <label for="custom-js">Custom JavaScript</label>
             <textarea id="custom-js" class="profile-desc-input" name="custom-js" placeholder="Custom JS (advanced)"
               autocomplete="off" rows="4"></textarea>
@@ -246,6 +253,12 @@
         fill="currentColor">
         <rect x="4" y="4" width="16" height="16" rx="2" />
       </svg></template>
+
+    <template id="tpl-typing-indicator">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </template>
   </div>
 
   <script>

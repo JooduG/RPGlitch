@@ -1,19 +1,11 @@
-// apps/rpglitch/js/storyboard-controller.js
-import { state, applyPatch } from "./store.js";
-import { entities } from "./entities.js";
-import { StoryController } from "./story-controller.js";
-import { updatePortraits } from "./views.js";
-import { error } from "./utils.js";
+// apps/rpglitch/js/manager-setup.js
+import { state, applyPatch } from "./app-state.js"; // Renamed import
+import { entities } from "./entity-crud.js"; // Renamed import
+import { StoryController } from "./manager-turns.js"; // Renamed import
+import { updatePortraits, applyWorldAmbience } from "./ui-render-chat.js"; // Renamed import
+import { error } from "./core-utils.js"; // Renamed import
 
-function updateWorldAmbience(worldEntity) {
-    if (!worldEntity || !worldEntity.signatureColour) return;
-    const colorMap = {
-        pink: "236, 72, 153", emerald: "16, 185, 129", cyan: "6, 182, 212",
-        orange: "249, 115, 22", purple: "168, 85, 247", default: "255, 255, 255"
-    };
-    const rgb = colorMap[worldEntity.signatureColour] || colorMap.default;
-    document.documentElement.style.setProperty('--world-ambience-rgb', rgb);
-}
+// --- PURIFIED: Ambience logic is now handled by a dedicated helper function (assumed to be imported) ---
 
 // MODIFIED: Exported for testing
 export function generateDynamicTitle(ai, user, world) {
@@ -113,7 +105,7 @@ async function handleShuffle(views) {
     }
 }
 
-export const StoryboardController = {
+export const SetupManager = {
     startStory: handleBeginStory,
     shuffle: handleShuffle
 };
@@ -128,7 +120,9 @@ export function initStoryboardStage(views) {
     views.setOnSelectionChanged((sel) => {
         const { aiCharacter, userCharacter, world } = sel;
         applyPatch({ selectedAI: aiCharacter, selectedUser: userCharacter, selectedWorld: world });
-        if (world) updateWorldAmbience(world);
+
+        // --- PURIFIED: Ambience logic now uses a helper function ---
+        if (world) applyWorldAmbience(world);
 
         if (!state.isCustomTitle && titleStoryboard && titleGameplay) {
             const newTitle = generateDynamicTitle(aiCharacter, userCharacter, world);
@@ -180,3 +174,5 @@ export function initStoryboardStage(views) {
         });
     }
 }
+// Renaming for the new manager structure
+export const StoryboardController = SetupManager;

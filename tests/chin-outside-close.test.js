@@ -1,10 +1,10 @@
 
 
-jest.mock('../apps/rpglitch/js/entities.js', () => ({
+jest.mock('../apps/rpglitch/js/entity-crud.js', () => ({
   entities: {
     list: jest.fn(),
   },
-  getPremadeItems: jest.fn().mockReturnValue([]),
+  seedPremades: jest.fn().mockResolvedValue(),
   _allItemsCache: {},
 }));
 
@@ -14,7 +14,7 @@ async function loadApp(htmlContent = '<!doctype html><html><body></body></html>'
 
   // Re-import modules to get a fresh state
   jest.resetModules();
-  const utils = await import('../apps/rpglitch/js/utils.js');
+  const utils = await import('../apps/rpglitch/js/core-utils.js');
   const index = await import('../apps/rpglitch/js/index.js');
 
   // App object is now constructed from re-imported modules

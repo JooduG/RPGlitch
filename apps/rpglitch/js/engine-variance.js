@@ -1,4 +1,4 @@
-// apps/rpglitch/js/variance.js
+// apps/rpglitch/js/engine-variance.js
 
 // --- THE DIRECTOR'S PLAYBOOK ---
 const DIRECTOR_NOTES = {

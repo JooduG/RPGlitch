@@ -1206,3 +1206,43 @@ $glow-signatures: (
     display: flex;
   }
 }
+
+
+/* === DIRECTOR MODE STYLES (Phase 4.1) === */
+
+// Style for the internal thought process (hidden by default)
+.thought-trace {
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  background: rgb(15 23 42 / 70%);
+
+  /* Faint Dark Blue */
+  color: #9cdb9c;
+
+  /* Matrix Green Text */
+  font-family: monospace;
+  font-size: 0.85rem;
+  border-left: 3px solid var(--pico-warning);
+  border-radius: 2px;
+}
+
+.thought-trace pre {
+  margin: 0;
+  white-space: pre-wrap;
+
+  /* Ensure text wraps */
+  word-wrap: break-word;
+}
+
+// Style for the background physics log (must be loud for debugging)
+.story-message[data-type="DEBUG"] {
+  align-self: center !important;
+  max-width: 80%;
+  border-radius: 4px;
+  padding: 0.75rem 1.25rem;
+  background: rgb(255 165 0 / 15%) !important;
+  border: 1px solid rgb(255 165 0 / 50%) !important;
+  color: #f90 !important;
+  font-weight: 600;
+  text-align: center;
+}

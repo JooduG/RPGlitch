@@ -1,8 +1,9 @@
 // apps/rpglitch/js/story-options.js
-import { db } from "./db.js";
-import { StoryController } from "./story-controller.js";
-import { applyPatch } from "./store.js";
-import { escapeHtml } from "./utils.js";
+import { db } from "./core-db.js"; // Renamed import
+import { StoryController } from "./manager-turns.js"; // Renamed import
+import { applyPatch, state } from "./app-state.js"; // Renamed import
+import { escapeHtml } from "./core-utils.js"; // Renamed import
+import { router } from "./ui-views.js"; // Added import for re-rendering after toggle
 
 export const StoryOptionsController = {
   init() {
@@ -11,6 +12,7 @@ export const StoryOptionsController = {
     const closeBtn = modal?.querySelector(".close-modal");
     const newStoryBtn = modal?.querySelector("#btn-new-story");
     const resetBtn = modal?.querySelector("#settings-reset");
+    const directorModeToggle = modal?.querySelector("#director-mode-toggle"); // New element
 
     if (!modal || !btn) return;
 
@@ -40,11 +42,38 @@ export const StoryOptionsController = {
         window.location.reload();
       }
     });
+
+    // --- DIRECTOR MODE WIRING (NEW) ---
+    if (directorModeToggle) {
+      directorModeToggle.addEventListener("change", (e) => {
+        const isChecked = e.target.checked;
+
+        // 1. Update persistent and runtime state
+        applyPatch({
+          settings: {
+            directorMode: isChecked
+          }
+        });
+
+        // 2. Force a full re-render of the chat feed to show/hide thoughts immediately
+        // This is crucial for the "Lobotomy Reversal" effect.
+        if (state.story.activeId) {
+          // If in a story, re-render the story screen (which calls StoryController.render)
+          router.handleRoute();
+        }
+      });
+    }
   },
 
   open() {
     const modal = document.querySelector("#story-options");
     if (!modal) return;
+
+    // Check current state and sync checkbox (CRITICAL for persistency)
+    const directorModeToggle = modal.querySelector("#director-mode-toggle");
+    if (directorModeToggle) {
+      directorModeToggle.checked = !!state.settings.directorMode;
+    }
 
     modal.removeAttribute("hidden");
     // Trigger rendering of story list every time we open
@@ -79,7 +108,6 @@ export const StoryOptionsController = {
       stories.forEach(s => {
         const div = document.createElement("div");
         div.className = "story-item card";
-        // Styles handled by SCSS
 
         const info = document.createElement("div");
         const date = new Date(s.updatedAt).toLocaleDateString();
