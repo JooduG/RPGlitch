@@ -90,7 +90,7 @@ const premade = {
   ],
 };
 
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2;
 
 // --- UTILITY FUNCTIONS ---
 
@@ -139,7 +139,6 @@ export function getPictureHTML(entity = {}, options = {}) {
   const contrast = getContrast(signature);
 
   const wrap = document.createElement("div");
-  // Dynamically add aspect ratio class based on the 'landscape' option
   let aspectRatioClass = '';
   if (landscape === true) {
     aspectRatioClass = ' picture--landscape';
@@ -196,14 +195,14 @@ function normalize(base = {}) {
     present: sanitizeHtml(base.present || "").trim(),
     future: sanitizeHtml(base.future || "").trim(),
     tags: safeTags,
+    // V4.2: Preserve dynamics if they exist (Critical for Physics Engine)
+    dynamics: base.dynamics || null
   };
 }
 
-// Format Premade Entities for Database Insertion
 function formatPremade(entity, type) {
   const flattenedEntity = {
     ...entity,
-    // Flatten sections into the root object
     ...(entity.sections || {}),
   };
   delete flattenedEntity.sections;
@@ -226,8 +225,6 @@ export async function seedPremades() {
     const chars = premade.characters.map(c => formatPremade(c, "character"));
     const worlds = premade.worlds.map(w => formatPremade(w, "world"));
     const stories = premade.stories.map(s => formatPremade(s, "story"));
-
-    // Bulk insert all premade data directly into the entities table
     await db.entities.bulkPut([...chars, ...worlds, ...stories]);
     console.log(`[RPGlitch] Seeded ${chars.length} characters, ${worlds.length} worlds.`);
   } catch (err) {
@@ -267,7 +264,7 @@ export const entities = {
         ...base,
         ...normalize({ ...base, ...entity }),
         id: id,
-        type: type.toLowerCase(), // Force lowercase
+        type: type.toLowerCase(),
         isCustom: 1,
         isPremade: 0,
         version: STORAGE_VERSION,
@@ -307,6 +304,54 @@ export const entities = {
       return null;
     }
   },
+
+  // --- SNAPSHOT SYSTEM (V4.2 - PROMETHEUS) ---
+
+  async getSnapshot(storyId, type, masterId) {
+    try {
+      // Filter by type first for index performance
+      const candidates = await db.entities.where("type").equals(type.toLowerCase()).toArray();
+
+      // Find the specific snapshot for this story AND this master entity
+      return candidates.find(e =>
+        e.storyId === storyId &&
+        e.isSnapshot === 1 &&
+        (!masterId || e.snapshotOf === masterId)
+      ) || null;
+    } catch (err) {
+      error(`Error fetching snapshot for story ${storyId}:`, err);
+      return null;
+    }
+  },
+
+  async createSnapshot(storyId, masterEntity) {
+    try {
+      const snapshot = {
+        ...masterEntity,
+        id: crypto.randomUUID(),
+        storyId: storyId,
+        snapshotOf: masterEntity.id,
+        isSnapshot: 1,
+        isCustom: 1,
+        isPremade: 0,
+        updatedAt: Date.now(),
+        // NEW: Initialize Narrative Physics Engine
+        // Defaults: Low Entropy (Calm), Mid Permeability (Neutral), Low Velocity (Slow)
+        dynamics: {
+          entropy: 10,
+          permeability: 50,
+          velocity: 10,
+          resonance: 10
+        }
+      };
+
+      await db.entities.put(snapshot);
+      return snapshot;
+    } catch (err) {
+      error(`Failed to create snapshot for ${masterEntity.name}:`, err);
+      throw err;
+    }
+  }
 };
 
 export async function copyEntity(type, id) {

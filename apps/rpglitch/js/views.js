@@ -18,6 +18,13 @@ const selectedEntities = {
   world: null,
 };
 
+// --- NEW: FORCE UPDATE SELECTION (For Snapshots) ---
+export function setGameplayEntities(ai, user, world) {
+  if (ai) selectedEntities.aiCharacter = ai;
+  if (user) selectedEntities.userCharacter = user;
+  if (world) selectedEntities.world = world;
+}
+
 // --- CORE ROUTING ---
 function showStoryboard() {
   document.body.classList.remove("profile-view-active");
@@ -84,11 +91,8 @@ export function updatePortraits(aiCharacter, userCharacter) {
 
     const imgDiv = container.querySelector(".portrait-image");
 
-    // FIX: Use the correct class name matching SCSS (.character-name-overlay)
-    // Check for both old and new class names to be safe
-    let nameDiv = container.querySelector(".character-name-overlay") || container.querySelector(".portrait-name");
-
     // Normalize class name if found
+    let nameDiv = container.querySelector(".character-name-overlay") || container.querySelector(".portrait-name");
     if (nameDiv) nameDiv.className = "character-name-overlay";
 
     if (imgDiv) {
@@ -102,9 +106,7 @@ export function updatePortraits(aiCharacter, userCharacter) {
 
     if (nameDiv) {
       nameDiv.innerHTML = `<h2>${ent?.name || label}</h2>`;
-      // Apply signature to nameplate specifically if needed
       if (ent && ent.signatureColour && ent.signatureColour !== "default") {
-        // We rely on the parent class or we can add it directly
         nameDiv.style.borderColor = `var(--signature-${ent.signatureColour})`;
         nameDiv.querySelector("h2").style.color = `var(--signature-${ent.signatureColour})`;
       } else {
@@ -150,7 +152,7 @@ export function renderMessage(container, role, text, characterName, type, entiti
   const roleClass = (role === "user" || role === "ai") ? role : "narrator";
   let classList = ["story-message", roleClass];
 
-  // FIX: Determine signature color based on role and entities
+  // Determine signature color
   let signatureColour = null;
   if (role === "user" && entities?.userCharacter?.signatureColour) {
     signatureColour = entities.userCharacter.signatureColour;
@@ -170,18 +172,35 @@ export function renderMessage(container, role, text, characterName, type, entiti
     div.setAttribute("data-character-name", characterName);
   }
 
-  let contentHtml = sanitizeHtml(text);
+  // === CONTENT PIPELINE ===
 
-  // Prepend speaker name
-  if (characterName && roleClass !== "narrator") {
+  // 1. STRIP THOUGHTS
+  // Remove anything between <think> and </think> (case insensitive, multiline)
+  let rawContent = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
+  // 2. SANITIZE
+  // We sanitize FIRST to prevent XSS, then we add our own safe HTML tags.
+  let safeContent = sanitizeHtml(rawContent);
+
+  // 3. LITE MARKDOWN (Preserving Asterisks)
+  // Bold: **text** -> <strong>**text**</strong>
+  safeContent = safeContent.replace(/\*\*([^*]+)\*\*/g, '<strong>**$1**</strong>');
+
+  // Italic: *text* -> <em>*text*</em>
+  // Negative lookbehind (?<!\*) prevents matching the * inside **
+  safeContent = safeContent.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>*$1*</em>');
+
+  // 4. NAME PREFIX
+  // Show prefix for USER. Show prefix for NARRATOR. HIDE for AI.
+  if (characterName && roleClass === "user") {
     const safeName = sanitizeHtml(characterName);
-    contentHtml = `<span class="narrator-prefix">${safeName}:</span> ${contentHtml}`;
+    safeContent = `<span class="narrator-prefix">${safeName}:</span> ${safeContent}`;
   } else if (roleClass === "narrator" && characterName) {
     const safeName = sanitizeHtml(characterName);
-    contentHtml = `<span class="narrator-prefix">${safeName}:</span> ${contentHtml}`;
+    safeContent = `<span class="narrator-prefix">${safeName}:</span> ${safeContent}`;
   }
 
-  div.innerHTML = contentHtml;
+  div.innerHTML = safeContent;
   container.appendChild(div);
 }
 
@@ -240,6 +259,9 @@ export async function renderProfilePage(type, id) {
   document.body.classList.add("profile-view-active");
   screen.classList.add("is-open");
 
+  // Check if we are in gameplay mode
+  const isGameplay = document.body.classList.contains("mode-gameplay");
+
   const isWorld = type === 'world';
 
   if (isWorld) {
@@ -294,6 +316,15 @@ export async function renderProfilePage(type, id) {
 
   if (imageInput) { imageInput.disabled = false; imageInput.removeAttribute("aria-busy"); }
   if (actionButton) { actionButton.disabled = false; actionButton.removeAttribute("aria-busy"); }
+
+  // --- MISSING FUNCTION RESTORED ---
+  const setEditMode = (editing) => {
+    isEditing = editing;
+    screen.classList.toggle("is-editing", editing);
+    setTopBarRight(editing ? "form" : "profile");
+    if (imageOverlay) imageOverlay.style.display = editing ? "flex" : "none";
+    renderProfilePage(type, id);
+  };
 
   function updateButtonState() {
     const val = imageInput.value.trim();
@@ -471,76 +502,73 @@ export async function renderProfilePage(type, id) {
   screen.appendChild(layout);
 
   // --- ACTIONS ---
-  const footerActions = document.createElement("div");
-  footerActions.className = "profile-actions-footer";
 
-  const setEditMode = (editing) => {
-    isEditing = editing;
-    screen.classList.toggle("is-editing", editing);
-    setTopBarRight(editing ? "form" : "profile");
-    if (imageOverlay) imageOverlay.style.display = editing ? "flex" : "none";
-    renderProfilePage(type, id);
-  };
+  // Only show Edit/Delete/Clone/Save buttons if NOT in Gameplay mode
+  if (!isGameplay) {
+    const footerActions = document.createElement("div");
+    footerActions.className = "profile-actions-footer";
 
-  if (isEditing) {
-    // SAVE
-    const saveBtn = document.createElement("button");
-    saveBtn.className = "primary"; saveBtn.textContent = "Save";
-    saveBtn.onclick = async (e) => {
-      e.preventDefault();
-      const nameVal = screen.querySelector('[data-edit-field="name"]').value.trim();
-      if (!nameVal) return alert("Name is required");
-
-      const tagsInput = screen.querySelector('[data-edit-field="tags"]').value;
-      const tagsArray = tagsInput.split(",").map(t => t.trim()).filter(Boolean);
-
-      const data = {
-        name: escapeHtml(nameVal),
-        description: escapeHtml(screen.querySelector('[data-edit-field="description"]').value.trim()),
-        profilePictureUrl: escapeHtml(imageInput.value.trim()),
-        signatureColour: escapeHtml(paletteSelect.value.trim()),
-        tags: tagsArray
-      };
-      Object.keys(SECTION_DEFINITIONS).forEach(k => {
-        const el = screen.querySelector(`[data-edit-field="${k}"]`);
-        if (el) data[k] = escapeHtml(el.value.trim());
-      });
-
-      await entities.upsert(type, id === "new" || entity.isPremade ? data : { ...data, id });
-      if (id === "new") closeProfileModal();
-      else { entity = await entities.get(type, id); setEditMode(false); }
-    };
-
-    // DELETE
-    if (!entity.isPremade && id !== "new") {
-      const delBtn = document.createElement("button");
-      delBtn.className = "secondary outline danger"; delBtn.textContent = "Delete";
-      delBtn.onclick = async (e) => {
+    if (isEditing) {
+      // SAVE
+      const saveBtn = document.createElement("button");
+      saveBtn.className = "primary"; saveBtn.textContent = "Save";
+      saveBtn.onclick = async (e) => {
         e.preventDefault();
-        if (confirm("Delete this entity?")) { await entities.remove(type, id); closeProfileModal(); if (_refreshAllLists) _refreshAllLists(); }
-      };
-      footerActions.appendChild(delBtn);
-    }
-    footerActions.appendChild(saveBtn);
+        const nameVal = screen.querySelector('[data-edit-field="name"]').value.trim();
+        if (!nameVal) return alert("Name is required");
 
-  } else {
-    // EDIT / CLONE
-    const actionBtn = document.createElement("button");
-    if (entity.isPremade) {
-      actionBtn.className = "primary"; actionBtn.textContent = "Clone";
-      actionBtn.onclick = async (e) => {
-        e.preventDefault();
-        const newEntity = await copyEntity(type, entity.id);
-        if (newEntity) { window.ephemeralEntity = newEntity; openProfileModal(type, "new"); }
+        const tagsInput = screen.querySelector('[data-edit-field="tags"]').value;
+        const tagsArray = tagsInput.split(",").map(t => t.trim()).filter(Boolean);
+
+        const data = {
+          name: escapeHtml(nameVal),
+          description: escapeHtml(screen.querySelector('[data-edit-field="description"]').value.trim()),
+          profilePictureUrl: escapeHtml(imageInput.value.trim()),
+          signatureColour: escapeHtml(paletteSelect.value.trim()),
+          tags: tagsArray
+        };
+        Object.keys(SECTION_DEFINITIONS).forEach(k => {
+          const el = screen.querySelector(`[data-edit-field="${k}"]`);
+          if (el) data[k] = escapeHtml(el.value.trim());
+        });
+
+        await entities.upsert(type, id === "new" || entity.isPremade ? data : { ...data, id });
+        if (id === "new") closeProfileModal();
+        else { entity = await entities.get(type, id); setEditMode(false); }
       };
+
+      // DELETE
+      if (!entity.isPremade && id !== "new") {
+        const delBtn = document.createElement("button");
+        delBtn.className = "secondary outline danger"; delBtn.textContent = "Delete";
+        delBtn.onclick = async (e) => {
+          e.preventDefault();
+          if (confirm("Delete this entity?")) { await entities.remove(type, id); closeProfileModal(); if (_refreshAllLists) _refreshAllLists(); }
+        };
+        footerActions.appendChild(delBtn);
+      }
+      footerActions.appendChild(saveBtn);
+
     } else {
-      actionBtn.className = "secondary outline"; actionBtn.textContent = "Edit";
-      actionBtn.onclick = (e) => { e.preventDefault(); setEditMode(true); };
+      // EDIT / CLONE
+      const actionBtn = document.createElement("button");
+      if (entity.isPremade) {
+        actionBtn.className = "primary"; actionBtn.textContent = "Clone";
+        actionBtn.onclick = async (e) => {
+          e.preventDefault();
+          const newEntity = await copyEntity(type, entity.id);
+          if (newEntity) { window.ephemeralEntity = newEntity; openProfileModal(type, "new"); }
+        };
+      } else {
+        actionBtn.className = "secondary outline"; actionBtn.textContent = "Edit";
+        actionBtn.onclick = (e) => { e.preventDefault(); setEditMode(true); };
+      }
+      footerActions.appendChild(actionBtn);
     }
-    footerActions.appendChild(actionBtn);
+
+    layout.querySelector(".profile-right-content").appendChild(footerActions);
   }
 
-  layout.querySelector(".profile-right-content").appendChild(footerActions);
   screen.onclick = (e) => { if (e.target === screen) closeProfileModal(); };
   if (imageOverlay) imageOverlay.style.display = isEditing ? "flex" : "none";
 }

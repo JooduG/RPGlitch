@@ -5,6 +5,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>RPGlitch - AI Storytelling Platform</title>
+
+  <link rel="stylesheet" href="../../../build/local_libs/pico.min.css">
+  <script src="../../../build/local_libs/dexie.js"></script>
+  <script src="../../../build/local_libs/cash.min.js"></script>
+  <script src="../../../build/local_libs/purify.min.js"></script>
+
+  <link rel="stylesheet" href="../scss/index.scss">
 </head>
 
 <body class="mode-storyboard" style="overflow: hidden;">
@@ -135,6 +142,12 @@
             <fieldset role="group">
               <input type="text" name="message" placeholder="Type your message..." aria-label="Message"
                 autocomplete="off" />
+
+              <button type="button" id="btn-regenerate" class="secondary outline" title="Re-roll Response"
+                onclick="window.StoryController.regenerate()">
+                🔄
+              </button>
+
               <button type="submit" disabled>Send</button>
             </fieldset>
           </form>
@@ -242,7 +255,10 @@
     if (typeof remember !== "undefined") { window.remember = remember; window.pluginRemember = remember; }
     if (typeof upload !== "undefined") { window.upload = upload; window.pluginUpload = upload; }
   </script>
+
   <div id="dev-hud" style="display: none;"></div>
+
+  <script type="module" src="../js/index.js"></script>
 </body>
 
 </html>

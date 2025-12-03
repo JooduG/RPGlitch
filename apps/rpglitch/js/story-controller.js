@@ -3,9 +3,10 @@ import { db } from "./db.js";
 import { state, applyPatch } from "./store.js";
 import { generateStream } from "./ai-service.js";
 import { entities } from "./entities.js";
-import { renderMessage, updatePortraits } from "./views.js";
-import { error } from "./utils.js"; // Removed 'log'
+import { renderMessage, updatePortraits, setGameplayEntities } from "./views.js";
+import { error } from "./utils.js";
 import { ContextBuilder } from "./context-builder.js";
+import { analyzeRejection, getDirectorInstruction } from "./variance.js";
 
 export const StoryController = {
   requireActive: () => {
@@ -14,13 +15,25 @@ export const StoryController = {
   },
 
   createFromSelection: async (data) => {
+    // 1. Add to DB to generate the ID
     const id = await db.stories.add({
       ...data,
       createdAt: Date.now(),
       updatedAt: Date.now()
     });
-    applyPatch({ story: { activeId: id, byId: { [id]: data } } });
+
+    // 2. CRITICAL FIX: Inject the ID into the object before saving to State
+    // This ensures ContextBuilder can read 'story.id' correctly
+    const storyWithId = { ...data, id: id };
+
+    applyPatch({ story: { activeId: id, byId: { [id]: storyWithId } } });
     return id;
+  },
+
+  // --- SNAPSHOT RESOLVER ---
+  getRealEntity: async (storyId, type, masterId) => {
+    const snap = await entities.getSnapshot(storyId, type, masterId);
+    return snap || await entities.get(type, masterId);
   },
 
   load: async (storyId) => {
@@ -36,25 +49,26 @@ export const StoryController = {
 
       await StoryController.loadMessages(story.id);
 
+      // Fetch Snapshots
       const [ai, user] = await Promise.all([
-        entities.get("character", story.aiCharacterId),
-        entities.get("character", story.userCharacterId)
+        StoryController.getRealEntity(storyId, "character", story.aiCharacterId),
+        StoryController.getRealEntity(storyId, "character", story.userCharacterId)
       ]);
 
+      const world = await StoryController.getRealEntity(storyId, "world", story.worldId);
+
       updatePortraits(ai, user);
+      setGameplayEntities(ai, user, world);
+
       await StoryController.render(story.id);
 
-      // Set ambient color based on World
-      if (story.worldId) {
-        const world = await entities.get("world", story.worldId);
-        if (world && world.signatureColour) {
-          const colorMap = {
-            pink: "236, 72, 153", emerald: "16, 185, 129", cyan: "6, 182, 212",
-            orange: "249, 115, 22", purple: "168, 85, 247", default: "255, 255, 255"
-          };
-          const rgb = colorMap[world.signatureColour] || colorMap.default;
-          document.documentElement.style.setProperty('--world-ambience-rgb', rgb);
-        }
+      if (world && world.signatureColour) {
+        const colorMap = {
+          pink: "236, 72, 153", emerald: "16, 185, 129", cyan: "6, 182, 212",
+          orange: "249, 115, 22", purple: "168, 85, 247", default: "255, 255, 255"
+        };
+        const rgb = colorMap[world.signatureColour] || colorMap.default;
+        document.documentElement.style.setProperty('--world-ambience-rgb', rgb);
       }
 
       document.body.classList.remove("mode-storyboard");
@@ -80,8 +94,8 @@ export const StoryController = {
     const story = state.story.byId[storyId];
 
     let [ai, user] = await Promise.all([
-      story?.aiCharacterId ? entities.get("character", story.aiCharacterId) : null,
-      story?.userCharacterId ? entities.get("character", story.userCharacterId) : null
+      StoryController.getRealEntity(storyId, "character", story.aiCharacterId),
+      StoryController.getRealEntity(storyId, "character", story.userCharacterId)
     ]);
 
     feed.innerHTML = "";
@@ -94,7 +108,6 @@ export const StoryController = {
 
     if (noMsg) noMsg.hidden = true;
 
-    // Render using view logic
     msgs.forEach(m => renderMessage(
       feed,
       m.role,
@@ -112,7 +125,6 @@ export const StoryController = {
     const storyId = StoryController.requireActive();
     const story = state.story.byId[storyId];
 
-    // 1. Save User Message
     await db.messages.add({
       storyId,
       role: "user",
@@ -127,27 +139,25 @@ export const StoryController = {
     const typing = document.querySelector("#typing-indicator");
     if (typing) typing.hidden = false;
 
+    let payloadMeta = null;
+
     try {
-      // 2. Build Prompt
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build();
+      payloadMeta = payload.meta;
 
-      // Log for debugging
       console.log("[RPGlitch] System Prompt:", payload.system);
 
       const ctrl = new AbortController();
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
-      // 3. Generate Response
       const response = await generateStream({ payload, signal: ctrl.signal });
 
-      // 4. Save AI Response
-      // Note: We use 'ai' role now, not 'narrator', for active characters
       const aiChar = await entities.get("character", story.aiCharacterId);
 
       await db.messages.add({
         storyId,
-        role: "ai", // Correct semantic role
+        role: "ai",
         type: "IC",
         text: response,
         characterName: aiChar?.name || "Narrator",
@@ -164,16 +174,129 @@ export const StoryController = {
       alert("AI Error: " + e.message);
     } finally {
       if (typing) typing.hidden = true;
+
+      if (payloadMeta && payloadMeta.triggerUpdate) {
+        console.log(`[PROMETHEUS] Triggering background update for: ${payloadMeta.updateTarget}`);
+        StoryController.runBackgroundUpdate(storyId, payloadMeta.updateTarget);
+      }
+    }
+  },
+
+  regenerate: async () => {
+    const storyId = StoryController.requireActive();
+    const story = state.story.byId[storyId];
+
+    const msgs = state.messages.byStoryId[storyId] || [];
+    if (msgs.length === 0) return;
+
+    const lastMsg = msgs[msgs.length - 1];
+
+    if (lastMsg.role !== "ai" && lastMsg.role !== "narrator") {
+      console.warn("Cannot regenerate user message.");
+      return;
+    }
+
+    const lastUserMsg = msgs.slice().reverse().find(m => m.role === "user");
+    const userText = lastUserMsg ? lastUserMsg.text : "";
+
+    const varianceKey = analyzeRejection(lastMsg.text, userText);
+    const directorNote = getDirectorInstruction(varianceKey);
+
+    console.log(`[PROMETHEUS] Regenerating with strategy: ${varianceKey}`);
+
+    await db.messages.delete(lastMsg.id);
+
+    await StoryController.loadMessages(storyId);
+    await StoryController.render(storyId);
+
+    const typing = document.querySelector("#typing-indicator");
+    if (typing) {
+      typing.textContent = `Regenerating (${varianceKey})...`;
+      typing.hidden = false;
+    }
+
+    try {
+      const builder = new ContextBuilder(storyId);
+      const payload = await builder.buildWithVariance(directorNote);
+
+      const ctrl = new AbortController();
+      applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
+
+      const response = await generateStream({ payload, signal: ctrl.signal });
+
+      const aiChar = await entities.get("character", story.aiCharacterId);
+
+      await db.messages.add({
+        storyId,
+        role: "ai",
+        type: "IC",
+        text: response,
+        characterName: aiChar?.name || "Narrator",
+        createdAt: Date.now()
+      });
+
+      await StoryController.loadMessages(storyId);
+      await StoryController.render(storyId);
+      applyPatch({ ui: { fsm: "done" } });
+
+    } catch (e) {
+      error("Regen Error", e);
+      alert("Regen Failed: " + e.message);
+    } finally {
+      if (typing) typing.hidden = true;
+    }
+  },
+
+  runBackgroundUpdate: async (storyId, targetType) => {
+    try {
+      const builder = new ContextBuilder(storyId);
+      const payload = await builder.buildUpdater(targetType);
+
+      const jsonResponse = await generateStream({ payload, signal: null });
+
+      let updates = {};
+      try {
+        const jsonMatch = jsonResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          updates = JSON.parse(jsonMatch[0]);
+        } else {
+          console.warn("[PROMETHEUS] Background update failed: No JSON found.");
+          return;
+        }
+      } catch (jsonErr) {
+        console.warn("[PROMETHEUS] JSON Parse Error:", jsonErr);
+        return;
+      }
+
+      if (updates && payload.targetEntityId) {
+        const snapshot = await entities.get(payload.targetType, payload.targetEntityId);
+
+        if (snapshot) {
+          const updatedSnapshot = {
+            ...snapshot,
+            forever: updates.forever || snapshot.forever,
+            past: updates.past || snapshot.past,
+            present: updates.present || snapshot.present,
+            future: updates.future || snapshot.future,
+            dynamics: updates.dynamics || snapshot.dynamics,
+            updatedAt: Date.now()
+          };
+
+          await entities.upsert(payload.targetType, updatedSnapshot);
+          console.log(`[PROMETHEUS] Background update applied for ${snapshot.name}`, updates);
+        }
+      }
+
+    } catch (e) {
+      console.error("[PROMETHEUS] Background update error:", e);
     }
   },
 
   generateOpening: async (storyId) => {
-    // Removed unused 'story' variable
     const typing = document.querySelector("#typing-indicator");
     if (typing) { typing.textContent = "Generating opening..."; typing.hidden = false; }
 
     try {
-      // Use the centralized builder for consistency
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildOpening();
 
@@ -183,7 +306,7 @@ export const StoryController = {
 
       await db.messages.add({
         storyId,
-        role: "narrator", // Openings are usually narration
+        role: "narrator",
         type: "OOC",
         text: response,
         createdAt: Date.now()

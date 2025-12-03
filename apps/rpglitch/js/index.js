@@ -6,24 +6,21 @@ import { log, error } from "./utils.js";
 import { state, applyPatch } from "./store.js";
 import { StoryController } from "./story-controller.js";
 import { StoryOptionsController } from "./story-options.js";
-import { initStoryboardStage } from "./storyboard-controller.js";
+// CRITICAL: Now valid because we fixed the export in the other file
+import { initStoryboardStage, StoryboardController } from "./storyboard-controller.js";
 
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
-// This IIFE runs immediately to neutralize the "Safety Settings" penalty box.
 (function enforceClientSideFreedom() {
   try {
-    // 1. Immediate Purge: If the flag exists, nuke it.
     if (localStorage.getItem('okayToShowNSFWUntil')) {
       localStorage.setItem('okayToShowNSFWUntil', '0');
       console.log("[RPGlitch] 🛡️ Freedom Protocol: Penalty flag purged.");
     }
-
-    // 2. The Lock: Intercept any attempt to write the flag back.
     const originalSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
       if (key === 'okayToShowNSFWUntil') {
         console.warn("[RPGlitch] 🛡️ Blocked attempt to set censorship flag.");
-        return; // Deny the write silently
+        return;
       }
       return originalSetItem.apply(this, arguments);
     };
@@ -39,33 +36,48 @@ const App = {
   applyPatch,
   story: StoryController,
   isInitialized: false,
-  views: null, // Will store views methods after init
+  views: null,
 
   async initUniversalStage() {
     if (App.isInitialized) return;
     App.isInitialized = true;
     log("[Universal Stage] Initializing...");
 
-    // 1. Initialize Views (UI bindings and dependencies)
+    // CRITICAL: Expose Controllers to Window so HTML buttons can see them
+    window.StoryController = StoryController;
+    window.StoryboardController = StoryboardController;
+
+    // 1. Initialize Views
     App.views = await initViews({
-      refreshAllLists: async () => { log("Refreshed lists"); }
+      refreshAllLists: async () => { log("Refreshed lists"); },
+      onSelectionChanged: (sel) => {
+        applyPatch({
+          selectedAI: sel.aiCharacter,
+          selectedUser: sel.userCharacter,
+          selectedWorld: sel.world
+        });
+      }
     });
 
-    // 2. Initialize Storyboard/Stage Control Logic
+    // 2. Initialize Storyboard
     initStoryboardStage(App.views);
 
-    // 3. Game/Chat Input Form Wiring
+    // 3. Bind Chat Input Events
     const form = document.querySelector("#story-form");
     if (form) {
       const input = form.querySelector('input[name="message"]');
       const btn = form.querySelector('button[type="submit"]');
-      input?.addEventListener("input", () => btn.disabled = !input.value.trim());
+
+      input?.addEventListener("input", () => {
+        if (btn) btn.disabled = !input.value.trim();
+      });
+
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const val = input.value.trim();
         if (val) {
           input.value = "";
-          btn.disabled = true;
+          if (btn) btn.disabled = true;
           await StoryController.send(val);
         }
       });
@@ -121,17 +133,11 @@ const App = {
   async initializeApp() {
     const modal = document.querySelector("#loading-modal");
 
-    // --- SECURITY ENFORCEMENT (Fails Closed) ---
     if (typeof window.DOMPurify === "undefined") {
       const msg = "CRITICAL SECURITY FAILURE: DOMPurify is missing. Aborting startup.";
       error(msg);
       if (modal) modal.close();
-      const emergency = document.querySelector("#emergency-modal");
-      if (emergency) {
-        const p = emergency.querySelector("p");
-        if (p) p.textContent = "Security Error: DOMPurify library is missing. Application cannot start safely.";
-        emergency.showModal();
-      } else { alert(msg); }
+      alert(msg);
       throw new Error(msg);
     }
 
@@ -147,8 +153,14 @@ const App = {
 
       App.setupPlugins();
       await db.open();
-      await seedPremades();
+
+      const charCount = await db.entities.where("type").equals("character").count();
+      if (charCount === 0) {
+        await seedPremades();
+      }
+
       await App.initUniversalStage();
+
       log("[Init] Done.");
     } catch (e) {
       error("Init Failed", e);
@@ -159,7 +171,6 @@ const App = {
   }
 };
 
-// Aliases for compatibility
 App.initializeWhenReady = async function () {
   try {
     if (typeof App.initialLoad === 'function') await App.initialLoad();
@@ -172,62 +183,6 @@ App.initializeWhenReady = async function () {
   }
 };
 
-App._getUIElements = function () {
-  return {
-    titleStoryboard: document.querySelector("#title-storyboard"),
-    titleGameplay: document.querySelector("#title-gameplay"),
-  };
-};
-
-App._defaultStoryboardTitle = async function () {
-  const narratorSelect = document.getElementById('storyboard-card-narrator-select');
-  const userSelect = document.getElementById('storyboard-card-user-select');
-  const worldSelect = document.getElementById('storyboard-card-world-select');
-
-  const narratorId = narratorSelect?.value;
-  const userId = userSelect?.value;
-  const worldId = worldSelect?.value;
-
-  if (!narratorId && !userId && !worldId) {
-    return 'Your story begins…';
-  }
-
-  let title = 'Once upon a time';
-
-  if (narratorId) {
-    const { entities } = await import('./entities.js');
-    const characters = entities.list('character');
-    const narrator = characters.find(c => c.id === narratorId);
-    if (narrator) {
-      title += ` ${narrator.name}`;
-    }
-  }
-
-  if (userId) {
-    const { entities } = await import('./entities.js');
-    const characters = entities.list('character');
-    const user = characters.find(c => c.id === userId);
-    if (user) {
-      if (narratorId) {
-        title += ` & ${user.name}`;
-      } else {
-        title += ` ${user.name}`;
-      }
-    }
-  }
-
-  if (worldId) {
-    const { entities } = await import('./entities.js');
-    const worlds = entities.list('world');
-    const world = worlds.find(w => w.id === worldId);
-    if (world) {
-      title += ` in ${world.name}`;
-    }
-  }
-
-  return title;
-};
-
 export { App, applyPatch };
 export const initializeWhenReady = App.initializeWhenReady;
 export const initializeApp = App.initializeApp;
@@ -235,8 +190,6 @@ export const waitForPlugins = App.waitForPlugins;
 export const isPluginAvailable = App.isPluginAvailable;
 export const setupPlugins = App.setupPlugins;
 export const mockPlugins = App.mockPlugins;
-export const _getUIElements = App._getUIElements;
-export const _defaultStoryboardTitle = App._defaultStoryboardTitle;
 
 if (typeof jest === 'undefined' && typeof globalThis.__TEST__ === 'undefined') {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", App.initializeApp);

@@ -16,27 +16,18 @@ function updateWorldAmbience(worldEntity) {
 }
 
 function generateDynamicTitle(ai, user, world) {
-    // Helper to pick random variation
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
     const prefixes = [
-        "The Story of",
-        "The Adventures of",
-        "The Tale of",
-        "The Legend of",
-        "The Saga of",
-        "Chronicles of",
-        "The Journey of"
+        "The Story of", "The Adventures of", "The Tale of",
+        "The Legend of", "The Saga of", "Chronicles of", "The Journey of"
     ];
 
     const chars = [ai, user].filter(Boolean);
     const hasWorld = !!world;
     const totalChars = chars.length;
 
-    // 1. Select Prefix
     const prefix = pick(prefixes);
-
-    // 2. Build Content String based on selection
     let content = "";
 
     if (totalChars === 2 && hasWorld) {
@@ -59,9 +50,10 @@ function generateDynamicTitle(ai, user, world) {
         return "My New Story";
     }
 
-    // 3. Combine
     return `${prefix} ${content}`;
 }
+
+// --- CONTROLLER ACTIONS ---
 
 async function handleBeginStory() {
     const { selectedAI, selectedUser, selectedWorld, storyTitle } = state;
@@ -79,9 +71,12 @@ async function handleBeginStory() {
         document.body.classList.add("mode-gameplay");
         applyPatch({ mode: "gameplay" });
 
-        // Set portraits before generating the opening scene
         updatePortraits(selectedAI, selectedUser);
         await StoryController.generateOpening(id);
+
+        // CRITICAL FIX: Force load to switch UI to Snapshots
+        await StoryController.load(id);
+
     } catch (e) {
         error("Begin Story Failed", e);
         alert("Could not start story.");
@@ -100,11 +95,9 @@ async function handleShuffle(views) {
 
         const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
-        // Pick random entities
         const ai = pick(chars);
         let user = pick(chars);
 
-        // Try to ensure they are different if possible
         if (chars.length > 1) {
             while (user.id === ai.id) {
                 user = pick(chars);
@@ -112,8 +105,6 @@ async function handleShuffle(views) {
         }
 
         const world = worlds.length > 0 ? pick(worlds) : null;
-
-        // Use the views object to update the selection
         views.updateStoryboardSelection({ aiCharacter: ai, userCharacter: user, world });
 
     } catch (e) {
@@ -121,19 +112,23 @@ async function handleShuffle(views) {
     }
 }
 
+export const StoryboardController = {
+    startStory: handleBeginStory,
+    shuffle: handleShuffle
+};
+
+// --- INIT LOGIC ---
 export function initStoryboardStage(views) {
     const titleStoryboard = document.querySelector("#title-storyboard");
     const titleGameplay = document.querySelector("#title-gameplay");
     const beginBtn = document.querySelector("#begin-story");
     const shuffleBtn = document.querySelector("#btn-shuffle");
 
-    // Bind Selection Change Listener from views
     views.setOnSelectionChanged((sel) => {
         const { aiCharacter, userCharacter, world } = sel;
         applyPatch({ selectedAI: aiCharacter, selectedUser: userCharacter, selectedWorld: world });
         if (world) updateWorldAmbience(world);
 
-        // Only auto-generate if the user hasn't manually edited the title
         if (!state.isCustomTitle && titleStoryboard && titleGameplay) {
             const newTitle = generateDynamicTitle(aiCharacter, userCharacter, world);
             titleStoryboard.textContent = newTitle;
@@ -148,7 +143,6 @@ export function initStoryboardStage(views) {
         }
     });
 
-    // 1. Title Logic (Manual Edit & Double Click)
     if (titleStoryboard) {
         titleStoryboard.setAttribute("contenteditable", "true");
         titleStoryboard.title = "Double-click to re-roll title";
@@ -173,14 +167,15 @@ export function initStoryboardStage(views) {
         titleStoryboard.addEventListener("dblclick", handleReset);
     }
 
-    // 2. Begin Story Button
-    if (beginBtn) beginBtn.addEventListener("click", handleBeginStory);
+    if (beginBtn) {
+        beginBtn.removeEventListener("click", handleBeginStory);
+        beginBtn.addEventListener("click", handleBeginStory);
+    }
 
-    // 3. Shuffle Button
     if (shuffleBtn) {
         shuffleBtn.addEventListener("click", (e) => {
             e.preventDefault();
-            handleShuffle(views); // Pass the views object for updating the selection
+            handleShuffle(views);
         });
     }
 }

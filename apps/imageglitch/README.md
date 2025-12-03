@@ -1,4 +1,4 @@
-# ImageGlitch
+# ImageGlitch (v2.0)
 
 A minimalist Perchance application for AI-powered text-to-image generation with intelligent prompt refinement.
 
@@ -6,7 +6,7 @@ A minimalist Perchance application for AI-powered text-to-image generation with 
 
 ImageGlitch provides a clean interface for generating images from text prompts using a **custom multi-stage pipeline**:
 
-**User Prompt** → **AI Refine (Scribe)** → **AI Chaos/Transfigure** → **Pollinations.ai API** → **Generated Image**
+**User Prompt** → **AI Refine (Scribe)** OR **AI Chaos** → **Pollinations.ai API** → **Generated Image**
 
 ⚠️ **Important:** ImageGlitch does **NOT** use Perchance's standard `text-to-image-plugin`. Instead, it implements a custom pipeline with three AI-powered prompt refinement stages and direct integration with the Pollinations.ai Stable Diffusion backend.
 
@@ -17,7 +17,7 @@ ImageGlitch provides a clean interface for generating images from text prompts u
 - **Left Panel:** `ImageGlitch-left-panel.txt`
   - Perchance engine logic
   - **Plugin Imports:**
-    - `ai-text-plugin` → Used for the three AI Personas (Scribe/Chaos/Transfigure)
+    - `ai-text-plugin` → Used for the AI Personas (Scribe/Chaos)
     - `remember-plugin` → Stores category lists and user preferences
   - Core setup and configuration
   - ⚠️ **Note:** Does **NOT** import `text-to-image-plugin` (uses Pollinations.ai API instead)
@@ -30,80 +30,45 @@ ImageGlitch provides a clean interface for generating images from text prompts u
   - Styles in `scss/`
   - Compiled into single inlined HTML output
 
-## Build
+### The "Freedom Protocol"
 
-```bash
-# Build ImageGlitch
-npm run build:imageglitch
+ImageGlitch implements a client-side "Root Kit" to prevent the hosting platform (Perchance) from flagging the session as NSFW.
 
-# Output location
-build/output/ImageGlitch.html
-```
+1.  **Passive Shield (`index.js`):** Overrides `localStorage.setItem` to silently block any attempt to write the `okayToShowNSFWUntil` penalty flag.
+2.  **Active Pulse (`index.js`):** Before *every* call to the image generation API, we actively clear this flag to ensure zero downtime.
 
-## Source Structure
-
-```text
-apps/imageglitch/
-├── ImageGlitch-left-panel.txt  # Perchance engine (plugin imports, setup)
-├── html/
-│   └── index.html               # Main UI template
-├── js/
-│   └── (application modules)    # Image generation logic
-└── scss/
-    └── (style modules)          # Styles (compiled and inlined)
-```
-
-## Key Features
-
-- **Multi-Stage Prompt Refinement:** Three AI personas intelligently enhance user prompts
-- **Pollinations.ai Backend:** Direct integration with Stable Diffusion for high-quality image generation
-- **Creativity Control:** Slider (0-10) that maps to Stable Diffusion parameters (`gScale` and AI temperature)
-- **Minimalist Design:** Clean, focused interface for quick image generation
-- **Persistent Settings:** Category lists stored in Perchance `remember-plugin`
+---
 
 ## The Custom Image Generation Pipeline
 
 ImageGlitch's image generation process consists of **four stages**:
 
 ### Stage 1: User Input
-
 User enters a simple prompt (e.g., "a knight")
 
-### Stage 2: AI Prompt Refinement (Three Personas)
+### Stage 2: AI Prompt Refinement ("Split Brain")
 
 **AI Scribe** (Refine) - "Holistic Prompt Architect"
-
 - Analyzes the base prompt and identifies gaps in creative categories
 - Intelligently fills gaps (artistic style, composition, lighting, color, mood, etc.)
 - Preserves the user's original subject/setting as the "master vision"
-- Injects baseline quality keywords (`masterpiece`, `8K`, `cinematic`)
-- Returns a refined, comma-separated prompt string
+- **Constraint:** "DO NOT include labels like '(Style)' or '(Mood)' in the output."
 
-**AI Chaos** (Mutation) - "Mad Prompt Scientist"
-
+**AI Chaos** (Mutation) - "Entropy Injector"
 - Takes the prompt and adds creative **serendipity**
 - Randomly mutates at least one creative category (even if well-described)
 - Fills "lacking" categories with random keywords
-- Adds a random set of quality enhancers
-- Returns a mutated, divergent prompt
-
-**AI Transfigure** (Modification) - "Prompt Modification Specialist"
-
-- Allows precise user-directed edits to the current prompt
-- Takes instructions like "make the car blue and add a spoiler"
-- Surgically modifies the prompt exactly as instructed
-- Converts negations to affirmative descriptions
-- Returns the modified prompt
+- **Constraint:** "DO NOT include labels like '(Style)' or '(Chaos)' in the output."
 
 ### Stage 3: Backend Image Generation
 
 ```javascript
-const BASE_IMAGE_URL = "https://image.pollinations.ai/prompt/";
+const BASE_IMAGE_URL = "[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)";
 ```
 
-- Direct API call to **Pollinations.ai** (not Perchance's plugin)
-- Uses Stable Diffusion backend
-- Accepts custom Stable Diffusion parameters via `creativity` mapping
+  - Direct API call to **Pollinations.ai** (not Perchance's plugin)
+  - Uses Stable Diffusion backend (Flux/SDXL depending on config)
+  - Accepts custom Stable Diffusion parameters via `creativity` mapping
 
 ### Stage 4: Creativity Mapping
 
@@ -117,39 +82,54 @@ const creativityMap = {
 };
 ```
 
-- **gScale** = Stable Diffusion guidance scale (1-20)
-- **aiTemp** = AI temperature for prompt refinement (0.1-1.9)
+  - **gScale** = Stable Diffusion guidance scale (1-20)
+  - **aiTemp** = AI temperature for prompt refinement (0.1-1.9)
 
-### Category Lists (Stored in remember-plugin)
+-----
 
-ImageGlitch maintains extensive category lists for AI refinement:
+## Source Structure
 
-- `artisticStyles`, `composition`, `lighting`, `colorPalettes`
-- `mood`, `technicalDetails`, `additionalElements`
-- `aiCoreQuality`, `aiFlavorEnhancers`
+```text
+apps/imageglitch/
+├── ImageGlitch-left-panel.txt  # Perchance engine (plugin imports, setup)
+├── html/
+│   └── index.html              # Main UI template
+├── js/
+│   ├── index.js                # Main logic & Security Shield
+│   ├── db.js                   # Dexie DB
+│   └── utils.js                # Helpers
+└── scss/
+    └── index.scss              # Styles (compiled and inlined)
+```
 
-These lists are dynamically updated and stored in `remember-plugin` for persistence.
+## Build
 
----
+```bash
+# Build ImageGlitch
+npm run build:imageglitch
+
+# Output location
+build/output/ImageGlitch.html
+```
 
 ## Technology Stack
 
-- **UI Framework:** Custom components built on Pico.css
-- **JavaScript:** ES6+ modules (vanilla, no framework)
-- **Styling:** SCSS compiled to CSS, inlined in build
-- **Image Generation Backend:** Pollinations.ai (direct API, not Perchance plugin)
-- **AI Prompt Refinement:** Three Personas via `ai-text-plugin`
-- **Persistent Storage:** `remember-plugin` (for category lists and settings)
+  - **UI Framework:** Custom components built on Pico.css
+  - **JavaScript:** ES6+ modules (vanilla, no framework)
+  - **Styling:** SCSS compiled to CSS, inlined in build
+  - **Image Generation Backend:** Pollinations.ai (direct API)
+  - **AI Prompt Refinement:** Two Personas via `ai-text-plugin`
+  - **Persistent Storage:** `remember-plugin` (for category lists and settings)
 
 ## Development
 
 See the main repository README.md and GEMINI.md for:
 
-- Complete development protocol and rules
-- Coding standards
-- Build process details
-- Testing guidelines
-- Deployment workflow
+  - Complete development protocol and rules
+  - Coding standards
+  - Build process details
+  - Testing guidelines
+  - Deployment workflow
 
 ## Troubleshooting
 
@@ -157,20 +137,10 @@ See the main repository README.md and GEMINI.md for:
 
 If the application fails to load and the browser console shows errors related to plugins not being available (e.g., `TypeError: image is not a function`), it is likely that the Perchance plugins are not being correctly exposed to the application's JavaScript environment.
 
-This can happen if the script in `html/index.html` that exposes the plugins is missing or incorrect. The plugins should be assigned directly to the `window` object, not as arrays. For example:
-
-```html
-<script>
-  window.pluginTextToImage = image;
-  window.pluginAi = ai;
-  window.pluginRememberPlugin = r;
-</script>
-```
-
-If the plugins are wrapped in arrays (e.g., `window.pluginAi = [ai];`), they will be loaded as objects instead of functions, which will cause `TypeError` exceptions when the application tries to call them.
+**Fix:** Ensure the left panel has correct imports (`{import:ai-text-plugin}`) and that `index.js` waits for them using `waitForPlugins()`.
 
 ## Related Documentation
 
-- [GEMINI.md](../../GEMINI.md) - Complete protocol and development guidelines
-- [design-system.md](../../design-system.md) - UI/UX guidelines and components
-- [plan.md](../../plan.md) - Project roadmap and feature backlog
+  - [Deployment Guide & Freedom Protocol](../../PERCHANCE.md)
+  - [UI/UX Guidelines](../../design-system.md)
+  - [Development Protocol](../../GEMINI.md)

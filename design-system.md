@@ -1,6 +1,6 @@
 # 🎨 Project Design System & UI Protocol
 
-Version 3.3.0 | Updated 2025-11-20
+Version 3.4.0 | Updated 2025-12-02
 
 **CORE PRINCIPLE:** This document is the **single source of truth** for the visual and interaction design of all applications in this repository. It defines our philosophy, styling foundation (Pico.css), and reusable component patterns. All UI/UX development **MUST** adhere to these guidelines.
 
@@ -19,7 +19,7 @@ Our design philosophy is built on a foundation of minimalism, clarity, and robus
 
 ### Terminology
 
-*   **Entity vs. Item:** "Entity" is the canonical term for core data objects: Stories, Characters, and Worlds. "Item" is used in the codebase as a developer-facing synonym.
+* **Entity vs. Item:** "Entity" is the canonical term for core data objects: Stories, Characters, and Worlds. "Item" is used in the codebase as a developer-facing synonym.
 
 ---
 
@@ -57,7 +57,7 @@ Our visual language is built on **Pico.css**, extended with a custom design laye
 * **⬛ Background (Global):** A fixed, 4-stop linear gradient is used across all applications.
     * `#181c2f`, `#23243a`, `#1a3a4a`, `#2a1a3a`
 * **⚪ Text:** Standard text color is inherited from Pico.css.
-* **🎨 Signature Colors:** Predefined colors for visual variety and entity identity.
+* **🎨 Signature Colors:** Predefined colors for visual variety and entity identity. These are exposed via CSS variables (`var(--signature-pink)`, etc.).
     * **Pink:** `#ec4899` | **Emerald:** `#10b981` | **Cyan:** `#06b6d4`
     * **Orange:** `#f97316` | **Purple:** `#a855f7`
 
@@ -69,7 +69,7 @@ Our visual language is built on **Pico.css**, extended with a custom design laye
 ### Spacing
 
 * **Base Unit:** `1rem` (16px) for all major layout margins, paddings, and gaps
-* **Border Radius:** `0.5rem` (8px) for most elements
+* **Border Radius:** `0.5rem` (8px) for most elements, `1.5rem` for chat bubbles.
 
 ---
 
@@ -90,39 +90,55 @@ Our visual language is built on **Pico.css**, extended with a custom design laye
 
 ### RPGlitch-Specific Components
 
-**Cards (Storyboard & Chin)**
+**The Universal Stage (Layout)**
+A 3-column CSS Grid designed to look like a "Tabletop" or "Control Center."
+* **Grid:** `25vw` (AI) | `1fr` (Stage) | `25vw` (User)
+* **Height:** `100vh` (Full Screen, No Body Scroll)
+* **Constraint:** `overflow: hidden` to prevent layout breaking.
+
+**Chat Feed (The "Flexbox Jail")**
+To ensure the chat feed scrolls *inside* the fixed layout without stretching the page:
+* **Container:** `flex: 1; min-height: 0; overflow-y: auto;`
+* **Behavior:** Scrollbar appears internally; header and input area remain fixed.
+
+**Message Bubbles (`.story-message`)**
+* **Narrator / OOC:**
+    * **Align:** Center (Bubble & Text).
+    * **Color:** Neutral Grey (`--pico-secondary`).
+    * **Style:** Italic.
+* **AI Character:**
+    * **Align:** Left (Bubble & Text).
+    * **Color:** Muted or Signature Color.
+    * **Tail:** Points Left.
+* **User Character:**
+    * **Align:** Right (Bubble & Text).
+    * **Color:** Primary or Signature Color.
+    * **Tail:** Points Right.
+* **Typography:** `white-space: pre-wrap` is mandatory to preserve AI paragraph formatting.
+
+**Character Nameplates (`.character-name-overlay`)**
+A solid, high-readability label overlaid on character portraits.
+* **Background:** `#181c25` (Dark Blue-Grey)
+* **Border:** 2px Solid (Signature Color)
+* **Text:** Uppercase, Bold, (Signature Color)
+* **Shadow:** Strong drop shadow for depth against variable backgrounds.
+
+**Cards (Storyboard)**
 * Use semantic HTML (`<article>`, `<header>`, `<footer>`)
 * Responsive layout with flexbox/grid
-* Adhere to color palette and spacing rules
 
-**The "Chin" Component**
-* Signature slide-out panel for entity selection (Stories, Characters, Worlds)
-* Toggled by top-bar tab buttons (`#tab-stories`, etc.)
-* Closes via ESC key or backdrop click (no dedicated "Close" button)
-
-**Forms**
-* Follow Pico.css standards
-* All inputs must have associated `<label>` elements
+**The "Chin" (Mobile Drawer)**
+* Signature slide-out panel for entity selection on mobile.
+* Replaces side columns on screens `< 768px`.
+* Toggled by selection buttons.
 
 **Pictures**
-* 1:1 aspect ratio containers
-* Placeholder images when no image available
+* 1:1 aspect ratio containers (Portrait) or 16:9 (World).
+* Placeholder images when no image available.
 
 **Profiles**
-* Two-column layout (image left, details right)
-* Uses entity's signature color
-* For Dynamic Profile Image Input details, see [apps/rpglitch/README.md](./apps/rpglitch/README.md)
-
-**Storyboard**
-* Three-column grid (AI character | user character | world)
-* Easily distinguishable card styling
-
-**Chat View Component**
-* **Wide Screens:** Three-column layout (AI avatar | chat feed | user avatar)
-* **Narrow Screens:** Single-column layout with compact design
-* Distinct styling for `role="user"` and `role="assistant"` messages
-* Send button state bound to Chat FSM (disabled during `streaming`)
-* Typing indicator shown during `streaming` or `sending` states
+* Two-column layout (image left, details right).
+* Uses entity's signature color.
 
 ### ImageGlitch-Specific Components
 
@@ -135,13 +151,13 @@ See [PERCHANCE.md](./PERCHANCE.md) for ImageGlitch's three AI Personas:
 
 ## Visual Polish: Signature Vibe Foundation
 
-**Status:** ✅ 95% Implemented (2025-10-28)
+**Status:** ✅ 98% Implemented (2025-12-02)
 
 RPGlitch visual overhaul completed with:
 * **Phase 1:** High-contrast identity, Pico.css typography, signature colors
 * **Phase 2:** Pixel-perfect UI (search fields removed)
-* **Phase 3:** Full-bleed chat screen with re-balanced grid (1.5fr 3fr 1.5fr)
-* **Phase 4:** Custom spinner, typing indicator, background texture, chat bubbles, glow effects
+* **Phase 3:** Full-bleed chat screen with Universal Stage grid.
+* **Phase 4:** Custom spinner, typing indicator, chat bubbles with tails, glow effects.
 
 **Reference:** [css-pattern.com](https://css-pattern.com/), [css-loaders.com](https://css-loaders.com/), [css-generators.com](https://css-generators.com/)
 
@@ -149,6 +165,7 @@ RPGlitch visual overhaul completed with:
 
 ## Changelog
 
+* **3.4.0 (2025-12-02)** — Added **Universal Stage** layout specs, **Flexbox Jail** scrolling mechanics, and detailed **Message Bubble** alignment/color rules. Updated Nameplate definition to match new solid style.
 * **3.3.0 (2025-11-20)** — Complete refactoring: removed implementation details (moved Dynamic Profile Image Input to apps/rpglitch/README.md, ImageGlitch personas to PERCHANCE.md, UI Safety to apps/rpglitch/README.md). Focused file on pure design guidance and component patterns.
 * **3.2.0 (2025-10-28)** — Updated Chat View layout, added role attribute clarification, noted conclude-story needs design.
 * **3.1.2 (2025-10-28)** — Enhanced Color System, Typography, Spacing sections.
