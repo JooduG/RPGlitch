@@ -594,23 +594,40 @@ body.chin-open .chin-focus-ring {
   flex: 1;
 }
 
-/* ===== DYNAMIC STORY BUBBLES WITH TAILS (Phase 4.4) ===== */
+/* ===== DYNAMIC STORY BUBBLES (Final V9) ===== */
 
-/* Speech bubble tails pointing from user (right) and AI (left) */
+$signature-palettes: (
+  "pink": (color: var(--signature-pink), rgb: 236 72 153),
+  "emerald": (color: var(--signature-emerald), rgb: 16 185 129),
+  "cyan": (color: var(--signature-cyan), rgb: 6 182 212),
+  "orange": (color: var(--signature-orange), rgb: 249 115 22),
+  "purple": (color: var(--signature-purple), rgb: 168 85 247),
+);
+
+/* --- BASE MESSAGE --- */
 .story-message {
-  padding: 1rem;
-  padding-right: 1.5rem;
-
-  /* Extra padding to prevent text from being cut off */
-  border-radius: var(--pico-radius);
+  padding: 1rem 1.25rem;
   max-width: 90%;
   word-wrap: break-word;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  background: var(--pico-form-element-background-color);
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   animation: message-slide-in 0.3s ease;
   position: relative;
+
+  // DEFAULT VARS (System/Narrator Theme)
+  --msg-bg: var(--pico-form-element-background-color);
+  --msg-radius: var(--pico-radius);
+
+  // FORCE PURE WHITE TEXT (No muted colors)
+  color: #fff !important;
+  background: var(--msg-bg) !important;
+  border: none !important; // Clean slate
+
+  // RESET GHOSTS
+  &::before,
+  &::after {
+    content: none;
+    display: none;
+  }
 
   @include tablet {
     max-width: 95%;
@@ -629,234 +646,164 @@ body.chin-open .chin-focus-ring {
   }
 }
 
-/* ===== IC/OOC MESSAGE SYSTEM ===== */
-
-/* User IC messages - Character dialogue with character name */
-.story-message[role="director"][data-type="IC"] {
+/* --- USER MESSAGES (Right Side) --- */
+.story-message.user[data-type="IC"] {
   align-self: flex-end;
-  background: var(--pico-primary-background);
-  border: 1px solid var(--pico-primary);
-  border-top-right-radius: 2px;
 
-  /* Show character name before message */
-  &::before {
-    content: attr(data-character-name) ": ";
-    font-weight: bold;
-    color: var(--pico-primary);
-  }
+  // GEOMETRY: Top-Right Sharp
+  border-radius: var(--msg-radius) 0 var(--msg-radius) var(--msg-radius);
 
-  /* Tail pointing right */
-  &::after {
-    content: "";
-    position: absolute;
-    right: -8px;
-    top: 8px;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 8px 0 8px 8px;
-    border-color: transparent transparent transparent var(--pico-primary-background);
-  }
+  // DEFAULT: Blue (Fallback if no signature)
+  --msg-bg: var(--pico-primary-background);
 }
 
-/* User OOC messages - Director commands (system style) */
-.story-message[role="director"][data-type="OOC"],
-.story-message.director-command {
-  align-self: center;
-  max-width: 70%;
-  background: rgb(var(--dark-background-rgb) / 50%);
-  border: 1px dashed var(--pico-muted-border-color);
-  font-style: italic;
-  color: var(--pico-muted-color);
-  border-radius: var(--pico-radius);
-
-  /* Director command icon */
-  &::before {
-    content: "⚙️ ";
-  }
-
-  /* No tail for OOC messages */
-  &::after {
-    display: none;
-  }
-}
-
-/* Narrator IC messages - AI character speaking */
-.story-message[role="narrator"][data-type="IC"] {
-  align-self: flex-start;
-  background: rgb(var(--dark-background-rgb) / 85%);
-  backdrop-filter: blur(10px);
-  border-top-left-radius: 2px;
-
-  /* Show character name before dialogue */
-  &::before {
-    content: attr(data-character-name) ": ";
-    font-weight: bold;
-    display: block;
-    margin-bottom: 0.25rem;
-  }
-
-  /* Tail pointing left */
-  &::after {
-    content: "";
-    position: absolute;
-    left: -8px;
-    top: 8px;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 8px 8px 8px 0;
-    border-color: transparent rgb(var(--dark-background-rgb) / 85%) transparent transparent;
-  }
-}
-
-/* Narrator OOC messages - Scene narration */
-.story-message[role="narrator"][data-type="OOC"] {
-  align-self: flex-start;
-  background: rgb(var(--dark-background-rgb) / 85%);
-  backdrop-filter: blur(10px);
-  border-top-left-radius: 2px;
-
-  /* Show "Narrator:" prefix */
-  &::before {
-    content: "Narrator: ";
-    font-weight: bold;
-    font-style: italic;
-    color: var(--pico-primary);
-  }
-
-  /* Tail pointing left */
-  &::after {
-    content: "";
-    position: absolute;
-    left: -8px;
-    top: 8px;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 8px 8px 8px 0;
-    border-color: transparent rgb(var(--dark-background-rgb) / 85%) transparent transparent;
-  }
-}
-
-/* Apply character signature colors to story messages based on body signature classes */
-
-/* User messages get signature color styling */
-
-/* Narrator messages get signature color styling when Narrator character has a signature */
-$signature-palettes: (
-  "pink": (color: var(--signature-pink),
-    rgb: 236 72 153,
-  ),
-  "emerald": (color: var(--signature-emerald),
-    rgb: 16 185 129,
-  ),
-  "cyan": (color: var(--signature-cyan),
-    rgb: 6 182 212,
-  ),
-  "orange": (color: var(--signature-orange),
-    rgb: 249 115 22,
-  ),
-  "purple": (color: var(--signature-purple),
-    rgb: 168 85 247,
-  ),
-);
-
+/* User Signature Override (Chained Selectors) */
 @each $name, $palette in $signature-palettes {
   $color: map.get($palette, color);
-  $rgb: map.get($palette, rgb);
 
-  .signature-#{$name} .story-message[role="director"] {
-    border-left: 4px solid #{$color};
-    box-shadow: 0 2px 8px rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 25%);
-  }
-
-  #story-screen[data-narrator-palette="#{$name}"] .story-message[role="narrator"] {
-    border-left: 4px solid #{$color};
-    box-shadow: 0 2px 8px rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), 20%);
+  // FIX: Class is on the element, so chain it (.user.signature-pink)
+  .story-message.user.signature-#{$name}[data-type="IC"] {
+    --msg-bg: #{$color};
   }
 }
 
-/* ===== SIGNATURE TYPING INDICATOR (Phase 4.2) ===== */
-
-#typing-indicator {
-  padding: 1rem;
-  border-radius: var(--pico-radius);
-  max-width: 85%;
-  background: rgb(var(--dark-background-rgb) / 85%);
-  backdrop-filter: blur(10px);
-  font-style: italic;
-  color: var(--pico-muted-color);
-  display: none;
+/* --- AI MESSAGES (Left Side) --- */
+.story-message.ai[data-type="IC"] {
   align-self: flex-start;
 
-  &:not(:empty) {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    animation: message-slide-in 0.3s ease;
-  }
+  // GEOMETRY: Top-Left Sharp
+  border-radius: 0 var(--msg-radius) var(--msg-radius) var(--msg-radius);
 
-  &::after {
-    content: "";
-    display: inline-flex;
-    gap: 0.25rem;
-    align-items: center;
-    width: 3rem;
-    height: 1rem;
-    background-image: radial-gradient(circle,
-        var(--pico-primary) 25%,
-        transparent 25%),
-      radial-gradient(circle, var(--pico-primary) 25%, transparent 25%),
-      radial-gradient(circle, var(--pico-primary) 25%, transparent 25%);
-    background-size: 0.75rem 0.75rem;
-    background-position: 0 50%, 50% 50%, 100% 50%;
-    background-repeat: no-repeat;
-    animation: typing-dots-pulse 1.4s infinite ease-in-out;
+  // DEFAULT: Dark Gray (Fallback)
+  --msg-bg: var(--pico-form-element-background-color);
+}
+
+/* AI Signature Override (Bold Background) */
+@each $name, $palette in $signature-palettes {
+  $color: map.get($palette, color);
+
+  .story-message.ai.signature-#{$name} {
+    --msg-bg: #{$color};
   }
 }
 
-@keyframes typing-dots-pulse {
+/* --- NARRATOR MESSAGES (System) --- */
+.story-message.narrator {
+  align-self: flex-start;
+
+  // GEOMETRY: Square / Technical
+  border-radius: 2px;
+
+  // COLOR: Dark Gray
+  --msg-bg: var(--pico-form-element-background-color);
+
+  &::before {
+    content: "Narrator: ";
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+  }
+}
+
+/* --- OOC MESSAGES --- */
+.story-message[data-type="OOC"],
+.story-message.director-command {
+  align-self: center !important;
+  max-width: 70%;
+  border-radius: var(--pico-radius);
+  background: var(--pico-form-element-background-color);
+
+  &::before {
+    display: inline;
+    font-weight: normal;
+    color: inherit;
+  }
+}
+
+/* === TYPING INDICATOR (Clean V9) === */
+.typing-bubble {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+
+  // 1. DEFAULT VARS (Matches Narrator)
+  --bubble-bg: var(--pico-form-element-background-color);
+
+  background: var(--bubble-bg) !important;
+  color: #fff !important; // Pure white dots
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  animation: slide-in-up 0.3s ease-out forwards;
+
+  // 2. NARRATOR GEOMETRY (Square, Clean)
+  border-radius: 2px;
+
+  // FIX: Removed the left-border-thing for Narrator Typing
+  border: none !important;
+
+  // 3. AI GEOMETRY
+  &.ai {
+    // AI Geometry (Sharp Top-Left)
+    border-radius: 0 var(--pico-radius) var(--pico-radius) var(--pico-radius);
+  }
+}
+
+// 4. SIGNATURE OVERRIDES (AI Typing - BOLD)
+@each $name, $palette in $signature-palettes {
+  $color: map.get($palette, color);
+
+  .typing-bubble.signature-#{$name} {
+    // Force Background
+    --bubble-bg: #{$color};
+
+    background: #{$color} !important;
+  }
+}
+
+// ANIMATION
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background: currentcolor; // Inherits White
+  opacity: 0.9; // High visibility
+  border-radius: 50%;
+  animation: fluid-bounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes fluid-bounce {
   0%,
+  80%,
   100% {
-    background-image: radial-gradient(circle,
-        var(--pico-primary) 25%,
-        transparent 25%),
-      radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%),
-      radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%);
+    transform: scale(0);
+    opacity: 0.5;
   }
 
-  33% {
-    background-image: radial-gradient(circle,
-        var(--pico-muted-color) 25%,
-        transparent 25%),
-      radial-gradient(circle, var(--pico-primary) 25%, transparent 25%),
-      radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%);
-  }
-
-  66% {
-    background-image: radial-gradient(circle,
-        var(--pico-muted-color) 25%,
-        transparent 25%),
-      radial-gradient(circle, var(--pico-muted-color) 25%, transparent 25%),
-      radial-gradient(circle, var(--pico-primary) 25%, transparent 25%);
+  40% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 
-/* Narrator signature color typing indicators */
-$typing-palettes: (
-  "pink": var(--signature-pink),
-  "emerald": var(--signature-emerald),
-  "cyan": var(--signature-cyan),
-  "orange": var(--signature-orange),
-  "purple": var(--signature-purple),
-);
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 
-@each $name, $color in $typing-palettes {
-  #story-screen[data-narrator-palette="#{$name}"] #typing-indicator::after {
-    background-image: radial-gradient(circle, $color 25%, transparent 25%),
-      radial-gradient(circle, $color 25%, transparent 25%),
-      radial-gradient(circle, $color 25%, transparent 25%);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -904,9 +851,7 @@ $typing-palettes: (
   margin-top: 1rem;
 }
 
-/* ===== GLOWING SEND BUTTON (Phase 4.5) ===== */
-
-/* Gradient shadow creates call-to-action pop using user's primary color */
+/* ===== GLOWING SEND BUTTON ===== */
 #story-form {
   padding: 1rem;
   background: var(--pico-form-element-background-color);
@@ -960,267 +905,4 @@ $glow-signatures: (
 #begin-story:disabled {
   cursor: not-allowed;
   opacity: 1;
-}
-
-/* Ensure lower-specificity .profile-left rules appear before more specific
-   .chin-card .card-poster .picture selectors to satisfy stylelint ordering */
-.profile-left .hero-wrap {
-  width: 100%;
-  height: 100%;
-}
-
-.profile-left .picture {
-  width: 100%;
-  height: 100%;
-  border-radius: 0;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-
-  /* Hide overflow from cropped images */
-}
-
-.profile-left .picture img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-
-  /* Cover entire container while maintaining aspect ratio */
-  object-position: center center;
-
-  /* Center the image within the container */
-  display: block;
-}
-
-.placeholder-text {
-  opacity: 0.8;
-  font-style: italic;
-}
-
-.profile-left .placeholder-image {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-}
-
-.profile-left .placeholder-image svg {
-  width: clamp(96px, 40%, 320px);
-  height: auto;
-  opacity: 1;
-}
-
-.profile header {
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 3rem;
-  margin: 1rem;
-  padding: 1rem;
-}
-
-#profile-screen {
-  box-sizing: border-box;
-  max-width: 100%;
-  margin-inline: auto;
-  padding-inline: 0;
-}
-
-.profile-background {
-  position: sticky;
-  top: 0;
-  block-size: min(40vh, 360px);
-  inline-size: 100%;
-  overflow: clip;
-  border-radius: 0;
-}
-
-.profile-titlebar {
-  margin-block-start: 1rem;
-}
-
-.profile-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-block: 1rem;
-  padding: 0;
-}
-
-.profile-tags li {
-  list-style: none;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  background: var(--pico-primary-contrast);
-  color: var(--pico-primary);
-}
-
-.profile-content-overlay {
-  position: fixed;
-  left: 0;
-  right: 0;
-  z-index: var(--z-content);
-  height: calc(100vh - var(--header-height) - 0.7rem);
-  overflow: hidden auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  box-sizing: border-box;
-  padding-left: 35vw;
-  padding-right: calc(5% - 1rem);
-
-  @include custom-scrollbar(rgb(255 255 255 / 30%), rgb(255 255 255 / 30%));
-}
-
-/* ==========================================================================
-   Stateful Profile Page (Inline Editing)
-   ========================================================================== */
-
-// --- Layout Fix ---
-// This was our layout bug fix. We still need it.
-.profile-right-content {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch; // Force children to be full-width
-  text-align: left;
-}
-
-// Just add a bit of space above the section fields
-.profile-fields {
-  margin-top: 2rem;
-}
-
-// --- 2-Column Grid Layout for Profile Form Fields ---
-// Creates a modern, balanced layout with labels in column 1 and inputs in column 2
-.field-row {
-  display: grid;
-  grid-template-columns: 1fr 3fr; // Label column | Input column (more spacious)
-  gap: 1rem; // Comfortable spacing between columns
-  margin-bottom: 2rem; // Increased vertical spacing for better visual rhythm
-  align-items: center; // Center items vertically for better balance with labels
-
-  @media (width <=$breakpoint-mobile) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem; // Slightly less spacing on mobile
-  }
-}
-
-.field-label {
-  text-align: right; // Right-align labels for modern, clean look
-  padding-right: 0.5rem;
-  padding-top: 0.25rem; // Slight top padding to align with input fields
-
-  @media (width <=$breakpoint-mobile) {
-    text-align: left;
-    padding-right: 0;
-    padding-top: 0;
-  }
-
-  label {
-    font-weight: 700; // Bolder for better hierarchy
-    font-size: 1.125rem; // Slightly larger
-    display: block;
-    margin-bottom: 0.25rem;
-    color: var(--pico-h3-color); // Use heading color for prominence
-    text-transform: uppercase; // More distinct from content
-    letter-spacing: 0.05em; // Slight spacing for readability
-  }
-
-  small {
-    display: block;
-    color: var(--pico-muted-color);
-    line-height: 1.4;
-    font-size: 0.875rem; // Slightly smaller to differentiate from label
-    font-style: italic; // Make sublabel more subtle
-  }
-}
-
-// Hide labels for name and description fields, make inputs full-width and centered
-.field-row:has(label[for="form-field-name"]),
-.field-row:has(label[for="form-field-description"]) {
-  grid-template-columns: 1fr; // Single column instead of 2-column
-
-  .field-label {
-    display: none; // Hide the label column
-  }
-
-  .field-input {
-    text-align: center; // Center the content
-
-    // Center-align the input/textarea elements themselves
-    input,
-    textarea,
-    h1 {
-      text-align: center;
-    }
-  }
-}
-
-.field-input {
-  // Ensure input fields take full width of their column
-  width: 100%;
-
-  // Ensure all child elements (textareas, inputs, read-only divs) are full-width
-  >* {
-    width: 100%;
-    box-sizing: border-box;
-  }
-}
-
-// --- Read-Only Styling ---
-// These styles are for the read-only <div> tags
-// to make them look like static text.
-.profile-description-read,
-.profile-field-text-read {
-  white-space: pre-wrap; // Respect newlines
-  padding: var(--pico-form-element-padding); // Align with textarea
-  line-height: var(--pico-line-height); // Match Pico text
-  color: var(--pico-color); // Use standard text color for better contrast
-  opacity: 1; // Full opacity for readability
-}
-
-// Specific padding for the description <p> tag in read mode
-.profile-description-read {
-  padding-left: 0;
-  padding-right: 0;
-  font-size: 1.125rem; // Slightly larger for better readability
-  text-align: center; // Center to match edit mode
-}
-
-// Center name in read mode to match edit mode
-.profile-right-content>h1:first-child {
-  text-align: center;
-}
-
-// --- Hide/Show Logic ---
-// Hide all 'edit' fields by default
-[data-edit-field],
-.profile-hero-overlay {
-  display: none;
-}
-
-// Show all 'read' fields by default
-[data-read-field] {
-  display: block; // or whatever its default is
-}
-
-// --- Editing Mode (.is-editing) ---
-.is-editing {
-  // Hide 'read' fields
-  [data-read-field] {
-    display: none;
-  }
-
-  // Show 'edit' fields with appropriate display types
-  [data-edit-field] {
-    display: block; // Use block for inputs and textareas
-  }
-
-  .profile-hero-overlay {
-    display: flex; // Only flex for the overlay container
-  }
 }

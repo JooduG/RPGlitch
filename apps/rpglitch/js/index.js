@@ -6,7 +6,6 @@ import { log, error } from "./utils.js";
 import { state, applyPatch } from "./store.js";
 import { StoryController } from "./story-controller.js";
 import { StoryOptionsController } from "./story-options.js";
-// CRITICAL: Now valid because we fixed the export in the other file
 import { initStoryboardStage, StoryboardController } from "./storyboard-controller.js";
 
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
@@ -69,7 +68,11 @@ const App = {
       const btn = form.querySelector('button[type="submit"]');
 
       input?.addEventListener("input", () => {
-        if (btn) btn.disabled = !input.value.trim();
+        // MODIFIED: Check if button is locked before enabling
+        const isLocked = btn && btn.dataset.locked === "true";
+        if (btn) {
+          btn.disabled = isLocked || !input.value.trim();
+        }
       });
 
       form.addEventListener("submit", async (e) => {
@@ -77,6 +80,8 @@ const App = {
         const val = input.value.trim();
         if (val) {
           input.value = "";
+          // Note: StoryController.send will call setSendLock(true),
+          // but disabling here locally feels snappier.
           if (btn) btn.disabled = true;
           await StoryController.send(val);
         }

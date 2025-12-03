@@ -3,11 +3,10 @@ import { db } from "./db.js";
 import { state, applyPatch } from "./store.js";
 import { generateStream } from "./ai-service.js";
 import { entities } from "./entities.js";
-import { renderMessage, updatePortraits, setGameplayEntities } from "./views.js";
+import { renderMessage, updatePortraits, setGameplayEntities, showTypingIndicator, removeTypingIndicator, setSendLock } from "./views.js";
 import { error } from "./utils.js";
 import { ContextBuilder } from "./context-builder.js";
 import { analyzeRejection, getDirectorInstruction } from "./variance.js";
-// NEW: Import the Physics Engine
 import { calculateDynamics } from "./physics.js";
 
 export const StoryController = {
@@ -120,36 +119,44 @@ export const StoryController = {
     const storyId = StoryController.requireActive();
     const story = state.story.byId[storyId];
 
-    await db.messages.add({
-      storyId,
-      role: "user",
-      type: "IC",
-      text,
-      createdAt: Date.now()
-    });
-
-    await StoryController.loadMessages(storyId);
-    await StoryController.render(storyId);
-
-    const typing = document.querySelector("#typing-indicator");
-    if (typing) typing.hidden = false;
-
-    let payloadMeta = null;
+    // 1. LOCK UI immediately
+    setSendLock(true);
 
     try {
+      await db.messages.add({
+        storyId,
+        role: "user",
+        type: "IC",
+        text,
+        createdAt: Date.now()
+      });
+
+      await StoryController.loadMessages(storyId);
+      await StoryController.render(storyId);
+
+      // 2. SHOW TYPING BUBBLE (AI Style)
+      const feed = document.querySelector("#chat-feed");
+      showTypingIndicator(feed, 'ai', story.aiCharacterId);
+
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build();
-      payloadMeta = payload.meta;
-
-      console.log("[RPGlitch] System Prompt:", payload.system);
+      const payloadMeta = payload.meta;
 
       const ctrl = new AbortController();
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
-      const response = await generateStream({ payload, signal: ctrl.signal });
+      // 3. GENERATE (Stream)
+      // Pass onToken to remove bubble instantly when text appears
+      const response = await generateStream({
+        payload,
+        signal: ctrl.signal,
+        onToken: () => removeTypingIndicator(feed)
+      });
+
+      // Cleanup bubble just in case
+      removeTypingIndicator(feed);
 
       const aiChar = await entities.get("character", story.aiCharacterId);
-
       const aiMsgId = await db.messages.add({
         storyId,
         role: "ai",
@@ -163,17 +170,23 @@ export const StoryController = {
       await StoryController.render(storyId);
       applyPatch({ ui: { fsm: "done" } });
 
+      // 4. BACKGROUND PHYSICS (Still Locked!)
       if (payloadMeta && payloadMeta.triggerUpdate) {
-        console.log(`[PROMETHEUS] Triggering background update linked to msg: ${aiMsgId}`);
-        StoryController.runBackgroundUpdate(storyId, payloadMeta.updateTarget, aiMsgId);
+        console.log(`[PROMETHEUS] Running Physics... (UI Locked)`);
+        // We await this so the lock persists
+        await StoryController.runBackgroundUpdate(storyId, payloadMeta.updateTarget, aiMsgId);
       }
 
     } catch (e) {
       error("AI Error", e);
       applyPatch({ ui: { fsm: "error", lastError: e.message } });
       alert("AI Error: " + e.message);
+      // Clean up visual state on error
+      const feed = document.querySelector("#chat-feed");
+      if (feed) removeTypingIndicator(feed);
     } finally {
-      if (typing) typing.hidden = true;
+      // 5. UNLOCK UI (Always runs)
+      setSendLock(false);
     }
   },
 
@@ -198,6 +211,9 @@ export const StoryController = {
     const directorNote = getDirectorInstruction(varianceKey);
 
     console.log(`[PROMETHEUS] Regenerating with strategy: ${varianceKey}`);
+
+    // LOCK UI
+    setSendLock(true);
 
     // === STATE ROLLBACK (Ghost Prevention) ===
     try {
@@ -230,11 +246,9 @@ export const StoryController = {
     await StoryController.loadMessages(storyId);
     await StoryController.render(storyId);
 
-    const typing = document.querySelector("#typing-indicator");
-    if (typing) {
-      typing.textContent = `Regenerating (${varianceKey})...`;
-      typing.hidden = false;
-    }
+    const feed = document.querySelector("#chat-feed");
+    // Show AI bubble
+    showTypingIndicator(feed, 'ai', story.aiCharacterId);
 
     try {
       const builder = new ContextBuilder(storyId);
@@ -243,7 +257,12 @@ export const StoryController = {
       const ctrl = new AbortController();
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
-      const response = await generateStream({ payload, signal: ctrl.signal });
+      const response = await generateStream({
+        payload,
+        signal: ctrl.signal,
+        onToken: () => removeTypingIndicator(feed)
+      });
+      removeTypingIndicator(feed);
 
       const aiChar = await entities.get("character", story.aiCharacterId);
 
@@ -263,40 +282,34 @@ export const StoryController = {
     } catch (e) {
       error("Regen Error", e);
       alert("Regen Failed: " + e.message);
+      if (feed) removeTypingIndicator(feed);
     } finally {
-      if (typing) typing.hidden = true;
+      setSendLock(false); // UNLOCK
     }
   },
 
-  // --- UPDATED: BACKGROUND UPDATE LOGIC ---
   runBackgroundUpdate: async (storyId, targetType, linkedMessageId) => {
     try {
       const builder = new ContextBuilder(storyId);
 
-      // 1. Fetch Entity (Explicitly needed here for physics calculation)
       const story = state.story.byId[storyId];
       if (!story) return;
 
       let entity = null;
-      // We resolve the snapshot ID logic quickly here, mimicking getRealEntity logic partially
-      // or we just fetch the snapshot directly via entities helper if we knew the ID.
-      // Since we only have targetType, we rely on the builder logic or fetch manually:
       if (targetType === 'ai_character') entity = await entities.getSnapshot(storyId, "character", story.aiCharacterId) || await entities.get("character", story.aiCharacterId);
       else if (targetType === 'user_character') entity = await entities.getSnapshot(storyId, "character", story.userCharacterId) || await entities.get("character", story.userCharacterId);
       else if (targetType === 'world') entity = await entities.getSnapshot(storyId, "world", story.worldId) || await entities.get("world", story.worldId);
 
       if (!entity) return;
 
-      // 2. >>>> RUN THE PHYSICS ENGINE <<<<
-      // Calculate new dynamics based on current state + Hard Laws
+      // >>>> RUN THE PHYSICS ENGINE <<<<
       const oldDynamics = entity.dynamics || { entropy: 10, permeability: 50, velocity: 10, resonance: 10 };
       const newDynamics = calculateDynamics(oldDynamics);
 
-      // 3. Generate Update Prompt (Passing Forced Dynamics)
       const payload = await builder.buildUpdater(targetType, newDynamics);
       const jsonResponse = await generateStream({ payload, signal: null });
 
-      // 4. Liveness Check
+      // Liveness Check
       if (linkedMessageId) {
         const msgExists = await db.messages.get(linkedMessageId);
         if (!msgExists) {
@@ -319,11 +332,9 @@ export const StoryController = {
       }
 
       if (updates && payload.targetEntityId) {
-        // Fetch fresh to ensure no race condition, though we have 'entity' var
         const snapshot = await entities.get(payload.targetType, payload.targetEntityId);
 
         if (snapshot) {
-          // 5. Create Backup for Rollback
           const backup = {
             forever: snapshot.forever,
             past: snapshot.past,
@@ -338,7 +349,6 @@ export const StoryController = {
             past: updates.past || snapshot.past,
             present: updates.present || snapshot.present,
             future: updates.future || snapshot.future,
-            // FORCE THE PHYSICS ENGINE VALUES (Ignore LLM drift)
             dynamics: {
               entropy: newDynamics.entropy,
               permeability: newDynamics.permeability,
@@ -350,7 +360,6 @@ export const StoryController = {
             _lastUpdateMsgId: linkedMessageId
           };
 
-          // 6. >>>> THE ARCHIVIST TRIGGER <<<<
           const MAX_PAST_LENGTH = 2000;
           if (updatedSnapshot.past && updatedSnapshot.past.length > MAX_PAST_LENGTH) {
             console.log(`[ARCHIVIST] Triggered for ${entity.name}. Size: ${updatedSnapshot.past.length}`);
@@ -378,8 +387,12 @@ export const StoryController = {
   },
 
   generateOpening: async (storyId) => {
-    const typing = document.querySelector("#typing-indicator");
-    if (typing) { typing.textContent = "Generating opening..."; typing.hidden = false; }
+    // LOCK UI
+    setSendLock(true);
+    const feed = document.querySelector("#chat-feed");
+
+    // Show NARRATOR bubble
+    showTypingIndicator(feed, 'narrator');
 
     try {
       const builder = new ContextBuilder(storyId);
@@ -387,7 +400,12 @@ export const StoryController = {
 
       console.log("[RPGlitch] Opening Prompt:", payload.system);
 
-      const response = await generateStream({ payload, signal: null });
+      const response = await generateStream({
+        payload,
+        signal: null,
+        onToken: () => removeTypingIndicator(feed)
+      });
+      removeTypingIndicator(feed);
 
       await db.messages.add({
         storyId,
@@ -402,8 +420,10 @@ export const StoryController = {
     } catch (e) {
       error("Opening Gen Failed", e);
       alert("Failed to generate opening: " + e.message);
+      if (feed) removeTypingIndicator(feed);
     } finally {
-      if (typing) typing.hidden = true;
+      // UNLOCK UI
+      setSendLock(false);
     }
   }
 };

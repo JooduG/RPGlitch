@@ -47,15 +47,15 @@ function parseHash() {
 
 function handleRoute() {
   try { dismissLoadingUI?.(); } catch (e) { void e; }
-  const [section, type, id] = parseHash();
+  const [section, entityType, id] = parseHash();
   const isType = (t) => t === "character" || t === "world";
   chin.closeAll?.();
 
-  if (section === "profile" && isType(type) && id) {
+  if (section === "profile" && isType(entityType) && id) {
     if (!document.body.classList.contains("mode-gameplay") && !document.body.classList.contains("mode-storyboard")) {
       document.body.classList.add("mode-storyboard");
     }
-    renderProfilePage(type, id);
+    renderProfilePage(entityType, id);
     try { chin.closeAll?.(); dismissLoadingUI?.(); } catch (e) { void e; }
   } else if (section === "story") {
     showStoryScreen();
@@ -202,6 +202,88 @@ export function renderMessage(container, role, text, characterName, type, entiti
 
   div.innerHTML = safeContent;
   container.appendChild(div);
+}
+
+// === NEW: TYPING INDICATOR LOGIC ===
+
+export function showTypingIndicator(container, type = 'ai', entityId = null) {
+  // 1. Cleanup existing
+  removeTypingIndicator(container);
+
+  // 2. Create Bubble
+  const bubble = document.createElement("div");
+  bubble.id = "active-typing-indicator";
+  
+  // 3. Resolve Signature Color
+  // We check selectedEntities first (fastest), then fallback to defaults
+  let signatureColour = null;
+  if (type === 'ai' && selectedEntities.aiCharacter) {
+    signatureColour = selectedEntities.aiCharacter.signatureColour;
+  } else if (type === 'user' && selectedEntities.userCharacter) {
+    // Rare, but supported
+    signatureColour = selectedEntities.userCharacter.signatureColour;
+  }
+
+  // 4. Build Classes
+  let classes = ["story-message", "typing-bubble"];
+  
+  if (type === 'narrator' || type === 'system') {
+    classes.push("narrator");
+  } else {
+    classes.push("ai");
+  }
+
+  // Apply Signature Class
+  if (signatureColour && signatureColour !== "default") {
+    classes.push(`signature-${signatureColour}`);
+  }
+
+  bubble.className = classes.join(" ");
+
+  // 5. Content
+  bubble.innerHTML = `
+    <div class="typing-dot"></div>
+    <div class="typing-dot"></div>
+    <div class="typing-dot"></div>
+  `;
+
+  container.appendChild(bubble);
+  container.scrollTop = container.scrollHeight;
+}
+
+export function removeTypingIndicator(container) {
+  const existing = container.querySelector("#active-typing-indicator");
+  if (existing) existing.remove();
+}
+
+// === NEW: INPUT LOCK (Prevents race conditions) ===
+export function setSendLock(isLocked) {
+  const form = document.querySelector("#story-form");
+  if (!form) return;
+
+  const btn = form.querySelector('button[type="submit"]');
+  const input = form.querySelector('input[name="message"]');
+
+  if (btn) {
+    if (isLocked) {
+      btn.disabled = true;
+      // TAG THE BUTTON AS LOCKED
+      btn.dataset.locked = "true";
+      btn.classList.add("muted");
+    } else {
+      // UNTAG
+      delete btn.dataset.locked;
+      btn.classList.remove("muted");
+
+      // CHECK IF EMPTY before blindly enabling
+      const hasText = input && input.value.trim().length > 0;
+      btn.disabled = !hasText;
+    }
+  }
+
+  if (!isLocked && input) {
+    input.focus();
+  }
 }
 
 // --- CONSTANTS ---
@@ -629,7 +711,7 @@ function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) 
         openDrawerFor(entityType, stateKey, previewId, button, container);
       };
 
-      const isWorld = entityType === 'world';
+      const isWorld = entityType === 'world'; // FIXED
       renderEntityPreview(previewId, entity, button, entityType, onEdit, isWorld);
 
       button.hidden = true;
