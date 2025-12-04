@@ -74,22 +74,6 @@
         color: var(--pico-h3-color);
     }
 
-    // Close Button
-    .close-drawer {
-        background: transparent;
-        border: none;
-        color: var(--pico-muted-color);
-        cursor: pointer;
-        padding: 0.5rem;
-        line-height: 1;
-        border-radius: 50%;
-        transition: all 0.2s ease;
-
-        &:hover {
-            color: #fff;
-            background: rgb(255 255 255 / 10%);
-        }
-    }
 }
 
 

@@ -15,8 +15,6 @@ export function initDrawer() {
     const backdrop = document.getElementById(BACKDROP_ID);
     if (!drawer || !backdrop) return;
 
-    const closeBtn = drawer.querySelector(".close-entity-drawer"); // FIXED CLASS NAME TOO
-    if (closeBtn) closeBtn.addEventListener("click", closeDrawer);
     backdrop.addEventListener("click", closeDrawer);
 
     document.addEventListener("keydown", (e) => {
