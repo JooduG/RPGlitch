@@ -361,7 +361,7 @@ function generateHub() {
         const { numTotalTests, numPassedTests } = results;
         return `${numPassedTests}/${numTotalTests} passed`;
       }
-    } catch {}
+    } catch { }
     return "No test results found.";
   };
 

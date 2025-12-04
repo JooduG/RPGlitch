@@ -2,7 +2,10 @@
   "mcpServers": {
     "time": {
       "command": "python",
-      "args": ["-m", "mcp_server_time"],
+      "args": [
+        "-m",
+        "mcp_server_time"
+      ],
       "env": {
         "TZ": "Europe/Stockholm"
       },
@@ -26,7 +29,12 @@
     },
     "pollinations": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@pollinations/model-context-protocol"],
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@pollinations/model-context-protocol"
+      ],
       "type": "stdio",
       "restartOnFailure": true,
       "autoStart": true,
@@ -34,7 +42,12 @@
     },
     "mcp-sequentialthinking-tools": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "mcp-sequentialthinking-tools"],
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "mcp-sequentialthinking-tools"
+      ],
       "type": "stdio",
       "restartOnFailure": true,
       "autoStart": true,
@@ -42,36 +55,63 @@
     },
     "waldzell-clear-thought": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@waldzellai/clear-thought"],
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@waldzellai/clear-thought"
+      ],
       "type": "stdio",
       "autoStart": true,
       "description": "Provides sequential thinking tools from Waldzell."
     },
     "waldzell-stochastic-thinking": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@waldzellai/stochasticthinking"],
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@waldzellai/stochasticthinking"
+      ],
       "type": "stdio",
       "autoStart": true,
       "description": "Provides stochastic thinking utilities."
     },
     "playwright": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@playwright/mcp"],
-      "autoApprove": ["open_page", "screenshot"],
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@playwright/mcp"
+      ],
+      "autoApprove": [
+        "open_page",
+        "screenshot"
+      ],
       "type": "stdio",
       "autoStart": true,
       "description": "Lets the AI control a web browser for scraping and automation. 🌐"
     },
     "npm-sentinel": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@nekzus/mcp-server@latest"],
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@nekzus/mcp-server@latest"
+      ],
       "type": "stdio",
       "autoStart": true,
       "description": "An MCP server for analyzing NPM packages."
     },
     "chrome-devtools": {
       "command": "cmd",
-      "args": ["/c", "npx", "chrome-devtools-mcp@latest"]
+      "args": [
+        "/c",
+        "npx",
+        "chrome-devtools-mcp@latest"
+      ]
     }
   }
 }

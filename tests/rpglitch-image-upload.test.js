@@ -27,10 +27,10 @@ test.describe("RPGlitch Image Upload and Generation", () => {
         return { url: `http://example.com/generated.png?prompt=${prompt}` };
       };
       window.ai = {
-        generateStream: async () => {},
+        generateStream: async () => { },
       };
-      window.remember = () => {};
-      window.superFetch = async () => {};
+      window.remember = () => { };
+      window.superFetch = async () => { };
     });
 
     await page.goto("http://localhost:8080/apps/rpglitch/html/index.html", {
@@ -61,7 +61,7 @@ test.describe("RPGlitch Image Upload and Generation", () => {
       const chinContainer = document.querySelector('#chin-container');
       const charactersChin = document.querySelector('#chin-characters');
       return chinContainer && !chinContainer.hasAttribute('hidden') &&
-             charactersChin && !charactersChin.hasAttribute('hidden');
+        charactersChin && !charactersChin.hasAttribute('hidden');
     });
 
     console.log("Clicking #new-character");
@@ -95,7 +95,7 @@ test.describe("RPGlitch Image Upload and Generation", () => {
       const chinContainer = document.querySelector('#chin-container');
       const charactersChin = document.querySelector('#chin-characters');
       return chinContainer && !chinContainer.hasAttribute('hidden') &&
-             charactersChin && !charactersChin.hasAttribute('hidden');
+        charactersChin && !charactersChin.hasAttribute('hidden');
     });
 
     console.log("Clicking #new-character");

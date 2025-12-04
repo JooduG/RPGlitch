@@ -9,7 +9,7 @@ import { db } from "./db.js";
       console.log("[ImageGlitch] 🛡️ Freedom Protocol: Penalty flag purged.");
     }
     const originalSetItem = Storage.prototype.setItem;
-    Storage.prototype.setItem = function(key, value) {
+    Storage.prototype.setItem = function (key, value) {
       if (key === 'okayToShowNSFWUntil') {
         console.warn("[ImageGlitch] 🛡️ Blocked attempt to set censorship flag.");
         return;
@@ -61,7 +61,7 @@ function getScribeInstruction(userPrompt) {
   };
 
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-  
+
   const suggestions = {
     style: pick(lists.styles),
     mood: pick(lists.mood),
@@ -350,7 +350,7 @@ async function executeAiProcess(type, prompt, instructions) {
   let aiPrompt;
   switch (type) {
     case "scribe":
-      aiPrompt = getScribeInstruction(prompt); 
+      aiPrompt = getScribeInstruction(prompt);
       break;
     case "chaos":
       aiPrompt = getChaosInstruction(prompt);
@@ -435,7 +435,7 @@ function handleUndoClick() {
   setPromptInputValue(window.undoState.prompt, true);
   if (window.undoState.type === "transfigure") {
     const instInput = document.getElementById("instructionInput");
-    if(instInput) instInput.value = window.undoState.instruction;
+    if (instInput) instInput.value = window.undoState.instruction;
   }
   resetSmartButton();
 }
@@ -460,8 +460,8 @@ function startTimerOnButton() {
 function setCommandState(commandType) {
   const generateButton = document.getElementById("generate-button");
   let text = "", className = "";
-  if (commandType === "scribe") { text = "Refine Prompt"; className = "btn-refine"; } 
-  else if (commandType === "chaos") { text = "Embrace Chaos"; className = "btn-chaos"; } 
+  if (commandType === "scribe") { text = "Refine Prompt"; className = "btn-refine"; }
+  else if (commandType === "chaos") { text = "Embrace Chaos"; className = "btn-chaos"; }
   else if (commandType === "transfigure") { text = "Apply Instructions"; className = "btn-instruct"; }
   generateButton.textContent = text;
   generateButton.className = className;
@@ -477,7 +477,7 @@ async function handleSummonClick() {
   const generateButton = document.getElementById("generate-button");
   const validatedPrompt = validatePrompt(mainPromptContent);
   if (!validatedPrompt) return;
-  mainPromptContent = validatedPrompt; 
+  mainPromptContent = validatedPrompt;
 
   generateButton.setAttribute("aria-busy", "true");
   generateButton.disabled = true;
@@ -488,7 +488,7 @@ async function handleSummonClick() {
       alert("Image generation is currently unavailable. Please refresh the page.");
       return;
     }
-    
+
     document.getElementById("output").innerHTML = buildImageGenerationHtml();
 
     document.querySelectorAll(".quad-cell").forEach((cell) => {
@@ -522,7 +522,7 @@ function buildImageGenerationHtml() {
   updateDerivedSettings();
   const n = Number(numImagesToGen);
   let outputHtml = "";
-  const prompt = mainPromptContent.trim(); 
+  const prompt = mainPromptContent.trim();
   const validatedSeed = validateSeed(imgSeed);
   const useRandomSeeds = validatedSeed === "";
 
@@ -614,12 +614,12 @@ async function main() {
   if (generateButton) resetSmartButton();
 
   await waitForPlugins(["image", "ai"]);
-  
+
   // Check if the lists were injected properly
   if (window.glitchLists) {
-     console.log("[ImageGlitch] Lists loaded from Left Panel.");
+    console.log("[ImageGlitch] Lists loaded from Left Panel.");
   } else {
-     console.warn("[ImageGlitch] Lists NOT found. Using default fallback.");
+    console.warn("[ImageGlitch] Lists NOT found. Using default fallback.");
   }
 }
 
@@ -628,11 +628,11 @@ function addImageOverlays() {
     if (el.querySelector(".image-overlay")) return;
     const seed = el.dataset.seed;
     const prompt = safeDecodeURIComponent(el.closest(".quad-block")?.dataset.prompt || el.dataset.prompt);
-    
+
     const overlay = document.createElement("div");
     overlay.className = "image-overlay";
     const sanitized = window.DOMPurify ? window.DOMPurify.sanitize(prompt) : prompt;
-    
+
     overlay.innerHTML = `
       <div class="image-info-panel"><div class="prompt-display">${sanitized}</div></div>
       <div class="image-control-bar">
@@ -643,7 +643,7 @@ function addImageOverlays() {
         </div>
       </div>
     `;
-    
+
     el.classList.add("image-container");
     el.appendChild(overlay);
 
@@ -654,38 +654,38 @@ function addImageOverlays() {
 
 function downloadImage(container) {
   const img = container.querySelector("img, canvas");
-  if(!img) return;
+  if (!img) return;
   const link = document.createElement('a');
   link.download = `image_${container.dataset.seed}.png`;
-  
-  if(img.tagName === 'CANVAS') {
-    try { link.href = img.toDataURL(); link.click(); } catch(e) { console.error(e); }
+
+  if (img.tagName === 'CANVAS') {
+    try { link.href = img.toDataURL(); link.click(); } catch (e) { console.error(e); }
   } else {
     try {
       fetch(img.src).then(res => res.blob()).then(blob => {
         link.href = URL.createObjectURL(blob);
         link.click();
       }).catch(() => { link.href = img.src; link.target = "_blank"; link.click(); });
-    } catch(e) { link.href = img.src; link.target = "_blank"; link.click(); }
+    } catch (e) { link.href = img.src; link.target = "_blank"; link.click(); }
   }
 }
 
 function rerollImage(container, resolution) {
   const prompt = safeDecodeURIComponent(container.closest(".quad-block")?.dataset.prompt || container.dataset.prompt);
   const newSeed = Math.floor(Math.random() * 10000000);
-  
+
   if (resolution) {
     const canvas = container.querySelector("canvas");
-    if(canvas) canvas.remove();
+    if (canvas) canvas.remove();
     if (typeof window.image === 'function') {
       window.image({
         prompt: prompt, seed: newSeed, guidanceScale: currentGScale, resolution: resolution,
-        onFinish: (r) => { if(r.iframe) r.iframe.replaceWith(r.canvas); container.appendChild(r.canvas); }
+        onFinish: (r) => { if (r.iframe) r.iframe.replaceWith(r.canvas); container.appendChild(r.canvas); }
       });
     }
   } else {
     const img = container.querySelector("img");
-    if(img) {
+    if (img) {
       const params = new URLSearchParams({ width: DEFAULT_IMAGE_WIDTH, height: DEFAULT_IMAGE_HEIGHT, seed: newSeed, model: "flux", private: true, nologo: true });
       img.src = `${BASE_IMAGE_URL}${encodeURIComponent(prompt)}?${params.toString()}`;
     }
@@ -696,9 +696,9 @@ function rerollImage(container, resolution) {
 function checkAllButtonStates() {
   const btn = document.getElementById("generate-button");
   const prompt = document.getElementById("promptInput");
-  if(!btn || !prompt) return;
+  if (!btn || !prompt) return;
   const isEmpty = !prompt.value.trim();
-  if(!window.activeAiProcess) btn.disabled = isEmpty;
+  if (!window.activeAiProcess) btn.disabled = isEmpty;
 }
 
 document.addEventListener("DOMContentLoaded", main);

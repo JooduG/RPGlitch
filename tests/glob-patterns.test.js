@@ -13,17 +13,17 @@ describe('Glob Pattern Matching', () => {
         expect(matchesGlob('test.js', '**/*.js')).toBe(true);
         expect(matchesGlob('test.js', '**/*.scss')).toBe(false);
     });
-    
+
     test('SCSS files match SCSS rules', () => {
         expect(matchesGlob('test.scss', '**/*.scss')).toBe(true);
         expect(matchesGlob('test.scss', '**/*.js')).toBe(false);
     });
-    
+
     test('Markdown files match markdown rules', () => {
         expect(matchesGlob('test.md', '**/*.md')).toBe(true);
         expect(matchesGlob('test.md', '**/*.js')).toBe(false);
     });
-    
+
     test('HTML files match HTML rules', () => {
         expect(matchesGlob('test.html', '**/*.html')).toBe(true);
         expect(matchesGlob('test.html', '**/*.scss')).toBe(false);

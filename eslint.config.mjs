@@ -93,7 +93,7 @@ export default [
         ...globals.node,
         // Declare 'image' as a known global from perchance.js
         'image': 'readonly',
-        'Dexie': 'readonly', 
+        'Dexie': 'readonly',
       },
     },
     rules: {

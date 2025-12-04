@@ -55,7 +55,7 @@ const dom = new JSDOM(html, {
     }
     // Mock the Perchance.org 'ai' plugin
     window.ai = {
-      generateStream: async function*() {
+      generateStream: async function* () {
         // Yield nothing; we just need the function to exist.
       },
     };
@@ -74,7 +74,7 @@ const dom = new JSDOM(html, {
         set: (key, value) => (memory[key] = value),
       };
     })();
-    window.upload = () => {};
+    window.upload = () => { };
   },
 });
 

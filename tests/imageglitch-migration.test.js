@@ -60,15 +60,15 @@ describe('ImageGlitch IndexedDB Migration', () => {
     };
 
     // Create a proper Dexie mock that captures the upgrade callback
-    global.Dexie = jest.fn(function(name) {
+    global.Dexie = jest.fn(function (name) {
       this.name = name;
       const self = this;
 
-      this.version = function(versionNumber) {
+      this.version = function (versionNumber) {
         const versionObj = {
-          stores: function(schema) {
+          stores: function (schema) {
             return {
-              upgrade: function(upgradeCallback) {
+              upgrade: function (upgradeCallback) {
                 // Store the upgrade callback for version 2
                 if (versionNumber === 2) {
                   self._upgradeCallback = upgradeCallback;

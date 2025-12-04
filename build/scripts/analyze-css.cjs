@@ -172,9 +172,8 @@ class CSSBuildPipeline {
         const colorVariants = ["bg", "text"];
         this.designTokens.colors.forEach((color) => {
             colorVariants.forEach((variant) => {
-                atomicClasses += `.${variant}-${color.name} { ${
-                    variant === "bg" ? "background-color" : "color"
-                }: var(--${color.name}-color); }\n`;
+                atomicClasses += `.${variant}-${color.name} { ${variant === "bg" ? "background-color" : "color"
+                    }: var(--${color.name}-color); }\n`;
             });
         });
 
@@ -197,16 +196,16 @@ class CSSBuildPipeline {
         // Run final analysis on the *combined* content
         const astFinal = postcss.parse(this.finalContent);
         this.finalAnalysis = analyzeTotalSelectors(astFinal);
-        
+
         // Count generated classes for the report
         const generatedClassCount = (generatedClasses.match(/\./g) || []).length;
-        
+
         if (writeToFile) {
             fs.writeFileSync(this.cssFilePath, this.finalContent, 'utf8');
             console.log(`\n🎉 Build complete. Final CSS file written to: ${this.cssFilePath}`);
             this.outputReport();
         }
-        
+
         return { initialAnalysis: this.initialAnalysis, finalContent: this.finalContent, generatedClasses: generatedClassCount };
     }
 
