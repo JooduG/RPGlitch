@@ -11,7 +11,7 @@ import {
   getSignatureColor,
   getContrastColor,
 } from '../apps/rpglitch/js/core-utils.js';
-import * as utils from '../apps/rpglitch/js/core-utils.js';
+
 
 // Mock DOMPurify for sanitizeHtml tests
 global.DOMPurify = {

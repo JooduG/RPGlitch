@@ -1,17 +1,25 @@
-/* 1. Abstracts - Variables, mixins, functions, placeholders */
-@use "foundation";
+// apps/rpglitch/scss/index.scss
 
-/* 2. Base - Base styles, typography, etc. */
-@use "base";
+/* ============================================================================
+   RPGLITCH MAIN STYLESHEET
+   Architecture: 7-1 Pattern (Adapted)
+   ============================================================================ */
 
-/* 3. Layout - Main layout structure */
-@use "layout";
+/* 1. ABSTRACTS & CONFIG (No Output) */
+@use "config";
 
-/* 4. Components - Individual UI components (includes forms) */
-@use "components";
+/* 2. BASE & ENVIRONMENT (Global Resets) */
+@use "global";
 
-/* 5. Stage - Universal Stage layout and state machine */
-@use "stage";
+/* 3. LAYOUT (Grid & Shells) */
+@use "layout-grid";
+@use "layout-modal";
 
-/* 6. Story Screen - Chat interface, bubbles, and gameplay UI */
-@use "story-screen";
+/* 4. COMPONENTS (The UI) */
+@use "component-cards"; // Generic Cards & Entity Slots
+@use "component-storyboard"; // Lobby & Main Menu
+@use "component-chat-screen"; // Gameplay Layout
+@use "component-chat-messages"; // Bubbles & Dialogue
+@use "component-entity-drawer"; // The Bottom Sheet
+@use "component-profile"; // Character Sheets & Settings
+@use "component-ui"; // Chips, Tags, Headers

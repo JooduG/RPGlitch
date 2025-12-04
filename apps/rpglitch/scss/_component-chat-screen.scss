@@ -1,0 +1,289 @@
+// apps/rpglitch/scss/_component-chat-screen.scss
+@use "config" as *;
+@use "sass:map";
+
+/* ============================================================================
+   7. COMPONENT: CHAT SCREEN (GAMEPLAY)
+   The active game interface: Feed, Inputs, and Character Portraits.
+   ============================================================================ */
+
+/* =========================================
+   1. CHAT FEED (The Scrollable Area)
+   ========================================= */
+
+#chat-feed {
+    flex: 1;
+    min-height: 0; // Critical for flexbox scrolling
+    overflow: hidden auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    scroll-behavior: smooth;
+
+    // Apply custom scrollbar
+    @include custom-scrollbar;
+
+    // Mobile padding adjustment
+    @include mobile {
+        padding: 1rem;
+        gap: 1rem;
+        padding-bottom: 5rem; // Space for fixed input area
+    }
+}
+
+
+/* =========================================
+   2. INPUT AREA (The Control Deck)
+   Fixed at the bottom of the center column.
+   ========================================= */
+
+#story-input-area {
+    flex-shrink: 0;
+    padding: 1rem;
+    border-top: 1px solid var(--pico-muted-border-color);
+    background-color: var(--pico-form-element-background-color);
+    z-index: #{z(ui)};
+    position: relative;
+
+    form {
+        margin: 0;
+    }
+
+    fieldset[role="group"] {
+        margin: 0;
+        display: flex;
+        gap: 0;
+    }
+}
+
+/* --- THE INPUT FORM --- */
+#story-form {
+    padding: 0; // Reset internal padding
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+
+    // Text Input
+    input[type="text"] {
+        border-radius: var(--pico-radius) 0 0 var(--pico-radius);
+        border: 1px solid var(--pico-muted-border-color);
+        background: rgb(0 0 0 / 20%);
+        color: #fff;
+
+        &:focus {
+            border-color: var(--pico-primary);
+            box-shadow: 0 0 0 2px var(--pico-primary-focus);
+        }
+    }
+
+    // Send Button (The Glowing Trigger)
+    input[type="submit"] {
+        border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
+        transition: all 0.2s ease;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0 2rem;
+
+        // Default Glow (Purple) - will be overridden by signature
+        box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
+
+        &:not(:disabled):hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 15px var(--pico-primary-focus), 0 0 30px var(--pico-primary-focus);
+            z-index: 1;
+        }
+
+        &:not(:disabled):active {
+            transform: translateY(0);
+        }
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    }
+}
+
+// Signature-specific Glows for the Send Button
+@each $name, $data in $signature-colors {
+    $color: map.get($data, color);
+
+    .signature-#{$name} #story-form input[type="submit"]:not(:disabled):hover {
+        box-shadow: 0 0 15px $color, 0 0 30px $color;
+        background-color: $color;
+        border-color: $color;
+    }
+}
+
+
+/* =========================================
+   3. CHARACTER PORTRAITS (Side Columns)
+   Displays for the Active User and Narrator/AI.
+   ========================================= */
+
+.character-portrait {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+
+    // Image Container
+    .portrait-image {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: #000;
+
+        img,
+        .picture {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 10s ease; // Slow cinematic zoom
+        }
+    }
+
+    &:hover .portrait-image img {
+        transform: scale(1.05);
+    }
+}
+
+/* --- NAMEPLATE OVERLAY --- */
+// Floating tag identifying the character
+.character-name-overlay {
+    position: absolute;
+    top: 2rem;
+    z-index: 20;
+
+    // Visual Style
+    color: white;
+    background-color: rgb(24 28 37 / 95%);
+    backdrop-filter: blur(8px);
+    border: 2px solid var(--pico-muted-border-color);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--pico-radius);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 60%);
+    min-width: 150px;
+    text-align: center;
+
+    // Typography
+    h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        line-height: 1.2;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    // Default: Left-Aligned (Narrator/AI)
+    left: 2rem;
+
+    // Dynamic Signature Border
+    .signature-pink & {
+        border-color: var(--signature-pink);
+        color: var(--signature-pink);
+    }
+
+    .signature-emerald & {
+        border-color: var(--signature-emerald);
+        color: var(--signature-emerald);
+    }
+
+    .signature-cyan & {
+        border-color: var(--signature-cyan);
+        color: var(--signature-cyan);
+    }
+
+    .signature-orange & {
+        border-color: var(--signature-orange);
+        color: var(--signature-orange);
+    }
+
+    .signature-purple & {
+        border-color: var(--signature-purple);
+        color: var(--signature-purple);
+    }
+}
+
+// Right-Aligned (User Character)
+// Targeted via ID injected by UI logic
+#gameplay-user-portrait .character-name-overlay {
+    left: auto;
+    right: 2rem;
+}
+
+
+/* =========================================
+   4. STATUS & FEEDBACK UI
+   ========================================= */
+
+/* --- TOAST NOTIFICATION --- */
+#status-notifier {
+    position: fixed;
+    bottom: 5rem;
+    right: 1rem;
+    padding: 1rem 1.5rem;
+    background: rgb(24 28 37 / 95%);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--pico-primary);
+    border-radius: var(--pico-radius);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 50%);
+    z-index: #{z(toast)};
+    color: #fff;
+    font-weight: 600;
+    display: none; // Toggled via JS
+    pointer-events: none;
+
+    &:not(:empty) {
+        display: block;
+        animation: slide-in-right 0.3s ease;
+    }
+}
+
+/* --- LOADING SPINNER --- */
+#loading-modal {
+    // Uses generic modal mixin, specific overrides here if needed
+    z-index: #{z(modal) + 1};
+
+    &[open] {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        justify-content: center;
+        background: rgb(0 0 0 / 80%);
+        backdrop-filter: blur(5px);
+    }
+
+    // Modern CSS Spinner
+    [aria-busy="true"]::after {
+        width: 3rem;
+        height: 3rem;
+        border-width: 4px;
+        border-color: var(--pico-primary);
+        border-right-color: transparent;
+    }
+}
+
+
+/* =========================================
+   ANIMATIONS
+   ========================================= */
+
+@keyframes slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

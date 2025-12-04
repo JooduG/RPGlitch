@@ -1,0 +1,217 @@
+// apps/rpglitch/scss/_component-chat-messages.scss
+@use "config" as *;
+@use "sass:map";
+
+/* ============================================================================
+   8. COMPONENT: CHAT MESSAGES
+   The "Bubbles" and dialogue presentation logic.
+   Based on "V9" Geometry: Sharp corners indicate the speaker.
+   ============================================================================ */
+
+/* =========================================
+   BASE MESSAGE BUBBLE
+   ========================================= */
+
+.story-message {
+  padding: 1rem 1.25rem;
+  max-width: 90%;
+  word-wrap: break-word;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+  animation: message-slide-in 0.3s ease;
+  position: relative;
+
+  // Default Variables (System/Narrator Theme)
+  --msg-bg: var(--pico-form-element-background-color);
+  --msg-radius: var(--pico-radius); // 0.5rem
+
+  // Force High Contrast Text
+  color: #fff !important;
+  background: var(--msg-bg) !important;
+  border: none !important; // Reset any default borders
+
+  // Mobile Adjustment
+  @include mobile {
+    max-width: 95%;
+    padding: 0.75rem 1rem;
+  }
+}
+
+@keyframes message-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* =========================================
+   VARIANTS (Speaker Geometry)
+   ========================================= */
+
+/* --- 1. USER (Right Aligned) --- */
+.story-message.user[data-type="IC"] {
+  align-self: flex-end;
+
+  // Geometry: Sharp Top-Right Corner
+  border-radius: var(--msg-radius) 0 var(--msg-radius) var(--msg-radius);
+
+  // Default Fallback Color (Blue)
+  --msg-bg: var(--pico-primary-background);
+}
+
+/* --- 2. AI (Left Aligned) --- */
+.story-message.ai[data-type="IC"] {
+  align-self: flex-start;
+
+  // Geometry: Sharp Top-Left Corner
+  border-radius: 0 var(--msg-radius) var(--msg-radius) var(--msg-radius);
+
+  // Default Fallback Color (Dark Grey)
+  --msg-bg: var(--pico-form-element-background-color);
+}
+
+/* --- 3. NARRATOR (System/Environment) --- */
+.story-message.narrator {
+  align-self: flex-start;
+
+  // Geometry: Square / Technical
+  border-radius: 2px;
+
+  // Visuals: Distinct from dialogue
+  --msg-bg: var(--pico-card-background-color); // Slightly lighter grey
+
+  border-left: 2px solid var(--pico-muted-border-color) !important;
+
+  // CSS Label Generation
+  &::before {
+    content: "Narrator: ";
+    display: block;
+    font-weight: 800;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+    opacity: 0.7;
+    letter-spacing: 1px;
+  }
+
+  // CRITICAL FIX: Hide the legacy JS-injected label to prevent double text
+  .narrator-prefix {
+    display: none;
+  }
+}
+
+/* --- 4. OUT OF CHARACTER (OOC) --- */
+.story-message[data-type="OOC"],
+.story-message.director-command {
+  align-self: center !important;
+  max-width: 80%;
+  border-radius: var(--msg-radius);
+  background: transparent !important;
+  border: 1px solid var(--pico-muted-border-color) !important;
+  font-style: italic;
+  color: var(--pico-muted-color) !important;
+}
+
+
+/* =========================================
+   SIGNATURE COLOR LOGIC
+   Dynamic theming based on user selection.
+   ========================================= */
+
+@each $name, $data in $signature-colors {
+  $color: map.get($data, color);
+
+  // USER: Override background with signature color
+  .story-message.user.signature-#{$name}[data-type="IC"] {
+    --msg-bg: #{$color};
+  }
+
+  // AI: Override background (Bold Mode)
+  .story-message.ai.signature-#{$name} {
+    --msg-bg: #{$color};
+  }
+}
+
+
+/* =========================================
+   TYPING INDICATOR (Animated Bubble)
+   ========================================= */
+
+.typing-bubble {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  // Visuals
+  background: var(--pico-form-element-background-color);
+  color: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+
+  // Animation Entrance
+  opacity: 0;
+  animation: slide-in-up 0.3s ease-out forwards;
+
+  // Geometry Defaults (AI Style)
+  border-radius: 0 var(--pico-radius) var(--pico-radius) var(--pico-radius);
+
+  // Signature Override Logic for Typing
+  @each $name, $data in $signature-colors {
+    $color: map.get($data, color);
+
+    &.signature-#{$name} {
+      background: #{$color} !important;
+    }
+  }
+}
+
+// The Dots
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background: currentcolor;
+  border-radius: 50%;
+  opacity: 0.9;
+  animation: fluid-bounce 1.4s infinite ease-in-out both;
+
+  &:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+
+  &:nth-child(2) {
+    animation-delay: -0.16s;
+  }
+}
+
+@keyframes fluid-bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

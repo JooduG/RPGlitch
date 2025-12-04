@@ -1,0 +1,216 @@
+// apps/rpglitch/scss/_component-storyboard.scss
+@use "config" as *;
+
+/* ============================================================================
+   6. COMPONENT: STORYBOARD (THE LOBBY)
+   The "Main Menu" screen where users set up the story.
+   ============================================================================ */
+
+/* =========================================
+   LAYOUT UTILITIES
+   ========================================= */
+
+// 1. CENTER COLUMN (World Card & Actions)
+.center-layout-grid {
+    // CRITICAL FIX: Use Flexbox for robust vertical centering
+    // Replaces CSS Grid to prevent "stretching" or top-heavy alignment
+    display: flex;
+    flex-direction: column;
+    justify-content: center; // Center the whole stack vertically
+    align-items: center; // Center items horizontally
+    padding: 2rem;
+    gap: 2rem; // Consistent spacing between Header, Card, and Actions
+    height: 100%;
+    min-height: 100%; // FIXED: Ensure it takes full height
+    flex: 1; // FIXED: Grow to fill parent
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+
+    // Ensure the container allows clicks through to background
+    pointer-events: none;
+
+    // Header
+    #storyboard-header {
+        width: 100%;
+        text-align: center;
+        z-index: #{z(base)};
+        pointer-events: auto;
+        flex-shrink: 0; // Don't squash
+    }
+
+    // Card Area (Middle)
+    .world-card {
+        width: 100%;
+        pointer-events: auto;
+
+        // Allow the card to be the primary flexible element if needed, 
+        // but usually fixed aspect ratio handles it.
+        flex-shrink: 0;
+
+        // CRITICAL FIX: Push Header to top and Actions to bottom
+        // This ensures the Card itself sits exactly in the middle
+        margin-top: auto !important;
+        margin-bottom: auto !important;
+        flex-grow: 0;
+
+        // border: 2px solid red; // DEBUG - Uncomment to verify CSS application
+    }
+
+    // Actions Area (Bottom)
+    .storyboard-actions {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        z-index: #{z(ui)};
+        pointer-events: auto;
+        flex-shrink: 0;
+    }
+}
+
+// 2. SIDE COLUMNS (AI & User Cards)
+// Ensure they use the same vertical centering logic
+.stage-column--side .stage-content--storyboard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; // Vertical Center
+    align-items: center; // Horizontal Center
+    height: 100%;
+    width: 100%;
+    padding: 2rem;
+    pointer-events: none; // Wrapper is pass-through
+}
+
+// Force interactivity on the children (Cards)
+.stage-column--side .stage-content--storyboard>* {
+    pointer-events: auto;
+}
+
+
+/* =========================================
+   INPUTS & CONTROLS
+   ========================================= */
+
+.story-title-input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #fff;
+    text-align: center;
+    width: 100%;
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    padding: 0.5rem;
+    transition: border-color 0.3s ease;
+    pointer-events: auto;
+
+    &::placeholder {
+        color: rgb(255 255 255 / 30%);
+        font-style: normal;
+    }
+
+    &:focus {
+        outline: none;
+        border-color: var(--pico-primary);
+    }
+
+    @include mobile {
+        font-size: 1.8rem;
+    }
+}
+
+
+/* --- ACTION BAR (Button Group) --- */
+.storyboard-actions [role="group"] {
+    display: inline-flex;
+    width: auto;
+    align-items: stretch;
+    background: rgb(0 0 0 / 40%);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgb(0 0 0 / 50%);
+    border-radius: 50px;
+    border: 1px solid rgb(255 255 255 / 10%);
+    overflow: hidden;
+
+    // CRITICAL: Ensure this element captures clicks
+    pointer-events: auto;
+
+    button {
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: background 0.2s, color 0.2s;
+        cursor: pointer;
+
+        // Explicitly set text color
+        color: rgb(255 255 255 / 80%);
+
+        &:hover {
+            background: rgb(255 255 255 / 10%);
+            color: #fff;
+        }
+    }
+}
+
+/* 1. Left: Options */
+#btn-options {
+    background: transparent;
+    border-right: 1px solid rgb(255 255 255 / 10%);
+}
+
+/* 2. Middle: Shuffle */
+#btn-shuffle {
+    background: transparent;
+    border-right: 1px solid rgb(255 255 255 / 10%);
+}
+
+/* 3. Right: Begin Story */
+#begin-story {
+    padding: 1rem 3rem; // Wider for emphasis
+    background: var(--pico-primary);
+    color: #fff !important;
+    font-weight: 800;
+
+    &:hover:not(:disabled) {
+        background: var(--pico-primary-hover);
+        box-shadow: 0 0 20px var(--pico-primary-focus);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        background: #4a5568;
+        color: #a0aec0;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+}
+
+@include mobile {
+    .center-layout-grid {
+        padding: 1rem;
+        gap: 1rem;
+
+        // On mobile, space them out to fill screen or stack naturally
+        justify-content: space-between;
+    }
+
+    .stage-column--side .stage-content--storyboard {
+        padding: 1rem;
+    }
+
+    .storyboard-actions [role="group"] button {
+        padding: 0.75rem 1rem;
+        font-size: 0.8rem;
+    }
+}

@@ -1,0 +1,213 @@
+// apps/rpglitch/scss/_global.scss
+@use "sass:map";
+@use "sass:color";
+@use "config" as *;
+
+/* ============================================================================
+   2. GLOBAL ENVIRONMENT
+   The Root Layer: Variables, Resets, and Typography.
+   ============================================================================ */
+
+:root {
+    // --- LAYOUT & GRID CONFIG ---
+    --top-bar-height: 3rem;
+    --app-container-max: 100%;
+    --app-container-pad: 1rem;
+    --header-height: 6rem;
+
+    // Shared 3-column stage layout
+    --layout-left-col: 1fr;
+    --layout-center-col: 2fr;
+    --layout-right-col: 1fr;
+
+    // --- Z-INDEX LAYER MAP ---
+    // (Maps SASS variables to CSS variables for runtime usage)
+    --z-base: #{z(base)};
+    --z-chip: #{z(chip)};
+    --z-chin-container: #{z(chin-container)};
+    --z-overlay: #{z(overlay)};
+    --z-modal: #{z(modal)};
+    --z-drawer: #{z(drawer)};
+    --z-toast: #{z(toast)};
+
+    // --- PICO THEME OVERRIDES ---
+    --pico-color: #fff;
+    --pico-h1-color: #fff;
+    --pico-h2-color: #fff;
+    --pico-h3-color: #eee;
+    --pico-primary: var(--signature-purple);
+    --pico-primary-contrast: #fff;
+    --pico-primary-background: var(--signature-purple);
+    --pico-form-element-background-color: #3b4b5d;
+    --pico-muted-color: #a0a0a0;
+    --pico-muted-border-color: #555;
+    --pico-del-color: #{$pico-del-color};
+    --pico-radius: 0.5rem;
+    --pico-box-shadow: 0;
+    --pico-card-box-shadow: 0;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
+
+    // Spacing Resets
+    --pico-nav-element-spacing-vertical: 0;
+    --pico-nav-element-spacing-horizontal: 0;
+    --pico-nav-link-spacing-vertical: var(--pico-form-element-spacing-vertical);
+    --pico-nav-link-spacing-horizontal: var(--pico-form-element-spacing-horizontal);
+    --pico-typography-spacing-vertical: 0;
+    --pico-typography-spacing-horizontal: 0;
+    --pico-spacing: 0;
+
+    // --- APP UTILITIES ---
+    --rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+    --color-accent: #ff7ad5;
+    --signature-text-on: #fff;
+
+    // Initialize default signature vars
+    --signature-pink: #{map.get(map.get($signature-colors, "pink"), color)};
+    --signature-emerald: #{map.get(map.get($signature-colors, "emerald"), color)};
+    --signature-cyan: #{map.get(map.get($signature-colors, "cyan"), color)};
+    --signature-orange: #{map.get(map.get($signature-colors, "orange"), color)};
+    --signature-purple: #{map.get(map.get($signature-colors, "purple"), color)};
+}
+
+// --- SIGNATURE LOOPS ---
+// Automates the creation of .signature-pink, .signature-emerald, etc.
+@each $name, $data in $signature-colors {
+    $color-value: map.get($data, color);
+
+    .signature-#{$name} {
+        --signature: #{$color-value};
+        --signature-10: #{color.mix($color-value, transparent, 10%)};
+        --signature-20: #{color.mix($color-value, transparent, 20%)};
+        --signature-contrast: var(--signature-text-on);
+    }
+}
+
+// --- DARK THEME OVERRIDES ---
+// High-contrast adjustments for the game interface
+[data-theme="dark"] {
+    --pico-background-color: #0f1116;
+    --pico-card-background-color: #1a1d2e;
+    --pico-form-element-background-color: #1a1d2e;
+    --pico-color: #f1f5f9;
+    --pico-h1-color: #f8fafc;
+    --pico-h2-color: #f8fafc;
+    --pico-h3-color: #f1f5f9;
+    --pico-muted-color: #94a3b8;
+    --pico-muted-border-color: #334155;
+    --pico-primary-hover: #4f46e5;
+    --pico-primary-focus: rgb(79 70 229 / 50%);
+}
+
+
+/* ============================================================================
+   3. BASE RESETS
+   Standardizing the canvas.
+   ============================================================================ */
+
+* {
+    box-sizing: border-box;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    font-family: var(--pico-font-family, sans-serif);
+    color: var(--pico-color);
+
+    // APP BACKGROUND: Gradient + Texture
+    background-image: linear-gradient(to bottom right,
+            $gradient-color-1,
+            $gradient-color-2 50%,
+            $gradient-color-3 75%,
+            $gradient-color-4);
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+// Noise Filter Overlay
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%20200%20200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cfilter%20id%3D%22noiseFilter%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.9%22%20numOctaves%3D%223%22%20stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url(%2523noiseFilter)%22%2F%3E%3C%2Fsvg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 0;
+}
+
+// --- CRITICAL COMPONENT RESET ---
+// Prevents Pico from styling every <article> as a white card.
+// This allows us to use <article> semantically without fighting styles.
+article {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+// --- TYPOGRAPHY ---
+h1,
+h2,
+h3,
+h4 {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-block: 0.5rem;
+    color: inherit;
+}
+
+p {
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+*::placeholder {
+    font-style: italic;
+    opacity: 1;
+}
+
+// --- UTILITIES ---
+.muted,
+.placeholder-text {
+    opacity: 0.6;
+    font-style: italic;
+    color: var(--pico-muted-color) !important;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.danger,
+.danger:active,
+.danger:hover {
+    background: var(--pico-del-color, #dc3545);
+    border-color: var(--pico-del-color, #dc3545);
+    color: #fff;
+}
+
+// --- INTERACTIVE ---
+// Tactile lift effect for all buttons
+button,
+[type="button"],
+[type="submit"] {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+
+    &:not(:disabled):hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
+    }
+}

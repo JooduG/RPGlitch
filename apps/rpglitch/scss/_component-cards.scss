@@ -1,0 +1,259 @@
+// apps/rpglitch/scss/_component-cards.scss
+@use "config" as *;
+
+/* ============================================================================
+   5. COMPONENT: CARDS & MEDIA
+   ============================================================================ */
+
+.picture {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: block;
+  aspect-ratio: 1 / 1;
+  background: var(--pico-muted-border-color);
+  position: relative;
+
+  &--landscape {
+    aspect-ratio: 3 / 2;
+  }
+
+  &--portrait {
+    aspect-ratio: 2 / 3;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+}
+
+.placeholder-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--pico-card-background-color);
+  color: rgb(255 255 255 / 20%);
+
+  svg {
+    width: 48px;
+    height: 48px;
+    fill: currentcolor;
+  }
+}
+
+/* GENERIC CARD */
+.card {
+  @include card-common;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid transparent;
+  height: 100%;
+
+  .card-media {
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 60%, rgb(0 0 0 / 60%));
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+  }
+
+  .card-body {
+    flex: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &:hover {
+    border-color: var(--pico-muted-border-color);
+
+    .card-media img {
+      transform: scale(1.05);
+    }
+
+    .card-media::after {
+      opacity: 0.9;
+    }
+  }
+}
+
+/* ENTITY CARDS */
+.entity-card {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+
+  // CRITICAL FIX: Allow clicks to pass through gaps to the background
+  pointer-events: none;
+
+  &.world-card {
+    max-width: 600px;
+
+    .card-slot,
+    .entity-preview.card-filled {
+      aspect-ratio: 16 / 9;
+    }
+  }
+}
+
+/* EMPTY SLOT (Add New) */
+.card-slot {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background: rgb(255 255 255 / 3%);
+  border: 2px dashed rgb(255 255 255 / 15%);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: rgb(255 255 255 / 50%);
+  transition: all 0.3s ease;
+
+  // CRITICAL FIX: Force interactivity since parent is pointer-events: none
+  cursor: pointer;
+  pointer-events: auto !important;
+  z-index: #{z(base) + 10};
+
+  // Pass decoration clicks to parent
+  .slot-category,
+  .slot-icon,
+  .slot-label,
+  svg {
+    pointer-events: none;
+  }
+
+  .slot-category {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 800;
+    opacity: 0.7;
+  }
+
+  .slot-icon {
+    transition: transform 0.3s ease;
+
+    svg {
+      width: 48px;
+      height: 48px;
+      opacity: 0.5;
+    }
+  }
+
+  &:hover {
+    background: rgb(255 255 255 / 6%);
+    border-color: var(--pico-primary);
+    color: var(--pico-primary);
+    transform: translateY(-2px);
+
+    .slot-icon {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+}
+
+/* PREVIEW (Filled) */
+.entity-preview.card-filled {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background: var(--pico-card-background-color);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 15px 40px rgb(0 0 0 / 40%);
+  transition: transform 0.3s ease;
+
+  // CRITICAL FIX: Re-enable pointer events for the filled card
+  cursor: pointer;
+  pointer-events: auto !important;
+  z-index: #{z(chip)};
+
+  &[data-signature] {
+    border-color: var(--signature);
+  }
+
+  .card-media {
+    flex: 2;
+    min-height: 50%;
+    background: #000;
+    position: relative;
+    pointer-events: auto;
+  }
+
+  .card-body {
+    flex: 1;
+    min-height: 100px;
+    padding: 1.5rem;
+    background: inherit;
+    border-top: 1px solid rgb(255 255 255 / 5%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #fff;
+    pointer-events: auto; // Allow clicks on body area
+
+    // CRITICAL FIX: Text blocks click event; ensure it passes through to body
+    h4,
+    p {
+      pointer-events: none;
+    }
+
+    h4 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--signature, #fff);
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 0.85rem;
+      color: var(--pico-muted-color);
+      margin: 0;
+      line-height: 1.4;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgb(0 0 0 / 50%);
+  }
+}
+
+.entity-card:has(.entity-preview:not([hidden])) .card-slot {
+  display: none;
+}

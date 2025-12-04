@@ -24,22 +24,22 @@ import { JSDOM, VirtualConsole } from "jsdom";
 
 // --- CONFIGURATION ---
 const APP_CONFIGS = {
-  imageglitch: {
-    extraLibs: [
-      { name: 'dexie', file: 'dexie.js' },
-      { name: 'dompurify', file: 'purify.min.js' },
-    ],
-    useComplexLoader: true  // Proven to work on Perchance
-  },
-  rpglitch: {
-    extraLibs: [
-      { name: 'cash', file: 'cash.min.js' },
-      { name: 'dexie', file: 'dexie.js' },
-      { name: 'dompurify', file: 'purify.min.js' },
-      { name: 'hyperscript', file: '_hyperscript.min.js' },
-    ],
-    useComplexLoader: true  // Proven to work on Perchance
-  }
+    imageglitch: {
+        extraLibs: [
+            { name: 'dexie', file: 'dexie.js' },
+            { name: 'dompurify', file: 'purify.min.js' },
+        ],
+        useComplexLoader: true  // Proven to work on Perchance
+    },
+    rpglitch: {
+        extraLibs: [
+            { name: 'cash', file: 'cash.min.js' },
+            { name: 'dexie', file: 'dexie.js' },
+            { name: 'dompurify', file: 'purify.min.js' },
+            { name: 'hyperscript', file: '_hyperscript.min.js' },
+        ],
+        useComplexLoader: true  // Proven to work on Perchance
+    }
 };
 
 // --- PATHS ---
@@ -85,6 +85,9 @@ async function compileStyles(entryPointScss, picoCssPath) {
     try {
         const picoCss = await fs.readFile(picoCssPath, "utf8");
         const sassResult = await sass.compileAsync(entryPointScss);
+        console.log("DEBUG: Sass CSS Length:", sassResult.css.length);
+        console.log("DEBUG: Sass CSS Preview:", sassResult.css.substring(0, 200));
+        console.log("DEBUG: Has Red BG:", sassResult.css.includes("background: red"));
         const combinedCss = picoCss + '\n' + sassResult.css;
         const postcssResult = await postcss([autoprefixer]).process(combinedCss, { from: undefined });
         return postcssResult.css;
@@ -104,7 +107,7 @@ async function bundleJs(entryPointJs) {
             format: 'iife',
         });
         return result.outputFiles[0].text;
-    } catch(error) {
+    } catch (error) {
         console.error("❌ esbuild bundling failed:", error);
         throw error;
     }

@@ -1,0 +1,133 @@
+// apps/rpglitch/scss/_component-ui.scss
+@use "config" as *;
+
+/* ============================================================================
+   11. COMPONENT: UI UTILITIES
+   The Toolkit: Headers, Tags, Chips, and Indicators.
+   ============================================================================ */
+
+/* =========================================
+   TOP BAR (Sticky Header)
+   ========================================= */
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative; // Or sticky if needed globally
+    z-index: #{z(overlay)};
+
+    // Glassmorphism
+    background: rgb(var(--dark-background-rgb, 17 25 31) / 85%);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
+    border-bottom: 1px solid rgb(255 255 255 / 5%);
+    padding: 0.5rem 1rem;
+    margin: 1rem auto 0; // Floating look
+    width: 100%;
+    max-width: var(--app-container-max);
+    border-radius: var(--pico-radius);
+    transition: all 0.3s ease;
+
+    // Context: Hide when story is active (Focus Mode)
+    body.story-active & {
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+// Button Groups in Header
+.top-bar-left,
+.top-bar-right {
+    display: flex;
+    gap: 0.5rem;
+
+    // Grouping Logic (Joined Buttons)
+    button {
+        margin: 0;
+        border-radius: 0;
+
+        &:first-of-type {
+            border-top-left-radius: var(--pico-radius);
+            border-bottom-left-radius: var(--pico-radius);
+        }
+
+        &:last-of-type {
+            border-top-right-radius: var(--pico-radius);
+            border-bottom-right-radius: var(--pico-radius);
+        }
+    }
+}
+
+
+/* =========================================
+   CHIPS & TAGS
+   ========================================= */
+
+/* --- OVERLAY CHIPS (On Cards) --- */
+.chip-row {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    z-index: #{z(chip)};
+    pointer-events: none; // Click-through to card
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px; // Pill
+    background: var(--signature, var(--pico-contrast));
+    color: var(--signature-contrast, #fff);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+
+    // Only show if content exists
+    &:empty {
+        display: none;
+    }
+}
+
+
+/* --- STANDARD TAGS (In Profiles) --- */
+.tag-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tag-chip {
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    background: var(--pico-primary-background);
+    color: #fff;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+
+    &:hover {
+        background: var(--pico-primary-hover);
+    }
+}
+
+/* --- EDIT MODE TAGS (Form Pills) --- */
+.form-tag-pills {
+    display: none; // Hidden by default
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+
+    // Show only for Premade Entities
+    .profile-view[data-is-premade="true"] & {
+        display: flex;
+    }
+}

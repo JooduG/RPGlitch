@@ -4,10 +4,11 @@ import { getPictureHTML, getSignature } from "./entity-structs.js"; // getPictur
 
 import {
   escapeHtml, handleAsyncError, dismissLoadingUI,
-  chin, error, setTopBarRight,
+  error, setTopBarRight,
   renderTags, isValidImageUrl, extractImageUrl, sanitizeHtml
 } from "./core-utils.js";
-import { initDrawer, openDrawer } from "./drawer.js";
+// RENAMED IMPORTS and ADDED closeDrawer
+import { initDrawer, openDrawer, closeDrawer } from "./drawer.js";
 // --- CRITICAL IMPORTS FROM NEW CHAT RENDER FILE ---
 import { setGameplayEntities, updatePortraits, setSendLock } from "./ui-render-chat.js";
 
@@ -48,14 +49,16 @@ function handleRoute() {
   try { dismissLoadingUI?.(); } catch (e) { void e; }
   const [section, entityType, id] = parseHash();
   const isType = (t) => t === "character" || t === "world";
-  chin.closeAll?.();
+
+  // FIXED: Replace chin.closeAll?.() with the now-exported closeDrawer()
+  closeDrawer();
 
   if (section === "profile" && isType(entityType) && id) {
     if (!document.body.classList.contains("mode-gameplay") && !document.body.classList.contains("mode-storyboard")) {
       document.body.classList.add("mode-storyboard");
     }
     renderProfilePage(entityType, id);
-    try { chin.closeAll?.(); dismissLoadingUI?.(); } catch (e) { void e; }
+    try { closeDrawer(); dismissLoadingUI?.(); } catch (e) { void e; } // FIXED
   } else if (section === "story") {
     showStoryScreen();
   } else {
@@ -66,7 +69,8 @@ function handleRoute() {
 window.addEventListener("hashchange", handleRoute);
 document.addEventListener("DOMContentLoaded", () => {
   handleRoute();
-  document.querySelectorAll("button[data-chin]").forEach((btn) => btn.classList.add("chin-button"));
+  // NOTE: Assuming this will be renamed in HTML/CSS/JS elsewhere.
+  document.querySelectorAll("button[data-chin]").forEach((btn) => btn.classList.add("entity-drawer-button"));
   document.querySelectorAll('form[role="search"]').forEach((form) => {
     form.addEventListener("submit", (e) => e.preventDefault());
   });
@@ -104,8 +108,6 @@ export function updateStoryboardSelection(newSelection) {
 
   if (_onSelectionChanged) _onSelectionChanged(selectedEntities);
 }
-
-// --- RENDER MESSAGE LOGIC REMOVED/MIGRATED ---
 
 // --- INPUT LOCK LOGIC REMOVED/MIGRATED ---
 export { setSendLock }; // Imported from ui-render-chat.js
@@ -509,7 +511,12 @@ function bindDrawerTrigger(buttonId, entityType, previewId, stateKey) {
   if (!button) return;
   const cardContainer = button.closest('.entity-card');
 
-  button.addEventListener("click", () => openDrawerFor(entityType, stateKey, previewId, button, cardContainer));
+  if (cardContainer) {
+    cardContainer.style.cursor = "pointer";
+    cardContainer.addEventListener("click", (e) => {
+      openDrawerFor(entityType, stateKey, previewId, button, cardContainer);
+    });
+  }
 }
 
 function bindPortraitClick(selector, stateKey) {
@@ -566,15 +573,8 @@ function renderEntityPreview(previewId, entity, slotButton, type, onEdit, isWorl
     body.title = "Change Selection";
     body.innerHTML = `<h4>${entity.name}</h4><p class="muted">${entity.description || ""}</p>`;
 
-    body.addEventListener("click", (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      if (onEdit) {
-        onEdit();
-      } else if (slotButton) {
-        slotButton.click();
-      }
-    });
+    // Click handling is now managed by the parent .entity-card container
+    // allowing clicks on Title/Description to trigger the drawer.
 
     previewEl.appendChild(media);
     previewEl.appendChild(body);

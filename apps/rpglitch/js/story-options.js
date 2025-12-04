@@ -1,9 +1,9 @@
 // apps/rpglitch/js/story-options.js
-import { db } from "./core-db.js"; // Renamed import
-import { StoryController } from "./manager-turns.js"; // Renamed import
-import { applyPatch, state } from "./app-state.js"; // Renamed import
-import { escapeHtml } from "./core-utils.js"; // Renamed import
-import { router } from "./ui-views.js"; // Added import for re-rendering after toggle
+import { db } from "./core-db.js";
+import { StoryController } from "./manager-turns.js";
+import { applyPatch, state } from "./app-state.js";
+import { escapeHtml } from "./core-utils.js";
+import { router } from "./ui-views.js";
 
 export const StoryOptionsController = {
   init() {
@@ -12,7 +12,7 @@ export const StoryOptionsController = {
     const closeBtn = modal?.querySelector(".close-modal");
     const newStoryBtn = modal?.querySelector("#btn-new-story");
     const resetBtn = modal?.querySelector("#settings-reset");
-    const directorModeToggle = modal?.querySelector("#director-mode-toggle"); // New element
+    const directorModeToggle = modal?.querySelector("#director-mode-toggle");
 
     if (!modal || !btn) return;
 
@@ -43,22 +43,12 @@ export const StoryOptionsController = {
       }
     });
 
-    // --- DIRECTOR MODE WIRING (NEW) ---
+    // Director Mode Wiring
     if (directorModeToggle) {
       directorModeToggle.addEventListener("change", (e) => {
         const isChecked = e.target.checked;
-
-        // 1. Update persistent and runtime state
-        applyPatch({
-          settings: {
-            directorMode: isChecked
-          }
-        });
-
-        // 2. Force a full re-render of the chat feed to show/hide thoughts immediately
-        // This is crucial for the "Lobotomy Reversal" effect.
+        applyPatch({ settings: { directorMode: isChecked } });
         if (state.story.activeId) {
-          // If in a story, re-render the story screen (which calls StoryController.render)
           router.handleRoute();
         }
       });
@@ -69,20 +59,29 @@ export const StoryOptionsController = {
     const modal = document.querySelector("#story-options");
     if (!modal) return;
 
-    // Check current state and sync checkbox (CRITICAL for persistency)
     const directorModeToggle = modal.querySelector("#director-mode-toggle");
     if (directorModeToggle) {
       directorModeToggle.checked = !!state.settings.directorMode;
     }
 
     modal.removeAttribute("hidden");
-    // Trigger rendering of story list every time we open
+    // CRITICAL FIX: Add the class required by _layout-modal.scss
+    modal.classList.add("is-open");
+
     StoryOptionsController.renderStories();
   },
 
   close() {
     const modal = document.querySelector("#story-options");
-    if (modal) modal.setAttribute("hidden", "");
+    if (modal) {
+      modal.classList.remove("is-open");
+      // Wait for animation to finish before hiding
+      setTimeout(() => {
+        if (!modal.classList.contains("is-open")) {
+          modal.setAttribute("hidden", "");
+        }
+      }, 300);
+    }
   },
 
   async renderStories() {
@@ -133,7 +132,7 @@ export const StoryOptionsController = {
           if (confirm("Delete this story?")) {
             await db.stories.delete(s.id);
             await db.messages.where("storyId").equals(s.id).delete();
-            StoryOptionsController.renderStories(); // Refresh list
+            StoryOptionsController.renderStories();
           }
         };
 
@@ -151,7 +150,6 @@ export const StoryOptionsController = {
   },
 
   startNew() {
-    // Reset UI to storyboard mode
     document.body.classList.remove("mode-gameplay");
     document.body.classList.add("mode-storyboard");
     applyPatch({

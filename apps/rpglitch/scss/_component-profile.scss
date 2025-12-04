@@ -1,0 +1,438 @@
+// apps/rpglitch/scss/_component-profile.scss
+@use "config" as *;
+
+/* ============================================================================
+   10. COMPONENT: PROFILE & DATA VIEWS
+   The internal styling for Character Sheets, World Info, and Settings.
+   ============================================================================ */
+
+/* =========================================
+   1. PROFILE VIEW (Split Layout)
+   ========================================= */
+
+.profile-left {
+    background: #000;
+    position: relative;
+    min-height: 300px;
+    overflow: hidden;
+
+    .hero-wrap,
+    .picture {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        inset: 0;
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .placeholder-image {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+
+        svg {
+            width: clamp(96px, 40%, 320px);
+            height: auto;
+            opacity: 0.5;
+        }
+    }
+
+    .profile-hero-overlay {
+        position: absolute;
+        bottom: 1rem;
+        left: 1rem;
+        right: 1rem;
+        padding: 1rem;
+        background: rgb(0 0 0 / 80%);
+        backdrop-filter: blur(8px);
+        border-radius: var(--pico-radius);
+        display: none;
+        flex-direction: column;
+        gap: 1rem;
+        pointer-events: auto;
+        z-index: 10; // FIXED: Ensure overlay sits above the image
+
+        button {
+            white-space: nowrap;
+        }
+    }
+}
+
+.profile-right {
+    padding: 3rem;
+    overflow-y: auto;
+    height: 100%;
+    position: relative;
+
+    @include custom-scrollbar;
+
+    @include mobile {
+        padding: 1.5rem;
+    }
+}
+
+
+/* =========================================
+   2. SETTINGS VIEW (Robust Flex Layout)
+   ========================================= */
+
+.options-body-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    overflow: hidden;
+    height: 100%;
+    min-height: 0;
+}
+
+.options-col-left {
+    border-right: 1px solid var(--pico-muted-border-color);
+    padding-right: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.options-col-right {
+    padding-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    min-height: 0;
+}
+
+// CRITICAL FIX: Switched to Flex Column for reliability
+// Grid was fragile with mixed element types. Flex stack is bulletproof.
+#settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+
+    // Enable scrolling
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+
+    @include custom-scrollbar;
+
+    // Standard Inputs
+    >label {
+        font-weight: 700;
+        color: var(--pico-muted-color);
+        margin-bottom: 0.25rem;
+        text-align: left;
+    }
+
+    >textarea,
+    >input:not([type="checkbox"]),
+    >select {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    // Director Mode Toggle (Fieldset)
+    >fieldset {
+        margin: 0.5rem 0;
+        padding: 1rem;
+        border: 1px solid var(--pico-muted-border-color);
+        border-radius: var(--pico-radius);
+        background: rgb(255 255 255 / 3%);
+
+        label {
+            font-weight: normal;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            width: 100%;
+            margin: 0;
+        }
+
+        input[type="checkbox"] {
+            margin: 0;
+        }
+    }
+}
+
+.options-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--pico-muted-border-color);
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+
+/* =========================================
+   TYPOGRAPHY & INPUTS
+   ========================================= */
+
+.profile-name-display,
+.profile-name-input {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    color: #fff;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    padding: 0;
+    background: transparent;
+    border: none;
+    resize: none;
+    text-align: left;
+
+    &:focus {
+        outline: none;
+        border-bottom: 2px solid var(--pico-primary);
+    }
+
+    @include mobile {
+        font-size: 2rem;
+    }
+}
+
+.profile-desc-display,
+.profile-desc-input {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    opacity: 0.8;
+    color: inherit;
+    width: 100%;
+    margin-bottom: 2rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--pico-radius);
+    resize: none;
+    text-align: left !important;
+
+    &.profile-desc-input {
+        padding: 0.75rem;
+        background: rgb(0 0 0 / 20%);
+        border-color: var(--pico-muted-border-color);
+        min-height: 100px;
+
+        &:focus {
+            border-color: var(--pico-primary);
+            outline: none;
+        }
+    }
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 2rem;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1.5rem;
+
+    .field-label {
+        text-align: right;
+        line-height: 1.2;
+
+        label {
+            font-weight: 700;
+            color: var(--pico-h3-color);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            margin: 0;
+        }
+
+        small {
+            color: var(--pico-muted-color);
+            font-size: 0.8rem;
+            display: block;
+        }
+    }
+
+    .field-input {
+        width: 100%;
+
+        textarea,
+        input {
+            text-align: left !important;
+            width: 100%;
+        }
+
+        .profile-field-text-read {
+            padding: 0.75rem;
+            background: rgb(255 255 255 / 3%);
+            border-radius: var(--pico-radius);
+            white-space: pre-wrap;
+            line-height: 1.5;
+            text-align: left;
+        }
+    }
+}
+
+[data-edit-field] {
+    display: none;
+}
+
+[data-read-field] {
+    display: block;
+}
+
+.is-editing {
+    [data-read-field] {
+        display: none;
+    }
+
+    [data-edit-field] {
+        display: block;
+    }
+
+    .profile-hero-overlay {
+        display: flex;
+    }
+}
+
+.profile-actions-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--pico-muted-border-color);
+}
+
+#user-character-display,
+#narrator-character-display {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+
+    @include tablet {
+        display: none;
+    }
+
+    .picture {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+
+        img {
+            object-fit: cover;
+        }
+    }
+
+    .character-name {
+        display: none;
+    }
+}
+
+#user-character-display {
+    grid-column: 1;
+}
+
+#narrator-character-display {
+    grid-column: 3;
+}
+
+.thought-trace {
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+    background: rgb(15 23 42 / 70%);
+    color: #9cdb9c;
+    font-family: monospace;
+    font-size: 0.85rem;
+    border-left: 3px solid var(--pico-warning);
+    border-radius: 2px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.story-message[data-type="DEBUG"] {
+    align-self: center !important;
+    max-width: 80%;
+    background: rgb(255 165 0 / 15%) !important;
+    border: 1px solid rgb(255 165 0 / 50%) !important;
+    color: #f90 !important;
+    font-weight: 600;
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.muted-heading {
+    color: var(--pico-muted-color);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    padding-bottom: 0.5rem;
+    text-align: center;
+}
+
+/* Story List (Load Game) */
+.story-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+
+    @include custom-scrollbar;
+}
+
+.story-item {
+    margin-bottom: 0.75rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--pico-card-background-color);
+    border-radius: var(--pico-radius);
+    border: 1px solid transparent;
+
+    &:hover {
+        border-color: var(--pico-primary);
+    }
+}
+
+@include mobile {
+    .options-body-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        gap: 2rem;
+        overflow: visible;
+    }
+
+    .options-col-left {
+        border-right: none;
+        border-bottom: 1px solid var(--pico-muted-border-color);
+        padding-right: 0;
+        padding-bottom: 1rem;
+        max-height: 300px;
+    }
+
+    .options-col-right {
+        padding-left: 0;
+    }
+
+    .field-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+
+        .field-label {
+            text-align: left;
+            display: flex;
+            gap: 0.5rem;
+            align-items: baseline;
+        }
+    }
+}
