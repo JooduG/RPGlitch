@@ -46,59 +46,80 @@ const App = {
     window.StoryController = StoryController;
     window.StoryboardController = StoryboardController;
 
-    // 1. Initialize Views
-    App.views = await initViews({
-      refreshAllLists: async () => { log("Refreshed lists"); },
-      onSelectionChanged: (sel) => {
-        applyPatch({
-          selectedAI: sel.aiCharacter,
-          selectedUser: sel.userCharacter,
-          selectedWorld: sel.world
+    try {
+      console.log("[Universal Stage] Initializing Views...");
+      // 1. Initialize Views
+      App.views = await initViews({
+        refreshAllLists: async () => { log("Refreshed lists"); },
+        onSelectionChanged: (sel) => {
+          applyPatch({
+            selectedAI: sel.aiCharacter,
+            selectedUser: sel.userCharacter,
+            selectedWorld: sel.world
+          });
+        }
+      });
+      console.log("[Universal Stage] Views Initialized.");
+
+      console.log("[Universal Stage] Initializing Storyboard Stage...");
+      // 2. Initialize Storyboard Stage
+      initStoryboardStage(App.views);
+      console.log("[Universal Stage] Storyboard Stage Initialized.");
+
+      // 3. Bind Chat Input Events
+      const form = document.querySelector("#story-form");
+      if (form) {
+        const input = form.querySelector('input[name="message"]');
+        const btn = form.querySelector('button[type="submit"]');
+
+        input?.addEventListener("input", () => {
+          // MODIFIED: Check if button is locked before enabling
+          const isLocked = btn && btn.dataset.locked === "true";
+          if (btn) {
+            btn.disabled = isLocked || !input.value.trim();
+          }
+        });
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const val = input.value.trim();
+          if (val) {
+            input.value = "";
+            // Note: StoryController.send will call setSendLock(true),
+            // but disabling here locally feels snappier.
+            if (btn) btn.disabled = true;
+            await StoryController.send(val);
+          }
         });
       }
-    });
 
-    // 2. Initialize Storyboard
-    initStoryboardStage(App.views);
+      // 4. Story Options Wiring
+      StoryOptionsController.init();
 
-    // 3. Bind Chat Input Events
-    const form = document.querySelector("#story-form");
-    if (form) {
-      const input = form.querySelector('input[name="message"]');
-      const btn = form.querySelector('button[type="submit"]');
+      // 5. Settings Form Wiring
+      const directorToggle = document.querySelector("#setting-director-mode");
+      if (directorToggle) {
+        directorToggle.checked = state.settings.directorMode;
+        directorToggle.addEventListener("change", (e) => applyPatch({ settings: { directorMode: e.target.checked } }));
+      }
 
-      input?.addEventListener("input", () => {
-        // MODIFIED: Check if button is locked before enabling
-        const isLocked = btn && btn.dataset.locked === "true";
-        if (btn) {
-          btn.disabled = isLocked || !input.value.trim();
-        }
-      });
+      const customInstructions = document.querySelector("#setting-custom-instructions");
+      if (customInstructions) {
+        // Placeholder for future custom instructions logic
+      }
 
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const val = input.value.trim();
-        if (val) {
-          input.value = "";
-          // Note: StoryController.send will call setSendLock(true),
-          // but disabling here locally feels snappier.
-          if (btn) btn.disabled = true;
-          await StoryController.send(val);
-        }
-      });
+      log("[Universal Stage] Ready.");
+
+      // Remove loading modal
+      const loadingModal = document.getElementById('loading-modal');
+      if (loadingModal) loadingModal.close();
+      console.log("[Universal Stage] Loading modal closed.");
+
+    } catch (e) {
+      console.error("[Universal Stage] Initialization failed:", e);
+      const emergencyModal = document.getElementById('emergency-modal');
+      if (emergencyModal) emergencyModal.showModal();
     }
-
-    // 4. Story Options Wiring
-    StoryOptionsController.init();
-
-    // 5. Settings Form Wiring
-    const promptInput = document.querySelector("#opening-prompt");
-    if (promptInput) promptInput.addEventListener("input", (e) => applyPatch({ settings: { openingPrompt: e.target.value } }));
-
-    const jsInput = document.querySelector("#custom-js");
-    if (jsInput) jsInput.addEventListener("input", (e) => applyPatch({ settings: { customJs: e.target.value } }));
-
-    log("[Universal Stage] Ready.");
   },
 
   setupPlugins: function () {

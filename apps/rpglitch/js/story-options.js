@@ -1,20 +1,30 @@
-// apps/rpglitch/js/story-options.js
 import { db } from "./core-db.js";
-import { StoryController } from "./manager-turns.js";
 import { applyPatch, state } from "./app-state.js";
-import { escapeHtml } from "./core-utils.js";
 import { router } from "./ui-views.js";
 
 export const StoryOptionsController = {
   init() {
     const modal = document.querySelector("#story-options");
-    const btn = document.querySelector("#btn-options");
-    const closeBtn = modal?.querySelector(".close-modal");
-    const newStoryBtn = modal?.querySelector("#btn-new-story");
-    const resetBtn = modal?.querySelector("#settings-reset");
-    const directorModeToggle = modal?.querySelector("#director-mode-toggle");
+    if (!modal) return;
 
-    if (!modal || !btn) return;
+    // Inject Template Content if empty
+    const contentContainer = modal.querySelector(".modal-content");
+    if (contentContainer && !contentContainer.querySelector(".settings-body")) {
+      const tpl = document.getElementById("tpl-settings-modal");
+      if (tpl) {
+        contentContainer.innerHTML = ""; // Clear existing
+        contentContainer.appendChild(tpl.content.cloneNode(true));
+      }
+    }
+
+    const btn = document.querySelector("#btn-options");
+    const closeBtn = modal.querySelector(".close");
+    const newStoryBtn = modal.querySelector("#btn-new-story");
+    const resetBtn = modal.querySelector("#btn-reset-story");
+    const directorModeToggle = modal.querySelector("#setting-director-mode");
+    const customJsInput = modal.querySelector("#setting-custom-js");
+
+    if (!btn) return;
 
     // Open Options
     btn.addEventListener("click", (e) => {
@@ -23,7 +33,11 @@ export const StoryOptionsController = {
     });
 
     // Close Options
-    closeBtn?.addEventListener("click", () => StoryOptionsController.close());
+    closeBtn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      StoryOptionsController.close();
+    });
+
     modal.addEventListener("click", (e) => {
       if (e.target === modal) StoryOptionsController.close();
     });
@@ -45,6 +59,7 @@ export const StoryOptionsController = {
 
     // Director Mode Wiring
     if (directorModeToggle) {
+      directorModeToggle.checked = !!state.settings.directorMode;
       directorModeToggle.addEventListener("change", (e) => {
         const isChecked = e.target.checked;
         applyPatch({ settings: { directorMode: isChecked } });
@@ -53,13 +68,32 @@ export const StoryOptionsController = {
         }
       });
     }
+
+    // Custom JS Wiring
+    if (customJsInput) {
+      // Load saved custom JS
+      db.settings.get("app-settings").then(s => {
+        if (s && s.customJs) customJsInput.value = s.customJs;
+      });
+
+      customJsInput.addEventListener("input", (e) => {
+        const val = e.target.value;
+        applyPatch({ settings: { customJs: val } });
+        // Debounced save to DB would be ideal here, but simple patch is fine for now
+        db.settings.get("app-settings").then(s => {
+          const newSettings = s || { id: "app-settings" };
+          newSettings.customJs = val;
+          db.settings.put(newSettings);
+        });
+      });
+    }
   },
 
   open() {
     const modal = document.querySelector("#story-options");
     if (!modal) return;
 
-    const directorModeToggle = modal.querySelector("#director-mode-toggle");
+    const directorModeToggle = modal.querySelector("#setting-director-mode");
     if (directorModeToggle) {
       directorModeToggle.checked = !!state.settings.directorMode;
     }
@@ -68,7 +102,10 @@ export const StoryOptionsController = {
     // CRITICAL FIX: Add the class required by _layout-modal.scss
     modal.classList.add("is-open");
 
-    StoryOptionsController.renderStories();
+    // Only render stories if we have a list container (which we removed in the new template, 
+    // but we might want to add back later or in a separate tab. For now, we skip it 
+    // or we could add a "Load Story" button that opens a separate modal)
+    // StoryOptionsController.renderStories(); 
   },
 
   close() {
@@ -85,68 +122,8 @@ export const StoryOptionsController = {
   },
 
   async renderStories() {
-    const list = document.querySelector("#story-list");
-    if (!list) return;
-
-    list.innerHTML = '<div aria-busy="true">Loading...</div>';
-
-    try {
-      const stories = await db.stories.orderBy("updatedAt").reverse().toArray();
-      list.innerHTML = "";
-
-      if (stories.length === 0) {
-        const p = document.createElement("p");
-        p.textContent = "No saved stories.";
-        p.className = "muted";
-        p.style.textAlign = "center";
-        p.style.padding = "2rem 0";
-        list.appendChild(p);
-        return;
-      }
-
-      stories.forEach(s => {
-        const div = document.createElement("div");
-        div.className = "story-item card";
-
-        const info = document.createElement("div");
-        const date = new Date(s.updatedAt).toLocaleDateString();
-        info.innerHTML = `<strong>${escapeHtml(s.storyTitle || "Untitled")}</strong><br><small class="muted">${date}</small>`;
-
-        const actions = document.createElement("div");
-        actions.style.display = "flex";
-        actions.style.gap = "0.5rem";
-
-        const loadBtn = document.createElement("button");
-        loadBtn.className = "primary small";
-        loadBtn.textContent = "Load";
-        loadBtn.onclick = async () => {
-          await StoryController.load(s.id);
-          StoryOptionsController.close();
-        };
-
-        const delBtn = document.createElement("button");
-        delBtn.className = "secondary outline danger small";
-        delBtn.textContent = "Delete";
-        delBtn.onclick = async (e) => {
-          e.stopPropagation();
-          if (confirm("Delete this story?")) {
-            await db.stories.delete(s.id);
-            await db.messages.where("storyId").equals(s.id).delete();
-            StoryOptionsController.renderStories();
-          }
-        };
-
-        actions.appendChild(loadBtn);
-        actions.appendChild(delBtn);
-        div.appendChild(info);
-        div.appendChild(actions);
-        list.appendChild(div);
-      });
-
-    } catch (e) {
-      list.textContent = "Failed to load stories.";
-      console.error(e);
-    }
+    // Deprecated for now with new Settings Modal design
+    // We can re-introduce this if we add a "Load Story" tab
   },
 
   startNew() {

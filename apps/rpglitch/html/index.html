@@ -38,42 +38,7 @@
   </dialog>
 
   <div id="story-options" class="modal-overlay" hidden>
-    <div class="modal-content story-options-layout settings-layout">
-      <div class="options-body-grid">
-        <div class="options-col-left">
-          <h3 class="muted-heading">Saved Stories</h3>
-          <div id="story-list" class="story-list">
-          </div>
-        </div>
-
-        <div class="options-col-right">
-          <h3 class="muted-heading">Settings</h3>
-          <p class="muted" style="margin-bottom: 1rem;">Configure your adventure parameters.</p>
-
-          <form id="settings-form" style="flex: 1;">
-            <label for="opening-prompt">Story Prompt</label>
-            <textarea id="opening-prompt" class="profile-desc-input" name="opening-prompt"
-              placeholder="Enter the opening prompt..." autocomplete="off" rows="4"></textarea>
-
-            <fieldset>
-              <label for="director-mode-toggle">
-                <input type="checkbox" id="director-mode-toggle" name="director-mode-toggle" role="switch" />
-                Director Mode (Show AI Thoughts & Physics Logs)
-              </label>
-            </fieldset>
-
-            <label for="custom-js">Custom JavaScript</label>
-            <textarea id="custom-js" class="profile-desc-input" name="custom-js" placeholder="Custom JS (advanced)"
-              autocomplete="off" rows="4"></textarea>
-          </form>
-
-          <div class="options-footer">
-            <button id="btn-new-story" class="primary outline">New Story</button>
-            <button id="settings-reset" class="secondary outline danger">Reset All Data</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="modal-content story-options-layout settings-layout"></div>
   </div>
 
   <main id="main" class="universal-stage story-grid">
@@ -149,9 +114,9 @@
               <input type="text" name="message" placeholder="Type your message..." aria-label="Message"
                 autocomplete="off" />
 
-              <button type="button" id="btn-regenerate" class="secondary outline" title="Re-roll Response"
-                onclick="window.StoryController.regenerate()">
-                🔄
+              <button type="button" id="btn-settings-placeholder" class="secondary outline" title="Settings"
+                onclick="document.getElementById('story-options').removeAttribute('hidden')">
+                ⚙️
               </button>
 
               <button type="submit" disabled>Send</button>
@@ -197,6 +162,31 @@
   </div>
   <div id="entity-drawer-backdrop" class="drawer-backdrop" aria-hidden="true" hidden></div>
 
+  <!-- Settings Modal Content (Injected into story-options) -->
+  <template id="tpl-settings-modal">
+    <header>
+      <h3>Settings</h3>
+      <a href="#close" aria-label="Close" class="close"
+        onclick="document.getElementById('story-options').setAttribute('hidden', '')"></a>
+    </header>
+    <div class="settings-body">
+      <label>
+        <input type="checkbox" id="setting-director-mode">
+        Director's Mode (Show AI Thoughts & Physics Logs)
+      </label>
+      <hr>
+      <label>
+        Custom JavaScript
+        <textarea id="setting-custom-js" placeholder="// Custom JS code here..."></textarea>
+      </label>
+      <hr>
+      <div class="grid">
+        <button class="secondary outline" id="btn-reset-story">Reset Story</button>
+        <button class="contrast outline" id="btn-new-story">New Story</button>
+      </div>
+    </div>
+  </template>
+
   <template id="tpl-profile-page">
     <div class="profile-layout">
       <div class="profile-left">
@@ -224,7 +214,8 @@
           <form>
             <template id="tpl-profile-field-section">
               <div class="field-row">
-                <div class="field-label"><label data-field-label=""></label><small data-field-sublabel=""></small></div>
+                <div class="field-label"><label data-field-label=""></label><small data-field-sublabel=""></small>
+                </div>
                 <div class="field-input">
                   <div data-read-field="" class="profile-field-text-read"></div><textarea data-edit-field=""></textarea>
                 </div>

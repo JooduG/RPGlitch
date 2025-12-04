@@ -34,6 +34,7 @@ npm run deploy
 - **Gemini** → **[GEMINI.md](./GEMINI.md)** - Complete operational protocol
 
 Then reference:
+
 1. **[PERCHANCE.md](./PERCHANCE.md)** - Deployment workflow (manual steps to Perchance.org)
 2. **[design-system.md](./design-system.md)** - UI/UX rules and component specs
 3. **[plan.md](./plan.md)** - Feature backlog and roadmap

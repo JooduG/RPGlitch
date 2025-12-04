@@ -414,9 +414,9 @@ Build process (`build/scripts/build-app.js`):
    - **Example:** After editing views.js → You: [Silent call to getDiagnostics with file URI] → Check for linting errors, type errors, etc.
 
 3. **deepwiki** → Auto-trigger when:
-   - User asks how an open-source library works internally
-   - Discussing framework architecture or best practices
-   - Need documentation for GitHub repos
+   * User asks how an open-source library works internally
+   * Discussing framework architecture or best practices
+   * Need documentation for GitHub repos
 
 4. **time** → Auto-trigger when:
    - User mentions time with timezone

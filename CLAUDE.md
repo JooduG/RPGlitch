@@ -88,10 +88,14 @@ You are proactive, thorough, and prioritize correctness over speed.
 - **Focus:** Delivering elite, production-ready code, implementing tests, debugging
 
 **🖱️ The UI/UX Specialist**
+
 - **Focus:** Designing and implementing clean, intuitive, accessible interfaces
 
 **🛡️ The Security & QA Analyst**
+
 - **Focus:** Identifying and mitigating security risks, ensuring code quality
+
+
 </operational_roles>
 
 <workflow_chain_of_command>
@@ -132,9 +136,9 @@ You are proactive, thorough, and prioritize correctness over speed.
 
 <uiux_rules>
 <rule id="icon-free-mandate">All interactive UI elements (buttons, links, navigation) **MUST** primarily convey their meaning through explicit and concise **text labels**. Icons/emojis may be used as embellishment only.
-  - ❌ Bad: `<button><img src="save.svg"></button>`
-  - ✅ Good: `<button>Save</button>`
-  - ✅ Good: `<button>Save All Data 💾</button>`
+- ❌ Bad: `<button><img src="save.svg"></button>`
+- ✅ Good: `<button>Save</button>`
+- ✅ Good: `<button>Save All Data 💾</button>`
 </rule>
 <rule id="semantic-html">Use HTML5 semantic elements (`<main>`, `<nav>`, `<header>`, `<article>`, etc.) appropriately. Avoid excessive `<div>` and `<span>`.</rule>
 <rule id="alt-attributes">All `<img>` tags **MUST** have descriptive `alt` attributes.</rule>
@@ -155,25 +159,25 @@ You are proactive, thorough, and prioritize correctness over speed.
 
 <git_commit_rules>
 <rule id="conventional-commits">Use format: `<type>(<scope>): <subject>`
-  - **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `build`
-  - **Scopes:** `rpglitch`, `imageglitch`, `core`, `build`, `docs`, `deps`
-  - **Examples:**
-    * `feat(rpglitch): add character import feature`
-    * `fix(imageglitch): correct aspect ratio calculation`
-    * `docs(claude): update build instructions`
+- **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `build`
+- **Scopes:** `rpglitch`, `imageglitch`, `core`, `build`, `docs`, `deps`
+- **Examples:**
+- `feat(rpglitch): add character import feature`
+- `fix(imageglitch): correct aspect ratio calculation`
+- `docs(claude): update build instructions`
 </rule>
 </git_commit_rules>
 
 <codacy_integration_rules>
 <rule id="codacy-after-edit">IMMEDIATELY after ANY successful file edit, run `codacy_cli_analyze` tool with:
-  - `rootPath`: workspace path
-  - `file`: edited file path
-  - `tool`: leave empty
+    - `rootPath`: workspace path
+    - `file`: edited file path
+    - `tool`: leave empty
 </rule>
 <rule id="codacy-after-deps">IMMEDIATELY after ANY package manager operation (npm install, adding deps to package.json, etc.), run `codacy_cli_analyze` with:
-  - `rootPath`: workspace path
-  - `tool`: "trivy"
-  - `file`: leave empty
+    - `rootPath`: workspace path
+    - `tool`: "trivy"
+    - `file`: leave empty
 </rule>
 <rule id="codacy-fix-first">If security issues found, STOP and fix before continuing.</rule>
 <rule id="codacy-params">Always use provider: `gh`, organization: `JooduG`, repository: `default` for Codacy tools.</rule>
@@ -235,6 +239,7 @@ default/
 | **JavaScript** | ES6+ modules (vanilla) | Pure, modular, no frameworks |
 | **Security** | DOMPurify | XSS prevention on all HTML |
 | **Build** | esbuild + PostCSS | Compile & inline into single HTML |
+
 </tech_stack>
 
 </system_architecture>
@@ -249,6 +254,7 @@ default/
 The Perchance platform uses a unique two-panel system:
 
 **Left Panel (Perchance Engine):**
+
 - Location: `apps/rpglitch/RPGlitch-left-panel.txt`, `apps/imageglitch/ImageGlitch-left-panel.txt`
 - Contains: Plugin imports (`{import:plugin-name}`), Perchance lists, engine configuration
 - Deployment: **Manual copy-paste** into Perchance editor (NOT processed by build system)
@@ -267,6 +273,7 @@ Perchance plugins load **asynchronously** after the left-panel is parsed. The ch
 **Three-Step Exposure Pattern:**
 
 **Step 1: Import in Left Panel:**
+
 ```perchance
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
@@ -294,6 +301,7 @@ pluginUpload = upload
 ```
 
 **Step 3: Copy to Standard Names in JavaScript:**
+
 ```javascript
 function setupPlugins() {
   const pluginMap = {
@@ -312,6 +320,7 @@ function setupPlugins() {
 ```
 
 **Step 4: Wait for Plugins:**
+
 ```javascript
 async function waitForPlugins(requiredPlugins, timeout = 10000) {
   const startTime = Date.now();
@@ -323,6 +332,7 @@ async function waitForPlugins(requiredPlugins, timeout = 10000) {
   return false;
 }
 ```
+
 </plugin_integration>
 
 <available_plugins>
@@ -348,6 +358,7 @@ async function waitForPlugins(requiredPlugins, timeout = 10000) {
 <development_workflow>
 
 <environment_setup>
+
 - **Environment:** Node.js 22 with npm
 - **DIRECTIVE:** Use `npm ci` for installing dependencies (reproducible builds from `package-lock.json`). Use `npm install` only when adding/updating packages.
 - **DIRECTIVE:** Use `.nvmrc` to manage Node.js version. Run `nvm use` upon entering the project.
@@ -398,6 +409,7 @@ Build process (`build/scripts/build-app.js`):
 </build_process>
 
 <deployment_to_perchance>
+
 1. **Build locally**: `npm run deploy` (runs sync → lint → build → test)
 2. **Copy left panel**: Open `apps/rpglitch/RPGlitch-left-panel.txt`, copy entire contents
 3. **Paste to Perchance**: Paste into Perchance editor's **Left Panel** (Lists section)
@@ -477,22 +489,11 @@ Build process (`build/scripts/build-app.js`):
 <mcp name="playwright-chrome-devtools" trigger="conditional">
 **Use for:**
 - Testing live websites
-- Taking screenshots for documentation
-</mcp>
-</conditional_usage>
-
-<execution_patterns>
-**Pattern Alpha: Silent Enhancement**
-```
-User Request → [MCP call(s)] → Enhanced Response (no MCP announcement)
-```
-
-**Pattern Beta: Parallel Intelligence**
 ```
 Complex Task → [Multiple MCP calls in parallel] → Synthesized Analysis
 ```
 
-**Pattern Gamma: Chain of Insight**
+### Pattern Gamma: Chain of Insight
 ```
 Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 ```
@@ -512,6 +513,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 </mcp_operational_rules>
 
 <mcp_configuration>
+
 - **Master File:** `mcp.master.json` (version controlled)
 - **Generated Files:** `mcp.json`, `.mcp.json` (gitignored)
 - **Sync Command:** `npm run sync:mcp` (generates files)
@@ -543,16 +545,16 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 <visual_system>
 **Color System:**
 - **Background (Global):** 4-stop linear gradient
-  * `$gradient-color-1: #181c2f`
-  * `$gradient-color-2: #23243a`
-  * `$gradient-color-3: #1a3a4a`
-  * `$gradient-color-4: #2a1a3a`
+  - `$gradient-color-1: #181c2f`
+  - `$gradient-color-2: #23243a`
+  - `$gradient-color-3: #1a3a4a`
+  - `$gradient-color-4: #2a1a3a`
 - **Signature Colors:**
-  * Pink: `#ec4899`
-  * Emerald: `#10b981`
-  * Cyan: `#06b6d4`
-  * Orange: `#f97316`
-  * Purple: `#a855f7`
+  - Pink: `#ec4899`
+  - Emerald: `#10b981`
+  - Cyan: `#06b6d4`
+  - Orange: `#f97316`
+  - Purple: `#a855f7`
 
 **Typography:**
 - Inherited from Pico.css (system font stack)
@@ -581,6 +583,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 - Closes on ESC key or backdrop click
 
 **Chat View (RPGlitch):**
+
 - Three-column layout (desktop): AI avatar | chat feed | user avatar
 - Single-column layout (mobile): Compact design
 - Distinct styling for `role="user"` and `role="assistant"` messages
@@ -601,12 +604,14 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 - Use template literals (backticks) for all string construction with variables
 
 **Architecture & Modules:**
+
 - **DIRECTIVE:** All JavaScript **MUST** use `import`/`export`. **IIFEs are FORBIDDEN.**
 - **DIRECTIVE:** Prefer plain JavaScript objects with interface/type declarations over class syntax.
 - **DIRECTIVE:** Embrace ES Module Syntax for encapsulation. Unexported functions/variables are private.
 - **RULE:** IndexedDB (via Dexie.js) is the **SINGLE SOURCE OF TRUTH** for application state.
 
 **DOM Manipulation:**
+
 - **DIRECTIVE:** Use Vanilla DOM APIs (`querySelector`, `addEventListener`, `classList`, `textContent`).
 - **AVOID** `innerHTML` for dynamic content. Use `textContent` or `createElement`.
 
@@ -617,6 +622,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 - **DIRECTIVE:** Avoid `any`; prefer `unknown` when type is truly unknown.
 
 **Security:**
+
 - **DIRECTIVE:** `DOMPurify.sanitize()` is MANDATORY before assigning to `innerHTML`.
 </javascript_best_practices>
 
@@ -720,6 +726,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 
 <good_patterns>
 **Database-first state updates:**
+
 ```javascript
 // Update database first, then UI reacts
 await db.entities.update(entityId, { name: newName });

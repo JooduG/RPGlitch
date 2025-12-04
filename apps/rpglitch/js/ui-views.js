@@ -1,6 +1,7 @@
 // apps/rpglitch/js/ui-views.js
 import { entities, copyEntity } from "./entity-crud.js"; // entities, copyEntity
 import { getPictureHTML, getSignature } from "./entity-structs.js"; // getPictureHTML, getSignature
+import { state } from "./app-state.js";
 
 import {
   escapeHtml, handleAsyncError, dismissLoadingUI,
@@ -164,8 +165,6 @@ export async function renderProfilePage(type, id) {
   screen.removeAttribute("hidden");
   document.body.classList.add("profile-view-active");
   screen.classList.add("is-open");
-
-  const isGameplay = document.body.classList.contains("mode-gameplay");
 
   const isWorld = type === 'world';
 
@@ -395,90 +394,118 @@ export async function renderProfilePage(type, id) {
       input.addEventListener('input', () => autoResize(input));
       div.querySelector(".field-input").appendChild(input);
       div.querySelector("[data-read]").style.display = "none";
-      setTimeout(() => autoResize(input), 0);
     }
-    return div;
+    secWrap.appendChild(div);
   };
 
-  Object.entries(SECTION_DEFINITIONS).forEach(([key, def]) => {
-    secWrap.appendChild(createRow(key, def));
-  });
+  Object.keys(SECTION_DEFINITIONS).forEach(k => createRow(k, SECTION_DEFINITIONS[k]));
 
-  screen.appendChild(layout);
-
-  // --- ACTIONS ---
-
-  if (!isGameplay) {
-    const footerActions = document.createElement("div");
-    footerActions.className = "profile-actions-footer";
+  // --- DYNAMICS (Director's Mode) ---
+  if (state.settings.directorMode) {
+    const dynRow = document.createElement("div");
+    dynRow.className = "field-row";
+    const dyns = entity.dynamics || { entropy: 50, permeability: 50, velocity: 50, resonance: 50 };
 
     if (isEditing) {
-      // SAVE
-      const saveBtn = document.createElement("button");
-      saveBtn.className = "primary"; saveBtn.textContent = "Save";
-      saveBtn.onclick = async (e) => {
-        e.preventDefault();
-        const nameVal = screen.querySelector('[data-edit-field="name"]').value.trim();
-        if (!nameVal) return alert("Name is required");
-
-        const tagsInput = screen.querySelector('[data-edit-field="tags"]').value;
-        const tagsArray = tagsInput.split(",").map(t => t.trim()).filter(Boolean);
-
-        const data = {
-          name: escapeHtml(nameVal),
-          description: escapeHtml(screen.querySelector('[data-edit-field="description"]').value.trim()),
-          profilePictureUrl: escapeHtml(imageInput.value.trim()),
-          signatureColour: escapeHtml(paletteSelect.value.trim()),
-          tags: tagsArray
-        };
-        Object.keys(SECTION_DEFINITIONS).forEach(k => {
-          const el = screen.querySelector(`[data-edit-field="${k}"]`);
-          if (el) data[k] = escapeHtml(el.value.trim());
-        });
-
-        await entities.upsert(type, id === "new" || entity.isPremade ? data : { ...data, id });
-        if (id === "new") closeProfileModal();
-        else { entity = await entities.get(type, id); setEditMode(false); }
-      };
-
-      // DELETE
-      if (!entity.isPremade && id !== "new") {
-        const delBtn = document.createElement("button");
-        delBtn.className = "secondary outline danger"; delBtn.textContent = "Delete";
-        delBtn.onclick = async (e) => {
-          e.preventDefault();
-          if (confirm("Delete this entity?")) { await entities.remove(type, id); closeProfileModal(); if (_refreshAllLists) _refreshAllLists(); }
-        };
-        footerActions.appendChild(delBtn);
-      }
-      footerActions.appendChild(saveBtn);
-
+      dynRow.innerHTML = `
+                <div class="field-label"><label>Dynamics</label><small class="muted">Director's Mode</small></div>
+                <div class="field-input" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                    ${['entropy', 'permeability', 'velocity', 'resonance'].map(k => `
+                        <label style="font-size: 0.8rem; text-transform: capitalize;">
+                            ${k} <input type="number" data-edit-dynamic="${k}" value="${dyns[k] || 50}" min="0" max="100">
+                        </label>
+                    `).join('')}
+                </div>`;
     } else {
-      // EDIT / CLONE
-      const actionBtn = document.createElement("button");
-      if (entity.isPremade) {
-        actionBtn.className = "primary"; actionBtn.textContent = "Clone";
-        actionBtn.onclick = async (e) => {
-          e.preventDefault();
-          const newEntity = await copyEntity(type, entity.id);
-          if (newEntity) { window.ephemeralEntity = newEntity; openProfileModal(type, "new"); }
-        };
-      } else {
-        actionBtn.className = "secondary outline"; actionBtn.textContent = "Edit";
-        actionBtn.onclick = (e) => { e.preventDefault(); setEditMode(true); };
-      }
-      footerActions.appendChild(actionBtn);
+      dynRow.innerHTML = `
+                <div class="field-label"><label>Dynamics</label><small class="muted">Director's Mode</small></div>
+                <div class="field-input">
+                    <div class="profile-field-text-read" style="font-family: monospace; font-size: 0.85rem;">
+                        ${['entropy', 'permeability', 'velocity', 'resonance'].map(k => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${dyns[k] || 50}`).join(' | ')}
+                    </div>
+                </div>`;
     }
-
-    layout.querySelector(".profile-right-content").appendChild(footerActions);
+    secWrap.appendChild(dynRow);
   }
+
+  // --- FOOTER ACTIONS ---
+  const footerActions = document.createElement("div");
+  footerActions.className = "profile-actions-footer";
+
+  if (isEditing) {
+    // SAVE
+    const saveBtn = document.createElement("button");
+    saveBtn.className = "primary"; saveBtn.textContent = "Save";
+    saveBtn.onclick = async (e) => {
+      e.preventDefault();
+      const nameVal = screen.querySelector('[data-edit-field="name"]').value.trim();
+      if (!nameVal) return alert("Name is required");
+
+      const tagsInput = screen.querySelector('[data-edit-field="tags"]').value;
+      const tagsArray = tagsInput.split(",").map(t => t.trim()).filter(Boolean);
+
+      const data = {
+        name: escapeHtml(nameVal),
+        description: escapeHtml(screen.querySelector('[data-edit-field="description"]').value.trim()),
+        profilePictureUrl: escapeHtml(imageInput.value.trim()),
+        signatureColour: escapeHtml(paletteSelect.value.trim()),
+        tags: tagsArray
+      };
+      Object.keys(SECTION_DEFINITIONS).forEach(k => {
+        const el = screen.querySelector(`[data-edit-field="${k}"]`);
+        if (el) data[k] = escapeHtml(el.value.trim());
+      });
+
+      if (state.settings.directorMode) {
+        const dyn = {};
+        ['entropy', 'permeability', 'velocity', 'resonance'].forEach(k => {
+          const el = screen.querySelector(`[data-edit-dynamic="${k}"]`);
+          if (el) dyn[k] = parseInt(el.value, 10) || 0;
+        });
+        data.dynamics = dyn;
+      }
+
+      await entities.upsert(type, id === "new" || entity.isPremade ? data : { ...data, id });
+      if (id === "new") closeProfileModal();
+      else { entity = await entities.get(type, id); setEditMode(false); }
+    };
+
+    // DELETE
+    if (!entity.isPremade && id !== "new") {
+      const delBtn = document.createElement("button");
+      delBtn.className = "secondary outline danger"; delBtn.textContent = "Delete";
+      delBtn.onclick = async (e) => {
+        e.preventDefault();
+        if (confirm("Delete this entity?")) { await entities.remove(type, id); closeProfileModal(); if (_refreshAllLists) _refreshAllLists(); }
+      };
+      footerActions.appendChild(delBtn);
+    }
+    footerActions.appendChild(saveBtn);
+
+  } else {
+    // EDIT / CLONE
+    const actionBtn = document.createElement("button");
+    if (entity.isPremade) {
+      actionBtn.className = "primary"; actionBtn.textContent = "Clone";
+      actionBtn.onclick = async (e) => {
+        e.preventDefault();
+        const newEntity = await copyEntity(type, entity.id);
+        if (newEntity) { window.ephemeralEntity = newEntity; openProfileModal(type, "new"); }
+      };
+    } else {
+      actionBtn.className = "secondary outline"; actionBtn.textContent = "Edit";
+      actionBtn.onclick = (e) => { e.preventDefault(); setEditMode(true); };
+    }
+    footerActions.appendChild(actionBtn);
+  }
+
+  layout.querySelector(".profile-right-content").appendChild(footerActions);
 
   screen.onclick = (e) => { if (e.target === screen) closeProfileModal(); };
   if (imageOverlay) imageOverlay.style.display = isEditing ? "flex" : "none";
 }
 
-// --- INITIALIZATION (REMAINS HERE) ---
-
+// --- INITIALIZATION ---
 export async function initViews(deps = {}) {
   _refreshAllLists = deps.refreshAllLists;
 

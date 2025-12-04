@@ -144,13 +144,12 @@ async function build(appName) {
         const dom = new JSDOM(htmlContent, { virtualConsole });
         const { document } = dom.window;
 
-        // Inject CSS
+        // --- INJECT CSS ---
         const styleTag = document.createElement("style");
         styleTag.textContent = cssContent;
         document.head.appendChild(styleTag);
 
-        // Remove existing script tags to prevent duplicates
-        Array.from(document.querySelectorAll('script[src="js/index.js"]')).forEach(s => s.remove());
+
 
         // --- INJECT JAVASCRIPT ---
         // Read vendored libraries once (used by both loaders)
@@ -204,7 +203,34 @@ async function build(appName) {
         }
         console.log("✅ Injected CSS and JS into HTML.");
 
-        const finalHtml = dom.serialize();
+        let finalHtml = dom.serialize();
+
+        // --- FINAL CLEANUP: Forcefully remove external references via string replacement ---
+        // JSDOM manipulation sometimes fails to persist removals in serialization, so we do it here.
+
+        // Remove stylesheets
+        finalHtml = finalHtml.replace(/<link[^>]*href="[^"]*pico\.min\.css"[^>]*>/g, '<!-- pico.min.css removed -->');
+        finalHtml = finalHtml.replace(/<link[^>]*href="[^"]*index\.scss"[^>]*>/g, '<!-- index.scss removed -->');
+
+        // Remove scripts
+        const scriptsToRemove = [
+            '../js/index.js',
+            'js/index.js',
+            '../../../build/local_libs/dexie.js',
+            '../../../build/local_libs/cash.min.js',
+            '../../../build/local_libs/purify.min.js',
+            '../../../build/local_libs/_hyperscript.min.js'
+        ];
+
+        scriptsToRemove.forEach(src => {
+            // Escape special regex characters in the src path
+            const escapedSrc = src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`<script[^>]*src="${escapedSrc}"[^>]*><\/script>`, 'g');
+            finalHtml = finalHtml.replace(regex, `<!-- ${src} removed -->`);
+        });
+
+        console.log("✅ Performed final string cleanup of external tags.");
+
         const finalOutputName = appName === 'rpglitch' ? 'RPGlitch.html' : `${appName}.html`;
         const finalOutputPath = path.join(OUTPUT_DIR, finalOutputName);
         await fs.writeFile(finalOutputPath, finalHtml);

@@ -48,10 +48,9 @@
         // but usually fixed aspect ratio handles it.
         flex-shrink: 0;
 
-        // CRITICAL FIX: Push Header to top and Actions to bottom
-        // This ensures the Card itself sits exactly in the middle
-        margin-top: auto !important;
-        margin-bottom: auto !important;
+        // CRITICAL FIX: Remove auto margins to allow flex gap to group elements
+        // margin-top: auto !important; // REMOVED
+        // margin-bottom: auto !important; // REMOVED
         flex-grow: 0;
 
         // border: 2px solid red; // DEBUG - Uncomment to verify CSS application

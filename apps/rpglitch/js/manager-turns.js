@@ -3,7 +3,7 @@ import { db } from "./core-db.js";
 import { state, applyPatch } from "./app-state.js";
 import { generateStream } from "./llm-adapter.js";
 import { entities } from "./entity-crud.js";
-import { renderMessage, updatePortraits, setGameplayEntities, showTypingIndicator, removeTypingIndicator, setSendLock, applyWorldAmbience } from "./ui-render-chat.js"; // Renamed imports
+import { renderMessage, updatePortraits, setGameplayEntities, showTypingIndicator, removeTypingIndicator, setSendLock, applyWorldAmbience, setChatGeneratingState } from "./ui-render-chat.js"; // Renamed imports
 import { error } from "./core-utils.js"; // Removed escapeHtml
 import { ContextBuilder } from "./engine-prompt-builder.js"; // Renamed import
 import { analyzeRejection, getDirectorInstruction } from "./engine-variance.js"; // Renamed import
@@ -125,16 +125,113 @@ export const TurnManager = {
 
     if (noMsg) noMsg.hidden = true;
 
-    msgs.forEach(m => renderMessage(
-      feed,
-      m.role,
-      m.text,
-      m.characterName,
-      m.type || "IC",
-      { aiCharacter: ai, userCharacter: user }
-    ));
+    // Identify last user message
+    const lastUserMsg = msgs.slice().reverse().find(m => m.role === "user");
+    const lastUserMsgId = lastUserMsg ? lastUserMsg.id : null;
+
+    msgs.forEach((m, index) => {
+      const isLast = index === msgs.length - 1;
+      const isLastUserMessage = m.id === lastUserMsgId;
+
+      renderMessage(
+        feed,
+        m.role,
+        m.text,
+        m.characterName,
+        m.type || "IC",
+        { aiCharacter: ai, userCharacter: user },
+        { isLast, messageId: m.id, isLastUserMessage }
+      );
+    });
 
     feed.scrollTop = feed.scrollHeight;
+  },
+
+  editUserMessage: async (messageId, newText) => {
+    const storyId = TurnManager.requireActive();
+
+    // 1. Update the message text
+    await db.messages.update(messageId, { text: newText });
+
+    // 2. Find subsequent AI message(s) to delete (Time Travel)
+    const msgs = await db.messages.where("storyId").equals(storyId).sortBy("createdAt");
+    const msgIndex = msgs.findIndex(m => m.id === messageId);
+
+    if (msgIndex !== -1 && msgIndex < msgs.length - 1) {
+      // Delete all messages AFTER this one
+      const messagesToDelete = msgs.slice(msgIndex + 1);
+      for (const msg of messagesToDelete) {
+        await db.messages.delete(msg.id);
+      }
+      // TODO: Rollback entity state if needed (complex, skipping for now)
+    }
+
+    // 3. Reload and Render to show the update and deletion
+    await TurnManager.loadMessages(storyId);
+    await TurnManager.render(storyId);
+
+    // 4. Trigger Regeneration
+    await TurnManager.generateAiResponse(storyId);
+  },
+
+  editAiMessage: async (messageId, newText) => {
+    const storyId = TurnManager.requireActive();
+    await db.messages.update(messageId, { text: newText });
+    await TurnManager.loadMessages(storyId);
+    await TurnManager.render(storyId);
+  },
+
+  generateAiResponse: async (storyId) => {
+    const story = state.story.byId[storyId];
+    setSendLock(true);
+    setChatGeneratingState(true);
+
+    try {
+      const feed = document.querySelector("#chat-feed");
+      showTypingIndicator(feed, 'ai', story.aiCharacterId);
+
+      const builder = new ContextBuilder(storyId);
+      const payload = await builder.build();
+      const payloadMeta = payload.meta;
+
+      const ctrl = new AbortController();
+      applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
+
+      const response = await generateStream({
+        payload,
+        signal: ctrl.signal,
+        onToken: () => removeTypingIndicator(feed)
+      });
+
+      removeTypingIndicator(feed);
+
+      const aiChar = await entities.get("character", story.aiCharacterId);
+      const aiMsgId = await db.messages.add({
+        storyId,
+        role: "ai",
+        type: "IC",
+        text: response,
+        characterName: aiChar?.name || "Narrator",
+        createdAt: Date.now()
+      });
+
+      await TurnManager.loadMessages(storyId);
+      await TurnManager.render(storyId);
+      applyPatch({ ui: { fsm: "done" } });
+
+      if (payloadMeta && payloadMeta.triggerUpdate) {
+        await TurnManager.runBackgroundUpdate(storyId, payloadMeta.updateTarget, aiMsgId);
+      }
+
+    } catch (e) {
+      error("AI Gen Error", e);
+      alert("AI Generation Failed: " + e.message);
+      const feed = document.querySelector("#chat-feed");
+      if (feed) removeTypingIndicator(feed);
+    } finally {
+      setSendLock(false);
+      setChatGeneratingState(false);
+    }
   },
 
   send: async (text) => {
@@ -144,6 +241,7 @@ export const TurnManager = {
 
     // 1. LOCK UI immediately
     setSendLock(true);
+    setChatGeneratingState(true);
 
     try {
       await db.messages.add({
@@ -210,6 +308,7 @@ export const TurnManager = {
     } finally {
       // 5. UNLOCK UI (Always runs)
       setSendLock(false);
+      setChatGeneratingState(false);
     }
   },
 
@@ -237,6 +336,7 @@ export const TurnManager = {
 
     // LOCK UI
     setSendLock(true);
+    setChatGeneratingState(true);
 
     // === STATE ROLLBACK (Ghost Prevention) ===
     try {
@@ -308,6 +408,7 @@ export const TurnManager = {
       if (feed) removeTypingIndicator(feed);
     } finally {
       setSendLock(false); // UNLOCK
+      setChatGeneratingState(false);
     }
   },
 

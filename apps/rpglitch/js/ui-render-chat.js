@@ -1,23 +1,18 @@
 // apps/rpglitch/js/ui-render-chat.js
-import { state } from "./app-state.js"; // Removed applyPatch
-import { getPictureHTML } from "./entity-structs.js"; // Assumed split (from entities.js)
-import { sanitizeHtml } from "./core-utils.js"; // Removed escapeHtml
+import { state } from "./app-state.js";
+import { getPictureHTML } from "./entity-structs.js";
 
-// Global scope for entity selection (needed by multiple view components)
 const selectedEntities = {
     aiCharacter: null,
     userCharacter: null,
     world: null,
 };
 
-// --- AMBIENCE PURIFICATION (Moved from story-controller/storyboard-controller.js) ---
 export function applyWorldAmbience(world) {
     if (!world || !world.signatureColour) {
         document.documentElement.style.removeProperty('--world-ambience-rgb');
         return;
     }
-
-    // NOTE: This color map remains here temporarily until 'config.js' is built.
     const colorMap = {
         pink: "236, 72, 153", emerald: "16, 185, 129", cyan: "6, 182, 212",
         orange: "249, 115, 22", purple: "168, 85, 247", default: "255, 255, 255"
@@ -26,17 +21,13 @@ export function applyWorldAmbience(world) {
     document.documentElement.style.setProperty('--world-ambience-rgb', rgb);
 }
 
-// Placeholder for entity selection helper (migrated from views.js)
 export function setGameplayEntities(ai, user, world) {
     if (ai) selectedEntities.aiCharacter = ai;
     if (user) selectedEntities.userCharacter = user;
     if (world) selectedEntities.world = world;
 }
 
-// --- CORE RENDERING FUNCTIONS (MIGRATED & MODIFIED) ---
-
 export function updatePortraits(aiCharacter, userCharacter) {
-    // ... (existing portrait logic remains, imported from old views.js)
     const setPort = (id, ent, label) => {
         const container = document.querySelector(id);
         if (!container) return;
@@ -67,14 +58,23 @@ export function updatePortraits(aiCharacter, userCharacter) {
     setPort("#gameplay-user-portrait", userCharacter, "You");
 }
 
-// --- RENDER MESSAGE (Chat Bubbles) - LOBOTOMY REVERSAL ---
-export function renderMessage(container, role, text, characterName, type, entities) {
+export function setChatGeneratingState(isGenerating) {
+    const feed = document.querySelector("#chat-feed");
+    if (feed) {
+        if (isGenerating) {
+            feed.classList.add("generating");
+        } else {
+            feed.classList.remove("generating");
+        }
+    }
+}
+
+export function renderMessage(container, role, text, characterName, type, entities, options = {}) {
     const div = document.createElement("div");
 
     const roleClass = (role === "user" || role === "ai") ? role : "narrator";
     let classList = ["story-message", roleClass];
 
-    // Determine signature color
     let signatureColour = null;
     if (role === "user" && entities?.userCharacter?.signatureColour) {
         signatureColour = entities.userCharacter.signatureColour;
@@ -88,60 +88,128 @@ export function renderMessage(container, role, text, characterName, type, entiti
 
     div.className = classList.join(" ");
     div.setAttribute("role", "log-item");
-    div.setAttribute("data-type", type || "IC"); // Will be 'DEBUG' for physics logs
+    div.setAttribute("data-type", type || "IC");
 
     if (characterName) {
         div.setAttribute("data-character-name", characterName);
     }
 
-    // === CONTENT PIPELINE ===
+    // --- Content Rendering ---
+    let contentHtml = "";
 
-    // 1. STRIP THOUGHTS (MODIFIED: LOBOTOMY REVERSAL FOR DIRECTOR MODE)
-    const isDirectorMode = state.settings.directorMode;
-
-    // Regex to capture the content inside <think> and </think>
-    let rawContent = text.replace(/<think>([\s\S]*?)<\/think>/gi, (match, p1) => {
-        // 1. Sanitize the captured thought content (p1)
-        const sanitizedThought = sanitizeHtml(p1).trim();
-
-        // 2. Wrap the sanitized thought in the new structure
-        // The 'thought-trace' class and 'hidden' attribute are handled by SCSS/JS toggle logic
-        return `
-          <div class="thought-trace" ${isDirectorMode ? '' : 'hidden'}>
-              <strong>// AI Internal Monologue //</strong>
-              <pre>${sanitizedThought}</pre>
-          </div>
-      `;
-    }).trim();
-
-    // 2. SANITIZE (Run Sanitization on the final content after thoughts are extracted/masked)
-    let safeContent = sanitizeHtml(rawContent);
-
-    // 3. LITE MARKDOWN (Preserving Asterisks)
-    safeContent = safeContent.replace(/\*\*([^*]+)\*\*/g, '<strong>**$1**</strong>');
-    safeContent = safeContent.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>*$1*</em>');
-
-    // 4. NAME PREFIX
-    if (characterName && roleClass === "user") {
-        const safeName = sanitizeHtml(characterName);
-        safeContent = `<span class="narrator-prefix">${safeName}:</span> ${safeContent}`;
+    // Director's Mode: Handle <think> tags
+    if (state.settings.directorMode) {
+        // Replace <think> with styled div
+        contentHtml = text.replace(/<think>([\s\S]*?)<\/think>/gi,
+            '<div class="thought-trace"><div class="thought-label">INTERNAL MONOLOGUE</div>$1</div>'
+        );
+    } else {
+        // Remove <think> blocks entirely
+        contentHtml = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
     }
-    // REMOVED: Narrator prefix injection
 
-    div.innerHTML = safeContent;
+    div.innerHTML = contentHtml;
+
+    // --- Message Actions (Hover) ---
+    const actionsDiv = document.createElement("div");
+    actionsDiv.className = "message-actions";
+
+    if (role === "ai" && options.isLast) {
+        // Reroll
+        const btnReroll = document.createElement("button");
+        btnReroll.className = "ghost-icon-btn";
+        btnReroll.innerHTML = "🎲";
+        btnReroll.title = "Reroll Message";
+        btnReroll.onclick = () => {
+            if (window.StoryController) window.StoryController.regenerate();
+        };
+        actionsDiv.appendChild(btnReroll);
+
+        // Edit
+        const btnEdit = document.createElement("button");
+        btnEdit.className = "ghost-icon-btn";
+        btnEdit.innerHTML = "✎";
+        btnEdit.title = "Edit Message";
+        btnEdit.onclick = () => toggleEditMode(div, text, role, options.messageId);
+        actionsDiv.appendChild(btnEdit);
+    } else if (role === "user" && options.isLastUserMessage) {
+        // Edit User Message
+        const btnEdit = document.createElement("button");
+        btnEdit.className = "ghost-icon-btn"; // Use ghost style
+        btnEdit.innerHTML = "✎";
+        btnEdit.title = "Edit Message";
+        btnEdit.onclick = () => toggleEditMode(div, text, role, options.messageId);
+        actionsDiv.appendChild(btnEdit);
+    }
+
+    if (actionsDiv.hasChildNodes()) {
+        div.appendChild(actionsDiv);
+    }
+
     container.appendChild(div);
 }
 
-// --- TYPING INDICATOR / INPUT LOCK LOGIC (MIGRATED) ---
+function toggleEditMode(messageElement, originalText, role, messageId) {
+    if (messageElement.classList.contains("is-editing")) return;
+    messageElement.classList.add("is-editing");
+
+    // Purge thoughts for editing
+    const cleanText = originalText.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
+    const editContainer = document.createElement("div");
+    editContainer.className = "edit-container";
+
+    const textarea = document.createElement("textarea");
+    textarea.value = cleanText;
+    textarea.className = "edit-textarea";
+
+    const controlsDiv = document.createElement("div");
+    controlsDiv.className = "edit-controls";
+
+    const btnSave = document.createElement("button");
+    btnSave.className = "primary small";
+    btnSave.textContent = "Save";
+
+    const btnCancel = document.createElement("button");
+    btnCancel.className = "secondary outline small";
+    btnCancel.textContent = "Cancel";
+
+    controlsDiv.appendChild(btnCancel);
+    controlsDiv.appendChild(btnSave);
+
+    editContainer.appendChild(textarea);
+    editContainer.appendChild(controlsDiv);
+
+    messageElement.appendChild(editContainer);
+    textarea.focus();
+
+    btnCancel.onclick = () => {
+        messageElement.classList.remove("is-editing");
+        editContainer.remove();
+    };
+
+    btnSave.onclick = async () => {
+        const newText = textarea.value.trim();
+        if (!newText) return;
+
+        if (window.StoryController) {
+            if (role === "user") {
+                await window.StoryController.editUserMessage(messageId, newText);
+            } else if (role === "ai") {
+                await window.StoryController.editAiMessage(messageId, newText);
+            }
+        }
+        messageElement.classList.remove("is-editing");
+        editContainer.remove();
+    };
+}
+
 export function showTypingIndicator(container, type = 'ai', entityId = null) {
-    // 1. Cleanup existing
     removeTypingIndicator(container);
 
-    // 2. Create Bubble
     const bubble = document.createElement("div");
     bubble.id = "active-typing-indicator";
 
-    // 3. Resolve Signature Color
     let signatureColour = null;
     if (type === 'ai' && selectedEntities.aiCharacter) {
         signatureColour = selectedEntities.aiCharacter.signatureColour;
@@ -149,7 +217,6 @@ export function showTypingIndicator(container, type = 'ai', entityId = null) {
         signatureColour = selectedEntities.userCharacter.signatureColour;
     }
 
-    // 4. Build Classes
     let classes = ["story-message", "typing-bubble"];
 
     if (type === 'narrator' || type === 'system') {
@@ -158,15 +225,12 @@ export function showTypingIndicator(container, type = 'ai', entityId = null) {
         classes.push("ai");
     }
 
-    // Apply Signature Class
     if (signatureColour && signatureColour !== "default") {
         classes.push(`signature-${signatureColour}`);
     }
 
     bubble.className = classes.join(" ");
 
-    // 5. Content
-    // NOTE: This should ideally use the <template id="tpl-typing-indicator"> from index.html
     bubble.innerHTML = `
     <div class="typing-dot"></div>
     <div class="typing-dot"></div>

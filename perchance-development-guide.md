@@ -16,7 +16,7 @@
 
 ---
 
-# Section 1: The Perchance Engine
+## Section 1: The Perchance Engine
 
 The Perchance platform, at its core, is a robust engine for procedural text generation. Its architecture is built upon a simple yet powerful declarative syntax that allows developers to create complex, randomized outputs from structured lists of data.
 
@@ -153,7 +153,7 @@ This first selects an animal, then a verb, then outputs a formatted sentence usi
 
 ---
 
-# Section 2: Web Technologies
+## Section 2: Web Technologies
 
 A Perchance generator is not merely a script; it is a fully functional, self-contained webpage. The platform seamlessly integrates standard web technologies—HTML, CSS, and JavaScript—allowing developers to build rich, interactive user interfaces.
 
@@ -228,7 +228,7 @@ This separation is crucial: it prevents conflicts between JavaScript syntax (e.g
 
 ---
 
-# Section 3: The Plugin Ecosystem
+## Section 3: The Plugin Ecosystem
 
 Plugins transform Perchance from a self-contained tool into an extensible framework. They are reusable, shareable modules that encapsulate specific functionalities, allowing developers to add complex features with a single line of code.
 
@@ -249,16 +249,20 @@ This makes the plugin's functionality available for use within the generator. Fo
 ## Essential Plugin Categories
 
 **UI and Layout:**
+
 - `layout-maker-plugin`, `navbar-plugin`, `tabs-plugin` - Create sophisticated visual layouts without extensive HTML/CSS
 
 **Interactivity:**
+
 - `tap-plugin` - Click specific outputs to re-randomize them
 - `goto-plugin` - Foundation for text-based adventures
 
 **Data Persistence:**
+
 - `kv-plugin`, `remember-plugin` - Store data that persists across page reloads
 
 **List and Text Manipulation:**
+
 - `filter-list-plugin`, `conjugate-plugin`, `plural-plugin` - Advanced tools for dynamically altering lists and text
 
 ## The AI Plugins
@@ -279,7 +283,7 @@ While the core Perchance engine operates entirely client-side within the user's 
 
 ---
 
-# Section 4: Understanding Language Models
+## Section 4: Understanding Language Models
 
 To effectively develop sophisticated AI applications on Perchance, you must understand the theoretical foundations of Large Language Models (LLMs).
 
@@ -333,7 +337,7 @@ Prompting is not a one-shot process but an experimental cycle. Test prompts with
 
 ---
 
-# Section 5: The AI Character Chat System
+## Section 5: The AI Character Chat System
 
 The Perchance AI Character Chat is a sophisticated, multi-layered context management system designed to harness the power of LLMs while mitigating their inherent weaknesses. It provides developers with a hierarchical set of tools for defining an AI's behavior, managing its knowledge base, and controlling its conversational memory.
 
@@ -349,33 +353,15 @@ This is the foundational and most critical component of a character's definition
 - **Importance:** Due to the importance of contextual consolidation (see Section 4), this field should be as comprehensive as possible
 - **Content:** Core traits, backstory, voice, example dialogues, behavioral constraints
 
-### Reminder Message (Tactical Guidance)
-
-A short, tactical instruction (ideally under 100 words) that is injected into the context immediately before the AI's next response. Its proximity to the point of generation gives it powerful influence due to recency bias.
-
-**Best used for:**
-- "Be more descriptive in your next response"
-- "Remember to portray the character as feeling sad"
-- Temporary, immediate guidance
-
-**Warning:** A long reminder can disrupt conversational flow and should be avoided.
-
-### Initial Messages
-
-Messages that populate the chat thread when a new conversation begins. They are ideal for setting a scene, providing an opening line of dialogue, or establishing the initial roleplay state.
-
-Unlike instruction and reminder messages, initial messages are treated as part of the regular chat history and are subject to being summarized as the conversation grows longer.
-
-### Advanced Formatting
-
-All three fields support an advanced syntax that allows for multiple messages with specified authors (format: `[AUTHOR]: message`). Authors can be `SYSTEM` (default), `AI`, or `USER`.
-
-**Example:**
-```
 [AI]: I'm a dragon.
 [USER]: I'm the queen of the nearby kingdom.
 [SYSTEM]: What follows is a story about the queen and the dragon.
-```
+
+```text
+
+
+
+
 
 ## Building a World: Lorebooks
 
@@ -433,7 +419,7 @@ The chat interface includes a suite of slash commands providing programmatic con
 
 ---
 
-# Section 6: Programming with the `oc` Object
+## Section 6: Programming with the `oc` Object
 
 Beyond its declarative syntax and pre-built tools, Perchance exposes a powerful JavaScript API through the global `oc` object. This API transforms the platform from a simple generator into a fully-fledged, reactive application framework.
 
@@ -517,7 +503,8 @@ The pipeline is an array to which developers can push a function. This function 
 
 **Use Case:** Convert AI output like `[[Attack Goblin]]` into a clickable HTML button for the user, while leaving simple text for the AI to process.
 
-**Example: Text-to-Button Pipeline**
+### Example: Text-to-Button Pipeline
+
 ```javascript
 oc.messageRenderingPipeline.push(function({ message, reader }) {
   if (reader === 'user') {
@@ -584,7 +571,7 @@ Programmatically calls the text-to-image model to generate an image. The prompt 
 
 ---
 
-# Section 7: Architectural Patterns (The Two-Panel Standard)
+## Section 7: Architectural Patterns (The Two-Panel Standard)
 
 For production applications on the Perchance platform, a strict architectural pattern is non-negotiable: the **Two-Panel Architecture**. This pattern solves the fundamental problem of building stateful, complex applications on a platform optimized for text generation.
 
@@ -605,6 +592,7 @@ The Perchance environment is inherently bipartite, consisting of a "Left Panel" 
 ### Left Panel: The Declarative Engine
 
 **Responsibilities:**
+
 - Plugin imports (`{import:plugin-name}`)
 - Static, declarative data structures (lists of names, encounter tables, etc.)
 - Perchance-specific logic
@@ -614,6 +602,7 @@ The Perchance environment is inherently bipartite, consisting of a "Left Panel" 
 ### Right Panel: The Interactive Stage
 
 **Responsibilities:**
+
 - Full Single Page Application (SPA) logic
 - User interactions and event handling
 - Database transactions (IndexedDB)
@@ -624,22 +613,10 @@ The Perchance environment is inherently bipartite, consisting of a "Left Panel" 
 
 ### The Iframe Wall and Unidirectional Flow
 
-The browser enforces a strict security boundary between the two panels. While they share same-origin policy allowing cross-frame communication, **variable scopes are isolated**.
-
-The architecture dictates **unidirectional flow of control**: The App (Right Panel) *pulls* functionality from the Engine (Left Panel). The Engine never pushes updates to the App or manipulates its DOM.
-
-**Benefits:**
-- A crash or reload in the UI does not destabilize the engine
-- The engine can be updated without breaking save data
-- Enables "hot updates" of game content without breaking player save files
-
-## Plugin Exposure Pattern
-
-Perchance plugins initialize in the left-panel context, but the right-panel JavaScript needs to access them. Since the two panels run in separate iframes, a bridge mechanism is required.
-
 ### Three-Step Exposure
 
-**Step 1: Import in Left Panel**
+### Step 1: Import in Left Panel
+
 ```perchance
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
@@ -648,7 +625,8 @@ pluginAi = ai
 pluginTextToImage = textToImage
 ```
 
-**Step 2: Expose to Window in Right Panel HTML**
+### Step 2: Expose to Window in Right Panel HTML
+
 ```html
 <script>
   if (typeof ai !== 'undefined') window.pluginAi = ai;
@@ -657,7 +635,8 @@ pluginTextToImage = textToImage
 <script type="module" src="js/index.js"></script>
 ```
 
-**Step 3: Copy to Standard Names in Right Panel JavaScript**
+### Step 3: Copy to Standard Names in Right Panel JavaScript
+
 ```javascript
 function setupPlugins() {
   const pluginMap = {
@@ -672,7 +651,8 @@ function setupPlugins() {
 }
 ```
 
-**Step 4: Wait for Plugins**
+### Step 4: Wait for Plugins
+
 ```javascript
 async function waitForPlugins(requiredPlugins, timeout = 10000) {
   const startTime = Date.now();
@@ -703,7 +683,8 @@ The architecture treats all text as "radioactive"—it must be decontaminated be
 
 This creates a "whitelist" model of UI generation—significantly more secure than a "blacklist" approach.
 
-**Example: Safe Rendering**
+### Example: Safe Rendering
+
 ```javascript
 function renderHTML(selector, unsafeHtml) {
   if (!window.DOMPurify) {
@@ -757,6 +738,7 @@ Inventory: ${gameState.inventory.join(', ')}
 ### The "Director" Pattern: Input Interception
 
 Intercept user input before it reaches the AI. Regex check for `/` prefix:
+
 - **Slash command detected:** Execute JavaScript function (e.g., `/inventory` opens inventory modal). Do NOT send to oc.thread.
 - **Narrative detected:** Push to oc.thread, triggering AI reply
 
@@ -787,17 +769,20 @@ For applications focused on generative imagery (e.g., image generators), the arc
 
 **Stage 1: Perchance Probability (Left Panel)**
 Determines **content selection**—whether a word/concept appears at all.
+
 ```perchance
 {Option A^2 | Option B}  // Option A is twice as likely to be chosen
 ```
 
 **Stage 2: Diffusion Weighting (Plugin Execution)**
 Determines **attention modulation**—how much the model focuses on a word that is present.
-```
+
+```text
 (keyword:1.2)  // Increase attention by 1.2x
 ```
 
 **Critical Pattern:** Nest weighting *inside* probability selection:
+
 ```perchance
 { (keyword:1.2)^2 | keyword }  // 66% chance with emphasis, 33% without
 ```
@@ -814,7 +799,7 @@ Rather than a single random string, construct prompts from modular components (S
 
 Negative prompts are **mandatory**, not optional. Implement a "Universal Negative" list appended to every request:
 
-```
+```text
 deformed, disfigured, bad anatomy, extra limbs, blurry, watermark, text,
 low quality, jpeg artifacts, pixelated, grainy
 ```
@@ -903,7 +888,7 @@ This enables the app to behave like installed software. The user can close the t
 
 ---
 
-# Section 8: Expert Patterns and Best Practices
+## Section 8: Expert Patterns and Best Practices
 
 Achieving high-quality, consistent, and engaging results with Perchance requires moving beyond basic syntax and applying expert patterns.
 
@@ -934,7 +919,8 @@ The single most critical parameter for visual consistency is the `seed`. Using t
 Essential for quality control. Explicitly exclude common AI image artifacts like "blurry," "low quality," "extra hands," or "deformed," which significantly improves output reliability.
 
 **Parameter Syntax** (for `/image` command):
-```
+
+```text
 /image a cute rabbit (resolution:::512x768)
 /image a cute rabbit (seed:::84756293)
 /image a cute rabbit (negativePrompt:::blurry, low quality)
@@ -986,11 +972,12 @@ By structuring a clear initial context, observing the AI's output, correcting it
 
 ---
 
-# Section 9: References and Resources
+## Section 9: References and Resources
 
 ## Official Perchance Documentation
 
 **General Learning:**
+
 - [Perchance Welcome Page](https://perchance.org/welcome)
 - [Perchance Tutorial](https://perchance.org/tutorial)
 - [Perchance Advanced Tutorial](https://perchance.org/advanced-tutorial)
@@ -999,6 +986,7 @@ By structuring a clear initial context, observing the AI's output, correcting it
 - [Learn Web Programming](https://perchance.org/learn-web)
 
 **UI & Basics:**
+
 - [List/Perchance Panel](https://perchance.org/learn-perchance-ui-lists)
 - [Creating Top-Level Lists](https://perchance.org/learn-perchance-101-top-level)
 - [Using Lists](https://perchance.org/learn-perchance-101-using-lists)
@@ -1006,6 +994,7 @@ By structuring a clear initial context, observing the AI's output, correcting it
 - [UI Navigation](https://perchance.org/learn-perchance-ui-navbar)
 
 **Plugins:**
+
 - [Plugins Overview](https://perchance.org/plugins)
 - [AI Text Plugin](https://perchance.org/ai-text-plugin)
 - [Text to Image Plugin](https://perchance.org/text-to-image-plugin)
@@ -1014,6 +1003,7 @@ By structuring a clear initial context, observing the AI's output, correcting it
 - [Upload Plugin](https://perchance.org/upload-plugin)
 
 **Application Examples:**
+
 - [AI Character Chat](https://perchance.org/ai-character-chat) (Highly relevant to Section 5)
 - [AI RPG](https://perchance.org/ai-rpg)
 - [AI Text-to-Image Generator](https://perchance.org/ai-text-to-image-generator)
@@ -1030,6 +1020,7 @@ By structuring a clear initial context, observing the AI's output, correcting it
 ## Changelog
 
 **4.1.0 (2025-11-20)** — **Complete Restructuring and Optimization**
+
 - Merged MASTER_ARCHITECT section into main content, using authoritative architectural patterns
 - Eliminated ~40% redundant content (duplicated topics across 18 sections)
 - Reorganized into 9 logical, progression-based sections (novice → advanced)
