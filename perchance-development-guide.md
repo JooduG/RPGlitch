@@ -10,13 +10,13 @@
 
 - **New to Perchance?** Start with [Section 1: Core Engine](#section-1-the-perchance-engine)
 - **Building UIs?** Jump to [Section 2: Web Technologies](#section-2-web-technologies)
-- **Using AI?** See [Section 4: LLM Theory](#section-4-understanding-language-models) and [Section 5: AI Character Chat](#section-5-the-ai-character-chat-system)
+- **Using AI?** See [Section 4: LLM Theory](#section-4-understanding-language-models) and [Section 5: Advanced Context Architecture](#section-5-advanced-context-architecture)
 - **Building production apps?** Read [Section 7: Architectural Patterns](#section-7-architectural-patterns-the-two-panel-standard)
 - **Need the API reference?** See [Section 6: The oc Object](#section-6-programming-with-the-oc-object)
 
 ---
 
-## Section 1: The Perchance Engine
+# Section 1: The Perchance Engine
 
 The Perchance platform, at its core, is a robust engine for procedural text generation. Its architecture is built upon a simple yet powerful declarative syntax that allows developers to create complex, randomized outputs from structured lists of data.
 
@@ -29,10 +29,12 @@ A generator's logic is primarily defined in the **Lists Panel** of the editor UI
 A list is created by defining a name, followed by its items on subsequent lines. Each item must be indented with a single tab or two spaces.
 
 ```
+
 animal
-  pig
-  cow
-  zebra
+pig
+cow
+zebra
+
 ```
 
 ### Referencing Lists
@@ -46,7 +48,9 @@ To use a list, its name is enclosed in square brackets (`[]`). When the engine e
 For simple, inline random choices without creating a formal list, use curly brackets (`{}`) with items separated by a vertical bar (`|`):
 
 ```
+
 The cow is {very|extremely} large.
+
 ```
 
 For single-item lists, use shorthand: `listName = [item]`
@@ -68,10 +72,12 @@ Use two forward slashes (`//`) to comment. Any text following `//` on the same l
 The likelihood of an item being selected can be modified using the caret (`^`) operator followed by a number. Default weight is 1.
 
 ```
+
 condiment
-  pepper^2      // Twice as likely
-  salt           // Default weight
-  chilli flakes^0.5  // Half as likely
+pepper^2      // Twice as likely
+salt           // Default weight
+chilli flakes^0.5  // Half as likely
+
 ```
 
 ### Selection Methods
@@ -118,8 +124,10 @@ To create coherent outputs, you must often store and reuse a randomly selected v
 The syntax `[identifierName = listName]` assigns a randomly selected item to an identifier. The stored value can then be reused elsewhere:
 
 ```
+
 [f = flower.selectOne]
 The [f] is beautiful. I love the smell of the [f].
+
 ```
 
 ### Multi-Action Execution
@@ -127,7 +135,9 @@ The [f] is beautiful. I love the smell of the [f].
 Multiple assignments and operations can be performed within a single set of square brackets by separating them with commas. Only the final operation's result is displayed as output:
 
 ```
+
 [a = animal, v = verb, a.upperCase + " " + v.pastTense]
+
 ```
 
 This first selects an animal, then a verb, then outputs a formatted sentence using both stored values.
@@ -153,7 +163,7 @@ This first selects an animal, then a verb, then outputs a formatted sentence usi
 
 ---
 
-## Section 2: Web Technologies
+# Section 2: Web Technologies
 
 A Perchance generator is not merely a script; it is a fully functional, self-contained webpage. The platform seamlessly integrates standard web technologies—HTML, CSS, and JavaScript—allowing developers to build rich, interactive user interfaces.
 
@@ -176,7 +186,6 @@ The HTML panel is where the visual structure of the generator is defined. The Pe
 The engine evaluates any text within square `[]` and curly `{}` brackets as Perchance code, replacing it with generated output. To display literal brackets, escape them with a backslash:
 
 ```html
-<!-- Display literal [text] without interpreting as Perchance code -->
 <div>Use \[brackets\] like this</div>
 ```
 
@@ -192,11 +201,12 @@ The global `update()` function is the primary mechanism for user-driven interact
 
 CSS is embedded within `<style>` tags directly in the HTML panel. A critical design choice: the Perchance engine **ignores all content inside `<style>` tags**. This prevents syntax collisions, as CSS selectors often use curly braces (`{}`), which would otherwise conflict with Perchance's shorthand list syntax.
 
-### Theme-Adaptive Styling (AI Character Chat)
+### Theme-Adaptive Styling
 
-For AI Character Chat generators, the message style input field accepts CSS with powerful features:
+The message style input field (for chat apps) accepts CSS with powerful features:
 
 **Theme Adaptation:**
+
 ```css
 .message-bubble {
   background-color: light-dark(#EEEEEE, #333333);
@@ -204,31 +214,15 @@ For AI Character Chat generators, the message style input field accepts CSS with
 }
 ```
 
-**Custom Fonts:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-.message-bubble {
-  font-family: 'Roboto', sans-serif;
-}
-```
-
-**Advanced Effects:**
-```css
-.message-bubble {
-  text-shadow: 1px 1px 2px black;
-  background-image: linear-gradient(to right, #ff8177 0%, #b12a5b 100%);
-}
-```
-
 ## JavaScript Integration
 
 JavaScript code is embedded within `<script>` tags in the HTML panel. Similar to CSS, the Perchance engine does not process content within `<script>` tags—the code is executed directly by the browser.
 
-This separation is crucial: it prevents conflicts between JavaScript syntax (e.g., array literals `[]`) and Perchance syntax, and allows developers to leverage the full JavaScript ecosystem. The platform's true potential is unlocked through the special `oc` object, which provides a comprehensive API for interacting with generator state (see [Section 6](#section-6-programming-with-the-oc-object)).
+This separation is crucial: it prevents conflicts between JavaScript syntax (e.g., array literals `[]`) and Perchance syntax, and allows developers to leverage the full JavaScript ecosystem.
 
----
+-----
 
-## Section 3: The Plugin Ecosystem
+# Section 3: The Plugin Ecosystem
 
 Plugins transform Perchance from a self-contained tool into an extensible framework. They are reusable, shareable modules that encapsulate specific functionalities, allowing developers to add complex features with a single line of code.
 
@@ -238,7 +232,7 @@ Plugins are integrated using a simple import syntax within the Lists Panel:
 
 **Syntax:** `{import:plugin-name}`
 
-This makes the plugin's functionality available for use within the generator. For example, after importing `dice-plugin`, you could use its syntax to simulate dice rolls.
+This makes the plugin's functionality available for use within the generator.
 
 ### Official vs. Community Plugins
 
@@ -250,52 +244,38 @@ This makes the plugin's functionality available for use within the generator. Fo
 
 **UI and Layout:**
 
-- `layout-maker-plugin`, `navbar-plugin`, `tabs-plugin` - Create sophisticated visual layouts without extensive HTML/CSS
+  - `layout-maker-plugin`, `navbar-plugin`, `tabs-plugin` - Create sophisticated visual layouts.
 
 **Interactivity:**
 
-- `tap-plugin` - Click specific outputs to re-randomize them
-- `goto-plugin` - Foundation for text-based adventures
+  - `tap-plugin` - Click specific outputs to re-randomize them.
+  - `goto-plugin` - Foundation for text-based adventures.
 
 **Data Persistence:**
 
-- `kv-plugin`, `remember-plugin` - Store data that persists across page reloads
-
-**List and Text Manipulation:**
-
-- `filter-list-plugin`, `conjugate-plugin`, `plural-plugin` - Advanced tools for dynamically altering lists and text
+  - `kv-plugin`, `remember-plugin` - Store data that persists across page reloads.
 
 ## The AI Plugins
 
-The most powerful extensions are the AI plugins, which integrate large-scale generative models directly into the generator workflow:
+The most powerful extensions are the AI plugins:
 
-**`ai-text-plugin`**: Interface to a Llama-based Large Language Model for generating text (stories, poems, dialogue) based on user-defined instructions.
+**`ai-text-plugin`**: Interface to a Large Language Model for generating text (stories, poems, dialogue).
 
-**`text-to-image-plugin`**: Utilizes Stable Diffusion to generate images from textual descriptions.
-
-### Critical Architectural Insight
-
-While the core Perchance engine operates entirely client-side within the user's browser, AI plugins function as clients for powerful server-side infrastructure. Computationally intensive AI tasks are offloaded to dedicated servers with GPUs. This client-server model enables state-of-the-art AI capabilities within a lightweight browser-based tool.
+**`text-to-image-plugin`**: Utilizes Stable Diffusion to generate images.
 
 **Funding Model:** Ads are displayed for non-logged-in users to cover server costs.
 
 **Important:** Do not fork AI plugins. Their client-side code is inextricably linked to a backend that cannot be replicated by users.
 
----
+-----
 
-## Section 4: Understanding Language Models
+# Section 4: Understanding Language Models
 
 To effectively develop sophisticated AI applications on Perchance, you must understand the theoretical foundations of Large Language Models (LLMs).
 
 ## Semantic Degeneracy: Why Language is Inherently Ambiguous
 
 A fundamental concept from computational linguistics: **semantic degeneracy** posits that natural language is inherently ambiguous. An expression does not possess a single, fixed meaning but rather affords a combinatorial explosion of potential interpretations.
-
-The informational burden required to unambiguously specify a single intended meaning can be conceptualized through **Kolmogorov Complexity**. As a prompt increases in complexity—adding more concepts and relationships—the number of bits of information needed to resolve ambiguities grows at a superlinear rate. This makes it computationally intractable for any system to perfectly reconstruct the intended meaning from the prompt alone.
-
-### Critical Implication
-
-This is **not a flaw** in the LLM, but a fundamental property of language itself. The LLM generates a plausible meaning—one of many accessible interpretations—but almost never the singularly intended one.
 
 **Your primary task as a developer is not to write a "perfect" prompt, but to construct a rich and unambiguous context that constrains the AI's vast possibility space, guiding it toward the desired cluster of interpretations.**
 
@@ -305,674 +285,232 @@ While LLMs excel at processing large, consolidated blocks of text, their perform
 
 A large-scale study, "LLMs GET LOST IN MULTI-TURN CONVERSATION," systematically demonstrated this weakness:
 
-- **Average Performance Drop:** 39% when a fully-specified, single-turn instruction was broken down into a multi-turn, underspecified conversation
-- **Root Cause:** Not primarily loss of raw capability ("aptitude"), but a massive increase in "unreliability"—the gap between best-case and worst-case performance more than doubled
+  - **Average Performance Drop:** 39% when a fully-specified, single-turn instruction was broken down into a multi-turn, underspecified conversation
+  - **Root Cause:** Not primarily loss of raw capability ("aptitude"), but a massive increase in "unreliability."
 
 ### Why Context is Lost
 
-1. **Premature Answer Attempts:** LLMs tend to make assumptions about missing information and generate a complete solution early
-2. **Over-Reliance:** The model becomes anchored to its initial, often incorrect, attempts
-3. **Lost-in-the-Middle Effect:** Models give disproportionate weight to first and last turns, forgetting crucial details provided in the middle
-4. **Verbose Responses:** Models' lengthy replies introduce assumptions and hypotheses that can derail subsequent turns
+1.  **Premature Answer Attempts:** LLMs tend to make assumptions about missing information.
+2.  **Over-Reliance:** The model becomes anchored to its initial, often incorrect, attempts.
+3.  **Lost-in-the-Middle Effect:** Models give disproportionate weight to first and last turns, forgetting crucial details provided in the middle.
 
-### Architectural Solution in Perchance AI Character Chat
+### Solution: Contextual Consolidation
 
-This research justifies the design of Perchance's AI Character Chat: a single, comprehensive instruction/role message is vastly more effective than building a character's personality through a sequence of conversational prompts. While strategies like RECAP (full recap at end) or SNOWBALL (repeating all context at each turn) can mitigate the issue, they remain fundamentally inferior to providing all necessary context at once.
+The primary lesson is to **consolidate all necessary information into a single context window before initiating generation.** This improves both aptitude and reliability.
 
-## Principles of Effective Instruction
+-----
 
-By synthesizing semantic ambiguity with empirical findings on conversational context loss, a robust framework for effective prompt architecture emerges:
+# Section 5: Advanced Context Architecture
 
-**1. Structure and Clarity**
-To combat semantic degeneracy, instructions should be highly structured. Use headings, bullet points, and clear separation of concerns. This reduces ambiguity and makes the context easier for the LLM to parse and prioritize.
+Moving beyond simple "Chat Bots," sophisticated AI applications require a structured approach to **Context Engineering**. Instead of a single "Instruction" field, advanced engines use a **Layered Injection Strategy** to ensure stability, consistency, and depth.
 
-**2. Explicitness and Constraint**
-Begin prompts with explicit, direct commands (e.g., "Respond only in JSON format. Exclude all explanatory text."). Specify output formats and reiterate constraints to minimize the model's tendency toward unwanted verbosity and creative deviation.
+## 1\. The Layered Context Model
 
-**3. Contextual Consolidation**
-The primary lesson from the "Lost in Conversation" research: **consolidate all necessary information into a single context window before initiating generation.** This is the most effective strategy for improving both aptitude and reliability.
+To prevent the AI from "forgetting" rules or hallucinating facts, the context sent to the LLM should be assembled from distinct, hierarchical layers.
 
-**4. Iterative Refinement**
-Prompting is not a one-shot process but an experimental cycle. Test prompts with small-scale generations, analyze outputs for deviations and gaps, and adjust the instructions accordingly. This iterative feedback loop is essential for guiding a probabilistic system toward a desired outcome.
+### Layer 1: The Kernel (System Directives)
 
----
+This is the immutable foundation of your application. It defines the "Laws of Physics" for the AI. It is never seen by the user but is always present in the prompt.
 
-## Section 5: The AI Character Chat System
+  * **Role:** Enforces safety overrides, output formatting (JSON vs. Text), and absolute agency rules (e.g., "Never write dialogue for the user").
+  * **Priority:** Highest. This layer overrides all others.
 
-The Perchance AI Character Chat is a sophisticated, multi-layered context management system designed to harness the power of LLMs while mitigating their inherent weaknesses. It provides developers with a hierarchical set of tools for defining an AI's behavior, managing its knowledge base, and controlling its conversational memory.
+### Layer 2: The World State (Environmental Constants)
 
-## Character Architecture
+This layer grounds the narrative in a physical reality. It prevents "White Room Syndrome" by enforcing atmospheric continuity.
 
-The platform provides several distinct fields for inputting information, each with a specific role in the hierarchy of context sent to the LLM:
+  * **Content:** Current weather, lighting, location physics, and "Sensory Tiers" (Mandating descriptions of smell, sound, and temperature).
 
-### Instruction/Role Message (The Foundation)
+### Layer 3: The Entity Snapshot (Dynamic State)
 
-This is the foundational and most critical component of a character's definition. It serves as the permanent, static context that defines the AI's core identity, personality, worldview, and speaking style.
+Instead of a static biography, advanced apps inject a **Real-Time Snapshot** of the character. This snapshot is generated programmatically before every turn.
 
-- **Length:** Can be up to 500-1000 words, but conciseness is encouraged to preserve the AI's limited context window for the conversation itself
-- **Importance:** Due to the importance of contextual consolidation (see Section 4), this field should be as comprehensive as possible
-- **Content:** Core traits, backstory, voice, example dialogues, behavioral constraints
+## 2\. The Four-Field Data Schema
 
-[AI]: I'm a dragon.
-[USER]: I'm the queen of the nearby kingdom.
-[SYSTEM]: What follows is a story about the queen and the dragon.
+For complex RPGs or simulations, a simple "Description" field is insufficient. Adopt the **Four-Field Schema** to separate immutable truths from temporary states.
 
-```text
+| Field | Name | Purpose | Update Frequency |
+|:---|:---|:---|:---|
+| **FOREVER** | **Truth** | Immutable biological traits, core personality, and fixed backstory. | Rare (Major Trauma only) |
+| **PRESENT** | **State** | Mutable details: Clothing, Wounds, Inventory, Current Emotion. | High (Every turn) |
+| **PAST** | **Log** | A compressed, append-only log of significant narrative events. | Medium (Summarized periodically) |
+| **FUTURE** | **Vector** | Current goals, active quests, and impending threats. | Dynamic |
 
+**Why this works:**
+Separating `<PRESENT>` from `<FOREVER>` allows a character to change clothes, get injured, or change moods without "forgetting" who they are. The AI is instructed to prioritize `<PRESENT>` for the immediate scene while checking `<FOREVER>` for consistency.
 
+## 3\. Parametric Steering (Narrative Physics)
 
+Language models struggle with abstract instructions like "Be more chaotic." They respond better to **Parametric Steering**—injecting specific mathematical values that force stylistic changes.
 
+**The Concept:**
+Treat the narrative like a physics simulation governed by variables. Calculate these variables in JavaScript and inject them into the prompt.
 
-## Building a World: Lorebooks
+**Example Variables:**
 
-When the amount of background information exceeds the practical limits of the instruction field, **Lorebooks** provide a mechanism for managing a large, external knowledge base.
+  * **Entropy (0-100):** Measure of chaos/disorder. High entropy forces messy, fragmented descriptions. Low entropy enforces order and calm.
+  * **Velocity (0-100):** Pacing of the scene. High velocity forces short sentences and urgent action.
+  * **Permeability (0-100):** Emotional openness. High permeability allows vulnerability; low permeability forces defensiveness.
 
-### How Lorebooks Work
+**Implementation:**
 
-A lorebook functions as a dynamic, queryable database. Before generating each response, the AI system performs a semantic search of the lorebook for entries relevant to the current conversation state. The most relevant entries are then injected into the context provided to the LLM.
-
-This is **Retrieval-Augmented Generation (RAG)**—grounding the AI's responses in a specific corpus of user-provided data, reducing hallucinations and enabling access to knowledge beyond its initial training.
-
-### Best Practice: Atomic Entries
-
-Each lorebook entry **MUST be atomic and self-contained**. The AI evaluates entries in isolation, so an entry like "He has a brother named Mark" is ineffective because the system has no guaranteed context for who "he" refers to.
-
-**Better:** "John's brother is named Mark."
-
-Lorebooks are typically managed as external `.txt` files hosted at a URL, which is then added to the character's settings.
-
-## The AI's Memory: Summarization
-
-To manage the finite context window of the underlying LLM, the Perchance chat system employs automatic summarization. As a conversation becomes too long to fit entirely within the context window, the system creates "memories" by summarizing the oldest parts of the chat history.
-
-### Memories vs. Lore
-
-- **Memories:** Chronological, condensed record of the conversation's events
-- **Lore:** Non-chronological, static database of facts
-
-The AI searches both memories and the lorebook for relevant context before each turn.
-
-### Manual Memory Control
-
-Developers have direct control via the `/mem` command, which opens the memory editor for the current chat thread. This allows for manual addition, editing, or removal of memories—a powerful tool for correcting the AI's misunderstandings or reinforcing key plot points in a long-running narrative.
-
-## Slash Commands (Power-User Controls)
-
-The chat interface includes a suite of slash commands providing programmatic control:
-
-| Command | Description |
-|:---|:---|
-| `/ai` | Triggers a response from the primary AI character. |
-| `/ai <instruction>` | Triggers an AI response with a single-use, temporary writing instruction. |
-| `/ai @CharName#ID <instruction>` | Prompts a reply from a different character in a group chat. |
-| `/user <instruction>` | Instructs the AI to generate a reply on behalf of the user. |
-| `/image <description>` | Generates an image using the text-to-image plugin. |
-| `/sys <instruction>` | Injects a system message into the chat with a specific instruction. |
-| `/nar <instruction>` | Shortcut for `/sys @Narrator <instruction>`, changing the system name to "Narrator". |
-| `/sum` | Opens the summary editor for the current chat thread. |
-| `/mem` | Opens the memory editor for the current chat thread. |
-| `/lore` | Opens the lore editor for the current chat thread. |
-| `/lore <text>` | Adds a new lore entry directly to the current thread's lore. |
-| `/name <name>` | Sets the user's display name for the current thread. |
-| `/avatar <url>` | Sets the user's avatar image for the current thread. |
-| `/import` | Allows bulk import of chat messages. |
-
----
-
-## Section 6: Programming with the `oc` Object
-
-Beyond its declarative syntax and pre-built tools, Perchance exposes a powerful JavaScript API through the global `oc` object. This API transforms the platform from a simple generator into a fully-fledged, reactive application framework.
-
-## Introduction to the oc Object
-
-The `oc` (Online-Character or Online-Chat) object is the central hub for all client-side scripting in the AI Character Chat environment. It is accessible within the "custom code" section of the advanced character editor. This code is executed within a sandboxed iframe, ensuring a character's script can only access its own data and the current chat thread's data.
-
-The `oc` object is structured hierarchically:
-- `oc.character` - Character-level properties and methods
-- `oc.thread` - Current chat session data and methods
-- `oc.window` - Controls for the custom code iframe
-- Global methods on `oc` - Direct AI API access
-
-## Event-Driven Programming
-
-The foundation of dynamic scripting is its event-driven architecture. Developers can register listener functions that execute in response to specific events within the chat lifecycle using `oc.thread.on()`.
-
-### Key Events
-
-**MessageAdded**
-Fires after a message has been fully generated and added to the thread. Most commonly used for post-processing AI responses or reacting to user input.
-
-**MessageEdited**
-Fires when a message is edited or regenerated.
-
-**MessageDeleted**
-Fires when a user deletes a message.
-
-**MessageStreaming**
-Fires continuously as an AI message is being generated, providing access to text chunks in real-time.
-
-### Async Event Handlers
-
-Event handlers can be declared as `async`. The Perchance engine will `await` their completion before proceeding. This allows for complex operations, such as making API calls with `oc.getInstructCompletion`, to be completed within the event loop before the AI generates its next response.
-
-**Example: Intercepting and modifying user messages**
 ```javascript
-oc.thread.on("MessageAdded", async function ({message}) {
-  // Check if the latest message is from the user
-  if (message.author === "user" && message.content.startsWith("charname ")) {
-    // Modify a character property
-    oc.character.name = message.content.replace(/^charname /, "");
-    // Remove the command message from the chat history
-    oc.thread.messages.pop();
-  }
-});
+// In your prompt builder
+systemPrompt += `
+<NARRATIVE_PHYSICS>
+Current Entropy: ${gameState.entropy}% (High Chaos)
+Current Velocity: ${gameState.velocity}% (Fast Paced)
+</NARRATIVE_PHYSICS>
+Mandate: Your prose rhythm MUST reflect these values.
+`
 ```
+
+-----
+
+# Section 6: Programming with the `oc` Object
+
+The `oc` (Online-Character or Online-Chat) object is the central hub for scripting in the standard AI Character Chat environment.
+
+**Note:** For advanced applications using the "Simulation Engine" pattern (Section 7, Pattern C), reliance on the `oc` object is often minimized or bypassed in favor of direct state management. However, understanding it is crucial for modifying existing chat behaviors.
 
 ## Manipulating Messages and History
 
-The entire chat history is accessible as a mutable array at `oc.thread.messages`. This allows developers to read, modify, and delete messages programmatically using standard JavaScript array methods (`pop`, `splice`, etc.).
-
-### Message Object Structure
+The entire chat history is accessible as a mutable array at `oc.thread.messages`.
 
 | Property | Type | Description |
 |:---|:---|:---|
 | `author` | String | "user", "ai", or "system" |
 | `content` | String | The message text |
-| `hiddenFrom` | Array | Controls visibility. `["user"]` hides from UI; `["ai"]` hides from generation context. |
-| `expectsReply` | Boolean | If true, triggers AI generation immediately after insertion. |
-| `wrapperStyle` | String | CSS styles applied to the message container bubble. |
+| `hiddenFrom` | Array | Controls visibility. `["user"]` hides from UI. |
+| `expectsReply` | Boolean | If true, triggers AI generation immediately. |
 
-### Injecting Messages
+### The Message Rendering Pipeline
 
-New messages are injected using `oc.thread.messages.push()`:
-
-```javascript
-oc.thread.messages.push({
-  author: "system",
-  content: "Current health: 50/100",
-  hiddenFrom: ["user"],    // Invisible to player
-  expectsReply: false       // Passive update
-});
-```
-
-## The Message Rendering Pipeline
-
-For advanced UI manipulation (e.g., converting text commands into clickable buttons), the `oc.messageRenderingPipeline` provides a powerful middleware mechanism.
-
-The pipeline is an array to which developers can push a function. This function is executed before any message is displayed to the user or sent to the AI. The function receives the `message` object and a `reader` parameter (`"user"` or `"ai"`), allowing the developer to present a different version of the message to the user than what the AI sees.
-
-**Use Case:** Convert AI output like `[[Attack Goblin]]` into a clickable HTML button for the user, while leaving simple text for the AI to process.
-
-### Example: Text-to-Button Pipeline
-
-```javascript
-oc.messageRenderingPipeline.push(function({ message, reader }) {
-  if (reader === 'user') {
-    const buttonRegex = /\[\[(.+?)\]\]/g;
-    return message.content.replace(buttonRegex, (match, actionText) => {
-      const safeText = DOMPurify.sanitize(actionText).replace(/'/g, "\\'");
-      return `<button class="action-btn" onclick="window.App.dispatchAction('${safeText}')">${actionText}</button>`;
-    });
-  }
-  return message.content;
-});
-```
-
-## Dynamic Character Control
-
-Nearly all properties of a character and thread are exposed through the `oc` object and can be modified at runtime:
-
-- `oc.character.name` - Character's display name
-- `oc.character.avatar.url` - Avatar image URL
-- `oc.character.roleInstruction` - Main instruction/personality prompt
-- `oc.character.reminderMessage` - Short tactical reminder
-- `oc.character.customCode` - A character's own JavaScript code (even self-modifying)
-
-This capability enables characters that evolve in real-time. For example, a script could listen for the `MessageAdded` event, analyze the AI's response for emotional content, and then programmatically update the `reminderMessage` to reflect a change in the character's mood, influencing all subsequent responses.
+For advanced UI manipulation (e.g., converting text commands into clickable buttons), the `oc.messageRenderingPipeline` allows middleware-style processing of messages before display.
 
 ## Calling AI APIs
 
 The `oc` object provides direct access to underlying AI models:
 
 **`oc.getInstructCompletion({instruction, ...})`**
-Makes a direct call to the text generation LLM with a specific instruction. Useful for meta-tasks like sentiment classification, text summarization, or response rewriting.
-
-**`oc.getChatCompletion({messages, ...})`**
-Makes a call using a chat-based format, providing a list of messages for context. Suitable for conversational back-and-forth.
+Makes a direct call to the text generation LLM.
 
 **`oc.textToImage({prompt, ...})`**
-Programmatically calls the text-to-image model to generate an image. The prompt can be dynamically constructed based on the current chat state.
+Programmatically calls the text-to-image model.
 
-## Complete `oc` API Reference
+-----
 
-| Object Path / Property / Method | Type | Description |
-|:---|:---|:---|
-| **`oc.character`** | Object | Contains properties of the character itself. |
-| `.name` | String | The character's name. |
-| `.avatar.url` | String | URL for the character's avatar image. |
-| `.roleInstruction` | String | The main instruction/personality prompt. |
-| `.reminderMessage` | String | The short, tactical reminder message. |
-| `.initialMessages` | Array | Messages to start a new chat. |
-| `.customCode` | String | The character's own JavaScript code. |
-| `.customData` | Object | Space for storing arbitrary persistent character data. |
-| `.customData.PUBLIC` | Object | Data stored here is included in character share links. |
-| **`oc.thread`** | Object | Contains properties of the current chat session. |
-| `.messages` | Array | All message objects in the current chat (readable/writable). |
-| `.on(event, handler)` | Function | Registers an event handler. Event: "MessageAdded", "MessageEdited", etc. |
-| `.messageRenderingPipeline` | Array | Functions to process messages before display or AI processing. |
-| `.customData` | Object | Space for storing arbitrary data specific to the current thread. |
-| **`oc.window`** | Object | Controls the custom code's visual iframe. |
-| `.show()` | Function | Makes the custom code's iframe visible. |
-| `.hide()` | Function | Hides the custom code's iframe. |
-| **`oc` (global methods)** | | |
-| `.getInstructCompletion(options)` | async Function | Calls the instruction-based text AI. Returns promise with result. |
-| `.getChatCompletion(options)` | async Function | Calls the chat-based text AI. Returns promise with result. |
-| `.textToImage(options)` | async Function | Calls the text-to-image AI. Returns promise with image data. |
+# Section 7: Architectural Patterns
 
----
+For production applications, choosing the right architecture is critical.
 
-## Section 7: Architectural Patterns (The Two-Panel Standard)
+## Pattern A: The Interaction Engine (Standard Chat)
 
-For production applications on the Perchance platform, a strict architectural pattern is non-negotiable: the **Two-Panel Architecture**. This pattern solves the fundamental problem of building stateful, complex applications on a platform optimized for text generation.
+For applications focused on textual interaction (chat bots, simple RPGs), the architecture leverages the `oc` object as an event bus.
 
-## The Problem: The "God Script" Dilemma
+  * **Architecture:** Event-Driven. Listen to `MessageAdded`.
+  * **State:** Mostly relies on chat history + simple variables.
+  * **Best For:** Simple characters, chat bots.
 
-Traditional Perchance development often mixes state logic (variables), generation logic (lists), and UI logic (HTML) into a single monolithic script. While functional for trivial generators, this approach collapses under complexity:
+## Pattern B: The Visual Engine (Image Gen)
 
-- **State fragmentation:** Perchance lists lack transactional integrity and persistence
-- **Business logic mixing:** UI and data logic become inseparable
-- **Deployment friction:** Changes to one domain affect all others
+For applications focused on generative imagery, the architecture uses a **Two-Stage Pipeline**: Compile → Render.
 
-The Two-Panel Architecture solves this by enforcing strict separation of concerns.
+  * **Stage 1 (Probability):** Perchance lists select *what* to draw.
+  * **Stage 2 (Weighting):** Diffusion syntax (`(keyword:1.2)`) controls *how* it draws.
+  * **Pipeline:** Lists -\> Prompt String -\> `textToImage()` -\> Display.
 
-## The Architecture
+## Pattern C: The Simulation Engine (Advanced)
 
-The Perchance environment is inherently bipartite, consisting of a "Left Panel" and a "Right Panel," each running in a separate, sandboxed iframe.
+For applications that require deep state persistence, complex world logic, and long-term memory (e.g., RPGs, Strategy Games), the "Standard Chat" pattern is insufficient.
 
-### Left Panel: The Declarative Engine
+**The Simulation Engine** treats the AI not as a chatbot, but as a component in a larger loop. The application manages the state; the AI merely renders the next frame.
 
-**Responsibilities:**
+### 1\. The Component Triad
 
-- Plugin imports (`{import:plugin-name}`)
-- Static, declarative data structures (lists of names, encounter tables, etc.)
-- Perchance-specific logic
+The architecture is built on three distinct roles:
 
-**Key Constraint:** The Left Panel **MUST be stateless**. It does not manage application state (player inventory, quest flags, health points). It behaves like a pure function: Input → Random Process → Output.
+1.  **The Actor (Foreground):** The primary LLM call that generates the prose/dialogue the user sees. It has no memory of its own; it only knows what is in the current context window.
+2.  **The Simulator (Background):** A hidden, secondary process that calculates the *consequences* of the action. It updates the database (health, inventory, world state) based on what happened.
+3.  **The Archivist (Maintenance):** A background process that manages context window space. It compresses old logs into "Memories" and ensures the `<PAST>` field remains dense and relevant.
 
-### Right Panel: The Interactive Stage
+### 2\. The "Heartbeat" Protocol
 
-**Responsibilities:**
+To keep the simulation alive without consuming excessive tokens or API calls, implement a **Heartbeat Protocol**.
 
-- Full Single Page Application (SPA) logic
-- User interactions and event handling
-- Database transactions (IndexedDB)
-- UI rendering and state management
-- Orchestration of calls to the Left Panel
+  * **Logic:** Do not update every entity every turn.
+  * **Cycle:** Update the **Active Character** on Turn 1, the **User State** on Turn 2, and the **World/Environment** on Turn 3.
+  * **Effect:** This distributes the computational load while ensuring the entire world stays "fresh" and reactive over time.
 
-**Key Advantage:** A completely standard, modern JavaScript application. Use ES6 modules, type-safe code, standard browser DevTools, npm ecosystem libraries.
+### 3\. The "Director" Loop (Feedback-Driven Variance)
 
-### The Iframe Wall and Unidirectional Flow
+In a standard chat, "Regenerate" just rolls the dice again. In a Simulation Engine, "Regenerate" is a corrective feedback loop.
 
-### Three-Step Exposure
+**The Loop:**
 
-### Step 1: Import in Left Panel
+1.  **Rejection:** The user rejects Message A.
+2.  **Analysis:** The Engine compares Message A to the User's inputs to determine *why* it failed (e.g., "Too repetitive," "Ignored instructions").
+3.  **Variance Injection:** The Engine generates a temporary **"Director Note"** (e.g., *"Critique: The previous attempt was too passive. Increase aggression by 20%."*).
+4.  **State Rollback:** Crucially, any background updates triggered by Message A (e.g., damage taken) are reverted to prevent "Ghost Memories."
+5.  **Execution:** The Actor generates Message B with the new Director Note guiding it.
 
-```perchance
-ai = {import:ai-text-plugin}
-textToImage = {import:text-to-image-plugin}
+### 4\. Implementation Strategy
 
-pluginAi = ai
-pluginTextToImage = textToImage
-```
+This architecture requires abandoning the `oc` object for logic.
 
-### Step 2: Expose to Window in Right Panel HTML
+  * **State:** Use `Dexie.js` (IndexedDB) as the Single Source of Truth.
+  * **Logic:** Write a `StoryController` class in the Right Panel (JavaScript) to manage the prompt construction and API calls.
+  * **API:** Use `window.ai()` directly. Do not rely on Perchance's built-in chat UI state.
 
-```html
-<script>
-  if (typeof ai !== 'undefined') window.pluginAi = ai;
-  if (typeof textToImage !== 'undefined') window.pluginTextToImage = textToImage;
-</script>
-<script type="module" src="js/index.js"></script>
-```
-
-### Step 3: Copy to Standard Names in Right Panel JavaScript
+**Example Flow:**
 
 ```javascript
-function setupPlugins() {
-  const pluginMap = {
-    pluginAi: 'ai',
-    pluginTextToImage: 'textToImage',
-  };
-  for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (typeof window[perchanceName] === 'function') {
-      window[standardName] = window[perchanceName];
-    }
-  }
+async function handleTurn(userInput) {
+    // 1. Commit User Input to DB
+    await db.messages.add({ role: 'user', text: userInput });
+
+    // 2. Build Context (Kernel + World + Entity Snapshots)
+    const prompt = await ContextBuilder.assemble(storyId);
+
+    // 3. Call The Actor
+    const response = await window.ai(prompt);
+
+    // 4. Commit AI Response to DB
+    await db.messages.add({ role: 'ai', text: response });
+
+    // 5. Trigger Background Simulation (Fire and Forget)
+    // Does NOT block the UI. Updates stats/inventory in the background.
+    SimulationEngine.runPhysicsCycle(storyId);
 }
 ```
 
-### Step 4: Wait for Plugins
+-----
 
-```javascript
-async function waitForPlugins(requiredPlugins, timeout = 10000) {
-  const startTime = Date.now();
-  while (Date.now() - startTime < timeout) {
-    const allAvailable = requiredPlugins.every(name => typeof window[name] === 'function');
-    if (allAvailable) return true;
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-  return false;
-}
-```
+# Section 8: Expert Patterns and Best Practices
 
-Plugins initialize asynchronously after the left-panel parses. The `waitForPlugins()` function acts as a synchronization primitive, preventing the app from booting until the bridge is stable.
+## Architecting for Consistency
+
+### The Single Source of Truth
+
+The `instruction/role` (or the Kernel Layer in advanced apps) must be the definitive source for the character's traits.
+
+### Show, Don't Just Tell
+
+Instead of listing keywords ("witty, brave"), include concrete examples of dialogue within the instruction. This provides the AI with a clear pattern to emulate.
 
 ## Security: The "Zero Trust" Model
 
-Integration of user input and AI-generated content introduces a novel security vector: **Prompt Injection XSS**. Unlike traditional web apps where the database is a trusted source, in AI apps the backend (the LLM) is **untrusted**.
+Integration of user input and AI-generated content introduces a novel security vector: **Prompt Injection XSS**.
 
 ### Mandatory DOMPurify Implementation
 
 **Law:** `DOMPurify.sanitize()` is **MANDATORY** for any dynamic HTML content, whether from the user or AI.
 
-The architecture treats all text as "radioactive"—it must be decontaminated before it touches the DOM. This necessitates an explicit "Message Rendering Pipeline" (for Pattern A: Interaction Engines):
+The architecture treats all text as "radioactive"—it must be decontaminated before it touches the DOM.
 
-1. Parse AI output for allowed patterns (e.g., `[[Action Name]]`)
-2. Sanitize text content
-3. Only then hydrate specific patterns into interactive elements
+-----
 
-This creates a "whitelist" model of UI generation—significantly more secure than a "blacklist" approach.
-
-### Example: Safe Rendering
-
-```javascript
-function renderHTML(selector, unsafeHtml) {
-  if (!window.DOMPurify) {
-    console.error('DOMPurify is not loaded.');
-    return;
-  }
-  const safeHtml = DOMPurify.sanitize(unsafeHtml, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'span', 'div', 'button'],
-    ALLOWED_ATTR: ['href', 'class', 'target', 'data-id']
-  });
-  document.querySelector(selector).innerHTML = safeHtml;
-}
-```
-
-## Pattern A: The Interaction Engine
-
-For applications focused on textual interaction (RPGs, Chat Simulators, choice-based narratives), the architecture leverages the `oc` (Online Character) object as a programmable event bus.
-
-### Thread State Management
-
-The `oc.thread` object is the single source of truth for conversation context. It maintains a mutable array (`oc.thread.messages`) representing the linear chat history.
-
-### Event-Driven Model
-
-Standard procedural scripting is replaced by an asynchronous, event-driven model. The `oc.thread.on()` method registers listeners for specific lifecycle events:
-
-- **`MessageAdded`**: Fires after a message is committed. Triggers: database persistence, UI updates, side-effects like parsing game commands
-- **`MessageStreaming`**: Fires as the AI generates tokens. Enables "typewriter" effects
-- **`Context`**: Fires immediately before the prompt is compiled, allowing "Just-In-Time" context injection
-
-### Context Injection: The "Invisible Instruction" Pattern
-
-To ensure the AI "knows" the game state, use `hiddenFrom: ["user"]` system messages to inject state updates without breaking immersion:
-
-```javascript
-function injectGameState(gameState) {
-  const stateBlock = `
-Current Health: ${gameState.hp}/${gameState.maxHp}
-Location: ${gameState.location}
-Inventory: ${gameState.inventory.join(', ')}
-  `;
-  oc.thread.messages.push({
-    author: "system",
-    content: stateBlock,
-    hiddenFrom: ["user"],
-    expectsReply: false
-  });
-}
-```
-
-### The "Director" Pattern: Input Interception
-
-Intercept user input before it reaches the AI. Regex check for `/` prefix:
-
-- **Slash command detected:** Execute JavaScript function (e.g., `/inventory` opens inventory modal). Do NOT send to oc.thread.
-- **Narrative detected:** Push to oc.thread, triggering AI reply
-
-This separation ensures mechanical interactions don't consume AI tokens or clutter narrative history.
-
-### Interactive Element Hydration
-
-The AI is instructed to output interactive choices using specific syntax: `[[Open Chest]]` or `[[Attack Goblin]]`. The message rendering pipeline detects this syntax and "hydrates" it into clickable HTML buttons for the user, while leaving the text for the AI to process:
-
-```javascript
-oc.messageRenderingPipeline.push(function({ message, reader }) {
-  if (reader === 'user') {
-    const buttonRegex = /\[\[(.+?)\]\]/g;
-    return message.content.replace(buttonRegex, (match, actionText) => {
-      const safeText = DOMPurify.sanitize(actionText).replace(/'/g, "\\'");
-      return `<button class="action-btn" onclick="window.App.dispatchAction('${safeText}')">${actionText}</button>`;
-    });
-  }
-  return message.content;
-});
-```
-
-## Pattern B: The Visual Engine
-
-For applications focused on generative imagery (e.g., image generators), the architecture shifts to a **Two-Stage Pipeline**: Compile → Render.
-
-### The Syntax Distinction: Probability vs. Weighting
-
-**Stage 1: Perchance Probability (Left Panel)**
-Determines **content selection**—whether a word/concept appears at all.
-
-```perchance
-{Option A^2 | Option B}  // Option A is twice as likely to be chosen
-```
-
-**Stage 2: Diffusion Weighting (Plugin Execution)**
-Determines **attention modulation**—how much the model focuses on a word that is present.
-
-```text
-(keyword:1.2)  // Increase attention by 1.2x
-```
-
-**Critical Pattern:** Nest weighting *inside* probability selection:
-
-```perchance
-{ (keyword:1.2)^2 | keyword }  // 66% chance with emphasis, 33% without
-```
-
-### Structured Prompt Engineering
-
-Rather than a single random string, construct prompts from modular components (Subject, Lighting, Style, Meta-Tags) defined in the Left Panel. This enables:
-
-1. **Consistent structure** across generations
-2. **Granular control** over each component
-3. **Easy maintenance** of prompt quality standards
-
-### The "Anti-Description" Protocol (Negative Prompts)
-
-Negative prompts are **mandatory**, not optional. Implement a "Universal Negative" list appended to every request:
-
-```text
-deformed, disfigured, bad anatomy, extra limbs, blurry, watermark, text,
-low quality, jpeg artifacts, pixelated, grainy
-```
-
-### Execution Pipeline
-
-```javascript
-async function generateImagePipeline() {
-  // Stage 1: Compile (Left Panel)
-  const promptData = window.parent.perchancePlugins.getPrompt();
-
-  // Stage 2: Render (Plugin Execution)
-  const imageBlob = await window.parent.perchancePlugins.textToImage({
-    prompt: promptData.positive,
-    negativePrompt: promptData.negative,
-    width: 512,
-    height: 768
-  });
-
-  // Stage 3: Hydrate (UI Update)
-  const imageUrl = URL.createObjectURL(imageBlob);
-  document.querySelector('#gallery-display').src = imageUrl;
-
-  // Stage 4: Persist (Database)
-  await db.images.add({
-    blob: imageBlob,
-    prompt: promptData.positive,
-    timestamp: Date.now()
-  });
-}
-```
-
-## Database: Local-First Persistence with IndexedDB
-
-The Two-Panel Architecture explicitly rejects Perchance's `remember-plugin` for complex application state. That plugin relies on localStorage/cookies with low storage limits (~5MB) and no query capabilities.
-
-**Mandate:** Use **Dexie.js** (a wrapper for IndexedDB).
-
-### Schema Definition
-
-```javascript
-import Dexie from 'dexie';
-
-export const db = new Dexie('HybridAppDB');
-
-db.version(1).stores({
-  entities: '++id, &name, type, isChosen',
-  stories: '++id, title, updatedAt',
-  messages: '++id, storyId, [storyId+createdAt], role',
-  settings: 'id',
-  images: '++id, timestamp'
-});
-```
-
-### Transactional Chat Save
-
-```javascript
-async function saveUserMessage(storyId, text) {
-  await db.transaction('rw', db.messages, db.stories, async () => {
-    // Operation 1: Add the message record
-    await db.messages.add({
-      storyId: storyId,
-      role: 'user',
-      text: text,
-      createdAt: Date.now()
-    });
-
-    // Operation 2: Update the parent story metadata
-    await db.stories.update(storyId, {
-      updatedAt: Date.now()
-    });
-  });
-}
-```
-
-### State Rehydration: Offline-First Capability
-
-Upon initialization (after `waitForPlugins()` resolves):
-
-1. **Open Database:** `await db.open()`
-2. **Load Active Context:** Query `db.stories` for the most recently updated story
-3. **Load History:** Query `db.messages` for that story and populate `oc.thread`
-4. **Load Assets:** Fetch active characters/images from `db.entities`
-
-This enables the app to behave like installed software. The user can close the tab, go offline, refresh the page, and return exactly where they left off. This "Game Cartridge" model is superior to server-side sessions for privacy and reliability.
-
----
-
-## Section 8: Expert Patterns and Best Practices
-
-Achieving high-quality, consistent, and engaging results with Perchance requires moving beyond basic syntax and applying expert patterns.
-
-## Architecting for Character Consistency
-
-### Behavioral Consistency
-
-**The Single Source of Truth**
-The `instruction/role` message should be the definitive source for the character's core traits, backstory, and voice. A detailed, well-structured instruction provides a strong anchor for the AI to return to, mitigating conversational drift.
-
-**Tactical Reinforcement**
-The `reminder` message should reinforce specific, high-priority traits the AI tends to forget or deviate from. For example: `OOC: Remember to respond with sarcasm`
-
-**Show, Don't Just Tell**
-Instead of listing personality keywords (e.g., "witty, brave, loyal"), include concrete examples of the character's dialogue and behavior directly within the instruction. This provides the AI with a clear pattern to emulate, which is often more effective than abstract descriptions.
-
-### Visual Consistency
-
-For generators that create images, maintaining consistent character appearance is paramount.
-
-**Detailed and Specific Prompts**
-Prompts should be highly descriptive, detailing not just general appearance but specific features, attire, and scene context. The more constraints provided, the less room for random deviation.
-
-**The Power of the Seed**
-The single most critical parameter for visual consistency is the `seed`. Using the same seed for a given prompt produces very similar, if not identical, images. By locking in a seed for a character, developers ensure facial features and core appearance remain consistent across different scenes and poses.
-
-**Negative Prompts**
-Essential for quality control. Explicitly exclude common AI image artifacts like "blurry," "low quality," "extra hands," or "deformed," which significantly improves output reliability.
-
-**Parameter Syntax** (for `/image` command):
-
-```text
-/image a cute rabbit (resolution:::512x768)
-/image a cute rabbit (seed:::84756293)
-/image a cute rabbit (negativePrompt:::blurry, low quality)
-```
-
-## Designing Dynamic and Interactive Experiences
-
-### Pattern: Interactive Choices
-
-A powerful pattern for text adventures, RPGs, or choice-based narratives:
-
-1. Instruct the AI (via `roleInstruction`) to present choices in a specific format: `[[Attack the goblin]]` or `[[Flee the cave]]`
-2. Use the `messageRenderingPipeline` to detect this pattern and replace it with clickable HTML `<button>` elements
-3. The button's `onclick` handler submits the user's choice as a new message
-
-This creates a seamless, interactive UI for the user while maintaining a simple, text-based format for the AI to process.
-
-### Pattern: AI-Generated UI
-
-A more advanced technique: prompt the AI to not only narrate a scene but generate the interactive choices itself. By instructing the AI to output text in the custom `[[Choice]]` format, the LLM becomes a "UI composer," dynamically creating available actions based on narrative context. This approach can lead to more emergent and unpredictable gameplay.
-
-## Debugging and Optimization
-
-### Debugging AI Behavior
-
-The primary tool for debugging and guiding an AI is **direct intervention**: Edit the message. This act of correction is the most powerful form of feedback, as the AI heavily weights existing messages in the chat history when generating its next response. Correcting unwanted behavior, especially in the first few turns of a conversation, is crucial for steering the AI in the desired direction.
-
-### Performance Optimization
-
-The AI's response time is influenced by several factors:
-
-- **Custom code performance:** For computationally intensive code, be mindful of performance
-- **Summarization overhead:** In the character editor's advanced settings, disabling automatic chat summarization and memory creation can significantly speed up response times, though it comes at the cost of the AI's long-term conversational recall
-
-## The Development Workflow: Iterative Refinement
-
-Developing on Perchance, particularly with AI features, is fundamentally an exercise in **probabilistic control**. You are not writing deterministic code but architecting a context to guide a powerful but unpredictable system.
-
-The platform's architecture provides a layered approach to context management—a hierarchy of control from the foundational `instruction` message to the tactical `reminder`, the expansive `lorebook`, and the dynamic `memory`.
-
-**The Iterative Cycle:**
-
-1. **Prompt:** Structure a clear initial context
-2. **Generate:** Observe the AI's output
-3. **Edit:** Correct deviations by editing messages
-4. **Refine:** Adjust core instructions based on observations
-
-By structuring a clear initial context, observing the AI's output, correcting its deviations, and then refining the core instructions based on those observations, a developer can progressively steer the probabilistic system toward producing consistently high-quality, engaging, and intelligent results.
-
----
-
-## Section 9: References and Resources
+# Section 9: References and Resources
 
 ## Official Perchance Documentation
 
@@ -1015,21 +553,19 @@ By structuring a clear initial context, observing the AI's output, correcting it
 - **[design-system.md](./design-system.md)** — UI/UX guidelines and component library
 - **[README.md](./README.md)** — Project overview and quick start
 
----
+-----
 
 ## Changelog
 
-**4.1.0 (2025-11-20)** — **Complete Restructuring and Optimization**
+**4.2.0 (2025-12-05)** — **Architectural Overhaul**
 
-- Merged MASTER_ARCHITECT section into main content, using authoritative architectural patterns
-- Eliminated ~40% redundant content (duplicated topics across 18 sections)
-- Reorganized into 9 logical, progression-based sections (novice → advanced)
-- Moved all application-specific content (RPGlitch, ImageGlitch) to PERCHANCE.md
-- Enhanced clarity with consolidated examples and improved cross-references
-- Unified conflicting information using "later is more true" rule
-- Added comprehensive architecture section integrating all Two-Panel concepts
-- Improved visual hierarchy and scannability with refined headings and tables
+  - Added **Section 5: Advanced Context Architecture**: Introduced Kernel/World/Entity layers and Four-Field Schema.
+  - Added **Section 7: Pattern C (Simulation Engine)**: Documented Actor/Simulator/Archivist triad, Heartbeat Protocol, and Director Loop.
+  - Updated Section 4 to emphasize "Contextual Consolidation."
+  - Deprecated reliance on `oc` object for complex state logic.
 
-**4.0.2 (2025-11-10)** — Comprehensive security hardening (see CLAUDE.md)
+**4.1.0 (2025-11-20)** — **Complete Restructuring**
 
-**4.0.0 (2025-11-10)** — Full synchronization with GEMINI.md and project documentation
+  - Merged MASTER\_ARCHITECT section into main content.
+  - Reorganized into logical progression sections.
+  - Moved app-specific details to PERCHANCE.md.
