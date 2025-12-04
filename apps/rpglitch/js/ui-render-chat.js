@@ -125,10 +125,8 @@ export function renderMessage(container, role, text, characterName, type, entiti
     if (characterName && roleClass === "user") {
         const safeName = sanitizeHtml(characterName);
         safeContent = `<span class="narrator-prefix">${safeName}:</span> ${safeContent}`;
-    } else if (roleClass === "narrator" && characterName) {
-        const safeName = sanitizeHtml(characterName);
-        safeContent = `<span class="narrator-prefix">${safeName}:</span> ${safeContent}`;
     }
+    // REMOVED: Narrator prefix injection
 
     div.innerHTML = safeContent;
     container.appendChild(div);
