@@ -25,19 +25,12 @@ Our design philosophy is built on a foundation of minimalism, clarity, and robus
 
 ## Interaction & UX Principles
 
-### The Icon-Free Mandate (Non-Negotiable)
+**Clarity First, Space Efficient**
+Interactive elements should use text labels whenever possible to ensure clarity. However, universally recognized utility icons (Settings, Close, Save, Download) are permitted to conserve space, provided they include a `title` or `aria-label` attribute.
 
-In this project, all interactive UI elements (buttons, links, navigation) **MUST** primarily convey their meaning through explicit and concise **text labels**.
-
-* **DIRECTIVE:** **DO NOT** create UI elements that rely solely on icons to convey function.
-* **DIRECTIVE:** **MAY** use icons (or emojis) as visual embellishment, **paired directly** with clear text label (e.g., `Save All Data 💾`).
-* **RATIONALE:** Text labels ensure universal understanding, support our minimalist aesthetic, and align with user preferences for explicit, unambiguous controls.
-
-#### Examples
-
-* ❌ **Bad:** `<button><img src="save.svg"></button>` *(Ambiguous)*
-* ✅ **Good:** `<button>Save</button>` *(Clear and direct)*
-* ✅ **Good:** `<button>Save All Data 💾</button>` *(Icon as secondary indicator)*
+* ✅ **Good:** `<button>Save Data</button>`
+* ✅ **Good:** `<button title="Settings">⚙️</button>`
+* ❌ **Bad:** `<button>👁️</button>` (Ambiguous icon without label/title)
 
 ### General UX Patterns
 

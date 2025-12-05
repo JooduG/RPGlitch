@@ -10,7 +10,7 @@ RPGlitch is a "Local-First" web application that turns your browser into a sophi
 
 RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Engine**. Instead of just generating text, the system calculates the "physics" of the narrative state in the background.
 
-### 1. The Kernel (`js/context-builder.js`)
+### 1. The Kernel (`js/engine-prompt-builder.js`)
 * **Role:** Context Architect.
 * **Function:** Assembles the prompt using a **Layered Injection Strategy**.
     * **Layer 1 (System):** Enforces absolute agency and format strictness.

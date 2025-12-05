@@ -329,12 +329,12 @@ Instead of a static biography, advanced apps inject a **Real-Time Snapshot** of 
 
 For complex RPGs or simulations, a simple "Description" field is insufficient. Adopt the **Four-Field Schema** to separate immutable truths from temporary states.
 
-| Field | Name | Purpose | Update Frequency |
-|:---|:---|:---|:---|
-| **FOREVER** | **Truth** | Immutable biological traits, core personality, and fixed backstory. | Rare (Major Trauma only) |
-| **PRESENT** | **State** | Mutable details: Clothing, Wounds, Inventory, Current Emotion. | High (Every turn) |
-| **PAST** | **Log** | A compressed, append-only log of significant narrative events. | Medium (Summarized periodically) |
-| **FUTURE** | **Vector** | Current goals, active quests, and impending threats. | Dynamic |
+| Field | Name | Purpose |
+|:---|:---|:---|
+| **forever** | Truth | Immutable traits and core personality. |
+| **present** | State | Mutable details: Clothing, Wounds, Inventory. |
+| **past** | Log | Compressed narrative log. |
+| **future** | Vector | Current goals and impending threats. |
 
 **Why this works:**
 Separating `<PRESENT>` from `<FOREVER>` allows a character to change clothes, get injured, or change moods without "forgetting" who they are. The AI is instructed to prioritize `<PRESENT>` for the immediate scene while checking `<FOREVER>` for consistency.
@@ -368,6 +368,8 @@ Mandate: Your prose rhythm MUST reflect these values.
 -----
 
 # Section 6: Programming with the `oc` Object
+
+**⚠️ ARCHITECTURAL NOTE:** This section details the standard Perchance API (oc). This is the default for most chat characters. However, RPGlitch utilizes Pattern C (The Simulation Engine) and bypasses the oc object entirely in favor of a custom StoryController backed by Dexie.js. If you are working on RPGlitch core logic, ignore this section and reference [apps/rpglitch/js/manager-turns.js](apps/rpglitch/js/manager-turns.js).
 
 The `oc` (Online-Character or Online-Chat) object is the central hub for scripting in the standard AI Character Chat environment.
 
