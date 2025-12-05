@@ -114,7 +114,8 @@ export function renderMessage(container, role, text, characterName, type, entiti
     if (type === 'DEBUG') {
         div.className = "story-message system director-content";
         // Use sanitizeHtml directly for logs to preserve spacing exactly as intended
-        div.innerHTML = `<div class="physics-log">${sanitizeHtml(text)}</div>`;
+        // [FIX] Use pre-wrap in CSS instead of replacing newlines, cleaner data
+        div.innerHTML = `<div class="physics-log">${sanitizeHtml(text || "")}</div>`;
         container.appendChild(div);
         return;
     }

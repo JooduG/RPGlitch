@@ -155,10 +155,13 @@
   border-radius: 4px !important;
   align-self: center;
   max-width: 95%;
-  width: 100%;
+  width: 95%; // Force width to fill available space (minus margins)
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
-  overflow: hidden;
+  display: flex; // Force container to wrap content
+  flex-direction: column;
+  height: auto;
+  min-height: auto; // Reset
 
   // The actual log content
   .physics-log {
@@ -166,24 +169,13 @@
     font-size: 0.75rem;
     color: #a0aec0; // Slightly lighter grey for readability
     text-align: left;
-    white-space: pre-wrap; // Preserve formatting
+    white-space: pre-wrap; // Revert to pre-wrap for cleaner handling
     line-height: 1.4;
     padding: 0.75rem 1rem;
+    margin: 0;
+    width: 100%; // Ensure it fills the flex container
   }
 
-  // Header Label
-  &::before {
-    content: "PHYSICS ENGINE UPDATE";
-    display: block;
-    background: rgb(0 0 0 / 30%);
-    padding: 0.4rem 1rem;
-    font-size: 0.65rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: var(--pico-primary); // Matches signature color
-    letter-spacing: 0.05em;
-    border-bottom: 1px solid rgb(255 255 255 / 5%);
-  }
 }
 
 
@@ -379,7 +371,7 @@
   // [FIX] Tighter margins to remove whitespace gap
   margin-bottom: 0.25rem;
   padding: 0.75rem 1rem;
-  background: rgb(0 0 0 / 25%);
+  background: rgb(0 0 0 / 80%);
   border-left: 3px solid var(--pico-primary);
   border-radius: 4px;
 
