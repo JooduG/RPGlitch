@@ -16,7 +16,8 @@ export const state = {
         model: "default",
         historyLength: 10,
         // >>> DIRECTOR MODE ADDED HERE <<<
-        directorMode: false
+        directorMode: false,
+        storyOpeningInstructions: ""
     },
     ui: { fsm: "idle" },
 };

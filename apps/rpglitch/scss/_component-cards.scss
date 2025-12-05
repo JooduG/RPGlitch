@@ -221,6 +221,7 @@
     justify-content: center;
     color: #fff;
     pointer-events: auto; // Allow clicks on body area
+    text-align: left; // CRITICAL FIX: Force left alignment
 
     // CRITICAL FIX: Text blocks click event; ensure it passes through to body
     h4,
@@ -238,7 +239,9 @@
 
     p {
       font-size: 0.85rem;
-      color: var(--pico-muted-color);
+      color: #fff;
+      font-style: normal;
+      opacity: 1;
       margin: 0;
       line-height: 1.4;
       overflow: hidden;

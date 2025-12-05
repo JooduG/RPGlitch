@@ -40,6 +40,7 @@ db.on("populate", async (trans) => {
       debugMode: false,
       // >>> DIRECTOR MODE ADDED HERE <<<
       directorMode: false,
+      storyOpeningInstructions: "",
       storyboardSelection: { narrator: null, user: null, world: null },
     });
     log("[RPGlitch DB] Default settings created successfully.");

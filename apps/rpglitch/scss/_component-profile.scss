@@ -44,6 +44,16 @@
         }
     }
 
+    // World View: Make SVG "shorter" (smaller)
+    .profile-view--world & .placeholder-image svg {
+        width: clamp(64px, 20%, 200px);
+    }
+
+    // Character View (Default): Make SVG "taller" (larger)
+    :not(.profile-view--world) & .placeholder-image svg {
+        width: clamp(120px, 60%, 400px);
+    }
+
     .profile-hero-overlay {
         position: absolute;
         bottom: 1rem;

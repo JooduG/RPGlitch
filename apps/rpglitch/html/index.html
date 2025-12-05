@@ -171,14 +171,28 @@
     </header>
     <div class="settings-body">
       <label>
-        <input type="checkbox" id="setting-director-mode">
+        <input type="checkbox" id="setting-director-mode" role="switch">
         Director's Mode (Show AI Thoughts & Physics Logs)
       </label>
       <hr>
       <label>
+        Story Opening Instructions
+        <small>Instructions for how the AI should start the story (e.g. "Start in media res", "Describe the weather
+          first")</small>
+        <textarea id="setting-story-instructions" placeholder="e.g. Start with a dramatic event..."></textarea>
+      </label>
+      <label>
         Custom JavaScript
         <textarea id="setting-custom-js" placeholder="// Custom JS code here..."></textarea>
       </label>
+      <hr>
+      <details>
+        <summary>Saved Stories</summary>
+        <div id="saved-stories-list" class="saved-stories-list">
+          <!-- Stories injected here -->
+          <p><small>Loading stories...</small></p>
+        </div>
+      </details>
       <hr>
       <div class="grid">
         <button class="secondary outline" id="btn-reset-story">Reset Story</button>
@@ -189,7 +203,7 @@
 
   <template id="tpl-profile-page">
     <div class="profile-layout">
-      <div class="profile-left">
+      <div class="profile-hero">
         <div class="hero-wrap">
           <div class="profile-hero-overlay" data-edit-field="hero">
             <fieldset role="group">

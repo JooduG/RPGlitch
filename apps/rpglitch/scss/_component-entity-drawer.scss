@@ -106,7 +106,7 @@
    ========================================= */
 
 .drawer-card {
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 2 / 3; // Taller for 2-row layout
     background: var(--pico-card-background-color);
     border: 1px solid transparent;
     border-radius: 12px;
@@ -115,6 +115,8 @@
     cursor: pointer;
     transition: all 0.2s ease;
     padding: 0;
+    display: flex;
+    flex-direction: column;
 
     // Hover State
     &:hover {
@@ -123,27 +125,46 @@
         border-color: var(--pico-primary);
     }
 
-    // Image
-    img {
+    // Image Container (Top Row)
+    // The .picture element injected by getPictureHTML will be here
+    .picture {
+        flex: 1;
         width: 100%;
-        height: 100%;
+        min-height: 0; // Allow flex shrinking
+        border-radius: 0; // Override default
+    }
+
+    // Fallback if direct IMG
+    >img {
+        flex: 1;
+        width: 100%;
+        height: auto;
+        min-height: 0;
         object-fit: cover;
         display: block;
     }
 
-    // Label Overlay (Name)
+    // Label Overlay (Name) - Bottom Row
     .drawer-card-label {
-        position: absolute;
-        bottom: 0;
-        left: 0;
+        position: static; // No longer absolute
         width: 100%;
-        background: linear-gradient(to top, rgb(0 0 0 / 90%) 0%, transparent 100%);
-        color: #fff;
-        padding: 2rem 0.5rem 0.5rem;
+        background: rgb(255 255 255 / 5%); // Gray background
+        color: var(--card-signature, #fff); // Signature color
+        padding: 0.5rem;
         text-align: center;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         font-weight: 700;
-        text-shadow: 0 1px 2px black;
+        text-shadow: none;
+        flex-shrink: 0; // Don't shrink
+        border-top: 1px solid rgb(255 255 255 / 5%);
+
+        // Allow 2 rows of text with ellipsis
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.2;
     }
 }
 

@@ -501,6 +501,8 @@ export async function renderProfilePage(type, id) {
 
   layout.querySelector(".profile-right-content").appendChild(footerActions);
 
+  screen.appendChild(layout); // CRITICAL FIX: Add content to DOM
+
   screen.onclick = (e) => { if (e.target === screen) closeProfileModal(); };
   if (imageOverlay) imageOverlay.style.display = isEditing ? "flex" : "none";
 }

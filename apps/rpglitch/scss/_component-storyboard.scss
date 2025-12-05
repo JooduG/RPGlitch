@@ -102,6 +102,14 @@
     letter-spacing: -0.03em;
     padding: 0.5rem;
     transition: border-color 0.3s ease;
+
+    // CRITICAL FIX: Reserve space for 2 lines to prevent layout shift
+    line-height: 1.2;
+    min-height: 3.5em; // Explicitly reserve vertical space (~2 lines + padding)
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
     pointer-events: auto;
 
     &::placeholder {
