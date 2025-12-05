@@ -1,25 +1,68 @@
 // apps/rpglitch/js/entity-crud.js
 import { db } from "./core-db.js";
 import { error } from "./core-utils.js";
-import { normalize, formatPremade, premade, STORAGE_VERSION } from "./entity-structs.js";
+import { normalize, premade, STORAGE_VERSION } from "./entity-structs.js";
 
-// --- SEEDER ---
+// --- SEEDER (The Factory) ---
 export async function seedPremades() {
-    console.log("[RPGlitch] Seeding premade content...");
+    console.log("[RPGlitch] Verifying starter content...");
     try {
-        const chars = premade.characters.map(c => formatPremade(c, "character"));
-        const worlds = premade.worlds.map(w => formatPremade(w, "world"));
-        const stories = premade.stories.map(s => formatPremade(s, "story"));
-        await db.entities.bulkPut([...chars, ...worlds, ...stories]);
-        console.log(`[RPGlitch] Seeded ${chars.length} characters, ${worlds.length} worlds.`);
+        const existing = await db.entities.toArray();
+
+        // Define the Factory Blueprints from the hardcoded structures
+        const blueprints = [
+            ...premade.characters.map(c => ({ ...c, kind: 'character' })),
+            ...premade.worlds.map(w => ({ ...w, kind: 'world' }))
+        ];
+
+        const toAdd = [];
+
+        for (const bp of blueprints) {
+            // Check if a child of this blueprint exists in the DB.
+            const hasChild = existing.some(e => e.originId === bp.id);
+
+            if (!hasChild) {
+                console.log(`[Factory] Minting fresh copy of ${bp.name}`);
+
+                const type = bp.kind || bp.type || 'character';
+
+                // [FIX] Flatten the 'sections' object so normalize() can find the fields
+                const flatBp = {
+                    ...bp,
+                    ...(bp.sections || {}) // Merge sections (forever, past, etc.) to root
+                };
+                delete flatBp.sections; // Cleanup
+
+                const normalized = normalize({ ...flatBp, type });
+
+                toAdd.push({
+                    ...normalized,
+                    id: crypto.randomUUID(), // New unique ID for the living entity
+                    originId: bp.id,         // Secret link to the blueprint (for Revert)
+                    type: type.toLowerCase(),
+                    isPremade: 0,            // It acts like a custom entity
+                    isCustom: 1,             // It is fully editable
+                    isSnapshot: 0,           // It is a Master
+                    version: STORAGE_VERSION,
+                    createdAt: Date.now(),
+                    updatedAt: Date.now()
+                });
+            }
+        }
+
+        if (toAdd.length > 0) {
+            await db.entities.bulkPut(toAdd);
+            console.log(`[RPGlitch] Minted ${toAdd.length} new starter entities.`);
+        }
     } catch (err) {
         error("Failed to seed premades:", err);
     }
 }
 
-// --- CRUD & SNAPSHOTS ---
+// --- CRUD OPERATIONS ---
 
 export const entities = {
+    // List all entities (No filtering needed anymore - Ghosts are gone)
     async list(type) {
         try {
             const items = await db.entities.where("type").equals(type).toArray();
@@ -30,6 +73,7 @@ export const entities = {
         }
     },
 
+    // Get the REAL entity
     async get(type, id) {
         try {
             const item = await db.entities.get(id);
@@ -40,6 +84,7 @@ export const entities = {
         }
     },
 
+    // Save changes (Used by AI directly and UI)
     async upsert(type, entity) {
         try {
             const id = entity.id || crypto?.randomUUID?.() || `${type}-${Date.now()}`;
@@ -50,8 +95,9 @@ export const entities = {
                 ...normalize({ ...base, ...entity }),
                 id: id,
                 type: type.toLowerCase(),
-                isCustom: base.isPremade ? 0 : 1,
-                isPremade: base.isPremade || 0,
+                // Ensure it remains a custom, editable entity
+                isCustom: 1,
+                isPremade: 0,
                 version: STORAGE_VERSION,
                 updatedAt: Date.now(),
             };
@@ -64,78 +110,39 @@ export const entities = {
         }
     },
 
+    // Delete an entity
     async remove(type, id) {
         try {
             const item = await db.entities.get(id);
-            if (item && item.type === type.toLowerCase() && item.isCustom === 1) {
+            if (item && item.type === type.toLowerCase()) {
                 return db.entities.delete(id);
-            }
-            if (item && item.isPremade) {
-                throw new Error("Cannot delete premade content.");
             }
         } catch (err) {
             error(`Failed to delete ${type}:`, err);
             throw err;
         }
-    },
-
-    // Note: copy is removed from the internal entities object to be an external export
-    // and maintain a cleaner separation, as used in the original views.js.
-
-    // --- SNAPSHOT SYSTEM (V4.2) ---
-
-    async getSnapshot(storyId, type, masterId) {
-        try {
-            const candidates = await db.entities.where("type").equals(type.toLowerCase()).toArray();
-            return candidates.find(e =>
-                e.storyId === storyId &&
-                e.isSnapshot === 1 &&
-                (!masterId || e.snapshotOf === masterId)
-            ) || null;
-        } catch (err) {
-            error(`Error fetching snapshot for story ${storyId}:`, err);
-            return null;
-        }
-    },
-
-    async createSnapshot(storyId, masterEntity) {
-        try {
-            const snapshot = {
-                ...masterEntity,
-                id: crypto.randomUUID() || `${masterEntity.type}-snap-${Date.now()}`,
-                storyId: storyId,
-                snapshotOf: masterEntity.id,
-                isSnapshot: 1,
-                isCustom: 1,
-                isPremade: 0,
-                updatedAt: Date.now(),
-                dynamics: {
-                    entropy: 10,
-                    permeability: 50,
-                    velocity: 10,
-                    resonance: 10
-                }
-            };
-
-            await db.entities.put(snapshot);
-            return snapshot;
-        } catch (err) {
-            error(`Failed to create snapshot for ${masterEntity.name}:`, err);
-            throw err;
-        }
     }
 };
 
-// --- Exported for ui-views.js ---
+// --- UTILITIES ---
+
 export async function copyEntity(type, id) {
     try {
         const item = await entities.get(type, id);
         if (!item) return null;
+
         const newEntity = { ...item };
         delete newEntity.id;
+
+        // Break the lineage for manual duplicates
+        newEntity.originId = null;
+
         newEntity.isPremade = 0;
         newEntity.isCustom = 1;
-        newEntity.name = `${newEntity.name || "Untitled"} (Clone)`;
+        newEntity.name = `${newEntity.name || "Untitled"} (Copy)`;
+        newEntity.createdAt = Date.now();
+        newEntity.updatedAt = Date.now();
+
         return newEntity;
     } catch (err) {
         error(`Failed to copy ${type}:`, err);

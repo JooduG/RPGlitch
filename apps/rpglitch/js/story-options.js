@@ -1,6 +1,8 @@
+// apps/rpglitch/js/story-options.js
 import { db } from "./core-db.js";
 import { applyPatch, state } from "./app-state.js";
 import { router } from "./ui-views.js";
+import { StoryController } from "./manager-turns.js";
 
 export const StoryOptionsController = {
   init() {
@@ -25,13 +27,27 @@ export const StoryOptionsController = {
     const customJsInput = modal.querySelector("#setting-custom-js");
     const storyInstructionsInput = modal.querySelector("#setting-story-instructions");
 
-    if (!btn) return;
+    const concludeBtn = modal.querySelector("#btn-conclude-story");
 
-    // Open Options
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      StoryOptionsController.open();
-    });
+    // [FIX] Chat Screen Cog Button
+    const chatSettingsBtn = document.querySelector("#btn-settings-placeholder");
+
+    // Open Options (Storyboard)
+    if (btn) {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        StoryOptionsController.open();
+      });
+    }
+
+    // [FIX] Open Options (Chat Screen)
+    if (chatSettingsBtn) {
+      // Remove the inline onclick from HTML in your head, or we overwrite it here
+      chatSettingsBtn.onclick = (e) => {
+        e.preventDefault();
+        StoryOptionsController.open();
+      };
+    }
 
     // Close Options
     closeBtn?.addEventListener("click", (e) => {
@@ -58,6 +74,16 @@ export const StoryOptionsController = {
       }
     });
 
+    // Conclude Story Action
+    if (concludeBtn) {
+      concludeBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        if (state.story.activeId) {
+          await StoryController.concludeStory();
+        }
+      });
+    }
+
     // Director Mode Wiring
     if (directorModeToggle) {
       directorModeToggle.checked = !!state.settings.directorMode;
@@ -72,7 +98,6 @@ export const StoryOptionsController = {
 
     // Custom JS Wiring
     if (customJsInput) {
-      // Load saved custom JS
       db.settings.get("app-settings").then(s => {
         if (s && s.customJs) customJsInput.value = s.customJs;
       });
@@ -80,7 +105,6 @@ export const StoryOptionsController = {
       customJsInput.addEventListener("input", (e) => {
         const val = e.target.value;
         applyPatch({ settings: { customJs: val } });
-        // Debounced save to DB would be ideal here, but simple patch is fine for now
         db.settings.get("app-settings").then(s => {
           const newSettings = s || { id: "app-settings" };
           newSettings.customJs = val;
@@ -121,8 +145,21 @@ export const StoryOptionsController = {
       storyInstructionsInput.value = state.settings.storyOpeningInstructions || "";
     }
 
+    // Update Conclude Button State
+    const concludeBtn = modal.querySelector("#btn-conclude-story");
+    if (concludeBtn) {
+      const hasActiveStory = !!state.story.activeId;
+      concludeBtn.disabled = !hasActiveStory;
+      if (!hasActiveStory) {
+        concludeBtn.style.opacity = "0.5";
+        concludeBtn.style.cursor = "not-allowed";
+      } else {
+        concludeBtn.style.opacity = "1";
+        concludeBtn.style.cursor = "pointer";
+      }
+    }
+
     modal.removeAttribute("hidden");
-    // CRITICAL FIX: Add the class required by _layout-modal.scss
     modal.classList.add("is-open");
 
     StoryOptionsController.renderStories();
@@ -132,7 +169,6 @@ export const StoryOptionsController = {
     const modal = document.querySelector("#story-options");
     if (modal) {
       modal.classList.remove("is-open");
-      // Wait for animation to finish before hiding
       setTimeout(() => {
         if (!modal.classList.contains("is-open")) {
           modal.setAttribute("hidden", "");
@@ -173,13 +209,20 @@ export const StoryOptionsController = {
         const titleSpan = document.createElement("span");
         titleSpan.textContent = story.title || "Untitled Story";
         titleSpan.style.fontWeight = "bold";
+        if (story.isConcluded) {
+          const badge = document.createElement("small");
+          badge.textContent = " (Concluded)";
+          badge.style.color = "var(--muted-color)";
+          badge.style.fontWeight = "normal";
+          titleSpan.appendChild(badge);
+        }
 
         const actionsDiv = document.createElement("div");
         actionsDiv.style.display = "flex";
         actionsDiv.style.gap = "0.5rem";
 
         const loadBtn = document.createElement("button");
-        loadBtn.textContent = "Load";
+        loadBtn.textContent = story.isConcluded ? "View" : "Load";
         loadBtn.classList.add("outline", "secondary");
         loadBtn.style.padding = "0.25rem 0.5rem";
         loadBtn.style.fontSize = "0.8rem";
@@ -199,9 +242,8 @@ export const StoryOptionsController = {
           e.preventDefault();
           if (confirm(`Delete story "${story.title}"? This cannot be undone.`)) {
             await db.stories.delete(story.id);
-            // Also delete messages
             await db.messages.where("storyId").equals(story.id).delete();
-            StoryOptionsController.renderStories(); // Refresh list
+            StoryOptionsController.renderStories();
           }
         };
 
@@ -229,17 +271,13 @@ export const StoryOptionsController = {
         return;
       }
 
-      // Update state
       applyPatch({
         story: { activeId: story.id, byId: { [story.id]: story } },
         storyTitle: story.title,
         mode: "gameplay"
       });
 
-      // Close modal
       StoryOptionsController.close();
-
-      // Trigger router to load messages and UI
       router.handleRoute();
 
     } catch (err) {

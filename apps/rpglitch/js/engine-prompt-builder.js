@@ -1,17 +1,12 @@
-// apps/rpglitch/js/engine-prompt-builder.js
-import { state } from "./app-state.js"; // Renamed import
-import { entities } from "./entity-crud.js"; // Renamed import
+import { state } from "./app-state.js";
+import { entities } from "./entity-crud.js";
 
 // ==========================================
 // CONFIGURATION: THE HEARTBEAT PROTOCOL
 // ==========================================
 const PROMETHEUS_CONFIG = {
-    // Rhythm: Updates every 4 user messages (approx every 2 full exchanges)
-    // Targets: 3 (AI), 7 (User), 11 (World)
-    UPDATE_MODULO: 4, // Must be moved to config.js
-    UPDATE_OFFSET: 3, // Must be moved to config.js
-
-    // Cycle 0 -> AI, Cycle 1 -> User, Cycle 2 -> World
+    UPDATE_MODULO: 4,
+    UPDATE_OFFSET: 2,
     TARGET_CYCLE: ['ai_character', 'user_character', 'world']
 };
 
@@ -31,7 +26,10 @@ export class ContextBuilder {
         const [ai, user, world] = await this._resolveEntities(story);
         const history = state.messages.byStoryId[this.storyId] || [];
 
-        this.runtimeState.turnCount = history.length;
+        // [FIX] Count only Narrative Turns (Narrator, User, AI)
+        // Filter out "System" or "Debug" messages so the modulo math aligns correctly
+        const narrativeHistory = history.filter(m => m.role !== 'system' && m.type !== 'DEBUG');
+        this.runtimeState.turnCount = narrativeHistory.length;
 
         // --- DYNAMIC SCHEDULING LOGIC (V4.2 Pacing) ---
         let updateTarget = null;
@@ -41,6 +39,8 @@ export class ContextBuilder {
             const updateIndex = (this.runtimeState.turnCount - PROMETHEUS_CONFIG.UPDATE_OFFSET) / PROMETHEUS_CONFIG.UPDATE_MODULO;
             const typeIndex = updateIndex % 3;
             updateTarget = PROMETHEUS_CONFIG.TARGET_CYCLE[typeIndex];
+
+            console.log(`[PROMETHEUS] Heartbeat Triggered. Count: ${this.runtimeState.turnCount}. Target: ${updateTarget}`);
         }
 
         const systemPrompt = [
@@ -98,9 +98,7 @@ export class ContextBuilder {
         let physicsBlock = "";
 
         if (forcedDynamics) {
-            // HARD PHYSICS (Calculated in JS)
             const flags = forcedDynamics._flags || {};
-
             physicsBlock = `
 <PHYSICS_MANDATE>
 The Physics Engine has calculated the following MANDATORY state changes based on coupling laws:
@@ -117,7 +115,6 @@ ${flags.panicSpiral ? "- PANIC_SPIRAL: Entropy is critical. Velocity forced up. 
 You MUST output these exact numbers in your JSON. Your job is to sync the <PRESENT> text to match these numbers.
 </PHYSICS_MANDATE>`;
         } else {
-            // SOFT PHYSICS (Legacy Fallback)
             physicsBlock = `
 <DYNAMICS_GUIDE>
 1. **The Adrenaline Shield:** IF Velocity > 80, Permeability MUST decrease.
@@ -150,7 +147,6 @@ ${JSON.stringify({
             present: targetEntity.present,
             past: targetEntity.past,
             future: targetEntity.future,
-            // We hide dynamics here if forced, so the LLM doesn't get confused by the old state
             dynamics: forcedDynamics ? undefined : currentDynamics
         }, null, 2)}
 </INSTRUCTION>
@@ -287,6 +283,7 @@ ${entity.future || "Exist."}
 1. AGENCY: You play <ACTIVE_CHARACTER_AI>. NEVER control <INTERLOCUTOR_USER>.
 2. SIMULATION: <WORLD_CONTEXT> defines laws of physics/atmosphere.
 3. CONSISTENCY: Adhere to <PERMANENT> traits.
+4. IMMERSION: DO NOT reference game mechanics (Entropy, Resonance, Velocity) in dialogue. These are internal engine states, not in-world concepts.
 </CORE_DIRECTIVES>
 
 <HIERARCHY_OF_TRUTH>
@@ -308,20 +305,13 @@ Analyze:
     // --- HELPERS ---
 
     async _resolveEntities(story) {
-        const resolveSnapshot = async (type, masterId) => {
-            if (!masterId) return null;
-            let snapshot = await entities.getSnapshot(story.id, type, masterId);
-            if (!snapshot) {
-                const master = await entities.get(type, masterId);
-                if (!master) return null;
-                snapshot = await entities.createSnapshot(story.id, master);
-            }
-            return snapshot;
-        };
+        const ai = await entities.get("character", story.aiCharacterId);
+        const user = await entities.get("character", story.userCharacterId);
+        const world = await entities.get("world", story.worldId);
 
-        const ai = await resolveSnapshot("character", story.aiCharacterId);
-        const user = await resolveSnapshot("character", story.userCharacterId);
-        const world = await resolveSnapshot("world", story.worldId);
+        if (!ai || !user) {
+            console.error("Critical: Entities missing for story", story.id);
+        }
 
         return [ai, user, world];
     }

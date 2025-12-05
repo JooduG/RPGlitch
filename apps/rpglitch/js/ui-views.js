@@ -1,6 +1,5 @@
-// apps/rpglitch/js/ui-views.js
-import { entities, copyEntity } from "./entity-crud.js"; // entities, copyEntity
-import { getPictureHTML, getSignature } from "./entity-structs.js"; // getPictureHTML, getSignature
+import { entities, copyEntity } from "./entity-crud.js";
+import { getPictureHTML, getSignature, premade } from "./entity-structs.js";
 import { state } from "./app-state.js";
 
 import {
@@ -8,15 +7,13 @@ import {
   error, setTopBarRight,
   renderTags, isValidImageUrl, extractImageUrl, sanitizeHtml
 } from "./core-utils.js";
-// RENAMED IMPORTS and ADDED closeDrawer
-import { initDrawer, openDrawer, closeDrawer } from "./drawer.js";
-// --- CRITICAL IMPORTS FROM NEW CHAT RENDER FILE ---
-import { setGameplayEntities, updatePortraits, setSendLock } from "./ui-render-chat.js";
 
+import { initDrawer, openDrawer, closeDrawer } from "./drawer.js";
+import { setGameplayEntities, updatePortraits, setSendLock } from "./ui-render-chat.js";
 
 let _refreshAllLists = null;
 let _onSelectionChanged = null;
-let activeSlotKey = null; // Track which slot opened the modal
+let activeSlotKey = null;
 
 const selectedEntities = {
   aiCharacter: null,
@@ -24,10 +21,9 @@ const selectedEntities = {
   world: null,
 };
 
-// --- FORCE UPDATE SELECTION (Exported but defined in ui-render-chat.js) ---
 export { setGameplayEntities };
 
-// --- CORE ROUTING (REMAINS HERE) ---
+// --- CORE ROUTING ---
 function showStoryboard() {
   document.body.classList.remove("profile-view-active");
   document.body.classList.remove("mode-gameplay");
@@ -41,7 +37,7 @@ function showStoryScreen() {
   document.body.classList.add("mode-gameplay");
   closeProfileModal();
 }
-// ... (parseHash, handleRoute, router logic remains) ...
+
 function parseHash() {
   const [path] = location.hash.slice(1).split("?");
   return path.split("/").filter(Boolean);
@@ -52,15 +48,24 @@ function handleRoute() {
   const [section, entityType, id] = parseHash();
   const isType = (t) => t === "character" || t === "world";
 
-  // FIXED: Replace chin.closeAll?.() with the now-exported closeDrawer()
   closeDrawer();
+
+  // [AIRLOCK] Lock user in story if gameplay is active
+  const isGameplayActive = document.body.classList.contains("mode-gameplay");
+  if (isGameplayActive) {
+    if (section !== "story" && section !== "profile") {
+      console.warn("🚫 Access Denied: Story in progress.");
+      location.hash = "#story";
+      return;
+    }
+  }
 
   if (section === "profile" && isType(entityType) && id) {
     if (!document.body.classList.contains("mode-gameplay") && !document.body.classList.contains("mode-storyboard")) {
       document.body.classList.add("mode-storyboard");
     }
     renderProfilePage(entityType, id);
-    try { closeDrawer(); dismissLoadingUI?.(); } catch (e) { void e; } // FIXED
+    try { closeDrawer(); dismissLoadingUI?.(); } catch (e) { void e; }
   } else if (section === "story") {
     showStoryScreen();
   } else {
@@ -71,20 +76,15 @@ function handleRoute() {
 window.addEventListener("hashchange", handleRoute);
 document.addEventListener("DOMContentLoaded", () => {
   handleRoute();
-  // NOTE: Assuming this will be renamed in HTML/CSS/JS elsewhere.
   document.querySelectorAll("button[data-chin]").forEach((btn) => btn.classList.add("entity-drawer-button"));
   document.querySelectorAll('form[role="search"]').forEach((form) => {
     form.addEventListener("submit", (e) => e.preventDefault());
   });
-}, { once: true }
-);
+}, { once: true });
 
 export const router = { navigate(hash) { location.hash = hash; }, parseHash, handleRoute };
 
-// --- SHARED UI HELPERS ---
-
-export { updatePortraits }; // Imported from ui-render-chat.js
-
+export { updatePortraits };
 
 export function updateStoryboardSelection(newSelection) {
   const updateSlot = (key, entity, btnId, previewId, type) => {
@@ -102,7 +102,6 @@ export function updateStoryboardSelection(newSelection) {
 
       if (btn) btn.hidden = true;
     } else {
-      // Clear slot if entity is null
       selectedEntities[key] = null;
       const btn = document.querySelector(btnId);
       const previewEl = document.querySelector(previewId);
@@ -118,8 +117,7 @@ export function updateStoryboardSelection(newSelection) {
   if (_onSelectionChanged) _onSelectionChanged(selectedEntities);
 }
 
-// --- INPUT LOCK LOGIC REMOVED/MIGRATED ---
-export { setSendLock }; // Imported from ui-render-chat.js
+export { setSendLock };
 
 // --- CONSTANTS ---
 const SECTION_DEFINITIONS = {
@@ -141,7 +139,7 @@ const SECTION_DEFINITIONS = {
   },
 };
 
-// --- MODAL MANAGEMENT (REMAINS HERE) ---
+// --- MODAL MANAGEMENT ---
 function closeProfileModal() {
   const screen = document.querySelector("#profile-screen");
   if (screen) {
@@ -154,7 +152,7 @@ function closeProfileModal() {
     }
   }
   document.body.classList.remove("profile-view-active");
-  activeSlotKey = null; // Clear active slot
+  activeSlotKey = null;
 }
 
 function openProfileModal(type, id, slotKey = null) {
@@ -167,7 +165,7 @@ function autoResize(el) {
   el.style.height = el.scrollHeight + 'px';
 }
 
-// --- PROFILE RENDERER (REMAINS HERE) ---
+// --- PROFILE RENDERER ---
 export async function renderProfilePage(type, id, forceEditMode = false) {
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
@@ -177,14 +175,13 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   screen.classList.add("is-open");
 
   const isWorld = type === 'world';
+  if (isWorld) screen.classList.add("profile-view--world");
+  else screen.classList.remove("profile-view--world");
 
-  if (isWorld) {
-    screen.classList.add("profile-view--world");
-  } else {
-    screen.classList.remove("profile-view--world");
-  }
+  // Check Gameplay Status (Lock)
+  const isGameplay = document.body.classList.contains("mode-gameplay");
+  let isEditing = (id === "new" || forceEditMode) && !isGameplay;
 
-  let isEditing = id === "new" || forceEditMode;
   let entity;
 
   if (id === "new") {
@@ -203,6 +200,11 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   }
 
   if (!entity) { closeProfileModal(); return; }
+
+  // Identify Blueprint for Factory Revert
+  const blueprint = entity.originId
+    ? (type === 'character' ? premade.characters : premade.worlds).find(p => p.id === entity.originId)
+    : null;
 
   screen.textContent = "";
   screen.className = "profile-view";
@@ -235,8 +237,8 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   }
   if (actionButton) { actionButton.disabled = false; actionButton.removeAttribute("aria-busy"); }
 
-  // --- MISSING FUNCTION RESTORED ---
   const setEditMode = (editing) => {
+    if (isGameplay) return; // Cannot switch to edit mode in game
     isEditing = editing;
     screen.classList.toggle("is-editing", editing);
     setTopBarRight(editing ? "form" : "profile");
@@ -364,7 +366,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   // --- TAGS ---
   const tagsRow = document.createElement("div");
   tagsRow.className = "field-row";
-  tagsRow.hidden = true; // Hidden for now
+  tagsRow.hidden = true;
 
   if (isEditing) {
     tagsRow.innerHTML = `
@@ -414,29 +416,33 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
 
   Object.keys(SECTION_DEFINITIONS).forEach(k => createRow(k, SECTION_DEFINITIONS[k]));
 
-  // --- DYNAMICS (Director's Mode) ---
-  if (state.settings.directorMode) {
+  // --- DYNAMICS (Director Mode) ---
+  if (state.settings.directorMode && type === 'character') { // [FIX] Added type safety
     const dynRow = document.createElement("div");
     dynRow.className = "field-row";
     const dyns = entity.dynamics || { entropy: 50, permeability: 50, velocity: 50, resonance: 50 };
 
     if (isEditing) {
       dynRow.innerHTML = `
-                <div class="field-label"><label>Dynamics</label><small class="muted">Director's Mode</small></div>
+                <div class="field-label"><label>Dynamics</label><small class="muted">Director Mode</small></div>
                 <div class="field-input" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
                     ${['entropy', 'permeability', 'velocity', 'resonance'].map(k => `
                         <label style="font-size: 0.8rem; text-transform: capitalize;">
-                            ${k} <input type="number" data-edit-dynamic="${k}" value="${dyns[k] || 50}" min="0" max="100">
+                            ${k} <input type="number" data-edit-dynamic="${k}" value="${dyns[k] !== undefined ? dyns[k] : 50}" min="0" max="100">
                         </label>
                     `).join('')}
                 </div>`;
     } else {
+      // [FIX] REFACTORED READ-ONLY VIEW TO USE GRID CARDS INSTEAD OF PLAIN TEXT
       dynRow.innerHTML = `
-                <div class="field-label"><label>Dynamics</label><small class="muted">Director's Mode</small></div>
-                <div class="field-input">
-                    <div class="profile-field-text-read" style="font-family: monospace; font-size: 0.85rem;">
-                        ${['entropy', 'permeability', 'velocity', 'resonance'].map(k => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${dyns[k] || 50}`).join(' | ')}
-                    </div>
+                <div class="field-label"><label>Dynamics</label><small class="muted">Director Mode</small></div>
+                <div class="field-input" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                     ${['entropy', 'permeability', 'velocity', 'resonance'].map(k => `
+                        <div style="background: var(--pico-card-background-color); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--pico-muted-border-color); text-align: center;">
+                            <div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 0.25rem;">${k}</div>
+                            <div style="font-family: monospace; font-size: 1.1rem; font-weight: 800; color: var(--pico-primary);">${dyns[k] !== undefined ? dyns[k] : 50}%</div>
+                        </div>
+                    `).join('')}
                 </div>`;
     }
     secWrap.appendChild(dynRow);
@@ -446,7 +452,46 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   const footerActions = document.createElement("div");
   footerActions.className = "profile-actions-footer";
 
-  if (isEditing) {
+  if (isGameplay) {
+    // --- GAMEPLAY MODE (Read Only) ---
+    const statusMsg = document.createElement("div");
+    statusMsg.className = "muted";
+    statusMsg.style.width = "100%";
+    statusMsg.style.textAlign = "center";
+    statusMsg.innerHTML = "<em>Entity is active in story. Changes are managed by the AI.</em>";
+    footerActions.appendChild(statusMsg);
+
+  } else if (isEditing) {
+    // --- EDIT MODE ---
+
+    // Factory Revert Button
+    if (blueprint) {
+      const revertBtn = document.createElement("button");
+      revertBtn.className = "secondary outline warning";
+      revertBtn.textContent = "Revert to Default";
+      revertBtn.title = "Reset all fields to original factory settings";
+      revertBtn.onclick = (e) => {
+        e.preventDefault();
+        if (confirm("Reset this character to its original factory state? All changes will be lost.")) {
+          // Flatten blueprint data for form population
+          const flatBp = { ...blueprint, ...(blueprint.sections || {}) };
+
+          screen.querySelector('[data-edit-field="name"]').value = flatBp.name;
+          screen.querySelector('[data-edit-field="description"]').value = flatBp.description;
+          Object.keys(SECTION_DEFINITIONS).forEach(k => {
+            const el = screen.querySelector(`[data-edit-field="${k}"]`);
+            if (el) el.value = flatBp[k] || "";
+          });
+          if (flatBp.profilePictureUrl) {
+            imageInput.value = flatBp.profilePictureUrl;
+            imageInput.dispatchEvent(new Event('input'));
+          }
+          screen.querySelectorAll('textarea').forEach(t => t.dispatchEvent(new Event('input')));
+        }
+      };
+      footerActions.appendChild(revertBtn);
+    }
+
     // SAVE
     const saveBtn = document.createElement("button");
     saveBtn.className = "primary"; saveBtn.textContent = "Save";
@@ -481,7 +526,6 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
 
       const saved = await entities.upsert(type, id === "new" || entity.isPremade ? data : { ...data, id });
 
-      // Update storyboard slot if applicable
       if (activeSlotKey) {
         selectedEntities[activeSlotKey] = saved;
         updateStoryboardSelection(selectedEntities);
@@ -492,7 +536,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     };
 
     // DELETE
-    if (!entity.isPremade && id !== "new") {
+    if (id !== "new") {
       const delBtn = document.createElement("button");
       delBtn.className = "secondary outline danger"; delBtn.textContent = "Delete";
       delBtn.onclick = async (e) => {
@@ -500,7 +544,6 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         if (confirm("Delete this entity?")) {
           await entities.remove(type, id);
 
-          // Clear storyboard slot if deleted entity was selected
           let changed = false;
           Object.keys(selectedEntities).forEach(k => {
             if (selectedEntities[k] && selectedEntities[k].id === id) {
@@ -519,9 +562,8 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     footerActions.appendChild(saveBtn);
 
   } else {
-    // VIEW MODE ACTIONS
-    if (entity.isPremade) {
-      // CLONE (Premade only)
+    // --- VIEW MODE ---
+    if (entity.isPremade && !entity.originId) { // Legacy premade support
       const cloneBtn = document.createElement("button");
       cloneBtn.className = "primary"; cloneBtn.textContent = "Clone";
       cloneBtn.onclick = async (e) => {
@@ -531,17 +573,19 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
       };
       footerActions.appendChild(cloneBtn);
     } else {
-      // EDIT (Custom only)
+      // STANDARD ENTITIES (Factory or Custom)
+
+      // 1. Edit Button
       const editBtn = document.createElement("button");
       editBtn.className = "secondary outline"; editBtn.textContent = "Edit";
       editBtn.onclick = (e) => { e.preventDefault(); setEditMode(true); };
+
       footerActions.appendChild(editBtn);
     }
   }
 
   layout.querySelector(".profile-right-content").appendChild(footerActions);
-
-  screen.appendChild(layout); // CRITICAL FIX: Add content to DOM
+  screen.appendChild(layout);
 
   screen.onclick = (e) => { if (e.target === screen) closeProfileModal(); };
   if (imageOverlay) imageOverlay.style.display = isEditing ? "flex" : "none";
@@ -607,7 +651,7 @@ function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) 
         openDrawerFor(entityType, stateKey, previewId, button, container);
       };
 
-      const isWorld = entityType === 'world'; // FIXED
+      const isWorld = entityType === 'world';
       renderEntityPreview(previewId, entity, button, entityType, onEdit, isWorld, stateKey);
 
       button.hidden = true;
@@ -616,7 +660,7 @@ function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) 
       error("Selection failed:", err);
     }
   }, triggerElement, () => {
-    window.ephemeralEntity = null; // FIX: Clear any previous clone data
+    window.ephemeralEntity = null;
     activeSlotKey = stateKey;
     window.location.hash = `#profile/${entityType}/new`;
   });
@@ -645,9 +689,6 @@ function renderEntityPreview(previewId, entity, slotButton, type, onEdit, isWorl
     body.className = "card-body";
     body.title = "Change Selection";
     body.innerHTML = `<h4>${entity.name}</h4><p class="muted">${entity.description || ""}</p>`;
-
-    // Click handling is now managed by the parent .entity-card container
-    // allowing clicks on Title/Description to trigger the drawer.
 
     previewEl.appendChild(media);
     previewEl.appendChild(body);

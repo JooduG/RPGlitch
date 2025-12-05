@@ -211,3 +211,15 @@ button,
         box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
     }
 }
+
+/* --- DIRECTOR MODE TOGGLE --- */
+
+/* This controls visibility for Thoughts, Physics Logs, and Stat blocks */
+body:not(.mode-director) .director-content {
+    display: none !important;
+}
+
+/* Helper to lock body scroll when modals are open */
+body.modal-open {
+    overflow: hidden;
+}

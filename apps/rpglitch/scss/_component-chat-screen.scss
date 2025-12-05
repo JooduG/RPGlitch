@@ -1,4 +1,3 @@
-// apps/rpglitch/scss/_component-chat-screen.scss
 @use "config" as *;
 @use "sass:map";
 
@@ -10,7 +9,6 @@
 /* =========================================
    1. CHAT FEED (The Scrollable Area)
    ========================================= */
-
 #chat-feed {
     flex: 1;
     min-height: 0; // Critical for flexbox scrolling
@@ -21,23 +19,18 @@
     gap: 1.5rem;
     scroll-behavior: smooth;
 
-    // Apply custom scrollbar
     @include custom-scrollbar;
 
-    // Mobile padding adjustment
     @include mobile {
         padding: 1rem;
         gap: 1rem;
-        padding-bottom: 5rem; // Space for fixed input area
+        padding-bottom: 5rem;
     }
 }
 
-
 /* =========================================
    2. INPUT AREA (The Control Deck)
-   Fixed at the bottom of the center column.
    ========================================= */
-
 #story-input-area {
     flex-shrink: 0;
     padding: 1rem;
@@ -59,12 +52,11 @@
 
 /* --- THE INPUT FORM --- */
 #story-form {
-    padding: 0; // Reset internal padding
+    padding: 0;
     background: transparent;
     box-shadow: none;
     border-radius: 0;
 
-    // Text Input
     input[type="text"] {
         border-radius: var(--pico-radius) 0 0 var(--pico-radius);
         border: 1px solid var(--pico-muted-border-color);
@@ -77,7 +69,6 @@
         }
     }
 
-    // Send Button (The Glowing Trigger)
     input[type="submit"] {
         border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
         transition: all 0.2s ease;
@@ -85,8 +76,6 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
         padding: 0 2rem;
-
-        // Default Glow (Purple) - will be overridden by signature
         box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
 
         &:not(:disabled):hover {
@@ -106,7 +95,6 @@
     }
 }
 
-// Signature-specific Glows for the Send Button
 @each $name, $data in $signature-colors {
     $color: map.get($data, color);
 
@@ -117,20 +105,16 @@
     }
 }
 
-
 /* =========================================
    3. CHARACTER PORTRAITS (Side Columns)
-   Displays for the Active User and Narrator/AI.
    ========================================= */
-
 .character-portrait {
     width: 100%;
     height: 100%;
     position: relative;
     overflow: hidden;
-    cursor: pointer; // FIXED: Reverted to pointer as these are interactive
+    cursor: pointer;
 
-    // Image Container
     .portrait-image {
         width: 100%;
         height: 100%;
@@ -145,7 +129,7 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            transition: transform 10s ease; // Slow cinematic zoom
+            transition: transform 10s ease;
         }
     }
 
@@ -155,11 +139,14 @@
 }
 
 /* --- NAMEPLATE OVERLAY --- */
-// Floating tag identifying the character
 .character-name-overlay {
     position: absolute;
     top: 2rem;
     z-index: 20;
+
+    // [FIX] Constrain width to prevent bleed on small screens
+    max-width: 85%;
+    overflow: hidden;
 
     // Visual Style
     color: white;
@@ -169,24 +156,28 @@
     padding: 0.75rem 1.5rem;
     border-radius: var(--pico-radius);
     box-shadow: 0 4px 12px rgb(0 0 0 / 60%);
-    min-width: 150px;
+    min-width: 120px; // Reduced slightly
     text-align: center;
-    cursor: pointer; // FIXED: Reverted to pointer
+    cursor: pointer;
 
     // Typography
     h2 {
         margin: 0;
-        font-size: 1.5rem;
+        font-size: 1.25rem; // Slightly reduced for better fit
         line-height: 1.2;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        white-space: nowrap; // Ensure ellipsis works
+        overflow: hidden; // Ensure ellipsis works
+        text-overflow: ellipsis; // Cut off long names gracefully
     }
 
     // Default: Left-Aligned (Narrator/AI)
-    left: 2rem;
+    left: 1rem; // Reduced margin
+    right: auto; // Ensure no conflicting constraints
 
-    // Dynamic Signature Border
+    // Signature Styling
     .signature-pink & {
         border-color: var(--signature-pink);
         color: var(--signature-pink);
@@ -214,18 +205,14 @@
 }
 
 // Right-Aligned (User Character)
-// Targeted via ID injected by UI logic
 #gameplay-user-portrait .character-name-overlay {
     left: auto;
-    right: 2rem;
+    right: 1rem; // Reduced margin
 }
-
 
 /* =========================================
    4. STATUS & FEEDBACK UI
    ========================================= */
-
-/* --- TOAST NOTIFICATION --- */
 #status-notifier {
     position: fixed;
     bottom: 5rem;
@@ -239,7 +226,7 @@
     z-index: #{z(toast)};
     color: #fff;
     font-weight: 600;
-    display: none; // Toggled via JS
+    display: none;
     pointer-events: none;
 
     &:not(:empty) {
@@ -248,9 +235,7 @@
     }
 }
 
-/* --- LOADING SPINNER --- */
 #loading-modal {
-    // Uses generic modal mixin, specific overrides here if needed
     z-index: #{z(modal) + 1};
 
     &[open] {
@@ -263,7 +248,6 @@
         backdrop-filter: blur(5px);
     }
 
-    // Modern CSS Spinner
     [aria-busy="true"]::after {
         width: 3rem;
         height: 3rem;
@@ -272,11 +256,6 @@
         border-right-color: transparent;
     }
 }
-
-
-/* =========================================
-   ANIMATIONS
-   ========================================= */
 
 @keyframes slide-in-right {
     from {

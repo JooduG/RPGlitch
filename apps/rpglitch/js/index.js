@@ -45,6 +45,7 @@ const App = {
     // CRITICAL: Expose Controllers to Window so HTML buttons can see them
     window.StoryController = StoryController;
     window.StoryboardController = StoryboardController;
+    window.StoryOptionsController = StoryOptionsController; // [NEW] Expose Options
 
     try {
       console.log("[Universal Stage] Initializing Views...");
@@ -73,7 +74,6 @@ const App = {
         const btn = form.querySelector('button[type="submit"]');
 
         input?.addEventListener("input", () => {
-          // MODIFIED: Check if button is locked before enabling
           const isLocked = btn && btn.dataset.locked === "true";
           if (btn) {
             btn.disabled = isLocked || !input.value.trim();
@@ -85,8 +85,6 @@ const App = {
           const val = input.value.trim();
           if (val) {
             input.value = "";
-            // Note: StoryController.send will call setSendLock(true),
-            // but disabling here locally feels snappier.
             if (btn) btn.disabled = true;
             await StoryController.send(val);
           }
@@ -101,11 +99,6 @@ const App = {
       if (directorToggle) {
         directorToggle.checked = state.settings.directorMode;
         directorToggle.addEventListener("change", (e) => applyPatch({ settings: { directorMode: e.target.checked } }));
-      }
-
-      const customInstructions = document.querySelector("#setting-custom-instructions");
-      if (customInstructions) {
-        // Placeholder for future custom instructions logic
       }
 
       log("[Universal Stage] Ready.");
@@ -171,7 +164,6 @@ const App = {
       log("[Init] Checking environment...");
       const isLocal = location.hostname === "localhost" || location.protocol === "file:";
 
-      // Initialize Debug Mode from DB before logging anything
       await initDebugMode();
 
       if (isLocal) {
@@ -183,10 +175,9 @@ const App = {
       App.setupPlugins();
       await db.open();
 
-      const charCount = await db.entities.where("type").equals("character").count();
-      if (charCount === 0) {
-        await seedPremades();
-      }
+      // [FIX] Always run the seeder to replenish deleted factory items
+      // The seeder itself handles duplication checks.
+      await seedPremades();
 
       await App.initUniversalStage();
 

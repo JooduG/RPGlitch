@@ -1,4 +1,3 @@
-// apps/rpglitch/scss/_component-chat-messages.scss
 @use "config" as *;
 @use "sass:map";
 
@@ -34,6 +33,37 @@
   @include mobile {
     max-width: 95%;
     padding: 0.75rem 1rem;
+  }
+
+  // --- MARKDOWN LITE STYLES ---
+  // Ensure formatted text pops correctly inside bubbles
+  b,
+  strong {
+    font-weight: 800; // Increased weight for better readability
+    color: inherit;
+    filter: brightness(1.2); // Slight pop against background
+  }
+
+  i,
+  em {
+    font-style: italic;
+    opacity: 0.9;
+    font-family: serif; // Narrative flair distinct from UI text
+  }
+
+  code {
+    background: rgb(0 0 0 / 30%);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: monospace;
+  }
+
+  // Clean line breaks
+  br {
+    display: block;
+    content: "";
+    margin-top: 0.5rem;
   }
 }
 
@@ -91,12 +121,12 @@
 
   border-left: 2px solid var(--pico-muted-border-color) !important;
 
-  // CRITICAL FIX: Hide the legacy JS-injected label to prevent double text
+  // Hide the legacy JS-injected label
   .narrator-prefix {
     display: none;
   }
 
-  // FORCE OVERRIDES (User Feedback Round 2)
+  // FORCE OVERRIDES
   font-style: normal !important;
   color: #fff !important;
   opacity: 1 !important;
@@ -112,6 +142,48 @@
   border: 1px solid var(--pico-muted-border-color) !important;
   font-style: italic;
   color: var(--pico-muted-color) !important;
+}
+
+/* --- 5. PHYSICS LOGS (System / Debug) --- */
+// Redesigned to look like a clean system card (UPDATED V2)
+.story-message.system.director-content {
+  background: rgb(15 23 42 / 95%) !important; // Dark slate background
+  box-shadow: 0 4px 6px rgb(0 0 0 / 20%) !important;
+  padding: 0; // Padding handled by inner elements
+  border: 1px solid var(--pico-muted-border-color) !important;
+  border-left: 3px solid var(--pico-primary) !important; // Accent border
+  border-radius: 4px !important;
+  align-self: center;
+  max-width: 95%;
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+
+  // The actual log content
+  .physics-log {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: #a0aec0; // Slightly lighter grey for readability
+    text-align: left;
+    white-space: pre-wrap; // Preserve formatting
+    line-height: 1.4;
+    padding: 0.75rem 1rem;
+  }
+
+  // Header Label
+  &::before {
+    content: "PHYSICS ENGINE UPDATE";
+    display: block;
+    background: rgb(0 0 0 / 30%);
+    padding: 0.4rem 1rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--pico-primary); // Matches signature color
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgb(255 255 255 / 5%);
+  }
 }
 
 
@@ -146,20 +218,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
-
-  // Visuals
   background: var(--pico-form-element-background-color);
   color: #fff;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
-
-  // Animation Entrance
   opacity: 0;
   animation: slide-in-up 0.3s ease-out forwards;
-
-  // Geometry Defaults (AI Style)
   border-radius: 0 var(--pico-radius) var(--pico-radius) var(--pico-radius);
 
-  // Signature Override Logic for Typing
   @each $name, $data in $signature-colors {
     $color: map.get($data, color);
 
@@ -168,14 +233,12 @@
     }
   }
 
-  // Narrator Typing Bubble: Center Aligned
   &.narrator {
     align-self: center;
     margin-inline: auto;
   }
 }
 
-// The Dots
 .typing-dot {
   width: 6px;
   height: 6px;
@@ -236,44 +299,14 @@
   box-shadow: 0 2px 5px rgb(0 0 0 / 20%);
   z-index: 10;
 
-  button.action-btn {
-    appearance: none;
-    background: transparent;
-    border: none;
-    color: var(--pico-muted-color);
-    cursor: pointer;
-    font-size: 0.75rem; // Reduced from 0.85rem
-    padding: 2px 6px; // Reduced from 4px 8px
-    margin: 0;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    width: auto;
-    height: auto;
-    line-height: 1;
-
-    &:hover {
-      // background-color: var(--pico-primary-background); // REMOVED per user request
-      display: none !important;
-    }
-
-    // Divider between buttons
-    &:not(:last-child) {
-      border-right: 1px solid var(--pico-muted-border-color);
-      padding-right: 6px;
-      margin-right: 2px;
-      border-radius: 0; // Remove radius on the side with border
-    }
-  }
-
-  // Target the specific ghost-icon-btn class used in JS
   .ghost-icon-btn {
     appearance: none;
     background: transparent;
     border: none;
     color: var(--pico-muted-color);
     cursor: pointer;
-    font-size: 0.75rem; // Reduced from 0.8rem
-    padding: 2px 6px; // Reduced from 2px 6px (same now)
+    font-size: 0.75rem;
+    padding: 2px 6px;
     margin: 0;
     border-radius: 4px;
     transition: all 0.2s ease;
@@ -286,7 +319,6 @@
   }
 }
 
-// Show actions on hover (ONLY if not generating)
 .story-message:hover .message-actions {
   display: flex;
 }
@@ -297,7 +329,7 @@
   align-items: stretch;
   background-color: var(--pico-card-background-color);
   border: 1px solid var(--pico-primary-border);
-  width: 100%; // FIXED: Ensure it fills the available space (up to max-width)
+  width: 100%;
 
   textarea.edit-input {
     width: 100%;
@@ -330,41 +362,45 @@
     }
   }
 
-  // Hide original content and actions while editing
   .message-content,
   .message-actions {
     display: none !important;
   }
 }
 
-// --- INTERNAL MONOLOGUE (Director's Mode) ---
+// --- INTERNAL MONOLOGUE (Director Mode) ---
 .thought-trace {
   display: block;
   width: 100%;
-  text-align: left !important; // FORCE Left Alignment
-  font-size: 0.85em; // Reduced from 0.9em
-  opacity: 0.85;
-  margin-bottom: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  background: rgb(0 0 0 / 20%);
+  text-align: left !important;
+  font-size: 0.85em;
+  opacity: 0.9;
+
+  // [FIX] Tighter margins to remove whitespace gap
+  margin-bottom: 0.25rem;
+  padding: 0.75rem 1rem;
+  background: rgb(0 0 0 / 25%);
   border-left: 3px solid var(--pico-primary);
   border-radius: 4px;
-  font-style: italic;
+
+  // [FIX] Normal style per user request
+  font-style: normal;
   white-space: pre-wrap;
 
   .thought-label {
-    font-size: 0.7em;
+    font-size: 0.65em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity: 0.7;
+    letter-spacing: 0.08em;
+    opacity: 0.6;
     margin-bottom: 0.25rem;
+    font-weight: 800;
     font-style: normal;
-    font-weight: bold;
+    display: block;
+    color: var(--pico-primary);
   }
 }
 
-// --- SAFETY LOCK (Global State) ---
-// When the feed is generating, suppress all ghost buttons
+// --- SAFETY LOCK ---
 #chat-feed.generating {
   .story-message:hover .message-actions {
     display: none !important;

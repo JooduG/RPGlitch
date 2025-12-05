@@ -1,18 +1,21 @@
-// apps/rpglitch/js/manager-turns.js
 import { db } from "./core-db.js";
 import { state, applyPatch } from "./app-state.js";
 import { generateStream } from "./llm-adapter.js";
 import { entities } from "./entity-crud.js";
-import { renderMessage, updatePortraits, setGameplayEntities, showTypingIndicator, removeTypingIndicator, setSendLock, applyWorldAmbience, setChatGeneratingState } from "./ui-render-chat.js"; // Renamed imports
-import { error } from "./core-utils.js"; // Removed escapeHtml
-import { ContextBuilder } from "./engine-prompt-builder.js"; // Renamed import
-import { analyzeRejection, getDirectorInstruction } from "./engine-variance.js"; // Renamed import
-import { calculateDynamics } from "./engine-physics.js"; // Renamed import
+import {
+  renderMessage, updatePortraits, setGameplayEntities,
+  showTypingIndicator, removeTypingIndicator, setSendLock,
+  applyWorldAmbience, setChatGeneratingState
+} from "./ui-render-chat.js";
+import { error } from "./core-utils.js";
+import { ContextBuilder } from "./engine-prompt-builder.js";
+import { analyzeRejection, getDirectorInstruction } from "./engine-variance.js";
+import { calculateDynamics } from "./engine-physics.js";
 
-// Helper to create the structured debug log
-function createPhysicsDebugLog(oldDynamics, newDynamics) {
+// [UPDATED] Now accepts entityName for clearer logs
+function createPhysicsDebugLog(oldDynamics, newDynamics, entityName) {
   const flags = newDynamics._flags || {};
-  let debugText = "[PHYSICS LOG]\n";
+  let debugText = `[PHYSICS LOG] TARGET: ${entityName || 'Unknown'}\n`;
   debugText += `ENTROPY: ${newDynamics.entropy}% (was ${oldDynamics.entropy}%)\n`;
   debugText += `PERMEABILITY: ${newDynamics.permeability}% (was ${oldDynamics.permeability}%)\n`;
   debugText += `VELOCITY: ${newDynamics.velocity}% (was ${oldDynamics.velocity}%)\n`;
@@ -23,7 +26,6 @@ function createPhysicsDebugLog(oldDynamics, newDynamics) {
   if (flags.echoChamber) debugText += ">> LAW 5: ECHO CHAMBER ACTIVE (Future Vector Critical)\n";
   if (flags.glassCannon) debugText += ">> LAW 6: GLASS CANNON ACTIVE (Double Impact Gain)\n";
 
-  // Check for Adrenaline Shield/Cool-Down logs (from physics.js console.log)
   if (newDynamics.permeability < oldDynamics.permeability && newDynamics.velocity > 80) {
     debugText += ">> LAW 1: ADRENALINE SHIELD (Permeability Penalty)\n";
   }
@@ -31,10 +33,8 @@ function createPhysicsDebugLog(oldDynamics, newDynamics) {
     debugText += ">> LAW 3: COOL-DOWN (Entropy Reduced)\n";
   }
 
-  // Clean up empty space
   return debugText.trim();
 }
-
 
 export const TurnManager = {
   requireActive: () => {
@@ -43,19 +43,35 @@ export const TurnManager = {
   },
 
   createFromSelection: async (data) => {
+    const [startAi, startUser, startWorld] = await Promise.all([
+      entities.get("character", data.aiCharacterId),
+      entities.get("character", data.userCharacterId),
+      entities.get("world", data.worldId)
+    ]);
+
     const id = await db.stories.add({
       ...data,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
+      isConcluded: 0,
+      snapshots: {
+        start: {
+          ai: startAi,
+          user: startUser,
+          world: startWorld
+        },
+        end: null
+      }
     });
-    const storyWithId = { ...data, id: id };
-    applyPatch({ story: { activeId: id, byId: { [id]: storyWithId } } });
-    return id;
-  },
 
-  getRealEntity: async (storyId, type, masterId) => {
-    const snap = await entities.getSnapshot(storyId, type, masterId);
-    return snap || await entities.get(type, masterId);
+    const storyWithId = { ...data, id: id };
+
+    applyPatch({
+      story: { activeId: id, byId: { [id]: storyWithId } },
+      mode: "gameplay"
+    });
+
+    return id;
   },
 
   load: async (storyId) => {
@@ -72,18 +88,17 @@ export const TurnManager = {
       await TurnManager.loadMessages(story.id);
 
       const [ai, user] = await Promise.all([
-        TurnManager.getRealEntity(storyId, "character", story.aiCharacterId),
-        TurnManager.getRealEntity(storyId, "character", story.userCharacterId)
+        entities.get("character", story.aiCharacterId),
+        entities.get("character", story.userCharacterId)
       ]);
 
-      const world = await TurnManager.getRealEntity(storyId, "world", story.worldId);
+      const world = await entities.get("world", story.worldId);
 
       updatePortraits(ai, user);
       setGameplayEntities(ai, user, world);
 
       await TurnManager.render(story.id);
 
-      // --- PURIFIED: Ambience logic now uses a helper function (assumed to read CSS) ---
       if (world) {
         applyWorldAmbience(world);
       }
@@ -111,8 +126,8 @@ export const TurnManager = {
     const story = state.story.byId[storyId];
 
     let [ai, user] = await Promise.all([
-      TurnManager.getRealEntity(storyId, "character", story.aiCharacterId),
-      TurnManager.getRealEntity(storyId, "character", story.userCharacterId)
+      entities.get("character", story.aiCharacterId),
+      entities.get("character", story.userCharacterId)
     ]);
 
     feed.innerHTML = "";
@@ -125,7 +140,6 @@ export const TurnManager = {
 
     if (noMsg) noMsg.hidden = true;
 
-    // Identify last user message
     const lastUserMsg = msgs.slice().reverse().find(m => m.role === "user");
     const lastUserMsgId = lastUserMsg ? lastUserMsg.id : null;
 
@@ -149,28 +163,20 @@ export const TurnManager = {
 
   editUserMessage: async (messageId, newText) => {
     const storyId = TurnManager.requireActive();
-
-    // 1. Update the message text
     await db.messages.update(messageId, { text: newText });
 
-    // 2. Find subsequent AI message(s) to delete (Time Travel)
     const msgs = await db.messages.where("storyId").equals(storyId).sortBy("createdAt");
     const msgIndex = msgs.findIndex(m => m.id === messageId);
 
     if (msgIndex !== -1 && msgIndex < msgs.length - 1) {
-      // Delete all messages AFTER this one
       const messagesToDelete = msgs.slice(msgIndex + 1);
       for (const msg of messagesToDelete) {
         await db.messages.delete(msg.id);
       }
-      // TODO: Rollback entity state if needed (complex, skipping for now)
     }
 
-    // 3. Reload and Render to show the update and deletion
     await TurnManager.loadMessages(storyId);
     await TurnManager.render(storyId);
-
-    // 4. Trigger Regeneration
     await TurnManager.generateAiResponse(storyId);
   },
 
@@ -239,7 +245,6 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
 
-    // 1. LOCK UI immediately
     setSendLock(true);
     setChatGeneratingState(true);
 
@@ -255,7 +260,6 @@ export const TurnManager = {
       await TurnManager.loadMessages(storyId);
       await TurnManager.render(storyId);
 
-      // 2. SHOW TYPING BUBBLE (AI Style)
       const feed = document.querySelector("#chat-feed");
       showTypingIndicator(feed, 'ai', story.aiCharacterId);
 
@@ -266,15 +270,12 @@ export const TurnManager = {
       const ctrl = new AbortController();
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
-      // 3. GENERATE (Stream)
-      // Pass onToken to remove bubble instantly when text appears
       const response = await generateStream({
         payload,
         signal: ctrl.signal,
         onToken: () => removeTypingIndicator(feed)
       });
 
-      // Cleanup bubble just in case
       removeTypingIndicator(feed);
 
       const aiChar = await entities.get("character", story.aiCharacterId);
@@ -291,10 +292,8 @@ export const TurnManager = {
       await TurnManager.render(storyId);
       applyPatch({ ui: { fsm: "done" } });
 
-      // 4. BACKGROUND PHYSICS (Still Locked!)
       if (payloadMeta && payloadMeta.triggerUpdate) {
         console.log(`[PROMETHEUS] Running Physics... (UI Locked)`);
-        // We await this so the lock persists
         await TurnManager.runBackgroundUpdate(storyId, payloadMeta.updateTarget, aiMsgId);
       }
 
@@ -302,11 +301,9 @@ export const TurnManager = {
       error("AI Error", e);
       applyPatch({ ui: { fsm: "error", lastError: e.message } });
       alert("AI Error: " + e.message);
-      // Clean up visual state on error
       const feed = document.querySelector("#chat-feed");
       if (feed) removeTypingIndicator(feed);
     } finally {
-      // 5. UNLOCK UI (Always runs)
       setSendLock(false);
       setChatGeneratingState(false);
     }
@@ -334,35 +331,8 @@ export const TurnManager = {
 
     console.log(`[PROMETHEUS] Regenerating with strategy: ${varianceKey}`);
 
-    // LOCK UI
     setSendLock(true);
     setChatGeneratingState(true);
-
-    // === STATE ROLLBACK (Ghost Prevention) ===
-    try {
-      const allSnapshots = await db.entities.where("storyId").equals(storyId).toArray();
-
-      for (const ent of allSnapshots) {
-        if (ent._lastUpdateMsgId === lastMsg.id && ent._backupState) {
-          console.log(`[PROMETHEUS] Rolling back state for ${ent.name} to prevent ghost memory.`);
-
-          const restored = {
-            ...ent,
-            forever: ent._backupState.forever,
-            past: ent._backupState.past,
-            present: ent._backupState.present,
-            future: ent._backupState.future,
-            dynamics: ent._backupState.dynamics,
-            // Clear backup logic
-            _backupState: null,
-            _lastUpdateMsgId: null
-          };
-          await entities.upsert(ent.type, restored);
-        }
-      }
-    } catch (err) {
-      console.warn("[PROMETHEUS] Rollback warning:", err);
-    }
 
     await db.messages.delete(lastMsg.id);
 
@@ -370,7 +340,6 @@ export const TurnManager = {
     await TurnManager.render(storyId);
 
     const feed = document.querySelector("#chat-feed");
-    // Show AI bubble
     showTypingIndicator(feed, 'ai', story.aiCharacterId);
 
     try {
@@ -407,7 +376,7 @@ export const TurnManager = {
       alert("Regen Failed: " + e.message);
       if (feed) removeTypingIndicator(feed);
     } finally {
-      setSendLock(false); // UNLOCK
+      setSendLock(false);
       setChatGeneratingState(false);
     }
   },
@@ -415,37 +384,32 @@ export const TurnManager = {
   runBackgroundUpdate: async (storyId, targetType, linkedMessageId) => {
     try {
       const builder = new ContextBuilder(storyId);
-
       const story = state.story.byId[storyId];
       if (!story) return;
 
       let entity = null;
-      if (targetType === 'ai_character') entity = await entities.getSnapshot(storyId, "character", story.aiCharacterId) || await entities.get("character", story.aiCharacterId);
-      else if (targetType === 'user_character') entity = await entities.getSnapshot(storyId, "character", story.userCharacterId) || await entities.get("character", story.userCharacterId);
-      else if (targetType === 'world') entity = await entities.getSnapshot(storyId, "world", story.worldId) || await entities.get("world", story.worldId);
+      if (targetType === 'ai_character') entity = await entities.get("character", story.aiCharacterId);
+      else if (targetType === 'user_character') entity = await entities.get("character", story.userCharacterId);
+      else if (targetType === 'world') entity = await entities.get("world", story.worldId);
 
       if (!entity) return;
 
-      // >>>> RUN THE PHYSICS ENGINE <<<<
       const oldDynamics = entity.dynamics || { entropy: 10, permeability: 50, velocity: 10, resonance: 10 };
       const newDynamics = calculateDynamics(oldDynamics);
 
-      // >>> DIRECTOR MODE PHYSICS INJECTION (NEW) <<<
-      if (state.settings.directorMode) {
-        const debugText = createPhysicsDebugLog(oldDynamics, newDynamics);
-        await db.messages.add({
-          storyId,
-          role: "system",
-          type: "DEBUG", // New message type for styling
-          text: debugText,
-          createdAt: Date.now() + 1 // Ensures log is after the AI response
-        });
-      }
+      // [FIX] Pass entity.name to the log generator
+      const debugText = createPhysicsDebugLog(oldDynamics, newDynamics, entity.name);
+      await db.messages.add({
+        storyId,
+        role: "system",
+        type: "DEBUG",
+        text: debugText,
+        createdAt: Date.now() + 1
+      });
 
       const payload = await builder.buildUpdater(targetType, newDynamics);
       const jsonResponse = await generateStream({ payload, signal: null });
 
-      // Liveness Check
       if (linkedMessageId) {
         const msgExists = await db.messages.get(linkedMessageId);
         if (!msgExists) {
@@ -456,7 +420,6 @@ export const TurnManager = {
 
       let updates = {};
       try {
-        // Attempt to parse the JSON. LLMs sometimes wrap it in markdown or text.
         const jsonMatch = jsonResponse.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           updates = JSON.parse(jsonMatch[0]);
@@ -469,56 +432,45 @@ export const TurnManager = {
       }
 
       if (updates && payload.targetEntityId) {
-        const snapshot = await entities.get(payload.targetType, payload.targetEntityId);
+        const freshEntity = await entities.get(payload.targetType, payload.targetEntityId);
 
-        if (snapshot) {
-          const backup = {
-            forever: snapshot.forever,
-            past: snapshot.past,
-            present: snapshot.present,
-            future: snapshot.future,
-            dynamics: snapshot.dynamics
-          };
-
-          const updatedSnapshot = {
-            ...snapshot,
-            forever: updates.forever || snapshot.forever,
-            past: updates.past || snapshot.past,
-            present: updates.present || snapshot.present,
-            future: updates.future || snapshot.future,
+        if (freshEntity) {
+          const updatedEntity = {
+            ...freshEntity,
+            forever: updates.forever || freshEntity.forever,
+            past: updates.past || freshEntity.past,
+            present: updates.present || freshEntity.present,
+            future: updates.future || freshEntity.future,
             dynamics: {
               entropy: newDynamics.entropy,
               permeability: newDynamics.permeability,
               velocity: newDynamics.velocity,
               resonance: newDynamics.resonance
             },
-            updatedAt: Date.now(),
-            _backupState: backup,
-            _lastUpdateMsgId: linkedMessageId
+            updatedAt: Date.now()
           };
 
-          const MAX_PAST_LENGTH = 2000; // This should be moved to config.js
-          if (updatedSnapshot.past && updatedSnapshot.past.length > MAX_PAST_LENGTH) {
-            console.log(`[ARCHIVIST] Triggered for ${entity.name}. Size: ${updatedSnapshot.past.length}`);
+          const MAX_PAST_LENGTH = 2000;
+          if (updatedEntity.past && updatedEntity.past.length > MAX_PAST_LENGTH) {
+            console.log(`[ARCHIVIST] Triggered for ${entity.name}. Size: ${updatedEntity.past.length}`);
             try {
-              const archPayload = await builder.buildArchivist(updatedSnapshot);
+              const archPayload = await builder.buildArchivist(updatedEntity);
               const summary = await generateStream({ payload: archPayload, signal: null });
 
-              if (summary && summary.length < updatedSnapshot.past.length) {
-                updatedSnapshot.past = summary.trim();
-                console.log(`[ARCHIVIST] Compression complete. New Size: ${updatedSnapshot.past.length}`);
+              if (summary && summary.length < updatedEntity.past.length) {
+                updatedEntity.past = summary.trim();
+                console.log(`[ARCHIVIST] Compression complete. New Size: ${updatedEntity.past.length}`);
               }
             } catch (archErr) {
               console.warn("[ARCHIVIST] Failed:", archErr);
             }
           }
 
-          await entities.upsert(payload.targetType, updatedSnapshot);
-          console.log(`[PROMETHEUS] Update applied (Backup saved) for ${snapshot.name}`);
+          await entities.upsert(payload.targetType, updatedEntity);
+          console.log(`[PROMETHEUS] Real-time mutation applied to ${freshEntity.name}`);
         }
       }
 
-      // We must re-render to show the DEBUG message added above
       await TurnManager.loadMessages(storyId);
       await TurnManager.render(storyId);
 
@@ -528,11 +480,8 @@ export const TurnManager = {
   },
 
   generateOpening: async (storyId) => {
-    // LOCK UI
     setSendLock(true);
     const feed = document.querySelector("#chat-feed");
-
-    // Show NARRATOR bubble
     showTypingIndicator(feed, 'narrator');
 
     try {
@@ -563,11 +512,41 @@ export const TurnManager = {
       alert("Failed to generate opening: " + e.message);
       if (feed) removeTypingIndicator(feed);
     } finally {
-      // UNLOCK UI
       setSendLock(false);
     }
+  },
+
+  concludeStory: async () => {
+    const storyId = TurnManager.requireActive();
+    const story = state.story.byId[storyId];
+
+    if (!confirm("Conclude this story? The current state of your entities will be saved to the library.")) return;
+
+    const [endAi, endUser, endWorld] = await Promise.all([
+      entities.get("character", story.aiCharacterId),
+      entities.get("character", story.userCharacterId),
+      entities.get("world", story.worldId)
+    ]);
+
+    await db.stories.update(storyId, {
+      isConcluded: 1,
+      concludedAt: Date.now(),
+      "snapshots.end": {
+        ai: endAi,
+        user: endUser,
+        world: endWorld
+      }
+    });
+
+    document.body.classList.remove("mode-gameplay");
+    document.body.classList.add("mode-storyboard");
+    applyPatch({ story: { activeId: null } });
+
+    location.hash = "#storyboard";
+
+    const optionsModal = document.getElementById("story-options");
+    if (optionsModal) optionsModal.setAttribute("hidden", "");
   }
 };
 
-// Renaming for the new manager structure
 export const StoryController = TurnManager;

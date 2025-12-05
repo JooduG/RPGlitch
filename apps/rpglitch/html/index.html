@@ -162,7 +162,6 @@
   </div>
   <div id="entity-drawer-backdrop" class="drawer-backdrop" aria-hidden="true" hidden></div>
 
-  <!-- Settings Modal Content (Injected into story-options) -->
   <template id="tpl-settings-modal">
     <header>
       <h3>Settings</h3>
@@ -170,10 +169,21 @@
         onclick="document.getElementById('story-options').setAttribute('hidden', '')"></a>
     </header>
     <div class="settings-body">
-      <label>
-        <input type="checkbox" id="setting-director-mode" role="switch">
-        Director's Mode (Show AI Thoughts & Physics Logs)
-      </label>
+
+      <div class="campaign-controls"
+        style="background: var(--card-bg-color); padding: 1rem; border-radius: var(--border-radius); border: 1px solid var(--accordion-border-color); margin-bottom: 1rem;">
+        <h4
+          style="margin-top:0; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-color);">
+          Active Story</h4>
+        <label>
+          <input type="checkbox" id="setting-director-mode" role="switch">
+          Director Mode <small>(Show Thoughts & Physics)</small>
+        </label>
+        <button id="btn-conclude-story" class="outline warning" style="width: 100%; margin-top: 0.5rem;">
+          🏁 Conclude Story & Save State
+        </button>
+      </div>
+
       <hr>
       <label>
         Story Opening Instructions
@@ -189,7 +199,6 @@
       <details>
         <summary>Saved Stories</summary>
         <div id="saved-stories-list" class="saved-stories-list">
-          <!-- Stories injected here -->
           <p><small>Loading stories...</small></p>
         </div>
       </details>

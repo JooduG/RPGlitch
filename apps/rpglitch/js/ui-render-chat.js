@@ -1,12 +1,31 @@
-// apps/rpglitch/js/ui-render-chat.js
 import { state } from "./app-state.js";
 import { getPictureHTML } from "./entity-structs.js";
+import { sanitizeHtml } from "./core-utils.js";
 
 const selectedEntities = {
     aiCharacter: null,
     userCharacter: null,
     world: null,
 };
+
+// --- STATE LISTENER ---
+// Listen for changes to directorMode and toggle body class instantly.
+document.addEventListener("state:changed", (e) => {
+    if (e.detail.patch.settings && 'directorMode' in e.detail.patch.settings) {
+        updateDirectorModeClass();
+    }
+});
+
+function updateDirectorModeClass() {
+    if (state.settings.directorMode) {
+        document.body.classList.add("mode-director");
+    } else {
+        document.body.classList.remove("mode-director");
+    }
+}
+// Run once on load to sync state
+updateDirectorModeClass();
+
 
 export function applyWorldAmbience(world) {
     if (!world || !world.signatureColour) {
@@ -69,8 +88,36 @@ export function setChatGeneratingState(isGenerating) {
     }
 }
 
+// [UPDATED] Lite Markdown Parser
+function formatMessageText(text) {
+    if (!text) return "";
+
+    // 1. Sanitize FIRST
+    let safeText = sanitizeHtml(text);
+
+    // 2. Bold (**text**) -> <b>**text**</b> (Keeps asterisks visible)
+    safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<b>**$1**</b>');
+
+    // 3. Italics (*text*) -> <i>*text*</i> (Keeps asterisks visible)
+    safeText = safeText.replace(/\*([^*]+)\*/g, '<i>*$1*</i>');
+
+    // 4. Line Breaks -> <br>
+    safeText = safeText.replace(/\n/g, '<br>');
+
+    return safeText;
+}
+
 export function renderMessage(container, role, text, characterName, type, entities, options = {}) {
     const div = document.createElement("div");
+
+    // Handle DEBUG / Physics Logs
+    if (type === 'DEBUG') {
+        div.className = "story-message system director-content";
+        // Use sanitizeHtml directly for logs to preserve spacing exactly as intended
+        div.innerHTML = `<div class="physics-log">${sanitizeHtml(text)}</div>`;
+        container.appendChild(div);
+        return;
+    }
 
     const roleClass = (role === "user" || role === "ai") ? role : "narrator";
     let classList = ["story-message", roleClass];
@@ -97,15 +144,23 @@ export function renderMessage(container, role, text, characterName, type, entiti
     // --- Content Rendering ---
     let contentHtml = "";
 
-    // Director's Mode: Handle <think> tags
-    if (state.settings.directorMode) {
-        // Replace <think> with styled div
-        contentHtml = text.replace(/<think>([\s\S]*?)<\/think>/gi,
-            '<div class="thought-trace"><div class="thought-label">INTERNAL MONOLOGUE</div>$1</div>'
-        );
+    const thinkMatch = text.match(/<think>([\s\S]*?)<\/think>/i);
+    let thoughtContent = "";
+    let mainContent = text;
+
+    if (thinkMatch) {
+        thoughtContent = thinkMatch[1].trim();
+        mainContent = text.replace(thinkMatch[0], "").trim();
+    }
+
+    const formattedMain = formatMessageText(mainContent);
+    const formattedThought = formatMessageText(thoughtContent);
+
+    // [FIXED] Compacted HTML generation to prevent whitespace gaps
+    if (thoughtContent) {
+        contentHtml = `<div class="thought-trace director-content"><div class="thought-label">INTERNAL MONOLOGUE</div>${formattedThought}</div><div class="message-content">${formattedMain}</div>`;
     } else {
-        // Remove <think> blocks entirely
-        contentHtml = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
+        contentHtml = formattedMain;
     }
 
     div.innerHTML = contentHtml;
@@ -135,7 +190,7 @@ export function renderMessage(container, role, text, characterName, type, entiti
     } else if (role === "user" && options.isLastUserMessage) {
         // Edit User Message
         const btnEdit = document.createElement("button");
-        btnEdit.className = "ghost-icon-btn"; // Use ghost style
+        btnEdit.className = "ghost-icon-btn";
         btnEdit.innerHTML = "✎";
         btnEdit.title = "Edit Message";
         btnEdit.onclick = () => toggleEditMode(div, text, role, options.messageId);
@@ -153,7 +208,6 @@ function toggleEditMode(messageElement, originalText, role, messageId) {
     if (messageElement.classList.contains("is-editing")) return;
     messageElement.classList.add("is-editing");
 
-    // Purge thoughts for editing
     const cleanText = originalText.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
 
     const editContainer = document.createElement("div");
