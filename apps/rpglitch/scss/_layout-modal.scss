@@ -76,11 +76,13 @@
 .profile-view--world .profile-layout {
     @include desktop {
         grid-template-columns: 1fr;
-        grid-template-rows: min(40vh, 320px) 1fr;
+        grid-template-rows: 200px 1fr;
 
-        .profile-left {
-            min-height: 0;
-            overflow: hidden;
+        .profile-hero {
+            height: 200px !important; // Force strict height/banner look
+            min-height: 0 !important;
+            max-height: 200px !important;
+            overflow: hidden !important;
         }
 
         .profile-right {

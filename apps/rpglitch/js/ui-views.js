@@ -16,6 +16,7 @@ import { setGameplayEntities, updatePortraits, setSendLock } from "./ui-render-c
 
 let _refreshAllLists = null;
 let _onSelectionChanged = null;
+let activeSlotKey = null; // Track which slot opened the modal
 
 const selectedEntities = {
   aiCharacter: null,
@@ -97,9 +98,16 @@ export function updateStoryboardSelection(newSelection) {
       };
 
       const isWorld = type === 'world';
-      renderEntityPreview(previewId, entity, btn, type, onEdit, isWorld);
+      renderEntityPreview(previewId, entity, btn, type, onEdit, isWorld, key);
 
       if (btn) btn.hidden = true;
+    } else {
+      // Clear slot if entity is null
+      selectedEntities[key] = null;
+      const btn = document.querySelector(btnId);
+      const previewEl = document.querySelector(previewId);
+      if (previewEl) previewEl.setAttribute("hidden", "");
+      if (btn) btn.hidden = false;
     }
   };
 
@@ -146,9 +154,11 @@ function closeProfileModal() {
     }
   }
   document.body.classList.remove("profile-view-active");
+  activeSlotKey = null; // Clear active slot
 }
 
-function openProfileModal(type, id) {
+function openProfileModal(type, id, slotKey = null) {
+  activeSlotKey = slotKey;
   renderProfilePage(type.toLowerCase(), id);
 }
 
@@ -158,7 +168,7 @@ function autoResize(el) {
 }
 
 // --- PROFILE RENDERER (REMAINS HERE) ---
-export async function renderProfilePage(type, id) {
+export async function renderProfilePage(type, id, forceEditMode = false) {
   const screen = document.querySelector("#profile-screen");
   if (!screen) return;
 
@@ -174,7 +184,7 @@ export async function renderProfilePage(type, id) {
     screen.classList.remove("profile-view--world");
   }
 
-  let isEditing = id === "new";
+  let isEditing = id === "new" || forceEditMode;
   let entity;
 
   if (id === "new") {
@@ -218,7 +228,11 @@ export async function renderProfilePage(type, id) {
   const form = layout.querySelector("form");
   const secWrap = form.querySelector("[data-profile-sections]");
 
-  if (imageInput) { imageInput.disabled = false; imageInput.removeAttribute("aria-busy"); }
+  if (imageInput) {
+    imageInput.disabled = false;
+    imageInput.removeAttribute("aria-busy");
+    imageInput.value = entity.profilePictureUrl || "";
+  }
   if (actionButton) { actionButton.disabled = false; actionButton.removeAttribute("aria-busy"); }
 
   // --- MISSING FUNCTION RESTORED ---
@@ -227,7 +241,7 @@ export async function renderProfilePage(type, id) {
     screen.classList.toggle("is-editing", editing);
     setTopBarRight(editing ? "form" : "profile");
     if (imageOverlay) imageOverlay.style.display = editing ? "flex" : "none";
-    renderProfilePage(type, id);
+    renderProfilePage(type, id, editing);
   };
 
   function updateButtonState() {
@@ -465,9 +479,16 @@ export async function renderProfilePage(type, id) {
         data.dynamics = dyn;
       }
 
-      await entities.upsert(type, id === "new" || entity.isPremade ? data : { ...data, id });
+      const saved = await entities.upsert(type, id === "new" || entity.isPremade ? data : { ...data, id });
+
+      // Update storyboard slot if applicable
+      if (activeSlotKey) {
+        selectedEntities[activeSlotKey] = saved;
+        updateStoryboardSelection(selectedEntities);
+      }
+
       if (id === "new") closeProfileModal();
-      else { entity = await entities.get(type, id); setEditMode(false); }
+      else { entity = await entities.get(type, saved.id); setEditMode(false); }
     };
 
     // DELETE
@@ -476,27 +497,46 @@ export async function renderProfilePage(type, id) {
       delBtn.className = "secondary outline danger"; delBtn.textContent = "Delete";
       delBtn.onclick = async (e) => {
         e.preventDefault();
-        if (confirm("Delete this entity?")) { await entities.remove(type, id); closeProfileModal(); if (_refreshAllLists) _refreshAllLists(); }
+        if (confirm("Delete this entity?")) {
+          await entities.remove(type, id);
+
+          // Clear storyboard slot if deleted entity was selected
+          let changed = false;
+          Object.keys(selectedEntities).forEach(k => {
+            if (selectedEntities[k] && selectedEntities[k].id === id) {
+              selectedEntities[k] = null;
+              changed = true;
+            }
+          });
+          if (changed) updateStoryboardSelection(selectedEntities);
+
+          closeProfileModal();
+          if (_refreshAllLists) _refreshAllLists();
+        }
       };
       footerActions.appendChild(delBtn);
     }
     footerActions.appendChild(saveBtn);
 
   } else {
-    // EDIT / CLONE
-    const actionBtn = document.createElement("button");
+    // VIEW MODE ACTIONS
     if (entity.isPremade) {
-      actionBtn.className = "primary"; actionBtn.textContent = "Clone";
-      actionBtn.onclick = async (e) => {
+      // CLONE (Premade only)
+      const cloneBtn = document.createElement("button");
+      cloneBtn.className = "primary"; cloneBtn.textContent = "Clone";
+      cloneBtn.onclick = async (e) => {
         e.preventDefault();
         const newEntity = await copyEntity(type, entity.id);
-        if (newEntity) { window.ephemeralEntity = newEntity; openProfileModal(type, "new"); }
+        if (newEntity) { window.ephemeralEntity = newEntity; openProfileModal(type, "new", activeSlotKey); }
       };
+      footerActions.appendChild(cloneBtn);
     } else {
-      actionBtn.className = "secondary outline"; actionBtn.textContent = "Edit";
-      actionBtn.onclick = (e) => { e.preventDefault(); setEditMode(true); };
+      // EDIT (Custom only)
+      const editBtn = document.createElement("button");
+      editBtn.className = "secondary outline"; editBtn.textContent = "Edit";
+      editBtn.onclick = (e) => { e.preventDefault(); setEditMode(true); };
+      footerActions.appendChild(editBtn);
     }
-    footerActions.appendChild(actionBtn);
   }
 
   layout.querySelector(".profile-right-content").appendChild(footerActions);
@@ -552,7 +592,7 @@ function bindPortraitClick(selector, stateKey) {
   const el = document.querySelector(selector);
   if (el) el.addEventListener("click", () => {
     const entity = selectedEntities[stateKey];
-    if (entity) openProfileModal(entity.type.toLowerCase(), entity.id);
+    if (entity) openProfileModal(entity.type.toLowerCase(), entity.id, stateKey);
   });
 }
 
@@ -568,17 +608,21 @@ function openDrawerFor(entityType, stateKey, previewId, button, triggerElement) 
       };
 
       const isWorld = entityType === 'world'; // FIXED
-      renderEntityPreview(previewId, entity, button, entityType, onEdit, isWorld);
+      renderEntityPreview(previewId, entity, button, entityType, onEdit, isWorld, stateKey);
 
       button.hidden = true;
       if (_onSelectionChanged) _onSelectionChanged(selectedEntities);
     } catch (err) {
       error("Selection failed:", err);
     }
-  }, triggerElement);
+  }, triggerElement, () => {
+    window.ephemeralEntity = null; // FIX: Clear any previous clone data
+    activeSlotKey = stateKey;
+    window.location.hash = `#profile/${entityType}/new`;
+  });
 }
 
-function renderEntityPreview(previewId, entity, slotButton, type, onEdit, isWorld = false) {
+function renderEntityPreview(previewId, entity, slotButton, type, onEdit, isWorld = false, stateKey = null) {
   const previewEl = document.querySelector(previewId);
   if (!previewEl) return;
 
@@ -594,7 +638,7 @@ function renderEntityPreview(previewId, entity, slotButton, type, onEdit, isWorl
     media.addEventListener("click", (e) => {
       e.stopPropagation();
       e.preventDefault();
-      openProfileModal(type, entity.id);
+      openProfileModal(type, entity.id, stateKey);
     });
 
     const body = document.createElement("div");

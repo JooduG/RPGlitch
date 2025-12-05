@@ -29,7 +29,7 @@ export function isOpen() {
     return drawer && drawer.classList.contains("is-open");
 }
 
-export function openDrawer(type, onSelect, triggerElement) {
+export function openDrawer(type, onSelect, triggerElement, onCreate) {
     _onSelectCallback = onSelect;
 
     const drawer = document.getElementById(DRAWER_ID);
@@ -60,7 +60,7 @@ export function openDrawer(type, onSelect, triggerElement) {
     content.innerHTML = '<div class="drawer-loading" style="text-align:center; opacity:0.5; padding:2rem;">Loading...</div>';
 
     entities.list(type).then(items => {
-        renderDrawerItems(items, type);
+        renderDrawerItems(items, type, onCreate);
     }).catch(err => {
         error("Failed to load drawer items:", err);
         content.innerHTML = '<div class="drawer-error">Failed to load items.</div>';
@@ -92,7 +92,7 @@ export function closeDrawer() {
     _onSelectCallback = null;
 }
 
-function renderDrawerItems(items, type) {
+function renderDrawerItems(items, type, onCreate) {
     const content = document.getElementById(CONTENT_ID);
     if (!content) return;
 
@@ -101,7 +101,7 @@ function renderDrawerItems(items, type) {
     grid.className = "drawer-grid";
 
     // "Create New" Card
-    grid.appendChild(createCard({ name: `New ${type}`, isNew: true }, type));
+    grid.appendChild(createCard({ name: `New ${type}`, isNew: true }, type, onCreate));
 
     // Entity Cards
     items.forEach(item => {
@@ -111,7 +111,7 @@ function renderDrawerItems(items, type) {
     content.appendChild(grid);
 }
 
-function createCard(item, type) {
+function createCard(item, type, onCreate) {
     const card = document.createElement("button");
     card.className = "drawer-card";
     card.type = "button";
@@ -120,7 +120,11 @@ function createCard(item, type) {
         card.classList.add("drawer-card--new");
         card.innerHTML = `<div class="drawer-card-icon" style="font-size:1.5rem;">+</div><div class="drawer-card-label">Create New</div>`;
         card.addEventListener("click", () => {
-            window.location.hash = `#profile/${type}/new`;
+            if (onCreate) {
+                onCreate();
+            } else {
+                window.location.hash = `#profile/${type}/new`;
+            }
             closeDrawer();
         });
     } else {
