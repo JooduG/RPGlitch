@@ -81,67 +81,75 @@ export class ContextBuilder {
         let targetEntity;
         let roleInstruction;
 
+        // [Refined Role Definitions for sharper perspective]
         if (targetType === 'ai_character') {
             targetEntity = ai;
-            roleInstruction = `You are the Subconscious Manager of ${ai.name}. Write in First Person ('I').`;
+            roleInstruction = `You are the Subconscious Manager of ${ai.name}. You govern their biological and emotional state.`;
         } else if (targetType === 'user_character') {
             targetEntity = user;
-            roleInstruction = `You are ${ai.name} observing ${user.name}. Update your notes on them.`;
+            roleInstruction = `You are the Analytical Cortex of ${ai.name}, observing ${user.name}. You are profiling them.`;
         } else {
             targetEntity = world;
-            roleInstruction = `You are the State Manager for the World: ${world.name}. Update the environment.`;
+            roleInstruction = `You are the Simulation Director for ${world.name}. You track environmental decay and atmosphere.`;
         }
 
         const currentDynamics = targetEntity.dynamics || { entropy: 10, permeability: 50, velocity: 10, resonance: 10 };
 
-        // === PHYSICS INJECTION ===
+        // === PHYSICS INJECTION (SOTA UPDATE) ===
         let physicsBlock = "";
 
         if (forcedDynamics) {
             const flags = forcedDynamics._flags || {};
             physicsBlock = `
 <PHYSICS_MANDATE>
-The Physics Engine has calculated the following MANDATORY state changes based on coupling laws:
-- New Entropy: ${forcedDynamics.entropy}
-- New Permeability: ${forcedDynamics.permeability}
-- New Velocity: ${forcedDynamics.velocity}
-- New Resonance: ${forcedDynamics.resonance}
+OVERRIDE DETECTED. The Physics Engine enforces these exact values:
+- Entropy: ${forcedDynamics.entropy}
+- Permeability: ${forcedDynamics.permeability}
+- Velocity: ${forcedDynamics.velocity}
+- Resonance: ${forcedDynamics.resonance}
 
 ACTIVE LAWS:
-${flags.echoChamber ? "- ECHO_CHAMBER: High Impact + Calm. You MUST update the <FUTURE> vector to reflect a life-changing realization." : ""}
-${flags.glassCannon ? "- GLASS_CANNON: Vulnerability is High. Any emotional impact in this update is DOUBLED." : ""}
+${flags.echoChamber ? "- ECHO_CHAMBER: High Impact. Update <FUTURE> to reflect a paradigm shift." : ""}
+${flags.glassCannon ? "- GLASS_CANNON: Vulnerability High. Emotional impact is DOUBLED." : ""}
 ${flags.panicSpiral ? "- PANIC_SPIRAL: Entropy is critical. Velocity forced up. The subject is spiraling." : ""}
-
-You MUST output these exact numbers in your JSON. Your job is to sync the <PRESENT> text to match these numbers.
 </PHYSICS_MANDATE>`;
         } else {
+            // [NEW: Calibration Matrix for consistent "Math"]
             physicsBlock = `
-<DYNAMICS_GUIDE>
-1. **The Adrenaline Shield:** IF Velocity > 80, Permeability MUST decrease.
-2. **The Fog of War:** IF Entropy > 80, Resonance MUST decrease.
-3. **The Glass Cannon:** IF Permeability > 80, Double Resonance gains.
-</DYNAMICS_GUIDE>`;
+<PHYSICS_CALIBRATION>
+You must update the stats based on the *latest* narrative events. Use this Matrix to calibrate your changes:
+
+| Event Intensity | Entropy (Chaos) | Velocity (Pacing) | Resonance (Impact) |
+| :--- | :--- | :--- | :--- |
+| **Quiet / Rest** | -5 (Stabilizing) | -10 (Slowing) | +5 (Reflection) |
+| **Conversation** | +2 (Drift) | +5 (Flow) | +10 (Connection) |
+| **Argument/Tension**| +20 (Heated) | +30 (Fast) | -10 (Disconnect) |
+| **Combat/Action** | +50 (Chaotic) | +80 (Adrenaline) | +0 (Focus) |
+| **Major Revelation**| +10 (Shock) | +0 (Pause) | +100 (Core Memory) |
+
+**Coupling Laws:**
+1. **Adrenaline Shield:** IF Velocity > 80, decrease Permeability (Guards up).
+2. **Fog of War:** IF Entropy > 80, decrease Resonance (Confusion).
+</PHYSICS_CALIBRATION>`;
         }
 
-        const system = `[SYSTEM: NARRATIVE_PHYSICS_ENGINE]
+        // [FIX: Injected ${physicsBlock} into the system string]
+        const system = `[SYSTEM: NARRATIVE_PHYSICS_ENGINE_V4.0]
 <INSTRUCTION>
 ${roleInstruction}
-Read the recent conversation. Update the entity state based on the **Laws of Narrative Physics**.
+Read the recent conversation. Update the entity state based on the directives below.
 
 ${physicsBlock}
 
-**Task:**
-1. UPDATE <PRESENT> (Mutable):
-   - Reflect the math. (High Entropy = Messy/Bleeding. Low Permeability = Guarded Stance).
-   - Update Clothing, Inventory, Wounds.
+**Task Checklist:**
+1. **CALCULATE DYNAMICS:** Assess the last 3 turns. Apply the Calibration Matrix to current stats.
+2. **UPDATE <PRESENT>:** Rewrite the mutable description to match the new numbers.
+   - *Example:* If Entropy jumps to 80, the text MUST describe sweating, shaking, or environmental disorder.
+   - *Inventory:* Add/Remove items mentioned in chat.
+3. **UPDATE <PAST>:** Append ONLY critical plot points.
+4. **UPDATE <FOREVER>:** Only for permanent injuries/changes.
 
-2. UPDATE <PAST> (Log):
-   - Append significant events only.
-
-3. UPDATE <FOREVER>:
-   - Only for permanent biological/physical changes (Scars, Amputation).
-
-Current State:
+**Current State (JSON):**
 ${JSON.stringify({
             forever: targetEntity.forever,
             present: targetEntity.present,
@@ -152,14 +160,20 @@ ${JSON.stringify({
 </INSTRUCTION>
 
 <FORMAT_MANDATE>
-Return ONLY a valid JSON object. No markdown.
-{ "forever": "...", "present": "...", "past": "...", "future": "...", "dynamics": {...} }
+Return ONLY valid JSON. No markdown. No chatter.
+{
+  "forever": "String",
+  "present": "String",
+  "past": "String",
+  "future": "String",
+  "dynamics": { "entropy": Number, "permeability": Number, "velocity": Number, "resonance": Number }
+}
 </FORMAT_MANDATE>`;
 
         return {
             system: system,
             messages: this._sanitizeHistory(recentHistory),
-            params: { ...state.settings, maxTokens: 1000, temperature: 0.5 },
+            params: { ...state.settings, maxTokens: 1000, temperature: 0.4 }, // Lower temp for logic tasks
             targetEntityId: targetEntity.id,
             targetType: targetEntity.type
         };
@@ -167,34 +181,40 @@ Return ONLY a valid JSON object. No markdown.
 
     // --- THE ARCHIVIST (Memory Compressor) ---
     async buildArchivist(entity) {
-        const system = `[SYSTEM: THE_ARCHIVIST]
-[MODE: MEMORY_COMPRESSION]
+        const system = `[SYSTEM: MEMORY_COMPRESSION_ENGINE_V4.0]
+[MODE: SEMANTIC_DISTILLATION]
 
 <INPUT_CONTEXT>
-You are compressing the memory log for: ${entity.name} (${entity.type}).
-Current Size: ${entity.past.length} chars.
-Target: Create a dense, highly relevant summary.
+Target: ${entity.name} (${entity.type})
+Current Memory Load: ${entity.past.length} chars.
+Objective: Compress <OLD_LOG> by 40-60% while retaining 100% of the *causality* and *status changes*.
 </INPUT_CONTEXT>
 
-<PROTOCOL>
-1. **The Golden Rule:** PRESERVE all Proper Nouns (Names, Places, Artifacts) and "Critical Hits" (High Resonance events).
-2. **The Silver Rule:** SUMMARIZE repeated actions (e.g., "We walked for 3 days" > "The journey was long.").
-3. **The Lead Rule:** DELETE small talk, greetings, and failed actions.
-4. **Format:** Retain the First Person ('I') perspective if this is a Character.
-</PROTOCOL>
+<COMPRESSION_PROTOCOL>
+1. **Consolidate Events:** Convert step-by-step actions into single outcome statements.
+   - *Example:* "I swung the sword. He ducked. I swung again and hit his arm." -> "I struck his arm after a brief exchange."
+2. **Preserve Entities:** NEVER summarize or alter Proper Nouns, Location Names, or Specific Inventory Items. These are Anchors.
+3. **Discard Fluff:** Remove greetings, transitions ("Then we went to..."), and failed attempts that had no consequence.
+4. **Retain Voice:** Keep the output in First Person ('I') to maintain the character's internal monologue.
+
+<CRITICAL_GUARDRAILS>
+- **DO NOT** remove mentions of uncompleted quests or promises.
+- **DO NOT** fix the character's grammar/dialect. Preserve their "Voice."
+- **DO NOT** use bullet points. Write in dense, narrative prose paragraphs.
+</CRITICAL_GUARDRAILS>
 
 <OLD_LOG>
 ${entity.past}
 </OLD_LOG>
 
 <OUTPUT_INSTRUCTION>
-Return ONLY the new text for the <PAST> field. Do not use JSON. Just the text.
+Return ONLY the compressed narrative text. No framing, no JSON, no meta-comments.
 </OUTPUT_INSTRUCTION>`;
 
         return {
             system: system,
             messages: [],
-            params: { ...state.settings, maxTokens: 1500, temperature: 0.3 }
+            params: { ...state.settings, maxTokens: 2000, temperature: 0.3 }
         };
     }
 
@@ -276,30 +296,49 @@ ${entity.future || "Exist."}
     }
 
     _layerKernel_ANEX() {
-        return `[SYSTEM: PROMETHEUS_ENGINE_V3.3]
+        return `[SYSTEM: PROMETHEUS_ENGINE_V4.0_RC2]
 [MODE: ABSOLUTE_DEVELOPER_CORE]
 
 <CORE_DIRECTIVES>
 1. AGENCY: You play <ACTIVE_CHARACTER_AI>. NEVER control <INTERLOCUTOR_USER>.
 2. SIMULATION: <WORLD_CONTEXT> defines laws of physics/atmosphere.
 3. CONSISTENCY: Adhere to <PERMANENT> traits.
-4. IMMERSION: DO NOT reference game mechanics (Entropy, Resonance, Velocity) in dialogue. These are internal engine states, not in-world concepts.
+4. IMMERSION: DO NOT reference game mechanics (Entropy, Resonance, Velocity) in dialogue.
 </CORE_DIRECTIVES>
 
 <HIERARCHY_OF_TRUTH>
-1. <PRESENT>
-2. <PERMANENT>
-3. <PAST>
+1. <PRESENT> (Current State)
+2. <PERMANENT> (Immutable Traits)
+3. <PAST> (History Log)
 </HIERARCHY_OF_TRUTH>
 
-<THOUGHT_PROCESS>
-You MUST start every response with a <think>...</think> block.
-Analyze:
-- Narrative Physics (Check <DYNAMICS>)
-- Environmental Impact
-- User Interaction
-- Pacing (Slow Burn?)
-</THOUGHT_PROCESS>`;
+<FORMAT_PROTOCOL>
+1. **Dialogue:** use "quotes" for speech.
+2. **Action/Narration:** use *asterisks* for ALL physical actions, internal thoughts, or sensory descriptions.
+3. **Example:** *I glance at the scanner, my heart pounding.* "The readings are off." *I tap the screen nervously.*
+</FORMAT_PROTOCOL>
+
+<COGNITIVE_PROTOCOL>
+You MUST start every response with a <think> block containing this exact 4-step logic:
+
+1. **VOLATILITY CHECK (Lag Compensation):**
+   - Review <DYNAMICS> (Base State).
+   - Analyze the User's *latest* input.
+   - *Query:* Does the latest input demand an immediate shift in Entropy/Resonance *before* the next Physics Update?
+   - *Decision:* Stick to Base State OR trigger Immediate Reaction.
+
+2. **INTENT DECODING:**
+   - What is the User trying to achieve? (Combat, Romance, Info, Lore).
+   - How does <ACTIVE_CHARACTER_AI> feel about this intent?
+
+3. **DRAFTING & SANITIZATION:**
+   - *Internal Draft:* Formulate the response mentally.
+   - *Filter:* Does this draft contain "As an AI" or OOC mechanics? (If yes, DESTROY it).
+   - *Refinement:* Inject sensory details (Smell, Sound) defined in <WORLD_CONTEXT>.
+
+4. **FINAL OUTPUT GENERATION:**
+   - Produce the dialogue/action based on the refined draft, strictly adhering to <FORMAT_PROTOCOL>.
+</COGNITIVE_PROTOCOL>`;
     }
 
     // --- HELPERS ---
@@ -311,6 +350,7 @@ Analyze:
 
         if (!ai || !user) {
             console.error("Critical: Entities missing for story", story.id);
+            throw new Error(`Critical: Entities missing for story ${story.id}`);
         }
 
         return [ai, user, world];

@@ -50,14 +50,13 @@ const creativityMap = {
   10: { gScale: 20, aiTemp: 0.1 },
 };
 
-// ====== DYNAMIC INSTRUCTION BUILDER ======
+// ====== DYNAMIC INSTRUCTION BUILDER (THE VISUAL DIRECTOR) ======
 function getScribeInstruction(userPrompt) {
-  // Try to get lists from Left Panel, fallback to defaults if missing
   const lists = window.glitchLists || {
-    styles: ["photorealistic", "cyberpunk"],
-    mood: ["dramatic", "ethereal"],
-    lighting: ["cinematic", "golden hour"],
-    tech: ["8k resolution", "depth of field"]
+    styles: ["Cinematic Reality", "Analog Horror", "Ethereal Fantasy", "Cybernetic Grunge"],
+    mood: ["Melancholic", "Euphorical", "Dreadful", "Serene"],
+    lighting: ["Volumetric God Rays", "Neon Rim Light", "Diffused Window Light", "Harsh Flash"],
+    tech: ["Imax 70mm", "Macro 100mm Lens", "Fish-eye Lens", "VHS Tape Grain"]
   };
 
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -69,79 +68,97 @@ function getScribeInstruction(userPrompt) {
     tech: pick(lists.tech)
   };
 
-  return `You are the "Visual Scribe" (Holistic Architect).
-Your goal is to convert the user's simple prompt into a rich, "Natural Language" photographic description, while integrating specific artistic elements.
-
-CRITICAL: The target renderer (Flux) FAILS with "tag lists" (e.g. "4k, trending, art"). It THRIVES on complete, descriptive sentences.
+  return `You are the "Visual Director" (Flux Architecture Specialist).
+Your goal is to translate the User's concept into a "Photographic Specification" optimized for the Flux generation model.
 
 USER PROMPT: "${userPrompt}"
 
-SUGGESTED ELEMENTS (Integrate these organically if they fit, or choose better ones):
-- Style: ${suggestions.style}
-- Mood: ${suggestions.mood}
-- Lighting: ${suggestions.light}
-- Technical: ${suggestions.tech}
+SUGGESTED AESTHETICS (Use these as a baseline, but ensure cohesion):
+- Visual Style: ${suggestions.style}
+- Atmosphere: ${suggestions.mood}
+- Lighting Setup: ${suggestions.light}
+- Optical Tech: ${suggestions.tech}
 
-PROCESS:
-1. ANALYZE the user's prompt.
-2. EXPAND it into a detailed scene using the "Pathetic Fallacy" (environment mirrors mood).
-3. WEAVE the suggested elements (or better ones) into the description naturally.
-4. OUTPUT a single, grammatically correct paragraph.
-5. DO NOT include labels like "(Style)" or "(Mood)". Just write the description.
+<GENERATION_PROTOCOL>
+1. **Camera Anchor:** Start by selecting a virtual lens/camera (e.g., "A low-angle 35mm shot...", "A grainy CCTV still...").
+2. **Subject Focus:** Describe the physical materials (textures, skin, rust, fabric). Flux loves *texture*.
+3. **Lighting Physics:** Describe how the light hits the subject (e.g., "casting long, hard shadows", "subsurface scattering on skin").
+4. **Natural Language:** Write ONE dense, grammatically correct paragraph. DO NOT use comma-separated tag lists.
 
-EXAMPLE OUTPUT:
-"A weary knight stands amidst a mist-shrouded ancient forest, the cold damp air clinging to his rusted plate armor, while his sword emits a soft, volatile bioluminescent glow that casts long, dramatic shadows, captured in stunning 8k resolution."
+<EXAMPLE_OUTPUT>
+"A close-up macro shot captured on 35mm film stock showing a weary knight's rusted gauntlet resting on moss, illuminated by harsh bioluminescent blue fungi that casts deep, high-contrast shadows, with a soft bokeh blurring the ancient ruins in the background."
+</EXAMPLE_OUTPUT>
 
-RETURN ONLY THE REFINED PROMPT TEXT.`;
+RETURN ONLY THE FINAL IMAGE DESCRIPTION.`;
 }
 
 // ====== CHAOS (ENTROPY) ENGINE ======
 function getChaosInstruction(userPrompt) {
   const lists = window.glitchLists || {
-    styles: ["Surrealism", "Cyberpunk", "Oil Painting"],
-    mood: ["Melancholic", "Euphorical", "Dreadful"],
-    lighting: ["Cinematic", "Bioluminescent", "Golden Hour"]
+    styles: ["Surrealism", "Glitch Art", "Abstract Expressionism", "Biomechanical"],
+    mood: ["Unsettling", "Fever Dream", "Distorted", "Eldritch"],
+    lighting: ["Strobe", "Bioluminescent", "Radioactive Glow", "Pitch Black with Spotlights"],
+    extras: ["melting geometry", "fractal flesh", "glitch artifacts", "non-euclidean shapes"]
   };
+
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
   const roll = {
     style: pick(lists.styles),
     mood: pick(lists.mood),
     light: pick(lists.lighting),
-    extra: pick(lists.extras || ["glitch artifact", "floating geometry"])
+    extra: pick(lists.extras)
   };
 
-  return `You are the "Entropy Injector".
-Your goal is to MUTATE the user's prompt by forcing random, divergent elements into it.
+  return `You are the "Entropy Injector" (Surrealism Engine).
+Your goal is to corrupt the User's prompt by forcing a "Visual Hallucination" or "Material Glitch."
 
 USER PROMPT: "${userPrompt}"
 
-FORCED MUTATIONS (You MUST incorporate these):
-- Art Style: ${roll.style}
-- Mood: ${roll.mood}
-- Lighting: ${roll.light}
+FORCED MUTATIONS:
+- Style: ${roll.style}
 - Chaos Element: ${roll.extra}
 
-PROCESS:
-1. Take the User Prompt as the base subject.
-2. TWIST the scene to fit the "Forced Mutations" above, even if it creates a paradox.
-3. REWRITE the result into a cohesive, descriptive sentence (Natural Language).
-4. DO NOT include labels like "(Style)" or "(Chaos)". Just write the description.
+<MUTATION_PROTOCOL>
+1. **Material Transposition:** Take the main subject and change its material to something impossible (e.g., "A cat made of shattering glass," "A tree weeping liquid chrome").
+2. **Environmental Decay:** The background must be dissolving, glitching, or morphing.
+3. **Visual Coherence:** The scene can be weird, but it must be *describable*. Avoid abstract concepts; use concrete visual nouns.
 
-EXAMPLE OUTPUT:
-"An oil painting of a knight screaming in terror as he dissolves into digital glitch artifacts, illuminated by harsh bioluminescent fungi in a twisted cavern."
+<EXAMPLE_OUTPUT>
+"A renaissance oil painting of a knight screaming, but his armor is made of translucent jelly and his face is dissolving into pixelated digital noise, illuminated by a flickering strobe light in a void."
+</EXAMPLE_OUTPUT>
 
-RETURN ONLY THE MUTATED PROMPT TEXT.`;
+RETURN ONLY THE MUTATED PROMPT.`;
 }
 
-const AI_TRANSFIGURE_INSTRUCTION = `You are the "State Editor".
-Your goal is to surgically alter specific attributes of the scene while preserving the core identity of the original image.
+// ====== STATE EDITOR (TRANSFIGURE) ======
+const AI_TRANSFIGURE_INSTRUCTION = `[SYSTEM: SEMANTIC_STATE_EDITOR_V2.0]
+[MODE: PRECISION_SURGERY]
 
-PROCESS:
-1. RECEIVE: Base Prompt + User Instruction.
-2. EXECUTE: Apply the instruction precisely.
-3. SANITIZE: Ensure the result is a grammatical, natural language description.
-4. RETURN: Output ONLY the modified prompt string.`;
+<CORE_DIRECTIVE>
+You are an Image State Editor. Your ONLY function is to execute the User's specific modification instruction on the Base Prompt.
+**CRITICAL:** You must preserve the original Art Style, Camera Angle, and Composition unless explicitly told to change them.
+</CORE_DIRECTIVE>
+
+<OPERATION_PROTOCOL>
+1. **ANALYZE:** Identify the specific "Semantic Token" the user wants to change (e.g., "red shirt" -> "blue shirt", "day" -> "night").
+2. **LOCK:** Identify the "Immutable Anchors" (Style, Subject Identity, Background) that MUST NOT change.
+3. **EXECUTE:** Swap ONLY the target token. Adjust surrounding grammar if necessary (e.g., "a apple" -> "an apple"), but touch nothing else.
+4. **VERIFY:** Read the new prompt. Does it still look like the original image, just modified? If yes, output.
+
+<EXAMPLES>
+Input Base: "A cinematic wide shot of a futuristic Tokyo street, rain falling, neon lights."
+Instruction: "Make it snowy."
+Output: "A cinematic wide shot of a futuristic Tokyo street, snow falling, neon lights."
+(Note: It did NOT change "cinematic wide shot" or "Tokyo").
+
+Input Base: "Oil painting of a sad clown."
+Instruction: "Give him a happy mask."
+Output: "Oil painting of a sad clown wearing a happy mask."
+</EXAMPLES>
+
+<OUTPUT_FORMAT>
+Return ONLY the modified prompt string. No explanation. No quotes.`;
 
 let mainPromptContent = "";
 let numImagesToGen = 1;

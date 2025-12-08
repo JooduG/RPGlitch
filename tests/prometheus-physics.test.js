@@ -41,7 +41,7 @@ jest.mock('../apps/rpglitch/js/entity-crud.js', () => ({
 // Import the mocked entities to configure return values in tests
 import { entities } from '../apps/rpglitch/js/entity-crud.js';
 
-describe('PROMETHEUS ENGINE V4.2', () => {
+describe('PROMETHEUS ENGINE V4.0', () => {
 
   // ==========================================
   // LAYER 1: THE LAWS OF PHYSICS (Unit Tests)
@@ -55,7 +55,7 @@ describe('PROMETHEUS ENGINE V4.2', () => {
       // 80 - 20 = 60
       expect(output.permeability).toBe(60);
       expect(output.velocity).toBe(85);
-      expect(output._flags.glassCannon).toBeFalsy(); // Should perform check on NEW state? No, logic uses OLD state for flag usually, but let's check implementation
+      expect(output._flags.glassCannon).toBeFalsy();
     });
 
     test('Law 2: Fog of War (High Entropy reduces Resonance)', () => {
@@ -137,18 +137,21 @@ describe('PROMETHEUS ENGINE V4.2', () => {
 
       // Check System Prompt for the Hard Logic block
       expect(payload.system).toContain('<PHYSICS_MANDATE>');
-      expect(payload.system).toContain('New Entropy: 55');
+
+      // Matches V4.0 Output Format
+      expect(payload.system).toContain('- Entropy: 55');
       expect(payload.system).toContain('PANIC_SPIRAL');
 
-      // Check that it forbids the LLM from hallucinating new math
-      expect(payload.system).toContain('You MUST output these exact numbers');
+      // [FIX] Updated expectation to match V4.0 phrasing
+      expect(payload.system).toContain('The Physics Engine enforces these exact values');
     });
 
-    test('buildUpdater falls back to Soft Physics if no dynamics provided', async () => {
+    test('buildUpdater falls back to Calibration Matrix if no dynamics provided', async () => {
       const payload = await builder.buildUpdater('ai_character', null);
 
       expect(payload.system).not.toContain('<PHYSICS_MANDATE>');
-      expect(payload.system).toContain('<DYNAMICS_GUIDE>'); // The legacy/soft prompt
+      // We expect the SOTA Calibration Matrix
+      expect(payload.system).toContain('<PHYSICS_CALIBRATION>');
     });
   });
 
@@ -171,8 +174,8 @@ describe('PROMETHEUS ENGINE V4.2', () => {
 
       const payload = await builder.buildArchivist(mockEntity);
 
-      expect(payload.system).toContain('[SYSTEM: THE_ARCHIVIST]');
-      expect(payload.system).toContain('PRESERVE all Proper Nouns');
+      expect(payload.system).toContain('[SYSTEM: MEMORY_COMPRESSION_ENGINE_V4.0]');
+      expect(payload.system).toContain('NEVER summarize or alter Proper Nouns');
       expect(payload.system).toContain('TestChar');
       // Ensure temp is lowered for precision
       expect(payload.params.temperature).toBeLessThan(0.5);
