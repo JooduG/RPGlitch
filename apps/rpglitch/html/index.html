@@ -170,7 +170,6 @@
       <a href="#close" aria-label="Close" class="close"
         onclick="document.getElementById('settings').setAttribute('hidden', '')"></a>
     </header>
-    <!-- SHARED: Top & Side-by-Side -->
     <div class="grid settings-shared" style="align-items: center; margin-bottom: 1rem;">
       <label style="margin-bottom: 0;">
         <input type="checkbox" id="setting-director-mode" role="switch">
@@ -181,7 +180,6 @@
 
     <hr>
 
-    <!-- GAME SPECIFIC -->
     <div class="settings-section-game">
       <div class="campaign-controls"
         style="background: var(--card-bg-color); padding: 1rem; border-radius: var(--border-radius); border: 1px solid var(--accordion-border-color); margin-bottom: 1rem;">
@@ -194,7 +192,6 @@
       </div>
     </div>
 
-    <!-- LOBBY SPECIFIC -->
     <div class="settings-section-lobby" style="display: flex; flex-direction: column; gap: 1.5rem;">
       <label>
         Story Opening Instructions
@@ -217,53 +214,48 @@
 
   <template id="tpl-profile-page">
     <div class="profile-layout">
-      <div class="profile-hero">
+      <div class="profile-hero" aria-busy="false">
         <div class="hero-wrap">
-          <div class="profile-hero-overlay" data-edit-field="hero">
-            <textarea name="profilePictureUrl" rows="1" placeholder="Describe appearance..." autocomplete="off"
-              data-profile-field="profilePictureUrl" class="profile-prompt-input"
-              style="resize:vertical; min-height: 2.5rem; margin-bottom: 0.5rem; border-radius: var(--pico-radius);"></textarea>
+          <div class="profile-hero-overlay">
 
-            <label
-              style="font-size: 0.8rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; color: white; text-shadow: 0 1px 2px black; cursor: pointer;">
-              <input type="checkbox" id="gen-transparent-bg" style="margin: 0;">
-              Transparent Background
-            </label>
+            <textarea class="profile-pic-input" data-profile-field="profilePictureUrl"
+              placeholder="Describe appearance or paste URL..." rows="2"></textarea>
 
-            <fieldset role="group" class="profile-controls-row" style="margin-bottom:0; width: 100%;">
-              <select name="signatureColour" id="signatureColour" style="max-width: 140px; margin-bottom:0;">
-                <option value="default">Color</option>
-                <option value="pink">Pink</option>
-                <option value="emerald">Emerald</option>
-                <option value="cyan">Cyan</option>
-                <option value="orange">Orange</option>
-                <option value="purple">Purple</option>
+            <!-- Row 2 & 3: 2x2 Grid Controls -->
+            <div class="overlay-grid-controls">
+              <!-- Item 1: Magic -->
+              <button type="button" class="btn-magic-prompt" data-action="magic-prompt"
+                title="Auto-Write Prompt (Director Mode)">
+                ✨ Auto Write
+              </button>
+
+              <!-- Item 2: Action -->
+              <button type="button" class="profile-main-action" data-action="generate">
+                Generate
+              </button>
+
+              <!-- Item 3: Color -->
+              <select name="signatureColour" id="signatureColour" class="signature-select" title="Signature Color">
+                <!-- Options populated dynamically by ui-profile.js -->
               </select>
-              <button type="button" data-action="extract" title="Extract Visuals" class="secondary outline btn-extract"
-                style="padding-left:1rem; padding-right:1rem;">🪄</button>
-              <button type="button" data-action="stylize" title="Apply Style" class="secondary outline btn-stylize"
-                style="padding-left:1rem; padding-right:1rem; display: none;">🎨</button>
-              <button type="button" data-action="upload" class="profile-main-action" style="flex:1;"></button>
-            </fieldset>
 
-            <input type="file" accept="image/*" autocomplete="off" hidden data-profile-field="fileInput" />
+              <!-- Item 4: No BG -->
+              <div class="chk-wrap btn-subtle-toggle" title="Remove Background (Transparent)">
+                <input type="checkbox" id="gen-transparent-bg">
+                <label for="gen-transparent-bg">No Background</label>
+              </div>
+            </div>
+
+            <input type="file" data-profile-field="fileInput" accept="image/*" hidden="">
           </div>
         </div>
       </div>
+
       <div class="profile-right">
         <div class="profile-right-content">
-          <form>
-            <template id="tpl-profile-field-section">
-              <div class="field-row">
-                <div class="field-label"><label data-field-label=""></label><small data-field-sublabel=""></small>
-                </div>
-                <div class="field-input">
-                  <div data-read-field="" class="profile-field-text-read"></div><textarea data-edit-field=""></textarea>
-                </div>
-              </div>
-            </template>
-            <div class="profile-header" data-profile-header></div>
-            <div class="profile-fields" data-profile-sections></div>
+          <form onsubmit="return false;">
+            <div class="profile-header" data-profile-header=""></div>
+            <div class="profile-sections" data-profile-sections=""></div>
           </form>
         </div>
       </div>

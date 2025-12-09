@@ -225,11 +225,11 @@ describe('validation.js', () => {
   // ============================================================================
   describe('SIGNATURE_COLORS', () => {
     test('exports correct color values', () => {
-      expect(SIGNATURE_COLORS.pink).toBe('#ec4899');
-      expect(SIGNATURE_COLORS.emerald).toBe('#10b981');
-      expect(SIGNATURE_COLORS.cyan).toBe('#06b6d4');
-      expect(SIGNATURE_COLORS.orange).toBe('#f97316');
-      expect(SIGNATURE_COLORS.purple).toBe('#a855f7');
+      expect(SIGNATURE_COLORS.pink).toBe('#d92662');
+      expect(SIGNATURE_COLORS.jade).toBe('#00895a');
+      expect(SIGNATURE_COLORS.cyan).toBe('#058686');
+      expect(SIGNATURE_COLORS.orange).toBe('#d24317');
+      expect(SIGNATURE_COLORS.purple).toBe('#b645cd');
       expect(SIGNATURE_COLORS.default).toBe('#777');
     });
 
@@ -244,11 +244,11 @@ describe('validation.js', () => {
   // ============================================================================
   describe('getSignatureColor()', () => {
     test('returns correct color for valid keys', () => {
-      expect(getSignatureColor('pink')).toBe('#ec4899');
-      expect(getSignatureColor('emerald')).toBe('#10b981');
-      expect(getSignatureColor('cyan')).toBe('#06b6d4');
-      expect(getSignatureColor('orange')).toBe('#f97316');
-      expect(getSignatureColor('purple')).toBe('#a855f7');
+      expect(getSignatureColor('pink')).toBe('#d92662');
+      expect(getSignatureColor('jade')).toBe('#00895a');
+      expect(getSignatureColor('cyan')).toBe('#058686');
+      expect(getSignatureColor('orange')).toBe('#d24317');
+      expect(getSignatureColor('purple')).toBe('#b645cd');
     });
 
     test('returns default color for invalid key', () => {
@@ -335,11 +335,11 @@ describe('validation.js', () => {
       });
 
       test('handles all signature colors correctly', () => {
-        expect(getContrastColor(SIGNATURE_COLORS.pink)).toBe('#000');
-        expect(getContrastColor(SIGNATURE_COLORS.emerald)).toBe('#000');
-        expect(getContrastColor(SIGNATURE_COLORS.cyan)).toBe('#000');
-        expect(getContrastColor(SIGNATURE_COLORS.orange)).toBe('#000');
-        expect(getContrastColor(SIGNATURE_COLORS.purple)).toBe('#000');
+        expect(getContrastColor(SIGNATURE_COLORS.pink)).toBe('#fff');
+        expect(getContrastColor(SIGNATURE_COLORS.jade)).toBe('#fff');
+        expect(getContrastColor(SIGNATURE_COLORS.cyan)).toBe('#fff');
+        expect(getContrastColor(SIGNATURE_COLORS.orange)).toBe('#fff');
+        expect(getContrastColor(SIGNATURE_COLORS.purple)).toBe('#fff');
         expect(getContrastColor(SIGNATURE_COLORS.default)).toBe('#fff');
       });
     });

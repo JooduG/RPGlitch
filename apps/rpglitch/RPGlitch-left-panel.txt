@@ -19,7 +19,6 @@ buildApp() =>
   return htmlWithConfig
 
 // --- LIVE BRIDGE: EXPORT LISTS TO JS ---
-// Exports our curated lists to 'window.rpgLists' so the JS Engine can use them for prompts
 clientSideConfig
   <script>
     window.rpgLists = \{
@@ -33,13 +32,12 @@ clientSideConfig
   </script>
 
 rpgQuality
-  masterpiece, world-class masterpiece, award-winning quality
-  impeccable attention to detail, high detail, ultra-intricate detail
-  8K ultra-high resolution, 45 megapixels, ultra high res
-  high dynamic range, HDR
-  lifelike textures and materials, photorealistic textures
-  world-class work of art, original realistic
-  photorealistic, ultra-realistic, strictly realistic, unbelievable realism
+  captured on 35mm film, authentic film grain, color graded
+  high-fidelity photography, sharp focus, studio portraiture
+  cinematic lighting, depth of field, soft box lighting
+  raw photo, unedited, neutral density filter
+  professional cinematography, anamorphic lens flares
+  intricate texture detail, subsurface scattering
 
 rpgStyles
   3d render, unreal engine 5 render

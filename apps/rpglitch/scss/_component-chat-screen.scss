@@ -56,16 +56,29 @@
     background: transparent;
     box-shadow: none;
     border-radius: 0;
+    display: flex; // Ensure strict alignment
+    align-items: center;
+
+    // [FIX] Alignment Issue: Ensure borders don't add to height
+    * {
+        box-sizing: border-box;
+    }
 
     input[type="text"] {
         border-radius: var(--pico-radius) 0 0 var(--pico-radius);
         border: 1px solid var(--pico-muted-border-color);
         background: rgb(0 0 0 / 50%);
         color: #fff;
+        height: 2.25rem; // [NEW] Cute Height
+        font-size: 0.85rem; // [NEW] Cute Font
+        margin-bottom: 0;
+        vertical-align: middle;
+        line-height: normal;
 
         &:focus {
             border-color: var(--pico-primary);
             box-shadow: 0 0 0 2px var(--pico-primary-focus);
+            z-index: 2; // Bring to front on focus
         }
     }
 
@@ -80,6 +93,13 @@
         width: auto;
         color: var(--pico-muted-color);
         transition: all 0.2s ease;
+        height: 2.25rem; // [NEW] Cute Height
+        font-size: 0.85rem; // [NEW] Cute Font
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        vertical-align: middle;
 
         &:hover {
             background: rgb(0 0 0 / 80%);
@@ -93,8 +113,14 @@
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        padding: 0 2rem;
+        padding: 0 1.5rem;
         box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
+        height: 2.25rem; // [NEW] Cute Height
+        font-size: 0.85rem; // [NEW] Cute Font
+        margin-bottom: 0;
+        vertical-align: middle;
+        line-height: normal;
+        border: 1px solid transparent; // visual balance if other buttons have borders
 
         &:not(:disabled):hover {
             transform: translateY(-1px);
@@ -196,29 +222,12 @@
     right: auto; // Ensure no conflicting constraints
 
     // Signature Styling
-    .signature-pink & {
-        border-color: var(--signature-pink);
-        color: var(--signature-pink);
-    }
-
-    .signature-emerald & {
-        border-color: var(--signature-emerald);
-        color: var(--signature-emerald);
-    }
-
-    .signature-cyan & {
-        border-color: var(--signature-cyan);
-        color: var(--signature-cyan);
-    }
-
-    .signature-orange & {
-        border-color: var(--signature-orange);
-        color: var(--signature-orange);
-    }
-
-    .signature-purple & {
-        border-color: var(--signature-purple);
-        color: var(--signature-purple);
+    // Signature Styling (Dynamic Loop)
+    @each $name, $data in $signature-colors {
+        .signature-#{$name} & {
+            border-color: var(--signature-#{$name});
+            color: var(--signature-#{$name});
+        }
     }
 }
 
@@ -233,13 +242,28 @@
     .portrait-image img,
     .portrait-image .picture {
         transform: scaleX(-1);
+
+        // [NEW] If flipped by user, un-mirror it (Face Right)
+        &.img-flipped {
+            transform: scaleX(1);
+        }
     }
 
     // Maintain mirror on hover + zoom effect
     &:hover .portrait-image img,
     &:hover .portrait-image .picture {
         transform: scale(-1.05, 1.05);
+
+        // [NEW] Hover state for flipped user image
+        &.img-flipped {
+            transform: scale(1.05, 1.05);
+        }
     }
+}
+
+// [NEW] General Flip Class (AI & World)
+.portrait-image img.img-flipped {
+    transform: scaleX(-1);
 }
 
 /* =========================================

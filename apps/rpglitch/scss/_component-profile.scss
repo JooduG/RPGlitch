@@ -13,7 +13,8 @@
     background: #000;
     position: relative;
     height: 100%; // Fill grid cell
-    overflow: hidden; // Strict clipping
+    min-height: 300px; // [FIX] Prevents collapse/dark square artifact when no image
+    overflow: hidden; // Strict clipping for the image
 
     .hero-wrap,
     .picture {
@@ -29,16 +30,22 @@
         object-fit: cover;
         display: block;
 
-        // [NEW] Smooth Flip Transition
-        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        // Smooth Flip Transition
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
+
+        // [FIX] Hide broken image icons if src is missing/empty
+        &[src=""],
+        &:not([src]) {
+            opacity: 0;
+        }
     }
 
-    // [NEW] The Flip State
+    // The Flip State (Applied by JS)
     .img-flipped {
         transform: scaleX(-1);
     }
 
-    // [NEW] The Floating Flip Button (Live Control)
+    // The Floating Flip Button (Live Control)
     .btn-visual-flip {
         position: absolute;
         top: 1rem;
@@ -74,26 +81,26 @@
         }
     }
 
-    // Show button when hovering the hero area
+    // Show flip button when hovering the hero area
     &:hover .btn-visual-flip,
     &:focus-within .btn-visual-flip {
         opacity: 1;
         transform: translateY(0);
     }
 
+    // Placeholder for missing images
     .placeholder-image {
         width: 100%;
         height: 100%;
         display: grid;
         place-items: center;
-    }
 
-    // Default: Character View (Portrait)
-    .placeholder-image svg {
-        width: 40%;
-        max-width: 300px;
-        height: auto;
-        opacity: 0.3;
+        svg {
+            width: 40%;
+            max-width: 300px;
+            height: auto;
+            opacity: 0.3;
+        }
     }
 
     // World View Override: Compact Banner
@@ -104,12 +111,7 @@
         opacity: 0.4;
     }
 
-    &:hover .profile-hero-overlay,
-    &:focus-within .profile-hero-overlay,
-    .profile-hero-overlay.is-locked {
-        opacity: 1; // Show on interaction or when locked/busy
-    }
-
+    // --- EDIT OVERLAY (The Tool Panel) ---
     .profile-hero-overlay {
         position: absolute;
         bottom: 1rem;
@@ -117,35 +119,143 @@
         right: 1rem;
         padding: 1rem;
         background: rgb(0 0 0 / 80%);
-        backdrop-filter: blur(8px);
+        backdrop-filter: blur(12px);
         border-radius: var(--pico-radius);
-        transition: opacity 0.2s;
-        opacity: 0;
-        display: none;
+        border: 1px solid rgb(255 255 255 / 10%);
+        box-shadow: 0 4px 20px rgb(0 0 0 / 50%);
+        display: none; // Hidden by default, toggled by JS or .is-editing
         flex-direction: column;
-        gap: 1rem;
-        pointer-events: auto;
+        gap: 0.75rem;
         z-index: 10;
 
-        button {
-            white-space: nowrap;
-        }
+        // Transition for hover effect
+        transition: opacity 0.2s, transform 0.2s;
+        opacity: 0;
+        transform: translateY(10px);
 
-        .profile-prompt-input {
+        // Inputs inside the overlay
+        .profile-pic-input {
             width: 100%;
-            border-radius: var(--pico-radius) 0 0 var(--pico-radius);
-            margin: 0;
+            resize: none;
+            font-size: 0.85rem;
             padding: 0.5rem;
-            font-size: 0.9rem;
+            border-radius: 4px;
+            border: 1px solid var(--pico-muted-border-color);
+            background: rgb(0 0 0 / 50%);
+            color: white;
 
-            // Hide potential scrollbar for clean look
-            &::-webkit-scrollbar {
-                display: none;
+            &:focus {
+                background: rgb(0 0 0 / 80%);
+                border-color: var(--pico-primary);
+                outline: none;
             }
         }
 
-        // REVISED BUSY STATE
-        &[aria-busy="true"]::before {
+        // [NEW] 2x2 Grid Layout
+        .overlay-grid-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            width: 100%;
+
+            // [NEW] World View Override: 1 Row (4 columns)
+            .profile-view--world & {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            // Uniform Height for all children
+            >* {
+                height: 2.25rem !important;
+                margin-bottom: 0 !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                font-size: 0.85rem;
+                border-radius: var(--pico-radius);
+            }
+
+            // 1. Magic Button
+            .btn-magic-prompt {
+                background: var(--pico-primary-background);
+                color: var(--pico-primary-inverse);
+                border: none;
+                padding: 0 0.75rem;
+                gap: 0.4rem;
+                cursor: pointer;
+                transition: background 0.2s;
+
+                &:hover {
+                    background: var(--pico-primary-hover-background);
+                }
+            }
+
+            // 2. Main Action
+            .profile-main-action {
+                padding: 0 0.75rem;
+                font-weight: 700;
+                white-space: nowrap;
+            }
+
+            // 3. Select (Overrides)
+            select.signature-select {
+                padding: 0 2rem 0 0.75rem; // Room for arrow
+                background-position: center right 0.75rem;
+                border: 1px solid var(--pico-muted-border-color);
+                background-color: var(--pico-card-background-color);
+                font-size: 0.8rem;
+                cursor: pointer;
+
+                &:focus {
+                    border-color: var(--pico-primary);
+                }
+            }
+
+            // 4. Toggle (Styled as Card/Button)
+            .btn-subtle-toggle {
+                background: transparent;
+                border: 1px solid var(--pico-muted-border-color);
+                color: var(--pico-muted-color);
+                cursor: pointer;
+                justify-content: flex-start; // Left align content
+                padding-left: 0.75rem;
+                gap: 0.5rem;
+                transition: all 0.2s;
+
+                &:hover {
+                    border-color: var(--pico-color);
+                    color: var(--pico-color);
+                }
+
+                input {
+                    margin: 0;
+                    width: 1rem;
+                    height: 1rem;
+                }
+
+                label {
+                    cursor: pointer;
+                    font-size: 0.8rem;
+                    white-space: nowrap;
+                    margin-bottom: 0; // Fix label margin
+                }
+            }
+        }
+    }
+
+    // Reveal Overlay Logic
+    &:hover .profile-hero-overlay,
+    &:focus-within .profile-hero-overlay,
+    .profile-hero-overlay.is-locked {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    // Busy State (Spinner)
+    &[aria-busy="true"] {
+        pointer-events: none; // Lock interaction
+
+        &::before {
             content: "";
             position: absolute;
             inset: 0;
@@ -155,7 +265,7 @@
             display: block;
         }
 
-        &[aria-busy="true"]::after {
+        &::after {
             display: block;
             width: 3rem;
             height: 3rem;
@@ -193,101 +303,13 @@
     }
 }
 
-
 /* =========================================
-   2. SETTINGS VIEW (Robust Flex Layout)
+   2. TYPOGRAPHY & FORMS
    ========================================= */
 
-.options-body-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    overflow: hidden;
-    height: 100%;
-    min-height: 0;
+.profile-header {
+    margin-bottom: 2rem;
 }
-
-.options-col-left {
-    border-right: 1px solid var(--pico-muted-border-color);
-    padding-right: 1rem;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.options-col-right {
-    padding-left: 1rem;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    height: 100%;
-    min-height: 0;
-}
-
-#settings-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    width: 100%;
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding-right: 0.5rem;
-
-    @include custom-scrollbar;
-
-    >label {
-        font-weight: 700;
-        color: var(--pico-muted-color);
-        margin-bottom: 0.25rem;
-        text-align: left;
-    }
-
-    >textarea,
-    >input:not([type="checkbox"]),
-    >select {
-        width: 100%;
-        margin-bottom: 0.5rem;
-    }
-
-    >fieldset {
-        margin: 0.5rem 0;
-        padding: 1rem;
-        border: 1px solid var(--pico-muted-border-color);
-        border-radius: var(--pico-radius);
-        background: rgb(255 255 255 / 3%);
-
-        label {
-            font-weight: normal;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            width: 100%;
-            margin: 0;
-        }
-
-        input[type="checkbox"] {
-            margin: 0;
-        }
-    }
-}
-
-.options-footer {
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid var(--pico-muted-border-color);
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    flex-shrink: 0;
-}
-
-
-/* =========================================
-   TYPOGRAPHY & INPUTS
-   ========================================= */
 
 .profile-name-display,
 .profile-name-input {
@@ -321,7 +343,7 @@
     opacity: 0.8;
     color: inherit;
     width: 100%;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     background: transparent;
     border: 1px solid transparent;
     border-radius: var(--pico-radius);
@@ -344,17 +366,14 @@
 .field-row {
     display: grid;
     grid-template-columns: 140px 1fr;
-    gap: 1rem; // [FIX] Reduced from 2rem to fix whitespace
-    align-items: center;
+    gap: 1rem;
+    align-items: flex-start;
     width: 100%;
-    margin-bottom: 1.25rem; // [FIX] Reduced from 1.5rem
+    margin-bottom: 1.25rem;
 
     .field-label {
         text-align: right;
         line-height: 1.2;
-
-        // [FIX] Ensure label aligns with top of text block
-        align-self: flex-start;
         padding-top: 0.6rem;
 
         label {
@@ -381,7 +400,7 @@
         input {
             text-align: left !important;
             width: 100%;
-            margin-bottom: 0; // [FIX] Remove bottom margin
+            margin-bottom: 0;
         }
 
         .profile-field-text-read {
@@ -396,14 +415,16 @@
     }
 }
 
-// [NEW] Director Mode Inputs (Dynamics)
+// Director Mode Inputs (Dynamics)
 input[type="number"][data-edit-dynamic] {
     padding: 0.4rem;
     height: auto;
     font-family: monospace;
     font-size: 0.9rem;
+    border: 1px solid var(--pico-muted-border-color);
 }
 
+// --- STATE TOGGLING ---
 [data-edit-field] {
     display: none;
 }
@@ -421,6 +442,7 @@ input[type="number"][data-edit-dynamic] {
         display: block;
     }
 
+    // Force overlay to be accessible in edit mode
     .profile-hero-overlay {
         display: flex;
     }
@@ -433,98 +455,82 @@ input[type="number"][data-edit-dynamic] {
     margin-top: 2rem;
     padding-top: 2rem;
     border-top: 1px solid var(--pico-muted-border-color);
-}
 
-// --- PORTRAIT DISPLAYS (Desktop Sidebars) ---
-#user-character-display,
-#narrator-character-display {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-
-    @include tablet {
-        display: none;
+    // [NEW] Unified Button Style (Matching Image Overlay)
+    button,
+    [role="button"] {
+        height: 2.25rem;
+        font-size: 0.85rem;
+        padding: 0 1.25rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--pico-radius);
+        white-space: nowrap;
+        margin-bottom: 0; // Fix alignment in groups
     }
 
-    .picture {
-        width: 100%;
-        height: 100%;
-        border-radius: 0;
+    // Fix for Pico Groups to respect height
+    fieldset[role="group"] {
+        margin-bottom: 0;
 
-        img {
-            object-fit: cover;
+        button {
+            // Grouped buttons normally lose radius, let Pico handle that but enforce height
+            height: 2.25rem;
         }
     }
-
-    .character-name {
-        display: none;
-    }
 }
 
-#user-character-display {
-    grid-column: 1;
+/* =========================================
+   3. SETTINGS & UTILITIES
+   ========================================= */
+
+.options-body-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    height: 100%;
+    overflow: hidden;
 }
 
-#narrator-character-display {
-    grid-column: 3;
-}
-
-// --- UTILITIES ---
-
-.muted-heading {
-    color: var(--pico-muted-color);
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--pico-muted-border-color);
-    padding-bottom: 0.5rem;
-    text-align: center;
-}
-
-/* Story List (Load Game) */
-.story-list {
-    flex: 1;
+#settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
     overflow-y: auto;
     padding-right: 0.5rem;
 
     @include custom-scrollbar;
-}
 
-.story-item {
-    margin-bottom: 0.75rem;
-    padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--pico-card-background-color);
-    border-radius: var(--pico-radius);
-    border: 1px solid transparent;
-
-    &:hover {
-        border-color: var(--pico-primary);
+    >fieldset {
+        padding: 1rem;
+        border: 1px solid var(--pico-muted-border-color);
+        border-radius: var(--pico-radius);
+        background: rgb(255 255 255 / 3%);
     }
 }
 
+.options-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--pico-muted-border-color);
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+// --- RESPONSIVE ---
 @include mobile {
+    .profile-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 300px 1fr; // Hero on top
+    }
+
     .options-body-grid {
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto;
-        gap: 2rem;
         overflow: visible;
-    }
-
-    .options-col-left {
-        border-right: none;
-        border-bottom: 1px solid var(--pico-muted-border-color);
-        padding-right: 0;
-        padding-bottom: 1rem;
-        max-height: 300px;
-    }
-
-    .options-col-right {
-        padding-left: 0;
     }
 
     .field-row {
@@ -536,7 +542,7 @@ input[type="number"][data-edit-dynamic] {
             display: flex;
             gap: 0.5rem;
             align-items: baseline;
-            padding-top: 0; // Reset mobile alignment
+            padding-top: 0;
         }
     }
 }

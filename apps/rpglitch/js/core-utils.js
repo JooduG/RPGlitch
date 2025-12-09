@@ -12,14 +12,24 @@ const IMAGE_EXTENSION_REGEX = new RegExp(
 );
 
 export const SIGNATURE_COLORS = {
-  pink: "#ec4899", emerald: "#10b981", cyan: "#06b6d4",
-  orange: "#f97316", purple: "#a855f7", default: "#777",
+  red: "#d93526", pink: "#d92662", fuchsia: "#d9269d", purple: "#b645cd",
+  violet: "#9062ca", indigo: "#7569da", blue: "#3c71f7", azure: "#017fc0",
+  cyan: "#058686", jade: "#00895a", green: "#398712", lime: "#628100",
+  yellow: "#827800", amber: "#977000", pumpkin: "#ad6400", orange: "#d24317",
+  sand: "#7b776b", grey: "#777777", zinc: "#6f7887", slate: "#687899",
+  default: "#777",
 };
 
 // --- Color & Visual Utilities (Consolidated) ---
 
 export function getSignatureColor(key) {
   return SIGNATURE_COLORS[key] || SIGNATURE_COLORS.default;
+}
+
+// [NEW] Random Color Generator (Excluding Default)
+export function getRandomSignatureKey() {
+  const keys = Object.keys(SIGNATURE_COLORS).filter(k => k !== "default");
+  return keys[Math.floor(Math.random() * keys.length)];
 }
 
 export function getDeterministicColor(seed) {
@@ -66,6 +76,57 @@ export function getContrastColor(hex) {
   // YIQ equation
   const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
   return (yiq >= 128) ? '#000' : '#fff';
+}
+
+/**
+ * Darkens a hex color by a percentage (0-1).
+ * Used for generating background gradients from signature colors.
+ */
+export function darkenColor(hex, amount) {
+  if (!hex || typeof hex !== 'string') return hex;
+  if (hex.startsWith('#')) hex = hex.slice(1);
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  if (hex.length !== 6) return hex;
+
+  const num = parseInt(hex, 16);
+  let r = (num >> 16);
+  let g = (num >> 8 & 0x00FF);
+  let b = (num & 0x0000FF);
+
+  r = Math.floor(r * (1 - amount));
+  g = Math.floor(g * (1 - amount));
+  b = Math.floor(b * (1 - amount));
+
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+const DEFAULT_BG = ["#181c2f", "#23243a", "#1a3a4a", "#2a1a3a"]; // From _config.scss
+
+/**
+ * Updates the global app background gradient based on a signature color.
+ */
+export function setAppBackground(signatureKey) {
+  const root = document.documentElement;
+  const baseColor = SIGNATURE_COLORS[signatureKey];
+
+  if (!signatureKey || signatureKey === "default" || !baseColor) {
+    // Reset to Default
+    root.style.setProperty('--bg-grad-1', DEFAULT_BG[0]);
+    root.style.setProperty('--bg-grad-2', DEFAULT_BG[1]);
+    root.style.setProperty('--bg-grad-3', DEFAULT_BG[2]);
+    root.style.setProperty('--bg-grad-4', DEFAULT_BG[3]);
+    return;
+  }
+
+  // Create atmospheric gradient (Signature -> Void)
+  // Grad 1: Dark version of signature (was 0.55) -> Now 0.2 (Much lighter, prevents "muddy" yellows)
+  root.style.setProperty('--bg-grad-1', darkenColor(baseColor, 0.2));
+  // Grad 2: Even darker (was 0.75) -> Now 0.4
+  root.style.setProperty('--bg-grad-2', darkenColor(baseColor, 0.4));
+  // Grad 3: Near Black (Tinted)
+  root.style.setProperty('--bg-grad-3', '#111111');
+  // Grad 4: Blackish void
+  root.style.setProperty('--bg-grad-4', '#080808');
 }
 
 /**

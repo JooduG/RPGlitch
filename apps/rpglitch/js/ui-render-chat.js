@@ -170,10 +170,9 @@ export function updatePortraits(aiCharacter, userCharacter) {
                 if (picture) {
                     // [NEW] Visual Flip Logic
                     const visuals = getVisualState(ent);
-                    if (visuals.flipped) {
+                    if (visuals && visuals.flipped) {
                         const img = picture.querySelector("img");
-                        // We use inline style here to ensure it works regardless of SCSS scope
-                        if (img) img.style.transform = "scaleX(-1)";
+                        if (img) img.classList.add("img-flipped");
                     }
                     imgDiv.appendChild(picture);
                 }
@@ -209,8 +208,8 @@ function formatMessageText(text) {
     // 2. Bold (**text**) -> <b>**text**</b> (Keeps asterisks visible)
     safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<b>**$1**</b>');
 
-    // 3. Italics (*text*) -> <i>*text*</i> (Keeps asterisks visible)
-    safeText = safeText.replace(/\*([^*]+)\*/g, '<i>*$1*</i>');
+    // 3. Italics (*text*) -> <i>*text*</i> (Keeps asterisks visible, avoids matching inside **)
+    safeText = safeText.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<i>*$1*</i>');
 
     // 4. Line Breaks -> <br>
     safeText = safeText.replace(/\n/g, '<br>');
@@ -271,6 +270,12 @@ export function renderMessage(container, role, text, characterName, type, entiti
         thoughtContent = thinkMatch[1].trim();
         mainContent = text.replace(thinkMatch[0], "").trim();
     }
+
+    // [FIX] Sanitize Meta-Leaks (e.g., "**Step 2: DRAFT**" leaking outside tags)
+    mainContent = mainContent.replace(/\*\*Step \d:.*?\*\*/gi, "");
+    mainContent = mainContent.replace(/^Step \d:.*?$/gim, "");
+    // Cleanup double newlines left by removals
+    mainContent = mainContent.replace(/\n\s*\n/g, "\n").trim();
 
     const formattedMain = formatMessageText(mainContent);
     const formattedThought = formatMessageText(thoughtContent);

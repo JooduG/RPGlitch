@@ -21,11 +21,26 @@ $pico-del-color: #dc3545;
 // --- PALETTE: SIGNATURES ---
 // Single Source of Truth for character/UI themes
 $signature-colors: (
-  "pink": (color: #ec4899, rgb: 236 72 153),
-  "emerald": (color: #10b981, rgb: 16 185 129),
-  "cyan": (color: #06b6d4, rgb: 6 182 212),
-  "orange": (color: #f97316, rgb: 249 115 22),
-  "purple": (color: #a855f7, rgb: 168 85 247),
+  "red": (color: #d93526, rgb: 217 53 38),
+  "pink": (color: #d92662, rgb: 217 38 98),
+  "fuchsia": (color: #d9269d, rgb: 217 38 157),
+  "purple": (color: #b645cd, rgb: 182 69 205),
+  "violet": (color: #9062ca, rgb: 144 98 202),
+  "indigo": (color: #7569da, rgb: 117 105 218),
+  "blue": (color: #3c71f7, rgb: 60 113 247),
+  "azure": (color: #017fc0, rgb: 1 127 192),
+  "cyan": (color: #058686, rgb: 5 134 134),
+  "jade": (color: #00895a, rgb: 0 137 90),
+  "green": (color: #398712, rgb: 57 135 18),
+  "lime": (color: #628100, rgb: 98 129 0),
+  "yellow": (color: #827800, rgb: 130 120 0),
+  "amber": (color: #977000, rgb: 151 112 0),
+  "pumpkin": (color: #ad6400, rgb: 173 100 0),
+  "orange": (color: #d24317, rgb: 210 67 23),
+  "sand": (color: #7b776b, rgb: 123 119 107),
+  "grey": (color: #777, rgb: 119 119 119),
+  "zinc": (color: #6f7887, rgb: 111 120 135),
+  "slate": (color: #687899, rgb: 104 120 153)
 );
 
 // --- BREAKPOINTS ---

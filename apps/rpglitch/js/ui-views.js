@@ -2,6 +2,7 @@
 
 import { initDrawer, closeDrawer } from "./drawer.js";
 import { setGameplayEntities, updatePortraits, setSendLock } from "./ui-render-chat.js";
+import { setAppBackground } from "./core-utils.js";
 import { updateLocalSelection, bindDrawerTrigger, bindPortraitClick, renderEntityPreview, openDrawerFor, setChinCallbacks } from "./ui-chin.js";
 import { renderProfilePage, closeProfileModal, setProfileCallbacks } from "./ui-profile.js";
 
@@ -17,6 +18,8 @@ let _onSelectionChanged = null;
 
 export { setGameplayEntities, updatePortraits, setSendLock, router };
 
+
+
 // --- CORE ROUTING ---
 function showStoryboard() {
   document.body.classList.remove("profile-view-active");
@@ -24,6 +27,8 @@ function showStoryboard() {
   document.body.classList.add("mode-storyboard");
   closeProfileModal();
 }
+
+
 
 function showStoryScreen() {
   document.body.classList.remove("profile-view-active");
@@ -82,7 +87,11 @@ export function updateStoryboardSelection(newSelection) {
   // Update Source of Truth
   if (newSelection.aiCharacter !== undefined) selectedEntities.aiCharacter = newSelection.aiCharacter;
   if (newSelection.userCharacter !== undefined) selectedEntities.userCharacter = newSelection.userCharacter;
-  if (newSelection.world !== undefined) selectedEntities.world = newSelection.world;
+  if (newSelection.world !== undefined) {
+    selectedEntities.world = newSelection.world;
+    // [NEW] Update Background Theme
+    setAppBackground(selectedEntities.world?.signatureColour);
+  }
 
   // Propagate to Chin Module
   updateLocalSelection(selectedEntities);

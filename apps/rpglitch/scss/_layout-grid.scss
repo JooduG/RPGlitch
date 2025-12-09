@@ -35,7 +35,9 @@ main.container {
   overflow: hidden;
   position: fixed;
   inset: 0;
-  z-index: 2;
+  z-index: 100; // [FIX] Safe positive stack
+  opacity: 1 !important; // [FIX] Force opacity
+  transform: translateZ(0); // [FIX] Force hardware layer
 
   // Atmospheric Background Logic
   --world-ambience-rgb: 17, 25, 31;
@@ -45,6 +47,7 @@ main.container {
       transparent 70%);
   color: var(--pico-color, #fff);
   transition: all 0.6s ease;
+  pointer-events: none; // [FIX] Ensure clicks pass through empty areas
 }
 
 /* --- GENERIC COLUMNS --- */

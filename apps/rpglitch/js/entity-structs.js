@@ -1,5 +1,5 @@
 // apps/rpglitch/js/entity-structs.js
-import { sanitizeHtml } from "./core-utils.js";
+import { sanitizeHtml, getRandomSignatureKey } from "./core-utils.js";
 
 // --- PREMADE CONTENT (Kept for seeding) ---
 const premade = {
@@ -10,7 +10,7 @@ const premade = {
       name: "Aether Blade",
       description: "Cybernetic warrior forging light into weapons.",
       type: "Character",
-      signatureColour: "cyan",
+      signatureColour: "azure",
       sections: {
         forever: "Bound to the Aether Core, their blade hums with starlight.",
         past: "Once a street tinkerer who reverse-engineered a fallen drone.",
@@ -23,7 +23,7 @@ const premade = {
       name: "Mystic Bard",
       description: "Traveling musician who weaves spells with song.",
       type: "Character",
-      signatureColour: "pink",
+      signatureColour: "amber",
       sections: {
         forever: "Every note carries a memory; every chorus, a charm.",
         past: "Exiled from a royal conservatory for forbidden harmonics.",
@@ -36,7 +36,7 @@ const premade = {
       name: "Clockwork Rogue",
       description: "Stealthy thief powered by ticking gears.",
       type: "Character",
-      signatureColour: "emerald",
+      signatureColour: "jade",
       sections: {
         forever: "Precision over passion; gears never lie.",
         past: "Built in a hidden workshop as a prototype companion.",
@@ -49,7 +49,7 @@ const premade = {
       name: "Shadow Whisperer",
       description: "Mysterious figure communing with darkness.",
       type: "Character",
-      signatureColour: "cyan",
+      signatureColour: "violet",
       sections: {
         forever: "The dark is not empty; it listens back.",
         past: "Swallowed by a rift and returned with a voice not their own.",
@@ -64,7 +64,7 @@ const premade = {
       name: "Eldoria",
       description: "Floating isles bound by ancient magic.",
       type: "World",
-      signatureColour: "emerald",
+      signatureColour: "green",
       sections: {
         forever: "Isles drift on leylines braided like song.",
         past: "Sky anchors forged by archmages after the Great Sundering.",
@@ -77,7 +77,7 @@ const premade = {
       name: "Neo Arcadia",
       description: "Futuristic metropolis built on dream tech.",
       type: "World",
-      signatureColour: "pink",
+      signatureColour: "purple",
       sections: {
         forever: "Dreams scaffold towers; intent becomes steel.",
         past: "Founded by lucid engineers who stabilized shared dreaming.",
@@ -119,7 +119,10 @@ export function normalize(base = {}) {
     name: sanitizeHtml(base.name || "").trim(),
     description: sanitizeHtml(base.description || "").trim(),
     profilePictureUrl: sanitizeHtml(existingAvatar).trim(), // Keep sync for now
-    signatureColour: sanitizeHtml(base.signatureColour || "default").trim(),
+    signatureColour: (() => {
+      const existing = sanitizeHtml(base.signatureColour || "").trim();
+      return (existing && existing !== "default") ? existing : getRandomSignatureKey();
+    })(),
     forever: sanitizeHtml(base.forever || "").trim(),
     past: sanitizeHtml(base.past || "").trim(),
     present: sanitizeHtml(base.present || "").trim(),

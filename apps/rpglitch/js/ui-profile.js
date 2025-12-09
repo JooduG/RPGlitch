@@ -1,6 +1,6 @@
 import { entities, copyEntity } from "./entity-crud.js";
 import { premade, getVisualState } from "./entity-structs.js";
-import { getPictureHTML, getSignature } from "./core-utils.js";
+import { getPictureHTML, getSignature, SIGNATURE_COLORS } from "./core-utils.js";
 import { state } from "./app-state.js";
 import { VisualManager } from "./manager-visuals.js";
 import {
@@ -136,7 +136,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         }
     }
 
-    // [UPDATED] Flip Button (Live Control with Auto-Save)
+    // Flip Button (Live Control with Auto-Save)
     const flipBtn = document.createElement("button");
     flipBtn.className = "btn-visual-flip";
     flipBtn.innerHTML = "⇄"; // Icon
@@ -160,8 +160,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                 if (!entity.visuals) entity.visuals = {};
                 entity.visuals.flipped = localVisuals.flipped;
 
-                // [FIX] Use upsert, not update
-                // This saves the flip state immediately to the DB
+                // Use upsert to save immediately
                 await entities.upsert(type, entity);
 
                 // Notify other components (Chat, Drawer)
@@ -181,8 +180,22 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     const actionButton = imageOverlay.querySelector(".profile-main-action");
     const fileInput = imageOverlay.querySelector('[data-profile-field="fileInput"]');
     const paletteSelect = imageOverlay.querySelector('select[name="signatureColour"]');
-    const extractBtn = imageOverlay.querySelector('button[data-action="extract"]');
-    const stylizeBtn = imageOverlay.querySelector('button[data-action="stylize"]');
+
+    // [NEW] Dynamically Populate Signature Colors (Single Source of Truth)
+    if (paletteSelect && paletteSelect.options.length === 0) {
+        // Generate Options from Core Utils (No "Default")
+        Object.keys(SIGNATURE_COLORS).forEach(key => {
+            if (key === "default") return;
+            const option = document.createElement("option");
+            option.value = key;
+            // Capitalize First Letter (e.g. "emerald" -> "Emerald")
+            option.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+            paletteSelect.appendChild(option);
+        });
+    }
+
+    const magicBtn = imageOverlay.querySelector('button[data-action="magic-prompt"]');
+
     const form = layout.querySelector("form");
     const secWrap = form.querySelector("[data-profile-sections]");
 
@@ -203,7 +216,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     };
 
     // --- UI STATE HELPERS ---
-    const elementLockList = [imageInput, actionButton, fileInput, paletteSelect, extractBtn, stylizeBtn].filter(Boolean);
+    const elementLockList = [imageInput, actionButton, fileInput, paletteSelect, magicBtn].filter(Boolean);
 
     const setBusy = (busy) => {
         // Apply busy state to the entire container for the overlay effect
@@ -223,8 +236,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         });
 
         // Visual tweak (opacity)
-        if (extractBtn) extractBtn.style.opacity = busy ? "0.5" : "1";
-        if (stylizeBtn) stylizeBtn.style.opacity = busy ? "0.5" : "1";
+        if (magicBtn) magicBtn.style.opacity = busy ? "0.5" : "1";
     };
 
     const updatePreview = (urlOverride) => {
@@ -235,7 +247,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
             const curPic = heroWrap.querySelector(".picture");
             if (newPic) {
                 newPic.classList.add("hero-bleed");
-                // [FIX] Ensure flip state persists on preview update
+                // Ensure flip state persists on preview update
                 applyVisualsToImage(newPic.querySelector("img"));
 
                 if (curPic) curPic.replaceWith(newPic);
@@ -246,15 +258,25 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
 
     function updateButtonState() {
         const val = imageInput.value.trim();
-        // Toggle Helper Visibility
-        if (extractBtn) extractBtn.style.display = (val === "") ? "block" : "none";
-        if (stylizeBtn) stylizeBtn.style.display = (val !== "") ? "block" : "none";
-
         const hasPending = !!imageInput.dataset.pendingUrl;
 
-        if (val === "" && !hasPending) { actionButton.textContent = "Upload"; actionButton.dataset.action = "upload"; }
-        else if ((val && !isValidImageUrl(val, true)) || hasPending) { actionButton.textContent = "Generate"; actionButton.dataset.action = "generate"; }
-        else { actionButton.textContent = "Use URL"; actionButton.dataset.action = "use-url"; }
+        // Smart Context Logic:
+        // 1. Empty? -> "Upload" (Clicking triggers file picker)
+        // 2. Valid URL? -> "Use URL" (Visual confirmation, logic handled by save)
+        // 3. Text (Prompt)? -> "Generate" (Triggers AI)
+
+        if (val === "" && !hasPending) {
+            actionButton.textContent = "Upload";
+            actionButton.dataset.action = "upload";
+        }
+        else if ((val && !isValidImageUrl(val, true)) || hasPending) {
+            actionButton.textContent = "Generate";
+            actionButton.dataset.action = "generate";
+        }
+        else {
+            actionButton.textContent = "Use URL";
+            actionButton.dataset.action = "use-url";
+        }
     }
 
     imageInput.addEventListener("input", () => {
@@ -264,9 +286,11 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     });
     updateButtonState();
 
-    // --- MAIN ACTION BUTTON (Generate / Upload) ---
+    // --- MAIN ACTION BUTTON (Smart Context) ---
     actionButton.addEventListener("click", async () => {
         const action = actionButton.dataset.action;
+
+        // 1. GENERATE
         if (action === "generate") {
             try {
                 setBusy(true);
@@ -287,47 +311,44 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
             } catch (e) { error(e); }
             finally { setBusy(false); updateButtonState(); }
         }
+
+        // 2. UPLOAD (Proxy click to hidden input)
+        else if (action === "upload") {
+            if (fileInput) fileInput.click();
+        }
+
+        // 3. USE URL (Just confirm)
+        else if (action === "use-url") {
+            // Visual feedback only, as the input event handles the data
+            const originalText = actionButton.textContent;
+            actionButton.textContent = "Saved!";
+            setTimeout(() => {
+                actionButton.textContent = originalText;
+                updateButtonState();
+            }, 1000);
+        }
     });
 
-    // --- AI HELPER: EXTRACT (Magic Wand) ---
-    if (extractBtn) {
-        extractBtn.addEventListener("click", async (e) => {
+    // --- AI HELPER: MAGIC PROMPT (Director Mode) ---
+    if (magicBtn) {
+        magicBtn.addEventListener("click", async (e) => {
             e.preventDefault();
             try {
                 setBusy(true);
-                const result = await VisualManager.extractTraits(entity, type);
-                imageInput.value = result;
-                imageInput.dispatchEvent(new Event('input'));
+
+                // Determine style preference from palette or default
+                const selectedStyle = paletteSelect ? paletteSelect.value : (entity.signatureColour || "photorealistic");
+                const styleTerm = (selectedStyle === "default" || !selectedStyle) ? "photorealistic" : selectedStyle;
+                const existingText = imageInput.value.trim();
+
+                // Call the unified Director
+                const finalPrompt = await VisualManager.composePrompt(entity, styleTerm, existingText);
+
+                imageInput.value = finalPrompt;
+                imageInput.dispatchEvent(new Event('input')); // Trigger button state updates
             } catch (err) {
-                console.error("Extraction failed", err);
-                alert("Failed to extract traits. AI might be offline.");
-            } finally {
-                setBusy(false);
-            }
-        });
-    }
-
-    // --- AI HELPER: STYLIZE (Brush) ---
-    if (stylizeBtn) {
-        stylizeBtn.addEventListener("click", async (e) => {
-            e.preventDefault();
-            const current = imageInput.value.trim();
-            if (!current) return alert("Please enter a description first!");
-
-            if (current.includes("cinematic wide shot") || current.includes("high-fidelity character portrait")) {
-                if (!confirm("This prompt looks stylized already. Re-apply?")) return;
-            }
-
-            const selectedColorName = paletteSelect ? paletteSelect.value : (entity.signatureColour || "default");
-            const colorTerm = (selectedColorName === "default" || !selectedColorName) ? "cinematic" : selectedColorName;
-
-            try {
-                setBusy(true);
-                const final = await VisualManager.stylize(current, colorTerm, type);
-                imageInput.value = final;
-                imageInput.dispatchEvent(new Event('input'));
-            } catch (err) {
-                console.error("Stylize failed", err);
+                console.error("Magic Prompt failed", err);
+                alert("The Director is currently unavailable. Please try again.");
             } finally {
                 setBusy(false);
             }
@@ -355,12 +376,21 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
 
     paletteSelect.addEventListener("change", () => {
         const newColor = paletteSelect.value;
-        const urlToCheck = imageInput.dataset.pendingUrl || imageInput.value.trim();
-        const newPic = getPictureHTML({ ...entity, signatureColour: newColor, profilePictureUrl: urlToCheck }, { cover: true, landscape: isWorld });
+
+        // [FIX] Sanitization: prevent empty strings from creating broken <img> tags
+        const rawVal = imageInput.dataset.pendingUrl || imageInput.value.trim();
+        const urlToCheck = (rawVal && rawVal !== "") ? rawVal : null;
+
+        const newPic = getPictureHTML({
+            ...entity,
+            signatureColour: newColor,
+            profilePictureUrl: urlToCheck
+        }, { cover: true, landscape: isWorld });
+
         const curPic = heroWrap.querySelector(".picture");
         if (curPic && newPic) {
             newPic.classList.add("hero-bleed");
-            // [FIX] Preserve flip state on color change
+            // Preserve flip state on color change
             applyVisualsToImage(newPic.querySelector("img"));
             curPic.replaceWith(newPic);
         }
@@ -494,7 +524,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         secWrap.appendChild(dynRow);
     }
 
-    // --- FOOTER ACTIONS ---
+    // --- FOOTER ACTIONS (Grouped) ---
     const footerActions = document.createElement("div");
     footerActions.className = "profile-actions-footer";
 
@@ -507,11 +537,19 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         footerActions.appendChild(statusMsg);
 
     } else if (isEditing) {
+
+        // [UPDATED] Grouped Actions for Pico.css
+        const btnGroup = document.createElement("fieldset");
+        btnGroup.setAttribute("role", "group");
+        btnGroup.style.marginBottom = "0";
+        btnGroup.style.width = "100%";
+
         // Revert
         if (blueprint) {
             const revertBtn = document.createElement("button");
             revertBtn.className = "secondary outline warning";
-            revertBtn.textContent = "Revert to Default";
+            revertBtn.textContent = "Revert";
+            revertBtn.title = "Revert to Default";
             revertBtn.onclick = (e) => {
                 e.preventDefault();
                 if (confirm("Reset this character? All changes will be lost.")) {
@@ -529,12 +567,33 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                     screen.querySelectorAll('textarea').forEach(t => t.dispatchEvent(new Event('input')));
                 }
             };
-            footerActions.appendChild(revertBtn);
+            btnGroup.appendChild(revertBtn);
+        }
+
+        // Delete
+        if (id !== "new") {
+            const delBtn = document.createElement("button");
+            delBtn.className = "secondary outline danger";
+            delBtn.textContent = "Delete";
+            delBtn.onclick = async (e) => {
+                e.preventDefault();
+                if (confirm("Delete this entity?")) {
+                    await entities.remove(type, id);
+                    if (_onUpdateSelection) {
+                        const update = {};
+                        update[activeSlotKey] = null;
+                        _onUpdateSelection(update);
+                    }
+                    closeProfileModal();
+                }
+            };
+            btnGroup.appendChild(delBtn);
         }
 
         // Save
         const saveBtn = document.createElement("button");
-        saveBtn.className = "primary"; saveBtn.textContent = "Save";
+        saveBtn.className = "primary";
+        saveBtn.textContent = "Save";
         saveBtn.onclick = async (e) => {
             e.preventDefault();
             const nameVal = screen.querySelector('[data-edit-field="name"]').value.trim();
@@ -572,32 +631,15 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                 _onUpdateSelection({ [activeSlotKey]: saved });
             }
 
-            // Notify Global State (so Chat/Drawer update too)
+            // Notify Global State
             window.dispatchEvent(new CustomEvent('entity-visual-update', { detail: { id: saved.id } }));
 
             if (id === "new") closeProfileModal();
             else { entity = await entities.get(type, saved.id); setEditMode(false); }
         };
+        btnGroup.appendChild(saveBtn);
 
-        // Delete
-        if (id !== "new") {
-            const delBtn = document.createElement("button");
-            delBtn.className = "secondary outline danger"; delBtn.textContent = "Delete";
-            delBtn.onclick = async (e) => {
-                e.preventDefault();
-                if (confirm("Delete this entity?")) {
-                    await entities.remove(type, id);
-                    if (_onUpdateSelection) {
-                        const update = {};
-                        update[activeSlotKey] = null;
-                        _onUpdateSelection(update);
-                    }
-                    closeProfileModal();
-                }
-            };
-            footerActions.appendChild(delBtn);
-        }
-        footerActions.appendChild(saveBtn);
+        footerActions.appendChild(btnGroup);
 
     } else {
         // View Mode

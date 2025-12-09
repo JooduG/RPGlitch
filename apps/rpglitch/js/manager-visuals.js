@@ -62,66 +62,41 @@ export const VisualManager = {
     // --- PROMPT ENGINEERING ---
 
     /**
-     * "Magic Wand": Extracts visual traits from a JSON entity.
-     * Uses the LLM to convert raw data -> visual keywords.
+     * "The Director": Merges extraction and stylization into one pass.
+     * Generates a fully realized Flux prompt from entity data + style settings.
+     * Replaces the old 'extractTraits' and 'stylize' split workflow.
      */
-    async extractTraits(entity, type) {
+    async composePrompt(entity, stylePreference = "photorealistic", extraContext = null) {
         if (!window.ai) throw new Error("AI plugin not loaded.");
 
-        // Build a compact context block for the extraction model
-        const context = `
-Name: ${entity.name}
-Description: ${entity.description}
-Traits: ${(entity.tags || []).join(", ")}
-${entity.present ? "Current State: " + entity.present : ""}
-    `.trim();
+        let context = `
+SUBJECT: ${entity.name}
+ROLE: ${entity.description}
+TRAITS: ${(entity.tags || []).join(", ")}
+CURRENT STATE: ${entity.present || "Neutral"}
+TARGET STYLE: ${stylePreference}
+`.trim();
 
-        // [UPGRADE] Instruct the AI to output visual *sentences* rather than just tags for Flux
-        const systemPrompt = `[SYSTEM: VISUAL_EXTRACTOR]
-You are a Concept Artist. Your task is to extract VISUAL DATA from the profile.
-Rules:
-1. Ignore abstract concepts (e.g., "brave", "ancient history").
-2. Focus on PHYSICALITY (Race, Hair, Eyes, Clothes, Scars, Accessories).
-3. Output a comma-separated list of visual adjectives and nouns.`;
+        if (extraContext && extraContext.trim()) {
+            context += `\nUSER NOTES: ${extraContext.trim()}`;
+        }
 
+        const systemPrompt = `[SYSTEM: VISUAL_DIRECTOR]
+You are a Lead Cinematographer using the Flux Image Engine.
+Task: Write a cohesive "Visual Specification" paragraph (3-4 sentences) that combines the SUBJECT with the TARGET STYLE.
+
+<RULES>
+1. **Integration:** Do not just list traits. Describe the subject *within* the lighting and atmosphere of the style.
+2. **Camera:** Specify a lens/film stock that fits the "${stylePreference}" (e.g., 35mm for realism, loose brushwork for painting).
+3. **Details:** Focus on texture (skin, fabric, metal) and lighting physics (volumetric, rim light).
+4. **User Notes:** If USER NOTES are provided, they are mandatory instructions. Integrate them seamlessly.
+5. **Format:** Output ONLY the prompt text. No "Here is the prompt:" chatter.
+</RULES>`;
+
+        // Call the LLM
         const result = await window.ai(`${systemPrompt}\n\n[DATA]\n${context}`);
 
-        // Clean up any "Here is the list:" chatter from the LLM
-        return result.replace(/^Visuals:?\s*/i, "").replace(/["[.]$/, "");
-    },
-
-    /**
-     * "Paint Brush": Applies a specific style to a prompt.
-     * [UPGRADE] Now injects 'rpgLists' logic for high-fidelity output.
-     * * @param {string} basePrompt - The user's current input (or extracted traits).
-     * @param {string} styleType - The user-selected style (optional).
-     * @param {string} entityType - 'world' or 'character'.
-     */
-    async stylize(basePrompt, styleType, entityType) {
-        // 1. Clean up old tags
-        const cleanPrompt = basePrompt.replace(/\(masterpiece\), best quality, /g, "").trim();
-
-        // 2. Fetch "Flavor" from the new Global Lists (if available)
-        const lists = window.rpgLists || {};
-        const pick = (jsonList) => {
-            if (!jsonList) return "";
-            try { const arr = JSON.parse(jsonList); return arr[Math.floor(Math.random() * arr.length)]; }
-            catch (e) { return ""; }
-        };
-
-        // If no specific style requested, pick a high-quality default or random one
-        const tech = pick(lists.tech) || "cinematic 35mm";
-        const lighting = pick(lists.lighting) || "volumetric lighting";
-        const vibe = styleType || pick(lists.styles) || "photorealistic";
-
-        // 3. Apply SOTA Natural Language Formatting (Flux Architecture)
-        if (entityType === 'world') {
-            // SCENE LOGIC: Focus on atmosphere and depth
-            return `A cinematic wide shot of ${cleanPrompt}. The scene is rendered in a ${vibe} style with ${lighting}. Captured on ${tech}, featuring atmospheric depth, 8k resolution, and detailed environmental textures.`;
-        } else {
-            // PORTRAIT LOGIC: Focus on skin/material fidelity
-            // Note: We keep "Side Profile" for UI consistency (Avatar cards look better uniform)
-            return `A high-fidelity character portrait of ${cleanPrompt}. The subject is facing slightly right, side profile. The image is a ${vibe} piece with ${lighting}. Captured on ${tech} focusing on natural skin pores, realistic blemishes, and fabric weave. Blurred background.`;
-        }
+        // Clean up any potential quotes or leading/trailing whitespace
+        return result.replace(/^["']|["']$/g, "").trim();
     }
 };

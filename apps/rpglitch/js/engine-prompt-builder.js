@@ -73,7 +73,7 @@ export class ContextBuilder {
     // --- THE VISUALIZER (Visual Cortex V4.1 Hybrid) ---
     async buildVisualizer(targetType) {
         const story = state.story.byId[this.storyId];
-        const [ai, user, world] = await this._resolveEntities(story);
+        const [ai, , world] = await this._resolveEntities(story);
 
         // 1. VARIANCE ENGINE: Fetch styles from Left Panel Lists
         const lists = window.rpgLists || {};
@@ -358,11 +358,13 @@ Write the opening paragraph(s) of the story.
 2. **INTRODUCE THE PROTAGONIST:** Place ${ai.name} into this scene.
    - How does the world affect them right now? (e.g. cold wind, sweltering heat).
 3. **INCITING EVENT:** Create an immediate source of tension or a "Call to Action".
-4. **CRITICAL:** You MUST start with a <think> block containing this logic:
+4. **CRITICAL:** You MUST start with a <think> block containing ALL steps (1-3).
    - **Step 1: PLAN:** Layout the scene geometry and atmosphere.
    - **Step 2: DRAFT:** Write the raw scene mentally.
    - **Step 3: REFINE:** Polish the prose. Ensure no "As an AI" or meta-fillers remain.
-5. DO NOT use meta-commentary. Just write the story.
+   - **Step 4: CLOSE:** Close the </think> tag.
+5. **OUTPUT:** Write the final polished prose *outside* the <think> tag. Use double line breaks between paragraphs.
+6. DO NOT use meta-commentary. Just write the story.
 
 <CONFLICT_RESOLUTION>
 If the PROTAGONIST's <PRESENT> or <PAST> data mentions a location that conflicts with the <WORLD_CONTEXT> (e.g. mentions "Neo Arcadia" when the world is "Eldoria"), YOU MUST IGNORE the protagonist's location data.

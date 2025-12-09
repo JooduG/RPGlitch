@@ -61,16 +61,20 @@
     --color-accent: #ff7ad5;
     --signature-text-on: #fff;
 
-    // Initialize default signature vars
-    --signature-pink: #{map.get(map.get($signature-colors, "pink"), color)};
-    --signature-emerald: #{map.get(map.get($signature-colors, "emerald"), color)};
-    --signature-cyan: #{map.get(map.get($signature-colors, "cyan"), color)};
-    --signature-orange: #{map.get(map.get($signature-colors, "orange"), color)};
-    --signature-purple: #{map.get(map.get($signature-colors, "purple"), color)};
+    // Initialize all signature vars dynamically
+    @each $name, $data in $signature-colors {
+        --signature-#{$name}: #{map.get($data, color)};
+    }
+
+    // [New] Dynamic Background Gradient Variables
+    --bg-grad-1: #{$gradient-color-1};
+    --bg-grad-2: #{$gradient-color-2};
+    --bg-grad-3: #{$gradient-color-3};
+    --bg-grad-4: #{$gradient-color-4};
 }
 
 // --- SIGNATURE LOOPS ---
-// Automates the creation of .signature-pink, .signature-emerald, etc.
+// Automates the creation of .signature-pink, .signature-jade, etc.
 @each $name, $data in $signature-colors {
     $color-value: map.get($data, color);
 
@@ -127,10 +131,10 @@ body {
 
     // APP BACKGROUND: Gradient + Texture
     background-image: linear-gradient(to bottom right,
-            $gradient-color-1,
-            $gradient-color-2 50%,
-            $gradient-color-3 75%,
-            $gradient-color-4);
+            var(--bg-grad-1),
+            var(--bg-grad-2) 50%,
+            var(--bg-grad-3) 75%,
+            var(--bg-grad-4));
     background-attachment: fixed;
     background-size: cover;
 }
@@ -144,7 +148,7 @@ body::before {
     // ... noise svg ...
     opacity: 0.03;
     pointer-events: none;
-    z-index: 1;
+    z-index: 2; // [FIX] Positive stack: 2
 }
 
 // DYNAMIC WORLD BACKGROUND
@@ -152,7 +156,7 @@ body::before {
 #world-background {
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: 1; // [FIX] Positive stack: 1
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
