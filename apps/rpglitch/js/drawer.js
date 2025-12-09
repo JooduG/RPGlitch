@@ -1,6 +1,7 @@
 // apps/rpglitch/js/drawer.js
 import { entities } from "./entity-crud.js";
-import { getPictureHTML } from "./entity-structs.js";
+// [FIX] Import from core-utils, not entity-structs
+import { getPictureHTML } from "./core-utils.js";
 import { log, error } from "./core-utils.js";
 
 const DRAWER_ID = "entity-drawer";

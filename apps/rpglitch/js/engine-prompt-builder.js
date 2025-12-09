@@ -27,7 +27,6 @@ export class ContextBuilder {
         const history = state.messages.byStoryId[this.storyId] || [];
 
         // [FIX] Count only Narrative Turns (Narrator, User, AI)
-        // Filter out "System" or "Debug" messages so the modulo math aligns correctly
         const narrativeHistory = history.filter(m => m.role !== 'system' && m.type !== 'DEBUG');
         this.runtimeState.turnCount = narrativeHistory.length;
 
@@ -71,6 +70,70 @@ export class ContextBuilder {
         return payload;
     }
 
+    // --- THE VISUALIZER (Visual Cortex) ---
+    // [NEW] Generates Image Prompts for Profile or Scene
+    async buildVisualizer(targetType) {
+        const story = state.story.byId[this.storyId];
+        const [ai, user, world] = await this._resolveEntities(story);
+
+        let mode = "";
+        let focusBlock = "";
+        let instruction = "";
+
+        if (targetType === 'character') {
+            mode = "PORTRAIT_GENERATOR";
+            focusBlock = `
+<FOCUS_SUBJECT>
+Target: ${ai.name} (Character Portrait)
+1. **Physicality:** Strict adherence to <PERMANENT> traits (Race, Gender, Build, Marks).
+2. **Attire:** Reflect <PRESENT> clothing and equipment condition.
+3. **Vibe:** The character's personality must dictate the lighting and pose.
+4. **Background:** Abstract or minimal environment to keep focus on the character.
+</FOCUS_SUBJECT>`;
+            instruction = "Write a high-fidelity portrait description. Start with a camera angle (e.g. 'A close-up portrait of...'). Focus on facial features and material textures.";
+        } else {
+            mode = "SCENE_RENDERER";
+            const history = state.messages.byStoryId[this.storyId] || [];
+            const recentText = history.slice(-2).map(m => m.content).join(" ");
+
+            focusBlock = `
+<FOCUS_SCENE>
+Target: Narrative Scene Visualization
+1. **Action:** Visualize this moment: "${recentText.substring(0, 200)}..."
+2. **Environment:** <WORLD_CONTEXT> determines the lighting, weather, and architecture.
+3. **Subjects:** Place ${ai.name} (and ${user.name} if present) in the scene.
+</FOCUS_SCENE>`;
+            instruction = "Write a cinematic scene description. Start with a shot type (e.g. 'A wide cinematic shot of...'). Describe the lighting, atmosphere, and action.";
+        }
+
+        const system = `[SYSTEM: PROMETHEUS_VISUAL_CORTEX_V4.0]
+[MODE: ${mode}]
+
+<CORE_DIRECTIVE>
+You are a Visual Director. Your job is to translate narrative data into a "Photographic Specification" for an Image Generation Model (Flux/Midjourney).
+</CORE_DIRECTIVE>
+
+${this._layerEntity(ai, "PRIMARY_SUBJECT")}
+${this._layerEntity(world, "SETTING_CONTEXT")}
+
+${focusBlock}
+
+<GENERATION_PROTOCOL>
+1. **Lens & Style:** Define the visual style (e.g., "8k photorealistic", "Oil painting", "Cyberpunk digital art") based on the World Context.
+2. **Lighting:** Describe the light source (e.g., "Bioluminescent glow", "Harsh sunlight", "Flickering neon").
+3. **Materials:** Focus on textures (Rust, Silk, Skin, Chrome).
+4. **Output:** Write ONE dense, natural language paragraph. No "As an AI". No JSON. Just the prompt string.
+</GENERATION_PROTOCOL>`;
+
+        return {
+            system: system,
+            messages: [],
+            // [TWEAK] Higher temp for visual creativity
+            params: { ...state.settings, maxTokens: 500, temperature: 0.7 },
+            instruction: instruction
+        };
+    }
+
     // --- BACKGROUND UPDATER (THE PHYSICIST) ---
     async buildUpdater(targetType, forcedDynamics = null) {
         const story = state.story.byId[this.storyId];
@@ -81,7 +144,6 @@ export class ContextBuilder {
         let targetEntity;
         let roleInstruction;
 
-        // [Refined Role Definitions for sharper perspective]
         if (targetType === 'ai_character') {
             targetEntity = ai;
             roleInstruction = `You are the Subconscious Manager of ${ai.name}. You govern their biological and emotional state.`;
@@ -102,7 +164,7 @@ export class ContextBuilder {
             const flags = forcedDynamics._flags || {};
             physicsBlock = `
 <PHYSICS_MANDATE>
-OVERRIDE DETECTED. The Physics Engine enforces these exact values:
+The Physics Engine enforces these exact values:
 - Entropy: ${forcedDynamics.entropy}
 - Permeability: ${forcedDynamics.permeability}
 - Velocity: ${forcedDynamics.velocity}
@@ -114,7 +176,6 @@ ${flags.glassCannon ? "- GLASS_CANNON: Vulnerability High. Emotional impact is D
 ${flags.panicSpiral ? "- PANIC_SPIRAL: Entropy is critical. Velocity forced up. The subject is spiraling." : ""}
 </PHYSICS_MANDATE>`;
         } else {
-            // [NEW: Calibration Matrix for consistent "Math"]
             physicsBlock = `
 <PHYSICS_CALIBRATION>
 You must update the stats based on the *latest* narrative events. Use this Matrix to calibrate your changes:
@@ -133,7 +194,6 @@ You must update the stats based on the *latest* narrative events. Use this Matri
 </PHYSICS_CALIBRATION>`;
         }
 
-        // [FIX: Injected ${physicsBlock} into the system string]
         const system = `[SYSTEM: NARRATIVE_PHYSICS_ENGINE_V4.0]
 <INSTRUCTION>
 ${roleInstruction}
@@ -178,7 +238,7 @@ Then return ONLY valid JSON.
         return {
             system: system,
             messages: this._sanitizeHistory(recentHistory),
-            params: { ...state.settings, maxTokens: 1000, temperature: 0.4 }, // Lower temp for logic tasks
+            params: { ...state.settings, maxTokens: 1000, temperature: 0.4 },
             targetEntityId: targetEntity.id,
             targetType: targetEntity.type
         };
@@ -235,7 +295,8 @@ Then return ONLY the compressed narrative text.
 
         const [ai, , world] = await this._resolveEntities(story);
 
-        const system = `[SYSTEM: PROMETHEUS_ENGINE_V3.3]
+        // [UPGRADE] Bumped to V4.0 to align with stack
+        const system = `[SYSTEM: PROMETHEUS_ENGINE_V4.0]
 [MODE: OPENING_SCENE_DIRECTOR]
 
 <CORE_DIRECTIVE>

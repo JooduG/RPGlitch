@@ -3,7 +3,8 @@
  * Testing backward-compatible fallback logic for entity brand colors
  */
 
-import { getSignature } from '../apps/rpglitch/js/entity-structs.js';
+// [FIX] Updated import path: getSignature is now in core-utils.js
+import { getSignature } from '../apps/rpglitch/js/core-utils.js';
 
 describe('getSignature()', () => {
   describe('Modern entities with signatureColour', () => {

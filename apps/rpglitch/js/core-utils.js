@@ -1,7 +1,7 @@
-// apps/rpglitch/js/core-utils.js (Final Version for Build)
+// apps/rpglitch/js/core-utils.js
 import { db } from "./core-db.js";
 
-// --- Constants (from validation.js) ---
+// --- Constants ---
 const VALID_PROTOCOLS = ["https:", "http:", "blob:", "data:"];
 const VALID_IMAGE_EXTENSIONS = [
   "jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "tiff", "tif", "ico", "avif", "jfif",
@@ -10,27 +10,122 @@ const IMAGE_EXTENSION_REGEX = new RegExp(
   `\\.(${VALID_IMAGE_EXTENSIONS.join("|")})(\\?.*)?$`,
   "i"
 );
+
 export const SIGNATURE_COLORS = {
   pink: "#ec4899", emerald: "#10b981", cyan: "#06b6d4",
   orange: "#f97316", purple: "#a855f7", default: "#777",
 };
 
+// --- Color & Visual Utilities (Consolidated) ---
+
 export function getSignatureColor(key) {
   return SIGNATURE_COLORS[key] || SIGNATURE_COLORS.default;
 }
 
+export function getDeterministicColor(seed) {
+  // [NOTE] Tests expect a color even for empty seeds in some legacy paths, 
+  // but for explicit nulls we usually fallback to 'default' before calling this.
+  if (!seed) return `hsl(0, 0%, 50%)`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++)
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 40%, 60%)`;
+}
+
+export function getSignature(entity = {}) {
+  // [FIX] Fallback to 'default' string to ensure a color is generated (satisfies tests), rather than Gray
+  if (!entity) return getDeterministicColor("default");
+
+  if (entity.signatureColour && entity.signatureColour !== "default") {
+    // Return the CSS variable mapping
+    return `var(--signature-${entity.signatureColour})`;
+  }
+  // Fallback to deterministic hash based on ID or Name
+  const seed = [entity.name || "", ...(entity.tags || [])].filter(Boolean).join(",");
+  return getDeterministicColor(seed || entity.id || entity.type || "default");
+}
+
 export function getContrastColor(hex) {
   if (!hex || typeof hex !== 'string') return '#000';
+
+  // Handle var() or other CSS inputs gracefully-ish (fallback to black)
+  if (hex.startsWith('var(')) return '#fff';
+
   if (hex.startsWith('#')) hex = hex.slice(1);
   if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
   if (hex.length !== 6) return '#000';
-  if (/[^0-9a-fA-F]/.test(hex)) return '#000';
 
+  // Parse
   const r = parseInt(hex.substr(0, 2), 16);
   const g = parseInt(hex.substr(2, 2), 16);
   const b = parseInt(hex.substr(4, 2), 16);
+
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return '#000';
+
+  // YIQ equation
   const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
   return (yiq >= 128) ? '#000' : '#fff';
+}
+
+/**
+ * Generates the HTML for an entity picture (Avatar or Cover).
+ * Moved from entity-structs.js to separate UI logic from Data schemas.
+ */
+export function getPictureHTML(entity = {}, options = {}) {
+  const { cover, landscape, neutralPlaceholder = false } = options;
+  const title = entity.name || "Empty";
+  const type = (entity.type || "default").toLowerCase();
+
+  // Validate URL
+  const rawSrc = entity.profilePictureUrl;
+  const src = (typeof rawSrc === "string" && rawSrc.trim()) ? rawSrc.trim() : "";
+
+  const signature = getSignature(entity);
+  // Note: We can't easily calculate contrast for a CSS variable, so we default to black/white 
+  // or let CSS handle it. For now, hardcode contrast for known vars or fallback.
+  const contrast = "#fff";
+
+  const wrap = document.createElement("div");
+  let aspectRatioClass = '';
+  if (landscape === true) aspectRatioClass = ' picture--landscape';
+  else if (landscape === false) aspectRatioClass = ' picture--portrait';
+
+  wrap.className = `picture${cover ? " picture--cover" : ""}${aspectRatioClass}`;
+  wrap.style.setProperty("--signature", signature);
+  wrap.style.setProperty("--signature-contrast", contrast);
+
+  // 1. Image Provided
+  if (src) {
+    const img = document.createElement("img");
+    img.alt = `${type} image for ${title}`;
+    img.src = src;
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.referrerPolicy = "no-referrer";
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  // 2. Placeholder
+  const ph = document.createElement("div");
+  ph.className = "placeholder-image";
+  if (!neutralPlaceholder) {
+    ph.style.backgroundColor = "var(--signature)";
+    ph.style.color = "var(--signature-contrast)";
+  }
+
+  const iconTemplateId = `tpl-placeholder-icon-${type}`;
+  const iconTemplate = document.querySelector(`#${iconTemplateId}`) || document.querySelector("#tpl-placeholder-icon-default");
+
+  if (iconTemplate?.content) {
+    ph.appendChild(iconTemplate.content.cloneNode(true));
+  }
+
+  ph.setAttribute("role", "img");
+  ph.setAttribute("aria-label", `${type} placeholder for ${title}`);
+  wrap.appendChild(ph);
+  return wrap;
 }
 
 // --- Security & HTML Utilities ---
@@ -40,10 +135,6 @@ export function escapeHtml(str) {
   return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-/**
- * Sanitizes HTML content using DOMPurify.
- * @returns {string} Sanitized HTML safe for innerHTML
- */
 export function sanitizeHtml(html) {
   const value = typeof html === "string" ? html : String(html ?? "");
 
@@ -64,9 +155,7 @@ export function sanitizeHtml(html) {
 // --- Validation ---
 
 export function isValidImageUrl(urlString, allowLog = false) {
-  if (typeof urlString !== "string" || urlString.length < 5) {
-    return false;
-  }
+  if (typeof urlString !== "string" || urlString.length < 5) return false;
   try {
     const urlObj = new URL(urlString);
     if (!VALID_PROTOCOLS.includes(urlObj.protocol)) return false;
@@ -211,7 +300,6 @@ export function renderTags(container, entity, options = {}) {
   container.appendChild(wrap);
 }
 
-// --- Missing Exports from Original utils.js (ADDED) ---
 export async function handleAsyncError(asyncFn, options = {}) {
   const {
     errorMessage = "An error occurred. Please try again.",
@@ -229,6 +317,8 @@ export async function handleAsyncError(asyncFn, options = {}) {
   }
 }
 
+// --- UI Helpers (Chin, TopBar) ---
+
 export const chin = {
   init: () => {
     document.addEventListener('click', (e) => {
@@ -238,7 +328,6 @@ export const chin = {
         chin.closeAll();
       }
     });
-    // Attach toggle listeners
     document.querySelectorAll('[data-chin]').forEach(btn => {
       if (btn.dataset.chinInitialized) return;
       if (btn.tagName === 'BUTTON' || btn.getAttribute('role') === 'button') {
@@ -296,7 +385,6 @@ export const chin = {
 };
 
 export function setTopBarRight(mode) {
-  // Simplified stub based on need in ui-views.js
   const doc = document;
   const topBarRightStoryboard = doc.querySelector("#top-bar-right-storyboard");
   const topBarRightForm = doc.querySelector("#top-bar-right-form");

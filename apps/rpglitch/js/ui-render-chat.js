@@ -1,6 +1,6 @@
 import { state } from "./app-state.js";
-import { getPictureHTML } from "./entity-structs.js";
-import { sanitizeHtml } from "./core-utils.js";
+// [FIX] Import getPictureHTML from core-utils
+import { getPictureHTML, sanitizeHtml } from "./core-utils.js";
 import { entities } from "./entity-crud.js";
 
 const selectedEntities = {

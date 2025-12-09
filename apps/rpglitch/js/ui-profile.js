@@ -1,18 +1,21 @@
 import { entities, copyEntity } from "./entity-crud.js";
-import { getPictureHTML, getSignature, premade } from "./entity-structs.js";
+// [FIX] Imports split correctly between schema and utils
+import { premade } from "./entity-structs.js";
+import { getPictureHTML, getSignature } from "./core-utils.js";
 import { state } from "./app-state.js";
+import { VisualManager } from "./manager-visuals.js";
 import {
-    escapeHtml, handleAsyncError, dismissLoadingUI,
-    error, setTopBarRight,
-    renderTags, isValidImageUrl, extractImageUrl, sanitizeHtml
+    escapeHtml, handleAsyncError, error, setTopBarRight,
+    renderTags, isValidImageUrl, sanitizeHtml
 } from "./core-utils.js";
+
 // CALLBACK: Router must inject this
 let _onUpdateSelection = null;
 export function setProfileCallbacks(callbacks) {
     if (callbacks.onUpdateSelection) _onUpdateSelection = callbacks.onUpdateSelection;
 }
 
-// Shared State (Local to this module, but needs synchronization if accessed externally)
+// Shared State (Local to this module)
 let activeSlotKey = null;
 
 // --- CONSTANTS ---
@@ -144,8 +147,6 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         renderProfilePage(type, id, editing);
     };
 
-    // Local Color Map (mirrored for hex precision)
-
     // --- UI STATE HELPERS ---
     const elementLockList = [imageInput, actionButton, fileInput, paletteSelect, extractBtn, stylizeBtn].filter(Boolean);
 
@@ -158,23 +159,17 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                 else wrapper.removeAttribute("aria-busy");
             }
         }
-        // Lock the overlay interaction (pointer-events)
+        // Lock the overlay interaction
         if (imageOverlay) imageOverlay.classList.toggle("is-locked", busy);
 
         elementLockList.forEach(el => {
             el.disabled = busy;
-            // We no longer set aria-busy on individual elements as the main overlay handles it
             if (!busy) el.removeAttribute("aria-busy");
         });
 
         // Visual tweak (opacity)
-        if (busy) {
-            if (extractBtn) extractBtn.style.opacity = "0.5";
-            if (stylizeBtn) stylizeBtn.style.opacity = "0.5";
-        } else {
-            if (extractBtn) extractBtn.style.opacity = "1";
-            if (stylizeBtn) stylizeBtn.style.opacity = "1";
-        }
+        if (extractBtn) extractBtn.style.opacity = busy ? "0.5" : "1";
+        if (stylizeBtn) stylizeBtn.style.opacity = busy ? "0.5" : "1";
     };
 
     const updatePreview = (urlOverride) => {
@@ -205,25 +200,24 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     }
 
     imageInput.addEventListener("input", () => {
-        // Clear pending URL on edit if the user changes the text
-        if (imageInput.dataset.pendingUrl) {
-            delete imageInput.dataset.pendingUrl;
-        }
+        if (imageInput.dataset.pendingUrl) delete imageInput.dataset.pendingUrl;
         updateButtonState();
         updatePreview();
     });
     updateButtonState();
 
+    // --- MAIN ACTION BUTTON (Generate / Upload) ---
     actionButton.addEventListener("click", async () => {
         const action = actionButton.dataset.action;
         if (action === "generate") {
             try {
                 setBusy(true);
-                // actionButton.textContent = "Generating..."; // [UX] Text change removed
                 const prompt = imageInput.value.trim();
                 const resolution = isWorld ? "768x512" : "512x768";
-                const res = await window.textToImage({ prompt, resolution: resolution });
-                const url = typeof res === 'string' ? res : extractImageUrl(res);
+
+                // [VISUAL MANAGER INTEGRATION]
+                const url = await VisualManager.generate(prompt, { resolution });
+
                 if (url) {
                     imageInput.dataset.pendingUrl = url;
                     updatePreview(url);
@@ -235,80 +229,65 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         }
     });
 
-    // --- AI HELPER BUTTONS ---
-
-
+    // --- AI HELPER: EXTRACT (Magic Wand) ---
     if (extractBtn) {
         extractBtn.addEventListener("click", async (e) => {
             e.preventDefault();
             try {
                 setBusy(true);
-                // Gather context
-                const sectionsData = Object.keys(SECTION_DEFINITIONS)
-                    .map(k => `${SECTION_DEFINITIONS[k].label}: ${entity[k] || "None"}`).join("\n");
-                const profileData = `Name: ${entity.name}\nDescription: ${entity.description}\n${sectionsData}`;
+                // [VISUAL MANAGER INTEGRATION]
+                const result = await VisualManager.extractTraits(entity, type);
 
-                const systemPrompt = `You are an expert visual artist. Analyze the following profile and extract ONLY physical visual keywords (appearance, clothing, colors, setting). Output a concise comma-separated list. Ignore abstract traits.`;
-
-                // Validation: Check if AI is available
-                if (!window.ai) {
-                    alert("AI Plugin is not loaded. Please wait a moment or check your connection.");
-                    return;
-                }
-
-                const result = await window.ai(`${systemPrompt}\n\n[PROFILE]\n${profileData}`);
-
-                const clean = result.replace(/^Visuals:?\s*/i, "").replace(/["[.]$/, ""); // Cleanup
-                imageInput.value = clean;
+                imageInput.value = result;
                 imageInput.dispatchEvent(new Event('input'));
             } catch (err) {
                 console.error("Extraction failed", err);
+                alert("Failed to extract traits. AI might be offline.");
             } finally {
                 setBusy(false);
             }
         });
     }
 
+    // --- AI HELPER: STYLIZE (Brush) ---
     if (stylizeBtn) {
-        stylizeBtn.addEventListener("click", (e) => {
+        stylizeBtn.addEventListener("click", async (e) => {
             e.preventDefault();
             const current = imageInput.value.trim();
-            if (!current) return alert("Please enter a basic description or use the Magic Wand first!");
+            if (!current) return alert("Please enter a description first!");
 
-            // Avoid double-styling if already processed (basic check)
-            if (current.includes("(masterpiece)") || current.includes("cinematic landscape")) {
-                if (!confirm("This prompt looks like it's already styled. Apply style anyway?")) return;
+            // Prevent double-styling
+            if (current.includes("cinematic wide shot") || current.includes("high-fidelity character portrait")) {
+                if (!confirm("This prompt looks stylized already. Re-apply?")) return;
             }
 
-            // Live Color Lookup (Hex)
             const selectedColorName = paletteSelect ? paletteSelect.value : (entity.signatureColour || "default");
-            // Use name for prompt (better for AI), keep hex logic if needed later
             const colorTerm = (selectedColorName === "default" || !selectedColorName) ? "cinematic" : selectedColorName;
 
-            let final = "";
-            if (isWorld) {
-                final = `Epic cinematic landscape, ${current}, ${colorTerm} color palette, detailed environment, 8k resolution, atmospheric lighting`;
-            } else {
-                // Character Style + Looking Right instruction
-                final = `(masterpiece), best quality, profile picture of ${current}, looking right, side profile, ${colorTerm} theme, detailed, dramatic lighting`;
-            }
+            try {
+                setBusy(true);
+                // [VISUAL MANAGER INTEGRATION]
+                const final = await VisualManager.stylize(current, colorTerm, type);
 
-            imageInput.value = final;
-            imageInput.dispatchEvent(new Event('input'));
+                imageInput.value = final;
+                imageInput.dispatchEvent(new Event('input'));
+            } catch (err) {
+                console.error("Stylize failed", err);
+            } finally {
+                setBusy(false);
+            }
         });
     }
 
+    // --- FILE UPLOAD ---
     fileInput.addEventListener("change", async (e) => {
         const file = e.target.files[0];
-        if (!file || !window.upload) return;
+        if (!file) return;
         try {
             setBusy(true);
-            // actionButton.textContent = "Uploading..."; // [UX] Text change removed
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            await new Promise(r => reader.onload = r);
-            const res = await window.upload(reader.result);
-            const url = typeof res === 'string' ? res : extractImageUrl(res);
+            // [VISUAL MANAGER INTEGRATION]
+            const url = await VisualManager.upload(file);
+
             if (url) {
                 imageInput.value = url;
                 imageInput.dispatchEvent(new Event('input'));
@@ -317,6 +296,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         finally { setBusy(false); updateButtonState(); fileInput.value = null; }
     });
 
+    // --- COLOR PALETTE & PREVIEW ---
     const currentColor = entity.signatureColour || "default";
     Array.from(paletteSelect.options).forEach(opt => { opt.selected = opt.value === currentColor; });
 
@@ -334,7 +314,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         if (nameDisplay) nameDisplay.style.color = colorStyle;
     });
 
-    // --- HEADER ---
+    // --- HEADER (Name/Desc) ---
     const headerWrap = form.querySelector("[data-profile-header]");
     headerWrap.innerHTML = "";
 
@@ -397,7 +377,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     }
     headerWrap.after(tagsRow);
 
-    // --- SECTIONS ---
+    // --- SECTIONS (Forever, Past, etc.) ---
     const createRow = (key, def) => {
         const div = document.createElement("div"); div.className = "field-row";
         const sublabel = def.sublabels[type] || "";
@@ -426,7 +406,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     Object.keys(SECTION_DEFINITIONS).forEach(k => createRow(k, SECTION_DEFINITIONS[k]));
 
     // --- DYNAMICS (Director Mode) ---
-    if (state.settings.directorMode && type === 'character') { // [FIX] Added type safety
+    if (state.settings.directorMode && type === 'character') {
         const dynRow = document.createElement("div");
         dynRow.className = "field-row";
         const dyns = entity.dynamics || { entropy: 50, permeability: 50, velocity: 50, resonance: 50 };
@@ -442,7 +422,6 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                     `).join('')}
                 </div>`;
         } else {
-            // [FIX] REFACTORED READ-ONLY VIEW TO USE GRID CARDS INSTEAD OF PLAIN TEXT
             dynRow.innerHTML = `
                 <div class="field-label"><label>Dynamics</label><small class="muted">Director Mode</small></div>
                 <div class="field-input" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
@@ -462,7 +441,6 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     footerActions.className = "profile-actions-footer";
 
     if (isGameplay) {
-        // --- GAMEPLAY MODE (Read Only) ---
         const statusMsg = document.createElement("div");
         statusMsg.className = "muted";
         statusMsg.style.width = "100%";
@@ -471,20 +449,15 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         footerActions.appendChild(statusMsg);
 
     } else if (isEditing) {
-        // --- EDIT MODE ---
-
-        // Factory Revert Button
+        // Revert
         if (blueprint) {
             const revertBtn = document.createElement("button");
             revertBtn.className = "secondary outline warning";
             revertBtn.textContent = "Revert to Default";
-            revertBtn.title = "Reset all fields to original factory settings";
             revertBtn.onclick = (e) => {
                 e.preventDefault();
-                if (confirm("Reset this character to its original factory state? All changes will be lost.")) {
-                    // Flatten blueprint data for form population
+                if (confirm("Reset this character? All changes will be lost.")) {
                     const flatBp = { ...blueprint, ...(blueprint.sections || {}) };
-
                     screen.querySelector('[data-edit-field="name"]').value = flatBp.name;
                     screen.querySelector('[data-edit-field="description"]').value = flatBp.description;
                     Object.keys(SECTION_DEFINITIONS).forEach(k => {
@@ -501,7 +474,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
             footerActions.appendChild(revertBtn);
         }
 
-        // SAVE
+        // Save
         const saveBtn = document.createElement("button");
         saveBtn.className = "primary"; saveBtn.textContent = "Save";
         saveBtn.onclick = async (e) => {
@@ -535,16 +508,15 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
 
             const saved = await entities.upsert(type, id === "new" || entity.isPremade ? data : { ...data, id });
 
-            if (activeSlotKey) {
-                // We need to update the selection in the router
-                if (_onUpdateSelection) _onUpdateSelection({ [activeSlotKey]: saved });
+            if (activeSlotKey && _onUpdateSelection) {
+                _onUpdateSelection({ [activeSlotKey]: saved });
             }
 
             if (id === "new") closeProfileModal();
             else { entity = await entities.get(type, saved.id); setEditMode(false); }
         };
 
-        // DELETE
+        // Delete
         if (id !== "new") {
             const delBtn = document.createElement("button");
             delBtn.className = "secondary outline danger"; delBtn.textContent = "Delete";
@@ -552,16 +524,12 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                 e.preventDefault();
                 if (confirm("Delete this entity?")) {
                     await entities.remove(type, id);
-
-                    // Notify Router to clear selection
-                    const update = {};
-                    update[activeSlotKey] = null;
-                    if (_onUpdateSelection) _onUpdateSelection(update);
-
+                    if (_onUpdateSelection) {
+                        const update = {};
+                        update[activeSlotKey] = null;
+                        _onUpdateSelection(update);
+                    }
                     closeProfileModal();
-                    // Trigger refresh listener in router (if exposed) or rely on selection sync
-                    // The router's _refreshAllLists callback is not directly accessible here unless we export/import state object for it
-                    // For now, assume selection update handles the visual aspect.
                 }
             };
             footerActions.appendChild(delBtn);
@@ -569,8 +537,8 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         footerActions.appendChild(saveBtn);
 
     } else {
-        // --- VIEW MODE ---
-        if (entity.isPremade && !entity.originId) { // Legacy premade support
+        // View Mode
+        if (entity.isPremade && !entity.originId) {
             const cloneBtn = document.createElement("button");
             cloneBtn.className = "primary"; cloneBtn.textContent = "Clone";
             cloneBtn.onclick = async (e) => {
@@ -580,13 +548,9 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
             };
             footerActions.appendChild(cloneBtn);
         } else {
-            // STANDARD ENTITIES (Factory or Custom)
-
-            // 1. Edit Button
             const editBtn = document.createElement("button");
             editBtn.className = "secondary outline"; editBtn.textContent = "Edit";
             editBtn.onclick = (e) => { e.preventDefault(); setEditMode(true); };
-
             footerActions.appendChild(editBtn);
         }
     }

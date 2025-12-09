@@ -1,6 +1,6 @@
 import { entities } from "./entity-crud.js";
-import { getPictureHTML } from "./entity-structs.js";
-import { error } from "./core-utils.js";
+// [FIX] Import getPictureHTML from core-utils
+import { getPictureHTML, error } from "./core-utils.js";
 import { openDrawer } from "./drawer.js";
 import { openProfileModal } from "./ui-profile.js";
 
