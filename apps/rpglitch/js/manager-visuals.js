@@ -14,18 +14,20 @@ export const VisualManager = {
      * @param {string} prompt - The raw prompt.
      * @param {Object} options - { resolution, negative }
      */
+
     async generate(prompt, options = {}) {
         if (!window.textToImage) throw new Error("Image plugin not loaded.");
 
-        // Default resolutions based on entity type usually passed from UI
         const resolution = options.resolution || "512x768";
 
         try {
             const result = await window.textToImage({
                 prompt: prompt,
                 resolution: resolution,
-                // Add negative prompt if supported by your plugin API to reduce artifacts
-                negative_prompt: options.negative || "blurry, low quality, text, watermark, bad anatomy, distorted faces"
+                negative_prompt: options.negative || "blurry, low quality, text, watermark, bad anatomy, distorted faces",
+
+                // [NEW] Pass the transparency flag if requested
+                removeBackground: options.removeBackground || false
             });
 
             return typeof result === 'string' ? result : extractImageUrl(result);
@@ -39,6 +41,7 @@ export const VisualManager = {
      * Uploads an image blob using the upload plugin.
      * @param {Blob} fileBlob 
      */
+
     async upload(fileBlob) {
         if (!window.upload) throw new Error("Upload plugin not loaded.");
 

@@ -215,8 +215,15 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                 const prompt = imageInput.value.trim();
                 const resolution = isWorld ? "768x512" : "512x768";
 
-                // [VISUAL MANAGER INTEGRATION]
-                const url = await VisualManager.generate(prompt, { resolution });
+                // [NEW] Read the checkbox state
+                const removeBgCheckbox = layout.querySelector("#gen-transparent-bg");
+                const isTransparent = removeBgCheckbox ? removeBgCheckbox.checked : false;
+
+                // [NEW] Pass it to the manager
+                const url = await VisualManager.generate(prompt, {
+                    resolution,
+                    removeBackground: isTransparent
+                });
 
                 if (url) {
                     imageInput.dataset.pendingUrl = url;
@@ -224,8 +231,6 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                 }
             } catch (e) { error(e); }
             finally { setBusy(false); updateButtonState(); }
-        } else if (action === "upload") {
-            fileInput.click();
         }
     });
 

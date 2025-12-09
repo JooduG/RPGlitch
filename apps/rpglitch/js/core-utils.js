@@ -94,6 +94,7 @@ export function getPictureHTML(entity = {}, options = {}) {
   wrap.className = `picture${cover ? " picture--cover" : ""}${aspectRatioClass}`;
   wrap.style.setProperty("--signature", signature);
   wrap.style.setProperty("--signature-contrast", contrast);
+  wrap.style.backgroundColor = "var(--signature)";
 
   // 1. Image Provided
   if (src) {
