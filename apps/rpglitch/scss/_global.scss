@@ -140,10 +140,33 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%20200%20200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cfilter%20id%3D%22noiseFilter%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.9%22%20numOctaves%3D%223%22%20stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url(%2523noiseFilter)%22%2F%3E%3C%2Fsvg%3E");
+
+    // ... noise svg ...
     opacity: 0.03;
     pointer-events: none;
+    z-index: 1;
+}
+
+// DYNAMIC WORLD BACKGROUND
+// Sits behind everything but above the base gradient.
+#world-background {
+    position: fixed;
+    inset: 0;
     z-index: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+
+    /* Hidden by default until loaded */
+    filter: blur(8px) brightness(0.3);
+
+    /* The Cinematic "Messy-Fix" */
+    transform: scale(1.1);
+
+    /* Prevent blurred edges */
+    pointer-events: none;
+    transition: opacity 2s ease-in-out;
 }
 
 // --- CRITICAL COMPONENT RESET ---

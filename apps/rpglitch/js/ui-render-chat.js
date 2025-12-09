@@ -28,16 +28,44 @@ updateDirectorModeClass();
 
 
 export function applyWorldAmbience(world) {
-    if (!world || !world.signatureColour) {
-        document.documentElement.style.removeProperty('--world-ambience-rgb');
-        return;
-    }
+    console.log("[RPGlitch] Applying World Ambience:", world ? world.name : "None");
     const colorMap = {
         pink: "236, 72, 153", emerald: "16, 185, 129", cyan: "6, 182, 212",
         orange: "249, 115, 22", purple: "168, 85, 247", default: "255, 255, 255"
     };
-    const rgb = colorMap[world.signatureColour] || colorMap.default;
-    document.documentElement.style.setProperty('--world-ambience-rgb', rgb);
+
+    // 1. Colour Ambience (Existing)
+    if (!world || !world.signatureColour) {
+        document.documentElement.style.removeProperty('--world-ambience-rgb');
+    } else {
+        const rgb = colorMap[world.signatureColour] || colorMap.default;
+        document.documentElement.style.setProperty('--world-ambience-rgb', rgb);
+    }
+
+    // 2. Cinematic Background (New)
+    const bgEl = document.getElementById("world-background");
+    if (!bgEl) return;
+
+    if (world && world.profilePictureUrl) {
+        bgEl.style.backgroundImage = `url('${world.profilePictureUrl}')`;
+        bgEl.style.backgroundColor = "transparent";
+        bgEl.style.opacity = "1";
+    } else if (world) {
+        // [FIX] Respect Placeholder Logic: Use signature color if no image
+        const rgb = colorMap[world.signatureColour] || colorMap.default;
+        bgEl.style.backgroundImage = "none";
+        bgEl.style.backgroundColor = `rgba(${rgb}, 0.5)`; // Increased opacity for visibility
+        bgEl.style.opacity = "1";
+    } else {
+        bgEl.style.opacity = "0";
+        // Clear after fade out
+        setTimeout(() => {
+            if (bgEl.style.opacity === "0") {
+                bgEl.style.backgroundImage = "none";
+                bgEl.style.backgroundColor = "transparent";
+            }
+        }, 2000);
+    }
 }
 
 export function setGameplayEntities(ai, user, world) {

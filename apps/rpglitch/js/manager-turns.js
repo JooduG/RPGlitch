@@ -71,6 +71,11 @@ export const TurnManager = {
       mode: "gameplay"
     });
 
+    // [FIX] Ensure UI is synced immediately upon creation
+    updatePortraits(startAi, startUser);
+    setGameplayEntities(startAi, startUser, startWorld);
+    if (startWorld) applyWorldAmbience(startWorld);
+
     return id;
   },
 
@@ -420,7 +425,9 @@ export const TurnManager = {
 
       let updates = {};
       try {
-        const jsonMatch = jsonResponse.match(/\{[\s\S]*\}/);
+        // [FIX] Strip <think> block first to avoid JSON parse errors
+        const cleanJson = jsonResponse.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+        const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           updates = JSON.parse(jsonMatch[0]);
         } else {
@@ -455,10 +462,13 @@ export const TurnManager = {
             console.log(`[ARCHIVIST] Triggered for ${entity.name}. Size: ${updatedEntity.past.length}`);
             try {
               const archPayload = await builder.buildArchivist(updatedEntity);
-              const summary = await generateStream({ payload: archPayload, signal: null });
+              const summaryRaw = await generateStream({ payload: archPayload, signal: null });
+
+              // [FIX] Strip <think> block from summary
+              const summary = summaryRaw.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
 
               if (summary && summary.length < updatedEntity.past.length) {
-                updatedEntity.past = summary.trim();
+                updatedEntity.past = summary;
                 console.log(`[ARCHIVIST] Compression complete. New Size: ${updatedEntity.past.length}`);
               }
             } catch (archErr) {

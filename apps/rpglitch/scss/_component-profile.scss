@@ -55,8 +55,9 @@
     }
 
     &:hover .profile-hero-overlay,
-    &:focus-within .profile-hero-overlay {
-        opacity: 1; // Show on interaction
+    &:focus-within .profile-hero-overlay,
+    .profile-hero-overlay.is-locked {
+        opacity: 1; // Show on interaction or when locked/busy
     }
 
     .profile-hero-overlay {
@@ -78,6 +79,19 @@
 
         button {
             white-space: nowrap;
+        }
+
+        .profile-prompt-input {
+            width: 100%;
+            border-radius: var(--pico-radius) 0 0 var(--pico-radius);
+            margin: 0;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+
+            // Hide potential scrollbar for clean look
+            &::-webkit-scrollbar {
+                display: none;
+            }
         }
     }
 }

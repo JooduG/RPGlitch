@@ -142,12 +142,16 @@ Read the recent conversation. Update the entity state based on the directives be
 ${physicsBlock}
 
 **Task Checklist:**
-1. **CALCULATE DYNAMICS:** Assess the last 3 turns. Apply the Calibration Matrix to current stats.
-2. **UPDATE <PRESENT>:** Rewrite the mutable description to match the new numbers.
+1. **THINK (<think>):**
+   - Review recent events.
+   - Calculate delta for Entropy, Velocity, etc. using the Matrix.
+   - Decide what needs to change in <PRESENT>.
+2. **CALCULATE DYNAMICS:** Assess the last 3 turns. Apply the Calibration Matrix to current stats.
+3. **UPDATE <PRESENT>:** Rewrite the mutable description to match the new numbers.
    - *Example:* If Entropy jumps to 80, the text MUST describe sweating, shaking, or environmental disorder.
    - *Inventory:* Add/Remove items mentioned in chat.
-3. **UPDATE <PAST>:** Append ONLY critical plot points.
-4. **UPDATE <FOREVER>:** Only for permanent injuries/changes.
+4. **UPDATE <PAST>:** Append ONLY critical plot points.
+5. **UPDATE <FOREVER>:** Only for permanent injuries/changes.
 
 **Current State (JSON):**
 ${JSON.stringify({
@@ -160,7 +164,8 @@ ${JSON.stringify({
 </INSTRUCTION>
 
 <FORMAT_MANDATE>
-Return ONLY valid JSON. No markdown. No chatter.
+You MUST start with a <think> block.
+Then return ONLY valid JSON.
 {
   "forever": "String",
   "present": "String",
@@ -191,11 +196,15 @@ Objective: Compress <OLD_LOG> by 40-60% while retaining 100% of the *causality* 
 </INPUT_CONTEXT>
 
 <COMPRESSION_PROTOCOL>
-1. **Consolidate Events:** Convert step-by-step actions into single outcome statements.
+1. **THINK (<think>):**
+   - Identify PROPER NOUNS (Names, Places) that MUST remain.
+   - Identify Quest Status changes.
+   - Plan the summary sentence by sentence.
+2. **Consolidate Events:** Convert step-by-step actions into single outcome statements.
    - *Example:* "I swung the sword. He ducked. I swung again and hit his arm." -> "I struck his arm after a brief exchange."
-2. **Preserve Entities:** NEVER summarize or alter Proper Nouns, Location Names, or Specific Inventory Items. These are Anchors.
-3. **Discard Fluff:** Remove greetings, transitions ("Then we went to..."), and failed attempts that had no consequence.
-4. **Retain Voice:** Keep the output in First Person ('I') to maintain the character's internal monologue.
+3. **Preserve Entities:** NEVER summarize or alter Proper Nouns, Location Names, or Specific Inventory Items. These are Anchors.
+4. **Discard Fluff:** Remove greetings, transitions ("Then we went to..."), and failed attempts that had no consequence.
+5. **Retain Voice:** Keep the output in First Person ('I') to maintain the character's internal monologue.
 
 <CRITICAL_GUARDRAILS>
 - **DO NOT** remove mentions of uncompleted quests or promises.
@@ -208,7 +217,8 @@ ${entity.past}
 </OLD_LOG>
 
 <OUTPUT_INSTRUCTION>
-Return ONLY the compressed narrative text. No framing, no JSON, no meta-comments.
+Start with a <think> block to plan the compression.
+Then return ONLY the compressed narrative text.
 </OUTPUT_INSTRUCTION>`;
 
         return {
@@ -240,11 +250,22 @@ ${this._layerEntity(ai, "PROTAGONIST")}
 
 <INSTRUCTION>
 Write the opening paragraph(s) of the story.
-- Establish the setting immediately (Smell, Sound, Temperature).
-- Place the character (${ai.name}) in the scene.
-- Create an immediate "Call to Action" or source of tension.
-- **CRITICAL:** You MUST start your output with a <think> block to plan the scene.
-- DO NOT use meta-commentary. Just write the story.
+1. **ESTABLISH THE WORLD:** Begin with the environment. Focus heavily on <WORLD_CONTEXT>.
+   - Describe the sensory atmosphere (Smell, Sound, Texture, Lighting).
+   - The setting must feel tangible and alive before the character is even mentioned.
+2. **INTRODUCE THE PROTAGONIST:** Place ${ai.name} into this scene.
+   - How does the world affect them right now? (e.g. cold wind, sweltering heat).
+3. **INCITING EVENT:** Create an immediate source of tension or a "Call to Action".
+4. **CRITICAL:** You MUST start with a <think> block containing this logic:
+   - **Step 1: PLAN:** Layout the scene geometry and atmosphere.
+   - **Step 2: DRAFT:** Write the raw scene mentally.
+   - **Step 3: REFINE:** Polish the prose. Ensure no "As an AI" or meta-fillers remain.
+5. DO NOT use meta-commentary. Just write the story.
+
+${state.settings.storyOpeningInstructions ? `<DIRECTOR_NOTE>
+USER OVERRIDE: "${state.settings.storyOpeningInstructions}"
+This instruction takes PRIORITY over conflicting directives above.
+</DIRECTOR_NOTE>` : ""}
 </INSTRUCTION>`;
 
         return {

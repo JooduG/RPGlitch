@@ -17,9 +17,10 @@ let activeSlotKey = null;
 
 const selectedEntities = {
   aiCharacter: null,
-  userCharacter: null,
   world: null,
 };
+
+
 
 export { setGameplayEntities };
 
@@ -224,9 +225,11 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
 
   const imageOverlay = layout.querySelector(".profile-hero-overlay");
   const imageInput = imageOverlay.querySelector('[data-profile-field="profilePictureUrl"]');
-  const actionButton = imageOverlay.querySelector("button[data-action]");
+  const actionButton = imageOverlay.querySelector(".profile-main-action");
   const fileInput = imageOverlay.querySelector('[data-profile-field="fileInput"]');
   const paletteSelect = imageOverlay.querySelector('select[name="signatureColour"]');
+  const extractBtn = imageOverlay.querySelector('button[data-action="extract"]');
+  const stylizeBtn = imageOverlay.querySelector('button[data-action="stylize"]');
   const form = layout.querySelector("form");
   const secWrap = form.querySelector("[data-profile-sections]");
 
@@ -246,16 +249,40 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     renderProfilePage(type, id, editing);
   };
 
-  function updateButtonState() {
-    const val = imageInput.value.trim();
-    if (val === "") { actionButton.textContent = "Upload"; actionButton.dataset.action = "upload"; }
-    else if (val && !isValidImageUrl(val, true)) { actionButton.textContent = "Generate"; actionButton.dataset.action = "generate"; }
-    else { actionButton.textContent = "Use URL"; actionButton.dataset.action = "use-url"; }
-  }
+  // Local Color Map (mirrored for hex precision)
+  const PROFILE_COLOR_MAP = {
+    pink: "ec4899",
+    purple: "a855f7",
+    emerald: "10b981",
+    cyan: "06b6d4",
+    orange: "f97316",
+    default: "a855f7"
+  };
 
-  imageInput.addEventListener("input", () => {
-    updateButtonState();
-    const val = imageInput.value.trim();
+
+
+  // --- UI STATE HELPERS ---
+  const elementLockList = [imageInput, actionButton, fileInput, paletteSelect, extractBtn, stylizeBtn].filter(Boolean);
+
+  const setBusy = (busy) => {
+    if (imageOverlay) imageOverlay.classList.toggle("is-locked", busy);
+    elementLockList.forEach(el => {
+      el.disabled = busy;
+      if (busy) el.setAttribute("aria-busy", "true");
+      else el.removeAttribute("aria-busy");
+    });
+    // Visual tweak for buttons that don't natively support disabled well if custom styled
+    if (busy) {
+      if (extractBtn) extractBtn.style.opacity = "0.5";
+      if (stylizeBtn) stylizeBtn.style.opacity = "0.5";
+    } else {
+      if (extractBtn) extractBtn.style.opacity = "1";
+      if (stylizeBtn) stylizeBtn.style.opacity = "1";
+    }
+  };
+
+  const updatePreview = (urlOverride) => {
+    const val = urlOverride || imageInput.dataset.pendingUrl || imageInput.value.trim();
     if (val && isValidImageUrl(val, true)) {
       const safeVal = sanitizeHtml(val);
       const newPic = getPictureHTML({ ...entity, profilePictureUrl: safeVal }, { cover: true, landscape: isWorld });
@@ -266,6 +293,28 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         else heroWrap.appendChild(newPic);
       }
     }
+  };
+
+  function updateButtonState() {
+    const val = imageInput.value.trim();
+    // Toggle Helper Visibility
+    if (extractBtn) extractBtn.style.display = (val === "") ? "block" : "none";
+    if (stylizeBtn) stylizeBtn.style.display = (val !== "") ? "block" : "none";
+
+    const hasPending = !!imageInput.dataset.pendingUrl;
+
+    if (val === "" && !hasPending) { actionButton.textContent = "Upload"; actionButton.dataset.action = "upload"; }
+    else if ((val && !isValidImageUrl(val, true)) || hasPending) { actionButton.textContent = "Generate"; actionButton.dataset.action = "generate"; }
+    else { actionButton.textContent = "Use URL"; actionButton.dataset.action = "use-url"; }
+  }
+
+  imageInput.addEventListener("input", () => {
+    // Clear pending URL on edit if the user changes the text
+    if (imageInput.dataset.pendingUrl) {
+      delete imageInput.dataset.pendingUrl;
+    }
+    updateButtonState();
+    updatePreview();
   });
   updateButtonState();
 
@@ -273,28 +322,92 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     const action = actionButton.dataset.action;
     if (action === "generate") {
       try {
-        actionButton.setAttribute("aria-busy", "true");
+        setBusy(true);
         actionButton.textContent = "Generating...";
         const prompt = imageInput.value.trim();
         const resolution = isWorld ? "768x512" : "512x768";
         const res = await window.textToImage({ prompt, resolution: resolution });
         const url = typeof res === 'string' ? res : extractImageUrl(res);
         if (url) {
-          imageInput.value = url;
-          imageInput.dispatchEvent(new Event('input'));
+          imageInput.dataset.pendingUrl = url;
+          updatePreview(url);
+          // Note: We DO NOT overwrite imageInput.value, preserving the prompt.
         }
       } catch (e) { error(e); }
-      finally { actionButton.removeAttribute("aria-busy"); updateButtonState(); }
+      finally { setBusy(false); updateButtonState(); }
     } else if (action === "upload") {
       fileInput.click();
     }
   });
 
+  // --- AI HELPER BUTTONS ---
+
+
+  if (extractBtn) {
+    extractBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      try {
+        setBusy(true);
+        // Gather context
+        const sectionsData = Object.keys(SECTION_DEFINITIONS)
+          .map(k => `${SECTION_DEFINITIONS[k].label}: ${entity[k] || "None"}`).join("\n");
+        const profileData = `Name: ${entity.name}\nDescription: ${entity.description}\n${sectionsData}`;
+
+        const systemPrompt = `You are an expert visual artist. Analyze the following profile and extract ONLY physical visual keywords (appearance, clothing, colors, setting). Output a concise comma-separated list. Ignore abstract traits.`;
+
+        // Validation: Check if AI is available
+        if (!window.ai) {
+          alert("AI Plugin is not loaded. Please wait a moment or check your connection.");
+          return;
+        }
+
+        const result = await window.ai(`${systemPrompt}\n\n[PROFILE]\n${profileData}`);
+
+        const clean = result.replace(/^Visuals:?\s*/i, "").replace(/["[.]$/, ""); // Cleanup
+        imageInput.value = clean;
+        imageInput.dispatchEvent(new Event('input'));
+      } catch (err) {
+        console.error("Extraction failed", err);
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
+
+  if (stylizeBtn) {
+    stylizeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const current = imageInput.value.trim();
+      if (!current) return alert("Please enter a basic description or use the Magic Wand first!");
+
+      // Avoid double-styling if already processed (basic check)
+      if (current.includes("(masterpiece)") || current.includes("cinematic landscape")) {
+        if (!confirm("This prompt looks like it's already styled. Apply style anyway?")) return;
+      }
+
+      // Live Color Lookup (Hex)
+      const selectedColorName = paletteSelect ? paletteSelect.value : (entity.signatureColour || "default");
+      // Use name for prompt (better for AI), keep hex logic if needed later
+      const colorTerm = (selectedColorName === "default" || !selectedColorName) ? "cinematic" : selectedColorName;
+
+      let final = "";
+      if (isWorld) {
+        final = `Epic cinematic landscape, ${current}, ${colorTerm} color palette, detailed environment, 8k resolution, atmospheric lighting`;
+      } else {
+        // Character Style + Looking Right instruction
+        final = `(masterpiece), best quality, profile picture of ${current}, looking right, side profile, ${colorTerm} theme, detailed, dramatic lighting`;
+      }
+
+      imageInput.value = final;
+      imageInput.dispatchEvent(new Event('input'));
+    });
+  }
+
   fileInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file || !window.upload) return;
     try {
-      actionButton.setAttribute("aria-busy", "true");
+      setBusy(true);
       actionButton.textContent = "Uploading...";
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -306,7 +419,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         imageInput.dispatchEvent(new Event('input'));
       }
     } catch (err) { error(err); }
-    finally { actionButton.removeAttribute("aria-busy"); updateButtonState(); fileInput.value = null; }
+    finally { setBusy(false); updateButtonState(); fileInput.value = null; }
   });
 
   const currentColor = entity.signatureColour || "default";
@@ -314,7 +427,8 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
 
   paletteSelect.addEventListener("change", () => {
     const newColor = paletteSelect.value;
-    const newPic = getPictureHTML({ ...entity, signatureColour: newColor, profilePictureUrl: imageInput.value.trim() }, { cover: true, landscape: isWorld });
+    const urlToCheck = imageInput.dataset.pendingUrl || imageInput.value.trim();
+    const newPic = getPictureHTML({ ...entity, signatureColour: newColor, profilePictureUrl: urlToCheck }, { cover: true, landscape: isWorld });
     const curPic = heroWrap.querySelector(".picture");
     if (curPic && newPic) { newPic.classList.add("hero-bleed"); curPic.replaceWith(newPic); }
 
@@ -506,7 +620,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
       const data = {
         name: escapeHtml(nameVal),
         description: escapeHtml(screen.querySelector('[data-edit-field="description"]').value.trim()),
-        profilePictureUrl: escapeHtml(imageInput.value.trim()),
+        profilePictureUrl: escapeHtml(imageInput.dataset.pendingUrl || imageInput.value.trim()),
         signatureColour: escapeHtml(paletteSelect.value.trim()),
         tags: tagsArray
       };

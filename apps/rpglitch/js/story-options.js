@@ -21,7 +21,6 @@ export const StoryOptionsController = {
 
     const btn = document.querySelector("#btn-options");
     const closeBtn = modal.querySelector(".close");
-    const newStoryBtn = modal.querySelector("#btn-new-story");
     const resetBtn = modal.querySelector("#btn-reset-story");
     const directorModeToggle = modal.querySelector("#setting-director-mode");
     const customJsInput = modal.querySelector("#setting-custom-js");
@@ -59,18 +58,30 @@ export const StoryOptionsController = {
       if (e.target === modal) StoryOptionsController.close();
     });
 
-    // New Story Action
-    newStoryBtn?.addEventListener("click", (e) => {
-      e.preventDefault();
-      StoryOptionsController.startNew();
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) StoryOptionsController.close();
     });
 
     // Reset Data Action
     resetBtn?.addEventListener("click", async (e) => {
       e.preventDefault();
-      if (confirm("Are you sure you want to reset all data? This cannot be undone.")) {
+      if (confirm("Are you sure you want to reset ALL data? This will clear your current story and all settings.")) {
+
+        // If in game, prepare to switch back to storyboard
+        const wasInGame = !!state.story.activeId;
+
         await db.delete();
-        window.location.reload();
+        await db.open(); // Re-open after delete
+
+        // Reset state
+        applyPatch({
+          mode: "storyboard",
+          story: { activeId: null, byId: {} },
+          storyTitle: "My Story"
+        });
+
+        // Force clean reload (strip hash/query to ensure back to lobby)
+        window.location.href = window.location.pathname;
       }
     });
 
@@ -112,7 +123,6 @@ export const StoryOptionsController = {
         });
       });
     }
-
     // Story Instructions Wiring
     if (storyInstructionsInput) {
       db.settings.get("app-settings").then(s => {
@@ -145,24 +155,27 @@ export const StoryOptionsController = {
       storyInstructionsInput.value = state.settings.storyOpeningInstructions || "";
     }
 
-    // Update Conclude Button State
+    // State-Based Visibility Logic
+    const hasActiveStory = !!state.story.activeId;
+    const lobbySection = modal.querySelector(".settings-section-lobby");
+    const gameSection = modal.querySelector(".settings-section-game");
+
+    if (lobbySection) lobbySection.hidden = hasActiveStory;
+    if (gameSection) gameSection.hidden = !hasActiveStory;
+
+    // Update Conclude Button State (Redundant check but keeps safety)
     const concludeBtn = modal.querySelector("#btn-conclude-story");
     if (concludeBtn) {
-      const hasActiveStory = !!state.story.activeId;
       concludeBtn.disabled = !hasActiveStory;
-      if (!hasActiveStory) {
-        concludeBtn.style.opacity = "0.5";
-        concludeBtn.style.cursor = "not-allowed";
-      } else {
-        concludeBtn.style.opacity = "1";
-        concludeBtn.style.cursor = "pointer";
-      }
     }
 
     modal.removeAttribute("hidden");
     modal.classList.add("is-open");
 
-    StoryOptionsController.renderStories();
+    // Only render stories if in lobby mode (Saved Stories is in lobby section)
+    if (!hasActiveStory) {
+      StoryOptionsController.renderStories();
+    }
   },
 
   close() {
@@ -286,14 +299,4 @@ export const StoryOptionsController = {
     }
   },
 
-  startNew() {
-    document.body.classList.remove("mode-gameplay");
-    document.body.classList.add("mode-storyboard");
-    applyPatch({
-      mode: "storyboard",
-      story: { activeId: null, byId: {} },
-      storyTitle: "My Story"
-    });
-    StoryOptionsController.close();
-  }
 };

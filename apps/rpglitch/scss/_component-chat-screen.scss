@@ -60,12 +60,30 @@
     input[type="text"] {
         border-radius: var(--pico-radius) 0 0 var(--pico-radius);
         border: 1px solid var(--pico-muted-border-color);
-        background: rgb(0 0 0 / 20%);
+        background: rgb(0 0 0 / 50%);
         color: #fff;
 
         &:focus {
             border-color: var(--pico-primary);
             box-shadow: 0 0 0 2px var(--pico-primary-focus);
+        }
+    }
+
+    #btn-settings-placeholder {
+        // [FIX] User request: De-emphasize settings button (skinnier, dark bg, no white outline)
+        background: rgb(0 0 0 / 50%);
+        border: 1px solid var(--pico-muted-border-color);
+        border-left: none; // Prevent double border with input
+        border-right: none; // Prevent double border with submit
+        border-radius: 0;
+        padding: 0 0.75rem; // Skinnier
+        width: auto;
+        color: var(--pico-muted-color);
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: rgb(0 0 0 / 80%);
+            color: #fff;
         }
     }
 
@@ -205,9 +223,23 @@
 }
 
 // Right-Aligned (User Character)
-#gameplay-user-portrait .character-name-overlay {
-    left: auto;
-    right: 1rem; // Reduced margin
+#gameplay-user-portrait {
+    .character-name-overlay {
+        left: auto;
+        right: 1rem; // Reduced margin
+    }
+
+    // Mirror the image to face the AI (User looks Left)
+    .portrait-image img,
+    .portrait-image .picture {
+        transform: scaleX(-1);
+    }
+
+    // Maintain mirror on hover + zoom effect
+    &:hover .portrait-image img,
+    &:hover .portrait-image .picture {
+        transform: scale(-1.05, 1.05);
+    }
 }
 
 /* =========================================

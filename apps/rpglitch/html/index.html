@@ -17,6 +17,8 @@
 <body class="mode-storyboard" style="overflow: hidden;">
   <a href="#main" hidden>Skip to main content</a>
 
+  <div id="world-background"></div>
+
   <dialog id="loading-modal">
     <article>
       <header>
@@ -89,9 +91,9 @@
 
         <div class="storyboard-actions">
           <div role="group">
-            <button id="btn-options" aria-label="Options"><span>Settings</span></button>
-            <button id="btn-shuffle" class="secondary" aria-label="Shuffle"><span>Shuffle</span></button>
-            <button id="begin-story" class="primary" disabled>Begin Story</button>
+            <button id="btn-shuffle" class="secondary" aria-label="Shuffle" title="Shuffle">🎲</button>
+            <button id="btn-options" aria-label="Settings" title="Settings">⚙️</button>
+            <button id="begin-story" class="primary" disabled>Begin Story ▶</button>
           </div>
         </div>
       </div>
@@ -168,44 +170,47 @@
       <a href="#close" aria-label="Close" class="close"
         onclick="document.getElementById('story-options').setAttribute('hidden', '')"></a>
     </header>
-    <div class="settings-body">
+    <!-- SHARED: Top & Side-by-Side -->
+    <div class="grid settings-shared" style="align-items: center; margin-bottom: 1rem;">
+      <label style="margin-bottom: 0;">
+        <input type="checkbox" id="setting-director-mode" role="switch">
+        Director Mode
+      </label>
+      <button class="secondary outline" id="btn-reset-story" style="width: auto;">Reset All Data</button>
+    </div>
 
+    <hr>
+
+    <!-- GAME SPECIFIC -->
+    <div class="settings-section-game">
       <div class="campaign-controls"
         style="background: var(--card-bg-color); padding: 1rem; border-radius: var(--border-radius); border: 1px solid var(--accordion-border-color); margin-bottom: 1rem;">
         <h4
           style="margin-top:0; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-color);">
           Active Story</h4>
-        <label>
-          <input type="checkbox" id="setting-director-mode" role="switch">
-          Director Mode <small>(Show Thoughts & Physics)</small>
-        </label>
         <button id="btn-conclude-story" class="outline warning" style="width: 100%; margin-top: 0.5rem;">
           🏁 Conclude Story & Save State
         </button>
       </div>
+    </div>
 
-      <hr>
+    <!-- LOBBY SPECIFIC -->
+    <div class="settings-section-lobby" style="display: flex; flex-direction: column; gap: 1.5rem;">
       <label>
         Story Opening Instructions
-        <small>Instructions for how the AI should start the story (e.g. "Start in media res", "Describe the weather
-          first")</small>
-        <textarea id="setting-story-instructions" placeholder="e.g. Start with a dramatic event..."></textarea>
+        <textarea id="setting-story-instructions"
+          placeholder="(Optional) Instructions for how the AI should start the story (e.g. 'Start in media res', 'Describe the weather first')"></textarea>
       </label>
       <label>
         Custom JavaScript
-        <textarea id="setting-custom-js" placeholder="// Custom JS code here..."></textarea>
+        <textarea id="setting-custom-js" placeholder="(Optional) // Custom JS code here..."></textarea>
       </label>
+
       <hr>
-      <details>
-        <summary>Saved Stories</summary>
-        <div id="saved-stories-list" class="saved-stories-list">
-          <p><small>Loading stories...</small></p>
-        </div>
-      </details>
-      <hr>
-      <div class="grid">
-        <button class="secondary outline" id="btn-reset-story">Reset Story</button>
-        <button class="contrast outline" id="btn-new-story">New Story</button>
+
+      <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">Saved Stories</h4>
+      <div id="saved-stories-list" class="saved-stories-list">
+        <p><small>Loading stories...</small></p>
       </div>
     </div>
   </template>
@@ -215,20 +220,27 @@
       <div class="profile-hero">
         <div class="hero-wrap">
           <div class="profile-hero-overlay" data-edit-field="hero">
-            <fieldset role="group">
-              <input name="profilePictureUrl" type="text" placeholder="Type prompt..." autocomplete="off"
-                data-profile-field="profilePictureUrl" />
-              <button type="button" data-action="upload"></button>
-              <input type="file" accept="image/*" autocomplete="off" hidden data-profile-field="fileInput" />
+            <textarea name="profilePictureUrl" rows="1" placeholder="Describe appearance..." autocomplete="off"
+              data-profile-field="profilePictureUrl" class="profile-prompt-input"
+              style="resize:vertical; min-height: 2.5rem; margin-bottom: 0.5rem; border-radius: var(--pico-radius);"></textarea>
+
+            <fieldset role="group" class="profile-controls-row" style="margin-bottom:0; width: 100%;">
+              <select name="signatureColour" id="signatureColour" style="max-width: 140px; margin-bottom:0;">
+                <option value="default">Color</option>
+                <option value="pink">Pink</option>
+                <option value="emerald">Emerald</option>
+                <option value="cyan">Cyan</option>
+                <option value="orange">Orange</option>
+                <option value="purple">Purple</option>
+              </select>
+              <button type="button" data-action="extract" title="Extract Visuals" class="secondary outline btn-extract"
+                style="padding-left:1rem; padding-right:1rem;">🪄</button>
+              <button type="button" data-action="stylize" title="Apply Style" class="secondary outline btn-stylize"
+                style="padding-left:1rem; padding-right:1rem; display: none;">🎨</button>
+              <button type="button" data-action="upload" class="profile-main-action" style="flex:1;"></button>
             </fieldset>
-            <select name="signatureColour" id="signatureColour">
-              <option value="default">Signature Colour</option>
-              <option value="pink">Pink</option>
-              <option value="emerald">Emerald</option>
-              <option value="cyan">Cyan</option>
-              <option value="orange">Orange</option>
-              <option value="purple">Purple</option>
-            </select>
+
+            <input type="file" accept="image/*" autocomplete="off" hidden data-profile-field="fileInput" />
           </div>
         </div>
       </div>

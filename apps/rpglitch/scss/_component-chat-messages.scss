@@ -138,7 +138,8 @@
   align-self: center !important;
   max-width: 80%;
   border-radius: var(--msg-radius);
-  background: transparent !important;
+  background: rgb(0 0 0 / 40%) !important;
+  backdrop-filter: blur(4px);
   border: 1px solid var(--pico-muted-border-color) !important;
   font-style: italic;
   color: var(--pico-muted-color) !important;
@@ -376,7 +377,7 @@
   border-radius: 4px;
 
   // [FIX] Normal style per user request
-  font-style: normal;
+  font-style: normal !important;
   white-space: pre-wrap;
 
   .thought-label {
