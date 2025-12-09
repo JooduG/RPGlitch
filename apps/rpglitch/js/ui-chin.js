@@ -1,6 +1,8 @@
+// apps/rpglitch/js/ui-chin.js
 import { entities } from "./entity-crud.js";
-// [FIX] Import getPictureHTML from core-utils
 import { getPictureHTML, error } from "./core-utils.js";
+// [NEW] Import visual helper
+import { getVisualState } from "./entity-structs.js";
 import { openDrawer } from "./drawer.js";
 import { openProfileModal } from "./ui-profile.js";
 
@@ -85,7 +87,17 @@ export function renderEntityPreview(previewId, entity, slotButton, type, onEdit,
         const media = document.createElement("div");
         media.className = "card-media";
         media.title = "View Profile";
-        media.appendChild(getPictureHTML(entity, { cover: true, landscape: isWorld }));
+
+        const pic = getPictureHTML(entity, { cover: true, landscape: isWorld });
+
+        // [NEW] Apply Flip Logic to Chin Preview
+        const visuals = getVisualState(entity);
+        if (visuals.flipped) {
+            const img = pic.querySelector('img');
+            if (img) img.style.transform = "scaleX(-1)";
+        }
+
+        media.appendChild(pic);
         media.addEventListener("click", (e) => {
             e.stopPropagation();
             openProfileModal(type, entity.id, stateKey);

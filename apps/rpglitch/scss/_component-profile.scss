@@ -1,4 +1,3 @@
-// apps/rpglitch/scss/_component-profile.scss
 @use "config" as *;
 
 /* ============================================================================
@@ -29,6 +28,57 @@
         height: 100%;
         object-fit: cover;
         display: block;
+
+        // [NEW] Smooth Flip Transition
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    // [NEW] The Flip State
+    .img-flipped {
+        transform: scaleX(-1);
+    }
+
+    // [NEW] The Floating Flip Button (Live Control)
+    .btn-visual-flip {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 20;
+        background: rgb(0 0 0 / 40%);
+        border: 1px solid rgb(255 255 255 / 20%);
+        color: rgb(255 255 255 / 90%);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        backdrop-filter: blur(4px);
+        transition: all 0.2s ease;
+        font-size: 1.4rem;
+        line-height: 1;
+        opacity: 0; // Hidden by default, shown on hover
+        transform: translateY(-10px);
+
+        &:hover {
+            background: rgb(255 255 255 / 20%);
+            border-color: rgb(255 255 255 / 60%);
+            transform: scale(1.1) translateY(0);
+            opacity: 1;
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+
+    // Show button when hovering the hero area
+    &:hover .btn-visual-flip,
+    &:focus-within .btn-visual-flip {
+        opacity: 1;
+        transform: translateY(0);
     }
 
     .placeholder-image {
@@ -94,12 +144,6 @@
             }
         }
 
-
-
-        // Since Pico's aria-busy might be specific, let's manually replicate the spinner if needed
-        // or trust Pico's global styles if they target [aria-busy="true"] generic.
-        // Pico 2.0 uses specific SVGs. Let's use a standard pseudo-element approach compatible with Pico themes.
-
         // REVISED BUSY STATE
         &[aria-busy="true"]::before {
             content: "";
@@ -121,8 +165,6 @@
             margin-top: -1.5rem;
             margin-left: -1.5rem;
             z-index: 20;
-
-            // Re-use Pico's loading indicator logic if possible, or typical border spinner
             content: "";
             border: 4px solid var(--pico-primary);
             border-right-color: transparent;

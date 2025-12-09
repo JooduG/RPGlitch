@@ -1,6 +1,5 @@
 import { entities, copyEntity } from "./entity-crud.js";
-// [FIX] Imports split correctly between schema and utils
-import { premade } from "./entity-structs.js";
+import { premade, getVisualState } from "./entity-structs.js";
 import { getPictureHTML, getSignature } from "./core-utils.js";
 import { state } from "./app-state.js";
 import { VisualManager } from "./manager-visuals.js";
@@ -115,11 +114,67 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     if (!template) return;
     const layout = template.content.firstElementChild.cloneNode(true);
 
+    // --- HERO & IMAGE HANDLING ---
     const heroWrap = layout.querySelector(".hero-wrap");
+
+    // Visual State Management
+    let localVisuals = getVisualState(entity);
+
+    const applyVisualsToImage = (imgEl) => {
+        if (!imgEl) return;
+        if (localVisuals.flipped) imgEl.classList.add("img-flipped");
+        else imgEl.classList.remove("img-flipped");
+    };
+
     if (getPictureHTML) {
         const heroPic = getPictureHTML(entity, { cover: true, landscape: isWorld });
-        if (heroPic) { heroPic.classList.add("hero-bleed"); heroWrap.appendChild(heroPic); }
+        if (heroPic) {
+            heroPic.classList.add("hero-bleed");
+            // Apply flip state immediately on render
+            applyVisualsToImage(heroPic.querySelector("img"));
+            heroWrap.appendChild(heroPic);
+        }
     }
+
+    // [UPDATED] Flip Button (Live Control with Auto-Save)
+    const flipBtn = document.createElement("button");
+    flipBtn.className = "btn-visual-flip";
+    flipBtn.innerHTML = "⇄"; // Icon
+    flipBtn.title = "Flip Orientation";
+    flipBtn.type = "button"; // Prevent form submit
+    flipBtn.onclick = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // 1. Toggle Local State
+        localVisuals.flipped = !localVisuals.flipped;
+
+        // 2. Update DOM Instantly (Feedback)
+        const imgs = heroWrap.querySelectorAll("img");
+        imgs.forEach(applyVisualsToImage);
+
+        // 3. Persist State (If not a "New" entity)
+        if (id !== "new" && !isEditing) {
+            try {
+                // Update the entity object in memory
+                if (!entity.visuals) entity.visuals = {};
+                entity.visuals.flipped = localVisuals.flipped;
+
+                // [FIX] Use upsert, not update
+                // This saves the flip state immediately to the DB
+                await entities.upsert(type, entity);
+
+                // Notify other components (Chat, Drawer)
+                window.dispatchEvent(new CustomEvent('entity-visual-update', { detail: { id: entity.id } }));
+
+                console.log("[Profile] Visual flip saved automatically.");
+            } catch (err) {
+                console.error("Failed to auto-save flip state:", err);
+            }
+        }
+    };
+    heroWrap.appendChild(flipBtn);
+
 
     const imageOverlay = layout.querySelector(".profile-hero-overlay");
     const imageInput = imageOverlay.querySelector('[data-profile-field="profilePictureUrl"]');
@@ -180,6 +235,9 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
             const curPic = heroWrap.querySelector(".picture");
             if (newPic) {
                 newPic.classList.add("hero-bleed");
+                // [FIX] Ensure flip state persists on preview update
+                applyVisualsToImage(newPic.querySelector("img"));
+
                 if (curPic) curPic.replaceWith(newPic);
                 else heroWrap.appendChild(newPic);
             }
@@ -214,12 +272,9 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                 setBusy(true);
                 const prompt = imageInput.value.trim();
                 const resolution = isWorld ? "768x512" : "512x768";
-
-                // [NEW] Read the checkbox state
                 const removeBgCheckbox = layout.querySelector("#gen-transparent-bg");
                 const isTransparent = removeBgCheckbox ? removeBgCheckbox.checked : false;
 
-                // [NEW] Pass it to the manager
                 const url = await VisualManager.generate(prompt, {
                     resolution,
                     removeBackground: isTransparent
@@ -240,9 +295,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
             e.preventDefault();
             try {
                 setBusy(true);
-                // [VISUAL MANAGER INTEGRATION]
                 const result = await VisualManager.extractTraits(entity, type);
-
                 imageInput.value = result;
                 imageInput.dispatchEvent(new Event('input'));
             } catch (err) {
@@ -261,7 +314,6 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
             const current = imageInput.value.trim();
             if (!current) return alert("Please enter a description first!");
 
-            // Prevent double-styling
             if (current.includes("cinematic wide shot") || current.includes("high-fidelity character portrait")) {
                 if (!confirm("This prompt looks stylized already. Re-apply?")) return;
             }
@@ -271,9 +323,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
 
             try {
                 setBusy(true);
-                // [VISUAL MANAGER INTEGRATION]
                 const final = await VisualManager.stylize(current, colorTerm, type);
-
                 imageInput.value = final;
                 imageInput.dispatchEvent(new Event('input'));
             } catch (err) {
@@ -290,9 +340,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         if (!file) return;
         try {
             setBusy(true);
-            // [VISUAL MANAGER INTEGRATION]
             const url = await VisualManager.upload(file);
-
             if (url) {
                 imageInput.value = url;
                 imageInput.dispatchEvent(new Event('input'));
@@ -310,7 +358,12 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         const urlToCheck = imageInput.dataset.pendingUrl || imageInput.value.trim();
         const newPic = getPictureHTML({ ...entity, signatureColour: newColor, profilePictureUrl: urlToCheck }, { cover: true, landscape: isWorld });
         const curPic = heroWrap.querySelector(".picture");
-        if (curPic && newPic) { newPic.classList.add("hero-bleed"); curPic.replaceWith(newPic); }
+        if (curPic && newPic) {
+            newPic.classList.add("hero-bleed");
+            // [FIX] Preserve flip state on color change
+            applyVisualsToImage(newPic.querySelector("img"));
+            curPic.replaceWith(newPic);
+        }
 
         const nameInput = form.querySelector('.profile-name-input');
         const nameDisplay = form.querySelector('.profile-name-display');
@@ -495,7 +548,9 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                 description: escapeHtml(screen.querySelector('[data-edit-field="description"]').value.trim()),
                 profilePictureUrl: escapeHtml(imageInput.dataset.pendingUrl || imageInput.value.trim()),
                 signatureColour: escapeHtml(paletteSelect.value.trim()),
-                tags: tagsArray
+                tags: tagsArray,
+                // Persist the visual state (flipped, etc)
+                visuals: localVisuals
             };
             Object.keys(SECTION_DEFINITIONS).forEach(k => {
                 const el = screen.querySelector(`[data-edit-field="${k}"]`);
@@ -516,6 +571,9 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
             if (activeSlotKey && _onUpdateSelection) {
                 _onUpdateSelection({ [activeSlotKey]: saved });
             }
+
+            // Notify Global State (so Chat/Drawer update too)
+            window.dispatchEvent(new CustomEvent('entity-visual-update', { detail: { id: saved.id } }));
 
             if (id === "new") closeProfileModal();
             else { entity = await entities.get(type, saved.id); setEditMode(false); }

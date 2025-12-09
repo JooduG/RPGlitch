@@ -92,21 +92,48 @@ const STORAGE_VERSION = 2;
 
 // --- DATA UTILITIES (No DOM logic) ---
 
+// [NEW] Visual State Helper (The Safe Accessor)
+export function getVisualState(entity) {
+  // If modern structure exists, return it
+  if (entity.visuals) return entity.visuals;
+
+  // Fallback for legacy entities (Migration on read)
+  return {
+    flipped: false,
+    avatarUrl: entity.profilePictureUrl || "",
+    fullBodyUrl: "",
+    scale: 1.0,
+    yOffset: 0
+  };
+}
+
 export function normalize(base = {}) {
   const safeTags = (Array.isArray(base.tags) ? base.tags : (base.tags ? String(base.tags).split(",") : []))
     .map((s) => sanitizeHtml(String(s).trim()))
     .filter(Boolean);
 
+  // Determine avatar URL (Prefer visuals.avatarUrl, fallback to profilePictureUrl)
+  const existingAvatar = (base.visuals && base.visuals.avatarUrl) || base.profilePictureUrl || "";
+
   return {
     name: sanitizeHtml(base.name || "").trim(),
     description: sanitizeHtml(base.description || "").trim(),
-    profilePictureUrl: sanitizeHtml(base.profilePictureUrl || "").trim(),
+    profilePictureUrl: sanitizeHtml(existingAvatar).trim(), // Keep sync for now
     signatureColour: sanitizeHtml(base.signatureColour || "default").trim(),
     forever: sanitizeHtml(base.forever || "").trim(),
     past: sanitizeHtml(base.past || "").trim(),
     present: sanitizeHtml(base.present || "").trim(),
     future: sanitizeHtml(base.future || "").trim(),
     tags: safeTags,
+
+    // [NEW] Visual State Container
+    visuals: base.visuals || {
+      flipped: false,
+      avatarUrl: existingAvatar,
+      fullBodyUrl: "",
+      scale: 1.0,
+      yOffset: 0
+    },
 
     // V4.2: NARRATIVE PHYSICS
     dynamics: base.dynamics || null,

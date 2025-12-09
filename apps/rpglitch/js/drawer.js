@@ -1,8 +1,8 @@
 // apps/rpglitch/js/drawer.js
 import { entities } from "./entity-crud.js";
-// [FIX] Import from core-utils, not entity-structs
-import { getPictureHTML } from "./core-utils.js";
-import { log, error } from "./core-utils.js";
+import { getPictureHTML, log, error } from "./core-utils.js";
+// [NEW] Import visual helper
+import { getVisualState } from "./entity-structs.js";
 
 const DRAWER_ID = "entity-drawer";
 const BACKDROP_ID = "entity-drawer-backdrop";
@@ -135,6 +135,14 @@ function createCard(item, type, onCreate) {
 
         if (typeof getPictureHTML === 'function') {
             const pic = getPictureHTML(item, { cover: true });
+
+            // [NEW] Apply Visual Flip in Drawer
+            const visuals = getVisualState(item);
+            if (visuals.flipped) {
+                const img = pic.querySelector('img');
+                if (img) img.style.transform = "scaleX(-1)";
+            }
+
             card.appendChild(pic);
         } else {
             card.textContent = item.name;

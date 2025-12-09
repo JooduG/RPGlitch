@@ -1,7 +1,8 @@
 import { state } from "./app-state.js";
-// [FIX] Import getPictureHTML from core-utils
 import { getPictureHTML, sanitizeHtml } from "./core-utils.js";
 import { entities } from "./entity-crud.js";
+// [NEW] Import the visual helper
+import { getVisualState } from "./entity-structs.js";
 
 const selectedEntities = {
     aiCharacter: null,
@@ -62,6 +63,26 @@ document.addEventListener("state:changed", (e) => {
     }
 });
 
+// [NEW] Listen for visual updates (Flip) and re-render portraits instantly
+window.addEventListener("entity-visual-update", async (e) => {
+    const id = e.detail.id;
+    // Check if the updated entity is currently on stage
+    if (selectedEntities.aiCharacter?.id === id) {
+        // Refresh the entity data from DB to get new visual state
+        selectedEntities.aiCharacter = await entities.get("character", id);
+        updatePortraits(selectedEntities.aiCharacter, selectedEntities.userCharacter);
+    }
+    else if (selectedEntities.userCharacter?.id === id) {
+        selectedEntities.userCharacter = await entities.get("character", id);
+        updatePortraits(selectedEntities.aiCharacter, selectedEntities.userCharacter);
+    }
+    else if (selectedEntities.world?.id === id) {
+        selectedEntities.world = await entities.get("world", id);
+        applyWorldAmbience(selectedEntities.world);
+    }
+});
+
+
 function updateDirectorModeClass() {
     if (state.settings.directorMode) {
         document.body.classList.add("mode-director");
@@ -74,7 +95,7 @@ updateDirectorModeClass();
 
 
 export function applyWorldAmbience(world) {
-    console.log("[RPGlitch] Applying World Ambience:", world ? world.name : "None");
+    // console.log("[RPGlitch] Applying World Ambience:", world ? world.name : "None");
     const colorMap = {
         pink: "236, 72, 153", emerald: "16, 185, 129", cyan: "6, 182, 212",
         orange: "249, 115, 22", purple: "168, 85, 247", default: "255, 255, 255"
@@ -96,12 +117,18 @@ export function applyWorldAmbience(world) {
         bgEl.style.backgroundImage = `url('${world.profilePictureUrl}')`;
         bgEl.style.backgroundColor = "transparent";
         bgEl.style.opacity = "1";
+
+        // [NEW] Flip Support for World Background
+        const visuals = getVisualState(world);
+        bgEl.style.transform = visuals.flipped ? "scaleX(-1)" : "none";
+
     } else if (world) {
         // [FIX] Respect Placeholder Logic: Use signature color if no image
         const rgb = colorMap[world.signatureColour] || colorMap.default;
         bgEl.style.backgroundImage = "none";
         bgEl.style.backgroundColor = `rgba(${rgb}, 0.5)`; // Increased opacity for visibility
         bgEl.style.opacity = "1";
+        bgEl.style.transform = "none";
     } else {
         bgEl.style.opacity = "0";
         // Clear after fade out
@@ -109,6 +136,7 @@ export function applyWorldAmbience(world) {
             if (bgEl.style.opacity === "0") {
                 bgEl.style.backgroundImage = "none";
                 bgEl.style.backgroundColor = "transparent";
+                bgEl.style.transform = "none";
             }
         }, 2000);
     }
@@ -139,7 +167,16 @@ export function updatePortraits(aiCharacter, userCharacter) {
             if (ent) {
                 const isWorld = ent.type === 'world';
                 const picture = getPictureHTML(ent, { cover: true, landscape: isWorld });
-                if (picture) imgDiv.appendChild(picture);
+                if (picture) {
+                    // [NEW] Visual Flip Logic
+                    const visuals = getVisualState(ent);
+                    if (visuals.flipped) {
+                        const img = picture.querySelector("img");
+                        // We use inline style here to ensure it works regardless of SCSS scope
+                        if (img) img.style.transform = "scaleX(-1)";
+                    }
+                    imgDiv.appendChild(picture);
+                }
             }
         }
 
@@ -187,8 +224,6 @@ export function renderMessage(container, role, text, characterName, type, entiti
     // Handle DEBUG / Physics Logs
     if (type === 'DEBUG') {
         div.className = "story-message system director-content";
-        // Use sanitizeHtml directly for logs to preserve spacing exactly as intended
-        // [FIX] Use pre-wrap in CSS instead of replacing newlines, cleaner data
         div.innerHTML = `<div class="physics-log">${sanitizeHtml(text || "")}</div>`;
         container.appendChild(div);
         return;
@@ -198,10 +233,14 @@ export function renderMessage(container, role, text, characterName, type, entiti
     let classList = ["story-message", roleClass];
 
     let signatureColour = null;
-    if (role === "user" && entities?.userCharacter?.signatureColour) {
+    let visuals = null;
+
+    if (role === "user" && entities?.userCharacter) {
         signatureColour = entities.userCharacter.signatureColour;
-    } else if (role === "ai" && entities?.aiCharacter?.signatureColour) {
+        visuals = getVisualState(entities.userCharacter);
+    } else if (role === "ai" && entities?.aiCharacter) {
         signatureColour = entities.aiCharacter.signatureColour;
+        visuals = getVisualState(entities.aiCharacter);
     }
 
     if (signatureColour && signatureColour !== "default") {
@@ -211,6 +250,11 @@ export function renderMessage(container, role, text, characterName, type, entiti
     div.className = classList.join(" ");
     div.setAttribute("role", "log-item");
     div.setAttribute("data-type", type || "IC");
+
+    // [NEW] Data attribute for styling if we add avatars to chat later
+    if (visuals && visuals.flipped) {
+        div.setAttribute("data-flipped", "true");
+    }
 
     if (characterName) {
         div.setAttribute("data-character-name", characterName);
@@ -231,7 +275,6 @@ export function renderMessage(container, role, text, characterName, type, entiti
     const formattedMain = formatMessageText(mainContent);
     const formattedThought = formatMessageText(thoughtContent);
 
-    // [FIXED] Compacted HTML generation to prevent whitespace gaps
     if (thoughtContent) {
         contentHtml = `<div class="thought-trace director-content"><div class="thought-label">INTERNAL MONOLOGUE</div>${formattedThought}</div><div class="message-content">${formattedMain}</div>`;
     } else {
