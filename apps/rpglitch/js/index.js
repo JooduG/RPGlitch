@@ -189,7 +189,7 @@ const App = {
       App.setupPlugins();
 
       // [NEW] Wait for Left Panel Config Injection
-      await App.waitForConfig();
+      await App.waitForConfig(2000);
 
       await db.open();
 

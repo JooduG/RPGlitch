@@ -12,11 +12,11 @@ const IMAGE_EXTENSION_REGEX = new RegExp(
 );
 
 export const SIGNATURE_COLORS = {
-  red: "#d93526", pink: "#d92662", fuchsia: "#d9269d", purple: "#b645cd",
-  violet: "#9062ca", indigo: "#7569da", blue: "#3c71f7", azure: "#017fc0",
-  cyan: "#058686", jade: "#00895a", green: "#398712", lime: "#628100",
-  yellow: "#827800", amber: "#977000", pumpkin: "#ad6400", orange: "#d24317",
-  sand: "#7b776b", grey: "#777777", zinc: "#6f7887", slate: "#687899",
+  red: "#d93526", pink: "#f42c6f", fuchsia: "#ed2aac", purple: "#aa40bf",
+  violet: "#9062ca", indigo: "#7569da", blue: "#0f2d70", azure: "#017fc0",
+  cyan: "#05a2a2", jade: "#00b478", green: "#47a417", lime: "#99c801",
+  yellow: "#f2df0d", amber: "#ffbf00", pumpkin: "#d27a01", orange: "#e74b1a",
+  sand: "#959082", grey: "#777777", zinc: "#6f7887", slate: "#687899",
   default: "#777",
 };
 

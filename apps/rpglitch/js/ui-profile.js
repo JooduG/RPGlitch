@@ -494,7 +494,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     Object.keys(SECTION_DEFINITIONS).forEach(k => createRow(k, SECTION_DEFINITIONS[k]));
 
     // --- DYNAMICS (Director Mode) ---
-    if (state.settings.directorMode && type === 'character') {
+    if (state.settings.directorMode && (type === 'character' || type === 'world')) {
         const dynRow = document.createElement("div");
         dynRow.className = "field-row";
         const dyns = entity.dynamics || { entropy: 50, permeability: 50, velocity: 50, resonance: 50 };
@@ -510,9 +510,11 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                     `).join('')}
                 </div>`;
         } else {
+            const isWorld = type === 'world';
+            const gridCols = isWorld ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)';
             dynRow.innerHTML = `
                 <div class="field-label"><label>Dynamics</label><small class="muted">Director Mode</small></div>
-                <div class="field-input" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                <div class="field-input" style="display: grid; grid-template-columns: ${gridCols}; gap: 0.75rem;">
                      ${['entropy', 'permeability', 'velocity', 'resonance'].map(k => `
                         <div style="background: var(--pico-card-background-color); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--pico-muted-border-color); text-align: center;">
                             <div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 0.25rem;">${k}</div>

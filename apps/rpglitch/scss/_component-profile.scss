@@ -303,6 +303,39 @@
     }
 }
 
+// =========================================
+// WORLD VIEW OVERRIDES (Stacked Layout)
+// =========================================
+.profile-view--world {
+    .profile-layout {
+        // Stacked Layout (Single Scroll)
+        display: block; // Removes Grid properties
+        overflow-y: auto; // Profile layout performs the scroll
+
+        @include custom-scrollbar;
+    }
+
+    .profile-hero {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        aspect-ratio: 3 / 2; // Landscape
+        border-bottom: 1px solid var(--pico-muted-border-color);
+
+        // Remove height constraints that might force vertical stretching
+        height: auto;
+    }
+
+    .profile-right {
+        // Remove independent scroll
+        overflow: visible;
+        height: auto;
+        padding-top: 2rem;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+}
+
 /* =========================================
    2. TYPOGRAPHY & FORMS
    ========================================= */

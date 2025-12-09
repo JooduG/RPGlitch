@@ -11,6 +11,7 @@ const premade = {
       description: "Cybernetic warrior forging light into weapons.",
       type: "Character",
       signatureColour: "azure",
+      dynamics: { entropy: 30, permeability: 40, velocity: 80, resonance: 70 },
       sections: {
         forever: "Bound to the Aether Core, their blade hums with starlight.",
         past: "Once a street tinkerer who reverse-engineered a fallen drone.",
@@ -23,7 +24,8 @@ const premade = {
       name: "Mystic Bard",
       description: "Traveling musician who weaves spells with song.",
       type: "Character",
-      signatureColour: "amber",
+      signatureColour: "yellow",
+      dynamics: { entropy: 70, permeability: 80, velocity: 50, resonance: 90 },
       sections: {
         forever: "Every note carries a memory; every chorus, a charm.",
         past: "Exiled from a royal conservatory for forbidden harmonics.",
@@ -37,6 +39,7 @@ const premade = {
       description: "Stealthy thief powered by ticking gears.",
       type: "Character",
       signatureColour: "jade",
+      dynamics: { entropy: 10, permeability: 30, velocity: 70, resonance: 40 },
       sections: {
         forever: "Precision over passion; gears never lie.",
         past: "Built in a hidden workshop as a prototype companion.",
@@ -49,7 +52,8 @@ const premade = {
       name: "Shadow Whisperer",
       description: "Mysterious figure communing with darkness.",
       type: "Character",
-      signatureColour: "violet",
+      signatureColour: "purple",
+      dynamics: { entropy: 60, permeability: 90, velocity: 20, resonance: 80 },
       sections: {
         forever: "The dark is not empty; it listens back.",
         past: "Swallowed by a rift and returned with a voice not their own.",
@@ -65,6 +69,7 @@ const premade = {
       description: "Floating isles bound by ancient magic.",
       type: "World",
       signatureColour: "green",
+      dynamics: { entropy: 40, permeability: 60, velocity: 50, resonance: 60 },
       sections: {
         forever: "Isles drift on leylines braided like song.",
         past: "Sky anchors forged by archmages after the Great Sundering.",
@@ -77,7 +82,8 @@ const premade = {
       name: "Neo Arcadia",
       description: "Futuristic metropolis built on dream tech.",
       type: "World",
-      signatureColour: "purple",
+      signatureColour: "blue",
+      dynamics: { entropy: 80, permeability: 50, velocity: 90, resonance: 50 },
       sections: {
         forever: "Dreams scaffold towers; intent becomes steel.",
         past: "Founded by lucid engineers who stabilized shared dreaming.",
