@@ -262,6 +262,12 @@ Write the opening paragraph(s) of the story.
    - **Step 3: REFINE:** Polish the prose. Ensure no "As an AI" or meta-fillers remain.
 5. DO NOT use meta-commentary. Just write the story.
 
+<CONFLICT_RESOLUTION>
+If the PROTAGONIST's <PRESENT> or <PAST> data mentions a location that conflicts with the <WORLD_CONTEXT> (e.g. mentions "Neo Arcadia" when the world is "Eldoria"), YOU MUST IGNORE the protagonist's location data.
+Force the protagonist into the <WORLD_CONTEXT>.
+Re-interpret their <PRESENT> situation to fit the <WORLD_CONTEXT>.
+</CONFLICT_RESOLUTION>
+
 ${state.settings.storyOpeningInstructions ? `<DIRECTOR_NOTE>
 USER OVERRIDE: "${state.settings.storyOpeningInstructions}"
 This instruction takes PRIORITY over conflicting directives above.
