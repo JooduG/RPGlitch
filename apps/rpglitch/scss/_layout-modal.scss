@@ -37,7 +37,7 @@
 
 #profile-screen,
 #settings-screen,
-#story-options {
+#settings {
     @extend %modal-overlay-shared;
 }
 
@@ -94,8 +94,7 @@
 
 
 /* --- LAYOUT B: SETTINGS / OPTIONS (Flex Column) --- */
-.settings-layout,
-.story-options-layout {
+.settings-layout {
     max-width: 800px;
     height: 80vh;
     padding: 3rem;
@@ -150,8 +149,7 @@
         grid-template-rows: 300px 1fr;
     }
 
-    .settings-layout,
-    .story-options-layout {
+    .settings-layout {
         height: 100%;
         max-height: 100vh;
         border-radius: 0;

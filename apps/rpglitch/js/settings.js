@@ -6,7 +6,7 @@ import { StoryController } from "./manager-turns.js";
 
 export const StoryOptionsController = {
   init() {
-    const modal = document.querySelector("#story-options");
+    const modal = document.querySelector("#settings");
     if (!modal) return;
 
     // Inject Template Content if empty
@@ -142,7 +142,7 @@ export const StoryOptionsController = {
   },
 
   open() {
-    const modal = document.querySelector("#story-options");
+    const modal = document.querySelector("#settings");
     if (!modal) return;
 
     const directorModeToggle = modal.querySelector("#setting-director-mode");
@@ -179,7 +179,7 @@ export const StoryOptionsController = {
   },
 
   close() {
-    const modal = document.querySelector("#story-options");
+    const modal = document.querySelector("#settings");
     if (modal) {
       modal.classList.remove("is-open");
       setTimeout(() => {

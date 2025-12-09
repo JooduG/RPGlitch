@@ -5,7 +5,7 @@ import { db } from "./core-db.js";
 import { log, error, initDebugMode } from "./core-utils.js";
 import { state, applyPatch } from "./app-state.js";
 import { StoryController } from "./manager-turns.js";
-import { StoryOptionsController } from "./story-options.js";
+import { StoryOptionsController } from "./settings.js";
 import { initStoryboardStage, StoryboardController } from "./manager-setup.js";
 
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======

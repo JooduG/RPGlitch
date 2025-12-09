@@ -39,8 +39,8 @@
     </article>
   </dialog>
 
-  <div id="story-options" class="modal-overlay" hidden>
-    <div class="modal-content story-options-layout settings-layout"></div>
+  <div id="settings" class="modal-overlay" hidden>
+    <div class="modal-content settings-layout"></div>
   </div>
 
   <main id="main" class="universal-stage story-grid">
@@ -117,7 +117,7 @@
                 autocomplete="off" />
 
               <button type="button" id="btn-settings-placeholder" class="secondary outline" title="Settings"
-                onclick="document.getElementById('story-options').removeAttribute('hidden')">
+                onclick="document.getElementById('settings').removeAttribute('hidden')">
                 ⚙️
               </button>
 
@@ -168,7 +168,7 @@
     <header>
       <h3>Settings</h3>
       <a href="#close" aria-label="Close" class="close"
-        onclick="document.getElementById('story-options').setAttribute('hidden', '')"></a>
+        onclick="document.getElementById('settings').setAttribute('hidden', '')"></a>
     </header>
     <!-- SHARED: Top & Side-by-Side -->
     <div class="grid settings-shared" style="align-items: center; margin-bottom: 1rem;">

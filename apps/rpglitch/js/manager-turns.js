@@ -554,7 +554,7 @@ export const TurnManager = {
 
     location.hash = "#storyboard";
 
-    const optionsModal = document.getElementById("story-options");
+    const optionsModal = document.getElementById("settings");
     if (optionsModal) optionsModal.setAttribute("hidden", "");
   }
 };
