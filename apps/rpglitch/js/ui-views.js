@@ -250,14 +250,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   };
 
   // Local Color Map (mirrored for hex precision)
-  const PROFILE_COLOR_MAP = {
-    pink: "ec4899",
-    purple: "a855f7",
-    emerald: "10b981",
-    cyan: "06b6d4",
-    orange: "f97316",
-    default: "a855f7"
-  };
+
 
 
 
@@ -265,13 +258,24 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   const elementLockList = [imageInput, actionButton, fileInput, paletteSelect, extractBtn, stylizeBtn].filter(Boolean);
 
   const setBusy = (busy) => {
+    // Apply busy state to the entire container for the overlay effect
+    if (heroWrap) {
+      const wrapper = heroWrap.closest('.profile-hero');
+      if (wrapper) {
+        if (busy) wrapper.setAttribute("aria-busy", "true");
+        else wrapper.removeAttribute("aria-busy");
+      }
+    }
+    // Lock the overlay interaction (pointer-events)
     if (imageOverlay) imageOverlay.classList.toggle("is-locked", busy);
+
     elementLockList.forEach(el => {
       el.disabled = busy;
-      if (busy) el.setAttribute("aria-busy", "true");
-      else el.removeAttribute("aria-busy");
+      // We no longer set aria-busy on individual elements as the main overlay handles it
+      if (!busy) el.removeAttribute("aria-busy");
     });
-    // Visual tweak for buttons that don't natively support disabled well if custom styled
+
+    // Visual tweak (opacity)
     if (busy) {
       if (extractBtn) extractBtn.style.opacity = "0.5";
       if (stylizeBtn) stylizeBtn.style.opacity = "0.5";
@@ -323,7 +327,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     if (action === "generate") {
       try {
         setBusy(true);
-        actionButton.textContent = "Generating...";
+        // actionButton.textContent = "Generating..."; // [UX] Text change removed
         const prompt = imageInput.value.trim();
         const resolution = isWorld ? "768x512" : "512x768";
         const res = await window.textToImage({ prompt, resolution: resolution });
@@ -331,7 +335,6 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         if (url) {
           imageInput.dataset.pendingUrl = url;
           updatePreview(url);
-          // Note: We DO NOT overwrite imageInput.value, preserving the prompt.
         }
       } catch (e) { error(e); }
       finally { setBusy(false); updateButtonState(); }
@@ -408,7 +411,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     if (!file || !window.upload) return;
     try {
       setBusy(true);
-      actionButton.textContent = "Uploading...";
+      // actionButton.textContent = "Uploading..."; // [UX] Text change removed
       const reader = new FileReader();
       reader.readAsDataURL(file);
       await new Promise(r => reader.onload = r);

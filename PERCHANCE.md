@@ -67,7 +67,7 @@ if (typeof localStorage !== "undefined") {
 // ... proceed to call API
 ```
 
------
+---
 
 ## Application Structure
 
@@ -81,18 +81,18 @@ if (typeof localStorage !== "undefined") {
 
 **Plugins Used:**
 
-  - `ai-text-plugin` → `window.ai` (text generation)
-  - `text-to-image-plugin` → `window.textToImage` (image generation)
-  - `super-fetch-plugin` → `window.superFetch` (CORS bypass)
-  - `remember-plugin` → `window.rememberPlugin` (persistent storage)
-  - `upload-plugin` → `window.upload` (file uploads)
+- `ai-text-plugin` → `window.ai` (text generation)
+- `text-to-image-plugin` → `window.textToImage` (image generation)
+- `super-fetch-plugin` → `window.superFetch` (CORS bypass)
+- `remember-plugin` → `window.rememberPlugin` (persistent storage)
+- `upload-plugin` → `window.upload` (file uploads)
 
 **Architecture (Simulation Engine):**
 
-  - **The Kernel (`context-builder.js`):** Assembles the **Layered Context** (System, World, Entity Snapshot) and enforces the **Hierarchy of Truth**.
-  - **The Physicist (`engine-physics.js`):** A background simulation that calculates narrative variables (Entropy, Velocity, Permeability) to steer the AI's writing style.
-  - **The Manager (`manager-turns.js`):** Orchestrates the turn loop, handles database persistence (Dexie.js), and manages the **Director Mode** (feedback-driven regeneration).
-  - **The Shield (`index.js`):** Implements the Freedom Protocol.
+- **The Kernel (`context-builder.js`):** Assembles the **Layered Context** (System, World, Entity Snapshot) and enforces the **Hierarchy of Truth**.
+- **The Physicist (`engine-physics.js`):** A background simulation that calculates narrative variables (Entropy, Velocity, Permeability) to steer the AI's writing style.
+- **The Manager (`manager-turns.js`):** Orchestrates the turn loop, handles database persistence (Dexie.js), and manages the **Director Mode** (feedback-driven regeneration).
+- **The Shield (`index.js`):** Implements the Freedom Protocol.
 
 ### ImageGlitch
 
@@ -104,16 +104,16 @@ if (typeof localStorage !== "undefined") {
 
 **Plugins Used:**
 
-  - `ai-text-plugin` → `window.ai` (prompt refinement)
-  - `text-to-image-plugin` → `window.image` (image generation—note: named `image` not `textToImage`)
-  - `remember-plugin` → `window.r` (persistent storage—shortened name)
+- `ai-text-plugin` → `window.ai` (prompt refinement)
+- `text-to-image-plugin` → `window.image` (image generation—note: named `image` not `textToImage`)
+- `remember-plugin` → `window.r` (persistent storage—shortened name)
 
 **Architecture (Split Brain):**
 
-  - **Refinement Layer:** Uses "Scribe" (Intelligence) and "Chaos" (Entropy) personas to process user prompts.
-  - **Negative Constraint:** Explicitly instructs AI to strip meta-tags from output.
+- **Refinement Layer:** Uses "Scribe" (Intelligence) and "Chaos" (Entropy) personas to process user prompts.
+- **Negative Constraint:** Explicitly instructs AI to strip meta-tags from output.
 
------
+---
 
 ## Perchance Plugin Integration
 
@@ -125,7 +125,7 @@ For a complete explanation of the Two-Panel Architecture and plugin exposure pat
 
 Perchance plugins must be imported in the left-panel:
 
-```
+```text
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
 
@@ -190,7 +190,7 @@ async function waitForPlugins(requiredPlugins, timeout = 10000) {
 }
 ```
 
------
+---
 
 ## Perchance Syntax Rules
 
@@ -210,7 +210,7 @@ When you need literal `[` or `{` characters in HTML/CSS, escape them with backsl
 <div>Select from \[item1|item2\]</div>
 ```
 
------
+---
 
 ## Deployment Workflow
 
@@ -226,24 +226,24 @@ npm test                 # Run tests
 
 ### Deployment Phase (Manual to Perchance.org)
 
-1.  **Copy Left Panel:**
+1. **Copy Left Panel:**
 
       - Open `apps/rpglitch/RPGlitch-left-panel.txt`.
       - Copy **entire contents**.
       - Paste into Perchance editor's **Left Panel** (Lists section).
 
-2.  **Copy Right Panel:**
+2. **Copy Right Panel:**
 
       - Open `build/output/RPGlitch.html`.
       - Copy **entire contents**.
       - Paste into Perchance editor's **HTML Panel**.
 
-3.  **Save & Test:**
+3. **Save & Test:**
 
       - Click save in Perchance editor.
       - Refresh the page and check the console for "All plugins loaded".
 
------
+---
 
 ## Security Considerations
 
@@ -251,16 +251,16 @@ For comprehensive security guidelines, see [Section 8: Security: The "Zero Trust
 
 ### Input Validation & XSS
 
-  - **`DOMPurify.sanitize()` is MANDATORY** for all dynamic HTML (user input, AI-generated content).
-  - Prefer `textContent` over `innerHTML` whenever possible.
-  - Validate all URLs using the native `URL` constructor.
+- **`DOMPurify.sanitize()` is MANDATORY** for all dynamic HTML (user input, AI-generated content).
+- Prefer `textContent` over `innerHTML` whenever possible.
+- Validate all URLs using the native `URL` constructor.
 
 ### Image Handling Security
 
-  - Validate image URLs: protocol (`http/https`), pathname, and safe file extensions (`jpg, png, gif, webp`).
-  - **SVGs must be sanitized** or rejected to prevent XSS.
+- Validate image URLs: protocol (`http/https`), pathname, and safe file extensions (`jpg, png, gif, webp`).
+- **SVGs must be sanitized** or rejected to prevent XSS.
 
------
+---
 
 ## Build Configuration Details
 
@@ -270,9 +270,9 @@ Located in `apps/[app]/[App]-left-panel.txt`.
 
 **Constraint:** Left Panel **MUST be stateless**. It handles only:
 
-  - Plugin imports.
-  - Static data structures (lists).
-  - Perchance-specific generation logic.
+- Plugin imports.
+- Static data structures (lists).
+- Perchance-specific generation logic.
 
 ### Right Panel Configuration
 
@@ -280,32 +280,32 @@ Located in source files compiled into `build/output/[App].html`.
 
 **Build Process:**
 
-1.  Compile SCSS → CSS (with Pico.css base).
-2.  Bundle JS modules into a single IIFE (source code uses ES6 modules).
-3.  Inline all vendored libraries (Dexie, DOMPurify, etc.).
-4.  Inject into HTML template.
+1. Compile SCSS → CSS (with Pico.css base).
+2. Bundle JS modules into a single IIFE (source code uses ES6 modules).
+3. Inline all vendored libraries (Dexie, DOMPurify, etc.).
+4. Inject into HTML template.
 
 ### Vendored Libraries
 
 Located in `build/local_libs/` and inlined into the final HTML:
 
-  - **Pico.css** — UI framework.
-  - **Dexie.js** — IndexedDB wrapper.
-  - **DOMPurify** — XSS sanitization.
-  - **\_hyperscript** — Declarative UI interactions.
-  - **Cash** — Lightweight DOM library (RPGlitch only).
+- **Pico.css** — UI framework.
+- **Dexie.js** — IndexedDB wrapper.
+- **DOMPurify** — XSS sanitization.
+- **\_hyperscript** — Declarative UI interactions.
+- **Cash** — Lightweight DOM library (RPGlitch only).
 
------
+---
 
 ## Changelog
 
 **4.2.0 (2025-12-05)** — **Architectural Alignment**
 
-  - Updated RPGlitch section to reflect **Simulation Engine** architecture (Kernel, Physicist, Manager).
-  - Formalized **Freedom Protocol** description to match client-side implementation.
-  - Refined plugin exposure steps for clarity.
+- Updated RPGlitch section to reflect **Simulation Engine** architecture (Kernel, Physicist, Manager).
+- Formalized **Freedom Protocol** description to match client-side implementation.
+- Refined plugin exposure steps for clarity.
 
 **4.1.0 (2025-11-20)** — **Deployment Focus**
 
-  - Restructured as a dedicated deployment and troubleshooting guide.
-  - Separated from general development theory.
+- Restructured as a dedicated deployment and troubleshooting guide.
+- Separated from general development theory.

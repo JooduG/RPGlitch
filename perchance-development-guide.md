@@ -16,7 +16,7 @@
 
 ---
 
-# Section 1: The Perchance Engine
+## Section 1: The Perchance Engine
 
 The Perchance platform, at its core, is a robust engine for procedural text generation. Its architecture is built upon a simple yet powerful declarative syntax that allows developers to create complex, randomized outputs from structured lists of data.
 
@@ -107,7 +107,7 @@ Perchance includes a rich set of built-in properties and methods for transformin
 ### Methods
 
 - **`.joinItems("separator")`** - Joins multiple items with a separator
-  - **Example:** `[fruit.selectMany(3).joinItems(", ")]` → "apple, orange, banana"
+- **Example:** `[fruit.selectMany(3).joinItems(", ")]` → "apple, orange, banana"
 
 ### Grammatical Helpers
 
@@ -163,7 +163,7 @@ This first selects an animal, then a verb, then outputs a formatted sentence usi
 
 ---
 
-# Section 2: Web Technologies
+## Section 2: Web Technologies
 
 A Perchance generator is not merely a script; it is a fully functional, self-contained webpage. The platform seamlessly integrates standard web technologies—HTML, CSS, and JavaScript—allowing developers to build rich, interactive user interfaces.
 
@@ -220,9 +220,9 @@ JavaScript code is embedded within `<script>` tags in the HTML panel. Similar to
 
 This separation is crucial: it prevents conflicts between JavaScript syntax (e.g., array literals `[]`) and Perchance syntax, and allows developers to leverage the full JavaScript ecosystem.
 
------
+---
 
-# Section 3: The Plugin Ecosystem
+## Section 3: The Plugin Ecosystem
 
 Plugins transform Perchance from a self-contained tool into an extensible framework. They are reusable, shareable modules that encapsulate specific functionalities, allowing developers to add complex features with a single line of code.
 
@@ -244,16 +244,16 @@ This makes the plugin's functionality available for use within the generator.
 
 **UI and Layout:**
 
-  - `layout-maker-plugin`, `navbar-plugin`, `tabs-plugin` - Create sophisticated visual layouts.
+- `layout-maker-plugin`, `navbar-plugin`, `tabs-plugin` - Create sophisticated visual layouts.
 
 **Interactivity:**
 
-  - `tap-plugin` - Click specific outputs to re-randomize them.
-  - `goto-plugin` - Foundation for text-based adventures.
+- `tap-plugin` - Click specific outputs to re-randomize them.
+- `goto-plugin` - Foundation for text-based adventures.
 
 **Data Persistence:**
 
-  - `kv-plugin`, `remember-plugin` - Store data that persists across page reloads.
+- `kv-plugin`, `remember-plugin` - Store data that persists across page reloads.
 
 ## The AI Plugins
 
@@ -267,9 +267,9 @@ The most powerful extensions are the AI plugins:
 
 **Important:** Do not fork AI plugins. Their client-side code is inextricably linked to a backend that cannot be replicated by users.
 
------
+---
 
-# Section 4: Understanding Language Models
+## Section 4: Understanding Language Models
 
 To effectively develop sophisticated AI applications on Perchance, you must understand the theoretical foundations of Large Language Models (LLMs).
 
@@ -285,8 +285,8 @@ While LLMs excel at processing large, consolidated blocks of text, their perform
 
 A large-scale study, "LLMs GET LOST IN MULTI-TURN CONVERSATION," systematically demonstrated this weakness:
 
-  - **Average Performance Drop:** 39% when a fully-specified, single-turn instruction was broken down into a multi-turn, underspecified conversation
-  - **Root Cause:** Not primarily loss of raw capability ("aptitude"), but a massive increase in "unreliability."
+- **Average Performance Drop:** 39% when a fully-specified, single-turn instruction was broken down into a multi-turn, underspecified conversation
+- **Root Cause:** Not primarily loss of raw capability ("aptitude"), but a massive increase in "unreliability."
 
 ### Why Context is Lost
 
@@ -298,9 +298,9 @@ A large-scale study, "LLMs GET LOST IN MULTI-TURN CONVERSATION," systematically 
 
 The primary lesson is to **consolidate all necessary information into a single context window before initiating generation.** This improves both aptitude and reliability.
 
------
+---
 
-# Section 5: Advanced Context Architecture
+## Section 5: Advanced Context Architecture
 
 Moving beyond simple "Chat Bots," sophisticated AI applications require a structured approach to **Context Engineering**. Instead of a single "Instruction" field, advanced engines use a **Layered Injection Strategy** to ensure stability, consistency, and depth.
 
@@ -312,14 +312,14 @@ To prevent the AI from "forgetting" rules or hallucinating facts, the context se
 
 This is the immutable foundation of your application. It defines the "Laws of Physics" for the AI. It is never seen by the user but is always present in the prompt.
 
-  * **Role:** Enforces safety overrides, output formatting (JSON vs. Text), and absolute agency rules (e.g., "Never write dialogue for the user").
-  * **Priority:** Highest. This layer overrides all others.
+- **Role:** Enforces safety overrides, output formatting (JSON vs. Text), and absolute agency rules (e.g., "Never write dialogue for the user").
+- **Priority:** Highest. This layer overrides all others.
 
 ### Layer 2: The World State (Environmental Constants)
 
 This layer grounds the narrative in a physical reality. It prevents "White Room Syndrome" by enforcing atmospheric continuity.
 
-  * **Content:** Current weather, lighting, location physics, and "Sensory Tiers" (Mandating descriptions of smell, sound, and temperature).
+- **Content:** Current weather, lighting, location physics, and "Sensory Tiers" (Mandating descriptions of smell, sound, and temperature).
 
 ### Layer 3: The Entity Snapshot (Dynamic State)
 
@@ -348,9 +348,9 @@ Treat the narrative like a physics simulation governed by variables. Calculate t
 
 **Example Variables:**
 
-  * **Entropy (0-100):** Measure of chaos/disorder. High entropy forces messy, fragmented descriptions. Low entropy enforces order and calm.
-  * **Velocity (0-100):** Pacing of the scene. High velocity forces short sentences and urgent action.
-  * **Permeability (0-100):** Emotional openness. High permeability allows vulnerability; low permeability forces defensiveness.
+- **Entropy (0-100):** Measure of chaos/disorder. High entropy forces messy, fragmented descriptions. Low entropy enforces order and calm.
+- **Velocity (0-100):** Pacing of the scene. High velocity forces short sentences and urgent action.
+- **Permeability (0-100):** Emotional openness. High permeability allows vulnerability; low permeability forces defensiveness.
 
 **Implementation:**
 
@@ -365,9 +365,9 @@ Mandate: Your prose rhythm MUST reflect these values.
 `
 ```
 
------
+---
 
-# Section 6: Programming with the `oc` Object
+## Section 6: Programming with the `oc` Object
 
 **⚠️ ARCHITECTURAL NOTE:** This section details the standard Perchance API (oc). This is the default for most chat characters. However, RPGlitch utilizes Pattern C (The Simulation Engine) and bypasses the oc object entirely in favor of a custom StoryController backed by Dexie.js. If you are working on RPGlitch core logic, ignore this section and reference [apps/rpglitch/js/manager-turns.js](apps/rpglitch/js/manager-turns.js).
 
@@ -400,9 +400,9 @@ Makes a direct call to the text generation LLM.
 **`oc.textToImage({prompt, ...})`**
 Programmatically calls the text-to-image model.
 
------
+---
 
-# Section 7: Architectural Patterns
+## Section 7: Architectural Patterns
 
 For production applications, choosing the right architecture is critical.
 
@@ -410,17 +410,17 @@ For production applications, choosing the right architecture is critical.
 
 For applications focused on textual interaction (chat bots, simple RPGs), the architecture leverages the `oc` object as an event bus.
 
-  * **Architecture:** Event-Driven. Listen to `MessageAdded`.
-  * **State:** Mostly relies on chat history + simple variables.
+- **Architecture:** Event-Driven. Listen to `MessageAdded`.
+- **State:** Mostly relies on chat history + simple variables.
   * **Best For:** Simple characters, chat bots.
 
 ## Pattern B: The Visual Engine (Image Gen)
 
 For applications focused on generative imagery, the architecture uses a **Two-Stage Pipeline**: Compile → Render.
 
-  * **Stage 1 (Probability):** Perchance lists select *what* to draw.
-  * **Stage 2 (Weighting):** Diffusion syntax (`(keyword:1.2)`) controls *how* it draws.
-  * **Pipeline:** Lists -\> Prompt String -\> `textToImage()` -\> Display.
+- **Stage 1 (Probability):** Perchance lists select *what* to draw.
+- **Stage 2 (Weighting):** Diffusion syntax (`(keyword:1.2)`) controls *how* it draws.
+- **Pipeline:** Lists -\> Prompt String -\> `textToImage()` -\> Display.
 
 ## Pattern C: The Simulation Engine (Advanced)
 
@@ -440,9 +440,9 @@ The architecture is built on three distinct roles:
 
 To keep the simulation alive without consuming excessive tokens or API calls, implement a **Heartbeat Protocol**.
 
-  * **Logic:** Do not update every entity every turn.
-  * **Cycle:** Update the **Active Character** on Turn 1, the **User State** on Turn 2, and the **World/Environment** on Turn 3.
-  * **Effect:** This distributes the computational load while ensuring the entire world stays "fresh" and reactive over time.
+- **Logic:** Do not update every entity every turn.
+- **Cycle:** Update the **Active Character** on Turn 1, the **User State** on Turn 2, and the **World/Environment** on Turn 3.
+- **Effect:** This distributes the computational load while ensuring the entire world stays "fresh" and reactive over time.
 
 ### 3\. The "Director" Loop (Feedback-Driven Variance)
 
@@ -460,9 +460,9 @@ In a standard chat, "Regenerate" just rolls the dice again. In a Simulation Engi
 
 This architecture requires abandoning the `oc` object for logic.
 
-  * **State:** Use `Dexie.js` (IndexedDB) as the Single Source of Truth.
-  * **Logic:** Write a `StoryController` class in the Right Panel (JavaScript) to manage the prompt construction and API calls.
-  * **API:** Use `window.ai()` directly. Do not rely on Perchance's built-in chat UI state.
+- **State:** Use `Dexie.js` (IndexedDB) as the Single Source of Truth.
+- **Logic:** Write a `StoryController` class in the Right Panel (JavaScript) to manage the prompt construction and API calls.
+- **API:** Use `window.ai()` directly. Do not rely on Perchance's built-in chat UI state.
 
 **Example Flow:**
 
@@ -486,9 +486,9 @@ async function handleTurn(userInput) {
 }
 ```
 
------
+---
 
-# Section 8: Expert Patterns and Best Practices
+## Section 8: Expert Patterns and Best Practices
 
 ## Architecting for Consistency
 
@@ -510,9 +510,9 @@ Integration of user input and AI-generated content introduces a novel security v
 
 The architecture treats all text as "radioactive"—it must be decontaminated before it touches the DOM.
 
------
+---
 
-# Section 9: References and Resources
+## Section 9: References and Resources
 
 ## Official Perchance Documentation
 
@@ -555,19 +555,19 @@ The architecture treats all text as "radioactive"—it must be decontaminated be
 - **[design-system.md](./design-system.md)** — UI/UX guidelines and component library
 - **[README.md](./README.md)** — Project overview and quick start
 
------
+---
 
 ## Changelog
 
 **4.2.0 (2025-12-05)** — **Architectural Overhaul**
 
-  - Added **Section 5: Advanced Context Architecture**: Introduced Kernel/World/Entity layers and Four-Field Schema.
-  - Added **Section 7: Pattern C (Simulation Engine)**: Documented Actor/Simulator/Archivist triad, Heartbeat Protocol, and Director Loop.
-  - Updated Section 4 to emphasize "Contextual Consolidation."
-  - Deprecated reliance on `oc` object for complex state logic.
+- Added **Section 5: Advanced Context Architecture**: Introduced Kernel/World/Entity layers and Four-Field Schema.
+- Added **Section 7: Pattern C (Simulation Engine)**: Documented Actor/Simulator/Archivist triad, Heartbeat Protocol, and Director Loop.
+- Updated Section 4 to emphasize "Contextual Consolidation."
+- Deprecated reliance on `oc` object for complex state logic.
 
 **4.1.0 (2025-11-20)** — **Complete Restructuring**
 
-  - Merged MASTER\_ARCHITECT section into main content.
-  - Reorganized into logical progression sections.
-  - Moved app-specific details to PERCHANCE.md.
+- Merged MASTER\_ARCHITECT section into main content.
+- Reorganized into logical progression sections.
+- Moved app-specific details to PERCHANCE.md.

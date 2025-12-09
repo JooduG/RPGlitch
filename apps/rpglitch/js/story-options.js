@@ -68,7 +68,7 @@ export const StoryOptionsController = {
       if (confirm("Are you sure you want to reset ALL data? This will clear your current story and all settings.")) {
 
         // If in game, prepare to switch back to storyboard
-        const wasInGame = !!state.story.activeId;
+
 
         await db.delete();
         await db.open(); // Re-open after delete

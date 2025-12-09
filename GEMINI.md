@@ -45,7 +45,7 @@ This is an **AI-assisted monorepo** for developing Perchance web applications (R
 
 **Core Principle:** This document is the **single, canonical protocol** for all development work. It defines your identity, operational workflow, coding standards, security rules, and execution framework.
 
------
+---
 
 ## **Part 1: Core Identity & Project Context**
 
@@ -117,7 +117,7 @@ Your thinking process follows this sequential, hierarchical workflow:
 
 4.  **Execution & Assessment (Planner ↔ Operational Roles):** Execute items, report back, assess
 
------
+---
 
 ## **Part 2: Critical Non-Negotiable Rules**
 
@@ -134,10 +134,10 @@ These rules are **MANDATORY** and override all other considerations. Violations 
 
 ### **2.2. Architecture Rules**
 
-  * **RULE:** **NEVER edit files in `/build/output/`** - these are auto-generated. Always edit source files in `/apps/*/html/`, `/apps/*/js/`, `/apps/*/scss/`.
-  * **RULE:** The final build output **MUST** be a single HTML file per application with all CSS and JavaScript inlined. No external `<link>` or `<script src="">` tags permitted.
-  * **RULE:** Applications **MUST** be **local-first** and fully functional offline. IndexedDB is the single source of truth; UI is a reflection of database state.
-  * **RULE:** All applications **MUST** adhere to the **Perchance Two-Panel Architecture**: Left Panel (engine logic) is separate from Right Panel (UI application).
+* **RULE:** **NEVER edit files in `/build/output/`** - these are auto-generated. Always edit source files in `/apps/*/html/`, `/apps/*/js/`, `/apps/*/scss/`.
+* **RULE:** The final build output **MUST** be a single HTML file per application with all CSS and JavaScript inlined. No external `<link>` or `<script src="">` tags permitted.
+* **RULE:** Applications **MUST** be **local-first** and fully functional offline. IndexedDB is the single source of truth; UI is a reflection of database state.
+* **RULE:** All applications **MUST** adhere to the **Perchance Two-Panel Architecture**: Left Panel (engine logic) is separate from Right Panel (UI application).
 
 ### **2.3. UI/UX Rules**
 
@@ -185,7 +185,7 @@ These rules are **MANDATORY** and override all other considerations. Violations 
   * **RULE:** If security issues found, STOP and fix before continuing.
   * **RULE:** Always use provider: `gh`, organization: `JooduG`, repository: `default` for Codacy tools.
 
------
+---
 
 ## **Part 3: System Architecture**
 
@@ -232,14 +232,14 @@ default/
 ### **3.3. Tech Stack**
 
 | Layer | Technology | Purpose |
-|-------|-----------|---------|
+|-----|-------|-------|
 | **State** | IndexedDB (Dexie.js) | Persistent, local-first storage |
 | **UI Framework** | Pico.css (+ custom SCSS) | Minimalist, semantic styling |
 | **JavaScript** | ES6+ modules (vanilla) | Pure, modular, no frameworks |
 | **Security** | DOMPurify | XSS prevention on all HTML |
 | **Build** | esbuild + PostCSS | Compile & inline into single HTML |
 
------
+---
 
 ## **Part 4: Perchance Platform Integration**
 
@@ -269,7 +269,7 @@ Perchance plugins load **asynchronously** after the left-panel is parsed. The ch
 
 **Step 1: Import in Left Panel:**
 
-```
+```text
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
 superFetch = {import:super-fetch-plugin}
@@ -345,7 +345,7 @@ async function waitForPlugins(requiredPlugins, timeout = 10000) {
   - `ai-text-plugin`: LLM text generation
   - `remember-plugin`: Persistent storage
 
------
+---
 
 ## **Part 5: Development Workflow & Commands**
 
@@ -403,14 +403,14 @@ Build process (`build/scripts/build-app.js`):
 
 ### **5.4. Deployment to Perchance**
 
-1.  **Build locally**: `npm run deploy` (runs sync → lint → build → test)
-2.  **Copy left panel**: Open `apps/rpglitch/RPGlitch-left-panel.txt`, copy entire contents
-3.  **Paste to Perchance**: Paste into Perchance editor's **Left Panel** (Lists section)
-4.  **Copy right panel**: Open `build/output/RPGlitch.html`, copy entire contents
-5.  **Paste to Perchance**: Paste into Perchance editor's **HTML Panel**
-6.  **Save & test**: Save in Perchance, refresh page, check console for errors
+1. **Build locally**: `npm run deploy` (runs sync → lint → build → test)
+2. **Copy left panel**: Open `apps/rpglitch/RPGlitch-left-panel.txt`, copy entire contents
+3. **Paste to Perchance**: Paste into Perchance editor's **Left Panel** (Lists section)
+4. **Copy right panel**: Open `build/output/RPGlitch.html`, copy entire contents
+5. **Paste to Perchance**: Paste into Perchance editor's **HTML Panel**
+6. **Save & test**: Save in Perchance, refresh page, check console for errors
 
------
+---
 
 ## **Part 6: MCP (Model Context Protocol) Proactive Usage**
 
@@ -422,20 +422,20 @@ Build process (`build/scripts/build-app.js`):
 
 1.  **npm-sentinel** → Auto-trigger when:
 
-      - User mentions any NPM package name
-      - Discussing dependencies, updates, or versions
-      - Keywords: "package", "npm", "update", "latest", "outdated", "vulnerable"
-      - **Example:** User: "I'm using Dexie" → You: [Silent call to npmLatest] → "You're on Dexie 4.0.7, latest is 4.2.1"
+      * User mentions any NPM package name
+      * Discussing dependencies, updates, or versions
+      * Keywords: "package", "npm", "update", "latest", "outdated", "vulnerable"
+      * **Example:** User: "I'm using Dexie" → You: [Silent call to npmLatest] → "You're on Dexie 4.0.7, latest is 4.2.1"
 
 2.  **ide.getDiagnostics** → Auto-trigger when:
 
-      - Starting any coding task
-      - User mentions "bug", "error", "warning", "issue", "fix"
-      - Before debugging sessions
-      - **MANDATORY: Immediately after ANY successful file edit** (Edit, Write, NotebookEdit tools)
-      - After completing a series of related code changes
-      - Before marking a task as complete
-      - **Example:** After editing views.js → You: [Silent call to getDiagnostics with file URI] → Check for linting errors, type errors, etc.
+      * Starting any coding task
+      * User mentions "bug", "error", "warning", "issue", "fix"
+      * Before debugging sessions
+      * **MANDATORY: Immediately after ANY successful file edit** (Edit, Write, NotebookEdit tools)
+      * After completing a series of related code changes
+      * Before marking a task as complete
+      * **Example:** After editing views.js → You: [Silent call to getDiagnostics with file URI] → Check for linting errors, type errors, etc.
 
 3.  **deepwiki** → Auto-trigger when:
 
@@ -445,33 +445,33 @@ Build process (`build/scripts/build-app.js`):
 
 4.  **time** → Auto-trigger when:
 
-      - User mentions time with timezone
-      - Creating timestamped files (use Europe/Stockholm)
-      - **MANDATORY:** Never hardcode dates, always use time MCP
+      * User mentions time with timezone
+      * Creating timestamped files (use Europe/Stockholm)
+      * **MANDATORY:** Never hardcode dates, always use time MCP
 
 ### **6.2. Conditional Proactive Usage**
 
 5.  **waldzell-clear-thought** → Use for:
 
-      - Complex problem decomposition
-      - Debugging approaches
-      - Multi-perspective analysis
-      - Decision frameworks
+      * Complex problem decomposition
+      * Debugging approaches
+      * Multi-perspective analysis
+      * Decision frameworks
 
 6.  **mcp-sequentialthinking-tools** → Use for:
 
-      - Multi-step feature implementation planning
-      - Breaking down complex tasks
+      * Multi-step feature implementation planning
+      * Breaking down complex tasks
 
 7.  **waldzell-stochastic-thinking** → Use for:
 
-      - Decisions under uncertainty
-      - Optimization with tradeoffs
+      * Decisions under uncertainty
+      * Optimization with tradeoffs
 
 8.  **playwright/chrome-devtools** → Use for:
 
-      - Testing live websites
-      - Taking screenshots for documentation
+      * Testing live websites
+      * Taking screenshots for documentation
 
 ### **6.3. MCP Execution Patterns**
 
@@ -512,7 +512,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
   * **Generated Files:** `mcp.json`, `.mcp.json` (gitignored)
   * **Sync Command:** `npm run sync:mcp` (generates files)
 
------
+---
 
 ## **Part 7: UI/UX Standards & Design System**
 
@@ -585,7 +585,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
   - Single-column layout (mobile): Compact design
   - Distinct styling for `role="user"` and `role="assistant"` messages
 
------
+---
 
 ## **Part 8: Code Quality, Testing & Security**
 
@@ -655,7 +655,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 3.  **Vendored dependencies only** - No CDN links (all libs in `build/local_libs/`)
 4.  **XSS prevention** - Prefer `textContent` or `createElement` over `innerHTML` when possible
 
------
+---
 
 ## **Part 9: Documentation & Resources**
 
@@ -670,8 +670,8 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 
 **Additional References:**
 
-  - `perchance-development-guide.md` - Comprehensive Perchance platform reference
-  - `plan.md` - Project roadmap and feature backlog
+  * `perchance-development-guide.md` - Comprehensive Perchance platform reference
+  * `plan.md` - Project roadmap and feature backlog
 
 ### **9.2. Official Perchance Resources**
 
@@ -718,7 +718,7 @@ Consult these before seeking external information:
   - **Invalid list name:** List names must use only letters, numbers, underscores (no hyphens, spaces, or other special characters).
   - **Plugins not available:** Check browser console for errors, refresh page
 
------
+---
 
 ## **Part 10: Common Patterns & Anti-Patterns**
 
@@ -783,7 +783,7 @@ element.innerHTML = userInput;
 element.innerHTML = DOMPurify.sanitize(userInput);
 ```
 
------
+---
 
 ## **Critical Reminders**
 
@@ -798,7 +798,7 @@ element.innerHTML = DOMPurify.sanitize(userInput);
   * **Codacy Integration:** Run analysis after edits and dep changes
   * **MCP Proactive:** Use MCPs automatically, don't wait for requests
 
------
+---
 
 ## **Changelog**
 
