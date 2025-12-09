@@ -188,8 +188,8 @@ describe('Begin Story Button Functionality', () => {
     await initDB();
 
     // Add premade entities to the DB for testing
-    const premadeCharacters = premade.characters.map(char => ({ ...char, type: 'character', isCustom: 0, isPremade: true }));
-    const premadeWorlds = premade.worlds.map(world => ({ ...world, type: 'world', isCustom: 0, isPremade: true }));
+    const premadeCharacters = premade.entities.filter(e => e.type === 'Character').map(char => ({ ...char, type: 'character', isCustom: 0, isPremade: true }));
+    const premadeWorlds = premade.entities.filter(e => e.type === 'World').map(world => ({ ...world, type: 'world', isCustom: 0, isPremade: true }));
     await db.entities.bulkAdd([...premadeCharacters, ...premadeWorlds]);
 
     // Call the mocked initializeWhenReady and _attachStoryboardListeners

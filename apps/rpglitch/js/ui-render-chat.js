@@ -274,8 +274,8 @@ export function renderMessage(container, role, text, characterName, type, entiti
     // [FIX] Sanitize Meta-Leaks (e.g., "**Step 2: DRAFT**" leaking outside tags)
     mainContent = mainContent.replace(/\*\*Step \d:.*?\*\*/gi, "");
     mainContent = mainContent.replace(/^Step \d:.*?$/gim, "");
-    // Cleanup double newlines left by removals
-    mainContent = mainContent.replace(/\n\s*\n/g, "\n").trim();
+    // Cleanup excessive newlines (3+) but preserve paragraphs (2)
+    mainContent = mainContent.replace(/\n{3,}/g, "\n\n").trim();
 
     const formattedMain = formatMessageText(mainContent);
     const formattedThought = formatMessageText(thoughtContent);

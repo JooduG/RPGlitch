@@ -65,6 +65,10 @@ async function handleBeginStory() {
         applyPatch({ mode: "gameplay" });
 
         updatePortraits(selectedAI, selectedUser);
+
+        // [PERF] Yield to main thread to allow UI repaint (Switch to Gameplay Mode) before heavy AI call
+        await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
+
         await StoryController.generateOpening(id);
 
         // CRITICAL FIX: Force load to switch UI to Snapshots

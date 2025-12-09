@@ -179,6 +179,11 @@
 
     &:hover .portrait-image img {
         transform: scale(1.05);
+
+        // [FIX] Maintain flip on hover if image is flipped
+        &.img-flipped {
+            transform: scale(-1.05, 1.05);
+        }
     }
 }
 

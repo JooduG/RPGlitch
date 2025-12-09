@@ -85,6 +85,25 @@
     pointer-events: auto;
 }
 
+/* =========================================
+   VISIBILITY TOGGLING (The View Switcher)
+   ========================================= */
+
+// Default state: Storyboard is visible, Interactable
+.stage-content--storyboard {
+    display: flex; // Or whatever the default layout is
+}
+
+// When in Gameplay Mode: HIDE Storyboard completely
+body.mode-gameplay .stage-content--storyboard {
+    display: none !important;
+}
+
+// When in Storyboard Mode: HIDE Gameplay content
+body.mode-storyboard .stage-content--gameplay {
+    display: none !important;
+}
+
 
 /* =========================================
    INPUTS & CONTROLS

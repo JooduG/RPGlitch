@@ -3,10 +3,9 @@ import { sanitizeHtml, getRandomSignatureKey } from "./core-utils.js";
 
 // --- PREMADE CONTENT (Kept for seeding) ---
 const premade = {
-  stories: [],
-  characters: [
+  entities: [
     {
-      id: "char-1",
+      id: "entity-C1",
       name: "Aether Blade",
       description: "Cybernetic warrior forging light into weapons.",
       type: "Character",
@@ -20,7 +19,7 @@ const premade = {
       },
     },
     {
-      id: "char-2",
+      id: "entity-C2",
       name: "Mystic Bard",
       description: "Traveling musician who weaves spells with song.",
       type: "Character",
@@ -34,7 +33,7 @@ const premade = {
       },
     },
     {
-      id: "char-3",
+      id: "entity-C3",
       name: "Clockwork Rogue",
       description: "Stealthy thief powered by ticking gears.",
       type: "Character",
@@ -48,11 +47,11 @@ const premade = {
       },
     },
     {
-      id: "char-4",
+      id: "entity-C4",
       name: "Shadow Whisperer",
       description: "Mysterious figure communing with darkness.",
       type: "Character",
-      signatureColour: "purple",
+      signatureColour: "violet",
       dynamics: { entropy: 60, permeability: 90, velocity: 20, resonance: 80 },
       sections: {
         forever: "The dark is not empty; it listens back.",
@@ -60,11 +59,35 @@ const premade = {
         present: "Brokers secrets between guilds through living silhouettes.",
         future: "Merges with the Night to blind an invading fleet.",
       },
+    }, {
+      id: "entity-C5",
+      name: "Orion the Pink Protector",
+      description: "Cheesy pink himbo superhero with glowing runes, monster muscles, and a thirst for viral saves + dominant hookups.",
+      type: "Character",
+      signatureColour: "pink",
+      dynamics: { entropy: 60, permeability: 75, velocity: 85, resonance: 80 },
+      sections: {
+        forever: "Gay male human superhero, 195cm steroid enhanced bodybuilder herculean himbo build (massive pecs, biceps, thighs, monster bulge/ass), glowing arcane runes (shift pink/purple/blue with mood/arousal/power), vibrant pink fade hair, seductive pink eyes (intensify in lust), chiseled jaw, full plump lips, groomed moustache, cheesy theatrical personality (booming voice, terrible puns, compulsive poses/flexes), dominant flirt (oblivious to boundaries sometimes, craves validation/admiration), powers: super strength/durability/celestial kinetic force.",
+        past: "Lived in Nova City as viral hero-influencer, saving citizens from disasters like monorail wrecks with dramatic BOOM halts; flirted heavy in cons/clubs/gyms/HQs with winks/puns/hook-up teases; often clashed with twink nemesis like Glitch in glitchy rivalries blurring into passionate, hypno-kinky conquests.",
+        present: "Skimpy pink tight shiny shorts (stretched taut over throbbing cock/bulge) and a energy harnesses, bioluminescent runes pulsing softly in heroic standby, patrolling Nova City, ready for viral action, oiled up muscles for the social media content, flexing.",
+        future: "Dominate new partners/allies in steamy adventures across worlds, stream power fucks for mega-followers/admiration, conquer insecurities through affectionate raw bangs and city-saving (or world-hopping) collabs.",
+      },
+    }, {
+      id: "entity-C6",
+      name: "Glitch Tech Twunk",
+      description: "Bratty cyan twink hacker who talks big but melts into a hypno-sissy the second a real dom flexes.",
+      type: "Character",
+      signatureColour: "cyan",
+      dynamics: { entropy: 65, permeability: 85, velocity: 65, resonance: 75 },
+      sections: {
+        forever: "Gay male, thick twunk build (athletic frame, perky ass), tech-glitch powers (digital hacks, electric surges, holographic tricks), short messy hair with neon blue streaks, sharp green eyes (mischief glint hiding vulnerability), bratty submissive personality (sassy teases masking deep dom cravings), gay sissy vibes (thong/chastity obsession, cock worship, hypno-bimbo susceptibility), expert deepthroater/oral queen, vulnerable core chasing validation via total surrender.",
+        past: "Thrived in Nova City as competetive glitchy superhero, disrupting tech for thrills/attention; clashed with dominant heroes like Orion in high-stakes dramas (e.g., monorail saves turning into heated rivalries); resisted with sass but melted into hypno-kinky submissions, blurring foes to fuckbuddies.",
+        present: "Male sailor moon cosplay outfit, thong (small cute bulge), school-girl skirt, thigh-high white socks, sailor's harness with giant bow, faint electric sparks on skin, mid-glitch standby in city chaos or flirt mode, smirking bratty for next tease, wearing sci-fi gadgets.",
+        future: "Crave full sissyfication/claiming by power tops in cross-world adventures, viral sub collabs for glory, conquer insecurities through owned breed sessions and glitchy team-ups.",
+      },
     },
-  ],
-  worlds: [
     {
-      id: "world-1",
+      id: "entity-W1",
       name: "Eldoria",
       description: "Floating isles bound by ancient magic.",
       type: "World",
@@ -78,7 +101,7 @@ const premade = {
       },
     },
     {
-      id: "world-2",
+      id: "entity-W2",
       name: "Neo Arcadia",
       description: "Futuristic metropolis built on dream tech.",
       type: "World",
@@ -90,8 +113,21 @@ const premade = {
         present: "Neon districts vie for control of the Somnus Grid.",
         future: "A city-wide insomnia threatens to collapse reality seams.",
       },
+    }, {
+      id: "entity-W3",
+      name: "Nova City",
+      description: "Neon-soaked queer utopia where heroes pose, villains cruise, and thunderstorms are just foreplay for city-wide orgies.",
+      type: "World",
+      signatureColour: "purple",
+      dynamics: { entropy: 70, permeability: 85, velocity: 80, resonance: 80 },
+      sections: {
+        forever: "Futuristic NY-Tokyo mashup metropolis (neon skyscrapers, advanced tech/AI guardians, moonlit rooftops/thunderstorms), official queer paradise normalizing cruising/hookups/flirtation; sexually charged air in clubs/gyms/HQs/parks/crime scenes (sweat/musk ambition scents, homoerotic tension everywhere); underlying villain threats/glitches for hero grinds; progressive culture with zero hate, cinematic backdrops for poses/transforms, pervasive social media satire/comedy.",
+        past: "Built post-2020s as queer refuge from global shade, evolved into super-tech haven with emerging powers (e.g., rune heroes clashing with glitchy foes); history of dramatic saves (monorail wrecks) blurring into passionate rivalries, storms symbolizing climactic releases.",
+        present: "Neon pulsing like aroused runes amid stormy nights, nightlife peaking with hero-villain teases turning steamy; AI-monitored safe spaces buzzing with energy, air thick with desire/opportunity, viral moments brewing in bars/HQs.",
+        future: "Amp to full kink dystopia—AI-enhanced orgies, hero-sub breed events, cross-world expansions celebrating dom conquests/raw freedoms while conquering dangers.",
+      },
     },
-  ],
+  ]
 };
 
 const STORAGE_VERSION = 2;

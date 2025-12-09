@@ -10,9 +10,9 @@ export async function seedPremades() {
         const existing = await db.entities.toArray();
 
         // Define the Factory Blueprints from the hardcoded structures
+        // Define the Factory Blueprints from the hardcoded structures
         const blueprints = [
-            ...premade.characters.map(c => ({ ...c, kind: 'character' })),
-            ...premade.worlds.map(w => ({ ...w, kind: 'world' }))
+            ...premade.entities.map(e => ({ ...e, kind: e.type.toLowerCase() }))
         ];
 
         const toAdd = [];

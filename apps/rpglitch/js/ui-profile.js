@@ -101,7 +101,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
 
     // Identify Blueprint for Factory Revert
     const blueprint = entity.originId
-        ? (type === 'character' ? premade.characters : premade.worlds).find(p => p.id === entity.originId)
+        ? premade.entities.find(p => p.id === entity.originId)
         : null;
 
     screen.textContent = "";
@@ -341,8 +341,33 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                 const styleTerm = (selectedStyle === "default" || !selectedStyle) ? "photorealistic" : selectedStyle;
                 const existingText = imageInput.value.trim();
 
-                // Call the unified Director
-                const finalPrompt = await VisualManager.composePrompt(entity, styleTerm, existingText);
+                // [FIX] Scrape LIVE values from the form inputs
+                // The 'entity' object only holds what was last SAVED to the DB.
+                // To support "See it before you save it", we must read the DOM.
+                const liveEntity = { ...entity };
+
+                // 1. Core Fields
+                const nameInput = form.querySelector('[data-edit-field="name"]');
+                if (nameInput) liveEntity.name = nameInput.value;
+
+                const descInput = form.querySelector('[data-edit-field="description"]');
+                if (descInput) liveEntity.description = descInput.value;
+
+                // 2. Sections (Past, Present, etc.)
+                // These are flattened on the object for prompts usually, but let's check structure
+                Object.keys(SECTION_DEFINITIONS).forEach(k => {
+                    const el = form.querySelector(`[data-edit-field="${k}"]`);
+                    if (el) liveEntity[k] = el.value;
+                });
+
+                // 3. Tags
+                const tagsInput = form.querySelector('[data-edit-field="tags"]');
+                if (tagsInput) {
+                    liveEntity.tags = tagsInput.value.split(",").map(t => t.trim()).filter(Boolean);
+                }
+
+                // Call the unified Director with the LIVE data
+                const finalPrompt = await VisualManager.composePrompt(liveEntity, styleTerm, existingText);
 
                 imageInput.value = finalPrompt;
                 imageInput.dispatchEvent(new Event('input')); // Trigger button state updates

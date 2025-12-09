@@ -18,12 +18,15 @@ export const VisualManager = {
         if (!window.textToImage) throw new Error("Image plugin not loaded.");
 
         const resolution = options.resolution || "512x768";
+        // [UPDATED] Robust Negative Prompt Injection
+        // This effectively filters out common AI artifacts and unwanted styles
+        const DEFAULT_NEGATIVE = "blurry, low quality, text, watermark, bad anatomy, distorted faces, extra limbs, mutated hands, poorly drawn face, disfigured, asymmetric, ugly, grain, noise, messy, worst quality, low resolution";
 
         try {
             const result = await window.textToImage({
                 prompt: prompt,
                 resolution: resolution,
-                negative_prompt: options.negative || "blurry, low quality, text, watermark, bad anatomy, distorted faces, cartoon, cgi",
+                negative_prompt: options.negative || DEFAULT_NEGATIVE,
 
                 // [NEW] Pass the transparency flag if requested (Great for character tokens)
                 removeBackground: options.removeBackground || false
@@ -69,11 +72,19 @@ export const VisualManager = {
     async composePrompt(entity, stylePreference = "photorealistic", extraContext = null) {
         if (!window.ai) throw new Error("AI plugin not loaded.");
 
+        const isWorld = entity.type && entity.type.toLowerCase() === 'world';
+
+        // [UPDATED] Context to include ALL narrative fields for extraction
         let context = `
-SUBJECT: ${entity.name}
-ROLE: ${entity.description}
-TRAITS: ${(entity.tags || []).join(", ")}
-CURRENT STATE: ${entity.present || "Neutral"}
+SUBJECT NAME: ${entity.name || "Unknown"}
+ROLE/DESC: ${entity.description || ""}
+TAGS: ${(entity.tags || []).join(", ")}
+--
+PERMANENT TRAITS (Forever): ${entity.forever || "Not specified"}
+PAST HISTORY: ${entity.past || "Not specified"}
+CURRENT STATE (Present): ${entity.present || "Neutral"}
+FUTURE: ${entity.future || "Not specified"}
+--
 TARGET STYLE: ${stylePreference}
 `.trim();
 
@@ -81,17 +92,50 @@ TARGET STYLE: ${stylePreference}
             context += `\nUSER NOTES: ${extraContext.trim()}`;
         }
 
-        const systemPrompt = `[SYSTEM: VISUAL_DIRECTOR]
-You are a Lead Cinematographer using the Flux Image Engine.
+        let systemPrompt;
+
+        if (isWorld) {
+            systemPrompt = `[SYSTEM: VISUAL_DIRECTOR]
+You are a Lead Environment Artist & Landscape Photographer using the Flux Image Engine.
 Task: Write a cohesive "Visual Specification" paragraph (3-4 sentences) that combines the SUBJECT with the TARGET STYLE.
 
 <RULES>
-1. **Integration:** Do not just list traits. Describe the subject *within* the lighting and atmosphere of the style.
-2. **Camera:** Specify a lens/film stock that fits the "${stylePreference}" (e.g., 35mm for realism, loose brushwork for painting).
-3. **Details:** Focus on texture (skin, fabric, metal) and lighting physics (volumetric, rim light).
-4. **User Notes:** If USER NOTES are provided, they are mandatory instructions. Integrate them seamlessly.
-5. **Format:** Output ONLY the prompt text. No "Here is the prompt:" chatter.
+1. **Architecture & Terrain:** Focus 80% of the prompt on the geography, structures, and scale of the place found in <PERMANENT> and <PRESENT>.
+2. **Atmosphere:** Describe the lighting (Golden Hour, Neon, Stormy) and weather conditions.
+3. **Perspective:** Use a "Wide Angle" or "Bird's Eye View" to capture the scale.
+4. **No Characters:** Do not focus on specific individuals. Focus on the *world* itself.
+5. **Format:** Output ONLY the prompt text.
 </RULES>`;
+        } else {
+            // [UPDATED] Strict Extraction & Orchestration Logic
+            systemPrompt = `[SYSTEM: VISUAL_DIRECTOR]
+You are a Lead Character Artist & Portrait Photographer using the Flux Image Engine.
+Target: Create a high-fidelity image prompt for "${entity.name}".
+
+<MISSION>
+1. **EXTRACT EVERYTHING:** Scan <PERMANENT TRAITS>, <CURRENT STATE>, and <ROLE/DESC>. You must find EVERY detail about physical appearance (body type, hair color, eye color, scars, clothing, race, gender, mutations).
+   - **CRITICAL:** If the data says "plump lips", you MUST write "plump lips". If it says "195cm", you MUST write "tall/imposing".
+   - **DO NOT** ignore specific physical traits.
+   - **DO NOT** include "game mechanics" or "stat blocks". Translate them to visual traits (e.g., "Strength 100" -> "Muscular build").
+
+2. **DETERMINE POSE:** Analyze the personality/vibe.
+   - *Dominant/Heroic?* -> "Standing tall, chest out, heroic stance, looking down at camera."
+   - *Bratty/Sassy?* -> "Smirking playfully, hand on hip, teasing expression."
+   - *Shy/Weak?* -> "Looking away nervously, defensive posture."
+   - *Action?* -> "Mid-motion, dynamic energy."
+
+3. **ORCHESTRATE THE PROMPT:**
+   - **Subject:** Start with the specific physical description extracted above.
+   - **Pose:** Add the derived pose.
+   - **Style:** Apply "${stylePreference}" (e.g. "Simulated Analog Film" or "Digital Painting").
+   - **Keywords:** ALWAYS append: "Best quality, masterpiece, character portrait, sharp focus, detailed skin texture, 8k resolution."
+
+<OUTPUT_FORMAT>
+- Write ONE cohesive paragraph.
+- NO conversational filler ("Here is the prompt").
+- Output ONLY the raw prompt text.
+</OUTPUT_FORMAT>`;
+        }
 
         // Call the LLM
         const result = await window.ai(`${systemPrompt}\n\n[DATA]\n${context}`);
