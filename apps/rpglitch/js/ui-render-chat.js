@@ -1,12 +1,58 @@
 import { state } from "./app-state.js";
 import { getPictureHTML } from "./entity-structs.js";
 import { sanitizeHtml } from "./core-utils.js";
+import { entities } from "./entity-crud.js";
 
 const selectedEntities = {
     aiCharacter: null,
     userCharacter: null,
     world: null,
 };
+
+export async function renderChat(storyId) {
+    const feed = document.querySelector("#chat-feed");
+    if (!feed) return;
+
+    const msgs = state.messages.byStoryId[storyId] || [];
+    const story = state.story.byId[storyId];
+
+    if (!story) return;
+
+    let [ai, user] = await Promise.all([
+        entities.get("character", story.aiCharacterId),
+        entities.get("character", story.userCharacterId)
+    ]);
+
+    feed.innerHTML = "";
+    const noMsg = document.querySelector("#no-messages");
+
+    if (msgs.length === 0) {
+        if (noMsg) { noMsg.hidden = false; feed.appendChild(noMsg); }
+        return;
+    }
+
+    if (noMsg) noMsg.hidden = true;
+
+    const lastUserMsg = msgs.slice().reverse().find(m => m.role === "user");
+    const lastUserMsgId = lastUserMsg ? lastUserMsg.id : null;
+
+    msgs.forEach((m, index) => {
+        const isLast = index === msgs.length - 1;
+        const isLastUserMessage = m.id === lastUserMsgId;
+
+        renderMessage(
+            feed,
+            m.role,
+            m.text,
+            m.characterName,
+            m.type || "IC",
+            { aiCharacter: ai, userCharacter: user },
+            { isLast, messageId: m.id, isLastUserMessage }
+        );
+    });
+
+    feed.scrollTop = feed.scrollHeight;
+}
 
 // --- STATE LISTENER ---
 // Listen for changes to directorMode and toggle body class instantly.

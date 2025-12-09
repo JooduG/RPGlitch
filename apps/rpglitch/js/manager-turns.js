@@ -3,7 +3,7 @@ import { state, applyPatch } from "./app-state.js";
 import { generateStream } from "./llm-adapter.js";
 import { entities } from "./entity-crud.js";
 import {
-  renderMessage, updatePortraits, setGameplayEntities,
+  renderChat, updatePortraits, setGameplayEntities,
   showTypingIndicator, removeTypingIndicator, setSendLock,
   applyWorldAmbience, setChatGeneratingState
 } from "./ui-render-chat.js";
@@ -102,7 +102,7 @@ export const TurnManager = {
       updatePortraits(ai, user);
       setGameplayEntities(ai, user, world);
 
-      await TurnManager.render(story.id);
+      await renderChat(story.id);
 
       if (world) {
         applyWorldAmbience(world);
@@ -123,48 +123,7 @@ export const TurnManager = {
     return msgs;
   },
 
-  render: async (storyId) => {
-    const feed = document.querySelector("#chat-feed");
-    if (!feed) return;
 
-    const msgs = state.messages.byStoryId[storyId] || [];
-    const story = state.story.byId[storyId];
-
-    let [ai, user] = await Promise.all([
-      entities.get("character", story.aiCharacterId),
-      entities.get("character", story.userCharacterId)
-    ]);
-
-    feed.innerHTML = "";
-    const noMsg = document.querySelector("#no-messages");
-
-    if (msgs.length === 0) {
-      if (noMsg) { noMsg.hidden = false; feed.appendChild(noMsg); }
-      return;
-    }
-
-    if (noMsg) noMsg.hidden = true;
-
-    const lastUserMsg = msgs.slice().reverse().find(m => m.role === "user");
-    const lastUserMsgId = lastUserMsg ? lastUserMsg.id : null;
-
-    msgs.forEach((m, index) => {
-      const isLast = index === msgs.length - 1;
-      const isLastUserMessage = m.id === lastUserMsgId;
-
-      renderMessage(
-        feed,
-        m.role,
-        m.text,
-        m.characterName,
-        m.type || "IC",
-        { aiCharacter: ai, userCharacter: user },
-        { isLast, messageId: m.id, isLastUserMessage }
-      );
-    });
-
-    feed.scrollTop = feed.scrollHeight;
-  },
 
   editUserMessage: async (messageId, newText) => {
     const storyId = TurnManager.requireActive();
@@ -181,7 +140,7 @@ export const TurnManager = {
     }
 
     await TurnManager.loadMessages(storyId);
-    await TurnManager.render(storyId);
+    await renderChat(storyId);
     await TurnManager.generateAiResponse(storyId);
   },
 
@@ -189,7 +148,7 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
     await db.messages.update(messageId, { text: newText });
     await TurnManager.loadMessages(storyId);
-    await TurnManager.render(storyId);
+    await renderChat(storyId);
   },
 
   generateAiResponse: async (storyId) => {
@@ -227,7 +186,7 @@ export const TurnManager = {
       });
 
       await TurnManager.loadMessages(storyId);
-      await TurnManager.render(storyId);
+      await renderChat(storyId);
       applyPatch({ ui: { fsm: "done" } });
 
       if (payloadMeta && payloadMeta.triggerUpdate) {
@@ -263,7 +222,7 @@ export const TurnManager = {
       });
 
       await TurnManager.loadMessages(storyId);
-      await TurnManager.render(storyId);
+      await renderChat(storyId);
 
       const feed = document.querySelector("#chat-feed");
       showTypingIndicator(feed, 'ai', story.aiCharacterId);
@@ -294,7 +253,7 @@ export const TurnManager = {
       });
 
       await TurnManager.loadMessages(storyId);
-      await TurnManager.render(storyId);
+      await renderChat(storyId);
       applyPatch({ ui: { fsm: "done" } });
 
       if (payloadMeta && payloadMeta.triggerUpdate) {
@@ -342,7 +301,7 @@ export const TurnManager = {
     await db.messages.delete(lastMsg.id);
 
     await TurnManager.loadMessages(storyId);
-    await TurnManager.render(storyId);
+    await renderChat(storyId);
 
     const feed = document.querySelector("#chat-feed");
     showTypingIndicator(feed, 'ai', story.aiCharacterId);
@@ -373,7 +332,7 @@ export const TurnManager = {
       });
 
       await TurnManager.loadMessages(storyId);
-      await TurnManager.render(storyId);
+      await renderChat(storyId);
       applyPatch({ ui: { fsm: "done" } });
 
     } catch (e) {
@@ -482,7 +441,7 @@ export const TurnManager = {
       }
 
       await TurnManager.loadMessages(storyId);
-      await TurnManager.render(storyId);
+      await renderChat(storyId);
 
     } catch (e) {
       console.error("[PROMETHEUS] Background update error:", e);
@@ -516,7 +475,7 @@ export const TurnManager = {
       });
 
       await TurnManager.loadMessages(storyId);
-      await TurnManager.render(storyId);
+      await renderChat(storyId);
     } catch (e) {
       error("Opening Gen Failed", e);
       alert("Failed to generate opening: " + e.message);
