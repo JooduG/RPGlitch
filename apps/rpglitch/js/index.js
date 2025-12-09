@@ -141,6 +141,20 @@ const App = {
     return paths.every(App.isPluginAvailable);
   },
 
+  // [NEW] Helper to wait for the Left Panel <script> to run
+  async waitForConfig(timeout = 5000) {
+    const start = Date.now();
+    // Wait for window.rpgLists (injected by left panel)
+    while (!window.rpgLists && Date.now() - start < timeout) {
+      await new Promise(r => setTimeout(r, 100));
+    }
+    if (window.rpgLists) {
+      console.log("[RPGlitch] Config loaded successfully:", Object.keys(window.rpgLists));
+    } else {
+      console.warn("[RPGlitch] ⚠️ Config timeout. Using internal defaults.");
+    }
+  },
+
   mockPlugins: function () {
     window.pluginAi = async () => "Mock AI Response";
     window.pluginTextToImage = async () => "https://via.placeholder.com/512x768";
@@ -173,6 +187,10 @@ const App = {
       }
 
       App.setupPlugins();
+
+      // [NEW] Wait for Left Panel Config Injection
+      await App.waitForConfig();
+
       await db.open();
 
       // [FIX] Always run the seeder to replenish deleted factory items

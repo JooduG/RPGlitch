@@ -12,9 +12,8 @@ export const VisualManager = {
     /**
      * Generates an image using the text-to-image plugin.
      * @param {string} prompt - The raw prompt.
-     * @param {Object} options - { resolution, negative }
+     * @param {Object} options - { resolution, negative, removeBackground }
      */
-
     async generate(prompt, options = {}) {
         if (!window.textToImage) throw new Error("Image plugin not loaded.");
 
@@ -24,9 +23,9 @@ export const VisualManager = {
             const result = await window.textToImage({
                 prompt: prompt,
                 resolution: resolution,
-                negative_prompt: options.negative || "blurry, low quality, text, watermark, bad anatomy, distorted faces",
+                negative_prompt: options.negative || "blurry, low quality, text, watermark, bad anatomy, distorted faces, cartoon, cgi",
 
-                // [NEW] Pass the transparency flag if requested
+                // [NEW] Pass the transparency flag if requested (Great for character tokens)
                 removeBackground: options.removeBackground || false
             });
 
@@ -41,7 +40,6 @@ export const VisualManager = {
      * Uploads an image blob using the upload plugin.
      * @param {Blob} fileBlob 
      */
-
     async upload(fileBlob) {
         if (!window.upload) throw new Error("Upload plugin not loaded.");
 
@@ -78,12 +76,13 @@ Traits: ${(entity.tags || []).join(", ")}
 ${entity.present ? "Current State: " + entity.present : ""}
     `.trim();
 
+        // [UPGRADE] Instruct the AI to output visual *sentences* rather than just tags for Flux
         const systemPrompt = `[SYSTEM: VISUAL_EXTRACTOR]
-You are a Concept Artist. Your task is to read the character/world profile and output a comma-separated list of VISUAL keywords for an image generator.
+You are a Concept Artist. Your task is to extract VISUAL DATA from the profile.
 Rules:
 1. Ignore abstract concepts (e.g., "brave", "ancient history").
-2. Focus on PHYSICALITY (Race, Hair, Eyes, Clothes, Lighting, Biome, Architecture).
-3. Output ONLY the list. No chatter.`;
+2. Focus on PHYSICALITY (Race, Hair, Eyes, Clothes, Scars, Accessories).
+3. Output a comma-separated list of visual adjectives and nouns.`;
 
         const result = await window.ai(`${systemPrompt}\n\n[DATA]\n${context}`);
 
@@ -93,22 +92,36 @@ Rules:
 
     /**
      * "Paint Brush": Applies a specific style to a prompt.
-     * Now uses SOTA Flux-friendly natural language structures.
-     * @param {string} basePrompt - The user's current input.
-     * @param {string} styleType - The color/vibe (e.g., "Neon", "Cinematic").
+     * [UPGRADE] Now injects 'rpgLists' logic for high-fidelity output.
+     * * @param {string} basePrompt - The user's current input (or extracted traits).
+     * @param {string} styleType - The user-selected style (optional).
      * @param {string} entityType - 'world' or 'character'.
      */
     async stylize(basePrompt, styleType, entityType) {
-        // 1. Clean up old "Danbooru" tags if they exist
+        // 1. Clean up old tags
         const cleanPrompt = basePrompt.replace(/\(masterpiece\), best quality, /g, "").trim();
 
-        // 2. Apply SOTA Natural Language Formatting
+        // 2. Fetch "Flavor" from the new Global Lists (if available)
+        const lists = window.rpgLists || {};
+        const pick = (jsonList) => {
+            if (!jsonList) return "";
+            try { const arr = JSON.parse(jsonList); return arr[Math.floor(Math.random() * arr.length)]; }
+            catch (e) { return ""; }
+        };
+
+        // If no specific style requested, pick a high-quality default or random one
+        const tech = pick(lists.tech) || "cinematic 35mm";
+        const lighting = pick(lists.lighting) || "volumetric lighting";
+        const vibe = styleType || pick(lists.styles) || "photorealistic";
+
+        // 3. Apply SOTA Natural Language Formatting (Flux Architecture)
         if (entityType === 'world') {
-            // Landscape Logic
-            return `A cinematic wide shot of ${cleanPrompt}, rendered in a ${styleType} style, featuring atmospheric lighting, 8k resolution, and detailed environmental textures.`;
+            // SCENE LOGIC: Focus on atmosphere and depth
+            return `A cinematic wide shot of ${cleanPrompt}. The scene is rendered in a ${vibe} style with ${lighting}. Captured on ${tech}, featuring atmospheric depth, 8k resolution, and detailed environmental textures.`;
         } else {
-            // Portrait Logic (Standardized Side Profile for UI consistency)
-            return `A high-fidelity character portrait of ${cleanPrompt}, captured in a ${styleType} style. The subject is facing slightly right, side profile, dramatic lighting, detailed skin texture.`;
+            // PORTRAIT LOGIC: Focus on skin/material fidelity
+            // Note: We keep "Side Profile" for UI consistency (Avatar cards look better uniform)
+            return `A high-fidelity character portrait of ${cleanPrompt}. The subject is facing slightly right, side profile. The image is a ${vibe} piece with ${lighting}. Captured on ${tech} focusing on natural skin pores, realistic blemishes, and fabric weave. Blurred background.`;
         }
     }
 };

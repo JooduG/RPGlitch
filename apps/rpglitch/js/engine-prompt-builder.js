@@ -70,47 +70,83 @@ export class ContextBuilder {
         return payload;
     }
 
-    // --- THE VISUALIZER (Visual Cortex) ---
-    // [NEW] Generates Image Prompts for Profile or Scene
+    // --- THE VISUALIZER (Visual Cortex V4.1 Hybrid) ---
     async buildVisualizer(targetType) {
         const story = state.story.byId[this.storyId];
         const [ai, user, world] = await this._resolveEntities(story);
 
+        // 1. VARIANCE ENGINE: Fetch styles from Left Panel Lists
+        const lists = window.rpgLists || {};
+        const pick = (jsonList) => {
+            if (!jsonList) return "";
+            try {
+                const arr = JSON.parse(jsonList);
+                return arr[Math.floor(Math.random() * arr.length)];
+            } catch (e) {
+                console.warn("[Visualizer] List parse error", e);
+                return "";
+            }
+        };
+
+        const style = {
+            tech: pick(lists.tech) || "cinematic 35mm",
+            lighting: pick(lists.lighting) || "dramatic lighting",
+            mood: pick(lists.mood) || "intense",
+            comp: pick(lists.composition) || "dynamic angle",
+            style: pick(lists.styles) || "digital art"
+        };
+
         let mode = "";
         let focusBlock = "";
         let instruction = "";
+        let specificDirectives = "";
 
         if (targetType === 'character') {
-            mode = "PORTRAIT_GENERATOR";
+            mode = "PORTRAIT_GENERATOR"; // High Fidelity, Consistency Focused
             focusBlock = `
 <FOCUS_SUBJECT>
 Target: ${ai.name} (Character Portrait)
 1. **Physicality:** Strict adherence to <PERMANENT> traits (Race, Gender, Build, Marks).
 2. **Attire:** Reflect <PRESENT> clothing and equipment condition.
-3. **Vibe:** The character's personality must dictate the lighting and pose.
-4. **Background:** Abstract or minimal environment to keep focus on the character.
+3. **Vibe:** The character's personality must dictate the pose.
+4. **Cinematics:** Use a "${style.tech}" style with "${style.lighting}".
 </FOCUS_SUBJECT>`;
-            instruction = "Write a high-fidelity portrait description. Start with a camera angle (e.g. 'A close-up portrait of...'). Focus on facial features and material textures.";
+
+            specificDirectives = `
+- **Lens & Tech:** Emphasize high-fidelity photography keywords (${style.tech}).
+- **Skin & Texture:** Mention "natural skin pores", "fabric weave", "imperfections".
+- **Background:** Blur the background (bokeh) to keep focus on the character.`;
+
+            instruction = "Write a high-fidelity portrait description. Start with a camera angle.";
+
         } else {
-            mode = "SCENE_RENDERER";
+            mode = "SCENE_RENDERER"; // Atmospheric, Action Focused
             const history = state.messages.byStoryId[this.storyId] || [];
             const recentText = history.slice(-2).map(m => m.content).join(" ");
 
             focusBlock = `
 <FOCUS_SCENE>
 Target: Narrative Scene Visualization
-1. **Action:** Visualize this moment: "${recentText.substring(0, 200)}..."
-2. **Environment:** <WORLD_CONTEXT> determines the lighting, weather, and architecture.
-3. **Subjects:** Place ${ai.name} (and ${user.name} if present) in the scene.
+1. **Action:** Visualize this moment: "${recentText.substring(0, 250)}..."
+2. **Environment:** <WORLD_CONTEXT> determines the weather and architecture.
+3. **Composition:** Use a "${style.comp}" to frame the action.
+4. **Atmosphere:** The mood is "${style.mood}". Lighting is "${style.lighting}".
 </FOCUS_SCENE>`;
-            instruction = "Write a cinematic scene description. Start with a shot type (e.g. 'A wide cinematic shot of...'). Describe the lighting, atmosphere, and action.";
+
+            specificDirectives = `
+- **Composition:** Use the suggestion: "${style.comp}".
+- **Atmosphere:** Focus on air particles, fog, rain, or embers to sell the depth.
+- **Motion:** If there is action, describe "motion blur" or "dynamic energy".`;
+
+            instruction = "Write a cinematic scene description. Start with the shot type and environment.";
         }
 
-        const system = `[SYSTEM: PROMETHEUS_VISUAL_CORTEX_V4.0]
+        const system = `[SYSTEM: PROMETHEUS_VISUAL_CORTEX_V4.1]
 [MODE: ${mode}]
 
 <CORE_DIRECTIVE>
-You are a Visual Director. Your job is to translate narrative data into a "Photographic Specification" for an Image Generation Model (Flux/Midjourney).
+You are a Visual Director (Flux Architecture Specialist).
+Your job is to translate narrative data into a "Photographic Specification" for an Image Generation Model.
 </CORE_DIRECTIVE>
 
 ${this._layerEntity(ai, "PRIMARY_SUBJECT")}
@@ -119,16 +155,21 @@ ${this._layerEntity(world, "SETTING_CONTEXT")}
 ${focusBlock}
 
 <GENERATION_PROTOCOL>
-1. **Lens & Style:** Define the visual style (e.g., "8k photorealistic", "Oil painting", "Cyberpunk digital art") based on the World Context.
-2. **Lighting:** Describe the light source (e.g., "Bioluminescent glow", "Harsh sunlight", "Flickering neon").
-3. **Materials:** Focus on textures (Rust, Silk, Skin, Chrome).
-4. **Output:** Write ONE dense, natural language paragraph. No "As an AI". No JSON. Just the prompt string.
-</GENERATION_PROTOCOL>`;
+1. **Camera Anchor:** Start by selecting a virtual lens/camera (e.g., "A low-angle 35mm shot...", "A grainy CCTV still...").
+2. **Material Physics:** Describe the *textures* of the subject (e.g., "weathered leather", "rusted iron", "subsurface scattering on skin"). Flux loves texture.
+3. **Lighting Setup:** Define the light source physics (e.g., "volumetric god rays", "harsh rim lighting", "bioluminescent glow").
+4. **Natural Language:** Write ONE dense, grammatically correct paragraph. DO NOT use comma-separated tag lists.
+${specificDirectives}
+</GENERATION_PROTOCOL>
+
+<EXAMPLE_OUTPUT>
+"A close-up macro shot captured on 35mm film stock showing the warrior's scarred hand gripping a rusted sword, illuminated by harsh blue moonlight that casts deep shadows, with rain dripping off the metallic surfaces."
+</EXAMPLE_OUTPUT>`;
 
         return {
             system: system,
             messages: [],
-            // [TWEAK] Higher temp for visual creativity
+            // Higher temp for visual creativity to allow the "Director" to interpret the vibe
             params: { ...state.settings, maxTokens: 500, temperature: 0.7 },
             instruction: instruction
         };

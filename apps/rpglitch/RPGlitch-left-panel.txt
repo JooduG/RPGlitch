@@ -4,14 +4,116 @@ $meta
   header
     mode = minimal
 
+// --- IMPORTS ---
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
 superFetch = {import:super-fetch-plugin}
 remember = {import:remember-plugin}
 upload = {import:upload-plugin}
 
+// --- BUILDER & CONFIG ---
+// We inject the configuration script into the head of the HTML
+buildApp() =>
+  var html = {import:apps/rpglitch/html/index.html}
+  var htmlWithConfig = html.replace("</head>", [clientSideConfig] + "</head>")
+  return htmlWithConfig
+
+// --- LIVE BRIDGE: EXPORT LISTS TO JS ---
+// Exports our curated lists to 'window.rpgLists' so the JS Engine can use them for prompts
+clientSideConfig
+  <script>
+    window.rpgLists = \{
+      styles: [JSON.stringify(rpgStyles.selectAll.map(i => i.text || i))],
+      lighting: [JSON.stringify(rpgLighting.selectAll.map(i => i.text || i))],
+      tech: [JSON.stringify(rpgTech.selectAll.map(i => i.text || i))],
+      composition: [JSON.stringify(rpgComposition.selectAll.map(i => i.text || i))],
+      mood: [JSON.stringify(rpgMood.selectAll.map(i => i.text || i))],
+      quality: [JSON.stringify(rpgQuality.selectAll.map(i => i.text || i))]
+    \};
+  </script>
+
+rpgQuality
+  masterpiece, world-class masterpiece, award-winning quality
+  impeccable attention to detail, high detail, ultra-intricate detail
+  8K ultra-high resolution, 45 megapixels, ultra high res
+  high dynamic range, HDR
+  lifelike textures and materials, photorealistic textures
+  world-class work of art, original realistic
+  photorealistic, ultra-realistic, strictly realistic, unbelievable realism
+
+rpgStyles
+  3d render, unreal engine 5 render
+  anime, studio ghibli, makoto shinkai
+  comic book art, graphic novel style
+  concept art, fantasy realism, digital painting
+  cyberpunk, vaporwave, high tech
+  gothic, dark fantasy, eldritch
+  ink drawing, line art, sketch
+  oil painting, impasto, classical art
+  photorealism, hyper-realistic, lifelike
+  steampunk, dieselpunk
+  watercolor, washed ink
+  cinematic, movie still
+
+rpgLighting
+  backlit, rim lighting, halo effect
+  bioluminescent, magical glow, etherial light
+  candlelit, firelight, warm ambient
+  chiaroscuro, dramatic shadows, high contrast
+  golden hour, soft morning light, sunset
+  moonlit, starlight, cold blue ambience
+  natural light, soft window light
+  neon glow, city lights, cybernetic glow
+  overcast, diffused light, soft shadows
+  cinematic lighting, dramatic moody lighting
+  volumetric lighting, god rays, foggy atmosphere
+
+rpgTech
+  35mm film grain, analog aesthetic
+  4K resolution, 8K resolution
+  captured by professional camera, Canon EOS R5
+  depth of field, bokeh background
+  long exposure, light trails
+  macro lens, intricate textures
+  ray tracing, global illumination
+  telephoto lens, compressed perspective
+  wide angle, panoramic view
+
+rpgComposition
+  asymmetry, rule of thirds, dynamic diagonal
+  bird's eye view, high angle
+  centered, symmetry, wes anderson style
+  close-up, intimate portrait
+  dutch angle, dynamic tension
+  frame within a frame, depth layering
+  full body shot, environmental portrait
+  isometric, tactical view
+  landscape orientation, epic scale
+  low angle, heroic perspective
+  negative space, minimalist composition
+
+rpgMood
+  ancient, timeless, weathered
+  chaotic, battle-worn, intense
+  dramatic, tense, suspenseful
+  energetic, dynamic, motion
+  epic, larger-than-life, majestic
+  futuristic, sleek, clean
+  gritty, harsh, dirty
+  hopeful, uplifting, bright
+  magical, enchanted, mystical
+  melancholic, nostalgic, sad
+  mysterious, foggy, unknown
+  peaceful, serene, quiet
+  romantic, affectionate, soft
+  spooky, haunted, ominous
+
+// --- EXPORTS TO JS ---
 pluginAi = ai
 pluginTextToImage = textToImage
 pluginSuperFetch = superFetch
 pluginRemember = remember
 pluginUpload = upload
+
+// --- MAIN OUTPUT ---
+$output = [buildApp()]
