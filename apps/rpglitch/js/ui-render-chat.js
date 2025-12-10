@@ -3,6 +3,7 @@ import { getPictureHTML, sanitizeHtml } from "./core-utils.js";
 import { entities } from "./entity-crud.js";
 // [NEW] Import the visual helper
 import { getVisualState } from "./entity-structs.js";
+import { events, EVENTS } from "./core-events.js";
 
 const selectedEntities = {
     aiCharacter: null,
@@ -57,10 +58,21 @@ export async function renderChat(storyId) {
 
 // --- STATE LISTENER ---
 // Listen for changes to directorMode and toggle body class instantly.
-document.addEventListener("state:changed", (e) => {
+// --- STATE LISTENER ---
+// Listen for changes to directorMode and toggle body class instantly.
+events.addEventListener(EVENTS.STATE_CHANGED, (e) => {
     if (e.detail.patch.settings && 'directorMode' in e.detail.patch.settings) {
         updateDirectorModeClass();
     }
+});
+
+// --- EVENT BUS LISTENERS ---
+events.addEventListener(EVENTS.DB_UPDATED, () => {
+    if (state.story.activeId) renderChat(state.story.activeId);
+});
+
+events.addEventListener(EVENTS.STORY_LOADED, () => {
+    if (state.story.activeId) renderChat(state.story.activeId);
 });
 
 // [NEW] Listen for visual updates (Flip) and re-render portraits instantly

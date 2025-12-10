@@ -1,4 +1,5 @@
 // apps/rpglitch/js/app-state.js
+import { events, EVENTS } from "./core-events.js";
 export const state = {
     storyTitle: "My Story",
     selectedAI: null,
@@ -36,7 +37,5 @@ export function applyPatch(patch) {
     };
 
     merge(state, patch);
-    if (typeof document !== "undefined") {
-        document.dispatchEvent(new CustomEvent("state:changed", { detail: { patch } }));
-    }
+    events.dispatchEvent(new CustomEvent(EVENTS.STATE_CHANGED, { detail: { patch } }));
 }

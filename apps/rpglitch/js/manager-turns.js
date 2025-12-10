@@ -7,11 +7,12 @@ import {
   showTypingIndicator, removeTypingIndicator, setSendLock,
   applyWorldAmbience, setChatGeneratingState
 } from "./ui-render-chat.js";
-import { refreshProfileIfOpen } from "./ui-profile.js";
+
 import { error, calculateBlendedParams } from "./core-utils.js";
 import { ContextBuilder } from "./engine-prompt-builder.js";
 import { analyzeRejection, getDirectorInstruction } from "./engine-variance.js";
 import { bridge } from "./worker-bridge.js";
+import { events, EVENTS } from "./core-events.js";
 
 
 
@@ -81,7 +82,8 @@ export const TurnManager = {
       updatePortraits(ai, user);
       setGameplayEntities(ai, user, world);
 
-      await renderChat(story.id);
+
+      events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
 
       if (world) {
         applyWorldAmbience(world);
@@ -356,15 +358,7 @@ export const TurnManager = {
   runBackgroundUpdate: async (storyId, targetType, linkedMessageId) => {
     try {
       console.log(`[PROMETHEUS] Offloading update to Worker...`);
-      const success = await bridge.runBackgroundUpdate(storyId, targetType, linkedMessageId);
-
-      if (success) {
-        // [FIX] Refresh UI if open (Worker updated the DB)
-        await refreshProfileIfOpen();
-      }
-
-      await TurnManager.loadMessages(storyId);
-      await renderChat(storyId);
+      await bridge.runBackgroundUpdate(storyId, targetType, linkedMessageId);
 
     } catch (e) {
       console.error("[PROMETHEUS] Background update error:", e);
@@ -480,3 +474,11 @@ export const TurnManager = {
 };
 
 export const StoryController = TurnManager;
+
+// [NEW] Event Listener to reload data when DB changes
+events.addEventListener(EVENTS.DB_UPDATED, async () => {
+  const activeId = state.story.activeId;
+  if (activeId) {
+    await TurnManager.loadMessages(activeId);
+  }
+});

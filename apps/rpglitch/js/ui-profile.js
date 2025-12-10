@@ -1,3 +1,4 @@
+import { events, EVENTS } from "./core-events.js";
 import { entities, copyEntity } from "./entity-crud.js";
 import { premade, getVisualState } from "./entity-structs.js";
 import { getPictureHTML, getSignature, SIGNATURE_COLORS } from "./core-utils.js";
@@ -77,6 +78,9 @@ export async function refreshProfileIfOpen() {
         }
     }
 }
+
+// Subscribe to background updates
+events.addEventListener(EVENTS.DB_UPDATED, () => refreshProfileIfOpen());
 
 function autoResize(el) {
     el.style.height = 'auto';

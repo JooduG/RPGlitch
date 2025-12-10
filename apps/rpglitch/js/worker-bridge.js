@@ -1,3 +1,5 @@
+import { events, EVENTS } from "./core-events.js";
+
 /**
  * WorkerBridge
  * Effectively a "Driver" for the Background Worker.
@@ -50,6 +52,10 @@ export class WorkerBridge {
             const success = payload?.success;
             if (payload?.error) console.error("[WorkerBridge] Worker Reported Error:", payload.error);
             this.resolveActive(success);
+
+            if (success) {
+                events.dispatchEvent(new CustomEvent(EVENTS.DB_UPDATED, { detail: { type: 'background-update' } }));
+            }
         }
     }
 
