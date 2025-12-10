@@ -1,7 +1,8 @@
 import { state } from "./app-state.js";
 import { getPictureHTML, sanitizeHtml } from "./core-utils.js";
 import { entities } from "./entity-crud.js";
-// [NEW] Import the visual helper
+// [NEW] Import the VirtualFeed utility
+import { VirtualFeed } from "./utils-virtual-feed.js";
 import { getVisualState } from "./entity-structs.js";
 import { events, EVENTS } from "./core-events.js";
 
@@ -11,9 +12,43 @@ const selectedEntities = {
     world: null,
 };
 
+// Singleton VirtualFeed initialized on first use or module load?
+// We need the DOM element #chat-feed to exist.
+// renderChat is called after DOM is ready.
+let virtualFeed = null;
+
 export async function renderChat(storyId) {
     const feed = document.querySelector("#chat-feed");
     if (!feed) return;
+
+    // Initialize VirtualFeed if needed
+    if (!virtualFeed) {
+        virtualFeed = new VirtualFeed(feed, (container, message, index) => {
+            // Note: message is the data item
+            // We need to reconstruct the "isLast" context logic
+            // But we don't have access to the full array inside the callback easily unless we assume 'message' has metadata
+            // OR we calculate it here.
+
+            // Fortunately, renderChat prepares the data. But VirtualFeed manages the array.
+            // We should attach metadata to the message objects? Or pass index and simple logic?
+            // Let's look at what renderMessage needs: 
+            // { isLast, messageId: m.id, isLastUserMessage }
+            // These depend on the WHOLE array (isLast).
+
+            // FIX: Pre-process messages before passing to VirtualFeed?
+            // Yes, let's attach metadata to the objects or wrap them.
+
+            renderMessage(
+                container,
+                message.role,
+                message.text,
+                message.characterName,
+                message.type || "IC",
+                message._contextEntities, // Attached during preprocess
+                message._renderOptions    // Attached during preprocess
+            );
+        });
+    }
 
     const msgs = state.messages.byStoryId[storyId] || [];
     const story = state.story.byId[storyId];
@@ -25,11 +60,16 @@ export async function renderChat(storyId) {
         entities.get("character", story.userCharacterId)
     ]);
 
-    feed.innerHTML = "";
+    // Update global selection for other utils
+    selectedEntities.aiCharacter = ai;
+    selectedEntities.userCharacter = user;
+
     const noMsg = document.querySelector("#no-messages");
 
     if (msgs.length === 0) {
         if (noMsg) { noMsg.hidden = false; feed.appendChild(noMsg); }
+        // Ensure virtual feed is empty
+        virtualFeed.setItems([]);
         return;
     }
 
@@ -38,22 +78,23 @@ export async function renderChat(storyId) {
     const lastUserMsg = msgs.slice().reverse().find(m => m.role === "user");
     const lastUserMsgId = lastUserMsg ? lastUserMsg.id : null;
 
-    msgs.forEach((m, index) => {
+    // Pre-process items for VirtualFeed
+    // We attach transient render properties to the message objects (or shallow copies)
+    // To avoid mutating state objects, we map them.
+    const renderItems = msgs.map((m, index) => {
         const isLast = index === msgs.length - 1;
         const isLastUserMessage = m.id === lastUserMsgId;
 
-        renderMessage(
-            feed,
-            m.role,
-            m.text,
-            m.characterName,
-            m.type || "IC",
-            { aiCharacter: ai, userCharacter: user },
-            { isLast, messageId: m.id, isLastUserMessage }
-        );
+        return {
+            ...m,
+            _contextEntities: { aiCharacter: ai, userCharacter: user },
+            _renderOptions: { isLast, messageId: m.id, isLastUserMessage }
+        };
     });
 
-    feed.scrollTop = feed.scrollHeight;
+    virtualFeed.setItems(renderItems);
+
+    // Note: scrollTop assignment is now handled by VirtualFeed logic (stick to bottom)
 }
 
 // --- STATE LISTENER ---

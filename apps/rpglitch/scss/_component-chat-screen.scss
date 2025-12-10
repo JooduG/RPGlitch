@@ -17,7 +17,9 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    scroll-behavior: smooth;
+    scroll-behavior: auto; // [CHANGED] Smooth scrolling fights virtual logic
+    overflow-anchor: auto; // [NEW] Modern browser magic to prevent jumps
+    position: relative; // [NEW] Context for spacers
 
     @include custom-scrollbar;
 
@@ -26,6 +28,15 @@
         gap: 1rem;
         padding-bottom: 5rem;
     }
+}
+
+// [NEW] Virtual Scrolling Spacers
+.virtual-spacer-top,
+.virtual-spacer-bottom {
+    width: 100%;
+    display: block;
+    flex-shrink: 0;
+    transition: height 0.05s linear; // Slight smooth shim, or remove for instant
 }
 
 /* =========================================
