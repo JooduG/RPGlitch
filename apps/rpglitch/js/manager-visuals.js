@@ -5,6 +5,10 @@ import { extractImageUrl } from "./core-utils.js";
  * Handles all interaction with Image Gen APIs and Prompt Engineering for visuals.
  * Decouples "Business Logic" (Prompting) from "UI Logic" (Buttons/Modals).
  */
+
+const DEFAULT_NEGATIVE =
+  "blurry, low quality, text, watermark, bad anatomy, distorted faces, extra limbs, mutated hands, poorly drawn face, disfigured, asymmetric, ugly, grain, noise, messy, worst quality, low resolution";
+
 export const VisualManager = {
   // --- CORE SERVICES ---
 
@@ -17,10 +21,6 @@ export const VisualManager = {
     if (!window.textToImage) throw new Error("Image plugin not loaded.");
 
     const resolution = options.resolution || "512x768";
-    // [UPDATED] Robust Negative Prompt Injection
-    // This effectively filters out common AI artifacts and unwanted styles
-    const DEFAULT_NEGATIVE =
-      "blurry, low quality, text, watermark, bad anatomy, distorted faces, extra limbs, mutated hands, poorly drawn face, disfigured, asymmetric, ugly, grain, noise, messy, worst quality, low resolution";
 
     try {
       const result = await window.textToImage({

@@ -1,5 +1,6 @@
 // apps/rpglitch/js/engine-physics.js
 import { PHYSICS_CONFIG } from "./config-physics.js";
+import { log } from "./core-utils.js";
 
 /**
  * THE PROMETHEUS PHYSICS ENGINE (V4.2)
@@ -33,7 +34,7 @@ export function calculateDynamics(currentDynamics) {
     const penalty = PHYSICS_CONFIG.ADRENALINE_PENALTY;
     if (d.permeability > PHYSICS_CONFIG.ADRENALINE_PERMEABILITY_MIN) {
       d.permeability = clamp(d.permeability - penalty);
-      console.log(`[PHYSICS] Adrenaline Shield: Permeability -${penalty}`);
+      log(`[PHYSICS] Adrenaline Shield: Permeability -${penalty}`);
     }
   }
 
@@ -43,14 +44,14 @@ export function calculateDynamics(currentDynamics) {
   if (d.entropy > PHYSICS_CONFIG.FOG_ENTROPY_THRESHOLD) {
     d.resonance = clamp(d.resonance - PHYSICS_CONFIG.FOG_RESONANCE_DAMPENING);
     flags.fogOfWar = true;
-    console.log("[PHYSICS] Fog of War: Resonance dampened.");
+    log("[PHYSICS] Fog of War: Resonance dampened.");
   }
 
   // --- LAW 3: THE COOL-DOWN ---
   // IF Velocity < 20 (Calm), THEN Entropy decreases (Stillness restores order).
   if (d.velocity < PHYSICS_CONFIG.CALM_VELOCITY_THRESHOLD) {
     d.entropy = clamp(d.entropy - PHYSICS_CONFIG.CALM_ENTROPY_REDUCTION);
-    console.log("[PHYSICS] Cool-Down: Entropy reduced.");
+    log("[PHYSICS] Cool-Down: Entropy reduced.");
   }
 
   // --- LAW 4: THE PANIC SPIRAL (New) ---
@@ -59,7 +60,7 @@ export function calculateDynamics(currentDynamics) {
   if (d.entropy > PHYSICS_CONFIG.PANIC_ENTROPY_THRESHOLD) {
     d.velocity = clamp(d.velocity + PHYSICS_CONFIG.PANIC_VELOCITY_BOOST);
     flags.panicSpiral = true;
-    console.log("[PHYSICS] Panic Spiral: Velocity forced up.");
+    log("[PHYSICS] Panic Spiral: Velocity forced up.");
   }
 
   // --- LAW 5: THE ECHO CHAMBER (Logic Only) ---

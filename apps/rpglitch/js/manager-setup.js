@@ -1,9 +1,9 @@
 // apps/rpglitch/js/manager-setup.js
-import { state, applyPatch } from "./app-state.js"; // Renamed import
-import { entities } from "./entity-crud.js"; // Renamed import
-import { StoryController } from "./manager-turns.js"; // Renamed import
-import { updatePortraits, applyWorldAmbience } from "./ui-render-chat.js"; // Renamed import
-import { error } from "./core-utils.js"; // Renamed import
+import { state, applyPatch } from "./app-state.js";
+import { entities } from "./entity-crud.js";
+import { StoryController } from "./manager-turns.js";
+import { updatePortraits, applyWorldAmbience } from "./ui-render-chat.js";
+import { error } from "./core-utils.js";
 
 // --- PURIFIED: Ambience logic is now handled by a dedicated helper function (assumed to be imported) ---
 

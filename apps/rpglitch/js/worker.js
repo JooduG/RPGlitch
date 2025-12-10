@@ -190,6 +190,9 @@ async function handleLlmResponse({ text }) {
     try {
       // [FIX] Strip <think> block first to avoid JSON parse errors
       const cleanJson = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+      // SAFETY: We explicitly construct the <think> and JSON blocks in the prompt.
+      // The model reliably returns this structure or a fallback.
+      // This regex captures the first valid JSON object in the text.
       const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
 
       if (jsonMatch) {

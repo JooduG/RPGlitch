@@ -189,6 +189,12 @@ ${specificDirectives}
   }
 
   // --- BACKGROUND UPDATER (THE PHYSICIST) ---
+  // --- BACKGROUND UPDATER (THE PHYSICIST) ---
+  /**
+   * Generates the prompt for the background physics update.
+   * @param {string} targetType - 'ai_character', 'user_character', or 'world'
+   * @param {Object|null} forcedDynamics - Optional dynamics override
+   */
   async buildUpdater(targetType, forcedDynamics = null) {
     const story = state.story.byId[this.storyId];
     const [ai, user, world] = await this._resolveEntities(story);
@@ -306,6 +312,11 @@ Then return ONLY valid JSON.
   }
 
   // --- THE ARCHIVIST (Memory Compressor) ---
+  // --- THE ARCHIVIST (Memory Compressor) ---
+  /**
+   * Generates the prompt for memory compression.
+   * @param {Object} entity - The entity to compress history for
+   */
   async buildArchivist(entity) {
     const system = `[SYSTEM: MEMORY_COMPRESSION_ENGINE_V4.0]
 [MODE: SEMANTIC_DISTILLATION]
@@ -350,6 +361,10 @@ Then return ONLY the compressed narrative text.
   }
 
   // --- OPENING SCENE DIRECTOR ---
+  // --- OPENING SCENE DIRECTOR ---
+  /**
+   * Generates the prompt for the opening scene.
+   */
   async buildOpening() {
     const story = state.story.byId[this.storyId];
     if (!story) throw new Error(`Story ${this.storyId} not found`);
@@ -414,6 +429,10 @@ This instruction takes PRIORITY over conflicting directives above.
     };
   }
 
+  /**
+   * Generates the prompt for the ghostwriter feature.
+   * @param {string} draftText - The user's rough draft
+   */
   async buildGhostwriter(draftText) {
     const story = state.story.byId[this.storyId];
     const [ai, user, world] = await this._resolveEntities(story);
@@ -498,7 +517,7 @@ ${entity.future || "Exist."}
   }
 
   _layerKernel_ANEX() {
-    return `[SYSTEM: PROMETHEUS_ENGINE_V4.0_RC2]
+    return `[SYSTEM: PROMETHEUS_ENGINE_V4.0]
 [MODE: ABSOLUTE_DEVELOPER_CORE]
 
 <CORE_DIRECTIVES>

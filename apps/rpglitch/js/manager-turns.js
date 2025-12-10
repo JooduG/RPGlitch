@@ -13,7 +13,7 @@ import {
   setChatGeneratingState,
 } from "./ui-render-chat.js";
 
-import { error, calculateBlendedParams } from "./core-utils.js";
+import { error, calculateBlendedParams, log } from "./core-utils.js";
 import { ContextBuilder } from "./engine-prompt-builder.js";
 import { analyzeRejection, getDirectorInstruction } from "./engine-variance.js";
 import { bridge } from "./worker-bridge.js";
@@ -137,6 +137,10 @@ export const TurnManager = {
     await renderChat(storyId);
   },
 
+  /**
+   * Generates an AI response based on the current story context.
+   * @param {string} storyId - The ID of the active story
+   */
   generateAiResponse: async (storyId) => {
     const story = state.story.byId[storyId];
     setSendLock(true);
@@ -160,7 +164,7 @@ export const TurnManager = {
       ]);
 
       const options = calculateBlendedParams(aiEntity, userEntity, worldEntity);
-      console.log(
+      log(
         `[PROMETHEUS] Vibe Check: Temp ${options.temperature} | Speed ${options.repetition_penalty} | Focus ${options.top_p}`,
       );
 
@@ -214,6 +218,10 @@ export const TurnManager = {
     }
   },
 
+  /**
+   * Sends a user message and triggers the AI response flow.
+   * @param {string} text - The content of the user's message
+   */
   send: async (text) => {
     if (!text) return;
     const storyId = TurnManager.requireActive();
@@ -267,7 +275,7 @@ export const TurnManager = {
       applyPatch({ ui: { fsm: "done" } });
 
       if (payloadMeta && payloadMeta.triggerUpdate) {
-        console.log(`[PROMETHEUS] Running Physics... (UI Locked)`);
+        log(`[PROMETHEUS] Running Physics... (UI Locked)`);
         await TurnManager.runBackgroundUpdate(
           storyId,
           payloadMeta.updateTarget,
@@ -309,7 +317,7 @@ export const TurnManager = {
     const varianceKey = analyzeRejection(lastMsg.text, userText);
     const directorNote = getDirectorInstruction(varianceKey);
 
-    console.log(`[PROMETHEUS] Regenerating with strategy: ${varianceKey}`);
+    log(`[PROMETHEUS] Regenerating with strategy: ${varianceKey}`);
 
     setSendLock(true);
     setChatGeneratingState(true);
@@ -370,7 +378,7 @@ export const TurnManager = {
 
   runBackgroundUpdate: async (storyId, targetType, linkedMessageId) => {
     try {
-      console.log(`[PROMETHEUS] Offloading update to Worker...`);
+      log(`[PROMETHEUS] Offloading update to Worker...`);
       await bridge.runBackgroundUpdate(storyId, targetType, linkedMessageId);
     } catch (e) {
       console.error("[PROMETHEUS] Background update error:", e);
@@ -386,7 +394,7 @@ export const TurnManager = {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildOpening();
 
-      console.log("[RPGlitch] Opening Prompt:", payload.system);
+      log("[RPGlitch] Opening Prompt:", payload.system);
 
       const response = await generateStream({
         payload,
