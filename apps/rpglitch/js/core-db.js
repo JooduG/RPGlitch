@@ -7,6 +7,11 @@ import { log, error } from "./core-utils.js"; // Renamed import
 let Dexie;
 if (typeof window !== "undefined" && window.Dexie) {
   Dexie = window.Dexie;
+} else if (typeof self !== "undefined" && self.Dexie) {
+  // WebWorker environment
+  Dexie = self.Dexie;
+} else if (typeof globalThis !== "undefined" && globalThis.Dexie) {
+  Dexie = globalThis.Dexie;
 } else {
   // Jest/Node.js environment
   Dexie = require("dexie").default;

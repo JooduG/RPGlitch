@@ -478,3 +478,44 @@ export function replaceEventHandler(el, event, handler, handlerName) {
   el[handlerName] = handler;
   el.addEventListener(event, handler);
 }
+
+// --- Dynamic Sampling ---
+
+function mapRange(value, inMin, inMax, outMin, outMax) {
+  return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+}
+
+export function calculateBlendedParams(ai, user, world) {
+  // 1. Safety Defaults
+  const defaults = { entropy: 10, velocity: 10, resonance: 10 };
+
+  const getDyn = (entity) => entity?.dynamics || defaults;
+
+  const aiDyn = getDyn(ai);
+  const userDyn = getDyn(user);
+  const worldDyn = getDyn(world);
+
+  // 2. Temperature (Creativity/Chaos)
+  // Formula: (World_Entropy * 0.7) + (AI_Entropy * 0.3)
+  // Mapping: 0-100 -> 0.5-1.35
+  const rawTemp = (worldDyn.entropy * 0.7) + (aiDyn.entropy * 0.3);
+  const temperature = mapRange(rawTemp, 0, 100, 0.5, 1.35);
+
+  // 3. Repetition Penalty (Pacing)
+  // Formula: Max of AI, User, World Velocities
+  // Mapping: 0-100 -> 1.0-1.18
+  const rawRep = Math.max(aiDyn.velocity, userDyn.velocity, worldDyn.velocity);
+  const repetition_penalty = mapRange(rawRep, 0, 100, 1.0, 1.18);
+
+  // 4. Top_P (Focus/Coherence)
+  // Formula: AI_Resonance
+  // Mapping: 0-100 -> 1.0 down to 0.65
+  const rawTopP = aiDyn.resonance;
+  const top_p = mapRange(rawTopP, 0, 100, 1.0, 0.65);
+
+  return {
+    temperature: parseFloat(temperature.toFixed(2)),
+    repetition_penalty: parseFloat(repetition_penalty.toFixed(2)),
+    top_p: parseFloat(top_p.toFixed(2))
+  };
+}

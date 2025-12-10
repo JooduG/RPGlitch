@@ -36,5 +36,7 @@ export function applyPatch(patch) {
     };
 
     merge(state, patch);
-    document.dispatchEvent(new CustomEvent("state:changed", { detail: { patch } }));
+    if (typeof document !== "undefined") {
+        document.dispatchEvent(new CustomEvent("state:changed", { detail: { patch } }));
+    }
 }

@@ -8,7 +8,7 @@
  * @param {Function} onDone - Callback when generation completes
  * @returns {Promise<string>} - The full generated text
  */
-export async function generateStream({ payload, signal, onToken, onDone }) {
+export async function generateStream({ payload, options = {}, signal, onToken, onDone }) {
   if (!window.ai) throw new Error("Perchance AI plugin not available.");
 
   // 1. Construct the final instruction string
@@ -32,8 +32,9 @@ export async function generateStream({ payload, signal, onToken, onDone }) {
 
   // 2. Call the Plugin
   const result = await window.ai(instruction, {
-    temperature: payload.params?.temperature,
-    top_p: payload.params?.top_p,
+    temperature: options.temperature ?? payload.params?.temperature,
+    top_p: options.top_p ?? payload.params?.top_p,
+    repetition_penalty: options.repetition_penalty,
     max_tokens: payload.params?.maxTokens,
     model: payload.params?.model,
     stop_sequences: payload.stopSequences || [],

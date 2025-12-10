@@ -8,34 +8,12 @@ import {
   applyWorldAmbience, setChatGeneratingState
 } from "./ui-render-chat.js";
 import { refreshProfileIfOpen } from "./ui-profile.js";
-import { error } from "./core-utils.js";
+import { error, calculateBlendedParams } from "./core-utils.js";
 import { ContextBuilder } from "./engine-prompt-builder.js";
 import { analyzeRejection, getDirectorInstruction } from "./engine-variance.js";
-import { calculateDynamics } from "./engine-physics.js";
+import { bridge } from "./worker-bridge.js";
 
-// [UPDATED] Now accepts entityName for clearer logs
-function createPhysicsDebugLog(oldDynamics, newDynamics, entityName) {
-  const flags = newDynamics._flags || {};
-  let debugText = `[PHYSICS LOG] TARGET: ${entityName || 'Unknown'}\n`;
-  debugText += `ENTROPY: ${newDynamics.entropy}% (was ${oldDynamics.entropy}%)\n`;
-  debugText += `PERMEABILITY: ${newDynamics.permeability}% (was ${oldDynamics.permeability}%)\n`;
-  debugText += `VELOCITY: ${newDynamics.velocity}% (was ${oldDynamics.velocity}%)\n`;
-  debugText += `RESONANCE: ${newDynamics.resonance}% (was ${oldDynamics.resonance}%)\n\n`;
 
-  if (flags.panicSpiral) debugText += ">> LAW 4: PANIC SPIRAL TRIGGERED (Velocity Forced Up)\n";
-  if (flags.fogOfWar) debugText += ">> LAW 2: FOG OF WAR TRIGGERED (Resonance Dampened)\n";
-  if (flags.echoChamber) debugText += ">> LAW 5: ECHO CHAMBER ACTIVE (Future Vector Critical)\n";
-  if (flags.glassCannon) debugText += ">> LAW 6: GLASS CANNON ACTIVE (Double Impact Gain)\n";
-
-  if (newDynamics.permeability < oldDynamics.permeability && newDynamics.velocity > 80) {
-    debugText += ">> LAW 1: ADRENALINE SHIELD (Permeability Penalty)\n";
-  }
-  if (newDynamics.entropy < oldDynamics.entropy && newDynamics.velocity < 20) {
-    debugText += ">> LAW 3: COOL-DOWN (Entropy Reduced)\n";
-  }
-
-  return debugText.trim();
-}
 
 export const TurnManager = {
   requireActive: () => {
@@ -169,10 +147,20 @@ export const TurnManager = {
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
 
+      const [aiEntity, userEntity, worldEntity] = await Promise.all([
+        entities.get("character", story.aiCharacterId),
+        entities.get("character", story.userCharacterId),
+        entities.get("world", story.worldId)
+      ]);
+
+      const options = calculateBlendedParams(aiEntity, userEntity, worldEntity);
+      console.log(`[PROMETHEUS] Vibe Check: Temp ${options.temperature} | Speed ${options.repetition_penalty} | Focus ${options.top_p}`);
+
       let response;
       try {
         response = await generateStream({
           payload,
+          options,
           signal: ctrl.signal,
           onToken: () => removeTypingIndicator(feed)
         });
@@ -367,117 +355,12 @@ export const TurnManager = {
 
   runBackgroundUpdate: async (storyId, targetType, linkedMessageId) => {
     try {
-      const builder = new ContextBuilder(storyId);
-      const story = state.story.byId[storyId];
-      if (!story) return;
+      console.log(`[PROMETHEUS] Offloading update to Worker...`);
+      const success = await bridge.runBackgroundUpdate(storyId, targetType, linkedMessageId);
 
-      let entity = null;
-      if (targetType === 'ai_character') entity = await entities.get("character", story.aiCharacterId);
-      else if (targetType === 'user_character') entity = await entities.get("character", story.userCharacterId);
-      else if (targetType === 'world') entity = await entities.get("world", story.worldId);
-
-      if (!entity) return;
-
-      // 1. Calculate algorithmic fallback (The "Laws")
-      const oldDynamics = entity.dynamics || { entropy: 10, permeability: 50, velocity: 10, resonance: 10 };
-      const fallbackDynamics = calculateDynamics(oldDynamics);
-
-      // 2. Ask AI to "Think" and decide (passing null forces the AI to use Calibration Matrix)
-      const payload = await builder.buildUpdater(targetType, null);
-
-      let jsonResponse;
-      try {
-        jsonResponse = await generateStream({ payload, signal: null });
-      } catch (netErr) {
-        console.error("[PROMETHEUS] Background Network Error:", netErr);
-        return; // Silent fail for background tasks
-      }
-
-      if (linkedMessageId) {
-        const msgExists = await db.messages.get(linkedMessageId);
-        if (!msgExists) {
-          console.warn(`[PROMETHEUS] Aborting update. Msg ${linkedMessageId} deleted.`);
-          return;
-        }
-      }
-
-      if (!jsonResponse) return;
-
-      let updates = {};
-      try {
-        // [FIX] Strip <think> block first to avoid JSON parse errors
-        const cleanJson = jsonResponse.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
-        const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
-
-        if (jsonMatch) {
-          updates = JSON.parse(jsonMatch[0]);
-        } else {
-          console.warn("[PROMETHEUS] No JSON found in response");
-          return;
-        }
-      } catch (jsonErr) {
-        console.warn("[PROMETHEUS] JSON Parse Error:", jsonErr);
-        return;
-      }
-
-      if (updates && payload.targetEntityId) {
-        // AI Dynamics or Fallback?
-        const aiDynamics = updates.dynamics || {};
-        const finalDynamics = {
-          entropy: aiDynamics.entropy ?? fallbackDynamics.entropy,
-          permeability: aiDynamics.permeability ?? fallbackDynamics.permeability,
-          velocity: aiDynamics.velocity ?? fallbackDynamics.velocity,
-          resonance: aiDynamics.resonance ?? fallbackDynamics.resonance
-        };
-
-        // [LOG] Create physics log based on what we ACTUALLY applied
-        const debugText = createPhysicsDebugLog(oldDynamics, finalDynamics, entity.name);
-        await db.messages.add({
-          storyId,
-          role: "system",
-          type: "DEBUG",
-          text: debugText,
-          createdAt: Date.now() + 1
-        });
-
-        const freshEntity = await entities.get(payload.targetType, payload.targetEntityId);
-
-        if (freshEntity) {
-          const updatedEntity = {
-            ...freshEntity,
-            forever: updates.forever || freshEntity.forever,
-            past: updates.past || freshEntity.past,
-            present: updates.present || freshEntity.present,
-            future: updates.future || freshEntity.future,
-            dynamics: finalDynamics,
-            updatedAt: Date.now()
-          };
-
-          const MAX_PAST_LENGTH = 2000;
-          if (updatedEntity.past && updatedEntity.past.length > MAX_PAST_LENGTH) {
-            console.log(`[ARCHIVIST] Triggered for ${entity.name}. Size: ${updatedEntity.past.length}`);
-            try {
-              const archPayload = await builder.buildArchivist(updatedEntity);
-              const summaryRaw = await generateStream({ payload: archPayload, signal: null });
-
-              // [FIX] Strip <think> block from summary
-              const summary = summaryRaw.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
-
-              if (summary && summary.length < updatedEntity.past.length) {
-                updatedEntity.past = summary;
-                console.log(`[ARCHIVIST] Compression complete. New Size: ${updatedEntity.past.length}`);
-              }
-            } catch (archErr) {
-              console.warn("[ARCHIVIST] Failed:", archErr);
-            }
-          }
-
-          await entities.upsert(payload.targetType, updatedEntity);
-          console.log(`[PROMETHEUS] Real-time mutation applied to ${freshEntity.name}`);
-
-          // [FIX] Refresh UI if open
-          await refreshProfileIfOpen();
-        }
+      if (success) {
+        // [FIX] Refresh UI if open (Worker updated the DB)
+        await refreshProfileIfOpen();
       }
 
       await TurnManager.loadMessages(storyId);

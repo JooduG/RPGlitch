@@ -132,10 +132,11 @@ async function build(appName) {
     try {
         await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
-        const [cssContent, jsContent, htmlContent] = await Promise.all([
+        const [cssContent, jsContent, htmlContent, workerContent] = await Promise.all([
             compileStyles(entryPointScss, PICO_CSS_PATH),
             bundleJs(entryPointJs),
             fs.readFile(htmlFile, "utf8"),
+            appName === 'rpglitch' ? bundleJs(path.join(appDir, "js", "worker.js")) : Promise.resolve(null)
         ]);
         console.log("✅ JS and CSS processed successfully.");
 
@@ -148,6 +149,20 @@ async function build(appName) {
         const styleTag = document.createElement("style");
         styleTag.textContent = cssContent;
         document.head.appendChild(styleTag);
+
+        // --- INJECT WORKER SOURCE (RPGlitch Only) ---
+        if (workerContent) {
+            const dexieLib = config.extraLibs.find(l => l.name === 'dexie');
+            const dexieSource = dexieLib ? readFileSafe(path.join(LOCAL_LIBS_DIR, dexieLib.file), 'dexie') : '';
+
+            // Prepend Dexie to worker bundle
+            const finalWorkerCode = dexieSource + ';\n' + workerContent;
+
+            const workerScript = document.createElement("script");
+            workerScript.textContent = `window.RPGLITCH_WORKER_SOURCE = ${JSON.stringify(finalWorkerCode)};`;
+            document.body.appendChild(workerScript);
+            console.log("✅ Injected Worker Source Code");
+        }
 
 
 
