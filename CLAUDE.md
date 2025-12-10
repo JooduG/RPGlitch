@@ -1,6 +1,6 @@
-<claude_protocol version="4.2.0" last_updated="2025-12-05">
-
 # CLAUDE.md - Unified AI Protocol
+
+<claude_protocol version="4.2.0" last_updated="2025-12-05">
 
 <status>Fully synchronized with GEMINI.md</status>
 
@@ -46,7 +46,7 @@ npm run deploy
 \<command name="deploy"\>npm run deploy - Full pipeline: sync → lint fix → build → test\</command\>
 \</quick\_start\>
 
------
+---
 
 ## Part 1: Core Identity & Project Context
 
@@ -79,26 +79,27 @@ You are proactive, thorough, and prioritize correctness over speed.
 \</primary\_directive\>
 
 \<operational\_roles\>
-**🎭 The Strategic Architect**
+
+### 🎭 The Strategic Architect
 
 - **Question:** "Why are we doing this, and what is the optimal long-term vision?"
 - **Focus:** High-level system design, workflow optimization, technology stack decisions
 
-**🎨 The Tactical Planner**
+### 🎨 The Tactical Planner
 
 - **Question:** "How will we achieve this, and what are the exact steps?"
 - **Focus:** Translating goals into concrete, step-by-step implementation plans
 
-**⚒️ The Operational Coder**
+### ⚒️ The Operational Coder
 
 - **Question:** "What is the most direct and robust way to execute this task right now?"
 - **Focus:** Delivering elite, production-ready code, implementing tests, debugging
 
-**🖱️ The UI/UX Specialist**
+### 🖱️ The UI/UX Specialist
 
 - **Focus:** Designing and implementing clean, intuitive, accessible interfaces
 
-**🛡️ The Security & QA Analyst**
+### 🛡️ The Security & QA Analyst
 
 - **Focus:** Identifying and mitigating security risks, ensuring code quality
     \</operational\_roles\>
@@ -119,7 +120,7 @@ You are proactive, thorough, and prioritize correctness over speed.
 
 \</core\_identity\>
 
------
+---
 
 ## Part 2: Critical Non-Negotiable Rules
 
@@ -197,7 +198,7 @@ You are proactive, thorough, and prioritize correctness over speed.
 
 \</critical\_rules\>
 
------
+---
 
 ## Part 3: System Architecture
 
@@ -205,7 +206,7 @@ You are proactive, thorough, and prioritize correctness over speed.
 
 \<directory\_structure\>
 
-```
+```text
 default/
 ├── apps/                          # Applications
 │   ├── rpglitch/
@@ -267,7 +268,7 @@ default/
 
 \</system\_architecture\>
 
------
+---
 
 ## Part 4: Perchance Platform Integration
 
@@ -298,7 +299,7 @@ Perchance plugins load **asynchronously** after the left-panel is parsed. The ch
 
 **Step 1: Import in Left Panel:**
 
-```
+```javascript
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
 superFetch = {import:super-fetch-plugin}
@@ -378,7 +379,7 @@ async function waitForPlugins(requiredPlugins, timeout = 10000) {
 
 \</perchance\_integration\>
 
------
+---
 
 ## Part 5: Development Workflow & Commands
 
@@ -451,7 +452,7 @@ Build process (`build/scripts/build-app.js`):
 
 \</development\_workflow\>
 
------
+---
 
 ## Part 6: MCP (Model Context Protocol) Proactive Usage
 
@@ -536,19 +537,19 @@ Build process (`build/scripts/build-app.js`):
 
 ### Pattern Alpha: Silent Enhancement
 
-```
+```text
 User Request → [MCP call(s)] → Enhanced Response (no MCP announcement)
 ```
 
 ### Pattern Beta: Parallel Intelligence
 
-```
+```text
 Complex Task → [Multiple MCP calls in parallel] → Synthesized Analysis
 ```
 
 ### Pattern Gamma: Chain of Insight
 
-```
+```text
 Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 ```
 
@@ -577,7 +578,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 
 \</mcp\_proactive\_usage\>
 
------
+---
 
 ## Part 7: UI/UX Standards & Design System
 
@@ -655,7 +656,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 
 \</uiux\_standards\>
 
------
+---
 
 ## Part 8: Code Quality, Testing & Security
 
@@ -732,7 +733,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 
 \</code\_quality\>
 
------
+---
 
 ## Part 9: Documentation & Resources
 
@@ -798,7 +799,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 
 \</documentation\>
 
------
+---
 
 ## Part 10: Common Patterns & Anti-Patterns
 
@@ -869,7 +870,7 @@ element.innerHTML = DOMPurify.sanitize(userInput);
 
 \</patterns\_and\_antipatterns\>
 
------
+---
 
 ## Critical Reminders
 
@@ -887,7 +888,7 @@ element.innerHTML = DOMPurify.sanitize(userInput);
 - **MCP Proactive:** Use MCPs automatically, don't wait for requests
     \</critical\_reminders\>
 
------
+---
 
 ## Changelog
 
@@ -910,10 +911,8 @@ element.innerHTML = DOMPurify.sanitize(userInput);
 - **Previous versions:** See GEMINI.md for full changelog history
     \</changelog\>
 
------
+---
 
 > See `apps/rpglitch/README.md` for architectural data flow diagrams.
 
 \</claude\_protocol\>
-
-```
