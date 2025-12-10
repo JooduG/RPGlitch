@@ -57,25 +57,8 @@ export class VirtualFeed {
    * @param {Array} newItems - Array of objects. Each MUST have a unique `.id` property.
    */
   setItems(newItems) {
-    // Detect if we should stick to bottom
-    // We stick if we are already near the bottom
-    const threshold = 50;
-    const isAtBottom =
-      this.container.scrollHeight -
-        this.container.scrollTop -
-        this.container.clientHeight <
-      threshold;
-
     this.items = newItems;
     this.render();
-
-    if (isAtBottom) {
-      // Use setTimeout to allow DOM to paint and sizes to settle if needed
-      // But usually requestAnimationFrame is better to look smooth
-      requestAnimationFrame(() => {
-        this.container.scrollTop = this.container.scrollHeight;
-      });
-    }
   }
 
   /**
@@ -85,10 +68,13 @@ export class VirtualFeed {
   render() {
     const scrollTop = this.container.scrollTop;
     const clientHeight = this.container.clientHeight;
+    // Capture "Sticky" state BEFORE we touch anything
+    const distToBottom = this.container.scrollHeight - scrollTop - clientHeight;
+    const isAtBottom = distToBottom < 50;
+
     const totalItems = this.items.length;
 
     // 1. Calculate Offsets & Total Height
-    // We do this dynamically because heights might have changed
     const offsets = []; // Index -> Top Offset
     let currentOffset = 0;
 
@@ -102,12 +88,6 @@ export class VirtualFeed {
     const totalContentHeight = currentOffset;
 
     // 2. Determine Visible Range
-    // Start: first item where (offset + height) > (scrollTop - bufferHeight)
-    // End: first item where offset > (scrollTop + clientHeight + bufferHeight)
-
-    // Optimize: Binary search would be faster for 10k items, but for <500 items, linear scan is instant.
-    // Let's stick to linear for simplicity and robustness with variable heights.
-
     const viewTop = scrollTop;
     const viewBottom = scrollTop + clientHeight;
 
@@ -131,17 +111,8 @@ export class VirtualFeed {
       }
     }
 
-    // Edge case: if scrollTop is huge (users scrolled way down), but items are few?
-    // Logic holds.
-
     // 3. Update Spacers
     const topHeight = offsets[startIndex];
-
-    // Calculate bottom height: Total - (offset of item AFTER end)
-    // If endIndex is last item, bottom is 0.
-    // offset[endIndex] is top of last rendered item.
-    // height of last rendered item needs to be added to get top of next.
-
     let bottomBase = 0;
     if (endIndex < totalItems - 1) {
       const nextIndex = endIndex + 1;
@@ -151,49 +122,23 @@ export class VirtualFeed {
       const lastH = this.heights.get(lastItem.id) || this.estimatedHeight;
       bottomBase = offsets[endIndex] + lastH;
     }
-
     const bottomHeight = totalContentHeight - bottomBase;
 
     this.spacerTop.style.height = `${topHeight}px`;
     this.spacerBottom.style.height = `${bottomHeight}px`;
 
     // 4. Render Items
-    // We want to avoid blowing away items that are already there if possible (to keep focus/selection),
-    // but simple "clear & rebuild" is safer for v1.
-    // To support "clear & rebuild" inside a container with spacers, we need to handle the DOM node list.
-
-    // Detach Observer for cleanup
     this.resizeObserver.disconnect();
-
-    // Safe Clear: Remove all elements between top and bottom spacer
-    // But since we appended spacers to this.container, we can just manipulate siblings?
-    // No, simplest way:
-    // container.innerHTML = "" -> Kills spacers.
-    // Let's use a DocumentFragment for the new items.
 
     const fragment = document.createDocumentFragment();
 
     for (let i = startIndex; i <= endIndex; i++) {
       const item = this.items[i];
-
-      // We need a wrapper to observe height?
-      // Or we assume renderCallback appends a single element?
-      // "renderChat" passes a container. It appends a DIV.
-      // Let's create a temporary container to capture the element,
-      // OR change the contract so renderCallback returns the element.
-      // But refactoring renderChat to return element is invasive.
-      // Alternative: pass the fragment to renderCallback.
-
-      // Wait, existing renderMessage calculates logic and appends.
-      // We can pass the fragment as the container.
-
+      // Pass fragment as container
       this.renderCallback(fragment, item, i);
     }
 
-    // Now identify the newly created elements.
-    // renderMessage creates <div class="story-message"...>
-    // We need to tag them with ID for ResizeObserver.
-
+    // Tag and Observe
     const children = Array.from(fragment.children);
     children.forEach((el, idx) => {
       const dataIndex = startIndex + idx;
@@ -205,14 +150,7 @@ export class VirtualFeed {
     });
 
     // 5. Commit to DOM
-    // We need to keep spacers.
-    // Strategy:
-    // 1. Ensure spacerTop is first child.
-    // 2. Ensure spacerBottom is last child.
-    // 3. Everything safely in between is replaced.
-
-    // Implementation:
-    // Clear middle
+    // Clear middle without killing spacers if possible, but simplest is remove all
     while (this.container.firstChild) {
       this.container.firstChild.remove();
     }
@@ -224,6 +162,17 @@ export class VirtualFeed {
     if (this.footer) {
       this.container.appendChild(this.footer);
     }
+
+    // 6. Restore Scroll Position
+    if (isAtBottom) {
+      // Stick to bottom
+      this.container.scrollTop = this.container.scrollHeight;
+    } else {
+      // Restore previous position
+      // Note: If content height changed significantly above us, this might drift,
+      // but accurate 'heights' map usually prevents drift.
+      this.container.scrollTop = scrollTop;
+    }
   }
 
   _onResize(entries) {
@@ -231,9 +180,8 @@ export class VirtualFeed {
     for (const entry of entries) {
       const id = entry.target.dataset.virtualId;
       if (id) {
-        const h = entry.borderBoxSize
-          ? entry.borderBoxSize[0].blockSize
-          : entry.target.offsetHeight;
+        // Use offsetHeight which includes padding/border
+        const h = entry.target.offsetHeight;
         if (this.heights.get(id) !== h) {
           this.heights.set(id, h);
           changed = true;
@@ -241,45 +189,20 @@ export class VirtualFeed {
       }
     }
 
-    // If heights changed, we might need to adjust spacers.
-    // NOTE: If we just re-render, it might trigger loops if not careful.
-    // But we MUST update spacers if an Estimated(150) -> Actual(300).
-    // Otherwise scrollbar lies.
     if (changed) {
-      // We do NOT want to full re-render DOM (flash), just adjust spacers.
-      // But re-calculating offsets is complex.
-      // Re-calling render() is safest for consistency, but expensive?
-      // "Recalculate heights and apply style" is cheaper.
-
-      // Let's just call render() but maybe optimized?
-      // Actually, standard practice: just run render logic.
-      // Since "items to render" probably won't change much, the DOM diff would be small...
-      // BUT we are doing "Clear & Replace" in render(), so that's bad for loop.
-
-      // Optimization: Just update Spacer Heights in place without DOM touch.
-      this._updateSpacerHeightsOnly();
+      // Debounce render
+      if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
+      this._resizeTimeout = setTimeout(() => {
+        this.render();
+      }, 50);
     }
   }
 
-  /**
-   * Sets a footer element that is always rendered at the bottom.
-   * Useful for typing indicators or loading spinners.
-   * @param {HTMLElement|null} element
-   */
   setFooter(element) {
     this.footer = element;
-    // Don't trigger full render, just append/remove if simple?
-    // But render loop clears container. So we must have it part of render state.
-    // We can trigger a render or just append it manually now if render isn't running?
-    // Safe bet: trigger render.
     this.render();
-
-    // Auto-scroll logic if footer added?
-    if (element) {
-      requestAnimationFrame(() => {
-        this.container.scrollTop = this.container.scrollHeight;
-      });
-    }
+    // Footer implies activity, usually stick to bottom?
+    // Let standard render logic handle it (if at bottom, stick).
   }
 
   _updateSpacerHeightsOnly() {

@@ -308,7 +308,7 @@ export function renderMessage(
 
   // Handle IMAGE Type
   if (type === "IMAGE") {
-    div.className = "story-message system director-content story-image-container";
+    div.className = "story-message system story-image-container";
     // Text contains the URL
     // We use a simple img tag.
     // sanitizeHtml is tricky with URLs, but text should be a URL from our internal logic.

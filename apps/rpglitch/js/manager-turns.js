@@ -515,7 +515,8 @@ export const TurnManager = {
         timestamp: Date.now(),
       });
 
-      // 3. Render
+      // 3. Refresh State & Render
+      await TurnManager.loadMessages(storyId);
       await renderChat(storyId);
     } catch (e) {
       error("[TurnManager] Image Gen failed:", e);
