@@ -1,4 +1,5 @@
 // apps/rpglitch/js/engine-physics.js
+import { PHYSICS_CONFIG } from "./config-physics.js";
 
 /**
  * THE PROMETHEUS PHYSICS ENGINE (V4.2)
@@ -28,9 +29,9 @@ export function calculateDynamics(currentDynamics) {
     // --- LAW 1: THE ADRENALINE SHIELD ---
     // IF Velocity > 80 (Rushing/Combat), THEN Permeability MUST decrease (Defenses Up).
     // "You can't be vulnerable while dodging bullets."
-    if (d.velocity > 80) {
-        const penalty = 20;
-        if (d.permeability > 30) {
+    if (d.velocity > PHYSICS_CONFIG.ADRENALINE_VELOCITY_THRESHOLD) {
+        const penalty = PHYSICS_CONFIG.ADRENALINE_PENALTY;
+        if (d.permeability > PHYSICS_CONFIG.ADRENALINE_PERMEABILITY_MIN) {
             d.permeability = clamp(d.permeability - penalty);
             console.log(`[PHYSICS] Adrenaline Shield: Permeability -${penalty}`);
         }
@@ -39,37 +40,37 @@ export function calculateDynamics(currentDynamics) {
     // --- LAW 2: THE FOG OF WAR ---
     // IF Entropy > 80 (Chaos), THEN Resonance MUST decrease (Noise kills Signal).
     // "Meaning is lost in the noise."
-    if (d.entropy > 80) {
-        d.resonance = clamp(d.resonance - 10);
+    if (d.entropy > PHYSICS_CONFIG.FOG_ENTROPY_THRESHOLD) {
+        d.resonance = clamp(d.resonance - PHYSICS_CONFIG.FOG_RESONANCE_DAMPENING);
         flags.fogOfWar = true;
         console.log("[PHYSICS] Fog of War: Resonance dampened.");
     }
 
     // --- LAW 3: THE COOL-DOWN ---
     // IF Velocity < 20 (Calm), THEN Entropy decreases (Stillness restores order).
-    if (d.velocity < 20) {
-        d.entropy = clamp(d.entropy - 10);
+    if (d.velocity < PHYSICS_CONFIG.CALM_VELOCITY_THRESHOLD) {
+        d.entropy = clamp(d.entropy - PHYSICS_CONFIG.CALM_ENTROPY_REDUCTION);
         console.log("[PHYSICS] Cool-Down: Entropy reduced.");
     }
 
     // --- LAW 4: THE PANIC SPIRAL (New) ---
     // IF Entropy > 90 (Total Chaos) → FORCE Velocity +20.
     // "Chaos creates panic. Panic creates speed."
-    if (d.entropy > 90) {
-        d.velocity = clamp(d.velocity + 20);
+    if (d.entropy > PHYSICS_CONFIG.PANIC_ENTROPY_THRESHOLD) {
+        d.velocity = clamp(d.velocity + PHYSICS_CONFIG.PANIC_VELOCITY_BOOST);
         flags.panicSpiral = true;
         console.log("[PHYSICS] Panic Spiral: Velocity forced up.");
     }
 
     // --- LAW 5: THE ECHO CHAMBER (Logic Only) ---
     // IF Resonance > 90 (Impact) AND Entropy < 20 (Quiet) → Trigger Life Change.
-    if (d.resonance > 90 && d.entropy < 20) {
+    if (d.resonance > PHYSICS_CONFIG.ECHO_RESONANCE_THRESHOLD && d.entropy < PHYSICS_CONFIG.ECHO_ENTROPY_MAX) {
         flags.echoChamber = true;
     }
 
     // --- LAW 6: THE GLASS CANNON (Logic Only) ---
     // IF Permeability > 80 (Open Heart) → Double Resonance Gains.
-    if (d.permeability > 80) {
+    if (d.permeability > PHYSICS_CONFIG.GLASS_PERMEABILITY_THRESHOLD) {
         flags.glassCannon = true;
     }
 

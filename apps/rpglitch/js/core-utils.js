@@ -1,5 +1,6 @@
 // apps/rpglitch/js/core-utils.js
 import { db } from "./core-db.js";
+import { PHYSICS_CONFIG } from "./config-physics.js";
 
 // --- Constants ---
 const VALID_PROTOCOLS = ["https:", "http:", "blob:", "data:"];
@@ -498,20 +499,20 @@ export function calculateBlendedParams(ai, user, world) {
   // 2. Temperature (Creativity/Chaos)
   // Formula: (World_Entropy * 0.7) + (AI_Entropy * 0.3)
   // Mapping: 0-100 -> 0.5-1.35
-  const rawTemp = (worldDyn.entropy * 0.7) + (aiDyn.entropy * 0.3);
-  const temperature = mapRange(rawTemp, 0, 100, 0.5, 1.35);
+  const rawTemp = (worldDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_WORLD) + (aiDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_AI);
+  const temperature = mapRange(rawTemp, 0, 100, PHYSICS_CONFIG.TEMP_BASE, 1.35);
 
   // 3. Repetition Penalty (Pacing)
   // Formula: Max of AI, User, World Velocities
   // Mapping: 0-100 -> 1.0-1.18
   const rawRep = Math.max(aiDyn.velocity, userDyn.velocity, worldDyn.velocity);
-  const repetition_penalty = mapRange(rawRep, 0, 100, 1.0, 1.18);
+  const repetition_penalty = mapRange(rawRep, 0, 100, PHYSICS_CONFIG.PENALTY_BASE, 1.18);
 
   // 4. Top_P (Focus/Coherence)
   // Formula: AI_Resonance
   // Mapping: 0-100 -> 1.0 down to 0.65
   const rawTopP = aiDyn.resonance;
-  const top_p = mapRange(rawTopP, 0, 100, 1.0, 0.65);
+  const top_p = mapRange(rawTopP, 0, 100, PHYSICS_CONFIG.TOP_P_BASE, 0.65);
 
   return {
     temperature: parseFloat(temperature.toFixed(2)),
