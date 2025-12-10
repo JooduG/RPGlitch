@@ -1,8 +1,8 @@
-// apps/rpglitch/js/story-options.js
 import { db } from "./core-db.js";
 import { applyPatch, state } from "./app-state.js";
 import { router } from "./ui-views.js";
 import { StoryController } from "./manager-turns.js";
+import { log, error } from "./core-utils.js";
 
 export const StoryOptionsController = {
   init() {
@@ -133,6 +133,26 @@ export const StoryOptionsController = {
         if (state.story.activeId) {
           router.handleRoute();
         }
+      });
+    }
+
+    // Visuals Wiring
+    const btnVisualDraft = modal.querySelector("#btn-generate-visual-draft");
+    if (btnVisualDraft) {
+      btnVisualDraft.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const inputField = document.querySelector(
+          "#story-form [name='message']",
+        );
+        const draft = inputField ? inputField.value : "";
+
+        if (!draft || !draft.trim()) {
+          alert("Please type a description in the chat box first!");
+          return;
+        }
+
+        StoryOptionsController.close();
+        await StoryController.generateVisualFromDraft(draft);
       });
     }
 

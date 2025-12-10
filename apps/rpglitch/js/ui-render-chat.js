@@ -301,6 +301,21 @@ export function renderMessage(
   if (type === "DEBUG") {
     div.className = "story-message system director-content";
     div.innerHTML = `<div class="physics-log">${sanitizeHtml(text || "")}</div>`;
+    div.innerHTML = `<div class="physics-log">${sanitizeHtml(text || "")}</div>`;
+    container.appendChild(div);
+    return;
+  }
+
+  // Handle IMAGE Type
+  if (type === "IMAGE") {
+    div.className = "story-message system director-content story-image-container";
+    // Text contains the URL
+    // We use a simple img tag.
+    // sanitizeHtml is tricky with URLs, but text should be a URL from our internal logic.
+    // We can trust it if it comes from VisualManager output (which cleans it).
+    div.innerHTML = `<img src="${text}" alt="Generated Scene" class="generated-image" loading="lazy" />`;
+    // Add prompt as title or caption?
+    // If we had metadata we could usage it.
     container.appendChild(div);
     return;
   }

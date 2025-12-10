@@ -32,6 +32,10 @@ export const VisualManager = {
         removeBackground: options.removeBackground || false,
       });
 
+      if (typeof result === "string" && result.startsWith("(")) {
+        throw new Error(result);
+      }
+
       return typeof result === "string" ? result : extractImageUrl(result);
     } catch (e) {
       console.error("[VisualManager] Generation failed:", e);

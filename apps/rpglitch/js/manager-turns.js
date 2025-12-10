@@ -18,6 +18,7 @@ import { ContextBuilder } from "./engine-prompt-builder.js";
 import { analyzeRejection, getDirectorInstruction } from "./engine-variance.js";
 import { bridge } from "./worker-bridge.js";
 import { events, EVENTS } from "./core-events.js";
+import { VisualManager } from "./manager-visuals.js";
 
 export const TurnManager = {
   requireActive: () => {
@@ -462,38 +463,65 @@ export const TurnManager = {
   },
 
   enhanceUserDraft: async (draftText) => {
-    if (!draftText) return null;
     const storyId = TurnManager.requireActive();
+    if (!storyId) return null;
 
-    // UI Feedback
-    const submitBtn = document.querySelector(
-      "#story-form button[type='submit']",
-    );
-    const inputField = document.querySelector("#story-form [name='message']");
-    const originalText = inputField.value;
-
-    if (submitBtn) submitBtn.disabled = true;
-    inputField.disabled = true;
-    inputField.value = "Ghostwriting...";
-
+    setChatGeneratingState(true);
     try {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildGhostwriter(draftText);
 
       const response = await generateStream({
         payload,
-        signal: null,
+        onChunk: () => {}, // No streaming needed for input
       });
 
-      // Return full response including <think> block
-      return response.trim();
+      return response.trim().replace(/^"|"$/g, "");
     } catch (e) {
-      console.error("Ghostwriter failed:", e);
-      alert("Ghostwriter failed: " + e.message);
-      return originalText; // Revert on failure
+      error("[TurnManager] Ghostwrite error:", e);
+      alert("Ghostwriter failed. Please try again.");
+      return null;
     } finally {
-      inputField.disabled = false;
-      if (submitBtn) submitBtn.disabled = false;
+      setChatGeneratingState(false);
+    }
+  },
+
+  /**
+   * Generates a visual snapshot based on a draft text.
+   * @param {string} draftText - The raw text to use as prompt
+   */
+  generateVisualFromDraft: async (draftText) => {
+    const storyId = TurnManager.requireActive();
+    if (!storyId) return;
+
+    setChatGeneratingState(true);
+
+    try {
+      log("[TurnManager] Generating visual from draft:", draftText);
+
+      // 1. Generate Image directly (Raw Mode)
+      // We pass the draft text as the prompt.
+      const imageUrl = await VisualManager.generate(draftText, {
+        resolution: "512x768", // Valid: 512x512, 768x768, 512x768, 768x512
+      });
+
+      // 2. Insert into DB
+      await db.messages.add({
+        storyId,
+        role: "narrator", // Will be styled as narrator/system
+        type: "IMAGE",
+        text: imageUrl, // Valid URL
+        metadata: { prompt: draftText },
+        timestamp: Date.now(),
+      });
+
+      // 3. Render
+      await renderChat(storyId);
+    } catch (e) {
+      error("[TurnManager] Image Gen failed:", e);
+      alert("Failed to generate image. " + e.message);
+    } finally {
+      setChatGeneratingState(false);
     }
   },
 };
