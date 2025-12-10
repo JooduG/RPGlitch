@@ -21,7 +21,7 @@ graph TD
     end
 
     BUILD -->|Output| HTML[Single HTML File]
-    
+
     subgraph "Perchance Runtime (Browser)"
         HTML -->|Loads| IFRAME[Perchance Iframe]
         IFRAME -->|Hydrates| APP[Running App]
@@ -48,21 +48,21 @@ sequenceDiagram
     UI->>DB: Save User Message
     UI->>Bridge: runBackgroundUpdate()
     Bridge->>Worker: CMD_START_UPDATE
-    
+
     rect rgb(20, 20, 20)
         Note right of Worker: Background Thread
         Worker->>Worker: Calculate Physics (Entropy)
         Worker->>Worker: Build Prompt (Context)
-        
+
         Worker->>Bridge: CMD_LLM_REQUEST
         Bridge->>AI: generateStream()
         AI-->>Bridge: Stream Tokens
         Bridge-->>Worker: CMD_LLM_RESPONSE
-        
+
         Worker->>DB: Save AI Message
         Worker->>DB: Update Entity States
     end
-    
+
     Worker-->>Bridge: CMD_UPDATE_COMPLETE
     Bridge->>Bus: Dispatch "DB_UPDATED"
     Bus->>UI: Trigger Re-render
@@ -76,36 +76,36 @@ RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Eng
 
 ### 1. The Kernel (`js/engine-prompt-builder.js`)
 
-* **Role:** Context Architect.
-* **Function:** Assembles the prompt using a **Layered Injection Strategy**.
-  * **Layer 1 (System):** Enforces absolute agency and format strictness.
-  * **Layer 2 (World):** Injects environmental constants (weather, physics).
-  * **Layer 3 (Entity):** Injects the real-time snapshot of the character.
-* **Key Feature:** Implements the **Hierarchy of Truth** (Present State overrides Permanent Traits) to prevent hallucinations.
+- **Role:** Context Architect.
+- **Function:** Assembles the prompt using a **Layered Injection Strategy**.
+  - **Layer 1 (System):** Enforces absolute agency and format strictness.
+  - **Layer 2 (World):** Injects environmental constants (weather, physics).
+  - **Layer 3 (Entity):** Injects the real-time snapshot of the character.
+- **Key Feature:** Implements the **Hierarchy of Truth** (Present State overrides Permanent Traits) to prevent hallucinations.
 
 ### 2. The Physicist (`js/engine-physics.js`)
 
-* **Role:** State Simulation.
-* **Function:** A background process that runs *after* the AI writes prose. It calculates abstract narrative variables to steer the next turn:
-  * **Entropy:** Measures narrative chaos and disorder.
-  * **Velocity:** Measures pacing and urgency.
-  * **Permeability:** Measures emotional openness or defensiveness.
-* **Mechanism:** These values are injected into the next prompt to mathematically force the AI's writing style to match the dramatic moment.
+- **Role:** State Simulation.
+- **Function:** A background process that runs _after_ the AI writes prose. It calculates abstract narrative variables to steer the next turn:
+  - **Entropy:** Measures narrative chaos and disorder.
+  - **Velocity:** Measures pacing and urgency.
+  - **Permeability:** Measures emotional openness or defensiveness.
+- **Mechanism:** These values are injected into the next prompt to mathematically force the AI's writing style to match the dramatic moment.
 
 ### 3. The Manager (`js/manager-turns.js`)
 
-* **Role:** Orchestration & Director Mode.
-* **Function:**
-  * **Turn Loop:** Handles the user input -> database -> prompt -> AI -> database cycle.
-  * **Director Mode:** If a message is rejected (regenerated), it injects a hidden **Variance Directive** (e.g., "Increase aggression") to ensure the retry is distinctly different.
-  * **State Rollback:** Prevents "ghost memories" by reverting physics updates when a turn is deleted.
+- **Role:** Orchestration & Director Mode.
+- **Function:**
+  - **Turn Loop:** Handles the user input -> database -> prompt -> AI -> database cycle.
+  - **Director Mode:** If a message is rejected (regenerated), it injects a hidden **Variance Directive** (e.g., "Increase aggression") to ensure the retry is distinctly different.
+  - **State Rollback:** Prevents "ghost memories" by reverting physics updates when a turn is deleted.
 
 ### 4. The Shield (`js/index.js` & `js/utils.js`)
 
-* **Role:** Platform Compliance & Stability.
-* **Function:**
-  * **Passive Shield:** Intercepts storage calls to prevent the hosting platform from flagging the session.
-  * **Active Pulse:** Clears penalty flags immediately before every generation request to ensure zero downtime.
+- **Role:** Platform Compliance & Stability.
+- **Function:**
+  - **Passive Shield:** Intercepts storage calls to prevent the hosting platform from flagging the session.
+  - **Active Pulse:** Clears penalty flags immediately before every generation request to ensure zero downtime.
 
 ---
 
@@ -122,10 +122,10 @@ RPGlitch implements a client-side stability layer to ensure uninterrupted operat
 
 While the engine allows for unrestricted narrative content, the application itself enforces strict security:
 
-* **XSS Prevention:** All AI output and user input is passed through `DOMPurify` before rendering.
-* **URL Validation:** Image uploads use the native `URL` constructor for robust validation.
-* **Type Safety:** Plugin responses are type-checked before processing to prevent injection attacks.
-* **Safe DOM:** The UI prefers `textContent` over `innerHTML` wherever possible.
+- **XSS Prevention:** All AI output and user input is passed through `DOMPurify` before rendering.
+- **URL Validation:** Image uploads use the native `URL` constructor for robust validation.
+- **Type Safety:** Plugin responses are type-checked before processing to prevent injection attacks.
+- **Safe DOM:** The UI prefers `textContent` over `innerHTML` wherever possible.
 
 ---
 
@@ -162,13 +162,13 @@ build/output/RPGlitch.html
 
 ## Technology Stack
 
-* **State Management:** IndexedDB via Dexie.js (single source of truth)
-* **UI Framework:** Custom components built on Pico.css (SCSS)
-* **JavaScript:** ES6+ modules (bundled via esbuild)
-* **Security:** DOMPurify for XSS prevention
+- **State Management:** IndexedDB via Dexie.js (single source of truth)
+- **UI Framework:** Custom components built on Pico.css (SCSS)
+- **JavaScript:** ES6+ modules (bundled via esbuild)
+- **Security:** DOMPurify for XSS prevention
 
 ## Related Documentation
 
-* [Deployment & Integration Guide](../../PERCHANCE.md)
-* [UI/UX Guidelines](../../design-system.md)
-* [Development Protocol](../../GEMINI.md)
+- [Deployment & Integration Guide](../../PERCHANCE.md)
+- [UI/UX Guidelines](../../design-system.md)
+- [Development Protocol](../../GEMINI.md)

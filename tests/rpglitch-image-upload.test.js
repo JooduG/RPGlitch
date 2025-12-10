@@ -11,8 +11,8 @@ test.describe("RPGlitch Image Upload and Generation", () => {
 
   test.beforeEach(async () => {
     page = await browser.newPage();
-    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-    page.on('pageerror', error => {
+    page.on("console", (msg) => console.log("PAGE LOG:", msg.text()));
+    page.on("pageerror", (error) => {
       console.error(`PAGE ERROR: ${error.message}`);
     });
 
@@ -27,10 +27,10 @@ test.describe("RPGlitch Image Upload and Generation", () => {
         return { url: `http://example.com/generated.png?prompt=${prompt}` };
       };
       window.ai = {
-        generateStream: async () => { },
+        generateStream: async () => {},
       };
-      window.remember = () => { };
-      window.superFetch = async () => { };
+      window.remember = () => {};
+      window.superFetch = async () => {};
     });
 
     await page.goto("http://localhost:8080/apps/rpglitch/html/index.html", {
@@ -58,10 +58,14 @@ test.describe("RPGlitch Image Upload and Generation", () => {
 
     console.log("Waiting for chin to open");
     await page.waitForFunction(() => {
-      const chinContainer = document.querySelector('#chin-container');
-      const charactersChin = document.querySelector('#chin-characters');
-      return chinContainer && !chinContainer.hasAttribute('hidden') &&
-        charactersChin && !charactersChin.hasAttribute('hidden');
+      const chinContainer = document.querySelector("#chin-container");
+      const charactersChin = document.querySelector("#chin-characters");
+      return (
+        chinContainer &&
+        !chinContainer.hasAttribute("hidden") &&
+        charactersChin &&
+        !charactersChin.hasAttribute("hidden")
+      );
     });
 
     console.log("Clicking #new-character");
@@ -76,7 +80,9 @@ test.describe("RPGlitch Image Upload and Generation", () => {
     console.log("Waiting for upload to be called");
     await page.waitForTimeout(1000); // give it a moment for the async call
 
-    const success = consoleLogs.some((log) => log.includes("window.upload called"));
+    const success = consoleLogs.some((log) =>
+      log.includes("window.upload called"),
+    );
     expect(success).toBe(true);
   });
 
@@ -92,10 +98,14 @@ test.describe("RPGlitch Image Upload and Generation", () => {
 
     console.log("Waiting for chin to open");
     await page.waitForFunction(() => {
-      const chinContainer = document.querySelector('#chin-container');
-      const charactersChin = document.querySelector('#chin-characters');
-      return chinContainer && !chinContainer.hasAttribute('hidden') &&
-        charactersChin && !charactersChin.hasAttribute('hidden');
+      const chinContainer = document.querySelector("#chin-container");
+      const charactersChin = document.querySelector("#chin-characters");
+      return (
+        chinContainer &&
+        !chinContainer.hasAttribute("hidden") &&
+        charactersChin &&
+        !charactersChin.hasAttribute("hidden")
+      );
     });
 
     console.log("Clicking #new-character");
@@ -114,7 +124,9 @@ test.describe("RPGlitch Image Upload and Generation", () => {
     await page.waitForTimeout(1000); // give it a moment for the async call
 
     const success = consoleLogs.some((log) =>
-      log.includes("window.textToImage called with prompt: a beautiful landscape")
+      log.includes(
+        "window.textToImage called with prompt: a beautiful landscape",
+      ),
     );
     expect(success).toBe(true);
   });

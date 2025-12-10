@@ -11,13 +11,13 @@ import { initStoryboardStage, StoryboardController } from "./manager-setup.js";
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
 (function enforceClientSideFreedom() {
   try {
-    if (localStorage.getItem('okayToShowNSFWUntil')) {
-      localStorage.setItem('okayToShowNSFWUntil', '0');
+    if (localStorage.getItem("okayToShowNSFWUntil")) {
+      localStorage.setItem("okayToShowNSFWUntil", "0");
       console.log("[RPGlitch] 🛡️ Freedom Protocol: Penalty flag purged.");
     }
     const originalSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
-      if (key === 'okayToShowNSFWUntil') {
+      if (key === "okayToShowNSFWUntil") {
         console.warn("[RPGlitch] 🛡️ Blocked attempt to set censorship flag.");
         return;
       }
@@ -51,14 +51,16 @@ const App = {
       console.log("[Universal Stage] Initializing Views...");
       // 1. Initialize Views
       App.views = await initViews({
-        refreshAllLists: async () => { log("Refreshed lists"); },
+        refreshAllLists: async () => {
+          log("Refreshed lists");
+        },
         onSelectionChanged: (sel) => {
           applyPatch({
             selectedAI: sel.aiCharacter,
             selectedUser: sel.userCharacter,
-            selectedWorld: sel.world
+            selectedWorld: sel.world,
           });
-        }
+        },
       });
       console.log("[Universal Stage] Views Initialized.");
 
@@ -76,17 +78,17 @@ const App = {
         if (input && btn) {
           // Auto-resize function for textarea
           const adjustHeight = () => {
-            input.style.height = 'auto';
-            input.style.height = input.scrollHeight + 'px';
+            input.style.height = "auto";
+            input.style.height = input.scrollHeight + "px";
           };
 
           // Initial adjustment if content is pre-filled
-          if (input.tagName === 'TEXTAREA') {
+          if (input.tagName === "TEXTAREA") {
             adjustHeight();
           }
 
           input.addEventListener("input", () => {
-            if (input.tagName === 'TEXTAREA') {
+            if (input.tagName === "TEXTAREA") {
               adjustHeight();
             }
             btn.disabled = input.value.trim().length === 0;
@@ -106,7 +108,7 @@ const App = {
             const val = input.value.trim();
             if (val) {
               input.value = "";
-              if (input.tagName === 'TEXTAREA') {
+              if (input.tagName === "TEXTAREA") {
                 adjustHeight(); // Reset height
               }
               btn.disabled = true;
@@ -123,37 +125,45 @@ const App = {
       const directorToggle = document.querySelector("#setting-director-mode");
       if (directorToggle) {
         directorToggle.checked = state.settings.directorMode;
-        directorToggle.addEventListener("change", (e) => applyPatch({ settings: { directorMode: e.target.checked } }));
+        directorToggle.addEventListener("change", (e) =>
+          applyPatch({ settings: { directorMode: e.target.checked } }),
+        );
       }
 
       log("[Universal Stage] Ready.");
 
       // Remove loading modal
-      const loadingModal = document.getElementById('loading-modal');
+      const loadingModal = document.getElementById("loading-modal");
       if (loadingModal) loadingModal.close();
       console.log("[Universal Stage] Loading modal closed.");
-
     } catch (e) {
       console.error("[Universal Stage] Initialization failed:", e);
-      const emergencyModal = document.getElementById('emergency-modal');
+      const emergencyModal = document.getElementById("emergency-modal");
       if (emergencyModal) emergencyModal.showModal();
     }
   },
 
   setupPlugins: function () {
-    const map = { pluginAi: "ai", pluginTextToImage: "textToImage", pluginSuperFetch: "superFetch", pluginRemember: "remember", pluginUpload: "upload" };
-    for (const [k, v] of Object.entries(map)) if (window[k]) window[v] = window[k];
+    const map = {
+      pluginAi: "ai",
+      pluginTextToImage: "textToImage",
+      pluginSuperFetch: "superFetch",
+      pluginRemember: "remember",
+      pluginUpload: "upload",
+    };
+    for (const [k, v] of Object.entries(map))
+      if (window[k]) window[v] = window[k];
   },
 
   isPluginAvailable: function (path) {
-    if (!path || typeof path !== 'string') return false;
-    const parts = path.split('.');
+    if (!path || typeof path !== "string") return false;
+    const parts = path.split(".");
     let obj = window;
     for (const p of parts) {
-      if (obj && typeof obj === 'object' && p in obj) obj = obj[p];
+      if (obj && typeof obj === "object" && p in obj) obj = obj[p];
       else return false;
     }
-    return typeof obj === 'function';
+    return typeof obj === "function";
   },
 
   async waitForPlugins(paths, timeout = 10000, pollInterval = 500) {
@@ -161,7 +171,7 @@ const App = {
     while (Date.now() - start < timeout) {
       if (paths.every(App.isPluginAvailable)) return true;
       if (pollInterval <= 0) break;
-      await new Promise(r => setTimeout(r, pollInterval));
+      await new Promise((r) => setTimeout(r, pollInterval));
     }
     return paths.every(App.isPluginAvailable);
   },
@@ -171,10 +181,13 @@ const App = {
     const start = Date.now();
     // Wait for window.rpgLists (injected by left panel)
     while (!window.rpgLists && Date.now() - start < timeout) {
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise((r) => setTimeout(r, 100));
     }
     if (window.rpgLists) {
-      console.log("[RPGlitch] Config loaded successfully:", Object.keys(window.rpgLists));
+      console.log(
+        "[RPGlitch] Config loaded successfully:",
+        Object.keys(window.rpgLists),
+      );
     } else {
       console.warn("[RPGlitch] ⚠️ Config timeout. Using internal defaults.");
     }
@@ -182,17 +195,21 @@ const App = {
 
   mockPlugins: function () {
     window.pluginAi = async () => "Mock AI Response";
-    window.pluginTextToImage = async () => "https://via.placeholder.com/512x768";
-    window.pluginRemember = { get: () => null, set: () => { } };
+    window.pluginTextToImage = async () =>
+      "https://via.placeholder.com/512x768";
+    window.pluginRemember = { get: () => null, set: () => {} };
     window.pluginSuperFetch = async () => ({ text: async () => "" });
-    window.pluginUpload = { upload: async () => "https://via.placeholder.com/150" };
+    window.pluginUpload = {
+      upload: async () => "https://via.placeholder.com/150",
+    };
   },
 
   async initializeApp() {
     const modal = document.querySelector("#loading-modal");
 
     if (typeof window.DOMPurify === "undefined") {
-      const msg = "CRITICAL SECURITY FAILURE: DOMPurify is missing. Aborting startup.";
+      const msg =
+        "CRITICAL SECURITY FAILURE: DOMPurify is missing. Aborting startup.";
       error(msg);
       if (modal) modal.close();
       alert(msg);
@@ -201,7 +218,8 @@ const App = {
 
     try {
       log("[Init] Checking environment...");
-      const isLocal = location.hostname === "localhost" || location.protocol === "file:";
+      const isLocal =
+        location.hostname === "localhost" || location.protocol === "file:";
 
       await initDebugMode();
 
@@ -229,15 +247,19 @@ const App = {
       error("Init Failed", e);
       alert("App failed to load.");
     } finally {
-      if (modal) { modal.close(); modal.style.display = "none"; }
+      if (modal) {
+        modal.close();
+        modal.style.display = "none";
+      }
     }
-  }
+  },
 };
 
 App.initializeWhenReady = async function () {
   try {
-    if (typeof App.initialLoad === 'function') await App.initialLoad();
-    if (typeof App._attachStoryboardEventListeners === 'function') App._attachStoryboardEventListeners();
+    if (typeof App.initialLoad === "function") await App.initialLoad();
+    if (typeof App._attachStoryboardEventListeners === "function")
+      App._attachStoryboardEventListeners();
     window.initializeWhenReadyRetryCount = 0;
     return true;
   } catch (e) {
@@ -254,7 +276,8 @@ export const isPluginAvailable = App.isPluginAvailable;
 export const setupPlugins = App.setupPlugins;
 export const mockPlugins = App.mockPlugins;
 
-if (typeof jest === 'undefined' && typeof globalThis.__TEST__ === 'undefined') {
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", App.initializeApp);
+if (typeof jest === "undefined" && typeof globalThis.__TEST__ === "undefined") {
+  if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", App.initializeApp);
   else App.initializeApp();
 }

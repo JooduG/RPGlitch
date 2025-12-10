@@ -1,6 +1,6 @@
-import { JSDOM } from 'jsdom';
+import { JSDOM } from "jsdom";
 
-jest.mock('../apps/rpglitch/js/entity-crud.js', () => ({
+jest.mock("../apps/rpglitch/js/entity-crud.js", () => ({
   entities: {
     list: jest.fn().mockReturnValue([]),
   },
@@ -8,7 +8,7 @@ jest.mock('../apps/rpglitch/js/entity-crud.js', () => ({
   _allItemsCache: {},
 }));
 
-jest.mock('../apps/rpglitch/js/core-db.js', () => ({
+jest.mock("../apps/rpglitch/js/core-db.js", () => ({
   db: {
     settings: {
       get: jest.fn().mockResolvedValue(undefined),
@@ -26,16 +26,18 @@ jest.mock('../apps/rpglitch/js/core-db.js', () => ({
   },
 }));
 
-async function loadApp(htmlContent = '<!doctype html><html><body></body></html>') {
+async function loadApp(
+  htmlContent = "<!doctype html><html><body></body></html>",
+) {
   const dom = new JSDOM(htmlContent, {
-    url: 'http://localhost',
-    runScripts: 'outside-only'
+    url: "http://localhost",
+    runScripts: "outside-only",
   });
 
   global.window = dom.window;
   global.document = dom.window.document;
 
-  dom.window.alert = () => { };
+  dom.window.alert = () => {};
   dom.window.Dexie = jest.fn(function (name) {
     this.name = name;
     this.version = jest.fn().mockReturnThis();
@@ -47,18 +49,18 @@ async function loadApp(htmlContent = '<!doctype html><html><body></body></html>'
   });
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
-  dom.window.$ = function () { };
+  dom.window.$ = function () {};
 
   jest.resetModules();
-  const utils = await import('../apps/rpglitch/js/core-utils.js');
-  const index = await import('../apps/rpglitch/js/index.js');
+  const utils = await import("../apps/rpglitch/js/core-utils.js");
+  const index = await import("../apps/rpglitch/js/index.js");
 
   dom.window.App = {
     ...index,
     ...utils,
   };
 
-  if (typeof dom.window.App._getUIElements !== 'function') {
+  if (typeof dom.window.App._getUIElements !== "function") {
     dom.window.App._getUIElements = jest.fn();
   }
 
@@ -73,7 +75,7 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-test('initializeWhenReady runs without errors', async () => {
+test("initializeWhenReady runs without errors", async () => {
   const html = `<!doctype html><html><body></body></html>`; // Simplified HTML
   const App = await loadApp(html);
   App.initialLoad = jest.fn().mockResolvedValue();
@@ -81,12 +83,12 @@ test('initializeWhenReady runs without errors', async () => {
   await expect(App.initializeWhenReady()).resolves.toBe(true);
 });
 
-test('_getUIElements is defined before initialization', async () => {
+test("_getUIElements is defined before initialization", async () => {
   const App = await loadApp();
-  expect(typeof App._getUIElements).toBe('function');
+  expect(typeof App._getUIElements).toBe("function");
 });
 
-test('initializeWhenReady resets retry counter on success', async () => {
+test("initializeWhenReady resets retry counter on success", async () => {
   const html = `<!doctype html><html><body></body></html>`; // Simplified HTML
   const App = await loadApp(html);
   window.initializeWhenReadyRetryCount = 2;
@@ -96,7 +98,7 @@ test('initializeWhenReady resets retry counter on success', async () => {
   expect(window.initializeWhenReadyRetryCount).toBe(0);
 });
 
-describe('waitForPlugins', () => {
+describe("waitForPlugins", () => {
   beforeEach(() => {
     globalThis.__TEST__ = false;
   });
@@ -104,7 +106,7 @@ describe('waitForPlugins', () => {
   afterEach(() => {
     globalThis.__TEST__ = true;
     // Clean up plugin properties to ensure test isolation
-    if (typeof global.window !== 'undefined') {
+    if (typeof global.window !== "undefined") {
       delete global.window.pluginAi;
       delete global.window.pluginSuperFetch;
       delete global.window.pluginTextToImage;
@@ -113,50 +115,63 @@ describe('waitForPlugins', () => {
     }
   });
 
-  test('handles nested paths like pluginAi.generateStream', async () => {
+  test("handles nested paths like pluginAi.generateStream", async () => {
     const App = await loadApp();
     window.pluginAi = { generateStream: jest.fn() };
-    const result = await App.waitForPlugins(['pluginAi.generateStream'], 100);
+    const result = await App.waitForPlugins(["pluginAi.generateStream"], 100);
     expect(result).toBe(true);
   });
 
-  test('fails when nested path is not a function', async () => {
+  test("fails when nested path is not a function", async () => {
     const App = await loadApp();
-    window.pluginAi = { generateStream: 'not a function' };
-    const result = await App.waitForPlugins(['pluginAi.generateStream'], 100, 0, 0);
+    window.pluginAi = { generateStream: "not a function" };
+    const result = await App.waitForPlugins(
+      ["pluginAi.generateStream"],
+      100,
+      0,
+      0,
+    );
     expect(result).toBe(false);
   });
 
-  test('succeeds with a mix of root and nested plugins', async () => {
+  test("succeeds with a mix of root and nested plugins", async () => {
     const App = await loadApp();
     window.pluginSuperFetch = jest.fn(); // Plugin must be a function
     window.pluginAi = { generateStream: jest.fn() };
-    const result = await App.waitForPlugins(['pluginSuperFetch', 'pluginAi.generateStream'], 100);
+    const result = await App.waitForPlugins(
+      ["pluginSuperFetch", "pluginAi.generateStream"],
+      100,
+    );
     expect(result).toBe(true);
   });
 
-  test('fails if a root plugin is missing', async () => {
+  test("fails if a root plugin is missing", async () => {
     const App = await loadApp();
     window.pluginAi = { generateStream: jest.fn() };
-    const result = await App.waitForPlugins(['pluginSuperFetch', 'pluginAi.generateStream'], 100, 0, 0);
+    const result = await App.waitForPlugins(
+      ["pluginSuperFetch", "pluginAi.generateStream"],
+      100,
+      0,
+      0,
+    );
     expect(result).toBe(false);
   });
 
-  test('returns false for empty string path', async () => {
+  test("returns false for empty string path", async () => {
     const App = await loadApp();
-    const result = await App.waitForPlugins([''], 100, 0, 0);
+    const result = await App.waitForPlugins([""], 100, 0, 0);
     expect(result).toBe(false);
   });
 
-  test('returns false for invalid paths', async () => {
+  test("returns false for invalid paths", async () => {
     const App = await loadApp();
-    const result = await App.waitForPlugins(['..invalid'], 100, 0, 0);
+    const result = await App.waitForPlugins(["..invalid"], 100, 0, 0);
     expect(result).toBe(false);
   });
 
-  test('returns false for paths with spaces', async () => {
+  test("returns false for paths with spaces", async () => {
     const App = await loadApp();
-    const result = await App.waitForPlugins(['ai. generateStream'], 100, 0, 0);
+    const result = await App.waitForPlugins(["ai. generateStream"], 100, 0, 0);
     expect(result).toBe(false);
   });
 });

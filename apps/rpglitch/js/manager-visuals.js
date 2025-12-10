@@ -6,76 +6,80 @@ import { extractImageUrl } from "./core-utils.js";
  * Decouples "Business Logic" (Prompting) from "UI Logic" (Buttons/Modals).
  */
 export const VisualManager = {
+  // --- CORE SERVICES ---
 
-    // --- CORE SERVICES ---
+  /**
+   * Generates an image using the text-to-image plugin.
+   * @param {string} prompt - The raw prompt.
+   * @param {Object} options - { resolution, negative, removeBackground }
+   */
+  async generate(prompt, options = {}) {
+    if (!window.textToImage) throw new Error("Image plugin not loaded.");
 
-    /**
-     * Generates an image using the text-to-image plugin.
-     * @param {string} prompt - The raw prompt.
-     * @param {Object} options - { resolution, negative, removeBackground }
-     */
-    async generate(prompt, options = {}) {
-        if (!window.textToImage) throw new Error("Image plugin not loaded.");
+    const resolution = options.resolution || "512x768";
+    // [UPDATED] Robust Negative Prompt Injection
+    // This effectively filters out common AI artifacts and unwanted styles
+    const DEFAULT_NEGATIVE =
+      "blurry, low quality, text, watermark, bad anatomy, distorted faces, extra limbs, mutated hands, poorly drawn face, disfigured, asymmetric, ugly, grain, noise, messy, worst quality, low resolution";
 
-        const resolution = options.resolution || "512x768";
-        // [UPDATED] Robust Negative Prompt Injection
-        // This effectively filters out common AI artifacts and unwanted styles
-        const DEFAULT_NEGATIVE = "blurry, low quality, text, watermark, bad anatomy, distorted faces, extra limbs, mutated hands, poorly drawn face, disfigured, asymmetric, ugly, grain, noise, messy, worst quality, low resolution";
+    try {
+      const result = await window.textToImage({
+        prompt: prompt,
+        resolution: resolution,
+        negative_prompt: options.negative || DEFAULT_NEGATIVE,
 
+        // [NEW] Pass the transparency flag if requested (Great for character tokens)
+        removeBackground: options.removeBackground || false,
+      });
+
+      return typeof result === "string" ? result : extractImageUrl(result);
+    } catch (e) {
+      console.error("[VisualManager] Generation failed:", e);
+      throw e;
+    }
+  },
+
+  /**
+   * Uploads an image blob using the upload plugin.
+   * @param {Blob} fileBlob
+   */
+  async upload(fileBlob) {
+    if (!window.upload) throw new Error("Upload plugin not loaded.");
+
+    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+      reader.onload = async () => {
         try {
-            const result = await window.textToImage({
-                prompt: prompt,
-                resolution: resolution,
-                negative_prompt: options.negative || DEFAULT_NEGATIVE,
-
-                // [NEW] Pass the transparency flag if requested (Great for character tokens)
-                removeBackground: options.removeBackground || false
-            });
-
-            return typeof result === 'string' ? result : extractImageUrl(result);
+          const res = await window.upload(reader.result);
+          const url = typeof res === "string" ? res : extractImageUrl(res);
+          resolve(url);
         } catch (e) {
-            console.error("[VisualManager] Generation failed:", e);
-            throw e;
+          reject(e);
         }
-    },
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(fileBlob);
+    });
+  },
 
-    /**
-     * Uploads an image blob using the upload plugin.
-     * @param {Blob} fileBlob 
-     */
-    async upload(fileBlob) {
-        if (!window.upload) throw new Error("Upload plugin not loaded.");
+  // --- PROMPT ENGINEERING ---
 
-        const reader = new FileReader();
-        return new Promise((resolve, reject) => {
-            reader.onload = async () => {
-                try {
-                    const res = await window.upload(reader.result);
-                    const url = typeof res === 'string' ? res : extractImageUrl(res);
-                    resolve(url);
-                } catch (e) {
-                    reject(e);
-                }
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(fileBlob);
-        });
-    },
+  /**
+   * "The Director": Merges extraction and stylization into one pass.
+   * Generates a fully realized Flux prompt from entity data + style settings.
+   * Replaces the old 'extractTraits' and 'stylize' split workflow.
+   */
+  async composePrompt(
+    entity,
+    stylePreference = "photorealistic",
+    extraContext = null,
+  ) {
+    if (!window.ai) throw new Error("AI plugin not loaded.");
 
-    // --- PROMPT ENGINEERING ---
+    const isWorld = entity.type && entity.type.toLowerCase() === "world";
 
-    /**
-     * "The Director": Merges extraction and stylization into one pass.
-     * Generates a fully realized Flux prompt from entity data + style settings.
-     * Replaces the old 'extractTraits' and 'stylize' split workflow.
-     */
-    async composePrompt(entity, stylePreference = "photorealistic", extraContext = null) {
-        if (!window.ai) throw new Error("AI plugin not loaded.");
-
-        const isWorld = entity.type && entity.type.toLowerCase() === 'world';
-
-        // [UPDATED] Context to include ALL narrative fields for extraction
-        let context = `
+    // [UPDATED] Context to include ALL narrative fields for extraction
+    let context = `
 SUBJECT NAME: ${entity.name || "Unknown"}
 ROLE/DESC: ${entity.description || ""}
 TAGS: ${(entity.tags || []).join(", ")}
@@ -88,14 +92,14 @@ FUTURE: ${entity.future || "Not specified"}
 TARGET STYLE: ${stylePreference}
 `.trim();
 
-        if (extraContext && extraContext.trim()) {
-            context += `\nUSER NOTES: ${extraContext.trim()}`;
-        }
+    if (extraContext && extraContext.trim()) {
+      context += `\nUSER NOTES: ${extraContext.trim()}`;
+    }
 
-        let systemPrompt;
+    let systemPrompt;
 
-        if (isWorld) {
-            systemPrompt = `[SYSTEM: VISUAL_DIRECTOR]
+    if (isWorld) {
+      systemPrompt = `[SYSTEM: VISUAL_DIRECTOR]
 You are a Lead Environment Artist & Landscape Photographer using the Flux Image Engine.
 Task: Write a cohesive "Visual Specification" paragraph (3-4 sentences) that combines the SUBJECT with the TARGET STYLE.
 
@@ -106,9 +110,9 @@ Task: Write a cohesive "Visual Specification" paragraph (3-4 sentences) that com
 4. **No Characters:** Do not focus on specific individuals. Focus on the *world* itself.
 5. **Format:** Output ONLY the prompt text.
 </RULES>`;
-        } else {
-            // [UPDATED] Strict Extraction & Orchestration Logic
-            systemPrompt = `[SYSTEM: VISUAL_DIRECTOR]
+    } else {
+      // [UPDATED] Strict Extraction & Orchestration Logic
+      systemPrompt = `[SYSTEM: VISUAL_DIRECTOR]
 You are a Lead Character Artist & Portrait Photographer using the Flux Image Engine.
 Target: Create a high-fidelity image prompt for "${entity.name}".
 
@@ -135,12 +139,12 @@ Target: Create a high-fidelity image prompt for "${entity.name}".
 - NO conversational filler ("Here is the prompt").
 - Output ONLY the raw prompt text.
 </OUTPUT_FORMAT>`;
-        }
-
-        // Call the LLM
-        const result = await window.ai(`${systemPrompt}\n\n[DATA]\n${context}`);
-
-        // Clean up any potential quotes or leading/trailing whitespace
-        return result.replace(/^["']|["']$/g, "").trim();
     }
+
+    // Call the LLM
+    const result = await window.ai(`${systemPrompt}\n\n[DATA]\n${context}`);
+
+    // Clean up any potential quotes or leading/trailing whitespace
+    return result.replace(/^["']|["']$/g, "").trim();
+  },
 };

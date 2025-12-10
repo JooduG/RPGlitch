@@ -18,8 +18,8 @@ function readJson(filePath) {
     console.warn(
       `⚠️  File not found: ${path.relative(
         REPO_ROOT,
-        filePath
-      )}. Returning empty object.`
+        filePath,
+      )}. Returning empty object.`,
     );
     return {};
   }
@@ -29,8 +29,8 @@ function readJson(filePath) {
       console.warn(
         `⚠️  File is empty: ${path.relative(
           REPO_ROOT,
-          filePath
-        )}. Returning empty object.`
+          filePath,
+        )}. Returning empty object.`,
       );
       return {};
     }
@@ -40,9 +40,9 @@ function readJson(filePath) {
     console.error(
       `❌  Could not parse JSON from ${path.relative(
         REPO_ROOT,
-        filePath
+        filePath,
       )}. Returning empty object.`,
-      e
+      e,
     );
     return {};
   }
@@ -125,7 +125,7 @@ async function syncLibs() {
               } else {
                 if (fs.existsSync(tmpDest)) fs.unlinkSync(tmpDest);
                 reject(
-                  new Error(`Checksum mismatch for ${path.basename(dest)}.`)
+                  new Error(`Checksum mismatch for ${path.basename(dest)}.`),
                 );
               }
             });
@@ -150,7 +150,7 @@ async function syncLibs() {
         console.error(`❌ Failed to fetch ${file}: ${err.message}`);
         process.exit(1);
       }
-    })
+    }),
   );
   console.log("✅ Lib sync complete.");
 }
@@ -170,35 +170,33 @@ function syncIgnores() {
 
   writeTextFile(
     path.join(REPO_ROOT, ".gitignore"),
-    header + getPatterns("gitignore").join("\n") + "\n"
+    header + getPatterns("gitignore").join("\n") + "\n",
   );
 
   writeTextFile(
     path.join(REPO_ROOT, ".stylelintignore"),
-    header + (masterIgnores.linters?.stylelint || []).join("\n") + "\n"
+    header + (masterIgnores.linters?.stylelint || []).join("\n") + "\n",
   );
 
   writeTextFile(
     path.join(REPO_ROOT, ".htmlhintignore"),
-    header + (masterIgnores.linters?.htmlhint || []).join("\n") + "\n"
+    header + (masterIgnores.linters?.htmlhint || []).join("\n") + "\n",
   );
 
-  const markdownlintConfigPath = path.join(REPO_ROOT, ".markdownlint-cli2.jsonc");
+  const markdownlintConfigPath = path.join(
+    REPO_ROOT,
+    ".markdownlint-cli2.jsonc",
+  );
   const markdownlintConfig = readJson(markdownlintConfigPath);
   markdownlintConfig.ignores = Array.from(
-    new Set([
-      ...(masterIgnores.linters?.markdownlint || []),
-    ])
+    new Set([...(masterIgnores.linters?.markdownlint || [])]),
   ).sort();
   writeJson(markdownlintConfigPath, markdownlintConfig);
 
   const jsconfig = readJson(jsconfigPath);
   jsconfig.compilerOptions = jsconfig.compilerOptions || {};
   jsconfig.exclude = Array.from(
-    new Set([
-      "node_modules",
-      ...(masterIgnores.gitignore || []),
-    ])
+    new Set(["node_modules", ...(masterIgnores.gitignore || [])]),
   ).sort();
   writeJson(jsconfigPath, jsconfig);
 
@@ -225,8 +223,8 @@ function syncMcp() {
     JSON.parse(
       JSON.stringify(obj).replace(
         /\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g,
-        (match, key) => envMap[key] || match
-      )
+        (match, key) => envMap[key] || match,
+      ),
     );
 
   const resolvedMcp = substituteEnvVariables(masterMcp);
@@ -268,7 +266,7 @@ function syncMcpToClaudeCode() {
 
       // Execute claude mcp add-json command
       const command = `claude mcp add-json "${name}" ${JSON.stringify(
-        jsonString
+        jsonString,
       )}`;
       execSync(command, { stdio: "pipe" });
 
@@ -288,7 +286,7 @@ function syncMcpToClaudeCode() {
   }
 
   console.log(
-    `\n✅ Complete: ${successCount} added, ${existsCount} already existed, ${failCount} failed`
+    `\n✅ Complete: ${successCount} added, ${existsCount} already existed, ${failCount} failed`,
   );
 
   if (failCount === 0) {
@@ -296,7 +294,7 @@ function syncMcpToClaudeCode() {
     console.log("   Restart Claude Code to see the changes.");
   } else {
     console.log(
-      "⚠️  Some servers failed. Check errors above and add manually if needed."
+      "⚠️  Some servers failed. Check errors above and add manually if needed.",
     );
   }
 }
@@ -361,7 +359,7 @@ function generateHub() {
         const { numTotalTests, numPassedTests } = results;
         return `${numPassedTests}/${numTotalTests} passed`;
       }
-    } catch { }
+    } catch {}
     return "No test results found.";
   };
 
@@ -371,7 +369,7 @@ function generateHub() {
       .readdirSync(OUTPUT_DIR)
       .filter((f) => f.startsWith("combined-") && f.endsWith(".md"))
       .map(
-        (f) => `  - [${f.replace("combined-", "").replace(".md", "")}](./${f})`
+        (f) => `  - [${f.replace("combined-", "").replace(".md", "")}](./${f})`,
       )
       .join("\n");
   };
@@ -409,7 +407,7 @@ ${getPackageScripts()}
   if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   fs.writeFileSync(HUB_FILE, content.trim() + "\n", "utf8");
   console.log(
-    `✅ Hub file generated at: ${path.relative(REPO_ROOT, HUB_FILE)}`
+    `✅ Hub file generated at: ${path.relative(REPO_ROOT, HUB_FILE)}`,
   );
 }
 

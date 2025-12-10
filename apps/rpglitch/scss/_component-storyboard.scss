@@ -44,7 +44,7 @@
         width: 100%;
         pointer-events: auto;
 
-        // Allow the card to be the primary flexible element if needed, 
+        // Allow the card to be the primary flexible element if needed,
         // but usually fixed aspect ratio handles it.
         flex-shrink: 0;
 
@@ -81,7 +81,7 @@
 }
 
 // Force interactivity on the children (Cards)
-.stage-column--side .stage-content--storyboard>* {
+.stage-column--side .stage-content--storyboard > * {
     pointer-events: auto;
 }
 
@@ -103,7 +103,6 @@ body.mode-gameplay .stage-content--storyboard {
 body.mode-storyboard .stage-content--gameplay {
     display: none !important;
 }
-
 
 /* =========================================
    INPUTS & CONTROLS
@@ -146,7 +145,6 @@ body.mode-storyboard .stage-content--gameplay {
     }
 }
 
-
 /* --- ACTION BAR (Button Group) --- */
 .storyboard-actions [role="group"] {
     display: inline-flex;
@@ -176,7 +174,9 @@ body.mode-storyboard .stage-content--gameplay {
         font-size: 0.9rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        transition: background 0.2s, color 0.2s;
+        transition:
+            background 0.2s,
+            color 0.2s;
         cursor: pointer;
 
         // Explicitly set text color

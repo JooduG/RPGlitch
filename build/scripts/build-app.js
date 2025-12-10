@@ -17,29 +17,29 @@ import * as sass from "sass";
 import postcss from "postcss";
 import autoprefixer from "autoprefixer";
 import fs from "fs/promises";
-import fsSync from 'fs';
+import fsSync from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { JSDOM, VirtualConsole } from "jsdom";
 
 // --- CONFIGURATION ---
 const APP_CONFIGS = {
-    imageglitch: {
-        extraLibs: [
-            { name: 'dexie', file: 'dexie.js' },
-            { name: 'dompurify', file: 'purify.min.js' },
-        ],
-        useComplexLoader: true  // Proven to work on Perchance
-    },
-    rpglitch: {
-        extraLibs: [
-            { name: 'cash', file: 'cash.min.js' },
-            { name: 'dexie', file: 'dexie.js' },
-            { name: 'dompurify', file: 'purify.min.js' },
-            { name: 'hyperscript', file: '_hyperscript.min.js' },
-        ],
-        useComplexLoader: true  // Proven to work on Perchance
-    }
+  imageglitch: {
+    extraLibs: [
+      { name: "dexie", file: "dexie.js" },
+      { name: "dompurify", file: "purify.min.js" },
+    ],
+    useComplexLoader: true, // Proven to work on Perchance
+  },
+  rpglitch: {
+    extraLibs: [
+      { name: "cash", file: "cash.min.js" },
+      { name: "dexie", file: "dexie.js" },
+      { name: "dompurify", file: "purify.min.js" },
+      { name: "hyperscript", file: "_hyperscript.min.js" },
+    ],
+    useComplexLoader: true, // Proven to work on Perchance
+  },
 };
 
 // --- PATHS ---
@@ -47,7 +47,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const OUTPUT_DIR = path.join(REPO_ROOT, "build", "output");
-const LOCAL_LIBS_DIR = path.join(REPO_ROOT, 'build', 'local_libs');
+const LOCAL_LIBS_DIR = path.join(REPO_ROOT, "build", "local_libs");
 
 // --- UTILITIES ---
 /**
@@ -58,11 +58,11 @@ const LOCAL_LIBS_DIR = path.join(REPO_ROOT, 'build', 'local_libs');
  * @returns {string[]} Array of string chunks
  */
 function chunkString(str, chunkSize = 500) {
-    const chunks = [];
-    for (let i = 0; i < str.length; i += chunkSize) {
-        chunks.push(str.substring(i, i + chunkSize));
-    }
-    return chunks;
+  const chunks = [];
+  for (let i = 0; i < str.length; i += chunkSize) {
+    chunks.push(str.substring(i, i + chunkSize));
+  }
+  return chunks;
 }
 
 /**
@@ -72,125 +72,140 @@ function chunkString(str, chunkSize = 500) {
  * @returns {string} File contents or empty string
  */
 function readFileSafe(filePath, kind) {
-    try {
-        return fsSync.readFileSync(filePath, 'utf8');
-    } catch {
-        console.warn(`⚠️  Missing ${kind}: ${filePath}`);
-        return '';
-    }
+  try {
+    return fsSync.readFileSync(filePath, "utf8");
+  } catch {
+    console.warn(`⚠️  Missing ${kind}: ${filePath}`);
+    return "";
+  }
 }
 
 // --- CORE BUILD LOGIC ---
 async function compileStyles(entryPointScss, picoCssPath) {
-    try {
-        const picoCss = await fs.readFile(picoCssPath, "utf8");
-        const sassResult = await sass.compileAsync(entryPointScss);
-        console.log("DEBUG: Sass CSS Length:", sassResult.css.length);
-        console.log("DEBUG: Sass CSS Preview:", sassResult.css.substring(0, 200));
-        console.log("DEBUG: Has Red BG:", sassResult.css.includes("background: red"));
-        const combinedCss = picoCss + '\n' + sassResult.css;
-        const postcssResult = await postcss([autoprefixer]).process(combinedCss, { from: undefined });
-        return postcssResult.css;
-    } catch (error) {
-        console.error("❌ SCSS/PostCSS compilation failed:", error);
-        throw error;
-    }
+  try {
+    const picoCss = await fs.readFile(picoCssPath, "utf8");
+    const sassResult = await sass.compileAsync(entryPointScss);
+    console.log("DEBUG: Sass CSS Length:", sassResult.css.length);
+    console.log("DEBUG: Sass CSS Preview:", sassResult.css.substring(0, 200));
+    console.log(
+      "DEBUG: Has Red BG:",
+      sassResult.css.includes("background: red"),
+    );
+    const combinedCss = picoCss + "\n" + sassResult.css;
+    const postcssResult = await postcss([autoprefixer]).process(combinedCss, {
+      from: undefined,
+    });
+    return postcssResult.css;
+  } catch (error) {
+    console.error("❌ SCSS/PostCSS compilation failed:", error);
+    throw error;
+  }
 }
 
 async function bundleJs(entryPointJs) {
-    try {
-        const result = await esbuild.build({
-            entryPoints: [entryPointJs],
-            bundle: true,
-            minify: true,
-            write: false,
-            format: 'iife',
-        });
-        return result.outputFiles[0].text;
-    } catch (error) {
-        console.error("❌ esbuild bundling failed:", error);
-        throw error;
-    }
+  try {
+    const result = await esbuild.build({
+      entryPoints: [entryPointJs],
+      bundle: true,
+      minify: true,
+      write: false,
+      format: "iife",
+    });
+    return result.outputFiles[0].text;
+  } catch (error) {
+    console.error("❌ esbuild bundling failed:", error);
+    throw error;
+  }
 }
 
 // --- MAIN ---
 async function build(appName) {
-    if (!appName || !APP_CONFIGS[appName]) {
-        console.error(`❌ Invalid or missing app name. Use 'rpglitch' or 'imageglitch'.`);
-        process.exit(1);
+  if (!appName || !APP_CONFIGS[appName]) {
+    console.error(
+      `❌ Invalid or missing app name. Use 'rpglitch' or 'imageglitch'.`,
+    );
+    process.exit(1);
+  }
+  console.log(`🔨 Building ${appName}...`);
+
+  const config = APP_CONFIGS[appName];
+  const appDir = path.join(REPO_ROOT, "apps", appName);
+
+  const entryPointJs = path.join(appDir, "js", "index.js");
+  const entryPointScss = path.join(appDir, "scss", "index.scss");
+  const htmlFile = path.join(appDir, "html", "index.html");
+  const PICO_CSS_PATH = path.resolve(
+    REPO_ROOT,
+    "build",
+    "local_libs",
+    "pico.min.css",
+  );
+
+  try {
+    await fs.mkdir(OUTPUT_DIR, { recursive: true });
+
+    const [cssContent, jsContent, htmlContent, workerContent] =
+      await Promise.all([
+        compileStyles(entryPointScss, PICO_CSS_PATH),
+        bundleJs(entryPointJs),
+        fs.readFile(htmlFile, "utf8"),
+        appName === "rpglitch"
+          ? bundleJs(path.join(appDir, "js", "worker.js"))
+          : Promise.resolve(null),
+      ]);
+    console.log("✅ JS and CSS processed successfully.");
+
+    const virtualConsole = new VirtualConsole();
+    virtualConsole.sendTo(console, { omitJSDOMErrors: true });
+    const dom = new JSDOM(htmlContent, { virtualConsole });
+    const { document } = dom.window;
+
+    // --- INJECT CSS ---
+    const styleTag = document.createElement("style");
+    styleTag.textContent = cssContent;
+    document.head.appendChild(styleTag);
+
+    // --- INJECT WORKER SOURCE (RPGlitch Only) ---
+    if (workerContent) {
+      const dexieLib = config.extraLibs.find((l) => l.name === "dexie");
+      const dexieSource = dexieLib
+        ? readFileSafe(path.join(LOCAL_LIBS_DIR, dexieLib.file), "dexie")
+        : "";
+
+      // Prepend Dexie to worker bundle
+      const finalWorkerCode = dexieSource + ";\n" + workerContent;
+
+      const workerScript = document.createElement("script");
+      workerScript.textContent = `window.RPGLITCH_WORKER_SOURCE = ${JSON.stringify(finalWorkerCode)};`;
+      document.body.appendChild(workerScript);
+      console.log("✅ Injected Worker Source Code");
     }
-    console.log(`🔨 Building ${appName}...`);
 
-    const config = APP_CONFIGS[appName];
-    const appDir = path.join(REPO_ROOT, "apps", appName);
+    // --- INJECT JAVASCRIPT ---
+    // Read vendored libraries once (used by both loaders)
+    const extraLibsContent = config.extraLibs
+      .map((lib) => readFileSafe(path.join(LOCAL_LIBS_DIR, lib.file), lib.name))
+      .filter(Boolean)
+      .join(";\n");
 
-    const entryPointJs = path.join(appDir, "js", "index.js");
-    const entryPointScss = path.join(appDir, "scss", "index.scss");
-    const htmlFile = path.join(appDir, "html", "index.html");
-    const PICO_CSS_PATH = path.resolve(REPO_ROOT, "build", "local_libs", "pico.min.css");
+    if (config.useComplexLoader) {
+      // COMPLEX LOADER: Splits code into 500-char chunks and reassembles at runtime.
+      //
+      // Why chunking? Historical reasons - possibly to work around:
+      //   - Perchance HTML panel size limits (unconfirmed)
+      //   - Browser string literal limits (unlikely)
+      //   - Copy-paste reliability (most likely)
+      //
+      // This approach is proven to work on Perchance in production. The simple
+      // loader below is untested but should work for smaller builds.
 
-    try {
-        await fs.mkdir(OUTPUT_DIR, { recursive: true });
+      const libsChunks = chunkString(extraLibsContent, 500);
+      const jsChunks = chunkString(jsContent, 500);
 
-        const [cssContent, jsContent, htmlContent, workerContent] = await Promise.all([
-            compileStyles(entryPointScss, PICO_CSS_PATH),
-            bundleJs(entryPointJs),
-            fs.readFile(htmlFile, "utf8"),
-            appName === 'rpglitch' ? bundleJs(path.join(appDir, "js", "worker.js")) : Promise.resolve(null)
-        ]);
-        console.log("✅ JS and CSS processed successfully.");
+      const libsString = JSON.stringify(libsChunks) + ".join('')";
+      const jsString = JSON.stringify(jsChunks) + ".join('')";
 
-        const virtualConsole = new VirtualConsole();
-        virtualConsole.sendTo(console, { omitJSDOMErrors: true });
-        const dom = new JSDOM(htmlContent, { virtualConsole });
-        const { document } = dom.window;
-
-        // --- INJECT CSS ---
-        const styleTag = document.createElement("style");
-        styleTag.textContent = cssContent;
-        document.head.appendChild(styleTag);
-
-        // --- INJECT WORKER SOURCE (RPGlitch Only) ---
-        if (workerContent) {
-            const dexieLib = config.extraLibs.find(l => l.name === 'dexie');
-            const dexieSource = dexieLib ? readFileSafe(path.join(LOCAL_LIBS_DIR, dexieLib.file), 'dexie') : '';
-
-            // Prepend Dexie to worker bundle
-            const finalWorkerCode = dexieSource + ';\n' + workerContent;
-
-            const workerScript = document.createElement("script");
-            workerScript.textContent = `window.RPGLITCH_WORKER_SOURCE = ${JSON.stringify(finalWorkerCode)};`;
-            document.body.appendChild(workerScript);
-            console.log("✅ Injected Worker Source Code");
-        }
-
-
-
-        // --- INJECT JAVASCRIPT ---
-        // Read vendored libraries once (used by both loaders)
-        const extraLibsContent = config.extraLibs
-            .map(lib => readFileSafe(path.join(LOCAL_LIBS_DIR, lib.file), lib.name))
-            .filter(Boolean)
-            .join(';\n');
-
-        if (config.useComplexLoader) {
-            // COMPLEX LOADER: Splits code into 500-char chunks and reassembles at runtime.
-            //
-            // Why chunking? Historical reasons - possibly to work around:
-            //   - Perchance HTML panel size limits (unconfirmed)
-            //   - Browser string literal limits (unlikely)
-            //   - Copy-paste reliability (most likely)
-            //
-            // This approach is proven to work on Perchance in production. The simple
-            // loader below is untested but should work for smaller builds.
-
-            const libsChunks = chunkString(extraLibsContent, 500);
-            const jsChunks = chunkString(jsContent, 500);
-
-            const libsString = JSON.stringify(libsChunks) + ".join('')";
-            const jsString = JSON.stringify(jsChunks) + ".join('')";
-
-            const loaderScriptContent = `
+      const loaderScriptContent = `
               var libsContent = ${libsString};
               var appContent = ${jsString};
               var libsScript = document.createElement('script');
@@ -200,61 +215,71 @@ async function build(appName) {
               appScript.textContent = appContent;
               document.body.appendChild(appScript);
             `;
-            const loaderScriptTag = document.createElement('script');
-            loaderScriptTag.textContent = loaderScriptContent.trim();
-            document.body.appendChild(loaderScriptTag);
+      const loaderScriptTag = document.createElement("script");
+      loaderScriptTag.textContent = loaderScriptContent.trim();
+      document.body.appendChild(loaderScriptTag);
+    } else {
+      // SIMPLE LOADER: Inlines all code directly into a single script tag.
+      //
+      // This is simpler and more standard, but untested on Perchance.
+      // Use for smaller apps or when chunking proves unnecessary.
 
-        } else {
-            // SIMPLE LOADER: Inlines all code directly into a single script tag.
-            //
-            // This is simpler and more standard, but untested on Perchance.
-            // Use for smaller apps or when chunking proves unnecessary.
+      const finalJsContent = extraLibsContent + ";\n" + jsContent;
 
-            const finalJsContent = extraLibsContent + ';\n' + jsContent;
-
-            const scriptTag = document.createElement("script");
-            scriptTag.textContent = finalJsContent;
-            document.body.appendChild(scriptTag);
-        }
-        console.log("✅ Injected CSS and JS into HTML.");
-
-        let finalHtml = dom.serialize();
-
-        // --- FINAL CLEANUP: Forcefully remove external references via string replacement ---
-        // JSDOM manipulation sometimes fails to persist removals in serialization, so we do it here.
-
-        // Remove stylesheets
-        finalHtml = finalHtml.replace(/<link[^>]*href="[^"]*pico\.min\.css"[^>]*>/g, '<!-- pico.min.css removed -->');
-        finalHtml = finalHtml.replace(/<link[^>]*href="[^"]*index\.scss"[^>]*>/g, '<!-- index.scss removed -->');
-
-        // Remove scripts
-        const scriptsToRemove = [
-            '../js/index.js',
-            'js/index.js',
-            '../../../build/local_libs/dexie.js',
-            '../../../build/local_libs/cash.min.js',
-            '../../../build/local_libs/purify.min.js',
-            '../../../build/local_libs/_hyperscript.min.js'
-        ];
-
-        scriptsToRemove.forEach(src => {
-            // Escape special regex characters in the src path
-            const escapedSrc = src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`<script[^>]*src="${escapedSrc}"[^>]*><\/script>`, 'g');
-            finalHtml = finalHtml.replace(regex, `<!-- ${src} removed -->`);
-        });
-
-        console.log("✅ Performed final string cleanup of external tags.");
-
-        const finalOutputName = appName === 'rpglitch' ? 'RPGlitch.html' : `${appName}.html`;
-        const finalOutputPath = path.join(OUTPUT_DIR, finalOutputName);
-        await fs.writeFile(finalOutputPath, finalHtml);
-        console.log(`✨ Successfully created ${path.relative(REPO_ROOT, finalOutputPath)}`);
-
-    } catch (error) {
-        console.error(`\n❌ Build failed for ${appName}.`, error);
-        process.exit(1);
+      const scriptTag = document.createElement("script");
+      scriptTag.textContent = finalJsContent;
+      document.body.appendChild(scriptTag);
     }
+    console.log("✅ Injected CSS and JS into HTML.");
+
+    let finalHtml = dom.serialize();
+
+    // --- FINAL CLEANUP: Forcefully remove external references via string replacement ---
+    // JSDOM manipulation sometimes fails to persist removals in serialization, so we do it here.
+
+    // Remove stylesheets
+    finalHtml = finalHtml.replace(
+      /<link[^>]*href="[^"]*pico\.min\.css"[^>]*>/g,
+      "<!-- pico.min.css removed -->",
+    );
+    finalHtml = finalHtml.replace(
+      /<link[^>]*href="[^"]*index\.scss"[^>]*>/g,
+      "<!-- index.scss removed -->",
+    );
+
+    // Remove scripts
+    const scriptsToRemove = [
+      "../js/index.js",
+      "js/index.js",
+      "../../../build/local_libs/dexie.js",
+      "../../../build/local_libs/cash.min.js",
+      "../../../build/local_libs/purify.min.js",
+      "../../../build/local_libs/_hyperscript.min.js",
+    ];
+
+    scriptsToRemove.forEach((src) => {
+      // Escape special regex characters in the src path
+      const escapedSrc = src.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(
+        `<script[^>]*src="${escapedSrc}"[^>]*><\/script>`,
+        "g",
+      );
+      finalHtml = finalHtml.replace(regex, `<!-- ${src} removed -->`);
+    });
+
+    console.log("✅ Performed final string cleanup of external tags.");
+
+    const finalOutputName =
+      appName === "rpglitch" ? "RPGlitch.html" : `${appName}.html`;
+    const finalOutputPath = path.join(OUTPUT_DIR, finalOutputName);
+    await fs.writeFile(finalOutputPath, finalHtml);
+    console.log(
+      `✨ Successfully created ${path.relative(REPO_ROOT, finalOutputPath)}`,
+    );
+  } catch (error) {
+    console.error(`\n❌ Build failed for ${appName}.`, error);
+    process.exit(1);
+  }
 }
 
 const appNameToBuild = process.argv[2];

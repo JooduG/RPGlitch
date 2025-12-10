@@ -1,6 +1,6 @@
-import { JSDOM } from 'jsdom';
+import { JSDOM } from "jsdom";
 
-jest.mock('../apps/rpglitch/js/entity-crud.js', () => ({
+jest.mock("../apps/rpglitch/js/entity-crud.js", () => ({
   entities: {
     list: jest.fn().mockReturnValue([]),
   },
@@ -9,15 +9,15 @@ jest.mock('../apps/rpglitch/js/entity-crud.js', () => ({
 }));
 
 async function loadApp() {
-  const dom = new JSDOM('<!doctype html><html><body></body></html>', {
-    url: 'http://localhost',
-    runScripts: 'outside-only'
+  const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+    url: "http://localhost",
+    runScripts: "outside-only",
   });
 
   global.window = dom.window;
   global.document = dom.window.document;
 
-  dom.window.alert = () => { };
+  dom.window.alert = () => {};
   dom.window.Dexie = jest.fn(function (name) {
     this.name = name;
     this.version = jest.fn().mockReturnThis();
@@ -27,18 +27,18 @@ async function loadApp() {
   });
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
-  dom.window.$ = function () { };
+  dom.window.$ = function () {};
 
   jest.resetModules();
-  const utils = await import('../apps/rpglitch/js/core-utils.js');
-  const index = await import('../apps/rpglitch/js/index.js');
+  const utils = await import("../apps/rpglitch/js/core-utils.js");
+  const index = await import("../apps/rpglitch/js/index.js");
 
   dom.window.App = {
     ...index,
     ...utils,
   };
 
-  if (typeof dom.window.App._getUIElements !== 'function') {
+  if (typeof dom.window.App._getUIElements !== "function") {
     dom.window.App._getUIElements = jest.fn();
   }
 
@@ -53,11 +53,11 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-test('initializeDb uses default db name when window.dbName is undefined', async () => {
+test("initializeDb uses default db name when window.dbName is undefined", async () => {
   const { App, dom } = await loadApp();
-  dom.window.dbName = 'rpglitch-db'; // Set dbName here
+  dom.window.dbName = "rpglitch-db"; // Set dbName here
   App.initialLoad = jest.fn().mockResolvedValue();
   App._attachStoryboardEventListeners = jest.fn();
   await App.initializeWhenReady();
-  expect(dom.window.dbName).toBe('rpglitch-db');
+  expect(dom.window.dbName).toBe("rpglitch-db");
 });

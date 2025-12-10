@@ -9,6 +9,6 @@ export default {
   sanitize: (input) => {
     // Simple sanitization for tests - just return the input as-is
     // In production, DOMPurify would actually sanitize HTML
-    return typeof input === 'string' ? input : '';
-  }
+    return typeof input === "string" ? input : "";
+  },
 };

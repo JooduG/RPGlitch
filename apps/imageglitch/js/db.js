@@ -8,7 +8,7 @@ const Dexie = window.Dexie || globalThis.Dexie;
 if (typeof Dexie === "undefined" && typeof global === "undefined") {
   // Only error in browser environment (not in test environment)
   console.error(
-    "[ImageGlitch DB] Dexie is not available. Ensure build includes vendored Dexie library."
+    "[ImageGlitch DB] Dexie is not available. Ensure build includes vendored Dexie library.",
   );
 }
 
@@ -81,12 +81,12 @@ db.version(2)
       storage.removeItem("instructionsVisible");
 
       console.log(
-        "[ImageGlitch DB Migration] Migration v2 completed successfully."
+        "[ImageGlitch DB Migration] Migration v2 completed successfully.",
       );
     } catch (error) {
       console.error(
         "[ImageGlitch DB Migration] Migration v2 failed, localStorage preserved:",
-        error
+        error,
       );
       // Do NOT remove localStorage if migration fails
       throw error; // Re-throw to mark migration as failed
@@ -107,7 +107,7 @@ export async function init() {
       (err.message && err.message.includes("primary key"))
     ) {
       console.warn(
-        "[ImageGlitch DB] Schema corruption detected. Deleting and recreating database..."
+        "[ImageGlitch DB] Schema corruption detected. Deleting and recreating database...",
       );
 
       try {
@@ -139,13 +139,13 @@ export async function init() {
 
         await newDb.open();
         console.log(
-          "[ImageGlitch DB] Fresh database created and opened successfully."
+          "[ImageGlitch DB] Fresh database created and opened successfully.",
         );
         return newDb;
       } catch (deleteErr) {
         console.error(
           "[ImageGlitch DB] Failed to recover from corruption:",
-          deleteErr
+          deleteErr,
         );
         throw deleteErr;
       }

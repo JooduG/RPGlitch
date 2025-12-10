@@ -17,7 +17,6 @@ main.container {
   @include custom-scrollbar;
 }
 
-
 /* =========================================
    THE UNIVERSAL STAGE
    The master grid that persists across all app modes.
@@ -28,8 +27,7 @@ main.container {
   display: grid;
 
   // Standardized 3-column layout with safe constraints
-  grid-template-columns:
-    var(--layout-left-col, 1fr) var(--layout-center-col, 2fr) var(--layout-right-col, 1fr);
+  grid-template-columns: var(--layout-left-col, 1fr) var(--layout-center-col, 2fr) var(--layout-right-col, 1fr);
   height: 100vh;
   width: 100vw;
   overflow: hidden;
@@ -42,9 +40,7 @@ main.container {
   // Atmospheric Background Logic
   --world-ambience-rgb: 17, 25, 31;
 
-  background-image: radial-gradient(circle at 50% 30%,
-      rgb(var(--world-ambience-rgb) / 15%) 0%,
-      transparent 70%);
+  background-image: radial-gradient(circle at 50% 30%, rgb(var(--world-ambience-rgb) / 15%) 0%, transparent 70%);
   color: var(--pico-color, #fff);
   transition: all 0.6s ease;
   pointer-events: none; // [FIX] Ensure clicks pass through empty areas
@@ -64,11 +60,8 @@ main.container {
 
 .stage-column--center {
   // Subtle spotlight effect for the main stage
-  background: radial-gradient(circle at center,
-      rgb(255 255 255 / 3%) 0%,
-      transparent 70%);
+  background: radial-gradient(circle at center, rgb(255 255 255 / 3%) 0%, transparent 70%);
 }
-
 
 /* =========================================
    STATE MANAGEMENT (MODES)
@@ -142,7 +135,6 @@ body.mode-gameplay {
     }
   }
 }
-
 
 /* =========================================
    ANIMATIONS

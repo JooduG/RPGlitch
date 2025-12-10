@@ -1,4 +1,4 @@
-jest.mock('../apps/rpglitch/js/entity-crud.js', () => ({
+jest.mock("../apps/rpglitch/js/entity-crud.js", () => ({
   entities: {
     list: jest.fn().mockReturnValue([]),
   },
@@ -12,8 +12,8 @@ async function loadApp(html) {
 
   // Re-import modules to get a fresh state
   jest.resetModules();
-  const utils = await import('../apps/rpglitch/js/core-utils.js');
-  const index = await import('../apps/rpglitch/js/index.js');
+  const utils = await import("../apps/rpglitch/js/core-utils.js");
+  const index = await import("../apps/rpglitch/js/index.js");
 
   // App object is now constructed from re-imported modules
   const App = {
@@ -32,7 +32,7 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-test('top bar click triggers chin toggle without duplicate handlers', async () => {
+test("top bar click triggers chin toggle without duplicate handlers", async () => {
   const html = `<!doctype html><html><body>
     <header id="top-bar">
       <div id="top-bar-left">
@@ -48,19 +48,21 @@ test('top bar click triggers chin toggle without duplicate handlers', async () =
   App.chin.init();
   App.chin.init(); // Call twice to ensure no duplicate handlers
 
-  const btn = document.querySelector('#top-bar-left button[data-chin="stories"]');
+  const btn = document.querySelector(
+    '#top-bar-left button[data-chin="stories"]',
+  );
   let panel = document.querySelector('.chin[data-chin="stories"]');
 
   expect(btn).not.toBeNull();
   expect(panel).not.toBeNull();
 
   btn.click();
-  await new Promise(resolve => setTimeout(resolve, 0));
+  await new Promise((resolve) => setTimeout(resolve, 0));
   panel = document.querySelector('.chin[data-chin="stories"]');
-  expect(panel.hasAttribute('hidden')).toBe(false);
+  expect(panel.hasAttribute("hidden")).toBe(false);
 
   btn.click();
-  await new Promise(resolve => setTimeout(resolve, 0));
+  await new Promise((resolve) => setTimeout(resolve, 0));
   panel = document.querySelector('.chin[data-chin="stories"]');
-  expect(panel.hasAttribute('hidden')).toBe(true);
+  expect(panel.hasAttribute("hidden")).toBe(true);
 });

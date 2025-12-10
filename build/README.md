@@ -18,11 +18,11 @@ build/
 
 ## Core Scripts
 
--   **`build-app.js`**: Compiles a specific application (e.g., RPGlitch) by processing its HTML, SCSS, and JavaScript into a single inlined HTML file.
--   **`sync.js`**: Synchronizes configurations across the monorepo, manages vendored libraries, and updates ignore files.
--   **`watch.js`**: Monitors source files for changes and automatically triggers a rebuild, useful for development.
+- **`build-app.js`**: Compiles a specific application (e.g., RPGlitch) by processing its HTML, SCSS, and JavaScript into a single inlined HTML file.
+- **`sync.js`**: Synchronizes configurations across the monorepo, manages vendored libraries, and updates ignore files.
+- **`watch.js`**: Monitors source files for changes and automatically triggers a rebuild, useful for development.
 
 ## Related Documentation
 
--   [GEMINI.md](../GEMINI.md): The complete project protocol, including build commands.
--   [PERCHANCE.md](../PERCHANCE.md): Describes the deployment workflow that uses the output of this build system.
+- [GEMINI.md](../GEMINI.md): The complete project protocol, including build commands.
+- [PERCHANCE.md](../PERCHANCE.md): Describes the deployment workflow that uses the output of this build system.

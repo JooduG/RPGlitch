@@ -8,7 +8,13 @@
  * @param {Function} onDone - Callback when generation completes
  * @returns {Promise<string>} - The full generated text
  */
-export async function generateStream({ payload, options = {}, signal, onToken, onDone }) {
+export async function generateStream({
+  payload,
+  options = {},
+  signal,
+  onToken,
+  onDone,
+}) {
   if (!window.ai) throw new Error("Perchance AI plugin not available.");
 
   // 1. Construct the final instruction string
@@ -17,7 +23,7 @@ export async function generateStream({ payload, options = {}, signal, onToken, o
 
   // Format chat history if present
   const chatHistory = (payload.messages || [])
-    .map(m => {
+    .map((m) => {
       // Map internal roles to prompt-friendly labels
       const label = m.role === "user" ? "User" : m.characterName || "Character";
       return `${label}: ${m.text}`;
@@ -27,8 +33,10 @@ export async function generateStream({ payload, options = {}, signal, onToken, o
   const instruction = [
     payload.system,
     chatHistory ? `\n[CONVERSATION HISTORY]\n${chatHistory}` : "",
-    payload.startWith ? `\n${payload.startWith}` : "" // Allow builder to set the starting cursor
-  ].filter(Boolean).join("\n");
+    payload.startWith ? `\n${payload.startWith}` : "", // Allow builder to set the starting cursor
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   // 2. Call the Plugin
   const result = await window.ai(instruction, {

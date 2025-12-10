@@ -4,14 +4,16 @@ import { db } from "./db.js";
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
 (function enforceClientSideFreedom() {
   try {
-    if (localStorage.getItem('okayToShowNSFWUntil')) {
-      localStorage.setItem('okayToShowNSFWUntil', '0');
+    if (localStorage.getItem("okayToShowNSFWUntil")) {
+      localStorage.setItem("okayToShowNSFWUntil", "0");
       console.log("[ImageGlitch] 🛡️ Freedom Protocol: Penalty flag purged.");
     }
     const originalSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
-      if (key === 'okayToShowNSFWUntil') {
-        console.warn("[ImageGlitch] 🛡️ Blocked attempt to set censorship flag.");
+      if (key === "okayToShowNSFWUntil") {
+        console.warn(
+          "[ImageGlitch] 🛡️ Blocked attempt to set censorship flag.",
+        );
         return;
       }
       return originalSetItem.apply(this, arguments);
@@ -53,10 +55,20 @@ const creativityMap = {
 // ====== DYNAMIC INSTRUCTION BUILDER (THE VISUAL DIRECTOR) ======
 function getScribeInstruction(userPrompt) {
   const lists = window.glitchLists || {
-    styles: ["Cinematic Reality", "Analog Horror", "Ethereal Fantasy", "Cybernetic Grunge"],
+    styles: [
+      "Cinematic Reality",
+      "Analog Horror",
+      "Ethereal Fantasy",
+      "Cybernetic Grunge",
+    ],
     mood: ["Melancholic", "Euphorical", "Dreadful", "Serene"],
-    lighting: ["Volumetric God Rays", "Neon Rim Light", "Diffused Window Light", "Harsh Flash"],
-    tech: ["Imax 70mm", "Macro 100mm Lens", "Fish-eye Lens", "VHS Tape Grain"]
+    lighting: [
+      "Volumetric God Rays",
+      "Neon Rim Light",
+      "Diffused Window Light",
+      "Harsh Flash",
+    ],
+    tech: ["Imax 70mm", "Macro 100mm Lens", "Fish-eye Lens", "VHS Tape Grain"],
   };
 
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -65,7 +77,7 @@ function getScribeInstruction(userPrompt) {
     style: pick(lists.styles),
     mood: pick(lists.mood),
     light: pick(lists.lighting),
-    tech: pick(lists.tech)
+    tech: pick(lists.tech),
   };
 
   return `You are the "Visual Director" (Flux Architecture Specialist).
@@ -95,10 +107,25 @@ RETURN ONLY THE FINAL IMAGE DESCRIPTION.`;
 // ====== CHAOS (ENTROPY) ENGINE ======
 function getChaosInstruction(userPrompt) {
   const lists = window.glitchLists || {
-    styles: ["Surrealism", "Glitch Art", "Abstract Expressionism", "Biomechanical"],
+    styles: [
+      "Surrealism",
+      "Glitch Art",
+      "Abstract Expressionism",
+      "Biomechanical",
+    ],
     mood: ["Unsettling", "Fever Dream", "Distorted", "Eldritch"],
-    lighting: ["Strobe", "Bioluminescent", "Radioactive Glow", "Pitch Black with Spotlights"],
-    extras: ["melting geometry", "fractal flesh", "glitch artifacts", "non-euclidean shapes"]
+    lighting: [
+      "Strobe",
+      "Bioluminescent",
+      "Radioactive Glow",
+      "Pitch Black with Spotlights",
+    ],
+    extras: [
+      "melting geometry",
+      "fractal flesh",
+      "glitch artifacts",
+      "non-euclidean shapes",
+    ],
   };
 
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -107,7 +134,7 @@ function getChaosInstruction(userPrompt) {
     style: pick(lists.styles),
     mood: pick(lists.mood),
     light: pick(lists.lighting),
-    extra: pick(lists.extras)
+    extra: pick(lists.extras),
   };
 
   return `You are the "Entropy Injector" (Surrealism Engine).
@@ -175,7 +202,8 @@ window.undoState = { type: null, prompt: null, instruction: null };
 function extractAiResponse(aiResponse) {
   if (!aiResponse) return "";
   let text = "";
-  if (typeof aiResponse.generatedText === "string") text = aiResponse.generatedText;
+  if (typeof aiResponse.generatedText === "string")
+    text = aiResponse.generatedText;
   else if (typeof aiResponse.text === "string") text = aiResponse.text;
   else if (typeof aiResponse === "string") text = aiResponse;
 
@@ -188,7 +216,8 @@ function setPromptInputValue(text, isUndo = false) {
   if (promptInput) {
     promptInput.value = text;
     mainPromptContent = text;
-    if (!isUndo) promptInput.dispatchEvent(new Event("input", { bubbles: true }));
+    if (!isUndo)
+      promptInput.dispatchEvent(new Event("input", { bubbles: true }));
     else checkAllButtonStates();
   }
 }
@@ -202,7 +231,9 @@ function setUiLockState(isLocked) {
     document.getElementById("imgSeed"),
     document.getElementById("masterCreativitySlider"),
   ];
-  elements.forEach((el) => { if (el) el.disabled = isLocked; });
+  elements.forEach((el) => {
+    if (el) el.disabled = isLocked;
+  });
   document.querySelectorAll("textarea").forEach((ta) => {
     ta.readOnly = isLocked;
     ta.style.opacity = isLocked ? "0.5" : "1";
@@ -237,7 +268,10 @@ function validateSeed(seed) {
 
 function updateDerivedSettings() {
   const mc = Number(masterCreativity);
-  const selectedSettings = creativityMap[String(mc)] || { gScale: 7, aiTemp: 1.0 };
+  const selectedSettings = creativityMap[String(mc)] || {
+    gScale: 7,
+    aiTemp: 1.0,
+  };
   currentGScale = selectedSettings.gScale;
   currentAiTemperature = selectedSettings.aiTemp;
   const creativityValueEl = document.getElementById("masterCreativityValue");
@@ -246,7 +280,10 @@ function updateDerivedSettings() {
 
 function handleSeedInput(value) {
   const trimmedValue = value.trim();
-  imgSeed = (trimmedValue === "" || isNaN(Number(trimmedValue))) ? trimmedValue : Number(trimmedValue);
+  imgSeed =
+    trimmedValue === "" || isNaN(Number(trimmedValue))
+      ? trimmedValue
+      : Number(trimmedValue);
 }
 
 async function rememberSettings() {
@@ -258,9 +295,12 @@ async function rememberSettings() {
       mainPromptContent: mainPromptContent || "",
       seed: imgSeed !== "" && imgSeed !== null ? Number(imgSeed) : "",
       numImagesToGen: Number(numImagesToGen) || 1,
-      masterCreativity: Number(masterCreativity) || Number(DEFAULT_CREATIVITY_LEVEL),
+      masterCreativity:
+        Number(masterCreativity) || Number(DEFAULT_CREATIVITY_LEVEL),
       instructionInput: instructionInput ? instructionInput.value : "",
-      instructionsVisible: instructionsPanel ? instructionsPanel.style.display !== "none" : false,
+      instructionsVisible: instructionsPanel
+        ? instructionsPanel.style.display !== "none"
+        : false,
     };
     await db.settings.put(settings);
   } catch (error) {
@@ -290,7 +330,9 @@ async function loadSavedSettings() {
     }
     if (typeof settings.masterCreativity === "number") {
       masterCreativity = settings.masterCreativity;
-      const creativitySlider = document.getElementById("masterCreativitySlider");
+      const creativitySlider = document.getElementById(
+        "masterCreativitySlider",
+      );
       if (creativitySlider) creativitySlider.value = settings.masterCreativity;
     }
     if (settings.instructionInput) {
@@ -300,7 +342,9 @@ async function loadSavedSettings() {
     if (typeof settings.instructionsVisible === "boolean") {
       const instructionsPanel = document.getElementById("instructionsPanel");
       if (instructionsPanel) {
-        instructionsPanel.style.display = settings.instructionsVisible ? "block" : "none";
+        instructionsPanel.style.display = settings.instructionsVisible
+          ? "block"
+          : "none";
         if (settings.instructionsVisible) checkAllButtonStates();
       }
     }
@@ -378,9 +422,12 @@ async function executeAiProcess(type, prompt, instructions) {
   }
 
   try {
-    if (typeof window.ai !== 'function') throw new Error("AI plugin not found.");
+    if (typeof window.ai !== "function")
+      throw new Error("AI plugin not found.");
 
-    const aiOperation = window.ai(aiPrompt, { temperature: Number(currentAiTemperature) });
+    const aiOperation = window.ai(aiPrompt, {
+      temperature: Number(currentAiTemperature),
+    });
     const cancellationPromise = new Promise((_, reject) => {
       const check = setInterval(() => {
         if (window.activeAiProcess === "cancelling") {
@@ -417,7 +464,11 @@ async function executeAiProcess(type, prompt, instructions) {
 }
 
 function handleManualPromptChange() {
-  if (window.undoState.type && window.undoState.prompt && mainPromptContent.trim() !== window.undoState.prompt.trim()) {
+  if (
+    window.undoState.type &&
+    window.undoState.prompt &&
+    mainPromptContent.trim() !== window.undoState.prompt.trim()
+  ) {
     resetSmartButton();
   }
   checkAllButtonStates();
@@ -462,7 +513,9 @@ function startTimerOnButton() {
   let seconds = 0;
   generateButton.textContent = `Cancel (0s)`;
   generateButton.className = "contrast";
-  generateButton.onclick = () => { window.activeAiProcess = "cancelling"; };
+  generateButton.onclick = () => {
+    window.activeAiProcess = "cancelling";
+  };
   if (window.aiProcessInterval) clearInterval(window.aiProcessInterval);
   window.aiProcessInterval = setInterval(() => {
     seconds++;
@@ -476,10 +529,18 @@ function startTimerOnButton() {
 
 function setCommandState(commandType) {
   const generateButton = document.getElementById("generate-button");
-  let text = "", className = "";
-  if (commandType === "scribe") { text = "Refine Prompt"; className = "btn-refine"; }
-  else if (commandType === "chaos") { text = "Embrace Chaos"; className = "btn-chaos"; }
-  else if (commandType === "transfigure") { text = "Apply Instructions"; className = "btn-instruct"; }
+  let text = "",
+    className = "";
+  if (commandType === "scribe") {
+    text = "Refine Prompt";
+    className = "btn-refine";
+  } else if (commandType === "chaos") {
+    text = "Embrace Chaos";
+    className = "btn-chaos";
+  } else if (commandType === "transfigure") {
+    text = "Apply Instructions";
+    className = "btn-instruct";
+  }
   generateButton.textContent = text;
   generateButton.className = className;
   generateButton.onclick = () => handleAiButtonClick(commandType);
@@ -489,7 +550,7 @@ function setCommandState(commandType) {
 // ====== IMAGE GENERATION ======
 
 async function handleSummonClick() {
-  localStorage.setItem('okayToShowNSFWUntil', '0');
+  localStorage.setItem("okayToShowNSFWUntil", "0");
 
   const generateButton = document.getElementById("generate-button");
   const validatedPrompt = validatePrompt(mainPromptContent);
@@ -502,14 +563,18 @@ async function handleSummonClick() {
   try {
     if (typeof window.image === "undefined") {
       console.error("[ImageGlitch] Text-to-Image plugin not found!");
-      alert("Image generation is currently unavailable. Please refresh the page.");
+      alert(
+        "Image generation is currently unavailable. Please refresh the page.",
+      );
       return;
     }
 
     document.getElementById("output").innerHTML = buildImageGenerationHtml();
 
     document.querySelectorAll(".quad-cell").forEach((cell) => {
-      const prompt = safeDecodeURIComponent(cell.closest(".quad-block").dataset.prompt);
+      const prompt = safeDecodeURIComponent(
+        cell.closest(".quad-block").dataset.prompt,
+      );
       const seed = cell.dataset.seed;
       const resolution = cell.dataset.resolution;
 
@@ -546,20 +611,37 @@ function buildImageGenerationHtml() {
   for (let i = 0; i < n; i++) {
     let imageGenerator;
     if (i === 1) imageGenerator = "pollinations";
-    else if (i > 1) imageGenerator = Math.random() < 0.05 ? "pollinations" : "perchance";
+    else if (i > 1)
+      imageGenerator = Math.random() < 0.05 ? "pollinations" : "perchance";
     else imageGenerator = "perchance";
 
     if (imageGenerator === "perchance") {
       outputHtml += `<div class="block quad-block" data-prompt="${encodeURIComponent(prompt)}">`;
-      const resolutions = { "top-left": "768x768", "top-right": "512x768", "bottom-left": "768x512", "bottom-right": "512x512" };
+      const resolutions = {
+        "top-left": "768x768",
+        "top-right": "512x768",
+        "bottom-left": "768x512",
+        "bottom-right": "512x512",
+      };
       for (const position in resolutions) {
-        let blockSeed = useRandomSeeds ? Math.floor(Math.random() * 10000000) : validatedSeed;
+        let blockSeed = useRandomSeeds
+          ? Math.floor(Math.random() * 10000000)
+          : validatedSeed;
         outputHtml += `<div class="quad-cell ${position}" data-seed="${blockSeed}" data-resolution="${resolutions[position]}"></div>`;
       }
       outputHtml += `</div>`;
     } else {
-      let blockSeed = useRandomSeeds ? Math.floor(Math.random() * 10000000) : validatedSeed;
-      const params = new URLSearchParams({ width: DEFAULT_IMAGE_WIDTH, height: DEFAULT_IMAGE_HEIGHT, seed: blockSeed, model: "flux", private: true, nologo: true });
+      let blockSeed = useRandomSeeds
+        ? Math.floor(Math.random() * 10000000)
+        : validatedSeed;
+      const params = new URLSearchParams({
+        width: DEFAULT_IMAGE_WIDTH,
+        height: DEFAULT_IMAGE_HEIGHT,
+        seed: blockSeed,
+        model: "flux",
+        private: true,
+        nologo: true,
+      });
       const imgUrl = `${BASE_IMAGE_URL}${encodeURIComponent(prompt)}?${params.toString()}`;
       outputHtml += `<div class="block solo-block" data-seed="${blockSeed}" data-prompt="${encodeURIComponent(prompt)}"><img src="${imgUrl}" loading="lazy" alt="Generated image" crossorigin="anonymous"></div>`;
     }
@@ -575,12 +657,14 @@ async function waitForPlugins(requiredPlugins, timeout = 10000) {
   console.log(`[ImageGlitch] Waiting for plugins:`, requiredPlugins);
 
   while (Date.now() - startTime < timeout) {
-    const allReady = requiredPlugins.every(name => typeof window[name] !== 'undefined');
+    const allReady = requiredPlugins.every(
+      (name) => typeof window[name] !== "undefined",
+    );
     if (allReady) {
       console.log("[ImageGlitch] Plugins loaded successfully.");
       return true;
     }
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 500));
   }
   return false;
 }
@@ -594,16 +678,21 @@ async function main() {
   const instructionInput = document.getElementById("instructionInput");
   const slider = document.getElementById("masterCreativitySlider");
 
-  if (aiMagicSelect) aiMagicSelect.addEventListener("change", () => handleAiMagicSelection(aiMagicSelect));
-  if (numImagesSelect) numImagesSelect.addEventListener("change", () => {
-    numImagesToGen = Number(numImagesSelect.value);
-    checkAllButtonStates();
-    rememberSettings();
-  });
-  if (imgSeedInput) imgSeedInput.addEventListener("input", () => {
-    handleSeedInput(imgSeedInput.value);
-    rememberSettings();
-  });
+  if (aiMagicSelect)
+    aiMagicSelect.addEventListener("change", () =>
+      handleAiMagicSelection(aiMagicSelect),
+    );
+  if (numImagesSelect)
+    numImagesSelect.addEventListener("change", () => {
+      numImagesToGen = Number(numImagesSelect.value);
+      checkAllButtonStates();
+      rememberSettings();
+    });
+  if (imgSeedInput)
+    imgSeedInput.addEventListener("input", () => {
+      handleSeedInput(imgSeedInput.value);
+      rememberSettings();
+    });
   if (promptInput) {
     promptInput.addEventListener("input", () => {
       mainPromptContent = promptInput.value;
@@ -616,7 +705,8 @@ async function main() {
     instructionInput.addEventListener("keydown", handleTextareaKeyDown);
   }
   if (slider) {
-    const updateTooltip = () => slider.setAttribute("data-tooltip", `Creativity: ${slider.value}`);
+    const updateTooltip = () =>
+      slider.setAttribute("data-tooltip", `Creativity: ${slider.value}`);
     slider.addEventListener("input", () => {
       masterCreativity = Number(slider.value);
       updateDerivedSettings();
@@ -644,11 +734,15 @@ function addImageOverlays() {
   document.querySelectorAll(".solo-block, .quad-cell").forEach((el) => {
     if (el.querySelector(".image-overlay")) return;
     const seed = el.dataset.seed;
-    const prompt = safeDecodeURIComponent(el.closest(".quad-block")?.dataset.prompt || el.dataset.prompt);
+    const prompt = safeDecodeURIComponent(
+      el.closest(".quad-block")?.dataset.prompt || el.dataset.prompt,
+    );
 
     const overlay = document.createElement("div");
     overlay.className = "image-overlay";
-    const sanitized = window.DOMPurify ? window.DOMPurify.sanitize(prompt) : prompt;
+    const sanitized = window.DOMPurify
+      ? window.DOMPurify.sanitize(prompt)
+      : prompt;
 
     overlay.innerHTML = `
       <div class="image-info-panel"><div class="prompt-display">${sanitized}</div></div>
@@ -664,46 +758,84 @@ function addImageOverlays() {
     el.classList.add("image-container");
     el.appendChild(overlay);
 
-    overlay.querySelector(".download-btn").addEventListener("click", (e) => { e.stopPropagation(); downloadImage(el); });
-    overlay.querySelector(".reroll-btn").addEventListener("click", (e) => { e.stopPropagation(); rerollImage(el, el.dataset.resolution); });
+    overlay.querySelector(".download-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      downloadImage(el);
+    });
+    overlay.querySelector(".reroll-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      rerollImage(el, el.dataset.resolution);
+    });
   });
 }
 
 function downloadImage(container) {
   const img = container.querySelector("img, canvas");
   if (!img) return;
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.download = `image_${container.dataset.seed}.png`;
 
-  if (img.tagName === 'CANVAS') {
-    try { link.href = img.toDataURL(); link.click(); } catch (e) { console.error(e); }
+  if (img.tagName === "CANVAS") {
+    try {
+      link.href = img.toDataURL();
+      link.click();
+    } catch (e) {
+      console.error(e);
+    }
   } else {
     try {
-      fetch(img.src).then(res => res.blob()).then(blob => {
-        link.href = URL.createObjectURL(blob);
-        link.click();
-      }).catch(() => { link.href = img.src; link.target = "_blank"; link.click(); });
-    } catch (e) { link.href = img.src; link.target = "_blank"; link.click(); }
+      fetch(img.src)
+        .then((res) => res.blob())
+        .then((blob) => {
+          link.href = URL.createObjectURL(blob);
+          link.click();
+        })
+        .catch(() => {
+          link.href = img.src;
+          link.target = "_blank";
+          link.click();
+        });
+    } catch (e) {
+      link.href = img.src;
+      link.target = "_blank";
+      link.click();
+    }
   }
 }
 
 function rerollImage(container, resolution) {
-  const prompt = safeDecodeURIComponent(container.closest(".quad-block")?.dataset.prompt || container.dataset.prompt);
+  const prompt = safeDecodeURIComponent(
+    container.closest(".quad-block")?.dataset.prompt ||
+      container.dataset.prompt,
+  );
   const newSeed = Math.floor(Math.random() * 10000000);
 
   if (resolution) {
     const canvas = container.querySelector("canvas");
     if (canvas) canvas.remove();
-    if (typeof window.image === 'function') {
+    if (typeof window.image === "function") {
       window.image({
-        prompt: prompt, seed: newSeed, guidanceScale: currentGScale, resolution: resolution,
-        onFinish: (r) => { if (r.iframe) r.iframe.replaceWith(r.canvas); container.appendChild(r.canvas); }
+        prompt: prompt,
+        seed: newSeed,
+        guidanceScale: currentGScale,
+        resolution: resolution,
+        onFinish: (r) => {
+          if (r.iframe) r.iframe.replaceWith(r.canvas);
+          container.appendChild(r.canvas);
+        },
       });
     }
   } else {
     const img = container.querySelector("img");
     if (img) {
-      const params = new URLSearchParams({ width: DEFAULT_IMAGE_WIDTH, height: DEFAULT_IMAGE_HEIGHT, seed: newSeed, model: "flux", private: true, nologo: true });
+      const params = new URLSearchParams({
+        width: DEFAULT_IMAGE_WIDTH,
+        height: DEFAULT_IMAGE_HEIGHT,
+        seed: newSeed,
+        model: "flux",
+        private: true,
+        nologo: true,
+      });
       img.src = `${BASE_IMAGE_URL}${encodeURIComponent(prompt)}?${params.toString()}`;
     }
   }

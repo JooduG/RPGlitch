@@ -1,10 +1,23 @@
-
-
 import { initDrawer, closeDrawer } from "./drawer.js";
-import { setGameplayEntities, updatePortraits, setSendLock } from "./ui-render-chat.js";
+import {
+  setGameplayEntities,
+  updatePortraits,
+  setSendLock,
+} from "./ui-render-chat.js";
 import { setAppBackground } from "./core-utils.js";
-import { updateLocalSelection, bindDrawerTrigger, bindPortraitClick, renderEntityPreview, openDrawerFor, setChinCallbacks } from "./ui-chin.js";
-import { renderProfilePage, closeProfileModal, setProfileCallbacks } from "./ui-profile.js";
+import {
+  updateLocalSelection,
+  bindDrawerTrigger,
+  bindPortraitClick,
+  renderEntityPreview,
+  openDrawerFor,
+  setChinCallbacks,
+} from "./ui-chin.js";
+import {
+  renderProfilePage,
+  closeProfileModal,
+  setProfileCallbacks,
+} from "./ui-profile.js";
 
 // Shared Selection State (The Source of Truth)
 const selectedEntities = {
@@ -13,12 +26,9 @@ const selectedEntities = {
   world: null,
 };
 
-
 let _onSelectionChanged = null;
 
 export { setGameplayEntities, updatePortraits, setSendLock, router };
-
-
 
 // --- CORE ROUTING ---
 function showStoryboard() {
@@ -27,8 +37,6 @@ function showStoryboard() {
   document.body.classList.add("mode-storyboard");
   closeProfileModal();
 }
-
-
 
 function showStoryScreen() {
   document.body.classList.remove("profile-view-active");
@@ -43,7 +51,10 @@ function parseHash() {
 }
 
 function handleRoute() {
-  try { } catch (e) { void e; }
+  try {
+  } catch (e) {
+    void e;
+  }
   const [section, entityType, id] = parseHash();
   const isType = (t) => t === "character" || t === "world";
 
@@ -60,11 +71,18 @@ function handleRoute() {
   }
 
   if (section === "profile" && isType(entityType) && id) {
-    if (!document.body.classList.contains("mode-gameplay") && !document.body.classList.contains("mode-storyboard")) {
+    if (
+      !document.body.classList.contains("mode-gameplay") &&
+      !document.body.classList.contains("mode-storyboard")
+    ) {
       document.body.classList.add("mode-storyboard");
     }
     renderProfilePage(entityType, id);
-    try { closeDrawer(); } catch (e) { void e; }
+    try {
+      closeDrawer();
+    } catch (e) {
+      void e;
+    }
   } else if (section === "story") {
     showStoryScreen();
   } else {
@@ -73,20 +91,34 @@ function handleRoute() {
 }
 
 window.addEventListener("hashchange", handleRoute);
-document.addEventListener("DOMContentLoaded", () => {
-  handleRoute();
-  document.querySelectorAll("button[data-chin]").forEach((btn) => btn.classList.add("entity-drawer-button"));
-  document.querySelectorAll('form[role="search"]').forEach((form) => {
-    form.addEventListener("submit", (e) => e.preventDefault());
-  });
-}, { once: true });
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    handleRoute();
+    document
+      .querySelectorAll("button[data-chin]")
+      .forEach((btn) => btn.classList.add("entity-drawer-button"));
+    document.querySelectorAll('form[role="search"]').forEach((form) => {
+      form.addEventListener("submit", (e) => e.preventDefault());
+    });
+  },
+  { once: true },
+);
 
-const router = { navigate(hash) { location.hash = hash; }, parseHash, handleRoute };
+const router = {
+  navigate(hash) {
+    location.hash = hash;
+  },
+  parseHash,
+  handleRoute,
+};
 
 export function updateStoryboardSelection(newSelection) {
   // Update Source of Truth
-  if (newSelection.aiCharacter !== undefined) selectedEntities.aiCharacter = newSelection.aiCharacter;
-  if (newSelection.userCharacter !== undefined) selectedEntities.userCharacter = newSelection.userCharacter;
+  if (newSelection.aiCharacter !== undefined)
+    selectedEntities.aiCharacter = newSelection.aiCharacter;
+  if (newSelection.userCharacter !== undefined)
+    selectedEntities.userCharacter = newSelection.userCharacter;
   if (newSelection.world !== undefined) {
     selectedEntities.world = newSelection.world;
     // [NEW] Update Background Theme
@@ -101,11 +133,11 @@ export function updateStoryboardSelection(newSelection) {
     if (entity) {
       const btn = document.querySelector(btnId);
       const onEdit = () => {
-        const container = btn ? btn.closest('.entity-card') : null;
+        const container = btn ? btn.closest(".entity-card") : null;
         openDrawerFor(type, key, previewId, btn, container);
       };
 
-      const isWorld = type === 'world';
+      const isWorld = type === "world";
       renderEntityPreview(previewId, entity, btn, type, onEdit, isWorld, key);
 
       if (btn) btn.hidden = true;
@@ -117,16 +149,33 @@ export function updateStoryboardSelection(newSelection) {
     }
   };
 
-  updateSlot("aiCharacter", selectedEntities.aiCharacter, "#btn-select-ai", "#ai-character-preview", "character");
-  updateSlot("userCharacter", selectedEntities.userCharacter, "#btn-select-user", "#user-character-preview", "character");
-  updateSlot("world", selectedEntities.world, "#btn-select-world", "#world-preview", "world");
+  updateSlot(
+    "aiCharacter",
+    selectedEntities.aiCharacter,
+    "#btn-select-ai",
+    "#ai-character-preview",
+    "character",
+  );
+  updateSlot(
+    "userCharacter",
+    selectedEntities.userCharacter,
+    "#btn-select-user",
+    "#user-character-preview",
+    "character",
+  );
+  updateSlot(
+    "world",
+    selectedEntities.world,
+    "#btn-select-world",
+    "#world-preview",
+    "world",
+  );
 
   if (_onSelectionChanged) _onSelectionChanged(selectedEntities);
 }
 
 // --- INITIALIZATION ---
 export async function initViews(deps = {}) {
-
   if (deps.onSelectionChanged) {
     _onSelectionChanged = deps.onSelectionChanged;
   } else {
@@ -137,8 +186,18 @@ export async function initViews(deps = {}) {
 
   initDrawer();
 
-  bindDrawerTrigger("#btn-select-ai", "character", "#ai-character-preview", "aiCharacter");
-  bindDrawerTrigger("#btn-select-user", "character", "#user-character-preview", "userCharacter");
+  bindDrawerTrigger(
+    "#btn-select-ai",
+    "character",
+    "#ai-character-preview",
+    "aiCharacter",
+  );
+  bindDrawerTrigger(
+    "#btn-select-user",
+    "character",
+    "#user-character-preview",
+    "userCharacter",
+  );
   bindDrawerTrigger("#btn-select-world", "world", "#world-preview", "world");
 
   bindPortraitClick("#gameplay-ai-portrait", "aiCharacter");
@@ -152,8 +211,10 @@ export async function initViews(deps = {}) {
   updateLocalSelection(selectedEntities);
 
   return {
-    setOnSelectionChanged: (handler) => { _onSelectionChanged = handler; },
+    setOnSelectionChanged: (handler) => {
+      _onSelectionChanged = handler;
+    },
     updateStoryboardSelection,
-    renderProfilePage
+    renderProfilePage,
   };
 }

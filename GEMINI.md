@@ -191,7 +191,7 @@ These rules are **MANDATORY** and override all other considerations. Violations 
 
 ### **3.1. Directory Structure**
 
-```
+```text
 default/
 ├── apps/                          # Applications
 │   ├── rpglitch/

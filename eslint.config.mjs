@@ -1,10 +1,10 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import jest from 'eslint-plugin-jest';
-import pluginImport from 'eslint-plugin-import';
-import pluginN from 'eslint-plugin-n';
-import pluginPromise from 'eslint-plugin-promise';
-import { createRequire } from 'node:module';
+import js from "@eslint/js";
+import globals from "globals";
+import jest from "eslint-plugin-jest";
+import pluginImport from "eslint-plugin-import";
+import pluginN from "eslint-plugin-n";
+import pluginPromise from "eslint-plugin-promise";
+import { createRequire } from "node:module";
 
 // Use createRequire to import JSON without syntax errors in an ES module
 const require = createRequire(import.meta.url);
@@ -25,7 +25,7 @@ let eslintIgnores = [
 // Try to read the central ignore list from the master config
 try {
   // Corrected path: relative to the root, where this config file lives
-  const master = require('./ignores.master.json');
+  const master = require("./ignores.master.json");
   // Use the specific key from your master config
   if (master && master.linters && master.linters.eslint) {
     eslintIgnores = master.linters.eslint;
@@ -45,19 +45,19 @@ export default [
     ...js.configs.recommended,
     languageOptions: {
       ecmaVersion: 2022,
-      sourceType: 'module',
+      sourceType: "module",
       globals: {
         ...globals.browser,
         ...globals.node,
         // Declare Perchance plugin globals
-        'image': 'readonly',
-        'ai': 'readonly',
-        'Dexie': 'readonly',
+        image: "readonly",
+        ai: "readonly",
+        Dexie: "readonly",
         // Explicit browser globals (for Codacy compatibility)
-        'window': 'readonly',
-        'console': 'readonly',
-        'localStorage': 'readonly',
-        'DOMPurify': 'readonly',
+        window: "readonly",
+        console: "readonly",
+        localStorage: "readonly",
+        DOMPurify: "readonly",
       },
     },
     plugins: {
@@ -66,39 +66,41 @@ export default [
       promise: pluginPromise,
     },
     rules: {
-      'no-unused-vars': ['warn', { args: 'none', ignoreRestSiblings: true, caughtErrors: 'none' }],
-      'no-undef': 'error',
-      'import/no-unresolved': 'off',
-      'n/no-missing-import': 'off',
-      'no-console': 'off',
+      "no-unused-vars": [
+        "warn",
+        { args: "none", ignoreRestSiblings: true, caughtErrors: "none" },
+      ],
+      "no-undef": "error",
+      "import/no-unresolved": "off",
+      "n/no-missing-import": "off",
+      "no-console": "off",
     },
   },
 
   // 3) Jest test files configuration
   {
-    files: ['**/tests/**/*.js', '**/*.test.js'],
-    ...jest.configs['flat/recommended'],
+    files: ["**/tests/**/*.js", "**/*.test.js"],
+    ...jest.configs["flat/recommended"],
     rules: {
-      ...jest.configs['flat/recommended'].rules,
-      'jest/prefer-expect-assertions': 'off',
+      ...jest.configs["flat/recommended"].rules,
+      "jest/prefer-expect-assertions": "off",
     },
   },
 
   // 4) Node-only overrides for build scripts
   {
-    files: ['build/scripts/**/*.js'],
+    files: ["build/scripts/**/*.js"],
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.node,
         // Declare 'image' as a known global from perchance.js
-        'image': 'readonly',
-        'Dexie': 'readonly',
+        image: "readonly",
+        Dexie: "readonly",
       },
     },
     rules: {
-      'import/no-extraneous-dependencies': 'off',
+      "import/no-extraneous-dependencies": "off",
     },
   },
 ];
-

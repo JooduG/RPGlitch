@@ -24,7 +24,9 @@ export const StoryOptionsController = {
     const resetBtn = modal.querySelector("#btn-reset-story");
     const directorModeToggle = modal.querySelector("#setting-director-mode");
     const customJsInput = modal.querySelector("#setting-custom-js");
-    const storyInstructionsInput = modal.querySelector("#setting-story-instructions");
+    const storyInstructionsInput = modal.querySelector(
+      "#setting-story-instructions",
+    );
 
     const concludeBtn = modal.querySelector("#btn-conclude-story");
 
@@ -65,10 +67,12 @@ export const StoryOptionsController = {
     // Reset Data Action
     resetBtn?.addEventListener("click", async (e) => {
       e.preventDefault();
-      if (confirm("Are you sure you want to reset ALL data? This will clear your current story and all settings.")) {
-
+      if (
+        confirm(
+          "Are you sure you want to reset ALL data? This will clear your current story and all settings.",
+        )
+      ) {
         // If in game, prepare to switch back to storyboard
-
 
         await db.delete();
         await db.open(); // Re-open after delete
@@ -77,7 +81,7 @@ export const StoryOptionsController = {
         applyPatch({
           mode: "storyboard",
           story: { activeId: null, byId: {} },
-          storyTitle: "My Story"
+          storyTitle: "My Story",
         });
 
         // Force clean reload (strip hash/query to ensure back to lobby)
@@ -100,7 +104,9 @@ export const StoryOptionsController = {
     if (ghostBtn) {
       ghostBtn.addEventListener("click", async (e) => {
         e.preventDefault();
-        const inputField = document.querySelector("#story-form [name='message']");
+        const inputField = document.querySelector(
+          "#story-form [name='message']",
+        );
         const draft = inputField ? inputField.value : "";
 
         if (!draft || !draft.trim()) {
@@ -132,14 +138,14 @@ export const StoryOptionsController = {
 
     // Custom JS Wiring
     if (customJsInput) {
-      db.settings.get("app-settings").then(s => {
+      db.settings.get("app-settings").then((s) => {
         if (s && s.customJs) customJsInput.value = s.customJs;
       });
 
       customJsInput.addEventListener("input", (e) => {
         const val = e.target.value;
         applyPatch({ settings: { customJs: val } });
-        db.settings.get("app-settings").then(s => {
+        db.settings.get("app-settings").then((s) => {
           const newSettings = s || { id: "app-settings" };
           newSettings.customJs = val;
           db.settings.put(newSettings);
@@ -148,14 +154,15 @@ export const StoryOptionsController = {
     }
     // Story Instructions Wiring
     if (storyInstructionsInput) {
-      db.settings.get("app-settings").then(s => {
-        if (s && s.storyOpeningInstructions) storyInstructionsInput.value = s.storyOpeningInstructions;
+      db.settings.get("app-settings").then((s) => {
+        if (s && s.storyOpeningInstructions)
+          storyInstructionsInput.value = s.storyOpeningInstructions;
       });
 
       storyInstructionsInput.addEventListener("input", (e) => {
         const val = e.target.value;
         applyPatch({ settings: { storyOpeningInstructions: val } });
-        db.settings.get("app-settings").then(s => {
+        db.settings.get("app-settings").then((s) => {
           const newSettings = s || { id: "app-settings" };
           newSettings.storyOpeningInstructions = val;
           db.settings.put(newSettings);
@@ -173,9 +180,12 @@ export const StoryOptionsController = {
       directorModeToggle.checked = !!state.settings.directorMode;
     }
 
-    const storyInstructionsInput = modal.querySelector("#setting-story-instructions");
+    const storyInstructionsInput = modal.querySelector(
+      "#setting-story-instructions",
+    );
     if (storyInstructionsInput) {
-      storyInstructionsInput.value = state.settings.storyOpeningInstructions || "";
+      storyInstructionsInput.value =
+        state.settings.storyOpeningInstructions || "";
     }
 
     // State-Based Visibility Logic
@@ -223,7 +233,8 @@ export const StoryOptionsController = {
       const stories = await db.stories.orderBy("updatedAt").reverse().toArray();
 
       if (stories.length === 0) {
-        listContainer.innerHTML = "<p><small>No saved stories found.</small></p>";
+        listContainer.innerHTML =
+          "<p><small>No saved stories found.</small></p>";
         return;
       }
 
@@ -232,7 +243,7 @@ export const StoryOptionsController = {
       ul.style.padding = "0";
       ul.style.margin = "0";
 
-      stories.forEach(story => {
+      stories.forEach((story) => {
         const li = document.createElement("li");
         li.style.display = "flex";
         li.style.justifyContent = "space-between";
@@ -276,7 +287,9 @@ export const StoryOptionsController = {
         deleteBtn.style.fontSize = "0.8rem";
         deleteBtn.onclick = async (e) => {
           e.preventDefault();
-          if (confirm(`Delete story "${story.title}"? This cannot be undone.`)) {
+          if (
+            confirm(`Delete story "${story.title}"? This cannot be undone.`)
+          ) {
             await db.stories.delete(story.id);
             await db.messages.where("storyId").equals(story.id).delete();
             StoryOptionsController.renderStories();
@@ -292,7 +305,6 @@ export const StoryOptionsController = {
 
       listContainer.innerHTML = "";
       listContainer.appendChild(ul);
-
     } catch (err) {
       console.error("Failed to load stories:", err);
       listContainer.innerHTML = "<p><small>Error loading stories.</small></p>";
@@ -310,16 +322,14 @@ export const StoryOptionsController = {
       applyPatch({
         story: { activeId: story.id, byId: { [story.id]: story } },
         storyTitle: story.title,
-        mode: "gameplay"
+        mode: "gameplay",
       });
 
       StoryOptionsController.close();
       router.handleRoute();
-
     } catch (err) {
       console.error("Failed to load story:", err);
       alert("Failed to load story. See console for details.");
     }
   },
-
 };

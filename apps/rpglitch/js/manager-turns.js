@@ -3,9 +3,14 @@ import { state, applyPatch } from "./app-state.js";
 import { generateStream } from "./llm-adapter.js";
 import { entities } from "./entity-crud.js";
 import {
-  renderChat, updatePortraits, setGameplayEntities,
-  showTypingIndicator, removeTypingIndicator, setSendLock,
-  applyWorldAmbience, setChatGeneratingState
+  renderChat,
+  updatePortraits,
+  setGameplayEntities,
+  showTypingIndicator,
+  removeTypingIndicator,
+  setSendLock,
+  applyWorldAmbience,
+  setChatGeneratingState,
 } from "./ui-render-chat.js";
 
 import { error, calculateBlendedParams } from "./core-utils.js";
@@ -13,8 +18,6 @@ import { ContextBuilder } from "./engine-prompt-builder.js";
 import { analyzeRejection, getDirectorInstruction } from "./engine-variance.js";
 import { bridge } from "./worker-bridge.js";
 import { events, EVENTS } from "./core-events.js";
-
-
 
 export const TurnManager = {
   requireActive: () => {
@@ -26,7 +29,7 @@ export const TurnManager = {
     const [startAi, startUser, startWorld] = await Promise.all([
       entities.get("character", data.aiCharacterId),
       entities.get("character", data.userCharacterId),
-      entities.get("world", data.worldId)
+      entities.get("world", data.worldId),
     ]);
 
     const id = await db.stories.add({
@@ -38,17 +41,17 @@ export const TurnManager = {
         start: {
           ai: startAi,
           user: startUser,
-          world: startWorld
+          world: startWorld,
         },
-        end: null
-      }
+        end: null,
+      },
     });
 
     const storyWithId = { ...data, id: id };
 
     applyPatch({
       story: { activeId: id, byId: { [id]: storyWithId } },
-      mode: "gameplay"
+      mode: "gameplay",
     });
 
     // [FIX] Ensure UI is synced immediately upon creation
@@ -67,21 +70,20 @@ export const TurnManager = {
       applyPatch({
         story: { activeId: story.id, byId: { [story.id]: story } },
         storyTitle: story.storyTitle,
-        mode: "gameplay"
+        mode: "gameplay",
       });
 
       await TurnManager.loadMessages(story.id);
 
       const [ai, user] = await Promise.all([
         entities.get("character", story.aiCharacterId),
-        entities.get("character", story.userCharacterId)
+        entities.get("character", story.userCharacterId),
       ]);
 
       const world = await entities.get("world", story.worldId);
 
       updatePortraits(ai, user);
       setGameplayEntities(ai, user, world);
-
 
       events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
 
@@ -91,7 +93,6 @@ export const TurnManager = {
 
       document.body.classList.remove("mode-storyboard");
       document.body.classList.add("mode-gameplay");
-
     } catch (e) {
       error("Failed to load story:", e);
       alert("Could not load story.");
@@ -99,19 +100,23 @@ export const TurnManager = {
   },
 
   loadMessages: async (storyId) => {
-    const msgs = await db.messages.where("storyId").equals(storyId).sortBy("createdAt");
+    const msgs = await db.messages
+      .where("storyId")
+      .equals(storyId)
+      .sortBy("createdAt");
     applyPatch({ messages: { byStoryId: { [storyId]: msgs } } });
     return msgs;
   },
-
-
 
   editUserMessage: async (messageId, newText) => {
     const storyId = TurnManager.requireActive();
     await db.messages.update(messageId, { text: newText });
 
-    const msgs = await db.messages.where("storyId").equals(storyId).sortBy("createdAt");
-    const msgIndex = msgs.findIndex(m => m.id === messageId);
+    const msgs = await db.messages
+      .where("storyId")
+      .equals(storyId)
+      .sortBy("createdAt");
+    const msgIndex = msgs.findIndex((m) => m.id === messageId);
 
     if (msgIndex !== -1 && msgIndex < msgs.length - 1) {
       const messagesToDelete = msgs.slice(msgIndex + 1);
@@ -139,7 +144,7 @@ export const TurnManager = {
 
     try {
       const feed = document.querySelector("#chat-feed");
-      showTypingIndicator(feed, 'ai', story.aiCharacterId);
+      showTypingIndicator(feed, "ai", story.aiCharacterId);
 
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build();
@@ -148,15 +153,16 @@ export const TurnManager = {
       const ctrl = new AbortController();
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
-
       const [aiEntity, userEntity, worldEntity] = await Promise.all([
         entities.get("character", story.aiCharacterId),
         entities.get("character", story.userCharacterId),
-        entities.get("world", story.worldId)
+        entities.get("world", story.worldId),
       ]);
 
       const options = calculateBlendedParams(aiEntity, userEntity, worldEntity);
-      console.log(`[PROMETHEUS] Vibe Check: Temp ${options.temperature} | Speed ${options.repetition_penalty} | Focus ${options.top_p}`);
+      console.log(
+        `[PROMETHEUS] Vibe Check: Temp ${options.temperature} | Speed ${options.repetition_penalty} | Focus ${options.top_p}`,
+      );
 
       let response;
       try {
@@ -164,10 +170,10 @@ export const TurnManager = {
           payload,
           options,
           signal: ctrl.signal,
-          onToken: () => removeTypingIndicator(feed)
+          onToken: () => removeTypingIndicator(feed),
         });
       } catch (streamErr) {
-        if (streamErr.name === 'AbortError') throw streamErr;
+        if (streamErr.name === "AbortError") throw streamErr;
         console.error("[TURN] Network/Gen Error:", streamErr);
         // User feedback for network error in main chat
         alert("Connection Error: The AI could not respond. Please try again.");
@@ -183,7 +189,7 @@ export const TurnManager = {
         type: "IC",
         text: response,
         characterName: aiChar?.name || "Narrator",
-        createdAt: Date.now()
+        createdAt: Date.now(),
       });
 
       await TurnManager.loadMessages(storyId);
@@ -191,9 +197,12 @@ export const TurnManager = {
       applyPatch({ ui: { fsm: "done" } });
 
       if (payloadMeta && payloadMeta.triggerUpdate) {
-        await TurnManager.runBackgroundUpdate(storyId, payloadMeta.updateTarget, aiMsgId);
+        await TurnManager.runBackgroundUpdate(
+          storyId,
+          payloadMeta.updateTarget,
+          aiMsgId,
+        );
       }
-
     } catch (e) {
       error("AI Gen Error", e);
       alert("AI Generation Failed: " + e.message);
@@ -219,14 +228,14 @@ export const TurnManager = {
         role: "user",
         type: "IC",
         text,
-        createdAt: Date.now()
+        createdAt: Date.now(),
       });
 
       await TurnManager.loadMessages(storyId);
       await renderChat(storyId);
 
       const feed = document.querySelector("#chat-feed");
-      showTypingIndicator(feed, 'ai', story.aiCharacterId);
+      showTypingIndicator(feed, "ai", story.aiCharacterId);
 
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build();
@@ -238,7 +247,7 @@ export const TurnManager = {
       const response = await generateStream({
         payload,
         signal: ctrl.signal,
-        onToken: () => removeTypingIndicator(feed)
+        onToken: () => removeTypingIndicator(feed),
       });
 
       removeTypingIndicator(feed);
@@ -250,7 +259,7 @@ export const TurnManager = {
         type: "IC",
         text: response,
         characterName: aiChar?.name || "Narrator",
-        createdAt: Date.now()
+        createdAt: Date.now(),
       });
 
       await TurnManager.loadMessages(storyId);
@@ -259,9 +268,12 @@ export const TurnManager = {
 
       if (payloadMeta && payloadMeta.triggerUpdate) {
         console.log(`[PROMETHEUS] Running Physics... (UI Locked)`);
-        await TurnManager.runBackgroundUpdate(storyId, payloadMeta.updateTarget, aiMsgId);
+        await TurnManager.runBackgroundUpdate(
+          storyId,
+          payloadMeta.updateTarget,
+          aiMsgId,
+        );
       }
-
     } catch (e) {
       error("AI Error", e);
       applyPatch({ ui: { fsm: "error", lastError: e.message } });
@@ -288,7 +300,10 @@ export const TurnManager = {
       return;
     }
 
-    const lastUserMsg = msgs.slice().reverse().find(m => m.role === "user");
+    const lastUserMsg = msgs
+      .slice()
+      .reverse()
+      .find((m) => m.role === "user");
     const userText = lastUserMsg ? lastUserMsg.text : "";
 
     const varianceKey = analyzeRejection(lastMsg.text, userText);
@@ -305,7 +320,7 @@ export const TurnManager = {
     await renderChat(storyId);
 
     const feed = document.querySelector("#chat-feed");
-    showTypingIndicator(feed, 'ai', story.aiCharacterId);
+    showTypingIndicator(feed, "ai", story.aiCharacterId);
 
     try {
       const builder = new ContextBuilder(storyId);
@@ -314,16 +329,15 @@ export const TurnManager = {
       const ctrl = new AbortController();
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
-
       let response;
       try {
         response = await generateStream({
           payload,
           signal: ctrl.signal,
-          onToken: () => removeTypingIndicator(feed)
+          onToken: () => removeTypingIndicator(feed),
         });
       } catch (streamErr) {
-        if (streamErr.name === 'AbortError') throw streamErr;
+        if (streamErr.name === "AbortError") throw streamErr;
         console.error("[TURN] Regen Network Error:", streamErr);
         alert("Connection Error: Could not regenerate message.");
         throw streamErr;
@@ -338,13 +352,12 @@ export const TurnManager = {
         type: "IC",
         text: response,
         characterName: aiChar?.name || "Narrator",
-        createdAt: Date.now()
+        createdAt: Date.now(),
       });
 
       await TurnManager.loadMessages(storyId);
       await renderChat(storyId);
       applyPatch({ ui: { fsm: "done" } });
-
     } catch (e) {
       error("Regen Error", e);
       alert("Regen Failed: " + e.message);
@@ -359,7 +372,6 @@ export const TurnManager = {
     try {
       console.log(`[PROMETHEUS] Offloading update to Worker...`);
       await bridge.runBackgroundUpdate(storyId, targetType, linkedMessageId);
-
     } catch (e) {
       console.error("[PROMETHEUS] Background update error:", e);
     }
@@ -368,7 +380,7 @@ export const TurnManager = {
   generateOpening: async (storyId) => {
     setSendLock(true);
     const feed = document.querySelector("#chat-feed");
-    showTypingIndicator(feed, 'narrator');
+    showTypingIndicator(feed, "narrator");
 
     try {
       const builder = new ContextBuilder(storyId);
@@ -379,7 +391,7 @@ export const TurnManager = {
       const response = await generateStream({
         payload,
         signal: null,
-        onToken: () => removeTypingIndicator(feed)
+        onToken: () => removeTypingIndicator(feed),
       });
       removeTypingIndicator(feed);
 
@@ -388,7 +400,7 @@ export const TurnManager = {
         role: "narrator",
         type: "OOC",
         text: response,
-        createdAt: Date.now()
+        createdAt: Date.now(),
       });
 
       await TurnManager.loadMessages(storyId);
@@ -396,7 +408,6 @@ export const TurnManager = {
 
       // [NEW] Chain: AI Character reacts immediately to the opening
       await TurnManager.generateAiResponse(storyId);
-
     } catch (e) {
       error("Opening Gen Failed", e);
       alert("Failed to generate opening: " + e.message);
@@ -409,12 +420,17 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
 
-    if (!confirm("Conclude this story? The current state of your entities will be saved to the library.")) return;
+    if (
+      !confirm(
+        "Conclude this story? The current state of your entities will be saved to the library.",
+      )
+    )
+      return;
 
     const [endAi, endUser, endWorld] = await Promise.all([
       entities.get("character", story.aiCharacterId),
       entities.get("character", story.userCharacterId),
-      entities.get("world", story.worldId)
+      entities.get("world", story.worldId),
     ]);
 
     await db.stories.update(storyId, {
@@ -423,8 +439,8 @@ export const TurnManager = {
       "snapshots.end": {
         ai: endAi,
         user: endUser,
-        world: endWorld
-      }
+        world: endWorld,
+      },
     });
 
     document.body.classList.remove("mode-gameplay");
@@ -442,7 +458,9 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
 
     // UI Feedback
-    const submitBtn = document.querySelector("#story-form button[type='submit']");
+    const submitBtn = document.querySelector(
+      "#story-form button[type='submit']",
+    );
     const inputField = document.querySelector("#story-form [name='message']");
     const originalText = inputField.value;
 
@@ -456,12 +474,11 @@ export const TurnManager = {
 
       const response = await generateStream({
         payload,
-        signal: null
+        signal: null,
       });
 
       // Return full response including <think> block
       return response.trim();
-
     } catch (e) {
       console.error("Ghostwriter failed:", e);
       alert("Ghostwriter failed: " + e.message);
@@ -470,7 +487,7 @@ export const TurnManager = {
       inputField.disabled = false;
       if (submitBtn) submitBtn.disabled = false;
     }
-  }
+  },
 };
 
 export const StoryController = TurnManager;

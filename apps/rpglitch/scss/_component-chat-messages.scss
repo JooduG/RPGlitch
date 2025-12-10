@@ -79,7 +79,6 @@
   }
 }
 
-
 /* =========================================
    VARIANTS (Speaker Geometry)
    ========================================= */
@@ -166,7 +165,7 @@
 
   // The actual log content
   .physics-log {
-    font-family: 'Courier New', monospace;
+    font-family: "Courier New", monospace;
     font-size: 0.75rem;
     color: #a0aec0; // Slightly lighter grey for readability
     text-align: left;
@@ -176,9 +175,7 @@
     margin: 0;
     width: 100%; // Ensure it fills the flex container
   }
-
 }
-
 
 /* =========================================
    SIGNATURE COLOR LOGIC
@@ -198,7 +195,6 @@
     --msg-bg: #{$color};
   }
 }
-
 
 /* =========================================
    TYPING INDICATOR (Animated Bubble)

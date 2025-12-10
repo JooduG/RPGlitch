@@ -41,7 +41,6 @@
     @extend %modal-overlay-shared;
 }
 
-
 /* =========================================
    MODAL SHELLS (The Content Containers)
    ========================================= */
@@ -59,7 +58,6 @@
     position: relative;
     animation: pop-in 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
-
 
 /* --- LAYOUT A: PROFILE (2-Column Grid) --- */
 .profile-layout {
@@ -91,7 +89,6 @@
     }
 }
 
-
 /* --- LAYOUT B: SETTINGS / OPTIONS (Flex Column) --- */
 .settings-layout {
     max-width: 800px;
@@ -101,7 +98,6 @@
     flex-direction: column;
     gap: 1.5rem;
 }
-
 
 /* =========================================
    ANIMATIONS
@@ -128,7 +124,6 @@
         opacity: 1;
     }
 }
-
 
 /* =========================================
    RESPONSIVE ADJUSTMENTS

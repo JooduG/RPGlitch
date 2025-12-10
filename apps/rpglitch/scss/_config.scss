@@ -21,26 +21,86 @@ $pico-del-color: #dc3545;
 // --- PALETTE: SIGNATURES ---
 // Single Source of Truth for character/UI themes
 $signature-colors: (
-  "red": (color: #d93526, rgb: 217 53 38),
-  "pink": (color: #f42c6f, rgb: 244 44 111),
-  "fuchsia": (color: #ed2aac, rgb: 237 42 172),
-  "purple": (color: #aa40bf, rgb: 170 64 191),
-  "violet": (color: #9062ca, rgb: 144 98 202),
-  "indigo": (color: #7569da, rgb: 117 105 218),
-  "blue": (color: #0f2d70, rgb: 15 45 112),
-  "azure": (color: #017fc0, rgb: 1 127 192),
-  "cyan": (color: #05a2a2, rgb: 5 162 162),
-  "jade": (color: #00b478, rgb: 0 180 120),
-  "green": (color: #47a417, rgb: 71 164 23),
-  "lime": (color: #99c801, rgb: 153 200 1),
-  "yellow": (color: #f2df0d, rgb: 242 223 13),
-  "amber": (color: #ffbf00, rgb: 255 191 0),
-  "pumpkin": (color: #d27a01, rgb: 210 122 1),
-  "orange": (color: #e74b1a, rgb: 231 75 26),
-  "sand": (color: #959082, rgb: 149 144 130),
-  "grey": (color: #777, rgb: 119 119 119),
-  "zinc": (color: #6f7887, rgb: 111 120 135),
-  "slate": (color: #687899, rgb: 104 120 153)
+  "red": (
+    color: #d93526,
+    rgb: 217 53 38
+  ),
+  "pink": (
+    color: #f42c6f,
+    rgb: 244 44 111
+  ),
+  "fuchsia": (
+    color: #ed2aac,
+    rgb: 237 42 172
+  ),
+  "purple": (
+    color: #aa40bf,
+    rgb: 170 64 191
+  ),
+  "violet": (
+    color: #9062ca,
+    rgb: 144 98 202
+  ),
+  "indigo": (
+    color: #7569da,
+    rgb: 117 105 218
+  ),
+  "blue": (
+    color: #0f2d70,
+    rgb: 15 45 112
+  ),
+  "azure": (
+    color: #017fc0,
+    rgb: 1 127 192
+  ),
+  "cyan": (
+    color: #05a2a2,
+    rgb: 5 162 162
+  ),
+  "jade": (
+    color: #00b478,
+    rgb: 0 180 120
+  ),
+  "green": (
+    color: #47a417,
+    rgb: 71 164 23
+  ),
+  "lime": (
+    color: #99c801,
+    rgb: 153 200 1
+  ),
+  "yellow": (
+    color: #f2df0d,
+    rgb: 242 223 13
+  ),
+  "amber": (
+    color: #ffbf00,
+    rgb: 255 191 0
+  ),
+  "pumpkin": (
+    color: #d27a01,
+    rgb: 210 122 1
+  ),
+  "orange": (
+    color: #e74b1a,
+    rgb: 231 75 26
+  ),
+  "sand": (
+    color: #959082,
+    rgb: 149 144 130
+  ),
+  "grey": (
+    color: #777,
+    rgb: 119 119 119
+  ),
+  "zinc": (
+    color: #6f7887,
+    rgb: 111 120 135
+  ),
+  "slate": (
+    color: #687899,
+    rgb: 104 120 153
+  )
 );
 
 // --- BREAKPOINTS ---
@@ -64,7 +124,6 @@ $z-map: (
 @function z($key) {
   @return map.get($z-map, $key);
 }
-
 
 /* ============================================================================
    2. GLOBAL MIXINS
@@ -93,9 +152,11 @@ $z-map: (
 // --- VISUAL UTILITIES ---
 
 // OS-Agnostic Thin Dark Scrollbar
-@mixin custom-scrollbar($thumb-color: rgb(0 0 0 / 50%),
+@mixin custom-scrollbar(
+  $thumb-color: rgb(0 0 0 / 50%),
   $track-color: transparent,
-  $thumb-hover-color: rgb(0 0 0 / 70%)) {
+  $thumb-hover-color: rgb(0 0 0 / 70%)
+) {
   // Firefox
   scrollbar-width: thin;
   scrollbar-color: $thumb-color $track-color;
@@ -129,7 +190,9 @@ $z-map: (
   border-radius: var(--pico-radius);
   color: var(--pico-contrast);
   padding: 0;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 
   &:hover,
   &:has(:focus-visible) {
@@ -138,6 +201,8 @@ $z-map: (
   }
 
   &:has(:focus-visible) {
-    box-shadow: 0 0 0 2px var(--pico-primary-focus), 0 6px 16px rgb(0 0 0 / 20%);
+    box-shadow:
+      0 0 0 2px var(--pico-primary-focus),
+      0 6px 16px rgb(0 0 0 / 20%);
   }
 }

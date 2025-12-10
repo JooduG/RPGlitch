@@ -135,7 +135,9 @@
 
         &:not(:disabled):hover {
             transform: translateY(-1px);
-            box-shadow: 0 0 15px var(--pico-primary-focus), 0 0 30px var(--pico-primary-focus);
+            box-shadow:
+                0 0 15px var(--pico-primary-focus),
+                0 0 30px var(--pico-primary-focus);
             z-index: 1;
         }
 
@@ -154,7 +156,9 @@
     $color: map.get($data, color);
 
     .signature-#{$name} #story-form input[type="submit"]:not(:disabled):hover {
-        box-shadow: 0 0 15px $color, 0 0 30px $color;
+        box-shadow:
+            0 0 15px $color,
+            0 0 30px $color;
         background-color: $color;
         border-color: $color;
     }

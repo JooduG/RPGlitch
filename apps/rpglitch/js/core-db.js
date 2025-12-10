@@ -66,7 +66,7 @@ export async function init() {
   } catch (err) {
     error(
       "[RPGlitch DB] Failed to open database. You may need to manually delete it from browser DevTools.",
-      err.stack || err
+      err.stack || err,
     );
     throw err;
   }

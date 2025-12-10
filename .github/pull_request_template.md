@@ -6,10 +6,7 @@
 
 ## Tactics
 
-*List the key changes you made and the files you touched.*
--
--
--
+List the key changes you made and the files you touched
 
 ## Operations
 

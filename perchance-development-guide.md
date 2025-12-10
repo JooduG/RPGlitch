@@ -28,7 +28,7 @@ A generator's logic is primarily defined in the **Lists Panel** of the editor UI
 
 A list is created by defining a name, followed by its items on subsequent lines. Each item must be indented with a single tab or two spaces.
 
-```
+```text
 
 animal
 pig
@@ -47,7 +47,7 @@ To use a list, its name is enclosed in square brackets (`[]`). When the engine e
 
 For simple, inline random choices without creating a formal list, use curly brackets (`{}`) with items separated by a vertical bar (`|`):
 
-```
+```text
 
 The cow is {very|extremely} large.
 
@@ -72,7 +72,7 @@ Use two forward slashes (`//`) to comment. Any text following `//` on the same l
 
 The likelihood of an item being selected can be modified using the caret (`^`) operator followed by a number. Default weight is 1.
 
-```
+```text
 
 condiment
 pepper^2      // Twice as likely

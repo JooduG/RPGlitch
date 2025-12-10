@@ -5,19 +5,45 @@ import { PHYSICS_CONFIG } from "./config-physics.js";
 // --- Constants ---
 const VALID_PROTOCOLS = ["https:", "http:", "blob:", "data:"];
 const VALID_IMAGE_EXTENSIONS = [
-  "jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "tiff", "tif", "ico", "avif", "jfif",
+  "jpg",
+  "jpeg",
+  "png",
+  "gif",
+  "webp",
+  "svg",
+  "bmp",
+  "tiff",
+  "tif",
+  "ico",
+  "avif",
+  "jfif",
 ];
 const IMAGE_EXTENSION_REGEX = new RegExp(
   `\\.(${VALID_IMAGE_EXTENSIONS.join("|")})(\\?.*)?$`,
-  "i"
+  "i",
 );
 
 export const SIGNATURE_COLORS = {
-  red: "#d93526", pink: "#f42c6f", fuchsia: "#ed2aac", purple: "#aa40bf",
-  violet: "#9062ca", indigo: "#7569da", blue: "#0f2d70", azure: "#017fc0",
-  cyan: "#05a2a2", jade: "#00b478", green: "#47a417", lime: "#99c801",
-  yellow: "#f2df0d", amber: "#ffbf00", pumpkin: "#d27a01", orange: "#e74b1a",
-  sand: "#959082", grey: "#777777", zinc: "#6f7887", slate: "#687899",
+  red: "#d93526",
+  pink: "#f42c6f",
+  fuchsia: "#ed2aac",
+  purple: "#aa40bf",
+  violet: "#9062ca",
+  indigo: "#7569da",
+  blue: "#0f2d70",
+  azure: "#017fc0",
+  cyan: "#05a2a2",
+  jade: "#00b478",
+  green: "#47a417",
+  lime: "#99c801",
+  yellow: "#f2df0d",
+  amber: "#ffbf00",
+  pumpkin: "#d27a01",
+  orange: "#e74b1a",
+  sand: "#959082",
+  grey: "#777777",
+  zinc: "#6f7887",
+  slate: "#687899",
   default: "#777",
 };
 
@@ -29,12 +55,12 @@ export function getSignatureColor(key) {
 
 // [NEW] Random Color Generator (Excluding Default)
 export function getRandomSignatureKey() {
-  const keys = Object.keys(SIGNATURE_COLORS).filter(k => k !== "default");
+  const keys = Object.keys(SIGNATURE_COLORS).filter((k) => k !== "default");
   return keys[Math.floor(Math.random() * keys.length)];
 }
 
 export function getDeterministicColor(seed) {
-  // [NOTE] Tests expect a color even for empty seeds in some legacy paths, 
+  // [NOTE] Tests expect a color even for empty seeds in some legacy paths,
   // but for explicit nulls we usually fallback to 'default' before calling this.
   if (!seed) return `hsl(0, 0%, 50%)`;
   let hash = 0;
@@ -53,30 +79,36 @@ export function getSignature(entity = {}) {
     return `var(--signature-${entity.signatureColour})`;
   }
   // Fallback to deterministic hash based on ID or Name
-  const seed = [entity.name || "", ...(entity.tags || [])].filter(Boolean).join(",");
+  const seed = [entity.name || "", ...(entity.tags || [])]
+    .filter(Boolean)
+    .join(",");
   return getDeterministicColor(seed || entity.id || entity.type || "default");
 }
 
 export function getContrastColor(hex) {
-  if (!hex || typeof hex !== 'string') return '#000';
+  if (!hex || typeof hex !== "string") return "#000";
 
   // Handle var() or other CSS inputs gracefully-ish (fallback to black)
-  if (hex.startsWith('var(')) return '#fff';
+  if (hex.startsWith("var(")) return "#fff";
 
-  if (hex.startsWith('#')) hex = hex.slice(1);
-  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
-  if (hex.length !== 6) return '#000';
+  if (hex.startsWith("#")) hex = hex.slice(1);
+  if (hex.length === 3)
+    hex = hex
+      .split("")
+      .map((c) => c + c)
+      .join("");
+  if (hex.length !== 6) return "#000";
 
   // Parse
   const r = parseInt(hex.substr(0, 2), 16);
   const g = parseInt(hex.substr(2, 2), 16);
   const b = parseInt(hex.substr(4, 2), 16);
 
-  if (isNaN(r) || isNaN(g) || isNaN(b)) return '#000';
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return "#000";
 
   // YIQ equation
-  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-  return (yiq >= 128) ? '#000' : '#fff';
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 128 ? "#000" : "#fff";
 }
 
 /**
@@ -84,15 +116,19 @@ export function getContrastColor(hex) {
  * Used for generating background gradients from signature colors.
  */
 export function darkenColor(hex, amount) {
-  if (!hex || typeof hex !== 'string') return hex;
-  if (hex.startsWith('#')) hex = hex.slice(1);
-  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  if (!hex || typeof hex !== "string") return hex;
+  if (hex.startsWith("#")) hex = hex.slice(1);
+  if (hex.length === 3)
+    hex = hex
+      .split("")
+      .map((c) => c + c)
+      .join("");
   if (hex.length !== 6) return hex;
 
   const num = parseInt(hex, 16);
-  let r = (num >> 16);
-  let g = (num >> 8 & 0x00FF);
-  let b = (num & 0x0000FF);
+  let r = num >> 16;
+  let g = (num >> 8) & 0x00ff;
+  let b = num & 0x0000ff;
 
   r = Math.floor(r * (1 - amount));
   g = Math.floor(g * (1 - amount));
@@ -112,22 +148,22 @@ export function setAppBackground(signatureKey) {
 
   if (!signatureKey || signatureKey === "default" || !baseColor) {
     // Reset to Default
-    root.style.setProperty('--bg-grad-1', DEFAULT_BG[0]);
-    root.style.setProperty('--bg-grad-2', DEFAULT_BG[1]);
-    root.style.setProperty('--bg-grad-3', DEFAULT_BG[2]);
-    root.style.setProperty('--bg-grad-4', DEFAULT_BG[3]);
+    root.style.setProperty("--bg-grad-1", DEFAULT_BG[0]);
+    root.style.setProperty("--bg-grad-2", DEFAULT_BG[1]);
+    root.style.setProperty("--bg-grad-3", DEFAULT_BG[2]);
+    root.style.setProperty("--bg-grad-4", DEFAULT_BG[3]);
     return;
   }
 
   // Create atmospheric gradient (Signature -> Void)
   // Grad 1: Dark version of signature (was 0.55) -> Now 0.2 (Much lighter, prevents "muddy" yellows)
-  root.style.setProperty('--bg-grad-1', darkenColor(baseColor, 0.2));
+  root.style.setProperty("--bg-grad-1", darkenColor(baseColor, 0.2));
   // Grad 2: Even darker (was 0.75) -> Now 0.4
-  root.style.setProperty('--bg-grad-2', darkenColor(baseColor, 0.4));
+  root.style.setProperty("--bg-grad-2", darkenColor(baseColor, 0.4));
   // Grad 3: Near Black (Tinted)
-  root.style.setProperty('--bg-grad-3', '#111111');
+  root.style.setProperty("--bg-grad-3", "#111111");
   // Grad 4: Blackish void
-  root.style.setProperty('--bg-grad-4', '#080808');
+  root.style.setProperty("--bg-grad-4", "#080808");
 }
 
 /**
@@ -141,17 +177,17 @@ export function getPictureHTML(entity = {}, options = {}) {
 
   // Validate URL
   const rawSrc = entity.profilePictureUrl;
-  const src = (typeof rawSrc === "string" && rawSrc.trim()) ? rawSrc.trim() : "";
+  const src = typeof rawSrc === "string" && rawSrc.trim() ? rawSrc.trim() : "";
 
   const signature = getSignature(entity);
-  // Note: We can't easily calculate contrast for a CSS variable, so we default to black/white 
+  // Note: We can't easily calculate contrast for a CSS variable, so we default to black/white
   // or let CSS handle it. For now, hardcode contrast for known vars or fallback.
   const contrast = "#fff";
 
   const wrap = document.createElement("div");
-  let aspectRatioClass = '';
-  if (landscape === true) aspectRatioClass = ' picture--landscape';
-  else if (landscape === false) aspectRatioClass = ' picture--portrait';
+  let aspectRatioClass = "";
+  if (landscape === true) aspectRatioClass = " picture--landscape";
+  else if (landscape === false) aspectRatioClass = " picture--portrait";
 
   wrap.className = `picture${cover ? " picture--cover" : ""}${aspectRatioClass}`;
   wrap.style.setProperty("--signature", signature);
@@ -179,7 +215,9 @@ export function getPictureHTML(entity = {}, options = {}) {
   }
 
   const iconTemplateId = `tpl-placeholder-icon-${type}`;
-  const iconTemplate = document.querySelector(`#${iconTemplateId}`) || document.querySelector("#tpl-placeholder-icon-default");
+  const iconTemplate =
+    document.querySelector(`#${iconTemplateId}`) ||
+    document.querySelector("#tpl-placeholder-icon-default");
 
   if (iconTemplate?.content) {
     ph.appendChild(iconTemplate.content.cloneNode(true));
@@ -202,7 +240,8 @@ export function sanitizeHtml(html) {
   const value = typeof html === "string" ? html : String(html ?? "");
 
   if (typeof window === "undefined" || !window.DOMPurify) {
-    const msg = "Security Error: DOMPurify not loaded. Cannot sanitize content.";
+    const msg =
+      "Security Error: DOMPurify not loaded. Cannot sanitize content.";
     error(msg);
     return escapeHtml(value);
   }
@@ -233,10 +272,13 @@ export function isValidImageUrl(urlString, allowLog = false) {
 
 export function extractImageUrl(result) {
   let url;
-  if (result?.imageUrl && typeof result.imageUrl === "string") url = result.imageUrl;
-  else if (result?.dataUrl && typeof result.dataUrl === "string") url = result.dataUrl;
+  if (result?.imageUrl && typeof result.imageUrl === "string")
+    url = result.imageUrl;
+  else if (result?.dataUrl && typeof result.dataUrl === "string")
+    url = result.dataUrl;
   else if (result?.url) url = String(result.url);
-  else if (result?.imageId && result?.fileExtension) url = `https://img.perchance.org/${result.imageId}.${result.fileExtension}`;
+  else if (result?.imageId && result?.fileExtension)
+    url = `https://img.perchance.org/${result.imageId}.${result.fileExtension}`;
   else if (typeof result === "string") url = result;
 
   if (typeof url === "string") {
@@ -288,14 +330,18 @@ export async function setDebug(on) {
 
 export function generateUUID() {
   let d = new Date().getTime();
-  let d2 = (typeof performance !== "undefined" && performance.now && performance.now() * 1000) || 0;
+  let d2 =
+    (typeof performance !== "undefined" &&
+      performance.now &&
+      performance.now() * 1000) ||
+    0;
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     let r = Math.random() * 16;
     if (d > 0) {
-      r = (d + r) % 16 | 0;
+      r = ((d + r) % 16) | 0;
       d = Math.floor(d / 16);
     } else {
-      r = (d2 + r) % 16 | 0;
+      r = ((d2 + r) % 16) | 0;
       d2 = Math.floor(d2 / 16);
     }
     return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
@@ -315,7 +361,9 @@ export function dismissLoadingUI() {
   if (modal) {
     try {
       if (typeof modal.close === "function") modal.close();
-    } catch (e) { void 0; }
+    } catch (e) {
+      void 0;
+    }
     modal.style.display = "none";
     modal.removeAttribute("open");
   }
@@ -354,7 +402,11 @@ export function renderTags(container, entity, options = {}) {
     chip.className = "tag-chip";
     chip.textContent = t;
 
-    if (t === "Premade" && entity.signatureColour && entity.signatureColour !== "default") {
+    if (
+      t === "Premade" &&
+      entity.signatureColour &&
+      entity.signatureColour !== "default"
+    ) {
       chip.style.backgroundColor = SIGNATURE_COLORS[entity.signatureColour];
       chip.style.color = "white";
     }
@@ -384,20 +436,20 @@ export async function handleAsyncError(asyncFn, options = {}) {
 
 export const chin = {
   init: () => {
-    document.addEventListener('click', (e) => {
-      const container = document.getElementById('chin-container');
+    document.addEventListener("click", (e) => {
+      const container = document.getElementById("chin-container");
       if (!container || container.hidden) return;
-      if (e.target.id === 'chin-backdrop') {
+      if (e.target.id === "chin-backdrop") {
         chin.closeAll();
       }
     });
-    document.querySelectorAll('[data-chin]').forEach(btn => {
+    document.querySelectorAll("[data-chin]").forEach((btn) => {
       if (btn.dataset.chinInitialized) return;
-      if (btn.tagName === 'BUTTON' || btn.getAttribute('role') === 'button') {
+      if (btn.tagName === "BUTTON" || btn.getAttribute("role") === "button") {
         btn.dataset.chinInitialized = "true";
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener("click", (e) => {
           e.stopPropagation();
-          const name = btn.getAttribute('data-chin');
+          const name = btn.getAttribute("data-chin");
           chin.toggle(name);
         });
       }
@@ -406,45 +458,45 @@ export const chin = {
   open: (name) => {
     chin.closeAll();
     const el = document.querySelector(`.chin[data-chin="${name}"]`);
-    const container = document.getElementById('chin-container');
-    const backdrop = document.getElementById('chin-backdrop');
+    const container = document.getElementById("chin-container");
+    const backdrop = document.getElementById("chin-backdrop");
 
-    if (el) el.removeAttribute('hidden');
+    if (el) el.removeAttribute("hidden");
     if (container) {
-      container.removeAttribute('hidden');
-      container.style.pointerEvents = 'auto';
+      container.removeAttribute("hidden");
+      container.style.pointerEvents = "auto";
     }
-    if (backdrop) backdrop.removeAttribute('hidden');
+    if (backdrop) backdrop.removeAttribute("hidden");
   },
   close: (name) => {
     const el = document.querySelector(`.chin[data-chin="${name}"]`);
-    if (el) el.setAttribute('hidden', '');
+    if (el) el.setAttribute("hidden", "");
 
-    const visible = document.querySelector('.chin:not([hidden])');
+    const visible = document.querySelector(".chin:not([hidden])");
     if (!visible) {
-      const container = document.getElementById('chin-container');
+      const container = document.getElementById("chin-container");
       if (container) {
-        container.setAttribute('hidden', '');
-        container.style.pointerEvents = 'none';
+        container.setAttribute("hidden", "");
+        container.style.pointerEvents = "none";
       }
     }
   },
   closeAll: () => {
-    const chins = document.querySelectorAll('.chin');
-    chins.forEach(c => c.setAttribute('hidden', ''));
-    const container = document.getElementById('chin-container');
+    const chins = document.querySelectorAll(".chin");
+    chins.forEach((c) => c.setAttribute("hidden", ""));
+    const container = document.getElementById("chin-container");
     if (container) {
-      container.setAttribute('hidden', '');
-      container.style.pointerEvents = 'none';
+      container.setAttribute("hidden", "");
+      container.style.pointerEvents = "none";
     }
-    const backdrop = document.getElementById('chin-backdrop');
-    if (backdrop) backdrop.setAttribute('hidden', '');
+    const backdrop = document.getElementById("chin-backdrop");
+    if (backdrop) backdrop.setAttribute("hidden", "");
   },
   toggle: (name) => {
     const el = document.querySelector(`.chin[data-chin="${name}"]`);
-    if (el && !el.hasAttribute('hidden')) chin.close(name);
+    if (el && !el.hasAttribute("hidden")) chin.close(name);
     else chin.open(name);
-  }
+  },
 };
 
 export function setTopBarRight(mode) {
@@ -457,18 +509,20 @@ export function setTopBarRight(mode) {
     form: topBarRightForm,
     profile: topBarRightProfile,
   };
-  Object.values(sectionMap).forEach((sec) => sec && sec.setAttribute("hidden", ""));
+  Object.values(sectionMap).forEach(
+    (sec) => sec && sec.setAttribute("hidden", ""),
+  );
   if (sectionMap[mode]) sectionMap[mode].removeAttribute("hidden");
 }
 
 export function hideEl(el, doc = document) {
-  if (typeof el === 'string') el = doc.getElementById(el);
-  if (el) el.setAttribute('hidden', '');
+  if (typeof el === "string") el = doc.getElementById(el);
+  if (el) el.setAttribute("hidden", "");
 }
 
 export function showEl(el, doc = document) {
-  if (typeof el === 'string') el = doc.getElementById(el);
-  if (el) el.removeAttribute('hidden');
+  if (typeof el === "string") el = doc.getElementById(el);
+  if (el) el.removeAttribute("hidden");
 }
 
 export function replaceEventHandler(el, event, handler, handlerName) {
@@ -499,14 +553,22 @@ export function calculateBlendedParams(ai, user, world) {
   // 2. Temperature (Creativity/Chaos)
   // Formula: (World_Entropy * 0.7) + (AI_Entropy * 0.3)
   // Mapping: 0-100 -> 0.5-1.35
-  const rawTemp = (worldDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_WORLD) + (aiDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_AI);
+  const rawTemp =
+    worldDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_WORLD +
+    aiDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_AI;
   const temperature = mapRange(rawTemp, 0, 100, PHYSICS_CONFIG.TEMP_BASE, 1.35);
 
   // 3. Repetition Penalty (Pacing)
   // Formula: Max of AI, User, World Velocities
   // Mapping: 0-100 -> 1.0-1.18
   const rawRep = Math.max(aiDyn.velocity, userDyn.velocity, worldDyn.velocity);
-  const repetition_penalty = mapRange(rawRep, 0, 100, PHYSICS_CONFIG.PENALTY_BASE, 1.18);
+  const repetition_penalty = mapRange(
+    rawRep,
+    0,
+    100,
+    PHYSICS_CONFIG.PENALTY_BASE,
+    1.18,
+  );
 
   // 4. Top_P (Focus/Coherence)
   // Formula: AI_Resonance
@@ -517,6 +579,6 @@ export function calculateBlendedParams(ai, user, world) {
   return {
     temperature: parseFloat(temperature.toFixed(2)),
     repetition_penalty: parseFloat(repetition_penalty.toFixed(2)),
-    top_p: parseFloat(top_p.toFixed(2))
+    top_p: parseFloat(top_p.toFixed(2)),
   };
 }

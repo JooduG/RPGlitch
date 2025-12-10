@@ -12,151 +12,161 @@ const TITLE_ID = "entity-drawer-title";
 let _onSelectCallback = null;
 
 export function initDrawer() {
-    const drawer = document.getElementById(DRAWER_ID);
-    const backdrop = document.getElementById(BACKDROP_ID);
-    if (!drawer || !backdrop) return;
+  const drawer = document.getElementById(DRAWER_ID);
+  const backdrop = document.getElementById(BACKDROP_ID);
+  if (!drawer || !backdrop) return;
 
-    backdrop.addEventListener("click", closeDrawer);
+  backdrop.addEventListener("click", closeDrawer);
 
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && isOpen()) closeDrawer();
-    });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isOpen()) closeDrawer();
+  });
 
-    log("[Drawer] Initialized.");
+  log("[Drawer] Initialized.");
 }
 
 export function isOpen() {
-    const drawer = document.getElementById(DRAWER_ID);
-    return drawer && drawer.classList.contains("is-open");
+  const drawer = document.getElementById(DRAWER_ID);
+  return drawer && drawer.classList.contains("is-open");
 }
 
 export function openDrawer(type, onSelect, triggerElement, onCreate) {
-    _onSelectCallback = onSelect;
+  _onSelectCallback = onSelect;
 
-    const drawer = document.getElementById(DRAWER_ID);
-    const backdrop = document.getElementById(BACKDROP_ID);
-    const content = document.getElementById(CONTENT_ID);
-    const title = document.getElementById(TITLE_ID);
+  const drawer = document.getElementById(DRAWER_ID);
+  const backdrop = document.getElementById(BACKDROP_ID);
+  const content = document.getElementById(CONTENT_ID);
+  const title = document.getElementById(TITLE_ID);
 
-    if (!drawer || !content) return;
+  if (!drawer || !content) return;
 
-    if (title) title.textContent = `Select ${type}`;
+  if (title) title.textContent = `Select ${type}`;
 
-    // --- CLEAN CSS-ONLY POSITIONING ---
-    drawer.style.cssText = ''; // Reset any legacy inline styles
-    drawer.removeAttribute("hidden");
+  // --- CLEAN CSS-ONLY POSITIONING ---
+  drawer.style.cssText = ""; // Reset any legacy inline styles
+  drawer.removeAttribute("hidden");
 
-    // Force reflow
-    void drawer.offsetWidth;
+  // Force reflow
+  void drawer.offsetWidth;
 
-    drawer.classList.add("is-open");
+  drawer.classList.add("is-open");
 
-    // Show Backdrop
-    if (backdrop) {
-        backdrop.removeAttribute("hidden");
-        backdrop.setAttribute("aria-hidden", "false");
-    }
+  // Show Backdrop
+  if (backdrop) {
+    backdrop.removeAttribute("hidden");
+    backdrop.setAttribute("aria-hidden", "false");
+  }
 
-    // Load Content
-    content.innerHTML = '<div class="drawer-loading" style="text-align:center; opacity:0.5; padding:2rem;">Loading...</div>';
+  // Load Content
+  content.innerHTML =
+    '<div class="drawer-loading" style="text-align:center; opacity:0.5; padding:2rem;">Loading...</div>';
 
-    entities.list(type).then(items => {
-        renderDrawerItems(items, type, onCreate);
-    }).catch(err => {
-        error("Failed to load drawer items:", err);
-        content.innerHTML = '<div class="drawer-error">Failed to load items.</div>';
+  entities
+    .list(type)
+    .then((items) => {
+      renderDrawerItems(items, type, onCreate);
+    })
+    .catch((err) => {
+      error("Failed to load drawer items:", err);
+      content.innerHTML =
+        '<div class="drawer-error">Failed to load items.</div>';
     });
 }
 
 export function closeDrawer() {
-    const drawer = document.getElementById(DRAWER_ID);
-    const backdrop = document.getElementById(BACKDROP_ID);
+  const drawer = document.getElementById(DRAWER_ID);
+  const backdrop = document.getElementById(BACKDROP_ID);
 
-    if (drawer) {
-        drawer.classList.remove("is-open");
-        setTimeout(() => {
-            if (!drawer.classList.contains("is-open")) {
-                drawer.setAttribute("hidden", "");
-                drawer.style.cssText = '';
-            }
-        }, 300);
-    }
+  if (drawer) {
+    drawer.classList.remove("is-open");
+    setTimeout(() => {
+      if (!drawer.classList.contains("is-open")) {
+        drawer.setAttribute("hidden", "");
+        drawer.style.cssText = "";
+      }
+    }, 300);
+  }
 
-    if (backdrop) {
-        backdrop.setAttribute("aria-hidden", "true");
-        setTimeout(() => {
-            if (!drawer.classList.contains("is-open")) {
-                backdrop.setAttribute("hidden", "");
-            }
-        }, 300);
-    }
-    _onSelectCallback = null;
+  if (backdrop) {
+    backdrop.setAttribute("aria-hidden", "true");
+    setTimeout(() => {
+      if (!drawer.classList.contains("is-open")) {
+        backdrop.setAttribute("hidden", "");
+      }
+    }, 300);
+  }
+  _onSelectCallback = null;
 }
 
 function renderDrawerItems(items, type, onCreate) {
-    const content = document.getElementById(CONTENT_ID);
-    if (!content) return;
+  const content = document.getElementById(CONTENT_ID);
+  if (!content) return;
 
-    content.innerHTML = "";
-    const grid = document.createElement("div");
-    grid.className = "drawer-grid";
+  content.innerHTML = "";
+  const grid = document.createElement("div");
+  grid.className = "drawer-grid";
 
-    // "Create New" Card
-    grid.appendChild(createCard({ name: `New ${type}`, isNew: true }, type, onCreate));
+  // "Create New" Card
+  grid.appendChild(
+    createCard({ name: `New ${type}`, isNew: true }, type, onCreate),
+  );
 
-    // Entity Cards
-    items.forEach(item => {
-        grid.appendChild(createCard(item, type));
-    });
+  // Entity Cards
+  items.forEach((item) => {
+    grid.appendChild(createCard(item, type));
+  });
 
-    content.appendChild(grid);
+  content.appendChild(grid);
 }
 
 function createCard(item, type, onCreate) {
-    const card = document.createElement("button");
-    card.className = "drawer-card";
-    card.type = "button";
+  const card = document.createElement("button");
+  card.className = "drawer-card";
+  card.type = "button";
 
-    if (item.isNew) {
-        card.classList.add("drawer-card--new");
-        card.innerHTML = `<div class="drawer-card-icon" style="font-size:1.5rem;">+</div><div class="drawer-card-label">Create New</div>`;
-        card.addEventListener("click", () => {
-            if (onCreate) {
-                onCreate();
-            } else {
-                window.location.hash = `#profile/${type}/new`;
-            }
-            closeDrawer();
-        });
-    } else {
-        if (item.signatureColour) {
-            card.style.setProperty("--card-signature", `var(--signature-${item.signatureColour})`);
-        }
-
-        if (typeof getPictureHTML === 'function') {
-            const pic = getPictureHTML(item, { cover: true });
-
-            // [NEW] Apply Visual Flip in Drawer
-            const visuals = getVisualState(item);
-            if (visuals.flipped) {
-                const img = pic.querySelector('img');
-                if (img) img.style.transform = "scaleX(-1)";
-            }
-
-            card.appendChild(pic);
-        } else {
-            card.textContent = item.name;
-        }
-
-        const label = document.createElement("div");
-        label.className = "drawer-card-label";
-        label.textContent = item.name;
-        card.appendChild(label);
-
-        card.addEventListener("click", () => {
-            if (_onSelectCallback) _onSelectCallback(item.id);
-            closeDrawer();
-        });
+  if (item.isNew) {
+    card.classList.add("drawer-card--new");
+    card.innerHTML = `<div class="drawer-card-icon" style="font-size:1.5rem;">+</div><div class="drawer-card-label">Create New</div>`;
+    card.addEventListener("click", () => {
+      if (onCreate) {
+        onCreate();
+      } else {
+        window.location.hash = `#profile/${type}/new`;
+      }
+      closeDrawer();
+    });
+  } else {
+    if (item.signatureColour) {
+      card.style.setProperty(
+        "--card-signature",
+        `var(--signature-${item.signatureColour})`,
+      );
     }
-    return card;
+
+    if (typeof getPictureHTML === "function") {
+      const pic = getPictureHTML(item, { cover: true });
+
+      // [NEW] Apply Visual Flip in Drawer
+      const visuals = getVisualState(item);
+      if (visuals.flipped) {
+        const img = pic.querySelector("img");
+        if (img) img.style.transform = "scaleX(-1)";
+      }
+
+      card.appendChild(pic);
+    } else {
+      card.textContent = item.name;
+    }
+
+    const label = document.createElement("div");
+    label.className = "drawer-card-label";
+    label.textContent = item.name;
+    card.appendChild(label);
+
+    card.addEventListener("click", () => {
+      if (_onSelectCallback) _onSelectCallback(item.id);
+      closeDrawer();
+    });
+  }
+  return card;
 }

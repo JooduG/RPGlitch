@@ -1,6 +1,6 @@
-import { JSDOM } from 'jsdom';
+import { JSDOM } from "jsdom";
 
-jest.mock('../apps/rpglitch/js/core-db.js', () => ({
+jest.mock("../apps/rpglitch/js/core-db.js", () => ({
   db: {
     on: jest.fn(),
     settings: {
@@ -10,7 +10,7 @@ jest.mock('../apps/rpglitch/js/core-db.js', () => ({
   },
 }));
 
-jest.mock('../apps/rpglitch/js/entity-structs.js', () => ({
+jest.mock("../apps/rpglitch/js/entity-structs.js", () => ({
   getPictureHTML: jest.fn(),
 }));
 
@@ -21,8 +21,8 @@ afterEach(() => {
 });
 
 async function loadApp() {
-  const dom = new JSDOM('<!doctype html><html><body></body></html>', {
-    runScripts: 'outside-only'
+  const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+    runScripts: "outside-only",
   });
 
   global.window = dom.window;
@@ -38,11 +38,11 @@ async function loadApp() {
   });
   dom.window.DOMPurify = {};
   dom.window._hyperscript = {};
-  dom.window.$ = function () { };
+  dom.window.$ = function () {};
 
   jest.resetModules();
-  const utils = await import('../apps/rpglitch/js/core-utils.js');
-  const index = await import('../apps/rpglitch/js/index.js');
+  const utils = await import("../apps/rpglitch/js/core-utils.js");
+  const index = await import("../apps/rpglitch/js/index.js");
 
   dom.window.App = {
     ...index,
@@ -53,77 +53,85 @@ async function loadApp() {
   return { dom, App: dom.window.App };
 }
 
-test('hideEl hides by element or id', async () => {
+test("hideEl hides by element or id", async () => {
   const { dom, App } = await loadApp();
   const document = dom.window.document;
   document.body.innerHTML = '<div id="test-el"></div>';
-  const el = document.getElementById('test-el');
-  expect(typeof App.hideEl).toBe('function');
+  const el = document.getElementById("test-el");
+  expect(typeof App.hideEl).toBe("function");
   App.hideEl(el, document);
-  expect(el.hasAttribute('hidden')).toBe(true);
-  el.removeAttribute('hidden');
+  expect(el.hasAttribute("hidden")).toBe(true);
+  el.removeAttribute("hidden");
   // Using the string ID should work the same
-  App.hideEl('test-el', document);
-  expect(el.hasAttribute('hidden')).toBe(true);
+  App.hideEl("test-el", document);
+  expect(el.hasAttribute("hidden")).toBe(true);
 });
 
-test('showEl reveals element by removing hidden attribute', async () => {
+test("showEl reveals element by removing hidden attribute", async () => {
   const { dom, App } = await loadApp();
   const document = dom.window.document;
   document.body.innerHTML = '<div id="test-el" hidden="hidden"></div>';
-  const el = document.getElementById('test-el');
+  const el = document.getElementById("test-el");
   App.showEl(el, document);
-  expect(el.hasAttribute('hidden')).toBe(false);
-  el.setAttribute('hidden', 'hidden');
-  App.showEl('test-el', document);
-  expect(el.hasAttribute('hidden')).toBe(false);
+  expect(el.hasAttribute("hidden")).toBe(false);
+  el.setAttribute("hidden", "hidden");
+  App.showEl("test-el", document);
+  expect(el.hasAttribute("hidden")).toBe(false);
 });
 
-test('handleAsyncError executes async function and returns result on success', async () => {
+test("handleAsyncError executes async function and returns result on success", async () => {
   const { App } = await loadApp();
-  const result = await App.handleAsyncError(
-    async () => 'success',
-    { context: 'test operation', showAlert: false }
-  );
-  expect(result).toBe('success');
+  const result = await App.handleAsyncError(async () => "success", {
+    context: "test operation",
+    showAlert: false,
+  });
+  expect(result).toBe("success");
 });
 
-test('handleAsyncError catches errors and returns fallback value', async () => {
+test("handleAsyncError catches errors and returns fallback value", async () => {
   const { dom, App } = await loadApp();
-  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-  const alertSpy = jest.spyOn(dom.window, 'alert').mockImplementation();
+  const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+  const alertSpy = jest.spyOn(dom.window, "alert").mockImplementation();
 
   const result = await App.handleAsyncError(
-    async () => { throw new Error('Test error'); },
+    async () => {
+      throw new Error("Test error");
+    },
     {
-      errorMessage: 'Operation failed',
-      context: 'test operation',
+      errorMessage: "Operation failed",
+      context: "test operation",
       showAlert: true,
-      fallback: 'fallback value'
-    }
+      fallback: "fallback value",
+    },
   );
 
-  expect(result).toBe('fallback value');
-  expect(consoleErrorSpy).toHaveBeenCalledWith('[RPGlitch]', 'Failed to test operation:', expect.any(Error));
-  expect(alertSpy).toHaveBeenCalledWith('Operation failed');
+  expect(result).toBe("fallback value");
+  expect(consoleErrorSpy).toHaveBeenCalledWith(
+    "[RPGlitch]",
+    "Failed to test operation:",
+    expect.any(Error),
+  );
+  expect(alertSpy).toHaveBeenCalledWith("Operation failed");
 
   consoleErrorSpy.mockRestore();
   alertSpy.mockRestore();
 });
 
-test('handleAsyncError suppresses alert when showAlert is false', async () => {
+test("handleAsyncError suppresses alert when showAlert is false", async () => {
   const { dom, App } = await loadApp();
-  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-  const alertSpy = jest.spyOn(dom.window, 'alert').mockImplementation();
+  const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+  const alertSpy = jest.spyOn(dom.window, "alert").mockImplementation();
 
   await App.handleAsyncError(
-    async () => { throw new Error('Test error'); },
+    async () => {
+      throw new Error("Test error");
+    },
     {
-      errorMessage: 'Should not alert',
-      context: 'silent test',
+      errorMessage: "Should not alert",
+      context: "silent test",
       showAlert: false,
-      fallback: null
-    }
+      fallback: null,
+    },
   );
 
   expect(alertSpy).not.toHaveBeenCalled();
@@ -133,23 +141,27 @@ test('handleAsyncError suppresses alert when showAlert is false', async () => {
   alertSpy.mockRestore();
 });
 
-test('replaceEventHandler replaces existing event listener', async () => {
+test("replaceEventHandler replaces existing event listener", async () => {
   const { dom, App } = await loadApp();
   const document = dom.window.document;
   document.body.innerHTML = '<button id="test-btn">Click me</button>';
-  const btn = document.getElementById('test-btn');
+  const btn = document.getElementById("test-btn");
 
   let callCount = 0;
-  const handler1 = () => { callCount += 1; };
-  const handler2 = () => { callCount += 10; };
+  const handler1 = () => {
+    callCount += 1;
+  };
+  const handler2 = () => {
+    callCount += 10;
+  };
 
   // Add first handler
-  App.replaceEventHandler(btn, 'click', handler1, '_testHandler');
+  App.replaceEventHandler(btn, "click", handler1, "_testHandler");
   btn.click();
   expect(callCount).toBe(1);
 
   // Replace with second handler
-  App.replaceEventHandler(btn, 'click', handler2, '_testHandler');
+  App.replaceEventHandler(btn, "click", handler2, "_testHandler");
   btn.click();
   expect(callCount).toBe(11); // Should be 1 + 10, not 1 + 1 + 10
 
@@ -158,13 +170,13 @@ test('replaceEventHandler replaces existing event listener', async () => {
   expect(callCount).toBe(21); // Should be 11 + 10, confirming only handler2 is active
 });
 
-test('replaceEventHandler handles null element gracefully', async () => {
+test("replaceEventHandler handles null element gracefully", async () => {
   const { App } = await loadApp();
   const handler = jest.fn();
 
   // Should not throw
   expect(() => {
-    App.replaceEventHandler(null, 'click', handler, '_testHandler');
+    App.replaceEventHandler(null, "click", handler, "_testHandler");
   }).not.toThrow();
 
   expect(handler).not.toHaveBeenCalled();

@@ -48,11 +48,11 @@ Our visual language is built on **Pico.css**, extended with a custom design laye
 ### Color System
 
 * **⬛ Background (Global):** A fixed, 4-stop linear gradient is used across all applications.
-    * `#181c2f`, `#23243a`, `#1a3a4a`, `#2a1a3a`
+  * `#181c2f`, `#23243a`, `#1a3a4a`, `#2a1a3a`
 * **⚪ Text:** Standard text color is inherited from Pico.css.
 * **🎨 Signature Colors:** Predefined colors for visual variety and entity identity. These are exposed via CSS variables (`var(--signature-pink)`, etc.).
-    * **Pink:** `#ec4899` | **Emerald:** `#10b981` | **Cyan:** `#06b6d4`
-    * **Orange:** `#f97316` | **Purple:** `#a855f7`
+  * **Pink:** `#ec4899` | **Emerald:** `#10b981` | **Cyan:** `#06b6d4`
+  * **Orange:** `#f97316` | **Purple:** `#a855f7`
 
 ### Typography
 
@@ -70,72 +70,84 @@ Our visual language is built on **Pico.css**, extended with a custom design laye
 
 ### Common Components
 
-**Buttons**
+#### Buttons
+
 * Follow Pico.css standards (`.primary`, `.secondary`, `.danger`)
 * **MUST** follow the Icon-Free Mandate
 
-**Modals**
+#### Modals
+
 * Loading Modal: Displays loading message
 * Emergency Modal: Displays error message with options to save/delete
 
-**Tags**
+#### Tags
+
 * Displayed as pills with background color and rounded corners
 
 ### RPGlitch-Specific Components
 
 **The Universal Stage (Layout)**
 A 3-column CSS Grid designed to look like a "Tabletop" or "Control Center."
+
 * **Grid:** `25vw` (AI) | `1fr` (Stage) | `25vw` (User)
 * **Height:** `100vh` (Full Screen, No Body Scroll)
 * **Constraint:** `overflow: hidden` to prevent layout breaking.
 
 **Chat Feed (The "Flexbox Jail")**
 To ensure the chat feed scrolls *inside* the fixed layout without stretching the page:
+
 * **Container:** `flex: 1; min-height: 0; overflow-y: auto;`
 * **Behavior:** Scrollbar appears internally; header and input area remain fixed.
 
 **Message Bubbles (`.story-message`)**
+
 * **Narrator / OOC:**
-    * **Align:** Center (Bubble & Text).
-    * **Color:** Neutral Grey (`--pico-secondary`).
-    * **Style:** Italic.
+  * **Align:** Center (Bubble & Text).
+  * **Color:** Neutral Grey (`--pico-secondary`).
+  * **Style:** Italic.
 * **AI Character:**
-    * **Align:** Left (Bubble & Text).
-    * **Color:** Muted or Signature Color.
-    * **Tail:** Points Left.
+  * **Align:** Left (Bubble & Text).
+  * **Color:** Muted or Signature Color.
+  * **Tail:** Points Left.
 * **User Character:**
-    * **Align:** Right (Bubble & Text).
-    * **Color:** Primary or Signature Color.
-    * **Tail:** Points Right.
+  * **Align:** Right (Bubble & Text).
+  * **Color:** Primary or Signature Color.
+  * **Tail:** Points Right.
 * **Typography:** `white-space: pre-wrap` is mandatory to preserve AI paragraph formatting.
 
 **Character Nameplates (`.character-name-overlay`)**
 A solid, high-readability label overlaid on character portraits.
+
 * **Background:** `#181c25` (Dark Blue-Grey)
 * **Border:** 2px Solid (Signature Color)
 * **Text:** Uppercase, Bold, (Signature Color)
 * **Shadow:** Strong drop shadow for depth against variable backgrounds.
 
-**Cards (Storyboard)**
+#### Cards (Storyboard)
+
 * Use semantic HTML (`<article>`, `<header>`, `<footer>`)
 * Responsive layout with flexbox/grid
 
-**The "Chin" (Mobile Drawer)**
+#### The "Chin" (Mobile Drawer)
+
 * Signature slide-out panel for entity selection on mobile.
 * Replaces side columns on screens `< 768px`.
 * Toggled by selection buttons.
 
-**Pictures**
+#### Pictures
+
 * 1:1 aspect ratio containers (Portrait) or 16:9 (World).
 * Placeholder images when no image available.
 
-**Profiles**
+#### Profiles
+
 * Two-column layout (image left, details right).
 * Uses entity's signature color.
 
 ### ImageGlitch-Specific Components
 
 See [PERCHANCE.md](./PERCHANCE.md) for ImageGlitch's three AI Personas:
+
 * **Refine** (Scribe) - Intelligently improves user prompts
 * **Embrace the Chaos** (Chaos) - Adds creative mutation and randomness
 * **Transfigure** - Surgically modifies prompts per user instructions
@@ -147,6 +159,7 @@ See [PERCHANCE.md](./PERCHANCE.md) for ImageGlitch's three AI Personas:
 **Status:** ✅ 98% Implemented (2025-12-02)
 
 RPGlitch visual overhaul completed with:
+
 * **Phase 1:** High-contrast identity, Pico.css typography, signature colors
 * **Phase 2:** Pixel-perfect UI (search fields removed)
 * **Phase 3:** Full-bleed chat screen with Universal Stage grid.

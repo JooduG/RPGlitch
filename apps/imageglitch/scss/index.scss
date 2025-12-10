@@ -26,11 +26,13 @@ $gradient-color-3: #1a3a4a;
 $gradient-color-4: #2a1a3a;
 
 body {
-  background: linear-gradient(120deg,
-      $gradient-color-1 0%,
-      $gradient-color-2 40%,
-      $gradient-color-3 70%,
-      $gradient-color-4 100%);
+  background: linear-gradient(
+    120deg,
+    $gradient-color-1 0%,
+    $gradient-color-2 40%,
+    $gradient-color-3 70%,
+    $gradient-color-4 100%
+  );
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: cover;
@@ -121,7 +123,9 @@ header.container {
   resize: vertical;
   border: 1px solid var(--pico-form-element-border-color);
   box-shadow: var(--pico-form-element-box-shadow);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
   line-height: 1.5;
   min-height: 4.5em;
 }
@@ -184,7 +188,9 @@ input::placeholder {
   overflow: hidden;
   position: relative;
   border-radius: var(--pico-radius);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .quad-cell:hover {
@@ -206,7 +212,9 @@ input::placeholder {
 .solo-block {
   position: relative;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .solo-block:hover {
@@ -232,11 +240,7 @@ input::placeholder {
   transition: opacity 0.3s ease;
   pointer-events: none;
   z-index: 10;
-  background: linear-gradient(to bottom,
-      rgb(0 0 0 / 60%) 0%,
-      transparent 30%,
-      transparent 70%,
-      rgb(0 0 0 / 60%) 100%);
+  background: linear-gradient(to bottom, rgb(0 0 0 / 60%) 0%, transparent 30%, transparent 70%, rgb(0 0 0 / 60%) 100%);
 }
 
 .image-container:hover .image-overlay {
@@ -354,7 +358,9 @@ input::placeholder {
 }
 
 #generate-button {
-  transition: background-color 0.2s ease-in-out, filter 0.2s ease-in-out;
+  transition:
+    background-color 0.2s ease-in-out,
+    filter 0.2s ease-in-out;
 
   &.btn-generate {
     background-color: var(--pico-color-jade-500, #43a047);

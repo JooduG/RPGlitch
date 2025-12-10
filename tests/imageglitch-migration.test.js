@@ -2,9 +2,9 @@
  * Test suite for ImageGlitch localStorage → IndexedDB migration
  */
 
-import { JSDOM } from 'jsdom';
+import { JSDOM } from "jsdom";
 
-describe('ImageGlitch IndexedDB Migration', () => {
+describe("ImageGlitch IndexedDB Migration", () => {
   let dom;
   let mockDb;
   let mockSettingsTable;
@@ -16,9 +16,9 @@ describe('ImageGlitch IndexedDB Migration', () => {
     jest.clearAllMocks();
 
     // Create a fresh JSDOM instance
-    dom = new JSDOM('<!doctype html><html><body></body></html>', {
-      url: 'http://localhost',
-      runScripts: 'outside-only'
+    dom = new JSDOM("<!doctype html><html><body></body></html>", {
+      url: "http://localhost",
+      runScripts: "outside-only",
     });
 
     global.window = dom.window;
@@ -38,19 +38,21 @@ describe('ImageGlitch IndexedDB Migration', () => {
       },
       clear() {
         mockLocalStorage.data = {};
-      }
+      },
     };
 
     // Spy on the methods to track calls
-    jest.spyOn(mockLocalStorage, 'getItem');
-    jest.spyOn(mockLocalStorage, 'setItem');
-    jest.spyOn(mockLocalStorage, 'removeItem');
-    jest.spyOn(mockLocalStorage, 'clear');
+    jest.spyOn(mockLocalStorage, "getItem");
+    jest.spyOn(mockLocalStorage, "setItem");
+    jest.spyOn(mockLocalStorage, "removeItem");
+    jest.spyOn(mockLocalStorage, "clear");
 
     // Define localStorage property on window - try direct assignment first
     try {
       delete global.window.localStorage;
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     global.window.localStorage = mockLocalStorage;
 
     // Mock Dexie database
@@ -74,9 +76,9 @@ describe('ImageGlitch IndexedDB Migration', () => {
                   self._upgradeCallback = upgradeCallback;
                 }
                 return this;
-              }
+              },
             };
-          }
+          },
         };
         return versionObj;
       };
@@ -95,22 +97,22 @@ describe('ImageGlitch IndexedDB Migration', () => {
     jest.clearAllMocks();
   });
 
-  test('Migration reads all 6 localStorage keys correctly', async () => {
+  test("Migration reads all 6 localStorage keys correctly", async () => {
     // Setup: Populate localStorage with test data BEFORE importing the module
     mockLocalStorage.data = {
-      'mainPromptContent': 'A beautiful sunset',
-      'imgSeed': '12345',
-      'numImagesToGen': '3',
-      'masterCreativity': '7',
-      'instructionInput': 'Make it more vibrant',
-      'instructionsVisible': 'true',
+      mainPromptContent: "A beautiful sunset",
+      imgSeed: "12345",
+      numImagesToGen: "3",
+      masterCreativity: "7",
+      instructionInput: "Make it more vibrant",
+      instructionsVisible: "true",
     };
 
-    await import('../apps/imageglitch/js/db.js');
+    await import("../apps/imageglitch/js/db.js");
 
     // Get the upgrade callback that was stored
     const upgradeFunc = mockDb._upgradeCallback;
-    expect(typeof upgradeFunc).toBe('function');
+    expect(typeof upgradeFunc).toBe("function");
 
     // Mock transaction
     const mockTrans = {
@@ -126,29 +128,37 @@ describe('ImageGlitch IndexedDB Migration', () => {
     // Verify put was called with correct settings
     expect(mockSettingsTable.put).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: 'app-settings',
-        mainPromptContent: 'A beautiful sunset',
+        id: "app-settings",
+        mainPromptContent: "A beautiful sunset",
         seed: 12345,
         numImagesToGen: 3,
         masterCreativity: 7,
-        instructionInput: 'Make it more vibrant',
+        instructionInput: "Make it more vibrant",
         instructionsVisible: true,
         _migrated: true,
-      })
+      }),
     );
 
     // Verify localStorage was cleaned up
-    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('mainPromptContent');
-    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('imgSeed');
-    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('numImagesToGen');
-    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('masterCreativity');
-    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('instructionInput');
-    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('instructionsVisible');
+    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
+      "mainPromptContent",
+    );
+    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith("imgSeed");
+    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith("numImagesToGen");
+    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
+      "masterCreativity",
+    );
+    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
+      "instructionInput",
+    );
+    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
+      "instructionsVisible",
+    );
   });
 
-  test('Migration handles empty localStorage gracefully', async () => {
+  test("Migration handles empty localStorage gracefully", async () => {
     // Setup: Empty localStorage
-    await import('../apps/imageglitch/js/db.js');
+    await import("../apps/imageglitch/js/db.js");
 
     const upgradeFunc = mockDb._upgradeCallback;
 
@@ -163,24 +173,24 @@ describe('ImageGlitch IndexedDB Migration', () => {
     // Should create settings with default values
     expect(mockSettingsTable.put).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: 'app-settings',
-        mainPromptContent: '',
-        seed: '',
+        id: "app-settings",
+        mainPromptContent: "",
+        seed: "",
         numImagesToGen: 1,
         masterCreativity: 4, // DEFAULT_CREATIVITY_LEVEL
-        instructionInput: '',
+        instructionInput: "",
         instructionsVisible: false,
-      })
+      }),
     );
   });
 
-  test('Migration skips if already completed', async () => {
+  test("Migration skips if already completed", async () => {
     // Setup: Migration already done
     mockLocalStorage.data = {
-      'mainPromptContent': 'Should not be migrated',
+      mainPromptContent: "Should not be migrated",
     };
 
-    await import('../apps/imageglitch/js/db.js');
+    await import("../apps/imageglitch/js/db.js");
 
     const upgradeFunc = mockDb._upgradeCallback;
 
@@ -190,7 +200,7 @@ describe('ImageGlitch IndexedDB Migration', () => {
 
     // Simulate migration already completed
     mockSettingsTable.get.mockResolvedValue({
-      id: 'app-settings',
+      id: "app-settings",
       _migrated: true,
     });
 
@@ -203,14 +213,14 @@ describe('ImageGlitch IndexedDB Migration', () => {
     expect(mockLocalStorage.removeItem).not.toHaveBeenCalled();
   });
 
-  test('Migration preserves localStorage on IndexedDB write failure', async () => {
+  test("Migration preserves localStorage on IndexedDB write failure", async () => {
     // Setup
     mockLocalStorage.data = {
-      'mainPromptContent': 'Important data',
-      'imgSeed': '99999',
+      mainPromptContent: "Important data",
+      imgSeed: "99999",
     };
 
-    await import('../apps/imageglitch/js/db.js');
+    await import("../apps/imageglitch/js/db.js");
 
     const upgradeFunc = mockDb._upgradeCallback;
 
@@ -221,24 +231,28 @@ describe('ImageGlitch IndexedDB Migration', () => {
     mockSettingsTable.get.mockResolvedValue(null);
 
     // Simulate IndexedDB write failure
-    mockSettingsTable.put.mockRejectedValue(new Error('IndexedDB write failed'));
+    mockSettingsTable.put.mockRejectedValue(
+      new Error("IndexedDB write failed"),
+    );
 
     // Migration should throw and NOT clean up localStorage
-    await expect(upgradeFunc(mockTrans)).rejects.toThrow('IndexedDB write failed');
+    await expect(upgradeFunc(mockTrans)).rejects.toThrow(
+      "IndexedDB write failed",
+    );
 
     // Verify localStorage was NOT cleaned up
     expect(mockLocalStorage.removeItem).not.toHaveBeenCalled();
-    expect(mockLocalStorage.data.mainPromptContent).toBe('Important data');
-    expect(mockLocalStorage.data.imgSeed).toBe('99999');
+    expect(mockLocalStorage.data.mainPromptContent).toBe("Important data");
+    expect(mockLocalStorage.data.imgSeed).toBe("99999");
   });
 
-  test('Migration handles boolean string conversion correctly', async () => {
+  test("Migration handles boolean string conversion correctly", async () => {
     // Test both 'true' and 'false' string values
     mockLocalStorage.data = {
-      'instructionsVisible': 'false',
+      instructionsVisible: "false",
     };
 
-    await import('../apps/imageglitch/js/db.js');
+    await import("../apps/imageglitch/js/db.js");
 
     const upgradeFunc = mockDb._upgradeCallback;
 
@@ -253,18 +267,18 @@ describe('ImageGlitch IndexedDB Migration', () => {
     expect(mockSettingsTable.put).toHaveBeenCalledWith(
       expect.objectContaining({
         instructionsVisible: false, // String 'false' should become boolean false
-      })
+      }),
     );
   });
 
-  test('Migration handles numeric string conversion', async () => {
+  test("Migration handles numeric string conversion", async () => {
     mockLocalStorage.data = {
-      'imgSeed': '0', // Edge case: zero seed
-      'numImagesToGen': '10',
-      'masterCreativity': '0', // Edge case: minimum creativity
+      imgSeed: "0", // Edge case: zero seed
+      numImagesToGen: "10",
+      masterCreativity: "0", // Edge case: minimum creativity
     };
 
-    await import('../apps/imageglitch/js/db.js');
+    await import("../apps/imageglitch/js/db.js");
 
     const upgradeFunc = mockDb._upgradeCallback;
 
@@ -281,7 +295,7 @@ describe('ImageGlitch IndexedDB Migration', () => {
         seed: 0, // Should be number 0, not empty string
         numImagesToGen: 10,
         masterCreativity: 0,
-      })
+      }),
     );
   });
 });

@@ -51,7 +51,6 @@
     }
 }
 
-
 /* =========================================
    DRAWER HEADER (Controls)
    ========================================= */
@@ -73,9 +72,7 @@
         text-transform: uppercase;
         color: var(--pico-h3-color);
     }
-
 }
-
 
 /* =========================================
    DRAWER CONTENT (Grid Area)
@@ -99,7 +96,6 @@
     gap: 1rem;
     padding-bottom: 2rem;
 }
-
 
 /* =========================================
    DRAWER ITEMS (Mini Cards)
@@ -135,7 +131,7 @@
     }
 
     // Fallback if direct IMG
-    >img {
+    > img {
         flex: 1;
         width: 100%;
         height: auto;
@@ -212,7 +208,6 @@
     padding: 2rem;
 }
 
-
 /* =========================================
    OPTIONS & UTILITIES
    ========================================= */
@@ -243,7 +238,6 @@
         opacity: 1;
     }
 }
-
 
 /* =========================================
    BACKDROP
