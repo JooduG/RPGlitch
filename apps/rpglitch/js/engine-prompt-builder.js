@@ -244,9 +244,10 @@ ${physicsBlock}
 
 **Task Checklist:**
 1. **THINK (<think>):**
-   - Review recent events.
-   - Calculate delta for Entropy, Velocity, etc. using the Matrix.
-   - Decide what needs to change in <PRESENT>.
+   - **Analyze Dialogue:** Explicitly quote the lines or actions that are driving the change.
+   - **Nuance Check:** Does the context justify a deviation from the rigid Physics Laws? (e.g. "He yelled, but he was smiling" -> diff impact than just "He yelled").
+   - **Calculate Deltas:** Determine the specific +/- values for Entropy, Velocity, etc.
+   - **Synthesize:** Decide how these numeric shifts manifest in the <PRESENT> description.
 2. **CALCULATE DYNAMICS:** Assess the last 3 turns. Apply the Calibration Matrix to current stats.
 3. **UPDATE <PRESENT>:** Rewrite the mutable description to match the new numbers.
    - *Example:* If Entropy jumps to 80, the text MUST describe sweating, shaking, or environmental disorder.

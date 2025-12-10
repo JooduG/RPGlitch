@@ -11,7 +11,7 @@
 - **New to Perchance?** Start with [Section 1: Core Engine](#section-1-the-perchance-engine)
 - **Building UIs?** Jump to [Section 2: Web Technologies](#section-2-web-technologies)
 - **Using AI?** See [Section 4: LLM Theory](#section-4-understanding-language-models) and [Section 5: Advanced Context Architecture](#section-5-advanced-context-architecture)
-- **Building production apps?** Read [Section 7: Architectural Patterns](#section-7-architectural-patterns-the-two-panel-standard)
+- **Building production apps?** Read [Section 7: Pattern C](#section-7-pattern-c-the-simulation-engine-advanced)
 - **Need the API reference?** See [Section 6: The oc Object](#section-6-programming-with-the-oc-object)
 
 ---
@@ -58,6 +58,7 @@ For single-item lists, use shorthand: `listName = [item]`
 ### Naming Conventions
 
 List names must adhere to strict rules:
+
 - ✅ Valid: `animal`, `my_list`, `list123`, `MyList`
 - ❌ Invalid: Spaces, hyphens, starting with numbers, reserved keywords (`if`, `for`, `while`, `class`, etc.)
 
@@ -123,7 +124,7 @@ To create coherent outputs, you must often store and reuse a randomly selected v
 
 The syntax `[identifierName = listName]` assigns a randomly selected item to an identifier. The stored value can then be reused elsewhere:
 
-```
+```text
 
 [f = flower.selectOne]
 The [f] is beautiful. I love the smell of the [f].
@@ -134,7 +135,7 @@ The [f] is beautiful. I love the smell of the [f].
 
 Multiple assignments and operations can be performed within a single set of square brackets by separating them with commas. Only the final operation's result is displayed as output:
 
-```
+```text
 
 [a = animal, v = verb, a.upperCase + " " + v.pastTense]
 
@@ -290,9 +291,9 @@ A large-scale study, "LLMs GET LOST IN MULTI-TURN CONVERSATION," systematically 
 
 ### Why Context is Lost
 
-1.  **Premature Answer Attempts:** LLMs tend to make assumptions about missing information.
-2.  **Over-Reliance:** The model becomes anchored to its initial, often incorrect, attempts.
-3.  **Lost-in-the-Middle Effect:** Models give disproportionate weight to first and last turns, forgetting crucial details provided in the middle.
+1. **Premature Answer Attempts:** LLMs tend to make assumptions about missing information.
+2. **Over-Reliance:** The model becomes anchored to its initial, often incorrect, attempts.
+3. **Lost-in-the-Middle Effect:** Models give disproportionate weight to first and last turns, forgetting crucial details provided in the middle.
 
 ### Solution: Contextual Consolidation
 
@@ -412,7 +413,7 @@ For applications focused on textual interaction (chat bots, simple RPGs), the ar
 
 - **Architecture:** Event-Driven. Listen to `MessageAdded`.
 - **State:** Mostly relies on chat history + simple variables.
-  * **Best For:** Simple characters, chat bots.
+  - **Best For:** Simple characters, chat bots.
 
 ## Pattern B: The Visual Engine (Image Gen)
 
@@ -422,7 +423,7 @@ For applications focused on generative imagery, the architecture uses a **Two-St
 - **Stage 2 (Weighting):** Diffusion syntax (`(keyword:1.2)`) controls *how* it draws.
 - **Pipeline:** Lists -\> Prompt String -\> `textToImage()` -\> Display.
 
-## Pattern C: The Simulation Engine (Advanced)
+## Section 7: Pattern C: The Simulation Engine (Advanced)
 
 For applications that require deep state persistence, complex world logic, and long-term memory (e.g., RPGs, Strategy Games), the "Standard Chat" pattern is insufficient.
 
@@ -432,9 +433,9 @@ For applications that require deep state persistence, complex world logic, and l
 
 The architecture is built on three distinct roles:
 
-1.  **The Actor (Foreground):** The primary LLM call that generates the prose/dialogue the user sees. It has no memory of its own; it only knows what is in the current context window.
-2.  **The Simulator (Background):** A hidden, secondary process that calculates the *consequences* of the action. It updates the database (health, inventory, world state) based on what happened.
-3.  **The Archivist (Maintenance):** A background process that manages context window space. It compresses old logs into "Memories" and ensures the `<PAST>` field remains dense and relevant.
+1. **The Actor (Foreground):** The primary LLM call that generates the prose/dialogue the user sees. It has no memory of its own; it only knows what is in the current context window.
+2. **The Simulator (Background):** A hidden, secondary process that calculates the *consequences* of the action. It updates the database (health, inventory, world state) based on what happened.
+3. **The Archivist (Maintenance):** A background process that manages context window space. It compresses old logs into "Memories" and ensures the `<PAST>` field remains dense and relevant.
 
 ### 2\. The "Heartbeat" Protocol
 
@@ -450,11 +451,11 @@ In a standard chat, "Regenerate" just rolls the dice again. In a Simulation Engi
 
 **The Loop:**
 
-1.  **Rejection:** The user rejects Message A.
-2.  **Analysis:** The Engine compares Message A to the User's inputs to determine *why* it failed (e.g., "Too repetitive," "Ignored instructions").
-3.  **Variance Injection:** The Engine generates a temporary **"Director Note"** (e.g., *"Critique: The previous attempt was too passive. Increase aggression by 20%."*).
-4.  **State Rollback:** Crucially, any background updates triggered by Message A (e.g., damage taken) are reverted to prevent "Ghost Memories."
-5.  **Execution:** The Actor generates Message B with the new Director Note guiding it.
+1. **Rejection:** The user rejects Message A.
+2. **Analysis:** The Engine compares Message A to the User's inputs to determine *why* it failed (e.g., "Too repetitive," "Ignored instructions").
+3. **Variance Injection:** The Engine generates a temporary **"Director Note"** (e.g., *"Critique: The previous attempt was too passive. Increase aggression by 20%."*).
+4. **State Rollback:** Crucially, any background updates triggered by Message A (e.g., damage taken) are reverted to prevent "Ghost Memories."
+5. **Execution:** The Actor generates Message B with the new Director Note guiding it.
 
 ### 4\. Implementation Strategy
 

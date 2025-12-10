@@ -168,11 +168,21 @@ export const TurnManager = {
       const ctrl = new AbortController();
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
-      const response = await generateStream({
-        payload,
-        signal: ctrl.signal,
-        onToken: () => removeTypingIndicator(feed)
-      });
+
+      let response;
+      try {
+        response = await generateStream({
+          payload,
+          signal: ctrl.signal,
+          onToken: () => removeTypingIndicator(feed)
+        });
+      } catch (streamErr) {
+        if (streamErr.name === 'AbortError') throw streamErr;
+        console.error("[TURN] Network/Gen Error:", streamErr);
+        // User feedback for network error in main chat
+        alert("Connection Error: The AI could not respond. Please try again.");
+        throw streamErr;
+      }
 
       removeTypingIndicator(feed);
 
@@ -314,11 +324,20 @@ export const TurnManager = {
       const ctrl = new AbortController();
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
-      const response = await generateStream({
-        payload,
-        signal: ctrl.signal,
-        onToken: () => removeTypingIndicator(feed)
-      });
+
+      let response;
+      try {
+        response = await generateStream({
+          payload,
+          signal: ctrl.signal,
+          onToken: () => removeTypingIndicator(feed)
+        });
+      } catch (streamErr) {
+        if (streamErr.name === 'AbortError') throw streamErr;
+        console.error("[TURN] Regen Network Error:", streamErr);
+        alert("Connection Error: Could not regenerate message.");
+        throw streamErr;
+      }
       removeTypingIndicator(feed);
 
       const aiChar = await entities.get("character", story.aiCharacterId);
@@ -359,21 +378,20 @@ export const TurnManager = {
 
       if (!entity) return;
 
+      // 1. Calculate algorithmic fallback (The "Laws")
       const oldDynamics = entity.dynamics || { entropy: 10, permeability: 50, velocity: 10, resonance: 10 };
-      const newDynamics = calculateDynamics(oldDynamics);
+      const fallbackDynamics = calculateDynamics(oldDynamics);
 
-      // [FIX] Pass entity.name to the log generator
-      const debugText = createPhysicsDebugLog(oldDynamics, newDynamics, entity.name);
-      await db.messages.add({
-        storyId,
-        role: "system",
-        type: "DEBUG",
-        text: debugText,
-        createdAt: Date.now() + 1
-      });
+      // 2. Ask AI to "Think" and decide (passing null forces the AI to use Calibration Matrix)
+      const payload = await builder.buildUpdater(targetType, null);
 
-      const payload = await builder.buildUpdater(targetType, newDynamics);
-      const jsonResponse = await generateStream({ payload, signal: null });
+      let jsonResponse;
+      try {
+        jsonResponse = await generateStream({ payload, signal: null });
+      } catch (netErr) {
+        console.error("[PROMETHEUS] Background Network Error:", netErr);
+        return; // Silent fail for background tasks
+      }
 
       if (linkedMessageId) {
         const msgExists = await db.messages.get(linkedMessageId);
@@ -383,14 +401,18 @@ export const TurnManager = {
         }
       }
 
+      if (!jsonResponse) return;
+
       let updates = {};
       try {
         // [FIX] Strip <think> block first to avoid JSON parse errors
         const cleanJson = jsonResponse.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
         const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+
         if (jsonMatch) {
           updates = JSON.parse(jsonMatch[0]);
         } else {
+          console.warn("[PROMETHEUS] No JSON found in response");
           return;
         }
       } catch (jsonErr) {
@@ -399,6 +421,25 @@ export const TurnManager = {
       }
 
       if (updates && payload.targetEntityId) {
+        // AI Dynamics or Fallback?
+        const aiDynamics = updates.dynamics || {};
+        const finalDynamics = {
+          entropy: aiDynamics.entropy ?? fallbackDynamics.entropy,
+          permeability: aiDynamics.permeability ?? fallbackDynamics.permeability,
+          velocity: aiDynamics.velocity ?? fallbackDynamics.velocity,
+          resonance: aiDynamics.resonance ?? fallbackDynamics.resonance
+        };
+
+        // [LOG] Create physics log based on what we ACTUALLY applied
+        const debugText = createPhysicsDebugLog(oldDynamics, finalDynamics, entity.name);
+        await db.messages.add({
+          storyId,
+          role: "system",
+          type: "DEBUG",
+          text: debugText,
+          createdAt: Date.now() + 1
+        });
+
         const freshEntity = await entities.get(payload.targetType, payload.targetEntityId);
 
         if (freshEntity) {
@@ -408,12 +449,7 @@ export const TurnManager = {
             past: updates.past || freshEntity.past,
             present: updates.present || freshEntity.present,
             future: updates.future || freshEntity.future,
-            dynamics: {
-              entropy: newDynamics.entropy,
-              permeability: newDynamics.permeability,
-              velocity: newDynamics.velocity,
-              resonance: newDynamics.resonance
-            },
+            dynamics: finalDynamics,
             updatedAt: Date.now()
           };
 
