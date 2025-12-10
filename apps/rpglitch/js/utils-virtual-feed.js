@@ -220,6 +220,10 @@ export class VirtualFeed {
     this.container.appendChild(this.spacerTop);
     this.container.appendChild(fragment);
     this.container.appendChild(this.spacerBottom);
+
+    if (this.footer) {
+      this.container.appendChild(this.footer);
+    }
   }
 
   _onResize(entries) {
@@ -254,6 +258,27 @@ export class VirtualFeed {
 
       // Optimization: Just update Spacer Heights in place without DOM touch.
       this._updateSpacerHeightsOnly();
+    }
+  }
+
+  /**
+   * Sets a footer element that is always rendered at the bottom.
+   * Useful for typing indicators or loading spinners.
+   * @param {HTMLElement|null} element
+   */
+  setFooter(element) {
+    this.footer = element;
+    // Don't trigger full render, just append/remove if simple?
+    // But render loop clears container. So we must have it part of render state.
+    // We can trigger a render or just append it manually now if render isn't running?
+    // Safe bet: trigger render.
+    this.render();
+
+    // Auto-scroll logic if footer added?
+    if (element) {
+      requestAnimationFrame(() => {
+        this.container.scrollTop = this.container.scrollHeight;
+      });
     }
   }
 

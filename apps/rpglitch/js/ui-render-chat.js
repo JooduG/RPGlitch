@@ -461,6 +461,45 @@ function toggleEditMode(messageElement, originalText, role, messageId) {
 }
 
 export function showTypingIndicator(container, type = "ai", entityId = null) {
+  // If we have a virtual feed for this container, use it.
+  // Note: 'container' argument might be ignored if we rely on the singleton 'virtualFeed'
+  // which is tied to #chat-feed.
+  if (virtualFeed && container.id === "chat-feed") {
+    // Create the bubble
+    const bubble = document.createElement("div");
+    bubble.id = "active-typing-indicator";
+
+    let signatureColour = null;
+    if (type === "ai" && selectedEntities.aiCharacter) {
+      signatureColour = selectedEntities.aiCharacter.signatureColour;
+    } else if (type === "user" && selectedEntities.userCharacter) {
+      signatureColour = selectedEntities.userCharacter.signatureColour;
+    }
+
+    let classes = ["story-message", "typing-bubble"];
+
+    if (type === "narrator" || type === "system") {
+      classes.push("narrator");
+    } else {
+      classes.push("ai");
+    }
+
+    if (signatureColour && signatureColour !== "default") {
+      classes.push(`signature-${signatureColour}`);
+    }
+
+    bubble.className = classes.join(" ");
+    bubble.innerHTML = `
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    `;
+
+    virtualFeed.setFooter(bubble);
+    return;
+  }
+
+  // Fallback for non-virtual containers (legacy / robustness)
   removeTypingIndicator(container);
 
   const bubble = document.createElement("div");
@@ -498,6 +537,10 @@ export function showTypingIndicator(container, type = "ai", entityId = null) {
 }
 
 export function removeTypingIndicator(container) {
+  if (virtualFeed && container.id === "chat-feed") {
+    virtualFeed.setFooter(null);
+  }
+  // Also check typical DOM removal in case of race/mixed modes
   const existing = container.querySelector("#active-typing-indicator");
   if (existing) existing.remove();
 }

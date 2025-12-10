@@ -237,19 +237,19 @@ ${flags.panicSpiral ? "- PANIC_SPIRAL: Entropy is critical. Velocity forced up. 
     } else {
       physicsBlock = `
 <PHYSICS_CALIBRATION>
-You must update the stats based on the *latest* narrative events. Use this Matrix to calibrate your changes:
+Update stats based on recent events:
 
-| Event Intensity | Entropy (Chaos) | Velocity (Pacing) | Resonance (Impact) |
+| Event | Entropy | Velocity | Resonance |
 | :--- | :--- | :--- | :--- |
-| **Quiet / Rest** | -5 (Stabilizing) | -10 (Slowing) | +5 (Reflection) |
-| **Conversation** | +2 (Drift) | +5 (Flow) | +10 (Connection) |
-| **Argument/Tension**| +20 (Heated) | +30 (Fast) | -10 (Disconnect) |
-| **Combat/Action** | +50 (Chaotic) | +80 (Adrenaline) | +0 (Focus) |
-| **Major Revelation**| +10 (Shock) | +0 (Pause) | +100 (Core Memory) |
+| **Quiet** | -5 | -10 | +5 |
+| **Talk** | +2 | +5 | +10 |
+| **Tension**| +20 | +30 | -10 |
+| **Action** | +50 | +80 | +0 |
+| **Shock** | +10 | +0 | +100 |
 
-**Coupling Laws:**
-1. **Adrenaline Shield:** IF Velocity > 80, decrease Permeability (Guards up).
-2. **Fog of War:** IF Entropy > 80, decrease Resonance (Confusion).
+**Coupling:**
+1. **Adrenaline:** IF Velocity > 80, decrease Permeability.
+2. **Fog:** IF Entropy > 80, decrease Resonance.
 </PHYSICS_CALIBRATION>`;
     }
 
@@ -262,15 +262,12 @@ ${physicsBlock}
 
 **Task Checklist:**
 1. **THINK (<think>):**
-   - **Analyze Dialogue:** Explicitly quote the lines or actions that are driving the change.
-   - **Nuance Check:** Does the context justify a deviation from the rigid Physics Laws? (e.g. "He yelled, but he was smiling" -> diff impact than just "He yelled").
-   - **Calculate Deltas:** Determine the specific +/- values for Entropy, Velocity, etc.
-   - **Synthesize:** Decide how these numeric shifts manifest in the <PRESENT> description.
-2. **CALCULATE DYNAMICS:** Assess the last 3 turns. Apply the Calibration Matrix to current stats.
-3. **UPDATE <PRESENT>:** Rewrite the mutable description to match the new numbers.
-   - *Example:* If Entropy jumps to 80, the text MUST describe sweating, shaking, or environmental disorder.
-   - *Inventory:* Add/Remove items mentioned in chat.
-4. **UPDATE <PAST>:** Append ONLY critical plot points.
+   - Briefly quote the driving event.
+   - Calculate numeric deltas for Entropy/Velocity/Resonance.
+   - Synthesize the new <PRESENT> description.
+2. **CALCULATE DYNAMICS:** Assess the last 3 turns.
+3. **UPDATE <PRESENT>:** Rewrite description to match new stats.
+4. **UPDATE <PAST>:** Append ONLY critical plot points (max 1 sentence).
 5. **UPDATE <FOREVER>:** Only for permanent injuries/changes.
 
 **Current State (JSON):**
@@ -288,7 +285,7 @@ ${JSON.stringify(
 </INSTRUCTION>
 
 <FORMAT_MANDATE>
-You MUST start with a <think> block.
+Start with a <think> block (max 100 words).
 Then return ONLY valid JSON.
 {
   "forever": "String",

@@ -39,18 +39,39 @@ export async function generateStream({
     .join("\n");
 
   // 2. Call the Plugin
-  const result = await window.ai(instruction, {
-    temperature: options.temperature ?? payload.params?.temperature,
-    top_p: options.top_p ?? payload.params?.top_p,
-    repetition_penalty: options.repetition_penalty,
-    max_tokens: payload.params?.maxTokens,
-    model: payload.params?.model,
-    stop_sequences: payload.stopSequences || [],
-    signal,
-  });
+  try {
+    const result = await window.ai(instruction, {
+      temperature: options.temperature ?? payload.params?.temperature,
+      top_p: options.top_p ?? payload.params?.top_p,
+      repetition_penalty: options.repetition_penalty,
+      max_tokens: payload.params?.maxTokens,
+      model: payload.params?.model,
+      stop_sequences: payload.stopSequences || [],
+      signal,
+    });
 
-  if (onToken) onToken(result);
-  if (onDone) onDone();
+    if (onToken) onToken(result);
+    // Note: window.ai (the plugin) usually returns the full string at the end if strict streaming isn't enabled,
+    // but our usage pattern depends on the specific plugin version behavior.
+    // If it streams via a callback in the options (which isn't shown here but might be internal to the plugin wrapper),
+    // we would handle it there. Given the signature, we just await the result.
 
-  return result;
+    if (onDone) onDone();
+
+    return result;
+  } catch (error) {
+    // Detect specific "keep alive" or "timeout" errors from the plugin
+    const errString = String(error);
+    if (
+      errString.includes("stream keep alive") ||
+      errString.includes("timeout") ||
+      errString.includes("NetworkError")
+    ) {
+      console.error("[RPGlitch] AI Plugin Error:", error);
+      throw new Error(
+        "Connection lost with AI server. This is often caused by Ad-Blockers blocking the 'keep-alive' signal. Please disable ad-blockers for this page and try again.",
+      );
+    }
+    throw error; // Re-throw other errors
+  }
 }
