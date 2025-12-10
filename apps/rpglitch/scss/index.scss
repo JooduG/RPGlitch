@@ -20,6 +20,7 @@
 @use "component-storyboard"; // Lobby & Main Menu
 @use "component-chat-screen"; // Gameplay Layout
 @use "component-chat-messages"; // Bubbles & Dialogue
+@use "chat-refinements"; // New chat UI refinements
 @use "component-entity-drawer"; // The Bottom Sheet
 @use "component-profile"; // Character Sheets & Settings
 @use "component-ui"; // Chips, Tags, Headers

@@ -7,6 +7,7 @@ import {
   showTypingIndicator, removeTypingIndicator, setSendLock,
   applyWorldAmbience, setChatGeneratingState
 } from "./ui-render-chat.js";
+import { refreshProfileIfOpen } from "./ui-profile.js";
 import { error } from "./core-utils.js";
 import { ContextBuilder } from "./engine-prompt-builder.js";
 import { analyzeRejection, getDirectorInstruction } from "./engine-variance.js";
@@ -437,6 +438,9 @@ export const TurnManager = {
 
           await entities.upsert(payload.targetType, updatedEntity);
           console.log(`[PROMETHEUS] Real-time mutation applied to ${freshEntity.name}`);
+
+          // [FIX] Refresh UI if open
+          await refreshProfileIfOpen();
         }
       }
 
@@ -476,12 +480,15 @@ export const TurnManager = {
 
       await TurnManager.loadMessages(storyId);
       await renderChat(storyId);
+
+      // [NEW] Chain: AI Character reacts immediately to the opening
+      await TurnManager.generateAiResponse(storyId);
+
     } catch (e) {
       error("Opening Gen Failed", e);
       alert("Failed to generate opening: " + e.message);
       if (feed) removeTypingIndicator(feed);
-    } finally {
-      setSendLock(false);
+      setSendLock(false); // Only unlock explicitly on error (otherwise generateAiResponse handles it)
     }
   },
 
@@ -515,6 +522,41 @@ export const TurnManager = {
 
     const optionsModal = document.getElementById("settings");
     if (optionsModal) optionsModal.setAttribute("hidden", "");
+  },
+
+  enhanceUserDraft: async (draftText) => {
+    if (!draftText) return null;
+    const storyId = TurnManager.requireActive();
+
+    // UI Feedback
+    const submitBtn = document.querySelector("#story-form button[type='submit']");
+    const inputField = document.querySelector("#story-form [name='message']");
+    const originalText = inputField.value;
+
+    if (submitBtn) submitBtn.disabled = true;
+    inputField.disabled = true;
+    inputField.value = "Ghostwriting...";
+
+    try {
+      const builder = new ContextBuilder(storyId);
+      const payload = await builder.buildGhostwriter(draftText);
+
+      const response = await generateStream({
+        payload,
+        signal: null
+      });
+
+      // Return full response including <think> block
+      return response.trim();
+
+    } catch (e) {
+      console.error("Ghostwriter failed:", e);
+      alert("Ghostwriter failed: " + e.message);
+      return originalText; // Revert on failure
+    } finally {
+      inputField.disabled = false;
+      if (submitBtn) submitBtn.disabled = false;
+    }
   }
 };
 

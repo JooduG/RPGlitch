@@ -428,7 +428,7 @@ export function setSendLock(isLocked) {
     if (!form) return;
 
     const btn = form.querySelector('button[type="submit"]');
-    const input = form.querySelector('input[name="message"]');
+    const input = form.querySelector('[name="message"]'); // Can be input or textarea
 
     if (btn) {
         if (isLocked) {
@@ -448,3 +448,4 @@ export function setSendLock(isLocked) {
         input.focus();
     }
 }
+

@@ -56,6 +56,26 @@ export function closeProfileModal() {
 export function openProfileModal(type, id, slotKey = null) {
     activeSlotKey = slotKey;
     renderProfilePage(type.toLowerCase(), id);
+    renderProfilePage(type.toLowerCase(), id);
+}
+
+export async function refreshProfileIfOpen() {
+    const screen = document.querySelector("#profile-screen");
+    if (screen && screen.classList.contains("is-open") && activeSlotKey) {
+        // activeSlotKey implies we know what we are looking at. 
+        // We need to re-fetch the entity.
+        // But `renderProfilePage` expects type/id. 
+        // We can parse the hash or store the current ID/Type in module scope?
+        // Actually, let's just re-parse the hash since that is the source of truth for the router.
+
+        // Simpler: Just re-render based on current hash state if it matches profile pattern.
+        const hash = location.hash.replace("#", "");
+        const parts = hash.split("/"); // profile/character/id
+        if (parts[0] === "profile" && parts.length === 3) {
+            await renderProfilePage(parts[1], parts[2]);
+            console.log("[UI] Profile refreshed via background update.");
+        }
+    }
 }
 
 function autoResize(el) {

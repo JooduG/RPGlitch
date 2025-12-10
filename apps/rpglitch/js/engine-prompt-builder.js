@@ -6,7 +6,7 @@ import { entities } from "./entity-crud.js";
 // ==========================================
 const PROMETHEUS_CONFIG = {
     UPDATE_MODULO: 4,
-    UPDATE_OFFSET: 2,
+    UPDATE_OFFSET: 4,
     TARGET_CYCLE: ['ai_character', 'user_character', 'world']
 };
 
@@ -28,7 +28,7 @@ export class ContextBuilder {
 
         // [FIX] Count only Narrative Turns (Narrator, User, AI)
         const narrativeHistory = history.filter(m => m.role !== 'system' && m.type !== 'DEBUG');
-        this.runtimeState.turnCount = narrativeHistory.length;
+        this.runtimeState.turnCount = narrativeHistory.length + 1;
 
         // --- DYNAMIC SCHEDULING LOGIC (V4.2 Pacing) ---
         let updateTarget = null;
@@ -334,7 +334,7 @@ Then return ONLY the compressed narrative text.
         const story = state.story.byId[this.storyId];
         if (!story) throw new Error(`Story ${this.storyId} not found`);
 
-        const [ai, , world] = await this._resolveEntities(story);
+        const [ai, user, world] = await this._resolveEntities(story);
 
         // [UPGRADE] Bumped to V4.0 to align with stack
         const system = `[SYSTEM: PROMETHEUS_ENGINE_V4.0]
@@ -354,17 +354,21 @@ ${this._layerEntity(ai, "PROTAGONIST")}
 Write the opening paragraph(s) of the story.
 1. **ESTABLISH THE WORLD:** Begin with the environment. Focus heavily on <WORLD_CONTEXT>.
    - Describe the sensory atmosphere (Smell, Sound, Texture, Lighting).
-   - The setting must feel tangible and alive before the character is even mentioned.
-2. **INTRODUCE THE PROTAGONIST:** Place ${ai.name} into this scene.
-   - How does the world affect them right now? (e.g. cold wind, sweltering heat).
-3. **INCITING EVENT:** Create an immediate source of tension or a "Call to Action".
-4. **CRITICAL:** You MUST start with a <think> block containing ALL steps (1-3).
+   - The setting must feel tangible and alive.
+2. **POSITION THE ACTORS:** Place ${ai.name} and ${user.name} into this scene.
+   - Where are they standing? What is the *immediate* situation?
+   - Connect them to the world (e.g. "They stand before the gate," "They sit in the booth").
+3. **NEGATIVE CONSTRAINT (CRITICAL):**
+   - **DO NOT WRITE DIALOGUE.**
+   - **DO NOT WRITE ACTIONS** for the characters (e.g., do not write "He draws his sword").
+   - You are the CAMERA and the SET DESIGNER. You are NOT the actors.
+   - Leave the reaction/dialogue for the next turn.
+4. **CRITICAL:** You MUST start with a <think> block containing ALL steps.
    - **Step 1: PLAN:** Layout the scene geometry and atmosphere.
    - **Step 2: DRAFT:** Write the raw scene mentally.
-   - **Step 3: REFINE:** Polish the prose. Ensure no "As an AI" or meta-fillers remain.
+   - **Step 3: REFINE:** Strip any dialogue or active character moves.
    - **Step 4: CLOSE:** Close the </think> tag.
 5. **OUTPUT:** Write the final polished prose *outside* the <think> tag. Use double line breaks between paragraphs.
-6. DO NOT use meta-commentary. Just write the story.
 
 <CONFLICT_RESOLUTION>
 If the PROTAGONIST's <PRESENT> or <PAST> data mentions a location that conflicts with the <WORLD_CONTEXT> (e.g. mentions "Neo Arcadia" when the world is "Eldoria"), YOU MUST IGNORE the protagonist's location data.
@@ -383,6 +387,49 @@ This instruction takes PRIORITY over conflicting directives above.
             messages: [],
             params: { ...state.settings, maxTokens: 600 },
             startWith: ""
+        };
+    }
+
+    async buildGhostwriter(draftText) {
+        const story = state.story.byId[this.storyId];
+        const [ai, user, world] = await this._resolveEntities(story);
+        const history = state.messages.byStoryId[this.storyId] || [];
+
+        const system = `[SYSTEM: LITERARY_ENHANCEMENT_ENGINE]
+[MODE: GHOSTWRITER]
+
+<CORE_DIRECTIVE>
+You are an expert Ghostwriter for a Roleplay.
+Your task is to REWRITE the user's rough draft into immersice, high-quality prose.
+</CORE_DIRECTIVE>
+
+<CONTEXT>
+${this._layerEntity(world, "WORLD")}
+${this._layerEntity(user, "USER_CHARACTER")}
+${this._layerEntity(ai, "PARTNER_CHARACTER")}
+</CONTEXT>
+
+<USER_DRAFT>
+"${draftText}"
+</USER_DRAFT>
+
+<INSTRUCTION>
+1. **Preserve Intent:** Keep the user's original meaning and action. Do not change *what* they do, only *how* they describe it.
+2. **Enhance Prose:** Use sensory details, active verbs, and "Show, Don't Tell".
+3. **Voice Match:** Write in FIRST PERSON ("I") from ${user.name}'s perspective.
+4. **NEGATIVE CONSTRAINT:** DO NOT write dialogue or actions for ${ai.name}. You are ONLY the voice of ${user.name}. Stop immediately after ${user.name}'s action.
+5. **THINK FIRST:** Start with a <think> block.
+   - Analyze the raw draft.
+   - Plan sensory additions.
+   - Differentiate User POV from AI POV.
+6. **Output:** Return ONLY the rewritten text (after the think block). No meta commentary.
+</INSTRUCTION>
+`;
+
+        return {
+            system: system,
+            messages: this._sanitizeHistory(history.slice(-10)), // Short history for context
+            params: { ...state.settings, maxTokens: 300, temperature: 0.7 },
         };
     }
 
@@ -494,7 +541,7 @@ You MUST start every response with a <think> block containing this exact 4-step 
 
     _sanitizeHistory(history) {
         return history.map(msg => {
-            if (msg.role === 'assistant' && msg.content && msg.content.includes('<think>')) {
+            if (msg.content && msg.content.includes('<think>')) {
                 return {
                     ...msg,
                     content: msg.content.replace(/<think>[\s\S]*?<\/think>/g, "").trim()

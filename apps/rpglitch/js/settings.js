@@ -95,6 +95,29 @@ export const StoryOptionsController = {
       });
     }
 
+    // Ghostwriter Wiring
+    const ghostBtn = modal.querySelector("#btn-ghostwriter");
+    if (ghostBtn) {
+      ghostBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const inputField = document.querySelector("#story-form [name='message']");
+        const draft = inputField ? inputField.value : "";
+
+        if (!draft || !draft.trim()) {
+          alert("Please type a rough draft in the chat box first!");
+          return;
+        }
+
+        StoryOptionsController.close();
+
+        const enhanced = await StoryController.enhanceUserDraft(draft);
+        if (enhanced && inputField) {
+          inputField.value = enhanced;
+          inputField.focus();
+        }
+      });
+    }
+
     // Director Mode Wiring
     if (directorModeToggle) {
       directorModeToggle.checked = !!state.settings.directorMode;

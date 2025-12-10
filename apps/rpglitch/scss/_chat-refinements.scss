@@ -1,0 +1,25 @@
+// Chat Input Textarea
+#story-form {
+    textarea {
+        min-height: 3rem; // Matches typical input height
+        max-height: 12rem; // Limit expansion
+        padding-top: 0.75rem; // Center text vertically for single line
+        line-height: 1.5;
+        transition: height 0.1s ease;
+
+        // Hide scrollbar when not needed (handled by overflow-y: hidden inline, but good to have)
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+    }
+}
+
+// Sticky Header Layout
+.sticky-header {
+    .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+}
