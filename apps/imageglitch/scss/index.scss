@@ -145,21 +145,25 @@ input::placeholder {
 }
 
 .output-area {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  justify-items: center; /* Centers items horizontally within their grid cells */
+  justify-content: center; /* Centers the whole grid within the container */
   padding-top: 1rem;
   background-color: transparent;
 }
 
 .block {
-  flex: 1 1 350px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 450px; /* Enforces the maximum width requested */
   aspect-ratio: 1/1;
   overflow: hidden;
   border-radius: var(--pico-radius);
   position: relative;
+
+  /* Removed flex: 1 1 350px to let grid handle sizing */
 }
 
 .quad-block {
