@@ -107,8 +107,11 @@
    Standardizing the canvas.
    ============================================================================ */
 
+// [REMOVED] * Box Sizing & Scrollbar reset (Handled by Pico / Browser Defaults or minimal overrides)
+// Keeping only the scrollbar hiding as it is app-specific
+// [REMOVED] * Box Sizing which is handled by Pico
+// Keeping specific scrollbar hiding
 * {
-    box-sizing: border-box;
     scrollbar-width: none;
     -ms-overflow-style: none;
 
@@ -145,38 +148,28 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
-
-    // ... noise svg ...
+    // noise svg pattern would go here if we had it inline, assuming standard overlay
     opacity: 0.03;
     pointer-events: none;
-    z-index: 2; // [FIX] Positive stack: 2
+    z-index: 2;
 }
 
 // DYNAMIC WORLD BACKGROUND
-// Sits behind everything but above the base gradient.
 #world-background {
     position: fixed;
     inset: 0;
-    z-index: 1; // [FIX] Positive stack: 1
+    z-index: 1;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0;
-
-    /* Hidden by default until loaded */
     filter: blur(8px) brightness(0.3);
-
-    /* The Cinematic "Messy-Fix" */
     transform: scale(1.1);
-
-    /* Prevent blurred edges */
     pointer-events: none;
     transition: opacity 2s ease-in-out;
 }
 
 // --- CRITICAL COMPONENT RESET ---
-// Prevents Pico from styling every <article> as a white card.
-// This allows us to use <article> semantically without fighting styles.
 article {
     background: transparent !important;
     box-shadow: none !important;
@@ -201,10 +194,7 @@ p {
     margin-bottom: 1rem;
 }
 
-*::placeholder {
-    font-style: italic;
-    opacity: 1;
-}
+// [REMOVED] *::placeholder (Redundant)
 
 // --- UTILITIES ---
 .muted,

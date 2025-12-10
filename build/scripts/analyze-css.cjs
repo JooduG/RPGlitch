@@ -6,8 +6,11 @@ const postcss = require("postcss");
 const sass = require("sass");
 const autoprefixer = require("autoprefixer");
 
-async function compileScssToString() {
-  const scssPath = path.join(__dirname, "../../apps/rpglitch/scss/index.scss");
+async function compileScssToString(appName = "rpglitch") {
+  const scssPath = path.join(
+    __dirname,
+    `../../apps/${appName}/scss/index.scss`,
+  );
   const picoCssPath = path.resolve(
     __dirname,
     "..",
@@ -283,7 +286,9 @@ class CSSBuildPipeline {
 if (require.main === module) {
   (async () => {
     try {
-      const cssContent = await compileScssToString();
+      const appName = process.argv[2] || "rpglitch";
+      console.log(`🔍 Analyzing CSS for: ${appName}`);
+      const cssContent = await compileScssToString(appName);
       const pipeline = new CSSBuildPipeline("in-memory.css", cssContent); // Pass content directly
       const report = pipeline.runBuild(false); // Run the pipeline without writing to disk
       console.log(JSON.stringify(report.initialAnalysis, null, 2));

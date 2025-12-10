@@ -9,11 +9,7 @@
 
 // --- BASE STYLES ---
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+// [REMOVED] * Box Sizing reset (Handled by Pico)
 
 html {
   font-size: 100%;
@@ -365,37 +361,40 @@ input::placeholder {
   transition:
     background-color 0.2s ease-in-out,
     filter 0.2s ease-in-out;
+}
 
-  &.btn-generate {
-    background-color: var(--pico-color-jade-500, #43a047);
-    border-color: var(--pico-color-jade-500, #43a047);
-    color: #fff;
-  }
+// [REFAC] Flattened selectors to reduce specificity (110 -> 10)
+// ID selector (#generate-button) doesn't set background, so low-specificity classes work.
 
-  &.btn-refine {
-    background-color: var(--pico-color-azure-400, #1e88e5);
-    border-color: var(--pico-color-azure-400, #1e88e5);
-    color: #fff;
-  }
+.btn-generate {
+  background-color: var(--pico-color-jade-500, #43a047);
+  border-color: var(--pico-color-jade-500, #43a047);
+  color: #fff;
+}
 
-  &.btn-chaos {
-    background-color: var(--pico-color-pumpkin-500, #fb8c00);
-    border-color: var(--pico-color-pumpkin-500, #fb8c00);
-    color: #fff;
-  }
+.btn-refine {
+  background-color: var(--pico-color-azure-400, #1e88e5);
+  border-color: var(--pico-color-azure-400, #1e88e5);
+  color: #fff;
+}
 
-  &.btn-instruct {
-    background-color: var(--pico-color-pink-400, #d81b60);
-    border-color: var(--pico-color-pink-400, #d81b60);
-    color: #fff;
-  }
+.btn-chaos {
+  background-color: var(--pico-color-pumpkin-500, #fb8c00);
+  border-color: var(--pico-color-pumpkin-500, #fb8c00);
+  color: #fff;
+}
 
-  &.btn-generate:hover,
-  &.btn-refine:hover,
-  &.btn-chaos:hover,
-  &.btn-instruct:hover {
-    filter: brightness(1.1);
-  }
+.btn-instruct {
+  background-color: var(--pico-color-pink-400, #d81b60);
+  border-color: var(--pico-color-pink-400, #d81b60);
+  color: #fff;
+}
+
+.btn-generate:hover,
+.btn-refine:hover,
+.btn-chaos:hover,
+.btn-instruct:hover {
+  filter: brightness(1.1);
 }
 
 .prompt-length-warning {

@@ -93,31 +93,6 @@
         }
     }
 
-    #btn-settings-placeholder {
-        // [FIX] User request: De-emphasize settings button (skinnier, dark bg, no white outline)
-        background: rgb(0 0 0 / 50%);
-        border: 1px solid var(--pico-muted-border-color);
-        border-left: none; // Prevent double border with input
-        border-right: none; // Prevent double border with submit
-        border-radius: 0;
-        padding: 0 0.75rem; // Skinnier
-        width: auto;
-        color: var(--pico-muted-color);
-        transition: all 0.2s ease;
-        height: 2.25rem; // [NEW] Cute Height
-        font-size: 0.85rem; // [NEW] Cute Font
-        margin-bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        vertical-align: middle;
-
-        &:hover {
-            background: rgb(0 0 0 / 80%);
-            color: #fff;
-        }
-    }
-
     input[type="submit"] {
         border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
         transition: all 0.2s ease;
@@ -149,6 +124,32 @@
             cursor: not-allowed;
             opacity: 0.7;
         }
+    }
+}
+
+// [REFAC] Moved outside to lower specificity (200 -> 100)
+#btn-settings-placeholder {
+    // [FIX] User request: De-emphasize settings button (skinnier, dark bg, no white outline)
+    background: rgb(0 0 0 / 50%);
+    border: 1px solid var(--pico-muted-border-color);
+    border-left: none; // Prevent double border with input
+    border-right: none; // Prevent double border with submit
+    border-radius: 0;
+    padding: 0 0.75rem; // Skinnier
+    width: auto;
+    color: var(--pico-muted-color);
+    transition: all 0.2s ease;
+    height: 2.25rem; // [NEW] Cute Height
+    font-size: 0.85rem; // [NEW] Cute Font
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+
+    &:hover {
+        background: rgb(0 0 0 / 80%);
+        color: #fff;
     }
 }
 
