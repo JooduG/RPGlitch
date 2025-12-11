@@ -57,7 +57,10 @@ export class VirtualFeed {
    * @param {Array} newItems - Array of objects. Each MUST have a unique `.id` property.
    */
   setItems(newItems) {
-    this.items = newItems;
+    // [FIX] Filter out invalid items to prevent render crashes
+    this.items = (newItems || []).filter(
+      (item) => item && item.id !== undefined,
+    );
     this.render();
   }
 
@@ -81,6 +84,8 @@ export class VirtualFeed {
     for (let i = 0; i < totalItems; i++) {
       offsets[i] = currentOffset;
       const item = this.items[i];
+
+      if (!item) continue;
       const h = this.heights.get(item.id) || this.estimatedHeight;
       currentOffset += h;
     }
@@ -96,6 +101,7 @@ export class VirtualFeed {
 
     // Find Start
     for (let i = 0; i < totalItems; i++) {
+      if (!this.items[i]) continue;
       const h = this.heights.get(this.items[i].id) || this.estimatedHeight;
       if (offsets[i] + h > viewTop) {
         startIndex = Math.max(0, i - this.buffer);
@@ -119,7 +125,11 @@ export class VirtualFeed {
       bottomBase = offsets[nextIndex];
     } else {
       const lastItem = this.items[endIndex];
-      const lastH = this.heights.get(lastItem.id) || this.estimatedHeight;
+      // Safety check for lastItem
+      const lastH =
+        lastItem && this.heights.get(lastItem.id)
+          ? this.heights.get(lastItem.id)
+          : this.estimatedHeight;
       bottomBase = offsets[endIndex] + lastH;
     }
     const bottomHeight = totalContentHeight - bottomBase;

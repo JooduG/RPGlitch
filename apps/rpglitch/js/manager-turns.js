@@ -55,7 +55,6 @@ export const TurnManager = {
       mode: "gameplay",
     });
 
-    // [FIX] Ensure UI is synced immediately upon creation
     updatePortraits(startAi, startUser);
     setGameplayEntities(startAi, startUser, startWorld);
     if (startWorld) applyWorldAmbience(startWorld);
@@ -81,7 +80,8 @@ export const TurnManager = {
         entities.get("character", story.userCharacterId),
       ]);
 
-      const world = await entities.get("world", story.worldId);
+      let world = await entities.get("fractal", story.worldId);
+      // Fallback removed for strict mode
 
       updatePortraits(ai, user);
       setGameplayEntities(ai, user, world);
@@ -138,10 +138,6 @@ export const TurnManager = {
     await renderChat(storyId);
   },
 
-  /**
-   * Generates an AI response based on the current story context.
-   * @param {string} storyId - The ID of the active story
-   */
   generateAiResponse: async (storyId) => {
     const story = state.story.byId[storyId];
     setSendLock(true);
@@ -161,7 +157,7 @@ export const TurnManager = {
       const [aiEntity, userEntity, worldEntity] = await Promise.all([
         entities.get("character", story.aiCharacterId),
         entities.get("character", story.userCharacterId),
-        entities.get("world", story.worldId),
+        entities.get("fractal", story.worldId),
       ]);
 
       const options = calculateBlendedParams(aiEntity, userEntity, worldEntity);
@@ -180,7 +176,6 @@ export const TurnManager = {
       } catch (streamErr) {
         if (streamErr.name === "AbortError") throw streamErr;
         console.error("[TURN] Network/Gen Error:", streamErr);
-        // User feedback for network error in main chat
         alert("Connection Error: The AI could not respond. Please try again.");
         throw streamErr;
       }
@@ -219,10 +214,6 @@ export const TurnManager = {
     }
   },
 
-  /**
-   * Sends a user message and triggers the AI response flow.
-   * @param {string} text - The content of the user's message
-   */
   send: async (text) => {
     if (!text) return;
     const storyId = TurnManager.requireActive();
@@ -395,6 +386,18 @@ export const TurnManager = {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildOpening();
 
+      // [FIX] Handling for Null Payload (Text Protocol / Messenger)
+      if (!payload) {
+        console.log(
+          "[RPGlitch] No narrator opening. Triggering AI First Message.",
+        );
+        removeTypingIndicator(feed);
+        // DO NOT UNLOCK YET.
+        // Immediately trigger the AI character to write the first text.
+        await TurnManager.generateAiResponse(storyId);
+        return;
+      }
+
       log("[RPGlitch] Opening Prompt:", payload.system);
 
       const response = await generateStream({
@@ -415,13 +418,12 @@ export const TurnManager = {
       await TurnManager.loadMessages(storyId);
       await renderChat(storyId);
 
-      // [NEW] Chain: AI Character reacts immediately to the opening
       await TurnManager.generateAiResponse(storyId);
     } catch (e) {
       error("Opening Gen Failed", e);
       alert("Failed to generate opening: " + e.message);
       if (feed) removeTypingIndicator(feed);
-      setSendLock(false); // Only unlock explicitly on error (otherwise generateAiResponse handles it)
+      setSendLock(false);
     }
   },
 
@@ -439,7 +441,7 @@ export const TurnManager = {
     const [endAi, endUser, endWorld] = await Promise.all([
       entities.get("character", story.aiCharacterId),
       entities.get("character", story.userCharacterId),
-      entities.get("world", story.worldId),
+      entities.get("fractal", story.worldId),
     ]);
 
     await db.stories.update(storyId, {
@@ -473,7 +475,7 @@ export const TurnManager = {
 
       const response = await generateStream({
         payload,
-        onChunk: () => {}, // No streaming needed for input
+        onChunk: () => {},
       });
 
       return response.trim().replace(/^"|"$/g, "");
@@ -486,10 +488,6 @@ export const TurnManager = {
     }
   },
 
-  /**
-   * Generates a visual snapshot based on a draft text.
-   * @param {string} draftText - The raw text to use as prompt
-   */
   generateVisualFromDraft: async (draftText) => {
     const storyId = TurnManager.requireActive();
     if (!storyId) return;
@@ -499,23 +497,19 @@ export const TurnManager = {
     try {
       log("[TurnManager] Generating visual from draft:", draftText);
 
-      // 1. Generate Image directly (Raw Mode)
-      // We pass the draft text as the prompt.
       const imageUrl = await VisualManager.generate(draftText, {
-        resolution: "512x768", // Valid: 512x512, 768x768, 512x768, 768x512
+        resolution: "512x768",
       });
 
-      // 2. Insert into DB
       await db.messages.add({
         storyId,
-        role: "narrator", // Will be styled as narrator/system
+        role: "narrator",
         type: "IMAGE",
-        text: imageUrl, // Valid URL
+        text: imageUrl,
         metadata: { prompt: draftText },
         timestamp: Date.now(),
       });
 
-      // 3. Refresh State & Render
       await TurnManager.loadMessages(storyId);
       await renderChat(storyId);
     } catch (e) {
@@ -529,7 +523,6 @@ export const TurnManager = {
 
 export const StoryController = TurnManager;
 
-// [NEW] Event Listener to reload data when DB changes
 events.addEventListener(EVENTS.DB_UPDATED, async () => {
   const activeId = state.story.activeId;
   if (activeId) {

@@ -121,8 +121,20 @@ export function updateStoryboardSelection(newSelection) {
     selectedEntities.userCharacter = newSelection.userCharacter;
   if (newSelection.world !== undefined) {
     selectedEntities.world = newSelection.world;
-    // [NEW] Update Background Theme
     setAppBackground(selectedEntities.world?.signatureColour);
+
+    // [FIX] THEME INJECTION LOGIC
+    // 1. Clear any existing theme classes (start with "theme-")
+    const currentClasses = document.body.className.split(" ");
+    const cleanClasses = currentClasses.filter((c) => !c.startsWith("theme-"));
+    document.body.className = cleanClasses.join(" ");
+
+    // 2. Inject new theme if it exists
+    const newTheme = selectedEntities.world?.simulation?.cssTheme;
+    if (newTheme) {
+      document.body.classList.add(newTheme);
+      console.log(`[UI] Applied theme: ${newTheme}`);
+    }
   }
 
   // Propagate to Chin Module

@@ -146,6 +146,25 @@ const premade = {
           "Amp to full kink dystopia—AI-enhanced orgies, hero-sub breed events, cross-world expansions celebrating dom conquests/raw freedoms while conquering dangers.",
       },
     },
+    {
+      id: "fractal-messenger-v1",
+      name: "Messenger",
+      description: "A standard mobile messaging interface.",
+      type: "Fractal",
+      profilePictureUrl: "assets/icons/icon-chat.png",
+      signatureColour: "cyan",
+      simulation: {
+        mode: "ACTIVE",
+        cssTheme: "theme-smartphone",
+        directorMode: "TEXT_PROTOCOL",
+      },
+      sections: {
+        forever: "A digital communication channel.",
+        present: "Connected via mobile network.",
+        past: "Chat history cleared.",
+        future: "Awaiting new messages.",
+      },
+    },
   ],
 };
 

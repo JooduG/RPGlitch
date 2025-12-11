@@ -26,22 +26,25 @@ export class ContextBuilder {
     const [ai, user, world] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
 
-    // [FIX] Count only Narrative Turns (Narrator, User, AI)
     const narrativeHistory = history.filter(
       (m) => m.role !== "system" && m.type !== "DEBUG",
     );
     this.runtimeState.turnCount = narrativeHistory.length + 1;
 
-    // --- DYNAMIC SCHEDULING LOGIC (V4.2 Pacing) ---
+    const isTextProtocol = directorMode === "TEXT_PROTOCOL";
+    const effectiveOffset = isTextProtocol
+      ? 3
+      : PROMETHEUS_CONFIG.UPDATE_OFFSET;
+
     let updateTarget = null;
     if (
-      this.runtimeState.turnCount >= PROMETHEUS_CONFIG.UPDATE_OFFSET &&
-      (this.runtimeState.turnCount - PROMETHEUS_CONFIG.UPDATE_OFFSET) %
+      this.runtimeState.turnCount >= effectiveOffset &&
+      (this.runtimeState.turnCount - effectiveOffset) %
         PROMETHEUS_CONFIG.UPDATE_MODULO ===
         0
     ) {
       const updateIndex =
-        (this.runtimeState.turnCount - PROMETHEUS_CONFIG.UPDATE_OFFSET) /
+        (this.runtimeState.turnCount - effectiveOffset) /
         PROMETHEUS_CONFIG.UPDATE_MODULO;
       const typeIndex = updateIndex % 3;
       updateTarget = PROMETHEUS_CONFIG.TARGET_CYCLE[typeIndex];
@@ -51,12 +54,26 @@ export class ContextBuilder {
       );
     }
 
-    const systemPrompt = [
-      this._layerKernel_ANEX(),
+    const directorMode = world.simulation?.directorMode || null;
+
+    const systemPromptParts = [
+      this._layerKernel_ANEX(directorMode),
       this._layerEntity(world, "WORLD_CONTEXT"),
       this._layerEntity(ai, "ACTIVE_CHARACTER_AI"),
       this._layerEntity(user, "INTERLOCUTOR_USER"),
-    ].join("\n\n");
+    ];
+
+    // [NEW] Injection for AI-First Start
+    if (history.length === 0 && directorMode === "TEXT_PROTOCOL") {
+      systemPromptParts.push(`
+<FIRST_MESSAGE_PROTOCOL>
+You are initiating the conversation.
+Write the first SMS to <INTERLOCUTOR_USER>.
+Keep it short, casual, and in-character.
+</FIRST_MESSAGE_PROTOCOL>`);
+    }
+
+    const systemPrompt = systemPromptParts.join("\n\n");
 
     return {
       system: systemPrompt,
@@ -72,19 +89,21 @@ export class ContextBuilder {
     };
   }
 
-  // --- VARIANCE INJECTION ---
   async buildWithVariance(varianceInstruction) {
     const payload = await this.build("");
     payload.system += `\n\n${varianceInstruction}`;
     return payload;
   }
 
-  // --- THE VISUALIZER (Visual Cortex V4.1 Hybrid) ---
   async buildVisualizer(targetType) {
+    // (Visualizer code remains unchanged, omitted for brevity but should be kept in file)
+    // ... [Copy the existing buildVisualizer code here if overwriting file] ...
+    // For this specific update, I will assume the previous implementation is preserved
+    // unless you want the full file dump. I will provide the full file to be safe.
+
     const story = state.story.byId[this.storyId];
     const [ai, , world] = await this._resolveEntities(story);
 
-    // 1. VARIANCE ENGINE: Fetch styles from Left Panel Lists
     const lists = window.rpgLists || {};
     const pick = (jsonList) => {
       if (!jsonList) return "";
@@ -111,7 +130,7 @@ export class ContextBuilder {
     let specificDirectives = "";
 
     if (targetType === "character") {
-      mode = "PORTRAIT_GENERATOR"; // High Fidelity, Consistency Focused
+      mode = "PORTRAIT_GENERATOR";
       focusBlock = `
 <FOCUS_SUBJECT>
 Target: ${ai.name} (Character Portrait)
@@ -129,7 +148,7 @@ Target: ${ai.name} (Character Portrait)
       instruction =
         "Write a high-fidelity portrait description. Start with a camera angle.";
     } else {
-      mode = "SCENE_RENDERER"; // Atmospheric, Action Focused
+      mode = "SCENE_RENDERER";
       const history = state.messages.byStoryId[this.storyId] || [];
       const recentText = history
         .slice(-2)
@@ -182,19 +201,11 @@ ${specificDirectives}
     return {
       system: system,
       messages: [],
-      // Higher temp for visual creativity to allow the "Director" to interpret the vibe
       params: { ...state.settings, maxTokens: 500, temperature: 0.7 },
       instruction: instruction,
     };
   }
 
-  // --- BACKGROUND UPDATER (THE PHYSICIST) ---
-  // --- BACKGROUND UPDATER (THE PHYSICIST) ---
-  /**
-   * Generates the prompt for the background physics update.
-   * @param {string} targetType - 'ai_character', 'user_character', or 'world'
-   * @param {Object|null} forcedDynamics - Optional dynamics override
-   */
   async buildUpdater(targetType, forcedDynamics = null) {
     const story = state.story.byId[this.storyId];
     const [ai, user, world] = await this._resolveEntities(story);
@@ -222,7 +233,6 @@ ${specificDirectives}
       resonance: 10,
     };
 
-    // === PHYSICS INJECTION (SOTA UPDATE) ===
     let physicsBlock = "";
 
     if (forcedDynamics) {
@@ -311,12 +321,6 @@ Then return ONLY valid JSON.
     };
   }
 
-  // --- THE ARCHIVIST (Memory Compressor) ---
-  // --- THE ARCHIVIST (Memory Compressor) ---
-  /**
-   * Generates the prompt for memory compression.
-   * @param {Object} entity - The entity to compress history for
-   */
   async buildArchivist(entity) {
     const system = `[SYSTEM: MEMORY_COMPRESSION_ENGINE_V4.0]
 [MODE: SEMANTIC_DISTILLATION]
@@ -360,18 +364,18 @@ Then return ONLY the compressed narrative text.
     };
   }
 
-  // --- OPENING SCENE DIRECTOR ---
-  // --- OPENING SCENE DIRECTOR ---
-  /**
-   * Generates the prompt for the opening scene.
-   */
   async buildOpening() {
     const story = state.story.byId[this.storyId];
     if (!story) throw new Error(`Story ${this.storyId} not found`);
 
     const [ai, user, world] = await this._resolveEntities(story);
 
-    // [UPGRADE] Bumped to V4.0 to align with stack
+    // [BRANCH] CHECK FOR TEXT PROTOCOL
+    if (world.simulation?.directorMode === "TEXT_PROTOCOL") {
+      return null; // Return null to signal "No Opening Generation Needed"
+    }
+
+    // [FALLBACK] STANDARD NARRATIVE OPENING
     const system = `[SYSTEM: PROMETHEUS_ENGINE_V4.0]
 [MODE: OPENING_SCENE_DIRECTOR]
 
@@ -429,10 +433,6 @@ This instruction takes PRIORITY over conflicting directives above.
     };
   }
 
-  /**
-   * Generates the prompt for the ghostwriter feature.
-   * @param {string} draftText - The user's rough draft
-   */
   async buildGhostwriter(draftText) {
     const story = state.story.byId[this.storyId];
     const [ai, user, world] = await this._resolveEntities(story);
@@ -471,21 +471,34 @@ ${this._layerEntity(ai, "PARTNER_CHARACTER")}
 
     return {
       system: system,
-      messages: this._sanitizeHistory(history.slice(-10)), // Short history for context
+      messages: this._sanitizeHistory(history.slice(-10)),
       params: { ...state.settings, maxTokens: 300, temperature: 0.7 },
     };
   }
-
-  // --- LAYERS ---
 
   _layerEntity(entity, label) {
     if (!entity) return "";
 
     if (entity.type === "fractal") {
-      if (entity.simulation?.mode === "ACTIVE") {
-        // FUTURE: Inject Director Instructions
+      if (entity.simulation?.directorMode === "TEXT_PROTOCOL") {
+        return `[SYSTEM: TEXT_MESSAGING_MODE]
+
+<DIRECTOR_OVERRIDE>
+1. FORMAT: You are sending SMS messages.
+   - Use strictly informal language.
+   - Use emojis freely 💀🔥.
+   - NEGATIVE CONSTRAINT: DO NOT add timestamps (e.g. [12:00]).
+2. BREVITY: Max 2-3 sentences per response. No long paragraphs.
+3. STYLE: You are NOT a narrator. You are the person on the other end of the phone.
+   - STRICTLY FORBIDDEN: DO NOT write *actions* (e.g. *I nod*, *sighs*).
+   - You can ONLY write what is typed on a screen.
+</DIRECTOR_OVERRIDE>
+
+[CONTEXT: ${entity.name}]
+${entity.present}`;
+      } else if (entity.simulation?.mode === "ACTIVE") {
+        // FUTURE: Inject Other Director Instructions
       }
-      // Fallback to Standard Context (PASSIVE)
       return `[CONTEXT: ${entity.name}]\n${entity.present}`;
     }
 
@@ -524,7 +537,17 @@ ${entity.future || "Exist."}
 </FUTURE>`;
   }
 
-  _layerKernel_ANEX() {
+  _layerKernel_ANEX(directorMode) {
+    let formatRules = `1. **Dialogue:** use "quotes" for speech.
+2. **Action/Narration:** use *asterisks* for ALL physical actions, internal thoughts, or sensory descriptions.
+3. **Example:** *I glance at the scanner, my heart pounding.* "The readings are off." *I tap the screen nervously.*`;
+
+    if (directorMode === "TEXT_PROTOCOL") {
+      formatRules = `1. **Dialogue:** DO NOT use quotes. Write raw text only.
+2. **Action/Narration:** STRICTLY FORBIDDEN. Do not describe actions.
+3. **Example:** U seeing this? wild lol`;
+    }
+
     return `[SYSTEM: PROMETHEUS_ENGINE_V4.0]
 [MODE: ABSOLUTE_DEVELOPER_CORE]
 
@@ -542,9 +565,7 @@ ${entity.future || "Exist."}
 </HIERARCHY_OF_TRUTH>
 
 <FORMAT_PROTOCOL>
-1. **Dialogue:** use "quotes" for speech.
-2. **Action/Narration:** use *asterisks* for ALL physical actions, internal thoughts, or sensory descriptions.
-3. **Example:** *I glance at the scanner, my heart pounding.* "The readings are off." *I tap the screen nervously.*
+${formatRules}
 </FORMAT_PROTOCOL>
 
 <COGNITIVE_PROTOCOL>
@@ -570,12 +591,13 @@ You MUST start every response with a <think> block containing this exact 4-step 
 </COGNITIVE_PROTOCOL>`;
   }
 
-  // --- HELPERS ---
-
   async _resolveEntities(story) {
     const ai = await entities.get("character", story.aiCharacterId);
     const user = await entities.get("character", story.userCharacterId);
-    const world = await entities.get("fractal", story.worldId);
+    let world = await entities.get("fractal", story.worldId);
+    if (!world) {
+      // Fallback removed as per clean slate, but ensuring it returns object if found
+    }
 
     if (!ai || !user) {
       console.error("Critical: Entities missing for story", story.id);

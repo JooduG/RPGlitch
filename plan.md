@@ -11,6 +11,7 @@
 **Focus:** ✨ **UX & GAMEPLAY FEATURES**
 **In Progress:** **[Skeleton Screens](#skeleton-screens)**
 **Recently Done:**
+
 - **Visualize Architecture:** Added Mermaid.js data flow diagrams to README to explain the Worker/Bridge topology.
 - **Type Safety:** Implemented `types.d.ts` for full IntelliSense support.
 - **Configurable Physics:** Centralized game balance constants in `config-physics.js`.
