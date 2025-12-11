@@ -90,7 +90,7 @@ async function handleBeginStory() {
 async function handleShuffle(views) {
   try {
     const chars = await entities.list("character");
-    const worlds = await entities.list("world");
+    const fractals = await entities.list("fractal");
 
     if (chars.length < 1) {
       console.warn("Not enough characters to shuffle");
@@ -108,11 +108,11 @@ async function handleShuffle(views) {
       }
     }
 
-    const world = worlds.length > 0 ? pick(worlds) : null;
+    const fractal = fractals.length > 0 ? pick(fractals) : null;
     views.updateStoryboardSelection({
       aiCharacter: ai,
       userCharacter: user,
-      world,
+      world: fractal,
     });
   } catch (e) {
     error("Shuffle failed:", e);

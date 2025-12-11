@@ -159,9 +159,10 @@ export function getVisualState(entity) {
   if (entity.visuals) return entity.visuals;
 
   // Fallback for legacy entities (Migration on read)
+  // [ STRICT MODE: Return empty default if no visuals ]
   return {
     flipped: false,
-    avatarUrl: entity.profilePictureUrl || "",
+    avatarUrl: "",
     fullBodyUrl: "",
     scale: 1.0,
     yOffset: 0,
@@ -179,9 +180,8 @@ export function normalize(base = {}) {
     .map((s) => sanitizeHtml(String(s).trim()))
     .filter(Boolean);
 
-  // Determine avatar URL (Prefer visuals.avatarUrl, fallback to profilePictureUrl)
-  const existingAvatar =
-    (base.visuals && base.visuals.avatarUrl) || base.profilePictureUrl || "";
+  // Determine avatar URL (Strict Check)
+  const existingAvatar = (base.visuals && base.visuals.avatarUrl) || "";
 
   return {
     name: sanitizeHtml(base.name || "").trim(),
@@ -209,11 +209,7 @@ export function normalize(base = {}) {
     },
 
     // [NEW] Simulation State (Fractal support)
-    simulation:
-      base.simulation ||
-      (base.type && String(base.type).toLowerCase() === "fractal"
-        ? { mode: "PASSIVE" }
-        : null),
+    simulation: base.simulation || null,
 
     // V4.2: NARRATIVE PHYSICS
     dynamics: base.dynamics || null,

@@ -575,10 +575,7 @@ You MUST start every response with a <think> block containing this exact 4-step 
   async _resolveEntities(story) {
     const ai = await entities.get("character", story.aiCharacterId);
     const user = await entities.get("character", story.userCharacterId);
-    let world = await entities.get("fractal", story.worldId);
-    if (!world) {
-      world = await entities.get("world", story.worldId);
-    }
+    const world = await entities.get("fractal", story.worldId);
 
     if (!ai || !user) {
       console.error("Critical: Entities missing for story", story.id);
