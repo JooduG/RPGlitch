@@ -63,9 +63,19 @@ export async function seedPremades() {
 
 export const entities = {
   // List all entities (No filtering needed anymore - Ghosts are gone)
+  // [MOD] Added aliasing for Fractal <-> World backward compatibility
   async list(type) {
     try {
-      const items = await db.entities.where("type").equals(type).toArray();
+      const reqType = type.toLowerCase();
+      let query = db.entities.where("type");
+
+      if (reqType === "fractal") {
+        query = query.anyOf(["fractal", "world"]);
+      } else {
+        query = query.equals(reqType);
+      }
+
+      const items = await query.toArray();
       return items.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
     } catch (err) {
       error(`Error listing ${type}:`, err);
@@ -77,7 +87,14 @@ export const entities = {
   async get(type, id) {
     try {
       const item = await db.entities.get(id);
-      return item && item.type === type.toLowerCase() ? item : null;
+      const reqType = type.toLowerCase();
+
+      const isValid =
+        item &&
+        (item.type === reqType ||
+          (reqType === "fractal" && item.type === "world"));
+
+      return isValid ? item : null;
     } catch (err) {
       error(`Failed to get ${type} with id ${id}:`, err);
       return null;
@@ -94,7 +111,7 @@ export const entities = {
         ...base,
         ...normalize({ ...base, ...entity }),
         id: id,
-        type: type.toLowerCase(),
+        type: type.toLowerCase(), // This effectively migrates 'world' -> 'fractal' on save
         // Ensure it remains a custom, editable entity
         isCustom: 1,
         isPremade: 0,
@@ -114,7 +131,15 @@ export const entities = {
   async remove(type, id) {
     try {
       const item = await db.entities.get(id);
-      if (item && item.type === type.toLowerCase()) {
+      const reqType = type.toLowerCase();
+
+      // Allow deletion of legacy 'world' types when 'fractal' is requested
+      const isValid =
+        item &&
+        (item.type === reqType ||
+          (reqType === "fractal" && item.type === "world"));
+
+      if (isValid) {
         return db.entities.delete(id);
       }
     } catch (err) {

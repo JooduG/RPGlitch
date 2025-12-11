@@ -34,28 +34,28 @@ const SECTION_DEFINITIONS = {
     label: "Forever",
     sublabels: {
       character: "Core Identity & Permanent Features",
-      world: "Eternal Truths & Laws of Nature",
+      fractal: "Eternal Truths & Laws of Nature",
     },
   },
   past: {
     label: "Past",
     sublabels: {
       character: "Background & Memories",
-      world: "History & Ancient Lore",
+      fractal: "History & Ancient Lore",
     },
   },
   present: {
     label: "Present",
     sublabels: {
       character: "Mood & Conditions",
-      world: "State of the World & Current Situation",
+      fractal: "State of the World & Current Situation",
     },
   },
   future: {
     label: "Future",
     sublabels: {
       character: "Goals & Prophecies",
-      world: "Impending Events & Prophecies",
+      fractal: "Impending Events & Prophecies",
     },
   },
 };
@@ -66,7 +66,7 @@ export function closeProfileModal() {
   if (screen) {
     screen.classList.remove("is-open");
     screen.setAttribute("hidden", "");
-    screen.classList.remove("profile-view--world");
+    screen.classList.remove("profile-view--fractal");
     if (location.hash.includes("#profile")) {
       const base = location.pathname + location.search;
       history.replaceState(
@@ -123,9 +123,9 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   document.body.classList.add("profile-view-active");
   screen.classList.add("is-open");
 
-  const isWorld = type === "world";
-  if (isWorld) screen.classList.add("profile-view--world");
-  else screen.classList.remove("profile-view--world");
+  const isFractal = type === "fractal";
+  if (isFractal) screen.classList.add("profile-view--fractal");
+  else screen.classList.remove("profile-view--fractal");
 
   // Check Gameplay Status (Lock)
   const isGameplay = document.body.classList.contains("mode-gameplay");
@@ -162,7 +162,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   screen.textContent = "";
   screen.className = "profile-view";
   screen.classList.add("is-open");
-  if (isWorld) screen.classList.add("profile-view--world");
+  if (isFractal) screen.classList.add("profile-view--fractal");
   screen.classList.toggle("is-editing", isEditing);
 
   const template = document.querySelector("#tpl-profile-page");
@@ -182,7 +182,10 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   };
 
   if (getPictureHTML) {
-    const heroPic = getPictureHTML(entity, { cover: true, landscape: isWorld });
+    const heroPic = getPictureHTML(entity, {
+      cover: true,
+      landscape: isFractal,
+    });
     if (heroPic) {
       heroPic.classList.add("hero-bleed");
       // Apply flip state immediately on render
@@ -321,7 +324,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
       const safeVal = sanitizeHtml(val);
       const newPic = getPictureHTML(
         { ...entity, profilePictureUrl: safeVal },
-        { cover: true, landscape: isWorld },
+        { cover: true, landscape: isFractal },
       );
       const curPic = heroWrap.querySelector(".picture");
       if (newPic) {
@@ -372,7 +375,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
       try {
         setBusy(true);
         const prompt = imageInput.value.trim();
-        const resolution = isWorld ? "768x512" : "512x768";
+        const resolution = isFractal ? "768x512" : "512x768";
         const removeBgCheckbox = layout.querySelector("#gen-transparent-bg");
         const isTransparent = removeBgCheckbox
           ? removeBgCheckbox.checked
@@ -514,7 +517,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         signatureColour: newColor,
         profilePictureUrl: urlToCheck,
       },
-      { cover: true, landscape: isWorld },
+      { cover: true, landscape: isFractal },
     );
 
     const curPic = heroWrap.querySelector(".picture");
@@ -631,7 +634,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   // --- DYNAMICS (Director Mode) ---
   if (
     state.settings.directorMode &&
-    (type === "character" || type === "world")
+    (type === "character" || type === "fractal")
   ) {
     const dynRow = document.createElement("div");
     dynRow.className = "field-row";
@@ -657,8 +660,8 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
                       .join("")}
                 </div>`;
     } else {
-      const isWorld = type === "world";
-      const gridCols = isWorld ? "repeat(4, 1fr)" : "repeat(2, 1fr)";
+      const isFractal = type === "fractal";
+      const gridCols = isFractal ? "repeat(4, 1fr)" : "repeat(2, 1fr)";
       dynRow.innerHTML = `
                 <div class="field-label"><label>Dynamics</label><small class="muted">Director Mode</small></div>
                 <div class="field-input" style="display: grid; grid-template-columns: ${gridCols}; gap: 0.75rem;">

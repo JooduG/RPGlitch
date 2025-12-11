@@ -148,6 +148,7 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
+
     // noise svg pattern would go here if we had it inline, assuming standard overlay
     opacity: 0.03;
     pointer-events: none;

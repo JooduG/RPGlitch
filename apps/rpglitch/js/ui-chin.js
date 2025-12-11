@@ -70,14 +70,14 @@ export function openDrawerFor(
           openDrawerFor(entityType, stateKey, previewId, button, container);
         };
 
-        const isWorld = entityType === "world";
+        const isFractal = entityType === "fractal";
         renderEntityPreview(
           previewId,
           entity,
           button,
           entityType,
           onEdit,
-          isWorld,
+          isFractal,
           stateKey,
         );
 
@@ -101,7 +101,7 @@ export function renderEntityPreview(
   slotButton,
   type,
   onEdit,
-  isWorld = false,
+  isFractal = false,
   stateKey = null,
 ) {
   const previewEl = document.querySelector(previewId);
@@ -121,7 +121,7 @@ export function renderEntityPreview(
     media.className = "card-media";
     media.title = "View Profile";
 
-    const pic = getPictureHTML(entity, { cover: true, landscape: isWorld });
+    const pic = getPictureHTML(entity, { cover: true, landscape: isFractal });
 
     // [NEW] Apply Flip Logic to Chin Preview
     const visuals = getVisualState(entity);

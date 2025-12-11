@@ -103,28 +103,26 @@
             <h1 id="title-storyboard" class="story-title-input">My Story</h1>
           </div>
 
-          <article class="entity-card world-card">
+          <article class="entity-card fractal-card">
             <div
-              id="btn-select-world"
+              id="btn-select-fractal"
               class="card-slot"
               role="button"
               tabindex="0"
             >
-              <span class="slot-category">World</span>
+              <span class="slot-category">Fractal</span>
               <div class="slot-icon">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                 >
-                  <path
-                    d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 010-16 8 8 0 010 16zm0-14a6 6 0 00-5.29 3h10.58A6 6 0 0012 6zm-5.29 5a6 6 0 000 2h10.58a6 6 0 000-2H6.71zm.42 3a6 6 0 005.29 3 6 6 0 005.29-3H7.13z"
-                  />
+                  <path d="M12 2L5 11L12 22L19 11Z" />
                 </svg>
               </div>
-              <span class="slot-label">Select Setting</span>
+              <span class="slot-label">Select Fractal</span>
             </div>
-            <div id="world-preview" class="entity-preview" hidden></div>
+            <div id="fractal-preview" class="entity-preview" hidden></div>
           </article>
 
           <div class="storyboard-actions">
@@ -455,15 +453,13 @@
             d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.33 0-8 1.67-8 5v3h16v-3c0-3.33-4.67-5-8-5z"
           /></svg
       ></template>
-      <template id="tpl-placeholder-icon-world"
+      <template id="tpl-placeholder-icon-fractal"
         ><svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
         >
-          <path
-            d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 010-16 8 8 0 010 16zm0-14a6 6 0 00-5.29 3h10.58A6 6 0 0012 6zm-5.29 5a6 6 0 000 2h10.58a6 6 0 000-2H6.71zm.42 3a6 6 0 005.29 3 6 6 0 005.29-3H7.13z"
-          />
+          <path d="M12 2L5 11L12 22L19 11Z" />
         </svg>
       </template>
       <template id="tpl-placeholder-icon-default"

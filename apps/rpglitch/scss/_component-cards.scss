@@ -111,7 +111,7 @@
   // CRITICAL FIX: Allow clicks to pass through gaps to the background
   pointer-events: none;
 
-  &.world-card {
+  &.fractal-card {
     max-width: 600px;
 
     .card-slot,

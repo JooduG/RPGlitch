@@ -101,7 +101,8 @@ const premade = {
       id: "entity-W1",
       name: "Eldoria",
       description: "Floating isles bound by ancient magic.",
-      type: "World",
+      type: "Fractal",
+      simulation: { mode: "PASSIVE" },
       signatureColour: "green",
       dynamics: { entropy: 40, permeability: 60, velocity: 50, resonance: 60 },
       sections: {
@@ -115,7 +116,8 @@ const premade = {
       id: "entity-W2",
       name: "Neo Arcadia",
       description: "Futuristic metropolis built on dream tech.",
-      type: "World",
+      type: "Fractal",
+      simulation: { mode: "PASSIVE" },
       signatureColour: "blue",
       dynamics: { entropy: 80, permeability: 50, velocity: 90, resonance: 50 },
       sections: {
@@ -130,7 +132,8 @@ const premade = {
       name: "Nova City",
       description:
         "Neon-soaked queer utopia where heroes pose, villains cruise, and thunderstorms are just foreplay for city-wide orgies.",
-      type: "World",
+      type: "Fractal",
+      simulation: { mode: "PASSIVE" },
       signatureColour: "purple",
       dynamics: { entropy: 70, permeability: 85, velocity: 80, resonance: 80 },
       sections: {
@@ -204,6 +207,13 @@ export function normalize(base = {}) {
       scale: 1.0,
       yOffset: 0,
     },
+
+    // [NEW] Simulation State (Fractal support)
+    simulation:
+      base.simulation ||
+      (base.type && String(base.type).toLowerCase() === "fractal"
+        ? { mode: "PASSIVE" }
+        : null),
 
     // V4.2: NARRATIVE PHYSICS
     dynamics: base.dynamics || null,

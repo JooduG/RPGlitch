@@ -387,7 +387,7 @@ ${this._layerEntity(ai, "PROTAGONIST")}
 
 <INSTRUCTION>
 Write the opening paragraph(s) of the story.
-1. **ESTABLISH THE WORLD:** Begin with the environment. Focus heavily on <WORLD_CONTEXT>.
+1. **ESTABLISH THE WORLD:** Begin with the environment. Focus heavily on [CONTEXT] or <WORLD_CONTEXT>.
    - Describe the sensory atmosphere (Smell, Sound, Texture, Lighting).
    - The setting must feel tangible and alive.
 2. **POSITION THE ACTORS:** Place ${ai.name} and ${user.name} into this scene.
@@ -406,9 +406,9 @@ Write the opening paragraph(s) of the story.
 5. **OUTPUT:** Write the final polished prose *outside* the <think> tag. Use double line breaks between paragraphs.
 
 <CONFLICT_RESOLUTION>
-If the PROTAGONIST's <PRESENT> or <PAST> data mentions a location that conflicts with the <WORLD_CONTEXT> (e.g. mentions "Neo Arcadia" when the world is "Eldoria"), YOU MUST IGNORE the protagonist's location data.
-Force the protagonist into the <WORLD_CONTEXT>.
-Re-interpret their <PRESENT> situation to fit the <WORLD_CONTEXT>.
+If the PROTAGONIST's <PRESENT> or <PAST> data mentions a location that conflicts with the World Context, YOU MUST IGNORE the protagonist's location data.
+Force the protagonist into the World Context.
+Re-interpret their <PRESENT> situation to fit the World Context.
 </CONFLICT_RESOLUTION>
 
 ${
@@ -480,6 +480,14 @@ ${this._layerEntity(ai, "PARTNER_CHARACTER")}
 
   _layerEntity(entity, label) {
     if (!entity) return "";
+
+    if (entity.type === "fractal") {
+      if (entity.simulation?.mode === "ACTIVE") {
+        // FUTURE: Inject Director Instructions
+      }
+      // Fallback to Standard Context (PASSIVE)
+      return `[CONTEXT: ${entity.name}]\n${entity.present}`;
+    }
 
     let physicsBlock = "";
     if (entity.dynamics) {
@@ -567,7 +575,10 @@ You MUST start every response with a <think> block containing this exact 4-step 
   async _resolveEntities(story) {
     const ai = await entities.get("character", story.aiCharacterId);
     const user = await entities.get("character", story.userCharacterId);
-    const world = await entities.get("world", story.worldId);
+    let world = await entities.get("fractal", story.worldId);
+    if (!world) {
+      world = await entities.get("world", story.worldId);
+    }
 
     if (!ai || !user) {
       console.error("Critical: Entities missing for story", story.id);

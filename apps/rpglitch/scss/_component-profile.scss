@@ -106,7 +106,7 @@
     }
 
     // World View Override: Compact Banner
-    .profile-view--world & .placeholder-image svg {
+    .profile-view--fractal & .placeholder-image svg {
         width: auto;
         height: 80px;
         max-height: 160px;
@@ -163,7 +163,7 @@
             width: 100%;
 
             // [NEW] World View Override: 1 Row (4 columns)
-            .profile-view--world & {
+            .profile-view--fractal & {
                 grid-template-columns: repeat(4, 1fr);
             }
 
@@ -310,7 +310,7 @@
 // =========================================
 // WORLD VIEW OVERRIDES (Stacked Layout)
 // =========================================
-.profile-view--world {
+.profile-view--fractal {
     .profile-layout {
         // Stacked Layout (Single Scroll)
         display: block; // Removes Grid properties

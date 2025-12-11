@@ -56,7 +56,7 @@ function handleRoute() {
     void e;
   }
   const [section, entityType, id] = parseHash();
-  const isType = (t) => t === "character" || t === "world";
+  const isType = (t) => t === "character" || t === "fractal";
 
   closeDrawer();
 
@@ -137,8 +137,8 @@ export function updateStoryboardSelection(newSelection) {
         openDrawerFor(type, key, previewId, btn, container);
       };
 
-      const isWorld = type === "world";
-      renderEntityPreview(previewId, entity, btn, type, onEdit, isWorld, key);
+      const isFractal = type === "fractal";
+      renderEntityPreview(previewId, entity, btn, type, onEdit, isFractal, key);
 
       if (btn) btn.hidden = true;
     } else {
@@ -166,9 +166,9 @@ export function updateStoryboardSelection(newSelection) {
   updateSlot(
     "world",
     selectedEntities.world,
-    "#btn-select-world",
-    "#world-preview",
-    "world",
+    "#btn-select-fractal",
+    "#fractal-preview",
+    "fractal",
   );
 
   if (_onSelectionChanged) _onSelectionChanged(selectedEntities);
@@ -198,7 +198,12 @@ export async function initViews(deps = {}) {
     "#user-character-preview",
     "userCharacter",
   );
-  bindDrawerTrigger("#btn-select-world", "world", "#world-preview", "world");
+  bindDrawerTrigger(
+    "#btn-select-fractal",
+    "fractal",
+    "#fractal-preview",
+    "world",
+  );
 
   bindPortraitClick("#gameplay-ai-portrait", "aiCharacter");
   bindPortraitClick("#gameplay-user-portrait", "userCharacter");
