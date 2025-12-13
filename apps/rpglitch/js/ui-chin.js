@@ -19,7 +19,13 @@ export function updateLocalSelection(selection) {
   localSelectedEntities = { ...selection };
 }
 
-export function bindDrawerTrigger(buttonId, entityType, previewId, stateKey) {
+export function bindDrawerTrigger(
+  buttonId,
+  entityType,
+  previewId,
+  stateKey,
+  titleOverride,
+) {
   const button = document.querySelector(buttonId);
   if (!button) return;
   const cardContainer = button.closest(".entity-card");
@@ -27,7 +33,14 @@ export function bindDrawerTrigger(buttonId, entityType, previewId, stateKey) {
   if (cardContainer) {
     cardContainer.style.cursor = "pointer";
     cardContainer.addEventListener("click", (e) => {
-      openDrawerFor(entityType, stateKey, previewId, button, cardContainer);
+      openDrawerFor(
+        entityType,
+        stateKey,
+        previewId,
+        button,
+        cardContainer,
+        titleOverride,
+      );
     });
   }
 }
@@ -48,6 +61,7 @@ export function openDrawerFor(
   previewId,
   button,
   triggerElement,
+  titleOverride,
 ) {
   openDrawer(
     entityType,
@@ -67,7 +81,14 @@ export function openDrawerFor(
         // Let's keep the localized behavior:
         const onEdit = () => {
           const container = button ? button.closest(".entity-card") : null;
-          openDrawerFor(entityType, stateKey, previewId, button, container);
+          openDrawerFor(
+            entityType,
+            stateKey,
+            previewId,
+            button,
+            container,
+            titleOverride,
+          );
         };
 
         const isFractal = entityType === "fractal";
@@ -92,6 +113,7 @@ export function openDrawerFor(
       window.ephemeralEntity = null;
       openProfileModal(entityType, "new", stateKey);
     },
+    titleOverride,
   );
 }
 

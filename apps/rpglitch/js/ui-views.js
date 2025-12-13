@@ -141,12 +141,12 @@ export function updateStoryboardSelection(newSelection) {
   updateLocalSelection(selectedEntities);
 
   // Render Updates
-  const updateSlot = (key, entity, btnId, previewId, type) => {
+  const updateSlot = (key, entity, btnId, previewId, type, titleOverride) => {
     if (entity) {
       const btn = document.querySelector(btnId);
       const onEdit = () => {
         const container = btn ? btn.closest(".entity-card") : null;
-        openDrawerFor(type, key, previewId, btn, container);
+        openDrawerFor(type, key, previewId, btn, container, titleOverride);
       };
 
       const isFractal = type === "fractal";
@@ -167,6 +167,7 @@ export function updateStoryboardSelection(newSelection) {
     "#btn-select-ai",
     "#ai-character-preview",
     "character",
+    "Select AI Character",
   );
   updateSlot(
     "userCharacter",
@@ -174,6 +175,7 @@ export function updateStoryboardSelection(newSelection) {
     "#btn-select-user",
     "#user-character-preview",
     "character",
+    "Select User Character",
   );
   updateSlot(
     "world",
@@ -181,6 +183,7 @@ export function updateStoryboardSelection(newSelection) {
     "#btn-select-fractal",
     "#fractal-preview",
     "fractal",
+    "Select Fractal",
   );
 
   if (_onSelectionChanged) _onSelectionChanged(selectedEntities);
@@ -203,18 +206,21 @@ export async function initViews(deps = {}) {
     "character",
     "#ai-character-preview",
     "aiCharacter",
+    "Select AI Character",
   );
   bindDrawerTrigger(
     "#btn-select-user",
     "character",
     "#user-character-preview",
     "userCharacter",
+    "Select User Character",
   );
   bindDrawerTrigger(
     "#btn-select-fractal",
     "fractal",
     "#fractal-preview",
     "world",
+    "Select Fractal",
   );
 
   bindPortraitClick("#gameplay-ai-portrait", "aiCharacter");

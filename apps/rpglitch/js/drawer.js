@@ -30,7 +30,13 @@ export function isOpen() {
   return drawer && drawer.classList.contains("is-open");
 }
 
-export function openDrawer(type, onSelect, triggerElement, onCreate) {
+export function openDrawer(
+  type,
+  onSelect,
+  triggerElement,
+  onCreate,
+  titleOverride,
+) {
   _onSelectCallback = onSelect;
 
   const drawer = document.getElementById(DRAWER_ID);
@@ -40,7 +46,7 @@ export function openDrawer(type, onSelect, triggerElement, onCreate) {
 
   if (!drawer || !content) return;
 
-  if (title) title.textContent = `Select ${type}`;
+  if (title) title.textContent = titleOverride || `Select ${type}`;
 
   // --- CLEAN CSS-ONLY POSITIONING ---
   drawer.style.cssText = ""; // Reset any legacy inline styles
