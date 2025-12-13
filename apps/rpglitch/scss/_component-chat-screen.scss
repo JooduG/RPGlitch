@@ -14,13 +14,7 @@
     min-height: 0; // Critical for flexbox scrolling
     overflow: hidden auto;
     padding: 1.5rem 0;
-    mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        black 4rem,
-        black calc(100% - 4rem),
-        transparent 100%
-    );
+    mask-image: linear-gradient(to bottom, transparent 0%, black 4rem, black calc(100% - 4rem), transparent 100%);
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -91,9 +85,8 @@
     border-radius: 50px; // Pill shape
     display: flex;
 
-    // [FIX] 40vw Grid Alignment (Central Column)
-    width: 100%;
-    max-width: 40vw; // [CHANGED] Matches the 4-column central grid
+    // [FIX] 40vw Central Pillar (User Request)
+    width: 40vw;
     margin: 0 auto; // Center it
 
     // [FIX] True Float: Apply lift here to the pill itself

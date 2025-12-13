@@ -124,9 +124,9 @@
 .story-message.user[data-type="IC"] {
   align-self: flex-end;
   text-align: left; // Ensure text is left-aligned
-  // Grid Alignment: 2rem Shift (Right Only)
-  margin-right: 2rem;
-  margin-left: 0;
+  // Grid Alignment: Align Left Edge with Pill (10vw Left Margin)
+  margin-right: 2rem; // Breathing room
+  margin-left: 10vw; // Matches Pill's Left Edge inside 60vw container
   max-width: calc(50vw - 2rem);
 
   // Geometry: Sharp Top-Right Corner
@@ -140,9 +140,9 @@
 .story-message.ai[data-type="IC"] {
   align-self: flex-start;
   text-align: left; // Ensure text is left-aligned
-  // Grid Alignment: 2rem Shift (Left Only)
-  margin-left: 2rem;
-  margin-right: 0;
+  // Grid Alignment: Align Right Edge with Pill (10vw Right Margin)
+  margin-left: 2rem; // Breathing room
+  margin-right: 10vw; // Matches Pill's Right Edge inside 60vw container
   max-width: calc(50vw - 2rem);
 
   // Geometry: Sharp Top-Left Corner
@@ -157,9 +157,9 @@
   align-self: center; // Center the bubble itself
   text-align: center; // Center the text inside
 
-  // [FIX] 40vw Grid Alignment + Cuteness
-  width: fit-content; // [CHANGED] Shrink to fit text
-  max-width: 40vw;
+  // [FIX] 40vw Central Pillar
+  width: fit-content; // Shrink to fit text
+  max-width: 40vw; // [CHANGED] Central 40vw pillar
   margin-inline: auto; // Center naturally
 
   // Geometry: Square / Technical
@@ -185,7 +185,8 @@
 .story-message[data-type="OOC"],
 .story-message.director-command {
   align-self: center !important;
-  max-width: 80%;
+
+  // max-width: 80%; [REMOVED] Per user request
   border-radius: var(--msg-radius);
   background: rgb(0 0 0 / 40%) !important;
   backdrop-filter: blur(4px);
@@ -254,9 +255,9 @@
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
 
-  // Grid Alignment: 2rem Shift (Left Only)
+  // Grid Alignment: Align Right Edge with Pill (10vw Right Margin)
   margin-left: 2rem;
-  margin-right: 0;
+  margin-right: 10vw;
   max-width: calc(50vw - 2rem);
   width: fit-content;
   display: flex;
