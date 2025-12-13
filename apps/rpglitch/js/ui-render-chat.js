@@ -560,7 +560,7 @@ export function removeTypingIndicator(container) {
   if (existing) existing.remove();
 }
 
-export function setSendLock(isLocked) {
+export function setSendLock(isLocked, disableInput = false) {
   const form = document.querySelector("#story-form");
   if (!form) return;
 
@@ -581,7 +581,11 @@ export function setSendLock(isLocked) {
     }
   }
 
-  if (!isLocked && input) {
-    input.focus();
+  if (input) {
+    input.disabled = isLocked && disableInput;
+
+    if (!isLocked) {
+      input.focus();
+    }
   }
 }

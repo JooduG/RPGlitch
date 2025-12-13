@@ -91,6 +91,9 @@ const App = {
             if (input.tagName === "TEXTAREA") {
               adjustHeight();
             }
+            // [FIX] Respect Lock
+            if (btn.dataset.locked === "true") return;
+
             btn.disabled = input.value.trim().length === 0;
           });
 

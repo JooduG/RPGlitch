@@ -27,7 +27,10 @@ main.container {
   display: grid;
 
   // Standardized 3-column layout with safe constraints
-  grid-template-columns: var(--layout-left-col, 1fr) var(--layout-center-col, 2fr) var(--layout-right-col, 1fr);
+  // [FIX] Widen the stage (20% / 60% / 20%)
+  // grid-template-columns: 1fr 3fr 1fr; // OLD 3-column default
+  // BASE DEFAULT: 3-Track Grid (Gameplay default) -> 2fr 6fr 2fr (20% 60% 20%)
+  grid-template-columns: 2fr 6fr 2fr;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
@@ -85,6 +88,25 @@ main.container {
 
 /* --- MODE: STORYBOARD (LOBBY) --- */
 body.mode-storyboard {
+  // [NEW] 5-Track Grid: 1fr (gap) | 2fr (left) | 4fr (center) | 2fr (right) | 1fr (gap)
+  // Total 10 units. Outer gaps are 1 unit (10%). Side panels 2 units (20%). Center 4 units (40%).
+  .universal-stage {
+    grid-template-columns: 1fr 2fr 4fr 2fr 1fr;
+  }
+
+  // Column Assignment for Storyboard (Shifted by 1 due to left gap)
+  #stage-ai {
+    grid-column: 2;
+  }
+
+  #stage-center {
+    grid-column: 3;
+  }
+
+  #stage-user {
+    grid-column: 4;
+  }
+
   // Activate Storyboard Content
   .stage-content--storyboard {
     display: flex;
@@ -108,6 +130,25 @@ body.mode-storyboard {
 
 /* --- MODE: GAMEPLAY (ACTIVE) --- */
 body.mode-gameplay {
+  // [NEW] 3-Track Grid: 2fr (left) | 6fr (center) | 2fr (right)
+  // Total 10 units. No outer gaps. Side panels 2 units (20%). Center 6 units (60%).
+  .universal-stage {
+    grid-template-columns: 2fr 6fr 2fr;
+  }
+
+  // Column Assignment for Gameplay (Standard)
+  #stage-ai {
+    grid-column: 1;
+  }
+
+  #stage-center {
+    grid-column: 2;
+  }
+
+  #stage-user {
+    grid-column: 3;
+  }
+
   // Activate Gameplay Content
   .stage-content--gameplay {
     display: flex;

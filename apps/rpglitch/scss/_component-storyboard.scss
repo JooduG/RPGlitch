@@ -32,11 +32,15 @@
 
     // Header
     #storyboard-header {
+        // [Refinement] Hoist out of flow to prevent pushing layout
+        position: absolute;
+        top: 15%; // Sits comfortably above cards
+        left: 0;
         width: 100%;
         text-align: center;
-        z-index: #{z(base)};
+        z-index: #{z(base) + 10}; // Ensure it sits on top
         pointer-events: auto;
-        flex-shrink: 0; // Don't squash
+        margin: 0; // Remove heavy margins
     }
 
     // Card Area (Middle)

@@ -382,6 +382,7 @@ export const TurnManager = {
   },
 
   generateOpening: async (storyId) => {
+    setChatGeneratingState(true);
     setSendLock(true);
     const feed = document.querySelector("#chat-feed");
     showTypingIndicator(feed, "narrator");
@@ -473,6 +474,7 @@ export const TurnManager = {
     if (!storyId) return null;
 
     setChatGeneratingState(true);
+    setSendLock(true, true);
     try {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildGhostwriter(draftText);
@@ -489,6 +491,7 @@ export const TurnManager = {
       return null;
     } finally {
       setChatGeneratingState(false);
+      setSendLock(false);
     }
   },
 
@@ -497,6 +500,7 @@ export const TurnManager = {
     if (!storyId) return;
 
     setChatGeneratingState(true);
+    setSendLock(true);
 
     try {
       log("[TurnManager] Generating visual from draft:", draftText);
@@ -521,6 +525,7 @@ export const TurnManager = {
       alert("Failed to generate image. " + e.message);
     } finally {
       setChatGeneratingState(false);
+      setSendLock(false);
     }
   },
 };

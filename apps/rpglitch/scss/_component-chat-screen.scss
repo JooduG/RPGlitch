@@ -42,16 +42,27 @@
 /* =========================================
    2. INPUT AREA (The Control Deck)
    ========================================= */
+
+/* =========================================
+   2. INPUT AREA (The Control Deck)
+   ========================================= */
 #story-input-area {
     flex-shrink: 0;
-    padding: 1rem;
-    border-top: 1px solid var(--pico-muted-border-color);
-    background-color: var(--pico-form-element-background-color);
+
+    // [FIX] Floating Polish: Transparent container, bottom margin for "float" look
+    padding: 0 1.5rem;
+    margin-bottom: 2rem; // Lift it off the bottom
+    // [FIX] Extra lift requested by user to ensure it doesn't touch bottom
+    padding-bottom: 2rem;
+    border-top: none;
+    background-color: transparent !important;
     z-index: #{z(ui)};
     position: relative;
+    pointer-events: none; // Let clicks pass through empty sides
 
     form {
         margin: 0;
+        pointer-events: auto; // Re-enable clicks on the form itself
     }
 
     fieldset[role="group"] {
@@ -65,11 +76,19 @@
 /* --- THE INPUT FORM --- */
 #story-form {
     padding: 0;
-    background: transparent;
-    box-shadow: none;
-    border-radius: 0;
-    display: flex; // Ensure strict alignment
+
+    // [FIX] Floating Island Pill Container
+    background: var(--pico-form-element-background-color);
+    box-shadow: 0 10px 30px rgb(0 0 0 / 60%);
+    border-radius: 50px; // Pill shape
+    display: flex;
+
+    // [FIX] Constraint Width for Floating Effect
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto; // Center it
     align-items: center;
+    overflow: hidden; // Clip children to pill shape
 
     // [FIX] Alignment Issue: Ensure borders don't add to height
     * {
@@ -77,11 +96,10 @@
     }
 
     textarea[name="message"] {
-        border-radius: var(--pico-radius) 0 0 var(--pico-radius); // [FIX] First Item (Rounded Left)
-        border: 1px solid var(--pico-muted-border-color);
-
-        // border-left: none; // REMOVED: It IS the left item now
-        background: rgb(0 0 0 / 50%);
+        // [FIX] Reset child borders/radius to fit container
+        border: none;
+        border-radius: 0;
+        background: transparent; // Use container background
         color: #fff;
         height: auto; // [FIX] Allow growth
         min-height: 2.25rem;
@@ -90,50 +108,62 @@
         vertical-align: middle;
         line-height: normal;
         resize: none;
-        padding-top: 0.5rem;
+        padding: 0.75rem 0 0.75rem 1.5rem; // Add left padding for pill start
         width: auto; // Let flex control width
         flex: 1 1 auto; // [FIX] Grow to fill space, but allow shrink if needed
 
         &:focus {
-            border-color: var(--pico-primary);
-            box-shadow: 0 0 0 2px var(--pico-primary-focus);
-            z-index: 2; // Bring to front on focus
+            outline: none;
+            box-shadow: none; // let container handle focus rings if needed, or minimal
         }
     }
 
     button[type="submit"] {
-        border-radius: 0 var(--pico-radius) var(--pico-radius) 0; // [FIX] Last Item (Rounded Right)
+        border-radius: 0; // Reset
         transition: all 0.2s ease;
-        padding: 0 1rem;
-        box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
+        padding: 0 1.5rem 0 1rem; // Add right padding for pill end
+        box-shadow: none; // Flat inside container
         height: auto; // [FIX] Grow with textarea
         min-height: 2.25rem;
         margin-bottom: 0;
         vertical-align: middle;
         line-height: normal;
-        border: 1px solid transparent; // Merge visually
-        border-left: none; // Merge visually
+        border: none;
+        background: transparent; // Default transparent
         display: flex;
         align-items: center;
         justify-content: center;
         width: auto; // [FIX] Minimal width
         flex: 0 0 auto; // [FIX] Do not grow
 
+        // [FIX] Mouseover Effect: Icon Only
+        svg {
+            transition: transform 0.2s ease;
+        }
+
         &:not(:disabled):hover {
-            transform: translateY(-1px);
-            box-shadow:
-                0 0 15px var(--pico-primary-focus),
-                0 0 30px var(--pico-primary-focus);
+            transform: none !important;
+            background: transparent; // Keep transparent, just animate icon
+            // box-shadow: none; // No glow on hover for clean pill look, or maybe subtle?
             z-index: 1;
+
+            svg {
+                transform: translateY(-2px); // [FIX] Animate Icon
+                color: var(--pico-primary);
+            }
         }
 
         &:not(:disabled):active {
-            transform: translateY(0);
+            transform: none !important;
+
+            svg {
+                transform: translateY(0);
+            }
         }
 
         &:disabled {
             cursor: not-allowed;
-            opacity: 0.7;
+            opacity: 0.5;
         }
     }
 }
@@ -160,9 +190,21 @@
     justify-content: center;
     vertical-align: middle;
 
+    // [FIX] Mouseover Effect: Icon Only
+    span {
+        display: inline-block;
+        transition: transform 0.2s ease;
+    }
+
     &:hover {
         background: rgb(0 0 0 / 80%);
         color: #fff;
+        transform: none !important; // [FIX] Zero movement
+        box-shadow: none !important; // [FIX] No shadow illusion
+
+        span {
+            transform: translateY(-2px); // [FIX] Animate Icon
+        }
     }
 }
 
@@ -223,7 +265,7 @@
     z-index: 20;
 
     // [FIX] Constrain width to prevent bleed on small screens
-    max-width: 85%;
+    max-width: 90%; // [Refinement] User request: Tighter max-width
     overflow: hidden;
 
     // Visual Style
@@ -231,17 +273,17 @@
     background-color: rgb(24 28 37 / 95%);
     backdrop-filter: blur(8px);
     border: 2px solid var(--pico-muted-border-color);
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 1rem; // [Refinement] User request: Tighter padding
     border-radius: var(--pico-radius);
     box-shadow: 0 4px 12px rgb(0 0 0 / 60%);
-    min-width: 120px; // Reduced slightly
+    min-width: 100px; // [Refinement] Reduced minimum
     text-align: center;
     cursor: pointer;
 
     // Typography
     h2 {
         margin: 0;
-        font-size: 1.25rem; // Slightly reduced for better fit
+        font-size: 0.9rem; // [Refinement] User request: Smaller text (0.9rem)
         line-height: 1.2;
         font-weight: 800;
         text-transform: uppercase;

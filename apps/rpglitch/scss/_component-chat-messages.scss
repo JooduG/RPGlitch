@@ -19,6 +19,10 @@
   animation: message-slide-in 0.3s ease;
   position: relative;
 
+  // [FIX] Typography Polish
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+
   // Default Variables (System/Narrator Theme)
   --msg-bg: var(--pico-form-element-background-color);
   --msg-radius: var(--pico-radius); // 0.5rem
