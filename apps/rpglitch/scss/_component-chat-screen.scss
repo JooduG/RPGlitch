@@ -58,6 +58,7 @@
         margin: 0;
         display: flex;
         gap: 0;
+        align-items: stretch; // [FIX] Buttons grow with textarea
     }
 }
 
@@ -75,16 +76,23 @@
         box-sizing: border-box;
     }
 
-    input[type="text"] {
-        border-radius: var(--pico-radius) 0 0 var(--pico-radius);
+    textarea[name="message"] {
+        border-radius: var(--pico-radius) 0 0 var(--pico-radius); // [FIX] First Item (Rounded Left)
         border: 1px solid var(--pico-muted-border-color);
+
+        // border-left: none; // REMOVED: It IS the left item now
         background: rgb(0 0 0 / 50%);
         color: #fff;
-        height: 2.25rem; // [NEW] Cute Height
-        font-size: 0.85rem; // [NEW] Cute Font
+        height: auto; // [FIX] Allow growth
+        min-height: 2.25rem;
+        font-size: 0.85rem;
         margin-bottom: 0;
         vertical-align: middle;
         line-height: normal;
+        resize: none;
+        padding-top: 0.5rem;
+        width: auto; // Let flex control width
+        flex: 1 1 auto; // [FIX] Grow to fill space, but allow shrink if needed
 
         &:focus {
             border-color: var(--pico-primary);
@@ -93,20 +101,23 @@
         }
     }
 
-    input[type="submit"] {
-        border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
+    button[type="submit"] {
+        border-radius: 0 var(--pico-radius) var(--pico-radius) 0; // [FIX] Last Item (Rounded Right)
         transition: all 0.2s ease;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 0 1.5rem;
+        padding: 0 1rem;
         box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
-        height: 2.25rem; // [NEW] Cute Height
-        font-size: 0.85rem; // [NEW] Cute Font
+        height: auto; // [FIX] Grow with textarea
+        min-height: 2.25rem;
         margin-bottom: 0;
         vertical-align: middle;
         line-height: normal;
-        border: 1px solid transparent; // visual balance if other buttons have borders
+        border: 1px solid transparent; // Merge visually
+        border-left: none; // Merge visually
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: auto; // [FIX] Minimal width
+        flex: 0 0 auto; // [FIX] Do not grow
 
         &:not(:disabled):hover {
             transform: translateY(-1px);
@@ -132,14 +143,16 @@
     // [FIX] User request: De-emphasize settings button (skinnier, dark bg, no white outline)
     background: rgb(0 0 0 / 50%);
     border: 1px solid var(--pico-muted-border-color);
-    border-left: none; // Prevent double border with input
+    border-radius: 0; // [FIX] Middle Item (Square)
+    border-left: none; // Prevent double border with textarea // Prevent double border with submit
     border-right: none; // Prevent double border with submit
-    border-radius: 0;
-    padding: 0 0.75rem; // Skinnier
-    width: auto;
+    padding: 0 0.75rem;
+    width: auto; // [FIX] Minimal width
+    flex: 0 0 auto; // [FIX] Do not grow
     color: var(--pico-muted-color);
     transition: all 0.2s ease;
-    height: 2.25rem; // [NEW] Cute Height
+    height: auto; // [FIX] Grow with textarea
+    min-height: 2.25rem;
     font-size: 0.85rem; // [NEW] Cute Font
     margin-bottom: 0;
     display: flex;
@@ -156,7 +169,7 @@
 @each $name, $data in $signature-colors {
     $color: map.get($data, color);
 
-    .signature-#{$name} #story-form input[type="submit"]:not(:disabled):hover {
+    .signature-#{$name} #story-form button[type="submit"]:not(:disabled):hover {
         box-shadow:
             0 0 15px $color,
             0 0 30px $color;

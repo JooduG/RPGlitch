@@ -27,10 +27,10 @@ export const TurnManager = {
   },
 
   createFromSelection: async (data) => {
-    const [startAi, startUser, startWorld] = await Promise.all([
+    const [startAi, startUser, startFractal] = await Promise.all([
       entities.get("character", data.aiCharacterId),
       entities.get("character", data.userCharacterId),
-      entities.get("world", data.worldId),
+      entities.get("fractal", data.worldId),
     ]);
 
     const id = await db.stories.add({
@@ -42,7 +42,7 @@ export const TurnManager = {
         start: {
           ai: startAi,
           user: startUser,
-          world: startWorld,
+          fractal: startFractal,
         },
         end: null,
       },
@@ -56,8 +56,8 @@ export const TurnManager = {
     });
 
     updatePortraits(startAi, startUser);
-    setGameplayEntities(startAi, startUser, startWorld);
-    if (startWorld) applyWorldAmbience(startWorld);
+    setGameplayEntities(startAi, startUser, startFractal);
+    if (startFractal) applyWorldAmbience(startFractal);
 
     return id;
   },
@@ -80,16 +80,16 @@ export const TurnManager = {
         entities.get("character", story.userCharacterId),
       ]);
 
-      let world = await entities.get("fractal", story.worldId);
+      let fractal = await entities.get("fractal", story.worldId);
       // Fallback removed for strict mode
 
       updatePortraits(ai, user);
-      setGameplayEntities(ai, user, world);
+      setGameplayEntities(ai, user, fractal);
 
       events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
 
-      if (world) {
-        applyWorldAmbience(world);
+      if (fractal) {
+        applyWorldAmbience(fractal);
       }
 
       document.body.classList.remove("mode-storyboard");
@@ -154,13 +154,17 @@ export const TurnManager = {
       const ctrl = new AbortController();
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
-      const [aiEntity, userEntity, worldEntity] = await Promise.all([
+      const [aiEntity, userEntity, fractalEntity] = await Promise.all([
         entities.get("character", story.aiCharacterId),
         entities.get("character", story.userCharacterId),
         entities.get("fractal", story.worldId),
       ]);
 
-      const options = calculateBlendedParams(aiEntity, userEntity, worldEntity);
+      const options = calculateBlendedParams(
+        aiEntity,
+        userEntity,
+        fractalEntity,
+      );
       log(
         `[PROMETHEUS] Vibe Check: Temp ${options.temperature} | Speed ${options.repetition_penalty} | Focus ${options.top_p}`,
       );
@@ -438,7 +442,7 @@ export const TurnManager = {
     )
       return;
 
-    const [endAi, endUser, endWorld] = await Promise.all([
+    const [endAi, endUser, endFractal] = await Promise.all([
       entities.get("character", story.aiCharacterId),
       entities.get("character", story.userCharacterId),
       entities.get("fractal", story.worldId),
@@ -450,7 +454,7 @@ export const TurnManager = {
       "snapshots.end": {
         ai: endAi,
         user: endUser,
-        world: endWorld,
+        fractal: endFractal,
       },
     });
 

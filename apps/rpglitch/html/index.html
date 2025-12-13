@@ -169,6 +169,7 @@
             ></div>
             <form id="story-form">
               <fieldset role="group">
+                <!-- TEXTAREA (First) -->
                 <textarea
                   name="message"
                   placeholder="Type your message..."
@@ -177,6 +178,7 @@
                   style="resize: none; overflow-y: hidden"
                 ></textarea>
 
+                <!-- SETTINGS (Middle) -->
                 <button
                   type="button"
                   id="btn-settings-placeholder"
@@ -191,7 +193,17 @@
                   ⚙️
                 </button>
 
-                <button type="submit" disabled>Send</button>
+                <!-- SEND (Last) -->
+                <button type="submit" disabled aria-label="Send">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    style="width: 1.25em; height: 1.25em"
+                  >
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                  </svg>
+                </button>
               </fieldset>
             </form>
           </div>

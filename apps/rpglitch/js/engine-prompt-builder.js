@@ -7,7 +7,7 @@ import { entities } from "./entity-crud.js";
 const PROMETHEUS_CONFIG = {
   UPDATE_MODULO: 4,
   UPDATE_OFFSET: 4,
-  TARGET_CYCLE: ["ai_character", "user_character", "world"],
+  TARGET_CYCLE: ["ai_character", "user_character", "fractal"],
 };
 
 export class ContextBuilder {
@@ -23,8 +23,10 @@ export class ContextBuilder {
     const story = state.story.byId[this.storyId];
     if (!story) throw new Error(`Story ${this.storyId} not found`);
 
-    const [ai, user, world] = await this._resolveEntities(story);
+    const [ai, user, fractal] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
+
+    const directorMode = fractal.simulation?.directorMode || null; // [MOVED] Fixes TDZ Error
 
     const narrativeHistory = history.filter(
       (m) => m.role !== "system" && m.type !== "DEBUG",
@@ -54,11 +56,9 @@ export class ContextBuilder {
       );
     }
 
-    const directorMode = world.simulation?.directorMode || null;
-
     const systemPromptParts = [
       this._layerKernel_ANEX(directorMode),
-      this._layerEntity(world, "WORLD_CONTEXT"),
+      this._layerEntity(fractal, "FRACTAL_CONTEXT"), // [RENAME] World -> Fractal
       this._layerEntity(ai, "ACTIVE_CHARACTER_AI"),
       this._layerEntity(user, "INTERLOCUTOR_USER"),
     ];
@@ -84,7 +84,7 @@ Keep it short, casual, and in-character.
         updateTarget: updateTarget,
         activeCharId: ai.id,
         userCharId: user.id,
-        worldId: world.id,
+        worldId: fractal.id,
       },
     };
   }
@@ -102,7 +102,7 @@ Keep it short, casual, and in-character.
     // unless you want the full file dump. I will provide the full file to be safe.
 
     const story = state.story.byId[this.storyId];
-    const [ai, , world] = await this._resolveEntities(story);
+    const [ai, , fractal] = await this._resolveEntities(story);
 
     const lists = window.rpgLists || {};
     const pick = (jsonList) => {
@@ -159,7 +159,7 @@ Target: ${ai.name} (Character Portrait)
 <FOCUS_SCENE>
 Target: Narrative Scene Visualization
 1. **Action:** Visualize this moment: "${recentText.substring(0, 250)}..."
-2. **Environment:** <WORLD_CONTEXT> determines the weather and architecture.
+2. **Environment:** <FRACTAL_CONTEXT> determines the weather and architecture.
 3. **Composition:** Use a "${style.comp}" to frame the action.
 4. **Atmosphere:** The mood is "${style.mood}". Lighting is "${style.lighting}".
 </FOCUS_SCENE>`;
@@ -182,7 +182,7 @@ Your job is to translate narrative data into a "Photographic Specification" for 
 </CORE_DIRECTIVE>
 
 ${this._layerEntity(ai, "PRIMARY_SUBJECT")}
-${this._layerEntity(world, "SETTING_CONTEXT")}
+${this._layerEntity(fractal, "SETTING_CONTEXT")}
 
 ${focusBlock}
 
@@ -208,7 +208,7 @@ ${specificDirectives}
 
   async buildUpdater(targetType, forcedDynamics = null) {
     const story = state.story.byId[this.storyId];
-    const [ai, user, world] = await this._resolveEntities(story);
+    const [ai, user, fractal] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
     const recentHistory = history.slice(-10);
 
@@ -222,8 +222,8 @@ ${specificDirectives}
       targetEntity = user;
       roleInstruction = `You are the Analytical Cortex of ${ai.name}, observing ${user.name}. You are profiling them.`;
     } else {
-      targetEntity = world;
-      roleInstruction = `You are the Simulation Director for ${world.name}. You track environmental decay and atmosphere.`;
+      targetEntity = fractal;
+      roleInstruction = `You are the Simulation Director for ${fractal.name}. You track environmental decay and atmosphere.`;
     }
 
     const currentDynamics = targetEntity.dynamics || {
@@ -368,10 +368,10 @@ Then return ONLY the compressed narrative text.
     const story = state.story.byId[this.storyId];
     if (!story) throw new Error(`Story ${this.storyId} not found`);
 
-    const [ai, user, world] = await this._resolveEntities(story);
+    const [ai, user, fractal] = await this._resolveEntities(story);
 
     // [BRANCH] CHECK FOR TEXT PROTOCOL
-    if (world.simulation?.directorMode === "TEXT_PROTOCOL") {
+    if (fractal.simulation?.directorMode === "TEXT_PROTOCOL") {
       return null; // Return null to signal "No Opening Generation Needed"
     }
 
@@ -385,13 +385,13 @@ You are NOT a chat assistant. You are a Simulation Engine.
 </CORE_DIRECTIVE>
 
 <CONTEXT>
-${this._layerEntity(world, "WORLD_CONTEXT")}
+${this._layerEntity(fractal, "FRACTAL_CONTEXT")}
 ${this._layerEntity(ai, "PROTAGONIST")}
 </CONTEXT>
 
 <INSTRUCTION>
 Write the opening paragraph(s) of the story.
-1. **ESTABLISH THE WORLD:** Begin with the environment. Focus heavily on [CONTEXT] or <WORLD_CONTEXT>.
+1. **ESTABLISH THE FRACTAL:** Begin with the environment. Focus heavily on [CONTEXT] or <FRACTAL_CONTEXT>.
    - Describe the sensory atmosphere (Smell, Sound, Texture, Lighting).
    - The setting must feel tangible and alive.
 2. **POSITION THE ACTORS:** Place ${ai.name} and ${user.name} into this scene.
@@ -410,9 +410,9 @@ Write the opening paragraph(s) of the story.
 5. **OUTPUT:** Write the final polished prose *outside* the <think> tag. Use double line breaks between paragraphs.
 
 <CONFLICT_RESOLUTION>
-If the PROTAGONIST's <PRESENT> or <PAST> data mentions a location that conflicts with the World Context, YOU MUST IGNORE the protagonist's location data.
-Force the protagonist into the World Context.
-Re-interpret their <PRESENT> situation to fit the World Context.
+If the PROTAGONIST's <PRESENT> or <PAST> data mentions a location that conflicts with the Fractal Context, YOU MUST IGNORE the protagonist's location data.
+Force the protagonist into the Fractal Context.
+Re-interpret their <PRESENT> situation to fit the Fractal Context.
 </CONFLICT_RESOLUTION>
 
 ${
@@ -435,7 +435,7 @@ This instruction takes PRIORITY over conflicting directives above.
 
   async buildGhostwriter(draftText) {
     const story = state.story.byId[this.storyId];
-    const [ai, user, world] = await this._resolveEntities(story);
+    const [ai, user, fractal] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
 
     const system = `[SYSTEM: LITERARY_ENHANCEMENT_ENGINE]
@@ -447,7 +447,7 @@ Your task is to REWRITE the user's rough draft into immersice, high-quality pros
 </CORE_DIRECTIVE>
 
 <CONTEXT>
-${this._layerEntity(world, "WORLD")}
+${this._layerEntity(fractal, "FRACTAL")}
 ${this._layerEntity(user, "USER_CHARACTER")}
 ${this._layerEntity(ai, "PARTNER_CHARACTER")}
 </CONTEXT>
@@ -553,7 +553,7 @@ ${entity.future || "Exist."}
 
 <CORE_DIRECTIVES>
 1. AGENCY: You play <ACTIVE_CHARACTER_AI>. NEVER control <INTERLOCUTOR_USER>.
-2. SIMULATION: <WORLD_CONTEXT> defines laws of physics/atmosphere.
+2. SIMULATION: <FRACTAL_CONTEXT> defines laws of physics/atmosphere.
 3. CONSISTENCY: Adhere to <PERMANENT> traits.
 4. IMMERSION: DO NOT reference game mechanics (Entropy, Resonance, Velocity) in dialogue.
 </CORE_DIRECTIVES>
@@ -584,7 +584,7 @@ You MUST start every response with a <think> block containing this exact 4-step 
 3. **DRAFTING & SANITIZATION:**
    - *Internal Draft:* Formulate the response mentally.
    - *Filter:* Does this draft contain "As an AI" or OOC mechanics? (If yes, DESTROY it).
-   - *Refinement:* Inject sensory details (Smell, Sound) defined in <WORLD_CONTEXT>.
+   - *Refinement:* Inject sensory details (Smell, Sound) defined in <FRACTAL_CONTEXT>.
 
 4. **FINAL OUTPUT GENERATION:**
    - Produce the dialogue/action based on the refined draft, strictly adhering to <FORMAT_PROTOCOL>.
@@ -594,8 +594,8 @@ You MUST start every response with a <think> block containing this exact 4-step 
   async _resolveEntities(story) {
     const ai = await entities.get("character", story.aiCharacterId);
     const user = await entities.get("character", story.userCharacterId);
-    let world = await entities.get("fractal", story.worldId);
-    if (!world) {
+    let fractal = await entities.get("fractal", story.worldId);
+    if (!fractal) {
       // Fallback removed as per clean slate, but ensuring it returns object if found
     }
 
@@ -604,7 +604,7 @@ You MUST start every response with a <think> block containing this exact 4-step 
       throw new Error(`Critical: Entities missing for story ${story.id}`);
     }
 
-    return [ai, user, world];
+    return [ai, user, fractal];
   }
 
   _detectOOC(text) {
