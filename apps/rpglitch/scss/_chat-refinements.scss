@@ -15,6 +15,7 @@
 
 // Sticky Header Layout
 .sticky-header {
+    padding: 0 2rem; // [FIX] Added breathing space per user request
     .header-row {
         display: flex;
         justify-content: space-between;

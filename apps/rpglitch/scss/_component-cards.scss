@@ -238,6 +238,7 @@
       font-weight: 700;
       color: var(--signature, #fff);
       line-height: 1.2;
+      text-wrap: balance; // [NEW] Balanced titles
     }
 
     p {
@@ -252,6 +253,7 @@
       -webkit-line-clamp: 3;
       line-clamp: 3;
       -webkit-box-orient: vertical;
+      text-wrap: pretty; // [NEW] Prettier descriptions
     }
   }
 

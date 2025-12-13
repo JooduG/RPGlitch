@@ -22,6 +22,7 @@
   // [FIX] Typography Polish
   line-height: 1.6;
   margin-bottom: 1.5rem;
+  text-wrap: pretty; // [NEW] Better paragraph flow
 
   // Default Variables (System/Narrator Theme)
   --msg-bg: var(--pico-form-element-background-color);
@@ -161,6 +162,7 @@
   width: fit-content; // Shrink to fit text
   max-width: 40vw; // [CHANGED] Central 40vw pillar
   margin-inline: auto; // Center naturally
+  text-wrap: balance; // [NEW] Symmetrical centering
 
   // Geometry: Square / Technical
   border-radius: 2px;
