@@ -32,15 +32,16 @@
 
     // Header
     #storyboard-header {
-        // [Refinement] Hoist out of flow to prevent pushing layout
-        position: absolute;
-        top: 15%; // Sits comfortably above cards
-        left: 0;
-        width: 100%;
+        // [Refinement] Breakout: Fixed Center, independent of column width
+        position: fixed;
+        top: 15%; // [Ref] Symmetry: Match bottom actions
+        left: 50%; // Center anchor
+        width: 100vw; // Force full screen width
+        transform: translateX(-50%); // Perfect centering
         text-align: center;
-        z-index: #{z(base) + 10}; // Ensure it sits on top
-        pointer-events: auto;
-        margin: 0; // Remove heavy margins
+        z-index: 100; // [FIX] Top layer
+        pointer-events: none; // Let clicks pass through to cards if overlap
+        margin: 0;
     }
 
     // Card Area (Middle)
@@ -53,21 +54,19 @@
         flex-shrink: 0;
 
         // CRITICAL FIX: Remove auto margins to allow flex gap to group elements
-        // margin-top: auto !important; // REMOVED
-        // margin-bottom: auto !important; // REMOVED
         flex-grow: 0;
-
-        // border: 2px solid red; // DEBUG - Uncomment to verify CSS application
     }
 
     // Actions Area (Bottom)
     .storyboard-actions {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        z-index: #{z(ui)};
-        pointer-events: auto;
-        flex-shrink: 0;
+        // [FIX] Equator Logic: Remove from flow to allow perfect vertical centering of card
+        position: fixed;
+        bottom: 15%; // [Ref] Symmetry: Match top header
+        left: 50%;
+        transform: translateX(-50%); // Centered
+        z-index: 100; // Top layer
+        width: 100%; // Wrapper width
+        pointer-events: none; // Stack pass-through
     }
 }
 

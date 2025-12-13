@@ -51,9 +51,10 @@
 
     // [FIX] Floating Polish: Transparent container, bottom margin for "float" look
     padding: 0 1.5rem;
-    margin-bottom: 2rem; // Lift it off the bottom
-    // [FIX] Extra lift requested by user to ensure it doesn't touch bottom
-    padding-bottom: 2rem;
+
+    // [FIX] Margin Lift: Physically push away from edge (True Float)
+    // margin-bottom: 4rem !important; // [REMOVED] Moved to inner form
+    padding-bottom: 0; // Reset padding lift if margin handles it, or keep minimal
     border-top: none;
     background-color: transparent !important;
     z-index: #{z(ui)};
@@ -83,10 +84,13 @@
     border-radius: 50px; // Pill shape
     display: flex;
 
-    // [FIX] Constraint Width for Floating Effect
+    // [FIX] 40vw Grid Alignment (Central Column)
     width: 100%;
-    max-width: 900px;
+    max-width: 40vw; // [CHANGED] Matches the 4-column central grid
     margin: 0 auto; // Center it
+
+    // [FIX] True Float: Apply lift here to the pill itself
+    margin-bottom: 3rem !important;
     align-items: center;
     overflow: hidden; // Clip children to pill shape
 

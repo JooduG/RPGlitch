@@ -116,6 +116,11 @@
   align-self: center; // Center the bubble itself
   text-align: center; // Center the text inside
 
+  // [FIX] 40vw Grid Alignment
+  width: 100%;
+  max-width: 40vw;
+  margin-inline: auto; // Center naturally
+
   // Geometry: Square / Technical
   border-radius: 2px;
 

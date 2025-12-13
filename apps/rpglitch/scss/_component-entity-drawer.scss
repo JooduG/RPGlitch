@@ -18,8 +18,11 @@
 
     // Transform for centering and slide effect
     transform: translateX(-50%) translateY(100%);
-    width: 100%;
-    max-width: 1100px; // Match profile width
+
+    // [FIX] Align with 80% grid (10% gaps on sides)
+    width: 80vw;
+
+    // max-width: 1100px; // [FIX] Removed constraint
     max-height: 85vh; // Strict height cap to prevent overflow
     background: rgb(26 34 42 / 98%); // High opacity dark theme
     border: 1px solid var(--pico-muted-border-color);
