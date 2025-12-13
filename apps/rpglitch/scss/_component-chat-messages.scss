@@ -116,8 +116,8 @@
   align-self: center; // Center the bubble itself
   text-align: center; // Center the text inside
 
-  // [FIX] 40vw Grid Alignment
-  width: 100%;
+  // [FIX] 40vw Grid Alignment + Cuteness
+  width: fit-content; // [CHANGED] Shrink to fit text
   max-width: 40vw;
   margin-inline: auto; // Center naturally
 

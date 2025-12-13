@@ -34,7 +34,7 @@
     #storyboard-header {
         // [Refinement] Breakout: Fixed Center, independent of column width
         position: fixed;
-        top: 15%; // [Ref] Symmetry: Match bottom actions
+        top: 10%; // [Ref] Balance: Push further to edge (10%)
         left: 50%; // Center anchor
         width: 100vw; // Force full screen width
         transform: translateX(-50%); // Perfect centering
@@ -61,7 +61,7 @@
     .storyboard-actions {
         // [FIX] Equator Logic: Remove from flow to allow perfect vertical centering of card
         position: fixed;
-        bottom: 15%; // [Ref] Symmetry: Match top header
+        bottom: calc(10% + 3rem); // [Ref] Balance: Offset for Title height (~6rem diff)
         left: 50%;
         transform: translateX(-50%); // Centered
         z-index: 100; // Top layer
