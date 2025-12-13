@@ -137,6 +137,35 @@ export function darkenColor(hex, amount) {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
+/**
+ * Mixes two hex colors by a weight (0-1).
+ * 0 = 100% color1, 1 = 100% color2.
+ */
+export function mixHex(c1, c2, weight) {
+  const parse = (c) => {
+    c = c.replace("#", "");
+    if (c.length === 3)
+      c = c
+        .split("")
+        .map((x) => x + x)
+        .join("");
+    return [
+      parseInt(c.substr(0, 2), 16),
+      parseInt(c.substr(2, 2), 16),
+      parseInt(c.substr(4, 2), 16),
+    ];
+  };
+  const [r1, g1, b1] = parse(c1);
+  const [r2, g2, b2] = parse(c2);
+
+  const w = Math.min(1, Math.max(0, weight));
+  const r = Math.round(r1 + (r2 - r1) * w);
+  const g = Math.round(g1 + (g2 - g1) * w);
+  const b = Math.round(b1 + (b2 - b1) * w);
+
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
 const DEFAULT_BG = ["#181c2f", "#23243a", "#1a3a4a", "#2a1a3a"]; // From _config.scss
 
 /**
@@ -155,15 +184,18 @@ export function setAppBackground(signatureKey) {
     return;
   }
 
-  // Create atmospheric gradient (Signature -> Void)
-  // Grad 1: Dark version of signature (was 0.55) -> Now 0.2 (Much lighter, prevents "muddy" yellows)
-  root.style.setProperty("--bg-grad-1", darkenColor(baseColor, 0.2));
-  // Grad 2: Even darker (was 0.75) -> Now 0.4
-  root.style.setProperty("--bg-grad-2", darkenColor(baseColor, 0.4));
-  // Grad 3: Near Black (Tinted)
-  root.style.setProperty("--bg-grad-3", "#111111");
-  // Grad 4: Blackish void
-  root.style.setProperty("--bg-grad-4", "#080808");
+  // Use a Cool Dark for mixing to avoid muddy browns (linear darkening)
+  // [Tweaked] Lighter void target to prevent too much darkness
+  const VOID_TARGET = "#1c1f33";
+
+  // Grad 1: Vibrant Base (Only 10% dark mix) - Was 0.15
+  root.style.setProperty("--bg-grad-1", mixHex(baseColor, VOID_TARGET, 0.1));
+  // Grad 2: Mid-Transition (40% dark mix) - Was 0.45
+  root.style.setProperty("--bg-grad-2", mixHex(baseColor, VOID_TARGET, 0.4));
+  // Grad 3: Deep (75% dark mix) - Was 0.85
+  root.style.setProperty("--bg-grad-3", mixHex(baseColor, VOID_TARGET, 0.75));
+  // Grad 4: Void - Was #050508
+  root.style.setProperty("--bg-grad-4", "#0e101a");
 }
 
 /**
