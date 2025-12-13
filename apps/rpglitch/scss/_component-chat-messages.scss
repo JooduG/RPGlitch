@@ -124,7 +124,10 @@
 .story-message.user[data-type="IC"] {
   align-self: flex-end;
   text-align: left; // Ensure text is left-aligned
-  margin-right: 1rem; // [FIX] Breathing room from portrait
+  // Grid Alignment: 2rem Shift (Right Only)
+  margin-right: 2rem;
+  margin-left: 0;
+  max-width: calc(50vw - 2rem);
 
   // Geometry: Sharp Top-Right Corner
   border-radius: var(--msg-radius) 0 var(--msg-radius) var(--msg-radius);
@@ -137,7 +140,10 @@
 .story-message.ai[data-type="IC"] {
   align-self: flex-start;
   text-align: left; // Ensure text is left-aligned
-  margin-left: 1rem; // [FIX] Breathing room from portrait
+  // Grid Alignment: 2rem Shift (Left Only)
+  margin-left: 2rem;
+  margin-right: 0;
+  max-width: calc(50vw - 2rem);
 
   // Geometry: Sharp Top-Left Corner
   border-radius: 0 var(--msg-radius) var(--msg-radius) var(--msg-radius);
@@ -247,6 +253,11 @@
 .typing-bubble {
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
+
+  // Grid Alignment: 2rem Shift (Left Only)
+  margin-left: 2rem;
+  margin-right: 0;
+  max-width: calc(50vw - 2rem);
   width: fit-content;
   display: flex;
   align-items: center;

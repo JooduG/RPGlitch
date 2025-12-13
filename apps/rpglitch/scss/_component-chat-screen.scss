@@ -13,7 +13,14 @@
     flex: 1;
     min-height: 0; // Critical for flexbox scrolling
     overflow: hidden auto;
-    padding: 1.5rem;
+    padding: 1.5rem 0;
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 4rem,
+        black calc(100% - 4rem),
+        transparent 100%
+    );
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
