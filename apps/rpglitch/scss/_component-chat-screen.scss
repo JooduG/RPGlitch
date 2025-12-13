@@ -106,12 +106,19 @@
         background: transparent; // Use container background
         color: #fff;
         height: auto; // [FIX] Allow growth
-        min-height: 2.25rem;
+        min-height: 3rem;
+        max-height: 12rem;
+        line-height: 1.5;
         font-size: 0.85rem;
         margin-bottom: 0;
         vertical-align: middle;
-        line-height: normal;
         resize: none;
+        transition: height 0.1s ease;
+
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
         padding: 0.75rem 0 0.75rem 1.5rem; // Add left padding for pill start
         width: auto; // Let flex control width
         flex: 1 1 auto; // [FIX] Grow to fill space, but allow shrink if needed
@@ -402,5 +409,33 @@
     to {
         opacity: 1;
         transform: translateX(0);
+    }
+}
+
+/* =========================================
+   5. STICKY HEADER
+   ========================================= */
+.sticky-header {
+    padding: 0 2rem; // [FIX] Added breathing space per user request
+    .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+}
+
+/* =========================================
+   6. SMARTPHONE THEME LAYOUT (Messenger Mode)
+   ========================================= */
+body.theme-smartphone {
+    // 1. Layout Constraint (Nuclear Specificity to override global grid)
+    #main .stage-content--gameplay {
+        max-width: 450px !important;
+        margin: 0 auto !important;
+        border-left: 1px solid var(--pico-muted-border-color);
+        border-right: 1px solid var(--pico-muted-border-color);
+        background-color: #000 !important;
+        min-height: 100vh; // Ensure it fills screen
     }
 }

@@ -2,7 +2,6 @@ import { db } from "./core-db.js";
 import { applyPatch, state } from "./app-state.js";
 import { router } from "./ui-views.js";
 import { StoryController } from "./manager-turns.js";
-import { log, error } from "./core-utils.js";
 
 export const StoryOptionsController = {
   init() {

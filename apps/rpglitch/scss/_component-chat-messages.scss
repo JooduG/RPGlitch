@@ -453,3 +453,44 @@
     display: none !important;
   }
 }
+
+/* =========================================
+   SMARTPHONE THEME OVERRIDES (Messenger Mode)
+   ========================================= */
+body.theme-smartphone {
+  #chat-feed .story-message {
+    border-radius: 18px !important;
+    padding: 8px 16px !important;
+    margin-bottom: 4px !important;
+    max-width: 75% !important;
+    font-size: 0.95rem;
+    border: none !important;
+    box-shadow: none !important;
+
+    // Hide Headers
+    header,
+    .narrator-prefix {
+      display: none !important;
+    }
+
+    // USER (Right / Blue)
+    &.user[data-type="IC"] {
+      align-self: flex-end !important;
+      margin-left: auto !important;
+      margin-right: 8px !important;
+      color: white !important;
+      border-bottom-right-radius: 4px !important;
+      text-align: left !important;
+    }
+
+    // AI (Left / Gray)
+    &.ai[data-type="IC"] {
+      align-self: flex-start !important;
+      margin-right: auto !important;
+      margin-left: 8px !important;
+      color: white !important;
+      border-bottom-left-radius: 4px !important;
+      text-align: left !important;
+    }
+  }
+}
