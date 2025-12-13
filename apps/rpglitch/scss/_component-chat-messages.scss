@@ -13,7 +13,7 @@
 
 .story-message {
   padding: 1rem 1.25rem;
-  max-width: 90%;
+  max-width: 50vw; // [FIX] 10-Grid: 5 Units (Leaves 1 Unit buffer)
   word-wrap: break-word;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   animation: message-slide-in 0.3s ease;
@@ -35,9 +35,42 @@
 
   // Mobile Adjustment
   @include mobile {
-    max-width: 95%;
+    max-width: 85vw; // [FIX] Mobile needs more space
     padding: 0.75rem 1rem;
   }
+
+  // ... (Markdown Styles) ...
+
+  /* (Rest of markdown styles is basically same, but I can't rely on skipping unless I include them. 
+   Actually, the user prompt is "Modify...". I will select the block to replace carefully.) */
+
+  /* Let's refine the replacement chunks. */
+
+  /* I will split this into two replacements if possible or just one big block if they are contiguous enough. */
+
+  /* The User/AI variants are further down. */
+
+  /* Chunk 1: Base Style */
+
+  /* Chunk 2: User Variant */
+
+  /* Chunk 3: AI Variant */
+
+  /* Check file content from context. */
+
+  /* .story-message is lines 14-72. "max-width: 90%;" is line 16. */
+
+  /* .story-message.user is lines 91-100. */
+
+  /* .story-message.ai is lines 103-112. */
+
+  /* I will use careful targeting. */
+
+  /* Wait, I can't use comments inside the `ReplacementContent` that aren't valid SCSS or don't match indentation if I'm not careful. */
+
+  /* Also I should verify if I need to preserve lines 44-71 (Markdown styles). */
+
+  /* Yes. */
 
   // --- MARKDOWN LITE STYLES ---
   // Ensure formatted text pops correctly inside bubbles
@@ -91,6 +124,7 @@
 .story-message.user[data-type="IC"] {
   align-self: flex-end;
   text-align: left; // Ensure text is left-aligned
+  margin-right: 1rem; // [FIX] Breathing room from portrait
 
   // Geometry: Sharp Top-Right Corner
   border-radius: var(--msg-radius) 0 var(--msg-radius) var(--msg-radius);
@@ -103,6 +137,7 @@
 .story-message.ai[data-type="IC"] {
   align-self: flex-start;
   text-align: left; // Ensure text is left-aligned
+  margin-left: 1rem; // [FIX] Breathing room from portrait
 
   // Geometry: Sharp Top-Left Corner
   border-radius: 0 var(--msg-radius) var(--msg-radius) var(--msg-radius);
