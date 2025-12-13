@@ -80,7 +80,10 @@ export const VisualManager = {
   ) {
     if (!window.ai) throw new Error("AI plugin not loaded.");
 
-    const isWorld = entity.type && entity.type.toLowerCase() === "world";
+    const isFractal =
+      entity.type &&
+      (entity.type.toLowerCase() === "world" ||
+        entity.type.toLowerCase() === "fractal");
 
     // [UPDATED] Context to include ALL narrative fields for extraction
     let context = `
@@ -102,7 +105,7 @@ TARGET STYLE: ${stylePreference}
 
     let systemPrompt;
 
-    if (isWorld) {
+    if (isFractal) {
       systemPrompt = `[SYSTEM: VISUAL_DIRECTOR]
 You are a Lead Environment Artist & Landscape Photographer using the Flux Image Engine.
 Task: Write a cohesive "Visual Specification" paragraph (3-4 sentences) that combines the SUBJECT with the TARGET STYLE.

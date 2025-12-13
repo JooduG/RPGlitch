@@ -184,7 +184,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   if (getPictureHTML) {
     const heroPic = getPictureHTML(entity, {
       cover: true,
-      landscape: isFractal,
+      landscape: isFractal, // Revert to match container's 3/2 aspect ratio (cropping square image)
     });
     if (heroPic) {
       heroPic.classList.add("hero-bleed");
@@ -283,11 +283,22 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     isEditing = editing;
     screen.classList.toggle("is-editing", editing);
     setTopBarRight(editing ? "form" : "profile");
-    if (imageOverlay) imageOverlay.style.display = editing ? "flex" : "none";
+    if (imageOverlay) {
+      imageOverlay.style.display = editing ? "flex" : "none";
+      // [NEW] Hide Background Toggle for Fractals
+      const bgToggle = imageOverlay.querySelector(".btn-subtle-toggle");
+      if (bgToggle) bgToggle.style.display = isFractal ? "none" : "flex";
+    }
     renderProfilePage(type, id, editing);
   };
 
   // --- UI STATE HELPERS ---
+  // [NEW] Initial visibility check for Background Toggle
+  if (imageOverlay && isFractal) {
+    const bgToggle = imageOverlay.querySelector(".btn-subtle-toggle");
+    if (bgToggle) bgToggle.style.display = "none";
+  }
+
   const elementLockList = [
     imageInput,
     actionButton,
@@ -375,11 +386,10 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
       try {
         setBusy(true);
         const prompt = imageInput.value.trim();
-        const resolution = isFractal ? "768x512" : "512x768";
+        const resolution = isFractal ? "768x768" : "512x768";
         const removeBgCheckbox = layout.querySelector("#gen-transparent-bg");
-        const isTransparent = removeBgCheckbox
-          ? removeBgCheckbox.checked
-          : false;
+        const isTransparent =
+          removeBgCheckbox && !isFractal ? removeBgCheckbox.checked : false;
 
         const url = await VisualManager.generate(prompt, {
           resolution,
@@ -623,6 +633,8 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
       input.addEventListener("input", () => autoResize(input));
       div.querySelector(".field-input").appendChild(input);
       div.querySelector("[data-read]").style.display = "none";
+      // [FIX] Auto-resize immediately on render
+      setTimeout(() => autoResize(input), 0);
     }
     secWrap.appendChild(div);
   };
@@ -765,14 +777,21 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         .map((t) => t.trim())
         .filter(Boolean);
 
+      const finalImageUrl = escapeHtml(
+        imageInput.dataset.pendingUrl || imageInput.value.trim(),
+      );
+
+      // [FIX] Sync visuals.avatarUrl to prevent normalization revert
+      if (localVisuals) {
+        localVisuals.avatarUrl = finalImageUrl;
+      }
+
       const data = {
         name: escapeHtml(nameVal),
         description: escapeHtml(
           screen.querySelector('[data-edit-field="description"]').value.trim(),
         ),
-        profilePictureUrl: escapeHtml(
-          imageInput.dataset.pendingUrl || imageInput.value.trim(),
-        ),
+        profilePictureUrl: finalImageUrl,
         signatureColour: escapeHtml(paletteSelect.value.trim()),
         tags: tagsArray,
         // Persist the visual state (flipped, etc)
@@ -790,6 +809,11 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
           if (el) dyn[k] = parseInt(el.value, 10) || 0;
         });
         data.dynamics = dyn;
+        // Also persist dynamics to simulation if present (Fractals)
+        if (entity.simulation) {
+          // Fractals store dynamics in root usually, but simulation config
+          // might be relevant. For now, root dynamics is enough.
+        }
       }
 
       const saved = await entities.upsert(
