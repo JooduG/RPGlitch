@@ -6,6 +6,21 @@ jest.mock("../apps/rpglitch/js/entity-crud.js", () => ({
   _allItemsCache: {},
 }));
 
+jest.mock("../apps/rpglitch/js/ui-chat-feed.js", () => ({
+  renderChat: jest.fn(),
+  setGameplayEntities: jest.fn(),
+  showTypingIndicator: jest.fn(),
+  removeTypingIndicator: jest.fn(),
+  setSendLock: jest.fn(),
+  setChatGeneratingState: jest.fn(),
+}));
+
+jest.mock("../apps/rpglitch/js/ui-chat-visuals.js", () => ({
+  updatePortraits: jest.fn(),
+  applyFractalAmbience: jest.fn(),
+  updateDirectorModeClass: jest.fn(),
+}));
+
 async function loadApp(
   htmlContent = "<!doctype html><html><body></body></html>",
 ) {

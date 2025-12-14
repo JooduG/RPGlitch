@@ -4,14 +4,13 @@ import { generateStream } from "./llm-adapter.js";
 import { entities } from "./entity-crud.js";
 import {
   renderChat,
-  updatePortraits,
   setGameplayEntities,
   showTypingIndicator,
   removeTypingIndicator,
   setSendLock,
-  applyFractalAmbience,
   setChatGeneratingState,
-} from "./ui-render-chat.js";
+} from "./ui-chat-feed.js";
+import { updatePortraits, applyFractalAmbience } from "./ui-chat-visuals.js";
 
 import { error, calculateBlendedParams, log } from "./core-utils.js";
 import { ContextBuilder } from "./engine-prompt-builder.js";
@@ -231,6 +230,9 @@ export const TurnManager = {
 
       // 4. Generate & Attach (Async, post-save)
       if (visualPrompt) {
+        // [UX] Show busy indicator for visual generation
+        showTypingIndicator(feed, "ai", story.aiCharacterId);
+
         log(
           `[PROMETHEUS] Detected Visual Prompt: ${visualPrompt} (Target: ${targetType})`,
         );
@@ -255,10 +257,15 @@ export const TurnManager = {
           });
 
           // C. Update DB
-          await db.messages.update(aiMsgId, { attachmentUrl: imageUrl });
+          await db.messages.update(aiMsgId, {
+            attachmentUrl: imageUrl,
+            metadata: { visualPrompt, targetType },
+          });
         } catch (visErr) {
           console.error("[PROMETHEUS] Auto-Visual Failed:", visErr);
           // We fail silently on the image, the text is already saved.
+        } finally {
+          removeTypingIndicator(feed);
         }
       }
 
@@ -267,7 +274,7 @@ export const TurnManager = {
       applyPatch({ ui: { fsm: "done" } });
 
       if (payloadMeta && payloadMeta.triggerUpdate) {
-        await TurnManager.runBackgroundUpdate(
+        TurnManager.runBackgroundUpdate(
           storyId,
           payloadMeta.updateTarget,
           aiMsgId,
@@ -337,8 +344,8 @@ export const TurnManager = {
       applyPatch({ ui: { fsm: "done" } });
 
       if (payloadMeta && payloadMeta.triggerUpdate) {
-        log(`[PROMETHEUS] Running Physics... (UI Locked)`);
-        await TurnManager.runBackgroundUpdate(
+        log(`[PROMETHEUS] Running Physics... (Background)`);
+        TurnManager.runBackgroundUpdate(
           storyId,
           payloadMeta.updateTarget,
           aiMsgId,
@@ -590,6 +597,61 @@ export const TurnManager = {
       error("[TurnManager] Image Gen failed:", e);
       alert("Failed to generate image. " + e.message);
     } finally {
+      setChatGeneratingState(false);
+      setSendLock(false);
+    }
+  },
+
+  regenerateMessageImage: async (messageId) => {
+    const storyId = TurnManager.requireActive();
+    const message = await db.messages.get(messageId);
+    if (!message || !message.metadata || !message.metadata.visualPrompt) {
+      console.warn("[TurnManager] Cannot reroll image: missing metadata.");
+      return;
+    }
+
+    setChatGeneratingState(true);
+    setSendLock(true);
+    const feed = document.querySelector("#chat-feed");
+    showTypingIndicator(feed, "ai"); // Generic busy state
+
+    try {
+      const { visualPrompt, targetType } = message.metadata;
+      log(`[TurnManager] Rerolling Image: ${visualPrompt}`);
+
+      const [aiChar, userChar, fractal] = await Promise.all([
+        entities.get("character", state.story.byId[storyId].aiCharacterId),
+        entities.get("character", state.story.byId[storyId].userCharacterId),
+        entities.get("fractal", state.story.byId[storyId].worldId),
+      ]);
+
+      let targetEntity = aiChar;
+      if (targetType === "user") targetEntity = userChar;
+      if (targetType === "fractal") targetEntity = fractal;
+
+      // Force variance by appending a subtle noise seed or just relying on Flux randomness?
+      // Flux is random by default if seed isn't fixed. available-models usually handles this.
+      // We'll just re-run the same prompt composition which might grab new randomized attributes if any.
+
+      const fluxPrompt = await VisualManager.composePrompt(
+        targetEntity,
+        "photorealistic",
+        visualPrompt,
+        { isMessenger: true },
+      );
+
+      const imageUrl = await VisualManager.generate(fluxPrompt, {
+        resolution: "512x768",
+      });
+
+      await db.messages.update(messageId, { attachmentUrl: imageUrl });
+      await TurnManager.loadMessages(storyId);
+      await renderChat(storyId);
+    } catch (e) {
+      error("[TurnManager] Reroll Image Failed:", e);
+      alert("Failed to reroll image.");
+    } finally {
+      removeTypingIndicator(feed);
       setChatGeneratingState(false);
       setSendLock(false);
     }

@@ -2,7 +2,7 @@
 import { state, applyPatch } from "./app-state.js";
 import { entities } from "./entity-crud.js";
 import { StoryController } from "./manager-turns.js";
-import { updatePortraits, applyFractalAmbience } from "./ui-render-chat.js";
+import { updatePortraits, applyFractalAmbience } from "./ui-chat-visuals.js";
 import { error } from "./core-utils.js";
 
 // --- PURIFIED: Ambience logic is now handled by a dedicated helper function (assumed to be imported) ---

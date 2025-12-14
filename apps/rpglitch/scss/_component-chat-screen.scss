@@ -161,11 +161,9 @@
 
 // Settings Ghost Button
 #btn-settings-placeholder {
-    background: rgb(0 0 0 / 50%);
-    border: 1px solid var(--pico-muted-border-color);
+    background: transparent;
+    border: none;
     border-radius: 0;
-    border-left: none;
-    border-right: none;
     padding: 0 0.75rem;
     width: auto;
     flex: 0 0 auto;
@@ -186,8 +184,8 @@
     }
 
     &:hover {
-        background: rgb(0 0 0 / 80%);
-        color: #fff;
+        background: transparent;
+        color: var(--pico-primary); // Use primary color on hover for feedback instead of black bg
         transform: none !important;
         box-shadow: none !important;
 

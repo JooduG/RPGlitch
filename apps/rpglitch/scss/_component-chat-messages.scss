@@ -417,3 +417,59 @@ body.theme-smartphone {
     }
   }
 }
+
+/* =========================================
+   IMAGE OVERLAYS (Ported from ImageGlitch)
+   ========================================= */
+// MAX SPECIFICITY: Override both base styles and smartphone theme
+body,
+body.theme-smartphone {
+  #chat-feed .story-message.story-image-container {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    max-width: 80vw !important;
+    width: auto !important;
+    min-width: 200px;
+    margin-right: auto;
+    margin-left: auto;
+
+    // Fix alignment for AI vs User vs Narrator if needed
+    &.ai {
+      margin-right: auto;
+      margin-left: 2rem;
+    }
+
+    &.user {
+      margin-left: auto;
+      margin-right: 2rem;
+    }
+
+    &.ai.theme-smartphone-fix {
+      margin-left: 8px !important;
+    }
+
+    .image-wrapper {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      line-height: 0;
+      width: 100%;
+      min-width: 300px;
+
+      img.generated-image {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 8px;
+        width: 100%;
+        object-fit: contain;
+      }
+
+      .image-overlay {
+        display: none; // Deprecated: Actions moved to toolbar
+      }
+    }
+  }
+}

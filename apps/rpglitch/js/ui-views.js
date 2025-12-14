@@ -1,10 +1,6 @@
 import { initDrawer, closeDrawer } from "./drawer.js";
-import {
-  setGameplayEntities,
-  updatePortraits,
-  setSendLock,
-  applyFractalAmbience,
-} from "./ui-render-chat.js";
+import { setGameplayEntities, setSendLock } from "./ui-chat-feed.js";
+import { updatePortraits, applyFractalAmbience } from "./ui-chat-visuals.js";
 import { setAppBackground } from "./core-utils.js";
 import {
   updateLocalSelection,

@@ -601,3 +601,30 @@ export function calculateBlendedParams(ai, user, world) {
     top_p: parseFloat(top_p.toFixed(2)),
   };
 }
+
+export async function downloadImage(url, filename = "image.png") {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(blobUrl);
+  } catch (e) {
+    console.error("Download failed:", e);
+    // Fallback for non-CORS or simple saving
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+}

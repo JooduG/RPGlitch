@@ -17,9 +17,9 @@ jest.mock("../apps/rpglitch/js/manager-turns.js", () => ({
   StoryController: {},
 }));
 
-jest.mock("../apps/rpglitch/js/ui-render-chat.js", () => ({
+jest.mock("../apps/rpglitch/js/ui-chat-visuals.js", () => ({
   updatePortraits: jest.fn(),
-  applyWorldAmbience: jest.fn(),
+  applyFractalAmbience: jest.fn(), // If applyWorldAmbience was renamed, use new name
 }));
 
 jest.mock("../apps/rpglitch/js/core-utils.js", () => ({
