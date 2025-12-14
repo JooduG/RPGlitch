@@ -781,9 +781,9 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
         imageInput.dataset.pendingUrl || imageInput.value.trim(),
       );
 
-      // [FIX] Sync visuals.avatarUrl to prevent normalization revert
+      // [FIX] Sync visuals.profilePictureUrl to prevent normalization revert
       if (localVisuals) {
-        localVisuals.avatarUrl = finalImageUrl;
+        localVisuals.profilePictureUrl = finalImageUrl;
       }
 
       const data = {

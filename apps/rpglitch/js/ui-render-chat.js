@@ -8,7 +8,7 @@ import { events, EVENTS } from "./core-events.js";
 const selectedEntities = {
   aiCharacter: null,
   userCharacter: null,
-  world: null,
+  fractal: null,
 };
 
 let virtualFeed = null;
@@ -113,9 +113,9 @@ window.addEventListener("entity-visual-update", async (e) => {
       selectedEntities.aiCharacter,
       selectedEntities.userCharacter,
     );
-  } else if (selectedEntities.world?.id === id) {
-    selectedEntities.world = await entities.get("world", id);
-    applyWorldAmbience(selectedEntities.world);
+  } else if (selectedEntities.fractal?.id === id) {
+    selectedEntities.fractal = await entities.get("fractal", id);
+    applyFractalAmbience(selectedEntities.fractal);
   }
 });
 
@@ -128,10 +128,10 @@ function updateDirectorModeClass() {
 }
 updateDirectorModeClass();
 
-export function applyWorldAmbience(world) {
+export function applyFractalAmbience(fractal) {
   // 1. Colour Ambience
-  if (!world || !world.signatureColour) {
-    document.documentElement.style.removeProperty("--world-ambience-rgb");
+  if (!fractal || !fractal.signatureColour) {
+    document.documentElement.style.removeProperty("--fractal-ambience-rgb");
   } else {
     // Note: SIGNATURE_COLORS in core-utils are hex, we need RGB for rgba() below.
     // The previous local map had manual RGB strings.
@@ -148,22 +148,22 @@ export function applyWorldAmbience(world) {
       purple: "168, 85, 247",
       default: "255, 255, 255",
     };
-    const rgb = rgbMap[world.signatureColour] || rgbMap.default;
-    document.documentElement.style.setProperty("--world-ambience-rgb", rgb);
+    const rgb = rgbMap[fractal.signatureColour] || rgbMap.default;
+    document.documentElement.style.setProperty("--fractal-ambience-rgb", rgb);
   }
 
   // 2. Cinematic Background
-  const bgEl = document.getElementById("world-background");
+  const bgEl = document.getElementById("fractal-background");
   if (!bgEl) return;
 
-  if (world && world.profilePictureUrl) {
-    bgEl.style.backgroundImage = `url('${world.profilePictureUrl}')`;
+  if (fractal && fractal.profilePictureUrl) {
+    bgEl.style.backgroundImage = `url('${fractal.profilePictureUrl}')`;
     bgEl.style.backgroundColor = "transparent";
     bgEl.style.opacity = "1";
 
-    const visuals = getVisualState(world);
+    const visuals = getVisualState(fractal);
     bgEl.style.transform = visuals.flipped ? "scaleX(-1)" : "none";
-  } else if (world) {
+  } else if (fractal) {
     // Placeholder Logic
     const rgbMap = {
       pink: "236, 72, 153",
@@ -173,7 +173,7 @@ export function applyWorldAmbience(world) {
       purple: "168, 85, 247",
       default: "255, 255, 255",
     };
-    const rgb = rgbMap[world.signatureColour] || rgbMap.default;
+    const rgb = rgbMap[fractal.signatureColour] || rgbMap.default;
     bgEl.style.backgroundImage = "none";
     bgEl.style.backgroundColor = `rgba(${rgb}, 0.5)`;
     bgEl.style.opacity = "1";
@@ -190,10 +190,10 @@ export function applyWorldAmbience(world) {
   }
 }
 
-export function setGameplayEntities(ai, user, world) {
+export function setGameplayEntities(ai, user, fractal) {
   if (ai) selectedEntities.aiCharacter = ai;
   if (user) selectedEntities.userCharacter = user;
-  if (world) selectedEntities.world = world;
+  if (fractal) selectedEntities.fractal = fractal;
 }
 
 export function updatePortraits(aiCharacter, userCharacter) {
@@ -215,10 +215,10 @@ export function updatePortraits(aiCharacter, userCharacter) {
     if (imgDiv) {
       imgDiv.innerHTML = "";
       if (ent) {
-        const isWorld = ent.type === "world";
+        const isFractal = ent.type === "fractal";
         const picture = getPictureHTML(ent, {
           cover: true,
-          landscape: isWorld,
+          landscape: isFractal,
         });
         if (picture) {
           const visuals = getVisualState(ent);

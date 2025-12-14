@@ -23,7 +23,7 @@ import {
 const selectedEntities = {
   aiCharacter: null,
   userCharacter: null,
-  world: null,
+  fractal: null,
 };
 
 let _onSelectionChanged = null;
@@ -119,9 +119,9 @@ export function updateStoryboardSelection(newSelection) {
     selectedEntities.aiCharacter = newSelection.aiCharacter;
   if (newSelection.userCharacter !== undefined)
     selectedEntities.userCharacter = newSelection.userCharacter;
-  if (newSelection.world !== undefined) {
-    selectedEntities.world = newSelection.world;
-    setAppBackground(selectedEntities.world?.signatureColour);
+  if (newSelection.fractal !== undefined) {
+    selectedEntities.fractal = newSelection.fractal;
+    setAppBackground(selectedEntities.fractal?.signatureColour);
 
     // [FIX] THEME INJECTION LOGIC
     // 1. Clear any existing theme classes (start with "theme-")
@@ -130,7 +130,7 @@ export function updateStoryboardSelection(newSelection) {
     document.body.className = cleanClasses.join(" ");
 
     // 2. Inject new theme if it exists
-    const newTheme = selectedEntities.world?.simulation?.cssTheme;
+    const newTheme = selectedEntities.fractal?.simulation?.cssTheme;
     if (newTheme) {
       document.body.classList.add(newTheme);
       console.log(`[UI] Applied theme: ${newTheme}`);
@@ -178,8 +178,8 @@ export function updateStoryboardSelection(newSelection) {
     "Select User Character",
   );
   updateSlot(
-    "world",
-    selectedEntities.world,
+    "fractal",
+    selectedEntities.fractal,
     "#btn-select-fractal",
     "#fractal-preview",
     "fractal",
@@ -219,7 +219,7 @@ export async function initViews(deps = {}) {
     "#btn-select-fractal",
     "fractal",
     "#fractal-preview",
-    "world",
+    "fractal",
     "Select Fractal",
   );
 

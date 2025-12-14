@@ -9,7 +9,7 @@ import {
   showTypingIndicator,
   removeTypingIndicator,
   setSendLock,
-  applyWorldAmbience,
+  applyFractalAmbience,
   setChatGeneratingState,
 } from "./ui-render-chat.js";
 
@@ -57,7 +57,7 @@ export const TurnManager = {
 
     updatePortraits(startAi, startUser);
     setGameplayEntities(startAi, startUser, startFractal);
-    if (startFractal) applyWorldAmbience(startFractal);
+    if (startFractal) applyFractalAmbience(startFractal);
 
     return id;
   },
@@ -89,7 +89,7 @@ export const TurnManager = {
       events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
 
       if (fractal) {
-        applyWorldAmbience(fractal);
+        applyFractalAmbience(fractal);
       }
 
       document.body.classList.remove("mode-storyboard");
@@ -238,8 +238,7 @@ export const TurnManager = {
         // Determine Entity
         let targetEntity = aiChar;
         if (targetType === "user") targetEntity = userChar;
-        if (targetType === "fractal" || targetType === "world")
-          targetEntity = fractal;
+        if (targetType === "fractal") targetEntity = fractal;
 
         try {
           // A. Compose Flux Prompt (Messenger Style)

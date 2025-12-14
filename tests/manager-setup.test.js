@@ -55,7 +55,7 @@ describe("SetupManager", () => {
     // Verify it called updateSelection with a selected world/fractal
     expect(mockViews.updateStoryboardSelection).toHaveBeenCalledWith(
       expect.objectContaining({
-        world: expect.anything(),
+        fractal: expect.anything(),
       }),
     );
   });

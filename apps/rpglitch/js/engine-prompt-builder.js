@@ -58,7 +58,8 @@ export class ContextBuilder {
 
     const systemPromptParts = [
       this._layerKernel_ANEX(directorMode),
-      this._layerEntity(fractal, "FRACTAL_CONTEXT"), // [RENAME] World -> Fractal
+      this._layerKernel_ANEX(directorMode),
+      this._layerEntity(fractal, "FRACTAL_CONTEXT"),
       this._layerEntity(ai, "ACTIVE_CHARACTER_AI"),
       this._layerEntity(user, "INTERLOCUTOR_USER"),
     ];
@@ -120,7 +121,7 @@ You feel an overwhelming biological urge to be seen and validated.
         updateTarget: updateTarget,
         activeCharId: ai.id,
         userCharId: user.id,
-        worldId: fractal.id,
+        fractalId: fractal.id,
       },
     };
   }

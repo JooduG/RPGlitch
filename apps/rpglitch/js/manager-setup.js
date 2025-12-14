@@ -2,13 +2,13 @@
 import { state, applyPatch } from "./app-state.js";
 import { entities } from "./entity-crud.js";
 import { StoryController } from "./manager-turns.js";
-import { updatePortraits, applyWorldAmbience } from "./ui-render-chat.js";
+import { updatePortraits, applyFractalAmbience } from "./ui-render-chat.js";
 import { error } from "./core-utils.js";
 
 // --- PURIFIED: Ambience logic is now handled by a dedicated helper function (assumed to be imported) ---
 
 // MODIFIED: Exported for testing
-export function generateDynamicTitle(ai, user, world) {
+export function generateDynamicTitle(ai, user, fractal) {
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
   const prefixes = [
@@ -22,28 +22,28 @@ export function generateDynamicTitle(ai, user, world) {
   ];
 
   const chars = [ai, user].filter(Boolean);
-  const hasWorld = !!world;
+  const hasFractal = !!fractal;
   const totalChars = chars.length;
 
   const prefix = pick(prefixes);
   let content = "";
 
-  if (totalChars === 2 && hasWorld) {
-    content = `${chars[0].name} & ${chars[1].name} in ${world.name}`;
-  } else if (totalChars === 2 && !hasWorld) {
+  if (totalChars === 2 && hasFractal) {
+    content = `${chars[0].name} & ${chars[1].name} in ${fractal.name}`;
+  } else if (totalChars === 2 && !hasFractal) {
     content = `${chars[0].name} & ${chars[1].name}`;
-  } else if (totalChars === 1 && hasWorld) {
-    content = `${chars[0].name} in ${world.name}`;
-  } else if (totalChars === 1 && !hasWorld) {
+  } else if (totalChars === 1 && hasFractal) {
+    content = `${chars[0].name} in ${fractal.name}`;
+  } else if (totalChars === 1 && !hasFractal) {
     content = chars[0].name;
-  } else if (totalChars === 0 && hasWorld) {
-    const worldPrefixes = [
+  } else if (totalChars === 0 && hasFractal) {
+    const fractalPrefixes = [
       "Adventures in",
       "Tales from",
       "The World of",
       "Journey to",
     ];
-    return `${pick(worldPrefixes)} ${world.name}`;
+    return `${pick(fractalPrefixes)} ${fractal.name}`;
   } else {
     return "My New Story";
   }
@@ -54,8 +54,8 @@ export function generateDynamicTitle(ai, user, world) {
 // --- CONTROLLER ACTIONS ---
 
 async function handleBeginStory() {
-  const { selectedAI, selectedUser, selectedWorld, storyTitle } = state;
-  if (!selectedAI || !selectedUser || !selectedWorld)
+  const { selectedAI, selectedUser, selectedFractal, storyTitle } = state;
+  if (!selectedAI || !selectedUser || !selectedFractal)
     return alert("Please select all entities.");
 
   try {
@@ -63,7 +63,7 @@ async function handleBeginStory() {
       storyTitle,
       aiCharacterId: selectedAI.id,
       userCharacterId: selectedUser.id,
-      worldId: selectedWorld.id,
+      worldId: selectedFractal.id,
     });
 
     document.body.classList.remove("mode-storyboard");
@@ -112,7 +112,7 @@ async function handleShuffle(views) {
     views.updateStoryboardSelection({
       aiCharacter: ai,
       userCharacter: user,
-      world: fractal,
+      fractal: fractal,
     });
   } catch (e) {
     error("Shuffle failed:", e);
@@ -132,24 +132,28 @@ export function initStoryboardStage(views) {
   const shuffleBtn = document.querySelector("#btn-shuffle");
 
   views.setOnSelectionChanged((sel) => {
-    const { aiCharacter, userCharacter, world } = sel;
+    const { aiCharacter, userCharacter, fractal } = sel;
     applyPatch({
       selectedAI: aiCharacter,
       selectedUser: userCharacter,
-      selectedWorld: world,
+      selectedFractal: fractal,
     });
 
     // --- PURIFIED: Ambience logic now uses a helper function ---
-    if (world) applyWorldAmbience(world);
+    if (fractal) applyFractalAmbience(fractal);
 
     if (!state.isCustomTitle && titleStoryboard && titleGameplay) {
-      const newTitle = generateDynamicTitle(aiCharacter, userCharacter, world);
+      const newTitle = generateDynamicTitle(
+        aiCharacter,
+        userCharacter,
+        fractal,
+      );
       titleStoryboard.textContent = newTitle;
       titleGameplay.textContent = newTitle;
       applyPatch({ storyTitle: newTitle });
     }
 
-    const ready = aiCharacter && userCharacter && world;
+    const ready = aiCharacter && userCharacter && fractal;
     if (beginBtn) {
       beginBtn.disabled = !ready;
       beginBtn.classList.toggle("disabled", !ready);
@@ -167,11 +171,11 @@ export function initStoryboardStage(views) {
     };
 
     const handleReset = () => {
-      const { selectedAI, selectedUser, selectedWorld } = state;
+      const { selectedAI, selectedUser, selectedFractal } = state;
       const newTitle = generateDynamicTitle(
         selectedAI,
         selectedUser,
-        selectedWorld,
+        selectedFractal,
       );
 
       titleStoryboard.textContent = newTitle;

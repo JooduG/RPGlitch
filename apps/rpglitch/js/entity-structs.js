@@ -181,7 +181,7 @@ export function getVisualState(entity) {
   // [ STRICT MODE: Return empty default if no visuals ]
   return {
     flipped: false,
-    avatarUrl: "",
+    profilePictureUrl: "",
     fullBodyUrl: "",
     scale: 1.0,
     yOffset: 0,
@@ -200,7 +200,7 @@ export function normalize(base = {}) {
     .filter(Boolean);
 
   // Determine avatar URL (Strict Check)
-  const existingAvatar = (base.visuals && base.visuals.avatarUrl) || "";
+  const existingAvatar = (base.visuals && base.visuals.profilePictureUrl) || "";
 
   return {
     name: sanitizeHtml(base.name || "").trim(),
@@ -221,7 +221,7 @@ export function normalize(base = {}) {
     // [NEW] Visual State Container
     visuals: base.visuals || {
       flipped: false,
-      avatarUrl: existingAvatar,
+      profilePictureUrl: existingAvatar,
       fullBodyUrl: "",
       scale: 1.0,
       yOffset: 0,
