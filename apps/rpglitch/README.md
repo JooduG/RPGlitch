@@ -4,7 +4,7 @@ A next-generation AI Roleplay Engine built on Perchance, featuring a **Simulatio
 
 ## Overview
 
-RPGlitch is a "Local-First" web application that turns your browser into a sophisticated RPG tabletop. It allows you to create custom Worlds and Characters, then engage in deep, coherent roleplay with an AI Game Master that adheres to strict narrative consistency rules.
+RPGlitch is a "Local-First" web application that turns your browser into a sophisticated RPG tabletop. It allows you to create custom Fractals and Characters, then engage in deep, coherent roleplay with an AI Game Master that adheres to strict narrative consistency rules.
 
 ## 🏗️ Architecture
 
@@ -79,7 +79,7 @@ RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Eng
 - **Role:** Context Architect.
 - **Function:** Assembles the prompt using a **Layered Injection Strategy**.
   - **Layer 1 (System):** Enforces absolute agency and format strictness.
-  - **Layer 2 (World):** Injects environmental constants (weather, physics).
+  - **Layer 2 (Fractal):** Injects environmental constants (weather, physics).
   - **Layer 3 (Entity):** Injects the real-time snapshot of the character.
 - **Key Feature:** Implements the **Hierarchy of Truth** (Present State overrides Permanent Traits) to prevent hallucinations.
 

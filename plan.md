@@ -8,9 +8,13 @@
 
 ## 📍 Current Context (Auto-updated by AI)
 
-**Focus:** ✨ **UX & GAMEPLAY FEATURES**
-**In Progress:** **[Skeleton Screens](#skeleton-screens)**
+**Focus:** ✨ **MAINTENANCE & POLISH**
+**In Progress:** **Documentation Sync**
 **Recently Done:**
+
+- **Terminology Standardization:** Rebranded "World" to "Fractal" across UI and Logic.
+- **Visual Polish:** Implemented Scalable SVG Icon System (replaced emojis).
+- **Messenger Mode:** Fixed icon sizing and heartbeat logic.
 
 - **Visualize Architecture:** Added Mermaid.js data flow diagrams to README to explain the Worker/Bridge topology.
 - **Type Safety:** Implemented `types.d.ts` for full IntelliSense support.
@@ -62,6 +66,8 @@ Polish and maintenance tasks to pick up when convenient.
 | **Eliminate Watchdog** | [Cleanup] | ✅ COMPLETE | |
 | **Database Seeding** | [Data] | ✅ COMPLETE | |
 | **Context Builder (RAG)** | [AI Logic] | ✅ COMPLETE | |
+| **Terminology Standardization** | [Refactor] | ✅ COMPLETE | "World" -> "Fractal" migration. |
+| **SVG Icon System** | [UI/UX] | ✅ COMPLETE | Replaced hardcoded emojis with SVGs. |
 
 ---
 
