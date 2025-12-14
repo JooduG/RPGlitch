@@ -1,5 +1,5 @@
 ---
-trigger: manual
+trigger: model_decision
 ---
 
 # 🎨 UI/UX & Design System

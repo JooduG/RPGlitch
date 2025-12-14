@@ -1,5 +1,5 @@
 ---
-trigger: manual
+trigger: always_on
 ---
 
 # 🏛️ Architecture & Core Directives
@@ -36,7 +36,7 @@ We operate on the **Perchance Platform**, which requires a strict separation of 
 
 ## 2. Pattern C: The Simulation Engine
 
-*Applies to: RPGlitch*
+Applies to: RPGlitch
 
 We do **NOT** use the standard Perchance `oc` object for game state. We use a **Simulation Loop**:
 
