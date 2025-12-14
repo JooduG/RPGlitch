@@ -8,7 +8,8 @@ const path = require("path");
 const { spawnSync } = require("child_process");
 
 // Determine the root of the repository
-const ROOT = path.resolve(__dirname, "../../..");
+// UPDATED PATH: ../.. instead of ../../..
+const ROOT = path.resolve(__dirname, "..");
 
 // Get the user's file glob (defaulting to all HTML files in apps/)
 const userGlob = process.argv[2] || "apps/**/*.html";

@@ -57,7 +57,7 @@ interface Entity {
   /** Unique ID (e.g., "entity-C1", or auto-incremented number) */
   id: number | string;
   /** Entity Type */
-  type: "character" | "world";
+  type: "character" | "fractal" | "world"; // 'world' kept for legacy compatibility
   /** Display Name */
   name: string;
   /** Short summary */
@@ -67,6 +67,12 @@ interface Entity {
   dynamics: Dynamics;
   /** Visual presentation settings */
   visuals: Visuals;
+  /** Simulation settings (Fractal only) */
+  simulation?: {
+    mode: "ACTIVE" | "PASSIVE";
+    cssTheme?: string;
+    directorMode?: string;
+  };
 
   /** Theme color (e.g., 'azure', 'pink') */
   signatureColour: string;
@@ -83,6 +89,14 @@ interface Entity {
   /** "Future" - Goals and destiny */
   future: string;
 
+  /** Transient sections container (used during seeding) */
+  sections?: {
+    forever: string;
+    past: string;
+    present: string;
+    future: string;
+  };
+
   // --- Meta ---
   /** Legacy profile picture URL (synced with visuals.avatarUrl) */
   profilePictureUrl?: string;
@@ -94,6 +108,8 @@ interface Entity {
   isPremade?: number;
   /** Whether this is a custom user entity */
   isCustom?: number;
+  /** Entity version/schema version */
+  version?: number;
 
   // --- Internal ---
   _backupState?: Dynamics | null;

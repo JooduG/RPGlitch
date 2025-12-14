@@ -8,7 +8,7 @@
  * - Captures a screenshot
  * - Saves all results to a timestamped folder (JSON and text)
  *
- * Usage: node automation-collect-diagnostics.js
+ * Usage: node scripts/automation-collect-diagnostics.js
  */
 
 const fs = require("fs");

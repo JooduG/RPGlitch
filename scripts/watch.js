@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 const appName = process.argv[2];
 if (!appName) {
   console.error("❌ Error: No app name provided.");
-  console.log("Usage: node watch.js <app-name>");
+  console.log("Usage: node scripts/watch.js <app-name>");
   process.exit(1);
 }
 
@@ -18,7 +18,8 @@ console.log(`👀 Starting build watcher for ${appName}...`);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const appPath = path.resolve(__dirname, `../../apps/${appName}`);
+// UPDATED PATH: ../apps instead of ../../apps
+const appPath = path.resolve(__dirname, `../apps/${appName}`);
 const buildScriptPath = path.resolve(__dirname, "build-app.js");
 
 const watcher = chokidar.watch(

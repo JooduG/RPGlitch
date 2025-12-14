@@ -9,8 +9,8 @@
  * - Complex Loader: Chunks code into 500-char pieces (proven on Perchance)
  * - Simple Loader: Direct inline (simpler, but untested on Perchance)
  *
- * Usage: node build-app.js <appname>
- * Example: node build-app.js rpglitch
+ * Usage: node scripts/build-app.js <appname>
+ * Example: node scripts/build-app.js rpglitch
  */
 import esbuild from "esbuild";
 import * as sass from "sass";
@@ -45,9 +45,8 @@ const APP_CONFIGS = {
 // --- PATHS ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const REPO_ROOT = path.resolve(__dirname, "..", "..");
-const OUTPUT_DIR = path.join(REPO_ROOT, "build", "output");
-const LOCAL_LIBS_DIR = path.join(REPO_ROOT, "build", "local_libs");
+const REPO_ROOT = path.resolve(__dirname, "..");
+const LOCAL_LIBS_DIR = path.join(REPO_ROOT, "libs");
 
 // --- UTILITIES ---
 /**
@@ -84,13 +83,10 @@ function readFileSafe(filePath, kind) {
 async function compileStyles(entryPointScss, picoCssPath) {
   try {
     const picoCss = await fs.readFile(picoCssPath, "utf8");
+    // Sass compileAsync can handle imports relative to the SCSS file
     const sassResult = await sass.compileAsync(entryPointScss);
     console.log("DEBUG: Sass CSS Length:", sassResult.css.length);
     console.log("DEBUG: Sass CSS Preview:", sassResult.css.substring(0, 200));
-    console.log(
-      "DEBUG: Has Red BG:",
-      sassResult.css.includes("background: red"),
-    );
     const combinedCss = picoCss + "\n" + sassResult.css;
     const postcssResult = await postcss([autoprefixer]).process(combinedCss, {
       from: undefined,
@@ -134,16 +130,9 @@ async function build(appName) {
   const entryPointJs = path.join(appDir, "js", "index.js");
   const entryPointScss = path.join(appDir, "scss", "index.scss");
   const htmlFile = path.join(appDir, "html", "index.html");
-  const PICO_CSS_PATH = path.resolve(
-    REPO_ROOT,
-    "build",
-    "local_libs",
-    "pico.min.css",
-  );
+  const PICO_CSS_PATH = path.resolve(REPO_ROOT, "libs", "pico.min.css");
 
   try {
-    await fs.mkdir(OUTPUT_DIR, { recursive: true });
-
     const [cssContent, jsContent, htmlContent, workerContent] =
       await Promise.all([
         compileStyles(entryPointScss, PICO_CSS_PATH),
@@ -190,15 +179,6 @@ async function build(appName) {
 
     if (config.useComplexLoader) {
       // COMPLEX LOADER: Splits code into 500-char chunks and reassembles at runtime.
-      //
-      // Why chunking? Historical reasons - possibly to work around:
-      //   - Perchance HTML panel size limits (unconfirmed)
-      //   - Browser string literal limits (unlikely)
-      //   - Copy-paste reliability (most likely)
-      //
-      // This approach is proven to work on Perchance in production. The simple
-      // loader below is untested but should work for smaller builds.
-
       const libsChunks = chunkString(extraLibsContent, 500);
       const jsChunks = chunkString(jsContent, 500);
 
@@ -220,10 +200,6 @@ async function build(appName) {
       document.body.appendChild(loaderScriptTag);
     } else {
       // SIMPLE LOADER: Inlines all code directly into a single script tag.
-      //
-      // This is simpler and more standard, but untested on Perchance.
-      // Use for smaller apps or when chunking proves unnecessary.
-
       const finalJsContent = extraLibsContent + ";\n" + jsContent;
 
       const scriptTag = document.createElement("script");
@@ -235,9 +211,6 @@ async function build(appName) {
     let finalHtml = dom.serialize();
 
     // --- FINAL CLEANUP: Forcefully remove external references via string replacement ---
-    // JSDOM manipulation sometimes fails to persist removals in serialization, so we do it here.
-
-    // Remove stylesheets
     finalHtml = finalHtml.replace(
       /<link[^>]*href="[^"]*pico\.min\.css"[^>]*>/g,
       "<!-- pico.min.css removed -->",
@@ -247,18 +220,20 @@ async function build(appName) {
       "<!-- index.scss removed -->",
     );
 
-    // Remove scripts
     const scriptsToRemove = [
       "../js/index.js",
       "js/index.js",
-      "../../../build/local_libs/dexie.js",
+      "../../../libs/dexie.js",
+      "../../../libs/cash.min.js",
+      "../../../libs/purify.min.js",
+      "../../../libs/_hyperscript.min.js",
+      "../../../build/local_libs/dexie.js", // Keep legacy for safety briefly
       "../../../build/local_libs/cash.min.js",
       "../../../build/local_libs/purify.min.js",
       "../../../build/local_libs/_hyperscript.min.js",
     ];
 
     scriptsToRemove.forEach((src) => {
-      // Escape special regex characters in the src path
       const escapedSrc = src.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const regex = new RegExp(
         `<script[^>]*src="${escapedSrc}"[^>]*><\/script>`,
@@ -271,7 +246,9 @@ async function build(appName) {
 
     const finalOutputName =
       appName === "rpglitch" ? "RPGlitch.html" : `${appName}.html`;
-    const finalOutputPath = path.join(OUTPUT_DIR, finalOutputName);
+    // Output directly to app directory
+    const finalOutputPath = path.join(appDir, finalOutputName);
+
     await fs.writeFile(finalOutputPath, finalHtml);
     console.log(
       `✨ Successfully created ${path.relative(REPO_ROOT, finalOutputPath)}`,

@@ -23,7 +23,8 @@ if (offenders.length) {
   console.error("\n❌ You changed generated files in build/output/:");
   offenders.forEach((f) => console.error(" -", f));
   console.error(
-    "\nEdit the source files instead (apps/** or build/scripts/**), then rebuild.\n",
+    // UPDATED MESSAGE: scripts/**
+    "\nEdit the source files instead (apps/** or scripts/**), then rebuild.\n",
   );
   process.exit(1);
 }
