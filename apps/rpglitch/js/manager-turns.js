@@ -195,7 +195,6 @@ export const TurnManager = {
       // --- [NEW] ATTACHMENT PIPELINE ---
       let finalResponseText = response;
       let visualPrompt = null;
-      let attachmentUrl = null;
 
       // 1. Detect Tag (Supported: <image_prompt target="USER">...)
       // Regex captures: [1] = target (optional), [2] = prompt content

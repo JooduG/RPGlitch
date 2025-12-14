@@ -473,7 +473,9 @@ async function handleTurn(userInput) {
     await db.messages.add({ role: 'user', text: userInput });
 
     // 2. Build Context (Kernel + World + Entity Snapshots)
-    const prompt = await ContextBuilder.assemble(storyId);
+    // Actual implementation usage:
+    const builder = new ContextBuilder(storyId);
+    const prompt = await builder.build();
 
     // 3. Call The Actor
     const response = await window.ai(prompt);
@@ -483,7 +485,7 @@ async function handleTurn(userInput) {
 
     // 5. Trigger Background Simulation (Fire and Forget)
     // Does NOT block the UI. Updates stats/inventory in the background.
-    SimulationEngine.runPhysicsCycle(storyId);
+    TurnManager.runBackgroundUpdate(storyId);
 }
 ```
 

@@ -198,14 +198,31 @@ default/
 │   │   ├── RPGlitch-left-panel.txt   # Perchance engine (manual deploy)
 │   │   ├── html/index.html           # UI source
 │   │   ├── js/                       # ES6 modules
-│   │   │   ├── index.js              # Main entry point
-│   │   │   ├── db.js                 # Dexie database schema
-│   │   │   ├── entities.js           # Entity CRUD operations
-│   │   │   ├── profile.js            # Profile view logic
-│   │   │   └── utils.js              # UI utilities, chin, watchdog
+│   │   │   ├── index.js              # Main entry point (App bootstrapper)
+│   │   │   ├── core-db.js            # Dexie database schema
+│   │   │   ├── core-utils.js         # Logging, debug, plugins mocks
+│   │   │   ├── settings.js           # User settings management
+│   │   │   ├── llm-adapter.js        # AI Service Adapter
+│   │   │   ├── worker.js             # WebWorker (Physics Engine)
+│   │   │   ├── worker-bridge.js      # Worker messaging bridge
+│   │   │   ├── engine-prompt-builder.js # Context Kernel (RAG)
+│   │   │   ├── entity-crud.js        # Entity management
+│   │   │   ├── manager-turns.js      # Turn Orchestration
+│   │   │   ├── manager-visuals.js    # Image Generation Orchestration
+│   │   │   ├── manager-setup.js      # App Initialization Logic
+│   │   │   ├── ui-render-chat.js     # Chat Rendering Logic
+│   │   │   ├── ui-profile.js         # Profile UI Logic
+│   │   │   ├── ui-chin.js            # Mobile Drawer (The Chin)
+│   │   │   └── [models/views...]     # Other modules
 │   │   └── scss/                     # Custom styles
 │   └── imageglitch/
-│       └── [similar structure]
+│       ├── ImageGlitch-left-panel.txt
+│       ├── html/index.html
+│       ├── js/
+│       │   ├── index.js              # Main logic (Visual Director)
+│       │   ├── db.js                 # Dexie schema
+│       │   └── utils.js              # Utilities
+│       └── scss/
 ├── build/
 │   ├── scripts/                   # Build automation
 │   │   ├── build-app.js           # Main build script
@@ -226,8 +243,9 @@ default/
   * **Left Panel (`...-left-panel.txt`):** Manages plugin imports, setup, core Perchance-specific logic (engine)
   * **Right Panel (source `html/index.html`):** Contains main application UI and logic (stage), compiled into a single inlined HTML file
 * **Pattern C (Simulation Engine):** For complex applications (like RPGlitch), separate the "Actor" (LLM Generation) from the "Physicist" (State Calculation).
-  * **Flow:** User Input → DB → Context Builder (Kernel) → AI → DB → Background Simulation (Physics/Updates).
+  * **Flow:** User Input → DB → Context Builder (Kernel) → AI → DB → Background Simulation (WebWorker/Physics).
   * **Bypass:** Do NOT rely on the standard `oc` object for application state logic. Use `Dexie.js` as the single source of truth.
+  * **Thread Safety:** Heavy simulation logic runs in `worker.js`. Main thread handles UI and DB reads.
 
 ### **3.3. Tech Stack**
 

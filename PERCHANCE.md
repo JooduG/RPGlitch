@@ -89,8 +89,8 @@ if (typeof localStorage !== "undefined") {
 
 **Architecture (Simulation Engine):**
 
-- **The Kernel (`context-builder.js`):** Assembles the **Layered Context** (System, World, Entity Snapshot) and enforces the **Hierarchy of Truth**.
-- **The Physicist (`engine-physics.js`):** A background simulation that calculates narrative variables (Entropy, Velocity, Permeability) to steer the AI's writing style.
+- **The Kernel (`engine-prompt-builder.js`):** Assembles the **Layered Context** (System, World, Entity Snapshot) and enforces the **Hierarchy of Truth**.
+- **The Physicist (`worker.js` + `engine-physics.js`):** A background simulation that calculates narrative variables (Entropy, Velocity, Permeability) to steer the AI's writing style.
 - **The Manager (`manager-turns.js`):** Orchestrates the turn loop, handles database persistence (Dexie.js), and manages the **Director Mode** (feedback-driven regeneration).
 - **The Shield (`index.js`):** Implements the Freedom Protocol.
 
@@ -107,6 +107,7 @@ if (typeof localStorage !== "undefined") {
 - `ai-text-plugin` → `window.ai` (prompt refinement)
 - `text-to-image-plugin` → `window.image` (image generation—note: named `image` not `textToImage`)
 - `remember-plugin` → `window.r` (persistent storage—shortened name)
+- **Note:** ImageGlitch uses a hybrid strategy, probablistically switching between the standard Perchance plugin and direct calls to `pollinations.ai` for backend redundancy.
 
 **Architecture (Split Brain):**
 
@@ -149,24 +150,27 @@ An inline `<script>` (before module script) exposes plugins:
 
 ### Step 3: Copy to Standard Names in JavaScript
 
-In the right-panel JavaScript (`js/index.js`), call `setupPlugins()`:
+In the right-panel JavaScript, we map the exposed variables to a consistent naming convention.
+
+**RPGlitch (`js/index.js`):**
+Uses a mapping method:
 
 ```javascript
-function setupPlugins() {
-  const pluginMap = {
+setupPlugins: function () {
+  const map = {
     pluginAi: "ai",
-    pluginTextToImage: "textToImage", // ImageGlitch uses 'image' instead
+    pluginTextToImage: "textToImage",
     pluginSuperFetch: "superFetch",
-    pluginRemember: "rememberPlugin",
+    pluginRemember: "remember", // Note: maps to window.remember
     pluginUpload: "upload",
   };
-  for (const [perchanceName, standardName] of Object.entries(pluginMap)) {
-    if (window[perchanceName]) {
-      window[standardName] = window[perchanceName];
-    }
-  }
+  for (const [k, v] of Object.entries(map))
+    if (window[k]) window[v] = window[k];
 }
 ```
+
+**ImageGlitch (`js/index.js`):**
+Accesses the variables directly (e.g., `window.image`, `window.ai`) after waiting for them.
 
 ### Step 4: Wait for Plugins
 

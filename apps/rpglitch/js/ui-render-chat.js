@@ -1,9 +1,5 @@
 import { state } from "./app-state.js";
-import {
-  getPictureHTML,
-  sanitizeHtml,
-  SIGNATURE_COLORS,
-} from "./core-utils.js";
+import { getPictureHTML, sanitizeHtml } from "./core-utils.js";
 import { entities } from "./entity-crud.js";
 import { VirtualFeed } from "./utils-virtual-feed.js";
 import { getVisualState } from "./entity-structs.js";
