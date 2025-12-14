@@ -73,6 +73,42 @@ Keep it short, casual, and in-character.
 </FIRST_MESSAGE_PROTOCOL>`);
     }
 
+    // --- NARCISSISM ENGINE (AUTONOMY) ---
+    // 1. Calculate Score: (Permeability + Resonance) / 2
+    // High Permeability = "I want to be seen."
+    // High Resonance = "I need impact."
+    const dynamics = ai.dynamics || { permeability: 50, resonance: 50 };
+    const narcissismScore = (dynamics.permeability + dynamics.resonance) / 2;
+
+    // 2. Spam Prevention: Check last 5 turns for existing visuals
+    // We look for 'attachmentUrl' (Messenger Mode) or 'IMAGE' type (Legacy Mode)
+    const recentVisuals = history
+      .slice(-5)
+      .filter(
+        (m) =>
+          m.attachmentUrl ||
+          m.type === "IMAGE" ||
+          (m.text && m.text.includes("<image_prompt>")),
+      );
+
+    // 3. The Trigger
+    // If Score > 85 (Critical) AND No recent visuals
+    if (narcissismScore > 85 && recentVisuals.length === 0) {
+      console.log(
+        `[PROMETHEUS] Narcissism Triggered (Score: ${narcissismScore})`,
+      );
+
+      systemPromptParts.push(`
+<IMPULSE_CONTROL>
+CRITICAL PSYCHOLOGICAL STATE: Narcissism High (${narcissismScore}%).
+You feel an overwhelming biological urge to be seen and validated.
+**DIRECTIVE:** You MUST include a selfie or "body check" photo in your next response.
+**METHOD:** Use the tag <image_prompt target="AI">A selfie of ${ai.name}...</image_prompt> inside your message.
+**TONE:** Do not ask for permission. Just send it.
+</IMPULSE_CONTROL>
+`);
+    }
+
     const systemPrompt = systemPromptParts.join("\n\n");
 
     return {
@@ -255,17 +291,18 @@ ${flags.panicSpiral ? "- PANIC_SPIRAL: Entropy is critical. Velocity forced up. 
 <PHYSICS_CALIBRATION>
 Update stats based on recent events:
 
-| Event | Entropy | Velocity | Resonance |
-| :--- | :--- | :--- | :--- |
-| **Quiet** | -5 | -10 | +5 |
-| **Talk** | +2 | +5 | +10 |
-| **Tension**| +20 | +30 | -10 |
-| **Action** | +50 | +80 | +0 |
-| **Shock** | +10 | +0 | +100 |
+| Event | Entropy | Velocity | Resonance | Permeability |
+| :--- | :--- | :--- | :--- | :--- |
+| **Quiet** | -5 | -10 | +5 | +5 |
+| **Talk** | +2 | +5 | +10 | +2 |
+| **Tension**| +20 | +30 | -10 | -5 |
+| **Action** | +50 | +80 | +0 | +0 |
+| **Shock** | +10 | +0 | +100 | +10 |
 
 **Coupling:**
 1. **Adrenaline:** IF Velocity > 80, decrease Permeability.
 2. **Fog:** IF Entropy > 80, decrease Resonance.
+3. **Validation:** IF Resonance > 80, increase Permeability.
 </PHYSICS_CALIBRATION>`;
     }
 

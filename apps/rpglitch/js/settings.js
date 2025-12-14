@@ -2,6 +2,7 @@ import { db } from "./core-db.js";
 import { applyPatch, state } from "./app-state.js";
 import { router } from "./ui-views.js";
 import { StoryController } from "./manager-turns.js";
+import { entities } from "./entity-crud.js";
 
 export const StoryOptionsController = {
   init() {
@@ -152,6 +153,40 @@ export const StoryOptionsController = {
 
         StoryOptionsController.close();
         await StoryController.generateVisualFromDraft(draft);
+      });
+    }
+
+    // [NEW] Request Photo Update Wiring
+    const btnRequestPhoto = modal.querySelector("#btn-request-photo");
+    if (btnRequestPhoto) {
+      btnRequestPhoto.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const story = state.story.byId[state.story.activeId];
+
+        // [FIX] Fetch real entity to check type/name (bypassing UUID mismatch)
+        const fractal = story
+          ? await entities.get("fractal", story.worldId)
+          : null;
+        const isMessenger =
+          fractal &&
+          (fractal.name === "Messenger" ||
+            (fractal.simulation &&
+              fractal.simulation.directorMode === "TEXT_PROTOCOL"));
+
+        if (!story || !isMessenger) {
+          alert(
+            `Feature unavailable. Exclusive to Messenger Mode. (Current ID: ${story?.worldId})`,
+          );
+          return;
+        }
+
+        StoryOptionsController.close();
+        // We will implement requestVisual on StoryController next
+        if (typeof StoryController.requestVisual === "function") {
+          await StoryController.requestVisual();
+        } else {
+          console.error("StoryController.requestVisual is not implemented.");
+        }
       });
     }
 

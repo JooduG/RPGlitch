@@ -94,7 +94,12 @@ export async function renderChat(storyId) {
     return {
       ...m,
       _contextEntities: { aiCharacter: ai, userCharacter: user },
-      _renderOptions: { isLast, messageId: m.id, isLastUserMessage },
+      _renderOptions: {
+        isLast,
+        messageId: m.id,
+        isLastUserMessage,
+        attachmentUrl: m.attachmentUrl,
+      },
     };
   });
 
@@ -379,6 +384,21 @@ export function renderMessage(
   }
 
   div.innerHTML = contentHtml;
+
+  // [NEW] Attachment Rendering
+  if (options.attachmentUrl) {
+    const img = document.createElement("img");
+    img.src = options.attachmentUrl;
+    img.alt = "Attached Photo";
+    img.className = "message-attachment";
+    img.loading = "lazy";
+    img.style.maxWidth = "100%";
+    img.style.borderRadius = "8px";
+    img.style.marginTop = "8px";
+    img.style.display = "block";
+
+    div.appendChild(img);
+  }
 
   // --- Message Actions (Hover) ---
   const actionsDiv = document.createElement("div");

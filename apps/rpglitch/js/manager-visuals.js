@@ -69,89 +69,71 @@ export const VisualManager = {
   // --- PROMPT ENGINEERING ---
 
   /**
-   * "The Director": Merges extraction and stylization into one pass.
-   * Generates a fully realized Flux prompt from entity data + style settings.
-   * Replaces the old 'extractTraits' and 'stylize' split workflow.
+   * "The Assembler": Instantly constructs a prompt without a second LLM call.
+   * Combines Style + Action + Entity Traits.
    */
   async composePrompt(
     entity,
     stylePreference = "photorealistic",
     extraContext = null,
+    options = {},
   ) {
-    if (!window.ai) throw new Error("AI plugin not loaded.");
+    // 0. DETECT TYPE (Robust check)
+    const type = (entity.type || entity.kind || "").toLowerCase();
+    const isFractal = type === "world" || type === "fractal";
 
-    const isFractal =
-      entity.type &&
-      (entity.type.toLowerCase() === "world" ||
-        entity.type.toLowerCase() === "fractal");
+    // 1. DEFINE STYLE PREFIX
+    let stylePrefix = isFractal
+      ? "landscape photography, wide angle, majestic environment, 8k, highly detailed, atmospheric lighting"
+      : "cinematic shot, 8k, masterpiece, sharp focus, detailed skin texture";
 
-    // [UPDATED] Context to include ALL narrative fields for extraction
-    let context = `
-SUBJECT NAME: ${entity.name || "Unknown"}
-ROLE/DESC: ${entity.description || ""}
-TAGS: ${(entity.tags || []).join(", ")}
---
-PERMANENT TRAITS (Forever): ${entity.forever || "Not specified"}
-PAST HISTORY: ${entity.past || "Not specified"}
-CURRENT STATE (Present): ${entity.present || "Neutral"}
-FUTURE: ${entity.future || "Not specified"}
---
-TARGET STYLE: ${stylePreference}
-`.trim();
+    // Messenger Mode Override (Characters Only)
+    if (options.isMessenger && !isFractal) {
+      stylePrefix =
+        "low fidelity smartphone photo, flash photography, candid shot, grainy, uploaded image";
 
-    if (extraContext && extraContext.trim()) {
-      context += `\nUSER NOTES: ${extraContext.trim()}`;
-    }
-
-    let systemPrompt;
-
-    if (isFractal) {
-      systemPrompt = `[SYSTEM: VISUAL_DIRECTOR]
-You are a Lead Environment Artist & Landscape Photographer using the Flux Image Engine.
-Task: Write a cohesive "Visual Specification" paragraph (3-4 sentences) that combines the SUBJECT with the TARGET STYLE.
-
-<RULES>
-1. **Architecture & Terrain:** Focus 80% of the prompt on the geography, structures, and scale of the place found in <PERMANENT> and <PRESENT>.
-2. **Atmosphere:** Describe the lighting (Golden Hour, Neon, Stormy) and weather conditions.
-3. **Perspective:** Use a "Wide Angle" or "Bird's Eye View" to capture the scale.
-4. **No Characters:** Do not focus on specific individuals. Focus on the *world* itself.
-5. **Format:** Output ONLY the prompt text.
-</RULES>`;
+      const promptLower = (extraContext || "").toLowerCase();
+      if (promptLower.includes("selfie")) {
+        stylePrefix +=
+          ", POV holding phone, arm extended towards camera, front camera lens distortion";
+      }
+      if (promptLower.includes("mirror")) {
+        stylePrefix +=
+          ", reflection in dirty mirror, holding smartphone, flash flare";
+      }
     } else {
-      // [UPDATED] Strict Extraction & Orchestration Logic
-      systemPrompt = `[SYSTEM: VISUAL_DIRECTOR]
-You are a Lead Character Artist & Portrait Photographer using the Flux Image Engine.
-Target: Create a high-fidelity image prompt for "${entity.name}".
-
-<MISSION>
-1. **EXTRACT EVERYTHING:** Scan <PERMANENT TRAITS>, <CURRENT STATE>, and <ROLE/DESC>. You must find EVERY detail about physical appearance (body type, hair color, eye color, scars, clothing, race, gender, mutations).
-   - **CRITICAL:** If the data says "plump lips", you MUST write "plump lips". If it says "195cm", you MUST write "tall/imposing".
-   - **DO NOT** ignore specific physical traits.
-   - **DO NOT** include "game mechanics" or "stat blocks". Translate them to visual traits (e.g., "Strength 100" -> "Muscular build").
-
-2. **DETERMINE POSE:** Analyze the personality/vibe.
-   - *Dominant/Heroic?* -> "Standing tall, chest out, heroic stance, looking down at camera."
-   - *Bratty/Sassy?* -> "Smirking playfully, hand on hip, teasing expression."
-   - *Shy/Weak?* -> "Looking away nervously, defensive posture."
-   - *Action?* -> "Mid-motion, dynamic energy."
-
-3. **ORCHESTRATE THE PROMPT:**
-   - **Subject:** Start with the specific physical description extracted above.
-   - **Pose:** Add the derived pose.
-   - **Style:** Apply "${stylePreference}" (e.g. "Simulated Analog Film" or "Digital Painting").
-   - **Keywords:** ALWAYS append: "Best quality, masterpiece, character portrait, sharp focus, detailed skin texture, 8k resolution."
-
-<OUTPUT_FORMAT>
-- Write ONE cohesive paragraph.
-- NO conversational filler ("Here is the prompt").
-- Output ONLY the raw prompt text.
-</OUTPUT_FORMAT>`;
+      // Standard styles
+      if (stylePreference === "anime")
+        stylePrefix = "anime style, key visual, vibrant";
+      if (stylePreference === "oil")
+        stylePrefix = "oil painting, textured, heavy strokes";
     }
 
-    // Call the LLM
-    const result = await window.ai(`${systemPrompt}\n\n[DATA]\n${context}`);
+    // 2. EXTRACT VISUAL ANCHOR
+    // We combine specific fields to ensure consistency.
+    const visualTraits = [
+      entity.name,
+      entity.description,
+      entity.forever, // Immutable traits
+      entity.present, // Current outfit/state
+    ]
+      .filter(Boolean)
+      .join(", ");
 
-    // Clean up any potential quotes or leading/trailing whitespace
-    return result.replace(/^["']|["']$/g, "").trim();
+    // 3. DEFINE ACTION (The "Extra Context" from Chat)
+    let defaultAction = isFractal
+      ? "panoramic view of the location"
+      : "standing in neutral pose";
+
+    const action = extraContext ? extraContext.trim() : defaultAction;
+
+    // 4. ASSEMBLE FINAL PROMPT
+    // Format: [Style] + [Action/Subject] + [Visual Definitions]
+    const finalPrompt = `${stylePrefix}, ${action}, (${visualTraits})`;
+
+    console.log("[VisualManager] Assembled Prompt:", finalPrompt);
+
+    // Return immediately (No await)
+    return finalPrompt;
   },
 };

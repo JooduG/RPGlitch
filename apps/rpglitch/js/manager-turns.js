@@ -138,7 +138,7 @@ export const TurnManager = {
     await renderChat(storyId);
   },
 
-  generateAiResponse: async (storyId) => {
+  generateAiResponse: async (storyId, options = {}) => {
     const story = state.story.byId[storyId];
     setSendLock(true);
     setChatGeneratingState(true);
@@ -149,6 +149,12 @@ export const TurnManager = {
 
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build();
+
+      // [NEW] Inject Instruction if provided (e.g. Request Photo)
+      if (options.instruction) {
+        payload.system += `\n\n${options.instruction}`;
+      }
+
       const payloadMeta = payload.meta;
 
       const ctrl = new AbortController();
@@ -160,20 +166,20 @@ export const TurnManager = {
         entities.get("fractal", story.worldId),
       ]);
 
-      const options = calculateBlendedParams(
+      const genOptions = calculateBlendedParams(
         aiEntity,
         userEntity,
         fractalEntity,
       );
       log(
-        `[PROMETHEUS] Vibe Check: Temp ${options.temperature} | Speed ${options.repetition_penalty} | Focus ${options.top_p}`,
+        `[PROMETHEUS] Vibe Check: Temp ${genOptions.temperature} | Speed ${genOptions.repetition_penalty} | Focus ${genOptions.top_p}`,
       );
 
       let response;
       try {
         response = await generateStream({
           payload,
-          options,
+          options: genOptions,
           signal: ctrl.signal,
           onToken: () => removeTypingIndicator(feed),
         });
@@ -186,15 +192,77 @@ export const TurnManager = {
 
       removeTypingIndicator(feed);
 
+      // --- [NEW] ATTACHMENT PIPELINE ---
+      let finalResponseText = response;
+      let visualPrompt = null;
+      let attachmentUrl = null;
+
+      // 1. Detect Tag (Supported: <image_prompt target="USER">...)
+      // Regex captures: [1] = target (optional), [2] = prompt content
+      const visualMatch = response.match(
+        /<image_prompt(?:\s+target="([^"]+)")?>(.*?)<\/image_prompt>/i,
+      );
+
+      let targetType = "ai"; // Default
+
+      if (visualMatch) {
+        if (visualMatch[1]) targetType = visualMatch[1].toLowerCase();
+        visualPrompt = visualMatch[2].trim();
+
+        // 2. Clean Text (If NOT Director Mode)
+        if (!state.settings.directorMode) {
+          finalResponseText = response.replace(visualMatch[0], "").trim();
+        }
+      }
+
       const aiChar = await entities.get("character", story.aiCharacterId);
+      const userChar = await entities.get("character", story.userCharacterId);
+      const fractal = await entities.get("fractal", story.worldId);
+
+      // 3. Save Message (Cleaned)
       const aiMsgId = await db.messages.add({
         storyId,
         role: "ai",
         type: "IC",
-        text: response,
+        text: finalResponseText,
         characterName: aiChar?.name || "Narrator",
         createdAt: Date.now(),
+        attachmentUrl: null, // Placeholder
       });
+
+      // 4. Generate & Attach (Async, post-save)
+      if (visualPrompt) {
+        log(
+          `[PROMETHEUS] Detected Visual Prompt: ${visualPrompt} (Target: ${targetType})`,
+        );
+
+        // Determine Entity
+        let targetEntity = aiChar;
+        if (targetType === "user") targetEntity = userChar;
+        if (targetType === "fractal" || targetType === "world")
+          targetEntity = fractal;
+
+        try {
+          // A. Compose Flux Prompt (Messenger Style)
+          const fluxPrompt = await VisualManager.composePrompt(
+            targetEntity,
+            "photorealistic",
+            visualPrompt,
+            { isMessenger: true },
+          );
+
+          // B. Generate Image
+          const imageUrl = await VisualManager.generate(fluxPrompt, {
+            resolution: "512x768",
+          });
+
+          // C. Update DB
+          await db.messages.update(aiMsgId, { attachmentUrl: imageUrl });
+        } catch (visErr) {
+          console.error("[PROMETHEUS] Auto-Visual Failed:", visErr);
+          // We fail silently on the image, the text is already saved.
+        }
+      }
 
       await TurnManager.loadMessages(storyId);
       await renderChat(storyId);
@@ -527,6 +595,57 @@ export const TurnManager = {
       setChatGeneratingState(false);
       setSendLock(false);
     }
+  },
+
+  requestVisual: async () => {
+    const storyId = TurnManager.requireActive();
+    const story = state.story.byId[storyId];
+    // [FIX] Fetch entity to verify mode
+    const fractal = story ? await entities.get("fractal", story.worldId) : null;
+    const isMessenger =
+      fractal &&
+      (fractal.name === "Messenger" ||
+        (fractal.simulation &&
+          fractal.simulation.directorMode === "TEXT_PROTOCOL"));
+
+    if (!isMessenger) {
+      alert("This feature is only available in Messenger Mode.");
+      return;
+    }
+
+    // [UX] Insert Generic User Message
+    const prompts = [
+      "Send me a pic!",
+      "Show me.",
+      "Send a photo?",
+      "Can I see?",
+      "Pics or it didn't happen.",
+    ];
+    const text = prompts[Math.floor(Math.random() * prompts.length)];
+
+    await db.messages.add({
+      storyId,
+      role: "user",
+      type: "IC",
+      text,
+      createdAt: Date.now(),
+    });
+
+    await TurnManager.loadMessages(storyId);
+    await renderChat(storyId);
+
+    // [LOGIC] Dynamic Permeability Check
+    // For now we assume the engine handles the "willingness" via personality,
+    // but we inject the constraint that they MUST send one.
+    const instruction = `
+<DIRECTOR_OVERRIDE>
+ACTION: Send a photo now.
+FORMAT: Write the message text, then include <image_prompt target="AI|USER|FRACTAL">Description of the photo</image_prompt>.
+Use target="AI" for yourself, "USER" for the other person, or "FRACTAL" for the environment.
+EXAMPLE: "Here it is! <image_prompt target="AI">Selfie in the mirror, holding phone, flash on</image_prompt>"
+</DIRECTOR_OVERRIDE>`;
+
+    await TurnManager.generateAiResponse(storyId, { instruction });
   },
 };
 
