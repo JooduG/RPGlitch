@@ -2,7 +2,7 @@
 import { seedPremades } from "./entity-crud.js";
 import { initViews } from "./ui-views.js";
 import { db } from "./core-db.js";
-import { log, error, initDebugMode } from "./core-utils.js";
+import { log, error, initDebugMode, mockPlugins } from "./core-utils.js";
 import { state, applyPatch } from "./app-state.js";
 import { StoryController } from "./manager-turns.js";
 import { StoryOptionsController } from "./settings.js";
@@ -28,7 +28,7 @@ import { initStoryboardStage, StoryboardController } from "./manager-setup.js";
   }
 })();
 
-// --- Main Application Object (Bootstrapper) ---
+// --- Main Application Object Bootstrapper ---
 
 const App = {
   state,
@@ -42,10 +42,9 @@ const App = {
     App.isInitialized = true;
     log("[Universal Stage] Initializing...");
 
-    // CRITICAL: Expose Controllers to Window so HTML buttons can see them
     window.StoryController = StoryController;
     window.StoryboardController = StoryboardController;
-    window.StoryOptionsController = StoryOptionsController; // [NEW] Expose Options
+    window.StoryOptionsController = StoryOptionsController;
 
     try {
       console.log("[Universal Stage] Initializing Views...");
@@ -82,7 +81,6 @@ const App = {
             input.style.height = input.scrollHeight + "px";
           };
 
-          // Initial adjustment if content is pre-filled
           if (input.tagName === "TEXTAREA") {
             adjustHeight();
           }
@@ -91,7 +89,6 @@ const App = {
             if (input.tagName === "TEXTAREA") {
               adjustHeight();
             }
-            // [FIX] Respect Lock
             if (btn.dataset.locked === "true") return;
 
             btn.disabled = input.value.trim().length === 0;
@@ -102,7 +99,7 @@ const App = {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               if (!input.value.trim()) return;
-              form.requestSubmit(); // Trigger submit event
+              form.requestSubmit();
             }
           });
 
@@ -112,7 +109,7 @@ const App = {
             if (val) {
               input.value = "";
               if (input.tagName === "TEXTAREA") {
-                adjustHeight(); // Reset height
+                adjustHeight();
               }
               btn.disabled = true;
               await StoryController.send(val);
@@ -135,7 +132,6 @@ const App = {
 
       log("[Universal Stage] Ready.");
 
-      // Remove loading modal
       const loadingModal = document.getElementById("loading-modal");
       if (loadingModal) loadingModal.close();
       console.log("[Universal Stage] Loading modal closed.");
@@ -179,7 +175,6 @@ const App = {
     return paths.every(App.isPluginAvailable);
   },
 
-  // [NEW] Helper to wait for the Left Panel <script> to run
   async waitForConfig(timeout = 5000) {
     const start = Date.now();
     // Wait for window.rpgLists (injected by left panel)
@@ -196,16 +191,7 @@ const App = {
     }
   },
 
-  mockPlugins: function () {
-    window.pluginAi = async () => "Mock AI Response";
-    window.pluginTextToImage = async () =>
-      "https://via.placeholder.com/512x768";
-    window.pluginRemember = { get: () => null, set: () => {} };
-    window.pluginSuperFetch = async () => ({ text: async () => "" });
-    window.pluginUpload = {
-      upload: async () => "https://via.placeholder.com/150",
-    };
-  },
+  // mockPlugins moved to core-utils.js
 
   async initializeApp() {
     const modal = document.querySelector("#loading-modal");
@@ -227,20 +213,16 @@ const App = {
       await initDebugMode();
 
       if (isLocal) {
-        App.mockPlugins();
+        mockPlugins();
       } else {
         await App.waitForPlugins(["pluginAi", "pluginTextToImage"]);
       }
 
       App.setupPlugins();
-
-      // [NEW] Wait for Left Panel Config Injection
       await App.waitForConfig(2000);
-
       await db.open();
 
-      // [FIX] Always run the seeder to replenish deleted factory items
-      // The seeder itself handles duplication checks.
+      // Always run the seeder to replenish deleted factory items
       await seedPremades();
 
       await App.initUniversalStage();
@@ -277,7 +259,7 @@ export const initializeApp = App.initializeApp;
 export const waitForPlugins = App.waitForPlugins;
 export const isPluginAvailable = App.isPluginAvailable;
 export const setupPlugins = App.setupPlugins;
-export const mockPlugins = App.mockPlugins;
+export const mockPluginsOriginal = mockPlugins;
 
 if (typeof jest === "undefined" && typeof globalThis.__TEST__ === "undefined") {
   if (document.readyState === "loading")

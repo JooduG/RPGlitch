@@ -57,7 +57,6 @@ export class VirtualFeed {
    * @param {Array} newItems - Array of objects. Each MUST have a unique `.id` property.
    */
   setItems(newItems) {
-    // [FIX] Filter out invalid items to prevent render crashes
     this.items = (newItems || []).filter(
       (item) => item && item.id !== undefined,
     );
@@ -160,7 +159,6 @@ export class VirtualFeed {
     });
 
     // 5. Commit to DOM
-    // Clear middle without killing spacers if possible, but simplest is remove all
     while (this.container.firstChild) {
       this.container.firstChild.remove();
     }
@@ -179,8 +177,6 @@ export class VirtualFeed {
       this.container.scrollTop = this.container.scrollHeight;
     } else {
       // Restore previous position
-      // Note: If content height changed significantly above us, this might drift,
-      // but accurate 'heights' map usually prevents drift.
       this.container.scrollTop = scrollTop;
     }
   }
@@ -190,7 +186,6 @@ export class VirtualFeed {
     for (const entry of entries) {
       const id = entry.target.dataset.virtualId;
       if (id) {
-        // Use offsetHeight which includes padding/border
         const h = entry.target.offsetHeight;
         if (this.heights.get(id) !== h) {
           this.heights.set(id, h);
@@ -211,16 +206,11 @@ export class VirtualFeed {
   setFooter(element) {
     this.footer = element;
     this.render();
-    // Footer implies activity, usually stick to bottom?
-    // Let standard render logic handle it (if at bottom, stick).
   }
 
   _updateSpacerHeightsOnly() {
-    // Plan: Debounce the resize handling strongly.
     if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
     this._resizeTimeout = setTimeout(() => {
-      // Only adjust spacers, don't re-render items if possible.
-      // But simpler to just render.
       this.render();
     }, 100);
   }

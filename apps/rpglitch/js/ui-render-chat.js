@@ -1,7 +1,10 @@
 import { state } from "./app-state.js";
-import { getPictureHTML, sanitizeHtml } from "./core-utils.js";
+import {
+  getPictureHTML,
+  sanitizeHtml,
+  SIGNATURE_COLORS,
+} from "./core-utils.js";
 import { entities } from "./entity-crud.js";
-// [NEW] Import the VirtualFeed utility
 import { VirtualFeed } from "./utils-virtual-feed.js";
 import { getVisualState } from "./entity-structs.js";
 import { events, EVENTS } from "./core-events.js";
@@ -12,40 +15,22 @@ const selectedEntities = {
   world: null,
 };
 
-// Singleton VirtualFeed initialized on first use or module load?
-// We need the DOM element #chat-feed to exist.
-// renderChat is called after DOM is ready.
 let virtualFeed = null;
 
 export async function renderChat(storyId) {
   const feed = document.querySelector("#chat-feed");
   if (!feed) return;
 
-  // Initialize VirtualFeed if needed
   if (!virtualFeed) {
     virtualFeed = new VirtualFeed(feed, (container, message, index) => {
-      // Note: message is the data item
-      // We need to reconstruct the "isLast" context logic
-      // But we don't have access to the full array inside the callback easily unless we assume 'message' has metadata
-      // OR we calculate it here.
-
-      // Fortunately, renderChat prepares the data. But VirtualFeed manages the array.
-      // We should attach metadata to the message objects? Or pass index and simple logic?
-      // Let's look at what renderMessage needs:
-      // { isLast, messageId: m.id, isLastUserMessage }
-      // These depend on the WHOLE array (isLast).
-
-      // FIX: Pre-process messages before passing to VirtualFeed?
-      // Yes, let's attach metadata to the objects or wrap them.
-
       renderMessage(
         container,
         message.role,
         message.text,
         message.characterName,
         message.type || "IC",
-        message._contextEntities, // Attached during preprocess
-        message._renderOptions, // Attached during preprocess
+        message._contextEntities,
+        message._renderOptions,
       );
     });
   }
@@ -60,7 +45,6 @@ export async function renderChat(storyId) {
     entities.get("character", story.userCharacterId),
   ]);
 
-  // Update global selection for other utils
   selectedEntities.aiCharacter = ai;
   selectedEntities.userCharacter = user;
 
@@ -71,7 +55,6 @@ export async function renderChat(storyId) {
       noMsg.hidden = false;
       feed.appendChild(noMsg);
     }
-    // Ensure virtual feed is empty
     virtualFeed.setItems([]);
     return;
   }
@@ -84,9 +67,6 @@ export async function renderChat(storyId) {
     .find((m) => m.role === "user");
   const lastUserMsgId = lastUserMsg ? lastUserMsg.id : null;
 
-  // Pre-process items for VirtualFeed
-  // We attach transient render properties to the message objects (or shallow copies)
-  // To avoid mutating state objects, we map them.
   const renderItems = msgs.map((m, index) => {
     const isLast = index === msgs.length - 1;
     const isLastUserMessage = m.id === lastUserMsgId;
@@ -104,14 +84,9 @@ export async function renderChat(storyId) {
   });
 
   virtualFeed.setItems(renderItems);
-
-  // Note: scrollTop assignment is now handled by VirtualFeed logic (stick to bottom)
 }
 
 // --- STATE LISTENER ---
-// Listen for changes to directorMode and toggle body class instantly.
-// --- STATE LISTENER ---
-// Listen for changes to directorMode and toggle body class instantly.
 events.addEventListener(EVENTS.STATE_CHANGED, (e) => {
   if (e.detail.patch.settings && "directorMode" in e.detail.patch.settings) {
     updateDirectorModeClass();
@@ -127,12 +102,10 @@ events.addEventListener(EVENTS.STORY_LOADED, () => {
   if (state.story.activeId) renderChat(state.story.activeId);
 });
 
-// [NEW] Listen for visual updates (Flip) and re-render portraits instantly
+// Listen for visual updates (Flip) and re-render portraits instantly
 window.addEventListener("entity-visual-update", async (e) => {
   const id = e.detail.id;
-  // Check if the updated entity is currently on stage
   if (selectedEntities.aiCharacter?.id === id) {
-    // Refresh the entity data from DB to get new visual state
     selectedEntities.aiCharacter = await entities.get("character", id);
     updatePortraits(
       selectedEntities.aiCharacter,
@@ -157,29 +130,33 @@ function updateDirectorModeClass() {
     document.body.classList.remove("mode-director");
   }
 }
-// Run once on load to sync state
 updateDirectorModeClass();
 
 export function applyWorldAmbience(world) {
-  // console.log("[RPGlitch] Applying World Ambience:", world ? world.name : "None");
-  const colorMap = {
-    pink: "236, 72, 153",
-    emerald: "16, 185, 129",
-    cyan: "6, 182, 212",
-    orange: "249, 115, 22",
-    purple: "168, 85, 247",
-    default: "255, 255, 255",
-  };
-
-  // 1. Colour Ambience (Existing)
+  // 1. Colour Ambience
   if (!world || !world.signatureColour) {
     document.documentElement.style.removeProperty("--world-ambience-rgb");
   } else {
-    const rgb = colorMap[world.signatureColour] || colorMap.default;
+    // Note: SIGNATURE_COLORS in core-utils are hex, we need RGB for rgba() below.
+    // The previous local map had manual RGB strings.
+    // We will keep a small helper here or use hexToRgb utility if strictly needed.
+    // However, the cleanest way is just to manually map the few signatures we support to RGB for translucency.
+    // Or even better, let CSS handle it via variable if possible?
+    // The implementation used manual RGB strings: "236, 72, 153".
+    // I will restore the map locally ONLY for RGB conversion ease, but clean it up.
+    const rgbMap = {
+      pink: "236, 72, 153",
+      emerald: "16, 185, 129",
+      cyan: "6, 182, 212",
+      orange: "249, 115, 22",
+      purple: "168, 85, 247",
+      default: "255, 255, 255",
+    };
+    const rgb = rgbMap[world.signatureColour] || rgbMap.default;
     document.documentElement.style.setProperty("--world-ambience-rgb", rgb);
   }
 
-  // 2. Cinematic Background (New)
+  // 2. Cinematic Background
   const bgEl = document.getElementById("world-background");
   if (!bgEl) return;
 
@@ -188,19 +165,25 @@ export function applyWorldAmbience(world) {
     bgEl.style.backgroundColor = "transparent";
     bgEl.style.opacity = "1";
 
-    // [NEW] Flip Support for World Background
     const visuals = getVisualState(world);
     bgEl.style.transform = visuals.flipped ? "scaleX(-1)" : "none";
   } else if (world) {
-    // [FIX] Respect Placeholder Logic: Use signature color if no image
-    const rgb = colorMap[world.signatureColour] || colorMap.default;
+    // Placeholder Logic
+    const rgbMap = {
+      pink: "236, 72, 153",
+      emerald: "16, 185, 129",
+      cyan: "6, 182, 212",
+      orange: "249, 115, 22",
+      purple: "168, 85, 247",
+      default: "255, 255, 255",
+    };
+    const rgb = rgbMap[world.signatureColour] || rgbMap.default;
     bgEl.style.backgroundImage = "none";
-    bgEl.style.backgroundColor = `rgba(${rgb}, 0.5)`; // Increased opacity for visibility
+    bgEl.style.backgroundColor = `rgba(${rgb}, 0.5)`;
     bgEl.style.opacity = "1";
     bgEl.style.transform = "none";
   } else {
     bgEl.style.opacity = "0";
-    // Clear after fade out
     setTimeout(() => {
       if (bgEl.style.opacity === "0") {
         bgEl.style.backgroundImage = "none";
@@ -242,7 +225,6 @@ export function updatePortraits(aiCharacter, userCharacter) {
           landscape: isWorld,
         });
         if (picture) {
-          // [NEW] Visual Flip Logic
           const visuals = getVisualState(ent);
           if (visuals && visuals.flipped) {
             const img = picture.querySelector("img");
@@ -272,17 +254,17 @@ export function setChatGeneratingState(isGenerating) {
   }
 }
 
-// [UPDATED] Lite Markdown Parser
+// Lite Markdown Parser
 function formatMessageText(text) {
   if (!text) return "";
 
   // 1. Sanitize FIRST
   let safeText = sanitizeHtml(text);
 
-  // 2. Bold (**text**) -> <b>**text**</b> (Keeps asterisks visible)
+  // 2. Bold (**text**) -> <b>**text**</b>
   safeText = safeText.replace(/\*\*(.*?)\*\*/g, "<b>**$1**</b>");
 
-  // 3. Italics (*text*) -> <i>*text*</i> (Keeps asterisks visible, avoids matching inside **)
+  // 3. Italics (*text*) -> <i>*text*</i>
   safeText = safeText.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<i>*$1*</i>");
 
   // 4. Line Breaks -> <br>
@@ -306,7 +288,6 @@ export function renderMessage(
   if (type === "DEBUG") {
     div.className = "story-message system director-content";
     div.innerHTML = `<div class="physics-log">${sanitizeHtml(text || "")}</div>`;
-    div.innerHTML = `<div class="physics-log">${sanitizeHtml(text || "")}</div>`;
     container.appendChild(div);
     return;
   }
@@ -314,13 +295,7 @@ export function renderMessage(
   // Handle IMAGE Type
   if (type === "IMAGE") {
     div.className = "story-message system story-image-container";
-    // Text contains the URL
-    // We use a simple img tag.
-    // sanitizeHtml is tricky with URLs, but text should be a URL from our internal logic.
-    // We can trust it if it comes from VisualManager output (which cleans it).
     div.innerHTML = `<img src="${text}" alt="Generated Scene" class="generated-image" loading="lazy" />`;
-    // Add prompt as title or caption?
-    // If we had metadata we could usage it.
     container.appendChild(div);
     return;
   }
@@ -347,7 +322,6 @@ export function renderMessage(
   div.setAttribute("role", "log-item");
   div.setAttribute("data-type", type || "IC");
 
-  // [NEW] Data attribute for styling if we add avatars to chat later
   if (visuals && visuals.flipped) {
     div.setAttribute("data-flipped", "true");
   }
@@ -368,10 +342,9 @@ export function renderMessage(
     mainContent = text.replace(thinkMatch[0], "").trim();
   }
 
-  // [FIX] Sanitize Meta-Leaks (e.g., "**Step 2: DRAFT**" leaking outside tags)
+  // Sanitize Meta-Leaks
   mainContent = mainContent.replace(/\*\*Step \d:.*?\*\*/gi, "");
   mainContent = mainContent.replace(/^Step \d:.*?$/gim, "");
-  // Cleanup excessive newlines (3+) but preserve paragraphs (2)
   mainContent = mainContent.replace(/\n{3,}/g, "\n\n").trim();
 
   const formattedMain = formatMessageText(mainContent);
@@ -385,7 +358,6 @@ export function renderMessage(
 
   div.innerHTML = contentHtml;
 
-  // [NEW] Attachment Rendering
   if (options.attachmentUrl) {
     const img = document.createElement("img");
     img.src = options.attachmentUrl;
@@ -405,7 +377,6 @@ export function renderMessage(
   actionsDiv.className = "message-actions";
 
   if (role === "ai" && options.isLast) {
-    // Reroll
     const btnReroll = document.createElement("button");
     btnReroll.className = "ghost-icon-btn";
     btnReroll.innerHTML = "🎲";
@@ -415,7 +386,6 @@ export function renderMessage(
     };
     actionsDiv.appendChild(btnReroll);
 
-    // Edit
     const btnEdit = document.createElement("button");
     btnEdit.className = "ghost-icon-btn";
     btnEdit.innerHTML = "✎";
@@ -423,7 +393,6 @@ export function renderMessage(
     btnEdit.onclick = () => toggleEditMode(div, text, role, options.messageId);
     actionsDiv.appendChild(btnEdit);
   } else if (role === "user" && options.isLastUserMessage) {
-    // Edit User Message
     const btnEdit = document.createElement("button");
     btnEdit.className = "ghost-icon-btn";
     btnEdit.innerHTML = "✎";
@@ -496,11 +465,7 @@ function toggleEditMode(messageElement, originalText, role, messageId) {
 }
 
 export function showTypingIndicator(container, type = "ai", entityId = null) {
-  // If we have a virtual feed for this container, use it.
-  // Note: 'container' argument might be ignored if we rely on the singleton 'virtualFeed'
-  // which is tied to #chat-feed.
   if (virtualFeed && container.id === "chat-feed") {
-    // Create the bubble
     const bubble = document.createElement("div");
     bubble.id = "active-typing-indicator";
 
@@ -534,7 +499,6 @@ export function showTypingIndicator(container, type = "ai", entityId = null) {
     return;
   }
 
-  // Fallback for non-virtual containers (legacy / robustness)
   removeTypingIndicator(container);
 
   const bubble = document.createElement("div");
@@ -575,7 +539,6 @@ export function removeTypingIndicator(container) {
   if (virtualFeed && container.id === "chat-feed") {
     virtualFeed.setFooter(null);
   }
-  // Also check typical DOM removal in case of race/mixed modes
   const existing = container.querySelector("#active-typing-indicator");
   if (existing) existing.remove();
 }
@@ -585,7 +548,7 @@ export function setSendLock(isLocked, disableInput = false) {
   if (!form) return;
 
   const btn = form.querySelector('button[type="submit"]');
-  const input = form.querySelector('[name="message"]'); // Can be input or textarea
+  const input = form.querySelector('[name="message"]');
 
   if (btn) {
     if (isLocked) {

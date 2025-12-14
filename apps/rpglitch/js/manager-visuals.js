@@ -84,13 +84,13 @@ export const VisualManager = {
 
     // 1. DEFINE STYLE PREFIX
     let stylePrefix = isFractal
-      ? "landscape photography, wide angle, majestic environment, 8k, highly detailed, atmospheric lighting"
-      : "cinematic shot, 8k, masterpiece, sharp focus, detailed skin texture";
+      ? "photorealistic, majestic environment, wide angle, 8k, highly detailed, atmospheric lighting"
+      : "photorealistic, cinematic shot, 8k, masterpiece, sharp focus, detailed skin texture, realistic lighting";
 
     // Messenger Mode Override (Characters Only)
     if (options.isMessenger && !isFractal) {
       stylePrefix =
-        "low fidelity smartphone photo, flash photography, candid shot, grainy, uploaded image";
+        "photorealistic, low fidelity smartphone photo, imperfect textures, flash photography, candid shot, grainy, uploaded image";
 
       const promptLower = (extraContext || "").toLowerCase();
       if (promptLower.includes("selfie")) {
@@ -113,7 +113,7 @@ export const VisualManager = {
     // We combine specific fields to ensure consistency.
     const visualTraits = [
       entity.name,
-      entity.description,
+      // entity.description, // Description is for user context only
       entity.forever, // Immutable traits
       entity.present, // Current outfit/state
     ]

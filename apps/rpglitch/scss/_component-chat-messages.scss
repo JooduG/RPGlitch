@@ -4,7 +4,6 @@
 /* ============================================================================
    8. COMPONENT: CHAT MESSAGES
    The "Bubbles" and dialogue presentation logic.
-   Based on "V9" Geometry: Sharp corners indicate the speaker.
    ============================================================================ */
 
 /* =========================================
@@ -13,80 +12,43 @@
 
 .story-message {
   padding: 1rem 1.25rem;
-  max-width: 50vw; // [FIX] 10-Grid: 5 Units (Leaves 1 Unit buffer)
+  max-width: 50vw; // 10-Grid: 5 Units
   word-wrap: break-word;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   animation: message-slide-in 0.3s ease;
   position: relative;
-
-  // [FIX] Typography Polish
   line-height: 1.6;
   margin-bottom: 1.5rem;
-  text-wrap: pretty; // [NEW] Better paragraph flow
+  text-wrap: pretty;
 
   // Default Variables (System/Narrator Theme)
   --msg-bg: var(--pico-form-element-background-color);
-  --msg-radius: var(--pico-radius); // 0.5rem
+  --msg-radius: var(--pico-radius);
 
-  // Force High Contrast Text
+  // High Contrast Text
   color: #fff !important;
   background: var(--msg-bg) !important;
-  border: none !important; // Reset any default borders
-  opacity: 1 !important; // FIXED: Ensure 100% opacity for all text
+  border: none !important;
+  opacity: 1 !important;
 
-  // Mobile Adjustment
   @include mobile {
-    max-width: 85vw; // [FIX] Mobile needs more space
+    max-width: 85vw;
     padding: 0.75rem 1rem;
   }
 
-  // ... (Markdown Styles) ...
-
-  /* (Rest of markdown styles is basically same, but I can't rely on skipping unless I include them. 
-   Actually, the user prompt is "Modify...". I will select the block to replace carefully.) */
-
-  /* Let's refine the replacement chunks. */
-
-  /* I will split this into two replacements if possible or just one big block if they are contiguous enough. */
-
-  /* The User/AI variants are further down. */
-
-  /* Chunk 1: Base Style */
-
-  /* Chunk 2: User Variant */
-
-  /* Chunk 3: AI Variant */
-
-  /* Check file content from context. */
-
-  /* .story-message is lines 14-72. "max-width: 90%;" is line 16. */
-
-  /* .story-message.user is lines 91-100. */
-
-  /* .story-message.ai is lines 103-112. */
-
-  /* I will use careful targeting. */
-
-  /* Wait, I can't use comments inside the `ReplacementContent` that aren't valid SCSS or don't match indentation if I'm not careful. */
-
-  /* Also I should verify if I need to preserve lines 44-71 (Markdown styles). */
-
-  /* Yes. */
-
   // --- MARKDOWN LITE STYLES ---
-  // Ensure formatted text pops correctly inside bubbles
   b,
   strong {
-    font-weight: 800; // Increased weight for better readability
+    font-weight: 800;
     color: inherit;
-    filter: brightness(1.2); // Slight pop against background
+    filter: brightness(1.2);
   }
 
   i,
   em {
     font-style: italic;
     opacity: 0.9;
-    font-family: serif; // Narrative flair distinct from UI text
+    font-family: serif;
   }
 
   code {
@@ -97,7 +59,6 @@
     font-family: monospace;
   }
 
-  // Clean line breaks
   br {
     display: block;
     content: "";
@@ -124,71 +85,52 @@
 /* --- 1. USER (Right Aligned) --- */
 .story-message.user[data-type="IC"] {
   align-self: flex-end;
-  text-align: left; // Ensure text is left-aligned
-  // Grid Alignment: Align Left Edge with Pill (10vw Left Margin)
-  margin-right: 2rem; // Breathing room
-  margin-left: 10vw; // Matches Pill's Left Edge inside 60vw container
+  text-align: left;
+  margin-right: 2rem;
+  margin-left: 10vw;
   max-width: calc(50vw - 2rem);
-
-  // Geometry: Sharp Top-Right Corner
   border-radius: var(--msg-radius) 0 var(--msg-radius) var(--msg-radius);
 
-  // Default Fallback Color (Blue)
   --msg-bg: var(--pico-primary-background);
 }
 
 /* --- 2. AI (Left Aligned) --- */
 .story-message.ai[data-type="IC"] {
   align-self: flex-start;
-  text-align: left; // Ensure text is left-aligned
-  // Grid Alignment: Align Right Edge with Pill (10vw Right Margin)
-  margin-left: 2rem; // Breathing room
-  margin-right: 10vw; // Matches Pill's Right Edge inside 60vw container
+  text-align: left;
+  margin-left: 2rem;
+  margin-right: 10vw;
   max-width: calc(50vw - 2rem);
-
-  // Geometry: Sharp Top-Left Corner
   border-radius: 0 var(--msg-radius) var(--msg-radius) var(--msg-radius);
 
-  // Default Fallback Color (Dark Grey)
   --msg-bg: var(--pico-form-element-background-color);
 }
 
 /* --- 3. NARRATOR (System/Environment) --- */
 .story-message.narrator {
-  align-self: center; // Center the bubble itself
-  text-align: center; // Center the text inside
-
-  // [FIX] 40vw Central Pillar
-  width: fit-content; // Shrink to fit text
-  max-width: 40vw; // [CHANGED] Central 40vw pillar
-  margin-inline: auto; // Center naturally
-  text-wrap: balance; // [NEW] Symmetrical centering
-
-  // Geometry: Square / Technical
+  align-self: center;
+  text-align: center;
+  width: fit-content;
+  max-width: 40vw;
+  margin-inline: auto;
+  text-wrap: balance;
   border-radius: 2px;
 
-  // Visuals: Distinct from dialogue
-  --msg-bg: var(--pico-card-background-color); // Slightly lighter grey
+  --msg-bg: var(--pico-card-background-color);
 
   border-left: 2px solid var(--pico-muted-border-color) !important;
+  font-style: normal !important;
+  color: #fff !important;
 
-  // Hide the legacy JS-injected label
   .narrator-prefix {
     display: none;
   }
-
-  // FORCE OVERRIDES
-  font-style: normal !important;
-  color: #fff !important;
-  opacity: 1 !important;
 }
 
 /* --- 4. OUT OF CHARACTER (OOC) --- */
 .story-message[data-type="OOC"],
 .story-message.director-command {
   align-self: center !important;
-
-  // max-width: 80%; [REMOVED] Per user request
   border-radius: var(--msg-radius);
   background: rgb(0 0 0 / 40%) !important;
   backdrop-filter: blur(4px);
@@ -198,66 +140,57 @@
 }
 
 /* --- 5. PHYSICS LOGS (System / Debug) --- */
-// Redesigned to look like a clean system card (UPDATED V2)
 .story-message.system.director-content {
-  background: rgb(15 23 42 / 95%) !important; // Dark slate background
+  background: rgb(15 23 42 / 95%) !important;
   box-shadow: 0 4px 6px rgb(0 0 0 / 20%) !important;
-  padding: 0; // Padding handled by inner elements
+  padding: 0;
   border: 1px solid var(--pico-muted-border-color) !important;
-  border-left: 3px solid var(--pico-primary) !important; // Accent border
+  border-left: 3px solid var(--pico-primary) !important;
   border-radius: 4px !important;
   align-self: center;
   max-width: 95%;
-  width: 95%; // Force width to fill available space (minus margins)
+  width: 95%;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
-  display: flex; // Force container to wrap content
+  display: flex;
   flex-direction: column;
   height: auto;
-  min-height: auto; // Reset
+  min-height: auto;
 
-  // The actual log content
   .physics-log {
     font-family: "Courier New", monospace;
     font-size: 0.75rem;
-    color: #a0aec0; // Slightly lighter grey for readability
+    color: #a0aec0;
     text-align: left;
-    white-space: pre-wrap; // Revert to pre-wrap for cleaner handling
+    white-space: pre-wrap;
     line-height: 1.4;
     padding: 0.75rem 1rem;
     margin: 0;
-    width: 100%; // Ensure it fills the flex container
+    width: 100%;
   }
 }
 
 /* =========================================
    SIGNATURE COLOR LOGIC
-   Dynamic theming based on user selection.
    ========================================= */
-
 @each $name, $data in $signature-colors {
   $color: map.get($data, color);
 
-  // USER: Override background with signature color
   .story-message.user.signature-#{$name}[data-type="IC"] {
     --msg-bg: #{$color};
   }
 
-  // AI: Override background (Bold Mode)
   .story-message.ai.signature-#{$name} {
     --msg-bg: #{$color};
   }
 }
 
 /* =========================================
-   TYPING INDICATOR (Animated Bubble)
+   TYPING INDICATOR
    ========================================= */
-
 .typing-bubble {
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
-
-  // Grid Alignment: Align Right Edge with Pill (10vw Right Margin)
   margin-left: 2rem;
   margin-right: 10vw;
   max-width: calc(50vw - 2rem);
@@ -332,9 +265,8 @@
 /* =========================================
    CONTEXTUAL ACTIONS (Ghost Buttons)
    ========================================= */
-
 .message-actions {
-  display: none; // Hidden by default
+  display: none;
   position: absolute;
   top: -12px;
   right: 10px;
@@ -415,22 +347,18 @@
   }
 }
 
-// --- INTERNAL MONOLOGUE (Director Mode) ---
+// --- INTERNAL MONOLOGUE ---
 .thought-trace {
   display: block;
   width: 100%;
   text-align: left !important;
   font-size: 0.85em;
   opacity: 0.9;
-
-  // [FIX] Tighter margins to remove whitespace gap
   margin-bottom: 0.25rem;
   padding: 0.75rem 1rem;
   background: rgb(0 0 0 / 80%);
   border-left: 3px solid var(--pico-primary);
   border-radius: 4px;
-
-  // [FIX] Normal style per user request
   font-style: normal !important;
   white-space: pre-wrap;
 
@@ -448,10 +376,8 @@
 }
 
 // --- SAFETY LOCK ---
-#chat-feed.generating {
-  .story-message:hover .message-actions {
-    display: none !important;
-  }
+#chat-feed.generating .story-message:hover .message-actions {
+  display: none !important;
 }
 
 /* =========================================
@@ -467,13 +393,11 @@ body.theme-smartphone {
     border: none !important;
     box-shadow: none !important;
 
-    // Hide Headers
     header,
     .narrator-prefix {
       display: none !important;
     }
 
-    // USER (Right / Blue)
     &.user[data-type="IC"] {
       align-self: flex-end !important;
       margin-left: auto !important;
@@ -483,7 +407,6 @@ body.theme-smartphone {
       text-align: left !important;
     }
 
-    // AI (Left / Gray)
     &.ai[data-type="IC"] {
       align-self: flex-start !important;
       margin-right: auto !important;

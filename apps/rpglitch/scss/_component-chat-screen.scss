@@ -18,9 +18,9 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    scroll-behavior: auto; // [CHANGED] Smooth scrolling fights virtual logic
-    overflow-anchor: auto; // [NEW] Modern browser magic to prevent jumps
-    position: relative; // [NEW] Context for spacers
+    scroll-behavior: auto;
+    overflow-anchor: auto;
+    position: relative; // Context for spacers
 
     @include custom-scrollbar;
 
@@ -31,31 +31,22 @@
     }
 }
 
-// [NEW] Virtual Scrolling Spacers
+// Virtual Scrolling Spacers
 .virtual-spacer-top,
 .virtual-spacer-bottom {
     width: 100%;
     display: block;
     flex-shrink: 0;
-    transition: height 0.05s linear; // Slight smooth shim, or remove for instant
+    transition: height 0.05s linear;
 }
-
-/* =========================================
-   2. INPUT AREA (The Control Deck)
-   ========================================= */
 
 /* =========================================
    2. INPUT AREA (The Control Deck)
    ========================================= */
 #story-input-area {
     flex-shrink: 0;
-
-    // [FIX] Floating Polish: Transparent container, bottom margin for "float" look
     padding: 0 1.5rem;
-
-    // [FIX] Margin Lift: Physically push away from edge (True Float)
-    // margin-bottom: 4rem !important; // [REMOVED] Moved to inner form
-    padding-bottom: 0; // Reset padding lift if margin handles it, or keep minimal
+    padding-bottom: 0;
     border-top: none;
     background-color: transparent !important;
     z-index: #{z(ui)};
@@ -71,41 +62,33 @@
         margin: 0;
         display: flex;
         gap: 0;
-        align-items: stretch; // [FIX] Buttons grow with textarea
+        align-items: stretch;
     }
 }
 
 /* --- THE INPUT FORM --- */
 #story-form {
     padding: 0;
-
-    // [FIX] Floating Island Pill Container
     background: var(--pico-form-element-background-color);
     box-shadow: 0 10px 30px rgb(0 0 0 / 60%);
     border-radius: 50px; // Pill shape
     display: flex;
-
-    // [FIX] 40vw Central Pillar (User Request)
     width: 40vw;
     margin: 0 auto; // Center it
-
-    // [FIX] True Float: Apply lift here to the pill itself
-    margin-bottom: 3rem !important;
+    margin-bottom: 3rem !important; // True Float
     align-items: center;
     overflow: hidden; // Clip children to pill shape
 
-    // [FIX] Alignment Issue: Ensure borders don't add to height
     * {
         box-sizing: border-box;
     }
 
     textarea[name="message"] {
-        // [FIX] Reset child borders/radius to fit container
         border: none;
         border-radius: 0;
-        background: transparent; // Use container background
+        background: transparent;
         color: #fff;
-        height: auto; // [FIX] Allow growth
+        height: auto;
         min-height: 3rem;
         max-height: 12rem;
         line-height: 1.5;
@@ -114,52 +97,49 @@
         vertical-align: middle;
         resize: none;
         transition: height 0.1s ease;
+        padding: 0.75rem 0 0.75rem 1.5rem; // Add left padding for pill start
+        width: auto;
+        flex: 1 1 auto;
 
         &::-webkit-scrollbar {
             width: 6px;
         }
 
-        padding: 0.75rem 0 0.75rem 1.5rem; // Add left padding for pill start
-        width: auto; // Let flex control width
-        flex: 1 1 auto; // [FIX] Grow to fill space, but allow shrink if needed
-
         &:focus {
             outline: none;
-            box-shadow: none; // let container handle focus rings if needed, or minimal
+            box-shadow: none;
         }
     }
 
     button[type="submit"] {
-        border-radius: 0; // Reset
+        border-radius: 0;
         transition: all 0.2s ease;
         padding: 0 1.5rem 0 1rem; // Add right padding for pill end
-        box-shadow: none; // Flat inside container
-        height: auto; // [FIX] Grow with textarea
+        box-shadow: none;
+        height: auto;
         min-height: 2.25rem;
         margin-bottom: 0;
         vertical-align: middle;
         line-height: normal;
         border: none;
-        background: transparent; // Default transparent
+        background: transparent;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: auto; // [FIX] Minimal width
-        flex: 0 0 auto; // [FIX] Do not grow
+        width: auto;
+        flex: 0 0 auto;
 
-        // [FIX] Mouseover Effect: Icon Only
         svg {
             transition: transform 0.2s ease;
         }
 
         &:not(:disabled):hover {
             transform: none !important;
-            background: transparent; // Keep transparent, just animate icon
-            // box-shadow: none; // No glow on hover for clean pill look, or maybe subtle?
+            background: transparent;
             z-index: 1;
 
             svg {
-                transform: translateY(-2px); // [FIX] Animate Icon
+                transform: translateY(-2px);
                 color: var(--pico-primary);
             }
         }
@@ -179,29 +159,27 @@
     }
 }
 
-// [REFAC] Moved outside to lower specificity (200 -> 100)
+// Settings Ghost Button
 #btn-settings-placeholder {
-    // [FIX] User request: De-emphasize settings button (skinnier, dark bg, no white outline)
     background: rgb(0 0 0 / 50%);
     border: 1px solid var(--pico-muted-border-color);
-    border-radius: 0; // [FIX] Middle Item (Square)
-    border-left: none; // Prevent double border with textarea // Prevent double border with submit
-    border-right: none; // Prevent double border with submit
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
     padding: 0 0.75rem;
-    width: auto; // [FIX] Minimal width
-    flex: 0 0 auto; // [FIX] Do not grow
+    width: auto;
+    flex: 0 0 auto;
     color: var(--pico-muted-color);
     transition: all 0.2s ease;
-    height: auto; // [FIX] Grow with textarea
+    height: auto;
     min-height: 2.25rem;
-    font-size: 0.85rem; // [NEW] Cute Font
+    font-size: 0.85rem;
     margin-bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     vertical-align: middle;
 
-    // [FIX] Mouseover Effect: Icon Only
     span {
         display: inline-block;
         transition: transform 0.2s ease;
@@ -210,11 +188,11 @@
     &:hover {
         background: rgb(0 0 0 / 80%);
         color: #fff;
-        transform: none !important; // [FIX] Zero movement
-        box-shadow: none !important; // [FIX] No shadow illusion
+        transform: none !important;
+        box-shadow: none !important;
 
         span {
-            transform: translateY(-2px); // [FIX] Animate Icon
+            transform: translateY(-2px);
         }
     }
 }
@@ -262,7 +240,6 @@
     &:hover .portrait-image img {
         transform: scale(1.05);
 
-        // [FIX] Maintain flip on hover if image is flipped
         &.img-flipped {
             transform: scale(-1.05, 1.05);
         }
@@ -274,42 +251,35 @@
     position: absolute;
     top: 2rem;
     z-index: 20;
-
-    // [FIX] Constrain width to prevent bleed on small screens
-    max-width: 90%; // [Refinement] User request: Tighter max-width
+    max-width: 90%;
     overflow: hidden;
-
-    // Visual Style
     color: white;
     background-color: rgb(24 28 37 / 95%);
     backdrop-filter: blur(8px);
     border: 2px solid var(--pico-muted-border-color);
-    padding: 0.5rem 1rem; // [Refinement] User request: Tighter padding
+    padding: 0.5rem 1rem;
     border-radius: var(--pico-radius);
     box-shadow: 0 4px 12px rgb(0 0 0 / 60%);
-    min-width: 100px; // [Refinement] Reduced minimum
+    min-width: 100px;
     text-align: center;
     cursor: pointer;
 
-    // Typography
     h2 {
         margin: 0;
-        font-size: 0.9rem; // [Refinement] User request: Smaller text (0.9rem)
+        font-size: 0.9rem;
         line-height: 1.2;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        white-space: nowrap; // Ensure ellipsis works
-        overflow: hidden; // Ensure ellipsis works
-        text-overflow: ellipsis; // Cut off long names gracefully
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     // Default: Left-Aligned (Narrator/AI)
-    left: 1rem; // Reduced margin
-    right: auto; // Ensure no conflicting constraints
+    left: 1rem;
+    right: auto;
 
-    // Signature Styling
-    // Signature Styling (Dynamic Loop)
     @each $name, $data in $signature-colors {
         .signature-#{$name} & {
             border-color: var(--signature-#{$name});
@@ -322,7 +292,7 @@
 #gameplay-user-portrait {
     .character-name-overlay {
         left: auto;
-        right: 1rem; // Reduced margin
+        right: 1rem;
     }
 
     // Mirror the image to face the AI (User looks Left)
@@ -330,7 +300,6 @@
     .portrait-image .picture {
         transform: scaleX(-1);
 
-        // [NEW] If flipped by user, un-mirror it (Face Right)
         &.img-flipped {
             transform: scaleX(1);
         }
@@ -341,14 +310,13 @@
     &:hover .portrait-image .picture {
         transform: scale(-1.05, 1.05);
 
-        // [NEW] Hover state for flipped user image
         &.img-flipped {
             transform: scale(1.05, 1.05);
         }
     }
 }
 
-// [NEW] General Flip Class (AI & World)
+// General Flip Class
 .portrait-image img.img-flipped {
     transform: scaleX(-1);
 }
@@ -416,7 +384,8 @@
    5. STICKY HEADER
    ========================================= */
 .sticky-header {
-    padding: 0 2rem; // [FIX] Added breathing space per user request
+    padding: 0 2rem;
+
     .header-row {
         display: flex;
         justify-content: space-between;
@@ -429,28 +398,25 @@
    6. SMARTPHONE THEME LAYOUT (Messenger Mode)
    ========================================= */
 body.theme-smartphone {
-    // 1. Layout Constraint (Nuclear Specificity to override global grid)
     #main .stage-content--gameplay {
         max-width: 450px !important;
         margin: 0 auto !important;
         border-left: 1px solid var(--pico-muted-border-color);
         border-right: 1px solid var(--pico-muted-border-color);
         background-color: #000 !important;
-        min-height: 100vh; // Ensure it fills screen
+        min-height: 100vh;
     }
 
-    // 2. Fix Chat Input for Narrow Layout
     #story-form {
-        width: 100% !important; // Override 40vw
+        width: 100% !important;
         max-width: 100% !important;
-        box-shadow: none; // Cleaner look for mobile style
-        background: rgb(20 20 20 / 90%); // Slightly darker
+        box-shadow: none;
+        background: rgb(20 20 20 / 90%);
         border: 1px solid var(--pico-muted-border-color);
     }
 
-    // 3. Tiny Title for Messenger
     .story-title-input {
-        font-size: 1.1rem !important; // Drastically smaller
+        font-size: 1.1rem !important;
         font-weight: 500;
         text-align: center;
         margin-bottom: 0.5rem;

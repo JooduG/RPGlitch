@@ -53,15 +53,13 @@ export function getSignatureColor(key) {
   return SIGNATURE_COLORS[key] || SIGNATURE_COLORS.default;
 }
 
-// [NEW] Random Color Generator (Excluding Default)
 export function getRandomSignatureKey() {
   const keys = Object.keys(SIGNATURE_COLORS).filter((k) => k !== "default");
   return keys[Math.floor(Math.random() * keys.length)];
 }
 
 export function getDeterministicColor(seed) {
-  // [NOTE] Tests expect a color even for empty seeds in some legacy paths,
-  // but for explicit nulls we usually fallback to 'default' before calling this.
+  // Tests expect a color even for empty seeds in some legacy paths
   if (!seed) return `hsl(0, 0%, 50%)`;
   let hash = 0;
   for (let i = 0; i < seed.length; i++)
@@ -71,14 +69,12 @@ export function getDeterministicColor(seed) {
 }
 
 export function getSignature(entity = {}) {
-  // [FIX] Fallback to 'default' string to ensure a color is generated (satisfies tests), rather than Gray
+  // Fallback to 'default' string to ensure a color is generated
   if (!entity) return getDeterministicColor("default");
 
   if (entity.signatureColour && entity.signatureColour !== "default") {
-    // Return the CSS variable mapping
     return `var(--signature-${entity.signatureColour})`;
   }
-  // Fallback to deterministic hash based on ID or Name
   const seed = [entity.name || "", ...(entity.tags || [])]
     .filter(Boolean)
     .join(",");
@@ -88,7 +84,6 @@ export function getSignature(entity = {}) {
 export function getContrastColor(hex) {
   if (!hex || typeof hex !== "string") return "#000";
 
-  // Handle var() or other CSS inputs gracefully-ish (fallback to black)
   if (hex.startsWith("var(")) return "#fff";
 
   if (hex.startsWith("#")) hex = hex.slice(1);
@@ -99,21 +94,18 @@ export function getContrastColor(hex) {
       .join("");
   if (hex.length !== 6) return "#000";
 
-  // Parse
   const r = parseInt(hex.substr(0, 2), 16);
   const g = parseInt(hex.substr(2, 2), 16);
   const b = parseInt(hex.substr(4, 2), 16);
 
   if (isNaN(r) || isNaN(g) || isNaN(b)) return "#000";
 
-  // YIQ equation
   const yiq = (r * 299 + g * 587 + b * 114) / 1000;
   return yiq >= 128 ? "#000" : "#fff";
 }
 
 /**
  * Darkens a hex color by a percentage (0-1).
- * Used for generating background gradients from signature colors.
  */
 export function darkenColor(hex, amount) {
   if (!hex || typeof hex !== "string") return hex;
@@ -139,7 +131,6 @@ export function darkenColor(hex, amount) {
 
 /**
  * Mixes two hex colors by a weight (0-1).
- * 0 = 100% color1, 1 = 100% color2.
  */
 export function mixHex(c1, c2, weight) {
   const parse = (c) => {
@@ -166,7 +157,7 @@ export function mixHex(c1, c2, weight) {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
-const DEFAULT_BG = ["#181c2f", "#23243a", "#1a3a4a", "#2a1a3a"]; // From _config.scss
+const DEFAULT_BG = ["#181c2f", "#23243a", "#1a3a4a", "#2a1a3a"];
 
 /**
  * Updates the global app background gradient based on a signature color.
@@ -176,7 +167,6 @@ export function setAppBackground(signatureKey) {
   const baseColor = SIGNATURE_COLORS[signatureKey];
 
   if (!signatureKey || signatureKey === "default" || !baseColor) {
-    // Reset to Default
     root.style.setProperty("--bg-grad-1", DEFAULT_BG[0]);
     root.style.setProperty("--bg-grad-2", DEFAULT_BG[1]);
     root.style.setProperty("--bg-grad-3", DEFAULT_BG[2]);
@@ -184,36 +174,26 @@ export function setAppBackground(signatureKey) {
     return;
   }
 
-  // Use a Cool Dark for mixing to avoid muddy browns (linear darkening)
-  // [Tweaked] Lighter void target to prevent too much darkness
   const VOID_TARGET = "#1c1f33";
 
-  // Grad 1: Vibrant Base (Only 10% dark mix) - Was 0.15
   root.style.setProperty("--bg-grad-1", mixHex(baseColor, VOID_TARGET, 0.1));
-  // Grad 2: Mid-Transition (40% dark mix) - Was 0.45
   root.style.setProperty("--bg-grad-2", mixHex(baseColor, VOID_TARGET, 0.4));
-  // Grad 3: Deep (75% dark mix) - Was 0.85
   root.style.setProperty("--bg-grad-3", mixHex(baseColor, VOID_TARGET, 0.75));
-  // Grad 4: Void - Was #050508
   root.style.setProperty("--bg-grad-4", "#0e101a");
 }
 
 /**
- * Generates the HTML for an entity picture (Avatar or Cover).
- * Moved from entity-structs.js to separate UI logic from Data schemas.
+ * Generates the HTML for an entity picture.
  */
 export function getPictureHTML(entity = {}, options = {}) {
   const { cover, landscape, neutralPlaceholder = false } = options;
   const title = entity.name || "Empty";
   const type = (entity.type || "default").toLowerCase();
 
-  // Validate URL
   const rawSrc = entity.profilePictureUrl;
   const src = typeof rawSrc === "string" && rawSrc.trim() ? rawSrc.trim() : "";
 
   const signature = getSignature(entity);
-  // Note: We can't easily calculate contrast for a CSS variable, so we default to black/white
-  // or let CSS handle it. For now, hardcode contrast for known vars or fallback.
   const contrast = "#fff";
 
   const wrap = document.createElement("div");
@@ -226,7 +206,6 @@ export function getPictureHTML(entity = {}, options = {}) {
   wrap.style.setProperty("--signature-contrast", contrast);
   wrap.style.backgroundColor = "var(--signature)";
 
-  // 1. Image Provided
   if (src) {
     const img = document.createElement("img");
     img.alt = `${type} image for ${title}`;
@@ -238,7 +217,6 @@ export function getPictureHTML(entity = {}, options = {}) {
     return wrap;
   }
 
-  // 2. Placeholder
   const ph = document.createElement("div");
   ph.className = "placeholder-image";
   if (!neutralPlaceholder) {
@@ -271,13 +249,7 @@ export function escapeHtml(str) {
 export function sanitizeHtml(html) {
   const value = typeof html === "string" ? html : String(html ?? "");
 
-  // [WORKER/NODE SUPPORT]
-  // In WebWorkers or Node (tests), DOMPurify might not be available.
-  // We trust the Data Layer to store raw headers/text, and rely on the UI Layer (views)
-  // to sanitize before innerHTML.
   if (typeof window === "undefined" || !window.DOMPurify) {
-    // Return raw value instead of escaping, to preserve rich text (<b>, <i>) generated by AI.
-    // The UI MUST sanitize this before rendering.
     return value;
   }
 
@@ -285,7 +257,7 @@ export function sanitizeHtml(html) {
     return window.DOMPurify.sanitize(value);
   } catch (err) {
     error("Sanitization failed:", err);
-    return ""; // Fail safe to empty string on actual internal error
+    return "";
   }
 }
 
@@ -465,6 +437,17 @@ export async function handleAsyncError(asyncFn, options = {}) {
     if (showAlert) window.alert(errorMessage);
     return fallback;
   }
+}
+
+// --- Plugins Mocking ---
+export function mockPlugins() {
+  window.pluginAi = async () => "Mock AI Response";
+  window.pluginTextToImage = async () => "https://via.placeholder.com/512x768";
+  window.pluginRemember = { get: () => null, set: () => {} };
+  window.pluginSuperFetch = async () => ({ text: async () => "" });
+  window.pluginUpload = {
+    upload: async () => "https://via.placeholder.com/150",
+  };
 }
 
 // --- UI Helpers (Chin, TopBar) ---
