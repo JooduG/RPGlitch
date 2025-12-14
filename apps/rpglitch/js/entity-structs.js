@@ -151,7 +151,7 @@ const premade = {
       name: "Messenger",
       description: "A standard mobile messaging interface.",
       type: "Fractal",
-      profilePictureUrl: "assets/icons/icon-chat.png",
+      icon: "messenger",
       signatureColour: "cyan",
       simulation: {
         mode: "ACTIVE",
@@ -210,6 +210,7 @@ export function normalize(base = {}) {
     name: sanitizeHtml(base.name || "").trim(),
     description: sanitizeHtml(base.description || "").trim(),
     profilePictureUrl: sanitizeHtml(existingAvatar).trim(), // Keep sync for now
+    icon: base.icon || null,
     signatureColour: (() => {
       const existing = sanitizeHtml(base.signatureColour || "").trim();
       return existing && existing !== "default"

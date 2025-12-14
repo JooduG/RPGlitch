@@ -381,7 +381,7 @@ export function renderMessage(
   if (role === "ai" && options.isLast) {
     const btnReroll = document.createElement("button");
     btnReroll.className = "ghost-icon-btn";
-    btnReroll.innerHTML = "🎲";
+    btnReroll.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`;
     btnReroll.title = "Reroll Message";
     btnReroll.onclick = () => {
       if (window.StoryController) window.StoryController.regenerate();
@@ -390,14 +390,14 @@ export function renderMessage(
 
     const btnEdit = document.createElement("button");
     btnEdit.className = "ghost-icon-btn";
-    btnEdit.innerHTML = "✎";
+    btnEdit.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
     btnEdit.title = "Edit Message";
     btnEdit.onclick = () => toggleEditMode(div, text, role, options.messageId);
     actionsDiv.appendChild(btnEdit);
   } else if (role === "user" && options.isLastUserMessage) {
     const btnEdit = document.createElement("button");
     btnEdit.className = "ghost-icon-btn";
-    btnEdit.innerHTML = "✎";
+    btnEdit.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
     btnEdit.title = "Edit Message";
     btnEdit.onclick = () => toggleEditMode(div, text, role, options.messageId);
     actionsDiv.appendChild(btnEdit);

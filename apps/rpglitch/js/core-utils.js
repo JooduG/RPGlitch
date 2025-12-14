@@ -224,7 +224,8 @@ export function getPictureHTML(entity = {}, options = {}) {
     ph.style.color = "var(--signature-contrast)";
   }
 
-  const iconTemplateId = `tpl-placeholder-icon-${type}`;
+  const iconKey = (entity.icon || entity.type || "default").toLowerCase();
+  const iconTemplateId = `tpl-placeholder-icon-${iconKey}`;
   const iconTemplate =
     document.querySelector(`#${iconTemplateId}`) ||
     document.querySelector("#tpl-placeholder-icon-default");
