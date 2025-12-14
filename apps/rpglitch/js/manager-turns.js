@@ -612,8 +612,10 @@ export const TurnManager = {
 
     setChatGeneratingState(true);
     setSendLock(true);
-    const feed = document.querySelector("#chat-feed");
-    showTypingIndicator(feed, "ai"); // Generic busy state
+
+    // [UI] Set specific reroll state for visual feedback
+    if (window.setRerollState) window.setRerollState(messageId, true);
+    await renderChat(storyId); // Trigger re-render to show blur/spinner
 
     try {
       const { visualPrompt, targetType } = message.metadata;
@@ -629,10 +631,6 @@ export const TurnManager = {
       if (targetType === "user") targetEntity = userChar;
       if (targetType === "fractal") targetEntity = fractal;
 
-      // Force variance by appending a subtle noise seed or just relying on Flux randomness?
-      // Flux is random by default if seed isn't fixed. available-models usually handles this.
-      // We'll just re-run the same prompt composition which might grab new randomized attributes if any.
-
       const fluxPrompt = await VisualManager.composePrompt(
         targetEntity,
         "photorealistic",
@@ -645,13 +643,18 @@ export const TurnManager = {
       });
 
       await db.messages.update(messageId, { attachmentUrl: imageUrl });
+
+      // Clear reroll state before final render
+      if (window.setRerollState) window.setRerollState(messageId, false);
+
       await TurnManager.loadMessages(storyId);
       await renderChat(storyId);
     } catch (e) {
       error("[TurnManager] Reroll Image Failed:", e);
       alert("Failed to reroll image.");
+      if (window.setRerollState) window.setRerollState(messageId, false);
+      await renderChat(storyId); // Re-render to remove busy state on error
     } finally {
-      removeTypingIndicator(feed);
       setChatGeneratingState(false);
       setSendLock(false);
     }

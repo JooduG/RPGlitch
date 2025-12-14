@@ -224,6 +224,8 @@ export async function initViews(deps = {}) {
 
   bindPortraitClick("#gameplay-ai-portrait", "aiCharacter");
   bindPortraitClick("#gameplay-user-portrait", "userCharacter");
+  bindPortraitClick("#phone-ai-portrait", "aiCharacter");
+  bindPortraitClick("#phone-user-portrait", "userCharacter");
 
   // Wire up callbacks to break circular dependencies
   setChinCallbacks({ onUpdateSelection: updateStoryboardSelection });

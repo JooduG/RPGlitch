@@ -20,5 +20,6 @@ export default {
       },
     ],
     "no-descending-specificity": null,
+    "color-function-notation": null,
   },
 };

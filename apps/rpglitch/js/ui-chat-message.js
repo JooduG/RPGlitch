@@ -30,6 +30,21 @@ function renderImageAttachment(imageUrl, options) {
   const wrapper = document.createElement("div");
   wrapper.className = "image-wrapper";
 
+  // Check Reroll State
+  if (
+    options.messageId &&
+    window.setRerollState &&
+    window.activeRerolls?.has(options.messageId)
+  ) {
+    wrapper.classList.add("rerolling");
+
+    // Add Spinner Overlay
+    const overlay = document.createElement("div");
+    overlay.className = "reroll-overlay";
+    overlay.innerHTML = `<div class="reroll-spinner"></div>`;
+    wrapper.appendChild(overlay);
+  }
+
   const img = document.createElement("img");
   img.src = imageUrl;
   img.alt = "Generated Image";
@@ -39,6 +54,20 @@ function renderImageAttachment(imageUrl, options) {
   wrapper.appendChild(img);
   return wrapper;
 }
+
+// --- STATE: Active Rerolls ---
+export const activeRerolls = new Set();
+// Expose globally for manager-turns access if needed via facade, but prefer direct export usage
+window.activeRerolls = activeRerolls;
+
+export function setRerollState(messageId, isActive) {
+  if (isActive) {
+    activeRerolls.add(messageId);
+  } else {
+    activeRerolls.delete(messageId);
+  }
+}
+window.setRerollState = setRerollState;
 
 // --- CORE: Render Message ---
 export function renderMessage(
@@ -99,6 +128,34 @@ export function renderMessage(
     div.setAttribute("data-character-name", characterName);
   }
 
+  // --- TIMESTAMP FORMATTER ---
+  const formatTime = (ts) => {
+    if (!ts) return "";
+    return new Date(ts).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  };
+
+  // --- READ RECEIPT LOGIC ---
+  let statusHtml = "";
+  if (role === "user" && options.timestamp) {
+    // Logic: If it is NOT the last message, it is READ.
+    // If it IS the last message:
+    //    - If AI is typing (we can't easily know this here without passing in "isTyping" state,
+    //      but usually if it's the last message in DB, the AI might be about to reply or idle).
+    //    - Simpler: Just show "Delivered" for last message, "Read" for others.
+    const statusText = options.isLast ? "Delivered" : "Read";
+    statusHtml = `<div class="message-status">
+      <span class="status-text">${statusText}</span>
+    </div>`;
+  }
+
+  const timeHtml = options.timestamp
+    ? `<span class="message-time">${formatTime(options.timestamp)}</span>`
+    : "";
+
   // --- Content Rendering ---
 
   if (activeEdits.has(options.messageId)) {
@@ -142,7 +199,7 @@ export function renderMessage(
       contentHtml = formattedMain;
     }
 
-    div.innerHTML = contentHtml;
+    div.innerHTML = contentHtml + timeHtml + statusHtml;
 
     if (options.attachmentUrl) {
       const imageContainer = renderImageAttachment(

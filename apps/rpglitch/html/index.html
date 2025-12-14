@@ -171,6 +171,57 @@
             <h1 id="title-gameplay" class="story-title-input">Story Title</h1>
           </div>
 
+          <!-- PHONE HEADER (Hidden by default, shown in theme-smartphone) -->
+          <div id="phone-header" class="phone-header" hidden>
+            <div class="status-bar">
+              <span class="time" id="phone-clock">--:--</span>
+              <div class="status-icons">
+                <svg
+                  class="icon icon-signal"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M2 22h20V2z" />
+                </svg>
+                <svg
+                  class="icon icon-wifi"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12.01 21.49L23.64 7c-.45-.34-4.93-4-11.64-4C5.28 3 .81 6.66.36 7l11.63 14.49.01.01.01-.01z"
+                  />
+                </svg>
+                <svg
+                  class="icon icon-battery"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div class="contact-header">
+              <!-- GROUP CHAT STYLE: Two Avatars -->
+              <div class="phone-avatars">
+                <!-- AI (Left/Front) -->
+                <div id="phone-ai-portrait" class="phone-avatar avatar-ai">
+                  <div class="portrait-image"></div>
+                </div>
+              </div>
+              <div class="contact-info">
+                <h2 id="phone-contact-name">Contact Name</h2>
+                <span class="contact-status">Online</span>
+              </div>
+              <!-- User (Right/Back) -->
+              <div id="phone-user-portrait" class="phone-avatar avatar-user">
+                <div class="portrait-image"></div>
+              </div>
+            </div>
+          </div>
+
           <div id="chat-feed" role="log" aria-live="polite">
             <div id="no-messages" hidden>No messages yet</div>
             <div
@@ -217,6 +268,7 @@
                     class="icon"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
+                    fill="currentColor"
                   >
                     <path
                       d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.58 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"

@@ -9,97 +9,99 @@
    ============================================================================ */
 
 :root {
-    // --- LAYOUT & GRID CONFIG ---
-    --top-bar-height: 3rem;
-    --app-container-max: 100%;
-    --app-container-pad: 1rem;
-    --header-height: 6rem;
+  // --- LAYOUT & GRID CONFIG ---
+  --top-bar-height: 3rem;
+  --app-container-max: 100%;
+  --app-container-pad: 1rem;
+  --header-height: 6rem;
 
-    // Shared 3-column stage layout
-    --layout-left-col: 1fr;
-    --layout-center-col: 2fr;
-    --layout-right-col: 1fr;
+  // Shared 3-column stage layout
+  --layout-left-col: 1fr;
+  --layout-center-col: 2fr;
+  --layout-right-col: 1fr;
 
-    // --- Z-INDEX LAYER MAP ---
-    // (Maps SASS variables to CSS variables for runtime usage)
-    --z-base: #{z(base)};
-    --z-chip: #{z(chip)};
-    --z-chin-container: #{z(chin-container)};
-    --z-overlay: #{z(overlay)};
-    --z-modal: #{z(modal)};
-    --z-drawer: #{z(drawer)};
-    --z-toast: #{z(toast)};
+  // --- Z-INDEX LAYER MAP ---
+  // (Maps SASS variables to CSS variables for runtime usage)
+  --z-base: #{z(base)};
+  --z-chip: #{z(chip)};
+  --z-chin-container: #{z(chin-container)};
+  --z-overlay: #{z(overlay)};
+  --z-modal: #{z(modal)};
+  --z-drawer: #{z(drawer)};
+  --z-toast: #{z(toast)};
 
-    // --- PICO THEME OVERRIDES ---
-    --pico-color: #fff;
-    --pico-h1-color: #fff;
-    --pico-h2-color: #fff;
-    --pico-h3-color: #eee;
-    --pico-primary: var(--signature-purple);
-    --pico-primary-contrast: #fff;
-    --pico-primary-background: var(--signature-purple);
-    --pico-form-element-background-color: #3b4b5d;
-    --pico-muted-color: #a0a0a0;
-    --pico-muted-border-color: #555;
-    --pico-del-color: #{$pico-del-color};
-    --pico-radius: 0.5rem;
-    --pico-box-shadow: 0;
-    --pico-card-box-shadow: 0;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
+  // --- PICO THEME OVERRIDES ---
+  --pico-color: #fff;
+  --pico-h1-color: #fff;
+  --pico-h2-color: #fff;
+  --pico-h3-color: #eee;
+  --pico-primary: var(--signature-purple);
+  --pico-primary-contrast: #fff;
+  --pico-primary-background: var(--signature-purple);
+  --pico-form-element-background-color: #3b4b5d;
+  --pico-muted-color: #a0a0a0;
+  --pico-muted-border-color: #555;
+  --pico-del-color: #{$pico-del-color};
+  --pico-radius: 0.5rem;
+  --pico-box-shadow: 0;
+  --pico-card-box-shadow: 0;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
 
-    // Spacing Resets
-    --pico-nav-element-spacing-vertical: 0;
-    --pico-nav-element-spacing-horizontal: 0;
-    --pico-nav-link-spacing-vertical: var(--pico-form-element-spacing-vertical);
-    --pico-nav-link-spacing-horizontal: var(--pico-form-element-spacing-horizontal);
-    --pico-typography-spacing-vertical: 0;
-    --pico-typography-spacing-horizontal: 0;
-    --pico-spacing: 0;
+  // Spacing Resets
+  --pico-nav-element-spacing-vertical: 0;
+  --pico-nav-element-spacing-horizontal: 0;
+  --pico-nav-link-spacing-vertical: var(--pico-form-element-spacing-vertical);
+  --pico-nav-link-spacing-horizontal: var(
+    --pico-form-element-spacing-horizontal
+  );
+  --pico-typography-spacing-vertical: 0;
+  --pico-typography-spacing-horizontal: 0;
+  --pico-spacing: 0;
 
-    // --- APP UTILITIES ---
-    --rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
-    --color-accent: #ff7ad5;
-    --signature-text-on: #fff;
+  // --- APP UTILITIES ---
+  --rp-text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+  --color-accent: #ff7ad5;
+  --signature-text-on: #fff;
 
-    // Initialize all signature vars dynamically
-    @each $name, $data in $signature-colors {
-        --signature-#{$name}: #{map.get($data, color)};
-    }
+  // Initialize all signature vars dynamically
+  @each $name, $data in $signature-colors {
+    --signature-#{$name}: #{map.get($data, color)};
+  }
 
-    // [New] Dynamic Background Gradient Variables
-    --bg-grad-1: #{$gradient-color-1};
-    --bg-grad-2: #{$gradient-color-2};
-    --bg-grad-3: #{$gradient-color-3};
-    --bg-grad-4: #{$gradient-color-4};
+  // [New] Dynamic Background Gradient Variables
+  --bg-grad-1: #{$gradient-color-1};
+  --bg-grad-2: #{$gradient-color-2};
+  --bg-grad-3: #{$gradient-color-3};
+  --bg-grad-4: #{$gradient-color-4};
 }
 
 // --- SIGNATURE LOOPS ---
 // Automates the creation of .signature-pink, .signature-jade, etc.
 @each $name, $data in $signature-colors {
-    $color-value: map.get($data, color);
+  $color-value: map.get($data, color);
 
-    .signature-#{$name} {
-        --signature: #{$color-value};
-        --signature-10: #{color.mix($color-value, transparent, 10%)};
-        --signature-20: #{color.mix($color-value, transparent, 20%)};
-        --signature-contrast: var(--signature-text-on);
-    }
+  .signature-#{$name} {
+    --signature: #{$color-value};
+    --signature-10: #{color.mix($color-value, transparent, 10%)};
+    --signature-20: #{color.mix($color-value, transparent, 20%)};
+    --signature-contrast: var(--signature-text-on);
+  }
 }
 
 // --- DARK THEME OVERRIDES ---
 // High-contrast adjustments for the game interface
 [data-theme="dark"] {
-    --pico-background-color: #0f1116;
-    --pico-card-background-color: #1a1d2e;
-    --pico-form-element-background-color: #1a1d2e;
-    --pico-color: #f1f5f9;
-    --pico-h1-color: #f8fafc;
-    --pico-h2-color: #f8fafc;
-    --pico-h3-color: #f1f5f9;
-    --pico-muted-color: #94a3b8;
-    --pico-muted-border-color: #334155;
-    --pico-primary-hover: #4f46e5;
-    --pico-primary-focus: rgb(79 70 229 / 50%);
+  --pico-background-color: #0f1116;
+  --pico-card-background-color: #1a1d2e;
+  --pico-form-element-background-color: #1a1d2e;
+  --pico-color: #f1f5f9;
+  --pico-h1-color: #f8fafc;
+  --pico-h2-color: #f8fafc;
+  --pico-h3-color: #f1f5f9;
+  --pico-muted-color: #94a3b8;
+  --pico-muted-border-color: #334155;
+  --pico-primary-hover: #4f46e5;
+  --pico-primary-focus: rgb(79 70 229 / 50%);
 }
 
 /* ============================================================================
@@ -112,71 +114,71 @@
 // [REMOVED] * Box Sizing which is handled by Pico
 // Keeping specific scrollbar hiding
 * {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
-    &::-webkit-scrollbar {
-        display: none;
-    }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 html,
 body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    overscroll-behavior: none;
-    font-family: var(--pico-font-family, sans-serif);
-    color: var(--pico-color);
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  font-family: var(--pico-font-family, sans-serif);
+  color: var(--pico-color);
 
-    // APP BACKGROUND: Gradient + Texture
-    background-image: linear-gradient(
-        to bottom right,
-        var(--bg-grad-1),
-        var(--bg-grad-2) 50%,
-        var(--bg-grad-3) 75%,
-        var(--bg-grad-4)
-    );
-    background-attachment: fixed;
-    background-size: cover;
+  // APP BACKGROUND: Gradient + Texture
+  background-image: linear-gradient(
+    to bottom right,
+    var(--bg-grad-1),
+    var(--bg-grad-2) 50%,
+    var(--bg-grad-3) 75%,
+    var(--bg-grad-4)
+  );
+  background-attachment: fixed;
+  background-size: cover;
 }
 
 // Noise Filter Overlay
 body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
+  content: "";
+  position: fixed;
+  inset: 0;
 
-    // noise svg pattern would go here if we had it inline, assuming standard overlay
-    opacity: 0.03;
-    pointer-events: none;
-    z-index: 2;
+  // noise svg pattern would go here if we had it inline, assuming standard overlay
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 2;
 }
 
 // DYNAMIC WORLD BACKGROUND
 #fractal-background {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0;
-    filter: blur(8px) brightness(0.3);
-    transform: scale(1.1);
-    pointer-events: none;
-    transition: opacity 2s ease-in-out;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  filter: blur(8px) brightness(0.3);
+  transform: scale(1.1);
+  pointer-events: none;
+  transition: opacity 2s ease-in-out;
 }
 
 // --- CRITICAL COMPONENT RESET ---
 article {
-    background: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 // --- TYPOGRAPHY ---
@@ -184,26 +186,26 @@ h1,
 h2,
 h3,
 h4 {
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    margin-block: 0.5rem;
-    color: inherit;
-    text-wrap: balance; // [NEW] Symmetrical headings
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-block: 0.5rem;
+  color: inherit;
+  text-wrap: balance; // [NEW] Symmetrical headings
 }
 
 p {
-    line-height: 1.5;
-    margin-bottom: 1rem;
-    text-wrap: pretty; // [NEW] No orphans
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  text-wrap: pretty; // [NEW] No orphans
 }
 
 // --- ICONS ---
 .icon {
-    width: 1.25em;
-    height: 1.25em;
-    vertical-align: text-bottom;
-    fill: currentcolor;
-    display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: text-bottom;
+  fill: currentcolor;
+  display: inline-block;
 }
 
 // [REMOVED] *::placeholder (Redundant)
@@ -211,21 +213,21 @@ p {
 // --- UTILITIES ---
 .muted,
 .placeholder-text {
-    opacity: 0.6;
-    font-style: italic;
-    color: var(--pico-muted-color) !important;
+  opacity: 0.6;
+  font-style: italic;
+  color: var(--pico-muted-color) !important;
 }
 
 [hidden] {
-    display: none !important;
+  display: none !important;
 }
 
 .danger,
 .danger:active,
 .danger:hover {
-    background: var(--pico-del-color, #dc3545);
-    border-color: var(--pico-del-color, #dc3545);
-    color: #fff;
+  background: var(--pico-del-color, #dc3545);
+  border-color: var(--pico-del-color, #dc3545);
+  color: #fff;
 }
 
 // --- INTERACTIVE ---
@@ -233,25 +235,25 @@ p {
 button,
 [type="button"],
 [type="submit"] {
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-    cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  cursor: pointer;
 
-    &:not(:disabled):hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
-    }
+  &:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
+  }
 }
 
 /* --- DIRECTOR MODE TOGGLE --- */
 
 /* This controls visibility for Thoughts, Physics Logs, and Stat blocks */
 body:not(.mode-director) .director-content {
-    display: none !important;
+  display: none !important;
 }
 
 /* Helper to lock body scroll when modals are open */
 body.modal-open {
-    overflow: hidden;
+  overflow: hidden;
 }

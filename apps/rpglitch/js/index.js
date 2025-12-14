@@ -68,6 +68,19 @@ const App = {
       initStoryboardStage(App.views);
       console.log("[Universal Stage] Storyboard Stage Initialized.");
 
+      // --- CLOCK UPDATE ---
+      setInterval(() => {
+        const clock = document.getElementById("phone-clock");
+        if (clock && !clock.hidden) {
+          clock.textContent = new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          });
+        }
+      }, 1000);
+
+      // --- KEYBOARD SHORTCUTS ---
       // 3. Bind Chat Input Events
       const form = document.querySelector("#story-form");
       if (form) {

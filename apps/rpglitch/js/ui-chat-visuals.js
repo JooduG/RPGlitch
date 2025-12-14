@@ -54,6 +54,12 @@ export function applyFractalAmbience(fractal) {
       cyan: "6, 182, 212",
       orange: "249, 115, 22",
       purple: "168, 85, 247",
+      jade: "16, 185, 129", // Mapped to Emerald
+      violet: "139, 92, 246",
+      yellow: "234, 179, 8",
+      green: "34, 197, 94",
+      blue: "59, 130, 246",
+      azure: "14, 165, 233",
       default: "255, 255, 255",
     };
     const rgb = rgbMap[fractal.signatureColour] || rgbMap.default;
@@ -80,7 +86,13 @@ export function updatePortraits(aiCharacter, userCharacter) {
     const container = document.querySelector(id);
     if (!container) return;
 
-    container.className = "character-portrait";
+    // Safe Class Management (Don't overwrite .phone-avatar)
+    const currentClasses = Array.from(container.classList);
+    const signatureClasses = currentClasses.filter((c) =>
+      c.startsWith("signature-"),
+    );
+    signatureClasses.forEach((c) => container.classList.remove(c));
+
     if (ent && ent.signatureColour && ent.signatureColour !== "default") {
       container.classList.add(`signature-${ent.signatureColour}`);
     }
@@ -116,4 +128,54 @@ export function updatePortraits(aiCharacter, userCharacter) {
   };
   setPort("#gameplay-user-portrait", userCharacter, "You");
   setPort("#gameplay-ai-portrait", aiCharacter, "AI");
+
+  // PHONE HEADER MIRRORS
+  setPort("#phone-user-portrait", userCharacter, "You");
+  setPort("#phone-ai-portrait", aiCharacter, "AI");
+
+  // Update Phone Contact Name
+  const phoneName = document.querySelector("#phone-contact-name");
+  if (phoneName && aiCharacter) {
+    phoneName.textContent = aiCharacter.name;
+  }
+
+  // Set User Signature Color Variable for UI highlights
+  if (userCharacter && userCharacter.signatureColour) {
+    const rgbMap = {
+      pink: "236, 72, 153",
+      emerald: "16, 185, 129",
+      cyan: "6, 182, 212",
+      orange: "249, 115, 22",
+      purple: "168, 85, 247",
+      jade: "16, 185, 129", // Mapped to Emerald
+      violet: "139, 92, 246",
+      yellow: "234, 179, 8",
+      green: "34, 197, 94",
+      blue: "59, 130, 246",
+      azure: "14, 165, 233",
+      default: "255, 255, 255", // or whatever default is
+    };
+    const rgb = rgbMap[userCharacter.signatureColour] || rgbMap.default;
+    document.documentElement.style.setProperty("--user-signature-rgb", rgb);
+  }
+
+  // Set AI Signature Color Variable for Name Highlight
+  if (aiCharacter && aiCharacter.signatureColour) {
+    const rgbMap = {
+      pink: "236, 72, 153",
+      emerald: "16, 185, 129",
+      cyan: "6, 182, 212",
+      orange: "249, 115, 22",
+      purple: "168, 85, 247",
+      jade: "16, 185, 129",
+      violet: "139, 92, 246",
+      yellow: "234, 179, 8",
+      green: "34, 197, 94",
+      blue: "59, 130, 246",
+      azure: "14, 165, 233",
+      default: "255, 255, 255",
+    };
+    const rgb = rgbMap[aiCharacter.signatureColour] || rgbMap.default;
+    document.documentElement.style.setProperty("--ai-signature-rgb", rgb);
+  }
 }
