@@ -421,15 +421,6 @@ body.theme-smartphone.mode-gameplay {
     grid-column: 1 !important;
   }
 
-  #main .stage-content--gameplay {
-    max-width: 450px !important;
-    margin: 0 auto !important;
-    border-left: 1px solid var(--pico-muted-border-color);
-    border-right: 1px solid var(--pico-muted-border-color);
-    background-color: #000 !important;
-    min-height: 100vh;
-  }
-
   #story-form {
     width: 100% !important;
     max-width: 100% !important;

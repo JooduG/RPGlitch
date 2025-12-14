@@ -16,6 +16,9 @@ We operate on the **Perchance Platform**, which requires a strict separation of 
 * **File:** `apps/*/*-left-panel.txt`
 * **Role:** Declarative Data & Config ONLY.
 * **Allowed Syntax:** Perchance Lists (`[list]`), Plugin Imports (`{import:x}`), Variables (`x = 1`).
+* **Naming Convention:** List names MUST use `snake_case` or `camelCase`.
+  * ❌ *Forbidden:* `my-list` (Hyphens break the engine), `my list` (Spaces).
+  * ✅ *Allowed:* `myList`, `my_list`, `myList123`.
 * **FORBIDDEN:** Complex JavaScript logic, UI rendering, or State Management.
 * **Deployment:** Manual Copy-Paste to Perchance "Lists" panel.
 
@@ -24,13 +27,16 @@ We operate on the **Perchance Platform**, which requires a strict separation of 
 * **File:** `apps/*/html/index.html` (and associated `js/`, `scss/`).
 * **Role:** The Application Logic & UI.
 * **Allowed Syntax:** Standard ES6+ JavaScript, SCSS, HTML5.
+* **Syntax Safety:** You MUST escape literal brackets in HTML/Text to prevent Perchance parsing errors.
+  * ❌ *Bad:* `<div>[Select Item]</div>`
+  * ✅ *Good:* `<div>\[Select Item\]</div>`
 * **Deployment:** Auto-compiled to `build/output/`. Manual Copy-Paste to Perchance "HTML" panel.
 
 ---
 
 ## 2. Pattern C: The Simulation Engine
 
-Applies to: RPGlitch
+*Applies to: RPGlitch*
 
 We do **NOT** use the standard Perchance `oc` object for game state. We use a **Simulation Loop**:
 

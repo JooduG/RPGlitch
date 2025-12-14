@@ -23,17 +23,32 @@ This document defines the **Visual Language** and component standards for RPGlit
   * **Accents:** Pink (`#ec4899`), Cyan (`#06b6d4`), Emerald (`#10b981`).
 * **Typography:** System font stack (inherited from Pico).
 
-## 3. Component Standards
+## 3. Layout Physics (CRITICAL)
 
+* **The Universal Stage:**
+  * **Structure:** 3-Column CSS Grid.
+  * **Specs:** `25vw` (AI) | `1fr` (Stage) | `25vw` (User).
+  * **Height:** `100vh` (No body scroll).
+  * **Overflow:** `hidden` (Prevent layout breaking).
+* **The "Flexbox Jail" (Chat Feed):**
+  * **Problem:** Preventing chat scrolling from breaking the fixed layout.
+  * **Solution:** Container must use `flex: 1; min-height: 0; overflow-y: auto;`.
+
+## 4. Component Standards
+
+* **Message Bubbles (`.story-message`):**
+  * **Typography:** `white-space: pre-wrap` (Preserve AI formatting).
+  * **Narrator:** Center aligned, Italic, Grey text.
+  * **AI:** Left aligned, Tail points Left.
+  * **User:** Right aligned, Tail points Right.
+* **Nameplates:**
+  * **Style:** Solid Background (`#181c25`), 2px Border (Signature Color).
+  * **Text:** Uppercase, Bold.
 * **The "Chin" (Mobile Drawer):**
-  * Used in RPGlitch for entity management.
+  * Replaces side columns on screens `< 768px`.
   * Must be dismissible via `ESC` key or backdrop click.
-* **Chat Interface:**
-  * **Role="user":** Right-aligned (or distinct color).
-  * **Role="assistant":** Left-aligned.
-  * **Avatars:** Required for both parties.
 
-## 4. CSS Architecture
+## 5. CSS Architecture
 
 * **Format:** SCSS (`.scss`).
 * **Structure:** 7-1 Pattern (ish).
