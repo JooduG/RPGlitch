@@ -77,7 +77,7 @@ if (typeof localStorage !== "undefined") {
 
 **Left Panel File:** `apps/rpglitch/RPGlitch-left-panel.txt`
 **Right Panel Source:** `apps/rpglitch/html/` + `apps/rpglitch/js/` + `apps/rpglitch/scss/`
-**Build Output:** `build/output/RPGlitch.html`
+**Build Output:** `apps/rpglitch/RPGlitch.html`
 
 **Plugins Used:**
 
@@ -100,7 +100,7 @@ if (typeof localStorage !== "undefined") {
 
 **Left Panel File:** `apps/imageglitch/ImageGlitch-left-panel.txt`
 **Right Panel Source:** `apps/imageglitch/html/` + `apps/imageglitch/js/` + `apps/imageglitch/scss/`
-**Build Output:** `build/output/imageglitch.html`
+**Build Output:** `apps/imageglitch/imageglitch.html`
 
 **Plugins Used:**
 
@@ -226,7 +226,7 @@ npm run lint:fix         # Fix linting issues
 npm test                 # Run tests
 ```
 
-**Output:** Creates single HTML files in `build/output/`.
+**Output:** Creates single HTML files in `apps/[AppName]/`.
 
 ### Deployment Phase (Manual to Perchance.org)
 
@@ -238,7 +238,7 @@ npm test                 # Run tests
 
 2. **Copy Right Panel:**
 
-      - Open `build/output/RPGlitch.html`.
+      - Open `apps/rpglitch/RPGlitch.html`.
       - Copy **entire contents**.
       - Paste into Perchance editor's **HTML Panel**.
 
@@ -291,7 +291,7 @@ Located in source files compiled into `build/output/[App].html`.
 
 ### Vendored Libraries
 
-Located in `build/local_libs/` and inlined into the final HTML:
+Located in `libs/` and inlined into the final HTML:
 
 - **Pico.css** — UI framework.
 - **Dexie.js** — IndexedDB wrapper.

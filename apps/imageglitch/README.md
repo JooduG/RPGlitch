@@ -61,7 +61,7 @@ apps/imageglitch/
 npm run build:imageglitch
 
 # Output location
-build/output/ImageGlitch.html
+apps/imageglitch/imageglitch.html
 ```
 
 ## Technology Stack

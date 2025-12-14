@@ -59,10 +59,8 @@ Start here, then pick your task:
 
 ### Build System
 
-- **[`build/`](./build/)** - Build scripts, vendored dependencies, output artifacts
-- **[`build/scripts/`](./build/scripts/)** - Automated build pipeline
-- **[`build/local_libs/`](./build/local_libs/)** - Vendored dependencies (Pico.css, Dexie, DOMPurify, etc.)
-- **[`build/output/`](./build/output/)** - ⚠️ DO NOT EDIT - generated artifacts only
+- **[`scripts/`](./scripts/)** - Automated build and maintenance scripts
+- **[`libs/`](./libs/)** - Vendored dependencies (Pico.css, Dexie, DOMPurify, etc.)
 
 ### Testing & Quality
 
@@ -70,7 +68,6 @@ Start here, then pick your task:
 
 ### Tooling & Utilities
 
-- **[`tools/`](./tools/)** - Diagnostic scripts, utilities, git guards
 - **[`.gemini/`](./.gemini/)** - Gemini AI configuration, settings, and MCP definitions.
 
 ### Documentation & Planning
@@ -160,7 +157,7 @@ npm run validate              # Verify artifacts exist
 ### Development
 
 ```bash
-node build/scripts/watch.js   # Auto-rebuild on file changes
+node scripts/watch.js   # Auto-rebuild on file changes
 npm run sync                  # Sync configs & libraries
 ```
 
@@ -217,7 +214,6 @@ See **[PERCHANCE.md](./PERCHANCE.md)** for the Two-Panel Architecture explanatio
 - **AI Protocols:** **[CLAUDE.md](./CLAUDE.md)** | **[GEMINI.md](./GEMINI.md)**
 - **Build Issues:** [build/README.md](./build/README.md)
 - **Testing:** [tests/](./tests/)
-- **Tools & Utilities:** [tools/README.md](./tools/README.md)
 
 ---
 

@@ -134,7 +134,7 @@ These rules are **MANDATORY** and override all other considerations. Violations 
 
 ### **2.2. Architecture Rules**
 
-* **RULE:** **NEVER edit files in `/build/output/`** - these are auto-generated. Always edit source files in `/apps/*/html/`, `/apps/*/js/`, `/apps/*/scss/`.
+* **RULE:** **NEVER edit generated files (e.g. `apps/rpglitch/RPGlitch.html`)** - these are auto-generated. Always edit source files in `/apps/*/html/`, `/apps/*/js/`, `/apps/*/scss/`.
 * **RULE:** The final build output **MUST** be a single HTML file per application with all CSS and JavaScript inlined. No external `<link>` or `<script src="">` tags permitted.
 * **RULE:** Applications **MUST** be **local-first** and fully functional offline. IndexedDB is the single source of truth; UI is a reflection of database state.
 * **RULE:** All applications **MUST** adhere to the **Perchance Two-Panel Architecture**: Left Panel (engine logic) is separate from Right Panel (UI application).
@@ -153,7 +153,7 @@ These rules are **MANDATORY** and override all other considerations. Violations 
 
 * **RULE:** Never commit secrets (API keys, passwords). Use `.env` for local development (gitignored).
 * **RULE:** Sanitize all dynamic HTML with `DOMPurify.sanitize()` before `innerHTML`. Prefer `textContent` or `createElement` when possible.
-* **RULE:** Vendored dependencies only - No CDN links (all libs in `build/local_libs/`).
+* **RULE:** Vendored dependencies only - No CDN links (all libs in `libs/`).
 * **RULE (Freedom Protocol Compliance):** **RESPECT THE FREEDOM PROTOCOL.** Do not remove or "fix" code designed to bypass platform-specific content filters (e.g., `okayToShowNSFWUntil` overrides). This is a feature, not a bug.
 
 ### **2.5. Quality Rules**
@@ -275,7 +275,7 @@ The Perchance platform uses a unique two-panel system:
 **Right Panel (UI Application):**
 
 * Source: `apps/*/html/index.html`, `apps/*/js/*.js`, `apps/*/scss/*.scss`
-* Build output: `build/output/RPGlitch.html`, `build/output/imageglitch.html`
+* Build output: `apps/rpglitch/RPGlitch.html`, `apps/imageglitch/imageglitch.html`
 * Result: Single HTML file with all CSS/JS inlined
 * Deployment: Copy built HTML into Perchance editor's HTML panel
 
@@ -385,7 +385,7 @@ npm run build:rpglitch        # Build RPGlitch only
 npm run build:imageglitch     # Build ImageGlitch only
 
 # Development
-node build/scripts/watch.js   # Auto-rebuild on changes
+node scripts/watch.js   # Auto-rebuild on file changes
 npm run validate              # Verify artifacts exist
 
 # Testing & Quality
@@ -403,15 +403,15 @@ npm run sync:mcp              # Sync MCP server configs only
 
 ### **5.3. Build Process**
 
-Build process (`build/scripts/build-app.js`):
+Build process (`scripts/build-app.js`):
 
 1. Compile SCSS → CSS (with Pico.css base + custom SCSS)
 2. Bundle JS modules into a single IIFE for browser compatibility, preventing global scope pollution. Source code must still use ES6 modules.
 3. Inline vendored libraries (Dexie, DOMPurify, \_hyperscript, Cash)
 4. Inject into HTML template → single output file
-5. Output to `build/output/[AppName].html`
+5. Output to `apps/[AppName]/[AppName].html`
 
-**Vendored libraries** (in `build/local_libs/`):
+**Vendored libraries** (in `libs/`):
 
 * Pico.css (UI framework)
 * Dexie.js (IndexedDB wrapper)
@@ -424,7 +424,7 @@ Build process (`build/scripts/build-app.js`):
 1. **Build locally**: `npm run deploy` (runs sync → lint → build → test)
 2. **Copy left panel**: Open `apps/rpglitch/RPGlitch-left-panel.txt`, copy entire contents
 3. **Paste to Perchance**: Paste into Perchance editor's **Left Panel** (Lists section)
-4. **Copy right panel**: Open `build/output/RPGlitch.html`, copy entire contents
+4. **Copy right panel**: Open `apps/rpglitch/RPGlitch.html`, copy entire contents
 5. **Paste to Perchance**: Paste into Perchance editor's **HTML Panel**
 6. **Save & test**: Save in Perchance, refresh page, check console for errors
 
@@ -670,7 +670,7 @@ Task → [MCP₁] → [Use result to inform MCP₂] → [Final synthesis]
 
 1. **Never commit secrets** - Use `.env` for local development (gitignored)
 2. **Sanitize all dynamic HTML** - `DOMPurify.sanitize()` on all user/AI content before `innerHTML`
-3. **Vendored dependencies only** - No CDN links (all libs in `build/local_libs/`)
+3. **Vendored dependencies only** - No CDN links (all libs in `libs/`)
 4. **XSS prevention** - Prefer `textContent` or `createElement` over `innerHTML` when possible
 
 ---
@@ -722,7 +722,7 @@ Consult these before seeking external information:
 
 * Run `npm ci` for clean dependency install
 * Run `npm run sync` to update configurations
-* Check `build/output/` exists: `mkdir -p build/output`
+* Check app output folder exists
 
 **Tests failing:**
 
@@ -775,7 +775,7 @@ element.textContent = userContent;
 
 ```javascript
 // ❌ NEVER edit build output
-fs.writeFileSync('build/output/RPGlitch.html', ...);
+fs.writeFileSync('apps/rpglitch/RPGlitch.html', ...);
 
 // ✅ Edit source files
 fs.writeFileSync('apps/rpglitch/html/index.html', ...);
@@ -806,7 +806,7 @@ element.innerHTML = DOMPurify.sanitize(userInput);
 ## **Critical Reminders**
 
 * **Two-Panel Architecture:** Left Panel (engine) ≠ Right Panel (stage)
-* **Edit Source Only:** Never touch `/build/output/`
+* **Edit Source Only:** Never touch `/apps/*/html/` generated files
 * **IndexedDB First:** No localStorage for app state
 * **DOMPurify Always:** Sanitize before innerHTML
 * **ES6 Modules Only:** import/export, no IIFEs

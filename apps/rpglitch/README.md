@@ -157,7 +157,7 @@ apps/rpglitch/
 npm run build:rpglitch
 
 # Output location
-build/output/RPGlitch.html
+apps/rpglitch/RPGlitch.html
 ```
 
 ## Technology Stack
