@@ -8,3 +8,6 @@ global.TextDecoder = TextDecoder;
 if (!global.structuredClone) {
   global.structuredClone = (obj) => JSON.parse(JSON.stringify(obj));
 }
+
+// [TEST MOCK] Mock Worker Source to prevent console warnings
+global.RPGLITCH_WORKER_SOURCE = "/* Mock Worker */";

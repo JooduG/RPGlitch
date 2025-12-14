@@ -28,7 +28,6 @@
     "mcp.json",
     "node_modules",
     "node_modules/",
-    "nul",
-    "scribbles.md"
+    "nul"
   ]
 }

@@ -3,6 +3,7 @@ import {
   setGameplayEntities,
   updatePortraits,
   setSendLock,
+  applyFractalAmbience,
 } from "./ui-render-chat.js";
 import { setAppBackground } from "./core-utils.js";
 import {
@@ -121,7 +122,9 @@ export function updateStoryboardSelection(newSelection) {
     selectedEntities.userCharacter = newSelection.userCharacter;
   if (newSelection.fractal !== undefined) {
     selectedEntities.fractal = newSelection.fractal;
+    console.log("[UI] Selecting Fractal:", newSelection.fractal);
     setAppBackground(selectedEntities.fractal?.signatureColour);
+    applyFractalAmbience(selectedEntities.fractal);
 
     // [FIX] THEME INJECTION LOGIC
     // 1. Clear any existing theme classes (start with "theme-")

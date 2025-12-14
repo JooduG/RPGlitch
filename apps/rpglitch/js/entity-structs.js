@@ -200,7 +200,11 @@ export function normalize(base = {}) {
     .filter(Boolean);
 
   // Determine avatar URL (Strict Check)
-  const existingAvatar = (base.visuals && base.visuals.profilePictureUrl) || "";
+  // [FIX] Check both nested visual state AND root (for seeding/simple imports)
+  const existingAvatar =
+    (base.visuals && base.visuals.profilePictureUrl) ||
+    base.profilePictureUrl ||
+    "";
 
   return {
     name: sanitizeHtml(base.name || "").trim(),

@@ -129,6 +129,12 @@ function updateDirectorModeClass() {
 updateDirectorModeClass();
 
 export function applyFractalAmbience(fractal) {
+  console.log(
+    "[Ambience] Applying for:",
+    fractal?.name,
+    "Image:",
+    fractal?.profilePictureUrl,
+  );
   // 1. Colour Ambience
   if (!fractal || !fractal.signatureColour) {
     document.documentElement.style.removeProperty("--fractal-ambience-rgb");
