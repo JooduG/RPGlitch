@@ -5,22 +5,7 @@
    Architecture: 7-1 Pattern (Adapted)
    ============================================================================ */
 
-/* 1. ABSTRACTS & CONFIG (No Output) */
-@use "config";
-
-/* 2. BASE & ENVIRONMENT (Global Resets) */
-@use "global";
-
-/* 3. LAYOUT (Grid & Shells) */
-@use "layout-grid";
-@use "layout-modal";
-
-/* 4. COMPONENTS (The UI) */
-@use "component-cards"; // Generic Cards & Entity Slots
-@use "component-storyboard"; // Lobby & Main Menu
-@use "component-chat-screen"; // Gameplay Layout
-@use "component-chat-messages"; // Bubbles & Dialogue
-@use "component-entity-drawer"; // The Bottom Sheet
-@use "component-profile"; // Character Sheets & Settings
-@use "component-ui"; // Chips, Tags, Headers
-@use "skeletons"; // Loading shimmers
+@use "abstracts";
+@use "base";
+@use "layout";
+@use "components";

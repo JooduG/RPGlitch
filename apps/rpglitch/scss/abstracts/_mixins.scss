@@ -1,0 +1,89 @@
+@use "sass:map";
+@use "variables" as *;
+
+/* ============================================================================
+   ABSTRACTS: MIXINS & FUNCTIONS
+   Reusable logic and helpers.
+   ============================================================================ */
+
+// Helper function to access z-indices
+@function z($key) {
+  @return map.get($z-map, $key);
+}
+
+// --- RESPONSIVE HELPERS ---
+@mixin mobile {
+  @media (width <=$breakpoint-mobile) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (width <=$breakpoint-tablet) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (width > $breakpoint-mobile) {
+    @content;
+  }
+}
+
+// --- VISUAL UTILITIES ---
+
+// OS-Agnostic Thin Dark Scrollbar
+@mixin custom-scrollbar(
+  $thumb-color: rgb(0 0 0 / 50%),
+  $track-color: transparent,
+  $thumb-hover-color: rgb(0 0 0 / 70%)
+) {
+  // Firefox
+  scrollbar-width: thin;
+  scrollbar-color: $thumb-color $track-color;
+
+  // Webkit / Blink
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $track-color;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $thumb-color;
+    border-radius: 4px;
+    border: 2px solid $track-color;
+    transition: background-color 0.2s ease;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: $thumb-hover-color;
+  }
+}
+
+// Common Card Physics (Hover/Focus)
+@mixin card-common {
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+  background: var(--pico-card-background-color, #2b3848);
+  border-radius: var(--pico-radius);
+  color: var(--pico-contrast);
+  padding: 0;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+  &:hover,
+  &:has(:focus-visible) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(0 0 0 / 20%);
+  }
+
+  &:has(:focus-visible) {
+    box-shadow:
+      0 0 0 2px var(--pico-primary-focus),
+      0 6px 16px rgb(0 0 0 / 20%);
+  }
+}

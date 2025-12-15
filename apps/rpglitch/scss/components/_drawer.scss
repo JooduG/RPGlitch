@@ -1,33 +1,22 @@
-// apps/rpglitch/scss/_component-entity-drawer.scss
-@use "config" as *;
+@use "../abstracts" as *;
 
 /* ============================================================================
-   9. COMPONENT: ENTITY DRAWER
+   COMPONENT: ENTITY DRAWER
    The slide-up bottom sheet for selecting/adding entities.
    ============================================================================ */
 
-/* =========================================
-   DRAWER CONTAINER (Bottom Sheet)
-   ========================================= */
-
+/* --- DRAWER CONTAINER --- */
 .entity-drawer {
   // FORCE Fixed Bottom Sheet Positioning
-  // We use !important to override any legacy inline JS positioning that might exist
   position: fixed !important;
   inset: auto auto 0 50% !important;
-
-  // Transform for centering and slide effect
   transform: translateX(-50%) translateY(100%);
-
-  // [FIX] Align with 80% grid (10% gaps on sides)
   width: 80vw;
-
-  // max-width: 1100px; // [FIX] Removed constraint
-  max-height: 85vh; // Strict height cap to prevent overflow
-  background: rgb(26 34 42 / 98%); // High opacity dark theme
+  max-height: 85vh;
+  background: rgb(26 34 42 / 98%);
   border: 1px solid var(--pico-muted-border-color);
-  border-bottom: none; // Anchored
-  border-radius: 20px 20px 0 0; // Rounded top corners
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
   box-shadow: 0 -10px 40px rgb(0 0 0 / 50%);
   z-index: #{z(drawer)};
   display: flex;
@@ -35,29 +24,23 @@
   opacity: 0;
   transition:
     opacity 0.3s ease,
-    transform 0.4s cubic-bezier(0.19, 1, 0.22, 1); // Smooth "pop" easing
-
-  // CRITICAL: Prevent blocking clicks when hidden
+    transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
   pointer-events: none;
 
   // OPEN STATE
   &.is-open {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
-    pointer-events: auto; // Re-enable clicks!
+    pointer-events: auto;
   }
 
-  // Accessibility: Hide focus rings on children when hidden
   &[hidden] * {
     outline: 0;
     box-shadow: none;
   }
 }
 
-/* =========================================
-   DRAWER HEADER (Controls)
-   ========================================= */
-
+/* --- HEADER --- */
 .drawer-header {
   padding: 1rem 1.5rem;
   display: flex;
@@ -77,35 +60,25 @@
   }
 }
 
-/* =========================================
-   DRAWER CONTENT (Grid Area)
-   ========================================= */
-
+/* --- CONTENT GRID --- */
 .drawer-content {
   flex: 1;
-  overflow-y: auto; // Internal scrolling
+  overflow-y: auto;
   padding: 1.5rem;
 
-  // Apply custom scrollbar
   @include custom-scrollbar;
 }
 
-// Responsive Grid for Mini-Cards
 .drawer-grid {
   display: grid;
-
-  // Auto-fit columns: min 120px wide
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 1rem;
   padding-bottom: 2rem;
 }
 
-/* =========================================
-   DRAWER ITEMS (Mini Cards)
-   ========================================= */
-
+/* --- DRAWER ITEMS --- */
 .drawer-card {
-  aspect-ratio: 2 / 3; // Taller for 2-row layout
+  aspect-ratio: 2 / 3;
   background: var(--pico-card-background-color);
   border: 1px solid transparent;
   border-radius: 12px;
@@ -117,23 +90,19 @@
   display: flex;
   flex-direction: column;
 
-  // Hover State
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 16px rgb(0 0 0 / 30%);
     border-color: var(--pico-primary);
   }
 
-  // Image Container (Top Row)
-  // The .picture element injected by getPictureHTML will be here
   .picture {
     flex: 1;
     width: 100%;
-    min-height: 0; // Allow flex shrinking
-    border-radius: 0; // Override default
+    min-height: 0;
+    border-radius: 0;
   }
 
-  // Fallback if direct IMG
   > img {
     flex: 1;
     width: 100%;
@@ -143,21 +112,18 @@
     display: block;
   }
 
-  // Label Overlay (Name) - Bottom Row
   .drawer-card-label {
-    position: static; // No longer absolute
+    position: static;
     width: 100%;
-    background: rgb(255 255 255 / 5%); // Gray background
-    color: var(--signature-color, #fff); // Signature color
+    background: rgb(255 255 255 / 5%);
+    color: var(--signature-color, #fff);
     padding: 0.5rem;
     text-align: center;
     font-size: 0.8rem;
     font-weight: 700;
     text-shadow: none;
-    flex-shrink: 0; // Don't shrink
+    flex-shrink: 0;
     border-top: 1px solid rgb(255 255 255 / 5%);
-
-    // Allow 2 rows of text with ellipsis
     white-space: normal;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -168,7 +134,7 @@
   }
 }
 
-/* --- "ADD NEW" VARIANT --- */
+/* --- ADD NEW --- */
 .drawer-card.drawer-card--new {
   border: 2px dashed rgb(255 255 255 / 20%);
   background: transparent;
@@ -211,10 +177,7 @@
   padding: 2rem;
 }
 
-/* =========================================
-   OPTIONS & UTILITIES
-   ========================================= */
-
+/* --- UTILITIES --- */
 .drawer-options-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -232,7 +195,6 @@
   }
 }
 
-// Focus Ring (Accessibility)
 .drawer-focus-ring {
   opacity: 0;
   transition: opacity 0.15s ease;
@@ -242,33 +204,10 @@
   }
 }
 
-/* =========================================
-   BACKDROP
-   ========================================= */
-
-.drawer-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgb(0 0 0 / 40%);
-  backdrop-filter: blur(2px);
-  z-index: #{z(drawer) - 1}; // Just below the drawer
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-
-  &[aria-hidden="false"] {
-    opacity: 1;
-    pointer-events: auto;
-  }
-}
-
-/* --- RESPONSIVE --- */
 @include mobile {
   .storyboard-drawer {
     width: 100vw !important;
     left: 0 !important;
-
-    // Reset centering logic for full-width mobile sheet
     transform: translateY(100%);
     border-radius: 20px 20px 0 0;
     max-height: 85vh;

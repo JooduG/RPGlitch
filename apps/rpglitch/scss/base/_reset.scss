@@ -1,11 +1,9 @@
-// apps/rpglitch/scss/_global.scss
 @use "sass:map";
-@use "sass:color";
-@use "config" as *;
+@use "../abstracts" as *;
 
 /* ============================================================================
-   2. GLOBAL ENVIRONMENT
-   The Root Layer: Variables, Resets, and Typography.
+   BASE: RESET & ROOT VARIABLES
+   CSS Variables, Reset, and Global Utilities.
    ============================================================================ */
 
 :root {
@@ -90,10 +88,6 @@
   // Usage
   color: var(--current-sig);
   border-color: var(--current-sig);
-
-  // NOTE: Backgrounds are usually handled by specific components (bubbles, badges),
-  // but if this class is used on a generic container, we can set a subtle bg:
-  // background-color: var(--signature-10);
 }
 
 // --- DARK THEME OVERRIDES ---
@@ -113,14 +107,9 @@
 }
 
 /* ============================================================================
-   3. BASE RESETS
-   Standardizing the canvas.
+   BASE RESETS
    ============================================================================ */
 
-// [REMOVED] * Box Sizing & Scrollbar reset (Handled by Pico / Browser Defaults or minimal overrides)
-// Keeping only the scrollbar hiding as it is app-specific
-// [REMOVED] * Box Sizing which is handled by Pico
-// Keeping specific scrollbar hiding
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -158,8 +147,6 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-
-  // noise svg pattern would go here if we had it inline, assuming standard overlay
   opacity: 0.03;
   pointer-events: none;
   z-index: 2;
@@ -188,35 +175,6 @@ article {
   padding: 0 !important;
   margin: 0 !important;
 }
-
-// --- TYPOGRAPHY ---
-h1,
-h2,
-h3,
-h4 {
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-block: 0.5rem;
-  color: inherit;
-  text-wrap: balance; // [NEW] Symmetrical headings
-}
-
-p {
-  line-height: 1.5;
-  margin-bottom: 1rem;
-  text-wrap: pretty; // [NEW] No orphans
-}
-
-// --- ICONS ---
-.icon {
-  width: 1.25em;
-  height: 1.25em;
-  vertical-align: text-bottom;
-  fill: currentcolor;
-  display: inline-block;
-}
-
-// [REMOVED] *::placeholder (Redundant)
 
 // --- UTILITIES ---
 .muted,
@@ -255,8 +213,6 @@ button,
 }
 
 /* --- DIRECTOR MODE TOGGLE --- */
-
-/* This controls visibility for Thoughts, Physics Logs, and Stat blocks */
 body:not(.mode-director) .director-content {
   display: none !important;
 }

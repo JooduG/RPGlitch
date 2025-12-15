@@ -1,0 +1,151 @@
+@use "../abstracts" as *;
+
+/* ============================================================================
+   LAYOUT: OVERLAYS & MODALS
+   Glass layers, Modal Shells, and Animations.
+   ============================================================================ */
+
+/* --- SHARED BACKDROP --- */
+%modal-overlay-shared {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: var(--z-modal);
+  background: rgb(0 0 0 / 60%);
+  backdrop-filter: blur(10px);
+  display: none;
+  place-items: center;
+  padding: 1rem;
+  overflow: hidden; // Prevent background scroll
+
+  &.is-open,
+  &.profile-view-active {
+    display: grid;
+    animation: fade-in-overlay 0.3s ease;
+  }
+}
+
+.modal-overlay {
+  @extend %modal-overlay-shared;
+}
+
+#profile-screen,
+#settings-screen,
+#settings {
+  @extend %modal-overlay-shared;
+}
+
+/* --- MODAL SHELLS --- */
+.modal-content,
+.profile-layout,
+.settings-layout {
+  width: 100%;
+  background: rgb(17 25 31 / 98%);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 24px;
+  box-shadow: 0 50px 100px rgb(0 0 0 / 80%);
+  overflow: hidden;
+  position: relative;
+  animation: pop-in 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+/* --- LAYOUT A: PROFILE (2-Column Grid) --- */
+.profile-layout {
+  max-width: 1100px;
+  height: 85vh; // Fixed height for internal scrolling
+  display: grid;
+  grid-template-columns: 40% 60%;
+}
+
+// Low-Res / Landscape World Adjustment
+.profile-view--world .profile-layout {
+  @include desktop {
+    grid-template-columns: 1fr;
+    grid-template-rows: 200px 1fr;
+
+    .profile-hero {
+      height: 100%;
+      max-height: 40%;
+      overflow: hidden;
+    }
+
+    .profile-right {
+      min-height: 0;
+      overflow-y: auto;
+    }
+  }
+}
+
+/* --- LAYOUT B: SETTINGS (Flex) --- */
+.settings-layout {
+  max-width: 800px;
+  height: 80vh;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- ANIMATIONS --- */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fade-in-overlay {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- RESPONSIVE --- */
+@include mobile {
+  #profile-screen,
+  #settings-screen {
+    padding: 0;
+  }
+
+  .profile-layout {
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    grid-template-columns: 1fr;
+    grid-template-rows: 300px 1fr;
+  }
+
+  .settings-layout {
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    padding: 1.5rem;
+  }
+}
+
+/* --- DRAWER BACKDROP --- */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 40%);
+  backdrop-filter: blur(2px);
+  z-index: #{z(drawer) - 1}; // Just below the drawer
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+
+  &[aria-hidden="false"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

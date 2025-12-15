@@ -1,10 +1,11 @@
-// apps/rpglitch/scss/_component-cards.scss
-@use "config" as *;
+@use "../abstracts" as *;
 
 /* ============================================================================
-   5. COMPONENT: CARDS & MEDIA
+   COMPONENT: CARDS & MEDIA
+   Generic cards, entity slots, and previews.
    ============================================================================ */
 
+/* --- HELPERS --- */
 .picture {
   width: 100%;
   height: 100%;
@@ -37,11 +38,7 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  background: var(
-    --pico-card-background-color,
-    #1e293b
-  ); // [FIX] Fallback (Removed !important)
-
+  background: var(--pico-card-background-color, #1e293b);
   color: rgb(255 255 255 / 20%);
 
   svg {
@@ -51,7 +48,7 @@
   }
 }
 
-/* GENERIC CARD */
+/* --- GENERIC CARD --- */
 .card {
   @include card-common;
 
@@ -99,7 +96,7 @@
   }
 }
 
-/* ENTITY CARDS */
+/* --- ENTITY CARDS (Containers) --- */
 .entity-card {
   width: 100%;
   max-width: 320px;
@@ -111,9 +108,7 @@
   background: transparent !important;
   box-shadow: none !important;
   border: none !important;
-
-  // CRITICAL FIX: Allow clicks to pass through gaps to the background
-  pointer-events: none;
+  pointer-events: none; // Allow clicks to pass through gaps
 
   &.fractal-card {
     max-width: 600px;
@@ -125,14 +120,11 @@
   }
 }
 
-/* EMPTY SLOT (Add New) */
+/* --- EMPTY SLOT (Add New) --- */
 .card-slot {
   width: 100%;
   aspect-ratio: 2 / 3;
-  background: rgb(
-    255 255 255 / 3%
-  ); // [FIX] Visibility (Removed !important to allow hover)
-
+  background: rgb(255 255 255 / 3%);
   border: 2px dashed rgb(255 255 255 / 15%);
   border-radius: 16px;
   display: flex;
@@ -142,10 +134,8 @@
   gap: 0.5rem;
   color: rgb(255 255 255 / 50%);
   transition: all 0.3s ease;
-
-  // CRITICAL FIX: Force interactivity since parent is pointer-events: none
   cursor: pointer;
-  pointer-events: auto !important;
+  pointer-events: auto !important; // Force interactivity
   z-index: #{z(base) + 10};
 
   // Pass decoration clicks to parent
@@ -187,15 +177,11 @@
   }
 }
 
-/* PREVIEW (Filled) */
+/* --- PREVIEW (Filled) --- */
 .entity-preview.card-filled {
   width: 100%;
   aspect-ratio: 2 / 3;
-  background: var(
-    --pico-card-background-color,
-    #1e293b
-  ); // [FIX] Fallback color (Removed !important)
-
+  background: var(--pico-card-background-color, #1e293b);
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 16px;
   overflow: hidden;
@@ -204,12 +190,12 @@
   box-shadow: 0 15px 40px rgb(0 0 0 / 40%);
   transition: transform 0.3s ease;
 
-  // CRITICAL FIX: Re-enable pointer events for the filled card
+  // Interactions
   cursor: pointer;
   pointer-events: auto !important;
-  opacity: 1 !important; // [FIX] Force opacity
-  visibility: visible !important; // [FIX] Force visibility
-  transform: translateZ(0); // [FIX] Force hardware layer
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateZ(0);
   z-index: #{z(chip)};
 
   &[data-signature] {
@@ -234,10 +220,10 @@
     flex-direction: column;
     justify-content: center;
     color: #fff;
-    pointer-events: auto; // Allow clicks on body area
-    text-align: left; // CRITICAL FIX: Force left alignment
+    pointer-events: auto;
+    text-align: left;
 
-    // CRITICAL FIX: Text blocks click event; ensure it passes through to body
+    // Pass through clicks on text block
     h4,
     p {
       pointer-events: none;
@@ -249,7 +235,7 @@
       font-weight: 700;
       color: var(--signature-color, #fff);
       line-height: 1.2;
-      text-wrap: balance; // [NEW] Balanced titles
+      text-wrap: balance;
     }
 
     p {
@@ -264,7 +250,7 @@
       -webkit-line-clamp: 3;
       line-clamp: 3;
       -webkit-box-orient: vertical;
-      text-wrap: pretty; // [NEW] Prettier descriptions
+      text-wrap: pretty;
     }
   }
 
@@ -274,6 +260,7 @@
   }
 }
 
+// Logic: Hide slot if preview is filled
 .entity-card:has(.entity-preview:not([hidden])) .card-slot {
   display: none;
 }

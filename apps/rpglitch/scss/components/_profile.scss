@@ -1,20 +1,17 @@
-@use "config" as *;
+@use "../abstracts" as *;
 
 /* ============================================================================
-   10. COMPONENT: PROFILE & DATA VIEWS
-   The internal styling for Character Sheets, World Info, and Settings.
+   COMPONENT: PROFILE & DATA VIEWS
+   Character Sheets, World Info, and Settings.
    ============================================================================ */
 
-/* =========================================
-   1. PROFILE VIEW (Split Layout)
-   ========================================= */
-
+/* --- HERO SECTION --- */
 .profile-hero {
   background: #000;
   position: relative;
   height: 100%; // Fill grid cell
-  min-height: 300px; // [FIX] Prevents collapse/dark square artifact when no image
-  overflow: hidden; // Strict clipping for the image
+  min-height: 300px;
+  overflow: hidden;
 
   .hero-wrap,
   .picture {
@@ -29,25 +26,22 @@
     height: 100%;
     object-fit: cover;
     display: block;
-
-    // Smooth Flip Transition
     transition:
       transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
       opacity 0.2s;
 
-    // [FIX] Hide broken image icons if src is missing/empty
     &[src=""],
     &:not([src]) {
       opacity: 0;
     }
   }
 
-  // The Flip State (Applied by JS)
+  // Flip State
   .img-flipped {
     transform: scaleX(-1);
   }
 
-  // The Floating Flip Button (Live Control)
+  // Flip Button
   .btn-visual-flip {
     position: absolute;
     top: 1rem;
@@ -68,7 +62,7 @@
     transition: all 0.2s ease;
     font-size: 1.4rem;
     line-height: 1;
-    opacity: 0; // Hidden by default, shown on hover
+    opacity: 0;
     transform: translateY(-10px);
 
     &:hover {
@@ -83,14 +77,14 @@
     }
   }
 
-  // Show flip button when hovering the hero area
+  // Show flip button
   &:hover .btn-visual-flip,
   &:focus-within .btn-visual-flip {
     opacity: 1;
     transform: translateY(0);
   }
 
-  // Placeholder for missing images
+  // Placeholder
   .placeholder-image {
     width: 100%;
     height: 100%;
@@ -105,7 +99,7 @@
     }
   }
 
-  // World View Override: Compact Banner
+  // World View Override
   .profile-view--fractal & .placeholder-image svg {
     width: auto;
     height: 80px;
@@ -113,7 +107,7 @@
     opacity: 0.4;
   }
 
-  // --- EDIT OVERLAY (The Tool Panel) ---
+  // --- EDIT OVERLAY ---
   .profile-hero-overlay {
     position: absolute;
     bottom: 1rem;
@@ -125,19 +119,16 @@
     border-radius: var(--pico-radius);
     border: 1px solid rgb(255 255 255 / 10%);
     box-shadow: 0 4px 20px rgb(0 0 0 / 50%);
-    display: none; // Hidden by default, toggled by JS or .is-editing
+    display: none; // Hidden by default
     flex-direction: column;
     gap: 0.75rem;
     z-index: 10;
-
-    // Transition for hover effect
     transition:
       opacity 0.2s,
       transform 0.2s;
     opacity: 0;
     transform: translateY(10px);
 
-    // Inputs inside the overlay
     .profile-pic-input {
       width: 100%;
       resize: none;
@@ -155,19 +146,16 @@
       }
     }
 
-    // [NEW] 2x2 Grid Layout
     .overlay-grid-controls {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.5rem;
       width: 100%;
 
-      // [NEW] World View Override: 1 Row (4 columns)
       .profile-view--fractal & {
         grid-template-columns: repeat(3, 1fr);
       }
 
-      // Uniform Height for all children
       > * {
         height: 2.25rem !important;
         margin-bottom: 0 !important;
@@ -179,7 +167,7 @@
         border-radius: var(--pico-radius);
       }
 
-      // 1. Magic Button
+      // Magic Button
       .btn-magic-prompt {
         background: var(--pico-primary-background);
         color: var(--pico-primary-inverse);
@@ -194,16 +182,16 @@
         }
       }
 
-      // 2. Main Action
+      // Main Action
       .profile-main-action {
         padding: 0 0.75rem;
         font-weight: 700;
         white-space: nowrap;
       }
 
-      // 3. Select (Overrides)
+      // Select
       select.signature-select {
-        padding: 0 2rem 0 0.75rem; // Room for arrow
+        padding: 0 2rem 0 0.75rem;
         background-position: center right 0.75rem;
         border: 1px solid var(--pico-muted-border-color);
         background-color: var(--pico-card-background-color);
@@ -215,13 +203,13 @@
         }
       }
 
-      // 4. Toggle (Styled as Card/Button)
+      // Toggle
       .btn-subtle-toggle {
         background: transparent;
         border: 1px solid var(--pico-muted-border-color);
         color: var(--pico-muted-color);
         cursor: pointer;
-        justify-content: flex-start; // Left align content
+        justify-content: flex-start;
         padding-left: 0.75rem;
         gap: 0.5rem;
         transition: all 0.2s;
@@ -241,7 +229,7 @@
           cursor: pointer;
           font-size: 0.8rem;
           white-space: nowrap;
-          margin-bottom: 0; // Fix label margin
+          margin-bottom: 0;
         }
       }
     }
@@ -255,9 +243,9 @@
     transform: translateY(0);
   }
 
-  // Busy State (Spinner)
+  // Busy State
   &[aria-busy="true"] {
-    pointer-events: none; // Lock interaction
+    pointer-events: none;
 
     &::before {
       content: "";
@@ -307,14 +295,11 @@
   }
 }
 
-// =========================================
-// WORLD VIEW OVERRIDES (Stacked Layout)
-// =========================================
+/* --- WORLD VIEW OVERRIDES --- */
 .profile-view--fractal {
   .profile-layout {
-    // Stacked Layout (Single Scroll)
-    display: block; // Removes Grid properties
-    overflow-y: auto; // Profile layout performs the scroll
+    display: block; // Stacked
+    overflow-y: auto;
 
     @include custom-scrollbar;
   }
@@ -323,15 +308,12 @@
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
-    aspect-ratio: 2 / 1; // [UPDATED] Shorter Landscape (Cinematic)
+    aspect-ratio: 2 / 1;
     border-bottom: 1px solid var(--pico-muted-border-color);
-
-    // Remove height constraints that might force vertical stretching
     height: auto;
   }
 
   .profile-right {
-    // Remove independent scroll
     overflow: visible;
     height: auto;
     padding-top: 2rem;
@@ -340,10 +322,7 @@
   }
 }
 
-/* =========================================
-   2. TYPOGRAPHY & FORMS
-   ========================================= */
-
+/* --- TYPOGRAPHY & FORMS --- */
 .profile-header {
   margin-bottom: 2rem;
 }
@@ -354,7 +333,7 @@
   font-weight: 900;
   letter-spacing: -1px;
   line-height: 1.1;
-  color: var(--signature-color, #fff);
+  color: var(--signature-color, #fff) !important;
   width: 100%;
   margin-bottom: 0.5rem;
   padding: 0;
@@ -362,7 +341,7 @@
   border: none;
   resize: none;
   text-align: left;
-  text-wrap: balance; // [NEW] Balanced headings
+  text-wrap: balance;
 
   &:focus {
     outline: none;
@@ -387,7 +366,7 @@
   border-radius: var(--pico-radius);
   resize: none;
   text-align: left !important;
-  text-wrap: pretty; // [NEW] Prettier text block
+  text-wrap: pretty;
 
   &.profile-desc-input {
     padding: 0.75rem;
@@ -402,115 +381,62 @@
   }
 }
 
-  /* --- FIELD ROW (Label + Input Grid) --- */
-  .field-row {
-    display: grid;
-    grid-template-columns: 140px 1fr;
-    gap: 1rem;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 1.25rem;
+/* --- FIELD ROW --- */
+.field-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 1rem;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1.25rem;
 
-    .field-label {
-      text-align: right;
-      line-height: 1.2;
-      padding-top: 0;
-
-      label {
-        font-weight: 700;
-        color: var(--pico-h3-color);
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        letter-spacing: 0.05em;
-        margin: 0;
-        text-wrap: balance;
-      }
-
-      small {
-        color: var(--pico-muted-color);
-        font-size: 0.75rem;
-        display: block;
-        margin-top: 0.2rem;
-        text-wrap: balance;
-      }
-    }
-
-    .field-input {
-      width: 100%;
-
-      textarea,
-      input {
-        text-align: left !important;
-        width: 100%;
-        margin-bottom: 0;
-      }
-
-      .profile-field-text-read {
-        padding: 0.75rem;
-        background: rgb(255 255 255 / 3%);
-        border-radius: var(--pico-radius);
-        white-space: pre-wrap;
-        line-height: 1.5;
-        text-align: left;
-        font-size: 0.95rem;
-      }
-    }
-  }
-
-  /* --- HEADER INPUTS (Root Scope) --- */
-  .profile-name-input {
-    background: transparent;
-    border: none;
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--signature-color, #fff) !important;
-    width: 100%;
-    resize: none;
+  .field-label {
+    text-align: right;
     line-height: 1.2;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    font-family: inherit;
+    padding-top: 0;
 
-    &::placeholder {
+    label {
+      font-weight: 700;
+      color: var(--pico-h3-color);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      margin: 0;
+      text-wrap: balance;
+    }
+
+    small {
       color: var(--pico-muted-color);
-      opacity: 0.5;
-    }
-
-    &:focus {
-      outline: none;
-      background: rgb(0 0 0 / 20%);
-      border-radius: 4px;
+      font-size: 0.75rem;
+      display: block;
+      margin-top: 0.2rem;
+      text-wrap: balance;
     }
   }
 
-  .profile-desc-input {
-    background: transparent;
-    border: none;
-    color: var(--pico-muted-color);
+  .field-input {
     width: 100%;
-    resize: none;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    margin-top: 0.5rem;
-    font-family: inherit;
-    padding: 0;
 
-    &:focus {
-      outline: none;
-      color: #fff;
+    textarea,
+    input {
+      text-align: left !important;
+      width: 100%;
+      margin-bottom: 0;
+    }
+
+    .profile-field-text-read {
+      padding: 0.75rem;
+      background: rgb(255 255 255 / 3%);
+      border-radius: var(--pico-radius);
+      white-space: pre-wrap;
+      line-height: 1.5;
+      text-align: left;
+      font-size: 0.95rem;
     }
   }
+}
 
-  .profile-name-display {
-    margin: 0;
-    font-size: 2rem;
-    line-height: 1.2;
-    color: var(--signature-color, #fff) !important;
-    text-wrap: balance;
-  }
-
-// Director Mode Inputs (Dynamics)
+/* --- DIRECTOR MODE --- */
 input[type="number"][data-edit-dynamic] {
   padding: 0.4rem;
   height: auto;
@@ -519,7 +445,7 @@ input[type="number"][data-edit-dynamic] {
   border: 1px solid var(--pico-muted-border-color);
 }
 
-// --- STATE TOGGLING ---
+/* --- STATE TOGGLING --- */
 [data-edit-field] {
   display: none;
 }
@@ -537,7 +463,6 @@ input[type="number"][data-edit-dynamic] {
     display: block;
   }
 
-  // Force overlay to be accessible in edit mode
   .profile-hero-overlay {
     display: flex;
   }
@@ -551,7 +476,6 @@ input[type="number"][data-edit-dynamic] {
   padding-top: 2rem;
   border-top: 1px solid var(--pico-muted-border-color);
 
-  // [NEW] Unified Button Style (Matching Image Overlay)
   button,
   [role="button"] {
     height: 2.25rem;
@@ -563,24 +487,19 @@ input[type="number"][data-edit-dynamic] {
     justify-content: center;
     border-radius: var(--pico-radius);
     white-space: nowrap;
-    margin-bottom: 0; // Fix alignment in groups
+    margin-bottom: 0;
   }
 
-  // Fix for Pico Groups to respect height
   fieldset[role="group"] {
     margin-bottom: 0;
 
     button {
-      // Grouped buttons normally lose radius, let Pico handle that but enforce height
       height: 2.25rem;
     }
   }
 }
 
-/* =========================================
-   3. SETTINGS & UTILITIES
-   ========================================= */
-
+/* --- SETTINGS & UTILITIES --- */
 .options-body-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -616,11 +535,10 @@ input[type="number"][data-edit-dynamic] {
   gap: 1rem;
 }
 
-// --- RESPONSIVE ---
 @include mobile {
   .profile-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: 300px 1fr; // Hero on top
+    grid-template-rows: 300px 1fr;
   }
 
   .options-body-grid {

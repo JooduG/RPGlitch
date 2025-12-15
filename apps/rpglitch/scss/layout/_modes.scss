@@ -1,0 +1,122 @@
+@use "../abstracts" as *;
+
+/* ============================================================================
+   LAYOUT: MODES & STATE
+   Toggling between "Lobby" (Storyboard) and "Game" (Chat).
+   ============================================================================ */
+
+/* --- BASE VISIBILITY --- */
+// By default, content buckets are hidden and transparent
+.stage-content--storyboard,
+.stage-content--gameplay {
+  display: none; // HIDE by default
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* =========================================
+   MODE: STORYBOARD (LOBBY)
+   ========================================= */
+body.mode-storyboard {
+  // [NEW] 5-Track Grid: 1fr (gap) | 2fr (left) | 4fr (center) | 2fr (right) | 1fr (gap)
+  // Total 10 units. Outer gaps are 1 unit (10%). Side panels 2 units (20%). Center 4 units (40%).
+  .universal-stage {
+    grid-template-columns: 1fr 2fr 4fr 2fr 1fr;
+  }
+
+  // Column Assignment for Storyboard (Shifted by 1 due to left gap)
+  #stage-ai {
+    grid-column: 2;
+  }
+
+  #stage-center {
+    grid-column: 3;
+  }
+
+  #stage-user {
+    grid-column: 4;
+  }
+
+  // Activate Storyboard Content
+  .stage-content--storyboard {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    z-index: 10;
+    padding: var(--app-container-pad, 1rem);
+    pointer-events: none; // Pass through clicks interactions
+  }
+
+  // Explicitly HIDE Gameplay Content
+  .stage-content--gameplay {
+    display: none !important;
+  }
+}
+
+/* =========================================
+   MODE: GAMEPLAY (ACTIVE)
+   ========================================= */
+body.mode-gameplay {
+  // [NEW] 3-Track Grid: 2fr (left) | 6fr (center) | 2fr (right)
+  // Total 10 units. No outer gaps. Side panels 2 units (20%). Center 6 units (60%).
+  .universal-stage {
+    grid-template-columns: 2fr 6fr 2fr;
+  }
+
+  // Column Assignment for Gameplay (Standard)
+  #stage-ai {
+    grid-column: 1;
+  }
+
+  #stage-center {
+    grid-column: 2;
+  }
+
+  #stage-user {
+    grid-column: 3;
+  }
+
+  // Activate Gameplay Content
+  .stage-content--gameplay {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    z-index: 10;
+    animation: fade-in 0.8s ease;
+    pointer-events: auto; // Re-enable clicks!
+  }
+
+  // Explicitly HIDE Storyboard Content
+  .stage-content--storyboard {
+    display: none !important;
+  }
+
+  // Hide Side Columns on Mobile/Tablet when in gameplay
+  @include tablet {
+    .universal-stage {
+      grid-template-columns: 1fr; // Collapse to single column
+      grid-template-rows: 60px 1fr; // Header + Content
+    }
+
+    .stage-column--side {
+      display: none; // Hide generic side columns
+    }
+  }
+}
+
+/* --- ANIMATIONS --- */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
