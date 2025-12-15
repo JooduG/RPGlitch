@@ -197,11 +197,31 @@ const App = {
       log("[Init] Done.");
     } catch (e) {
       error("Init Failed", e);
-      alert("App failed to load.");
+
+      // Auto-recovery for schema conflicts
+      if (e.message && e.message.includes("changing primary key")) {
+        // alert("Database schema conflict detected. Resetting database..."); // Optional: silent execution preferred for UX?
+        // Let's be transparent but quick.
+        console.warn(
+          "[RPGlitch] Nuke protocol initiated due to schema conflict.",
+        );
+        try {
+          await db.delete();
+          location.reload();
+          return;
+        } catch (delErr) {
+          error("Failed to delete DB during recovery", delErr);
+        }
+      }
+
+      alert("App failed to load: " + (e.message || e));
+
+      const emergencyModal = document.getElementById("emergency-modal");
+      if (emergencyModal) emergencyModal.showModal();
     } finally {
       if (modal) {
         modal.close();
-        modal.style.display = "none";
+        modal.display = "none"; // Fix: style.display
       }
     }
   },

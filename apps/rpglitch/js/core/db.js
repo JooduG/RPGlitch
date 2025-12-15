@@ -17,13 +17,14 @@ if (typeof window !== "undefined" && window.Dexie) {
 const db = new Dexie("rpglitch");
 
 // 2. Define the schema (Final Version Only)
-db.version(2).stores({
+// 2. Define the schema (Final Version Only)
+db.version(3).stores({
   entities:
-    "++id, name, description, forever, past, present, future, profilePicture, signatureColour, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
+    "id, name, description, forever, past, present, future, profilePicture, signatureColour, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
   stories:
-    "++id, title, aiCharacterId, userCharacterId, fractalId, settingsSnapshot, createdAt, updatedAt",
+    "id, title, aiCharacterId, userCharacterId, fractalId, settingsSnapshot, createdAt, updatedAt",
   messages:
-    "++id, storyId, role, type, characterName, text, seed, meta, createdAt",
+    "id, storyId, role, type, characterName, text, seed, meta, createdAt",
   settings: "id", // Singleton settings table
 });
 

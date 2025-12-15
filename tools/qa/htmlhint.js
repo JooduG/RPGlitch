@@ -4,12 +4,16 @@
  *
  * It correctly locates .htmlhintrc and .htmlhintignore in the root.
  */
-const path = require("path");
-const { spawnSync } = require("child_process");
+const path = await import("path");
+const { fileURLToPath } = await import("url");
+const { spawnSync } = await import("child_process");
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Determine the root of the repository
-// UPDATED PATH: ../.. instead of ../../..
-const ROOT = path.resolve(__dirname, "..");
+// tools/qa -> tools -> root
+const ROOT = path.resolve(__dirname, "../..");
 
 // Get the user's file glob (defaulting to all HTML files in apps/)
 const userGlob = process.argv[2] || "apps/**/*.html";
@@ -32,7 +36,7 @@ const res = spawnSync(
   ["-y", "htmlhint", ...args],
   {
     stdio: "inherit",
-    cwd: ROOT, // *** KEY CORRECTION: Set CWD to ROOT ***
+    cwd: ROOT,
     env: process.env,
   },
 );

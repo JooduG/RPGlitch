@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 
-jest.mock("../apps/rpglitch/js/core/db.js", () => ({
+jest.mock("../../../../apps/rpglitch/js/core/db.js", () => ({
   db: {
     on: jest.fn(),
     settings: {
@@ -10,11 +10,11 @@ jest.mock("../apps/rpglitch/js/core/db.js", () => ({
   },
 }));
 
-jest.mock("../apps/rpglitch/js/data/models.js", () => ({
+jest.mock("../../../../apps/rpglitch/js/data/models.js", () => ({
   getPictureHTML: jest.fn(),
 }));
 
-jest.mock("../apps/rpglitch/js/ui/components/chat/feed.js", () => ({
+jest.mock("../../../../apps/rpglitch/js/ui/components/chat/feed.js", () => ({
   renderChat: jest.fn(),
   setGameplayEntities: jest.fn(),
   showTypingIndicator: jest.fn(),
@@ -23,7 +23,7 @@ jest.mock("../apps/rpglitch/js/ui/components/chat/feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../apps/rpglitch/js/ui/services/visuals.js", () => ({
+jest.mock("../../../../apps/rpglitch/js/ui/services/visuals.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
@@ -56,9 +56,10 @@ async function loadApp() {
   dom.window.$ = function () {};
 
   jest.resetModules();
-  const utils = await import("../apps/rpglitch/js/core/utils.js");
-  const uiUtils = await import("../apps/rpglitch/js/ui/services/ui-utils.js");
-  const index = await import("../apps/rpglitch/js/core/bootstrap.js");
+  const utils = await import("../../../../apps/rpglitch/js/core/utils.js");
+  const uiUtils =
+    await import("../../../../apps/rpglitch/js/ui/services/ui-utils.js");
+  const index = await import("../../../../apps/rpglitch/js/core/bootstrap.js");
 
   dom.window.App = {
     ...index,

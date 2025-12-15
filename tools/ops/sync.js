@@ -11,7 +11,7 @@ import { fileURLToPath } from "url";
 // --- GENERIC SETUP & UTILITIES ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const REPO_ROOT = path.resolve(__dirname, "..");
+const REPO_ROOT = path.resolve(__dirname, "../..");
 
 function readJson(filePath) {
   if (!fs.existsSync(filePath)) {

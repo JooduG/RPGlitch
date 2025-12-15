@@ -7,10 +7,13 @@ const sass = require("sass");
 const autoprefixer = require("autoprefixer");
 
 async function compileScssToString(appName = "rpglitch") {
-  // UPDATED PATH: ../apps instead of ../../apps
-  const scssPath = path.join(__dirname, `../apps/${appName}/scss/index.scss`);
-  // UPDATED PATH: ../build instead of ../../build
-  const picoCssPath = path.resolve(__dirname, "..", "libs", "pico.min.css");
+  // UPDATED PATH: ../../apps
+  const scssPath = path.join(
+    __dirname,
+    `../../apps/${appName}/scss/index.scss`,
+  );
+  // UPDATED PATH: ../../libs
+  const picoCssPath = path.resolve(__dirname, "../..", "libs", "pico.min.css");
 
   if (!fs.existsSync(scssPath)) {
     throw new Error(`SCSS file not found at ${scssPath}`);

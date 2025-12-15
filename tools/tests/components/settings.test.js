@@ -3,7 +3,7 @@ import { jest } from "@jest/globals";
 // We must mock these BEFORE importing the module under test.
 
 // Mock app-state
-jest.mock("../apps/rpglitch/js/core/state.js", () => ({
+jest.mock("../../../apps/rpglitch/js/core/state.js", () => ({
   state: {
     settings: {
       directorMode: false,
@@ -18,7 +18,7 @@ jest.mock("../apps/rpglitch/js/core/state.js", () => ({
 }));
 
 // Mock core-db
-jest.mock("../apps/rpglitch/js/core/db.js", () => ({
+jest.mock("../../../apps/rpglitch/js/core/db.js", () => ({
   db: {
     settings: {
       get: jest.fn(),
@@ -48,14 +48,14 @@ jest.mock("../apps/rpglitch/js/core/db.js", () => ({
 }));
 
 // Mock ui-views
-jest.mock("../apps/rpglitch/js/ui/orchestrator.js", () => ({
+jest.mock("../../../apps/rpglitch/js/ui/orchestrator.js", () => ({
   router: {
     handleRoute: jest.fn(),
   },
 }));
 
 // Mock manager-turns (StoryController)
-jest.mock("../apps/rpglitch/js/engine/director.js", () => ({
+jest.mock("../../../apps/rpglitch/js/engine/director.js", () => ({
   StoryController: {
     concludeStory: jest.fn(),
     enhanceUserDraft: jest.fn(),
@@ -65,16 +65,16 @@ jest.mock("../apps/rpglitch/js/engine/director.js", () => ({
 }));
 
 // Mock entity-crud
-jest.mock("../apps/rpglitch/js/data/repo.js", () => ({
+jest.mock("../../../apps/rpglitch/js/data/repo.js", () => ({
   entities: {
     get: jest.fn(),
   },
 }));
 
 // 2. Import Module Under Test
-import { StoryOptionsController } from "../apps/rpglitch/js/ui/components/settings.js";
-import { applyPatch } from "../apps/rpglitch/js/core/state.js";
-import { db } from "../apps/rpglitch/js/core/db.js";
+import { StoryOptionsController } from "../../../apps/rpglitch/js/ui/components/settings.js";
+import { applyPatch } from "../../../apps/rpglitch/js/core/state.js";
+import { db } from "../../../apps/rpglitch/js/core/db.js";
 
 describe("StoryOptionsController", () => {
   beforeEach(() => {

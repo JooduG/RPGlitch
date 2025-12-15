@@ -34,7 +34,7 @@ const APP_CONFIGS = {
   rpglitch: {
     extraLibs: [
       { name: "cash", file: "cash.min.js" },
-      { name: "dexie", file: "dexie.min.js" },
+      { name: "dexie", file: "dexie.js" },
       { name: "dompurify", file: "purify.min.js" },
       { name: "hyperscript", file: "_hyperscript.min.js" },
     ],
@@ -45,7 +45,7 @@ const APP_CONFIGS = {
 // --- PATHS ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const REPO_ROOT = path.resolve(__dirname, "..");
+const REPO_ROOT = path.resolve(__dirname, "../..");
 const LOCAL_LIBS_DIR = path.join(REPO_ROOT, "libs");
 
 // --- UTILITIES ---
