@@ -10,334 +10,334 @@
    ========================================= */
 
 .profile-hero {
-    background: #000;
-    position: relative;
-    height: 100%; // Fill grid cell
-    min-height: 300px; // [FIX] Prevents collapse/dark square artifact when no image
-    overflow: hidden; // Strict clipping for the image
+  background: #000;
+  position: relative;
+  height: 100%; // Fill grid cell
+  min-height: 300px; // [FIX] Prevents collapse/dark square artifact when no image
+  overflow: hidden; // Strict clipping for the image
 
-    .hero-wrap,
-    .picture {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        inset: 0;
+  .hero-wrap,
+  .picture {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+
+    // Smooth Flip Transition
+    transition:
+      transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 0.2s;
+
+    // [FIX] Hide broken image icons if src is missing/empty
+    &[src=""],
+    &:not([src]) {
+      opacity: 0;
+    }
+  }
+
+  // The Flip State (Applied by JS)
+  .img-flipped {
+    transform: scaleX(-1);
+  }
+
+  // The Floating Flip Button (Live Control)
+  .btn-visual-flip {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 20;
+    background: rgb(0 0 0 / 40%);
+    border: 1px solid rgb(255 255 255 / 20%);
+    color: rgb(255 255 255 / 90%);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+    font-size: 1.4rem;
+    line-height: 1;
+    opacity: 0; // Hidden by default, shown on hover
+    transform: translateY(-10px);
+
+    &:hover {
+      background: rgb(255 255 255 / 20%);
+      border-color: rgb(255 255 255 / 60%);
+      transform: scale(1.1) translateY(0);
+      opacity: 1;
     }
 
-    img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
+    &:active {
+      transform: scale(0.95);
+    }
+  }
 
-        // Smooth Flip Transition
-        transition:
-            transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-            opacity 0.2s;
+  // Show flip button when hovering the hero area
+  &:hover .btn-visual-flip,
+  &:focus-within .btn-visual-flip {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-        // [FIX] Hide broken image icons if src is missing/empty
-        &[src=""],
-        &:not([src]) {
-            opacity: 0;
-        }
+  // Placeholder for missing images
+  .placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+
+    svg {
+      width: 40%;
+      max-width: 300px;
+      height: auto;
+      opacity: 0.3;
+    }
+  }
+
+  // World View Override: Compact Banner
+  .profile-view--fractal & .placeholder-image svg {
+    width: auto;
+    height: 80px;
+    max-height: 160px;
+    opacity: 0.4;
+  }
+
+  // --- EDIT OVERLAY (The Tool Panel) ---
+  .profile-hero-overlay {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    padding: 1rem;
+    background: rgb(0 0 0 / 80%);
+    backdrop-filter: blur(12px);
+    border-radius: var(--pico-radius);
+    border: 1px solid rgb(255 255 255 / 10%);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 50%);
+    display: none; // Hidden by default, toggled by JS or .is-editing
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 10;
+
+    // Transition for hover effect
+    transition:
+      opacity 0.2s,
+      transform 0.2s;
+    opacity: 0;
+    transform: translateY(10px);
+
+    // Inputs inside the overlay
+    .profile-pic-input {
+      width: 100%;
+      resize: none;
+      font-size: 0.85rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid var(--pico-muted-border-color);
+      background: rgb(0 0 0 / 50%);
+      color: white;
+
+      &:focus {
+        background: rgb(0 0 0 / 80%);
+        border-color: var(--pico-primary);
+        outline: none;
+      }
     }
 
-    // The Flip State (Applied by JS)
-    .img-flipped {
-        transform: scaleX(-1);
-    }
+    // [NEW] 2x2 Grid Layout
+    .overlay-grid-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      width: 100%;
 
-    // The Floating Flip Button (Live Control)
-    .btn-visual-flip {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        z-index: 20;
-        background: rgb(0 0 0 / 40%);
-        border: 1px solid rgb(255 255 255 / 20%);
-        color: rgb(255 255 255 / 90%);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        padding: 0;
+      // [NEW] World View Override: 1 Row (4 columns)
+      .profile-view--fractal & {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      // Uniform Height for all children
+      > * {
+        height: 2.25rem !important;
+        margin-bottom: 0 !important;
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 100%;
+        font-size: 0.85rem;
+        border-radius: var(--pico-radius);
+      }
+
+      // 1. Magic Button
+      .btn-magic-prompt {
+        background: var(--pico-primary-background);
+        color: var(--pico-primary-inverse);
+        border: none;
+        padding: 0 0.75rem;
+        gap: 0.4rem;
         cursor: pointer;
-        backdrop-filter: blur(4px);
-        transition: all 0.2s ease;
-        font-size: 1.4rem;
-        line-height: 1;
-        opacity: 0; // Hidden by default, shown on hover
-        transform: translateY(-10px);
+        transition: background 0.2s;
 
         &:hover {
-            background: rgb(255 255 255 / 20%);
-            border-color: rgb(255 255 255 / 60%);
-            transform: scale(1.1) translateY(0);
-            opacity: 1;
+          background: var(--pico-primary-hover-background);
+        }
+      }
+
+      // 2. Main Action
+      .profile-main-action {
+        padding: 0 0.75rem;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      // 3. Select (Overrides)
+      select.signature-select {
+        padding: 0 2rem 0 0.75rem; // Room for arrow
+        background-position: center right 0.75rem;
+        border: 1px solid var(--pico-muted-border-color);
+        background-color: var(--pico-card-background-color);
+        font-size: 0.8rem;
+        cursor: pointer;
+
+        &:focus {
+          border-color: var(--pico-primary);
+        }
+      }
+
+      // 4. Toggle (Styled as Card/Button)
+      .btn-subtle-toggle {
+        background: transparent;
+        border: 1px solid var(--pico-muted-border-color);
+        color: var(--pico-muted-color);
+        cursor: pointer;
+        justify-content: flex-start; // Left align content
+        padding-left: 0.75rem;
+        gap: 0.5rem;
+        transition: all 0.2s;
+
+        &:hover {
+          border-color: var(--pico-color);
+          color: var(--pico-color);
         }
 
-        &:active {
-            transform: scale(0.95);
-        }
-    }
-
-    // Show flip button when hovering the hero area
-    &:hover .btn-visual-flip,
-    &:focus-within .btn-visual-flip {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    // Placeholder for missing images
-    .placeholder-image {
-        width: 100%;
-        height: 100%;
-        display: grid;
-        place-items: center;
-
-        svg {
-            width: 40%;
-            max-width: 300px;
-            height: auto;
-            opacity: 0.3;
-        }
-    }
-
-    // World View Override: Compact Banner
-    .profile-view--fractal & .placeholder-image svg {
-        width: auto;
-        height: 80px;
-        max-height: 160px;
-        opacity: 0.4;
-    }
-
-    // --- EDIT OVERLAY (The Tool Panel) ---
-    .profile-hero-overlay {
-        position: absolute;
-        bottom: 1rem;
-        left: 1rem;
-        right: 1rem;
-        padding: 1rem;
-        background: rgb(0 0 0 / 80%);
-        backdrop-filter: blur(12px);
-        border-radius: var(--pico-radius);
-        border: 1px solid rgb(255 255 255 / 10%);
-        box-shadow: 0 4px 20px rgb(0 0 0 / 50%);
-        display: none; // Hidden by default, toggled by JS or .is-editing
-        flex-direction: column;
-        gap: 0.75rem;
-        z-index: 10;
-
-        // Transition for hover effect
-        transition:
-            opacity 0.2s,
-            transform 0.2s;
-        opacity: 0;
-        transform: translateY(10px);
-
-        // Inputs inside the overlay
-        .profile-pic-input {
-            width: 100%;
-            resize: none;
-            font-size: 0.85rem;
-            padding: 0.5rem;
-            border-radius: 4px;
-            border: 1px solid var(--pico-muted-border-color);
-            background: rgb(0 0 0 / 50%);
-            color: white;
-
-            &:focus {
-                background: rgb(0 0 0 / 80%);
-                border-color: var(--pico-primary);
-                outline: none;
-            }
+        input {
+          margin: 0;
+          width: 1rem;
+          height: 1rem;
         }
 
-        // [NEW] 2x2 Grid Layout
-        .overlay-grid-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-            width: 100%;
-
-            // [NEW] World View Override: 1 Row (4 columns)
-            .profile-view--fractal & {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            // Uniform Height for all children
-            > * {
-                height: 2.25rem !important;
-                margin-bottom: 0 !important;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                font-size: 0.85rem;
-                border-radius: var(--pico-radius);
-            }
-
-            // 1. Magic Button
-            .btn-magic-prompt {
-                background: var(--pico-primary-background);
-                color: var(--pico-primary-inverse);
-                border: none;
-                padding: 0 0.75rem;
-                gap: 0.4rem;
-                cursor: pointer;
-                transition: background 0.2s;
-
-                &:hover {
-                    background: var(--pico-primary-hover-background);
-                }
-            }
-
-            // 2. Main Action
-            .profile-main-action {
-                padding: 0 0.75rem;
-                font-weight: 700;
-                white-space: nowrap;
-            }
-
-            // 3. Select (Overrides)
-            select.signature-select {
-                padding: 0 2rem 0 0.75rem; // Room for arrow
-                background-position: center right 0.75rem;
-                border: 1px solid var(--pico-muted-border-color);
-                background-color: var(--pico-card-background-color);
-                font-size: 0.8rem;
-                cursor: pointer;
-
-                &:focus {
-                    border-color: var(--pico-primary);
-                }
-            }
-
-            // 4. Toggle (Styled as Card/Button)
-            .btn-subtle-toggle {
-                background: transparent;
-                border: 1px solid var(--pico-muted-border-color);
-                color: var(--pico-muted-color);
-                cursor: pointer;
-                justify-content: flex-start; // Left align content
-                padding-left: 0.75rem;
-                gap: 0.5rem;
-                transition: all 0.2s;
-
-                &:hover {
-                    border-color: var(--pico-color);
-                    color: var(--pico-color);
-                }
-
-                input {
-                    margin: 0;
-                    width: 1rem;
-                    height: 1rem;
-                }
-
-                label {
-                    cursor: pointer;
-                    font-size: 0.8rem;
-                    white-space: nowrap;
-                    margin-bottom: 0; // Fix label margin
-                }
-            }
+        label {
+          cursor: pointer;
+          font-size: 0.8rem;
+          white-space: nowrap;
+          margin-bottom: 0; // Fix label margin
         }
+      }
+    }
+  }
+
+  // Reveal Overlay Logic
+  &:hover .profile-hero-overlay,
+  &:focus-within .profile-hero-overlay,
+  .profile-hero-overlay.is-locked {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  // Busy State (Spinner)
+  &[aria-busy="true"] {
+    pointer-events: none; // Lock interaction
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgb(0 0 0 / 50%);
+      backdrop-filter: blur(2px);
+      z-index: 15;
+      display: block;
     }
 
-    // Reveal Overlay Logic
-    &:hover .profile-hero-overlay,
-    &:focus-within .profile-hero-overlay,
-    .profile-hero-overlay.is-locked {
-        opacity: 1;
-        transform: translateY(0);
+    &::after {
+      display: block;
+      width: 3rem;
+      height: 3rem;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-top: -1.5rem;
+      margin-left: -1.5rem;
+      z-index: 20;
+      content: "";
+      border: 4px solid var(--pico-primary);
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
     }
+  }
 
-    // Busy State (Spinner)
-    &[aria-busy="true"] {
-        pointer-events: none; // Lock interaction
-
-        &::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: rgb(0 0 0 / 50%);
-            backdrop-filter: blur(2px);
-            z-index: 15;
-            display: block;
-        }
-
-        &::after {
-            display: block;
-            width: 3rem;
-            height: 3rem;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin-top: -1.5rem;
-            margin-left: -1.5rem;
-            z-index: 20;
-            content: "";
-            border: 4px solid var(--pico-primary);
-            border-right-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.75s linear infinite;
-        }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
     }
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
+  }
 }
 
 .profile-right {
-    padding: 3rem;
-    overflow-y: auto;
-    height: 100%;
-    position: relative;
+  padding: 3rem;
+  overflow-y: auto;
+  height: 100%;
+  position: relative;
 
-    @include custom-scrollbar;
+  @include custom-scrollbar;
 
-    @include mobile {
-        padding: 1.5rem;
-    }
+  @include mobile {
+    padding: 1.5rem;
+  }
 }
 
 // =========================================
 // WORLD VIEW OVERRIDES (Stacked Layout)
 // =========================================
 .profile-view--fractal {
-    .profile-layout {
-        // Stacked Layout (Single Scroll)
-        display: block; // Removes Grid properties
-        overflow-y: auto; // Profile layout performs the scroll
+  .profile-layout {
+    // Stacked Layout (Single Scroll)
+    display: block; // Removes Grid properties
+    overflow-y: auto; // Profile layout performs the scroll
 
-        @include custom-scrollbar;
-    }
+    @include custom-scrollbar;
+  }
 
-    .profile-hero {
-        width: 100%;
-        max-width: 100%;
-        margin: 0 auto;
-        aspect-ratio: 2 / 1; // [UPDATED] Shorter Landscape (Cinematic)
-        border-bottom: 1px solid var(--pico-muted-border-color);
+  .profile-hero {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    aspect-ratio: 2 / 1; // [UPDATED] Shorter Landscape (Cinematic)
+    border-bottom: 1px solid var(--pico-muted-border-color);
 
-        // Remove height constraints that might force vertical stretching
-        height: auto;
-    }
+    // Remove height constraints that might force vertical stretching
+    height: auto;
+  }
 
-    .profile-right {
-        // Remove independent scroll
-        overflow: visible;
-        height: auto;
-        padding-top: 2rem;
-        max-width: 100%;
-        margin: 0 auto;
-    }
+  .profile-right {
+    // Remove independent scroll
+    overflow: visible;
+    height: auto;
+    padding-top: 2rem;
+    max-width: 100%;
+    margin: 0 auto;
+  }
 }
 
 /* =========================================
@@ -345,182 +345,236 @@
    ========================================= */
 
 .profile-header {
-    margin-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
 .profile-name-display,
 .profile-name-input {
-    font-size: 3rem;
-    font-weight: 900;
-    letter-spacing: -1px;
-    line-height: 1.1;
-    color: #fff;
-    width: 100%;
-    margin-bottom: 0.5rem;
-    padding: 0;
-    background: transparent;
-    border: none;
-    resize: none;
-    text-align: left;
-    text-wrap: balance; // [NEW] Balanced headings
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  color: var(--signature-color, #fff);
+  width: 100%;
+  margin-bottom: 0.5rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  resize: none;
+  text-align: left;
+  text-wrap: balance; // [NEW] Balanced headings
 
-    &:focus {
-        outline: none;
-        border-bottom: 2px solid var(--pico-primary);
-    }
+  &:focus {
+    outline: none;
+    border-bottom: 2px solid var(--pico-primary);
+  }
 
-    @include mobile {
-        font-size: 2rem;
-    }
+  @include mobile {
+    font-size: 2rem;
+  }
 }
 
 .profile-desc-display,
 .profile-desc-input {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    opacity: 0.8;
-    color: inherit;
-    width: 100%;
-    margin-bottom: 1rem;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: var(--pico-radius);
-    resize: none;
-    text-align: left !important;
-    text-wrap: pretty; // [NEW] Prettier text block
+  font-size: 1.1rem;
+  line-height: 1.6;
+  opacity: 0.8;
+  color: inherit;
+  width: 100%;
+  margin-bottom: 1rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--pico-radius);
+  resize: none;
+  text-align: left !important;
+  text-wrap: pretty; // [NEW] Prettier text block
 
-    &.profile-desc-input {
-        padding: 0.75rem;
-        background: rgb(0 0 0 / 20%);
-        border-color: var(--pico-muted-border-color);
-        min-height: 100px;
+  &.profile-desc-input {
+    padding: 0.75rem;
+    background: rgb(0 0 0 / 20%);
+    border-color: var(--pico-muted-border-color);
+    min-height: 100px;
 
-        &:focus {
-            border-color: var(--pico-primary);
-            outline: none;
-        }
+    &:focus {
+      border-color: var(--pico-primary);
+      outline: none;
     }
+  }
 }
 
-.field-row {
+  /* --- FIELD ROW (Label + Input Grid) --- */
+  .field-row {
     display: grid;
     grid-template-columns: 140px 1fr;
     gap: 1rem;
-    align-items: center; // [UPDATED] Vertically center labels
+    align-items: center;
     width: 100%;
     margin-bottom: 1.25rem;
 
     .field-label {
-        text-align: right;
-        line-height: 1.2;
-        padding-top: 0; // [UPDATED] Remove offset for center alignment
+      text-align: right;
+      line-height: 1.2;
+      padding-top: 0;
 
-        label {
-            font-weight: 700;
-            color: var(--pico-h3-color);
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.05em;
-            margin: 0;
-            text-wrap: balance; // [NEW] Balanced wrapping
-        }
+      label {
+        font-weight: 700;
+        color: var(--pico-h3-color);
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+        margin: 0;
+        text-wrap: balance;
+      }
 
-        small {
-            color: var(--pico-muted-color);
-            font-size: 0.75rem;
-            display: block;
-            margin-top: 0.2rem;
-            text-wrap: balance; // [NEW] Balanced wrapping
-        }
+      small {
+        color: var(--pico-muted-color);
+        font-size: 0.75rem;
+        display: block;
+        margin-top: 0.2rem;
+        text-wrap: balance;
+      }
     }
 
     .field-input {
+      width: 100%;
+
+      textarea,
+      input {
+        text-align: left !important;
         width: 100%;
+        margin-bottom: 0;
+      }
 
-        textarea,
-        input {
-            text-align: left !important;
-            width: 100%;
-            margin-bottom: 0;
-        }
-
-        .profile-field-text-read {
-            padding: 0.75rem;
-            background: rgb(255 255 255 / 3%);
-            border-radius: var(--pico-radius);
-            white-space: pre-wrap;
-            line-height: 1.5;
-            text-align: left;
-            font-size: 0.95rem;
-        }
+      .profile-field-text-read {
+        padding: 0.75rem;
+        background: rgb(255 255 255 / 3%);
+        border-radius: var(--pico-radius);
+        white-space: pre-wrap;
+        line-height: 1.5;
+        text-align: left;
+        font-size: 0.95rem;
+      }
     }
-}
+  }
+
+  /* --- HEADER INPUTS (Root Scope) --- */
+  .profile-name-input {
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--signature-color, #fff) !important;
+    width: 100%;
+    resize: none;
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: inherit;
+
+    &::placeholder {
+      color: var(--pico-muted-color);
+      opacity: 0.5;
+    }
+
+    &:focus {
+      outline: none;
+      background: rgb(0 0 0 / 20%);
+      border-radius: 4px;
+    }
+  }
+
+  .profile-desc-input {
+    background: transparent;
+    border: none;
+    color: var(--pico-muted-color);
+    width: 100%;
+    resize: none;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-top: 0.5rem;
+    font-family: inherit;
+    padding: 0;
+
+    &:focus {
+      outline: none;
+      color: #fff;
+    }
+  }
+
+  .profile-name-display {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.2;
+    color: var(--signature-color, #fff) !important;
+    text-wrap: balance;
+  }
 
 // Director Mode Inputs (Dynamics)
 input[type="number"][data-edit-dynamic] {
-    padding: 0.4rem;
-    height: auto;
-    font-family: monospace;
-    font-size: 0.9rem;
-    border: 1px solid var(--pico-muted-border-color);
+  padding: 0.4rem;
+  height: auto;
+  font-family: monospace;
+  font-size: 0.9rem;
+  border: 1px solid var(--pico-muted-border-color);
 }
 
 // --- STATE TOGGLING ---
 [data-edit-field] {
-    display: none;
+  display: none;
 }
 
 [data-read-field] {
-    display: block;
+  display: block;
 }
 
 .is-editing {
-    [data-read-field] {
-        display: none;
-    }
+  [data-read-field] {
+    display: none;
+  }
 
-    [data-edit-field] {
-        display: block;
-    }
+  [data-edit-field] {
+    display: block;
+  }
 
-    // Force overlay to be accessible in edit mode
-    .profile-hero-overlay {
-        display: flex;
-    }
+  // Force overlay to be accessible in edit mode
+  .profile-hero-overlay {
+    display: flex;
+  }
 }
 
 .profile-actions-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--pico-muted-border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--pico-muted-border-color);
 
-    // [NEW] Unified Button Style (Matching Image Overlay)
-    button,
-    [role="button"] {
-        height: 2.25rem;
-        font-size: 0.85rem;
-        padding: 0 1.25rem;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: var(--pico-radius);
-        white-space: nowrap;
-        margin-bottom: 0; // Fix alignment in groups
+  // [NEW] Unified Button Style (Matching Image Overlay)
+  button,
+  [role="button"] {
+    height: 2.25rem;
+    font-size: 0.85rem;
+    padding: 0 1.25rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--pico-radius);
+    white-space: nowrap;
+    margin-bottom: 0; // Fix alignment in groups
+  }
+
+  // Fix for Pico Groups to respect height
+  fieldset[role="group"] {
+    margin-bottom: 0;
+
+    button {
+      // Grouped buttons normally lose radius, let Pico handle that but enforce height
+      height: 2.25rem;
     }
-
-    // Fix for Pico Groups to respect height
-    fieldset[role="group"] {
-        margin-bottom: 0;
-
-        button {
-            // Grouped buttons normally lose radius, let Pico handle that but enforce height
-            height: 2.25rem;
-        }
-    }
+  }
 }
 
 /* =========================================
@@ -528,62 +582,62 @@ input[type="number"][data-edit-dynamic] {
    ========================================= */
 
 .options-body-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    height: 100%;
-    overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  height: 100%;
+  overflow: hidden;
 }
 
 #settings-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    width: 100%;
-    overflow-y: auto;
-    padding-right: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  overflow-y: auto;
+  padding-right: 0.5rem;
 
-    @include custom-scrollbar;
+  @include custom-scrollbar;
 
-    > fieldset {
-        padding: 1rem;
-        border: 1px solid var(--pico-muted-border-color);
-        border-radius: var(--pico-radius);
-        background: rgb(255 255 255 / 3%);
-    }
+  > fieldset {
+    padding: 1rem;
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-radius);
+    background: rgb(255 255 255 / 3%);
+  }
 }
 
 .options-footer {
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid var(--pico-muted-border-color);
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--pico-muted-border-color);
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
 // --- RESPONSIVE ---
 @include mobile {
-    .profile-layout {
-        grid-template-columns: 1fr;
-        grid-template-rows: 300px 1fr; // Hero on top
-    }
+  .profile-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 300px 1fr; // Hero on top
+  }
 
-    .options-body-grid {
-        grid-template-columns: 1fr;
-        overflow: visible;
-    }
+  .options-body-grid {
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
 
-    .field-row {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
 
-        .field-label {
-            text-align: left;
-            display: flex;
-            gap: 0.5rem;
-            align-items: baseline;
-            padding-top: 0;
-        }
+    .field-label {
+      text-align: left;
+      display: flex;
+      gap: 0.5rem;
+      align-items: baseline;
+      padding-top: 0;
     }
+  }
 }

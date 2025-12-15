@@ -1,8 +1,8 @@
-import { db } from "./core-db.js";
-import { applyPatch, state } from "./app-state.js";
-import { router } from "./ui-views.js";
-import { StoryController } from "./manager-turns.js";
-import { entities } from "./entity-crud.js";
+import { db } from "../../core/db.js";
+import { applyPatch, state } from "../../core/state.js";
+import { router } from "../orchestrator.js";
+import { StoryController } from "../../engine/director.js";
+import { entities } from "../../data/repo.js";
 
 export const StoryOptionsController = {
   async init() {

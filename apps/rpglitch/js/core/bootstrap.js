@@ -1,12 +1,12 @@
 // apps/rpglitch/js/index.js
-import { seedPremades } from "./entity-crud.js";
-import { initViews } from "./ui-views.js";
-import { db } from "./core-db.js";
-import { log, error, initDebugMode, mockPlugins } from "./core-utils.js";
-import { state, applyPatch } from "./app-state.js";
-import { StoryController } from "./manager-turns.js";
-import { StoryOptionsController } from "./settings.js";
-import { initStoryboardStage, StoryboardController } from "./manager-setup.js";
+import { seedPremades } from "../data/repo.js";
+import { initViews } from "../ui/orchestrator.js";
+import { db } from "./db.js";
+import { log, error, initDebugMode, mockPlugins } from "./utils.js";
+import { state, applyPatch } from "./state.js";
+import { StoryController } from "../engine/director.js";
+import { StoryOptionsController } from "../ui/components/settings.js";
+import { initStoryboardStage, StoryboardController } from "../ui/setup.js";
 
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
 (function enforceClientSideFreedom() {

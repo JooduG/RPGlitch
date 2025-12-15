@@ -75,17 +75,25 @@
   --bg-grad-4: #{$gradient-color-4};
 }
 
-// --- SIGNATURE LOOPS ---
-// Automates the creation of .signature-pink, .signature-jade, etc.
-@each $name, $data in $signature-colors {
-  $color-value: map.get($data, color);
+// --- DYNAMIC SIGNATURE UTILITY ---
+// Replaces the old static loops. Powered by ThemeService.js
+.themed-signature {
+  // Defaults (Purple)
+  --current-sig: var(--signature-color, #8b5cf6);
+  --current-sig-rgb: var(--signature-rgb, 139 92 246);
 
-  .signature-#{$name} {
-    --signature: #{$color-value};
-    --signature-10: #{color.mix($color-value, transparent, 10%)};
-    --signature-20: #{color.mix($color-value, transparent, 20%)};
-    --signature-contrast: var(--signature-text-on);
-  }
+  // Auto-calculated variants
+  --signature-10: rgba(var(--current-sig-rgb), 0.1);
+  --signature-20: rgba(var(--current-sig-rgb), 0.2);
+  --signature-50: rgba(var(--current-sig-rgb), 0.5); // New
+
+  // Usage
+  color: var(--current-sig);
+  border-color: var(--current-sig);
+
+  // NOTE: Backgrounds are usually handled by specific components (bubbles, badges),
+  // but if this class is used on a generic container, we can set a subtle bg:
+  // background-color: var(--signature-10);
 }
 
 // --- DARK THEME OVERRIDES ---

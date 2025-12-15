@@ -4,7 +4,7 @@
  */
 
 // [FIX] Updated import path: getSignature is now in core-utils.js
-import { getSignature } from "../apps/rpglitch/js/core-utils.js";
+import { getSignature } from "../apps/rpglitch/js/core/utils.js";
 
 describe("getSignature()", () => {
   describe("Modern entities with signatureColour", () => {

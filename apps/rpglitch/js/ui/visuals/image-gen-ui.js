@@ -1,6 +1,8 @@
-import { getPictureHTML, escapeHtml } from "./core-utils.js";
-import { getVisualState } from "./entity-structs.js";
-import { state } from "./app-state.js";
+import { getPictureHTML, escapeHtml } from "../../core/utils.js";
+import { getVisualState } from "../../data/models.js";
+import { state } from "../../core/state.js";
+import { RGB_MAP } from "../../core/constants.js";
+import { ThemeService } from "../services/theme.js";
 
 // --- VISUALS: Director Mode & Ambience ---
 
@@ -23,15 +25,8 @@ export function applyFractalAmbience(fractal) {
   if (!fractal || !fractal.signatureColour) {
     document.documentElement.style.removeProperty("--fractal-ambience-rgb");
   } else {
-    const rgbMap = {
-      pink: "236, 72, 153",
-      emerald: "16, 185, 129",
-      cyan: "6, 182, 212",
-      orange: "249, 115, 22",
-      purple: "168, 85, 247",
-      default: "255, 255, 255",
-    };
-    const rgb = rgbMap[fractal.signatureColour] || rgbMap.default;
+    const rgb =
+      RGB_MAP[fractal.signatureColour] || RGB_MAP.default || "255, 255, 255";
     document.documentElement.style.setProperty("--fractal-ambience-rgb", rgb);
   }
 
@@ -48,21 +43,8 @@ export function applyFractalAmbience(fractal) {
     bgEl.style.transform = visuals.flipped ? "scaleX(-1)" : "none";
   } else if (fractal) {
     // Placeholder Logic
-    const rgbMap = {
-      pink: "236, 72, 153",
-      emerald: "16, 185, 129",
-      cyan: "6, 182, 212",
-      orange: "249, 115, 22",
-      purple: "168, 85, 247",
-      jade: "16, 185, 129", // Mapped to Emerald
-      violet: "139, 92, 246",
-      yellow: "234, 179, 8",
-      green: "34, 197, 94",
-      blue: "59, 130, 246",
-      azure: "14, 165, 233",
-      default: "255, 255, 255",
-    };
-    const rgb = rgbMap[fractal.signatureColour] || rgbMap.default;
+    const rgb =
+      RGB_MAP[fractal.signatureColour] || RGB_MAP.default || "255, 255, 255";
     bgEl.style.backgroundImage = "none";
     bgEl.style.backgroundColor = `rgba(${rgb}, 0.5)`;
     bgEl.style.opacity = "1";
@@ -86,15 +68,18 @@ export function updatePortraits(aiCharacter, userCharacter) {
     const container = document.querySelector(id);
     if (!container) return;
 
-    // Safe Class Management (Don't overwrite .phone-avatar)
-    const currentClasses = Array.from(container.classList);
-    const signatureClasses = currentClasses.filter((c) =>
-      c.startsWith("signature-"),
-    );
-    signatureClasses.forEach((c) => container.classList.remove(c));
-
+    // Use ThemeService to apply signature logic centrally
     if (ent && ent.signatureColour && ent.signatureColour !== "default") {
-      container.classList.add(`signature-${ent.signatureColour}`);
+      ThemeService.apply(container, ent.signatureColour);
+    } else {
+      // Clean up if no signature
+      const classes = Array.from(container.classList);
+      classes.forEach((c) => {
+        if (c.startsWith("signature-")) container.classList.remove(c);
+      });
+      container.classList.remove("themed-signature");
+      container.style.removeProperty("--signature-color");
+      container.style.removeProperty("--signature-rgb");
     }
 
     const imgDiv = container.querySelector(".portrait-image");
@@ -141,41 +126,19 @@ export function updatePortraits(aiCharacter, userCharacter) {
 
   // Set User Signature Color Variable for UI highlights
   if (userCharacter && userCharacter.signatureColour) {
-    const rgbMap = {
-      pink: "236, 72, 153",
-      emerald: "16, 185, 129",
-      cyan: "6, 182, 212",
-      orange: "249, 115, 22",
-      purple: "168, 85, 247",
-      jade: "16, 185, 129", // Mapped to Emerald
-      violet: "139, 92, 246",
-      yellow: "234, 179, 8",
-      green: "34, 197, 94",
-      blue: "59, 130, 246",
-      azure: "14, 165, 233",
-      default: "255, 255, 255", // or whatever default is
-    };
-    const rgb = rgbMap[userCharacter.signatureColour] || rgbMap.default;
+    const rgb =
+      RGB_MAP[userCharacter.signatureColour] ||
+      RGB_MAP.default ||
+      "255, 255, 255";
     document.documentElement.style.setProperty("--user-signature-rgb", rgb);
   }
 
   // Set AI Signature Color Variable for Name Highlight
   if (aiCharacter && aiCharacter.signatureColour) {
-    const rgbMap = {
-      pink: "236, 72, 153",
-      emerald: "16, 185, 129",
-      cyan: "6, 182, 212",
-      orange: "249, 115, 22",
-      purple: "168, 85, 247",
-      jade: "16, 185, 129",
-      violet: "139, 92, 246",
-      yellow: "234, 179, 8",
-      green: "34, 197, 94",
-      blue: "59, 130, 246",
-      azure: "14, 165, 233",
-      default: "255, 255, 255",
-    };
-    const rgb = rgbMap[aiCharacter.signatureColour] || rgbMap.default;
+    const rgb =
+      RGB_MAP[aiCharacter.signatureColour] ||
+      RGB_MAP.default ||
+      "255, 255, 255";
     document.documentElement.style.setProperty("--ai-signature-rgb", rgb);
   }
 }

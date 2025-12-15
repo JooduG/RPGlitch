@@ -1,4 +1,4 @@
-import { extractImageUrl } from "./core-utils.js";
+import { extractImageUrl } from "../../core/utils.js";
 
 /**
  * THE VISUAL MANAGER

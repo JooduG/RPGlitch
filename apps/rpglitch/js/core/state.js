@@ -1,5 +1,5 @@
 // apps/rpglitch/js/app-state.js
-import { events, EVENTS } from "./core-events.js";
+import { events, EVENTS } from "./events.js";
 export const state = {
   storyTitle: "My Story",
   selectedAI: null,

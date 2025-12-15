@@ -1,7 +1,7 @@
 // apps/rpglitch/js/entity-crud.js
-import { db } from "./core-db.js";
-import { error } from "./core-utils.js";
-import { normalize, premade, STORAGE_VERSION } from "./entity-structs.js";
+import { db } from "../core/db.js";
+import { error } from "../core/utils.js";
+import { normalize, premade, STORAGE_VERSION } from "./models.js";
 
 // --- SEEDER (The Factory) ---
 export async function seedPremades() {

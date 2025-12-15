@@ -1,7 +1,7 @@
 import { jest, describe, beforeEach, test, expect } from "@jest/globals";
 
 // 1. Mock External Dependencies
-jest.mock("../apps/rpglitch/js/core-utils.js", () => ({
+jest.mock("../apps/rpglitch/js/core/utils.js", () => ({
   log: jest.fn(),
   error: jest.fn(),
   getPictureHTML: jest.fn(() => {
@@ -15,12 +15,12 @@ jest.mock("../apps/rpglitch/js/core-utils.js", () => ({
   }),
 }));
 
-jest.mock("../apps/rpglitch/js/entity-structs.js", () => ({
+jest.mock("../apps/rpglitch/js/data/models.js", () => ({
   getVisualState: jest.fn(() => ({ flipped: false })),
 }));
 
 // Mock entity-crud.js to control `entities.list` resolution
-jest.mock("../apps/rpglitch/js/entity-crud.js", () => ({
+jest.mock("../apps/rpglitch/js/data/repo.js", () => ({
   entities: {
     list: jest.fn(),
   },
@@ -52,12 +52,12 @@ describe("Drawer Component", () => {
     jest.resetModules();
 
     // Import drawer.js dynamically
-    const drawerModule = await import("../apps/rpglitch/js/drawer.js");
+    const drawerModule = await import("../apps/rpglitch/js/ui/components/drawer/desktop.js");
     _openDrawer = drawerModule.openDrawer;
     _closeDrawer = drawerModule.closeDrawer;
 
     // Re-import the mocked entities to control the instance used by drawer.js
-    const crudModule = await import("../apps/rpglitch/js/entity-crud.js");
+    const crudModule = await import("../apps/rpglitch/js/data/repo.js");
     _entities = crudModule.entities;
 
     // Reset mocks on the fresh instance

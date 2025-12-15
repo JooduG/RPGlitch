@@ -1,13 +1,11 @@
-import { events, EVENTS } from "./core-events.js";
-import { entities, copyEntity } from "./entity-crud.js";
-import { premade, getVisualState } from "./entity-structs.js";
-import {
-  getPictureHTML,
-  getSignature,
-  SIGNATURE_COLORS,
-} from "./core-utils.js";
-import { state } from "./app-state.js";
-import { VisualManager } from "./manager-visuals.js";
+
+import { events, EVENTS } from "../../../core/events.js";
+import { entities, copyEntity } from "../../../data/repo.js";
+import { premade, getVisualState } from "../../../data/models.js";
+import { getPictureHTML } from "../../../core/utils.js";
+import { state } from "../../../core/state.js";
+import { VisualManager } from "../../services/visuals.js";
+import { ThemeService, PALETTE } from "../../services/theme.js";
 import {
   escapeHtml,
   handleAsyncError,
@@ -16,7 +14,7 @@ import {
   renderTags,
   isValidImageUrl,
   sanitizeHtml,
-} from "./core-utils.js";
+} from "../../../core/utils.js";
 
 // CALLBACK: Router must inject this
 let _onUpdateSelection = null;
@@ -248,10 +246,9 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     'select[name="signatureColour"]',
   );
 
-  // [NEW] Dynamically Populate Signature Colors (Single Source of Truth)
   if (paletteSelect && paletteSelect.options.length === 0) {
-    // Generate Options from Core Utils (No "Default")
-    Object.keys(SIGNATURE_COLORS).forEach((key) => {
+    // Generate Options from Theme Service (No "Default")
+    Object.keys(PALETTE).forEach((key) => {
       if (key === "default") return;
       const option = document.createElement("option");
       option.value = key;
@@ -540,11 +537,10 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
 
     const nameInput = form.querySelector(".profile-name-input");
     const nameDisplay = form.querySelector(".profile-name-display");
-    const colorStyle = getSignature
-      ? getSignature({ ...entity, signatureColour: newColor })
-      : "white";
-    if (nameInput) nameInput.style.color = colorStyle;
-    if (nameDisplay) nameDisplay.style.color = colorStyle;
+
+    // Apply Theme to Name Elements
+    if (nameInput) ThemeService.apply(nameInput, newColor);
+    if (nameDisplay) ThemeService.apply(nameDisplay, newColor);
   });
 
   // --- HEADER (Name/Desc) ---
@@ -558,7 +554,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
     nameInput.value = entity.name || "";
     nameInput.placeholder = "Name";
     nameInput.rows = 1;
-    nameInput.style.color = getSignature(entity);
+    ThemeService.apply(nameInput, entity.signatureColour);
     nameInput.addEventListener("input", () => autoResize(nameInput));
     headerWrap.appendChild(nameInput);
     setTimeout(() => autoResize(nameInput), 0);
@@ -575,7 +571,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   } else {
     const nameDisplay = document.createElement("h1");
     nameDisplay.className = "profile-name-display";
-    nameDisplay.style.color = getSignature(entity);
+    ThemeService.apply(nameDisplay, entity.signatureColour);
     nameDisplay.textContent = entity.name || "Unknown";
     headerWrap.appendChild(nameDisplay);
 

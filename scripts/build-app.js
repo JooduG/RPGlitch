@@ -127,7 +127,10 @@ async function build(appName) {
   const config = APP_CONFIGS[appName];
   const appDir = path.join(REPO_ROOT, "apps", appName);
 
-  const entryPointJs = path.join(appDir, "js", "index.js");
+  const entryPointJs =
+    appName === "imageglitch"
+      ? path.join(appDir, "js", "index.js")
+      : path.join(appDir, "js", "core", "bootstrap.js");
   const entryPointScss = path.join(appDir, "scss", "index.scss");
   const htmlFile = path.join(appDir, "html", "index.html");
   const PICO_CSS_PATH = path.resolve(REPO_ROOT, "libs", "pico.min.css");
@@ -139,7 +142,7 @@ async function build(appName) {
         bundleJs(entryPointJs),
         fs.readFile(htmlFile, "utf8"),
         appName === "rpglitch"
-          ? bundleJs(path.join(appDir, "js", "worker.js"))
+          ? bundleJs(path.join(appDir, "js", "engine", "physics", "worker.js"))
           : Promise.resolve(null),
       ]);
     console.log("✅ JS and CSS processed successfully.");
@@ -221,8 +224,10 @@ async function build(appName) {
     );
 
     const scriptsToRemove = [
-      "../js/index.js",
-      "js/index.js",
+      "../js/core/bootstrap.js",
+      "js/core/bootstrap.js",
+      "../js/index.js", // Keep just in case
+      "js/index.js", // Keep just in case
       "../../../libs/dexie.js",
       "../../../libs/cash.min.js",
       "../../../libs/purify.min.js",

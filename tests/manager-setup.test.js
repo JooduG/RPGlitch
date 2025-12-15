@@ -1,32 +1,32 @@
 import { jest } from "@jest/globals";
 
 // Mock dependencies
-jest.mock("../apps/rpglitch/js/app-state.js", () => ({
+jest.mock("../apps/rpglitch/js/core/state.js", () => ({
   state: {},
   applyPatch: jest.fn(),
 }));
 
 const mockList = jest.fn();
-jest.mock("../apps/rpglitch/js/entity-crud.js", () => ({
+jest.mock("../apps/rpglitch/js/data/repo.js", () => ({
   entities: {
     list: (...args) => mockList(...args),
   },
 }));
 
-jest.mock("../apps/rpglitch/js/manager-turns.js", () => ({
+jest.mock("../apps/rpglitch/js/engine/director.js", () => ({
   StoryController: {},
 }));
 
-jest.mock("../apps/rpglitch/js/ui-chat-visuals.js", () => ({
+jest.mock("../apps/rpglitch/js/ui/services/visuals.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(), // If applyWorldAmbience was renamed, use new name
 }));
 
-jest.mock("../apps/rpglitch/js/core-utils.js", () => ({
+jest.mock("../apps/rpglitch/js/core/utils.js", () => ({
   error: jest.fn(),
 }));
 
-import { SetupManager } from "../apps/rpglitch/js/manager-setup.js";
+import { SetupManager } from "../apps/rpglitch/js/ui/setup.js";
 
 describe("SetupManager", () => {
   beforeEach(() => {

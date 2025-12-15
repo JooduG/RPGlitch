@@ -1,5 +1,5 @@
-import { state } from "./app-state.js";
-import { entities } from "./entity-crud.js";
+import { state } from "../core/state.js";
+import { entities } from "../data/repo.js";
 
 // ==========================================
 // CONFIGURATION: THE HEARTBEAT PROTOCOL

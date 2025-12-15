@@ -1,4 +1,4 @@
-import { events, EVENTS } from "./core-events.js";
+import { events, EVENTS } from "../../core/events.js";
 
 /**
  * WorkerBridge

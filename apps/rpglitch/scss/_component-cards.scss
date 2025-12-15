@@ -37,7 +37,11 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  background: var(--pico-card-background-color, #1e293b); // [FIX] Fallback (Removed !important)
+  background: var(
+    --pico-card-background-color,
+    #1e293b
+  ); // [FIX] Fallback (Removed !important)
+
   color: rgb(255 255 255 / 20%);
 
   svg {
@@ -125,7 +129,10 @@
 .card-slot {
   width: 100%;
   aspect-ratio: 2 / 3;
-  background: rgb(255 255 255 / 3%); // [FIX] Visibility (Removed !important to allow hover)
+  background: rgb(
+    255 255 255 / 3%
+  ); // [FIX] Visibility (Removed !important to allow hover)
+
   border: 2px dashed rgb(255 255 255 / 15%);
   border-radius: 16px;
   display: flex;
@@ -184,7 +191,11 @@
 .entity-preview.card-filled {
   width: 100%;
   aspect-ratio: 2 / 3;
-  background: var(--pico-card-background-color, #1e293b); // [FIX] Fallback color (Removed !important)
+  background: var(
+    --pico-card-background-color,
+    #1e293b
+  ); // [FIX] Fallback color (Removed !important)
+
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 16px;
   overflow: hidden;
@@ -202,7 +213,7 @@
   z-index: #{z(chip)};
 
   &[data-signature] {
-    border-color: var(--signature);
+    border-color: var(--signature-color);
   }
 
   .card-media {
@@ -236,7 +247,7 @@
       margin: 0;
       font-size: 1.1rem;
       font-weight: 700;
-      color: var(--signature, #fff);
+      color: var(--signature-color, #fff);
       line-height: 1.2;
       text-wrap: balance; // [NEW] Balanced titles
     }

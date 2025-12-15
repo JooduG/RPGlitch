@@ -14,11 +14,11 @@
  * - Must hydrate global `state` before running logic.
  */
 
-import { db } from "./core-db.js";
-import { state, applyPatch } from "./app-state.js";
-import { calculateDynamics } from "./engine-physics.js";
-import { ContextBuilder } from "./engine-prompt-builder.js";
-import { entities } from "./entity-crud.js";
+import { db } from "../../core/db.js";
+import { state, applyPatch } from "../../core/state.js";
+import { calculateDynamics } from "./main.js";
+import { ContextBuilder } from "../prompter.js";
+import { entities } from "../../data/repo.js";
 
 // --- STATE HYDRATION ---
 

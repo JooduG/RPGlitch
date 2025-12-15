@@ -1,6 +1,6 @@
 // apps/rpglitch/js/engine-physics.js
-import { PHYSICS_CONFIG } from "./config-physics.js";
-import { log } from "./core-utils.js";
+import { PHYSICS_CONFIG } from "./config.js";
+import { log } from "../../core/utils.js";
 
 /**
  * THE PROMETHEUS PHYSICS ENGINE (V4.2)

@@ -6,8 +6,8 @@ import {
   test,
   expect,
 } from "@jest/globals";
-import { init as initDB, db } from "../apps/rpglitch/js/core-db.js";
-import { premade } from "../apps/rpglitch/js/entity-structs.js";
+import { init as initDB, db } from "../apps/rpglitch/js/core/db.js";
+import { premade } from "../apps/rpglitch/js/data/models.js";
 import { JSDOM } from "jsdom"; // ADDED: ensure JSDOM is available for new JSDOM(...) in beforeEach
 
 // Mock the Perchance global and its plugins
@@ -25,8 +25,8 @@ global.crypto = {
 };
 
 // Mock UI-related functions to prevent JSDOM errors and memory leaks
-jest.mock("../apps/rpglitch/js/core-utils.js", () => {
-  const actual = jest.requireActual("../apps/rpglitch/js/core-utils.js");
+jest.mock("../apps/rpglitch/js/core/utils.js", () => {
+  const actual = jest.requireActual("../apps/rpglitch/js/core/utils.js");
   return {
     ...actual,
     dismissLoadingUI: jest.fn(),
@@ -45,7 +45,7 @@ jest.mock("../apps/rpglitch/js/core-utils.js", () => {
   };
 });
 
-jest.mock("../apps/rpglitch/js/ui-chat-feed.js", () => ({
+jest.mock("../apps/rpglitch/js/ui/components/chat/feed.js", () => ({
   renderChat: jest.fn(),
   setGameplayEntities: jest.fn(),
   showTypingIndicator: jest.fn(),
@@ -54,7 +54,7 @@ jest.mock("../apps/rpglitch/js/ui-chat-feed.js", () => ({
   setChatGeneratingState: jest.fn(),
 }));
 
-jest.mock("../apps/rpglitch/js/ui-chat-visuals.js", () => ({
+jest.mock("../apps/rpglitch/js/ui/services/visuals.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
   updateDirectorModeClass: jest.fn(),
@@ -149,7 +149,7 @@ let mockAttachStoryboardListeners = jest.fn(async (doc) => {
   }
 });
 
-jest.mock("../apps/rpglitch/js/index.js", () => ({
+jest.mock("../apps/rpglitch/js/core/bootstrap.js", () => ({
   App: mockApp,
   initializeWhenReady: mockInitializeWhenReady,
   _attachStoryboardListeners: mockAttachStoryboardListeners,

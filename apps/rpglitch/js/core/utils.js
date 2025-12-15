@@ -1,6 +1,6 @@
 // apps/rpglitch/js/core-utils.js
-import { db } from "./core-db.js";
-import { PHYSICS_CONFIG } from "./config-physics.js";
+import { db } from "./db.js";
+import { PHYSICS_CONFIG } from "../engine/physics/config.js";
 
 // --- Constants ---
 const VALID_PROTOCOLS = ["https:", "http:", "blob:", "data:"];
@@ -23,29 +23,10 @@ const IMAGE_EXTENSION_REGEX = new RegExp(
   "i",
 );
 
-export const SIGNATURE_COLORS = {
-  red: "#d93526",
-  pink: "#f42c6f",
-  fuchsia: "#ed2aac",
-  purple: "#aa40bf",
-  violet: "#9062ca",
-  indigo: "#7569da",
-  blue: "#0f2d70",
-  azure: "#017fc0",
-  cyan: "#05a2a2",
-  jade: "#00b478",
-  green: "#47a417",
-  lime: "#99c801",
-  yellow: "#f2df0d",
-  amber: "#ffbf00",
-  pumpkin: "#d27a01",
-  orange: "#e74b1a",
-  sand: "#959082",
-  grey: "#777777",
-  zinc: "#6f7887",
-  slate: "#687899",
-  default: "#777",
-};
+import { PALETTE } from "./constants.js";
+
+// Alias for backward compatibility
+export const SIGNATURE_COLORS = PALETTE;
 
 // --- Color & Visual Utilities (Consolidated) ---
 

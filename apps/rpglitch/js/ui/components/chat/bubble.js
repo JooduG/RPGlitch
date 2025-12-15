@@ -1,7 +1,8 @@
-import { sanitizeHtml, downloadImage } from "./core-utils.js";
-import { getVisualState } from "./entity-structs.js";
-import { state } from "./app-state.js";
-import { renderChat } from "./ui-chat-feed.js";
+import { sanitizeHtml, downloadImage } from "../../../core/utils.js";
+import { getVisualState } from "../../../data/models.js";
+import { state } from "../../../core/state.js";
+import { ThemeService } from "../../services/theme.js";
+import { renderChat } from "./feed.js";
 
 // --- STATE: Active Edits ---
 const activeEdits = new Map(); // messageId -> { text: string }
@@ -112,13 +113,13 @@ export function renderMessage(
     visuals = getVisualState(entities.aiCharacter);
   }
 
-  if (signatureColour && signatureColour !== "default") {
-    classList.push(`signature-${signatureColour}`);
-  }
-
   div.className = classList.join(" ");
   div.setAttribute("role", "log-item");
   div.setAttribute("data-type", type || "IC");
+
+  if (signatureColour && signatureColour !== "default") {
+    ThemeService.apply(div, signatureColour);
+  }
 
   if (visuals && visuals.flipped) {
     div.setAttribute("data-flipped", "true");

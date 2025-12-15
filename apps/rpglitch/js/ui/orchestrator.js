@@ -1,7 +1,7 @@
-import { initDrawer, closeDrawer } from "./drawer.js";
-import { setGameplayEntities, setSendLock } from "./ui-chat-feed.js";
-import { updatePortraits, applyFractalAmbience } from "./ui-chat-visuals.js";
-import { setAppBackground } from "./core-utils.js";
+import { initDrawer, closeDrawer } from "./components/drawer/desktop.js";
+import { setGameplayEntities, setSendLock } from "./components/chat/feed.js";
+import { updatePortraits, applyFractalAmbience } from "./visuals/image-gen-ui.js";
+import { setAppBackground } from "../core/utils.js";
 import {
   updateLocalSelection,
   bindDrawerTrigger,
@@ -9,12 +9,12 @@ import {
   renderEntityPreview,
   openDrawerFor,
   setChinCallbacks,
-} from "./ui-chin.js";
+} from "./components/drawer/mobile.js";
 import {
   renderProfilePage,
   closeProfileModal,
   setProfileCallbacks,
-} from "./ui-profile.js";
+} from "./components/profile/main.js";
 
 // Shared Selection State (The Source of Truth)
 const selectedEntities = {

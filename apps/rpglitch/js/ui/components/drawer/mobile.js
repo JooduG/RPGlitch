@@ -1,10 +1,11 @@
 // apps/rpglitch/js/ui-chin.js
-import { entities } from "./entity-crud.js";
-import { getPictureHTML, error } from "./core-utils.js";
+import { entities } from "../../../data/repo.js";
+import { getPictureHTML, error } from "../../../core/utils.js";
 // [NEW] Import visual helper
-import { getVisualState } from "./entity-structs.js";
-import { openDrawer } from "./drawer.js";
-import { openProfileModal } from "./ui-profile.js";
+import { getVisualState } from "../../../data/models.js";
+import { ThemeService } from "../../services/theme.js";
+import { openDrawer } from "./desktop.js";
+import { openProfileModal } from "../profile/main.js";
 
 // Shared Selection State (Local to this module's view context)
 let localSelectedEntities = {};
@@ -132,11 +133,9 @@ export function renderEntityPreview(
   if (entity) {
     previewEl.innerHTML = "";
     previewEl.className = "entity-preview card-filled";
-    if (entity.signatureColour)
-      previewEl.style.setProperty(
-        "--signature",
-        `var(--signature-${entity.signatureColour})`,
-      );
+    if (entity.signatureColour) {
+      ThemeService.apply(previewEl, entity.signatureColour);
+    }
 
     // 1. Top Section: Image (Opens Profile)
     const media = document.createElement("div");

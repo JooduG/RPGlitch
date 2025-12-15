@@ -1,8 +1,9 @@
 // apps/rpglitch/js/drawer.js
-import { entities } from "./entity-crud.js";
-import { getPictureHTML, log, error } from "./core-utils.js";
+import { entities } from "../../../data/repo.js";
+import { getPictureHTML, log, error } from "../../../core/utils.js";
 // [NEW] Import visual helper
-import { getVisualState } from "./entity-structs.js";
+import { getVisualState } from "../../../data/models.js";
+import { ThemeService } from "../../services/theme.js";
 
 const DRAWER_ID = "entity-drawer";
 const BACKDROP_ID = "entity-drawer-backdrop";
@@ -140,10 +141,7 @@ function createCard(item, type, onCreate) {
     });
   } else {
     if (item.signatureColour) {
-      card.style.setProperty(
-        "--card-signature",
-        `var(--signature-${item.signatureColour})`,
-      );
+      ThemeService.apply(card, item.signatureColour);
     }
 
     if (typeof getPictureHTML === "function") {

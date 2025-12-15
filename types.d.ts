@@ -57,7 +57,7 @@ interface Entity {
   /** Unique ID (e.g., "entity-C1", or auto-incremented number) */
   id: number | string;
   /** Entity Type */
-  type: "character" | "fractal" | "world"; // 'world' kept for legacy compatibility
+  type: "character" | "fractal"
   /** Display Name */
   name: string;
   /** Short summary */

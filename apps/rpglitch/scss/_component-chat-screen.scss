@@ -260,7 +260,6 @@
   z-index: 20;
   max-width: 90%;
   overflow: hidden;
-  color: white;
   background-color: rgb(24 28 37 / 95%);
   backdrop-filter: blur(8px);
   border: 2px solid var(--pico-muted-border-color);
@@ -287,12 +286,16 @@
   left: 1rem;
   right: auto;
 
-  @each $name, $data in $signature-colors {
-    .signature-#{$name} & {
-      border-color: rgb(var(--user-signature-rgb, 255, 255, 255) 0.5);
-      color: rgb(var(--user-signature-rgb, 255, 255, 255) 1);
-    }
-  }
+  // Dynamic Coloring via ThemeService
+  // Logic: Use local var if set (by ThemeService), else fallback or global
+  // Note: ThemeService.apply() sets --signature-color on the container (#gameplay-user-portrait)
+  // which cascades down to here because .character-name-overlay is a child.
+
+  border-color: rgba(var(--signature-rgb, 255 255 255), 0.5);
+  color: var(--signature-color, #fff);
+
+  // Specific override for glow effect using same color
+  text-shadow: 0 0 10px rgba(var(--signature-rgb, 255 255 255), 0.3);
 }
 
 // Right-Aligned (User Character)

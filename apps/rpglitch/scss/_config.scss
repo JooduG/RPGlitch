@@ -21,86 +21,92 @@ $pico-del-color: #dc3545;
 // --- PALETTE: SIGNATURES ---
 // Single Source of Truth for character/UI themes
 $signature-colors: (
+  // --- REDS & WARM ---
   "red": (
-    color: #d93526,
-    rgb: 217 53 38
+      color: #ef4444,
+    ),
+  "orange": (
+    color: #f97316,
   ),
-  "pink": (
-    color: #f42c6f,
-    rgb: 244 44 111
+  "amber": (
+    color: #f59e0b,
   ),
-  "fuchsia": (
-    color: #ed2aac,
-    rgb: 237 42 172
+  "yellow": (
+    color: #eab308,
   ),
-  "purple": (
-    color: #aa40bf,
-    rgb: 170 64 191
+  "lime": (
+    color: #84cc16,
   ),
-  "violet": (
-    color: #9062ca,
-    rgb: 144 98 202
+
+  // --- GREENS ---
+  "emerald": (
+      color: #10b981,
+    ),
+  "green": (
+    color: #398712,
   ),
-  "indigo": (
-    color: #7569da,
-    rgb: 117 105 218
+  "jade": (
+    color: #00895a,
   ),
-  "blue": (
-    color: #0f2d70,
-    rgb: 15 45 112
+
+  // --- BLUES & CYANS ---
+  "cyan": (
+      color: #06b6d4,
+    ),
+  "sky": (
+    color: #0ea5e9,
   ),
   "azure": (
     color: #017fc0,
-    rgb: 1 127 192
   ),
-  "cyan": (
-    color: #05a2a2,
-    rgb: 5 162 162
+  "blue": (
+    color: #3b82f6,
   ),
-  "jade": (
-    color: #00b478,
-    rgb: 0 180 120
+  "indigo": (
+    color: #6366f1,
   ),
-  "green": (
-    color: #47a417,
-    rgb: 71 164 23
+
+  // --- PURPLES & PINKS ---
+  "violet": (
+      color: #9062ca,
+    ),
+  "purple": (
+    color: #b645cd,
   ),
-  "lime": (
-    color: #99c801,
-    rgb: 153 200 1
+  "fuchsia": (
+    color: #d946ef,
   ),
-  "yellow": (
-    color: #f2df0d,
-    rgb: 242 223 13
+  "pink": (
+    color: #ec4899,
   ),
-  "amber": (
-    color: #ffbf00,
-    rgb: 255 191 0
+  "rose": (
+    color: #f43f5e,
   ),
-  "pumpkin": (
-    color: #d27a01,
-    rgb: 210 122 1
-  ),
-  "orange": (
-    color: #e74b1a,
-    rgb: 231 75 26
-  ),
-  "sand": (
-    color: #959082,
-    rgb: 149 144 130
+
+  // --- NEUTRALS ---
+  "slate": (
+      color: #64748b,
+    ),
+  "zinc": (
+    color: #71717a,
   ),
   "grey": (
-    color: #777,
-    rgb: 119 119 119
+    color: #94a3b8,
   ),
-  "zinc": (
-    color: #6f7887,
-    rgb: 111 120 135
+  "sand": (
+    color: #d6d3d1,
   ),
-  "slate": (
-    color: #687899,
-    rgb: 104 120 153
-  )
+  "dark": (
+    color: #334155,
+  ),
+  "light": (
+    color: #f8fafc,
+  ),
+
+  // --- ALIASES ---
+  "pumpkin": (
+      color: #f97316,
+    )
 );
 
 // --- BREAKPOINTS ---
@@ -117,7 +123,7 @@ $z-map: (
   overlay: 100,
   modal: 150,
   drawer: 2000,
-  toast: 10000
+  toast: 10000,
 );
 
 // Helper function to access z-indices

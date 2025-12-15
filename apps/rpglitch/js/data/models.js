@@ -1,5 +1,5 @@
 // apps/rpglitch/js/entity-structs.js
-import { sanitizeHtml, getRandomSignatureKey } from "./core-utils.js";
+import { sanitizeHtml, getRandomSignatureKey } from "../core/utils.js";
 
 // --- PREMADE CONTENT (Kept for seeding) ---
 const premade = {

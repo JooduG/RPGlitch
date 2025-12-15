@@ -1,13 +1,13 @@
-import { state } from "./app-state.js";
-import { entities } from "./entity-crud.js";
-import { VirtualFeed } from "./utils-virtual-feed.js";
-import { events, EVENTS } from "./core-events.js";
-import { renderMessage } from "./ui-chat-message.js"; // Circular safe
+import { state } from "../../../core/state.js";
+import { entities } from "../../../data/repo.js";
+import { VirtualFeed } from "./virtual-feed.js";
+import { events, EVENTS } from "../../../core/events.js";
+import { renderMessage } from "./bubble.js"; // Circular safe
 import {
   updateDirectorModeClass,
   updatePortraits,
   applyFractalAmbience,
-} from "./ui-chat-visuals.js";
+} from "../../visuals/image-gen-ui.js";
 
 // --- STATE ---
 export const selectedEntities = {

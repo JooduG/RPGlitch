@@ -1,7 +1,7 @@
 // apps/rpglitch/js/core-db.js
 "use strict";
 
-import { log, error } from "./core-utils.js"; // Renamed import
+import { log, error } from "./utils.js"; // Renamed import
 
 // 1. Create the database instance.
 let Dexie;

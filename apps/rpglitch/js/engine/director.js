@@ -1,7 +1,7 @@
-import { db } from "./core-db.js";
-import { state, applyPatch } from "./app-state.js";
-import { generateStream } from "./llm-adapter.js";
-import { entities } from "./entity-crud.js";
+import { db } from "../core/db.js";
+import { state, applyPatch } from "../core/state.js";
+import { generateStream } from "./llm.js";
+import { entities } from "../data/repo.js";
 import {
   renderChat,
   setGameplayEntities,
@@ -9,15 +9,15 @@ import {
   removeTypingIndicator,
   setSendLock,
   setChatGeneratingState,
-} from "./ui-chat-feed.js";
-import { updatePortraits, applyFractalAmbience } from "./ui-chat-visuals.js";
+} from "../ui/components/chat/feed.js";
+import { updatePortraits, applyFractalAmbience } from "../ui/visuals/image-gen-ui.js";
 
-import { error, calculateBlendedParams, log } from "./core-utils.js";
-import { ContextBuilder } from "./engine-prompt-builder.js";
-import { analyzeRejection, getDirectorInstruction } from "./engine-variance.js";
-import { bridge } from "./worker-bridge.js";
-import { events, EVENTS } from "./core-events.js";
-import { VisualManager } from "./manager-visuals.js";
+import { error, calculateBlendedParams, log } from "../core/utils.js";
+import { ContextBuilder } from "./prompter.js";
+import { analyzeRejection, getDirectorInstruction } from "./variance.js";
+import { bridge } from "./physics/bridge.js";
+import { events, EVENTS } from "../core/events.js";
+import { VisualManager } from "../ui/services/visuals.js";
 
 export const TurnManager = {
   requireActive: () => {
