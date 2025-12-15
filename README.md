@@ -61,7 +61,7 @@ Start here, then pick your path:
 
 - **Features & Roadmap:** **[.agent/planning/plan.md](./.agent/planning/plan.md)** (What we are building)
 - **Deep Technical Guide:** **[.agent/knowledge/perchance-technical.md](./.agent/knowledge/perchance-technical.md)** (Architecture & Freedom Protocol)
-- **UI Architecture:** **[design-system.md](./design-system.md)**
+- **UI Architecture:** **[.agent/rules/style.md](./.agent/rules/style.md)**
 
 ---
 
@@ -88,8 +88,7 @@ Start here, then pick your path:
 ### Documentation & Planning
 
 - **[`plan.md`](./.agent/planning/plan.md)** - Project roadmap, feature backlog, execution plans
-- **[`design-system.md`](./design-system.md)** - UI/UX guidelines, components, Icon-Free Mandate
-- **[`memory-bank/archive/`](./memory-bank/archive/)** - Historical task logs & decisions (read-only)
+- **[`style.md`](./.agent/rules/style.md)** - UI/UX guidelines, components, Icon-Free Mandate
 
 ---
 
@@ -97,7 +96,7 @@ Start here, then pick your path:
 
 ### For Humans
 
-1. Check **[design-system.md](./design-system.md)** for UI rules
+1. Check **[.agent/rules/style.md](./.agent/rules/style.md)** for UI rules
 2. Understand the architecture in `/apps/`
 3. See **[.agent/planning/plan.md](./.agent/planning/plan.md)** for what to work on next
 
@@ -208,7 +207,7 @@ See **[.agent/knowledge/perchance-technical.md](./.agent/knowledge/perchance-tec
 
 ## 🚀 Next Steps
 
-1. **Building UI?** - See **[design-system.md](./design-system.md)**
+1. **Building UI?** - See **[.agent/rules/style.md](./.agent/rules/style.md)**
 2. **Planning features?** - See **[.agent/planning/plan.md](./.agent/planning/plan.md)**
 3. **Deploying to Perchance?** - See **[.agent/knowledge/perchance-technical.md](./.agent/knowledge/perchance-technical.md)**
 

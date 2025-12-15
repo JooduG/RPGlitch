@@ -14,19 +14,19 @@ ImageGlitch does **not** use the standard Perchance image plugin. It implements 
 
 The application uses two distinct AI personas to process user input before generation:
 
-* **The Scribe (Refinement):** A "Holistic Architect" that analyzes simple prompts, identifies missing artistic categories (lighting, composition, mood), and intelligently fills them while preserving the user's core vision.
-* **The Chaos Engine (Mutation):** An "Entropy Injector" that deliberately introduces random mutations and serendipitous keywords to force the generator out of local minima.
+- **The Scribe (Refinement):** A "Holistic Architect" that analyzes simple prompts, identifies missing artistic categories (lighting, composition, mood), and intelligently fills them while preserving the user's core vision.
+- **The Chaos Engine (Mutation):** An "Entropy Injector" that deliberately introduces random mutations and serendipitous keywords to force the generator out of local minima.
 
 ### 2. The Backend Bridge
 
-* **Direct API Integration:** The app constructs direct calls to external Stable Diffusion endpoints (Pollinations.ai), bypassing the standard plugin limitations for greater parameter control.
-* **Parameter Mapping:** A custom "Creativity Slider" maps abstract user intent (0-10) to concrete diffusion parameters:
-  * **Guidance Scale:** Controls adherence to the prompt.
-  * **AI Temperature:** Controls the randomness of the prompt refinement step.
+- **Direct API Integration:** The app constructs direct calls to external Stable Diffusion endpoints (Pollinations.ai), bypassing the standard plugin limitations for greater parameter control.
+- **Parameter Mapping:** A custom "Creativity Slider" maps abstract user intent (0-10) to concrete diffusion parameters:
+  - **Guidance Scale:** Controls adherence to the prompt.
+  - **AI Temperature:** Controls the randomness of the prompt refinement step.
 
 ### 3. The Shield (Client-Side Stability)
 
-* **Freedom Protocol:** Implements the standard client-side override to prevent the hosting platform from flagging valid artistic prompts as unsafe.
+- **Freedom Protocol:** Implements the standard client-side override to prevent the hosting platform from flagging valid artistic prompts as unsafe.
 
 ---
 
@@ -66,13 +66,13 @@ apps/imageglitch/imageglitch.html
 
 ## Technology Stack
 
-* **State Management:** `remember-plugin` (User preferences) & Dexie.js (History)
-* **UI Framework:** Custom components built on Pico.css
-* **JavaScript:** ES6+ modules (bundled via esbuild)
-* **Backend:** Pollinations.ai (Stable Diffusion)
+- **State Management:** `remember-plugin` (User preferences) & Dexie.js (History)
+- **UI Framework:** Custom components built on Pico.css
+- **JavaScript:** ES6+ modules (bundled via esbuild)
+- **Backend:** Pollinations.ai (Stable Diffusion)
 
 ## Related Documentation
 
-* [Deployment Guide & Freedom Protocol](../../PERCHANCE.md)
-* [UI/UX Guidelines](../../design-system.md)
-* [Development Protocol](../../GEMINI.md)
+- [Deployment Guide & Freedom Protocol](../../.agent/knowledge/perchance-technical.md)
+- [UI/UX Guidelines](../../.agent/rules/style.md)
+- [Agent Protocol](../../AGENTS.md)

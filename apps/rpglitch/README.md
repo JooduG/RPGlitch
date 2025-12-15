@@ -146,8 +146,12 @@ apps/rpglitch/
 │   ├── entity-crud.js         # Data Models
 │   └── ui-*.js                # View Logic
 └── scss/
+└── scss/
     ├── index.scss             # Main entry point
-    └── ...                    # Component styles
+    ├── abstracts/             # Variables & Mixins
+    ├── base/                  # Reset & Typography
+    ├── layout/                # Grid & Modes
+    └── components/            # UI Components
 ```
 
 ## Build
@@ -169,6 +173,6 @@ apps/rpglitch/RPGlitch.html
 
 ## Related Documentation
 
-- [Deployment & Integration Guide](../../PERCHANCE.md)
-- [UI/UX Guidelines](../../design-system.md)
-- [Development Protocol](../../GEMINI.md)
+- [Deployment & Integration Guide](../../.agent/knowledge/perchance-technical.md)
+- [UI/UX Guidelines](../../.agent/rules/style.md)
+- [Agent Protocol](../../AGENTS.md)
