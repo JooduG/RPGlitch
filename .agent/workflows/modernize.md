@@ -6,8 +6,6 @@ description: Safe refactoring pipeline: Analyzes legacy code, creates a test saf
 
 This workflow orchestrates the safe refactoring of legacy code into the modern JooduG stack.
 
-**Trigger:** User says "Modernize [file]", "Refactor [file]", or "Upgrade [file]".
-
 ## 1. The Strategy Phase (Planning Mode)
 
 Before writing code, we must understand the debt.

@@ -6,8 +6,6 @@ description: Security Audit: Verifies the "Freedom Protocol" anti-censorship lay
 
 This workflow performs a deep scan of the codebase to verify critical security and stability layers.
 
-**Trigger:** User says "Audit", "Security Check", "Verify Integrity", or "Check Safety".
-
 ## 1. The Freedom Protocol Check (Client-Side Stability)
 
 We must ensure the platform cannot overwrite user preferences.

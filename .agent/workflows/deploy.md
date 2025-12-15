@@ -6,8 +6,6 @@ description: Automated pipeline: Syncs config, Lints, Tests, Builds apps, Verifi
 
 This workflow automates the build, test, and verification pipeline for Perchance deployment.
 
-**Trigger:** User says "Deploy", "Ship it", "Build", or "Publish".
-
 ## 1. Quality Assurance (The Gatekeepers)
 
 Before generating artifacts, we must ensure the codebase is healthy.

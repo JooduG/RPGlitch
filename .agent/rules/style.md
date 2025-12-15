@@ -9,11 +9,12 @@ This document defines the **Visual Language** and component standards for RPGlit
 ## 1. The "Icon-Free" Mandate
 
 * **Core Principle:** Clarity over decoration.
-* **Rule:** All interactive elements (Buttons, Links, Nav) **MUST** primarily convey meaning through **Text Labels**.
-  * ❌ *Bad:* A button with just a "Floppy Disk" icon.
-  * ✅ *Good:* `<button>Save Game</button>`
-  * ✅ *Allowed:* `<button>Save Game 💾</button>` (Emoji/Icon as embellishment only).
-* **Reason:** Ensures accessibility and prevents ambiguity.
+* **Rule:** Interactive elements should primarily convey meaning through **Text Labels**.
+* **Exception:** Icon-only buttons are permitted **IF AND ONLY IF** they include a descriptive `aria-label` or `title` attribute.
+  * ❌ *Bad:* `<button><svg>...</svg></button>` (Ambiguous)
+  * ✅ *Good:* `<button>Save Game</button>` (Clear)
+  * ✅ *Allowed:* `<button aria-label="Settings" title="Settings"><svg>...</svg></button>` (Accessible Icon-Only)
+* **Reason:** Ensures accessibility while retaining design flexibility.
 
 ## 2. Visual System
 
@@ -53,3 +54,4 @@ This document defines the **Visual Language** and component standards for RPGlit
 * **Format:** SCSS (`.scss`).
 * **Structure:** 7-1 Pattern (ish).
 * **Constraint:** Do not nest selectors more than **3 levels deep**.
+
