@@ -9,6 +9,7 @@ Polish and maintenance tasks to pick up when convenient, or ideas that strictly 
 | **Automate Hygiene**       | [DevOps]   | L      | S      | Scripting    | Script to detect and delete orphan files (unused SCSS/JS).                         |
 | **Parallel Build Scripts** | [DevOps]   | L      | S      | NPM          | Use `npm-run-all` to build RPGlitch and ImageGlitch simultaneously.                |
 | **Prompt Snapshots**       | [Testing]  | L      | M      | Jest         | Test to assert that generated system prompts match a "Golden Master" snapshot.     |
+| **Neural Voice (TTS)**     | [Audio]    | H      | M      | Pollinations | Use AI (Pollinations) to generate spoken audio for character dialogue.             |
 
 ---
 

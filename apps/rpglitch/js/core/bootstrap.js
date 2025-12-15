@@ -98,10 +98,7 @@ const App = {
       }
 
       log("[Universal Stage] Ready.");
-
-      const loadingModal = document.getElementById("loading-modal");
-      if (loadingModal) loadingModal.close();
-      console.log("[Universal Stage] Loading modal closed.");
+      // Skeleton removed in finally block
     } catch (e) {
       console.error("[Universal Stage] Initialization failed:", e);
       const emergencyModal = document.getElementById("emergency-modal");
@@ -161,7 +158,7 @@ const App = {
   // mockPlugins moved to core-utils.js
 
   async initializeApp() {
-    const modal = document.querySelector("#loading-modal");
+    const modal = document.querySelector("#boot-skeleton");
 
     if (typeof window.DOMPurify === "undefined") {
       const msg =
@@ -220,8 +217,10 @@ const App = {
       if (emergencyModal) emergencyModal.showModal();
     } finally {
       if (modal) {
-        modal.close();
-        modal.display = "none"; // Fix: style.display
+        modal.classList.add("fade-out");
+        setTimeout(() => {
+          modal.remove();
+        }, 500);
       }
     }
   },

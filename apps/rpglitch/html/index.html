@@ -18,14 +18,40 @@
 
     <div id="fractal-background"></div>
 
-    <dialog id="loading-modal">
-      <article>
-        <header>
-          <a href="#close" aria-label="Close" class="close"></a>Loading...
-        </header>
-        <p aria-busy="true">Please wait while the application loads.</p>
-      </article>
-    </dialog>
+    <div id="boot-skeleton">
+      <div class="skeleton-column">
+        <div class="skeleton-card"></div>
+        <div class="skeleton" style="flex-grow: 1"></div>
+      </div>
+      <div class="skeleton-column skeleton-main">
+        <div class="skeleton-card fractal-card"></div>
+        <div class="skeleton-msg">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-bubble">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+          </div>
+        </div>
+        <div class="skeleton-msg skeleton-msg--right">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-bubble">
+            <div class="skeleton-line"></div>
+          </div>
+        </div>
+        <div class="skeleton-msg">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-bubble">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+          </div>
+        </div>
+      </div>
+      <div class="skeleton-column">
+        <div class="skeleton-card"></div>
+        <div class="skeleton" style="flex-grow: 1"></div>
+      </div>
+    </div>
 
     <dialog id="emergency-modal">
       <article>
