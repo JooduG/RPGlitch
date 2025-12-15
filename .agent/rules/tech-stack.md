@@ -25,7 +25,10 @@ This document defines the **Mandatory Technology Stack** and coding standards fo
   * **Default:** `const`
   * **Mutation:** `let`
   * **Forbidden:** `var` (Strictly prohibited).
-* **Type Safety:** Use JSDoc + `types.d.ts` for type checking. Do not use TypeScript syntax (`.ts` files) in the `apps/` logic, as the build pipeline expects vanilla JS.
+* **Type Safety:** 
+  * Use JSDoc + `types.d.ts` for type checking.
+  * **Mandate:** All data structures MUST adhere to definitions in `types.d.ts`.
+  * Do not use TypeScript syntax (`.ts` files) in the `apps/` logic, as the build pipeline expects vanilla JS.
 
 ---
 
@@ -59,3 +62,4 @@ This document defines the **Mandatory Technology Stack** and coding standards fo
   * **Database:** Dexie.js MUST be mocked using `fake-indexeddb`. Never attempt to open a real IndexedDB in the test environment.
   * **DOM:** Use `jsdom` queries and event simulation.
 * **Philosophy:** Prioritize testing pure functions. Verify DOM updates via state changes, not just HTML strings.
+

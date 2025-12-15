@@ -16,9 +16,32 @@ npm run build:apps
 # Test & lint
 npm test && npm run lint:fix
 
-# Deploy to Perchance
 npm run deploy
 ```
+
+---
+
+## 🚢 Deployment Workflow (The "Manual Bridge")
+
+Because Perchance does not have an API, deployment involves a manual "Copy-Paste" step after building.
+
+### 1. Build
+
+Run `npm run deploy` (or `npm run build:apps`).
+
+### 2. Copy Left Panel (The Engine)
+
+1. Open `apps/[App]/[App]-left-panel.txt`.
+2. Copy **entire contents**.
+3. Paste into Perchance Editor -> **Lists (Left Panel)**.
+
+### 3. Copy Right Panel (The Stage)
+
+1. Open `apps/[App]/[App].html`.
+2. Copy **entire contents**.
+3. Paste into Perchance Editor -> **HTML (Right Panel)**.
+
+_Save and Refresh to go live._
 
 ---
 
@@ -28,34 +51,26 @@ npm run deploy
 
 ### 🤖 For AI Assistants
 
-**Load your AI platform protocol first** (this defines your complete workflow):
+**STOP.** Do not read this file further.
 
-- **Claude Code** → **[CLAUDE.md](./CLAUDE.md)** - Complete operational protocol
-- **Gemini** → **[GEMINI.md](./GEMINI.md)** - Complete operational protocol
-
-Then reference:
-
-1. **[PERCHANCE.md](./PERCHANCE.md)** - Deployment workflow (manual steps to Perchance.org)
-2. **[design-system.md](./design-system.md)** - UI/UX rules and component specs
-3. **[plan.md](./plan.md)** - Feature backlog and roadmap
+> **[GO TO AGENTS.md](./AGENTS.md)**: Your dedicated entry point, context map, and rigid protocol definitions.
 
 ### 👤 For Humans (Developers)
 
-Start here, then pick your task:
+Start here, then pick your path:
 
-- **New to the codebase?** → Read **[perchance-development-guide.md](./perchance-development-guide.md)** (comprehensive platform reference)
-- **Building UI?** → Read **[design-system.md](./design-system.md)** (Icon-Free Mandate, components, examples)
-- **Deploying?** → Read **[PERCHANCE.md](./PERCHANCE.md)** (Two-Panel Architecture, manual deployment steps)
-- **Planning features?** → Read **[plan.md](./plan.md)** (roadmap, backlog, next steps)
+- **Features & Roadmap:** **[plan.md](./plan.md)** (What we are building)
+- **Deep Technical Guide:** **[.agent/knowledge/perchance-technical.md](./.agent/knowledge/perchance-technical.md)** (Architecture & Freedom Protocol)
+- **UI Architecture:** **[design-system.md](./design-system.md)**
 
 ---
 
 ## 📁 Repository Structure
 
-### Applications
+### Apps Structure
 
-- **[`apps/rpglitch/`](./apps/rpglitch/)** - RPG entity manager (Characters, Worlds, Stories, Chat)
-- **[`apps/imageglitch/`](./apps/imageglitch/)** - Text-to-image generator
+- **[RPGlitch](./apps/rpglitch/README.md)** - RPG entity manager (Characters, Worlds, Stories)
+- **[ImageGlitch](./apps/imageglitch/README.md)** - Text-to-image generator
 
 ### Build System
 
@@ -172,13 +187,13 @@ npm run mcp:start-all         # Start all MCP servers
 
 ## 🏗️ Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **State** | IndexedDB (Dexie.js) | Local-first storage, single source of truth |
-| **UI Framework** | Pico.css (+ custom SCSS) | Minimalist, semantic styling |
-| **JavaScript** | ES6+ modules (vanilla) | Pure, modular, no frameworks |
-| **Security** | DOMPurify | XSS prevention for dynamic HTML |
-| **Build** | esbuild + PostCSS | Compile & inline into single HTML file |
+| Layer            | Technology               | Purpose                                     |
+| ---------------- | ------------------------ | ------------------------------------------- |
+| **State**        | IndexedDB (Dexie.js)     | Local-first storage, single source of truth |
+| **UI Framework** | Pico.css (+ custom SCSS) | Minimalist, semantic styling                |
+| **JavaScript**   | ES6+ modules (vanilla)   | Pure, modular, no frameworks                |
+| **Security**     | DOMPurify                | XSS prevention for dynamic HTML             |
+| **Build**        | esbuild + PostCSS        | Compile & inline into single HTML file      |
 
 See **[PERCHANCE.md](./PERCHANCE.md)** for the Two-Panel Architecture explanation and deployment workflow.
 
@@ -186,17 +201,17 @@ See **[PERCHANCE.md](./PERCHANCE.md)** for the Two-Panel Architecture explanatio
 
 ## 📖 Glossary
 
-| Term | Meaning |
-|------|---------|
-| Chin | Slide-out side panel in RPGlitch UI |
-| Storyboard | 3-column grid for selecting Story/Character/World |
-| Two-Panel Architecture | Perchance Left (engine) + Right (UI) separation |
-| FSM | Finite State Machine (Chat state: idle, sending, streaming, done) |
-| Watchdog | Polling mechanism to detect and auto-heal UI blocking |
-| Overlay Guard | Function to force-close lingering UI blockers |
-| DOMPurify | HTML sanitizer library (prevents XSS) |
-| Dexie | IndexedDB wrapper library (state persistence) |
-| STO Framework | Strategy -\> Tactics -\> Operations (execution blueprint) |
+| Term                   | Meaning                                                           |
+| ---------------------- | ----------------------------------------------------------------- |
+| Chin                   | Slide-out side panel in RPGlitch UI                               |
+| Storyboard             | 3-column grid for selecting Story/Character/World                 |
+| Two-Panel Architecture | Perchance Left (engine) + Right (UI) separation                   |
+| FSM                    | Finite State Machine (Chat state: idle, sending, streaming, done) |
+| Watchdog               | Polling mechanism to detect and auto-heal UI blocking             |
+| Overlay Guard          | Function to force-close lingering UI blockers                     |
+| DOMPurify              | HTML sanitizer library (prevents XSS)                             |
+| Dexie                  | IndexedDB wrapper library (state persistence)                     |
+| STO Framework          | Strategy -\> Tactics -\> Operations (execution blueprint)         |
 
 ---
 
@@ -217,4 +232,4 @@ See **[PERCHANCE.md](./PERCHANCE.md)** for the Two-Panel Architecture explanatio
 
 ---
 
-*Optimized for AI-assisted Perchance development. Humans welcome too.*
+_Optimized for AI-assisted Perchance development. Humans welcome too._
