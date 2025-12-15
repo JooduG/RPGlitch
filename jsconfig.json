@@ -4,7 +4,6 @@
     "**/.git/**",
     "**/archive/**",
     "**/build/local_libs/**",
-    "**/memory-bank/archive/**",
     "*.bak",
     "*.log",
     "*.tmp",

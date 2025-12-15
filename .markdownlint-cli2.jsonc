@@ -31,7 +31,6 @@
     "/dist",
     "apps/imageglitch/imageglitch.html",
     "apps/rpglitch/RPGlitch.html",
-    "libs/**",
-    "memory-bank/scribbles.md"
+    "libs/**"
   ]
 }

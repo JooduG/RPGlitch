@@ -59,7 +59,7 @@ _Save and Refresh to go live._
 
 Start here, then pick your path:
 
-- **Features & Roadmap:** **[plan.md](./plan.md)** (What we are building)
+- **Features & Roadmap:** **[.agent/planning/plan.md](./.agent/planning/plan.md)** (What we are building)
 - **Deep Technical Guide:** **[.agent/knowledge/perchance-technical.md](./.agent/knowledge/perchance-technical.md)** (Architecture & Freedom Protocol)
 - **UI Architecture:** **[design-system.md](./design-system.md)**
 
@@ -87,7 +87,7 @@ Start here, then pick your path:
 
 ### Documentation & Planning
 
-- **[`plan.md`](./plan.md)** - Project roadmap, feature backlog, execution plans
+- **[`plan.md`](./.agent/planning/plan.md)** - Project roadmap, feature backlog, execution plans
 - **[`design-system.md`](./design-system.md)** - UI/UX guidelines, components, Icon-Free Mandate
 - **[`memory-bank/archive/`](./memory-bank/archive/)** - Historical task logs & decisions (read-only)
 
@@ -97,18 +97,9 @@ Start here, then pick your path:
 
 ### For Humans
 
-1. Read the complete protocol: **[CLAUDE.md](./CLAUDE.md)** or **[GEMINI.md](./GEMINI.md)**
-2. Check **[design-system.md](./design-system.md)** for UI rules
-3. Understand the architecture in `/apps/`
-4. See **[plan.md](./plan.md)** for what to work on next
-
-### For AI Assistants
-
-1. Load your platform-specific protocol (CLAUDE.md or GEMINI.md)
-2. Follow the workflow defined in that protocol
-3. Adhere to all **Non-Negotiable Rules** below
-4. Use TodoWrite for task tracking
-5. Run tests after changes
+1. Check **[design-system.md](./design-system.md)** for UI rules
+2. Understand the architecture in `/apps/`
+3. See **[.agent/planning/plan.md](./.agent/planning/plan.md)** for what to work on next
 
 ---
 
@@ -195,7 +186,7 @@ npm run mcp:start-all         # Start all MCP servers
 | **Security**     | DOMPurify                | XSS prevention for dynamic HTML             |
 | **Build**        | esbuild + PostCSS        | Compile & inline into single HTML file      |
 
-See **[PERCHANCE.md](./PERCHANCE.md)** for the Two-Panel Architecture explanation and deployment workflow.
+See **[.agent/knowledge/perchance-technical.md](./.agent/knowledge/perchance-technical.md)** for the Two-Panel Architecture explanation and deployment workflow.
 
 ---
 
@@ -217,16 +208,14 @@ See **[PERCHANCE.md](./PERCHANCE.md)** for the Two-Panel Architecture explanatio
 
 ## 🚀 Next Steps
 
-1. **New to the project?** - Read **[CLAUDE.md](./CLAUDE.md)** or **[GEMINI.md](./GEMINI.md)**
-2. **Building UI?** - See **[design-system.md](./design-system.md)**
-3. **Planning features?** - See **[plan.md](./plan.md)**
-4. **Deploying to Perchance?** - See **[PERCHANCE.md](./PERCHANCE.md)**
+1. **Building UI?** - See **[design-system.md](./design-system.md)**
+2. **Planning features?** - See **[.agent/planning/plan.md](./.agent/planning/plan.md)**
+3. **Deploying to Perchance?** - See **[.agent/knowledge/perchance-technical.md](./.agent/knowledge/perchance-technical.md)**
 
 ---
 
 ## 📞 Support
 
-- **AI Protocols:** **[CLAUDE.md](./CLAUDE.md)** | **[GEMINI.md](./GEMINI.md)**
 - **Build Issues:** [build/README.md](./build/README.md)
 - **Testing:** [tests/](./tests/)
 

@@ -5,7 +5,7 @@
     "*.tmp",
     "**/.git/**",
     "**/archive/**",
-    "**/memory-bank/archive/**",
+    "**/archive/**",
     "**/build/local_libs/**",
     "libs/**",
     "apps/rpglitch/RPGlitch.html",
@@ -89,7 +89,7 @@
       "/coverage",
       "/dist",
       ".markdownlint.json",
-      "memory-bank/scribbles.md"
+      ".markdownlint.json"
     ]
   },
   "vscode": {

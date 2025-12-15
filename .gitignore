@@ -4,7 +4,7 @@
 *.tmp
 **/.git/**
 **/archive/**
-**/memory-bank/archive/**
+**/archive/**
 **/build/local_libs/**
 libs/**
 apps/rpglitch/RPGlitch.html

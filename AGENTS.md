@@ -5,7 +5,7 @@ Below is your map to the `.agent/` directory.
 
 ## 📌 Core Context (The "Pinned" Files)
 
-- **Roadmap:** [plan.md](plan.md)
+- **Roadmap:** [.agent/planning/plan.md](.agent/planning/plan.md)
 - **Type Definitions:** [types.d.ts](types.d.ts)
 - **Perchance Technical Manual:** [.agent/knowledge/perchance-technical.md](.agent/knowledge/perchance-technical.md)
 - **Perchance Guide:** [.agent/knowledge/perchance-guide.md](.agent/knowledge/perchance-guide.md)
