@@ -1,9 +1,5 @@
 import { ThemeService } from "../../services/theme.js";
-import {
-  getPictureHTML,
-  renderTags,
-  setTopBarRight,
-} from "../../services/ui-utils.js";
+import { getPictureHTML, setTopBarRight } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
 import { escapeHtml } from "../../../core/utils.js";
@@ -105,16 +101,16 @@ export async function renderProfileView(
   headerWrap.appendChild(descDisplay);
 
   // --- TAGS ---
-  const tagsRow = document.createElement("div");
-  tagsRow.className = "field-row";
-  tagsRow.innerHTML = `<div class="field-label"><label>Tags</label></div><div class="field-input"></div>`;
-  const inputContainer = tagsRow.querySelector(".field-input");
-  if (renderTags) {
-    renderTags(inputContainer, entity);
-  } else {
-    inputContainer.textContent = (entity.tags || []).join(", ");
-  }
-  headerWrap.after(tagsRow);
+  // const tagsRow = document.createElement("div");
+  // tagsRow.className = "field-row";
+  // tagsRow.innerHTML = `<div class="field-label"><label>Tags</label></div><div class="field-input"></div>`;
+  // const inputContainer = tagsRow.querySelector(".field-input");
+  // if (renderTags) {
+  //   renderTags(inputContainer, entity);
+  // } else {
+  //   inputContainer.textContent = (entity.tags || []).join(", ");
+  // }
+  // headerWrap.after(tagsRow);
 
   // --- SECTIONS ---
   const secWrap = form.querySelector("[data-profile-sections]");

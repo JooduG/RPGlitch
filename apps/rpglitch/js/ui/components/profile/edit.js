@@ -280,6 +280,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
   setTimeout(() => autoResize(descInput), 0);
 
   // --- TAGS ---
+  /*
   const tagsRow = document.createElement("div");
   tagsRow.className = "field-row";
   tagsRow.innerHTML = `
@@ -291,6 +292,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
   tagInput.addEventListener("input", () => autoResize(tagInput));
   setTimeout(() => autoResize(tagInput), 0);
   headerWrap.after(tagsRow);
+  */
 
   // --- SECTIONS ---
   const secWrap = form.querySelector("[data-profile-sections]");
@@ -342,10 +344,15 @@ export async function renderProfileEdit(screen, entity, type, id) {
           const el = form.querySelector(`[data-edit-field="${k}"]`);
           if (el) liveEntity[k] = el.value;
         });
-        liveEntity.tags = tagInput.value
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean);
+        const tagInputEl = form.querySelector('[data-edit-field="tags"]');
+        if (tagInputEl) {
+          liveEntity.tags = tagInputEl.value
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean);
+        } else {
+          liveEntity.tags = entity.tags || [];
+        }
 
         const finalPrompt = await VisualManager.composePrompt(
           liveEntity,
@@ -464,10 +471,16 @@ export async function renderProfileEdit(screen, entity, type, id) {
     const nameVal = nameInput.value.trim();
     if (!nameVal) return alert("Name is required");
 
-    const tagsArray = tagInput.value
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
+    let tagsArray = [];
+    const tagInputEl = form.querySelector('[data-edit-field="tags"]');
+    if (tagInputEl) {
+      tagsArray = tagInputEl.value
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+    } else {
+      tagsArray = entity.tags || [];
+    }
     const finalImageUrl = escapeHtml(
       imageInput.dataset.pendingUrl || imageInput.value.trim(),
     );
