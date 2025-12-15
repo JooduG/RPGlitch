@@ -89,7 +89,8 @@
       "/coverage",
       "/dist",
       ".markdownlint.json",
-      ".markdownlint.json"
+      "*.resolved",
+      ".gemini/**"
     ]
   },
   "vscode": {

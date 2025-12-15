@@ -72,6 +72,21 @@
     "chrome-devtools": {
       "command": "cmd",
       "args": ["/c", "npx", "chrome-devtools-mcp@latest"]
+    },
+    "waldzell-metagames": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "waldzell-metagames-server"],
+      "type": "stdio"
+    },
+    "deepwiki": {
+      "url": "https://mcp.deepwiki.com/sse"
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9",
+        "Accept": "application/json, text/event-stream"
+      }
     }
   }
 }

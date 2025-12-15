@@ -86,6 +86,12 @@ async function syncLibs() {
         "abf1352af0b3d46aa875be259fcee0454bfc7e95e5f8b22e071c19027b6a3b64",
     },
     {
+      url: "https://unpkg.com/dexie@4.0.7/dist/dexie.min.js",
+      file: "dexie.min.js",
+      sha256:
+        "b9cf7df979061099f665a39cb67353f478b0906236b2890dd28078351b8c067d",
+    },
+    {
       url: "https://unpkg.com/dompurify@3.1.6/dist/purify.min.js",
       file: "purify.min.js",
       sha256:
@@ -230,7 +236,6 @@ function syncMcp() {
   const resolvedMcp = substituteEnvVariables(masterMcp);
 
   writeJson(path.join(REPO_ROOT, "mcp.json"), resolvedMcp);
-  writeJson(path.join(REPO_ROOT, ".mcp.json"), resolvedMcp);
   console.log("✅ MCP sync complete.");
 }
 
