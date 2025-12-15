@@ -1,4 +1,5 @@
-import { sanitizeHtml, downloadImage } from "../../../core/utils.js";
+import { sanitizeHtml } from "../../../core/utils.js";
+import { downloadImage } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { state } from "../../../core/state.js";
 import { ThemeService } from "../../services/theme.js";

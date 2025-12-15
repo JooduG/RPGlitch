@@ -11,4 +11,10 @@ export const EVENTS = {
   DB_UPDATED: "db:updated",
   TURN_COMPLETED: "turn:completed",
   STORY_LOADED: "story:loaded",
+  MESSAGE_RECEIVED: "message:received",
+  TYPING_STARTED: "typing:started",
+  TYPING_STOPPED: "typing:stopped",
+  GENERATION_STARTED: "generation:started",
+  GENERATION_COMPLETED: "generation:completed",
+  CHAT_REFRESH: "chat:refresh",
 };

@@ -1,7 +1,10 @@
 import { initDrawer, closeDrawer } from "./components/drawer/desktop.js";
 import { setGameplayEntities, setSendLock } from "./components/chat/feed.js";
-import { updatePortraits, applyFractalAmbience } from "./visuals/image-gen-ui.js";
-import { setAppBackground } from "../core/utils.js";
+import {
+  updatePortraits,
+  applyFractalAmbience,
+} from "./visuals/image-gen-ui.js";
+import { setAppBackground } from "./services/ui-utils.js";
 import {
   updateLocalSelection,
   bindDrawerTrigger,
@@ -15,6 +18,7 @@ import {
   closeProfileModal,
   setProfileCallbacks,
 } from "./components/profile/main.js";
+import { events, EVENTS } from "../core/events.js";
 
 // Shared Selection State (The Source of Truth)
 const selectedEntities = {
@@ -25,7 +29,71 @@ const selectedEntities = {
 
 let _onSelectionChanged = null;
 
-export { setGameplayEntities, updatePortraits, setSendLock, router };
+// --- EVENT WIRING (Decoupling) ---
+
+function initEventBinds() {
+  events.addEventListener(EVENTS.STORY_LOADED, async () => {
+    // 1. Refresh Gameplay Entities
+    const state = await import("../core/state.js").then((m) => m.state);
+    if (state.story.activeId) {
+      const db = await import("../core/db.js").then((m) => m.db);
+      const story = await db.stories.get(state.story.activeId);
+      if (story) {
+        setGameplayEntities(
+          story.snapshots.start.ai,
+          story.snapshots.start.user,
+          story.snapshots.start.fractal,
+        );
+        updatePortraits(story.snapshots.start.ai, story.snapshots.start.user);
+        if (story.snapshots.start.fractal) {
+          applyFractalAmbience(story.snapshots.start.fractal);
+        }
+      }
+    }
+  });
+
+  events.addEventListener(EVENTS.CHAT_REFRESH, async (e) => {
+    const { renderChat } = await import("./components/chat/feed.js");
+    if (e.detail?.storyId) {
+      await renderChat(e.detail.storyId);
+    }
+  });
+
+  events.addEventListener(EVENTS.TYPING_STARTED, async (e) => {
+    const { showTypingIndicator } = await import("./components/chat/feed.js");
+    const feed = document.querySelector("#chat-feed");
+    if (feed && e.detail) {
+      showTypingIndicator(feed, e.detail.role, e.detail.characterId);
+    }
+  });
+
+  events.addEventListener(EVENTS.TYPING_STOPPED, async () => {
+    const { removeTypingIndicator } = await import("./components/chat/feed.js");
+    const feed = document.querySelector("#chat-feed");
+    if (feed) removeTypingIndicator(feed);
+  });
+
+  events.addEventListener(EVENTS.GENERATION_STARTED, async () => {
+    const { setSendLock, setChatGeneratingState } =
+      await import("./components/chat/feed.js");
+    setSendLock(true);
+    setChatGeneratingState(true);
+  });
+
+  events.addEventListener(EVENTS.GENERATION_COMPLETED, async () => {
+    const { setSendLock, setChatGeneratingState } =
+      await import("./components/chat/feed.js");
+    setSendLock(false);
+    setChatGeneratingState(false);
+  });
+}
+
+// Initialize Bindings
+initEventBinds();
+
+// --- EXPORTS ---
+
+export { setGameplayEntities, updatePortraits, setSendLock };
 
 // --- CORE ROUTING ---
 function showStoryboard() {
@@ -101,14 +169,6 @@ document.addEventListener(
   },
   { once: true },
 );
-
-const router = {
-  navigate(hash) {
-    location.hash = hash;
-  },
-  parseHash,
-  handleRoute,
-};
 
 export function updateStoryboardSelection(newSelection) {
   // Update Source of Truth

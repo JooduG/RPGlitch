@@ -1,4 +1,5 @@
-import { getPictureHTML, escapeHtml } from "../../core/utils.js";
+import { escapeHtml } from "../../core/utils.js";
+import { getPictureHTML } from "../services/ui-utils.js";
 import { getVisualState } from "../../data/models.js";
 import { state } from "../../core/state.js";
 import { RGB_MAP } from "../../core/constants.js";

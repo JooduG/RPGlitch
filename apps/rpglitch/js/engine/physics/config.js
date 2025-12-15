@@ -25,4 +25,11 @@ export const PHYSICS_CONFIG = {
   TEMP_ENTROPY_WEIGHT_AI: 0.3,
   PENALTY_BASE: 1.0,
   TOP_P_BASE: 1.0,
+
+  // --- Prometheus Engine Config ---
+  PROMETHEUS: {
+    UPDATE_MODULO: 4,
+    UPDATE_OFFSET: 4,
+    TARGET_CYCLE: ["ai_character", "user_character", "fractal"],
+  },
 };

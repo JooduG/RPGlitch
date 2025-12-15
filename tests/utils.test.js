@@ -57,11 +57,13 @@ async function loadApp() {
 
   jest.resetModules();
   const utils = await import("../apps/rpglitch/js/core/utils.js");
+  const uiUtils = await import("../apps/rpglitch/js/ui/services/ui-utils.js");
   const index = await import("../apps/rpglitch/js/core/bootstrap.js");
 
   dom.window.App = {
     ...index,
     ...utils,
+    ...uiUtils,
   };
 
   // Return the isolated JSDOM context and the loaded App instance

@@ -2,15 +2,6 @@ import { db } from "../core/db.js";
 import { state, applyPatch } from "../core/state.js";
 import { generateStream } from "./llm.js";
 import { entities } from "../data/repo.js";
-import {
-  renderChat,
-  setGameplayEntities,
-  showTypingIndicator,
-  removeTypingIndicator,
-  setSendLock,
-  setChatGeneratingState,
-} from "../ui/components/chat/feed.js";
-import { updatePortraits, applyFractalAmbience } from "../ui/visuals/image-gen-ui.js";
 
 import { error, calculateBlendedParams, log } from "../core/utils.js";
 import { ContextBuilder } from "./prompter.js";
@@ -54,9 +45,7 @@ export const TurnManager = {
       mode: "gameplay",
     });
 
-    updatePortraits(startAi, startUser);
-    setGameplayEntities(startAi, startUser, startFractal);
-    if (startFractal) applyFractalAmbience(startFractal);
+    events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
 
     return id;
   },
@@ -74,25 +63,7 @@ export const TurnManager = {
 
       await TurnManager.loadMessages(story.id);
 
-      const [ai, user] = await Promise.all([
-        entities.get("character", story.aiCharacterId),
-        entities.get("character", story.userCharacterId),
-      ]);
-
-      let fractal = await entities.get("fractal", story.fractalId);
       // Fallback removed for strict mode
-
-      updatePortraits(ai, user);
-      setGameplayEntities(ai, user, fractal);
-
-      events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
-
-      if (fractal) {
-        applyFractalAmbience(fractal);
-      }
-
-      document.body.classList.remove("mode-storyboard");
-      document.body.classList.add("mode-gameplay");
     } catch (e) {
       error("Failed to load story:", e);
       alert("Could not load story.");
@@ -126,7 +97,10 @@ export const TurnManager = {
     }
 
     await TurnManager.loadMessages(storyId);
-    await renderChat(storyId);
+
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+    );
     await TurnManager.generateAiResponse(storyId);
   },
 
@@ -134,17 +108,21 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
     await db.messages.update(messageId, { text: newText });
     await TurnManager.loadMessages(storyId);
-    await renderChat(storyId);
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+    );
   },
 
   generateAiResponse: async (storyId, options = {}) => {
     const story = state.story.byId[storyId];
-    setSendLock(true);
-    setChatGeneratingState(true);
+    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
     try {
-      const feed = document.querySelector("#chat-feed");
-      showTypingIndicator(feed, "ai", story.aiCharacterId);
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.TYPING_STARTED, {
+          detail: { role: "ai", characterId: story.aiCharacterId },
+        }),
+      );
 
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build();
@@ -180,7 +158,8 @@ export const TurnManager = {
           payload,
           options: genOptions,
           signal: ctrl.signal,
-          onToken: () => removeTypingIndicator(feed),
+          onToken: () =>
+            events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
         });
       } catch (streamErr) {
         if (streamErr.name === "AbortError") throw streamErr;
@@ -189,7 +168,7 @@ export const TurnManager = {
         throw streamErr;
       }
 
-      removeTypingIndicator(feed);
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
 
       // --- [NEW] ATTACHMENT PIPELINE ---
       let finalResponseText = response;
@@ -231,7 +210,11 @@ export const TurnManager = {
       // 4. Generate & Attach (Async, post-save)
       if (visualPrompt) {
         // [UX] Show busy indicator for visual generation
-        showTypingIndicator(feed, "ai", story.aiCharacterId);
+        events.dispatchEvent(
+          new CustomEvent(EVENTS.TYPING_STARTED, {
+            detail: { role: "ai", characterId: story.aiCharacterId },
+          }),
+        );
 
         log(
           `[PROMETHEUS] Detected Visual Prompt: ${visualPrompt} (Target: ${targetType})`,
@@ -265,12 +248,14 @@ export const TurnManager = {
           console.error("[PROMETHEUS] Auto-Visual Failed:", visErr);
           // We fail silently on the image, the text is already saved.
         } finally {
-          removeTypingIndicator(feed);
+          events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
         }
       }
 
       await TurnManager.loadMessages(storyId);
-      await renderChat(storyId);
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+      );
       applyPatch({ ui: { fsm: "done" } });
 
       if (payloadMeta && payloadMeta.triggerUpdate) {
@@ -283,11 +268,10 @@ export const TurnManager = {
     } catch (e) {
       error("AI Gen Error", e);
       alert("AI Generation Failed: " + e.message);
-      const feed = document.querySelector("#chat-feed");
-      if (feed) removeTypingIndicator(feed);
+
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     } finally {
-      setSendLock(false);
-      setChatGeneratingState(false);
+      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
 
@@ -296,8 +280,7 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
 
-    setSendLock(true);
-    setChatGeneratingState(true);
+    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
     try {
       await db.messages.add({
@@ -309,10 +292,15 @@ export const TurnManager = {
       });
 
       await TurnManager.loadMessages(storyId);
-      await renderChat(storyId);
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+      );
 
-      const feed = document.querySelector("#chat-feed");
-      showTypingIndicator(feed, "ai", story.aiCharacterId);
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.TYPING_STARTED, {
+          detail: { role: "ai", characterId: story.aiCharacterId },
+        }),
+      );
 
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build();
@@ -324,10 +312,11 @@ export const TurnManager = {
       const response = await generateStream({
         payload,
         signal: ctrl.signal,
-        onToken: () => removeTypingIndicator(feed),
+        onToken: () =>
+          events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
       });
 
-      removeTypingIndicator(feed);
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
 
       const aiChar = await entities.get("character", story.aiCharacterId);
       const aiMsgId = await db.messages.add({
@@ -340,7 +329,9 @@ export const TurnManager = {
       });
 
       await TurnManager.loadMessages(storyId);
-      await renderChat(storyId);
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+      );
       applyPatch({ ui: { fsm: "done" } });
 
       if (payloadMeta && payloadMeta.triggerUpdate) {
@@ -355,11 +346,10 @@ export const TurnManager = {
       error("AI Error", e);
       applyPatch({ ui: { fsm: "error", lastError: e.message } });
       alert("AI Error: " + e.message);
-      const feed = document.querySelector("#chat-feed");
-      if (feed) removeTypingIndicator(feed);
+
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     } finally {
-      setSendLock(false);
-      setChatGeneratingState(false);
+      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
 
@@ -388,16 +378,20 @@ export const TurnManager = {
 
     log(`[PROMETHEUS] Regenerating with strategy: ${varianceKey}`);
 
-    setSendLock(true);
-    setChatGeneratingState(true);
+    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
     await db.messages.delete(lastMsg.id);
 
     await TurnManager.loadMessages(storyId);
-    await renderChat(storyId);
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+    );
 
-    const feed = document.querySelector("#chat-feed");
-    showTypingIndicator(feed, "ai", story.aiCharacterId);
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.TYPING_STARTED, {
+        detail: { role: "ai", characterId: story.aiCharacterId },
+      }),
+    );
 
     try {
       const builder = new ContextBuilder(storyId);
@@ -411,7 +405,8 @@ export const TurnManager = {
         response = await generateStream({
           payload,
           signal: ctrl.signal,
-          onToken: () => removeTypingIndicator(feed),
+          onToken: () =>
+            events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
         });
       } catch (streamErr) {
         if (streamErr.name === "AbortError") throw streamErr;
@@ -419,7 +414,7 @@ export const TurnManager = {
         alert("Connection Error: Could not regenerate message.");
         throw streamErr;
       }
-      removeTypingIndicator(feed);
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
 
       const aiChar = await entities.get("character", story.aiCharacterId);
 
@@ -433,15 +428,16 @@ export const TurnManager = {
       });
 
       await TurnManager.loadMessages(storyId);
-      await renderChat(storyId);
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+      );
       applyPatch({ ui: { fsm: "done" } });
     } catch (e) {
       error("Regen Error", e);
       alert("Regen Failed: " + e.message);
-      if (feed) removeTypingIndicator(feed);
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     } finally {
-      setSendLock(false);
-      setChatGeneratingState(false);
+      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
 
@@ -455,10 +451,10 @@ export const TurnManager = {
   },
 
   generateOpening: async (storyId) => {
-    setChatGeneratingState(true);
-    setSendLock(true);
-    const feed = document.querySelector("#chat-feed");
-    showTypingIndicator(feed, "narrator");
+    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.TYPING_STARTED, { detail: { role: "narrator" } }),
+    );
 
     try {
       const builder = new ContextBuilder(storyId);
@@ -469,7 +465,7 @@ export const TurnManager = {
         console.log(
           "[RPGlitch] No narrator opening. Triggering AI First Message.",
         );
-        removeTypingIndicator(feed);
+        events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
         // DO NOT UNLOCK YET.
         // Immediately trigger the AI character to write the first text.
         await TurnManager.generateAiResponse(storyId);
@@ -481,9 +477,10 @@ export const TurnManager = {
       const response = await generateStream({
         payload,
         signal: null,
-        onToken: () => removeTypingIndicator(feed),
+        onToken: () =>
+          events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
       });
-      removeTypingIndicator(feed);
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
 
       await db.messages.add({
         storyId,
@@ -494,14 +491,16 @@ export const TurnManager = {
       });
 
       await TurnManager.loadMessages(storyId);
-      await renderChat(storyId);
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+      );
 
       await TurnManager.generateAiResponse(storyId);
     } catch (e) {
       error("Opening Gen Failed", e);
       alert("Failed to generate opening: " + e.message);
-      if (feed) removeTypingIndicator(feed);
-      setSendLock(false);
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
+      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
 
@@ -546,8 +545,7 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
     if (!storyId) return null;
 
-    setChatGeneratingState(true);
-    setSendLock(true, true);
+    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
     try {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildGhostwriter(draftText);
@@ -563,8 +561,7 @@ export const TurnManager = {
       alert("Ghostwriter failed. Please try again.");
       return null;
     } finally {
-      setChatGeneratingState(false);
-      setSendLock(false);
+      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
 
@@ -572,8 +569,7 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
     if (!storyId) return;
 
-    setChatGeneratingState(true);
-    setSendLock(true);
+    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
     try {
       log("[TurnManager] Generating visual from draft:", draftText);
@@ -592,13 +588,15 @@ export const TurnManager = {
       });
 
       await TurnManager.loadMessages(storyId);
-      await renderChat(storyId);
+      await TurnManager.loadMessages(storyId);
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+      );
     } catch (e) {
       error("[TurnManager] Image Gen failed:", e);
       alert("Failed to generate image. " + e.message);
     } finally {
-      setChatGeneratingState(false);
-      setSendLock(false);
+      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
 
@@ -610,12 +608,13 @@ export const TurnManager = {
       return;
     }
 
-    setChatGeneratingState(true);
-    setSendLock(true);
+    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
     // [UI] Set specific reroll state for visual feedback
     if (window.setRerollState) window.setRerollState(messageId, true);
-    await renderChat(storyId); // Trigger re-render to show blur/spinner
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+    ); // Trigger re-render to show blur/spinner
 
     try {
       const { visualPrompt, targetType } = message.metadata;
@@ -648,15 +647,18 @@ export const TurnManager = {
       if (window.setRerollState) window.setRerollState(messageId, false);
 
       await TurnManager.loadMessages(storyId);
-      await renderChat(storyId);
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+      );
     } catch (e) {
       error("[TurnManager] Reroll Image Failed:", e);
       alert("Failed to reroll image.");
       if (window.setRerollState) window.setRerollState(messageId, false);
-      await renderChat(storyId); // Re-render to remove busy state on error
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+      ); // Re-render to remove busy state on error
     } finally {
-      setChatGeneratingState(false);
-      setSendLock(false);
+      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
 
@@ -697,7 +699,9 @@ export const TurnManager = {
     });
 
     await TurnManager.loadMessages(storyId);
-    await renderChat(storyId);
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+    );
 
     // [LOGIC] Dynamic Permeability Check
     // For now we assume the engine handles the "willingness" via personality,

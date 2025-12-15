@@ -30,12 +30,14 @@ async function loadApp(
   // Re-import modules to get a fresh state
   jest.resetModules();
   const utils = await import("../apps/rpglitch/js/core/utils.js");
+  const uiUtils = await import("../apps/rpglitch/js/ui/services/ui-utils.js");
   const index = await import("../apps/rpglitch/js/core/bootstrap.js");
 
   // App object is now constructed from re-imported modules
   const App = {
     ...index,
     ...utils,
+    ...uiUtils,
   };
 
   return { App }; // No need to return dom anymore

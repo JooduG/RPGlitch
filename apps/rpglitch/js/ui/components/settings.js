@@ -1,6 +1,5 @@
 import { db } from "../../core/db.js";
 import { applyPatch, state } from "../../core/state.js";
-import { router } from "../orchestrator.js";
 import { StoryController } from "../../engine/director.js";
 import { entities } from "../../data/repo.js";
 
@@ -62,6 +61,13 @@ export const StoryOptionsController = {
 
     modal.addEventListener("click", (e) => {
       if (e.target === modal) StoryOptionsController.close();
+    });
+
+    // Close on Escape
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        StoryOptionsController.close();
+      }
     });
 
     // Reset Data Action
@@ -131,7 +137,7 @@ export const StoryOptionsController = {
         const isChecked = e.target.checked;
         applyPatch({ settings: { directorMode: isChecked } });
         if (state.story.activeId) {
-          router.handleRoute();
+          window.dispatchEvent(new Event("hashchange"));
         }
       });
     }
@@ -381,7 +387,7 @@ export const StoryOptionsController = {
       });
 
       StoryOptionsController.close();
-      router.handleRoute();
+      window.dispatchEvent(new Event("hashchange"));
     } catch (err) {
       console.error("Failed to load story:", err);
       alert("Failed to load story. See console for details.");

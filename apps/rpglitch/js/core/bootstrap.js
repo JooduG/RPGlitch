@@ -7,6 +7,7 @@ import { state, applyPatch } from "./state.js";
 import { StoryController } from "../engine/director.js";
 import { StoryOptionsController } from "../ui/components/settings.js";
 import { initStoryboardStage, StoryboardController } from "../ui/setup.js";
+import { initChatInput } from "../ui/components/chat/input.js";
 
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
 (function enforceClientSideFreedom() {
@@ -82,54 +83,7 @@ const App = {
 
       // --- KEYBOARD SHORTCUTS ---
       // 3. Bind Chat Input Events
-      const form = document.querySelector("#story-form");
-      if (form) {
-        const input = form.querySelector("textarea[name='message']"); // Can be input or textarea
-        const btn = form.querySelector('button[type="submit"]');
-
-        if (input && btn) {
-          // Auto-resize function for textarea
-          const adjustHeight = () => {
-            input.style.height = "auto";
-            input.style.height = input.scrollHeight + "px";
-          };
-
-          if (input.tagName === "TEXTAREA") {
-            adjustHeight();
-          }
-
-          input.addEventListener("input", () => {
-            if (input.tagName === "TEXTAREA") {
-              adjustHeight();
-            }
-            if (btn.dataset.locked === "true") return;
-
-            btn.disabled = input.value.trim().length === 0;
-          });
-
-          // Handle Enter key (Submit) vs Shift+Enter (Newline)
-          input.addEventListener("keydown", async (e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              if (!input.value.trim()) return;
-              form.requestSubmit();
-            }
-          });
-
-          form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const val = input.value.trim();
-            if (val) {
-              input.value = "";
-              if (input.tagName === "TEXTAREA") {
-                adjustHeight();
-              }
-              btn.disabled = true;
-              await StoryController.send(val);
-            }
-          });
-        }
-      }
+      initChatInput();
 
       // 4. Story Options Wiring
       StoryOptionsController.init();

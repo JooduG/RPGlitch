@@ -1,14 +1,9 @@
 import { state } from "../core/state.js";
 import { entities } from "../data/repo.js";
 
-// ==========================================
-// CONFIGURATION: THE HEARTBEAT PROTOCOL
-// ==========================================
-const PROMETHEUS_CONFIG = {
-  UPDATE_MODULO: 4,
-  UPDATE_OFFSET: 4,
-  TARGET_CYCLE: ["ai_character", "user_character", "fractal"],
-};
+import { PHYSICS_CONFIG } from "./physics/config.js";
+
+const PROMETHEUS_CONFIG = PHYSICS_CONFIG.PROMETHEUS;
 
 export class ContextBuilder {
   constructor(storyId) {

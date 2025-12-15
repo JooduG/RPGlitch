@@ -1,6 +1,7 @@
 // apps/rpglitch/js/drawer.js
 import { entities } from "../../../data/repo.js";
-import { getPictureHTML, log, error } from "../../../core/utils.js";
+import { log, error } from "../../../core/utils.js";
+import { getPictureHTML } from "../../services/ui-utils.js";
 // [NEW] Import visual helper
 import { getVisualState } from "../../../data/models.js";
 import { ThemeService } from "../../services/theme.js";

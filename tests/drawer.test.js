@@ -4,6 +4,9 @@ import { jest, describe, beforeEach, test, expect } from "@jest/globals";
 jest.mock("../apps/rpglitch/js/core/utils.js", () => ({
   log: jest.fn(),
   error: jest.fn(),
+}));
+
+jest.mock("../apps/rpglitch/js/ui/services/ui-utils.js", () => ({
   getPictureHTML: jest.fn(() => {
     const doc = globalThis.document;
     if (doc && doc.createElement) {
@@ -52,7 +55,8 @@ describe("Drawer Component", () => {
     jest.resetModules();
 
     // Import drawer.js dynamically
-    const drawerModule = await import("../apps/rpglitch/js/ui/components/drawer/desktop.js");
+    const drawerModule =
+      await import("../apps/rpglitch/js/ui/components/drawer/desktop.js");
     _openDrawer = drawerModule.openDrawer;
     _closeDrawer = drawerModule.closeDrawer;
 
