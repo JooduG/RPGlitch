@@ -1,0 +1,96 @@
+/* apps/rpglitch/scss/_skeletons.scss */
+
+/* ============================================================================
+   SKELETON SCREENS
+   Shimmering placeholders for improved perceived performance.
+   ============================================================================ */
+
+// Define placeholder
+%skeleton {
+  position: relative;
+  overflow: hidden;
+  min-height: 1rem;
+  background-color: var(--pico-card-background-color, #1e293b);
+  border-radius: var(--pico-border-radius, 0.25rem);
+}
+
+// Expose class
+.skeleton {
+  @extend %skeleton;
+}
+
+/* SKELETON CARD (Replaces Entity Slots) */
+.skeleton-card {
+  @extend %skeleton;
+
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--pico-muted-color);
+
+  // Fractal card is wider
+  &.fractal-card {
+    aspect-ratio: 16 / 9;
+  }
+
+  .skeleton-label {
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.3;
+  }
+
+  .skeleton-icon {
+    svg {
+      width: 48px;
+      height: 48px;
+      fill: currentcolor;
+      opacity: 0.2;
+    }
+  }
+}
+
+/* SKELETON CHAT (Replaces Messages) */
+.skeleton-msg {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
+
+  &--right {
+    flex-direction: row-reverse;
+  }
+
+  .skeleton-avatar {
+    @extend %skeleton;
+
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  .skeleton-bubble {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 60%;
+
+    .skeleton-line {
+      @extend %skeleton;
+
+      width: 100%;
+      height: 1em;
+
+      &:last-child {
+        width: 70%;
+      }
+    }
+  }
+}

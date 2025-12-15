@@ -140,7 +140,19 @@ export function updateStoryboardSelection(newSelection) {
   updateLocalSelection(selectedEntities);
 
   // Render Updates
-  const updateSlot = (key, entity, btnId, previewId, type, titleOverride) => {
+  const updateSlot = (
+    key,
+    entity,
+    btnId,
+    previewId,
+    type,
+    titleOverride,
+    skeletonId,
+  ) => {
+    // [NEW] Always hide skeleton once we are updating the slot
+    const skeleton = document.getElementById(skeletonId);
+    if (skeleton) skeleton.hidden = true;
+
     if (entity) {
       const btn = document.querySelector(btnId);
       const onEdit = () => {
@@ -167,6 +179,7 @@ export function updateStoryboardSelection(newSelection) {
     "#ai-character-preview",
     "character",
     "Select AI Character",
+    "skeleton-ai",
   );
   updateSlot(
     "userCharacter",
@@ -175,6 +188,7 @@ export function updateStoryboardSelection(newSelection) {
     "#user-character-preview",
     "character",
     "Select User Character",
+    "skeleton-user",
   );
   updateSlot(
     "fractal",
@@ -183,6 +197,7 @@ export function updateStoryboardSelection(newSelection) {
     "#fractal-preview",
     "fractal",
     "Select Fractal",
+    "skeleton-fractal",
   );
 
   if (_onSelectionChanged) _onSelectionChanged(selectedEntities);

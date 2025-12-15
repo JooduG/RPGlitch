@@ -114,8 +114,8 @@ async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
       entity = await entities.get("character", story.aiCharacterId);
     else if (targetType === "user_character")
       entity = await entities.get("character", story.userCharacterId);
-    else if (targetType === "world")
-      entity = await entities.get("world", story.worldId);
+    else if (targetType === "fractal")
+      entity = await entities.get("fractal", story.fractalId);
 
     if (!entity) {
       console.warn("[WORKER] Target entity not found");

@@ -12,19 +12,16 @@ if (typeof window !== "undefined" && window.Dexie) {
   Dexie = self.Dexie;
 } else if (typeof globalThis !== "undefined" && globalThis.Dexie) {
   Dexie = globalThis.Dexie;
-} else {
-  // Jest/Node.js environment
-  Dexie = require("dexie").default;
 }
 
 const db = new Dexie("rpglitch");
 
 // 2. Define the schema (Final Version Only)
-db.version(1).stores({
+db.version(2).stores({
   entities:
     "++id, name, description, forever, past, present, future, profilePicture, signatureColour, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
   stories:
-    "++id, title, aiCharacterId, userCharacterId, worldId, settingsSnapshot, createdAt, updatedAt",
+    "++id, title, aiCharacterId, userCharacterId, fractalId, settingsSnapshot, createdAt, updatedAt",
   messages:
     "++id, storyId, role, type, characterName, text, seed, meta, createdAt",
   settings: "id", // Singleton settings table
@@ -46,7 +43,7 @@ db.on("populate", async (trans) => {
       // >>> DIRECTOR MODE ADDED HERE <<<
       directorMode: false,
       storyOpeningInstructions: "",
-      storyboardSelection: { narrator: null, user: null, world: null },
+      storyboardSelection: { narrator: null, user: null, fractal: null },
     });
     log("[RPGlitch DB] Default settings created successfully.");
   } catch (err) {

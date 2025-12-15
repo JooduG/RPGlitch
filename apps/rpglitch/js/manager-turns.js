@@ -29,7 +29,7 @@ export const TurnManager = {
     const [startAi, startUser, startFractal] = await Promise.all([
       entities.get("character", data.aiCharacterId),
       entities.get("character", data.userCharacterId),
-      entities.get("fractal", data.worldId),
+      entities.get("fractal", data.fractalId),
     ]);
 
     const id = await db.stories.add({
@@ -79,7 +79,7 @@ export const TurnManager = {
         entities.get("character", story.userCharacterId),
       ]);
 
-      let fractal = await entities.get("fractal", story.worldId);
+      let fractal = await entities.get("fractal", story.fractalId);
       // Fallback removed for strict mode
 
       updatePortraits(ai, user);
@@ -162,7 +162,7 @@ export const TurnManager = {
       const [aiEntity, userEntity, fractalEntity] = await Promise.all([
         entities.get("character", story.aiCharacterId),
         entities.get("character", story.userCharacterId),
-        entities.get("fractal", story.worldId),
+        entities.get("fractal", story.fractalId),
       ]);
 
       const genOptions = calculateBlendedParams(
@@ -215,7 +215,7 @@ export const TurnManager = {
 
       const aiChar = await entities.get("character", story.aiCharacterId);
       const userChar = await entities.get("character", story.userCharacterId);
-      const fractal = await entities.get("fractal", story.worldId);
+      const fractal = await entities.get("fractal", story.fractalId);
 
       // 3. Save Message (Cleaned)
       const aiMsgId = await db.messages.add({
@@ -519,7 +519,7 @@ export const TurnManager = {
     const [endAi, endUser, endFractal] = await Promise.all([
       entities.get("character", story.aiCharacterId),
       entities.get("character", story.userCharacterId),
-      entities.get("fractal", story.worldId),
+      entities.get("fractal", story.fractalId),
     ]);
 
     await db.stories.update(storyId, {
@@ -624,7 +624,7 @@ export const TurnManager = {
       const [aiChar, userChar, fractal] = await Promise.all([
         entities.get("character", state.story.byId[storyId].aiCharacterId),
         entities.get("character", state.story.byId[storyId].userCharacterId),
-        entities.get("fractal", state.story.byId[storyId].worldId),
+        entities.get("fractal", state.story.byId[storyId].fractalId),
       ]);
 
       let targetEntity = aiChar;
@@ -664,7 +664,9 @@ export const TurnManager = {
     const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
     // [FIX] Fetch entity to verify mode
-    const fractal = story ? await entities.get("fractal", story.worldId) : null;
+    const fractal = story
+      ? await entities.get("fractal", story.fractalId)
+      : null;
     const isMessenger =
       fractal &&
       (fractal.name === "Messenger" ||

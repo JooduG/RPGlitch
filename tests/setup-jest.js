@@ -30,3 +30,9 @@ if (typeof Worker === "undefined") {
     }
   };
 }
+
+// Mock Dexie Globally (for core-db.js ESM compliance)
+if (typeof global.Dexie === "undefined") {
+  const Dexie = require("dexie").default || require("dexie");
+  global.Dexie = Dexie;
+}

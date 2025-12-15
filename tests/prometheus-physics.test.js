@@ -12,7 +12,7 @@ jest.mock("../apps/rpglitch/js/app-state.js", () => ({
           id: "story-1",
           aiCharacterId: "char-ai",
           userCharacterId: "char-user",
-          worldId: "world-1",
+          fractalId: "world-1",
         },
       },
     },
@@ -212,9 +212,7 @@ describe("PROMETHEUS ENGINE V4.0", () => {
 
       const payload = await builder.buildArchivist(mockEntity);
 
-      expect(payload.system).toContain(
-        "[SYSTEM: MEMORY_COMPRESSION_ENGINE_V4.0]",
-      );
+      expect(payload.system).toContain("[SYSTEM: PROMETHEUS_MEMORY_V4.0]");
       expect(payload.system).toContain("NEVER summarize or alter Proper Nouns");
       expect(payload.system).toContain("TestChar");
       // Ensure temp is lowered for precision

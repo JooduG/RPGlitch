@@ -1,4 +1,4 @@
-import { getPictureHTML } from "./core-utils.js";
+import { getPictureHTML, escapeHtml } from "./core-utils.js";
 import { getVisualState } from "./entity-structs.js";
 import { state } from "./app-state.js";
 
@@ -123,7 +123,7 @@ export function updatePortraits(aiCharacter, userCharacter) {
     }
 
     if (nameDiv) {
-      nameDiv.innerHTML = `<h2>${ent?.name || label}</h2>`;
+      nameDiv.innerHTML = `<h2>${escapeHtml(ent?.name || label)}</h2>`;
     }
   };
   setPort("#gameplay-user-portrait", userCharacter, "You");

@@ -5,7 +5,7 @@ import { StoryController } from "./manager-turns.js";
 import { entities } from "./entity-crud.js";
 
 export const StoryOptionsController = {
-  init() {
+  async init() {
     const modal = document.querySelector("#settings");
     if (!modal) return;
 
@@ -165,7 +165,7 @@ export const StoryOptionsController = {
 
         // [FIX] Fetch real entity to check type/name (bypassing UUID mismatch)
         const fractal = story
-          ? await entities.get("fractal", story.worldId)
+          ? await entities.get("fractal", story.fractalId)
           : null;
         const isMessenger =
           fractal &&
@@ -175,7 +175,7 @@ export const StoryOptionsController = {
 
         if (!story || !isMessenger) {
           alert(
-            `Feature unavailable. Exclusive to Messenger Mode. (Current ID: ${story?.worldId})`,
+            `Feature unavailable. Exclusive to Messenger Mode. (Current ID: ${story?.fractalId})`,
           );
           return;
         }
@@ -192,35 +192,36 @@ export const StoryOptionsController = {
 
     // Custom JS Wiring
     if (customJsInput) {
-      db.settings.get("app-settings").then((s) => {
-        if (s && s.customJs) customJsInput.value = s.customJs;
-      });
+      const s = await db.settings.get("app-settings");
+      if (s && s.customJs) customJsInput.value = s.customJs;
 
       customJsInput.addEventListener("input", (e) => {
         const val = e.target.value;
         applyPatch({ settings: { customJs: val } });
-        db.settings.get("app-settings").then((s) => {
+        // Use async IIFE for event handler logic if needed, but db.put is fire-and-forget or we can just async the handler
+        (async () => {
+          const s = await db.settings.get("app-settings");
           const newSettings = s || { id: "app-settings" };
           newSettings.customJs = val;
-          db.settings.put(newSettings);
-        });
+          await db.settings.put(newSettings);
+        })();
       });
     }
     // Story Instructions Wiring
     if (storyInstructionsInput) {
-      db.settings.get("app-settings").then((s) => {
-        if (s && s.storyOpeningInstructions)
-          storyInstructionsInput.value = s.storyOpeningInstructions;
-      });
+      const s = await db.settings.get("app-settings");
+      if (s && s.storyOpeningInstructions)
+        storyInstructionsInput.value = s.storyOpeningInstructions;
 
       storyInstructionsInput.addEventListener("input", (e) => {
         const val = e.target.value;
         applyPatch({ settings: { storyOpeningInstructions: val } });
-        db.settings.get("app-settings").then((s) => {
+        (async () => {
+          const s = await db.settings.get("app-settings");
           const newSettings = s || { id: "app-settings" };
           newSettings.storyOpeningInstructions = val;
-          db.settings.put(newSettings);
-        });
+          await db.settings.put(newSettings);
+        })();
       });
     }
   },

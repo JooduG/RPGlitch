@@ -63,7 +63,7 @@ async function handleBeginStory() {
       storyTitle,
       aiCharacterId: selectedAI.id,
       userCharacterId: selectedUser.id,
-      worldId: selectedFractal.id,
+      fractalId: selectedFractal.id,
     });
 
     document.body.classList.remove("mode-storyboard");

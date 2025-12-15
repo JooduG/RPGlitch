@@ -30,7 +30,7 @@ export function isOpen() {
   return drawer && drawer.classList.contains("is-open");
 }
 
-export function openDrawer(
+export async function openDrawer(
   type,
   onSelect,
   triggerElement,
@@ -67,16 +67,13 @@ export function openDrawer(
   content.innerHTML =
     '<div class="drawer-loading" style="text-align:center; opacity:0.5; padding:2rem;">Loading...</div>';
 
-  entities
-    .list(type)
-    .then((items) => {
-      renderDrawerItems(items, type, onCreate);
-    })
-    .catch((err) => {
-      error("Failed to load drawer items:", err);
-      content.innerHTML =
-        '<div class="drawer-error">Failed to load items.</div>';
-    });
+  try {
+    const items = await entities.list(type);
+    renderDrawerItems(items, type, onCreate);
+  } catch (err) {
+    error("Failed to load drawer items:", err);
+    content.innerHTML = '<div class="drawer-error">Failed to load items.</div>';
+  }
 }
 
 export function closeDrawer() {

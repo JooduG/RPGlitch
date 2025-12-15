@@ -57,7 +57,7 @@ const App = {
           applyPatch({
             selectedAI: sel.aiCharacter,
             selectedUser: sel.userCharacter,
-            selectedWorld: sel.world,
+            selectedFractal: sel.fractal,
           });
         },
       });

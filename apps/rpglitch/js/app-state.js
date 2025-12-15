@@ -3,7 +3,7 @@ import { events, EVENTS } from "./core-events.js";
 export const state = {
   storyTitle: "My Story",
   selectedAI: null,
-  selectedWorld: null,
+  selectedFractal: null,
   selectedUser: null,
   mode: "storyboard",
   isCustomTitle: false,

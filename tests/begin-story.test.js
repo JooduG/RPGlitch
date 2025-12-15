@@ -103,7 +103,7 @@ let mockAttachStoryboardListeners = jest.fn(async (doc) => {
         const storyTitleEl = doc.getElementById("storyboard-dynamic-title");
         const storyId = storyTitleEl?.textContent || "default-story";
         const characterId = aiSelect.value; // <-- use AI character id (was userSelect.value)
-        const worldId = worldSelect.value;
+        const fractalId = worldSelect.value;
 
         // Mock App.threads.createFromSelection
         const threadId = `mock-thread-${Date.now()}`;
@@ -111,7 +111,7 @@ let mockAttachStoryboardListeners = jest.fn(async (doc) => {
         window.App.state.threads.byId[threadId] = {
           id: threadId,
           characterId,
-          worldId,
+          fractalId,
           title: storyId,
           settingsSnapshot: {},
           createdAt: Date.now(),
@@ -124,7 +124,7 @@ let mockAttachStoryboardListeners = jest.fn(async (doc) => {
           title: storyId,
           aiCharacterId: characterId,
           userCharacterId: userSelect.value,
-          worldId: worldId,
+          fractalId: fractalId,
           createdAt: Date.now(),
           updatedAt: Date.now(),
         });

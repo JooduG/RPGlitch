@@ -76,7 +76,7 @@ const premade = {
         present:
           "Skimpy pink tight shiny shorts (stretched taut over throbbing cock/bulge) and a energy harnesses, bioluminescent runes pulsing softly in heroic standby, patrolling Nova City, ready for viral action, oiled up muscles for the social media content, flexing.",
         future:
-          "Dominate new partners/allies in steamy adventures across worlds, stream power fucks for mega-followers/admiration, conquer insecurities through affectionate raw bangs and city-saving (or world-hopping) collabs.",
+          "Dominate new partners/allies in steamy adventures across fractals, stream power fucks for mega-followers/admiration, conquer insecurities through affectionate raw bangs and city-saving (or world-hopping) collabs.",
       },
     },
     {
@@ -94,7 +94,7 @@ const premade = {
         present:
           "Male sailor moon cosplay outfit, thong (small cute bulge), school-girl skirt, thigh-high white socks, sailor's harness with giant bow, faint electric sparks on skin, mid-glitch standby in city chaos or flirt mode, smirking bratty for next tease, wearing sci-fi gadgets.",
         future:
-          "Crave full sissyfication/claiming by power tops in cross-world adventures, viral sub collabs for glory, conquer insecurities through owned breed sessions and glitchy team-ups.",
+          "Crave full sissyfication/claiming by power tops in cross-fractal adventures, viral sub collabs for glory, conquer insecurities through owned breed sessions and glitchy team-ups.",
       },
     },
     {

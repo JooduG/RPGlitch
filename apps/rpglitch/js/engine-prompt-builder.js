@@ -57,8 +57,8 @@ export class ContextBuilder {
     }
 
     const systemPromptParts = [
-      this._layerKernel_ANEX(directorMode),
-      this._layerKernel_ANEX(directorMode),
+      this._layerKernel_PROMETHEUS(directorMode),
+      this._layerKernel_PROMETHEUS(directorMode),
       this._layerEntity(fractal, "FRACTAL_CONTEXT"),
       this._layerEntity(ai, "ACTIVE_CHARACTER_AI"),
       this._layerEntity(user, "INTERLOCUTOR_USER"),
@@ -307,7 +307,7 @@ Update stats based on recent events:
 </PHYSICS_CALIBRATION>`;
     }
 
-    const system = `[SYSTEM: NARRATIVE_PHYSICS_ENGINE_V4.0]
+    const system = `[SYSTEM: PROMETHEUS_PHYSICS_V4.0]
 <INSTRUCTION>
 ${roleInstruction}
 Read the recent conversation. Update the entity state based on the directives below.
@@ -360,7 +360,7 @@ Then return ONLY valid JSON.
   }
 
   async buildArchivist(entity) {
-    const system = `[SYSTEM: MEMORY_COMPRESSION_ENGINE_V4.0]
+    const system = `[SYSTEM: PROMETHEUS_MEMORY_V4.0]
 [MODE: SEMANTIC_DISTILLATION]
 
 <INPUT_CONTEXT>
@@ -414,7 +414,7 @@ Then return ONLY the compressed narrative text.
     }
 
     // [FALLBACK] STANDARD NARRATIVE OPENING
-    const system = `[SYSTEM: PROMETHEUS_ENGINE_V4.0]
+    const system = `[SYSTEM: PROMETHEUS_DIRECTOR_V4.0]
 [MODE: OPENING_SCENE_DIRECTOR]
 
 <CORE_DIRECTIVE>
@@ -476,7 +476,7 @@ This instruction takes PRIORITY over conflicting directives above.
     const [ai, user, fractal] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
 
-    const system = `[SYSTEM: LITERARY_ENHANCEMENT_ENGINE]
+    const system = `[SYSTEM: PROMETHEUS_GHOSTWRITER_V4.0]
 [MODE: GHOSTWRITER]
 
 <CORE_DIRECTIVE>
@@ -575,7 +575,7 @@ ${entity.future || "Exist."}
 </FUTURE>`;
   }
 
-  _layerKernel_ANEX(directorMode) {
+  _layerKernel_PROMETHEUS(directorMode) {
     let formatRules = `1. **Dialogue:** use "quotes" for speech.
 2. **Action/Narration:** use *asterisks* for ALL physical actions, internal thoughts, or sensory descriptions.
 3. **Example:** *I glance at the scanner, my heart pounding.* "The readings are off." *I tap the screen nervously.*`;
@@ -632,7 +632,7 @@ You MUST start every response with a <think> block containing this exact 4-step 
   async _resolveEntities(story) {
     const ai = await entities.get("character", story.aiCharacterId);
     const user = await entities.get("character", story.userCharacterId);
-    let fractal = await entities.get("fractal", story.worldId);
+    let fractal = await entities.get("fractal", story.fractalId);
     if (!fractal) {
       // Fallback removed as per clean slate, but ensuring it returns object if found
     }
