@@ -737,7 +737,7 @@
 /* =========================================
    6. SMARTPHONE THEME (Messenger Mode)
    ========================================= */
-body.theme-smartphone.mode-gameplay {
+.theme-smartphone.mode-gameplay {
   // COLLAPSE GRID
   .universal-stage {
     grid-template-columns: 1fr !important;
@@ -999,7 +999,7 @@ body.theme-smartphone.mode-gameplay {
 /* =========================================
    7. IMAGE OVERLAYS (Advanced Media)
    ========================================= */
-body #chat-feed .story-message.story-image-container {
+#chat-feed .story-message.story-image-container {
   padding: 0 !important;
   border: none !important;
   background: transparent !important;

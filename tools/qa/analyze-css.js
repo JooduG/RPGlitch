@@ -1,10 +1,15 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const path = require("path");
-const postcss = require("postcss");
-const sass = require("sass");
-const autoprefixer = require("autoprefixer");
+import fs from "fs";
+import path from "path";
+import postcss from "postcss";
+import * as sass from "sass"; // Sass export pattern
+import autoprefixer from "autoprefixer";
+import { fileURLToPath } from "url";
+
+// ESM equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function compileScssToString(appName = "rpglitch") {
   // UPDATED PATH: ../../apps
@@ -108,7 +113,7 @@ function findRedundantSelectors(ast) {
 
 // --- MAIN BUILD PIPELINE CLASS (Combination) ---
 
-class CSSBuildPipeline {
+export default class CSSBuildPipeline {
   constructor(cssFilePath, originalContent = null) {
     this.cssFilePath = cssFilePath;
     this.originalContent =
@@ -277,8 +282,8 @@ class CSSBuildPipeline {
   }
 }
 
-// Main execution block
-if (require.main === module) {
+// Main execution block (ECMAScript compatible)
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   (async () => {
     try {
       const appName = process.argv[2] || "rpglitch";
@@ -296,5 +301,3 @@ if (require.main === module) {
     }
   })();
 }
-
-module.exports = CSSBuildPipeline;
