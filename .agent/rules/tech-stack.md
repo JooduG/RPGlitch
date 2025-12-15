@@ -12,7 +12,7 @@ This document defines the **Mandatory Technology Stack** and coding standards fo
 * **Package Manager:** `npm` ONLY.
   * **Install:** Always use `npm ci` (Reproducible builds).
   * **Add/Update:** Use `npm install`.
-* **Build System:** Custom `esbuild` + `sass` pipeline (located in `scripts/build-app.js`).
+* **Build System:** Custom `esbuild` + `sass` pipeline (located in `tools/build/app.js`).
 
 ---
 
@@ -56,7 +56,7 @@ This document defines the **Mandatory Technology Stack** and coding standards fo
 
 * **Test Runner:** Jest (`npm test`).
 * **Environment:** `jsdom` (Simulated DOM).
-* **Location:** All tests MUST reside in `tests/`.
+* **Location:** All tests MUST reside in `tools/tests/`.
 * **Naming Convention:** `<feature>.test.js`.
 * **Mocking Protocol (CRITICAL):**
   * **Database:** Dexie.js MUST be mocked using `fake-indexeddb`. Never attempt to open a real IndexedDB in the test environment.

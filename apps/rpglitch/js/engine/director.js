@@ -462,9 +462,7 @@ export const TurnManager = {
 
       // [FIX] Handling for Null Payload (Text Protocol / Messenger)
       if (!payload) {
-        console.log(
-          "[RPGlitch] No narrator opening. Triggering AI First Message.",
-        );
+        log("[RPGlitch] No narrator opening. Triggering AI First Message.");
         events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
         // DO NOT UNLOCK YET.
         // Immediately trigger the AI character to write the first text.

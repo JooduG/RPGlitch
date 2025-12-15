@@ -1,4 +1,4 @@
-import { escapeHtml } from "../../core/utils.js";
+import { escapeHtml, log } from "../../core/utils.js";
 import { getPictureHTML } from "../services/ui-utils.js";
 import { getVisualState } from "../../data/models.js";
 import { state } from "../../core/state.js";
@@ -16,7 +16,7 @@ export function updateDirectorModeClass() {
 }
 
 export function applyFractalAmbience(fractal) {
-  console.log(
+  log(
     "[Ambience] Applying for:",
     fractal?.name,
     "Image:",

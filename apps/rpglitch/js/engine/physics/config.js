@@ -1,6 +1,6 @@
 /**
  * THE PROMETHEUS PHYSICS CONFIGURATION
- * Centralized constants for game balance and narrative physics laws.
+ * Centralized constants for simulation balance and narrative physics laws.
  */
 export const PHYSICS_CONFIG = {
   // --- Thresholds (The Triggers) ---
@@ -21,7 +21,7 @@ export const PHYSICS_CONFIG = {
 
   // --- Vibe Blender Coefficients (For AI Tuning) ---
   TEMP_BASE: 0.5,
-  TEMP_ENTROPY_WEIGHT_WORLD: 0.7,
+  TEMP_ENTROPY_WEIGHT_FRACTAL: 0.7,
   TEMP_ENTROPY_WEIGHT_AI: 0.3,
   PENALTY_BASE: 1.0,
   TOP_P_BASE: 1.0,

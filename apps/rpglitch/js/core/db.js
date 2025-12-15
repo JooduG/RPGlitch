@@ -18,11 +18,11 @@ const db = new Dexie("rpglitch");
 
 // 2. Define the schema (Final Version Only)
 // 2. Define the schema (Final Version Only)
-db.version(3).stores({
+db.version(4).stores({
   entities:
     "id, name, description, forever, past, present, future, profilePicture, signatureColour, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
   stories:
-    "id, title, aiCharacterId, userCharacterId, fractalId, settingsSnapshot, createdAt, updatedAt",
+    "id, title, aiCharacterId, userCharacterId, fractalId, createdAt, updatedAt", // Removed settingsSnapshot (Object blob, not indexable)
   messages:
     "id, storyId, role, type, characterName, text, seed, meta, createdAt",
   settings: "id", // Singleton settings table

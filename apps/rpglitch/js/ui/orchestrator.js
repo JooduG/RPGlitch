@@ -1,3 +1,4 @@
+import { log } from "../core/utils.js";
 import { initDrawer, closeDrawer } from "./components/drawer/desktop.js";
 import { setGameplayEntities, setSendLock } from "./components/chat/feed.js";
 import {
@@ -178,7 +179,7 @@ export function updateStoryboardSelection(newSelection) {
     selectedEntities.userCharacter = newSelection.userCharacter;
   if (newSelection.fractal !== undefined) {
     selectedEntities.fractal = newSelection.fractal;
-    console.log("[UI] Selecting Fractal:", newSelection.fractal);
+    log("[UI] Selecting Fractal:", newSelection.fractal);
     setAppBackground(selectedEntities.fractal?.signatureColour);
     applyFractalAmbience(selectedEntities.fractal);
 
@@ -192,7 +193,7 @@ export function updateStoryboardSelection(newSelection) {
     const newTheme = selectedEntities.fractal?.simulation?.cssTheme;
     if (newTheme) {
       document.body.classList.add(newTheme);
-      console.log(`[UI] Applied theme: ${newTheme}`);
+      log(`[UI] Applied theme: ${newTheme}`);
     }
   }
 

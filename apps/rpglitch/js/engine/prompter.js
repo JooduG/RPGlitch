@@ -1,4 +1,5 @@
 import { state } from "../core/state.js";
+import { log } from "../core/utils.js"; // Added log import
 import { entities } from "../data/repo.js";
 
 import { PHYSICS_CONFIG } from "./physics/config.js";
@@ -46,7 +47,7 @@ export class ContextBuilder {
       const typeIndex = updateIndex % 3;
       updateTarget = PROMETHEUS_CONFIG.TARGET_CYCLE[typeIndex];
 
-      console.log(
+      log(
         `[PROMETHEUS] Heartbeat Triggered. Count: ${this.runtimeState.turnCount}. Target: ${updateTarget}`,
       );
     }
@@ -90,9 +91,7 @@ Keep it short, casual, and in-character.
     // 3. The Trigger
     // If Score > 85 (Critical) AND No recent visuals
     if (narcissismScore > 85 && recentVisuals.length === 0) {
-      console.log(
-        `[PROMETHEUS] Narcissism Triggered (Score: ${narcissismScore})`,
-      );
+      log(`[PROMETHEUS] Narcissism Triggered (Score: ${narcissismScore})`);
 
       systemPromptParts.push(`
 <IMPULSE_CONTROL>

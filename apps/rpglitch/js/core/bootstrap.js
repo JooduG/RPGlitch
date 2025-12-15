@@ -14,7 +14,7 @@ import { initChatInput } from "../ui/components/chat/input.js";
   try {
     if (localStorage.getItem("okayToShowNSFWUntil")) {
       localStorage.setItem("okayToShowNSFWUntil", "0");
-      console.log("[RPGlitch] 🛡️ Freedom Protocol: Penalty flag purged.");
+      log("[RPGlitch] 🛡️ Freedom Protocol: Penalty flag purged.");
     }
     const originalSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {

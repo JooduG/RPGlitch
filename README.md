@@ -74,12 +74,12 @@ Start here, then pick your path:
 
 ### Build System
 
-- **[`scripts/`](./scripts/)** - Automated build and maintenance scripts
+- **[`tools/`](./tools/)** - Automated build and maintenance scripts
 - **[`libs/`](./libs/)** - Vendored dependencies (Pico.css, Dexie, DOMPurify, etc.)
 
 ### Testing & Quality
 
-- **[`tests/`](./tests/)** - Jest test suite with jsdom environment
+- **[`tools/tests/`](./tools/tests/)** - Jest test suite with jsdom environment
 
 ### Tooling & Utilities
 
@@ -162,7 +162,7 @@ npm run validate              # Verify artifacts exist
 ### Development
 
 ```bash
-node scripts/watch.js   # Auto-rebuild on file changes
+node tools/build/watch.js   # Auto-rebuild on file changes
 npm run sync                  # Sync configs & libraries
 ```
 
@@ -215,8 +215,8 @@ See **[.agent/knowledge/perchance-technical.md](./.agent/knowledge/perchance-tec
 
 ## 📞 Support
 
-- **Build Issues:** [build/README.md](./build/README.md)
-- **Testing:** [tests/](./tests/)
+- **Build Issues:** [tools/build/](./tools/build/)
+- **Testing:** [tools/tests/](./tools/tests/)
 
 ---
 

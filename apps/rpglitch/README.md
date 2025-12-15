@@ -137,15 +137,20 @@ apps/rpglitch/
 ├── html/
 │   └── index.html             # Main UI template
 ├── js/
-│   ├── index.js               # Bootstrap & Security Shield
-│   ├── context-builder.js     # Prompt Engineering (The Kernel)
-│   ├── engine-physics.js      # Narrative Simulation (The Physicist)
-│   ├── manager-turns.js       # Turn Loop & Director Mode
-│   ├── manager-setup.js       # App Initialization
-│   ├── core-db.js             # Dexie.js Database Schema
-│   ├── entity-crud.js         # Data Models
-│   └── ui-*.js                # View Logic
-└── scss/
+│   ├── core/                  # App Foundation
+│   │   ├── bootstrap.js       # Entry Point & Error Handling
+│   │   ├── db.js              # Dexie Schema & DB Access
+│   │   └── events.js          # Event Bus
+│   ├── data/                  # Data Layer
+│   │   ├── models.js          # Entity definitions & Normalization
+│   │   └── repo.js            # Database Operations
+│   ├── engine/                # Simulation Logic
+│   │   ├── director.js        # Game Loop & State Management
+│   │   ├── worker.js          # Background Physics Calculation
+│   │   └── bridge.js          # Worker Communication
+│   └── ui/                    # User Interface
+│       ├── orchestrator.js    # View Management
+│       └── components/        # UI Widgets
 └── scss/
     ├── index.scss             # Main entry point
     ├── abstracts/             # Variables & Mixins

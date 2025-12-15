@@ -17,7 +17,7 @@ export const SECTION_DEFINITIONS = {
     label: "Present",
     sublabels: {
       character: "Mood & Conditions",
-      fractal: "State of the World & Current Situation",
+      fractal: "State of the Fractal & Current Situation",
     },
   },
   future: {

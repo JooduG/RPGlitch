@@ -26,7 +26,7 @@ import { JSDOM, VirtualConsole } from "jsdom";
 const APP_CONFIGS = {
   imageglitch: {
     extraLibs: [
-      { name: "dexie", file: "dexie.js" },
+      { name: "dexie", file: "dexie.min.js" },
       { name: "dompurify", file: "purify.min.js" },
     ],
     useComplexLoader: true, // Proven to work on Perchance
@@ -34,7 +34,7 @@ const APP_CONFIGS = {
   rpglitch: {
     extraLibs: [
       { name: "cash", file: "cash.min.js" },
-      { name: "dexie", file: "dexie.js" },
+      { name: "dexie", file: "dexie.min.js" },
       { name: "dompurify", file: "purify.min.js" },
       { name: "hyperscript", file: "_hyperscript.min.js" },
     ],

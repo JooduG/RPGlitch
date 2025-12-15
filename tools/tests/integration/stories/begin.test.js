@@ -123,10 +123,12 @@ let mockAttachStoryboardListeners = jest.fn(async (doc) => {
 
         // Write to DB to satisfy test expectation
         await db.stories.add({
+          id: threadId, // Explicit ID
           title: storyId,
           aiCharacterId: characterId,
           userCharacterId: userSelect.value,
           fractalId: fractalId,
+          settingsSnapshot: {},
           createdAt: Date.now(),
           updatedAt: Date.now(),
         });
@@ -239,16 +241,18 @@ describe("Begin Story Button Functionality", () => {
     // Add premade entities to the DB for testing
     const premadeCharacters = premade.entities
       .filter((e) => e.type === "Character")
-      .map((char) => ({
+      .map((char, index) => ({
         ...char,
+        id: `char-${index + 1}`, // Explicit String ID
         type: "character",
         isCustom: 0,
         isPremade: true,
       }));
     const premadeWorlds = premade.entities
       .filter((e) => e.type === "World")
-      .map((world) => ({
+      .map((world, index) => ({
         ...world,
+        id: `world-${index + 1}`, // Explicit String ID
         type: "world",
         isCustom: 0,
         isPremade: true,

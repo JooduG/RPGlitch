@@ -1,4 +1,4 @@
-import { extractImageUrl } from "../../core/utils.js";
+import { extractImageUrl, log } from "../../core/utils.js";
 
 /**
  * THE VISUAL MANAGER
@@ -131,7 +131,7 @@ export const VisualManager = {
     // Format: [Style] + [Action/Subject] + [Visual Definitions]
     const finalPrompt = `${stylePrefix}, ${action}, (${visualTraits})`;
 
-    console.log("[VisualManager] Assembled Prompt:", finalPrompt);
+    log("[VisualManager] Assembled Prompt:", finalPrompt);
 
     // Return immediately (No await)
     return finalPrompt;

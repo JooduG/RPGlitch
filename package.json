@@ -28,7 +28,6 @@
     "//--- BUILDING ---": "",
     "build:all": "npm-run-all --parallel build:rpglitch build:imageglitch",
     "build:apps": "npm run build:all",
-    "build:combine": "node build/scripts/build-combine.cjs",
     "build:hub": "node tools/ops/sync.js --hub",
     "build:imageglitch": "node tools/build/app.js imageglitch",
     "build:rpglitch": "node tools/build/app.js rpglitch",

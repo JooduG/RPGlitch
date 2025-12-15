@@ -30,7 +30,7 @@ We operate on the **Perchance Platform**, which requires a strict separation of 
 * **Syntax Safety:** You MUST escape literal brackets in HTML/Text to prevent Perchance parsing errors.
   * ❌ *Bad:* `<div>[Select Item]</div>`
   * ✅ *Good:* `<div>\[Select Item\]</div>`
-* **Deployment:** Auto-compiled to `build/output/`. Manual Copy-Paste to Perchance "HTML" panel.
+* **Deployment:** Auto-compiled to `apps/*/` (e.g. `apps/rpglitch/RPGlitch.html`). Manual Copy-Paste to Perchance "HTML" panel.
 
 ---
 
@@ -62,7 +62,6 @@ We do **NOT** use the standard Perchance `oc` object for game state. We use a **
 * **❌ DO NOT EDIT:**
   * `apps/*/RPGlitch.html` (Auto-generated build artifact)
   * `apps/*/imageglitch.html` (Auto-generated build artifact)
-  * `build/output/` (Anything inside here)
 * **✅ EDIT INSTEAD:**
   * `apps/*/html/index.html`
   * `apps/*/js/*.js`

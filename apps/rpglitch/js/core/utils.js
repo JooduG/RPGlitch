@@ -307,15 +307,15 @@ export function calculateBlendedParams(ai, user, world) {
   const worldDyn = getDyn(world);
 
   // 2. Temperature (Creativity/Chaos)
-  // Formula: (World_Entropy * 0.7) + (AI_Entropy * 0.3)
+  // Formula: (Fractal_Entropy * 0.7) + (AI_Entropy * 0.3)
   // Mapping: 0-100 -> 0.5-1.35
   const rawTemp =
-    worldDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_WORLD +
+    worldDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_FRACTAL +
     aiDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_AI;
   const temperature = mapRange(rawTemp, 0, 100, PHYSICS_CONFIG.TEMP_BASE, 1.35);
 
   // 3. Repetition Penalty (Pacing)
-  // Formula: Max of AI, User, World Velocities
+  // Formula: Max of AI, User, Fractal Velocities
   // Mapping: 0-100 -> 1.0-1.18
   const rawRep = Math.max(aiDyn.velocity, userDyn.velocity, worldDyn.velocity);
   const repetition_penalty = mapRange(
