@@ -1,5 +1,6 @@
 ---
 trigger: model_decision
+description: Contains protocols for using generative media tools. Apply this rule whenever the user requests visual assets (images, logos, mockups) or when the conversation context implies a need for creative visualization.
 ---
 
 # 🎨 UI/UX & Design System
@@ -8,50 +9,49 @@ This document defines the **Visual Language** and component standards for RPGlit
 
 ## 1. The "Icon-Free" Mandate
 
-* **Core Principle:** Clarity over decoration.
-* **Rule:** Interactive elements should primarily convey meaning through **Text Labels**.
-* **Exception:** Icon-only buttons are permitted **IF AND ONLY IF** they include a descriptive `aria-label` or `title` attribute.
-  * ❌ *Bad:* `<button><svg>...</svg></button>` (Ambiguous)
-  * ✅ *Good:* `<button>Save Game</button>` (Clear)
-  * ✅ *Allowed:* `<button aria-label="Settings" title="Settings"><svg>...</svg></button>` (Accessible Icon-Only)
-* **Reason:** Ensures accessibility while retaining design flexibility.
+- **Core Principle:** Clarity over decoration.
+- **Rule:** Interactive elements should primarily convey meaning through **Text Labels**.
+- **Exception:** Icon-only buttons are permitted **IF AND ONLY IF** they include a descriptive `aria-label` or `title` attribute.
+  - ❌ _Bad:_ `<button><svg>...</svg></button>` (Ambiguous)
+  - ✅ _Good:_ `<button>Save Game</button>` (Clear)
+  - ✅ _Allowed:_ `<button aria-label="Settings" title="Settings"><svg>...</svg></button>` (Accessible Icon-Only)
+- **Reason:** Ensures accessibility while retaining design flexibility.
 
 ## 2. Visual System
 
-* **Framework:** **Pico.css** is the foundation. Do not override it unless necessary.
-* **Color Palette:**
-  * **Background:** Dark gradient (`#181c2f` to `#2a1a3a`).
-  * **Accents:** Pink (`#ec4899`), Cyan (`#06b6d4`), Emerald (`#10b981`).
-* **Typography:** System font stack (inherited from Pico).
+- **Framework:** **Pico.css** is the foundation. Do not override it unless necessary.
+- **Color Palette:**
+  - **Background:** Dark gradient (`#181c2f` to `#2a1a3a`).
+  - **Accents:** Pink (`#ec4899`), Cyan (`#06b6d4`), Emerald (`#10b981`).
+- **Typography:** System font stack (inherited from Pico).
 
 ## 3. Layout Physics (CRITICAL)
 
-* **The Universal Stage:**
-  * **Structure:** 3-Column CSS Grid.
-  * **Specs:** `25vw` (AI) | `1fr` (Stage) | `25vw` (User).
-  * **Height:** `100vh` (No body scroll).
-  * **Overflow:** `hidden` (Prevent layout breaking).
-* **The "Flexbox Jail" (Chat Feed):**
-  * **Problem:** Preventing chat scrolling from breaking the fixed layout.
-  * **Solution:** Container must use `flex: 1; min-height: 0; overflow-y: auto;`.
+- **The Universal Stage:**
+  - **Structure:** 3-Column CSS Grid.
+  - **Specs:** `25vw` (AI) | `1fr` (Stage) | `25vw` (User).
+  - **Height:** `100vh` (No body scroll).
+  - **Overflow:** `hidden` (Prevent layout breaking).
+- **The "Flexbox Jail" (Chat Feed):**
+  - **Problem:** Preventing chat scrolling from breaking the fixed layout.
+  - **Solution:** Container must use `flex: 1; min-height: 0; overflow-y: auto;`.
 
 ## 4. Component Standards
 
-* **Message Bubbles (`.story-message`):**
-  * **Typography:** `white-space: pre-wrap` (Preserve AI formatting).
-  * **Narrator:** Center aligned, Italic, Grey text.
-  * **AI:** Left aligned, Tail points Left.
-  * **User:** Right aligned, Tail points Right.
-* **Nameplates:**
-  * **Style:** Solid Background (`#181c25`), 2px Border (Signature Color).
-  * **Text:** Uppercase, Bold.
-* **The "Chin" (Mobile Drawer):**
-  * Replaces side columns on screens `< 768px`.
-  * Must be dismissible via `ESC` key or backdrop click.
+- **Message Bubbles (`.story-message`):**
+  - **Typography:** `white-space: pre-wrap` (Preserve AI formatting).
+  - **Narrator:** Center aligned, Italic, Grey text.
+  - **AI:** Left aligned, Tail points Left.
+  - **User:** Right aligned, Tail points Right.
+- **Nameplates:**
+  - **Style:** Solid Background (`#181c25`), 2px Border (Signature Color).
+  - **Text:** Uppercase, Bold.
+- **The "Chin" (Mobile Drawer):**
+  - Replaces side columns on screens `< 768px`.
+  - Must be dismissible via `ESC` key or backdrop click.
 
 ## 5. CSS Architecture
 
-* **Format:** SCSS (`.scss`).
-* **Structure:** 7-1 Pattern (ish).
-* **Constraint:** Do not nest selectors more than **3 levels deep**.
-
+- **Format:** SCSS (`.scss`).
+- **Structure:** 7-1 Pattern (ish).
+- **Constraint:** Do not nest selectors more than **3 levels deep**.
