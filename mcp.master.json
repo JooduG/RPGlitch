@@ -1,92 +1,111 @@
 {
   "mcpServers": {
-    "time": {
-      "command": "python",
-      "args": ["-m", "mcp_server_time"],
-      "env": {
-        "TZ": "Europe/Stockholm"
-      },
-      "autoStart": true,
-      "description": "Provides tools to get the current time and date."
-    },
-    "toolbox": {
+    "chrome-devtools": {
       "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@smithery/toolbox",
-        "--key",
-        "280e2eb3-2ed8-480d-a979-da7492da8ec1",
-        "--profile",
-        "voluntary-hornet-y52X3F"
+      "args": ["/c", "npx", "chrome-devtools-mcp@latest"],
+      "disabled": false,
+      "disabledTools": [
+        "close_page",
+        "drag",
+        "emulate",
+        "fill_form",
+        "evaluate_script",
+        "get_console_message",
+        "handle_dialog",
+        "get_network_request",
+        "hover",
+        "list_console_messages",
+        "list_network_requests",
+        "list_pages",
+        "navigate_page",
+        "new_page",
+        "performance_analyze_insight",
+        "resize_page",
+        "select_page",
+        "performance_stop_trace",
+        "performance_start_trace",
+        "wait_for",
+        "upload_file",
+        "take_snapshot"
       ]
     },
-    "pollinations": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@pollinations/model-context-protocol"],
-      "type": "stdio",
-      "restartOnFailure": true,
-      "autoStart": true,
-      "description": "Provides AI image generation through Pollinations services. 🎨"
+    "context7": {
+      "serverUrl": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9"
+      }
+    },
+    "deepwiki": {
+      "serverUrl": "https://mcp.deepwiki.com/sse"
+    },
+    "github": {
+      "serverUrl": "https://api.githubcopilot.com/mcp",
+      "headers": {
+        "Authorization": "Bearer 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"
+      },
+      "disabledTools": [
+        "add_issue_comment",
+        "assign_copilot_to_issue",
+        "create_repository",
+        "fork_repository",
+        "get_release_by_tag",
+        "get_tag",
+        "get_team_members",
+        "get_teams",
+        "list_issue_types",
+        "list_issues",
+        "list_tags",
+        "search_issues",
+        "sub_issue_write",
+        "get_label",
+        "add_comment_to_pending_review",
+        "create_branch",
+        "create_or_update_file",
+        "delete_file",
+        "get_commit",
+        "get_latest_release",
+        "get_me",
+        "list_branches",
+        "list_commits",
+        "list_releases",
+        "merge_pull_request",
+        "pull_request_read",
+        "pull_request_review_write",
+        "push_files",
+        "request_copilot_review",
+        "search_pull_requests",
+        "search_users",
+        "update_pull_request_branch",
+        "update_pull_request"
+      ],
+      "disabled": false
     },
     "mcp-sequentialthinking-tools": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "mcp-sequentialthinking-tools"],
-      "type": "stdio",
-      "restartOnFailure": true,
-      "autoStart": true,
-      "description": "Provides advanced sequential thinking tools with persistent state."
+      "args": ["/c", "npx", "-y", "mcp-sequentialthinking-tools"]
     },
-    "waldzell-clear-thought": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@waldzellai/clear-thought"],
-      "type": "stdio",
-      "autoStart": true,
-      "description": "Provides sequential thinking tools from Waldzell."
-    },
-    "waldzell-stochastic-thinking": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@waldzellai/stochasticthinking"],
-      "type": "stdio",
-      "autoStart": true,
-      "description": "Provides stochastic thinking utilities."
-    },
-    "playwright": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@playwright/mcp"],
-      "autoApprove": ["open_page", "screenshot"],
-      "type": "stdio",
-      "autoStart": true,
-      "description": "Lets the AI control a web browser for scraping and automation. 🌐"
+    "microsoft-learn": {
+      "serverUrl": "https://learn.microsoft.com/api/mcp",
+      "disabled": true
     },
     "npm-sentinel": {
       "command": "cmd",
       "args": ["/c", "npx", "-y", "@nekzus/mcp-server@latest"],
-      "type": "stdio",
-      "autoStart": true,
-      "description": "An MCP server for analyzing NPM packages."
+      "disabled": true
     },
-    "chrome-devtools": {
+    "pollinations": {
       "command": "cmd",
-      "args": ["/c", "npx", "chrome-devtools-mcp@latest"]
+      "args": ["/c", "npx", "-y", "@pollinations/model-context-protocol"],
+      "disabled": false
     },
-    "waldzell-metagames": {
+    "waldzell-clear-thought": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "waldzell-metagames-server"],
-      "type": "stdio"
+      "args": ["/c", "npx", "-y", "@waldzellai/clear-thought"],
+      "disabledTools": ["sequentialthinking"]
     },
-    "deepwiki": {
-      "url": "https://mcp.deepwiki.com/sse"
-    },
-    "context7": {
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {
-        "CONTEXT7_API_KEY": "ctx7sk-47294459-6c98-4af4-8546-a3616fe3d7d9",
-        "Accept": "application/json, text/event-stream"
-      }
+    "waldzell-stochastic-thinking": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@waldzellai/stochasticthinking"]
     }
   }
 }

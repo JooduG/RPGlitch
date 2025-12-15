@@ -83,7 +83,9 @@ Start here, then pick your path:
 
 ### Tooling & Utilities
 
-- **[`.gemini/`](./.gemini/)** - Gemini AI configuration, settings, and MCP definitions.
+- **[`.gemini/`](./.gemini/)** - Agent memory and artifacts.
+- **[`mcp.master.json`](./mcp.master.json)** - Master MCP configuration (synced to `mcp.json`).
+- **[`colors.json`](./.agent/knowledge/colors.json)** - Design system color palette.
 
 ### Documentation & Planning
 

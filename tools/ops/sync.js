@@ -89,7 +89,7 @@ async function syncLibs() {
       url: "https://unpkg.com/dexie@4.0.7/dist/dexie.min.js",
       file: "dexie.min.js",
       sha256:
-        "b9cf7df979061099f665a39cb67353f478b0906236b2890dd28078351b8c067d",
+        "03337c3ff922434111a698fc4c3a28da72d20fe543859ebae1a1421e42106f1e",
     },
     {
       url: "https://unpkg.com/dompurify@3.1.6/dist/purify.min.js",
