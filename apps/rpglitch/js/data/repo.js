@@ -10,7 +10,6 @@ export async function seedPremades() {
     const existing = await db.entities.toArray();
 
     // Define the Factory Blueprints from the hardcoded structures
-    // Define the Factory Blueprints from the hardcoded structures
     const blueprints = [
       ...premade.entities.map((e) => ({ ...e, kind: e.type.toLowerCase() })),
     ];
@@ -67,15 +66,7 @@ export const entities = {
   async list(type) {
     try {
       const reqType = type.toLowerCase();
-      let query = db.entities.where("type");
-
-      if (reqType === "fractal") {
-        query = query.anyOf(["fractal", "world"]);
-      } else {
-        query = query.equals(reqType);
-      }
-
-      const items = await query.toArray();
+      const items = await db.entities.where("type").equals(reqType).toArray();
       return items.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
     } catch (err) {
       error(`Error listing ${type}:`, err);
@@ -88,13 +79,7 @@ export const entities = {
     try {
       const item = await db.entities.get(id);
       const reqType = type.toLowerCase();
-
-      const isValid =
-        item &&
-        (item.type === reqType ||
-          (reqType === "fractal" && item.type === "world"));
-
-      return isValid ? item : null;
+      return item && item.type === reqType ? item : null;
     } catch (err) {
       error(`Failed to get ${type} with id ${id}:`, err);
       return null;
@@ -131,15 +116,7 @@ export const entities = {
   async remove(type, id) {
     try {
       const item = await db.entities.get(id);
-      const reqType = type.toLowerCase();
-
-      // Allow deletion of legacy 'world' types when 'fractal' is requested
-      const isValid =
-        item &&
-        (item.type === reqType ||
-          (reqType === "fractal" && item.type === "world"));
-
-      if (isValid) {
+      if (item && item.type === type.toLowerCase()) {
         return db.entities.delete(id);
       }
     } catch (err) {

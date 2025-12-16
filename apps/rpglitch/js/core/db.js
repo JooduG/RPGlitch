@@ -1,7 +1,7 @@
 // apps/rpglitch/js/core-db.js
 "use strict";
 
-import { log, error } from "./utils.js"; // Renamed import
+import { log, error } from "./utils.js";
 
 // 1. Create the database instance.
 let Dexie;
@@ -18,14 +18,13 @@ const db = new Dexie("rpglitch");
 
 // 2. Define the schema (Final Version Only)
 // 2. Define the schema (Final Version Only)
-db.version(4).stores({
+db.version(7).stores({
   entities:
-    "id, name, description, forever, past, present, future, profilePicture, signatureColour, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
-  stories:
-    "id, title, aiCharacterId, userCharacterId, fractalId, createdAt, updatedAt", // Removed settingsSnapshot (Object blob, not indexable)
+    "id, name, description, forever, past, present, future, profilePicture, signatureColor, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",
+  stories: "++id, title, aiId, userId, fractalId, createdAt, updatedAt",
   messages:
-    "id, storyId, role, type, characterName, text, seed, meta, createdAt",
-  settings: "id", // Singleton settings table
+    "++id, storyId, role, type, characterName, text, seed, meta, createdAt",
+  settings: "id",
 });
 
 // 3. Populate default data
@@ -41,7 +40,6 @@ db.on("populate", async (trans) => {
       stop: [],
       model: "default",
       debugMode: false,
-      // >>> DIRECTOR MODE ADDED HERE <<<
       directorMode: false,
       storyOpeningInstructions: "",
       storyboardSelection: { narrator: null, user: null, fractal: null },

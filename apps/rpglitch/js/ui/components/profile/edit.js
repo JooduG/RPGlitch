@@ -228,30 +228,33 @@ export async function renderProfileEdit(screen, entity, type, id) {
   });
 
   // Color Palette
-  const currentColor = entity.signatureColour || "default";
-  Array.from(paletteSelect.options).forEach((opt) => {
-    opt.selected = opt.value === currentColor;
-  });
+  const currentColor = entity.signatureColor || "default";
 
-  paletteSelect.addEventListener("change", () => {
-    const newColor = paletteSelect.value;
-    const rawVal = imageInput.dataset.pendingUrl || imageInput.value.trim();
-    const urlToCheck = rawVal && rawVal !== "" ? rawVal : null;
+  if (paletteSelect) {
+    Array.from(paletteSelect.options).forEach((opt) => {
+      opt.selected = opt.value === currentColor;
+    });
 
-    const newPic = getPictureHTML(
-      { ...entity, signatureColour: newColor, profilePictureUrl: urlToCheck },
-      { cover: true, landscape: isFractal },
-    );
+    paletteSelect.addEventListener("change", () => {
+      const newColor = paletteSelect.value;
+      const rawVal = imageInput.dataset.pendingUrl || imageInput.value.trim();
+      const urlToCheck = rawVal && rawVal !== "" ? rawVal : null;
 
-    const curPic = heroWrap.querySelector(".picture");
-    if (curPic && newPic) {
-      newPic.classList.add("hero-bleed");
-      applyVisualsToImage(newPic.querySelector("img"));
-      curPic.replaceWith(newPic);
-    }
-    const nameInput = form.querySelector(".profile-name-input");
-    if (nameInput) ThemeService.apply(nameInput, newColor);
-  });
+      const newPic = getPictureHTML(
+        { ...entity, signatureColor: newColor, profilePictureUrl: urlToCheck },
+        { cover: true, landscape: isFractal },
+      );
+
+      const curPic = heroWrap.querySelector(".picture");
+      if (curPic && newPic) {
+        newPic.classList.add("hero-bleed");
+        applyVisualsToImage(newPic.querySelector("img"));
+        curPic.replaceWith(newPic);
+      }
+      const nameInput = form.querySelector(".profile-name-input");
+      if (nameInput) ThemeService.apply(nameInput, newColor);
+    });
+  }
 
   // --- HEADER (Inputs) ---
   const form = layout.querySelector("form");
@@ -264,7 +267,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
   nameInput.value = entity.name || "";
   nameInput.placeholder = "Name";
   nameInput.rows = 1;
-  ThemeService.apply(nameInput, entity.signatureColour);
+  ThemeService.apply(nameInput, entity.signatureColor);
   nameInput.addEventListener("input", () => autoResize(nameInput));
   headerWrap.appendChild(nameInput);
   setTimeout(() => autoResize(nameInput), 0);

@@ -4,6 +4,7 @@ import { getVisualState } from "../../../data/models.js";
 import { state } from "../../../core/state.js";
 import { ThemeService } from "../../services/theme.js";
 import { renderChat } from "./feed.js";
+import { TurnManager } from "../../../engine/director.js";
 
 // --- STATE: Active Edits ---
 const activeEdits = new Map(); // messageId -> { text: string }
@@ -103,14 +104,14 @@ export function renderMessage(
   const roleClass = role === "user" || role === "ai" ? role : "narrator";
   let classList = ["story-message", roleClass];
 
-  let signatureColour = null;
+  let signatureColor = null;
   let visuals = null;
 
   if (role === "user" && entities?.userCharacter) {
-    signatureColour = entities.userCharacter.signatureColour;
+    signatureColor = entities.userCharacter.signatureColor;
     visuals = getVisualState(entities.userCharacter);
   } else if (role === "ai" && entities?.aiCharacter) {
-    signatureColour = entities.aiCharacter.signatureColour;
+    signatureColor = entities.aiCharacter.signatureColor;
     visuals = getVisualState(entities.aiCharacter);
   }
 
@@ -118,8 +119,8 @@ export function renderMessage(
   div.setAttribute("role", "log-item");
   div.setAttribute("data-type", type || "IC");
 
-  if (signatureColour && signatureColour !== "default") {
-    ThemeService.apply(div, signatureColour);
+  if (signatureColor && signatureColor !== "default") {
+    ThemeService.apply(div, signatureColor);
   }
 
   if (visuals && visuals.flipped) {
@@ -164,11 +165,11 @@ export function renderMessage(
     div.classList.add("is-editing");
 
     const onSave = async (id, newText) => {
-      if (window.StoryController) {
+      if (TurnManager) {
         if (role === "user") {
-          await window.StoryController.editUserMessage(id, newText);
+          await TurnManager.editUserMessage(id, newText);
         } else if (role === "ai") {
-          await window.StoryController.editAiMessage(id, newText);
+          await TurnManager.editAiMessage(id, newText);
         }
       }
     };
@@ -252,8 +253,8 @@ export function renderMessage(
       btnRerollImg.title = "Reroll Image";
       btnRerollImg.onclick = (e) => {
         e.stopPropagation();
-        if (window.StoryController && options.messageId) {
-          window.StoryController.regenerateMessageImage(options.messageId);
+        if (TurnManager && options.messageId) {
+          TurnManager.regenerateMessageImage(options.messageId);
         }
       };
       actionsDiv.appendChild(btnRerollImg);
@@ -266,7 +267,7 @@ export function renderMessage(
       btnReroll.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`;
       btnReroll.title = "Reroll Message";
       btnReroll.onclick = () => {
-        if (window.StoryController) window.StoryController.regenerate();
+        if (TurnManager) TurnManager.regenerate();
       };
       actionsDiv.appendChild(btnReroll);
 

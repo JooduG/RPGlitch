@@ -7,28 +7,28 @@
 import { getSignature } from "../../../../apps/rpglitch/js/core/utils.js";
 
 describe("getSignature()", () => {
-  describe("Modern entities with signatureColour", () => {
-    test("returns CSS variable for entity with signatureColour", () => {
-      const entity = { signatureColour: "cyan" };
+  describe("Modern entities with signatureColor", () => {
+    test("returns CSS variable for entity with signatureColor", () => {
+      const entity = { signatureColor: "cyan" };
       const result = getSignature(entity);
       expect(result).toBe("var(--signature-cyan)");
     });
 
-    test("returns CSS variable for entity with pink signatureColour", () => {
-      const entity = { signatureColour: "pink" };
+    test("returns CSS variable for entity with pink signatureColor", () => {
+      const entity = { signatureColor: "pink" };
       const result = getSignature(entity);
       expect(result).toBe("var(--signature-pink)");
     });
 
-    test("returns CSS variable for entity with emerald signatureColour", () => {
-      const entity = { signatureColour: "emerald" };
+    test("returns CSS variable for entity with emerald signatureColor", () => {
+      const entity = { signatureColor: "emerald" };
       const result = getSignature(entity);
       expect(result).toBe("var(--signature-emerald)");
     });
 
-    test('skips signatureColour when set to "default"', () => {
+    test('skips signatureColor when set to "default"', () => {
       const entity = {
-        signatureColour: "default",
+        signatureColor: "default",
         name: "Test Entity",
       };
       const result = getSignature(entity);
@@ -99,8 +99,8 @@ describe("getSignature()", () => {
       expect(result).toMatch(/^hsl\(\d+, 40%, 60%\)$/);
     });
 
-    test("handles entity with empty signatureColour string", () => {
-      const entity = { signatureColour: "" };
+    test("handles entity with empty signatureColor string", () => {
+      const entity = { signatureColor: "" };
       const result = getSignature(entity);
       // Empty string is falsy, should fall through
       expect(result).toMatch(/^hsl\(\d+, 40%, 60%\)$/);

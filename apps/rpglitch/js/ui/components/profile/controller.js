@@ -34,8 +34,7 @@ export function closeProfileModal() {
       history.replaceState(
         "",
         document.title,
-        base +
-          (document.body.classList.contains("mode-gameplay") ? "#story" : ""),
+        base + (document.body.classList.contains("storymode") ? "#story" : ""),
       );
     }
   }
@@ -92,7 +91,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
   else screen.classList.remove("profile-view--fractal");
 
   // Check Gameplay Status (Lock)
-  const isGameplay = document.body.classList.contains("mode-gameplay");
+  const isGameplay = document.body.classList.contains("storymode");
   let isEditing = (id === "new" || forceEditMode) && !isGameplay;
 
   let entity;

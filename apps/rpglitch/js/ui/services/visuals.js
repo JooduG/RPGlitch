@@ -18,6 +18,7 @@ export const VisualManager = {
    * @param {Object} options - { resolution, negative, removeBackground }
    */
   async generate(prompt, options = {}) {
+    options = options || {}; // Safety: Ensure options is an object
     if (!window.textToImage) throw new Error("Image plugin not loaded.");
 
     const resolution = options.resolution || "512x768";
@@ -78,6 +79,7 @@ export const VisualManager = {
     extraContext = null,
     options = {},
   ) {
+    options = options || {}; // Safety: Ensure options is an object
     // 0. DETECT TYPE (Robust check)
     const type = (entity.type || entity.kind || "").toLowerCase();
     const isFractal = type === "world" || type === "fractal";

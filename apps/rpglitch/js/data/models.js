@@ -9,7 +9,7 @@ const premade = {
       name: "Aether Blade",
       description: "Cybernetic warrior forging light into weapons.",
       type: "Character",
-      signatureColour: "azure",
+      signatureColor: "azure",
       dynamics: { entropy: 30, permeability: 40, velocity: 80, resonance: 70 },
       sections: {
         forever: "Bound to the Aether Core, their blade hums with starlight.",
@@ -24,7 +24,7 @@ const premade = {
       name: "Mystic Bard",
       description: "Traveling musician who weaves spells with song.",
       type: "Character",
-      signatureColour: "yellow",
+      signatureColor: "yellow",
       dynamics: { entropy: 70, permeability: 80, velocity: 50, resonance: 90 },
       sections: {
         forever: "Every note carries a memory; every chorus, a charm.",
@@ -38,7 +38,7 @@ const premade = {
       name: "Clockwork Rogue",
       description: "Stealthy thief powered by ticking gears.",
       type: "Character",
-      signatureColour: "jade",
+      signatureColor: "jade",
       dynamics: { entropy: 10, permeability: 30, velocity: 70, resonance: 40 },
       sections: {
         forever: "Precision over passion; gears never lie.",
@@ -52,7 +52,7 @@ const premade = {
       name: "Shadow Whisperer",
       description: "Mysterious figure communing with darkness.",
       type: "Character",
-      signatureColour: "violet",
+      signatureColor: "violet",
       dynamics: { entropy: 60, permeability: 90, velocity: 20, resonance: 80 },
       sections: {
         forever: "The dark is not empty; it listens back.",
@@ -67,7 +67,7 @@ const premade = {
       description:
         "Cheesy pink himbo superhero with glowing runes, monster muscles, and a thirst for viral saves + dominant hookups.",
       type: "Character",
-      signatureColour: "pink",
+      signatureColor: "pink",
       dynamics: { entropy: 60, permeability: 75, velocity: 85, resonance: 80 },
       sections: {
         forever:
@@ -85,7 +85,7 @@ const premade = {
       description:
         "Bratty cyan twink hacker who talks big but melts into a hypno-sissy the second a real dom flexes.",
       type: "Character",
-      signatureColour: "cyan",
+      signatureColor: "cyan",
       dynamics: { entropy: 65, permeability: 85, velocity: 65, resonance: 75 },
       sections: {
         forever:
@@ -98,12 +98,12 @@ const premade = {
       },
     },
     {
-      id: "entity-W1",
+      id: "entity-F1",
       name: "Eldoria",
       description: "Floating isles bound by ancient magic.",
       type: "Fractal",
       simulation: { mode: "PASSIVE" },
-      signatureColour: "green",
+      signatureColor: "green",
       dynamics: { entropy: 40, permeability: 60, velocity: 50, resonance: 60 },
       sections: {
         forever: "Isles drift on leylines braided like song.",
@@ -113,12 +113,12 @@ const premade = {
       },
     },
     {
-      id: "entity-W2",
+      id: "entity-F2",
       name: "Neo Arcadia",
       description: "Futuristic metropolis built on dream tech.",
       type: "Fractal",
       simulation: { mode: "PASSIVE" },
-      signatureColour: "blue",
+      signatureColor: "blue",
       dynamics: { entropy: 80, permeability: 50, velocity: 90, resonance: 50 },
       sections: {
         forever: "Dreams scaffold towers; intent becomes steel.",
@@ -128,13 +128,13 @@ const premade = {
       },
     },
     {
-      id: "entity-W3",
+      id: "entity-F3",
       name: "Nova City",
       description:
         "Neon-soaked queer utopia where heroes pose, villains cruise, and thunderstorms are just foreplay for city-wide orgies.",
       type: "Fractal",
       simulation: { mode: "PASSIVE" },
-      signatureColour: "purple",
+      signatureColor: "purple",
       dynamics: { entropy: 70, permeability: 85, velocity: 80, resonance: 80 },
       sections: {
         forever:
@@ -147,12 +147,12 @@ const premade = {
       },
     },
     {
-      id: "fractal-messenger-v1",
+      id: "entity-F4",
       name: "Messenger",
       description: "A standard mobile messaging interface.",
       type: "Fractal",
       icon: "messenger",
-      signatureColour: "cyan",
+      signatureColor: "cyan",
       simulation: {
         mode: "ACTIVE",
         cssTheme: "theme-smartphone",
@@ -211,8 +211,8 @@ export function normalize(base = {}) {
     description: sanitizeHtml(base.description || "").trim(),
     profilePictureUrl: sanitizeHtml(existingAvatar).trim(), // Keep sync for now
     icon: base.icon || null,
-    signatureColour: (() => {
-      const existing = sanitizeHtml(base.signatureColour || "").trim();
+    signatureColor: (() => {
+      const existing = sanitizeHtml(base.signatureColor || "").trim();
       return existing && existing !== "default"
         ? existing
         : getRandomSignatureKey();

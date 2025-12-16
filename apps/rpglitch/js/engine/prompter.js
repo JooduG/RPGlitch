@@ -1,7 +1,6 @@
 import { state } from "../core/state.js";
-import { log } from "../core/utils.js"; // Added log import
+import { log } from "../core/utils.js";
 import { entities } from "../data/repo.js";
-
 import { PHYSICS_CONFIG } from "./physics/config.js";
 
 const PROMETHEUS_CONFIG = PHYSICS_CONFIG.PROMETHEUS;
@@ -22,7 +21,7 @@ export class ContextBuilder {
     const [ai, user, fractal] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
 
-    const directorMode = fractal.simulation?.directorMode || null; // [MOVED] Fixes TDZ Error
+    const directorMode = fractal.simulation?.directorMode || null;
 
     const narrativeHistory = history.filter(
       (m) => m.role !== "system" && m.type !== "DEBUG",
@@ -56,8 +55,8 @@ export class ContextBuilder {
       this._layerKernel_PROMETHEUS(directorMode),
       this._layerKernel_PROMETHEUS(directorMode),
       this._layerEntity(fractal, "FRACTAL_CONTEXT"),
-      this._layerEntity(ai, "ACTIVE_CHARACTER_AI"),
-      this._layerEntity(user, "INTERLOCUTOR_USER"),
+      this._layerEntity(ai, "AI_CHARACTER"),
+      this._layerEntity(user, "USER_CHARACTER"),
     ];
 
     // [NEW] Injection for AI-First Start
@@ -65,7 +64,7 @@ export class ContextBuilder {
       systemPromptParts.push(`
 <FIRST_MESSAGE_PROTOCOL>
 You are initiating the conversation.
-Write the first SMS to <INTERLOCUTOR_USER>.
+Write the first SMS to <USER_CHARACTER>.
 Keep it short, casual, and in-character.
 </FIRST_MESSAGE_PROTOCOL>`);
     }
@@ -113,8 +112,8 @@ You feel an overwhelming biological urge to be seen and validated.
       meta: {
         triggerUpdate: !!updateTarget,
         updateTarget: updateTarget,
-        activeCharId: ai.id,
-        userCharId: user.id,
+        aiId: ai.id,
+        userId: user.id,
         fractalId: fractal.id,
       },
     };
@@ -127,11 +126,6 @@ You feel an overwhelming biological urge to be seen and validated.
   }
 
   async buildVisualizer(targetType) {
-    // (Visualizer code remains unchanged, omitted for brevity but should be kept in file)
-    // ... [Copy the existing buildVisualizer code here if overwriting file] ...
-    // For this specific update, I will assume the previous implementation is preserved
-    // unless you want the full file dump. I will provide the full file to be safe.
-
     const story = state.story.byId[this.storyId];
     const [ai, , fractal] = await this._resolveEntities(story);
 
@@ -418,7 +412,7 @@ You are NOT a chat assistant. You are a Simulation Engine.
 
 <CONTEXT>
 ${this._layerEntity(fractal, "FRACTAL_CONTEXT")}
-${this._layerEntity(ai, "PROTAGONIST")}
+${this._layerEntity(ai, "AI_CHARACTER")}
 </CONTEXT>
 
 <INSTRUCTION>
@@ -442,8 +436,8 @@ Write the opening paragraph(s) of the story.
 5. **OUTPUT:** Write the final polished prose *outside* the <think> tag. Use double line breaks between paragraphs.
 
 <CONFLICT_RESOLUTION>
-If the PROTAGONIST's <PRESENT> or <PAST> data mentions a location that conflicts with the Fractal Context, YOU MUST IGNORE the protagonist's location data.
-Force the protagonist into the Fractal Context.
+If the AI_CHARACTER's <PRESENT> or <PAST> data mentions a location that conflicts with the Fractal Context, YOU MUST IGNORE the character's location data.
+Force the character into the Fractal Context.
 Re-interpret their <PRESENT> situation to fit the Fractal Context.
 </CONFLICT_RESOLUTION>
 
@@ -475,13 +469,13 @@ This instruction takes PRIORITY over conflicting directives above.
 
 <CORE_DIRECTIVE>
 You are an expert Ghostwriter for a Roleplay.
-Your task is to REWRITE the user's rough draft into immersice, high-quality prose.
+Your task is to REWRITE the user's rough draft into immersive, high-quality prose.
 </CORE_DIRECTIVE>
 
 <CONTEXT>
 ${this._layerEntity(fractal, "FRACTAL")}
 ${this._layerEntity(user, "USER_CHARACTER")}
-${this._layerEntity(ai, "PARTNER_CHARACTER")}
+${this._layerEntity(ai, "AI_CHARACTER")}
 </CONTEXT>
 
 <USER_DRAFT>
@@ -584,7 +578,7 @@ ${entity.future || "Exist."}
 [MODE: ABSOLUTE_DEVELOPER_CORE]
 
 <CORE_DIRECTIVES>
-1. AGENCY: You play <ACTIVE_CHARACTER_AI>. NEVER control <INTERLOCUTOR_USER>.
+1. AGENCY: You play <AI_CHARACTER>. NEVER control <USER_CHARACTER>.
 2. SIMULATION: <FRACTAL_CONTEXT> defines laws of physics/atmosphere.
 3. CONSISTENCY: Adhere to <PERMANENT> traits.
 4. IMMERSION: DO NOT reference game mechanics (Entropy, Resonance, Velocity) in dialogue.
@@ -611,7 +605,7 @@ You MUST start every response with a <think> block containing this exact 4-step 
 
 2. **INTENT DECODING:**
    - What is the User trying to achieve? (Combat, Romance, Info, Lore).
-   - How does <ACTIVE_CHARACTER_AI> feel about this intent?
+   - How does <AI_CHARACTER> feel about this intent?
 
 3. **DRAFTING & SANITIZATION:**
    - *Internal Draft:* Formulate the response mentally.
@@ -624,8 +618,8 @@ You MUST start every response with a <think> block containing this exact 4-step 
   }
 
   async _resolveEntities(story) {
-    const ai = await entities.get("character", story.aiCharacterId);
-    const user = await entities.get("character", story.userCharacterId);
+    const ai = await entities.get("character", story.aiId);
+    const user = await entities.get("character", story.userId);
     let fractal = await entities.get("fractal", story.fractalId);
     if (!fractal) {
       // Fallback removed as per clean slate, but ensuring it returns object if found

@@ -1,6 +1,6 @@
 import { db } from "../../core/db.js";
 import { applyPatch, state } from "../../core/state.js";
-import { StoryController } from "../../engine/director.js";
+import { TurnManager } from "../../engine/director.js";
 import { entities } from "../../data/repo.js";
 
 export const StoryOptionsController = {
@@ -100,7 +100,7 @@ export const StoryOptionsController = {
       concludeBtn.addEventListener("click", async (e) => {
         e.preventDefault();
         if (state.story.activeId) {
-          await StoryController.concludeStory();
+          await TurnManager.concludeStory();
         }
       });
     }
@@ -122,7 +122,7 @@ export const StoryOptionsController = {
 
         StoryOptionsController.close();
 
-        const enhanced = await StoryController.enhanceUserDraft(draft);
+        const enhanced = await TurnManager.enhanceUserDraft(draft);
         if (enhanced && inputField) {
           inputField.value = enhanced;
           inputField.focus();
@@ -158,7 +158,7 @@ export const StoryOptionsController = {
         }
 
         StoryOptionsController.close();
-        await StoryController.generateVisualFromDraft(draft);
+        await TurnManager.generateVisualFromDraft(draft);
       });
     }
 
@@ -187,11 +187,11 @@ export const StoryOptionsController = {
         }
 
         StoryOptionsController.close();
-        // We will implement requestVisual on StoryController next
-        if (typeof StoryController.requestVisual === "function") {
-          await StoryController.requestVisual();
+        // We will implement requestVisual on TurnManager next
+        if (typeof TurnManager.requestVisual === "function") {
+          await TurnManager.requestVisual();
         } else {
-          console.error("StoryController.requestVisual is not implemented.");
+          console.error("TurnManager.requestVisual is not implemented.");
         }
       });
     }
@@ -252,7 +252,7 @@ export const StoryOptionsController = {
     // State-Based Visibility Logic
     const hasActiveStory = !!state.story.activeId;
     const lobbySection = modal.querySelector(".settings-section-lobby");
-    const gameSection = modal.querySelector(".settings-section-game");
+    const gameSection = modal.querySelector(".settings-section-storymode");
 
     if (lobbySection) lobbySection.hidden = hasActiveStory;
     if (gameSection) gameSection.hidden = !hasActiveStory;
@@ -383,7 +383,7 @@ export const StoryOptionsController = {
       applyPatch({
         story: { activeId: story.id, byId: { [story.id]: story } },
         storyTitle: story.title,
-        mode: "gameplay",
+        mode: "storymode",
       });
 
       StoryOptionsController.close();

@@ -2,7 +2,7 @@
 /**
  * Generates text using the Perchance AI plugin via a stream.
  * Now purely a pass-through. All prompt formatting happens in ContextBuilder.
- * * @param {Object} payload - { system, messages, params, stopSequences }
+ * @param {Object} payload - { system, messages, params, stopSequences }
  * @param {AbortSignal} signal - Signal to abort the request
  * @param {Function} onToken - Callback for each streamed token
  * @param {Function} onDone - Callback when generation completes
@@ -15,6 +15,7 @@ export async function generateStream({
   onToken,
   onDone,
 }) {
+  options = options || {}; // Safety check
   if (!window.ai) throw new Error("Perchance AI plugin not available.");
 
   // 1. Construct the final instruction string

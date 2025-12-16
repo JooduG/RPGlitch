@@ -8,7 +8,7 @@
 /* --- BASE VISIBILITY --- */
 // By default, content buckets are hidden and transparent
 .stage-content--storyboard,
-.stage-content--gameplay {
+.stage-content--storymode {
   display: none; // HIDE by default
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -54,22 +54,22 @@ body.mode-storyboard {
   }
 
   // Explicitly HIDE Gameplay Content
-  .stage-content--gameplay {
+  .stage-content--storymode {
     display: none !important;
   }
 }
 
 /* =========================================
-   MODE: GAMEPLAY (ACTIVE)
+   MODE: STORYMODE (ACTIVE)
    ========================================= */
-body.mode-gameplay {
+body.storymode {
   // [NEW] 3-Track Grid: 2fr (left) | 6fr (center) | 2fr (right)
   // Total 10 units. No outer gaps. Side panels 2 units (20%). Center 6 units (60%).
   .universal-stage {
     grid-template-columns: 2fr 6fr 2fr;
   }
 
-  // Column Assignment for Gameplay (Standard)
+  // Column Assignment for Storymode (Standard)
   #stage-ai {
     grid-column: 1;
   }
@@ -82,8 +82,8 @@ body.mode-gameplay {
     grid-column: 3;
   }
 
-  // Activate Gameplay Content
-  .stage-content--gameplay {
+  // Activate Storymode Content
+  .stage-content--storymode {
     display: flex;
     flex-direction: column;
     opacity: 1;
@@ -97,7 +97,7 @@ body.mode-gameplay {
     display: none !important;
   }
 
-  // Hide Side Columns on Mobile/Tablet when in gameplay
+  // Hide Side Columns on Mobile/Tablet when in storymode
   @include tablet {
     .universal-stage {
       grid-template-columns: 1fr; // Collapse to single column

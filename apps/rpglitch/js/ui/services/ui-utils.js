@@ -1,4 +1,5 @@
-import { SIGNATURE_COLORS, mixHex } from "../../core/utils.js";
+import { mixHex } from "../../core/utils.js";
+import { PALETTE } from "../../core/constants.js";
 
 // --- UI Helpers (Chin, TopBar) ---
 
@@ -124,7 +125,7 @@ const DEFAULT_BG = ["#181c2f", "#23243a", "#1a3a4a", "#2a1a3a"];
  */
 export function setAppBackground(signatureKey) {
   const root = document.documentElement;
-  const baseColor = SIGNATURE_COLORS[signatureKey];
+  const baseColor = PALETTE[signatureKey];
 
   if (!signatureKey || signatureKey === "default" || !baseColor) {
     root.style.setProperty("--bg-grad-1", DEFAULT_BG[0]);
@@ -215,8 +216,8 @@ export function renderTags(container, entity, options = {}) {
     chip.className = "tag-chip";
     chip.textContent = typeLabel;
 
-    if (entity.signatureColour && entity.signatureColour !== "default") {
-      chip.style.backgroundColor = SIGNATURE_COLORS[entity.signatureColour];
+    if (entity.signatureColor && entity.signatureColor !== "default") {
+      chip.style.backgroundColor = PALETTE[entity.signatureColor];
       chip.style.color = "white";
     }
     wrap.appendChild(chip);
@@ -238,10 +239,10 @@ export function renderTags(container, entity, options = {}) {
 
     if (
       t === "Premade" &&
-      entity.signatureColour &&
-      entity.signatureColour !== "default"
+      entity.signatureColor &&
+      entity.signatureColor !== "default"
     ) {
-      chip.style.backgroundColor = SIGNATURE_COLORS[entity.signatureColour];
+      chip.style.backgroundColor = PALETTE[entity.signatureColor];
       chip.style.color = "white";
     }
     wrap.appendChild(chip);

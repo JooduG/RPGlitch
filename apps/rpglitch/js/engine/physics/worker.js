@@ -111,9 +111,9 @@ async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
 
     let entity = null;
     if (targetType === "ai_character")
-      entity = await entities.get("character", story.aiCharacterId);
+      entity = await entities.get("character", story.aiId);
     else if (targetType === "user_character")
-      entity = await entities.get("character", story.userCharacterId);
+      entity = await entities.get("character", story.userId);
     else if (targetType === "fractal")
       entity = await entities.get("fractal", story.fractalId);
 

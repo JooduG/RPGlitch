@@ -18,8 +18,8 @@ export const TurnManager = {
 
   createFromSelection: async (data) => {
     const [startAi, startUser, startFractal] = await Promise.all([
-      entities.get("character", data.aiCharacterId),
-      entities.get("character", data.userCharacterId),
+      entities.get("character", data.aiId),
+      entities.get("character", data.userId),
       entities.get("fractal", data.fractalId),
     ]);
 
@@ -42,7 +42,7 @@ export const TurnManager = {
 
     applyPatch({
       story: { activeId: id, byId: { [id]: storyWithId } },
-      mode: "gameplay",
+      mode: "storymode",
     });
 
     events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
@@ -58,7 +58,7 @@ export const TurnManager = {
       applyPatch({
         story: { activeId: story.id, byId: { [story.id]: story } },
         storyTitle: story.storyTitle,
-        mode: "gameplay",
+        mode: "storymode",
       });
 
       await TurnManager.loadMessages(story.id);
@@ -114,13 +114,14 @@ export const TurnManager = {
   },
 
   generateAiResponse: async (storyId, options = {}) => {
+    options = options || {}; // Safety: Ensure options is an object even if null is passed
     const story = state.story.byId[storyId];
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
     try {
       events.dispatchEvent(
         new CustomEvent(EVENTS.TYPING_STARTED, {
-          detail: { role: "ai", characterId: story.aiCharacterId },
+          detail: { role: "ai", characterId: story.aiId },
         }),
       );
 
@@ -138,8 +139,8 @@ export const TurnManager = {
       applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
 
       const [aiEntity, userEntity, fractalEntity] = await Promise.all([
-        entities.get("character", story.aiCharacterId),
-        entities.get("character", story.userCharacterId),
+        entities.get("character", story.aiId),
+        entities.get("character", story.userId),
         entities.get("fractal", story.fractalId),
       ]);
 
@@ -192,8 +193,8 @@ export const TurnManager = {
         }
       }
 
-      const aiChar = await entities.get("character", story.aiCharacterId);
-      const userChar = await entities.get("character", story.userCharacterId);
+      const aiChar = await entities.get("character", story.aiId);
+      const userChar = await entities.get("character", story.userId);
       const fractal = await entities.get("fractal", story.fractalId);
 
       // 3. Save Message (Cleaned)
@@ -212,7 +213,7 @@ export const TurnManager = {
         // [UX] Show busy indicator for visual generation
         events.dispatchEvent(
           new CustomEvent(EVENTS.TYPING_STARTED, {
-            detail: { role: "ai", characterId: story.aiCharacterId },
+            detail: { role: "ai", characterId: story.aiId },
           }),
         );
 
@@ -298,7 +299,7 @@ export const TurnManager = {
 
       events.dispatchEvent(
         new CustomEvent(EVENTS.TYPING_STARTED, {
-          detail: { role: "ai", characterId: story.aiCharacterId },
+          detail: { role: "ai", characterId: story.aiId },
         }),
       );
 
@@ -318,7 +319,7 @@ export const TurnManager = {
 
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
 
-      const aiChar = await entities.get("character", story.aiCharacterId);
+      const aiChar = await entities.get("character", story.aiId);
       const aiMsgId = await db.messages.add({
         storyId,
         role: "ai",
@@ -389,7 +390,7 @@ export const TurnManager = {
 
     events.dispatchEvent(
       new CustomEvent(EVENTS.TYPING_STARTED, {
-        detail: { role: "ai", characterId: story.aiCharacterId },
+        detail: { role: "ai", characterId: story.aiId },
       }),
     );
 
@@ -416,7 +417,7 @@ export const TurnManager = {
       }
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
 
-      const aiChar = await entities.get("character", story.aiCharacterId);
+      const aiChar = await entities.get("character", story.aiId);
 
       await db.messages.add({
         storyId,
@@ -514,8 +515,8 @@ export const TurnManager = {
       return;
 
     const [endAi, endUser, endFractal] = await Promise.all([
-      entities.get("character", story.aiCharacterId),
-      entities.get("character", story.userCharacterId),
+      entities.get("character", story.aiId),
+      entities.get("character", story.userId),
       entities.get("fractal", story.fractalId),
     ]);
 
@@ -529,7 +530,7 @@ export const TurnManager = {
       },
     });
 
-    document.body.classList.remove("mode-gameplay");
+    document.body.classList.remove("storymode");
     document.body.classList.add("mode-storyboard");
     applyPatch({ story: { activeId: null } });
 
@@ -619,8 +620,8 @@ export const TurnManager = {
       log(`[TurnManager] Rerolling Image: ${visualPrompt}`);
 
       const [aiChar, userChar, fractal] = await Promise.all([
-        entities.get("character", state.story.byId[storyId].aiCharacterId),
-        entities.get("character", state.story.byId[storyId].userCharacterId),
+        entities.get("character", state.story.byId[storyId].aiId),
+        entities.get("character", state.story.byId[storyId].userId),
         entities.get("fractal", state.story.byId[storyId].fractalId),
       ]);
 
@@ -716,7 +717,7 @@ EXAMPLE: "Here it is! <image_prompt target="AI">Selfie in the mirror, holding ph
   },
 };
 
-export const StoryController = TurnManager;
+// End of Director
 
 events.addEventListener(EVENTS.DB_UPDATED, async () => {
   const activeId = state.story.activeId;

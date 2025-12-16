@@ -16,7 +16,6 @@ export const state = {
     stop: [],
     model: "default",
     historyLength: 10,
-    // >>> DIRECTOR MODE ADDED HERE <<<
     directorMode: false,
     storyOpeningInstructions: "",
   },

@@ -11,8 +11,8 @@ import {
 
 // --- STATE ---
 export const selectedEntities = {
-  aiCharacter: null,
-  userCharacter: null,
+  ai: null,
+  user: null,
   fractal: null,
 };
 
@@ -20,9 +20,9 @@ let virtualFeed = null;
 
 // --- EXPORTED ACTIONS ---
 
-export function setGameplayEntities(ai, user, fractal) {
-  if (ai) selectedEntities.aiCharacter = ai;
-  if (user) selectedEntities.userCharacter = user;
+export function setStorymodeEntities(ai, user, fractal) {
+  if (ai) selectedEntities.ai = ai;
+  if (user) selectedEntities.user = user;
   if (fractal) selectedEntities.fractal = fractal;
 }
 
@@ -73,11 +73,11 @@ export function showTypingIndicator(container, type = "ai", entityId = null) {
     const bubble = document.createElement("div");
     bubble.id = "active-typing-indicator";
 
-    let signatureColour = null;
-    if (type === "ai" && selectedEntities.aiCharacter) {
-      signatureColour = selectedEntities.aiCharacter.signatureColour;
-    } else if (type === "user" && selectedEntities.userCharacter) {
-      signatureColour = selectedEntities.userCharacter.signatureColour;
+    let signatureColor = null;
+    if (type === "ai" && selectedEntities.ai) {
+      signatureColor = selectedEntities.ai.signatureColor;
+    } else if (type === "user" && selectedEntities.user) {
+      signatureColor = selectedEntities.user.signatureColor;
     }
 
     let classes = ["story-message", "typing-bubble"];
@@ -88,8 +88,8 @@ export function showTypingIndicator(container, type = "ai", entityId = null) {
       classes.push("ai");
     }
 
-    if (signatureColour && signatureColour !== "default") {
-      classes.push(`signature-${signatureColour}`);
+    if (signatureColor && signatureColor !== "default") {
+      classes.push(`signature-${signatureColor}`);
     }
 
     bubble.className = classes.join(" ");
@@ -141,12 +141,12 @@ export async function renderChat(storyId) {
   if (!story) return;
 
   let [ai, user] = await Promise.all([
-    entities.get("character", story.aiCharacterId),
-    entities.get("character", story.userCharacterId),
+    entities.get("character", story.aiId),
+    entities.get("character", story.userId),
   ]);
 
-  selectedEntities.aiCharacter = ai;
-  selectedEntities.userCharacter = user;
+  selectedEntities.ai = ai;
+  selectedEntities.user = user;
 
   const noMsg = document.querySelector("#no-messages");
 
@@ -173,7 +173,7 @@ export async function renderChat(storyId) {
 
     return {
       ...m,
-      _contextEntities: { aiCharacter: ai, userCharacter: user },
+      _contextEntities: { ai: ai, user: user },
       _renderOptions: {
         isLast,
         messageId: m.id,
@@ -230,18 +230,12 @@ events.addEventListener(EVENTS.STORY_LOADED, (e) => {
 // Update visuals dynamically
 window.addEventListener("entity-visual-update", async (e) => {
   const id = e.detail.id;
-  if (selectedEntities.aiCharacter?.id === id) {
-    selectedEntities.aiCharacter = await entities.get("character", id);
-    updatePortraits(
-      selectedEntities.aiCharacter,
-      selectedEntities.userCharacter,
-    );
-  } else if (selectedEntities.userCharacter?.id === id) {
-    selectedEntities.userCharacter = await entities.get("character", id);
-    updatePortraits(
-      selectedEntities.aiCharacter,
-      selectedEntities.userCharacter,
-    );
+  if (selectedEntities.ai?.id === id) {
+    selectedEntities.ai = await entities.get("character", id);
+    updatePortraits(selectedEntities.ai, selectedEntities.user);
+  } else if (selectedEntities.user?.id === id) {
+    selectedEntities.user = await entities.get("character", id);
+    updatePortraits(selectedEntities.ai, selectedEntities.user);
   } else if (selectedEntities.fractal?.id === id) {
     selectedEntities.fractal = await entities.get("fractal", id);
     applyFractalAmbience(selectedEntities.fractal);

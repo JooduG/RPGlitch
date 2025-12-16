@@ -1,6 +1,6 @@
 import { log } from "../core/utils.js";
 import { initDrawer, closeDrawer } from "./components/drawer/desktop.js";
-import { setGameplayEntities, setSendLock } from "./components/chat/feed.js";
+import { setStorymodeEntities, setSendLock } from "./components/chat/feed.js";
 import {
   updatePortraits,
   applyFractalAmbience,
@@ -23,8 +23,8 @@ import { events, EVENTS } from "../core/events.js";
 
 // Shared Selection State (The Source of Truth)
 const selectedEntities = {
-  aiCharacter: null,
-  userCharacter: null,
+  ai: null,
+  user: null,
   fractal: null,
 };
 
@@ -34,13 +34,13 @@ let _onSelectionChanged = null;
 
 function initEventBinds() {
   events.addEventListener(EVENTS.STORY_LOADED, async () => {
-    // 1. Refresh Gameplay Entities
+    // 1. Refresh Storymode Entities
     const state = await import("../core/state.js").then((m) => m.state);
     if (state.story.activeId) {
       const db = await import("../core/db.js").then((m) => m.db);
       const story = await db.stories.get(state.story.activeId);
       if (story) {
-        setGameplayEntities(
+        setStorymodeEntities(
           story.snapshots.start.ai,
           story.snapshots.start.user,
           story.snapshots.start.fractal,
@@ -94,12 +94,12 @@ initEventBinds();
 
 // --- EXPORTS ---
 
-export { setGameplayEntities, updatePortraits, setSendLock };
+export { setStorymodeEntities, updatePortraits, setSendLock };
 
 // --- CORE ROUTING ---
 function showStoryboard() {
   document.body.classList.remove("profile-view-active");
-  document.body.classList.remove("mode-gameplay");
+  document.body.classList.remove("storymode");
   document.body.classList.add("mode-storyboard");
   closeProfileModal();
 }
@@ -107,7 +107,7 @@ function showStoryboard() {
 function showStoryScreen() {
   document.body.classList.remove("profile-view-active");
   document.body.classList.remove("mode-storyboard");
-  document.body.classList.add("mode-gameplay");
+  document.body.classList.add("storymode");
   closeProfileModal();
 }
 
@@ -126,9 +126,9 @@ function handleRoute() {
 
   closeDrawer();
 
-  // [AIRLOCK] Lock user in story if gameplay is active
-  const isGameplayActive = document.body.classList.contains("mode-gameplay");
-  if (isGameplayActive) {
+  // [AIRLOCK] Lock user in story if storymode is active
+  const isStorymodeActive = document.body.classList.contains("storymode");
+  if (isStorymodeActive) {
     if (section !== "story" && section !== "profile") {
       console.warn("🚫 Access Denied: Story in progress.");
       location.hash = "#story";
@@ -138,7 +138,7 @@ function handleRoute() {
 
   if (section === "profile" && isType(entityType) && id) {
     if (
-      !document.body.classList.contains("mode-gameplay") &&
+      !document.body.classList.contains("storymode") &&
       !document.body.classList.contains("mode-storyboard")
     ) {
       document.body.classList.add("mode-storyboard");
@@ -174,13 +174,13 @@ document.addEventListener(
 export function updateStoryboardSelection(newSelection) {
   // Update Source of Truth
   if (newSelection.aiCharacter !== undefined)
-    selectedEntities.aiCharacter = newSelection.aiCharacter;
+    selectedEntities.ai = newSelection.aiCharacter;
   if (newSelection.userCharacter !== undefined)
-    selectedEntities.userCharacter = newSelection.userCharacter;
+    selectedEntities.user = newSelection.userCharacter;
   if (newSelection.fractal !== undefined) {
     selectedEntities.fractal = newSelection.fractal;
     log("[UI] Selecting Fractal:", newSelection.fractal);
-    setAppBackground(selectedEntities.fractal?.signatureColour);
+    setAppBackground(selectedEntities.fractal?.signatureColor);
     applyFractalAmbience(selectedEntities.fractal);
 
     // [FIX] THEME INJECTION LOGIC
@@ -235,7 +235,7 @@ export function updateStoryboardSelection(newSelection) {
 
   updateSlot(
     "aiCharacter",
-    selectedEntities.aiCharacter,
+    selectedEntities.ai,
     "#btn-select-ai",
     "#ai-character-preview",
     "character",
@@ -244,7 +244,7 @@ export function updateStoryboardSelection(newSelection) {
   );
   updateSlot(
     "userCharacter",
-    selectedEntities.userCharacter,
+    selectedEntities.user,
     "#btn-select-user",
     "#user-character-preview",
     "character",
@@ -261,7 +261,13 @@ export function updateStoryboardSelection(newSelection) {
     "skeleton-fractal",
   );
 
-  if (_onSelectionChanged) _onSelectionChanged(selectedEntities);
+  if (_onSelectionChanged) {
+    _onSelectionChanged({
+      aiCharacter: selectedEntities.ai,
+      userCharacter: selectedEntities.user,
+      fractal: selectedEntities.fractal,
+    });
+  }
 }
 
 // --- INITIALIZATION ---
@@ -298,8 +304,8 @@ export async function initViews(deps = {}) {
     "Select Fractal",
   );
 
-  bindPortraitClick("#gameplay-ai-portrait", "aiCharacter");
-  bindPortraitClick("#gameplay-user-portrait", "userCharacter");
+  bindPortraitClick("#storymode-ai-portrait", "aiCharacter");
+  bindPortraitClick("#storymode-user-portrait", "userCharacter");
   bindPortraitClick("#phone-ai-portrait", "aiCharacter");
   bindPortraitClick("#phone-user-portrait", "userCharacter");
 

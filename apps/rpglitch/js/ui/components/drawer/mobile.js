@@ -134,8 +134,8 @@ export function renderEntityPreview(
   if (entity) {
     previewEl.innerHTML = "";
     previewEl.className = "entity-preview card-filled";
-    if (entity.signatureColour) {
-      ThemeService.apply(previewEl, entity.signatureColour);
+    if (entity.signatureColor) {
+      ThemeService.apply(previewEl, entity.signatureColor);
     }
 
     // 1. Top Section: Image (Opens Profile)

@@ -23,11 +23,11 @@ export function applyFractalAmbience(fractal) {
     fractal?.profilePictureUrl,
   );
   // 1. Colour Ambience
-  if (!fractal || !fractal.signatureColour) {
+  if (!fractal || !fractal.signatureColor) {
     document.documentElement.style.removeProperty("--fractal-ambience-rgb");
   } else {
     const rgb =
-      RGB_MAP[fractal.signatureColour] || RGB_MAP.default || "255, 255, 255";
+      RGB_MAP[fractal.signatureColor] || RGB_MAP.default || "255, 255, 255";
     document.documentElement.style.setProperty("--fractal-ambience-rgb", rgb);
   }
 
@@ -45,7 +45,7 @@ export function applyFractalAmbience(fractal) {
   } else if (fractal) {
     // Placeholder Logic
     const rgb =
-      RGB_MAP[fractal.signatureColour] || RGB_MAP.default || "255, 255, 255";
+      RGB_MAP[fractal.signatureColor] || RGB_MAP.default || "255, 255, 255";
     bgEl.style.backgroundImage = "none";
     bgEl.style.backgroundColor = `rgba(${rgb}, 0.5)`;
     bgEl.style.opacity = "1";
@@ -70,8 +70,8 @@ export function updatePortraits(aiCharacter, userCharacter) {
     if (!container) return;
 
     // Use ThemeService to apply signature logic centrally
-    if (ent && ent.signatureColour && ent.signatureColour !== "default") {
-      ThemeService.apply(container, ent.signatureColour);
+    if (ent && ent.signatureColor && ent.signatureColor !== "default") {
+      ThemeService.apply(container, ent.signatureColor);
     } else {
       // Clean up if no signature
       const classes = Array.from(container.classList);
@@ -112,8 +112,8 @@ export function updatePortraits(aiCharacter, userCharacter) {
       nameDiv.innerHTML = `<h2>${escapeHtml(ent?.name || label)}</h2>`;
     }
   };
-  setPort("#gameplay-user-portrait", userCharacter, "You");
-  setPort("#gameplay-ai-portrait", aiCharacter, "AI");
+  setPort("#storymode-user-portrait", userCharacter, "You");
+  setPort("#storymode-ai-portrait", aiCharacter, "AI");
 
   // PHONE HEADER MIRRORS
   setPort("#phone-user-portrait", userCharacter, "You");
@@ -126,20 +126,18 @@ export function updatePortraits(aiCharacter, userCharacter) {
   }
 
   // Set User Signature Color Variable for UI highlights
-  if (userCharacter && userCharacter.signatureColour) {
+  if (userCharacter && userCharacter.signatureColor) {
     const rgb =
-      RGB_MAP[userCharacter.signatureColour] ||
+      RGB_MAP[userCharacter.signatureColor] ||
       RGB_MAP.default ||
       "255, 255, 255";
     document.documentElement.style.setProperty("--user-signature-rgb", rgb);
   }
 
   // Set AI Signature Color Variable for Name Highlight
-  if (aiCharacter && aiCharacter.signatureColour) {
+  if (aiCharacter && aiCharacter.signatureColor) {
     const rgb =
-      RGB_MAP[aiCharacter.signatureColour] ||
-      RGB_MAP.default ||
-      "255, 255, 255";
+      RGB_MAP[aiCharacter.signatureColor] || RGB_MAP.default || "255, 255, 255";
     document.documentElement.style.setProperty("--ai-signature-rgb", rgb);
   }
 }

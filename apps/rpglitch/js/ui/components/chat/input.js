@@ -1,4 +1,4 @@
-import { StoryController } from "../../../engine/director.js";
+import { TurnManager } from "../../../engine/director.js";
 
 export function initChatInput() {
   const form = document.querySelector("#story-form");
@@ -46,7 +46,7 @@ export function initChatInput() {
         adjustHeight();
       }
       btn.disabled = true;
-      await StoryController.send(val);
+      await TurnManager.send(val);
     }
   });
 }

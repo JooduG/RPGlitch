@@ -26,16 +26,16 @@ const IMAGE_EXTENSION_REGEX = new RegExp(
 import { PALETTE } from "./constants.js";
 
 // Alias for backward compatibility
-export const SIGNATURE_COLORS = PALETTE;
+// [REMOVED] Legacy SIGNATURE_COLORS alias
 
 // --- Color & Visual Utilities (Consolidated) ---
 
 export function getSignatureColor(key) {
-  return SIGNATURE_COLORS[key] || SIGNATURE_COLORS.default;
+  return PALETTE[key] || PALETTE.default;
 }
 
 export function getRandomSignatureKey() {
-  const keys = Object.keys(SIGNATURE_COLORS).filter((k) => k !== "default");
+  const keys = Object.keys(PALETTE).filter((k) => k !== "default");
   return keys[Math.floor(Math.random() * keys.length)];
 }
 
@@ -53,8 +53,8 @@ export function getSignature(entity = {}) {
   // Fallback to 'default' string to ensure a color is generated
   if (!entity) return getDeterministicColor("default");
 
-  if (entity.signatureColour && entity.signatureColour !== "default") {
-    return `var(--signature-${entity.signatureColour})`;
+  if (entity.signatureColor && entity.signatureColor !== "default") {
+    return `var(--signature-${entity.signatureColor})`;
   }
   const seed = [entity.name || "", ...(entity.tags || [])]
     .filter(Boolean)
@@ -296,7 +296,7 @@ function mapRange(value, inMin, inMax, outMin, outMax) {
   return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
 }
 
-export function calculateBlendedParams(ai, user, world) {
+export function calculateBlendedParams(ai, user, fractal) {
   // 1. Safety Defaults
   const defaults = { entropy: 10, velocity: 10, resonance: 10 };
 
@@ -304,20 +304,24 @@ export function calculateBlendedParams(ai, user, world) {
 
   const aiDyn = getDyn(ai);
   const userDyn = getDyn(user);
-  const worldDyn = getDyn(world);
+  const fractalDyn = getDyn(fractal);
 
   // 2. Temperature (Creativity/Chaos)
   // Formula: (Fractal_Entropy * 0.7) + (AI_Entropy * 0.3)
   // Mapping: 0-100 -> 0.5-1.35
   const rawTemp =
-    worldDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_FRACTAL +
+    fractalDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_FRACTAL +
     aiDyn.entropy * PHYSICS_CONFIG.TEMP_ENTROPY_WEIGHT_AI;
   const temperature = mapRange(rawTemp, 0, 100, PHYSICS_CONFIG.TEMP_BASE, 1.35);
 
   // 3. Repetition Penalty (Pacing)
   // Formula: Max of AI, User, Fractal Velocities
   // Mapping: 0-100 -> 1.0-1.18
-  const rawRep = Math.max(aiDyn.velocity, userDyn.velocity, worldDyn.velocity);
+  const rawRep = Math.max(
+    aiDyn.velocity,
+    userDyn.velocity,
+    fractalDyn.velocity,
+  );
   const repetition_penalty = mapRange(
     rawRep,
     0,

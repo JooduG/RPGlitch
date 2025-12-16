@@ -91,7 +91,7 @@ export async function renderProfileView(
 
   const nameDisplay = document.createElement("h1");
   nameDisplay.className = "profile-name-display";
-  ThemeService.apply(nameDisplay, entity.signatureColour);
+  ThemeService.apply(nameDisplay, entity.signatureColor);
   nameDisplay.textContent = entity.name || "Unknown";
   headerWrap.appendChild(nameDisplay);
 
@@ -170,7 +170,7 @@ export async function renderProfileView(
   const footerActions = document.createElement("div");
   footerActions.className = "profile-actions-footer";
 
-  const isGameplay = document.body.classList.contains("mode-gameplay");
+  const isGameplay = document.body.classList.contains("storymode");
 
   if (isGameplay) {
     const statusMsg = document.createElement("div");

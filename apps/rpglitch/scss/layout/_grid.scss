@@ -37,11 +37,11 @@ main.container {
   transform: translateZ(0); // Force hardware layer
 
   // Atmospheric Background Logic
-  --world-ambience-rgb: 17, 25, 31;
+  --fractal-ambience-rgb: 17, 25, 31;
 
   background-image: radial-gradient(
     circle at 50% 30%,
-    rgb(var(--world-ambience-rgb) / 15%) 0%,
+    rgb(var(--fractal-ambience-rgb) / 15%) 0%,
     transparent 70%
   );
   color: var(--pico-color, #fff);

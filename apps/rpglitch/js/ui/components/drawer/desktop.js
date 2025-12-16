@@ -141,8 +141,8 @@ function createCard(item, type, onCreate) {
       closeDrawer();
     });
   } else {
-    if (item.signatureColour) {
-      ThemeService.apply(card, item.signatureColour);
+    if (item.signatureColor) {
+      ThemeService.apply(card, item.signatureColor);
     }
 
     if (typeof getPictureHTML === "function") {

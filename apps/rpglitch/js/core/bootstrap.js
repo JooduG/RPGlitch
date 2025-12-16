@@ -4,9 +4,9 @@ import { initViews } from "../ui/orchestrator.js";
 import { db } from "./db.js";
 import { log, error, initDebugMode, mockPlugins } from "./utils.js";
 import { state, applyPatch } from "./state.js";
-import { StoryController } from "../engine/director.js";
+import { TurnManager } from "../engine/director.js";
 import { StoryOptionsController } from "../ui/components/settings.js";
-import { initStoryboardStage, StoryboardController } from "../ui/setup.js";
+import { initStoryboardStage, SetupManager } from "../ui/setup.js";
 import { initChatInput } from "../ui/components/chat/input.js";
 
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
@@ -34,7 +34,7 @@ import { initChatInput } from "../ui/components/chat/input.js";
 const App = {
   state,
   applyPatch,
-  story: StoryController,
+  story: TurnManager,
   isInitialized: false,
   views: null,
 
@@ -43,8 +43,8 @@ const App = {
     App.isInitialized = true;
     log("[Universal Stage] Initializing...");
 
-    window.StoryController = StoryController;
-    window.StoryboardController = StoryboardController;
+    window.TurnManager = TurnManager;
+    window.SetupManager = SetupManager;
     window.StoryOptionsController = StoryOptionsController;
 
     try {

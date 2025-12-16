@@ -58,8 +58,8 @@
   grid-template-columns: 40% 60%;
 }
 
-// Low-Res / Landscape World Adjustment
-.profile-view--world .profile-layout {
+// Low-Res / Landscape Fractal Adjustment
+.profile-view--fractal .profile-layout {
   @include desktop {
     grid-template-columns: 1fr;
     grid-template-rows: 200px 1fr;

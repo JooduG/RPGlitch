@@ -2,7 +2,7 @@
 
 /* ============================================================================
    COMPONENT: PROFILE & DATA VIEWS
-   Character Sheets, World Info, and Settings.
+   Character Sheets, Fractal Info, and Settings.
    ============================================================================ */
 
 /* --- HERO SECTION --- */
@@ -99,7 +99,7 @@
     }
   }
 
-  // World View Override
+  // Fractal View Override
   .profile-view--fractal & .placeholder-image svg {
     width: auto;
     height: 80px;
@@ -295,7 +295,7 @@
   }
 }
 
-/* --- WORLD VIEW OVERRIDES --- */
+/* --- FRACTAL VIEW OVERRIDES --- */
 .profile-view--fractal {
   .profile-layout {
     display: block; // Stacked

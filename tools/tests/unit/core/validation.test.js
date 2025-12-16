@@ -1,16 +1,11 @@
-/**
- * Test suite for validation.js module
- * Tests all validation, sanitization, and color utility functions
- */
-
 import {
   isValidImageUrl,
   extractImageUrl,
   sanitizeHtml,
-  SIGNATURE_COLORS,
   getSignatureColor,
   getContrastColor,
 } from "../../../../apps/rpglitch/js/core/utils.js";
+import { PALETTE as SIGNATURE_COLORS } from "../../../../apps/rpglitch/js/core/constants.js";
 
 // Mock DOMPurify for sanitizeHtml tests
 global.DOMPurify = {

@@ -2,7 +2,7 @@
 @use "../abstracts" as *;
 
 /* ============================================================================
-   COMPONENT: CHAT (GAMEPLAY)
+   COMPONENT: CHAT (STORYMODE)
    The active game interface: Feed, Input, Portraits, and Messages.
    ============================================================================ */
 
@@ -287,7 +287,7 @@
 }
 
 // Right-Aligned (User Character)
-#gameplay-user-portrait {
+#storymode-user-portrait {
   .character-name-overlay {
     left: auto;
     right: 1rem;
@@ -737,7 +737,7 @@
 /* =========================================
    6. SMARTPHONE THEME (Messenger Mode)
    ========================================= */
-.theme-smartphone.mode-gameplay {
+.theme-smartphone.storymode {
   // COLLAPSE GRID
   .universal-stage {
     grid-template-columns: 1fr !important;
@@ -746,8 +746,8 @@
   // Hide side columns and normal header
   .stage-column--side,
   .sticky-header,
-  #gameplay-user-portrait,
-  #gameplay-ai-portrait {
+  #storymode-user-portrait,
+  #storymode-ai-portrait {
     display: none !important;
   }
 
@@ -757,7 +757,7 @@
   }
 
   // Phone Wrapper
-  #main .stage-content--gameplay {
+  #main .stage-content--storymode {
     max-width: 450px !important;
     margin: 2rem auto !important;
     border: 14px solid #1a1a1a;

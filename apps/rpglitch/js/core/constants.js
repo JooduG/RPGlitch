@@ -4,7 +4,6 @@
  */
 
 // --- PALETTE: SIGNATURE COLORS ---
-// Synced with SCSS via manual update (apps/rpglitch/scss/_config.scss)
 export const PALETTE = {
   // --- REDS & WARM ---
   red: "#ef4444",
