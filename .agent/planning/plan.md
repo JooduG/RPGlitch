@@ -27,11 +27,11 @@
 
 With the architecture hardened, we return to shipping user-facing features.
 
-| Item                                                     | Category  | Impact | Effort | Dependencies | Notes                                                                                                                           |
-| :------------------------------------------------------- | :-------- | :----- | :----- | :----------- | :------------------------------------------------------------------------------------------------------------------------------ |
-| <a id="skeleton-screens"></a>**Skeleton Screens**        | [UI/UX]   | M      | S      | CSS          | **🎯 CURRENT FOCUS.** Add CSS-only placeholders to `index.html` to improve perceived load time while the "Complex Loader" runs. |
-| <a id="branching-narrative"></a>**Branching Narratives** | [Feature] | H      | L      | DB Schema    | Update `messages` schema with `parentId`. Allow users to "Fork" the story from any message node.                                |
-| <a id="story-list-ui"></a>**Story List & Load UI**       | [UI/UX]   | L      | M      | Refactor     | Create a proper "Load Game" modal reading from `db.stories` instead of the current placeholder.                                 |
+| Item | Category | Impact | Effort | Dependencies | Notes |
+| :--- | :------- | :----- | :----- | :----------- | :---- |
+
+| <a id="branching-narrative"></a>**Branching Narratives** | [Feature] | H | L | DB Schema | Update `messages` schema with `parentId`. Allow users to "Fork" the story from any message node. |
+| <a id="story-list-ui"></a>**Story List & Load UI** | [UI/UX] | L | M | Refactor | Create a proper "Load Game" modal reading from `db.stories` instead of the current placeholder. |
 
 ---
 
@@ -54,6 +54,9 @@ With the architecture hardened, we return to shipping user-facing features.
 | **Context Builder (RAG)**       | [AI Logic] | ✅ COMPLETE |                                                           |
 | **Terminology Standardization** | [Refactor] | ✅ COMPLETE | "World" -> "Fractal" migration.                           |
 | **SVG Icon System**             | [UI/UX]    | ✅ COMPLETE | Replaced hardcoded emojis with SVGs.                      |
+| **Skeleton Screens**            | [UI/UX]    | ✅ COMPLETE | CSS-only placeholders implemented in `_skeletons.scss`.   |
+| **Narcissism Engine (Core)**    | [AI Logic] | ✅ COMPLETE | Logic for self-expression implemented in `prompter.js`.   |
+| **Build Optimization**          | [DevOps]   | ✅ COMPLETE | Switched to `dexie.min.js` for production builds.         |
 
 ---
 
