@@ -4,7 +4,7 @@ import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
 import { escapeHtml } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
-import { SECTION_DEFINITIONS } from "./constants.js";
+import { PROFILE_SECTIONS } from "./constants.js";
 
 // autoResize removed as it is not used in read-only view
 
@@ -117,7 +117,8 @@ export async function renderProfileView(
   const createRow = (key, def) => {
     const div = document.createElement("div");
     div.className = "field-row";
-    const sublabel = def.sublabels[type] || "";
+    const sectionConfig = def[type];
+    const sublabel = sectionConfig ? sectionConfig.sublabel : "";
 
     div.innerHTML = `
         <div class="field-label">
@@ -130,8 +131,8 @@ export async function renderProfileView(
     secWrap.appendChild(div);
   };
 
-  Object.keys(SECTION_DEFINITIONS).forEach((k) =>
-    createRow(k, SECTION_DEFINITIONS[k]),
+  Object.keys(PROFILE_SECTIONS).forEach((k) =>
+    createRow(k, PROFILE_SECTIONS[k]),
   );
 
   // --- DYNAMICS (Director Mode) ---

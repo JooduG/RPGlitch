@@ -1,9 +1,9 @@
-import { escapeHtml, log } from "../../core/utils.js";
-import { getPictureHTML } from "../services/ui-utils.js";
-import { getVisualState } from "../../data/models.js";
-import { state } from "../../core/state.js";
-import { RGB_MAP } from "../../core/constants.js";
-import { ThemeService } from "../services/theme.js";
+import { escapeHtml, log } from "../core/utils.js";
+import { getPictureHTML } from "./services/ui-utils.js";
+import { getVisualState } from "../data/models.js";
+import { state } from "../core/state.js";
+import { RGB_MAP } from "../core/constants.js";
+import { ThemeService } from "./services/theme.js";
 
 // --- VISUALS: Director Mode & Ambience ---
 

@@ -9,7 +9,7 @@ jest.mock("../../../apps/rpglitch/js/data/repo.js", () => ({ entities: {} }));
 jest.mock("../../../apps/rpglitch/js/engine/director.js", () => ({
   StoryController: {},
 }));
-jest.mock("../../../apps/rpglitch/js/ui/visuals/image-gen-ui.js", () => ({
+jest.mock("../../../apps/rpglitch/js/ui/image-gen-ui.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
 }));

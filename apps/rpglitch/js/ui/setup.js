@@ -2,10 +2,7 @@
 import { state, applyPatch } from "../core/state.js";
 import { entities } from "../data/repo.js";
 import { TurnManager } from "../engine/director.js";
-import {
-  updatePortraits,
-  applyFractalAmbience,
-} from "./visuals/image-gen-ui.js";
+import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
 import { error } from "../core/utils.js";
 
 // MODIFIED: Exported for testing

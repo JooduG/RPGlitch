@@ -1,10 +1,7 @@
 import { log } from "../core/utils.js";
 import { initDrawer, closeDrawer } from "./components/drawer/desktop.js";
 import { setStorymodeEntities, setSendLock } from "./components/chat/feed.js";
-import {
-  updatePortraits,
-  applyFractalAmbience,
-} from "./visuals/image-gen-ui.js";
+import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
 import { setAppBackground } from "./services/ui-utils.js";
 import {
   updateLocalSelection,
@@ -18,7 +15,7 @@ import {
   renderProfilePage,
   closeProfileModal,
   setProfileCallbacks,
-} from "./components/profile/main.js";
+} from "./components/profile/controller.js";
 import { events, EVENTS } from "../core/events.js";
 
 // Shared Selection State (The Source of Truth)

@@ -17,7 +17,6 @@ if (typeof window !== "undefined" && window.Dexie) {
 const db = new Dexie("rpglitch");
 
 // 2. Define the schema (Final Version Only)
-// 2. Define the schema (Final Version Only)
 db.version(7).stores({
   entities:
     "id, name, description, forever, past, present, future, profilePicture, signatureColor, createdAt, updatedAt, tags, type, [type+isCustom], isChosen",

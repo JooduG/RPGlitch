@@ -132,7 +132,7 @@ async function build(appName) {
       ? path.join(appDir, "js", "index.js")
       : path.join(appDir, "js", "core", "bootstrap.js");
   const entryPointScss = path.join(appDir, "scss", "index.scss");
-  const htmlFile = path.join(appDir, "html", "index.html");
+  const htmlFile = path.join(appDir, "index.html");
   const PICO_CSS_PATH = path.resolve(REPO_ROOT, "libs", "pico.min.css");
 
   try {

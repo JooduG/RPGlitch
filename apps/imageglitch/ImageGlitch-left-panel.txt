@@ -11,7 +11,7 @@ remember = {import:remember-plugin}
 
 // --- BUILDER ---
 buildImageGenerationHtml(data) =>
-  var html = {import:apps/imageglitch/html/index.html}
+  var html = {import:apps/imageglitch/index.html}
   // Inject the lists into the HTML head so JS can read them
   var htmlWithConfig = html.replace("</head>", [clientSideConfig] + "</head>")
   return htmlWithConfig

@@ -7,7 +7,7 @@ import {
   updateDirectorModeClass,
   updatePortraits,
   applyFractalAmbience,
-} from "../../visuals/image-gen-ui.js";
+} from "../../image-gen-ui.js";
 
 // --- STATE ---
 export const selectedEntities = {

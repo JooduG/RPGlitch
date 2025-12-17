@@ -14,7 +14,7 @@ upload = {import:upload-plugin}
 // --- BUILDER & CONFIG ---
 // We inject the configuration script into the head of the HTML
 buildApp() =>
-  var html = {import:apps/rpglitch/html/index.html}
+  var html = {import:apps/rpglitch/index.html}
   var htmlWithConfig = html.replace("</head>", [clientSideConfig] + "</head>")
   return htmlWithConfig
 

@@ -11,7 +11,7 @@ import {
 import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
 import { premade } from "../../../data/models.js";
-import { SECTION_DEFINITIONS } from "./constants.js";
+import { PROFILE_SECTIONS } from "./constants.js";
 import {
   closeProfileModal,
   getOnUpdateSelection,
@@ -302,7 +302,13 @@ export async function renderProfileEdit(screen, entity, type, id) {
   const createRow = (key, def) => {
     const div = document.createElement("div");
     div.className = "field-row";
-    const sublabel = def.sublabels[type] || "";
+
+    // Safety check in case entity type is missing/unknown (fallback to character)
+    const safeType = type && def[type] ? type : "character";
+    const sectionConfig = def[safeType];
+
+    const sublabel = sectionConfig ? sectionConfig.sublabel : "";
+    const placeholderText = sectionConfig ? sectionConfig.placeholder : "";
 
     div.innerHTML = `
         <div class="field-label">
@@ -315,13 +321,14 @@ export async function renderProfileEdit(screen, entity, type, id) {
     input.value = entity[key] || "";
     input.dataset.editField = key;
     input.rows = 1;
+    input.placeholder = placeholderText; // Apply placeholder
     input.addEventListener("input", () => autoResize(input));
     div.querySelector(".field-input").appendChild(input);
     setTimeout(() => autoResize(input), 0);
     secWrap.appendChild(div);
   };
-  Object.keys(SECTION_DEFINITIONS).forEach((k) =>
-    createRow(k, SECTION_DEFINITIONS[k]),
+  Object.keys(PROFILE_SECTIONS).forEach((k) =>
+    createRow(k, PROFILE_SECTIONS[k]),
   );
 
   // --- MAGIC PROMPT LOGIC ---
@@ -343,7 +350,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
         const liveEntity = { ...entity };
         liveEntity.name = nameInput.value;
         liveEntity.description = descInput.value;
-        Object.keys(SECTION_DEFINITIONS).forEach((k) => {
+        Object.keys(PROFILE_SECTIONS).forEach((k) => {
           const el = form.querySelector(`[data-edit-field="${k}"]`);
           if (el) liveEntity[k] = el.value;
         });
@@ -427,7 +434,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
         const flatBp = { ...blueprint, ...(blueprint.sections || {}) };
         nameInput.value = flatBp.name;
         descInput.value = flatBp.description;
-        Object.keys(SECTION_DEFINITIONS).forEach((k) => {
+        Object.keys(PROFILE_SECTIONS).forEach((k) => {
           const el = screen.querySelector(`[data-edit-field="${k}"]`);
           if (el) el.value = flatBp[k] || "";
         });
@@ -501,7 +508,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
       visuals: localVisuals,
     };
 
-    Object.keys(SECTION_DEFINITIONS).forEach((k) => {
+    Object.keys(PROFILE_SECTIONS).forEach((k) => {
       const el = screen.querySelector(`[data-edit-field="${k}"]`);
       if (el) data[k] = escapeHtml(el.value.trim());
     });

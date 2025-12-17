@@ -6,7 +6,7 @@ import { getPictureHTML } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { ThemeService } from "../../services/theme.js";
 import { openDrawer } from "./desktop.js";
-import { openProfileModal } from "../profile/main.js";
+import { openProfileModal } from "../profile/controller.js";
 
 // Shared Selection State (Local to this module's view context)
 let localSelectedEntities = {};

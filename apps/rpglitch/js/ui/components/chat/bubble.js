@@ -107,12 +107,12 @@ export function renderMessage(
   let signatureColor = null;
   let visuals = null;
 
-  if (role === "user" && entities?.userCharacter) {
-    signatureColor = entities.userCharacter.signatureColor;
-    visuals = getVisualState(entities.userCharacter);
-  } else if (role === "ai" && entities?.aiCharacter) {
-    signatureColor = entities.aiCharacter.signatureColor;
-    visuals = getVisualState(entities.aiCharacter);
+  if (role === "user" && entities?.user) {
+    signatureColor = entities.user.signatureColor;
+    visuals = getVisualState(entities.user);
+  } else if (role === "ai" && entities?.ai) {
+    signatureColor = entities.ai.signatureColor;
+    visuals = getVisualState(entities.ai);
   }
 
   div.className = classList.join(" ");
