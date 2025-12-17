@@ -840,6 +840,8 @@
           1
         ) !important;
         cursor: pointer;
+        position: relative;
+        z-index: 20;
       }
 
       #phone-user-portrait {

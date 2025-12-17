@@ -32,6 +32,8 @@ With the architecture hardened, we return to shipping user-facing features.
 
 | <a id="branching-narrative"></a>**Branching Narratives** | [Feature] | H | L | DB Schema | Update `messages` schema with `parentId`. Allow users to "Fork" the story from any message node. |
 | <a id="story-list-ui"></a>**Story List & Load UI** | [UI/UX] | L | M | Refactor | Create a proper "Load Game" modal reading from `db.stories` instead of the current placeholder. |
+| **Profile Picture Wiring** | [Bugfix] | H | S | None | Fix profile modal opening from Messenger mode portraits. |
+| **Storyboard Skeleton Fix** | [UI/UX] | M | S | None | Fix or refine the skeleton loading animation for the storyboard. |
 
 ---
 
