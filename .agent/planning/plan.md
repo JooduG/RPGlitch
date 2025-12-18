@@ -9,9 +9,10 @@
 ## 📍 Current Context (Auto-updated by AI)
 
 **Focus:** ✨ **MAINTENANCE & POLISH**
-**In Progress:** **Documentation Sync**
+**In Progress:** **Storyboard Skeleton Fix**
 **Recently Done:**
 
+- **Profile Picture Wiring:** Verified as fixed in Messenger mode.
 - **Terminology Standardization:** Rebranded "World" to "Fractal" across UI and Logic.
 - **Visual Polish:** Implemented Scalable SVG Icon System (replaced emojis).
 - **Messenger Mode:** Fixed icon sizing and heartbeat logic.
@@ -30,11 +31,9 @@ With the architecture hardened, we return to shipping user-facing features.
 | Item | Category | Impact | Effort | Dependencies | Notes |
 | :--- | :------- | :----- | :----- | :----------- | :---- |
 
-| <a id="branching-narrative"></a>**Branching Narratives** | [Feature] | H | L | DB Schema | Update `messages` schema with `parentId`. Allow users to "Fork" the story from any message node. |
+| <a id="storyboard-skeleton-fix"></a>**Storyboard Skeleton Fix** | [UI/UX] | M | S | None | Fix or refine the skeleton loading animation for the storyboard. |
 | <a id="story-list-ui"></a>**Story List & Load UI** | [UI/UX] | L | M | Refactor | Create a proper "Load Game" modal reading from `db.stories` instead of the current placeholder. |
-| **Profile Picture Wiring** | [Bugfix] | H | S | None | Fix profile modal opening from Messenger mode portraits. |
 | **Conclude Story Polish** | [UI/UX] | M | S | None | Finalize the "End Story" flow and UI polish. |
-| **Storyboard Skeleton Fix** | [UI/UX] | M | S | None | Fix or refine the skeleton loading animation for the storyboard. |
 
 ---
 
@@ -44,6 +43,7 @@ With the architecture hardened, we return to shipping user-facing features.
 
 | Item                            | Category   | Status      | Notes                                                     |
 | :------------------------------ | :--------- | :---------- | :-------------------------------------------------------- |
+| **Profile Picture Wiring**      | [Bugfix]   | ✅ COMPLETE | Restored portrait click functionality.                    |
 | **Visualize Architecture**      | [Docs]     | ✅ COMPLETE | Data flow diagrams added to `README.md`.                  |
 | **Enhance Type Safety**         | [DX]       | ✅ COMPLETE | `types.d.ts` created; JSDoc interfaces defined.           |
 | **Configurable Physics**        | [Refactor] | ✅ COMPLETE | `config-physics.js` implemented; magic numbers extracted. |

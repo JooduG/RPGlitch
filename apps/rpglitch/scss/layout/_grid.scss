@@ -25,8 +25,9 @@ main.container {
 .universal-stage {
   display: grid;
 
-  // BASE DEFAULT: 3-Track Grid (Gameplay default) -> 2fr 6fr 2fr (20% 60% 20%)
-  grid-template-columns: 2fr 6fr 2fr;
+  // 10-COLUMN FLEX GRID: 10% Margin | 20% AI | 40% Center | 20% User | 10% Margin
+  // Total fr = 1+2+4+2+1 = 10fr
+  grid-template-columns: 1fr 2fr 4fr 2fr 1fr;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
@@ -137,7 +138,21 @@ main.container {
   padding: 0; // Removed global padding to allow edge-to-edge images
 }
 
+.stage-column--side {
+  // Track 1: Margin | Track 2: Left Column | Track 4: Right Column | Track 5: Margin
+  &:first-of-type {
+    grid-column: 2;
+  }
+
+  &:last-of-type {
+    grid-column: 4;
+  }
+}
+
 .stage-column--center {
+  // Track 3: Master Center (4fr)
+  grid-column: 3;
+
   // Subtle spotlight effect for the main stage
   background: radial-gradient(
     circle at center,

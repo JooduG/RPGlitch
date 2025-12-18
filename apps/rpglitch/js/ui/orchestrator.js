@@ -206,12 +206,14 @@ export function updateStoryboardSelection(newSelection) {
     titleOverride,
     skeletonId,
   ) => {
-    // [NEW] Always hide skeleton once we are updating the slot
     const skeleton = document.getElementById(skeletonId);
-    if (skeleton) skeleton.hidden = true;
+    const previewEl = document.querySelector(previewId);
+    const btn = document.querySelector(btnId);
 
     if (entity) {
-      const btn = document.querySelector(btnId);
+      // Hide skeleton and show preview with animation
+      if (skeleton) skeleton.hidden = true;
+
       const onEdit = () => {
         const container = btn ? btn.closest(".entity-card") : null;
         openDrawerFor(type, key, previewId, btn, container, titleOverride);
@@ -220,12 +222,22 @@ export function updateStoryboardSelection(newSelection) {
       const isFractal = type === "fractal";
       renderEntityPreview(previewId, entity, btn, type, onEdit, isFractal, key);
 
+      if (previewEl) {
+        previewEl.hidden = false;
+        previewEl.classList.remove("fade-in");
+        void previewEl.offsetWidth; // Force reflow
+        previewEl.classList.add("fade-in");
+      }
+
       if (btn) btn.hidden = true;
     } else {
-      const btn = document.querySelector(btnId);
-      const previewEl = document.querySelector(previewId);
-      if (previewEl) previewEl.setAttribute("hidden", "");
+      // Clear entity: show button, hide preview, show skeleton if needed
+      if (previewEl) {
+        previewEl.setAttribute("hidden", "");
+        previewEl.classList.remove("fade-in");
+      }
       if (btn) btn.hidden = false;
+      if (skeleton) skeleton.hidden = false;
     }
   };
 
