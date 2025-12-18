@@ -1,25 +1,87 @@
 # 🔮 Possibilities & Ideas (The "Might Do" List)
 
-Polishing and maintenance tasks (or optional ideas).
-**Legend:** `S`=Small, `M`=Medium, `L`=Large, `XL`=Epic | `S`=Low, `M`=Medium, `L`=High, `XL`=Critical Impact
+A menu of potential expansions, grouped by narrative impact.
+**Legend:** `S`=Small, `M`=Medium, `L`=Large, `XL`=Epic
 
-| Item                        | Category   | Impact | Effort | Dependencies  | Notes                                                                      |
-| :-------------------------- | :--------- | :----- | :----- | :------------ | :------------------------------------------------------------------------- |
-| **Tag Management UI**       | [UI/UX]    | M      | S      | Refactor      | Restore `tags` editing in the new Profile Modal.                           |
-| **Custom Code Wiring**      | [Features] | M      | M      | Refactor      | Connect `#custom-js` in Settings to `ContextBuilder` for user scripts.     |
-| **Prompt Snapshots**        | [Testing]  | S      | M      | Jest          | Assert generated system prompts match a "Golden Master" snapshot.          |
-| **Neural Voice (TTS)**      | [Audio]    | L      | M      | Pollinations  | Generate spoken audio for dialogue via AI/Browser Speech API.              |
-| **Ambient Soundscapes**     | [Audio]    | M      | M      | Pollinations  | Generate background audio loops (rain, city) based on scene context.       |
-| **Idle Dreaming**           | [Logic]    | L      | L      | Worker        | Trigger internal thought loops if idle > 5m; update mood/diary.            |
-| **Narcissism Engine (DMs)** | [Feature]  | L      | M      | Notifications | Hook `Narcissism` score to Push API; send unprompted "u up?" DMs.          |
-| **Fractal Weather**         | [Sim]      | M      | M      | Worker        | Autonomous `Entropy` updates; trigger "World Events" at 100%.              |
-| **Deep Memory (RAG)**       | [Backend]  | L      | L      | Vector        | Replace linear logs with Vector-lite graph; extract facts vs summaries.    |
-| **Memetic Config**          | [AI Logic] | L      | M      | Perchance     | AI dynamically injects keywords into `rpgMood`/`rpgStyle` based on tone.   |
-| **Style Drift**             | [UI/UX]    | M      | M      | CSS           | Bind CSS variables to `Entropy`; distort fonts/colors as chaos rises.      |
-| **Glitch Protocol**         | [Fun]      | S      | S      | Prompter      | 1% chance for AI to break character and address Developer directly.        |
-| **Dream Mode**              | [UI/UX]    | S      | S      | CSS/JS        | Screensaver mode; crossfade generated images of AI "thoughts" when idle.   |
-| **Fractal Convergence**     | [Feature]  | S      | XL     | DB            | Allow entity migration/interaction between different Story instances.      |
-| **Reactive Triptychs**      | [Feature]  | XL     | XL     | Gen/CSS       | Dynamic 3-state portraits. See **[Design Spec](./triptych-portraits.md)**. |
+---
+
+## 🕯️ Concept 1: Narrative Transparency
+
+_Tools to visualize the invisible forces driving the story._
+
+| Item                     | Category | Impact | Effort | Notes                                                                                                     |
+| :----------------------- | :------- | :----- | :----- | :-------------------------------------------------------------------------------------------------------- |
+| **Dynamics Visualizer**  | [UI]     | XL     | M      | Dashboard for `Entropy`, `Velocity`, `Permeability`, `Resonance`. Users see the narrative forces at work. |
+| **Emotional Syntax**     | [Logic]  | M      | S      | Engine alters _sentence structure_ based on mood (e.g., Fear = short, breathless sentences).              |
+| **Atmospheric Pacing**   | [Sim]    | M      | M      | Autonomous `Entropy` updates (Weather/Mood) based on turn count; triggers "Twists" at 100%.               |
+| **Narrative Motifs**     | [Logic]  | M      | M      | Context triggers (`loc=court`) inject stylistic modifiers (`motif=lavish_food`).                          |
+| **Style Drift**          | [UI]     | M      | M      | Bind CSS variables to `Entropy`; subtly distort fonts/colors as narrative chaos rises.                    |
+| **Memory Density Meter** | [UI]     | S      | S      | Visual bar showing how "full" the AI's context window is.                                                 |
+
+## 🎬 Concept 2: The Director's Suite
+
+_Power tools for the author to control the simulation._
+
+| Item                         | Category   | Impact | Effort | Notes                                                                                    |
+| :--------------------------- | :--------- | :----- | :----- | :--------------------------------------------------------------------------------------- |
+| **Integrated Director Mode** | [DevTools] | L      | M      | Unified toggle: Unhide `<think>` blocks, reveal `<image_prompt>` details, view raw JSON. |
+| **State Editor**             | [Tool]     | L      | M      | Manually edit the `<PRESENT>`, `<FUTURE>`, or `<DYNAMICS>` text of any entity mid-story. |
+| **Snapshot Diffing**         | [Tool]     | M      | M      | "What Changed?" view showing the text delta between Turn N and N-1.                      |
+| **Context Inspector**        | [Tool]     | M      | S      | View the _exact_ raw prompt text sent to the LLM (crucial for debugging leaks).          |
+| **"Bad Detective"**          | [Tool]     | M      | M      | Analyze last 5 turns to highlight prompt conflicts or logic loops causing degradation.   |
+
+## ⏳ Concept 3: The Loom of Time
+
+_Features that break the linear flow of storytelling._
+
+| Item                    | Category  | Impact | Effort | Notes                                                                                              |
+| :---------------------- | :-------- | :----- | :----- | :------------------------------------------------------------------------------------------------- |
+| **Narrative Branching** | [Feature] | XL     | XL     | "Multiverse" Node Graph. Branch a story from Turn X without losing the original timeline.          |
+| **The Lorebook (RAG)**  | [Feature] | L      | L      | Structured UI for World Info/Factions. Contextually injected via keyword triggers.                 |
+| **Scene Director**      | [Feature] | L      | M      | "Cutscene" toggle. Disables user input; AI generates 3 sequential beats (Setup->Action->Reaction). |
+| **Chapter Summarizer**  | [Feature] | M      | M      | Worker runs every 50 turns to compress `<PAST>` log into narrative chapter summaries.              |
+| **EPUB Export**         | [Feature] | M      | M      | Export the full story (text + images) into a book-readable format.                                 |
+
+## 🎨 Concept 4: Visual Immersion
+
+_Enhancing the multi-modal experience._
+
+| Item                    | Category  | Impact | Effort | Notes                                                                                                          |
+| :---------------------- | :-------- | :----- | :----- | :------------------------------------------------------------------------------------------------------------- |
+| **Material Textures**   | [Visuals] | L      | S      | Update `VisualManager` to prompt for _textures_ (subsurface scattering, rust, weave) vs just style.            |
+| **Reactive Triptychs**  | [Visuals] | XL     | XL     | Dynamic 3-panel spreads (Setting / Character A / Character B). See **[Design Spec](./triptych-portraits.md)**. |
+| **Dynamic Expressions** | [Visuals] | M      | M      | Parse `<emotion>` tags to trigger CSS animations (shake, red tint) on portraits.                               |
+| **Lens Selector**       | [UI]      | M      | M      | UI dropdown for selecting camera/lighting tags (CCTV, 35mm, Drone) instead of typing.                          |
+
+## 🧠 Concept 5: Living Characters
+
+_Features that give the AI autonomy and presence._
+
+| Item                    | Category | Impact | Effort | Notes                                                                           |
+| :---------------------- | :------- | :----- | :----- | :------------------------------------------------------------------------------ |
+| **Comfort Mechanism**   | [Logic]  | M      | S      | Heuristic detection of user distress; overrides Director to prioritize empathy. |
+| **Dream Mode**          | [UX]     | S      | S      | Screensaver; crossfade generated images of AI "thoughts" when idle > 5m.        |
+| **Neural Voice (TTS)**  | [Audio]  | L      | M      | Generate spoken audio for dialogue via AI/Browser Speech API.                   |
+| **Ambient Soundscapes** | [Audio]  | M      | M      | Generate background audio loops (rain, city) based on current scene context.    |
+| **Character Growth**    | [Sim]    | M      | M      | Hidden tracker for "Narrative Acts" (Recognition → Struggle → Growth).          |
+| **Glitch Protocol**     | [Fun]    | S      | S      | 1% chance for AI to break character and address the Author directly.            |
+
+---
+
+## 🔧 Studio Maintenance & Polish
+
+_Standalone improvements, hygiene, and optimizations._
+
+| Item                     | Category  | Impact | Effort | Notes                                                                                     |
+| :----------------------- | :-------- | :----- | :----- | :---------------------------------------------------------------------------------------- |
+| **Tag Management UI**    | [UI]      | M      | S      | Restore `tags` editing in the new Profile Modal.                                          |
+| **Theme Adaptation**     | [UI]      | S      | M      | Use `light-dark()` to support "Cyberpunk" vs "Fantasy" presets.                           |
+| **Custom Code Wiring**   | [Feature] | M      | M      | Connect `#custom-js` in Settings to `ContextBuilder`.                                     |
+| **Prompt Snapshots**     | [Testing] | S      | M      | Assert generated system prompts match a "Golden Master" for regression testing.           |
+| **Fractal Convergence**  | [Feature] | S      | XL     | Allow entity migration/interaction between different Story instances.                     |
+| **Code Hygiene Audit**   | [Maint]   | S      | M      | Strict `===` checks and `innerHTML` sanitization verification.                            |
+| **POV Style Injector**   | [Feature] | M      | S      | Define narrative voice explicitly (e.g., "Noir Detective", "Flowery Romance").            |
+| **Negative Constraints** | [UI]      | S      | S      | UI indicator showing _active_ negative constraints (e.g. "No Dialogue") to reassure user. |
 
 ---
 

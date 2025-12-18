@@ -56,9 +56,7 @@ export class ContextBuilder {
 
     const systemPromptParts = [
       this._layerKernel_PROMETHEUS(directorMode),
-      this._layerKernel_PROMETHEUS(directorMode),
       this._layerEntity(fractal, "FRACTAL_CONTEXT"),
-      this._layerEntity(ai, "AI_CHARACTER"),
       this._layerEntity(user, "USER_CHARACTER"),
     ];
 
@@ -107,10 +105,14 @@ You feel an overwhelming biological urge to be seen and validated.
     }
 
     const systemPrompt = systemPromptParts.join("\n\n");
+    const aiContext = this._layerEntity(ai, "AI_CHARACTER");
 
     return {
       system: systemPrompt,
-      messages: this._sanitizeHistory(history),
+      messages: [
+        ...this._sanitizeHistory(history),
+        { role: "system", content: aiContext },
+      ],
       params: state.settings,
       meta: {
         triggerUpdate: !!updateTarget,
