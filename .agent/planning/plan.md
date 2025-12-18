@@ -19,7 +19,6 @@
 - [x] **Unified Hover Interaction (V9):** Subtle "raise" effect consolidated across slots and previews.
 - **Terminology Standardization:** Rebranded "World" to "Fractal" across UI and Logic.
 - **Visual Polish:** Implemented Scalable SVG Icon System (replaced emojis).
-
 - **Visualize Architecture:** Added Mermaid.js data flow diagrams to README to explain the Worker/Bridge topology.
 - **Type Safety:** Implemented `types.d.ts` for full IntelliSense support.
 - **Configurable Physics:** Centralized game balance constants in `config-physics.js`.
@@ -30,13 +29,13 @@
 ## 🚀 Critical Priorities (The "Will Do" List)
 
 With the architecture hardened, we return to shipping user-facing features.
+**Legend:** `S`=Small, `M`=Medium, `L`=Large, `XL`=Epic | `S`=Low, `M`=Medium, `L`=High, `XL`=Critical Impact
 
-| Item | Category | Impact | Effort | Dependencies | Notes |
-| :--- | :------- | :----- | :----- | :----------- | :---- |
-
-| <a id="story-list-ui"></a>**Story List & Load UI** | [UI/UX] | L | M | Refactor | Create a proper "Load Game" modal reading from `db.stories` instead of the current placeholder. |
-| **Conclude Story Polish** | [UI/UX] | M | S | None | Finalize the "End Story" flow and UI polish. |
-| **Branching Visuals** | [UI/UX] | M | M | None | Visual indicators for Choice nodes/divergence in the feed. |
+| Item                                               | Category | Impact | Effort | Dependencies | Notes                                                                                           |
+| :------------------------------------------------- | :------- | :----- | :----- | :----------- | :---------------------------------------------------------------------------------------------- |
+| <a id="story-list-ui"></a>**Story List & Load UI** | [UI/UX]  | S      | M      | Refactor     | Create a proper "Load Game" modal reading from `db.stories` instead of the current placeholder. |
+| **Conclude Story Polish**                          | [UI/UX]  | M      | S      | None         | Finalize the "End Story" flow and UI polish.                                                    |
+| **Branching Visuals**                              | [UI/UX]  | M      | M      | None         | Visual indicators for Choice nodes/divergence in the feed.                                      |
 
 ---
 
@@ -65,6 +64,8 @@ With the architecture hardened, we return to shipping user-facing features.
 | **Skeleton Screens**            | [UI/UX]    | ✅ COMPLETE | CSS-only placeholders implemented in `_skeletons.scss`.   |
 | **Narcissism Engine (Core)**    | [AI Logic] | ✅ COMPLETE | Logic for self-expression implemented in `prompter.js`.   |
 | **Build Optimization**          | [DevOps]   | ✅ COMPLETE | Switched to `dexie.min.js` for production builds.         |
+| **Parallel Build Scripts**      | [DevOps]   | ✅ COMPLETE | `npm-run-all` utilized for simultaneous app builds.       |
+| **Automate Hygiene**            | [DevOps]   | ✅ COMPLETE | `tools/ops/hygiene.js` script created for cleanup.        |
 
 ---
 
