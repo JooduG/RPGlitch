@@ -16,6 +16,9 @@ function formatMessageText(text) {
   // 1. Sanitize FIRST
   let safeText = sanitizeHtml(text);
 
+  // 1.5. Bold Italic (***text***) -> <b><i>***text***</i></b> (Raw asterisks preserved)
+  safeText = safeText.replace(/\*\*\*(.*?)\*\*\*/g, "<b><i>***$1***</i></b>");
+
   // 2. Bold (**text**) -> <b>**text**</b>
   safeText = safeText.replace(/\*\*(.*?)\*\*/g, "<b>**$1**</b>");
 
