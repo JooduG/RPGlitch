@@ -9,13 +9,16 @@
 ## 📍 Current Context (Auto-updated by AI)
 
 **Focus:** ✨ **MAINTENANCE & POLISH**
-**In Progress:** **Storyboard Skeleton Fix**
+**In Progress:** None
 **Recently Done:**
 
-- **Profile Picture Wiring:** Verified as fixed in Messenger mode.
+- [x] **Profile Picture Wiring:** Fixed circular profile portrait clicks so they correctly open the edit modal.
+- [x] **Storyboard Skeleton Symmetry (V6-V10):** Redesigned the loading state for 100% symmetry between boot and live views.
+- [x] **Atmospheric Boot (V8):** Stripped labels/icons from boot skeletons for a cleaner, "naked" shimmering effect.
+- [x] **Diamond Icon Logic (V10):** Standardized the fractal icon to a diamond path across all UI states including live skeletons.
+- [x] **Unified Hover Interaction (V9):** Subtle "raise" effect consolidated across slots and previews.
 - **Terminology Standardization:** Rebranded "World" to "Fractal" across UI and Logic.
 - **Visual Polish:** Implemented Scalable SVG Icon System (replaced emojis).
-- **Messenger Mode:** Fixed icon sizing and heartbeat logic.
 
 - **Visualize Architecture:** Added Mermaid.js data flow diagrams to README to explain the Worker/Bridge topology.
 - **Type Safety:** Implemented `types.d.ts` for full IntelliSense support.
@@ -31,7 +34,6 @@ With the architecture hardened, we return to shipping user-facing features.
 | Item | Category | Impact | Effort | Dependencies | Notes |
 | :--- | :------- | :----- | :----- | :----------- | :---- |
 
-| <a id="storyboard-skeleton-fix"></a>**Storyboard Skeleton Fix** | [UI/UX] | M | S | None | Fix or refine the skeleton loading animation for the storyboard. |
 | <a id="story-list-ui"></a>**Story List & Load UI** | [UI/UX] | L | M | Refactor | Create a proper "Load Game" modal reading from `db.stories` instead of the current placeholder. |
 | **Conclude Story Polish** | [UI/UX] | M | S | None | Finalize the "End Story" flow and UI polish. |
 
@@ -57,13 +59,15 @@ With the architecture hardened, we return to shipping user-facing features.
 | **Context Builder (RAG)**       | [AI Logic] | ✅ COMPLETE |                                                           |
 | **Terminology Standardization** | [Refactor] | ✅ COMPLETE | "World" -> "Fractal" migration.                           |
 | **SVG Icon System**             | [UI/UX]    | ✅ COMPLETE | Replaced hardcoded emojis with SVGs.                      |
+| **Storyboard Skeletons**        | [UI/UX]    | ✅ COMPLETE | 100% symmetry + Atmospheric Boot + Unified Hover.         |
+| **Diamond ICON Coverage**       | [UI/UX]    | ✅ COMPLETE | Fractal icon standardized to diamond SVG.                 |
 | **Skeleton Screens**            | [UI/UX]    | ✅ COMPLETE | CSS-only placeholders implemented in `_skeletons.scss`.   |
 | **Narcissism Engine (Core)**    | [AI Logic] | ✅ COMPLETE | Logic for self-expression implemented in `prompter.js`.   |
 | **Build Optimization**          | [DevOps]   | ✅ COMPLETE | Switched to `dexie.min.js` for production builds.         |
 
 ---
 
-**Last Updated:** 2025-12-14
+**Last Updated:** 2025-12-18
 **Next Review:** Post-Branching Implementation
 
 > [!TIP]

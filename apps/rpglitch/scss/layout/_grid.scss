@@ -139,7 +139,12 @@ main.container {
 }
 
 .stage-column--side {
-  // Track 1: Margin | Track 2: Left Column | Track 4: Right Column | Track 5: Margin
+  /* Anchor to 10-column tracks:
+     Track 1: Margin (1fr)
+     Track 2: Left Column (2fr)
+     Track 4: Right Column (2fr)
+     Track 5: Margin (1fr)
+  */
   &:first-of-type {
     grid-column: 2;
   }
@@ -150,7 +155,7 @@ main.container {
 }
 
 .stage-column--center {
-  // Track 3: Master Center (4fr)
+  // Track 3: Master Center Column (4fr)
   grid-column: 3;
 
   // Subtle spotlight effect for the main stage

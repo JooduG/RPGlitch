@@ -164,15 +164,19 @@
     }
   }
 
+  &.shimmer {
+    @extend %skeleton;
+
+    border-style: solid;
+    border-color: transparent;
+  }
+
   &:hover {
-    background: rgb(255 255 255 / 6%);
-    border-color: var(--pico-primary);
-    color: var(--pico-primary);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
 
     .slot-icon {
-      transform: scale(1.1);
-      opacity: 1;
+      transform: scale(1.05);
+      opacity: 0.8;
     }
   }
 }
@@ -255,7 +259,7 @@
   }
 
   &:hover {
-    transform: translateY(-5px);
+    transform: translateY(-4px);
     box-shadow: 0 20px 50px rgb(0 0 0 / 50%);
   }
 }

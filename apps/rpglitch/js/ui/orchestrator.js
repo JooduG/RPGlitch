@@ -197,47 +197,47 @@ export function updateStoryboardSelection(newSelection) {
   updateLocalSelection(selectedEntities);
 
   // Render Updates
-  const updateSlot = (
-    key,
-    entity,
-    btnId,
-    previewId,
-    type,
-    titleOverride,
-    skeletonId,
-  ) => {
-    const skeleton = document.getElementById(skeletonId);
+  const updateSlot = (key, entity, btnId, previewId, type, titleOverride) => {
     const previewEl = document.querySelector(previewId);
     const btn = document.querySelector(btnId);
 
     if (entity) {
-      // Hide skeleton and show preview with animation
-      if (skeleton) skeleton.hidden = true;
-
-      const onEdit = () => {
-        const container = btn ? btn.closest(".entity-card") : null;
-        openDrawerFor(type, key, previewId, btn, container, titleOverride);
-      };
-
-      const isFractal = type === "fractal";
-      renderEntityPreview(previewId, entity, btn, type, onEdit, isFractal, key);
-
       if (previewEl) {
+        const onEdit = () => {
+          const container = btn ? btn.closest(".entity-card") : null;
+          openDrawerFor(type, key, previewId, btn, container, titleOverride);
+        };
+
+        const isFractal = type === "fractal";
+        renderEntityPreview(
+          previewId,
+          entity,
+          btn,
+          type,
+          onEdit,
+          isFractal,
+          key,
+        );
+
         previewEl.hidden = false;
         previewEl.classList.remove("fade-in");
         void previewEl.offsetWidth; // Force reflow
         previewEl.classList.add("fade-in");
       }
 
-      if (btn) btn.hidden = true;
+      if (btn) {
+        btn.hidden = true;
+        btn.classList.remove("shimmer");
+      }
     } else {
-      // Clear entity: show button, hide preview, show skeleton if needed
       if (previewEl) {
-        previewEl.setAttribute("hidden", "");
+        previewEl.hidden = true;
         previewEl.classList.remove("fade-in");
       }
-      if (btn) btn.hidden = false;
-      if (skeleton) skeleton.hidden = false;
+      if (btn) {
+        btn.hidden = false;
+        btn.classList.add("shimmer");
+      }
     }
   };
 
@@ -248,7 +248,6 @@ export function updateStoryboardSelection(newSelection) {
     "#ai-character-preview",
     "character",
     "Select AI Character",
-    "skeleton-ai",
   );
   updateSlot(
     "userCharacter",
@@ -257,7 +256,6 @@ export function updateStoryboardSelection(newSelection) {
     "#user-character-preview",
     "character",
     "Select User Character",
-    "skeleton-user",
   );
   updateSlot(
     "fractal",
@@ -266,7 +264,6 @@ export function updateStoryboardSelection(newSelection) {
     "#fractal-preview",
     "fractal",
     "Select Fractal",
-    "skeleton-fractal",
   );
 
   if (_onSelectionChanged) {

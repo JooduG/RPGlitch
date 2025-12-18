@@ -5,36 +5,6 @@
    Shimmering placeholders for improved perceived performance.
    ============================================================================ */
 
-// Define placeholder
-%skeleton {
-  position: relative;
-  overflow: hidden;
-  min-height: 1rem;
-  background-color: var(--pico-card-background-color, #1e293b);
-  border-radius: var(--pico-border-radius, 0.25rem);
-
-  &::after {
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background-image: linear-gradient(
-      90deg,
-      transparent 0,
-      rgba(255, 255, 255, 3%) 20%,
-      rgba(255, 255, 255, 6%) 60%,
-      transparent
-    );
-    animation: shimmer 2s infinite;
-    content: "";
-  }
-}
-
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
-}
-
 /* SKELETON BOOT OVERLAY (Replaces Loading Modal) */
 #boot-skeleton {
   position: fixed;
@@ -86,21 +56,21 @@
     align-items: center;
     justify-content: center;
 
-    // Grid Track Assignment
+    /* Anchor to tracks: 2 (AI), 3 (Fractal/Main), 4 (User) */
     &:first-of-type {
       grid-column: 2;
     }
 
     &.skeleton-main {
       grid-column: 3;
-      gap: 6rem;
+      gap: 3rem;
     }
 
     &:last-of-type {
       grid-column: 4;
     }
 
-    // Constrain card widths to match reality
+    // Standard card constraints
     .skeleton-card {
       width: 100%;
       max-width: 320px;
@@ -137,15 +107,15 @@
     aspect-ratio: 16 / 9;
   }
 
-  .skeleton-label {
-    font-size: 0.9rem;
-    font-weight: 800;
+  .slot-category {
+    font-size: 0.75rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    opacity: 0.3;
+    letter-spacing: 0.1em;
+    opacity: 0.4;
   }
 
-  .skeleton-icon {
+  .slot-icon {
     svg {
       width: 48px;
       height: 48px;
@@ -203,6 +173,7 @@
 
       width: 100%;
       height: 1em;
+      border-radius: var(--pico-border-radius, 0.25rem);
 
       &:last-child {
         width: 70%;
