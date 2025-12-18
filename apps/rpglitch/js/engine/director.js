@@ -9,6 +9,7 @@ import { analyzeRejection, getDirectorInstruction } from "./variance.js";
 import { bridge } from "./physics/bridge.js";
 import { events, EVENTS } from "../core/events.js";
 import { VisualManager } from "../ui/services/visuals.js";
+import { IMG_RESOLUTION } from "../core/constants.js";
 
 export const TurnManager = {
   requireActive: () => {
@@ -60,8 +61,6 @@ export const TurnManager = {
         storyTitle: story.storyTitle,
         mode: "storymode",
       });
-
-      await TurnManager.loadMessages(story.id);
 
       await TurnManager.loadMessages(story.id);
     } catch (e) {
@@ -237,7 +236,7 @@ export const TurnManager = {
 
           // B. Generate Image
           const imageUrl = await VisualManager.generate(fluxPrompt, {
-            resolution: "512x768",
+            resolution: IMG_RESOLUTION,
           });
 
           // C. Update DB
@@ -574,7 +573,7 @@ export const TurnManager = {
       log("[TurnManager] Generating visual from draft:", draftText);
 
       const imageUrl = await VisualManager.generate(draftText, {
-        resolution: "512x768",
+        resolution: IMG_RESOLUTION,
       });
 
       await db.messages.add({
@@ -586,7 +585,6 @@ export const TurnManager = {
         timestamp: Date.now(),
       });
 
-      await TurnManager.loadMessages(storyId);
       await TurnManager.loadMessages(storyId);
       events.dispatchEvent(
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
@@ -637,7 +635,7 @@ export const TurnManager = {
       );
 
       const imageUrl = await VisualManager.generate(fluxPrompt, {
-        resolution: "512x768",
+        resolution: IMG_RESOLUTION,
       });
 
       await db.messages.update(messageId, { attachmentUrl: imageUrl });

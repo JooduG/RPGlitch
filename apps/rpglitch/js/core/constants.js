@@ -6,6 +6,8 @@ export const MAX_NAME_LENGTH = 50;
 export const MAX_DESC_LENGTH = 500; // UI limit (engine handles more)
 export const MAX_TAGS_LENGTH = 5;
 
+export const IMG_RESOLUTION = "512x768";
+
 // --- PALETTE: SIGNATURES (V5 Vibrant Mix) ---
 // Must match _variables.scss
 export const PALETTE = {

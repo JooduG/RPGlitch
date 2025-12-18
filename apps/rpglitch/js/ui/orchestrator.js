@@ -113,10 +113,6 @@ function parseHash() {
 }
 
 function handleRoute() {
-  try {
-  } catch (e) {
-    void e;
-  }
   const [section, entityType, id] = parseHash();
   const isType = (t) => t === "character" || t === "fractal";
 
