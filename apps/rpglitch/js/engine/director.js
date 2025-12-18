@@ -63,7 +63,7 @@ export const TurnManager = {
 
       await TurnManager.loadMessages(story.id);
 
-      // Fallback removed for strict mode
+      await TurnManager.loadMessages(story.id);
     } catch (e) {
       error("Failed to load story:", e);
       alert("Could not load story.");
@@ -114,7 +114,7 @@ export const TurnManager = {
   },
 
   generateAiResponse: async (storyId, options = {}) => {
-    options = options || {}; // Safety: Ensure options is an object even if null is passed
+    options = options || {};
     const story = state.story.byId[storyId];
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
@@ -128,7 +128,7 @@ export const TurnManager = {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build();
 
-      // [NEW] Inject Instruction if provided (e.g. Request Photo)
+      // Inject Instruction if provided
       if (options.instruction) {
         payload.system += `\n\n${options.instruction}`;
       }
@@ -171,7 +171,7 @@ export const TurnManager = {
 
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
 
-      // --- [NEW] ATTACHMENT PIPELINE ---
+      // --- ATTACHMENT PIPELINE ---
       let finalResponseText = response;
       let visualPrompt = null;
 
@@ -461,7 +461,7 @@ export const TurnManager = {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildOpening();
 
-      // [FIX] Handling for Null Payload (Text Protocol / Messenger)
+      // Handling for Null Payload (Text Protocol / Messenger)
       if (!payload) {
         log("[RPGlitch] No narrator opening. Triggering AI First Message.");
         events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
@@ -664,7 +664,7 @@ export const TurnManager = {
   requestVisual: async () => {
     const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
-    // [FIX] Fetch entity to verify mode
+    // Fetch entity to verify mode
     const fractal = story
       ? await entities.get("fractal", story.fractalId)
       : null;

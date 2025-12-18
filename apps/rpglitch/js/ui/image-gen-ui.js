@@ -6,7 +6,7 @@ import { RGB_MAP } from "../core/constants.js";
 import { ThemeService } from "./services/theme.js";
 import { openProfileModal } from "./components/profile/controller.js";
 
-// --- VISUALS: Director Mode & Ambience ---
+// --- VISUALS: Developer Mode & Ambience ---
 
 export function updateDeveloperModeClass() {
   if (state.settings.developerMode) {
@@ -70,10 +70,7 @@ export function updatePortraits(aiCharacter, userCharacter) {
     const container = document.querySelector(id);
     if (!container) return;
 
-    // [WIRING] Ensure click opens profile
-    // Remove old listeners by cloning (simple reset) or just re-binding if safe.
-    // Since this runs often, we should be careful not to stack listeners.
-    // A clean way is to set onclick directly or clone:
+    // Ensure click opens profile
     container.onclick = () => {
       if (ent) openProfileModal(ent.type || "character", ent.id);
     };

@@ -62,7 +62,7 @@ export class ContextBuilder {
       this._layerEntity(user, "USER_CHARACTER"),
     ];
 
-    // [NEW] Injection for AI-First Start
+    // Injection for AI-First Start
     if (history.length === 0 && directorMode === "TEXT_PROTOCOL") {
       systemPromptParts.push(`
 <FIRST_MESSAGE_PROTOCOL>

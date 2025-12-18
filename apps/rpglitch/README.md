@@ -94,10 +94,10 @@ RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Eng
 
 ### 3. The Manager (`js/manager-turns.js`)
 
-- **Role:** Orchestration & Director Mode.
+- **Role:** Orchestration & Developer Mode.
 - **Function:**
   - **Turn Loop:** Handles the user input -> database -> prompt -> AI -> database cycle.
-  - **Director Mode:** If a message is rejected (regenerated), it injects a hidden **Variance Directive** (e.g., "Increase aggression") to ensure the retry is distinctly different.
+  - **Developer Mode:** If a message is rejected (regenerated), it injects a hidden **Variance Directive** (e.g., "Increase aggression") to ensure the retry is distinctly different.
   - **State Rollback:** Prevents "ghost memories" by reverting physics updates when a turn is deleted.
 
 ### 4. The Shield (`js/index.js` & `js/utils.js`)

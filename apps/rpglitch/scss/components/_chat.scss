@@ -1,14 +1,9 @@
 @use "sass:map";
 @use "../abstracts" as *;
 
-/* ============================================================================
-   COMPONENT: CHAT (STORYMODE)
-   The active game interface: Feed, Input, Portraits, and Messages.
-   ============================================================================ */
+/* COMPONENT: CHAT (STORYMODE) */
 
-/* =========================================
-   1. CHAT FEED (Values & Layout)
-   ========================================= */
+/* 1. CHAT FEED */
 #chat-feed {
   flex: 1;
   min-height: 0; // Critical for flexbox scrolling
@@ -46,9 +41,7 @@
   transition: height 0.05s linear;
 }
 
-/* =========================================
-   2. INPUT AREA (The Control Deck)
-   ========================================= */
+/* 2. INPUT AREA */
 #story-input-area {
   flex-shrink: 0;
   padding: 0 1.5rem;
@@ -213,9 +206,7 @@
   }
 }
 
-/* =========================================
-   3. CHARACTER PORTRAITS & NAMEPLATES
-   ========================================= */
+/* 3. CHARACTER PORTRAITS & NAMEPLATES */
 .character-portrait {
   width: 100%;
   height: 100%;
@@ -317,9 +308,7 @@
   transform: scaleX(-1);
 }
 
-/* =========================================
-   4. STATUS & FEEDBACK
-   ========================================= */
+/* 4. STATUS & FEEDBACK */
 #status-notifier {
   position: fixed;
   bottom: 5rem;
@@ -376,9 +365,7 @@
   }
 }
 
-/* =========================================
-   5. MESSAGES (Bubbles)
-   ========================================= */
+/* 5. MESSAGES (Bubbles) */
 .story-message {
   padding: 1rem 1.25rem;
   max-width: 50vw;
@@ -744,9 +731,7 @@
   display: none !important;
 }
 
-/* =========================================
-   6. SMARTPHONE THEME (Messenger Mode)
-   ========================================= */
+/* 6. SMARTPHONE THEME (Messenger Mode) */
 .theme-smartphone.storymode {
   // COLLAPSE GRID
   .universal-stage {
