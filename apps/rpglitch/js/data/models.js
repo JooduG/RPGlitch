@@ -9,7 +9,7 @@ const premade = {
       name: "Aether Blade",
       description: "Cybernetic warrior forging light into weapons.",
       type: "Character",
-      signatureColor: "azure",
+      signatureColor: "sky",
       dynamics: { entropy: 30, permeability: 40, velocity: 80, resonance: 70 },
       sections: {
         forever: "Bound to the Aether Core, their blade hums with starlight.",
@@ -24,7 +24,7 @@ const premade = {
       name: "Mystic Bard",
       description: "Traveling musician who weaves spells with song.",
       type: "Character",
-      signatureColor: "yellow",
+      signatureColor: "orange",
       dynamics: { entropy: 70, permeability: 80, velocity: 50, resonance: 90 },
       sections: {
         forever: "Every note carries a memory; every chorus, a charm.",
@@ -38,7 +38,7 @@ const premade = {
       name: "Clockwork Rogue",
       description: "Stealthy thief powered by ticking gears.",
       type: "Character",
-      signatureColor: "jade",
+      signatureColor: "amber",
       dynamics: { entropy: 10, permeability: 30, velocity: 70, resonance: 40 },
       sections: {
         forever: "Precision over passion; gears never lie.",
@@ -52,7 +52,7 @@ const premade = {
       name: "Shadow Whisperer",
       description: "Mysterious figure communing with darkness.",
       type: "Character",
-      signatureColor: "violet",
+      signatureColor: "zinc",
       dynamics: { entropy: 60, permeability: 90, velocity: 20, resonance: 80 },
       sections: {
         forever: "The dark is not empty; it listens back.",
@@ -85,7 +85,7 @@ const premade = {
       description:
         "Bratty cyan twink hacker who talks big but melts into a hypno-sissy the second a real dom flexes.",
       type: "Character",
-      signatureColor: "cyan",
+      signatureColor: "lime",
       dynamics: { entropy: 65, permeability: 85, velocity: 65, resonance: 75 },
       sections: {
         forever:
@@ -103,7 +103,7 @@ const premade = {
       description: "Floating isles bound by ancient magic.",
       type: "Fractal",
       simulation: { mode: "PASSIVE" },
-      signatureColor: "green",
+      signatureColor: "emerald",
       dynamics: { entropy: 40, permeability: 60, velocity: 50, resonance: 60 },
       sections: {
         forever: "Isles drift on leylines braided like song.",
@@ -118,7 +118,7 @@ const premade = {
       description: "Futuristic metropolis built on dream tech.",
       type: "Fractal",
       simulation: { mode: "PASSIVE" },
-      signatureColor: "blue",
+      signatureColor: "indigo",
       dynamics: { entropy: 80, permeability: 50, velocity: 90, resonance: 50 },
       sections: {
         forever: "Dreams scaffold towers; intent becomes steel.",

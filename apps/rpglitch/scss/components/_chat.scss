@@ -395,6 +395,7 @@
   --msg-radius: var(--pico-radius);
 
   color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 60%); // V5 Vibrant Contrast Fix
   background: var(--msg-bg) !important;
   border: none !important;
   opacity: 1 !important;
@@ -415,8 +416,18 @@
   i,
   em {
     font-style: italic;
-    opacity: 0.9;
+    opacity: 0.7;
     font-family: serif;
+  }
+
+  // BOLD ITALICS FIX: Ensure distinct visual style
+  b i,
+  strong em,
+  i b,
+  em strong {
+    font-weight: 800 !important;
+    font-style: italic !important;
+    opacity: 0.9 !important;
   }
 
   code {
@@ -559,7 +570,7 @@
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   opacity: 0;
   animation: slide-in-up 0.3s ease-out forwards;
-  border-radius: 0 var(--pico-radius) var(--pico-radius) var(--pico-radius);
+  border-radius: 18px;
 
   @each $name, $data in $signature-colors {
     $color: map.get($data, color);
@@ -945,6 +956,15 @@
           right: 0;
         }
       }
+    }
+
+    // [FIX] Typing Indicator for Messenger
+    .typing-bubble {
+      margin-left: 8px !important;
+      margin-right: auto !important;
+      border-radius: 18px !important; // No tail
+      max-width: 75% !important;
+      border-bottom-left-radius: 18px !important; // Force roundness
     }
   }
 

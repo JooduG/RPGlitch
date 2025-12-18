@@ -4,6 +4,7 @@ import { getVisualState } from "../data/models.js";
 import { state } from "../core/state.js";
 import { RGB_MAP } from "../core/constants.js";
 import { ThemeService } from "./services/theme.js";
+import { openProfileModal } from "./components/profile/controller.js";
 
 // --- VISUALS: Director Mode & Ambience ---
 
@@ -68,6 +69,14 @@ export function updatePortraits(aiCharacter, userCharacter) {
   const setPort = (id, ent, label) => {
     const container = document.querySelector(id);
     if (!container) return;
+
+    // [WIRING] Ensure click opens profile
+    // Remove old listeners by cloning (simple reset) or just re-binding if safe.
+    // Since this runs often, we should be careful not to stack listeners.
+    // A clean way is to set onclick directly or clone:
+    container.onclick = () => {
+      if (ent) openProfileModal(ent.type || "character", ent.id);
+    };
 
     // Use ThemeService to apply signature logic centrally
     if (ent && ent.signatureColor && ent.signatureColor !== "default") {

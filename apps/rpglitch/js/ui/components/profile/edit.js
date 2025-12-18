@@ -7,6 +7,7 @@ import {
   isValidImageUrl,
   sanitizeHtml,
   error,
+  getRandomSignatureKey,
 } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
@@ -27,6 +28,12 @@ export async function renderProfileEdit(screen, entity, type, id) {
   // Setup Visuals
   setTopBarRight("form");
 
+  // [FIX] Randomize color immediately so placeholder gets it too
+  const currentColor = entity.signatureColor || getRandomSignatureKey();
+
+  // Create a local "live" entity for rendering the initial state
+  const localEntity = { ...entity, signatureColor: currentColor };
+
   const template = document.querySelector("#tpl-profile-page");
   if (!template) return;
   const layout = template.content.firstElementChild.cloneNode(true);
@@ -44,7 +51,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
   };
 
   if (getPictureHTML) {
-    const heroPic = getPictureHTML(entity, {
+    const heroPic = getPictureHTML(localEntity, {
       cover: true,
       landscape: isFractal,
     });
@@ -228,7 +235,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
   });
 
   // Color Palette
-  const currentColor = entity.signatureColor || "default";
+  // Color Palette
 
   if (paletteSelect) {
     Array.from(paletteSelect.options).forEach((opt) => {
@@ -267,7 +274,8 @@ export async function renderProfileEdit(screen, entity, type, id) {
   nameInput.value = entity.name || "";
   nameInput.placeholder = "Name";
   nameInput.rows = 1;
-  ThemeService.apply(nameInput, entity.signatureColor);
+  nameInput.rows = 1;
+  ThemeService.apply(nameInput, currentColor);
   nameInput.addEventListener("input", () => autoResize(nameInput));
   headerWrap.appendChild(nameInput);
   setTimeout(() => autoResize(nameInput), 0);

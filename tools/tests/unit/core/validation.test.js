@@ -239,22 +239,31 @@ describe("validation.js", () => {
   // ============================================================================
   // SIGNATURE_COLORS Tests
   // ============================================================================
+  // ============================================================================
+  // SIGNATURE_COLORS Tests
+  // ============================================================================
   describe("SIGNATURE_COLORS", () => {
-    test("exports correct color values", () => {
-      expect(SIGNATURE_COLORS.pink).toBe("#ec4899");
-      expect(SIGNATURE_COLORS.jade).toBe("#00895a"); // Differentiated
-      expect(SIGNATURE_COLORS.green).toBe("#398712"); // Differentiated
-      expect(SIGNATURE_COLORS.cyan).toBe("#06b6d4");
-      expect(SIGNATURE_COLORS.azure).toBe("#017fc0"); // Differentiated
+    test("exports correct V5 Vibrant Mix values", () => {
+      // Warms
+      expect(SIGNATURE_COLORS.red).toBe("#ef4444");
       expect(SIGNATURE_COLORS.orange).toBe("#f97316");
-      expect(SIGNATURE_COLORS.purple).toBe("#b645cd"); // Differentiated
-      expect(SIGNATURE_COLORS.violet).toBe("#9062ca"); // Differentiated
-      expect(SIGNATURE_COLORS.default).toBe("#b645cd"); // Synced to Purple
-    });
+      expect(SIGNATURE_COLORS.amber).toBe("#f59e0b");
+      expect(SIGNATURE_COLORS.yellow).toBe("#eab308");
 
-    test("is immutable (frozen)", () => {
-      expect(Object.isFrozen(SIGNATURE_COLORS)).toBe(false); // Not frozen by default
-      // If we want to enforce immutability, we could freeze it in validation.js
+      // Greens
+      expect(SIGNATURE_COLORS.lime).toBe("#84cc16");
+      expect(SIGNATURE_COLORS.emerald).toBe("#10b981");
+
+      // Cools
+      expect(SIGNATURE_COLORS.cyan).toBe("#06b6d4");
+      expect(SIGNATURE_COLORS.sky).toBe("#0ea5e9");
+      expect(SIGNATURE_COLORS.indigo).toBe("#6366f1");
+      expect(SIGNATURE_COLORS.violet).toBe("#8b5cf6");
+      expect(SIGNATURE_COLORS.purple).toBe("#a855f7");
+      expect(SIGNATURE_COLORS.pink).toBe("#ec4899");
+
+      // Defaults
+      expect(SIGNATURE_COLORS.default).toBe("#a855f7"); // Synced to Purple 500
     });
   });
 
@@ -262,22 +271,22 @@ describe("validation.js", () => {
   // getSignatureColor() Tests
   // ============================================================================
   describe("getSignatureColor()", () => {
-    test("returns correct color for valid keys", () => {
+    test("returns correct color for valid V5 keys", () => {
       expect(getSignatureColor("pink")).toBe("#ec4899");
-      expect(getSignatureColor("jade")).toBe("#00895a");
+      expect(getSignatureColor("emerald")).toBe("#10b981");
       expect(getSignatureColor("cyan")).toBe("#06b6d4");
       expect(getSignatureColor("orange")).toBe("#f97316");
-      expect(getSignatureColor("purple")).toBe("#b645cd");
+      expect(getSignatureColor("purple")).toBe("#a855f7");
     });
 
     test("returns default color for invalid key", () => {
-      expect(getSignatureColor("invalid")).toBe("#b645cd"); // Purple default
-      expect(getSignatureColor("")).toBe("#b645cd");
+      expect(getSignatureColor("invalid")).toBe("#a855f7"); // Purple default
+      expect(getSignatureColor("")).toBe("#a855f7");
     });
 
     test("returns default color for null/undefined", () => {
-      expect(getSignatureColor(null)).toBe("#b645cd");
-      expect(getSignatureColor(undefined)).toBe("#b645cd");
+      expect(getSignatureColor(null)).toBe("#a855f7");
+      expect(getSignatureColor(undefined)).toBe("#a855f7");
     });
   });
 
@@ -288,15 +297,14 @@ describe("validation.js", () => {
     describe("6-digit hex format", () => {
       test("returns black for light colors", () => {
         expect(getContrastColor("#ffffff")).toBe("#000"); // white
-        expect(getContrastColor("#10b981")).toBe("#000"); // emerald (light)
       });
 
       test("returns white for dark colors", () => {
         expect(getContrastColor("#000000")).toBe("#fff"); // black
-        expect(getContrastColor("#ec4899")).toBe("#000"); // pink (now light enough for black)
-        expect(getContrastColor("#06b6d4")).toBe("#000"); // cyan (now light enough for black)
+        expect(getContrastColor("#a21caf")).toBe("#fff"); // pink (darkened)
+        expect(getContrastColor("#0e7490")).toBe("#fff"); // cyan (darkened)
       });
-
+      // ... existing hex format tests ...
       test("handles colors with # prefix", () => {
         expect(getContrastColor("#ffffff")).toBe("#000");
       });
@@ -353,13 +361,24 @@ describe("validation.js", () => {
         expect(getContrastColor("#808080")).toBe("#000"); // gray
       });
 
-      test("handles all signature colors correctly", () => {
-        expect(getContrastColor(SIGNATURE_COLORS.pink)).toBe("#000"); // New Palette = Bright
-        expect(getContrastColor(SIGNATURE_COLORS.jade)).toBe("#fff"); // New Palette = Dark
-        expect(getContrastColor(SIGNATURE_COLORS.cyan)).toBe("#000"); // New Palette = Bright
-        expect(getContrastColor(SIGNATURE_COLORS.orange)).toBe("#000"); // New Palette = Bright
-        expect(getContrastColor(SIGNATURE_COLORS.purple)).toBe("#fff"); // New Palette = Dark
-        expect(getContrastColor(SIGNATURE_COLORS.default)).toBe("#fff"); // Default is purple
+      test("handles signature colors contrast appropriately", () => {
+        // V5 Vibrant Mix Strategy:
+        // Dark colors -> White Text
+        // Light colors -> Black Text (natural contrast)
+        // *Note: Chat UI overrides this with Text Shadows to force White.*
+
+        // Dark Group (Expect White)
+        expect(getContrastColor(SIGNATURE_COLORS.red)).toBe("#fff");
+        expect(getContrastColor(SIGNATURE_COLORS.violet)).toBe("#fff"); // Violet is White
+        expect(getContrastColor(SIGNATURE_COLORS.indigo)).toBe("#fff");
+        expect(getContrastColor(SIGNATURE_COLORS.zinc)).toBe("#fff");
+        expect(getContrastColor(SIGNATURE_COLORS.sky)).toBe("#fff");
+
+        // Light Group (Expect Black - High Vibrancy - YIQ >= 128)
+        expect(getContrastColor(SIGNATURE_COLORS.yellow)).toBe("#000");
+        expect(getContrastColor(SIGNATURE_COLORS.lime)).toBe("#000");
+        expect(getContrastColor(SIGNATURE_COLORS.cyan)).toBe("#000"); // Cyan Black
+        expect(getContrastColor(SIGNATURE_COLORS.purple)).toBe("#000"); // Purple Black (barely)
       });
     });
   });

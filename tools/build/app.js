@@ -79,6 +79,63 @@ function readFileSafe(filePath, kind) {
   }
 }
 
+// --- PALETTE SYNCHRONIZATION ---
+async function generatePaletteScss(appDir) {
+  const constantsPath = path.join(appDir, "js", "core", "constants.js");
+  const outputPath = path.join(
+    appDir,
+    "scss",
+    "abstracts",
+    "_palette-generated.scss",
+  );
+
+  try {
+    const jsContent = await fs.readFile(constantsPath, "utf8");
+
+    // Extract PALETTE object via simple parsing (safer than eval)
+    // Looking for: export const PALETTE = { ... };
+    const match = jsContent.match(/export const PALETTE = \{([\s\S]*?)\};/);
+    if (!match) {
+      console.warn(
+        "⚠️  Could not find PALETTE in constants.js. Skipping SCSS generation.",
+      );
+      return;
+    }
+
+    const body = match[1];
+    const lines = body.split("\n");
+    const colors = [];
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      // Match: key: "value", // comment
+      // Capture groups: 1=key, 2=value
+      const colorMatch = trimmed.match(/^(\w+):\s*"#([0-9a-fA-F]{6})"/);
+
+      if (colorMatch) {
+        const [_, key, hex] = colorMatch;
+        // Format: "key": (color: #hex)
+        colors.push(`  "${key}": (color: #${hex})`);
+      }
+    }
+
+    // Construct SCSS content
+    const scssContent = `// AUTO-GENERATED from js/core/constants.js
+// Do not edit directly. Run build to update.
+$signature-colors: (
+${colors.join(",\n")}
+);\n`;
+
+    await fs.writeFile(outputPath, scssContent);
+    console.log(`🎨 Generated SCSS Palette with ${colors.length} colors.`);
+  } catch (error) {
+    // If file doesn't exist (e.g. imageglitch might not have it), just strict warn
+    if (error.code !== "ENOENT") {
+      console.warn("⚠️  Palette generation failed:", error.message);
+    }
+  }
+}
+
 // --- CORE BUILD LOGIC ---
 async function compileStyles(entryPointScss, picoCssPath) {
   try {
@@ -136,6 +193,11 @@ async function build(appName) {
   const PICO_CSS_PATH = path.resolve(REPO_ROOT, "libs", "pico.min.css");
 
   try {
+    // Sync Palette first
+    if (appName === "rpglitch") {
+      await generatePaletteScss(appDir);
+    }
+
     const [cssContent, jsContent, htmlContent, workerContent] =
       await Promise.all([
         compileStyles(entryPointScss, PICO_CSS_PATH),

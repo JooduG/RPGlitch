@@ -6,7 +6,6 @@ import { setAppBackground } from "./services/ui-utils.js";
 import {
   updateLocalSelection,
   bindDrawerTrigger,
-  bindPortraitClick,
   renderEntityPreview,
   openDrawerFor,
   setChinCallbacks,
@@ -301,10 +300,11 @@ export async function initViews(deps = {}) {
     "Select Fractal",
   );
 
-  bindPortraitClick("#storymode-ai-portrait", "aiCharacter");
-  bindPortraitClick("#storymode-user-portrait", "userCharacter");
-  bindPortraitClick("#phone-ai-portrait", "aiCharacter");
-  bindPortraitClick("#phone-user-portrait", "userCharacter");
+  // [CLEANUP] Storymode bindings moved to image-gen-ui.js where entity state is reliable
+  // bindPortraitClick("#storymode-ai-portrait", "aiCharacter");
+  // bindPortraitClick("#storymode-user-portrait", "userCharacter");
+  // bindPortraitClick("#phone-ai-portrait", "aiCharacter");
+  // bindPortraitClick("#phone-user-portrait", "userCharacter");
 
   // Wire up callbacks to break circular dependencies
   setChinCallbacks({ onUpdateSelection: updateStoryboardSelection });

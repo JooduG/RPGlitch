@@ -17,94 +17,10 @@ $pico-del-color: #dc3545;
 
 // --- PALETTE: SIGNATURES ---
 // Single Source of Truth for character/UI themes
-$signature-colors: (
-  // --- REDS & WARM ---
-  "red": (
-      color: #ef4444,
-    ),
-  "orange": (
-    color: #f97316,
-  ),
-  "amber": (
-    color: #f59e0b,
-  ),
-  "yellow": (
-    color: #eab308,
-  ),
-  "lime": (
-    color: #84cc16,
-  ),
-
-  // --- GREENS ---
-  "emerald": (
-      color: #10b981,
-    ),
-  "green": (
-    color: #398712,
-  ),
-  "jade": (
-    color: #00895a,
-  ),
-
-  // --- BLUES & CYANS ---
-  "cyan": (
-      color: #06b6d4,
-    ),
-  "sky": (
-    color: #0ea5e9,
-  ),
-  "azure": (
-    color: #017fc0,
-  ),
-  "blue": (
-    color: #3b82f6,
-  ),
-  "indigo": (
-    color: #6366f1,
-  ),
-
-  // --- PURPLES & PINKS ---
-  "violet": (
-      color: #9062ca,
-    ),
-  "purple": (
-    color: #b645cd,
-  ),
-  "fuchsia": (
-    color: #d946ef,
-  ),
-  "pink": (
-    color: #ec4899,
-  ),
-  "rose": (
-    color: #f43f5e,
-  ),
-
-  // --- NEUTRALS ---
-  "slate": (
-      color: #64748b,
-    ),
-  "zinc": (
-    color: #71717a,
-  ),
-  "grey": (
-    color: #94a3b8,
-  ),
-  "sand": (
-    color: #d6d3d1,
-  ),
-  "dark": (
-    color: #334155,
-  ),
-  "light": (
-    color: #f8fafc,
-  ),
-
-  // --- ALIASES ---
-  "pumpkin": (
-      color: #f97316,
-    )
-);
+// --- PALETTE: SIGNATURES (Auto-Generated) ---
+// Sourced from apps/rpglitch/js/core/constants.js matches
+// See tools/build/app.js for generation logic.
+@import "palette-generated";
 
 // --- BREAKPOINTS ---
 $breakpoint-mobile: 768px;

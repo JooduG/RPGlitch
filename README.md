@@ -14,6 +14,42 @@
 - **Architecture:** [.agent/rules/architecture.md](.agent/rules/architecture.md) (System design & data flow)
 - **Roadmap:** [.agent/planning/plan.md](.agent/planning/plan.md) (Current objectives)
 
+## 🏗️ System Architecture
+
+### Data Flow (The "Hybrid" Loop)
+
+```mermaid
+graph TD
+    subgraph "Left Panel (Perchance)"
+        UI[User Interface] -->|Config Changes| State[State Lists]
+        State -->|Serialized JSON| Bridge[Bridge / Prompt Builder]
+    end
+
+    subgraph "Right Panel (App)"
+        Bridge -->|postMessage| Core[Core Engine]
+        Core -->|Write| DB[(Dexie.js DB)]
+        DB -->|Reactive Query| View[React/Vanilla View]
+        View -->|Render| DOM[DOM Output]
+    end
+
+    subgraph "Background Worker"
+        Timer[Tick Loop] -->|Physics Calc| Worker[WebWorker]
+        Worker -->|Update| DB
+    end
+```
+
+### Protocol Stack
+
+```mermaid
+graph TD
+    A[User Input] --> B{Safety Check};
+    B -- Pass --> C[Command Parser];
+    B -- Fail --> D[Rejection];
+    C --> E[Action Dispatcher];
+    E --> F[State Mutation];
+    F --> G[Database Commit];
+```
+
 ## Directory Structure
 
 ```text

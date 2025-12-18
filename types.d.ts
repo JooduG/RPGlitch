@@ -57,7 +57,7 @@ interface Entity {
   /** Unique ID (e.g., "entity-C1", or auto-incremented number) */
   id: number | string;
   /** Entity Type */
-  type: "character" | "fractal"
+  type: "character" | "fractal";
   /** Display Name */
   name: string;
   /** Short summary */
@@ -174,7 +174,7 @@ interface Story {
 /**
  * The global runtime state (mirrors app-state.js).
  */
-interface GameState {
+interface ApplicationState {
   storyTitle: string;
   selectedAI: number | string | null;
   selectedWorld: number | string | null;
