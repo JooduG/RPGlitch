@@ -113,7 +113,7 @@ async function generatePaletteScss(appDir) {
       const colorMatch = trimmed.match(/^(\w+):\s*"#([0-9a-fA-F]{6})"/);
 
       if (colorMatch) {
-        const [_, key, hex] = colorMatch;
+        const [, key, hex] = colorMatch;
         // Format: "key": (color: #hex)
         colors.push(`  "${key}": (color: #${hex})`);
       }
