@@ -36,6 +36,7 @@ With the architecture hardened, we return to shipping user-facing features.
 
 | <a id="story-list-ui"></a>**Story List & Load UI** | [UI/UX] | L | M | Refactor | Create a proper "Load Game" modal reading from `db.stories` instead of the current placeholder. |
 | **Conclude Story Polish** | [UI/UX] | M | S | None | Finalize the "End Story" flow and UI polish. |
+| **Branching Visuals** | [UI/UX] | M | M | None | Visual indicators for Choice nodes/divergence in the feed. |
 
 ---
 
