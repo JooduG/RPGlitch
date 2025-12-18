@@ -390,7 +390,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
   // --- DYNAMICS ---
   if (
-    state.settings.directorMode &&
+    state.settings.developerMode &&
     (type === "character" || type === "fractal")
   ) {
     const dynRow = document.createElement("div");
@@ -403,7 +403,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
     };
 
     dynRow.innerHTML = `
-        <div class="field-label"><label>Dynamics</label><small class="muted">Director Mode</small></div>
+        <div class="field-label"><label>Dynamics</label><small class="muted">Developer Mode</small></div>
         <div class="field-input" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
             ${["entropy", "permeability", "velocity", "resonance"]
               .map(
@@ -521,7 +521,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
       if (el) data[k] = escapeHtml(el.value.trim());
     });
 
-    if (state.settings.directorMode) {
+    if (state.settings.developerMode) {
       const dynInputs = screen.querySelectorAll("[data-edit-dynamic]");
       if (dynInputs.length > 0) {
         data.dynamics = {};

@@ -39,7 +39,7 @@ db.on("populate", async (trans) => {
       stop: [],
       model: "default",
       debugMode: false,
-      directorMode: false,
+      developerMode: false,
       storyOpeningInstructions: "",
       storyboardSelection: { narrator: null, user: null, fractal: null },
     });

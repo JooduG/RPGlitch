@@ -89,11 +89,11 @@ const App = {
       StoryOptionsController.init();
 
       // 5. Settings Form Wiring
-      const directorToggle = document.querySelector("#setting-director-mode");
-      if (directorToggle) {
-        directorToggle.checked = state.settings.directorMode;
-        directorToggle.addEventListener("change", (e) =>
-          applyPatch({ settings: { directorMode: e.target.checked } }),
+      const developerToggle = document.querySelector("#setting-developer-mode");
+      if (developerToggle) {
+        developerToggle.checked = state.settings.developerMode;
+        developerToggle.addEventListener("change", (e) =>
+          applyPatch({ settings: { developerMode: e.target.checked } }),
         );
       }
 

@@ -6,10 +6,17 @@ import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
 import { error } from "../core/utils.js";
 
 // MODIFIED: Exported for testing
+// MODIFIED: Exported for testing
 export function generateDynamicTitle(ai, user, fractal) {
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-  const prefixes = [
+  // 1. Detect Vibe (Tech/App vs. Epic/Fantasy)
+  // [SCALABLE] Checks 'cssTheme' trait, not specific entity names.
+  // Any "theme-smartphone" fractal will trigger Tech Titles (e.g. "Terminal", "Datapad").
+  const isTechVibe = fractal?.simulation?.cssTheme === "theme-smartphone";
+
+  // 2. Define Prefix Pools
+  const epicPrefixes = [
     "The Story of",
     "The Adventures of",
     "The Tale of",
@@ -19,34 +26,56 @@ export function generateDynamicTitle(ai, user, fractal) {
     "The Journey of",
   ];
 
+  const techPrefixes = [
+    "Chat Log:",
+    "Session:",
+    "Messenger.exe:",
+    "New Thread:",
+    "Encrypted Feed:",
+    "Connection:",
+    "Archive:",
+    "RELAY //",
+  ];
+
   const chars = [ai, user].filter(Boolean);
-  const hasFractal = !!fractal;
   const totalChars = chars.length;
 
-  const prefix = pick(prefixes);
+  // 3. Construct Content
   let content = "";
+  const names = chars.map((c) => c.name).join(" & ");
 
-  if (totalChars === 2 && hasFractal) {
-    content = `${chars[0].name} & ${chars[1].name} in ${fractal.name}`;
-  } else if (totalChars === 2 && !hasFractal) {
-    content = `${chars[0].name} & ${chars[1].name}`;
-  } else if (totalChars === 1 && hasFractal) {
-    content = `${chars[0].name} in ${fractal.name}`;
-  } else if (totalChars === 1 && !hasFractal) {
-    content = chars[0].name;
-  } else if (totalChars === 0 && hasFractal) {
-    const fractalPrefixes = [
-      "Adventures in",
-      "Tales from",
-      "The World of",
-      "Journey to",
-    ];
-    return `${pick(fractalPrefixes)} ${fractal.name}`;
+  if (isTechVibe) {
+    // Tech Vibe: "Chat Log: Glitch & Orion" (No "in Messenger")
+    const prefix = pick(techPrefixes);
+    if (totalChars > 0) {
+      return `${prefix} ${names}`;
+    } else {
+      return `${prefix} Guest User`;
+    }
   } else {
-    return "My New Story";
-  }
+    // Epic Vibe: "The Saga of Glitch & Orion in Nova City"
+    const prefix = pick(epicPrefixes);
+    const hasFractal = !!fractal;
 
-  return `${prefix} ${content}`;
+    if (totalChars > 0 && hasFractal) {
+      content = `${names} in ${fractal.name}`;
+    } else if (totalChars > 0 && !hasFractal) {
+      content = names;
+    } else if (totalChars === 0 && hasFractal) {
+      // Empty state
+      const fractalPrefixes = [
+        "Adventures in",
+        "Tales from",
+        "The World of",
+        "Journey to",
+      ];
+      return `${pick(fractalPrefixes)} ${fractal.name}`;
+    } else {
+      return "My New Story";
+    }
+
+    return `${prefix} ${content}`;
+  }
 }
 
 // --- CONTROLLER ACTIONS ---

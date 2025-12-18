@@ -4,7 +4,7 @@ import { VirtualFeed } from "./virtual-feed.js";
 import { events, EVENTS } from "../../../core/events.js";
 import { renderMessage } from "./bubble.js"; // Circular safe
 import {
-  updateDirectorModeClass,
+  updateDeveloperModeClass,
   updatePortraits,
   applyFractalAmbience,
 } from "../../image-gen-ui.js";
@@ -118,8 +118,8 @@ export async function renderChat(storyId) {
   const feed = document.querySelector("#chat-feed");
   if (!feed) return;
 
-  // [FIX] Ensure Director Mode class is updated on every render/state change
-  updateDirectorModeClass();
+  // [FIX] Ensure Developer Mode class is updated on every render/state change
+  updateDeveloperModeClass();
 
   if (!virtualFeed) {
     virtualFeed = new VirtualFeed(feed, (container, message, index) => {

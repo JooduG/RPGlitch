@@ -16,7 +16,7 @@ export const state = {
     stop: [],
     model: "default",
     historyLength: 10,
-    directorMode: false,
+    developerMode: false,
     storyOpeningInstructions: "",
   },
   ui: { fsm: "idle" },

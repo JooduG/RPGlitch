@@ -212,8 +212,8 @@ button,
   }
 }
 
-/* --- DIRECTOR MODE TOGGLE --- */
-body:not(.mode-director) .director-content {
+/* --- DEVELOPER MODE TOGGLE --- */
+body:not(.mode-developer) .developer-content {
   display: none !important;
 }
 

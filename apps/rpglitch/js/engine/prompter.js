@@ -21,6 +21,9 @@ export class ContextBuilder {
     const [ai, user, fractal] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
 
+    // DIRECTOR MODE: Controls the AI's "Acting Protocol"
+    // - null: Default Narrative Mode (Actions allowed, descriptive).
+    // - "TEXT_PROTOCOL": SMS/Chat Mode (No actions *nod*, pure dialogue, emojis).
     const directorMode = fractal.simulation?.directorMode || null;
 
     const narrativeHistory = history.filter(

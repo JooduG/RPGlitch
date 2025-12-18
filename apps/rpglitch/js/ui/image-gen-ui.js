@@ -8,11 +8,11 @@ import { openProfileModal } from "./components/profile/controller.js";
 
 // --- VISUALS: Director Mode & Ambience ---
 
-export function updateDirectorModeClass() {
-  if (state.settings.directorMode) {
-    document.body.classList.add("mode-director");
+export function updateDeveloperModeClass() {
+  if (state.settings.developerMode) {
+    document.body.classList.add("mode-developer");
   } else {
-    document.body.classList.remove("mode-director");
+    document.body.classList.remove("mode-developer");
   }
 }
 

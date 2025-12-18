@@ -21,7 +21,7 @@ export const StoryOptionsController = {
     const btn = document.querySelector("#btn-options");
     const closeBtn = modal.querySelector(".close");
     const resetBtn = modal.querySelector("#btn-reset-story");
-    const directorModeToggle = modal.querySelector("#setting-director-mode");
+    const developerModeToggle = modal.querySelector("#setting-developer-mode");
     const customJsInput = modal.querySelector("#setting-custom-js");
     const storyInstructionsInput = modal.querySelector(
       "#setting-story-instructions",
@@ -130,12 +130,12 @@ export const StoryOptionsController = {
       });
     }
 
-    // Director Mode Wiring
-    if (directorModeToggle) {
-      directorModeToggle.checked = !!state.settings.directorMode;
-      directorModeToggle.addEventListener("change", (e) => {
+    // Developer Mode Wiring
+    if (developerModeToggle) {
+      developerModeToggle.checked = !!state.settings.developerMode;
+      developerModeToggle.addEventListener("change", (e) => {
         const isChecked = e.target.checked;
-        applyPatch({ settings: { directorMode: isChecked } });
+        applyPatch({ settings: { developerMode: isChecked } });
         if (state.story.activeId) {
           window.dispatchEvent(new Event("hashchange"));
         }
@@ -236,9 +236,9 @@ export const StoryOptionsController = {
     const modal = document.querySelector("#settings");
     if (!modal) return;
 
-    const directorModeToggle = modal.querySelector("#setting-director-mode");
-    if (directorModeToggle) {
-      directorModeToggle.checked = !!state.settings.directorMode;
+    const developerModeToggle = modal.querySelector("#setting-developer-mode");
+    if (developerModeToggle) {
+      developerModeToggle.checked = !!state.settings.developerMode;
     }
 
     const storyInstructionsInput = modal.querySelector(

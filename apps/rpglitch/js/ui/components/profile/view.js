@@ -135,9 +135,9 @@ export async function renderProfileView(
     createRow(k, PROFILE_SECTIONS[k]),
   );
 
-  // --- DYNAMICS (Director Mode) ---
+  // --- DYNAMICS (Developer Mode) ---
   if (
-    state.settings.directorMode &&
+    state.settings.developerMode &&
     (type === "character" || type === "fractal")
   ) {
     const dynRow = document.createElement("div");
@@ -151,7 +151,7 @@ export async function renderProfileView(
 
     const gridCols = isFractal ? "repeat(4, 1fr)" : "repeat(2, 1fr)";
     dynRow.innerHTML = `
-        <div class="field-label"><label>Dynamics</label><small class="muted">Director Mode</small></div>
+        <div class="field-label"><label>Dynamics</label><small class="muted">Developer Mode</small></div>
         <div class="field-input" style="display: grid; grid-template-columns: ${gridCols}; gap: 0.75rem;">
              ${["entropy", "permeability", "velocity", "resonance"]
                .map(

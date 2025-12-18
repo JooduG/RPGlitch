@@ -187,8 +187,8 @@ export const TurnManager = {
         if (visualMatch[1]) targetType = visualMatch[1].toLowerCase();
         visualPrompt = visualMatch[2].trim();
 
-        // 2. Clean Text (If NOT Director Mode)
-        if (!state.settings.directorMode) {
+        // 2. Clean Text (If NOT Developer Mode)
+        if (!state.settings.developerMode) {
           finalResponseText = response.replace(visualMatch[0], "").trim();
         }
       }
