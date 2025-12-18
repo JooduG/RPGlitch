@@ -48,7 +48,6 @@ const App = {
     window.StoryOptionsController = StoryOptionsController;
 
     try {
-      console.log("[Universal Stage] Initializing Views...");
       // 1. Initialize Views
       App.views = await initViews({
         refreshAllLists: async () => {
@@ -62,12 +61,9 @@ const App = {
           });
         },
       });
-      console.log("[Universal Stage] Views Initialized.");
 
-      console.log("[Universal Stage] Initializing Storyboard Stage...");
       // 2. Initialize Storyboard Stage
       initStoryboardStage(App.views);
-      console.log("[Universal Stage] Storyboard Stage Initialized.");
 
       // --- CLOCK UPDATE ---
       setInterval(() => {

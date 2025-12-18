@@ -54,7 +54,6 @@ export async function refreshProfileIfOpen() {
     const parts = hash.split("/"); // profile/character/id
     if (parts[0] === "profile" && parts.length === 3) {
       await renderProfilePage(parts[1], parts[2]);
-      console.log("[UI] Profile refreshed via background update.");
     }
   }
 }

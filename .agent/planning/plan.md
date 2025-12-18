@@ -51,7 +51,7 @@ With the architecture hardened, we return to shipping user-facing features.
 | **Enhance Type Safety**         | [DX]       | ✅ COMPLETE | `types.d.ts` created; JSDoc interfaces defined.           |
 | **Configurable Physics**        | [Refactor] | ✅ COMPLETE | `config-physics.js` implemented; magic numbers extracted. |
 | **Offload Logic to WebWorkers** | [Perf]     | ✅ COMPLETE | `worker.js` + `worker-bridge.js` implemented.             |
-| **Formalize Event Bus**         | [Refactor] | ✅ COMPLETE | `core-events.js` created; UI subscribed to events.        |
+| **Formalize Event Bus**         | [Refactor] | ✅ COMPLETE | `events.js` created; UI subscribed to events.             |
 | **Virtual Scrolling**           | [UI/Perf]  | ✅ COMPLETE | `VirtualFeed` class with resize observers implemented.    |
 | **Security Enforcement**        | [Security] | ✅ COMPLETE |                                                           |
 | **Fracture `index.js`**         | [Refactor] | ✅ COMPLETE |                                                           |
