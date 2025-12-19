@@ -42,76 +42,30 @@
 }
 
 /* --- ACTION BAR (Button Group) --- */
+
+/* --- ACTION BAR (Button Group) --- */
 .storyboard-actions [role="group"] {
-  display: inline-flex;
-  width: auto;
-  align-items: stretch;
-  background: rgb(0 0 0 / 40%);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgb(0 0 0 / 50%);
-  border-radius: 50px;
-  border: 1px solid rgb(255 255 255 / 10%);
-  overflow: hidden;
-  pointer-events: auto;
-
-  button {
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 1rem 2rem;
-    font-weight: 700;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition:
-      background 0.2s,
-      color 0.2s;
-    cursor: pointer;
-    color: rgb(255 255 255 / 80%);
-
-    &:hover {
-      background: rgb(255 255 255 / 10%);
-      color: #fff;
-    }
-  }
+  // Inherits .btn-group-pill logic
+  // Just layout specifics here if needed
+  display: inline-flex; // Re-enforce flex context
 }
 
 /* 1. Left: Options */
 #btn-options {
-  background: transparent;
-  border-right: 1px solid rgb(255 255 255 / 10%);
+  // Styles handled by .btn-group-pill
+  display: flex;
 }
 
 /* 2. Middle: Shuffle */
 #btn-shuffle {
-  background: transparent;
-  border-right: 1px solid rgb(255 255 255 / 10%);
+  // Styles handled by .btn-group-pill
+  display: flex;
 }
 
 /* 3. Right: Begin Story */
 #begin-story {
-  padding: 1rem 3rem;
-  background: var(--pico-primary);
-  color: #fff !important;
-  font-weight: 800;
-
-  &:hover:not(:disabled) {
-    background: var(--pico-primary-hover);
-    box-shadow: 0 0 20px var(--pico-primary-focus);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    background: #4a5568;
-    color: #a0aec0;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
+  padding: 1rem 3rem; // Keep specific padding
+  // Color handled by .primary class in .btn-group-pill logic
 }
 
 @include mobile {

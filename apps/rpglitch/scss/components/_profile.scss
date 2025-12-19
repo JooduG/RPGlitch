@@ -47,27 +47,13 @@
     top: 1rem;
     right: 1rem;
     z-index: 20;
-    background: rgb(0 0 0 / 40%);
-    border: 1px solid rgb(255 255 255 / 20%);
-    color: rgb(255 255 255 / 90%);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    backdrop-filter: blur(4px);
-    transition: all 0.2s ease;
-    font-size: 1.4rem;
-    line-height: 1;
+
+    // Inherits .btn-glass .btn-round
+    // Specific animation properties only:
     opacity: 0;
     transform: translateY(-10px);
 
     &:hover {
-      background: rgb(255 255 255 / 20%);
-      border-color: rgb(255 255 255 / 60%);
       transform: scale(1.1) translateY(0);
       opacity: 1;
     }

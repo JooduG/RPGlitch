@@ -36,15 +36,26 @@ function initEventBinds() {
       const db = await import("../core/db.js").then((m) => m.db);
       const story = await db.stories.get(state.story.activeId);
       if (story) {
-        setStorymodeEntities(
-          story.snapshots.start.ai,
-          story.snapshots.start.user,
-          story.snapshots.start.fractal,
-        );
-        updatePortraits(story.snapshots.start.ai, story.snapshots.start.user);
-        if (story.snapshots.start.fractal) {
-          applyFractalAmbience(story.snapshots.start.fractal);
+        // Determine source snapshot (End if concluded, else Start)
+        // [FIX] Use the most recent state available
+        const snapshot = story.isConcluded
+          ? story.snapshots.end
+          : story.snapshots.start;
+
+        setStorymodeEntities(snapshot.ai, snapshot.user, snapshot.fractal);
+        updatePortraits(snapshot.ai, snapshot.user);
+
+        if (snapshot.fractal) {
+          applyFractalAmbience(snapshot.fractal);
         }
+
+        // [FIX] Sync Global Selection State to ensure Theme is applied
+        // This fixes the bug where loading a story didn't change the UI theme
+        updateStoryboardSelection({
+          aiCharacter: snapshot.ai,
+          userCharacter: snapshot.user,
+          fractal: snapshot.fractal,
+        });
       }
     }
   });

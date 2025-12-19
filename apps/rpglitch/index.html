@@ -119,7 +119,7 @@
           </article>
 
           <div class="storyboard-actions">
-            <div role="group">
+            <div role="group" class="btn-group-pill">
               <button
                 id="btn-shuffle"
                 class="secondary"
@@ -365,9 +365,10 @@
           </label>
           <button
             id="btn-reset-story"
-            class="outline contrast"
-            style="width: auto; margin: 0; padding: 0.25rem 0.5rem; font-size: 0.8rem;"
+            class="outline contrast btn-icon-raise"
+            style="width: auto; margin: 0; padding: 0.25rem 0.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;"
           >
+            <svg class="icon" viewBox="0 0 24 24" style="width: 1em; height: 1em;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
             Reset All Data
           </button>
         </div>
@@ -677,6 +678,52 @@
         opacity: 1 !important;
         box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;
       }
+
+      /* Concluded Controls Styling (Mimic Storyboard Action Bar) */
+      .concluded-btn {
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0 1.5rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: background 0.2s, color 0.2s;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.8);
+        background: transparent;
+        height: 100%;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .concluded-btn:last-child {
+        border-right: none;
+      }
+      .concluded-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+      .concluded-btn svg {
+        width: 1.2rem;
+        height: 1.2rem;
+        transition: transform 0.2s ease;
+      }
+      .concluded-btn:hover svg {
+        transform: translateY(-2px);
+      }
+      .concluded-btn.primary {
+        background: var(--pico-primary);
+        color: #fff;
+      }
+      .concluded-btn.primary:hover {
+        background: var(--pico-primary-hover);
+        box-shadow: 0 0 15px var(--pico-primary-focus);
+      }
     </style>
 
     <!-- CONFIRMATION MODAL -->
@@ -695,42 +742,28 @@
 
     <!-- CONCLUDED STORY CONTROLS (Floating Pill Design) -->
     <template id="tpl-concluded-controls">
-        <div class="concluded-controls" style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: auto;
-            min-width: 200px;
-            max-width: 90vw;
-            margin: 0 auto;
-            padding: 0 1rem;
-            background: var(--pico-form-element-background-color);
-            border: none;
-            border-radius: 50px;
+        <div class="concluded-controls btn-group-pill" style="
             position: fixed;
             bottom: 3rem !important;
             left: 50%;
             transform: translateX(-50%);
             z-index: 99999 !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            height: 3rem;
         ">
-            <!-- Left: Settings -->
-             <button id="btn-concluded-settings" class="outline secondary" aria-label="Settings" style="width: auto; padding: 0.5rem; border: none; background: transparent;">
-                <svg class="icon" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem;"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            <!-- Settings -->
+             <button id="btn-concluded-settings" class="btn-icon-raise" aria-label="Settings">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
             </button>
 
-            <!-- Center/Right: Actions -->
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
-                 <button id="btn-concluded-delete" class="outline warning" style="width: auto; border: none; background: transparent; font-size: 0.9rem;">
-                    <svg class="icon" style="margin-right:0.5rem;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                    Delete
-                </button>
-                 <button id="btn-concluded-close" class="primary" style="width: auto; border-radius: 50px; padding: 0.5rem 1.5rem; font-size: 0.9rem;">
-                    <svg class="icon" style="margin-right:0.5rem;" viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
-                    Finish
-                </button>
-            </div>
+            <!-- Delete -->
+             <button id="btn-concluded-delete" class="btn-icon-raise" aria-label="Delete Story" title="Delete Story">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </button>
+
+            <!-- Storyboard (Finish) -->
+             <button id="btn-concluded-close" class="primary btn-icon-raise">
+                Storyboard
+                <svg class="icon" viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            </button>
         </div>
     </template>
   </body>

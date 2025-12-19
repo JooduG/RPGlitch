@@ -74,8 +74,11 @@ export const StoryOptionsController = {
     resetBtn?.addEventListener("click", async (e) => {
       e.preventDefault();
       if (
-        confirm(
-          "Are you sure you want to reset ALL data? This will clear your current story and all settings.",
+        await import("../orchestrator.js").then((m) =>
+          m.showConfirm(
+            "Reset All Data?",
+            "Are you sure you want to reset ALL data? This will clear your current story and all settings.",
+          ),
         )
       ) {
         // If in game, prepare to switch back to storyboard
@@ -354,7 +357,11 @@ export const StoryOptionsController = {
             await StoryOptionsController.loadStory(story.id);
             StoryOptionsController.close();
           } else {
-            if (confirm(`Load "${story.title}"?`)) {
+            if (
+              await import("../orchestrator.js").then((m) =>
+                m.showConfirm("Load Story?", `Load "${story.title}"?`),
+              )
+            ) {
               await StoryOptionsController.loadStory(story.id);
               StoryOptionsController.close();
             }
@@ -372,6 +379,7 @@ export const StoryOptionsController = {
   async loadStory(storyId) {
     try {
       await TurnManager.load(storyId);
+      window.location.hash = "story";
       StoryOptionsController.close();
     } catch (err) {
       console.error("Failed to load story:", err);

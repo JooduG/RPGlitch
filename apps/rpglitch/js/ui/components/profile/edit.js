@@ -432,10 +432,12 @@ export async function renderProfileEdit(screen, entity, type, id) {
     : null;
 
   // Revert
+  // Revert
   if (blueprint) {
     const revertBtn = document.createElement("button");
-    revertBtn.className = "secondary outline warning";
-    revertBtn.textContent = "Revert";
+    revertBtn.className = "btn-ghost text-warning btn-icon-raise"; // Ghost + Warning
+    revertBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5 1.11-.2 2.22-.51 3.29-.93C20.69 11.23 16.96 8 12.5 8z"/></svg>`;
+    revertBtn.title = "Revert Changes";
     revertBtn.onclick = (e) => {
       e.preventDefault();
       if (confirm("Reset this character? All changes will be lost.")) {
@@ -461,8 +463,9 @@ export async function renderProfileEdit(screen, entity, type, id) {
   // Delete
   if (id !== "new") {
     const delBtn = document.createElement("button");
-    delBtn.className = "secondary outline danger";
-    delBtn.textContent = "Delete";
+    delBtn.className = "btn-ghost text-danger btn-icon-raise"; // Ghost + Danger
+    delBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`;
+    delBtn.title = "Delete Profile";
     delBtn.onclick = async (e) => {
       e.preventDefault();
       if (confirm("Delete this entity?")) {
@@ -482,8 +485,9 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
   // Save
   const saveBtn = document.createElement("button");
-  saveBtn.className = "primary";
-  saveBtn.textContent = "Save";
+  saveBtn.className = "btn-ghost text-primary btn-icon-raise"; // Ghost + Primary
+  saveBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>`;
+  saveBtn.title = "Save Profile";
   saveBtn.onclick = async (e) => {
     e.preventDefault();
     const nameVal = nameInput.value.trim();

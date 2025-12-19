@@ -63,6 +63,7 @@ export const TurnManager = {
       });
 
       await TurnManager.loadMessages(story.id);
+      events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
     } catch (e) {
       error("Failed to load story:", e);
       alert("Could not load story.");

@@ -36,27 +36,19 @@
   }
 }
 
+/* --- UTILITY: Icon Hover Effect (Moved to _buttons.scss) --- */
+
+/* --- UTILITY: Ghost Button (Moved to _buttons.scss) --- */
+// See components/_buttons.scss
+
 // Button Groups in Header
 .top-bar-left,
 .top-bar-right {
   display: flex;
   gap: 0.5rem;
 
-  // Grouping Logic (Joined Buttons)
-  button {
-    margin: 0;
-    border-radius: 0;
-
-    &:first-of-type {
-      border-top-left-radius: var(--pico-radius);
-      border-bottom-left-radius: var(--pico-radius);
-    }
-
-    &:last-of-type {
-      border-top-right-radius: var(--pico-radius);
-      border-bottom-right-radius: var(--pico-radius);
-    }
-  }
+  // Grouping Logic handled by .btn-group-joined if applied,
+  // or default flex gap here for separated buttons.
 }
 
 /* =========================================
