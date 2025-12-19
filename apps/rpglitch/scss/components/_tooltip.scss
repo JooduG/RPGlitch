@@ -1,0 +1,27 @@
+.tooltip-popup {
+  position: fixed;
+  z-index: 9999;
+  background: var(--card-bg-color, #181c2f);
+  color: var(--text-color, #fff);
+  border: 1px solid var(--accordion-border-color, rgba(255, 255, 255, 10%));
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 50%);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  transform: translateY(5px);
+  max-width: 300px;
+  text-align: center;
+  line-height: 1.4;
+  text-wrap: balance; // [Typography] make multilines look pretty
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

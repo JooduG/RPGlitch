@@ -306,10 +306,14 @@ export const StoryOptionsController = {
     const grid = document.querySelector("#library-grid");
     if (!grid) return;
 
+    // Loading State
     grid.innerHTML = "<p><small>Loading...</small></p>";
+    // Ensure grid has drawer styling
+    grid.classList.add("drawer-grid");
+    // Remove default grid style if it conflicts, or just ensure .drawer-grid overrides?
+    // .drawer-grid uses minmax(120px, 1fr) which is good.
 
     try {
-      // Use new Repo-level list (Enriched)
       const stories = await import("../../data/repo.js").then((m) =>
         m.stories.list(),
       );
@@ -322,38 +326,95 @@ export const StoryOptionsController = {
 
       grid.innerHTML = ""; // Clear loader
 
-      stories.forEach((story) => {
-        // Create Card Element
-        const card = document.createElement("article");
-        card.className = "story-card";
-        if (story.state === "concluded") card.classList.add("concluded");
+      const { getPictureHTML, getVisualState, TooltipService } =
+        await import("../services/ui-utils.js").then(async (m) => {
+          // We might need to handle circular deps or just dynamic import.
+          // ui-utils doesn't export getVisualState usually?
+          // Wait, desktop.js imported getVisualState from models.js.
+          // Let's import that too.
+          const models = await import("../../data/models.js");
+          return { ...m, getVisualState: models.getVisualState };
+        });
 
-        // Avatar Handling
-        let avatarHtml = `<div class="story-avatar placeholder"></div>`;
-        if (story.fractalAvatar) {
-          avatarHtml = `<div class="story-avatar"><img src="${story.fractalAvatar}" loading="lazy" alt="World" /></div>`;
+      // Initialize global tooltips
+      TooltipService.init();
+
+      // We need ThemeService for applying color? Or just manual?
+      // Drawer uses ThemeService.apply(card, color). Let's import it.
+      const { ThemeService } = await import("../services/theme.js");
+
+      stories.forEach((story) => {
+        // --- Create Drawer Card ---
+        const card = document.createElement("button");
+        card.className = "drawer-card story-drawer-card";
+        card.type = "button"; // accessible
+        card.setAttribute("data-tooltip", story.title); // [Tooltip]
+
+        // 1. Signature Color
+        if (story.signatureColor) {
+          ThemeService.apply(card, story.signatureColor);
         }
 
-        const dateStr = new Date(story.lastPlayed).toLocaleDateString();
+        // 2. Picture (Fractal)
+        // We need a mock entity structure for getPictureHTML
+        const dimEntity = {
+          name: story.fractalName,
+          type: "fractal",
+          profilePictureUrl: story.fractalAvatar,
+          signatureColor: story.signatureColor,
+        };
 
-        card.innerHTML = `
-          <div class="story-card-media">
-            ${avatarHtml}
-            ${story.state === "concluded" ? '<span class="badge">Concluded</span>' : ""}
-          </div>
-          <div class="story-card-content">
-            <h5>${story.title}</h5>
-            <small>${story.fractalName}</small>
-            <div class="meta">
-              <span>${dateStr}</span>
+        const pic = getPictureHTML(dimEntity, { cover: true });
+        card.appendChild(pic);
+
+        // 3. Label (Title + Tags)
+        // Drawer cards usually have a bottom label.
+        // We want: Title (colored), Status, Date.
+        // The default .drawer-card-label is just text. We might need Custom HTML inside.
+
+        const labelContainer = document.createElement("div");
+        labelContainer.className = "drawer-card-label";
+        // Override styles for this specific use case if needed, or use inline for now.
+        labelContainer.style.height = "auto";
+        labelContainer.style.textAlign = "left";
+        labelContainer.style.padding = "0.75rem";
+        labelContainer.style.display = "flex";
+        labelContainer.style.flexDirection = "column";
+        labelContainer.style.gap = "0.25rem";
+
+        // Status Badge
+        const isConcluded = story.state === "concluded";
+        const statusHtml = isConcluded
+          ? `<span style="font-size:0.6em; text-transform:uppercase; opacity:0.7; letter-spacing:1px; color:var(--pico-muted-color);">Concluded</span>`
+          : `<span style="font-size:0.6em; text-transform:uppercase; letter-spacing:1px; color:var(--signature-color);">Active</span>`;
+
+        // Date
+        const dateStr = new Date(story.lastPlayed).toLocaleDateString(
+          undefined,
+          { month: "short", day: "numeric", year: "numeric" },
+        );
+
+        // Title (Signature Color)
+        // We use var(--signature-color) which is set by ThemeService on the card.
+        // .drawer-card-label default sets color to var(--signature-color)!
+
+        labelContainer.innerHTML = `
+            <div style="font-weight:700; line-height:1.2; font-size:0.8rem; margin-bottom:0.25rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                ${story.title}
             </div>
-          </div>
+            <div>
+                ${statusHtml}
+            </div>
+            <div style="font-size:0.6em; opacity:0.5;">
+                ${dateStr}
+            </div>
         `;
+
+        card.appendChild(labelContainer);
 
         // Click Action
         card.onclick = async () => {
           if (story.state === "concluded") {
-            // Just load it, skipping logic that assumes it's active
             await StoryOptionsController.loadStory(story.id);
             StoryOptionsController.close();
           } else {

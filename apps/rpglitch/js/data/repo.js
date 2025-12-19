@@ -151,6 +151,8 @@ export const stories = {
             lastPlayed: story.updatedAt,
             fractalAvatar: fractalAvatar,
             fractalName: fractal?.name || "Unknown World",
+            // [NEW] Visuals
+            signatureColor: fractal?.signatureColor || "default",
           };
         }),
       );

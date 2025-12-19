@@ -276,3 +276,97 @@ export async function downloadImage(url, filename = "image.png") {
     document.body.removeChild(a);
   }
 }
+// --- Tooltip Service ---
+export const TooltipService = {
+  element: null,
+  timer: null,
+  delay: 600, // Short moment
+
+  init() {
+    if (this.initialized) return;
+    this.initialized = true;
+
+    // Create container if not exists
+    let el = document.getElementById("global-tooltip");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "global-tooltip";
+      el.className = "tooltip-popup";
+      document.body.appendChild(el);
+    }
+    this.element = el;
+
+    document.addEventListener("mouseover", (e) => {
+      const target = e.target.closest("[data-tooltip]");
+      if (target) {
+        this.schedule(target);
+      }
+    });
+
+    document.addEventListener("mouseout", (e) => {
+      const target = e.target.closest("[data-tooltip]");
+      if (target) {
+        this.cancel();
+      }
+    });
+
+    // Also cancel on click to avoid sticky tooltips
+    document.addEventListener("mousedown", () => this.cancel());
+  },
+
+  schedule(target) {
+    this.clearTimer();
+    const text = target.getAttribute("data-tooltip");
+    if (!text) return;
+
+    this.timer = setTimeout(() => {
+      this.show(target, text);
+    }, this.delay);
+  },
+
+  cancel() {
+    this.clearTimer();
+    this.hide();
+  },
+
+  clearTimer() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
+  },
+
+  show(target, text) {
+    if (!this.element) return;
+    this.element.textContent = text;
+    this.element.classList.add("is-visible");
+
+    // Positioning logic (Simple Float-UI style)
+    const rect = target.getBoundingClientRect();
+    const tipRect = this.element.getBoundingClientRect();
+
+    // Default: centered ABOVE
+    let top = rect.top - tipRect.height - 8;
+    let left = rect.left + rect.width / 2 - tipRect.width / 2;
+
+    // Initial check to keep on screen horizontally
+    if (left < 10) left = 10;
+    if (left + tipRect.width > window.innerWidth - 10) {
+      left = window.innerWidth - tipRect.width - 10;
+    }
+
+    // Check vertical overflow (if top is offscreen, flip to below)
+    if (top < 10) {
+      top = rect.bottom + 8;
+    }
+
+    this.element.style.top = `${top}px`;
+    this.element.style.left = `${left}px`;
+  },
+
+  hide() {
+    if (this.element) {
+      this.element.classList.remove("is-visible");
+    }
+  },
+};

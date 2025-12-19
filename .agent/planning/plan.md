@@ -20,6 +20,7 @@
 - [x] **WebWorker Offloading**
 - [x] **Button Harmonization (UI)**
 - [x] **The Epilogue Flow**
+- [x] **Library Interface**
 
 ---
 
@@ -28,11 +29,11 @@
 _The boring but critical features that make a story feel complete._
 **Legend:** `S`=Small, `M`=Medium, `L`=Large, `XL`=Epic
 
-| Item                      | Category | Impact | Effort | Dependencies | Notes                                                                                                                |
-| :------------------------ | :------- | :----- | :----- | :----------- | :------------------------------------------------------------------------------------------------------------------- |
-| **Library Interface**     | [UI]     | S      | M      | `repo.js`    | **NEXT UP.** A "Bookshelf" view inside the **Settings Modal**. Lists stories (Active/Concluded) with Fractal covers. |
-| **Writer's Block Rescue** | [UX]     | M      | S      | `Modal`      | Compact "Engine Stalled" alert. Options: "Retry" (Reroll) or "Director's Note" (Variance).                           |
-| **Plot Thread Tracker**   | [Data]   | M      | S      | `DB`         | Add `customData.plot` (`active`, `resolved`) to schema. Hidden from UI for now.                                      |
+| Item                      | Category | Impact | Effort | Dependencies | Notes                                                                                      |
+| :------------------------ | :------- | :----- | :----- | :----------- | :----------------------------------------------------------------------------------------- |
+| **Writer's Block Rescue** | [UX]     | M      | S      | `Modal`      | Compact "Engine Stalled" alert. Options: "Retry" (Reroll) or "Director's Note" (Variance). |
+| **Plot Thread Tracker**   | [Data]   | M      | S      | `DB`         | Add `customData.plot` (`active`, `resolved`) to schema. Hidden from UI for now.            |
+| **Confirm Modal Polish**  | [UI]     | S      | S      | `CSS`        | Refine `tpl-confirm-modal` styling. Move inline styles to SCSS.                            |
 
 ---
 
