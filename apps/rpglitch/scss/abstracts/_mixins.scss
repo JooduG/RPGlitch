@@ -64,6 +64,15 @@
   }
 }
 
+// Glassmorphism Pill Container (Button Groups / Inputs)
+@mixin pill-container-box {
+  background: rgb(0 0 0 / 40%);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 50%);
+  border-radius: 50px;
+  border: 1px solid rgb(255 255 255 / 10%);
+}
+
 // Common Card Physics (Hover/Focus)
 @mixin card-common {
   box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
@@ -116,5 +125,37 @@
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
+  }
+}
+
+// --- BUTTON GROUP MIXINS ---
+
+@mixin btn-group-base($radius: 0, $divider-color: transparent) {
+  display: inline-flex;
+  gap: 0;
+  align-items: center;
+
+  button {
+    margin: 0;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // First/Last Radius Logic
+    @if $radius != 0 {
+      &:first-child {
+        border-radius: $radius 0 0 $radius;
+      }
+
+      &:last-child {
+        border-radius: 0 $radius $radius 0;
+      }
+    }
+
+    // Dividers: Right border on all except last
+    &:not(:last-child) {
+      border-right: 1px solid $divider-color;
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { state, applyPatch } from "../../../core/state.js";
+import { state } from "../../../core/state.js";
 import { entities } from "../../../data/repo.js";
 import { VirtualFeed } from "./virtual-feed.js";
 import { events, EVENTS } from "../../../core/events.js";
@@ -152,67 +152,108 @@ export async function renderChat(storyId) {
   const concludedBanner = document.querySelector("#story-concluded");
   const form = document.querySelector("#story-form");
 
+  console.log(
+    "DEBUG: renderChat - Story ID:",
+    storyId,
+    "Concluded:",
+    story.isConcluded,
+  );
+
   if (story.isConcluded) {
-    if (concludedBanner) concludedBanner.hidden = false;
+    if (concludedBanner) {
+      concludedBanner.hidden = false;
+      console.log("DEBUG: Banner shown");
+    }
+
+    // Hide Form if present
     if (form) {
       form.hidden = true;
       form.style.display = "none";
+    }
 
-      // [FIX] Inject Concluded Controls - Force Clean Slate
-      const existingControls = document.querySelectorAll(".concluded-controls");
-      existingControls.forEach((el) => el.remove());
+    // [FIX] Inject Concluded Controls - Independent of Form
+    const existingControls = document.querySelectorAll(".concluded-controls");
 
+    // Only inject if not already present to prevent flickering/thrashing
+    if (existingControls.length === 0) {
+      console.log("DEBUG: Injecting Concluded Controls");
       const tpl = document.getElementById("tpl-concluded-controls");
+      console.log("DEBUG: Template found?", !!tpl);
+
       if (tpl) {
         const clone = tpl.content.cloneNode(true);
+        // [DEBUG] Explicitly identify the element to style it before/after append
+        // the clone is a DocumentFragment, so we need to get the child
+        const el = clone.querySelector(".concluded-controls");
+        if (el) {
+          el.style.setProperty("position", "fixed", "important");
+          el.style.setProperty("bottom", "3rem", "important");
+          el.style.setProperty("left", "50%", "important");
+          el.style.setProperty("transform", "translateX(-50%)", "important");
+          el.style.setProperty("z-index", "2147483647", "important");
+          el.style.setProperty("display", "flex", "important");
+        }
+
         document.body.appendChild(clone);
 
-        // Re-query to ensure we get the fresh element
-        const controls = document.querySelector(".concluded-controls");
-        if (controls) {
-          // Force styles just in case
-          controls.style.display = "flex";
-          controls.style.zIndex = "99999";
+        // Log computed state to ensure it took hold
+        setTimeout(() => {
+          const inserted = document.querySelector(".concluded-controls");
+          if (inserted) {
+            const s = window.getComputedStyle(inserted);
+            console.log("DEBUG: Final Computed:", {
+              pos: s.position,
+              bottom: s.bottom,
+              zIndex: s.zIndex,
+              display: s.display,
+              rect: inserted.getBoundingClientRect(),
+            });
+          }
+        }, 100);
+      }
+    } else {
+      // Ensure they are visible if hidden
+      existingControls.forEach((el) => (el.hidden = false));
+    }
 
-          // Bind Events
-          const btnSettings = controls.querySelector("#btn-concluded-settings");
-          const btnDelete = controls.querySelector("#btn-concluded-delete");
-          const btnClose = controls.querySelector("#btn-concluded-close");
+    // Re-query to ensure we get the fresh element
+    const controls = document.querySelector(".concluded-controls");
+    if (controls) {
+      // Force styles just in case
+      controls.style.display = "flex";
+      controls.style.zIndex = "99999";
 
-          if (btnSettings) {
-            btnSettings.onclick = () => {
-              // Proxy click to existing settings button to ensure init logic runs
-              const placeholder = document.getElementById(
-                "btn-settings-placeholder",
-              );
-              if (placeholder) placeholder.click();
-            };
+      // Bind Events
+      const btnSettings = controls.querySelector("#btn-concluded-settings");
+      const btnDelete = controls.querySelector("#btn-concluded-delete");
+      const btnClose = controls.querySelector("#btn-concluded-close");
+
+      if (btnSettings) {
+        btnSettings.onclick = () => {
+          // Proxy click to existing settings button to ensure init logic runs
+          const placeholder = document.getElementById(
+            "btn-settings-placeholder",
+          );
+          if (placeholder) placeholder.click();
+        };
+      }
+      if (btnDelete) {
+        btnDelete.onclick = async () => {
+          const { showConfirm } = await import("../../orchestrator.js");
+          if (await showConfirm("Delete Story?", "This cannot be undone.")) {
+            const db = await import("../../../core/db.js").then((m) => m.db);
+            await db.stories.delete(storyId);
+            // Redirect to home/storyboard cleanly, stripping query params to avoid "ghost story" 404
+            window.location.href = window.location.pathname;
           }
-          if (btnDelete) {
-            btnDelete.onclick = async () => {
-              const { showConfirm } = await import("../../orchestrator.js");
-              if (
-                await showConfirm("Delete Story?", "This cannot be undone.")
-              ) {
-                const db = await import("../../../core/db.js").then(
-                  (m) => m.db,
-                );
-                await db.stories.delete(storyId);
-                // Forces a hard reset to the lobby, providing immediate feedback
-                window.location.reload();
-              }
-            };
-          }
-          if (btnClose) {
-            btnClose.onclick = () => {
-              // Forced Navigation to Lobby via Hard Reset (Nuclear Option)
-              // This guarantees we exit whatever weird state we are in.
-              controls.remove();
-              window.location.hash = "";
-              window.location.reload();
-            };
-          }
-        }
+        };
+      }
+      if (btnClose) {
+        btnClose.onclick = () => {
+          controls.remove();
+          window.location.hash = "";
+          window.location.reload();
+        };
       }
     }
   } else {

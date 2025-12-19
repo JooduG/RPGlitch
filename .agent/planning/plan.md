@@ -18,6 +18,7 @@
 - [x] **Unified Hover Interaction**
 - [x] **Terminology Standardization**
 - [x] **WebWorker Offloading**
+- [x] **Button Harmonization (UI)**
 
 ---
 

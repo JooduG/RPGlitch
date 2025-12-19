@@ -5,31 +5,31 @@
    Centralized button styles to replace the "Zoo" of inline/ad-hoc styles.
    ============================================================================ */
 
+/* --- MIXINS --- */
+
+/* --- MIXINS (Deprecated - Moved to _mixins.scss) --- */
+// @mixin btn-group-base moved to abstracts/_mixins.scss
+
 /* --- 1. PILL GROUP (Floating Action Bars) --- */
 // Used in: Storyboard (Intro), Concluded Controls
 .btn-group-pill {
-  display: inline-flex;
+  @include btn-group-base(
+    0,
+    rgb(255 255 255 / 10%)
+  ); // Radius 0 because container clips
+
+  @include pill-container-box; // <--- Harmonized Visuals from Mixin
+
   width: auto;
   align-items: stretch;
-  background: rgb(0 0 0 / 40%);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgb(0 0 0 / 50%);
-  border-radius: 50px;
-  border: 1px solid rgb(255 255 255 / 10%);
   overflow: hidden;
   pointer-events: auto;
   position: relative; // Ensure z-index works
   z-index: 99999; // Nuclear option: ensure it is above EVERYTHING (skeletons, overlays, etc)
 
   button {
-    border-radius: 0;
-    border: none;
+    border: none; // Reset base borders so only divider applies
     box-shadow: none;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0; // Remove gap so borders touch
     padding: 1rem 1.5rem; // Adjust padding to compensate
     font-weight: 700;
     font-size: 0.9rem;
@@ -60,10 +60,7 @@
       }
     }
 
-    &.secondary {
-      // Secondary inside pill often just icon buttons, keep transparent or defined?
-      // Leaving as transparent base unless hovered
-    }
+    // Secondary: Transparent base (default) unless hovered
 
     &:hover:not(:disabled) {
       background: rgba(255, 255, 255, 10%);
@@ -222,26 +219,5 @@
 /* Button Groups (Top Bar / Generic) */
 // Used in: Header Actions
 .btn-group-joined {
-  display: flex;
-  gap: 0;
-
-  button {
-    margin: 0;
-    border-radius: 0;
-
-    &:first-of-type {
-      border-top-left-radius: var(--pico-radius);
-      border-bottom-left-radius: var(--pico-radius);
-    }
-
-    &:last-of-type {
-      border-top-right-radius: var(--pico-radius);
-      border-bottom-right-radius: var(--pico-radius);
-    }
-
-    // Middle buttons
-    &:not(:first-of-type, :last-of-type) {
-      border-left: none;
-    }
-  }
+  @include btn-group-base(var(--pico-radius));
 }

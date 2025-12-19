@@ -67,9 +67,13 @@
 
 #story-form {
   padding: 0;
-  background: var(--pico-form-element-background-color);
-  box-shadow: 0 10px 30px rgb(0 0 0 / 60%);
-  border-radius: 50px; // Pill shape
+
+  @include pill-container-box; // <--- Harmonized Visuals
+
+  background: var(
+    --pico-form-element-background-color
+  ); // Override mixin bg with opaque for form
+
   display: flex;
   width: 40vw;
   margin: 0 auto;
@@ -154,6 +158,23 @@
       cursor: not-allowed;
       opacity: 0.5;
     }
+  }
+}
+
+// Concluded Controls (Floating Pill)
+.concluded-controls {
+  // Positioning IS extracted from layout flow, so we keep it here.
+  // Visual styling is handled entirely by .btn-group-pill class in HTML.
+
+  position: fixed !important;
+  bottom: 3rem !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 99999 !important;
+
+  // Match #begin-story padding for the primary action (Storyboard)
+  .primary {
+    padding: 1rem 3rem !important;
   }
 }
 

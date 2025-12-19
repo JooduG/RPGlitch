@@ -431,35 +431,6 @@ export async function renderProfileEdit(screen, entity, type, id) {
     ? premade.entities.find((p) => p.id === entity.originId)
     : null;
 
-  // Revert
-  // Revert
-  if (blueprint) {
-    const revertBtn = document.createElement("button");
-    revertBtn.className = "btn-ghost text-warning btn-icon-raise"; // Ghost + Warning
-    revertBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5 1.11-.2 2.22-.51 3.29-.93C20.69 11.23 16.96 8 12.5 8z"/></svg>`;
-    revertBtn.title = "Revert Changes";
-    revertBtn.onclick = (e) => {
-      e.preventDefault();
-      if (confirm("Reset this character? All changes will be lost.")) {
-        const flatBp = { ...blueprint, ...(blueprint.sections || {}) };
-        nameInput.value = flatBp.name;
-        descInput.value = flatBp.description;
-        Object.keys(PROFILE_SECTIONS).forEach((k) => {
-          const el = screen.querySelector(`[data-edit-field="${k}"]`);
-          if (el) el.value = flatBp[k] || "";
-        });
-        if (flatBp.profilePictureUrl) {
-          imageInput.value = flatBp.profilePictureUrl;
-          imageInput.dispatchEvent(new Event("input"));
-        }
-        screen
-          .querySelectorAll("textarea")
-          .forEach((t) => t.dispatchEvent(new Event("input")));
-      }
-    };
-    btnGroup.appendChild(revertBtn);
-  }
-
   // Delete
   if (id !== "new") {
     const delBtn = document.createElement("button");
