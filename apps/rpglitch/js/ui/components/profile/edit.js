@@ -11,7 +11,7 @@ import {
 } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
-import { premade } from "../../../data/models.js";
+
 import { PROFILE_SECTIONS } from "./constants.js";
 import {
   closeProfileModal,
@@ -426,10 +426,6 @@ export async function renderProfileEdit(screen, entity, type, id) {
   btnGroup.setAttribute("role", "group");
   btnGroup.style.marginBottom = "0";
   btnGroup.style.width = "100%";
-
-  const blueprint = entity.originId
-    ? premade.entities.find((p) => p.id === entity.originId)
-    : null;
 
   // Delete
   if (id !== "new") {

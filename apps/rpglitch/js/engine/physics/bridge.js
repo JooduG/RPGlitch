@@ -18,31 +18,44 @@ export class WorkerBridge {
   }
 
   init() {
-    if (!window.RPGLITCH_WORKER_SOURCE) {
-      console.warn(
-        "[WorkerBridge] No worker source found. Background updates disabled.",
-      );
-      return;
-    }
-
-    try {
-      const blob = new Blob([window.RPGLITCH_WORKER_SOURCE], {
-        type: "application/javascript",
-      });
-      const url = URL.createObjectURL(blob);
-      this.worker = new Worker(url);
-
+    this._setupWorkerListener = () => {
       this.worker.onmessage = (e) => this.handleMessage(e);
       this.worker.onerror = (e) => {
         console.error("[WorkerBridge] Worker Error:", e);
         this.resolveActive(false);
       };
-
-      console.log("[WorkerBridge] Worker spawned successfully.");
       this.isReady = true;
+    };
+
+    // PROD: Use Injected Blob (Single File)
+    if (window.RPGLITCH_WORKER_SOURCE) {
+      try {
+        const blob = new Blob([window.RPGLITCH_WORKER_SOURCE], {
+          type: "application/javascript",
+        });
+        const url = URL.createObjectURL(blob);
+        this.worker = new Worker(url);
+        this._setupWorkerListener();
+        console.log("[WorkerBridge] Worker spawned (Embedded Mode).");
+      } catch (e) {
+        console.error("[WorkerBridge] Failed to spawn embedded worker:", e);
+      }
+      return;
+    }
+
+    // DEV: Use File Path (Module Mode)
+    // We assume if source is missing, we are in a dev environment serving individual files.
+    try {
+      this.worker = new Worker("js/engine/physics/worker.js", {
+        type: "module",
+      });
+      this._setupWorkerListener();
+      console.log("[WorkerBridge] Worker spawned (Dev/Module Mode).");
     } catch (e) {
-      console.error("[WorkerBridge] Failed to spawn worker:", e);
-      this.isReady = false;
+      console.warn(
+        "[WorkerBridge] No worker source found and Dev fallback failed. Background updates disabled.",
+        e,
+      );
     }
   }
 

@@ -20,7 +20,7 @@ $pico-del-color: #dc3545;
 // --- PALETTE: SIGNATURES (Auto-Generated) ---
 // Sourced from apps/rpglitch/js/core/constants.js matches
 // See tools/build/app.js for generation logic.
-@import "palette-generated";
+@forward "palette-generated";
 
 // --- BREAKPOINTS ---
 $breakpoint-mobile: 768px;

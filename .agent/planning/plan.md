@@ -19,6 +19,7 @@
 - [x] **Terminology Standardization**
 - [x] **WebWorker Offloading**
 - [x] **Button Harmonization (UI)**
+- [x] **The Epilogue Flow**
 
 ---
 
@@ -27,12 +28,11 @@
 _The boring but critical features that make a story feel complete._
 **Legend:** `S`=Small, `M`=Medium, `L`=Large, `XL`=Epic
 
-| Item                      | Category | Impact | Effort | Dependencies | Notes                                                                                                         |
-| :------------------------ | :------- | :----- | :----- | :----------- | :------------------------------------------------------------------------------------------------------------ |
-| **Library Interface**     | [UI]     | S      | M      | `repo.js`    | A "Bookshelf" view inside the **Settings Modal**. Lists stories (Active/Concluded) with Fractal covers.       |
-| **The Epilogue Flow**     | [UI]     | M      | S      | `Director`   | "Conclude Story" button. Generates a final **Narrator** summary, locks input, and marks story as `concluded`. |
-| **Writer's Block Rescue** | [UX]     | M      | S      | `Modal`      | Compact "Engine Stalled" alert. Options: "Retry" (Reroll) or "Director's Note" (Variance).                    |
-| **Plot Thread Tracker**   | [Data]   | M      | S      | `DB`         | Add `customData.plot` (`active`, `resolved`) to schema. Hidden from UI for now.                               |
+| Item                      | Category | Impact | Effort | Dependencies | Notes                                                                                                                |
+| :------------------------ | :------- | :----- | :----- | :----------- | :------------------------------------------------------------------------------------------------------------------- |
+| **Library Interface**     | [UI]     | S      | M      | `repo.js`    | **NEXT UP.** A "Bookshelf" view inside the **Settings Modal**. Lists stories (Active/Concluded) with Fractal covers. |
+| **Writer's Block Rescue** | [UX]     | M      | S      | `Modal`      | Compact "Engine Stalled" alert. Options: "Retry" (Reroll) or "Director's Note" (Variance).                           |
+| **Plot Thread Tracker**   | [Data]   | M      | S      | `DB`         | Add `customData.plot` (`active`, `resolved`) to schema. Hidden from UI for now.                                      |
 
 ---
 
@@ -56,7 +56,7 @@ _The boring but critical features that make a story feel complete._
 
 ---
 
-**Last Updated:** 2025-12-18
+**Last Updated:** 2025-12-19
 
 > [!TIP]
 > **Looking for the big expansions?**
