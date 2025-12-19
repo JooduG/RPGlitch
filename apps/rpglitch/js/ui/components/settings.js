@@ -21,7 +21,7 @@ export const StoryOptionsController = {
     const btn = document.querySelector("#btn-options");
     const closeBtn = modal.querySelector(".close");
     const resetBtn = modal.querySelector("#btn-reset-story");
-    const developerModeToggle = modal.querySelector("#setting-developer-mode");
+    // Removed unused toggle var
     const customJsInput = modal.querySelector("#setting-custom-js");
     const storyInstructionsInput = modal.querySelector(
       "#setting-story-instructions",
@@ -100,6 +100,7 @@ export const StoryOptionsController = {
       concludeBtn.addEventListener("click", async (e) => {
         e.preventDefault();
         if (state.story.activeId) {
+          StoryOptionsController.close(); // Close immediately per user request involved interactions
           await TurnManager.concludeStory();
         }
       });
@@ -130,16 +131,16 @@ export const StoryOptionsController = {
       });
     }
 
-    // Developer Mode Wiring
-    if (developerModeToggle) {
-      developerModeToggle.checked = !!state.settings.developerMode;
-      developerModeToggle.addEventListener("change", (e) => {
-        const isChecked = e.target.checked;
-        applyPatch({ settings: { developerMode: isChecked } });
-        if (state.story.activeId) {
-          window.dispatchEvent(new Event("hashchange"));
-        }
-      });
+    // 3. Render Library (Always, for both modes)
+    this.renderStories();
+
+    // 4. Update Developer Mode Toggle
+    const devToggle = modal.querySelector("#setting-developer-mode");
+    if (devToggle) {
+      devToggle.checked = state.settings.developerMode;
+      devToggle.onchange = (e) => {
+        applyPatch({ settings: { developerMode: e.target.checked } });
+      };
     }
 
     // Visuals Wiring
@@ -251,11 +252,25 @@ export const StoryOptionsController = {
 
     // State-Based Visibility Logic
     const hasActiveStory = !!state.story.activeId;
+
+    // Check if the current active story is actually concluded (Read-Only Mode)
+    let isConcluded = false;
+    if (hasActiveStory && state.story.byId[state.story.activeId]?.isConcluded) {
+      isConcluded = true;
+    }
+
     const lobbySection = modal.querySelector(".settings-section-lobby");
     const gameSection = modal.querySelector(".settings-section-storymode");
+    const librarySection = modal.querySelector(".settings-section-library");
 
+    // 1. STORY CONFIG (Lobby) -> Only if NO Active Story
     if (lobbySection) lobbySection.hidden = hasActiveStory;
-    if (gameSection) gameSection.hidden = !hasActiveStory;
+
+    // 2. GAME ACTIONS -> Only if Active Start AND NOT Concluded
+    if (gameSection) gameSection.hidden = !hasActiveStory || isConcluded;
+
+    // 3. LIBRARY -> Always Visible
+    if (librarySection) librarySection.hidden = false;
 
     // Update Conclude Button State (Redundant check but keeps safety)
     const concludeBtn = modal.querySelector("#btn-conclude-story");
@@ -285,109 +300,79 @@ export const StoryOptionsController = {
   },
 
   async renderStories() {
-    const listContainer = document.querySelector("#saved-stories-list");
-    if (!listContainer) return;
+    const grid = document.querySelector("#library-grid");
+    if (!grid) return;
 
-    listContainer.innerHTML = "<p><small>Loading...</small></p>";
+    grid.innerHTML = "<p><small>Loading...</small></p>";
 
     try {
-      const stories = await db.stories.orderBy("updatedAt").reverse().toArray();
+      // Use new Repo-level list (Enriched)
+      const stories = await import("../../data/repo.js").then((m) =>
+        m.stories.list(),
+      );
 
       if (stories.length === 0) {
-        listContainer.innerHTML =
-          "<p><small>No saved stories found.</small></p>";
+        grid.innerHTML =
+          "<div class='empty-state' style='grid-column: 1 / -1; text-align: center; width: 100%; padding: 2rem; color: var(--muted-color);'><p>No stories found.</p></div>";
         return;
       }
 
-      const ul = document.createElement("ul");
-      ul.style.listStyle = "none";
-      ul.style.padding = "0";
-      ul.style.margin = "0";
+      grid.innerHTML = ""; // Clear loader
 
       stories.forEach((story) => {
-        const li = document.createElement("li");
-        li.style.display = "flex";
-        li.style.justifyContent = "space-between";
-        li.style.alignItems = "center";
-        li.style.marginBottom = "0.5rem";
-        li.style.padding = "0.5rem";
-        li.style.border = "1px solid var(--muted-border-color)";
-        li.style.borderRadius = "var(--border-radius)";
+        // Create Card Element
+        const card = document.createElement("article");
+        card.className = "story-card";
+        if (story.state === "concluded") card.classList.add("concluded");
 
-        const titleSpan = document.createElement("span");
-        titleSpan.textContent = story.title || "Untitled Story";
-        titleSpan.style.fontWeight = "bold";
-        if (story.isConcluded) {
-          const badge = document.createElement("small");
-          badge.textContent = " (Concluded)";
-          badge.style.color = "var(--muted-color)";
-          badge.style.fontWeight = "normal";
-          titleSpan.appendChild(badge);
+        // Avatar Handling
+        let avatarHtml = `<div class="story-avatar placeholder"></div>`;
+        if (story.fractalAvatar) {
+          avatarHtml = `<div class="story-avatar"><img src="${story.fractalAvatar}" loading="lazy" alt="World" /></div>`;
         }
 
-        const actionsDiv = document.createElement("div");
-        actionsDiv.style.display = "flex";
-        actionsDiv.style.gap = "0.5rem";
+        const dateStr = new Date(story.lastPlayed).toLocaleDateString();
 
-        const loadBtn = document.createElement("button");
-        loadBtn.textContent = story.isConcluded ? "View" : "Load";
-        loadBtn.classList.add("outline", "secondary");
-        loadBtn.style.padding = "0.25rem 0.5rem";
-        loadBtn.style.fontSize = "0.8rem";
-        loadBtn.onclick = async (e) => {
-          e.preventDefault();
-          if (confirm(`Load story "${story.title}"?`)) {
+        card.innerHTML = `
+          <div class="story-card-media">
+            ${avatarHtml}
+            ${story.state === "concluded" ? '<span class="badge">Concluded</span>' : ""}
+          </div>
+          <div class="story-card-content">
+            <h5>${story.title}</h5>
+            <small>${story.fractalName}</small>
+            <div class="meta">
+              <span>${dateStr}</span>
+            </div>
+          </div>
+        `;
+
+        // Click Action
+        card.onclick = async () => {
+          if (story.state === "concluded") {
+            // Just load it, skipping logic that assumes it's active
             await StoryOptionsController.loadStory(story.id);
+            StoryOptionsController.close();
+          } else {
+            if (confirm(`Load "${story.title}"?`)) {
+              await StoryOptionsController.loadStory(story.id);
+              StoryOptionsController.close();
+            }
           }
         };
 
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Delete";
-        deleteBtn.classList.add("outline", "contrast");
-        deleteBtn.style.padding = "0.25rem 0.5rem";
-        deleteBtn.style.fontSize = "0.8rem";
-        deleteBtn.onclick = async (e) => {
-          e.preventDefault();
-          if (
-            confirm(`Delete story "${story.title}"? This cannot be undone.`)
-          ) {
-            await db.stories.delete(story.id);
-            await db.messages.where("storyId").equals(story.id).delete();
-            StoryOptionsController.renderStories();
-          }
-        };
-
-        actionsDiv.appendChild(loadBtn);
-        actionsDiv.appendChild(deleteBtn);
-        li.appendChild(titleSpan);
-        li.appendChild(actionsDiv);
-        ul.appendChild(li);
+        grid.appendChild(card);
       });
-
-      listContainer.innerHTML = "";
-      listContainer.appendChild(ul);
     } catch (err) {
-      console.error("Failed to load stories:", err);
-      listContainer.innerHTML = "<p><small>Error loading stories.</small></p>";
+      console.error("Failed to load library:", err);
+      grid.innerHTML = "<p><small>Error loading library.</small></p>";
     }
   },
 
   async loadStory(storyId) {
     try {
-      const story = await db.stories.get(storyId);
-      if (!story) {
-        alert("Story not found!");
-        return;
-      }
-
-      applyPatch({
-        story: { activeId: story.id, byId: { [story.id]: story } },
-        storyTitle: story.title,
-        mode: "storymode",
-      });
-
+      await TurnManager.load(storyId);
       StoryOptionsController.close();
-      window.dispatchEvent(new Event("hashchange"));
     } catch (err) {
       console.error("Failed to load story:", err);
       alert("Failed to load story. See console for details.");

@@ -105,7 +105,7 @@ You feel an overwhelming biological urge to be seen and validated.
     }
 
     const systemPrompt = systemPromptParts.join("\n\n");
-    const aiContext = this._layerEntity(ai, "AI_CHARACTER");
+    const aiContext = this._layerEntity(ai, "AI_CHARACTER_IDENTITY");
 
     return {
       system: systemPrompt,

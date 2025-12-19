@@ -1,4 +1,4 @@
-import { state } from "../../../core/state.js";
+import { state, applyPatch } from "../../../core/state.js";
 import { entities } from "../../../data/repo.js";
 import { VirtualFeed } from "./virtual-feed.js";
 import { events, EVENTS } from "../../../core/events.js";
@@ -147,6 +147,86 @@ export async function renderChat(storyId) {
 
   selectedEntities.ai = ai;
   selectedEntities.user = user;
+
+  // [NEW] Concluded State Locking
+  const concludedBanner = document.querySelector("#story-concluded");
+  const form = document.querySelector("#story-form");
+
+  if (story.isConcluded) {
+    if (concludedBanner) concludedBanner.hidden = false;
+    if (form) {
+      form.hidden = true;
+      form.style.display = "none";
+
+      // [FIX] Inject Concluded Controls - Force Clean Slate
+      const existingControls = document.querySelectorAll(".concluded-controls");
+      existingControls.forEach((el) => el.remove());
+
+      const tpl = document.getElementById("tpl-concluded-controls");
+      if (tpl) {
+        const clone = tpl.content.cloneNode(true);
+        document.body.appendChild(clone);
+
+        // Re-query to ensure we get the fresh element
+        const controls = document.querySelector(".concluded-controls");
+        if (controls) {
+          // Force styles just in case
+          controls.style.display = "flex";
+          controls.style.zIndex = "99999";
+
+          // Bind Events
+          const btnSettings = controls.querySelector("#btn-concluded-settings");
+          const btnDelete = controls.querySelector("#btn-concluded-delete");
+          const btnClose = controls.querySelector("#btn-concluded-close");
+
+          if (btnSettings) {
+            btnSettings.onclick = () => {
+              // Proxy click to existing settings button to ensure init logic runs
+              const placeholder = document.getElementById(
+                "btn-settings-placeholder",
+              );
+              if (placeholder) placeholder.click();
+            };
+          }
+          if (btnDelete) {
+            btnDelete.onclick = async () => {
+              const { showConfirm } = await import("../../orchestrator.js");
+              if (
+                await showConfirm("Delete Story?", "This cannot be undone.")
+              ) {
+                const db = await import("../../../core/db.js").then(
+                  (m) => m.db,
+                );
+                await db.stories.delete(storyId);
+                // Forces a hard reset to the lobby, providing immediate feedback
+                window.location.reload();
+              }
+            };
+          }
+          if (btnClose) {
+            btnClose.onclick = () => {
+              // Forced Navigation to Lobby via Hard Reset (Nuclear Option)
+              // This guarantees we exit whatever weird state we are in.
+              controls.remove();
+              window.location.hash = "";
+              window.location.reload();
+            };
+          }
+        }
+      }
+    }
+  } else {
+    // CLEANUP: Ensure controls are removed if we revived the story
+    const controls = document.querySelector(".concluded-controls");
+    if (controls) controls.remove();
+
+    if (concludedBanner) concludedBanner.hidden = true;
+    if (form) {
+      form.hidden = false;
+      form.style.display = "";
+    }
+    setSendLock(false);
+  }
 
   const noMsg = document.querySelector("#no-messages");
 

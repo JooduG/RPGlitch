@@ -7,21 +7,17 @@
 
 ## 📍 Current Context
 
-**Focus:** Transforming the engine from a "Tech Demo" into a "Shipped Product" by polishing the entry and exit points of the story experience.
-**In Progress:** None
+**Focus:** Transforming the engine from a "Tech Demo" into a "Shipped Product" by polishing the entry and exit points.
+**In Progress:** Concept 0 (Foundations)
 **Recently Done:**
 
-- [x] **Profile Picture Wiring:** Fixed circular profile portrait clicks.
-- [x] **Storyboard Skeleton Symmetry (V6-V10):** Perfected loading states.
-- [x] **Atmospheric Boot (V8):** Cleaner, "naked" shimmering effect.
-- [x] **Diamond Icon Logic (V10):** Standardized fractal icons.
-- [x] **Unified Hover Interaction (V9):** Consolidated UI feedback.
-- [x] **Terminology Standardization:** "World" -> "Fractal".
-- [x] **Visual Polish:** Scalable SVG Icon System.
-- [x] **Visualize Architecture:** Mermaid.js diagrams added to docs.
-- [x] **Type Safety:** `types.d.ts` implemented.
-- [x] **Configurable Physics:** Centralized `config-physics.js`.
-- [x] **WebWorker Offloading:** Simulation logic moved to background threads.
+- [x] **Profile Picture Wiring**
+- [x] **Storyboard Skeleton Symmetry**
+- [x] **Atmospheric Boot**
+- [x] **Diamond Icon Logic**
+- [x] **Unified Hover Interaction**
+- [x] **Terminology Standardization**
+- [x] **WebWorker Offloading**
 
 ---
 
@@ -30,12 +26,12 @@
 _The boring but critical features that make a story feel complete._
 **Legend:** `S`=Small, `M`=Medium, `L`=Large, `XL`=Epic
 
-| Item                      | Category | Impact | Effort | Dependencies | Notes                                                                                                             |
-| :------------------------ | :------- | :----- | :----- | :----------- | :---------------------------------------------------------------------------------------------------------------- |
-| **Library Interface**     | [UI]     | S      | M      | Refactor     | A proper "Bookshelf" modal for loading stories. Displays covers/summaries instead of a debug list.                |
-| **The Epilogue Flow**     | [UI]     | M      | S      | None         | Finalize the "End Story" state. Lock inputs, generate a final summary, and save a "Golden Snapshot."              |
-| **Writer's Block Rescue** | [UX]     | M      | S      | UI           | "Engine Stalled" modal. Offers a "Retry with Higher Entropy" button if the AI chokes or errors out.               |
-| **Plot Thread Tracker**   | [Data]   | M      | S      | DB           | Formalize `customData.plot` (`active`, `resolved`) to display current objectives separate from the narrative log. |
+| Item                      | Category | Impact | Effort | Dependencies | Notes                                                                                                         |
+| :------------------------ | :------- | :----- | :----- | :----------- | :------------------------------------------------------------------------------------------------------------ |
+| **Library Interface**     | [UI]     | S      | M      | `repo.js`    | A "Bookshelf" view inside the **Settings Modal**. Lists stories (Active/Concluded) with Fractal covers.       |
+| **The Epilogue Flow**     | [UI]     | M      | S      | `Director`   | "Conclude Story" button. Generates a final **Narrator** summary, locks input, and marks story as `concluded`. |
+| **Writer's Block Rescue** | [UX]     | M      | S      | `Modal`      | Compact "Engine Stalled" alert. Options: "Retry" (Reroll) or "Director's Note" (Variance).                    |
+| **Plot Thread Tracker**   | [Data]   | M      | S      | `DB`         | Add `customData.plot` (`active`, `resolved`) to schema. Hidden from UI for now.                               |
 
 ---
 

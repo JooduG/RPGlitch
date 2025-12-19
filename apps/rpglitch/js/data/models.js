@@ -241,6 +241,9 @@ export function normalize(base = {}) {
     // V4.2: ROLLBACK SYSTEM (Hidden Fields)
     _backupState: base._backupState || null,
     _lastUpdateMsgId: base._lastUpdateMsgId || null,
+
+    // [NEW] Custom Data Container (for plot hooks/meta)
+    customData: base.customData || { plot: [] },
   };
 }
 

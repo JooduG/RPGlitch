@@ -112,7 +112,6 @@ export const entities = {
     }
   },
 
-  // Delete an entity
   async remove(type, id) {
     try {
       const item = await db.entities.get(id);
@@ -123,6 +122,58 @@ export const entities = {
       error(`Failed to delete ${type}:`, err);
       throw err;
     }
+  },
+};
+
+export const stories = {
+  // List all stories with Fractal Avatar enrichment
+  async list() {
+    try {
+      const allStories = await db.stories
+        .orderBy("updatedAt")
+        .reverse()
+        .toArray();
+
+      // Enrich with Fractal Data for the UI Card
+      const enriched = await Promise.all(
+        allStories.map(async (story) => {
+          // Fetch Fractal Identifier
+          const fractal = await db.entities.get(story.fractalId);
+          const fractalAvatar =
+            fractal?.visuals?.profilePictureUrl ||
+            fractal?.profilePictureUrl ||
+            "";
+
+          return {
+            id: story.id,
+            title: story.storyTitle || "Untitled Story",
+            state: story.isConcluded ? "concluded" : "active",
+            lastPlayed: story.updatedAt,
+            fractalAvatar: fractalAvatar,
+            fractalName: fractal?.name || "Unknown World",
+          };
+        }),
+      );
+
+      return enriched;
+    } catch (err) {
+      error("Repo: Failed to list stories", err);
+      return [];
+    }
+  },
+
+  async get(id) {
+    return db.stories.get(id);
+  },
+
+  async update(id, changes) {
+    return db.stories.update(id, changes);
+  },
+
+  async delete(id) {
+    // Cascade delete messages
+    await db.messages.where("storyId").equals(id).delete();
+    return db.stories.delete(id);
   },
 };
 

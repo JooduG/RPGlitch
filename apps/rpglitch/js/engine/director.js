@@ -164,7 +164,11 @@ export const TurnManager = {
       } catch (streamErr) {
         if (streamErr.name === "AbortError") throw streamErr;
         console.error("[TURN] Network/Gen Error:", streamErr);
-        alert("Connection Error: The AI could not respond. Please try again.");
+        window.dispatchEvent(
+          new CustomEvent("app-error", {
+            detail: { error: streamErr, type: "network" },
+          }),
+        );
         throw streamErr;
       }
 
@@ -504,39 +508,98 @@ export const TurnManager = {
 
   concludeStory: async () => {
     const storyId = TurnManager.requireActive();
-    const story = state.story.byId[storyId];
 
     if (
-      !confirm(
-        "Conclude this story? The current state of your entities will be saved to the library.",
-      )
+      !(await import("../ui/orchestrator.js").then((m) =>
+        m.showConfirm(
+          "Conclude Story?",
+          "Are you sure you want to conclude this story? The AI will write an epilogue and the story will be archived.",
+        ),
+      ))
     )
       return;
 
-    const [endAi, endUser, endFractal] = await Promise.all([
-      entities.get("character", story.aiId),
-      entities.get("character", story.userId),
-      entities.get("fractal", story.fractalId),
-    ]);
+    // [UX] Immediately Lock UI
+    const form = document.querySelector("#story-form");
+    if (form) form.style.display = "none";
 
-    await db.stories.update(storyId, {
-      isConcluded: 1,
-      concludedAt: Date.now(),
-      "snapshots.end": {
-        ai: endAi,
-        user: endUser,
-        fractal: endFractal,
-      },
-    });
-
-    document.body.classList.remove("storymode");
-    document.body.classList.add("mode-storyboard");
-    applyPatch({ story: { activeId: null } });
-
-    location.hash = "#storyboard";
-
+    // Close Settings if open
     const optionsModal = document.getElementById("settings");
     if (optionsModal) optionsModal.setAttribute("hidden", "");
+
+    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.TYPING_STARTED, { detail: { role: "narrator" } }),
+    );
+
+    try {
+      // 1. Generate Epilogue
+      const builder = new ContextBuilder(storyId);
+      const payload = await builder.build(); // Standard build to get context
+
+      // Override System for Epilogue
+      payload.system += `\n\n[SYSTEM: NARRATIVE_CONCLUSION_PROTOCOL]
+<DIRECTIVE>
+The user has decided to end the story.
+Generate a definitive, narrative epilogue (2-3 paragraphs).
+Wrap up loose ends based on the current state.
+Do not ask for further input.
+Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
+</DIRECTIVE>`;
+
+      const response = await generateStream({
+        payload,
+        onToken: () =>
+          events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
+      });
+
+      // 2. Save Epilogue
+      await db.messages.add({
+        storyId,
+        role: "narrator",
+        type: "OOC", // Distinct styling
+        text: response,
+        createdAt: Date.now(),
+        isEpilogue: true,
+      });
+
+      // 3. Update Story Body
+      const story = state.story.byId[storyId];
+      const [endAi, endUser, endFractal] = await Promise.all([
+        entities.get("character", story.aiId),
+        entities.get("character", story.userId),
+        entities.get("fractal", story.fractalId),
+      ]);
+
+      await db.stories.update(storyId, {
+        isConcluded: 1,
+        concludedAt: Date.now(),
+        "snapshots.end": {
+          ai: endAi,
+          user: endUser,
+          fractal: endFractal,
+        },
+      });
+
+      // [FIX] Update Local State so UI knows it is concluded
+      const updatedStory = await db.stories.get(storyId);
+      applyPatch({ story: { byId: { [storyId]: updatedStory } } });
+
+      // 4. Refresh UI
+      await TurnManager.loadMessages(storyId);
+
+      // Explicitly trigger renderChat to catch the new state
+      const { renderChat } = await import("../ui/components/chat/feed.js");
+      await renderChat(storyId);
+    } catch (e) {
+      error("Epilogue Failed", e);
+      window.dispatchEvent(
+        new CustomEvent("app-error", { detail: { error: e, type: "network" } }),
+      );
+    } finally {
+      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
+    }
   },
 
   enhanceUserDraft: async (draftText) => {

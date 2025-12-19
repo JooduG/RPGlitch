@@ -22,36 +22,37 @@ _Tools to visualize the invisible forces driving the story._
 
 _Power tools for the author to control the simulation._
 
-| Item                         | Category   | Impact | Effort | Notes                                                                                    |
-| :--------------------------- | :--------- | :----- | :----- | :--------------------------------------------------------------------------------------- |
-| **Integrated Director Mode** | [DevTools] | L      | M      | Unified toggle: Unhide `<think>` blocks, reveal `<image_prompt>` details, view raw JSON. |
-| **State Editor**             | [Tool]     | L      | M      | Manually edit the `<PRESENT>`, `<FUTURE>`, or `<DYNAMICS>` text of any entity mid-story. |
-| **Snapshot Diffing**         | [Tool]     | M      | M      | "What Changed?" view showing the text delta between Turn N and N-1.                      |
-| **Context Inspector**        | [Tool]     | M      | S      | View the _exact_ raw prompt text sent to the LLM (crucial for debugging leaks).          |
-| **"Bad Detective"**          | [Tool]     | M      | M      | Analyze last 5 turns to highlight prompt conflicts or logic loops causing degradation.   |
+| Item                         | Category   | Impact | Effort | Notes                                                                                       |
+| :--------------------------- | :--------- | :----- | :----- | :------------------------------------------------------------------------------------------ |
+| **Extend Message**           | [Logic]    | M      | S      | "Continue": Force the AI to append text to its last message (generating a longer response). |
+| **Integrated Director Mode** | [DevTools] | L      | M      | Unified toggle: Unhide `<think>`, reveal `<image_prompt>`, view raw JSON.                   |
+| **State Editor**             | [Tool]     | L      | M      | Manually edit the `<PRESENT>`, `<FUTURE>`, or `<DYNAMICS>` text of any entity mid-story.    |
+| **Snapshot Diffing**         | [Tool]     | M      | M      | "What Changed?" view showing the text delta between Turn N and N-1.                         |
+| **Context Inspector**        | [Tool]     | M      | S      | View the _exact_ raw prompt text sent to the LLM (crucial for debugging leaks).             |
+| **"Bad Detective"**          | [Tool]     | M      | M      | Analyze last 5 turns to highlight prompt conflicts or logic loops.                          |
 
 ## ⏳ Concept 3: The Loom of Time
 
 _Features that break the linear flow of storytelling._
 
-| Item                    | Category  | Impact | Effort | Notes                                                                                              |
-| :---------------------- | :-------- | :----- | :----- | :------------------------------------------------------------------------------------------------- |
-| **Narrative Branching** | [Feature] | XL     | XL     | "Multiverse" Node Graph. Branch a story from Turn X without losing the original timeline.          |
-| **The Lorebook (RAG)**  | [Feature] | L      | L      | Structured UI for World Info/Factions. Contextually injected via keyword triggers.                 |
-| **Scene Director**      | [Feature] | L      | M      | "Cutscene" toggle. Disables user input; AI generates 3 sequential beats (Setup->Action->Reaction). |
-| **Chapter Summarizer**  | [Feature] | M      | M      | Worker runs every 50 turns to compress `<PAST>` log into narrative chapter summaries.              |
-| **EPUB Export**         | [Feature] | M      | M      | Export the full story (text + images) into a book-readable format.                                 |
+| Item                    | Category  | Impact | Effort | Notes                                                                                     |
+| :---------------------- | :-------- | :----- | :----- | :---------------------------------------------------------------------------------------- |
+| **Narrative Branching** | [Feature] | XL     | XL     | "Multiverse" Node Graph. Branch a story from Turn X without losing the original timeline. |
+| **The Lorebook (RAG)**  | [Feature] | L      | L      | Structured UI for World Info/Factions. Contextually injected via keyword triggers.        |
+| **Scene Director**      | [Feature] | L      | M      | "Cutscene" toggle. Disables user input; AI generates 3 sequential beats.                  |
+| **Chapter Summarizer**  | [Feature] | M      | M      | Worker runs every 50 turns to compress `<PAST>` log into narrative chapter summaries.     |
+| **EPUB Export**         | [Feature] | M      | M      | Export the full story (text + images) into a book-readable format.                        |
 
 ## 🎨 Concept 4: Visual Immersion
 
 _Enhancing the multi-modal experience._
 
-| Item                    | Category  | Impact | Effort | Notes                                                                                                          |
-| :---------------------- | :-------- | :----- | :----- | :------------------------------------------------------------------------------------------------------------- |
-| **Material Textures**   | [Visuals] | L      | S      | Update `VisualManager` to prompt for _textures_ (subsurface scattering, rust, weave) vs just style.            |
-| **Reactive Triptychs**  | [Visuals] | XL     | XL     | Dynamic 3-panel spreads (Setting / Character A / Character B). See **[Design Spec](./triptych-portraits.md)**. |
-| **Dynamic Expressions** | [Visuals] | M      | M      | Parse `<emotion>` tags to trigger CSS animations (shake, red tint) on portraits.                               |
-| **Lens Selector**       | [UI]      | M      | M      | UI dropdown for selecting camera/lighting tags (CCTV, 35mm, Drone) instead of typing.                          |
+| Item                    | Category  | Impact | Effort | Notes                                                                                 |
+| :---------------------- | :-------- | :----- | :----- | :------------------------------------------------------------------------------------ |
+| **Material Textures**   | [Visuals] | L      | S      | Update `VisualManager` to prompt for _textures_ (subsurface scattering, rust, weave). |
+| **Reactive Triptychs**  | [Visuals] | XL     | XL     | Dynamic 3-panel spreads (Setting / Character A / Character B).                        |
+| **Dynamic Expressions** | [Visuals] | M      | M      | Parse `<emotion>` tags to trigger CSS animations (shake, red tint) on portraits.      |
+| **Lens Selector**       | [UI]      | M      | M      | UI dropdown for selecting camera/lighting tags (CCTV, 35mm, Drone).                   |
 
 ## 🧠 Concept 5: Living Characters
 
@@ -70,20 +71,13 @@ _Features that give the AI autonomy and presence._
 
 ## 🔧 Studio Maintenance & Polish
 
-_Standalone improvements, hygiene, and optimizations._
-
-| Item                     | Category  | Impact | Effort | Notes                                                                                     |
-| :----------------------- | :-------- | :----- | :----- | :---------------------------------------------------------------------------------------- |
-| **Tag Management UI**    | [UI]      | M      | S      | Restore `tags` editing in the new Profile Modal.                                          |
-| **Theme Adaptation**     | [UI]      | S      | M      | Use `light-dark()` to support "Cyberpunk" vs "Fantasy" presets.                           |
-| **Custom Code Wiring**   | [Feature] | M      | M      | Connect `#custom-js` in Settings to `ContextBuilder`.                                     |
-| **Prompt Snapshots**     | [Testing] | S      | M      | Assert generated system prompts match a "Golden Master" for regression testing.           |
-| **Fractal Convergence**  | [Feature] | S      | XL     | Allow entity migration/interaction between different Story instances.                     |
-| **Code Hygiene Audit**   | [Maint]   | S      | M      | Strict `===` checks and `innerHTML` sanitization verification.                            |
-| **POV Style Injector**   | [Feature] | M      | S      | Define narrative voice explicitly (e.g., "Noir Detective", "Flowery Romance").            |
-| **Negative Constraints** | [UI]      | S      | S      | UI indicator showing _active_ negative constraints (e.g. "No Dialogue") to reassure user. |
-
----
-
-> [!NOTE]
-> Return to **[plan.md](./plan.md)** for the active roadmap.
+| Item                     | Category  | Impact | Effort | Notes                                                                 |
+| :----------------------- | :-------- | :----- | :----- | :-------------------------------------------------------------------- |
+| **Tag Management UI**    | [UI]      | M      | S      | Restore `tags` editing in the new Profile Modal.                      |
+| **Theme Adaptation**     | [UI]      | S      | M      | Use `light-dark()` to support "Cyberpunk" vs "Fantasy" presets.       |
+| **Custom Code Wiring**   | [Feature] | M      | M      | Connect `#custom-js` in Settings to `ContextBuilder`.                 |
+| **Prompt Snapshots**     | [Testing] | S      | M      | Assert generated system prompts match a "Golden Master".              |
+| **Fractal Convergence**  | [Feature] | S      | XL     | Allow entity migration/interaction between different Story instances. |
+| **Code Hygiene Audit**   | [Maint]   | S      | M      | Strict `===` checks and `innerHTML` sanitization verification.        |
+| **POV Style Injector**   | [Feature] | M      | S      | Define narrative voice explicitly (e.g., "Noir Detective").           |
+| **Negative Constraints** | [UI]      | S      | S      | UI indicator showing _active_ negative constraints.                   |
