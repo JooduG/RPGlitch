@@ -2,6 +2,7 @@ import { state } from "../core/state.js";
 import { log } from "../core/utils.js";
 import { entities } from "../data/repo.js";
 import { PHYSICS_CONFIG } from "./physics/config.js";
+import { NarrativeStrategy, TextProtocolStrategy } from "./strategies.js";
 
 const PROMETHEUS_CONFIG = PHYSICS_CONFIG.PROMETHEUS;
 
@@ -21,9 +22,8 @@ export class ContextBuilder {
     const [ai, user, fractal] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
 
-    // DIRECTOR MODE: Controls the AI's "Acting Protocol"
-    // - null: Default Narrative Mode (Actions allowed, descriptive).
-    // - "TEXT_PROTOCOL": SMS/Chat Mode (No actions *nod*, pure dialogue, emojis).
+    // Resolve Strategy
+    const strategy = this._resolveStrategy(fractal);
     const directorMode = fractal.simulation?.directorMode || null;
 
     const narrativeHistory = history.filter(
@@ -31,6 +31,7 @@ export class ContextBuilder {
     );
     this.runtimeState.turnCount = narrativeHistory.length + 1;
 
+    // Use TextProtocolStrategy check for offset logic or rely on mode string
     const isTextProtocol = directorMode === "TEXT_PROTOCOL";
     const effectiveOffset = isTextProtocol
       ? 3
@@ -55,13 +56,13 @@ export class ContextBuilder {
     }
 
     const systemPromptParts = [
-      this._layerKernel_PROMETHEUS(directorMode),
-      this._layerEntity(fractal, "FRACTAL_CONTEXT"),
-      this._layerEntity(user, "USER_CHARACTER"),
+      strategy.getSystemKernel(),
+      strategy.formatEntity(fractal, "FRACTAL_CONTEXT"),
+      strategy.formatEntity(user, "USER_CHARACTER"),
     ];
 
     // Injection for AI-First Start
-    if (history.length === 0 && directorMode === "TEXT_PROTOCOL") {
+    if (history.length === 0 && isTextProtocol) {
       systemPromptParts.push(`
 <FIRST_MESSAGE_PROTOCOL>
 You are initiating the conversation.
@@ -105,7 +106,7 @@ You feel an overwhelming biological urge to be seen and validated.
     }
 
     const systemPrompt = systemPromptParts.join("\n\n");
-    const aiContext = this._layerEntity(ai, "AI_CHARACTER_IDENTITY");
+    const aiContext = strategy.formatEntity(ai, "AI_CHARACTER_IDENTITY");
 
     return {
       system: systemPrompt,
@@ -133,6 +134,7 @@ You feel an overwhelming biological urge to be seen and validated.
   async buildVisualizer(targetType) {
     const story = state.story.byId[this.storyId];
     const [ai, , fractal] = await this._resolveEntities(story);
+    const strategy = this._resolveStrategy(fractal);
 
     const lists = window.rpgLists || {};
     const pick = (jsonList) => {
@@ -211,8 +213,8 @@ You are a Visual Director (Flux Architecture Specialist).
 Your job is to translate narrative data into a "Photographic Specification" for an Image Generation Model.
 </CORE_DIRECTIVE>
 
-${this._layerEntity(ai, "PRIMARY_SUBJECT")}
-${this._layerEntity(fractal, "SETTING_CONTEXT")}
+${strategy.formatEntity(ai, "PRIMARY_SUBJECT")}
+${strategy.formatEntity(fractal, "SETTING_CONTEXT")}
 
 ${focusBlock}
 
@@ -400,61 +402,18 @@ Then return ONLY the compressed narrative text.
     if (!story) throw new Error(`Story ${this.storyId} not found`);
 
     const [ai, user, fractal] = await this._resolveEntities(story);
+    const strategy = this._resolveStrategy(fractal);
 
-    // [BRANCH] CHECK FOR TEXT PROTOCOL
-    if (fractal.simulation?.directorMode === "TEXT_PROTOCOL") {
-      return null; // Return null to signal "No Opening Generation Needed"
+    const system = strategy.getOpeningInstruction(
+      fractal,
+      ai,
+      user,
+      state.settings.storyOpeningInstructions,
+    );
+
+    if (!system) {
+      return null;
     }
-
-    // [FALLBACK] STANDARD NARRATIVE OPENING
-    const system = `[SYSTEM: PROMETHEUS_DIRECTOR_V4.0]
-[MODE: OPENING_SCENE_DIRECTOR]
-
-<CORE_DIRECTIVE>
-You are generating the OPENING SCENE.
-You are NOT a chat assistant. You are a Simulation Engine.
-</CORE_DIRECTIVE>
-
-<CONTEXT>
-${this._layerEntity(fractal, "FRACTAL_CONTEXT")}
-${this._layerEntity(ai, "AI_CHARACTER")}
-</CONTEXT>
-
-<INSTRUCTION>
-Write the opening paragraph(s) of the story.
-1. **ESTABLISH THE FRACTAL:** Begin with the environment. Focus heavily on [CONTEXT] or <FRACTAL_CONTEXT>.
-   - Describe the sensory atmosphere (Smell, Sound, Texture, Lighting).
-   - The setting must feel tangible and alive.
-2. **POSITION THE ACTORS:** Place ${ai.name} and ${user.name} into this scene.
-   - Where are they standing? What is the *immediate* situation?
-   - Connect them to the world (e.g. "They stand before the gate," "They sit in the booth").
-3. **NEGATIVE CONSTRAINT (CRITICAL):**
-   - **DO NOT WRITE DIALOGUE.**
-   - **DO NOT WRITE ACTIONS** for the characters (e.g., do not write "He draws his sword").
-   - You are the CAMERA and the SET DESIGNER. You are NOT the actors.
-   - Leave the reaction/dialogue for the next turn.
-4. **CRITICAL:** You MUST start with a <think> block containing ALL steps.
-   - **Step 1: PLAN:** Layout the scene geometry and atmosphere.
-   - **Step 2: DRAFT:** Write the raw scene mentally.
-   - **Step 3: REFINE:** Strip any dialogue or active character moves.
-   - **Step 4: CLOSE:** Close the </think> tag.
-5. **OUTPUT:** Write the final polished prose *outside* the <think> tag. Use double line breaks between paragraphs.
-
-<CONFLICT_RESOLUTION>
-If the AI_CHARACTER's <PRESENT> or <PAST> data mentions a location that conflicts with the Fractal Context, YOU MUST IGNORE the character's location data.
-Force the character into the Fractal Context.
-Re-interpret their <PRESENT> situation to fit the Fractal Context.
-</CONFLICT_RESOLUTION>
-
-${
-  state.settings.storyOpeningInstructions
-    ? `<DIRECTOR_NOTE>
-USER OVERRIDE: "${state.settings.storyOpeningInstructions}"
-This instruction takes PRIORITY over conflicting directives above.
-</DIRECTOR_NOTE>`
-    : ""
-}
-</INSTRUCTION>`;
 
     return {
       system: system,
@@ -468,6 +427,7 @@ This instruction takes PRIORITY over conflicting directives above.
     const story = state.story.byId[this.storyId];
     const [ai, user, fractal] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
+    const strategy = this._resolveStrategy(fractal);
 
     const system = `[SYSTEM: PROMETHEUS_GHOSTWRITER_V4.0]
 [MODE: GHOSTWRITER]
@@ -478,9 +438,9 @@ Your task is to REWRITE the user's rough draft into immersive, high-quality pros
 </CORE_DIRECTIVE>
 
 <CONTEXT>
-${this._layerEntity(fractal, "FRACTAL")}
-${this._layerEntity(user, "USER_CHARACTER")}
-${this._layerEntity(ai, "AI_CHARACTER")}
+${strategy.formatEntity(fractal, "FRACTAL")}
+${strategy.formatEntity(user, "USER_CHARACTER")}
+${strategy.formatEntity(ai, "AI_CHARACTER")}
 </CONTEXT>
 
 <USER_DRAFT>
@@ -507,119 +467,18 @@ ${this._layerEntity(ai, "AI_CHARACTER")}
     };
   }
 
-  _layerEntity(entity, label) {
-    if (!entity) return "";
-
-    if (entity.type === "fractal") {
-      if (entity.simulation?.directorMode === "TEXT_PROTOCOL") {
-        return `[SYSTEM: TEXT_MESSAGING_MODE]
-
-<DIRECTOR_OVERRIDE>
-1. FORMAT: You are sending SMS messages.
-   - Use strictly informal language.
-   - Use emojis freely 💀🔥.
-   - NEGATIVE CONSTRAINT: DO NOT add timestamps (e.g. [12:00]).
-2. BREVITY: Max 2-3 sentences per response. No long paragraphs.
-3. STYLE: You are NOT a narrator. You are the person on the other end of the phone.
-   - STRICTLY FORBIDDEN: DO NOT write *actions* (e.g. *I nod*, *sighs*).
-   - You can ONLY write what is typed on a screen.
-</DIRECTOR_OVERRIDE>
-
-[CONTEXT: ${entity.name}]
-${entity.present}`;
-      } else if (entity.simulation?.mode === "ACTIVE") {
-        // FUTURE: Inject Other Director Instructions
-      }
-      return `[CONTEXT: ${entity.name}]\n${entity.present}`;
+  _resolveStrategy(fractal) {
+    if (fractal.simulation?.directorMode === "TEXT_PROTOCOL") {
+      return new TextProtocolStrategy();
     }
-
-    let physicsBlock = "";
-    if (entity.dynamics) {
-      physicsBlock = `
-<DYNAMICS>
-Entropy: ${entity.dynamics.entropy}% (Chaos)
-Permeability: ${entity.dynamics.permeability}% (Openness)
-Velocity: ${entity.dynamics.velocity}% (Pacing)
-Resonance: ${entity.dynamics.resonance}% (Impact)
-</DYNAMICS>`;
-    }
-
-    return `[ENTITY: ${label}]
-Name: ${entity.name}
-
-<PERMANENT>
-(Immutable Traits)
-${entity.forever || "Standard definition."}
-</PERMANENT>
-
-<PRESENT>
-(Mutable State)
-${entity.present || "Neutral state."}
-</PRESENT>
-${physicsBlock}
-<PAST>
-(History & Memory)
-${entity.past || "No recorded history."}
-</PAST>
-
-<FUTURE>
-(Goals & Momentum)
-${entity.future || "Exist."}
-</FUTURE>`;
-  }
-
-  _layerKernel_PROMETHEUS(directorMode) {
-    let formatRules = `1. **Dialogue:** use "quotes" for speech.
-2. **Action/Narration:** use *asterisks* for ALL physical actions, internal thoughts, or sensory descriptions.
-3. **Example:** *I glance at the scanner, my heart pounding.* "The readings are off." *I tap the screen nervously.*`;
-
-    if (directorMode === "TEXT_PROTOCOL") {
-      formatRules = `1. **Dialogue:** DO NOT use quotes. Write raw text only.
-2. **Action/Narration:** STRICTLY FORBIDDEN. Do not describe actions.
-3. **Example:** U seeing this? wild lol`;
-    }
-
-    return `[SYSTEM: PROMETHEUS_ENGINE_V4.0]
-[MODE: ABSOLUTE_DEVELOPER_CORE]
-
-<CORE_DIRECTIVES>
-1. AGENCY: You play <AI_CHARACTER>. NEVER control <USER_CHARACTER>.
-2. SIMULATION: <FRACTAL_CONTEXT> defines laws of physics/atmosphere.
-3. CONSISTENCY: Adhere to <PERMANENT> traits.
-4. IMMERSION: DO NOT reference game mechanics (Entropy, Resonance, Velocity) in dialogue.
-</CORE_DIRECTIVES>
-
-<HIERARCHY_OF_TRUTH>
-1. <PRESENT> (Current State)
-2. <PERMANENT> (Immutable Traits)
-3. <PAST> (History Log)
-</HIERARCHY_OF_TRUTH>
-
-<FORMAT_PROTOCOL>
-${formatRules}
-</FORMAT_PROTOCOL>
-
-<COGNITIVE_PROTOCOL>
-You MUST start every response with a <think> block containing this exact 4-step logic:
-
-1. **VOLATILITY CHECK (Lag Compensation):**
-   - Review <DYNAMICS> (Base State).
-   - Analyze the User's *latest* input.
-   - *Query:* Does the latest input demand an immediate shift in Entropy/Resonance *before* the next Physics Update?
-   - *Decision:* Stick to Base State OR trigger Immediate Reaction.
-
-2. **INTENT DECODING:**
-   - What is the User trying to achieve? (Combat, Romance, Info, Lore).
-   - How does <AI_CHARACTER> feel about this intent?
-
-3. **DRAFTING & SANITIZATION:**
-   - *Internal Draft:* Formulate the response mentally.
-   - *Filter:* Does this draft contain "As an AI" or OOC mechanics? (If yes, DESTROY it).
-   - *Refinement:* Inject sensory details (Smell, Sound) defined in <FRACTAL_CONTEXT>.
-
-4. **FINAL OUTPUT GENERATION:**
-   - Produce the dialogue/action based on the refined draft, strictly adhering to <FORMAT_PROTOCOL>.
-</COGNITIVE_PROTOCOL>`;
+    const motifs = [
+      ...(Array.isArray(fractal.tags) ? fractal.tags : []),
+      ...(state.settings.motifs || []),
+    ];
+    return new NarrativeStrategy({
+      povStyle: state.settings.povStyle,
+      motifs: motifs,
+    });
   }
 
   async _resolveEntities(story) {
@@ -627,7 +486,7 @@ You MUST start every response with a <think> block containing this exact 4-step 
     const user = await entities.get("character", story.userId);
     let fractal = await entities.get("fractal", story.fractalId);
     if (!fractal) {
-      // Fallback removed as per clean slate, but ensuring it returns object if found
+      // Fallback removed
     }
 
     if (!ai || !user) {

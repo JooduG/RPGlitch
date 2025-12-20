@@ -1,4 +1,5 @@
 import { extractImageUrl, log } from "../../core/utils.js";
+import { VISUAL_PRESETS } from "../../data/visual-styles.js";
 
 /**
  * THE VISUAL MANAGER
@@ -86,29 +87,38 @@ export const VisualManager = {
 
     // 1. DEFINE STYLE PREFIX
     let stylePrefix = isFractal
-      ? "photorealistic, majestic environment, wide angle, 8k, highly detailed, atmospheric lighting"
-      : "photorealistic, cinematic shot, 8k, masterpiece, sharp focus, detailed skin texture, realistic lighting";
+      ? VISUAL_PRESETS.STYLES.FRACTAL
+      : VISUAL_PRESETS.STYLES.CHARACTER;
 
     // Messenger Mode Override (Characters Only)
     if (options.isMessenger && !isFractal) {
-      stylePrefix =
-        "photorealistic, low fidelity smartphone photo, imperfect textures, flash photography, candid shot, grainy, uploaded image";
+      stylePrefix = VISUAL_PRESETS.STYLES.MESSENGER;
 
       const promptLower = (extraContext || "").toLowerCase();
       if (promptLower.includes("selfie")) {
-        stylePrefix +=
-          ", POV holding phone, arm extended towards camera, front camera lens distortion";
+        stylePrefix += VISUAL_PRESETS.STYLES.SELFIE;
       }
       if (promptLower.includes("mirror")) {
-        stylePrefix +=
-          ", reflection in dirty mirror, holding smartphone, flash flare";
+        stylePrefix += VISUAL_PRESETS.STYLES.MIRROR;
       }
     } else {
       // Standard styles
       if (stylePreference === "anime")
-        stylePrefix = "anime style, key visual, vibrant";
-      if (stylePreference === "oil")
-        stylePrefix = "oil painting, textured, heavy strokes";
+        stylePrefix = VISUAL_PRESETS.STYLES.ANIME;
+      if (stylePreference === "oil") stylePrefix = VISUAL_PRESETS.STYLES.OIL;
+    }
+
+    // Inject Lens (Prepend)
+    if (options.lens && VISUAL_PRESETS.LENSES[options.lens]) {
+      stylePrefix = `${VISUAL_PRESETS.LENSES[options.lens]}, ${stylePrefix}`;
+    } else if (VISUAL_PRESETS.LENSES.DEFAULT) {
+      // Optional: enforce default lens?
+      // stylePrefix = `${VISUAL_PRESETS.LENSES.DEFAULT}, ${stylePrefix}`;
+    }
+
+    // Inject Texture (Append)
+    if (options.texture && VISUAL_PRESETS.TEXTURES[options.texture]) {
+      stylePrefix += `, ${VISUAL_PRESETS.TEXTURES[options.texture]}`;
     }
 
     // 2. EXTRACT VISUAL ANCHOR

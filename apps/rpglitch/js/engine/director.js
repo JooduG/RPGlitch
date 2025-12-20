@@ -1,6 +1,6 @@
 import { db } from "../core/db.js";
 import { state, applyPatch } from "../core/state.js";
-import { generateStream } from "./llm.js";
+import { LlmService } from "../services/llm-service.js"; // [NEW]
 import { entities } from "../data/repo.js";
 
 import { error, calculateBlendedParams, log } from "../core/utils.js";
@@ -113,108 +113,120 @@ export const TurnManager = {
     );
   },
 
-  generateAiResponse: async (storyId, options = {}) => {
-    options = options || {};
+  // --- THE CORE PIPELINE ---
+
+  /**
+   * Centralized Turn Execution Method
+   * Encapsulates the entire lifecycle: Signal -> Generate -> Parse -> Save -> Visuals -> Physics.
+   */
+  _executeTurn: async (storyId, payload, options = {}) => {
+    // defaults
+    const mode = options.mode || "create"; // 'create' | 'append'
+    const appendTargetId = options.appendTargetId || null;
+
     const story = state.story.byId[storyId];
-    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
+
+    // 1. SIGNAL: Typing Started
+    // For append mode, we might still want to show typing? Yes.
+    // For extend, we use the character ID.
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.TYPING_STARTED, {
+        detail: { role: "ai", characterId: story.aiId },
+      }),
+    );
+
+    const ctrl = new AbortController();
+    applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
+
+    // Calculates generation parameters based on Entity Blending
+    // Note: This logic was in generateAiResponse.
+    // We assume payload.params covers the basics, but we might want to override with blended params.
+    // Let's do blending if options says so, or always?
+    // Original code did blending in `generateAiResponse`.
+    const [aiEntity, userEntity, fractalEntity] = await Promise.all([
+      entities.get("character", story.aiId),
+      entities.get("character", story.userId),
+      entities.get("fractal", story.fractalId),
+    ]);
+
+    const genOptions = calculateBlendedParams(
+      aiEntity,
+      userEntity,
+      fractalEntity,
+    );
+    // Explicit overrides from payload/logic take precedence? No, blended params are usually desired.
+    // But LlmService priority: options > payload.params.
+    // So we pass blended params as options to LlmService.
+    const llmOptions = {
+      ...genOptions,
+      signal: ctrl.signal,
+      onToken: () =>
+        events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)), // Stop flicker
+    };
+
+    log(
+      `[PROMETHEUS] Vibe Check: Temp ${genOptions.temperature} | Speed ${genOptions.repetition_penalty}`,
+    );
 
     try {
-      events.dispatchEvent(
-        new CustomEvent(EVENTS.TYPING_STARTED, {
-          detail: { role: "ai", characterId: story.aiId },
-        }),
-      );
-
-      const builder = new ContextBuilder(storyId);
-      const payload = await builder.build();
-
-      // Inject Instruction if provided
-      if (options.instruction) {
-        payload.system += `\n\n${options.instruction}`;
-      }
-
-      const payloadMeta = payload.meta;
-
-      const ctrl = new AbortController();
-      applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
-
-      const [aiEntity, userEntity, fractalEntity] = await Promise.all([
-        entities.get("character", story.aiId),
-        entities.get("character", story.userId),
-        entities.get("fractal", story.fractalId),
-      ]);
-
-      const genOptions = calculateBlendedParams(
-        aiEntity,
-        userEntity,
-        fractalEntity,
-      );
-      log(
-        `[PROMETHEUS] Vibe Check: Temp ${genOptions.temperature} | Speed ${genOptions.repetition_penalty} | Focus ${genOptions.top_p}`,
-      );
-
-      let response;
-      try {
-        response = await generateStream({
-          payload,
-          options: genOptions,
-          signal: ctrl.signal,
-          onToken: () =>
-            events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
-        });
-      } catch (streamErr) {
-        if (streamErr.name === "AbortError") throw streamErr;
-        console.error("[TURN] Network/Gen Error:", streamErr);
-        window.dispatchEvent(
-          new CustomEvent("app-error", {
-            detail: { error: streamErr, type: "network" },
-          }),
-        );
-        throw streamErr;
-      }
+      // 2. GENERATE
+      const response = await LlmService.generate(payload, llmOptions);
 
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
 
-      // --- ATTACHMENT PIPELINE ---
+      // 3. PARSE
       let finalResponseText = response;
       let visualPrompt = null;
+      let targetType = "ai"; // default
 
-      // 1. Detect Tag (Supported: <image_prompt target="USER">...)
       // Regex captures: [1] = target (optional), [2] = prompt content
       const visualMatch = response.match(
         /<image_prompt(?:\s+target="([^"]+)")?>(.*?)<\/image_prompt>/i,
       );
 
-      let targetType = "ai"; // Default
-
       if (visualMatch) {
         if (visualMatch[1]) targetType = visualMatch[1].toLowerCase();
         visualPrompt = visualMatch[2].trim();
 
-        // 2. Clean Text (If NOT Developer Mode)
+        // Clean Text (If NOT Developer Mode)
         if (!state.settings.developerMode) {
           finalResponseText = response.replace(visualMatch[0], "").trim();
         }
       }
 
+      // 4. SAVE
+      let aiMsgId;
       const aiChar = await entities.get("character", story.aiId);
-      const userChar = await entities.get("character", story.userId);
-      const fractal = await entities.get("fractal", story.fractalId);
 
-      // 3. Save Message (Cleaned)
-      const aiMsgId = await db.messages.add({
-        storyId,
-        role: "ai",
-        type: "IC",
-        text: finalResponseText,
-        characterName: aiChar?.name || "Narrator",
-        createdAt: Date.now(),
-        attachmentUrl: null, // Placeholder
-      });
+      if (mode === "append" && appendTargetId) {
+        // Append Logic
+        const originalMsg = await db.messages.get(appendTargetId);
+        if (!originalMsg) throw new Error("Cannot append: Message not found");
 
-      // 4. Generate & Attach (Async, post-save)
+        // We append the new text (already parsed/cleaned)
+        const fullText = originalMsg.text + " " + finalResponseText;
+        await db.messages.update(appendTargetId, { text: fullText });
+        aiMsgId = appendTargetId;
+
+        // Note: If visual prompt detected during append, it updates/overwrites attachment
+        if (visualPrompt) {
+          // We schedule it for the Visual Step
+        }
+      } else {
+        // Create Logic
+        aiMsgId = await db.messages.add({
+          storyId,
+          role: "ai",
+          type: "IC",
+          text: finalResponseText,
+          characterName: aiChar?.name || "Narrator",
+          createdAt: Date.now(),
+          attachmentUrl: null, // Placeholder
+        });
+      }
+
+      // 5. VISUALS
       if (visualPrompt) {
-        // [UX] Show busy indicator for visual generation
         events.dispatchEvent(
           new CustomEvent(EVENTS.TYPING_STARTED, {
             detail: { role: "ai", characterId: story.aiId },
@@ -225,13 +237,11 @@ export const TurnManager = {
           `[PROMETHEUS] Detected Visual Prompt: ${visualPrompt} (Target: ${targetType})`,
         );
 
-        // Determine Entity
         let targetEntity = aiChar;
-        if (targetType === "user") targetEntity = userChar;
-        if (targetType === "fractal") targetEntity = fractal;
+        if (targetType === "user") targetEntity = userEntity;
+        if (targetType === "fractal") targetEntity = fractalEntity;
 
         try {
-          // A. Compose Flux Prompt (Messenger Style)
           const fluxPrompt = await VisualManager.composePrompt(
             targetEntity,
             "photorealistic",
@@ -239,30 +249,23 @@ export const TurnManager = {
             { isMessenger: true },
           );
 
-          // B. Generate Image
           const imageUrl = await VisualManager.generate(fluxPrompt, {
             resolution: IMG_RESOLUTION,
           });
 
-          // C. Update DB
           await db.messages.update(aiMsgId, {
             attachmentUrl: imageUrl,
             metadata: { visualPrompt, targetType },
           });
         } catch (visErr) {
           console.error("[PROMETHEUS] Auto-Visual Failed:", visErr);
-          // We fail silently on the image, the text is already saved.
         } finally {
           events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
         }
       }
 
-      await TurnManager.loadMessages(storyId);
-      events.dispatchEvent(
-        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
-      );
-      applyPatch({ ui: { fsm: "done" } });
-
+      // 6. PHYSICS
+      const payloadMeta = payload.meta;
       if (payloadMeta && payloadMeta.triggerUpdate) {
         TurnManager.runBackgroundUpdate(
           storyId,
@@ -270,16 +273,46 @@ export const TurnManager = {
           aiMsgId,
         );
       }
+
+      // Finish Up
+      await TurnManager.loadMessages(storyId);
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+      );
+      applyPatch({ ui: { fsm: "done" } });
     } catch (e) {
-      error("AI Gen Error", e);
+      if (e.name === "AbortError") throw e;
+      error("Execution Error", e);
       window.dispatchEvent(
         new CustomEvent("app-error", {
           detail: { error: e, type: "generation" },
         }),
       );
-
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
+      applyPatch({ ui: { fsm: "error" } }); // Should we set error state?
     } finally {
+      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
+    }
+  },
+
+  // --- PUBLIC METHODS REFACTORED ---
+
+  generateAiResponse: async (storyId, options = {}) => {
+    options = options || {};
+    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
+
+    try {
+      const builder = new ContextBuilder(storyId);
+      const payload = await builder.build();
+
+      // Inject Instruction if provided
+      if (options.instruction) {
+        payload.system += `\n\n${options.instruction}`;
+      }
+
+      await TurnManager._executeTurn(storyId, payload, { mode: "create" });
+    } catch (e) {
+      error("Context Build Error", e);
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
@@ -287,10 +320,10 @@ export const TurnManager = {
   send: async (text) => {
     if (!text) return;
     const storyId = TurnManager.requireActive();
-    const story = state.story.byId[storyId];
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
+    // Save User Msg
     try {
       await db.messages.add({
         storyId,
@@ -305,71 +338,19 @@ export const TurnManager = {
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
       );
 
-      events.dispatchEvent(
-        new CustomEvent(EVENTS.TYPING_STARTED, {
-          detail: { role: "ai", characterId: story.aiId },
-        }),
-      );
-
+      // Build & Execute
       const builder = new ContextBuilder(storyId);
       const payload = await builder.build();
-      const payloadMeta = payload.meta;
 
-      const ctrl = new AbortController();
-      applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
-
-      const response = await generateStream({
-        payload,
-        signal: ctrl.signal,
-        onToken: () =>
-          events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
-      });
-
-      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
-
-      const aiChar = await entities.get("character", story.aiId);
-      const aiMsgId = await db.messages.add({
-        storyId,
-        role: "ai",
-        type: "IC",
-        text: response,
-        characterName: aiChar?.name || "Narrator",
-        createdAt: Date.now(),
-      });
-
-      await TurnManager.loadMessages(storyId);
-      events.dispatchEvent(
-        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
-      );
-      applyPatch({ ui: { fsm: "done" } });
-
-      if (payloadMeta && payloadMeta.triggerUpdate) {
-        log(`[PROMETHEUS] Running Physics... (Background)`);
-        TurnManager.runBackgroundUpdate(
-          storyId,
-          payloadMeta.updateTarget,
-          aiMsgId,
-        );
-      }
+      await TurnManager._executeTurn(storyId, payload, { mode: "create" });
     } catch (e) {
-      error("AI Error", e);
-      applyPatch({ ui: { fsm: "error", lastError: e.message } });
-      window.dispatchEvent(
-        new CustomEvent("app-error", {
-          detail: { error: e, type: "generation" },
-        }),
-      );
-
-      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
-    } finally {
+      error("Send Error", e);
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
 
   regenerate: async (manualInstruction = null) => {
     const storyId = TurnManager.requireActive();
-    const story = state.story.byId[storyId];
-
     const msgs = state.messages.byStoryId[storyId] || [];
     if (msgs.length === 0) return;
 
@@ -389,7 +370,7 @@ export const TurnManager = {
     let directorNote;
     if (manualInstruction === "VANILLA") {
       log(`[PROMETHEUS] Regenerating with VANILLA strategy (No Variance).`);
-      directorNote = null; // Strictly null to skip variance injection in builder
+      directorNote = null;
     } else if (manualInstruction) {
       log(
         `[PROMETHEUS] Regenerating with Manual Instruction: ${manualInstruction}`,
@@ -403,71 +384,20 @@ export const TurnManager = {
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
+    // Delete Last Msg
     await db.messages.delete(lastMsg.id);
-
     await TurnManager.loadMessages(storyId);
     events.dispatchEvent(
       new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
-    );
-
-    events.dispatchEvent(
-      new CustomEvent(EVENTS.TYPING_STARTED, {
-        detail: { role: "ai", characterId: story.aiId },
-      }),
     );
 
     try {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildWithVariance(directorNote);
 
-      const ctrl = new AbortController();
-      applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
-
-      let response;
-      try {
-        response = await generateStream({
-          payload,
-          signal: ctrl.signal,
-          onToken: () =>
-            events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
-        });
-      } catch (streamErr) {
-        if (streamErr.name === "AbortError") throw streamErr;
-        console.error("[TURN] Regen Network Error:", streamErr);
-        window.dispatchEvent(
-          new CustomEvent("app-error", {
-            detail: { error: streamErr, type: "network" },
-          }),
-        );
-        throw streamErr;
-      }
-      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
-
-      const aiChar = await entities.get("character", story.aiId);
-
-      await db.messages.add({
-        storyId,
-        role: "ai",
-        type: "IC",
-        text: response,
-        characterName: aiChar?.name || "Narrator",
-        createdAt: Date.now(),
-      });
-
-      await TurnManager.loadMessages(storyId);
-      events.dispatchEvent(
-        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
-      );
-      applyPatch({ ui: { fsm: "done" } });
+      await TurnManager._executeTurn(storyId, payload, { mode: "create" });
     } catch (e) {
-      error("Regen Error", e);
-      window.dispatchEvent(
-        new CustomEvent("app-error", {
-          detail: { error: e, type: "generation" },
-        }),
-      );
-      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
-    } finally {
+      error("Regen Setup Error", e);
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
@@ -478,21 +408,12 @@ export const TurnManager = {
     if (msgs.length === 0) return;
 
     const lastMsg = msgs[msgs.length - 1];
-
     if (lastMsg.role !== "ai" && lastMsg.role !== "narrator") {
       console.warn("Cannot extend non-AI message.");
       return;
     }
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
-    events.dispatchEvent(
-      new CustomEvent(EVENTS.TYPING_STARTED, {
-        detail: {
-          role: lastMsg.role,
-          characterId: state.story.byId[storyId].aiId,
-        },
-      }),
-    );
 
     try {
       const builder = new ContextBuilder(storyId);
@@ -501,35 +422,12 @@ export const TurnManager = {
       payload.system +=
         "\n\n[SYSTEM: CONTINUATION_PROTOCOL]\nContinue the narrative immediately from the last sentence. Do not repeat text. Do not generate a <think> block. Just write the next paragraph.";
 
-      const ctrl = new AbortController();
-      applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
-
-      const newTextPart = await generateStream({
-        payload,
-        signal: ctrl.signal,
-        onToken: () =>
-          events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
+      await TurnManager._executeTurn(storyId, payload, {
+        mode: "append",
+        appendTargetId: lastMsg.id,
       });
-
-      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
-
-      const fullText = lastMsg.text + " " + newTextPart;
-      await db.messages.update(lastMsg.id, { text: fullText });
-
-      await TurnManager.loadMessages(storyId);
-      events.dispatchEvent(
-        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
-      );
-      applyPatch({ ui: { fsm: "done" } });
     } catch (e) {
       error("Extend Error", e);
-      window.dispatchEvent(
-        new CustomEvent("app-error", {
-          detail: { error: e, type: "generation" },
-        }),
-      );
-      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
-    } finally {
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
   },
@@ -553,24 +451,21 @@ export const TurnManager = {
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildOpening();
 
-      // Handling for Null Payload (Text Protocol / Messenger)
       if (!payload) {
         log("[RPGlitch] No narrator opening. Triggering AI First Message.");
         events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
-        // DO NOT UNLOCK YET.
-        // Immediately trigger the AI character to write the first text.
         await TurnManager.generateAiResponse(storyId);
         return;
       }
 
       log("[RPGlitch] Opening Prompt:", payload.system);
 
-      const response = await generateStream({
-        payload,
-        signal: null,
+      // Using LlmService directly here as parsing rules differ for Narrator OOC
+      const response = await LlmService.generate(payload, {
         onToken: () =>
           events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
       });
+
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
 
       await db.messages.add({
@@ -610,9 +505,8 @@ export const TurnManager = {
     try {
       // 1. Generate Epilogue
       const builder = new ContextBuilder(storyId);
-      const payload = await builder.build(); // Standard build to get context
+      const payload = await builder.build();
 
-      // Override System for Epilogue
       payload.system += `\n\n[SYSTEM: NARRATIVE_CONCLUSION_PROTOCOL]
 <DIRECTIVE>
 The user has decided to end the story.
@@ -622,8 +516,7 @@ Do not ask for further input.
 Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
 </DIRECTIVE>`;
 
-      const response = await generateStream({
-        payload,
+      const response = await LlmService.generate(payload, {
         onToken: () =>
           events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
       });
@@ -632,7 +525,7 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
       await db.messages.add({
         storyId,
         role: "narrator",
-        type: "OOC", // Distinct styling
+        type: "OOC",
         text: response,
         createdAt: Date.now(),
         isEpilogue: true,
@@ -656,14 +549,12 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
         },
       });
 
-      // [FIX] Update Local State so UI knows it is concluded
       const updatedStory = await db.stories.get(storyId);
       applyPatch({ story: { byId: { [storyId]: updatedStory } } });
 
       // 4. Refresh UI
       await TurnManager.loadMessages(storyId);
 
-      // Explicitly trigger renderChat to catch the new state
       const { renderChat } = await import("../ui/components/chat/feed.js");
       await renderChat(storyId);
     } catch (e) {
@@ -686,10 +577,8 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
       const builder = new ContextBuilder(storyId);
       const payload = await builder.buildGhostwriter(draftText);
 
-      const response = await generateStream({
-        payload,
-        onChunk: () => {},
-      });
+      // Using LlmService directly
+      const response = await LlmService.generate(payload, {});
 
       return response.trim().replace(/^"|"$/g, "");
     } catch (e) {
@@ -753,11 +642,10 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
-    // [UI] Set specific reroll state for visual feedback
     if (window.setRerollState) window.setRerollState(messageId, true);
     events.dispatchEvent(
       new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
-    ); // Trigger re-render to show blur/spinner
+    );
 
     try {
       const { visualPrompt, targetType } = message.metadata;
@@ -786,7 +674,6 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
 
       await db.messages.update(messageId, { attachmentUrl: imageUrl });
 
-      // Clear reroll state before final render
       if (window.setRerollState) window.setRerollState(messageId, false);
 
       await TurnManager.loadMessages(storyId);
@@ -803,7 +690,7 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
       if (window.setRerollState) window.setRerollState(messageId, false);
       events.dispatchEvent(
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
-      ); // Re-render to remove busy state on error
+      );
     } finally {
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
@@ -812,7 +699,6 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
   requestVisual: async () => {
     const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
-    // Fetch entity to verify mode
     const fractal = story
       ? await entities.get("fractal", story.fractalId)
       : null;
@@ -836,7 +722,6 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
       return;
     }
 
-    // [UX] Insert Generic User Message
     const prompts = [
       "Send me a pic!",
       "Show me.",
@@ -859,9 +744,6 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
       new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
     );
 
-    // [LOGIC] Dynamic Permeability Check
-    // For now we assume the engine handles the "willingness" via personality,
-    // but we inject the constraint that they MUST send one.
     const instruction = `
 <DIRECTOR_OVERRIDE>
 ACTION: Send a photo now.
@@ -873,8 +755,6 @@ EXAMPLE: "Here it is! <image_prompt target="AI">Selfie in the mirror, holding ph
     await TurnManager.generateAiResponse(storyId, { instruction });
   },
 };
-
-// End of Director
 
 events.addEventListener(EVENTS.DB_UPDATED, async () => {
   const activeId = state.story.activeId;

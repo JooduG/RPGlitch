@@ -1,4 +1,5 @@
 import { events, EVENTS } from "../../core/events.js";
+import { LlmService } from "../../services/llm-service.js";
 
 /**
  * WorkerBridge
@@ -81,63 +82,12 @@ export class WorkerBridge {
   }
 
   async handleLlmProxy(payload, meta) {
-    if (!window.ai) {
-      console.error("[WorkerBridge] window.ai unavailable for proxy request.");
-      this.worker.postMessage({
-        type: "CMD_LLM_RESPONSE",
-        payload: { text: "", error: "No AI Plugin" },
-        meta,
-      });
-      return;
-    }
-
     try {
-      // Reconstruct the instruction from the payload (copied logic from llm-adapter)
-      // Note: worker sent us the 'payload' object from ContextBuilder
-
-      const chatHistory = (payload.messages || [])
-        .map((m) => {
-          const label =
-            m.role === "user" ? "User" : m.characterName || "Character";
-          return `${label}: ${m.text}`;
-        })
-        .join("\n\n");
-
-      const instruction = [
-        payload.system,
-        chatHistory ? `\n[CONVERSATION HISTORY]\n${chatHistory}` : "",
-        payload.startWith ? `\n${payload.startWith}` : "",
-      ]
-        .filter(Boolean)
-        .join("\n");
-
-      // Execute on Main Thread
-      // [FIX] Background updates should be silent if they time out (Physics Engine)
-      const result = await window.ai(instruction, {
-        temperature: payload.params?.temperature,
-        top_p: payload.params?.top_p,
-        max_tokens: payload.params?.maxTokens,
-        model: payload.params?.model,
-        stop_sequences: payload.stopSequences || [],
-        silent: true, // [NEW] Tell the plugin wrapper (llm-adapter if used, but here we call window.ai directly?)
+      // Use LlmService for consistent generation logic
+      const result = await LlmService.generate(payload, {
+        silent: true, // Suppress alerts for background tasks
       });
 
-      // WAIT! WorkerBridge calls window.ai DIRECTLY, bypassing llm-adapter.
-      // So modifying llm-adapter didn't fix the WorkerBridge path!
-      // But look at line 102: `await window.ai(...)`.
-      // The `window.ai` provided by the plugin might not support 'silent'.
-      //
-      // However, the error we are seeing (`Stream keep alive timeout`) comes from the PLUGIN itself throwing.
-      // And where is that caught?
-      // It's caught in `WorkerBridge.handleLlmProxy` catch block at line 116.
-      //
-      // So I need to modify `handleLlmProxy` catch block to NOT alert!
-      // The `llm-adapter.js` modification helps `TurnManager.generateAiResponse` (foreground).
-      // But `WorkerBridge` has its separate error handling.
-
-      // Let's modify the catch block in WorkerBridge instead of passing 'silent' to window.ai (which ignores it).
-
-      // Send back to Worker
       this.worker.postMessage({
         type: "CMD_LLM_RESPONSE",
         payload: { text: result },
