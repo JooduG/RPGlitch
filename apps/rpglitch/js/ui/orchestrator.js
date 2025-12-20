@@ -109,8 +109,8 @@ const errorModalHtml = `
         <p id="error-msg">A connection error occurred.</p>
       </div>
       <footer>
-        <button id="btn-err-retry" class="secondary">Retry</button>
-        <button id="btn-err-note" class="contrast">Retry with Note</button>
+        <button id="btn-err-retry-vanilla" class="secondary">Retry (Vanilla)</button>
+        <button id="btn-err-retry-spicy" class="contrast">Retry (Spicy)</button>
       </footer>
     </article>
   </dialog>
@@ -130,31 +130,21 @@ export function showErrorModal(errorType, message = "Something went wrong.") {
     msgEl.textContent = message;
   }
 
-  modal.querySelector("#btn-err-retry").onclick = async () => {
+  // VANILLA RETRY: Just try again, no fancy changes.
+  modal.querySelector("#btn-err-retry-vanilla").onclick = async () => {
     modal.remove();
     const { TurnManager } = await import("../engine/director.js");
     if (typeof TurnManager.regenerate === "function") {
-      TurnManager.regenerate();
+      TurnManager.regenerate("VANILLA");
     }
   };
 
-  modal.querySelector("#btn-err-note").onclick = async () => {
-    // [HARMONIZATION] Use custom prompt instead of native
-    try {
-      const note = await showPrompt(
-        "Variance Note",
-        "Enter a variance note for the AI (e.g. 'More action'):",
-      );
-      if (note) {
-        modal.remove();
-        const { TurnManager } = await import("../engine/director.js");
-        if (typeof TurnManager.regenerate === "function") {
-          // Ideally propagate note here, but for now just regen per existing logic
-          TurnManager.regenerate();
-        }
-      }
-    } catch (e) {
-      // Cancelled
+  // SPICY RETRY: Use the standard variance system to "shake it loose".
+  modal.querySelector("#btn-err-retry-spicy").onclick = async () => {
+    modal.remove();
+    const { TurnManager } = await import("../engine/director.js");
+    if (typeof TurnManager.regenerate === "function") {
+      TurnManager.regenerate(); // Default behavior (Variance)
     }
   };
 

@@ -819,3 +819,16 @@
   text-transform: uppercase;
   font-size: 0.8rem;
 }
+
+// Hide Director/Debug content by default
+.director-content {
+  display: none;
+}
+
+// When Developer Mode is Active (Class on Body), reveal it
+body.developer-mode {
+  .director-content {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+}

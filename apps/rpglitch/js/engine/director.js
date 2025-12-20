@@ -366,7 +366,7 @@ export const TurnManager = {
     }
   },
 
-  regenerate: async () => {
+  regenerate: async (manualInstruction = null) => {
     const storyId = TurnManager.requireActive();
     const story = state.story.byId[storyId];
 
@@ -386,10 +386,20 @@ export const TurnManager = {
       .find((m) => m.role === "user");
     const userText = lastUserMsg ? lastUserMsg.text : "";
 
-    const varianceKey = analyzeRejection(lastMsg.text, userText);
-    const directorNote = getDirectorInstruction(varianceKey);
-
-    log(`[PROMETHEUS] Regenerating with strategy: ${varianceKey}`);
+    let directorNote;
+    if (manualInstruction === "VANILLA") {
+      log(`[PROMETHEUS] Regenerating with VANILLA strategy (No Variance).`);
+      directorNote = null; // Strictly null to skip variance injection in builder
+    } else if (manualInstruction) {
+      log(
+        `[PROMETHEUS] Regenerating with Manual Instruction: ${manualInstruction}`,
+      );
+      directorNote = `[SYSTEM: DIRECTOR_OVERRIDE]\nDirective: ${manualInstruction}`;
+    } else {
+      const varianceKey = analyzeRejection(lastMsg.text, userText);
+      directorNote = getDirectorInstruction(varianceKey);
+      log(`[PROMETHEUS] Regenerating with strategy: ${varianceKey}`);
+    }
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
 
@@ -451,6 +461,68 @@ export const TurnManager = {
       applyPatch({ ui: { fsm: "done" } });
     } catch (e) {
       error("Regen Error", e);
+      window.dispatchEvent(
+        new CustomEvent("app-error", {
+          detail: { error: e, type: "generation" },
+        }),
+      );
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
+    } finally {
+      events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
+    }
+  },
+
+  extendAiResponse: async () => {
+    const storyId = TurnManager.requireActive();
+    const msgs = state.messages.byStoryId[storyId] || [];
+    if (msgs.length === 0) return;
+
+    const lastMsg = msgs[msgs.length - 1];
+
+    if (lastMsg.role !== "ai" && lastMsg.role !== "narrator") {
+      console.warn("Cannot extend non-AI message.");
+      return;
+    }
+
+    events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.TYPING_STARTED, {
+        detail: {
+          role: lastMsg.role,
+          characterId: state.story.byId[storyId].aiId,
+        },
+      }),
+    );
+
+    try {
+      const builder = new ContextBuilder(storyId);
+      const payload = await builder.build();
+
+      payload.system +=
+        "\n\n[SYSTEM: CONTINUATION_PROTOCOL]\nContinue the narrative immediately from the last sentence. Do not repeat text. Do not generate a <think> block. Just write the next paragraph.";
+
+      const ctrl = new AbortController();
+      applyPatch({ ui: { fsm: "sending", abortController: ctrl } });
+
+      const newTextPart = await generateStream({
+        payload,
+        signal: ctrl.signal,
+        onToken: () =>
+          events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED)),
+      });
+
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
+
+      const fullText = lastMsg.text + " " + newTextPart;
+      await db.messages.update(lastMsg.id, { text: fullText });
+
+      await TurnManager.loadMessages(storyId);
+      events.dispatchEvent(
+        new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
+      );
+      applyPatch({ ui: { fsm: "done" } });
+    } catch (e) {
+      error("Extend Error", e);
       window.dispatchEvent(
         new CustomEvent("app-error", {
           detail: { error: e, type: "generation" },

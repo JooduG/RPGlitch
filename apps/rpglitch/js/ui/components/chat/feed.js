@@ -3,11 +3,7 @@ import { entities } from "../../../data/repo.js";
 import { VirtualFeed } from "./virtual-feed.js";
 import { events, EVENTS } from "../../../core/events.js";
 import { renderMessage } from "./bubble.js"; // Circular safe
-import {
-  updateDeveloperModeClass,
-  updatePortraits,
-  applyFractalAmbience,
-} from "../../image-gen-ui.js";
+import { updatePortraits, applyFractalAmbience } from "../../image-gen-ui.js";
 
 // --- STATE ---
 export const selectedEntities = {
@@ -118,8 +114,12 @@ export async function renderChat(storyId) {
   const feed = document.querySelector("#chat-feed");
   if (!feed) return;
 
-  // [FIX] Ensure Developer Mode class is updated on every render/state change
-  updateDeveloperModeClass();
+  // [FIX] Enforce Developer Mode class on Body based on settings
+  if (state.settings && state.settings.developerMode) {
+    document.body.classList.add("developer-mode");
+  } else {
+    document.body.classList.remove("developer-mode");
+  }
 
   if (!virtualFeed) {
     virtualFeed = new VirtualFeed(feed, (container, message, index) => {

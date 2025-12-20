@@ -263,11 +263,35 @@ export function renderMessage(
 
     // [TEXT ACTIONS]
     if (role === "ai" && options.isLast) {
+      const btnContinue = createIconBtn(
+        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>`,
+        "Continue",
+        () => {
+          if (TurnManager) TurnManager.extendAiResponse();
+        },
+      );
+      actionsDiv.appendChild(btnContinue);
+
       const btnReroll = createIconBtn(
         `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`,
         "Reroll Message",
-        () => {
-          if (TurnManager) TurnManager.regenerate();
+        async () => {
+          if (!TurnManager) return;
+          try {
+            const { showPrompt } = await import("../../orchestrator.js");
+            const note = await showPrompt(
+              "Reroll Instruction",
+              "Enter a note for the Director (optional):",
+              "",
+            );
+            // If note is null, user cancelled. If empty string, it's a standard reroll.
+            if (note !== null) {
+              TurnManager.regenerate(note);
+            }
+          } catch (e) {
+            // Cancelled or import error
+            if (e) console.warn("[UI] Reroll cancelled:", e);
+          }
         },
       );
       actionsDiv.appendChild(btnReroll);
