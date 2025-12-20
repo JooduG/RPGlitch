@@ -30,16 +30,9 @@
 _Critical features and power tools to complete the product experience._
 **Legend:** `S`=Small, `M`=Medium, `L`=Large, `XL`=Epic
 
-| Item                         | Category   | Impact | Effort | Dependencies | Notes                                                                                       |
-| :--------------------------- | :--------- | :----- | :----- | :----------- | :------------------------------------------------------------------------------------------ |
-| **Writer's Block Rescue**    | [UX]       | M      | S      | `Modal`      | Compact "Engine Stalled" alert. Options: "Retry" (Reroll) or "Director's Note" (Variance).  |
-| **Plot Thread Tracker**      | [Data]     | M      | S      | `DB`         | Add `customData.plot` (`active`, `resolved`) to schema. Hidden from UI for now.             |
-| **Extend Message**           | [Logic]    | M      | S      | `Engine`     | "Continue": Force the AI to append text to its last message (generating a longer response). |
-| **Integrated Director Mode** | [DevTools] | L      | M      | `UI`         | Unified toggle: Unhide `<think>`, reveal `<image_prompt>`, view raw JSON.                   |
-| **State Editor**             | [Tool]     | L      | M      | `DB`         | Manually edit the `<PRESENT>`, `<FUTURE>`, or `<DYNAMICS>` text of any entity mid-story.    |
-| **Snapshot Diffing**         | [Tool]     | M      | M      | `Delta`      | "What Changed?" view showing the text delta between Turn N and N-1.                         |
-| **Context Inspector**        | [Tool]     | M      | S      | `Prompter`   | View the _exact_ raw prompt text sent to the LLM (crucial for debugging leaks).             |
-| **"Bad Detective"**          | [Tool]     | M      | M      | `Logic`      | Analyze last 5 turns to highlight prompt conflicts or logic loops.                          |
+| Item                    | Category | Impact | Effort | Dependencies | Notes                                                                           |
+| :---------------------- | :------- | :----- | :----- | :----------- | :------------------------------------------------------------------------------ |
+| **Plot Thread Tracker** | [Data]   | M      | S      | `DB`         | Add `customData.plot` (`active`, `resolved`) to schema. Hidden from UI for now. |
 
 ---
 
@@ -47,20 +40,23 @@ _Critical features and power tools to complete the product experience._
 
 **Status:** The "Technical Hardening" epoch is complete.
 
-| Item                         | Category   | Status      | Notes                                    |
-| :--------------------------- | :--------- | :---------- | :--------------------------------------- |
-| **Profile Picture Wiring**   | [Bugfix]   | ✅ COMPLETE | Restored portrait click functionality.   |
-| **Visualize Architecture**   | [Docs]     | ✅ COMPLETE | Data flow diagrams added to `README.md`. |
-| **Enhance Type Safety**      | [DX]       | ✅ COMPLETE | `types.d.ts` created.                    |
-| **Configurable Physics**     | [Refactor] | ✅ COMPLETE | `config-physics.js` implemented.         |
-| **Offload Logic to Workers** | [Perf]     | ✅ COMPLETE | `worker.js` implemented.                 |
-| **Formalize Event Bus**      | [Refactor] | ✅ COMPLETE | `events.js` created.                     |
-| **Virtual Scrolling**        | [UI/Perf]  | ✅ COMPLETE | `VirtualFeed` implemented.               |
-| **Terminology Standard**     | [Refactor] | ✅ COMPLETE | "World" -> "Fractal" migration.          |
-| **SVG Icon System**          | [UI/UX]    | ✅ COMPLETE | Replaced hardcoded emojis.               |
-| **Narcissism Engine**        | [AI Logic] | ✅ COMPLETE | Self-expression logic in `prompter.js`.  |
-| **Automate Hygiene**         | [DevOps]   | ✅ COMPLETE | `tools/ops/hygiene.js` created.          |
-| **Confirm Modal Polish**     | [UI]       | ✅ COMPLETE | Refined styling & moved inline CSS.      |
+| Item                         | Category   | Status      | Notes                                              |
+| :--------------------------- | :--------- | :---------- | :------------------------------------------------- |
+| **Profile Picture Wiring**   | [Bugfix]   | ✅ COMPLETE | Restored portrait click functionality.             |
+| **Visualize Architecture**   | [Docs]     | ✅ COMPLETE | Data flow diagrams added to `README.md`.           |
+| **Enhance Type Safety**      | [DX]       | ✅ COMPLETE | `types.d.ts` created.                              |
+| **Configurable Physics**     | [Refactor] | ✅ COMPLETE | `config-physics.js` implemented.                   |
+| **Offload Logic to Workers** | [Perf]     | ✅ COMPLETE | `worker.js` implemented.                           |
+| **Formalize Event Bus**      | [Refactor] | ✅ COMPLETE | `events.js` created.                               |
+| **Virtual Scrolling**        | [UI/Perf]  | ✅ COMPLETE | `VirtualFeed` implemented.                         |
+| **Terminology Standard**     | [Refactor] | ✅ COMPLETE | "World" -> "Fractal" migration.                    |
+| **SVG Icon System**          | [UI/UX]    | ✅ COMPLETE | Replaced hardcoded emojis.                         |
+| **Narcissism Engine**        | [AI Logic] | ✅ COMPLETE | Self-expression logic in `prompter.js`.            |
+| **Automate Hygiene**         | [DevOps]   | ✅ COMPLETE | `tools/ops/hygiene.js` created.                    |
+| **Confirm Modal Polish**     | [UI]       | ✅ COMPLETE | Refined styling & moved inline CSS.                |
+| **Integrated Director Mode** | [DevTools] | ✅ COMPLETE | Toggle added to sidebar. Shows `<think>` blocks.   |
+| **Writer's Block Rescue**    | [UX]       | ✅ COMPLETE | Error Monitor: Vanilla/Spicy retry actions.        |
+| **Extend Message**           | [Logic]    | ✅ COMPLETE | `extendAiResponse` implemented with "Continue" UI. |
 
 ---
 

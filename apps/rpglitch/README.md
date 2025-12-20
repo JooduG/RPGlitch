@@ -99,6 +99,8 @@ RPGlitch supersedes standard chatbot patterns by implementing a **Simulation Eng
   - **Turn Loop:** Handles the user input -> database -> prompt -> AI -> database cycle.
   - **Developer Mode:** If a message is rejected (regenerated), it injects a hidden **Variance Directive** (e.g., "Increase aggression") to ensure the retry is distinctly different.
   - **State Rollback:** Prevents "ghost memories" by reverting physics updates when a turn is deleted.
+  - **Director Mode:** Internal monologues (`<think>`) and raw debugging data are now hidden by default and controlled via the Settings toggle.
+  - **Continuation Protocol:** The engine allows extending AI responses seamlessly using the "Continue" action.
 
 ### 4. The Shield (`js/index.js` & `js/utils.js`)
 

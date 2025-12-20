@@ -192,14 +192,19 @@ interface ApplicationState {
   };
 
   settings: {
-    temperature: number;
-    top_p: number;
-    maxTokens: number;
-    stop: string[];
-    model: string;
-    historyLength: number;
-    directorMode: boolean;
-    storyOpeningInstructions: string;
+    editAiMessage(messageId: number, newText: string): Promise<void>;
+    generateAiResponse(
+      storyId: number,
+      options?: { instruction?: string },
+    ): Promise<void>;
+    send(text: string): Promise<void>;
+    regenerate(manualInstruction?: string | null): Promise<void>;
+    extendAiResponse(): Promise<void>;
+    runBackgroundUpdate(
+      storyId: number,
+      targetType: string,
+      linkedMessageId: number,
+    ): Promise<void>;
     [key: string]: any;
   };
 

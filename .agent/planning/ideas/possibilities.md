@@ -54,6 +54,17 @@ _Features that give the AI autonomy and presence._
 | **Character Growth**    | [Sim]    | M      | M      | Hidden tracker for "Narrative Acts" (Recognition → Struggle → Growth).          |
 | **Glitch Protocol**     | [Fun]    | S      | S      | 1% chance for AI to break character and address the Author directly.            |
 
+## 🔍 Concept 6: Deep Inspection
+
+_Power tools for debugging the narrative state._
+
+| Item                  | Category | Impact | Effort | Notes                                                                                    |
+| :-------------------- | :------- | :----- | :----- | :--------------------------------------------------------------------------------------- |
+| **State Editor**      | [Tool]   | L      | M      | Manually edit the `<PRESENT>`, `<FUTURE>`, or `<DYNAMICS>` text of any entity mid-story. |
+| **Snapshot Diffing**  | [Tool]   | M      | M      | "What Changed?" view showing the text delta between Turn N and N-1.                      |
+| **Context Inspector** | [Tool]   | M      | S      | View the _exact_ raw prompt text sent to the LLM (crucial for debugging leaks).          |
+| **"Bad Detective"**   | [Tool]   | M      | M      | Analyze last 5 turns to highlight prompt conflicts or logic loops.                       |
+
 ---
 
 ## 🔧 Studio Maintenance & Polish
