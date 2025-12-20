@@ -190,26 +190,30 @@ export function initStoryboardStage(views) {
   });
 
   // [NEW] Listener for stale data
-  events.addEventListener(EVENTS.DB_UPDATED, async () => {
+  // [NEW] Listener for stale data
+  events.addEventListener(EVENTS.DB_UPDATED, async (data) => {
     // Only refresh if we have a selection and are in storyboard mode (roughly)
-    if (state.mode === "storyboard" || !state.story.activeId) {
-      const { selectedAI, selectedUser, selectedFractal } = state;
+    if (
+      !state.story.activeId &&
+      (state.selectedAI || state.selectedUser || state.selectedFractal)
+    ) {
+      const updatedId = data?.id;
+      if (!updatedId) return;
+
       const updates = {};
 
-      if (selectedAI) {
-        const fresh = await entities.get("character", selectedAI.id);
-        if (fresh) updates.aiCharacter = fresh;
+      if (state.selectedAI?.id === updatedId) {
+        updates.aiCharacter = await entities.get("character", updatedId);
       }
-      if (selectedUser) {
-        const fresh = await entities.get("character", selectedUser.id);
-        if (fresh) updates.userCharacter = fresh;
+      if (state.selectedUser?.id === updatedId) {
+        updates.userCharacter = await entities.get("character", updatedId);
       }
-      if (selectedFractal) {
-        const fresh = await entities.get("fractal", selectedFractal.id);
-        if (fresh) updates.fractal = fresh;
+      if (state.selectedFractal?.id === updatedId) {
+        updates.fractal = await entities.get("fractal", updatedId);
       }
 
       if (Object.keys(updates).length > 0) {
+        // [FIX] Force refresh of the specific slot
         views.updateStoryboardSelection(updates);
       }
     }

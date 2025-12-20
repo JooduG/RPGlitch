@@ -33,10 +33,12 @@ export async function renderProfileView(
   // Visual State Management
   let localVisuals = getVisualState(entity);
 
-  const applyVisualsToImage = (imgEl) => {
-    if (!imgEl) return;
-    if (localVisuals.flipped) imgEl.classList.add("img-flipped");
-    else imgEl.classList.remove("img-flipped");
+  const applyVisualsToImage = (wrapperEl) => {
+    if (!wrapperEl) return;
+    // [FIX] Ensure we target the .picture wrapper, not the container or img
+    const target = wrapperEl.querySelector(".picture") || wrapperEl;
+    if (localVisuals.flipped) target.classList.add("img-flipped");
+    else target.classList.remove("img-flipped");
   };
 
   if (getPictureHTML) {
@@ -46,7 +48,7 @@ export async function renderProfileView(
     });
     if (heroPic) {
       heroPic.classList.add("hero-bleed");
-      applyVisualsToImage(heroPic.querySelector("img"));
+      applyVisualsToImage(heroPic);
       heroWrap.appendChild(heroPic);
     }
   }

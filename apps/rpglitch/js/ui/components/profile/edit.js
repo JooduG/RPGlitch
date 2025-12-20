@@ -498,6 +498,16 @@ export async function renderProfileEdit(screen, entity, type, id) {
         await entities.create(type, data);
       } else {
         await entities.upsert(type, { ...entity, ...data });
+
+        // [FIX] Force update of the underlying selection
+        const _onUpdateSelection = getOnUpdateSelection();
+        if (_onUpdateSelection) {
+          const activeKey = getActiveSlotKey();
+          if (activeKey) {
+            const freshEntity = await entities.get(type, id);
+            _onUpdateSelection({ [activeKey]: freshEntity });
+          }
+        }
       }
       closeProfileModal();
     } catch (err) {
