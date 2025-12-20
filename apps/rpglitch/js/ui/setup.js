@@ -5,6 +5,7 @@ import { TurnManager } from "../engine/director.js";
 import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
 import { error } from "../core/utils.js";
 import { showAlert } from "./orchestrator.js";
+import { EVENTS, events } from "../core/events.js";
 
 // MODIFIED: Exported for testing
 // MODIFIED: Exported for testing
@@ -188,6 +189,32 @@ export function initStoryboardStage(views) {
     }
   });
 
+  // [NEW] Listener for stale data
+  events.addEventListener(EVENTS.DB_UPDATED, async () => {
+    // Only refresh if we have a selection and are in storyboard mode (roughly)
+    if (state.mode === "storyboard" || !state.story.activeId) {
+      const { selectedAI, selectedUser, selectedFractal } = state;
+      const updates = {};
+
+      if (selectedAI) {
+        const fresh = await entities.get("character", selectedAI.id);
+        if (fresh) updates.aiCharacter = fresh;
+      }
+      if (selectedUser) {
+        const fresh = await entities.get("character", selectedUser.id);
+        if (fresh) updates.userCharacter = fresh;
+      }
+      if (selectedFractal) {
+        const fresh = await entities.get("fractal", selectedFractal.id);
+        if (fresh) updates.fractal = fresh;
+      }
+
+      if (Object.keys(updates).length > 0) {
+        views.updateStoryboardSelection(updates);
+      }
+    }
+  });
+
   if (titleStoryboard) {
     titleStoryboard.setAttribute("contenteditable", "true");
     titleStoryboard.title = "Double-click to re-roll title";
@@ -228,5 +255,3 @@ export function initStoryboardStage(views) {
     });
   }
 }
-// Renaming for the new manager structure
-// export const StoryboardController = SetupManager; // Removed legacy alias

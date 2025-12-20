@@ -476,7 +476,7 @@ ${strategy.formatEntity(ai, "AI_CHARACTER")}
       ...(state.settings.motifs || []),
     ];
     return new NarrativeStrategy({
-      povStyle: state.settings.povStyle,
+      povStyle: fractal.povStyle || "IMMERSIVE",
       motifs: motifs,
     });
   }

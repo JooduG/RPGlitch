@@ -106,8 +106,7 @@ export function updatePortraits(aiCharacter, userCharacter) {
         if (picture) {
           const visuals = getVisualState(ent);
           if (visuals && visuals.flipped) {
-            const img = picture.querySelector("img");
-            if (img) img.classList.add("img-flipped");
+            picture.classList.add("img-flipped"); // FIX APPLIED HERE
           }
           imgDiv.appendChild(picture);
         }

@@ -471,6 +471,11 @@ export async function renderProfileEdit(screen, entity, type, id) {
       signatureColour: escapeHtml(paletteSelect.value.trim()),
       tags: tagsArray,
       visuals: localVisuals,
+      povStyle: isFractal
+        ? form.querySelector('[data-edit-field="povStyle"]')?.value ||
+          entity.povStyle ||
+          "IMMERSIVE"
+        : undefined,
     };
 
     Object.keys(PROFILE_SECTIONS).forEach((k) => {
