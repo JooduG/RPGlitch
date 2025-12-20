@@ -1,5 +1,6 @@
 @use "../abstracts/variables" as *;
 @use "../abstracts/mixins" as *;
+@use "buttons" as *;
 
 // _modal.scss
 // Unified Modal Styling per User Request
@@ -52,80 +53,31 @@ dialog.modal {
 
     footer {
       padding: 0;
-      gap: 0;
       border-top: 1px solid rgba(255, 255, 255, 10%);
 
+      // Unified Button Group
+      @extend %btn-group-joined;
+
+      // Refinement: Right-align buttons (standard desktop dialog pattern)
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+
+      // Reset button styles to inherit global .btn defaults
+      .btn,
       button {
-        flex: 1 1 0; // Equal width regardless of content
-        padding: 0 !important; // Remove internal padding
-        margin: 0;
-        border: none;
-        border-radius: 0;
-        background: transparent;
-        height: 3.5rem; // Taller touch target
+        flex: 0 0 auto; // Use natural width
+        padding: 0.5rem 1rem !important; // Restore padding
+        height: auto; // Restore natural height
+        border-radius: 0; // Handled by %btn-group-joined
 
-        // Ensure flex centering for icons
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        // Icon Sizing
+        // Ensure icons are sized correctly
         svg.icon {
-          width: 1.5rem;
-          height: 1.5rem;
-          fill: currentcolor;
-          transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          width: 1.25em;
+          height: 1.25em;
         }
 
-        &:not(:last-child) {
-          border-right: 1px solid rgba(255, 255, 255, 10%);
-        }
-
-        &:first-child {
-          border-bottom-left-radius: 12px;
-        }
-
-        &:last-child {
-          border-bottom-right-radius: 12px;
-        }
-
-        &:hover,
-        &:focus {
-          background: rgba(
-            255,
-            255,
-            255,
-            5%
-          ) !important; // Force consistent hover
-
-          box-shadow: none !important;
-
-          // Glitch/Spring Animation
-          svg.icon {
-            transform: scale(1.2);
-          }
-        }
-
-        // Primary override for the "OK" button
-        &.primary {
-          color: var(--pico-primary);
-          padding: 0 !important; // REDUNDANT FORCE for unification
-
-          // Primary Glitch Effect (Icon Only)
-          svg.icon {
-            fill: var(--pico-primary);
-          }
-
-          font-weight: 800;
-
-          // Ensure background remains transparent (or same as hover)
-          background: transparent !important;
-
-          &:hover,
-          &:focus {
-            background: rgba(255, 255, 255, 5%) !important;
-          }
-        }
+        // Remove legacy hover overrides (inherit from .btn-ghost/.btn-primary)
       }
     }
   }
@@ -151,13 +103,18 @@ dialog.modal {
     }
 
     .close {
-      margin-top: 0;
-      opacity: 0.7;
-      transition: opacity 0.2s;
+      // Inherit standard ghost button behavior
+      @extend %btn-ghost;
 
-      &:hover {
-        opacity: 1;
-      }
+      // Reset specific positioning if needed, or keep margin
+      margin-top: 0;
+      opacity: 1; // Handled by .btn-ghost
+      width: 2rem;
+      height: 2rem;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -242,10 +199,21 @@ dialog.modal {
 // EXTRACTED SETTINGS STYLES (Refactor from Index.html)
 // ============================================================================
 
+.settings-panel {
+  @extend %material-glass;
+
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .settings-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
 
 .settings-label {
@@ -253,6 +221,13 @@ dialog.modal {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  // Cyberpunk Header Style
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 90%);
 }
 
 .btn-reset-data {
