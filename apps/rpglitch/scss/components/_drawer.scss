@@ -7,17 +7,22 @@
 
 /* --- DRAWER CONTAINER --- */
 .entity-drawer {
+  @extend %material-glass-heavy;
+
   // FORCE Fixed Bottom Sheet Positioning
   position: fixed !important;
   inset: auto auto 0 50% !important;
   transform: translateX(-50%) translateY(100%);
   width: 80vw;
   max-height: 85vh;
-  background: rgb(26 34 42 / 98%);
-  border: 1px solid var(--pico-muted-border-color);
+
+  // Overrides for Drawer Shape
   border-bottom: none;
   border-radius: 20px 20px 0 0;
-  box-shadow: 0 -10px 40px rgb(0 0 0 / 50%);
+
+  // Removed hardcoded visuals in favor of extend
+  // background: rgb(26 34 42 / 98%);
+  // box-shadow: 0 -10px 40px rgb(0 0 0 / 50%);
   z-index: #{z(drawer)};
   display: flex;
   flex-direction: column;

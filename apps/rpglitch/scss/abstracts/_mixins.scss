@@ -160,3 +160,37 @@
     }
   }
 }
+
+// --- PHYSICS MATERIALS ---
+
+// 1. The Standard Glass (Used for Cards, UI Panels)
+%material-glass {
+  background: rgba(18, 20, 30, 60%); // The standard tint
+  backdrop-filter: blur(16px); // The standard blur
+  border: 1px solid rgba(255, 255, 255, 10%);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 20%);
+  border-radius: var(--pico-radius);
+}
+
+// 2. The Heavy Glass (Used for Modals, Drawers - things that need more contrast)
+%material-glass-heavy {
+  background: rgba(18, 20, 30, 85%); // Darker for readability
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 10%);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 60%); // Deep elevation
+  border-radius: 12px;
+}
+
+// 3. Interactive Surface (Hover states for cards)
+%material-interactive {
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 40%);
+    border-color: rgba(255, 255, 255, 25%);
+  }
+}

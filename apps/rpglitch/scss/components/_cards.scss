@@ -183,16 +183,21 @@
 
 /* --- PREVIEW (Filled) --- */
 .entity-preview.card-filled {
+  @extend %material-glass;
+  @extend %material-interactive;
+
   width: 100%;
   aspect-ratio: 2 / 3;
-  background: var(--pico-card-background-color, #1e293b);
-  border: 1px solid rgb(255 255 255 / 10%);
+
+  // background: var(--pico-card-background-color, #1e293b); // REMOVED
+  // border: 1px solid rgb(255 255 255 / 10%); // REMOVED
   border-radius: 16px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 15px 40px rgb(0 0 0 / 40%);
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+
+  // box-shadow: 0 15px 40px rgb(0 0 0 / 40%); // REMOVED
+  // transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); // REMOVED
   z-index: #{z(chip)};
 
   &[data-signature] {
@@ -251,10 +256,7 @@
     }
   }
 
-  &:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 25px 60px rgb(0 0 0 / 50%);
-  }
+  // Hover styles are now handled by %material-interactive
 }
 
 // Logic: Hide slot if preview is filled
