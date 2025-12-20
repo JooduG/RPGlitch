@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="../scss/index.scss" />
   </head>
 
-  <body class="mode-storyboard" style="overflow: hidden">
+  <body class="mode-storyboard">
     <a href="#main" hidden>Skip to main content</a>
 
     <div id="fractal-background"></div>
@@ -244,7 +244,6 @@
                   placeholder="Type your message..."
                   aria-label="Message"
                   rows="1"
-                  style="resize: none; overflow-y: hidden"
                 ></textarea>
 
                 <!-- SETTINGS (Middle) -->
@@ -253,11 +252,6 @@
                   id="btn-settings-placeholder"
                   class="secondary outline"
                   title="Settings"
-                  onclick="
-                    document
-                      .getElementById('settings')
-                      .removeAttribute('hidden')
-                  "
                 >
                   <svg
                     class="icon"
@@ -352,42 +346,32 @@
           href="#close"
           aria-label="Close"
           class="close"
-          onclick="
-            document.getElementById('settings').setAttribute('hidden', '')
-          "
         ></a>
       </header>
       <div class="settings-controls modal-body">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <label for="setting-developer-mode" style="margin: 0;">
+        <div class="settings-row">
+          <label for="setting-developer-mode" class="settings-label">
             <input type="checkbox" id="setting-developer-mode" role="switch" />
             Developer Mode
           </label>
           <button
             id="btn-reset-story"
-            class="outline contrast btn-icon-raise"
-            style="width: auto; margin: 0; padding: 0.25rem 0.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;"
+            class="outline contrast btn-icon-raise btn-reset-data"
           >
-            <svg class="icon" viewBox="0 0 24 24" style="width: 1em; height: 1em;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
             Reset All Data
           </button>
         </div>
       </div>
       
-      <hr style="margin: 1rem 0; border-top: 1px solid var(--pico-muted-border-color);" /> 
+      <hr class="settings-divider" /> 
 
       <!-- ACTIVE GAME ACTIONS (Only when playing) -->
         <div class="settings-section-storymode" hidden>
 
-          <button id="btn-ghostwrite" class="secondary" style="width: 100%">
+          <button id="btn-ghostwrite" class="secondary btn-action-row">
             <svg
-              class="icon"
-              style="
-                width: 1em;
-                height: 1em;
-                vertical-align: middle;
-                margin-right: 0.5rem;
-              "
+              class="icon icon-prefix"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
             >
@@ -399,17 +383,10 @@
           </button>
           <button
             id="btn-conclude-story"
-            class="outline warning"
-            style="width: 100%; margin-top: 0.5rem"
+            class="outline warning btn-action-row"
           >
             <svg
-              class="icon"
-              style="
-                width: 1em;
-                height: 1em;
-                vertical-align: middle;
-                margin-right: 0.5rem;
-              "
+              class="icon icon-prefix"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
             >
@@ -419,18 +396,11 @@
           </button>
           <button
             id="btn-generate-visual-draft"
-            class="secondary output"
-            style="width: 100%; margin-top: 0.5rem"
+            class="secondary output btn-action-row"
             title="Generate an image from the current text in the chat input"
           >
             <svg
-              class="icon"
-              style="
-                width: 1em;
-                height: 1em;
-                vertical-align: middle;
-                margin-right: 0.5rem;
-              "
+              class="icon icon-prefix"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
             >
@@ -442,18 +412,11 @@
           </button>
           <button
             id="btn-request-photo"
-            class="secondary output"
-            style="width: 100%; margin-top: 0.5rem"
+            class="secondary output btn-action-row"
             title="Ask the character to send a photo (Messenger Mode Only)"
           >
             <svg
-              class="icon"
-              style="
-                width: 1em;
-                height: 1em;
-                vertical-align: middle;
-                margin-right: 0.5rem;
-              "
+              class="icon icon-prefix"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
             >
@@ -489,15 +452,9 @@
         <!-- LIBRARY (Always Visible) -->
         <div class="settings-section-library">
           <div
-            class="library-header"
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 1rem;
-            "
+            class="library-header library-header-row"
           >
-            <h4 style="font-size: 1rem; margin: 0">Library</h4>
+            <h4>Library</h4>
 
           </div>
 
@@ -582,7 +539,7 @@
 
         <div class="profile-right">
           <div class="profile-right-content">
-            <form onsubmit="return false;">
+            <form>
               <div class="profile-header" data-profile-header=""></div>
               <div class="profile-sections" data-profile-sections=""></div>
             </form>

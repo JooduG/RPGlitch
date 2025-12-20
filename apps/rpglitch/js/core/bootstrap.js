@@ -8,6 +8,7 @@ import { TurnManager } from "../engine/director.js";
 import { StoryOptionsController } from "../ui/components/settings.js";
 import { initStoryboardStage, SetupManager } from "../ui/setup.js";
 import { initChatInput } from "../ui/components/chat/input.js";
+import { initUIHandlers } from "../ui-handlers.js";
 
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
 (function enforceClientSideFreedom() {
@@ -46,6 +47,9 @@ const App = {
     window.TurnManager = TurnManager;
     window.SetupManager = SetupManager;
     window.StoryOptionsController = StoryOptionsController;
+
+    // Initialize UI Handlers (Replacement for inline HTML attributes)
+    initUIHandlers();
 
     try {
       // 1. Initialize Views
