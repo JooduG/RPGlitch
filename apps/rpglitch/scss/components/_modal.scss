@@ -193,21 +193,7 @@ dialog.modal {
 
       input,
       textarea {
-        width: 100%;
-        background: rgba(0, 0, 0, 30%);
-        border: 1px solid rgba(255, 255, 255, 10%);
-        border-radius: 6px;
-        padding: 0.75rem;
-        color: #fff;
-        font-family: inherit;
-        transition: all 0.2s;
-
-        &:focus {
-          outline: none;
-          border-color: var(--pico-primary);
-          box-shadow: 0 0 0 2px rgba(var(--pico-primary-rgb), 0.2);
-          background: rgba(0, 0, 0, 50%);
-        }
+        @extend %input-deep;
       }
     }
   }

@@ -194,3 +194,46 @@
     border-color: rgba(255, 255, 255, 25%);
   }
 }
+
+// --- INPUT SURFACES ---
+
+// The "Deep Field" - Recessed data entry
+%input-deep {
+  appearance: none;
+  width: 100%;
+
+  // Depth Physics
+  background: rgba(0, 0, 0, 30%); // Darker than the glass panels
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-radius);
+
+  // Typography
+  color: var(--pico-color);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  line-height: 1.5;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:focus {
+    outline: none;
+    background: rgba(0, 0, 0, 50%); // Deepen on focus
+    border-color: var(--pico-primary);
+    box-shadow: 0 0 0 1px var(--pico-primary); // Subtle glow
+  }
+
+  &::placeholder {
+    color: var(--pico-muted-color);
+    opacity: 0.7;
+    font-style: italic;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 5%);
+  }
+}

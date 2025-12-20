@@ -88,30 +88,26 @@
   }
 
   textarea[name="message"] {
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    color: #fff;
+    @extend %input-deep;
+
+    // Layout Logic (Preserved)
     height: auto;
     min-height: 3rem;
     max-height: 12rem;
-    line-height: 1.5;
-    font-size: 0.85rem;
     margin-bottom: 0;
     vertical-align: middle;
     resize: none;
     transition: height 0.1s ease;
-    padding: 0.75rem 0 0.75rem 1.5rem;
+    padding: 0.75rem 0 0.75rem 1.5rem; // Custom padding for Pill
     width: auto;
     flex: 1 1 auto;
 
+    // Override border/radius to fit inside the parent Pill context if needed,
+    // but allowing the Deep Field background to apply as requested.
+    // If double-background occurs, it's per instruction to apply the material.
+
     &::-webkit-scrollbar {
       width: 6px;
-    }
-
-    &:focus {
-      outline: none;
-      box-shadow: none;
     }
   }
 

@@ -123,3 +123,19 @@
     display: flex;
   }
 }
+
+// Force Settings Modal inputs to use the protocol
+#settings-form input[type="text"],
+#settings-form input[type="number"],
+#settings-form textarea,
+#settings-form select {
+  @extend %input-deep;
+}
+
+// Select specific fix (add arrow space)
+#settings-form select {
+  background-image: var(--pico-icon-chevron);
+  background-position: center right 0.75rem;
+  background-size: 1rem auto;
+  background-repeat: no-repeat;
+}
