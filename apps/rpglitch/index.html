@@ -122,7 +122,7 @@
             <div role="group" class="btn-group-pill">
               <button
                 id="btn-shuffle"
-                class="secondary"
+                class="btn-ghost"
                 aria-label="Shuffle"
                 title="Shuffle"
               >
@@ -136,7 +136,7 @@
                   />
                 </svg>
               </button>
-              <button id="btn-options" aria-label="Settings" title="Settings">
+              <button id="btn-options" class="btn-ghost" aria-label="Settings" title="Settings">
                 <svg
                   class="icon"
                   xmlns="http://www.w3.org/2000/svg"
@@ -147,7 +147,7 @@
                   />
                 </svg>
               </button>
-              <button id="begin-story" class="primary" disabled>
+              <button id="begin-story" class="btn-primary" disabled>
                 Begin Story
                 <svg
                   class="icon"
@@ -272,7 +272,7 @@
                 </button>
 
                 <!-- SEND (Last) -->
-                <button type="submit" disabled aria-label="Send">
+                <button type="submit" class="btn-ghost btn-icon-raise" disabled aria-label="Send">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -544,7 +544,7 @@
                 <!-- Item 2: Action -->
                 <button
                   type="button"
-                  class="profile-main-action primary"
+                  class="profile-main-action btn-primary"
                   data-action="generate"
                 >
                   Generate
@@ -683,7 +683,7 @@
                 <button id="btn-confirm-cancel" class="btn-ghost btn-icon-raise" aria-label="Cancel">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
-                <button id="btn-confirm-ok" class="primary btn-icon-raise" aria-label="Confirm">
+                <button id="btn-confirm-ok" class="btn-primary btn-icon-raise" aria-label="Confirm">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                 </button>
             </footer>
@@ -700,7 +700,7 @@
                 <p id="alert-message">Notice</p>
             </div>
             <footer>
-                <button id="btn-alert-ok" class="primary btn-icon-raise" aria-label="OK">
+                <button id="btn-alert-ok" class="btn-primary btn-icon-raise" aria-label="OK">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                 </button>
             </footer>
@@ -723,7 +723,7 @@
                 <button id="btn-prompt-cancel" class="btn-ghost btn-icon-raise" aria-label="Cancel">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
-                <button id="btn-prompt-ok" class="primary btn-icon-raise" aria-label="Confirm">
+                <button id="btn-prompt-ok" class="btn-primary btn-icon-raise" aria-label="Confirm">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                 </button>
             </footer>
@@ -732,25 +732,19 @@
 
     <!-- CONCLUDED STORY CONTROLS (Floating Pill Design) -->
     <template id="tpl-concluded-controls">
-        <div class="concluded-controls btn-group-pill" style="
-            position: fixed;
-            bottom: 3rem !important;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 99999 !important;
-        ">
+        <div class="concluded-controls btn-group-pill">
             <!-- Settings -->
-             <button id="btn-concluded-settings" aria-label="Settings">
+             <button id="btn-concluded-settings" class="btn-ghost" aria-label="Settings">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
             </button>
 
             <!-- Delete -->
-             <button id="btn-concluded-delete" aria-label="Delete Story" title="Delete Story">
+             <button id="btn-concluded-delete" class="btn-ghost" aria-label="Delete Story" title="Delete Story">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
             </button>
 
             <!-- Storyboard (Finish) -->
-             <button id="btn-concluded-close" class="primary">
+             <button id="btn-concluded-close" class="btn-primary">
                 Storyboard
                 <svg class="icon" viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
             </button>

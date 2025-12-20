@@ -44,6 +44,12 @@
 /* --- ACTION BAR (Button Group) --- */
 
 /* --- ACTION BAR (Button Group) --- */
+.storyboard-actions {
+  display: flex;
+  justify-content: center;
+  pointer-events: auto; // Re-enable interaction
+}
+
 .storyboard-actions [role="group"] {
   // Inherits .btn-group-pill logic
   // Just layout specifics here if needed
@@ -66,6 +72,15 @@
 #begin-story {
   padding: 1rem 3rem; // Keep specific padding
   // Color handled by .primary class in .btn-group-pill logic
+}
+
+// --- CONCLUDED CONTROLS (Floating Pill) ---
+.concluded-controls {
+  position: fixed;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: z(modal); // Ensure above everything
 }
 
 @include mobile {

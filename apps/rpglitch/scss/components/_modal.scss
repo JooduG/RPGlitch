@@ -215,85 +215,30 @@ dialog.modal {
   // Footer
   // Footer
   footer {
-    display: flex; // CRITICAL RESTORATION
+    display: flex;
     padding: 0;
     gap: 0;
     border-top: 1px solid rgba(255, 255, 255, 10%);
 
-    // Unified Button Styling (High Specificity)
+    // Buttons now rely on classes (e.g. .btn-ghost, .btn-primary)
+    // but we ensure they stretch evenly in dialogs
+    .btn,
     button {
       flex: 1 1 0;
-      min-width: 0;
       margin: 0;
-      border: none;
       border-radius: 0;
-      background: transparent;
-      box-shadow: none;
       height: 3.5rem;
-      padding: 0;
-      color: #e0e6ed; // Default Text Color
 
-      // Flex Centering
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      // Icon Sizing
-      svg.icon {
-        width: 1.5rem;
-        height: 1.5rem;
-        fill: currentcolor;
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      }
-
-      // Dividers
       &:not(:last-child) {
         border-right: 1px solid rgba(255, 255, 255, 10%);
       }
 
-      // Corner Rounding
       &:first-child {
         border-bottom-left-radius: 12px;
       }
 
       &:last-child {
         border-bottom-right-radius: 12px;
-      }
-
-      // Interaction State (Unified)
-      &:hover,
-      &:focus {
-        background: rgba(255, 255, 255, 5%);
-        box-shadow: none;
-        color: #fff;
-
-        svg.icon {
-          transform: scale(1.2);
-        }
-      }
-
-      // Contextual Variants (Icon Color Only)
-      &.primary {
-        background: transparent; // Ensure transparency wins
-        color: var(--pico-primary);
-
-        svg.icon {
-          fill: var(--pico-primary);
-        }
-
-        &:hover,
-        &:focus {
-          background: rgba(255, 255, 255, 5%);
-          color: var(--pico-primary-hover);
-        }
-      }
-
-      &.danger {
-        color: var(--pico-del-color);
-
-        svg.icon {
-          fill: var(--pico-del-color);
-        }
       }
     }
   }

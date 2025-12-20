@@ -64,8 +64,9 @@
   }
 }
 
+// --- SHARED UI PLACEHOLDERS ---
 // Glassmorphism Pill Container (Button Groups / Inputs)
-@mixin pill-container-box {
+%glass-pill {
   background: rgb(0 0 0 / 40%);
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 30px rgb(0 0 0 / 50%);

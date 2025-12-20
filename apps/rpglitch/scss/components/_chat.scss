@@ -68,14 +68,16 @@
 #story-form {
   padding: 0;
 
-  @include pill-container-box; // <--- Harmonized Visuals
+  @extend %glass-pill; // Unified Pill Style
 
   background: var(
     --pico-form-element-background-color
-  ); // Override mixin bg with opaque for form
+  ); // Override transparent glass with opaque form control
 
   display: flex;
-  width: 40vw;
+  width: 40vw; // Reverted per user request
+  min-width: 320px;
+  max-width: 800px;
   margin: 0 auto;
   margin-bottom: 3rem !important; // True Float
   align-items: center;
@@ -113,68 +115,13 @@
     }
   }
 
+  // Submit button styling removed in favor of .btn-ghost utility
   button[type="submit"] {
-    border-radius: 0;
-    transition: all 0.2s ease;
-    padding: 0 1.5rem 0 1rem;
-    box-shadow: none;
-    height: auto;
-    min-height: 2.25rem;
+    // Positioning overrides only (if strictly necessary)
     margin-bottom: 0;
-    vertical-align: middle;
-    line-height: normal;
-    border: none;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: auto;
-    flex: 0 0 auto;
-
-    svg {
-      transition: transform 0.2s ease;
-    }
-
-    &:not(:disabled):hover {
-      transform: none !important;
-      background: transparent;
-      z-index: 1;
-
-      svg {
-        transform: translateY(-2px);
-        color: var(--pico-primary);
-      }
-    }
-
-    &:not(:disabled):active {
-      transform: none !important;
-
-      svg {
-        transform: translateY(0);
-      }
-    }
-
-    &:disabled {
-      cursor: not-allowed;
-      opacity: 0.5;
-    }
-  }
-}
-
-// Concluded Controls (Floating Pill)
-.concluded-controls {
-  // Positioning IS extracted from layout flow, so we keep it here.
-  // Visual styling is handled entirely by .btn-group-pill class in HTML.
-
-  position: fixed !important;
-  bottom: 3rem !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  z-index: 99999 !important;
-
-  // Match #begin-story padding for the primary action (Storyboard)
-  .primary {
-    padding: 1rem 3rem !important;
+    flex: 0 0 auto !important; // FORCE NO GROW
+    width: auto !important;
+    padding-right: 1.5rem;
   }
 }
 

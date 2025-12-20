@@ -434,7 +434,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
   // Delete
   if (id !== "new") {
     const delBtn = document.createElement("button");
-    delBtn.className = "btn-ghost text-danger btn-icon-raise"; // Ghost + Danger
+    delBtn.className = "btn-ghost danger btn-icon-raise"; // Ghost + Danger
     delBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`;
     delBtn.title = "Delete Profile";
     delBtn.onclick = async (e) => {
@@ -456,7 +456,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
   // Save
   const saveBtn = document.createElement("button");
-  saveBtn.className = "btn-ghost text-primary btn-icon-raise"; // Ghost + Primary
+  saveBtn.className = "btn-primary btn-icon-raise"; // Ghost + Primary
   saveBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>`;
   saveBtn.title = "Save Profile";
   saveBtn.onclick = async (e) => {

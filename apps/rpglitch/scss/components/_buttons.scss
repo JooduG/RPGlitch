@@ -1,223 +1,190 @@
 @use "../abstracts" as *;
 
 /* ============================================================================
-   COMPONENT: BUTTONS & ACTIONS
-   Centralized button styles to replace the "Zoo" of inline/ad-hoc styles.
+   COMPONENT: BUTTONS (THE UNIVERSAL PROTOCOL)
+   Single Source of Truth for all interactive triggers.
    ============================================================================ */
 
-/* --- MIXINS --- */
-
-/* --- MIXINS (Deprecated - Moved to _mixins.scss) --- */
-// @mixin btn-group-base moved to abstracts/_mixins.scss
-
-/* --- 1. PILL GROUP (Floating Action Bars) --- */
-// Used in: Storyboard (Intro), Concluded Controls
-.btn-group-pill {
-  @include btn-group-base(
-    0,
-    rgb(255 255 255 / 10%)
-  ); // Radius 0 because container clips
-
-  @include pill-container-box; // <--- Harmonized Visuals from Mixin
-
-  width: auto;
-  align-items: stretch;
-  overflow: hidden;
-  pointer-events: auto;
-  position: relative; // Ensure z-index works
-  z-index: 99999; // Nuclear option: ensure it is above EVERYTHING (skeletons, overlays, etc)
-
-  button {
-    border: none; // Reset base borders so only divider applies
-    box-shadow: none;
-    padding: 1rem 1.5rem; // Adjust padding to compensate
-    font-weight: 700;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition:
-      background 0.2s,
-      color 0.2s;
-    cursor: pointer;
-    color: rgb(255 255 255 / 80%);
-    background: transparent;
-
-    // Explicitly handle Pico classes to ensure they win over "transparent"
-    &.primary {
-      background: var(--pico-primary);
-      color: var(--pico-primary-inverse);
-      border: none; // Reset any borders
-
-      &:hover:not(:disabled) {
-        background: var(--pico-primary-hover);
-        box-shadow: 0 0 15px var(--pico-primary-focus);
-      }
-
-      &:disabled {
-        background: var(--pico-muted-border-color);
-        color: var(--pico-muted-color);
-        opacity: 0.7;
-      }
-    }
-
-    // Secondary: Transparent base (default) unless hovered
-
-    &:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 10%);
-      color: #fff;
-
-      // Ensure primary keeps its own hover bg
-      &.primary {
-        background: var(--pico-primary-hover);
-      }
-    }
-
-    // Dividers: Apply to all except the last one.
-    // The gap removal ensures they act as dividers.
-    &:not(:last-child) {
-      border-right: 1px solid rgba(255, 255, 255, 10%);
-    }
-
-    // Icon Hover Effect (Inherited from _ui.scss utility if applied)
-    &.btn-icon-raise {
-      // Specific reset handled by specificity
-      display: flex;
-    }
-  }
-
-  // Mobile Adjustment
-  @include mobile {
-    button {
-      padding: 0.75rem 1rem;
-      font-size: 0.8rem;
-    }
-  }
-}
-
-/* --- 2. GLASS BUTTON (Standalone Overlay) --- */
-// Used in: Profile Flip Button, potential modal close buttons
-.btn-glass {
-  background: rgb(0 0 0 / 40%);
-  border: 1px solid rgb(255 255 255 / 20%);
-  color: rgb(255 255 255 / 90%);
-  backdrop-filter: blur(4px);
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  &:hover {
-    background: rgb(255 255 255 / 20%);
-    border-color: rgb(255 255 255 / 60%);
-    color: #fff;
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  // Modifier: Round (Perfect Circle)
-  &.btn-round {
-    border-radius: 50%;
-    padding: 0;
-    width: 40px;
-    height: 40px;
-  }
-}
-
-/* --- 3. GHOST BUTTON (Contextual Actions) --- */
-// Moved from _ui.scss to here for centralization
-.btn-ghost {
-  // Base State: Subtle visibility
-  background: rgba(255, 255, 255, 3%);
-  border: 1px solid rgba(255, 255, 255, 5%);
-  box-shadow: none;
-  padding: 0;
-  color: var(--pico-muted-color);
-  transition:
-    color 0.2s,
-    background-color 0.2s,
-    border-color 0.2s;
-
-  // Maintain icon alignment
+// --- 1. THE BASE ATOM ---
+%btn-base {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  &:hover,
-  &:focus {
-    background: rgba(255, 255, 255, 10%);
-    border-color: rgba(255, 255, 255, 20%);
-    box-shadow: none;
-  }
-
-  // Color Variants
-  &.text-primary {
-    color: var(--pico-primary);
-
-    &:hover {
-      color: var(--pico-primary-hover);
-    }
-  }
-
-  &.text-contrast {
-    color: var(--pico-contrast);
-
-    &:hover {
-      color: var(--pico-contrast);
-      opacity: 1;
-    }
-  }
-
-  &.text-danger {
-    color: var(--pico-del-color);
-
-    &:hover {
-      color: #b02a37;
-    }
-  }
-
-  &.text-warning {
-    color: #f59f00;
-
-    &:hover {
-      color: #f08c00;
-    }
-  }
-}
-
-/* --- 4. UTILITIES & MODIFIERS --- */
-
-/* Icon Hover Effect (Messenger Style) */
-.btn-icon-raise {
-  // Override default Pico transform & any other movement
-  &:not(:disabled):hover {
-    transform: none !important;
-    translate: none !important;
-    top: auto !important;
-    margin-top: 0 !important; /* Context dependent, but usually safe for buttons */
-    box-shadow: none !important;
-    background-color: transparent !important;
-  }
-
-  // Ensure transition doesn't ghost-animate
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  min-height: 2.25rem;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  pointer-events: auto; // Force interactivity (override container pass-throughs)
+  border: 1px solid transparent;
+  border-radius: var(--pico-radius);
+  background: transparent;
+  color: var(--pico-color);
   transition:
-    transform 0s,
-    translate 0s;
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease,
+    box-shadow 0.2s ease;
 
-  svg.icon {
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); // Slower, smoother spring
-    will-change: transform;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 
-  &:not(:disabled):hover svg.icon {
-    transform: translateY(-3px);
+  // Icon alignment fix
+  svg.icon {
+    width: 1.25em;
+    height: 1.25em;
+    fill: currentcolor;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
-/* Button Groups (Top Bar / Generic) */
-// Used in: Header Actions
+// --- 2. STANDARD VARIANTS ---
+
+// .btn-primary: The Main Action (Solid Color)
+.btn-primary {
+  @extend %btn-base;
+
+  background: var(--pico-primary);
+  color: var(--pico-primary-inverse);
+  box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
+
+  &:hover {
+    background: var(--pico-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgb(0 0 0 / 30%);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// .btn-ghost: Contextual/Subtle (Transparent -> Background)
+.btn-ghost {
+  @extend %btn-base;
+
+  color: var(--pico-muted-color);
+  border-color: transparent;
+
+  &:hover {
+    background: rgb(255 255 255 / 5%);
+    color: var(--pico-color);
+  }
+
+  &.danger:hover {
+    color: var(--pico-del-color);
+    background: rgb(220 53 69 / 10%);
+  }
+}
+
+// .btn-outline: Bordered, low emphasis
+.btn-outline {
+  @extend %btn-base;
+
+  border-color: var(--pico-muted-border-color);
+  color: var(--pico-muted-color);
+
+  &:hover {
+    border-color: var(--pico-primary);
+    color: var(--pico-primary);
+    background: rgb(255 255 255 / 2%);
+  }
+}
+
+// .btn-glass: Overlays/Floating UI (Blur)
+.btn-glass {
+  @extend %btn-base;
+
+  background: rgb(0 0 0 / 40%);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgb(255 255 255 / 10%);
+  color: rgb(255 255 255 / 80%);
+
+  &:hover {
+    background: rgb(255 255 255 / 10%);
+    border-color: rgb(255 255 255 / 30%);
+    color: #fff;
+  }
+}
+
+// --- 3. UTILITY SHAPES ---
+
+// .btn-round: Perfect Circle (for Icons)
+.btn-round {
+  padding: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+}
+
+// .btn-joined: For Button Groups (No radius on connecting sides)
+// Using a placeholder to avoid stylelint error on @extend
+%btn-group-joined {
+  display: inline-flex;
+
+  .btn,
+  button,
+  .btn-ghost,
+  .btn-primary {
+    border-radius: 0;
+    margin: 0;
+
+    &:first-child {
+      border-radius: var(--pico-radius) 0 0 var(--pico-radius);
+    }
+
+    &:last-child {
+      border-radius: 0 var(--pico-radius) var(--pico-radius) 0;
+    }
+
+    &:not(:last-child) {
+      border-right: 1px solid rgb(255 255 255 / 10%);
+    }
+  }
+}
+
 .btn-group-joined {
-  @include btn-group-base(var(--pico-radius));
+  @extend %btn-group-joined;
+}
+
+// --- 4. ANIMATIONS ---
+.btn-icon-raise:hover svg.icon {
+  transform: translateY(-2px) scale(1.1);
+}
+
+// --- 5. SPECIAL COMPONENT: THE PILL (FLOATING ACTIONS) ---
+
+.btn-group-pill {
+  @extend %btn-group-joined;
+  @extend %glass-pill;
+
+  overflow: hidden; // Clip the children
+  width: fit-content; // [FIX] Prevent stretching to full width
+
+  // Override child radius to fit the pill
+  .btn,
+  button {
+    flex: 0 0 auto; // [FIX] Prevent buttons from growing filler
+    border: none; // Remove borders inside the pill (handled by container)
+    &:first-child {
+      padding-left: 1.5rem;
+    }
+
+    &:last-child {
+      padding-right: 1.5rem;
+    }
+
+    // Add dividers manually if needed, or rely on .btn-group-joined logic
+    &:not(:last-child) {
+      border-right: 1px solid rgb(255 255 255 / 10%);
+    }
+  }
 }
