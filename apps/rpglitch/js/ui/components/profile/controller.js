@@ -59,7 +59,11 @@ export async function refreshProfileIfOpen() {
 }
 
 // Subscribe to background updates
-events.addEventListener(EVENTS.DB_UPDATED, () => refreshProfileIfOpen());
+events.addEventListener(EVENTS.DB_UPDATED, (data) => {
+  // [FIX] Ignore updates that came from the view itself (like flipping)
+  if (data?.detail?.source === "profile-view") return;
+  refreshProfileIfOpen();
+});
 
 // --- INITIALIZATION ---
 // Bind backdrop click using delegation (handles early load / test envs)
@@ -111,6 +115,12 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
       context: "load profile",
       fallback: null,
     });
+    console.log(
+      "[Controller] Fetched entity:",
+      id,
+      "Visuals:",
+      JSON.stringify(entity?.visuals),
+    );
   }
 
   if (!entity) {

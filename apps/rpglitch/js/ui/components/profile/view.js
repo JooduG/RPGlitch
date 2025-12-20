@@ -36,7 +36,9 @@ export async function renderProfileView(
   const applyVisualsToImage = (wrapperEl) => {
     if (!wrapperEl) return;
     // [FIX] Ensure we target the .picture wrapper, not the container or img
-    const target = wrapperEl.querySelector(".picture") || wrapperEl;
+    const target = wrapperEl.classList.contains("picture")
+      ? wrapperEl
+      : wrapperEl.querySelector(".picture") || wrapperEl;
     if (localVisuals.flipped) target.classList.add("img-flipped");
     else target.classList.remove("img-flipped");
   };
@@ -76,8 +78,43 @@ export async function renderProfileView(
     if (id !== "new") {
       try {
         if (!entity.visuals) entity.visuals = {};
+        console.log(
+          "[View] Flipping. Current:",
+          localVisuals.flipped,
+          "New:",
+          !localVisuals.flipped,
+        );
         entity.visuals.flipped = localVisuals.flipped;
-        await entities.upsert(type, entity);
+
+        console.log(
+          "[View] Saving Entity with visuals:",
+          JSON.stringify(entity.visuals),
+        );
+        // [FIX] Silent save to prevent Controller loop. Manually dispatch with source.
+        const saved = await entities.upsert(type, entity, { silent: true });
+        console.log("[View] Save result:", JSON.stringify(saved.visuals));
+
+        // [FIX] Update local state immediately to prevent stale re-renders
+        if (state.selectedAI && state.selectedAI.id === id)
+          state.selectedAI.visuals = entity.visuals;
+        if (state.selectedUser && state.selectedUser.id === id)
+          state.selectedUser.visuals = entity.visuals;
+        if (state.selectedFractal && state.selectedFractal.id === id)
+          state.selectedFractal.visuals = entity.visuals;
+
+        // [NEW] Dispatch for Storyboard (Setup.js) but mark source for Controller
+        const { events, EVENTS } = await import("../../../core/events.js");
+        events.dispatchEvent(
+          new CustomEvent(EVENTS.DB_UPDATED, {
+            detail: {
+              id: entity.id,
+              type: type,
+              store: "entities",
+              source: "profile-view",
+            },
+          }),
+        );
+
         window.dispatchEvent(
           new CustomEvent("entity-visual-update", {
             detail: { id: entity.id },

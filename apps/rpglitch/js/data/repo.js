@@ -87,7 +87,7 @@ export const entities = {
   },
 
   // Save changes (Used by AI directly and UI)
-  async upsert(type, entity) {
+  async upsert(type, entity, options = {}) {
     try {
       const id = entity.id || crypto?.randomUUID?.() || `${type}-${Date.now()}`;
       const base = (await db.entities.get(id)) || {};
@@ -105,6 +105,19 @@ export const entities = {
       };
 
       await db.entities.put(saved);
+
+      await db.entities.put(saved);
+
+      // [FIX] Support silent updates to prevent UI loops
+      if (!options?.silent) {
+        const { events, EVENTS } = await import("../core/events.js");
+        events.dispatchEvent(
+          new CustomEvent(EVENTS.DB_UPDATED, {
+            detail: { id: id, type: type, store: "entities" },
+          }),
+        );
+      }
+
       return saved;
     } catch (err) {
       error(`Failed to save ${type}:`, err);

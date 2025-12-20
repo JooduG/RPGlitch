@@ -32,9 +32,12 @@
   }
 
   &.img-flipped {
+    transform: scaleX(-1);
+
+    // [FIX] Prevent double-flip on children if they had legacy rules
     img,
     .placeholder-image {
-      transform: rotateY(180deg) !important;
+      transform: none !important;
     }
   }
 }

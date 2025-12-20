@@ -192,29 +192,41 @@ export function initStoryboardStage(views) {
   // [NEW] Listener for stale data
   // [NEW] Listener for stale data
   events.addEventListener(EVENTS.DB_UPDATED, async (data) => {
-    // Only refresh if we have a selection and are in storyboard mode (roughly)
-    if (
-      !state.story.activeId &&
-      (state.selectedAI || state.selectedUser || state.selectedFractal)
-    ) {
-      const updatedId = data?.id;
+    // Only runs if we are in Storyboard mode (no active story)
+    if (!state.story.activeId) {
+      // [FIX] Access detail from CustomEvent
+      const updatedId = data?.detail?.id;
       if (!updatedId) return;
+      const { getOnUpdateSelection } =
+        await import("./components/profile/controller.js");
+      const _onUpdateSelection = getOnUpdateSelection();
 
-      const updates = {};
+      // If we have a selection handler and an update occurred
+      if (_onUpdateSelection) {
+        const { entities } = await import("../data/repo.js");
 
-      if (state.selectedAI?.id === updatedId) {
-        updates.aiCharacter = await entities.get("character", updatedId);
-      }
-      if (state.selectedUser?.id === updatedId) {
-        updates.userCharacter = await entities.get("character", updatedId);
-      }
-      if (state.selectedFractal?.id === updatedId) {
-        updates.fractal = await entities.get("fractal", updatedId);
-      }
+        // Re-fetch currently selected entities to force UI update
+        const updates = {};
+        if (state.selectedAI)
+          updates.aiCharacter = await entities.get(
+            "character",
+            state.selectedAI.id,
+          );
+        if (state.selectedUser)
+          updates.userCharacter = await entities.get(
+            "character",
+            state.selectedUser.id,
+          );
+        if (state.selectedFractal)
+          updates.fractal = await entities.get(
+            "fractal",
+            state.selectedFractal.id,
+          );
 
-      if (Object.keys(updates).length > 0) {
-        // [FIX] Force refresh of the specific slot
-        views.updateStoryboardSelection(updates);
+        // Trigger the UI refresh
+        if (Object.keys(updates).length > 0) {
+          _onUpdateSelection(updates);
+        }
       }
     }
   });
