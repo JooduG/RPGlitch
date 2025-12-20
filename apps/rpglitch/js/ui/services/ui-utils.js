@@ -1,5 +1,74 @@
 import { mixHex } from "../../core/utils.js";
 import { PALETTE } from "../../core/constants.js";
+import { getVisualState } from "../../data/models.js";
+
+// [NEW] Shared UI Components
+export function createIconBtn(
+  iconSvg,
+  title,
+  onClick,
+  className = "ghost-icon-btn",
+) {
+  const btn = document.createElement("button");
+  btn.className = className;
+  btn.innerHTML = iconSvg;
+  btn.title = title;
+  btn.type = "button";
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    onClick(e);
+  };
+  return btn;
+}
+
+export function renderDynamicsWidget(container, entity, mode = "view") {
+  const dyns = entity.dynamics || {
+    entropy: 50,
+    permeability: 50,
+    velocity: 50,
+    resonance: 50,
+  };
+
+  const isEdit = mode === "edit";
+  const gridStyle = isEdit
+    ? "display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;"
+    : "display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "field-row";
+  wrapper.innerHTML = `
+    <div class="field-label">
+      <label>Dynamics</label>
+      <small class="muted">Developer Mode</small>
+    </div>
+    <div class="field-input" style="${gridStyle}"></div>
+  `;
+
+  const grid = wrapper.querySelector(".field-input");
+
+  ["entropy", "permeability", "velocity", "resonance"].forEach((k) => {
+    const val = dyns[k] !== undefined ? dyns[k] : 50;
+
+    if (isEdit) {
+      const label = document.createElement("label");
+      label.style.fontSize = "0.8rem";
+      label.style.textTransform = "capitalize";
+      label.innerHTML = `${k} <input type="number" data-edit-dynamic="${k}" value="${val}" min="0" max="100">`;
+      grid.appendChild(label);
+    } else {
+      const card = document.createElement("div");
+      card.style.cssText =
+        "background: var(--pico-card-background-color); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--pico-muted-border-color); text-align: center;";
+      card.innerHTML = `
+        <div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 0.25rem;">${k}</div>
+        <div style="font-family: monospace; font-size: 1.1rem; font-weight: 800; color: var(--pico-primary);">${val}%</div>
+      `;
+      grid.appendChild(card);
+    }
+  });
+
+  container.appendChild(wrapper);
+}
 
 // --- UI Helpers (Chin, TopBar) ---
 
@@ -154,10 +223,20 @@ export function getPictureHTML(entity = {}, options = {}) {
   const title = entity.name || "Empty";
   const type = (entity.type || "default").toLowerCase();
 
+  let visuals = options.visuals || entity.visuals;
+  if (!visuals && typeof getVisualState === "function") {
+    visuals = getVisualState(entity);
+  }
+
   const rawSrc = entity.profilePictureUrl;
   const src = typeof rawSrc === "string" && rawSrc.trim() ? rawSrc.trim() : "";
-
-  const signature = getSignature(entity);
+  // Ensure we have a signature string
+  const signature =
+    typeof getSignature === "function"
+      ? getSignature(entity)
+      : entity.signatureColor
+        ? `var(--pico-color-${entity.signatureColor})`
+        : "var(--signature-default)";
   const contrast = "#fff";
 
   const wrap = document.createElement("div");
@@ -170,6 +249,10 @@ export function getPictureHTML(entity = {}, options = {}) {
   wrap.style.setProperty("--signature-contrast", contrast);
   wrap.style.backgroundColor = "var(--signature)";
 
+  if (visuals && visuals.flipped) {
+    wrap.classList.add("img-flipped");
+  }
+
   if (src) {
     const img = document.createElement("img");
     img.alt = `${type} image for ${title}`;
@@ -178,29 +261,29 @@ export function getPictureHTML(entity = {}, options = {}) {
     img.decoding = "async";
     img.referrerPolicy = "no-referrer";
     wrap.appendChild(img);
-    return wrap;
+  } else {
+    const ph = document.createElement("div");
+    ph.className = "placeholder-image";
+    if (!neutralPlaceholder) {
+      ph.style.backgroundColor = "var(--signature)";
+      ph.style.color = "var(--signature-contrast)";
+    }
+
+    const iconKey = (entity.icon || entity.type || "default").toLowerCase();
+    const iconTemplateId = `tpl-placeholder-icon-${iconKey}`;
+    const iconTemplate =
+      document.querySelector(`#${iconTemplateId}`) ||
+      document.querySelector("#tpl-placeholder-icon-default");
+
+    if (iconTemplate?.content) {
+      ph.appendChild(iconTemplate.content.cloneNode(true));
+    }
+
+    ph.setAttribute("role", "img");
+    ph.setAttribute("aria-label", `${type} placeholder for ${title}`);
+    wrap.appendChild(ph);
   }
 
-  const ph = document.createElement("div");
-  ph.className = "placeholder-image";
-  if (!neutralPlaceholder) {
-    ph.style.backgroundColor = "var(--signature)";
-    ph.style.color = "var(--signature-contrast)";
-  }
-
-  const iconKey = (entity.icon || entity.type || "default").toLowerCase();
-  const iconTemplateId = `tpl-placeholder-icon-${iconKey}`;
-  const iconTemplate =
-    document.querySelector(`#${iconTemplateId}`) ||
-    document.querySelector("#tpl-placeholder-icon-default");
-
-  if (iconTemplate?.content) {
-    ph.appendChild(iconTemplate.content.cloneNode(true));
-  }
-
-  ph.setAttribute("role", "img");
-  ph.setAttribute("aria-label", `${type} placeholder for ${title}`);
-  wrap.appendChild(ph);
   return wrap;
 }
 

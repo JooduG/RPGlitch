@@ -1,5 +1,5 @@
 import { sanitizeHtml } from "../../../core/utils.js";
-import { downloadImage } from "../../services/ui-utils.js";
+import { downloadImage, createIconBtn } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { state } from "../../../core/state.js";
 import { ThemeService } from "../../services/theme.js";
@@ -231,14 +231,13 @@ export function renderMessage(
 
     // [IMAGE ACTIONS] Download Button
     if (options.attachmentUrl) {
-      const btnDownload = document.createElement("button");
-      btnDownload.className = "ghost-icon-btn";
-      btnDownload.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`;
-      btnDownload.title = "Download Image";
-      btnDownload.onclick = (e) => {
-        e.stopPropagation();
-        downloadImage(options.attachmentUrl, `rpglitch-${Date.now()}.png`);
-      };
+      const btnDownload = createIconBtn(
+        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
+        "Download Image",
+        (e) => {
+          downloadImage(options.attachmentUrl, `rpglitch-${Date.now()}.png`);
+        },
+      );
       actionsDiv.appendChild(btnDownload);
     }
 
@@ -250,48 +249,45 @@ export function renderMessage(
       options.isLast &&
       role === "ai"
     ) {
-      const btnRerollImg = document.createElement("button");
-      btnRerollImg.className = "ghost-icon-btn";
-      btnRerollImg.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
-      btnRerollImg.title = "Reroll Image";
-      btnRerollImg.onclick = (e) => {
-        e.stopPropagation();
-        if (TurnManager && options.messageId) {
-          TurnManager.regenerateMessageImage(options.messageId);
-        }
-      };
+      const btnRerollImg = createIconBtn(
+        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`,
+        "Reroll Image",
+        (e) => {
+          if (TurnManager && options.messageId) {
+            TurnManager.regenerateMessageImage(options.messageId);
+          }
+        },
+      );
       actionsDiv.appendChild(btnRerollImg);
     }
 
     // [TEXT ACTIONS]
     if (role === "ai" && options.isLast) {
-      const btnReroll = document.createElement("button");
-      btnReroll.className = "ghost-icon-btn";
-      btnReroll.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`;
-      btnReroll.title = "Reroll Message";
-      btnReroll.onclick = () => {
-        if (TurnManager) TurnManager.regenerate();
-      };
+      const btnReroll = createIconBtn(
+        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`,
+        "Reroll Message",
+        () => {
+          if (TurnManager) TurnManager.regenerate();
+        },
+      );
       actionsDiv.appendChild(btnReroll);
 
-      const btnEdit = document.createElement("button");
-      btnEdit.className = "ghost-icon-btn";
-      btnEdit.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
-      btnEdit.title = "Edit Message";
-      btnEdit.onclick = (e) => {
-        e.stopPropagation();
-        startEditMode(options.messageId, text);
-      };
+      const btnEdit = createIconBtn(
+        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`,
+        "Edit Message",
+        (e) => {
+          startEditMode(options.messageId, text);
+        },
+      );
       actionsDiv.appendChild(btnEdit);
     } else if (role === "user" && options.isLastUserMessage) {
-      const btnEdit = document.createElement("button");
-      btnEdit.className = "ghost-icon-btn";
-      btnEdit.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
-      btnEdit.title = "Edit Message";
-      btnEdit.onclick = (e) => {
-        e.stopPropagation();
-        startEditMode(options.messageId, text);
-      };
+      const btnEdit = createIconBtn(
+        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`,
+        "Edit Message",
+        (e) => {
+          startEditMode(options.messageId, text);
+        },
+      );
       actionsDiv.appendChild(btnEdit);
     }
 

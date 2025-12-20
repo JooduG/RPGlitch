@@ -1,5 +1,9 @@
 import { ThemeService } from "../../services/theme.js";
-import { getPictureHTML, setTopBarRight } from "../../services/ui-utils.js";
+import {
+  getPictureHTML,
+  setTopBarRight,
+  renderDynamicsWidget,
+} from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
 import { escapeHtml } from "../../../core/utils.js";
@@ -140,31 +144,7 @@ export async function renderProfileView(
     state.settings.developerMode &&
     (type === "character" || type === "fractal")
   ) {
-    const dynRow = document.createElement("div");
-    dynRow.className = "field-row";
-    const dyns = entity.dynamics || {
-      entropy: 50,
-      permeability: 50,
-      velocity: 50,
-      resonance: 50,
-    };
-
-    const gridCols = isFractal ? "repeat(4, 1fr)" : "repeat(2, 1fr)";
-    dynRow.innerHTML = `
-        <div class="field-label"><label>Dynamics</label><small class="muted">Developer Mode</small></div>
-        <div class="field-input" style="display: grid; grid-template-columns: ${gridCols}; gap: 0.75rem;">
-             ${["entropy", "permeability", "velocity", "resonance"]
-               .map(
-                 (k) => `
-                <div style="background: var(--pico-card-background-color); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--pico-muted-border-color); text-align: center;">
-                    <div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 0.25rem;">${k}</div>
-                    <div style="font-family: monospace; font-size: 1.1rem; font-weight: 800; color: var(--pico-primary);">${dyns[k] !== undefined ? dyns[k] : 50}%</div>
-                </div>
-            `,
-               )
-               .join("")}
-        </div>`;
-    secWrap.appendChild(dynRow);
+    renderDynamicsWidget(secWrap, entity, "view");
   }
 
   // --- FOOTER ACTIONS ---

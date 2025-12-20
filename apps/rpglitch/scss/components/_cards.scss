@@ -30,6 +30,13 @@
     object-fit: cover;
     transition: transform 0.6s ease;
   }
+
+  &.img-flipped {
+    img,
+    .placeholder-image {
+      transform: scaleX(-1);
+    }
+  }
 }
 
 .placeholder-image {

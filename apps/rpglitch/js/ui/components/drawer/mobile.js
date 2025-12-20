@@ -2,8 +2,7 @@
 import { entities } from "../../../data/repo.js";
 import { error } from "../../../core/utils.js";
 import { getPictureHTML } from "../../services/ui-utils.js";
-// [NEW] Import visual helper
-import { getVisualState } from "../../../data/models.js";
+
 import { ThemeService } from "../../services/theme.js";
 import { openDrawer } from "./desktop.js";
 import { openProfileModal } from "../profile/controller.js";
@@ -144,13 +143,6 @@ export function renderEntityPreview(
     media.title = "View Profile";
 
     const pic = getPictureHTML(entity, { cover: true, landscape: isFractal });
-
-    // [NEW] Apply Flip Logic to Chin Preview
-    const visuals = getVisualState(entity);
-    if (visuals.flipped) {
-      const img = pic.querySelector("img");
-      if (img) img.style.transform = "scaleX(-1)";
-    }
 
     media.appendChild(pic);
     media.addEventListener("click", (e) => {

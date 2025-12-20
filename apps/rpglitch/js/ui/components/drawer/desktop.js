@@ -2,8 +2,7 @@
 import { entities } from "../../../data/repo.js";
 import { log, error } from "../../../core/utils.js";
 import { getPictureHTML } from "../../services/ui-utils.js";
-// [NEW] Import visual helper
-import { getVisualState } from "../../../data/models.js";
+
 import { ThemeService } from "../../services/theme.js";
 
 const DRAWER_ID = "entity-drawer";
@@ -147,13 +146,6 @@ function createCard(item, type, onCreate) {
 
     if (typeof getPictureHTML === "function") {
       const pic = getPictureHTML(item, { cover: true });
-
-      // [NEW] Apply Visual Flip in Drawer
-      const visuals = getVisualState(item);
-      if (visuals.flipped) {
-        const img = pic.querySelector("img");
-        if (img) img.style.transform = "scaleX(-1)";
-      }
 
       card.appendChild(pic);
     } else {

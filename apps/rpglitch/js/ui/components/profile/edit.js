@@ -1,5 +1,9 @@
 import { ThemeService, PALETTE } from "../../services/theme.js";
-import { getPictureHTML, setTopBarRight } from "../../services/ui-utils.js";
+import {
+  getPictureHTML,
+  setTopBarRight,
+  renderDynamicsWidget,
+} from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
 import {
@@ -397,29 +401,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
     state.settings.developerMode &&
     (type === "character" || type === "fractal")
   ) {
-    const dynRow = document.createElement("div");
-    dynRow.className = "field-row";
-    const dyns = entity.dynamics || {
-      entropy: 50,
-      permeability: 50,
-      velocity: 50,
-      resonance: 50,
-    };
-
-    dynRow.innerHTML = `
-        <div class="field-label"><label>Dynamics</label><small class="muted">Developer Mode</small></div>
-        <div class="field-input" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
-            ${["entropy", "permeability", "velocity", "resonance"]
-              .map(
-                (k) => `
-                <label style="font-size: 0.8rem; text-transform: capitalize;">
-                    ${k} <input type="number" data-edit-dynamic="${k}" value="${dyns[k] !== undefined ? dyns[k] : 50}" min="0" max="100">
-                </label>
-            `,
-              )
-              .join("")}
-        </div>`;
-    secWrap.appendChild(dynRow);
+    renderDynamicsWidget(secWrap, entity, "edit");
   }
 
   // --- FOOTER ACTIONS ---
