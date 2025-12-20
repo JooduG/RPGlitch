@@ -18,19 +18,6 @@ _Tools to visualize the invisible forces driving the story._
 | **Style Drift**          | [UI]     | M      | M      | Bind CSS variables to `Entropy`; subtly distort fonts/colors as narrative chaos rises.                    |
 | **Memory Density Meter** | [UI]     | S      | S      | Visual bar showing how "full" the AI's context window is.                                                 |
 
-## 🎬 Concept 2: The Director's Suite
-
-_Power tools for the author to control the simulation._
-
-| Item                         | Category   | Impact | Effort | Notes                                                                                       |
-| :--------------------------- | :--------- | :----- | :----- | :------------------------------------------------------------------------------------------ |
-| **Extend Message**           | [Logic]    | M      | S      | "Continue": Force the AI to append text to its last message (generating a longer response). |
-| **Integrated Director Mode** | [DevTools] | L      | M      | Unified toggle: Unhide `<think>`, reveal `<image_prompt>`, view raw JSON.                   |
-| **State Editor**             | [Tool]     | L      | M      | Manually edit the `<PRESENT>`, `<FUTURE>`, or `<DYNAMICS>` text of any entity mid-story.    |
-| **Snapshot Diffing**         | [Tool]     | M      | M      | "What Changed?" view showing the text delta between Turn N and N-1.                         |
-| **Context Inspector**        | [Tool]     | M      | S      | View the _exact_ raw prompt text sent to the LLM (crucial for debugging leaks).             |
-| **"Bad Detective"**          | [Tool]     | M      | M      | Analyze last 5 turns to highlight prompt conflicts or logic loops.                          |
-
 ## ⏳ Concept 3: The Loom of Time
 
 _Features that break the linear flow of storytelling._

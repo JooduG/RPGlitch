@@ -21,19 +21,25 @@
 - [x] **Button Harmonization (UI)**
 - [x] **The Epilogue Flow**
 - [x] **Library Interface**
+- [x] **Confirm Modal Polish**
 
 ---
 
-## 🚀 Phase 1: Foundations & Closures (Active Priorities)
+## 🚀 Phase 1: Active Priorities (Foundations & Director Tools)
 
-_The boring but critical features that make a story feel complete._
+_Critical features and power tools to complete the product experience._
 **Legend:** `S`=Small, `M`=Medium, `L`=Large, `XL`=Epic
 
-| Item                      | Category | Impact | Effort | Dependencies | Notes                                                                                      |
-| :------------------------ | :------- | :----- | :----- | :----------- | :----------------------------------------------------------------------------------------- |
-| **Writer's Block Rescue** | [UX]     | M      | S      | `Modal`      | Compact "Engine Stalled" alert. Options: "Retry" (Reroll) or "Director's Note" (Variance). |
-| **Plot Thread Tracker**   | [Data]   | M      | S      | `DB`         | Add `customData.plot` (`active`, `resolved`) to schema. Hidden from UI for now.            |
-| **Confirm Modal Polish**  | [UI]     | S      | S      | `CSS`        | Refine `tpl-confirm-modal` styling. Move inline styles to SCSS.                            |
+| Item                         | Category   | Impact | Effort | Dependencies | Notes                                                                                       |
+| :--------------------------- | :--------- | :----- | :----- | :----------- | :------------------------------------------------------------------------------------------ |
+| **Writer's Block Rescue**    | [UX]       | M      | S      | `Modal`      | Compact "Engine Stalled" alert. Options: "Retry" (Reroll) or "Director's Note" (Variance).  |
+| **Plot Thread Tracker**      | [Data]     | M      | S      | `DB`         | Add `customData.plot` (`active`, `resolved`) to schema. Hidden from UI for now.             |
+| **Extend Message**           | [Logic]    | M      | S      | `Engine`     | "Continue": Force the AI to append text to its last message (generating a longer response). |
+| **Integrated Director Mode** | [DevTools] | L      | M      | `UI`         | Unified toggle: Unhide `<think>`, reveal `<image_prompt>`, view raw JSON.                   |
+| **State Editor**             | [Tool]     | L      | M      | `DB`         | Manually edit the `<PRESENT>`, `<FUTURE>`, or `<DYNAMICS>` text of any entity mid-story.    |
+| **Snapshot Diffing**         | [Tool]     | M      | M      | `Delta`      | "What Changed?" view showing the text delta between Turn N and N-1.                         |
+| **Context Inspector**        | [Tool]     | M      | S      | `Prompter`   | View the _exact_ raw prompt text sent to the LLM (crucial for debugging leaks).             |
+| **"Bad Detective"**          | [Tool]     | M      | M      | `Logic`      | Analyze last 5 turns to highlight prompt conflicts or logic loops.                          |
 
 ---
 
@@ -54,6 +60,7 @@ _The boring but critical features that make a story feel complete._
 | **SVG Icon System**          | [UI/UX]    | ✅ COMPLETE | Replaced hardcoded emojis.               |
 | **Narcissism Engine**        | [AI Logic] | ✅ COMPLETE | Self-expression logic in `prompter.js`.  |
 | **Automate Hygiene**         | [DevOps]   | ✅ COMPLETE | `tools/ops/hygiene.js` created.          |
+| **Confirm Modal Polish**     | [UI]       | ✅ COMPLETE | Refined styling & moved inline CSS.      |
 
 ---
 
