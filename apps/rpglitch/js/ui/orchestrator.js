@@ -307,6 +307,23 @@ export function showPrompt(title, message, defaultValue = "") {
   });
 }
 
+export async function handleConcludeStory() {
+  const confirmed = await showConfirm(
+    "Conclude Story?",
+    "Are you sure? The AI will write an epilogue and the story will be archived.",
+  );
+
+  if (confirmed) {
+    // [UX] Lock UI immediately
+    const form = document.querySelector("#story-form");
+    if (form) form.style.display = "none";
+
+    // Call Engine
+    const { TurnManager } = await import("../engine/director.js");
+    await TurnManager.concludeStory();
+  }
+}
+
 window.addEventListener("app-error", (e) => {
   showErrorModal(e.detail?.type || "generic", e.detail?.error?.message);
 });

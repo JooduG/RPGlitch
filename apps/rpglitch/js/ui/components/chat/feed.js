@@ -182,34 +182,7 @@ export async function renderChat(storyId) {
 
       if (tpl) {
         const clone = tpl.content.cloneNode(true);
-        // [DEBUG] Explicitly identify the element to style it before/after append
-        // the clone is a DocumentFragment, so we need to get the child
-        const el = clone.querySelector(".concluded-controls");
-        if (el) {
-          el.style.setProperty("position", "fixed", "important");
-          el.style.setProperty("bottom", "3rem", "important");
-          el.style.setProperty("left", "50%", "important");
-          el.style.setProperty("transform", "translateX(-50%)", "important");
-          el.style.setProperty("z-index", "2147483647", "important");
-          el.style.setProperty("display", "flex", "important");
-        }
-
         document.body.appendChild(clone);
-
-        // Log computed state to ensure it took hold
-        setTimeout(() => {
-          const inserted = document.querySelector(".concluded-controls");
-          if (inserted) {
-            const s = window.getComputedStyle(inserted);
-            console.log("DEBUG: Final Computed:", {
-              pos: s.position,
-              bottom: s.bottom,
-              zIndex: s.zIndex,
-              display: s.display,
-              rect: inserted.getBoundingClientRect(),
-            });
-          }
-        }, 100);
       }
     } else {
       // Ensure they are visible if hidden
@@ -219,10 +192,6 @@ export async function renderChat(storyId) {
     // Re-query to ensure we get the fresh element
     const controls = document.querySelector(".concluded-controls");
     if (controls) {
-      // Force styles just in case
-      controls.style.display = "flex";
-      controls.style.zIndex = "99999";
-
       // Bind Events
       const btnSettings = controls.querySelector("#btn-concluded-settings");
       const btnDelete = controls.querySelector("#btn-concluded-delete");

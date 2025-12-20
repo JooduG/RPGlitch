@@ -66,9 +66,7 @@ export const TurnManager = {
       events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
     } catch (e) {
       error("Failed to load story:", e);
-      import("../ui/orchestrator.js").then((m) =>
-        m.showAlert("Error", "Could not load story."),
-      );
+      throw e;
     }
   },
 
@@ -274,8 +272,10 @@ export const TurnManager = {
       }
     } catch (e) {
       error("AI Gen Error", e);
-      import("../ui/orchestrator.js").then((m) =>
-        m.showAlert("AI Error", "AI Generation Failed: " + e.message),
+      window.dispatchEvent(
+        new CustomEvent("app-error", {
+          detail: { error: e, type: "generation" },
+        }),
       );
 
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
@@ -354,8 +354,10 @@ export const TurnManager = {
     } catch (e) {
       error("AI Error", e);
       applyPatch({ ui: { fsm: "error", lastError: e.message } });
-      import("../ui/orchestrator.js").then((m) =>
-        m.showAlert("AI Error", "AI Error: " + e.message),
+      window.dispatchEvent(
+        new CustomEvent("app-error", {
+          detail: { error: e, type: "generation" },
+        }),
       );
 
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
@@ -422,11 +424,10 @@ export const TurnManager = {
       } catch (streamErr) {
         if (streamErr.name === "AbortError") throw streamErr;
         console.error("[TURN] Regen Network Error:", streamErr);
-        import("../ui/orchestrator.js").then((m) =>
-          m.showAlert(
-            "Connection Error",
-            "Connection Error: Could not regenerate message.",
-          ),
+        window.dispatchEvent(
+          new CustomEvent("app-error", {
+            detail: { error: streamErr, type: "network" },
+          }),
         );
         throw streamErr;
       }
@@ -450,8 +451,10 @@ export const TurnManager = {
       applyPatch({ ui: { fsm: "done" } });
     } catch (e) {
       error("Regen Error", e);
-      import("../ui/orchestrator.js").then((m) =>
-        m.showAlert("Regen Failed", "Regen Failed: " + e.message),
+      window.dispatchEvent(
+        new CustomEvent("app-error", {
+          detail: { error: e, type: "generation" },
+        }),
       );
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     } finally {
@@ -514,11 +517,10 @@ export const TurnManager = {
       await TurnManager.generateAiResponse(storyId);
     } catch (e) {
       error("Opening Gen Failed", e);
-      import("../ui/orchestrator.js").then((m) =>
-        m.showAlert(
-          "Opening Failed",
-          "Failed to generate opening: " + e.message,
-        ),
+      window.dispatchEvent(
+        new CustomEvent("app-error", {
+          detail: { error: e, type: "generation" },
+        }),
       );
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
@@ -527,24 +529,6 @@ export const TurnManager = {
 
   concludeStory: async () => {
     const storyId = TurnManager.requireActive();
-
-    if (
-      !(await import("../ui/orchestrator.js").then((m) =>
-        m.showConfirm(
-          "Conclude Story?",
-          "Are you sure you want to conclude this story? The AI will write an epilogue and the story will be archived.",
-        ),
-      ))
-    )
-      return;
-
-    // [UX] Immediately Lock UI
-    const form = document.querySelector("#story-form");
-    if (form) form.style.display = "none";
-
-    // Close Settings if open
-    const optionsModal = document.getElementById("settings");
-    if (optionsModal) optionsModal.setAttribute("hidden", "");
 
     events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_STARTED));
     events.dispatchEvent(
@@ -638,11 +622,10 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
       return response.trim().replace(/^"|"$/g, "");
     } catch (e) {
       error("[TurnManager] Ghostwrite error:", e);
-      import("../ui/orchestrator.js").then((m) =>
-        m.showAlert(
-          "Ghostwriter Error",
-          "Ghostwriter failed. Please try again.",
-        ),
+      window.dispatchEvent(
+        new CustomEvent("app-error", {
+          detail: { error: e, type: "generation" },
+        }),
       );
       return null;
     } finally {
@@ -678,11 +661,10 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
       );
     } catch (e) {
       error("[TurnManager] Image Gen failed:", e);
-      import("../ui/orchestrator.js").then((m) =>
-        m.showAlert(
-          "Image Gen Error",
-          "Failed to generate image. " + e.message,
-        ),
+      window.dispatchEvent(
+        new CustomEvent("app-error", {
+          detail: { error: e, type: "generation" },
+        }),
       );
     } finally {
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
@@ -741,8 +723,10 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
       );
     } catch (e) {
       error("[TurnManager] Reroll Image Failed:", e);
-      import("../ui/orchestrator.js").then((m) =>
-        m.showAlert("Reroll Failed", "Failed to reroll image."),
+      window.dispatchEvent(
+        new CustomEvent("app-error", {
+          detail: { error: e, type: "generation" },
+        }),
       );
       if (window.setRerollState) window.setRerollState(messageId, false);
       events.dispatchEvent(
@@ -767,11 +751,15 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
           fractal.simulation.directorMode === "TEXT_PROTOCOL"));
 
     if (!isMessenger) {
-      import("../ui/orchestrator.js").then((m) =>
-        m.showAlert(
-          "Feature Unavailable",
-          "This feature is only available in Messenger Mode.",
-        ),
+      window.dispatchEvent(
+        new CustomEvent("app-error", {
+          detail: {
+            error: new Error(
+              "Feature unavailable. This feature is only available in Messenger Mode.",
+            ),
+            type: "feature-unavailable",
+          },
+        }),
       );
       return;
     }

@@ -2,7 +2,7 @@ import { db } from "../../core/db.js";
 import { applyPatch, state } from "../../core/state.js";
 import { TurnManager } from "../../engine/director.js";
 import { entities } from "../../data/repo.js";
-import { showAlert } from "../orchestrator.js";
+import { showAlert, handleConcludeStory } from "../orchestrator.js";
 
 export const StoryOptionsController = {
   async init() {
@@ -105,7 +105,7 @@ export const StoryOptionsController = {
         e.preventDefault();
         if (state.story.activeId) {
           StoryOptionsController.close(); // Close immediately per user request involved interactions
-          await TurnManager.concludeStory();
+          await handleConcludeStory();
         }
       });
     }

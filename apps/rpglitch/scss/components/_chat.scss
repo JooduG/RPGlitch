@@ -780,3 +780,41 @@
     transform: rotate(360deg);
   }
 }
+
+// --- CONCLUDED STATE CONTROLS ---
+// Injected via JS template, styled here.
+.concluded-controls {
+  position: fixed;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  gap: 0.5rem;
+
+  @extend %material-glass; // Use our new glass physics
+
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 80%); // Darker backing for visibility
+  border: 1px solid var(--pico-primary);
+
+  button {
+    margin: 0;
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+// Banner
+#story-concluded {
+  margin-bottom: 1rem;
+  text-align: center;
+  padding: 0.5rem;
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  border-radius: var(--pico-radius);
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
