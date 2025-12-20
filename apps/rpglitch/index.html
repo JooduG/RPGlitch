@@ -56,7 +56,7 @@
     </dialog>
 
     <div id="settings" class="modal-overlay" hidden>
-      <div class="modal-content settings-layout"></div>
+      <div class="modal-content modal-content--wide settings-layout"></div>
     </div>
 
     <main id="main" class="universal-stage story-grid">
@@ -357,7 +357,7 @@
           "
         ></a>
       </header>
-      <div class="settings-controls" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+      <div class="settings-controls modal-body">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <label for="setting-developer-mode" style="margin: 0;">
             <input type="checkbox" id="setting-developer-mode" role="switch" />
@@ -667,31 +667,65 @@
     <script type="module" src="../js/core/bootstrap.js"></script>
     <!-- GLOBAL STYLES FOR DYNAMIC ELEMENTS -->
     <style>
-      dialog.modal::backdrop {
-        background-color: rgba(0, 0, 0, 0.85) !important;
-        backdrop-filter: blur(8px) !important;
-        opacity: 1 !important;
-      }
-      /* Hardening: Force content opacity */
-      dialog.modal article {
-        background: #1e1e1e !important;
-        opacity: 1 !important;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;
-      }
-
-      /* Concluded Controls Styling: Removed (Harmonized to _buttons.scss) */
+      /* Reserved for critical dynamic overrides */
     </style>
 
     <!-- CONFIRMATION MODAL -->
     <template id="tpl-confirm-modal">
-        <article class="modal-content" style="max-width: 400px; background: var(--pico-card-background-color); border: 1px solid var(--pico-muted-border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <article class="modal-content modal-content--dialog">
             <header>
-                <h3 id="confirm-title" style="margin: 0;">Confirm</h3>
+                <h3 id="confirm-title">Confirm</h3>
             </header>
-            <p id="confirm-message" style="margin: 1rem 0;">Are you sure?</p>
-            <footer style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                <button id="btn-confirm-cancel" class="outline secondary">Cancel</button>
-                <button id="btn-confirm-ok" class="primary">Confirm</button>
+            <div class="modal-body">
+                <p id="confirm-message">Are you sure?</p>
+            </div>
+            <footer>
+                <button id="btn-confirm-cancel" class="btn-ghost btn-icon-raise" aria-label="Cancel">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+                <button id="btn-confirm-ok" class="primary btn-icon-raise" aria-label="Confirm">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </button>
+            </footer>
+        </article>
+    </template>
+
+    <!-- ALERT MODAL -->
+    <template id="tpl-alert-modal">
+        <article class="modal-content modal-content--dialog">
+            <header>
+                <h3 id="alert-title">Alert</h3>
+            </header>
+            <div class="modal-body">
+                <p id="alert-message">Notice</p>
+            </div>
+            <footer>
+                <button id="btn-alert-ok" class="primary btn-icon-raise" aria-label="OK">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </button>
+            </footer>
+        </article>
+    </template>
+
+    <!-- PROMPT MODAL -->
+    <template id="tpl-prompt-modal">
+        <article class="modal-content modal-content--dialog">
+            <header>
+                <h3 id="prompt-title">Prompt</h3>
+            </header>
+            <div class="modal-body">
+                <p id="prompt-message">Enter value:</p>
+                <div class="input-group">
+                    <input type="text" id="prompt-input" autocomplete="off">
+                </div>
+            </div>
+            <footer>
+                <button id="btn-prompt-cancel" class="btn-ghost btn-icon-raise" aria-label="Cancel">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+                <button id="btn-prompt-ok" class="primary btn-icon-raise" aria-label="Confirm">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </button>
             </footer>
         </article>
     </template>

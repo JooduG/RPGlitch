@@ -18,6 +18,7 @@ import {
   getOnUpdateSelection,
   getActiveSlotKey,
 } from "./controller.js";
+import { showAlert, showConfirm } from "../../orchestrator.js";
 
 function autoResize(el) {
   el.style.height = "auto";
@@ -381,7 +382,10 @@ export async function renderProfileEdit(screen, entity, type, id) {
         imageInput.dispatchEvent(new Event("input"));
       } catch (err) {
         console.error("Magic Prompt failed", err);
-        alert("The Director is currently unavailable. Please try again.");
+        showAlert(
+          "Error",
+          "The Director is currently unavailable. Please try again.",
+        );
       } finally {
         setBusy(false);
       }
@@ -435,7 +439,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
     delBtn.title = "Delete Profile";
     delBtn.onclick = async (e) => {
       e.preventDefault();
-      if (confirm("Delete this entity?")) {
+      if (await showConfirm("Delete Profile", "Delete this entity?")) {
         await entities.remove(type, id);
         const _onUpdateSelection = getOnUpdateSelection();
         if (_onUpdateSelection) {
@@ -458,7 +462,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
   saveBtn.onclick = async (e) => {
     e.preventDefault();
     const nameVal = nameInput.value.trim();
-    if (!nameVal) return alert("Name is required");
+    if (!nameVal) return showAlert("Validation", "Name is required");
 
     let tagsArray = [];
     const tagInputEl = form.querySelector('[data-edit-field="tags"]');
@@ -511,7 +515,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
       closeProfileModal();
     } catch (err) {
       console.error(err);
-      alert("Failed to save.");
+      showAlert("Saving Failed", "Failed to save.");
     }
   };
   btnGroup.appendChild(saveBtn);

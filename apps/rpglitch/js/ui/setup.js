@@ -4,6 +4,7 @@ import { entities } from "../data/repo.js";
 import { TurnManager } from "../engine/director.js";
 import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
 import { error } from "../core/utils.js";
+import { showAlert } from "./orchestrator.js";
 
 // MODIFIED: Exported for testing
 // MODIFIED: Exported for testing
@@ -83,7 +84,7 @@ export function generateDynamicTitle(ai, user, fractal) {
 async function handleBeginStory() {
   const { selectedAI, selectedUser, selectedFractal, storyTitle } = state;
   if (!selectedAI || !selectedUser || !selectedFractal)
-    return alert("Please select all entities.");
+    return showAlert("Selection Incomplete", "Please select all entities.");
 
   try {
     const id = await TurnManager.createFromSelection({
@@ -110,7 +111,7 @@ async function handleBeginStory() {
     await TurnManager.load(id);
   } catch (e) {
     error("Begin Story Failed", e);
-    alert("Could not start story.");
+    showAlert("Error", "Could not start story.");
   }
 }
 

@@ -161,7 +161,9 @@ const App = {
         "CRITICAL SECURITY FAILURE: DOMPurify is missing. Aborting startup.";
       error(msg);
       if (modal) modal.close();
-      alert(msg);
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert("Critical Error", msg),
+      );
       throw new Error(msg);
     }
 
@@ -207,7 +209,9 @@ const App = {
         }
       }
 
-      alert("App failed to load: " + (e.message || e));
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert("Boot Error", "App failed to load: " + (e.message || e)),
+      );
 
       const emergencyModal = document.getElementById("emergency-modal");
       if (emergencyModal) emergencyModal.showModal();

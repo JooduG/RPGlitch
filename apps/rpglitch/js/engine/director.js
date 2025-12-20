@@ -66,7 +66,9 @@ export const TurnManager = {
       events.dispatchEvent(new CustomEvent(EVENTS.STORY_LOADED));
     } catch (e) {
       error("Failed to load story:", e);
-      alert("Could not load story.");
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert("Error", "Could not load story."),
+      );
     }
   },
 
@@ -272,7 +274,9 @@ export const TurnManager = {
       }
     } catch (e) {
       error("AI Gen Error", e);
-      alert("AI Generation Failed: " + e.message);
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert("AI Error", "AI Generation Failed: " + e.message),
+      );
 
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     } finally {
@@ -350,7 +354,9 @@ export const TurnManager = {
     } catch (e) {
       error("AI Error", e);
       applyPatch({ ui: { fsm: "error", lastError: e.message } });
-      alert("AI Error: " + e.message);
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert("AI Error", "AI Error: " + e.message),
+      );
 
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     } finally {
@@ -416,7 +422,12 @@ export const TurnManager = {
       } catch (streamErr) {
         if (streamErr.name === "AbortError") throw streamErr;
         console.error("[TURN] Regen Network Error:", streamErr);
-        alert("Connection Error: Could not regenerate message.");
+        import("../ui/orchestrator.js").then((m) =>
+          m.showAlert(
+            "Connection Error",
+            "Connection Error: Could not regenerate message.",
+          ),
+        );
         throw streamErr;
       }
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
@@ -439,7 +450,9 @@ export const TurnManager = {
       applyPatch({ ui: { fsm: "done" } });
     } catch (e) {
       error("Regen Error", e);
-      alert("Regen Failed: " + e.message);
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert("Regen Failed", "Regen Failed: " + e.message),
+      );
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     } finally {
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
@@ -501,7 +514,12 @@ export const TurnManager = {
       await TurnManager.generateAiResponse(storyId);
     } catch (e) {
       error("Opening Gen Failed", e);
-      alert("Failed to generate opening: " + e.message);
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert(
+          "Opening Failed",
+          "Failed to generate opening: " + e.message,
+        ),
+      );
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
@@ -620,7 +638,12 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
       return response.trim().replace(/^"|"$/g, "");
     } catch (e) {
       error("[TurnManager] Ghostwrite error:", e);
-      alert("Ghostwriter failed. Please try again.");
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert(
+          "Ghostwriter Error",
+          "Ghostwriter failed. Please try again.",
+        ),
+      );
       return null;
     } finally {
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
@@ -655,7 +678,12 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
       );
     } catch (e) {
       error("[TurnManager] Image Gen failed:", e);
-      alert("Failed to generate image. " + e.message);
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert(
+          "Image Gen Error",
+          "Failed to generate image. " + e.message,
+        ),
+      );
     } finally {
       events.dispatchEvent(new CustomEvent(EVENTS.GENERATION_COMPLETED));
     }
@@ -713,7 +741,9 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
       );
     } catch (e) {
       error("[TurnManager] Reroll Image Failed:", e);
-      alert("Failed to reroll image.");
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert("Reroll Failed", "Failed to reroll image."),
+      );
       if (window.setRerollState) window.setRerollState(messageId, false);
       events.dispatchEvent(
         new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
@@ -737,7 +767,12 @@ Values: Melancholy, hopeful, or dramatic (match the Fractal vibes).
           fractal.simulation.directorMode === "TEXT_PROTOCOL"));
 
     if (!isMessenger) {
-      alert("This feature is only available in Messenger Mode.");
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert(
+          "Feature Unavailable",
+          "This feature is only available in Messenger Mode.",
+        ),
+      );
       return;
     }
 

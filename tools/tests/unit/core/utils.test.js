@@ -29,6 +29,10 @@ jest.mock("../../../../apps/rpglitch/js/ui/services/visuals.js", () => ({
   updateDirectorModeClass: jest.fn(),
 }));
 
+jest.mock("../../../../apps/rpglitch/js/ui/orchestrator.js", () => ({
+  showAlert: jest.fn(),
+}));
+
 afterEach(() => {
   delete global.window;
   delete global.document;
@@ -107,9 +111,10 @@ test("handleAsyncError executes async function and returns result on success", a
 });
 
 test("handleAsyncError catches errors and returns fallback value", async () => {
-  const { dom, App } = await loadApp();
+  const { App } = await loadApp();
   const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-  const alertSpy = jest.spyOn(dom.window, "alert").mockImplementation();
+  const orchestrator =
+    await import("../../../../apps/rpglitch/js/ui/orchestrator.js");
 
   const result = await App.handleAsyncError(
     async () => {
@@ -123,22 +128,33 @@ test("handleAsyncError catches errors and returns fallback value", async () => {
     },
   );
 
+  // Wait for the dynamic import and promise chain to resolve
+  // Since handleAsyncError does not await the alert (it's fire-and-forget in the catch block),
+  // we might need a small delay or use setImmediate if available.
+  // Ideally, handleAsyncError should await the alert if it wants to be testable, but it's a util.
+  // We can just wait a tick.
+  await new Promise((resolve) => setTimeout(resolve, 10));
+
   expect(result).toBe("fallback value");
   expect(consoleErrorSpy).toHaveBeenCalledWith(
     "[RPGlitch]",
     "Failed to test operation:",
     expect.any(Error),
   );
-  expect(alertSpy).toHaveBeenCalledWith("Operation failed");
+  expect(orchestrator.showAlert).toHaveBeenCalledWith(
+    "Error",
+    "Operation failed",
+  );
 
   consoleErrorSpy.mockRestore();
-  alertSpy.mockRestore();
 });
 
 test("handleAsyncError suppresses alert when showAlert is false", async () => {
-  const { dom, App } = await loadApp();
+  const { App } = await loadApp();
   const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-  const alertSpy = jest.spyOn(dom.window, "alert").mockImplementation();
+  const orchestrator =
+    await import("../../../../apps/rpglitch/js/ui/orchestrator.js");
+  orchestrator.showAlert.mockClear();
 
   await App.handleAsyncError(
     async () => {
@@ -152,11 +168,12 @@ test("handleAsyncError suppresses alert when showAlert is false", async () => {
     },
   );
 
-  expect(alertSpy).not.toHaveBeenCalled();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  expect(orchestrator.showAlert).not.toHaveBeenCalled();
   expect(consoleErrorSpy).toHaveBeenCalled();
 
   consoleErrorSpy.mockRestore();
-  alertSpy.mockRestore();
 });
 
 test("replaceEventHandler replaces existing event listener", async () => {

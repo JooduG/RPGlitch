@@ -37,9 +37,8 @@
 }
 
 /* --- MODAL SHELLS --- */
-.modal-content,
-.profile-layout,
-.settings-layout {
+
+%modal-shell {
   width: 100%;
   background: rgb(17 25 31 / 98%);
   border: 1px solid rgb(255 255 255 / 10%);
@@ -50,8 +49,9 @@
   animation: pop-in 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 
-/* --- LAYOUT A: PROFILE (2-Column Grid) --- */
 .profile-layout {
+  @extend %modal-shell;
+
   max-width: 1100px;
   height: 85vh; // Fixed height for internal scrolling
   display: grid;
@@ -78,14 +78,18 @@
 }
 
 /* --- LAYOUT B: SETTINGS (Flex) --- */
+
 .settings-layout {
+  @extend %modal-shell;
+
   max-width: 800px;
-  height: 80vh;
-  padding: 3rem;
+  height: 80vh; // Keep fixed height
+  // Padding removed to allow Header/Footer to be full width
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  overflow-y: auto; // [FIX] Ensure settings modal is always scrollable
+
+  // gap: 1.5rem; // Gap handled by modal-body content
+  // overflow-y: auto; // Content scrolls, not container
 }
 
 /* --- ANIMATIONS --- */

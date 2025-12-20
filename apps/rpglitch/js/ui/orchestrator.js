@@ -99,13 +99,15 @@ function initEventBinds() {
 // --- ERROR HANDLING ---
 
 const errorModalHtml = `
-  <dialog id="error-modal" class="modal--alert">
-    <article>
+  <dialog id="error-modal" class="modal">
+    <article class="modal-content">
       <header>
         <h3>The Engine Stalled</h3>
         <a href="#close" aria-label="Close" class="close" onclick="document.getElementById('error-modal').remove()"></a>
       </header>
-      <p id="error-msg">A connection error occurred.</p>
+      <div class="modal-body">
+        <p id="error-msg">A connection error occurred.</p>
+      </div>
       <footer>
         <button id="btn-err-retry" class="secondary">Retry</button>
         <button id="btn-err-note" class="contrast">Retry with Note</button>
@@ -137,30 +139,42 @@ export function showErrorModal(errorType, message = "Something went wrong.") {
   };
 
   modal.querySelector("#btn-err-note").onclick = async () => {
-    const note = prompt(
-      "Enter a variance note for the AI (e.g. 'More action'):",
-    );
-    if (note) {
-      modal.remove();
-      // Implement logic to retry with instruction if available or just generic regeneration
-      const { TurnManager } = await import("../engine/director.js");
-      // Director needs to support this, for now standard regenerate or custom logic
-      // The prompt asked for "TurnManager.variance()", let's assume/shim it
-      if (typeof TurnManager.regenerate === "function") {
-        // Temporarily we just call regen, but ideally we pass the note
-        // Assuming we can't change director signature easily right now without more edits
-        // We will just alert for now or try to call a method if it existed
-        TurnManager.regenerate();
+    // [HARMONIZATION] Use custom prompt instead of native
+    try {
+      const note = await showPrompt(
+        "Variance Note",
+        "Enter a variance note for the AI (e.g. 'More action'):",
+      );
+      if (note) {
+        modal.remove();
+        const { TurnManager } = await import("../engine/director.js");
+        if (typeof TurnManager.regenerate === "function") {
+          // Ideally propagate note here, but for now just regen per existing logic
+          TurnManager.regenerate();
+        }
       }
+    } catch (e) {
+      // Cancelled
     }
   };
 
-  modal.setAttribute("open", "true");
+  document.body.appendChild(modal);
+  modal.showModal();
 }
 
+/**
+ * Shows a confirmation modal.
+ * @param {string} title
+ * @param {string} message
+ * @returns {Promise<boolean>}
+ */
 export function showConfirm(title, message) {
   return new Promise((resolve) => {
     const tpl = document.getElementById("tpl-confirm-modal");
+    if (!tpl) {
+      // Fallback if template missing (should not happen)
+      return resolve(window.confirm(`${title}\n\n${message}`));
+    }
     const clone = tpl.content.cloneNode(true);
 
     const dialog = document.createElement("dialog");
@@ -168,8 +182,6 @@ export function showConfirm(title, message) {
     dialog.style.zIndex = "10000"; // Topmost
     dialog.appendChild(clone);
 
-    // [FIX] Use showModal() to activate ::backdrop
-    // We need to append to document first for showModal to work
     document.body.appendChild(dialog);
     dialog.showModal();
 
@@ -190,7 +202,108 @@ export function showConfirm(title, message) {
     if (btnCancel) btnCancel.onclick = () => cleanup(false);
     if (btnOk) btnOk.onclick = () => cleanup(true);
 
+    // Close on backdrop click (optional, but standard for modals)
+    dialog.onclick = (e) => {
+      if (e.target === dialog) cleanup(false);
+    };
+  });
+}
+
+/**
+ * Shows an alert modal.
+ * @param {string} title
+ * @param {string} message
+ * @returns {Promise<void>}
+ */
+export function showAlert(title, message) {
+  return new Promise((resolve) => {
+    const tpl = document.getElementById("tpl-alert-modal");
+    if (!tpl) {
+      window.alert(`${title}\n\n${message}`);
+      return resolve();
+    }
+    const clone = tpl.content.cloneNode(true);
+
+    const dialog = document.createElement("dialog");
+    dialog.className = "modal";
+    dialog.style.zIndex = "10001";
+    dialog.appendChild(clone);
+
     document.body.appendChild(dialog);
+    dialog.showModal();
+
+    dialog.querySelector("h3").textContent = title;
+    dialog.querySelector("p").textContent = message;
+
+    const btnOk = dialog.querySelector("#btn-alert-ok");
+
+    const cleanup = () => {
+      dialog.remove();
+      resolve();
+    };
+
+    if (btnOk) btnOk.onclick = cleanup;
+    dialog.onclick = (e) => {
+      if (e.target === dialog) cleanup();
+    };
+  });
+}
+
+/**
+ * Shows a prompt modal.
+ * @param {string} title
+ * @param {string} message
+ * @param {string} [defaultValue='']
+ * @returns {Promise<string|null>} value or null if cancelled
+ */
+export function showPrompt(title, message, defaultValue = "") {
+  return new Promise((resolve, reject) => {
+    const tpl = document.getElementById("tpl-prompt-modal");
+    if (!tpl) {
+      const val = window.prompt(`${title}\n\n${message}`, defaultValue);
+      return val !== null ? resolve(val) : reject();
+    }
+    const clone = tpl.content.cloneNode(true);
+
+    const dialog = document.createElement("dialog");
+    dialog.className = "modal";
+    dialog.style.zIndex = "10002";
+    dialog.appendChild(clone);
+
+    document.body.appendChild(dialog);
+    dialog.showModal();
+
+    dialog.querySelector("h3").textContent = title;
+    dialog.querySelector("p").textContent = message;
+
+    const input = dialog.querySelector("input");
+    if (input) {
+      input.value = defaultValue;
+      // Focus input
+      requestAnimationFrame(() => input.focus());
+
+      // Enter key to submit
+      input.onkeydown = (e) => {
+        if (e.key === "Enter") {
+          cleanup(input.value);
+        }
+      };
+    }
+
+    const btnCancel = dialog.querySelector("#btn-prompt-cancel");
+    const btnOk = dialog.querySelector("#btn-prompt-ok");
+
+    const cleanup = (val) => {
+      dialog.remove();
+      if (val !== undefined) resolve(val);
+      else reject(); // Cancel behavior
+    };
+
+    if (btnCancel) btnCancel.onclick = () => cleanup(undefined);
+    if (btnOk) btnOk.onclick = () => cleanup(input ? input.value : "");
+    dialog.onclick = (e) => {
+      if (e.target === dialog) cleanup(undefined);
+    };
   });
 }
 

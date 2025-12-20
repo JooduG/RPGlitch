@@ -2,6 +2,7 @@ import { db } from "../../core/db.js";
 import { applyPatch, state } from "../../core/state.js";
 import { TurnManager } from "../../engine/director.js";
 import { entities } from "../../data/repo.js";
+import { showAlert } from "../orchestrator.js";
 
 export const StoryOptionsController = {
   async init() {
@@ -120,7 +121,10 @@ export const StoryOptionsController = {
         const draft = inputField ? inputField.value : "";
 
         if (!draft || !draft.trim()) {
-          alert("Please type a rough draft in the chat box first!");
+          showAlert(
+            "Ghostwriter",
+            "Please type a rough draft in the chat box first!",
+          );
           return;
         }
 
@@ -157,7 +161,10 @@ export const StoryOptionsController = {
         const draft = inputField ? inputField.value : "";
 
         if (!draft || !draft.trim()) {
-          alert("Please type a description in the chat box first!");
+          showAlert(
+            "Visual Generation",
+            "Please type a description in the chat box first!",
+          );
           return;
         }
 
@@ -184,7 +191,8 @@ export const StoryOptionsController = {
               fractal.simulation.directorMode === "TEXT_PROTOCOL"));
 
         if (!story || !isMessenger) {
-          alert(
+          showAlert(
+            "Feature Unavailable",
             `Feature unavailable. Exclusive to Messenger Mode. (Current ID: ${story?.fractalId})`,
           );
           return;
@@ -326,14 +334,14 @@ export const StoryOptionsController = {
 
       grid.innerHTML = ""; // Clear loader
 
-      const { getPictureHTML, getVisualState, TooltipService } =
+      const { getPictureHTML, TooltipService } =
         await import("../services/ui-utils.js").then(async (m) => {
           // We might need to handle circular deps or just dynamic import.
           // ui-utils doesn't export getVisualState usually?
           // Wait, desktop.js imported getVisualState from models.js.
           // Let's import that too.
-          const models = await import("../../data/models.js");
-          return { ...m, getVisualState: models.getVisualState };
+          await import("../../data/models.js");
+          return { ...m };
         });
 
       // Initialize global tooltips
@@ -444,7 +452,7 @@ export const StoryOptionsController = {
       StoryOptionsController.close();
     } catch (err) {
       console.error("Failed to load story:", err);
-      alert("Failed to load story. See console for details.");
+      showAlert("Error", "Failed to load story. See console for details.");
     }
   },
 };

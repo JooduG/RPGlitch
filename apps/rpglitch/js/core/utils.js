@@ -274,7 +274,11 @@ export async function handleAsyncError(asyncFn, options = {}) {
     return await asyncFn();
   } catch (err) {
     error(`Failed to ${context}:`, err);
-    if (showAlert) window.alert(errorMessage);
+    if (showAlert)
+      import("../ui/orchestrator.js").then((m) =>
+        m.showAlert("Error", errorMessage),
+      );
+
     return fallback;
   }
 }
