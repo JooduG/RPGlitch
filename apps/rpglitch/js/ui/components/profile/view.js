@@ -62,6 +62,7 @@ export async function renderProfileView(
     e.stopPropagation();
 
     localVisuals.flipped = !localVisuals.flipped;
+
     // [FIX] Target the WRAPPER (.picture), not the images
     const wrappers = heroWrap.querySelectorAll(".picture");
     wrappers.forEach((el) => {
