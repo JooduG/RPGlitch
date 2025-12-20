@@ -62,8 +62,12 @@ export async function renderProfileView(
     e.stopPropagation();
 
     localVisuals.flipped = !localVisuals.flipped;
-    const imgs = heroWrap.querySelectorAll("img");
-    imgs.forEach(applyVisualsToImage);
+    // [FIX] Target the WRAPPER (.picture), not the images
+    const wrappers = heroWrap.querySelectorAll(".picture");
+    wrappers.forEach((el) => {
+      if (localVisuals.flipped) el.classList.add("img-flipped");
+      else el.classList.remove("img-flipped");
+    });
 
     // Persist State
     if (id !== "new") {

@@ -30,9 +30,12 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
   };
 
   const isEdit = mode === "edit";
-  const gridStyle = isEdit
-    ? "display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;"
-    : "display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;";
+  const type = (entity.type || "character").toLowerCase();
+  const isFractal = type === "fractal";
+
+  // [CHANGE] Grid: 2x2 for Characters, 1x4 for Fractals
+  const cols = isFractal ? 4 : 2;
+  const gridStyle = `display: grid; grid-template-columns: repeat(${cols}, 1fr); gap: 0.75rem;`;
 
   const wrapper = document.createElement("div");
   wrapper.className = "field-row";
@@ -49,22 +52,28 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
   ["entropy", "permeability", "velocity", "resonance"].forEach((k) => {
     const val = dyns[k] !== undefined ? dyns[k] : 50;
 
+    // [CHANGE] Use the 'Card' style for both, just swap the content
+    const card = document.createElement("div");
+    card.style.cssText =
+      "background: var(--pico-card-background-color); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--pico-muted-border-color); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;";
+
+    // Header is same for both
+    const labelHtml = `<div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 0.25rem;">${k}</div>`;
+
     if (isEdit) {
-      const label = document.createElement("label");
-      label.style.fontSize = "0.8rem";
-      label.style.textTransform = "capitalize";
-      label.innerHTML = `${k} <input type="number" data-edit-dynamic="${k}" value="${val}" min="0" max="100">`;
-      grid.appendChild(label);
-    } else {
-      const card = document.createElement("div");
-      card.style.cssText =
-        "background: var(--pico-card-background-color); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--pico-muted-border-color); text-align: center;";
+      // Input Mode: Styled like the value, explicitly centered
       card.innerHTML = `
-        <div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 0.25rem;">${k}</div>
-        <div style="font-family: monospace; font-size: 1.1rem; font-weight: 800; color: var(--pico-primary);">${val}%</div>
+        ${labelHtml}
+        <input type="number" data-edit-dynamic="${k}" value="${val}" min="0" max="100" style="width: 100%; text-align: center !important; font-family: monospace; font-weight: 800; border: none; background: transparent; padding: 0; height: auto; color: var(--pico-primary);">
       `;
-      grid.appendChild(card);
+    } else {
+      // Read Mode: Explicitly centered
+      card.innerHTML = `
+        ${labelHtml}
+        <div style="font-family: monospace; font-size: 1.1rem; font-weight: 800; color: var(--pico-primary); text-align: center; width: 100%;">${val}%</div>
+      `;
     }
+    grid.appendChild(card);
   });
 
   container.appendChild(wrapper);

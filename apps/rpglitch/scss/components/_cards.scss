@@ -34,7 +34,7 @@
   &.img-flipped {
     img,
     .placeholder-image {
-      transform: scaleX(-1);
+      transform: rotateY(180deg) !important;
     }
   }
 }

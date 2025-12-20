@@ -49,10 +49,10 @@ export async function renderProfileEdit(screen, entity, type, id) {
   // --- HERO IMAGE & EDIT OVERLAY ---
   let localVisuals = getVisualState(entity);
 
-  const applyVisualsToImage = (imgEl) => {
-    if (!imgEl) return;
-    if (localVisuals.flipped) imgEl.classList.add("img-flipped");
-    else imgEl.classList.remove("img-flipped");
+  const applyVisualsToImage = (wrapperEl) => {
+    if (!wrapperEl) return;
+    if (localVisuals.flipped) wrapperEl.classList.add("img-flipped");
+    else wrapperEl.classList.remove("img-flipped");
   };
 
   if (getPictureHTML) {
@@ -62,7 +62,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
     });
     if (heroPic) {
       heroPic.classList.add("hero-bleed");
-      applyVisualsToImage(heroPic.querySelector("img"));
+      applyVisualsToImage(heroPic); // [FIX] Pass the wrapper directly
       heroWrap.appendChild(heroPic);
     }
   }
@@ -148,7 +148,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
       const curPic = heroWrap.querySelector(".picture");
       if (newPic) {
         newPic.classList.add("hero-bleed");
-        applyVisualsToImage(newPic.querySelector("img"));
+        applyVisualsToImage(newPic); // [FIX] Pass the wrapper directly
 
         if (curPic) curPic.replaceWith(newPic);
         else heroWrap.appendChild(newPic);
@@ -260,7 +260,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
       const curPic = heroWrap.querySelector(".picture");
       if (curPic && newPic) {
         newPic.classList.add("hero-bleed");
-        applyVisualsToImage(newPic.querySelector("img"));
+        applyVisualsToImage(newPic); // [FIX] Pass the wrapper directly
         curPic.replaceWith(newPic);
       }
       const nameInput = form.querySelector(".profile-name-input");
