@@ -91,7 +91,12 @@ export function renderMessage(
   // Handle DEBUG / Physics Logs
   if (type === "DEBUG") {
     div.className = "story-message system developer-content";
-    div.innerHTML = `<div class="physics-log">${sanitizeHtml(text || "")}</div>`;
+    // [FIX] Strip the raw [STATUS_HUD] block, as we often have a formatted "PHYSICS UPDATE" below it
+    const cleanDebugText = (text || "").replace(
+      /\[STATUS_HUD\][\s\S]*?\[\/STATUS_HUD\]/g,
+      "",
+    );
+    div.innerHTML = `<div class="physics-log">${sanitizeHtml(cleanDebugText.trim())}</div>`;
     container.appendChild(div);
     return;
   }

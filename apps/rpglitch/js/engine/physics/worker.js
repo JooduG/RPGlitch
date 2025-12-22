@@ -34,21 +34,30 @@ async function hydrateState(storyId) {
 // --- UTILS ---
 
 // V5 UPGRADE: Generates the specific block that bubble.js renders as a UI Bar
-function createPhysicsDebugLog(oldDynamics, newDynamics, entityName) {
+// V5 UPGRADE: Generates the specific block that bubble.js renders as a UI Bar
+// V5 UPGRADE: Generates the specific block that bubble.js renders as a UI Bar
+function createPhysicsDebugLog(
+  oldDynamics,
+  newDynamics,
+  entityName,
+  explanations = {},
+) {
   const flags = newDynamics._flags || {};
 
-  // 1. The Visual HUD Block (For the UI)
-  let debugText = `[STATUS_HUD]
-Entropy: ${newDynamics.entropy}
-Velocity: ${newDynamics.velocity}
-Permeability: ${newDynamics.permeability}
-Resonance: ${newDynamics.resonance}
-[/STATUS_HUD]`;
+  // 1. The Narrative Log (For the Developer)
+  let debugText = `**PHYSICS UPDATE: ${entityName || "Unknown"}**\n`;
 
-  // 2. The Narrative Log (For the Developer)
-  debugText += `\n**PHYSICS UPDATE: ${entityName || "Unknown"}**\n`;
-  debugText += `Entropy: ${oldDynamics.entropy} -> ${newDynamics.entropy}\n`;
-  debugText += `Velocity: ${oldDynamics.velocity} -> ${newDynamics.velocity}\n`;
+  const formatLine = (label, key) => {
+    const oldVal = oldDynamics[key];
+    const newVal = newDynamics[key];
+    const explain = explanations[key] ? ` ${explanations[key]}` : "";
+    return `${label}: ${oldVal} -> ${newVal}${explain}\n`;
+  };
+
+  debugText += formatLine("Entropy", "entropy");
+  debugText += formatLine("Velocity", "velocity");
+  debugText += formatLine("Permeability", "permeability");
+  debugText += formatLine("Resonance", "resonance");
 
   if (flags.panicSpiral)
     debugText += ">> LAW 4: PANIC SPIRAL (Velocity Forced Up)\n";
@@ -57,6 +66,12 @@ Resonance: ${newDynamics.resonance}
 
   return debugText;
 }
+
+// ... (skip down to handleLlmResponse, but we can't skip in replace, so we just target the needed part)
+// Actually, I can replace the function and the handler call setup.
+// Let's do this in two chunks if possible, or one big chunk if they are contiguous.
+// They are NOT contiguous (lines 38-56 vs 143-203). replace_file_content works on a single contiguous block.
+// I MUST use multi_replace_file_content.
 
 // --- MESSAGE HANDLER ---
 
@@ -164,7 +179,28 @@ async function handleLlmResponse({ text }) {
     }
 
     let updates = {};
+    const explanations = {};
+
     try {
+      // V5 FIX: Extract Explanations from HUD before cleaning
+      const hudMatch = text.match(/\[STATUS_HUD\]([\s\S]*?)\[\/STATUS_HUD\]/);
+      if (hudMatch) {
+        const hudContent = hudMatch[1];
+        const lines = hudContent.split("\n");
+        lines.forEach((line) => {
+          // Match "Entropy: 85 (Because reasons...)"
+          // Capture group 1: Key (Entropy)
+          // Capture group 2: Value (85) (ignored)
+          // Capture group 3: Explanation ((Because reasons...))
+          const match = line.match(/^\s*(\w+):\s*\d+\s*(\(.*?\))/);
+          if (match) {
+            const key = match[1].toLowerCase(); // entropy
+            const explain = match[2]; // (Because reasons...)
+            explanations[key] = explain;
+          }
+        });
+      }
+
       // V5 FIX: Clean the text of <think> AND [STATUS_HUD] before parsing JSON
       let cleanJson = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
       cleanJson = cleanJson
@@ -204,6 +240,7 @@ async function handleLlmResponse({ text }) {
       ctx.oldDynamics,
       finalDynamics,
       ctx.entityName,
+      explanations,
     );
 
     await db.messages.add({

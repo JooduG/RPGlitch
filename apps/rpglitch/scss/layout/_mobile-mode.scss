@@ -213,6 +213,22 @@
       margin-right: 2rem !important;
       align-self: flex-start !important;
     }
+
+    // [FIX] Developer Mode Content Visibility
+    // We must forcibly re-enable these if they were hidden by general mobile optimizations
+    .developer-content,
+    .thought-trace {
+      display: none; // Default hidden
+
+      body.mode-developer & {
+        display: block !important;
+        max-width: 90% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        background: rgb(15 23 42) !important; // Ensure contrast against black
+        border: 1px solid rgb(255 255 255 / 20%) !important;
+      }
+    }
   }
 
   // --- 5. INPUT AREA OVERRIDES (REFACTORED) ---
