@@ -489,6 +489,7 @@
 }
 
 // --- SIGNATURE COLOR LOGIC ---
+// Applies globally as per revised request.
 @each $name, $data in $signature-colors {
   $color: map.get($data, color);
 
@@ -769,6 +770,31 @@
       border-radius: 8px;
       width: 100%;
       object-fit: contain;
+    }
+  }
+
+  .image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    border: 1px dashed var(--pico-muted-border-color);
+    color: var(--pico-muted-color);
+    width: 100%;
+    min-width: 300px;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    .loading-spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--pico-muted-color);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
     }
   }
 }

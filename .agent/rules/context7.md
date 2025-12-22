@@ -1,5 +1,5 @@
 ---
-trigger: model_decision
+trigger: always_on
 description: Contains protocols for fetching documentation and resolving library IDs. Apply this rule whenever the user asks for code generation involving external libraries, setup configuration, or API documentation.
 ---
 

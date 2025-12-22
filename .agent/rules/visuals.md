@@ -1,5 +1,5 @@
 ---
-trigger: model_decision
+trigger: manual
 description: Contains protocols for using generative media tools. Apply this rule whenever the user requests visual assets (images, logos, mockups) or when the conversation context implies a need for creative visualization.
 ---
 

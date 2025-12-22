@@ -23,6 +23,11 @@
 - [x] **Library Interface**
 - [x] **Confirm Modal Polish**
 - [x] **State Sync & Visuals**
+- [x] **Pico.css Removal**
+- [x] **UI Polish & Standardization**
+- [x] **Smartphone Mode Refactor**
+- [x] **Logic Bridge Decoupling**
+- [x] **AI Image Generation Fix**
 
 ---
 

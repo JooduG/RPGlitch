@@ -1,7 +1,8 @@
 ---
-trigger: model_decision
+trigger: always_on
 description: Contains mandatory coding standards, tech stack constraints (Node 22, Pico.css, Dexie.js), and monorepo architecture rules. Apply this rule whenever writing, refactoring, or reviewing code.
 ---
+
 # System Constraints: Technology Stack
 
 ## 1. Core Runtime
@@ -31,4 +32,3 @@ description: Contains mandatory coding standards, tech stack constraints (Node 2
 
 - **Components:** `esbuild`, `sass`, `postcss`.
 - **Asset Handling:** Inlined. No external file references in final build.
-

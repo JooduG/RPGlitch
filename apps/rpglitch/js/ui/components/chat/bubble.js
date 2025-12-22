@@ -257,6 +257,19 @@ export function renderMessage(
         options,
       );
       div.appendChild(imageContainer);
+    } else if (
+      options.metadata &&
+      options.metadata.visualPrompt &&
+      role === "ai"
+    ) {
+      // [UX] PLACEHOLDER FOR GENERATING IMAGE
+      const placeholder = document.createElement("div");
+      placeholder.className = "image-placeholder";
+      placeholder.innerHTML = `
+        <div class="loading-spinner"></div>
+        <span>Generating Visual...</span>
+      `;
+      div.appendChild(placeholder);
     }
 
     // --- Message Actions (Hover) ---

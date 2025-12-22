@@ -1,5 +1,5 @@
 ---
-trigger: model_decision
+trigger: always_on
 description: Contains protocols for deep thinking, stochastic simulation, and logic. Apply this rule whenever the user asks a complex logic puzzle, architectural question, philosophical inquiry, or requests a simulation/risk assessment.
 ---
 

@@ -263,6 +263,7 @@ export const TurnManager = {
               characterName: aiChar?.name || "Narrator",
               createdAt: Date.now(),
               attachmentUrl: null,
+              metadata: visualPrompt ? { visualPrompt, targetType } : null,
             });
           }
 
@@ -290,6 +291,12 @@ export const TurnManager = {
 
         log(
           `[PROMETHEUS] Visual Prompt Detected: ${visualPrompt} (Target: ${targetType})`,
+        );
+
+        // [UX] Refresh immediately so user sees text + placeholder while image gens
+        await TurnManager.loadMessages(storyId);
+        events.dispatchEvent(
+          new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
         );
 
         try {
