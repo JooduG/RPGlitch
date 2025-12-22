@@ -16,14 +16,16 @@ function formatMessageText(text) {
   // 1. Sanitize FIRST
   let safeText = sanitizeHtml(text);
 
-  // 1.5. Bold Italic (***text***) -> <b><i>***text***</i></b> (Raw asterisks preserved)
-  safeText = safeText.replace(/\*\*\*(.*?)\*\*\*/g, "<b><i>***$1***</i></b>");
+  // 1.5. Bold Italic (***text***) -> <b><i>text</i></b>
+  safeText = safeText.replace(/\*\*\*(.*?)\*\*\*/g, "<b><i>$1</i></b>");
 
-  // 2. Bold (**text**) -> <b>**text**</b>
-  safeText = safeText.replace(/\*\*(.*?)\*\*/g, "<b>**$1**</b>");
+  // 2. Bold (**text**) -> <b>text</b>
+  safeText = safeText.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
+  safeText = safeText.replace(/__([^_]+)__/g, "<b>$1</b>");
 
-  // 3. Italics (*text*) -> <i>*text*</i>
-  safeText = safeText.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<i>*$1*</i>");
+  // 3. Italics (*text*) -> <i>text</i>
+  safeText = safeText.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<i>$1</i>");
+  safeText = safeText.replace(/(?<!_)_([^_]+)_(?!_)/g, "<i>$1</i>");
 
   // 4. Line Breaks -> <br>
   safeText = safeText.replace(/\n/g, "<br>");
@@ -63,7 +65,6 @@ function renderImageAttachment(imageUrl, options) {
 
 // --- STATE: Active Rerolls ---
 export const activeRerolls = new Set();
-// Expose globally for manager-turns access if needed via facade, but prefer direct export usage
 window.activeRerolls = activeRerolls;
 
 export function setRerollState(messageId, isActive) {
@@ -89,7 +90,7 @@ export function renderMessage(
 
   // Handle DEBUG / Physics Logs
   if (type === "DEBUG") {
-    div.className = "story-message system director-content";
+    div.className = "story-message system developer-content";
     div.innerHTML = `<div class="physics-log">${sanitizeHtml(text || "")}</div>`;
     container.appendChild(div);
     return;
@@ -147,11 +148,6 @@ export function renderMessage(
   // --- READ RECEIPT LOGIC ---
   let statusHtml = "";
   if (role === "user" && options.timestamp) {
-    // Logic: If it is NOT the last message, it is READ.
-    // If it IS the last message:
-    //    - If AI is typing (we can't easily know this here without passing in "isTyping" state,
-    //      but usually if it's the last message in DB, the AI might be about to reply or idle).
-    //    - Simpler: Just show "Delivered" for last message, "Read" for others.
     const statusText = options.isLast ? "Delivered" : "Read";
     statusHtml = `<div class="message-status">
       <span class="status-text">${statusText}</span>
@@ -182,13 +178,60 @@ export function renderMessage(
   } else {
     let contentHtml = "";
 
-    const thinkMatch = text.match(/<think>([\s\S]*?)<\/think>/i);
+    // --- HUD EXTRACTOR (V5) ---
+    // Remove the raw stats block from visible text.
+    // We create a special debug container for it.
+    let debugHtml = "";
+    let cleanText = text;
+
+    if (role === "ai") {
+      // 1. Extract HUD
+      const hudMatch = cleanText.match(
+        /\[STATUS_HUD\]([\s\S]*?)\[\/STATUS_HUD\]/,
+      );
+      if (hudMatch) {
+        debugHtml += `
+          <div class="story-message system developer-content">
+              <div class="physics-log"><strong>[AI INTENT]</strong>\n${sanitizeHtml(hudMatch[1].trim())}</div>
+          </div>`;
+        cleanText = cleanText.replace(hudMatch[0], "");
+      }
+
+      // 2. Extract JSON (The "dynamics" block)
+      const jsonMatch = cleanText.match(/\{[\s\S]*?"dynamics"[\s\S]*?\}/);
+      if (jsonMatch) {
+        debugHtml += `
+          <div class="story-message system developer-content">
+              <div class="physics-log"><strong>[STATE DATA]</strong>\n${sanitizeHtml(jsonMatch[0].trim())}</div>
+          </div>`;
+        cleanText = cleanText.replace(jsonMatch[0], "");
+      }
+
+      // 3. Extract Physiology Tags (e.g., <Orion.Biceps>)
+      // Matches: <Name.Property> Value (until newline)
+      const physMatches = cleanText.match(
+        /<[a-zA-Z0-9]+\.[a-zA-Z0-9]+>.*?(?:\n|$)/g,
+      );
+      if (physMatches) {
+        physMatches.forEach((match) => {
+          debugHtml += `
+            <div class="story-message system developer-content">
+                <div class="physics-log"><strong>[PHYSIOLOGY]</strong>\n${sanitizeHtml(match.trim())}</div>
+            </div>`;
+          cleanText = cleanText.replace(match, "");
+        });
+      }
+
+      cleanText = cleanText.trim();
+    }
+
+    const thinkMatch = cleanText.match(/<think>([\s\S]*?)<\/think>/i);
     let thoughtContent = "";
-    let mainContent = text;
+    let mainContent = cleanText;
 
     if (thinkMatch) {
       thoughtContent = thinkMatch[1].trim();
-      mainContent = text.replace(thinkMatch[0], "").trim();
+      mainContent = cleanText.replace(thinkMatch[0], "").trim();
     }
 
     // Sanitize Meta-Leaks
@@ -200,12 +243,13 @@ export function renderMessage(
     const formattedThought = formatMessageText(thoughtContent);
 
     if (thoughtContent) {
-      contentHtml = `<div class="thought-trace director-content"><div class="thought-label">INTERNAL MONOLOGUE</div>${formattedThought}</div><div class="message-content">${formattedMain}</div>`;
+      contentHtml = `<div class="thought-trace developer-content"><div class="thought-label">AI REASONING</div>${formattedThought}</div><div class="message-content">${formattedMain}</div>`;
     } else {
       contentHtml = formattedMain;
     }
 
-    div.innerHTML = contentHtml + timeHtml + statusHtml;
+    // Append the hidden Debug HUD (It will show only if .developer-mode is active via CSS)
+    div.innerHTML = contentHtml + timeHtml + statusHtml + debugHtml;
 
     if (options.attachmentUrl) {
       const imageContainer = renderImageAttachment(
@@ -218,16 +262,6 @@ export function renderMessage(
     // --- Message Actions (Hover) ---
     const actionsDiv = document.createElement("div");
     actionsDiv.className = "message-actions";
-
-    // DEBUG: Trace why buttons disappear
-    if (role === "ai" && options.isLast) {
-      console.log("[RenderMessage] AI Last Message:", {
-        id: options.messageId,
-        hasAttachment: !!options.attachmentUrl,
-        hasMetadata: !!options.metadata,
-        visualPrompt: options.metadata?.visualPrompt,
-      });
-    }
 
     // [IMAGE ACTIONS] Download Button
     if (options.attachmentUrl) {
@@ -272,27 +306,13 @@ export function renderMessage(
       );
       actionsDiv.appendChild(btnContinue);
 
+      // --- FIX: REROLL LOGIC MOVED HERE ---
+      // Replaced the 'orchestrator' call with direct Logic + Shift detection
       const btnReroll = createIconBtn(
         `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`,
         "Reroll Message",
-        async () => {
-          if (!TurnManager) return;
-          try {
-            const { showPrompt } = await import("../../orchestrator.js");
-            const note = await showPrompt(
-              "Reroll Instruction",
-              "Enter a note for the Director (optional):",
-              "",
-            );
-            // If note is null, user cancelled. If empty string, it's a standard reroll.
-            if (note !== null) {
-              TurnManager.regenerate(note);
-            }
-          } catch (e) {
-            // Cancelled or import error
-            if (e) console.warn("[UI] Reroll cancelled:", e);
-          }
-        },
+        () => {}, // Handled globally by ui-handlers.js (capture phase)
+        "ghost-icon-btn btn-regenerate",
       );
       actionsDiv.appendChild(btnReroll);
 

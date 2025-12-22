@@ -142,12 +142,30 @@ export const StoryOptionsController = {
     this.renderStories();
 
     // 4. Update Developer Mode Toggle
-    const devToggle = modal.querySelector("#setting-developer-mode");
+    // [FIX] Force Sync on Init (in case body class was lost)
+    if (state.settings.developerMode) {
+      document.body.classList.add("mode-developer");
+    }
+
+    const devToggle = document.getElementById("setting-developer-mode");
     if (devToggle) {
       devToggle.checked = state.settings.developerMode;
       devToggle.onchange = (e) => {
-        applyPatch({ settings: { developerMode: e.target.checked } });
+        const isChecked = e.target.checked;
+        console.log("[Settings] Developer Mode Toggled:", isChecked);
+        applyPatch({ settings: { developerMode: isChecked } });
+
+        // Immediate UI Update
+        if (isChecked) {
+          document.body.classList.add("mode-developer");
+        } else {
+          document.body.classList.remove("mode-developer");
+        }
       };
+    } else {
+      console.warn(
+        "[Settings] CRITICAL: Developer Toggle #setting-developer-mode not found!",
+      );
     }
 
     // Visuals Wiring

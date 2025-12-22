@@ -22,6 +22,7 @@
 - [x] **The Epilogue Flow**
 - [x] **Library Interface**
 - [x] **Confirm Modal Polish**
+- [x] **State Sync & Visuals**
 
 ---
 

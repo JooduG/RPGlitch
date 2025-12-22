@@ -103,10 +103,6 @@
     width: auto;
     flex: 1 1 auto;
 
-    // Override border/radius to fit inside the parent Pill context if needed,
-    // but allowing the Deep Field background to apply as requested.
-    // If double-background occurs, it's per instruction to apply the material.
-
     &::-webkit-scrollbar {
       width: 6px;
     }
@@ -452,7 +448,7 @@
 }
 
 .story-message[data-type="OOC"],
-.story-message.director-command {
+.story-message.developer-command {
   align-self: center !important;
   border-radius: var(--msg-radius);
   background: rgb(0 0 0 / 40%) !important;
@@ -462,7 +458,7 @@
   color: var(--pico-muted-color) !important;
 }
 
-.story-message.system.director-content {
+.story-message.system.developer-content {
   background: rgb(15 23 42 / 95%) !important;
   box-shadow: 0 4px 6px rgb(0 0 0 / 20%) !important;
   padding: 0;
@@ -678,6 +674,11 @@
   font-style: normal !important;
   white-space: pre-wrap;
 
+  // FORCE VISIBILITY IN DEVELOPER MODE
+  body.mode-developer & {
+    display: block !important;
+  }
+
   .thought-label {
     font-size: 0.65em;
     text-transform: uppercase;
@@ -821,13 +822,13 @@
 }
 
 // Hide Director/Debug content by default
-.director-content {
+.developer-content {
   display: none;
 }
 
 // When Developer Mode is Active (Class on Body), reveal it
 body.developer-mode {
-  .director-content {
+  .developer-content {
     display: block;
     animation: fadeIn 0.3s ease;
   }

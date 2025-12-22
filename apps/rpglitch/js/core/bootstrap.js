@@ -89,13 +89,7 @@ const App = {
       StoryOptionsController.init();
 
       // 5. Settings Form Wiring
-      const developerToggle = document.querySelector("#setting-developer-mode");
-      if (developerToggle) {
-        developerToggle.checked = state.settings.developerMode;
-        developerToggle.addEventListener("change", (e) =>
-          applyPatch({ settings: { developerMode: e.target.checked } }),
-        );
-      }
+      // (Handled by StoryOptionsController.init())
 
       log("[Universal Stage] Ready.");
       // Skeleton removed in finally block
@@ -180,12 +174,14 @@ const App = {
 
       if (isLocal) {
         mockPlugins();
+        // Skip wait for config if local to avoid artificial delay
+        window.rpgLists = window.rpgLists || {};
       } else {
         await App.waitForPlugins(["pluginAi", "pluginTextToImage"]);
       }
 
       App.setupPlugins();
-      await App.waitForConfig(2000);
+      await App.waitForConfig(isLocal ? 100 : 2000);
       await db.open();
 
       // Always run the seeder to replenish deleted factory items

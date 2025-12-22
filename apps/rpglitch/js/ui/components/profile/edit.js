@@ -388,7 +388,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
         console.error("Magic Prompt failed", err);
         showAlert(
           "Error",
-          "The Director is currently unavailable. Please try again.",
+          "The Developer is currently unavailable. Please try again.",
         );
       } finally {
         setBusy(false);

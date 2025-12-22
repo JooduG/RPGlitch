@@ -116,9 +116,9 @@ export async function renderChat(storyId) {
 
   // [FIX] Enforce Developer Mode class on Body based on settings
   if (state.settings && state.settings.developerMode) {
-    document.body.classList.add("developer-mode");
+    document.body.classList.add("mode-developer");
   } else {
-    document.body.classList.remove("developer-mode");
+    document.body.classList.remove("mode-developer");
   }
 
   if (!virtualFeed) {
@@ -152,17 +152,9 @@ export async function renderChat(storyId) {
   const concludedBanner = document.querySelector("#story-concluded");
   const form = document.querySelector("#story-form");
 
-  console.log(
-    "DEBUG: renderChat - Story ID:",
-    storyId,
-    "Concluded:",
-    story.isConcluded,
-  );
-
   if (story.isConcluded) {
     if (concludedBanner) {
       concludedBanner.hidden = false;
-      console.log("DEBUG: Banner shown");
     }
 
     // Hide Form if present
@@ -176,9 +168,7 @@ export async function renderChat(storyId) {
 
     // Only inject if not already present to prevent flickering/thrashing
     if (existingControls.length === 0) {
-      console.log("DEBUG: Injecting Concluded Controls");
       const tpl = document.getElementById("tpl-concluded-controls");
-      console.log("DEBUG: Template found?", !!tpl);
 
       if (tpl) {
         const clone = tpl.content.cloneNode(true);

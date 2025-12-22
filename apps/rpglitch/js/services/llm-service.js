@@ -93,10 +93,10 @@ export class LlmService {
       .map((m) => {
         // Map roles to labels
         let label = "Character";
-        if (m.role === "user") {
-          label = "User";
-        } else if (m.characterName) {
+        if (m.characterName) {
           label = m.characterName;
+        } else if (m.role === "user") {
+          label = "User";
         }
 
         return `${label}: ${m.text}`;

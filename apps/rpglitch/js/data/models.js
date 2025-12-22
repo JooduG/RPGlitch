@@ -81,7 +81,7 @@ const premade = {
     },
     {
       id: "entity-C6",
-      name: "Glitch Tech Twunk",
+      name: "Glitch the Tech-Twunk",
       description:
         "Bratty cyan twink hacker who talks big but melts into a hypno-sissy the second a real dom flexes.",
       type: "Character",

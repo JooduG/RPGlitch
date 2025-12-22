@@ -1,17 +1,7 @@
 /**
  * RPGlitch WebWorker
  * Handles heavy background simulation logic off the main thread.
- *
- * RESPONSIBILITIES:
- * 1. Narrative Physics (Dynamics Calculation)
- * 2. Database Writes (Entity Updates, Message Logs)
- * 3. Context Building (preparing LLM payloads)
- * 4. Memory Compression (Archivist)
- *
- * CONSTRAINTS:
- * - No DOM access.
- * - No `window.ai` access (must proxy via Main Thread).
- * - Must hydrate global `state` before running logic.
+ * NOW UPDATED FOR PROMETHEUS V5 (HUD & HUD Parsing)
  */
 
 import { db } from "../../core/db.js";
@@ -43,34 +33,29 @@ async function hydrateState(storyId) {
 
 // --- UTILS ---
 
+// V5 UPGRADE: Generates the specific block that bubble.js renders as a UI Bar
 function createPhysicsDebugLog(oldDynamics, newDynamics, entityName) {
   const flags = newDynamics._flags || {};
-  let debugText = `[PHYSICS LOG] TARGET: ${entityName || "Unknown"}\n`;
-  debugText += `ENTROPY: ${newDynamics.entropy}% (was ${oldDynamics.entropy}%)\n`;
-  debugText += `PERMEABILITY: ${newDynamics.permeability}% (was ${oldDynamics.permeability}%)\n`;
-  debugText += `VELOCITY: ${newDynamics.velocity}% (was ${oldDynamics.velocity}%)\n`;
-  debugText += `RESONANCE: ${newDynamics.resonance}% (was ${oldDynamics.resonance}%)\n\n`;
+
+  // 1. The Visual HUD Block (For the UI)
+  let debugText = `[STATUS_HUD]
+Entropy: ${newDynamics.entropy}
+Velocity: ${newDynamics.velocity}
+Permeability: ${newDynamics.permeability}
+Resonance: ${newDynamics.resonance}
+[/STATUS_HUD]`;
+
+  // 2. The Narrative Log (For the Developer)
+  debugText += `\n**PHYSICS UPDATE: ${entityName || "Unknown"}**\n`;
+  debugText += `Entropy: ${oldDynamics.entropy} -> ${newDynamics.entropy}\n`;
+  debugText += `Velocity: ${oldDynamics.velocity} -> ${newDynamics.velocity}\n`;
 
   if (flags.panicSpiral)
-    debugText += ">> LAW 4: PANIC SPIRAL TRIGGERED (Velocity Forced Up)\n";
+    debugText += ">> LAW 4: PANIC SPIRAL (Velocity Forced Up)\n";
   if (flags.fogOfWar)
-    debugText += ">> LAW 2: FOG OF WAR TRIGGERED (Resonance Dampened)\n";
-  if (flags.echoChamber)
-    debugText += ">> LAW 5: ECHO CHAMBER ACTIVE (Future Vector Critical)\n";
-  if (flags.glassCannon)
-    debugText += ">> LAW 6: GLASS CANNON ACTIVE (Double Impact Gain)\n";
+    debugText += ">> LAW 2: FOG OF WAR (Resonance Dampened)\n";
 
-  if (
-    newDynamics.permeability < oldDynamics.permeability &&
-    newDynamics.velocity > 80
-  ) {
-    debugText += ">> LAW 1: ADRENALINE SHIELD (Permeability Penalty)\n";
-  }
-  if (newDynamics.entropy < oldDynamics.entropy && newDynamics.velocity < 20) {
-    debugText += ">> LAW 3: COOL-DOWN (Entropy Reduced)\n";
-  }
-
-  return debugText.trim();
+  return debugText;
 }
 
 // --- MESSAGE HANDLER ---
@@ -81,7 +66,6 @@ self.onmessage = async (e) => {
   if (type === "CMD_START_UPDATE") {
     await handleStartUpdate(payload);
   } else if (type === "CMD_LLM_RESPONSE") {
-    // Check if this was an Archivist response
     if (meta && meta.isArchivist) {
       await handleArchivistResponse(payload, meta);
     } else {
@@ -92,10 +76,10 @@ self.onmessage = async (e) => {
 
 // --- LOGIC ---
 
-let pendingContext = null; // Store context between request and response
+let pendingContext = null;
 
 async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
-  console.log("[WORKER] Starting Background Update...");
+  // console.log("[WORKER] Starting Background Update...");
 
   try {
     await hydrateState(storyId);
@@ -104,7 +88,6 @@ async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
     const story = state.story.byId[storyId];
 
     if (!story) {
-      console.error("[WORKER] Story not found");
       postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: false } });
       return;
     }
@@ -118,7 +101,6 @@ async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
       entity = await entities.get("fractal", story.fractalId);
 
     if (!entity) {
-      console.warn("[WORKER] Target entity not found");
       postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: false } });
       return;
     }
@@ -135,11 +117,11 @@ async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
     // 2. Build Prompt
     const promptPayload = await builder.buildUpdater(targetType, null);
 
-    // Store context for the response phase
+    // Store context
     pendingContext = {
       storyId,
       targetType,
-      targetEntityId: entity.id, // Store ID directly
+      targetEntityId: entity.id,
       linkedMessageId,
       oldDynamics,
       fallbackDynamics,
@@ -147,7 +129,7 @@ async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
       entityType: entity.type,
     };
 
-    // 3. Request LLM Execution from Main Thread
+    // 3. Request LLM Execution
     postMessage({
       type: "CMD_LLM_REQUEST",
       payload: promptPayload,
@@ -162,22 +144,17 @@ async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
 }
 
 async function handleLlmResponse({ text }) {
-  if (!pendingContext) {
-    console.error("[WORKER] Received response but no pending context.");
-    return;
-  }
+  if (!pendingContext) return;
 
   const ctx = pendingContext;
-  pendingContext = null; // Clear
+  pendingContext = null;
 
   try {
-    // Validation: Verify linked message still exists (race condition check)
+    // Race Condition Check
     if (ctx.linkedMessageId) {
       const msgExists = await db.messages.get(ctx.linkedMessageId);
       if (!msgExists) {
-        console.warn(
-          `[WORKER] Aborting update. Msg ${ctx.linkedMessageId} deleted.`,
-        );
+        console.warn("[WORKER] Aborting update. Msg deleted.");
         postMessage({
           type: "CMD_UPDATE_COMPLETE",
           payload: { success: false },
@@ -188,11 +165,12 @@ async function handleLlmResponse({ text }) {
 
     let updates = {};
     try {
-      // [FIX] Strip <think> block first to avoid JSON parse errors
-      const cleanJson = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
-      // SAFETY: We explicitly construct the <think> and JSON blocks in the prompt.
-      // The model reliably returns this structure or a fallback.
-      // This regex captures the first valid JSON object in the text.
+      // V5 FIX: Clean the text of <think> AND [STATUS_HUD] before parsing JSON
+      let cleanJson = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+      cleanJson = cleanJson
+        .replace(/\[STATUS_HUD\][\s\S]*?\[\/STATUS_HUD\]/g, "")
+        .trim();
+
       const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
 
       if (jsonMatch) {
@@ -221,12 +199,13 @@ async function handleLlmResponse({ text }) {
       resonance: aiDynamics.resonance ?? ctx.fallbackDynamics.resonance,
     };
 
-    // Log Debug Message
+    // Log Debug Message with HUD Block
     const debugText = createPhysicsDebugLog(
       ctx.oldDynamics,
       finalDynamics,
       ctx.entityName,
     );
+
     await db.messages.add({
       storyId: ctx.storyId,
       role: "system",
@@ -235,7 +214,7 @@ async function handleLlmResponse({ text }) {
       createdAt: Date.now() + 1,
     });
 
-    // Re-get entity to ensure freshness
+    // Update Entity
     const freshEntity = await entities.get(ctx.entityType, ctx.targetEntityId);
 
     if (freshEntity) {
@@ -249,19 +228,13 @@ async function handleLlmResponse({ text }) {
         updatedAt: Date.now(),
       };
 
-      // Archivist Logic (Memory Compression)
+      // Archivist Logic
       const MAX_PAST_LENGTH = 2000;
       if (updatedEntity.past && updatedEntity.past.length > MAX_PAST_LENGTH) {
-        console.log(`[WORKER] Archivist Triggered for ${ctx.entityName}`);
-
-        // Save first to be safe
         await entities.upsert(ctx.entityType, updatedEntity);
-
-        // Then request Archivist
         await handleArchivist(updatedEntity, ctx.storyId);
       } else {
         await entities.upsert(ctx.entityType, updatedEntity);
-        console.log(`[WORKER] Update applied for ${ctx.entityName}`);
         postMessage({
           type: "CMD_UPDATE_COMPLETE",
           payload: { success: true },
@@ -282,35 +255,26 @@ async function handleLlmResponse({ text }) {
 async function handleArchivist(entity, storyId) {
   try {
     const builder = new ContextBuilder(storyId);
-    // We might need to refresh state again if we want to be paranoid,
-    // but for Archivist local entity state is the most important.
-
     const archPayload = await builder.buildArchivist(entity);
 
-    // Request Archivist run with META tag
     postMessage({
       type: "CMD_LLM_REQUEST",
       payload: archPayload,
       meta: { isArchivist: true, entityId: entity.id, entityType: entity.type },
     });
   } catch (e) {
-    console.error("[WORKER] Archivist prep failed:", e);
-    postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: true } }); // Still success, just no compression
+    postMessage({ type: "CMD_UPDATE_COMPLETE", payload: { success: true } });
   }
 }
 
 async function handleArchivistResponse({ text }, meta) {
   try {
-    // [FIX] Strip <think> block from summary
     const summary = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
 
     const entity = await entities.get(meta.entityType, meta.entityId);
     if (entity && summary && summary.length < entity.past.length) {
       entity.past = summary;
       await entities.upsert(meta.entityType, entity);
-      console.log(
-        `[WORKER] Archivist Compression complete. New Size: ${entity.past.length}`,
-      );
     }
   } catch (e) {
     console.warn("[WORKER] Archivist failed:", e);

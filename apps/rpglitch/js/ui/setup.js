@@ -1,23 +1,19 @@
-// apps/rpglitch/js/manager-setup.js
+// apps/rpglitch/js/ui/setup.js
+// FIX: Corrected relative imports from "ui/" to sibling folders
 import { state, applyPatch } from "../core/state.js";
 import { entities } from "../data/repo.js";
 import { TurnManager } from "../engine/director.js";
-import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
+import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js"; // Sibling in "ui/"
 import { error } from "../core/utils.js";
-import { showAlert } from "./orchestrator.js";
+import { showAlert } from "./orchestrator.js"; // Sibling in "ui/"
 import { EVENTS, events } from "../core/events.js";
 
-// MODIFIED: Exported for testing
 // MODIFIED: Exported for testing
 export function generateDynamicTitle(ai, user, fractal) {
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-  // 1. Detect Vibe (Tech/App vs. Epic/Fantasy)
-  // [SCALABLE] Checks 'cssTheme' trait, not specific entity names.
-  // Any "theme-smartphone" fractal will trigger Tech Titles (e.g. "Terminal", "Datapad").
   const isTechVibe = fractal?.simulation?.cssTheme === "theme-smartphone";
 
-  // 2. Define Prefix Pools
   const epicPrefixes = [
     "The Story of",
     "The Adventures of",
@@ -42,12 +38,10 @@ export function generateDynamicTitle(ai, user, fractal) {
   const chars = [ai, user].filter(Boolean);
   const totalChars = chars.length;
 
-  // 3. Construct Content
   let content = "";
   const names = chars.map((c) => c.name).join(" & ");
 
   if (isTechVibe) {
-    // Tech Vibe: "Chat Log: Glitch & Orion" (No "in Messenger")
     const prefix = pick(techPrefixes);
     if (totalChars > 0) {
       return `${prefix} ${names}`;
@@ -55,7 +49,6 @@ export function generateDynamicTitle(ai, user, fractal) {
       return `${prefix} Guest User`;
     }
   } else {
-    // Epic Vibe: "The Saga of Glitch & Orion in Nova City"
     const prefix = pick(epicPrefixes);
     const hasFractal = !!fractal;
 
@@ -64,7 +57,6 @@ export function generateDynamicTitle(ai, user, fractal) {
     } else if (totalChars > 0 && !hasFractal) {
       content = names;
     } else if (totalChars === 0 && hasFractal) {
-      // Empty state
       const fractalPrefixes = [
         "Adventures in",
         "Tales from",
@@ -101,14 +93,11 @@ async function handleBeginStory() {
 
     updatePortraits(selectedAI, selectedUser);
 
-    // [PERF] Yield to main thread to allow UI repaint (Switch to StoryMode) before heavy AI call
     await new Promise((resolve) =>
       requestAnimationFrame(() => setTimeout(resolve, 0)),
     );
 
     await TurnManager.generateOpening(id);
-
-    // CRITICAL FIX: Force load to switch UI to Snapshots
     await TurnManager.load(id);
   } catch (e) {
     error("Begin Story Failed", e);
@@ -160,6 +149,13 @@ export function initStoryboardStage(views) {
   const beginBtn = document.querySelector("#begin-story");
   const shuffleBtn = document.querySelector("#btn-shuffle");
 
+  // [V5 FIX] Sync Developer Mode State
+  if (state.settings.developerMode) {
+    document.body.classList.add("mode-developer");
+  } else {
+    document.body.classList.remove("mode-developer");
+  }
+
   views.setOnSelectionChanged((sel) => {
     const { aiCharacter, userCharacter, fractal } = sel;
     applyPatch({
@@ -168,7 +164,6 @@ export function initStoryboardStage(views) {
       selectedFractal: fractal,
     });
 
-    // --- PURIFIED: Ambience logic now uses a helper function ---
     if (fractal) applyFractalAmbience(fractal);
 
     if (!state.isCustomTitle && titleStoryboard && titleStorymode) {
@@ -189,23 +184,18 @@ export function initStoryboardStage(views) {
     }
   });
 
-  // [NEW] Listener for stale data
-  // [NEW] Listener for stale data
   events.addEventListener(EVENTS.DB_UPDATED, async (data) => {
-    // Only runs if we are in Storyboard mode (no active story)
     if (!state.story.activeId) {
-      // [FIX] Access detail from CustomEvent
       const updatedId = data?.detail?.id;
       if (!updatedId) return;
       const { getOnUpdateSelection } =
         await import("./components/profile/controller.js");
       const _onUpdateSelection = getOnUpdateSelection();
 
-      // If we have a selection handler and an update occurred
       if (_onUpdateSelection) {
+        // FIX: Corrected import path for dynamic import too
         const { entities } = await import("../data/repo.js");
 
-        // Re-fetch currently selected entities to force UI update
         const updates = {};
         if (state.selectedAI)
           updates.aiCharacter = await entities.get(
@@ -223,7 +213,6 @@ export function initStoryboardStage(views) {
             state.selectedFractal.id,
           );
 
-        // Trigger the UI refresh
         if (Object.keys(updates).length > 0) {
           _onUpdateSelection(updates);
         }

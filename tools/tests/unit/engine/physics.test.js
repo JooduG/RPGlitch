@@ -41,7 +41,7 @@ jest.mock("../../../../apps/rpglitch/js/data/repo.js", () => ({
 // Import the mocked entities to configure return values in tests
 import { entities } from "../../../../apps/rpglitch/js/data/repo.js";
 
-describe("PROMETHEUS ENGINE V4.0", () => {
+describe("PROMETHEUS ENGINE V5", () => {
   // ==========================================
   // LAYER 1: THE LAWS OF PHYSICS (Unit Tests)
   // ==========================================
@@ -157,7 +157,7 @@ describe("PROMETHEUS ENGINE V4.0", () => {
       });
     });
 
-    test("buildUpdater injects PHYSICS_MANDATE when forcedDynamics is provided", async () => {
+    test("buildUpdater injects forcedDynamics into CURRENT_STATE", async () => {
       const forcedDynamics = {
         entropy: 55,
         permeability: 44,
@@ -171,25 +171,23 @@ describe("PROMETHEUS ENGINE V4.0", () => {
         forcedDynamics,
       );
 
-      // Check System Prompt for the Hard Logic block
-      expect(payload.system).toContain("<PHYSICS_MANDATE>");
+      // V5 Check: Ensure system prompt is correct
+      expect(payload.system).toContain("[SYSTEM: PROMETHEUS_PHYSICS_V5]");
 
-      // Matches V4.0 Output Format
-      expect(payload.system).toContain("- Entropy: 55");
-      expect(payload.system).toContain("PANIC_SPIRAL");
-
-      // [FIX] Updated expectation to match V4.0 phrasing
-      expect(payload.system).toContain(
-        "The Physics Engine enforces these exact values",
-      );
+      // Check that forced dynamics are injected into the JSON block
+      expect(payload.system).toContain('"entropy": 55');
+      expect(payload.system).toContain('"permeability": 44');
+      // The _flags might be stringified in the JSON, so checking specific values is safer
+      expect(payload.system).toContain('"panicSpiral": true');
     });
 
-    test("buildUpdater falls back to Calibration Matrix if no dynamics provided", async () => {
+    test("buildUpdater includes Calibration Matrix (Bell Curve Logic)", async () => {
       const payload = await builder.buildUpdater("ai_character", null);
 
-      expect(payload.system).not.toContain("<PHYSICS_MANDATE>");
-      // We expect the SOTA Calibration Matrix
-      expect(payload.system).toContain("<PHYSICS_CALIBRATION>");
+      expect(payload.system).toContain("[SYSTEM: PROMETHEUS_PHYSICS_V5]");
+      // V5 uses <CALIBRATION_TABLE>
+      expect(payload.system).toContain("<CALIBRATION_TABLE>");
+      expect(payload.system).toContain("<PHYSICS_LAWS>");
     });
   });
 
@@ -212,8 +210,10 @@ describe("PROMETHEUS ENGINE V4.0", () => {
 
       const payload = await builder.buildArchivist(mockEntity);
 
-      expect(payload.system).toContain("[SYSTEM: PROMETHEUS_MEMORY_V4.0]");
-      expect(payload.system).toContain("NEVER summarize or alter Proper Nouns");
+      // V5 Check
+      expect(payload.system).toContain("[SYSTEM: PROMETHEUS_ARCHIVIST_V5]");
+      // FIX: Updated string to match the actual prompter.js output
+      expect(payload.system).toContain("Do NOT delete Proper Nouns");
       expect(payload.system).toContain("TestChar");
       // Ensure temp is lowered for precision
       expect(payload.params.temperature).toBeLessThan(0.5);
