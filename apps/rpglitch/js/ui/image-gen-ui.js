@@ -131,18 +131,16 @@ export function updatePortraits(aiCharacter, userCharacter) {
   }
 
   // Set User Signature Color Variable for UI highlights
-  if (userCharacter && userCharacter.signatureColor) {
-    const rgb =
-      RGB_MAP[userCharacter.signatureColor] ||
-      RGB_MAP.default ||
-      "255, 255, 255";
-    document.documentElement.style.setProperty("--user-signature-rgb", rgb);
-  }
+  const userRgb =
+    userCharacter && userCharacter.signatureColor
+      ? RGB_MAP[userCharacter.signatureColor] || RGB_MAP.default
+      : RGB_MAP.default || "255, 255, 255";
+  document.documentElement.style.setProperty("--user-signature-rgb", userRgb);
 
   // Set AI Signature Color Variable for Name Highlight
-  if (aiCharacter && aiCharacter.signatureColor) {
-    const rgb =
-      RGB_MAP[aiCharacter.signatureColor] || RGB_MAP.default || "255, 255, 255";
-    document.documentElement.style.setProperty("--ai-signature-rgb", rgb);
-  }
+  const aiRgb =
+    aiCharacter && aiCharacter.signatureColor
+      ? RGB_MAP[aiCharacter.signatureColor] || RGB_MAP.default
+      : RGB_MAP.default || "255, 255, 255";
+  document.documentElement.style.setProperty("--ai-signature-rgb", aiRgb);
 }
