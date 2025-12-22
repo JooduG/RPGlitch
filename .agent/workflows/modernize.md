@@ -1,5 +1,5 @@
 ---
-description: Safe refactoring pipeline: Analyzes legacy code, creates a test safety net, plans the upgrade, and executes with strict verification.
+description: Safe refactoring pipeline. Analyzes legacy code, creates a test safety net, plans the upgrade, and executes with strict verification.
 ---
 
 # 🛠️ Legacy Modernization Protocol

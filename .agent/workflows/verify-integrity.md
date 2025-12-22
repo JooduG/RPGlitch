@@ -1,5 +1,5 @@
 ---
-description: Security Audit: Verifies the "Freedom Protocol" anti-censorship layer, scans for unsafe innerHTML usage, and validates build artifact integrity.
+description: Security Audit. Verifies the Freedom Protocol anti-censorship layer, scans for unsafe innerHTML usage, and validates build artifact integrity.
 ---
 
 # 🛡️ Integrity & Security Audit

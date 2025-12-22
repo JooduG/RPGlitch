@@ -1,5 +1,5 @@
 ---
-description: Automated pipeline: Syncs config, Lints, Tests, Builds apps, Verifies artifacts, and generates Copy-Paste instructions for Perchance deployment.
+description: Automated pipeline. Syncs config, Lints, Tests, Builds apps, Verifies artifacts, and generates Copy-Paste instructions for Perchance deployment.
 ---
 
 # 🚀 Deployment Workflow

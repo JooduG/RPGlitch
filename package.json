@@ -32,6 +32,7 @@
     "// LINTING //": "----------------------------------------------------",
     "lint": "npm-run-all --parallel lint:js lint:css lint:html lint:md",
     "lint:fix": "npm run lint:js:fix && npm run lint:css:fix",
+    "format": "npm run lint:fix",
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
     "lint:css": "stylelint \"**/*.scss\" --config stylelint.config.js",
