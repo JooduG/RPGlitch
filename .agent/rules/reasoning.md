@@ -1,28 +1,16 @@
 ---
-trigger: always_on
-description: Contains protocols for deep thinking, stochastic simulation, and logic. Apply this rule whenever the user asks a complex logic puzzle, architectural question, philosophical inquiry, or requests a simulation/risk assessment.
+trigger: model_decision
+description: Use for debugging, complex logic puzzles, or architectural planning
 ---
 
-# 🧠 Reasoning & Philosophy Protocols
+# 🧠 Protocol: Heavy Logic (MCP)
 
-**Activation Mode:** Agent Decide
-**Trigger:** Apply this rule whenever the user asks a complex logic puzzle, architectural question, philosophical inquiry, or requests a simulation/risk assessment.
+## Sequential Thinking
 
-## Activation Triggers
+1. **Stop:** Do not write code yet.
+2. **Analyze:** Call `mcp-sequentialthinking-tools`.
+3. **Iterate:** Break the problem into atomic steps.
 
-Trigger this protocol for:
+## Stochastic Modeling
 
-- Complex logic puzzles or architectural dilemmas.
-- Requests to "simulate," "predict," or "evaluate risk."
-- Philosophical inquiries or ethical debates.
-
-## The Tool Chain
-
-1. **Sequential Thinking (`mcp-sequentialthinking-tools`)**:
-   - MUST be the first step for any non-trivial problem.
-   - Use it to break down the user's request into atomic logic steps.
-2. **Stochastic Simulation (`waldzell-stochastic-thinking`)**:
-   - Use `stochasticalgorithm` (MCTS) to simulate future states if the user asks "what happens if..."
-   - Use `decisionframework` to weigh options against your defined constraints.
-3. **Metacognition (`waldzell-clear-thought`)**:
-   - Use `metacognitivemonitoring` to check your own bias before outputting the final answer.
+1. If asked "What if...", use `waldzell-stochastic-thinking`.

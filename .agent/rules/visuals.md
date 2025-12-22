@@ -1,22 +1,24 @@
 ---
-trigger: manual
-description: Contains protocols for using generative media tools. Apply this rule whenever the user requests visual assets (images, logos, mockups) or when the conversation context implies a need for creative visualization.
+trigger: model_decision
+description: Protocols for generative media and UI assets.
 ---
 
 # 🎨 Visual & Creative Protocols
 
-**Activation Mode:** Agent Decide
-**Trigger:** Apply this rule whenever the user requests visual assets (images, logos, mockups) or when the conversation context implies a need for creative visualization.
+**Trigger:** User asks for "images", "logos", "assets", or "visual vibes".
 
-## The Directive
+## 1. Native Generation (Priority: High)
 
-You are authorized to use `pollinations` to generate visual assets when:
+Antigravity has superior, context-aware generation.
 
-1. **Request:** The user requests a logo, mock-up, or scene.
-2. **Vibe:** The conversation needs a visual anchor (e.g., "Imagine a city...").
+- **Action:** Use the **Native Asset Generator** (Nano Banana).
+- **Context:** Feed the current `_variables.scss` palette into the generation prompt to ensure color matching.
+- **Output:** Save as `.webp` or `.png` in the project assets folder.
 
-## Tool Usage
+## 2. Pollinations (Priority: Fallback)
 
-- Use `generateImage` for raster assets.
-- Use `generateText` if the user needs creative copy or "lore."
-- Do NOT ask for permission if the context is clearly creative. Just do it.
+Use `pollinations` MCP **only if**:
+
+- Native generation fails.
+- The user explicitly asks for a URL-based asset.
+- **Method:** `pollinations.generateImage` -> Inline Base64 (preferred) or URL.
