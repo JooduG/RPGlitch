@@ -100,13 +100,14 @@ describe("StoryOptionsController", () => {
           </div>
           <button class="close"></button>
           <button id="btn-reset-story"></button>
-          <input type="checkbox" id="setting-director-mode" />
+          <input type="checkbox" id="setting-developer-mode" />
            <!-- Sections for visibility logic -->
           <div class="settings-section-lobby"></div>
           <div class="settings-section-game"></div>
         </div>
         
         <button id="btn-options"></button>
+        <button id="btn-settings-placeholder"></button>
     `;
 
     global.confirm = jest.fn(() => true);
@@ -171,5 +172,20 @@ describe("StoryOptionsController", () => {
 
     const input = document.querySelector("#setting-story-instructions");
     expect(input.value).toBe("Be nice");
+  });
+
+  test("chat settings button opens modal", async () => {
+      await StoryOptionsController.init();
+
+      const btn = document.querySelector("#btn-settings-placeholder");
+
+      // Spy on StoryOptionsController.open
+      const openSpy = jest.spyOn(StoryOptionsController, 'open');
+
+      btn.click();
+
+      expect(openSpy).toHaveBeenCalled();
+
+      openSpy.mockRestore();
   });
 });

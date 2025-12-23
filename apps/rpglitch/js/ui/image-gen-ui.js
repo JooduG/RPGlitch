@@ -104,10 +104,6 @@ export function updatePortraits(aiCharacter, userCharacter) {
           landscape: isFractal,
         });
         if (picture) {
-          const visuals = getVisualState(ent);
-          if (visuals && visuals.flipped) {
-            picture.classList.add("img-flipped"); // FIX APPLIED HERE
-          }
           imgDiv.appendChild(picture);
         }
       }

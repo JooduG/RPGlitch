@@ -188,7 +188,6 @@ export function initStoryboardStage(views) {
 
       if (_onUpdateSelection) {
         const { entities } = await import("../data/repo.js");
-
         const updates = {};
         if (state.selectedAI)
           updates.aiCharacter = await entities.get(
