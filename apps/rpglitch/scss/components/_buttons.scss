@@ -49,6 +49,7 @@
     filter: grayscale(1);
     pointer-events: auto; // Allow cursor to show
     transform: none; // No hover lift for disabled
+    box-shadow: none; // Ensure disabled buttons have no shadow
   }
 
   // Scoped Icon Styles

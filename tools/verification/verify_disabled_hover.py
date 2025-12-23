@@ -23,18 +23,16 @@ def run():
 
         print("Button is disabled.")
 
-        # 2. Check computed styles BEFORE hover
-        computed_filter_pre = btn.evaluate("el => getComputedStyle(el).filter")
-        print(f"Computed Filter (Pre-Hover): {computed_filter_pre}")
+        # 2. Check box-shadow on disabled button
+        computed_shadow = btn.evaluate("el => getComputedStyle(el).boxShadow")
+        print(f"Computed Box-Shadow: {computed_shadow}")
 
-        # 3. Force Hover State via CSS class instead of native hover because of potential overlays
-        # We know that the :hover pseudo-class is what triggers the bad behavior.
-        # But we can also simulate the state by ensuring the selector matches.
-        # Since we can't force pseudo-classes easily in JS without Chrome DevTools Protocol,
-        # we will rely on the fact that if the overlays are truly blocking pointer events,
-        # then the user can't hover either, so the bug isn't reachable?
-        # NO, the bug is that IF they hover, it looks wrong.
-        # If I can't hover with Playwright, I should remove the blocking elements.
+        if computed_shadow != "none":
+            print("FAIL: Disabled button has a box-shadow.")
+        else:
+            print("PASS: Disabled button has no box-shadow.")
+
+        # 3. Force Hover State checks (Previous verification)
 
         # Remove potential blockers
         page.evaluate("""
@@ -42,29 +40,18 @@ def run():
             blockers.forEach(el => el.remove());
         """)
 
-        # Try native hover again
+        # Try native hover
         try:
             btn.hover(timeout=2000)
             print("Hover successful.")
         except Exception as e:
             print(f"Hover failed: {e}")
-            # Fallback: We can test the CSS rule directly by checking if the rule exists?
-            # Or we can just trust the SCSS compilation if we can't hover.
-            # But let's try to verify.
-
-        # 4. Check computed styles AFTER hover
-        # Note: If hover failed, this check is invalid for 'hover' state.
-        # But let's assume removing blockers fixed it.
 
         computed_filter_post = btn.evaluate("el => getComputedStyle(el).filter")
         computed_transform_post = btn.evaluate("el => getComputedStyle(el).transform")
 
         print(f"Computed Filter (Post-Hover): {computed_filter_post}")
         print(f"Computed Transform (Post-Hover): {computed_transform_post}")
-
-        # Expectation:
-        # Filter should NOT contain 'brightness' if it is disabled.
-        # It usually is 'grayscale(1)'.
 
         if "brightness" in computed_filter_post:
             print("FAIL: Button has brightness filter when disabled and hovered.")
