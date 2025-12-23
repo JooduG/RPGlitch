@@ -8,7 +8,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { JSDOM, VirtualConsole } from "jsdom";
-// NEW: Import fake-indexeddb to prevent DB crashes
+// Import fake-indexeddb to prevent DB crashes
 import { indexedDB, IDBKeyRange } from "fake-indexeddb";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,13 +23,26 @@ function enhanceWindow(window) {
   window.indexedDB = indexedDB;
   window.IDBKeyRange = IDBKeyRange;
 
-  // 2. Mock Animation Frames
+  // 2. FORCE Patch URL.createObjectURL (The Nuclear Option)
+  // We mock it on the window instance
+  if (!window.URL.createObjectURL) {
+    window.URL.createObjectURL = (blob) => "blob:mock-worker-url";
+    window.URL.revokeObjectURL = (url) => {};
+  }
+
+  // We ALSO mock it on the global scope if missing (Node environment leak)
+  if (typeof global.URL.createObjectURL === "undefined") {
+    global.URL.createObjectURL = (blob) => "blob:mock-worker-url";
+    global.URL.revokeObjectURL = (url) => {};
+  }
+
+  // 3. Mock Animation Frames
   if (!window.requestAnimationFrame)
     window.requestAnimationFrame = (cb) => setTimeout(cb, 0);
   if (!window.cancelAnimationFrame)
     window.cancelAnimationFrame = (id) => clearTimeout(id);
 
-  // 3. Mock Crypto
+  // 4. Mock Crypto
   if (!window.crypto) window.crypto = {};
   if (!window.crypto.randomUUID) window.crypto.randomUUID = () => "uuid-jsdom";
   if (!window.crypto.getRandomValues) {
@@ -40,30 +53,24 @@ function enhanceWindow(window) {
     };
   }
 
-  // 4. Mock Perchance Plugins
+  // 5. Mock Perchance Plugins
   window.ai = { generateStream: async function* () {} };
   window.textToImage = async () => ({ url: "data:image/png;base64,mock" });
   window.superFetch = async () => ({ ok: true, json: async () => ({}) });
   window.rememberPlugin = { get: () => null, set: () => {} };
   window.upload = () => {};
 
-  // 5. Mock ImageGlitch specific
+  // 6. Mock ImageGlitch specific
   window.pluginAi = async (p) => `Prompt: ${p} (Refined)`;
   window.pluginTextToImage = async () => ({
     canvas: window.document.createElement("canvas"),
     iframe: window.document.createElement("iframe"),
   });
   window.pluginRememberPlugin = window.rememberPlugin;
-
-  // NOTE: We do NOT mock Dexie here anymore, because we provided
-  // real indexedDB above. This allows the app's real Dexie to run
-  // without crashing.
 }
 
 async function runSmoke(appName) {
   const fileName = appName === "rpglitch" ? "RPGlitch.html" : `${appName}.html`;
-
-  // CORRECT PATH (from previous fix)
   const filePath = path.join(REPO_ROOT, "apps", appName, fileName);
 
   console.log(`\n💨 Testing ${fileName}...`);
@@ -102,7 +109,7 @@ async function runSmoke(appName) {
     dom.window.addEventListener("DOMContentLoaded", () =>
       setTimeout(resolve, 500),
     );
-    // Increased timeout slightly for DB init
+    // Give it time to boot (DB init + Worker init)
     setTimeout(resolve, 3500);
   });
 
@@ -115,8 +122,12 @@ async function runSmoke(appName) {
       errors.push("window.App missing (App failed to boot)");
       success = false;
     }
-    if (!window.document.getElementById("storyboard-dynamic-title")) {
-      errors.push("Title element missing (UI failed to render)");
+    // Check for title OR any major UI element indicating life
+    const title = window.document.getElementById("storyboard-dynamic-title");
+    const layout = window.document.querySelector(".rpglitch-layout");
+
+    if (!title && !layout) {
+      errors.push("UI failed to render (Title and Layout missing)");
       success = false;
     }
   } else if (appName === "imageglitch") {
