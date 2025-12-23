@@ -8,7 +8,7 @@
   flex: 1;
   min-height: 0; // Critical for flexbox scrolling
   overflow: hidden auto;
-  padding: 1.5rem 0;
+  padding: var(--space-lg) 0;
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
@@ -18,7 +18,7 @@
   );
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-lg);
   scroll-behavior: auto;
   overflow-anchor: auto;
   position: relative;
@@ -26,9 +26,9 @@
   @include custom-scrollbar;
 
   @include mobile {
-    padding: 1rem;
-    gap: 1rem;
-    padding-bottom: 5rem;
+    padding: var(--space-md);
+    gap: var(--space-md);
+    padding-bottom: var(--space-3xl);
   }
 }
 
@@ -44,7 +44,7 @@
 /* 2. INPUT AREA */
 #story-input-area {
   flex-shrink: 0;
-  padding: 0 1.5rem;
+  padding: 0 var(--space-lg);
   padding-bottom: 0;
   border-top: none;
   background-color: transparent !important;
@@ -79,7 +79,7 @@
   min-width: 320px;
   max-width: 800px;
   margin: 0 auto;
-  margin-bottom: 3rem !important; // True Float
+  margin-bottom: var(--space-2xl) !important; // True Float
   align-items: center;
   overflow: hidden;
 
@@ -99,7 +99,7 @@
     resize: none;
     overflow-y: hidden; // Extracted from inline style
     transition: height 0.1s ease;
-    padding: 0.75rem 0 0.75rem 1.5rem; // Custom padding for Pill
+    padding: 0.75rem 0 0.75rem var(--space-lg); // Custom padding for Pill
     width: auto;
     flex: 1 1 auto;
 
@@ -114,7 +114,7 @@
     margin-bottom: 0;
     flex: 0 0 auto !important; // FORCE NO GROW
     width: auto !important;
-    padding-right: 1.5rem;
+    padding-right: var(--space-lg);
   }
 }
 
@@ -204,14 +204,14 @@
 
 .character-name-overlay {
   position: absolute;
-  top: 2rem;
+  top: var(--space-xl);
   z-index: 20;
   max-width: 90%;
   overflow: hidden;
   background-color: rgb(24 28 37 / 95%);
   backdrop-filter: blur(8px);
   border: 2px solid var(--pico-muted-border-color);
-  padding: 0.5rem 1rem;
+  padding: var(--space-sm) var(--space-md);
   border-radius: var(--pico-radius);
   box-shadow: 0 4px 12px rgb(0 0 0 / 60%);
   min-width: 100px;
@@ -231,7 +231,7 @@
   }
 
   // Default: Left-Aligned (Narrator/AI)
-  left: 1rem;
+  left: var(--space-md);
   right: auto;
   border-color: rgba(var(--signature-rgb, 255 255 255), 0.5);
   color: var(--signature-color, #fff);
@@ -242,7 +242,7 @@
 #storymode-user-portrait {
   .character-name-overlay {
     left: auto;
-    right: 1rem;
+    right: var(--space-md);
   }
 
   // Mirror the image to face the AI
@@ -272,9 +272,9 @@
 /* 4. STATUS & FEEDBACK */
 #status-notifier {
   position: fixed;
-  bottom: 5rem;
-  right: 1rem;
-  padding: 1rem 1.5rem;
+  bottom: var(--space-3xl);
+  right: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
   background: rgb(24 28 37 / 95%);
   backdrop-filter: blur(10px);
   border: 1px solid var(--pico-primary);
@@ -328,14 +328,14 @@
 
 /* 5. MESSAGES (Bubbles) */
 .story-message {
-  padding: 1rem 1.25rem;
+  padding: var(--space-md) 1.25rem; // Horizontal padding slightly custom
   max-width: 50vw;
   word-wrap: break-word;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   animation: message-slide-in 0.3s ease;
   position: relative;
   line-height: 1.6;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-lg);
   text-wrap: pretty;
 
   // SYSTEM / NARRATOR Defaults
@@ -350,7 +350,7 @@
 
   @include mobile {
     max-width: 85vw;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem var(--space-md);
   }
 
   // MARKDOWN
@@ -408,9 +408,9 @@
 .story-message.user[data-type="IC"] {
   align-self: flex-end;
   text-align: left;
-  margin-right: 2rem;
+  margin-right: var(--space-xl);
   margin-left: 10vw;
-  max-width: calc(50vw - 2rem);
+  max-width: calc(50vw - var(--space-xl));
   border-radius: var(--msg-radius) 0 var(--msg-radius) var(--msg-radius);
 
   --msg-bg: var(--pico-primary-background);
@@ -419,9 +419,9 @@
 .story-message.ai[data-type="IC"] {
   align-self: flex-start;
   text-align: left;
-  margin-left: 2rem;
+  margin-left: var(--space-xl);
   margin-right: 10vw;
-  max-width: calc(50vw - 2rem);
+  max-width: calc(50vw - var(--space-xl));
   border-radius: 0 var(--msg-radius) var(--msg-radius) var(--msg-radius);
 
   --msg-bg: var(--pico-form-element-background-color);
@@ -504,11 +504,11 @@
 
 // --- TYPING INDICATOR ---
 .typing-bubble {
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-  margin-left: 2rem;
+  padding: 0.75rem var(--space-md);
+  margin-bottom: var(--space-md);
+  margin-left: var(--space-xl);
   margin-right: 10vw;
-  max-width: calc(50vw - 2rem);
+  max-width: calc(50vw - var(--space-xl));
   width: fit-content;
   display: flex;
   align-items: center;

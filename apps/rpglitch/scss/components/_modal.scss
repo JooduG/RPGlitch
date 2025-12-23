@@ -80,7 +80,7 @@ dialog.modal {
   header {
     background: rgba(255, 255, 255, 3%);
     border-bottom: 1px solid rgba(255, 255, 255, 5%);
-    padding: 1.25rem 1.5rem;
+    padding: var(--space-md) var(--space-lg);
     margin-bottom: 0;
     display: flex;
     justify-content: space-between;
@@ -116,13 +116,13 @@ dialog.modal {
   .modal-body {
     flex: 1; // Grow to fill space (important for Settings)
     overflow-y: auto; // Scroll content if needed
-    padding: 1.5rem;
+    padding: var(--space-lg);
     font-size: 0.95rem;
     line-height: 1.6;
     color: rgba(255, 255, 255, 80%);
 
     p {
-      margin-bottom: 1rem;
+      margin-bottom: var(--space-md);
 
       &:last-child {
         margin-bottom: 0;

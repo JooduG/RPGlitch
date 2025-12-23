@@ -22,6 +22,18 @@ $pico-del-color: #dc3545;
 // See tools/build/app.js for generation logic.
 @forward "palette-generated";
 
+// --- SPACING SYSTEM (RHYTHM) ---
+// Base unit: 1rem (16px)
+:root {
+  --space-xs: 0.25rem; // 4px
+  --space-sm: 0.5rem; // 8px
+  --space-md: 1rem; // 16px
+  --space-lg: 1.5rem; // 24px
+  --space-xl: 2rem; // 32px
+  --space-2xl: 3rem; // 48px
+  --space-3xl: 5rem; // 80px
+}
+
 // --- BREAKPOINTS ---
 $breakpoint-mobile: 768px;
 $breakpoint-tablet: 1024px;

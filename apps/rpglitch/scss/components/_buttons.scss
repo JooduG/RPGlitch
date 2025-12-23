@@ -42,6 +42,15 @@
     pointer-events: none;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
+
+  // Unified Focus State
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--pico-primary-focus),
+      0 0 0 4px rgba(var(--pico-primary), 0.3);
+    border-color: var(--pico-primary);
+  }
 }
 
 // --- 2. STANDARD VARIANTS ---
