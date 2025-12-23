@@ -151,7 +151,7 @@ export function sanitizeHtml(html) {
   if (typeof window === "undefined" || !window.DOMPurify) {
     // 🛡️ SENTINEL SECURITY PATCH: [Risk Mitigated] Fail-safe if DOMPurify is missing
     console.warn("DOMPurify not found, falling back to escapeHtml");
-    return escapeHtml(value);
+    return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   }
 
   try {
