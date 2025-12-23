@@ -1,5 +1,6 @@
 @use "sass:map";
 @use "../abstracts" as *;
+@use "buttons" as *;
 
 /* COMPONENT: CHAT (STORYMODE) */
 
@@ -110,16 +111,32 @@
 
   // Submit button styling removed in favor of .btn-ghost utility
   button[type="submit"] {
+    @include btn-base;
+    @include btn-physics;
+    @include btn-disabled;
+
     // Positioning overrides only (if strictly necessary)
     margin-bottom: 0;
     flex: 0 0 auto !important; // FORCE NO GROW
     width: auto !important;
     padding-right: var(--space-lg);
+    color: var(--pico-muted-color); // Default color if no signature
+
+    // Ensure icon is visible
+    .icon {
+      width: 1.25em;
+      height: 1.25em;
+      fill: currentColor;
+    }
   }
 }
 
 // Settings Ghost Button
 #btn-settings-placeholder {
+  @include btn-base;
+  @include btn-disabled;
+  @include btn-physics-active;
+
   background: transparent;
   border: none;
   border-radius: 0;
@@ -145,7 +162,6 @@
   &:hover {
     background: transparent;
     color: var(--pico-primary);
-    transform: none !important;
     box-shadow: none !important;
 
     span {
@@ -158,12 +174,17 @@
 @each $name, $data in $signature-colors {
   $color: map.get($data, color);
 
-  .signature-#{$name} #story-form button[type="submit"]:not(:disabled):hover {
-    box-shadow:
-      0 0 15px $color,
-      0 0 30px $color;
-    background-color: $color;
-    border-color: $color;
+  .signature-#{$name} #story-form button[type="submit"] {
+    color: $color; // Ensure signature color is applied
+
+    &:not(:disabled):hover {
+      box-shadow:
+        0 0 15px $color,
+        0 0 30px $color;
+      background-color: $color;
+      border-color: $color;
+      color: #fff; // Contrast against bright background
+    }
   }
 }
 
@@ -838,6 +859,8 @@
     margin: 0;
     font-size: 0.85rem;
     padding: 0.5rem 1rem;
+    @include btn-base;
+    @include btn-physics;
   }
 }
 

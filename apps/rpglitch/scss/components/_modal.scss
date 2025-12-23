@@ -66,6 +66,10 @@ dialog.modal {
       // Reset button styles to inherit global .btn defaults
       .btn,
       button {
+        @include btn-base;
+        @include btn-physics;
+        @include btn-disabled;
+
         flex: 0 0 auto; // Use natural width
         padding: 0.5rem 1rem !important; // Restore padding
         height: auto; // Restore natural height
@@ -161,6 +165,10 @@ dialog.modal {
     // but we ensure they stretch evenly in dialogs
     .btn,
     button {
+      @include btn-base;
+      @include btn-physics;
+      @include btn-disabled;
+
       flex: 1 1 0;
       margin: 0;
       border-radius: 0;
@@ -247,6 +255,10 @@ hr.settings-divider {
 
 // Action Buttons in Settings
 .btn-action-row {
+  @include btn-base;
+  @include btn-physics;
+  @include btn-disabled;
+
   width: 100%;
   justify-content: center; // Center content if flex
 
