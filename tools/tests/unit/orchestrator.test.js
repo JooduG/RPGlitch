@@ -125,8 +125,9 @@ describe("Orchestrator UI", () => {
     const { events, EVENTS } = eventsModule;
 
     // Find the STORY_LOADED handler
-    const handler = events.addEventListener.mock.calls.find(call => call[0] === EVENTS.STORY_LOADED)[1];
-    expect(handler).toBeDefined();
+    const storyLoadedCall = events.addEventListener.mock.calls.find(call => call[0] === EVENTS.STORY_LOADED);
+    expect(storyLoadedCall).toBeDefined();
+    const handler = storyLoadedCall[1];
 
     // Trigger the handler
     await handler();
