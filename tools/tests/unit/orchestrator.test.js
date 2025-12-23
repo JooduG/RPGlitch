@@ -36,12 +36,12 @@ jest.mock("../../../apps/rpglitch/js/core/events.js", () => ({
     addEventListener: jest.fn(),
   },
   EVENTS: {
-    STORY_LOADED: "story-loaded",
-    CHAT_REFRESH: "chat-refresh",
-    TYPING_STARTED: "typing-started",
-    TYPING_STOPPED: "typing-stopped",
-    GENERATION_STARTED: "gen-start",
-    GENERATION_COMPLETED: "gen-complete",
+    STORY_LOADED: "story:loaded",
+    CHAT_REFRESH: "chat:refresh",
+    TYPING_STARTED: "typing:started",
+    TYPING_STOPPED: "typing:stopped",
+    GENERATION_STARTED: "generation:started",
+    GENERATION_COMPLETED: "generation:completed",
   },
 }));
 
