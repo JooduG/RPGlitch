@@ -12,7 +12,6 @@ const config = {
   transformIgnorePatterns: ["/node_modules/(?!cash-dom|dexie|jsdom)"],
   testPathIgnorePatterns: [
     "<rootDir>/tools/tests/e2e/image-upload.test.js",
-    "<rootDir>/tools/tests/components/settings.test.js",
     "<rootDir>/tools/tests/components/topbar.test.js",
     "<rootDir>/tools/tests/integration/boot.test.js",
   ],
