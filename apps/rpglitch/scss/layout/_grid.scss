@@ -56,8 +56,8 @@ main.container {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
-  gap: 2rem;
+  padding: var(--space-xl);
+  gap: var(--space-xl);
   height: 100%;
   min-height: 100%;
   flex: 1;
@@ -90,7 +90,7 @@ main.container {
   // Actions Area
   .storyboard-actions {
     position: fixed;
-    bottom: calc(10% + 3rem);
+    bottom: calc(10% + var(--space-2xl));
     left: 50%;
     transform: translateX(-50%);
     z-index: 100;
@@ -99,8 +99,8 @@ main.container {
   }
 
   @include mobile {
-    padding: 1rem;
-    gap: 1rem;
+    padding: var(--space-md);
+    gap: var(--space-md);
     justify-content: space-between;
   }
 }
@@ -113,7 +113,7 @@ main.container {
   align-items: center; // Horizontal Center
   height: 100%;
   width: 100%;
-  padding: 2rem;
+  padding: var(--space-xl);
   pointer-events: none;
 
   // Force interactivity on children
@@ -122,7 +122,7 @@ main.container {
   }
 
   @include mobile {
-    padding: 1rem;
+    padding: var(--space-md);
   }
 }
 
