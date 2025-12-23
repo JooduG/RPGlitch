@@ -12,7 +12,7 @@ import { JSDOM, VirtualConsole } from "jsdom";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "../../..");
-const BUILD_OUTPUT = path.join(REPO_ROOT, "build", "output");
+// DELETED: const BUILD_OUTPUT = path.join(REPO_ROOT, "build", "output");
 
 /**
  * Mocks browser APIs for JSDOM
@@ -73,12 +73,15 @@ function enhanceWindow(window) {
 
 async function runSmoke(appName) {
   const fileName = appName === "rpglitch" ? "RPGlitch.html" : `${appName}.html`;
-  const filePath = path.join(BUILD_OUTPUT, fileName);
+
+  // FIX: Look in the apps directory where the build script actually saves them
+  const filePath = path.join(REPO_ROOT, "apps", appName, fileName);
 
   console.log(`\n💨 Testing ${fileName}...`);
+  console.log(`   (Path: ${filePath})`);
 
   if (!fs.existsSync(filePath)) {
-    console.error(`❌ Missing ${fileName}. Build it first!`);
+    console.error(`❌ Missing ${fileName} at ${filePath}. Build it first!`);
     return false;
   }
 
