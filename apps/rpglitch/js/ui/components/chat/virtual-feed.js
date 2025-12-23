@@ -133,6 +133,30 @@ export class VirtualFeed {
     }
     const bottomHeight = totalContentHeight - bottomBase;
 
+    // ⚡ BOLT OPTIMIZATION: Prevent DOM Trashing
+    // Encapsulate state for maintainable comparison
+    const renderState = {
+      start: startIndex,
+      end: endIndex,
+      top: topHeight,
+      bottom: bottomHeight,
+      items: this.items,
+    };
+
+    if (
+      this._prev &&
+      Object.keys(renderState).every(
+        (key) => this._prev[key] === renderState[key],
+      )
+    ) {
+      if (isAtBottom) {
+        this.container.scrollTop = this.container.scrollHeight;
+      }
+      return;
+    }
+
+    this._prev = renderState;
+
     this.spacerTop.style.height = `${topHeight}px`;
     this.spacerBottom.style.height = `${bottomHeight}px`;
 
