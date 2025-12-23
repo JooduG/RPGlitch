@@ -344,7 +344,7 @@
   --msg-color: #fff;
 
   color: var(--msg-color) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 60%); // V5 Vibrant Contrast Fix
+  text-shadow: $text-shadow-vibrant;
   background: var(--msg-bg) !important;
   border: none !important;
   opacity: 1 !important;
@@ -455,6 +455,7 @@
   backdrop-filter: blur(4px);
   border: 1px solid var(--pico-muted-border-color) !important;
   font-style: italic;
+
   --msg-color: var(--pico-muted-color);
 }
 
