@@ -2,7 +2,7 @@
 import { state, applyPatch } from "../core/state.js";
 import { entities } from "../data/repo.js";
 import { TurnManager } from "../engine/director.js";
-import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
+import { updatePortraits, applyFractalAmbience, updateDeveloperModeClass } from "./image-gen-ui.js";
 import { error } from "../core/utils.js";
 import { showAlert } from "./orchestrator.js";
 import { EVENTS, events } from "../core/events.js";
@@ -148,11 +148,7 @@ export function initStoryboardStage(views) {
   const beginBtn = document.querySelector("#begin-story");
   const shuffleBtn = document.querySelector("#btn-shuffle");
 
-  if (state.settings.developerMode) {
-    document.body.classList.add("mode-developer");
-  } else {
-    document.body.classList.remove("mode-developer");
-  }
+  updateDeveloperModeClass();
 
   views.setOnSelectionChanged((sel) => {
     const { aiCharacter, userCharacter, fractal } = sel;
