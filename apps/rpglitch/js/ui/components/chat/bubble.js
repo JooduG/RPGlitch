@@ -1,8 +1,9 @@
 import { sanitizeHtml } from "../../../core/utils.js";
-import { downloadImage, createIconBtn } from "../../services/ui-utils.js";
+import { createIconBtn } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { state } from "../../../core/state.js";
 import { ThemeService } from "../../services/theme.js";
+import { LightboxService } from "../../services/lightbox.js";
 import { renderChat } from "./feed.js";
 import { TurnManager } from "../../../engine/director.js";
 
@@ -59,6 +60,23 @@ function renderImageAttachment(imageUrl, options) {
   img.className = "generated-image";
   img.loading = "lazy";
 
+  // [NEW] Open Lightbox on Click
+  img.style.cursor = "zoom-in";
+  img.onclick = (e) => {
+    e.stopPropagation();
+    // Pass options with callback
+    LightboxService.open(imageUrl, {
+      ...options,
+      onReroll: () => {
+        if (window.setRerollState) {
+          window.setRerollState(options.messageId, true);
+          // Immediate DOM update
+          if (wrapper) wrapper.classList.add("rerolling");
+        }
+      },
+    });
+  };
+
   wrapper.appendChild(img);
   return wrapper;
 }
@@ -104,7 +122,7 @@ export function renderMessage(
   // Handle IMAGE Type
   if (type === "IMAGE") {
     div.className = "story-message system story-image-container";
-    const imageContainer = renderImageAttachment(text, options);
+    const imageContainer = renderImageAttachment(text, { ...options, role });
     div.appendChild(imageContainer);
     container.appendChild(div);
     return;
@@ -127,6 +145,11 @@ export function renderMessage(
   div.className = classList.join(" ");
   div.setAttribute("role", "log-item");
   div.setAttribute("data-type", type || "IC");
+
+  // [FIX] Add message ID for DOM targeting (Reroll Feedback)
+  if (options.messageId) {
+    div.setAttribute("data-message-id", options.messageId);
+  }
 
   if (signatureColor && signatureColor !== "default") {
     ThemeService.apply(div, signatureColor);
@@ -257,10 +280,10 @@ export function renderMessage(
     div.innerHTML = contentHtml + timeHtml + statusHtml + debugHtml;
 
     if (options.attachmentUrl) {
-      const imageContainer = renderImageAttachment(
-        options.attachmentUrl,
-        options,
-      );
+      const imageContainer = renderImageAttachment(options.attachmentUrl, {
+        ...options,
+        role,
+      });
       div.appendChild(imageContainer);
     } else if (
       options.metadata &&
@@ -281,37 +304,12 @@ export function renderMessage(
     const actionsDiv = document.createElement("div");
     actionsDiv.className = "message-actions";
 
-    // [IMAGE ACTIONS] Download Button
-    if (options.attachmentUrl) {
-      const btnDownload = createIconBtn(
-        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
-        "Download Image",
-        (e) => {
-          downloadImage(options.attachmentUrl, `rpglitch-${Date.now()}.png`);
-        },
-      );
-      actionsDiv.appendChild(btnDownload);
-    }
+    // --- Message Actions (Hover) ---
+    // [MODIFIED] Image Actions moved to Lightbox
+    // We only keep text actions here.
 
-    // [IMAGE ACTIONS] Reroll Image Button
-    if (
-      options.attachmentUrl &&
-      options.metadata &&
-      options.metadata.visualPrompt &&
-      options.isLast &&
-      role === "ai"
-    ) {
-      const btnRerollImg = createIconBtn(
-        `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`,
-        "Reroll Image",
-        (e) => {
-          if (TurnManager && options.messageId) {
-            TurnManager.regenerateMessageImage(options.messageId);
-          }
-        },
-      );
-      actionsDiv.appendChild(btnRerollImg);
-    }
+    // [MODIFIED] Image Actions moved to Lightbox
+    // We only keep text actions here.
 
     // [TEXT ACTIONS]
     if (role === "ai" && options.isLast) {

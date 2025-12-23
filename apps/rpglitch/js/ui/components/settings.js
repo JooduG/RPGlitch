@@ -3,6 +3,7 @@ import { applyPatch, state } from "../../core/state.js";
 import { TurnManager } from "../../engine/director.js";
 import { entities } from "../../data/repo.js";
 import { showAlert, handleConcludeStory } from "../orchestrator.js";
+import { log, error } from "../../core/utils.js";
 
 export const StoryOptionsController = {
   async init() {
@@ -152,7 +153,7 @@ export const StoryOptionsController = {
       devToggle.checked = state.settings.developerMode;
       devToggle.onchange = (e) => {
         const isChecked = e.target.checked;
-        console.log("[Settings] Developer Mode Toggled:", isChecked);
+        log("[Settings] Developer Mode Toggled:", isChecked);
         applyPatch({ settings: { developerMode: isChecked } });
 
         // Immediate UI Update
@@ -163,7 +164,7 @@ export const StoryOptionsController = {
         }
       };
     } else {
-      console.warn(
+      error(
         "[Settings] CRITICAL: Developer Toggle #setting-developer-mode not found!",
       );
     }
@@ -221,7 +222,7 @@ export const StoryOptionsController = {
         if (typeof TurnManager.requestVisual === "function") {
           await TurnManager.requestVisual();
         } else {
-          console.error("TurnManager.requestVisual is not implemented.");
+          error("TurnManager.requestVisual is not implemented.");
         }
       });
     }
@@ -458,7 +459,7 @@ export const StoryOptionsController = {
         grid.appendChild(card);
       });
     } catch (err) {
-      console.error("Failed to load library:", err);
+      error("Failed to load library:", err);
       grid.innerHTML = "<p><small>Error loading library.</small></p>";
     }
   },
@@ -469,7 +470,7 @@ export const StoryOptionsController = {
       window.location.hash = "story";
       StoryOptionsController.close();
     } catch (err) {
-      console.error("Failed to load story:", err);
+      error("Failed to load story:", err);
       showAlert("Error", "Failed to load story. See console for details.");
     }
   },

@@ -241,7 +241,60 @@ export const TurnManager = {
             }
           }
 
-          // 4. SAVE
+          // 4. VISUALS (Synchronous Generation)
+          let imageUrl = null;
+          let refinedPrompt = null;
+
+          if (visualPrompt) {
+            // [UX] Keep the magic alive (Restart typing indicator since we stopped it after text gen)
+            events.dispatchEvent(
+              new CustomEvent(EVENTS.TYPING_STARTED, {
+                detail: { role: "ai", characterId: story.aiId },
+              }),
+            );
+
+            log(
+              `[PROMETHEUS] Visual Prompt Detected: ${visualPrompt} (Target: ${targetType})`,
+            );
+
+            try {
+              // A. Build the Visual Director Prompt (Lens Selector)
+              const builder = new ContextBuilder(storyId);
+              // Map targetType to what prompter expects ('character', 'scene', 'fractal')
+              let vTarget = "character";
+              if (targetType === "user" || targetType === "ai")
+                vTarget = "character";
+              if (targetType === "fractal" || targetType === "scene")
+                vTarget = "scene";
+
+              const vPayload = await builder.buildVisualizer(vTarget);
+
+              // Inject the raw intent
+              vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`;
+
+              // B. Generate the "Flux Specification" via LLM
+              refinedPrompt = await LlmService.generate(vPayload, {
+                maxTokens: 300,
+                temperature: 0.7,
+              });
+
+              log(`[PROMETHEUS] Refined Flux Spec:`, refinedPrompt);
+
+              // C. Generate Image
+              imageUrl = await VisualManager.generate(refinedPrompt, {
+                resolution: IMG_RESOLUTION,
+              });
+            } catch (visErr) {
+              console.error("[PROMETHEUS] Auto-Visual Failed:", visErr);
+              // Fallback: We proceed to save the text even if image fails
+              // Optionally append an error note to metadata?
+            } finally {
+              // [UX] Cycle Complete. Stop the dots.
+              events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
+            }
+          }
+
+          // 5. SAVE (Persistence)
           const aiChar = await entities.get("character", story.aiId);
 
           if (mode === "append" && appendTargetId) {
@@ -251,7 +304,17 @@ export const TurnManager = {
               throw new Error("Cannot append: Message not found");
 
             const fullText = originalMsg.text + " " + finalResponseText;
-            await db.messages.update(appendTargetId, { text: fullText });
+            const updatePayload = { text: fullText };
+            if (imageUrl) {
+              updatePayload.attachmentUrl = imageUrl;
+              updatePayload.metadata = {
+                ...(originalMsg.metadata || {}),
+                visualPrompt,
+                targetType,
+                refinedPrompt,
+              };
+            }
+            await db.messages.update(appendTargetId, updatePayload);
             aiMsgId = appendTargetId;
           } else {
             // Create Logic
@@ -262,90 +325,33 @@ export const TurnManager = {
               text: finalResponseText,
               characterName: aiChar?.name || "Narrator",
               createdAt: Date.now(),
-              attachmentUrl: null,
-              metadata: visualPrompt ? { visualPrompt, targetType } : null,
+              attachmentUrl: imageUrl, // Null if failed or none
+              metadata: visualPrompt
+                ? { visualPrompt, targetType, refinedPrompt }
+                : null,
             });
+          }
+
+          // 6. PHYSICS
+          const payloadMeta = payload.meta;
+          if (payloadMeta && payloadMeta.triggerUpdate) {
+            TurnManager.runBackgroundUpdate(
+              storyId,
+              payloadMeta.updateTarget,
+              aiMsgId,
+            );
           }
 
           // Success! Break out of retry loop
           break;
         } catch (e) {
           if (e.name === "AbortError") throw e;
-          if (attempts >= MAX_ATTEMPTS) {
-            throw e; // Final failure, bubble up to catch block
-          }
+          if (attempts >= MAX_ATTEMPTS) throw e;
           log(
-            `[PROMETHEUS] Generation Glitch (Network/Timeout). Retrying ${attempts + 1}/${MAX_ATTEMPTS}...`,
+            `[PROMETHEUS] Generation Glitch. Retrying ${attempts + 1}/${MAX_ATTEMPTS}...`,
           );
-          await new Promise((r) => setTimeout(r, 1000 * attempts)); // Exponential backoff (1s, 2s)
+          await new Promise((r) => setTimeout(r, 1000 * attempts));
         }
-      }
-
-      // 5. VISUALS (PROMETHEUS V5 UPGRADE)
-      if (visualPrompt) {
-        events.dispatchEvent(
-          new CustomEvent(EVENTS.TYPING_STARTED, {
-            detail: { role: "ai", characterId: story.aiId },
-          }),
-        );
-
-        log(
-          `[PROMETHEUS] Visual Prompt Detected: ${visualPrompt} (Target: ${targetType})`,
-        );
-
-        // [UX] Refresh immediately so user sees text + placeholder while image gens
-        await TurnManager.loadMessages(storyId);
-        events.dispatchEvent(
-          new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
-        );
-
-        try {
-          // A. Build the Visual Director Prompt (Lens Selector)
-          const builder = new ContextBuilder(storyId);
-          // Map targetType to what prompter expects ('character', 'scene', 'fractal')
-          let vTarget = "character";
-          if (targetType === "user" || targetType === "ai")
-            vTarget = "character";
-          if (targetType === "fractal" || targetType === "scene")
-            vTarget = "scene";
-
-          const vPayload = await builder.buildVisualizer(vTarget);
-
-          // Inject the raw intent
-          vPayload.system += `\n<RAW_INTENT>\n${visualPrompt}\n</RAW_INTENT>`;
-
-          // B. Generate the "Flux Specification" via LLM
-          const refinedPrompt = await LlmService.generate(vPayload, {
-            maxTokens: 300,
-            temperature: 0.7,
-          });
-
-          log(`[PROMETHEUS] Refined Flux Spec:`, refinedPrompt);
-
-          // C. Generate Image
-          const imageUrl = await VisualManager.generate(refinedPrompt, {
-            resolution: IMG_RESOLUTION,
-          });
-
-          await db.messages.update(aiMsgId, {
-            attachmentUrl: imageUrl,
-            metadata: { visualPrompt, targetType, refinedPrompt },
-          });
-        } catch (visErr) {
-          console.error("[PROMETHEUS] Auto-Visual Failed:", visErr);
-        } finally {
-          events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
-        }
-      }
-
-      // 6. PHYSICS
-      const payloadMeta = payload.meta;
-      if (payloadMeta && payloadMeta.triggerUpdate) {
-        TurnManager.runBackgroundUpdate(
-          storyId,
-          payloadMeta.updateTarget,
-          aiMsgId,
-        );
       }
 
       // Finish Up

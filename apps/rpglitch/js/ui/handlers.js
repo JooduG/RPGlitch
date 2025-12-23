@@ -3,8 +3,8 @@
  * Centralized UI event handlers.
  * NOW FEATURING: The Reflex Brain (Zero Latency Input Scanning)
  */
-import { TurnManager } from "./engine/director.js";
-import { log } from "./core/utils.js";
+import { TurnManager } from "../engine/director.js";
+import { log } from "../core/utils.js";
 
 // Prevent duplicate listeners during hot-reload
 if (window.__RPGLITCH_UI_HANDLERS_INIT) {

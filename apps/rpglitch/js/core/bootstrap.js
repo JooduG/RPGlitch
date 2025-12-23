@@ -8,7 +8,8 @@ import { TurnManager } from "../engine/director.js";
 import { StoryOptionsController } from "../ui/components/settings.js";
 import { initStoryboardStage, SetupManager } from "../ui/setup.js";
 import { initChatInput } from "../ui/components/chat/input.js";
-import { initUIHandlers } from "../ui-handlers.js";
+import { initUIHandlers } from "../ui/handlers.js";
+import { LightboxService } from "../ui/services/lightbox.js";
 
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
 (function enforceClientSideFreedom() {
@@ -50,6 +51,7 @@ const App = {
 
     // Initialize UI Handlers (Replacement for inline HTML attributes)
     initUIHandlers();
+    LightboxService.init();
 
     try {
       // 1. Initialize Views
@@ -140,7 +142,7 @@ const App = {
       await new Promise((r) => setTimeout(r, 100));
     }
     if (window.rpgLists) {
-      console.log(
+      log(
         "[RPGlitch] Config loaded successfully:",
         Object.keys(window.rpgLists),
       );

@@ -1,0 +1,104 @@
+@use "../abstracts/variables" as *;
+@use "../abstracts/mixins" as *;
+
+// _lightbox.scss
+// Fullscreen viewer for generated images
+
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2000;
+
+  // Backdrop
+  background-color: rgba(0, 0, 0, 90%);
+  backdrop-filter: blur(12px);
+
+  // Layout
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  // Animation
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+
+  &.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  // Image Container
+  .lightbox-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 50%);
+      border: 1px solid rgba(255, 255, 255, 10%);
+
+      // Prevent drag/select
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+  }
+
+  // Action Bar (Bottom)
+  .lightbox-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+
+    // Glass Pill Container
+    background: rgba(20, 20, 30, 80%);
+    border: 1px solid rgba(255, 255, 255, 10%);
+    border-radius: 50px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 40%);
+
+    .btn-ghost {
+      margin: 0;
+      border-radius: 50px; // Pill shape
+      padding: 0.5rem 1.25rem;
+      background: transparent;
+      color: rgba(255, 255, 255, 80%);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+
+      svg.icon {
+        width: 1.25em;
+        height: 1.25em;
+        fill: currentcolor;
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 10%);
+        color: white;
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+}
