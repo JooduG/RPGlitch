@@ -33,16 +33,23 @@
     filter var(--transition-speed, 0.2s) ease-out;
 }
 
-@mixin btn-physics {
-  // The Physics of Touch
+@mixin btn-physics-hover {
   &:hover:not(:disabled):not(.disabled) {
     transform: translateY(-1px);
     filter: brightness(1.1);
   }
+}
 
+@mixin btn-physics-active {
   &:active:not(:disabled):not(.disabled) {
     transform: scale(var(--scale-active, 0.98));
   }
+}
+
+@mixin btn-physics {
+  // The Physics of Touch
+  @include btn-physics-hover;
+  @include btn-physics-active;
 }
 
 @mixin btn-disabled {

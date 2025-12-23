@@ -135,11 +135,7 @@
 #btn-settings-placeholder {
   @include btn-base;
   @include btn-disabled;
-
-  // Manual active state to match btn-physics without the hover lift
-  &:active:not(:disabled):not(.disabled) {
-    transform: scale(var(--scale-active, 0.98));
-  }
+  @include btn-physics-active;
 
   background: transparent;
   border: none;
