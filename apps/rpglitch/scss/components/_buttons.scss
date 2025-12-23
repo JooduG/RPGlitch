@@ -5,8 +5,8 @@
    Single Source of Truth for all interactive triggers.
    ============================================================================ */
 
-// --- 1. THE BASE ATOM ---
-%btn-base {
+// --- 1. THE BASE ATOM (MAESTRO SPEC) ---
+.ui-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -19,28 +19,43 @@
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
-  pointer-events: auto; // Force interactivity (override container pass-throughs)
+  pointer-events: auto;
   border: 1px solid transparent;
   border-radius: var(--pico-radius);
   background: transparent;
   color: var(--pico-color);
   transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.1s ease,
-    box-shadow 0.2s ease;
+    background-color var(--transition-speed, 0.2s) ease-out,
+    color var(--transition-speed, 0.2s) ease-out,
+    border-color var(--transition-speed, 0.2s) ease-out,
+    transform var(--transition-speed, 0.2s) ease-out,
+    box-shadow var(--transition-speed, 0.2s) ease-out,
+    filter var(--transition-speed, 0.2s) ease-out;
 
-  &:disabled {
+  // The Physics of Touch
+  &:hover:not(:disabled):not(.disabled) {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+  }
+
+  &:active:not(:disabled):not(.disabled) {
+    transform: scale(var(--scale-active, 0.98));
+  }
+
+  &:disabled,
+  &.disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    pointer-events: none;
+    filter: grayscale(1);
+    pointer-events: auto; // Allow cursor to show
+    transform: none; // No hover lift for disabled
+    box-shadow: none; // Ensure disabled buttons have no shadow
   }
 
   // Scoped Icon Styles
   .icon {
     pointer-events: none;
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform var(--transition-speed, 0.2s) cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   // Unified Focus State
@@ -53,83 +68,113 @@
   }
 }
 
+// Legacy Bridge
+%btn-base {
+  @extend .ui-btn;
+}
+
+%btn-ghost {
+  @extend .ui-btn--ghost;
+}
+
 // --- 2. STANDARD VARIANTS ---
 
-// .btn-primary: The Main Action (Solid Color)
-.btn-primary {
-  @extend %btn-base;
-
+// .ui-btn--primary: The Main Action
+.ui-btn--primary {
+  @extend .ui-btn;
   background: var(--pico-primary);
   color: var(--pico-primary-inverse);
   box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
 
-  &:hover {
+  &:hover:not(:disabled):not(.disabled) {
     background: var(--pico-primary-hover);
-    transform: translateY(-1px);
     box-shadow: 0 6px 12px rgb(0 0 0 / 30%);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 }
 
-// .btn-ghost: Contextual/Subtle (Transparent -> Background)
-// .btn-ghost: Contextual/Subtle (Transparent -> Background)
-%btn-ghost {
-  @extend %btn-base;
-
+// .ui-btn--ghost: Contextual/Subtle
+.ui-btn--ghost {
+  @extend .ui-btn;
   color: var(--pico-muted-color);
   border-color: transparent;
 
-  &:hover {
+  &:hover:not(:disabled):not(.disabled) {
     background: rgb(255 255 255 / 5%);
     color: var(--pico-color);
   }
 }
 
-.btn-ghost {
-  @extend %btn-ghost;
-
-  &.danger:hover {
-    color: var(--pico-del-color);
-    background: rgb(220 53 69 / 10%);
-  }
-}
-
-// .btn-outline: Bordered, low emphasis
-.btn-outline {
-  @extend %btn-base;
-
+// .ui-btn--outline: Bordered
+.ui-btn--outline {
+  @extend .ui-btn;
   border-color: var(--pico-muted-border-color);
   color: var(--pico-muted-color);
 
-  &:hover {
+  &:hover:not(:disabled):not(.disabled) {
     border-color: var(--pico-primary);
     color: var(--pico-primary);
     background: rgb(255 255 255 / 2%);
   }
 }
 
-// .btn-glass: Overlays/Floating UI (Blur)
-.btn-glass {
-  @extend %btn-base;
+// .ui-btn--secondary: Mapped to System/Pico Secondary
+.ui-btn--secondary {
+  @extend .ui-btn;
+  background: var(--pico-secondary-background, #5d6b89);
+  color: var(--pico-secondary-inverse, #fff);
+  border-color: var(--pico-secondary-border, #5d6b89);
 
+  &:hover:not(:disabled):not(.disabled) {
+    background: var(--pico-secondary-hover, #48536b);
+    border-color: var(--pico-secondary-hover, #48536b);
+  }
+}
+
+// .btn-glass: Special Variant
+.btn-glass {
+  @extend .ui-btn;
   background: rgb(0 0 0 / 40%);
   backdrop-filter: blur(8px);
   border: 1px solid rgb(255 255 255 / 10%);
   color: rgb(255 255 255 / 80%);
 
-  &:hover {
+  &:hover:not(:disabled):not(.disabled) {
     background: rgb(255 255 255 / 10%);
     border-color: rgb(255 255 255 / 30%);
     color: #fff;
   }
 }
 
-// --- 3. UTILITY SHAPES ---
+// --- 3. HARMONIZATION / MAPPING ---
+// Mapping existing classes to new structure for backward compatibility
+.btn-primary {
+  @extend .ui-btn--primary;
+}
 
-// .btn-round: Perfect Circle (for Icons)
+.btn-ghost {
+  @extend .ui-btn--ghost;
+
+  &.danger:hover:not(:disabled):not(.disabled) {
+    color: var(--pico-del-color);
+    background: rgb(220 53 69 / 10%);
+  }
+}
+
+.btn-outline {
+  @extend .ui-btn--outline;
+}
+
+.secondary {
+  @extend .ui-btn--secondary;
+}
+
+.contrast {
+  @extend .ui-btn--secondary; // Mapping contrast to secondary for now
+}
+
+// --- 4. UTILITY SHAPES ---
+
+// .btn-round: Perfect Circle
 .btn-round {
   padding: 0;
   width: 2.5rem;
@@ -137,15 +182,15 @@
   border-radius: 50%;
 }
 
-// .btn-joined: For Button Groups (No radius on connecting sides)
-// Using a placeholder to avoid stylelint error on @extend
+// .btn-joined: For Button Groups
 %btn-group-joined {
   display: inline-flex;
 
   .btn,
   button,
   .btn-ghost,
-  .btn-primary {
+  .btn-primary,
+  .ui-btn {
     border-radius: 0;
     margin: 0;
 
@@ -167,25 +212,25 @@
   @extend %btn-group-joined;
 }
 
-// --- 4. ANIMATIONS ---
+// --- 5. ANIMATIONS ---
 .btn-icon-raise:hover svg.icon {
   transform: translateY(-2px) scale(1.1);
 }
 
-// --- 5. SPECIAL COMPONENT: THE PILL (FLOATING ACTIONS) ---
-
+// --- 6. SPECIAL COMPONENT: THE PILL ---
 .btn-group-pill {
   @extend %btn-group-joined;
-  @extend %glass-pill;
+  @extend %glass-pill; // Assumed to exist in codebase/abstracts
 
-  overflow: hidden; // Clip the children
-  width: fit-content; // Prevent stretching to full width
+  overflow: hidden;
+  width: fit-content;
 
-  // Override child radius to fit the pill
   .btn,
-  button {
-    flex: 0 0 auto; // Prevent flex items from growing or shrinking
-    border: none; // Remove borders inside the pill (handled by container)
+  button,
+  .ui-btn {
+    flex: 0 0 auto;
+    border: none;
+
     &:first-child {
       padding-left: 1.5rem;
     }
@@ -194,7 +239,6 @@
       padding-right: 1.5rem;
     }
 
-    // Add dividers manually if needed, or rely on .btn-group-joined logic
     &:not(:last-child) {
       border-right: 1px solid rgb(255 255 255 / 10%);
     }

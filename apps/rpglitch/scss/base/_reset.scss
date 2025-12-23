@@ -197,19 +197,11 @@ article {
 }
 
 // --- INTERACTIVE ---
-// Tactile lift effect for all buttons
+// Tactile lift effect for all buttons (Delegated to _buttons.scss)
 button,
 [type="button"],
 [type="submit"] {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
   cursor: pointer;
-
-  &:not(:disabled):hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
-  }
 }
 
 /* --- DEVELOPER MODE TOGGLE --- */
