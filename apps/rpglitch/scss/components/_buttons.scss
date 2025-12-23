@@ -177,7 +177,7 @@
   // Override child radius to fit the pill
   .btn,
   button {
-    flex: 0 0 auto; // Prevent buttons from growing filler
+    flex: 0 0 auto; // Prevent flex items from growing or shrinking
     border: none; // Remove borders inside the pill (handled by container)
     &:first-child {
       padding-left: 1.5rem;
