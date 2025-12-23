@@ -202,13 +202,10 @@
       }
     }
 
-    // Typing Bubble Fix
     .typing-bubble {
       background-color: rgb(var(--ai-signature-rgb)) !important;
       border-radius: 18px !important;
       border-bottom-left-radius: 4px !important;
-
-      // Reset Margins & Align
       margin-left: 0.5rem !important; // Match AI bubbles
       margin-right: 2rem !important;
       align-self: flex-start !important;
