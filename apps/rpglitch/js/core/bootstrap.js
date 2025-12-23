@@ -8,7 +8,7 @@ import { TurnManager } from "../engine/director.js";
 import { StoryOptionsController } from "../ui/components/settings.js";
 import { initStoryboardStage, SetupManager } from "../ui/setup.js";
 import { initChatInput } from "../ui/components/chat/input.js";
-import { initUIHandlers } from "../ui-handlers.js";
+import { initUIHandlers } from "../ui/handlers.js";
 
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
 (function enforceClientSideFreedom() {
