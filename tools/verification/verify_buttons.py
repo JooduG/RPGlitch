@@ -1,7 +1,6 @@
 
 from playwright.sync_api import sync_playwright
 import os
-from pathlib import Path
 
 def run():
     with sync_playwright() as p:
@@ -9,8 +8,8 @@ def run():
         page = browser.new_page()
 
         # Load the built file
-        cwd = Path.cwd()
-        file_path = (cwd / "apps" / "rpglitch" / "RPGlitch.html").as_uri()
+        cwd = os.getcwd()
+        file_path = f"file://{cwd}/apps/rpglitch/RPGlitch.html"
         print(f"Navigating to: {file_path}")
         page.goto(file_path)
 

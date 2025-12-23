@@ -24,15 +24,21 @@
   border-radius: var(--pico-radius);
   background: transparent;
   color: var(--pico-color);
-  transition: all var(--transition-speed, 0.2s) ease-out;
+  transition:
+    background-color var(--transition-speed, 0.2s) ease-out,
+    color var(--transition-speed, 0.2s) ease-out,
+    border-color var(--transition-speed, 0.2s) ease-out,
+    transform var(--transition-speed, 0.2s) ease-out,
+    box-shadow var(--transition-speed, 0.2s) ease-out,
+    filter var(--transition-speed, 0.2s) ease-out;
 
   // The Physics of Touch
-  &:hover {
+  &:hover:not(:disabled):not(.disabled) {
     transform: translateY(-1px);
     filter: brightness(1.1);
   }
 
-  &:active {
+  &:active:not(:disabled):not(.disabled) {
     transform: scale(var(--scale-active, 0.98));
   }
 
@@ -66,6 +72,10 @@
   @extend .ui-btn;
 }
 
+%btn-ghost {
+  @extend .ui-btn--ghost;
+}
+
 // --- 2. STANDARD VARIANTS ---
 
 // .ui-btn--primary: The Main Action
@@ -75,7 +85,7 @@
   color: var(--pico-primary-inverse);
   box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
 
-  &:hover {
+  &:hover:not(:disabled):not(.disabled) {
     background: var(--pico-primary-hover);
     box-shadow: 0 6px 12px rgb(0 0 0 / 30%);
   }
@@ -87,7 +97,7 @@
   color: var(--pico-muted-color);
   border-color: transparent;
 
-  &:hover {
+  &:hover:not(:disabled):not(.disabled) {
     background: rgb(255 255 255 / 5%);
     color: var(--pico-color);
   }
@@ -99,7 +109,7 @@
   border-color: var(--pico-muted-border-color);
   color: var(--pico-muted-color);
 
-  &:hover {
+  &:hover:not(:disabled):not(.disabled) {
     border-color: var(--pico-primary);
     color: var(--pico-primary);
     background: rgb(255 255 255 / 2%);
@@ -113,7 +123,7 @@
   color: var(--pico-secondary-inverse, #fff);
   border-color: var(--pico-secondary-border, #5d6b89);
 
-  &:hover {
+  &:hover:not(:disabled):not(.disabled) {
     background: var(--pico-secondary-hover, #48536b);
     border-color: var(--pico-secondary-hover, #48536b);
   }
@@ -127,7 +137,7 @@
   border: 1px solid rgb(255 255 255 / 10%);
   color: rgb(255 255 255 / 80%);
 
-  &:hover {
+  &:hover:not(:disabled):not(.disabled) {
     background: rgb(255 255 255 / 10%);
     border-color: rgb(255 255 255 / 30%);
     color: #fff;
@@ -143,7 +153,7 @@
 .btn-ghost {
   @extend .ui-btn--ghost;
 
-  &.danger:hover {
+  &.danger:hover:not(:disabled):not(.disabled) {
     color: var(--pico-del-color);
     background: rgb(220 53 69 / 10%);
   }
