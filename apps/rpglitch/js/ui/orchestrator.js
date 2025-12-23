@@ -37,10 +37,29 @@ function initEventBinds() {
       const story = await db.stories.get(state.story.activeId);
       if (story) {
         // Determine source snapshot (End if concluded, else Start)
-        // Use the most recent state available
-        const snapshot = story.isConcluded
-          ? story.snapshots.end
-          : story.snapshots.start;
+        // [FIX] Use the most recent state available
+        let snapshot;
+
+        if (story.isConcluded) {
+          snapshot = story.snapshots.end;
+        } else {
+          // Fetch fresh state for active stories
+          try {
+            const { entities } = await import("../data/repo.js");
+            const [ai, user, fractal] = await Promise.all([
+              entities.get("character", story.aiId),
+              entities.get("character", story.userId),
+              entities.get("fractal", story.fractalId),
+            ]);
+            snapshot = { ai, user, fractal };
+          } catch (err) {
+            console.error(
+              "Failed to fetch fresh story entities, falling back to start snapshot.",
+              err,
+            );
+            snapshot = story.snapshots.start;
+          }
+        }
 
         setStorymodeEntities(snapshot.ai, snapshot.user, snapshot.fractal);
         updatePortraits(snapshot.ai, snapshot.user);
@@ -408,11 +427,12 @@ export function updateStoryboardSelection(newSelection) {
     setAppBackground(selectedEntities.fractal?.signatureColor);
     applyFractalAmbience(selectedEntities.fractal);
 
-    // Theme Injection Logic
+    // THEME INJECTION LOGIC
     // 1. Clear any existing theme classes (start with "theme-")
-    const currentClasses = document.body.className.split(" ");
-    const cleanClasses = currentClasses.filter((c) => !c.startsWith("theme-"));
-    document.body.className = cleanClasses.join(" ");
+    const toRemove = [...document.body.classList].filter((c) =>
+      c.startsWith("theme-"),
+    );
+    document.body.classList.remove(...toRemove);
 
     // 2. Inject new theme if it exists
     const newTheme = selectedEntities.fractal?.simulation?.cssTheme;
