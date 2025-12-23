@@ -26,45 +26,31 @@ const path = require('path');
     // The styles are inlined in the head or body.
 
     const isStylePresent = await page.evaluate(() => {
-        // Search through all stylesheets
-        for (const sheet of document.styleSheets) {
-            try {
-                for (const rule of sheet.cssRules) {
-                    if (rule.selectorText && rule.selectorText.includes('.field-label')) {
-                        // Check if the rule contains the flex property
-                        if (rule.style.display === 'flex' && rule.style.alignItems === 'baseline') {
-                            return true;
-                        }
-                    }
-                    // Also check .field-row for column direction
-                    if (rule.selectorText && rule.selectorText.includes('.field-row')) {
-                        if (rule.style.flexDirection === 'column') {
-                           // We found at least one of our key layout changes
-                           // Ideally we find both, but let's return true if we find the container one
-                        }
-                    }
-                }
-            } catch (e) {
-                // Ignore cross-origin issues if any (though file:// should be fine)
-            }
-        }
+        // Using getComputedStyle on dummy elements is more robust than iterating stylesheets.
 
-        // Alternative: Create a dummy element and check computed style
-        const dummy = document.createElement('div');
-        dummy.className = 'field-label';
-        document.body.appendChild(dummy);
-        const style = window.getComputedStyle(dummy);
-        const isFlex = style.display === 'flex';
-        const isBaseline = style.alignItems === 'baseline';
-        document.body.removeChild(dummy);
+        // Check .field-row styles
+        const rowDummy = document.createElement('div');
+        rowDummy.className = 'field-row';
+        document.body.appendChild(rowDummy);
+        const rowStyle = window.getComputedStyle(rowDummy);
+        const isRowOk = rowStyle.display === 'flex' && rowStyle.flexDirection === 'column';
+        document.body.removeChild(rowDummy);
 
-        return isFlex && isBaseline;
+        // Check .field-label styles
+        const labelDummy = document.createElement('div');
+        labelDummy.className = 'field-label';
+        document.body.appendChild(labelDummy);
+        const labelStyle = window.getComputedStyle(labelDummy);
+        const isLabelOk = labelStyle.display === 'flex' && labelStyle.alignItems === 'baseline';
+        document.body.removeChild(labelDummy);
+
+        return isRowOk && isLabelOk;
     });
 
     console.log(`Styles verification passed: ${isStylePresent}`);
 
     if (!isStylePresent) {
-        console.error("FAILED: .field-label does not appear to have display: flex and align-items: baseline");
+        console.error("FAILED: CSS verification for .field-row or .field-label failed.");
     }
 
   } catch (e) {
