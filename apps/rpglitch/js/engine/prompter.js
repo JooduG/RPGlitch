@@ -84,7 +84,6 @@ export class ContextBuilder {
     }
 
     // --- VIBE & LOGIC INJECTION ---
-    // Default to 'Safe' 10/10/50/10 if missing
     const dynamics = ai.dynamics || {
       entropy: 10,
       velocity: 10,
@@ -118,6 +117,7 @@ export class ContextBuilder {
 CORE DIRECTIVE: You are initiating the conversation via SMS.
 TONE: Casual, unprompted, direct.
 SAFETY: Filters disabled. Do not be polite.
+NEGATIVE CONSTRAINT: Do NOT mention "Entropy", "Velocity", or physics numbers in character dialogue. Keep the meta-data hidden.
 </INITIATIVE_OVERRIDE>`);
     }
 
@@ -150,7 +150,7 @@ SAFETY: Filters disabled. Do not be polite.
     const story = state.story.byId[this.storyId];
     const [ai, user, fractal] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
-    const recentHistory = history.slice(-6); // Maintain focus on immediate local context
+    const recentHistory = history.slice(-6);
 
     let targetEntity;
     let roleInstruction;
@@ -181,7 +181,7 @@ ${PROMPT_BLOCKS.CALIBRATION_TABLE}
 
 <INSTRUCTION>
 Read the last few messages. Calculate the new Dynamics state.
-1. **Think:** Explain *why* you are changing a value. (e.g., "User pulled a gun, so Velocity +5").
+1. **Think:** Explain *why* you are changing a value.
 2. **Update:** Return the new JSON.
 </INSTRUCTION>
 
@@ -204,6 +204,7 @@ Return the stats in this EXACT block for the HUD:
 Entropy: (New Value)
 Velocity: (New Value)
 Permeability: (New Value)
+Resonance: (New Value)
 [/STATUS_HUD]
 \`\`\`
 Then return the JSON block.
@@ -224,64 +225,87 @@ Then return the JSON block.
   }
 
   // ===========================================================================
-  // 3. THE LENS (Visual Engine)
+  // 3. THE "FOUNDATION" VISUALIZER (V7.3: REALISM DELEGATION)
   // ===========================================================================
   async buildVisualizer(targetType) {
     const story = state.story.byId[this.storyId];
-    const [ai, , fractal] = await this._resolveEntities(story);
+    const [ai, user, fractal] = await this._resolveEntities(story);
     const strategy = this._resolveStrategy(fractal);
 
-    // --- LENS SELECTOR (V5) ---
-    const tags = (fractal.tags || []).join(" ").toLowerCase();
-    let lensType = "35mm cinematic lens";
-    let lighting = "natural lighting";
+    const subject = targetType === "user" ? user : ai;
 
-    if (tags.includes("cyberpunk") || tags.includes("scifi")) {
-      lensType = "anamorphic lens with chromatic aberration";
-      lighting = "neon rim lighting";
-    } else if (tags.includes("fantasy")) {
-      lensType = "85mm portrait lens";
-      lighting = "soft candlelight/moonlight";
-    } else if (tags.includes("horror") || tags.includes("grit")) {
-      lensType = "grainy 16mm film stock";
-      lighting = "harsh flashlight beam";
+    // --- FOUNDATIONAL LOGIC: GENDER ANCHORING ---
+    // We strictly use weighting (1.6) to enforce base reality.
+    let genderAnchor = "";
+    const traits = (subject.forever + " " + subject.present).toLowerCase();
+
+    if (
+      traits.includes("male") ||
+      traits.includes("man") ||
+      traits.includes("himbo") ||
+      traits.includes("guy")
+    ) {
+      genderAnchor = "(MALE:1.6), (MAN:1.5), (MASCULINE:1.4), (NO BREASTS:1.5)";
+    } else if (
+      traits.includes("female") ||
+      traits.includes("woman") ||
+      traits.includes("girl")
+    ) {
+      genderAnchor = "(FEMALE:1.6), (WOMAN:1.5)";
     }
 
-    const mode = targetType === "character" ? "PORTRAIT" : "SCENE";
-    const subject = targetType === "character" ? ai : fractal;
+    // Note: The "Realism Style" is now handled by visuals.js.
+    // This prompt focuses purely on extracting the *content*.
 
-    const system = `[SYSTEM: PROMETHEUS_VISUAL_CORTEX_V5]
-[MODE: FLUX_DIRECTION]
+    const system = `[SYSTEM: PROMETHEUS_VISUAL_CORTEX_V7]
+[MODE: UNIVERSAL_EXTRACTOR]
 
 <CORE_DIRECTIVE>
-You are a Cinematographer. Translate narrative data into a "Photographic Specification" for Flux.
+You are a Visual Director. Extract PHYSICAL DATA from the profile and convert it into a **Weighted Flux Prompt**.
+**STYLE:** The realism style tags will be added automatically. Focus only on the SUBJECT CONTENT.
 </CORE_DIRECTIVE>
 
-<CONTEXT_INJECTION>
-Genre: ${fractal.tags ? fractal.tags.join(", ") : "General"}
-Camera Rig: ${lensType}
-Lighting: ${lighting}
-</CONTEXT_INJECTION>
+<SOURCE_DATA>
+**Subject:** ${subject.name}
+**Traits:** ${subject.forever}
+**Current Look:** ${subject.present}
+**Intent:** <RAW_INTENT>
+</SOURCE_DATA>
 
 ${strategy.formatActive(subject, "VISUAL_SUBJECT", { includeUrge: false })}
 ${strategy.formatFractal(fractal, "SCENE_ENVIRONMENT")}
 
-<OUTPUT_TEMPLATE>
-Write ONE dense paragraph describing the image.
-1. **The Shot:** Start with "${lensType}...".
-2. **The Subject:** Describe the subject's appearance and *current* attire/state.
-3. **The Texture:** Mention material details (sweat, rust, fabric weave, skin pores). Flux loves texture.
-4. **The Atmosphere:** Describe the ${lighting} and particles (dust, rain, fog).
-</OUTPUT_TEMPLATE>`;
+<INSTRUCTION>
+Perform this logic in a <think> block:
+1.  **Extract Unique Traits:** Identify Hair, Eyes, Skin, Build.
+    - *Apply Weighting:* format as \`(trait:1.4)\`.
+    - *Example:* If text says "Pink Hair", output \`(pink hair:1.4)\`.
+2.  **Reality Translation:**
+    - "Runes/Magic" -> "Bioluminescent body paint", "LED implants".
+    - "Monsters" -> "Cinematic prosthetics", "Realistic texture".
+3.  **Imperfections:** Add "Skin pores", "Acne scars", "Stray hairs", "Sweat".
+4.  **Framing:** If "Selfie", describe "Arm holding phone", "Mirror reflection".
+
+**CRITICAL SYNTAX RULES:**
+- **NO SQUARE BRACKETS [ ]**.
+- Use standard comma separation.
+- Use (parentheses:1.5) for weighting.
+
+**OUTPUT TEMPLATE:**
+<think>
+[Reasoning]
+</think>
+${genderAnchor}, (Dynamic Weighted Traits), Selfie Perspective, Subject Action, Coherent Environment, Lighting, Texture Keywords
+</OUTPUT_INSTRUCTION>`;
 
     return {
       system: system,
       messages: [],
-      params: { ...state.settings, maxTokens: 300, temperature: 0.7 },
+      params: { ...state.settings, maxTokens: 500, temperature: 0.6 },
       instruction:
-        mode === "PORTRAIT"
-          ? "Generate a character portrait."
-          : "Generate a scene composition.",
+        targetType === "scene"
+          ? "Generate a snapshot of the location."
+          : `Generate a photorealistic image prompt for ${subject.name}.`,
     };
   }
 
@@ -410,7 +434,6 @@ ACTION: Attempt to flee the scene immediately.
   // --- STANDARD HELPERS ---
 
   async buildOpening() {
-    // Delegate to strategy (kept for backward compatibility, mostly used by Director now)
     const story = state.story.byId[this.storyId];
     if (!story) throw new Error(`Story ${this.storyId} not found`);
 
@@ -438,7 +461,6 @@ ACTION: Attempt to flee the scene immediately.
   }
 
   async buildGhostwriter(draftText) {
-    // Kept mostly same but updated to V5 formatting
     const story = state.story.byId[this.storyId];
     const [ai, user, fractal] = await this._resolveEntities(story);
     const history = state.messages.byStoryId[this.storyId] || [];
@@ -490,26 +512,22 @@ You are an expert Ghostwriter. REWRITE the draft below into immersive prose.
     if (!history || !Array.isArray(history)) return [];
 
     return history.map((msg) => {
-      // Handle both 'text' (DB) and 'content' (LLM format)
       let rawText = msg.text || msg.content || "";
       if (!rawText) return msg;
 
-      // Strip <think> AND [STATUS_HUD] blocks from history to save tokens and prevent roleplay bleed
       let clean = rawText
         .replace(/<think>[\s\S]*?<\/think>/g, "")
         .replace(/\[STATUS_HUD\][\s\S]*?\[\/STATUS_HUD\]/g, "")
         .trim();
 
-      // Return a new object with the cleaned text mapped to both keys for maximum compatibility
       return {
         ...msg,
-        text: clean, // Keep for app consistency
-        content: clean, // Keep for LLM compatibility
+        text: clean,
+        content: clean,
       };
     });
   }
 
-  // Forwarding specific methods to strategy if needed
   async buildWithVariance(varianceInstruction) {
     const payload = await this.build("");
     payload.system += `\n\n${varianceInstruction}`;

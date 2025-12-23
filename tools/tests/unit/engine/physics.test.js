@@ -50,28 +50,28 @@ describe("PROMETHEUS ENGINE V5", () => {
       const input = {
         entropy: 10,
         permeability: 80,
-        velocity: 85,
+        velocity: 95, // Increased to trigger new threshold (90)
         resonance: 10,
       };
       const output = calculateDynamics(input);
 
-      // 80 - 20 = 60
-      expect(output.permeability).toBe(60);
-      expect(output.velocity).toBe(85);
+      // 80 - 10 = 70 (New Penalty)
+      expect(output.permeability).toBe(70);
+      expect(output.velocity).toBe(95);
       expect(output._flags.glassCannon).toBeFalsy();
     });
 
     test("Law 2: Fog of War (High Entropy reduces Resonance)", () => {
       const input = {
-        entropy: 85,
+        entropy: 90, // Increased to safely trigger new threshold (85)
         permeability: 50,
         velocity: 50,
         resonance: 50,
       };
       const output = calculateDynamics(input);
 
-      // 50 - 10 = 40
-      expect(output.resonance).toBe(40);
+      // 50 - 5 = 45 (New Dampening)
+      expect(output.resonance).toBe(45);
       expect(output._flags.fogOfWar).toBeTruthy();
     });
 
@@ -90,15 +90,15 @@ describe("PROMETHEUS ENGINE V5", () => {
 
     test("Law 4: Panic Spiral (Critical Entropy forces Velocity up)", () => {
       const input = {
-        entropy: 95,
+        entropy: 99, // Increased to safely trigger new threshold (95)
         permeability: 50,
         velocity: 40,
         resonance: 10,
       };
       const output = calculateDynamics(input);
 
-      // Velocity 40 + 20 = 60
-      expect(output.velocity).toBe(60);
+      // Velocity 40 + 15 = 55 (New Boost)
+      expect(output.velocity).toBe(55);
       expect(output._flags.panicSpiral).toBeTruthy();
     });
 

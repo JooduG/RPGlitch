@@ -1,37 +1,59 @@
-import { extractImageUrl, log } from "../../core/utils.js";
-import { VISUAL_PRESETS } from "../../data/visual-styles.js";
+import { extractImageUrl, log, error } from "../../core/utils.js";
 
 /**
- * THE VISUAL MANAGER
- * Handles all interaction with Image Gen APIs and Prompt Engineering for visuals.
- * Decouples "Business Logic" (Prompting) from "UI Logic" (Buttons/Modals).
+ * THE VISUAL MANAGER (V7.3: THE REALISM HAMMER)
+ * Handles interaction with the Perchance Text-to-Image Plugin.
+ * FORCEFULLY injects realism tags into every single prompt.
  */
 
-const DEFAULT_NEGATIVE =
-  "blurry, low quality, text, watermark, bad anatomy, distorted faces, extra limbs, mutated hands, poorly drawn face, disfigured, asymmetric, ugly, grain, noise, messy, worst quality, low resolution";
+const VISUAL_CONSTANTS = {
+  // COMPULSORY REALISM TAGS. These will be prepended to EVERY prompt.
+  REALISM_ANCHOR:
+    "raw photo, amateur phone photography, flash photography, realistic skin texture, pores, acne scars, imperfections, high iso, film grain, unpolished, snapchat quality",
+
+  // THE FIREWALL (Strict Anti-Anime)
+  NEGATIVE_CONSTRAINTS:
+    "anime, cartoon, illustration, drawing, 3d render, painting, sketch, smooth skin, plastic skin, doll-like, glowing skin, matte, low resolution, bad anatomy, text, watermark, cgi, unreal engine, video game, airbrushed, perfect lighting, rendered",
+
+  DEFAULT_RESOLUTION: "512x768",
+};
 
 export const VisualManager = {
   // --- CORE SERVICES ---
 
-  /**
-   * Generates an image using the text-to-image plugin.
-   * @param {string} prompt - The raw prompt.
-   * @param {Object} options - { resolution, negative, removeBackground }
-   */
   async generate(prompt, options = {}) {
-    options = options || {}; // Safety: Ensure options is an object
+    options = options || {};
     if (!window.textToImage) throw new Error("Image plugin not loaded.");
 
-    const resolution = options.resolution || "512x768";
+    log(`[Visuals] Raw Input: ${prompt.substring(0, 50)}...`);
+
+    // 1. SANITIZATION (Remove <think> and brackets)
+    let cleanPrompt = prompt.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+    cleanPrompt = cleanPrompt.replace(/[\[\]\{\}]/g, "");
+    cleanPrompt = cleanPrompt.replace(/\n/g, ", ");
+
+    // 2. THE REALISM HAMMER (Force Injection)
+    // We prepend the realism anchor to ensure it's the first thing Flux sees.
+    const finalPrompt = `${VISUAL_CONSTANTS.REALISM_ANCHOR}, ${cleanPrompt}`;
+
+    log(`[Visuals] Final Realism Prompt: ${finalPrompt.substring(0, 100)}...`);
+
+    let negativePrompt = options.negative || "";
+    if (!negativePrompt.includes("anime")) {
+      negativePrompt +=
+        (negativePrompt ? ", " : "") + VISUAL_CONSTANTS.NEGATIVE_CONSTRAINTS;
+    }
+
+    const resolution =
+      options.resolution || VISUAL_CONSTANTS.DEFAULT_RESOLUTION;
 
     try {
-      const result = await window.textToImage({
-        prompt: prompt,
+      const result = await window.textToImage(finalPrompt, {
         resolution: resolution,
-        negative_prompt: options.negative || DEFAULT_NEGATIVE,
-
-        // [NEW] Pass the transparency flag if requested (Great for character tokens)
+        negativePrompt: negativePrompt,
         removeBackground: options.removeBackground || false,
+        guidanceScale: 7,
+        seed: -1,
       });
 
       if (typeof result === "string" && result.startsWith("(")) {
@@ -40,15 +62,11 @@ export const VisualManager = {
 
       return typeof result === "string" ? result : extractImageUrl(result);
     } catch (e) {
-      console.error("[VisualManager] Generation failed:", e);
+      error("[VisualManager] Generation failed:", e);
       throw e;
     }
   },
 
-  /**
-   * Uploads an image blob using the upload plugin.
-   * @param {Blob} fileBlob
-   */
   async upload(fileBlob) {
     if (!window.upload) throw new Error("Upload plugin not loaded.");
 
@@ -68,84 +86,72 @@ export const VisualManager = {
     });
   },
 
-  // --- PROMPT ENGINEERING ---
+  // --- PROMPT ENGINEERING (MANUAL FALLBACK) ---
 
-  /**
-   * "The Assembler": Instantly constructs a prompt without a second LLM call.
-   * Combines Style + Action + Entity Traits.
-   */
-  async composePrompt(
+  composePrompt(
     entity,
-    stylePreference = "photorealistic",
+    stylePreference = null,
     extraContext = null,
     options = {},
   ) {
-    options = options || {}; // Safety: Ensure options is an object
-    // 0. DETECT TYPE (Robust check)
-    const type = (entity.type || entity.kind || "").toLowerCase();
-    const isFractal = type === "world" || type === "fractal";
+    const name = entity.name || "Subject";
+    const appearance = entity.sections?.forever || entity.forever || "";
+    const outfit =
+      entity.sections?.present || entity.present || "casual clothes";
 
-    // 1. DEFINE STYLE PREFIX
-    let stylePrefix = isFractal
-      ? VISUAL_PRESETS.STYLES.FRACTAL
-      : VISUAL_PRESETS.STYLES.CHARACTER;
+    let anchor = "";
+    const traits = (appearance + " " + outfit).toLowerCase();
 
-    // Messenger Mode Override (Characters Only)
-    if (options.isMessenger && !isFractal) {
-      stylePrefix = VISUAL_PRESETS.STYLES.MESSENGER;
-
-      const promptLower = (extraContext || "").toLowerCase();
-      if (promptLower.includes("selfie")) {
-        stylePrefix += VISUAL_PRESETS.STYLES.SELFIE;
-      }
-      if (promptLower.includes("mirror")) {
-        stylePrefix += VISUAL_PRESETS.STYLES.MIRROR;
-      }
-    } else {
-      // Standard styles
-      if (stylePreference === "anime")
-        stylePrefix = VISUAL_PRESETS.STYLES.ANIME;
-      if (stylePreference === "oil") stylePrefix = VISUAL_PRESETS.STYLES.OIL;
+    // Identity Weighting
+    if (
+      traits.includes("male") ||
+      traits.includes("man") ||
+      traits.includes("himbo")
+    ) {
+      anchor = "(MALE:1.6), (MAN:1.5)";
+    } else if (traits.includes("female") || traits.includes("woman")) {
+      anchor = "(FEMALE:1.6), (WOMAN:1.5)";
     }
 
-    // Inject Lens (Prepend)
-    if (options.lens && VISUAL_PRESETS.LENSES[options.lens]) {
-      stylePrefix = `${VISUAL_PRESETS.LENSES[options.lens]}, ${stylePrefix}`;
-    } else if (VISUAL_PRESETS.LENSES.DEFAULT) {
-      // Optional: enforce default lens?
-      // stylePrefix = `${VISUAL_PRESETS.LENSES.DEFAULT}, ${stylePrefix}`;
+    // Mass Weighting
+    if (
+      traits.includes("bodybuilder") ||
+      traits.includes("steroid") ||
+      traits.includes("muscle")
+    ) {
+      anchor += ", (HYPER-MUSCULAR:1.4), (MASSIVE BUILD:1.3)";
     }
 
-    // Inject Texture (Append)
-    if (options.texture && VISUAL_PRESETS.TEXTURES[options.texture]) {
-      stylePrefix += `, ${VISUAL_PRESETS.TEXTURES[options.texture]}`;
-    }
+    // Note: We don't need to add BASE_STYLE here anymore, because
+    // the generate() function above will automatically prepend it.
 
-    // 2. EXTRACT VISUAL ANCHOR
-    // We combine specific fields to ensure consistency.
-    const visualTraits = [
-      entity.name,
-      // entity.description, // Description is for user context only
-      entity.forever, // Immutable traits
-      entity.present, // Current outfit/state
-    ]
-      .filter(Boolean)
-      .join(", ");
+    const realityFilter =
+      "bioluminescent body paint, subdermal LED implants, latex texture, tactical gear";
 
-    // 3. DEFINE ACTION (The "Extra Context" from Chat)
-    let defaultAction = isFractal
-      ? "panoramic view of the location"
-      : "standing in neutral pose";
+    const isFractal = entity.type === "fractal" || entity.kind === "fractal";
+    let action = extraContext ? extraContext.trim() : "standing candidly";
+    if (isFractal && !extraContext) action = "panoramic view";
 
-    const action = extraContext ? extraContext.trim() : defaultAction;
+    const parts = [
+      anchor,
+      // VISUAL_CONSTANTS.REALISM_ANCHOR, // Removed, handled by generate()
+      `Subject: ${name}, ${action}`,
+      `Physical Details: ${appearance}, ${outfit}`,
+      `Material Effects: ${realityFilter}`,
+    ];
 
-    // 4. ASSEMBLE FINAL PROMPT
-    // Format: [Style] + [Action/Subject] + [Visual Definitions]
-    const finalPrompt = `${stylePrefix}, ${action}, (${visualTraits})`;
+    const finalPrompt = parts.filter(Boolean).join(", ");
 
-    log("[VisualManager] Assembled Prompt:", finalPrompt);
-
-    // Return immediately (No await)
+    log(
+      "[VisualManager] Assembled Manual Prompt (Pre-Injection):",
+      finalPrompt,
+    );
     return finalPrompt;
+  },
+
+  getResolutionForMode: (mode) => {
+    if (mode === "scene" || mode === "landscape") return "768x512";
+    if (mode === "portrait" || mode === "selfie") return "512x768";
+    return VISUAL_CONSTANTS.DEFAULT_RESOLUTION;
   },
 };
