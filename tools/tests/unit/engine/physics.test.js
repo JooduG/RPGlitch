@@ -212,7 +212,6 @@ describe("PROMETHEUS ENGINE V5", () => {
 
       // V5 Check
       expect(payload.system).toContain("[SYSTEM: PROMETHEUS_ARCHIVIST_V5]");
-      // FIX: Updated string to match the actual prompter.js output
       expect(payload.system).toContain("Do NOT delete Proper Nouns");
       expect(payload.system).toContain("TestChar");
       // Ensure temp is lowered for precision
