@@ -1,6 +1,7 @@
 
 from playwright.sync_api import sync_playwright
 import os
+from pathlib import Path
 
 def run():
     with sync_playwright() as p:
