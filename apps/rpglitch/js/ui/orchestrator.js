@@ -410,9 +410,10 @@ export function updateStoryboardSelection(newSelection) {
 
     // [FIX] THEME INJECTION LOGIC
     // 1. Clear any existing theme classes (start with "theme-")
-    const currentClasses = document.body.className.split(" ");
-    const cleanClasses = currentClasses.filter((c) => !c.startsWith("theme-"));
-    document.body.className = cleanClasses.join(" ");
+    const toRemove = [...document.body.classList].filter((c) =>
+      c.startsWith("theme-"),
+    );
+    toRemove.forEach((c) => document.body.classList.remove(c));
 
     // 2. Inject new theme if it exists
     const newTheme = selectedEntities.fractal?.simulation?.cssTheme;
