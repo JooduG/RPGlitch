@@ -52,6 +52,17 @@ const App = {
     initUIHandlers();
 
     try {
+      // 0. Load Settings from DB
+      try {
+        const savedSettings = await db.settings.get("app-settings");
+        if (savedSettings) {
+          applyPatch({ settings: savedSettings });
+          log("[Universal Stage] Settings loaded from DB.");
+        }
+      } catch (e) {
+        console.warn("[Universal Stage] Failed to load settings", e);
+      }
+
       // 1. Initialize Views
       App.views = await initViews({
         refreshAllLists: async () => {
