@@ -120,8 +120,6 @@
     flex: 0 0 auto !important; // FORCE NO GROW
     width: auto !important;
     padding-right: var(--space-lg);
-    border: none;
-    background: transparent;
     color: var(--pico-muted-color); // Default color if no signature
 
     // Ensure icon is visible
