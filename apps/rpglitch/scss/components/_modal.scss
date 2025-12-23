@@ -54,14 +54,9 @@ dialog.modal {
     footer {
       padding: 0;
       border-top: 1px solid rgba(255, 255, 255, 10%);
-
-      // Unified Button Group
-      @extend %btn-group-joined;
-
-      // Refinement: Right-align buttons (standard desktop dialog pattern)
       display: flex;
-      justify-content: flex-end;
       width: 100%;
+      margin: 0;
 
       // Reset button styles to inherit global .btn defaults
       .btn,
@@ -70,12 +65,26 @@ dialog.modal {
         @include btn-physics;
         @include btn-disabled;
 
-        flex: 0 0 auto; // Use natural width
-        padding: 0.5rem 1rem !important; // Restore padding
-        height: auto; // Restore natural height
-        border-radius: 0; // Handled by %btn-group-joined
+        flex: 1; // 50% Width Each
+        padding: 1rem !important;
+        height: auto;
+        border-radius: 0;
+        margin: 0;
+        border: none;
+        border-right: 1px solid rgba(255, 255, 255, 10%);
 
-        // Remove legacy hover overrides (inherit from .btn-ghost/.btn-primary)
+        &:last-child {
+          border-right: none;
+        }
+
+        // Flush Corners
+        &:first-child {
+            border-bottom-left-radius: var(--pico-radius);
+        }
+
+        &:last-child {
+            border-bottom-right-radius: var(--pico-radius);
+        }
       }
     }
   }

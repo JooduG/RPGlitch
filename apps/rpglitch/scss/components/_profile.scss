@@ -507,20 +507,46 @@ input[type="number"][data-edit-dynamic] {
 
 .profile-actions-footer {
   display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
+  width: 100%;
   margin-top: 2rem;
-  padding-top: 2rem;
+  padding: 0;
   border-top: 1px solid var(--pico-muted-border-color);
+  gap: 0; // Flush
 
   // Buttons handled by utility classes
-  // button, [role="button"] { ... }
+  button, [role="button"], .ui-btn {
+    flex: 1; // 50/50 Split
+    margin: 0;
+    border-radius: 0;
+    padding: 1rem;
+    border: none;
+    border-right: 1px solid rgba(255, 255, 255, 10%);
+
+    &:last-child {
+      border-right: none;
+    }
+
+    // Flush Corners (Assuming Profile is inside a container or standalone)
+    // If inside a modal/card, these round the bottom
+    &:first-child {
+       border-bottom-left-radius: var(--pico-radius);
+    }
+
+    &:last-child {
+       border-bottom-right-radius: var(--pico-radius);
+    }
+  }
 
   fieldset[role="group"] {
     margin-bottom: 0;
+    width: 100%;
+    display: flex;
 
     button {
-      height: 2.25rem;
+      flex: 1;
+      height: auto;
+      border-radius: 0;
+      margin: 0;
     }
   }
 }
