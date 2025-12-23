@@ -64,12 +64,7 @@ function initEventBinds() {
         setStorymodeEntities(snapshot.ai, snapshot.user, snapshot.fractal);
         updatePortraits(snapshot.ai, snapshot.user);
 
-        if (snapshot.fractal) {
-          applyFractalAmbience(snapshot.fractal);
-        }
-
-        // [FIX] Sync Global Selection State to ensure Theme is applied
-        // This fixes the bug where loading a story didn't change the UI theme
+        // Sync Global Selection State to ensure Theme is applied
         updateStoryboardSelection({
           aiCharacter: snapshot.ai,
           userCharacter: snapshot.user,
@@ -427,11 +422,12 @@ export function updateStoryboardSelection(newSelection) {
     setAppBackground(selectedEntities.fractal?.signatureColor);
     applyFractalAmbience(selectedEntities.fractal);
 
-    // [FIX] THEME INJECTION LOGIC
+    // THEME INJECTION LOGIC
     // 1. Clear any existing theme classes (start with "theme-")
-    const currentClasses = document.body.className.split(" ");
-    const cleanClasses = currentClasses.filter((c) => !c.startsWith("theme-"));
-    document.body.className = cleanClasses.join(" ");
+    const toRemove = [...document.body.classList].filter((c) =>
+      c.startsWith("theme-"),
+    );
+    document.body.classList.remove(...toRemove);
 
     // 2. Inject new theme if it exists
     const newTheme = selectedEntities.fractal?.simulation?.cssTheme;

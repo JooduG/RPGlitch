@@ -31,7 +31,6 @@ export const StoryOptionsController = {
 
     const concludeBtn = modal.querySelector("#btn-conclude-story");
 
-    // [FIX] Chat Screen Cog Button
     const chatSettingsBtn = document.querySelector("#btn-settings-placeholder");
 
     // Open Options (Storyboard)
@@ -42,13 +41,12 @@ export const StoryOptionsController = {
       });
     }
 
-    // [FIX] Open Options (Chat Screen)
+    // Open Options (Chat Screen)
     if (chatSettingsBtn) {
-      // Remove the inline onclick from HTML in your head, or we overwrite it here
-      chatSettingsBtn.onclick = (e) => {
+      chatSettingsBtn.addEventListener("click", (e) => {
         e.preventDefault();
         StoryOptionsController.open();
-      };
+      });
     }
 
     // Close Options

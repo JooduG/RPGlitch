@@ -861,7 +861,7 @@
 }
 
 // When Developer Mode is Active (Class on Body), reveal it
-body.developer-mode {
+body.mode-developer {
   .developer-content {
     display: block;
     animation: fadeIn 0.3s ease;
