@@ -67,7 +67,7 @@ if [ -f "tools/build/app.js" ]; then
     echo "Building Application..."
     node tools/build/app.js
 else
-    npm run build --if-present
+    npm run build:apps --if-present
 fi
 
 # 5. VERIFICATION
