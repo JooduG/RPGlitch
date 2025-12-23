@@ -413,7 +413,7 @@ export function updateStoryboardSelection(newSelection) {
     const toRemove = [...document.body.classList].filter((c) =>
       c.startsWith("theme-"),
     );
-    toRemove.forEach((c) => document.body.classList.remove(c));
+    document.body.classList.remove(...toRemove);
 
     // 2. Inject new theme if it exists
     const newTheme = selectedEntities.fractal?.simulation?.cssTheme;
