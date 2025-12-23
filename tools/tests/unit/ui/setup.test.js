@@ -73,7 +73,7 @@ describe("setup.js", () => {
 
     events.dispatchEvent(event);
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     // Expect entities.get to be called
     expect(entities.get).toHaveBeenCalled();
