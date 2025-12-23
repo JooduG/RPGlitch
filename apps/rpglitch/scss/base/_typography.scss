@@ -29,4 +29,7 @@ p {
   vertical-align: text-bottom;
   fill: currentcolor;
   display: inline-block;
+  flex-shrink: 0;
+  pointer-events: none; // Prevent icon from capturing clicks
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

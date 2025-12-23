@@ -36,14 +36,6 @@
     cursor: not-allowed;
     pointer-events: none;
   }
-
-  // Icon alignment fix
-  svg.icon {
-    width: 1.25em;
-    height: 1.25em;
-    fill: currentcolor;
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
 }
 
 // --- 2. STANDARD VARIANTS ---
