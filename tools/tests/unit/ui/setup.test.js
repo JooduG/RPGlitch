@@ -51,28 +51,14 @@ describe("setup.js", () => {
     state.selectedUser = { id: 'user-1' };
     state.selectedFractal = { id: 'fractal-1' };
 
-    // Spy on event listener
-    const addEventListenerSpy = jest.spyOn(events, 'addEventListener');
-
-    // Re-init to capture the listener (or we can just capture it manually if we knew how events works)
-    // Actually initStoryboardStage calls events.addEventListener.
-    // But since events is imported from a module, and we didn't mock events module fully (we imported it),
-    // we can't easily spy on it unless we mock the module.
-    // However, events is an EventTarget-like object.
-
-    // Let's assume the listener was added. We need to trigger it.
-    // But since we are modifying the code, we want to ensure that removing the dynamic import still works.
-
     // Trigger event
     const event = new CustomEvent(EVENTS.DB_UPDATED, {
       detail: { id: "some-id" }
     });
 
-    // We need to wait for the async callback to finish.
-    // Since we can't await the callback directly, we can wait for a tick.
-
     events.dispatchEvent(event);
 
+    // Wait for async handler
     await new Promise(resolve => setTimeout(resolve, 0));
 
     // Expect entities.get to be called
