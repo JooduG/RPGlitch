@@ -24,25 +24,46 @@ function enhanceWindow(window) {
   window.IDBKeyRange = IDBKeyRange;
 
   // 2. FORCE Patch URL.createObjectURL (The Nuclear Option)
-  // We mock it on the window instance
   if (!window.URL.createObjectURL) {
     window.URL.createObjectURL = (blob) => "blob:mock-worker-url";
     window.URL.revokeObjectURL = (url) => {};
   }
-
-  // We ALSO mock it on the global scope if missing (Node environment leak)
   if (typeof global.URL.createObjectURL === "undefined") {
     global.URL.createObjectURL = (blob) => "blob:mock-worker-url";
     global.URL.revokeObjectURL = (url) => {};
   }
 
-  // 3. Mock Animation Frames
+  // 3. MOCK WEB WORKER (The Final Boss)
+  // JSDOM has no Workers. We create a dummy class so the app doesn't crash.
+  class MockWorker {
+    constructor(stringUrl) {
+      this.url = stringUrl;
+      this.onmessage = null;
+      this.onerror = null;
+    }
+    postMessage(msg) {
+      // Allow the app to "send" messages into the void without crashing
+      // console.log("[MockWorker] Received:", msg);
+    }
+    addEventListener(type, listener) {
+      // Minimal implementation for 'message' and 'error'
+      if (type === "message") this.onmessage = listener;
+      if (type === "error") this.onerror = listener;
+    }
+    removeEventListener() {}
+    terminate() {}
+  }
+
+  window.Worker = MockWorker;
+  global.Worker = MockWorker; // Patch global scope just in case
+
+  // 4. Mock Animation Frames
   if (!window.requestAnimationFrame)
     window.requestAnimationFrame = (cb) => setTimeout(cb, 0);
   if (!window.cancelAnimationFrame)
     window.cancelAnimationFrame = (id) => clearTimeout(id);
 
-  // 4. Mock Crypto
+  // 5. Mock Crypto
   if (!window.crypto) window.crypto = {};
   if (!window.crypto.randomUUID) window.crypto.randomUUID = () => "uuid-jsdom";
   if (!window.crypto.getRandomValues) {
@@ -53,14 +74,14 @@ function enhanceWindow(window) {
     };
   }
 
-  // 5. Mock Perchance Plugins
+  // 6. Mock Perchance Plugins
   window.ai = { generateStream: async function* () {} };
   window.textToImage = async () => ({ url: "data:image/png;base64,mock" });
   window.superFetch = async () => ({ ok: true, json: async () => ({}) });
   window.rememberPlugin = { get: () => null, set: () => {} };
   window.upload = () => {};
 
-  // 6. Mock ImageGlitch specific
+  // 7. Mock ImageGlitch specific
   window.pluginAi = async (p) => `Prompt: ${p} (Refined)`;
   window.pluginTextToImage = async () => ({
     canvas: window.document.createElement("canvas"),
@@ -87,6 +108,7 @@ async function runSmoke(appName) {
   // Filter out noise
   vcon.on("error", (...args) => {
     const msg = args.map(String).join(" ");
+    // Ignore CSS errors and our own MockWorker logs
     if (msg.includes("Could not parse CSS")) return;
     errors.push(`[console.error] ${msg}`);
   });
