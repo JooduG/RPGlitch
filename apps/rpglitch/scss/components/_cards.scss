@@ -148,6 +148,17 @@
   pointer-events: auto !important; // Force interactivity
   z-index: #{z(base) + 10};
 
+  /* 🎨 PALETTE UX: Button reset & focus styles */
+  appearance: none;
+  padding: 0;
+  font-family: inherit;
+  text-align: inherit;
+
+  &:focus-visible {
+    outline: 2px solid var(--pico-primary);
+    outline-offset: 4px;
+  }
+
   // Pass decoration clicks to parent
   .slot-category,
   .slot-icon,
@@ -165,6 +176,7 @@
   }
 
   .slot-icon {
+    display: block; // Ensure it behaves like a block/container
     transition: transform 0.3s ease;
 
     svg {
