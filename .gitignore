@@ -26,4 +26,3 @@ mcp.json
 node_modules/
 gha-creds-*.json
 nul
-*.css.map
