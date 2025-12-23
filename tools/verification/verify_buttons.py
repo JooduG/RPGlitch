@@ -13,21 +13,6 @@ def run():
         print(f"Navigating to: {file_path}")
         page.goto(file_path)
 
-        # Inject styles to force states for screenshotting
-        # We want to see: Primary, Ghost, Hover states, Disabled
-
-        page.add_style_tag(content="""
-            /* Force hover state on specific elements for visual proof */
-            .force-hover {
-                transform: translateY(-1px) !important;
-                filter: brightness(1.1) !important;
-                box-shadow: 0 6px 12px rgb(0 0 0 / 30%) !important;
-            }
-            .force-active {
-                transform: scale(0.98) !important;
-            }
-        """)
-
         # Wait for content to load
         page.wait_for_selector("#main")
 
@@ -35,8 +20,8 @@ def run():
         # The .btn-group-pill has Ghost and Primary buttons
         pill = page.locator(".storyboard-actions .btn-group-pill")
         if pill.is_visible():
-             pill.screenshot(path="tools/verification/buttons_pill.png")
-             print("Screenshot taken: buttons_pill.png")
+            pill.screenshot(path="tools/verification/buttons_pill.png")
+            print("Screenshot taken: buttons_pill.png")
 
         # Screenshot the Start Button specifically
         start_btn = page.locator("#begin-story")
