@@ -8,20 +8,28 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { JSDOM, VirtualConsole } from "jsdom";
+// NEW: Import fake-indexeddb to prevent DB crashes
+import { indexedDB, IDBKeyRange } from "fake-indexeddb";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "../../..");
-// DELETED: const BUILD_OUTPUT = path.join(REPO_ROOT, "build", "output");
 
 /**
  * Mocks browser APIs for JSDOM
  */
 function enhanceWindow(window) {
+  // 1. Polyfill IndexedDB (Fixes Dexie Crash)
+  window.indexedDB = indexedDB;
+  window.IDBKeyRange = IDBKeyRange;
+
+  // 2. Mock Animation Frames
   if (!window.requestAnimationFrame)
     window.requestAnimationFrame = (cb) => setTimeout(cb, 0);
   if (!window.cancelAnimationFrame)
     window.cancelAnimationFrame = (id) => clearTimeout(id);
+
+  // 3. Mock Crypto
   if (!window.crypto) window.crypto = {};
   if (!window.crypto.randomUUID) window.crypto.randomUUID = () => "uuid-jsdom";
   if (!window.crypto.getRandomValues) {
@@ -32,14 +40,14 @@ function enhanceWindow(window) {
     };
   }
 
-  // Mock Perchance Plugins
+  // 4. Mock Perchance Plugins
   window.ai = { generateStream: async function* () {} };
   window.textToImage = async () => ({ url: "data:image/png;base64,mock" });
   window.superFetch = async () => ({ ok: true, json: async () => ({}) });
   window.rememberPlugin = { get: () => null, set: () => {} };
   window.upload = () => {};
 
-  // Mock ImageGlitch specific
+  // 5. Mock ImageGlitch specific
   window.pluginAi = async (p) => `Prompt: ${p} (Refined)`;
   window.pluginTextToImage = async () => ({
     canvas: window.document.createElement("canvas"),
@@ -47,38 +55,18 @@ function enhanceWindow(window) {
   });
   window.pluginRememberPlugin = window.rememberPlugin;
 
-  // Mock Dexie
-  window.Dexie = class Dexie {
-    constructor(name) {
-      this.name = name;
-      this.settings = { get: async () => null, put: async () => {} };
-    }
-    version() {
-      return this;
-    }
-    stores() {
-      return this;
-    }
-    upgrade() {
-      return this;
-    }
-    table() {
-      return this.settings;
-    }
-    open() {
-      return Promise.resolve();
-    }
-  };
+  // NOTE: We do NOT mock Dexie here anymore, because we provided
+  // real indexedDB above. This allows the app's real Dexie to run
+  // without crashing.
 }
 
 async function runSmoke(appName) {
   const fileName = appName === "rpglitch" ? "RPGlitch.html" : `${appName}.html`;
 
-  // FIX: Look in the apps directory where the build script actually saves them
+  // CORRECT PATH (from previous fix)
   const filePath = path.join(REPO_ROOT, "apps", appName, fileName);
 
   console.log(`\n💨 Testing ${fileName}...`);
-  console.log(`   (Path: ${filePath})`);
 
   if (!fs.existsSync(filePath)) {
     console.error(`❌ Missing ${fileName} at ${filePath}. Build it first!`);
@@ -89,9 +77,12 @@ async function runSmoke(appName) {
   const errors = [];
   const vcon = new VirtualConsole();
 
-  vcon.on("error", (...args) =>
-    errors.push(`[console.error] ${args.map(String).join(" ")}`),
-  );
+  // Filter out noise
+  vcon.on("error", (...args) => {
+    const msg = args.map(String).join(" ");
+    if (msg.includes("Could not parse CSS")) return;
+    errors.push(`[console.error] ${msg}`);
+  });
   vcon.on("jsdomError", (e) => {
     if (!/Could not parse CSS/i.test(e.message))
       errors.push(`[jsdom] ${e.message}`);
@@ -111,7 +102,8 @@ async function runSmoke(appName) {
     dom.window.addEventListener("DOMContentLoaded", () =>
       setTimeout(resolve, 500),
     );
-    setTimeout(resolve, 3000);
+    // Increased timeout slightly for DB init
+    setTimeout(resolve, 3500);
   });
 
   // specific checks
@@ -120,11 +112,11 @@ async function runSmoke(appName) {
 
   if (appName === "rpglitch") {
     if (!window.App) {
-      errors.push("window.App missing");
+      errors.push("window.App missing (App failed to boot)");
       success = false;
     }
     if (!window.document.getElementById("storyboard-dynamic-title")) {
-      errors.push("Title element missing");
+      errors.push("Title element missing (UI failed to render)");
       success = false;
     }
   } else if (appName === "imageglitch") {
