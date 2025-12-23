@@ -341,8 +341,9 @@
   // SYSTEM / NARRATOR Defaults
   --msg-bg: var(--pico-form-element-background-color);
   --msg-radius: var(--pico-radius);
+  --msg-color: #fff;
 
-  color: #fff !important;
+  color: var(--msg-color) !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 60%); // V5 Vibrant Contrast Fix
   background: var(--msg-bg) !important;
   border: none !important;
@@ -364,17 +365,17 @@
   i,
   em {
     font-style: italic;
-    opacity: 0.7;
+    color: color-mix(in srgb, var(--msg-color), transparent 30%);
   }
 
-  // BOLD ITALICS FIX: Ensure distinct visual style
+  // Ensure nested bold-italic combinations have distinct visual weight
   b i,
   strong em,
   i b,
   em strong {
     font-weight: 800 !important;
     font-style: italic !important;
-    opacity: 0.9 !important;
+    color: color-mix(in srgb, var(--msg-color), transparent 10%) !important;
   }
 
   code {
@@ -440,7 +441,8 @@
 
   border-left: 2px solid var(--pico-muted-border-color) !important;
   font-style: normal !important;
-  color: #fff !important;
+  --msg-color: #fff;
+  color: var(--msg-color) !important;
 
   .narrator-prefix {
     display: none;
@@ -455,7 +457,7 @@
   backdrop-filter: blur(4px);
   border: 1px solid var(--pico-muted-border-color) !important;
   font-style: italic;
-  color: var(--pico-muted-color) !important;
+  --msg-color: var(--pico-muted-color);
 }
 
 .story-message.system.developer-content {
