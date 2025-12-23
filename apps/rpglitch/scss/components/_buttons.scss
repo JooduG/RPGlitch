@@ -36,6 +36,12 @@
     cursor: not-allowed;
     pointer-events: none;
   }
+
+  // Scoped Icon Styles
+  .icon {
+    pointer-events: none;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
 }
 
 // --- 2. STANDARD VARIANTS ---
