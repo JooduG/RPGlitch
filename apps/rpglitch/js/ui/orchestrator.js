@@ -44,13 +44,21 @@ function initEventBinds() {
           snapshot = story.snapshots.end;
         } else {
           // Fetch fresh state for active stories
-          const { entities } = await import("../data/repo.js");
-          const [ai, user, fractal] = await Promise.all([
-            entities.get("character", story.aiId),
-            entities.get("character", story.userId),
-            entities.get("fractal", story.fractalId),
-          ]);
-          snapshot = { ai, user, fractal };
+          try {
+            const { entities } = await import("../data/repo.js");
+            const [ai, user, fractal] = await Promise.all([
+              entities.get("character", story.aiId),
+              entities.get("character", story.userId),
+              entities.get("fractal", story.fractalId),
+            ]);
+            snapshot = { ai, user, fractal };
+          } catch (err) {
+            console.error(
+              "Failed to fetch fresh story entities, falling back to start snapshot.",
+              err,
+            );
+            snapshot = story.snapshots.start;
+          }
         }
 
         setStorymodeEntities(snapshot.ai, snapshot.user, snapshot.fractal);
