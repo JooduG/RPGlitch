@@ -18,6 +18,7 @@ jest.mock("../../../../apps/rpglitch/js/ui/components/profile/controller.js", ()
 jest.mock("../../../../apps/rpglitch/js/ui/image-gen-ui.js", () => ({
   updatePortraits: jest.fn(),
   applyFractalAmbience: jest.fn(),
+  updateDeveloperModeClass: jest.fn(),
 }));
 
 jest.mock("../../../../apps/rpglitch/js/ui/orchestrator.js", () => ({
