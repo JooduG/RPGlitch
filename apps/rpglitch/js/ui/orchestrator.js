@@ -38,9 +38,20 @@ function initEventBinds() {
       if (story) {
         // Determine source snapshot (End if concluded, else Start)
         // [FIX] Use the most recent state available
-        const snapshot = story.isConcluded
-          ? story.snapshots.end
-          : story.snapshots.start;
+        let snapshot;
+
+        if (story.isConcluded) {
+          snapshot = story.snapshots.end;
+        } else {
+          // Fetch fresh state for active stories
+          const { entities } = await import("../data/repo.js");
+          const [ai, user, fractal] = await Promise.all([
+            entities.get("character", story.aiId),
+            entities.get("character", story.userId),
+            entities.get("fractal", story.fractalId),
+          ]);
+          snapshot = { ai, user, fractal };
+        }
 
         setStorymodeEntities(snapshot.ai, snapshot.user, snapshot.fractal);
         updatePortraits(snapshot.ai, snapshot.user);
