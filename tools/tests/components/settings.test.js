@@ -178,7 +178,6 @@ describe("StoryOptionsController", () => {
       await StoryOptionsController.init();
 
       const btn = document.querySelector("#btn-settings-placeholder");
-      const modal = document.querySelector("#settings");
 
       // Spy on StoryOptionsController.open
       const openSpy = jest.spyOn(StoryOptionsController, 'open');
