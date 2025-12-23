@@ -37,7 +37,7 @@ function initEventBinds() {
       const story = await db.stories.get(state.story.activeId);
       if (story) {
         // Determine source snapshot (End if concluded, else Start)
-        // [FIX] Use the most recent state available
+        // Use the most recent state available
         const snapshot = story.isConcluded
           ? story.snapshots.end
           : story.snapshots.start;
@@ -49,7 +49,7 @@ function initEventBinds() {
           applyFractalAmbience(snapshot.fractal);
         }
 
-        // [FIX] Sync Global Selection State to ensure Theme is applied
+        // Sync Global Selection State to ensure Theme is applied
         // This fixes the bug where loading a story didn't change the UI theme
         updateStoryboardSelection({
           aiCharacter: snapshot.ai,
@@ -408,7 +408,7 @@ export function updateStoryboardSelection(newSelection) {
     setAppBackground(selectedEntities.fractal?.signatureColor);
     applyFractalAmbience(selectedEntities.fractal);
 
-    // [FIX] THEME INJECTION LOGIC
+    // Theme Injection Logic
     // 1. Clear any existing theme classes (start with "theme-")
     const currentClasses = document.body.className.split(" ");
     const cleanClasses = currentClasses.filter((c) => !c.startsWith("theme-"));
