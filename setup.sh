@@ -56,19 +56,15 @@ fi
 # 4. BUILD & SYNC
 echo -e "${YELLOW}[4/5] Building & Syncing...${NC}"
 
-# Sync Ops Tools
-if [ -f "tools/ops/sync.js" ]; then
-    echo "Running Project Sync..."
-    node tools/ops/sync.js
-fi
+# We use npm scripts here because they contain the specific flags
+# (like --all for sync) and arguments (like app names for build)
+# that the raw JS files require.
 
-# Build App
-if [ -f "tools/build/app.js" ]; then
-    echo "Building Application..."
-    node tools/build/app.js
-else
-    npm run build:apps --if-present
-fi
+echo "Running Project Sync..."
+npm run sync
+
+echo "Building Applications (RPGlitch & ImageGlitch)..."
+npm run build:apps
 
 # 5. VERIFICATION
 echo -e "${YELLOW}[5/5] Verifying Integrity...${NC}"
