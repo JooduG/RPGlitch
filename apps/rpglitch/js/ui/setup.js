@@ -193,9 +193,6 @@ export function initStoryboardStage(views) {
       const _onUpdateSelection = getOnUpdateSelection();
 
       if (_onUpdateSelection) {
-        // FIX: Corrected import path for dynamic import too
-        const { entities } = await import("../data/repo.js");
-
         const updates = {};
         if (state.selectedAI)
           updates.aiCharacter = await entities.get(
