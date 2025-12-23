@@ -148,14 +148,6 @@ export async function renderProfileView(
     // 1. Group Header
     const header = document.createElement("h4");
     header.className = "profile-group-header";
-    header.style.marginTop = "1rem";
-    header.style.marginBottom = "0.5rem";
-    header.style.paddingBottom = "0.2rem";
-    header.style.borderBottom = "1px solid var(--muted-border-color)";
-    header.style.color = "var(--primary)";
-    header.style.fontSize = "0.9em";
-    header.style.textTransform = "uppercase";
-    header.style.letterSpacing = "0.05em";
     header.textContent = groupConfig.label.split(" (")[0]; // Clean label
     secWrap.appendChild(header);
 
