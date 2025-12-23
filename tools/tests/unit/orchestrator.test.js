@@ -36,12 +36,12 @@ jest.mock("../../../apps/rpglitch/js/core/events.js", () => ({
     addEventListener: jest.fn(),
   },
   EVENTS: {
-    STORY_LOADED: "story:loaded",
-    CHAT_REFRESH: "chat:refresh",
-    TYPING_STARTED: "typing:started",
-    TYPING_STOPPED: "typing:stopped",
-    GENERATION_STARTED: "generation:started",
-    GENERATION_COMPLETED: "generation:completed",
+    STORY_LOADED: "story-loaded",
+    CHAT_REFRESH: "chat-refresh",
+    TYPING_STARTED: "typing-started",
+    TYPING_STOPPED: "typing-stopped",
+    GENERATION_STARTED: "gen-start",
+    GENERATION_COMPLETED: "gen-complete",
   },
 }));
 
@@ -125,9 +125,8 @@ describe("Orchestrator UI", () => {
     const { events, EVENTS } = eventsModule;
 
     // Find the STORY_LOADED handler
-    const storyLoadedCall = events.addEventListener.mock.calls.find(call => call[0] === EVENTS.STORY_LOADED);
-    expect(storyLoadedCall).toBeDefined();
-    const handler = storyLoadedCall[1];
+    const handler = events.addEventListener.mock.calls.find(call => call[0] === EVENTS.STORY_LOADED)[1];
+    expect(handler).toBeDefined();
 
     // Trigger the handler
     await handler();
