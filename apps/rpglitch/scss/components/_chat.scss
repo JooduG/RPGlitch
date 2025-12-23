@@ -99,7 +99,7 @@
     resize: none;
     overflow-y: hidden; // Extracted from inline style
     transition: height 0.1s ease;
-    padding: 0.75rem 0 0.75rem var(--space-lg); // Custom padding for Pill
+    padding: var(--space-sm-md) 0 var(--space-sm-md) var(--space-lg); // Custom padding for Pill
     width: auto;
     flex: 1 1 auto;
 
@@ -123,7 +123,7 @@
   background: transparent;
   border: none;
   border-radius: 0;
-  padding: 0 0.75rem;
+  padding: 0 var(--space-sm-md);
   width: auto;
   flex: 0 0 auto;
   color: var(--pico-muted-color);
@@ -328,7 +328,7 @@
 
 /* 5. MESSAGES (Bubbles) */
 .story-message {
-  padding: var(--space-md) 1.25rem; // Horizontal padding slightly custom
+  padding: var(--space-md) var(--space-md-lg); // Horizontal padding slightly custom
   max-width: 50vw;
   word-wrap: break-word;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
@@ -350,7 +350,7 @@
 
   @include mobile {
     max-width: 85vw;
-    padding: 0.75rem var(--space-md);
+    padding: var(--space-sm-md) var(--space-md);
   }
 
   // MARKDOWN
@@ -504,7 +504,7 @@
 
 // --- TYPING INDICATOR ---
 .typing-bubble {
-  padding: 0.75rem var(--space-md);
+  padding: var(--space-sm-md) var(--space-md);
   margin-bottom: var(--space-md);
   margin-left: var(--space-xl);
   margin-right: 10vw;
@@ -730,7 +730,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
+    gap: var(--space-sm-md);
     padding: 2rem;
     background: rgba(0, 0, 0, 20%);
     border-radius: 8px;
