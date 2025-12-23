@@ -1,11 +1,10 @@
 // apps/rpglitch/js/ui/setup.js
-// FIX: Corrected relative imports from "ui/" to sibling folders
 import { state, applyPatch } from "../core/state.js";
 import { entities } from "../data/repo.js";
 import { TurnManager } from "../engine/director.js";
-import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js"; // Sibling in "ui/"
+import { updatePortraits, applyFractalAmbience } from "./image-gen-ui.js";
 import { error } from "../core/utils.js";
-import { showAlert } from "./orchestrator.js"; // Sibling in "ui/"
+import { showAlert } from "./orchestrator.js";
 import { EVENTS, events } from "../core/events.js";
 
 // MODIFIED: Exported for testing
@@ -149,7 +148,6 @@ export function initStoryboardStage(views) {
   const beginBtn = document.querySelector("#begin-story");
   const shuffleBtn = document.querySelector("#btn-shuffle");
 
-  // [V5 FIX] Sync Developer Mode State
   if (state.settings.developerMode) {
     document.body.classList.add("mode-developer");
   } else {
@@ -193,7 +191,6 @@ export function initStoryboardStage(views) {
       const _onUpdateSelection = getOnUpdateSelection();
 
       if (_onUpdateSelection) {
-        // FIX: Corrected import path for dynamic import too
         const { entities } = await import("../data/repo.js");
 
         const updates = {};
