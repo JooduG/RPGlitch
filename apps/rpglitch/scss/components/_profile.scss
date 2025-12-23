@@ -406,22 +406,45 @@
 
     textarea,
     input {
-      @extend %input-deep;
-
+      // Replaces %input-deep with explicit styles for clarity + overrides
+      appearance: none;
       width: 100%;
       text-align: left !important;
       margin-bottom: 0;
-      padding: 0.6rem 0.8rem; // Comfortable touch
+
+      // Depth Physics
+      background: rgba(0, 0, 0, 30%);
       border: 1px solid var(--pico-muted-border-color);
       border-radius: var(--pico-radius);
-      transition:
-        border-color 0.2s,
-        box-shadow 0.2s;
+
+      // Typography
+      color: var(--pico-color);
+      font-family: inherit;
       font-size: 0.95rem;
+      padding: 0.6rem 0.8rem; // Comfortable touch
+      line-height: 1.5;
+      transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s; // Overridden transition
 
       &:focus {
+        outline: none;
+        background: rgba(0, 0, 0, 50%);
         border-color: var(--pico-primary);
-        box-shadow: 0 0 0 2px rgba(var(--pico-primary-rgb), 0.2);
+        box-shadow: 0 0 0 2px rgba(var(--pico-primary-rgb), 0.2); // Overridden focus glow
+      }
+
+      &::placeholder {
+        color: var(--pico-muted-color);
+        opacity: 0.7;
+        font-style: italic;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: rgba(255, 255, 255, 5%);
       }
     }
 
