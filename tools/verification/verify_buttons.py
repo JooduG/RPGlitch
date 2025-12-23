@@ -8,8 +8,8 @@ def run():
         page = browser.new_page()
 
         # Load the built file
-        cwd = os.getcwd()
-        file_path = f"file://{cwd}/apps/rpglitch/RPGlitch.html"
+        cwd = Path.cwd()
+        file_path = (cwd / "apps" / "rpglitch" / "RPGlitch.html").as_uri()
         print(f"Navigating to: {file_path}")
         page.goto(file_path)
 
