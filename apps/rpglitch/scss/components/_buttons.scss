@@ -6,7 +6,7 @@
    ============================================================================ */
 
 // --- 1. THE BASE ATOM (MAESTRO SPEC) ---
-.ui-btn {
+%ui-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -33,12 +33,12 @@
     filter var(--transition-speed, 0.2s) ease-out;
 
   // The Physics of Touch
-  &:hover:not(:disabled):not(.disabled) {
+  &:hover:not(:disabled, .disabled) {
     transform: translateY(-1px);
     filter: brightness(1.1);
   }
 
-  &:active:not(:disabled):not(.disabled) {
+  &:active:not(:disabled, .disabled) {
     transform: scale(var(--scale-active, 0.98));
   }
 
@@ -55,7 +55,8 @@
   // Scoped Icon Styles
   .icon {
     pointer-events: none;
-    transition: transform var(--transition-speed, 0.2s) cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform var(--transition-speed, 0.2s)
+      cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   // Unified Focus State
@@ -68,108 +69,134 @@
   }
 }
 
-// Legacy Bridge
-%btn-base {
-  @extend .ui-btn;
+.ui-btn {
+  @extend %ui-btn;
 }
 
-%btn-ghost {
-  @extend .ui-btn--ghost;
-}
+// Standard Variant Placeholders
+%ui-btn-primary {
+  @extend %ui-btn;
 
-// --- 2. STANDARD VARIANTS ---
-
-// .ui-btn--primary: The Main Action
-.ui-btn--primary {
-  @extend .ui-btn;
   background: var(--pico-primary);
   color: var(--pico-primary-inverse);
   box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
 
-  &:hover:not(:disabled):not(.disabled) {
+  &:hover:not(:disabled, .disabled) {
     background: var(--pico-primary-hover);
     box-shadow: 0 6px 12px rgb(0 0 0 / 30%);
   }
 }
 
-// .ui-btn--ghost: Contextual/Subtle
-.ui-btn--ghost {
-  @extend .ui-btn;
+%ui-btn-ghost {
+  @extend %ui-btn;
+
   color: var(--pico-muted-color);
   border-color: transparent;
 
-  &:hover:not(:disabled):not(.disabled) {
+  &:hover:not(:disabled, .disabled) {
     background: rgb(255 255 255 / 5%);
     color: var(--pico-color);
   }
 }
 
-// .ui-btn--outline: Bordered
-.ui-btn--outline {
-  @extend .ui-btn;
+%ui-btn-outline {
+  @extend %ui-btn;
+
   border-color: var(--pico-muted-border-color);
   color: var(--pico-muted-color);
 
-  &:hover:not(:disabled):not(.disabled) {
+  &:hover:not(:disabled, .disabled) {
     border-color: var(--pico-primary);
     color: var(--pico-primary);
     background: rgb(255 255 255 / 2%);
   }
 }
 
-// .ui-btn--secondary: Mapped to System/Pico Secondary
-.ui-btn--secondary {
-  @extend .ui-btn;
+%ui-btn-secondary {
+  @extend %ui-btn;
+
   background: var(--pico-secondary-background, #5d6b89);
   color: var(--pico-secondary-inverse, #fff);
   border-color: var(--pico-secondary-border, #5d6b89);
 
-  &:hover:not(:disabled):not(.disabled) {
+  &:hover:not(:disabled, .disabled) {
     background: var(--pico-secondary-hover, #48536b);
     border-color: var(--pico-secondary-hover, #48536b);
   }
 }
 
-// .btn-glass: Special Variant
-.btn-glass {
-  @extend .ui-btn;
+%ui-btn-glass {
+  @extend %ui-btn;
+
   background: rgb(0 0 0 / 40%);
   backdrop-filter: blur(8px);
   border: 1px solid rgb(255 255 255 / 10%);
   color: rgb(255 255 255 / 80%);
 
-  &:hover:not(:disabled):not(.disabled) {
+  &:hover:not(:disabled, .disabled) {
     background: rgb(255 255 255 / 10%);
     border-color: rgb(255 255 255 / 30%);
     color: #fff;
   }
 }
 
-// --- 3. HARMONIZATION / MAPPING ---
+// --- 2. STANDARD VARIANTS (EXPOSED CLASSES) ---
+
+.ui-btn--primary {
+  @extend %ui-btn-primary;
+}
+
+.ui-btn--ghost {
+  @extend %ui-btn-ghost;
+}
+
+.ui-btn--outline {
+  @extend %ui-btn-outline;
+}
+
+.ui-btn--secondary {
+  @extend %ui-btn-secondary;
+}
+
+.btn-glass {
+  @extend %ui-btn-glass;
+}
+
+// --- 3. HARMONIZATION / MAPPING (LEGACY SUPPORT) ---
 // Mapping existing classes to new structure for backward compatibility
+
 .btn-primary {
-  @extend .ui-btn--primary;
+  @extend %ui-btn-primary;
 }
 
 .btn-ghost {
-  @extend .ui-btn--ghost;
+  @extend %ui-btn-ghost;
 
-  &.danger:hover:not(:disabled):not(.disabled) {
+  &.danger:hover:not(:disabled, .disabled) {
     color: var(--pico-del-color);
     background: rgb(220 53 69 / 10%);
   }
 }
 
 .btn-outline {
-  @extend .ui-btn--outline;
+  @extend %ui-btn-outline;
 }
 
 .secondary {
-  @extend .ui-btn--secondary;
+  @extend %ui-btn-secondary;
 }
 
 .contrast {
-  @extend .ui-btn--secondary; // Mapping contrast to secondary for now
+  @extend %ui-btn-secondary; // Mapping contrast to secondary for now
+}
+
+// Legacy Bridge (Deprecated but kept for safety)
+%btn-base {
+  @extend %ui-btn;
+}
+
+%btn-ghost {
+  @extend %ui-btn-ghost;
 }
 
 // --- 4. UTILITY SHAPES ---
