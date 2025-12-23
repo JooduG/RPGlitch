@@ -84,7 +84,6 @@ function enhanceWindow(window) {
   window.pluginRememberPlugin = window.rememberPlugin;
 
   // 8. CRITICAL: Mock RPG Lists (Prevents 5s Boot Delay)
-  // This allows the app to skip waitForConfig() instantly
   window.rpgLists = {};
 }
 
@@ -141,12 +140,15 @@ async function runSmoke(appName) {
       errors.push("window.App missing (App failed to boot)");
       success = false;
     }
-    // Check for title OR any major UI element indicating life
-    const title = window.document.getElementById("storyboard-dynamic-title");
-    const layout = window.document.querySelector(".rpglitch-layout");
+
+    // --- UPDATED SELECTORS HERE ---
+    const title = window.document.getElementById("title-storyboard");
+    const layout = window.document.getElementById("main");
 
     if (!title && !layout) {
-      errors.push("UI failed to render (Title and Layout missing)");
+      errors.push(
+        "UI failed to render (Title '#title-storyboard' and Layout '#main' missing)",
+      );
       success = false;
     }
   } else if (appName === "imageglitch") {
