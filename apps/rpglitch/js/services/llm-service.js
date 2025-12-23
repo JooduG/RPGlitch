@@ -67,6 +67,31 @@ export class LlmService {
 
       // Handle specific connection errors
       const errString = String(error);
+
+      // [STALE SESSION HANDLING]
+      // Detect 400/403/Fetch errors typical of expiring Perchance sessions
+      const isStale =
+        errString.includes("400") ||
+        errString.includes("401") ||
+        errString.includes("403") ||
+        errString.includes("Fetch failed");
+
+      if (isStale) {
+        console.warn("[LlmService] Stale Session Detected. Suppressing error.");
+
+        // Dynamic import to avoid circular dependency
+        const { showAlert } = await import("../ui/orchestrator.js");
+
+        // Show non-blocking notice (User must refresh)
+        showAlert(
+          "Session Stale",
+          "Your connection to the AI engine has expired. Please refresh the page to reconnect.",
+        );
+
+        // SUPPRESS: Do not re-throw. Return null/empty to fail gracefully.
+        return null;
+      }
+
       if (
         errString.includes("stream keep alive") ||
         errString.includes("timeout") ||

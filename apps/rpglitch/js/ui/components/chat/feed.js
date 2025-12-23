@@ -4,6 +4,7 @@ import { VirtualFeed } from "./virtual-feed.js";
 import { events, EVENTS } from "../../../core/events.js";
 import { renderMessage } from "./bubble.js"; // Circular safe
 import { updatePortraits, applyFractalAmbience } from "../../image-gen-ui.js";
+import { log } from "../../../core/utils.js";
 
 // --- STATE ---
 export const selectedEntities = {
@@ -287,7 +288,7 @@ window.injectTestImage = function (
       metadata: { visualPrompt: "Debug Prompt", targetType: "ai" },
     },
   );
-  console.log("Injected test image");
+  log("Injected test image");
 };
 
 // --- LISTENERS ---

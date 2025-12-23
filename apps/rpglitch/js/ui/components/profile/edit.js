@@ -16,7 +16,7 @@ import {
 import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
 
-import { PROFILE_SECTIONS } from "./constants.js";
+import { PROFILE_STRUCTURE } from "./constants.js";
 import {
   closeProfileModal,
   getOnUpdateSelection,
@@ -27,6 +27,11 @@ import { showAlert, showConfirm } from "../../orchestrator.js";
 function autoResize(el) {
   el.style.height = "auto";
   el.style.height = el.scrollHeight + "px";
+}
+
+// Helper to access nested properties safely (e.g. entity.forever.physical)
+function getNestedValue(obj, path) {
+  return path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
 }
 
 export async function renderProfileEdit(screen, entity, type, id) {
@@ -240,8 +245,6 @@ export async function renderProfileEdit(screen, entity, type, id) {
   });
 
   // Color Palette
-  // Color Palette
-
   if (paletteSelect) {
     Array.from(paletteSelect.options).forEach((opt) => {
       opt.selected = opt.value === currentColor;
@@ -279,7 +282,6 @@ export async function renderProfileEdit(screen, entity, type, id) {
   nameInput.value = entity.name || "";
   nameInput.placeholder = "Name";
   nameInput.rows = 1;
-  nameInput.rows = 1;
   ThemeService.apply(nameInput, currentColor);
   nameInput.addEventListener("input", () => autoResize(nameInput));
   headerWrap.appendChild(nameInput);
@@ -295,62 +297,70 @@ export async function renderProfileEdit(screen, entity, type, id) {
   headerWrap.appendChild(descInput);
   setTimeout(() => autoResize(descInput), 0);
 
-  // --- TAGS ---
-  /*
-  const tagsRow = document.createElement("div");
-  tagsRow.className = "field-row";
-  tagsRow.innerHTML = `
-      <div class="field-label"><label>Tags</label><small class="muted">Comma separated</small></div>
-      <div class="field-input">
-        <textarea data-edit-field="tags" rows="1" placeholder="e.g. warrior, magic, dark">${(entity.tags || []).join(", ")}</textarea>
-      </div>`;
-  const tagInput = tagsRow.querySelector("textarea");
-  tagInput.addEventListener("input", () => autoResize(tagInput));
-  setTimeout(() => autoResize(tagInput), 0);
-  headerWrap.after(tagsRow);
-  */
-
-  // --- SECTIONS ---
+  // --- SECTIONS (Nested Temporal Model Logic) ---
   const secWrap = form.querySelector("[data-profile-sections]");
-  const createRow = (groupKey, groupConfig) => {
-    // 1. Create Fieldset per Group
-    const fieldset = document.createElement("fieldset");
-    fieldset.className = "profile-group-set";
-    fieldset.innerHTML = `<legend>${groupConfig.label}</legend>`;
 
-    // 2. Iterate SubFields
-    Object.keys(groupConfig.subFields).forEach((fieldKey) => {
-      const fieldDef = groupConfig.subFields[fieldKey];
-      const safeType = type && fieldDef[type] ? type : "character";
-      const config = fieldDef[safeType]; // Label/Placeholder
+  Object.keys(PROFILE_STRUCTURE).forEach((key) => {
+    const config = PROFILE_STRUCTURE[key];
+
+    // Case 1: Nested Objects (Forever/Present)
+    if (config.type === "nested") {
+      const fieldset = document.createElement("fieldset");
+      fieldset.className = "profile-group-set";
+      fieldset.innerHTML = `<legend>${config.label}</legend>`;
+
+      Object.keys(config.fields).forEach((subKey) => {
+        const fieldConfig = config.fields[subKey];
+        const div = document.createElement("div");
+        div.className = "field-row";
+        div.innerHTML = `
+            <div class="field-label">
+                <label>${fieldConfig.label}</label>
+            </div>
+            <div class="field-input"></div>`;
+
+        const input = document.createElement("textarea");
+        // Bind to dot notation path: "forever.physical"
+        const finalPath = `${key}.${subKey}`;
+        input.value = getNestedValue(entity, finalPath);
+        input.dataset.editField = finalPath;
+        input.rows = fieldConfig.rows || 2;
+        input.placeholder = fieldConfig.placeholder || "";
+        input.addEventListener("input", () => autoResize(input));
+
+        div.querySelector(".field-input").appendChild(input);
+        setTimeout(() => autoResize(input), 0);
+        fieldset.appendChild(div);
+      });
+      secWrap.appendChild(fieldset);
+    }
+    // Case 2: String Fields (Past/Future)
+    else if (config.type === "string") {
+      // For top-level strings, we can just use a simple fieldset or div wrapper
+      // To match style, we'll wrap in a labeled fieldset
+      const fieldset = document.createElement("fieldset");
+      fieldset.className = "profile-group-set";
+      fieldset.innerHTML = `<legend>${config.label}</legend>`;
 
       const div = document.createElement("div");
       div.className = "field-row";
-
-      div.innerHTML = `
-          <div class="field-label">
-              <label>${config.label}</label>
-          </div>
-          <div class="field-input"></div>`;
+      // No extra label needed inside if the legend acts as label, but let's keep it consistent
+      // Actually, for past/future, we just want one big box.
+      div.innerHTML = `<div class="field-input" style="width:100%"></div>`;
 
       const input = document.createElement("textarea");
-      input.value = entity[fieldKey] || "";
-      input.dataset.editField = fieldKey;
-      input.rows = 2; // Slightly taller for better UX
+      input.value = entity[key] || "";
+      input.dataset.editField = key;
+      input.rows = config.rows || 4;
       input.placeholder = config.placeholder || "";
       input.addEventListener("input", () => autoResize(input));
 
       div.querySelector(".field-input").appendChild(input);
       setTimeout(() => autoResize(input), 0);
       fieldset.appendChild(div);
-    });
-
-    secWrap.appendChild(fieldset);
-  };
-
-  Object.keys(PROFILE_SECTIONS).forEach((k) =>
-    createRow(k, PROFILE_SECTIONS[k]),
-  );
+      secWrap.appendChild(fieldset);
+    }
+  });
 
   // --- MAGIC PROMPT LOGIC ---
   if (magicBtn) {
@@ -367,18 +377,27 @@ export async function renderProfileEdit(screen, entity, type, id) {
             : selectedStyle;
         const existingText = imageInput.value.trim();
 
-        // Scrape LIVE values (V6 Update)
+        // Scrape LIVE values (Nested Aware)
         const liveEntity = { ...entity };
         liveEntity.name = nameInput.value;
         liveEntity.description = descInput.value;
 
-        Object.keys(PROFILE_SECTIONS).forEach((groupKey) => {
-          const group = PROFILE_SECTIONS[groupKey];
-          Object.keys(group.subFields).forEach((fieldKey) => {
-            const el = form.querySelector(`[data-edit-field="${fieldKey}"]`);
-            if (el) liveEntity[fieldKey] = el.value;
-          });
+        Object.keys(PROFILE_STRUCTURE).forEach((key) => {
+          const config = PROFILE_STRUCTURE[key];
+          if (config.type === "nested") {
+            liveEntity[key] = liveEntity[key] || {};
+            Object.keys(config.fields).forEach((subKey) => {
+              const el = form.querySelector(
+                `[data-edit-field="${key}.${subKey}"]`,
+              );
+              if (el) liveEntity[key][subKey] = el.value;
+            });
+          } else {
+            const el = form.querySelector(`[data-edit-field="${key}"]`);
+            if (el) liveEntity[key] = el.value;
+          }
         });
+
         const tagInputEl = form.querySelector('[data-edit-field="tags"]');
         if (tagInputEl) {
           liveEntity.tags = tagInputEl.value
@@ -404,6 +423,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
         );
       } finally {
         setBusy(false);
+        updateButtonState();
       }
     });
   }
@@ -451,13 +471,14 @@ export async function renderProfileEdit(screen, entity, type, id) {
   // Save
   const saveBtn = document.createElement("button");
   saveBtn.className = "btn-primary btn-icon-raise"; // Ghost + Primary
-  saveBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>`;
+  saveBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" style="width:1.2em; height:1.2em; vertical-align:middle;"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3-3 3zm3-10H5V5h10v4z"/></svg>`;
   saveBtn.title = "Save Profile";
   saveBtn.onclick = async (e) => {
     e.preventDefault();
     const nameVal = nameInput.value.trim();
     if (!nameVal) return showAlert("Validation", "Name is required");
 
+    // Gather Tags
     let tagsArray = [];
     const tagInputEl = form.querySelector('[data-edit-field="tags"]');
     if (tagInputEl) {
@@ -468,6 +489,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
     } else {
       tagsArray = entity.tags || [];
     }
+
     const finalImageUrl = escapeHtml(
       imageInput.dataset.pendingUrl || imageInput.value.trim(),
     );
@@ -476,6 +498,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
       localVisuals.profilePictureUrl = finalImageUrl;
     }
 
+    // Base Data
     const data = {
       name: escapeHtml(nameVal),
       description: escapeHtml(descInput.value.trim()),
@@ -488,15 +511,38 @@ export async function renderProfileEdit(screen, entity, type, id) {
           entity.povStyle ||
           "IMMERSIVE"
         : undefined,
+      // Initialize nested containers
+      forever: {},
+      present: {},
     };
 
-    // V6 Loop: Iterate Groups > SubFields
-    Object.keys(PROFILE_SECTIONS).forEach((groupKey) => {
-      const group = PROFILE_SECTIONS[groupKey];
-      Object.keys(group.subFields).forEach((fieldKey) => {
-        const el = screen.querySelector(`[data-edit-field="${fieldKey}"]`);
-        if (el) data[fieldKey] = escapeHtml(el.value.trim());
-      });
+    // Scrape Fields from DOM
+    // Iterate all textareas with data-edit-field
+    const allInputs = form.querySelectorAll("textarea[data-edit-field]");
+    allInputs.forEach((input) => {
+      const fieldKey = input.dataset.editField;
+      if (
+        [
+          "name",
+          "description",
+          "tags",
+          "povStyle",
+          "profilePictureUrl",
+        ].includes(fieldKey)
+      )
+        return; // Handled separately
+
+      const val = escapeHtml(input.value.trim());
+
+      if (fieldKey.includes(".")) {
+        // Handle nested: "forever.physical"
+        const [parent, child] = fieldKey.split(".");
+        if (!data[parent]) data[parent] = {};
+        data[parent][child] = val;
+      } else {
+        // Handle root string: "past"
+        data[fieldKey] = val;
+      }
     });
 
     if (state.settings.developerMode) {
@@ -515,7 +561,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
       } else {
         await entities.upsert(type, { ...entity, ...data });
 
-        // [FIX] Force update of the underlying selection
+        // Force update of the underlying selection
         const _onUpdateSelection = getOnUpdateSelection();
         if (_onUpdateSelection) {
           const activeKey = getActiveSlotKey();

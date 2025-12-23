@@ -108,8 +108,14 @@ export const VisualManager = {
     options = {},
   ) {
     const name = entity.name || "Subject";
-    const appearance = entity.appearance || entity.forever || "";
-    const outfit = entity.outfit || entity.present || "casual clothes";
+    // [V6] NESTED ACCESSORS
+    const appearance =
+      entity.forever?.physical || entity.appearance || entity.forever || "";
+    const outfit =
+      entity.present?.physical ||
+      entity.outfit ||
+      entity.present ||
+      "casual clothes";
 
     let anchor = "";
     const traits = (appearance + " " + outfit).toLowerCase();
@@ -134,9 +140,6 @@ export const VisualManager = {
       anchor += ", (HYPER-MUSCULAR:1.4), (MASSIVE BUILD:1.3)";
     }
 
-    // Note: We don't need to add BASE_STYLE here anymore, because
-    // the generate() function above will automatically prepend it.
-
     const realityFilter =
       "bioluminescent body paint, subdermal LED implants, latex texture, tactical gear";
 
@@ -146,7 +149,6 @@ export const VisualManager = {
 
     const parts = [
       anchor,
-      // VISUAL_CONSTANTS.REALISM_ANCHOR, // Removed, handled by generate()
       `Subject: ${name}, ${action}`,
       `Physical Details: ${appearance}, ${outfit}`,
       `Material Effects: ${realityFilter}`,

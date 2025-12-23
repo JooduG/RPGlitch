@@ -8,9 +8,14 @@ import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
 import { escapeHtml } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
-import { PROFILE_SECTIONS } from "./constants.js";
+import { PROFILE_STRUCTURE } from "./constants.js"; // [FIX] Import Structure
 
 // autoResize removed as it is not used in read-only view
+
+// Helper to access nested properties safely
+function getNestedValue(obj, path) {
+  return path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
+}
 
 export async function renderProfileView(
   screen,
@@ -80,10 +85,10 @@ export async function renderProfileView(
         if (!entity.visuals) entity.visuals = {};
         entity.visuals.flipped = localVisuals.flipped;
 
-        // [FIX] Silent save to prevent Controller loop. Manually dispatch with source.
-        const saved = await entities.upsert(type, entity, { silent: true });
+        // [FIX] Silent save to prevent Controller loop
+        await entities.upsert(type, entity, { silent: true });
 
-        // [FIX] Update local state immediately to prevent stale re-renders
+        // [FIX] Update local state immediately
         if (state.selectedAI && state.selectedAI.id === id)
           state.selectedAI.visuals = entity.visuals;
         if (state.selectedUser && state.selectedUser.id === id)
@@ -91,7 +96,7 @@ export async function renderProfileView(
         if (state.selectedFractal && state.selectedFractal.id === id)
           state.selectedFractal.visuals = entity.visuals;
 
-        // [NEW] Dispatch for Storyboard (Setup.js) but mark source for Controller
+        // [NEW] Dispatch for Storyboard
         const { events, EVENTS } = await import("../../../core/events.js");
         events.dispatchEvent(
           new CustomEvent(EVENTS.DB_UPDATED, {
@@ -136,21 +141,9 @@ export async function renderProfileView(
   descDisplay.textContent = entity.description || "";
   headerWrap.appendChild(descDisplay);
 
-  // --- TAGS ---
-  // const tagsRow = document.createElement("div");
-  // tagsRow.className = "field-row";
-  // tagsRow.innerHTML = `<div class="field-label"><label>Tags</label></div><div class="field-input"></div>`;
-  // const inputContainer = tagsRow.querySelector(".field-input");
-  // if (renderTags) {
-  //   renderTags(inputContainer, entity);
-  // } else {
-  //   inputContainer.textContent = (entity.tags || []).join(", ");
-  // }
-  // headerWrap.after(tagsRow);
-
-  // --- SECTIONS ---
-  // --- SECTIONS ---
+  // --- SECTIONS (Nested Temporal Reader) ---
   const secWrap = form.querySelector("[data-profile-sections]");
+
   const createRow = (groupKey, groupConfig) => {
     // 1. Group Header
     const header = document.createElement("h4");
@@ -166,28 +159,39 @@ export async function renderProfileView(
     header.textContent = groupConfig.label.split(" (")[0]; // Clean label
     secWrap.appendChild(header);
 
-    // 2. Iterate SubFields
-    Object.keys(groupConfig.subFields).forEach((fieldKey) => {
-      const fieldDef = groupConfig.subFields[fieldKey];
-      const safeType = type && fieldDef[type] ? type : "character";
-      const config = fieldDef[safeType];
+    // 2. Render Fields
+    if (groupConfig.type === "nested") {
+      Object.keys(groupConfig.fields).forEach((fieldKey) => {
+        const fieldConfig = groupConfig.fields[fieldKey];
+        const val = getNestedValue(entity, `${groupKey}.${fieldKey}`);
 
-      const div = document.createElement("div");
-      div.className = "field-row";
-
-      div.innerHTML = `
+        const div = document.createElement("div");
+        div.className = "field-row";
+        div.innerHTML = `
           <div class="field-label">
-              <label>${config.label}</label>
+              <label>${fieldConfig.label}</label>
           </div>
           <div class="field-input">
-              <div data-read class="profile-field-text-read">${escapeHtml(entity[fieldKey] || "")}</div>
+              <div data-read class="profile-field-text-read">${escapeHtml(val)}</div>
+          </div>`;
+        secWrap.appendChild(div);
+      });
+    } else {
+      // String type (Past/Future)
+      const val = entity[groupKey] || "";
+      const div = document.createElement("div");
+      div.className = "field-row";
+      // Full width text block
+      div.innerHTML = `
+          <div class="field-input">
+              <div data-read class="profile-field-text-read">${escapeHtml(val)}</div>
           </div>`;
       secWrap.appendChild(div);
-    });
+    }
   };
 
-  Object.keys(PROFILE_SECTIONS).forEach((k) =>
-    createRow(k, PROFILE_SECTIONS[k]),
+  Object.keys(PROFILE_STRUCTURE).forEach((k) =>
+    createRow(k, PROFILE_STRUCTURE[k]),
   );
 
   // --- DYNAMICS (Developer Mode) ---

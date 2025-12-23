@@ -188,8 +188,8 @@ Read the last few messages. Calculate the new Dynamics state.
 <CURRENT_STATE>
 ${JSON.stringify(
   {
-    identity: targetEntity.identity,
-    status: targetEntity.status,
+    forever: targetEntity.forever, // Use nested forever
+    present: targetEntity.present, // Use nested present
     dynamics: forcedDynamics || currentDynamics,
   },
   null,
@@ -206,7 +206,7 @@ Return the stats in this EXACT block for the HUD:
 // Permeability: (New Value)
 // Resonance: (New Value)
 // [/STATUS_HUD]
-// \`\`\`
+\`\`\`
 // Then return the JSON block.
 // {
 //   "status": "Updated string description of current state (wounds, location, mood).",
@@ -234,31 +234,8 @@ Return the stats in this EXACT block for the HUD:
 
     const subject = targetType === "user" ? user : ai;
 
-    // --- FOUNDATIONAL LOGIC: GENDER ANCHORING ---
-    // We strictly use weighting (1.6) to enforce base reality.
-    let genderAnchor = "";
-    const traits = (
-      subject.identity +
-      " " +
-      subject.appearance +
-      " " +
-      subject.outfit
-    ).toLowerCase();
-
-    if (
-      traits.includes("male") ||
-      traits.includes("man") ||
-      traits.includes("himbo") ||
-      traits.includes("guy")
-    ) {
-      genderAnchor = "(MALE:1.6), (MAN:1.5), (MASCULINE:1.4), (NO BREASTS:1.5)";
-    } else if (
-      traits.includes("female") ||
-      traits.includes("woman") ||
-      traits.includes("girl")
-    ) {
-      genderAnchor = "(FEMALE:1.6), (WOMAN:1.5)";
-    }
+    // [CLEANUP] Removed genderAnchor logic as it wasn't being used in the final prompt construction.
+    // The visual keywords below handle gender sufficiently.
 
     // Note: The "Realism Style" is now handled by visuals.js.
     // This prompt focuses purely on extracting the *content*.
@@ -271,8 +248,8 @@ You are a Virtual Photographer. Construct a prompt by combining the IMMUTABLE AN
 </CORE_DIRECTIVE>
 
 <INPUT_DATA>
-**Visual Anchor (Body/Geo):** ${subject.appearance}
-**Mutable Visuals (Outfit/Atmo):** ${subject.outfit}
+**Visual Anchor (Body/Geo):** ${subject.forever?.physical || subject.appearance}
+**Mutable Visuals (Outfit/Atmo):** ${subject.present?.physical || subject.outfit}
 **Context:** <RAW_INTENT>
 </INPUT_DATA>
 

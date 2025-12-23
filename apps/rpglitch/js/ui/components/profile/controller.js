@@ -1,6 +1,6 @@
 import { events, EVENTS } from "../../../core/events.js";
 import { entities } from "../../../data/repo.js";
-import { handleAsyncError } from "../../../core/utils.js";
+import { handleAsyncError, log } from "../../../core/utils.js";
 import { renderProfileView } from "./view.js";
 import { renderProfileEdit } from "./edit.js";
 
@@ -115,7 +115,7 @@ export async function renderProfilePage(type, id, forceEditMode = false) {
       context: "load profile",
       fallback: null,
     });
-    console.log(
+    log(
       "[Controller] Fetched entity:",
       id,
       "Visuals:",

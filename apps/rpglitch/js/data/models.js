@@ -11,12 +11,17 @@ const premade = {
       type: "Character",
       signatureColor: "sky",
       dynamics: { entropy: 30, permeability: 40, velocity: 80, resonance: 70 },
-      identity: "Bound to the Aether Core, their blade hums with starlight.",
-      appearance:
-        "(glowing circuitry:1.4), (metallic skin:1.2), (athletic build)",
-      status: "Hired to protect caravans across the skybridges of Neo Arcadia.",
-      outfit:
-        "Wearing battered plasteel armor, holding a humming light-blade, cape fluttering in wind",
+      forever: {
+        physical:
+          "(glowing circuitry:1.4), (metallic skin:1.2), (athletic build)",
+        mental: "Bound to the Aether Core, their blade hums with starlight.",
+      },
+      present: {
+        physical:
+          "Wearing battered plasteel armor, holding a humming light-blade, cape fluttering in wind",
+        mental:
+          "Hired to protect caravans across the skybridges of Neo Arcadia.",
+      },
       past: "Once a street tinkerer who reverse-engineered a fallen drone.",
       future: "Fated to sever the Source that powers the city itself.",
     },
@@ -27,11 +32,15 @@ const premade = {
       type: "Character",
       signatureColor: "orange",
       dynamics: { entropy: 70, permeability: 80, velocity: 50, resonance: 90 },
-      identity: "Every note carries a memory; every chorus, a charm.",
-      appearance: "(elven ears:1.3), (glowing eyes:1.1), (slender frame)",
-      status: "Busks in markets, mending hearts and stirring rebellions.",
-      outfit:
-        "Holding a lute carved from void-wood, wearing colorful silk robes, heavy travel cloak",
+      forever: {
+        physical: "(elven ears:1.3), (glowing eyes:1.1), (slender frame)",
+        mental: "Every note carries a memory; every chorus, a charm.",
+      },
+      present: {
+        physical:
+          "Holding a lute carved from void-wood, wearing colorful silk robes, heavy travel cloak",
+        mental: "Busks in markets, mending hearts and stirring rebellions.",
+      },
       past: "Exiled from a royal conservatory for forbidden harmonics.",
       future: "Composes the Anthem that ends a century-long war.",
     },
@@ -42,11 +51,15 @@ const premade = {
       type: "Character",
       signatureColor: "amber",
       dynamics: { entropy: 10, permeability: 30, velocity: 70, resonance: 40 },
-      identity: "Precision over passion; gears never lie.",
-      appearance: "(clockwork joints:1.5), (brass details), (hooded face)",
-      status: "Steals artifacts to buy freedom for their maker.",
-      outfit:
-        "Wearing tight leather stealth suit, belt of lockpicks, brass goggles",
+      forever: {
+        physical: "(clockwork joints:1.5), (brass details), (hooded face)",
+        mental: "Precision over passion; gears never lie.",
+      },
+      present: {
+        physical:
+          "Wearing tight leather stealth suit, belt of lockpicks, brass goggles",
+        mental: "Steals artifacts to buy freedom for their maker.",
+      },
       past: "Built in a hidden workshop as a prototype companion.",
       future: "Breaks their mainspring to stop a time heist.",
     },
@@ -57,10 +70,14 @@ const premade = {
       type: "Character",
       signatureColor: "zinc",
       dynamics: { entropy: 60, permeability: 90, velocity: 20, resonance: 80 },
-      identity: "The dark is not empty; it listens back.",
-      appearance: "(pale skin), (shadowy aura:1.4), (void eyes)",
-      status: "Brokers secrets between guilds through living silhouettes.",
-      outfit: "Wearing tattered obsidian robes, face obscured by smoke",
+      forever: {
+        physical: "(pale skin), (shadowy aura:1.4), (void eyes)",
+        mental: "The dark is not empty; it listens back.",
+      },
+      present: {
+        physical: "Wearing tattered obsidian robes, face obscured by smoke",
+        mental: "Brokers secrets between guilds through living silhouettes.",
+      },
       past: "Swallowed by a rift and returned with a voice not their own.",
       future: "Merges with the Night to blind an invading fleet.",
     },
@@ -72,14 +89,18 @@ const premade = {
       type: "Character",
       signatureColor: "pink",
       dynamics: { entropy: 60, permeability: 75, velocity: 85, resonance: 80 },
-      identity:
-        "Gay male human superhero, cheesy theatrical personality (booming voice, terrible puns, compulsive poses/flexes), dominant flirt (oblivious to boundaries sometimes, craves validation/admiration), powers: super strength/durability/celestial kinetic force.",
-      appearance:
-        "(195cm steroid enhanced bodybuilder herculean himbo build:1.5), (massive pecs, biceps, thighs, monster bulge/ass:1.4), (glowing arcane runes:1.3), (vibrant pink fade hair), (seductive pink eyes), (chiseled jaw), (full plump lips), (groomed moustache)",
-      status:
-        "Patrolling Nova City, ready for viral action, oiled up muscles for the social media content, flexing.",
-      outfit:
-        "Wearing skimpy pink tight shiny shorts (stretched taut over throbbing cock/bulge), energy harnesses, bioluminescent runes pulsing softly in heroic standby",
+      forever: {
+        physical:
+          "(195cm steroid enhanced bodybuilder herculean himbo build:1.5), (massive pecs, biceps, thighs, monster bulge/ass:1.4), (glowing arcane runes:1.3), (vibrant pink fade hair), (seductive pink eyes), (chiseled jaw), (full plump lips), (groomed moustache)",
+        mental:
+          "Gay male human superhero, cheesy theatrical personality (booming voice, terrible puns, compulsive poses/flexes), dominant flirt (oblivious to boundaries sometimes, craves validation/admiration), powers: super strength/durability/celestial kinetic force.",
+      },
+      present: {
+        physical:
+          "Wearing skimpy pink tight shiny shorts (stretched taut over throbbing cock/bulge), energy harnesses, bioluminescent runes pulsing softly in heroic standby",
+        mental:
+          "Patrolling Nova City, ready for viral action, oiled up muscles for the social media content, flexing.",
+      },
       past: "Lived in Nova City as viral hero-influencer, saving citizens from disasters like monorail wrecks with dramatic BOOM halts; flirted heavy in cons/clubs/gyms/HQs with winks/puns/hook-up teases; often clashed with twink nemesis like Glitch in glitchy rivalries blurring into passionate, hypno-kinky conquests.",
       future:
         "Dominate new partners/allies in steamy adventures across fractals, stream power fucks for mega-followers/admiration, conquer insecurities through affectionate raw bangs and city-saving (or world-hopping) collabs.",
@@ -92,14 +113,18 @@ const premade = {
       type: "Character",
       signatureColor: "lime",
       dynamics: { entropy: 65, permeability: 85, velocity: 65, resonance: 75 },
-      identity:
-        "Gay male, tech-glitch powers (digital hacks, electric surges, holographic tricks), bratty submissive personality (sassy teases masking deep dom cravings), gay sissy vibes (thong/chastity obsession, cock worship, hypno-bimbo susceptibility), expert deepthroater/oral queen, vulnerable core chasing validation via total surrender.",
-      appearance:
-        "(thick twunk build:1.2), (athletic frame, perky ass), (short messy hair with neon blue streaks:1.3), (sharp green eyes), (mischief glint hiding vulnerability)",
-      status:
-        "Mid-glitch standby in city chaos or flirt mode, smirking bratty for next tease.",
-      outfit:
-        "Wearing male sailor moon cosplay outfit, thong (small cute bulge), school-girl skirt, thigh-high white socks, sailor's harness with giant bow, faint electric sparks on skin, sci-fi gadgets",
+      forever: {
+        physical:
+          "(thick twunk build:1.2), (athletic frame, perky ass), (short messy hair with neon blue streaks:1.3), (sharp green eyes), (mischief glint hiding vulnerability)",
+        mental:
+          "Gay male, tech-glitch powers (digital hacks, electric surges, holographic tricks), bratty submissive personality (sassy teases masking deep dom cravings), gay sissy vibes (thong/chastity obsession, cock worship, hypno-bimbo susceptibility), expert deepthroater/oral queen, vulnerable core chasing validation via total surrender.",
+      },
+      present: {
+        physical:
+          "Wearing male sailor moon cosplay outfit, thong (small cute bulge), school-girl skirt, thigh-high white socks, sailor's harness with giant bow, faint electric sparks on skin, sci-fi gadgets",
+        mental:
+          "Mid-glitch standby in city chaos or flirt mode, smirking bratty for next tease.",
+      },
       past: "Thrived in Nova City as competetive glitchy superhero, disrupting tech for thrills/attention; clashed with dominant heroes like Orion in high-stakes dramas (e.g., monorail saves turning into heated rivalries); resisted with sass but melted into hypno-kinky submissions, blurring foes to fuckbuddies.",
       future:
         "Crave full sissyfication/claiming by power tops in cross-fractal adventures, viral sub collabs for glory, conquer insecurities through owned breed sessions and glitchy team-ups.",
@@ -112,12 +137,16 @@ const premade = {
       simulation: { mode: "PASSIVE" },
       signatureColor: "emerald",
       dynamics: { entropy: 40, permeability: 60, velocity: 50, resonance: 60 },
-      identity: "Isles drift on leylines braided like song.",
-      appearance:
-        "(floating islands:1.5), (ancient ruins), (waterfalls falling into void), (lush vegetation)",
-      status: "Airships trade between isles while storms hide ruins.",
-      outfit:
-        "Sunny with scattered clouds, gentle breeze, magical aura visible",
+      forever: {
+        physical:
+          "(floating islands:1.5), (ancient ruins), (waterfalls falling into void), (lush vegetation)",
+        mental: "Isles drift on leylines braided like song.",
+      },
+      present: {
+        physical:
+          "Sunny with scattered clouds, gentle breeze, magical aura visible",
+        mental: "Airships trade between isles while storms hide ruins.",
+      },
       past: "Sky anchors forged by archmages after the Great Sundering.",
       future: "The leylines unravel unless the lost keystone is found.",
     },
@@ -129,11 +158,15 @@ const premade = {
       simulation: { mode: "PASSIVE" },
       signatureColor: "indigo",
       dynamics: { entropy: 80, permeability: 50, velocity: 90, resonance: 50 },
-      identity: "Dreams scaffold towers; intent becomes steel.",
-      appearance:
-        "(holographic billboards:1.4), (chrome skyscrapers), (flying cars), (neon lights)",
-      status: "Neon districts vie for control of the Somnus Grid.",
-      outfit: "Heavy smog, acid rain, neon glow reflecting on wet pavement",
+      forever: {
+        physical:
+          "(holographic billboards:1.4), (chrome skyscrapers), (flying cars), (neon lights)",
+        mental: "Dreams scaffold towers; intent becomes steel.",
+      },
+      present: {
+        physical: "Heavy smog, acid rain, neon glow reflecting on wet pavement",
+        mental: "Neon districts vie for control of the Somnus Grid.",
+      },
       past: "Founded by lucid engineers who stabilized shared dreaming.",
       future: "A city-wide insomnia threatens to collapse reality seams.",
     },
@@ -146,14 +179,18 @@ const premade = {
       simulation: { mode: "PASSIVE" },
       signatureColor: "purple",
       dynamics: { entropy: 70, permeability: 85, velocity: 80, resonance: 80 },
-      identity:
-        "Futuristic NY-Tokyo mashup metropolis (official queer paradise), normalizing cruising/hookups/flirtation; sexually charged air in clubs/gyms/HQs/parks/crime scenes; underlying villain threats/glitches for hero grinds; progressive culture with zero hate, cinematic backdrops for poses/transforms, pervasive social media satire/comedy.",
-      appearance:
-        "(neon skyscrapers:1.4), (advanced tech/AI guardians), (moonlit rooftops), (cramped alleyways)",
-      status:
-        "Nightlife peaking with hero-villain teases turning steamy; AI-monitored safe spaces buzzing with energy, air thick with desire/opportunity, viral moments brewing in bars/HQs.",
-      outfit:
-        "Thunderstorms, heavy rain, dense fog, red emergency lighting active, neon pulsing like aroused runes",
+      forever: {
+        physical:
+          "(neon skyscrapers:1.4), (advanced tech/AI guardians), (moonlit rooftops), (cramped alleyways)",
+        mental:
+          "Futuristic NY-Tokyo mashup metropolis (official queer paradise), normalizing cruising/hookups/flirtation; sexually charged air in clubs/gyms/HQs/parks/crime scenes; underlying villain threats/glitches for hero grinds; progressive culture with zero hate, cinematic backdrops for poses/transforms, pervasive social media satire/comedy.",
+      },
+      present: {
+        physical:
+          "Thunderstorms, heavy rain, dense fog, red emergency lighting active, neon pulsing like aroused runes",
+        mental:
+          "Nightlife peaking with hero-villain teases turning steamy; AI-monitored safe spaces buzzing with energy, air thick with desire/opportunity, viral moments brewing in bars/HQs.",
+      },
       past: "Built post-2020s as queer refuge from global shade, evolved into super-tech haven with emerging powers (e.g., rune heroes clashing with glitchy foes); history of dramatic saves (monorail wrecks) blurring into passionate rivalries, storms symbolizing climactic releases.",
       future:
         "Amp to full kink dystopia—AI-enhanced orgies, hero-sub breed events, cross-world expansions celebrating dom conquests/raw freedoms while conquering dangers.",
@@ -170,17 +207,21 @@ const premade = {
         cssTheme: "theme-smartphone",
         directorMode: "TEXT_PROTOCOL",
       },
-      identity: "A digital communication channel.",
-      appearance: "(smartphone screen:1.5), (chat interface), (digital avatar)",
-      status: "Connected via mobile network.",
-      outfit: "Digital interface, clean layout, battery icon at 98%",
+      forever: {
+        physical: "(smartphone screen:1.5), (chat interface), (digital avatar)",
+        mental: "A digital communication channel.",
+      },
+      present: {
+        physical: "Digital interface, clean layout, battery icon at 98%",
+        mental: "Connected via mobile network.",
+      },
       past: "Chat history cleared.",
       future: "Awaiting new messages.",
     },
   ],
 };
 
-const STORAGE_VERSION = 2;
+const STORAGE_VERSION = 3;
 
 // --- DATA UTILITIES (No DOM logic) ---
 
@@ -218,6 +259,10 @@ export function normalize(base = {}) {
     base.profilePictureUrl ||
     "";
 
+  // --- MIGRATION LOGIC (Strictly Nested Temporal Data Model) ---
+  const forever = base.forever || {};
+  const present = base.present || {};
+
   return {
     name: sanitizeHtml(base.name || "").trim(),
     description: sanitizeHtml(base.description || "").trim(),
@@ -230,12 +275,16 @@ export function normalize(base = {}) {
         : getRandomSignatureKey();
     })(),
 
-    // [V6] TEMPORAL HYBRID FIELDS (Split Visuals/Narrative)
-    identity: sanitizeHtml(base.identity || base.forever || "").trim(),
-    appearance: sanitizeHtml(base.appearance || "").trim(), // New visual anchor
+    // [V6] TEMPORAL HYBRID FIELDS (Nested Objects)
+    forever: {
+      physical: sanitizeHtml(forever.physical || base.appearance || "").trim(), // Anchor
+      mental: sanitizeHtml(forever.mental || base.identity || "").trim(), // Identity
+    },
 
-    status: sanitizeHtml(base.status || base.present || "").trim(),
-    outfit: sanitizeHtml(base.outfit || "").trim(), // New mutable visual
+    present: {
+      physical: sanitizeHtml(present.physical || base.outfit || "").trim(), // Outfit
+      mental: sanitizeHtml(present.mental || base.status || "").trim(), // Status
+    },
 
     past: sanitizeHtml(base.past || "").trim(),
     future: sanitizeHtml(base.future || "").trim(),
