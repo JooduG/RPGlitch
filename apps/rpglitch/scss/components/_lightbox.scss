@@ -1,5 +1,6 @@
 @use "../abstracts/variables" as *;
 @use "../abstracts/mixins" as *;
+@use "buttons" as *;
 
 // _lightbox.scss
 // Fullscreen viewer for generated images
@@ -70,8 +71,12 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 40%);
 
     .btn-ghost {
+      @include btn-base;
+      @include btn-physics;
+      @include btn-disabled;
+
       margin: 0;
-      border-radius: 50px; // Pill shape
+      border-radius: 50px; // Enforce Pill Shape
       padding: 0.5rem 1.25rem;
       background: transparent;
       color: rgba(255, 255, 255, 80%);
@@ -79,19 +84,12 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.2s ease;
+      border: 1px solid transparent; // Ensure border is reset for ghost
 
-      &:hover {
+      &:hover:not(:disabled):not(.disabled) {
         background: rgba(255, 255, 255, 10%);
         color: white;
-        transform: translateY(-1px);
-      }
-
-      &:active {
-        transform: translateY(0);
+        // Transform handled by btn-physics
       }
     }
   }

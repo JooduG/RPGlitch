@@ -5,8 +5,8 @@
    Single Source of Truth for all interactive triggers.
    ============================================================================ */
 
-// --- 1. THE BASE ATOM (MAESTRO SPEC) ---
-.ui-btn {
+// --- MIXINS (MAESTRO SPEC) ---
+@mixin btn-base {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -31,7 +31,9 @@
     transform var(--transition-speed, 0.2s) ease-out,
     box-shadow var(--transition-speed, 0.2s) ease-out,
     filter var(--transition-speed, 0.2s) ease-out;
+}
 
+@mixin btn-physics {
   // The Physics of Touch
   &:hover:not(:disabled):not(.disabled) {
     transform: translateY(-1px);
@@ -41,7 +43,9 @@
   &:active:not(:disabled):not(.disabled) {
     transform: scale(var(--scale-active, 0.98));
   }
+}
 
+@mixin btn-disabled {
   &:disabled,
   &.disabled {
     opacity: 0.5;
@@ -51,6 +55,13 @@
     transform: none; // No hover lift for disabled
     box-shadow: none; // Ensure disabled buttons have no shadow
   }
+}
+
+// --- 1. THE BASE ATOM (MAESTRO SPEC) ---
+.ui-btn {
+  @include btn-base;
+  @include btn-physics;
+  @include btn-disabled;
 
   // Scoped Icon Styles
   .icon {

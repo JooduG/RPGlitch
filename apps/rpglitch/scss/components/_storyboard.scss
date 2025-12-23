@@ -1,4 +1,5 @@
 @use "../abstracts" as *;
+@use "buttons" as *;
 
 /* ============================================================================
    COMPONENT: STORYBOARD (LOBBY)
@@ -81,6 +82,13 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: z(modal); // Ensure above everything
+
+  // Ensure buttons inside use the standard physics
+  button, .btn {
+      @include btn-base;
+      @include btn-physics;
+      @include btn-disabled;
+  }
 }
 
 @include mobile {
