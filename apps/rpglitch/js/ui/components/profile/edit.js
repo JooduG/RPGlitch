@@ -312,34 +312,42 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
   // --- SECTIONS ---
   const secWrap = form.querySelector("[data-profile-sections]");
-  const createRow = (key, def) => {
-    const div = document.createElement("div");
-    div.className = "field-row";
+  const createRow = (groupKey, groupConfig) => {
+    // 1. Create Fieldset per Group
+    const fieldset = document.createElement("fieldset");
+    fieldset.className = "profile-group-set";
+    fieldset.innerHTML = `<legend>${groupConfig.label}</legend>`;
 
-    // Safety check in case entity type is missing/unknown (fallback to character)
-    const safeType = type && def[type] ? type : "character";
-    const sectionConfig = def[safeType];
+    // 2. Iterate SubFields
+    Object.keys(groupConfig.subFields).forEach((fieldKey) => {
+      const fieldDef = groupConfig.subFields[fieldKey];
+      const safeType = type && fieldDef[type] ? type : "character";
+      const config = fieldDef[safeType]; // Label/Placeholder
 
-    const sublabel = sectionConfig ? sectionConfig.sublabel : "";
-    const placeholderText = sectionConfig ? sectionConfig.placeholder : "";
+      const div = document.createElement("div");
+      div.className = "field-row";
 
-    div.innerHTML = `
-        <div class="field-label">
-            <label>${def.label}</label>
-            ${sublabel ? `<small class="muted">${sublabel}</small>` : ""}
-        </div>
-        <div class="field-input"></div>`;
+      div.innerHTML = `
+          <div class="field-label">
+              <label>${config.label}</label>
+          </div>
+          <div class="field-input"></div>`;
 
-    const input = document.createElement("textarea");
-    input.value = entity[key] || "";
-    input.dataset.editField = key;
-    input.rows = 1;
-    input.placeholder = placeholderText; // Apply placeholder
-    input.addEventListener("input", () => autoResize(input));
-    div.querySelector(".field-input").appendChild(input);
-    setTimeout(() => autoResize(input), 0);
-    secWrap.appendChild(div);
+      const input = document.createElement("textarea");
+      input.value = entity[fieldKey] || "";
+      input.dataset.editField = fieldKey;
+      input.rows = 2; // Slightly taller for better UX
+      input.placeholder = config.placeholder || "";
+      input.addEventListener("input", () => autoResize(input));
+
+      div.querySelector(".field-input").appendChild(input);
+      setTimeout(() => autoResize(input), 0);
+      fieldset.appendChild(div);
+    });
+
+    secWrap.appendChild(fieldset);
   };
+
   Object.keys(PROFILE_SECTIONS).forEach((k) =>
     createRow(k, PROFILE_SECTIONS[k]),
   );
@@ -359,13 +367,17 @@ export async function renderProfileEdit(screen, entity, type, id) {
             : selectedStyle;
         const existingText = imageInput.value.trim();
 
-        // Scrape LIVE values
+        // Scrape LIVE values (V6 Update)
         const liveEntity = { ...entity };
         liveEntity.name = nameInput.value;
         liveEntity.description = descInput.value;
-        Object.keys(PROFILE_SECTIONS).forEach((k) => {
-          const el = form.querySelector(`[data-edit-field="${k}"]`);
-          if (el) liveEntity[k] = el.value;
+
+        Object.keys(PROFILE_SECTIONS).forEach((groupKey) => {
+          const group = PROFILE_SECTIONS[groupKey];
+          Object.keys(group.subFields).forEach((fieldKey) => {
+            const el = form.querySelector(`[data-edit-field="${fieldKey}"]`);
+            if (el) liveEntity[fieldKey] = el.value;
+          });
         });
         const tagInputEl = form.querySelector('[data-edit-field="tags"]');
         if (tagInputEl) {
@@ -478,9 +490,13 @@ export async function renderProfileEdit(screen, entity, type, id) {
         : undefined,
     };
 
-    Object.keys(PROFILE_SECTIONS).forEach((k) => {
-      const el = screen.querySelector(`[data-edit-field="${k}"]`);
-      if (el) data[k] = escapeHtml(el.value.trim());
+    // V6 Loop: Iterate Groups > SubFields
+    Object.keys(PROFILE_SECTIONS).forEach((groupKey) => {
+      const group = PROFILE_SECTIONS[groupKey];
+      Object.keys(group.subFields).forEach((fieldKey) => {
+        const el = screen.querySelector(`[data-edit-field="${fieldKey}"]`);
+        if (el) data[fieldKey] = escapeHtml(el.value.trim());
+      });
     });
 
     if (state.settings.developerMode) {

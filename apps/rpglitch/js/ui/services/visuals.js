@@ -12,8 +12,17 @@ const VISUAL_CONSTANTS = {
     "raw photo, amateur phone photography, flash photography, realistic skin texture, pores, acne scars, imperfections, high iso, film grain, unpolished, snapchat quality",
 
   // THE FIREWALL (Strict Anti-Anime)
+  // [AMATEUR UPDATE] Removed "bad anatomy, blurry, low resolution" to allow glitches/realism
   NEGATIVE_CONSTRAINTS:
-    "anime, cartoon, illustration, drawing, 3d render, painting, sketch, smooth skin, plastic skin, doll-like, glowing skin, matte, low resolution, bad anatomy, text, watermark, cgi, unreal engine, video game, airbrushed, perfect lighting, rendered",
+    "anime, cartoon, illustration, drawing, 3d render, painting, sketch, smooth skin, plastic skin, doll-like, glowing skin, matte, perfect lighting, rendered, cgi, unreal engine, video game",
+
+  CAMERA_ARTIFACTS: [
+    "motion blur, out of focus hand, harsh flash, red eye, dirty lens",
+    "low light noise, grain, cctv footage, security camera angle",
+    "unflattering angle, double chin, blurry background, photobomber",
+    "reflection in mirror, fingerprints on glass, overexposed",
+    "shaky camera, slightly out of focus, lens flare, thumb over lens",
+  ],
 
   DEFAULT_RESOLUTION: "512x768",
 };
@@ -34,7 +43,11 @@ export const VisualManager = {
 
     // 2. THE REALISM HAMMER (Force Injection)
     // We prepend the realism anchor to ensure it's the first thing Flux sees.
-    const finalPrompt = `${VISUAL_CONSTANTS.REALISM_ANCHOR}, ${cleanPrompt}`;
+    const randomArtifact =
+      VISUAL_CONSTANTS.CAMERA_ARTIFACTS[
+        Math.floor(Math.random() * VISUAL_CONSTANTS.CAMERA_ARTIFACTS.length)
+      ];
+    const finalPrompt = `${VISUAL_CONSTANTS.REALISM_ANCHOR}, (${randomArtifact}:1.3), ${cleanPrompt}`;
 
     log(`[Visuals] Final Realism Prompt: ${finalPrompt.substring(0, 100)}...`);
 
@@ -95,9 +108,8 @@ export const VisualManager = {
     options = {},
   ) {
     const name = entity.name || "Subject";
-    const appearance = entity.sections?.forever || entity.forever || "";
-    const outfit =
-      entity.sections?.present || entity.present || "casual clothes";
+    const appearance = entity.appearance || entity.forever || "";
+    const outfit = entity.outfit || entity.present || "casual clothes";
 
     let anchor = "";
     const traits = (appearance + " " + outfit).toLowerCase();

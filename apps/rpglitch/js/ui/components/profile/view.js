@@ -78,21 +78,10 @@ export async function renderProfileView(
     if (id !== "new") {
       try {
         if (!entity.visuals) entity.visuals = {};
-        console.log(
-          "[View] Flipping. Current:",
-          localVisuals.flipped,
-          "New:",
-          !localVisuals.flipped,
-        );
         entity.visuals.flipped = localVisuals.flipped;
 
-        console.log(
-          "[View] Saving Entity with visuals:",
-          JSON.stringify(entity.visuals),
-        );
         // [FIX] Silent save to prevent Controller loop. Manually dispatch with source.
         const saved = await entities.upsert(type, entity, { silent: true });
-        console.log("[View] Save result:", JSON.stringify(saved.visuals));
 
         // [FIX] Update local state immediately to prevent stale re-renders
         if (state.selectedAI && state.selectedAI.id === id)
@@ -120,7 +109,6 @@ export async function renderProfileView(
             detail: { id: entity.id },
           }),
         );
-        console.log("[Profile] Visual flip saved automatically.");
       } catch (err) {
         console.error("Failed to auto-save flip state:", err);
       }
@@ -161,22 +149,41 @@ export async function renderProfileView(
   // headerWrap.after(tagsRow);
 
   // --- SECTIONS ---
+  // --- SECTIONS ---
   const secWrap = form.querySelector("[data-profile-sections]");
-  const createRow = (key, def) => {
-    const div = document.createElement("div");
-    div.className = "field-row";
-    const sectionConfig = def[type];
-    const sublabel = sectionConfig ? sectionConfig.sublabel : "";
+  const createRow = (groupKey, groupConfig) => {
+    // 1. Group Header
+    const header = document.createElement("h4");
+    header.className = "profile-group-header";
+    header.style.marginTop = "1rem";
+    header.style.marginBottom = "0.5rem";
+    header.style.paddingBottom = "0.2rem";
+    header.style.borderBottom = "1px solid var(--muted-border-color)";
+    header.style.color = "var(--primary)";
+    header.style.fontSize = "0.9em";
+    header.style.textTransform = "uppercase";
+    header.style.letterSpacing = "0.05em";
+    header.textContent = groupConfig.label.split(" (")[0]; // Clean label
+    secWrap.appendChild(header);
 
-    div.innerHTML = `
-        <div class="field-label">
-            <label>${def.label}</label>
-            ${sublabel ? `<small class="muted">${sublabel}</small>` : ""}
-        </div>
-        <div class="field-input">
-            <div data-read class="profile-field-text-read">${escapeHtml(entity[key] || "")}</div>
-        </div>`;
-    secWrap.appendChild(div);
+    // 2. Iterate SubFields
+    Object.keys(groupConfig.subFields).forEach((fieldKey) => {
+      const fieldDef = groupConfig.subFields[fieldKey];
+      const safeType = type && fieldDef[type] ? type : "character";
+      const config = fieldDef[safeType];
+
+      const div = document.createElement("div");
+      div.className = "field-row";
+
+      div.innerHTML = `
+          <div class="field-label">
+              <label>${config.label}</label>
+          </div>
+          <div class="field-input">
+              <div data-read class="profile-field-text-read">${escapeHtml(entity[fieldKey] || "")}</div>
+          </div>`;
+      secWrap.appendChild(div);
+    });
   };
 
   Object.keys(PROFILE_SECTIONS).forEach((k) =>

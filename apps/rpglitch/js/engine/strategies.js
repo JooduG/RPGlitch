@@ -23,11 +23,13 @@ export const NarrativePrompts = {
 [ROLE: ${role}]
 
 <THE_FOREVER (Identity)>
-${entity.forever || "Standard Identity."}
+${entity.identity || "Standard Identity."}
+${entity.appearance || ""}
 </THE_FOREVER>
 
 <THE_PRESENT (Moment)>
-${entity.present || "Neutral state."}
+${entity.status || "Neutral state."}
+${entity.outfit || ""}
 </THE_PRESENT>
 
 <THE_PAST (Memory)>
@@ -46,11 +48,13 @@ ${options.includeUrge ? `SUBCONSCIOUS_OVERRIDE: ${_getPhysicsUrge(entity)}` : ""
 [ROLE: ${role}]
 
 <THE_FOREVER (Identity)>
-${entity.forever || "Standard Identity."}
+${entity.identity || "Standard Identity."}
+${entity.appearance || ""}
 </THE_FOREVER>
 
 <THE_PRESENT (Observation)>
-${entity.present || "Standing nearby."}
+${entity.status || "Standing nearby."}
+${entity.outfit || ""}
 </THE_PRESENT>`;
   },
 
@@ -60,11 +64,13 @@ ${entity.present || "Standing nearby."}
 [ROLE: ${context}]
 
 <THE_FOREVER (World-Laws)>
-${entity.forever || "The fundamental laws of this reality are stable."}
+${entity.identity || "The fundamental laws of this reality are stable."}
+${entity.appearance || ""}
 </THE_FOREVER>
 
 <THE_PRESENT (Simulation)>
-${entity.present || "Ambient environment."}
+${entity.status || "Ambient environment."}
+${entity.outfit || ""}
 </THE_PRESENT>`;
   },
 };

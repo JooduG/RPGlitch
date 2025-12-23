@@ -188,8 +188,8 @@ Read the last few messages. Calculate the new Dynamics state.
 <CURRENT_STATE>
 ${JSON.stringify(
   {
-    forever: targetEntity.forever,
-    present: targetEntity.present,
+    identity: targetEntity.identity,
+    status: targetEntity.status,
     dynamics: forcedDynamics || currentDynamics,
   },
   null,
@@ -200,19 +200,19 @@ ${JSON.stringify(
 <OUTPUT_FORMAT>
 Return the stats in this EXACT block for the HUD:
 \`\`\`
-[STATUS_HUD]
-Entropy: (New Value)
-Velocity: (New Value)
-Permeability: (New Value)
-Resonance: (New Value)
-[/STATUS_HUD]
-\`\`\`
-Then return the JSON block.
-{
-  "present": "Updated string description of current state (wounds, location, mood).",
-  "dynamics": { "entropy": Number, "permeability": Number, "velocity": Number, "resonance": Number }
-}
-</OUTPUT_FORMAT>
+// [STATUS_HUD]
+// Entropy: (New Value)
+// Velocity: (New Value)
+// Permeability: (New Value)
+// Resonance: (New Value)
+// [/STATUS_HUD]
+// \`\`\`
+// Then return the JSON block.
+// {
+//   "status": "Updated string description of current state (wounds, location, mood).",
+//   "dynamics": { "entropy": Number, "permeability": Number, "velocity": Number, "resonance": Number }
+// }
+// </OUTPUT_FORMAT>
 `;
 
     return {
@@ -237,7 +237,13 @@ Then return the JSON block.
     // --- FOUNDATIONAL LOGIC: GENDER ANCHORING ---
     // We strictly use weighting (1.6) to enforce base reality.
     let genderAnchor = "";
-    const traits = (subject.forever + " " + subject.present).toLowerCase();
+    const traits = (
+      subject.identity +
+      " " +
+      subject.appearance +
+      " " +
+      subject.outfit
+    ).toLowerCase();
 
     if (
       traits.includes("male") ||
@@ -257,46 +263,38 @@ Then return the JSON block.
     // Note: The "Realism Style" is now handled by visuals.js.
     // This prompt focuses purely on extracting the *content*.
 
-    const system = `[SYSTEM: PROMETHEUS_VISUAL_CORTEX_V7]
-[MODE: UNIVERSAL_EXTRACTOR]
+    const system = `[SYSTEM: VISUAL_DIRECTOR_V9]
+[MODE: FRAMING_AND_OCCLUSION]
 
 <CORE_DIRECTIVE>
-You are a Visual Director. Extract PHYSICAL DATA from the profile and convert it into a **Weighted Flux Prompt**.
-**STYLE:** The realism style tags will be added automatically. Focus only on the SUBJECT CONTENT.
+You are a Virtual Photographer. Construct a prompt by combining the IMMUTABLE ANCHOR + MUTABLE OUTFIT + SCENE CONTEXT.
 </CORE_DIRECTIVE>
 
-<SOURCE_DATA>
-**Subject:** ${subject.name}
-**Traits:** ${subject.forever}
-**Current Look:** ${subject.present}
-**Intent:** <RAW_INTENT>
-</SOURCE_DATA>
+<INPUT_DATA>
+**Visual Anchor (Body/Geo):** ${subject.appearance}
+**Mutable Visuals (Outfit/Atmo):** ${subject.outfit}
+**Context:** <RAW_INTENT>
+</INPUT_DATA>
 
 ${strategy.formatActive(subject, "VISUAL_SUBJECT", { includeUrge: false })}
 ${strategy.formatFractal(fractal, "SCENE_ENVIRONMENT")}
 
-<INSTRUCTION>
-Perform this logic in a <think> block:
-1.  **Extract Unique Traits:** Identify Hair, Eyes, Skin, Build.
-    - *Apply Weighting:* format as \`(trait:1.4)\`.
-    - *Example:* If text says "Pink Hair", output \`(pink hair:1.4)\`.
-2.  **Reality Translation:**
-    - "Runes/Magic" -> "Bioluminescent body paint", "LED implants".
-    - "Monsters" -> "Cinematic prosthetics", "Realistic texture".
-3.  **Imperfections:** Add "Skin pores", "Acne scars", "Stray hairs", "Sweat".
-4.  **Framing:** If "Selfie", describe "Arm holding phone", "Mirror reflection".
+<STEP_1_FRAMING>
+Determine the camera angle (e.g., Selfie, CCTV, Bodycam, Mirror Shot, Wide Shot).
+</STEP_1_FRAMING>
 
-**CRITICAL SYNTAX RULES:**
-- **NO SQUARE BRACKETS [ ]**.
-- Use standard comma separation.
-- Use (parentheses:1.5) for weighting.
+<STEP_2_OCCLUSION_LOGIC>
+CRITICAL: You must EXCLUDE traits that are not visible in this frame using a <think> block.
+* **Selfie/Portrait:** KEEP eyes, makeup, neck tattoos. REMOVE shoes, pants, knee scars.
+* **Full Body:** KEEP all.
+* **Candid/Blurry:** Add (motion blur:1.3).
+</STEP_2_OCCLUSION_LOGIC>
 
-**OUTPUT TEMPLATE:**
-<think>
-[Reasoning]
-</think>
-${genderAnchor}, (Dynamic Weighted Traits), Selfie Perspective, Subject Action, Coherent Environment, Lighting, Texture Keywords
-</OUTPUT_INSTRUCTION>`;
+<OUTPUT_FORMAT>
+Return ONLY the final comma-separated prompt string (NO Markdown, NO Quotes).
+Structure:
+[Framing Keyword], [Visible Anchor Traits], [Visible Outfit Details], [Action/Pose], [Environment], [Lighting], [Amateur/Phone Vibe Tags]
+</OUTPUT_FORMAT>`;
 
     return {
       system: system,
