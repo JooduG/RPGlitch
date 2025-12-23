@@ -278,23 +278,26 @@ async function build(appName) {
     // --- FINAL CLEANUP: Forcefully remove external references via string replacement ---
     finalHtml = finalHtml.replace(
       /<link[^>]*href="[^"]*pico\.min\.css"[^>]*>/g,
-      "<!-- pico.min.css removed -->",
+      "",
     );
     finalHtml = finalHtml.replace(
       /<link[^>]*href="[^"]*index\.scss"[^>]*>/g,
-      "<!-- index.scss removed -->",
+      "",
     );
 
     const scriptsToRemove = [
       "../js/core/bootstrap.js",
       "js/core/bootstrap.js",
-      "../js/index.js", // Keep just in case
-      "js/index.js", // Keep just in case
+      "../js/index.js",
+      "js/index.js",
+      // Fix: Add all variations of library paths to ensure they are cleaned
       "../../../libs/dexie.js",
+      "../../../libs/dexie.min.js",
       "../../../libs/cash.min.js",
       "../../../libs/purify.min.js",
       "../../../libs/_hyperscript.min.js",
-      "../../../build/local_libs/dexie.js", // Keep legacy for safety briefly
+      "../../../build/local_libs/dexie.js",
+      "../../../build/local_libs/dexie.min.js", // This was the one causing the error!
       "../../../build/local_libs/cash.min.js",
       "../../../build/local_libs/purify.min.js",
       "../../../build/local_libs/_hyperscript.min.js",
@@ -306,7 +309,7 @@ async function build(appName) {
         `<script[^>]*src="${escapedSrc}"[^>]*><\/script>`,
         "g",
       );
-      finalHtml = finalHtml.replace(regex, `<!-- ${src} removed -->`);
+      finalHtml = finalHtml.replace(regex, ``);
     });
 
     console.log("✅ Performed final string cleanup of external tags.");
