@@ -25,6 +25,8 @@ $pico-del-color: #dc3545;
 // --- SPACING SYSTEM (RHYTHM) ---
 // Base unit: 1rem (16px)
 :root {
+  --transition-speed: 0.2s;
+  --scale-active: 0.98;
   --space-xs: 0.25rem; // 4px
   --space-sm: 0.5rem; // 8px
   --space-sm-md: 0.75rem; // 12px (Intermediate)
