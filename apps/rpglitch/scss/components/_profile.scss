@@ -163,7 +163,6 @@
         @include btn-disabled;
 
         padding: 0 0.75rem;
-        font-weight: 700;
         white-space: nowrap;
       }
 
@@ -187,7 +186,6 @@
         @include btn-physics;
         @include btn-disabled;
 
-        background: transparent;
         border: 1px solid var(--pico-muted-border-color);
         color: var(--pico-muted-color);
         cursor: pointer;

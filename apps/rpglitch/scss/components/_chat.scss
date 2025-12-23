@@ -134,8 +134,12 @@
 // Settings Ghost Button
 #btn-settings-placeholder {
   @include btn-base;
-  @include btn-physics;
   @include btn-disabled;
+
+  // Manual active state to match btn-physics without the hover lift
+  &:active:not(:disabled):not(.disabled) {
+    transform: scale(var(--scale-active, 0.98));
+  }
 
   background: transparent;
   border: none;
@@ -162,7 +166,6 @@
   &:hover {
     background: transparent;
     color: var(--pico-primary);
-    transform: none !important; // Override generic transform if needed, but btn-physics applies translateY(-1px)
     box-shadow: none !important;
 
     span {

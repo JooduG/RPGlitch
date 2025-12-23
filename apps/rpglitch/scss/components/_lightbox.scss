@@ -84,7 +84,6 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      border: 1px solid transparent; // Ensure border is reset for ghost
 
       &:hover:not(:disabled):not(.disabled) {
         background: rgba(255, 255, 255, 10%);
