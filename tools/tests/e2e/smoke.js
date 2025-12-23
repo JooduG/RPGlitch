@@ -34,28 +34,22 @@ function enhanceWindow(window) {
   }
 
   // 3. MOCK WEB WORKER (The Final Boss)
-  // JSDOM has no Workers. We create a dummy class so the app doesn't crash.
   class MockWorker {
     constructor(stringUrl) {
       this.url = stringUrl;
       this.onmessage = null;
       this.onerror = null;
     }
-    postMessage(msg) {
-      // Allow the app to "send" messages into the void without crashing
-      // console.log("[MockWorker] Received:", msg);
-    }
+    postMessage(msg) {}
     addEventListener(type, listener) {
-      // Minimal implementation for 'message' and 'error'
       if (type === "message") this.onmessage = listener;
       if (type === "error") this.onerror = listener;
     }
     removeEventListener() {}
     terminate() {}
   }
-
   window.Worker = MockWorker;
-  global.Worker = MockWorker; // Patch global scope just in case
+  global.Worker = MockWorker;
 
   // 4. Mock Animation Frames
   if (!window.requestAnimationFrame)
@@ -88,6 +82,10 @@ function enhanceWindow(window) {
     iframe: window.document.createElement("iframe"),
   });
   window.pluginRememberPlugin = window.rememberPlugin;
+
+  // 8. CRITICAL: Mock RPG Lists (Prevents 5s Boot Delay)
+  // This allows the app to skip waitForConfig() instantly
+  window.rpgLists = {};
 }
 
 async function runSmoke(appName) {
@@ -108,7 +106,6 @@ async function runSmoke(appName) {
   // Filter out noise
   vcon.on("error", (...args) => {
     const msg = args.map(String).join(" ");
-    // Ignore CSS errors and our own MockWorker logs
     if (msg.includes("Could not parse CSS")) return;
     errors.push(`[console.error] ${msg}`);
   });
@@ -131,7 +128,7 @@ async function runSmoke(appName) {
     dom.window.addEventListener("DOMContentLoaded", () =>
       setTimeout(resolve, 500),
     );
-    // Give it time to boot (DB init + Worker init)
+    // Give it time to boot
     setTimeout(resolve, 3500);
   });
 

@@ -8,8 +8,7 @@ import { TurnManager } from "../engine/director.js";
 import { StoryOptionsController } from "../ui/components/settings.js";
 import { initStoryboardStage, SetupManager } from "../ui/setup.js";
 import { initChatInput } from "../ui/components/chat/input.js";
-import { initUIHandlers } from "../ui/handlers.js";
-import { LightboxService } from "../ui/services/lightbox.js";
+import { initUIHandlers } from "../ui-handlers.js";
 
 // ====== SECURITY OVERRIDE: CLIENT-SIDE FREEDOM ======
 (function enforceClientSideFreedom() {
@@ -51,7 +50,6 @@ const App = {
 
     // Initialize UI Handlers (Replacement for inline HTML attributes)
     initUIHandlers();
-    LightboxService.init();
 
     try {
       // 1. Initialize Views
@@ -142,7 +140,7 @@ const App = {
       await new Promise((r) => setTimeout(r, 100));
     }
     if (window.rpgLists) {
-      log(
+      console.log(
         "[RPGlitch] Config loaded successfully:",
         Object.keys(window.rpgLists),
       );
@@ -227,6 +225,11 @@ const App = {
     }
   },
 };
+
+// --- EXPOSE APP TO WINDOW ---
+// This ensures tests and debuggers can see the App object
+// even after esbuild bundles it into an IIFE.
+window.App = App;
 
 App.initializeWhenReady = async function () {
   try {
