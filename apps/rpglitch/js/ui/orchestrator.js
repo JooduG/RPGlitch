@@ -64,7 +64,12 @@ function initEventBinds() {
         setStorymodeEntities(snapshot.ai, snapshot.user, snapshot.fractal);
         updatePortraits(snapshot.ai, snapshot.user);
 
+        if (snapshot.fractal) {
+          applyFractalAmbience(snapshot.fractal);
+        }
+
         // Sync Global Selection State to ensure Theme is applied
+        // This fixes the bug where loading a story didn't change the UI theme
         updateStoryboardSelection({
           aiCharacter: snapshot.ai,
           userCharacter: snapshot.user,
