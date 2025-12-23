@@ -26,7 +26,8 @@
     ".mcp.json",
     "node_modules/",
     "gha-creds-*.json",
-    "nul"
+    "nul",
+    "*.css.map"
   ],
   "linters": {
     "eslint": [

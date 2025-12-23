@@ -5,6 +5,7 @@
     "**/archive/**",
     "**/build/local_libs/**",
     "*.bak",
+    "*.css.map",
     "*.log",
     "*.tmp",
     ".env",
