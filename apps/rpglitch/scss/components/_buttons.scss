@@ -295,3 +295,47 @@
 .btn-group-pill {
   @extend %btn-group-pill;
 }
+
+// --- 7. SPECIAL COMPONENT: SPLIT ACTIONS (DIALOGS/CARDS) ---
+// Flush footer with even split, used in Modal Alerts and Lightbox
+%btn-group-split {
+  display: flex;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+
+  .btn,
+  button,
+  .btn-ghost,
+  .btn-primary,
+  .ui-btn {
+    @extend %ui-btn;
+
+    flex: 1 1 0; // Equal width
+    margin: 0;
+    border-radius: 0;
+    height: 3.5rem; // Standard touch target for footers
+    border: none;
+    background: transparent;
+
+    // Divider
+    &:not(:last-child) {
+      border-right: 1px solid rgb(255 255 255 / 10%);
+    }
+
+    // Flush Corners (External container must handle its own radius, but this helps)
+    &:first-child {
+      border-bottom-left-radius: 12px;
+    }
+
+    &:last-child {
+      border-bottom-right-radius: 12px;
+    }
+
+    &:hover:not(:disabled, .disabled) {
+      background: rgb(255 255 255 / 5%);
+    }
+  }
+}
