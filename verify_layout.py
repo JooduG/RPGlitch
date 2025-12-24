@@ -14,7 +14,7 @@ def run():
 
         # Wait for main container
         page.wait_for_selector("#main", state="visible")
-        page.wait_for_timeout(2000) # Wait for JS to hydrate
+        page.wait_for_load_state("networkidle") # Wait for JS to hydrate
 
         print("Clicking AI slot...")
         # Click the AI Character slot
