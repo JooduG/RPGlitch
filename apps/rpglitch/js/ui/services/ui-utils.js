@@ -102,7 +102,7 @@ export const chin = {
       if (btn) {
         // Optional: Safety check if we want to restrict to buttons only,
         // but closest() usually implies intent.
-        e.stopPropagation();
+        // e.stopPropagation();
         const name = btn.getAttribute("data-chin");
         chin.toggle(name);
       }
