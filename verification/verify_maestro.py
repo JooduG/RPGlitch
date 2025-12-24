@@ -74,7 +74,7 @@ def run(playwright):
     }""")
 
     page.wait_for_selector(".lightbox-overlay.is-visible")
-    time.sleep(1) # Wait for render
+    time.sleep(0.5) # Wait for lightbox fade-in animation to complete
     page.screenshot(path="verification/verification.png")
 
     browser.close()
