@@ -304,7 +304,7 @@
   padding: 0;
   margin: 0;
   gap: 0;
-  border-top: 1px solid rgb(255 255 255 / 10%);
+  border-top: 1px solid $ui-glass-border;
 
   .btn,
   button,
@@ -318,11 +318,11 @@
     border-radius: 0;
     height: 3.5rem; // Standard touch target for footers
     border: none;
-    background: transparent;
+    // Removed background: transparent to allow variants (like primary) to show color
 
     // Divider
     &:not(:last-child) {
-      border-right: 1px solid rgb(255 255 255 / 10%);
+      border-right: 1px solid $ui-glass-border;
     }
 
     // Flush Corners (External container must handle its own radius, but this helps)
@@ -335,7 +335,7 @@
     }
 
     &:hover:not(:disabled, .disabled) {
-      background: rgb(255 255 255 / 5%);
+      background: $ui-glass-hover;
     }
   }
 }
