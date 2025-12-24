@@ -50,7 +50,12 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
   const grid = wrapper.querySelector(".field-input");
 
   ["entropy", "permeability", "velocity", "resonance"].forEach((k) => {
-    const val = dyns[k] !== undefined ? dyns[k] : 50;
+    // 🛡️ SENTINEL SECURITY PATCH: [XSS Risk Mitigated]
+    // Ensure value is strictly a number to prevent injection into template literals.
+    let val = Number(dyns[k]);
+    if (isNaN(val)) {
+      val = 50;
+    }
 
     // [CHANGE] Use the 'Card' style for both, just swap the content
     const card = document.createElement("div");
