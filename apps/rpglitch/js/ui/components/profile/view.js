@@ -199,7 +199,7 @@ export async function renderProfileView(
       const readField = document.createElement("div");
       readField.className = "profile-field-text-read";
       readField.setAttribute("data-read", "");
-      readField.innerHTML = escapeHtml(val);
+readField.textContent = val;
       contentCol.appendChild(readField);
     }
 
