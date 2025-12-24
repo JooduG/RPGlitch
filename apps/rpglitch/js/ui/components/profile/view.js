@@ -167,7 +167,7 @@ export async function renderProfileView(
       splitWrap.className = "split-content";
 
       // Order: Non-Physical (Mental) Left, Physical Right
-      const keys = ["mental", "physical"];
+      const keys = Object.keys(groupConfig.fields);
 
       keys.forEach(key => {
         const val = getNestedValue(entity, `${groupKey}.${key}`);
