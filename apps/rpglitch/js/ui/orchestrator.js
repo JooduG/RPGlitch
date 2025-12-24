@@ -122,7 +122,9 @@ const errorModalHtml = `
     <article class="modal-content">
       <header>
         <h3>The Engine Stalled</h3>
-        <a href="#close" aria-label="Close" class="close" onclick="document.getElementById('error-modal').remove()"></a>
+        <button type="button" class="close" aria-label="Close">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
       </header>
       <div class="modal-body">
         <p id="error-msg">A connection error occurred.</p>
