@@ -306,6 +306,8 @@
   gap: 0;
   // Border-top moved to specific components (modal/lightbox) for flexibility
 
+  // Explicit list ensures all button variants behave correctly in flex layout
+  // (We use > direct child to avoid affecting nested elements)
   > .btn,
   > button,
   > .ui-btn,
@@ -337,7 +339,8 @@
       border-bottom-right-radius: var(--space-sm-md);
     }
 
-    // Provide a consistent hover background for non-solid button variants
+    // Provide a consistent hover background for non-solid button variants.
+    // NOTE: If adding new solid buttons, exclude them here to preserve their background.
     &:hover:not(:disabled, .disabled):not(.btn-primary):not(.btn-secondary):not(.btn-glass) {
       background: $ui-glass-hover;
     }
