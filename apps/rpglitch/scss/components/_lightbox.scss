@@ -85,9 +85,10 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
 
-      &:hover:not(:disabled):not(.disabled) {
+      &:hover:not(:disabled, .disabled) {
         background: rgba(255, 255, 255, 10%);
         color: white;
+
         // Transform handled by btn-physics
       }
     }
