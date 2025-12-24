@@ -306,16 +306,11 @@
   gap: 0;
   // Border-top moved to specific components (modal/lightbox) for flexibility
 
-  // Explicit list ensures all button variants behave correctly in flex layout
-  // (We use > direct child to avoid affecting nested elements)
+  // Simplified selector list relying on base classes.
+  // Ensure all buttons in a split group have .btn, .ui-btn or are <button> tags.
   > .btn,
   > button,
-  > .ui-btn,
-  > .btn-primary,
-  > .btn-ghost,
-  > .btn-outline,
-  > .btn-secondary,
-  > .btn-glass {
+  > .ui-btn {
     @extend %ui-btn;
 
     flex: 1 1 0; // Equal width
