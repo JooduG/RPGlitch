@@ -304,13 +304,16 @@
   padding: 0;
   margin: 0;
   gap: 0;
-  border-top: 1px solid $ui-glass-border;
+  // Border-top moved to specific components (modal/lightbox) for flexibility
 
   .btn,
   button,
-  .btn-ghost,
+  .ui-btn,
   .btn-primary,
-  .ui-btn {
+  .btn-ghost,
+  .btn-outline,
+  .btn-secondary,
+  .btn-glass {
     @extend %ui-btn;
 
     flex: 1 1 0; // Equal width
@@ -334,7 +337,8 @@
       border-bottom-right-radius: var(--space-sm-md);
     }
 
-    &:hover:not(:disabled, .disabled) {
+    // Apply hover background only to buttons that don't have their own background
+    &:hover:not(:disabled, .disabled):not(.btn-primary):not(.btn-secondary):not(.btn-glass) {
       background: $ui-glass-hover;
     }
   }
