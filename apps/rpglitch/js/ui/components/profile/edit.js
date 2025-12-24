@@ -3,6 +3,7 @@ import {
   getPictureHTML,
   setTopBarRight,
   renderDynamicsWidget,
+  createProfileRow,
 } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
@@ -303,28 +304,11 @@ export async function renderProfileEdit(screen, entity, type, id) {
   Object.keys(PROFILE_STRUCTURE).forEach((key) => {
     const config = PROFILE_STRUCTURE[key];
 
-    const row = document.createElement("div");
-    row.className = "profile-row";
-
-    // 1. Label Column
-    const labelCol = document.createElement("div");
-    labelCol.className = "label-group";
-
-    const mainLabel = document.createElement("span");
-    mainLabel.className = "main-label";
-    mainLabel.textContent = config.label.split(" (")[0]; // Clean label
-    labelCol.appendChild(mainLabel);
-
-    const subLabel = document.createElement("span");
-    subLabel.className = "sub-label";
-    subLabel.textContent = LABEL_MAP[key] || "";
-    labelCol.appendChild(subLabel);
-
-    row.appendChild(labelCol);
-
-    // 2. Content Column
-    const contentCol = document.createElement("div");
-    contentCol.className = "content-group";
+    // ⚡ BOLT REFACTOR: Use shared row logic
+    const { row, contentCol } = createProfileRow(
+      config.label.split(" (")[0],
+      LABEL_MAP[key] || ""
+    );
 
     // Case 1: Nested Objects (Forever/Present)
     if (config.type === "nested") {
@@ -378,7 +362,6 @@ export async function renderProfileEdit(screen, entity, type, id) {
       setTimeout(() => autoResize(input), 0);
     }
 
-    row.appendChild(contentCol);
     secWrap.appendChild(row);
   });
 

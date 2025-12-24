@@ -3,6 +3,7 @@ import {
   getPictureHTML,
   setTopBarRight,
   renderDynamicsWidget,
+  createProfileRow,
 } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
@@ -138,28 +139,11 @@ export async function renderProfileView(
   const secWrap = form.querySelector("[data-profile-sections]");
 
   const createRow = (groupKey, groupConfig) => {
-    const row = document.createElement("div");
-    row.className = "profile-row";
-
-    // 1. Label Column
-    const labelCol = document.createElement("div");
-    labelCol.className = "label-group";
-
-    const mainLabel = document.createElement("span");
-    mainLabel.className = "main-label";
-    mainLabel.textContent = groupConfig.label.split(" (")[0]; // Clean label
-    labelCol.appendChild(mainLabel);
-
-    const subLabel = document.createElement("span");
-    subLabel.className = "sub-label";
-    subLabel.textContent = LABEL_MAP[groupKey] || "";
-    labelCol.appendChild(subLabel);
-
-    row.appendChild(labelCol);
-
-    // 2. Content Column
-    const contentCol = document.createElement("div");
-    contentCol.className = "content-group";
+    // ⚡ BOLT REFACTOR: Use shared row logic
+    const { row, contentCol } = createProfileRow(
+      groupConfig.label.split(" (")[0],
+      LABEL_MAP[groupKey] || ""
+    );
 
     if (groupConfig.type === "nested") {
       // Split Layout (Forever/Present)
@@ -186,7 +170,7 @@ export async function renderProfileView(
         const readField = document.createElement("div");
         readField.className = "profile-field-text-read";
         readField.setAttribute("data-read", "");
-readField.textContent = val;
+        readField.innerHTML = escapeHtml(val);
         splitCol.appendChild(readField);
 
         splitWrap.appendChild(splitCol);
@@ -199,11 +183,10 @@ readField.textContent = val;
       const readField = document.createElement("div");
       readField.className = "profile-field-text-read";
       readField.setAttribute("data-read", "");
-readField.textContent = val;
+      readField.innerHTML = escapeHtml(val);
       contentCol.appendChild(readField);
     }
 
-    row.appendChild(contentCol);
     secWrap.appendChild(row);
   };
 

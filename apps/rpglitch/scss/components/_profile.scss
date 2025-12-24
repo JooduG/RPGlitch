@@ -303,6 +303,8 @@
 }
 
 /* --- TYPOGRAPHY & FORMS --- */
+$placeholder-opacity: 0.4;
+
 .profile-header {
   margin-bottom: 2rem;
 }
@@ -330,7 +332,7 @@
 
   &::placeholder {
      color: var(--signature-color, var(--pico-muted-color));
-     opacity: 0.4;
+     opacity: $placeholder-opacity;
   }
 
   @include mobile {
@@ -432,13 +434,12 @@
 }
 
 // Reusing Input Styles
-.profile-input,
-.profile-field-text-read {
+$placeholder-opacity: 0.4;
+
+%profile-field-base {
   width: 100%;
   appearance: none;
   text-align: left !important;
-  background: rgba(0, 0, 0, 30%);
-  border: 1px solid var(--pico-muted-border-color);
   border-radius: var(--pico-radius);
   color: var(--pico-color);
   font-family: inherit;
@@ -461,15 +462,22 @@
 
   &::placeholder {
     color: var(--pico-muted-color);
-    opacity: 0.5;
+    opacity: $placeholder-opacity;
     font-style: italic;
   }
 }
 
+.profile-input {
+  @extend %profile-field-base;
+  background: rgba(0, 0, 0, 30%);
+  border: 1px solid var(--pico-muted-border-color);
+}
+
 .profile-field-text-read {
+  @extend %profile-field-base;
   background: rgb(255 255 255 / 3%);
   white-space: pre-wrap;
-  border-color: transparent;
+  border: 1px solid transparent;
 }
 
 /* --- DEVELOPER MODE --- */
