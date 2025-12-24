@@ -529,11 +529,11 @@ input[type="number"][data-edit-dynamic] {
     // Flush Corners (Assuming Profile is inside a container or standalone)
     // If inside a modal/card, these round the bottom
     &:first-child {
-       border-bottom-left-radius: var(--pico-radius);
+      border-bottom-left-radius: var(--pico-radius);
     }
 
     &:last-child {
-       border-bottom-right-radius: var(--pico-radius);
+      border-bottom-right-radius: var(--pico-radius);
     }
   }
 
@@ -543,10 +543,7 @@ input[type="number"][data-edit-dynamic] {
     display: flex;
 
     button {
-      flex: 1;
-      height: auto;
-      border-radius: 0;
-      margin: 0;
+      // Inherits properties from parent 'button, ...' selector
     }
   }
 }

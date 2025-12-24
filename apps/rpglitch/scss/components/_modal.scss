@@ -79,11 +79,11 @@ dialog.modal {
 
         // Flush Corners
         &:first-child {
-            border-bottom-left-radius: var(--pico-radius);
+          border-bottom-left-radius: var(--pico-radius);
         }
 
         &:last-child {
-            border-bottom-right-radius: var(--pico-radius);
+          border-bottom-right-radius: var(--pico-radius);
         }
       }
     }

@@ -29,7 +29,6 @@ export const LightboxService = {
     const img = document.createElement("img");
     img.alt = "Fullscreen View";
     content.appendChild(img);
-    // overlay.appendChild(content); // Moved below
 
     // 4. Create Actions Container
     const actions = document.createElement("div");
