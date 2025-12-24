@@ -310,7 +310,8 @@
   // Ensure all buttons in a split group have .btn, .ui-btn or are <button> tags.
   > .btn,
   > button,
-  > .ui-btn {
+  > .ui-btn,
+  > .btn-ghost {
     @extend %ui-btn;
 
     flex: 1 1 0; // Equal width
