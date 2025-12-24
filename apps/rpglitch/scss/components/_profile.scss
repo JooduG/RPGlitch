@@ -328,6 +328,11 @@
     border-bottom: 2px solid var(--pico-primary);
   }
 
+  &::placeholder {
+     color: var(--signature-color, var(--pico-muted-color));
+     opacity: 0.4;
+  }
+
   @include mobile {
     font-size: 2rem;
   }
@@ -358,17 +363,17 @@
 /* --- MAESTRO LAYOUT SYSTEM (2-Column Grid) --- */
 .profile-row {
   display: grid;
-  grid-template-columns: minmax(120px, 140px) 1fr;
+  grid-template-columns: minmax(80px, 120px) 1fr; // Tighter label column
   gap: var(--space-md);
   margin-bottom: 2rem;
-  align-items: flex-start;
+  align-items: center; // Vertically center labels
   width: 100%;
 
   .label-group {
     text-align: right;
     display: flex;
     flex-direction: column;
-    padding-top: 0.6rem; // Visual alignment with input text top
+    // Removed padding-top since we are centering
 
     .main-label {
       font-weight: 800;
@@ -402,6 +407,7 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--space-md);
   width: 100%;
+  align-items: stretch; // Ensure equal height columns
 
   .split-column {
     display: flex;
@@ -409,6 +415,7 @@
     gap: 0.5rem;
     width: 100%;
     min-width: 0;
+    height: 100%; // Fill grid cell
 
     .split-header {
       text-align: center;
@@ -418,7 +425,7 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 0.25rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      // Removed border-bottom per "No Lines" request
       padding-bottom: 0.25rem;
     }
   }
@@ -442,6 +449,7 @@
     background-color 0.2s,
     border-color 0.2s;
   display: block;
+  flex: 1; // Grow to fill split column (Equal Heights)
 
   &:focus {
     outline: none;
