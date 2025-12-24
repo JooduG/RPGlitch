@@ -34,6 +34,19 @@ function getNestedValue(obj, path) {
   return path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
 }
 
+// Sub-Label Mapping (Parity with View)
+const LABEL_MAP = {
+  forever: "Immutable Traits",
+  present: "Current State",
+  past: "Memories & History",
+  future: "Ambitions & Goals"
+};
+
+const SPLIT_HEADERS = {
+  mental: "Non-Physical",
+  physical: "Physical"
+};
+
 export async function renderProfileEdit(screen, entity, type, id) {
   // Setup Visuals
   setTopBarRight("form");
@@ -297,30 +310,61 @@ export async function renderProfileEdit(screen, entity, type, id) {
   headerWrap.appendChild(descInput);
   setTimeout(() => autoResize(descInput), 0);
 
-  // --- SECTIONS (Nested Temporal Model Logic) ---
+  // --- SECTIONS (Maestro 2-Column Grid) ---
   const secWrap = form.querySelector("[data-profile-sections]");
 
   Object.keys(PROFILE_STRUCTURE).forEach((key) => {
     const config = PROFILE_STRUCTURE[key];
 
+    const row = document.createElement("div");
+    row.className = "profile-row";
+
+    // 1. Label Column
+    const labelCol = document.createElement("div");
+    labelCol.className = "label-group";
+
+    const mainLabel = document.createElement("span");
+    mainLabel.className = "main-label";
+    mainLabel.textContent = config.label.split(" (")[0]; // Clean label
+    labelCol.appendChild(mainLabel);
+
+    const subLabel = document.createElement("span");
+    subLabel.className = "sub-label";
+    subLabel.textContent = LABEL_MAP[key] || "";
+    labelCol.appendChild(subLabel);
+
+    row.appendChild(labelCol);
+
+    // 2. Content Column
+    const contentCol = document.createElement("div");
+    contentCol.className = "content-group";
+
     // Case 1: Nested Objects (Forever/Present)
     if (config.type === "nested") {
-      const fieldset = document.createElement("fieldset");
-      fieldset.className = "profile-group-set";
-      fieldset.innerHTML = `<legend>${config.label}</legend>`;
+      const splitWrap = document.createElement("div");
+      splitWrap.className = "split-content";
 
-      Object.keys(config.fields).forEach((subKey) => {
+      const keys = ["mental", "physical"];
+
+      keys.forEach(subKey => {
         const fieldConfig = config.fields[subKey];
-        const div = document.createElement("div");
-        div.className = "field-row";
-        div.innerHTML = `
-            <div class="field-label">
-                <label>${fieldConfig.label}</label>
-            </div>
-            <div class="field-input"></div>`;
+        const splitCol = document.createElement("div");
+        splitCol.className = "split-column";
+
+        const header = document.createElement("div");
+        header.className = "split-header";
+        header.textContent = SPLIT_HEADERS[subKey];
+        splitCol.appendChild(header);
+
+        // Input Wrapper
+        const inputDiv = document.createElement("div");
+        inputDiv.className = "profile-input"; // Using wrapper class if needed or direct styling
+        // Actually .profile-input is styling the input itself in SCSS, but let's check
+        // In SCSS: .profile-input, .profile-field-text-read { ... }
+        // So I should apply .profile-input class to the textarea directly.
 
         const input = document.createElement("textarea");
-        // Bind to dot notation path: "forever.physical"
+        input.className = "profile-input";
         const finalPath = `${key}.${subKey}`;
         input.value = getNestedValue(entity, finalPath);
         input.dataset.editField = finalPath;
@@ -328,38 +372,30 @@ export async function renderProfileEdit(screen, entity, type, id) {
         input.placeholder = fieldConfig.placeholder || "";
         input.addEventListener("input", () => autoResize(input));
 
-        div.querySelector(".field-input").appendChild(input);
+        splitCol.appendChild(input);
         setTimeout(() => autoResize(input), 0);
-        fieldset.appendChild(div);
+
+        splitWrap.appendChild(splitCol);
       });
-      secWrap.appendChild(fieldset);
+      contentCol.appendChild(splitWrap);
+
     }
     // Case 2: String Fields (Past/Future)
     else if (config.type === "string") {
-      // For top-level strings, we can just use a simple fieldset or div wrapper
-      // To match style, we'll wrap in a labeled fieldset
-      const fieldset = document.createElement("fieldset");
-      fieldset.className = "profile-group-set";
-      fieldset.innerHTML = `<legend>${config.label}</legend>`;
-
-      const div = document.createElement("div");
-      div.className = "field-row";
-      // No extra label needed inside if the legend acts as label, but let's keep it consistent
-      // Actually, for past/future, we just want one big box.
-      div.innerHTML = `<div class="field-input" style="width:100%"></div>`;
-
       const input = document.createElement("textarea");
+      input.className = "profile-input";
       input.value = entity[key] || "";
       input.dataset.editField = key;
       input.rows = config.rows || 4;
       input.placeholder = config.placeholder || "";
       input.addEventListener("input", () => autoResize(input));
 
-      div.querySelector(".field-input").appendChild(input);
+      contentCol.appendChild(input);
       setTimeout(() => autoResize(input), 0);
-      fieldset.appendChild(div);
-      secWrap.appendChild(fieldset);
     }
+
+    row.appendChild(contentCol);
+    secWrap.appendChild(row);
   });
 
   // --- MAGIC PROMPT LOGIC ---
