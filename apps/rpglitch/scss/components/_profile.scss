@@ -375,6 +375,7 @@ $placeholder-opacity: 0.4;
     text-align: right;
     display: flex;
     flex-direction: column;
+
     // Removed padding-top since we are centering
 
     .main-label {
@@ -427,6 +428,7 @@ $placeholder-opacity: 0.4;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 0.25rem;
+
       // Removed border-bottom per "No Lines" request
       padding-bottom: 0.25rem;
     }
@@ -469,12 +471,14 @@ $placeholder-opacity: 0.4;
 
 .profile-input {
   @extend %profile-field-base;
+
   background: rgba(0, 0, 0, 30%);
   border: 1px solid var(--pico-muted-border-color);
 }
 
 .profile-field-text-read {
   @extend %profile-field-base;
+
   background: rgb(255 255 255 / 3%);
   white-space: pre-wrap;
   border: 1px solid transparent;
@@ -611,7 +615,7 @@ input[type="number"][data-edit-dynamic] {
       align-items: baseline;
       gap: 0.5rem;
       padding-top: 0;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255,255,255,10%);
       padding-bottom: 0.25rem;
       margin-bottom: 0.25rem;
     }
