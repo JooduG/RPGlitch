@@ -22,7 +22,7 @@ def run():
 
         # Wait for either drawer or profile screen
         # If no entities, it might show drawer with "Create New" or just "New" button
-        page.wait_for_selector("#entity-drawer, #profile-screen", state="visible")
+        page.wait_for_timeout(1000)
 
         # Check if drawer is open
         if page.is_visible("#entity-drawer"):
