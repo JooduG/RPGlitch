@@ -29,12 +29,15 @@ export const LightboxService = {
     const img = document.createElement("img");
     img.alt = "Fullscreen View";
     content.appendChild(img);
-    overlay.appendChild(content);
 
     // 4. Create Actions Container
     const actions = document.createElement("div");
     actions.className = "lightbox-actions";
-    overlay.appendChild(actions);
+    // Append actions TO content (Unified Card)
+    content.appendChild(actions);
+
+    // Append content to overlay
+    overlay.appendChild(content);
 
     // 5. Append to Body
     document.body.appendChild(overlay);

@@ -59,12 +59,14 @@
     cursor: not-allowed;
     filter: grayscale(1);
     pointer-events: auto; // Allow cursor to show
-    transform: none; // No hover lift for disabled
-    box-shadow: none; // Ensure disabled buttons have no shadow
+    transform: none !important;
+    transition: none !important;
+    box-shadow: none;
   }
 }
 
 // --- 1. THE BASE ATOM (MAESTRO SPEC) ---
+// Define placeholder first to allow extensions
 %ui-btn {
   @include btn-base;
   @include btn-physics;
