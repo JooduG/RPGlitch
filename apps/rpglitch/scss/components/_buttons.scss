@@ -327,11 +327,11 @@
 
     // Flush Corners (External container must handle its own radius, but this helps)
     &:first-child {
-      border-bottom-left-radius: 12px;
+      border-bottom-left-radius: var(--space-sm-md);
     }
 
     &:last-child {
-      border-bottom-right-radius: 12px;
+      border-bottom-right-radius: var(--space-sm-md);
     }
 
     &:hover:not(:disabled, .disabled) {
