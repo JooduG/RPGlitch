@@ -335,6 +335,10 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
       keys.forEach(subKey => {
         const fieldConfig = config.fields[subKey];
+        if (!fieldConfig) {
+          console.warn(`Configuration for nested field '${key}.${subKey}' not found. Skipping.`);
+          return;
+        }
         const splitCol = document.createElement("div");
         splitCol.className = "split-column";
 

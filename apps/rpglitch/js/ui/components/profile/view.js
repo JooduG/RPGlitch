@@ -170,6 +170,9 @@ export async function renderProfileView(
       const keys = ["mental", "physical"];
 
       keys.forEach(key => {
+        // [FIX] Ensure field exists in config to prevent access errors if schema changes
+        if (!groupConfig.fields[key]) return;
+
         const val = getNestedValue(entity, `${groupKey}.${key}`);
 
         const splitCol = document.createElement("div");
