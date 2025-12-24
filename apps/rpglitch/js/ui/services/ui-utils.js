@@ -83,22 +83,28 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
 
 export const chin = {
   init: () => {
+    // ⚡ BOLT OPTIMIZATION: Event Delegation
+    // Replaced multiple individual listeners with a single document-level delegate.
+    // Handles current and future [data-chin] elements automatically.
+    if (chin._initialized) return;
+    chin._initialized = true;
+
     document.addEventListener("click", (e) => {
+      // 1. Handle Backdrop Click
       const container = document.getElementById("chin-container");
-      if (!container || container.hidden) return;
-      if (e.target.id === "chin-backdrop") {
+      if (container && !container.hidden && e.target.id === "chin-backdrop") {
         chin.closeAll();
+        return;
       }
-    });
-    document.querySelectorAll("[data-chin]").forEach((btn) => {
-      if (btn.dataset.chinInitialized) return;
-      if (btn.tagName === "BUTTON" || btn.getAttribute("role") === "button") {
-        btn.dataset.chinInitialized = "true";
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const name = btn.getAttribute("data-chin");
-          chin.toggle(name);
-        });
+
+      // 2. Handle Trigger Click (Delegation)
+      const btn = e.target.closest("[data-chin]");
+      if (btn) {
+        // Optional: Safety check if we want to restrict to buttons only,
+        // but closest() usually implies intent.
+        e.stopPropagation();
+        const name = btn.getAttribute("data-chin");
+        chin.toggle(name);
       }
     });
   },
