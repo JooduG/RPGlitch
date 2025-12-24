@@ -84,13 +84,14 @@
   z-index: z(modal); // Ensure above everything
 
   // Extend Glass Pill Logic
-  @extend .btn-group-pill;
+  @extend %btn-group-pill;
 
   // Ensure buttons inside use the standard physics
-  button, .btn {
-      @include btn-base;
-      @include btn-physics;
-      @include btn-disabled;
+  button,
+  .btn {
+    @include btn-base;
+    @include btn-physics;
+    @include btn-disabled;
   }
 }
 

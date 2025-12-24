@@ -265,7 +265,7 @@
 }
 
 // --- 6. SPECIAL COMPONENT: THE PILL ---
-.btn-group-pill {
+%btn-group-pill {
   @extend %btn-group-joined;
   @extend %glass-pill; // Assumed to exist in codebase/abstracts
 
@@ -290,4 +290,8 @@
       border-right: 1px solid rgb(255 255 255 / 10%);
     }
   }
+}
+
+.btn-group-pill {
+  @extend %btn-group-pill;
 }

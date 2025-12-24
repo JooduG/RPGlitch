@@ -514,7 +514,9 @@ input[type="number"][data-edit-dynamic] {
   gap: 0; // Flush
 
   // Buttons handled by utility classes
-  button, [role="button"], .ui-btn {
+  button,
+  [role="button"],
+  .ui-btn {
     flex: 1; // 50/50 Split
     margin: 0;
     border-radius: 0;
@@ -524,16 +526,13 @@ input[type="number"][data-edit-dynamic] {
 
     &:last-child {
       border-right: none;
+      border-bottom-right-radius: var(--pico-radius);
     }
 
     // Flush Corners (Assuming Profile is inside a container or standalone)
     // If inside a modal/card, these round the bottom
     &:first-child {
       border-bottom-left-radius: var(--pico-radius);
-    }
-
-    &:last-child {
-      border-bottom-right-radius: var(--pico-radius);
     }
   }
 

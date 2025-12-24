@@ -75,15 +75,12 @@ dialog.modal {
 
         &:last-child {
           border-right: none;
+          border-bottom-right-radius: var(--pico-radius);
         }
 
         // Flush Corners
         &:first-child {
           border-bottom-left-radius: var(--pico-radius);
-        }
-
-        &:last-child {
-          border-bottom-right-radius: var(--pico-radius);
         }
       }
     }
