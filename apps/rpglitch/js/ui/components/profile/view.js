@@ -8,25 +8,12 @@ import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
 import { escapeHtml } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
-import { PROFILE_STRUCTURE } from "./constants.js";
+import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 
 // Helper to access nested properties safely
 function getNestedValue(obj, path) {
   return path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
 }
-
-// Sub-Label Mapping (Parity with Edit)
-const LABEL_MAP = {
-  forever: "Immutable Traits",
-  present: "Current State",
-  past: "Memories & History",
-  future: "Ambitions & Goals"
-};
-
-const SPLIT_HEADERS = {
-  mental: "Non-Physical",
-  physical: "Physical"
-};
 
 export async function renderProfileView(
   screen,

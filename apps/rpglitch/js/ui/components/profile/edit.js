@@ -16,7 +16,7 @@ import {
 import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
 
-import { PROFILE_STRUCTURE } from "./constants.js";
+import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 import {
   closeProfileModal,
   getOnUpdateSelection,
@@ -33,19 +33,6 @@ function autoResize(el) {
 function getNestedValue(obj, path) {
   return path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
 }
-
-// Sub-Label Mapping (Parity with View)
-const LABEL_MAP = {
-  forever: "Immutable Traits",
-  present: "Current State",
-  past: "Memories & History",
-  future: "Ambitions & Goals"
-};
-
-const SPLIT_HEADERS = {
-  mental: "Non-Physical",
-  physical: "Physical"
-};
 
 export async function renderProfileEdit(screen, entity, type, id) {
   // Setup Visuals
@@ -355,13 +342,6 @@ export async function renderProfileEdit(screen, entity, type, id) {
         header.className = "split-header";
         header.textContent = SPLIT_HEADERS[subKey];
         splitCol.appendChild(header);
-
-        // Input Wrapper
-        const inputDiv = document.createElement("div");
-        inputDiv.className = "profile-input"; // Using wrapper class if needed or direct styling
-        // Actually .profile-input is styling the input itself in SCSS, but let's check
-        // In SCSS: .profile-input, .profile-field-text-read { ... }
-        // So I should apply .profile-input class to the textarea directly.
 
         const input = document.createElement("textarea");
         input.className = "profile-input";

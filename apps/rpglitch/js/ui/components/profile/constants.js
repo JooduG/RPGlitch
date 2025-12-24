@@ -44,3 +44,15 @@ export const PROFILE_STRUCTURE = {
     rows: 4,
   },
 };
+
+export const LABEL_MAP = {
+  forever: "Immutable Traits",
+  present: "Current State",
+  past: "Memories & History",
+  future: "Ambitions & Goals",
+};
+
+export const SPLIT_HEADERS = {
+  mental: "Non-Physical",
+  physical: "Physical",
+};
