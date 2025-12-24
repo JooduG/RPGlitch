@@ -26,8 +26,9 @@ def run(playwright):
     transform = page.eval_on_selector("#test-disabled-btn", "el => getComputedStyle(el).transform")
     transition = page.eval_on_selector("#test-disabled-btn", "el => getComputedStyle(el).transition")
 
-    print(f"Disabled Button Transform: {transform}")
-    print(f"Disabled Button Transition: {transition}")
+    assert transform == "none", f"Expected transform to be 'none', but got {transform}"
+    # The computed value for 'transition: none' is often 'all 0s ease 0s'.
+    assert transition == "all 0s ease 0s", f"Expected transition to be 'none', but got {transition}"
 
     # 2. Verify Lightbox Layout
     # Mock opening the lightbox
