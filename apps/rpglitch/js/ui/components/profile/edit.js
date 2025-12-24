@@ -3,6 +3,7 @@ import {
   getPictureHTML,
   setTopBarRight,
   renderDynamicsWidget,
+  createProfileRow,
 } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
@@ -16,7 +17,7 @@ import {
 import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
 
-import { PROFILE_STRUCTURE } from "./constants.js";
+import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 import {
   closeProfileModal,
   getOnUpdateSelection,
@@ -297,30 +298,41 @@ export async function renderProfileEdit(screen, entity, type, id) {
   headerWrap.appendChild(descInput);
   setTimeout(() => autoResize(descInput), 0);
 
-  // --- SECTIONS (Nested Temporal Model Logic) ---
+  // --- SECTIONS (Maestro 2-Column Grid) ---
   const secWrap = form.querySelector("[data-profile-sections]");
 
   Object.keys(PROFILE_STRUCTURE).forEach((key) => {
     const config = PROFILE_STRUCTURE[key];
 
+    // ⚡ BOLT REFACTOR: Use shared row logic
+    const { row, contentCol } = createProfileRow(
+      config.label.split(" (")[0],
+      LABEL_MAP[key] || ""
+    );
+
     // Case 1: Nested Objects (Forever/Present)
     if (config.type === "nested") {
-      const fieldset = document.createElement("fieldset");
-      fieldset.className = "profile-group-set";
-      fieldset.innerHTML = `<legend>${config.label}</legend>`;
+      const splitWrap = document.createElement("div");
+      splitWrap.className = "split-content";
 
-      Object.keys(config.fields).forEach((subKey) => {
+      const keys = ["mental", "physical"];
+
+      keys.forEach(subKey => {
         const fieldConfig = config.fields[subKey];
-        const div = document.createElement("div");
-        div.className = "field-row";
-        div.innerHTML = `
-            <div class="field-label">
-                <label>${fieldConfig.label}</label>
-            </div>
-            <div class="field-input"></div>`;
+        if (!fieldConfig) {
+          console.warn(`Configuration for nested field '${key}.${subKey}' not found. Skipping.`);
+          return;
+        }
+        const splitCol = document.createElement("div");
+        splitCol.className = "split-column";
+
+        const header = document.createElement("div");
+        header.className = "split-header";
+        header.textContent = SPLIT_HEADERS[subKey];
+        splitCol.appendChild(header);
 
         const input = document.createElement("textarea");
-        // Bind to dot notation path: "forever.physical"
+        input.className = "profile-input";
         const finalPath = `${key}.${subKey}`;
         input.value = getNestedValue(entity, finalPath);
         input.dataset.editField = finalPath;
@@ -328,38 +340,29 @@ export async function renderProfileEdit(screen, entity, type, id) {
         input.placeholder = fieldConfig.placeholder || "";
         input.addEventListener("input", () => autoResize(input));
 
-        div.querySelector(".field-input").appendChild(input);
+        splitCol.appendChild(input);
         setTimeout(() => autoResize(input), 0);
-        fieldset.appendChild(div);
+
+        splitWrap.appendChild(splitCol);
       });
-      secWrap.appendChild(fieldset);
+      contentCol.appendChild(splitWrap);
+
     }
     // Case 2: String Fields (Past/Future)
     else if (config.type === "string") {
-      // For top-level strings, we can just use a simple fieldset or div wrapper
-      // To match style, we'll wrap in a labeled fieldset
-      const fieldset = document.createElement("fieldset");
-      fieldset.className = "profile-group-set";
-      fieldset.innerHTML = `<legend>${config.label}</legend>`;
-
-      const div = document.createElement("div");
-      div.className = "field-row";
-      // No extra label needed inside if the legend acts as label, but let's keep it consistent
-      // Actually, for past/future, we just want one big box.
-      div.innerHTML = `<div class="field-input" style="width:100%"></div>`;
-
       const input = document.createElement("textarea");
+      input.className = "profile-input";
       input.value = entity[key] || "";
       input.dataset.editField = key;
       input.rows = config.rows || 4;
       input.placeholder = config.placeholder || "";
       input.addEventListener("input", () => autoResize(input));
 
-      div.querySelector(".field-input").appendChild(input);
+      contentCol.appendChild(input);
       setTimeout(() => autoResize(input), 0);
-      fieldset.appendChild(div);
-      secWrap.appendChild(fieldset);
     }
+
+    secWrap.appendChild(row);
   });
 
   // --- MAGIC PROMPT LOGIC ---

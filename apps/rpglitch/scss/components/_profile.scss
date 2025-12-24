@@ -303,6 +303,8 @@
 }
 
 /* --- TYPOGRAPHY & FORMS --- */
+$placeholder-opacity: 0.4;
+
 .profile-header {
   margin-bottom: 2rem;
 }
@@ -326,6 +328,11 @@
   &:focus {
     outline: none;
     border-bottom: 2px solid var(--pico-primary);
+  }
+
+  &::placeholder {
+     color: var(--signature-color, var(--pico-muted-color));
+     opacity: $placeholder-opacity;
   }
 
   @include mobile {
@@ -355,122 +362,122 @@
   }
 }
 
-/* --- SECTION HEADERS (MAESTRO POLISH) --- */
-.profile-group-header,
-.profile-group-set legend {
-  display: block;
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px solid var(--pico-muted-border-color);
-  color: var(--pico-primary);
-  font-size: 0.85em;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+/* --- MAESTRO LAYOUT SYSTEM (2-Column Grid) --- */
+.profile-row {
+  display: grid;
+  grid-template-columns: minmax(80px, 120px) 1fr; // Tighter label column
+  gap: var(--space-md);
+  margin-bottom: 2rem;
+  align-items: center; // Vertically center labels
   width: 100%;
-}
 
-.profile-group-set {
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: transparent;
-}
-
-/* --- FIELD ROW (HIERARCHY & RHYTHM) --- */
-.field-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem; // Tight gap between label and input
-  width: 100%;
-  margin-bottom: 1.25rem; // Rhythmic spacing
-
-  .field-label {
-    width: 100%;
-    text-align: left;
-    padding: 0;
-    margin: 0;
+  .label-group {
+    text-align: right;
     display: flex;
-    align-items: baseline;
+    flex-direction: column;
+    // Removed padding-top since we are centering
 
-    label {
-      font-weight: 600;
+    .main-label {
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      color: var(--pico-primary);
+      letter-spacing: 0.05em;
+      line-height: 1.2;
+      display: block;
+    }
+
+    .sub-label {
+      font-size: 0.7rem;
+      color: var(--pico-muted-color);
+      opacity: 0.7;
+      margin-top: 0.25rem;
+      display: block;
+      font-weight: 400;
+    }
+  }
+
+  .content-group {
+    width: 100%;
+    min-width: 0; // Prevent grid blowout
+  }
+}
+
+// Special Case: Split Content (Forever & Present)
+.split-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  width: 100%;
+  align-items: stretch; // Ensure equal height columns
+
+  .split-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+    height: 100%; // Fill grid cell
+
+    .split-header {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
       color: var(--pico-muted-color);
       text-transform: uppercase;
-      font-size: 0.75rem;
       letter-spacing: 0.05em;
-      margin-bottom: 0;
-      text-wrap: balance;
-    }
-
-    small {
-      color: var(--pico-muted-color);
-      font-size: 0.75rem;
-      opacity: 0.8;
-      margin-left: 0.5rem;
+      margin-bottom: 0.25rem;
+      // Removed border-bottom per "No Lines" request
+      padding-bottom: 0.25rem;
     }
   }
+}
 
-  .field-input {
-    width: 100%;
+// Reusing Input Styles
+$placeholder-opacity: 0.4;
 
-    textarea,
-    input {
-      // Replaces %input-deep with explicit styles for clarity + overrides
-      appearance: none;
-      width: 100%;
-      text-align: left !important;
-      margin-bottom: 0;
+%profile-field-base {
+  width: 100%;
+  appearance: none;
+  text-align: left !important;
+  border-radius: var(--pico-radius);
+  color: var(--pico-color);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.6rem 0.8rem;
+  line-height: 1.5;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+  display: block;
+  flex: 1; // Grow to fill split column (Equal Heights)
 
-      // Depth Physics
-      background: rgba(0, 0, 0, 30%);
-      border: 1px solid var(--pico-muted-border-color);
-      border-radius: var(--pico-radius);
-
-      // Typography
-      color: var(--pico-color);
-      font-family: inherit;
-      font-size: 0.95rem;
-      padding: 0.6rem 0.8rem; // Comfortable touch
-      line-height: 1.5;
-      transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s; // Overridden transition
-
-      &:focus {
-        outline: none;
-        background: rgba(0, 0, 0, 50%);
-        border-color: var(--pico-primary);
-        box-shadow: 0 0 0 2px rgba(var(--pico-primary-rgb), 0.2); // Overridden focus glow
-      }
-
-      &::placeholder {
-        color: var(--pico-muted-color);
-        opacity: 0.7;
-        font-style: italic;
-      }
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background: rgba(255, 255, 255, 5%);
-      }
-    }
-
-    .profile-field-text-read {
-      padding: 0.75rem;
-      background: rgb(255 255 255 / 3%);
-      border: 1px solid transparent;
-      border-radius: var(--pico-radius);
-      white-space: pre-wrap;
-      line-height: 1.6;
-      text-align: left;
-      font-size: 0.95rem;
-      color: var(--pico-color);
-    }
+  &:focus {
+    outline: none;
+    background: rgba(0, 0, 0, 50%);
+    border-color: var(--pico-primary);
+    box-shadow: 0 0 0 2px rgba(var(--pico-primary-rgb), 0.2);
   }
+
+  &::placeholder {
+    color: var(--pico-muted-color);
+    opacity: $placeholder-opacity;
+    font-style: italic;
+  }
+}
+
+.profile-input {
+  @extend %profile-field-base;
+  background: rgba(0, 0, 0, 30%);
+  border: 1px solid var(--pico-muted-border-color);
+}
+
+.profile-field-text-read {
+  @extend %profile-field-base;
+  background: rgb(255 255 255 / 3%);
+  white-space: pre-wrap;
+  border: 1px solid transparent;
 }
 
 /* --- DEVELOPER MODE --- */
@@ -594,8 +601,23 @@ input[type="number"][data-edit-dynamic] {
     overflow: visible;
   }
 
-  // Mobile Field Row tweaks if needed, but Flex Column works universally
-  .field-row {
-    gap: 0.25rem;
+  .profile-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+
+    .label-group {
+      text-align: left;
+      flex-direction: row;
+      align-items: baseline;
+      gap: 0.5rem;
+      padding-top: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.25rem;
+    }
+  }
+
+  .split-content {
+      gap: 1rem;
   }
 }

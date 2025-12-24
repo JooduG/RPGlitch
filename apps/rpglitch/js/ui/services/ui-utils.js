@@ -21,6 +21,42 @@ export function createIconBtn(
   return btn;
 }
 
+/**
+ * Creates a standard profile row structure.
+ * Returns { row, labelCol, contentCol } elements.
+ *
+ * @param {string} labelText - The main label text.
+ * @param {string} subLabelText - The sub label text.
+ */
+export function createProfileRow(labelText, subLabelText = "") {
+  const row = document.createElement("div");
+  row.className = "profile-row";
+
+  // 1. Label Column
+  const labelCol = document.createElement("div");
+  labelCol.className = "label-group";
+
+  const mainLabel = document.createElement("span");
+  mainLabel.className = "main-label";
+  mainLabel.textContent = labelText;
+  labelCol.appendChild(mainLabel);
+
+  const subLabel = document.createElement("span");
+  subLabel.className = "sub-label";
+  subLabel.textContent = subLabelText;
+  labelCol.appendChild(subLabel);
+
+  row.appendChild(labelCol);
+
+  // 2. Content Column
+  const contentCol = document.createElement("div");
+  contentCol.className = "content-group";
+
+  row.appendChild(contentCol);
+
+  return { row, labelCol, contentCol };
+}
+
 export function renderDynamicsWidget(container, entity, mode = "view") {
   const dyns = entity.dynamics || {
     entropy: 50,

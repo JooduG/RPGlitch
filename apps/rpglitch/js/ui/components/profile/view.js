@@ -3,14 +3,13 @@ import {
   getPictureHTML,
   setTopBarRight,
   renderDynamicsWidget,
+  createProfileRow,
 } from "../../services/ui-utils.js";
 import { getVisualState } from "../../../data/models.js";
 import { entities } from "../../../data/repo.js";
 import { escapeHtml } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
-import { PROFILE_STRUCTURE } from "./constants.js"; // [FIX] Import Structure
-
-// autoResize removed as it is not used in read-only view
+import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 
 // Helper to access nested properties safely
 function getNestedValue(obj, path) {
@@ -40,7 +39,6 @@ export async function renderProfileView(
 
   const applyVisualsToImage = (wrapperEl) => {
     if (!wrapperEl) return;
-    // [FIX] Ensure we target the .picture wrapper, not the container or img
     const target = wrapperEl.classList.contains("picture")
       ? wrapperEl
       : wrapperEl.querySelector(".picture") || wrapperEl;
@@ -72,7 +70,6 @@ export async function renderProfileView(
 
     localVisuals.flipped = !localVisuals.flipped;
 
-    // [FIX] Target the WRAPPER (.picture), not the images
     const wrappers = heroWrap.querySelectorAll(".picture");
     wrappers.forEach((el) => {
       if (localVisuals.flipped) el.classList.add("img-flipped");
@@ -85,10 +82,8 @@ export async function renderProfileView(
         if (!entity.visuals) entity.visuals = {};
         entity.visuals.flipped = localVisuals.flipped;
 
-        // [FIX] Silent save to prevent Controller loop
         await entities.upsert(type, entity, { silent: true });
 
-        // [FIX] Update local state immediately
         if (state.selectedAI && state.selectedAI.id === id)
           state.selectedAI.visuals = entity.visuals;
         if (state.selectedUser && state.selectedUser.id === id)
@@ -96,7 +91,6 @@ export async function renderProfileView(
         if (state.selectedFractal && state.selectedFractal.id === id)
           state.selectedFractal.visuals = entity.visuals;
 
-        // [NEW] Dispatch for Storyboard
         const { events, EVENTS } = await import("../../../core/events.js");
         events.dispatchEvent(
           new CustomEvent(EVENTS.DB_UPDATED, {
@@ -141,45 +135,59 @@ export async function renderProfileView(
   descDisplay.textContent = entity.description || "";
   headerWrap.appendChild(descDisplay);
 
-  // --- SECTIONS (Nested Temporal Reader) ---
+  // --- SECTIONS (Maestro 2-Column Grid) ---
   const secWrap = form.querySelector("[data-profile-sections]");
 
   const createRow = (groupKey, groupConfig) => {
-    // 1. Group Header
-    const header = document.createElement("h4");
-    header.className = "profile-group-header";
-    header.textContent = groupConfig.label.split(" (")[0]; // Clean label
-    secWrap.appendChild(header);
+    // ⚡ BOLT REFACTOR: Use shared row logic
+    const { row, contentCol } = createProfileRow(
+      groupConfig.label.split(" (")[0],
+      LABEL_MAP[groupKey] || ""
+    );
 
-    // 2. Render Fields
     if (groupConfig.type === "nested") {
-      Object.keys(groupConfig.fields).forEach((fieldKey) => {
-        const fieldConfig = groupConfig.fields[fieldKey];
-        const val = getNestedValue(entity, `${groupKey}.${fieldKey}`);
+      // Split Layout (Forever/Present)
+      const splitWrap = document.createElement("div");
+      splitWrap.className = "split-content";
 
-        const div = document.createElement("div");
-        div.className = "field-row";
-        div.innerHTML = `
-          <div class="field-label">
-              <label>${fieldConfig.label}</label>
-          </div>
-          <div class="field-input">
-              <div data-read class="profile-field-text-read">${escapeHtml(val)}</div>
-          </div>`;
-        secWrap.appendChild(div);
+      // Order: Non-Physical (Mental) Left, Physical Right
+      const keys = ["mental", "physical"];
+
+      keys.forEach(key => {
+        // [FIX] Ensure field exists in config to prevent access errors if schema changes
+        if (!groupConfig.fields[key]) return;
+
+        const val = getNestedValue(entity, `${groupKey}.${key}`);
+
+        const splitCol = document.createElement("div");
+        splitCol.className = "split-column";
+
+        const header = document.createElement("div");
+        header.className = "split-header";
+        header.textContent = SPLIT_HEADERS[key];
+        splitCol.appendChild(header);
+
+        const readField = document.createElement("div");
+        readField.className = "profile-field-text-read";
+        readField.setAttribute("data-read", "");
+        readField.innerHTML = escapeHtml(val);
+        splitCol.appendChild(readField);
+
+        splitWrap.appendChild(splitCol);
       });
+      contentCol.appendChild(splitWrap);
+
     } else {
       // String type (Past/Future)
       const val = entity[groupKey] || "";
-      const div = document.createElement("div");
-      div.className = "field-row";
-      // Full width text block
-      div.innerHTML = `
-          <div class="field-input">
-              <div data-read class="profile-field-text-read">${escapeHtml(val)}</div>
-          </div>`;
-      secWrap.appendChild(div);
+      const readField = document.createElement("div");
+      readField.className = "profile-field-text-read";
+      readField.setAttribute("data-read", "");
+      readField.innerHTML = escapeHtml(val);
+      contentCol.appendChild(readField);
     }
+
+    secWrap.appendChild(row);
   };
 
   Object.keys(PROFILE_STRUCTURE).forEach((k) =>
