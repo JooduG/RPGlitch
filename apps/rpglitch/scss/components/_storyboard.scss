@@ -83,6 +83,9 @@
   transform: translateX(-50%);
   z-index: z(modal); // Ensure above everything
 
+  // Extend Glass Pill Logic
+  @extend .btn-group-pill;
+
   // Ensure buttons inside use the standard physics
   button, .btn {
       @include btn-base;
