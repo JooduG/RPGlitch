@@ -331,7 +331,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
       const splitWrap = document.createElement("div");
       splitWrap.className = "split-content";
 
-      const keys = ["mental", "physical"];
+      const keys = Object.keys(config.fields);
 
       keys.forEach(subKey => {
         const fieldConfig = config.fields[subKey];
