@@ -154,8 +154,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
       el.disabled = busy;
       if (!busy) el.removeAttribute("aria-busy");
       // Optional visual hint
-      if (busy) el.classList.add("btn-disabled-visual");
-      else el.classList.remove("btn-disabled-visual");
+      el.classList.toggle("btn-disabled-visual", busy);
     });
 
     if (magicBtn) magicBtn.style.opacity = busy ? "0.5" : "1";

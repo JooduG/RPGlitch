@@ -185,7 +185,7 @@
         gap: 0.4rem;
         cursor: pointer;
         transition: transform 0.2s;
-        border-radius: 999px !important; // Force pill
+        // Radius handled by %glass-pill
       }
 
       // Main Action
@@ -197,7 +197,7 @@
 
         padding: 0 0.75rem;
         white-space: nowrap;
-        border-radius: 999px !important; // Force pill
+        // Radius handled by %glass-pill
       }
 
       // Select

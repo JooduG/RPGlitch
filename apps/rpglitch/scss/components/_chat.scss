@@ -363,7 +363,10 @@
   --msg-bg: var(--pico-form-element-background-color);
   --msg-radius: var(--pico-radius);
 
-  color: #ffffff !important;
+  // Define Message Text Color Source of Truth (Pure White)
+  --msg-color: #ffffff;
+
+  color: var(--msg-color) !important;
   text-shadow: $text-shadow-vibrant;
   background: var(--msg-bg) !important;
   border: none !important;

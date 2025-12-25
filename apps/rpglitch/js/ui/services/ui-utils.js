@@ -74,31 +74,35 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
   // [LOGIC] Conditional Layout (Fractal = 1x4, Character = 2x2)
   const wrapper = document.createElement("div");
 
+  // Helper to render a card
+  const renderCard = (key) => {
+    let val = Number(dyns[key]);
+    if (isNaN(val)) val = 50;
+
+    const card = document.createElement("div");
+    card.className = "dynamics-card";
+    const labelHtml = `<div class="dynamics-label">${key}</div>`;
+
+    if (isEdit) {
+      card.innerHTML = `
+        ${labelHtml}
+        <input type="number" class="dynamics-input" data-edit-dynamic="${key}" value="${val}" min="0" max="100">
+      `;
+    } else {
+      card.innerHTML = `
+        ${labelHtml}
+        <div class="dynamics-value">${val}%</div>
+      `;
+    }
+    return card;
+  };
+
   if (isFractal) {
     wrapper.className = "dynamics-grid--linear";
 
     const keys = ["entropy", "permeability", "velocity", "resonance"];
     keys.forEach((key) => {
-      // 🛡️ SENTINEL SECURITY PATCH
-      let val = Number(dyns[key]);
-      if (isNaN(val)) val = 50;
-
-      const card = document.createElement("div");
-      card.className = "dynamics-card";
-      const labelHtml = `<div class="dynamics-label">${key}</div>`;
-
-      if (isEdit) {
-        card.innerHTML = `
-          ${labelHtml}
-          <input type="number" class="dynamics-input" data-edit-dynamic="${key}" value="${val}" min="0" max="100">
-        `;
-      } else {
-        card.innerHTML = `
-          ${labelHtml}
-          <div class="dynamics-value">${val}%</div>
-        `;
-      }
-      wrapper.appendChild(card);
+      wrapper.appendChild(renderCard(key));
     });
   } else {
     // Original 2x2 Split
@@ -112,32 +116,10 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
     const colRight = document.createElement("div");
     colRight.className = "split-column";
 
-    const renderField = (key, parentCol) => {
-      let val = Number(dyns[key]);
-      if (isNaN(val)) val = 50;
-
-      const card = document.createElement("div");
-      card.className = "dynamics-card";
-      const labelHtml = `<div class="dynamics-label">${key}</div>`;
-
-      if (isEdit) {
-        card.innerHTML = `
-          ${labelHtml}
-          <input type="number" class="dynamics-input" data-edit-dynamic="${key}" value="${val}" min="0" max="100">
-        `;
-      } else {
-        card.innerHTML = `
-          ${labelHtml}
-          <div class="dynamics-value">${val}%</div>
-        `;
-      }
-      parentCol.appendChild(card);
-    };
-
-    renderField("entropy", colLeft);
-    renderField("permeability", colLeft);
-    renderField("velocity", colRight);
-    renderField("resonance", colRight);
+    colLeft.appendChild(renderCard("entropy"));
+    colLeft.appendChild(renderCard("permeability"));
+    colRight.appendChild(renderCard("velocity"));
+    colRight.appendChild(renderCard("resonance"));
 
     wrapper.appendChild(colLeft);
     wrapper.appendChild(colRight);
