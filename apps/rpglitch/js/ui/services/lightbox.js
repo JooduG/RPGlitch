@@ -89,34 +89,28 @@ export const LightboxService = {
   _renderActions(imageUrl, context) {
     this.actionsEl.innerHTML = ""; // Clear previous
 
-    // A. Download Button
+    // 1. Create Download Button (Standard Right-Side Action)
     const btnDownload = createIconBtn(
       `<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
-      "Download",
+      "Download", // Label kept for A11y
       () => downloadImage(imageUrl, `rpglitch-${Date.now()}.png`),
-      "btn-ghost", // Use standard ghost class for pill styling
+      "btn-ghost",
     );
-    // Add text span for styling
-    const spanDl = document.createElement("span");
-    spanDl.innerText = "Download";
-    btnDownload.appendChild(spanDl);
 
-    this.actionsEl.appendChild(btnDownload);
-
-    // B. Reroll Button
-    // Rule: Must be AI role, must be the last message, must have original prompt metadata
-    if (
+    // 2. Check Reroll Condition
+    const showReroll =
       context.role === "ai" &&
       context.isLast &&
       context.messageId &&
-      TurnManager // Ensure engine is available
-    ) {
+      TurnManager;
+
+    // 3. Append in Correct Order (Maestro Spec: Reroll Left | Download Right)
+    if (showReroll) {
       const btnReroll = createIconBtn(
         `<svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`,
-        "Reroll Image",
+        "Reroll Image", // Label kept for A11y
         () => {
           this.close();
-          // [UX] Callback for immediate feedback (breaks circular dependency)
           if (context.onReroll) {
             context.onReroll();
           }
@@ -124,11 +118,11 @@ export const LightboxService = {
         },
         "btn-ghost",
       );
-      const spanReroll = document.createElement("span");
-      spanReroll.innerText = "Reroll";
-      btnReroll.appendChild(spanReroll);
-
+      // Append Reroll First (Left)
       this.actionsEl.appendChild(btnReroll);
     }
+
+    // Append Download Last (Right)
+    this.actionsEl.appendChild(btnDownload);
   },
 };
