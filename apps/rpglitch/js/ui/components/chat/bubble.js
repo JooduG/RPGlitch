@@ -217,7 +217,7 @@ export function renderMessage(
       const jsonStr = JSON.stringify(options.metadata, null, 2);
       debugHtml += `
           <div class="debug-block developer-content">
-              <div class="physics-log"><strong>[METADATA]</strong>\n${sanitizeHtml(jsonStr)}</div>
+              <div class="physics-log"><strong>[METADATA]</strong>\n${jsonStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
           </div>`;
     }
 
