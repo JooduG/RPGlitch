@@ -9,7 +9,7 @@ import { analyzeRejection, getDirectorInstruction } from "./variance.js";
 import { bridge } from "./physics/bridge.js";
 import { events, EVENTS } from "../core/events.js";
 import { VisualManager } from "../ui/services/visuals.js";
-import { IMG_RESOLUTION } from "../core/constants.js";
+import { IMG_RESOLUTION, ERROR_MESSAGES } from "../core/constants.js";
 
 const MAX_STREAM_RETRIES = 3;
 
@@ -133,8 +133,6 @@ export const TurnManager = {
       new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
     );
   },
-
-  // --- THE CORE PIPELINE ---
 
   // --- THE CORE PIPELINE ---
 
