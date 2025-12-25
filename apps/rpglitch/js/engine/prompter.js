@@ -193,7 +193,12 @@ NEGATIVE CONSTRAINT: Do NOT mention "Entropy", "Velocity", or physics numbers in
       // [NEXUS FIX] Hard-Wired Concatenation for Full Context
       const phys = section.physical || "";
       const nonPhys = section.nonPhysical || section.mental || "";
-      return "Physical: " + phys + "\nNon-Physical: " + nonPhys;
+      return [
+        phys ? `Physical: ${phys}` : null,
+        nonPhys ? `Non-Physical: ${nonPhys}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n");
     };
 
     const system = `[SYSTEM: PROMETHEUS_PHYSICS_V5]

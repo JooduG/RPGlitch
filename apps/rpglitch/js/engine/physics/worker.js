@@ -275,8 +275,6 @@ async function handleLlmResponse({ text }) {
 
       if (updates.status) {
         console.log("🔄 [PHYSICS] Updating Non-Physical State:", updates.status);
-        // [NEXUS FIX] Force assignment to ensure persistence
-        updatedEntity.present = { ...updatedEntity.present, nonPhysical: updates.status };
       }
 
       // Archivist Logic

@@ -11,6 +11,8 @@ import { events, EVENTS } from "../core/events.js";
 import { VisualManager } from "../ui/services/visuals.js";
 import { IMG_RESOLUTION } from "../core/constants.js";
 
+const MAX_STREAM_RETRIES = 3;
+
 export const TurnManager = {
   requireActive: () => {
     if (!state.story.activeId) throw new Error("No active story.");
@@ -131,6 +133,8 @@ export const TurnManager = {
       new CustomEvent(EVENTS.CHAT_REFRESH, { detail: { storyId } }),
     );
   },
+
+  // --- THE CORE PIPELINE ---
 
   // --- THE CORE PIPELINE ---
 
@@ -349,17 +353,13 @@ export const TurnManager = {
           if (e.name === "AbortError") throw e;
 
           // [NEXUS FIX] Stream Resilience Circuit
-          if (
-            e.message.includes("Stream keep alive timeout") ||
-            e.name === "NetworkError" ||
-            e.message.includes("network")
-          ) {
-             if (retryCount < 3) {
-                 console.warn(`⚠️ [TEXT-GEN] Stream interrupted. Triggering Auto-Reroll in 1s... (Attempt ${retryCount + 1}/3)`);
+          if (e.message.includes("Connection lost")) {
+             if (retryCount < MAX_STREAM_RETRIES) {
+                 console.warn(`⚠️ [TEXT-GEN] Stream interrupted. Triggering Auto-Reroll... (Attempt ${retryCount + 1}/${MAX_STREAM_RETRIES})`);
 
-                 // HARD WIRED RETRY
-                 // We break the current execution loop and force a fresh restart
-                 await new Promise((r) => setTimeout(r, 1000));
+                 // HARD WIRED RETRY with Backoff
+                 await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
+
                  // [FIX] Pass incremented retryCount to avoid infinite loop
                  return TurnManager._executeTurn(storyId, payload, { ...options, retryCount: retryCount + 1 });
              } else {
