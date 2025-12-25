@@ -192,7 +192,7 @@ export async function renderProfileView(
       observer.disconnect();
     }
   });
-  observer.observe(document.body, { childList: true, subtree: true });
+  observer.observe(screen, { childList: true });
 
   const nameDisplay = document.createElement("h1");
   nameDisplay.className = "profile-name-display";
