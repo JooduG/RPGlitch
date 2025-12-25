@@ -16,6 +16,7 @@ import {
 } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
+import { generateStream } from "../../../engine/llm.js";
 
 import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 import {
@@ -134,22 +135,6 @@ export async function renderProfileEdit(screen, entity, type, id) {
     }
     if (imageOverlay) imageOverlay.classList.toggle("is-locked", busy);
 
-    // [NEW] Progress Bar Parity
-    let progress = imageOverlay.querySelector(".loading-bar");
-    if (busy) {
-      if (!progress) {
-        progress = document.createElement("div");
-        progress.className = "loading-bar";
-        // Insert before the controls
-        imageOverlay.insertBefore(
-          progress,
-          imageOverlay.querySelector(".overlay-grid-controls"),
-        );
-      }
-    } else {
-      if (progress) progress.remove();
-    }
-
     elementLockList.forEach((el) => {
       el.disabled = busy;
       if (!busy) el.removeAttribute("aria-busy");
@@ -201,6 +186,15 @@ export async function renderProfileEdit(screen, entity, type, id) {
     updateButtonState();
     updatePreview();
   });
+
+  // [UX] Enter Key Hook
+  imageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      actionButton.click();
+    }
+  });
+
   updateButtonState();
 
   // Action Button Logic
@@ -392,119 +386,147 @@ export async function renderProfileEdit(screen, entity, type, id) {
       e.preventDefault();
       try {
         setBusy(true);
+        const currentVal = imageInput.value.trim();
 
-        // [UX] LOADING STATE PARITY
-        const loadBar = imageOverlay.querySelector(".loading-bar");
-        if (loadBar) {
-          // [CLEANUP] Silenced "Maestro is dreaming" text
-          loadBar.removeAttribute("data-status");
-        }
+        // MODE B: ENHANCE (Existing Text)
+        if (currentVal) {
+          try {
+            const prompt = `Rewrite this image prompt for the FLUX model. Use descriptive prose, natural lighting terms, and high fidelity. Keep it concise but vivid.\n\nInput: "${currentVal}"`;
 
-        // Scrape LIVE values (Nested Aware)
-        const liveEntity = { ...entity };
-        liveEntity.name = nameInput.value;
-        liveEntity.description = descInput.value;
-        // Ensure gender is captured if it exists in entity root or nested
-        // The current form structure doesn't seem to have a dedicated gender field input,
-        // so we rely on the entity object passed in.
-
-        Object.keys(PROFILE_STRUCTURE).forEach((key) => {
-          const config = PROFILE_STRUCTURE[key];
-          if (config.type === "nested") {
-            liveEntity[key] = liveEntity[key] || {};
-            Object.keys(config.fields).forEach((subKey) => {
-              const el = form.querySelector(
-                `[data-edit-field="${key}.${subKey}"]`,
-              );
-              if (el) liveEntity[key][subKey] = el.value;
+            // Stream Logic via llm.js
+            let fullText = "";
+            await generateStream({
+              payload: {
+                system: "You are an expert prompt engineer.",
+                messages: [{ role: "user", text: prompt }],
+                params: {
+                  temperature: 0.7,
+                  maxTokens: 200,
+                  model: "flux-prompter", // Metadata for tracking
+                },
+              },
+              onToken: (t) => (fullText += t),
             });
-          } else {
-            const el = form.querySelector(`[data-edit-field="${key}"]`);
-            if (el) liveEntity[key] = el.value;
+
+            imageInput.value = fullText.trim();
+            imageInput.dispatchEvent(new Event("input"));
+          } catch (llmErr) {
+            console.error(llmErr);
+            showAlert("Enhance Failed", "The muse is silent. (Check AI Plugin)");
           }
-        });
-
-        // --- BRAIN TRANSPLANT: Deterministic Prompt Engineering ---
-
-        // 1. Gender Enforcement
-        const gender = (liveEntity.gender || entity.gender || "").toLowerCase();
-        const pronouns = (
-          liveEntity.pronouns ||
-          entity.pronouns ||
-          ""
-        ).toLowerCase();
-        const isMale =
-          gender === "male" || gender === "man" || pronouns.includes("he/");
-        const isFemale =
-          gender === "female" ||
-          gender === "woman" ||
-          pronouns.includes("she/");
-
-        let genderKeywords = "";
-        // Force append to START (we'll prepend this variable in the array)
-        if (isMale) genderKeywords = "Male, Man, Masculine features, chiseled";
-        else if (isFemale) genderKeywords = "Female, Woman, Feminine features";
-
-        // 2. Style Injection
-        let styleKeywords = "";
-        if (isFractal) {
-          // using isFractal closure variable
-          styleKeywords =
-            "Abstract geometry, 3D render, math-based, glowing, NO HUMANS";
-        } else {
-          // Default to Character
-          styleKeywords =
-            "Photorealistic Profile Picture, 8k, raw photo, natural skin texture, visible pores, cinematic lighting, sharp focus";
         }
+        // MODE A: AUTO-WRITE (Empty Input)
+        else {
+          // Scrape LIVE values (Nested Aware)
+          const liveEntity = { ...entity };
+          liveEntity.name = nameInput.value;
+          liveEntity.description = descInput.value;
 
-        // 3. Negative Prompting
-        let negParts = [];
-        if (isMale) negParts.push("woman, girl, female, boobs, feminine");
-        else if (isFemale)
-          negParts.push("man, boy, male, masculine, facial hair");
+          Object.keys(PROFILE_STRUCTURE).forEach((key) => {
+            const config = PROFILE_STRUCTURE[key];
+            if (config.type === "nested") {
+              liveEntity[key] = liveEntity[key] || {};
+              Object.keys(config.fields).forEach((subKey) => {
+                const el = form.querySelector(
+                  `[data-edit-field="${key}.${subKey}"]`,
+                );
+                if (el) liveEntity[key][subKey] = el.value;
+              });
+            } else {
+              const el = form.querySelector(`[data-edit-field="${key}"]`);
+              if (el) liveEntity[key] = el.value;
+            }
+          });
 
-        // [FIX] Do NOT add "anime, cartoon..." here.
-        // VisualManager checks for "anime" in negative prompt.
-        // If missing, it automatically injects a massive high-fidelity negative list.
-        // We want that list.
+          // --- BRAIN TRANSPLANT: Deterministic Prompt Engineering ---
 
-        // Base negatives
-        negParts.push("text, watermark, blurry, low quality");
+          // 1. Gender Enforcement
+          const gender = (
+            liveEntity.gender ||
+            entity.gender ||
+            ""
+          ).toLowerCase();
+          const pronouns = (
+            liveEntity.pronouns ||
+            entity.pronouns ||
+            ""
+          ).toLowerCase();
+          const isMale =
+            gender === "male" || gender === "man" || pronouns.includes("he/");
+          const isFemale =
+            gender === "female" ||
+            gender === "woman" ||
+            pronouns.includes("she/");
 
-        const finalNeg = negParts.join(", ");
+          let genderKeywords = "";
+          if (isMale)
+            genderKeywords = "Male, Man, Masculine features, chiseled";
+          else if (isFemale)
+            genderKeywords = "Female, Woman, Feminine features";
 
-        // 4. The Wiring (Construct Rich Prompt)
-        // Structure: [Style], [Gender], [Subject], [Description]
-        const subject = `A portrait of ${liveEntity.name}`;
+          // 2. Style Injection
+          let styleKeywords = "";
+          let negParts = [];
 
-        let descSources = [
-          liveEntity.forever?.physical,
-          liveEntity.present?.physical,
-        ].filter(Boolean);
+          if (isFractal) {
+            // [FIX] Semantic Repair for Fractals
+            styleKeywords =
+              "Hyper-realistic texture, Macro photography, Cinematic lighting, Optical illusion";
+            negParts.push("Humans, People, Face, Eyes");
+          } else {
+            // Default to Character
+            styleKeywords =
+              "Photorealistic Profile Picture, 8k, raw photo, natural skin texture, visible pores, cinematic lighting, sharp focus";
+          }
 
-        // Fallback if no physical traits found
-        if (descSources.length === 0) {
-          // [LEGACY SUPPORT] Explicitly requested by protocol
-          if (liveEntity.appearance) descSources.push(liveEntity.appearance);
-          else descSources.push(`${liveEntity.type} - A mysterious figure`);
+          // 3. Negative Prompting (Gender & Base)
+          if (isMale) negParts.push("woman, girl, female, boobs, feminine");
+          else if (isFemale)
+            negParts.push("man, boy, male, masculine, facial hair");
+
+          negParts.push("text, watermark, blurry, low quality");
+          const finalNeg = negParts.join(", ");
+
+          // 4. Color Injection (Signature Color)
+          // Convert "neon_blue" -> "Neon Blue"
+          const sigKey = paletteSelect
+            ? paletteSelect.value
+            : entity.signatureColor || "default";
+          const readableColor = sigKey
+            .split("_")
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(" ");
+          const colorInjection = `${readableColor} lighting, ${readableColor} accents`;
+
+          // 5. The Wiring (Construct Rich Prompt)
+          const subject = `A portrait of ${liveEntity.name}`;
+
+          let descSources = [
+            liveEntity.forever?.physical,
+            liveEntity.present?.physical,
+          ].filter(Boolean);
+
+          if (descSources.length === 0) {
+            if (liveEntity.appearance) descSources.push(liveEntity.appearance);
+            else descSources.push(`${liveEntity.type} - A mysterious figure`);
+          }
+
+          const baseDesc = descSources.join(", ");
+
+          const promptParts = [
+            styleKeywords,
+            colorInjection,
+            genderKeywords,
+            subject,
+            baseDesc,
+          ].filter((p) => p && p.trim() !== "");
+
+          const finalPos = promptParts.join(", ");
+
+          imageInput.value = finalPos;
+          imageInput.dataset.negativePrompt = finalNeg;
+          imageInput.dispatchEvent(new Event("input"));
         }
-
-        const baseDesc = descSources.join(", ");
-
-        const promptParts = [
-          styleKeywords,
-          genderKeywords,
-          subject,
-          baseDesc,
-        ].filter((p) => p && p.trim() !== "");
-
-        const finalPos = promptParts.join(", ");
-
-        imageInput.value = finalPos;
-        imageInput.dataset.negativePrompt = finalNeg;
-
-        // Trigger visual update
-        imageInput.dispatchEvent(new Event("input"));
       } catch (err) {
         console.error("Magic Prompt failed", err);
         showAlert("Error", "The Maestro is silent. Please try again.");
