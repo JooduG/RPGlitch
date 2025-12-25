@@ -116,7 +116,7 @@ function initEventBinds() {
 
     // [NEXUS FIX] Reflex Ignition
     console.log("⚡ [REFLEX] Triggering Physics Calculation for Turn...");
-    const state = await import("../core/state.js").then((m) => m.state);
+    const { state } = await import("../core/state.js");
     if (state.story.activeId) {
       bridge.runBackgroundUpdate(state.story.activeId, "ai_character", null);
     }

@@ -304,7 +304,7 @@ export function renderMessage(
     if (promptMap.size > 0) {
       promptMap.forEach((content, placeholder) => {
         // [NEXUS FIX] Exposed: Hard-coded <image_prompt> wrapper
-        const debugBlock = `<div class="debug-image-prompt-container" style="display:none !important;" data-dev-visible>
+        const debugBlock = `<div class="debug-image-prompt-container" data-dev-visible>
         <span class="label">🎨 RAW PROMPT:</span>
         <span class="content">${sanitizeHtml(content)}</span>
      </div>`;
