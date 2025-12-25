@@ -182,14 +182,13 @@
   font-style: italic;
   text-align: center;
   padding: 2rem;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 
   .empty-icon {
     width: 3rem;
     height: 3rem;
     opacity: 0.2;
     fill: currentColor;
-    margin-bottom: var(--space-sm);
   }
 
   p {
