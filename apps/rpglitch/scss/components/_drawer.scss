@@ -171,15 +171,30 @@
 
 /* --- EMPTY STATE --- */
 .drawer-empty {
+  grid-column: 1 / -1; // 🎨 UX: Ensure full span in grids
   display: flex;
+  flex-direction: column; // 🎨 UX: Stack icon and text
   align-items: center;
   justify-content: center;
-  height: 100%;
+  min-height: 200px; // 🎨 UX: Give it breathing room
   width: 100%;
   color: var(--pico-muted-color);
   font-style: italic;
   text-align: center;
   padding: 2rem;
+  gap: var(--space-md);
+
+  .empty-icon {
+    width: 3rem;
+    height: 3rem;
+    opacity: 0.2;
+    fill: currentColor;
+    margin-bottom: var(--space-sm);
+  }
+
+  p {
+    margin: 0;
+  }
 }
 
 /* --- UTILITIES --- */
