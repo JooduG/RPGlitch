@@ -217,6 +217,23 @@ export function showConfirm(title, message) {
     const btnCancel = dialog.querySelector("#btn-confirm-cancel");
     const btnOk = dialog.querySelector("#btn-confirm-ok");
 
+    // [UX] Focus the container, not the button (prevents accidental Enter)
+    dialog.tabIndex = -1;
+    dialog.focus();
+
+    // [UX] Keybind Wiring
+    dialog.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (btnOk) btnOk.click();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (btnCancel) btnCancel.click();
+      }
+    });
+
     const cleanup = (result) => {
       dialog.remove();
       resolve(result);
