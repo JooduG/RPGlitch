@@ -101,8 +101,7 @@ export function getBubbleClass(role, entities) {
   // Priority: Check if explicitly Fractal or if AI has simulation (Fractal masquerading as AI)
   const isFractal =
     role === "fractal" ||
-    (role === "ai" && entities?.ai?.type === "fractal") ||
-    (role === "ai" && entities?.ai?.simulation);
+    (role === "ai" && (entities?.ai?.type === "fractal" || entities?.ai?.simulation));
 
   if (isUser) return "chat-bubble--user";
   if (isFractal) return "chat-bubble--fractal";
