@@ -7,7 +7,7 @@
 /* 1. CHAT FEED */
 #chat-feed {
   flex: 1;
-  min-height: 0; // Critical for flexbox scrolling
+  min-height: 0;
   overflow: hidden auto;
   padding: var(--space-lg) 0;
   mask-image: linear-gradient(
@@ -42,7 +42,7 @@
   transition: height 0.05s linear;
 }
 
-/* 2. INPUT AREA */
+/* 2. INPUT AREA (Untouched) */
 #story-input-area {
   flex-shrink: 0;
   padding: 0 var(--space-lg);
@@ -51,7 +51,7 @@
   background-color: transparent !important;
   z-index: #{z(ui)};
   position: relative;
-  pointer-events: none; // Let clicks pass
+  pointer-events: none;
 
   form {
     margin: 0;
@@ -69,18 +69,15 @@
 #story-form {
   padding: 0;
 
-  @extend %glass-pill; // Unified Pill Style
+  @extend %glass-pill;
 
-  background: var(
-    --pico-form-element-background-color
-  ); // Override transparent glass with opaque form control
-
+  background: var(--pico-form-element-background-color);
   display: flex;
-  width: 40vw; // Reverted per user request
+  width: 40vw;
   min-width: 320px;
   max-width: 800px;
   margin: 0 auto;
-  margin-bottom: var(--space-2xl) !important; // True Float
+  margin-bottom: var(--space-2xl) !important;
   align-items: center;
   overflow: hidden;
 
@@ -90,17 +87,15 @@
 
   textarea[name="message"] {
     @extend %input-deep;
-
-    // Layout Logic (Preserved)
     height: auto;
     min-height: 3rem;
     max-height: 12rem;
     margin-bottom: 0;
     vertical-align: middle;
     resize: none;
-    overflow-y: hidden; // Extracted from inline style
+    overflow-y: hidden;
     transition: height 0.1s ease;
-    padding: var(--space-sm-md) 0 var(--space-sm-md) var(--space-lg); // Custom padding for Pill
+    padding: var(--space-sm-md) 0 var(--space-sm-md) var(--space-lg);
     width: auto;
     flex: 1 1 auto;
 
@@ -109,20 +104,17 @@
     }
   }
 
-  // Submit button styling removed in favor of .btn-ghost utility
   button[type="submit"] {
     @include btn-base;
     @include btn-physics;
     @include btn-disabled;
 
-    // Positioning overrides only (if strictly necessary)
     margin-bottom: 0;
-    flex: 0 0 auto !important; // FORCE NO GROW
+    flex: 0 0 auto !important;
     width: auto !important;
     padding-right: var(--space-lg);
-    color: var(--pico-muted-color); // Default color if no signature
+    color: var(--pico-muted-color);
 
-    // Ensure icon is visible
     .icon {
       width: 1.25em;
       height: 1.25em;
@@ -131,7 +123,6 @@
   }
 }
 
-// Settings Ghost Button
 #btn-settings-placeholder {
   @include btn-base;
   @include btn-disabled;
@@ -175,7 +166,7 @@
   $color: map.get($data, color);
 
   .signature-#{$name} #story-form button[type="submit"] {
-    color: $color; // Ensure signature color is applied
+    color: $color;
 
     &:not(:disabled):hover {
       box-shadow:
@@ -183,12 +174,12 @@
         0 0 30px $color;
       background-color: $color;
       border-color: $color;
-      color: #fff; // Contrast against bright background
+      color: #fff;
     }
   }
 }
 
-/* 3. CHARACTER PORTRAITS & NAMEPLATES */
+/* 3. PORTRAITS (Untouched) */
 .character-portrait {
   width: 100%;
   height: 100%;
@@ -251,7 +242,6 @@
     text-overflow: ellipsis;
   }
 
-  // Default: Left-Aligned (Narrator/AI)
   left: var(--space-md);
   right: auto;
   border-color: rgba(var(--signature-rgb, 255 255 255), 0.5);
@@ -259,14 +249,12 @@
   text-shadow: 0 0 10px rgba(var(--signature-rgb, 255 255 255), 0.3);
 }
 
-// Right-Aligned (User Character)
 #storymode-user-portrait {
   .character-name-overlay {
     left: auto;
     right: var(--space-md);
   }
 
-  // Mirror the image to face the AI
   .portrait-image img,
   .portrait-image .picture {
     transform: scaleX(-1);
@@ -347,23 +335,26 @@
   }
 }
 
-/* 5. MESSAGES (Bubbles) */
+/* ============================================================================
+   5. MESSAGES (Bubbles) - REFACTORED ("Clean Slate" Protocol)
+   ============================================================================ */
+
 .debug-console-output {
-    display: none !important; // Hard hide by default
-    background: #000;
-    border: 1px solid var(--color-accent-pink);
-    font-family: monospace;
-    padding: 0.5rem;
-    margin-top: 0.5rem;
+  display: none !important;
+  background: #000;
+  border: 1px solid var(--color-accent-pink);
+  font-family: monospace;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
 }
 
-// The "X-Ray" Switch
 body.mode-developer .debug-console-output {
-    display: block !important; // CSS handles the toggle logic
+  display: block !important;
 }
 
-.story-message {
-  padding: var(--space-md) var(--space-md-lg); // Horizontal padding slightly custom
+// --- BASE BUBBLE ---
+.chat-bubble {
+  padding: var(--space-md) var(--space-md-lg);
   max-width: 50vw;
   word-wrap: break-word;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
@@ -373,12 +364,10 @@ body.mode-developer .debug-console-output {
   margin-bottom: var(--space-lg);
   text-wrap: pretty;
 
-  // SYSTEM / NARRATOR Defaults
+  // Defaults
   --msg-bg: var(--pico-form-element-background-color);
   --msg-radius: var(--pico-radius);
-
-  // Define Message Text Color Source of Truth (Pure White)
-  --msg-color: #fff;
+  --msg-color: #fff; // Source of Truth
 
   color: var(--msg-color) !important;
   text-shadow: $text-shadow-vibrant;
@@ -391,7 +380,7 @@ body.mode-developer .debug-console-output {
     padding: var(--space-sm-md) var(--space-md);
   }
 
-  // MARKDOWN
+  // MARKDOWN STYLES
   b,
   strong {
     font-weight: 800;
@@ -405,7 +394,6 @@ body.mode-developer .debug-console-output {
     opacity: 0.9;
   }
 
-  // Ensure nested bold-italic combinations have distinct visual weight
   b i,
   strong em,
   i b,
@@ -441,8 +429,10 @@ body.mode-developer .debug-console-output {
   }
 }
 
-// --- MESSAGE VARIANTS ---
-.story-message.user[data-type="IC"] {
+// --- MODIFIERS (The Visual Hierarchy) ---
+
+// 1. USER
+.chat-bubble--user {
   align-self: flex-end;
   text-align: left;
   margin-right: var(--space-xl);
@@ -453,7 +443,8 @@ body.mode-developer .debug-console-output {
   --msg-bg: var(--pico-primary-background);
 }
 
-.story-message.ai[data-type="IC"] {
+// 2. CHARACTER (AI)
+.chat-bubble--character {
   align-self: flex-start;
   text-align: left;
   margin-left: var(--space-xl);
@@ -464,7 +455,8 @@ body.mode-developer .debug-console-output {
   --msg-bg: var(--pico-form-element-background-color);
 }
 
-.story-message.narrator {
+// 3. NARRATOR
+.chat-bubble--narrator {
   align-self: center;
   text-align: center;
   width: fit-content;
@@ -483,15 +475,14 @@ body.mode-developer .debug-console-output {
   }
 }
 
-// [MAESTRO] FRACTAL DIVINE PROTOCOL
-// FIX: Increased specificity to override .story-message.ai[data-type="IC"]
-.story-message.ai.chat-bubble--fractal {
-  // 1. Variable Mapping
+// 4. FRACTAL (Divine Protocol)
+.chat-bubble--fractal {
+  // Variables
   --color-signature-main: var(--signature-color, var(--pico-primary-background));
   --color-signature-glow: var(--signature-color, rgba(255, 255, 255, 50%));
   --radius-xl: var(--space-xl);
 
-  // 2. Geometry (The Narrator Shape)
+  // Geometry (Narrator-like)
   align-self: center;
   text-align: center;
   width: fit-content;
@@ -500,23 +491,23 @@ body.mode-developer .debug-console-output {
   border-radius: var(--radius-xl);
   border-bottom-left-radius: var(--radius-xl);
 
-  // 3. Color (The Character Soul)
+  // Appearance
   background-color: var(--color-signature-main) !important;
-  color: #fff !important; // Force white text
-  border: none !important; // Remove borders if narrator has them
+  color: #fff !important;
+  border: none !important;
   box-shadow: 0 4px 12px var(--color-signature-glow);
+  text-wrap: balance;
 
-  // 4. Tail Removal
+  // No Tail
   &::before,
   &::after {
     display: none !important;
   }
-
-  text-wrap: balance;
 }
 
-.story-message[data-type="OOC"],
-.story-message.developer-command {
+// 5. META/OOC
+.chat-bubble[data-type="OOC"],
+.chat-bubble.developer-command {
   align-self: center !important;
   border-radius: var(--msg-radius);
   background: rgb(0 0 0 / 40%) !important;
@@ -527,6 +518,7 @@ body.mode-developer .debug-console-output {
   --msg-color: var(--pico-muted-color);
 }
 
+// --- DEBUG BLOCKS ---
 %debug-block {
   background: rgb(15 23 42 / 95%);
   box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
@@ -557,7 +549,6 @@ body.mode-developer .debug-console-output {
   }
 }
 
-// [PHASE 1] X-RAY VISION: IMAGE PROMPTS
 %debug-block-image-prompt {
   border-left: 3px solid $debug-violet-500;
 
@@ -589,15 +580,13 @@ body.mode-developer .debug-console-output {
   @extend %debug-block;
   @extend %debug-block-image-prompt;
 
-  display: none; // Hidden by default
+  display: none;
 
-  // Reactive Logic
   body.mode-developer & {
-    display: block; // Reveal when dev mode is active
+    display: block;
   }
 }
 
-// [PHASE 2] X-RAY VISION: STATUS HUD (Dynamics)
 .status-hud {
   border-left: 3px solid $debug-cyan-500;
 
@@ -616,15 +605,14 @@ body.mode-developer .debug-console-output {
 }
 
 // --- SIGNATURE COLOR LOGIC ---
-// Applies globally as per revised request.
 @each $name, $data in $signature-colors {
   $color: map.get($data, color);
 
-  .story-message.user.signature-#{$name}[data-type="IC"] {
+  .chat-bubble.chat-bubble--user.signature-#{$name} {
     --msg-bg: #{$color};
   }
 
-  .story-message.ai.signature-#{$name} {
+  .chat-bubble.chat-bubble--character.signature-#{$name} {
     --msg-bg: #{$color};
   }
 }
@@ -645,7 +633,7 @@ body.mode-developer .debug-console-output {
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   opacity: 0;
   animation: slide-in-up 0.3s ease-out forwards;
-  border-radius: 999px; // Pill shape
+  border-radius: 999px;
 
   @each $name, $data in $signature-colors {
     $color: map.get($data, color);
@@ -655,9 +643,20 @@ body.mode-developer .debug-console-output {
     }
   }
 
-  &.narrator {
+  &.chat-bubble--narrator {
     align-self: center;
     margin-inline: auto;
+  }
+
+  // Fractal typing support
+  &.chat-bubble--fractal {
+    // Variable Mapping for typing bubble context
+    --color-signature-main: var(--signature-color, var(--pico-primary-background));
+
+    align-self: center;
+    margin-inline: auto;
+    background-color: var(--color-signature-main) !important;
+    box-shadow: 0 4px 12px var(--color-signature-glow, rgba(255,255,255,0.5));
   }
 }
 
@@ -735,12 +734,12 @@ body.mode-developer .debug-console-output {
   }
 }
 
-.story-message:hover .message-actions {
+.chat-bubble:hover .message-actions {
   display: flex;
 }
 
 // INLINE EDITING
-.story-message.is-editing {
+.chat-bubble.is-editing {
   flex-direction: column;
   align-items: stretch;
   background-color: var(--pico-card-background-color);
@@ -798,7 +797,6 @@ body.mode-developer .debug-console-output {
   font-style: normal !important;
   white-space: pre-wrap;
 
-  // FORCE VISIBILITY IN DEVELOPER MODE
   body.mode-developer & {
     display: block !important;
   }
@@ -816,14 +814,14 @@ body.mode-developer .debug-console-output {
 }
 
 // SAFETY LOCK
-#chat-feed.generating .story-message:hover .message-actions {
+#chat-feed.generating .chat-bubble:hover .message-actions {
   display: none !important;
 }
 
 /* =========================================
    7. IMAGE OVERLAYS (Advanced Media)
    ========================================= */
-#chat-feed .story-message.story-image-container {
+#chat-feed .chat-bubble.story-image-container {
   padding: 0 !important;
   border: none !important;
   background: transparent !important;
@@ -834,17 +832,17 @@ body.mode-developer .debug-console-output {
   margin-right: auto;
   margin-left: auto;
 
-  &.ai {
+  &.chat-bubble--character {
     margin-right: auto;
     margin-left: 2rem;
   }
 
-  &.user {
+  &.chat-bubble--user {
     margin-left: auto;
     margin-right: 2rem;
   }
 
-  &.ai.theme-smartphone-fix {
+  &.chat-bubble--character.theme-smartphone-fix {
     margin-left: 8px !important;
   }
 
@@ -874,15 +872,14 @@ body.mode-developer .debug-console-output {
   }
 }
 
-// [MOVED] Universal Image Wrapper Styles (Applies to mixed text+image too)
 .image-wrapper {
   position: relative;
-  border-radius: 12px !important; // [FIX] Force Match Image Radius
+  border-radius: 12px !important;
   overflow: hidden;
   line-height: 0;
   width: 100%;
   min-width: 300px;
-  margin-top: 0.5rem; // Add spacing if inside text bubble
+  margin-top: 0.5rem;
 
   &.rerolling {
     .generated-image {
@@ -917,7 +914,7 @@ body.mode-developer .debug-console-output {
     max-width: 100%;
     height: auto;
     display: block;
-    border-radius: 12px !important; // [FIX] Force Rounded Corners
+    border-radius: 12px !important;
     transition: transform 0.2s ease;
 
     &:hover {
@@ -940,7 +937,6 @@ body.mode-developer .debug-console-output {
 }
 
 // --- CONCLUDED STATE CONTROLS ---
-// Injected via JS template, styled here.
 .concluded-controls {
   position: fixed;
   bottom: 3rem;
@@ -950,10 +946,10 @@ body.mode-developer .debug-console-output {
   display: flex;
   gap: 0.5rem;
 
-  @extend %material-glass; // Use our new glass physics
+  @extend %material-glass;
 
   padding: 0.5rem;
-  background: rgba(0, 0, 0, 80%); // Darker backing for visibility
+  background: rgba(0, 0, 0, 80%);
   border: 1px solid var(--pico-primary);
 
   button {
@@ -966,7 +962,6 @@ body.mode-developer .debug-console-output {
   }
 }
 
-// Banner
 #story-concluded {
   margin-bottom: 1rem;
   text-align: center;
@@ -985,20 +980,17 @@ body.mode-developer .debug-console-output {
   display: none;
 }
 
-// When Developer Mode is Active (Class on Body), reveal it
 body.mode-developer {
   .developer-content {
     display: block;
     animation: fadeIn 0.3s ease;
   }
 
-  // [FIX] Reveal debug blocks
   .debug-block {
     display: flex;
   }
 }
 
-// [NEXUS FIX] Dev Mode Visibility Override
 .debug-image-prompt-container {
     display: none;
 }
