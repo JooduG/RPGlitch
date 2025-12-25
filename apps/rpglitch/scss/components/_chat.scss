@@ -363,6 +363,9 @@
   --msg-bg: var(--pico-form-element-background-color);
   --msg-radius: var(--pico-radius);
 
+  // Define Message Text Color Source of Truth (Pure White)
+  --msg-color: #ffffff;
+
   color: var(--msg-color) !important;
   text-shadow: $text-shadow-vibrant;
   background: var(--msg-bg) !important;
@@ -385,6 +388,7 @@
   i,
   em {
     font-style: italic;
+    opacity: 0.9;
   }
 
   // Ensure nested bold-italic combinations have distinct visual weight
@@ -524,6 +528,17 @@
 
   .physics-log {
     color: $debug-violet-300;
+  }
+}
+
+.debug-prompt-block {
+  @extend .debug-block;
+  @extend .debug-block--image-prompt;
+  display: none; // Hidden by default
+
+  // Reactive Logic
+  body.mode-developer & {
+    display: block; // Reveal when dev mode is active
   }
 }
 

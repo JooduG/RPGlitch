@@ -245,15 +245,17 @@ export function renderMessage(
       }
 
       // 2.5 Extract Image Prompt (X-Ray Vision)
+      // [ROBUSTNESS FIX] Use placeholder strategy to survive DOMPurify/Markdown formatting
       const promptRegex = /<image_prompt>([\s\S]*?)<\/image_prompt>/g;
-      for (const promptMatch of cleanText.matchAll(promptRegex)) {
-        debugHtml += `
-          <div class="debug-block debug-block--image-prompt developer-content">
-              <div class="debug-label">🎨 IMAGE GENERATION PROMPT</div>
-              <div class="physics-log">${sanitizeHtml(promptMatch[1].trim())}</div>
-          </div>`;
-      }
-      cleanText = cleanText.replace(promptRegex, "");
+      const promptMap = new Map();
+      let promptIdx = 0;
+
+      cleanText = cleanText.replace(promptRegex, (match, content) => {
+        const placeholder = `[[__IMAGE_PROMPT_${promptIdx}__]]`;
+        promptMap.set(placeholder, content.trim());
+        promptIdx++;
+        return placeholder;
+      });
 
       // 3. Extract Physiology Tags (e.g., <Orion.Biceps>)
       // Matches: <Name.Property> Value (until newline)
@@ -287,8 +289,20 @@ export function renderMessage(
     mainContent = mainContent.replace(/^Step \d:.*?$/gim, "");
     mainContent = mainContent.replace(/\n{3,}/g, "\n\n").trim();
 
-    const formattedMain = formatMessageText(mainContent);
+    let formattedMain = formatMessageText(mainContent);
     const formattedThought = formatMessageText(thoughtContent);
+
+    // [ROBUSTNESS FIX] Restore Image Prompts after formatting
+    if (promptMap.size > 0) {
+      promptMap.forEach((content, placeholder) => {
+        const debugBlock = `<div class="debug-prompt-block developer-content">
+              <div class="debug-label">🎨 IMAGE GENERATION PROMPT</div>
+              <div class="physics-log">${sanitizeHtml(content)}</div>
+          </div>`;
+        // Replace placeholder (global replacement in case it appears multiple times, though unlikely for unique ID)
+        formattedMain = formattedMain.split(placeholder).join(debugBlock);
+      });
+    }
 
     if (thoughtContent) {
       contentHtml = `<div class="thought-trace developer-content"><div class="thought-label">AI REASONING</div>${formattedThought}</div><div class="message-content">${formattedMain}</div>`;

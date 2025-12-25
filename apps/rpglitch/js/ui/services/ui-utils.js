@@ -66,30 +66,21 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
   };
 
   const isEdit = mode === "edit";
+  const isFractal = entity.type === "fractal";
 
   // [REFACTOR] Use Maestro 2-Column Grid (Profile Row)
   const { row, contentCol } = createProfileRow("DYNAMICS", "Hidden Metrics");
 
-  // Create Split Content (50/50)
-  const splitWrap = document.createElement("div");
-  splitWrap.className = "split-content";
+  // [LOGIC] Conditional Layout (Fractal = 1x4, Character = 2x2)
+  const wrapper = document.createElement("div");
 
-  // Column 1: Non-Physical / Mental (Entropy, Permeability)
-  const colLeft = document.createElement("div");
-  colLeft.className = "split-column";
-
-  // Column 2: Physical (Velocity, Resonance)
-  const colRight = document.createElement("div");
-  colRight.className = "split-column";
-
-  const renderField = (key, parentCol) => {
-    // 🛡️ SENTINEL SECURITY PATCH: [XSS Risk Mitigated]
+  // Helper to render a card
+  const renderCard = (key) => {
     let val = Number(dyns[key]);
     if (isNaN(val)) val = 50;
 
     const card = document.createElement("div");
     card.className = "dynamics-card";
-
     const labelHtml = `<div class="dynamics-label">${key}</div>`;
 
     if (isEdit) {
@@ -103,18 +94,38 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
         <div class="dynamics-value">${val}%</div>
       `;
     }
-    parentCol.appendChild(card);
+    return card;
   };
 
-  renderField("entropy", colLeft);
-  renderField("permeability", colLeft);
-  renderField("velocity", colRight);
-  renderField("resonance", colRight);
+  if (isFractal) {
+    wrapper.className = "dynamics-grid--linear";
 
-  splitWrap.appendChild(colLeft);
-  splitWrap.appendChild(colRight);
-  contentCol.appendChild(splitWrap);
+    const keys = ["entropy", "permeability", "velocity", "resonance"];
+    keys.forEach((key) => {
+      wrapper.appendChild(renderCard(key));
+    });
+  } else {
+    // Original 2x2 Split
+    wrapper.className = "split-content";
 
+    // Column 1: Non-Physical / Mental (Entropy, Permeability)
+    const colLeft = document.createElement("div");
+    colLeft.className = "split-column";
+
+    // Column 2: Physical (Velocity, Resonance)
+    const colRight = document.createElement("div");
+    colRight.className = "split-column";
+
+    colLeft.appendChild(renderCard("entropy"));
+    colLeft.appendChild(renderCard("permeability"));
+    colRight.appendChild(renderCard("velocity"));
+    colRight.appendChild(renderCard("resonance"));
+
+    wrapper.appendChild(colLeft);
+    wrapper.appendChild(colRight);
+  }
+
+  contentCol.appendChild(wrapper);
   container.appendChild(row);
 }
 
