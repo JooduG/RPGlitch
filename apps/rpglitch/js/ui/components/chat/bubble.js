@@ -212,6 +212,15 @@ export function renderMessage(
     let debugHtml = "";
     let cleanText = text;
 
+    // [NEW] Parity: Inject Metadata Info (e.g. Token Counts)
+    if (options.metadata && Object.keys(options.metadata).length > 0) {
+      const jsonStr = JSON.stringify(options.metadata, null, 2);
+      debugHtml += `
+          <div class="story-message system developer-content">
+              <div class="physics-log"><strong>[METADATA]</strong>\n${sanitizeHtml(jsonStr)}</div>
+          </div>`;
+    }
+
     if (role === "ai") {
       // 1. Extract HUD
       const hudMatch = cleanText.match(
