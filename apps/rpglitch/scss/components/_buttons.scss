@@ -304,6 +304,7 @@
   padding: 0;
   margin: 0;
   gap: 0;
+
   // Border-top moved to specific components (modal/lightbox) for flexibility
 
   // Simplified selector list relying on base classes.
@@ -319,6 +320,7 @@
     border-radius: 0;
     height: 3.5rem; // Standard touch target for footers
     border: none;
+
     // Removed background: transparent to allow variants (like primary) to show color
 
     // Divider
@@ -337,7 +339,7 @@
 
     // Provide a consistent hover background for non-solid button variants.
     // NOTE: If adding new solid buttons, exclude them here to preserve their background.
-    &:hover:not(:disabled, .disabled):not(.btn-primary):not(.btn-secondary):not(.btn-glass) {
+    &:hover:not(:disabled, .disabled, .btn-primary, .btn-secondary, .btn-glass) {
       background: $ui-glass-hover;
     }
   }

@@ -53,6 +53,7 @@ dialog.modal {
 
     footer {
       @extend %btn-group-split;
+
       border-top: 1px solid $ui-glass-border;
 
       // Dialog-specific overrides if necessary, otherwise the extend handles it.
@@ -138,6 +139,7 @@ dialog.modal {
   // Footer
   footer {
     @extend %btn-group-split;
+
     border-top: 1px solid $ui-glass-border;
   }
 }
