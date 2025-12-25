@@ -3,6 +3,7 @@ import { jest } from "@jest/globals";
 // Mock Top-Level Imports
 jest.mock("../../../apps/rpglitch/js/core/utils.js", () => ({
   log: jest.fn(),
+  error: jest.fn(),
 }));
 jest.mock("../../../apps/rpglitch/js/ui/components/drawer/desktop.js", () => ({
   initDrawer: jest.fn(),
@@ -26,11 +27,14 @@ jest.mock("../../../apps/rpglitch/js/ui/components/drawer/mobile.js", () => ({
   openDrawerFor: jest.fn(),
   setChinCallbacks: jest.fn(),
 }));
-jest.mock("../../../apps/rpglitch/js/ui/components/profile/controller.js", () => ({
-  renderProfilePage: jest.fn(),
-  closeProfileModal: jest.fn(),
-  setProfileCallbacks: jest.fn(),
-}));
+jest.mock(
+  "../../../apps/rpglitch/js/ui/components/profile/controller.js",
+  () => ({
+    renderProfilePage: jest.fn(),
+    closeProfileModal: jest.fn(),
+    setProfileCallbacks: jest.fn(),
+  }),
+);
 jest.mock("../../../apps/rpglitch/js/core/events.js", () => ({
   events: {
     addEventListener: jest.fn(),
@@ -57,6 +61,9 @@ jest.mock("../../../apps/rpglitch/js/core/db.js", () => ({
     stories: {
       get: jest.fn(),
     },
+    entities: {
+      get: jest.fn(),
+    },
   },
 }));
 
@@ -76,7 +83,7 @@ describe("Orchestrator UI", () => {
 
     // Ensure requestAnimationFrame is mocked
     if (!global.requestAnimationFrame) {
-        global.requestAnimationFrame = (cb) => cb();
+      global.requestAnimationFrame = (cb) => cb();
     }
 
     jest.clearAllMocks();
@@ -102,12 +109,16 @@ describe("Orchestrator UI", () => {
     // Setup Mock Data
     const mockStory = {
       isConcluded: false,
+      aiId: "ai-1",
+      userId: "user-1",
+      fractalId: "fractal-1",
       snapshots: {
         start: {
           ai: { id: "ai-1" },
           user: { id: "user-1" },
           fractal: {
             id: "fractal-1",
+            type: "fractal",
             signatureColor: "blue",
             simulation: { cssTheme: "theme-cyber" },
           },
@@ -117,15 +128,23 @@ describe("Orchestrator UI", () => {
 
     const dbModule = await import("../../../apps/rpglitch/js/core/db.js");
     dbModule.db.stories.get.mockResolvedValue(mockStory);
+    dbModule.db.entities.get.mockImplementation((id) => {
+      if (id === "fractal-1")
+        return Promise.resolve(mockStory.snapshots.start.fractal);
+      return Promise.resolve({ id });
+    });
 
     // Import Orchestrator (triggers initEventBinds)
     await import("../../../apps/rpglitch/js/ui/orchestrator.js");
 
-    const eventsModule = await import("../../../apps/rpglitch/js/core/events.js");
+    const eventsModule =
+      await import("../../../apps/rpglitch/js/core/events.js");
     const { events, EVENTS } = eventsModule;
 
     // Find the STORY_LOADED handler
-    const handler = events.addEventListener.mock.calls.find(call => call[0] === EVENTS.STORY_LOADED)[1];
+    const handler = events.addEventListener.mock.calls.find(
+      (call) => call[0] === EVENTS.STORY_LOADED,
+    )[1];
     expect(handler).toBeDefined();
 
     // Trigger the handler
@@ -134,7 +153,8 @@ describe("Orchestrator UI", () => {
     // Verification
     expect(document.body.classList.contains("theme-cyber")).toBe(true);
 
-    const uiUtils = await import("../../../apps/rpglitch/js/ui/services/ui-utils.js");
+    const uiUtils =
+      await import("../../../apps/rpglitch/js/ui/services/ui-utils.js");
     expect(uiUtils.setAppBackground).toHaveBeenCalledWith("blue");
   });
 });

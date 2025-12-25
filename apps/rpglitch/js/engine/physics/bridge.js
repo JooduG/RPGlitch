@@ -41,7 +41,6 @@ export class WorkerBridge {
         const url = URL.createObjectURL(blob);
         this.worker = new Worker(url);
         this._setupWorkerListener();
-        console.log("[WorkerBridge] Worker spawned (Embedded Mode).");
       } catch (e) {
         console.error("[WorkerBridge] Failed to spawn embedded worker:", e);
       }
@@ -55,7 +54,6 @@ export class WorkerBridge {
         type: "module",
       });
       this._setupWorkerListener();
-      console.log("[WorkerBridge] Worker spawned (Dev/Module Mode).");
     } catch (e) {
       console.warn(
         "[WorkerBridge] No worker source found and Dev fallback failed. Background updates disabled.",
@@ -122,7 +120,9 @@ export class WorkerBridge {
     if (!this.isReady) {
       // [RECOVERY] Attempt to revive if dead?
       // For now, just fail fast to prevent hanging.
-      console.warn("[WorkerBridge] Worker not ready (or crashed). Skipping update.");
+      console.warn(
+        "[WorkerBridge] Worker not ready (or crashed). Skipping update.",
+      );
       return false;
     }
 

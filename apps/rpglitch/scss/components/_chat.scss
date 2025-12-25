@@ -364,7 +364,7 @@
   --msg-radius: var(--pico-radius);
 
   // Define Message Text Color Source of Truth (Pure White)
-  --msg-color: #ffffff;
+  --msg-color: #fff;
 
   color: var(--msg-color) !important;
   text-shadow: $text-shadow-vibrant;
@@ -481,7 +481,7 @@
   --msg-color: var(--pico-muted-color);
 }
 
-.debug-block {
+%debug-block {
   background: rgb(15 23 42 / 95%);
   box-shadow: 0 4px 6px rgb(0 0 0 / 20%);
   padding: 0;
@@ -512,7 +512,7 @@
 }
 
 // [PHASE 1] X-RAY VISION: IMAGE PROMPTS
-.debug-block--image-prompt {
+%debug-block-image-prompt {
   border-left: 3px solid $debug-violet-500;
 
   .debug-label {
@@ -531,9 +531,18 @@
   }
 }
 
+.debug-block {
+  @extend %debug-block;
+}
+
+.debug-block--image-prompt {
+  @extend %debug-block-image-prompt;
+}
+
 .debug-prompt-block {
-  @extend .debug-block;
-  @extend .debug-block--image-prompt;
+  @extend %debug-block;
+  @extend %debug-block-image-prompt;
+
   display: none; // Hidden by default
 
   // Reactive Logic

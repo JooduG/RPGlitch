@@ -221,6 +221,8 @@ export function renderMessage(
           </div>`;
     }
 
+    const promptMap = new Map();
+
     if (role === "ai") {
       // 1. Extract HUD
       const hudMatch = cleanText.match(
@@ -247,7 +249,7 @@ export function renderMessage(
       // 2.5 Extract Image Prompt (X-Ray Vision)
       // [ROBUSTNESS FIX] Use placeholder strategy to survive DOMPurify/Markdown formatting
       const promptRegex = /<image_prompt>([\s\S]*?)<\/image_prompt>/g;
-      const promptMap = new Map();
+
       let promptIdx = 0;
 
       cleanText = cleanText.replace(promptRegex, (match, content) => {

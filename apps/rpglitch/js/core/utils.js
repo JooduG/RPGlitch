@@ -1,5 +1,5 @@
 // apps/rpglitch/js/core-utils.js
-import { db } from "./db.js";
+
 import { PHYSICS_CONFIG } from "../engine/physics/config.js";
 
 // --- Constants ---
@@ -212,6 +212,7 @@ let isDebug = false;
 
 export async function initDebugMode() {
   try {
+    const { db } = await import("./db.js");
     const settings = await db.settings.get("app-settings");
     if (settings && typeof settings.debugMode !== "undefined") {
       isDebug = !!settings.debugMode;
@@ -234,6 +235,7 @@ export function error(...args) {
 export async function setDebug(on) {
   isDebug = !!on;
   try {
+    const { db } = await import("./db.js");
     let settings = await db.settings.get("app-settings");
     if (!settings) settings = { id: "app-settings" };
     settings.debugMode = isDebug;
