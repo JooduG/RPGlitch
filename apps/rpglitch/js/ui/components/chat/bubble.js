@@ -108,7 +108,7 @@ export function renderMessage(
 
   // Handle DEBUG / Physics Logs
   if (type === "DEBUG") {
-    div.className = "story-message system developer-content";
+    div.className = "debug-block developer-content";
     // [FIX] Strip the raw [STATUS_HUD] block, as we often have a formatted "PHYSICS UPDATE" below it
     const cleanDebugText = (text || "").replace(
       /\[STATUS_HUD\][\s\S]*?\[\/STATUS_HUD\]/g,
@@ -212,6 +212,15 @@ export function renderMessage(
     let debugHtml = "";
     let cleanText = text;
 
+    // [NEW] Parity: Inject Metadata Info (e.g. Token Counts)
+    if (options.metadata && Object.keys(options.metadata).length > 0) {
+      const jsonStr = JSON.stringify(options.metadata, null, 2);
+      debugHtml += `
+          <div class="debug-block developer-content">
+              <div class="physics-log"><strong>[METADATA]</strong>\n${jsonStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+          </div>`;
+    }
+
     if (role === "ai") {
       // 1. Extract HUD
       const hudMatch = cleanText.match(
@@ -219,7 +228,7 @@ export function renderMessage(
       );
       if (hudMatch) {
         debugHtml += `
-          <div class="story-message system developer-content">
+          <div class="debug-block developer-content">
               <div class="physics-log"><strong>[AI INTENT]</strong>\n${sanitizeHtml(hudMatch[1].trim())}</div>
           </div>`;
         cleanText = cleanText.replace(hudMatch[0], "");
@@ -229,7 +238,7 @@ export function renderMessage(
       const jsonMatch = cleanText.match(/\{[\s\S]*?"dynamics"[\s\S]*?\}/);
       if (jsonMatch) {
         debugHtml += `
-          <div class="story-message system developer-content">
+          <div class="debug-block developer-content">
               <div class="physics-log"><strong>[STATE DATA]</strong>\n${sanitizeHtml(jsonMatch[0].trim())}</div>
           </div>`;
         cleanText = cleanText.replace(jsonMatch[0], "");
@@ -243,7 +252,7 @@ export function renderMessage(
       if (physMatches) {
         physMatches.forEach((match) => {
           debugHtml += `
-            <div class="story-message system developer-content">
+            <div class="debug-block developer-content">
                 <div class="physics-log"><strong>[PHYSIOLOGY]</strong>\n${sanitizeHtml(match.trim())}</div>
             </div>`;
           cleanText = cleanText.replace(match, "");

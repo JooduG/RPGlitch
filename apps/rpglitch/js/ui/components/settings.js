@@ -160,6 +160,7 @@ export const StoryOptionsController = {
         } else {
           document.body.classList.remove("mode-developer");
         }
+
       };
     } else {
       error(

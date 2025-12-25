@@ -66,58 +66,56 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
   };
 
   const isEdit = mode === "edit";
-  const type = (entity.type || "character").toLowerCase();
-  const isFractal = type === "fractal";
 
-  // [CHANGE] Grid: 2x2 for Characters, 1x4 for Fractals
-  const cols = isFractal ? 4 : 2;
-  const gridStyle = `display: grid; grid-template-columns: repeat(${cols}, 1fr); gap: 0.75rem;`;
+  // [REFACTOR] Use Maestro 2-Column Grid (Profile Row)
+  const { row, contentCol } = createProfileRow("DYNAMICS", "Hidden Metrics");
 
-  const wrapper = document.createElement("div");
-  wrapper.className = "field-row";
-  wrapper.innerHTML = `
-    <div class="field-label">
-      <label>Dynamics</label>
-      <small class="muted">Developer Mode</small>
-    </div>
-    <div class="field-input" style="${gridStyle}"></div>
-  `;
+  // Create Split Content (50/50)
+  const splitWrap = document.createElement("div");
+  splitWrap.className = "split-content";
 
-  const grid = wrapper.querySelector(".field-input");
+  // Column 1: Non-Physical / Mental (Entropy, Permeability)
+  const colLeft = document.createElement("div");
+  colLeft.className = "split-column";
 
-  ["entropy", "permeability", "velocity", "resonance"].forEach((k) => {
+  // Column 2: Physical (Velocity, Resonance)
+  const colRight = document.createElement("div");
+  colRight.className = "split-column";
+
+  const renderField = (key, parentCol) => {
     // 🛡️ SENTINEL SECURITY PATCH: [XSS Risk Mitigated]
-    // Ensure value is strictly a number to prevent injection into template literals.
-    let val = Number(dyns[k]);
-    if (isNaN(val)) {
-      val = 50;
-    }
+    let val = Number(dyns[key]);
+    if (isNaN(val)) val = 50;
 
-    // [CHANGE] Use the 'Card' style for both, just swap the content
     const card = document.createElement("div");
-    card.style.cssText =
-      "background: var(--pico-card-background-color); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--pico-muted-border-color); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;";
+    card.className = "dynamics-card";
 
-    // Header is same for both
-    const labelHtml = `<div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 0.25rem;">${k}</div>`;
+    const labelHtml = `<div class="dynamics-label">${key}</div>`;
 
     if (isEdit) {
-      // Input Mode: Styled like the value, explicitly centered
       card.innerHTML = `
         ${labelHtml}
-        <input type="number" data-edit-dynamic="${k}" value="${val}" min="0" max="100" style="width: 100%; text-align: center !important; font-family: monospace; font-weight: 800; border: none; background: transparent; padding: 0; height: auto; color: var(--pico-primary);">
+        <input type="number" class="dynamics-input" data-edit-dynamic="${key}" value="${val}" min="0" max="100">
       `;
     } else {
-      // Read Mode: Explicitly centered
       card.innerHTML = `
         ${labelHtml}
-        <div style="font-family: monospace; font-size: 1.1rem; font-weight: 800; color: var(--pico-primary); text-align: center; width: 100%;">${val}%</div>
+        <div class="dynamics-value">${val}%</div>
       `;
     }
-    grid.appendChild(card);
-  });
+    parentCol.appendChild(card);
+  };
 
-  container.appendChild(wrapper);
+  renderField("entropy", colLeft);
+  renderField("permeability", colLeft);
+  renderField("velocity", colRight);
+  renderField("resonance", colRight);
+
+  splitWrap.appendChild(colLeft);
+  splitWrap.appendChild(colRight);
+  contentCol.appendChild(splitWrap);
+
+  container.appendChild(row);
 }
 
 // --- UI Helpers (Chin, TopBar) ---
