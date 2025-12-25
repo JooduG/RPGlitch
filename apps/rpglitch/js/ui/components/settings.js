@@ -33,13 +33,13 @@ export const StoryOptionsController = {
         const storyState = card.dataset.storyState;
         const storyTitle = card.dataset.storyTitle;
 
-        if (!storyId) return;
+if (!storyId || !storyTitle) return;
 
-        const confirmed =
-          storyState === "concluded" ||
-          (await import("../orchestrator.js").then((m) =>
-            m.showConfirm("Load Story?", `Load "${storyTitle}"?`),
-          ));
+let confirmed = storyState === 'concluded';
+if (!confirmed) {
+  const { showConfirm } = await import('../orchestrator.js');
+  confirmed = await showConfirm('Load Story?', 'Load "' + storyTitle + '"?');
+}
 
         if (confirmed) {
           await StoryOptionsController.loadStory(storyId);
