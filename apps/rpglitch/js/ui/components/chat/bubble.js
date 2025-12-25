@@ -131,6 +131,12 @@ export function renderMessage(
   const roleClass = role === "user" || role === "ai" ? role : "narrator";
   let classList = ["story-message", roleClass];
 
+  // [MAESTRO] Fractal Divine Protocol
+  // FIX: Detect 'Fractal' via simulation property, as type might be normalized to 'character'
+  if (role === "ai" && entities?.ai?.simulation) {
+    classList.push("chat-bubble--fractal");
+  }
+
   let signatureColor = null;
   let visuals = null;
 
