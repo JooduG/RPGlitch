@@ -502,8 +502,8 @@ body.mode-developer .debug-console-output {
 
   // 3. Color (The Character Soul)
   background-color: var(--color-signature-main) !important;
-  color: #ffffff !important; // Force white text
-  border: none; // Remove borders if narrator has them
+  color: #fff !important; // Force white text
+  border: none !important; // Remove borders if narrator has them
 
   // FIX: Removed redundant color/border rules (handled by base class)
   box-shadow: 0 4px 12px var(--color-signature-glow);
