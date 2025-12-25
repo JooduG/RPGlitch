@@ -35,18 +35,15 @@ export const StoryOptionsController = {
 
         if (!storyId) return;
 
-        if (storyState === "concluded") {
+        const confirmed =
+          storyState === "concluded" ||
+          (await import("../orchestrator.js").then((m) =>
+            m.showConfirm("Load Story?", `Load "${storyTitle}"?`),
+          ));
+
+        if (confirmed) {
           await StoryOptionsController.loadStory(storyId);
           StoryOptionsController.close();
-        } else {
-          if (
-            await import("../orchestrator.js").then((m) =>
-              m.showConfirm("Load Story?", `Load "${storyTitle}"?`),
-            )
-          ) {
-            await StoryOptionsController.loadStory(storyId);
-            StoryOptionsController.close();
-          }
         }
       });
     }
