@@ -397,22 +397,17 @@ export async function renderProfileEdit(screen, entity, type, id) {
         // [UX] LOADING STATE PARITY
         const loadBar = imageOverlay.querySelector(".loading-bar");
         if (loadBar) {
-          loadBar.setAttribute("data-status", "Maestro is dreaming...");
+          // [CLEANUP] Silenced "Maestro is dreaming" text
+          loadBar.removeAttribute("data-status");
         }
-
-        const selectedStyle = paletteSelect
-          ? paletteSelect.value
-          : entity.signatureColour || "photorealistic";
-        const styleTerm =
-          selectedStyle === "default" || !selectedStyle
-            ? "photorealistic"
-            : selectedStyle;
-        const existingText = imageInput.value.trim();
 
         // Scrape LIVE values (Nested Aware)
         const liveEntity = { ...entity };
         liveEntity.name = nameInput.value;
         liveEntity.description = descInput.value;
+        // Ensure gender is captured if it exists in entity root or nested
+        // The current form structure doesn't seem to have a dedicated gender field input,
+        // so we rely on the entity object passed in.
 
         Object.keys(PROFILE_STRUCTURE).forEach((key) => {
           const config = PROFILE_STRUCTURE[key];
@@ -430,57 +425,49 @@ export async function renderProfileEdit(screen, entity, type, id) {
           }
         });
 
-        // [NEW] PROMPT ARCHITECT (LLM)
-        const entityTypeLabel = isFractal
-          ? "Abstract Fractal Concept"
-          : "RPG Character";
+        // --- BRAIN TRANSPLANT: Deterministic Prompt Engineering ---
 
-        // Default Negatives (Safety Net)
-        // GLOBAL: text, watermark, blurry, low quality, cartoon, anime
-        const BASE_NEG = "text, watermark, blurry, low quality, cartoon, anime";
-        const TYPE_NEG = isFractal
-          ? "character, person, face, human, body" // [FRACTAL] No people
-          : "bad anatomy"; // [CHARACTER] No deformities
+        // 1. Gender Enforcement
+        const gender = (liveEntity.gender || entity.gender || "").toLowerCase();
+        const pronouns = (liveEntity.pronouns || entity.pronouns || "").toLowerCase();
+        const isMale = gender === "male" || gender === "man" || pronouns.includes("he/");
+        const isFemale = gender === "female" || gender === "woman" || pronouns.includes("she/");
 
-        const defaultNeg = `${BASE_NEG}, ${TYPE_NEG}`;
+        let genderKeywords = "";
+        // Force append to START (we'll prepend this variable in the array)
+        if (isMale) genderKeywords = "Male, Man, Masculine features, chiseled";
+        else if (isFemale) genderKeywords = "Female, Woman, Feminine features";
 
-        const systemPrompt = `You are a Visual Director for a Sci-Fi RPG. 
-Your goal is to write a text-to-image prompt for a "${entityTypeLabel}".
-Context: Name="${liveEntity.name}", Description="${liveEntity.description}", Style="${styleTerm}".
-Task: Return a JSON object with 'positive' (the prompt) and 'negative' (what to avoid).
-JSON Schema: { "positive": "string", "negative": "string" }
-CRITICAL: The negative prompt MUST exclude text, watermarks, and generic bad quality. If it's a fractal, exclude humans.`;
-
-        const response = await LlmService.generate(
-          {
-            system: systemPrompt,
-            messages: [],
-            params: {
-              temperature: 0.7,
-              maxTokens: 300,
-              model: "shuttle-2-turbo",
-            },
-          },
-          { silent: true },
-        );
-
-        // Parse Logic
-        let finalPos = "";
-        let finalNeg = defaultNeg;
-
-        try {
-          // Attempt JSON Parse (Handle markdown blocks if AI wrapper adds them)
-          const cleanJson = response.replace(/```json|```/g, "").trim();
-          const data = JSON.parse(cleanJson);
-          finalPos = data.positive;
-          finalNeg = data.negative || defaultNeg;
-        } catch (err) {
-          console.warn(
-            "Auto-Write JSON extraction failed, falling back to raw text.",
-            err,
-          );
-          finalPos = response; // Fallback: Assume whole response is prompt
+        // 2. Style Injection
+        let styleKeywords = "";
+        if (isFractal) { // using isFractal closure variable
+           styleKeywords = "Abstract geometry, 3D render, math-based, glowing, NO HUMANS";
+        } else {
+           // Default to Character
+           styleKeywords = "Photorealistic Profile Picture, 8k, raw photo, natural skin texture, visible pores, cinematic lighting, sharp focus";
         }
+
+        // 3. Negative Prompting
+        let negParts = [];
+        if (isMale) negParts.push("woman, girl, female, boobs, feminine");
+
+        if (!isFractal) {
+             negParts.push("anime, cartoon, drawing, sketch, 2d, illustration");
+        }
+        // Base negatives
+        negParts.push("text, watermark, blurry, low quality");
+
+        const finalNeg = negParts.join(", ");
+
+        // 4. The Wiring (Construct Rich Prompt)
+        // Structure: [Style], [Gender], [Subject], [Description]
+        const subject = `A portrait of ${liveEntity.name}`;
+        const baseDesc = liveEntity.description || "";
+
+        const promptParts = [styleKeywords, genderKeywords, subject, baseDesc]
+            .filter(p => p && p.trim() !== "");
+
+        const finalPos = promptParts.join(", ");
 
         imageInput.value = finalPos;
         imageInput.dataset.negativePrompt = finalNeg;
