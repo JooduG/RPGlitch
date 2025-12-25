@@ -242,10 +242,3 @@ hr.settings-divider {
     margin: 0;
   }
 }
-
-// [UX POLISH] Remove focus outlines from modal actions
-.modal-content footer button:focus,
-.modal-content header .close:focus {
-  outline: none !important;
-  box-shadow: none !important;
-}

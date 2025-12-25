@@ -222,19 +222,30 @@ export function showConfirm(title, message) {
     dialog.focus();
 
     // [UX] Keybind Wiring
-    dialog.addEventListener("keydown", (e) => {
+    const handleKeyDown = (e) => {
+      // If focused on a button (or any input), let native behavior handle Enter
+      const isInput =
+        ["BUTTON", "INPUT", "TEXTAREA", "SELECT"].includes(
+          e.target.tagName,
+        ) || e.target.isContentEditable;
+
       if (e.key === "Enter") {
-        e.preventDefault();
-        e.stopPropagation();
-        if (btnOk) btnOk.click();
+        if (!isInput) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (btnOk) btnOk.click();
+        }
       } else if (e.key === "Escape") {
         e.preventDefault();
         e.stopPropagation();
         if (btnCancel) btnCancel.click();
       }
-    });
+    };
+
+    dialog.addEventListener("keydown", handleKeyDown);
 
     const cleanup = (result) => {
+      dialog.removeEventListener("keydown", handleKeyDown);
       dialog.remove();
       resolve(result);
     };
