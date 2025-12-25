@@ -48,7 +48,7 @@ function getLiveEntityFromForm(form, baseEntity) {
   Object.keys(PROFILE_STRUCTURE).forEach((key) => {
     const config = PROFILE_STRUCTURE[key];
     if (config.type === "nested") {
-      live[key] = live[key] || {};
+      live[key] = { ...(baseEntity[key] || {}) };
       Object.keys(config.fields).forEach((subKey) => {
         const el = form.querySelector(`[data-edit-field="${key}.${subKey}"]`);
         if (el) live[key][subKey] = el.value;
