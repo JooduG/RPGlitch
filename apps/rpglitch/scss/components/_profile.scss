@@ -205,6 +205,9 @@
         gap: 0.4rem;
         cursor: pointer;
         transition: transform 0.2s;
+        width: auto !important; // [FIX] Allow dynamic width for longer text
+        min-width: 0; // Prevent overflow flex issues
+        white-space: nowrap; // Keep text on one line
 
         // Radius handled by %glass-pill
       }

@@ -207,9 +207,23 @@ export async function renderProfileEdit(screen, entity, type, id) {
     }
   }
 
+  function updateMagicButtonState() {
+    if (!magicBtn) return;
+    if (imageInput.value.trim().length > 0) {
+      // Enhance Mode (Sparkles)
+      magicBtn.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.5 5.6L10 7 7.5 8.4 6.1 10.9 4.7 8.4 2.2 7 4.7 5.6 6.1 3.1 7.5 5.6zm12 9.8L22 14l-2.5-1.4L18.1 10.1l-1.4 2.5L14.2 14l2.5 1.4L18.1 17.9l1.4-2.5zM22 2l-2.5 1.4L18.1 0.9 16.7 3.4 14.2 4.8l2.5 1.4L18.1 8.7l1.4-2.5L22 4.8l-2.5-1.4L22 2z"/></svg> Enhance Prompt`;
+      magicBtn.dataset.mode = "enhance";
+    } else {
+      // Extract Mode (Wand)
+      magicBtn.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 7l-1.2-2.8L16 3l-1.2 2.8L12 7l2.8 1.2L16 11l1.2-2.8L20 7zm-9 6l-2.3-5L6.5 3 4.2 8 2 10.3l5 2.3L4.7 17l2.3 5L9.3 17l5-2.3L12 13z"/></svg> Extract Appearance`;
+      magicBtn.dataset.mode = "extract";
+    }
+  }
+
   imageInput.addEventListener("input", () => {
     if (imageInput.dataset.pendingUrl) delete imageInput.dataset.pendingUrl;
     updateButtonState();
+    updateMagicButtonState();
     updatePreview();
   });
 
@@ -222,6 +236,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
   });
 
   updateButtonState();
+  updateMagicButtonState();
 
   // Action Button Logic
   actionButton.addEventListener("click", async () => {
@@ -422,7 +437,8 @@ export async function renderProfileEdit(screen, entity, type, id) {
             // Stream Logic via llm.js
             const fullText = await generateStream({
               payload: {
-                system: "You are an expert prompt engineer.",
+                system:
+                  "You are a backend image prompt processor. OUTPUT RAW TEXT ONLY. 1. Do NOT use headers like 'Revised Prompt'. 2. Do NOT use quotation marks around the prompt. 3. Do NOT add 'Notes' or explanations at the end. 4. Just output the descriptive text block ready for the image generator.",
                 messages: [{ role: "user", text: prompt }],
                 params: {
                   temperature: 0.7,
@@ -432,7 +448,16 @@ export async function renderProfileEdit(screen, entity, type, id) {
               },
             });
 
-            imageInput.value = fullText.trim();
+            // Clean up the response
+            let cleanText = fullText
+              .replace(/\*\*.*?\*\*/g, "") // Remove bold headers
+              .replace(/Revised.*?Prompt:/i, "") // Remove labels
+              .replace(/Note:[\s\S]*$/i, "") // Remove trailing notes
+              .trim() // Trim first to expose quotes
+              .replace(/^["']|["']$/g, "") // Remove surrounding quotes
+              .trim(); // Trim again just in case
+
+            imageInput.value = cleanText;
             imageInput.dispatchEvent(new Event("input"));
           } catch (llmErr) {
             console.error(llmErr);
