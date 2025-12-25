@@ -71,7 +71,7 @@ export class WorkerBridge {
       const success = payload?.success;
       if (payload?.error)
         console.error("[WorkerBridge] Worker Reported Error:", payload.error);
-      this.resolveActive(success);
+      this.resolveActive(payload); // Pass full payload so orchestrator gets dynamics
 
       if (success) {
         events.dispatchEvent(

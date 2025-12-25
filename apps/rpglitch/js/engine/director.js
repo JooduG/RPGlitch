@@ -141,6 +141,7 @@ export const TurnManager = {
   _executeTurn: async (storyId, payload, options = {}) => {
     const mode = options.mode || "create"; // 'create' | 'append'
     const appendTargetId = options.appendTargetId || null;
+    const retryCount = options.retryCount || 0; // [NEXUS FIX] Track retries to prevent loops
 
     const story = state.story.byId[storyId];
 
@@ -346,6 +347,27 @@ export const TurnManager = {
           break;
         } catch (e) {
           if (e.name === "AbortError") throw e;
+
+          // [NEXUS FIX] Stream Resilience Circuit
+          if (
+            e.message.includes("Stream keep alive timeout") ||
+            e.name === "NetworkError" ||
+            e.message.includes("network")
+          ) {
+             if (retryCount < 3) {
+                 console.warn(`⚠️ [TEXT-GEN] Stream interrupted. Triggering Auto-Reroll in 1s... (Attempt ${retryCount + 1}/3)`);
+
+                 // HARD WIRED RETRY
+                 // We break the current execution loop and force a fresh restart
+                 await new Promise((r) => setTimeout(r, 1000));
+                 // [FIX] Pass incremented retryCount to avoid infinite loop
+                 return TurnManager._executeTurn(storyId, payload, { ...options, retryCount: retryCount + 1 });
+             } else {
+                 console.error("❌ [TEXT-GEN] Max Auto-Rerolls exceeded.");
+                 throw e;
+             }
+          }
+
           if (attempts >= MAX_ATTEMPTS) throw e;
           log(
             `[PROMETHEUS] Generation Glitch. Retrying ${attempts + 1}/${MAX_ATTEMPTS}...`,

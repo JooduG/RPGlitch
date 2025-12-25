@@ -189,13 +189,11 @@ NEGATIVE CONSTRAINT: Do NOT mention "Entropy", "Velocity", or physics numbers in
       if (!section) return "";
       // If it's the legacy string format
       if (typeof section === "string") return section;
-      // If it's the new nested format (Physical + Non-Physical)
-      const parts = [];
-      if (section.physical) parts.push(`[Physical]: ${section.physical}`);
-      // [FIX] Check for both 'mental' (internal) and 'nonPhysical' (external/legacy) keys
-      const mental = section.mental || section.nonPhysical;
-      if (mental) parts.push(`[Non-Physical]: ${mental}`);
-      return parts.join("\n").trim();
+
+      // [NEXUS FIX] Hard-Wired Concatenation for Full Context
+      const phys = section.physical || "";
+      const nonPhys = section.nonPhysical || section.mental || "";
+      return "Physical: " + phys + "\nNon-Physical: " + nonPhys;
     };
 
     const system = `[SYSTEM: PROMETHEUS_PHYSICS_V5]

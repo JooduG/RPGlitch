@@ -82,6 +82,16 @@ function initEventBinds() {
   });
 
   events.addEventListener(EVENTS.CHAT_REFRESH, async (e) => {
+    // [NEXUS FIX] Mark old HUDs as stale before re-render or during updates
+    // Since renderChat might clear DOM, this is most effective if we can catch them before they disappear,
+    // or if renderChat preserves them.
+    // If renderChat rebuilds, we rely on the CSS/Logic in bubble.js.
+    // However, the request asks to find existing ones.
+    const existingHuds = document.querySelectorAll(".status-hud");
+    existingHuds.forEach((hud) => {
+      hud.classList.add("status-hud--stale");
+    });
+
     const { renderChat } = await import("./components/chat/feed.js");
     if (e.detail?.storyId) {
       await renderChat(e.detail.storyId);
@@ -118,11 +128,17 @@ function initEventBinds() {
     // [NEXUS FIX] Reflex Ignition
     const { state } = await import("../core/state.js");
     if (state.story.activeId) {
+      console.log('⚡ [REFLEX] Initiating Physics Calculation...');
       bridge.runBackgroundUpdate(
         state.story.activeId,
         ENTITY_TYPES.AI_CHARACTER,
         null,
-      );
+      ).then((res) => {
+        // [NEXUS FIX] Telemetry
+        const entropy = res?.dynamics?.entropy ?? "Unknown";
+        console.log(`✅ [REFLEX] Physics Calculation Complete. Entropy: ${entropy}`);
+      })
+      .catch(e => console.error('❌ [REFLEX] Physics Timeout/Failure:', e));
     }
   });
 }

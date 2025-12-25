@@ -273,6 +273,12 @@ async function handleLlmResponse({ text }) {
         updatedAt: Date.now(),
       };
 
+      if (updates.status) {
+        console.log("🔄 [PHYSICS] Updating Non-Physical State:", updates.status);
+        // [NEXUS FIX] Force assignment to ensure persistence
+        updatedEntity.present = { ...updatedEntity.present, nonPhysical: updates.status };
+      }
+
       // Archivist Logic
       const MAX_PAST_LENGTH = 2000;
       if (updatedEntity.past && updatedEntity.past.length > MAX_PAST_LENGTH) {
@@ -282,7 +288,7 @@ async function handleLlmResponse({ text }) {
         await entities.upsert(ctx.entityType, updatedEntity);
         postMessage({
           type: "CMD_UPDATE_COMPLETE",
-          payload: { success: true },
+          payload: { success: true, dynamics: finalDynamics },
         });
       }
     } else {
