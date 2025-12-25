@@ -264,7 +264,8 @@
 
       &:hover {
         background: transparent !important;
-        opacity: 0.8;
+        opacity: 1;
+        filter: brightness(1.2);
       }
     }
 

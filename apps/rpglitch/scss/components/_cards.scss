@@ -312,11 +312,9 @@
   }
 
   &.concluded {
-    opacity: 0.8;
-    filter: grayscale(0.5);
+    filter: grayscale(0.5) brightness(0.8);
 
     &:hover {
-      opacity: 1;
       filter: none;
     }
   }

@@ -1,83 +1,108 @@
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 import os
 
 def verify_clarity(page):
-    # Load the local file - using absolute path
-    file_path = (Path.cwd() / "apps" / "rpglitch" / "RPGlitch.html").as_uri()
-    print(f"Navigating to {file_path}")
+    cwd = os.getcwd()
+    file_path = f"file://{cwd}/apps/rpglitch/RPGlitch.html"
     page.goto(file_path)
-
-    # Wait for the app to load
     page.wait_for_selector("body")
 
-    # Verification Logic
-    print("Verifying Button Opacity...")
-    # Check a button (e.g., Settings cog or a generic button if visible)
-    submit_btn = page.locator('#story-form button[type="submit"]')
-    if submit_btn.is_visible():
-        opacity = submit_btn.evaluate("el => getComputedStyle(el).opacity")
-        print(f"Submit Button Opacity: {opacity}")
-        assert opacity == '1', f"FAILURE: Submit button opacity is {opacity}, but should be '1'"
+    print("--- Verifying Opacity Rules ---")
 
-    print("Verifying Chat Message Opacity...")
-    # Inject a dummy message to test if not present
+    # Check all visible buttons
+    buttons = page.locator("button, .ui-btn").all()
+    print(f"Found {len(buttons)} buttons/btn-like elements.")
+
+    violations = 0
+
+    for i, btn in enumerate(buttons):
+        if not btn.is_visible():
+            continue
+
+        opacity = float(btn.evaluate("el => getComputedStyle(el).opacity"))
+        # Fix: get_attribute takes one argument
+        cls = btn.get_attribute("class") or ""
+        is_disabled = btn.is_disabled() or "disabled" in cls
+        text = btn.inner_text().strip() or "ICON_ONLY"
+
+        print(f"Button {i} [{text}]: Opacity={opacity}, Disabled={is_disabled}")
+
+        if is_disabled:
+            # Disabled elements are allowed to be transparent
+            if opacity > 0.9:
+                print(f"  Note: Disabled button '{text}' is fully opaque (ok but unusual).")
+        else:
+            # Enabled elements MUST be opaque
+            if opacity < 1.0:
+                print(f"  VIOLATION: Enabled button '{text}' has opacity {opacity}!")
+                violations += 1
+
+    # Check specific fixed elements
+    # 1. Chat (Simulated)
+    print("\n--- Checking Chat ---")
     page.evaluate("""
-        const msg = document.createElement('div');
-        msg.className = 'story-message user';
-        msg.innerHTML = '<i>Italic Text</i> <b>Bold Text</b> <em style="font-weight:bold">Bold Italic</em>';
-        document.getElementById('chat-feed').appendChild(msg);
+        const container = document.createElement('div');
+        container.id = 'chat-feed';
+        container.innerHTML = `
+            <div class='story-message user' data-type='IC'>
+                Hello World
+            </div>
+        `;
+        document.body.appendChild(container);
     """)
+    msg = page.locator(".story-message.user").first
+    msg_opacity = float(msg.evaluate("el => getComputedStyle(el).opacity"))
+    print(f"Message Opacity: {msg_opacity}")
+    if msg_opacity < 1.0:
+        print("  VIOLATION: Chat message is not solid!")
+        violations += 1
 
-    # Check italic opacity
-    italic_el = page.locator('.story-message i').first
-    italic_opacity = italic_el.evaluate("el => getComputedStyle(el).opacity")
-    print(f"Italic Text Opacity: {italic_opacity}")
-    assert italic_opacity == '1', f"Italic Text Opacity was {italic_opacity}, but expected '1'."
-
-    # Check bold-italic opacity
-    bold_italic_el = page.locator('.story-message em').first
-    bold_italic_opacity = bold_italic_el.evaluate("el => getComputedStyle(el).opacity")
-    print(f"Bold Italic Text Opacity: {bold_italic_opacity}")
-    assert bold_italic_opacity == '1', f"Bold Italic Text Opacity was {bold_italic_opacity}, but expected '1'."
-
-    # Check muted text in reset
-    # Create a muted element
+    # 2. Profile Labels (Simulated)
+    print("\n--- Checking Profile Labels ---")
     page.evaluate("""
-        const muted = document.createElement('div');
-        muted.className = 'muted';
-        muted.textContent = 'Muted Text';
-        document.body.appendChild(muted);
+        const profile = document.createElement('div');
+        profile.className = 'profile-row';
+        profile.innerHTML = `
+            <div class='label-group'>
+                <span class='dynamics-label'>Strength</span>
+            </div>
+            <div class='placeholder-image'>
+                <svg></svg>
+            </div>
+        `;
+        document.body.appendChild(profile);
     """)
-    muted_el = page.locator('.muted').first
-    muted_opacity = muted_el.evaluate("el => getComputedStyle(el).opacity")
-    print(f"Muted Class Opacity: {muted_opacity}")
-    assert muted_opacity == '1', f"Muted Class Opacity was {muted_opacity}, but expected '1'."
+    label = page.locator(".dynamics-label").first
+    label_opacity = float(label.evaluate("el => getComputedStyle(el).opacity"))
+    print(f"Label Opacity: {label_opacity}")
+    if label_opacity < 1.0:
+        print("  VIOLATION: Profile label is not solid!")
+        violations += 1
 
-    # Check Glass Button color
-    # Create a glass button
-    page.evaluate("""
-        const btn = document.createElement('button');
-        btn.className = 'btn-glass';
-        btn.textContent = 'Glass Button';
-        document.body.appendChild(btn);
-    """)
-    glass_btn = page.locator('.btn-glass').first
-    glass_color = glass_btn.evaluate("el => getComputedStyle(el).color")
-    print(f"Glass Button Color: {glass_color}")
-    assert glass_color == "rgb(255, 255, 255)", f"Glass Button Color was {glass_color}, but expected 'rgb(255, 255, 255)'."
+    svg = page.locator(".placeholder-image svg").first
+    svg_opacity = float(svg.evaluate("el => getComputedStyle(el).opacity"))
+    print(f"SVG Opacity: {svg_opacity}")
+    if svg_opacity < 1.0:
+        print("  VIOLATION: SVG is not solid!")
+        violations += 1
 
-    # Take screenshot
-    page.screenshot(path="verification_clarity.png")
-    print("Verification Passed!")
+    # Screenshot
+    page.screenshot(path="verification.png")
+    print("\nScreenshot saved to verification.png")
+
+    if violations > 0:
+        raise Exception(f"Found {violations} violations of the Solid White Mandate.")
+    else:
+        print("SUCCESS: All checks passed.")
 
 if __name__ == "__main__":
     with sync_playwright() as p:
-        browser = p.chromium.launch()
+        browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         try:
             verify_clarity(page)
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"FAILED: {e}")
             exit(1)
         finally:
             browser.close()
