@@ -259,7 +259,8 @@ async function handleLlmResponse({ text }) {
       // [NEXUS FIX] Map 'status' to entity.present.nonPhysical
       let presentState = updates.present || freshEntity.present || {};
       if (updates.status) {
-        presentState = { ...presentState, nonPhysical: updates.status };
+        const base = (typeof presentState === 'object' && presentState !== null) ? presentState : {};
+        presentState = { ...base, nonPhysical: updates.status };
       }
 
       const updatedEntity = {
