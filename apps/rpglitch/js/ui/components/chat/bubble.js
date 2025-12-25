@@ -94,6 +94,30 @@ export function setRerollState(messageId, isActive) {
 }
 window.setRerollState = setRerollState;
 
+// --- CORE: Bubble Classification (Refactored) ---
+export function getBubbleClass(role, entities) {
+  const isUser = role === "user";
+  // [MAESTRO] Fractal Divine Protocol
+  // Priority: Check if explicitly Fractal or if AI has simulation (Fractal masquerading as AI)
+  const isFractal =
+    role === "fractal" ||
+    (role === "ai" && entities?.ai?.type === "fractal") ||
+    (role === "ai" && entities?.ai?.simulation);
+
+  if (isUser) return "chat-bubble--user";
+  if (isFractal) return "chat-bubble--fractal";
+
+  // Narrator: Explicit 'narrator', 'system', or fallback for unknown roles
+  const isNarrator =
+    role === "narrator" ||
+    role === "system" ||
+    (!isUser && role !== "ai" && role !== "fractal");
+  if (isNarrator) return "chat-bubble--narrator";
+
+  // Default Character (AI)
+  return "chat-bubble--character";
+}
+
 // --- CORE: Render Message ---
 export function renderMessage(
   container,
@@ -119,23 +143,20 @@ export function renderMessage(
     return;
   }
 
+  const bubbleModifier = getBubbleClass(role, entities);
+
   // Handle IMAGE Type
   if (type === "IMAGE") {
-    div.className = "story-message system story-image-container";
+    div.className = `chat-bubble ${bubbleModifier} story-image-container`;
     const imageContainer = renderImageAttachment(text, { ...options, role });
     div.appendChild(imageContainer);
     container.appendChild(div);
     return;
   }
 
-  const roleClass = role === "user" || role === "ai" ? role : "narrator";
-  let classList = ["story-message", roleClass];
-
-  // [MAESTRO] Fractal Divine Protocol
-  // FIX: Detect 'Fractal' via simulation property, as type might be normalized to 'character'
-  if (role === "fractal" || (role === "ai" && entities?.ai?.simulation)) {
-    classList.push("chat-bubble--fractal");
-  }
+  // Standard Text Message
+  // Base class + Modifier (Architecture Requirement)
+  let classList = ["chat-bubble", bubbleModifier];
 
   let signatureColor = null;
   let visuals = null;
@@ -146,6 +167,18 @@ export function renderMessage(
   } else if (role === "ai" && entities?.ai) {
     signatureColor = entities.ai.signatureColor;
     visuals = getVisualState(entities.ai);
+  } else if (
+    (role === "fractal" || bubbleModifier === "chat-bubble--fractal") &&
+    entities?.fractal
+  ) {
+    // Support Fractal signature color if available
+    signatureColor = entities.fractal.signatureColor;
+  } else if (
+    bubbleModifier === "chat-bubble--fractal" &&
+    entities?.ai?.simulation
+  ) {
+    // Fallback: Fractal masquerading as AI, use AI signature (often modified by theme)
+    signatureColor = entities.ai.signatureColor;
   }
 
   div.className = classList.join(" ");

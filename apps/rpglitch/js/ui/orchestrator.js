@@ -345,9 +345,10 @@ export async function handleConcludeStory() {
     const { TurnManager } = await import("../engine/director.js");
 
     // [MAESTRO] Movement 3: Visual Feedback
+    // [ARCHITECT] Refactored to trigger Fractal typing bubble
     events.dispatchEvent(
       new CustomEvent(EVENTS.TYPING_STARTED, {
-        detail: { role: "narrator" }, // Concluding is a system/narrator action
+        detail: { role: "fractal" }, // Concluding is a higher-order operation
       }),
     );
 

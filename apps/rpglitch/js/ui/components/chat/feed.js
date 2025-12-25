@@ -2,7 +2,7 @@ import { state } from "../../../core/state.js";
 import { entities } from "../../../data/repo.js";
 import { VirtualFeed } from "./virtual-feed.js";
 import { events, EVENTS } from "../../../core/events.js";
-import { renderMessage } from "./bubble.js"; // Circular safe
+import { renderMessage, getBubbleClass } from "./bubble.js"; // Circular safe
 import { updatePortraits, applyFractalAmbience } from "../../image-gen-ui.js";
 import { log } from "../../../core/utils.js";
 
@@ -77,13 +77,9 @@ export function showTypingIndicator(container, type = "ai", entityId = null) {
       signatureColor = selectedEntities.user.signatureColor;
     }
 
-    let classes = ["story-message", "typing-bubble"];
-
-    if (type === "narrator" || type === "system") {
-      classes.push("narrator");
-    } else {
-      classes.push("ai");
-    }
+    // [ARCHITECT] Use shared classification logic
+    const modifier = getBubbleClass(type, selectedEntities);
+    let classes = ["chat-bubble", "typing-bubble", modifier];
 
     if (signatureColor && signatureColor !== "default") {
       classes.push(`signature-${signatureColor}`);

@@ -29,7 +29,7 @@
   // --- 2. THE DEVICE FRAME ---
 
   #main .stage-content--storymode {
-    @extend %material-glass-heavy; // Use standard glass physics
+    @extend %material-glass-heavy;
 
     max-width: 450px !important;
     margin: var(--space-xl) auto !important;
@@ -43,7 +43,7 @@
     box-shadow:
       0 0 0 2px rgb(50 50 50),
       // Outer ring
-      0 20px 50px rgb(0 0 0 / 60%); // Deep shadow
+      0 20px 50px rgb(0 0 0 / 60%);
 
     position: relative;
     overflow: hidden;
@@ -58,11 +58,11 @@
   }
 
   .phone-header {
-    @extend %material-glass; // Use standard glass
+    @extend %material-glass;
 
-    background: rgb(20 20 20 / 90%); // Darker tint for header
+    background: rgb(20 20 20 / 90%);
     border-bottom: 1px solid rgb(255 255 255 / 5%);
-    border-radius: 22px 22px 0 0; // Prevent corner clipping
+    border-radius: 22px 22px 0 0;
     padding-bottom: 0.5rem;
     z-index: 100;
 
@@ -88,13 +88,12 @@
       padding: var(--space-sm) var(--space-md);
       position: relative;
 
-      // Round 3 Reverted: Strict Hover Interaction Only
       .phone-avatar {
         width: 42px;
         height: 42px;
         border-radius: 50%;
         overflow: hidden;
-        border: 2px solid rgb(255 255 255 / 10%); // Base state: Dim
+        border: 2px solid rgb(255 255 255 / 10%);
         transition: border-color 0.2s ease;
 
         img {
@@ -108,12 +107,10 @@
           border-color: rgb(var(--user-signature-rgb));
         }
 
-        // AI Avatar (First) - Hover Only
         &:first-child:hover {
           border-color: rgb(var(--ai-signature-rgb)) !important;
         }
 
-        // User Avatar (Last) - Hover Only
         &:last-child:hover {
           border-color: rgb(var(--user-signature-rgb));
         }
@@ -143,7 +140,8 @@
     background: #000;
     padding: var(--space-md) var(--space-sm-md) !important;
 
-    .story-message {
+    // [ARCHITECT] Refactored to .chat-bubble
+    .chat-bubble {
       max-width: 85% !important;
       padding: 0.6rem var(--space-md) !important;
       border-radius: 18px !important;
@@ -162,7 +160,7 @@
       margin-right: 0 !important;
 
       // USER (Right)
-      &.user[data-type="IC"] {
+      &.chat-bubble--user {
         background: rgb(var(--user-signature-rgb)) !important;
         color: var(--pico-primary-inverse) !important;
         border-bottom-right-radius: 4px !important;
@@ -171,31 +169,29 @@
       }
 
       // AI (Left)
-      &.ai[data-type="IC"] {
+      &.chat-bubble--character {
         background: rgb(var(--ai-signature-rgb)) !important;
         color: #fff !important;
         border-bottom-left-radius: 4px !important;
         align-self: flex-start !important;
-
-        // Round 2: Visual Breathing Room
         margin-left: var(--space-sm) !important;
         margin-right: var(--space-xl) !important;
       }
 
       // Round 3: Balanced Image Frame
       &.story-image-container {
-        padding: var(--space-sm-md) !important; // Equal frame
+        padding: var(--space-sm-md) !important;
         width: auto !important;
 
         .image-wrapper {
           border-radius: 12px;
-          margin-top: var(--space-sm-md); // Distance from text above
+          margin-top: var(--space-sm-md);
           width: 100%;
-          line-height: 0; // Kill line-height spacing
+          line-height: 0;
           display: block;
 
           img {
-            display: block !important; // Kill inline descender space
+            display: block !important;
             width: 100% !important;
           }
         }
@@ -206,29 +202,27 @@
       background-color: rgb(var(--ai-signature-rgb)) !important;
       border-radius: 18px !important;
       border-bottom-left-radius: 4px !important;
-      margin-left: var(--space-sm) !important; // Match AI bubbles
+      margin-left: var(--space-sm) !important;
       margin-right: var(--space-xl) !important;
       align-self: flex-start !important;
     }
 
-    // Developer Mode Content Visibility
-    // We must forcibly re-enable these if they were hidden by general mobile optimizations
     .developer-content,
     .thought-trace {
-      display: none; // Default hidden
+      display: none;
 
       body.mode-developer & {
         display: block !important;
         max-width: 90% !important;
         margin-left: auto !important;
         margin-right: auto !important;
-        background: rgb(15 23 42) !important; // Ensure contrast against black
+        background: rgb(15 23 42) !important;
         border: 1px solid rgb(255 255 255 / 20%) !important;
       }
     }
   }
 
-  // --- 5. INPUT AREA OVERRIDES (REFACTORED) ---
+  // --- 5. INPUT AREA OVERRIDES ---
 
   #story-form {
     background: rgb(20 20 20) !important;
@@ -246,7 +240,6 @@
     padding: var(--space-sm-md) var(--space-md) var(--space-lg) !important; // Safe area
     width: 100% !important;
 
-    // Reset children margins
     * {
       margin: 0 !important;
     }
@@ -273,13 +266,13 @@
     textarea[name="message"] {
       @extend %input-deep;
 
-      flex: 1 !important; // Grow to fill space
+      flex: 1 !important;
       border-radius: 24px !important;
       background: rgb(40 40 40) !important;
       border: none !important;
-      padding: 12px 16px !important; // Comfortable typing area
+      padding: 12px 16px !important;
       min-height: 44px !important;
-      height: 44px !important; // Start as one line
+      height: 44px !important;
       line-height: 1.4 !important;
 
       &:focus {
@@ -292,8 +285,8 @@
     button[type="submit"] {
       width: 44px !important;
       height: 44px !important;
-      border-radius: 50% !important; // Circle
-      background: transparent !important; // Ghost by default
+      border-radius: 50% !important;
+      background: transparent !important;
       color: rgb(var(--user-signature-rgb)) !important;
       padding: 0 !important;
       display: flex !important;
@@ -301,7 +294,6 @@
       justify-content: center !important;
       flex-shrink: 0;
 
-      // Icon sizing
       svg {
         width: 24px;
         height: 24px;
