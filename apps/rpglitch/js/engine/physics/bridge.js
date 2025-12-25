@@ -134,7 +134,7 @@ export class WorkerBridge {
     return new Promise((resolve) => {
       // [TIMEOUT] Add a safety timeout to prevent infinite hanging if the worker silently dies
       const safetyTimeout = setTimeout(() => {
-        if (this.activePromise && this.activePromise.resolve === resolve) {
+        if (this.activePromise) {
           console.error("[WorkerBridge] Update timed out. Resolving false.");
           this.resolveActive(false);
         }
