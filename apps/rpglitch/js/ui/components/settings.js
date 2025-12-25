@@ -345,8 +345,15 @@ export const StoryOptionsController = {
       );
 
       if (stories.length === 0) {
-        grid.innerHTML =
-          "<div class='empty-state' style='grid-column: 1 / -1; text-align: center; width: 100%; padding: 2rem; color: var(--muted-color);'><p>No stories found.</p></div>";
+        // [🎨 PALETTE UX: Refined Empty State]
+        const tpl = document.getElementById("tpl-empty-library");
+        if (tpl) {
+          grid.innerHTML = "";
+          grid.appendChild(tpl.content.cloneNode(true));
+        } else {
+          // Fallback if template is missing
+          grid.innerHTML = "<p style='grid-column: 1 / -1; text-align: center;'><small>Your library is empty.</small></p>";
+        }
         return;
       }
 
