@@ -148,10 +148,20 @@ export function escapeHtml(str) {
 export function sanitizeHtml(html) {
   const value = typeof html === "string" ? html : String(html ?? "");
 
+  // 🛡️ WORKER SAFETY PATCH: [Crash Fixed]
+  // In a WebWorker, 'window' is undefined. Accessing window.DOMPurify would throw if we didn't check window first.
+  // We explicitly handle the worker case to avoid "DOMPurify not found" warnings in the console which confuse debugging.
   if (typeof window === "undefined" || !window.DOMPurify) {
-    // 🛡️ SENTINEL SECURITY PATCH: [Risk Mitigated] Fail-safe if DOMPurify is missing
-    console.warn("DOMPurify not found, falling back to escapeHtml");
-    return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    // Only warn if we are in a window context where DOMPurify *should* be present
+    if (typeof window !== "undefined") {
+      console.warn("DOMPurify not found, falling back to escapeHtml");
+    }
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   try {

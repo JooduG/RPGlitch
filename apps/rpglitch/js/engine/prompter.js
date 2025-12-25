@@ -173,6 +173,20 @@ NEGATIVE CONSTRAINT: Do NOT mention "Entropy", "Velocity", or physics numbers in
       resonance: 10,
     };
 
+    // Helper to flatten nested fields for the LLM context
+    const formatSection = (section) => {
+      if (!section) return "";
+      // If it's the legacy string format
+      if (typeof section === "string") return section;
+      // If it's the new nested format (Physical + Non-Physical)
+      const parts = [];
+      if (section.physical) parts.push(`[Physical]: ${section.physical}`);
+      // [FIX] Check for both 'mental' (internal) and 'nonPhysical' (external/legacy) keys
+      const mental = section.mental || section.nonPhysical;
+      if (mental) parts.push(`[Non-Physical]: ${mental}`);
+      return parts.join("\n").trim();
+    };
+
     const system = `[SYSTEM: PROMETHEUS_PHYSICS_V5]
 ${roleInstruction}
 
@@ -188,8 +202,9 @@ Read the last few messages. Calculate the new Dynamics state.
 <CURRENT_STATE>
 ${JSON.stringify(
   {
-    forever: targetEntity.forever, // Use nested forever
-    present: targetEntity.present, // Use nested present
+    // Inject the flattened text so the LLM can read the full context
+    forever_context: formatSection(targetEntity.forever),
+    present_context: formatSection(targetEntity.present),
     dynamics: forcedDynamics || currentDynamics,
   },
   null,
