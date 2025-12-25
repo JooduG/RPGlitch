@@ -60,11 +60,10 @@ export class ContextBuilder {
 
     // [SECURITY] FORCE PURGE: Ensure description is never leaked to LLM
     // Must copy to avoid mutating the reactive state
-    const ai = aiEntity ? { ...aiEntity } : null;
-    const user = userEntity ? { ...userEntity } : null;
-
-    if (ai) delete ai.description;
-    if (user) delete user.description;
+    // Using object destructuring with the rest operator is a concise and immutable
+    // way to create a shallow copy while omitting a specific property.
+    const { description: _aiDesc, ...ai } = aiEntity;
+    const { description: _userDesc, ...user } = userEntity;
 
     const history = state.messages.byStoryId[this.storyId] || [];
 
