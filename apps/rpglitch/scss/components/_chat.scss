@@ -642,7 +642,7 @@ body.mode-developer .debug-console-output {
   display: flex;
   align-items: center;
   gap: 6px;
-  background-color: var(--color-signature-main);
+  background-color: var(--color-signature-main, var(--pico-form-element-background-color));
   color: #fff;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   opacity: 0;
