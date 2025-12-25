@@ -1,4 +1,4 @@
-import { mixHex } from "../../core/utils.js";
+import { mixHex, sanitizeHtml } from "../../core/utils.js";
 import { PALETTE } from "../../core/constants.js";
 import { getVisualState } from "../../data/models.js";
 
@@ -81,7 +81,7 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
 
     const card = document.createElement("div");
     card.className = "dynamics-card";
-    const labelHtml = `<div class="dynamics-label">${key}</div>`;
+    const labelHtml = `<div class="dynamics-label">${sanitizeHtml(key)}</div>`;
 
     if (isEdit) {
       card.innerHTML = `
