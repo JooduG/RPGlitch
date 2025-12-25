@@ -8,6 +8,9 @@ import { NarrativeStrategy, TextProtocolStrategy } from "./strategies.js";
 // CONSTANTS & SYSTEM PROMPTS
 // ===========================================================================
 
+// SECURITY: entity.description is STRICTLY FORBIDDEN in system prompts.
+// Use entity.forever (Identity/Physical) or entity.present (Status/Outfit) instead.
+
 const PROMETHEUS_CONFIG = PHYSICS_CONFIG.PROMETHEUS;
 
 const PROMPT_BLOCKS = {
@@ -53,7 +56,16 @@ export class ContextBuilder {
     const story = state.story.byId[this.storyId];
     if (!story) throw new Error(`Story ${this.storyId} not found`);
 
-    const [ai, user, fractal] = await this._resolveEntities(story);
+    const [aiEntity, userEntity, fractal] = await this._resolveEntities(story);
+
+    // [SECURITY] FORCE PURGE: Ensure description is never leaked to LLM
+    // Must copy to avoid mutating the reactive state
+    const ai = aiEntity ? { ...aiEntity } : null;
+    const user = userEntity ? { ...userEntity } : null;
+
+    if (ai) delete ai.description;
+    if (user) delete user.description;
+
     const history = state.messages.byStoryId[this.storyId] || [];
 
     // Resolve Strategy & Director Mode

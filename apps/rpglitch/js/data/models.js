@@ -265,7 +265,7 @@ export function normalize(base = {}) {
 
   return {
     name: sanitizeHtml(base.name || "").trim(),
-    description: sanitizeHtml(base.description || "").trim(),
+    description: sanitizeHtml(base.description || "").trim(), // 🔒 HUMAN ONLY: Do not use in AI Prompts (Notes/Meta)
     profilePictureUrl: sanitizeHtml(existingAvatar).trim(), // Keep sync for now
     icon: base.icon || null,
     signatureColor: (() => {
