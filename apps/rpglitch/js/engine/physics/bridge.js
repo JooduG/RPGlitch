@@ -83,7 +83,7 @@ export class WorkerBridge {
         if (payload?.entity) {
           // [NEXUS FIX] Reactivity: Emit entity update for UI
           events.dispatchEvent(
-            new CustomEvent("entity:updated", {
+            new CustomEvent(EVENTS.ENTITY_UPDATED, {
               detail: payload.entity,
             }),
           );

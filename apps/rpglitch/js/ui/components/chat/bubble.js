@@ -338,7 +338,10 @@ export function renderMessage(
     formattedMain = formattedMain.replace(
       /\[\[__IMG_PROMPT_START__([\s\S]*?)\]\]/g,
       (match, attrs) => {
-        return `<div class="debug-image-prompt-container" data-dev-visible><span class="label">🎨 RAW PROMPT:</span><span class="content">`;
+        const attrsDisplay = attrs.trim()
+          ? ` (${sanitizeHtml(attrs.trim())})`
+          : "";
+        return `<div class="debug-image-prompt-container" data-dev-visible><span class="label">🎨 RAW PROMPT${attrsDisplay}:</span><span class="content">`;
       },
     );
 

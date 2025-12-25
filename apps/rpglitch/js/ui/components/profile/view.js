@@ -125,7 +125,7 @@ export async function renderProfileView(
   headerWrap.innerHTML = "";
 
   // [NEXUS FIX] Reactivity: Listen for live updates
-  const { events } = await import("../../../core/events.js");
+  const { events, EVENTS } = await import("../../../core/events.js");
   const onEntityUpdate = (e) => {
     if (e.detail && e.detail.id === entity.id) {
       console.log(`⚡ [PROFILE] Live Update Received for ${entity.name}`);
@@ -133,41 +133,14 @@ export async function renderProfileView(
       // Refresh In-Memory Entity
       Object.assign(entity, e.detail);
 
-      // Refresh Fields
-      const refreshText = (selector, value) => {
-        const el = form.querySelector(selector);
-        if (el) el.innerHTML = escapeHtml(value);
+      // Refresh Split Fields (Present/Mental/Physical)
+      const updateField = (key, val) => {
+        const el = form.querySelector(`[data-split-key="${key}"]`);
+        if (el) el.innerHTML = escapeHtml(val);
       };
 
-      // Refresh Split Fields (Present/Mental/Physical)
-      // Since split fields are dynamically generated, we need to target them by content or structure.
-      // Or we can rebuild specific rows.
-      // Simple strategy: Update common fields if they exist in DOM.
-
-      // We can iterate the DOM to find fields matching the structure.
-      // But since we built it with createRow, we didn't add specific IDs.
-      // However, we used classes like .profile-field-text-read
-      // We can just re-render the sections? No, that would lose scroll/focus.
-      // Let's rely on re-rendering the whole view if it's too complex, OR
-      // target specific containers if we can identify them.
-
-      // Actually, for "Present" updates (Physical/Non-Physical), we can do:
-      const presentSections = form.querySelectorAll(".split-column");
-      presentSections.forEach((col) => {
-        const header = col.querySelector(".split-header");
-        const valueDiv = col.querySelector(".profile-field-text-read");
-        if (header && valueDiv) {
-          if (header.textContent === SPLIT_HEADERS.mental) {
-            valueDiv.innerHTML = escapeHtml(
-              getNestedValue(entity, "present.nonPhysical"),
-            );
-          } else if (header.textContent === SPLIT_HEADERS.physical) {
-            valueDiv.innerHTML = escapeHtml(
-              getNestedValue(entity, "present.physical"),
-            );
-          }
-        }
-      });
+      updateField("mental", getNestedValue(entity, "present.nonPhysical"));
+      updateField("physical", getNestedValue(entity, "present.physical"));
 
       // Refresh Dynamics (if present)
       const dynamicsContainer = form.querySelector(".dynamics-widget");
@@ -182,17 +155,17 @@ export async function renderProfileView(
     }
   };
 
-  events.addEventListener("entity:updated", onEntityUpdate);
+  events.addEventListener(EVENTS.ENTITY_UPDATED, onEntityUpdate);
 
   // [CLEANUP] Remove listener when removed from DOM
   // We use a MutationObserver to detect when 'layout' is detached.
   const observer = new MutationObserver((mutations) => {
     if (!document.body.contains(layout)) {
-      events.removeEventListener("entity:updated", onEntityUpdate);
+      events.removeEventListener(EVENTS.ENTITY_UPDATED, onEntityUpdate);
       observer.disconnect();
     }
   });
-  observer.observe(screen, { childList: true });
+  observer.observe(document.body, { childList: true, subtree: true });
 
   const nameDisplay = document.createElement("h1");
   nameDisplay.className = "profile-name-display";
@@ -241,6 +214,8 @@ export async function renderProfileView(
         const readField = document.createElement("div");
         readField.className = "profile-field-text-read";
         readField.setAttribute("data-read", "");
+        // [NEXUS FIX] Add key for live updates
+        readField.setAttribute("data-split-key", key);
         readField.innerHTML = escapeHtml(val);
         splitCol.appendChild(readField);
 
