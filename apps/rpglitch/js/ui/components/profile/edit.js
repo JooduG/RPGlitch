@@ -209,13 +209,17 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
   function updateMagicButtonState() {
     if (!magicBtn) return;
+
+    const WAND_ICON_SVG = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 7l-1.2-2.8L16 3l-1.2 2.8L12 7l2.8 1.2L16 11l1.2-2.8L20 7zm-9 6l-2.3-5L6.5 3 4.2 8 2 10.3l5 2.3L4.7 17l2.3 5L9.3 17l5-2.3L12 13z"/></svg>`;
+    const SPARKLES_ICON_SVG = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.5 5.6L10 7 7.5 8.4 6.1 10.9 4.7 8.4 2.2 7 4.7 5.6 6.1 3.1 7.5 5.6zm12 9.8L22 14l-2.5-1.4L18.1 10.1l-1.4 2.5L14.2 14l2.5 1.4L18.1 17.9l1.4-2.5zM22 2l-2.5 1.4L18.1 0.9 16.7 3.4 14.2 4.8l2.5 1.4L18.1 8.7l1.4-2.5L22 4.8l-2.5-1.4L22 2z"/></svg>`;
+
     if (imageInput.value.trim().length > 0) {
       // Enhance Mode (Sparkles)
-      magicBtn.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.5 5.6L10 7 7.5 8.4 6.1 10.9 4.7 8.4 2.2 7 4.7 5.6 6.1 3.1 7.5 5.6zm12 9.8L22 14l-2.5-1.4L18.1 10.1l-1.4 2.5L14.2 14l2.5 1.4L18.1 17.9l1.4-2.5zM22 2l-2.5 1.4L18.1 0.9 16.7 3.4 14.2 4.8l2.5 1.4L18.1 8.7l1.4-2.5L22 4.8l-2.5-1.4L22 2z"/></svg> Enhance Prompt`;
+      magicBtn.innerHTML = `${SPARKLES_ICON_SVG} Enhance Prompt`;
       magicBtn.dataset.mode = "enhance";
     } else {
       // Extract Mode (Wand)
-      magicBtn.innerHTML = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 7l-1.2-2.8L16 3l-1.2 2.8L12 7l2.8 1.2L16 11l1.2-2.8L20 7zm-9 6l-2.3-5L6.5 3 4.2 8 2 10.3l5 2.3L4.7 17l2.3 5L9.3 17l5-2.3L12 13z"/></svg> Extract Appearance`;
+      magicBtn.innerHTML = `${WAND_ICON_SVG} Extract Appearance`;
       magicBtn.dataset.mode = "extract";
     }
   }
