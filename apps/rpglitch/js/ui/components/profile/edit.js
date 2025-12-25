@@ -36,6 +36,32 @@ function getNestedValue(obj, path) {
   return path.split(".").reduce((acc, part) => acc && acc[part], obj) || "";
 }
 
+function getLiveEntityFromForm(form, baseEntity) {
+  const live = { ...baseEntity };
+
+  // Explicitly scrape name and description if available
+  const nameEl = form.querySelector('[data-edit-field="name"]');
+  const descEl = form.querySelector('[data-edit-field="description"]');
+  if (nameEl) live.name = nameEl.value;
+  if (descEl) live.description = descEl.value;
+
+  Object.keys(PROFILE_STRUCTURE).forEach((key) => {
+    const config = PROFILE_STRUCTURE[key];
+    if (config.type === "nested") {
+      live[key] = live[key] || {};
+      Object.keys(config.fields).forEach((subKey) => {
+        const el = form.querySelector(`[data-edit-field="${key}.${subKey}"]`);
+        if (el) live[key][subKey] = el.value;
+      });
+    } else {
+      const el = form.querySelector(`[data-edit-field="${key}"]`);
+      if (el) live[key] = el.value;
+    }
+  });
+
+  return live;
+}
+
 export async function renderProfileEdit(screen, entity, type, id) {
   // Setup Visuals
   setTopBarRight("form");
@@ -394,8 +420,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
             const prompt = `Rewrite this image prompt for the FLUX model. Use descriptive prose, natural lighting terms, and high fidelity. Keep it concise but vivid.\n\nInput: "${currentVal}"`;
 
             // Stream Logic via llm.js
-            let fullText = "";
-            await generateStream({
+            const fullText = await generateStream({
               payload: {
                 system: "You are an expert prompt engineer.",
                 messages: [{ role: "user", text: prompt }],
@@ -405,7 +430,6 @@ export async function renderProfileEdit(screen, entity, type, id) {
                   model: "flux-prompter", // Metadata for tracking
                 },
               },
-              onToken: (t) => (fullText += t),
             });
 
             imageInput.value = fullText.trim();
@@ -417,26 +441,8 @@ export async function renderProfileEdit(screen, entity, type, id) {
         }
         // MODE A: AUTO-WRITE (Empty Input)
         else {
-          // Scrape LIVE values (Nested Aware)
-          const liveEntity = { ...entity };
-          liveEntity.name = nameInput.value;
-          liveEntity.description = descInput.value;
-
-          Object.keys(PROFILE_STRUCTURE).forEach((key) => {
-            const config = PROFILE_STRUCTURE[key];
-            if (config.type === "nested") {
-              liveEntity[key] = liveEntity[key] || {};
-              Object.keys(config.fields).forEach((subKey) => {
-                const el = form.querySelector(
-                  `[data-edit-field="${key}.${subKey}"]`,
-                );
-                if (el) liveEntity[key][subKey] = el.value;
-              });
-            } else {
-              const el = form.querySelector(`[data-edit-field="${key}"]`);
-              if (el) liveEntity[key] = el.value;
-            }
-          });
+          // Scrape LIVE values using helper
+          const liveEntity = getLiveEntityFromForm(form, entity);
 
           // --- BRAIN TRANSPLANT: Deterministic Prompt Engineering ---
 
