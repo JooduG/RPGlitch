@@ -133,7 +133,7 @@ export function renderMessage(
 
   // [MAESTRO] Fractal Divine Protocol
   // FIX: Detect 'Fractal' via simulation property, as type might be normalized to 'character'
-  if (role === "ai" && entities?.ai?.simulation) {
+  if (role === "fractal" || (role === "ai" && entities?.ai?.simulation)) {
     classList.push("chat-bubble--fractal");
   }
 
