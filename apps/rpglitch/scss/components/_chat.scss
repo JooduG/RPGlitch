@@ -604,6 +604,14 @@ body.mode-developer .debug-console-output {
   }
 }
 
+// [NEXUS FIX] Stale HUD Visuals
+.status-hud--stale {
+    opacity: 0.5;
+    text-decoration: line-through;
+    filter: grayscale(1);
+    pointer-events: none; // No interaction
+}
+
 // --- SIGNATURE COLOR LOGIC ---
 @each $name, $data in $signature-colors {
   $color: map.get($data, color);

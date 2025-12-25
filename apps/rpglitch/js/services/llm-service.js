@@ -97,9 +97,11 @@ export class LlmService {
         errString.includes("timeout") ||
         errString.includes("NetworkError")
       ) {
+        // [NEXUS FIX] Use shared constant for reliable detection
+        const { ERROR_MESSAGES } = await import("../core/constants.js");
         console.error("[LlmService] Network Error:", error);
         throw new Error(
-          "Connection lost with AI server. This is often caused by Ad-Blockers blocking the 'keep-alive' signal. Please check your network settings.",
+          `${ERROR_MESSAGES.CONNECTION_LOST} This is often caused by Ad-Blockers blocking the 'keep-alive' signal. Please check your network settings.`,
         );
       }
 

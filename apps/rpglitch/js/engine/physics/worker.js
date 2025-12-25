@@ -259,7 +259,13 @@ async function handleLlmResponse({ text }) {
       // [NEXUS FIX] Map 'status' to entity.present.nonPhysical
       let presentState = updates.present || freshEntity.present || {};
       if (updates.status) {
-        const base = (typeof presentState === 'object' && presentState !== null) ? presentState : {};
+        // [NEXUS FIX] Handle legacy string state migration safely
+        const base =
+          typeof presentState === "string"
+            ? { physical: presentState }
+            : typeof presentState === "object" && presentState !== null
+              ? presentState
+              : {};
         presentState = { ...base, nonPhysical: updates.status };
       }
 
@@ -273,6 +279,10 @@ async function handleLlmResponse({ text }) {
         updatedAt: Date.now(),
       };
 
+      if (updates.status) {
+        console.log("🔄 [PHYSICS] Updating Non-Physical State:", updates.status);
+      }
+
       // Archivist Logic
       const MAX_PAST_LENGTH = 2000;
       if (updatedEntity.past && updatedEntity.past.length > MAX_PAST_LENGTH) {
@@ -282,7 +292,7 @@ async function handleLlmResponse({ text }) {
         await entities.upsert(ctx.entityType, updatedEntity);
         postMessage({
           type: "CMD_UPDATE_COMPLETE",
-          payload: { success: true },
+          payload: { success: true, dynamics: finalDynamics },
         });
       }
     } else {

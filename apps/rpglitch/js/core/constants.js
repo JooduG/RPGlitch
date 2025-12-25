@@ -8,6 +8,11 @@ export const MAX_TAGS_LENGTH = 5;
 
 export const IMG_RESOLUTION = "512x768";
 
+// --- ERROR MESSAGES ---
+export const ERROR_MESSAGES = {
+  CONNECTION_LOST: "Connection lost with AI server.",
+};
+
 // --- ENTITY TYPES ---
 export const ENTITY_TYPES = {
   AI_CHARACTER: "ai_character",
