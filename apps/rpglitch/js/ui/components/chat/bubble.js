@@ -245,10 +245,9 @@ export function renderMessage(
       }
 
       // 2.5 Extract Image Prompt (X-Ray Vision)
-      const promptMatch = cleanText.match(
-        /<image_prompt>([\s\S]*?)<\/image_prompt>/,
-      );
-      if (promptMatch) {
+      const promptRegex = /<image_prompt>([\s\S]*?)<\/image_prompt>/;
+      let promptMatch;
+      while ((promptMatch = cleanText.match(promptRegex))) {
         debugHtml += `
           <div class="debug-block debug-block--image-prompt developer-content">
               <div class="debug-label">🎨 IMAGE GENERATION PROMPT</div>
