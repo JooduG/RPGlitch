@@ -449,7 +449,11 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
         // 3. Negative Prompting
         let negParts = [];
-        if (isMale) negParts.push("woman, girl, female, boobs, feminine");
+if (isMale) {
+  negParts.push("woman, girl, female, boobs, feminine");
+} else if (isFemale) {
+  negParts.push("man, boy, male, masculine");
+}
 
         if (!isFractal) {
              negParts.push("anime, cartoon, drawing, sketch, 2d, illustration");
