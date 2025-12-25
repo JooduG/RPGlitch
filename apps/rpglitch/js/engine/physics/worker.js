@@ -281,6 +281,11 @@ async function handleLlmResponse({ text }) {
 
       if (updates.status) {
         console.log("🔄 [PHYSICS] Updating Non-Physical State:", updates.status);
+        // [NEXUS FIX] Zombie Field Check
+        if (freshEntity.status !== undefined) {
+          console.warn("⚠️ Writing to legacy .status field for compatibility");
+          updatedEntity.status = updates.status;
+        }
       }
 
       // Archivist Logic
@@ -292,7 +297,11 @@ async function handleLlmResponse({ text }) {
         await entities.upsert(ctx.entityType, updatedEntity);
         postMessage({
           type: "CMD_UPDATE_COMPLETE",
-          payload: { success: true, dynamics: finalDynamics },
+          payload: {
+            success: true,
+            dynamics: finalDynamics,
+            entity: updatedEntity,
+          },
         });
       }
     } else {

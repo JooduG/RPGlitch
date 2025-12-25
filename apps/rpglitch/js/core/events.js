@@ -17,4 +17,5 @@ export const EVENTS = {
   GENERATION_STARTED: "generation:started",
   GENERATION_COMPLETED: "generation:completed",
   CHAT_REFRESH: "chat:refresh",
+  ENTITY_UPDATED: "entity:updated",
 };

@@ -283,18 +283,18 @@ export function renderMessage(
         cleanText = cleanText.replace(jsonMatch[0], "");
       }
 
-      // 2.5 Extract Image Prompt (X-Ray Vision)
-      // [ROBUSTNESS FIX] Use placeholder strategy to survive DOMPurify/Markdown formatting
-      const promptRegex = /<image_prompt[\s\S]*?>([\s\S]*?)<\/image_prompt>/g;
-
-      let promptIdx = 0;
-
-      cleanText = cleanText.replace(promptRegex, (match, content) => {
-        const placeholder = `[[__IMAGE_PROMPT_${promptIdx}__]]`;
-        promptMap.set(placeholder, content.trim());
-        promptIdx++;
-        return placeholder;
-      });
+      // 2.5 Mask Image Prompts (X-Ray Vision)
+      // [NEXUS FIX] Simple masking strategy to survive DOMPurify
+      // We do NOT extract content, just mask the tags themselves.
+      // Supports attributes via regex.
+      cleanText = cleanText.replace(
+        /<image_prompt([\s\S]*?)>/g,
+        "[[__IMG_PROMPT_START__$1]]",
+      );
+      cleanText = cleanText.replace(
+        /<\/image_prompt>/g,
+        "[[__IMG_PROMPT_END__]]",
+      );
 
       // 3. Extract Physiology Tags (e.g., <Orion.Biceps>)
       // Matches: <Name.Property> Value (until newline)
@@ -331,18 +331,23 @@ export function renderMessage(
     let formattedMain = formatMessageText(mainContent);
     const formattedThought = formatMessageText(thoughtContent);
 
-    // [ROBUSTNESS FIX] Restore Image Prompts after formatting
-    if (promptMap.size > 0) {
-      promptMap.forEach((content, placeholder) => {
-        // [NEXUS FIX] Exposed: Hard-coded <image_prompt> wrapper
-        const debugBlock = `<div class="debug-image-prompt-container" data-dev-visible>
-        <span class="label">🎨 RAW PROMPT:</span>
-        <span class="content">${sanitizeHtml(content)}</span>
-     </div>`;
-        // Replace placeholder (global replacement in case it appears multiple times, though unlikely for unique ID)
-        formattedMain = formattedMain.split(placeholder).join(debugBlock);
-      });
-    }
+    // [NEXUS FIX] Unmask Image Prompts
+    // Restore the tags but wrap them in the debug container
+    // We use a regex to capture any attributes saved in the start tag placeholder
+    formattedMain = formattedMain.replace(
+      /\[\[__IMG_PROMPT_START__([\s\S]*?)\]\]/g,
+      (match, attrs) => {
+        const attrsDisplay = attrs.trim()
+          ? ` (${sanitizeHtml(attrs.trim())})`
+          : "";
+        return `<div class="debug-image-prompt-container" data-dev-visible><span class="label">🎨 RAW PROMPT${attrsDisplay}:</span><span class="content">`;
+      },
+    );
+
+    formattedMain = formattedMain.replace(
+      /\[\[__IMG_PROMPT_END__\]\]/g,
+      "</span></div>",
+    );
 
     if (thoughtContent) {
       contentHtml = `<div class="thought-trace developer-content"><div class="thought-label">AI REASONING</div>${formattedThought}</div><div class="message-content">${formattedMain}</div>`;

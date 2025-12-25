@@ -124,6 +124,49 @@ export async function renderProfileView(
   const headerWrap = form.querySelector("[data-profile-header]");
   headerWrap.innerHTML = "";
 
+  // [NEXUS FIX] Reactivity: Listen for live updates
+  const { events, EVENTS } = await import("../../../core/events.js");
+  const onEntityUpdate = (e) => {
+    if (e.detail && e.detail.id === entity.id) {
+      console.log(`⚡ [PROFILE] Live Update Received for ${entity.name}`);
+
+      // Refresh In-Memory Entity
+      Object.assign(entity, e.detail);
+
+      // Refresh Split Fields (Present/Mental/Physical)
+      const updateField = (key, val) => {
+        const el = form.querySelector(`[data-split-key="${key}"]`);
+        if (el) el.innerHTML = escapeHtml(val);
+      };
+
+      updateField("mental", getNestedValue(entity, "present.nonPhysical"));
+      updateField("physical", getNestedValue(entity, "present.physical"));
+
+      // Refresh Dynamics (if present)
+      const dynamicsContainer = form.querySelector(".dynamics-widget");
+      if (dynamicsContainer) {
+        // [NEXUS FIX] Clean re-render of Dynamics Widget
+        const container = dynamicsContainer.parentElement;
+        dynamicsContainer.remove();
+        if (container) {
+          renderDynamicsWidget(container, entity, "view");
+        }
+      }
+    }
+  };
+
+  events.addEventListener(EVENTS.ENTITY_UPDATED, onEntityUpdate);
+
+  // [CLEANUP] Remove listener when removed from DOM
+  // We use a MutationObserver to detect when 'layout' is detached.
+  const observer = new MutationObserver(() => {
+    if (!document.body.contains(layout)) {
+      events.removeEventListener(EVENTS.ENTITY_UPDATED, onEntityUpdate);
+      observer.disconnect();
+    }
+  });
+  observer.observe(screen, { childList: true });
+
   const nameDisplay = document.createElement("h1");
   nameDisplay.className = "profile-name-display";
   ThemeService.apply(nameDisplay, entity.signatureColor);
@@ -171,6 +214,8 @@ export async function renderProfileView(
         const readField = document.createElement("div");
         readField.className = "profile-field-text-read";
         readField.setAttribute("data-read", "");
+        // [NEXUS FIX] Add key for live updates
+        readField.setAttribute("data-split-key", key);
         readField.innerHTML = escapeHtml(val);
         splitCol.appendChild(readField);
 
