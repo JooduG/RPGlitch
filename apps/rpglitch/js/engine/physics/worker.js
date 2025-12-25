@@ -9,6 +9,7 @@ import { state, applyPatch } from "../../core/state.js";
 import { calculateDynamics } from "./main.js";
 import { ContextBuilder } from "../prompter.js";
 import { entities } from "../../data/repo.js";
+import { ENTITY_TYPES } from "../../core/constants.js";
 
 // --- STATE HYDRATION ---
 
@@ -108,11 +109,11 @@ async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
     }
 
     let entity = null;
-    if (targetType === "ai_character")
+    if (targetType === ENTITY_TYPES.AI_CHARACTER)
       entity = await entities.get("character", story.aiId);
-    else if (targetType === "user_character")
+    else if (targetType === ENTITY_TYPES.USER_CHARACTER)
       entity = await entities.get("character", story.userId);
-    else if (targetType === "fractal")
+    else if (targetType === ENTITY_TYPES.FRACTAL)
       entity = await entities.get("fractal", story.fractalId);
 
     if (!entity) {

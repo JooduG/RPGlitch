@@ -17,6 +17,7 @@ import {
 } from "./components/profile/controller.js";
 import { events, EVENTS } from "../core/events.js";
 import { bridge } from "../engine/physics/bridge.js";
+import { ENTITY_TYPES } from "../core/constants.js";
 
 // Shared Selection State (The Source of Truth)
 const selectedEntities = {
@@ -118,7 +119,11 @@ function initEventBinds() {
     console.log("⚡ [REFLEX] Triggering Physics Calculation for Turn...");
     const { state } = await import("../core/state.js");
     if (state.story.activeId) {
-      bridge.runBackgroundUpdate(state.story.activeId, "ai_character", null);
+      bridge.runBackgroundUpdate(
+        state.story.activeId,
+        ENTITY_TYPES.AI_CHARACTER,
+        null,
+      );
     }
   });
 }
