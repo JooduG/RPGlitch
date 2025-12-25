@@ -142,7 +142,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  color: rgb(255 255 255 / 50%);
+  color: var(--pico-muted-color);
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   cursor: pointer;
   pointer-events: auto !important; // Force interactivity
@@ -172,7 +172,6 @@
     text-transform: uppercase;
     letter-spacing: 2px;
     font-weight: 800;
-    opacity: 0.7;
   }
 
   .slot-icon {
@@ -182,7 +181,6 @@
     svg {
       width: 48px;
       height: 48px;
-      opacity: 0.5;
     }
   }
 
@@ -198,7 +196,6 @@
 
     .slot-icon {
       transform: scale(1.05);
-      opacity: 0.8;
     }
   }
 }
@@ -382,7 +379,6 @@
     .meta {
       margin-top: 0.25rem;
       font-size: 0.65rem;
-      opacity: 0.6;
     }
   }
 }

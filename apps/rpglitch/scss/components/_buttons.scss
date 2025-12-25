@@ -55,7 +55,7 @@
 @mixin btn-disabled {
   &:disabled,
   &.disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
     filter: grayscale(1);
     pointer-events: auto; // Allow cursor to show
@@ -151,7 +151,7 @@
   background: rgb(0 0 0 / 40%);
   backdrop-filter: blur(8px);
   border: 1px solid rgb(255 255 255 / 10%);
-  color: rgb(255 255 255 / 80%);
+  color: #fff;
 
   &:hover:not(:disabled, .disabled) {
     background: rgb(255 255 255 / 10%);

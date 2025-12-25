@@ -385,7 +385,6 @@
   i,
   em {
     font-style: italic;
-    opacity: 0.7;
   }
 
   // Ensure nested bold-italic combinations have distinct visual weight
@@ -395,7 +394,6 @@
   em strong {
     font-weight: 800 !important;
     font-style: italic !important;
-    opacity: 0.9 !important;
   }
 
   code {
@@ -560,7 +558,6 @@
   height: 6px;
   background: currentcolor;
   border-radius: 50%;
-  opacity: 0.9;
   animation: fluid-bounce 1.4s infinite ease-in-out both;
 
   &:nth-child(1) {
@@ -687,7 +684,6 @@
   width: 100%;
   text-align: left !important;
   font-size: 0.85em;
-  opacity: 0.9;
   margin-bottom: 0.25rem;
   padding: 0.75rem 1rem;
   background: rgb(0 0 0 / 80%);
@@ -705,7 +701,6 @@
     font-size: 0.65em;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    opacity: 0.6;
     margin-bottom: 0.25rem;
     font-weight: 800;
     font-style: normal;
