@@ -348,6 +348,19 @@
 }
 
 /* 5. MESSAGES (Bubbles) */
+.debug-console-output {
+    display: none !important; // Hard hide by default
+    background: #000;
+    border: 1px solid var(--color-accent-pink);
+    font-family: monospace;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+}
+// The "X-Ray" Switch
+body.mode-developer .debug-console-output {
+    display: block !important; // CSS handles the toggle logic
+}
+
 .story-message {
   padding: var(--space-md) var(--space-md-lg); // Horizontal padding slightly custom
   max-width: 50vw;
