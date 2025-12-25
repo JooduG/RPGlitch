@@ -96,24 +96,28 @@ window.setRerollState = setRerollState;
 
 // --- CORE: Bubble Classification (Refactored) ---
 export function getBubbleClass(role, entities) {
-  const isUser = role === "user";
-  // [MAESTRO] Fractal Divine Protocol
-  // Priority: Check if explicitly Fractal or if AI has simulation (Fractal masquerading as AI)
-  const isFractal =
-    role === "fractal" ||
-    (role === "ai" && (entities?.ai?.type === "fractal" || entities?.ai?.simulation));
+  // 1. User is always User
+  if (role === "user") return "chat-bubble--user";
 
-  if (isUser) return "chat-bubble--user";
-  if (isFractal) return "chat-bubble--fractal";
+  // 2. Fractal is a SPECIAL Narrator (High Priority)
+  // Determine identity
+  let entity = null;
+  if (role === "ai") entity = entities?.ai;
+  else if (role === "fractal") entity = entities?.fractal;
 
-  // Narrator: Explicit 'narrator', 'system', or fallback for unknown roles
-  const isNarrator =
-    role === "narrator" ||
-    role === "system" ||
-    (role !== "ai" && role !== "fractal");
-  if (isNarrator) return "chat-bubble--narrator";
+  // Check type explicitly
+  if (entity && entity.type === "fractal") {
+    return "chat-bubble--fractal";
+  }
 
-  // Default Character (AI)
+  // Explicit Role Override (if entity is missing but role is explicitly fractal)
+  if (role === "fractal") return "chat-bubble--fractal";
+
+  // 3. Narrator is the fallback for system messages
+  if (role === "narrator" || role === "system" || !role)
+    return "chat-bubble--narrator";
+
+  // 4. Standard Character
   return "chat-bubble--character";
 }
 

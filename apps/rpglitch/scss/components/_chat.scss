@@ -478,28 +478,24 @@ body.mode-developer .debug-console-output {
 
 // 4. FRACTAL (Divine Protocol)
 .chat-bubble--fractal {
+  @extend .chat-bubble--narrator;
+
   // Variables
   --color-signature-main: var(--signature-color, var(--pico-primary-background));
   --color-signature-glow: var(--signature-color, rgba(255, 255, 255, 50%));
   --radius-xl: var(--space-xl);
 
-  // Geometry (Narrator-like)
-  align-self: center;
-  text-align: center;
-  width: fit-content;
-  max-width: 85%;
-  margin-inline: auto;
-  border-radius: var(--radius-xl);
-  border-bottom-left-radius: var(--radius-xl);
-
-  // Appearance
+  // Appearance - FORCE overrides
   background-color: var(--color-signature-main) !important;
-  color: #fff !important;
+  color: #ffffff !important;
   border: none !important;
   box-shadow: 0 4px 12px var(--color-signature-glow);
-  text-wrap: balance;
 
-  // No Tail
+  // Geometry Overrides (Narrator + Character Soul)
+  border-radius: var(--radius-xl);
+  max-width: 85%;
+
+  // Ensure tail is gone (handled by narrator extend usually)
   &::before,
   &::after {
     display: none !important;
@@ -666,6 +662,10 @@ body.mode-developer .debug-console-output {
     margin-inline: auto;
     background-color: var(--color-signature-main) !important;
     box-shadow: 0 4px 12px var(--color-signature-glow, rgba(255,255,255,50%));
+
+    .typing-dot {
+      background-color: #ffffff !important;
+    }
   }
 }
 
