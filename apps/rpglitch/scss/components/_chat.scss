@@ -87,6 +87,7 @@
 
   textarea[name="message"] {
     @extend %input-deep;
+
     height: auto;
     min-height: 3rem;
     max-height: 12rem;
@@ -664,7 +665,7 @@ body.mode-developer .debug-console-output {
     align-self: center;
     margin-inline: auto;
     background-color: var(--color-signature-main) !important;
-    box-shadow: 0 4px 12px var(--color-signature-glow, rgba(255,255,255,0.5));
+    box-shadow: 0 4px 12px var(--color-signature-glow, rgba(255,255,255,50%));
   }
 }
 
