@@ -351,7 +351,7 @@ export const TurnManager = {
           if (e.name === "AbortError") throw e;
 
           // [NEXUS FIX] Stream Resilience Circuit
-          if (e.message.includes("Connection lost")) {
+          if (e.message.includes(ERROR_MESSAGES.CONNECTION_LOST)) {
              if (retryCount < MAX_STREAM_RETRIES) {
                  console.warn(`⚠️ [TEXT-GEN] Stream interrupted. Triggering Auto-Reroll... (Attempt ${retryCount + 1}/${MAX_STREAM_RETRIES})`);
 
