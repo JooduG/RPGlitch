@@ -65,20 +65,34 @@ export function setSendLock(isLocked, disableInput = false) {
 
 // --- INDICATORS ---
 
-export function showTypingIndicator(container, type = "ai", entityId = null) {
+export function showTypingIndicator(
+  container,
+  typeOrOptions = "ai",
+  entityId = null,
+) {
   if (virtualFeed && container.id === "chat-feed") {
     const bubble = document.createElement("div");
     bubble.id = "active-typing-indicator";
+
+    let type = typeOrOptions;
+    let explicitClass = null;
+
+    if (typeof typeOrOptions === "object" && typeOrOptions !== null) {
+      explicitClass = typeOrOptions.class;
+      type = typeOrOptions.role || "ai"; // Fallback role if needed
+    }
 
     let signatureColor = null;
     if (type === "ai" && selectedEntities.ai) {
       signatureColor = selectedEntities.ai.signatureColor;
     } else if (type === "user" && selectedEntities.user) {
       signatureColor = selectedEntities.user.signatureColor;
+    } else if (type === "fractal" && selectedEntities.fractal) {
+      signatureColor = selectedEntities.fractal.signatureColor;
     }
 
-    // [ARCHITECT] Use shared classification logic
-    const modifier = getBubbleClass(type, selectedEntities);
+    // [ARCHITECT] Use shared classification logic or explicit class
+    const modifier = explicitClass || getBubbleClass(type, selectedEntities);
     let classes = ["chat-bubble", "typing-bubble", modifier];
 
     if (signatureColor && signatureColor !== "default") {

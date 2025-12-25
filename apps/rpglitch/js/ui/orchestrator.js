@@ -386,16 +386,24 @@ export async function handleConcludeStory() {
     const { TurnManager } = await import("../engine/director.js");
 
     // [MAESTRO] Movement 3: Visual Feedback
-    // [ARCHITECT] Refactored to trigger Fractal typing bubble
-    events.dispatchEvent(
-      new CustomEvent(EVENTS.TYPING_STARTED, {
-        detail: { role: "fractal" }, // Concluding is a higher-order operation
-      }),
+    // [ARCHITECT] Refactored to explicitly trigger Fractal typing bubble
+    const { showTypingIndicator, removeTypingIndicator } = await import(
+      "./components/chat/feed.js"
     );
+    const feed = document.querySelector("#chat-feed");
+
+    if (feed) {
+      // Force the typing indicator to use the FRACTAL style
+      showTypingIndicator(feed, {
+        class: "chat-bubble--fractal", // Pass the explicit class
+      });
+    }
 
     try {
       await TurnManager.concludeStory();
     } finally {
+      if (feed) removeTypingIndicator(feed);
+      // Ensure global listeners are also synced (optional but safe)
       events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
     }
   }
