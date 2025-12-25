@@ -77,7 +77,7 @@ export function showTypingIndicator(
     let type = typeOrOptions;
     let explicitClass = null;
 
-    if (typeof typeOrOptions === "object") {
+    if (typeof typeOrOptions === "object" && typeOrOptions !== null) {
       explicitClass = typeOrOptions.class;
       type = typeOrOptions.role || "ai"; // Fallback role if needed
     }
