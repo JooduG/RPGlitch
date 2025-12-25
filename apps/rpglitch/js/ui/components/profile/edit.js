@@ -215,7 +215,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
   // [UX] Enter Key Hook
   imageInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       actionButton.click();
     }
