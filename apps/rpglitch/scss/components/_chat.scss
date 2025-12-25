@@ -483,6 +483,37 @@ body.mode-developer .debug-console-output {
   }
 }
 
+// [MAESTRO] FRACTAL DIVINE PROTOCOL
+// FIX: Increased specificity to override .story-message.ai[data-type="IC"]
+.story-message.ai.chat-bubble--fractal {
+  // 1. Variable Mapping
+  --color-signature-main: var(--signature-color, var(--pico-primary-background));
+  --color-signature-glow: var(--signature-color, rgba(255, 255, 255, 0.5));
+  --radius-xl: var(--space-xl);
+
+  // 2. Geometry (The Narrator Shape)
+  align-self: center;
+  text-align: center;
+  width: fit-content;
+  max-width: 85%;
+  margin-inline: auto;
+  border-radius: var(--radius-xl);
+  border-bottom-left-radius: var(--radius-xl);
+
+  // 3. Color (The Character Soul)
+  background-color: var(--color-signature-main) !important;
+  // FIX: Removed redundant color/border rules (handled by base class)
+  box-shadow: 0 4px 12px var(--color-signature-glow);
+
+  // 4. Tail Removal
+  &::before,
+  &::after {
+    display: none !important;
+  }
+
+  text-wrap: balance;
+}
+
 .story-message[data-type="OOC"],
 .story-message.developer-command {
   align-self: center !important;

@@ -1,5 +1,8 @@
 import { escapeHtml, log } from "../core/utils.js";
 import { getPictureHTML } from "./services/ui-utils.js";
+
+// [SECURITY] This module handles UI only. Keyword extraction is in VisualManager (ui/services/visuals.js).
+// Confirmed: No entity.description usage here.
 import { getVisualState } from "../data/models.js";
 import { state } from "../core/state.js";
 import { RGB_MAP } from "../core/constants.js";

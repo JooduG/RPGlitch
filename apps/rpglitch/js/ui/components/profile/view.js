@@ -133,6 +133,7 @@ export async function renderProfileView(
   const descDisplay = document.createElement("p");
   descDisplay.className = "profile-desc-display";
   descDisplay.textContent = entity.description || "";
+  // Logic for Auto-Write is handled in edit.js
   headerWrap.appendChild(descDisplay);
 
   // --- SECTIONS (Maestro 2-Column Grid) ---
