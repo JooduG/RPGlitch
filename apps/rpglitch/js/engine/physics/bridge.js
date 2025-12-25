@@ -79,6 +79,15 @@ export class WorkerBridge {
             detail: { type: "background-update" },
           }),
         );
+
+        if (payload?.entity) {
+          // [NEXUS FIX] Reactivity: Emit entity update for UI
+          events.dispatchEvent(
+            new CustomEvent("entity:updated", {
+              detail: payload.entity,
+            }),
+          );
+        }
       }
     }
   }

@@ -27,6 +27,8 @@ const selectedEntities = {
 };
 
 let _onSelectionChanged = null;
+let lastPhysicsUpdate = 0;
+const PHYSICS_DEBOUNCE_MS = 5000;
 
 // --- EVENT WIRING (Decoupling) ---
 
@@ -126,6 +128,15 @@ function initEventBinds() {
     setChatGeneratingState(false);
 
     // [NEXUS FIX] Reflex Ignition
+    const now = Date.now();
+    if (now - lastPhysicsUpdate < PHYSICS_DEBOUNCE_MS) {
+      console.log(
+        `[REFLEX] Skipped (Debounced: ${now - lastPhysicsUpdate}ms)`,
+      );
+      return;
+    }
+    lastPhysicsUpdate = now;
+
     const { state } = await import("../core/state.js");
     if (state.story.activeId) {
       console.log('⚡ [REFLEX] Initiating Physics Calculation...');

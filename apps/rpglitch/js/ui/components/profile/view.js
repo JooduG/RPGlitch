@@ -124,6 +124,76 @@ export async function renderProfileView(
   const headerWrap = form.querySelector("[data-profile-header]");
   headerWrap.innerHTML = "";
 
+  // [NEXUS FIX] Reactivity: Listen for live updates
+  const { events } = await import("../../../core/events.js");
+  const onEntityUpdate = (e) => {
+    if (e.detail && e.detail.id === entity.id) {
+      console.log(`⚡ [PROFILE] Live Update Received for ${entity.name}`);
+
+      // Refresh In-Memory Entity
+      Object.assign(entity, e.detail);
+
+      // Refresh Fields
+      const refreshText = (selector, value) => {
+        const el = form.querySelector(selector);
+        if (el) el.innerHTML = escapeHtml(value);
+      };
+
+      // Refresh Split Fields (Present/Mental/Physical)
+      // Since split fields are dynamically generated, we need to target them by content or structure.
+      // Or we can rebuild specific rows.
+      // Simple strategy: Update common fields if they exist in DOM.
+
+      // We can iterate the DOM to find fields matching the structure.
+      // But since we built it with createRow, we didn't add specific IDs.
+      // However, we used classes like .profile-field-text-read
+      // We can just re-render the sections? No, that would lose scroll/focus.
+      // Let's rely on re-rendering the whole view if it's too complex, OR
+      // target specific containers if we can identify them.
+
+      // Actually, for "Present" updates (Physical/Non-Physical), we can do:
+      const presentSections = form.querySelectorAll(".split-column");
+      presentSections.forEach((col) => {
+        const header = col.querySelector(".split-header");
+        const valueDiv = col.querySelector(".profile-field-text-read");
+        if (header && valueDiv) {
+          if (header.textContent === SPLIT_HEADERS.mental) {
+            valueDiv.innerHTML = escapeHtml(
+              getNestedValue(entity, "present.nonPhysical"),
+            );
+          } else if (header.textContent === SPLIT_HEADERS.physical) {
+            valueDiv.innerHTML = escapeHtml(
+              getNestedValue(entity, "present.physical"),
+            );
+          }
+        }
+      });
+
+      // Refresh Dynamics (if present)
+      const dynamicsContainer = form.querySelector(".dynamics-widget");
+      if (dynamicsContainer) {
+        // [NEXUS FIX] Clean re-render of Dynamics Widget
+        const container = dynamicsContainer.parentElement;
+        dynamicsContainer.remove();
+        if (container) {
+          renderDynamicsWidget(container, entity, "view");
+        }
+      }
+    }
+  };
+
+  events.addEventListener("entity:updated", onEntityUpdate);
+
+  // [CLEANUP] Remove listener when removed from DOM
+  // We use a MutationObserver to detect when 'layout' is detached.
+  const observer = new MutationObserver((mutations) => {
+    if (!document.body.contains(layout)) {
+      events.removeEventListener("entity:updated", onEntityUpdate);
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
   const nameDisplay = document.createElement("h1");
   nameDisplay.className = "profile-name-display";
   ThemeService.apply(nameDisplay, entity.signatureColor);
