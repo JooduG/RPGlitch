@@ -234,14 +234,27 @@ export function renderMessage(
         cleanText = cleanText.replace(hudMatch[0], "");
       }
 
-      // 2. Extract JSON (The "dynamics" block)
+      // 2. Extract JSON (The "dynamics" block) -> [STATUS HUD]
       const jsonMatch = cleanText.match(/\{[\s\S]*?"dynamics"[\s\S]*?\}/);
       if (jsonMatch) {
         debugHtml += `
-          <div class="debug-block developer-content">
+          <div class="debug-block developer-content status-hud">
               <div class="physics-log"><strong>[STATE DATA]</strong>\n${sanitizeHtml(jsonMatch[0].trim())}</div>
           </div>`;
         cleanText = cleanText.replace(jsonMatch[0], "");
+      }
+
+      // 2.5 Extract Image Prompt (X-Ray Vision)
+      const promptMatch = cleanText.match(
+        /<image_prompt>([\s\S]*?)<\/image_prompt>/,
+      );
+      if (promptMatch) {
+        debugHtml += `
+          <div class="debug-block debug-block--image-prompt developer-content">
+              <div class="debug-label">🎨 IMAGE GENERATION PROMPT</div>
+              <div class="debug-content physics-log">${sanitizeHtml(promptMatch[1].trim())}</div>
+          </div>`;
+        cleanText = cleanText.replace(promptMatch[0], "");
       }
 
       // 3. Extract Physiology Tags (e.g., <Orion.Biceps>)
