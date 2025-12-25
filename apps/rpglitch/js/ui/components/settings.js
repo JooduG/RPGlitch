@@ -20,6 +20,37 @@ export const StoryOptionsController = {
       }
     }
 
+    // ⚡ BOLT OPTIMIZATION: Event Delegation
+    // Replaced multiple individual listeners with a single document-level delegate on the grid.
+    const libraryGrid = modal.querySelector("#library-grid");
+    if (libraryGrid) {
+      libraryGrid.addEventListener("click", async (e) => {
+        const card = e.target.closest(".story-drawer-card");
+        if (!card) return;
+        e.preventDefault();
+
+        const storyId = card.dataset.storyId;
+        const storyState = card.dataset.storyState;
+        const storyTitle = card.dataset.storyTitle;
+
+        if (!storyId) return;
+
+        if (storyState === "concluded") {
+          await StoryOptionsController.loadStory(storyId);
+          StoryOptionsController.close();
+        } else {
+          if (
+            await import("../orchestrator.js").then((m) =>
+              m.showConfirm("Load Story?", `Load "${storyTitle}"?`),
+            )
+          ) {
+            await StoryOptionsController.loadStory(storyId);
+            StoryOptionsController.close();
+          }
+        }
+      });
+    }
+
     const btn = document.querySelector("#btn-options");
     const closeBtn = modal.querySelector(".close");
     const resetBtn = modal.querySelector("#btn-reset-story");
@@ -376,6 +407,11 @@ export const StoryOptionsController = {
         card.type = "button"; // accessible
         card.setAttribute("data-tooltip", story.title); // [Tooltip]
 
+        // ⚡ BOLT OPTIMIZATION: Data Attributes
+        card.dataset.storyId = story.id;
+        card.dataset.storyState = story.state;
+        card.dataset.storyTitle = story.title;
+
         // 1. Signature Color
         if (story.signatureColor) {
           ThemeService.apply(card, story.signatureColor);
@@ -438,22 +474,8 @@ export const StoryOptionsController = {
 
         card.appendChild(labelContainer);
 
-        // Click Action
-        card.onclick = async () => {
-          if (story.state === "concluded") {
-            await StoryOptionsController.loadStory(story.id);
-            StoryOptionsController.close();
-          } else {
-            if (
-              await import("../orchestrator.js").then((m) =>
-                m.showConfirm("Load Story?", `Load "${story.title}"?`),
-              )
-            ) {
-              await StoryOptionsController.loadStory(story.id);
-              StoryOptionsController.close();
-            }
-          }
-        };
+        // Click Action REMOVED in favor of delegation
+        // card.onclick = ...
 
         grid.appendChild(card);
       });
