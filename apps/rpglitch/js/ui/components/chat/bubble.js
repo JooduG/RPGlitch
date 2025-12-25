@@ -246,7 +246,7 @@ export function renderMessage(
 
       // 2.5 Extract Image Prompt (X-Ray Vision)
       const promptMatch = cleanText.match(
-        /<image_prompt>([\s\S]*?)<\/image_prompt>/,
+        /<image_prompt>([\s\S]*?)<\/image_prompt>/i,
       );
       if (promptMatch) {
         debugHtml += `
