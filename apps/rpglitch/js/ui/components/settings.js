@@ -161,12 +161,6 @@ export const StoryOptionsController = {
           document.body.classList.remove("mode-developer");
         }
 
-        // Dispatch Global Event
-        window.dispatchEvent(
-          new CustomEvent("dev-mode-toggled", {
-            detail: { isEnabled: isChecked },
-          }),
-        );
       };
     } else {
       error(

@@ -88,20 +88,19 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
     if (isNaN(val)) val = 50;
 
     const card = document.createElement("div");
-    card.style.cssText =
-      "background: var(--pico-card-background-color); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--pico-muted-border-color); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 0.5rem;";
+    card.className = "dynamics-card";
 
-    const labelHtml = `<div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 0.25rem;">${key}</div>`;
+    const labelHtml = `<div class="dynamics-label">${key}</div>`;
 
     if (isEdit) {
       card.innerHTML = `
         ${labelHtml}
-        <input type="number" data-edit-dynamic="${key}" value="${val}" min="0" max="100" style="width: 100%; text-align: center !important; font-family: monospace; font-weight: 800; border: none; background: transparent; padding: 0; height: auto; color: var(--pico-primary);">
+        <input type="number" class="dynamics-input" data-edit-dynamic="${key}" value="${val}" min="0" max="100">
       `;
     } else {
       card.innerHTML = `
         ${labelHtml}
-        <div style="font-family: monospace; font-size: 1.1rem; font-weight: 800; color: var(--pico-primary); text-align: center; width: 100%;">${val}%</div>
+        <div class="dynamics-value">${val}%</div>
       `;
     }
     parentCol.appendChild(card);
