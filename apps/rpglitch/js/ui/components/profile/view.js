@@ -159,13 +159,13 @@ export async function renderProfileView(
 
   // [CLEANUP] Remove listener when removed from DOM
   // We use a MutationObserver to detect when 'layout' is detached.
-  const observer = new MutationObserver((mutations) => {
+  const observer = new MutationObserver(() => {
     if (!document.body.contains(layout)) {
       events.removeEventListener(EVENTS.ENTITY_UPDATED, onEntityUpdate);
       observer.disconnect();
     }
   });
-  observer.observe(document.body, { childList: true, subtree: true });
+  observer.observe(screen, { childList: true });
 
   const nameDisplay = document.createElement("h1");
   nameDisplay.className = "profile-name-display";
