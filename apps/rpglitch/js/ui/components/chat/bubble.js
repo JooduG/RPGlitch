@@ -250,7 +250,7 @@ export function renderMessage(
         debugHtml += `
           <div class="debug-block debug-block--image-prompt developer-content">
               <div class="debug-label">🎨 IMAGE GENERATION PROMPT</div>
-              <div class="debug-content physics-log">${sanitizeHtml(promptMatch[1].trim())}</div>
+              <div class="physics-log">${sanitizeHtml(promptMatch[1].trim())}</div>
           </div>`;
       }
       cleanText = cleanText.replace(promptRegex, "");
