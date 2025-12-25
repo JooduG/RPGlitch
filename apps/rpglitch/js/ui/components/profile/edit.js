@@ -465,7 +465,11 @@ export async function renderProfileEdit(screen, entity, type, id) {
         // 4. The Wiring (Construct Rich Prompt)
         // Structure: [Style], [Gender], [Subject], [Description]
         const subject = `A portrait of ${liveEntity.name}`;
-        const baseDesc = liveEntity.description || "";
+        const baseDesc = [
+          liveEntity.description,
+          liveEntity.forever?.physical,
+          liveEntity.present?.physical,
+        ].filter(Boolean).join(", ");
 
         const promptParts = [styleKeywords, genderKeywords, subject, baseDesc]
             .filter(p => p && p.trim() !== "");
