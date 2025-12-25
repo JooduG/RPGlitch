@@ -3,8 +3,7 @@ import os
 
 def verify_clarity(page):
     # Load the local file - using absolute path
-    cwd = os.getcwd()
-    file_path = f"file://{cwd}/apps/rpglitch/RPGlitch.html"
+    file_path = (Path.cwd() / "apps" / "rpglitch" / "RPGlitch.html").as_uri()
     print(f"Navigating to {file_path}")
     page.goto(file_path)
 
