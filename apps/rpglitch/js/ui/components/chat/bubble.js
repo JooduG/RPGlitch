@@ -110,7 +110,7 @@ export function getBubbleClass(role, entities) {
   const isNarrator =
     role === "narrator" ||
     role === "system" ||
-    (!isUser && role !== "ai" && role !== "fractal");
+    (role !== "ai" && role !== "fractal");
   if (isNarrator) return "chat-bubble--narrator";
 
   // Default Character (AI)
