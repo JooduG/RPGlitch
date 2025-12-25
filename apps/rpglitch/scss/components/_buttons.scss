@@ -295,3 +295,50 @@
 .btn-group-pill {
   @extend %btn-group-pill;
 }
+
+// --- 7. SPECIAL COMPONENT: SPLIT ACTIONS (DIALOGS/CARDS) ---
+// Flush footer with even split, used in Modal Alerts and Lightbox
+%btn-group-split {
+  display: flex;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+  // Border-top moved to specific components (modal/lightbox) for flexibility
+
+  // Simplified selector list relying on base classes.
+  // Ensure all buttons in a split group have .btn, .ui-btn or are <button> tags.
+  > .btn,
+  > button,
+  > .ui-btn,
+  > .btn-ghost {
+    @extend %ui-btn;
+
+    flex: 1 1 0; // Equal width
+    margin: 0;
+    border-radius: 0;
+    height: 3.5rem; // Standard touch target for footers
+    border: none;
+    // Removed background: transparent to allow variants (like primary) to show color
+
+    // Divider
+    &:not(:last-child) {
+      border-right: 1px solid $ui-glass-border;
+    }
+
+    // Flush Corners (External container must handle its own radius, but this helps)
+    &:first-child {
+      border-bottom-left-radius: var(--space-sm-md);
+    }
+
+    &:last-child {
+      border-bottom-right-radius: var(--space-sm-md);
+    }
+
+    // Provide a consistent hover background for non-solid button variants.
+    // NOTE: If adding new solid buttons, exclude them here to preserve their background.
+    &:hover:not(:disabled, .disabled):not(.btn-primary):not(.btn-secondary):not(.btn-glass) {
+      background: $ui-glass-hover;
+    }
+  }
+}

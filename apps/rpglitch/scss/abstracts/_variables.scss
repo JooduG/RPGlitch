@@ -45,6 +45,10 @@ $breakpoint-tablet: 1024px;
 // --- TYPOGRAPHY & EFFECTS ---
 $text-shadow-vibrant: 0 1px 2px rgba(0, 0, 0, 60%);
 
+// --- UI TOKENS ---
+$ui-glass-border: rgb(255 255 255 / 10%);
+$ui-glass-hover: rgb(255 255 255 / 5%);
+
 // --- Z-INDEX SCALE ---
 // Centralized map to prevent layering conflicts
 $z-map: (

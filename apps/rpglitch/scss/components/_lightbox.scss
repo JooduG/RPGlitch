@@ -61,48 +61,27 @@
 
   // Action Bar (Bottom)
   .lightbox-actions {
-    width: 100%;
-    display: flex;
-    padding: 0;
-    margin: 0;
+    @extend %btn-group-split;
 
-    // Flush Footer Style
+    // Specific Lightbox Overrides (Glass background)
     background: rgba(20, 20, 30, 95%);
-    border: 1px solid rgba(255, 255, 255, 10%);
+    border: 1px solid $ui-glass-border;
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
     backdrop-filter: blur(12px);
 
+    // Ensure buttons inherit the correct styling
     .btn,
     .btn-ghost,
     button {
-      @include btn-base;
-      @include btn-physics;
-      @include btn-disabled;
-
-      flex: 1; // 50/50 Split
-      margin: 0;
-      border-radius: 0;
-      padding: 1rem;
-      background: transparent;
-      color: rgba(255, 255, 255, 80%);
+      padding: 1rem; // Taller hit area for mobile viewer
       font-size: 0.9rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      border: none;
-
-      &:first-child {
-        border-bottom-left-radius: 12px;
-        border-right: 1px solid rgba(255, 255, 255, 10%);
-      }
-
-      &:last-child {
-        border-bottom-right-radius: 12px;
-      }
+      color: rgba(255, 255, 255, 80%);
 
       &:hover:not(:disabled, .disabled) {
-        background: rgba(255, 255, 255, 10%);
         color: white;
       }
     }

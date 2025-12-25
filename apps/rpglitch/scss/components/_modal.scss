@@ -52,37 +52,13 @@ dialog.modal {
     }
 
     footer {
-      padding: 0;
-      border-top: 1px solid rgba(255, 255, 255, 10%);
-      display: flex;
-      width: 100%;
-      margin: 0;
+      @extend %btn-group-split;
+      border-top: 1px solid $ui-glass-border;
 
-      // Reset button styles to inherit global .btn defaults
-      .btn,
-      button {
-        @include btn-base;
-        @include btn-physics;
-        @include btn-disabled;
-
-        flex: 1; // 50% Width Each
-        padding: 1rem !important;
-        height: auto;
-        border-radius: 0;
-        margin: 0;
-        border: none;
-        border-right: 1px solid rgba(255, 255, 255, 10%);
-
-        &:last-child {
-          border-right: none;
-          border-bottom-right-radius: var(--pico-radius);
-        }
-
-        // Flush Corners
-        &:first-child {
-          border-bottom-left-radius: var(--pico-radius);
-        }
-      }
+      // Dialog-specific overrides if necessary, otherwise the extend handles it.
+      // The %btn-group-split uses var(--space-sm-md) (12px),
+      // whereas previous code used var(--pico-radius).
+      // Since the request is to unify, using the split group is correct.
     }
   }
 
@@ -160,38 +136,9 @@ dialog.modal {
   }
 
   // Footer
-  // Footer
   footer {
-    display: flex;
-    padding: 0;
-    gap: 0;
-    border-top: 1px solid rgba(255, 255, 255, 10%);
-
-    // Buttons now rely on classes (e.g. .btn-ghost, .btn-primary)
-    // but we ensure they stretch evenly in dialogs
-    .btn,
-    button {
-      @include btn-base;
-      @include btn-physics;
-      @include btn-disabled;
-
-      flex: 1 1 0;
-      margin: 0;
-      border-radius: 0;
-      height: 3.5rem;
-
-      &:not(:last-child) {
-        border-right: 1px solid rgba(255, 255, 255, 10%);
-      }
-
-      &:first-child {
-        border-bottom-left-radius: 12px;
-      }
-
-      &:last-child {
-        border-bottom-right-radius: 12px;
-      }
-    }
+    @extend %btn-group-split;
+    border-top: 1px solid $ui-glass-border;
   }
 }
 
