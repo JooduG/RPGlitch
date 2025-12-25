@@ -260,7 +260,6 @@ async function handleLlmResponse({ text }) {
       let presentState = updates.present || freshEntity.present || {};
       if (updates.status) {
         presentState = { ...presentState, nonPhysical: updates.status };
-        console.log("[Physics] Updated Entity Context:", presentState);
       }
 
       const updatedEntity = {

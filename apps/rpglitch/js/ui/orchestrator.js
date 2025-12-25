@@ -116,7 +116,6 @@ function initEventBinds() {
     setChatGeneratingState(false);
 
     // [NEXUS FIX] Reflex Ignition
-    console.log("⚡ [REFLEX] Triggering Physics Calculation for Turn...");
     const { state } = await import("../core/state.js");
     if (state.story.activeId) {
       bridge.runBackgroundUpdate(
