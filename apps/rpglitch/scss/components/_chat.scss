@@ -521,6 +521,10 @@
     border-bottom: 1px solid rgba($debug-violet-500, 0.3);
     text-transform: uppercase;
   }
+
+  .physics-log {
+    color: $debug-violet-300;
+  }
 }
 
 // [PHASE 2] X-RAY VISION: STATUS HUD (Dynamics)
