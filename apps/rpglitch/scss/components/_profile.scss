@@ -123,7 +123,26 @@
       background: var(--pico-muted-border-color);
       border-radius: 2px;
       position: relative;
-      overflow: hidden;
+      overflow: visible; // Allow text to show outside
+      margin-top: 1.5rem; // Make room for text above
+
+      // Status Text
+      &::before {
+        content: attr(data-status);
+        position: absolute;
+        bottom: 100%; // Sit on top
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 0.7rem;
+        color: var(--pico-primary);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+        white-space: nowrap;
+        animation: slide-in-up 0.3s ease-out;
+      }
 
       &::after {
         content: "";
@@ -368,8 +387,8 @@ $placeholder-opacity: 0.4;
   }
 
   &::placeholder {
-     color: var(--signature-color, var(--pico-muted-color));
-     opacity: $placeholder-opacity;
+    color: var(--signature-color, var(--pico-muted-color));
+    opacity: $placeholder-opacity;
   }
 
   @include mobile {
@@ -662,14 +681,14 @@ input[type="number"][data-edit-dynamic] {
       align-items: baseline;
       gap: 0.5rem;
       padding-top: 0;
-      border-bottom: 1px solid rgba(255,255,255,10%);
+      border-bottom: 1px solid rgba(255, 255, 255, 10%);
       padding-bottom: 0.25rem;
       margin-bottom: 0.25rem;
     }
   }
 
   .split-content {
-      gap: 1rem;
+    gap: 1rem;
   }
 }
 

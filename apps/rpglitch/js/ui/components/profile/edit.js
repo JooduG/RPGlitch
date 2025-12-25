@@ -16,6 +16,7 @@ import {
 } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
+import { LlmService } from "../../../services/llm-service.js";
 
 import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 import {
@@ -211,6 +212,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
       try {
         setBusy(true);
         const prompt = imageInput.value.trim();
+        const negativePrompt = imageInput.dataset.negativePrompt || ""; // [NEW] Negative Prompt Support
         const resolution = isFractal ? "768x768" : "512x768";
         const removeBgCheckbox = layout.querySelector("#gen-transparent-bg");
         const isTransparent =
@@ -219,6 +221,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
         const url = await VisualManager.generate(prompt, {
           resolution,
           removeBackground: isTransparent,
+          negative: negativePrompt, // Pass strictly as 'negative' per Visuals.js contract
         });
 
         if (url) {
@@ -325,7 +328,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
     // ⚡ BOLT REFACTOR: Use shared row logic
     const { row, contentCol } = createProfileRow(
       config.label.split(" (")[0],
-      LABEL_MAP[key] || ""
+      LABEL_MAP[key] || "",
     );
 
     // Case 1: Nested Objects (Forever/Present)
@@ -335,10 +338,12 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
       const keys = ["mental", "physical"];
 
-      keys.forEach(subKey => {
+      keys.forEach((subKey) => {
         const fieldConfig = config.fields[subKey];
         if (!fieldConfig) {
-          console.warn(`Configuration for nested field '${key}.${subKey}' not found. Skipping.`);
+          console.warn(
+            `Configuration for nested field '${key}.${subKey}' not found. Skipping.`,
+          );
           return;
         }
         const splitCol = document.createElement("div");
@@ -364,7 +369,6 @@ export async function renderProfileEdit(screen, entity, type, id) {
         splitWrap.appendChild(splitCol);
       });
       contentCol.appendChild(splitWrap);
-
     }
     // Case 2: String Fields (Past/Future)
     else if (config.type === "string") {
@@ -389,6 +393,13 @@ export async function renderProfileEdit(screen, entity, type, id) {
       e.preventDefault();
       try {
         setBusy(true);
+
+        // [UX] LOADING STATE PARITY
+        const loadBar = imageOverlay.querySelector(".loading-bar");
+        if (loadBar) {
+          loadBar.setAttribute("data-status", "Maestro is dreaming...");
+        }
+
         const selectedStyle = paletteSelect
           ? paletteSelect.value
           : entity.signatureColour || "photorealistic";
@@ -419,29 +430,66 @@ export async function renderProfileEdit(screen, entity, type, id) {
           }
         });
 
-        const tagInputEl = form.querySelector('[data-edit-field="tags"]');
-        if (tagInputEl) {
-          liveEntity.tags = tagInputEl.value
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean);
-        } else {
-          liveEntity.tags = entity.tags || [];
+        // [NEW] PROMPT ARCHITECT (LLM)
+        const entityTypeLabel = isFractal
+          ? "Abstract Fractal Concept"
+          : "RPG Character";
+
+        // Default Negatives (Safety Net)
+        // GLOBAL: text, watermark, blurry, low quality, cartoon, anime
+        const BASE_NEG = "text, watermark, blurry, low quality, cartoon, anime";
+        const TYPE_NEG = isFractal
+          ? "character, person, face, human, body" // [FRACTAL] No people
+          : "bad anatomy"; // [CHARACTER] No deformities
+
+        const defaultNeg = `${BASE_NEG}, ${TYPE_NEG}`;
+
+        const systemPrompt = `You are a Visual Director for a Sci-Fi RPG. 
+Your goal is to write a text-to-image prompt for a "${entityTypeLabel}".
+Context: Name="${liveEntity.name}", Description="${liveEntity.description}", Style="${styleTerm}".
+Task: Return a JSON object with 'positive' (the prompt) and 'negative' (what to avoid).
+JSON Schema: { "positive": "string", "negative": "string" }
+CRITICAL: The negative prompt MUST exclude text, watermarks, and generic bad quality. If it's a fractal, exclude humans.`;
+
+        const response = await LlmService.generate(
+          {
+            system: systemPrompt,
+            messages: [],
+            params: {
+              temperature: 0.7,
+              maxTokens: 300,
+              model: "shuttle-2-turbo",
+            },
+          },
+          { silent: true },
+        );
+
+        // Parse Logic
+        let finalPos = "";
+        let finalNeg = defaultNeg;
+
+        try {
+          // Attempt JSON Parse (Handle markdown blocks if AI wrapper adds them)
+          const cleanJson = response.replace(/```json|```/g, "").trim();
+          const data = JSON.parse(cleanJson);
+          finalPos = data.positive;
+          finalNeg = data.negative || defaultNeg;
+        } catch (err) {
+          console.warn(
+            "Auto-Write JSON extraction failed, falling back to raw text.",
+            err,
+          );
+          finalPos = response; // Fallback: Assume whole response is prompt
         }
 
-        const finalPrompt = await VisualManager.composePrompt(
-          liveEntity,
-          styleTerm,
-          existingText,
-        );
-        imageInput.value = finalPrompt;
+        imageInput.value = finalPos;
+        imageInput.dataset.negativePrompt = finalNeg;
+
+        // Trigger visual update
         imageInput.dispatchEvent(new Event("input"));
       } catch (err) {
         console.error("Magic Prompt failed", err);
-        showAlert(
-          "Error",
-          "The Developer is currently unavailable. Please try again.",
-        );
+        showAlert("Error", "The Maestro is silent. Please try again.");
       } finally {
         setBusy(false);
         updateButtonState();

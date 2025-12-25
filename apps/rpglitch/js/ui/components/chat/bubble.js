@@ -248,7 +248,7 @@ export function renderMessage(
 
       // 2.5 Extract Image Prompt (X-Ray Vision)
       // [ROBUSTNESS FIX] Use placeholder strategy to survive DOMPurify/Markdown formatting
-      const promptRegex = /<image_prompt>([\s\S]*?)<\/image_prompt>/g;
+      const promptRegex = /<image_prompt[\s\S]*?>([\s\S]*?)<\/image_prompt>/g;
 
       let promptIdx = 0;
 
