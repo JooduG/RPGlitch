@@ -22,6 +22,13 @@ $pico-del-color: #dc3545;
 // See tools/build/app.js for generation logic.
 @forward "palette-generated";
 
+// --- PALETTE: DEBUG / X-RAY ---
+$debug-violet-500: #8b5cf6;
+$debug-violet-300: #d8b4fe;
+$debug-cyan-500: #06b6d4;
+$debug-cyan-400: #22d3ee;
+$debug-cyan-200: #a5f3fc;
+
 // --- SPACING SYSTEM (RHYTHM) ---
 // Base unit: 1rem (16px)
 :root {

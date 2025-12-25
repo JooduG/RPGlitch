@@ -246,13 +246,13 @@ export function renderMessage(
 
       // 2.5 Extract Image Prompt (X-Ray Vision)
       const promptMatch = cleanText.match(
-        /<image_prompt>([\s\S]*?)<\/image_prompt>/i,
+        /<image_prompt>([\s\S]*?)<\/image_prompt>/,
       );
       if (promptMatch) {
         debugHtml += `
           <div class="debug-block debug-block--image-prompt developer-content">
               <div class="debug-label">🎨 IMAGE GENERATION PROMPT</div>
-              <div class="physics-log">${sanitizeHtml(promptMatch[1].trim())}</div>
+              <div class="debug-content physics-log">${sanitizeHtml(promptMatch[1].trim())}</div>
           </div>`;
         cleanText = cleanText.replace(promptMatch[0], "");
       }
