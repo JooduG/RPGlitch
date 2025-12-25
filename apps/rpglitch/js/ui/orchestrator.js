@@ -224,10 +224,7 @@ export function showConfirm(title, message) {
     // [UX] Keybind Wiring
     const handleKeyDown = (e) => {
       // If focused on a button (or any input), let native behavior handle Enter
-      const isInput =
-        ["BUTTON", "INPUT", "TEXTAREA", "SELECT"].includes(
-          e.target.tagName,
-        ) || e.target.isContentEditable;
+      const isInput = e.target !== e.currentTarget;
 
       if (e.key === "Enter") {
         if (!isInput) {
