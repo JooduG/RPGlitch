@@ -142,7 +142,12 @@ export function mixHex(c1, c2, weight) {
 
 export function escapeHtml(str) {
   if (typeof str !== "string") return "";
-  return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 export function sanitizeHtml(html) {
@@ -156,12 +161,7 @@ export function sanitizeHtml(html) {
     if (typeof window !== "undefined") {
       console.warn("DOMPurify not found, falling back to escapeHtml");
     }
-    return value
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+    return escapeHtml(value);
   }
 
   try {
