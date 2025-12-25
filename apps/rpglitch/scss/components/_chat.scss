@@ -502,8 +502,9 @@ body.mode-developer .debug-console-output {
 
   // 3. Color (The Character Soul)
   background-color: var(--color-signature-main) !important;
+  color: #fff !important; // Force white text
+  border: none !important; // Remove borders if narrator has them
 
-  // FIX: Removed redundant color/border rules (handled by base class)
   box-shadow: 0 4px 12px var(--color-signature-glow);
 
   // 4. Tail Removal
@@ -640,18 +641,18 @@ body.mode-developer .debug-console-output {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: var(--pico-form-element-background-color);
+  background-color: var(--color-signature-main, var(--pico-form-element-background-color));
   color: #fff;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   opacity: 0;
   animation: slide-in-up 0.3s ease-out forwards;
-  border-radius: 18px;
+  border-radius: 999px; // Pill shape
 
   @each $name, $data in $signature-colors {
     $color: map.get($data, color);
 
     &.signature-#{$name} {
-      background: #{$color} !important;
+      background-color: #{$color} !important;
     }
   }
 

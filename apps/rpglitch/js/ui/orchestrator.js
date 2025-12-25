@@ -331,7 +331,19 @@ export async function handleConcludeStory() {
 
     // Call Engine
     const { TurnManager } = await import("../engine/director.js");
-    await TurnManager.concludeStory();
+
+    // [MAESTRO] Movement 3: Visual Feedback
+    events.dispatchEvent(
+      new CustomEvent(EVENTS.TYPING_STARTED, {
+        detail: { role: "narrator" }, // Concluding is a system/narrator action
+      }),
+    );
+
+    try {
+      await TurnManager.concludeStory();
+    } finally {
+      events.dispatchEvent(new CustomEvent(EVENTS.TYPING_STOPPED));
+    }
   }
 }
 
