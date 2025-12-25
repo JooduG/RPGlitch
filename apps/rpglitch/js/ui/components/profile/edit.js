@@ -449,15 +449,13 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
         // 3. Negative Prompting
         let negParts = [];
-if (isMale) {
-  negParts.push("woman, girl, female, boobs, feminine");
-} else if (isFemale) {
-  negParts.push("man, boy, male, masculine");
-}
+        if (isMale) negParts.push("woman, girl, female, boobs, feminine");
 
-        if (!isFractal) {
-             negParts.push("anime, cartoon, drawing, sketch, 2d, illustration");
-        }
+        // [FIX] Do NOT add "anime, cartoon..." here.
+        // VisualManager checks for "anime" in negative prompt.
+        // If missing, it automatically injects a massive high-fidelity negative list.
+        // We want that list.
+
         // Base negatives
         negParts.push("text, watermark, blurry, low quality");
 
