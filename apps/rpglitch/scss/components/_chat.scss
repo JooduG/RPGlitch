@@ -507,6 +507,44 @@
   }
 }
 
+// [PHASE 1] X-RAY VISION: IMAGE PROMPTS
+.debug-block--image-prompt {
+  border-left: 3px solid $debug-violet-500;
+
+  .debug-label {
+    background: rgba($debug-violet-500, 0.2);
+    color: $debug-violet-300;
+    font-size: 0.65em;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0.5rem;
+    border-bottom: 1px solid rgba($debug-violet-500, 0.3);
+    text-transform: uppercase;
+  }
+
+  .physics-log {
+    color: $debug-violet-300;
+  }
+}
+
+// [PHASE 2] X-RAY VISION: STATUS HUD (Dynamics)
+.status-hud {
+  border-left: 3px solid $debug-cyan-500;
+
+  .physics-log {
+    color: $debug-cyan-200;
+    font-size: 0.7rem;
+
+    strong {
+      display: block;
+      color: $debug-cyan-400;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+}
+
 // --- SIGNATURE COLOR LOGIC ---
 // Applies globally as per revised request.
 @each $name, $data in $signature-colors {
