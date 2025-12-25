@@ -134,9 +134,28 @@ export async function renderProfileEdit(screen, entity, type, id) {
     }
     if (imageOverlay) imageOverlay.classList.toggle("is-locked", busy);
 
+    // [NEW] Progress Bar Parity
+    let progress = imageOverlay.querySelector(".loading-bar");
+    if (busy) {
+      if (!progress) {
+        progress = document.createElement("div");
+        progress.className = "loading-bar";
+        // Insert before the controls
+        imageOverlay.insertBefore(
+          progress,
+          imageOverlay.querySelector(".overlay-grid-controls"),
+        );
+      }
+    } else {
+      if (progress) progress.remove();
+    }
+
     elementLockList.forEach((el) => {
       el.disabled = busy;
       if (!busy) el.removeAttribute("aria-busy");
+      // Optional visual hint
+      if (busy) el.classList.add("btn-disabled-visual");
+      else el.classList.remove("btn-disabled-visual");
     });
 
     if (magicBtn) magicBtn.style.opacity = busy ? "0.5" : "1";

@@ -66,55 +66,84 @@ export function renderDynamicsWidget(container, entity, mode = "view") {
   };
 
   const isEdit = mode === "edit";
+  const isFractal = entity.type === "fractal";
 
   // [REFACTOR] Use Maestro 2-Column Grid (Profile Row)
   const { row, contentCol } = createProfileRow("DYNAMICS", "Hidden Metrics");
 
-  // Create Split Content (50/50)
-  const splitWrap = document.createElement("div");
-  splitWrap.className = "split-content";
+  // [LOGIC] Conditional Layout (Fractal = 1x4, Character = 2x2)
+  const wrapper = document.createElement("div");
 
-  // Column 1: Non-Physical / Mental (Entropy, Permeability)
-  const colLeft = document.createElement("div");
-  colLeft.className = "split-column";
+  if (isFractal) {
+    wrapper.className = "dynamics-grid--linear";
 
-  // Column 2: Physical (Velocity, Resonance)
-  const colRight = document.createElement("div");
-  colRight.className = "split-column";
+    const keys = ["entropy", "permeability", "velocity", "resonance"];
+    keys.forEach((key) => {
+      // 🛡️ SENTINEL SECURITY PATCH
+      let val = Number(dyns[key]);
+      if (isNaN(val)) val = 50;
 
-  const renderField = (key, parentCol) => {
-    // 🛡️ SENTINEL SECURITY PATCH: [XSS Risk Mitigated]
-    let val = Number(dyns[key]);
-    if (isNaN(val)) val = 50;
+      const card = document.createElement("div");
+      card.className = "dynamics-card";
+      const labelHtml = `<div class="dynamics-label">${key}</div>`;
 
-    const card = document.createElement("div");
-    card.className = "dynamics-card";
+      if (isEdit) {
+        card.innerHTML = `
+          ${labelHtml}
+          <input type="number" class="dynamics-input" data-edit-dynamic="${key}" value="${val}" min="0" max="100">
+        `;
+      } else {
+        card.innerHTML = `
+          ${labelHtml}
+          <div class="dynamics-value">${val}%</div>
+        `;
+      }
+      wrapper.appendChild(card);
+    });
+  } else {
+    // Original 2x2 Split
+    wrapper.className = "split-content";
 
-    const labelHtml = `<div class="dynamics-label">${key}</div>`;
+    // Column 1: Non-Physical / Mental (Entropy, Permeability)
+    const colLeft = document.createElement("div");
+    colLeft.className = "split-column";
 
-    if (isEdit) {
-      card.innerHTML = `
-        ${labelHtml}
-        <input type="number" class="dynamics-input" data-edit-dynamic="${key}" value="${val}" min="0" max="100">
-      `;
-    } else {
-      card.innerHTML = `
-        ${labelHtml}
-        <div class="dynamics-value">${val}%</div>
-      `;
-    }
-    parentCol.appendChild(card);
-  };
+    // Column 2: Physical (Velocity, Resonance)
+    const colRight = document.createElement("div");
+    colRight.className = "split-column";
 
-  renderField("entropy", colLeft);
-  renderField("permeability", colLeft);
-  renderField("velocity", colRight);
-  renderField("resonance", colRight);
+    const renderField = (key, parentCol) => {
+      let val = Number(dyns[key]);
+      if (isNaN(val)) val = 50;
 
-  splitWrap.appendChild(colLeft);
-  splitWrap.appendChild(colRight);
-  contentCol.appendChild(splitWrap);
+      const card = document.createElement("div");
+      card.className = "dynamics-card";
+      const labelHtml = `<div class="dynamics-label">${key}</div>`;
 
+      if (isEdit) {
+        card.innerHTML = `
+          ${labelHtml}
+          <input type="number" class="dynamics-input" data-edit-dynamic="${key}" value="${val}" min="0" max="100">
+        `;
+      } else {
+        card.innerHTML = `
+          ${labelHtml}
+          <div class="dynamics-value">${val}%</div>
+        `;
+      }
+      parentCol.appendChild(card);
+    };
+
+    renderField("entropy", colLeft);
+    renderField("permeability", colLeft);
+    renderField("velocity", colRight);
+    renderField("resonance", colRight);
+
+    wrapper.appendChild(colLeft);
+    wrapper.appendChild(colRight);
+  }
+
+  contentCol.appendChild(wrapper);
   container.appendChild(row);
 }
 

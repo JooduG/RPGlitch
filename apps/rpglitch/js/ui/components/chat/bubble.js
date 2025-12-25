@@ -246,14 +246,13 @@ export function renderMessage(
 
       // 2.5 Extract Image Prompt (X-Ray Vision)
       const promptRegex = /<image_prompt>([\s\S]*?)<\/image_prompt>/g;
-      for (const promptMatch of cleanText.matchAll(promptRegex)) {
-        debugHtml += `
-          <div class="debug-block debug-block--image-prompt developer-content">
+      // [FIX] Do NOT strip the tag. Wrap it in a debug block for CSS toggling.
+      cleanText = cleanText.replace(promptRegex, (match, p1) => {
+        return `<div class="debug-prompt-block developer-content">
               <div class="debug-label">🎨 IMAGE GENERATION PROMPT</div>
-              <div class="physics-log">${sanitizeHtml(promptMatch[1].trim())}</div>
+              <div class="physics-log">${sanitizeHtml(p1.trim())}</div>
           </div>`;
-      }
-      cleanText = cleanText.replace(promptRegex, "");
+      });
 
       // 3. Extract Physiology Tags (e.g., <Orion.Biceps>)
       // Matches: <Name.Property> Value (until newline)

@@ -116,6 +116,36 @@
     opacity: 0;
     transform: translateY(10px);
 
+    // [NEW] Progress Bar
+    .loading-bar {
+      width: 100%;
+      height: 4px;
+      background: var(--pico-muted-border-color);
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 30%;
+        background: var(--pico-primary);
+        animation: indeterminate 1s infinite linear;
+      }
+    }
+
+    @keyframes indeterminate {
+      0% {
+        left: -30%;
+      }
+      100% {
+        left: 100%;
+      }
+    }
+
     .profile-pic-input {
       @extend %input-deep;
 
@@ -149,11 +179,13 @@
         @include btn-base;
         @include btn-physics;
         @include btn-disabled;
+        @extend %glass-pill; // [Maestro] Pill Shape
 
         padding: 0 0.75rem;
         gap: 0.4rem;
         cursor: pointer;
         transition: transform 0.2s;
+        border-radius: 999px !important; // Force pill
       }
 
       // Main Action
@@ -161,9 +193,11 @@
         @include btn-base;
         @include btn-physics;
         @include btn-disabled;
+        @extend %glass-pill; // [Maestro] Pill Shape
 
         padding: 0 0.75rem;
         white-space: nowrap;
+        border-radius: 999px !important; // Force pill
       }
 
       // Select
@@ -430,6 +464,18 @@ $placeholder-opacity: 0.4;
       // Removed border-bottom per "No Lines" request
       padding-bottom: 0.25rem;
     }
+  }
+}
+
+// Dynamics: Linear Grid (1x4)
+.dynamics-grid--linear {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+  width: 100%;
+
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr); // Fallback to 2x2 on mobile
   }
 }
 
