@@ -82,7 +82,7 @@
       width: 40%;
       max-width: 300px;
       height: auto;
-      opacity: 0.3;
+      color: var(--pico-muted-border-color);
     }
   }
 
@@ -91,7 +91,7 @@
     width: auto;
     height: 80px;
     max-height: 160px;
-    opacity: 0.4;
+    color: var(--pico-muted-border-color);
   }
 
   // --- EDIT OVERLAY ---
@@ -641,7 +641,7 @@ input[type="number"][data-edit-dynamic] {
 .dynamics-label {
   font-size: 0.65rem;
   text-transform: uppercase;
-  opacity: 0.7;
+  color: var(--pico-muted-color);
   margin-bottom: 0.25rem;
 }
 
