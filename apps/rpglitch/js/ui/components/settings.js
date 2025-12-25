@@ -352,7 +352,7 @@ export const StoryOptionsController = {
           grid.appendChild(tpl.content.cloneNode(true));
         } else {
           // Fallback if template is missing
-          grid.innerHTML = "<p><small>Your library is empty.</small></p>";
+          grid.innerHTML = "<p style='grid-column: 1 / -1; text-align: center;'><small>Your library is empty.</small></p>";
         }
         return;
       }
