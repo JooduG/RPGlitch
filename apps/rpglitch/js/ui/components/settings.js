@@ -3,7 +3,7 @@ import { applyPatch, state } from "../../core/state.js";
 import { TurnManager } from "../../engine/director.js";
 import { entities } from "../../data/repo.js";
 import { showAlert, handleConcludeStory } from "../orchestrator.js";
-import { log, error } from "../../core/utils.js";
+import { log, error, sanitizeHtml } from "../../core/utils.js";
 
 export const StoryOptionsController = {
   async init() {
@@ -426,7 +426,7 @@ export const StoryOptionsController = {
 
         labelContainer.innerHTML = `
             <div style="font-weight:700; line-height:1.2; font-size:0.8rem; margin-bottom:0.25rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
-                ${story.title}
+                ${sanitizeHtml(story.title)}
             </div>
             <div>
                 ${statusHtml}
