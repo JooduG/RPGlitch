@@ -23,7 +23,11 @@ export class WorkerBridge {
       this.worker.onmessage = (e) => this.handleMessage(e);
       this.worker.onerror = (e) => {
         console.error("[WorkerBridge] Worker Error:", e);
+        // Force termination on crash to prevent hanging state, then attempt to respawn if critical?
+        // For now, just resolve the promise so the UI doesn't freeze.
         this.resolveActive(false);
+        // [STABILITY] Mark as not ready so we don't send messages into the void
+        this.isReady = false;
       };
       this.isReady = true;
     };
@@ -116,7 +120,9 @@ export class WorkerBridge {
 
   async runBackgroundUpdate(storyId, targetType, linkedMessageId) {
     if (!this.isReady) {
-      console.warn("[WorkerBridge] Worker not ready. Skipping update.");
+      // [RECOVERY] Attempt to revive if dead?
+      // For now, just fail fast to prevent hanging.
+      console.warn("[WorkerBridge] Worker not ready (or crashed). Skipping update.");
       return false;
     }
 
@@ -126,11 +132,31 @@ export class WorkerBridge {
     }
 
     return new Promise((resolve) => {
-      this.activePromise = { resolve };
-      this.worker.postMessage({
-        type: "CMD_START_UPDATE",
-        payload: { storyId, targetType, linkedMessageId },
-      });
+      // [TIMEOUT] Add a safety timeout to prevent infinite hanging if the worker silently dies
+      const safetyTimeout = setTimeout(() => {
+        if (this.activePromise) {
+          console.error("[WorkerBridge] Update timed out. Resolving false.");
+          this.resolveActive(false);
+        }
+      }, 30000); // 30s timeout for background physics
+
+      // Wrap resolve to clear timeout
+      this.activePromise = {
+        resolve: (val) => {
+          clearTimeout(safetyTimeout);
+          resolve(val);
+        },
+      };
+
+      try {
+        this.worker.postMessage({
+          type: "CMD_START_UPDATE",
+          payload: { storyId, targetType, linkedMessageId },
+        });
+      } catch (err) {
+        console.error("[WorkerBridge] PostMessage failed:", err);
+        this.resolveActive(false);
+      }
     });
   }
 }
