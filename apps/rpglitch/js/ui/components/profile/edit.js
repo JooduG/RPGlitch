@@ -16,7 +16,6 @@ import {
 } from "../../../core/utils.js";
 import { state } from "../../../core/state.js";
 import { VisualManager } from "../../services/visuals.js";
-import { LlmService } from "../../../services/llm-service.js";
 
 import { PROFILE_STRUCTURE, LABEL_MAP, SPLIT_HEADERS } from "./constants.js";
 import {
@@ -429,9 +428,17 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
         // 1. Gender Enforcement
         const gender = (liveEntity.gender || entity.gender || "").toLowerCase();
-        const pronouns = (liveEntity.pronouns || entity.pronouns || "").toLowerCase();
-        const isMale = gender === "male" || gender === "man" || pronouns.includes("he/");
-        const isFemale = gender === "female" || gender === "woman" || pronouns.includes("she/");
+        const pronouns = (
+          liveEntity.pronouns ||
+          entity.pronouns ||
+          ""
+        ).toLowerCase();
+        const isMale =
+          gender === "male" || gender === "man" || pronouns.includes("he/");
+        const isFemale =
+          gender === "female" ||
+          gender === "woman" ||
+          pronouns.includes("she/");
 
         let genderKeywords = "";
         // Force append to START (we'll prepend this variable in the array)
@@ -440,17 +447,21 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
         // 2. Style Injection
         let styleKeywords = "";
-        if (isFractal) { // using isFractal closure variable
-           styleKeywords = "Abstract geometry, 3D render, math-based, glowing, NO HUMANS";
+        if (isFractal) {
+          // using isFractal closure variable
+          styleKeywords =
+            "Abstract geometry, 3D render, math-based, glowing, NO HUMANS";
         } else {
-           // Default to Character
-           styleKeywords = "Photorealistic Profile Picture, 8k, raw photo, natural skin texture, visible pores, cinematic lighting, sharp focus";
+          // Default to Character
+          styleKeywords =
+            "Photorealistic Profile Picture, 8k, raw photo, natural skin texture, visible pores, cinematic lighting, sharp focus";
         }
 
         // 3. Negative Prompting
         let negParts = [];
         if (isMale) negParts.push("woman, girl, female, boobs, feminine");
-        else if (isFemale) negParts.push("man, boy, male, masculine, facial hair");
+        else if (isFemale)
+          negParts.push("man, boy, male, masculine, facial hair");
 
         // [FIX] Do NOT add "anime, cartoon..." here.
         // VisualManager checks for "anime" in negative prompt.
@@ -469,10 +480,16 @@ export async function renderProfileEdit(screen, entity, type, id) {
           liveEntity.description,
           liveEntity.forever?.physical,
           liveEntity.present?.physical,
-        ].filter(Boolean).join(", ");
+        ]
+          .filter(Boolean)
+          .join(", ");
 
-        const promptParts = [styleKeywords, genderKeywords, subject, baseDesc]
-            .filter(p => p && p.trim() !== "");
+        const promptParts = [
+          styleKeywords,
+          genderKeywords,
+          subject,
+          baseDesc,
+        ].filter((p) => p && p.trim() !== "");
 
         const finalPos = promptParts.join(", ");
 
