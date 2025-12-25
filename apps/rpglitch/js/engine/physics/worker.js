@@ -255,11 +255,18 @@ async function handleLlmResponse({ text }) {
     const freshEntity = await entities.get(ctx.entityType, ctx.targetEntityId);
 
     if (freshEntity) {
+      // [NEXUS FIX] Map 'status' to entity.present.nonPhysical
+      let presentState = updates.present || freshEntity.present || {};
+      if (updates.status) {
+        presentState = { ...presentState, nonPhysical: updates.status };
+        console.log("[Physics] Updated Entity Context:", presentState);
+      }
+
       const updatedEntity = {
         ...freshEntity,
         forever: updates.forever || freshEntity.forever,
         past: updates.past || freshEntity.past,
-        present: updates.present || freshEntity.present,
+        present: presentState,
         future: updates.future || freshEntity.future,
         dynamics: finalDynamics,
         updatedAt: Date.now(),

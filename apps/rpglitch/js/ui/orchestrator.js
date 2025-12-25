@@ -16,6 +16,7 @@ import {
   setProfileCallbacks,
 } from "./components/profile/controller.js";
 import { events, EVENTS } from "../core/events.js";
+import { bridge } from "../engine/physics/bridge.js";
 
 // Shared Selection State (The Source of Truth)
 const selectedEntities = {
@@ -112,6 +113,13 @@ function initEventBinds() {
       await import("./components/chat/feed.js");
     setSendLock(false);
     setChatGeneratingState(false);
+
+    // [NEXUS FIX] Reflex Ignition
+    console.log("⚡ [REFLEX] Triggering Physics Calculation for Turn...");
+    const state = await import("../core/state.js").then((m) => m.state);
+    if (state.story.activeId) {
+      bridge.runBackgroundUpdate(state.story.activeId, "ai_character", null);
+    }
   });
 }
 
