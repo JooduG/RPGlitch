@@ -454,8 +454,7 @@ export async function renderProfileEdit(screen, entity, type, id) {
 
             // Clean up the response
             let cleanText = fullText
-              .replace(/\*\*.*?\*\*/g, "") // Remove bold headers
-              .replace(/Revised.*?Prompt:/i, "") // Remove labels
+              .replace(/^\s*(\*\*.*?\*\*|Revised.*?Prompt:)\s*/gim, "") // Remove headers and labels at the start of lines
               .replace(/Note:[\s\S]*$/i, "") // Remove trailing notes
               .trim() // Trim first to expose quotes
               .replace(/^["']|["']$/g, "") // Remove surrounding quotes
