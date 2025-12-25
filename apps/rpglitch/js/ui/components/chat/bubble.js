@@ -131,6 +131,15 @@ export function renderMessage(
   const roleClass = role === "user" || role === "ai" ? role : "narrator";
   let classList = ["story-message", roleClass];
 
+  // [MAESTRO] Fractal Divine Protocol
+  if (
+    role === "ai" &&
+    entities?.ai?.name === characterName &&
+    entities?.ai?.type === "fractal"
+  ) {
+    classList.push("chat-bubble--fractal");
+  }
+
   let signatureColor = null;
   let visuals = null;
 
