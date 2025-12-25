@@ -1,11 +1,11 @@
 // apps/rpglitch/js/entity-crud.js
 import { db } from "../core/db.js";
-import { error } from "../core/utils.js";
+import { log, error } from "../core/utils.js";
 import { normalize, premade, STORAGE_VERSION } from "./models.js";
 
 // --- SEEDER (The Factory) ---
 export async function seedPremades() {
-  console.log("[RPGlitch] Verifying starter content...");
+  log("[RPGlitch] Verifying starter content...");
   try {
     const existing = await db.entities.toArray();
 
@@ -21,7 +21,7 @@ export async function seedPremades() {
       const hasChild = existing.some((e) => e.originId === bp.id);
 
       if (!hasChild) {
-        console.log(`[Factory] Minting fresh copy of ${bp.name}`);
+        log(`[Factory] Minting fresh copy of ${bp.name}`);
 
         const type = bp.kind || bp.type || "character";
 
@@ -51,7 +51,7 @@ export async function seedPremades() {
 
     if (toAdd.length > 0) {
       await db.entities.bulkPut(toAdd);
-      console.log(`[RPGlitch] Minted ${toAdd.length} new starter entities.`);
+      log(`[RPGlitch] Minted ${toAdd.length} new starter entities.`);
     }
   } catch (err) {
     error("Failed to seed premades:", err);

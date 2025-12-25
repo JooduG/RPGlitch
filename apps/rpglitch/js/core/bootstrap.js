@@ -151,7 +151,7 @@ const App = {
       await new Promise((r) => setTimeout(r, 100));
     }
     if (window.rpgLists) {
-      console.log(
+      log(
         "[RPGlitch] Config loaded successfully:",
         Object.keys(window.rpgLists),
       );
