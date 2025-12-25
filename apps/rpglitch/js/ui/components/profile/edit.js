@@ -465,11 +465,20 @@ export async function renderProfileEdit(screen, entity, type, id) {
         // 4. The Wiring (Construct Rich Prompt)
         // Structure: [Style], [Gender], [Subject], [Description]
         const subject = `A portrait of ${liveEntity.name}`;
-        const baseDesc = [
-          liveEntity.description,
+
+        let descSources = [
           liveEntity.forever?.physical,
           liveEntity.present?.physical,
-        ].filter(Boolean).join(", ");
+        ].filter(Boolean);
+
+        // Fallback if no physical traits found
+        if (descSources.length === 0) {
+           // [LEGACY SUPPORT] Explicitly requested by protocol
+           if (liveEntity.appearance) descSources.push(liveEntity.appearance);
+           else descSources.push(`${liveEntity.type} - A mysterious figure`);
+        }
+
+        const baseDesc = descSources.join(", ");
 
         const promptParts = [styleKeywords, genderKeywords, subject, baseDesc]
             .filter(p => p && p.trim() !== "");
