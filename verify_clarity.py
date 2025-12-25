@@ -2,8 +2,7 @@ from playwright.sync_api import sync_playwright, expect
 import os
 
 def verify_clarity(page):
-    cwd = os.getcwd()
-    file_path = f"file://{cwd}/apps/rpglitch/RPGlitch.html"
+    file_path = (Path.cwd() / "apps" / "rpglitch" / "RPGlitch.html").as_uri()
     page.goto(file_path)
     page.wait_for_selector("body")
 
