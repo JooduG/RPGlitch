@@ -303,9 +303,10 @@ export function renderMessage(
     // [ROBUSTNESS FIX] Restore Image Prompts after formatting
     if (promptMap.size > 0) {
       promptMap.forEach((content, placeholder) => {
-        const debugBlock = `<div class="debug-console-output">
-        <span class="debug-label">🎨 PROMPT:</span>
-        <span class="debug-content">${sanitizeHtml(content)}</span>
+        // [NEXUS FIX] Exposed: Hard-coded <image_prompt> wrapper
+        const debugBlock = `<div class="debug-image-prompt-container" data-dev-visible>
+        <span class="label">🎨 RAW PROMPT:</span>
+        <span class="content">${sanitizeHtml(content)}</span>
      </div>`;
         // Replace placeholder (global replacement in case it appears multiple times, though unlikely for unique ID)
         formattedMain = formattedMain.split(placeholder).join(debugBlock);

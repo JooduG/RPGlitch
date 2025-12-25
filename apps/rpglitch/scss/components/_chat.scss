@@ -998,3 +998,30 @@ body.mode-developer {
     display: flex;
   }
 }
+
+// [NEXUS FIX] Dev Mode Visibility Override
+.debug-image-prompt-container {
+    display: none;
+}
+
+body.mode-developer .debug-image-prompt-container {
+    display: block;
+    background: #000;
+    border: 1px dashed var(--color-accent-pink);
+    padding: var(--space-xs);
+    margin-top: var(--space-xs);
+    font-family: monospace;
+    font-size: 0.8em;
+    color: var(--color-accent-pink);
+
+    .label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .content {
+        color: #fff;
+        opacity: 0.9;
+    }
+}

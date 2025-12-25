@@ -9,6 +9,7 @@ import { state, applyPatch } from "../../core/state.js";
 import { calculateDynamics } from "./main.js";
 import { ContextBuilder } from "../prompter.js";
 import { entities } from "../../data/repo.js";
+import { ENTITY_TYPES } from "../../core/constants.js";
 
 // --- STATE HYDRATION ---
 
@@ -108,11 +109,11 @@ async function handleStartUpdate({ storyId, targetType, linkedMessageId }) {
     }
 
     let entity = null;
-    if (targetType === "ai_character")
+    if (targetType === ENTITY_TYPES.AI_CHARACTER)
       entity = await entities.get("character", story.aiId);
-    else if (targetType === "user_character")
+    else if (targetType === ENTITY_TYPES.USER_CHARACTER)
       entity = await entities.get("character", story.userId);
-    else if (targetType === "fractal")
+    else if (targetType === ENTITY_TYPES.FRACTAL)
       entity = await entities.get("fractal", story.fractalId);
 
     if (!entity) {
@@ -255,11 +256,18 @@ async function handleLlmResponse({ text }) {
     const freshEntity = await entities.get(ctx.entityType, ctx.targetEntityId);
 
     if (freshEntity) {
+      // [NEXUS FIX] Map 'status' to entity.present.nonPhysical
+      let presentState = updates.present || freshEntity.present || {};
+      if (updates.status) {
+        const base = (typeof presentState === 'object' && presentState !== null) ? presentState : {};
+        presentState = { ...base, nonPhysical: updates.status };
+      }
+
       const updatedEntity = {
         ...freshEntity,
         forever: updates.forever || freshEntity.forever,
         past: updates.past || freshEntity.past,
-        present: updates.present || freshEntity.present,
+        present: presentState,
         future: updates.future || freshEntity.future,
         dynamics: finalDynamics,
         updatedAt: Date.now(),

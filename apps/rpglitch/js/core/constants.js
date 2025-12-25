@@ -8,6 +8,13 @@ export const MAX_TAGS_LENGTH = 5;
 
 export const IMG_RESOLUTION = "512x768";
 
+// --- ENTITY TYPES ---
+export const ENTITY_TYPES = {
+  AI_CHARACTER: "ai_character",
+  USER_CHARACTER: "user_character",
+  FRACTAL: "fractal",
+};
+
 // --- PALETTE: SIGNATURES (V5 Vibrant Mix) ---
 // Must match _variables.scss
 export const PALETTE = {
