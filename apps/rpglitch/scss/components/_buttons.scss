@@ -1,3 +1,4 @@
+@use "../abstracts/variables" as vars;
 @use "../abstracts" as *;
 
 /* ============================================================================
@@ -5,8 +6,38 @@
    Single Source of Truth for all interactive triggers.
    ============================================================================ */
 
-// --- MIXINS ---
-@mixin btn-base {
+// --- MIXINS --- //
+
+@mixin btn-physics {
+  // Hover State
+  &:hover:not(:disabled, .disabled) {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+  }
+
+  // Active State
+  &:active:not(:disabled, .disabled) {
+    transform: scale(var(--scale-active, 0.98));
+  }
+}
+
+@mixin btn-disabled {
+  &:disabled,
+  &.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    pointer-events: auto;
+    transform: none !important;
+    transition: none !important;
+    box-shadow: none;
+  }
+}
+
+// --- PLACEHOLDERS --- //
+
+// Base Atom
+%btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -31,44 +62,7 @@
     transform var(--transition-speed, 0.2s) ease-out,
     box-shadow var(--transition-speed, 0.2s) ease-out,
     filter var(--transition-speed, 0.2s) ease-out;
-}
 
-@mixin btn-physics-hover {
-  &:hover:not(:disabled, .disabled) {
-    transform: translateY(-1px);
-    filter: brightness(1.1);
-  }
-}
-
-@mixin btn-physics-active {
-  &:active:not(:disabled, .disabled) {
-    transform: scale(var(--scale-active, 0.98));
-  }
-}
-
-@mixin btn-physics {
-  // The Physics of Touch
-  @include btn-physics-hover;
-  @include btn-physics-active;
-}
-
-@mixin btn-disabled {
-  &:disabled,
-  &.disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    filter: grayscale(1);
-    pointer-events: auto; // Allow cursor to show
-    transform: none !important;
-    transition: none !important;
-    box-shadow: none;
-  }
-}
-
-// --- 1. THE BASE ATOM ---
-// Define placeholder first to allow extensions
-%ui-btn {
-  @include btn-base;
   @include btn-physics;
   @include btn-disabled;
 
@@ -79,7 +73,7 @@
       cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  // Unified Focus State
+  // Focus State
   &:focus-visible {
     outline: none;
     box-shadow:
@@ -89,13 +83,9 @@
   }
 }
 
-.ui-btn {
-  @extend %ui-btn;
-}
-
-// Standard Variant Placeholders
-%ui-btn-primary {
-  @extend %ui-btn;
+// Variants
+%btn-primary {
+  @extend %btn;
 
   background: var(--pico-primary);
   color: var(--pico-primary-inverse);
@@ -107,8 +97,8 @@
   }
 }
 
-%ui-btn-ghost {
-  @extend %ui-btn;
+%btn-ghost {
+  @extend %btn;
 
   color: var(--pico-muted-color);
   border-color: transparent;
@@ -119,8 +109,8 @@
   }
 }
 
-%ui-btn-outline {
-  @extend %ui-btn;
+%btn-outline {
+  @extend %btn;
 
   border-color: var(--pico-muted-border-color);
   color: var(--pico-muted-color);
@@ -132,8 +122,8 @@
   }
 }
 
-%ui-btn-secondary {
-  @extend %ui-btn;
+%btn-secondary {
+  @extend %btn;
 
   background: var(--pico-secondary-background, #5d6b89);
   color: var(--pico-secondary-inverse, #fff);
@@ -145,8 +135,8 @@
   }
 }
 
-%ui-btn-glass {
-  @extend %ui-btn;
+%btn-glass {
+  @extend %btn;
 
   background: rgb(0 0 0 / 40%);
   backdrop-filter: blur(8px);
@@ -160,37 +150,18 @@
   }
 }
 
-// --- 2. STANDARD VARIANTS (EXPOSED CLASSES) ---
+// --- EXPOSED CLASSES --- //
 
-.ui-btn--primary {
-  @extend %ui-btn-primary;
+.btn {
+  @extend %btn;
 }
-
-.ui-btn--ghost {
-  @extend %ui-btn-ghost;
-}
-
-.ui-btn--outline {
-  @extend %ui-btn-outline;
-}
-
-.ui-btn--secondary {
-  @extend %ui-btn-secondary;
-}
-
-.btn-glass {
-  @extend %ui-btn-glass;
-}
-
-// --- 3. HARMONIZATION / MAPPING (LEGACY SUPPORT) ---
-// Mapping existing classes to new structure for backward compatibility
 
 .btn-primary {
-  @extend %ui-btn-primary;
+  @extend %btn-primary;
 }
 
 .btn-ghost {
-  @extend %ui-btn-ghost;
+  @extend %btn-ghost;
 
   &.danger:hover:not(:disabled, .disabled) {
     color: var(--pico-del-color);
@@ -199,29 +170,21 @@
 }
 
 .btn-outline {
-  @extend %ui-btn-outline;
+  @extend %btn-outline;
 }
 
-.secondary {
-  @extend %ui-btn-secondary;
-}
-
+.btn-secondary,
+.secondary,
 .contrast {
-  @extend %ui-btn-secondary; // Mapping contrast to secondary for now
+  @extend %btn-secondary;
 }
 
-// Legacy Bridge (Deprecated but kept for safety)
-%btn-base {
-  @extend %ui-btn;
+.btn-glass {
+  @extend %btn-glass;
 }
 
-%btn-ghost {
-  @extend %ui-btn-ghost;
-}
+// --- UTILITY SHAPES --- //
 
-// --- 4. UTILITY SHAPES ---
-
-// .btn-round: Perfect Circle
 .btn-round {
   padding: 0;
   width: 2.5rem;
@@ -229,15 +192,13 @@
   border-radius: 50%;
 }
 
-// .btn-joined: For Button Groups
 %btn-group-joined {
   display: inline-flex;
 
   .btn,
   button,
   .btn-ghost,
-  .btn-primary,
-  .ui-btn {
+  .btn-primary {
     border-radius: 0;
     margin: 0;
 
@@ -259,22 +220,21 @@
   @extend %btn-group-joined;
 }
 
-// --- 5. ANIMATIONS ---
 .btn-icon-raise:hover svg.icon {
   transform: translateY(-2px) scale(1.1);
 }
 
-// --- 6. SPECIAL COMPONENT: THE PILL ---
+// --- COMPONENT: BUTTON GROUPS --- //
+
 %btn-group-pill {
   @extend %btn-group-joined;
-  @extend %glass-pill; // Assumed to exist in codebase/abstracts
+  @extend %glass-pill;
 
   overflow: hidden;
   width: fit-content;
 
   .btn,
-  button,
-  .ui-btn {
+  button {
     flex: 0 0 auto;
     border: none;
 
@@ -296,8 +256,6 @@
   @extend %btn-group-pill;
 }
 
-// --- 7. SPECIAL COMPONENT: SPLIT ACTIONS (DIALOGS/CARDS) ---
-// Flush footer with even split, used in Modal Alerts and Lightbox
 %btn-group-split {
   display: flex;
   width: 100%;
@@ -305,30 +263,21 @@
   margin: 0;
   gap: 0;
 
-  // Border-top moved to specific components (modal/lightbox) for flexibility
-
-  // Simplified selector list relying on base classes.
-  // Ensure all buttons in a split group have .btn, .ui-btn or are <button> tags.
   > .btn,
   > button,
-  > .ui-btn,
   > .btn-ghost {
-    @extend %ui-btn;
+    @extend %btn;
 
-    flex: 1 1 0; // Equal width
+    flex: 1 1 0;
     margin: 0;
     border-radius: 0;
-    height: 3.5rem; // Standard touch target for footers
+    height: 3.5rem;
     border: none;
 
-    // Removed background: transparent to allow variants (like primary) to show color
-
-    // Divider
     &:not(:last-child) {
-      border-right: 1px solid $ui-glass-border;
+      border-right: 1px solid vars.$ui-glass-border;
     }
 
-    // Flush Corners (External container must handle its own radius, but this helps)
     &:first-child {
       border-bottom-left-radius: var(--space-sm-md);
     }
@@ -337,8 +286,6 @@
       border-bottom-right-radius: var(--space-sm-md);
     }
 
-    // Provide a consistent hover background for non-solid button variants.
-    // NOTE: If adding new solid buttons, exclude them here to preserve their background.
     &:hover:not(
         :disabled,
         .disabled,
@@ -346,7 +293,7 @@
         .btn-secondary,
         .btn-glass
       ) {
-      background: $ui-glass-hover;
+      background: vars.$ui-glass-hover;
     }
   }
 }

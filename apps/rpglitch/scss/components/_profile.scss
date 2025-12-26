@@ -196,9 +196,7 @@
 
       // Magic Button
       .btn-magic-prompt {
-        @include btn-base;
-        @include btn-physics;
-        @include btn-disabled;
+        @extend %btn;
         @extend %glass-pill; // Pill Shape
 
         padding: 0 0.75rem;
@@ -214,9 +212,7 @@
 
       // Main Action
       .profile-main-action {
-        @include btn-base;
-        @include btn-physics;
-        @include btn-disabled;
+        @extend %btn;
         @extend %glass-pill; // Pill Shape
 
         padding: 0 0.75rem;
@@ -241,9 +237,7 @@
 
       // Toggle
       .btn-subtle-toggle {
-        @include btn-base;
-        @include btn-physics;
-        @include btn-disabled;
+        @extend %btn;
 
         border: 1px solid var(--pico-muted-border-color);
         color: var(--pico-muted-color);
@@ -596,7 +590,7 @@ input[type="number"][data-edit-dynamic] {
   // Buttons handled by utility classes
   button,
   [role="button"],
-  .ui-btn {
+  .btn {
     flex: 1; // 50/50 Split
     margin: 0;
     border-radius: 0;

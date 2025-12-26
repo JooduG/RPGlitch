@@ -206,9 +206,7 @@ hr.settings-divider {
 
 // Action Buttons in Settings
 .btn-action-row {
-  @include btn-base;
-  @include btn-physics;
-  @include btn-disabled;
+  @extend %btn;
 
   width: 100%;
   justify-content: center; // Center content if flex

@@ -107,9 +107,7 @@
   }
 
   button[type="submit"] {
-    @include btn-base;
-    @include btn-physics;
-    @include btn-disabled;
+    @extend %btn;
 
     margin-bottom: 0;
     flex: 0 0 auto !important;
@@ -126,9 +124,7 @@
 }
 
 #btn-settings-placeholder {
-  @include btn-base;
-  @include btn-disabled;
-  @include btn-physics-active;
+  @extend %btn;
 
   background: transparent;
   border: none;
